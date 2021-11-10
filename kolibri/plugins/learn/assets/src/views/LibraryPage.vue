@@ -50,6 +50,13 @@
           :currentPage="currentPage"
           @toggleInfoPanel="toggleInfoPanel"
         />
+        <KButton
+          v-if="moreResumableContentNodes"
+          appearance="basic-link"
+          @click="fetchMoreResumableContentNodes"
+        >
+          {{ coreString('viewMoreAction') }}
+        </KButton>
       </div>
 
       <!-- Display of search results, after the search is finished loading -->
@@ -255,7 +262,11 @@
         clearSearch,
         setCategory,
       } = useSearch();
-      const { resumableContentNodes } = useLearnerResources();
+      const {
+        resumableContentNodes,
+        moreResumableContentNodes,
+        fetchMoreResumableContentNodes,
+      } = useLearnerResources();
       return {
         searchTerms,
         displayingSearchResults,
@@ -270,6 +281,8 @@
         clearSearch,
         setCategory,
         resumableContentNodes,
+        moreResumableContentNodes,
+        fetchMoreResumableContentNodes,
       };
     },
     data: function() {

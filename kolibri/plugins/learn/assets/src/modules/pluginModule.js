@@ -14,7 +14,6 @@ export default {
   state() {
     return {
       pageName: '',
-      memberships: [],
       rootNodes: [],
       canAccessUnassignedContentSetting: plugin_data.allowLearnerUnassignedResourceAccess,
       allowGuestAccess: plugin_data.allowGuestAccess,

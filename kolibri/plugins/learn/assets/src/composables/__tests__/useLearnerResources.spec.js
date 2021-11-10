@@ -1,8 +1,9 @@
 import cloneDeep from 'lodash/cloneDeep';
 
-import { ContentNodeResource, ContentNodeProgressResource } from 'kolibri.resources';
+import { ContentNodeResource } from 'kolibri.resources';
 import { PageNames, ClassesPageNames } from '../../constants';
 import { LearnerClassroomResource } from '../../apiResources';
+import { normalizeContentNode } from '../../modules/coreLearn/utils';
 import useLearnerResources from '../useLearnerResources';
 
 const {
@@ -11,12 +12,12 @@ const {
   activeClassesQuizzes,
   resumableClassesQuizzes,
   resumableClassesResources,
-  resumableNonClassesContentNodes,
+  resumableContentNodes,
+  moreResumableContentNodes,
   learnerFinishedAllClasses,
   getClass,
   getClassActiveLessons,
   getClassActiveQuizzes,
-  getResumableContentNode,
   getClassLessonLink,
   getClassQuizLink,
   getClassResourceLink,
@@ -27,6 +28,7 @@ const {
 
 jest.mock('kolibri.resources');
 jest.mock('../../apiResources');
+jest.mock('../useContentNodeProgress');
 
 const TEST_RESUMABLE_CONTENT_NODES = [
   // the following resources are used in classess
@@ -38,37 +40,6 @@ const TEST_RESUMABLE_CONTENT_NODES = [
   // the following resources are not used in classses
   { id: 'resource-9-in-progress', title: 'Resource 9 (In Progress)' },
   { id: 'resource-10-in-progress', title: 'Resource 10 (In Progress)' },
-];
-
-const TEST_CONTENT_NODES_PROGRESSES = [
-  {
-    id: 'resource-1-in-progress',
-    progress_fraction: 0.2,
-  },
-  {
-    id: 'resource-3-in-progress',
-    progress_fraction: 0.74,
-  },
-  {
-    id: 'resource-5-in-progress',
-    progress_fraction: 0.04,
-  },
-  {
-    id: 'resource-6-in-progress',
-    progress_fraction: 0.1,
-  },
-  {
-    id: 'resource-8-in-progress',
-    progress_fraction: 0.9,
-  },
-  {
-    id: 'resource-9-in-progress',
-    progress_fraction: 0.87,
-  },
-  {
-    id: 'resource-10-in-progress',
-    progress_fraction: 0.02,
-  },
 ];
 
 const TEST_CLASSES = [
@@ -115,9 +86,17 @@ const TEST_CLASSES = [
           is_active: true,
           collection: 'class-1',
           resources: [
-            { contentnode_id: 'resource-1-in-progress' },
-            { contentnode_id: 'resource-2' },
-            { contentnode_id: 'resource-3-in-progress' },
+            {
+              contentnode_id: 'resource-1-in-progress',
+              progress: 0.2,
+              contentnode: { id: 'resource-1' },
+            },
+            { contentnode_id: 'resource-2', progress: 0, contentnode: { id: 'resource-2' } },
+            {
+              contentnode_id: 'resource-3-in-progress',
+              progress: 0.74,
+              contentnode: { id: 'resource-3' },
+            },
           ],
           progress: {
             resource_progress: 0,
@@ -130,24 +109,21 @@ const TEST_CLASSES = [
           is_active: true,
           collection: 'class-1',
           resources: [
-            { contentnode_id: 'resource-1-in-progress' },
-            { contentnode_id: 'resource-4' },
-            { contentnode_id: 'resource-5-in-progress' },
+            {
+              contentnode_id: 'resource-1-in-progress',
+              progress: 0.2,
+              contentnode: { id: 'resource-1' },
+            },
+            { contentnode_id: 'resource-4', progress: 0, contentnode: { id: 'resource-4' } },
+            {
+              contentnode_id: 'resource-5-in-progress',
+              progress: 0.04,
+              contentnode: { id: 'resource-5' },
+            },
           ],
           progress: {
             resource_progress: 1,
             total_resources: 3,
-          },
-        },
-        {
-          id: 'class-1-inactive-lesson',
-          title: 'Class 1 - Inactive Lesson',
-          is_active: false,
-          collection: 'class-1',
-          resources: [{ contentnode_id: 'resource-5-in-progress' }],
-          progress: {
-            resource_progress: 0,
-            total_resources: 1,
           },
         },
       ],
@@ -186,27 +162,21 @@ const TEST_CLASSES = [
           is_active: true,
           collection: 'class-2',
           resources: [
-            { contentnode_id: 'resource-6-in-progress' },
-            { contentnode_id: 'resource-2' },
-            { contentnode_id: 'resource-1-in-progress' },
+            {
+              contentnode_id: 'resource-6-in-progress',
+              progress: 0.1,
+              contentnode: { id: 'resource-6' },
+            },
+            { contentnode_id: 'resource-2', progress: 0, contentnode: { id: 'resource-2' } },
+            {
+              contentnode_id: 'resource-1-in-progress',
+              progress: 0.2,
+              contentnode: { id: 'resource-1' },
+            },
           ],
           progress: {
             resource_progress: 1,
             total_resources: 3,
-          },
-        },
-        {
-          id: 'class-2-inactive-lesson',
-          title: 'Class 2 - Inactive Lesson',
-          is_active: false,
-          collection: 'class-2',
-          resources: [
-            { contentnode_id: 'resource-7' },
-            { contentnode_id: 'resource-8-in-progress' },
-          ],
-          progress: {
-            resource_progress: 0,
-            total_resources: 2,
           },
         },
       ],
@@ -230,30 +200,10 @@ function finishClasses(classes) {
   });
 }
 
-// A helper that takes an object with test classes
-// and returns its copy with all lessons and quizzes
-// changed to inactive
-function inactivateClasses(classes) {
-  const inactiveClasses = cloneDeep(classes);
-  return inactiveClasses.map(c => {
-    c.assignments.exams.forEach(quiz => {
-      quiz.active = false;
-    });
-    c.assignments.lessons.forEach(lesson => {
-      lesson.is_active = false;
-    });
-    return c;
-  });
-}
-
 describe(`useLearnerResources`, () => {
   beforeEach(() => {
-    ContentNodeResource.fetchResume.mockResolvedValue(TEST_RESUMABLE_CONTENT_NODES);
-    ContentNodeProgressResource.fetchCollection.mockResolvedValue(TEST_CONTENT_NODES_PROGRESSES);
-    fetchResumableContentNodes();
-
     LearnerClassroomResource.fetchCollection.mockResolvedValue(TEST_CLASSES);
-    fetchClasses();
+    return fetchClasses();
   });
 
   describe(`classes`, () => {
@@ -271,9 +221,17 @@ describe(`useLearnerResources`, () => {
           is_active: true,
           collection: 'class-1',
           resources: [
-            { contentnode_id: 'resource-1-in-progress' },
-            { contentnode_id: 'resource-2' },
-            { contentnode_id: 'resource-3-in-progress' },
+            {
+              contentnode_id: 'resource-1-in-progress',
+              progress: 0.2,
+              contentnode: { id: 'resource-1' },
+            },
+            { contentnode_id: 'resource-2', progress: 0, contentnode: { id: 'resource-2' } },
+            {
+              contentnode_id: 'resource-3-in-progress',
+              progress: 0.74,
+              contentnode: { id: 'resource-3' },
+            },
           ],
           progress: {
             resource_progress: 0,
@@ -286,9 +244,17 @@ describe(`useLearnerResources`, () => {
           is_active: true,
           collection: 'class-1',
           resources: [
-            { contentnode_id: 'resource-1-in-progress' },
-            { contentnode_id: 'resource-4' },
-            { contentnode_id: 'resource-5-in-progress' },
+            {
+              contentnode_id: 'resource-1-in-progress',
+              progress: 0.2,
+              contentnode: { id: 'resource-1' },
+            },
+            { contentnode_id: 'resource-4', progress: 0, contentnode: { id: 'resource-4' } },
+            {
+              contentnode_id: 'resource-5-in-progress',
+              progress: 0.04,
+              contentnode: { id: 'resource-5' },
+            },
           ],
           progress: {
             resource_progress: 1,
@@ -301,9 +267,17 @@ describe(`useLearnerResources`, () => {
           is_active: true,
           collection: 'class-2',
           resources: [
-            { contentnode_id: 'resource-6-in-progress' },
-            { contentnode_id: 'resource-2' },
-            { contentnode_id: 'resource-1-in-progress' },
+            {
+              contentnode_id: 'resource-6-in-progress',
+              progress: 0.1,
+              contentnode: { id: 'resource-6' },
+            },
+            { contentnode_id: 'resource-2', progress: 0, contentnode: { id: 'resource-2' } },
+            {
+              contentnode_id: 'resource-1-in-progress',
+              progress: 0.2,
+              contentnode: { id: 'resource-1' },
+            },
           ],
           progress: {
             resource_progress: 1,
@@ -389,49 +363,63 @@ describe(`useLearnerResources`, () => {
   });
 
   describe(`resumableClassesResources`, () => {
-    it(`returns an array of { contentNodeId, lessonId, classId} objects for all resources
+    it(`returns an array of { contentNodeId, lessonId, classId, contentNode } objects for all resources
       in progress from all learner's active lessons from all their classes`, () => {
       expect(resumableClassesResources.value).toEqual([
         {
+          classId: 'class-1',
+          contentNode: {
+            id: 'resource-1',
+          },
           contentNodeId: 'resource-1-in-progress',
           lessonId: 'class-1-active-lesson-1',
-          classId: 'class-1',
+          progress: 0.2,
         },
         {
+          classId: 'class-1',
+          contentNode: {
+            id: 'resource-3',
+          },
           contentNodeId: 'resource-3-in-progress',
           lessonId: 'class-1-active-lesson-1',
-          classId: 'class-1',
+          progress: 0.74,
         },
         {
+          classId: 'class-1',
+          contentNode: {
+            id: 'resource-1',
+          },
           contentNodeId: 'resource-1-in-progress',
           lessonId: 'class-1-active-lesson-2',
-          classId: 'class-1',
+          progress: 0.2,
         },
         {
+          classId: 'class-1',
+          contentNode: {
+            id: 'resource-5',
+          },
           contentNodeId: 'resource-5-in-progress',
           lessonId: 'class-1-active-lesson-2',
-          classId: 'class-1',
+          progress: 0.04,
         },
         {
+          classId: 'class-2',
+          contentNode: {
+            id: 'resource-6',
+          },
           contentNodeId: 'resource-6-in-progress',
           lessonId: 'class-2-active-lesson-1',
-          classId: 'class-2',
+          progress: 0.1,
         },
         {
+          classId: 'class-2',
+          contentNode: {
+            id: 'resource-1',
+          },
           contentNodeId: 'resource-1-in-progress',
           lessonId: 'class-2-active-lesson-1',
-          classId: 'class-2',
+          progress: 0.2,
         },
-      ]);
-    });
-  });
-
-  describe(`resumableNonClassesContentNodes`, () => {
-    it(`returns an array of IDs of all content nodes that are
-      in progress and don't belong to any of learner's classes`, () => {
-      expect(resumableNonClassesContentNodes.value).toMatchObject([
-        { id: 'resource-9-in-progress', title: 'Resource 9 (In Progress)' },
-        { id: 'resource-10-in-progress', title: 'Resource 10 (In Progress)' },
       ]);
     });
   });
@@ -439,28 +427,21 @@ describe(`useLearnerResources`, () => {
   describe(`learnerFinishedAllClasses`, () => {
     it(`returns 'true' if a learner has no classes`, () => {
       LearnerClassroomResource.fetchCollection.mockResolvedValue([]);
-      fetchClasses().then(() => {
-        expect(learnerFinishedAllClasses.value).toBe(true);
-      });
-    });
-
-    it(`returns 'true' if a learner has no active lessons and quizzes`, () => {
-      LearnerClassroomResource.fetchCollection.mockResolvedValue(inactivateClasses(TEST_CLASSES));
-      fetchClasses().then(() => {
+      return fetchClasses().then(() => {
         expect(learnerFinishedAllClasses.value).toBe(true);
       });
     });
 
     it(`returns 'false' if a learner hasn't finished all lessons and quizzes yet`, () => {
       LearnerClassroomResource.fetchCollection.mockResolvedValue(TEST_CLASSES);
-      fetchClasses().then(() => {
+      return fetchClasses().then(() => {
         expect(learnerFinishedAllClasses.value).toBe(false);
       });
     });
 
     it(`returns 'true' if a learner finished all lessons and quizzes`, () => {
       LearnerClassroomResource.fetchCollection.mockResolvedValue(finishClasses(TEST_CLASSES));
-      fetchClasses().then(() => {
+      return fetchClasses().then(() => {
         expect(learnerFinishedAllClasses.value).toBe(true);
       });
     });
@@ -481,9 +462,17 @@ describe(`useLearnerResources`, () => {
           is_active: true,
           collection: 'class-1',
           resources: [
-            { contentnode_id: 'resource-1-in-progress' },
-            { contentnode_id: 'resource-2' },
-            { contentnode_id: 'resource-3-in-progress' },
+            {
+              contentnode_id: 'resource-1-in-progress',
+              progress: 0.2,
+              contentnode: { id: 'resource-1' },
+            },
+            { contentnode_id: 'resource-2', progress: 0, contentnode: { id: 'resource-2' } },
+            {
+              contentnode_id: 'resource-3-in-progress',
+              progress: 0.74,
+              contentnode: { id: 'resource-3' },
+            },
           ],
           progress: {
             resource_progress: 0,
@@ -496,9 +485,17 @@ describe(`useLearnerResources`, () => {
           is_active: true,
           collection: 'class-1',
           resources: [
-            { contentnode_id: 'resource-1-in-progress' },
-            { contentnode_id: 'resource-4' },
-            { contentnode_id: 'resource-5-in-progress' },
+            {
+              contentnode_id: 'resource-1-in-progress',
+              progress: 0.2,
+              contentnode: { id: 'resource-1' },
+            },
+            { contentnode_id: 'resource-4', progress: 0, contentnode: { id: 'resource-4' } },
+            {
+              contentnode_id: 'resource-5-in-progress',
+              progress: 0.04,
+              contentnode: { id: 'resource-5' },
+            },
           ],
           progress: {
             resource_progress: 1,
@@ -533,15 +530,6 @@ describe(`useLearnerResources`, () => {
           },
         },
       ]);
-    });
-  });
-
-  describe(`getResumableContentNode`, () => {
-    it(`returns a resumable content node object by its ID`, () => {
-      expect(getResumableContentNode('resource-6-in-progress')).toMatchObject({
-        id: 'resource-6-in-progress',
-        title: 'Resource 6 (In Progress)',
-      });
     });
   });
 
@@ -634,6 +622,20 @@ describe(`useLearnerResources`, () => {
           id: 'resource-9-in-progress',
         },
       });
+    });
+  });
+
+  describe('fetchResumableContentNodes', () => {
+    it('should set resumable content nodes and the more value', async () => {
+      const more = { test: 1 };
+      ContentNodeResource.fetchResume = jest
+        .fn()
+        .mockResolvedValue({ results: TEST_RESUMABLE_CONTENT_NODES, more });
+      await fetchResumableContentNodes();
+      expect(resumableContentNodes.value).toEqual(
+        TEST_RESUMABLE_CONTENT_NODES.map(normalizeContentNode)
+      );
+      expect(moreResumableContentNodes.value).toEqual(more);
     });
   });
 });

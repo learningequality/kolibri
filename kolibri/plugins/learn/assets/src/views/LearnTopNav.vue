@@ -53,11 +53,12 @@
 
 <script>
 
-  import { mapGetters, mapState } from 'vuex';
+  import { mapGetters } from 'vuex';
   import Navbar from 'kolibri.coreVue.components.Navbar';
   import NavbarLink from 'kolibri.coreVue.components.NavbarLink';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ClassesPageNames, PageNames } from '../constants';
+  import useCoreLearn from '../composables/useCoreLearn';
   import commonLearnStrings from './commonLearnStrings';
 
   export default {
@@ -67,6 +68,12 @@
       NavbarLink,
     },
     mixins: [commonCoreStrings, commonLearnStrings],
+    setup() {
+      const { inClasses } = useCoreLearn();
+      return {
+        inClasses,
+      };
+    },
     data() {
       return {
         homePageLink: {
@@ -85,11 +92,8 @@
     },
     computed: {
       ...mapGetters(['isUserLoggedIn', 'canAccessUnassignedContent']),
-      ...mapState({
-        userHasMemberships: state => state.memberships.length > 0,
-      }),
       showClassesLink() {
-        return this.isUserLoggedIn && (this.userHasMemberships || !this.canAccessUnassignedContent);
+        return this.isUserLoggedIn && (this.inClasses || !this.canAccessUnassignedContent);
       },
     },
   };

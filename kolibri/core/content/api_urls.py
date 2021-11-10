@@ -11,11 +11,13 @@ from .api import ContentNodeTreeViewset
 from .api import ContentNodeViewset
 from .api import FileViewset
 from .api import RemoteChannelViewSet
+from .api import UserContentNodeViewset
 
 router = routers.SimpleRouter()
 router.register("channel", ChannelMetadataViewSet, base_name="channel")
 
 router.register(r"contentnode", ContentNodeViewset, base_name="contentnode")
+router.register(r"usercontentnode", UserContentNodeViewset, base_name="usercontentnode")
 router.register(
     r"contentnode_tree", ContentNodeTreeViewset, base_name="contentnode_tree"
 )

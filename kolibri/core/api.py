@@ -2,6 +2,7 @@ import uuid
 
 import requests
 from django.http import Http404
+from django.http.request import QueryDict
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter
@@ -9,6 +10,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.mixins import CreateModelMixin as BaseCreateModelMixin
 from rest_framework.mixins import DestroyModelMixin
 from rest_framework.mixins import UpdateModelMixin as BaseUpdateModelMixin
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import Serializer
@@ -267,6 +269,53 @@ class BaseValuesViewset(viewsets.GenericViewSet):
             )
 
 
+class QueryParamRequest(Request):
+    def __init__(self, query_params, *args, **kwargs):
+        super(QueryParamRequest, self).__init__(*args, **kwargs)
+        self._query_params = QueryDict(mutable=True)
+        for key, value in query_params.items():
+            self._query_params[key] = (
+                ",".join(value) if isinstance(value, (list, set)) else value
+            )
+        self._query_params._mutable = False
+
+    @property
+    def query_params(self):
+        return self._query_params
+
+
+def _generate_request(request, query_params, method="GET"):
+    ret = QueryParamRequest(
+        query_params,
+        request=request._request,
+        parsers=request.parsers,
+        authenticators=request.authenticators,
+        negotiator=request.negotiator,
+        parser_context=request.parser_context,
+    )
+    ret._data = request._data
+    ret._files = request._files
+    ret._full_data = request._full_data
+    ret._content_type = request._content_type
+    ret._stream = request._stream
+    ret.method = method
+    if hasattr(request, "_user"):
+        ret._user = request._user
+    if hasattr(request, "_auth"):
+        ret._auth = request._auth
+    if hasattr(request, "_authenticator"):
+        ret._authenticator = request._authenticator
+    if hasattr(request, "accepted_renderer"):
+        ret.accepted_renderer = request.accepted_renderer
+    if hasattr(request, "accepted_media_type"):
+        ret.accepted_media_type = request.accepted_media_type
+    if hasattr(request, "version"):
+        ret.version = request.version
+    if hasattr(request, "versioning_scheme"):
+        ret.versioning_scheme = request.versioning_scheme
+    return ret
+
+
 class ListModelMixin(object):
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -280,6 +329,16 @@ class ListModelMixin(object):
             return self.get_paginated_response(self.serialize(queryset))
 
         return Response(self.serialize(queryset))
+
+    def serialize_list(self, request, query_params=None, *args, **kwargs):
+        """
+        A method to allow serialization of objects for use outside of a regular
+        request/response cycle - useful for obtaining identical serialized responses
+        in a composite view that returns data from multiple viewsets at once.
+        """
+        self.request = _generate_request(request, query_params or {})
+        response = self.list(self.request)
+        return response.data
 
 
 class RetrieveModelMixin(object):

@@ -42,7 +42,6 @@
     </div>
 
     <div v-else>
-      <Breadcrumbs v-if="(pageName === 'HOME' || pageName === 'ALL_CLASSES')" />
       <component :is="currentPage" v-if="currentPage" />
       <router-view />
     </div>
