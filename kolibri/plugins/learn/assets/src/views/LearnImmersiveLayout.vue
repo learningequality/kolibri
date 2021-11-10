@@ -69,15 +69,15 @@
     </FullScreenSidePanel>
 
     <!-- Side Panel for "view resources" or "lesson resources" -->
-    <FullScreenSidePanel 
+    <FullScreenSidePanel
       v-if="showViewResourcesSidePanel"
       class="also-in-this-side-panel"
       @closePanel="showViewResourcesSidePanel = false"
     >
-      <AlsoInThis 
-        :contentNodes="viewResourcesContents" 
+      <AlsoInThis
+        :contentNodes="viewResourcesContents"
         :nextContent="nextContent"
-        :title="viewResourcesTitle" 
+        :title="viewResourcesTitle"
       />
     </FullScreenSidePanel>
 
@@ -102,7 +102,6 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import client from 'kolibri.client';
   import urls from 'kolibri.urls';
-  import { _collectionState } from '../modules/coreLearn/utils.js';
   import GlobalSnackbar from '../../../../../../kolibri/core/assets/src/views/GlobalSnackbar';
   import SkipNavigationLink from '../../../../../../kolibri/core/assets/src/views/SkipNavigationLink';
   import AppError from '../../../../../../kolibri/core/assets/src/views/AppError';
