@@ -95,6 +95,19 @@ def provision_device(device_name=None, **kwargs):
     device_settings.save()
 
 
+def provision_single_user_device(user):
+    from .models import DevicePermissions
+
+    # if device has not been provisioned, set it up
+    if not device_provisioned():
+        provision_device(default_facility=user.facility)
+        set_device_settings(subset_of_users_device=True)
+
+    DevicePermissions.objects.get_or_create(
+        user=user, defaults={"is_superuser": False, "can_manage_content": True}
+    )
+
+
 def valid_app_key(app_key):
     from .models import DeviceAppKey
 
