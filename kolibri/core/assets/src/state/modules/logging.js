@@ -22,6 +22,7 @@ const replaceBlocklist = {
   correct: true,
   answer: true,
   simple_answer: true,
+  replace: true,
 };
 
 export default {
@@ -83,7 +84,8 @@ export default {
       }
     },
     UPDATE_ATTEMPT(state, interaction) {
-      const blocklist = interaction.replace ? {} : replaceBlocklist;
+      // We never store replace into the store.
+      const blocklist = interaction.replace ? { replace: true } : replaceBlocklist;
       if (interaction.id) {
         if (!state.pastattemptMap[interaction.id]) {
           const nowSavedInteraction = state.pastattempts.find(
