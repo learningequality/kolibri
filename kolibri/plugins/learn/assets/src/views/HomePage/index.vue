@@ -2,7 +2,7 @@
 
   <div>
     <YourClasses
-      v-if="isUserLoggedIn"
+      v-if="isUserLoggedIn && classes.length"
       class="section"
       :classes="classes"
       data-test="classes"
