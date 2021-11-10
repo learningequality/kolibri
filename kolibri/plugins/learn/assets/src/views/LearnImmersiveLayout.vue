@@ -336,13 +336,14 @@
         if (this.lessonId) {
           return;
         }
-        const store = this.$store;
 
         ContentNodeResource.fetchTree({
           id: this.content.parent,
           params: {
             include_coach_content:
-              store.getters.isAdmin || store.getters.isCoach || store.getters.isSuperuser,
+              this.$store.getters.isAdmin ||
+              this.$store.getters.isCoach ||
+              this.$store.getters.isSuperuser,
           },
         }).then(parent => {
           // Filter out this.content
