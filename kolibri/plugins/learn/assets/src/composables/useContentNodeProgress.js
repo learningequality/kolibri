@@ -43,7 +43,7 @@ export default function useContentNodeProgress() {
    * @returns {Promise}
    * @public
    */
-  function fetchContentNodeTreeProgress(id, params) {
+  function fetchContentNodeTreeProgress({ id, params }) {
     return ContentNodeProgressResource.fetchTree({
       params,
       id,
