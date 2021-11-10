@@ -3,7 +3,7 @@
   <div>
     <main
       class="main-grid"
-      :style="{ marginLeft: `${(sidePanelWidth + 24)}px` }"
+      :style="gridOffset"
     >
       <div v-if="!windowIsLarge">
         <!-- TO DO Marcella swap out new icon after KDS update -->
@@ -143,7 +143,6 @@
     <!-- FullScreen is a container component, and then the EmbeddedSidePanel sits within -->
     <FullScreenSidePanel
       v-if="!windowIsLarge && sidePanelIsOpen"
-      alignment="left"
       class="full-screen-side-panel"
       closeButtonHidden="true"
       :sidePanelOverrideWidth="`${sidePanelOverlayWidth + 64}px`"
@@ -331,6 +330,11 @@
       },
       activeCategories() {
         return this.searchTerms.categories;
+      },
+      gridOffset() {
+        return this.isRtl
+          ? { marginRight: `${this.sidePanelWidth + 24}px` }
+          : { marginLeft: `${this.sidePanelWidth + 24}px` };
       },
     },
     created() {
