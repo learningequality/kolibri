@@ -5,12 +5,13 @@
       <h2>{{ title }}</h2>
     </div>
 
-    <div class="content-list">
+    <div class="content-list" :class="nextContent ? '' : 'no-bottom-link'">
       <KRouterLink
         v-for="content in contentNodes"
         :key="content.id"
         :to="genContentLink(content.id, content.is_leaf)"
         class="item"
+        :class="windowIsSmall && 'small'"
         :style="linkStyles"
       >
         <LearningActivityIcon
@@ -19,7 +20,7 @@
           :kind="content.learning_activities"
         />
         <KIcon v-else class="topic-icon" icon="topic" />
-        <div class="content-meta" :style="{ top: (content.duration ? '0px' : '8px') }">
+        <div class="content-meta" :style="{ top: (content.duration ? '-8px' : '8px') }">
           <TextTruncator
             :text="content.title"
             :maxHeight="24"
@@ -27,8 +28,11 @@
           />
           <TimeDuration
             v-if="content.duration"
-            class="time-duration"
-            :style="{ color: $themeTokens.annotation }"
+            :style="{ 
+              color: $themeTokens.annotation, 
+              top: '16px',
+              position: 'relative' 
+            }"
             :seconds="content.duration"
           />
         </div>
@@ -48,7 +52,7 @@
       v-if="nextContent"
       :to="genContentLink(nextContent.id, nextContent.is_leaf)"
       class="next-content-link" 
-      :style="{ backgroundColor: $themeTokens.fineLine }"
+      :style="{ borderTop: '1px solid ' + $themeTokens.fineLine, ...linkStyles }"
     >
       <KIcon class="folder-icon" icon="topic" />
       <div class="next-label">
@@ -68,6 +72,7 @@
 
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
+  import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
   import genContentLink from '../utils/genContentLink';
   import LearningActivityIcon from './LearningActivityIcon.vue';
   import ProgressBar from './ProgressBar';
@@ -80,6 +85,7 @@
       TextTruncator,
       TimeDuration,
     },
+    mixins: [KResponsiveWindowMixin],
     props: {
       /**
        * contentNodes - The contentNode objects to be displayed. Each
@@ -89,26 +95,28 @@
         type: Array,
         required: true,
       },
-      /**
-       * Title text for the component.
-       */
+      /** Title text for the component. */
       title: {
         type: String,
         required: true,
       },
-      /** Content node with the following parameters: id, is_leaf, title */
+      /** Content node with the following properties: id, is_leaf, title */
       nextContent: {
-        type: Object,
+        type: Object, // or falsy
         required: false,
         default: () => {},
         validator(node) {
+          if (!node) {
+            return true;
+          } // falsy ok
+          console.log(node);
           const { id, is_leaf, title } = node;
           return id && is_leaf && title;
         },
       },
     },
     computed: {
-      /** Overrides some styles in KRouterLink */
+      /** Overrides some default styles in KRouterLink */
       linkStyles() {
         return {
           color: this.$themeTokens.text + '!important',
@@ -130,6 +138,8 @@
   $icon-size: 32px;
   $progress-width: 48px;
   $item-padding-x: 8px;
+  $top-bar-height: 40px;
+  $next-content-link-height: 100px;
 
   .wrapper {
     position: relative;
@@ -139,14 +149,30 @@
     height: calc(100% - 16px);
   }
 
+  .content-list {
+    height: calc(100% - #{$top-bar-height} - #{$next-content-link-height});
+    padding-right: 32px;
+
+    /** margin <> padding offset keeps content aligned the same way
+     *  whether the scrollbar is there or not and pushes the scrollbar
+     *  agains the side of the screen, while being as tall as the scroll */
+    margin-right: -32px;
+    overflow-y: scroll;
+
+    &.no-bottom-link {
+      height: calc(100% - #{$top-bar-height});
+    }
+  }
+
   /** Most of the styles for the footer piece */
   .next-content-link {
     position: absolute;
     right: -32px;
     bottom: 0;
     left: -32px;
-    height: 100px;
+    height: $next-content-link-height;
     padding: 12px 32px 8px;
+    background: white;
 
     .next-label {
       position: absolute;
@@ -183,7 +209,7 @@
     width: 100%;
     height: 56px;
     padding: 16px $item-padding-x;
-    margin-top: 8px;
+    margin-top: 24px;
   }
 
   .activity-icon,
@@ -220,7 +246,6 @@
       margin-top: 16px;
     }
   }
-
   .mastered-icon {
     top: 0;
     right: 16px;
@@ -233,17 +258,34 @@
     top: 0;
     right: 0;
     left: 0;
-    height: 40px;
-
-    /* line-height: 40px; */
+    height: $top-bar-height;
     background-color: #ffffff;
   }
 
-  /** Just ensures a newline precedes this. So it is always
-  positioned under the title at the start of the line */
-  .time-duration::before {
-    white-space: pre;
-    content: '\a';
+  /** Styles overriding the above when windowIsSmall **/
+  .small {
+    &.item {
+      // Differentiate between items a bit better
+      margin-bottom: 32px;
+    }
+    // Without the progress on the same line, don't incl it in calcs
+    .content-meta {
+      width: calc(100% - #{$icon-size} - #{$item-padding-x});
+    }
+    // The progress section neds to become block & have some of its
+    // spacing tweaked when it is on a small screen - under the text
+    .progress {
+      top: auto;
+      bottom: -8px;
+      left: 56px;
+      display: block;
+    }
+    .mastered-icon {
+      top: 8px;
+      right: auto;
+      bottom: 0;
+      left: 0;
+    }
   }
 
 </style>

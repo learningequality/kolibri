@@ -54,7 +54,10 @@
         :lessonId="lessonId"
       />
     </div>
+
     <GlobalSnackbar />
+
+    <!-- Side Panel for content metadata -->
     <FullScreenSidePanel
       v-if="sidePanelContent"
       @closePanel="sidePanelContent = null"
@@ -64,6 +67,8 @@
         :canDownloadContent="canDownload"
       />
     </FullScreenSidePanel>
+
+    <!-- Side Panel for "view resources" or "lesson resources" -->
     <FullScreenSidePanel 
       v-if="showViewResourcesSidePanel"
       class="also-in-this-side-panel"
@@ -85,6 +90,7 @@
 
   import { mapGetters, mapState } from 'vuex';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
 
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import FullScreenSidePanel from 'kolibri.coreVue.components.FullScreenSidePanel';
@@ -102,10 +108,14 @@
   import AppError from '../../../../../../kolibri/core/assets/src/views/AppError';
   import { ClassesPageNames } from '../constants';
   import useCoreLearn from '../composables/useCoreLearn';
+  import LessonResourceViewer from './classes/LessonResourceViewer';
   import CurrentlyViewedResourceMetadata from './CurrentlyViewedResourceMetadata';
   import ContentPage from './ContentPage';
   import LearningActivityBar from './LearningActivityBar';
   import AlsoInThis from './AlsoInThis';
+
+  const sidepanelStrings = crossComponentTranslator(FullScreenSidePanel);
+  const lessonStrings = crossComponentTranslator(LessonResourceViewer);
 
   export default {
     name: 'LearnImmersiveLayout',
@@ -170,7 +180,7 @@
         bookmark: null,
         sidePanelContent: null,
         showViewResourcesSidePanel: false,
-        nextFolder: {},
+        nextContent: null,
         viewResourcesContents: [],
       };
     },
@@ -229,7 +239,11 @@
         return null;
       },
       viewResourcesTitle() {
-        return this.lessonContext ? 'LESSON' : 'FOLDER';
+        /* eslint-disable kolibri/vue-no-undefined-string-uses */
+        return this.lessonContext
+          ? lessonStrings.$tr('nextInLesson')
+          : sidepanelStrings.$tr('topicHeader');
+        /* eslint-enable */
       },
     },
     watch: {
@@ -257,22 +271,21 @@
     },
     methods: {
       /**
-       * Returns a progress-laden list of content nodes that are in
-       * this.content's parent folder OR the same lesson, depending on the
-       * value of this.lessonContext.
-       * @returns { ContentNode[] } - An array of ContentNodes with their progresses
-       * annotated.
+       * Returns a list of content nodes which are children of this.content.parent without
+       * this.content. The returned nodes have their progress values for the current user
+       * (if there is one) mapped onto each node.
+       *
+       * Largely borrowed from modules/topicsTree/handlers.js
+       *
+       *  TODO: Determine if `this.parent` is different in Lesson context...
+       *
+       * @modifies this.viewResourcesContents - Sets it to the progress-mapped nodes
+       * @modifies this.nextFolder - Sets the value with this.content's parents next sibling folder
+       * if found
        */
       fetchSiblings() {
-        if (this.lessonContext) {
-          // TODO: Get and set lesson string
-        }
-        // TODO: Get and set view resources string
-
-        /** Largely borrowed from modules/topicsTree/handlers.js
-           - Get the parent's children
-           - Get and map their progresses */
         const store = this.$store;
+
         ContentNodeResource.fetchTree({
           id: this.content.parent,
           params: {
@@ -280,15 +293,14 @@
               store.getters.isAdmin || store.getters.isCoach || store.getters.isSuperuser,
           },
         }).then(parent => {
-          /** Create two promises
-           * 1) Fetch progress so it can be mapped to the content nodes. Only done when
-           *    the user is logged in.
+          /**
+           * Create two promises now that we have our parent at hand
+           * 1) Fetch progress for siblings so they can be mapped to the content nodes.
+           *    Only done when the user is logged in.
            * 2) Fetch the next content for our parent folder (the next folder). Always do this
-           *
-           * Sets this.viewResourcesContents and this.nextFolder with valid data for AlsoInThis
-           * in any case
            */
-          const nodes = parent.children.results;
+          const nodes = parent.children.results.filter(node => node.id !== this.content.id); // Remove this.content
+
           const progressPromise = ContentNodeProgressResource.fetchCollection({
             getParams: { parent: this.content.parent },
           }).then(progresses => {
@@ -304,7 +316,13 @@
 
           const nextFolderPromise = ContentNodeResource.fetchNextContent(parent.id, {
             topicOnly: true,
-          }).then(nextContent => (this.nextContent = nextContent));
+          }).then(nextContent => {
+            // This may return the immediate parent if nothing else is found so let's be sure
+            // not to assign that
+            if (nextContent && this.content.parent !== nextContent.id) {
+              this.nextContent = nextContent;
+            }
+          });
 
           const promises = [nextFolderPromise];
 
