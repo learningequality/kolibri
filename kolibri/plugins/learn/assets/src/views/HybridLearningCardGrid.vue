@@ -54,7 +54,7 @@
       :footerIcons="footerIcons"
       :createdDate="content.bookmark ? content.bookmark.created : null"
       @openCopiesModal="openCopiesModal"
-      @toggleInfoPanel="$emit('toggleInfoPanel', content)"
+      @viewInformation="$emit('toggleInfoPanel', content)"
       @removeFromBookmarks="removeFromBookmarks(content, contents)"
     />
     <CopiesModal
