@@ -43,7 +43,9 @@ export default {
     loadMoreTopics(store) {
       const more = store.state.topic.children.more;
       if (more) {
-        fetchContentNodeTreeProgress(more);
+        if (store.rootGetters.isUserLoggedIn) {
+          fetchContentNodeTreeProgress(more);
+        }
         return ContentNodeResource.fetchTree(more)
           .then(data => {
             store.commit('ADD_MORE_CONTENTS', data);
@@ -58,7 +60,9 @@ export default {
       const parent = parentIndex > -1 ? store.state.contents[parentIndex] : null;
       const more = parent && parent.children && parent.children.more;
       if (more) {
-        fetchContentNodeTreeProgress(more);
+        if (store.rootGetters.isUserLoggedIn) {
+          fetchContentNodeTreeProgress(more);
+        }
         return ContentNodeResource.fetchTree(more)
           .then(data => {
             data.index = parentIndex;
