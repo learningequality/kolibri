@@ -1,15 +1,14 @@
 <template>
 
-  <div
-    class="card"
-    :class="[
-      { 'mobile-card': isMobile },
-      $computedClass({ ':focus': $coreOutline })
-    ]"
-    :style="{ backgroundColor: $themeTokens.surface }"
-  >
+  <div class="card drop-shadow">
     <router-link
       :to="link"
+      class="card"
+      :class="[
+        { 'mobile-card': isMobile },
+        $computedClass({ ':focus': $coreOutline })
+      ]"
+      :style="{ backgroundColor: $themeTokens.surface }"
     >
       <div
         v-if="!isMobile"
@@ -241,9 +240,13 @@
 
   $margin: 24px;
 
-  .card {
+  .drop-shadow {
     @extend %dropshadow-1dp;
-
+    &:hover {
+      @extend %dropshadow-4dp;
+    }
+  }
+  .card {
     position: relative;
     display: inline-block;
     width: 100%;
@@ -252,9 +255,7 @@
     vertical-align: top;
     border-radius: 8px;
     transition: box-shadow $core-time ease;
-    &:hover {
-      @extend %dropshadow-8dp;
-    }
+
     &:focus {
       outline-width: 4px;
       outline-offset: 6px;
