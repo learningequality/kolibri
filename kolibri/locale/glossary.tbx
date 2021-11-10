@@ -457,7 +457,7 @@
         <langSet xml:lang="ur-PK">
           <tig>
             <term id="2290a7385ed77cc5592dc2153229f0821064-ur-PK">معلوماتی آزمائش</term>
-            <descrip type="definition">ایک سوالنامہ مشقوں سے اٹھائے گئے سوالات کو ملا کر بنایا گیا ایک خلاصہ جاتی جائزہ ہوتا  ہے۔ معلوماتی آزمائشیں کوچز کے ذریعہ بنائی جاتی ہیں اور پھر کلاس میں سیکھنے والوں کو دی جاتی ہیں۔ اساتذہ کے غیر رسمی طور پر استعمال کی حوصلہ افزائی کیلئے ہم نے جان بوجھ کر "امتحان" کا نام "معلوماتی آزمائش" رکھا ہے 
+            <descrip type="definition">ایک سوالنامہ مشقوں سے اٹھائے گئے سوالات کو ملا کر بنایا گیا ایک خلاصہ جاتی جائزہ ہوتا  ہے۔ معلوماتی آزمائشیں کوچز کے ذریعہ بنائی جاتی ہیں اور پھر کلاس میں سیکھنے والوں کو دی جاتی ہیں۔ اساتذہ کے غیر رسمی طور پر استعمال کی حوصلہ افزائی کیلئے ہم نے جان بوجھ کر "امتحان" کا نام "معلوماتی آزمائش" رکھا ہے
 </descrip>
           </tig>
         </langSet>
@@ -795,7 +795,7 @@
         <langSet xml:lang="ur-PK">
           <tig>
             <term id="522a9ae9a99880d39e5daec35375e9991078-ur-PK">ایپ</term>
-            <descrip type="definition">،کولیبری میں، ایک ایپ ایک خاص قسم کا وسائل ہے۔ خاص طور پر، 
+            <descrip type="definition">،کولیبری میں، ایک ایپ ایک خاص قسم کا وسائل ہے۔ خاص طور پر،
 HTML ایپس عام طور پر خود پر مشتمل، متعاملاتی
  اور جاوا اسکرپٹ کی ایپلی کیشنز ہوتی ہیں۔</descrip>
           </tig>
@@ -1786,7 +1786,7 @@ HTML ایپس عام طور پر خود پر مشتمل، متعاملاتی
         <langSet xml:lang="fr">
           <tig>
             <term id="c60d060b946d6dd6145dcbad5c4ccf6f1118-fr">modèle de maîtrise</term>
-            <descrip type="definition">Lorsqu'un apprenant a suffisamment internalisé et compris une ressource, on dit de lui qu'il maîtrise au moins temporairement la ressource. Les responsables des ressources éducationnelles sur Kolibri Studio assignent un modèle de maîtrise (nombre de réponses correctes pour être en mesure de maîtriser) sur une chaîne entière ou bien une ressource individuelle. 
+            <descrip type="definition">Lorsqu'un apprenant a suffisamment internalisé et compris une ressource, on dit de lui qu'il maîtrise au moins temporairement la ressource. Les responsables des ressources éducationnelles sur Kolibri Studio assignent un modèle de maîtrise (nombre de réponses correctes pour être en mesure de maîtriser) sur une chaîne entière ou bien une ressource individuelle.
 La maîtrise mesure le progrès et non la performance. Par exemple, un modèle de maîtrise peut indiquer qu'un apprenant doit répondre correctement à 3 questions à la suite afin de continuer ou bien qu'il doit au moins répondre correctement à 7 questions sur 10 au premier essai pour continuer. </descrip>
           </tig>
         </langSet>
@@ -1840,7 +1840,7 @@ O domínio mede o progresso, não o desempenho. Por exemplo, um critério de dom
         <langSet xml:lang="ur-PK">
           <tig>
             <term id="c60d060b946d6dd6145dcbad5c4ccf6f1118-ur-PK">مہارتی نمونہ</term>
-            <descrip type="definition">جب ایک سیکھنے والا کافی طور پر کچھ مواد کو اپنا لیتا ہے تو اُن کے بارے میں کہا جاتا 
+            <descrip type="definition">جب ایک سیکھنے والا کافی طور پر کچھ مواد کو اپنا لیتا ہے تو اُن کے بارے میں کہا جاتا
  کولیبری پر موجود تعملیمی وسائل کے ناظم ایک مہارتی نمونہ تفویض کرتے ہیں- ہے کہ اُنہوں نے عارضی مہارت حاصل کر لی ہے۔ </descrip>
           </tig>
         </langSet>
