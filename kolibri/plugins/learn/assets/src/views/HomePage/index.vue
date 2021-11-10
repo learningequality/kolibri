@@ -83,7 +83,7 @@
         activeClassesQuizzes,
         resumableClassesQuizzes,
         resumableClassesResources,
-        resumableNonClassesContentNodes,
+        resumableContentNodes,
         learnerFinishedAllClasses,
       } = useLearnerResources();
 
@@ -97,7 +97,7 @@
           get(isUserLoggedIn) &&
           get(learnerFinishedAllClasses) &&
           get(canAccessUnassignedContent) &&
-          get(resumableNonClassesContentNodes).length > 0
+          get(resumableContentNodes).length > 0
       );
       const hasActiveClassesLessons = computed(
         () =>

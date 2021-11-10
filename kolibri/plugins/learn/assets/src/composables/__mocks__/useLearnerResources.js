@@ -37,7 +37,8 @@ const MOCK_DEFAULTS = {
   activeClassesQuizzes: [],
   resumableClassesQuizzes: [],
   resumableClassesResources: [],
-  resumableNonClassesContentNodes: [],
+  resumableContentNodes: [],
+  moreResumableContentNodes: null,
   learnerFinishedAllClasses: false,
   getClass: jest.fn(),
   getClassActiveLessons: jest.fn(),
@@ -49,6 +50,7 @@ const MOCK_DEFAULTS = {
   fetchClass: jest.fn(),
   fetchClasses: jest.fn(),
   fetchResumableContentNodes: jest.fn(),
+  fetchMoreResumableContentNodes: jest.fn(),
 };
 
 export function useLearnerResourcesMock(overrides = {}) {

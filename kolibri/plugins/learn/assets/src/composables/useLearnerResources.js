@@ -24,6 +24,12 @@ const classes = ref([]);
 const { fetchContentNodeProgress } = useContentNodeProgress();
 
 export function setResumableContentNodes(nodes, more = null) {
+  set(resumableContentNodes, nodes.map(normalizeContentNode));
+  set(moreResumableContentNodes, more);
+  ContentNodeResource.cacheData(nodes);
+}
+
+function addResumableContentNodes(nodes, more = null) {
   set(resumableContentNodes, [...get(resumableContentNodes), ...nodes.map(normalizeContentNode)]);
   set(moreResumableContentNodes, more);
   ContentNodeResource.cacheData(nodes);
@@ -60,10 +66,11 @@ export default function useLearnerResources() {
   });
 
   /**
-   * @returns {Array} - All lessons assigned to a learner in all their classes
-   * @private
+   * Because the API endpoint only returns active lessons this is just all the lessons
+   * @returns {Array} - All active lessons assigned to a learner in all their classes
+   * @public
    */
-  const _classesLessons = computed(() => {
+  const activeClassesLessons = computed(() => {
     return flatMap(get(classes), c => c.assignments.lessons);
   });
 
@@ -90,20 +97,12 @@ export default function useLearnerResources() {
   });
 
   /**
-   * @returns  {Boolean}
-   * @private
-   */
-  function _isContentNodeInClasses(contentNodeId) {
-    return get(_classesResources).some(resource => resource.contentNodeId === contentNodeId);
-  }
-
-  /**
    * @param {Object} resource { contentNodeId, lessonId, classId }
    * @returns {Number} Index of a resource in a class lesson
    * @private
    */
   function _getLessonResourceIdx(resource) {
-    const lesson = get(_classesLessons).find(
+    const lesson = get(activeClassesLessons).find(
       l => l.collection === resource.classId && l.id === resource.lessonId
     );
     if (!lesson) {
@@ -114,12 +113,6 @@ export default function useLearnerResources() {
     );
     return lessonResourceIdx === -1 ? undefined : lessonResourceIdx;
   }
-
-  /**
-   * @returns {Array} - All active lessons assigned to a learner in all their classes
-   * @public
-   */
-  const activeClassesLessons = _classesLessons;
 
   /**
    * @returns {Array} - All active quizzes assigned to a learner in all their classes
@@ -147,17 +140,6 @@ export default function useLearnerResources() {
     return get(_classesResources).filter(resource => {
       return resource.progress && resource.progress < 1;
     });
-  });
-
-  /**
-   * @returns {Array} - Content nodes in progress that don't belong
-   *                    to any of learner's classes
-   * @public
-   */
-  const resumableNonClassesContentNodes = computed(() => {
-    return get(resumableContentNodes).filter(
-      contentNode => !_isContentNodeInClasses(contentNode.id)
-    );
   });
 
   /**
@@ -327,7 +309,7 @@ export default function useLearnerResources() {
    * @public
    */
   function fetchResumableContentNodes() {
-    const params = get(moreResumableContentNodes) || { resume: true, max_results: 12 };
+    const params = { resume: true, max_results: 12 };
     fetchContentNodeProgress(params);
     return ContentNodeResource.fetchResume(params).then(({ results, more }) => {
       if (!results || !results.length) {
@@ -338,13 +320,34 @@ export default function useLearnerResources() {
     });
   }
 
+  /**
+   * Fetches more resumable content nodes with their progress data
+   * and saves data to this composable's store
+   *
+   * @returns {Promise}
+   * @public
+   */
+  function fetchMoreResumableContentNodes() {
+    const params = get(moreResumableContentNodes);
+    if (!params) {
+      return Promise.resolve();
+    }
+    fetchContentNodeProgress(params);
+    return ContentNodeResource.fetchResume(params).then(({ results, more }) => {
+      if (!results || !results.length) {
+        return [];
+      }
+      addResumableContentNodes(results, more);
+      return results;
+    });
+  }
+
   return {
     classes,
     activeClassesLessons,
     activeClassesQuizzes,
     resumableClassesQuizzes,
     resumableClassesResources,
-    resumableNonClassesContentNodes,
     learnerFinishedAllClasses,
     getClass,
     getClassActiveLessons,
@@ -356,6 +359,7 @@ export default function useLearnerResources() {
     fetchClass,
     fetchClasses,
     fetchResumableContentNodes,
+    fetchMoreResumableContentNodes,
     resumableContentNodes,
     moreResumableContentNodes,
   };

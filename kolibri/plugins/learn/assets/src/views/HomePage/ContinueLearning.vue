@@ -37,7 +37,7 @@
         <KButton
           v-if="moreResumableContentNodes"
           appearance="basic-link"
-          @click="fetchResumableContentNodes"
+          @click="fetchMoreResumableContentNodes"
         >
           {{ coreString('viewMoreAction') }}
         </KButton>
@@ -77,7 +77,7 @@
         resumableClassesResources,
         resumableContentNodes,
         moreResumableContentNodes,
-        fetchResumableContentNodes,
+        fetchMoreResumableContentNodes,
         getClass,
         getClassQuizLink,
         getClassResourceLink,
@@ -113,7 +113,7 @@
         resumableClassesQuizzes,
         resumableContentNodes,
         moreResumableContentNodes,
-        fetchResumableContentNodes,
+        fetchMoreResumableContentNodes,
         uniqueResumableClassesResources,
         getClassQuizLink,
         getClassResourceLink,

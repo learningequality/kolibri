@@ -53,7 +53,7 @@
         <KButton
           v-if="moreResumableContentNodes"
           appearance="basic-link"
-          @click="fetchResumableContentNodes"
+          @click="fetchMoreResumableContentNodes"
         >
           {{ coreString('viewMoreAction') }}
         </KButton>
@@ -265,7 +265,7 @@
       const {
         resumableContentNodes,
         moreResumableContentNodes,
-        fetchResumableContentNodes,
+        fetchMoreResumableContentNodes,
       } = useLearnerResources();
       return {
         searchTerms,
@@ -282,7 +282,7 @@
         setCategory,
         resumableContentNodes,
         moreResumableContentNodes,
-        fetchResumableContentNodes,
+        fetchMoreResumableContentNodes,
       };
     },
     data: function() {
