@@ -135,17 +135,10 @@ describe(`HomePage`, () => {
               { contentNodeId: 'class-resource-1', lessonId: 'class-1-lesson', classId: 'class-1' },
               { contentNodeId: 'class-resource-2', lessonId: 'class-2-lesson', classId: 'class-2' },
             ],
-            resumableNonClassesContentNodes: [
+            resumableContentNodes: [
               { id: 'non-class-resource-1', title: 'Non-class resource 1' },
               { id: 'non-class-resource-2', title: 'Non-class resource 2' },
             ],
-            getResumableContentNode(contentNodeId) {
-              if (contentNodeId === 'class-resource-1') {
-                return { id: 'class-resource-1', title: 'Class resource 1' };
-              } else if (contentNodeId === 'class-resource-2') {
-                return { id: 'class-resource-2', title: 'Class resource 2' };
-              }
-            },
             getClassQuizLink() {
               return { path: '/class-quiz' };
             },

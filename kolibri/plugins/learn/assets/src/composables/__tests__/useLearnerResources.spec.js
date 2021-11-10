@@ -16,7 +16,6 @@ const {
   getClass,
   getClassActiveLessons,
   getClassActiveQuizzes,
-  getResumableContentNode,
   getClassLessonLink,
   getClassQuizLink,
   getClassResourceLink,
@@ -533,15 +532,6 @@ describe(`useLearnerResources`, () => {
           },
         },
       ]);
-    });
-  });
-
-  describe(`getResumableContentNode`, () => {
-    it(`returns a resumable content node object by its ID`, () => {
-      expect(getResumableContentNode('resource-6-in-progress')).toMatchObject({
-        id: 'resource-6-in-progress',
-        title: 'Resource 6 (In Progress)',
-      });
     });
   });
 

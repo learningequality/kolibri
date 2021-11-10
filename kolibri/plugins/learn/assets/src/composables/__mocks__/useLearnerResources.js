@@ -42,7 +42,6 @@ const MOCK_DEFAULTS = {
   getClass: jest.fn(),
   getClassActiveLessons: jest.fn(),
   getClassActiveQuizzes: jest.fn(),
-  getResumableContentNode: jest.fn(),
   getClassLessonLink: jest.fn(),
   getClassQuizLink: jest.fn(),
   getClassResourceLink: jest.fn(),
