@@ -29,7 +29,7 @@
       <div
         ref="label"
         class="ui-select-label"
-
+        :class="$computedClass({ ':focus': $coreOutline })"
         :tabindex="disabled ? null : '0'"
 
         @click="toggleDropdown"
@@ -865,6 +865,12 @@
     }
 
     &.is-active:not(.is-disabled) {
+      .ui-select-display {
+        border-bottom-width: $ui-input-border-width--active;
+      }
+    }
+
+    &.is-active {
       .ui-select-display {
         border-bottom-width: $ui-input-border-width--active;
       }
