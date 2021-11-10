@@ -5,11 +5,15 @@
       <h2>{{ title }}</h2>
     </div>
 
-    <div class="content-list" :class="nextContent ? '' : 'no-bottom-link'">
+    <div
+      v-if="contentNodes.length"
+      class="content-list"
+      :class="nextContent ? '' : 'no-bottom-link'"
+    >
       <KRouterLink
         v-for="content in contentNodes"
         :key="content.id"
-        :to="genContentLink(content.id, content.is_leaf)"
+        :to="genContentLink(content.id, content.is_leaf, backRoute, context)"
         class="item"
         :class="windowIsSmall && 'small'"
         :style="linkStyles"
@@ -28,10 +32,10 @@
           />
           <TimeDuration
             v-if="content.duration"
-            :style="{ 
-              color: $themeTokens.annotation, 
+            :style="{
+              color: $themeTokens.annotation,
               top: '16px',
-              position: 'relative' 
+              position: 'relative'
             }"
             :seconds="content.duration"
           />
@@ -43,15 +47,19 @@
             class="mastered-icon"
             :style="{ fill: $themeTokens.mastered }"
           />
-          <ProgressBar v-else :progress="content.progress" class="bar" />
+          <ProgressBar v-else :contentNode="content" class="bar" />
         </div>
       </KRouterLink>
     </div>
 
+    <div v-else>
+      {{ emptyMessage }}
+    </div>
+
     <KRouterLink
       v-if="nextContent"
-      :to="genContentLink(nextContent.id, nextContent.is_leaf)"
-      class="next-content-link" 
+      :to="genContentLink(nextContent.id, nextContent.is_leaf, backRoute, context)"
+      class="next-content-link"
       :style="{ borderTop: '1px solid ' + $themeTokens.fineLine, ...linkStyles }"
     >
       <KIcon class="folder-icon" icon="topic" />
@@ -70,12 +78,17 @@
 
 <script>
 
+  import { mapState } from 'vuex';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
   import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
+  import SidePanelResourcesList from '../../../../../../kolibri/core/assets/src/views/FullScreenSidePanel/SidePanelResourcesList';
   import genContentLink from '../utils/genContentLink';
   import LearningActivityIcon from './LearningActivityIcon.vue';
   import ProgressBar from './ProgressBar';
+
+  const sidePanelStrings = crossComponentTranslator(SidePanelResourcesList);
 
   export default {
     name: 'AlsoInThis',
@@ -94,6 +107,7 @@
       contentNodes: {
         type: Array,
         required: true,
+        default: () => [],
       },
       /** Title text for the component. */
       title: {
@@ -109,19 +123,44 @@
           if (!node) {
             return true;
           } // falsy ok
-          console.log(node);
           const { id, is_leaf, title } = node;
           return id && is_leaf && title;
         },
       },
+      isLesson: {
+        type: Boolean,
+        default: false,
+      },
     },
     computed: {
+      ...mapState(['pageName']),
+      ...mapState('lessonPlaylist', ['currentLesson']),
       /** Overrides some default styles in KRouterLink */
       linkStyles() {
         return {
           color: this.$themeTokens.text + '!important',
           fontSize: '14px',
         };
+      },
+      emptyMessage() {
+        /* eslint-disable kolibri/vue-no-undefined-string-uses */
+        return this.isLesson
+          ? sidePanelStrings.$tr('noOtherLessonResources')
+          : sidePanelStrings.$tr('noOtherTopicResources');
+        /* eslint-enable */
+      },
+      backRoute() {
+        return this.pageName;
+      },
+      context() {
+        let context = {
+          id: this.$route.params.id,
+        };
+        if (this.currentLesson && this.currentLesson.classroom) {
+          context['lessonId'] = this.currentLesson.id;
+          context['classId'] = this.currentLesson.classroom.id;
+        }
+        return context;
       },
     },
     methods: { genContentLink },

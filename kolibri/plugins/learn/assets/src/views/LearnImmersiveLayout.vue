@@ -78,6 +78,7 @@
         :contentNodes="viewResourcesContents"
         :nextContent="nextContent"
         :title="viewResourcesTitle"
+        :isLesson="lessonContext"
       />
     </FullScreenSidePanel>
 
@@ -89,6 +90,7 @@
 <script>
 
   import { mapGetters, mapState } from 'vuex';
+  import get from 'lodash/get';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
 
@@ -98,7 +100,11 @@
     LearningActivities,
     ContentKindsToLearningActivitiesMap,
   } from 'kolibri.coreVue.vuex.constants';
-  import { ContentNodeProgressResource, ContentNodeResource } from 'kolibri.resources';
+  import {
+    ContentNodeProgressResource,
+    ContentNodeResource,
+    LessonResource,
+  } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import client from 'kolibri.client';
   import urls from 'kolibri.urls';
@@ -185,7 +191,6 @@
     },
     computed: {
       ...mapGetters(['currentUserId']),
-      ...mapState(['pageName']),
       ...mapState({
         contentProgress: state => state.core.logging.progress,
         error: state => state.core.error,
@@ -228,14 +233,10 @@
         return learningActivities;
       },
       lessonContext() {
-        return this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER;
+        return Boolean(this.lessonId);
       },
       lessonId() {
-        if (this.back && this.back.params && this.back.params.length > 0) {
-          const params = this.back.params;
-          return params.lessonId ? params.lessonId : null;
-        }
-        return null;
+        return get(this.back, 'params.lessonId', null);
       },
       viewResourcesTitle() {
         /* eslint-disable kolibri/vue-no-undefined-string-uses */
@@ -247,17 +248,14 @@
     },
     watch: {
       content: function() {
-        console.log('watch content - fetching siblings');
         this.showViewResourcesSidePanel = false;
-        this.fetchSiblings();
+        this.getSidebarInfo();
       },
     },
     mounted() {
       /** I got 404s because content wasn't provided immediately upon mounting, so we check
        * this here, otherwise a watcher on `content` should trigger calling the same */
-      if (this.content.id) {
-        this.fetchSiblings();
-      }
+      this.getSidebarInfo();
     },
     beforeUpdate() {
       client({
@@ -269,20 +267,75 @@
       });
     },
     methods: {
+      getSidebarInfo() {
+        if (this.lessonId) {
+          this.fetchLessonSiblings();
+        } else {
+          if (this.content.id) {
+            this.fetchSiblings();
+          }
+        }
+      },
+      /** Returns a promise which will get the progress for a set of nodes and map it back onto
+       *  the nodes, which are then set to this.viewResourcesContents.
+       *  @modifies this.viewResourcesContents - Sets it to the value of nodes, mapped with
+       *  progress, if found
+       *  @returns {Promise} - Just returns a meaningless Promise in case you want to chain
+       *  synchronously
+       */
+      progressPromise(nodes) {
+        // Avoid unnecessary fetches, set values, return empty Promise
+        if (!this.$store.getters.isUserLoggedIn) {
+          nodes.map(node => (node.progress = 0));
+          this.viewResourcesContents = nodes;
+          return Promise.resolve();
+        }
+        const getParams = {
+          content_ids: nodes.map(node => node.content_id),
+        };
+        return ContentNodeProgressResource.fetchCollection({ getParams }).then(progresses => {
+          this.viewResourcesContents = nodes
+            .map(node => {
+              const matchingProgress = progresses.find(p => p.content_id === node.content_id) || {
+                progress: 0,
+              };
+              node.progress = matchingProgress.progress;
+              return node;
+            })
+            .filter(node => node.content_id !== this.content.content_id);
+        });
+      },
       /**
-       * Returns a list of content nodes which are children of this.content.parent without
-       * this.content. The returned nodes have their progress values for the current user
+       * Prepares a list of content nodes which are also in the same lesson as this.lessonId
+       * @modifies this.viewResourcesContents - Sets it to the progress-mapped nodes
+       */
+      fetchLessonSiblings() {
+        LessonResource.fetchModel({ id: this.lessonId }).then(lesson => {
+          ContentNodeResource.fetchCollection({
+            getParams: {
+              ids: lesson.resources.map(resource => resource.contentnode_id),
+            },
+          }).then(contentNodes => {
+            return this.progressPromise(contentNodes);
+          });
+        });
+      },
+      /**
+       * Prepares a list of content nodes which are children of this.content.parent without
+       * this.content. The prepared nodes have their progress values for the current user
        * (if there is one) mapped onto each node.
        *
        * Largely borrowed from modules/topicsTree/handlers.js
-       *
-       *  TODO: Determine if `this.parent` is different in Lesson context...
        *
        * @modifies this.viewResourcesContents - Sets it to the progress-mapped nodes
        * @modifies this.nextFolder - Sets the value with this.content's parents next sibling folder
        * if found
        */
       fetchSiblings() {
+        // Guard against this in lesson context
+        if (this.lessonId) {
+          return;
+        }
         const store = this.$store;
 
         ContentNodeResource.fetchTree({
@@ -292,27 +345,10 @@
               store.getters.isAdmin || store.getters.isCoach || store.getters.isSuperuser,
           },
         }).then(parent => {
-          /**
-           * Create two promises now that we have our parent at hand
-           * 1) Fetch progress for siblings so they can be mapped to the content nodes.
-           *    Only done when the user is logged in.
-           * 2) Fetch the next content for our parent folder (the next folder). Always do this
-           */
-          const nodes = parent.children.results.filter(node => node.id !== this.content.id); // Remove this.content
+          // Filter out this.content
+          const nodes = parent.children.results.filter(node => node.id !== this.content.id);
 
-          const progressPromise = ContentNodeProgressResource.fetchCollection({
-            getParams: { parent: this.content.parent },
-          }).then(progresses => {
-            this.viewResourcesContents = nodes.map(node => {
-              const matchingProgress = progresses.find(p => p.id === node.id) || {
-                progress_fraction: 0, // Default if no match found
-              };
-
-              node.progress = matchingProgress.progress_fraction;
-              return node;
-            });
-          });
-
+          /** A promise to get the nextFolder content - done always */
           const nextFolderPromise = ContentNodeResource.fetchNextContent(parent.id, {
             topicOnly: true,
           }).then(nextContent => {
@@ -324,12 +360,8 @@
           });
 
           const promises = [nextFolderPromise];
-
-          if (store.getters.isUserLoggedIn) {
-            promises.push(progressPromise);
-          } else {
-            this.viewResourcesContents = nodes.map(node => (node.progress = 0));
-          }
+          // Push progressPromise, which handles user logged in logic
+          promises.push(this.progressPromise(nodes));
           Promise.all(promises);
         });
       },
