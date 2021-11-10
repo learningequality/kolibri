@@ -8,6 +8,8 @@
         :questions="examAttempts"
         :completionTimestamp="completionTimestamp"
         :completed="complete"
+        :retry="retry"
+        @repeat="$emit('repeat')"
       />
     </template>
 
@@ -141,7 +143,11 @@
       },
       exerciseContentNodes: {
         type: Array,
-        required: true,
+        default: () => [],
+      },
+      retry: {
+        type: Boolean,
+        default: false,
       },
     },
     data() {
@@ -152,6 +158,9 @@
     computed: {
       attemptLogs() {
         return this.examAttempts.map(attempt => {
+          if (!this.exerciseContentNodes.length) {
+            return attempt;
+          }
           let num_coach_contents = 0;
           const exerciseId = this.questions[attempt.questionNumber - 1].exercise_id;
           const exerciseMatch = find(this.exerciseContentNodes, { id: exerciseId });

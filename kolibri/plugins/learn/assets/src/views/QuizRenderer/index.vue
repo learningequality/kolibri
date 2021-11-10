@@ -1,7 +1,20 @@
 <template>
 
   <div>
-    <KGrid :gridStyle="gridStyle">
+    <QuizReport
+      v-if="currentlyMastered"
+      :userId="userId"
+      :userName="userFullName"
+      :questions="assessmentIds"
+      :kind="kind"
+      :files="files"
+      :available="available"
+      :extraFields="extraFields"
+      :masteryLevel="masteryLevel"
+      :contentId="contentId"
+      @repeat="repeat"
+    />
+    <KGrid v-else :gridStyle="gridStyle">
       <!-- this.$refs.questionListWrapper is referenced inside AnswerHistory for scrolling -->
       <KGridItem
         v-if="windowIsLarge"
@@ -186,6 +199,7 @@
   import { ClassesPageNames } from '../../constants';
   import { LearnerClassroomResource } from '../../apiResources';
   import AnswerHistory from './AnswerHistory';
+  import QuizReport from './QuizReport';
 
   export default {
     name: 'QuizRenderer',
@@ -194,9 +208,14 @@
       UiAlert,
       UiIconButton,
       BottomAppBar,
+      QuizReport,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
     props: {
+      contentId: {
+        type: String,
+        required: true,
+      },
       lang: {
         type: Object,
         default: () => defaultLanguage,
@@ -259,6 +278,7 @@
         pastattempts: state => state.core.logging.pastattempts,
         masteryLevel: state =>
           state.core.logging.context && state.core.logging.context.mastery_level,
+        currentlyMastered: state => state.core.logging.complete,
       }),
       gridStyle() {
         if (!this.windowIsSmall) {
@@ -277,11 +297,6 @@
           numAnswered: this.questionsAnswered,
           numTotal: this.questionsTotal,
         });
-      },
-      backPageLink() {
-        return {
-          name: ClassesPageNames.CLASS_ASSIGNMENTS,
-        };
       },
       currentAttempt() {
         return (
@@ -424,7 +439,7 @@
       },
       finishExam() {
         this.saveAnswer(true).then(() => {
-          this.$router.push(this.backPageLink);
+          this.submitModalOpen = false;
         });
       },
       updateProgress(...args) {
@@ -439,6 +454,9 @@
       },
       stopTracking(...args) {
         this.$emit('stopTracking', ...args);
+      },
+      repeat() {
+        this.$emit('repeat');
       },
     },
     $trs: {

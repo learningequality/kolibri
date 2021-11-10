@@ -28,6 +28,7 @@
       <QuizRenderer
         v-else-if="practiceQuiz"
         class="content-renderer"
+        :contentId="content.content_id"
         :kind="content.kind"
         :files="content.files"
         :lang="content.lang"
@@ -44,6 +45,7 @@
         @stopTracking="stopTracking"
         @updateProgress="updateProgress"
         @updateContentState="updateContentState"
+        @repeat="repeat"
       />
       <AssessmentWrapper
         v-else
@@ -148,13 +150,7 @@
       },
     },
     created() {
-      return this.initContentSession({
-        nodeId: this.content.id,
-        lessonId: this.lessonId,
-      }).then(() => {
-        this.sessionReady = true;
-        this.setWasIncomplete();
-      });
+      return this.initSession();
     },
     beforeDestroy() {
       this.stopTracking();
@@ -199,6 +195,22 @@
       },
       onError(error) {
         this.$store.dispatch('handleApiError', error);
+      },
+      initSession(repeat = false) {
+        this.sessionReady = false;
+        return this.initContentSession({
+          nodeId: this.content.id,
+          lessonId: this.lessonId,
+          repeat,
+        }).then(() => {
+          this.sessionReady = true;
+          this.setWasIncomplete();
+        });
+      },
+      repeat() {
+        this.stopTracking().then(() => {
+          this.initSession(true);
+        });
       },
     },
     $trs: {

@@ -37,6 +37,9 @@
       </table>
     </KFixedGridItem>
     <KFixedGridItem span="1" alignment="right">
+      <KButton v-if="retry" @click="$emit('repeat')">
+        {{ coreString('practiceAgainButton') }}
+      </KButton>
       <div>
         <ProgressIcon class="svg-icon" :progress="progress" />
         <strong>
@@ -85,6 +88,10 @@
       contentName: {
         type: String,
         required: true,
+      },
+      retry: {
+        type: Boolean,
+        default: false,
       },
     },
     computed: {
