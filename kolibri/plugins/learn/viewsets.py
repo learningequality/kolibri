@@ -32,6 +32,8 @@ class LearnStateView(APIView):
             default_facility = Facility.get_default_facility()
             can_download_content = (
                 default_facility.dataset.show_download_button_in_learn
+                if default_facility
+                else True
             )
             return Response(
                 {
