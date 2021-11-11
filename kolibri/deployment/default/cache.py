@@ -8,13 +8,13 @@ from diskcache import Cache
 
 from kolibri.utils.conf import KOLIBRI_HOME
 from kolibri.utils.conf import OPTIONS
+from kolibri.utils.options import CACHE_SHARDS
 
 cache_options = OPTIONS["Cache"]
 
 pickle_protocol = OPTIONS["Python"]["PICKLE_PROTOCOL"]
 
 diskcache_location = os.path.join(KOLIBRI_HOME, "process_cache")
-CACHE_SHARDS = 8
 
 
 def recreate_diskcache():
