@@ -9,12 +9,12 @@
         </template>
         <template #tbody>
           <transition-group tag="tbody" name="list">
-            <tr v-for="(tableRow, index) in table" :key="tableRow.question_id + index">
+            <tr v-for="(tableRow, index) in table" :key="tableRow.item + index">
               <td>
                 <span v-if="$isPrint">{{ tableRow.title }}</span>
                 <KRouterLink
                   :text="tableRow.title"
-                  :to="questionLink(tableRow.question_id)"
+                  :to="questionLink(tableRow.item)"
                   icon="question"
                 />
               </td>

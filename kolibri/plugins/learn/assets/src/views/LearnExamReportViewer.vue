@@ -15,7 +15,7 @@
         :exercise="exercise"
         :itemId="itemId"
         :completionTimestamp="completionTimestamp"
-        :closed="closed"
+        :complete="complete"
         :backPageLink="backPageLink"
         :navigateToQuestion="navigateToQuestion"
         :navigateToQuestionAttempt="navigateToQuestionAttempt"
@@ -67,8 +67,8 @@
         userName: state => state.user.full_name,
         userId: state => state.user.id,
         selectedInteractionIndex: state => state.interactionIndex,
-        completionTimestamp: state => state.examLog.completion_timestamp,
-        closed: state => state.examLog.closed,
+        completionTimestamp: state => state.masteryLog.completion_timestamp,
+        complete: state => state.masteryLog.complete,
       }),
       backPageLink() {
         return {

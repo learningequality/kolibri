@@ -164,9 +164,7 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
-  import { InteractionTypes } from 'kolibri.coreVue.vuex.constants';
   import isEqual from 'lodash/isEqual';
-  import { now } from 'kolibri.utils.serverClock';
   import debounce from 'lodash/debounce';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
@@ -174,6 +172,7 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ClassesPageNames } from '../../constants';
+  import { LearnerClassroomResource } from '../../apiResources';
   import AnswerHistory from './AnswerHistory';
 
   export default {
@@ -193,17 +192,16 @@
     data() {
       return {
         submitModalOpen: false,
+        // Note this time is only used to calculate the time spent on a
+        // question, it is not used to generate any timestamps.
+        startTime: Date.now(),
       };
     },
     computed: {
-      ...mapState('examViewer', [
-        'exam',
-        'content',
-        'itemId',
-        'questionNumber',
-        'currentAttempt',
-        'questionsAnswered',
-      ]),
+      ...mapState({
+        pastattempts: state => state.core.logging.pastattempts,
+      }),
+      ...mapState('examViewer', ['exam', 'contentNodeMap', 'questions', 'questionNumber']),
       gridStyle() {
         if (!this.windowIsSmall) {
           return {
@@ -227,6 +225,39 @@
           name: ClassesPageNames.CLASS_ASSIGNMENTS,
         };
       },
+      content() {
+        return this.contentNodeMap[this.nodeId];
+      },
+      currentAttempt() {
+        return (
+          this.pastattempts.find(attempt => attempt.item === this.attemptLogItemValue) || {
+            item: this.attemptLogItemValue,
+            complete: false,
+            time_spent: 0,
+            correct: 0,
+            answer: null,
+            simple_answer: '',
+            hinted: false,
+          }
+        );
+      },
+      currentQuestion() {
+        return this.questions[this.questionNumber];
+      },
+      nodeId() {
+        return this.currentQuestion.exercise_id;
+      },
+      itemId() {
+        return this.currentQuestion.question_id;
+      },
+      // We generate a special item value to save to the backend that encodes
+      // both the itemId and the nodeId
+      attemptLogItemValue() {
+        return `${this.nodeId}:${this.itemId}`;
+      },
+      questionsAnswered() {
+        return this.pastattempts.reduce((count, attempt) => count + (attempt.answer ? 1 : 0), 0);
+      },
       questionsUnanswered() {
         return this.exam.question_count - this.questionsAnswered;
       },
@@ -248,56 +279,76 @@
       },
     },
     watch: {
-      itemId(newVal, oldVal) {
+      attemptLogItemValue(newVal, oldVal) {
         // HACK: manually dismiss the perseus renderer message when moving
         // to a different item (fixes #3853)
         if (newVal !== oldVal) {
-          this.$refs.contentRenderer.$refs.contentView.dismissMessage();
+          this.$refs.contentRenderer.$refs.contentView.dismissMessage &&
+            this.$refs.contentRenderer.$refs.contentView.dismissMessage();
+          this.startTime = Date.now();
         }
       },
     },
+    created() {
+      this.startTracking();
+    },
     methods: {
-      ...mapActions('examViewer', ['setAndSaveCurrentExamAttemptLog', 'closeExam']),
+      ...mapActions({
+        updateContentSession: 'updateContentSession',
+        startTracking: 'startTrackingProgress',
+        stopTracking: 'stopTrackingProgress',
+      }),
+      setAndSaveCurrentExamAttemptLog({ close, interaction } = {}) {
+        // Clear the learner classroom cache here as its progress data is now
+        // stale
+        LearnerClassroomResource.clearCache();
+
+        const data = {};
+
+        if (interaction) {
+          data.interaction = { ...interaction, replace: true };
+        }
+
+        if (close) {
+          data.progress = 1;
+        }
+
+        return this.updateContentSession(data)
+          .then(() => {
+            if (close) {
+              this.stopTracking();
+            }
+          })
+          .catch(() => {
+            this.$router.replace({ name: ClassesPageNames.CLASS_ASSIGNMENTS });
+          });
+      },
       checkAnswer() {
         if (this.$refs.contentRenderer) {
           return this.$refs.contentRenderer.checkAnswer();
         }
         return null;
       },
-      saveAnswer(force = false) {
+      saveAnswer(close = false) {
         const answer = this.checkAnswer();
         if (answer && !isEqual(answer.answerState, this.currentAttempt.answer)) {
-          const attempt = Object.assign({}, this.currentAttempt);
-          // Copy the interaction history separately, as otherwise we
-          // will still be modifying the underlying object
-          attempt.interaction_history = Array(...attempt.interaction_history);
-          attempt.answer = answer.answerState;
-          attempt.simple_answer = answer.simpleAnswer;
-          attempt.correct = answer.correct;
-          if (!attempt.completion_timestamp) {
-            attempt.completion_timestamp = now();
-          }
-          attempt.end_timestamp = now();
-          attempt.interaction_history.push({
-            type: InteractionTypes.answer,
+          const interaction = {
             answer: answer.answerState,
+            simple_answer: answer.simpleAnswer || '',
             correct: answer.correct,
-            timestamp: now(),
-          });
-          const saveData = {
-            contentId: this.content.id,
-            itemId: this.itemId,
-            currentAttemptLog: attempt,
-            examId: this.exam.id,
+            item: this.attemptLogItemValue,
+            id: this.currentAttempt.id,
+            time_spent:
+              ((this.currentAttempt.time_spent || 0) + Date.now() - this.startTime) / 1000,
           };
-          if (force) {
-            // Cancel any pending debounce
-            this.debouncedSetAndSaveCurrentExamAttemptLog.cancel();
-            // Force the save now instead
-            return this.setAndSaveCurrentExamAttemptLog(saveData);
+          this.startTime = Date.now();
+          if (close) {
+            return this.setAndSaveCurrentExamAttemptLog({ close, interaction });
           } else {
-            return this.debouncedSetAndSaveCurrentExamAttemptLog(saveData);
+            return this.debouncedSetAndSaveCurrentExamAttemptLog({ interaction });
           }
+        } else if (close) {
+          return this.setAndSaveCurrentExamAttemptLog({ close });
         }
         return Promise.resolve();
       },
@@ -326,11 +377,9 @@
         this.submitModalOpen = !this.submitModalOpen;
       },
       finishExam() {
-        this.saveAnswer(true).then(
-          this.closeExam().then(() => {
-            this.$router.push(this.backPageLink);
-          })
-        );
+        this.saveAnswer(true).then(() => {
+          this.$router.push(this.backPageLink);
+        });
       },
     },
     $trs: {

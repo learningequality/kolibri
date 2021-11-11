@@ -12,7 +12,40 @@ oriented data synchronization.
   <div>
     <LessonMasteryBar
       data-test="lessonMasteryBar"
-    />
+      :availableHintsMessage="hint$tr('hint', { hintsLeft: availableHints })"
+      @takeHint="takeHint"
+    >
+      <template #hint>
+        <div
+          v-if="totalHints > 0"
+          class="hint-btn-container"
+          :class="{ 'rtl': isRtl }"
+        >
+          <KButton
+            v-if="availableHints > 0"
+            class="hint-btn"
+            appearance="basic-link"
+            :text="hint$tr('hint', { hintsLeft: availableHints })"
+            :primary="false"
+            @click="takeHint"
+          />
+          <KButton
+            v-else
+            class="hint-btn"
+            appearance="basic-link"
+            :text="hint$tr('noMoreHint')"
+            :primary="false"
+            :disabled="true"
+          />
+          <CoreInfoIcon
+            class="info-icon"
+            tooltipPlacement="bottom left"
+            :iconAriaLabel="hint$tr('hintExplanation')"
+            :tooltipText="hint$tr('hintExplanation')"
+          />
+        </div>
+      </template>
+    </LessonMasteryBar>
     <div>
       <UiAlert v-if="itemError" :dismissible="false" type="error">
         {{ $tr('itemError') }}
@@ -22,7 +55,7 @@ oriented data synchronization.
           @click="nextQuestion"
         />
       </UiAlert>
-      <div class="content-wrapper">
+      <div class="content-wrapper" :style="{ backgroundColor: this.$themePalette.grey.v_100 }">
         <KContentRenderer
           ref="contentRenderer"
           :kind="kind"
@@ -109,18 +142,34 @@ oriented data synchronization.
 
 <script>
 
-  import { mapState, mapGetters, mapActions } from 'vuex';
+  import { mapState, mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { InteractionTypes, MasteryModelGenerators } from 'kolibri.coreVue.vuex.constants';
+  import { MasteryModelGenerators } from 'kolibri.coreVue.vuex.constants';
   import shuffled from 'kolibri.utils.shuffled';
-  import { now } from 'kolibri.utils.serverClock';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
+  import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
+  import { createTranslator } from 'kolibri.utils.i18n';
   import { defaultLanguage } from 'kolibri-design-system/lib/utils/i18n';
-  import LessonMasteryBar from '../classes/LessonMasteryBar';
-  import { updateContentNodeProgress } from '../../modules/coreLearn/utils';
+  import LessonMasteryBar from './LessonMasteryBar';
   import ExerciseAttempts from './ExerciseAttempts';
+
+  const hintTranslator = createTranslator('PerseusRendererIndex', {
+    hint: {
+      message: 'Use a hint ({hintsLeft, number} left)',
+      context:
+        'A hint is a suggestion to help learners solve a problem. This phrase tells the learner how many hints they have left to use.',
+    },
+    hintExplanation: {
+      message: 'If you use a hint, this question will not be added to your progress',
+      context: 'A hint is a suggestion to help learners solve a problem.',
+    },
+    noMoreHint: {
+      message: 'No more hints',
+      context: 'A hint is a suggestion to help learners solve a problem.',
+    },
+  });
 
   export default {
     name: 'AssessmentWrapper',
@@ -129,13 +178,10 @@ oriented data synchronization.
       UiAlert,
       BottomAppBar,
       LessonMasteryBar,
+      CoreInfoIcon,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
     props: {
-      id: {
-        type: String,
-        required: true,
-      },
       lang: {
         type: Object,
         default: () => defaultLanguage,
@@ -147,10 +193,6 @@ oriented data synchronization.
       files: {
         type: Array,
         default: () => [],
-      },
-      channelId: {
-        type: String,
-        default: '',
       },
       available: {
         type: Boolean,
@@ -194,7 +236,7 @@ oriented data synchronization.
     },
     data() {
       return {
-        ready: false,
+        mounted: false,
         itemId: '',
         shake: false,
         firstAttemptAtQuestion: true,
@@ -205,25 +247,20 @@ oriented data synchronization.
         // Attempted fix for #1725
         checkingAnswer: false,
         checkWasAttempted: false,
+        startTime: null,
       };
     },
     computed: {
-      ...mapGetters(['isUserLoggedIn']),
       ...mapState({
-        mastered: state => state.core.logging.mastery.complete,
-        currentInteractions: state =>
-          state.core.logging.attempt.interaction_history
-            ? state.core.logging.attempt.interaction_history.length
-            : 0,
-        totalattempts: state => state.core.logging.mastery.totalattempts,
-        pastattempts: state =>
-          (state.core.logging.mastery.pastattempts || []).filter(attempt => attempt.error !== true),
+        pastattempts: state => (state.core.logging.pastattempts || []).filter(a => !a.error),
+        mastered: state => state.core.logging.complete,
+        totalattempts: state => state.core.logging.totalattempts,
         userid: state => state.core.session.user_id,
       }),
+      currentattempt() {
+        return !this.firstAttemptAtQuestion ? this.pastattempts[0] : null;
+      },
       recentAttempts() {
-        if (!this.pastattempts) {
-          return [];
-        }
         return this.pastattempts
           .map((attempt, index) => {
             // if first item and not a current attempt
@@ -259,32 +296,8 @@ oriented data synchronization.
       attemptsWindowN() {
         return this.mOfNMasteryModel.n;
       },
-      exerciseProgress() {
-        if (this.mastered) {
-          return 1;
-        }
-        if (this.pastattempts.length) {
-          let calculatedMastery;
-          if (this.pastattempts.length > this.attemptsWindowN) {
-            calculatedMastery = Math.min(
-              this.pastattempts.slice(0, this.attemptsWindowN).reduce((a, b) => a + b.correct, 0) /
-                this.totalCorrectRequiredM,
-              1
-            );
-          } else {
-            calculatedMastery = Math.min(
-              this.pastattempts.reduce((a, b) => a + b.correct, 0) / this.totalCorrectRequiredM,
-              1
-            );
-          }
-          // If there are any attempts at all, set some progress on the exercise
-          // because they have now started the exercise.
-          return Math.max(calculatedMastery, 0.001);
-        }
-        return 0;
-      },
       success() {
-        return this.exerciseProgress === 1;
+        return this.mastered;
       },
       currentStatus() {
         if (this.itemError) {
@@ -306,74 +319,54 @@ oriented data synchronization.
         }
         return null;
       },
-    },
-    watch: {
-      exerciseProgress() {
-        this.updateExerciseProgressMethod();
+      renderer() {
+        // TODO: rtibbles - update the KContentRenderer API to expose hint info
+        // and add takeHint public method
+        return (
+          this.mounted && this.$refs.contentRenderer && this.$refs.contentRenderer.$refs.contentView
+        );
+      },
+      availableHints() {
+        return (this.renderer && this.renderer.availableHints) || 0;
+      },
+      totalHints() {
+        return (this.renderer && this.renderer.totalHints) || 0;
       },
     },
-    beforeDestroy() {
-      if (this.currentInteractions > 0) {
-        this.saveAttemptLogMasterLog(false);
-      }
-    },
     created() {
-      if (this.isUserLoggedIn) {
-        this.callInitMasteryLog();
-      } else {
-        this.createDummyMasteryLog();
-      }
       this.nextQuestion();
     },
     methods: {
-      ...mapActions([
-        'createAttemptLog',
-        'createDummyMasteryLog',
-        'initMasteryLog',
-        'saveAndStoreAttemptLog',
-        'saveAndStoreMasteryLog',
-        'saveAttemptLog',
-        'saveMasteryLog',
-        'setMasteryLogComplete',
-        'updateAttemptLogInteractionHistory',
-        'updateExerciseProgress',
-        'updateMasteryAttemptState',
-      ]),
-      updateAttemptLogMasteryLog({
-        correct,
-        complete,
-        firstAttempt = false,
-        hinted,
-        answerState,
-        simpleAnswer,
-        error,
-      }) {
-        this.updateMasteryAttemptState({
-          currentTime: now(),
-          correct,
-          complete,
-          firstAttempt,
-          hinted,
-          answerState,
-          simpleAnswer,
-          error,
-        });
+      ...mapActions(['updateContentSession']),
+      takeHint() {
+        this.renderer && this.renderer.takeHint();
       },
-      saveAttemptLogMasterLog(updateStore = true) {
-        if (updateStore) {
-          this.saveAndStoreAttemptLog().then(() => {
-            if (this.isUserLoggedIn && this.success) {
-              this.setMasteryLogComplete(now());
-              this.saveAndStoreMasteryLog();
-            }
-          });
-        } else {
-          this.saveAttemptLog().then(() => {
-            if (this.isUserLoggedIn && this.success) {
-              this.saveMasteryLog();
-            }
-          });
+      exerciseProgress(submittingAttempt) {
+        if (this.mastered) {
+          return 1;
         }
+        const pastAttempts = submittingAttempt
+          ? [submittingAttempt].concat(this.pastattempts)
+          : this.pastattempts;
+        if (pastAttempts.length) {
+          let calculatedMastery;
+          if (pastAttempts.length > this.attemptsWindowN) {
+            calculatedMastery = Math.min(
+              pastAttempts.slice(0, this.attemptsWindowN).reduce((a, b) => a + b.correct, 0) /
+                this.totalCorrectRequiredM,
+              1
+            );
+          } else {
+            calculatedMastery = Math.min(
+              pastAttempts.reduce((a, b) => a + b.correct, 0) / this.totalCorrectRequiredM,
+              1
+            );
+          }
+          // If there are any attempts at all, set some progress on the exercise
+          // because they have now started the exercise.
+          return Math.max(calculatedMastery, 0.001);
+        }
+        return 0;
       },
       checkAnswer() {
         this.checkWasAttempted = true;
@@ -398,58 +391,38 @@ oriented data synchronization.
             this.shake = true;
           }
         }
-        this.updateAttemptLogInteractionHistory({
-          type: InteractionTypes.answer,
-          answer: answerState,
-          correct,
-        });
         this.complete = correct === 1;
-        if (this.firstAttemptAtQuestion) {
-          this.firstAttemptAtQuestion = false;
-          this.updateAttemptLogMasteryLog({
-            correct,
-            complete: this.complete,
-            answerState,
-            simpleAnswer,
-            firstAttempt: true,
-          });
-          // Save attempt log on first attempt
-          this.saveAttemptLogMasterLog();
-          // Update exercise progress when the first answer is given
-          this.updateExerciseProgressMethod();
-        } else {
-          this.updateAttemptLogMasteryLog({
-            complete: this.complete,
-          });
-          if (this.complete) {
-            // Otherwise only save if the attempt is now complete
-            this.saveAttemptLogMasterLog();
-          } else if (this.currentInteractions % 4 === 0) {
-            // After every 4 interactions in this exercise, update the attemptlog
-            // so needsHelp notification can be triggered
-            this.saveAttemptLogMasterLog();
-          }
-        }
+        this.updateAttempt({ answerState, simpleAnswer });
       },
       hintTaken({ answerState }) {
-        this.updateAttemptLogInteractionHistory({
-          type: InteractionTypes.hint,
-          answer: answerState,
-        });
-        if (this.firstAttemptAtQuestion) {
-          this.updateAttemptLogMasteryLog({
-            correct: 0,
-            complete: false,
-            firstAttempt: true,
-            hinted: true,
-            answerState,
-            simpleAnswer: '',
-          });
-          this.firstAttemptAtQuestion = false;
-          // Only save if this was the first attempt to capture this
-          this.saveAttemptLogMasterLog();
-        }
         this.hintWasTaken = true;
+        this.updateAttempt({ answerState });
+      },
+      updateAttempt({ answerState, simpleAnswer } = {}) {
+        const interaction = {
+          complete: this.complete,
+          time_spent: (new Date() - this.startTime) / 1000,
+          correct: this.correct,
+          hinted: this.hintWasTaken,
+          error: this.itemError,
+          item: this.itemId,
+        };
+        if (answerState) {
+          interaction.answer = answerState;
+        }
+        if (simpleAnswer) {
+          interaction.simple_answer = simpleAnswer;
+        }
+        let progress;
+        if (this.firstAttemptAtQuestion) {
+          // Only update progress on first attempt at question
+          // as cannot change progress on subsequent attempts.
+          progress = this.exerciseProgress(interaction);
+          this.firstAttemptAtQuestion = false;
+        } else {
+          interaction.id = this.currentattempt.id;
+        }
+        this.updateContentSession({ progress, interaction });
       },
       setItemId() {
         const index = this.totalattempts % this.assessmentIds.length;
@@ -466,44 +439,15 @@ oriented data synchronization.
         this.firstAttemptAtQuestion = true;
         this.correct = 0;
         this.itemError = false;
-        this.setItemId();
-        this.callCreateAttemptLog();
         this.checkWasAttempted = false;
-      },
-      callInitMasteryLog() {
-        this.initMasteryLog({
-          masterySpacingTime: this.masterySpacingTime,
-          masteryCriterion: this.masteryModel,
-        });
-      },
-      callCreateAttemptLog() {
-        this.ready = false;
-        this.createAttemptLog(this.itemId);
-        this.ready = true;
-      },
-      updateExerciseProgressMethod() {
-        this.updateExerciseProgress({ progressPercent: this.exerciseProgress });
-        updateContentNodeProgress(this.channelId, this.id, this.exerciseProgress);
-        this.$emit('updateProgress', this.exerciseProgress);
+        this.startTime = new Date();
+        this.hintWasTaken = false;
+        this.setItemId();
       },
       handleItemError() {
         this.itemError = true;
-        this.updateAttemptLogInteractionHistory({
-          type: InteractionTypes.error,
-        });
         this.complete = true;
-        if (this.firstAttemptAtQuestion) {
-          this.updateAttemptLogMasteryLog({
-            correct: 0,
-            complete: this.complete,
-            firstAttempt: true,
-            error: true,
-          });
-          this.firstAttemptAtQuestion = false;
-        } else {
-          this.updateAttemptLogMasteryLog({ complete: this.complete });
-        }
-        this.saveAttemptLogMasterLog();
+        this.updateAttempt();
       },
       updateProgress(...args) {
         this.$emit('updateProgress', ...args);
@@ -512,10 +456,14 @@ oriented data synchronization.
         this.$emit('updateContentState', ...args);
       },
       startTracking(...args) {
+        this.mounted = true;
         this.$emit('startTracking', ...args);
       },
       stopTracking(...args) {
         this.$emit('stopTracking', ...args);
+      },
+      hint$tr(msgId, options) {
+        return hintTranslator.$tr(msgId, options);
       },
     },
     $trs: {
@@ -585,15 +533,6 @@ oriented data synchronization.
   .attempts-container {
     height: 111px;
     text-align: left;
-  }
-
-  .content-wrapper {
-    padding: 50px;
-    background-color: white;
-  }
-
-  .mobile {
-    padding: 8px;
   }
 
   .overall-status {

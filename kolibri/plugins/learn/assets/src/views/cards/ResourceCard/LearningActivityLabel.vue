@@ -19,8 +19,9 @@
       </template>
     </div>
     <div
+      v-if="!hideDuration"
+      class="duration"
       data-test="duration"
-      :style="{ marginTop: '8px' }"
     >
       <TimeDuration
         v-if="displayMinutes"
@@ -62,6 +63,11 @@
       contentNode: {
         type: Object,
         required: true,
+      },
+      hideDuration: {
+        type: Boolean,
+        required: false,
+        default: false,
       },
     },
     computed: {
@@ -159,6 +165,11 @@
       position: static;
       padding-left: 2px;
     }
+  }
+
+  .duration {
+    margin-top: 8px;
+    text-align: right;
   }
 
 </style>

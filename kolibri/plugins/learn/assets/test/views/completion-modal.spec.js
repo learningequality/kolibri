@@ -18,7 +18,7 @@ function getMoveOnButton(wrapper) {
   return wrapper.findComponent({ ref: 'nextContentNodeSection' }).findComponent({ ref: 'button' });
 }
 
-function makeWrapper({ propsData } = {}) {
+function makeWrapper({ propsData, data } = {}) {
   const router = new VueRouter();
   router.push('/');
 
@@ -26,12 +26,22 @@ function makeWrapper({ propsData } = {}) {
     localVue,
     router,
     propsData,
+    data,
+    methods: {
+      loadNextContent: jest.fn(),
+      loadRecommendedContent: jest.fn(),
+    },
   });
 }
 
 describe('CompletionModal', () => {
   it('smoke test', () => {
-    const wrapper = shallowMount(CompletionModal);
+    const wrapper = shallowMount(CompletionModal, {
+      methods: {
+        loadNextContent: jest.fn(),
+        loadRecommendedContent: jest.fn(),
+      },
+    });
 
     expect(wrapper.exists()).toBe(true);
   });
@@ -109,11 +119,7 @@ describe('CompletionModal', () => {
     let wrapper;
 
     beforeEach(() => {
-      wrapper = makeWrapper({
-        propsData: {
-          nextContentNode: undefined,
-        },
-      });
+      wrapper = makeWrapper();
     });
 
     it("doesn't display 'Keep going' section", () => {
@@ -126,9 +132,8 @@ describe('CompletionModal', () => {
 
     beforeEach(() => {
       wrapper = makeWrapper({
-        propsData: {
-          nextContentNode: { title: 'Next content node' },
-          nextContentNodeRoute: { path: '/next-content-node-path' },
+        data() {
+          return { nextContentNode: { title: 'Next content node', id: 'testetesttestst' } };
         },
       });
     });
@@ -137,13 +142,6 @@ describe('CompletionModal', () => {
       expect(wrapper.text()).toContain('Keep going');
       expect(wrapper.text()).toContain('Next content node');
       expect(getMoveOnButton(wrapper).exists()).toBe(true);
-    });
-
-    it("navigates to the next resource page on 'Move on' button click", () => {
-      expect(wrapper.vm.$route.path).toBe('/');
-      getMoveOnButton(wrapper).trigger('click');
-
-      expect(wrapper.vm.$route.path).toBe('/next-content-node-path');
     });
   });
 
@@ -168,12 +166,13 @@ describe('CompletionModal', () => {
 
     beforeEach(() => {
       wrapper = makeWrapper({
-        propsData: {
-          recommendedContentNodes: [
-            { id: 'recommended-resource-1', title: 'The first recommended resource' },
-            { id: 'recommended-resource-2', title: 'The second recommended resource ' },
-          ],
-          genContentLink: id => '/' + id + '-path',
+        data() {
+          return {
+            recommendedContentNodes: [
+              { id: 'recommended-resource-1', title: 'The first recommended resource' },
+              { id: 'recommended-resource-2', title: 'The second recommended resource ' },
+            ],
+          };
         },
       });
     });
@@ -190,14 +189,6 @@ describe('CompletionModal', () => {
       expect(recommendedResources.at(0).element.tagName).toBe('A');
       expect(recommendedResources.at(1).text()).toContain('The second recommended resource');
       expect(recommendedResources.at(1).element.tagName).toBe('A');
-    });
-
-    it('navigates to the recommended resource page on the resource link click', () => {
-      expect(wrapper.vm.$route.path).toBe('/');
-      const recommendedResources = wrapper.findAll("[data-test='recommended-resource']");
-      recommendedResources.at(1).trigger('click');
-
-      expect(wrapper.vm.$route.path).toBe('/recommended-resource-2-path');
     });
   });
 });

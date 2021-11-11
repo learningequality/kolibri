@@ -2,11 +2,11 @@
 
   <KLabeledIcon
     v-if="value > 0"
-    ref="something"
     :style="{ color: $themeTokens.coachContent }"
   >
     <template #icon>
       <KIcon
+        ref="something"
         icon="coach"
         :color="$themeTokens.coachContent"
       />
@@ -17,8 +17,7 @@
 
     <KTooltip
       reference="something"
-      placement="top"
-      style="position: relative;"
+      placement="bottom"
       :refs="$refs"
     >
       {{ titleText }}

@@ -2,6 +2,7 @@ import { Resource } from 'kolibri.lib.apiResource';
 import pickBy from 'lodash/pickBy';
 import urls from 'kolibri.urls';
 import redirectBrowser from 'kolibri.utils.redirectBrowser';
+import clientFactory from 'kolibri.utils.clientFactory';
 
 export const FacilityImportResource = new Resource({
   name: 'facilityimport',
@@ -55,6 +56,8 @@ export const SetupSoUDTasksResource = new Resource({
    */
   createTask(task, params) {
     const args = { task: task, ...pickBy(params) };
+    // use baseClient to  avoid interceptors from client:
+    this.client = clientFactory();
     return this.postListEndpoint('list', args).then(response => {
       return response.data;
     });

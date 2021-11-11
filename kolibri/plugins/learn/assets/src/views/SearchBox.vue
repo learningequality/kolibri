@@ -17,7 +17,7 @@
       <input
         :id="id"
         ref="searchInput"
-        v-model.trim="searchInputValue"
+        v-model.trim="newSearchTerm"
         type="search"
         class="search-input"
         :class="$computedClass(searchInputStyle)"
@@ -51,48 +51,6 @@
         </div>
       </div>
     </div>
-    <div
-      v-if="filters"
-      class="filters"
-    >
-      <div class="ib">
-        <KIcon
-          icon="filterList"
-          class="filter-icon"
-          style="width: 24px; height: 24px;"
-        />
-        <KSelect
-          ref="contentKindFilter"
-          :label="$tr('resourceType')"
-          :options="contentKindFilterOptions"
-          :inline="true"
-          :disabled="!contentKindFilterOptions.length"
-          :value="contentKindFilterSelection"
-          class="filter"
-          @change="updateSearchQuery"
-        />
-      </div>
-      <div
-        class="ib"
-      >
-        <KIcon
-          icon="channel"
-          class="filter-icon"
-          style="width: 24px; height: 24px;"
-        />
-        <KSelect
-          ref="channelFilter"
-          :label="coreString('channelsLabel')"
-          :options="channelFilterOptions"
-          :inline="true"
-          :disabled="!channelFilterOptions.length"
-          :value="channelFilterSelection"
-          class="filter"
-          :style="channelFilterStyle"
-          @change="updateSearchQuery"
-        />
-      </div>
-    </div>
   </form>
 
 </template>
@@ -100,24 +58,9 @@
 
 <script>
 
-  import maxBy from 'lodash/maxBy';
-  import pickBy from 'lodash/pickBy';
-  import { mapGetters, mapState } from 'vuex';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
   import { PageNames } from '../constants';
-
-  const ALL_FILTER = null;
-
-  const kindFilterToLabelMap = {
-    [ContentNodeKinds.TOPIC]: 'topics',
-    [ContentNodeKinds.EXERCISE]: 'exercises',
-    [ContentNodeKinds.VIDEO]: 'videos',
-    [ContentNodeKinds.AUDIO]: 'audio',
-    [ContentNodeKinds.DOCUMENT]: 'documents',
-    [ContentNodeKinds.HTML5]: 'html5',
-  };
 
   export default {
     name: 'SearchBox',
@@ -130,10 +73,6 @@
           return ['search', 'forward'].includes(val);
         },
       },
-      filters: {
-        type: Boolean,
-        default: false,
-      },
       id: {
         type: String,
         default: 'searchfield',
@@ -142,66 +81,31 @@
         type: String,
         default: 'searchLabel',
       },
+      value: {
+        type: String,
+        default: null,
+      },
     },
     data() {
       return {
-        searchInputValue: this.$store.state.search.searchTerm,
-        contentKindFilterSelection: {},
-        channelFilterSelection: {},
+        searchInputValue: '',
       };
     },
     computed: {
-      ...mapGetters({
-        channels: 'getChannels',
-      }),
-      ...mapState('search', ['searchTerm', 'channel_ids', 'content_kinds']),
-      channelFilterStyle() {
-        const maxWidth = 375;
-        // If window is small, just let it have its default width
-        if (this.channelFilterOptions.length === 0 || this.elementWidth < maxWidth + 32) {
-          return {};
-        }
-        // Otherwise, adjust the width based on the longest channel name,
-        // capped at 375px, or approx 50 characters
-        const longestChannelName = maxBy(
-          this.channelFilterOptions,
-          channel => channel.label.length
-        );
-        const maxPx = Math.min(longestChannelName.label.length * 8, maxWidth);
-        return {
-          width: `${maxPx}px`,
-        };
+      newSearchTerm: {
+        get() {
+          return this.searchInputValue === null ? this.currentSearchTerm : this.searchInputValue;
+        },
+        set(value) {
+          this.searchInputValue = value || '';
+        },
       },
-      allFilter() {
-        return { label: this.coreString('allLabel'), value: ALL_FILTER };
-      },
-      contentKindFilterOptions() {
-        if (this.content_kinds.length) {
-          const options = Object.keys(kindFilterToLabelMap)
-            .filter(kind => this.content_kinds.includes(kind))
-            .map(kind => ({
-              label: this.$tr(kindFilterToLabelMap[kind]),
-              value: kind,
-            }));
-          return [this.allFilter, ...options];
-        }
-        return [];
-      },
-      channelFilterOptions() {
-        if (this.channel_ids.length) {
-          const options = this.channels
-            .filter(channel => this.channel_ids.includes(channel.id))
-            .map(channel => ({
-              label: channel.title,
-              value: channel.id,
-            }));
-          return [this.allFilter, ...options];
-        }
-        return [];
+      currentSearchTerm() {
+        return this.value !== null ? this.value : this.$route.query.keywords;
       },
       searchBarDisabled() {
         // Disable the search bar if it has been cleared or has not been changed
-        return this.searchInputValue === '' || this.searchInputValue === this.searchTerm;
+        return this.searchInputValue === '';
       },
       searchInputStyle() {
         return {
@@ -211,18 +115,6 @@
           color: this.$themeTokens.text,
         };
       },
-    },
-    beforeMount() {
-      if (this.filters) {
-        this.contentKindFilterSelection =
-          this.contentKindFilterOptions.find(
-            option => option.value === this.$store.state.search.kindFilter
-          ) || this.allFilter;
-        this.channelFilterSelection =
-          this.channelFilterOptions.find(
-            option => option.value === this.$store.state.search.channelFilter
-          ) || this.allFilter;
-      }
     },
     methods: {
       clearInput() {
@@ -240,54 +132,19 @@
         this.$refs.searchInput.focus();
       },
       updateSearchQuery() {
-        const query = {
-          searchTerm: this.searchInputValue || this.$route.query.searchTerm,
-        };
-        if (this.filters) {
-          query.kind = this.$refs.contentKindFilter.selection.value;
-          query.channel_id = this.$refs.channelFilter.selection.value;
+        if (this.value !== null) {
+          this.$emit('change', this.searchInputValue);
+        } else {
+          this.$router
+            .push({
+              name: PageNames.LIBRARY,
+              query: {
+                ...this.$route.query,
+                keywords: this.searchInputValue || this.$route.query.keywords,
+              },
+            })
+            .catch(() => {});
         }
-        this.$router
-          .push({
-            name: PageNames.SEARCH,
-            query: pickBy(query),
-          })
-          .catch(() => {});
-      },
-    },
-    $trs: {
-      resourceType: {
-        message: 'Type',
-        context:
-          'Learners can filter their searches for resources by type. For example, audio files, video files etc.',
-      },
-      topics: {
-        message: 'Folders',
-        context:
-          'Learners can also search for complete folders.\n\nA folder is a collection of resources and other subfolders within a channel.',
-      },
-      exercises: {
-        message: 'Exercises',
-        context:
-          'Learners can filter their searches for resources by type. In this case, exercises.',
-      },
-      videos: {
-        message: 'Videos',
-        context: 'Learners can filter their searches for resources by type. In this case, videos.',
-      },
-      audio: {
-        message: 'Audio',
-        context:
-          'Learners can filter their searches for resources by type. In this case, audio files.',
-      },
-      documents: {
-        message: 'Documents',
-        context:
-          'Learners can filter their searches for resources by type. In this case, documents.',
-      },
-      html5: {
-        message: 'Apps',
-        context: 'Learners can filter their searches for resources by type. In this case, apps.',
       },
     },
   };

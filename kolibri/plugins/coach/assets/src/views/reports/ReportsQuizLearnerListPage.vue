@@ -5,7 +5,7 @@
       <template #headers>
         <th>{{ coachString('nameLabel') }}</th>
         <th>{{ coreString('progressLabel') }}</th>
-        <th>{{ coachString('scoreLabel') }}</th>
+        <th>{{ coreString('scoreLabel') }}</th>
         <th>{{ coachString('groupsLabel') }}</th>
       </template>
       <template #tbody>

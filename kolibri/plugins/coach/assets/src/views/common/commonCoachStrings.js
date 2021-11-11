@@ -263,11 +263,6 @@ const coachStrings = createTranslator('CommonCoachStrings', {
     context:
       "In the 'Reports' tab, coaches can see the number of viewed learning resources for each learner.",
   },
-  scoreLabel: {
-    message: 'Score',
-    context:
-      "In the 'Reports' tab, coaches can see the score that each learner has obtained on a quiz.\n\nThis is represented as a percentage and indicates the questions they've answered correctly.",
-  },
   startedLabel: {
     message: 'Started',
     context: 'Indicates if a learner has started a specific activity, like a quiz.',
@@ -280,10 +275,6 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   titleLabel: {
     message: 'Title',
     context: 'Generic label for the name of some element like a lesson.',
-  },
-  timeSpentLabel: {
-    message: 'Time spent',
-    context: 'Indicates the time a learner has taken on a specific learning resource.',
   },
   ungroupedLearnersLabel: {
     message: 'Ungrouped learners',
@@ -505,6 +496,23 @@ const MissingContentStrings = createTranslator('MissingContentStrings', {
     message: 'Go to download page',
     context:
       'Text for the link displayed at the bottom of the "Upgrade Kolibri to view resources" modal',
+  },
+
+  // TODO - move these into diff sections as we make this a full feature in 0.16
+  // Past Papers Project (12/2021) strings
+  latestScoreLabel: {
+    message: 'Latest score',
+    context:
+      'Heading for most recent score for a practice quiz in table of learners. Found in Reports > Lesson > Practice quiz.',
+  },
+  attemptsLabel: {
+    message: 'Attempts',
+    context:
+      'Heading for total number of times a learner took a practice quiz in table of learners. Found in Reports > Lesson > Practice quiz.',
+  },
+  difficultQuestionsDescription: {
+    message: 'Difficult questions in the most recent attempt of all learners',
+    context: "Description for the 'Difficult questions' subtab.",
   },
 });
 

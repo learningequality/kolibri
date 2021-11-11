@@ -4,7 +4,7 @@
     :header="$tr('importIndividualUsersHeader')"
     :description="formDescription"
     :submitText="coreString('importAction')"
-    :disabled="username === ''"
+    :disabled="checkFormDisabled"
     @submit="handleSubmit"
   >
     <p class="facility-name">
@@ -23,6 +23,7 @@
       @blur="blurred = true"
     />
     <PasswordTextbox
+      v-if="!facility.learner_can_login_with_no_password"
       ref="passwordTextbox"
       :value.sync="password"
       :showConfirmationInput="false"
@@ -116,6 +117,12 @@
       },
       facility() {
         return this.state.value.facility;
+      },
+      checkFormDisabled() {
+        return (
+          this.username === '' ||
+          this.state.value.users.find(f => f.username === this.username) !== undefined
+        );
       },
       formDescription() {
         if (this.device.name) {

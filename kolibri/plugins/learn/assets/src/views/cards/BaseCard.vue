@@ -4,47 +4,57 @@
     :to="to"
     class="base-card"
   >
-    <KFixedGrid
-      v-if="$slots.topLeft || $slots.topRight"
-      numCols="2"
-      :style="{ marginBottom: '12px' }"
-    >
-      <KFixedGridItem span="1">
-        <slot name="topLeft"></slot>
-      </KFixedGridItem>
-      <KFixedGridItem span="1">
-        <slot name="topRight"></slot>
-      </KFixedGridItem>
-    </KFixedGrid>
+    <div>
+      <KFixedGrid
+        v-if="$slots.topLeft || $slots.topRight"
+        numCols="2"
+        :style="{ marginBottom: '12px' }"
+      >
+        <KFixedGridItem span="1">
+          <slot name="topLeft"></slot>
+        </KFixedGridItem>
+        <KFixedGridItem span="1">
+          <slot name="topRight"></slot>
+        </KFixedGridItem>
+      </KFixedGrid>
 
-    <div
-      v-if="collectionTitle"
-      data-test="collectionTitle"
-    >
-      {{ collectionTitle }}
+      <div
+        v-if="collectionTitle"
+        :style="{ color: $themeTokens.annotation }"
+        dir="auto"
+        data-test="collectionTitle"
+      >
+        {{ collectionTitle }}
+      </div>
+
+      <h3 class="title">
+        <TextTruncatorCss
+          dir="auto"
+          :text="title"
+          :maxLines="2"
+        />
+      </h3>
     </div>
 
-    <h3 class="title">
-      {{ title }}
-    </h3>
-
-    <slot name="progress">
-      <div
-        class="progress"
-        :class="themeClasses.progress"
-      >
+    <div
+      class="progress"
+      :class="themeClasses.progress"
+    >
+      <slot name="progress">
         <KLabeledIcon
           v-if="inProgressLabel"
-          icon="inProgress"
+          :color="$themeTokens.progress"
           :label="inProgressLabel"
+          icon="inProgress"
         />
         <KLabeledIcon
           v-else-if="completedLabel"
-          icon="mastered"
+          :color="$themeTokens.mastered"
           :label="completedLabel"
+          icon="mastered"
         />
-      </div>
-    </slot>
+      </slot>
+    </div>
   </CardLink>
 
 </template>
@@ -52,6 +62,7 @@
 
 <script>
 
+  import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import CardLink from './CardLink.vue';
 
   /**
@@ -64,6 +75,7 @@
   export default {
     name: 'BaseCard',
     components: {
+      TextTruncatorCss,
       CardLink,
     },
     props: {
@@ -121,6 +133,9 @@
   $font-size-annotation: 14px;
 
   .base-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
     font-size: $font-size-annotation;
   }
 
@@ -130,7 +145,9 @@
   }
 
   .progress {
-    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    height: 18px;
   }
 
 </style>

@@ -4,6 +4,7 @@ import CoreTable from 'kolibri.coreVue.components.CoreTable';
 import { ContentNodeKinds, CollectionKinds } from 'kolibri.coreVue.vuex.constants';
 import router from 'kolibri.coreVue.router';
 import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
+import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
 import meanBy from 'lodash/meanBy';
 import maxBy from 'lodash/maxBy';
 import find from 'lodash/find';
@@ -147,6 +148,7 @@ export default {
     HelpNeeded,
     Placeholder,
     StatusElapsedTime,
+    TimeDuration,
   },
   mixins: [coachStringsMixin],
   computed: {

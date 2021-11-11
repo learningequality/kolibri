@@ -2,11 +2,6 @@
 
   <div>
 
-    <CoachContentLabel
-      class="coach-content-label"
-      :value="content.coach_content ? 1 : 0"
-      :isTopic="isTopic"
-    />
     <template v-if="sessionReady">
       <KContentRenderer
         v-if="!content.assessment"
@@ -18,10 +13,10 @@
         :available="content.available"
         :duration="content.duration"
         :extraFields="extraFields"
-        :progress="summaryProgress"
+        :progress="progress"
         :userId="currentUserId"
         :userFullName="fullName"
-        :timeSpent="summaryTimeSpent"
+        :timeSpent="timeSpent"
         @startTracking="startTracking"
         @stopTracking="stopTracking"
         @updateProgress="updateProgress"
@@ -33,7 +28,6 @@
 
       <AssessmentWrapper
         v-else
-        :id="content.id"
         class="content-renderer"
         :kind="content.kind"
         :files="content.files"
@@ -41,32 +35,26 @@
         :randomize="content.randomize"
         :masteryModel="content.masteryModel"
         :assessmentIds="content.assessmentIds"
-        :channelId="channelId"
         :available="content.available"
         :extraFields="extraFields"
-        :progress="summaryProgress"
+        :progress="progress"
         :userId="currentUserId"
         :userFullName="fullName"
-        :timeSpent="summaryTimeSpent"
+        :timeSpent="timeSpent"
         @startTracking="startTracking"
         @stopTracking="stopTracking"
-        @updateProgress="updateExerciseProgress"
+        @updateProgress="updateProgress"
         @updateContentState="updateContentState"
       />
-      <SidePanel />
     </template>
     <KCircularLoader v-else />
 
     <CompletionModal
       v-if="progress >= 1 && wasIncomplete"
       :isUserLoggedIn="isUserLoggedIn"
-      :nextContentNode="content.next_content"
-      :nextContentNodeRoute="nextContentNodeRoute"
-      :recommendedContentNodes="recommended"
-      :genContentLink="genContentLink"
+      :contentNodeId="content.id"
       @close="markAsComplete"
     />
-    <KCircularLoader v-else />
   </div>
 
 </template>
@@ -77,13 +65,11 @@
   import { mapState, mapGetters, mapActions } from 'vuex';
   import { ContentNodeResource } from 'kolibri.resources';
   import router from 'kolibri.coreVue.router';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
-  import { PageNames, ClassesPageNames } from '../constants';
+  import { ClassesPageNames } from '../constants';
   import { updateContentNodeProgress } from '../modules/coreLearn/utils';
   import AssessmentWrapper from './AssessmentWrapper';
-  import { lessonResourceViewerLink } from './classes/classPageLinks';
   import commonLearnStrings from './commonLearnStrings';
+  import CompletionModal from './CompletionModal';
 
   export default {
     name: 'ContentPage',
@@ -95,15 +81,30 @@
       return {
         title: this.$tr('documentTitle', {
           contentTitle: this.content.title,
-          channelTitle: this.channel.title,
+          channelTitle: this.content.ancestors[0].title,
         }),
       };
     },
     components: {
-      CoachContentLabel,
       AssessmentWrapper,
+      CompletionModal,
     },
     mixins: [commonLearnStrings],
+    props: {
+      content: {
+        type: Object,
+        required: true,
+        validator(val) {
+          return val.kind && val.content_id;
+        },
+      },
+      // only present when the content node is being viewed as part of lesson
+      lessonId: {
+        type: String,
+        required: false,
+        default: null,
+      },
+    },
     data() {
       return {
         wasIncomplete: false,
@@ -113,51 +114,17 @@
     computed: {
       ...mapGetters(['isUserLoggedIn', 'currentUserId']),
       ...mapState(['pageName']),
-      ...mapState('topicsTree', {
-        contentId: state => state.content.content_id,
-        contentNodeId: state => state.content.id,
-        channelId: state => state.content.channel_id,
-        contentKind: state => state.content.kind,
-      }),
       ...mapState({
-        masteryAttempts: state => state.core.logging.mastery.totalattempts,
-        summaryProgress: state => state.core.logging.summary.progress,
-        summaryTimeSpent: state => state.core.logging.summary.time_spent,
-        sessionProgress: state => state.core.logging.session.progress,
-        extraFields: state => state.core.logging.summary.extra_fields,
+        progress: state => state.core.logging.progress,
+        timeSpent: state => state.core.logging.time_spent,
+        extraFields: state => state.core.logging.extra_fields,
         fullName: state => state.core.session.full_name,
       }),
-
-      progress() {
-        if (this.isUserLoggedIn) {
-          // if there no attempts for this exercise, there is no progress
-          if (this.content.kind === ContentNodeKinds.EXERCISE && this.masteryAttempts === 0) {
-            return undefined;
-          }
-          return this.summaryProgress;
-        }
-        return this.sessionProgress;
-      },
-
-      nextContentNodeRoute() {
-        // HACK Use a the Resource Viewer Link instead
-        if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
-          return lessonResourceViewerLink(Number(this.$route.params.resourceNumber) + 1);
-        }
-        return {
-          name:
-            this.content.next_content.kind === ContentNodeKinds.TOPIC
-              ? PageNames.TOPICS_TOPIC
-              : PageNames.TOPICS_CONTENT,
-          params: { id: this.content.next_content.id },
-        };
-      },
     },
     created() {
-      return this.initSessionAction({
-        channelId: this.channelId,
-        contentId: this.contentId,
-        contentKind: this.contentKind,
+      return this.initContentSession({
+        nodeId: this.content.id,
+        lessonId: this.lessonId,
       }).then(() => {
         this.sessionReady = true;
         this.setWasIncomplete();
@@ -168,33 +135,28 @@
     },
     methods: {
       ...mapActions({
-        initSessionAction: 'initContentSession',
-        updateProgressAction: 'updateProgress',
-        addProgressAction: 'addProgress',
+        initContentSession: 'initContentSession',
+        updateContentSession: 'updateContentSession',
         startTracking: 'startTrackingProgress',
         stopTracking: 'stopTrackingProgress',
-        updateContentNodeState: 'updateContentState',
       }),
       setWasIncomplete() {
         this.wasIncomplete = this.progress < 1;
       },
-      updateProgress(progressPercent, forceSave = false) {
-        this.updateProgressAction({ progressPercent, forceSave }).then(updatedProgressPercent =>
-          updateContentNodeProgress(this.channelId, this.contentNodeId, updatedProgressPercent)
+      updateProgress(progress) {
+        this.updateContentSession({ progress }).then(() =>
+          updateContentNodeProgress(this.contentNodeId, this.progress)
         );
-        this.$emit('updateProgress', progressPercent);
+        this.$emit('updateProgress', progress);
       },
-      addProgress(progressPercent, forceSave = false) {
-        this.addProgressAction({ progressPercent, forceSave }).then(updatedProgressPercent =>
-          updateContentNodeProgress(this.channelId, this.contentNodeId, updatedProgressPercent)
+      addProgress(progressDelta) {
+        this.updateContentSession({ progressDelta }).then(() =>
+          updateContentNodeProgress(this.contentNodeId, this.progress)
         );
-        this.$emit('addProgress', progressPercent);
+        this.$emit('addProgress', progressDelta);
       },
-      updateExerciseProgress(progressPercent) {
-        this.$emit('updateProgress', progressPercent);
-      },
-      updateContentState(contentState, forceSave = true) {
-        this.updateContentNodeState({ contentState, forceSave });
+      updateContentState(contentState) {
+        this.updateContentSession({ contentState });
       },
       navigateTo(message) {
         let id = message.nodeId;
@@ -206,10 +168,9 @@
             this.$store.dispatch('handleApiError', error);
           });
       },
-      // TODO: markAsComplete not used but may be re-added for upcoming progress/status work
-      // markAsComplete() {
-      //   this.wasIncomplete = false;
-      // },
+      markAsComplete() {
+        this.wasIncomplete = false;
+      },
       onError(error) {
         this.$store.dispatch('handleApiError', error);
       },

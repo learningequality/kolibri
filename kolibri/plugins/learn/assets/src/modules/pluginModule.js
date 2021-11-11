@@ -6,9 +6,6 @@ import classes from './classes';
 import examReportViewer from './examReportViewer';
 import examViewer from './examViewer';
 import lessonPlaylist from './lessonPlaylist';
-import recommended from './recommended';
-import search from './search';
-import topicsRoot from './topicsRoot';
 import topicsTree from './topicsTree';
 
 import plugin_data from 'plugin_data';
@@ -17,9 +14,8 @@ export default {
   state() {
     return {
       pageName: '',
-      examAttemptLogs: {},
-      examLog: {},
       memberships: [],
+      rootNodes: [],
       canAccessUnassignedContentSetting: plugin_data.allowLearnerUnassignedResourceAccess,
       allowGuestAccess: plugin_data.allowGuestAccess,
     };
@@ -33,9 +29,6 @@ export default {
     examReportViewer,
     examViewer,
     lessonPlaylist,
-    recommended,
-    search,
-    topicsRoot,
     topicsTree,
   },
 };

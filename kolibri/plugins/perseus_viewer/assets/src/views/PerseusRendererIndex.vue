@@ -1,8 +1,12 @@
 <template>
 
-  <div v-if="itemId || itemData" class="bibliotron-exercise perseus-root">
-    <div class="framework-perseus" :class="{ 'perseus-mobile': isMobile }">
-      <div id="perseus" ref="perseus" style="background-color: white;">
+  <div
+    v-if="itemId || itemData"
+    class="bibliotron-exercise perseus-root"
+    :class="{ 'perseus-mobile': isMobile }"
+  >
+    <div class="framework-perseus" :style="{ margin: isMobile ? '0' : '0 24px' }">
+      <div id="perseus" ref="perseus" class="perseus">
         <div class="loader-container">
           <KLinearLoader
             v-show="loading"
@@ -10,49 +14,24 @@
             type="indeterminate"
           />
         </div>
-        <div
-          id="problem-area"
-          :dir="contentDirection"
-        >
-          <div id="workarea" style="margin-left: 0px"></div>
-        </div>
+        <KGrid>
+          <KGridItem :layout="{ span: 8 }">
+            <div
+              id="problem-area"
+              class="problem-area"
+              :dir="contentDirection"
+            >
+              <div id="workarea" style="margin-left: 0px; margin-right: 0px;"></div>
+            </div>
+          </KGridItem>
 
-        <div
-          v-if="anyHints"
-          class="hint-btn-container"
-        >
-          <KButton
-            v-if=" availableHints > 0"
-            class="hint-btn"
-            appearance="basic-link"
-            :text="$tr('hint', { hintsLeft: availableHints })"
-            :primary="false"
-            @click="takeHint"
-          />
-          <KButton
-            v-else
-            class="hint-btn"
-            appearance="basic-link"
-            :text="$tr('noMoreHint')"
-            :primary="false"
-            :disabled="true"
-          />
-          <CoreInfoIcon
-            class="info-icon"
-            tooltipPosition="bottom right"
-            :iconAriaLabel="$tr('hintExplanation')"
-            :tooltipText="$tr('hintExplanation')"
-          />
-        </div>
-
-
-        <div v-if="hinted" id="hintlabel" :dir="contentDirection">
-          {{ $tr("hintLabel") }}
-        </div>
-        <div id="hintsarea" :dir="contentDirection" style="margin-left: 0px"></div>
-
-        <div style="clear: both;"></div>
-
+          <KGridItem :layout="{ span: 4 }">
+            <div v-if="hinted" id="hintlabel" class="hintlabel" :dir="contentDirection">
+              {{ $tr("hintLabel") }}
+            </div>
+            <div id="hintsarea" class="hintsarea" :dir="contentDirection"></div>
+          </KGridItem>
+        </KGrid>
       </div>
 
       <transition name="expand">
@@ -61,7 +40,7 @@
         </div>
       </transition>
 
-      <div id="answer-area-wrap" :dir="contentDirection" style="background-color: white;">
+      <div id="answer-area-wrap" :dir="contentDirection">
         <div id="answer-area">
           <div class="info-box">
             <div id="solutionarea" class="solutionarea"></div>
@@ -101,7 +80,6 @@
   import urls from 'kolibri.urls';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import scriptLoader from 'kolibri.utils.scriptLoader';
-  import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import perseus from '../../dist/perseus';
   import icu from '../KAGlobals/icu';
   import Khan from '../KAGlobals/Khan';
@@ -133,9 +111,6 @@
 
   export default {
     name: 'PerseusRendererIndex',
-    components: {
-      CoreInfoIcon,
-    },
     mixins: [responsiveWindowMixin],
     data: () => ({
       // Is the perseus item renderer loading?
@@ -186,13 +161,13 @@
       hinted() {
         return this.itemRenderer ? this.itemRenderer.state.hintsVisible > 0 : false;
       },
+      /* eslint-disable kolibri/vue-no-unused-properties */
       availableHints() {
-        return this.itemRenderer
-          ? this.itemRenderer.getNumHints() - this.itemRenderer.state.hintsVisible
-          : 0;
+        /* eslint-enable */
+        return (this.itemRenderer && this.totalHints - this.itemRenderer.state.hintsVisible) || 0;
       },
-      anyHints() {
-        return this.allowHints && (this.itemRenderer ? this.itemRenderer.getNumHints() : 0);
+      totalHints() {
+        return this.itemRenderer ? this.itemRenderer.getNumHints() : 0;
       },
     },
     watch: {
@@ -410,6 +385,9 @@
         }
         return null;
       },
+      /*
+       * @public
+       */
       takeHint() {
         if (
           this.itemRenderer &&
@@ -430,7 +408,7 @@
       loadPerseusFile() {
         if (this.defaultFile && this.defaultFile.storage_url) {
           this.loading = true;
-          if (!this.perseusFile) {
+          if (!this.perseusFile || this.perseusFileUrl !== this.defaultFile.storage_url) {
             return client({
               method: 'get',
               url: this.defaultFile.storage_url,
@@ -442,6 +420,7 @@
               })
               .then(perseusFile => {
                 this.perseusFile = perseusFile;
+                this.perseusFileUrl = this.defaultFile.storage_url;
               });
           } else {
             return Promise.resolve();
@@ -597,21 +576,8 @@
         context:
           'The scratchpad refers to the interactive area in an exercise where the learner responds to a question. On some devices the scratchpad may not be available. If this is the case, this message is displayed to the learner.',
       },
-      hint: {
-        message: 'Use a hint ({hintsLeft, number} left)',
-        context:
-          'A hint is a suggestion to help learners solve a problem. This phrase tells the learner how many hints they have left to use.',
-      },
-      hintExplanation: {
-        message: 'If you use a hint, this question will not be added to your progress',
-        context: 'A hint is a suggestion to help learners solve a problem.',
-      },
       hintLabel: {
         message: 'Hint:',
-        context: 'A hint is a suggestion to help learners solve a problem.',
-      },
-      noMoreHint: {
-        message: 'No more hints',
         context: 'A hint is a suggestion to help learners solve a problem.',
       },
     },
@@ -627,25 +593,57 @@
   @import '~../../dist/perseus.css';
   @import '~../../dist/mathquill.css';
 
-  .solutionarea {
-    border: 0;
+  /deep/ .perseus-hint-renderer {
+    padding-left: 16px;
+    border-left-style: none;
   }
 
-  .bibliotron-exercise {
-    margin-bottom: 8px;
+  /deep/ .perseus-hint-label {
+    margin-left: 16px;
+  }
+
+  .solutionarea {
+    padding: 0 !important;
+    border-bottom-style: none !important;
+  }
+
+  .hintlabel {
+    margin-left: 16px;
+  }
+
+  .hintsarea {
+    padding-right: 16px;
   }
 
   .hint-btn-container {
-    margin-top: 32px;
-    text-align: right;
+    display: flex;
+    align-items: center;
+    font-size: medium;
+
+    &.rtl {
+      /deep/ .k-tooltip {
+        right: auto !important;
+        left: 0 !important;
+      }
+    }
+
+    /deep/ .k-tooltip {
+      right: 0 !important;
+      left: auto !important;
+      transform: translate3d(0, 23px, 0) !important;
+    }
   }
 
   .hint-btn {
     vertical-align: text-bottom;
+
+    /deep/ .link-text {
+      text-align: right;
+    }
   }
 
   .info-icon {
-    margin-left: 8px;
+    margin: 0 8px;
   }
 
   .loader-container {
@@ -653,8 +651,48 @@
     height: 4px;
   }
 
-  .framework-perseus.perseus-mobile {
-    margin-top: 0;
+  .problem-area {
+    padding: 0 16px 16px;
+  }
+
+  /* Perseus Hacks */
+
+  /* The rest in this <style> block are mostly styles that
+     help force Perseus exercises to render within the allotted space. */
+
+  .framework-perseus {
+    padding-bottom: 104px;
+
+    // Draggable box wrapper. Stops it from going off screen right
+    /deep/ .draggy-boxy-thing {
+      display: inline;
+    }
+    // Multiple choice table padding/margin fixes for clean appearance
+    /deep/ .widget-block > div {
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+    /deep/ .perseus-widget-radio {
+      margin: 0 !important;
+    }
+    /deep/ .perseus-widget-radio-fieldset {
+      padding-right: 0 !important;
+      padding-left: 0 !important;
+    }
+  }
+
+  // try to prevent nested scroll bars
+  .perseus-widget-container > div {
+    overflow: visible !important;
+  }
+
+  .perseus {
+    padding: 24px;
+    background: white;
+  }
+
+  /deep/ .perseus-renderer {
+    padding: 16px;
   }
 
 </style>
@@ -665,6 +703,9 @@
   // Reset global styles so that we don't interfere with perseus styling
 
   .perseus-root {
+    position: relative;
+    z-index: 0;
+
     div,
     span,
     applet,
@@ -808,11 +849,6 @@
 
   .keypad-container {
     direction: ltr;
-  }
-
-  // try to prevent nested scroll bars
-  .perseus-widget-container > div {
-    overflow: visible !important;
   }
 
 </style>

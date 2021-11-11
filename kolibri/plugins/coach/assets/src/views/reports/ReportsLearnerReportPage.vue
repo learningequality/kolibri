@@ -51,7 +51,7 @@
             <template #headers>
               <th>{{ coachString('titleLabel') }}</th>
               <th>{{ coreString('progressLabel') }}</th>
-              <th>{{ coachString('scoreLabel') }}</th>
+              <th>{{ coreString('scoreLabel') }}</th>
             </template>
             <template #tbody>
               <transition-group tag="tbody" name="list">

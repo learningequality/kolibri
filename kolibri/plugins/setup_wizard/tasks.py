@@ -131,6 +131,7 @@ def validate_soud_credentials(request, task_description):
     validator=validate_soud_credentials,
     cancellable=True,
     track_progress=True,
+    queue="kolibri",
     permission_classes=[
         IsSuperuser | NotProvisionedCanPost | LODUserHasSyncPermissions
     ],

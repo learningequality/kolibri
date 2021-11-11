@@ -44,7 +44,6 @@ help:
 	@echo "i18n-download branch=<crowdin-branch>: download strings from Crowdin"
 	@echo "i18n-download-source-fonts: retrieve source Google Noto fonts"
 	@echo "i18n-regenerate-fonts: regenerate font files"
-	@echo "i18n-update branch=<crowdin-branch>: i18n-download + i18n-regenerate-fonts"
 	@echo "i18n-stats branch=<crowdin-branch>: output information about translation status"
 	@echo "i18n-django-compilemessages: compiles .po files to .mo files for Django"
 	@echo "i18n-install-font name=<noto-font>: Downloads and installs a new or updated font"
@@ -164,13 +163,7 @@ writeversion:
 	@echo "Current version is now `cat kolibri/VERSION`"
 
 preseeddb:
-	$(eval TEMPKHOME := $(shell mktemp -d /tmp/kolibri-preseeddb-XXXXXXXX))
-	PYTHONPATH=".:$$PYTHONPATH" KOLIBRI_HOME=$(TEMPKHOME) python -m kolibri manage migrate
-	yes yes | PYTHONPATH=".:$$PYTHONPATH" KOLIBRI_HOME=$(TEMPKHOME) python -m kolibri manage deprovision
-	mkdir kolibri/dist/home
-	mv $(TEMPKHOME)/db.sqlite3 kolibri/dist/home/db.sqlite3
-	mv $(TEMPKHOME)/notifications.sqlite3 kolibri/dist/home/notifications.sqlite3
-	rm -r $(TEMPKHOME)
+	PYTHONPATH=".:$PYTHONPATH" python build_tools/preseed_home.py
 
 setrequirements:
 	rm -r requirements.txt || true # remove requirements.txt
@@ -182,7 +175,7 @@ buildconfig:
 	git checkout -- kolibri/utils/build_config # restore __init__.py
 	python build_tools/customize_build.py
 
-dist: setrequirements writeversion staticdeps staticdeps-cext buildconfig i18n-extract-frontend assets i18n-django-compilemessages
+dist: setrequirements writeversion staticdeps staticdeps-cext buildconfig i18n-extract-frontend assets i18n-django-compilemessages preseeddb
 	python setup.py sdist --format=gztar > /dev/null # silence the sdist output! Too noisy!
 	python setup.py bdist_wheel
 	ls -l dist
@@ -231,11 +224,6 @@ i18n-regenerate-fonts:
 
 i18n-download: i18n-download-translations i18n-regenerate-fonts i18n-transfer-context
 
-i18n-update:
-	echo "WARNING: i18n-update has been renamed to i18n-download"
-	$(MAKE) i18n-download
-	echo "WARNING: i18n-update has been renamed to i18n-download"
-
 i18n-stats:
 	python packages/kolibri-tools/lib/i18n/crowdin.py translation-stats ${branch}
 
@@ -248,14 +236,20 @@ i18n-download-glossary:
 i18n-upload-glossary:
 	python packages/kolibri-tools/lib/i18n/crowdin.py upload-glossary
 
-docker-whl: writeversion docker-envlist
-	docker image build -t "learningequality/kolibri-whl" -f docker/build_whl.dockerfile .
+docker-clean:
+	rm -f *.iid *.cid
+
+docker-whl: docker-envlist docker-clean
+	docker build \
+		--iidfile docker-whl.iid \
+		-f docker/build_whl.dockerfile .
 	docker run \
 		--env-file ./docker/env.list \
-		-v $$PWD/dist:/kolibridist \
+		--cidfile docker-whl.cid \
 		-v yarn_cache:/yarn_cache \
 		-v cext_cache:/cext_cache \
-		"learningequality/kolibri-whl"
+		`cat docker-whl.iid`
+	docker cp `cat docker-whl.cid`:/kolibri/dist/. dist/
 	git checkout -- ./docker/env.list  # restore env.list file
 
 docker-build-base: writeversion

@@ -77,6 +77,7 @@ export function showChannelQuizCreationTopicPage(store, params) {
       getParams: {
         parent: topicId,
         kind_in: [ContentNodeKinds.TOPIC, ContentNodeKinds.EXERCISE],
+        contains_quiz: true,
       },
     });
     const loadRequirements = [topicNodePromise, childNodesPromise];

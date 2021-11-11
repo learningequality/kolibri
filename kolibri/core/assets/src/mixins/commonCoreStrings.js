@@ -1,4 +1,8 @@
 import { createTranslator } from 'kolibri.utils.i18n';
+import camelCase from 'lodash/camelCase';
+import get from 'lodash/get';
+import invert from 'lodash/invert';
+import * as METADATA from 'kolibri.coreVue.vuex.constants';
 import notificationStrings from './notificationStrings';
 
 export const coreStrings = createTranslator('CommonCoreStrings', {
@@ -1019,6 +1023,90 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Folders',
     context: "Tab label in the 'Browse channel' page that allows to navigate through its topics.",
   },
+
+  // TODO - move these into diff sections as we make this a full feature in 0.16
+  // Past Papers Project (12/2021) strings
+  scoreLabel: {
+    message: 'Score',
+    context:
+      "In the 'Reports' tab, coaches can see the score that each learner has obtained on a quiz.\n\nThis is represented as a percentage and indicates the questions they've answered correctly.",
+  },
+  timeSpentLabel: {
+    message: 'Time spent',
+    context: 'Indicates the time a learner has taken on a specific learning resource.',
+  },
+  practiceQuizReportTitle: {
+    message: 'Report for {quizTitle}',
+    context: 'Title of the independent practice quiz',
+  },
+  practiceAgainButton: {
+    message: 'Practice again',
+    context: 'Label for a button used to retake the same independent practice quiz again',
+  },
+  statusLabel: {
+    message: 'Status',
+    context:
+      'In a learner\'s independent practice quiz report, indicates if the practice quiz is "In progress" or "Completed"',
+  },
+  attemptedLabel: {
+    message: 'Attempted',
+    context:
+      'A number (time) that indicates the when the learner last took this independent practice quiz',
+  },
+  bestScoreLabel: {
+    message: 'Best score',
+    context:
+      'When there have been multiple attempts on a practice quiz, indicates to learner the percentage of their highest score',
+  },
+  bestScoreTimeLabel: {
+    message: 'Best score time',
+    context:
+      'When there have been multiple attempts on a practice quiz, indicates to learner the length of time taken for the attempt with the highest score',
+  },
+  attemptDropdownLabel: {
+    message: 'Attempt',
+    context:
+      'Label for the dropdown to choose one of their five most recent attempts at the practice quiz',
+  },
+  answerLogCorrectLabel: {
+    message: 'You answered this correctly on the previous attempt',
+    context:
+      'Label that indicates to learner they answered the question correctly the previous time they took the practice quiz',
+  },
+  answerLogIncorrectLabel: {
+    message: 'You also answered this incorrectly on the previous attempt',
+    context:
+      'Label that indicates to learner they answered this question incorrectly this attempt and also the attempt before this',
+  },
+  answerLogImprovedLabel: {
+    message: 'You improved your incorrect answer on the previous attempt',
+    context:
+      'Label that indicates to learner they got the question wrong the previous time, but got it correctly on this attempt',
+  },
+  practiceQuizReportImprovedLabel: {
+    message:
+      'You improved at {value, number, integer} {value, plural, one {question} other {questions}}',
+    context:
+      'Indicates to learner how many questions they answered correctly compared to the most recent attempt',
+  },
+  practiceQuizReportFasterSuggestedLabel: {
+    message: '{value, number, integer} minutes faster than the suggested time',
+    context: 'Indicates to learner how many minutes faster they were than the suggested time',
+  },
+  practiceQuizReportSlowerSuggestedLabel: {
+    message: '{value, number, integer} minutes slower than the suggested time',
+    context: 'Indicates to learner how many minutes slower they were than the suggested time',
+  },
+  practiceQuizReportFasterTimeLabel: {
+    message: '{value, number, integer} minutes faster than the previous attempt',
+    context:
+      'Indicates to learner how many minutes faster they were during this attempt than the previous attempt',
+  },
+  practiceQuizReportSlowerTimeLabel: {
+    message: '{value, number, integer} minutes slower than the previous attempt',
+    context:
+      'Indicates to learner how many minutes slower they were during this attempt than the previous attempt',
+  },
 });
 
 // We forgot a string, so we are using one from the PerseusInternalMessages namespace
@@ -1028,14 +1116,84 @@ const noneOfTheAboveTranslator = createTranslator('PerseusInternalMessages', {
   'None of the above': 'None of the above',
 });
 
+/**
+ * An object mapping ad hoc keys (like those to be passed to coreString()) which do not
+ * conform to the expectations. Examples:
+ *
+ * - Misspelling of the key in coreStrings but a kolibri-constant used to access it is
+ *   spelled correctly and will not map.
+ * - Keys were defined and string-froze which are not camelCase.
+ * - Keys which, when _.camelCase()'ed will not result in a valid key, requiring manual mapping
+ */
+const nonconformingKeys = {
+  PEOPLE: 'ToUseWithTeachersAndPeers',
+  PAPER_PENCIL: 'ToUseWithPaperAndPencil',
+  INTERNET: 'NeedsInternet',
+  MATERIALS: 'NeedsMaterials',
+  FOR_BEGINNERS: 'ForBeginners',
+  digitalLiteracy: 'digitialLiteracy',
+  BASIC_SKILLS: 'allLevelsBasicSkills',
+  FOUNDATIONS: 'basicSkills',
+  toolsAndSoftwareTraining: 'softwareToolsAndTraining',
+  FOUNDATIONS_LOGIC_AND_CRITICAL_THINKING: 'logicAndCriticalThinking',
+};
+
+/**
+ * An object made by taking all metadata namespaces, merging them, then inverting them so that the
+ * ID value (eg, 'rZy41Dc') instead are the keys of an object mapping to the names we use
+ * to find the translation key.
+ */
+const MetadataLookup = invert(
+  Object.assign(
+    {},
+    METADATA.AccessibilityCategories,
+    METADATA.Categories,
+    METADATA.ContentLevels,
+    METADATA.ContentNodeResourceType,
+    METADATA.LearningActivities,
+    METADATA.ResourcesNeededTypes
+  )
+);
+
 export default {
   methods: {
+    /**
+     * Return translated string for key defined in the coreStrings translator. Will map
+     * ID keys generated in the kolibri-constants library to their appropriate translations
+     * if available.
+     *
+     * @param {string} key - A key as defined in the coreStrings translator; also accepts keys
+     * for the object MetadataLookup.
+     * @param {object} args - An object with keys matching ICU syntax arguments for the translation
+     * string mapping to the values to be passed for those arguments.
+     */
     coreString(key, args) {
-      if (key === 'None of the above') {
-        return noneOfTheAboveTranslator.$tr(key, args);
+      if (key === 'None of the above' || key === METADATA.NoCategories) {
+        return noneOfTheAboveTranslator.$tr('None of the above', args);
       }
+
+      const metadataKey = get(MetadataLookup, key, null);
+      key = metadataKey ? camelCase(metadataKey) : key;
+
+      if (nonconformingKeys[key]) {
+        return coreStrings.$tr(nonconformingKeys[key], args);
+      }
+
+      if (nonconformingKeys[metadataKey]) {
+        return coreStrings.$tr(nonconformingKeys[metadataKey], args);
+      }
+
       return coreStrings.$tr(key, args);
     },
+    /**
+     * Shows a specific snackbar notification from our notificationStrings translator.
+     *
+     * @param {string} key - A key as defined in the notificationsStrings translator.
+     * @param {object} args - An object with keys matching ICU syntax arguments for the translation
+     * string mapping to the values to be passed for those arguments.
+     * @param {object} coreCreateSnackbarArgs - Arguments which will be passed to the
+     * `CORE_CREATE_SNACKBAR` mutation.
+     */
     showSnackbarNotification(key, args, coreCreateSnackbarArgs) {
       let text = notificationStrings.$tr(key, args || {});
       if (coreCreateSnackbarArgs) {

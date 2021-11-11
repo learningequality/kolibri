@@ -92,6 +92,7 @@ import LearnOnlyDeviceNotice from '../views/LearnOnlyDeviceNotice';
 import branding from '../utils/branding';
 import sortLanguages from '../utils/sortLanguages';
 import * as sync from '../views/sync/syncComponentSet';
+import PageRoot from '../views/PageRoot';
 
 // webpack optimization
 import CoreInfoIcon from '../views/CoreInfoIcon';
@@ -100,7 +101,9 @@ import AttemptLogList from '../views/AttemptLogList';
 import InteractionList from '../views/InteractionList';
 import ExamReport from '../views/ExamReport';
 import TextTruncator from '../views/TextTruncator';
+import TextTruncatorCss from '../views/TextTruncatorCss';
 import TimeDuration from '../views/TimeDuration';
+import SuggestedTime from '../views/SuggestedTime';
 
 import MultiPaneLayout from '../views/MultiPaneLayout';
 import filterUsersByNames from '../utils/filterUsersByNames';
@@ -112,6 +115,8 @@ import UiToolbar from '../views/KeenUiToolbar.vue';
 import shuffled from '../utils/shuffled';
 import appCapabilities from '../utils/appCapabilities';
 import * as client from './client';
+import clientFactory from './baseClient';
+
 import urls from './urls';
 
 export default {
@@ -162,6 +167,7 @@ export default {
       InteractionList,
       ExamReport,
       TextTruncator,
+      TextTruncatorCss,
       TimeDuration,
       MultiPaneLayout,
       CoreFullscreen,
@@ -189,6 +195,8 @@ export default {
       PrivacyLinkAndModal,
       PageStatus,
       LearnOnlyDeviceNotice,
+      SuggestedTime,
+      PageRoot,
     },
     componentSets: {
       sync,
@@ -210,6 +218,7 @@ export default {
     browserInfo,
     bytesForHumans,
     CatchErrors,
+    clientFactory,
     contentNode,
     coreBannerContent,
     exams,

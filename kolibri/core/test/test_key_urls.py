@@ -53,7 +53,7 @@ class KolibriTagNavigationTestCase(APITestCase):
         self.assertEqual(response.get("location"), reverse(url_name))
 
     def test_anonymous_user_is_redirected_to_user_plugin(self):
-        self._assert_location_reverse_url("kolibri:kolibri.plugins.user:user")
+        self._assert_location_reverse_url("kolibri:kolibri.plugins.user_auth:user_auth")
 
     def test_superuser_is_redirected_to_device_plugin(self):
         self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)

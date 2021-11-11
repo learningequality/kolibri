@@ -19,6 +19,7 @@ from django.db.models import Sum
 from django.utils.six.moves.urllib.parse import urljoin
 from django.utils.timezone import get_current_timezone
 from django.utils.timezone import localtime
+from le_utils.constants import content_kinds
 from morango.models import InstanceIDModel
 from requests.exceptions import ConnectionError
 from requests.exceptions import RequestException
@@ -42,8 +43,7 @@ from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
-from kolibri.core.logger.models import ExamAttemptLog
-from kolibri.core.logger.models import ExamLog
+from kolibri.core.logger.models import MasteryLog
 from kolibri.core.logger.models import UserSessionLog
 from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.main import scheduler
@@ -281,11 +281,11 @@ def extract_facility_statistics(facility):
         # exam_count
         "ec": Exam.objects.filter(dataset_id=dataset_id).count(),
         # exam_log_count
-        "elc": ExamLog.objects.filter(dataset_id=dataset_id).count(),
+        "elc": MasteryLog.objects.filter(dataset_id=dataset_id, summarylog__kind=content_kinds.QUIZ).count(),
         # att_log_count
-        "alc": AttemptLog.objects.filter(dataset_id=dataset_id).count(),
+        "alc": AttemptLog.objects.filter(dataset_id=dataset_id).exclude(sessionlog__kind=content_kinds.QUIZ).count(),
         # exam_att_log_count
-        "ealc": ExamAttemptLog.objects.filter(dataset_id=dataset_id).count(),
+        "ealc": AttemptLog.objects.filter(dataset_id=dataset_id, sessionlog__kind=content_kinds.QUIZ).count(),
         # sess_user_count
         "suc": contsessions_user.count(),
         # sess_anon_count
