@@ -63,6 +63,7 @@ def calculate_thread_pool():
 
 ALL_LANGUAGES = "kolibri-all"
 SUPPORTED_LANGUAGES = "kolibri-supported"
+DEFAULT_THREAD_POOL_SIZE = calculate_thread_pool()
 
 
 def _process_language_string(value):
@@ -301,7 +302,7 @@ base_option_spec = {
         },
         "CHERRYPY_THREAD_POOL": {
             "type": "integer",
-            "default": calculate_thread_pool(),
+            "default": DEFAULT_THREAD_POOL_SIZE,
             "description": "How many threads the Kolibri server should use to serve requests",
         },
         "CHERRYPY_SOCKET_TIMEOUT": {

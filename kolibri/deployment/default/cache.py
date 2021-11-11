@@ -14,6 +14,7 @@ cache_options = OPTIONS["Cache"]
 pickle_protocol = OPTIONS["Python"]["PICKLE_PROTOCOL"]
 
 diskcache_location = os.path.join(KOLIBRI_HOME, "process_cache")
+CACHE_SHARDS = 8
 
 
 def recreate_diskcache():
@@ -47,6 +48,7 @@ default_cache = {
 process_cache = {
     "BACKEND": "diskcache.DjangoCache",
     "LOCATION": diskcache_location,
+    "SHARDS": CACHE_SHARDS,
     "OPTIONS": {
         "MAX_ENTRIES": cache_options["CACHE_MAX_ENTRIES"],
         # Pin pickle protocol for Python 2 compatibility
