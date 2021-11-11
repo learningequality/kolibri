@@ -145,7 +145,7 @@
       v-if="!windowIsLarge && sidePanelIsOpen"
       alignment="left"
       class="full-screen-side-panel"
-      closeButtonHidden="true"
+      :closeButtonHidden="true"
       :sidePanelOverrideWidth="`${sidePanelOverlayWidth + 64}px`"
       @closePanel="toggleSidePanelVisibility"
     >
@@ -172,6 +172,8 @@
         :width="`${sidePanelOverlayWidth}px`"
         :availableLabels="labels"
         position="overlay"
+        :activeActivityButtons="activeActivityButtons"
+        :activeCategories="activeCategories"
         @currentCategory="handleShowSearchModal"
       />
       <CategorySearchModal
