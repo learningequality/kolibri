@@ -187,9 +187,9 @@
       <div v-for="location in locationsInChannel" :key="location.id">
         <div>
           <KRouterLink
-            :to="genContentLink((location.ancestors.splice(-1)[0] || {}).id, false)"
+            :to="genContentLink(lastAncestor(location).id, false)"
           >
-            {{ (location.ancestors.splice(-1)[0] || {}).title }}
+            {{ lastAncestor(location).title }}
           </KRouterLink>
         </div>
       </div>
@@ -305,9 +305,12 @@
         // Retreives any topics in this same channel
         ContentNodeResource.fetchCollection({
           getParams: { content_id: this.content.content_id, channel_id: this.content.channel_id },
-        }).then(
-          locations => (this.locationsInChannel = locations && locations.length ? locations : null)
-        );
+        }).then((locations = []) => {
+          locations = locations.filter(loc => loc.id !== this.content.id);
+          if (locations && locations.length) {
+            this.locationsInChannel = locations;
+          }
+        });
       }
 
       this.metadataStrings = crossComponentTranslator(SidePanelResourceMetadata);
@@ -315,6 +318,10 @@
     },
     methods: {
       genContentLink,
+      lastAncestor(location) {
+        const lastAncestor = location.ancestors[location.ancestors.length - 1];
+        return lastAncestor;
+      },
       toggleShowMoreOrLess() {
         if (this.showMoreOrLess === 'Show More') {
           this.showMoreOrLess = 'Show Less';
