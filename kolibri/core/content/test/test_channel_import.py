@@ -265,6 +265,8 @@ class BaseChannelImportClassOtherMethodsTestCase(TestCase):
             channel_import, "generate_table_mapper"
         ), patch.object(channel_import, "table_import"), patch.object(
             channel_import, "check_and_delete_existing_channel"
+        ), patch.object(
+            channel_import, "execute_post_operations"
         ):
             channel_import.import_channel_data()
             channel_import.generate_row_mapper.assert_called_once_with(
@@ -275,6 +277,7 @@ class BaseChannelImportClassOtherMethodsTestCase(TestCase):
             )
             channel_import.table_import.assert_called_once()
             channel_import.check_and_delete_existing_channel.assert_called_once()
+            channel_import.execute_post_operations.assert_called_once()
 
     def test_end(self, apps_mock, tree_id_mock, BridgeMock):
         channel_import = ChannelImport("test")

@@ -841,6 +841,19 @@ class ChannelImport(object):
                 pass
             self._sqlite_db_attached = False
 
+    def execute_post_operations(self, model, post_operations):
+        DestinationTable = self.destination.get_table(model)
+        for operation in post_operations:
+            try:
+                handler = getattr(self, operation)
+                handler(DestinationTable)
+            except AttributeError:
+                raise AttributeError(
+                    "Post operation {} specified for model {} but none found on class".format(
+                        operation, model
+                    )
+                )
+
     def import_channel_data(self):
 
         logger.debug("Beginning channel metadata import")
@@ -859,6 +872,7 @@ class ChannelImport(object):
                     table_mapper = self.generate_table_mapper(mapping.get("per_table"))
                     logger.info("Importing {model} data".format(model=model.__name__))
                     self.table_import(model, row_mapper, table_mapper)
+                    self.execute_post_operations(model, mapping.get("post", []))
                     logger.debug(
                         "{model} data imported after {seconds} seconds".format(
                             model=model.__name__, seconds=time.time() - model_start
@@ -901,20 +915,23 @@ class NoLearningActivitiesChannelImport(ChannelImport):
             "per_row": {
                 "tree_id": "available_tree_id",
                 "available": "default_to_not_available",
-                "learning_activities": "infer_learning_activities_from_kind",
-            }
+            },
+            "post": ["set_learning_activities_from_kind"],
         },
         LocalFile: {"per_row": {"available": "default_to_not_available"}},
         File: {"per_row": {"available": "default_to_not_available"}},
     }
 
-    def infer_learning_activities_from_kind(self, source_object):
-        kind = source_object.kind
-        if kind in kind_activity_map:
-            return kind_activity_map[kind]
+    def set_learning_activities_from_kind(self, ContentNodeTable):
+        for kind, la in kind_activity_map.items():
+            self.destination.execute(
+                ContentNodeTable.update()
+                .where(ContentNodeTable.c.kind == kind)
+                .values(learning_activities=la)
+            )
 
 
-class NoVersionChannelImport(ChannelImport):
+class NoVersionChannelImport(NoLearningActivitiesChannelImport):
     """
     Class defining the schema mapping for importing old content databases (i.e. ones produced before the
     ChannelImport machinery was implemented). The schema mapping below defines how to bring in information
@@ -936,8 +953,8 @@ class NoVersionChannelImport(ChannelImport):
                 "available": "get_none",
                 "license_name": "get_license_name",
                 "license_description": "get_license_description",
-                "learning_activities": "infer_learning_activities_from_kind",
-            }
+            },
+            "post": ["set_learning_activities_from_kind"],
         },
         File: {
             "per_row": {
@@ -972,11 +989,6 @@ class NoVersionChannelImport(ChannelImport):
     }
 
     licenses = {}
-
-    def infer_learning_activities_from_kind(self, source_object):
-        kind = source_object.kind
-        if kind in kind_activity_map:
-            return kind_activity_map[kind]
 
     def infer_channel_id_from_source(self, source_object):
         return self.channel_id
