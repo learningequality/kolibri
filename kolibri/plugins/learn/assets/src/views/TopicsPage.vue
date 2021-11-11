@@ -117,7 +117,7 @@
 
       <main
         class="main-content-grid"
-        :style="{ marginLeft: `${(sidePanelWidth + 24)}px` }"
+        :style="gridOffset"
       >
         <div
           class="card-grid"
@@ -272,7 +272,6 @@
       <!-- FullScreen is a container component, and then the EmbeddedSidePanel sits within -->
       <FullScreenSidePanel
         v-if="!windowIsLarge && sidePanelIsOpen"
-        alignment="left"
         class="full-screen-side-panel"
         :closeButtonHidden="true"
         :sidePanelOverrideWidth="`${sidePanelOverlayWidth + 64}px`"
@@ -583,6 +582,11 @@
         } else {
           return 346;
         }
+      },
+      gridOffset() {
+        return this.isRtl
+          ? { marginRight: `${this.sidePanelWidth + 24}px` }
+          : { marginLeft: `${this.sidePanelWidth + 24}px` };
       },
       sidePanelOverlayWidth() {
         return 300;
