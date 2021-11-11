@@ -2,8 +2,8 @@ import { validateLinkObject } from 'kolibri.utils.validators';
 import { PageNames } from '../../src/constants';
 import genContentLink from '../../src/utils/genContentLink';
 
-const topicLink = genContentLink(19, null, false);
-const contentLink = genContentLink(88, 1, true);
+const topicLink = genContentLink(19, null, false, null, {});
+const contentLink = genContentLink(88, 1, true, null, {});
 
 describe('genContentLink - generating for a topic (isLeaf != true)', () => {
   it('returns a valid link object', () => {
