@@ -26,7 +26,6 @@ from zeroconf import InterfaceChoice
 
 import kolibri
 from .system import become_daemon
-from .system import get_fd_limit
 from .system import pid_exists
 from kolibri.utils import conf
 from kolibri.utils.android import on_android
@@ -699,39 +698,9 @@ class KolibriProcessBus(ProcessBus):
         if self.serve_http:
             from kolibri.deployment.default.wsgi import application
             from kolibri.deployment.default.alt_wsgi import alt_application
-            from kolibri.utils.options import DEFAULT_THREAD_POOL_SIZE
-
-            # min file descriptor allowance per thread
-            per_thread_fd_allowance = 5
-
-            # using sqlite, include number of databases in fd count
-            if conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "sqlite":
-                from kolibri.deployment.default.sqlite_db_names import (
-                    ADDITIONAL_SQLITE_DATABASES,
-                )
-
-                per_thread_fd_allowance += 1 + len(ADDITIONAL_SQLITE_DATABASES)
-
-            # using diskcache, count number of shards (number of cache files)
-            if conf.OPTIONS["Cache"]["CACHE_BACKEND"] != "redis":
-                from kolibri.deployment.default.cache import CACHE_SHARDS
-
-                per_thread_fd_allowance += CACHE_SHARDS
-
-            # determine if number of threads can exceed fd limit
-            num_threads = conf.OPTIONS["Server"]["CHERRYPY_THREAD_POOL"]
-            max_threads = int(get_fd_limit() / per_thread_fd_allowance)
-            if num_threads > max_threads:
-                if num_threads == DEFAULT_THREAD_POOL_SIZE:
-                    logger.info(
-                        "Lowering CHERRYPY_THREAD_POOL to {}".format(max_threads)
-                    )
-                    num_threads = max_threads
-                else:
-                    logger.warning("Problematic CHERRYPY_THREAD_POOL setting detected")
 
             server_config = {
-                "numthreads": num_threads,
+                "numthreads": conf.OPTIONS["Server"]["CHERRYPY_THREAD_POOL"],
                 "request_queue_size": conf.OPTIONS["Server"]["CHERRYPY_QUEUE_SIZE"],
                 "timeout": conf.OPTIONS["Server"]["CHERRYPY_SOCKET_TIMEOUT"],
                 "accepted_queue_size": conf.OPTIONS["Server"]["CHERRYPY_QUEUE_SIZE"],

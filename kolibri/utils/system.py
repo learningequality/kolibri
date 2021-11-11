@@ -184,6 +184,10 @@ def become_daemon(**kwargs):
 
 
 def _posix_get_fd_limit():
+    """
+    Determines the File Descriptor (FD) limit
+    :return: int
+    """
     import resource
 
     fd_soft_limit, _ = resource.getrlimit(resource.RLIMIT_NOFILE)
@@ -191,9 +195,13 @@ def _posix_get_fd_limit():
 
 
 def _windows_get_fd_limit():
+    """
+    Determines the File Descriptor (FD) limit
+    :return: int
+    """
     import ctypes
 
-    return ctypes.cdll._getmaxstdio()
+    return ctypes.cdll.stdio._getmaxstdio()
 
 
 # Utility functions
