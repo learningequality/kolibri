@@ -28,7 +28,7 @@
        */
       markResourceAsCompleted() {
         this.$store
-          .dispatch('updateProgress', { progressPercent: 1 })
+          .dispatch('updateContentSession', { progress: 1 })
           .then(() => {
             this.$emit('complete');
             this.$store.dispatch('createSnackbar', this.learnString('resourceCompletedLabel'));
