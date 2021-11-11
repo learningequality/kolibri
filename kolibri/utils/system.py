@@ -199,9 +199,8 @@ def _windows_get_fd_limit():
     Determines the File Descriptor (FD) limit
     :return: int
     """
-    import ctypes
-
-    return ctypes.cdll.stdio._getmaxstdio()
+    # TODO: "determine" it
+    return 512
 
 
 # Utility functions
