@@ -283,10 +283,17 @@
         // extract the key pieces of routing from immersive page props, but since we don't need
         // them all, just create two alternative route paths for return/'back' navigation
         let route = {};
-        if (this.$route.query.last === PageNames.TOPICS_TOPIC_SEARCH) {
+        if (
+          this.$route.query.last === PageNames.TOPICS_TOPIC_SEARCH ||
+          this.$route.query.last === PageNames.TOPICS_TOPIC
+        ) {
+          const lastId = this.$route.query.topicId
+            ? this.$route.query.topicId
+            : this.topicsTreeContent.parent;
+          const lastPage = this.$route.query.last;
           // Need to guard for parent being non-empty to avoid console errors
-          route = this.$router.getRoute(PageNames.TOPICS_TOPIC, {
-            id: this.topicsTreeContent.parent,
+          route = this.$router.getRoute(lastPage, {
+            id: lastId,
           });
         } else if (this.$route.query && this.$route.query.last) {
           const last = this.$route.query.last;

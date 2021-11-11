@@ -29,7 +29,7 @@
           :text="metadataStrings.$tr('viewResource')"
           appearance="raised-button"
           :primary="false"
-          :to="genContentLink(content.id, content.is_leaf)"
+          :to="genContentLink(content.id, null, content.is_leaf, null, {})"
           data-test="view-resource-link"
         />
       </div>
@@ -165,7 +165,7 @@
           :key="related.title"
           class="list-item"
         >
-          <KRouterLink :to="genContentLink(related.id, related.is_leaf)">
+          <KRouterLink :to="genContentLink(related.id, null, related.is_leaf, null, {})">
             <KLabeledIcon>
               <template #icon>
                 <LearningActivityIcon :kind="related.learning_activities" />
@@ -187,7 +187,7 @@
       <div v-for="location in locationsInChannel" :key="location.id">
         <div>
           <KRouterLink
-            :to="genContentLink(lastAncestor(location).id, false)"
+            :to="genContentLink(lastAncestor(location).id, null, false, null, {})"
           >
             {{ lastAncestor(location).title }}
           </KRouterLink>

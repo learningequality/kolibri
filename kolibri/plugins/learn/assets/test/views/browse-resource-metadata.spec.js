@@ -96,7 +96,9 @@ describe('BrowseResourceMetadata', () => {
       const link = wrapper.findComponent(KRouterLink);
       expect(link.exists()).toBeTruthy();
       const to = link.props().to;
-      expect(to).toEqual(genContentLink(baseContentNode.id, baseContentNode.is_leaf));
+      expect(to).toEqual(
+        genContentLink(baseContentNode.id, null, baseContentNode.is_leaf, null, {})
+      );
     });
 
     it('displays a ContentNodeThumbnail', () => {
