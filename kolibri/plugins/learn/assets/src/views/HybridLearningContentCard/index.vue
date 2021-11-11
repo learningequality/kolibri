@@ -34,7 +34,8 @@
       </div>
       <CardThumbnail
         class="thumbnail"
-        v-bind="{ thumbnail, kind, isMobile }"
+        :kind="content.kind"
+        v-bind="{ thumbnail, isMobile }"
       />
       <div class="text" :style="{ color: $themeTokens.text }">
         <h3 class="title" dir="auto">
@@ -84,7 +85,7 @@
 <script>
 
   import { mapGetters } from 'vuex';
-  import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
+  import { validateLinkObject } from 'kolibri.utils.validators';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -107,11 +108,6 @@
       thumbnail: {
         type: String,
         default: null,
-      },
-      kind: {
-        type: String,
-        required: true,
-        validator: validateContentNodeKind,
       },
       link: {
         type: Object,

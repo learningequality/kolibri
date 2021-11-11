@@ -12,7 +12,7 @@
           :isMobile="windowIsSmall"
           :content="content"
           :thumbnail="content.thumbnail"
-          :link="genContentLink(content.id, content.is_leaf, backRoute, context)"
+          :link="genContentLink(content.id, topicId, content.is_leaf, backRoute, context)"
           @openCopiesModal="openCopiesModal"
           @toggleInfoPanel="$emit('toggleInfoPanel', content)"
         />
@@ -26,7 +26,7 @@
         :thumbnail="content.thumbnail || getContentNodeThumbnail(content)"
         class="card-grid-item"
         :isMobile="windowIsSmall"
-        :link="genContentLink(content.id, content.is_leaf, backRoute, context)"
+        :link="genContentLink(content.id, topicId, content.is_leaf, backRoute, context)"
       />
     </div>
     <CardGrid
@@ -37,7 +37,7 @@
 
         :key="`resource-${idx}`"
         :contentNode="content"
-        :to="genContentLink(content.id, content.is_leaf, backRoute, context)"
+        :to="genContentLink(content.id, topicId, content.is_leaf, backRoute, context)"
       />
     </CardGrid>
 
@@ -50,7 +50,7 @@
       :currentPage="currentPage"
       class="card-grid-item"
       :isMobile="windowIsSmall"
-      :link="genContentLink(content.id, content.is_leaf, backRoute, context)"
+      :link="genContentLink(content.id, topicId, content.is_leaf, backRoute, context)"
       :footerIcons="footerIcons"
       :createdDate="content.bookmark ? content.bookmark.created : null"
       @openCopiesModal="openCopiesModal"
@@ -149,6 +149,16 @@
           };
         }
         return context;
+      },
+      topicId() {
+        if (
+          this.pageName === PageNames.TOPICS_TOPIC ||
+          this.pageName === PageNames.TOPICS_TOPIC_SEARCH
+        ) {
+          return this.$route.params.id;
+        } else {
+          return null;
+        }
       },
       backRoute() {
         return this.pageName;
