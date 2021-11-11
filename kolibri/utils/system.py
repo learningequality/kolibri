@@ -18,7 +18,6 @@ from __future__ import unicode_literals
 
 import logging
 import os
-import resource
 import sys
 
 import six
@@ -185,6 +184,8 @@ def become_daemon(**kwargs):
 
 
 def _posix_get_fd_limit():
+    import resource
+
     fd_soft_limit, _ = resource.getrlimit(resource.RLIMIT_NOFILE)
     return fd_soft_limit
 
