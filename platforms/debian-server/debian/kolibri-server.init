@@ -17,6 +17,7 @@ DAEMON_UWSGI=/usr/bin/uwsgi
 MAIN=/usr/bin/kolibri
 CONFIG_FILE=/etc/default/kolibri
 PIDFILE_UWSGI=/var/run/$NAME/uwsgi.pid
+PIDFILE_UWSGI_HASHI=/var/run/$NAME/uwsgi_hashi.pid
 # Exit if the package is not installed
 [ -x "$MAIN" ] || exit 0
 
@@ -48,6 +49,11 @@ DAEMON_UWSGI_ARGS="--ini /etc/kolibri/dist/uwsgi.ini --uid=$KOLIBRI_USER --gid=$
   --env=KOLIBRI_HOME=$KOLIBRI_HOME --daemonize=$KOLIBRI_HOME/logs/uwsgi.log --pidfile=$PIDFILE_UWSGI \
   --logfile-chown"
 
+DAEMON_HASHI_UWSGI_ARGS="--ini /etc/kolibri/dist/hashi_uwsgi.ini --uid=$KOLIBRI_USER \
+  --gid=$KOLIBRI_GID --env=KOLIBRI_HOME=$KOLIBRI_HOME\
+  --daemonize=$KOLIBRI_HOME/logs/hashi_uwsgi.log --pidfile=$PIDFILE_UWSGI_HASHI \
+  --logfile-chown"
+
 # Load the VERBOSE setting and other rcS variables
 . /lib/init/vars.sh
 
@@ -68,13 +74,14 @@ do_start()
   do_check_nginx
   # ensure PIDFILE_UWSGI is not a world-writable pidfile
   chmod 660 $PIDFILE_UWSGI || true
+  chmod 660 $PIDFILE_UWSGI_HASHI || true
   $SU_COMMAND $KOLIBRI_USER -c "$KOLIBRI_COMMAND start &"
   mkdir -p /var/run/$NAME
   chown "$KOLIBRI_USER" /var/run/$NAME
-  start-stop-daemon --start --quiet --pidfile $PIDFILE_UWSGI --exec $DAEMON_UWSGI --test -- $DAEMON_UWSGI_ARGS > /dev/null \
+  start-stop-daemon --start --quiet --exec $DAEMON_UWSGI --test -- $DAEMON_UWSGI_ARGS > /dev/null \
     || return 1
-  start-stop-daemon --start --quiet --pidfile $PIDFILE_UWSGI --exec $DAEMON_UWSGI -- \
-    $DAEMON_UWSGI_ARGS \
+  start-stop-daemon --start --quiet --exec $DAEMON_UWSGI --  $DAEMON_UWSGI_ARGS || return 2
+  start-stop-daemon --start --quiet --pidfile=$PIDFILE_UWSGI_HASHI  --startas $DAEMON_UWSGI -- $DAEMON_HASHI_UWSGI_ARGS\
     || return 2
   return 0
 }
@@ -90,10 +97,13 @@ do_stop_uwsgi()
   #   2 if daemon could not be stopped
   #   other if a failure occurred
   start-stop-daemon --stop --quiet --retry=TERM/30/KILL/5 --pidfile $PIDFILE_UWSGI --name uwsgi
+  start-stop-daemon --stop --quiet --retry=TERM/30/KILL/5 --pidfile $PIDFILE_UWSGI_HASHI --name uwsgi
   RETVAL="$?"
   # Many daemons don't delete their pidfiles when they exit.
   rm -f $PIDFILE_UWSGI
+  rm -f $PIDFILE_UWSGI_HASHI
   rm -f /tmp/kolibri_uwsgi.sock
+  rm -f /tmp/kolibri_hashi_uwsgi.sock
   [ "$RETVAL" = 2 ] && return 2
   return 0
 }

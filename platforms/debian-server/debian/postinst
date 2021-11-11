@@ -20,7 +20,9 @@ case "$1" in
     ln -sf /etc/kolibri/dist/nginx.conf /etc/nginx/conf.d/kolibri.conf
     db_get kolibri-server/port
     PORT=$RET
-    su $KOLIBRI_USER -c "/usr/share/kolibri-server/kolibri_server_setup.py -d $PORT"
+    db_get kolibri-server/zip_content_port
+    ZIPCONTENTPORT=$RET
+    su $KOLIBRI_USER -c "/usr/share/kolibri-server/kolibri_server_setup.py -d $PORT -z $ZIPCONTENTPORT"
     if [ -L "/etc/nginx/sites-enabled/default" ] && [ "$PORT" = "80" ] ;then
         rm  /etc/nginx/sites-enabled/default
         touch /etc/kolibri/nginx_default

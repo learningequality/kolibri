@@ -11,3 +11,17 @@ _Description: TCP Port where Kolibri will be available
  .
  Entering a port that is already in use in the server will make Kolibri
  can't start.
+
+Template: kolibri-server/zip_content_port
+Type: select
+Choices: 8081, 8009, 81
+Default: 8081
+_Description: TCP Port where Kolibri will serve external html files
+ The default is 8081, other possible options are 81 and 8000.
+ For security reasons, when kolibri loads resources containing
+ external html applications running JavaScript, they are executed
+ in a sandboxed environment with its own webserver.
+ This is the port for this sandbox to run the server.
+ .
+ Entering a port that is already in use in the server will make Kolibri
+ can't show rich html5 resources.

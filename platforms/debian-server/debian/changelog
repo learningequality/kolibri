@@ -1,7 +1,13 @@
-kolibri-server (0.4.0-0ubuntu1) UNRELEASED; urgency=low
+kolibri-server (0.4.0~beta1-0ubuntu1) bionic; urgency=low
 
   * New upstream release, compatible with kolibri 0.15.x
-  * Modify kolibri_server_setup to follow API changes
+  * nginx.conf very simplified
+  * kolibri_server_setup.py with:
+    - creation of KOLIBRI_HOME/nginx.conf with ZIP_PORT
+    - handling of new redis options
+  * hashi_uwsgi.ini for zip_port server
+  * debconf template to select ZIP_PORT
+  * kolibri-server.init changed to start one more uwsgi isntance
 
  -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Fri, 05 Nov 2021 18:45:08 +0100
 
