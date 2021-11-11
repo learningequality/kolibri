@@ -117,7 +117,7 @@
       },
       getContentNodeThumbnail: {
         type: Function,
-        default: () => ({}),
+        default: () => '',
         required: false,
       },
       footerIcons: {
