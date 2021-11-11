@@ -285,8 +285,13 @@
         let route = {};
         if (this.$route.query.last === PageNames.TOPICS_TOPIC_SEARCH) {
           // Need to guard for parent being non-empty to avoid console errors
-          route = this.$router.getRoute(PageNames.TOPICS_TOPIC, {
+          route = this.$router.getRoute(PageNames.TOPICS_TOPIC_SEARCH, {
             id: this.topicsTreeContent.parent,
+          });
+        } else if (this.$route.query.last === PageNames.TOPICS_TOPIC) {
+          // Need to guard for parent being non-empty to avoid console errors
+          route = this.$router.getRoute(PageNames.TOPICS_TOPIC, {
+            id: this.topicsTreeContent.this.topicsTreeContent.parent,
           });
         } else if (this.$route.query && this.$route.query.last) {
           const last = this.$route.query.last;
