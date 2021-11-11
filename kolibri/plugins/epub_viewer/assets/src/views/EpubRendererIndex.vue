@@ -101,7 +101,16 @@
         <div
           class="column epubjs-navigation"
         >
+          <NextButton
+            v-if="contentIsRtl"
+            v-show="!isAtEnd"
+            :color="navigationButtonColor"
+            :isRtl="contentIsRtl"
+            :style="{ backgroundColor }"
+            @goToNextPage="goToNextPage"
+          />
           <PreviousButton
+            v-else
             v-show="!isAtStart"
             :color="navigationButtonColor"
             :isRtl="contentIsRtl"
@@ -118,7 +127,16 @@
         <div
           class="column epubjs-navigation"
         >
+          <PreviousButton
+            v-if="contentIsRtl"
+            v-show="!isAtStart"
+            :color="navigationButtonColor"
+            :isRtl="contentIsRtl"
+            :style="{ backgroundColor }"
+            @goToPreviousPage="goToPreviousPage"
+          />
           <NextButton
+            v-else
             v-show="!isAtEnd"
             :color="navigationButtonColor"
             :isRtl="contentIsRtl"
