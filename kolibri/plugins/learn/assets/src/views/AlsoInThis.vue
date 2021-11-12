@@ -43,12 +43,12 @@
           </div>
           <div class="progress">
             <KIcon
-              v-if="content.progress === 1"
+              v-if="withProgress(content).progress === 1"
               icon="star"
               class="mastered-icon"
               :style="{ fill: $themeTokens.mastered }"
             />
-            <ProgressBar v-else :contentNode="content" class="bar" />
+            <ProgressBar v-else :contentNode="withProgress(content)" class="bar" />
           </div>
         </div>
 
@@ -87,6 +87,7 @@
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
   import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
   import SidePanelResourcesList from '../../../../../../kolibri/core/assets/src/views/FullScreenSidePanel/SidePanelResourcesList';
+  import useContentNodeProgress from '../composables/useContentNodeProgress';
   import genContentLink from '../utils/genContentLink';
   import LearningActivityIcon from './LearningActivityIcon.vue';
   import ProgressBar from './ProgressBar';
@@ -102,6 +103,10 @@
       TimeDuration,
     },
     mixins: [KResponsiveWindowMixin],
+    setup() {
+      const { contentNodeProgressMap } = useContentNodeProgress();
+      return { contentNodeProgressMap };
+    },
     props: {
       /**
        * contentNodes - The contentNode objects to be displayed. Each
@@ -166,7 +171,16 @@
         return context;
       },
     },
-    methods: { genContentLink },
+    methods: {
+      genContentLink,
+      withProgress(node) {
+        const progress = {
+          progress: this.contentNodeProgressMap[node.content_id] || 0,
+        };
+        console.log({ ...node, ...progress });
+        return { ...node, ...progress };
+      },
+    },
   };
 
 </script>
