@@ -1,6 +1,6 @@
 import mock from 'xhr-mock';
 import coreStore from 'kolibri.coreVue.vuex.store';
-import * as redirectBrowser from 'kolibri.utils.redirectBrowser';
+import redirectBrowser from 'kolibri.utils.redirectBrowser';
 import * as serverClock from 'kolibri.utils.serverClock';
 import { HeartBeat } from '../src/heartbeat.js';
 import disconnectionErrorCodes from '../src/disconnectionErrorCodes';
@@ -8,6 +8,7 @@ import { trs } from '../src/disconnection';
 import { stubWindowLocation } from 'testUtils'; // eslint-disable-line
 
 jest.mock('kolibri.lib.logging');
+jest.mock('kolibri.utils.redirectBrowser');
 jest.mock('kolibri.urls');
 jest.mock('lockr');
 
@@ -197,14 +198,14 @@ describe('HeartBeat', function() {
     });
     it('should redirect if a change in user is detected', function() {
       coreStore.commit('CORE_SET_SESSION', { user_id: 'test', id: 'current' });
+      redirectBrowser.mockReset();
       mock.put(/.*/, {
         status: 200,
         body: JSON.stringify({ user_id: 'nottest', id: 'current' }),
         headers: { 'Content-Type': 'application/json' },
       });
-      const redirectStub = jest.spyOn(redirectBrowser, 'redirectBrowser');
       return heartBeat._checkSession().finally(() => {
-        expect(redirectStub).toHaveBeenCalledTimes(1);
+        expect(redirectBrowser).toHaveBeenCalledTimes(1);
       });
     });
     it('should not sign out if user_id changes but session is being set for first time', function() {

@@ -182,7 +182,7 @@
   "SelectImportSourceModal.network": "Kolibri Studio (អនឡាញ)",
   "SelectImportSourceModal.networkDescription": "នាំចូលធនធានពីម៉ាស៊ីនមេ Kolibri ផ្សេងទៀតដែលដំណើរការលើឧបករណ៍នៅលើបណ្តាញមូលដ្ឋានរបស់អ្នក ឬ អ៊ីនធឺណិត",
   "SelectImportSourceModal.studioDescription": "នាំចូលធនធានពី Kolibri Studio ប្រសិនបើអ្នកបានភ្ជាប់ទៅអុីធឺណែត",
-  "SelectionBottomBar.channelsSelectedNoFileSize": "",
+  "SelectionBottomBar.channelsSelectedNoFileSize": "បានជ្រើសរើសឆានែល {count, number}",
   "SelectionBottomBar.channelsSelectedWithFileSize": "{count, plural, other {បានជ្រើសរើសឆានែល}} {count} ({bytesText})",
   "SelectionBottomBar.deleteAction": "លុប",
   "SelectionBottomBar.exportAction": "នាំចេញ",

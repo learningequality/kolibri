@@ -403,3 +403,30 @@ class TestKolibriVersion(unittest.TestCase):
             ).base_version
             == "0.2.3"
         )
+
+    def test_truncate_version(self):
+        self.assertEqual(
+            "0.15.0a5.dev0+git.682.g0be46de2",
+            version.truncate_version(
+                "0.15.0a5.dev0+git.682.g0be46de2",
+                truncation_level=version.BUILD_VERSION,
+            ),
+        )
+        self.assertEqual(
+            "0.15.0a5",
+            version.truncate_version(
+                "0.15.0a5.dev0+git.682.g0be46de2",
+                truncation_level=version.PRERELEASE_VERSION,
+            ),
+        )
+        self.assertEqual(
+            "0.15.0", version.truncate_version("0.15.0a5.dev0+git.682.g0be46de2")
+        )
+        self.assertEqual(
+            "0.15.0",
+            version.truncate_version("0.15.1", truncation_level=version.MINOR_VERSION),
+        )
+        self.assertEqual(
+            "1.0.0",
+            version.truncate_version("1.15.1", truncation_level=version.MAJOR_VERSION),
+        )

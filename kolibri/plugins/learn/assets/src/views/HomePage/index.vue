@@ -2,7 +2,7 @@
 
   <div>
     <YourClasses
-      v-if="isUserLoggedIn"
+      v-if="isUserLoggedIn && classes.length"
       class="section"
       :classes="classes"
       data-test="classes"
@@ -12,7 +12,9 @@
       v-if="continueLearningFromClasses || continueLearningOnYourOwn"
       class="section"
       :fromClasses="continueLearningFromClasses"
-      data-test="continueLearning"
+      :data-test="continueLearningFromClasses ?
+        'continueLearningFromClasses' :
+        'continueLearningOnYourOwn'"
     />
     <AssignedLessonsCards
       v-if="hasActiveClassesLessons"
@@ -20,6 +22,7 @@
       :lessons="activeClassesLessons"
       displayClassName
       recent
+      data-test="recentLessons"
     />
     <AssignedQuizzesCards
       v-if="hasActiveClassesQuizzes"
@@ -27,16 +30,15 @@
       :quizzes="activeClassesQuizzes"
       displayClassName
       recent
+      data-test="recentQuizzes"
     />
-    <!--
-      TODO: To be implemented, it's here only to get strings
-      in before the next major release
-      <ExploreChannels
-        v-if="!isUserLoggedIn || !canResumeClasses"
-        class="section"
-      />
-    -->
-    <ExploreChannels v-if="false" />
+    <ExploreChannels
+      v-if="displayExploreChannels"
+      :channels="channels"
+      class="section"
+      data-test="exploreChannels"
+      short
+    />
   </div>
 
 </template>
@@ -44,8 +46,9 @@
 
 <script>
 
-  import { computed, onBeforeMount } from 'kolibri.lib.vueCompositionApi';
+  import { computed } from 'kolibri.lib.vueCompositionApi';
   import { get } from '@vueuse/core';
+  import useChannels from '../../composables/useChannels';
   import useDeviceSettings from '../../composables/useDeviceSettings';
   import useLearnerResources from '../../composables/useLearnerResources';
   import useUser from '../../composables/useUser';
@@ -73,29 +76,28 @@
     setup() {
       const { isUserLoggedIn } = useUser();
       const { canAccessUnassignedContent } = useDeviceSettings();
+      const { channels } = useChannels();
       const {
         classes,
         activeClassesLessons,
         activeClassesQuizzes,
         resumableClassesQuizzes,
         resumableClassesResources,
-        resumableNonClassesContentNodes,
-        fetchClasses,
-        fetchResumableContentNodes,
+        resumableContentNodes,
+        learnerFinishedAllClasses,
       } = useLearnerResources();
 
-      const canResumeClasses = computed(() => {
-        return get(resumableClassesQuizzes).length > 0 || get(resumableClassesResources).length > 0;
-      });
       const continueLearningFromClasses = computed(
-        () => get(isUserLoggedIn) && get(canResumeClasses)
+        () =>
+          (get(isUserLoggedIn) && get(resumableClassesQuizzes).length > 0) ||
+          get(resumableClassesResources).length > 0
       );
       const continueLearningOnYourOwn = computed(
         () =>
           get(isUserLoggedIn) &&
+          get(learnerFinishedAllClasses) &&
           get(canAccessUnassignedContent) &&
-          !get(canResumeClasses) &&
-          get(resumableNonClassesContentNodes).length > 0
+          get(resumableContentNodes).length > 0
       );
       const hasActiveClassesLessons = computed(
         () =>
@@ -105,24 +107,28 @@
         () =>
           get(isUserLoggedIn) && get(activeClassesQuizzes) && get(activeClassesQuizzes).length > 0
       );
-
-      onBeforeMount(() => {
-        if (get(isUserLoggedIn)) {
-          fetchClasses();
-          fetchResumableContentNodes();
-        }
+      const hasChannels = computed(() => {
+        return get(channels) && get(channels).length > 0;
+      });
+      const displayExploreChannels = computed(() => {
+        return (
+          get(hasChannels) &&
+          (!get(isUserLoggedIn) ||
+            (get(learnerFinishedAllClasses) && get(canAccessUnassignedContent)))
+        );
       });
 
       return {
         isUserLoggedIn,
+        channels,
         classes,
         activeClassesLessons,
         activeClassesQuizzes,
         hasActiveClassesLessons,
         hasActiveClassesQuizzes,
-        canResumeClasses,
         continueLearningFromClasses,
         continueLearningOnYourOwn,
+        displayExploreChannels,
       };
     },
   };

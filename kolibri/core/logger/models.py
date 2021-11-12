@@ -17,6 +17,7 @@ from datetime import timedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator
+from django.core.validators import MinLengthValidator
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils import timezone
@@ -112,14 +113,14 @@ class ContentSessionLog(BaseLogModel):
     user = models.ForeignKey(FacilityUser, blank=True, null=True)
     content_id = UUIDField(db_index=True)
     visitor_id = models.UUIDField(blank=True, null=True)
-    channel_id = UUIDField()
+    channel_id = UUIDField(blank=True, null=True)
     start_timestamp = DateTimeTzField()
     end_timestamp = DateTimeTzField(blank=True, null=True)
     time_spent = models.FloatField(
         help_text="(in seconds)", default=0.0, validators=[MinValueValidator(0)]
     )
     progress = models.FloatField(default=0, validators=[MinValueValidator(0)])
-    kind = models.CharField(max_length=200)
+    kind = models.CharField(max_length=200, validators=[MinLengthValidator(1)])
     extra_fields = JSONField(default={}, blank=True)
 
     def save(self, *args, **kwargs):
@@ -140,7 +141,7 @@ class ContentSummaryLog(BaseLogModel):
 
     user = models.ForeignKey(FacilityUser)
     content_id = UUIDField(db_index=True)
-    channel_id = UUIDField()
+    channel_id = UUIDField(blank=True, null=True)
     start_timestamp = DateTimeTzField()
     end_timestamp = DateTimeTzField(blank=True, null=True)
     completion_timestamp = DateTimeTzField(blank=True, null=True)
@@ -150,7 +151,7 @@ class ContentSummaryLog(BaseLogModel):
     progress = models.FloatField(
         default=0, validators=[MinValueValidator(0), MaxValueValidator(1.01)]
     )
-    kind = models.CharField(max_length=200)
+    kind = models.CharField(max_length=200, validators=[MinLengthValidator(1)])
     extra_fields = JSONField(default={}, blank=True)
 
     def calculate_source_id(self):
@@ -236,9 +237,9 @@ class MasteryLog(BaseLogModel):
     end_timestamp = DateTimeTzField(blank=True, null=True)
     completion_timestamp = DateTimeTzField(blank=True, null=True)
     # The integer mastery level that this log is tracking.
-    mastery_level = models.IntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(10)]
-    )
+    # A random negative integer is used to disambiguate unique quiz attempts
+    # exercise attempts use incrementing integers starting at 1.
+    mastery_level = models.IntegerField()
     # Has this mastery level been completed?
     complete = models.BooleanField(default=False)
 
@@ -259,7 +260,7 @@ class BaseAttemptLog(BaseLogModel):
 
     # Unique identifier within the relevant assessment for the particular question/item
     # that this attemptlog is a record of an interaction with.
-    item = models.CharField(max_length=200)
+    item = models.CharField(max_length=200, validators=[MinLengthValidator(1)])
     start_timestamp = DateTimeTzField()
     end_timestamp = DateTimeTzField()
     completion_timestamp = DateTimeTzField(blank=True, null=True)

@@ -4,7 +4,10 @@ that should not initiate the Django app registry.
 """
 import hashlib
 
+from django.db.models import Case
 from django.db.models import Exists
+from django.db.models import Value
+from django.db.models import When
 from le_utils.constants.labels.accessibility_categories import (
     ACCESSIBILITYCATEGORIESLIST,
 )
@@ -23,6 +26,30 @@ metadata_lookup = {
     "accessibility_labels": ACCESSIBILITYCATEGORIESLIST,
     "learner_needs": NEEDSLIST,
 }
+
+
+metadata_bitmasks = {}
+
+bitmask_fieldnames = {}
+
+
+for key, labels in metadata_lookup.items():
+    bitmask_lookup = {}
+    i = 0
+    while labels[i : i + 64]:
+        bitmask_field_name = "{}_bitmask_{}".format(key, i)
+        bitmask_fieldnames[bitmask_field_name] = []
+        for j, label in enumerate(labels):
+            info = {
+                "bitmask_field_name": bitmask_field_name,
+                "field_name": key,
+                "bits": 2 ** j,
+                "label": label,
+            }
+            bitmask_lookup[label] = info
+            bitmask_fieldnames[bitmask_field_name].append(info)
+        i += 64
+    metadata_bitmasks[key] = bitmask_lookup
 
 
 def _get_available_languages(base_queryset):
@@ -49,13 +76,11 @@ def _get_available_channels(base_queryset):
             id__in=base_queryset.values_list("channel_id", flat=True).distinct()
         )
         .order_by("order")
-        .values("id", "name")
+        .values("id", "name", "thumbnail")
     )
 
 
-def get_available_metadata_labels(
-    base_queryset, limit_to_known_fields=True, force=False
-):
+def get_available_metadata_labels(base_queryset, limit_to_known_fields=True):
     from kolibri.core.device.models import ContentCacheKey
 
     content_cache_key = ContentCacheKey.get_cache_key()
@@ -63,12 +88,12 @@ def get_available_metadata_labels(
         content_cache_key,
         hashlib.md5(str(base_queryset.query).encode("utf8")).hexdigest(),
     )
-    if cache_key not in cache or force:
+    if cache_key not in cache:
         base_queryset = base_queryset.values("id").order_by()
         queryset = base_queryset
         all_values = []
         if limit_to_known_fields:
-            lookup = _get_all_contentnode_label_metadata()
+            lookup = get_all_contentnode_label_metadata()
             lookup.pop("channels")
             lookup.pop("languages")
         else:
@@ -76,7 +101,7 @@ def get_available_metadata_labels(
         for field, values in lookup.items():
             queryset = queryset.annotate(
                 **{
-                    value: Exists(base_queryset.filter(**{field + "__contains": value}))
+                    value: Exists(base_queryset.has_all_labels(field, [value]))
                     for value in values
                 }
             )
@@ -91,16 +116,7 @@ def get_available_metadata_labels(
     return cache.get(cache_key)
 
 
-def update_all_contentnode_label_metadata():
-    from kolibri.core.content.models import ContentNode
-
-    base_queryset = ContentNode.objects.filter(available=True)
-    get_available_metadata_labels(
-        base_queryset, limit_to_known_fields=False, force=True
-    )
-
-
-def _get_all_contentnode_label_metadata():
+def get_all_contentnode_label_metadata():
     from kolibri.core.content.models import ContentNode
 
     return get_available_metadata_labels(
@@ -108,29 +124,19 @@ def _get_all_contentnode_label_metadata():
     )
 
 
-def get_categories():
-    return _get_all_contentnode_label_metadata()["categories"]
-
-
-def get_learning_activities():
-    return _get_all_contentnode_label_metadata()["learning_activities"]
-
-
-def get_languages():
-    return _get_all_contentnode_label_metadata()["languages"]
-
-
-def get_channels():
-    return _get_all_contentnode_label_metadata()["channels"]
-
-
-def get_grade_levels():
-    return _get_all_contentnode_label_metadata()["grade_levels"]
-
-
-def get_accessiblity_labels():
-    return _get_all_contentnode_label_metadata()["accessibility_labels"]
-
-
-def get_learner_needs():
-    return _get_all_contentnode_label_metadata()["learner_needs"]
+def annotate_label_bitmasks(queryset):
+    update_statements = {}
+    for bitmask_fieldname, label_info in bitmask_fieldnames.items():
+        update_statements[bitmask_fieldname] = sum(
+            Case(
+                When(
+                    **{
+                        info["field_name"] + "__contains": info["label"],
+                        "then": Value(info["bits"]),
+                    }
+                ),
+                default=Value(0),
+            )
+            for info in label_info
+        )
+    queryset.update(**update_statements)

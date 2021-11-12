@@ -10,7 +10,7 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
   libraryLabel: {
     message: 'Library',
     context:
-      "The 'Library' section shows learning topics and materials that are either related to what the learner was doing the last time they used Kolibri, or recommended by their coaches. It also allows learners to browse and explore content on their own.",
+      "The 'Library' section displays channels available on Kolibri server, and allows learners to browse, explore and filter topics and resources on their own.",
   },
   resumeLabel: {
     message: 'Resume',
@@ -34,6 +34,7 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
   },
   exploreResources: {
     message: 'Explore resources',
+    context: "Heading in the 'Learn' section where users can view learning resources.\n",
   },
   logo: {
     message: 'From the channel {channelTitle}',
@@ -53,7 +54,7 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
   markResourceAsCompleteLabel: {
     message: 'Mark resource as complete',
     context:
-      'Title of the modal window where a user will confirm or cancel marking a resource as complete manually',
+      'Title of the modal window where a user will confirm or cancel marking a resource as complete manually.',
   },
   resourceHidden: {
     message: 'Resource hidden',
@@ -66,7 +67,7 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
   },
   multipleLearningActivities: {
     message: 'Multiple learning activities',
-    context: 'Label indicating the resource contains multiple learning activities',
+    context: 'Label indicating the resource contains several different learning activities.',
   },
 });
 

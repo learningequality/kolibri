@@ -12,7 +12,11 @@
       dir="auto"
       :style="{ borderBottom: `1px solid ${$themeTokens.fineLine}` }"
     >
-      {{ title }}
+      <TextTruncator
+        :text="title"
+        :maxHeight="titleHeight"
+        :showTooltip="true"
+      />
     </h3>
 
 
@@ -128,6 +132,9 @@
           minHeight: `${this.overallHeight}px`,
         };
       },
+      titleHeight() {
+        return 60;
+      },
       taglineHeight() {
         return 165;
       },
@@ -157,6 +164,7 @@
     position: relative;
     display: inline-block;
     width: 100%;
+    max-height: 258px;
     padding-bottom: $margin;
     text-decoration: none;
     vertical-align: top;

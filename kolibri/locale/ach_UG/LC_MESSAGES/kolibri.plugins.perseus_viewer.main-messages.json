@@ -75,7 +75,7 @@
   "PerseusInternalMessages.Negative": "crwdns327327:0crwdne327327:0",
   "PerseusInternalMessages.Next question": "crwdns327329:0crwdne327329:0",
   "PerseusInternalMessages.No": "crwdns327331:0crwdne327331:0",
-  "PerseusInternalMessages.None of the above": "crwdns327333:0crwdne327333:0",
+  "PerseusInternalMessages.None of the above": "crwdns328523:0crwdne328523:0",
   "PerseusInternalMessages.Not-equals sign": "crwdns327335:0crwdne327335:0",
   "PerseusInternalMessages.Number of divisions:": "crwdns327337:0crwdne327337:0",
   "PerseusInternalMessages.Percent": "crwdns327339:0crwdne327339:0",
@@ -140,10 +140,7 @@
   "PerseusInternalMessages.reflection": "crwdns327457:0crwdne327457:0",
   "PerseusInternalMessages.rotation": "crwdns327459:0crwdne327459:0",
   "PerseusInternalMessages.translation": "crwdns327461:0crwdne327461:0",
-  "PerseusRendererIndex.hint": "crwdns327463:0hintsLeft={hintsLeft}crwdne327463:0",
-  "PerseusRendererIndex.hintExplanation": "crwdns327465:0crwdne327465:0",
   "PerseusRendererIndex.hintLabel": "crwdns327467:0crwdne327467:0",
-  "PerseusRendererIndex.noMoreHint": "crwdns327469:0crwdne327469:0",
   "PerseusRendererIndex.notAvailable": "crwdns327471:0crwdne327471:0",
   "PerseusRendererIndex.showScratch": "crwdns327473:0crwdne327473:0"
 }

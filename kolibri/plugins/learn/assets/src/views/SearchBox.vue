@@ -88,7 +88,7 @@
     },
     data() {
       return {
-        searchInputValue: null,
+        searchInputValue: '',
       };
     },
     computed: {
@@ -97,7 +97,7 @@
           return this.searchInputValue === null ? this.currentSearchTerm : this.searchInputValue;
         },
         set(value) {
-          this.searchInputValue = value;
+          this.searchInputValue = value || '';
         },
       },
       currentSearchTerm() {
@@ -105,7 +105,7 @@
       },
       searchBarDisabled() {
         // Disable the search bar if it has been cleared or has not been changed
-        return this.searchInputValue === '' || this.searchInputValue === null;
+        return this.searchInputValue === '';
       },
       searchInputStyle() {
         return {
@@ -113,6 +113,7 @@
             color: this.$themeTokens.annotation,
           },
           color: this.$themeTokens.text,
+          textAlign: this.isRtl ? 'right' : '',
         };
       },
     },

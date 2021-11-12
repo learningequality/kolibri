@@ -5102,6 +5102,11 @@ deep-is@~0.1.3:
   resolved "https://registry.yarnpkg.com/deep-is/-/deep-is-0.1.3.tgz#b369d6fb5dbc13eecf524f91b070feedc357cf34"
   integrity sha1-s2nW+128E+7PUk+RsHD+7cNXzzQ=
 
+deep-object-diff@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/deep-object-diff/-/deep-object-diff-1.1.0.tgz#d6fabf476c2ed1751fc94d5ca693d2ed8c18bc5a"
+  integrity sha512-b+QLs5vHgS+IoSNcUE4n9HP2NwcHj7aqnJWsjPtuG75Rh5TOaGt0OjAYInh77d5T16V5cRDC+Pw/6ZZZiETBGw==
+
 deepmerge@^2.0.1:
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/deepmerge/-/deepmerge-2.2.1.tgz#5d3ff22a01c00f645405a2fbc17d0778a1801170"
@@ -8843,19 +8848,14 @@ knuth-shuffle-seeded@^1.0.6:
   dependencies:
     seed-random "~2.2.0"
 
-kolibri-constants@0.1.32:
-  version "0.1.32"
-  resolved "https://registry.yarnpkg.com/kolibri-constants/-/kolibri-constants-0.1.32.tgz#852306cfa84c249db4748584d9c4a4fdad1a560a"
-  integrity sha512-YXvbBSEogO7hSE4wfKUqcJcj/y0kGtyxa4ECPJgoby+GxlFoiBZlWmfYaSansp+Cd1oScBvL8vYaeU5C8dKVXA==
+kolibri-constants@^0.1.34:
+  version "0.1.34"
+  resolved "https://registry.yarnpkg.com/kolibri-constants/-/kolibri-constants-0.1.34.tgz#06d1cdb04ded4e4ce785437f3e4bd87801168fae"
+  integrity sha512-nArDgIwIPYJMacVaqHazptLRpIjSTS6LNr4FWtL/7D6Ek+z7DVcWtFYL74hH/wdebGykWywmkOa5qnfcy1JQ+A==
 
-kolibri-constants@^0.1.32-beta1:
-  version "0.1.32-beta1"
-  resolved "https://registry.yarnpkg.com/kolibri-constants/-/kolibri-constants-0.1.32-beta1.tgz#6bee6ecba1e451930494bef5b4fde60ef9246cc9"
-  integrity sha512-D9UBe5Nj2VDgdrpCUWhvXn1Lef7gF1kzSH5rvbKMzVTwaGo5qi5VgBPen3vyJ4VjN01zZkOO3kn1QJjK5NLxSg==
-
-"kolibri-design-system@git://github.com/learningequality/kolibri-design-system#04d71dabf0cb4030da31b7a33a2a8f754df1c6c9":
+"kolibri-design-system@git://github.com/learningequality/kolibri-design-system#632240f0b11f37c8b18de5ed930a4bf66b7c3678":
   version "0.2.2-beta-2"
-  resolved "git://github.com/learningequality/kolibri-design-system#04d71dabf0cb4030da31b7a33a2a8f754df1c6c9"
+  resolved "git://github.com/learningequality/kolibri-design-system#632240f0b11f37c8b18de5ed930a4bf66b7c3678"
   dependencies:
     aphrodite "https://github.com/learningequality/aphrodite/"
     autosize "^3.0.21"

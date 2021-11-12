@@ -140,10 +140,7 @@
   "PerseusInternalMessages.reflection": "प्रतिबिंब",
   "PerseusInternalMessages.rotation": "रोटेशन",
   "PerseusInternalMessages.translation": "अनुवाद",
-  "PerseusRendererIndex.hint": "संकेत का प्रयोग करें ({hintsLeft, number} बचे हैं)",
-  "PerseusRendererIndex.hintExplanation": "यदि आपने संकेत का उपयोग किया, तो यह सवाल आपकी प्रगति में नहीं जोड़ा जाएगा",
   "PerseusRendererIndex.hintLabel": "संकेत",
-  "PerseusRendererIndex.noMoreHint": "कोई और सुझाव नहीं",
   "PerseusRendererIndex.notAvailable": "स्क्रैचपैड उपलब्ध नहीं है",
   "PerseusRendererIndex.showScratch": "स्क्रैचपैड दिखाएँ"
 }

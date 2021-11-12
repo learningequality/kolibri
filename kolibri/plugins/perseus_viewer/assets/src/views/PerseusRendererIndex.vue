@@ -5,43 +5,7 @@
     class="bibliotron-exercise perseus-root"
     :class="{ 'perseus-mobile': isMobile }"
   >
-    <LessonMasteryBar
-      data-test="lessonMasteryBar"
-      :availableHintsMessage="$tr('hint', { hintsLeft: availableHints })"
-      @takeHint="takeHint"
-    >
-      <template #hint>
-        <div
-          v-if="anyHints"
-          class="hint-btn-container"
-          :class="{ 'rtl': isRtl }"
-        >
-          <KButton
-            v-if=" availableHints > 0"
-            class="hint-btn"
-            appearance="basic-link"
-            :text="$tr('hint', { hintsLeft: availableHints })"
-            :primary="false"
-            @click="takeHint"
-          />
-          <KButton
-            v-else
-            class="hint-btn"
-            appearance="basic-link"
-            :text="$tr('noMoreHint')"
-            :primary="false"
-            :disabled="true"
-          />
-          <CoreInfoIcon
-            class="info-icon"
-            tooltipPlacement="bottom left"
-            :iconAriaLabel="$tr('hintExplanation')"
-            :tooltipText="$tr('hintExplanation')"
-          />
-        </div>
-      </template>
-    </LessonMasteryBar>
-    <div class="framework-perseus">
+    <div class="framework-perseus" :style="{ margin: isMobile ? '0' : '0 24px' }">
       <div id="perseus" ref="perseus" class="perseus">
         <div class="loader-container">
           <KLinearLoader
@@ -50,22 +14,24 @@
             type="indeterminate"
           />
         </div>
-        <div
-          id="problem-area"
-          class="problem-area"
-          :dir="contentDirection"
-        >
-          <div id="workarea" style="margin-left: 0px; margin-right: 0px;"></div>
-        </div>
+        <KGrid>
+          <KGridItem :layout="{ span: 8 }">
+            <div
+              id="problem-area"
+              class="problem-area"
+              :dir="contentDirection"
+            >
+              <div id="workarea" style="margin-left: 0px; margin-right: 0px;"></div>
+            </div>
+          </KGridItem>
 
-
-        <div v-if="hinted" id="hintlabel" class="hintlabel" :dir="contentDirection">
-          {{ $tr("hintLabel") }}
-        </div>
-        <div id="hintsarea" class="hintsarea" :dir="contentDirection"></div>
-
-        <div style="clear: both;"></div>
-
+          <KGridItem :layout="{ span: 4 }">
+            <div v-if="hinted" id="hintlabel" class="hintlabel" :dir="contentDirection">
+              {{ $tr("hintLabel") }}
+            </div>
+            <div id="hintsarea" class="hintsarea" :dir="contentDirection"></div>
+          </KGridItem>
+        </KGrid>
       </div>
 
       <transition name="expand">
@@ -114,7 +80,6 @@
   import urls from 'kolibri.urls';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import scriptLoader from 'kolibri.utils.scriptLoader';
-  import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import perseus from '../../dist/perseus';
   import icu from '../KAGlobals/icu';
   import Khan from '../KAGlobals/Khan';
@@ -123,7 +88,6 @@
   // referenced via WebpackProvidePlugin
   import '../i18n';
   import widgetSolver from '../widgetSolver';
-  import LessonMasteryBar from '../../../../learn/assets/src/views/classes/LessonMasteryBar';
   import imageMissing from './image_missing.svg';
 
   // A handy convenience mapping to what is essentially a constructor for Item Renderer
@@ -147,10 +111,6 @@
 
   export default {
     name: 'PerseusRendererIndex',
-    components: {
-      CoreInfoIcon,
-      LessonMasteryBar,
-    },
     mixins: [responsiveWindowMixin],
     data: () => ({
       // Is the perseus item renderer loading?
@@ -201,13 +161,13 @@
       hinted() {
         return this.itemRenderer ? this.itemRenderer.state.hintsVisible > 0 : false;
       },
+      /* eslint-disable kolibri/vue-no-unused-properties */
       availableHints() {
-        return this.itemRenderer
-          ? this.itemRenderer.getNumHints() - this.itemRenderer.state.hintsVisible
-          : 0;
+        /* eslint-enable */
+        return (this.itemRenderer && this.totalHints - this.itemRenderer.state.hintsVisible) || 0;
       },
-      anyHints() {
-        return this.allowHints && (this.itemRenderer ? this.itemRenderer.getNumHints() : 0);
+      totalHints() {
+        return this.itemRenderer ? this.itemRenderer.getNumHints() : 0;
       },
     },
     watch: {
@@ -425,6 +385,9 @@
         }
         return null;
       },
+      /*
+       * @public
+       */
       takeHint() {
         if (
           this.itemRenderer &&
@@ -445,7 +408,7 @@
       loadPerseusFile() {
         if (this.defaultFile && this.defaultFile.storage_url) {
           this.loading = true;
-          if (!this.perseusFile) {
+          if (!this.perseusFile || this.perseusFileUrl !== this.defaultFile.storage_url) {
             return client({
               method: 'get',
               url: this.defaultFile.storage_url,
@@ -457,6 +420,7 @@
               })
               .then(perseusFile => {
                 this.perseusFile = perseusFile;
+                this.perseusFileUrl = this.defaultFile.storage_url;
               });
           } else {
             return Promise.resolve();
@@ -612,21 +576,8 @@
         context:
           'The scratchpad refers to the interactive area in an exercise where the learner responds to a question. On some devices the scratchpad may not be available. If this is the case, this message is displayed to the learner.',
       },
-      hint: {
-        message: 'Use a hint ({hintsLeft, number} left)',
-        context:
-          'A hint is a suggestion to help learners solve a problem. This phrase tells the learner how many hints they have left to use.',
-      },
-      hintExplanation: {
-        message: 'If you use a hint, this question will not be added to your progress',
-        context: 'A hint is a suggestion to help learners solve a problem.',
-      },
       hintLabel: {
         message: 'Hint:',
-        context: 'A hint is a suggestion to help learners solve a problem.',
-      },
-      noMoreHint: {
-        message: 'No more hints',
         context: 'A hint is a suggestion to help learners solve a problem.',
       },
     },
@@ -710,9 +661,7 @@
      help force Perseus exercises to render within the allotted space. */
 
   .framework-perseus {
-    max-width: 1200px;
     padding-bottom: 104px;
-    margin: 32px 24px 0;
 
     // Draggable box wrapper. Stops it from going off screen right
     /deep/ .draggy-boxy-thing {

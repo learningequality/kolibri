@@ -290,7 +290,7 @@
   "NotificationsFilter.videosLabel": "वीडियो",
   "OverviewBlock.allClassesLabel": "सभी कक्षाएँ",
   "OverviewBlock.coach": "{count, plural, one {कोच} other {कोच}}",
-  "OverviewBlock.learner": "{count, plural, one {Learner} other {Learners}}",
+  "OverviewBlock.learner": "{count, plural, one {शिक्षार्थी} other {शिक्षार्थी}}",
   "OverviewBlock.viewLearners": "शिक्षार्थियों को देखें",
   "PlanHeader.planYourClassDescription": "अपने पाठ, परीक्षा और समूह बनाएँ तथा उनका प्रबंध करें",
   "PlanHeader.planYourClassLabel": "कक्षा का नियोजन करें",

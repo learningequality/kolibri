@@ -29,7 +29,7 @@
       <div
         ref="label"
         class="ui-select-label"
-
+        :class="$computedClass({ ':focus': $coreOutline })"
         :tabindex="disabled ? null : '0'"
 
         @click="toggleDropdown"
@@ -59,9 +59,18 @@
               hasFloatingLabel && isLabelInline) ? null : placeholder }}
           </div>
 
-          <UiIcon class="ui-select-dropdown-button">
+          <UiIcon v-if="!clearableState" class="ui-select-dropdown-button">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M6.984 9.984h10.03L12 15z" /></svg>
           </UiIcon>
+          <KIconButton
+            v-else
+            class="overlay-close-button"
+            icon="close"
+            :ariaLabel="coreString('clearAction')"
+            :color="$themeTokens.text"
+            :tooltip="coreString('clearAction')"
+            @click.stop="setValue()"
+          />
         </div>
 
         <transition name="ui-select-transition-fade">
@@ -190,15 +199,16 @@
     resetScroll,
   } from 'kolibri-design-system/lib/keen/helpers/element-scroll';
   import config from 'kolibri-design-system/lib/keen/config';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import KeenUiSelectOption from './KeenUiSelectOption.vue';
 
   export default {
     name: 'KeenUiSelect',
-
     components: {
       UiIcon,
       KeenUiSelectOption,
     },
+    mixins: [commonCoreStrings],
     props: {
       name: {
         type: String,
@@ -289,6 +299,10 @@
         default: null,
       },
       disabled: {
+        type: Boolean,
+        default: false,
+      },
+      clearable: {
         type: Boolean,
         default: false,
       },
@@ -455,13 +469,20 @@
         return {};
       },
       activeBorderStyle() {
-        if (this.isActive) {
+        if (this.isActive && !this.clearableState) {
           return {
             borderBottomColor: this.$themeTokens.primary,
+          };
+        } else if (this.clearableState) {
+          return {
+            cursor: 'default',
           };
         }
 
         return {};
+      },
+      clearableState() {
+        return this.clearable && this.value && Object.keys(this.value).length;
       },
     },
 
@@ -702,7 +723,7 @@
       },
 
       openDropdown() {
-        if (this.disabled) {
+        if (this.disabled || this.clearableState) {
           return;
         }
 
@@ -844,6 +865,12 @@
     }
 
     &.is-active:not(.is-disabled) {
+      .ui-select-display {
+        border-bottom-width: $ui-input-border-width--active;
+      }
+    }
+
+    &.is-active {
       .ui-select-display {
         border-bottom-width: $ui-input-border-width--active;
       }
@@ -1119,5 +1146,10 @@
   }
 
   /* stylelint-enable */
+
+  .overlay-close-button {
+    position: absolute;
+    right: 0;
+  }
 
 </style>

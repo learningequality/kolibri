@@ -1,47 +1,30 @@
-import { ContentNodeResource, ContentNodeProgressResource } from 'kolibri.resources';
+import { get } from '@vueuse/core';
+import { ContentNodeResource } from 'kolibri.resources';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
-import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import router from 'kolibri.coreVue.router';
 import { PageNames } from '../../constants';
+import useChannels from '../../composables/useChannels';
+import useContentNodeProgress from '../../composables/useContentNodeProgress';
 import { _collectionState, normalizeContentNode, contentState } from '../coreLearn/utils';
 
-export function showTopicsChannel(store, id) {
-  return store.dispatch('loading').then(() => {
-    store.commit('SET_PAGE_NAME', PageNames.TOPICS_CHANNEL);
-    return showTopicsTopic(store, { id, isRoot: true });
-  });
-}
+const { channelsMap } = useChannels();
+const { fetchContentNodeTreeProgress } = useContentNodeProgress();
 
 export function showTopicsContent(store, id) {
-  store.commit('SET_EMPTY_LOGGING_STATE');
   store.commit('CORE_SET_PAGE_LOADING', true);
   store.commit('SET_PAGE_NAME', PageNames.TOPICS_CONTENT);
 
-  const promises = [
-    ContentNodeResource.fetchModel({ id }),
-    ContentNodeResource.fetchNextContent(id),
-    ContentNodeResource.fetchCollection({
-      getParams: {
-        parent: id.parent,
-        include_coach_content:
-          store.getters.isAdmin || store.getters.isCoach || store.getters.isSuperuser,
-      },
-    }), // the topic's children
-    store.dispatch('setChannelInfo'),
-  ];
-  console.log('id', id);
-  ConditionalPromise.all(promises).only(
+  ContentNodeResource.fetchModel({ id }).only(
     samePageCheckGenerator(store),
-    ([content, nextContent, children]) => {
-      const currentChannel = store.getters.getChannelObject(content.channel_id);
+    content => {
+      const currentChannel = get(channelsMap)[content.channel_id];
       if (!currentChannel) {
         router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
         return;
       }
       store.commit('topicsTree/SET_STATE', {
-        content: contentState(content, nextContent),
+        content: contentState(content),
         channel: currentChannel,
-        contents: _collectionState(children),
       });
       store.commit('CORE_SET_PAGE_LOADING', false);
       store.commit('CORE_SET_ERROR', null);
@@ -52,28 +35,28 @@ export function showTopicsContent(store, id) {
   );
 }
 
-export function showTopicsTopic(store, { id, isRoot = false }) {
+export function showTopicsTopic(store, { id, pageName }) {
   return store.dispatch('loading').then(() => {
-    store.commit('SET_PAGE_NAME', isRoot ? PageNames.TOPICS_CHANNEL : PageNames.TOPICS_TOPIC);
-    const promises = [
-      ContentNodeResource.fetchTree({
-        id,
-        params: {
-          include_coach_content:
-            store.getters.isAdmin || store.getters.isCoach || store.getters.isSuperuser,
-        },
-      }),
-      store.dispatch('setChannelInfo'),
-    ];
-
-    return ConditionalPromise.all(promises).only(
+    store.commit('SET_PAGE_NAME', pageName);
+    const params = {
+      include_coach_content:
+        store.getters.isAdmin || store.getters.isCoach || store.getters.isSuperuser,
+    };
+    if (store.getters.isUserLoggedIn) {
+      fetchContentNodeTreeProgress({ id, params });
+    }
+    return ContentNodeResource.fetchTree({
+      id,
+      params,
+    }).only(
       samePageCheckGenerator(store),
-      ([topic]) => {
-        const currentChannel = store.getters.getChannelObject(topic.channel_id);
+      topic => {
+        const currentChannel = get(channelsMap)[topic.channel_id];
         if (!currentChannel) {
           router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
           return;
         }
+        const isRoot = !topic.parent;
         if (isRoot) {
           topic.description = currentChannel.description;
           topic.tagline = currentChannel.tagline;
@@ -81,23 +64,17 @@ export function showTopicsTopic(store, { id, isRoot = false }) {
         }
         const children = topic.children.results || [];
 
+        if (!children.some(c => !c.is_leaf) && pageName !== PageNames.TOPICS_TOPIC_SEARCH) {
+          router.replace({ name: PageNames.TOPICS_TOPIC_SEARCH, id });
+          store.commit('SET_PAGE_NAME', PageNames.TOPICS_TOPIC_SEARCH);
+        }
+
         store.commit('topicsTree/SET_STATE', {
           isRoot,
           channel: currentChannel,
           topic: normalizeContentNode(topic),
           contents: _collectionState(children),
         });
-
-        // Only load contentnode progress if the user is logged in
-        if (store.getters.isUserLoggedIn) {
-          if (children.length > 0) {
-            ContentNodeProgressResource.fetchCollection({
-              getParams: { parent: id },
-            }).then(progresses => {
-              store.commit('topicsTree/SET_NODE_PROGRESS', progresses);
-            });
-          }
-        }
 
         store.dispatch('notLoading');
         store.commit('CORE_SET_ERROR', null);

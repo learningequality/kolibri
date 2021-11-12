@@ -597,7 +597,7 @@ def get_import_data_for_update(
 
             files_to_transfer = LocalFile.objects.filter(
                 available=False, files__contentnode__in=batch_nodes
-            )
+            ).values("id", "file_size", "extension")
 
             queried_file_objects.extend(files_to_transfer)
 
@@ -612,7 +612,7 @@ def get_import_data_for_update(
             files__contentnode__in=ContentNode.objects.filter(
                 available=True, channel_id=channel_id
             ),
-        )
+        ).values("id", "file_size", "extension")
     )
 
     checksums = set()
@@ -622,9 +622,9 @@ def get_import_data_for_update(
     files_to_download = []
 
     for file in queried_file_objects:
-        if file.id not in checksums:
-            checksums.add(file.id)
-            total_bytes_to_transfer += file.file_size
+        if file["id"] not in checksums:
+            checksums.add(file["id"])
+            total_bytes_to_transfer += file["file_size"]
             files_to_download.append(file)
 
     return len(content_ids), files_to_download, total_bytes_to_transfer

@@ -1,21 +1,32 @@
 <template>
 
-  <KGridItem
-    :layout="{ span: width }"
+  <div
     :style="{
       color: $themeTokens.text,
       backgroundColor: $themeTokens.surface,
+      width: width,
     }"
-    class="side-panel"
+    :class="position === 'embedded' ? 'side-panel' : ''"
   >
     <div v-if="topics && topicsListDisplayed">
       <div v-for="t in topics" :key="t.id">
-        <h3>
-          {{ t.title }}
-        </h3>
+        <KRouterLink
+          :text="t.title"
+          class="side-panel-folder-link"
+          :appearanceOverrides="{ color: $themeTokens.text }"
+          :to="genContentLink(t.id)"
+        />
       </div>
+      <KButton
+        v-if="more && !topicsLoading"
+        appearance="basic-link"
+        @click="$emit('loadMoreTopics')"
+      >
+        {{ coreString('viewMoreAction') }}
+      </KButton>
+      <KCircularLoader v-if="topicsLoading" />
     </div>
-    <div v-else :style="sidePanelStyle">
+    <div v-else>
       <!-- search by keyword -->
       <h2 class="title">
         {{ $tr('keywords') }}
@@ -38,10 +49,12 @@
           <KButton
             :text="$tr('allCategories')"
             appearance="flat-button"
+            :class="!!activeKeys.filter(k => k.includes('all_categories')).length ? 'active' : ''"
             :appearanceOverrides="customCategoryStyles"
             @click="allCategories"
           />
         </div>
+
         <div
           v-for="(category, val) in libraryCategoriesList"
           :key="category"
@@ -49,10 +62,13 @@
           class="category-list-item"
         >
           <KButton
-            :text="coreString(camelCase(category))"
+            :text="coreString(val)"
             appearance="flat-button"
             :appearanceOverrides="customCategoryStyles"
-            :disabled="availableRootCategories && !availableRootCategories[val]"
+            :disabled="availableRootCategories &&
+              !availableRootCategories[val] &&
+              !activeKeys.filter(k => k.includes(val)).length"
+            :class="!!activeKeys.filter(k => k.includes(val)).length ? 'active' : ''"
             iconAfter="chevronRight"
             @click="$emit('currentCategory', category)"
           />
@@ -65,20 +81,31 @@
             :text="coreString('None of the above')"
             appearance="flat-button"
             :appearanceOverrides="customCategoryStyles"
+            :class="!!activeKeys.filter(k => k.includes('no_categories')).length ? 'active' : ''"
             @click="noCategories"
           />
         </div>
       </div>
       <ActivityButtonsGroup
         :availableLabels="availableLabels"
+        :activeButtons="activeActivityButtons"
         class="section"
         @input="handleActivity"
       />
       <!-- Filter results by learning activity, displaying all options -->
-      <SelectGroup v-model="inputValue" :availableLabels="availableLabels" class="section" />
-      <div class="section">
+      <SelectGroup
+        v-model="inputValue"
+        :availableLabels="availableLabels"
+        :showChannels="showChannels"
+        class="section"
+      />
+      <div
+        v-if="Object.keys(resourcesNeededList).length"
+        class="section"
+      >
         <div
           v-for="(val, activity) in resourcesNeededList"
+
           :key="activity"
           span="4"
           alignment="center"
@@ -92,14 +119,13 @@
         </div>
       </div>
     </div>
-  </KGridItem>
+  </div>
 
 </template>
 
 
 <script>
 
-  import camelCase from 'lodash/camelCase';
   import pick from 'lodash/pick';
   import uniq from 'lodash/uniq';
   import {
@@ -111,6 +137,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import SearchBox from '../SearchBox';
   import commonLearnStrings from '../commonLearnStrings';
+  import genContentLink from '../../utils/genContentLink';
   import ActivityButtonsGroup from './ActivityButtonsGroup';
   import SelectGroup from './SelectGroup';
   import plugin_data from 'plugin_data';
@@ -122,18 +149,6 @@
     const value = ResourcesNeededTypes[key];
     // TODO rtibbles: remove this condition
     if (plugin_data.learnerNeeds.includes(value) || process.env.NODE_ENV !== 'production') {
-      // For some reason the string ids for these items are in PascalCase not camelCase
-      if (key === 'PEOPLE') {
-        key = 'ToUseWithTeachersAndPeers';
-      } else if (key === 'PAPER_PENCIL') {
-        key = 'ToUseWithPaperAndPencil';
-      } else if (key === 'INTERNET') {
-        key = 'NeedsInternet';
-      } else if (key === 'MATERIALS') {
-        key = 'NeedsMaterials';
-      } else if (key === 'FOR_BEGINNERS') {
-        key = 'ForBeginners';
-      }
       resourcesNeeded[key] = value;
     }
   });
@@ -172,7 +187,6 @@
             'accessibility_labels',
             'languages',
             'grade_levels',
-            'keywords',
           ];
           return inputKeys.every(k => Object.prototype.hasOwnProperty.call(value, k));
         },
@@ -188,17 +202,42 @@
           return [];
         },
       },
-      width: {
-        type: Number || String,
-        required: true,
+      more: {
+        type: Object,
+        default: null,
       },
-      topicPage: {
+      topicsLoading: {
         type: Boolean,
-        required: false,
+        default: false,
+      },
+      width: {
+        type: [Number, String],
+        required: true,
       },
       topicsListDisplayed: {
         type: Boolean,
         required: false,
+      },
+      position: {
+        type: String,
+        required: true,
+        validator(val) {
+          return ['embedded', 'overlay'].includes(val);
+        },
+      },
+      showChannels: {
+        type: Boolean,
+        default: true,
+      },
+      activeActivityButtons: {
+        type: Object,
+        required: false,
+        default: null,
+      },
+      activeCategories: {
+        type: Object,
+        required: false,
+        default: null,
       },
     },
     computed: {
@@ -236,12 +275,6 @@
           },
         };
       },
-      sidePanelStyle() {
-        if (this.topicPage) {
-          return { position: 'relative' };
-        }
-        return null;
-      },
       availableRootCategories() {
         if (this.availableLabels) {
           const roots = {};
@@ -265,8 +298,12 @@
         }
         return null;
       },
+      activeKeys() {
+        return Object.keys(this.activeCategories);
+      },
     },
     methods: {
+      genContentLink,
       allCategories() {
         this.$emit('input', { ...this.value, categories: { [AllCategories]: true } });
       },
@@ -300,9 +337,6 @@
           });
         }
       },
-      camelCase(val) {
-        return camelCase(val);
-      },
     },
     $trs: {
       keywords: {
@@ -315,7 +349,7 @@
       },
       allCategories: {
         message: 'All categories',
-        context: 'Button label in the Library page sidebar.',
+        context: 'Option in the Library page sidebar.',
       },
     },
   };
@@ -327,17 +361,34 @@
 
   .side-panel {
     position: fixed;
+    top: 0;
+    left: 0;
     height: 100%;
-    padding: 30px 40px !important;
-    padding-bottom: 120px !important;
-    margin-right: 16px;
-    overflow: scroll;
+    padding: 24px;
+    padding-top: 140px;
+    overflow-y: scroll;
     font-size: 14px;
     box-shadow: 0 3px 3px 0 #00000040;
   }
 
+  .side-panel-folder-link {
+    margin-top: 12px;
+    margin-bottom: 12px;
+    /deep/ .link-text {
+      text-decoration: none !important;
+    }
+  }
+
   .section {
     margin-top: 40px;
+  }
+
+  .active {
+    background-color: rgb(235, 210, 235);
+    border: 2px !important;
+    border-color: #996189 !important;
+    border-style: solid !important;
+    border-radius: 4px !important;
   }
 
   .card-grid {

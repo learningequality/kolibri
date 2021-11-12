@@ -1,6 +1,5 @@
 import isPlainObject from 'lodash/isPlainObject';
 import { Resource } from 'kolibri.lib.apiResource';
-import Store from 'kolibri.coreVue.vuex.store';
 import urls from 'kolibri.urls';
 import cloneDeep from '../cloneDeep';
 import ConditionalPromise from '../conditionalPromise';
@@ -95,8 +94,8 @@ export default new Resource({
   fetchCopiesCount(getParams = {}) {
     return this.fetchListCollection('copies_count', getParams);
   },
-  fetchNextContent(id) {
-    return this.fetchDetailModel('next_content', id);
+  fetchNextContent(id, getParams = {}) {
+    return this.fetchDetailModel('next_content', id, getParams);
   },
   fetchNodeAssessments(ids) {
     return this.getListEndpoint('node_assessments', { ids });
@@ -104,14 +103,20 @@ export default new Resource({
   fetchRecommendationsFor(id, getParams) {
     return this.fetchDetailCollection('recommendations_for', id, getParams);
   },
-  fetchResume(getParams) {
-    return this.fetchDetailCollection('resume', Store.getters.currentUserId, getParams);
+  fetchResume(params = { resume: true }) {
+    const promise = new ConditionalPromise();
+    const url = urls['kolibri:core:usercontentnode_list']();
+    promise._promise = this.client({ url, params }).then(response => {
+      this.cacheData(response.data);
+      return response.data;
+    });
+    return promise;
   },
   fetchPopular(getParams) {
     return this.fetchListCollection('popular', getParams);
   },
   fetchNextSteps(getParams) {
-    return this.fetchDetailCollection('next_steps', Store.getters.currentUserId, getParams);
+    return this.fetchListCollection('next_steps', getParams);
   },
   cache: {},
   fetchModel({ id }) {

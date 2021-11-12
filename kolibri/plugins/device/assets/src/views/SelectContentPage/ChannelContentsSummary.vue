@@ -123,7 +123,7 @@
       unlistedChannelTooltip: {
         message: 'Unlisted channel',
         context:
-          'Tooltip to indicate a private channels which shows with the unlisted channel icon.\n',
+          'Tooltip to indicate a private channel which shows with the unlisted channel icon.\n\nSee also: https://kolibri.readthedocs.io/en/latest/manage/resources.html?#import-with-token',
       },
       newOrUpdatedLabel: {
         message: 'New or updated',

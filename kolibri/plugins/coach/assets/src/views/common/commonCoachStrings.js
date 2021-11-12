@@ -7,7 +7,10 @@ const coachStrings = createTranslator('CommonCoachStrings', {
     context:
       "Coaches can copy a lesson to a different group or another class using the 'Copy' option.",
   },
-  createLessonAction: 'Create new lesson',
+  createLessonAction: {
+    message: 'Create new lesson',
+    context: "Title of the 'Create new lesson' page.",
+  },
   exportCSVAction: {
     message: 'Export as CSV',
     context:
@@ -65,7 +68,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   },
   allQuizzesLabel: {
     message: 'All quizzes',
-    context: 'Navigation link that takes coach back to the list of all the classes they manage.',
+    context: 'Navigation link that takes coach back to the list of all the quizzes they manage.',
   },
   avgScoreLabel: {
     message: 'Average score',
@@ -223,7 +226,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   },
   questionsLabel: {
     message: 'Questions',
-    context: 'Refers to quiz questions.\n',
+    context: 'Refers to quiz questions.',
   }, // Kept here for use in common.js
   questionOrderLabel: {
     message: 'Question order',
@@ -283,7 +286,8 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   },
   timeSpentLabel: {
     message: 'Time spent',
-    context: 'Indicates the time a learner has taken on a specific learning resource.',
+    context:
+      'Column header indicating the time a learner has taken on a specific learning resource. The time spent could be, for example, 2 hours or 15 minutes.',
   },
   ungroupedLearnersLabel: {
     message: 'Ungrouped learners',
@@ -309,7 +313,11 @@ const coachStrings = createTranslator('CommonCoachStrings', {
     message: 'There was a problem saving this lesson',
     context: 'Error message.',
   },
-  duplicateLessonTitleError: 'A lesson with that name already exists',
+  duplicateLessonTitleError: {
+    message: 'A lesson with that name already exists',
+    context:
+      "Appears if the coach creates a lesson that has the same name as one that's already created.",
+  },
 
   // empty states
   activityListEmptyState: {
@@ -410,7 +418,8 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   },
   quizClosedMessage: {
     message: 'Quiz ended',
-    context: 'A brief snackbar message notifying the user that the quiz was successfully ended.',
+    context:
+      "A brief snackbar message notifying the user that the quiz was successfully ended. Displays when the user clicks 'End quiz'.",
   },
   quizFailedToCloseMessage: {
     message: 'There was a problem ending the quiz. The quiz was not ended.',

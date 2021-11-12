@@ -8,14 +8,53 @@
 import { computed, ref } from 'kolibri.lib.vueCompositionApi';
 import { get, set } from '@vueuse/core';
 import flatMap from 'lodash/flatMap';
+import flatMapDepth from 'lodash/flatMapDepth';
 
 import { ContentNodeResource } from 'kolibri.resources';
+import genContentLink from '../utils/genContentLink';
 import { LearnerClassroomResource } from '../apiResources';
 import { PageNames, ClassesPageNames } from '../constants';
+import { normalizeContentNode } from '../modules/coreLearn/utils';
+import useContentNodeProgress, { setContentNodeProgress } from './useContentNodeProgress';
 
-// The refs are defined in the outer scope so they can be use as a store
-const _resumableContentNodes = ref([]);
+// The refs are defined in the outer scope so they can be used as a shared store
+const resumableContentNodes = ref([]);
+const moreResumableContentNodes = ref(null);
 const classes = ref([]);
+const { fetchContentNodeProgress } = useContentNodeProgress();
+
+export function setResumableContentNodes(nodes, more = null) {
+  set(resumableContentNodes, nodes.map(normalizeContentNode));
+  set(moreResumableContentNodes, more);
+  ContentNodeResource.cacheData(nodes);
+}
+
+function addResumableContentNodes(nodes, more = null) {
+  set(resumableContentNodes, [...get(resumableContentNodes), ...nodes.map(normalizeContentNode)]);
+  set(moreResumableContentNodes, more);
+  ContentNodeResource.cacheData(nodes);
+}
+
+function setClassData(classroom) {
+  for (let lesson of classroom.assignments.lessons) {
+    for (let resource of lesson.resources) {
+      if (resource.contentnode && resource.contentnode.content_id) {
+        ContentNodeResource.cacheData(resource.contentnode);
+        setContentNodeProgress({
+          content_id: resource.contentnode.content_id,
+          progress: resource.progress,
+        });
+      }
+    }
+  }
+}
+
+export function setClasses(classData) {
+  set(classes, classData);
+  for (let classroom of classData) {
+    setClassData(classroom);
+  }
+}
 
 export default function useLearnerResources() {
   /**
@@ -27,10 +66,11 @@ export default function useLearnerResources() {
   });
 
   /**
-   * @returns {Array} - All lessons assigned to a learner in all their classes
-   * @private
+   * Because the API endpoint only returns active lessons this is just all the lessons
+   * @returns {Array} - All active lessons assigned to a learner in all their classes
+   * @public
    */
-  const _classesLessons = computed(() => {
+  const activeClassesLessons = computed(() => {
     return flatMap(get(classes), c => c.assignments.lessons);
   });
 
@@ -40,56 +80,21 @@ export default function useLearnerResources() {
    * @private
    */
   const _classesResources = computed(() => {
-    const resources = [];
-    get(classes).forEach(c => {
-      const lessons = c.assignments.lessons;
-      lessons.forEach(lesson => {
-        lesson.resources.forEach(resource => {
-          resources.push({
-            contentNodeId: resource.contentnode_id,
-            lessonId: lesson.id,
+    return flatMapDepth(
+      get(classes),
+      c =>
+        c.assignments.lessons.map(l =>
+          l.resources.map(r => ({
+            contentNodeId: r.contentnode_id,
+            progress: r.progress,
+            lessonId: l.id,
             classId: c.id,
-            active: lesson.is_active,
-          });
-        });
-      });
-    });
-    return resources;
+            contentNode: r.contentnode,
+          }))
+        ),
+      2
+    );
   });
-
-  /**
-   * @returns {Array} - An array of { contentNodeId, lessonId, classId } objects
-   *                    of all resources from all learner's active lessons
-   * @private
-   */
-  const _activeClassesResources = computed(() => {
-    return get(_classesResources)
-      .filter(resource => resource.active)
-      .map(resource => {
-        return {
-          contentNodeId: resource.contentNodeId,
-          lessonId: resource.lessonId,
-          classId: resource.classId,
-        };
-      });
-  });
-
-  /**
-   * @returns  {Boolean}
-   * @private
-   */
-  function _isContentNodeResumable(contentNodeId) {
-    const resumableContentNodesIds = get(_resumableContentNodes).map(contentNode => contentNode.id);
-    return get(resumableContentNodesIds).includes(contentNodeId);
-  }
-
-  /**
-   * @returns  {Boolean}
-   * @private
-   */
-  function _isContentNodeInClasses(contentNodeId) {
-    return get(_classesResources).some(resource => resource.contentNodeId === contentNodeId);
-  }
 
   /**
    * @param {Object} resource { contentNodeId, lessonId, classId }
@@ -97,22 +102,17 @@ export default function useLearnerResources() {
    * @private
    */
   function _getLessonResourceIdx(resource) {
-    const lesson = get(_classesLessons).find(
+    const lesson = get(activeClassesLessons).find(
       l => l.collection === resource.classId && l.id === resource.lessonId
     );
     if (!lesson) {
       return undefined;
     }
-    return lesson.resources.findIndex(r => r.contentnode_id === resource.contentNodeId);
+    const lessonResourceIdx = lesson.resources.findIndex(
+      r => r.contentnode_id === resource.contentNodeId
+    );
+    return lessonResourceIdx === -1 ? undefined : lessonResourceIdx;
   }
-
-  /**
-   * @returns {Array} - All active lessons assigned to a learner in all their classes
-   * @public
-   */
-  const activeClassesLessons = computed(() => {
-    return get(_classesLessons).filter(lesson => lesson.is_active);
-  });
 
   /**
    * @returns {Array} - All active quizzes assigned to a learner in all their classes
@@ -132,25 +132,29 @@ export default function useLearnerResources() {
   });
 
   /**
-   * @returns {Array} - An array of { contentNodeId, lessonId, classId } objects
+   * @returns {Array} - An array of { contentNodeId, lessonId, classId, contentNode } objects
    *                    of all resources in progress from all learner's active lessons
    * @public
    */
   const resumableClassesResources = computed(() => {
-    return get(_activeClassesResources).filter(resource => {
-      return _isContentNodeResumable(resource.contentNodeId);
+    return get(_classesResources).filter(resource => {
+      return resource.progress && resource.progress < 1;
     });
   });
 
   /**
-   * @returns {Array} - Content nodes in progress that don't belong
-   *                    to any of learner's classes
+   * @returns {Boolean} - `true` if a learner finished all active
+   *                       classes lessons and quizzes (or when there are none)
    * @public
    */
-  const resumableNonClassesContentNodes = computed(() => {
-    return get(_resumableContentNodes).filter(
-      contentNode => !_isContentNodeInClasses(contentNode.id)
-    );
+  const learnerFinishedAllClasses = computed(() => {
+    const hasUnfinishedLesson = get(activeClassesLessons).some(lesson => {
+      return lesson.progress.resource_progress < lesson.progress.total_resources;
+    });
+    const hasUnfinishedQuiz = get(activeClassesQuizzes).some(quiz => {
+      return !quiz.progress.closed;
+    });
+    return !(hasUnfinishedLesson || hasUnfinishedQuiz);
   });
 
   /**
@@ -163,12 +167,29 @@ export default function useLearnerResources() {
   }
 
   /**
-   * @param {String} contentNodeId
-   * @returns {Object}
+   * @param {String} classId
+   * @returns {Array} All active lessons of a class
    * @public
    */
-  function getResumableContentNode(contentNodeId) {
-    return get(_resumableContentNodes).find(contentNode => contentNode.id === contentNodeId);
+  function getClassActiveLessons(classId) {
+    const classroom = getClass(classId);
+    if (!classroom || !classroom.assignments || !classroom.assignments.lessons) {
+      return [];
+    }
+    return classroom.assignments.lessons.filter(lesson => lesson.is_active);
+  }
+
+  /**
+   * @param {String} classId
+   * @returns {Array} All active quizzes of a class
+   * @public
+   */
+  function getClassActiveQuizzes(classId) {
+    const classroom = getClass(classId);
+    if (!classroom || !classroom.assignments || !classroom.assignments.exams) {
+      return [];
+    }
+    return classroom.assignments.exams.filter(exam => exam.active);
   }
 
   /**
@@ -227,17 +248,13 @@ export default function useLearnerResources() {
    */
   function getClassResourceLink(resource) {
     const lessonResourceIdx = _getLessonResourceIdx(resource);
-    if (!lessonResourceIdx) {
+    if (lessonResourceIdx === undefined) {
       return undefined;
     }
-    return {
-      name: ClassesPageNames.LESSON_RESOURCE_VIEWER,
-      params: {
-        classId: resource.classId,
-        lessonId: resource.lessonId,
-        resourceNumber: lessonResourceIdx,
-      },
-    };
+    return genContentLink(resource.contentNodeId, null, true, undefined, {
+      lessonId: resource.lessonId,
+      classId: resource.classId,
+    });
   }
 
   /**
@@ -253,22 +270,75 @@ export default function useLearnerResources() {
   }
 
   /**
+   * Fetches a class by its ID and saves data
+   * to this composable's store
+   *
+   * @param {String} classId
+   * @param {Boolean} force Cache won't be used when `true`
+   * @returns  {Promise}
+   * @public
+   */
+  function fetchClass({ classId, force = false }) {
+    return LearnerClassroomResource.fetchModel({ id: classId, force }).then(classroom => {
+      const updatedClasses = [...get(classes).filter(c => c.id !== classId), classroom];
+      set(classes, updatedClasses);
+      setClassData(classroom);
+      return classroom;
+    });
+  }
+
+  /**
+   * Fetches current learner's classes
+   * and saves data to this composable's store
+   *
+   * @param {Boolean} force Cache won't be used when `true`
    * @returns {Promise}
    * @public
    */
-  function fetchClasses() {
-    LearnerClassroomResource.fetchCollection().then(collection => {
+  function fetchClasses({ force = false } = {}) {
+    return LearnerClassroomResource.fetchCollection({ force }).then(collection => {
       set(classes, collection);
     });
   }
 
   /**
+   * Fetches resumable content nodes with their progress data
+   * and saves data to this composable's store
+   *
    * @returns {Promise}
    * @public
    */
   function fetchResumableContentNodes() {
-    ContentNodeResource.fetchResume().then(collection => {
-      set(_resumableContentNodes, collection);
+    const params = { resume: true, max_results: 12 };
+    fetchContentNodeProgress(params);
+    return ContentNodeResource.fetchResume(params).then(({ results, more }) => {
+      if (!results || !results.length) {
+        return [];
+      }
+      setResumableContentNodes(results, more);
+      return results;
+    });
+  }
+
+  /**
+   * Fetches more resumable content nodes with their progress data
+   * and saves data to this composable's store
+   *
+   * @returns {Promise}
+   * @public
+   */
+  function fetchMoreResumableContentNodes() {
+    const params = get(moreResumableContentNodes);
+    if (!params) {
+      return Promise.resolve();
+    }
+    fetchContentNodeProgress(params);
+    return ContentNodeResource.fetchResume(params).then(({ results, more }) => {
+      if (!results || !results.length) {
+        return [];
+      }
+      addResumableContentNodes(results, more);
+      return results;
     });
   }
 
@@ -278,14 +348,19 @@ export default function useLearnerResources() {
     activeClassesQuizzes,
     resumableClassesQuizzes,
     resumableClassesResources,
-    resumableNonClassesContentNodes,
+    learnerFinishedAllClasses,
     getClass,
-    getResumableContentNode,
+    getClassActiveLessons,
+    getClassActiveQuizzes,
     getClassLessonLink,
     getClassQuizLink,
     getClassResourceLink,
     getTopicContentNodeLink,
+    fetchClass,
     fetchClasses,
     fetchResumableContentNodes,
+    fetchMoreResumableContentNodes,
+    resumableContentNodes,
+    moreResumableContentNodes,
   };
 }

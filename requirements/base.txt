@@ -12,10 +12,10 @@ cheroot==8.5.2
 magicbus==4.1.2
 futures==3.1.1  # Temporarily pinning this until we can do a Python 2/3 compatible solution of newer versions # pyup: <=3.1.1
 more-itertools==5.0.0  # Last Python 2.7 friendly release # pyup: <6.0
-le-utils==0.1.33
+le-utils==0.1.34
 jsonfield==2.0.2
 requests-toolbelt==0.8.0
-morango==0.6.6a0
+morango==0.6.6
 tzlocal==2.1
 pytz==2020.5
 python-dateutil==2.7.5
@@ -24,7 +24,7 @@ semver==2.8.1
 django-redis-cache==2.0.0
 redis==3.2.1
 html5lib==1.0.1
-zeroconf-py2compat==0.19.12
+zeroconf-py2compat==0.19.13
 ifcfg==0.21
 Click==7.0
 whitenoise==4.1.4

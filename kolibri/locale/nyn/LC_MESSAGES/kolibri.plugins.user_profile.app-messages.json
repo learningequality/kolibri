@@ -1,0 +1,15 @@
+{
+  "ChangeUserPasswordModal.passwordChangeFormHeader": "Sinthani pasiwedi",
+  "ChangeUserPasswordModal.passwordChangedNotification": "Nambala yanu yachinsinsi yasinthidwa.",
+  "ProfileEditPage.editProfileHeader": "Sinthani maonekedwe a tsamba lanu",
+  "ProfilePage.changePasswordPrompt": "Sinthani pasiwedi",
+  "ProfilePage.detailsHeader": "Tsatanetsatane",
+  "ProfilePage.documentTitle": "Pulofailo",
+  "ProfilePage.editAction": "Sinthani",
+  "ProfilePage.isSuperuser": "Zilolezo za supa adimini ",
+  "ProfilePage.limitedPermissions": "Chilolezo chochepa",
+  "ProfilePage.manageContent": "Kuona zokhudza matchanelo ndi zinthu zina",
+  "ProfilePage.manageDevicePermissions": "Konzani zilolezo za chipangizo",
+  "ProfilePage.points": "Mapointi",
+  "ProfilePage.youCan": "Mungathe:"
+}

@@ -52,5 +52,4 @@ CMD echo '--- Installing JS dependencies' && \
     echo '--- Making whl' && \
     make dist && \
     echo '--- Making pex' && \
-    make pex && \
-    cp /kolibri/dist/* /kolibridist/
+    make pex

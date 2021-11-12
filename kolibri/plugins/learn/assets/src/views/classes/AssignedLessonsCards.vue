@@ -44,12 +44,6 @@
     setup() {
       const { getClass, getClassLessonLink } = useLearnerResources();
 
-      // TODO: We only display class name for lessons on the home page
-      // that fetches classes data to `useLearnerResources`. To save some
-      // API calls, it's not fetched here again. However that creates a hidden
-      // dependency to `HomePage`. Make sure to check that classes are available
-      // when initializing the composable and if not, fetch them, or update
-      // `ClassAssignmentsPage` to use the composable too instead of Vuex.
       function getLessonClassName(lesson) {
         const lessonClass = getClass(lesson.collection);
         return lessonClass ? lessonClass.name : '';

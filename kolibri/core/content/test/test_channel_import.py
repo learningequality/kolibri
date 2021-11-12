@@ -265,6 +265,8 @@ class BaseChannelImportClassOtherMethodsTestCase(TestCase):
             channel_import, "generate_table_mapper"
         ), patch.object(channel_import, "table_import"), patch.object(
             channel_import, "check_and_delete_existing_channel"
+        ), patch.object(
+            channel_import, "execute_post_operations"
         ):
             channel_import.import_channel_data()
             channel_import.generate_row_mapper.assert_called_once_with(
@@ -275,6 +277,7 @@ class BaseChannelImportClassOtherMethodsTestCase(TestCase):
             )
             channel_import.table_import.assert_called_once()
             channel_import.check_and_delete_existing_channel.assert_called_once()
+            channel_import.execute_post_operations.assert_called_once()
 
     def test_end(self, apps_mock, tree_id_mock, BridgeMock):
         channel_import = ChannelImport("test")
@@ -294,8 +297,9 @@ class BaseChannelImportClassOtherMethodsTestCase(TestCase):
 
 
 class MaliciousDatabaseTestCase(TestCase):
+    @patch("kolibri.core.content.utils.channel_import.set_channel_ancestors")
     @patch("kolibri.core.content.utils.channel_import.initialize_import_manager")
-    def test_non_existent_root_node(self, initialize_manager_mock):
+    def test_non_existent_root_node(self, initialize_manager_mock, ancestor_mock):
         import_mock = MagicMock()
         initialize_manager_mock.return_value = import_mock
         channel_id = "6199dde695db4ee4ab392222d5af1e5c"

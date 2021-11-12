@@ -325,7 +325,10 @@
       },
     },
     $trs: {
-      goBack: 'Go back',
+      goBack: {
+        message: 'Go back',
+        context: 'Link to go back to the previous screen.',
+      },
       moreOptions: {
         message: 'More options',
         context: 'Tooltip text.',
@@ -353,7 +356,7 @@
   .menu {
     position: absolute;
     top: 50%;
-    z-index: 8;
+    z-index: 16;
     min-width: 270px;
     transform: translateY(16px);
   }

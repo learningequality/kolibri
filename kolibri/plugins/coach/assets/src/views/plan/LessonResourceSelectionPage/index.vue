@@ -512,7 +512,10 @@
       },
     },
     $trs: {
-      resources: '{count} {count, plural, one {resource} other {resources}}',
+      resources: {
+        message: '{count} {count, plural, one {resource} other {resources}}',
+        context: "Only translate 'resource' and 'resources'.",
+      },
       selectionInformation: {
         message:
           '{count, number, integer} of {total, number, integer} {total, plural, one {resource selected} other {resources selected}}',

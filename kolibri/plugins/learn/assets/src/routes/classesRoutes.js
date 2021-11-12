@@ -1,3 +1,4 @@
+import { get } from '@vueuse/core';
 import store from 'kolibri.coreVue.vuex.store';
 import router from 'kolibri.coreVue.router';
 import { ClassesPageNames, PageNames } from '../constants';
@@ -6,13 +7,13 @@ import { showClassAssignmentsPage } from '../modules/classAssignments/handlers';
 import { showAllClassesPage } from '../modules/classes/handlers';
 import { showExam } from '../modules/examViewer/handlers';
 import { showExamReport } from '../modules/examReportViewer/handlers';
+import { inClasses } from '../composables/useCoreLearn';
 
 function noClassesGuard() {
-  const { memberships } = store.state;
   const { canAccessUnassignedContent } = store.getters;
-  if (memberships.length === 0 && canAccessUnassignedContent) {
-    // If there are no memberships and it is allowed, redirect to topics page
-    return router.replace({ name: PageNames.TOPICS_ROOT });
+  if (!get(inClasses) && canAccessUnassignedContent) {
+    // If there are no memberships and it is allowed, redirect to library page
+    return router.replace({ name: PageNames.LIBRARY });
   }
   // Otherwise return nothing
   return;

@@ -1,96 +1,209 @@
 <template>
 
   <div>
-    <KGrid
-      class="main-content-grid"
+    <main
+      class="main-grid"
+      :style="gridOffset"
     >
+      <div v-if="!windowIsLarge">
+        <!-- TO DO Marcella swap out new icon after KDS update -->
+        <KButton
+          icon="filter"
+          :text="coreString('searchLabel')"
+          :primary="false"
+          @click="toggleSidePanelVisibility"
+        />
+      </div>
+      <!-- "Default" display - channels and recent/popular content -->
+      <div v-if="!displayingSearchResults">
+        <h2>{{ coreString('channelsLabel') }}</h2>
+        <ChannelCardGroupGrid
+          v-if="rootNodes.length"
+          class="grid"
+          :contents="rootNodes"
+        />
+        <div v-if="!(windowBreakpoint < 1 )" class="toggle-view-buttons">
+          <KIconButton
+            icon="menu"
+            :ariaLabel="$tr('viewAsList')"
+            :color="$themeTokens.text"
+            :tooltip="$tr('viewAsList')"
+            @click="toggleCardView('list')"
+          />
+          <KIconButton
+            icon="channel"
+            :ariaLabel="$tr('viewAsGrid')"
+            :color="$themeTokens.text"
+            :tooltip="$tr('viewAsGrid')"
+            @click="toggleCardView('card')"
+          />
+        </div>
+        <h2 v-if="resumableContentNodes.length">
+          {{ $tr('recent') }}
+        </h2>
+        <HybridLearningCardGrid
+          v-if="resumableContentNodes.length"
+          :cardViewStyle="currentViewStyle"
+          :numCols="numCols"
+          :genContentLink="genContentLink"
+          :contents="trimmedResume"
+          :currentPage="currentPage"
+          @toggleInfoPanel="toggleInfoPanel"
+        />
+        <KButton
+          v-if="moreResumableContentNodes"
+          appearance="basic-link"
+          @click="fetchMoreResumableContentNodes"
+        >
+          {{ coreString('viewMoreAction') }}
+        </KButton>
+      </div>
+
+      <!-- Display of search results, after the search is finished loading -->
+
+      <!-- First section is the results title and the various display buttons  -->
+      <!-- for interacting or updating the results   -->
+      <div v-else-if="!searchLoading">
+        <h2 class="results-title">
+          {{ $tr('results', { results: results.length }) }}
+        </h2>
+        <KButton
+          v-if="more"
+          :text="coreString('viewMoreAction')"
+          appearance="basic-link"
+          :disabled="moreLoading"
+          class="filter-action-button"
+          @click="searchMore"
+        />
+        <div v-if="!(windowBreakpoint < 1) && results.length" class="toggle-view-buttons">
+          <KIconButton
+            icon="menu"
+            :ariaLabel="$tr('viewAsList')"
+            :color="$themeTokens.text"
+            :tooltip="$tr('viewAsList')"
+            @click="toggleCardView('list')"
+          />
+          <KIconButton
+            icon="channel"
+            :ariaLabel="$tr('viewAsGrid')"
+            :color="$themeTokens.text"
+            :tooltip="$tr('viewAsGrid')"
+            @click="toggleCardView('card')"
+          />
+        </div>
+        <SearchChips
+          :searchTerms="searchTerms"
+          @removeItem="removeFilterTag"
+          @clearSearch="clearSearch"
+        />
+        <!-- Grid of search results  -->
+        <HybridLearningCardGrid
+          v-if="results.length"
+          :numCols="numCols"
+          :cardViewStyle="currentViewStyle"
+          :genContentLink="genContentLink"
+          :contents="results"
+          @toggleInfoPanel="toggleInfoPanel"
+        />
+        <!-- conditionally displayed button if there are additional results -->
+        <KButton
+          v-if="more"
+          :text="coreString('viewMoreAction')"
+          appearance="basic-link"
+          :disabled="moreLoading"
+          class="filter-action-button"
+          @click="searchMore"
+        />
+      </div>
+      <!-- loader for search loading -->
+      <div v-else>
+        <KCircularLoader
+          v-if="searchLoading"
+          class="loader"
+          type="indeterminate"
+          :delay="false"
+        />
+      </div>
+    </main>
+
+    <!-- Side Panels for filtering and searching  -->
+
+    <!-- Embedded Side panel is on larger views, and exists next to content -->
+    <EmbeddedSidePanel
+      v-if="!!windowIsLarge"
+      v-model="searchTerms"
+      :width="`${sidePanelWidth}px`"
+      :availableLabels="labels"
+      position="embedded"
+      :activeActivityButtons="activeActivityButtons"
+      :activeCategories="activeCategories"
+      @currentCategory="handleShowSearchModal"
+    />
+    <!-- The full screen side panel is used on smaller screens, and toggles as an overlay -->
+    <!-- FullScreen is a container component, and then the EmbeddedSidePanel sits within -->
+    <FullScreenSidePanel
+      v-if="!windowIsLarge && sidePanelIsOpen"
+      class="full-screen-side-panel"
+      :closeButtonHidden="true"
+      :sidePanelOverrideWidth="`${sidePanelOverlayWidth + 64}px`"
+      @closePanel="toggleSidePanelVisibility"
+    >
+      <KIconButton
+        v-if="windowIsSmall && !currentCategory"
+        class="overlay-close-button"
+        icon="close"
+        :ariaLabel="coreString('closeAction')"
+        :color="$themeTokens.text"
+        :tooltip="coreString('closeAction')"
+        @click="toggleSidePanelVisibility"
+      />
+      <KIconButton
+        v-if="windowIsSmall && currentCategory"
+        icon="back"
+        :ariaLabel="coreString('back')"
+        :color="$themeTokens.text"
+        :tooltip="coreString('back')"
+        @click="closeCategoryModal"
+      />
       <EmbeddedSidePanel
-        v-if="!!windowIsLarge"
+        v-if="!currentCategory"
         v-model="searchTerms"
+        :width="`${sidePanelOverlayWidth}px`"
         :availableLabels="labels"
-        width="3"
+        position="overlay"
+        :activeActivityButtons="activeActivityButtons"
+        :activeCategories="activeCategories"
         @currentCategory="handleShowSearchModal"
       />
-      <KGridItem
-        :layout="{ span: 3 }"
-        class="side-panel"
+      <CategorySearchModal
+        v-if="currentCategory && windowIsSmall"
+        :selectedCategory="currentCategory"
+        :numCols="numCols"
+        :availableLabels="labels"
+        position="fullscreen"
+        @cancel="currentCategory = null"
+        @input="handleCategory"
       />
-      <KGridItem
-        class="card-grid"
-        :layout="{ span: 8 }"
-      >
-        <div v-if="!displayingSearchResults">
-          <h2>{{ coreString('channelsLabel') }}</h2>
-          <ChannelCardGroupGrid
-            v-if="channels.length"
-            class="grid"
-            :contents="channels"
-            :genContentLink="genChannelLink"
-          />
-          <div class="toggle-view-buttons">
-            <KIconButton
-              icon="menu"
-              :ariaLabel="$tr('viewAsList')"
-              :color="$themeTokens.text"
-              :tooltip="$tr('viewAsList')"
-              @click="toggleCardView('list')"
-            />
-            <KIconButton
-              icon="channel"
-              :ariaLabel="$tr('viewAsGrid')"
-              :color="$themeTokens.text"
-              :tooltip="$tr('viewAsGrid')"
-              @click="toggleCardView('card')"
-            />
-          </div>
-          <h2>{{ $tr('recent') }}</h2>
-          <ContentCardGroupGrid
-            v-if="popular.length"
-            :cardViewStyle="currentViewStyle"
-            :genContentLink="genContentLink"
-            :contents="trimmedPopular"
-          />
-        </div>
-        <div v-else>
-          <KCircularLoader
-            v-if="searchLoading"
-            class="loader"
-            type="indeterminate"
-            :delay="false"
-          />
-          <div v-else>
-            <h2>{{ $tr('results', { results: results.length }) }}</h2>
-            <KButton
-              v-if="more"
-              :text="coreString('viewMoreAction')"
-              :primary="false"
-              :disabled="moreLoading"
-              @click="searchMore"
-            />
-            <p>{{ $tr('clearAll') }}</p>
-            <ContentCardGroupGrid
-              v-if="results.length"
-              :cardViewStyle="currentViewStyle"
-              :genContentLink="genContentLink"
-              :contents="results"
-            />
-            <KButton
-              v-if="more"
-              :text="coreString('viewMoreAction')"
-              :primary="false"
-              :disabled="moreLoading"
-              @click="searchMore"
-            />
-          </div>
-        </div>
-      </KGridItem>
-    </KGrid>
+    </FullScreenSidePanel>
+
+    <!-- Category Search modal for larger screens. On smaller screens, it is -->
+    <!-- contained within the full screen search modal (different design) -->
     <CategorySearchModal
-      v-if="currentCategory"
+      v-if="(windowIsMedium || windowIsLarge) && currentCategory"
       :selectedCategory="currentCategory"
+      :numCols="numCols"
+      :availableLabels="labels"
+      position="modal"
       @cancel="currentCategory = null"
       @input="handleCategory"
     />
+
+    <FullScreenSidePanel
+      v-if="sidePanelContent"
+      @closePanel="sidePanelContent = null"
+    >
+      <BrowseResourceMetadata :content="sidePanelContent" :canDownloadContent="true" />
+    </FullScreenSidePanel>
   </div>
 
 </template>
@@ -99,31 +212,24 @@
 <script>
 
   import { mapState } from 'vuex';
-  import uniq from 'lodash/uniq';
 
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import { ContentNodeProgressResource, ContentNodeResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { AllCategories, NoCategories } from 'kolibri.coreVue.vuex.constants';
+  import FullScreenSidePanel from 'kolibri.coreVue.components.FullScreenSidePanel';
+  import genContentLink from '../utils/genContentLink';
   import { PageNames } from '../constants';
+  import useSearch from '../composables/useSearch';
+  import useLearnerResources from '../composables/useLearnerResources';
+  import BrowseResourceMetadata from './BrowseResourceMetadata';
   import commonLearnStrings from './commonLearnStrings';
   import ChannelCardGroupGrid from './ChannelCardGroupGrid';
-  import ContentCardGroupGrid from './ContentCardGroupGrid';
+  import HybridLearningCardGrid from './HybridLearningCardGrid';
   import EmbeddedSidePanel from './EmbeddedSidePanel';
   import CategorySearchModal from './CategorySearchModal';
+  import SearchChips from './SearchChips';
 
   const mobileCarouselLimit = 3;
   const desktopCarouselLimit = 15;
-
-  const searchKeys = [
-    'learning_activities',
-    'categories',
-    'learner_needs',
-    'channels',
-    'accessibility_labels',
-    'languages',
-    'grade_levels',
-  ];
 
   export default {
     name: 'LibraryPage',
@@ -133,181 +239,129 @@
       };
     },
     components: {
-      ContentCardGroupGrid,
+      HybridLearningCardGrid,
       ChannelCardGroupGrid,
       EmbeddedSidePanel,
+      FullScreenSidePanel,
       CategorySearchModal,
+      BrowseResourceMetadata,
+      SearchChips,
     },
     mixins: [commonLearnStrings, commonCoreStrings, responsiveWindowMixin],
+    setup() {
+      const {
+        searchTerms,
+        displayingSearchResults,
+        searchLoading,
+        moreLoading,
+        results,
+        more,
+        labels,
+        search,
+        searchMore,
+        removeFilterTag,
+        clearSearch,
+        setCategory,
+      } = useSearch();
+      const {
+        resumableContentNodes,
+        moreResumableContentNodes,
+        fetchMoreResumableContentNodes,
+      } = useLearnerResources();
+      return {
+        searchTerms,
+        displayingSearchResults,
+        searchLoading,
+        moreLoading,
+        results,
+        more,
+        labels,
+        search,
+        searchMore,
+        removeFilterTag,
+        clearSearch,
+        setCategory,
+        resumableContentNodes,
+        moreResumableContentNodes,
+        fetchMoreResumableContentNodes,
+      };
+    },
     data: function() {
       return {
         currentViewStyle: 'card',
         currentCategory: null,
-        searchLoading: true,
-        moreLoading: false,
-        results: [],
-        more: null,
-        labels: null,
+        showSearchModal: false,
+        sidePanelIsOpen: false,
+        sidePanelContent: null,
       };
     },
     computed: {
-      ...mapState('recommended', ['nextSteps', 'popular', 'resume']),
-      ...mapState('topicsRoot', { channels: 'rootNodes' }),
-      // screenLevel() {
-      //   if (window.innerWidth < 480) {
-      //     return 0;
-      //   } else if (window.innerWidth > 480 && window.innerWidth < 600) {
-      //     return 2;
-      //   } else if (window.innerWidth > 600 && window.innerWidth < 840) {
-      //     return 2;
-      //   } else if (window.innerWidth > 840 && window.innerWidth < 960) {
-      //     return 3;
-      //   } else {
-      //     return 4;
-      //   }
-      // },
+      ...mapState(['rootNodes']),
       carouselLimit() {
         return this.windowIsSmall ? mobileCarouselLimit : desktopCarouselLimit;
       },
-      trimmedPopular() {
-        return this.popular.slice(0, this.carouselLimit);
-      },
-      trimmedNextSteps() {
-        return this.nextSteps.slice(0, this.carouselLimit);
-      },
       trimmedResume() {
-        return this.resume.slice(0, this.carouselLimit);
+        return this.resumableContentNodes.slice(0, this.carouselLimit);
       },
-      searchTerms: {
-        get() {
-          const searchTerms = {};
-          for (let key of searchKeys) {
-            const obj = {};
-            if (this.$route.query[key]) {
-              for (let value of this.$route.query[key].split(',')) {
-                obj[value] = true;
-              }
-            }
-            searchTerms[key] = obj;
-          }
-          if (this.$route.query.keywords) {
-            searchTerms.keywords = this.$route.query.keywords;
-          }
-          return searchTerms;
-        },
-        set(value) {
-          const query = { ...this.$route.query };
-          for (let key of searchKeys) {
-            const val = Object.keys(value[key])
-              .filter(Boolean)
-              .join(',');
-            if (val.length) {
-              query[key] = Object.keys(value[key]).join(',');
-            } else {
-              delete query[key];
-            }
-          }
-          if (value.keywords && value.keywords.length) {
-            query.keywords = value.keywords;
-          } else {
-            delete query.keywords;
-          }
-          this.$router.push({ ...this.$route, query });
-        },
+      currentPage() {
+        return PageNames.LIBRARY;
       },
-      displayingSearchResults() {
-        return Object.values(this.searchTerms).some(v => Object.keys(v).length);
+      sidePanelWidth() {
+        if (this.windowIsSmall || this.windowIsMedium) {
+          return 0;
+        } else if (this.windowBreakpoint < 4) {
+          return 234;
+        } else {
+          return 346;
+        }
       },
-    },
-    watch: {
-      searchTerms() {
-        this.search();
+      sidePanelOverlayWidth() {
+        return 300;
+      },
+      numCols() {
+        if (this.windowIsSmall) {
+          return 2;
+        } else {
+          return 3;
+        }
+      },
+      activeActivityButtons() {
+        return this.searchTerms.learning_activities;
+      },
+      activeCategories() {
+        return this.searchTerms.categories;
+      },
+      gridOffset() {
+        return this.isRtl
+          ? { marginRight: `${this.sidePanelWidth + 24}px` }
+          : { marginLeft: `${this.sidePanelWidth + 24}px` };
       },
     },
     created() {
       this.search();
-      if (this.$store.getters.isUserLoggedIn) {
-        const contentNodeIds = uniq(
-          [...this.trimmedNextSteps, ...this.trimmedPopular, ...this.trimmedResume].map(
-            ({ id }) => id
-          )
-        );
-
-        if (contentNodeIds.length > 0) {
-          ContentNodeProgressResource.fetchCollection({ getParams: { ids: contentNodeIds } }).then(
-            progresses => {
-              this.$store.commit('recommended/SET_RECOMMENDED_NODES_PROGRESS', progresses);
-            }
-          );
-        }
-      }
     },
     methods: {
-      genContentLink(id, isLeaf) {
-        return {
-          name: isLeaf ? PageNames.TOPICS_CONTENT : PageNames.TOPICS_TOPIC,
-          params: { id },
-          query: {
-            last: this.$store.state.pageName,
-          },
-        };
-      },
-      genChannelLink(channel_id) {
-        return {
-          name: PageNames.TOPICS_CHANNEL,
-          params: { channel_id },
-        };
+      genContentLink,
+      handleShowSearchModal(value) {
+        this.currentCategory = value;
+        this.showSearchModal = true;
+        !this.windowIsSmall ? (this.sidePanelIsOpen = false) : '';
       },
       toggleCardView(value) {
         this.currentViewStyle = value;
       },
-      handleShowSearchModal(currentCategory) {
-        this.currentCategory = currentCategory;
+      toggleSidePanelVisibility() {
+        this.sidePanelIsOpen = !this.sidePanelIsOpen;
       },
-      handleCategory(category) {
-        this.searchTerms = { ...this.searchTerms, categories: { [category]: true } };
+      toggleInfoPanel(content) {
+        this.sidePanelContent = content;
+      },
+      closeCategoryModal() {
         this.currentCategory = null;
       },
-      search() {
-        if (this.displayingSearchResults) {
-          this.searchLoading = true;
-          const getParams = { max_results: 25 };
-          for (let key of searchKeys) {
-            if (key === 'categories') {
-              if (this.searchTerms[key][AllCategories]) {
-                getParams['categories__isnull'] = false;
-                break;
-              } else if (this.searchTerms[key][NoCategories]) {
-                getParams['categories__isnull'] = true;
-                break;
-              }
-            }
-            const keys = Object.keys(this.searchTerms[key]);
-            if (keys.length) {
-              getParams[key] = keys;
-            }
-          }
-          if (this.searchTerms.keywords) {
-            getParams.keywords = this.searchTerms.keywords;
-          }
-          ContentNodeResource.fetchCollection({ getParams }).then(data => {
-            this.results = data.results;
-            this.more = data.more;
-            this.labels = data.labels;
-            this.searchLoading = false;
-          });
-        }
-      },
-      searchMore() {
-        if (this.displayingSearchResults && this.more && !this.moreLoading) {
-          this.moreLoading = true;
-          ContentNodeResource.fetchCollection({ getParams: this.more }).then(data => {
-            this.results.push(...data.results);
-            this.more = data.more;
-            this.labels = data.labels;
-            this.moreLoading = false;
-          });
-        }
+      handleCategory(category) {
+        this.setCategory(category);
+        this.currentCategory = null;
       },
     },
     $trs: {
@@ -328,11 +382,11 @@
       /* eslint-disable kolibri/vue-no-unused-translations */
       viewAsList: {
         message: 'View as list',
-        context: 'Label for a button',
+        context: 'Label for a button used to view resources as a list.',
       },
       viewAsGrid: {
         message: 'View as grid',
-        context: 'Label for a button. See also https://en.wikipedia.org/wiki/Grid_view',
+        context: 'Label for a button used to view resources as a grid.',
       },
       clearAll: {
         message: 'Clear all',
@@ -346,12 +400,9 @@
 
 <style lang="scss" scoped>
 
-  .card-grid {
+  .main-grid {
     margin-top: 40px;
-  }
-
-  .side-panel {
-    margin-right: 8px;
+    margin-right: 24px;
   }
 
   .loader {
@@ -360,6 +411,30 @@
 
   .toggle-view-buttons {
     float: right;
+  }
+
+  .full-screen-side-panel {
+    position: relative;
+  }
+  .overlay-close-button {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+  }
+
+  .results-title {
+    display: inline-block;
+    margin-bottom: 24px;
+  }
+
+  .results-header-group {
+    margin-bottom: 24px;
+  }
+
+  .filter-action-button {
+    display: inline-block;
+    margin: 4px;
+    margin-left: 8px;
   }
 
 </style>

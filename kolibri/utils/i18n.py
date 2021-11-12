@@ -64,6 +64,7 @@ KOLIBRI_SUPPORTED_LANGUAGES = [
     "my",
     "nyn",
     "pt-br",
+    "pt-mz",
     "sw-tz",
     "te",
     "ur-pk",

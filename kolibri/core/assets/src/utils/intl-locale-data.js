@@ -142,6 +142,12 @@ module.exports = function(locale) {
           resolve(() => require('intl/locale-data/jsonp/pt-BR.js'));
         });
       });
+    case 'pt-mz':
+      return new Promise(function(resolve) {
+        require.ensure(['intl/locale-data/jsonp/pt-MZ.js'], function(require) {
+          resolve(() => require('intl/locale-data/jsonp/pt-MZ.js'));
+        });
+      });
     case 'sw-tz':
       return new Promise(function(resolve) {
         require.ensure(['intl/locale-data/jsonp/sw-TZ.js'], function(require) {

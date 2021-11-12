@@ -183,10 +183,32 @@ def become_daemon(**kwargs):
     _become_daemon_function(**kwargs)
 
 
-# Utility functions for pinging or killing PIDs
+def _posix_get_fd_limit():
+    """
+    Determines the File Descriptor (FD) limit
+    :return: int
+    """
+    import resource
+
+    fd_soft_limit, _ = resource.getrlimit(resource.RLIMIT_NOFILE)
+    return fd_soft_limit
+
+
+def _windows_get_fd_limit():
+    """
+    Determines the File Descriptor (FD) limit
+    :return: int
+    """
+    # TODO: "determine" it
+    return 512
+
+
+# Utility functions
 if os.name == "posix":
     pid_exists = _posix_pid_exists
+    get_fd_limit = _posix_get_fd_limit
     _become_daemon_function = _posix_become_daemon
 else:
     pid_exists = _windows_pid_exists
+    get_fd_limit = _windows_get_fd_limit
     _become_daemon_function = _windows_become_daemon

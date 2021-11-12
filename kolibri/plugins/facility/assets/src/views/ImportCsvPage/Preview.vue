@@ -254,11 +254,18 @@
         message: 'Row number',
         context: 'Refers to rows in the CSV file.\n',
       },
-      columnName: 'Column name',
-      value: 'Value',
+      columnName: {
+        message: 'Column name',
+        context: 'Refers to an element in the CSV file.',
+      },
+      value: {
+        message: 'Value',
+        context:
+          'Refers to values the CSV (comma separated values) file used to import and export users. A value could be a number or a string. The value is the representation of some entity that can be manipulated by the CSV file.',
+      },
       error: {
         message: 'Error',
-        context: 'Title of error message.',
+        context: 'Title of error message in the CSV file.',
       },
       close: 'Close',
       back: {

@@ -5,32 +5,40 @@
       v-if="languageOptionsList.length"
       :options="languageOptionsList"
       class="selector"
+      :clearable="true"
       :value="selectedLanguage"
       :label="coreString('languageLabel')"
+      :style="{ color: $themeTokens.text }"
       @change="val => handleChange('languages', val)"
     />
     <KSelect
       v-if="contentLevelsList.length"
       :options="contentLevelsList"
       class="selector"
+      :clearable="true"
       :value="selectedLevel"
       :label="coreString('levelLabel')"
+      :style="{ color: $themeTokens.text }"
       @change="val => handleChange('grade_levels', val)"
     />
     <KSelect
-      v-if="channelOptionsList.length"
+      v-if="showChannels && channelOptionsList.length"
       :options="channelOptionsList"
       class="selector"
+      :clearable="true"
       :value="selectedChannel"
       :label="coreString('channelLabel')"
+      :style="{ color: $themeTokens.text }"
       @change="val => handleChange('channels', val)"
     />
     <KSelect
       v-if="accessibilityOptionsList.length"
       :options="accessibilityOptionsList"
       class="selector"
+      :clearable="true"
       :value="selectedAccessibilityFilter"
       :label="coreString('accessibility')"
+      :style="{ color: $themeTokens.text }"
       @change="val => handleChange('accessibility_labels', val)"
     />
   </div>
@@ -73,6 +81,10 @@
         type: Object,
         required: false,
         default: null,
+      },
+      showChannels: {
+        type: Boolean,
+        default: true,
       },
     },
     computed: {
@@ -147,6 +159,8 @@
       handleChange(field, value) {
         if (value && value.value) {
           this.$emit('input', { ...this.value, [field]: { [value.value]: true } });
+        } else {
+          this.$emit('input', { ...this.value, [field]: {} });
         }
       },
     },
@@ -157,22 +171,39 @@
 
 <style lang="scss" scoped>
 
+  /deep/ .ui-select-label-text.is-inline {
+    position: absolute;
+    bottom: 45px;
+    left: 10px;
+    font-size: 12px;
+  }
+
+  /deep/ .ui-select-label-text.is-floating {
+    position: absolute;
+    bottom: 15px;
+    left: 10px;
+    font-size: 12px;
+  }
+
+  /deep/ .ui-select-display {
+    height: 3rem;
+    border-bottom: inherit;
+  }
+
+  /deep/ .ui-select-display-value {
+    position: relative;
+    top: 12px;
+    flex-grow: 1;
+    height: 32px;
+    padding-top: 10px;
+    padding-left: 20px;
+    font-size: 14px;
+  }
   .selector {
+    height: 52px !important;
     padding-top: 10px;
     background-color: rgba(189, 189, 189, 0.25);
     border-radius: 2px;
-
-    /deep/ .ui-select-display-value {
-      margin-left: 10px;
-    }
-
-    /deep/ .ui-select-label-text {
-      position: static;
-      top: 0;
-      margin-left: 10px;
-      font-size: 12px;
-      color: black;
-    }
 
     /deep/ .ui-icon {
       margin-right: 10px;

@@ -320,7 +320,7 @@
       kolibriStudioLabel: {
         message: 'Kolibri Studio',
         context:
-          'Refers to importing channels from Kolibri Studio. Kolibri Studio is the tool used to organize learning resources and build channels for Kolibri.',
+          'Refers to importing channels from Kolibri Studio. Kolibri Studio is the tool used to organize learning resources and build channels for Kolibri. See also https://kolibri-studio.readthedocs.io/en/latest/index.html',
       },
       importingFromDrive: {
         message: `Importing from drive '{driveName}'`,

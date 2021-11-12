@@ -156,8 +156,15 @@
   {
     "crowdin_code": "pt-BR",
     "intl_code": "pt-br",
-    "language_name": "Português",
+    "language_name": "Português (Brazil)",
     "english_name": "Portuguese (Brazil)",
+    "default_font": "NotoSans"
+  },
+  {
+    "crowdin_code": "pt-MZ",
+    "intl_code": "pt-mz",
+    "language_name": "Português (Moçambique)",
+    "english_name": "Portuguese (Mozambique)",
     "default_font": "NotoSans"
   },
   {

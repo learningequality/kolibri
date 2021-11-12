@@ -1,121 +1,140 @@
-import { MaxPointsPerContent } from '../../constants';
+import Vue from 'kolibri.lib.vue';
+import fromPairs from 'lodash/fromPairs';
+import { diff } from 'deep-object-diff';
+
+function valOrNull(val) {
+  return typeof val !== 'undefined' ? val : null;
+}
+
+function threeDecimalPlaceRoundup(num) {
+  if (num) {
+    return Math.ceil(num * 1000) / 1000;
+  }
+  return num;
+}
+
+// Items to only update on an
+// already existing attempt if
+// replace is set to true.
+// We use an object rather than
+// an array for easy lookup.
+const replaceBlocklist = {
+  correct: true,
+  answer: true,
+  simple_answer: true,
+  replace: true,
+};
 
 export default {
-  state: {
-    summary: { progress: 0 },
-    session: {},
-    mastery: {},
-    attempt: {},
-  },
-  getters: {
-    logging(state) {
-      return state;
-    },
-    contentPoints(state) {
-      return Math.floor(state.summary.progress) * MaxPointsPerContent;
-    },
-    sessionTimeSpent(state) {
-      return state.session.time_spent;
-    },
-    summaryTimeSpent(state) {
-      return state.summary.time_spent;
-    },
-  },
+  state: () => ({
+    complete: null,
+    progress: null,
+    progress_delta: null,
+    last_saved_progress: null,
+    time_spent: null,
+    time_spent_delta: null,
+    session_id: null,
+    extra_fields: null,
+    extra_fields_dirty_bit: null,
+    mastery_criterion: null,
+    totalattempts: null,
+    pastattempts: null,
+    pastattemptMap: null,
+    // Array of as yet unsaved interactions
+    unsavedInteractions: null,
+    context: null,
+  }),
   mutations: {
-    SET_LOGGING_SUMMARY_STATE(state, summaryState) {
-      state.summary = summaryState;
+    SET_EMPTY_LOGGING_STATE(state) {
+      for (let key in state) {
+        state[key] = null;
+      }
     },
-    SET_LOGGING_SUMMARY_ID(state, summaryId) {
-      state.summary.id = summaryId;
+    INITIALIZE_LOGGING_STATE(state, data) {
+      state.context = valOrNull(data.context);
+      state.complete = valOrNull(data.complete);
+      state.progress = threeDecimalPlaceRoundup(valOrNull(data.progress));
+      state.progress_delta = 0;
+      state.time_spent = valOrNull(data.time_spent);
+      state.time_spent_delta = 0;
+      state.session_id = valOrNull(data.session_id);
+      state.extra_fields = valOrNull(data.extra_fields);
+      state.mastery_criterion = valOrNull(data.mastery_criterion);
+      state.pastattempts = valOrNull(data.pastattempts);
+      state.pastattemptMap = data.pastattempts
+        ? fromPairs(data.pastattempts.map(a => [a.id, a]))
+        : null;
+      state.totalattempts = valOrNull(data.totalattempts);
+      state.unsavedInteractions = [];
     },
-    SET_LOGGING_SESSION_ID(state, sessionId) {
-      state.session.id = sessionId;
+    ADD_UNSAVED_INTERACTION(state, interaction) {
+      state.unsavedInteractions.push(interaction);
+      if (!interaction.id) {
+        const unsavedInteraction = state.pastattempts.find(
+          a => !a.id && a.item === interaction.item
+        );
+        if (unsavedInteraction) {
+          for (let key in interaction) {
+            Vue.set(unsavedInteraction, key, interaction[key]);
+          }
+        } else {
+          state.pastattempts.unshift(interaction);
+          state.totalattempts += 1;
+        }
+      }
     },
-    SET_LOGGING_SESSION_STATE(state, sessionState) {
-      state.session = sessionState;
+    UPDATE_ATTEMPT(state, interaction) {
+      // We never store replace into the store.
+      const blocklist = interaction.replace ? { replace: true } : replaceBlocklist;
+      if (interaction.id) {
+        if (!state.pastattemptMap[interaction.id]) {
+          const nowSavedInteraction = state.pastattempts.find(
+            a => !a.id && a.item === interaction.item
+          );
+          for (let key in interaction) {
+            Vue.set(nowSavedInteraction, key, interaction[key]);
+          }
+          Vue.set(state.pastattemptMap, nowSavedInteraction.id, nowSavedInteraction);
+          state.totalattempts += 1;
+        } else {
+          for (let key in interaction) {
+            if (!blocklist[key]) {
+              Vue.set(state.pastattemptMap[interaction.id], key, interaction[key]);
+            }
+          }
+        }
+      }
     },
-    SET_LOGGING_PROGRESS(state, { sessionProgress, summaryProgress }) {
-      state.session.progress = sessionProgress;
-      state.summary.progress = summaryProgress;
-    },
-    SET_LOGGING_COMPLETION_TIME(state, time) {
-      state.summary.completion_timestamp = time;
+    UPDATE_LOGGING_TIME(state, timeDelta) {
+      state.time_spent = state.time_spent + threeDecimalPlaceRoundup(timeDelta);
+      state.time_spent_delta = threeDecimalPlaceRoundup(state.time_spent_delta + timeDelta);
     },
     SET_LOGGING_CONTENT_STATE(state, contentState) {
-      // TODO: Consider whether we want to save these to the session log as well.
-      if (!state.summary.extra_fields) {
-        state.summary.extra_fields = {};
-      }
-      state.summary.extra_fields.contentState = contentState;
+      const delta = diff(state.extra_fields, { ...state.extra_fields, contentState });
+      state.extra_fields.contentState = contentState;
+      state.extra_fields_dirty_bit =
+        state.extra_fields_dirty_bit || Boolean(Object.keys(delta).length);
     },
-    SET_LOGGING_TIME(state, { sessionTime, summaryTime, currentTime }) {
-      state.session.end_timestamp = currentTime;
-      state.summary.end_timestamp = currentTime;
-      state.session.time_spent = sessionTime;
-      state.summary.time_spent = summaryTime;
-    },
-    SET_LOGGING_THRESHOLD_CHECKS(state, { progress, timeSpent }) {
-      state.session.total_time_at_last_save = timeSpent;
-      state.session.progress_at_last_save = progress;
-    },
-    SET_LOGGING_MASTERY_STATE(state, masteryState) {
-      state.mastery = masteryState;
-    },
-    SET_LOGGING_MASTERY_COMPLETE(state, completetime) {
-      state.mastery.complete = true;
-      state.mastery.completion_timestamp = completetime;
-    },
-    SET_LOGGING_ATTEMPT_STATE(state, attemptState) {
-      state.attempt = attemptState;
-    },
-    SET_LOGGING_ATTEMPT_STARTTIME(state, starttime) {
-      state.attempt.start_timestamp = starttime;
-    },
-    UPDATE_LOGGING_ATTEMPT_INTERACTION_HISTORY(state, action) {
-      state.attempt.interaction_history.push(action);
-    },
-    UPDATE_LOGGING_MASTERY(state, { currentTime, correct, firstAttempt, hinted, error }) {
-      if (firstAttempt) {
-        state.mastery.totalattempts += 1;
-        state.mastery.pastattempts.unshift({ correct, hinted, error });
-      }
-      state.mastery.end_timestamp = currentTime;
-    },
-    UPDATE_LOGGING_ATTEMPT(
-      state,
-      { currentTime, correct, firstAttempt, complete, hinted, answerState, simpleAnswer, error }
-    ) {
-      if (complete) {
-        state.attempt.completion_timestamp = currentTime;
-        state.attempt.complete = true;
-      } else {
-        state.attempt.completion_timestamp = null;
-        state.attempt.complete = false;
-      }
-      state.attempt.end_timestamp = currentTime;
-      let starttime = state.attempt.start_timestamp;
-      if (typeof starttime === 'string') {
-        starttime = new Date(starttime);
-      }
-      state.attempt.time_spent = currentTime - starttime;
-      if (firstAttempt) {
-        // Can only get it correct on the first try.
-        state.attempt.correct = correct;
-        state.attempt.hinted = hinted;
-        state.attempt.answer = answerState;
-        state.attempt.simple_answer = simpleAnswer;
-        state.attempt.error = error;
-      } else if (state.attempt.correct < 1) {
-        // Only set hinted if attempt has not already been marked as correct
-        // and set it to true if now true, but leave as true if false.
-        state.attempt.hinted = state.attempt.hinted || hinted;
+    SET_LOGGING_PROGRESS(state, progress) {
+      progress = threeDecimalPlaceRoundup(progress);
+      if (state.progress < progress) {
+        state.progress_delta = threeDecimalPlaceRoundup(progress - state.progress);
+        state.progress = progress;
       }
     },
-    SET_EMPTY_LOGGING_STATE(state) {
-      state.summary = { progress: 0 };
-      state.session = {};
-      state.mastery = {};
-      state.attempt = {};
+    ADD_LOGGING_PROGRESS(state, progressDelta) {
+      progressDelta = threeDecimalPlaceRoundup(progressDelta);
+      state.progress_delta = threeDecimalPlaceRoundup(state.progress_delta + progressDelta);
+      state.progress = Math.min(threeDecimalPlaceRoundup(state.progress + progressDelta), 1);
+    },
+    LOGGING_SAVING(state) {
+      state.progress_delta = 0;
+      state.time_spent_delta = 0;
+      state.extra_fields_dirty_bit = false;
+      state.unsavedInteractions = [];
+    },
+    SET_COMPLETE(state) {
+      state.complete = true;
     },
   },
 };

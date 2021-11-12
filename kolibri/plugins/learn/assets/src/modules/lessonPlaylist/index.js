@@ -1,4 +1,3 @@
-import Vue from 'kolibri.lib.vue';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 
 export default {
@@ -15,14 +14,6 @@ export default {
     },
     SET_CURRENT_LESSON(state, lesson) {
       state.currentLesson = { ...lesson };
-    },
-    SET_LESSON_CONTENTNODES_PROGRESS(state, progressArray) {
-      progressArray.forEach(progress => {
-        const contentNode = state.contentNodes.find(node => node.id === progress.id);
-        if (contentNode) {
-          Vue.set(contentNode, 'progress_fraction', progress.progress_fraction);
-        }
-      });
     },
   },
   modules: {

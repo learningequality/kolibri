@@ -18,7 +18,19 @@
 
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { createTranslator } from 'kolibri.utils.i18n';
   import { ComponentMap } from '../constants';
+
+  const tempTranslator = createTranslator('UserIndex', {
+    signUpStep1Title: {
+      message: 'Step 1 of 2',
+      context: 'Indicates at which stage of the sign up process the user is at.',
+    },
+    signUpStep2Title: {
+      message: 'Step 2 of 2',
+      context: 'Indicates at which stage of the sign up process the user is at.',
+    },
+  });
 
   export default {
     name: 'UserAuthIndex',
@@ -62,25 +74,21 @@
     },
     methods: {
       appBarTitle(route) {
+        /* eslint-disable kolibri/vue-no-undefined-string-uses */
+        // remove 'disable' after switching back to `this.$tr`
         if (route.name === ComponentMap.SIGN_UP) {
           if (route.query.step) {
-            return this.$tr('signUpStep1Title');
+            return tempTranslator.$tr('signUpStep1Title');
           }
-          return this.$tr('signUpStep2Title');
+          return tempTranslator.$tr('signUpStep2Title');
         }
+        /* eslint-enable kolibri/vue-no-undefined-string-uses */
 
         return this.coreString('signInLabel');
       },
     },
     $trs: {
-      signUpStep1Title: {
-        message: 'Step 1 of 2',
-        context: 'Indicates at which stage of the sign up process the user is at.',
-      },
-      signUpStep2Title: {
-        message: 'Step 2 of 2',
-        context: 'Indicates at which stage of the sign up process the user is at.',
-      },
+      // TODO: move strings from tempTranslator back to this.$tr
     },
   };
 

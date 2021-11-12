@@ -142,7 +142,7 @@
       editPermissions: {
         message: 'Edit Permissions',
         context:
-          'Button that a user can use to manage the permissions of another user on the Device.',
+          'Option that allows an admin to manage the permissions of another user on the Device.',
       },
       noUsersMatching: {
         message: 'No users match the selected filters',

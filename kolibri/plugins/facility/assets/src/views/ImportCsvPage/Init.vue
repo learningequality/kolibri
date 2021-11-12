@@ -122,7 +122,8 @@
       },
       viewFormat: {
         message: 'View spreadsheet format reference',
-        context: 'Link to the spreadsheet format reference doc.',
+        context:
+          'Link to the spreadsheet format reference doc which tells user how a CSV file should be formatted.',
       },
       importingWill: {
         message: 'Importing from CSV will:',

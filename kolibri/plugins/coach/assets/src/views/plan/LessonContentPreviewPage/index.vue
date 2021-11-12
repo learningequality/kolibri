@@ -228,9 +228,14 @@
       },
       copyrightHolderDataHeader: {
         message: 'Copyright holder',
-        context: 'Refers to the person or organization who holds the copyright for that resource.',
+        context:
+          'Refers to the person or organization who holds the copyright or legal ownership for that resource.',
       },
-      addedIndicator: 'Added',
+      addedIndicator: {
+        message: 'Added',
+        context:
+          'Notification that can refer to when resources are added to a lesson, for example.',
+      },
       addButtonLabel: 'Add',
     },
   };

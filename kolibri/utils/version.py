@@ -110,6 +110,11 @@ from .lru_cache import lru_cache
 logger = logging.getLogger(__name__)
 
 ORDERED_VERSIONS = ("alpha", "beta", "rc", "final")
+MAJOR_VERSION = "major"
+MINOR_VERSION = "minor"
+PATCH_VERSION = "patch"
+PRERELEASE_VERSION = "prerelease"
+BUILD_VERSION = "build"
 
 
 def get_major_version(version=None):
@@ -483,3 +488,38 @@ def normalize_version_to_semver(version):
     dev = (dev or "").replace("+", ".").replace("-", ".")
 
     return "{}-{}{}".format(numeric, after, dev).strip("-")
+
+
+def truncate_version(version, truncation_level=PATCH_VERSION):
+    """
+    Truncates a version string to a specific level
+
+    >>> truncate_version("0.15.0a5.dev0+git.682.g0be46de2")
+    '0.15.0'
+    >>> truncate_version("0.14.7", truncation_level=MINOR_VERSION)
+    '0.14.0'
+
+    :param version: The version str to truncate
+    :param truncation_level: The level beyond which to truncate the version
+    :return: A truncated version string
+    """
+    import semver
+
+    v = semver.parse_version_info(
+        normalize_version_to_semver(version).replace(".dev", "+dev")
+    )
+
+    if truncation_level == MAJOR_VERSION:
+        return semver.format_version(v.major, 0, 0)
+    if truncation_level == MINOR_VERSION:
+        return semver.format_version(v.major, v.minor, 0)
+    if truncation_level == PATCH_VERSION:
+        return semver.format_version(v.major, v.minor, v.patch)
+    if truncation_level == PRERELEASE_VERSION:
+        truncated_version = semver.format_version(
+            v.major, v.minor, v.patch, prerelease=v.prerelease
+        )
+        # ensure prerelease formatting matches our convention
+        truncated_version, prerelease_version = truncated_version.split("-")
+        return "{}{}".format(truncated_version, prerelease_version.replace(".", ""))
+    return version

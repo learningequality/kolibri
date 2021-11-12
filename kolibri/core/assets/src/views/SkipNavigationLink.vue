@@ -50,7 +50,11 @@
       },
     },
     $trs: {
-      skipToMainContentAction: 'Skip to main content',
+      skipToMainContentAction: {
+        message: 'Skip to main content',
+        context:
+          'Button label for the hamburger menu in the top left corner. Accessible only to those who use screen readers and other assistive technology (AT).',
+      },
     },
   };
 

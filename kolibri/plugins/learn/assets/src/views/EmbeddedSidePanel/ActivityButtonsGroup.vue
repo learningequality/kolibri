@@ -22,10 +22,13 @@
       <KButton
         appearance="flat-button"
         :appearanceOverrides="customActivityStyles"
-        :disabled="availableActivities && !availableActivities[value]"
+        :disabled="availableActivities &&
+          !availableActivities[value] &&
+          !activeKeys.filter(k => k.includes(value)).length "
+        :class="!!activeKeys.filter(k => k.includes(value)).length ? 'active' : ''"
         @click="$emit('input', value)"
       >
-        <KIcon :icon="`${camelCase(activity) + 'Shaded'}`" class="activity-icon" />
+        <KIcon :icon="activityIcon(activity)" class="activity-icon" />
         <p class="activity-button-text">
           {{ coreString(camelCase(activity)) }}
         </p>
@@ -68,6 +71,11 @@
         required: false,
         default: null,
       },
+      activeButtons: {
+        type: Object,
+        required: false,
+        default: null,
+      },
     },
     computed: {
       learningActivitiesList() {
@@ -80,7 +88,6 @@
           height: '100px',
           border: '2px solid transparent',
           'text-transform': 'capitalize',
-          'text-align': 'center',
           'font-weight': 'normal',
           transition: 'none',
           ':hover': {
@@ -103,10 +110,20 @@
         }
         return null;
       },
+      activeKeys() {
+        return Object.keys(this.activeButtons);
+      },
     },
     methods: {
       camelCase(id) {
         return camelCase(id);
+      },
+      activityIcon(activity) {
+        if (activity == 'EXPLORE') {
+          return 'interactShaded';
+        } else {
+          return `${camelCase(activity) + 'Shaded'}`;
+        }
       },
     },
     $trs: {
@@ -128,8 +145,16 @@
   }
 
   .activity-button-text {
-    padding: 0;
-    margin: 0;
+    margin: auto;
+    margin-top: -12px;
+  }
+
+  .active {
+    background-color: rgb(235, 210, 235);
+    border: 2px !important;
+    border-color: #996189 !important;
+    border-style: solid !important;
+    border-radius: 4px !important;
   }
 
 </style>
