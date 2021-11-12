@@ -148,12 +148,11 @@
 
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import { ContentNodeResource, ExamResource } from 'kolibri.resources';
-  import { mapGetters } from 'vuex';
+  import { ExamResource } from 'kolibri.resources';
   import { PageNames } from '../../../constants';
   import commonCoach from '../../common';
   import PlanHeader from '../../plan/PlanHeader';
+  import plugin_data from 'plugin_data';
 
   export default {
     name: 'CoachExamsPage',
@@ -175,13 +174,14 @@
         // },
         showOpenConfirmationModal: false,
         showCloseConfirmationModal: false,
-        practiceQuizzesExist: true,
       };
     },
     computed: {
-      ...mapGetters(['getChannels']),
       sortedExams() {
         return this._.orderBy(this.exams, ['date_created'], ['desc']);
+      },
+      practiceQuizzesExist() {
+        return plugin_data.practice_quizzes_exist;
       },
       // Hidden temporarily per https://github.com/learningequality/kolibri/issues/6174
       // Uncomment this once we use the filters again.
@@ -227,34 +227,6 @@
           { label: this.$tr('selectQuiz'), value: 'SELECT_QUIZ' },
         ];
       },
-    },
-    mounted() {
-      this.$nextTick(() => {
-        let channelIds = this.getChannels.map(channel => channel.id);
-        let array = [];
-
-        let results = channelIds.map(id => {
-          return ContentNodeResource.fetchCollection({
-            getParams: {
-              parent: id,
-              kind_in: [ContentNodeKinds.TOPIC, ContentNodeKinds.EXERCISE],
-              contains_quiz: true,
-            },
-          }).then(results => {
-            if (results.length !== 0) {
-              array.push(results);
-            }
-          });
-        });
-
-        Promise.all(results)
-          .then(() => {
-            if (array.length === 0) {
-              this.practiceQuizzesExist = false;
-            }
-          })
-          .catch(err => console.log(err));
-      });
     },
     methods: {
       handleOpenQuiz(quizId) {

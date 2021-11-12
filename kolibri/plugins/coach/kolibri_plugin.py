@@ -43,3 +43,14 @@ class CoachNavItem(NavigationHook):
 @register_hook
 class CoachAsset(webpack_hooks.WebpackBundleHook):
     bundle_id = "app"
+
+    @property
+    def plugin_data(self):
+        from kolibri.core.content.models import ContentNode
+
+        practice_quizzes_exist = ContentNode.objects.filter(
+            available=True, options__contains='"modality": "QUIZ"'
+        ).exists()
+        return {
+            "practice_quizzes_exist": practice_quizzes_exist,
+        }
