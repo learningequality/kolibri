@@ -56,7 +56,11 @@
     },
     computed: {
       progress() {
-        return this.contentNodeProgressMap[this.contentNode && this.contentNode.content_id] || 0;
+        return (
+          this.contentNode.progress ||
+          this.contentNodeProgressMap[this.contentNode && this.contentNode.content_id] ||
+          0
+        );
       },
       completed() {
         return this.progress >= 1;

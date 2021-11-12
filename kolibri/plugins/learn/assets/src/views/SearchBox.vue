@@ -113,6 +113,7 @@
             color: this.$themeTokens.annotation,
           },
           color: this.$themeTokens.text,
+          textAlign: this.isRtl ? 'right' : '',
         };
       },
     },

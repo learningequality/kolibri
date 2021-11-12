@@ -43,7 +43,7 @@ describe('Mark as complete modal', () => {
       expect(wrapper.emitted().complete).toBeTruthy();
     });
     it('dispatches an createSnackbar message', () => {
-      expect(mockStore.dispatch).toHaveBeenCalledWith('updateProgress', { progressPercent: 1 });
+      expect(mockStore.dispatch).toHaveBeenCalledWith('updateContentSession', { progress: 1 });
     });
     it('dispatches an createSnackbar message', () => {
       expect(mockStore.dispatch).toHaveBeenCalledWith('createSnackbar', 'Resource completed');

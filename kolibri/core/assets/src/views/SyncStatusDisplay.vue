@@ -87,7 +87,8 @@
       },
       notRecentlySynced: {
         message: 'Not recently synced',
-        context: 'Status label for a device not synced with server.',
+        context:
+          'Status label for a device not synced with server.\n\nThis message appears when a learn-only device has synced with the server at least once before, but its last sync has been over an hour ago.',
       },
       unableOrNotSynced: {
         message: 'Not recently synced or unable to sync',

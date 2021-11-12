@@ -1,0 +1,15 @@
+{
+  "ChangeUserPasswordModal.passwordChangeFormHeader": "პაროლის შეცვლა",
+  "ChangeUserPasswordModal.passwordChangedNotification": "თქვენი პაროლი შეიცვალა.",
+  "ProfileEditPage.editProfileHeader": "პროფილის შეცვლა",
+  "ProfilePage.changePasswordPrompt": "პაროლის შეცვლა",
+  "ProfilePage.detailsHeader": "დეტალები",
+  "ProfilePage.documentTitle": "მომხმარებლის პროფილი",
+  "ProfilePage.editAction": "შეცვლა",
+  "ProfilePage.isSuperuser": "სუპერ ადმინისტრატორის უფლებები ",
+  "ProfilePage.limitedPermissions": "შეზღუდული უფლებები",
+  "ProfilePage.manageContent": "არხებისა და რესურსების მართვა",
+  "ProfilePage.manageDevicePermissions": "მოწყობილობის უფლებების მართვა",
+  "ProfilePage.points": "ქულები",
+  "ProfilePage.youCan": "შეგიძლიათ:"
+}

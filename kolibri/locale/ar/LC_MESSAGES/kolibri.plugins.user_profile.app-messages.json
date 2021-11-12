@@ -1,0 +1,15 @@
+{
+  "ChangeUserPasswordModal.passwordChangeFormHeader": "غيّر كلمة المرور",
+  "ChangeUserPasswordModal.passwordChangedNotification": "تم تغيير كلمة المرور الخاصة بك.",
+  "ProfileEditPage.editProfileHeader": "تعديل الملف الشخصي",
+  "ProfilePage.changePasswordPrompt": "تغيير كلمة المرور",
+  "ProfilePage.detailsHeader": "التفاصيل",
+  "ProfilePage.documentTitle": "الملفّ الشّخصي للمستخدم",
+  "ProfilePage.editAction": "تعديل",
+  "ProfilePage.isSuperuser": "أذونات المشرف المتميّز ",
+  "ProfilePage.limitedPermissions": "أذونات محدودة",
+  "ProfilePage.manageContent": "إدارة القنوات والمصادر",
+  "ProfilePage.manageDevicePermissions": "إدارة أذونات الجهاز",
+  "ProfilePage.points": "النقاط",
+  "ProfilePage.youCan": "بإمكانك:"
+}

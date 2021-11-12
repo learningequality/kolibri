@@ -12,6 +12,10 @@ import { ContentNodeProgressResource } from 'kolibri.resources';
 // The reactive is defined in the outer scope so it can be used as a shared store
 const contentNodeProgressMap = reactive({});
 
+export function setContentNodeProgress(progress) {
+  set(contentNodeProgressMap, progress.content_id, progress.progress);
+}
+
 export default function useContentNodeProgress() {
   /**
    * Fetches content node progress data
@@ -29,7 +33,7 @@ export default function useContentNodeProgress() {
     }).then(progressData => {
       const progresses = progressData ? progressData : [];
       for (let progress of progresses) {
-        set(contentNodeProgressMap, progress.content_id, progress.progress);
+        setContentNodeProgress(progress);
       }
     });
   }
@@ -43,14 +47,14 @@ export default function useContentNodeProgress() {
    * @returns {Promise}
    * @public
    */
-  function fetchContentNodeTreeProgress(id, params) {
+  function fetchContentNodeTreeProgress({ id, params }) {
     return ContentNodeProgressResource.fetchTree({
       params,
       id,
     }).then(progressData => {
       const progresses = progressData ? progressData : [];
       for (let progress of progresses) {
-        set(contentNodeProgressMap, progress.content_id, progress.progress);
+        setContentNodeProgress(progress);
       }
     });
   }

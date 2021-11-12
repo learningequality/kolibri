@@ -36,7 +36,7 @@ from .permissions import FacilitySyncPermissions
 from kolibri.core.auth.constants.morango_sync import PROFILE_FACILITY_DATA
 from kolibri.core.auth.constants.morango_sync import State as FacilitySyncState
 from kolibri.core.auth.management.utils import get_client_and_server_certs
-from kolibri.core.auth.management.utils import get_dataset_id
+from kolibri.core.auth.management.utils import get_facility_dataset_id
 from kolibri.core.auth.models import Facility
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.permissions import CanExportLogs
@@ -1233,7 +1233,7 @@ def validate_and_create_sync_credentials(
     # try to get the certificate, which will save it if successful
     try:
         # make sure we get the dataset ID
-        dataset_id = get_dataset_id(
+        facility_id, dataset_id = get_facility_dataset_id(
             baseurl, identifier=facility_id, noninteractive=True
         )
 

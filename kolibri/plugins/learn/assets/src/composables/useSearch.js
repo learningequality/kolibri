@@ -85,7 +85,10 @@ export default function useSearch(store, router) {
   );
 
   function search() {
-    const getParams = {};
+    const getParams = {
+      include_coach_content:
+        store.getters.isAdmin || store.getters.isCoach || store.getters.isSuperuser,
+    };
     if (descendant) {
       getParams.tree_id = descendant.tree_id;
       getParams.lft__gt = descendant.lft;

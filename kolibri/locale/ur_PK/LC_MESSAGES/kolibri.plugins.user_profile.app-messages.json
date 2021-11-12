@@ -1,0 +1,15 @@
+{
+  "ChangeUserPasswordModal.passwordChangeFormHeader": "پاس ورڈ تبدیل کریں",
+  "ChangeUserPasswordModal.passwordChangedNotification": "آپ کا پاس ورڈ تبدیل ہو گیا ہے.",
+  "ProfileEditPage.editProfileHeader": "پروفائل میں ترمیم کریں",
+  "ProfilePage.changePasswordPrompt": "پاس ورڈ تبدیل کریں",
+  "ProfilePage.detailsHeader": "تفصیلات",
+  "ProfilePage.documentTitle": "صارف/ یوزر کی پروفایل",
+  "ProfilePage.editAction": "ترمیم کریں",
+  "ProfilePage.isSuperuser": "سپر متنظم کی اجزت",
+  "ProfilePage.limitedPermissions": "محدود اختیارات",
+  "ProfilePage.manageContent": "چینلز اور وسائل کا انتظام کریں",
+  "ProfilePage.manageDevicePermissions": "ڈوائیس کی اجزتوں کی دیکھ بھال کریں",
+  "ProfilePage.points": "نقاط",
+  "ProfilePage.youCan": "اپ کر سکتے ہیں:"
+}

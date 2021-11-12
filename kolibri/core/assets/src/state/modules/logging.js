@@ -13,6 +13,18 @@ function threeDecimalPlaceRoundup(num) {
   return num;
 }
 
+// Items to only update on an
+// already existing attempt if
+// replace is set to true.
+// We use an object rather than
+// an array for easy lookup.
+const replaceBlocklist = {
+  correct: true,
+  answer: true,
+  simple_answer: true,
+  replace: true,
+};
+
 export default {
   state: () => ({
     complete: null,
@@ -72,6 +84,8 @@ export default {
       }
     },
     UPDATE_ATTEMPT(state, interaction) {
+      // We never store replace into the store.
+      const blocklist = interaction.replace ? { replace: true } : replaceBlocklist;
       if (interaction.id) {
         if (!state.pastattemptMap[interaction.id]) {
           const nowSavedInteraction = state.pastattempts.find(
@@ -84,7 +98,9 @@ export default {
           state.totalattempts += 1;
         } else {
           for (let key in interaction) {
-            Vue.set(state.pastattemptMap[interaction.id], key, interaction[key]);
+            if (!blocklist[key]) {
+              Vue.set(state.pastattemptMap[interaction.id], key, interaction[key]);
+            }
           }
         }
       }

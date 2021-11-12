@@ -36,6 +36,8 @@ class SimpleForwardMigrateTestCase(TestCase):
                     end_timestamp=now(),
                     correct=j % 2,
                     content_id=uuid4().hex,
+                    answer={"question": {"radio 1": {"numCorrect": 1}}},
+                    interaction_history=[{"history_a": 1}, {"history_b": 1}],
                 )
 
         migrate_from_exam_logs(models.ExamLog.objects.all())
@@ -48,7 +50,10 @@ class SimpleForwardMigrateTestCase(TestCase):
 
     def test_attemptlogs(self):
         self.assertEqual(models.AttemptLog.objects.all().count(), 12)
-        self.assertEqual(len(models.AttemptLog.objects.first().item.split(":")), 2)
+        attempt_log = models.AttemptLog.objects.first()
+        self.assertEqual(len(attempt_log.item.split(":")), 2)
+        for json_field in ("answer", "interaction_history"):
+            self.assertNotIsInstance(getattr(attempt_log, json_field), (str,))
 
     def test_contentsessionlogs(self):
         self.assertEqual(

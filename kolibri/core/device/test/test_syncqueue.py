@@ -99,10 +99,10 @@ class TestRequestSoUDSync(TestCase):
     @mock.patch("kolibri.core.public.utils.requests")
     @mock.patch("kolibri.core.tasks.api.MorangoProfileController")
     @mock.patch("kolibri.core.tasks.api.get_client_and_server_certs")
-    @mock.patch("kolibri.core.tasks.api.get_dataset_id")
+    @mock.patch("kolibri.core.tasks.api.get_facility_dataset_id")
     def test_request_soud_sync(
         self,
-        get_dataset_id,
+        get_facility_dataset_id,
         get_client_and_server_certs,
         MorangoProfileController,
         requests_mock,
@@ -110,7 +110,10 @@ class TestRequestSoUDSync(TestCase):
     ):
 
         get_client_and_server_certs.return_value = None
-        get_dataset_id.return_value = self.facility.dataset_id
+        get_facility_dataset_id.return_value = (
+            self.facility.id,
+            self.facility.dataset_id,
+        )
 
         requests_mock.post.return_value.status_code = 200
         requests_mock.post.return_value.json.return_value = {"action": SYNC}
@@ -135,10 +138,10 @@ class TestRequestSoUDSync(TestCase):
     @mock.patch("kolibri.core.public.utils.requests")
     @mock.patch("kolibri.core.tasks.api.MorangoProfileController")
     @mock.patch("kolibri.core.tasks.api.get_client_and_server_certs")
-    @mock.patch("kolibri.core.tasks.api.get_dataset_id")
+    @mock.patch("kolibri.core.tasks.api.get_facility_dataset_id")
     def test_request_soud_sync_server_error(
         self,
-        get_dataset_id,
+        get_facility_dataset_id,
         get_client_and_server_certs,
         MorangoProfileController,
         requests_mock,
@@ -146,7 +149,10 @@ class TestRequestSoUDSync(TestCase):
     ):
 
         get_client_and_server_certs.return_value = None
-        get_dataset_id.return_value = self.facility.dataset_id
+        get_facility_dataset_id.return_value = (
+            self.facility.id,
+            self.facility.dataset_id,
+        )
 
         requests_mock.post.return_value.status_code = 500
 
@@ -162,10 +168,10 @@ class TestRequestSoUDSync(TestCase):
     @mock.patch("kolibri.core.public.utils.requests")
     @mock.patch("kolibri.core.tasks.api.MorangoProfileController")
     @mock.patch("kolibri.core.tasks.api.get_client_and_server_certs")
-    @mock.patch("kolibri.core.tasks.api.get_dataset_id")
+    @mock.patch("kolibri.core.tasks.api.get_facility_dataset_id")
     def test_request_soud_sync_connection_error(
         self,
-        get_dataset_id,
+        get_facility_dataset_id,
         get_client_and_server_certs,
         MorangoProfileController,
         requests_mock,
@@ -173,7 +179,10 @@ class TestRequestSoUDSync(TestCase):
     ):
 
         get_client_and_server_certs.return_value = None
-        get_dataset_id.return_value = self.facility.dataset_id
+        get_facility_dataset_id.return_value = (
+            self.facility.id,
+            self.facility.dataset_id,
+        )
 
         requests_mock.post.side_effect = ConnectionError
 

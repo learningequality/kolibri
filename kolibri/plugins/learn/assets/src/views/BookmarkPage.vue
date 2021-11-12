@@ -14,9 +14,9 @@
       :currentPage="currentPage"
       :genContentLink="genContentLink"
       :cardViewStyle="windowIsSmall ? 'card' : 'list'"
-      numCols="1"
       :footerIcons="footerIcons"
       @removeFromBookmarks="removeFromBookmarks"
+      @toggleInfoPanel="toggleInfoPanel"
     />
 
     <KButton
@@ -29,6 +29,13 @@
       v-else-if="loading"
       :delay="false"
     />
+
+    <FullScreenSidePanel
+      v-if="sidePanelContent"
+      @closePanel="sidePanelContent = null"
+    >
+      <BrowseResourceMetadata :content="sidePanelContent" :canDownloadContent="true" />
+    </FullScreenSidePanel>
   </div>
 
 </template>
@@ -38,6 +45,7 @@
 
   import { mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import FullScreenSidePanel from 'kolibri.coreVue.components.FullScreenSidePanel';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { ContentNodeResource } from 'kolibri.resources';
   import client from 'kolibri.client';
@@ -46,6 +54,7 @@
   import { PageNames } from '../constants';
   import { normalizeContentNode } from '../modules/coreLearn/utils.js';
   import HybridLearningCardGrid from './HybridLearningCardGrid';
+  import BrowseResourceMetadata from './BrowseResourceMetadata';
 
   export default {
     name: 'BookmarkPage',
@@ -55,6 +64,8 @@
       };
     },
     components: {
+      BrowseResourceMetadata,
+      FullScreenSidePanel,
       HybridLearningCardGrid,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
@@ -63,6 +74,7 @@
         loading: true,
         bookmarks: [],
         more: null,
+        sidePanelContent: null,
       };
     },
     computed: {
@@ -104,6 +116,9 @@
           });
         }
       },
+      toggleInfoPanel(content) {
+        this.sidePanelContent = content;
+      },
     },
     $trs: {
       bookmarksHeader: {
@@ -113,7 +128,8 @@
       },
       removedNotification: {
         message: 'Removed from bookmarks',
-        context: 'Message indicating that a resource has been removed from the Bookmarks page.',
+        context:
+          'Notification indicating that a resource has been removed from the Bookmarks page.',
       },
       noBookmarks: {
         message: 'You have no bookmarked resources',

@@ -192,7 +192,7 @@
       },
       topics: {
         message: 'Folders',
-        context: 'Group of resource materials.',
+        context: 'A group of learning resource materials.',
       },
       videos: {
         message: 'Videos',

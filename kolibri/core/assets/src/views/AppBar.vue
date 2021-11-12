@@ -296,7 +296,8 @@
       },
       deviceStatus: {
         message: 'Device status',
-        context: "Table column header in the 'Class learners' page.",
+        context:
+          "Table column header in the 'Class learners' page. Indicates the status of an individual learner's device.",
       },
     },
   };

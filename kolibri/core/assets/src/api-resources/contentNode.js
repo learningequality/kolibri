@@ -94,8 +94,8 @@ export default new Resource({
   fetchCopiesCount(getParams = {}) {
     return this.fetchListCollection('copies_count', getParams);
   },
-  fetchNextContent(id) {
-    return this.fetchDetailModel('next_content', id);
+  fetchNextContent(id, getParams = {}) {
+    return this.fetchDetailModel('next_content', id, getParams);
   },
   fetchNodeAssessments(ids) {
     return this.getListEndpoint('node_assessments', { ids });
@@ -103,8 +103,14 @@ export default new Resource({
   fetchRecommendationsFor(id, getParams) {
     return this.fetchDetailCollection('recommendations_for', id, getParams);
   },
-  fetchResume(getParams, force) {
-    return this.fetchListCollection('resume', getParams, force);
+  fetchResume(params = { resume: true }) {
+    const promise = new ConditionalPromise();
+    const url = urls['kolibri:core:usercontentnode_list']();
+    promise._promise = this.client({ url, params }).then(response => {
+      this.cacheData(response.data);
+      return response.data;
+    });
+    return promise;
   },
   fetchPopular(getParams) {
     return this.fetchListCollection('popular', getParams);

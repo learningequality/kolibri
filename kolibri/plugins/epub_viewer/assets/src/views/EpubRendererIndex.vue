@@ -101,7 +101,16 @@
         <div
           class="column epubjs-navigation"
         >
+          <NextButton
+            v-if="contentIsRtl"
+            v-show="!isAtEnd"
+            :color="navigationButtonColor"
+            :isRtl="contentIsRtl"
+            :style="{ backgroundColor }"
+            @goToNextPage="goToNextPage"
+          />
           <PreviousButton
+            v-else
             v-show="!isAtStart"
             :color="navigationButtonColor"
             :isRtl="contentIsRtl"
@@ -118,7 +127,16 @@
         <div
           class="column epubjs-navigation"
         >
+          <PreviousButton
+            v-if="contentIsRtl"
+            v-show="!isAtStart"
+            :color="navigationButtonColor"
+            :isRtl="contentIsRtl"
+            :style="{ backgroundColor }"
+            @goToPreviousPage="goToPreviousPage"
+          />
           <NextButton
+            v-else
             v-show="!isAtEnd"
             :color="navigationButtonColor"
             :isRtl="contentIsRtl"
@@ -493,9 +511,11 @@
         }
       },
       storeVisitedPage(currentLocation) {
-        let visited = this.savedVisitedPages;
-        visited[currentLocation] = true;
-        this.savedVisitedPages = visited;
+        if (currentLocation) {
+          let visited = this.savedVisitedPages;
+          visited[currentLocation] = true;
+          this.savedVisitedPages = visited;
+        }
       },
       handleReadyRendition() {
         this.updateRenditionTheme(this.themeStyle);
@@ -706,7 +726,6 @@
         this.currentSection = this.getCurrentSection(currentLocationStart);
       },
       relocatedHandler(location) {
-        //console.log(location);
         // Ensures that when we're on the last page, we set the slider value to 100
         // otherwise, we show the slider % using the start
         if (location.atEnd) {
@@ -716,7 +735,13 @@
         }
         this.updateCurrentSection(location.start);
         this.currentLocation = location.start.cfi;
-        this.storeVisitedPage(this.currentLocation);
+        for (
+          let locationIndex = location.start.location;
+          locationIndex <= location.end.location;
+          locationIndex++
+        ) {
+          this.storeVisitedPage(this.locations[locationIndex]);
+        }
         this.updateProgress();
         this.updateContentState();
       },

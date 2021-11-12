@@ -127,7 +127,10 @@
       },
     },
     $trs: {
-      createNewExamLabel: 'Create new quiz',
+      createNewExamLabel: {
+        message: 'Create new quiz',
+        context: "Title of the screen launched from the 'New quiz' button on the 'Plan' tab.\n",
+      },
       selectChannelQuizLabel: {
         message: 'Select a channel quiz',
         context:

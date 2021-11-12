@@ -85,10 +85,10 @@ describe(`HomePage`, () => {
       expect(getClassesSection(wrapper).exists()).toBe(false);
     });
 
-    it(`the section is displayed for a signed in user`, () => {
+    it(`the section is not displayed for a signed in user with no classes`, () => {
       useUser.mockImplementation(() => useUserMock({ isUserLoggedIn: true }));
       const wrapper = makeWrapper();
-      expect(getClassesSection(wrapper).exists()).toBe(true);
+      expect(getClassesSection(wrapper).exists()).toBe(false);
     });
 
     it(`classes are displayed for a signed in user who is enrolled in some classes`, () => {
@@ -132,20 +132,21 @@ describe(`HomePage`, () => {
               { id: 'class-quiz-2', title: 'Class quiz 2' },
             ],
             resumableClassesResources: [
-              { contentNodeId: 'class-resource-1', lessonId: 'class-1-lesson', classId: 'class-1' },
-              { contentNodeId: 'class-resource-2', lessonId: 'class-2-lesson', classId: 'class-2' },
+              {
+                contentNodeId: 'class-resource-1',
+                lessonId: 'class-1-lesson',
+                classId: 'class-1',
+                progress: 0.5,
+                contentNode: { id: 'class-resource-1', title: 'Class resource 1' },
+              },
+              {
+                contentNodeId: 'class-resource-2',
+                lessonId: 'class-2-lesson',
+                classId: 'class-2',
+                progress: 0.5,
+                contentNode: { id: 'class-resource-2', title: 'Class resource 2' },
+              },
             ],
-            resumableNonClassesContentNodes: [
-              { id: 'non-class-resource-1', title: 'Non-class resource 1' },
-              { id: 'non-class-resource-2', title: 'Non-class resource 2' },
-            ],
-            getResumableContentNode(contentNodeId) {
-              if (contentNodeId === 'class-resource-1') {
-                return { id: 'class-resource-1', title: 'Class resource 1' };
-              } else if (contentNodeId === 'class-resource-2') {
-                return { id: 'class-resource-2', title: 'Class resource 2' };
-              }
-            },
             getClassQuizLink() {
               return { path: '/class-quiz' };
             },
@@ -285,7 +286,7 @@ describe(`HomePage`, () => {
         useLearnerResources.mockImplementation(() =>
           useLearnerResourcesMock({
             learnerFinishedAllClasses: true,
-            resumableNonClassesContentNodes: [
+            resumableContentNodes: [
               { id: 'non-class-resource-1', title: 'Non-class resource 1' },
               { id: 'non-class-resource-2', title: 'Non-class resource 2' },
             ],

@@ -24,7 +24,10 @@
             :layout12="{ span: 12 }"
           >
             <h1 class="title">
-              {{ topic.title }}
+              <TextTruncator
+                :text="topic.title"
+                :maxHeight="maxTitleHeight"
+              />
             </h1>
           </KGridItem>
 
@@ -53,14 +56,16 @@
             :layout8="{ span: topic.thumbnail ? 6 : 8 }"
             :layout12="{ span: topic.thumbnail ? 10 : 12 }"
           >
-            {{ topic.description }}
+            <TextTruncator
+              :text="topic.description"
+              :maxHeight="maxDescriptionHeight"
+            />
           </KGridItem>
         </KGrid>
         <!-- Nested tabs within the header, for toggling sidebar options -->
         <!-- larger screens -->
         <div class="tabs">
           <KRouterLink
-            v-if="topics.length"
             ref="tab_button"
             :to="foldersLink"
             :text="coreString('folders')"
@@ -93,7 +98,6 @@
         <div class="mobile-header-contents">
           <div class="mobile-tabs">
             <KRouterLink
-              v-if="topics.length"
               ref="tab_button"
               :to="foldersLink"
               :text="coreString('folders')"
@@ -117,7 +121,7 @@
 
       <main
         class="main-content-grid"
-        :style="{ marginLeft: `${(sidePanelWidth + 24)}px` }"
+        :style="gridOffset"
       >
         <div
           class="card-grid"
@@ -133,10 +137,16 @@
           </div>
           <!-- default/preview display of nested folder structure, not search -->
           <div v-if="!displayingSearchResults">
+            <h2>
+              <TextTruncator
+                :text="topic.title"
+                :maxHeight="maxTitleHeight"
+              />
+            </h2>
             <!-- display for each nested topic/folder  -->
             <div v-for="t in topicsForDisplay" :key="t.id">
               <!-- header link to folder -->
-              <h2>
+              <h3>
                 <KRouterLink
                   :text="t.title"
                   :to="genContentLink(t.id)"
@@ -144,7 +154,7 @@
                   iconAfter="chevronRight"
                   :appearanceOverrides="{ color: $themeTokens.text }"
                 />
-              </h2>
+              </h3>
               <!-- card grid of items in folder -->
               <HybridLearningCardGrid
                 v-if="t.children && t.children.length"
@@ -195,7 +205,7 @@
               <KCircularLoader v-else />
             </div>
           </div>
-          <div v-else-if="!searchLoading" class="results-title">
+          <div v-else-if="!searchLoading">
             <h2 class="results-title">
               {{ translator.$tr('results', { results: results.length }) }}
             </h2>
@@ -272,7 +282,6 @@
       <!-- FullScreen is a container component, and then the EmbeddedSidePanel sits within -->
       <FullScreenSidePanel
         v-if="!windowIsLarge && sidePanelIsOpen"
-        alignment="left"
         class="full-screen-side-panel"
         :closeButtonHidden="true"
         :sidePanelOverrideWidth="`${sidePanelOverlayWidth + 64}px`"
@@ -350,6 +359,7 @@
   import { mapActions, mapState } from 'vuex';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import FullScreenSidePanel from 'kolibri.coreVue.components.FullScreenSidePanel';
@@ -396,6 +406,7 @@
       FullScreenSidePanel,
       BrowseResourceMetadata,
       SearchChips,
+      TextTruncator,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
     setup() {
@@ -432,7 +443,7 @@
     },
     data: function() {
       return {
-        stickyTop: '364px',
+        stickyTop: '388px',
         currentViewStyle: 'card',
         currentCategory: null,
         showSearchModal: false,
@@ -584,15 +595,18 @@
           return 346;
         }
       },
+      gridOffset() {
+        return this.isRtl
+          ? { marginRight: `${this.sidePanelWidth + 24}px` }
+          : { marginLeft: `${this.sidePanelWidth + 24}px` };
+      },
       sidePanelOverlayWidth() {
         return 300;
       },
       numCols() {
-        if (this.currentViewStyle === 'list' || this.windowBreakpoint < 1) {
-          return 1;
-        } else if (this.windowBreakpoint < 2) {
+        if (this.windowBreakpoint < 2) {
           return 2;
-        } else if (this.windowBreakpoint < 3) {
+        } else if (this.windowBreakpoint <= 4) {
           return 3;
         } else {
           return 4;
@@ -613,6 +627,12 @@
       },
       topicMore() {
         return this.topic.children && this.topic.children.more;
+      },
+      maxTitleHeight() {
+        return 60;
+      },
+      maxDescriptionHeight() {
+        return 110;
       },
     },
     watch: {
@@ -657,10 +677,14 @@
       },
       stickyCalculation() {
         let header = document.getElementsByClassName('header')[0];
+        let topbar = document.getElementsByClassName('ui-toolbar')[0];
         if (header) {
           let position = header.getBoundingClientRect();
+          let topbarPosition = topbar.getBoundingClientRect();
           if (position.bottom >= 64) {
             this.stickyTop = `${position.bottom}px`;
+          } else if (position.bottom < 0 && topbarPosition.bottom < 0) {
+            this.stickyTop = '0px';
           } else {
             this.stickyTop = '64px';
           }
@@ -722,7 +746,7 @@
     position: relative;
     // z-index: 4;
     width: 100%;
-    height: 300px;
+    height: 324px;
     padding-top: 32px;
     padding-bottom: 0;
     padding-left: 32px;
@@ -737,6 +761,10 @@
     /deep/ svg {
       fill: black !important;
     }
+  }
+
+  .title {
+    margin: 12px;
   }
 
   .tabs {
@@ -761,7 +789,6 @@
   /deep/.card-thumbnail-wrapper {
     max-width: 100%;
     height: 110px;
-    border: 1px solid #dedede;
   }
 
   .results-title {

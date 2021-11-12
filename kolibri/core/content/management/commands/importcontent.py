@@ -1,7 +1,7 @@
+import concurrent.futures
 import logging
 import os
 
-import concurrent.futures
 import requests
 from django.core.management.base import CommandError
 from le_utils.constants import content_kinds

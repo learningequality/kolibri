@@ -290,7 +290,7 @@
   "NotificationsFilter.videosLabel": "Видео",
   "OverviewBlock.allClassesLabel": "Всички класове",
   "OverviewBlock.coach": "{count, plural, one {Учител} other {Учители}}",
-  "OverviewBlock.learner": "{count, plural, one {Learner} other {Learners}}",
+  "OverviewBlock.learner": "{count, plural, one {Ученик} other {Ученици}}",
   "OverviewBlock.viewLearners": "Виж учениците",
   "PlanHeader.planYourClassDescription": "Създаване и управляване на твоите уроци, тестове и групи",
   "PlanHeader.planYourClassLabel": "Планиране за твоя клас",

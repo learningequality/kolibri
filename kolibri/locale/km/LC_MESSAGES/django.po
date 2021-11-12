@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-15 16:05-0700\n"
-"PO-Revision-Date: 2021-09-23 20:20\n"
+"POT-Creation-Date: 2021-11-01 22:12-0700\n"
+"PO-Revision-Date: 2021-11-02 05:29\n"
 "Last-Translator: \n"
 "Language-Team: Khmer\n"
 "Language: km_KH\n"
@@ -172,15 +172,15 @@ msgstr "មិនអាចធ្វើបច្ចុប្បន្នភាព
 msgid "Database ID is not valid"
 msgstr "ID ឃ្លាំងផ្ទុកទិន្នន័យមិនត្រឹមត្រូវ"
 
-#: core/content/api.py:158
+#: core/content/api.py:170
 msgid "Resource"
 msgstr "ធនធាន"
 
-#: core/content/api.py:1316
+#: core/content/api.py:1327
 msgid "The requested channel does not exist on the content server"
 msgstr "ឆានែលដែលបានស្នើមិនមាននៅលើម៉ាស៊ីនមេទេ"
 
-#: core/content/models.py:220
+#: core/content/models.py:252
 msgid "Unknown format"
 msgstr "ទម្រង់មិនស្គាល់"
 
@@ -188,12 +188,12 @@ msgstr "ទម្រង់មិនស្គាល់"
 msgid "Language is not supported by Kolibri"
 msgstr "ភាសាមិនត្រូវបានគាំទ្រដោយ Kolibri ទេ"
 
-#: core/logger/csv_export.py:204
+#: core/logger/csv_export.py:205
 msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
 msgid "content_session_logs"
 msgstr "មាតិកា_វគ្ត_កំណត់ហេតុ"
 
-#: core/logger/csv_export.py:214
+#: core/logger/csv_export.py:215
 msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
 msgid "content_summary_logs"
 msgstr "មាតិកា_សង្ខេប_កំណត់ហេតុ"

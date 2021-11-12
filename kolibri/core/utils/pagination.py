@@ -9,6 +9,7 @@ from django.core.paginator import Page
 from django.core.paginator import Paginator
 from django.db.models import QuerySet
 from django.utils.functional import cached_property
+from rest_framework.pagination import _reverse_ordering
 from rest_framework.pagination import CursorPagination
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.pagination import NotFound
@@ -215,7 +216,14 @@ class ValuesViewsetCursorPagination(CursorPagination):
         if pks_queryset is None:
             return None
         self.request = request
-        return queryset.filter(pk__in=[obj.pk for obj in pks_queryset])
+        if self.cursor is None:
+            reverse = False
+        else:
+            _, reverse, _ = self.cursor
+        ordering = _reverse_ordering(self.ordering) if reverse else self.ordering
+        return queryset.filter(pk__in=[obj.pk for obj in pks_queryset]).order_by(
+            *ordering
+        )
 
     def get_more(self):  # noqa C901
         """

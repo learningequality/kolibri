@@ -6,6 +6,7 @@ import os
 import unittest
 import uuid
 
+import requests
 from django.core.management import call_command
 from django.test import TestCase
 from django.utils import timezone
@@ -81,6 +82,96 @@ class DateTimeTZFieldTestCase(TestCase):
     "This test will only be run during integration testing.",
 )
 class CertificateAuthenticationTestCase(TestCase):
+    @multiple_kolibri_servers(1)
+    def test_multi_facility_authentication(self, servers):
+        """
+        Multiple facilities with a superuser of the same username on each to verify that cert
+        generation properly passes along the facility for authenticating the user with the correct
+        facility
+        """
+        # START: setup server
+        server = servers[0]
+        server.manage("loaddata", "scopedefinitions")
+        server.manage("loaddata", "content_test")
+        server.manage(
+            "generateuserdata",
+            "--no-onboarding",
+            "--num-content-items",
+            "1",
+            "--facilities",
+            "2",
+        )
+
+        facility_1 = Facility.objects.using(server.db_alias).first()
+        facility_2 = Facility.objects.using(server.db_alias).last()
+        self.assertNotEqual(facility_1.id, facility_2.id)
+
+        superuser_1 = FacilityUser.objects.using(server.db_alias).get(
+            username="superuser", facility=facility_1
+        )
+        superuser_2 = FacilityUser.objects.using(server.db_alias).get(
+            username="superuser", facility=facility_2
+        )
+        self.assertNotEqual(superuser_1.id, superuser_2.id)
+
+        superuser_1.set_password("superuser_1")
+        superuser_1.save(using=server.db_alias)
+        superuser_2.set_password("superuser_2")
+        superuser_2.save(using=server.db_alias)
+        # END: setup server
+
+        # START: local setup
+        if not ScopeDefinition.objects.filter():
+            call_command("loaddata", "scopedefinitions")
+
+        controller = MorangoProfileController(PROFILE_FACILITY_DATA)
+        network_connection = controller.create_network_connection(server.baseurl)
+
+        # facility mismatch for superuser 1
+        with self.assertRaises(requests.exceptions.HTTPError):
+            get_client_and_server_certs(
+                superuser_1.username,
+                "superuser_1",
+                facility_1.dataset_id,
+                network_connection,
+                facility_id=facility_2.id,
+                noninteractive=True,
+            )
+        # facility mismatch for superuser 2
+        with self.assertRaises(requests.exceptions.HTTPError):
+            get_client_and_server_certs(
+                superuser_2.username,
+                "superuser_2",
+                facility_2.dataset_id,
+                network_connection,
+                facility_id=facility_1.id,
+                noninteractive=True,
+            )
+
+        client_cert, server_cert, username = get_client_and_server_certs(
+            superuser_1.username,
+            "superuser_1",
+            facility_1.dataset_id,
+            network_connection,
+            facility_id=facility_1.id,
+            noninteractive=True,
+        )
+        self.assertIsNotNone(client_cert)
+        self.assertIsNotNone(server_cert)
+        self.assertIsNotNone(username)
+
+        client_cert, server_cert, username = get_client_and_server_certs(
+            superuser_2.username,
+            "superuser_2",
+            facility_2.dataset_id,
+            network_connection,
+            facility_id=facility_2.id,
+            noninteractive=True,
+        )
+        self.assertIsNotNone(client_cert)
+        self.assertIsNotNone(server_cert)
+        self.assertIsNotNone(username)
+
     @multiple_kolibri_servers(1)
     def test_learner_passwordless_authentication(self, servers):
         # START: setup server

@@ -81,13 +81,6 @@
         type: Boolean,
         default: false,
       },
-      alignment: {
-        type: String,
-        default: 'right',
-        validator(val) {
-          return ['right', 'left'].includes(val);
-        },
-      },
       // to customize the width of the side panel in different scenarios
       sidePanelOverrideWidth: {
         type: String,
@@ -98,6 +91,9 @@
     computed: {
       isMobile() {
         return this.windowBreakpoint == 0;
+      },
+      alignment() {
+        return this.isRtl ? 'left' : 'right';
       },
     },
     /* this is the easiest way I could think to avoid having dual scroll bars */
@@ -115,12 +111,11 @@
       },
     },
     $trs: {
-      /*
+      /* eslint-disable kolibri/vue-no-unused-translations */
       topicHeader: {
         message: 'Also in this folder',
         context: 'Title of the panel with all topic contents. ',
       },
-      */
     },
   };
 

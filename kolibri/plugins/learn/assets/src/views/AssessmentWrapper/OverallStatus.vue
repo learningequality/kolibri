@@ -42,7 +42,7 @@
       goal: {
         message: 'Get {count, number, integer} {count, plural, other {correct}}',
         context:
-          '\nMessage that indicates to the learner how many correct answers they need to give in order to master the given topic, and for the exercise to be considered completed.',
+          'Message that indicates to the learner how many correct answers they need to give in order to master the given topic, and for the exercise to be considered completed.',
       },
     },
   };

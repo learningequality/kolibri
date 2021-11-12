@@ -114,6 +114,7 @@
                     :contentNode="contentNode"
                     :contentNodeRoute="genContentLink(
                       contentNode.id,
+                      null,
                       contentNode.is_leaf,
                       $route.query.last,
                       $route.query
@@ -261,6 +262,7 @@
       nextContentNodeRoute() {
         return this.genContentLink(
           this.nextContentNode.id,
+          null,
           this.nextContentNode.is_leaf,
           this.$route.query.last,
           this.$route.query
