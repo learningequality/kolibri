@@ -1,6 +1,5 @@
 import logging
 import traceback
-
 from concurrent.futures import CancelledError
 
 from kolibri.core.tasks.compat import PoolExecutor
