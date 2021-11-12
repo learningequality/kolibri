@@ -166,7 +166,7 @@
   "UserCreatePage.createNewUserHeader": "নতুন ব্যবহারকারী তৈরি করুন",
   "UserEditPage.changeInDeviceTabPrompt": "এটি পরিবর্তন করতে ডিভাইসের অনুমতিতে যান",
   "UserEditPage.editUserDetailsHeader": "ব্যবহারকারীর বিবরণ সম্পাদনা",
-  "UserEditPage.forceLogoutWarning": "সাবধান: নিজেকে নন-অ্যাডমিন বানালে \"সংরক্ষণ করুন\"-এ ক্লিক করামাত্র আপনাকে লগ আউট করে দেওয়া হবে।",
+  "UserEditPage.forceLogoutWarning": "সতর্কতা: নিজেকে নন-অ্যাডমিন বানালে \"সংরক্ষণ করুন\"-এ ক্লিক করামাত্র আপনাকে লগ আউট করে দেওয়া হবে।",
   "UserEditPage.userUpdateNotification": "পরিবর্তনগুলি সেভ করা হয়েছে",
   "UserEditPage.viewInDeviceTabPrompt": "ডিভাইসের অনুমতিতে বিস্তারিত দেখুন",
   "UserPage.admins": "অ্যাডমিন",

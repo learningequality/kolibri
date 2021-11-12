@@ -95,7 +95,7 @@
     $trs: {
       learningEnvironmentHeader: {
         message: 'What kind of learning environment is your facility?',
-        context: 'Page title.',
+        context: 'Page title for facility setup process.',
       },
       facilityPermissionsSetupFormDescription: {
         message:

@@ -154,7 +154,7 @@
         (this.extraFields && this.extraFields.contentState) || {},
         this.userData,
         this.defaultFile.extension === 'zip'
-          ? urls.zipContentUrl(this.defaultFile.checksum, this.defaultFile.extension)
+          ? urls.zipContentUrl(this.defaultFile.checksum, this.defaultFile.extension, 'index.html')
           : this.defaultFile.storage_url,
         this.defaultFile.checksum
       );

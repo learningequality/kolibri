@@ -80,7 +80,8 @@
       },
       postSyncWelcomeMessage1: {
         message: 'The first thing you should do is import some channels to this device.',
-        context: 'Welcome message for user which appears if there are no channels on the device.',
+        context:
+          "Welcome message for user which appears if there are no channels on the device. This is similar to the 'The first thing you should do is import some resources from the Channels tab' string.",
       },
       postSyncWelcomeMessage2: {
         message: `The learner reports, lessons, and quizzes in '{facilityName}' will not display properly until you import the resources associated with them.`,
@@ -88,7 +89,8 @@
       },
       learnOnlyDeviceWelcomeMessage1: {
         message: 'The first thing you should do is import some channels to this device',
-        context: 'Welcome message for user which appears after provisioning a Learner Only Device.',
+        context:
+          "Welcome message for user which appears after provisioning a Learner Only Device.\n\nThis is similar to the 'The first thing you should do is import some resources from the Channels tab' string.",
       },
       learnOnlyDeviceWelcomeMessage2: {
         message: `The user reports, lessons, and quizzes will not display properly until you import the resources associated with them.`,

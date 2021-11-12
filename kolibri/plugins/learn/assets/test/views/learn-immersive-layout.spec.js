@@ -30,6 +30,12 @@ store.state.topicsTree = {
   },
 };
 
+store.getters = {
+  isAdmin() {
+    return false;
+  },
+};
+
 function makeWrapper({ propsData } = {}) {
   return shallowMount(LearnImmersiveLayout, {
     propsData,

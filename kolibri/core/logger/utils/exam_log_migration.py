@@ -3,6 +3,7 @@ from itertools import groupby
 
 from django.db import connections
 from django.db.models import F
+from django.db.models import FieldDoesNotExist
 from django.db.models import Value
 from django.db.models.functions import Greatest
 from le_utils.constants import content_kinds
@@ -101,9 +102,7 @@ def _update_attempt_logs(masterylog_id, logs):
             # Need to cast the value for the unsaved log here, as otherwise
             # it is still in the string form, rather than datetime, as Morango
             # deserialize does not run to_python_value or from_db_value.
-            if existing_log.end_timestamp < AttemptLog._meta.get_field(
-                "end_timestamp"
-            ).from_db_value(log.end_timestamp, None, None, None):
+            if existing_log.end_timestamp < log.end_timestamp:
                 for field in attempt_log_fields_for_update:
                     setattr(
                         existing_log,
@@ -131,12 +130,18 @@ exam_attempts_blocklist = {
 
 def _create_attemptlog(examattemptlog, sessionlog_id, masterylog_id):
     data = examattemptlog.serialize()
-    for f in exam_attempts_blocklist:
-        if f in data:
-            del data[f]
-    data["sessionlog_id"] = sessionlog_id
-    data["masterylog_id"] = masterylog_id
-    attemptlog = AttemptLog.deserialize(data)
+    attemptlog = AttemptLog()
+    for field, value in data.items():
+        if field not in exam_attempts_blocklist:
+            try:
+                field_obj = AttemptLog._meta.get_field(field)
+                if hasattr(field_obj, "from_db_value"):
+                    value = field_obj.from_db_value(value, None, None, None)
+            except FieldDoesNotExist:
+                pass
+            setattr(attemptlog, field, value)
+    attemptlog.sessionlog_id = sessionlog_id
+    attemptlog.masterylog_id = masterylog_id
     attemptlog.item = "{}:{}".format(examattemptlog.content_id, attemptlog.item)
     attemptlog.id = attemptlog.calculate_uuid()
     return attemptlog

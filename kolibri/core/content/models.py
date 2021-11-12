@@ -187,7 +187,11 @@ class ContentNode(base_models.ContentNode):
 
     # Use this to annotate ancestor information directly onto the ContentNode, as it can be a
     # costly lookup
-    ancestors = JSONField(default=[], null=True, blank=True)
+    # Don't use strict loading as the titles used to construct the ancestors can contain
+    # control characters, which will fail strict loading.
+    ancestors = JSONField(
+        default=[], null=True, blank=True, load_kwargs={"strict": False}
+    )
 
     objects = ContentNodeManager()
 

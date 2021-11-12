@@ -100,7 +100,7 @@
         class="section"
       />
       <div
-        v-if="value.learner_needs && value.learner_needs.length"
+        v-if="Object.keys(resourcesNeededList).length"
         class="section"
       >
         <div
@@ -349,7 +349,7 @@
       },
       allCategories: {
         message: 'All categories',
-        context: 'Button label in the Library page sidebar.',
+        context: 'Option in the Library page sidebar.',
       },
     },
   };

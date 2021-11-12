@@ -134,7 +134,8 @@
       },
       goBackToHomeAction: {
         message: 'Go to home page',
-        context: 'Link that upon selecting takes the user back to the Kolbri home page.',
+        context:
+          'Link that upon selecting takes the user back to the Kolbri home page where the user can sign in.',
       },
       contentManager: {
         message:

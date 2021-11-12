@@ -140,10 +140,7 @@
   "PerseusInternalMessages.reflection": "প্রতিফলন",
   "PerseusInternalMessages.rotation": "ঘূর্ণন",
   "PerseusInternalMessages.translation": "অনুবাদ",
-  "PerseusRendererIndex.hint": "একটি ইঙ্গিত ব্যবহার করুন ({hintsLeft, number}টি বাকি আছে)",
-  "PerseusRendererIndex.hintExplanation": "আপনি কোনও ইংগিত ব্যবহার করলে এই প্রশ্নটি আপনার অগ্রগতিতে যোগ করা হবে না",
   "PerseusRendererIndex.hintLabel": "সূত্র:",
-  "PerseusRendererIndex.noMoreHint": "সবগুলো সূত্র দেখে ফেলেছ",
   "PerseusRendererIndex.notAvailable": "স্ক্র্যাচপ্যাড নেই",
   "PerseusRendererIndex.showScratch": "স্ক্র্যাচপ্যাড দেখাও"
 }

@@ -42,17 +42,9 @@
     </div>
 
     <div v-else>
-      <Breadcrumbs v-if="(pageName === 'HOME' || pageName === 'ALL_CLASSES')" />
       <component :is="currentPage" v-if="currentPage" />
       <router-view />
     </div>
-
-    <UpdateYourProfileModal
-      v-if="profileNeedsUpdate"
-      :disabled="demographicInfo === null || !userProfilePluginUrl"
-      @cancel="handleCancelUpdateYourProfileModal"
-      @submit="handleSubmitUpdateYourProfileModal"
-    />
 
   </CoreBase>
 
@@ -62,7 +54,6 @@
 <script>
 
   import { mapGetters, mapState } from 'vuex';
-  import urls from 'kolibri.urls';
   import lastItem from 'lodash/last';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
@@ -85,7 +76,6 @@
   import ActionBarSearchBox from './ActionBarSearchBox';
   import LearnTopNav from './LearnTopNav';
   import { ASSESSMENT_FOOTER, QUIZ_FOOTER } from './footers.js';
-  import UpdateYourProfileModal from './UpdateYourProfileModal';
   import BookmarkPage from './BookmarkPage.vue';
   import plugin_data from 'plugin_data';
 
@@ -112,18 +102,12 @@
       LearnTopNav,
       TotalPoints,
       LearnImmersiveLayout,
-      UpdateYourProfileModal,
     },
     mixins: [commonCoreStrings, commonLearnStrings, responsiveWindowMixin],
     setup() {
       const { channelsMap } = useChannels();
       return {
         channelsMap,
-      };
-    },
-    data() {
-      return {
-        demographicInfo: null,
       };
     },
     computed: {
@@ -295,23 +279,21 @@
         // height of .attempts-container in AssessmentWrapper
         return isAssessment ? ASSESSMENT_FOOTER : 0;
       },
-      profileNeedsUpdate() {
-        return (
-          this.demographicInfo &&
-          (this.demographicInfo.gender === '' || this.demographicInfo.birth_year === '')
-        );
-      },
-      userProfilePluginUrl() {
-        return urls['kolibri:kolibri.plugins.user_profile:user_profile'];
-      },
       learnBackPageRoute() {
         // extract the key pieces of routing from immersive page props, but since we don't need
         // them all, just create two alternative route paths for return/'back' navigation
         let route = {};
-        if (this.$route.query.last === PageNames.TOPICS_TOPIC_SEARCH) {
+        if (
+          this.$route.query.last === PageNames.TOPICS_TOPIC_SEARCH ||
+          this.$route.query.last === PageNames.TOPICS_TOPIC
+        ) {
+          const lastId = this.$route.query.topicId
+            ? this.$route.query.topicId
+            : this.topicsTreeContent.parent;
+          const lastPage = this.$route.query.last;
           // Need to guard for parent being non-empty to avoid console errors
-          route = this.$router.getRoute(PageNames.TOPICS_TOPIC, {
-            id: this.topicsTreeContent.parent,
+          route = this.$router.getRoute(lastPage, {
+            id: lastId,
           });
         } else if (this.$route.query && this.$route.query.last) {
           const last = this.$route.query.last;
@@ -324,36 +306,6 @@
           route = this.$router.getRoute(PageNames.HOME);
         }
         return route;
-      },
-    },
-    mounted() {
-      if (this.isUserLoggedIn) {
-        this.getDemographicInfo();
-      }
-    },
-    methods: {
-      getDemographicInfo() {
-        return this.$store
-          .dispatch('getDemographicInfo')
-          .then(info => {
-            this.demographicInfo = { ...info };
-          })
-          .catch(() => {});
-      },
-      handleCancelUpdateYourProfileModal() {
-        this.$store.dispatch('deferProfileUpdates', this.demographicInfo);
-        this.demographicInfo = null;
-      },
-      handleSubmitUpdateYourProfileModal() {
-        if (this.userProfilePluginUrl) {
-          const url = `${this.userProfilePluginUrl()}#/profile/edit?next_page=learn`;
-          const redirect = () => {
-            window.location.href = url;
-          };
-          this.$store
-            .dispatch('deferProfileUpdates', this.demographicInfo)
-            .then(redirect, redirect);
-        }
       },
     },
     $trs: {

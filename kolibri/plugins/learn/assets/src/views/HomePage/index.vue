@@ -2,7 +2,7 @@
 
   <div>
     <YourClasses
-      v-if="isUserLoggedIn"
+      v-if="isUserLoggedIn && classes.length"
       class="section"
       :classes="classes"
       data-test="classes"
@@ -83,7 +83,7 @@
         activeClassesQuizzes,
         resumableClassesQuizzes,
         resumableClassesResources,
-        resumableNonClassesContentNodes,
+        resumableContentNodes,
         learnerFinishedAllClasses,
       } = useLearnerResources();
 
@@ -97,7 +97,7 @@
           get(isUserLoggedIn) &&
           get(learnerFinishedAllClasses) &&
           get(canAccessUnassignedContent) &&
-          get(resumableNonClassesContentNodes).length > 0
+          get(resumableContentNodes).length > 0
       );
       const hasActiveClassesLessons = computed(
         () =>

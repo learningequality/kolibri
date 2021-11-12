@@ -1,9 +1,12 @@
 import { get } from '@vueuse/core';
+import client from 'kolibri.client';
+import urls from 'kolibri.urls';
 import store from 'kolibri.coreVue.vuex.store';
 import router from 'kolibri.coreVue.router';
 import useChannels from '../composables/useChannels';
 import useUser from '../composables/useUser';
-import useLearnerResources from '../composables/useLearnerResources';
+import { setClasses, setResumableContentNodes } from '../composables/useLearnerResources';
+import { setContentNodeProgress } from '../composables/useContentNodeProgress';
 import { showTopicsTopic, showTopicsContent } from '../modules/topicsTree/handlers';
 import { showLibrary } from '../modules/recommended/handlers';
 import { PageNames, ClassesPageNames } from '../constants';
@@ -13,7 +16,6 @@ import classesRoutes from './classesRoutes';
 
 const { channels, channelsMap } = useChannels();
 const { isUserLoggedIn } = useUser();
-const { fetchClasses, fetchResumableContentNodes } = useLearnerResources();
 
 function unassignedContentGuard() {
   const { canAccessUnassignedContent } = store.getters;
@@ -23,6 +25,19 @@ function unassignedContentGuard() {
   }
   // Otherwise return nothing
   return;
+}
+
+function hydrateHomePage() {
+  return client({ url: urls['kolibri:kolibri.plugins.learn:homehydrate']() }).then(response => {
+    setClasses(response.data.classrooms);
+    setResumableContentNodes(
+      response.data.resumable_resources.results || [],
+      response.data.resumable_resources.more || null
+    );
+    for (let progress of response.data.resumable_resources_progress) {
+      setContentNodeProgress(progress);
+    }
+  });
 }
 
 export default [
@@ -48,7 +63,7 @@ export default [
       // page is up-to-date when navigating to other 'Learn' pages and then back
       // to the home page
       if (get(isUserLoggedIn)) {
-        promises.push(fetchClasses({ force: true }), fetchResumableContentNodes({ force: true }));
+        promises.push(hydrateHomePage());
       }
       return store.dispatch('loading').then(() => {
         return Promise.all(promises)

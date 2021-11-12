@@ -602,7 +602,10 @@
       },
     },
     $trs: {
-      resources: '{count} {count, plural, one {resource} other {resources}}',
+      resources: {
+        message: '{count} {count, plural, one {resource} other {resources}}',
+        context: "Only translate 'resource' and 'resources'.",
+      },
       createNewExamLabel: {
         message: 'Create new quiz',
         context: "Title of the screen launched from the 'New quiz' button on the 'Plan' tab.",
@@ -610,13 +613,17 @@
       chooseExercises: {
         message: 'Select folders or exercises from these channels',
         context:
-          'When creating a new quiz, coaches can choose which folders or excercises they want to include in the quiz from the channels that contain exercise resources.',
+          'When creating a new quiz, coaches can choose which folders or exercises they want to include in the quiz from the channels that contain exercise resources.',
       },
       numQuestions: {
         message: 'Number of questions',
         context: 'Indicates the number of questions that the quiz will have.',
       },
-      numQuestionsBetween: 'Enter a number between 1 and 50',
+      numQuestionsBetween: {
+        message: 'Enter a number between 1 and 50',
+        context:
+          "Refers to an error if the coach inputs a number of quiz questions that's not between 1 and 50. Quizzes cannot have less than 1 or more than 50 questions. ",
+      },
       numQuestionsExceed: {
         message:
           'The max number of questions based on the exercises you selected is {maxQuestionsFromSelection}. Select more exercises to reach {inputNumQuestions} questions, or lower the number of questions to {maxQuestionsFromSelection}.',

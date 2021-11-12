@@ -955,10 +955,10 @@ class FacilityTaskHelperTestCase(TestCase):
     @patch("kolibri.core.tasks.api.MorangoProfileController")
     @patch("kolibri.core.tasks.api.NetworkClient")
     @patch("kolibri.core.tasks.api.get_client_and_server_certs")
-    @patch("kolibri.core.tasks.api.get_dataset_id")
+    @patch("kolibri.core.tasks.api.get_facility_dataset_id")
     def test_validate_peer_sync_job(
         self,
-        get_dataset_id,
+        get_facility_dataset_id,
         get_client_and_server_certs,
         NetworkClient,
         MorangoProfileController,
@@ -981,7 +981,7 @@ class FacilityTaskHelperTestCase(TestCase):
         controller = MorangoProfileController.return_value
         controller.create_network_connection.return_value = network_connection
 
-        get_dataset_id.return_value = dataset_id
+        get_facility_dataset_id.return_value = (123, dataset_id)
         get_client_and_server_certs.return_value = None
 
         expected = dict(
@@ -1005,7 +1005,7 @@ class FacilityTaskHelperTestCase(TestCase):
             "https://some.server.test/"
         )
 
-        get_dataset_id.assert_called_with(
+        get_facility_dataset_id.assert_called_with(
             "https://some.server.test/", identifier=123, noninteractive=True
         )
 
@@ -1046,9 +1046,9 @@ class FacilityTaskHelperTestCase(TestCase):
 
     @patch("kolibri.core.tasks.api.MorangoProfileController")
     @patch("kolibri.core.tasks.api.NetworkClient")
-    @patch("kolibri.core.tasks.api.get_dataset_id")
+    @patch("kolibri.core.tasks.api.get_facility_dataset_id")
     def test_validate_and_create_sync_credentials__unknown_facility(
-        self, get_dataset_id, NetworkClient, MorangoProfileController
+        self, get_facility_dataset_id, NetworkClient, MorangoProfileController
     ):
         req = Mock(
             spec=Request,
@@ -1067,7 +1067,7 @@ class FacilityTaskHelperTestCase(TestCase):
         controller = MorangoProfileController.return_value
         controller.create_network_connection.return_value = network_connection
 
-        get_dataset_id.side_effect = CommandError()
+        get_facility_dataset_id.side_effect = CommandError()
 
         with self.assertRaises(AuthenticationFailed):
             validate_and_create_sync_credentials(*validate_peer_sync_job(req))
@@ -1075,10 +1075,10 @@ class FacilityTaskHelperTestCase(TestCase):
     @patch("kolibri.core.tasks.api.MorangoProfileController")
     @patch("kolibri.core.tasks.api.NetworkClient")
     @patch("kolibri.core.tasks.api.get_client_and_server_certs")
-    @patch("kolibri.core.tasks.api.get_dataset_id")
+    @patch("kolibri.core.tasks.api.get_facility_dataset_id")
     def test_validate_and_create_sync_credentials__not_authenticated(
         self,
-        get_dataset_id,
+        get_facility_dataset_id,
         get_client_and_server_certs,
         NetworkClient,
         MorangoProfileController,
@@ -1095,7 +1095,7 @@ class FacilityTaskHelperTestCase(TestCase):
         controller = MorangoProfileController.return_value
         controller.create_network_connection.return_value = network_connection
 
-        get_dataset_id.return_value = 456
+        get_facility_dataset_id.return_value = (123, 456)
         get_client_and_server_certs.side_effect = CommandError()
 
         with self.assertRaises(PermissionDenied):
@@ -1104,10 +1104,10 @@ class FacilityTaskHelperTestCase(TestCase):
     @patch("kolibri.core.tasks.api.MorangoProfileController")
     @patch("kolibri.core.tasks.api.NetworkClient")
     @patch("kolibri.core.tasks.api.get_client_and_server_certs")
-    @patch("kolibri.core.tasks.api.get_dataset_id")
+    @patch("kolibri.core.tasks.api.get_facility_dataset_id")
     def test_validate_and_create_sync_credentials__authentication_failed(
         self,
-        get_dataset_id,
+        get_facility_dataset_id,
         get_client_and_server_certs,
         NetworkClient,
         MorangoProfileController,
@@ -1129,7 +1129,7 @@ class FacilityTaskHelperTestCase(TestCase):
         controller = MorangoProfileController.return_value
         controller.create_network_connection.return_value = network_connection
 
-        get_dataset_id.return_value = 456
+        get_facility_dataset_id.return_value = (123, 456)
         get_client_and_server_certs.side_effect = CommandError()
 
         with self.assertRaises(AuthenticationFailed):

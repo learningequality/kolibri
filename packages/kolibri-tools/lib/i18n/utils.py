@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
+import configparser
 import functools
 import io
 import json
 import logging
 import os
 import sys
-
-import configparser
 
 logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
 logging.StreamHandler(sys.stdout)

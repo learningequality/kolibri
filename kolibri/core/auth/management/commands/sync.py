@@ -6,7 +6,7 @@ from django.core.management.base import CommandError
 from morango.models import ScopeDefinition
 
 from ..utils import get_client_and_server_certs
-from ..utils import get_dataset_id
+from ..utils import get_facility_dataset_id
 from kolibri.core.auth.constants.morango_sync import DATA_PORTAL_SYNCING_BASE_URL
 from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
 from kolibri.core.auth.management.utils import get_facility
@@ -101,7 +101,7 @@ class Command(MorangoSyncCommand):
             if not re.match("[a-f0-9]{32}", user_id):
                 raise CommandError("User ID must be a 32-character UUID (no dashes)")
 
-            dataset_id = get_dataset_id(
+            facility_id, dataset_id = get_facility_dataset_id(
                 baseurl, identifier=facility_id, noninteractive=True
             )
 
@@ -160,7 +160,7 @@ class Command(MorangoSyncCommand):
             )
 
         else:  # do P2P setup
-            dataset_id = get_dataset_id(
+            facility_id, dataset_id = get_facility_dataset_id(
                 baseurl, identifier=facility_id, noninteractive=noninteractive
             )
 

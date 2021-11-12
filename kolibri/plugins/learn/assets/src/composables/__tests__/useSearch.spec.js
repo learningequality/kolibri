@@ -201,7 +201,11 @@ describe(`useSearch`, () => {
       store.commit('SET_QUERY', { categories: 'test1,test2' });
       await Vue.nextTick();
       expect(ContentNodeResource.fetchCollection).toHaveBeenCalledWith({
-        getParams: { categories: ['test1', 'test2'], max_results: 25 },
+        getParams: {
+          categories: ['test1', 'test2'],
+          max_results: 25,
+          include_coach_content: false,
+        },
       });
     });
     it('should not call ContentNodeResource.fetchCollection if there is no search', () => {
@@ -226,7 +230,13 @@ describe(`useSearch`, () => {
       ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
       search();
       expect(ContentNodeResource.fetchCollection).toHaveBeenCalledWith({
-        getParams: { tree_id: 1, lft__gt: 10, rght__lt: 20, max_results: 1 },
+        getParams: {
+          tree_id: 1,
+          lft__gt: 10,
+          rght__lt: 20,
+          max_results: 1,
+          include_coach_content: false,
+        },
       });
     });
     it('should set labels and clear more if there is no search but a descendant is set', async () => {
@@ -249,7 +259,11 @@ describe(`useSearch`, () => {
       ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
       search();
       expect(ContentNodeResource.fetchCollection).toHaveBeenCalledWith({
-        getParams: { categories: ['test1', 'test2'], max_results: 25 },
+        getParams: {
+          categories: ['test1', 'test2'],
+          max_results: 25,
+          include_coach_content: false,
+        },
       });
     });
     it('should ignore other categories when AllCategories is set and search for isnull false', () => {
@@ -258,7 +272,7 @@ describe(`useSearch`, () => {
       ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
       search();
       expect(ContentNodeResource.fetchCollection).toHaveBeenCalledWith({
-        getParams: { categories__isnull: false, max_results: 25 },
+        getParams: { categories__isnull: false, max_results: 25, include_coach_content: false },
       });
     });
     it('should ignore other categories when NoCategories is set and search for isnull true', () => {
@@ -267,7 +281,7 @@ describe(`useSearch`, () => {
       ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
       search();
       expect(ContentNodeResource.fetchCollection).toHaveBeenCalledWith({
-        getParams: { categories__isnull: true, max_results: 25 },
+        getParams: { categories__isnull: true, max_results: 25, include_coach_content: false },
       });
     });
     it('should ignore channels when descendant is set', () => {
@@ -286,6 +300,7 @@ describe(`useSearch`, () => {
           tree_id: 1,
           lft__gt: 10,
           rght__lt: 20,
+          include_coach_content: false,
         },
       });
     });
@@ -295,7 +310,11 @@ describe(`useSearch`, () => {
       ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
       search();
       expect(ContentNodeResource.fetchCollection).toHaveBeenCalledWith({
-        getParams: { keywords: `this is just a test`, max_results: 25 },
+        getParams: {
+          keywords: `this is just a test`,
+          max_results: 25,
+          include_coach_content: false,
+        },
       });
     });
     it('should set results, labels, and more with returned data', async () => {

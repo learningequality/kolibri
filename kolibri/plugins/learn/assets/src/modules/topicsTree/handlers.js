@@ -43,7 +43,7 @@ export function showTopicsTopic(store, { id, pageName }) {
         store.getters.isAdmin || store.getters.isCoach || store.getters.isSuperuser,
     };
     if (store.getters.isUserLoggedIn) {
-      fetchContentNodeTreeProgress(id, params);
+      fetchContentNodeTreeProgress({ id, params });
     }
     return ContentNodeResource.fetchTree({
       id,

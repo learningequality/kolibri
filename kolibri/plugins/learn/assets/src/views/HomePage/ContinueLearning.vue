@@ -13,7 +13,7 @@
         <ResourceCard
           v-for="(resource, idx) in uniqueResumableClassesResources"
           :key="`resource-${idx}`"
-          :contentNode="getResumableContentNode(resource.contentNodeId)"
+          :contentNode="resource.contentNode"
           :to="getClassResourceLink(resource)"
           :collectionTitle="getResourceClassName(resource)"
         />
@@ -28,12 +28,19 @@
       </template>
       <template v-else>
         <ResourceCard
-          v-for="(contentNode, idx) in resumableNonClassesContentNodes"
+          v-for="(contentNode, idx) in resumableContentNodes"
           :key="idx"
           :contentNode="contentNode"
           :to="getTopicContentNodeLink(contentNode.id)"
           :collectionTitle="getContentNodeTopicName(contentNode)"
         />
+        <KButton
+          v-if="moreResumableContentNodes"
+          appearance="basic-link"
+          @click="fetchMoreResumableContentNodes"
+        >
+          {{ coreString('viewMoreAction') }}
+        </KButton>
       </template>
     </CardGrid>
   </section>
@@ -46,6 +53,7 @@
   import last from 'lodash/last';
   import uniqBy from 'lodash/uniqBy';
   import { computed } from 'kolibri.lib.vueCompositionApi';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { get } from '@vueuse/core';
   import CardGrid from '../cards/CardGrid';
   import QuizCard from '../cards/QuizCard';
@@ -62,13 +70,15 @@
       ResourceCard,
       QuizCard,
     },
+    mixins: [commonCoreStrings],
     setup() {
       const {
         resumableClassesQuizzes,
         resumableClassesResources,
-        resumableNonClassesContentNodes,
+        resumableContentNodes,
+        moreResumableContentNodes,
+        fetchMoreResumableContentNodes,
         getClass,
-        getResumableContentNode,
         getClassQuizLink,
         getClassResourceLink,
         getTopicContentNodeLink,
@@ -101,9 +111,10 @@
 
       return {
         resumableClassesQuizzes,
-        resumableNonClassesContentNodes,
+        resumableContentNodes,
+        moreResumableContentNodes,
+        fetchMoreResumableContentNodes,
         uniqueResumableClassesResources,
-        getResumableContentNode,
         getClassQuizLink,
         getClassResourceLink,
         getTopicContentNodeLink,
@@ -131,10 +142,15 @@
       },
     },
     $trs: {
-      continueLearningOnYourOwnHeader: 'Continue learning on your own',
+      continueLearningOnYourOwnHeader: {
+        message: 'Continue learning on your own',
+        context:
+          'Option to continue interacting with the resources (lessons, quizzes) in a self-directed way or through free exploration, rather than via material that coaches have prepared and made available in classes.',
+      },
       continueLearningFromClassesHeader: {
         message: 'Continue learning from your classes',
-        context: 'Option to complete resources that the learner has already started.',
+        context:
+          'Option to continue interacting with the resources (lessons, quizzes) coaches have prepared and made available in the classes learner is enrolled into.',
       },
     },
   };

@@ -1,0 +1,15 @@
+{
+  "ChangeUserPasswordModal.passwordChangeFormHeader": "పాస్‌వర్డ్‌ని మార్చు",
+  "ChangeUserPasswordModal.passwordChangedNotification": "మీ పాస్‌వర్డ్ మార్చబడింది.",
+  "ProfileEditPage.editProfileHeader": "ప్రొఫైల్‌ని సవరించండి",
+  "ProfilePage.changePasswordPrompt": "పాస్‌వర్డ్‌ని మార్చు",
+  "ProfilePage.detailsHeader": "వివరాలు",
+  "ProfilePage.documentTitle": "వినియోగదారు ప్రొఫైల్",
+  "ProfilePage.editAction": "సవరించు",
+  "ProfilePage.isSuperuser": "ప్రధాన నిర్వాహకుని అనుమతులు ",
+  "ProfilePage.limitedPermissions": "పరిమిత అనుమతులు",
+  "ProfilePage.manageContent": "ఛానెల్‌లు మరియు వనరులను నిర్వహించు",
+  "ProfilePage.manageDevicePermissions": "పరికరం అనుమతులను నిర్వహించండి",
+  "ProfilePage.points": "పాయింట్‌లు",
+  "ProfilePage.youCan": "మీరు ఇలా చేయవచ్చు:"
+}

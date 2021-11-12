@@ -162,7 +162,7 @@
         let id = message.nodeId;
         return ContentNodeResource.fetchModel({ id })
           .then(contentNode => {
-            router.push(this.genContentLink(contentNode.id, contentNode.is_leaf));
+            router.push(this.genContentLink(contentNode.id, null, contentNode.is_leaf, null, {}));
           })
           .catch(error => {
             this.$store.dispatch('handleApiError', error);

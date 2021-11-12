@@ -23,7 +23,7 @@ const FieldsMixinStrings = createTranslator('FieldsMixinStrings', {
   },
   wholeClass: {
     message: 'Whole class',
-    context: 'Column header for the quiz report exported as CSV.',
+    context: 'Column header for the quiz report exported as CSV. Refers to the entire class.',
   },
   questionsCorrect: {
     message: 'Questions answered correctly',

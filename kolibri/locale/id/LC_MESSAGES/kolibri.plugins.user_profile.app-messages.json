@@ -1,0 +1,15 @@
+{
+  "ChangeUserPasswordModal.passwordChangeFormHeader": "Rubah kata sandi",
+  "ChangeUserPasswordModal.passwordChangedNotification": "Kata sandi anda telah diubah.",
+  "ProfileEditPage.editProfileHeader": "Sunting profil",
+  "ProfilePage.changePasswordPrompt": "Ganti kata sandi",
+  "ProfilePage.detailsHeader": "Rincian",
+  "ProfilePage.documentTitle": "Profil pengguna",
+  "ProfilePage.editAction": "Mengedi",
+  "ProfilePage.isSuperuser": "Izin pimpinan admin ",
+  "ProfilePage.limitedPermissions": "Izin terbatas",
+  "ProfilePage.manageContent": "Kelola saluran dan sumber daya",
+  "ProfilePage.manageDevicePermissions": "Kelola izin perangkat",
+  "ProfilePage.points": "Nilai",
+  "ProfilePage.youCan": "Kamu bisa:"
+}

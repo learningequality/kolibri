@@ -1,0 +1,15 @@
+{
+  "ChangeUserPasswordModal.passwordChangeFormHeader": "تغییر رمز عبور",
+  "ChangeUserPasswordModal.passwordChangedNotification": "رمز عبور شما تغییر یافته است.",
+  "ProfileEditPage.editProfileHeader": "ویرایش پروفایل",
+  "ProfilePage.changePasswordPrompt": "تغییر رمز عبور",
+  "ProfilePage.detailsHeader": "جزییات",
+  "ProfilePage.documentTitle": "مشخصات و پروفایل کاربر",
+  "ProfilePage.editAction": "ویرایش",
+  "ProfilePage.isSuperuser": "دسترسی مدیر یا ادمین حرفه‌ای ",
+  "ProfilePage.limitedPermissions": "دسترسی محدود",
+  "ProfilePage.manageContent": "مدیریت کانال‌ها و منابع",
+  "ProfilePage.manageDevicePermissions": "مدیریت اجازه دسترسیِ دستگاه",
+  "ProfilePage.points": "امتیازها",
+  "ProfilePage.youCan": "شما می‌توانید:"
+}

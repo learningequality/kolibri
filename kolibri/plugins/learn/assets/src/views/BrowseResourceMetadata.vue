@@ -29,7 +29,7 @@
           :text="metadataStrings.$tr('viewResource')"
           appearance="raised-button"
           :primary="false"
-          :to="genContentLink(content.id, content.is_leaf)"
+          :to="genContentLink(content.id, null, content.is_leaf, null, {})"
           data-test="view-resource-link"
         />
       </div>
@@ -165,7 +165,7 @@
           :key="related.title"
           class="list-item"
         >
-          <KRouterLink :to="genContentLink(related.id, related.is_leaf)">
+          <KRouterLink :to="genContentLink(related.id, null, related.is_leaf, null, {})">
             <KLabeledIcon>
               <template #icon>
                 <LearningActivityIcon :kind="related.learning_activities" />
@@ -187,9 +187,9 @@
       <div v-for="location in locationsInChannel" :key="location.id">
         <div>
           <KRouterLink
-            :to="genContentLink((location.ancestors.splice(-1)[0] || {}).id, false)"
+            :to="genContentLink(lastAncestor(location).id, null, false, null, {})"
           >
-            {{ (location.ancestors.splice(-1)[0] || {}).title }}
+            {{ lastAncestor(location).title }}
           </KRouterLink>
         </div>
       </div>
@@ -305,9 +305,12 @@
         // Retreives any topics in this same channel
         ContentNodeResource.fetchCollection({
           getParams: { content_id: this.content.content_id, channel_id: this.content.channel_id },
-        }).then(
-          locations => (this.locationsInChannel = locations && locations.length ? locations : null)
-        );
+        }).then((locations = []) => {
+          locations = locations.filter(loc => loc.id !== this.content.id);
+          if (locations && locations.length) {
+            this.locationsInChannel = locations;
+          }
+        });
       }
 
       this.metadataStrings = crossComponentTranslator(SidePanelResourceMetadata);
@@ -315,6 +318,10 @@
     },
     methods: {
       genContentLink,
+      lastAncestor(location) {
+        const lastAncestor = location.ancestors[location.ancestors.length - 1];
+        return lastAncestor;
+      },
       toggleShowMoreOrLess() {
         if (this.showMoreOrLess === 'Show More') {
           this.showMoreOrLess = 'Show Less';

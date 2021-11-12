@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import * as redirectBrowser from 'kolibri.utils.redirectBrowser';
+import redirectBrowser from 'kolibri.utils.redirectBrowser';
 import client from 'kolibri.client';
 import * as constants from '../../src/constants';
 import { coreStoreFactory as makeStore } from '../../src/state/store';
@@ -7,6 +7,7 @@ import { stubWindowLocation } from 'testUtils'; // eslint-disable-line
 
 jest.mock('kolibri.urls');
 jest.mock('kolibri.client');
+jest.mock('kolibri.utils.redirectBrowser');
 
 describe('Vuex store/actions for core module', () => {
   describe('error handling', () => {
@@ -36,15 +37,13 @@ describe('Vuex store/actions for core module', () => {
     stubWindowLocation(beforeAll, afterAll);
 
     let store;
-    let redirectStub;
 
     beforeEach(() => {
       store = makeStore();
-      redirectStub = jest.spyOn(redirectBrowser, 'redirectBrowser');
     });
 
     afterEach(() => {
-      redirectStub.mockRestore();
+      redirectBrowser.mockReset();
     });
 
     it('successful login', async () => {
@@ -56,7 +55,7 @@ describe('Vuex store/actions for core module', () => {
       });
 
       await store.dispatch('kolibriLogin', {});
-      expect(redirectStub).toHaveBeenCalled();
+      expect(redirectBrowser).toHaveBeenCalled();
     });
 
     it('failed login (401)', async () => {
@@ -648,6 +647,62 @@ describe('Vuex store/actions for core module', () => {
       });
       expect(client).not.toHaveBeenCalled();
     });
+    it('should not overwrite correct, answer or simple_answer if not passed with the replace flag', async () => {
+      const store = await initStore();
+      client.__setPayload({
+        attempts: [
+          {
+            id: 'testid',
+            item: 'testitem',
+            answer: { response: 'answer' },
+            correct: 1,
+            complete: true,
+          },
+        ],
+      });
+      await store.dispatch('updateContentSession', {
+        interaction: {
+          item: 'testitem',
+          answer: { response: 'answer' },
+          simple_answer: 'nah',
+          correct: 1,
+          complete: true,
+        },
+      });
+      client.__reset();
+      await store.dispatch('updateContentSession', {
+        interaction: {
+          id: 'testid',
+          item: 'testitem',
+          answer: { response: 'not an answer' },
+          simple_answer: 'yeah',
+          correct: 0,
+          complete: true,
+          hinted: true,
+        },
+      });
+      expect(store.state.core.logging.pastattempts).toHaveLength(1);
+      expect(store.state.core.logging.pastattempts[0]).toEqual({
+        id: 'testid',
+        item: 'testitem',
+        answer: { response: 'answer' },
+        simple_answer: 'nah',
+        correct: 1,
+        complete: true,
+        hinted: true,
+      });
+      expect(store.state.core.logging.pastattemptMap).toEqual({
+        testid: {
+          id: 'testid',
+          item: 'testitem',
+          answer: { response: 'answer' },
+          simple_answer: 'nah',
+          correct: 1,
+          complete: true,
+          hinted: true,
+        },
+      });
+    });
     it('should multiple unrelated interactions without overwriting', async () => {
       const store = await initStore();
       client.__setPayload({
@@ -759,6 +814,7 @@ describe('Vuex store/actions for core module', () => {
           id: 'testid2',
           item: 'testitem2',
           answer: { response: 'answer' },
+          replace: true,
           correct: 0,
           complete: true,
         },

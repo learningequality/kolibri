@@ -86,7 +86,8 @@
     $trs: {
       viewLearners: {
         message: 'View learner devices',
-        context: "Button which allows coach to view a list of the learners' devices.",
+        context:
+          "Option in the Reports > Quizzes section which allows coach to view a list of the learners' devices.\n\nLearner devices are ones that have Kolibri features for learners, but not those for coaches and admins.",
       },
     },
   };

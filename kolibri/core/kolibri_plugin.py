@@ -71,7 +71,7 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
             {js_name}.__zipContentUrl = '{zip_content_url}';
             {js_name}.__hashiUrl = '{hashi_url}';
             {js_name}.__zipContentOrigin = '{zip_content_origin}';
-            {js_name}.__zipContentPort = {zip_content_port};
+            {js_name}.__zipContentPort = '{zip_content_port}';
             </script>
             """.format(
                     js_name=js_name,

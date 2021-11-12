@@ -1,46 +1,46 @@
 <template>
 
-  <div
-    class="card"
-    :class="[
-      { 'mobile-card': isMobile },
-      $computedClass({ ':focus': $coreOutline })
-    ]"
-    :style="{ backgroundColor: $themeTokens.surface }"
-  >
+  <div class="card drop-shadow">
     <router-link
       :to="link"
-      class="card-link"
+      class="card card-link"
+      :class="[
+        { 'mobile-card': isMobile },
+        $computedClass({ ':focus': $coreOutline })
+      ]"
+      :style="{ backgroundColor: $themeTokens.surface }"
     >
       <div class="header-bar" :style="headerStyles">
-        <div v-if="!isLeaf">
+        <div v-if="!content.is_leaf">
           <KIcon icon="topic" color="white" class="folder-header-bar" />
           <p class="folder-header-text">
             {{ coreString('folder') }}
           </p>
         </div>
         <LearningActivityLabel
-          v-if="isLeaf"
-          :contentNode="contentNode"
+          v-if="content.is_leaf"
+          :labelAfter="true"
+          :contentNode="content"
           :hideDuration="true"
           class="learning-activity-label"
           :style="{ color: $themeTokens.text }"
         />
         <img
-          v-if="isLeaf"
-          :src="channelThumbnail"
-          :alt="learnString('logo', { channelTitle: channelTitle })"
+          v-if="content.is_leaf"
+          :src="content.channel_thumbnail"
+          :alt="learnString('logo', { channelTitle: content.channel_title })"
           class="channel-logo"
         >
       </div>
       <CardThumbnail
         class="thumbnail"
-        v-bind="{ thumbnail, kind, isMobile }"
+        :kind="content.kind"
+        v-bind="{ thumbnail, isMobile }"
       />
       <div class="text" :style="{ color: $themeTokens.text }">
         <h3 class="title" dir="auto">
           <TextTruncator
-            :text="title"
+            :text="content.title"
             :maxHeight="maxTitleHeight"
           />
         </h3>
@@ -48,18 +48,18 @@
     </router-link>
     <div class="footer">
       <ProgressBar
-        :contentNode="contentNode"
+        :contentNode="content"
         :style="{ maxWidth: `calc(100% - ${32 * footerLength}px)` }"
       />
       <div class="footer-icons">
         <CoachContentLabel
-          v-if="isUserLoggedIn && !isLearner && numCoachContents"
+          v-if="isUserLoggedIn && !isLearner && content.numCoachContents"
           class="coach-content-label"
-          :value="numCoachContents"
+          :value="content.numCoachContents"
           :isTopic="isTopic"
         />
         <KIconButton
-          v-if="isLeaf"
+          v-if="content.is_leaf"
           icon="infoOutline"
           size="mini"
           :color="$themePalette.grey.v_600"
@@ -68,10 +68,10 @@
           @click="$emit('toggleInfoPanel')"
         />
         <KButton
-          v-if="copiesCount > 1"
+          v-if="content.copies_count > 1"
           appearance="basic-link"
           class="copies"
-          :text="coreString('copies', { num: copiesCount })"
+          :text="coreString('copies', { num: content.copies_count })"
           @click.prevent="$emit('openCopiesModal', contentId)"
         />
         <slot name="actions"></slot>
@@ -85,7 +85,7 @@
 <script>
 
   import { mapGetters } from 'vuex';
-  import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
+  import { validateLinkObject } from 'kolibri.utils.validators';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -105,41 +105,9 @@
     },
     mixins: [commonLearnStrings, commonCoreStrings],
     props: {
-      title: {
-        type: String,
-        required: true,
-      },
-      subtitle: {
-        type: String,
-        default: null,
-      },
       thumbnail: {
         type: String,
         default: null,
-      },
-      channelThumbnail: {
-        type: String,
-        default: null,
-      },
-      channelTitle: {
-        type: String,
-        default: null,
-      },
-      kind: {
-        type: String,
-        required: true,
-        validator: validateContentNodeKind,
-      },
-      isLeaf: {
-        type: Boolean,
-        required: true,
-      },
-      // ContentNode.coach_content will be `0` if not a coach content leaf node,
-      // or a topic without coach content. It will be a positive integer if a topic
-      // with coach content, and `1` if a coach content leaf node.
-      numCoachContents: {
-        type: Number,
-        default: 0,
       },
       link: {
         type: Object,
@@ -150,27 +118,19 @@
         type: Boolean,
         default: false,
       },
-      contentId: {
-        type: String,
-        default: null,
-      },
-      contentNode: {
+      content: {
         type: Object,
         required: true,
-      },
-      copiesCount: {
-        type: Number,
-        default: null,
       },
     },
     computed: {
       ...mapGetters(['isLearner', 'isUserLoggedIn']),
       isTopic() {
-        return !this.isLeaf;
+        return !this.content.is_leaf;
       },
       headerStyles() {
         let styles = {};
-        if (!this.isLeaf) {
+        if (!this.content.is_leaf) {
           styles = {
             backgroundColor: this.$themeTokens.text,
             borderRadius: '8px 8px 0 0',
@@ -185,15 +145,15 @@
         } else if (this.footerLength || this.subtitle) {
           return 40;
         }
-        return 66;
+        return 120;
       },
       footerLength() {
         return (
           1 +
-          this.isLeaf +
-          (this.isUserLoggedIn && !this.isLearner && this.numCoachContents) +
-          (this.numCoachContents > 0) +
-          (this.copiesCount > 1) +
+          this.content.is_leaf +
+          (this.isUserLoggedIn && !this.isLearner && this.content.numCoachContents) +
+          (this.content.numCoachContents > 0) +
+          (this.content.copies_count > 1) +
           (this.$slots.actions ? this.$slots.actions.length : 0)
         );
       },
@@ -208,21 +168,23 @@
   @import '~kolibri-design-system/lib/styles/definitions';
   @import './card';
 
-  $margin: 24px;
+  $margin: 16px;
   $margin-thin: 8px;
 
-  .card {
+  .drop-shadow {
     @extend %dropshadow-1dp;
+    &:hover {
+      @extend %dropshadow-8dp;
+    }
+  }
 
+  .card {
     position: relative;
     display: inline-block;
     width: 100%;
     vertical-align: top;
     border-radius: 8px;
     transition: box-shadow $core-time ease;
-    &:hover {
-      @extend %dropshadow-8dp;
-    }
     &:focus {
       outline-width: 4px;
       outline-offset: 6px;
@@ -236,7 +198,7 @@
   .header-bar {
     display: flex;
     justify-content: space-between;
-    padding: 8px 18px;
+    padding: 8px 16px;
     font-size: 13px;
     .channel-logo {
       align-self: end;
@@ -269,7 +231,7 @@
   .text {
     position: relative;
     height: 190px;
-    padding: $margin;
+    padding: 0 $margin $margin $margin;
   }
 
   .footer {

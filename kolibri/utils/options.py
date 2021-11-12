@@ -29,36 +29,57 @@ except NotImplementedError:
 from kolibri.utils.i18n import KOLIBRI_LANGUAGE_INFO
 from kolibri.utils.i18n import KOLIBRI_SUPPORTED_LANGUAGES
 from kolibri.plugins.utils.options import extend_config_spec
+from kolibri.deployment.default.sqlite_db_names import (
+    ADDITIONAL_SQLITE_DATABASES,
+)
+from kolibri.utils.system import get_fd_limit
+
+
+CACHE_SHARDS = 8
+
+# file descriptors per thread
+FD_PER_THREAD = sum(
+    (
+        5,  # minimum allowance
+        1 + len(ADDITIONAL_SQLITE_DATABASES),  # DBs assuming SQLite
+        CACHE_SHARDS,  # assuming diskcache
+    )
+)
 
 
 def calculate_thread_pool():
     """
     Returns the default value for CherryPY thread_pool:
     - calculated based on the best values obtained in several partners installations
-    - value must be between 10 (default CherryPy value) and 200
     - servers with more memory can deal with more threads
     - calculations are done for servers with more than 2 Gb of RAM
+    - restricts value to avoid exceeding file descriptor limit
     """
     MIN_POOL = 50
     MAX_POOL = 150
+
+    pool_size = MIN_POOL
     if psutil:
         MIN_MEM = 2
         MAX_MEM = 6
         total_memory = psutil.virtual_memory().total / pow(2, 30)  # in Gb
         # if it's in the range, scale thread count linearly with available memory
         if MIN_MEM < total_memory < MAX_MEM:
-            return MIN_POOL + int(
+            pool_size = MIN_POOL + int(
                 (MAX_POOL - MIN_POOL)
                 * float(total_memory - MIN_MEM)
                 / (MAX_MEM - MIN_MEM)
             )
-        # otherwise return either the min or max amount
-        return MAX_POOL if total_memory >= MAX_MEM else MIN_POOL
+        elif total_memory >= MAX_MEM:
+            pool_size = MAX_POOL
     elif sys.platform.startswith(
         "darwin"
     ):  # Considering MacOS has at least 4 Gb of RAM
-        return MAX_POOL
-    return MIN_POOL
+        pool_size = MAX_POOL
+
+    # ensure (number of threads) x (open file descriptors) < (fd limit)
+    max_threads = get_fd_limit() // FD_PER_THREAD
+    return min(pool_size, max_threads)
 
 
 ALL_LANGUAGES = "kolibri-all"

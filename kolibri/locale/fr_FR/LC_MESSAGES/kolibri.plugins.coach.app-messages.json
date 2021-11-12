@@ -119,7 +119,7 @@
   "CommonCoachStrings.viewAllAction": "Afficher tout",
   "CommonCoachStrings.viewByGroupsLabel": "Voir par groupes",
   "ContentCardList.selectAllCheckboxLabel": "Tout sélectionner",
-  "CreateChannelQuizPage.channelsWithQuizzesLabel": "Les chaînes suivantes contiennent des quiz préfabriqués",
+  "CreateChannelQuizPage.channelsWithQuizzesLabel": "Les chaînes suivantes contiennent des quiz prêts à l'emploi",
   "CreateChannelQuizPage.createNewExamLabel": "Créer un nouveau quiz",
   "CreateChannelQuizPage.selectChannelQuizLabel": "Sélectionner un quiz d'une chaîne",
   "CreateChannelQuizPage.selectionInformation": "{count, number, integer} sur {total, number, integer} {total, plural, one {ressource sélectionnée} other {ressources sélectionnées}}",

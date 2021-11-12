@@ -2,7 +2,7 @@
 
   <div class="content-grid">
     <KFixedGrid
-      v-if="(cardViewStyle === 'card' && numCols)"
+      v-if="(cardViewStyle === 'card' && !!numCols)"
       :numCols="numCols"
       gutter="24"
     >
@@ -10,19 +10,9 @@
         <HybridLearningContentCard
           class="card-grid-item"
           :isMobile="windowIsSmall"
-          :contentNode="content"
-          :title="content.title"
+          :content="content"
           :thumbnail="content.thumbnail"
-          :kind="content.kind"
-          :activityLength="content.duration"
-          :isLeaf="content.is_leaf"
-          :numCoachContents="content.num_coach_contents"
-          :link="genContentLink(content.id, content.is_leaf, backRoute, context)"
-          :contentId="content.content_id"
-          :copiesCount="content.copies_count"
-          :description="content.description"
-          :channelThumbnail="content.channel_thumbnail"
-          :channelTitle="content.channel_title"
+          :link="genContentLink(content.id, topicId, content.is_leaf, backRoute, context)"
           @openCopiesModal="openCopiesModal"
           @toggleInfoPanel="$emit('toggleInfoPanel', content)"
         />
@@ -32,19 +22,11 @@
       <HybridLearningLessonCard
         v-for="content in contents"
         :key="content.id"
-        :contentNode="content"
-        :channelThumbnail="content.channel_thumbnail"
-        :channelTitle="content.channel_title"
-        :description="content.description"
-        :activityLength="content.duration"
+        :content="content"
         :thumbnail="content.thumbnail || getContentNodeThumbnail(content)"
         class="card-grid-item"
         :isMobile="windowIsSmall"
-        :title="content.title"
-        :kind="content.kind"
-        :isLeaf="content.is_leaf"
-        :numCoachContents="content.num_coach_contents"
-        :link="genContentLink(content.id, content.is_leaf, backRoute, context)"
+        :link="genContentLink(content.id, topicId, content.is_leaf, backRoute, context)"
       />
     </div>
     <CardGrid
@@ -55,7 +37,7 @@
 
         :key="`resource-${idx}`"
         :contentNode="content"
-        :to="genContentLink(content.id, content.is_leaf, backRoute, context)"
+        :to="genContentLink(content.id, topicId, content.is_leaf, backRoute, context)"
       />
     </CardGrid>
 
@@ -63,26 +45,16 @@
       v-for="content in contents"
       v-else
       :key="content.id"
-      :contentNode="content"
-      :channelThumbnail="content.channel_thumbnail"
-      :channelTitle="content.channel_title"
-      :description="content.description"
-      :activityLength="content.duration"
+      :content="content"
+      :thumbnail="content.thumbnail"
       :currentPage="currentPage"
       class="card-grid-item"
       :isMobile="windowIsSmall"
-      :title="content.title"
-      :thumbnail="content.thumbnail"
-      :kind="content.kind"
-      :isLeaf="content.is_leaf"
-      :numCoachContents="content.num_coach_contents"
-      :link="genContentLink(content.id, content.is_leaf, backRoute, context)"
-      :contentId="content.content_id"
-      :copiesCount="content.copies_count"
+      :link="genContentLink(content.id, topicId, content.is_leaf, backRoute, context)"
       :footerIcons="footerIcons"
       :createdDate="content.bookmark ? content.bookmark.created : null"
       @openCopiesModal="openCopiesModal"
-      @toggleInfoPanel="$emit('toggleInfoPanel', content)"
+      @viewInformation="$emit('toggleInfoPanel', content)"
       @removeFromBookmarks="removeFromBookmarks(content, contents)"
     />
     <CopiesModal
@@ -140,11 +112,12 @@
       },
       numCols: {
         type: Number,
-        required: true,
+        required: false,
+        default: null,
       },
       getContentNodeThumbnail: {
         type: Function,
-        default: () => ({}),
+        default: () => '',
         required: false,
       },
       footerIcons: {
@@ -176,6 +149,16 @@
           };
         }
         return context;
+      },
+      topicId() {
+        if (
+          this.pageName === PageNames.TOPICS_TOPIC ||
+          this.pageName === PageNames.TOPICS_TOPIC_SEARCH
+        ) {
+          return this.$route.params.id;
+        } else {
+          return null;
+        }
       },
       backRoute() {
         return this.pageName;

@@ -1,6 +1,5 @@
 import multiprocessing
 import threading
-
 from concurrent import futures
 
 from kolibri.utils.conf import OPTIONS

@@ -3,7 +3,7 @@
   <div>
     <main
       class="main-grid"
-      :style="{ marginLeft: `${(sidePanelWidth + 24)}px` }"
+      :style="gridOffset"
     >
       <div v-if="!windowIsLarge">
         <!-- TO DO Marcella swap out new icon after KDS update -->
@@ -50,13 +50,20 @@
           :currentPage="currentPage"
           @toggleInfoPanel="toggleInfoPanel"
         />
+        <KButton
+          v-if="moreResumableContentNodes"
+          appearance="basic-link"
+          @click="fetchMoreResumableContentNodes"
+        >
+          {{ coreString('viewMoreAction') }}
+        </KButton>
       </div>
 
       <!-- Display of search results, after the search is finished loading -->
 
       <!-- First section is the results title and the various display buttons  -->
       <!-- for interacting or updating the results   -->
-      <div v-else-if="!searchLoading" class="results-title">
+      <div v-else-if="!searchLoading">
         <h2 class="results-title">
           {{ $tr('results', { results: results.length }) }}
         </h2>
@@ -136,9 +143,8 @@
     <!-- FullScreen is a container component, and then the EmbeddedSidePanel sits within -->
     <FullScreenSidePanel
       v-if="!windowIsLarge && sidePanelIsOpen"
-      alignment="left"
       class="full-screen-side-panel"
-      closeButtonHidden="true"
+      :closeButtonHidden="true"
       :sidePanelOverrideWidth="`${sidePanelOverlayWidth + 64}px`"
       @closePanel="toggleSidePanelVisibility"
     >
@@ -165,6 +171,8 @@
         :width="`${sidePanelOverlayWidth}px`"
         :availableLabels="labels"
         position="overlay"
+        :activeActivityButtons="activeActivityButtons"
+        :activeCategories="activeCategories"
         @currentCategory="handleShowSearchModal"
       />
       <CategorySearchModal
@@ -255,7 +263,11 @@
         clearSearch,
         setCategory,
       } = useSearch();
-      const { resumableContentNodes } = useLearnerResources();
+      const {
+        resumableContentNodes,
+        moreResumableContentNodes,
+        fetchMoreResumableContentNodes,
+      } = useLearnerResources();
       return {
         searchTerms,
         displayingSearchResults,
@@ -270,6 +282,8 @@
         clearSearch,
         setCategory,
         resumableContentNodes,
+        moreResumableContentNodes,
+        fetchMoreResumableContentNodes,
       };
     },
     data: function() {
@@ -305,9 +319,7 @@
         return 300;
       },
       numCols() {
-        if (this.currentViewStyle === 'list' || this.windowBreakpoint < 1) {
-          return null;
-        } else if (this.windowIsSmall) {
+        if (this.windowIsSmall) {
           return 2;
         } else {
           return 3;
@@ -318,6 +330,11 @@
       },
       activeCategories() {
         return this.searchTerms.categories;
+      },
+      gridOffset() {
+        return this.isRtl
+          ? { marginRight: `${this.sidePanelWidth + 24}px` }
+          : { marginLeft: `${this.sidePanelWidth + 24}px` };
       },
     },
     created() {
@@ -365,11 +382,11 @@
       /* eslint-disable kolibri/vue-no-unused-translations */
       viewAsList: {
         message: 'View as list',
-        context: 'Label for a button',
+        context: 'Label for a button used to view resources as a list.',
       },
       viewAsGrid: {
         message: 'View as grid',
-        context: 'Label for a button. See also https://en.wikipedia.org/wiki/Grid_view',
+        context: 'Label for a button used to view resources as a grid.',
       },
       clearAll: {
         message: 'Clear all',

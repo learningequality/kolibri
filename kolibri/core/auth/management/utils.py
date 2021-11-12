@@ -32,7 +32,7 @@ from kolibri.core.auth.sync_event_hook_utils import register_sync_event_handlers
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.utils import device_provisioned
 from kolibri.core.device.utils import provision_device
-from kolibri.core.device.utils import set_device_settings
+from kolibri.core.device.utils import provision_single_user_device
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
 from kolibri.core.discovery.utils.network.errors import URLParseError
@@ -85,7 +85,7 @@ def _interactive_server_facility_selection(facilities):
         message += "{}. {}\n".format(idx + 1, f["name"])
     idx = input(message)
     try:
-        return facilities[int(idx) - 1]["dataset"]
+        return facilities[int(idx) - 1]
     except IndexError:
         raise CommandError(
             (
@@ -130,7 +130,7 @@ def get_facility(facility_id=None, noninteractive=False):
     return facility
 
 
-def get_dataset_id(baseurl, identifier=None, noninteractive=False):
+def get_facility_dataset_id(baseurl, identifier=None, noninteractive=False):
     # get list of facilities and if more than 1, display all choices to user
     facility_url = urljoin(baseurl, reverse("kolibri:core:publicfacility-list"))
     response = requests.get(facility_url)
@@ -142,7 +142,7 @@ def get_dataset_id(baseurl, identifier=None, noninteractive=False):
     if identifier:
         for obj in facilities:
             if identifier == obj["dataset"] or identifier == obj.get("id"):
-                return obj["dataset"]
+                return identifier, obj["dataset"]
         raise CommandError(
             "Facility with ID {} does not exist on server".format(identifier)
         )
@@ -154,12 +154,13 @@ def get_dataset_id(baseurl, identifier=None, noninteractive=False):
                 "Please pass in a facility ID by passing in --facility {ID} after the command."
             )
         )
-    else:
-        return (
-            _interactive_server_facility_selection(facilities)
-            if len(facilities) > 1
-            else facilities[0]["dataset"]
-        )
+
+    facility = (
+        _interactive_server_facility_selection(facilities)
+        if len(facilities) > 1
+        else facilities[0]
+    )
+    return facility["id"], facility["dataset"]
 
 
 def is_portal_sync(baseurl):
@@ -274,7 +275,7 @@ def get_client_and_server_certs(
                 password = getpass.getpass("Please enter password: ")
 
         userargs = username
-        if user_id:
+        if facility_id:
             # add facility so `FacilityUserBackend` can validate
             userargs = {
                 FacilityUser.USERNAME_FIELD: username,
@@ -335,20 +336,6 @@ def create_superuser_and_provision_device(username, dataset_id, noninteractive=F
         DevicePermissions.objects.update_or_create(
             user=user, defaults={"is_superuser": True, "can_manage_content": True}
         )
-
-
-def provision_single_user_device(user_id):
-
-    user = FacilityUser.objects.get(id=user_id)
-
-    # if device has not been provisioned, set it up
-    if not device_provisioned():
-        provision_device(default_facility=user.facility)
-        set_device_settings(subset_of_users_device=True)
-
-    DevicePermissions.objects.get_or_create(
-        user=user, defaults={"is_superuser": False, "can_manage_content": True}
-    )
 
 
 def is_single_user_scoped(cert):
@@ -549,7 +536,9 @@ class MorangoSyncCommand(AsyncCommand):
             if not no_provision:
                 with self._lock():
                     if user_id:
-                        provision_single_user_device(user_id)
+                        provision_single_user_device(
+                            FacilityUser.objects.get(id=user_id)
+                        )
                     else:
                         create_superuser_and_provision_device(
                             username, dataset_id, noninteractive=noninteractive

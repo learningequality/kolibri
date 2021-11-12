@@ -165,7 +165,7 @@
       pageTitle: {
         message: `Edit lesson details for '{title}'`,
         context:
-          "Page title for page which coach accesses using the 'Edit details' option on the 'Plan' tab.\n",
+          "Page title for page which coach accesses using the 'Edit details' option on the Plan > Lessons tab.",
       },
       appBarTitle: {
         message: 'Edit lesson details',

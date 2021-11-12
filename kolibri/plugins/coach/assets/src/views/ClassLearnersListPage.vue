@@ -186,7 +186,8 @@
       },
       howToTroubleshootModalHeader: {
         message: 'Information about sync statuses',
-        context: 'Link to open additional information about statuses.',
+        context:
+          'Link to open additional information about statuses. It shows descriptions of what each status means.',
       },
       close: {
         message: 'Close',

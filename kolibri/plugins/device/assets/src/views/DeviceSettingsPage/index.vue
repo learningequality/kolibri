@@ -306,7 +306,7 @@
       },
       pageHeader: {
         message: 'Device settings',
-        context: 'Title of page.',
+        context: 'Title of page where user can configure device settings.',
       },
       saveFailureNotification: {
         message: 'Settings have not been updated',

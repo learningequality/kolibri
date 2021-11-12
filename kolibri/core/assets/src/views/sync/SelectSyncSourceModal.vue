@@ -81,7 +81,7 @@
       },
       localNetworkLabel: {
         message: 'Local network or internet',
-        context: 'Label on radio button for Local or internet',
+        context: 'Label on radio button for Local or Internet',
       },
       localNetworkDescription: {
         message:
