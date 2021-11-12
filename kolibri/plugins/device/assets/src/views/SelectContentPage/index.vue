@@ -29,6 +29,7 @@
         <ChannelContentsSummary
           :channel="transferredChannel"
           :channelOnDevice="channelOnDevice"
+          :freeSpace="availableSpace"
         />
 
         <UiAlert
@@ -46,6 +47,13 @@
         >
           {{ $tr('problemTransferringContents') }}
         </UiAlert>
+        <UiAlert
+          v-show="transferFileSize > availableSpace"
+          :dismissible="false"
+          type="error"
+        >
+          {{ spaceTranslator.$tr('notEnoughSpaceForChannelsWarning') }}
+        </UiAlert>
         <ContentTreeViewer
           v-if="!newVersionAvailable"
           class="block-item"
@@ -59,7 +67,7 @@
       objectType="resource"
       actionType="import"
       :resourceCounts="{ count: transferResourceCount, fileSize: transferFileSize }"
-      :disabled="disableBottomBar || newVersionAvailable"
+      :disabled="disableBottomBar || newVersionAvailable || transferFileSize > availableSpace"
       @clickconfirm="handleClickConfirm"
     />
   </div>
@@ -75,6 +83,7 @@
   import find from 'lodash/find';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { TaskResource } from 'kolibri.resources';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import TaskProgress from '../ManageContentPage/TaskProgress';
   import { ContentWizardErrors, TaskTypes, PageNames } from '../../constants';
   import SelectionBottomBar from '../ManageContentPage/SelectionBottomBar';
@@ -82,6 +91,7 @@
   import { updateTreeViewTopic } from '../../modules/wizard/handlers';
   import { getChannelWithContentSizes } from '../../modules/wizard/apiChannelMetadata';
   import NewChannelVersionBanner from '../ManageContentPage/NewChannelVersionBanner';
+  import AvailableChannelsPage from '../AvailableChannelsPage';
   import ChannelContentsSummary from './ChannelContentsSummary';
   import ContentTreeViewer from './ContentTreeViewer';
   import ContentWizardUiAlert from './ContentWizardUiAlert';
@@ -129,6 +139,7 @@
         'transferredChannel',
         'transferFileSize',
         'transferResourceCount',
+        'availableSpace',
       ]),
       channelId() {
         return this.$route.params.channel_id;
@@ -193,6 +204,9 @@
       this.cancelMetadataDownloadTask();
       this.$store.commit('manageContent/wizard/RESET_NODE_LISTS');
       next();
+    },
+    created() {
+      this.spaceTranslator = crossComponentTranslator(AvailableChannelsPage);
     },
     mounted() {
       let title;
