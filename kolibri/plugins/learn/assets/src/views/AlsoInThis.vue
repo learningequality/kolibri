@@ -177,7 +177,6 @@
         const progress = {
           progress: this.contentNodeProgressMap[node.content_id] || 0,
         };
-        console.log({ ...node, ...progress });
         return { ...node, ...progress };
       },
     },
