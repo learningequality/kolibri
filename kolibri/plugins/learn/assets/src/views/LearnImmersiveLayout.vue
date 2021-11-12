@@ -215,9 +215,7 @@
         return this.content ? this.content.title : '';
       },
       allowMarkComplete() {
-        // TODO: This should be determined by some other means. Content metadata?
-        const DEV_ONLY = process.env.NODE_ENV !== 'production';
-        return DEV_ONLY;
+        return get(this, ['content', 'options', 'completion_criteria', 'learner_managed'], false);
       },
       mappedLearningActivities() {
         let learningActivities = [];
