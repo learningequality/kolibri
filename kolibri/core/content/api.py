@@ -636,10 +636,8 @@ class ContentNodeViewset(BaseContentNodeMixin, ReadOnlyValuesViewset):
         # of this item. Will return this_item parent if nothing found
         this_item = self.get_object()
         topic_only = request.query_params.get("topicOnly")
-        next_item_query = (
-            models.ContentNode.objects.filter(
-                available=True, tree_id=this_item.tree_id, lft__gt=this_item.rght
-            )
+        next_item_query = models.ContentNode.objects.filter(
+            available=True, tree_id=this_item.tree_id, lft__gt=this_item.rght
         )
         if topic_only:
             next_item_query.filter(kind=content_kinds.TOPIC)

@@ -1,6 +1,6 @@
 Feature: Learner view selection of next content
   In a lesson context, the learner needs to see the contents of the lesson
-  when opening the side panel. 
+  when opening the side panel.
   In a regular context, the learner should see content also in the same topic
   and be linked to the next topic when opening the side panel
 
