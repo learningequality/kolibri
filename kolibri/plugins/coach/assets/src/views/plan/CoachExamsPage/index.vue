@@ -26,7 +26,7 @@
             while the above <KSelect> is hidden
         -->
         <div>&nbsp;</div>
-        <KButtonGroup>
+        <KButtonGroup v-if="practiceQuizzesExist">
           <KDropdownMenu
             appearance="raised-button"
             :primary="true"
@@ -36,6 +36,13 @@
             @select="handleSelect"
           />
         </KButtonGroup>
+        <KRouterLink
+          v-else
+          :primary="true"
+          appearance="raised-button"
+          :to="newExamRoute"
+          :text="coachString('newQuizAction')"
+        />
       </div>
       <CoreTable>
         <template #headers>
@@ -141,7 +148,9 @@
 
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { ExamResource } from 'kolibri.resources';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import { ContentNodeResource, ExamResource } from 'kolibri.resources';
+  import { mapGetters } from 'vuex';
   import { PageNames } from '../../../constants';
   import commonCoach from '../../common';
   import PlanHeader from '../../plan/PlanHeader';
@@ -166,9 +175,11 @@
         // },
         showOpenConfirmationModal: false,
         showCloseConfirmationModal: false,
+        practiceQuizzesExist: true,
       };
     },
     computed: {
+      ...mapGetters(['getChannels']),
       sortedExams() {
         return this._.orderBy(this.exams, ['date_created'], ['desc']);
       },
@@ -207,12 +218,43 @@
         // }
         return this.sortedExams;
       },
+      newExamRoute() {
+        return { name: PageNames.EXAM_CREATION_ROOT };
+      },
       dropdownOptions() {
         return [
           { label: this.$tr('newQuiz'), value: 'MAKE_NEW_QUIZ' },
           { label: this.$tr('selectQuiz'), value: 'SELECT_QUIZ' },
         ];
       },
+    },
+    mounted() {
+      this.$nextTick(() => {
+        let channelIds = this.getChannels.map(channel => channel.id);
+        let array = [];
+
+        let results = channelIds.map(id => {
+          return ContentNodeResource.fetchCollection({
+            getParams: {
+              parent: id,
+              kind_in: [ContentNodeKinds.TOPIC, ContentNodeKinds.EXERCISE],
+              contains_quiz: true,
+            },
+          }).then(results => {
+            if (results.length !== 0) {
+              array.push(results);
+            }
+          });
+        });
+
+        Promise.all(results)
+          .then(() => {
+            if (array.length === 0) {
+              this.practiceQuizzesExist = false;
+            }
+          })
+          .catch(err => console.log(err));
+      });
     },
     methods: {
       handleOpenQuiz(quizId) {
