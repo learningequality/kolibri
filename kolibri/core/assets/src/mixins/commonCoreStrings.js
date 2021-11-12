@@ -1033,20 +1033,19 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   scoreLabel: {
     message: 'Score',
     context:
-      "In the 'Reports' tab, coaches can see the score that each learner has obtained on a quiz.\n\nThis is represented as a percentage and indicates the questions they've answered correctly.",
+      'Score obtained by a learner on a quiz, indicated by the percentage of correct answers given.',
   },
   timeSpentLabel: {
     message: 'Time spent',
-    context:
-      'Column header indicating the time a learner has taken on a specific learning resource. The time spent could be, for example, 2 hours or 15 minutes.',
+    context: 'The time a learner has spent on a quiz.',
   },
   practiceQuizReportTitle: {
     message: 'Report for {quizTitle}',
-    context: 'Title of the independent practice quiz',
+    context: 'Label for a report corresponding to a practice quiz',
   },
   practiceAgainButton: {
     message: 'Practice again',
-    context: 'Label for a button used to retake the same independent practice quiz again',
+    context: 'Label for a button used to retake the quiz',
   },
   statusLabel: {
     message: 'Status',
@@ -1055,8 +1054,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
   attemptedLabel: {
     message: 'Attempted',
-    context:
-      'A number (time) that indicates the when the learner last took this independent practice quiz',
+    context: 'This verb will be used to indicate when a learner last attempted a quiz',
   },
   bestScoreLabel: {
     message: 'Best score',
@@ -1066,51 +1064,30 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   bestScoreTimeLabel: {
     message: 'Best score time',
     context:
-      'When there have been multiple attempts on a practice quiz, indicates to learner the length of time taken for the attempt with the highest score',
+      'When there have been multiple attempts on a practice quiz, it indicates to the learner how long the attempt with the best score has taken',
   },
   attemptDropdownLabel: {
     message: 'Attempt',
     context:
-      'Label for the dropdown to choose one of their five most recent attempts at the practice quiz',
-  },
-  answerLogCorrectLabel: {
-    message: 'You answered this correctly on the previous attempt',
-    context:
-      'Label that indicates to learner they answered the question correctly the previous time they took the practice quiz',
-  },
-  answerLogIncorrectLabel: {
-    message: 'You also answered this incorrectly on the previous attempt',
-    context:
-      'Label that indicates to learner they answered this question incorrectly this attempt and also the attempt before this',
-  },
-  answerLogImprovedLabel: {
-    message: 'You improved your incorrect answer on the previous attempt',
-    context:
-      'Label that indicates to learner they got the question wrong the previous time, but got it correctly on this attempt',
-  },
-  practiceQuizReportImprovedLabel: {
-    message:
-      'You improved at {value, number, integer} {value, plural, one {question} other {questions}}',
-    context:
-      'Indicates to learner how many questions they answered correctly compared to the most recent attempt',
+      'Label in the dropdown menu where one can choose an attempt from their five most recent attempts at a practice quiz',
   },
   practiceQuizReportFasterSuggestedLabel: {
     message: '{value, number, integer} minutes faster than the suggested time',
-    context: 'Indicates to learner how many minutes faster they were than the suggested time',
+    context: 'Indicates to the learner how many minutes faster they were than the suggested time',
   },
   practiceQuizReportSlowerSuggestedLabel: {
     message: '{value, number, integer} minutes slower than the suggested time',
-    context: 'Indicates to learner how many minutes slower they were than the suggested time',
+    context: 'Indicates to the learner how many minutes slower they were than the suggested time',
   },
   practiceQuizReportFasterTimeLabel: {
     message: '{value, number, integer} minutes faster than the previous attempt',
     context:
-      'Indicates to learner how many minutes faster they were during this attempt than the previous attempt',
+      'Indicates to the learner how much faster they were on this attempt compared to the previous one',
   },
   practiceQuizReportSlowerTimeLabel: {
     message: '{value, number, integer} minutes slower than the previous attempt',
     context:
-      'Indicates to learner how many minutes slower they were during this attempt than the previous attempt',
+      'Indicates to the learner how much slower they were on this attempt compared to the previous one',
   },
 });
 
