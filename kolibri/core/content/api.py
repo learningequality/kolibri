@@ -631,15 +631,19 @@ class ContentNodeViewset(BaseContentNodeMixin, ReadOnlyValuesViewset):
 
     @detail_route(methods=["get"])
     def next_content(self, request, **kwargs):
-        # retrieve the "next" content node, according to depth-first tree traversal
+        # retrieve the "next" content node, according to depth-first tree traversal.
+        # topicOnly flag set to true will find the next topic node after the parent
+        # of this item. Will return this_item parent if nothing found
         this_item = self.get_object()
-        next_item = (
-            models.ContentNode.objects.filter(
-                available=True, tree_id=this_item.tree_id, lft__gt=this_item.rght
-            )
-            .order_by("lft")
-            .first()
+        topic_only = request.query_params.get("topicOnly")
+        next_item_query = models.ContentNode.objects.filter(
+            available=True, tree_id=this_item.tree_id, lft__gt=this_item.rght
         )
+        if topic_only:
+            next_item_query.filter(kind=content_kinds.TOPIC)
+
+        next_item = next_item_query.order_by("lft").first()
+
         if not next_item:
             next_item = this_item.get_root()
 

@@ -111,12 +111,11 @@
       },
     },
     $trs: {
-      /*
+      /* eslint-disable kolibri/vue-no-unused-translations */
       topicHeader: {
         message: 'Also in this folder',
         context: 'Title of the panel with all topic contents. ',
       },
-      */
     },
   };
 
