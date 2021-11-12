@@ -28,8 +28,10 @@
   import flatMap from 'lodash/flatMap';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
+  import { AllCategories } from 'kolibri.coreVue.vuex.constants';
   import useChannels from '../composables/useChannels';
   import useLanguages from '../composables/useLanguages';
+  import EmbeddedSidePanel from './EmbeddedSidePanel';
 
   export default {
     name: 'SearchChips',
@@ -70,6 +72,7 @@
     created() {
       const LibraryPageComponent = require('./LibraryPage').default;
       this.translator = crossComponentTranslator(LibraryPageComponent);
+      this.allCategoriesTranslator = crossComponentTranslator(EmbeddedSidePanel);
     },
     methods: {
       clearAllString() {
@@ -81,6 +84,9 @@
         }
         if (key === 'channels') {
           return this.channelsMap[value].name;
+        }
+        if (key === 'categories' && value === AllCategories) {
+          return this.allCategoriesTranslator.$tr('allCategories'); // eslint-disable-line kolibri/vue-no-undefined-string-uses
         }
         return this.coreString(value);
       },
