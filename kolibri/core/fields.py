@@ -103,7 +103,7 @@ class JSONField(JSONFieldBase):
     def from_db_value(self, value, expression, connection, context):
         if isinstance(value, string_types):
             try:
-                return json.loads(value)
+                return json.loads(value, **self.load_kwargs)
             except ValueError:
                 pass
 
@@ -112,7 +112,7 @@ class JSONField(JSONFieldBase):
     def to_python(self, value):
         if isinstance(value, string_types):
             try:
-                return json.loads(value)
+                return json.loads(value, **self.load_kwargs)
             except ValueError:
                 pass
 
