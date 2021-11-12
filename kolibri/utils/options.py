@@ -498,6 +498,14 @@ base_option_spec = {
                 data that is returned to our telemetry server.
             """,
         },
+        "MINIMUM_DISK_SPACE": {
+            "type": "integer",
+            "default": 250000000,
+            "description": """
+                The minimum free disk space in bytes that Kolibri should try to maintain on the device. This will
+                be used as the floor value to prevent Kolibri completely filling the disk during file import.
+            """,
+        },
     },
     "Python": {
         "PICKLE_PROTOCOL": {

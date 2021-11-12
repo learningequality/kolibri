@@ -36,6 +36,7 @@ from kolibri.core.device.models import DeviceSettings
 from kolibri.core.device.models import UserSyncStatus
 from kolibri.core.public.constants import user_sync_statuses
 from kolibri.core.public.constants.user_sync_options import DELAYED_SYNC
+from kolibri.utils.tests.helpers import override_option
 
 
 DUMMY_PASSWORD = "password"
@@ -280,6 +281,7 @@ class DevicePermissionsTestCase(APITestCase):
         self.assertEqual(response.status_code, 403)
 
 
+@override_option("Deployment", "MINIMUM_DISK_SPACE", 0)
 class FreeSpaceTestCase(APITestCase):
     def setUp(self):
         provision_device()
