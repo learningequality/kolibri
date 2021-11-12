@@ -3,6 +3,7 @@
   <div v-if="contentNode">
     <div class="learning-activity">
       <span
+        v-if="!labelAfter"
         class="label"
         data-test="label"
       >
@@ -16,6 +17,13 @@
           :kind="learningActivity"
           :style="{ fontSize: '18px' }"
         />
+        <span
+          v-if="labelAfter"
+          class="label"
+          data-test="label"
+        >
+          {{ label }}
+        </span>
       </template>
     </div>
     <div
@@ -65,6 +73,12 @@
         required: true,
       },
       hideDuration: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
+      // allows for switching the order of the label and the icon
+      labelAfter: {
         type: Boolean,
         required: false,
         default: false,
@@ -157,6 +171,7 @@
 
     .label {
       padding-right: 4px;
+      padding-left: 4px;
     }
 
     .icon {
