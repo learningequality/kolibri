@@ -100,7 +100,7 @@
         class="section"
       />
       <div
-        v-if="value.learner_needs && value.learner_needs.length"
+        v-if="Object.keys(resourcesNeededList).length"
         class="section"
       >
         <div
