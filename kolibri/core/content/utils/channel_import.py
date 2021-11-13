@@ -18,6 +18,7 @@ from .paths import get_content_database_file_path
 from .sqlalchemybridge import Bridge
 from .sqlalchemybridge import ClassNotFoundError
 from kolibri.core.content.apps import KolibriContentConfig
+from kolibri.core.content.constants.kind_to_learningactivity import kind_activity_map
 from kolibri.core.content.constants.schema_versions import CONTENT_SCHEMA_VERSION
 from kolibri.core.content.constants.schema_versions import NO_VERSION
 from kolibri.core.content.constants.schema_versions import V020BETA1
@@ -26,6 +27,7 @@ from kolibri.core.content.constants.schema_versions import VERSION_1
 from kolibri.core.content.constants.schema_versions import VERSION_2
 from kolibri.core.content.constants.schema_versions import VERSION_3
 from kolibri.core.content.constants.schema_versions import VERSION_4
+from kolibri.core.content.constants.schema_versions import VERSION_5
 from kolibri.core.content.legacy_models import License
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
@@ -33,6 +35,8 @@ from kolibri.core.content.models import ContentTag
 from kolibri.core.content.models import File
 from kolibri.core.content.models import Language
 from kolibri.core.content.models import LocalFile
+from kolibri.core.content.utils.annotation import set_channel_ancestors
+from kolibri.core.content.utils.search import annotate_label_bitmasks
 from kolibri.utils.time_utils import local_now
 
 logger = logging.getLogger(__name__)
@@ -837,6 +841,19 @@ class ChannelImport(object):
                 pass
             self._sqlite_db_attached = False
 
+    def execute_post_operations(self, model, post_operations):
+        DestinationTable = self.destination.get_table(model)
+        for operation in post_operations:
+            try:
+                handler = getattr(self, operation)
+                handler(DestinationTable)
+            except AttributeError:
+                raise AttributeError(
+                    "Post operation {} specified for model {} but none found on class".format(
+                        operation, model
+                    )
+                )
+
     def import_channel_data(self):
 
         logger.debug("Beginning channel metadata import")
@@ -855,6 +872,7 @@ class ChannelImport(object):
                     table_mapper = self.generate_table_mapper(mapping.get("per_table"))
                     logger.info("Importing {model} data".format(model=model.__name__))
                     self.table_import(model, row_mapper, table_mapper)
+                    self.execute_post_operations(model, mapping.get("post", []))
                     logger.debug(
                         "{model} data imported after {seconds} seconds".format(
                             model=model.__name__, seconds=time.time() - model_start
@@ -887,7 +905,33 @@ class ChannelImport(object):
         self.destination.end()
 
 
-class NoVersionChannelImport(ChannelImport):
+class NoLearningActivitiesChannelImport(ChannelImport):
+    """
+    Class defining the schema mapping for importing content databases before learning activities metadata was added
+    """
+
+    schema_mapping = {
+        ContentNode: {
+            "per_row": {
+                "tree_id": "available_tree_id",
+                "available": "default_to_not_available",
+            },
+            "post": ["set_learning_activities_from_kind"],
+        },
+        LocalFile: {"per_row": {"available": "default_to_not_available"}},
+        File: {"per_row": {"available": "default_to_not_available"}},
+    }
+
+    def set_learning_activities_from_kind(self, ContentNodeTable):
+        for kind, la in kind_activity_map.items():
+            self.destination.execute(
+                ContentNodeTable.update()
+                .where(ContentNodeTable.c.kind == kind)
+                .values(learning_activities=la)
+            )
+
+
+class NoVersionChannelImport(NoLearningActivitiesChannelImport):
     """
     Class defining the schema mapping for importing old content databases (i.e. ones produced before the
     ChannelImport machinery was implemented). The schema mapping below defines how to bring in information
@@ -909,7 +953,8 @@ class NoVersionChannelImport(ChannelImport):
                 "available": "get_none",
                 "license_name": "get_license_name",
                 "license_description": "get_license_description",
-            }
+            },
+            "post": ["set_learning_activities_from_kind"],
         },
         File: {
             "per_row": {
@@ -995,10 +1040,11 @@ mappings = {
     V020BETA1: NoVersionChannelImport,
     V040BETA3: NoVersionChannelImport,
     NO_VERSION: NoVersionChannelImport,
-    VERSION_1: ChannelImport,
-    VERSION_2: ChannelImport,
-    VERSION_3: ChannelImport,
-    VERSION_4: ChannelImport,
+    VERSION_1: NoLearningActivitiesChannelImport,
+    VERSION_2: NoLearningActivitiesChannelImport,
+    VERSION_3: NoLearningActivitiesChannelImport,
+    VERSION_4: NoLearningActivitiesChannelImport,
+    VERSION_5: ChannelImport,
 }
 
 
@@ -1073,6 +1119,10 @@ def import_channel_from_local_db(channel_id, cancel_check=None):
         ContentNode.objects.create(
             id=node_id, title=channel.name, content_id=node_id, channel_id=channel_id
         )
+
+    annotate_label_bitmasks(ContentNode.objects.filter(channel_id=channel_id))
+    set_channel_ancestors(channel_id)
+
     channel.save()
 
     logger.info("Channel {} successfully imported into the database".format(channel_id))

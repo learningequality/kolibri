@@ -1,38 +1,27 @@
 import debounce from 'lodash/debounce';
+import isNumber from 'lodash/isNumber';
+import isPlainObject from 'lodash/isPlainObject';
+import isUndefined from 'lodash/isUndefined';
 import pick from 'lodash/pick';
 import client from 'kolibri.client';
 import logger from 'kolibri.lib.logging';
 import {
   FacilityResource,
   FacilityDatasetResource,
-  ContentSessionLogResource,
-  ContentSummaryLogResource,
-  MasteryLogResource,
   ChannelResource,
-  AttemptLogResource,
   UserProgressResource,
   UserSyncStatusResource,
   PingbackNotificationResource,
   PingbackNotificationDismissedResource,
 } from 'kolibri.resources';
-import { now, setServerTime } from 'kolibri.utils.serverClock';
+import { setServerTime } from 'kolibri.utils.serverClock';
 import urls from 'kolibri.urls';
-import ConditionalPromise from 'kolibri.lib.conditionalPromise';
-import { redirectBrowser } from 'kolibri.utils.redirectBrowser';
+import redirectBrowser from 'kolibri.utils.redirectBrowser';
 import CatchErrors from 'kolibri.utils.CatchErrors';
 import Vue from 'kolibri.lib.vue';
 import Lockr from 'lockr';
 import { baseSessionState } from '../session';
-import intervalTimer from '../../../timer';
-import {
-  MasteryLoggingMap,
-  AttemptLoggingMap,
-  InteractionTypes,
-  LoginErrors,
-  ERROR_CONSTANTS,
-  UPDATE_MODAL_DISMISSED,
-} from '../../../constants';
-import samePageCheckGenerator from '../../../utils/samePageCheckGenerator';
+import { LoginErrors, ERROR_CONSTANTS, UPDATE_MODAL_DISMISSED } from '../../../constants';
 import { browser, os } from '../../../utils/browserInfo';
 import errorCodes from './../../../disconnectionErrorCodes.js';
 
@@ -47,92 +36,6 @@ const timeThreshold = 120; // Update logs if 120 seconds have passed since last 
  * The methods below help map data from
  * the API to state in the Vuex store
  */
-
-function _contentSummaryLoggingState(data) {
-  let extra_fields = data.extra_fields;
-  if (!extra_fields) {
-    extra_fields = {};
-  } else if (typeof extra_fields === 'string') {
-    extra_fields = JSON.parse(extra_fields);
-  }
-  return {
-    id: data.id,
-    start_timestamp: data.start_timestamp,
-    completion_timestamp: data.completion_timestamp,
-    end_timestamp: data.end_timestamp,
-    progress: data.progress,
-    time_spent: data.time_spent,
-    extra_fields: extra_fields,
-    time_spent_before_current_session: data.time_spent,
-    progress_before_current_session: data.progress,
-  };
-}
-
-function _contentSessionLoggingState(data) {
-  return {
-    id: data.id,
-    start_timestamp: data.start_timestamp,
-    end_timestamp: data.end_timestamp,
-    time_spent: data.time_spent,
-    extra_fields: data.extra_fields,
-    total_time_at_last_save: data.time_spent,
-    progress: data.progress,
-    progress_at_last_save: data.progress,
-  };
-}
-
-function _contentSummaryModel(store) {
-  const summaryLog = store.getters.logging.summary;
-  return {
-    user: store.getters.session.user_id,
-    start_timestamp: summaryLog.start_timestamp,
-    end_timestamp: summaryLog.end_timestamp,
-    completion_timestamp: summaryLog.completion_timestamp,
-    progress: summaryLog.progress,
-    time_spent: summaryLog.time_spent,
-    extra_fields: summaryLog.extra_fields,
-  };
-}
-
-function _contentSessionModel(store) {
-  const sessionLog = store.getters.logging.session;
-  return {
-    start_timestamp: sessionLog.start_timestamp,
-    end_timestamp: sessionLog.end_timestamp,
-    time_spent: sessionLog.time_spent,
-    progress: sessionLog.progress,
-    extra_fields: sessionLog.extra_fields,
-    user: store.getters.session.user_id,
-  };
-}
-
-function _masteryLogModel(store) {
-  const mapping = {};
-  const masteryLog = store.getters.logging.mastery;
-  Object.keys(MasteryLoggingMap).forEach(key => {
-    mapping[MasteryLoggingMap[key]] = masteryLog[key];
-  });
-  mapping.summarylog = store.getters.logging.summary.id;
-  return mapping;
-}
-
-function _attemptLoggingState(data) {
-  const state = {};
-  Object.keys(AttemptLoggingMap).forEach(key => {
-    state[key] = data[AttemptLoggingMap[key]];
-  });
-  return state;
-}
-
-function _attemptLogModel(store) {
-  const mapping = {};
-  const attemptLog = store.getters.logging.attempt;
-  Object.keys(AttemptLoggingMap).forEach(key => {
-    mapping[AttemptLoggingMap[key]] = attemptLog[key];
-  });
-  mapping.masterylog = store.getters.logging.mastery.id;
-  return mapping;
-}
 
 function _channelListState(data) {
   return data.map(channel => ({
@@ -367,115 +270,310 @@ export function getFacilityConfig(store, facilityId) {
   });
 }
 
+let lastElapsedTimeCheck;
+let timeCheckIntervalTimer;
+
+function getNewTimeElapsed() {
+  // Timer has not been started
+  if (!lastElapsedTimeCheck) {
+    return 0;
+  }
+  const currentTime = new Date();
+  const timeElapsed = currentTime - lastElapsedTimeCheck;
+  lastElapsedTimeCheck = currentTime;
+  // Some browsers entirely suspend code execution in background tabs,
+  // which can lead to unreliable timing if a tab has been in the background
+  // if the time elasped is significantly longer than the interval that we are
+  // checking this at, we should discard the result.
+  if (timeElapsed > intervalTime * 10) {
+    return 0;
+  }
+  // Return a time in seconds, rather than milliseconds.
+  return timeElapsed / 1000;
+}
+
+function clearTrackingInterval() {
+  clearInterval(timeCheckIntervalTimer);
+  timeCheckIntervalTimer = null;
+  lastElapsedTimeCheck = null;
+}
+
 /**
- * Create models to store logging information
+ * Initialize a content session for progress tracking
  * To be called on page load for content renderers
  */
-export function initContentSession(store, { channelId, contentId, contentKind }) {
+export function initContentSession(store, { nodeId, lessonId, quizId } = {}) {
+  const data = {};
+  if (!nodeId && !quizId) {
+    throw TypeError('Must define either nodeId or quizId');
+  }
+  if ((nodeId || lessonId) && quizId) {
+    throw TypeError('quizId must be the only defined parameter if defined');
+  }
+  let sessionStarted = false;
+
+  if (quizId) {
+    sessionStarted = store.state.logging.context && store.state.logging.context.quiz_id === quizId;
+    data.quiz_id = quizId;
+  }
+
+  if (nodeId) {
+    sessionStarted = store.state.logging.context && store.state.logging.context.node_id === nodeId;
+    data.node_id = nodeId;
+    if (lessonId) {
+      sessionStarted =
+        sessionStarted &&
+        store.state.logging.context &&
+        store.state.logging.context.lesson_id === lessonId;
+      data.lesson_id = lessonId;
+    }
+  }
+
+  if (sessionStarted) {
+    return;
+  }
+
   // Always clear the logging state when we init the content session,
   // to avoid state pollution.
   store.commit('SET_EMPTY_LOGGING_STATE');
+  // Clear any previous interval tracking that has been started
+  clearTrackingInterval();
 
-  const promises = [];
+  return client({
+    method: 'post',
+    url: urls['kolibri:core:trackprogress-list'](),
+    data: data,
+  }).then(response => {
+    store.commit('INITIALIZE_LOGGING_STATE', response.data);
+  });
+}
 
-  /* Create summary log iff user exists */
-  if (store.getters.session.user_id) {
-    /* Fetch collection matching content and user */
-    const summaryCollectionPromise = ContentSummaryLogResource.fetchCollection({
-      getParams: {
-        content_id: contentId,
-        user_id: store.getters.session.user_id,
-      },
-      force: true,
-    });
+function _zeroToOne(num) {
+  return Math.min(1, Math.max(num || 0, 0));
+}
 
-    // ensure the store has finished update for summaryLog.
-    const summaryPromise = new Promise(resolve => {
-      summaryCollectionPromise.then(summary => {
-        /* If a summary model exists, map that to the state */
-        if (summary.length > 0) {
-          store.commit('SET_LOGGING_SUMMARY_STATE', _contentSummaryLoggingState(summary[0]));
-          if (summary[0].currentmasterylog) {
-            // If a mastery model has been sent along with the summary log payload,
-            // then bootstrap that data into the MasteryLog resource. Cheeky!
-            const masteryModel = MasteryLogResource.createModel(summary[0].currentmasterylog);
-            masteryModel.synced = true;
+function makeSessionUpdateRequest(store, data) {
+  const wasComplete = store.state.logging.complete;
+  return client({
+    method: 'put',
+    url: urls['kolibri:core:trackprogress-detail'](store.state.logging.session_id),
+    data,
+  }).then(response => {
+    if (response.data.attempts) {
+      for (let attempt of response.data.attempts) {
+        store.commit('UPDATE_ATTEMPT', attempt);
+      }
+    }
+    if (response.data.complete) {
+      store.commit('SET_COMPLETE');
+      if (store.getters.isUserLoggedIn && !wasComplete) {
+        store.commit('INCREMENT_TOTAL_PROGRESS', 1);
+      }
+    }
+    return response.data;
+  });
+}
 
-            store.commit('SET_LOGGING_MASTERY_STATE', summary[0].currentmasterylog);
-          }
-          resolve();
-        } else {
-          /* If a summary model does not exist, create default state */
-          store.commit(
-            'SET_LOGGING_SUMMARY_STATE',
-            _contentSummaryLoggingState({
-              id: null,
-              start_timestamp: now(),
-              completion_timestamp: null,
-              end_timestamp: now(),
-              progress: 0,
-              time_spent: 0,
-              extra_fields: {},
-              time_spent_before_current_session: 0,
-              progress_before_current_session: 0,
-            })
-          );
+const maxRetries = 5;
 
-          const summaryData = Object.assign(
-            {
-              channel_id: channelId,
-              content_id: contentId,
-              kind: contentKind,
-            },
-            _contentSummaryModel(store)
-          );
+// Function to delay rejection to allow delayed retry behaviour
+function rejectDelay(reason, retryDelay = 5000) {
+  return new Promise(function(resolve, reject) {
+    setTimeout(reject.bind(null, reason), retryDelay);
+  });
+}
 
-          /* Save a new summary model and set id on state */
-          ContentSummaryLogResource.saveModel({ data: summaryData }).then(newSummary => {
-            store.commit('SET_LOGGING_SUMMARY_ID', newSummary.id);
-            resolve();
+// Start the savingPromise as a resolved promise
+// so we can always just chain from this promise for subsequent saves.
+let savingPromise = Promise.resolve();
+
+let updateContentSessionResolveRejectStack = [];
+let updateContentSessionTimeout;
+
+function immediatelyUpdateContentSession(store) {
+  // Once this timeout has been executed, we can reset the global timeout
+  // to null, as we are now actually invoking the debounced function.
+  updateContentSessionTimeout = null;
+
+  const progress_delta = store.state.logging.progress_delta;
+  const time_spent_delta = store.state.logging.time_spent_delta;
+  const extra_fields = store.state.logging.extra_fields;
+  const extra_fields_dirty_bit = store.state.logging.extra_fields_dirty_bit;
+  const progress = store.state.logging.progress;
+  const unsavedInteractions = store.state.logging.unsavedInteractions;
+
+  if (
+    // Always update if there's an attempt that hasn't got an id yet, or if there have been
+    // at least 3 additional interactions.
+    (unsavedInteractions.length &&
+      (unsavedInteractions.some(r => !r.id) || unsavedInteractions.length > 2)) ||
+    progress_delta >= progressThreshold ||
+    (progress_delta && progress >= 1) ||
+    time_spent_delta >= timeThreshold ||
+    extra_fields_dirty_bit
+  ) {
+    // Clear the temporary state that we've
+    // picked up to save to the backend.
+    store.commit('LOGGING_SAVING');
+    const data = {};
+    if (progress_delta) {
+      data.progress_delta = progress_delta;
+    }
+    if (time_spent_delta) {
+      data.time_spent_delta = time_spent_delta;
+    }
+    if (unsavedInteractions.length) {
+      data.interactions = unsavedInteractions;
+    }
+    if (extra_fields_dirty_bit) {
+      data.extra_fields = extra_fields;
+    }
+    // Don't try to make a new save until the previous save
+    // has completed.
+    savingPromise = savingPromise.then(() => {
+      // Create an initial rejection so that we can chain consistently
+      // in the retry loop.
+      let attempt = Promise.reject({ response: { status: 503 } });
+      for (var i = 0; i < maxRetries; i++) {
+        // Catch any previous error and then try to make the session update again
+        attempt = attempt
+          .catch(err => {
+            if (err && err.response && err.response.status === 503) {
+              return makeSessionUpdateRequest(store, data);
+            }
+            return Promise.reject(err);
+          })
+          .catch(err => {
+            // Only try to handle 503 status codes here, as otherwise we might be continually
+            // retrying the server when it is rejecting the request for valid reasons.
+            if (err && err.response && err.response.status === 503) {
+              // Defer to the server's Retry-After header if it is set.
+              const retryAfter = (err.response.headers || {})['retry-after'];
+              // retry-after header is in seconds, we need a value in milliseconds.
+              return rejectDelay(err, retryAfter ? retryAfter * 1000 : retryAfter);
+            }
+            return Promise.reject(err);
           });
-        }
-      });
+      }
+      return attempt.catch(err => store.dispatch('handleApiError', err));
     });
-    promises.push(summaryPromise);
+  }
+  return savingPromise
+    .then(result => {
+      // If it is successful call all of the resolve functions that we have stored
+      // from all the Promises that have been returned while this specific debounce
+      // has been active.
+      for (let [resolve] of updateContentSessionResolveRejectStack) {
+        resolve(result);
+      }
+      // Reset the stack for resolve/reject functions, so that future invocations
+      // do not call these now consumed functions.
+      updateContentSessionResolveRejectStack = [];
+    })
+    .catch(err => {
+      // If there is an error call reject for all previously returned promises.
+      for (let [, reject] of updateContentSessionResolveRejectStack) {
+        reject(err);
+      }
+      // Likewise reset the stack.
+      updateContentSessionResolveRejectStack = [];
+    });
+}
+
+// Set the debounce artificially short in tests to prevent slowdowns.
+const updateContentSessionDebounceTime = process.env.NODE_ENV === 'test' ? 1 : 2000;
+
+/**
+ * Update a content session for progress tracking
+ */
+export function updateContentSession(
+  store,
+  { progressDelta, progress, contentState, interaction, immediate = false } = {}
+) {
+  if (store.state.logging.session_id === null) {
+    throw ReferenceError('Cannot update a content session before one has been initialized');
+  }
+  if (!isUndefined(progressDelta) && !isUndefined(progress)) {
+    throw TypeError('Must only specify either progressDelta or progress');
+  }
+  if (!isUndefined(progress)) {
+    if (!isNumber(progress)) {
+      throw TypeError('progress must be a number');
+    }
+    progress = _zeroToOne(progress);
+    store.commit('SET_LOGGING_PROGRESS', progress);
+  }
+  if (!isUndefined(progressDelta)) {
+    if (!isNumber(progressDelta)) {
+      throw TypeError('progressDelta must be a number');
+    }
+    progressDelta = _zeroToOne(progressDelta);
+    store.commit('ADD_LOGGING_PROGRESS', progressDelta);
+  }
+  if (!isUndefined(contentState)) {
+    if (!isPlainObject(contentState)) {
+      throw TypeError('contentState must be an object');
+    }
+    store.commit('SET_LOGGING_CONTENT_STATE', contentState);
+  }
+  if (!isUndefined(interaction)) {
+    if (!isPlainObject(interaction)) {
+      throw TypeError('interaction must be an object');
+    }
+    store.commit('ADD_UNSAVED_INTERACTION', interaction);
+    store.commit('UPDATE_ATTEMPT', interaction);
+  }
+  // Reset the elapsed time in the timer
+  const elapsedTime = getNewTimeElapsed();
+  // Discard the time that has passed if the page is not visible.
+  if (store.state.pageVisible && elapsedTime) {
+    /* Update the logging state with new timing information */
+    store.commit('UPDATE_LOGGING_TIME', elapsedTime);
   }
 
-  /* Set session log state to default */
-  store.commit(
-    'SET_LOGGING_SESSION_STATE',
-    _contentSessionLoggingState({
-      id: null,
-      start_timestamp: now(),
-      end_timestamp: now(),
-      time_spent: 0,
-      progress: 0,
-      extra_fields: {},
-    })
-  );
-
-  const sessionData = Object.assign(
-    {
-      channel_id: channelId,
-      content_id: contentId,
-      kind: contentKind,
-    },
-    _contentSessionModel(store)
-  );
-
-  /* Save a new session model and set id on state */
-  const sessionModelPromise = ContentSessionLogResource.saveModel({ data: sessionData });
-
-  // ensure the store has finished update for sessionLog.
-  const sessionPromise = new Promise(resolve => {
-    sessionModelPromise.then(newSession => {
-      store.commit('SET_LOGGING_SESSION_ID', newSession.id);
-      resolve();
-    });
+  immediate = (!isUndefined(interaction) && !interaction.id) || immediate;
+  // Logic for promise returning debounce vendored and modified from:
+  // https://github.com/sindresorhus/p-debounce/blob/main/index.js
+  // Return a promise that will consistently resolve when this debounced
+  // function invocation is completed.
+  return new Promise((resolve, reject) => {
+    // Clear any current timeouts, so that this invocation takes precedence
+    // Any subsequent calls will then also revoke this timeout.
+    clearTimeout(updateContentSessionTimeout);
+    // Add the resolve and reject handlers for this promise to the stack here.
+    updateContentSessionResolveRejectStack.push([resolve, reject]);
+    if (immediate) {
+      // If immediate invocation is required immediately call the handler
+      // rather than using a timeout delay.
+      immediatelyUpdateContentSession(store);
+    } else {
+      // Otherwise update the timeout to this invocation.
+      updateContentSessionTimeout = setTimeout(
+        () => immediatelyUpdateContentSession(store),
+        updateContentSessionDebounceTime
+      );
+    }
   });
-  promises.push(sessionPromise);
+}
 
-  return Promise.all(promises);
+/**
+ * Start interval timer and set start time
+ * @param {int} interval
+ */
+export function startTrackingProgress(store) {
+  timeCheckIntervalTimer = setInterval(() => {
+    updateContentSession(store);
+  }, intervalTime);
+  lastElapsedTimeCheck = new Date();
+}
+
+/**
+ * Stop interval timer and update latest times
+ * Must be called after startTrackingProgress
+ */
+export function stopTrackingProgress(store) {
+  clearTrackingInterval();
+  updateContentSession(store, { immediate: true });
 }
 
 export function setChannelInfo(store) {
@@ -491,54 +589,6 @@ export function setChannelInfo(store) {
   );
 }
 
-function saveContentSessionLog(store, id, data) {
-  ContentSessionLogResource.saveModel({ id, data }).catch(error => {
-    handleApiError(store, error);
-  });
-}
-
-const debouncedSaveContentSessionLog = debounce(saveContentSessionLog, 1000, { maxWait: 5000 });
-
-function saveContentSummaryLog(store, id, data) {
-  ContentSummaryLogResource.saveModel({ id, data }).catch(error => {
-    handleApiError(store, error);
-  });
-}
-
-const debouncedSaveContentSummaryLog = debounce(saveContentSummaryLog, 1000, { maxWait: 5000 });
-
-/**
- * Do a PATCH to update existing logging models
- * Must be called after initContentSession
- */
-export function saveLogs(store) {
-  /* Create aliases for logs */
-  const summaryLog = store.getters.logging.summary;
-  const sessionLog = store.getters.logging.session;
-
-  /* Reset values used for threshold checking */
-  store.commit('SET_LOGGING_THRESHOLD_CHECKS', {
-    progress: sessionLog.progress,
-    timeSpent: sessionLog.time_spent,
-  });
-
-  /* If a session model exists, save it with updated values */
-  if (sessionLog.id) {
-    const contentSession = _contentSessionModel(store);
-    // Get all data from the vuex store synchronously, but then debounce the save to
-    // prevent repeated saves to the server.
-    debouncedSaveContentSessionLog(store, sessionLog.id, contentSession);
-  }
-
-  /* If a summary model exists, save it with updated values */
-  if (summaryLog.id) {
-    const contentSummary = _contentSummaryModel(store);
-    // Get all data from the vuex store synchronously, but then debounce the save to
-    // prevent repeated saves to the server.
-    debouncedSaveContentSummaryLog(store, summaryLog.id, contentSummary);
-  }
-}
-
 export function fetchPoints(store) {
   const { isUserLoggedIn, currentUserId, totalProgress } = store.getters;
   if (isUserLoggedIn && totalProgress === null) {
@@ -546,341 +596,6 @@ export function fetchPoints(store) {
       store.commit('SET_TOTAL_PROGRESS', progress.progress);
     });
   }
-}
-
-/**
- * Helper function to handle common functionality between updateProgress and updateExerciseProgress
- * @param  {VuexStore} store        The currently active Vuex store
- * @param  {Number} sessionProgress The progress made in this session
- * @param  {[type]} summaryProgress The progress made on this content overall
- * @param {boolean} forceSave       Force saving of logs?
- */
-function _updateProgress(store, sessionProgress, summaryProgress, forceSave = false) {
-  /* Create aliases for logs */
-  const summaryLog = store.getters.logging.summary;
-  const sessionLog = store.getters.logging.session;
-
-  /* Store original value to check if 100% reached this iteration */
-  const originalProgress = summaryLog.progress;
-
-  /* Update the logging state with new progress information */
-  store.commit('SET_LOGGING_PROGRESS', { sessionProgress, summaryProgress });
-
-  /* Mark completion time if 100% progress reached
-   * Also, increase totalProgress model to avoid a refetch from server
-   */
-  const completedContent = originalProgress < 1 && summaryProgress === 1;
-  const { isUserLoggedIn } = store.getters;
-  if (completedContent) {
-    store.commit('SET_LOGGING_COMPLETION_TIME', now());
-    if (isUserLoggedIn) {
-      store.commit('INCREMENT_TOTAL_PROGRESS', 1);
-    }
-  }
-  /* Determine if progress threshold has been met */
-  const progressThresholdMet =
-    sessionProgress - sessionLog.progress_at_last_save >= progressThreshold;
-
-  /* Save models if needed */
-  if (forceSave || completedContent || progressThresholdMet) {
-    if (store.state.pageVisible) {
-      // Only update logs if page is currently visible, prevent background tabs
-      // from generating server load.
-      saveLogs(store);
-    }
-  }
-  return summaryProgress;
-}
-
-/**
- * Sets the progress of the current content item to progressPercent.
- * This is for renderers that track state internally and have their own
- * way of calculating completion. They are responsible to load any previous
- * session state if they need to use that when calculating progress.
- * To be called periodically by content renderers on interval or on pause
- * Must be called after initContentSession
- * @param {float} progressPercent
- * @param {boolean} forceSave
- */
-export function updateProgress(store, { progressPercent, forceSave = false }) {
-  /* Calculate progress based on progressPercent */
-  // TODO rtibbles: Delegate this to the renderers?
-  progressPercent = progressPercent || 0;
-  const sessionProgress = Math.min(1, progressPercent);
-
-  return _updateProgress(store, sessionProgress, sessionProgress, forceSave);
-}
-
-/**
- * Adds progressPercent to the current progress percentage
- * To be called periodically by content renderers on interval or on pause
- * Must be called after initContentSession
- * @param {float} progressPercent
- * @param {boolean} forceSave
- */
-export function addProgress(store, { progressPercent, forceSave = false }) {
-  const summaryLog = store.getters.logging.summary;
-  const sessionLog = store.getters.logging.session;
-
-  progressPercent = progressPercent || 0;
-  const totalPercent = sessionLog.progress + progressPercent;
-
-  const sessionProgress = Math.min(1, totalPercent);
-  const summaryProgress = summaryLog.id
-    ? Math.min(1, summaryLog.progress_before_current_session + sessionProgress)
-    : 0;
-  return _updateProgress(store, sessionProgress, summaryProgress, forceSave);
-}
-
-/**
-summary and session log progress update for exercise
-**/
-export function updateExerciseProgress(store, { progressPercent }) {
-  /* Update the logging state with new progress information */
-  progressPercent = progressPercent || 0;
-  return _updateProgress(store, progressPercent, progressPercent, true);
-}
-
-/**
- * Update the total time spent and end time stamps
- * To be called periodically by interval timer
- * Must be called after initContentSession
- * @param {boolean} forceSave
- */
-export function updateTimeSpent(store, forceSave = false) {
-  /* Create aliases for logs */
-  const summaryLog = store.getters.logging.summary;
-  const sessionLog = store.getters.logging.session;
-
-  /* Calculate new times based on how much time has passed since last save */
-  const sessionTime = intervalTimer.getNewTimeElapsed() + sessionLog.time_spent;
-  const summaryTime = summaryLog.id
-    ? sessionTime + summaryLog.time_spent_before_current_session
-    : 0;
-
-  /* Update the logging state with new timing information */
-  store.commit('SET_LOGGING_TIME', { sessionTime, summaryTime, currentTime: now() });
-
-  /* Determine if time threshold has been met */
-  const timeThresholdMet =
-    sessionLog.time_spent - sessionLog.total_time_at_last_save >= timeThreshold;
-
-  /* Save models if needed */
-  if (forceSave || timeThresholdMet) {
-    saveLogs(store);
-  }
-}
-
-/**
- * Update the content state in the summary log
- * To be called periodically by interval timer
- * Must be called after initContentSession
- * @param {boolean} forceSave
- */
-export function updateContentState(store, { contentState, forceSave = false }) {
-  /* Update the logging state with new content state information */
-  store.commit('SET_LOGGING_CONTENT_STATE', contentState);
-
-  // update the time spent value to check time since last save
-  // and save if necessary, or save then reset the timer if forceSave
-  // is true
-  updateTimeSpent(store, forceSave);
-}
-
-/**
- * Start interval timer and set start time
- * @param {int} interval
- */
-export function startTrackingProgress(store, interval = intervalTime) {
-  intervalTimer.startTimer(interval, () => {
-    updateTimeSpent(store, false);
-  });
-}
-
-/**
- * Stop interval timer and update latest times
- * Must be called after startTrackingProgress
- */
-export function stopTrackingProgress(store) {
-  intervalTimer.stopTimer();
-  updateTimeSpent(store, true);
-}
-
-export function saveMasteryLog(store) {
-  return MasteryLogResource.saveModel({
-    id: store.getters.logging.mastery.id,
-    data: _masteryLogModel(store),
-  });
-}
-
-export function saveAndStoreMasteryLog(store) {
-  return saveMasteryLog(store).only(samePageCheckGenerator(store), newMasteryLog => {
-    store.commit('SET_LOGGING_MASTERY_STATE', newMasteryLog);
-  });
-}
-
-export function setMasteryLogComplete(store, completetime) {
-  store.commit('SET_LOGGING_MASTERY_COMPLETE', completetime);
-}
-
-function createMasteryLog(store, { masteryLevel, masteryCriterion }) {
-  const data = {
-    id: null,
-    user: store.getters.session.user_id,
-    summarylog: store.getters.logging.summary.id,
-    start_timestamp: now(),
-    completion_timestamp: null,
-    end_timestamp: null,
-    mastery_level: masteryLevel,
-    complete: false,
-    responsehistory: [],
-    pastattempts: [],
-    totalattempts: 0,
-    mastery_criterion: masteryCriterion,
-  };
-  // Preemptively set attributes
-  store.commit('SET_LOGGING_MASTERY_STATE', data);
-  // Save to the server
-  return MasteryLogResource.saveModel({
-    data,
-  }).only(samePageCheckGenerator(store), newMasteryLog => {
-    // Update store in case an id has been set.
-    store.commit('SET_LOGGING_MASTERY_STATE', newMasteryLog);
-  });
-}
-
-export function createDummyMasteryLog(store) {
-  /*
-  Create a client side masterylog for anonymous user for tracking attempt-progress.
-  This masterylog will never be saved in the database.
-  */
-  const data = {
-    id: null,
-    summarylog: null,
-    start_timestamp: null,
-    completion_timestamp: null,
-    end_timestamp: null,
-    mastery_level: null,
-    complete: false,
-    responsehistory: [],
-    pastattempts: [],
-    mastery_criterion: null,
-    totalattempts: 0,
-  };
-  store.commit('SET_LOGGING_MASTERY_STATE', data);
-}
-
-export function saveAttemptLog(store) {
-  const attemptLogModel = AttemptLogResource.findModel({
-    item: store.getters.logging.attempt.item,
-  });
-  if (attemptLogModel) {
-    return attemptLogModel.save(_attemptLogModel(store));
-  }
-  return ConditionalPromise.resolve();
-}
-
-export function saveAndStoreAttemptLog(store) {
-  const attemptLogId = store.getters.logging.attempt.id;
-  const attemptLogItem = store.getters.logging.attempt.item;
-  /*
-   * Create a 'same item' check instead of same page check, which only allows the resulting save
-   * payload to be set if two conditions are met: firstly, that at the time the save was
-   * initiated, the attemptlog did not have an id, we need this id for future updating saves,
-   * but no other information saved to the server needs to be persisted back into the vuex store;
-   * secondly, we check that the item id when the save has resolved is the same as when the save
-   * was initiated, ensuring that we are not overwriting the vuex attemptlog representation for a
-   * different question.
-   */
-  const sameItemAndNoLogIdCheck = () =>
-    !attemptLogId && attemptLogItem === store.getters.logging.attempt.item;
-  return saveAttemptLog(store).only(sameItemAndNoLogIdCheck, newAttemptLog => {
-    // mainly we want to set the attemplot id, so we can PATCH subsequent save on this attemptLog
-    store.commit('SET_LOGGING_ATTEMPT_STATE', _attemptLoggingState(newAttemptLog));
-  });
-}
-
-export function createAttemptLog(store, itemId) {
-  const { isUserLoggedIn, currentUserId, logging } = store.getters;
-  const user = isUserLoggedIn ? currentUserId : null;
-  const attemptLogModel = AttemptLogResource.createModel({
-    id: null,
-    user,
-    masterylog: logging.mastery.id || null,
-    sessionlog: logging.session.id,
-    start_timestamp: now(),
-    completion_timestamp: null,
-    end_timestamp: null,
-    item: itemId,
-    complete: false,
-    time_spent: 0,
-    correct: 0,
-    answer: {},
-    simple_answer: '',
-    interaction_history: [],
-    hinted: false,
-  });
-  store.commit('SET_LOGGING_ATTEMPT_STATE', attemptLogModel.attributes);
-}
-
-const interactionHistoryProperties = ['type', 'correct', 'answer', 'timestamp'];
-
-export function updateAttemptLogInteractionHistory(store, interaction) {
-  Object.keys(interaction).forEach(key => {
-    if (interactionHistoryProperties.indexOf(key) === -1) {
-      throw new TypeError(`${key} not allowed for interaction log`);
-    }
-  });
-  if (!interaction.type || !InteractionTypes[interaction.type]) {
-    throw new TypeError('No interaction type, or invalid interaction type specified');
-  }
-  if (!interaction.timestamp) {
-    interaction.timestamp = now();
-  }
-  store.commit('UPDATE_LOGGING_ATTEMPT_INTERACTION_HISTORY', interaction);
-  // Also update end timestamp on Mastery model.
-  store.commit('UPDATE_LOGGING_MASTERY', { currentTime: now() });
-}
-
-/**
- * Initialize assessment mastery log
- */
-export function initMasteryLog(store, { masterySpacingTime, masteryCriterion }) {
-  const { mastery } = store.getters.logging;
-  if (!mastery.id) {
-    // id has not been set on the masterylog state, so this is undefined.
-    // Either way, we need to create a new masterylog, with a masterylevel of 1!
-    return createMasteryLog(store, { masteryLevel: 1, masteryCriterion });
-  } else if (
-    mastery.complete &&
-    now() - new Date(mastery.completion_timestamp) > masterySpacingTime
-  ) {
-    // The most recent masterylog is complete, and they completed it more than
-    // masterySpacingTime time ago!
-    // This means we need to level the user up.
-    return createMasteryLog(store, {
-      masteryLevel: mastery.mastery_level + 1,
-      masteryCriterion,
-    });
-  }
-  return Promise.resolve();
-}
-
-export function updateMasteryAttemptState(
-  store,
-  { currentTime, correct, complete, firstAttempt, hinted, answerState, simpleAnswer, error }
-) {
-  store.commit('UPDATE_LOGGING_MASTERY', { currentTime, correct, firstAttempt, hinted, error });
-  store.commit('UPDATE_LOGGING_ATTEMPT', {
-    currentTime,
-    correct,
-    firstAttempt,
-    complete,
-    hinted,
-    answerState,
-    simpleAnswer,
-    error,
-  });
 }
 
 // Creates a snackbar that automatically dismisses and has no action buttons.

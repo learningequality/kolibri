@@ -275,7 +275,8 @@
       },
       facilityRemovedSnackbar: {
         message: "Removed '{facilityName}' from this device",
-        context: 'Notification that appears after a facility has been deleted',
+        context:
+          "Notification that appears after a facility has been deleted. For example, \"Removed 'Zuk Village' from this device'.",
       },
     },
   };

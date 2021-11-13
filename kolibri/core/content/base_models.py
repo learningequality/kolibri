@@ -22,7 +22,7 @@ To make updates to fields with this purpose, please use the models defined in th
 models.py in this module.
 
 To faciltitate importing from different versions of exported channel databases
-a pickled SQLAlchemy schema for the new schema must be generated using the
+a SQLAlchemy schema for the new schema must be generated using the
 generate_schema management command.
 
 In the case where no updates have yet been made to the schema_versions constants,
@@ -35,7 +35,7 @@ passed to the command should be the value of the new version e.g. VERSION_3:
 
     `kolibri manage generate_schema 3`
 
-Note that in both these cases the current schema pickle that is used for doing
+Note that in both these cases the current schema that is used for doing
 SQLAlchemy operations on the default Django database will also be updated.
 
 In order to track updates to models or fields, the CONTENT_SCHEMA_VERSION value in
@@ -55,7 +55,7 @@ If the new schema requires inference of the field when it is missing from old da
 ChannelImport classes for previous versions must be updated to infer this data from old
 databases.
 
-All pickled schema should be registered in the CONTENT_DB_SCHEMA_VERSIONS list in
+All schema should be registered in the CONTENT_DB_SCHEMA_VERSIONS list in
 this file e.g. VERSION_3 should be added to the list.
 
 The channel import test classes for the previous schema should also be added in
@@ -131,6 +131,17 @@ class ContentNode(MPTTModel):
 
     # A JSON Dictionary of properties to configure loading, rendering, etc. the file
     options = JSONField(default={}, blank=True, null=True)
+
+    # Fields for metadata labels
+    grade_levels = models.TextField(blank=True, null=True)
+    resource_types = models.TextField(blank=True, null=True)
+    learning_activities = models.TextField(blank=True, null=True)
+    accessibility_labels = models.TextField(blank=True, null=True)
+    categories = models.TextField(blank=True, null=True)
+    learner_needs = models.TextField(blank=True, null=True)
+
+    # The (suggested) duration of a resource, in seconds.
+    duration = models.PositiveIntegerField(null=True, blank=True)
 
     class Meta:
         abstract = True

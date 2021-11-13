@@ -4,14 +4,14 @@
   "CommonLearnStrings.learnLabel": "Lernen",
   "CommonLearnStrings.libraryLabel": "Bibliothek",
   "CommonLearnStrings.logo": "Aus dem Kanal {channelTitle}",
-  "CommonLearnStrings.markResourceAsCompleteLabel": "Materialie als abgeschlossen markieren",
+  "CommonLearnStrings.markResourceAsCompleteLabel": "Material als abgeschlossen markieren",
   "CommonLearnStrings.mostPopularLabel": "Die beliebtesten",
   "CommonLearnStrings.multipleLearningActivities": "Mehrere Lernaktivitäten",
   "CommonLearnStrings.multipleLearningActivitiesLabel": "",
   "CommonLearnStrings.nextStepsLabel": "Nächste Schritte",
   "CommonLearnStrings.popularLabel": "Beliebt",
-  "CommonLearnStrings.resourceCompletedLabel": "Materialie abgeschlossen",
-  "CommonLearnStrings.resourceHidden": "Materialie ausgeblendet",
+  "CommonLearnStrings.resourceCompletedLabel": "Material abgeschlossen",
+  "CommonLearnStrings.resourceHidden": "Material ausgeblendet",
   "CommonLearnStrings.resumeLabel": "Lebenslauf",
   "CommonLearnStrings.suggestedTimeToComplete": "Vorgeschlagene Zeit zum Abschließen"
 }

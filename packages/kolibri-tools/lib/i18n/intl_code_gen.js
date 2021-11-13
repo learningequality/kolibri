@@ -19,7 +19,7 @@ module.exports = function(outputDir, languageInfoPath) {
   const vueIntlHeader = `module.exports = function () {
     const data = [];`;
 
-  const generateVueIntlItems = language => {
+  function generateVueIntlItems(language) {
     /*
      * Generate entries of this form:
      *   data.push(require('vue-intl/locale-data/ar.js'));
@@ -33,7 +33,7 @@ module.exports = function(outputDir, languageInfoPath) {
     if (vue_intl_code !== 'ach') {
       return `data.push(require('vue-intl/locale-data/${vue_intl_code}.js'));`;
     }
-  };
+  }
 
   const vueIntlFooter = `
     return data;
@@ -47,7 +47,7 @@ module.exports = function(outputDir, languageInfoPath) {
   const intlHeader = `module.exports = function(locale) {
     switch (locale) {`;
 
-  const generateIntlItems = language => {
+  function generateIntlItems(language) {
     /*
      * Generate entries of the form:
      *
@@ -102,7 +102,7 @@ module.exports = function(outputDir, languageInfoPath) {
           );
         });`;
     }
-  };
+  }
 
   const intlFooter = `
       default:

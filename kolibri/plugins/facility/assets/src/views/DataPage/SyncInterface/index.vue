@@ -192,7 +192,7 @@
       },
       facility: {
         message: 'Facility',
-        context: "Refers to the facility name on the 'Sync Facility Data' window.",
+        context: "Refers to the facility on the 'Sync Facility Data' window.",
       },
       register: {
         message: 'Register',

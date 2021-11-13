@@ -91,7 +91,7 @@
       newFacilityStepTitle: {
         message: 'New facility - step {step, number} of {total, number}',
         context:
-          'Title that displays to indicate the current step in the setup process for a new facility.',
+          'Browser window title that displays to indicate the current step in the setup process for a new facility.',
       },
     },
   };

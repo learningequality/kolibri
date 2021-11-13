@@ -7,7 +7,10 @@ const coachStrings = createTranslator('CommonCoachStrings', {
     context:
       "Coaches can copy a lesson to a different group or another class using the 'Copy' option.",
   },
-  createLessonAction: 'Create new lesson',
+  createLessonAction: {
+    message: 'Create new lesson',
+    context: "Title of the 'Create new lesson' page.",
+  },
   exportCSVAction: {
     message: 'Export as CSV',
     context:
@@ -65,7 +68,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   },
   allQuizzesLabel: {
     message: 'All quizzes',
-    context: 'Navigation link that takes coach back to the list of all the classes they manage.',
+    context: 'Navigation link that takes coach back to the list of all the quizzes they manage.',
   },
   avgScoreLabel: {
     message: 'Average score',
@@ -223,7 +226,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   },
   questionsLabel: {
     message: 'Questions',
-    context: 'Refers to quiz questions.\n',
+    context: 'Refers to quiz questions.',
   }, // Kept here for use in common.js
   questionOrderLabel: {
     message: 'Question order',
@@ -263,11 +266,6 @@ const coachStrings = createTranslator('CommonCoachStrings', {
     context:
       "In the 'Reports' tab, coaches can see the number of viewed learning resources for each learner.",
   },
-  scoreLabel: {
-    message: 'Score',
-    context:
-      "In the 'Reports' tab, coaches can see the score that each learner has obtained on a quiz.\n\nThis is represented as a percentage and indicates the questions they've answered correctly.",
-  },
   startedLabel: {
     message: 'Started',
     context: 'Indicates if a learner has started a specific activity, like a quiz.',
@@ -280,10 +278,6 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   titleLabel: {
     message: 'Title',
     context: 'Generic label for the name of some element like a lesson.',
-  },
-  timeSpentLabel: {
-    message: 'Time spent',
-    context: 'Indicates the time a learner has taken on a specific learning resource.',
   },
   ungroupedLearnersLabel: {
     message: 'Ungrouped learners',
@@ -309,7 +303,11 @@ const coachStrings = createTranslator('CommonCoachStrings', {
     message: 'There was a problem saving this lesson',
     context: 'Error message.',
   },
-  duplicateLessonTitleError: 'A lesson with that name already exists',
+  duplicateLessonTitleError: {
+    message: 'A lesson with that name already exists',
+    context:
+      "Appears if the coach creates a lesson that has the same name as one that's already created.",
+  },
 
   // empty states
   activityListEmptyState: {
@@ -410,7 +408,8 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   },
   quizClosedMessage: {
     message: 'Quiz ended',
-    context: 'A brief snackbar message notifying the user that the quiz was successfully ended.',
+    context:
+      "A brief snackbar message notifying the user that the quiz was successfully ended. Displays when the user clicks 'End quiz'.",
   },
   quizFailedToCloseMessage: {
     message: 'There was a problem ending the quiz. The quiz was not ended.',
@@ -505,6 +504,23 @@ const MissingContentStrings = createTranslator('MissingContentStrings', {
     message: 'Go to download page',
     context:
       'Text for the link displayed at the bottom of the "Upgrade Kolibri to view resources" modal',
+  },
+
+  // TODO - move these into diff sections as we make this a full feature in 0.16
+  // Past Papers Project (12/2021) strings
+  latestScoreLabel: {
+    message: 'Latest score',
+    context:
+      'Heading for most recent score for a practice quiz in table of learners. Found in Reports > Lesson > Practice quiz.',
+  },
+  attemptsLabel: {
+    message: 'Attempts',
+    context:
+      'Heading for total number of times a learner took a practice quiz in table of learners. Found in Reports > Lesson > Practice quiz.',
+  },
+  difficultQuestionsDescription: {
+    message: 'Difficult questions in the most recent attempt of all learners',
+    context: "Description for the 'Difficult questions' subtab.",
   },
 });
 

@@ -2,8 +2,24 @@ import VueRouter from 'vue-router';
 import { mount, createLocalVue } from '@vue/test-utils';
 import LearnIndex from '../../src/views/LearnIndex';
 import makeStore from '../makeStore';
+// eslint-disable-next-line import/named
+import useCoreLearn, { useCoreLearnMock } from '../../src/composables/useCoreLearn';
 
-LearnIndex.methods.getDemographicInfo = function() {};
+jest.mock('../../src/composables/useCoreLearn');
+
+jest.mock('plugin_data', () => {
+  return {
+    __esModule: true,
+    default: {
+      accessibilityLabels: [],
+      categories: [],
+      gradeLevels: [],
+      languages: [],
+      channels: [],
+      learnerNeeds: [],
+    },
+  };
+});
 
 const localVue = createLocalVue();
 localVue.use(VueRouter);
@@ -59,7 +75,9 @@ describe('learn plugin index page', () => {
     store.state.core.session.user_id = 'test';
   };
   const setMemberships = memberships => {
-    store.state.memberships = memberships;
+    useCoreLearn.mockImplementation(() =>
+      useCoreLearnMock({ inClasses: Boolean(memberships.length) })
+    );
   };
   const setPageName = pageName => {
     store.state.pageName = pageName;

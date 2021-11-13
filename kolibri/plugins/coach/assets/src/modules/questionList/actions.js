@@ -40,10 +40,9 @@ export function setItemStats(store, { classId, exerciseId, quizId, lessonId, gro
       store.commit('SET_STATE', { exam: item });
       // If no one attempted one of the questions, it could get missed out of the list
       // of difficult questions, so use the exam data to fill in the blanks here.
+      console.log(item, stats);
       stats = item.question_sources.map(source => {
-        const stat = stats.find(
-          stat => stat.item === source.question_id && stat.content_id === source.exercise_id
-        ) || {
+        const stat = stats.find(stat => stat.item === source.item) || {
           correct: 0,
           total: (stats[0] || {}).total || 0,
         };

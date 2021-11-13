@@ -107,7 +107,7 @@ module.exports = {
       // This allows us to make jQuery and other modules available
       // without polluting our global scope
       katex: 'perseus/lib/katex/katex',
-      KAS: 'imports-loader?window=>{}!exports-loader?window.KAS!perseus/lib/kas',
+      KAS: 'perseus/lib/kas',
       MathQuill: 'imports-loader?window=>{}!exports-loader?window.MathQuill!perseus/lib/mathquill/mathquill-basic',
       jQuery: 'jquery',
       $: 'jquery',

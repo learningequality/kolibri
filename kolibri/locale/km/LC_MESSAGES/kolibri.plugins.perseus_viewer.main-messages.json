@@ -40,7 +40,7 @@
   "PerseusInternalMessages.Equals sign": "សញ្ញាស្មើ",
   "PerseusInternalMessages.Explain": "ពន្យល់",
   "PerseusInternalMessages.False": "មិនពិត",
-  "PerseusInternalMessages.Finite solutions": "",
+  "PerseusInternalMessages.Finite solutions": "ដំណោះស្រាយច្រើនករណី",
   "PerseusInternalMessages.Fraction, excluding the current expression": "ប្រភាគដោយមិនរាប់បញ្ចូលកន្សោមបច្ចុប្បន្ន",
   "PerseusInternalMessages.Fraction, with current expression in numerator": "ប្រភាគដោយមានកន្សោមបច្ចុប្បន្នក្នុងភាគយក",
   "PerseusInternalMessages.Get another hint": "ទទួលបានព័ត៌មានជំនួយផ្សេងទៀត",
@@ -140,10 +140,7 @@
   "PerseusInternalMessages.reflection": "ការឆ្លុះបញ្ចាំង",
   "PerseusInternalMessages.rotation": "បង្វិល",
   "PerseusInternalMessages.translation": "ការបកប្រែ",
-  "PerseusRendererIndex.hint": "ប្រើតម្រុយ (នៅសល់ {hintsLeft, number})",
-  "PerseusRendererIndex.hintExplanation": "ប្រសិនបើអ្នកប្រើតម្រុយ សំណួរនេះនឹងមិនត្រូវបានបន្ថែមទៅដំណើរការរបស់អ្នកទេ",
   "PerseusRendererIndex.hintLabel": "ព័ត៌មានជំនួយ:",
-  "PerseusRendererIndex.noMoreHint": "អស់តម្រុយ",
   "PerseusRendererIndex.notAvailable": "មិនមានក្រដាសព្រាង",
   "PerseusRendererIndex.showScratch": "បង្ហាញក្រដាសព្រាង"
 }

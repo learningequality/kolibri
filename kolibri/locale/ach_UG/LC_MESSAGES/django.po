@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-15 16:05-0700\n"
-"PO-Revision-Date: 2021-09-23 20:20\n"
+"POT-Creation-Date: 2021-11-01 22:12-0700\n"
+"PO-Revision-Date: 2021-11-02 05:29\n"
 "Last-Translator: \n"
 "Language-Team: Acholi\n"
 "Language: ach_UG\n"
@@ -172,15 +172,15 @@ msgstr "crwdns319905:0crwdne319905:0"
 msgid "Database ID is not valid"
 msgstr "crwdns319907:0crwdne319907:0"
 
-#: core/content/api.py:158
+#: core/content/api.py:170
 msgid "Resource"
 msgstr "crwdns319909:0crwdne319909:0"
 
-#: core/content/api.py:1316
+#: core/content/api.py:1327
 msgid "The requested channel does not exist on the content server"
 msgstr "crwdns319911:0crwdne319911:0"
 
-#: core/content/models.py:220
+#: core/content/models.py:252
 msgid "Unknown format"
 msgstr "crwdns319913:0crwdne319913:0"
 
@@ -188,12 +188,12 @@ msgstr "crwdns319913:0crwdne319913:0"
 msgid "Language is not supported by Kolibri"
 msgstr "crwdns319915:0crwdne319915:0"
 
-#: core/logger/csv_export.py:204
+#: core/logger/csv_export.py:205
 msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
 msgid "content_session_logs"
 msgstr "crwdns319917:0crwdne319917:0"
 
-#: core/logger/csv_export.py:214
+#: core/logger/csv_export.py:215
 msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
 msgid "content_summary_logs"
 msgstr "crwdns319919:0crwdne319919:0"

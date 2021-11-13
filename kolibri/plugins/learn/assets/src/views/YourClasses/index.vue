@@ -30,7 +30,10 @@
         data-test="classLink"
         :to="classAssignmentsLink(c.id)"
       >
-        <h3 :style="{ margin: 0, fontWeight: 'normal' }">
+        <h3
+          dir="auto"
+          :style="{ margin: 0, fontWeight: 'normal' }"
+        >
           {{ c.name }}
         </h3>
       </CardLink>
@@ -108,7 +111,10 @@
         context:
           'Message that a learner sees in the Learn > CLASSES section and in the Learn > HOME section if they are not enrolled in any classes.',
       },
-      viewAll: 'View all',
+      viewAll: {
+        message: 'View all',
+        context: 'Option to view all the classes the user is enrolled in.',
+      },
     },
   };
 

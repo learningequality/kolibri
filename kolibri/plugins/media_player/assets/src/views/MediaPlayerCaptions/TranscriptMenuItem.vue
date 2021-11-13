@@ -3,7 +3,7 @@
   <li class="vjs-menu-item" role="menuitem">
     <KCheckbox
       ref="kCheckbox"
-      :label="commonString('transcript')"
+      :label="coreString('transcript')"
       :checked="selected"
       role="menuitem"
       @change="toggleTranscript"

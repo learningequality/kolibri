@@ -5,6 +5,7 @@
     class="fill-space"
     :style="{
       'border-color': $themeTokens.fineLine,
+      padding: '32px 24px',
     }"
     @changeFullscreen="isFullscreen = $event"
   >
@@ -473,7 +474,7 @@
       durationTime: {
         message: 'Duration time',
         context:
-          'Indicates the length of a video or audio file. For example, 5:15, meaning 5 minutes and 10 seconds.',
+          'Indicates the length of a video or audio file. For example, 5:15, meaning 5 minutes and 15 seconds.',
       },
       loaded: {
         message: 'Loaded',
@@ -482,12 +483,12 @@
       progressBar: {
         message: 'Progress bar',
         context:
-          'Describes the time tracker indicator bar in the bottom of the media player which allows a learner to view the progress through a media file and skip to specific times.',
+          'Describes the time tracker indicator bar in the bottom of the media player which allows a learner to view the progress through a media file and skip to specific times. Not related to learner progress.',
       },
       fullscreen: {
         message: 'Enter fullscreen',
         context:
-          'Learners can use the full screen button in the bottom right corner to open the media player in fullscreen view.\n',
+          'Learners can use the full screen button in the bottom right corner to open the media player in fullscreen view.',
       },
       nonFullscreen: {
         message: 'Exit fullscreen',
@@ -518,7 +519,7 @@
       },
       transcriptOff: {
         message: 'Transcript off',
-        context: 'Describes option to turn off the transcript.',
+        context: 'Option to turn off the transcript on a video or audio file.',
       },
       languages: {
         message: 'Languages',

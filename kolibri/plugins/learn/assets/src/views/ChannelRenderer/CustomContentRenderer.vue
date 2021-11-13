@@ -31,7 +31,7 @@
   import router from 'kolibri.coreVue.router';
   import { events, MessageStatuses } from 'hashi/src/hashiBase';
   import { validateTheme } from '../../utils/themes';
-  import { PageNames } from '../../constants';
+  import genContentLink from '../../utils/genContentLink';
   import ContentModal from './ContentModal';
 
   function createReturnMsg({ message, data, err }) {
@@ -103,14 +103,15 @@
       this.hashi.initialize(
         {},
         {},
-        urls.zipContentUrl(zipFile.checksum, zipFile.extension),
+        urls.zipContentUrl(zipFile.checksum, zipFile.extension, 'index.html'),
         zipFile.checksum
       );
     },
     methods: {
+      genContentLink,
+
       // helper functions for fetching data from kolibri
       // called in mainClient.js
-
       fetchContentCollection(message) {
         const { options } = message;
         return ContentNodeResource.fetchCollection({
@@ -216,12 +217,6 @@
           .then(newMsg => {
             this.hashi.mediator.sendLocalMessage(newMsg);
           });
-      },
-      genContentLink(id, isLeaf) {
-        return {
-          name: isLeaf ? PageNames.TOPICS_CONTENT : PageNames.TOPICS_TOPIC,
-          params: { id },
-        };
       },
       getOrUpdateContext(message) {
         // to update context with the incoming context

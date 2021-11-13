@@ -94,6 +94,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "kolibri.core.analytics.middleware.cherrypy_access_log_middleware",
     "kolibri.core.device.middleware.ProvisioningErrorHandler",
+    "kolibri.core.device.middleware.DatabaseBusyErrorHandler",
     "django.middleware.cache.UpdateCacheMiddleware",
     "kolibri.core.analytics.middleware.MetricsMiddleware",
     "kolibri.core.auth.middleware.KolibriSessionMiddleware",
@@ -263,6 +264,12 @@ EXTRA_LANG_INFO = {
         "name": "Chichewa, Chewa, Nyanja",
         "name_local": "Chinyanja",
     },
+    "pt-mz": {
+        "bidi": False,
+        "code": "pt-mz",
+        "name": "Portuguese (Mozambique)",
+        "name_local": "Português (Moçambique)",
+    },
     "zh": {
         "bidi": False,
         "code": "zh-hans",
@@ -387,7 +394,28 @@ SESSION_COOKIE_AGE = 1200
 
 apply_settings(sys.modules[__name__])
 
-# prepend operation to generate notifications to sync cleanup
+MORANGO_INSTANCE_INFO = os.environ.get(
+    "MORANGO_INSTANCE_INFO",
+    "kolibri.core.auth.constants.morango_sync:CUSTOM_INSTANCE_INFO",
+)
+# prepend our own Morango Operation to handle custom behaviors during sync
+SYNC_OPERATIONS = ("kolibri.core.auth.sync_operations:KolibriSyncOperations",)
+MORANGO_INITIALIZE_OPERATIONS = (
+    SYNC_OPERATIONS + morango_settings.MORANGO_INITIALIZE_OPERATIONS
+)
+MORANGO_SERIALIZE_OPERATIONS = (
+    SYNC_OPERATIONS + morango_settings.MORANGO_SERIALIZE_OPERATIONS
+)
+MORANGO_QUEUE_OPERATIONS = SYNC_OPERATIONS + morango_settings.MORANGO_QUEUE_OPERATIONS
+MORANGO_TRANSFERRING_OPERATIONS = (
+    SYNC_OPERATIONS + morango_settings.MORANGO_TRANSFERRING_OPERATIONS
+)
+MORANGO_DEQUEUE_OPERATIONS = (
+    SYNC_OPERATIONS + morango_settings.MORANGO_DEQUEUE_OPERATIONS
+)
+MORANGO_DESERIALIZE_OPERATIONS = (
+    SYNC_OPERATIONS + morango_settings.MORANGO_DESERIALIZE_OPERATIONS
+)
 MORANGO_CLEANUP_OPERATIONS = (
-    "kolibri.core.auth.utils:GenerateNotifications",
-) + morango_settings.MORANGO_CLEANUP_OPERATIONS
+    SYNC_OPERATIONS + morango_settings.MORANGO_CLEANUP_OPERATIONS
+)

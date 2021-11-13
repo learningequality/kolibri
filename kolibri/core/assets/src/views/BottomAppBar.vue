@@ -5,7 +5,7 @@
     :style="{ backgroundColor: $themeTokens.surface }"
     :class="{ 'bottom-sm': windowIsSmall }"
   >
-    <div class="inner-bottom" :style="innerStyle">
+    <div class="inner-bottom">
       <slot></slot>
     </div>
   </div>
@@ -20,20 +20,6 @@
   export default {
     name: 'BottomAppBar',
     mixins: [responsiveWindowMixin],
-    props: {
-      maxWidth: {
-        type: Number,
-        default: 960,
-      },
-    },
-    computed: {
-      innerStyle() {
-        if (this.maxWidth) {
-          return { maxWidth: `${this.maxWidth}px` };
-        }
-        return null;
-      },
-    },
   };
 
 </script>
@@ -51,8 +37,9 @@
     bottom: 0;
     left: 0;
     z-index: 8; // material - Bottom app bar
+    width: 100%;
     height: 72px;
-    padding: 8px 16px;
+    padding: 16px 24px 0;
     margin: 0;
     overflow-x: hidden;
     font-size: 14px;
@@ -66,8 +53,8 @@
 
   .inner-bottom {
     height: 100%;
-    padding: 10px 0;
-    margin: auto;
+    overflow-x: hidden;
+    overflow-y: visible; // Ensures feedback text is visible
   }
 
 </style>

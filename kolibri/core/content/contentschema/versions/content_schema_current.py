@@ -80,6 +80,19 @@ class ContentContentnode(Base):
     num_coach_contents = Column(Integer)
     on_device_resources = Column(Integer)
     options = Column(Text)
+    accessibility_labels = Column(Text)
+    categories = Column(Text)
+    duration = Column(Integer)
+    grade_levels = Column(Text)
+    learner_needs = Column(Text)
+    learning_activities = Column(Text)
+    resource_types = Column(Text)
+    accessibility_labels_bitmask_0 = Column(BigInteger)
+    categories_bitmask_0 = Column(BigInteger)
+    grade_levels_bitmask_0 = Column(BigInteger)
+    learner_needs_bitmask_0 = Column(BigInteger)
+    learning_activities_bitmask_0 = Column(BigInteger)
+    ancestors = Column(Text)
     parent_id = Column(ForeignKey("content_contentnode.id"), index=True)
 
     lang = relationship("ContentLanguage")
@@ -208,7 +221,6 @@ class ContentFile(Base):
     __tablename__ = "content_file"
 
     id = Column(CHAR(32), primary_key=True)
-    preset = Column(String(150), nullable=False)
     supplementary = Column(Boolean, nullable=False)
     thumbnail = Column(Boolean, nullable=False)
     priority = Column(Integer, index=True)
@@ -219,6 +231,7 @@ class ContentFile(Base):
     local_file_id = Column(
         ForeignKey("content_localfile.id"), nullable=False, index=True
     )
+    preset = Column(String(150), nullable=False)
 
     contentnode = relationship("ContentContentnode")
     lang = relationship("ContentLanguage")

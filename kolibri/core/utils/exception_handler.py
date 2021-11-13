@@ -1,5 +1,6 @@
 from django.utils import six
 from rest_framework import status
+from rest_framework.exceptions import ErrorDetail
 from rest_framework.views import exception_handler
 
 from kolibri.core import error_constants
@@ -25,20 +26,32 @@ def custom_exception_handler(exc, context):
     return response
 
 
-def _handle_400_format(response):
+def _return_errors(data, path=None):
+    path = path or []
     errors = []
-    if isinstance(response.data, dict):
-        for key, value in six.iteritems(response.data):
+    if isinstance(data, dict):
+        for key, value in six.iteritems(data):
+            new_path = path + [key]
             # handle drf error responses
             if isinstance(value, list):
                 for detail in value:
-                    errors.append(
-                        {
-                            "id": detail.code.upper(),
-                            "metadata": {"field": key, "message": str(detail)},
-                        }
-                    )
-    return errors or response.data
+                    if isinstance(detail, ErrorDetail):
+                        errors.append(
+                            {
+                                "id": detail.code.upper(),
+                                "metadata": {
+                                    "field": ".".join(new_path),
+                                    "message": str(detail),
+                                },
+                            }
+                        )
+                    else:
+                        errors.extend(_return_errors(detail, path=new_path))
+    return errors
+
+
+def _handle_400_format(response):
+    return _return_errors(response.data) or response.data
 
 
 def _handle_403_format(response, context):

@@ -8,6 +8,7 @@ from diskcache import Cache
 
 from kolibri.utils.conf import KOLIBRI_HOME
 from kolibri.utils.conf import OPTIONS
+from kolibri.utils.options import CACHE_SHARDS
 
 cache_options = OPTIONS["Cache"]
 
@@ -47,6 +48,7 @@ default_cache = {
 process_cache = {
     "BACKEND": "diskcache.DjangoCache",
     "LOCATION": diskcache_location,
+    "SHARDS": CACHE_SHARDS,
     "OPTIONS": {
         "MAX_ENTRIES": cache_options["CACHE_MAX_ENTRIES"],
         # Pin pickle protocol for Python 2 compatibility

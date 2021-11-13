@@ -69,19 +69,19 @@
         return this.details || this.$tr(this.authorizedRole);
       },
       linkText() {
-        if (!this.userPluginUrl) {
+        if (!this.userAuthPluginUrl) {
           return this.$tr('goBackToHomeAction');
         } else {
           return this.$tr('signInToKolibriAction');
         }
       },
-      userPluginUrl() {
-        return urls['kolibri:kolibri.plugins.user:user'];
+      userAuthPluginUrl() {
+        return urls['kolibri:kolibri.plugins.user_auth:user_auth'];
       },
       signInLink() {
         // Creates a link to the Sign In Page that also has a query parameter that
         // will redirect back to this page after user logs in with correct credentials.
-        if (!this.userPluginUrl) {
+        if (!this.userAuthPluginUrl) {
           // If User plugin is not active, go to the root of whatever plugin you're in.
           // In practice, this will only happen on select Learn pages.
           return '/';
@@ -93,7 +93,7 @@
           } else {
             next = window.encodeURIComponent(window.location.href);
           }
-          return `${this.userPluginUrl()}#/signin?next=${next}`;
+          return `${this.userAuthPluginUrl()}#/signin?next=${next}`;
         }
       },
     },
@@ -134,7 +134,8 @@
       },
       goBackToHomeAction: {
         message: 'Go to home page',
-        context: 'Link that upon selecting takes the user back to the Kolbri home page.',
+        context:
+          'Link that upon selecting takes the user back to the Kolbri home page where the user can sign in.',
       },
       contentManager: {
         message:

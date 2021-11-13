@@ -1,1 +1,1 @@
-export default [0, 502, 503, 504, 511];
+export default [0, 502, 504, 511];

@@ -6,7 +6,7 @@ function defaultState() {
     currentQuestion: {},
     exam: {},
     examAttempts: [],
-    examLog: {},
+    masteryLog: {},
     exercise: {},
     exerciseContentNodes: [],
     interactionIndex: 0,

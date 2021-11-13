@@ -2,6 +2,7 @@ import logging
 import os
 import signal
 import sys
+import threading
 import time
 import traceback as _traceback
 from functools import partial
@@ -21,6 +22,7 @@ from magicbus.plugins.signalhandler import SignalHandler as BaseSignalHandler
 from magicbus.plugins.tasks import Autoreloader
 from magicbus.plugins.tasks import Monitor
 from zeroconf import get_all_addresses
+from zeroconf import InterfaceChoice
 
 import kolibri
 from .system import become_daemon
@@ -88,6 +90,7 @@ status_messages = {
 
 RESTART = "restart"
 STOP = "stop"
+UPDATE_ZEROCONF = "update_zeroconf"
 
 
 class NotRunning(Exception):
@@ -277,49 +280,57 @@ class ZeroConfPlugin(Monitor):
     def __init__(self, bus, port):
         self.addresses = set()
         self.port = port
-        Monitor.__init__(self, bus, self.run, 5)
+        Monitor.__init__(self, bus, self.run, frequency=5)
         self.bus.subscribe("SERVING", self.SERVING)
+        self.bus.subscribe("UPDATE_ZEROCONF", self.UPDATE_ZEROCONF)
+        self.broadcast = None
 
     def SERVING(self, port):
         # Register the Kolibri zeroconf service so it will be discoverable on the network
+        from kolibri.core.discovery.utils.network.broadcast import (
+            build_broadcast_instance,
+            KolibriBroadcast,
+        )
         from kolibri.core.discovery.utils.network.search import (
-            register_zeroconf_service,
+            DynamicNetworkLocationListener,
+            SoUDClientListener,
+            SoUDServerListener,
         )
 
-        register_zeroconf_service(port=port or self.port)
+        self.port = port or self.port
+        instance = build_broadcast_instance(port)
+
+        if self.broadcast is None:
+            self.broadcast = KolibriBroadcast(instance)
+            self.broadcast.add_listener(DynamicNetworkLocationListener)
+            self.broadcast.add_listener(SoUDClientListener)
+            self.broadcast.add_listener(SoUDServerListener)
+            self.broadcast.start_broadcast()
+        else:
+            self.broadcast.update_broadcast(instance=instance)
+
+    def UPDATE_ZEROCONF(self):
+        self.SERVING(self.port)
 
     def STOP(self):
         super(ZeroConfPlugin, self).STOP()
-        from kolibri.core.discovery.utils.network.search import (
-            unregister_zeroconf_service,
-        )
 
-        unregister_zeroconf_service()
+        if self.broadcast is not None:
+            self.broadcast.stop_broadcast()
+            self.broadcast = None
 
     def run(self):
-        from kolibri.core.discovery.utils.network.search import (
-            ZEROCONF_STATE,
-            register_zeroconf_service,
-        )
-
-        if (
-            # If the current addresses that zeroconf is listening on does not
-            # match the current set of all addresses for this device, then
-            # we should reinitialize zeroconf, the listener, and the broadcasted
-            # kolibri service.
-            ZEROCONF_STATE["addresses"] == set(get_all_addresses())
-            # The only time we shouldn't do this is if we haven't actually finished
-            # registering the zeroconf service yet, and the port hasn't been defined.
-            # Without the port being defined here, we cannot make the call to register_zeroconf_service
-            # below that we do without invoking the port.
-            or ZEROCONF_STATE["port"] is None
+        # If the current addresses that zeroconf is listening on does not
+        # match the current set of all addresses for this device, then
+        # we should reinitialize zeroconf, the listener, and the broadcast
+        # kolibri service.
+        if self.broadcast is not None and self.broadcast.addresses != set(
+            get_all_addresses()
         ):
-            return
-        logger.info(
-            "New addresses detected since zeroconf was initialized, re-initializing now"
-        )
-        register_zeroconf_service()
-        logger.info("Zeroconf has reinitialized")
+            logger.info(
+                "New addresses detected since zeroconf was initialized, updating now"
+            )
+            self.broadcast.update_broadcast(interfaces=InterfaceChoice.All)
 
 
 status_map = {
@@ -338,11 +349,8 @@ IS_RUNNING = set([STATUS_RUNNING, STATUS_STARTING_UP, STATUS_SHUTTING_DOWN])
 
 
 class PIDPlugin(SimplePlugin):
-    def __init__(self, bus, port, zip_port, pid_file=PID_FILE):
+    def __init__(self, bus):
         self.bus = bus
-        self.port = port
-        self.zip_port = zip_port
-        self.pid_file = pid_file
         # Do this during initialization to set a startup lock
         self.set_pid_file(STATUS_STARTING_UP)
         self.bus.subscribe("SERVING", self.SERVING)
@@ -358,22 +366,24 @@ class PIDPlugin(SimplePlugin):
 
         :param: status: status of the process
         """
-        with open(self.pid_file, "w") as f:
+        with open(self.bus.pid_file, "w") as f:
             f.write(
-                "{}\n{}\n{}\n{}\n".format(os.getpid(), self.port, self.zip_port, status)
+                "{}\n{}\n{}\n{}\n".format(
+                    os.getpid(), self.bus.port, self.bus.zip_port, status
+                )
             )
 
     def SERVING(self, port):
-        self.port = port or self.port
+        self.bus.port = port or self.bus.port
         self.set_pid_file(STATUS_RUNNING)
 
     def ZIP_SERVING(self, zip_port):
-        self.zip_port = zip_port or self.zip_port
+        self.bus.zip_port = zip_port or self.bus.zip_port
         self.set_pid_file(STATUS_RUNNING)
 
     def EXIT(self):
         try:
-            os.unlink(self.pid_file)
+            os.unlink(self.bus.pid_file)
         except OSError:
             pass
 
@@ -468,8 +478,42 @@ class ProcessControlPlugin(Monitor):
                 self.bus.log("Stopping server.")
                 self.thread.cancel()
                 self.bus.transition("EXITED")
+            elif command == UPDATE_ZEROCONF:
+                self.bus.publish("UPDATE_ZEROCONF")
+                # since publish doesn't modify the bus state like `transition` does, we would keep
+                # triggering this if we didn't set modified time, so setting it means we'll wait
+                # for a new change
+                self.mtime = mtime
             else:
                 self.mtime = mtime
+
+
+class ThreadWait(SimplePlugin):
+    """
+    Vendored from magicbus for Python 3.9 compatibility.
+    The current released version of magicbus is still using isAlive
+    instead of is_alive which is no longer used in Python 3.9.
+    """
+
+    def EXIT(self):
+        # Waiting for ALL child threads to finish is necessary on OS X.
+        # See http://www.cherrypy.org/ticket/581.
+        # It's also good to let them all shut down before allowing
+        # the main thread to call atexit handlers.
+        # See http://www.cherrypy.org/ticket/751.
+        self.bus.log("Waiting for child threads to terminate...")
+        for t in threading.enumerate():
+            if t == threading.current_thread() or not t.is_alive():
+                continue
+
+            # Note that any dummy (external) threads are always daemonic.
+            if t.daemon or isinstance(t, threading._MainThread):
+                continue
+
+            self.bus.log("Waiting for thread %s." % t.getName())
+            t.join()
+
+    EXIT.priority = 100
 
 
 def wait_for_status(target, timeout=10):
@@ -525,82 +569,174 @@ def stop():
     return STATUS_STOPPED
 
 
-def configure_http_server(port, zip_port, bus):
-    from kolibri.deployment.default.wsgi import application
-    from kolibri.deployment.default.alt_wsgi import alt_application
+class KolibriProcessBus(ProcessBus):
+    """
+    This class is the state machine that manages the starting, restarting, and shutdown of
+    a running Kolibri instance. It is responsible for starting any WSGI servers that respond
+    to HTTP requests in the Kolibri lifecycle, and also other ancillary services like
+    a ZeroConf server, task runner work pool, scheduler, etc.
 
-    server_config = {
-        "numthreads": conf.OPTIONS["Server"]["CHERRYPY_THREAD_POOL"],
-        "request_queue_size": conf.OPTIONS["Server"]["CHERRYPY_QUEUE_SIZE"],
-        "timeout": conf.OPTIONS["Server"]["CHERRYPY_SOCKET_TIMEOUT"],
-        "accepted_queue_size": conf.OPTIONS["Server"]["CHERRYPY_QUEUE_SIZE"],
-        "accepted_queue_timeout": conf.OPTIONS["Server"]["CHERRYPY_QUEUE_TIMEOUT"],
-    }
+    The primary use case for this process bus is for running Kolibri in a consumer server or
+    application context - although it can still be used to run the background services in
+    other contexts. One possible example for the extensibility of this class is if it is used
+    in conjunction with uwsgi, the 'restart' method of this class can be updated in a subclass
+    to run the specific `uwsgi.restart()` function that would otherwise not get invoked.
+    """
 
-    kolibri_address = (LISTEN_ADDRESS, port)
-
-    kolibri_server = KolibriServerPlugin(
-        bus,
-        httpserver=Server(kolibri_address, application, **server_config),
-        bind_addr=kolibri_address,
-    )
-
-    alt_port_addr = (
-        LISTEN_ADDRESS,
-        zip_port,
-    )
-
-    alt_port_server = ZipContentServerPlugin(
-        bus,
-        httpserver=Server(alt_port_addr, alt_application, **server_config),
-        bind_addr=alt_port_addr,
-    )
-    # Subscribe these servers
-    kolibri_server.subscribe()
-    alt_port_server.subscribe()
-
-
-def background_port_check(port, zip_port):
-    # Do this before daemonization, otherwise just let the server processes handle this
-    # In case that something other than Kolibri occupies the port,
-    # check the port's availability.
-    # Bypass check when socket activation is used
-    # https://manpages.debian.org/testing/libsystemd-dev/sd_listen_fds.3.en.html#ENVIRONMENT
-    # Also bypass when the port is 0, as that will choose a port
-    port = int(port)
-    zip_port = int(zip_port)
-    if (
-        not os.environ.get("LISTEN_PID", None)
-        and port
-        and not check_port_availability(LISTEN_ADDRESS, port)
+    def __init__(
+        self,
+        port=0,
+        zip_port=0,
+        serve_http=True,
+        background=False,
+        pid_file=PID_FILE,
+        listen_address=LISTEN_ADDRESS,
     ):
-        # Port is occupied
-        logger.error(
-            "Port {} is occupied.\n"
-            "Please check that you do not have other processes "
-            "running on this port and try again.\n".format(port)
-        )
-        sys.exit(1)
-    if (
-        not os.environ.get("LISTEN_PID", None)
-        and zip_port
-        and not check_port_availability(LISTEN_ADDRESS, zip_port)
-    ):
-        # Port is occupied
-        logger.error(
-            "Port {} is occupied.\n"
-            "Please check that you do not have other processes "
-            "running on this port and try again.\n".format(zip_port)
-        )
-        sys.exit(1)
-    if port:
-        __, urls = get_urls(listen_port=port)
-        for url in urls:
-            logger.info("Kolibri running on: {}".format(url))
-    else:
-        logger.info(
-            "No port specified, for information about accessing the server, run kolibri status"
-        )
+        self.listen_address = listen_address
+        self.pid_file = pid_file
+        self.background = background
+        self.serve_http = serve_http
+        self.port = int(port)
+        port_cache.lock_port(self.port)
+        self.zip_port = int(zip_port)
+        port_cache.lock_port(self.zip_port)
+        # On Mac, Python crashes when forking the process, so prevent daemonization until we can figure out
+        # a better fix. See https://github.com/learningequality/kolibri/issues/4821
+        if sys.platform == "darwin":
+            self.background = False
+
+        # Check if there are other kolibri instances running
+        # If there are, then we need to stop users from starting kolibri again.
+        pid, _, _, status = _read_pid_file(self.pid_file)
+
+        if status in IS_RUNNING and pid_exists(pid):
+            logger.error(
+                "There is another Kolibri server running. "
+                "Please use `kolibri stop` and try again."
+            )
+            sys.exit(1)
+
+        super(KolibriProcessBus, self).__init__()
+        # This can be removed when a new version of magicbus is released that
+        # includes their fix for Python 3.9 compatibility.
+        self.thread_wait.unsubscribe()
+        self.thread_wait = ThreadWait(self)
+        self.thread_wait.subscribe()
+        # Setup plugin for handling PID file cleanup
+        # Do this first to obtain a PID file lock as soon as
+        # possible and reduce the risk of competing servers
+        pid_plugin = PIDPlugin(self)
+        pid_plugin.subscribe()
+
+        self.background_port_check()
+
+        logger.info("Starting Kolibri {version}".format(version=kolibri.__version__))
+
+        if self.background:
+            daemonize_plugin = DaemonizePlugin(self)
+            daemonize_plugin.subscribe()
+
+        log_plugin = LogPlugin(self)
+        log_plugin.subscribe()
+
+        self.configure_http_server()
+
+        # Setup plugin for services
+        service_plugin = ServicesPlugin(self)
+        service_plugin.subscribe()
+
+        # Setup zeroconf plugin
+        zeroconf_plugin = ZeroConfPlugin(self, port)
+        zeroconf_plugin.subscribe()
+
+        signal_handler = SignalHandler(self)
+
+        signal_handler.subscribe()
+
+        if getattr(settings, "DEVELOPER_MODE", False):
+            autoreloader = Autoreloader(self)
+            autoreloader.subscribe()
+
+        reload_plugin = ProcessControlPlugin(self)
+        reload_plugin.subscribe()
+
+    def _port_check(self, port):
+        # In case that something other than Kolibri occupies the port,
+        # check the port's availability.
+        # Bypass check when socket activation is used
+        # https://manpages.debian.org/testing/libsystemd-dev/sd_listen_fds.3.en.html#ENVIRONMENT
+        # Also bypass when the port is 0, as that will choose a port
+        port = int(port)
+        if (
+            not os.environ.get("LISTEN_PID", None)
+            and port
+            and not check_port_availability(self.listen_address, port)
+        ):
+            # Port is occupied
+            logger.error(
+                "Port {} is occupied.\n"
+                "Please check that you do not have other processes "
+                "running on this port and try again.\n".format(port)
+            )
+            sys.exit(1)
+
+    def background_port_check(self):
+        # Do this before daemonization, otherwise just let the server processes handle this
+        if self.background and self.serve_http:
+            self._port_check(self.port)
+            self._port_check(self.zip_port)
+            if self.port:
+                __, urls = get_urls(listen_port=self.port)
+                for url in urls:
+                    logger.info("Kolibri running on: {}".format(url))
+            else:
+                logger.info(
+                    "No port specified, for information about accessing the server, run kolibri status"
+                )
+
+    def configure_http_server(self):
+        if self.serve_http:
+            from kolibri.deployment.default.wsgi import application
+            from kolibri.deployment.default.alt_wsgi import alt_application
+
+            server_config = {
+                "numthreads": conf.OPTIONS["Server"]["CHERRYPY_THREAD_POOL"],
+                "request_queue_size": conf.OPTIONS["Server"]["CHERRYPY_QUEUE_SIZE"],
+                "timeout": conf.OPTIONS["Server"]["CHERRYPY_SOCKET_TIMEOUT"],
+                "accepted_queue_size": conf.OPTIONS["Server"]["CHERRYPY_QUEUE_SIZE"],
+                "accepted_queue_timeout": conf.OPTIONS["Server"][
+                    "CHERRYPY_QUEUE_TIMEOUT"
+                ],
+            }
+
+            kolibri_address = (self.listen_address, self.port)
+
+            kolibri_server = KolibriServerPlugin(
+                self,
+                httpserver=Server(kolibri_address, application, **server_config),
+                bind_addr=kolibri_address,
+            )
+
+            alt_port_addr = (
+                self.listen_address,
+                self.zip_port,
+            )
+
+            alt_port_server = ZipContentServerPlugin(
+                self,
+                httpserver=Server(alt_port_addr, alt_application, **server_config),
+                bind_addr=alt_port_addr,
+            )
+            # Subscribe these servers
+            kolibri_server.subscribe()
+            alt_port_server.subscribe()
+
+    def run(self):
+        self.graceful()
+        if not self.serve_http:
+            self.publish("SERVING", None)
+
+        self.block()
 
 
 def start(port=0, zip_port=0, serve_http=True, background=False):
@@ -609,73 +745,12 @@ def start(port=0, zip_port=0, serve_http=True, background=False):
 
     :param: port: Port number (default: 0) - assigned by free port
     """
-    port = int(port)
-    port_cache.lock_port(port)
-    zip_port = int(zip_port)
-    port_cache.lock_port(zip_port)
-    # On Mac, Python crashes when forking the process, so prevent daemonization until we can figure out
-    # a better fix. See https://github.com/learningequality/kolibri/issues/4821
-    if sys.platform == "darwin":
-        background = False
 
-    # Check if there are other kolibri instances running
-    # If there are, then we need to stop users from starting kolibri again.
-    pid, _, _, status = _read_pid_file(PID_FILE)
+    bus = KolibriProcessBus(
+        port=port, zip_port=zip_port, serve_http=serve_http, background=background
+    )
 
-    if status in IS_RUNNING and pid_exists(pid):
-        logger.error(
-            "There is another Kolibri server running. "
-            "Please use `kolibri stop` and try again."
-        )
-        sys.exit(1)
-
-    bus = ProcessBus()
-
-    # Setup plugin for handling PID file cleanup
-    # Do this first to obtain a PID file lock as soon as
-    # possible and reduce the risk of competing servers
-    pid_plugin = PIDPlugin(bus, port, zip_port)
-    pid_plugin.subscribe()
-
-    if background and serve_http:
-        background_port_check(port, zip_port)
-
-    logger.info("Starting Kolibri {version}".format(version=kolibri.__version__))
-
-    if background:
-        daemonize_plugin = DaemonizePlugin(bus)
-        daemonize_plugin.subscribe()
-
-    log_plugin = LogPlugin(bus)
-    log_plugin.subscribe()
-
-    if serve_http:
-        configure_http_server(port, zip_port, bus)
-
-    # Setup plugin for services
-    service_plugin = ServicesPlugin(bus)
-    service_plugin.subscribe()
-
-    # Setup zeroconf plugin
-    zeroconf_plugin = ZeroConfPlugin(bus, port)
-    zeroconf_plugin.subscribe()
-
-    signal_handler = SignalHandler(bus)
-
-    signal_handler.subscribe()
-
-    if getattr(settings, "DEVELOPER_MODE", False):
-        autoreloader = Autoreloader(bus)
-        autoreloader.subscribe()
-
-    reload_plugin = ProcessControlPlugin(bus)
-    reload_plugin.subscribe()
-
-    bus.graceful()
-    if not serve_http:
-        bus.publish("SERVING", None)
-
-    bus.block()
+    bus.run()
 
 
 def restart():
@@ -684,6 +759,14 @@ def restart():
     if not wait_for_status(STATUS_STOPPED):
         return False
     return wait_for_status(STATUS_RUNNING)
+
+
+def update_zeroconf_broadcast():
+    """
+    Updates the instance registered on the Zeroconf network
+    """
+    with open(PROCESS_CONTROL_FLAG, "w") as f:
+        f.write(UPDATE_ZEROCONF)
 
 
 def _read_pid_file(filename):
@@ -699,7 +782,7 @@ def _read_pid_file(filename):
                           if they exist. If the port number doesn't exist, then
                           port is None. Lastly, the status code is returned.
     """
-    if not os.path.isfile(PID_FILE):
+    if not os.path.isfile(filename):
         return None, None, None, STATUS_STOPPED
 
     try:

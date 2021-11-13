@@ -4,11 +4,36 @@ import LearnImmersiveLayout from '../../src/views/LearnImmersiveLayout';
 
 jest.mock('kolibri.urls');
 
+jest.mock('plugin_data', () => {
+  return {
+    __esModule: true,
+    default: {
+      channels: [],
+    },
+  };
+});
+
 const localVue = createLocalVue();
 
 const store = makeStore();
 store.state.core = {
   blockDoubleClicks: true,
+  logging: {
+    summary: {
+      progress: 0,
+    },
+  },
+};
+store.state.topicsTree = {
+  content: {
+    coach_content: 0,
+  },
+};
+
+store.getters = {
+  isAdmin() {
+    return false;
+  },
 };
 
 function makeWrapper({ propsData } = {}) {

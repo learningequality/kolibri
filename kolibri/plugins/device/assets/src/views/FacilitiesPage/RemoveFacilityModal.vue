@@ -122,7 +122,7 @@
       },
       cannotRemoveOwnFacilityExplanation: {
         message: 'Super admins cannot remove facilities they are a member of.',
-        context: 'Modal description text',
+        context: 'Modal description text.',
       },
       signInAsOtherAdminExplanation: {
         message:

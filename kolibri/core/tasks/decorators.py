@@ -22,6 +22,7 @@ def register_task(
 ):
     """
     Registers the decorated function as task.
+    :rtype: RegisteredJob|callable
     """
     if permission_classes is None:
         permission_classes = []

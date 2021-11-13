@@ -16,6 +16,7 @@ from sqlalchemy import create_engine
 from .sqlalchemytesting import django_connection_engine
 from .test_content_app import ContentNodeTestBase
 from kolibri.core.content import models as content
+from kolibri.core.content.constants.kind_to_learningactivity import kind_activity_map
 from kolibri.core.content.constants.schema_versions import CONTENT_SCHEMA_VERSION
 from kolibri.core.content.constants.schema_versions import NO_VERSION
 from kolibri.core.content.constants.schema_versions import V020BETA1
@@ -23,6 +24,7 @@ from kolibri.core.content.constants.schema_versions import V040BETA3
 from kolibri.core.content.constants.schema_versions import VERSION_1
 from kolibri.core.content.constants.schema_versions import VERSION_2
 from kolibri.core.content.constants.schema_versions import VERSION_3
+from kolibri.core.content.constants.schema_versions import VERSION_4
 from kolibri.core.content.models import AssessmentMetaData
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
@@ -263,6 +265,8 @@ class BaseChannelImportClassOtherMethodsTestCase(TestCase):
             channel_import, "generate_table_mapper"
         ), patch.object(channel_import, "table_import"), patch.object(
             channel_import, "check_and_delete_existing_channel"
+        ), patch.object(
+            channel_import, "execute_post_operations"
         ):
             channel_import.import_channel_data()
             channel_import.generate_row_mapper.assert_called_once_with(
@@ -273,6 +277,7 @@ class BaseChannelImportClassOtherMethodsTestCase(TestCase):
             )
             channel_import.table_import.assert_called_once()
             channel_import.check_and_delete_existing_channel.assert_called_once()
+            channel_import.execute_post_operations.assert_called_once()
 
     def test_end(self, apps_mock, tree_id_mock, BridgeMock):
         channel_import = ChannelImport("test")
@@ -292,8 +297,9 @@ class BaseChannelImportClassOtherMethodsTestCase(TestCase):
 
 
 class MaliciousDatabaseTestCase(TestCase):
+    @patch("kolibri.core.content.utils.channel_import.set_channel_ancestors")
     @patch("kolibri.core.content.utils.channel_import.initialize_import_manager")
-    def test_non_existent_root_node(self, initialize_manager_mock):
+    def test_non_existent_root_node(self, initialize_manager_mock, ancestor_mock):
         import_mock = MagicMock()
         initialize_manager_mock.return_value = import_mock
         channel_id = "6199dde695db4ee4ab392222d5af1e5c"
@@ -480,6 +486,23 @@ class NaiveImportTestCase(ContentNodeTestBase, ContentImportTestBase):
         new_prereqs = ContentNode.has_prerequisite.through.objects.all().count()
         self.assertEqual(prereqs, new_prereqs)
 
+    def test_learning_activity_set(self):
+        # Do this to avoid doing this test on more up to date versions
+        try:
+            int_version = int(self.name)
+            if int_version >= 5:
+                return
+        except ValueError:
+            pass
+        for kind, learning_activity in kind_activity_map.items():
+            # For each defined mapping, make sure none have not been mapped
+            self.assertEqual(
+                ContentNode.objects.filter(kind=kind)
+                .exclude(learning_activities=learning_activity)
+                .count(),
+                0,
+            )
+
     def test_existing_localfiles_are_not_overwritten(self):
 
         with patch(
@@ -542,6 +565,22 @@ class ImportLongDescriptionsTestCase(ContentImportTestBase, TransactionTestCase)
             ContentNode.objects.get(id="2e8bac07947855369fe2d77642dfc870").description,
             self.longdescription,
         )
+
+
+class Version4ImportTestCase(NaiveImportTestCase):
+    """
+    Integration test for import from no version import
+    """
+
+    name = VERSION_4
+
+    @classmethod
+    def tearDownClass(cls):
+        super(Version4ImportTestCase, cls).tearDownClass()
+
+    @classmethod
+    def setUpClass(cls):
+        super(Version4ImportTestCase, cls).setUpClass()
 
 
 class Version3ImportTestCase(NaiveImportTestCase):

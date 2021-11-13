@@ -3,6 +3,7 @@
   <div v-if="contentNode">
     <div class="learning-activity">
       <span
+        v-if="!labelAfter"
         class="label"
         data-test="label"
       >
@@ -16,11 +17,19 @@
           :kind="learningActivity"
           :style="{ fontSize: '18px' }"
         />
+        <span
+          v-if="labelAfter"
+          class="label"
+          data-test="label"
+        >
+          {{ label }}
+        </span>
       </template>
     </div>
     <div
+      v-if="!hideDuration"
+      class="duration"
       data-test="duration"
-      :style="{ marginTop: '8px' }"
     >
       <TimeDuration
         v-if="displayMinutes"
@@ -62,6 +71,17 @@
       contentNode: {
         type: Object,
         required: true,
+      },
+      hideDuration: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
+      // allows for switching the order of the label and the icon
+      labelAfter: {
+        type: Boolean,
+        required: false,
+        default: false,
       },
     },
     computed: {
@@ -151,6 +171,7 @@
 
     .label {
       padding-right: 4px;
+      padding-left: 4px;
     }
 
     .icon {
@@ -159,6 +180,11 @@
       position: static;
       padding-left: 2px;
     }
+  }
+
+  .duration {
+    margin-top: 8px;
+    text-align: right;
   }
 
 </style>

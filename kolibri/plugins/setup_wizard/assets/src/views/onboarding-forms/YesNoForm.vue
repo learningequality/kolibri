@@ -96,7 +96,7 @@
       details: {
         message: 'You can change this in your facility settings later',
         context:
-          "Note to indicate that admins can change all the settings later after they've done the initial set up.",
+          "Note to indicate that admins can change the settings later after they've done the initial set up.",
       },
       yesOptionLabel: {
         message: 'Yes',

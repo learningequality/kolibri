@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-15 16:05-0700\n"
-"PO-Revision-Date: 2021-09-23 20:20\n"
+"POT-Creation-Date: 2021-11-01 22:12-0700\n"
+"PO-Revision-Date: 2021-11-02 05:29\n"
 "Last-Translator: \n"
 "Language-Team: Portuguese, Brazilian\n"
 "Language: pt_BR\n"
@@ -139,7 +139,7 @@ msgstr "O valor da coluna '{}' tem muitos caracteres"
 
 #: core/auth/management/commands/bulkimportusers.py:82
 msgid "Value in column '{}' not valid"
-msgstr ""
+msgstr "O valor na coluna '{}' não é válido"
 
 #: core/auth/management/commands/bulkimportusers.py:83
 msgid "Username is duplicated"
@@ -153,7 +153,7 @@ msgstr "Os campos da coluna '{}' são obrigatórios"
 #: core/auth/management/commands/bulkimportusers.py:93
 msgctxt "Error message indicating that one column header in the CSV file selected for import is missing or incorrect"
 msgid "Incorrect header label found in the first row"
-msgstr ""
+msgstr "Há algum cabeçalho inválido na primeira linha"
 
 #: core/auth/management/commands/bulkimportusers.py:97
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
@@ -172,15 +172,15 @@ msgstr "Não foi possível atualizar o usuário ID: '{}' porque nenhum usuário 
 msgid "Database ID is not valid"
 msgstr "O ID deste banco de dados não é valido"
 
-#: core/content/api.py:158
+#: core/content/api.py:170
 msgid "Resource"
 msgstr "Conteúdo"
 
-#: core/content/api.py:1316
+#: core/content/api.py:1327
 msgid "The requested channel does not exist on the content server"
 msgstr "O canal solicitado não existe no servidor de conteúdo"
 
-#: core/content/models.py:220
+#: core/content/models.py:252
 msgid "Unknown format"
 msgstr "Formato desconhecido"
 
@@ -188,12 +188,12 @@ msgstr "Formato desconhecido"
 msgid "Language is not supported by Kolibri"
 msgstr "Kolibri ainda não está disponível neste idioma"
 
-#: core/logger/csv_export.py:204
+#: core/logger/csv_export.py:205
 msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
 msgid "content_session_logs"
 msgstr "sessões_únicas_por_recurso"
 
-#: core/logger/csv_export.py:214
+#: core/logger/csv_export.py:215
 msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
 msgid "content_summary_logs"
 msgstr "resumo_sessões_por_recurso"

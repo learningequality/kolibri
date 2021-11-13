@@ -1,6 +1,9 @@
 <template>
 
-  <BaseCard v-bind="{ to, title, collectionTitle, completedLabel, inProgressLabel }" />
+  <BaseCard
+    v-if="lesson"
+    v-bind="{ to, title, collectionTitle, completedLabel, inProgressLabel }"
+  />
 
 </template>
 

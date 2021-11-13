@@ -9,6 +9,7 @@ from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.auth.constants.collection_kinds import ADHOCLEARNERSGROUP
 from kolibri.core.exams import models
 from kolibri.core.exams import serializers
+from kolibri.core.logger.models import MasteryLog
 from kolibri.core.query import annotate_array_aggregate
 
 
@@ -116,12 +117,16 @@ class ExamViewset(ValuesViewset):
         was_archived = serializer.instance.archive
         serializer.save()
 
+        masterylog_queryset = MasteryLog.objects.filter(
+            summarylog__content_id=serializer.instance.id
+        )
+
         if was_active and not serializer.instance.active:
-            # Has changed from active to not active, set completion_timestamps on all non closed examlogs
-            serializer.instance.examlogs.filter(
-                completion_timestamp__isnull=True
-            ).update(completion_timestamp=now())
+            # Has changed from active to not active, set completion_timestamps on all non complete masterylogs
+            masterylog_queryset.filter(completion_timestamp__isnull=True).update(
+                completion_timestamp=now()
+            )
 
         if not was_archived and serializer.instance.archive:
-            # It was not archived (closed), but now it is - so we close all ExamLogs
-            serializer.instance.examlogs.update(closed=True)
+            # It was not archived (closed), but now it is - so we set all MasteryLogs as complete
+            masterylog_queryset.update(complete=True)

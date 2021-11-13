@@ -205,7 +205,7 @@
       noUsersMatch: {
         message: 'No users match',
         context:
-          'If no users match the search for users to enroll in a group, this message will display.',
+          'If no users can be found when a coach searches for users to enroll in a group, this message will display.',
       },
       previousResults: {
         message: 'Previous results',
@@ -225,7 +225,9 @@
       pagination: {
         message:
           '{ visibleStartRange, number } - { visibleEndRange, number } of { numFilteredUsers, number }',
-        context: 'Indicates the pagination of the enroll users into a group page.',
+
+        context:
+          "Indicates the pagination of the enroll users into a group page.\nTranslate ONLY the word 'of'.",
       },
       learnerGroups: {
         message: 'Current groups',

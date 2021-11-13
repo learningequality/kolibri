@@ -74,7 +74,7 @@
   "SetupMethod.initializeDevice": "Sélectionnez une configuration d'établissement pour cet appareil",
   "SetupMethod.lod": "Appareil en mode Apprendre uniquement",
   "SetupMethod.lodTooltip": "L'appareil aura des fonctionnalités de Kolibri pour les apprenants, mais pas celles pour les éducateurs et les administrateurs",
-  "SetupStrings.personalFacilityName": "Configuration de l'établissement {name}",
+  "SetupStrings.personalFacilityName": "Établissement \"à la maison\" pour {name}",
   "SetupWizardIndex.documentTitle": "Assistant de configuration",
   "SuperuserCredentialsForm.adminAccountCreationDescription": "Ce compte vous permet de gérer les établissements, ressources et les comptes utilisateur sur cet appareil",
   "SuperuserCredentialsForm.adminAccountCreationHeader": "Créer un compte super admin",
