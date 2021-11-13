@@ -745,8 +745,9 @@ class FacilityTaskAPITestCase(APITestCase):
                 "Extra metadata key `{}` doesn't match".format(key),
             )
 
-    def test_list_unprovisioned(self, facility_queue):
-        facility_queue.jobs.return_value = []
+    @patch("kolibri.core.tasks.api.job_storage")
+    def test_list_unprovisioned(self, mock_job_storage, facility_queue):
+        mock_job_storage.get_all_jobs.return_value = []
         response = self.client.get(
             reverse("kolibri:core:facilitytask-list"), format="json"
         )
