@@ -43,12 +43,12 @@
           </div>
           <div class="progress">
             <KIcon
-              v-if="withProgress(content).progress === 1"
+              v-if="progressFor(content) === 1"
               icon="star"
               class="mastered-icon"
               :style="{ fill: $themeTokens.mastered }"
             />
-            <ProgressBar v-else :contentNode="withProgress(content)" class="bar" />
+            <ProgressBar v-else :contentNode="content" class="bar" />
           </div>
         </div>
 
@@ -173,11 +173,8 @@
     },
     methods: {
       genContentLink,
-      withProgress(node) {
-        const progress = {
-          progress: this.contentNodeProgressMap[node.content_id] || 0,
-        };
-        return { ...node, ...progress };
+      progressFor(node) {
+        return this.contentNodeProgressMap[node.content_id] || 0;
       },
     },
   };
