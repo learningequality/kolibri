@@ -63,7 +63,7 @@ def calculate_thread_pool():
     if psutil:
         MIN_MEM = 2
         MAX_MEM = 6
-        total_memory = psutil.virtual_memory().total / pow(2, 30)  # in Gb
+        total_memory = psutil.virtual_memory().total / pow(10, 9)  # in Gb
         # if it's in the range, scale thread count linearly with available memory
         if MIN_MEM < total_memory < MAX_MEM:
             pool_size = MIN_POOL + int(
