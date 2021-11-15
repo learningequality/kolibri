@@ -29,6 +29,7 @@
             :color="$themeTokens.text"
             :tooltip="$tr('viewAsList')"
             @click="toggleCardView('list')"
+            :disabled="currentViewStyle === 'list' && true"
           />
           <KIconButton
             icon="channel"
@@ -36,6 +37,7 @@
             :color="$themeTokens.text"
             :tooltip="$tr('viewAsGrid')"
             @click="toggleCardView('card')"
+            :disabled="currentViewStyle === 'card' && true"
           />
         </div>
         <h2 v-if="resumableContentNodes.length">
@@ -75,6 +77,7 @@
             :color="$themeTokens.text"
             :tooltip="$tr('viewAsList')"
             @click="toggleCardView('list')"
+            :disabled="currentViewStyle === 'list' && true"
           />
           <KIconButton
             icon="channel"
@@ -82,6 +85,7 @@
             :color="$themeTokens.text"
             :tooltip="$tr('viewAsGrid')"
             @click="toggleCardView('card')"
+            :disabled="currentViewStyle === 'card' && true"
           />
         </div>
         <SearchChips
