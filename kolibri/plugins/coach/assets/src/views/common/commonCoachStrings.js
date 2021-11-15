@@ -522,6 +522,27 @@ const MissingContentStrings = createTranslator('MissingContentStrings', {
     message: 'Difficult questions in the most recent attempt of all learners',
     context: "Description for the 'Difficult questions' subtab.",
   },
+  answerLogCorrectLabel: {
+    message: 'Learner answered this correctly on the previous attempt',
+    context:
+      'Label that indicates to the coach that the learner answered this question correctly last time they took the quiz.',
+  },
+  answerLogIncorrectLabel: {
+    message: 'Learner also answered this incorrectly on the previous attempt',
+    context:
+      'Label that indicates to the coach that the learner answered this question incorrectly both on this attempt and on the previous one',
+  },
+  answerLogImprovedLabel: {
+    message: 'Learner improved their incorrect answer from the previous attempt',
+    context:
+      'Label that indicates to the coach that the learner got the question wrong on the previous attempt, but got it correctly this time.',
+  },
+  practiceQuizReportImprovedLabel: {
+    message:
+      'Learner improved at {value, number, integer} {value, plural, one {question} other {questions}}',
+    context:
+      'Indicates to the coach how many questions the learner answered correctly compared to the previous attempt',
+  },
 });
 
 const coachStringsMixin = {
