@@ -336,7 +336,7 @@
         // and also to allow access to the cancel method of the debounced function
         // best practice seems to be to do it as a computed property and not a method:
         // https://github.com/vuejs/vue/issues/2870#issuecomment-219096773
-        return debounce(this.setAndSaveCurrentExamAttemptLog, 5000);
+        return debounce(this.setAndSaveCurrentExamAttemptLog, 500);
       },
       bottomBarLayoutDirection() {
         // Allows contents to be displayed visually in reverse-order,
