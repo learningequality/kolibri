@@ -1,6 +1,6 @@
 <template>
 
-  <MultiPaneLayout ref="multiPaneLayout">
+  <MultiPaneLayout ref="multiPaneLayout" class="container">
     <template #header>
       <PageStatus
         :contentName="exam.title"
@@ -210,6 +210,12 @@
 
   .exercise-container {
     padding: 8px;
+  }
+
+  .container {
+    top: 24px;
+    max-width: 1000px;
+    background-color: white;
   }
 
   h3 {

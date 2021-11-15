@@ -47,7 +47,7 @@
 
       <span class="menu-wrapper">
         <KIconButton
-          v-if="menuActions.length"
+          v-if="menuActions.length && !isQuiz"
           ref="moreOptionsButton"
           data-test="moreOptionsButton"
           icon="optionsHorizontal"
@@ -201,6 +201,14 @@
         required: false,
         default: null,
       },
+      /**
+      Is this a practice quiz?
+      */
+      isQuiz: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
     },
     data() {
       return {
@@ -210,6 +218,18 @@
     },
     computed: {
       allActions() {
+        if (this.isQuiz) {
+          return [
+            {
+              id: 'timer',
+              // TO DO Marcella update to correct icon
+              icon: 'menu',
+              label: this.coreString('timeSpentLabel'),
+              // TO DO Marcella connect event when practice quiz timer is added
+              // event: 'toggleTimerMenu',
+            },
+          ];
+        }
         const actions = [
           {
             id: 'view-resource-list',
@@ -253,6 +273,9 @@
       },
       barActions() {
         const actions = [];
+        if (this.isQuiz) {
+          actions.push(this.allActions.find(action => action.id === 'timer'));
+        }
         if (this.windowBreakpoint >= 1) {
           actions.push(this.allActions.find(action => action.id === 'view-resource-list'));
         }

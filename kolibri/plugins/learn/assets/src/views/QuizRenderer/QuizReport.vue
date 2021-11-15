@@ -2,6 +2,7 @@
 
   <ExamReport
     :examAttempts="quizAttempts"
+    class="report"
     :exam="{ title: 'test' }"
     :userName="userName"
     :userId="userId"
@@ -80,12 +81,13 @@
     },
     computed: {
       completionTimestamp() {
-        return this.pastattempts.length
+        const time = this.pastattempts.length
           ? this.pastattempts
               .map(a => a.end_timestamp)
               .sort()
               .slice(-1)[0]
           : null;
+        return time ? new Date(time) : null;
       },
       quizAttempts() {
         return this.questions.map((itemId, index) => {
@@ -147,6 +149,10 @@
 
   .no-exercise {
     text-align: center;
+  }
+
+  .report {
+    margin: auto;
   }
 
 </style>

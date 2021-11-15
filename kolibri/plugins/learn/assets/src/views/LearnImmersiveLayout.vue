@@ -12,6 +12,7 @@
       :resourceTitle="resourceTitle"
       :learningActivities="mappedLearningActivities"
       :isLessonContext="lessonContext"
+      :isQuiz="content.assessment"
       :isBookmarked="bookmark ? true : bookmark"
       :isCoachContent="isCoachContent"
       :contentProgress="contentProgress"
@@ -52,6 +53,7 @@
         data-test="contentPage"
         :content="content"
         :lessonId="lessonId"
+        :style="{ backgroundColor: ( content.assessment ? '' : $themeTokens.textInverted ) }"
       />
     </div>
 
@@ -397,7 +399,6 @@
   .main-wrapper {
     display: inline-block;
     width: 100%;
-    background-color: white;
 
     @media print {
       /* Without this, things won't print correctly
