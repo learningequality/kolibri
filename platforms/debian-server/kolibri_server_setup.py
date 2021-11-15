@@ -159,7 +159,7 @@ def check_redis_service():
     return status
 
 
-def save_nginx_conf_port(port, nginx_conf=None):
+def save_nginx_conf_port(port, zip_port, nginx_conf=None):
     """
      Adds the port for nginx to run to an existing config file.
     """
@@ -183,44 +183,23 @@ def save_nginx_conf_port(port, nginx_conf=None):
         "    include uwsgi_params;\n"
         "    uwsgi_pass unix:///tmp/kolibri_uwsgi.sock;\n"
         "    proxy_ignore_headers Vary;\n"
-        "    error_page 502 @error502;\n"
         "  }}\n\n"
         "  location @error502 {{\n"
         "    include uwsgi_params;\n"
-        "    uwsgi_pass unix:///tmp/kolibri_hashi_uwsgi.sock;\n"
-        '    proxy_ignore_headers Vary;\n'
+        "    uwsgi_pass unix:///tmp/kolibri_uwsgi.sock;\n"
         "  }}\n"
         "}}\n"
-    ).format(port=port, path_prefix=path_prefix)
-
-    with open(nginx_conf, "w") as nginx_conf_file:
-        nginx_conf_file.write(configuration)
-
-
-def save_nginx_conf_include(zip_port):
-    """
-    Automatically writes the dynamic Nginx configuration include from Kolibri
-    configuration.
-
-    This function is called from within the DJANGO_SETTINGS_MODULE after it
-    has defined ZIP_CONTENT_PORT and URL_PATH_PREFIX.
-    """
-
-    nginx_conf = os.path.join(KOLIBRI_HOME, "nginx.conf")
-
-    configuration = (
         "\n"
         "server{{\n"
         "  listen {zip_port};\n"
         "  location {path_prefix} {{\n"
         "    include uwsgi_params;\n"
         "    uwsgi_pass unix:///tmp/kolibri_hashi_uwsgi.sock;\n"
-        '    proxy_ignore_headers Vary;\n'
         "  }}\n"
         "}}\n"
-    ).format(zip_port=zip_port, path_prefix=path_prefix)
+    ).format(port=port, path_prefix=path_prefix, zip_port=zip_port)
 
-    with open(nginx_conf, "a") as nginx_conf_file:
+    with open(nginx_conf, "w") as nginx_conf_file:
         nginx_conf_file.write(configuration)
 
 
@@ -266,7 +245,6 @@ if __name__ == "__main__":
                 enable_redis_cache()
             else:
                 disable_redis_cache()
-            save_nginx_conf_port(port)
-            save_nginx_conf_include(zip_content_port)
+            save_nginx_conf_port(port, zip_content_port)
             # Let's update debconf, just in case the user has changed the port in options.ini:
             set_debconf_ports(port, zip_content_port)
