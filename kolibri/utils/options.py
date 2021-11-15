@@ -26,6 +26,7 @@ except NotImplementedError:
     psutil = None
 
 
+from kolibri.utils.data import bytes_from_humans
 from kolibri.utils.i18n import KOLIBRI_LANGUAGE_INFO
 from kolibri.utils.i18n import KOLIBRI_SUPPORTED_LANGUAGES
 from kolibri.plugins.utils.options import extend_config_spec
@@ -204,6 +205,14 @@ def origin_or_port(value):
             if not url.scheme or not url.netloc:
                 raise VdtValueError(value)
             value = urlunparse((url.scheme, url.netloc, "", "", "", ""))
+    return value
+
+
+def validate_bytes(value):
+    try:
+        value = bytes_from_humans(value)
+    except ValueError:
+        raise VdtValueError(value)
     return value
 
 
@@ -499,11 +508,12 @@ base_option_spec = {
             """,
         },
         "MINIMUM_DISK_SPACE": {
-            "type": "integer",
-            "default": 250000000,
+            "type": "bytes",
+            "default": "250MB",
             "description": """
-                The minimum free disk space in bytes that Kolibri should try to maintain on the device. This will
+                The minimum free disk space that Kolibri should try to maintain on the device. This will
                 be used as the floor value to prevent Kolibri completely filling the disk during file import.
+                Value can either be an integer in bytes or suffixed with a unit from B, KB, MB, GB, TB, or PB.
             """,
         },
     },
@@ -539,6 +549,7 @@ def _get_validator():
             "origin_or_port": origin_or_port,
             "port": port,
             "url_prefix": url_prefix,
+            "bytes": validate_bytes,
         }
     )
 
