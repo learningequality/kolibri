@@ -1043,8 +1043,8 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Report for {quizTitle}',
     context: 'Label for a report corresponding to a practice quiz',
   },
-  practiceAgainButton: {
-    message: 'Practice again',
+  tryAgainButton: {
+    message: 'Try again',
     context: 'Label for a button used to retake the quiz',
   },
   statusLabel: {
