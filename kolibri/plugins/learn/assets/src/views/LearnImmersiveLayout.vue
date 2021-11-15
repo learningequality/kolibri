@@ -151,8 +151,8 @@
     mixins: [responsiveWindowMixin, commonCoreStrings],
     setup() {
       const { canDownload } = useCoreLearn();
-      const { contentNodeProgressMap, fetchContentNodeProgress } = useContentNodeProgress();
-      return { canDownload, contentNodeProgressMap, fetchContentNodeProgress };
+      const { fetchContentNodeProgress } = useContentNodeProgress();
+      return { canDownload, fetchContentNodeProgress };
     },
     props: {
       content: {
@@ -273,38 +273,28 @@
           }
         }
       },
-      /** Calls useContentNodeProgress#fetchContentNodeProgress() with the given nodes
-       *  in order to populate the contentNodeProgressMap for use elsewhere (AlsoInThis)
-       *  @modifies this.contentNodeProgressMap (indirectly)
-       */
-      mapSidePanelContentProgress(nodes) {
-        const getParams = {
-          ids: nodes.map(node => node.id),
-        };
-        return this.fetchContentNodeProgress(getParams);
-      },
       /**
-       * Retrieves the lesson, then populates contentNodeProgressMap for the resulting
-       * nodes, then sets those nodes (sans this.content) to viewResourcesContents
+       * When a lessonId is given, this method will fetch the lesson and then fetch its
+       * content nodes. The user is guaranteed to be logged in if there is a lessonId.
+       *
+       * The nodes' progresses are mapped via the useContentNodeProgress composable
+       *
        * @modifies this.viewResourcesContents - Assigned the content nodes retrieved
-       * @modifies useContentNodeProgress.contentNodeProgressMap (indirectly) if the user
-       * is logged in
+       * @modifies useContentNodeProgress.contentNodeProgressMap (indirectly)
        */
       fetchLessonSiblings() {
+        // Map the progress for this lesson to start with
+        this.fetchContentNodeProgress({ lesson_id: this.lessonId });
+
+        // Get the lesson and then assign its resources to this.viewResourcesContents
         LessonResource.fetchModel({ id: this.lessonId }).then(lesson => {
           ContentNodeResource.fetchCollection({
             getParams: {
               ids: lesson.resources.map(resource => resource.contentnode_id),
             },
           }).then(contentNodes => {
-            const removeSelfFilter = node => node.id !== this.content.id;
-            if (this.$store.getters.isUserLoggedIn) {
-              this.mapSidePanelContentProgress(contentNodes).then(
-                () => (this.viewResourcesContents = contentNodes.filter(removeSelfFilter))
-              );
-            } else {
-              this.viewResourcesContents = contentNodes.filter(removeSelfFilter);
-            }
+            // Filter out this.content
+            this.viewResourcesContents = contentNodes.filter(n => n.id !== this.content.id);
           });
         });
       },
@@ -312,10 +302,11 @@
        * Prepares a list of content nodes which are children of this.content.parent without
        * this.content and calls fetchContentNodeProgress when the user is logged in.
        *
-       * Largely borrowed from modules/topicsTree/handlers.js
+       * Then it will fetch the "next folder" - which is the next content for this.content that
+       * is a topic.
        *
        * @modifies this.viewResourcesContents - Sets it to the progress-mapped nodes
-       * @modifies this.nextFolder - Sets the value with this.content's parents next sibling folder
+       * @modifies this.nextContent - Sets the value with this.content's parents next sibling folder
        * if found
        * @modifies useContentNodeProgress.contentNodeProgressMap (indirectly) if the user
        * is logged in
@@ -328,11 +319,23 @@
               this.$store.getters.isAdmin ||
               this.$store.getters.isCoach ||
               this.$store.getters.isSuperuser,
+            depth: 1,
           },
         }).then(parent => {
           // Filter out this.content
-          const nodes = parent.children.results.filter(node => node.id !== this.content.id);
+          this.viewResourcesContents = parent.children.results.filter(
+            n => n.id !== this.content.id
+          );
 
+          // Fetch and map the progress for the nodes if logged in
+          if (this.$store.getters.isUserLoggedIn) {
+            const getParams = {
+              ids: this.viewResourcesContents.map(node => node.id),
+            };
+            this.fetchContentNodeProgress(getParams);
+          }
+
+          // Finally fetch the next content
           ContentNodeResource.fetchNextContent(parent.id, {
             topicOnly: true,
           }).then(nextContent => {
@@ -340,14 +343,6 @@
             // not to assign that
             if (nextContent && this.content.parent !== nextContent.id) {
               this.nextContent = nextContent;
-            }
-            const removeSelfFilter = node => node.id !== this.content.id;
-            if (this.$store.getters.isUserLoggedIn) {
-              this.mapSidePanelContentProgress(nodes).then(
-                () => (this.viewResourcesContents = nodes.filter(removeSelfFilter))
-              );
-            } else {
-              this.viewResourcesContents = nodes.filter(removeSelfFilter);
             }
           });
         });
