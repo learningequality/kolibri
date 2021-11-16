@@ -73,23 +73,6 @@ def set_zip_content_port(port):
     """
     update_options_file("Deployment", "ZIP_CONTENT_PORT", port)
 
-def disable_cherrypy():
-    """
-    Disables internal kolibri web server.
-    Kolibri will only run background tasks.
-    Web must be provided by an external server, usually uwsgi + nginx
-    """
-    update_options_file("Server", "CHERRYPY_START", False)
-
-
-def enable_cherrypy():
-    """
-    Enable internal kolibri web server.
-    This option is incompatible with running kolibri-server
-    """
-    update_options_file("Server", "CHERRYPY_START", True)
-
-
 def delete_redis_cache():
     """
     Delete previous cache in redis to reset it when the service starts.
@@ -219,32 +202,19 @@ if __name__ == "__main__":
         default="",
         help="Port to run hashi iframes used when installing/reconfiguring kolibri-server package",
     )
-    parser.add_argument(
-        "-c",
-        "--cherrypy",
-        required=False,
-        default=False,
-        action="store_true",
-        help="Restore cherrypy because kolibri-server is not going to be run",
-    )
     args = parser.parse_args()
-    if args.cherrypy:
-        enable_cherrypy()
-    else:
-        if (
-            args.debconfport
-        ):  # To be executed only when installing/reconfiguring the Debian package
-            disable_cherrypy()
-            set_port(args.debconfport)
-            if args.debconfzipport:
-                set_zip_content_port(args.debconfzipport)
+    if (
+        args.debconfport
+    ):  # To be executed only when installing/reconfiguring the Debian package
+        set_port(args.debconfport)
+        if args.debconfzipport:
+            set_zip_content_port(args.debconfzipport)
 
+    else:
+        if check_redis_service():
+            enable_redis_cache()
         else:
-            disable_cherrypy()
-            if check_redis_service():
-                enable_redis_cache()
-            else:
-                disable_redis_cache()
-            save_nginx_conf_port(port, zip_content_port)
-            # Let's update debconf, just in case the user has changed the port in options.ini:
-            set_debconf_ports(port, zip_content_port)
+            disable_redis_cache()
+        save_nginx_conf_port(port, zip_content_port)
+        # Let's update debconf, just in case the user has changed the port in options.ini:
+        set_debconf_ports(port, zip_content_port)

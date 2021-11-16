@@ -16,13 +16,24 @@ case "$1" in
     # to avoid problems with previous installations of kolibri-server beta versions:
     rm -f /etc/kolibri/nginx.d/port.conf
 
+    if which runuser > /dev/null
+    then
+      SU_COMMAND="runuser"
+    else
+      SU_COMMAND="su"
+    fi
+    # do a backup of the previous options.ini
+    if [ ! -e "$KOLIBRI_HOME/options.ini.kolibri-server-backup" ]; then
+        $SU_COMMAND $KOLIBRI_USER -c "cp -f $KOLIBRI_HOME/options.ini $KOLIBRI_HOME/options.ini.kolibri-server-backup"
+    fi
+
     # create nginx configurations:
     ln -sf /etc/kolibri/dist/nginx.conf /etc/nginx/conf.d/kolibri.conf
     db_get kolibri-server/port
     PORT=$RET
     db_get kolibri-server/zip_content_port
     ZIPCONTENTPORT=$RET
-    su $KOLIBRI_USER -c "/usr/share/kolibri-server/kolibri_server_setup.py -d $PORT -z $ZIPCONTENTPORT"
+    $SU_COMMAND $KOLIBRI_USER -c "/usr/share/kolibri-server/kolibri_server_setup.py -d $PORT -z $ZIPCONTENTPORT"
     if [ -L "/etc/nginx/sites-enabled/default" ] && [ "$PORT" = "80" ] ;then
         rm  /etc/nginx/sites-enabled/default
         touch /etc/kolibri/nginx_default
