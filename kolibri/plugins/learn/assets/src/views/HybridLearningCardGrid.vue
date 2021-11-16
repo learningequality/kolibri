@@ -132,8 +132,10 @@
       uniqueId: null,
     }),
     computed: {
-      ...mapState(['pageName']),
       ...mapState('lessonPlaylist', ['currentLesson']),
+      pageName() {
+        return this.$route.name;
+      },
       isBookmarksPage() {
         return this.pageName === PageNames.BOOKMARKS;
       },
@@ -141,12 +143,12 @@
         return this.pageName === PageNames.LIBRARY;
       },
       context() {
-        let context = {};
+        const context = {};
         if (this.currentLesson && this.currentLesson.classroom) {
-          context = {
-            lessonId: this.currentLesson.id,
-            classId: this.currentLesson.classroom.id,
-          };
+          context.lessonId = this.currentLesson.id;
+          context.classId = this.currentLesson.classroom.id;
+        } else if (this.isLibraryPage || this.pageName === PageNames.TOPICS_TOPIC_SEARCH) {
+          Object.assign(context, this.$route.query);
         }
         return context;
       },
