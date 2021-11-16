@@ -63,7 +63,7 @@ def calculate_thread_pool():
     if psutil:
         MIN_MEM = 2
         MAX_MEM = 6
-        total_memory = psutil.virtual_memory().total / pow(10, 9)  # in Gb
+        total_memory = psutil.virtual_memory().total / pow(10, 9)  # in GB
         # if it's in the range, scale thread count linearly with available memory
         if MIN_MEM < total_memory < MAX_MEM:
             pool_size = MIN_POOL + int(
@@ -513,7 +513,7 @@ base_option_spec = {
             "description": """
                 The minimum free disk space that Kolibri should try to maintain on the device. This will
                 be used as the floor value to prevent Kolibri completely filling the disk during file import.
-                Value can either be an integer in bytes or suffixed with a unit from B, KB, MB, GB, TB, or PB.
+                Value can either be a number suffixed with a unit (e.g. MB, GB, TB) or an integer number of bytes.
             """,
         },
     },
