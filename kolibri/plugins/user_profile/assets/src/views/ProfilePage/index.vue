@@ -78,12 +78,12 @@
 
         <tr>
           <th>{{ coreString('fullNameLabel') }}</th>
-          <td>{{ session.full_name }}</td>
+          <td>{{ currentUser.full_name }}</td>
         </tr>
 
         <tr>
           <th>{{ coreString('usernameLabel') }}</th>
-          <td>{{ session.username }}</td>
+          <td>{{ currentUser.username }}</td>
         </tr>
 
         <tr>
@@ -126,7 +126,7 @@
 <script>
 
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
-  import { mapState, mapGetters } from 'vuex';
+  import { mapGetters } from 'vuex';
   import { ref } from 'kolibri.lib.vueCompositionApi';
   import find from 'lodash/find';
   import pickBy from 'lodash/pickBy';
@@ -177,9 +177,6 @@
         'totalPoints',
         'userHasPermissions',
       ]),
-      ...mapState({
-        session: state => state.core.session,
-      }),
       profileEditRoute() {
         return this.$router.getRoute(ComponentMap.PROFILE_EDIT);
       },
