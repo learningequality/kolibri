@@ -3,9 +3,20 @@ set -e
 
 case "$1" in
   remove|purge)
-    # get KOLIBRI_USER from kolibri installer package:
+    # get KOLIBRI_HOME from kolibri installer package:
     . /etc/default/kolibri
-    su $KOLIBRI_USER -c "/usr/share/kolibri-server/kolibri_server_setup.py -c"
+    if which runuser > /dev/null
+    then
+      SU_COMMAND="runuser"
+    else
+      SU_COMMAND="su"
+    fi
+
+    # restore previous options.ini backup
+    if [ -e "$KOLIBRI_HOME/options.ini.kolibri-server-backup" ]; then
+        $SU_COMMAND $KOLIBRI_USER -c "mv -f $KOLIBRI_HOME/options.ini.kolibri-server-backup $KOLIBRI_HOME/options.ini"
+    fi
+
     ;;
 
 

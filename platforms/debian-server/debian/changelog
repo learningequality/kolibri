@@ -5,8 +5,10 @@ kolibri-server (0.4.0~beta1-0ubuntu1) bionic; urgency=low
   * kolibri_server_setup.py with:
     - creation of KOLIBRI_HOME/nginx.conf with ZIP_PORT
     - handling of new redis options
+    - stop adding deprecated CHERRYPY_START option
   * hashi_uwsgi.ini for zip_port server
   * debconf template to select ZIP_PORT
+  * postinst, postrm: backup/restore previous kolibri options
   * kolibri-server.init changed to start one more uwsgi isntance
 
  -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Fri, 05 Nov 2021 18:45:08 +0100
