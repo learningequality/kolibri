@@ -734,7 +734,7 @@ class KolibriProcessBus(ProcessBus):
     def run(self):
         self.graceful()
         if not self.serve_http:
-            self.publish("SERVING", None)
+            self.publish("SERVING", self.port)
 
         self.block()
 
