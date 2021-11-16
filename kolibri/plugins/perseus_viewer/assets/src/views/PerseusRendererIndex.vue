@@ -15,7 +15,7 @@
           />
         </div>
         <KGrid>
-          <KGridItem :layout="{ span: 8 }">
+          <KGridItem :layout="{ span: 4 }">
             <div
               id="problem-area"
               class="problem-area"
@@ -603,7 +603,9 @@
   }
 
   .solutionarea {
+    max-width: 100%;
     padding: 0 !important;
+    margin: 0 !important;
     border-bottom-style: none !important;
   }
 
@@ -615,9 +617,10 @@
     padding-right: 16px;
   }
 
-  .hint-btn-container {
+  /deep/ .hint-btn-container {
     display: flex;
     align-items: center;
+    padding-right: 8px !important;
     font-size: medium;
 
     &.rtl {
@@ -652,7 +655,7 @@
   }
 
   .problem-area {
-    padding: 0 16px 16px;
+    padding: 0 16px;
   }
 
   /* Perseus Hacks */
@@ -693,6 +696,11 @@
 
   /deep/ .perseus-renderer {
     padding: 16px;
+  }
+
+  /deep/ .pure-g {
+    // Overrides Perseus smushing the letter spacing on mobile
+    letter-spacing: inherit;
   }
 
 </style>
