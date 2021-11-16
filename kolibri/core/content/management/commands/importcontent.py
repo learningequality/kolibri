@@ -9,6 +9,7 @@ from le_utils.constants import content_kinds
 from ...utils import annotation
 from ...utils import paths
 from ...utils import transfer
+from kolibri.core.content.errors import InsufficientStorageSpaceError
 from kolibri.core.content.errors import InvalidStorageFilenameError
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.utils.file_availability import LocationError
@@ -20,6 +21,7 @@ from kolibri.core.content.utils.upgrade import get_import_data_for_update
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.utils import conf
+from kolibri.utils.system import get_free_space
 
 # constants to specify the transfer method to be used
 DOWNLOAD_METHOD = "download"
@@ -245,6 +247,14 @@ class Command(AsyncCommand):
                 )
             raise
 
+        if not paths.using_remote_storage():
+            free_space = get_free_space(conf.OPTIONS["Paths"]["CONTENT_DIR"])
+
+            if free_space <= total_bytes_to_transfer:
+                raise InsufficientStorageSpaceError(
+                    "Import would completely fill remaining disk space"
+                )
+
         job = get_current_job()
 
         if job:
@@ -282,6 +292,7 @@ class Command(AsyncCommand):
             file_checksums_to_annotate.extend(f["id"] for f in files_to_download)
             transferred_file_size = total_bytes_to_transfer
         else:
+            remaining_bytes_to_transfer = total_bytes_to_transfer
             overall_progress_update = self.start_progress(
                 total=total_bytes_to_transfer + dummy_bytes_for_annotation
             ).update_progress
@@ -363,6 +374,14 @@ class Command(AsyncCommand):
                             else:
                                 file_checksums_to_annotate.append(f["id"])
                                 transferred_file_size += f["file_size"]
+                            remaining_bytes_to_transfer -= f["file_size"]
+                            remaining_free_space = get_free_space(
+                                conf.OPTIONS["Paths"]["CONTENT_DIR"]
+                            )
+                            if remaining_free_space <= remaining_bytes_to_transfer:
+                                raise InsufficientStorageSpaceError(
+                                    "Kolibri ran out of storage space while importing content"
+                                )
                         except transfer.TransferCanceled:
                             break
                         except Exception as e:
