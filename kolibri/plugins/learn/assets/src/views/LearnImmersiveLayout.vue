@@ -13,6 +13,7 @@
       :learningActivities="mappedLearningActivities"
       :isLessonContext="lessonContext"
       :isQuiz="content.assessment"
+      :duration="content.duration"
       :isBookmarked="bookmark ? true : bookmark"
       :isCoachContent="isCoachContent"
       :contentProgress="contentProgress"

@@ -21,7 +21,6 @@
         <ProgressIcon :progress="contentProgress" class="progress-icon" />
       </template>
     </KLabeledIcon>
-
     <template #icon>
       <KIconButton
         icon="back"
@@ -55,6 +54,15 @@
           :ariaLabel="$tr('moreOptions')"
           @click="toggleMenu"
         />
+        <KIconButton
+          v-else-if="isQuiz"
+          ref="moreOptionsButton"
+          data-test="moreOptionsButton"
+          icon="optionsHorizontal"
+          :tooltip="$tr('moreOptions')"
+          :ariaLabel="$tr('moreOptions')"
+          @click="toggleMenu"
+        />
         <CoreMenu
           v-show="isMenuOpen"
           ref="menu"
@@ -66,23 +74,37 @@
           @close="closeMenu"
         >
           <template #options>
-            <CoreMenuOption
-              v-for="action in menuActions"
-              :key="action.id"
-              :data-test="`menu_${action.dataTest}`"
-              :style="{ 'cursor': 'pointer' }"
-              @select="onActionClick(action.event)"
-            >
-              <KLabeledIcon>
-                <template #icon>
-                  <KIcon
-                    :icon="action.icon"
-                    :color="action.iconColor"
-                  />
-                </template>
-                <div>{{ action.label }}</div>
-              </KLabeledIcon>
-            </CoreMenuOption>
+            <div v-if="isQuiz" class="timer-display">
+              <div>
+                <strong>{{ coreString('timeSpentLabel') }}</strong>
+              </div>
+              <div :style="{ paddingBottom: '8px' }">
+                <TimeDuration :seconds="timeSpent" />
+              </div>
+              <div v-if="duration">
+                <strong>{{ learnString('suggestedTime') }}</strong>
+              </div>
+              <SuggestedTime v-if="duration" :seconds="duration" />
+            </div>
+            <div v-else>
+              <CoreMenuOption
+                v-for="action in menuActions"
+                :key="action.id"
+                :data-test="`menu_${action.dataTest}`"
+                :style="{ 'cursor': 'pointer' }"
+                @select="onActionClick(action.event)"
+              >
+                <KLabeledIcon>
+                  <template #icon>
+                    <KIcon
+                      :icon="action.icon"
+                      :color="action.iconColor"
+                    />
+                  </template>
+                  <div>{{ action.label }}</div>
+                </KLabeledIcon>
+              </CoreMenuOption>
+            </div>
           </template>
         </CoreMenu>
       </span>
@@ -100,6 +122,7 @@
 <script>
 
   import difference from 'lodash/difference';
+  import { mapState } from 'vuex';
   import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
@@ -110,6 +133,8 @@
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import { validateLearningActivity } from 'kolibri.utils.validators';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
+  import SuggestedTime from 'kolibri.coreVue.components.SuggestedTime';
   import LearningActivityIcon from './LearningActivityIcon.vue';
   import MarkAsCompleteModal from './MarkAsCompleteModal';
   import commonLearnStrings from './commonLearnStrings';
@@ -125,6 +150,8 @@
       MarkAsCompleteModal,
       ProgressIcon,
       UiToolbar,
+      TimeDuration,
+      SuggestedTime,
     },
     mixins: [KResponsiveWindowMixin, commonLearnStrings, commonCoreStrings],
     /**
@@ -209,6 +236,14 @@
         required: false,
         default: false,
       },
+      /**
+      Suggested time in seconds
+      */
+      duration: {
+        type: Number,
+        required: false,
+        default: null,
+      },
     },
     data() {
       return {
@@ -217,19 +252,10 @@
       };
     },
     computed: {
+      ...mapState({
+        timeSpent: state => state.core.logging.time_spent,
+      }),
       allActions() {
-        if (this.isQuiz) {
-          return [
-            {
-              id: 'timer',
-              // TO DO Marcella update to correct icon
-              icon: 'menu',
-              label: this.coreString('timeSpentLabel'),
-              // TO DO Marcella connect event when practice quiz timer is added
-              // event: 'toggleTimerMenu',
-            },
-          ];
-        }
         const actions = [
           {
             id: 'view-resource-list',
@@ -274,7 +300,7 @@
       barActions() {
         const actions = [];
         if (this.isQuiz) {
-          actions.push(this.allActions.find(action => action.id === 'timer'));
+          return actions;
         }
         if (this.windowBreakpoint >= 1) {
           actions.push(this.allActions.find(action => action.id === 'view-resource-list'));
@@ -320,6 +346,7 @@
         });
       },
       toggleMenu() {
+        console.log('toggle');
         this.isMenuOpen = !this.isMenuOpen;
         if (!this.isMenuOpen) {
           return;
@@ -391,6 +418,11 @@
       width: 18px;
       height: 18px;
     }
+  }
+
+  .timer-display {
+    padding: 16px;
+    font-size: 14px;
   }
 
 </style>

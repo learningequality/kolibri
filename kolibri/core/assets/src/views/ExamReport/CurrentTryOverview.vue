@@ -33,7 +33,7 @@
         {{ coreString('timeSpentLabel') }}
       </th>
       <td>
-        {{ coreString('timeSpentLabel') }}
+        <TimeDuration :seconds="timeSpent" />
       </td>
     </tr>
     <tr>
@@ -52,13 +52,16 @@
 <script>
 
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
+  import { mapState } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
+  import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
 
   export default {
     name: 'CurrentTryOverview',
     components: {
       ElapsedTime,
+      TimeDuration,
       ProgressIcon,
     },
     mixins: [commonCoreStrings],
@@ -93,6 +96,9 @@
       },
     },
     computed: {
+      ...mapState({
+        timeSpent: state => state.core.logging.time_spent,
+      }),
       progressIconLabel() {
         if (this.completed) {
           return this.coreString('completedLabel');
