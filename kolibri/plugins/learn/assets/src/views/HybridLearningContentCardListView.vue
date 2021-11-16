@@ -1,6 +1,11 @@
 <template>
 
-  <div class="card drop-shadow">
+  <div
+    class="card drop-shadow"
+    :class="[
+      { 'mobile-card': isMobile }
+    ]"
+  >
     <router-link
       :to="link"
       class="card"
