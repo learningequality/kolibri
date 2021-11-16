@@ -26,7 +26,7 @@
             while the above <KSelect> is hidden
         -->
         <div>&nbsp;</div>
-        <KButtonGroup>
+        <KButtonGroup v-if="practiceQuizzesExist">
           <KDropdownMenu
             appearance="raised-button"
             :primary="true"
@@ -36,6 +36,13 @@
             @select="handleSelect"
           />
         </KButtonGroup>
+        <KRouterLink
+          v-else
+          :primary="true"
+          appearance="raised-button"
+          :to="newExamRoute"
+          :text="coachString('newQuizAction')"
+        />
       </div>
       <CoreTable>
         <template #headers>
@@ -145,6 +152,7 @@
   import { PageNames } from '../../../constants';
   import commonCoach from '../../common';
   import PlanHeader from '../../plan/PlanHeader';
+  import plugin_data from 'plugin_data';
 
   export default {
     name: 'CoachExamsPage',
@@ -171,6 +179,9 @@
     computed: {
       sortedExams() {
         return this._.orderBy(this.exams, ['date_created'], ['desc']);
+      },
+      practiceQuizzesExist() {
+        return plugin_data.practice_quizzes_exist;
       },
       // Hidden temporarily per https://github.com/learningequality/kolibri/issues/6174
       // Uncomment this once we use the filters again.
@@ -206,6 +217,9 @@
         //   return this.inactiveExams;
         // }
         return this.sortedExams;
+      },
+      newExamRoute() {
+        return { name: PageNames.EXAM_CREATION_ROOT };
       },
       dropdownOptions() {
         return [
