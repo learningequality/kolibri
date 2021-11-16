@@ -22,13 +22,22 @@
       </div>
 
       <slot name="buttons">
-        <KButton
-          class="onboarding-form-submit"
-          :primary="true"
-          type="submit"
-          :text="submitText || coreString('continueAction')"
-          :disabled="$attrs.disabled"
-        />
+        <KButtonGroup>
+          <KButton
+            class="onboarding-form-submit"
+            :primary="true"
+            type="submit"
+            :text="submitText || coreString('continueAction')"
+            :disabled="$attrs.disabled"
+          />
+
+          <KButton
+            v-if="finishButton"
+            primary
+            :text="coreString('finishAction')"
+            @click="$emit('click_finish')"
+          />
+        </KButtonGroup>
       </slot>
     </form>
   </div>
@@ -55,6 +64,10 @@
       submitText: {
         type: String,
         default: null,
+      },
+      finishButton: {
+        type: Boolean,
+        default: false,
       },
     },
     computed: {
