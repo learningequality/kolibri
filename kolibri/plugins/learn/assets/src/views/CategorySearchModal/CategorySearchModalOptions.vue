@@ -188,6 +188,9 @@
           // similarly, 'skills' icon is used for both of these resources
           // and doesn't follow same pattern
           return 'skillsResource';
+        } else if (camelCase(key) === 'foundationsLogicAndCriticalThinking') {
+          // naming mismatch
+          return 'logicCriticalThinkingResource';
         } else {
           return `${camelCase(key)}Resource`;
         }
