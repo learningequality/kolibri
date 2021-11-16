@@ -1055,7 +1055,7 @@ const nonconformingKeys = {
   BASIC_SKILLS: 'allLevelsBasicSkills',
   FOUNDATIONS: 'basicSkills',
   toolsAndSoftwareTraining: 'softwareToolsAndTraining',
-  FOUNDATIONS_LOGIC_AND_CRITICAL_THINKING: 'logicAndCriticalThinking',
+  foundationsLogicAndCriticalThinking: 'logicAndCriticalThinking',
 };
 
 /**
