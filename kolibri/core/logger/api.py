@@ -18,6 +18,7 @@ from django_filters.rest_framework import FilterSet
 from django_filters.rest_framework import UUIDFilter
 from le_utils.constants import content_kinds
 from le_utils.constants import exercises
+from le_utils.constants import modalities
 from rest_framework import filters
 from rest_framework import serializers
 from rest_framework import viewsets
@@ -238,7 +239,9 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                             ).values_list("mastery_model", flat=True)[:1]
                         )
                     )
-                    .values("content_id", "channel_id", "kind", "mastery_model")
+                    .values(
+                        "content_id", "channel_id", "kind", "mastery_model", "options"
+                    )
                     .get(id=node_id)
                 )
                 mastery_model = node["mastery_model"]
@@ -249,11 +252,16 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                 if lesson_id:
                     self._check_lesson_permissions(user, lesson_id)
                     context["lesson_id"] = lesson_id
+                if (
+                    node["options"]
+                    and node["options"].get("modality") == modalities.QUIZ
+                ):
+                    mastery_model = {"type": exercises.QUIZ}
             except ContentNode.DoesNotExist:
                 raise ValidationError("Invalid node_id")
         elif quiz_id is not None:
             self._check_quiz_permissions(user, quiz_id)
-            mastery_model = {"type": "quiz", "coach_assigned": True}
+            mastery_model = {"type": exercises.QUIZ, "coach_assigned": True}
             content_id = quiz_id
             channel_id = None
             kind = content_kinds.QUIZ
@@ -440,14 +448,21 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
         start_timestamp,
         context,
     ):
-        masterylog = (
-            MasteryLog.objects.filter(
-                summarylog=summarylog,
-                user=user,
-            )
-            .order_by("-complete", "-end_timestamp")
-            .first()
+        is_quiz = mastery_model["type"] == exercises.QUIZ
+        masterylogs = MasteryLog.objects.filter(
+            summarylog=summarylog,
+            user=user,
         )
+
+        # Just in case there is an exercise that might have the same content_id
+        # and hence the same SummaryLog as a practice quiz, we filter masterylogs
+        # here by whether they have a negative mastery_level or not, depending
+        # on whether this is a quiz or an exercise.
+        if is_quiz:
+            masterylogs = masterylogs.filter(mastery_level__lt=0)
+        else:
+            masterylogs = masterylogs.filter(mastery_level__gt=0)
+        masterylog = masterylogs.order_by("-complete", "-end_timestamp").first()
 
         if masterylog is None or (masterylog.complete and repeat):
             # There is no previous masterylog, or the previous masterylog
@@ -458,9 +473,12 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             # identifier being created. So if the same user engages with the same assessment on different
             # devices, when the data synchronizes, if the mastery_level is the same, this data will be
             # unified under a single try.
-            if mastery_model.get("coach_assigned"):
+            if is_quiz:
                 # To prevent coach assigned quiz mastery logs from propagating to older
                 # Kolibri versions, we use negative mastery levels for these.
+                # Also, to prevent collisions between mastery logs for practice quizzes
+                # and mastery logs for exercises with the same content_id we also
+                # use negative mastery levels for practice quizzes.
                 # In older versions of Kolibri the mastery_level is validated to be
                 # between 1 and 10 - so these values will fail validation and hence will
                 # not be deserialized from the morango store.
