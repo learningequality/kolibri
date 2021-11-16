@@ -33,6 +33,7 @@
         >
           {{ bookmarkCreated }}
         </p>
+        <ProgressBar v-if="!isMobile" :contentNode="content" />
       </div>
       <span class="details" :style="{ color: $themeTokens.text }">
         <div
@@ -72,16 +73,18 @@
         />
       </span>
     </router-link>
-    <div class="footer">
-      <p
-        v-if="isMobile && isBookmarksPage"
-        class="metadata-info-footer"
-        :style="{ color: $themePalette.grey.v_700 }"
-      >
-        {{ bookmarkCreated }}
-      </p>
-      <ProgressBar v-else :contentNode="content" />
-      <div class="footer-icons">
+    <KFixedGrid :numCols="isMobile ? 8 : 2" class="footer">
+      <KFixedGridItem v-if="isMobile" span="6">
+        <p
+          v-if="isMobile && isBookmarksPage"
+          class="metadata-info-footer"
+          :style="{ color: $themePalette.grey.v_700 }"
+        >
+          {{ bookmarkCreated }}
+        </p>
+        <ProgressBar :contentNode="content" />
+      </KFixedGridItem>
+      <KFixedGridItem span="2" alignment="right">
         <KIconButton
           v-for="(value, key) in footerIcons"
           :key="key"
@@ -92,8 +95,8 @@
           :tooltip="coreString(value)"
           @click="$emit(value)"
         />
-      </div>
-    </div>
+      </KFixedGridItem>
+    </KFixedGrid>
   </div>
 
 </template>
@@ -272,8 +275,6 @@
   .footer {
     position: absolute;
     bottom: 0;
-    display: flex;
-    justify-content: flex-end;
     width: 100%;
     padding: $margin;
   }
