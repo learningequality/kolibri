@@ -16,7 +16,7 @@
         </div>
         <KGrid>
           <!-- Layout notes
-            - Layout12 span8 -> 75% width on windowIsLarge
+            - Layout12 span8 -> ~66% width on windowIsLarge
             - No other layout definitions means span will be 100%
           -->
           <KGridItem :layout12="{ span: 9 }">
