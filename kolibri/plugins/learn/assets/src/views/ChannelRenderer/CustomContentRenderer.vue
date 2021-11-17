@@ -39,10 +39,6 @@
   import genContentLink from '../../utils/genContentLink';
   import ContentModal from './ContentModal';
 
-  const allButTopicTypes = Object.values(ContentNodeKinds).filter(
-    v => v !== ContentNodeKinds.TOPIC
-  );
-
   function createReturnMsg({ message, data, err }) {
     // Infer status from data or err
     const status = data ? MessageStatuses.SUCCESS : MessageStatuses.FAILURE;
@@ -138,6 +134,7 @@
           const err = new Error('onlyContent and onlyTopics can not be used at the same time');
           return createReturnMsg({ message, err });
         }
+        const kind = onlyContent ? 'content' : (onlyTopics ? ContentNodeKinds.TOPIC : undefined);
 
         // limit to channel, defaults to true
         const limitToChannel = 'limitToChannel' in options ? options.limitToChannel : true;
@@ -151,8 +148,8 @@
             channel_id: limitToChannel ? this.topic.channel_id : undefined,
             max_results: options.maxResults ? options.maxResults : 50,
             cursor: options.cursor,
-            kind: onlyTopics ? ContentNodeKinds.TOPIC : undefined,
-            kind_in: onlyContent ? allButTopicTypes : kinds,
+            kind: kind,
+            kind_in: kinds,
           },
         })
           .then(contentNodes => {
@@ -337,7 +334,8 @@
             parent: options.parent === 'self' ? this.topic.id : options.parent,
             channel_id: limitToChannel ? this.topic.channel_id : undefined,
             max_results: options.maxResults ? options.maxResults : 10,
-            kind_in: onlyContent ? allButTopicTypes : kinds,
+            kind: onlyContent ? 'content' : undefined,
+            kind_in: kinds,
             // Time seed to avoid cache
             seed: Date.now().toString(),
           },

@@ -117,14 +117,11 @@ export default class Kolibri extends BaseShim {
        * @param {string[]} options.ids - an array of ids to filter by
        * @param {number} [options.maxResults=50] - the maximum number of nodes per request
        * @param {string} options.cursor - the cursor pagination
-       * @param {string[]} options.kinds - an array of kinds to filer by, this
-       * option is ignored when "onlyContent" is used
+       * @param {string[]} options.kinds - an array of kinds to filer by
        * @param {string[]} options.authors - an array of authors to filter by
        * @param {string[]} options.tags - an array of tags to filter by
        * @param {boolean} options.onlyTopics - set to true to query only topic nodes
-       * @param {boolean} options.onlyContent - set to true to query only
-       * content nodes. This option overrides the "kinds" option, so if
-       * onlyContent is used at the same time as "kinds", the "kinds" will be ignored
+       * @param {boolean} options.onlyContent - set to true to query only content nodes
        * @param {boolean} [options.limitToChannel=true] - true to limit the
        * results to the topic channel
        * @return {Promise<PageResult>} - a Promise that resolves to an array of ContentNodes
@@ -273,11 +270,8 @@ export default class Kolibri extends BaseShim {
        * @param {Object} options - The different options to filter by
        * @param {string=} options.parent - id of the parent node to filter by, or 'self'
        * @param {number} [options.maxResults=10] - the maximum number of nodes per request
-       * @param {string[]} options.kinds - an array of kinds to filer by, this
-       * option is ignored when "onlyContent" is used
-       * @param {boolean} options.onlyContent - set to true to query only
-       * content nodes. This option overrides the "kinds" option, so if
-       * onlyContent is used at the same time as "kinds", the "kinds" will be ignored
+       * @param {string[]} options.kinds - an array of kinds to filer by
+       * @param {boolean} options.onlyContent - set to true to query only content nodes
        * @param {boolean} [options.limitToChannel=true] - true to limit the
        * results to the topic channel
        * @return {Promise<PageResult>} - a Promise that resolves to an array of ContentNodes
