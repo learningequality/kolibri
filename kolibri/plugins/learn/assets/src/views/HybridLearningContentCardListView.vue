@@ -58,12 +58,12 @@
           class="channel-logo"
         >
         <KButton
-          v-if="!isMobile && isLibraryPage && content.copies_count && (content.copies_count > 0)"
+          v-if="!isMobile && isLibraryPage && content.copies"
           appearance="basic-link"
           class="copies"
           :style="{ color: $themeTokens.text }"
-          :text="coreString('copies', { num: content.copies_count })"
-          @click.prevent="$emit('openCopiesModal', contentId)"
+          :text="coreString('copies', { num: content.copies.length })"
+          @click.prevent="$emit('openCopiesModal', content.copies)"
         />
       </span>
     </router-link>
@@ -136,10 +136,6 @@
       isMobile: {
         type: Boolean,
         default: false,
-      },
-      contentId: {
-        type: String,
-        default: null,
       },
       currentPage: {
         type: String,

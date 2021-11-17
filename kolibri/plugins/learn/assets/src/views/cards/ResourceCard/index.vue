@@ -12,6 +12,13 @@
     </template>
     <template #topRight>
       <LearningActivityLabel :contentNode="contentNode" />
+      <KButton
+        v-if="contentNode.copies"
+        appearance="basic-link"
+        class="copies"
+        :text="coreString('copies', { num: contentNode.copies.length })"
+        @click.prevent="$emit('openCopiesModal', contentNode.copies)"
+      />
     </template>
 
     <template #progress>
@@ -24,6 +31,7 @@
 
 <script>
 
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ContentNodeThumbnail from '../../thumbnails/ContentNodeThumbnail';
   import ProgressBar from '../../ProgressBar';
   import BaseCard from '../BaseCard';
@@ -37,6 +45,7 @@
       LearningActivityLabel,
       ProgressBar,
     },
+    mixins: [commonCoreStrings],
     props: {
       contentNode: {
         type: Object,
@@ -63,3 +72,12 @@
   };
 
 </script>
+
+
+<style lang="scss" scoped>
+
+  .copies {
+    float: right;
+  }
+
+</style>
