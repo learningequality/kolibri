@@ -33,17 +33,13 @@
         </template>
         <template #value>
           {{ $formatNumber(learnerNames.length) }}
-        </template>
-      </HeaderTableRow>
-      <HeaderTableRow v-if="learnerNames.length > 0">
-        <template #key>
-        </template>
-        <template #value>
-          <KRouterLink
-            :text="$tr('viewLearners')"
-            appearance="raised-button"
-            :to="classLearnersListRoute"
-          />
+          <template v-if="learnerNames.length > 0">
+            <KRouterLink
+              :text="$tr('viewLearners')"
+              appearance="basic-link"
+              :to="classLearnersListRoute"
+            />
+          </template>
         </template>
       </HeaderTableRow>
     </HeaderTable>
