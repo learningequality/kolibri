@@ -24,6 +24,7 @@
 
 <script>
 
+  import { get } from '@vueuse/core';
   import urls from 'kolibri.urls';
   import Hashi from 'hashi';
   import { now } from 'kolibri.utils.serverClock';
@@ -37,7 +38,10 @@
   import { events, MessageStatuses } from 'hashi/src/hashiBase';
   import { validateTheme } from '../../utils/themes';
   import genContentLink from '../../utils/genContentLink';
+  import useChannels from '../../composables/useChannels';
   import ContentModal from './ContentModal';
+
+  const { channelsMap } = useChannels();
 
   function createReturnMsg({ message, data, err }) {
     // Infer status from data or err
@@ -79,6 +83,9 @@
       },
       rooturl() {
         return urls.hashi();
+      },
+      currentChannel() {
+        return get(channelsMap)[this.topic.channel_id];
       },
     },
     mounted() {
@@ -313,24 +320,8 @@
         return this.hashi.mediator.sendMessage(newMsg);
       },
       sendChannelMetadata(message) {
-        return ChannelResource.fetchModel({ id: this.topic.channel_id })
-          .then(channel => {
-            return createReturnMsg({
-              message,
-              data: {
-                id: channel.id,
-                name: channel.name,
-                description: channel.description,
-                thumbnail: channel.thumbnail,
-              },
-            });
-          })
-          .catch(err => {
-            return createReturnMsg({ message, err });
-          })
-          .then(newMsg => {
-            this.hashi.mediator.sendMessage(newMsg);
-          });
+        const newMsg = createReturnMsg({ message, data: this.currentChannel });
+        return this.hashi.mediator.sendMessage(newMsg);
       },
       sendChannelFilterOptions(message) {
         return ChannelResource.fetchFilterOptions(this.topic.channel_id)
