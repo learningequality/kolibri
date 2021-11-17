@@ -71,7 +71,7 @@
     <KCircularLoader v-else />
 
     <CompletionModal
-      v-if="progress >= 1 && wasIncomplete"
+      v-if="progress >= 1 && wasIncomplete && !practiceQuiz"
       :isUserLoggedIn="isUserLoggedIn"
       :contentNodeId="content.id"
       @close="markAsComplete"
