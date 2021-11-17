@@ -148,6 +148,10 @@
 
     .description {
       max-width: 500px;
+
+      /* KA Burmese description with no spaces would run off
+       * screen - this breaks it within the container */
+      word-wrap: break-word;
     }
 
     .col-2-row-1 {
