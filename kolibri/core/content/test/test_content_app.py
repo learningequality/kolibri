@@ -356,7 +356,9 @@ class ContentNodeAPITestCase(APITestCase):
         )
 
     def _assert_nodes(self, data, nodes):
-        for actual, expected in zip(data, nodes):
+        for actual, expected in zip(
+            sorted(data, key=lambda x: x["id"]), sorted(nodes, key=lambda x: x.id)
+        ):
             self._assert_node(actual, expected)
 
     def test_contentnode_list(self):
