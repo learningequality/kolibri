@@ -24,7 +24,7 @@
     </KFixedGridItem>
     <KFixedGridItem span="1" alignment="right">
       <KButton v-if="retry" @click="$emit('repeat')">
-        {{ coreString('practiceAgainButton') }}
+        {{ coreString('tryAgainButton') }}
       </KButton>
     </KFixedGridItem>
   </KFixedGrid>
