@@ -79,6 +79,8 @@ export default class MainClient {
       let event;
       if (message.dataType === DataTypes.COLLECTION) {
         event = events.COLLECTIONREQUESTED;
+      } else if (message.dataType === DataTypes.COLLECTIONPAGE) {
+        event = events.COLLECTIONPAGEREQUESTED;
       } else if (message.dataType === DataTypes.MODEL) {
         event = events.MODELREQUESTED;
       } else if (message.dataType === DataTypes.SEARCHRESULT) {

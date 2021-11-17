@@ -87,6 +87,9 @@
       this.hashi.on(events.COLLECTIONREQUESTED, message => {
         this.fetchContentCollection(message);
       });
+      this.hashi.on(events.COLLECTIONPAGEREQUESTED, message => {
+        this.fetchMore(message);
+      });
       this.hashi.on(events.MODELREQUESTED, message => {
         this.fetchContentModel.call(this, message);
       });
@@ -147,9 +150,35 @@
             parent: options.parent === 'self' ? this.topic.id : options.parent,
             channel_id: limitToChannel ? this.topic.channel_id : undefined,
             max_results: options.maxResults ? options.maxResults : 50,
-            cursor: options.cursor,
             kind: kind,
             kind_in: kinds,
+          },
+        })
+          .then(contentNodes => {
+            return createReturnMsg({
+              message,
+              data: {
+                maxResults: options.maxResults ? options.maxResults : 50,
+                more: contentNodes.more,
+                results: contentNodes.results,
+              },
+            });
+          })
+          .catch(err => {
+            return createReturnMsg({ message, err });
+          })
+          .then(newMsg => {
+            this.hashi.mediator.sendMessage(newMsg);
+          });
+      },
+
+      fetchMore(message) {
+        const { options } = message;
+
+        return ContentNodeResource.fetchCollection({
+          getParams: {
+            cursor: options.cursor,
+            max_results: options.maxResults ? options.maxResults : 50,
           },
         })
           .then(contentNodes => {

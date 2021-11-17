@@ -116,7 +116,6 @@ export default class Kolibri extends BaseShim {
        * @param {string=} options.parent - id of the parent node to filter by, or 'self'
        * @param {string[]} options.ids - an array of ids to filter by
        * @param {number} [options.maxResults=50] - the maximum number of nodes per request
-       * @param {string} options.cursor - the cursor pagination
        * @param {string[]} options.kinds - an array of kinds to filer by
        * @param {string[]} options.authors - an array of authors to filter by
        * @param {string[]} options.tags - an array of tags to filter by
@@ -130,6 +129,21 @@ export default class Kolibri extends BaseShim {
         return self.mediator.sendMessageAwaitReply({
           event: events.DATAREQUESTED,
           data: { options, dataType: DataTypes.COLLECTION },
+          nameSpace,
+        });
+      }
+      /*
+       * Method to query next page of contentnodes from Kolibri and return
+       * an array
+       * @param {Object} options - The different options to filter by
+       * @param {string} options.cursor - the cursor pagination
+       * @param {number} [options.maxResults=50] - the maximum number of nodes per request
+       * @return {Promise<PageResult>} - a Promise that resolves to an array of ContentNodes
+       */
+      getContentPage(options) {
+        return self.mediator.sendMessageAwaitReply({
+          event: events.DATAREQUESTED,
+          data: { options, dataType: DataTypes.COLLECTIONPAGE },
           nameSpace,
         });
       }
