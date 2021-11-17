@@ -106,9 +106,8 @@ describe('learn plugin index page', () => {
       setSessionUserKind('anonymous');
       setMemberships([]);
       const wrapper = makeWrapper({ store });
-      const { tabLinks, homeLink, libraryLink } = getElements(wrapper);
-      expect(tabLinks().length).toEqual(2);
-      expect(homeLink().element.tagName).toBe('A');
+      const { tabLinks, libraryLink } = getElements(wrapper);
+      expect(tabLinks().length).toEqual(1);
       expect(libraryLink().element.tagName).toBe('A');
     });
 
@@ -128,7 +127,7 @@ describe('learn plugin index page', () => {
       setMemberships([]);
       const wrapper = makeWrapper({ store });
       const { classesLink, tabLinks } = getElements(wrapper);
-      expect(tabLinks().length).toEqual(2);
+      expect(tabLinks().length).toEqual(1);
       expect(!classesLink().exists()).toEqual(true);
     });
 
@@ -147,13 +146,12 @@ describe('learn plugin index page', () => {
       setCanAccessUnassignedContent(false);
     });
 
-    it('only the home tab is available when not signed-in', () => {
+    it('no tab is available when not signed-in', () => {
       setSessionUserKind('anonymous');
       setMemberships([]);
       const wrapper = makeWrapper({ store });
-      const { tabLinks, homeLink } = getElements(wrapper);
-      expect(tabLinks().length).toEqual(1);
-      expect(homeLink().element.tagName).toBe('A');
+      const { tabLinks } = getElements(wrapper);
+      expect(tabLinks().length).toEqual(0);
     });
 
     it('the home and classes tab is available if signed in', () => {
