@@ -160,9 +160,9 @@
       <KIconButton
         v-if="windowIsSmall && currentCategory"
         icon="back"
-        :ariaLabel="coreString('back')"
+        :ariaLabel="coreString('goBackAction')"
         :color="$themeTokens.text"
-        :tooltip="coreString('back')"
+        :tooltip="coreString('goBackAction')"
         @click="closeCategoryModal"
       />
       <EmbeddedSidePanel
