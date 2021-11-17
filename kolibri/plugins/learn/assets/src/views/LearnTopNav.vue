@@ -2,6 +2,7 @@
 
   <Navbar>
     <NavbarLink
+      v-if="isUserLoggedIn"
       :title="coreString('homeLabel')"
       :link="homePageLink"
     >
