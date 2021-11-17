@@ -66,6 +66,7 @@
         <!-- larger screens -->
         <div class="tabs">
           <KRouterLink
+            v-if="topics && topics.length"
             ref="tab_button"
             :to="foldersLink"
             :text="coreString('folders')"

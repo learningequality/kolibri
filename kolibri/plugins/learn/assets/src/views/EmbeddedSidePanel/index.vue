@@ -8,7 +8,7 @@
     }"
     :class="position === 'embedded' ? 'side-panel' : ''"
   >
-    <div v-if="topics && topicsListDisplayed">
+    <div v-if="topics && topics.length && topicsListDisplayed">
       <div v-for="t in topics" :key="t.id">
         <KRouterLink
           :text="t.title"
