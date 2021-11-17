@@ -1072,20 +1072,24 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
       'Label in the dropdown menu where one can choose an attempt from their five most recent attempts at a practice quiz',
   },
   practiceQuizReportFasterSuggestedLabel: {
-    message: '{value, number, integer} minutes faster than the suggested time',
+    message:
+      '{value, number, integer} {value, plural, one {minute} other {minutes}} faster than the suggested time',
     context: 'Indicates to the learner how many minutes faster they were than the suggested time',
   },
   practiceQuizReportSlowerSuggestedLabel: {
-    message: '{value, number, integer} minutes slower than the suggested time',
+    message:
+      '{value, number, integer} {value, plural, one {minute} other {minutes}} slower than the suggested time',
     context: 'Indicates to the learner how many minutes slower they were than the suggested time',
   },
   practiceQuizReportFasterTimeLabel: {
-    message: '{value, number, integer} minutes faster than the previous attempt',
+    message:
+      '{value, number, integer} {value, plural, one {minute} other {minutes}} faster than the previous attempt',
     context:
       'Indicates to the learner how much faster they were on this attempt compared to the previous one',
   },
   practiceQuizReportSlowerTimeLabel: {
-    message: '{value, number, integer} minutes slower than the previous attempt',
+    message:
+      '{value, number, integer} {value, plural, one {minute} other {minutes}} slower than the previous attempt',
     context:
       'Indicates to the learner how much slower they were on this attempt compared to the previous one',
   },
