@@ -139,13 +139,16 @@
           return createReturnMsg({ message, err });
         }
 
+        // limit to channel, defaults to true
+        const limitToChannel = 'limitToChannel' in options ? options.limitToChannel : true;
+
         return ContentNodeResource.fetchCollection({
           getParams: {
             ids: options.ids,
             authors: options.authors,
             tags: options.tags,
             parent: options.parent === 'self' ? this.topic.id : options.parent,
-            channel_id: this.topic.channel_id,
+            channel_id: limitToChannel ? this.topic.channel_id : undefined,
             max_results: options.maxResults ? options.maxResults : 50,
             cursor: options.cursor,
             kind: onlyTopics ? ContentNodeKinds.TOPIC : undefined,
@@ -193,10 +196,12 @@
             results: [],
           });
         } else {
+          // limit to channel, defaults to true
+          const limitToChannel = 'limitToChannel' in options ? options.limitToChannel : true;
           searchPromise = ContentNodeSearchResource.fetchCollection({
             getParams: {
               search: keyword,
-              channel_id: this.topic.channel_id,
+              channel_id: limitToChannel ? this.topic.channel_id : undefined,
               max_results: options.maxResults ? options.maxResults : 50,
             },
           }).then(searchResults => {
@@ -324,10 +329,13 @@
         const { options } = message;
         const { kinds, onlyContent } = options;
 
+        // limit to channel, defaults to true
+        const limitToChannel = 'limitToChannel' in options ? options.limitToChannel : true;
+
         return ContentNodeResource.fetchRandomCollection({
           getParams: {
             parent: options.parent === 'self' ? this.topic.id : options.parent,
-            channel_id: this.topic.channel_id,
+            channel_id: limitToChannel ? this.topic.channel_id : undefined,
             max_results: options.maxResults ? options.maxResults : 10,
             kind_in: onlyContent ? allButTopicTypes : kinds,
             // Time seed to avoid cache

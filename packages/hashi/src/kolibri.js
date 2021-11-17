@@ -125,6 +125,8 @@ export default class Kolibri extends BaseShim {
        * @param {boolean} options.onlyContent - set to true to query only
        * content nodes. This option overrides the "kinds" option, so if
        * onlyContent is used at the same time as "kinds", the "kinds" will be ignored
+       * @param {boolean} [options.limitToChannel=true] - true to limit the
+       * results to the topic channel
        * @return {Promise<PageResult>} - a Promise that resolves to an array of ContentNodes
        */
       getContentByFilter(options) {
@@ -153,6 +155,8 @@ export default class Kolibri extends BaseShim {
        * @param {Object} options - The different options to search by
        * @param {string=} options.keyword - search term for key word search
        * @param {number} [options.maxResults=50] - the maximum number of nodes per request
+       * @param {boolean} [options.limitToChannel=true] - true to limit the
+       * results to the topic channel
        * @return {Promise<PageResult>} - a Promise that resolves to an array of ContentNodes
        */
       searchContent(options) {
@@ -274,6 +278,8 @@ export default class Kolibri extends BaseShim {
        * @param {boolean} options.onlyContent - set to true to query only
        * content nodes. This option overrides the "kinds" option, so if
        * onlyContent is used at the same time as "kinds", the "kinds" will be ignored
+       * @param {boolean} [options.limitToChannel=true] - true to limit the
+       * results to the topic channel
        * @return {Promise<PageResult>} - a Promise that resolves to an array of ContentNodes
        */
       getRandomNodes(options) {
