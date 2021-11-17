@@ -1,6 +1,7 @@
 import sys
 
 from django.db import connections
+from django.db.models import FieldDoesNotExist
 from django.utils.six.moves import input
 from morango.sync.backends.utils import calculate_max_sqlite_variables
 
@@ -43,7 +44,7 @@ def _merge_user_models(source_user, target_user):
 blocklist = set(["id", "_morango_partition"])
 
 
-def merge_users(source_user, target_user):
+def merge_users(source_user, target_user):  # noqa C901
     """
     Utility to merge two users. It makes no assumptions about whether
     the users are in the same facility and does raw copies of all
@@ -87,7 +88,15 @@ def merge_users(source_user, target_user):
             # it on the target.
             if log.calculate_source_id() is not None:
                 del data["_morango_source_id"]
-            new_log = LogModel.deserialize(data)
+            new_log = LogModel()
+            for field, value in data.items():
+                try:
+                    field_obj = LogModel._meta.get_field(field)
+                    if hasattr(field_obj, "from_db_value"):
+                        value = field_obj.from_db_value(value, None, None, None)
+                except FieldDoesNotExist:
+                    pass
+                setattr(new_log, field, value)
             if not new_log._morango_source_id:
                 new_log.id = new_log.calculate_uuid()
             else:

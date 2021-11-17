@@ -195,6 +195,9 @@ class TeleportUserTestCase(TestCase):
                 masterylog__summarylog__content_id=log.masterylog.summarylog.content_id,
             ).exists()
         )
+        for attempt_log in log_models.AttemptLog.objects.filter(user=self.user_2):
+            for json_field in ("answer", "interaction_history"):
+                self.assertNotIsInstance(getattr(attempt_log, json_field), (str,))
 
     def test_contentsessionlogs(self):
         self.assertEqual(
