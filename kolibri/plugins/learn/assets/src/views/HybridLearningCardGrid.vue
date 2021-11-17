@@ -12,7 +12,7 @@
           :isMobile="windowIsSmall"
           :content="content"
           :thumbnail="content.thumbnail"
-          :link="genContentLink(content.id, topicId, content.is_leaf, backRoute, context)"
+          :link="genContentLink(content)"
           @openCopiesModal="openCopiesModal"
           @toggleInfoPanel="$emit('toggleInfoPanel', content)"
         />
@@ -26,7 +26,7 @@
         :thumbnail="content.thumbnail || getContentNodeThumbnail(content)"
         class="card-grid-item"
         :isMobile="windowIsSmall"
-        :link="genContentLink(content.id, topicId, content.is_leaf, backRoute, context)"
+        :link="genContentLink(content)"
       />
     </div>
     <CardGrid
@@ -37,7 +37,7 @@
 
         :key="`resource-${idx}`"
         :contentNode="content"
-        :to="genContentLink(content.id, topicId, content.is_leaf, backRoute, context)"
+        :to="genContentLink(content)"
       />
     </CardGrid>
 
@@ -50,7 +50,7 @@
       :currentPage="currentPage"
       class="card-grid-item"
       :isMobile="windowIsSmall"
-      :link="genContentLink(content.id, topicId, content.is_leaf, backRoute, context)"
+      :link="genContentLink(content)"
       :footerIcons="footerIcons"
       :createdDate="content.bookmark ? content.bookmark.created : null"
       @openCopiesModal="openCopiesModal"
@@ -58,10 +58,10 @@
       @removeFromBookmarks="removeFromBookmarks(content, contents)"
     />
     <CopiesModal
-      v-if="modalIsOpen"
-      :uniqueId="uniqueId"
-      :sharedContentId="sharedContentId"
-      @submit="modalIsOpen = false"
+      v-if="displayedCopies.length"
+      :copies="displayedCopies"
+      :genContentLink="genContentLink"
+      @submit="displayedCopies = []"
     />
   </div>
 
@@ -127,9 +127,7 @@
       },
     },
     data: () => ({
-      modalIsOpen: false,
-      sharedContentId: null,
-      uniqueId: null,
+      displayedCopies: [],
     }),
     computed: {
       ...mapState(['pageName']),
@@ -165,11 +163,17 @@
       },
     },
     methods: {
-      genContentLink,
-      openCopiesModal(contentId) {
-        this.sharedContentId = contentId;
-        this.uniqueId = this.contents.find(content => content.content_id === contentId).id;
-        this.modalIsOpen = true;
+      genContentLink(content) {
+        return genContentLink(
+          content.id,
+          this.topicId,
+          content.is_leaf,
+          this.backRoute,
+          this.context
+        );
+      },
+      openCopiesModal(copies) {
+        this.displayedCopies = copies;
       },
       removeFromBookmarks(content, contents) {
         return this.$emit('removeFromBookmarks', content.bookmark, contents.indexOf(content));

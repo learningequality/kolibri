@@ -19,16 +19,16 @@
         >
           <div class="title">
             <KRouterLink
-              :text="copy[copy.length - 1].title"
-              :to="generateCopyLink(copy[copy.length - 1].id)"
+              :text="copy.title"
+              :to="genContentLink(copy)"
             />
           </div>
           <ol>
             <li
-              v-for="(ancestor, index2) in copy.slice(0, -1)"
+              v-for="(ancestor, index2) in copy.ancestors"
               :key="index2"
               class="ancestor"
-              :class="{ 'arrow': index2 < copy.slice(0, -1).length - 1 }"
+              :class="{ 'arrow': index2 < copy.ancestors.length - 1 }"
             >
               {{ ancestor.title }}
             </li>
@@ -43,51 +43,19 @@
 
 <script>
 
-  import toArray from 'lodash/toArray';
-  import { mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import sortBy from 'lodash/sortBy';
-  import { PageNames } from '../constants';
 
   export default {
     name: 'CopiesModal',
     mixins: [commonCoreStrings],
     props: {
-      uniqueId: {
-        type: String,
+      copies: {
+        type: Array,
         required: true,
       },
-      sharedContentId: {
-        type: String,
+      genContentLink: {
+        type: Function,
         required: true,
-      },
-    },
-    data() {
-      return {
-        loading: true,
-        copies: [],
-      };
-    },
-    created() {
-      this.getCopies(this.sharedContentId).then(copies => {
-        // transform the copies objects from Array<Object> to Array<Array>
-        const arrayedCopies = copies.map(copy => {
-          return toArray(copy);
-        });
-        this.copies = sortBy(arrayedCopies, copy => copy[copy.length - 1].id !== this.uniqueId);
-        this.loading = false;
-      });
-    },
-    methods: {
-      ...mapActions(['getCopies']),
-      generateCopyLink(id) {
-        return {
-          name: PageNames.TOPICS_CONTENT,
-          params: { id },
-          query: {
-            searchTerm: this.$route.query.searchTerm || '',
-          },
-        };
       },
     },
     $trs: {
