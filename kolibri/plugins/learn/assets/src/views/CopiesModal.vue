@@ -6,12 +6,7 @@
     @submit="$emit('submit')"
   >
     <transition mode="out-in">
-
-      <KCircularLoader
-        v-if="loading"
-        :delay="false"
-      />
-      <ul v-else>
+      <ul>
         <li
           v-for="(copy, index) in copies"
           :key="index"
