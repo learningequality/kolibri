@@ -24,31 +24,34 @@
           :kind="content.learning_activities"
         />
         <KIcon v-else class="topic-icon" icon="topic" />
-        <div class="content-meta" :style="{ top: (content.duration ? '-8px' : '8px') }">
-          <TextTruncator
-            :text="content.title"
-            :maxHeight="24"
-            :style="{ marginTop: (content.duration ? '8px' : '0px') }"
-          />
-          <TimeDuration
-            v-if="content.duration"
-            :style="{
-              color: $themeTokens.annotation,
-              top: '16px',
-              position: 'relative'
-            }"
-            :seconds="content.duration"
-          />
+
+        <div class="content-meta">
+          <div class="text-and-time">
+            <TextTruncator
+              class="content-title"
+              :text="content.title"
+              :maxHeight="72"
+            />
+            <TimeDuration
+              v-if="content.duration"
+              class="time-duration"
+              :style="{
+                color: $themeTokens.annotation,
+              }"
+              :seconds="content.duration"
+            />
+          </div>
+          <div class="progress">
+            <KIcon
+              v-if="progressFor(content) === 1"
+              icon="star"
+              class="mastered-icon"
+              :style="{ fill: $themeTokens.mastered }"
+            />
+            <ProgressBar v-else :contentNode="content" class="bar" />
+          </div>
         </div>
-        <div class="progress">
-          <KIcon
-            v-if="content.progress === 1"
-            icon="star"
-            class="mastered-icon"
-            :style="{ fill: $themeTokens.mastered }"
-          />
-          <ProgressBar v-else :contentNode="content" class="bar" />
-        </div>
+
       </KRouterLink>
     </div>
 
@@ -84,6 +87,7 @@
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
   import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
   import SidePanelResourcesList from '../../../../../../kolibri/core/assets/src/views/FullScreenSidePanel/SidePanelResourcesList';
+  import useContentNodeProgress from '../composables/useContentNodeProgress';
   import genContentLink from '../utils/genContentLink';
   import LearningActivityIcon from './LearningActivityIcon.vue';
   import ProgressBar from './ProgressBar';
@@ -99,6 +103,10 @@
       TimeDuration,
     },
     mixins: [KResponsiveWindowMixin],
+    setup() {
+      const { contentNodeProgressMap } = useContentNodeProgress();
+      return { contentNodeProgressMap };
+    },
     props: {
       /**
        * contentNodes - The contentNode objects to be displayed. Each
@@ -163,7 +171,12 @@
         return context;
       },
     },
-    methods: { genContentLink },
+    methods: {
+      genContentLink,
+      progressFor(node) {
+        return this.contentNodeProgressMap[node.content_id] || 0;
+      },
+    },
   };
 
 </script>
@@ -176,7 +189,6 @@
   $parent-padding: 32px; // The SidePanel
   $icon-size: 32px;
   $progress-width: 48px;
-  $item-padding-x: 8px;
   $top-bar-height: 40px;
   $next-content-link-height: 100px;
 
@@ -186,6 +198,15 @@
 
     /* Avoids overflow issues, aligns bottom bit */
     height: calc(100% - 16px);
+  }
+
+  .top-bar {
+    position: relative;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: $top-bar-height;
+    background-color: #ffffff;
   }
 
   .content-list {
@@ -198,8 +219,95 @@
     margin-right: -32px;
     overflow-y: scroll;
 
+    /* When there is nothing to link to in the next-content-link */
     &.no-bottom-link {
       height: calc(100% - #{$top-bar-height});
+    }
+  }
+
+  .item {
+    position: relative;
+    display: block;
+    width: 100%;
+    min-height: 72px;
+    margin-top: 24px;
+  }
+
+  .activity-icon,
+  .next-label,
+  .topic-icon {
+    position: absolute;
+    left: 0;
+    display: inline-block;
+    width: $icon-size;
+    height: $icon-size;
+  }
+
+  .activity-icon,
+  .topic-icon {
+    top: 0;
+  }
+
+  .content-meta {
+    position: relative;
+    left: calc(#{$icon-size} + 16px);
+    display: inline-block;
+    width: calc(100% - #{$icon-size});
+  }
+
+  .text-and-time {
+    display: inline-block;
+    width: calc(100% - #{$icon-size} - #{$progress-width});
+  }
+
+  .progress {
+    position: absolute;
+    top: 0;
+    right: 0;
+
+    .bar {
+      width: $progress-width;
+      margin-right: 4px; // puts mastery star aligned center with bars
+    }
+  }
+  .mastered-icon {
+    top: 0;
+    right: 16px;
+    width: 24px;
+    height: 24px;
+  }
+
+  /** Styles overriding the above when windowIsSmall **/
+  .small {
+    &.item {
+      // Differentiate between items a bit better
+      margin-bottom: 32px;
+    }
+    // Without the progress on the same line, don't incl it in calcs
+    .content-meta {
+      width: calc(100% - #{$icon-size});
+    }
+    .time-duration {
+      display: block;
+      width: 100%;
+      margin-top: 8px;
+    }
+    .text-and-time {
+      display: block;
+      width: 100%;
+    }
+    // The progress section neds to become block & have some of its
+    // spacing tweaked when it is on a small screen - under the text
+    .progress {
+      position: relative;
+      display: block;
+      width: 100%;
+      margin-top: 8px;
+    }
+    .mastered-icon {
+      right: auto;
+      bottom: 0;
+      left: 0;
     }
   }
 
@@ -239,91 +347,6 @@
       right: $parent-padding;
       width: $icon-size;
       height: $icon-size;
-    }
-  }
-
-  .item {
-    position: relative;
-    display: block;
-    width: 100%;
-    height: 56px;
-    padding: 16px $item-padding-x;
-    margin-top: 24px;
-  }
-
-  .activity-icon,
-  .next-label,
-  .topic-icon {
-    position: absolute;
-    left: $item-padding-x;
-    display: inline-block;
-    width: $icon-size;
-    height: $icon-size;
-  }
-
-  .activity-icon,
-  .topic-icon {
-    top: 0;
-  }
-
-  .content-meta {
-    position: absolute;
-    left: calc(#{$icon-size} + #{$item-padding-x});
-    display: inline-block;
-    width: calc(100% - #{$icon-size} - #{$progress-width} - #{$item-padding-x * 2});
-    height: 56px;
-    padding: 0 16px;
-  }
-
-  .progress {
-    position: absolute;
-    top: 0;
-    right: 0;
-
-    .bar {
-      width: $progress-width;
-      margin-top: 16px;
-    }
-  }
-  .mastered-icon {
-    top: 0;
-    right: 16px;
-    width: 24px;
-    height: 24px;
-  }
-
-  .top-bar {
-    position: relative;
-    top: 0;
-    right: 0;
-    left: 0;
-    height: $top-bar-height;
-    background-color: #ffffff;
-  }
-
-  /** Styles overriding the above when windowIsSmall **/
-  .small {
-    &.item {
-      // Differentiate between items a bit better
-      margin-bottom: 32px;
-    }
-    // Without the progress on the same line, don't incl it in calcs
-    .content-meta {
-      width: calc(100% - #{$icon-size} - #{$item-padding-x});
-    }
-    // The progress section neds to become block & have some of its
-    // spacing tweaked when it is on a small screen - under the text
-    .progress {
-      top: auto;
-      bottom: -8px;
-      left: 56px;
-      display: block;
-    }
-    .mastered-icon {
-      top: 8px;
-      right: auto;
-      bottom: 0;
-      left: 0;
     }
   }
 
