@@ -13,6 +13,7 @@
       :learningActivities="mappedLearningActivities"
       :isLessonContext="lessonContext"
       :isQuiz="content.assessment"
+      :showingReportState="currentlyMastered"
       :duration="content.duration"
       :isBookmarked="bookmark ? true : bookmark"
       :isCoachContent="isCoachContent"
@@ -193,6 +194,7 @@
       ...mapGetters(['currentUserId']),
       ...mapState({
         contentProgress: state => state.core.logging.progress,
+        currentlyMastered: state => state.core.logging.complete,
         error: state => state.core.error,
         loading: state => state.core.loading,
         blockDoubleClicks: state => state.core.blockDoubleClicks,

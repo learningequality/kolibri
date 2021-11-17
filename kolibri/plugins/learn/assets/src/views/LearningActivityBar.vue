@@ -55,7 +55,7 @@
           @click="toggleMenu"
         />
         <KIconButton
-          v-else-if="isQuiz"
+          v-else-if="isQuiz && !showingReportState"
           ref="moreOptionsButton"
           data-test="moreOptionsButton"
           icon="optionsHorizontal"
@@ -232,6 +232,14 @@
       Is this a practice quiz?
       */
       isQuiz: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
+      /**
+      Is the post-quiz report what is currently displayed?
+      */
+      showingReportState: {
         type: Boolean,
         required: false,
         default: false,
