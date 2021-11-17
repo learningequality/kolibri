@@ -26,14 +26,6 @@
           v-bind="{ thumbnail, isMobile }"
           :activityLength="content.duration"
         />
-        <p
-          v-if="!isMobile && isBookmarksPage"
-          class="metadata-info"
-          :style="{ color: $themePalette.grey.v_700 }"
-        >
-          {{ bookmarkCreated }}
-        </p>
-        <ProgressBar v-if="!isMobile" :contentNode="content" />
       </div>
       <span class="details" :style="{ color: $themeTokens.text }">
         <div
@@ -73,10 +65,10 @@
         />
       </span>
     </router-link>
-    <KFixedGrid :numCols="isMobile ? 8 : 2" class="footer">
-      <KFixedGridItem v-if="isMobile" span="6">
+    <KFixedGrid :numCols="10" class="footer">
+      <KFixedGridItem span="6" class="footer-elements">
         <p
-          v-if="isMobile && isBookmarksPage"
+          v-if="isBookmarksPage"
           class="metadata-info-footer"
           :style="{ color: $themePalette.grey.v_700 }"
         >
@@ -84,7 +76,7 @@
         </p>
         <ProgressBar :contentNode="content" />
       </KFixedGridItem>
-      <KFixedGridItem span="2" alignment="right">
+      <KFixedGridItem span="3" alignment="right" class="footer-elements footer-icons">
         <KIconButton
           v-for="(value, key) in footerIcons"
           :key="key"
@@ -290,13 +282,17 @@
     flex: auto;
     align-self: center;
     margin: 0;
+    font-size: 14px;
+  }
+
+  .footer-elements {
+    position: absolute;
+    bottom: 16px;
+    display: inline;
   }
 
   .footer-icons {
-    position: absolute;
     right: 16px;
-    bottom: 16px;
-    display: inline;
     // this override fixes an existing KDS bug with
     // the hover state circle being squished
     // and can be removed upon that hover state fix
