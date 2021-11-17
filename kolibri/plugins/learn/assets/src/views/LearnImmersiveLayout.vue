@@ -242,9 +242,18 @@
       },
     },
     watch: {
-      content: function() {
-        this.showViewResourcesSidePanel = false;
-        this.getSidebarInfo();
+      content(newContent, oldContent) {
+        if ((newContent && !oldContent) || newContent.id !== oldContent.id) {
+          this.showViewResourcesSidePanel = false;
+          this.getSidebarInfo();
+          client({
+            method: 'get',
+            url: urls['kolibri:core:bookmarks-list'](),
+            params: { contentnode_id: this.content.id },
+          }).then(response => {
+            this.bookmark = response.data[0] || false;
+          });
+        }
       },
     },
     mounted() {
@@ -252,23 +261,12 @@
        * this here, otherwise a watcher on `content` should trigger calling the same */
       this.getSidebarInfo();
     },
-    beforeUpdate() {
-      client({
-        method: 'get',
-        url: urls['kolibri:core:bookmarks-list'](),
-        params: { contentnode_id: this.content.id },
-      }).then(response => {
-        this.bookmark = response.data[0] || false;
-      });
-    },
     methods: {
       getSidebarInfo() {
         if (this.lessonId) {
           this.fetchLessonSiblings();
-        } else {
-          if (this.content.id) {
-            this.fetchSiblings();
-          }
+        } else if (this.content && this.content.id) {
+          this.fetchSiblings();
         }
       },
       /**

@@ -1,6 +1,11 @@
 <template>
 
-  <div class="card drop-shadow">
+  <div
+    class="card drop-shadow"
+    :class="[
+      { 'mobile-card': isMobile }
+    ]"
+  >
     <router-link
       :to="link"
       class="card"
@@ -21,13 +26,6 @@
           v-bind="{ thumbnail, isMobile }"
           :activityLength="content.duration"
         />
-        <p
-          v-if="!isMobile && isBookmarksPage"
-          class="metadata-info"
-          :style="{ color: $themePalette.grey.v_700 }"
-        >
-          {{ bookmarkCreated }}
-        </p>
       </div>
       <span class="details" :style="{ color: $themeTokens.text }">
         <div
@@ -67,16 +65,18 @@
         />
       </span>
     </router-link>
-    <div class="footer">
-      <p
-        v-if="isMobile && isBookmarksPage"
-        class="metadata-info-footer"
-        :style="{ color: $themePalette.grey.v_700 }"
-      >
-        {{ bookmarkCreated }}
-      </p>
-      <ProgressBar v-else :contentNode="content" />
-      <div class="footer-icons">
+    <KFixedGrid :numCols="10" class="footer">
+      <KFixedGridItem span="6" class="footer-elements">
+        <p
+          v-if="isBookmarksPage"
+          class="metadata-info-footer"
+          :style="{ color: $themePalette.grey.v_700 }"
+        >
+          {{ bookmarkCreated }}
+        </p>
+        <ProgressBar :contentNode="content" />
+      </KFixedGridItem>
+      <KFixedGridItem span="3" alignment="right" class="footer-elements footer-icons">
         <KIconButton
           v-for="(value, key) in footerIcons"
           :key="key"
@@ -87,8 +87,8 @@
           :tooltip="coreString(value)"
           @click="$emit(value)"
         />
-      </div>
-    </div>
+      </KFixedGridItem>
+    </KFixedGrid>
   </div>
 
 </template>
@@ -263,8 +263,6 @@
   .footer {
     position: absolute;
     bottom: 0;
-    display: flex;
-    justify-content: flex-end;
     width: 100%;
     padding: $margin;
   }
@@ -280,13 +278,17 @@
     flex: auto;
     align-self: center;
     margin: 0;
+    font-size: 14px;
+  }
+
+  .footer-elements {
+    position: absolute;
+    bottom: 16px;
+    display: inline;
   }
 
   .footer-icons {
-    position: absolute;
     right: 16px;
-    bottom: 16px;
-    display: inline;
     // this override fixes an existing KDS bug with
     // the hover state circle being squished
     // and can be removed upon that hover state fix
