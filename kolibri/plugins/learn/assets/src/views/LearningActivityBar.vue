@@ -13,9 +13,9 @@
           :shaded="true"
         />
       </template>
-      <TextTruncator
+      <TextTruncatorCss
         :text="resourceTitle"
-        :maxHeight="26"
+        :maxLines="1"
       />
       <template #iconAfter>
         <ProgressIcon :progress="contentProgress" class="progress-icon" />
@@ -107,7 +107,7 @@
   import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
-  import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
+  import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import { validateLearningActivity } from 'kolibri.utils.validators';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import LearningActivityIcon from './LearningActivityIcon.vue';
@@ -120,7 +120,7 @@
       CoachContentLabel,
       CoreMenu,
       CoreMenuOption,
-      TextTruncator,
+      TextTruncatorCss,
       LearningActivityIcon,
       MarkAsCompleteModal,
       ProgressIcon,
