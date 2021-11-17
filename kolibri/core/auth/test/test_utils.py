@@ -13,8 +13,15 @@ from django.test import TestCase
 
 from ..models import Facility
 from kolibri.core.auth.management import utils
+from kolibri.core.auth.models import AdHocGroup
+from kolibri.core.auth.models import Classroom
+from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.models import LearnerGroup
+from kolibri.core.auth.test.test_api import ClassroomFactory
 from kolibri.core.auth.test.test_api import FacilityFactory
 from kolibri.core.auth.test.test_api import FacilityUserFactory
+from kolibri.core.auth.test.test_api import LearnerGroupFactory
+from kolibri.core.auth.utils import fork_facility
 from kolibri.core.auth.utils import merge_users
 from kolibri.core.logger import models as log_models
 
@@ -484,3 +491,174 @@ class MergeUsersTestCase(TestCase):
                     channel_id=log.channel_id,
                 ).exists()
             )
+
+
+class AdHocGroupFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = AdHocGroup
+
+    name = factory.Sequence(lambda n: "AdHoc Group #%d" % n)
+
+
+class ForkFacilityTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.facility = FacilityFactory.create()
+        content_identifiers = [(uuid.uuid4().hex, uuid.uuid4().hex) for i in range(3)]
+        ex_identifiers = (uuid.uuid4().hex, uuid.uuid4().hex)
+        cls.count = 2
+        for i in range(1, 1 + cls.count):
+            user = FacilityUserFactory.create(facility=cls.facility)
+            coach = FacilityUserFactory.create(facility=cls.facility)
+            classroom = ClassroomFactory.create(parent=cls.facility)
+            classroom.add_member(user)
+            classroom.add_coach(coach)
+            learnergroup = LearnerGroupFactory.create(parent=classroom)
+            learnergroup.add_member(user)
+            adhocgroup = AdHocGroupFactory.create(parent=classroom)
+            adhocgroup.add_member(user)
+
+            for channel_id, content_id in content_identifiers:
+
+                ContentSessionLogFactory.create(
+                    user=user,
+                    channel_id=channel_id,
+                    content_id=content_id,
+                )
+
+                ContentSummaryLogFactory.create(
+                    user=user,
+                    channel_id=channel_id,
+                    content_id=content_id,
+                )
+            channel_id, content_id = ex_identifiers
+            ex_csessl = ContentSessionLogFactory.create(
+                user=user,
+                channel_id=channel_id,
+                content_id=content_id,
+            )
+
+            ex_csmlog = ContentSummaryLogFactory.create(
+                user=user,
+                channel_id=channel_id,
+                content_id=content_id,
+            )
+            masterylog = MasteryLogFactory.create(
+                user=user, summarylog=ex_csmlog, mastery_level=1
+            )
+            AttemptLogFactory.create(
+                user=user, masterylog=masterylog, sessionlog=ex_csessl
+            )
+            UserSessionLogFactory.create(user=user)
+
+        fork_facility(cls.facility)
+        cls.new_facility = Facility.objects.exclude(id=cls.facility.id).get()
+        cls.new_dataset_id = cls.new_facility.dataset_id
+
+    def test_users_data_after_merge(self):
+        self.assertEqual(
+            FacilityUser.objects.filter(facility=self.new_facility).count(),
+            self.count * 2,
+        )
+        for user in FacilityUser.objects.filter(facility=self.facility):
+            self.assertTrue(
+                FacilityUser.objects.filter(
+                    facility=self.new_facility,
+                    username=user.username,
+                    full_name=user.full_name,
+                ).exists()
+            )
+
+    def test_classrooms_after_merge(self):
+        self.assertEqual(
+            Classroom.objects.filter(dataset_id=self.new_dataset_id).count(), self.count
+        )
+        for classroom in Classroom.objects.filter(dataset_id=self.new_dataset_id):
+            self.assertEqual(classroom.get_members().count(), 1)
+            self.assertEqual(classroom.get_coaches().count(), 1)
+            old_classroom = Classroom.objects.get(
+                dataset_id=self.facility.dataset_id, name=classroom.name
+            )
+            self.assertEqual(
+                old_classroom.get_members().first().username,
+                classroom.get_members().first().username,
+            )
+            self.assertEqual(
+                old_classroom.get_coaches().first().username,
+                classroom.get_coaches().first().username,
+            )
+
+    def test_learnergroups_after_merge(self):
+        self.assertEqual(
+            LearnerGroup.objects.filter(dataset_id=self.new_dataset_id).count(),
+            self.count,
+        )
+        for learnergroup in LearnerGroup.objects.filter(dataset_id=self.new_dataset_id):
+            self.assertEqual(learnergroup.get_members().count(), 1)
+            old_learnergroup = LearnerGroup.objects.get(
+                dataset_id=self.facility.dataset_id, name=learnergroup.name
+            )
+            self.assertEqual(
+                old_learnergroup.get_members().first().username,
+                learnergroup.get_members().first().username,
+            )
+
+    def test_adhocgroups_after_merge(self):
+        self.assertEqual(
+            AdHocGroup.objects.filter(dataset_id=self.new_dataset_id).count(),
+            self.count,
+        )
+        for adhocgroup in AdHocGroup.objects.filter(dataset_id=self.new_dataset_id):
+            self.assertEqual(adhocgroup.get_members().count(), 1)
+            old_adhocgroup = AdHocGroup.objects.get(
+                dataset_id=self.facility.dataset_id, name=adhocgroup.name
+            )
+            self.assertEqual(
+                old_adhocgroup.get_members().first().username,
+                adhocgroup.get_members().first().username,
+            )
+
+    def test_masterylogs(self):
+        self.assertEqual(
+            log_models.MasteryLog.objects.filter(
+                dataset_id=self.new_dataset_id
+            ).count(),
+            self.count,
+        )
+
+    def test_usersessionlogs(self):
+        self.assertEqual(
+            log_models.UserSessionLog.objects.filter(
+                dataset_id=self.new_dataset_id
+            ).count(),
+            self.count,
+        )
+
+    def test_attemptlogs(self):
+        self.assertEqual(
+            log_models.AttemptLog.objects.filter(
+                dataset_id=self.new_dataset_id
+            ).count(),
+            self.count,
+        )
+        for attempt_log in log_models.AttemptLog.objects.filter(
+            dataset_id=self.new_dataset_id
+        ):
+            for json_field in ("answer", "interaction_history"):
+                self.assertNotIsInstance(getattr(attempt_log, json_field), (str,))
+
+    def test_contentsessionlogs(self):
+        self.assertEqual(
+            log_models.ContentSessionLog.objects.filter(
+                dataset_id=self.new_dataset_id
+            ).count(),
+            self.count * 4,
+        )
+
+    def test_contentsummarylogs(self):
+        self.assertEqual(
+            log_models.ContentSummaryLog.objects.filter(
+                dataset_id=self.new_dataset_id
+            ).count(),
+            self.count * 4,
+        )

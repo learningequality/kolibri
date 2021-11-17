@@ -1,3 +1,4 @@
+import logging
 import sys
 
 from django.db import connections
@@ -6,14 +7,27 @@ from django.utils.six.moves import input
 from morango.sync.backends.utils import calculate_max_sqlite_variables
 
 from kolibri.core.auth.models import AdHocGroup
+from kolibri.core.auth.models import Classroom
+from kolibri.core.auth.models import Collection
+from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityDataset
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.models import LearnerGroup
 from kolibri.core.auth.models import Membership
+from kolibri.core.auth.models import Role
+from kolibri.core.bookmarks.models import Bookmark
+from kolibri.core.exams.models import Exam
+from kolibri.core.exams.models import ExamAssignment
+from kolibri.core.lessons.models import Lesson
+from kolibri.core.lessons.models import LessonAssignment
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import MasteryLog
 from kolibri.core.logger.models import UserSessionLog
+
+
+logger = logging.getLogger(__name__)
 
 
 def confirm_or_exit(message):
@@ -39,6 +53,21 @@ def _merge_user_models(source_user, target_user):
         if not target_value and source_value:
             setattr(target_user, f, source_value)
     target_user.save()
+
+
+def _batch_save(Model, objects):
+    vendor = connections[Model.objects.db].vendor
+    batch_size = (
+        # Add a max possible value of 500 here to prevent:
+        # OperationalError: too many terms in compound SELECT
+        # Seems that this can only be changed from the command line,
+        # so seems safe to assume it will always be set to the default value.
+        min(calculate_max_sqlite_variables() // len(Model._meta.fields), 500)
+        if vendor == "sqlite"
+        else 750
+    )
+
+    Model.objects.bulk_create(objects, batch_size=batch_size)
 
 
 blocklist = set(["id", "_morango_partition"])
@@ -113,14 +142,7 @@ def merge_users(source_user, target_user):  # noqa C901
             if new_log.id not in target_log_ids:
                 new_logs.append(new_log)
 
-        vendor = connections[LogModel.objects.db].vendor
-        batch_size = (
-            calculate_max_sqlite_variables() // len(LogModel._meta.fields)
-            if vendor == "sqlite"
-            else 750
-        )
-
-        LogModel.objects.bulk_create(new_logs, batch_size=batch_size)
+        _batch_save(LogModel, new_logs)
 
     _merge_log_data(ContentSessionLog)
 
@@ -131,3 +153,87 @@ def merge_users(source_user, target_user):  # noqa C901
     _merge_log_data(MasteryLog)
 
     _merge_log_data(AttemptLog)
+
+
+fork_blocklist = {"id", "_morango_partition", "_morango_source_id"}
+
+
+def filter_blocklist(data):
+    return {k: v for k, v in data.items() if k not in fork_blocklist}
+
+
+def _copy_data(Model, id_map, source_data):
+    logger.info("Copying data for model {}".format(Model))
+    obj_map = id_map.get(Model, {})
+    id_map[Model] = obj_map
+    new_objs = []
+    related_fields = [f for f in Model._meta.concrete_fields if f.is_relation]
+
+    for obj in source_data:
+        # Get all serialializable fields
+        data = filter_blocklist(obj.serialize())
+        # Iterate through each relation and map the old id to the new id for the foreign key
+        for relation in related_fields:
+            if data[relation.attname] is not None:
+                data[relation.attname] = id_map[relation.related_model][
+                    data[relation.attname]
+                ]
+        new_obj = Model()
+        for field, value in data.items():
+            try:
+                field_obj = Model._meta.get_field(field)
+                if hasattr(field_obj, "from_db_value"):
+                    value = field_obj.from_db_value(value, None, None, None)
+            except FieldDoesNotExist:
+                pass
+            setattr(new_obj, field, value)
+        new_obj.id = new_obj.calculate_uuid()
+        obj_map[obj.id] = new_obj.id
+        if issubclass(Model, Collection):
+            # Also log proxy models into the collection id map
+            id_map[Collection][obj.id] = new_obj.id
+        new_objs.append(new_obj)
+
+    _batch_save(Model, new_objs)
+    logger.info("Finished copying data for model {}".format(Model))
+
+
+def fork_facility(facility):
+    """
+    Utility function to make a complete copy of all facility data, but separated from the original
+    facility.
+    """
+    logger.info("Making a copy of facility {}".format(facility.name))
+    dataset_data = filter_blocklist(facility.dataset.serialize())
+    new_dataset = FacilityDataset.deserialize(dataset_data)
+    new_dataset.save()
+    id_map = {
+        FacilityDataset: {facility.dataset_id: new_dataset.id},
+        # Preseed this as we are not directly copying the Collection model, only
+        # its proxy models.
+        Collection: {},
+    }
+
+    models = [
+        Facility,
+        FacilityUser,
+        Classroom,
+        LearnerGroup,
+        AdHocGroup,
+        Role,
+        Membership,
+        Bookmark,
+        Exam,
+        ExamAssignment,
+        Lesson,
+        LessonAssignment,
+        ContentSessionLog,
+        ContentSummaryLog,
+        MasteryLog,
+        AttemptLog,
+        UserSessionLog,
+    ]
+
+    for Model in models:
+        _copy_data(Model, id_map, Model.objects.filter(dataset_id=facility.dataset_id))
+    logger.info("Completed making a copy of facility {}".format(facility.name))
