@@ -11,6 +11,7 @@ from ...utils import paths
 from ...utils import transfer
 from kolibri.core.content.errors import InsufficientStorageSpaceError
 from kolibri.core.content.errors import InvalidStorageFilenameError
+from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.utils.file_availability import LocationError
 from kolibri.core.content.utils.import_export_content import compare_checksums
@@ -472,6 +473,16 @@ class Command(AsyncCommand):
         return FILE_TRANSFERRED, data_transferred
 
     def handle_async(self, *args, **options):
+        try:
+            ChannelMetadata.objects.get(id=options["channel_id"])
+        except ValueError:
+            raise CommandError(
+                "{} is not a valid channel_id".format(options["channel_id"])
+            )
+        except ChannelMetadata.DoesNotExist:
+            raise CommandError(
+                "Must import a channel with importchannel before importing content."
+            )
         if options["command"] == "network":
             self.download_content(
                 options["channel_id"],
