@@ -15,7 +15,11 @@
           />
         </div>
         <KGrid>
-          <KGridItem :layout="{ span: 4 }">
+          <!-- Layout notes
+            - Layout12 span8 -> 75% width on windowIsLarge
+            - No other layout definitions means span will be 100%
+          -->
+          <KGridItem :layout12="{ span: 9 }">
             <div
               id="problem-area"
               class="problem-area"
@@ -25,7 +29,7 @@
             </div>
           </KGridItem>
 
-          <KGridItem :layout="{ span: 4 }">
+          <KGridItem :layout12="{ span: 9 }">
             <div v-if="hinted" id="hintlabel" class="hintlabel" :dir="contentDirection">
               {{ $tr("hintLabel") }}
             </div>
@@ -615,34 +619,6 @@
 
   .hintsarea {
     padding-right: 16px;
-  }
-
-  /deep/ .hint-btn-container {
-    display: flex;
-    align-items: center;
-    padding-right: 8px !important;
-    font-size: medium;
-
-    &.rtl {
-      /deep/ .k-tooltip {
-        right: auto !important;
-        left: 0 !important;
-      }
-    }
-
-    /deep/ .k-tooltip {
-      right: 0 !important;
-      left: auto !important;
-      transform: translate3d(0, 23px, 0) !important;
-    }
-  }
-
-  .hint-btn {
-    vertical-align: text-bottom;
-
-    /deep/ .link-text {
-      text-align: right;
-    }
   }
 
   .info-icon {
