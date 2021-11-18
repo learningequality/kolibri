@@ -84,7 +84,7 @@
             :color="$themeTokens.text"
             :tooltip="$tr('viewAsList')"
             @click="toggleCardView('list')"
-            :disabled="currentViewStyle === 'list'"
+            :disabled="currentViewStyle === 'list'" 
           />
           <KIconButton
             icon="channel"
