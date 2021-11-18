@@ -38,6 +38,7 @@
               :text="$tr('viewLearners')"
               appearance="basic-link"
               :to="classLearnersListRoute"
+              style="margin-left: 24 px;"
             />
           </template>
         </template>
