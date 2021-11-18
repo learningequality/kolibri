@@ -56,11 +56,11 @@
         />
         <KIconButton
           v-else-if="isQuiz && !showingReportState"
-          ref="moreOptionsButton"
-          data-test="moreOptionsButton"
-          icon="optionsHorizontal"
-          :tooltip="$tr('moreOptions')"
-          :ariaLabel="$tr('moreOptions')"
+          ref="timerButton"
+          data-test="timerButton"
+          icon="timer"
+          :tooltip="coreString('timeSpentLabel')"
+          :ariaLabel="coreString('timeSpentLabel')"
           @click="toggleMenu"
         />
         <CoreMenu

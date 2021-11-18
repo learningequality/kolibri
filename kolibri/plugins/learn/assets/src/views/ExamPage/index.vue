@@ -11,6 +11,21 @@
       >
         <div class="column-contents-wrapper">
           <KPageContainer>
+            <div>
+              <p>{{ coreString('timeSpentLabel') }}</p>
+              <div :style="{ paddingBottom: '8px' }">
+                <TimeDuration class="timer" :seconds="timeSpent" />
+              </div>
+              <p v-if="duration">
+                {{ learnString('suggestedTime') }}
+              </p>
+              <SuggestedTime v-if="content.duration" class="timer" :seconds="content.duration" />
+            </div>
+            <span
+              class="divider"
+              :style="{ borderTop: `solid 1px ${$themeTokens.fineLine}` }"
+            >
+            </span>
             <AnswerHistory
               :questionNumber="questionNumber"
               :wrapperComponentRefs="this.$refs"
@@ -170,6 +185,8 @@
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import SuggestedTime from 'kolibri.coreVue.components.SuggestedTime';
+  import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ClassesPageNames } from '../../constants';
   import { LearnerClassroomResource } from '../../apiResources';
@@ -187,6 +204,8 @@
       UiAlert,
       UiIconButton,
       BottomAppBar,
+      TimeDuration,
+      SuggestedTime,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
     data() {
@@ -200,6 +219,7 @@
     computed: {
       ...mapState({
         pastattempts: state => state.core.logging.pastattempts,
+        timeSpent: state => state.core.logging.time_spent,
       }),
       ...mapState('examViewer', ['exam', 'contentNodeMap', 'questions', 'questionNumber']),
       gridStyle() {
@@ -477,6 +497,19 @@
 
   .footer-button {
     display: inline-block;
+  }
+
+  .timer {
+    font-size: 18px;
+    font-weight: bold;
+  }
+
+  .divider {
+    display: block;
+    min-width: 100%;
+    height: 1px;
+    margin: 16px 0;
+    overflow-y: hidden;
   }
 
 </style>
