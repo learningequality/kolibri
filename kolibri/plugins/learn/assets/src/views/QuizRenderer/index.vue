@@ -381,6 +381,14 @@
 
         if (close) {
           data.progress = 1;
+        } else {
+          // We don't set progress to 1 until the quiz is submitted, so we max out here.
+          // If any interaction has happened, we set a peppercorn progress so that it shows
+          // as interacted with.
+          data.progress = Math.max(
+            0.001,
+            Math.min(this.pastattempts.length / this.assessmentIds.length, 0.99)
+          );
         }
 
         return this.updateContentSession(data)
