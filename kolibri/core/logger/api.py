@@ -434,7 +434,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
         if (
             masterylog
             and masterylog.complete
-            and masterylog.mastery_criterion.get("type") == "quiz"
+            and masterylog.mastery_criterion.get("type") == exercises.QUIZ
             and masterylog.mastery_criterion.get("coach_assigned")
         ):
             raise PermissionDenied("Cannot update a finished coach assigned quiz")
@@ -535,7 +535,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             attemptlogs = attemptlogs[: mastery_criterion["n"]]
         elif exercise_type in MAPPING:
             attemptlogs = attemptlogs[: MAPPING[exercise_type]]
-        elif exercise_type == "quiz":
+        elif exercise_type == exercises.QUIZ:
             attemptlogs = attemptlogs.order_by()
         else:
             attemptlogs = attemptlogs[:10]

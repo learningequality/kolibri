@@ -768,40 +768,6 @@ class ProgressTrackingViewSetStartSessionAssessmentResumeTestCase(APITestCase):
         self.assertEqual(response.json()["totalattempts"], 15)
         self.assertEqual(len(response.json()["pastattempts"]), 2)
 
-    def test_start_assessment_session_logged_in_with_history_coach_assigned_quiz_type(
-        self,
-    ):
-        timestamp = local_now()
-        interaction = {
-            "type": interaction_types.ANSWER,
-            "answer": {"response": "hinty mchintyson"},
-            "correct": 0,
-        }
-        self.mastery_log.delete()
-        self.mastery_log.mastery_criterion = {
-            "type": exercises.QUIZ,
-            "coach_assigned": True,
-        }
-        self.mastery_log.mastery_level = -10
-        self.mastery_log.save()
-        for i in range(0, 15):
-            AttemptLog.objects.create(
-                masterylog=self.mastery_log,
-                sessionlog=self.session_log,
-                start_timestamp=timestamp,
-                end_timestamp=timestamp,
-                correct=0,
-                item="{}:test_item_id".format(i),
-                user=self.user,
-                answer=interaction["answer"],
-                interaction_history=[interaction],
-            )
-        response = self._make_request({})
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()["totalattempts"], 15)
-        self.assertEqual(len(response.json()["pastattempts"]), 15)
-
     def test_start_assessment_session_logged_in_with_history_practice_quiz_type(self):
         timestamp = local_now()
         interaction = {
