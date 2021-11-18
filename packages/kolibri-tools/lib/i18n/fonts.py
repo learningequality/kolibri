@@ -471,18 +471,12 @@ def _merge_fonts(fonts, output_file_path):
     logging.info("created {}".format(output_file_path))
 
 
-def _cannot_merge(font):
-    # all fonts must have equal units per em for merging, and 1000 is most common
-    return font["head"].unitsPerEm != 1000
-
-
 def _subset_and_merge_fonts(text, default_font, subset_reg_path, subset_bold_path):
     """
     Given text, generate both a bold and a regular font that can render it.
     """
     reg_subsets = []
     bold_subsets = []
-    skipped = []
 
     # track which glyphs are left
     remaining_glyphs = set([ord(c) for c in text])
@@ -492,10 +486,6 @@ def _subset_and_merge_fonts(text, default_font, subset_reg_path, subset_bold_pat
         full_bold_path = _woff_font_path(_scoped(SCOPE_FULL, font_name), is_bold=True)
         reg_subset = _get_subset_font(full_reg_path, text)
         bold_subset = _get_subset_font(full_bold_path, text)
-
-        if _cannot_merge(reg_subset) or _cannot_merge(bold_subset):
-            skipped.append(font_name)
-            continue
 
         reg_subsets.append(reg_subset)
         bold_subsets.append(bold_subset)
