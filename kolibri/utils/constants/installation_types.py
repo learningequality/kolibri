@@ -5,20 +5,24 @@ from __future__ import unicode_literals
 
 APK = "apk"
 DEB = "deb"
-KOLIBRI_SERVER = "kolibri-server"
-MACOS = "Mac"
+FLATPAK = "flatpak"
+GNOME = "gnome"
+KOLIBRI_SERVER = "kolibriserver"
+MACOS = "mac"
 PEX = "pex"
-UWSGI = "uwsgi"
 WHL = "whl"
-WINDOWS = "Windows"
+WINDOWS = "windows"
+WINDOWS_APP = "windowsapp"
 
 install_type_map = {
-    APK: "APK",
-    DEB: "Debian package",
-    KOLIBRI_SERVER: "kolibri Debian package with kolibri_server",
-    MACOS: "macOS desktop app",
-    PEX: "PEX executable",
-    UWSGI: "UWSGI process",
-    WHL: "WHL Python package",
-    WINDOWS: "Windows Installer",
+    APK: "apk - {}",
+    DEB: "deb kolibri - {}",
+    FLATPAK: "Flatpak - {}",
+    GNOME: "GNOME - {}",
+    KOLIBRI_SERVER: "deb kolibri-server - {}",
+    MACOS: "Mac - {}",
+    PEX: "pex",
+    WHL: "whl",
+    WINDOWS: "Windows - {}",
+    WINDOWS_APP: "Windows App - {}",
 }
