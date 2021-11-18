@@ -993,7 +993,7 @@ class AttemptLogViewSet(ReadOnlyValuesViewset):
             if all(k in request.GET for k in filter_set):
                 break
         else:
-            raise NotImplementedError("Minimum filter condition not met")
+            return Response("Minimum filter condition not met", status=412)
 
         # apply filters, narrow down to most recent try
         target_attempt_logs = self.filter_queryset(self.get_queryset())
