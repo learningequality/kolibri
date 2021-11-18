@@ -4,12 +4,15 @@ import logging
 import typing
 from urllib.parse import urlencode
 from urllib.parse import urljoin
+from urllib.parse import urlsplit
 
 import requests
 from gi.repository import Gio
 from gi.repository import GLib
 from gi.repository import GObject
 from gi.repository import KolibriDaemonDBus
+from gi.repository import Soup
+
 from kolibri_app.config import DAEMON_APPLICATION_ID
 from kolibri_app.config import DAEMON_MAIN_OBJECT_PATH
 
@@ -18,6 +21,8 @@ logger = logging.getLogger(__name__)
 
 AUTOLOGIN_URL_TEMPLATE = "kolibri_desktop_auth_plugin/login/{token}?{query}"
 INITIALIZE_URL_TEMPLATE = "app/api/initialize/{key}?{query}"
+
+APP_KEY_COOKIE_NAME = "app_key_cookie"
 
 
 class KolibriDaemonManager(object):
@@ -99,16 +104,26 @@ class KolibriDaemonManager(object):
         else:
             return None
 
+    def get_app_key_cookie(self) -> typing.Optional[Soup.Cookie]:
+        if not self.__dbus_proxy.props.app_key or not self.__dbus_proxy.props.base_url:
+            return None
+
+        url_tuple = urlsplit(self.__dbus_proxy.props.base_url)
+
+        return Soup.Cookie.new(
+            name=APP_KEY_COOKIE_NAME,
+            value=self.__dbus_proxy.props.app_key,
+            domain=url_tuple.netloc,
+            path="",
+            max_age=-1,
+        )
+
     def get_kolibri_initialize_url(self, next_url: str) -> typing.Optional[str]:
-        autologin_url = self.get_kolibri_url(
+        return self.get_kolibri_url(
             AUTOLOGIN_URL_TEMPLATE.format(
                 token=self.__login_token, query=urlencode({"next": next_url})
             )
         )
-        initialize_url = INITIALIZE_URL_TEMPLATE.format(
-            key=self.__dbus_proxy.props.app_key, query=urlencode({"next": autologin_url})
-        )
-        return self.get_kolibri_url(initialize_url)
 
     def kolibri_api_get(self, path: str, *args, **kwargs) -> typing.Any:
         url = self.get_kolibri_url(path)
@@ -144,7 +159,10 @@ class KolibriDaemonManager(object):
             self.__dbus_proxy_on_notify(self.__dbus_proxy, None)
 
     def __dbus_proxy_login_token_result_handler(
-        self, dbus_proxy: KolibriDaemonDBus.MainProxy, result: typing.Any, user_data: typing.Any = None,
+        self,
+        dbus_proxy: KolibriDaemonDBus.MainProxy,
+        result: typing.Any,
+        user_data: typing.Any = None,
     ):
         if isinstance(result, Exception):
             logging.warning(
@@ -172,8 +190,13 @@ class KolibriDaemonManager(object):
             self.__dbus_proxy.Hold(result_handler=self.__dbus_proxy_null_result_handler)
 
         if self.__login_token is None and self.__dbus_proxy.props.status == "STARTED":
-            self.__dbus_proxy.GetLoginToken(result_handler=self.__dbus_proxy_login_token_result_handler)
-        elif self.__login_token is not None and self.__dbus_proxy.props.status != "STARTED":
+            self.__dbus_proxy.GetLoginToken(
+                result_handler=self.__dbus_proxy_login_token_result_handler
+            )
+        elif (
+            self.__login_token is not None
+            and self.__dbus_proxy.props.status != "STARTED"
+        ):
             # Invalidate the token if it was obtained before but now
             # the daemon switched to a different status. So it can be
             # obtained again if the status goes back to STARTED:
@@ -185,12 +208,17 @@ class KolibriDaemonManager(object):
             pass
         elif not self.is_error() or dbus_proxy_owner_changed:
             self.__starting_kolibri = True
-            self.__dbus_proxy.Start(result_handler=self.__dbus_proxy_null_result_handler)
+            self.__dbus_proxy.Start(
+                result_handler=self.__dbus_proxy_null_result_handler
+            )
 
         self.__on_dbus_proxy_changed()
 
     def __dbus_proxy_null_result_handler(
-        self, dbus_proxy: KolibriDaemonDBus.MainProxy, result: typing.Any, user_data: typing.Any = None
+        self,
+        dbus_proxy: KolibriDaemonDBus.MainProxy,
+        result: typing.Any,
+        user_data: typing.Any = None,
     ):
         if isinstance(result, Exception):
             logging.warning(

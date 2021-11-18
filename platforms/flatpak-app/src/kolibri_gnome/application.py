@@ -114,6 +114,13 @@ class KolibriView(pew.ui.WebUIView, MenuEventHandler):
         self.load_url(self.__target_url)
 
     def on_kolibri_started(self):
+        cookie_manager = self.gtk_webview.get_context().get_cookie_manager()
+        cookie_manager.add_cookie(
+            self.kolibri_daemon.get_app_key_cookie(), None, self.__on_cookie_ready
+        )
+
+    def __on_cookie_ready(self, cookie_manager, result):
+        # TODO: Only finish loading after this has completed.
         pass
 
     def load_url(self, url: str):
