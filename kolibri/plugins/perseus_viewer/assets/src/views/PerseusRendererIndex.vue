@@ -19,7 +19,7 @@
             - Layout12 span8 -> ~66% width on windowIsLarge
             - No other layout definitions means span will be 100%
           -->
-          <KGridItem :layout12="{ span: 9 }">
+          <KGridItem :layout12="{ span: 6 }">
             <div
               id="problem-area"
               class="problem-area"
@@ -29,7 +29,7 @@
             </div>
           </KGridItem>
 
-          <KGridItem :layout12="{ span: 9 }">
+          <KGridItem :layout12="{ span: 6 }">
             <div v-if="hinted" id="hintlabel" class="hintlabel" :dir="contentDirection">
               {{ $tr("hintLabel") }}
             </div>
