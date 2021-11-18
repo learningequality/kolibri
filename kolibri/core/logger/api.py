@@ -545,7 +545,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             "pastattempts": attemptlogs,
             "totalattempts": masterylog.attemptlogs.count(),
             "complete": masterylog.complete,
-            "time_spent": masterylog.time_spent,
+            "time_spent": masterylog.time_spent or 0,
         }, masterylog.mastery_level
 
     def _generate_interaction_summary(self, validated_data):
