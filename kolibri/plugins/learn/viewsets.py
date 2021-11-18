@@ -85,12 +85,20 @@ class LearnerClassroomViewset(ReadOnlyValuesViewset):
                 resource["contentnode_id"] for resource in lesson["resources"]
             }
 
-        contentnode_progress = contentnode_progress_viewset.serialize_list(
-            self.request, {"ids": lesson_contentnode_ids}
+        contentnode_progress = (
+            contentnode_progress_viewset.serialize_list(
+                self.request, {"ids": lesson_contentnode_ids}
+            )
+            if lesson_contentnode_ids
+            else []
         )
 
-        contentnodes = contentnode_viewset.serialize_list(
-            self.request, {"ids": lesson_contentnode_ids}
+        contentnodes = (
+            contentnode_viewset.serialize_list(
+                self.request, {"ids": lesson_contentnode_ids}
+            )
+            if lesson_contentnode_ids
+            else []
         )
 
         progress_map = {l["content_id"]: l["progress"] for l in contentnode_progress}
