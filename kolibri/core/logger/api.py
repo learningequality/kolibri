@@ -545,6 +545,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             "pastattempts": attemptlogs,
             "totalattempts": masterylog.attemptlogs.count(),
             "complete": masterylog.complete,
+            "time_spent": masterylog.time_spent,
         }, masterylog.mastery_level
 
     def _generate_interaction_summary(self, validated_data):
@@ -570,7 +571,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             )
 
     def _update_and_return_mastery_log_id(
-        self, user, complete, summarylog_id, end_timestamp, context
+        self, user, complete, time_spent_delta, summarylog_id, end_timestamp, context
     ):
         if not user.is_anonymous() and context["mastery_level"] is not None:
             try:
@@ -579,19 +580,26 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                     mastery_level=context["mastery_level"],
                     summarylog_id=summarylog_id,
                 )
+                update_fields = tuple()
+                if time_spent_delta:
+                    masterylog.time_spent = (
+                        masterylog.time_spent or 0
+                    ) + time_spent_delta
+                    update_fields += ("time_spent",)
                 if complete and not masterylog.complete:
                     masterylog.complete = True
                     masterylog.completion_timestamp = end_timestamp
-                    masterylog.save(
-                        update_fields=(
-                            "complete",
-                            "completion_timestamp",
-                            "_morango_dirty_bit",
-                        )
+                    update_fields += (
+                        "complete",
+                        "completion_timestamp",
                     )
                     self._process_masterylog_completed_notification(masterylog, context)
                 else:
                     self._check_quiz_log_permissions(masterylog)
+                if update_fields:
+                    masterylog.save(
+                        update_fields=update_fields + ("_morango_dirty_bit",)
+                    )
                 return masterylog.id
             except MasteryLog.DoesNotExist:
                 raise ValidationError(
@@ -843,7 +851,12 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                 pk, request.user, end_timestamp, validated_data
             )
             masterylog_id = self._update_and_return_mastery_log_id(
-                request.user, output["complete"], summarylog_id, end_timestamp, context
+                request.user,
+                output["complete"],
+                validated_data.get("time_spent_delta"),
+                summarylog_id,
+                end_timestamp,
+                context,
             )
             if "interactions" in validated_data:
                 attempt_output = self._update_or_create_attempts(

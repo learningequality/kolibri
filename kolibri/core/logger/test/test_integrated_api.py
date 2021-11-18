@@ -532,6 +532,7 @@ class ProgressTrackingViewSetStartSessionAssessmentResumeTestCase(APITestCase):
             start_timestamp=local_now(),
             end_timestamp=local_now(),
             kind="exercise",
+            time_spent=17,
         )
 
         self.mastery_log = MasteryLog.objects.create(
@@ -540,6 +541,7 @@ class ProgressTrackingViewSetStartSessionAssessmentResumeTestCase(APITestCase):
             start_timestamp=self.summary_log.start_timestamp,
             user=self.user,
             mastery_level=1,
+            time_spent=7,
         )
         self.client.login(
             username=self.user.username,
@@ -575,12 +577,12 @@ class ProgressTrackingViewSetStartSessionAssessmentResumeTestCase(APITestCase):
         self.assertEqual(log.channel_id, new_channel_id)
         self.assertEqual(ContentSummaryLog.objects.all().count(), 1)
         data = response.json()
-        self.assertEqual(log.time_spent, data["time_spent"])
         self.assertEqual(log.progress, data["progress"])
         self.assertEqual(log.extra_fields, data["extra_fields"])
         self.assertEqual(self.node.id, data["context"]["node_id"])
         self.assertEqual(session_id, data["session_id"])
         log = MasteryLog.objects.get()
+        self.assertEqual(log.time_spent, data["time_spent"])
         self.assertEqual(log.mastery_level, data["context"]["mastery_level"])
         self.assertEqual(log.mastery_level, data["context"]["mastery_level"])
         self.assertEqual(log.mastery_criterion, self.mastery_model)
@@ -611,12 +613,12 @@ class ProgressTrackingViewSetStartSessionAssessmentResumeTestCase(APITestCase):
         self.assertEqual(log.channel_id, new_channel_id)
         self.assertEqual(ContentSummaryLog.objects.all().count(), 1)
         data = response.json()
-        self.assertEqual(log.time_spent, data["time_spent"])
         self.assertEqual(log.progress, data["progress"])
         self.assertEqual(log.extra_fields, data["extra_fields"])
         self.assertEqual(self.node.id, data["context"]["node_id"])
         self.assertEqual(session_id, data["session_id"])
         log = MasteryLog.objects.get(mastery_level=-10)
+        self.assertEqual(log.time_spent, data["time_spent"])
         self.assertEqual(log.mastery_level, data["context"]["mastery_level"])
         self.assertEqual(log.mastery_level, data["context"]["mastery_level"])
         self.assertEqual(log.mastery_criterion, {"type": exercises.QUIZ})
@@ -880,6 +882,7 @@ class ProgressTrackingViewSetStartSessionCoachQuizResumeTestCase(APITestCase):
             start_timestamp=local_now(),
             end_timestamp=local_now(),
             kind="quiz",
+            time_spent=24,
         )
 
         self.mastery_log = MasteryLog.objects.create(
@@ -888,6 +891,7 @@ class ProgressTrackingViewSetStartSessionCoachQuizResumeTestCase(APITestCase):
             start_timestamp=self.summary_log.start_timestamp,
             user=self.user,
             mastery_level=-1,
+            time_spent=17,
         )
         self.client.login(
             username=self.user.username,
@@ -919,6 +923,7 @@ class ProgressTrackingViewSetStartSessionCoachQuizResumeTestCase(APITestCase):
         self.assertEqual(log.content_id, self.content_id)
         self.assertIsNone(log.channel_id)
         self.assertEqual(ContentSummaryLog.objects.all().count(), 1)
+        self.assertEqual(self.mastery_log.time_spent, response.json()["time_spent"])
 
     def test_start_assessment_session_logged_in_quiz_not_active_fails(self):
         self.quiz.active = False
@@ -2055,6 +2060,24 @@ class ProgressTrackingViewSetLoggedInUpdateSessionAssessmentTestCase(
     def mastery_level(self):
         return self.mastery_log.mastery_level
 
+    def test_update_assessment_session_update_time_delta_succeeds(self):
+        self.session_log.extra_fields = {
+            "context": {
+                "node_id": self.node.id,
+                "mastery_level": self.mastery_level,
+            }
+        }
+        self.session_log.save()
+        response = self._make_request(
+            {
+                "time_spent_delta": 5,
+            }
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.mastery_log.refresh_from_db()
+        self.assertEqual(self.mastery_log.time_spent, 5)
+
     def test_update_assessment_session_create_attempt_in_lesson_succeeds(self):
         lesson = create_assigned_lesson_for_user(self.user)
         lesson_id = lesson.id
@@ -2222,6 +2245,18 @@ class ProgressTrackingViewSetLoggedInUpdateSessionCoachQuizTestCase(
             data=data,
             format="json",
         )
+
+    def test_update_assessment_session_update_time_delta_succeeds(self):
+        with patch("kolibri.core.logger.api.wrap_to_save_queue"):
+            response = self._make_request(
+                {
+                    "time_spent_delta": 5,
+                }
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.mastery_log.refresh_from_db()
+        self.assertEqual(self.mastery_log.time_spent, 5)
 
     def test_update_assessment_session_create_attempt_succeeds(self):
         with patch("kolibri.core.logger.api.wrap_to_save_queue") as save_queue_mock:
@@ -2429,6 +2464,24 @@ class ProgressTrackingViewSetLoggedInUpdateSessionAssessmentPracticeQuizTestCase
     @property
     def mastery_level(self):
         return self.mastery_log.mastery_level
+
+    def test_update_assessment_session_update_time_delta_succeeds(self):
+        self.session_log.extra_fields = {
+            "context": {
+                "node_id": self.node.id,
+                "mastery_level": self.mastery_level,
+            }
+        }
+        self.session_log.save()
+        response = self._make_request(
+            {
+                "time_spent_delta": 5,
+            }
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.mastery_log.refresh_from_db()
+        self.assertEqual(self.mastery_log.time_spent, 5)
 
     def test_update_assessment_session_create_attempt_in_lesson_succeeds(self):
         lesson = create_assigned_lesson_for_user(self.user)
