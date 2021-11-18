@@ -17,10 +17,8 @@
         :text="resourceTitle"
         :maxLines="1"
       />
-      <template #iconAfter>
-        <ProgressIcon :progress="contentProgress" class="progress-icon" />
-      </template>
     </KLabeledIcon>
+    <ProgressIcon :progress="contentProgress" class="progress-icon" />
 
     <template #icon>
       <KIconButton
@@ -375,8 +373,13 @@
     min-width: 0;
   }
 
+  /deep/ .ui-toolbar__body {
+    align-items: center;
+  }
+
   /deep/ .progress-icon .ui-icon {
     margin-top: -2px;
+    margin-left: 16px;
 
     svg {
       width: 18px;
