@@ -5,7 +5,7 @@
       :value="isCoachContent"
       style="margin-top: 8px; width: auto;"
     />
-    <KLabeledIcon :style="{ 'margin-top': '8px', 'width': 'auto' }">
+    <KLabeledIcon :style="{ 'margin-top': '8px' }">
       <template #icon>
         <LearningActivityIcon
           data-test="learningActivityIcon"
@@ -374,6 +374,7 @@
   }
 
   /deep/ .ui-toolbar__body {
+    flex-grow: 0; // make sure that the completion icon is right next to the title
     align-items: center;
   }
 
