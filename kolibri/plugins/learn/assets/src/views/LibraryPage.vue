@@ -28,16 +28,16 @@
             :ariaLabel="$tr('viewAsList')"
             :color="$themeTokens.text"
             :tooltip="$tr('viewAsList')"
-            @click="toggleCardView('list')"
             :disabled="currentViewStyle === 'list'"
+            @click="toggleCardView('list')"
           />
           <KIconButton
             icon="channel"
             :ariaLabel="$tr('viewAsGrid')"
             :color="$themeTokens.text"
             :tooltip="$tr('viewAsGrid')"
-            @click="toggleCardView('card')"
             :disabled="currentViewStyle === 'card'"
+            @click="toggleCardView('card')"
           />
         </div>
         <h2 v-if="resumableContentNodes.length">
@@ -83,16 +83,16 @@
             :ariaLabel="$tr('viewAsList')"
             :color="$themeTokens.text"
             :tooltip="$tr('viewAsList')"
+            :disabled="currentViewStyle === 'list'"
             @click="toggleCardView('list')"
-            :disabled="currentViewStyle === 'list'" 
           />
           <KIconButton
             icon="channel"
             :ariaLabel="$tr('viewAsGrid')"
             :color="$themeTokens.text"
             :tooltip="$tr('viewAsGrid')"
-            @click="toggleCardView('card')"
             :disabled="currentViewStyle === 'card'"
+            @click="toggleCardView('card')"
           />
         </div>
         <SearchChips
