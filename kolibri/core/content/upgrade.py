@@ -29,6 +29,7 @@ from kolibri.core.content.utils.search import annotate_label_bitmasks
 from kolibri.core.content.utils.search import get_all_contentnode_label_metadata
 from kolibri.core.content.utils.sqlalchemybridge import Bridge
 from kolibri.core.content.utils.tree import get_channel_node_depth
+from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.upgrade import version_upgrade
 
 
@@ -307,3 +308,4 @@ def metadata_annotation_update():
 
     for channel_id in ChannelMetadata.objects.values_list("id", flat=True):
         set_channel_ancestors(channel_id)
+    ContentCacheKey.update_cache_key()
