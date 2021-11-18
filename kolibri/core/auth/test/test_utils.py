@@ -21,8 +21,8 @@ from kolibri.core.auth.test.test_api import ClassroomFactory
 from kolibri.core.auth.test.test_api import FacilityFactory
 from kolibri.core.auth.test.test_api import FacilityUserFactory
 from kolibri.core.auth.test.test_api import LearnerGroupFactory
-from kolibri.core.auth.utils import fork_facility
-from kolibri.core.auth.utils import merge_users
+from kolibri.core.auth.utils.migrate import fork_facility
+from kolibri.core.auth.utils.migrate import merge_users
 from kolibri.core.logger import models as log_models
 
 

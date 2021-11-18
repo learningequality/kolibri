@@ -1,9 +1,7 @@
 import logging
-import sys
 
 from django.db import connections
 from django.db.models import FieldDoesNotExist
-from django.utils.six.moves import input
 from morango.sync.backends.utils import calculate_max_sqlite_variables
 
 from kolibri.core.auth.models import AdHocGroup
@@ -15,7 +13,10 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import LearnerGroup
 from kolibri.core.auth.models import Membership
 from kolibri.core.auth.models import Role
+from kolibri.core.auth.utils.delete import delete_facility
 from kolibri.core.bookmarks.models import Bookmark
+from kolibri.core.device.utils import get_device_setting
+from kolibri.core.device.utils import set_device_settings
 from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import ExamAssignment
 from kolibri.core.lessons.models import Lesson
@@ -28,22 +29,6 @@ from kolibri.core.logger.models import UserSessionLog
 
 
 logger = logging.getLogger(__name__)
-
-
-def confirm_or_exit(message):
-    answer = ""
-    while answer not in ["yes", "n", "no"]:
-        answer = input("{} [Type 'yes' or 'no'.] ".format(message)).lower()
-    if answer != "yes":
-        print("Canceled! Exiting without touching the database.")
-        sys.exit(1)
-
-
-def create_adhoc_group_for_learners(classroom, learners):
-    adhoc_group = AdHocGroup.objects.create(name="Ad hoc", parent=classroom)
-    for learner in learners:
-        Membership.objects.create(user=learner, collection=adhoc_group)
-    return adhoc_group
 
 
 def _merge_user_models(source_user, target_user):
@@ -198,15 +183,40 @@ def _copy_data(Model, id_map, source_data):
     logger.info("Finished copying data for model {}".format(Model))
 
 
+facility_dataset_models = [
+    Facility,
+    FacilityUser,
+    Classroom,
+    LearnerGroup,
+    AdHocGroup,
+    Role,
+    Membership,
+    Bookmark,
+    Exam,
+    ExamAssignment,
+    Lesson,
+    LessonAssignment,
+    ContentSessionLog,
+    ContentSummaryLog,
+    MasteryLog,
+    AttemptLog,
+    UserSessionLog,
+]
+
+
 def fork_facility(facility):
     """
     Utility function to make a complete copy of all facility data, but separated from the original
     facility.
     """
     logger.info("Making a copy of facility {}".format(facility.name))
+    logger.info("Copying dataset with id {}".format(facility.dataset_id))
     dataset_data = filter_blocklist(facility.dataset.serialize())
+    # The new facility will not be registered on KDP
+    del dataset_data["registered"]
     new_dataset = FacilityDataset.deserialize(dataset_data)
     new_dataset.save()
+    logger.info("Copied facility dataset")
     id_map = {
         FacilityDataset: {facility.dataset_id: new_dataset.id},
         # Preseed this as we are not directly copying the Collection model, only
@@ -214,26 +224,21 @@ def fork_facility(facility):
         Collection: {},
     }
 
-    models = [
-        Facility,
-        FacilityUser,
-        Classroom,
-        LearnerGroup,
-        AdHocGroup,
-        Role,
-        Membership,
-        Bookmark,
-        Exam,
-        ExamAssignment,
-        Lesson,
-        LessonAssignment,
-        ContentSessionLog,
-        ContentSummaryLog,
-        MasteryLog,
-        AttemptLog,
-        UserSessionLog,
-    ]
-
-    for Model in models:
+    for Model in facility_dataset_models:
         _copy_data(Model, id_map, Model.objects.filter(dataset_id=facility.dataset_id))
     logger.info("Completed making a copy of facility {}".format(facility.name))
+    return new_dataset
+
+
+def migrate_facility(facility):
+    """
+    Function to migrate an existing facility to a new facility. Copies all facility data into
+    a new facility, and then deletes the old facility, including from the morango store.
+    """
+    new_dataset = fork_facility(facility)
+    default_facility = get_device_setting("default_facility", None)
+    if default_facility and default_facility.id == facility.id:
+        new_facility = Facility.objects.get(dataset_id=new_dataset.id)
+        set_device_settings(default_facility=new_facility)
+    delete_facility(facility)
+    logger.info("Finished migrating facility {}".format(facility.name))

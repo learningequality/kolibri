@@ -1,6 +1,6 @@
 from .models import IndividualSyncableLesson
 from .models import LessonAssignment
-from kolibri.core.auth.management.utils import DisablePostDeleteSignal
+from kolibri.core.auth.utils.delete import DisablePostDeleteSignal
 
 
 def update_individual_syncable_lessons_from_assignments(user_id):
