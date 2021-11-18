@@ -21,7 +21,7 @@ class DjangoProcess(KolibriServiceProcess):
 
     PROCESS_NAME: str = "kolibri-daemon-django"
 
-    __active_extensions: ContentExtensionsList = None
+    __active_extensions: ContentExtensionsList
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

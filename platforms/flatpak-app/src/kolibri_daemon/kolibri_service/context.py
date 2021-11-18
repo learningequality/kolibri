@@ -19,31 +19,31 @@ class KolibriServiceContext(object):
     BASE_URL_LENGTH: int = 1024
     KOLIBRI_HOME_LENGTH: int = 4096
 
-    __changed_event: multiprocessing.Event = None
+    __changed_event: multiprocessing.synchronize.Event
 
-    __is_starting_value: multiprocessing.Value = None
-    __is_starting_set_event: multiprocessing.Event = None
+    __is_starting_value: multiprocessing.sharedctypes.Synchronized[c_bool]
+    __is_starting_set_event: multiprocessing.synchronize.Event
 
-    __is_started_value: multiprocessing.Value = None
-    __is_started_set_event: multiprocessing.Event = None
+    __is_started_value: multiprocessing.sharedctypes.Synchronized[c_bool]
+    __is_started_set_event: multiprocessing.synchronize.Event
 
-    __start_result_value: multiprocessing.Value = None
-    __start_result_set_event: multiprocessing.Event = None
+    __start_result_value: multiprocessing.sharedctypes.Synchronized[c_int]
+    __start_result_set_event: multiprocessing.synchronize.Event
 
-    __is_stopped_value: multiprocessing.Value = None
-    __is_stopped_set_event: multiprocessing.Event = None
+    __is_stopped_value: multiprocessing.sharedctypes.Synchronized[c_bool]
+    __is_stopped_set_event: multiprocessing.synchronize.Event
 
-    __setup_result_value: multiprocessing.Value = None
-    __setup_result_set_event: multiprocessing.Event = None
+    __setup_result_value: multiprocessing.sharedctypes.Synchronized[c_int]
+    __setup_result_set_event: multiprocessing.synchronize.Event
 
-    __app_key_value: multiprocessing.Array = None
-    __app_key_set_event: multiprocessing.Event = None
+    __app_key_value: multiprocessing.sharedctypes.SynchronizedArray[c_char]
+    __app_key_set_event: multiprocessing.synchronize.Event
 
-    __base_url_value: multiprocessing.Array = None
-    __base_url_set_event: multiprocessing.Event = None
+    __base_url_value: multiprocessing.sharedctypes.SynchronizedArray[c_char]
+    __base_url_set_event: multiprocessing.synchronize.Event
 
-    __kolibri_home_value: multiprocessing.Array = None
-    __kolibri_home_set_event: multiprocessing.Event = None
+    __kolibri_home_value: multiprocessing.sharedctypes.SynchronizedArray[c_char]
+    __kolibri_home_set_event: multiprocessing.synchronize.Event
 
     class SetupResult(Enum):
         NONE = auto()
@@ -106,85 +106,88 @@ class KolibriServiceContext(object):
             return False
 
     @property
-    def is_starting(self) -> bool:
+    def is_starting(self) -> typing.Optional[bool]:
         if self.__is_starting_set_event.is_set():
-            return self.__is_starting_value.value
+            return bool(self.__is_starting_value.value)
         else:
             return None
 
     @is_starting.setter
-    def is_starting(self, is_starting: bool):
+    def is_starting(self, is_starting: typing.Optional[bool]):
         if is_starting is None:
             self.__is_starting_set_event.clear()
-            self.__is_starting_value.value = False
+            self.__is_starting_value.value = False  # type: ignore[assignment]
         else:
-            self.__is_starting_value.value = bool(is_starting)
+            self.__is_starting_value.value = bool(is_starting)  # type: ignore[assignment]
             self.__is_starting_set_event.set()
         self.push_has_changes()
 
-    def await_is_starting(self) -> bool:
+    def await_is_starting(self) -> typing.Optional[bool]:
         self.__is_starting_set_event.wait()
         return self.is_starting
 
     @property
-    def is_started(self) -> bool:
+    def is_started(self) -> typing.Optional[bool]:
         if self.__is_started_set_event.is_set():
-            return self.__is_started_value.value
+            return bool(self.__is_started_value.value)
         else:
             return None
 
     @is_started.setter
-    def is_started(self, is_started: bool):
+    def is_started(self, is_started: typing.Optional[bool]):
         if is_started is None:
             self.__is_started_set_event.clear()
-            self.__is_started_value.value = False
+            self.__is_started_value.value = False  # type: ignore[assignment]
         else:
-            self.__is_started_value.value = bool(is_started)
+            self.__is_started_value.value = bool(is_started)  # type: ignore[assignment]
             self.__is_started_set_event.set()
         self.push_has_changes()
 
-    def await_is_started(self) -> bool:
+    def await_is_started(self) -> typing.Optional[bool]:
         self.__is_started_set_event.wait()
         return self.is_started
 
     @property
-    def start_result(self) -> KolibriServiceContext.StartResult:
+    def start_result(self) -> typing.Optional[KolibriServiceContext.StartResult]:
         if self.__start_result_set_event.is_set():
             return self.StartResult(self.__start_result_value.value)
         else:
             return None
 
     @start_result.setter
-    def start_result(self, start_result: KolibriServiceContext.StartResult):
+    def start_result(
+        self, start_result: typing.Optional[KolibriServiceContext.StartResult]
+    ):
         if start_result is None:
             self.__start_result_set_event.clear()
-            self.__start_result_value.value = 0
+            self.__start_result_value.value = 0  # type: ignore[assignment]
         else:
-            self.__start_result_value.value = start_result.value
+            self.__start_result_value.value = start_result.value  # type: ignore[assignment]
             self.__start_result_set_event.set()
         self.push_has_changes()
 
-    def await_start_result(self) -> KolibriServiceContext.StartResult:
+    def await_start_result(self) -> typing.Optional[KolibriServiceContext.StartResult]:
         self.__start_result_set_event.wait()
         return self.start_result
 
     @property
-    def is_stopped(self) -> bool:
+    def is_stopped(self) -> typing.Optional[bool]:
         if self.__is_stopped_set_event.is_set():
-            return self.__is_stopped_value.value
+            return bool(self.__is_stopped_value.value)
         else:
             return None
 
     @is_stopped.setter
-    def is_stopped(self, is_stopped: bool):
-        self.__is_stopped_value.value = is_stopped
+    def is_stopped(self, is_stopped: typing.Optional[bool]):
         if is_stopped is None:
             self.__is_stopped_set_event.clear()
+            self.__is_stopped_value.value = False  # type: ignore[assignment]
         else:
+            self.__is_stopped_value.value = bool(is_stopped)  # type: ignore[assignment]
             self.__is_stopped_set_event.set()
         self.push_has_changes()
 
-    def await_is_stopped(self) -> bool:
+    def await_is_stopped(self) -> typing.Optional[bool]:
         self.__is_stopped_set_event.wait()
         return self.is_stopped
 
@@ -193,84 +196,89 @@ class KolibriServiceContext(object):
         if self.__setup_result_set_event.is_set():
             return self.SetupResult(self.__setup_result_value.value)
         else:
-            return None
+            return self.SetupResult.NONE
 
     @setup_result.setter
-    def setup_result(self, setup_result: KolibriServiceContext.SetupResult):
+    def setup_result(
+        self, setup_result: typing.Optional[KolibriServiceContext.SetupResult]
+    ):
         if setup_result is None:
             self.__setup_result_set_event.clear()
-            self.__setup_result_value.value = 0
+            self.__setup_result_value.value = 0  # type: ignore[assignment]
         else:
-            self.__setup_result_value.value = setup_result.value
+            self.__setup_result_value.value = setup_result.value  # type: ignore[assignment]
             self.__setup_result_set_event.set()
         self.push_has_changes()
 
-    def await_setup_result(self) -> KolibriServiceContext.SetupResult:
+    def await_setup_result(self) -> typing.Optional[KolibriServiceContext.SetupResult]:
         self.__setup_result_set_event.wait()
         return self.setup_result
 
     @property
-    def app_key(self) -> str:
+    def app_key(self) -> typing.Optional[str]:
         if self.__app_key_set_event.is_set():
-            return self.__app_key_value.value.decode("ascii")
+            return self.__app_key_value.value.decode("ascii")  # type: ignore[attr-defined]
         else:
             return None
 
     @app_key.setter
-    def app_key(self, app_key: str):
-        self.__app_key_value.value = bytes(app_key, encoding="ascii")
+    def app_key(self, app_key: typing.Optional[str]):
         if app_key is None:
             self.__app_key_set_event.clear()
+            self.__app_key_value.value = None  # type: ignore[attr-defined]
         else:
+            self.__app_key_value.value = bytes(app_key, encoding="ascii")  # type: ignore[attr-defined]
             self.__app_key_set_event.set()
         self.push_has_changes()
 
-    def await_app_key(self) -> str:
+    def await_app_key(self) -> typing.Optional[str]:
         self.__app_key_set_event.wait()
         return self.app_key
 
     @property
-    def base_url(self) -> str:
+    def base_url(self) -> typing.Optional[str]:
         if self.__base_url_set_event.is_set():
-            return self.__base_url_value.value.decode("ascii")
+            return self.__base_url_value.value.decode("ascii")  # type: ignore[attr-defined]
         else:
             return None
 
     @base_url.setter
-    def base_url(self, base_url: str):
-        self.__base_url_value.value = bytes(base_url, encoding="ascii")
+    def base_url(self, base_url: typing.Optional[str]):
         if base_url is None:
             self.__base_url_set_event.clear()
+            self.__base_url_value.value = None  # type: ignore[attr-defined]
         else:
+            self.__base_url_value.value = bytes(base_url, encoding="ascii")  # type: ignore[attr-defined]
             self.__base_url_set_event.set()
         self.push_has_changes()
 
-    def await_base_url(self) -> str:
+    def await_base_url(self) -> typing.Optional[str]:
         self.__base_url_set_event.wait()
         return self.base_url
 
     @property
-    def kolibri_home(self) -> str:
+    def kolibri_home(self) -> typing.Optional[str]:
         if self.__kolibri_home_set_event.is_set():
-            return self.__kolibri_home_value.value.decode("ascii")
+            return self.__kolibri_home_value.value.decode("ascii")  # type: ignore[attr-defined]
         else:
             return None
 
     @kolibri_home.setter
-    def kolibri_home(self, kolibri_home: str):
-        self.__kolibri_home_value.value = bytes(kolibri_home, encoding="ascii")
+    def kolibri_home(self, kolibri_home: typing.Optional[str]):
         if kolibri_home is None:
             self.__kolibri_home_set_event.clear()
+            self.__kolibri_home_value.value = None  # type: ignore[attr-defined]
         else:
+            self.__kolibri_home_value.value = bytes(kolibri_home, encoding="ascii")  # type: ignore[attr-defined]
             self.__kolibri_home_set_event.set()
         self.push_has_changes()
 
-    def await_kolibri_home(self) -> str:
+    def await_kolibri_home(self) -> typing.Optional[str]:
         self.__kolibri_home_set_event.wait()
         return self.kolibri_home
 
     @property
-    def status(self) -> KolibriServiceManager.Status:
+    def status(self) -> KolibriServiceContext.Status:
         if self.is_starting:
             return self.Status.STARTING
         elif self.start_result == self.StartResult.SUCCESS:

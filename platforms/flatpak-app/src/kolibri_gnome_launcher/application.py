@@ -1,14 +1,12 @@
 import logging
-
-logger = logging.getLogger(__name__)
-
 import subprocess
-
 from urllib.parse import urlsplit
 from urllib.parse import urlunparse
-from gi.repository import Gio
 
+from gi.repository import Gio
 from kolibri_app.config import LAUNCHER_APPLICATION_ID
+
+logger = logging.getLogger(__name__)
 
 
 class Launcher(Gio.Application):
@@ -59,7 +57,7 @@ class Launcher(Gio.Application):
         # TODO: Implement channel-specific search endpoints in Kolibri and
         #       remove this special case.
         if channel_id:
-            node_query = None
+            node_query = None  # type: ignore[assignment]
 
         if channel_id and channel_id != "_":
             kolibri_gnome_args.extend(["--channel-id", channel_id])

@@ -1,16 +1,15 @@
 from __future__ import annotations
 
-import logging
-
-logger = logging.getLogger(__name__)
-
 import gettext
 import importlib.util
+import logging
 import os
-
+import typing
 from pathlib import Path
 
 from . import config
+
+logger = logging.getLogger(__name__)
 
 if config.BUILD_PROFILE == "development":
     profile_environ_prefix = "KOLIBRI_DEVEL_"
@@ -89,7 +88,7 @@ def init_kolibri():
     initialize()
 
 
-def get_current_language() -> str:
+def get_current_language() -> typing.Optional[str]:
     try:
         translations = gettext.translation(
             config.GETTEXT_PACKAGE, localedir=config.LOCALE_DIR

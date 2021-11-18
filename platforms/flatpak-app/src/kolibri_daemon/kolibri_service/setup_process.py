@@ -1,14 +1,10 @@
 from __future__ import annotations
 
-import logging
-
-logger = logging.getLogger(__name__)
-
 import json
+import logging
 import os
 import subprocess
 import typing
-
 from collections import Mapping
 from pathlib import Path
 
@@ -19,6 +15,7 @@ from .content_extensions import ContentChannelCompare
 from .content_extensions import ContentExtensionsList
 from .context import KolibriServiceProcess
 
+logger = logging.getLogger(__name__)
 
 KOLIBRI_BIN = "kolibri"
 
@@ -33,8 +30,8 @@ class SetupProcess(KolibriServiceProcess):
 
     PROCESS_NAME: str = "kolibri-daemon-setup"
 
-    __cached_extensions: ContentExtensionsList = None
-    __active_extensions: ContentExtensionsList = None
+    __cached_extensions: ContentExtensionsList
+    __active_extensions: ContentExtensionsList
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -109,7 +106,9 @@ class SetupProcess(KolibriServiceProcess):
         result = subprocess.run([KOLIBRI_BIN, "manage", *args], check=False)
         return result.returncode == 0
 
-    def __iter_content_operations(self) -> typing.Generator[_KolibriContentOperation]:
+    def __iter_content_operations(
+        self,
+    ) -> typing.Generator[_KolibriContentOperation, None, None]:
         extension_compares_iter = ContentExtensionsList.compare(
             self.__cached_extensions, self.__active_extensions
         )
@@ -127,7 +126,7 @@ class _KolibriContentOperation(object):
     @classmethod
     def from_channel_compare(
         cls, channel_compare: ContentChannelCompare
-    ) -> _KolibriContentOperation:
+    ) -> typing.Generator[_KolibriContentOperation, None, None]:
         if channel_compare.added:
             logger.info("Channel added: %s", channel_compare.channel_id)
             yield _KolibriContentOperation_ImportChannel(
@@ -182,10 +181,10 @@ class _KolibriContentOperation(object):
 
 
 class _KolibriContentOperation_ImportChannel(_KolibriContentOperation):
-    __channel_id: str = None
-    __extension_dir: Path = None
+    __channel_id: str
+    __extension_dir: typing.Optional[Path]
 
-    def __init__(self, channel_id: str, extension_dir: Path):
+    def __init__(self, channel_id: str, extension_dir: typing.Optional[Path]):
         self.__channel_id = channel_id
         self.__extension_dir = extension_dir
 
@@ -195,15 +194,15 @@ class _KolibriContentOperation_ImportChannel(_KolibriContentOperation):
 
 
 class _KolibriContentOperation_ImportContent(_KolibriContentOperation):
-    __channel_id: str = None
-    __extension_dir: Path = None
-    __include_node_ids: set = None
-    __exclude_node_ids: set = None
+    __channel_id: str
+    __extension_dir: typing.Optional[Path]
+    __include_node_ids: set
+    __exclude_node_ids: set
 
     def __init__(
         self,
         channel_id: str,
-        extension_dir: Path,
+        extension_dir: typing.Optional[Path],
         include_node_ids: set,
         exclude_node_ids: set,
     ):
@@ -222,15 +221,15 @@ class _KolibriContentOperation_ImportContent(_KolibriContentOperation):
             [
                 "disk",
                 self.__channel_id,
-                self.__extension_dir or KOLIBRI_HOME_PATH.as_posix(),
+                str(self.__extension_dir or KOLIBRI_HOME_PATH.as_posix()),
             ]
         )
         return run_command_fn("importcontent", *args)
 
 
 class _KolibriContentOperation_RescanContent(_KolibriContentOperation):
-    __channel_id: str = None
-    __removed: bool = None
+    __channel_id: str
+    __removed: bool
 
     def __init__(self, channel_id: str, removed: bool = False):
         self.__channel_id = channel_id

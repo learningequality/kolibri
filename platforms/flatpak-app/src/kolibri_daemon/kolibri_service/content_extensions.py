@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import itertools
 import json
+import os
 import re
+import typing
 from configparser import ConfigParser
 from pathlib import Path
 
@@ -25,7 +27,7 @@ class ContentExtensionsList(object):
         "content-extensions.json"
     )
 
-    __extensions: set[ContentExtension] = None
+    __extensions: set[ContentExtension]
 
     def __init__(self, extensions: set[ContentExtension] = set()):
         self.__extensions = set(extensions)
@@ -63,7 +65,9 @@ class ContentExtensionsList(object):
         return cls(extensions)
 
     @staticmethod
-    def content_extension_from_str(extension_str: str) -> ContentExtension:
+    def content_extension_from_str(
+        extension_str: str,
+    ) -> typing.Optional[ContentExtension]:
         extension_str_split = extension_str.split("=", 1)
         if len(extension_str_split) == 2:
             extension_ref, extension_commit = extension_str_split
@@ -82,18 +86,18 @@ class ContentExtensionsList(object):
         )
         return environ
 
-    def get_extension(self, ref: str) -> ContentExtension:
+    def get_extension(self, ref: str) -> typing.Optional[ContentExtension]:
         return next(
             (extension for extension in self.__extensions if extension.ref == ref), None
         )
 
-    def __iter__(self) -> iter:
+    def __iter__(self) -> typing.Iterator[ContentExtension]:
         return iter(self.__extensions)
 
     @staticmethod
     def compare(
         old: ContentExtensionsList, new: ContentExtensionsList
-    ) -> typing.Generator[ContentExtensionCompare]:
+    ) -> typing.Generator[ContentExtensionCompare, None, None]:
         changed_extensions = old.__extensions.symmetric_difference(new.__extensions)
         changed_refs = set(extension.ref for extension in changed_extensions)
         for ref in changed_refs:
@@ -110,19 +114,25 @@ class ContentExtension(object):
     matching ref and commit must be the same.
     """
 
-    __ref: str = None
-    __name: str = None
-    __commit: str = None
-    __content_json: dict = None
+    __ref: str
+    __name: str
+    __commit: str
+    __content_json: typing.Optional[dict]
 
-    def __init__(self, ref: str, name: str, commit: str, content_json: dict = None):
+    def __init__(
+        self,
+        ref: str,
+        name: str,
+        commit: str,
+        content_json: typing.Optional[dict] = None,
+    ):
         self.__ref = ref
         self.__name = name
         self.__commit = commit
         self.__content_json = content_json
 
     @classmethod
-    def from_ref(cls, ref: str, commit: str) -> ContentExtension:
+    def from_ref(cls, ref: str, commit: str) -> typing.Optional[ContentExtension]:
         match = re.match(CONTENT_EXTENSION_RE, ref)
         if match:
             name = match.group("name")
@@ -132,12 +142,16 @@ class ContentExtension(object):
 
     @classmethod
     def from_json(cls, json_obj: dict) -> ContentExtension:
-        return cls(
-            json_obj.get("ref"),
-            json_obj.get("name"),
-            json_obj.get("commit"),
-            content_json=json_obj.get("content"),
-        )
+        ref = json_obj.get("ref")
+        name = json_obj.get("name")
+        commit = json_obj.get("commit")
+        content_json = json_obj.get("content")
+
+        assert ref
+        assert name
+        assert commit
+
+        return cls(ref, name, commit, content_json=content_json)
 
     def to_json(self) -> dict:
         return {
@@ -147,7 +161,7 @@ class ContentExtension(object):
             "content": self.content_json,
         }
 
-    def __eq__(self, other: ContentExtension) -> bool:
+    def __eq__(self, other: object) -> bool:
         return hash(self) == hash(other)
 
     def __hash__(self) -> int:
@@ -190,7 +204,7 @@ class ContentExtension(object):
     def channel_ids(self) -> set:
         return set(channel.channel_id for channel in self.__channels)
 
-    def get_channel(self, channel_id: str) -> ContentChannel:
+    def get_channel(self, channel_id: str) -> typing.Optional[ContentChannel]:
         return next(
             (
                 channel
@@ -214,9 +228,9 @@ class ContentExtension(object):
 
 
 class ContentChannel(object):
-    __channel_id: str = None
-    __include_node_ids: list = None
-    __exclude_node_ids: list = None
+    __channel_id: str
+    __include_node_ids: list[str]
+    __exclude_node_ids: list[str]
 
     def __init__(self, channel_id: str, include_node_ids: list, exclude_node_ids: list):
         self.__channel_id = channel_id
@@ -225,32 +239,37 @@ class ContentChannel(object):
 
     @classmethod
     def from_json(cls, json_obj: dict) -> ContentChannel:
-        return cls(
-            json_obj.get("channel_id"),
-            json_obj.get("node_ids"),
-            json_obj.get("exclude_node_ids"),
-        )
+        channel_id = json_obj.get("channel_id")
+        node_ids = json_obj.get("node_ids", [])
+        exclude_node_ids = json_obj.get("exclude_node_ids", [])
+
+        assert channel_id
+
+        return cls(channel_id, node_ids, exclude_node_ids)
 
     @property
     def channel_id(self) -> str:
         return self.__channel_id
 
     @property
-    def include_node_ids(self) -> list:
+    def include_node_ids(self) -> set[str]:
         return set(self.__include_node_ids)
 
     @property
-    def exclude_node_ids(self) -> list:
+    def exclude_node_ids(self) -> set[str]:
         return set(self.__exclude_node_ids)
 
 
 class ContentExtensionCompare(object):
-    __ref: str = None
-    __old_extension: ContentExtension = None
-    __new_extension: ContentExtension = None
+    __ref: str
+    __old_extension: typing.Optional[ContentExtension]
+    __new_extension: typing.Optional[ContentExtension]
 
     def __init__(
-        self, ref: str, old_extension: ContentExtension, new_extension: ContentExtension
+        self,
+        ref: str,
+        old_extension: typing.Optional[ContentExtension],
+        new_extension: typing.Optional[ContentExtension],
     ):
         self.__ref = ref
         self.__old_extension = old_extension
@@ -260,7 +279,7 @@ class ContentExtensionCompare(object):
     def ref(self) -> str:
         return self.__ref
 
-    def compare_channels(self) -> typing.Generator[ContentChanelCompare]:
+    def compare_channels(self) -> typing.Generator[ContentChannelCompare, None, None]:
         for channel_id in self.__all_channel_ids:
             old_channel = self.__old_channel(channel_id)
             new_channel = self.__new_channel(channel_id)
@@ -268,20 +287,20 @@ class ContentExtensionCompare(object):
                 channel_id, self.__extension_dir, old_channel, new_channel
             )
 
-    def __old_channel(self, channel_id: str) -> ContentChannel:
+    def __old_channel(self, channel_id: str) -> typing.Optional[ContentChannel]:
         if self.__old_extension:
             return self.__old_extension.get_channel(channel_id)
         else:
             return None
 
-    def __new_channel(self, channel_id: str) -> ContentChannel:
+    def __new_channel(self, channel_id: str) -> typing.Optional[ContentChannel]:
         if self.__new_extension:
             return self.__new_extension.get_channel(channel_id)
         else:
             return None
 
     @property
-    def __extension_dir(self) -> Path:
+    def __extension_dir(self) -> typing.Optional[Path]:
         if self.__new_extension:
             return self.__new_extension.base_dir
         else:
@@ -307,17 +326,17 @@ class ContentExtensionCompare(object):
 
 
 class ContentChannelCompare(object):
-    __channel_id: str = None
-    __extension_dir: Path = None
-    __old_channel: ContentChannel = None
-    __new_channel: ContentChannel = None
+    __channel_id: str
+    __extension_dir: typing.Optional[Path]
+    __old_channel: typing.Optional[ContentChannel]
+    __new_channel: typing.Optional[ContentChannel]
 
     def __init__(
         self,
         channel_id: str,
-        extension_dir: Path,
-        old_channel: ContentChannel,
-        new_channel: ContentChannel,
+        extension_dir: typing.Optional[Path],
+        old_channel: typing.Optional[ContentChannel],
+        new_channel: typing.Optional[ContentChannel],
     ):
         self.__channel_id = channel_id
         self.__extension_dir = extension_dir
@@ -330,22 +349,24 @@ class ContentChannelCompare(object):
 
     @property
     def added(self) -> bool:
-        return self.__new_channel and not self.__old_channel
+        return bool(self.__new_channel and not self.__old_channel)
 
     @property
     def removed(self) -> bool:
-        return self.__old_channel and not self.__new_channel
+        return bool(self.__old_channel and not self.__new_channel)
 
     @property
-    def extension_dir(self) -> Path:
+    def extension_dir(self) -> typing.Optional[Path]:
         return self.__extension_dir
 
     @property
     def old_include_node_ids(self) -> set:
+        assert self.__old_channel
         return self.__old_channel.include_node_ids
 
     @property
     def new_include_node_ids(self) -> set:
+        assert self.__new_channel
         return self.__new_channel.include_node_ids
 
     @property
@@ -357,17 +378,19 @@ class ContentChannelCompare(object):
         return self.old_include_node_ids.difference(self.new_include_node_ids)
 
     @property
-    def old_exclude_node_ids(self) -> set:
+    def old_exclude_node_ids(self) -> set[str]:
+        assert self.__old_channel
         return self.__old_channel.exclude_node_ids
 
     @property
-    def new_exclude_node_ids(self) -> set:
+    def new_exclude_node_ids(self) -> set[str]:
+        assert self.__new_channel
         return self.__new_channel.exclude_node_ids
 
     @property
-    def exclude_nodes_added(self) -> set:
+    def exclude_nodes_added(self) -> set[str]:
         return self.new_exclude_node_ids.difference(self.old_exclude_node_ids)
 
     @property
-    def exclude_nodes_removed(self) -> set:
+    def exclude_nodes_removed(self) -> set[str]:
         return self.old_exclude_node_ids.difference(self.new_exclude_node_ids)

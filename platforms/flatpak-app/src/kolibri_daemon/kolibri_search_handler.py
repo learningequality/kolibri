@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import collections
+import typing
 from concurrent.futures import ProcessPoolExecutor
 
 from kolibri_app.globals import init_kolibri
@@ -76,16 +77,22 @@ class SearchHandler(object):
         if not isinstance(node_data, collections.Mapping):
             return None
 
-        node_icon = get_search_media_icon(node_data.get("kind"))
-        title = sanitize_text(node_data.get("title"))
-        description = sanitize_text(node_data.get("description"))
+        node_kind = node_data.get("kind")
+        node_title = node_data.get("title")
+        node_description = node_data.get("description")
 
-        return {
-            "id": item_id,
-            "name": title,
-            "description": description,
-            "gicon": node_icon,
-        }
+        metadata = {"id": item_id}
+
+        if node_kind:
+            metadata["gicon"] = get_search_media_icon(node_kind)
+
+        if node_title:
+            metadata["name"] = sanitize_text(node_title)
+
+        if node_description:
+            metadata["description"] = sanitize_text(node_description)
+
+        return metadata
 
 
 class LocalSearchHandler(SearchHandler):
@@ -98,7 +105,7 @@ class LocalSearchHandler(SearchHandler):
     process to avoid globals leaking into the main thread.
     """
 
-    __executor: ProcessPoolExecutor = None
+    __executor: typing.Optional[ProcessPoolExecutor] = None
 
     def __init__(self):
         self.__executor = None
@@ -121,13 +128,18 @@ class LocalSearchHandler(SearchHandler):
         init_kolibri()
 
     def get_item_ids_for_search(self, search: str) -> list:
+        assert self.__executor
+
         args = (search,)
+
         future = self.__executor.submit(
             LocalSearchHandler._get_item_ids_for_search, args
         )
         return future.result()
 
     def get_metadata_for_item_ids(self, item_ids: list) -> list:
+        assert self.__executor
+
         return list(
             filter(
                 lambda metadata: metadata is not None,

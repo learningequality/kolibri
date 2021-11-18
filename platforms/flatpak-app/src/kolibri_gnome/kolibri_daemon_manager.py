@@ -1,21 +1,19 @@
 from __future__ import annotations
 
 import logging
-
-logger = logging.getLogger(__name__)
-
-import requests
 import typing
-
 from urllib.parse import urlencode
 from urllib.parse import urljoin
 
+import requests
+from gi.repository import Gio
 from gi.repository import GLib
 from gi.repository import GObject
 from gi.repository import KolibriDaemonDBus
-
 from kolibri_app.config import DAEMON_APPLICATION_ID
 from kolibri_app.config import DAEMON_MAIN_OBJECT_PATH
+
+logger = logging.getLogger(__name__)
 
 
 AUTOLOGIN_URL_TEMPLATE = "kolibri_desktop_auth_plugin/login/{token}?{query}"
@@ -23,17 +21,21 @@ INITIALIZE_URL_TEMPLATE = "app/api/initialize/{key}?{query}"
 
 
 class KolibriDaemonManager(object):
-    __on_change_cb: callable = None
+    __on_change_cb: OnChangeCallback
 
-    __dbus_proxy: KolibriDaemonDBus.MainProxy = None
+    __dbus_proxy: KolibriDaemonDBus.MainProxy
 
     __did_init: bool = False
     __starting_kolibri: bool = False
-    __dbus_proxy_has_error: bool = None
-    __dbus_proxy_owner: bool = None
-    __login_token: str = None
+    __dbus_proxy_has_error: bool = False
+    __dbus_proxy_owner: typing.Optional[str] = None
+    __login_token: typing.Optional[str] = None
 
-    def __init__(self, on_change_cb: callable):
+    class OnChangeCallback(typing.Protocol):
+        def __call__(self):
+            pass
+
+    def __init__(self, on_change_cb: OnChangeCallback):
         self.__on_change_cb = on_change_cb
         self.__dbus_proxy = KolibriDaemonDBus.MainProxy(
             g_bus_type=KolibriDaemonDBus.get_default_bus_type(),
@@ -91,13 +93,13 @@ class KolibriDaemonManager(object):
         else:
             return True
 
-    def get_kolibri_url(self, url: str) -> str:
+    def get_kolibri_url(self, url: str) -> typing.Optional[str]:
         if self.__dbus_proxy.props.base_url:
             return urljoin(self.__dbus_proxy.props.base_url, url)
         else:
             return None
 
-    def get_kolibri_initialize_url(self, next_url: str) -> str:
+    def get_kolibri_initialize_url(self, next_url: str) -> typing.Optional[str]:
         autologin_url = self.get_kolibri_url(
             AUTOLOGIN_URL_TEMPLATE.format(
                 token=self.__login_token, query=urlencode({"next": next_url})

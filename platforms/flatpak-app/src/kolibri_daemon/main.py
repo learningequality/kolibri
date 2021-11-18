@@ -1,14 +1,8 @@
-import gi
-
-gi.require_version("Gdk", "3.0")
-gi.require_version("Gtk", "3.0")
-gi.require_version("KolibriDaemonDBus", "1.0")
-
 import os
 import signal
 import sys
-
 from functools import partial
+
 from setproctitle import setproctitle
 
 from .application import Application
