@@ -214,7 +214,7 @@ def _resumable_resources(classrooms):
     for classroom in classrooms:
         for lesson in classroom["assignments"]["lessons"]:
             for resource in lesson["resources"]:
-                yield resource["progress"] > 0
+                yield 0 < resource["progress"] < 1
 
 
 class LearnHomePageHydrationView(APIView):
