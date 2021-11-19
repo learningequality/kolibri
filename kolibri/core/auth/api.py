@@ -85,14 +85,13 @@ class KolibriAuthPermissionsFilter(filters.BaseFilterBackend):
     to the ``filter_readable`` method on ``KolibriAbstractBaseUser``.
     """
 
-    def __init__(self, endpoints=None):
-        self.endpoints = endpoints or ["-list"]
-
     def filter_queryset(self, request, queryset, view):
-        if request.method == "GET" and any(
-            request.resolver_match.url_name.endswith(endpoint)
-            for endpoint in self.endpoints
-        ):
+        # if the url name ends with "-list" or the endpoint is explicitly declared a list endpoint
+        # with .detail=False
+        is_list = request.resolver_match.url_name.endswith("-list") or not getattr(
+            request.resolver_match.func, "detail", True
+        )
+        if request.method == "GET" and is_list:
             # only filter down the queryset in the case of the list view being requested
             return request.user.filter_readable(queryset)
         # otherwise, return the full queryset, as permission checks will happen object-by-object
