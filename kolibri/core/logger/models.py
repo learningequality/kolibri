@@ -253,15 +253,6 @@ class MasteryLog(BaseLogModel):
         validators=[MinValueValidator(0)],
     )
 
-    @property
-    def time_spent(self):
-        """
-        :return: An integer of seconds between start and completion
-        """
-        if not self.completion_timestamp:
-            return None
-        return (self.completion_timestamp - self.start_timestamp).total_seconds()
-
     def infer_dataset(self, *args, **kwargs):
         return self.cached_related_dataset_lookup("user")
 
