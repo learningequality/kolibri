@@ -16,6 +16,7 @@ from kolibri.plugins.hooks import register_hook
 
 class UserAuth(KolibriPluginBase):
     translated_view_urls = "urls"
+    root_view_urls = "root_urls"
 
     @property
     def url_slug(self):
