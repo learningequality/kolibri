@@ -33,6 +33,40 @@
 
     <template #actions>
       <KIconButton
+        v-if="isQuiz && !showingReportState"
+        ref="timerButton"
+        data-test="timerButton"
+        icon="timer"
+        :tooltip="coreString('timeSpentLabel')"
+        :ariaLabel="coreString('timeSpentLabel')"
+        @click="toggleTimer"
+      />
+      <CoreMenu
+        v-show="isTimerOpen"
+        ref="timer"
+        class="menu"
+        :style="{ left: isRtl ? '16px' : 'auto', right: isRtl ? 'auto' : '16px' }"
+        :raised="true"
+        :isOpen="isTimerOpen"
+        :containFocus="true"
+        @close="closeTimer"
+      >
+        <template #options>
+          <div class="timer-display">
+            <div>
+              <strong>{{ coreString('timeSpentLabel') }}</strong>
+            </div>
+            <div :style="{ paddingBottom: '8px' }">
+              <TimeDuration :seconds="timeSpent" />
+            </div>
+            <div v-if="duration">
+              <strong>{{ learnString('suggestedTime') }}</strong>
+            </div>
+            <SuggestedTime v-if="duration" :seconds="duration" />
+          </div>
+        </template>
+      </CoreMenu>
+      <KIconButton
         v-for="action in barActions"
         :key="action.id"
         :data-test="`bar_${action.dataTest}`"
@@ -46,21 +80,12 @@
 
       <span class="menu-wrapper">
         <KIconButton
-          v-if="menuActions.length && !isQuiz"
+          v-if="menuActions.length"
           ref="moreOptionsButton"
           data-test="moreOptionsButton"
           icon="optionsHorizontal"
           :tooltip="$tr('moreOptions')"
           :ariaLabel="$tr('moreOptions')"
-          @click="toggleMenu"
-        />
-        <KIconButton
-          v-else-if="isQuiz && !showingReportState"
-          ref="timerButton"
-          data-test="timerButton"
-          icon="timer"
-          :tooltip="coreString('timeSpentLabel')"
-          :ariaLabel="coreString('timeSpentLabel')"
           @click="toggleMenu"
         />
         <CoreMenu
@@ -74,37 +99,23 @@
           @close="closeMenu"
         >
           <template #options>
-            <div v-if="isQuiz" class="timer-display">
-              <div>
-                <strong>{{ coreString('timeSpentLabel') }}</strong>
-              </div>
-              <div :style="{ paddingBottom: '8px' }">
-                <TimeDuration :seconds="timeSpent" />
-              </div>
-              <div v-if="duration">
-                <strong>{{ learnString('suggestedTime') }}</strong>
-              </div>
-              <SuggestedTime v-if="duration" :seconds="duration" />
-            </div>
-            <div v-else>
-              <CoreMenuOption
-                v-for="action in menuActions"
-                :key="action.id"
-                :data-test="`menu_${action.dataTest}`"
-                :style="{ 'cursor': 'pointer' }"
-                @select="onActionClick(action.event)"
-              >
-                <KLabeledIcon>
-                  <template #icon>
-                    <KIcon
-                      :icon="action.icon"
-                      :color="action.iconColor"
-                    />
-                  </template>
-                  <div>{{ action.label }}</div>
-                </KLabeledIcon>
-              </CoreMenuOption>
-            </div>
+            <CoreMenuOption
+              v-for="action in menuActions"
+              :key="action.id"
+              :data-test="`menu_${action.dataTest}`"
+              :style="{ 'cursor': 'pointer' }"
+              @select="onActionClick(action.event)"
+            >
+              <KLabeledIcon>
+                <template #icon>
+                  <KIcon
+                    :icon="action.icon"
+                    :color="action.iconColor"
+                  />
+                </template>
+                <div>{{ action.label }}</div>
+              </KLabeledIcon>
+            </CoreMenuOption>
           </template>
         </CoreMenu>
       </span>
@@ -256,6 +267,7 @@
     data() {
       return {
         isMenuOpen: false,
+        isTimerOpen: false,
         showMarkAsCompleteModal: false,
       };
     },
@@ -307,9 +319,6 @@
       },
       barActions() {
         const actions = [];
-        if (this.isQuiz) {
-          return actions;
-        }
         if (this.windowBreakpoint >= 1) {
           actions.push(this.allActions.find(action => action.id === 'view-resource-list'));
         }
@@ -350,11 +359,25 @@
           return;
         }
         this.$nextTick(() => {
-          if (this.$refs.moreOptionsButton) {
-            this.$refs.moreOptionsButton.$el.focus();
-          } else if (this.$refs.timerButton) {
-            this.$refs.timerButton.$el.focus();
-          }
+          this.$refs.moreOptionsButton.$el.focus();
+        });
+      },
+      toggleTimer() {
+        this.isTimerOpen = !this.isTimerOpen;
+        if (!this.isTimerOpen) {
+          return;
+        }
+        this.$nextTick(() => {
+          this.$refs.timer.$el.focus();
+        });
+      },
+      closeTimer({ focusTimerButton = true } = {}) {
+        this.isTimerOpen = false;
+        if (!focusTimerButton) {
+          return;
+        }
+        this.$nextTick(() => {
+          this.$refs.timerButton.$el.focus();
         });
       },
       toggleMenu() {
@@ -378,15 +401,8 @@
         }
         // close menu on outside click
         if (
-          this.$refs.moreOptionsButton &&
           !this.$refs.menu.$el.contains(event.target) &&
           !this.$refs.moreOptionsButton.$el.contains(event.target)
-        ) {
-          !this.$refs.timerButton.$el.contains(event.target);
-        } else if (
-          this.$refs.timerButton &&
-          !this.$refs.menu.$el.contains(event.target) &&
-          !this.$refs.timerButton.$el.contains(event.target)
         ) {
           this.closeMenu({ focusMoreOptionsButton: false });
         }
