@@ -900,9 +900,9 @@ class MasteryLogViewSet(ReadOnlyValuesViewset):
 
         # required parameters
         if not user_id:
-            raise Http404("Parameter `user` is required")
+            return Response("Parameter `user` is required", status=412)
         if not content_id:
-            raise Http404("Parameter `content` is required")
+            return Response("Parameter `content` is required", status=412)
 
         queryset = (
             self.filter_queryset(find_tries(content_id, user_id))
