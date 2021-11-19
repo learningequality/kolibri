@@ -287,6 +287,7 @@
   }
 
   /deep/ .ui-textbox-feedback {
+    // Add to fix vertical shifting of textboxes
     display: block !important;
   }
 

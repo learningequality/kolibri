@@ -578,10 +578,12 @@
   }
 
   /deep/ .ui-textbox-feedback {
+    // Add to fix vertical shifting of textboxes
     display: block !important;
   }
 
   /deep/ .ui-textbox {
+    // Add to fix spacing for https://github.com/learningequality/kolibri/issues/8675
     margin-bottom: 0;
   }
 
