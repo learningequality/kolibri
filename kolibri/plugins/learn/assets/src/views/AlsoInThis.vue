@@ -55,6 +55,8 @@
       </KRouterLink>
     </div>
 
+    <KCircularLoader v-else-if="loading" />
+
     <div v-else>
       {{ emptyMessage }}
     </div>
@@ -136,6 +138,10 @@
         },
       },
       isLesson: {
+        type: Boolean,
+        default: false,
+      },
+      loading: {
         type: Boolean,
         default: false,
       },
