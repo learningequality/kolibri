@@ -133,7 +133,6 @@
 <script>
 
   import difference from 'lodash/difference';
-  import { mapState } from 'vuex';
   import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
@@ -263,6 +262,14 @@
         required: false,
         default: null,
       },
+      /**
+      Actual time spent in seconds
+      */
+      timeSpent: {
+        type: Number,
+        required: false,
+        default: null,
+      },
     },
     data() {
       return {
@@ -272,9 +279,6 @@
       };
     },
     computed: {
-      ...mapState({
-        timeSpent: state => state.core.logging.time_spent,
-      }),
       allActions() {
         const actions = [
           {

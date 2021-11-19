@@ -15,6 +15,7 @@
       :isQuiz="practiceQuiz"
       :showingReportState="currentlyMastered"
       :duration="content.duration"
+      :timeSpent="timeSpent"
       :isBookmarked="bookmark ? true : bookmark"
       :isCoachContent="isCoachContent"
       :contentProgress="contentProgress"
@@ -199,6 +200,7 @@
         error: state => state.core.error,
         loading: state => state.core.loading,
         blockDoubleClicks: state => state.core.blockDoubleClicks,
+        timeSpent: state => state.core.logging.time_spent,
       }),
       ...mapState('topicsTree', {
         isCoachContent: state => (state.content.coach_content ? 1 : 0),
