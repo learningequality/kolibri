@@ -30,6 +30,8 @@ else
   export KOLIBRI_USER="kolibri"
 fi
 
+export KOLIBRI_INSTALLATION_TYPE="deb"
+
 KOLIBRI_HOME="$(getent passwd $KOLIBRI_USER | awk -F ':' '{print $6}')/.kolibri"
 KOLIBRI_COMMAND="kolibri"
 
