@@ -86,9 +86,21 @@ describe(`HomePage`, () => {
     });
 
     it(`the section is not displayed for a signed in user with no classes`, () => {
+      useDeviceSettings.mockImplementation(() =>
+        useDeviceSettingsMock({ canAccessUnassignedContent: true })
+      );
       useUser.mockImplementation(() => useUserMock({ isUserLoggedIn: true }));
       const wrapper = makeWrapper();
       expect(getClassesSection(wrapper).exists()).toBe(false);
+    });
+
+    it(`the section is displayed for a signed in user with no classes who cannot access unassigned content`, () => {
+      useDeviceSettings.mockImplementation(() =>
+        useDeviceSettingsMock({ canAccessUnassignedContent: false })
+      );
+      useUser.mockImplementation(() => useUserMock({ isUserLoggedIn: true }));
+      const wrapper = makeWrapper();
+      expect(getClassesSection(wrapper).exists()).toBe(true);
     });
 
     it(`classes are displayed for a signed in user who is enrolled in some classes`, () => {
