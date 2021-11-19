@@ -634,6 +634,18 @@
     padding: 0 16px;
   }
 
+  .perseus-mobile {
+    .perseus {
+      padding: 16px;
+    }
+    .problem-area {
+      padding: 0;
+    }
+    /deep/ .perseus-renderer {
+      padding: 0;
+    }
+  }
+
   /* Perseus Hacks */
 
   /* The rest in this <style> block are mostly styles that
