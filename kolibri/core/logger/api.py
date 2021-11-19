@@ -5,9 +5,11 @@ from random import randint
 
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
+from django.db.models import IntegerField
 from django.db.models import OuterRef
 from django.db.models import Subquery
 from django.db.models import Sum
+from django.db.models import Value
 from django.http import Http404
 from django_filters.rest_framework import CharFilter
 from django_filters.rest_framework import DjangoFilterBackend
@@ -18,6 +20,7 @@ from le_utils.constants import exercises
 from rest_framework import filters
 from rest_framework import serializers
 from rest_framework import viewsets
+from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
@@ -36,6 +39,12 @@ from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.constants import interaction_types
 from kolibri.core.logger.constants.exercise_attempts import MAPPING
+from kolibri.core.logger.evaluation import attempts_diff
+from kolibri.core.logger.evaluation import find_previous_tries_attempts
+from kolibri.core.logger.evaluation import find_tries
+from kolibri.core.logger.evaluation import get_previous_try
+from kolibri.core.logger.evaluation import LOG_ORDER_BY
+from kolibri.core.logger.evaluation import try_diff
 from kolibri.core.notifications.api import create_summarylog
 from kolibri.core.notifications.api import parse_attemptslog
 from kolibri.core.notifications.api import parse_summarylog
@@ -852,12 +861,15 @@ class MasteryFilter(FilterSet):
 
     class Meta:
         model = MasteryLog
-        fields = ["content"]
+        fields = ["content", "user"]
 
 
 class MasteryLogViewSet(ReadOnlyValuesViewset):
     permission_classes = (KolibriAuthPermissions,)
-    filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
+    filter_backends = (
+        KolibriAuthPermissionsFilter,
+        DjangoFilterBackend,
+    )
     queryset = MasteryLog.objects.all()
     pagination_class = OptionalPageNumberPagination
     filter_class = MasteryFilter
@@ -871,6 +883,51 @@ class MasteryLogViewSet(ReadOnlyValuesViewset):
         "mastery_level",
         "complete",
     )
+    summary_values = (
+        "id",
+        "start_timestamp",
+        "completion_timestamp",
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(MasteryLogViewSet, self).__init__(*args, **kwargs)
+        self.attempt_log_view_set = AttemptLogViewSet()
+
+    @action(detail=False)
+    def summary(self, request):
+        user_id = request.GET.get("user")
+        content_id = request.GET.get("content")
+
+        # required parameters
+        if not user_id:
+            return Response("Parameter `user` is required", status=412)
+        if not content_id:
+            return Response("Parameter `content` is required", status=412)
+
+        queryset = (
+            self.filter_queryset(find_tries(content_id, user_id))
+            .values(*self.summary_values)
+            .annotate(correct=Sum("attemptlogs__correct"))
+            .order_by(LOG_ORDER_BY)
+        )
+
+        return Response(queryset)
+
+    @action(detail=True)
+    def diff(self, request, pk):
+        target_try = self.get_object()
+        previous_try = get_previous_try(target_try)
+
+        diff = try_diff(target_try, previous_try)
+
+        attempt_logs = target_try.attemptlogs.all()
+        if previous_try:
+            attempt_logs = attempts_diff(attempt_logs, previous_try.attemptlogs.all())
+
+        data = self.serialize_object()
+        data["diff"] = diff
+        data["attemptlogs"] = self.attempt_log_view_set.serialize(attempt_logs)
+        return Response(data)
 
 
 class AttemptFilter(FilterSet):
@@ -882,6 +939,10 @@ class AttemptFilter(FilterSet):
     class Meta:
         model = AttemptLog
         fields = ["masterylog", "complete", "user", "content", "item"]
+
+
+def _attempts_diff(item):
+    return {key: item.pop("diff__{}".format(key), None) for key in ("correct",)}
 
 
 class AttemptLogViewSet(ReadOnlyValuesViewset):
@@ -913,4 +974,54 @@ class AttemptLogViewSet(ReadOnlyValuesViewset):
         "error",
         "masterylog",
         "sessionlog",
+        "diff__correct",
     )
+    field_map = {"diff": _attempts_diff}
+
+    def annotate_queryset(self, queryset):
+        if "diff__correct" not in queryset.query.annotations:
+            queryset = queryset.annotate(
+                diff__correct=Value(None, output_field=IntegerField())
+            )
+        return queryset
+
+    @action(detail=False)
+    def diff(self, request):
+        # protect against expensive queries from loose unsupported filtering
+        min_required_filter_sets = (
+            {"masterylog"},
+            {"content", "item"},
+            {"content", "user"},
+        )
+        for filter_set in min_required_filter_sets:
+            if all(k in request.GET for k in filter_set):
+                break
+        else:
+            return Response("Minimum filter condition not met", status=412)
+
+        # apply filters, narrow down to most recent try
+        target_attempt_logs = self.get_queryset()
+        # masterylog filter would filter it to a specific try
+        if "masterylog" not in request.GET:
+            # without masterylog filter, narrow down to most recent attempt for user+item
+            target_attempt_logs = AttemptLog.objects.filter(
+                id__in=Subquery(
+                    target_attempt_logs.order_by(LOG_ORDER_BY)
+                    .filter(
+                        item=OuterRef("item"),
+                        user_id=OuterRef("user_id"),
+                        masterylog__complete=True,
+                    )
+                    .values("id")[:1]
+                )
+            )
+
+        # find corresponding previous attempts
+        previous_attempt_logs = find_previous_tries_attempts(target_attempt_logs)
+        return Response(
+            self.serialize(
+                self.filter_queryset(
+                    attempts_diff(target_attempt_logs, previous_attempt_logs)
+                )
+            )
+        )
