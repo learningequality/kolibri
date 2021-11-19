@@ -3,8 +3,6 @@ import { TaskResource, ChannelResource, RemoteChannelResource } from 'kolibri.re
 import { TaskTypes } from '../../constants';
 import { NetworkLocationResource } from '../../apiResources';
 
-const kolibriStudioUrl = 'https://studio.learningequality.org';
-
 function getChannelOnDrive(driveId, channelId) {
   const reject = () => Promise.reject('CHANNEL_NOT_ON_DRIVE');
   return TaskResource.localDrives().then(response => {
@@ -48,16 +46,9 @@ function getChannelOnPeer(addressId, channelId) {
 function getChannelOnStudio(channelId) {
   return RemoteChannelResource.fetchModel({
     id: channelId,
-  })
-    .then(channel => {
-      return {
-        ...channel,
-        baseurl: kolibriStudioUrl,
-      };
-    })
-    .catch(() => {
-      return Promise.reject('CHANNEL_NOT_ON_STUDIO');
-    });
+  }).catch(() => {
+    return Promise.reject('CHANNEL_NOT_ON_STUDIO');
+  });
 }
 
 function getInstalledChannel(channelId) {
@@ -85,18 +76,12 @@ export function fetchOrTriggerChannelDiffStatsTask(params) {
   const { channelId, driveId, baseurl } = params;
   // Re-use the same object for lodash/find and making POST request.
   // Separate 'method' since it isn't part of Task metadata.
-  let method;
-  let taskAttrs = {
+  const method = driveId ? 'disk' : 'network';
+  const taskAttrs = {
     channel_id: channelId,
+    drive_id: driveId,
+    baseurl,
   };
-
-  if (baseurl) {
-    taskAttrs.baseurl = baseurl;
-    method = 'network';
-  } else if (driveId) {
-    taskAttrs.drive_id = driveId;
-    method = 'disk';
-  }
 
   return TaskResource.fetchCollection({ force: true }).then(tasks => {
     const match = find(tasks, { ...taskAttrs, type: TaskTypes.CHANNELDIFFSTATS });

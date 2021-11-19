@@ -16,17 +16,9 @@
         :numCoachContents="content.num_coach_contents"
         :link="genChannelLink(content.id, content.is_leaf)"
         :contentId="content.content_id"
-        :copiesCount="content.copies_count"
-        @openCopiesModal="openCopiesModal"
       />
     </KGridItem>
 
-    <CopiesModal
-      v-if="modalIsOpen"
-      :uniqueId="uniqueId"
-      :sharedContentId="sharedContentId"
-      @submit="modalIsOpen = false"
-    />
   </KGrid>
 
 </template>
@@ -37,13 +29,11 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { PageNames } from '../constants';
   import ChannelCard from './ChannelCard';
-  import CopiesModal from './CopiesModal';
 
   export default {
     name: 'ChannelCardGroupGrid',
     components: {
       ChannelCard,
-      CopiesModal,
     },
     mixins: [responsiveWindowMixin],
     props: {
@@ -52,11 +42,6 @@
         required: true,
       },
     },
-    data: () => ({
-      modalIsOpen: false,
-      sharedContentId: null,
-      uniqueId: null,
-    }),
     computed: {
       cardColumnSpan() {
         if (this.windowBreakpoint <= 2) return 4;
@@ -71,11 +56,6 @@
           name: PageNames.TOPICS_TOPIC,
           params: { id },
         };
-      },
-      openCopiesModal(contentId) {
-        this.sharedContentId = contentId;
-        this.uniqueId = this.contents.find(content => content.content_id === contentId).id;
-        this.modalIsOpen = true;
       },
       getTagLine(content) {
         return content.tagline || content.description;

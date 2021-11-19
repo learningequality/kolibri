@@ -7,7 +7,6 @@ from django.apps import AppConfig
 from django.db.backends.signals import connection_created
 from django.db.utils import DatabaseError
 
-from kolibri.core.logger.utils.data import bytes_for_humans
 from kolibri.core.sqlite.pragmas import CONNECTION_PRAGMAS
 from kolibri.core.sqlite.pragmas import START_PRAGMAS
 from kolibri.core.sqlite.utils import repair_sqlite_db
@@ -15,6 +14,7 @@ from kolibri.core.utils.cache import process_cache
 from kolibri.core.utils.cache import RedisSettingsHelper
 from kolibri.deployment.default.sqlite_db_names import NOTIFICATIONS
 from kolibri.utils.conf import OPTIONS
+from kolibri.utils.data import bytes_for_humans
 
 logger = logging.getLogger(__name__)
 

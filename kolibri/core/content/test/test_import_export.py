@@ -17,6 +17,7 @@ from requests.exceptions import HTTPError
 from requests.exceptions import ReadTimeout
 from requests.exceptions import SSLError
 
+from kolibri.core.content.errors import InsufficientStorageSpaceError
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import LocalFile
@@ -626,6 +627,105 @@ class ImportContentTestCase(TestCase):
             call_command("importcontent", "network", self.the_channel_id)
         annotation_mock.set_content_visibility.assert_called_with(
             self.the_channel_id, [], node_ids=None, exclude_node_ids=None, public=False
+        )
+
+    @patch("kolibri.core.content.management.commands.importcontent.get_free_space")
+    @patch(
+        "kolibri.core.content.management.commands.importcontent.transfer.FileDownload.finalize"
+    )
+    @patch(
+        "kolibri.core.content.management.commands.importcontent.paths.get_content_storage_file_path"
+    )
+    @patch(
+        "kolibri.core.content.management.commands.importcontent.AsyncCommand.is_cancelled",
+        return_value=False,
+    )
+    def test_remote_import_no_space_at_first(
+        self,
+        is_cancelled_mock,
+        path_mock,
+        finalize_dest_mock,
+        get_free_space_mock,
+        annotation_mock,
+        get_import_export_mock,
+        channel_list_status_mock,
+    ):
+        fd1, dest_path_1 = tempfile.mkstemp()
+        fd2, dest_path_2 = tempfile.mkstemp()
+        os.close(fd1)
+        os.close(fd2)
+        path_mock.side_effect = [dest_path_1, dest_path_2]
+        LocalFile.objects.filter(pk="6bdfea4a01830fdd4a585181c0b8068c").update(
+            file_size=2201062
+        )
+        LocalFile.objects.filter(pk="211523265f53825b82f70ba19218a02e").update(
+            file_size=336974
+        )
+        get_import_export_mock.return_value = (
+            1,
+            list(
+                LocalFile.objects.filter(
+                    pk__in=[
+                        "6bdfea4a01830fdd4a585181c0b8068c",
+                        "211523265f53825b82f70ba19218a02e",
+                    ]
+                ).values("id", "file_size", "extension")
+            ),
+            10,
+        )
+        get_free_space_mock.return_value = 0
+        with self.assertRaises(InsufficientStorageSpaceError):
+            call_command("importcontent", "network", self.the_channel_id)
+
+    @patch("kolibri.core.content.management.commands.importcontent.get_free_space")
+    @patch(
+        "kolibri.core.content.management.commands.importcontent.transfer.FileDownload.finalize"
+    )
+    @patch(
+        "kolibri.core.content.management.commands.importcontent.paths.get_content_storage_file_path"
+    )
+    @patch(
+        "kolibri.core.content.management.commands.importcontent.AsyncCommand.is_cancelled",
+        return_value=False,
+    )
+    def test_remote_import_no_space_after_first_download(
+        self,
+        is_cancelled_mock,
+        path_mock,
+        finalize_dest_mock,
+        get_free_space_mock,
+        annotation_mock,
+        get_import_export_mock,
+        channel_list_status_mock,
+    ):
+        fd1, dest_path_1 = tempfile.mkstemp()
+        fd2, dest_path_2 = tempfile.mkstemp()
+        os.close(fd1)
+        os.close(fd2)
+        path_mock.side_effect = [dest_path_1, dest_path_2]
+        LocalFile.objects.filter(pk="6bdfea4a01830fdd4a585181c0b8068c").update(
+            file_size=2201062
+        )
+        LocalFile.objects.filter(pk="211523265f53825b82f70ba19218a02e").update(
+            file_size=336974
+        )
+        get_import_export_mock.return_value = (
+            1,
+            list(
+                LocalFile.objects.filter(
+                    pk__in=[
+                        "6bdfea4a01830fdd4a585181c0b8068c",
+                        "211523265f53825b82f70ba19218a02e",
+                    ]
+                ).values("id", "file_size", "extension")
+            ),
+            2201062 + 336974,
+        )
+        get_free_space_mock.side_effect = [100000000000, 0, 0, 0, 0, 0, 0]
+        with self.assertRaises(InsufficientStorageSpaceError):
+            call_command("importcontent", "network", self.the_channel_id)
+        annotation_mock.set_content_visibility.assert_called_with(
+            self.the_channel_id, [], exclude_node_ids=None, node_ids=None, public=False
         )
 
     @patch("kolibri.core.content.utils.transfer.sleep")

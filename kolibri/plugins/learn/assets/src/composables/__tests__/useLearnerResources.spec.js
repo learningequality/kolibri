@@ -32,14 +32,42 @@ jest.mock('../useContentNodeProgress');
 
 const TEST_RESUMABLE_CONTENT_NODES = [
   // the following resources are used in classess
-  { id: 'resource-1-in-progress', title: 'Resource 1 (In Progress)' },
-  { id: 'resource-3-in-progress', title: 'Resource 3 (In Progress)' },
-  { id: 'resource-5-in-progress', title: 'Resource 5 (In Progress)' },
-  { id: 'resource-6-in-progress', title: 'Resource 6 (In Progress)' },
-  { id: 'resource-8-in-progress', title: 'Resource 8 (In Progress)' },
+  {
+    id: 'resource-1-in-progress',
+    title: 'Resource 1 (In Progress)',
+    content_id: 'resource-1-in-progress',
+  },
+  {
+    id: 'resource-3-in-progress',
+    title: 'Resource 3 (In Progress)',
+    content_id: 'resource-3-in-progress',
+  },
+  {
+    id: 'resource-5-in-progress',
+    title: 'Resource 5 (In Progress)',
+    content_id: 'resource-5-in-progress',
+  },
+  {
+    id: 'resource-6-in-progress',
+    title: 'Resource 6 (In Progress)',
+    content_id: 'resource-6-in-progress',
+  },
+  {
+    id: 'resource-8-in-progress',
+    title: 'Resource 8 (In Progress)',
+    content_id: 'resource-8-in-progress',
+  },
   // the following resources are not used in classses
-  { id: 'resource-9-in-progress', title: 'Resource 9 (In Progress)' },
-  { id: 'resource-10-in-progress', title: 'Resource 10 (In Progress)' },
+  {
+    id: 'resource-9-in-progress',
+    title: 'Resource 9 (In Progress)',
+    content_id: 'resource-9-in-progress',
+  },
+  {
+    id: 'resource-10-in-progress',
+    title: 'Resource 10 (In Progress)',
+    content_id: 'resource-10-in-progress',
+  },
 ];
 
 const TEST_CLASSES = [

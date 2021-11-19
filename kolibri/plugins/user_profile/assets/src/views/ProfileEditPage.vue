@@ -97,11 +97,10 @@
     },
     mixins: [commonCoreStrings],
     data() {
-      const { username, full_name } = this.$store.state.core.session;
       return {
-        fullName: full_name,
+        fullName: '',
         fullNameValid: false,
-        username: username,
+        username: '',
         usernameValid: false,
         birthYear: '',
         gender: '',
@@ -148,6 +147,8 @@
           facilityUser => {
             this.birthYear = facilityUser.birth_year;
             this.gender = facilityUser.gender;
+            this.fullName = facilityUser.full_name;
+            this.username = facilityUser.username;
             this.userCopy = { ...facilityUser };
           }
         );

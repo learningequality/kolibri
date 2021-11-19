@@ -11,6 +11,7 @@ import flatMap from 'lodash/flatMap';
 import flatMapDepth from 'lodash/flatMapDepth';
 
 import { ContentNodeResource } from 'kolibri.resources';
+import { deduplicateResources } from '../utils/contentNode';
 import genContentLink from '../utils/genContentLink';
 import { LearnerClassroomResource } from '../apiResources';
 import { PageNames, ClassesPageNames } from '../constants';
@@ -18,19 +19,19 @@ import { normalizeContentNode } from '../modules/coreLearn/utils';
 import useContentNodeProgress, { setContentNodeProgress } from './useContentNodeProgress';
 
 // The refs are defined in the outer scope so they can be used as a shared store
-const resumableContentNodes = ref([]);
+const _resumableContentNodes = ref([]);
 const moreResumableContentNodes = ref(null);
 const classes = ref([]);
 const { fetchContentNodeProgress } = useContentNodeProgress();
 
 export function setResumableContentNodes(nodes, more = null) {
-  set(resumableContentNodes, nodes.map(normalizeContentNode));
+  set(_resumableContentNodes, nodes.map(normalizeContentNode));
   set(moreResumableContentNodes, more);
   ContentNodeResource.cacheData(nodes);
 }
 
 function addResumableContentNodes(nodes, more = null) {
-  set(resumableContentNodes, [...get(resumableContentNodes), ...nodes.map(normalizeContentNode)]);
+  set(_resumableContentNodes, [...get(_resumableContentNodes), ...nodes.map(normalizeContentNode)]);
   set(moreResumableContentNodes, more);
   ContentNodeResource.cacheData(nodes);
 }
@@ -341,6 +342,10 @@ export default function useLearnerResources() {
       return results;
     });
   }
+
+  const resumableContentNodes = computed(() => {
+    return deduplicateResources(get(_resumableContentNodes));
+  });
 
   return {
     classes,

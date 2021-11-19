@@ -3,6 +3,7 @@ export const ComponentMap = {
   SIGN_UP: 'SignUpPage',
   AUTH_SELECT: 'AuthSelect',
   FACILITY_SELECT: 'FacilitySelect',
+  NEW_PASSWORD: 'NewPasswordPage',
 };
 
 export const pageNameToModuleMap = {

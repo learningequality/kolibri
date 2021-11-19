@@ -9,9 +9,6 @@
       v-for="(nestedObject, key) in displaySelectedCategories"
       :key="key"
       :span="span"
-      :disabled="availablePaths && !availablePaths[nestedObject.value]"
-      :style="availablePaths && !availablePaths[nestedObject.value] ?
-        { textColor: 'grey' } : { cursor: 'pointer' }"
       class="category-item"
     >
       <div class="filter-list-title">
@@ -19,25 +16,27 @@
           :icon="icon(key)"
           size="large"
         />
-        <h2 @click="$emit('input', nestedObject.value)">
-          {{ coreString(camelCase(key)) }}
+        <h2>
+          <KButton
+            :text="coreString(camelCase(key))"
+            appearance="basic-link"
+            :appearanceOverrides="appearanceOverrides"
+            :disabled="availablePaths && !availablePaths[nestedObject.value]"
+            @click="$emit('input', nestedObject.value)"
+          />
         </h2>
+
       </div>
       <div
         v-for="(item, nestedKey) in nestedObject.nested"
         :key="item.value"
       >
-        <a
-          :disabled="availablePaths && !availablePaths[item.value]"
-          :style="availablePaths && !availablePaths[item.value] ?
-            { textColor: 'grey', display: 'block', marginTop: '8px' } :
-            { cursor: 'pointer', display: 'block', marginTop: '8px' }"
-
+        <KButton
+          :text="coreString(camelCase(nestedKey))"
+          :appearanceOverrides="appearanceOverrides"
+          appearance="basic-link"
           @click="$emit('input', item.value)"
-        >
-          {{ coreString(camelCase(nestedKey)) }}
-        </a>
-
+        />
       </div>
     </KFixedGridItem>
   </KFixedGrid>
@@ -50,9 +49,6 @@
       v-for="(value, key) in displaySelectedCategories"
       :key="value.value"
       :span="span"
-      :disabled="availablePaths && !availablePaths[value.value]"
-      :style="availablePaths && !availablePaths[value.value] ?
-        { color: 'grey' } : { cursor: 'pointer' }"
       class="category-item"
       @click="$emit('input', value.value)"
     >
@@ -60,12 +56,17 @@
         :icon="icon(key)"
         size="large"
       />
-      <h2
-        class="filter-list-item"
-        @click="$emit('input', value.value)"
-      >
-        {{ coreString(camelCase(key)) }}
+      <h2>
+        <KButton
+          class="filter-list-item"
+          appearance="basic-link"
+          :text="coreString(camelCase(key))"
+          :disabled="availablePaths && !availablePaths[value.value]"
+          :appearanceOverrides="appearanceOverrides"
+          @click="$emit('input', value.value)"
+        />
       </h2>
+
     </KFixedGridItem>
   </KFixedGrid>
 
@@ -170,6 +171,12 @@
       displaySelectedCategories() {
         return libraryCategories[this.selectedCategory].nested;
       },
+      appearanceOverrides() {
+        return {
+          color: this.$themeTokens.text,
+          marginTop: '8px',
+        };
+      },
     },
     methods: {
       camelCase(val) {
@@ -188,6 +195,9 @@
           // similarly, 'skills' icon is used for both of these resources
           // and doesn't follow same pattern
           return 'skillsResource';
+        } else if (camelCase(key) === 'foundationsLogicAndCriticalThinking') {
+          // naming mismatch
+          return 'logicCriticalThinkingResource';
         } else {
           return `${camelCase(key)}Resource`;
         }
@@ -200,15 +210,14 @@
 
 <style lang="scss" scoped>
 
-  .filter-list-title {
-    margin-top: 24px;
-    margin-bottom: 8px;
+  h2 {
+    margin-top: 4px;
+    margin-bottom: 4px;
   }
 
-  .filter-list-item {
-    margin-top: 16px;
+  /deep/ .link-text {
+    text-decoration: none !important;
   }
-
   .category-item {
     margin-bottom: 32px;
   }

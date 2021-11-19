@@ -372,6 +372,10 @@ def extract_channel_statistics(channel):
         # popular_counts
         "pc": [item["count"] for item in pop],
         # storage calculated by the MB
+        # rtibbles: This is the one remaining instance of non-SI bytes units calculations that
+        # I have discovered still extant in Kolibri. As this is being used for statistics reporting
+        # I have not updated it to use SI units as with all other instances, as that would
+        # produce undesirable inconsistencies in reported statistics.
         "s": (localfiles.aggregate(Sum("file_size"))["file_size__sum"] or 0) / (2 ** 20),
         # summ_started
         "ss": summarylogs.count(),

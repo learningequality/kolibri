@@ -376,7 +376,7 @@ describe(`useSearch`, () => {
       expect(ContentNodeResource.fetchCollection).toHaveBeenCalledWith({ getParams: moreExpected });
     });
     it('should set results, more and labels', async () => {
-      const { labels, more, results, searchMore } = prep({
+      const { labels, more, results, searchMore, search } = prep({
         categories: `test1,test2,${NoCategories}`,
       });
       const expectedLabels = {
@@ -385,7 +385,18 @@ describe(`useSearch`, () => {
       const expectedMore = {
         cursor: 'adalskdjsadlkjsadlkjsalkd',
       };
-      const expectedResults = [{ id: 'node-id1' }];
+      const originalResults = [{ id: 'originalId', content_id: 'first' }];
+      ContentNodeResource.fetchCollection = jest.fn();
+      ContentNodeResource.fetchCollection.mockReturnValue(
+        Promise.resolve({
+          labels: expectedLabels,
+          results: originalResults,
+          more: expectedMore,
+        })
+      );
+      search();
+      await Vue.nextTick();
+      const expectedResults = [{ id: 'node-id1', content_id: 'second' }];
       ContentNodeResource.fetchCollection = jest.fn();
       ContentNodeResource.fetchCollection.mockReturnValue(
         Promise.resolve({
@@ -395,13 +406,11 @@ describe(`useSearch`, () => {
         })
       );
       set(more, {});
-      const originalResults = [{ id: 'originalId' }];
-      set(results, originalResults);
       searchMore();
       await Vue.nextTick();
       expect(get(labels)).toEqual(expectedLabels);
       expect(get(results)).toEqual(
-        originalResults.concat(expectedResults.map(normalizeContentNode))
+        originalResults.concat(expectedResults).map(normalizeContentNode)
       );
       expect(get(more)).toEqual(expectedMore);
     });

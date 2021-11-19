@@ -24,6 +24,7 @@ import six
 from django.db import connections
 
 from .conf import KOLIBRI_HOME
+from .conf import OPTIONS
 from kolibri.utils.android import on_android
 
 logger = logging.getLogger(__name__)
@@ -170,7 +171,7 @@ def get_free_space(path=KOLIBRI_HOME):
         st = os.statvfs(os.path.realpath(path))
         result = st.f_bavail * st.f_frsize
 
-    return result
+    return max(result - OPTIONS["Deployment"]["MINIMUM_DISK_SPACE"], 0)
 
 
 _become_daemon_function = None

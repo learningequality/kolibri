@@ -53,6 +53,7 @@
   import genContentLink from '../utils/genContentLink';
   import { PageNames } from '../constants';
   import { normalizeContentNode } from '../modules/coreLearn/utils.js';
+  import useContentNodeProgress from '../composables/useContentNodeProgress';
   import HybridLearningCardGrid from './HybridLearningCardGrid';
   import BrowseResourceMetadata from './BrowseResourceMetadata';
 
@@ -69,6 +70,10 @@
       HybridLearningCardGrid,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
+    setup() {
+      const { fetchContentNodeProgress } = useContentNodeProgress();
+      return { fetchContentNodeProgress };
+    },
     data() {
       return {
         loading: true,
@@ -90,6 +95,7 @@
         this.more = data.more;
         this.bookmarks = data.results ? data.results.map(normalizeContentNode) : [];
         this.loading = false;
+        this.fetchContentNodeProgress({ ids: this.bookmarks.map(b => b.id) });
       });
     },
     methods: {
@@ -102,6 +108,7 @@
             this.more = data.more;
             this.bookmarks.push(...data.results.map(normalizeContentNode));
             this.loading = false;
+            this.fetchContentNodeProgress({ ids: data.results.map(b => b.id) });
           });
         }
       },

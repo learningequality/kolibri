@@ -22,6 +22,8 @@
           <KIconButton
             icon="close"
             class="close-button"
+            :ariaLabel="coreString('close')"
+            :tooltip="coreString('close')"
             @click="closePanel"
           />
         </div>
@@ -65,6 +67,7 @@
 <script>
 
   import Backdrop from 'kolibri.coreVue.components.Backdrop';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   //import { mapState } from 'vuex';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   //import SidePanelResourcesList from './SidePanelResourcesList';
@@ -75,7 +78,7 @@
       Backdrop,
       //SidePanelResourcesList,
     },
-    mixins: [responsiveWindowMixin],
+    mixins: [responsiveWindowMixin, commonCoreStrings],
     props: {
       closeButtonHidden: {
         type: Boolean,

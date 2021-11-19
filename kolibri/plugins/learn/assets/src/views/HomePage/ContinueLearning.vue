@@ -33,16 +33,24 @@
           :contentNode="contentNode"
           :to="getTopicContentNodeLink(contentNode.id)"
           :collectionTitle="getContentNodeTopicName(contentNode)"
+          @openCopiesModal="openCopiesModal"
         />
-        <KButton
-          v-if="moreResumableContentNodes"
-          appearance="basic-link"
-          @click="fetchMoreResumableContentNodes"
-        >
-          {{ coreString('viewMoreAction') }}
-        </KButton>
       </template>
     </CardGrid>
+    <KButton
+      v-if="moreResumableContentNodes"
+      style="margin-top: 16px;"
+      appearance="basic-link"
+      @click="fetchMoreResumableContentNodes"
+    >
+      {{ coreString('viewMoreAction') }}
+    </KButton>
+    <CopiesModal
+      v-if="displayedCopies.length"
+      :copies="displayedCopies"
+      :genContentLink="contentNode => getTopicContentNodeLink(contentNode.id)"
+      @submit="displayedCopies = []"
+    />
   </section>
 
 </template>
@@ -58,6 +66,7 @@
   import CardGrid from '../cards/CardGrid';
   import QuizCard from '../cards/QuizCard';
   import ResourceCard from '../cards/ResourceCard';
+  import CopiesModal from '../CopiesModal';
   import useLearnerResources from '../../composables/useLearnerResources';
 
   /**
@@ -69,6 +78,7 @@
       CardGrid,
       ResourceCard,
       QuizCard,
+      CopiesModal,
     },
     mixins: [commonCoreStrings],
     setup() {
@@ -134,11 +144,21 @@
         default: false,
       },
     },
+    data() {
+      return {
+        displayedCopies: [],
+      };
+    },
     computed: {
       header() {
         return this.fromClasses
           ? this.$tr('continueLearningFromClassesHeader')
           : this.$tr('continueLearningOnYourOwnHeader');
+      },
+    },
+    methods: {
+      openCopiesModal(copies) {
+        this.displayedCopies = copies;
       },
     },
     $trs: {

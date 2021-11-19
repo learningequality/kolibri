@@ -36,10 +36,10 @@ from kolibri.core.device.utils import provision_single_user_device
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
 from kolibri.core.discovery.utils.network.errors import URLParseError
-from kolibri.core.logger.utils.data import bytes_for_humans
 from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.core.utils.lock import db_lock
+from kolibri.utils.data import bytes_for_humans
 
 
 logger = logging.getLogger(__name__)

@@ -28,6 +28,7 @@
             :ariaLabel="$tr('viewAsList')"
             :color="$themeTokens.text"
             :tooltip="$tr('viewAsList')"
+            :disabled="currentViewStyle === 'list'"
             @click="toggleCardView('list')"
           />
           <KIconButton
@@ -35,6 +36,7 @@
             :ariaLabel="$tr('viewAsGrid')"
             :color="$themeTokens.text"
             :tooltip="$tr('viewAsGrid')"
+            :disabled="currentViewStyle === 'card'"
             @click="toggleCardView('card')"
           />
         </div>
@@ -81,6 +83,7 @@
             :ariaLabel="$tr('viewAsList')"
             :color="$themeTokens.text"
             :tooltip="$tr('viewAsList')"
+            :disabled="currentViewStyle === 'list'"
             @click="toggleCardView('list')"
           />
           <KIconButton
@@ -88,6 +91,7 @@
             :ariaLabel="$tr('viewAsGrid')"
             :color="$themeTokens.text"
             :tooltip="$tr('viewAsGrid')"
+            :disabled="currentViewStyle === 'card'"
             @click="toggleCardView('card')"
           />
         </div>
@@ -160,9 +164,9 @@
       <KIconButton
         v-if="windowIsSmall && currentCategory"
         icon="back"
-        :ariaLabel="coreString('back')"
+        :ariaLabel="coreString('goBackAction')"
         :color="$themeTokens.text"
-        :tooltip="coreString('back')"
+        :tooltip="coreString('goBackAction')"
         @click="closeCategoryModal"
       />
       <EmbeddedSidePanel

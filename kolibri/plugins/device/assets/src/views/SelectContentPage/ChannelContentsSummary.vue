@@ -59,6 +59,11 @@
         <td>{{ $tr('resourceCount', { count: channel.new_resource_count || 0 }) }}</td>
         <td>{{ bytesForHumans(channel.new_resource_total_size || 0) }}</td>
       </tr>
+      <tr>
+        <th>{{ deviceInfo.$tr('freeDisk') }}</th>
+        <td></td>
+        <td>{{ bytesForHumans(freeSpace || 0) }}</td>
+      </tr>
     </table>
   </section>
 
@@ -69,6 +74,8 @@
 
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
+  import DeviceInfoPage from '../DeviceInfoPage.vue';
 
   export default {
     name: 'ChannelContentsSummary',
@@ -84,6 +91,10 @@
           return {};
         },
       },
+      freeSpace: {
+        type: Number,
+        required: true,
+      },
     },
     computed: {
       versionNumber() {
@@ -92,6 +103,9 @@
         }
         return this.channelOnDevice.version;
       },
+    },
+    created() {
+      this.deviceInfo = crossComponentTranslator(DeviceInfoPage);
     },
     methods: {
       bytesForHumans,

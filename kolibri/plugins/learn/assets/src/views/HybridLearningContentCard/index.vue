@@ -68,11 +68,10 @@
           @click="$emit('toggleInfoPanel')"
         />
         <KButton
-          v-if="content.copies_count > 1"
+          v-if="content.copies"
           appearance="basic-link"
-          class="copies"
-          :text="coreString('copies', { num: content.copies_count })"
-          @click.prevent="$emit('openCopiesModal', contentId)"
+          :text="coreString('copies', { num: content.copies.length })"
+          @click.prevent="$emit('openCopiesModal', content.copies)"
         />
         <slot name="actions"></slot>
       </div>

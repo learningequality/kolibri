@@ -26,6 +26,7 @@ except NotImplementedError:
     psutil = None
 
 
+from kolibri.utils.data import bytes_from_humans
 from kolibri.utils.i18n import KOLIBRI_LANGUAGE_INFO
 from kolibri.utils.i18n import KOLIBRI_SUPPORTED_LANGUAGES
 from kolibri.plugins.utils.options import extend_config_spec
@@ -62,7 +63,7 @@ def calculate_thread_pool():
     if psutil:
         MIN_MEM = 2
         MAX_MEM = 6
-        total_memory = psutil.virtual_memory().total / pow(2, 30)  # in Gb
+        total_memory = psutil.virtual_memory().total / pow(10, 9)  # in GB
         # if it's in the range, scale thread count linearly with available memory
         if MIN_MEM < total_memory < MAX_MEM:
             pool_size = MIN_POOL + int(
@@ -204,6 +205,14 @@ def origin_or_port(value):
             if not url.scheme or not url.netloc:
                 raise VdtValueError(value)
             value = urlunparse((url.scheme, url.netloc, "", "", "", ""))
+    return value
+
+
+def validate_bytes(value):
+    try:
+        value = bytes_from_humans(value)
+    except ValueError:
+        raise VdtValueError(value)
     return value
 
 
@@ -498,6 +507,15 @@ base_option_spec = {
                 data that is returned to our telemetry server.
             """,
         },
+        "MINIMUM_DISK_SPACE": {
+            "type": "bytes",
+            "default": "250MB",
+            "description": """
+                The minimum free disk space that Kolibri should try to maintain on the device. This will
+                be used as the floor value to prevent Kolibri completely filling the disk during file import.
+                Value can either be a number suffixed with a unit (e.g. MB, GB, TB) or an integer number of bytes.
+            """,
+        },
     },
     "Python": {
         "PICKLE_PROTOCOL": {
@@ -531,6 +549,7 @@ def _get_validator():
             "origin_or_port": origin_or_port,
             "port": port,
             "url_prefix": url_prefix,
+            "bytes": validate_bytes,
         }
     )
 
