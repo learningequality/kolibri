@@ -914,7 +914,7 @@ def get_urls(listen_port=None):
         return e.status_code, []
 
 
-def get_installer_version(installer_type):
+def get_installer_version(installer_type):  # noqa: C901
     def get_debian_pkg_version(package):
         """
         In case we want to distinguish between dpkg and apt installations
@@ -922,9 +922,10 @@ def get_installer_version(installer_type):
         if dpkg > madison, it's dpkg otherwise it's apt
         """
         try:
-            package_info = (
-                check_output(["dpkg", "-s", package]).decode("utf-8").split("\n")
-            )
+            output = check_output(["dpkg", "-s", package])
+            if hasattr(output, "decode"):  # needed in python 2.x
+                output = output.decode("utf-8")
+            package_info = output.split("\n")
             version_info = [output for output in package_info if "Version" in output]
             if version_info:
                 version = version_info[0].split(":")[1].strip()
@@ -941,6 +942,10 @@ def get_installer_version(installer_type):
 
     def get_apk_version():
         return os.environ.get("KOLIBRI_APK_VERSION_NAME")
+
+    installer_version = os.environ.get("KOLIBRI_INSTALLER_VERSION")
+    if installer_version:
+        return installer_version
 
     version_funcs = {
         installation_types.DEB: get_deb_version,
@@ -983,7 +988,7 @@ def installation_type(cmd_line=None):  # noqa:C901
         # running under uwsgi, finding out if we are using kolibri-server
         install_type = "Unknown"
         try:
-            check_output(["dpkg", "-s", "kolibri-server"]).decode("utf-8").split("\n")
+            check_output(["dpkg", "-s", "kolibri-server"])
             install_type = installation_types.KOLIBRI_SERVER
         except CalledProcessError:  # kolibri-server package not installed!
             install_type = installation_types.WHL
