@@ -490,9 +490,12 @@ def _subset_and_merge_fonts(text, default_font, subset_reg_path, subset_bold_pat
         reg_subsets.append(reg_subset)
         bold_subsets.append(bold_subset)
 
-        remaining_glyphs -= _font_glyphs(full_reg_path)
+        new_glyphs = _font_glyphs(full_reg_path)
+        remaining_glyphs -= new_glyphs
         if not remaining_glyphs:
             break
+
+        text = "".join([c for c in text if c in new_glyphs])
 
     _merge_fonts(reg_subsets, os.path.join(OUTPUT_PATH, subset_reg_path))
     _merge_fonts(bold_subsets, os.path.join(OUTPUT_PATH, subset_bold_path))
