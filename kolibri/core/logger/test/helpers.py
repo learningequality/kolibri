@@ -7,6 +7,7 @@ from django.utils import timezone
 from .factory_logger import ContentSessionLogFactory
 from .factory_logger import ContentSummaryLogFactory
 from .factory_logger import FacilityUserFactory
+from kolibri.core.auth.test.helpers import create_superuser
 from kolibri.core.auth.test.test_api import FacilityFactory
 from kolibri.core.logger.api import MIN_INTEGER
 from kolibri.core.logger.models import AttemptLog
@@ -38,6 +39,7 @@ class EvaluationMixin(object):
             FacilityUserFactory.create(facility=cls.facility) for _ in range(6)
         ]
         cls.users_map = {user.id: user for user in cls.users}
+        cls.superuser = create_superuser(cls.facility)
 
         cls.content_ids = [uuid.uuid4().hex for _ in range(2)]
 

@@ -1,5 +1,6 @@
 import logging
 from datetime import timedelta
+from functools import partial
 from itertools import groupby
 from random import randint
 
@@ -865,7 +866,10 @@ class MasteryFilter(FilterSet):
 
 class MasteryLogViewSet(ReadOnlyValuesViewset):
     permission_classes = (KolibriAuthPermissions,)
-    filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
+    filter_backends = (
+        partial(KolibriAuthPermissionsFilter, endpoints=["-list", "-diff", "-summary"]),
+        DjangoFilterBackend,
+    )
     queryset = MasteryLog.objects.all()
     pagination_class = OptionalPageNumberPagination
     filter_class = MasteryFilter
@@ -944,7 +948,7 @@ def _attempts_diff(item):
 class AttemptLogViewSet(ReadOnlyValuesViewset):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (
-        KolibriAuthPermissionsFilter,
+        partial(KolibriAuthPermissionsFilter, endpoints=["-list", "-diff"]),
         DjangoFilterBackend,
         filters.OrderingFilter,
     )
@@ -996,22 +1000,24 @@ class AttemptLogViewSet(ReadOnlyValuesViewset):
             return Response("Minimum filter condition not met", status=412)
 
         # apply filters, narrow down to most recent try
-        target_attempt_logs = self.filter_queryset(self.get_queryset())
+        target_attempt_logs = self.get_queryset()
         # masterylog filter would filter it to a specific try
         if "masterylog" not in request.GET:
             # without masterylog filter, narrow down to most recent attempt for user+item
             target_attempt_logs = AttemptLog.objects.filter(
                 id__in=Subquery(
-                    target_attempt_logs.filter(
-                        item=OuterRef("item"), user_id=OuterRef("user_id")
-                    )
-                    .values("id")
-                    .order_by("-completion_timestamp")[:1]
+                    target_attempt_logs.order_by("-completion_timestamp")
+                    .filter(item=OuterRef("item"), user_id=OuterRef("user_id"))
+                    .values("id")[:1]
                 )
             )
 
         # find corresponding previous attempts
         previous_attempt_logs = find_previous_tries_attempts(target_attempt_logs)
         return Response(
-            self.serialize(attempts_diff(target_attempt_logs, previous_attempt_logs))
+            self.serialize(
+                self.filter_queryset(
+                    attempts_diff(target_attempt_logs, previous_attempt_logs)
+                )
+            )
         )

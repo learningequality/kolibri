@@ -86,7 +86,7 @@ def find_previous_tries_attempts(target_try_attempts):
     )
     return AttemptLog.objects.filter(
         masterylog_id__in=find_previous_tries(target_tries).values_list("id"),
-    )
+    ).order_by("-completion_timestamp")
 
 
 def try_diff(target_try, previous_try=None):
@@ -137,7 +137,7 @@ def attempts_diff(target_try_attempts, previous_try_attempts):
             Subquery(
                 previous_try_attempts.filter(
                     user_id=OuterRef("user_id"), item=OuterRef("item")
-                ).values_list("correct")[:1],
+                ).values("correct")[:1],
                 output_field=IntegerField(),
             ),
             output_field=IntegerField(),

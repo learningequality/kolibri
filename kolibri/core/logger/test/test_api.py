@@ -193,6 +193,7 @@ class MasteryLogViewSetTestCase(EvaluationMixin, APITestCase):
         for content_index, content_id in enumerate(self.content_ids):
             content_mod = content_index % 2
             for user_index, user in enumerate(self.users):
+                self.client.force_login(user)
                 response = self.client.get(
                     reverse("kolibri:core:masterylog-summary"),
                     data={
@@ -263,6 +264,7 @@ class AttemptLogViewSetTestCase(EvaluationMixin, APITestCase):
     def test_diff__masterylog(self):
         for user_tries in self.user_tries:
             try0 = user_tries[0]
+            self.client.force_login(try0.user)
             response = self.client.get(
                 reverse("kolibri:core:attemptlog-diff"),
                 data={
@@ -276,6 +278,7 @@ class AttemptLogViewSetTestCase(EvaluationMixin, APITestCase):
             self.assertAttemptDiffs(response.data)
 
     def test_diff__content_item(self):
+        self.client.force_login(self.superuser)
         # among 6 users, 3 users tried each content_id
         for content_index, content_id in enumerate(self.content_ids):
             content_mod = content_index % 2
@@ -292,6 +295,7 @@ class AttemptLogViewSetTestCase(EvaluationMixin, APITestCase):
         for content_index, content_id in enumerate(self.content_ids):
             content_mod = content_index % 2
             for user_index, user in enumerate(self.users):
+                self.client.force_login(user)
                 response = self.client.get(
                     reverse("kolibri:core:attemptlog-diff"),
                     data={
