@@ -20,6 +20,7 @@
         :totalQuestions="questions.length"
         :completionTimestamp="completionTimestamp"
         :completed="completed"
+        :timeSpent="timeSpent"
       />
     </KFixedGridItem>
     <KFixedGridItem span="1" alignment="right">
@@ -67,6 +68,10 @@
       retry: {
         type: Boolean,
         default: false,
+      },
+      timeSpent: {
+        type: Number,
+        default: 0,
       },
     },
     computed: {

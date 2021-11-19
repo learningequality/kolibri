@@ -18,6 +18,7 @@
     :navigateToQuestionAttempt="navigateToQuestionAttempt"
     :questions="questions"
     :retry="true"
+    :timeSpent="timeSpent"
     @repeat="$emit('repeat')"
   />
 
@@ -27,7 +28,7 @@
 <script>
 
   import ExamReport from 'kolibri.coreVue.components.ExamReport';
-  import { AttemptLogResource } from 'kolibri.resources';
+  import { MasteryLogResource } from 'kolibri.resources';
 
   export default {
     name: 'QuizReport',
@@ -67,19 +68,20 @@
         type: Object,
         default: () => ({}),
       },
-      masteryLevel: {
-        type: Number,
-        required: true,
-      },
     },
     data() {
       return {
         questionNumber: 0,
         selectedInteractionIndex: 0,
-        pastattempts: [],
+        pastTries: [],
+        currentTry: null,
+        masteryLogId: null,
       };
     },
     computed: {
+      pastattempts() {
+        return this.currentTry ? this.currentTry.attemptlogs : [];
+      },
       completionTimestamp() {
         const time = this.pastattempts.length
           ? this.pastattempts
@@ -101,6 +103,9 @@
           };
         });
       },
+      timeSpent() {
+        return this.currentTry ? this.currentTry.time_spent : 0;
+      },
       itemId() {
         return this.questions[this.questionNumber];
       },
@@ -119,6 +124,7 @@
     },
     created() {
       this.loadAttempts();
+      this.loadAllTries();
     },
     methods: {
       navigateToQuestion(questionNumber) {
@@ -132,12 +138,23 @@
         this.selectedInteractionIndex = interaction;
       },
       loadAttempts() {
-        // TODO: rtibbles use new API endpoint for fetching annotated attempt data.
-        AttemptLogResource.fetchCollection({
-          getParams: { content_id: this.contentId, mastery_level: this.masteryLevel },
-        }).then(attempts => {
-          this.pastattempts = attempts;
+        const getParams = { content_id: this.contentId, user_id: this.userId };
+        let promise;
+        if (this.masteryLogId) {
+          promise = MasteryLogResource.fetchDiff(this.masteryLogId);
+        } else {
+          promise = MasteryLogResource.fetchMostRecentDiff(getParams);
+        }
+        promise.then(currentTry => {
+          this.currentTry = currentTry;
         });
+      },
+      loadAllTries() {
+        MasteryLogResource.fetchSummary({ content_id: this.contentId, user_id: this.userId }).then(
+          pastTries => {
+            this.pastTries = pastTries;
+          }
+        );
       },
     },
   };

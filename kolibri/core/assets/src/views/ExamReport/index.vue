@@ -8,6 +8,7 @@
         :questions="examAttempts"
         :completionTimestamp="completionTimestamp"
         :completed="complete"
+        :timeSpent="timeSpent"
         :retry="retry"
         @repeat="$emit('repeat')"
       />
@@ -148,6 +149,10 @@
       retry: {
         type: Boolean,
         default: false,
+      },
+      timeSpent: {
+        type: Number,
+        default: 0,
       },
     },
     data() {

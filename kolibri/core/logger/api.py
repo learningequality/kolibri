@@ -914,6 +914,7 @@ class MasteryLogViewSet(ReadOnlyValuesViewset):
         "completion_timestamp",
         "mastery_level",
         "complete",
+        "time_spent",
     )
     summary_values = (
         "id",
@@ -945,9 +946,7 @@ class MasteryLogViewSet(ReadOnlyValuesViewset):
 
         return Response(queryset)
 
-    @action(detail=True)
-    def diff(self, request, pk):
-        target_try = self.get_object()
+    def _get_diff_response(self, target_try):
         previous_try = get_previous_try(target_try)
 
         diff = try_diff(target_try, previous_try)
@@ -956,10 +955,36 @@ class MasteryLogViewSet(ReadOnlyValuesViewset):
         if previous_try:
             attempt_logs = attempts_diff(attempt_logs, previous_try.attemptlogs.all())
 
-        data = self.serialize_object()
+        data = self.serialize_object(id=target_try.id)
         data["diff"] = diff
         data["attemptlogs"] = self.attempt_log_view_set.serialize(attempt_logs)
         return Response(data)
+
+    @action(detail=True)
+    def diff(self, request, pk):
+        target_try = self.get_object()
+        return self._get_diff_response(target_try)
+
+    @action(detail=False)
+    def most_recent_diff(self, request):
+        user_id = request.GET.get("user")
+        content_id = request.GET.get("content")
+
+        # required parameters
+        if not user_id:
+            return Response("Parameter `user` is required", status=412)
+        if not content_id:
+            return Response("Parameter `content` is required", status=412)
+
+        target_try = (
+            self.filter_queryset(find_tries(content_id, user_id))
+            .order_by(LOG_ORDER_BY)
+            .first()
+        )
+
+        # Note that for consistency with the `diff` detail view above, this list view
+        # returns a single object, not a list.
+        return self._get_diff_response(target_try)
 
 
 class AttemptFilter(FilterSet):

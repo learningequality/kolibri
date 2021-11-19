@@ -52,7 +52,6 @@
 <script>
 
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
-  import { mapState } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
@@ -94,11 +93,12 @@
         type: Number,
         required: true,
       },
+      timeSpent: {
+        type: Number,
+        required: true,
+      },
     },
     computed: {
-      ...mapState({
-        timeSpent: state => state.core.logging.time_spent,
-      }),
       progressIconLabel() {
         if (this.completed) {
           return this.coreString('completedLabel');
