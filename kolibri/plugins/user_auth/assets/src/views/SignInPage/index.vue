@@ -577,4 +577,12 @@
     list-style-type: none;
   }
 
+  /deep/ .ui-textbox-feedback {
+    display: block !important;
+  }
+
+  /deep/ .ui-textbox {
+    margin-bottom: 0;
+  }
+
 </style>

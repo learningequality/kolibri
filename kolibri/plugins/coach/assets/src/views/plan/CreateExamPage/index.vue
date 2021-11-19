@@ -693,4 +693,8 @@
     margin-left: 15rem;
   }
 
+  /deep/ .ui-textbox-feedback {
+    display: block !important;
+  }
+
 </style>

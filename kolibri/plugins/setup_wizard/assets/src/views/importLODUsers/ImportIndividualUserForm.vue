@@ -286,4 +286,8 @@
     color: red;
   }
 
+  /deep/ .ui-textbox-feedback {
+    display: block !important;
+  }
+
 </style>
