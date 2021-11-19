@@ -1,6 +1,5 @@
 import logging
 from datetime import timedelta
-from functools import partial
 from itertools import groupby
 from random import randint
 
@@ -44,6 +43,7 @@ from kolibri.core.logger.evaluation import attempts_diff
 from kolibri.core.logger.evaluation import find_previous_tries_attempts
 from kolibri.core.logger.evaluation import find_tries
 from kolibri.core.logger.evaluation import get_previous_try
+from kolibri.core.logger.evaluation import LOG_ORDER_BY
 from kolibri.core.logger.evaluation import try_diff
 from kolibri.core.notifications.api import create_summarylog
 from kolibri.core.notifications.api import parse_attemptslog
@@ -867,7 +867,7 @@ class MasteryFilter(FilterSet):
 class MasteryLogViewSet(ReadOnlyValuesViewset):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (
-        partial(KolibriAuthPermissionsFilter, endpoints=["-list", "-diff", "-summary"]),
+        KolibriAuthPermissionsFilter,
         DjangoFilterBackend,
     )
     queryset = MasteryLog.objects.all()
@@ -908,7 +908,7 @@ class MasteryLogViewSet(ReadOnlyValuesViewset):
             self.filter_queryset(find_tries(content_id, user_id))
             .values(*self.summary_values)
             .annotate(correct=Sum("attemptlogs__correct"))
-            .order_by("-completion_timestamp")
+            .order_by(LOG_ORDER_BY)
         )
 
         return Response(queryset)
@@ -948,7 +948,7 @@ def _attempts_diff(item):
 class AttemptLogViewSet(ReadOnlyValuesViewset):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (
-        partial(KolibriAuthPermissionsFilter, endpoints=["-list", "-diff"]),
+        KolibriAuthPermissionsFilter,
         DjangoFilterBackend,
         filters.OrderingFilter,
     )
@@ -1006,8 +1006,12 @@ class AttemptLogViewSet(ReadOnlyValuesViewset):
             # without masterylog filter, narrow down to most recent attempt for user+item
             target_attempt_logs = AttemptLog.objects.filter(
                 id__in=Subquery(
-                    target_attempt_logs.order_by("-completion_timestamp")
-                    .filter(item=OuterRef("item"), user_id=OuterRef("user_id"))
+                    target_attempt_logs.order_by(LOG_ORDER_BY)
+                    .filter(
+                        item=OuterRef("item"),
+                        user_id=OuterRef("user_id"),
+                        masterylog__complete=True,
+                    )
                     .values("id")[:1]
                 )
             )

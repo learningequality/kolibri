@@ -72,6 +72,10 @@ class EvaluationMixin(object):
             for user in cls.users
         ]
 
+        # create some in-progress logs that shouldn't be picked up
+        for i in range(len(cls.users)):
+            cls._create_in_progress_try(i)
+
         cls.user_tries = [
             cls._create_tries(0, try0_correct=True, try1_correct=None),
             cls._create_tries(1, try0_correct=False, try1_correct=None),
@@ -80,6 +84,28 @@ class EvaluationMixin(object):
             cls._create_tries(4, try0_correct=True, try1_correct=False),
             cls._create_tries(5, try0_correct=False, try1_correct=False),
         ]
+
+    @classmethod
+    def _create_in_progress_try(cls, user_index):
+        user = cls.users[user_index]
+        try_start = timezone.now()
+        try_log = MasteryLog.objects.create(
+            user=user,
+            summarylog=cls.summary_logs[user_index][(user_index + 1) % 2],
+            start_timestamp=try_start,
+            mastery_level=randint(MIN_INTEGER, -1),
+        )
+
+        start_offset = datetime.timedelta(minutes=5)
+        AttemptLog.objects.create(
+            masterylog=try_log,
+            user=user,
+            sessionlog=cls.session_logs[user_index][(user_index + 1) % 2],
+            item=cls.items[cls.content_ids[(user_index + 1) % 2]][0],
+            start_timestamp=try_start + start_offset,
+            end_timestamp=try_start + start_offset + datetime.timedelta(minutes=5),
+            correct=1,
+        )
 
     @classmethod
     def _create_tries(cls, user_index, try0_correct=False, try1_correct=None):

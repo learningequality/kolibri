@@ -9,6 +9,9 @@ from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import MasteryLog
 
 
+LOG_ORDER_BY = F("end_timestamp").desc(nulls_last=True)
+
+
 def find_tries(content_id, user_id):
     """
     :param content_id: Reference to content or exam
@@ -22,7 +25,7 @@ def find_tries(content_id, user_id):
         summarylog__content_id=content_id,
         user_id=user_id,
         complete=True,
-    ).order_by("-completion_timestamp")
+    ).order_by(LOG_ORDER_BY)
 
 
 def get_try_for_user(content_id, user_id, try_index=0, **filters):
@@ -86,7 +89,7 @@ def find_previous_tries_attempts(target_try_attempts):
     )
     return AttemptLog.objects.filter(
         masterylog_id__in=find_previous_tries(target_tries).values_list("id"),
-    ).order_by("-completion_timestamp")
+    )
 
 
 def try_diff(target_try, previous_try=None):
@@ -135,9 +138,9 @@ def attempts_diff(target_try_attempts, previous_try_attempts):
             F("correct"),
             "-",
             Subquery(
-                previous_try_attempts.filter(
-                    user_id=OuterRef("user_id"), item=OuterRef("item")
-                ).values("correct")[:1],
+                previous_try_attempts.order_by(LOG_ORDER_BY)
+                .filter(user_id=OuterRef("user_id"), item=OuterRef("item"))
+                .values("correct")[:1],
                 output_field=IntegerField(),
             ),
             output_field=IntegerField(),
