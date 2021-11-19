@@ -583,7 +583,8 @@ def main():
 
     Newer browsers have full support for the unicode-range attribute of font-face
     definitions, which allow the browser to download fonts as-needed based on the text
-    observed. This allows us to make _all_ font alphabets available, and ensures that
+    observed. They also support 'font-display: swap' which allows for using preloaded
+    subsets. These allow us to make _all_ font alphabets available, and ensures that
     content will be rendered using the best font possible for all content, regardless
     of selected app language.
 
