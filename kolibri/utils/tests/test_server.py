@@ -14,13 +14,14 @@ import pytest
 from kolibri.core.tasks.scheduler import Scheduler
 from kolibri.core.tasks.test.base import connection
 from kolibri.utils import server
+from kolibri.utils.constants import installation_types
 
 
 class TestServerInstallation(object):
     @mock.patch("sys.argv", ["kolibri-0.9.3.pex", "start"])
     def test_pex(self):
         install_type = server.installation_type()
-        assert install_type == "pex"
+        assert install_type == installation_types.PEX
 
     def test_dev(self):
         sys_args = [
@@ -36,27 +37,38 @@ class TestServerInstallation(object):
             assert install_type == "devserver"
 
     @mock.patch("sys.argv", ["/usr/bin/kolibri", "start"])
+    @mock.patch("os.environ", {"KOLIBRI_INSTALLER_VERSION": "1.0"})
     def test_dpkg(self):
         with mock.patch("kolibri.utils.server.check_output", return_value=""):
             install_type = server.installation_type()
-            assert install_type == "dpkg"
+            assert install_type == installation_types.install_type_map[
+                installation_types.DEB
+            ].format("1.0")
 
     @mock.patch("sys.argv", ["/usr/bin/kolibri", "start"])
+    @mock.patch("os.environ", {"KOLIBRI_INSTALLER_VERSION": "1.0"})
     def test_apt(apt):
         with mock.patch("kolibri.utils.server.check_output", return_value="any repo"):
             install_type = server.installation_type()
-            assert install_type == "apt"
+            assert install_type == installation_types.install_type_map[
+                installation_types.DEB
+            ].format("1.0")
 
     @mock.patch("sys.argv", ["C:\\Python34\\Scripts\\kolibri", "start"])
     @mock.patch("sys.path", ["", "C:\\Program Files\\Kolibri\\kolibri.exe"])
+    @mock.patch("os.environ", {"KOLIBRI_INSTALLER_VERSION": "1.0"})
     def test_windows(self):
         install_type = server.installation_type()
-        assert install_type == "Windows"
+        assert install_type == installation_types.install_type_map[
+            installation_types.WINDOWS
+        ].format("1.0")
 
     @mock.patch("sys.argv", ["/usr/local/bin/kolibri", "start"])
     def test_whl(self):
         install_type = server.installation_type()
-        assert install_type == "whl"
+        assert (
+            install_type == installation_types.install_type_map[installation_types.WHL]
+        )
 
 
 @pytest.fixture
