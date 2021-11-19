@@ -350,11 +350,14 @@
           return;
         }
         this.$nextTick(() => {
-          this.$refs.moreOptionsButton.$el.focus();
+          if (this.$refs.moreOptionsButton) {
+            this.$refs.moreOptionsButton.$el.focus();
+          } else if (this.$refs.timerButton) {
+            this.$refs.timerButton.$el.focus();
+          }
         });
       },
       toggleMenu() {
-        console.log('toggle');
         this.isMenuOpen = !this.isMenuOpen;
         if (!this.isMenuOpen) {
           return;
@@ -375,8 +378,15 @@
         }
         // close menu on outside click
         if (
+          this.$refs.moreOptionsButton &&
           !this.$refs.menu.$el.contains(event.target) &&
           !this.$refs.moreOptionsButton.$el.contains(event.target)
+        ) {
+          !this.$refs.timerButton.$el.contains(event.target);
+        } else if (
+          this.$refs.timerButton &&
+          !this.$refs.menu.$el.contains(event.target) &&
+          !this.$refs.timerButton.$el.contains(event.target)
         ) {
           this.closeMenu({ focusMoreOptionsButton: false });
         }

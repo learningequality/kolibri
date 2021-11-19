@@ -12,7 +12,7 @@
       :resourceTitle="resourceTitle"
       :learningActivities="mappedLearningActivities"
       :isLessonContext="lessonContext"
-      :isQuiz="content.assessment"
+      :isQuiz="practiceQuiz"
       :showingReportState="currentlyMastered"
       :duration="content.duration"
       :isBookmarked="bookmark ? true : bookmark"
@@ -97,6 +97,7 @@
   import get from 'lodash/get';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
+  import Modalities from 'kolibri-constants/Modalities';
 
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import FullScreenSidePanel from 'kolibri.coreVue.components.FullScreenSidePanel';
@@ -202,6 +203,9 @@
       ...mapState('topicsTree', {
         isCoachContent: state => (state.content.coach_content ? 1 : 0),
       }),
+      practiceQuiz() {
+        return get(this, ['content', 'options', 'modality']) === Modalities.QUIZ;
+      },
       notAuthorized() {
         // catch "not authorized" error, display AuthMessage
         if (
