@@ -358,9 +358,19 @@
           this.startTime = Date.now();
         }
       },
+      currentlyMastered(newVal, oldVal) {
+        if (!newVal && oldVal) {
+          // We were looking at a report before but now we are retaking
+          // the quiz, so start tracking.
+          this.startTracking();
+        }
+      },
     },
     created() {
-      this.startTracking();
+      // Only start tracking if we're not currently on a completed try
+      if (!this.currentlyMastered) {
+        this.startTracking();
+      }
     },
     methods: {
       ...mapActions({
