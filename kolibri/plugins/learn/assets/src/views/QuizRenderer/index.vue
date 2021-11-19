@@ -432,9 +432,8 @@
           this.startTime = Date.now();
           if (close) {
             return this.setAndSaveCurrentExamAttemptLog({ close, interaction });
-          } else {
-            return this.debouncedSetAndSaveCurrentExamAttemptLog({ interaction });
           }
+          return this.debouncedSetAndSaveCurrentExamAttemptLog({ interaction });
         } else if (close) {
           return this.setAndSaveCurrentExamAttemptLog({ close });
         }
@@ -446,14 +445,11 @@
       toggleModal() {
         // Flush any existing save event to ensure
         // that the subit modal contains the latest state
-        if (!this.submitModalOpen) {
-          const promise =
-            this.debouncedSetAndSaveCurrentExamAttemptLog.flush() || Promise.resolve();
-          return promise.then(() => {
-            this.submitModalOpen = !this.submitModalOpen;
-          });
-        }
-        this.submitModalOpen = !this.submitModalOpen;
+        Promise.resolve(
+          this.submitModalOpen || this.debouncedSetAndSaveCurrentExamAttemptLog.flush()
+        ).then(() => {
+          this.submitModalOpen = !this.submitModalOpen;
+        });
       },
       finishExam() {
         this.saveAnswer(true).then(() => {

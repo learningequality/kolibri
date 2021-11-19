@@ -7,8 +7,9 @@ export default new Resource({
    * Gets the list of mastery logs (tries) for a particular content and user combo, with:
    *  - `correct`: total correct for the try
    *
-   * @param {String} content_id
-   * @param {String} user_id
+   * @param {Object} parameters - the parameters to be used for the fetch
+   * @param {String} parameters.content_id - the content_id of the relevant assessment
+   * @param {String} parameters.user_id - the id of the user
    * @return {Promise}
    */
   fetchSummary({ content_id, user_id } = {}) {
@@ -34,8 +35,9 @@ export default new Resource({
    *  - `diff`: object or null, with `correct` and `time_spent` diffs
    *  - `attemptlogs`: list of attempt logs with annotated diff with previous try's attempt
    *
-   * @param {String} content_id
-   * @param {String} user_id
+   * @param {Object} parameters - the parameters to be used for the fetch
+   * @param {String} parameters.content_id - the content_id of the relevant assessment
+   * @param {String} parameters.user_id - the id of the user
    * @return {Promise}
    */
   fetchMostRecentDiff({ content_id, user_id } = {}) {
