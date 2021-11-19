@@ -1,5 +1,6 @@
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
+import pick from 'lodash/pick';
 import set from 'lodash/set';
 import debounce from 'lodash/debounce';
 import unset from 'lodash/unset';
@@ -102,6 +103,21 @@ export function replacePaths(dep, packageFiles) {
   });
 }
 
+const metadataKeys = [
+  'title',
+  'a11yTitle',
+  'authors',
+  'changes',
+  'source',
+  'license',
+  'licenseVersion',
+  'licenseExtras',
+  'authorComments',
+  'yearFrom',
+  'yearTo',
+  'defaultLanguage',
+];
+
 /*
  * Class that manages loading, parsing, and running an H5P file.
  * Loads the entire H5P file to the frontend, and then unzips, parses,
@@ -197,6 +213,7 @@ export default class H5PRunner {
         this.setDependencies();
         return this.processFiles().then(() => {
           console.debug(`H5P file processed in ${performance.now() - start} ms`);
+          this.metadata = pick(this.rootConfig, metadataKeys);
           // Do any URL substitition on CSS dependencies
           // and turn them into Blob URLs.
           // Also order the dendencies according to our sorted
@@ -412,6 +429,7 @@ export default class H5PRunner {
             title: self.rootConfig.title,
             styles: Object.keys(self.loadedCss),
             scripts: Object.keys(self.loadedJs),
+            metadata: self.metadata,
           },
         };
       },
