@@ -5,6 +5,7 @@ import typing
 from pathlib import Path
 
 from gi.repository import Gio
+from gi.repository import GObject
 from kolibri_app.globals import get_current_language
 
 
@@ -62,3 +63,39 @@ def get_localized_file(file_path_template: str, file_path_fallback: str) -> Path
         file_path = Path(file_path_fallback)
 
     return file_path
+
+
+def bubble_signal(
+    source: GObject.Object,
+    source_signal: str,
+    next: GObject.Object,
+    next_signal: str = None,
+):
+    next_signal = next_signal or source_signal
+
+    def bubble_cb(_source: GObject.Object, *args, **kwargs):
+        return next.emit(next_signal, *args, **kwargs)
+
+    source.connect(source_signal, bubble_cb)
+
+
+def map_properties(
+    all_properties: typing.List[typing.Tuple[GObject.Object, str]],
+    map_cb: typing.Callable,
+):
+    def notify_cb(_source: GObject.Object, pspec: GObject.ParamSpec = None):
+        map_cb(*(source.get_property(prop) for source, prop in all_properties))
+
+    for source, prop in all_properties:
+        source.connect("notify::{}".format(prop), notify_cb)
+
+
+def await_properties(
+    all_properties: typing.List[typing.Tuple[GObject.Object, str]],
+    await_cb: typing.Callable,
+):
+    def map_cb(*values):
+        if all(values):
+            await_cb(*values)
+
+    map_properties(all_properties, map_cb)

@@ -43,14 +43,12 @@ def main():
     logger.info("")
     logger.info("Started at: {}".format(datetime.datetime.today()))
 
-    import pew
+    from .application import Application
     from .application import ChannelApplication
-    from .application import GenericApplication
 
     uri_files = [Gio.File.new_for_uri(uri) for uri in args.uri_list]
 
     if args.channel_id:
-        pew.set_app_name("Kolibri")
         application_id = "{prefix}{channel_id}".format(
             prefix=FRONTEND_CHANNEL_APPLICATION_ID_PREFIX,
             channel_id=args.channel_id,
@@ -62,14 +60,14 @@ def main():
     else:
         application_id = FRONTEND_APPLICATION_ID
         GLib.set_prgname(application_id)
-        application = GenericApplication(application_id=application_id)
+        application = Application(application_id=application_id)
 
     signal.signal(signal.SIGTERM, partial(application_signal_handler, application))
 
-    application.gtk_application.register()
+    application.register()
 
     if uri_files:
-        application.gtk_application.open(uri_files, "")
+        application.open(uri_files, "")
 
     application.run([sys.argv[0], *extra_argv])
 
