@@ -15,8 +15,9 @@ from six.moves.urllib.parse import urljoin
 
 # read the config file options
 port = OPTIONS["Deployment"]["HTTP_PORT"]
+zip_content_port = OPTIONS["Deployment"]["ZIP_CONTENT_PORT"]
 path_prefix = OPTIONS["Deployment"]["URL_PATH_PREFIX"]
-redis_db = OPTIONS["Cache"]["CACHE_REDIS_MIN_DB"]
+redis_db = OPTIONS["Cache"]["CACHE_REDIS_DB"]
 
 if path_prefix != "/":
     path_prefix = "/" + path_prefix
@@ -48,41 +49,29 @@ def stop_debconf_dialog(dccomm):
     dccomm.stdin.flush()
 
 
-def set_debconf_port(port):
+def set_debconf_ports(port, zip_content_port):
     """
     Sets the port kolibri uses in debconf database, to be used by future
     reconfigurations or upgrades of the kolibri-server package
     """
     dccomm = start_debconf_dialog()
     dccomm.stdin.write("SET kolibri-server/port {}\n".format(port))
+    dccomm.stdin.write("SET kolibri-server/zip_content_port {}\n".format(zip_content_port))
     dccomm.stdin.flush()
     stop_debconf_dialog(dccomm)
-    return port
 
 
 def set_port(port):
     """
     Modify Kolibri options to set the TCP port the server will listen on
     """
-    update_options_file("Deployment", "HTTP_PORT", port, KOLIBRI_HOME)
+    update_options_file("Deployment", "HTTP_PORT", port)
 
-
-def disable_cherrypy():
+def set_zip_content_port(port):
     """
-    Disables internal kolibri web server.
-    Kolibri will only run background tasks.
-    Web must be provided by an external server, usually uwsgi + nginx
+    Modify Kolibri options to set the TCP port the hashi files will be served on
     """
-    update_options_file("Server", "CHERRYPY_START", False, KOLIBRI_HOME)
-
-
-def enable_cherrypy():
-    """
-    Enable internal kolibri web server.
-    This option is incompatible with running kolibri-server
-    """
-    update_options_file("Server", "CHERRYPY_START", True, KOLIBRI_HOME)
-
+    update_options_file("Deployment", "ZIP_CONTENT_PORT", port)
 
 def delete_redis_cache():
     """
@@ -113,19 +102,19 @@ def enable_redis_cache():
     It also limits redis memory usage to avoid server problems
     if the cache grows too much
     """
-    update_options_file("Cache", "CACHE_BACKEND", "redis", KOLIBRI_HOME)
-    update_options_file("Cache", "CACHE_REDIS_MAXMEMORY_POLICY", "allkeys-lru", KOLIBRI_HOME)
+    update_options_file("Cache", "CACHE_BACKEND", "redis")
+    update_options_file("Cache", "CACHE_REDIS_MAXMEMORY_POLICY", "allkeys-lru")
 
     delete_redis_cache()
     server_memory = psutil.virtual_memory().total
     max_memory = round(server_memory / 10)
-    helper = RedisSettingsHelper(process_cache.get_master_client())
-    redis_memory = helper.get_used_memory()
-    if max_memory < redis_memory:
-        max_memory = redis_memory + 2000
+    if hasattr(process_cache, "get_master_client"):
+        helper = RedisSettingsHelper(process_cache.get_master_client())
+        redis_memory = helper.get_used_memory()
+        if max_memory < redis_memory:
+            max_memory = redis_memory + 2000
 
-    update_options_file("Cache", "CACHE_REDIS_MAXMEMORY", max_memory, KOLIBRI_HOME)
-
+    update_options_file("Cache", "CACHE_REDIS_MAXMEMORY", max_memory)
 
 
 def disable_redis_cache():
@@ -133,7 +122,7 @@ def disable_redis_cache():
     Set memory as the cache backend .
     If redis is not active, enabling it will break kolibri
     """
-    update_options_file("Cache", "CACHE_BACKEND", "memory", KOLIBRI_HOME)
+    update_options_file("Cache", "CACHE_BACKEND", "memory")
 
 
 def check_redis_service():
@@ -153,7 +142,7 @@ def check_redis_service():
     return status
 
 
-def save_nginx_conf_port(port, nginx_conf=None):
+def save_nginx_conf_port(port, zip_port, nginx_conf=None):
     """
      Adds the port for nginx to run to an existing config file.
     """
@@ -161,64 +150,39 @@ def save_nginx_conf_port(port, nginx_conf=None):
     if nginx_conf is None:
         nginx_conf = os.path.join(KOLIBRI_HOME, "nginx.conf")
 
-    # If a port is already in the file, let's not add a new one:
-    with open(nginx_conf, "r") as nginx_conf_file:
-        data_configs = nginx_conf_file.read()
-    if "listen" in data_configs:
-        return
-
-    configuration = "\nlisten {};\n".format(port)
-
-    with open(nginx_conf, "a") as nginx_conf_file:
-        nginx_conf_file.write(configuration)
-
-
-def save_nginx_conf_include(static_root, nginx_conf=None):
-    """
-    Automatically writes the dynamic Nginx configuration include from Kolibri
-    configuration.
-
-    This function is called from within the DJANGO_SETTINGS_MODULE after it
-    has defined STATIC_ROOT.
-
-    The nginx configuration snippet is loaded with in the main Nginx
-    configuration which contains::
-
-        include /path/to/.kolibri/nginx.conf;
-
-    Note that because we cannot load django.conf.settings from this module
-    (because Django settings depend on Kolibri conf), we have a sort of
-    circular issue with STATIC_ROOT. We cannot fetch settings.STATIC_ROOT
-    unless we start writing the Nginx configuration elsewhere during the load
-    order.
-    """
-
-    if nginx_conf is None:
-        nginx_conf = os.path.join(KOLIBRI_HOME, "nginx.conf")
+    configuration = (
+        "# This file is maintained AUTOMATICALLY and will be overwritten\n"
+        "#\n"
+        "# Do not edit this file. If you are using the kolibri-server"
+        "package,\n"
+        "# please write custom configurations in /etc/kolibri/nginx.d/\n"
+        "\n"
+        "server{{\n"
+        "  listen {port};\n"
+        "  location {path_prefix}favicon.ico {{\n"
+        "    empty_gif;\n"
+        "  }}\n\n"
+        "  location {path_prefix} {{\n"
+        "    include uwsgi_params;\n"
+        "    uwsgi_pass unix:///tmp/kolibri_uwsgi.sock;\n"
+        "    proxy_ignore_headers Vary;\n"
+        "  }}\n\n"
+        "  location @error502 {{\n"
+        "    include uwsgi_params;\n"
+        "    uwsgi_pass unix:///tmp/kolibri_uwsgi.sock;\n"
+        "  }}\n"
+        "}}\n"
+        "\n"
+        "server{{\n"
+        "  listen {zip_port};\n"
+        "  location {path_prefix} {{\n"
+        "    include uwsgi_params;\n"
+        "    uwsgi_pass unix:///tmp/kolibri_hashi_uwsgi.sock;\n"
+        "  }}\n"
+        "}}\n"
+    ).format(port=port, path_prefix=path_prefix, zip_port=zip_port)
 
     with open(nginx_conf, "w") as nginx_conf_file:
-        configuration = (
-            "# This file is maintained AUTOMATICALLY and will be overwritten\n"
-            "#\n"
-            "# Do not edit this file. If you are using the kolibri-server"
-            "package,\n"
-            "# please write custom configurations in /etc/kolibri/nginx.d/\n"
-            "\n"
-            "location {path_prefix}static {{\n"
-            "    alias  {static_dir};\n"
-            "    expires 365d;\n"
-            '    add_header Cache-Control "public";\n'
-            "}}\n"
-            "location {path_prefix}content {{\n"
-            "    alias  {content_dir}/;\n"
-            "    expires 365d;\n"
-            '    add_header Cache-Control "public";\n'
-            "}}\n"
-        ).format(
-            static_dir=static_root,
-            content_dir=get_content_dir_path(),
-            path_prefix=path_prefix,
-        )
         nginx_conf_file.write(configuration)
 
 
@@ -232,29 +196,25 @@ if __name__ == "__main__":
         help="Initial port to be used when installing/reconfiguring kolibri-server package",
     )
     parser.add_argument(
-        "-c",
-        "--cherrypy",
+        "-z",
+        "--debconfzipport",
         required=False,
-        default=False,
-        action="store_true",
-        help="Restore cherrypy because kolibri-server is not going to be run",
+        default="",
+        help="Port to run hashi iframes used when installing/reconfiguring kolibri-server package",
     )
     args = parser.parse_args()
-    if args.cherrypy:
-        enable_cherrypy()
+    if (
+        args.debconfport
+    ):  # To be executed only when installing/reconfiguring the Debian package
+        set_port(args.debconfport)
+        if args.debconfzipport:
+            set_zip_content_port(args.debconfzipport)
+
     else:
-        if (
-            args.debconfport
-        ):  # To be executed only when installing/reconfiguring the Debian package
-            disable_cherrypy()
-            set_port(args.debconfport)
+        if check_redis_service():
+            enable_redis_cache()
         else:
-            disable_cherrypy()
-            if check_redis_service():
-                enable_redis_cache()
-            else:
-                disable_redis_cache()
-            save_nginx_conf_include(STATIC_ROOT)
-            save_nginx_conf_port(port)
-            # Let's update debconf, just in case the user has changed the port in options.ini:
-            set_debconf_port(port)
+            disable_redis_cache()
+        save_nginx_conf_port(port, zip_content_port)
+        # Let's update debconf, just in case the user has changed the port in options.ini:
+        set_debconf_ports(port, zip_content_port)
