@@ -13,7 +13,7 @@
       <KRouterLink
         v-for="content in contentNodes"
         :key="content.id"
-        :to="genContentLink(content.id, content.is_leaf, backRoute, context)"
+        :to="genContentLink(content.id, null, content.is_leaf, null, context)"
         class="item"
         :class="windowIsSmall && 'small'"
         :style="linkStyles"
@@ -63,7 +63,7 @@
 
     <KRouterLink
       v-if="nextContent"
-      :to="genContentLink(nextContent.id, nextContent.is_leaf, backRoute, context)"
+      :to="genContentLink(nextContent.id, null, nextContent.is_leaf, null, context)"
       class="next-content-link"
       :style="{ borderTop: '1px solid ' + $themeTokens.fineLine, ...linkStyles }"
     >
@@ -83,7 +83,6 @@
 
 <script>
 
-  import { mapState } from 'vuex';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
@@ -147,8 +146,6 @@
       },
     },
     computed: {
-      ...mapState(['pageName']),
-      ...mapState('lessonPlaylist', ['currentLesson']),
       /** Overrides some default styles in KRouterLink */
       linkStyles() {
         return {
@@ -163,18 +160,8 @@
           : sidePanelStrings.$tr('noOtherTopicResources');
         /* eslint-enable */
       },
-      backRoute() {
-        return this.pageName;
-      },
       context() {
-        let context = {
-          id: this.$route.params.id,
-        };
-        if (this.currentLesson && this.currentLesson.classroom) {
-          context['lessonId'] = this.currentLesson.id;
-          context['classId'] = this.currentLesson.classroom.id;
-        }
-        return context;
+        return this.$route.query;
       },
     },
     methods: {
