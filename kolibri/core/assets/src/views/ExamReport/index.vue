@@ -2,16 +2,18 @@
 
   <MultiPaneLayout ref="multiPaneLayout" class="container">
     <template #header>
-      <PageStatus
-        :contentName="exam.title"
-        :userName="userName"
-        :questions="examAttempts"
-        :completionTimestamp="completionTimestamp"
-        :completed="complete"
-        :timeSpent="timeSpent"
-        :retry="retry"
-        @repeat="$emit('repeat')"
-      />
+      <slot name="header">
+        <PageStatus
+          :contentName="exam.title"
+          :userName="userName"
+          :questions="examAttempts"
+          :completionTimestamp="completionTimestamp"
+          :completed="complete"
+          :timeSpent="timeSpent"
+          :retry="retry"
+          @repeat="$emit('repeat')"
+        />
+      </slot>
     </template>
 
     <template #aside>
@@ -41,6 +43,14 @@
           :selectedInteractionIndex="selectedInteractionIndex"
           @select="navigateToQuestionAttempt"
         />
+        <div v-if="currentAttempt && currentAttempt.diff && currentAttempt.diff.text">
+          <AttemptLogDiffIcon
+            class="diff-item item"
+            :correct="currentAttempt.correct"
+            :diff="currentAttempt.diff.correct"
+          />
+          {{ currentAttempt.diff.text }}
+        </div>
         <KContentRenderer
           v-if="exercise"
           :itemId="itemId"
@@ -72,6 +82,7 @@
   import find from 'lodash/find';
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import AttemptLogDiffIcon from '../AttemptLogDiffIcon';
   import PageStatus from './PageStatus';
 
   export default {
@@ -81,6 +92,7 @@
       AttemptLogList,
       InteractionList,
       MultiPaneLayout,
+      AttemptLogDiffIcon,
     },
     mixins: [commonCoreStrings],
     props: {
@@ -187,6 +199,9 @@
         }
         return null;
       },
+      currentAttempt() {
+        return this.attemptLogs.find(a => a.item === this.itemId);
+      },
     },
     methods: {
       handleNavigateToQuestion(questionNumber) {
@@ -220,6 +235,7 @@
   .container {
     top: 24px;
     max-width: 1000px;
+    margin: 0 auto;
     background-color: white;
   }
 

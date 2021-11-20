@@ -1,21 +1,21 @@
 <template>
 
   <table class="scores">
-    <tr v-if="!hideStatus">
+    <tr>
       <th>
         {{ coreString('statusLabel') }}
       </th>
       <td>
         <ProgressIcon class="svg-icon" :progress="progress" />
-        {{ progressIconLabel }}
+        {{ coreString('completedLabel') }}
       </td>
     </tr>
     <tr>
       <th>
-        {{ coreString('scoreLabel') }}
+        {{ coreString('bestScoreLabel') }}
       </th>
       <td>
-        {{ $formatNumber(score, { style: 'percent' }) }}
+        {{ $formatNumber(bestScore, { style: 'percent' }) }}
       </td>
     </tr>
     <tr>
@@ -24,36 +24,16 @@
       </th>
       <td>
         {{ $tr('questionsCorrectValue', {
-          correct: questionsCorrect, total: totalQuestions
+          correct: maxQuestionsCorrect, total: totalQuestions
         }) }}
-        <br>
-        <span
-          v-if="questionsCorrectText"
-          class="try-annotation"
-          :style="{ color: this.$themeTokens.annotation }"
-        >{{ questionsCorrectText }}</span>
       </td>
     </tr>
     <tr>
       <th>
-        {{ coreString('timeSpentLabel') }}
+        {{ coreString('bestScoreTimeLabel') }}
       </th>
       <td>
-        <TimeDuration :seconds="timeSpent" />
-        <br>
-        <span
-          v-if="timeSpentText"
-          class="try-annotation"
-          :style="{ color: this.$themeTokens.annotation }"
-        >{{ timeSpentText }}</span>
-      </td>
-    </tr>
-    <tr>
-      <th>
-        {{ coreString('attemptedLabel') }}
-      </th>
-      <td>
-        <ElapsedTime :date="completionTimestamp" />
+        <TimeDuration :seconds="bestTimeSpent" />
       </td>
     </tr>
   </table>
@@ -63,24 +43,18 @@
 
 <script>
 
-  import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
 
   export default {
-    name: 'CurrentTryOverview',
+    name: 'TriesOverview',
     components: {
-      ElapsedTime,
       TimeDuration,
       ProgressIcon,
     },
     mixins: [commonCoreStrings],
     props: {
-      completionTimestamp: {
-        type: Date,
-        default: null,
-      },
       progress: {
         type: Number,
         required: false,
@@ -89,48 +63,21 @@
           return value >= 0.0 && value <= 1.0;
         },
       },
-      score: {
+      bestScore: {
         type: Number,
         required: true,
       },
-      completed: {
-        type: Boolean,
-        default: false,
-      },
-      questionsCorrect: {
+      maxQuestionsCorrect: {
         type: Number,
         required: true,
-      },
-      questionsCorrectText: {
-        type: String,
-        default: null,
       },
       totalQuestions: {
         type: Number,
         required: true,
       },
-      timeSpent: {
+      bestTimeSpent: {
         type: Number,
         required: true,
-      },
-      timeSpentText: {
-        type: String,
-        default: null,
-      },
-      hideStatus: {
-        type: Boolean,
-        default: false,
-      },
-    },
-    computed: {
-      progressIconLabel() {
-        if (this.completed) {
-          return this.coreString('completedLabel');
-        } else if (this.completed !== null) {
-          return this.$tr('inProgress');
-        } else {
-          return this.$tr('notStartedLabel');
-        }
       },
     },
     $trs: {
@@ -143,16 +90,6 @@
         message: '{correct, number} out of {total, number}',
         context:
           "When a learner views their report they can see how many questions they answered correctly in a quiz.\n\nThe 'Questions correct' label will indicate something like 4 out of 5, or 8 out of 10, for example. That's to say, the number of correct answers as well as the total number of questions.",
-      },
-      inProgress: {
-        message: 'In progress',
-        context:
-          "When a learner starts doing an exercise, viewing a video, or reading a document, this will be marked with the 'In progress' icon.\n\nThe text 'In progress' appears if the learner moves their mouse over the icon.",
-      },
-      notStartedLabel: {
-        message: 'Not started',
-        context:
-          "When a coach creates a quiz, by default it is marked as 'Not started'. This means that learners will not see it in the Learn > Classes view.\n\nThe coach needs to use the 'START QUIZ' button to enable learners to see the quiz and start answering the questions.",
       },
     },
   };
@@ -186,10 +123,6 @@
       max-width: 16px !important;
       max-height: 16px !important;
     }
-  }
-
-  .try-annotation {
-    font-size: 0.9em;
   }
 
 </style>

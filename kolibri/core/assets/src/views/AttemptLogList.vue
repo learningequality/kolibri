@@ -34,6 +34,18 @@
             @keydown.enter="setSelectedAttemptLog(index)"
             @keydown.space.prevent="setSelectedAttemptLog(index)"
           >
+            <p class="item text-item">
+              {{
+                windowIsLarge ?
+                  coreString(
+                    'questionNumberLabel',
+                    { questionNumber: attemptLog.questionNumber }
+                  )
+                  :
+                  // Add non-breaking space to preserve vertical centering
+                  "&nbsp;"
+              }}
+            </p>
             <KIcon
               v-if="attemptLog.noattempt"
               class="item svg-item"
@@ -63,18 +75,12 @@
               :style=" { fill: $themeTokens.annotation }"
               icon="hint"
             />
-            <p class="item">
-              {{
-                windowIsLarge ?
-                  coreString(
-                    'questionNumberLabel',
-                    { questionNumber: attemptLog.questionNumber }
-                  )
-                  :
-                  // Add non-breaking space to preserve vertical centering
-                  "&nbsp;"
-              }}
-            </p>
+            <AttemptLogDiffIcon
+              v-if="attemptLog.diff"
+              class="diff-item item"
+              :correct="attemptLog.correct"
+              :diff="attemptLog.diff.correct"
+            />
             <CoachContentLabel
               v-if="windowIsLarge"
               class="coach-content-label"
@@ -95,11 +101,13 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import AttemptLogDiffIcon from './AttemptLogDiffIcon';
 
   export default {
     name: 'AttemptLogList',
     components: {
       CoachContentLabel,
+      AttemptLogDiffIcon,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
     props: {
@@ -195,10 +203,18 @@
     height: 24px;
   }
 
+  .text-item {
+    width: calc(100% - 50px);
+  }
+
   .svg-item {
-    margin-right: 12px;
     margin-bottom: -4px;
     font-size: 24px;
+  }
+
+  .diff-item {
+    margin-bottom: -4px;
+    font-size: 16px;
   }
 
   .attempt-item {

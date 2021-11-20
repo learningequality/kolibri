@@ -915,16 +915,22 @@ class MasteryLogViewSet(ReadOnlyValuesViewset):
         "mastery_level",
         "complete",
         "time_spent",
+        "correct",
     )
     summary_values = (
         "id",
         "start_timestamp",
         "completion_timestamp",
+        "correct",
+        "time_spent",
     )
 
     def __init__(self, *args, **kwargs):
         super(MasteryLogViewSet, self).__init__(*args, **kwargs)
         self.attempt_log_view_set = AttemptLogViewSet()
+
+    def annotate_queryset(self, queryset):
+        return queryset.annotate(correct=Sum("attemptlogs__correct"))
 
     @action(detail=False)
     def summary(self, request):
@@ -938,9 +944,10 @@ class MasteryLogViewSet(ReadOnlyValuesViewset):
             return Response("Parameter `content` is required", status=412)
 
         queryset = (
-            self.filter_queryset(find_tries(content_id, user_id))
+            self.annotate_queryset(
+                self.filter_queryset(find_tries(content_id, user_id))
+            )
             .values(*self.summary_values)
-            .annotate(correct=Sum("attemptlogs__correct"))
             .order_by(LOG_ORDER_BY)
         )
 

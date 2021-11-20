@@ -21,6 +21,7 @@
         :completionTimestamp="completionTimestamp"
         :completed="completed"
         :timeSpent="timeSpent"
+        :diff="diff"
       />
     </KFixedGridItem>
     <KFixedGridItem span="1" alignment="right">
@@ -72,6 +73,10 @@
       timeSpent: {
         type: Number,
         default: 0,
+      },
+      diff: {
+        type: Object,
+        default: () => ({}),
       },
     },
     computed: {
