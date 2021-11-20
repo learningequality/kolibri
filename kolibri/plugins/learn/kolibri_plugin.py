@@ -8,7 +8,6 @@ from django.urls import reverse
 from kolibri.core.auth.constants.user_kinds import ANONYMOUS
 from kolibri.core.auth.constants.user_kinds import LEARNER
 from kolibri.core.content.hooks import ContentNodeDisplayHook
-from kolibri.core.content.utils.search import get_all_contentnode_label_metadata
 from kolibri.core.device.utils import allow_learner_unassigned_resource_access
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.device.utils import is_landing_page
@@ -52,6 +51,7 @@ class LearnAsset(webpack_hooks.WebpackBundleHook):
 
     @property
     def plugin_data(self):
+        from kolibri.core.content.utils.search import get_all_contentnode_label_metadata
         from kolibri.core.content.models import ChannelMetadata
 
         channels = list(
