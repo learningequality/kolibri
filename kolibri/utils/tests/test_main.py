@@ -88,8 +88,11 @@ def test_conditional_backup():
     from kolibri.core.deviceadmin.utils import default_backup_folder
 
     default_path = default_backup_folder()
-    if not os.path.exists(default_path):
-        os.mkdir(default_path)
+    try:
+        os.rmdir(default_path)
+    except (IOError, OSError):
+        pass
+    os.mkdir(default_path)
 
     from kolibri.core.deviceadmin.utils import dbbackup, get_backup_files
 
