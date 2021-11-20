@@ -69,7 +69,6 @@ def _get_available_languages(base_queryset):
     )
     return list(
         Language.objects.filter(id__in=lang_ids)
-        .distinct()
         .order_by("id")
         .values("id", "lang_name")
     )
@@ -80,10 +79,10 @@ def _get_available_channels(base_queryset):
 
     return list(
         ChannelMetadata.objects.filter(
-            id__in=base_queryset.values_list("channel_id", flat=True).distinct()
+            id__in=base_queryset.values_list("channel_id", flat=True)
         )
-        .order_by("order")
-        .values("id", "name", "thumbnail")
+        .order_by()
+        .values("id", "name")
     )
 
 
