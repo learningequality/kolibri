@@ -1,8 +1,9 @@
 <template>
 
   <div>
+    <KCircularLoader v-if="submitting" />
     <QuizReport
-      v-if="currentlyMastered"
+      v-else-if="currentlyMastered"
       :userId="userId"
       :userName="userFullName"
       :questions="assessmentIds"
@@ -270,6 +271,7 @@
         // question, it is not used to generate any timestamps.
         startTime: Date.now(),
         questionNumber: 0,
+        submitting: false,
       };
     },
     computed: {
@@ -399,10 +401,13 @@
             Math.min(this.pastattempts.length / this.assessmentIds.length, 0.99)
           );
         }
-
+        if (close) {
+          this.submitting = true;
+        }
         return this.updateContentSession(data).then(() => {
           if (close) {
             this.stopTracking();
+            this.submitting = false;
           }
         });
       },
