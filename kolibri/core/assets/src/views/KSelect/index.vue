@@ -146,7 +146,9 @@
       },
       selection(newSelection) {
         /* Emits new selection.*/
-        this.$emit('change', newSelection);
+        if (!this.disabled) {
+          this.$emit('change', newSelection);
+        }
       },
     },
     methods: {

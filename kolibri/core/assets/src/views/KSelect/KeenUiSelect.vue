@@ -482,7 +482,7 @@
         return {};
       },
       clearableState() {
-        return this.clearable && this.value && Object.keys(this.value).length;
+        return this.clearable && this.value && Object.keys(this.value).length && !this.disabled;
       },
     },
 
