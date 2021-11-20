@@ -11,12 +11,14 @@ from django.db.models import Subquery
 from django.db.models import Sum
 from django.db.models import Value
 from django.http import Http404
+from django_filters.filters import NumberFilter
 from django_filters.rest_framework import CharFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
 from django_filters.rest_framework import UUIDFilter
 from le_utils.constants import content_kinds
 from le_utils.constants import exercises
+from le_utils.constants import modalities
 from rest_framework import filters
 from rest_framework import serializers
 from rest_framework import viewsets
@@ -237,7 +239,9 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                             ).values_list("mastery_model", flat=True)[:1]
                         )
                     )
-                    .values("content_id", "channel_id", "kind", "mastery_model")
+                    .values(
+                        "content_id", "channel_id", "kind", "mastery_model", "options"
+                    )
                     .get(id=node_id)
                 )
                 mastery_model = node["mastery_model"]
@@ -248,11 +252,16 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                 if lesson_id:
                     self._check_lesson_permissions(user, lesson_id)
                     context["lesson_id"] = lesson_id
+                if (
+                    node["options"]
+                    and node["options"].get("modality") == modalities.QUIZ
+                ):
+                    mastery_model = {"type": exercises.QUIZ}
             except ContentNode.DoesNotExist:
                 raise ValidationError("Invalid node_id")
         elif quiz_id is not None:
             self._check_quiz_permissions(user, quiz_id)
-            mastery_model = {"type": "quiz", "coach_assigned": True}
+            mastery_model = {"type": exercises.QUIZ, "coach_assigned": True}
             content_id = quiz_id
             channel_id = None
             kind = content_kinds.QUIZ
@@ -425,7 +434,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
         if (
             masterylog
             and masterylog.complete
-            and masterylog.mastery_criterion.get("type") == "quiz"
+            and masterylog.mastery_criterion.get("type") == exercises.QUIZ
             and masterylog.mastery_criterion.get("coach_assigned")
         ):
             raise PermissionDenied("Cannot update a finished coach assigned quiz")
@@ -439,14 +448,21 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
         start_timestamp,
         context,
     ):
-        masterylog = (
-            MasteryLog.objects.filter(
-                summarylog=summarylog,
-                user=user,
-            )
-            .order_by("-complete", "-end_timestamp")
-            .first()
+        is_quiz = mastery_model["type"] == exercises.QUIZ
+        masterylogs = MasteryLog.objects.filter(
+            summarylog=summarylog,
+            user=user,
         )
+
+        # Just in case there is an exercise that might have the same content_id
+        # and hence the same SummaryLog as a practice quiz, we filter masterylogs
+        # here by whether they have a negative mastery_level or not, depending
+        # on whether this is a quiz or an exercise.
+        if is_quiz:
+            masterylogs = masterylogs.filter(mastery_level__lt=0)
+        else:
+            masterylogs = masterylogs.filter(mastery_level__gt=0)
+        masterylog = masterylogs.order_by("-complete", "-end_timestamp").first()
 
         if masterylog is None or (masterylog.complete and repeat):
             # There is no previous masterylog, or the previous masterylog
@@ -457,9 +473,12 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             # identifier being created. So if the same user engages with the same assessment on different
             # devices, when the data synchronizes, if the mastery_level is the same, this data will be
             # unified under a single try.
-            if mastery_model.get("coach_assigned"):
+            if is_quiz:
                 # To prevent coach assigned quiz mastery logs from propagating to older
                 # Kolibri versions, we use negative mastery levels for these.
+                # Also, to prevent collisions between mastery logs for practice quizzes
+                # and mastery logs for exercises with the same content_id we also
+                # use negative mastery levels for practice quizzes.
                 # In older versions of Kolibri the mastery_level is validated to be
                 # between 1 and 10 - so these values will fail validation and hence will
                 # not be deserialized from the morango store.
@@ -516,7 +535,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             attemptlogs = attemptlogs[: mastery_criterion["n"]]
         elif exercise_type in MAPPING:
             attemptlogs = attemptlogs[: MAPPING[exercise_type]]
-        elif exercise_type == "quiz":
+        elif exercise_type == exercises.QUIZ:
             attemptlogs = attemptlogs.order_by()
         else:
             attemptlogs = attemptlogs[:10]
@@ -526,6 +545,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             "pastattempts": attemptlogs,
             "totalattempts": masterylog.attemptlogs.count(),
             "complete": masterylog.complete,
+            "time_spent": masterylog.time_spent or 0,
         }, masterylog.mastery_level
 
     def _generate_interaction_summary(self, validated_data):
@@ -551,7 +571,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             )
 
     def _update_and_return_mastery_log_id(
-        self, user, complete, summarylog_id, end_timestamp, context
+        self, user, complete, time_spent_delta, summarylog_id, end_timestamp, context
     ):
         if not user.is_anonymous() and context["mastery_level"] is not None:
             try:
@@ -560,19 +580,26 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                     mastery_level=context["mastery_level"],
                     summarylog_id=summarylog_id,
                 )
+                update_fields = tuple()
+                if time_spent_delta:
+                    masterylog.time_spent = (
+                        masterylog.time_spent or 0
+                    ) + time_spent_delta
+                    update_fields += ("time_spent",)
                 if complete and not masterylog.complete:
                     masterylog.complete = True
                     masterylog.completion_timestamp = end_timestamp
-                    masterylog.save(
-                        update_fields=(
-                            "complete",
-                            "completion_timestamp",
-                            "_morango_dirty_bit",
-                        )
+                    update_fields += (
+                        "complete",
+                        "completion_timestamp",
                     )
                     self._process_masterylog_completed_notification(masterylog, context)
                 else:
                     self._check_quiz_log_permissions(masterylog)
+                if update_fields:
+                    masterylog.save(
+                        update_fields=update_fields + ("_morango_dirty_bit",)
+                    )
                 return masterylog.id
             except MasteryLog.DoesNotExist:
                 raise ValidationError(
@@ -824,7 +851,12 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                 pk, request.user, end_timestamp, validated_data
             )
             masterylog_id = self._update_and_return_mastery_log_id(
-                request.user, output["complete"], summarylog_id, end_timestamp, context
+                request.user,
+                output["complete"],
+                validated_data.get("time_spent_delta"),
+                summarylog_id,
+                end_timestamp,
+                context,
             )
             if "interactions" in validated_data:
                 attempt_output = self._update_or_create_attempts(
@@ -882,6 +914,7 @@ class MasteryLogViewSet(ReadOnlyValuesViewset):
         "completion_timestamp",
         "mastery_level",
         "complete",
+        "time_spent",
     )
     summary_values = (
         "id",
@@ -913,9 +946,7 @@ class MasteryLogViewSet(ReadOnlyValuesViewset):
 
         return Response(queryset)
 
-    @action(detail=True)
-    def diff(self, request, pk):
-        target_try = self.get_object()
+    def _get_diff_response(self, target_try):
         previous_try = get_previous_try(target_try)
 
         diff = try_diff(target_try, previous_try)
@@ -924,21 +955,48 @@ class MasteryLogViewSet(ReadOnlyValuesViewset):
         if previous_try:
             attempt_logs = attempts_diff(attempt_logs, previous_try.attemptlogs.all())
 
-        data = self.serialize_object()
+        data = self.serialize_object(id=target_try.id)
         data["diff"] = diff
         data["attemptlogs"] = self.attempt_log_view_set.serialize(attempt_logs)
         return Response(data)
 
+    @action(detail=True)
+    def diff(self, request, pk):
+        target_try = self.get_object()
+        return self._get_diff_response(target_try)
+
+    @action(detail=False)
+    def most_recent_diff(self, request):
+        user_id = request.GET.get("user")
+        content_id = request.GET.get("content")
+
+        # required parameters
+        if not user_id:
+            return Response("Parameter `user` is required", status=412)
+        if not content_id:
+            return Response("Parameter `content` is required", status=412)
+
+        target_try = (
+            self.filter_queryset(find_tries(content_id, user_id))
+            .order_by(LOG_ORDER_BY)
+            .first()
+        )
+
+        # Note that for consistency with the `diff` detail view above, this list view
+        # returns a single object, not a list.
+        return self._get_diff_response(target_try)
+
 
 class AttemptFilter(FilterSet):
     content = CharFilter(method="filter_content")
+    mastery_level = NumberFilter(name="masterylog__mastery_level")
 
     def filter_content(self, queryset, name, value):
         return queryset.filter(masterylog__summarylog__content_id=value)
 
     class Meta:
         model = AttemptLog
-        fields = ["masterylog", "complete", "user", "content", "item"]
+        fields = ["masterylog", "complete", "user", "content", "item", "mastery_level"]
 
 
 def _attempts_diff(item):

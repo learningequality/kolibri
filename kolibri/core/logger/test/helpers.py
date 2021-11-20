@@ -133,6 +133,7 @@ class EvaluationMixin(object):
             completion_timestamp=end_timestamp,
             complete=True,
             mastery_level=randint(MIN_INTEGER, -1),
+            time_spent=duration * 60,
         )
 
         for i in range(3):

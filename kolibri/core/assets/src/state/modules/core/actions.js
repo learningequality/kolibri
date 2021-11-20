@@ -302,7 +302,7 @@ function clearTrackingInterval() {
  * Initialize a content session for progress tracking
  * To be called on page load for content renderers
  */
-export function initContentSession(store, { nodeId, lessonId, quizId } = {}) {
+export function initContentSession(store, { nodeId, lessonId, quizId, repeat = false } = {}) {
   const data = {};
   if (!nodeId && !quizId) {
     throw TypeError('Must define either nodeId or quizId');
@@ -329,7 +329,11 @@ export function initContentSession(store, { nodeId, lessonId, quizId } = {}) {
     }
   }
 
-  if (sessionStarted) {
+  if (repeat) {
+    data.repeat = repeat;
+  }
+
+  if (sessionStarted && !repeat) {
     return;
   }
 

@@ -21,7 +21,6 @@
         <ProgressIcon :progress="contentProgress" class="progress-icon" />
       </template>
     </KLabeledIcon>
-
     <template #icon>
       <KIconButton
         icon="back"
@@ -33,6 +32,40 @@
     </template>
 
     <template #actions>
+      <KIconButton
+        v-if="isQuiz && !showingReportState"
+        ref="timerButton"
+        data-test="timerButton"
+        icon="timer"
+        :tooltip="coreString('timeSpentLabel')"
+        :ariaLabel="coreString('timeSpentLabel')"
+        @click="toggleTimer"
+      />
+      <CoreMenu
+        v-show="isTimerOpen"
+        ref="timer"
+        class="menu"
+        :style="{ left: isRtl ? '16px' : 'auto', right: isRtl ? 'auto' : '16px' }"
+        :raised="true"
+        :isOpen="isTimerOpen"
+        :containFocus="true"
+        @close="closeTimer"
+      >
+        <template #options>
+          <div class="timer-display">
+            <div>
+              <strong>{{ coreString('timeSpentLabel') }}</strong>
+            </div>
+            <div :style="{ paddingBottom: '8px' }">
+              <TimeDuration :seconds="timeSpent" />
+            </div>
+            <div v-if="duration">
+              <strong>{{ learnString('suggestedTime') }}</strong>
+            </div>
+            <SuggestedTime v-if="duration" :seconds="duration" />
+          </div>
+        </template>
+      </CoreMenu>
       <KIconButton
         v-for="action in barActions"
         :key="action.id"
@@ -110,6 +143,8 @@
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import { validateLearningActivity } from 'kolibri.utils.validators';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
+  import SuggestedTime from 'kolibri.coreVue.components.SuggestedTime';
   import LearningActivityIcon from './LearningActivityIcon.vue';
   import MarkAsCompleteModal from './MarkAsCompleteModal';
   import commonLearnStrings from './commonLearnStrings';
@@ -125,6 +160,8 @@
       MarkAsCompleteModal,
       ProgressIcon,
       UiToolbar,
+      TimeDuration,
+      SuggestedTime,
     },
     mixins: [KResponsiveWindowMixin, commonLearnStrings, commonCoreStrings],
     /**
@@ -201,10 +238,43 @@
         required: false,
         default: null,
       },
+      /**
+      Is this a practice quiz?
+      */
+      isQuiz: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
+      /**
+      Is the post-quiz report what is currently displayed?
+      */
+      showingReportState: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
+      /**
+      Suggested time in seconds
+      */
+      duration: {
+        type: Number,
+        required: false,
+        default: null,
+      },
+      /**
+      Actual time spent in seconds
+      */
+      timeSpent: {
+        type: Number,
+        required: false,
+        default: null,
+      },
     },
     data() {
       return {
         isMenuOpen: false,
+        isTimerOpen: false,
         showMarkAsCompleteModal: false,
       };
     },
@@ -296,6 +366,24 @@
           this.$refs.moreOptionsButton.$el.focus();
         });
       },
+      toggleTimer() {
+        this.isTimerOpen = !this.isTimerOpen;
+        if (!this.isTimerOpen) {
+          return;
+        }
+        this.$nextTick(() => {
+          this.$refs.timer.$el.focus();
+        });
+      },
+      closeTimer({ focusTimerButton = true } = {}) {
+        this.isTimerOpen = false;
+        if (!focusTimerButton) {
+          return;
+        }
+        this.$nextTick(() => {
+          this.$refs.timerButton.$el.focus();
+        });
+      },
       toggleMenu() {
         this.isMenuOpen = !this.isMenuOpen;
         if (!this.isMenuOpen) {
@@ -312,15 +400,22 @@
         this.$emit(actionEvent);
       },
       onWindowClick(event) {
-        if (!this.isMenuOpen) {
-          return;
-        }
         // close menu on outside click
-        if (
-          !this.$refs.menu.$el.contains(event.target) &&
-          !this.$refs.moreOptionsButton.$el.contains(event.target)
-        ) {
-          this.closeMenu({ focusMoreOptionsButton: false });
+        if (this.isMenuOpen) {
+          if (
+            !this.$refs.menu.$el.contains(event.target) &&
+            !this.$refs.moreOptionsButton.$el.contains(event.target)
+          ) {
+            this.closeMenu({ focusMoreOptionsButton: false });
+          }
+        }
+        if (this.isTimerOpen) {
+          if (
+            !this.$refs.timerButton.$el.contains(event.target) &&
+            !this.$refs.timer.$el.contains(event.target)
+          ) {
+            this.closeTimer({ focusTimerButton: false });
+          }
         }
       },
     },
@@ -368,6 +463,11 @@
       width: 18px;
       height: 18px;
     }
+  }
+
+  .timer-display {
+    padding: 16px;
+    font-size: 14px;
   }
 
 </style>

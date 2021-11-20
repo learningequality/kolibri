@@ -13,7 +13,12 @@ export default new Resource({
    * @param {String|null} user_id
    * @return {Promise}
    */
-  fetchCollectionWithDiff(masterylog_id = null, content_id = null, item = null, user_id = null) {
+  fetchCollectionWithDiff({
+    masterylog_id = null,
+    content_id = null,
+    item = null,
+    user_id = null,
+  } = {}) {
     // requires masterylog or content_id with item or user_id
     if (!masterylog_id && !(content_id && (item || user_id))) {
       return Promise.reject(Error('Missing required parameters'));

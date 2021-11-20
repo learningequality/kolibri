@@ -1,7 +1,21 @@
 <template>
 
   <div>
-    <KGrid :gridStyle="gridStyle">
+    <KCircularLoader v-if="submitting" />
+    <QuizReport
+      v-else-if="currentlyMastered"
+      :userId="userId"
+      :userName="userFullName"
+      :questions="assessmentIds"
+      :kind="kind"
+      :files="files"
+      :available="available"
+      :extraFields="extraFields"
+      :masteryLevel="masteryLevel"
+      :contentId="contentId"
+      @repeat="repeat"
+    />
+    <KGrid v-else :gridStyle="gridStyle">
       <!-- this.$refs.questionListWrapper is referenced inside AnswerHistory for scrolling -->
       <KGridItem
         v-if="windowIsLarge"
@@ -11,24 +25,10 @@
       >
         <div class="column-contents-wrapper">
           <KPageContainer>
-            <div>
-              <p>{{ coreString('timeSpentLabel') }}</p>
-              <div :style="{ paddingBottom: '8px' }">
-                <TimeDuration class="timer" :seconds="timeSpent" />
-              </div>
-              <p v-if="duration">
-                {{ learnString('suggestedTime') }}
-              </p>
-              <SuggestedTime v-if="content.duration" class="timer" :seconds="content.duration" />
-            </div>
-            <span
-              class="divider"
-              :style="{ borderTop: `solid 1px ${$themeTokens.fineLine}` }"
-            >
-            </span>
             <AnswerHistory
               :questionNumber="questionNumber"
               :wrapperComponentRefs="this.$refs"
+              :questions="itemIdArray"
               @goToQuestion="goToQuestion"
             />
           </KPageContainer>
@@ -38,20 +38,29 @@
         <div :class="{ 'column-contents-wrapper': !windowIsSmall }">
           <KPageContainer>
             <h1>
-              {{ $tr('question', { num: questionNumber + 1, total: exam.question_count }) }}
+              {{ $tr('question', { num: questionNumber + 1, total: questionsTotal }) }}
             </h1>
             <KContentRenderer
-              v-if="content && itemId"
+              v-if="itemId"
               ref="contentRenderer"
-              :kind="content.kind"
-              :files="content.files"
-              :available="content.available"
-              :extraFields="content.extra_fields"
+              :kind="kind"
+              :lang="lang"
+              :files="files"
+              :available="available"
+              :extraFields="extraFields"
               :itemId="itemId"
               :assessment="true"
               :allowHints="false"
               :answerState="currentAttempt.answer"
+              :progress="progress"
+              :userId="userId"
+              :userFullName="userFullName"
+              :timeSpent="timeSpent"
               @interaction="saveAnswer"
+              @startTracking="startTracking"
+              @stopTracking="stopTracking"
+              @updateProgress="updateProgress"
+              @updateContentState="updateContentState"
             />
             <UiAlert v-else :dismissible="false" type="error">
               {{ $tr('noItemId') }}
@@ -66,7 +75,7 @@
                 size="large"
                 type="secondary"
                 class="footer-button"
-                :disabled="questionNumber === exam.question_count - 1"
+                :disabled="questionNumber === questionsTotal - 1"
                 @click="goToQuestion(questionNumber + 1)"
               >
                 <KIcon
@@ -76,7 +85,7 @@
               </UiIconButton>
               <KButton
                 v-else
-                :disabled="questionNumber === exam.question_count - 1"
+                :disabled="questionNumber === questionsTotal - 1"
                 :primary="true"
                 class="footer-button"
                 :dir="layoutDirReset"
@@ -185,43 +194,93 @@
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import SuggestedTime from 'kolibri.coreVue.components.SuggestedTime';
-  import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { ClassesPageNames } from '../../constants';
+  import shuffled from 'kolibri.utils.shuffled';
+  import { defaultLanguage } from 'kolibri-design-system/lib/utils/i18n';
   import { LearnerClassroomResource } from '../../apiResources';
   import AnswerHistory from './AnswerHistory';
+  import QuizReport from './QuizReport';
 
   export default {
-    name: 'ExamPage',
-    metaInfo() {
-      return {
-        title: this.exam.title,
-      };
-    },
+    name: 'QuizRenderer',
     components: {
       AnswerHistory,
       UiAlert,
       UiIconButton,
       BottomAppBar,
-      TimeDuration,
-      SuggestedTime,
+      QuizReport,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
+    props: {
+      contentId: {
+        type: String,
+        required: true,
+      },
+      lang: {
+        type: Object,
+        default: () => defaultLanguage,
+      },
+      kind: {
+        type: String,
+        required: true,
+      },
+      files: {
+        type: Array,
+        default: () => [],
+      },
+      available: {
+        type: Boolean,
+        default: false,
+      },
+      assessmentIds: {
+        type: Array,
+        required: true,
+      },
+      randomize: {
+        type: Boolean,
+        required: true,
+      },
+      extraFields: {
+        type: Object,
+        default: () => ({}),
+      },
+      // An explicit record of the current progress through this
+      // piece of content.
+      progress: {
+        type: Number,
+        default: 0,
+      },
+      // An identifier for the user interacting with this content
+      userId: {
+        type: String,
+        default: null,
+      },
+      userFullName: {
+        type: String,
+        default: null,
+      },
+      timeSpent: {
+        type: Number,
+        default: null,
+      },
+    },
     data() {
       return {
         submitModalOpen: false,
         // Note this time is only used to calculate the time spent on a
         // question, it is not used to generate any timestamps.
         startTime: Date.now(),
+        questionNumber: 0,
+        submitting: false,
       };
     },
     computed: {
       ...mapState({
         pastattempts: state => state.core.logging.pastattempts,
-        timeSpent: state => state.core.logging.time_spent,
+        masteryLevel: state =>
+          state.core.logging.context && state.core.logging.context.mastery_level,
+        currentlyMastered: state => state.core.logging.complete,
       }),
-      ...mapState('examViewer', ['exam', 'contentNodeMap', 'questions', 'questionNumber']),
       gridStyle() {
         if (!this.windowIsSmall) {
           return {
@@ -237,21 +296,13 @@
       answeredText() {
         return this.$tr('questionsAnswered', {
           numAnswered: this.questionsAnswered,
-          numTotal: this.exam.question_count,
+          numTotal: this.questionsTotal,
         });
-      },
-      backPageLink() {
-        return {
-          name: ClassesPageNames.CLASS_ASSIGNMENTS,
-        };
-      },
-      content() {
-        return this.contentNodeMap[this.nodeId];
       },
       currentAttempt() {
         return (
-          this.pastattempts.find(attempt => attempt.item === this.attemptLogItemValue) || {
-            item: this.attemptLogItemValue,
+          this.pastattempts.find(attempt => attempt.item === this.itemId) || {
+            item: this.itemId,
             complete: false,
             time_spent: 0,
             correct: 0,
@@ -261,25 +312,25 @@
           }
         );
       },
-      currentQuestion() {
-        return this.questions[this.questionNumber];
-      },
-      nodeId() {
-        return this.currentQuestion.exercise_id;
+      itemIdArray() {
+        if (this.randomize) {
+          // Differentiate the seed for each 'try' indicated by the masteryLevel.
+          const seed = this.userid ? this.userid + this.masteryLevel : Date.now();
+          return shuffled(this.assessmentIds, seed);
+        }
+        return this.assessmentIds;
       },
       itemId() {
-        return this.currentQuestion.question_id;
-      },
-      // We generate a special item value to save to the backend that encodes
-      // both the itemId and the nodeId
-      attemptLogItemValue() {
-        return `${this.nodeId}:${this.itemId}`;
+        return this.itemIdArray[this.questionNumber];
       },
       questionsAnswered() {
         return this.pastattempts.reduce((count, attempt) => count + (attempt.answer ? 1 : 0), 0);
       },
       questionsUnanswered() {
-        return this.exam.question_count - this.questionsAnswered;
+        return this.questionsTotal - this.questionsAnswered;
+      },
+      questionsTotal() {
+        return this.assessmentIds.length;
       },
       debouncedSetAndSaveCurrentExamAttemptLog() {
         // So as not to share debounced functions between instances of the same component
@@ -299,7 +350,7 @@
       },
     },
     watch: {
-      attemptLogItemValue(newVal, oldVal) {
+      itemId(newVal, oldVal) {
         // HACK: manually dismiss the perseus renderer message when moving
         // to a different item (fixes #3853)
         if (newVal !== oldVal) {
@@ -308,9 +359,19 @@
           this.startTime = Date.now();
         }
       },
+      currentlyMastered(newVal, oldVal) {
+        if (!newVal && oldVal) {
+          // We were looking at a report before but now we are retaking
+          // the quiz, so start tracking.
+          this.startTracking();
+        }
+      },
     },
     created() {
-      this.startTracking();
+      // Only start tracking if we're not currently on a completed try
+      if (!this.currentlyMastered) {
+        this.startTracking();
+      }
     },
     methods: {
       ...mapActions({
@@ -331,17 +392,24 @@
 
         if (close) {
           data.progress = 1;
+        } else {
+          // We don't set progress to 1 until the quiz is submitted, so we max out here.
+          // If any interaction has happened, we set a peppercorn progress so that it shows
+          // as interacted with.
+          data.progress = Math.max(
+            0.001,
+            Math.min(this.pastattempts.length / this.assessmentIds.length, 0.99)
+          );
         }
-
-        return this.updateContentSession(data)
-          .then(() => {
-            if (close) {
-              this.stopTracking();
-            }
-          })
-          .catch(() => {
-            this.$router.replace({ name: ClassesPageNames.CLASS_ASSIGNMENTS });
-          });
+        if (close) {
+          this.submitting = true;
+        }
+        return this.updateContentSession(data).then(() => {
+          if (close) {
+            this.stopTracking();
+            this.submitting = false;
+          }
+        });
       },
       checkAnswer() {
         if (this.$refs.contentRenderer) {
@@ -356,7 +424,7 @@
             answer: answer.answerState,
             simple_answer: answer.simpleAnswer || '',
             correct: answer.correct,
-            item: this.attemptLogItemValue,
+            item: this.itemId,
             id: this.currentAttempt.id,
             time_spent:
               ((this.currentAttempt.time_spent || 0) + Date.now() - this.startTime) / 1000,
@@ -364,42 +432,45 @@
           this.startTime = Date.now();
           if (close) {
             return this.setAndSaveCurrentExamAttemptLog({ close, interaction });
-          } else {
-            return this.debouncedSetAndSaveCurrentExamAttemptLog({ interaction });
           }
+          return this.debouncedSetAndSaveCurrentExamAttemptLog({ interaction });
         } else if (close) {
           return this.setAndSaveCurrentExamAttemptLog({ close });
         }
         return Promise.resolve();
       },
       goToQuestion(questionNumber) {
-        const promise = this.debouncedSetAndSaveCurrentExamAttemptLog.flush() || Promise.resolve();
-        promise.then(() => {
-          this.$router.push({
-            name: ClassesPageNames.EXAM_VIEWER,
-            params: {
-              examId: this.exam.id,
-              questionNumber,
-            },
-          });
-        });
+        this.questionNumber = questionNumber;
       },
       toggleModal() {
         // Flush any existing save event to ensure
         // that the subit modal contains the latest state
-        if (!this.submitModalOpen) {
-          const promise =
-            this.debouncedSetAndSaveCurrentExamAttemptLog.flush() || Promise.resolve();
-          return promise.then(() => {
-            this.submitModalOpen = !this.submitModalOpen;
-          });
-        }
-        this.submitModalOpen = !this.submitModalOpen;
+        Promise.resolve(
+          this.submitModalOpen || this.debouncedSetAndSaveCurrentExamAttemptLog.flush()
+        ).then(() => {
+          this.submitModalOpen = !this.submitModalOpen;
+        });
       },
       finishExam() {
         this.saveAnswer(true).then(() => {
-          this.$router.push(this.backPageLink);
+          this.submitModalOpen = false;
         });
+      },
+      updateProgress(...args) {
+        this.$emit('updateProgress', ...args);
+      },
+      updateContentState(...args) {
+        this.$emit('updateContentState', ...args);
+      },
+      startTracking(...args) {
+        this.mounted = true;
+        this.$emit('startTracking', ...args);
+      },
+      stopTracking(...args) {
+        this.$emit('stopTracking', ...args);
+      },
+      repeat() {
+        this.$emit('repeat');
       },
     },
     $trs: {
@@ -497,19 +568,6 @@
 
   .footer-button {
     display: inline-block;
-  }
-
-  .timer {
-    font-size: 18px;
-    font-weight: bold;
-  }
-
-  .divider {
-    display: block;
-    min-width: 100%;
-    height: 1px;
-    margin: 16px 0;
-    overflow-y: hidden;
   }
 
 </style>

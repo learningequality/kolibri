@@ -1,6 +1,6 @@
 <template>
 
-  <MultiPaneLayout ref="multiPaneLayout">
+  <MultiPaneLayout ref="multiPaneLayout" class="container">
     <template #header>
       <PageStatus
         :contentName="exam.title"
@@ -8,6 +8,9 @@
         :questions="examAttempts"
         :completionTimestamp="completionTimestamp"
         :completed="complete"
+        :timeSpent="timeSpent"
+        :retry="retry"
+        @repeat="$emit('repeat')"
       />
     </template>
 
@@ -141,7 +144,15 @@
       },
       exerciseContentNodes: {
         type: Array,
-        required: true,
+        default: () => [],
+      },
+      retry: {
+        type: Boolean,
+        default: false,
+      },
+      timeSpent: {
+        type: Number,
+        default: 0,
       },
     },
     data() {
@@ -152,6 +163,9 @@
     computed: {
       attemptLogs() {
         return this.examAttempts.map(attempt => {
+          if (!this.exerciseContentNodes.length) {
+            return attempt;
+          }
           let num_coach_contents = 0;
           const exerciseId = this.questions[attempt.questionNumber - 1].exercise_id;
           const exerciseMatch = find(this.exerciseContentNodes, { id: exerciseId });
@@ -201,6 +215,12 @@
 
   .exercise-container {
     padding: 8px;
+  }
+
+  .container {
+    top: 24px;
+    max-width: 1000px;
+    background-color: white;
   }
 
   h3 {

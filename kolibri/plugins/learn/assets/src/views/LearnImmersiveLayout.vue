@@ -12,6 +12,10 @@
       :resourceTitle="resourceTitle"
       :learningActivities="mappedLearningActivities"
       :isLessonContext="lessonContext"
+      :isQuiz="practiceQuiz"
+      :showingReportState="currentlyMastered"
+      :duration="content.duration"
+      :timeSpent="timeSpent"
       :isBookmarked="bookmark ? true : bookmark"
       :isCoachContent="isCoachContent"
       :contentProgress="contentProgress"
@@ -52,6 +56,7 @@
         data-test="contentPage"
         :content="content"
         :lessonId="lessonId"
+        :style="{ backgroundColor: ( content.assessment ? '' : $themeTokens.textInverted ) }"
       />
     </div>
 
@@ -93,6 +98,7 @@
   import get from 'lodash/get';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
+  import Modalities from 'kolibri-constants/Modalities';
 
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import FullScreenSidePanel from 'kolibri.coreVue.components.FullScreenSidePanel';
@@ -190,13 +196,18 @@
       ...mapGetters(['currentUserId']),
       ...mapState({
         contentProgress: state => state.core.logging.progress,
+        currentlyMastered: state => state.core.logging.complete,
         error: state => state.core.error,
         loading: state => state.core.loading,
         blockDoubleClicks: state => state.core.blockDoubleClicks,
+        timeSpent: state => state.core.logging.time_spent,
       }),
       ...mapState('topicsTree', {
         isCoachContent: state => (state.content.coach_content ? 1 : 0),
       }),
+      practiceQuiz() {
+        return get(this, ['content', 'options', 'modality']) === Modalities.QUIZ;
+      },
       notAuthorized() {
         // catch "not authorized" error, display AuthMessage
         if (
@@ -397,7 +408,6 @@
   .main-wrapper {
     display: inline-block;
     width: 100%;
-    background-color: white;
 
     @media print {
       /* Without this, things won't print correctly
