@@ -4,6 +4,7 @@
     <KSelect
       v-if="languageOptionsList.length"
       :options="languageOptionsList"
+      :disabled="!langId && enabledLanguageOptions.length < 2"
       class="selector"
       :clearable="true"
       :value="selectedLanguage"
@@ -14,6 +15,7 @@
     <KSelect
       v-if="contentLevelsList.length"
       :options="contentLevelsList"
+      :disabled="!levelId && enabledContentLevels.length < 2"
       class="selector"
       :clearable="true"
       :value="selectedLevel"
@@ -24,6 +26,7 @@
     <KSelect
       v-if="showChannels && channelOptionsList.length"
       :options="channelOptionsList"
+      :disabled="!channelId && enabledChannelOptions.length < 2"
       class="selector"
       :clearable="true"
       :value="selectedChannel"
@@ -34,6 +37,7 @@
     <KSelect
       v-if="accessibilityOptionsList.length"
       :options="accessibilityOptionsList"
+      :disabled="!accessId && enabledAccessibilityOptions.length < 2"
       class="selector"
       :clearable="true"
       :value="selectedAccessibilityFilter"
@@ -99,6 +103,9 @@
           };
         });
       },
+      enabledLanguageOptions() {
+        return this.languageOptionsList.filter(l => !l.disabled);
+      },
       accessibilityOptionsList() {
         return accessibilityOptionsList.map(key => {
           const value = AccessibilityCategories[key];
@@ -109,6 +116,9 @@
             label: this.coreString(camelCase(key)),
           };
         });
+      },
+      enabledAccessibilityOptions() {
+        return this.accessibilityOptionsList.filter(a => !a.disabled);
       },
       contentLevelsList() {
         return contentLevelsList.map(key => {
@@ -130,6 +140,9 @@
           };
         });
       },
+      enabledContentLevels() {
+        return this.contentLevelsList.filter(c => !c.disabled);
+      },
       channelOptionsList() {
         return plugin_data.channels.map(channel => ({
           value: channel.id,
@@ -138,21 +151,44 @@
           label: channel.name,
         }));
       },
+      enabledChannelOptions() {
+        return this.channelOptionsList.filter(c => !c.disabled);
+      },
+      langId() {
+        return Object.keys(this.value.languages)[0];
+      },
       selectedLanguage() {
-        const langId = Object.keys(this.value.languages)[0];
-        return this.languageOptionsList.find(o => o.value === langId) || {};
+        if (!this.langId && this.enabledLanguageOptions.length === 1) {
+          return this.enabledLanguageOptions[0];
+        }
+        return this.languageOptionsList.find(o => o.value === this.langId) || {};
+      },
+      accessId() {
+        return Object.keys(this.value.accessibility_labels)[0];
       },
       selectedAccessibilityFilter() {
-        const accessId = Object.keys(this.value.accessibility_labels)[0];
-        return this.accessibilityOptionsList.find(o => o.value === accessId) || {};
+        if (!this.accessId && this.enabledAccessibilityOptions.length === 1) {
+          return this.enabledAccessibilityOptions[0];
+        }
+        return this.accessibilityOptionsList.find(o => o.value === this.accessId) || {};
+      },
+      levelId() {
+        return Object.keys(this.value.grade_levels)[0];
       },
       selectedLevel() {
-        const levelId = Object.keys(this.value.grade_levels)[0];
-        return this.contentLevelsList.find(o => o.value === levelId) || {};
+        if (!this.levelId && this.enabledContentLevels.length === 1) {
+          return this.enabledContentLevels[0];
+        }
+        return this.contentLevelsList.find(o => o.value === this.levelId) || {};
+      },
+      channelId() {
+        return Object.keys(this.value.channels)[0];
       },
       selectedChannel() {
-        const channelId = Object.keys(this.value.channels)[0];
-        return this.channelOptionsList.find(o => o.value === channelId) || {};
+        if (!this.channelId && this.enabledChannelOptions.length === 1) {
+          return this.enabledChannelOptions[0];
+        }
+        return this.channelOptionsList.find(o => o.value === this.channelId) || {};
       },
     },
     methods: {
