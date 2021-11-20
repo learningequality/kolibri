@@ -107,7 +107,7 @@
   import ContentArea from './ContentArea';
 
   export default {
-    name: 'ChannelQuizContentPreviewPage',
+    name: 'PracticeQuizContentPreviewPage',
     metaInfo() {
       return {
         title: this.currentContentNode.title,
@@ -162,14 +162,14 @@
         );
       },
       newTitle() {
-        let currentChannelQuizName = this.content.title;
-        let channelQuizNameAlreadyExists = this.exams.filter(exam =>
-          exam.title.includes(currentChannelQuizName)
+        let currentPracticeQuizName = this.content.title;
+        let practiceQuizNameAlreadyExists = this.exams.filter(exam =>
+          exam.title.includes(currentPracticeQuizName)
         );
 
-        if (channelQuizNameAlreadyExists.length >= 1) {
+        if (practiceQuizNameAlreadyExists.length >= 1) {
           // Set the new (#) for additional copies based on how many copies exist
-          let newCopyNum = channelQuizNameAlreadyExists.length;
+          let newCopyNum = practiceQuizNameAlreadyExists.length;
           return this.$tr('duplicateTitle', {
             copyNum: newCopyNum,
             originalTitle: this.content.title,
