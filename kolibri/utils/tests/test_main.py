@@ -76,7 +76,7 @@ def test_version_updated():
 
 @pytest.mark.django_db
 @unittest.skipIf(
-    True
+    True,
     # TODO: rtibbles - reinstate and fix test
     # getattr(settings, "DATABASES")["default"]["ENGINE"] != "django.db.backends.sqlite3",
     "SQLite only test",
