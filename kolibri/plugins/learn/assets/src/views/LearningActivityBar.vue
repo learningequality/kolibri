@@ -400,15 +400,22 @@
         this.$emit(actionEvent);
       },
       onWindowClick(event) {
-        if (!this.isMenuOpen) {
-          return;
-        }
         // close menu on outside click
-        if (
-          !this.$refs.menu.$el.contains(event.target) &&
-          !this.$refs.moreOptionsButton.$el.contains(event.target)
-        ) {
-          this.closeMenu({ focusMoreOptionsButton: false });
+        if (this.isMenuOpen) {
+          if (
+            !this.$refs.menu.$el.contains(event.target) &&
+            !this.$refs.moreOptionsButton.$el.contains(event.target)
+          ) {
+            this.closeMenu({ focusMoreOptionsButton: false });
+          }
+        }
+        if (this.isTimerOpen) {
+          if (
+            !this.$refs.timerButton.$el.contains(event.target) &&
+            !this.$refs.timer.$el.contains(event.target)
+          ) {
+            this.closeTimer({ focusTimerButton: false });
+          }
         }
       },
     },
