@@ -7,7 +7,7 @@ from __future__ import print_function
 import unittest
 
 import pytest
-from django.conf import settings
+# from django.conf import settings
 from django.db.utils import OperationalError
 from mock import patch
 
