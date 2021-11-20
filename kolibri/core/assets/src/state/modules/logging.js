@@ -120,12 +120,18 @@ export default {
       if (state.progress < progress) {
         state.progress_delta = threeDecimalPlaceRoundup(progress - state.progress);
         state.progress = progress;
+        if (state.progress >= 1) {
+          state.complete = true;
+        }
       }
     },
     ADD_LOGGING_PROGRESS(state, progressDelta) {
       progressDelta = threeDecimalPlaceRoundup(progressDelta);
       state.progress_delta = threeDecimalPlaceRoundup(state.progress_delta + progressDelta);
       state.progress = Math.min(threeDecimalPlaceRoundup(state.progress + progressDelta), 1);
+      if (state.progress >= 1) {
+        state.complete = true;
+      }
     },
     LOGGING_SAVING(state) {
       state.progress_delta = 0;

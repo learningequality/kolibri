@@ -196,7 +196,6 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import shuffled from 'kolibri.utils.shuffled';
   import { defaultLanguage } from 'kolibri-design-system/lib/utils/i18n';
-  import { ClassesPageNames } from '../../constants';
   import { LearnerClassroomResource } from '../../apiResources';
   import AnswerHistory from './AnswerHistory';
   import QuizReport from './QuizReport';
@@ -401,15 +400,11 @@
           );
         }
 
-        return this.updateContentSession(data)
-          .then(() => {
-            if (close) {
-              this.stopTracking();
-            }
-          })
-          .catch(() => {
-            this.$router.replace({ name: ClassesPageNames.CLASS_ASSIGNMENTS });
-          });
+        return this.updateContentSession(data).then(() => {
+          if (close) {
+            this.stopTracking();
+          }
+        });
       },
       checkAnswer() {
         if (this.$refs.contentRenderer) {
