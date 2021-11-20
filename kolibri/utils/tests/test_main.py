@@ -7,12 +7,13 @@ from __future__ import print_function
 import unittest
 
 import pytest
-# from django.conf import settings
 from django.db.utils import OperationalError
 from mock import patch
 
 import kolibri
 from kolibri.utils import main
+
+# from django.conf import settings
 
 
 @pytest.mark.django_db
