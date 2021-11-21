@@ -5,8 +5,8 @@ Getting started
 
 First of all, thank you for your interest in contributing to Kolibri! The project was founded by volunteers dedicated to helping make educational materials more accessible to those in need, and every contribution makes a difference. The instructions below should get you up and running the code in no time!
 
-Setting up Kolibri for development
-----------------------------------
+Prerequisites
+-------------
 
 Most of the steps below require entering commands into your Terminal, so you should expect to become comfortable with this if you're not already.
 
@@ -170,11 +170,6 @@ The Python project-specific dependencies installed above will install ``nodeenv`
   yarn install
 
 
-Running the Kolibri server
---------------------------
-
-.. _devserver:
-
 Database setup
 ~~~~~~~~~~~~~~
 
@@ -183,6 +178,12 @@ To initialize the database run the following command:
 .. code-block:: bash
 
   kolibri manage migrate
+
+
+Running the server
+------------------
+
+.. _devserver:
 
 
 Development server
@@ -202,121 +203,113 @@ Alternatively, you can run the devserver with `hot reload <https://vue-loader.vu
 
   yarn run devserver-hot
 
-Note that the default devserver commands above will automatically watch your source files for changes as you edit them, and do formatting and linting fixes on them. If you would prefer to do these on demand (such as with IDE linting tools or using a tool like pre-commit), then it is best to use the following commands, whereby linting and formatting errors will generate warnings, but not be fixed on the fly:
+Note that the default devserver commands above will automatically watch your source files for changes as you edit them, and do formatting and linting fixes on them.
 
-.. code-block:: bash
+For more information, including instructions on disabling auto-formatting, see the :ref:`linting` section below.
 
-  yarn run devserver-warn
-
-Or:
-
-.. code-block:: bash
-
-  yarn run devserver-hot-warn
+For a complete reference of the commands that can be run and what they do, inspect the ``scripts`` section of the root *./package.json* file.
 
 .. warning::
 
   Some functionality, such as right-to-left language support, is broken when hot-reload is enabled
 
-
-Development server - advanced
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The commands above will start multiple concurrent processes: One for the Django web server, and at least one more for the webpack devserver. If you'd like to start these processes separately, you can do it in two separate terminal windows.
-
-In the first terminal you can start the django development server with this command:
-
-.. code-block:: bash
-
-  yarn run python-devserver
-
-In the second terminal, you can start the webpack build process for frontend assets in 'watch' mode – meaning they will be automatically rebuilt if you modify them – with this command:
-
-.. code-block:: bash
-
-  yarn run watch
-
-If you need to make the development server available through the LAN, you need to do a production build of the assets; so use the following commands:
-
-.. code-block:: bash
-
-  # first build the assets
-  yarn run build
-  # now, run the Django devserver
-  yarn run python-devserver
-
-Now you can simply use your server's IP from another device in the local network through the port 8000, for example ``http://192.168.1.38:8000/``.
-
-
 .. tip::
 
   If you get an error similar to "Node Sass could not find a binding for your current environment", try running ``npm rebuild node-sass``
 
+Production server
+~~~~~~~~~~~~~~~~~
 
-
-Production
-~~~~~~~~~~
-
-In production, content is served through CherryPy. Static assets must be pre-built:
+In production, content is served through CherryPy. Frontend static assets are pre-built:
 
 .. code-block:: bash
 
   # first build the assets
   yarn run build
+
   # now, run the Django production server
   kolibri start
 
 Now you should be able to access the server at ``http://127.0.0.1:8080/``.
 
 
-Additional Recommended Setup
-----------------------------
+Separate servers
+~~~~~~~~~~~~~~~~
 
-If you're planning on contributing code to the project, there are a few additional steps you should consider taking.
+If you are working mainly on backend code, you can build the front-end assets once and then just run the Python devserver. This may also help with multi-device testing over a LAN.
+
+.. code-block:: bash
+
+  # first build the front-end assets
+  yarn run build
+
+  # now, run the Django devserver
+  yarn run python-devserver
+
+You can also run the Django development server and webpack devserver independently in separate terminal windows. In the first terminal you can start the django development server:
+
+.. code-block:: bash
+
+  yarn run python-devserver
+
+and in the second terminal, start the webpack build process for frontend assets:
+
+.. code-block:: bash
+
+  yarn run frontend-devserver
 
 
-Editor config
-~~~~~~~~~~~~~
+Editor configuration
+--------------------
 
 We have a project-level *.editorconfig* file to help you configure your text editor or IDE to use our internal conventions.
 
 `Check your editor <http://editorconfig.org/#download>`__ to see if it supports EditorConfig out-of-the-box, or if a plugin is available.
 
 
-Frontend dev tools
-~~~~~~~~~~~~~~~~~~
+Vue development tools
+---------------------
 
 `Vue.js devtools <https://github.com/vuejs/vue-devtools>`__ is a browser plugin that is very helpful when working with Vue.js components and Vuex.
 
 To ensure a more efficient workflow, install appropriate editor plugins for Vue.js, ESLint, and stylelint.
 
 
-Import channels and resources
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Sample data for development
+---------------------------
 
 Once you have the server running, proceed to import some channels and resources. To quickly import all available and supported Kolibri resource types, use the token ``nakav-mafak`` for the `Kolibri QA channel <https://kolibri-beta.learningequality.org/en/learn/#/topics/95a52b386f2c485cb97dd60901674a98>`__ (~350MB).
 
 
+Now you can create users, classes, lessons, etc manually. To auto-generate some sample user data you can also run:
 
-.. _workflow_intro:
+.. code-block:: bash
 
-Development workflows
----------------------
+  kolibri manage generateuserdata
 
-Design system
-~~~~~~~~~~~~~
-
-We have a large number of reusable patterns, conventions, and components built into the application. Review the `Kolibri Design System <https://design-system.learningequality.org/>`__ to get a sense for the tools at your disposal, and to ensure that new changes stay consistent with established UI patterns.
 
 
 Linting and auto-formatting
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------
+
+.. _linting:
+
+Manual linting and formatting
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Linting and code auto-formatting provided by Prettier and Black are run in the background automatically by ``yarn run devserver`` (see :ref:`devserver`). You can monitor for linting errors and warnings in the terminal outputs of the dev server while it is running.
 
-A full set of linting and auto-formatting can also be applied by pre-commit hooks (instructions below). The pre-commit hooks are identical to the automated build check by Travis CI in Pull Requests.
+If you would prefer to do these on demand (such as with IDE linting tools or using a tool like pre-commit) then you can run the development server in "warning only" mode. For example:
 
-.. tip:: As a convenience, many developers install linting and formatting plugins in their code editor (IDE). Installing ESLint, Prettier, Black, and Flake8 plugins in your editor will catch most (but not all) code-quality checks.
+.. code-block:: bash
+
+  yarn run devserver-warn
+
+or with hot reload:
+
+.. code-block:: bash
+
+  yarn run devserver-hot-warn
 
 You can manually run the auto-formatters using:
 
@@ -332,6 +325,12 @@ Or to check the formatting without writing changes, run:
   yarn run lint-frontend
   yarn run fmt-backend:check
 
+
+Pre-commit hooks
+~~~~~~~~~~~~~~~~
+
+A full set of linting and auto-formatting can also be applied by pre-commit hooks. The pre-commit hooks are identical to the automated build check by Travis CI in Pull Requests.
+
 `pre-commit <http://pre-commit.com/>`__ is used to apply a full set of checks and formatting automatically each time that ``git commit`` runs. If there are errors, the Git commit is aborted and you are asked to fix the error and run ``git commit`` again.
 
 Pre-commit is already installed as a development dependency, but you also need to enable it:
@@ -340,13 +339,45 @@ Pre-commit is already installed as a development dependency, but you also need t
 
   pre-commit install
 
-.. note:: Pre-commit can have issues running from alternative Git clients like GitUp. If you encounter problems while committing changes, run ``pre-commit uninstall`` to disable pre-commit.
+.. tip:: As a convenience, many developers install linting and formatting plugins in their code editor (IDE). Installing ESLint, Prettier, Black, and Flake8 plugins in your editor will catch most (but not all) code-quality checks.
+
+.. tip:: Pre-commit can have issues running from alternative Git clients like GitUp. If you encounter problems while committing changes, run ``pre-commit uninstall`` to disable pre-commit.
 
 .. warning:: If you do not use any linting tools, your code is likely fail our server-side checks and you will need to update the PR in order to get it merged.
 
 
+Design system
+-------------
+
+We have a large number of reusable patterns, conventions, and components built into the application. Review the `Kolibri Design System <https://design-system.learningequality.org/>`__ to get a sense for the tools at your disposal, and to ensure that new changes stay consistent with established UI patterns.
+
+
+Updating documentation
+----------------------
+
+First, install some additional dependencies related to building documentation output:
+
+.. code-block:: bash
+
+  pip install -r requirements/docs.txt
+  pip install -r requirements/build.txt
+
+To make changes to documentation, edit the ``rst`` files in the ``kolibri/docs`` directory and then run:
+
+.. code-block:: bash
+
+  make docs
+
+You can also run the auto-build for faster editing from the ``docs`` directory:
+
+.. code-block:: bash
+
+  cd docs
+  sphinx-autobuild --port 8888 . _build
+
+
 Automated testing
-~~~~~~~~~~~~~~~~~
+-----------------
 
 
 Kolibri comes with a Javascript test suite based on `Jest <https://jestjs.io/>`__. To run all front-end tests:
@@ -392,32 +423,8 @@ To run Python tests for all environments, use simply ``tox``. This simulates wha
   ``tox`` reuses its environment when it is run again. If you add anything to the requirements, you will want to either delete the `.tox` directory, or run ``tox`` with the ``-r`` argument to recreate the environment
 
 
-Updating documentation
-~~~~~~~~~~~~~~~~~~~~~~
-
-First, install some additional dependencies related to building documentation output:
-
-.. code-block:: bash
-
-  pip install -r requirements/docs.txt
-  pip install -r requirements/build.txt
-
-To make changes to documentation, edit the ``rst`` files in the ``kolibri/docs`` directory and then run:
-
-.. code-block:: bash
-
-  make docs
-
-You can also run the auto-build for faster editing from the ``docs`` directory:
-
-.. code-block:: bash
-
-  cd docs
-  sphinx-autobuild --port 8888 . _build
-
-
 Manual testing
-~~~~~~~~~~~~~~
+--------------
 
 All changes should be thoroughly tested and vetted before being merged in. Our primary considerations are:
 
@@ -458,8 +465,6 @@ Go to Kolibri's `GitHub page <https://github.com/learningequality/kolibri>`__, a
 Another member of the team will review your code, and either ask for updates on your part or merge your PR to Kolibri codebase. Until the PR is merged you can push new commits to your branch and add updates to it.
 
 Learn more about our :ref:`dev_workflow` and :ref:`release_process`
-
-
 
 
 Development using Docker
