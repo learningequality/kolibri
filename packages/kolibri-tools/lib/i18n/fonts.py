@@ -18,8 +18,7 @@ import tempfile
 
 import noto_source
 import utils
-from fontTools import merge
-from fontTools import subset
+from fontTools import merge, subset
 
 logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
 logging.getLogger("fontTools").setLevel(logging.WARNING)
@@ -495,7 +494,7 @@ def _subset_and_merge_fonts(text, default_font, subset_reg_path, subset_bold_pat
         if not remaining_glyphs:
             break
 
-        text = "".join([c for c in text if c in new_glyphs])
+        text = "".join([c for c in text if ord(c) in remaining_glyphs])
 
     _merge_fonts(reg_subsets, os.path.join(OUTPUT_PATH, subset_reg_path))
     _merge_fonts(bold_subsets, os.path.join(OUTPUT_PATH, subset_bold_path))
