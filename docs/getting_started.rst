@@ -470,59 +470,39 @@ Learn more about our :ref:`dev_workflow` and :ref:`release_process`
 Development using Docker
 ------------------------
 
-.. note::
-  The Docker workflows below have not been fully tested
+Engineers who are familiar with Docker can start a Kolibri instance without setting up the full JavaScript and Python development environments on the host machine.
 
-Users who are familiar with Docker can spin up a Kolibri instance quickly without setting up
-the full JavaScript and Python development environments. We provide docker images that contain
-all the necessary prerequisites for running Kolibri.
+For more information, see the *docker* directory and the ``docker-*`` commands in the *Makefile*.
 
-The ``docker/`` directory contains the docker files and startup scripts needed for various tasks.
 
- * ``docker/base.dockerfile``: the base layer that installs JavaScript and Python dependencies (image tag ``learningequality/kolibri``).
- * ``docker/build_whl.dockerfile``: generates a ``.whl``, ``tar.gz``, and ``.pex`` files in ``dist/``
- * ``docker/build_windows.dockerfile``: used to generate the Windows installer.
- * ``docker/dev.dockerfile``: container with full development setup, running devserver.
- * ``docker/demoserver.dockerfile``: runs the pex from ``KOLIBRI_PEX_URL`` with production setup.
- * ``docker/entrypoint.py``: startup script that configures Kolibri based on ENV variables:
+Development server
+~~~~~~~~~~~~~~~~~~
 
-    * Set ``KOLIBRI_PEX_URL`` to string ``default`` to run latest pex from Kolibri download page
-    * Set ``KOLIBRI_PEX_URL`` to something like ``http://host.org/nameof.pex``
-    * Set ``DOCKERMNT_PEX_PATH`` to something like ``/docker/mnt/nameof.pex``
-    * ``KOLIBRI_RUN_MODE``: set in Dockerfile
-    * ``KOLIBRI_PROVISIONDEVICE_FACILITY``: if this environment variable is set
-      the entrypoint script will run the provision device an setup a facility
-      with this name. The ``KOLIBRI_LANG`` environment variable and the following
-      other environment variables will be used in the process:
+Start the Kolibri devserver running inside a container:
 
-        * ``KOLIBRI_PROVISIONDEVICE_PRESET``: defaults to ``formal``, with the other options being ``nonformal`` and ``informal``
-        * ``KOLIBRI_PROVISIONDEVICE_SUPERUSERNAME``: default ``devowner``
-        * ``KOLIBRI_PROVISIONDEVICE_SUPERUSERPASSWORD``: default ``admin123``
+.. code-block:: bash
 
-    * ``KOLIBRI_HOME``: default ``/kolibrihome``
-    * ``KOLIBRI_HTTP_PORT``: default ``8080``
-    * ``KOLIBRI_LANG``: default ``en``
-    * ``CHANNELS_TO_IMPORT``: comma-separated list of channel IDs (not set by default)
+  # only needed first time
+  make docker-build-base
+
+  # takes a few mins to run pip install -e + webpack build
+  make docker-devserver
 
 
 Building a pex file
 ~~~~~~~~~~~~~~~~~~~
 
-When simply testing things out or reviewing a pull request, the easiest way to
-obtain a pex file is to get the link from the buildkite assets link that is present
-for every git branch and every pull request. This is the approach we recommend in
-combination with the ``demoserver`` approach for running described in the next section.
+.. note::
+  The easiest way to obtain a pex file is to submit a Github PR and download the built assets from buildkite.
 
-However, if you want to build and run a pex from the Kolibri code in your current
-local source files without relying on the github and the buildkite integration,
-you can run the following commands to build a pex file:
+If you want to build and run a pex from the Kolibri code in your current local source files without relying on the github and the buildkite integration, you can run the following commands to build a pex file:
 
 .. code-block:: bash
 
   make docker-whl
 
 The pex file will be generated in the ``dist/`` directory. You can run this pex
-file using the ``demoserver`` approach described below.
+file using the production server approach described below.
 
 
 Production server
@@ -533,23 +513,15 @@ environment variables in your local copy of `docker/env.list` then running the c
 
 .. code-block:: bash
 
-  make docker-build-base      # only needed first time
+  # only needed first time
+  make docker-build-base
+
+  # run demo server
   make docker-demoserver
 
 The choice of pex file can be controlled by setting environment variables in the
-file ``docker/env.list``:
+file *./docker/env.list*:
 
- * Set ``KOLIBRI_PEX_URL`` to string ``default`` to run the latest pex from Kolibri download page
- * Set ``KOLIBRI_PEX_URL`` to something like ``http://host.org/nameof.pex``
- * Set ``DOCKERMNT_PEX_PATH`` to something like ``/docker/mnt/nameof.pex``
+ * ``KOLIBRI_PEX_URL``: Download URL or the string ``default``
+ * ``DOCKERMNT_PEX_PATH``: Local path such as ``/docker/mnt/nameof.pex``
 
-
-
-Development server
-~~~~~~~~~~~~~~~~~~
-
-.. code-block:: bash
-
-  # start the Kolibri devserver running inside a container
-  make docker-build-base  # only needed first time
-  make docker-devserver   # takes a few mins to run pip install -e + webpack build

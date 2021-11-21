@@ -5,6 +5,10 @@
 # can be used to pass in a pre-build pex file or fixtures for tests
 docker/mnt/
 
+# other docker files
+docker-whl.cid
+docker-whl.iid
+
 # C extensions
 *.so
 
