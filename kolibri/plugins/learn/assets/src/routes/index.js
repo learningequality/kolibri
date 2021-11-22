@@ -151,9 +151,6 @@ export default [
     name: PageNames.TOPICS_CONTENT,
     path: '/topics/c/:id',
     handler: toRoute => {
-      if (unassignedContentGuard()) {
-        return unassignedContentGuard();
-      }
       showTopicsContent(store, toRoute.params.id);
     },
   },
