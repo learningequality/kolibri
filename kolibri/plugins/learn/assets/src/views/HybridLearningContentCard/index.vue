@@ -53,9 +53,9 @@
       />
       <div class="footer-icons">
         <CoachContentLabel
-          v-if="isUserLoggedIn && !isLearner && content.numCoachContents"
+          v-if="isUserLoggedIn && !isLearner && content.num_coach_contents"
           class="coach-content-label"
-          :value="content.numCoachContents"
+          :value="content.num_coach_contents"
           :isTopic="isTopic"
         />
         <KIconButton
@@ -150,8 +150,8 @@
         return (
           1 +
           this.content.is_leaf +
-          (this.isUserLoggedIn && !this.isLearner && this.content.numCoachContents) +
-          (this.content.numCoachContents > 0) +
+          (this.isUserLoggedIn && !this.isLearner && this.content.num_coach_contents) +
+          (this.content.num_coach_contents > 0) +
           (this.content.copies_count > 1) +
           (this.$slots.actions ? this.$slots.actions.length : 0)
         );
