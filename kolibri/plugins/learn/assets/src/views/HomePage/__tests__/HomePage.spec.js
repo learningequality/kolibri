@@ -85,7 +85,7 @@ describe(`HomePage`, () => {
       expect(getClassesSection(wrapper).exists()).toBe(false);
     });
 
-    it(`the section is not displayed for a signed in user with no classes`, () => {
+    it(`the section is not displayed for a signed in user who has no classes and can access unassigned content`, () => {
       useDeviceSettings.mockImplementation(() =>
         useDeviceSettingsMock({ canAccessUnassignedContent: true })
       );
