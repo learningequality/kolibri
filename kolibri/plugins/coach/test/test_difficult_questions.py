@@ -1069,6 +1069,28 @@ class PracticeQuizDifficultQuestionTestCase(APITestCase):
         self.assertEqual(response.data[0]["total"], 2)
         self.assertEqual(response.data[0]["correct"], 1)
 
+    def test_coach_difficult_by_classroom_id_after_repeated_tries_last_completion_timestamp_but_not_complete(
+        self,
+    ):
+        self._set_one_difficult(self.classroom_group_learner)
+        self._set_one_difficult(self.classroom_group_learner)
+        self._set_one_difficult(self.classroom_group_learner, difficult=False)
+        self.masterylog.complete = False
+        self.masterylog.save()
+        self.client.login(
+            username=self.facility_and_classroom_coach.username, password=DUMMY_PASSWORD
+        )
+        response = self.client.get(
+            reverse(
+                self.exercise_difficulties_basename + "-detail",
+                kwargs={"pk": self.content_ids[0]},
+            ),
+            data={"classroom_id": self.classroom.id},
+        )
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["total"], 1)
+        self.assertEqual(response.data[0]["correct"], 0)
+
     def test_coach_one_difficult_by_lesson_id(self):
         self._set_one_difficult(self.classroom_group_learner)
         self.client.login(

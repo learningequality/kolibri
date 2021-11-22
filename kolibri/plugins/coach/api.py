@@ -2,6 +2,7 @@ import datetime
 
 from django.db import connections
 from django.db.models import Count
+from django.db.models import F
 from django.db.models import OuterRef
 from django.db.models import Subquery
 from django.db.models import Sum
@@ -456,8 +457,12 @@ class PracticeQuizDifficultQuestionsViewset(BaseExerciseDifficultQuestionsViewse
         masterylog_queryset = masterylog_queryset.filter(
             id__in=Subquery(
                 MasteryLog.objects.all()
-                .order_by("-completion_timestamp")
-                .filter(user_id=OuterRef("user_id"), summarylog__content_id=pk)
+                .order_by(F("completion_timestamp").desc(nulls_last=True))
+                .filter(
+                    user_id=OuterRef("user_id"),
+                    summarylog__content_id=pk,
+                    complete=True,
+                )
                 .values_list("id")[:1]
             )
         )
