@@ -179,6 +179,7 @@
   /* stylelint-disable csstree/validator */
 
   .k-select-disabled {
+    border-bottom-color: $ui-input-text-color--disabled;
     border-bottom-style: $ui-input-border-style--disabled;
     border-bottom-width: $ui-input-border-width--active;
   }
