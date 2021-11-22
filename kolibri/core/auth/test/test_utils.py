@@ -10,6 +10,7 @@ import factory
 import mock
 from django.core.management.base import CommandError
 from django.test import TestCase
+from morango.registry import syncable_models
 
 from ..models import Facility
 from kolibri.core.auth.management import utils
@@ -21,6 +22,7 @@ from kolibri.core.auth.test.test_api import ClassroomFactory
 from kolibri.core.auth.test.test_api import FacilityFactory
 from kolibri.core.auth.test.test_api import FacilityUserFactory
 from kolibri.core.auth.test.test_api import LearnerGroupFactory
+from kolibri.core.auth.utils.delete import get_delete_group_for_facility
 from kolibri.core.auth.utils.migrate import fork_facility
 from kolibri.core.auth.utils.migrate import merge_users
 from kolibri.core.logger import models as log_models
@@ -662,3 +664,12 @@ class ForkFacilityTestCase(TestCase):
             ).count(),
             self.count * 4,
         )
+
+
+class TestDeleteFacilityDeletesAllFacilityModels(TestCase):
+    def test_deletion_inclusion(self):
+        facility = FacilityFactory.create()
+        all_facility_models = set(syncable_models.get_models("facilitydata"))
+        delete_group = get_delete_group_for_facility(facility)
+        all_deleted_models = set(qs.model for qs in delete_group.get_querysets())
+        self.assertTrue(all_deleted_models.issuperset(all_facility_models))

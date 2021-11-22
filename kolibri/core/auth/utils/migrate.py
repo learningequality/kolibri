@@ -2,6 +2,7 @@ import logging
 
 from django.db import connections
 from django.db.models import FieldDoesNotExist
+from morango.registry import syncable_models
 from morango.sync.backends.utils import calculate_max_sqlite_variables
 
 from kolibri.core.auth.models import AdHocGroup
@@ -11,16 +12,9 @@ from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityDataset
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import LearnerGroup
-from kolibri.core.auth.models import Membership
-from kolibri.core.auth.models import Role
 from kolibri.core.auth.utils.delete import delete_facility
-from kolibri.core.bookmarks.models import Bookmark
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.device.utils import set_device_settings
-from kolibri.core.exams.models import Exam
-from kolibri.core.exams.models import ExamAssignment
-from kolibri.core.lessons.models import Lesson
-from kolibri.core.lessons.models import LessonAssignment
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
@@ -183,27 +177,6 @@ def _copy_data(Model, id_map, source_data):
     logger.info("Finished copying data for model {}".format(Model))
 
 
-facility_dataset_models = [
-    Facility,
-    FacilityUser,
-    Classroom,
-    LearnerGroup,
-    AdHocGroup,
-    Role,
-    Membership,
-    Bookmark,
-    Exam,
-    ExamAssignment,
-    Lesson,
-    LessonAssignment,
-    ContentSessionLog,
-    ContentSummaryLog,
-    MasteryLog,
-    AttemptLog,
-    UserSessionLog,
-]
-
-
 def fork_facility(facility):
     """
     Utility function to make a complete copy of all facility data, but separated from the original
@@ -223,9 +196,21 @@ def fork_facility(facility):
         # its proxy models.
         Collection: {},
     }
-
+    # Explicitly include the Collection proxy models as their order will not have been properly inferred
+    # by their FK relationships.
+    facility_dataset_models = [
+        Facility,
+        Classroom,
+        LearnerGroup,
+        AdHocGroup,
+    ] + syncable_models.get_models("facilitydata")
     for Model in facility_dataset_models:
-        _copy_data(Model, id_map, Model.objects.filter(dataset_id=facility.dataset_id))
+        # This should prevent any repeats caused by our explicit copying of FacilityDataset and our explicit
+        # ordered inclusion of the Collection proxy models above.
+        if Model not in id_map:
+            _copy_data(
+                Model, id_map, Model.objects.filter(dataset_id=facility.dataset_id)
+            )
     logger.info("Completed making a copy of facility {}".format(facility.name))
     return new_dataset
 

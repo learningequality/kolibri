@@ -20,6 +20,7 @@ from kolibri.core.auth.models import AdHocGroup
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import dataset_cache
+from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityDataset
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import LearnerGroup
@@ -29,6 +30,8 @@ from kolibri.core.bookmarks.models import Bookmark
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import ExamAssignment
+from kolibri.core.exams.models import IndividualSyncableExam
+from kolibri.core.lessons.models import IndividualSyncableLesson
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.lessons.models import LessonAssignment
 from kolibri.core.logger.models import AttemptLog
@@ -75,6 +78,16 @@ class GroupDeletion(object):
             groups.extend(querysets)
         self.groups = groups
         self.sleep = sleep
+
+    def get_querysets(self):
+        querysets = []
+        for qs in self.groups:
+            if isinstance(qs, GroupDeletion):
+                querysets.extend(qs.get_querysets())
+            else:
+                querysets.append(qs)
+
+        return querysets
 
     def count(self, progress_updater=None):
         """
@@ -185,6 +198,7 @@ def _get_users(dataset_id):
             Membership.objects.filter(dataset_id_filter),
             Bookmark.objects.filter(dataset_id_filter),
             FacilityUser.objects.filter(dataset_id_filter),
+            Facility.objects.filter(dataset_id_filter),
         ],
     )
 
@@ -196,8 +210,10 @@ def _get_class_models(dataset_id):
         querysets=[
             ExamAssignment.objects.filter(dataset_id_filter),
             Exam.objects.filter(dataset_id_filter),
+            IndividualSyncableExam.objects.filter(dataset_id_filter),
             LessonAssignment.objects.filter(dataset_id_filter),
             Lesson.objects.filter(dataset_id_filter),
+            IndividualSyncableLesson.objects.filter(dataset_id_filter),
             AdHocGroup.objects.filter(dataset_id_filter),
             LearnerGroup.objects.filter(dataset_id_filter),
             Classroom.objects.filter(dataset_id_filter),
