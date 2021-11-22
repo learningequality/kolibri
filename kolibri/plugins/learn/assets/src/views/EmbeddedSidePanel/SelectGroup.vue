@@ -92,9 +92,7 @@
         return plugin_data.languages.map(language => {
           return {
             value: language.id,
-            disabled:
-              this.availableLabels &&
-              !this.availableLabels.languages.find(l => l.id === language.id),
+            disabled: this.availableLabels && !this.availableLabels.languages.includes(language.id),
             label: language.lang_name,
           };
         });
@@ -133,8 +131,7 @@
       channelOptionsList() {
         return plugin_data.channels.map(channel => ({
           value: channel.id,
-          disabled:
-            this.availableLabels && !this.availableLabels.channels.find(c => c.id === channel.id),
+          disabled: this.availableLabels && !this.availableLabels.channels.includes(channel.id),
           label: channel.name,
         }));
       },
