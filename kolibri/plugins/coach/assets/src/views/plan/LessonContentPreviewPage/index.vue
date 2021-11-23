@@ -9,7 +9,18 @@
             :layout12="{ span: 9 }"
           >
             <h1>
-              <KLabeledIcon :icon="content.kind" :label="content.title" />
+              <KLabeledIcon :icon="content.kind">
+                <template>
+                  {{ content.title }}
+                </template>
+                <template #iconAfter>
+                  <CoachContentLabel
+                    :value="content.num_coach_contents"
+                    :style="{ 'font-size': '0.65em' }"
+                    :isTopic="false"
+                  />
+                </template>
+              </KLabeledIcon>
             </h1>
           </KGridItem>
           <KGridItem
@@ -40,14 +51,28 @@
             </template>
           </KGridItem>
         </KGrid>
-        <CoachContentLabel :value="content.num_coach_contents" :isTopic="false" />
-        <template v-if="content.options.modality === 'QUIZ'">
+        <!-- eslint-disable-next-line vue/no-v-html -->
+        <p v-if="description" dir="auto" v-html="description"></p>
+        <template>
           <HeaderTable>
             <HeaderTableRow
+              v-if="content.options.modality === 'QUIZ'"
               :keyText="$tr('totalQuestionsHeader')"
             >
               <template #value>
                 {{ content.assessmentmetadata.number_of_assessments }}
+              </template>
+            </HeaderTableRow>
+
+            <HeaderTableRow
+              v-else-if="completionData"
+              :keyText="coachString('masteryModelLabel')"
+            >
+              <template #value>
+                <MasteryModel
+                  v-if="content"
+                  :masteryModel="completionData"
+                />
               </template>
             </HeaderTableRow>
             <HeaderTableRow
@@ -80,43 +105,6 @@
             </HeaderTableRow>
           </HeaderTable>
         </template>
-
-        <template v-else>
-          <HeaderTable>
-            <HeaderTableRow
-              v-if="completionData"
-              :keyText="coachString('masteryModelLabel')"
-            >
-              <template #value>
-                <MasteryModel
-                  v-if="content"
-                  :masteryModel="completionData"
-                />
-              </template>
-            </HeaderTableRow>
-          </HeaderTable>
-          <!-- eslint-disable-next-line vue/no-v-html -->
-          <p v-if="description" dir="auto" v-html="description"></p>
-          <ul class="meta">
-            <li v-if="content.author">
-              {{ $tr('authorDataHeader') }}:
-              {{ content.author }}
-            </li>
-            <li v-if="licenseName">
-              {{ $tr('licenseDataHeader') }}:
-              {{ licenseName }}
-              <InfoIcon
-                v-if="licenseDescription"
-                :tooltipText="licenseDescription"
-                :iconAriaLabel="licenseDescription"
-              />
-            </li>
-            <li v-if="content.license_owner">
-              {{ $tr('copyrightHolderDataHeader') }}:
-              {{ content.license_owner }}
-            </li>
-          </ul>
-        </template>
       </div>
     </template>
 
@@ -131,6 +119,7 @@
     </template>
 
     <template #main>
+
       <ContentArea
         class="content-area"
         :header="questionLabel(selectedQuestionIndex)"
@@ -138,6 +127,7 @@
         :content="content"
         :isExercise="isExercise"
       />
+
     </template>
   </MultiPaneLayout>
 
@@ -261,11 +251,6 @@
       },
     },
     $trs: {
-      authorDataHeader: {
-        message: 'Author',
-        context:
-          'Refers to the creator of the learning resource. For example, the author could be Learning Equality.',
-      },
       licenseDataHeader: {
         message: 'License',
         context:
@@ -313,6 +298,10 @@
 
   .content-area {
     padding: 16px 0;
+  }
+
+  /deep/ .icon-after {
+    margin-top: -5px;
   }
 
 </style>
