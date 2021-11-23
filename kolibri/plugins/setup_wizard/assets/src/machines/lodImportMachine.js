@@ -105,20 +105,20 @@ export const lodImportMachine = createMachine({
       },
     },
     syncAdminUser: {
-      meta: { step: '2', component: MultipleUsers },
+      meta: { step: '3', component: MultipleUsers },
       on: {
         CONTINUE: { target: 'selectUsers' },
       },
     },
     selectUsers: {
-      meta: { step: '2', component: MultipleUsers },
+      meta: { step: '3', component: MultipleUsers },
       on: {
         CONTINUE: { target: 'importingSingleUser', actions: importUser },
         BACK: 'userCredentials',
       },
     },
     importingSingleUser: {
-      meta: { step: '3', component: LoadingTaskPage },
+      meta: { step: '4', component: LoadingTaskPage },
       on: {
         BACK: { target: 'selectUsers' },
       },

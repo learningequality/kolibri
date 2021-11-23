@@ -30,6 +30,9 @@ const modernFontBrowsers = {
     major: 11,
     minor: 4,
   },
+  IE: {
+    major: 100, // specify impossible IE version, forcing passesRequirements to fail
+  },
 };
 
 function loadFullFonts() {

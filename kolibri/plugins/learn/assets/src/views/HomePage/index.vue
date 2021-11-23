@@ -2,7 +2,7 @@
 
   <div>
     <YourClasses
-      v-if="isUserLoggedIn && classes.length"
+      v-if="displayClasses"
       class="section"
       :classes="classes"
       data-test="classes"
@@ -118,6 +118,10 @@
         );
       });
 
+      const displayClasses = computed(() => {
+        return get(isUserLoggedIn) && (get(classes).length || !get(canAccessUnassignedContent));
+      });
+
       return {
         isUserLoggedIn,
         channels,
@@ -129,6 +133,7 @@
         continueLearningFromClasses,
         continueLearningOnYourOwn,
         displayExploreChannels,
+        displayClasses,
       };
     },
   };
