@@ -13,7 +13,7 @@ import flatMapDepth from 'lodash/flatMapDepth';
 import { ContentNodeResource } from 'kolibri.resources';
 import { deduplicateResources } from '../utils/contentNode';
 import genContentLink from '../utils/genContentLink';
-import { LearnerClassroomResource } from '../apiResources';
+import { LearnerClassroomResource, LearnerLessonResource } from '../apiResources';
 import { PageNames, ClassesPageNames } from '../constants';
 import { normalizeContentNode } from '../modules/coreLearn/utils';
 import useContentNodeProgress, { setContentNodeProgress } from './useContentNodeProgress';
@@ -36,17 +36,21 @@ function addResumableContentNodes(nodes, more = null) {
   ContentNodeResource.cacheData(nodes);
 }
 
+function _cacheLessonResources(lesson) {
+  for (let resource of lesson.resources) {
+    if (resource.contentnode && resource.contentnode.content_id) {
+      ContentNodeResource.cacheData(resource.contentnode);
+      setContentNodeProgress({
+        content_id: resource.contentnode.content_id,
+        progress: resource.progress,
+      });
+    }
+  }
+}
+
 function setClassData(classroom) {
   for (let lesson of classroom.assignments.lessons) {
-    for (let resource of lesson.resources) {
-      if (resource.contentnode && resource.contentnode.content_id) {
-        ContentNodeResource.cacheData(resource.contentnode);
-        setContentNodeProgress({
-          content_id: resource.contentnode.content_id,
-          progress: resource.progress,
-        });
-      }
-    }
+    _cacheLessonResources(lesson);
   }
 }
 
@@ -302,6 +306,13 @@ export default function useLearnerResources() {
     });
   }
 
+  function fetchLesson({ lessonId } = {}) {
+    return LearnerLessonResource.fetchModel({ id: lessonId }).then(lesson => {
+      _cacheLessonResources(lesson);
+      return lesson;
+    });
+  }
+
   /**
    * Fetches resumable content nodes with their progress data
    * and saves data to this composable's store
@@ -363,6 +374,7 @@ export default function useLearnerResources() {
     getTopicContentNodeLink,
     fetchClass,
     fetchClasses,
+    fetchLesson,
     fetchResumableContentNodes,
     fetchMoreResumableContentNodes,
     resumableContentNodes,
