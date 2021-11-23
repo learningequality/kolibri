@@ -39,9 +39,9 @@
       />
       <div class="text" :style="{ color: $themeTokens.text }">
         <h3 class="title" dir="auto">
-          <TextTruncator
+          <TextTruncatorCss
             :text="content.title"
-            :maxHeight="maxTitleHeight"
+            :maxLines="5"
           />
         </h3>
       </div>
@@ -86,7 +86,7 @@
   import { mapGetters } from 'vuex';
   import { validateLinkObject } from 'kolibri.utils.validators';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
-  import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
+  import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ProgressBar from '../ProgressBar';
   import LearningActivityLabel from '../cards/ResourceCard/LearningActivityLabel';
@@ -98,7 +98,7 @@
     components: {
       CardThumbnail,
       CoachContentLabel,
-      TextTruncator,
+      TextTruncatorCss,
       LearningActivityLabel,
       ProgressBar,
     },
@@ -137,14 +137,6 @@
           };
         }
         return styles;
-      },
-      maxTitleHeight() {
-        if (this.footerLength && this.subtitle) {
-          return 20;
-        } else if (this.footerLength || this.subtitle) {
-          return 40;
-        }
-        return 120;
       },
       footerLength() {
         return (
