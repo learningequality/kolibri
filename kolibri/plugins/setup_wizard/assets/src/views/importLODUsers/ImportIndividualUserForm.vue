@@ -5,7 +5,9 @@
     :description="formDescription"
     :submitText="coreString('importAction')"
     :disabled="checkFormDisabled"
+    :finishButton="users.length !== 0"
     @submit="handleSubmit"
+    @click_finish="redirectToChannels"
   >
     <p class="facility-name">
       {{ formatNameAndId(facility.name, facility.id) }}
@@ -88,7 +90,11 @@
   import { DemographicConstants, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import OnboardingForm from '../onboarding-forms/OnboardingForm';
-  import { FacilityImportResource, SetupSoUDTasksResource } from '../../api';
+  import {
+    FacilityImportResource,
+    FinishSoUDSyncingResource,
+    SetupSoUDTasksResource,
+  } from '../../api';
 
   export default {
     name: 'ImportIndividualUserForm',
@@ -117,6 +123,9 @@
       },
       facility() {
         return this.state.value.facility;
+      },
+      users() {
+        return this.state.value.users;
       },
       checkFormDisabled() {
         return (
@@ -226,6 +235,9 @@
               this.error = true;
             } else this.$store.dispatch('handleApiError', error);
           });
+      },
+      redirectToChannels() {
+        FinishSoUDSyncingResource.finish();
       },
     },
     $trs: {

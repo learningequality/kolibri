@@ -77,7 +77,7 @@
       },
       removeNavIcon() {
         // TODO disable backwards navigation at the router level
-        return this.currentStep > 1;
+        return this.currentStep > 2 || this.state.context.users.length > 0;
       },
       users() {
         return this.state.context.users;
@@ -127,7 +127,8 @@
     },
     methods: {
       previousStep() {
-        if (this.state.matches('selectFacility')) this.wizardService.send('BACK');
+        if (this.state.matches('selectFacility') || this.state.matches('userCredentials'))
+          this.wizardService.send('BACK');
         else this.service.send('BACK');
       },
       redirectToChannels() {
