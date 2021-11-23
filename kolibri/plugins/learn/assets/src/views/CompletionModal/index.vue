@@ -66,64 +66,66 @@
               </div>
               <div>{{ $tr('keepUpTheGreatProgress') }}</div>
             </div>
+            <KCircularLoader v-if="loading" class="loader" />
+            <template v-else>
+              <CompletionModalSection
+                v-if="nextContentNode"
+                ref="nextContentNodeSection"
+                icon="forwardRounded"
+                :class="sectionClass"
+                :title="$tr('moveOnTitle')"
+                :description="$tr('moveOnDescription')"
+                :buttonLabel="$tr('moveOnButtonLabel')"
+                :buttonRoute="nextContentNodeRoute"
+              >
+                <ResourceItem
+                  :contentNode="nextContentNode"
+                  size="small"
+                />
+              </CompletionModalSection>
 
-            <CompletionModalSection
-              v-if="nextContentNode"
-              ref="nextContentNodeSection"
-              icon="forwardRounded"
-              :class="sectionClass"
-              :title="$tr('moveOnTitle')"
-              :description="$tr('moveOnDescription')"
-              :buttonLabel="$tr('moveOnButtonLabel')"
-              :buttonRoute="nextContentNodeRoute"
-            >
-              <ResourceItem
-                :contentNode="nextContentNode"
-                size="small"
+              <CompletionModalSection
+                ref="staySection"
+                icon="restart"
+                :class="sectionClass"
+                :title="$tr('stayTitle')"
+                :description="$tr('stayDescription')"
+                :buttonLabel="$tr('stayButtonLabel')"
+                @buttonClick="$emit('close')"
               />
-            </CompletionModalSection>
 
-            <CompletionModalSection
-              ref="staySection"
-              icon="restart"
-              :class="sectionClass"
-              :title="$tr('stayTitle')"
-              :description="$tr('stayDescription')"
-              :buttonLabel="$tr('stayButtonLabel')"
-              @buttonClick="$emit('close')"
-            />
-
-            <CompletionModalSection
-              v-if="recommendedContentNodes && recommendedContentNodes.length"
-              icon="alternativeRoute"
-              :class="sectionClass"
-              :title="$tr('helpfulResourcesTitle')"
-              :description="$tr('helpfulResourcesDescription')"
-            >
-              <KGrid :style="{ marginTop: '6px' }">
-                <KGridItem
-                  v-for="contentNode in recommendedContentNodes"
-                  :key="contentNode.id"
-                  :layout12="{ span: 6 }"
-                  :layout8="{ span: 4 }"
-                  :layout4="{ span: 4 }"
-                  :style="{ marginBottom: '24px' }"
-                >
-                  <ResourceItem
-                    data-test="recommended-resource"
-                    :contentNode="contentNode"
-                    :contentNodeRoute="genContentLink(
-                      contentNode.id,
-                      null,
-                      contentNode.is_leaf,
-                      $route.query.last,
-                      $route.query
-                    )"
-                    :size="recommendedResourceItemSize"
-                  />
-                </KGridItem>
-              </KGrid>
-            </CompletionModalSection>
+              <CompletionModalSection
+                v-if="recommendedContentNodes && recommendedContentNodes.length"
+                icon="alternativeRoute"
+                :class="sectionClass"
+                :title="$tr('helpfulResourcesTitle')"
+                :description="$tr('helpfulResourcesDescription')"
+              >
+                <KGrid :style="{ marginTop: '6px' }">
+                  <KGridItem
+                    v-for="contentNode in recommendedContentNodes"
+                    :key="contentNode.id"
+                    :layout12="{ span: 6 }"
+                    :layout8="{ span: 4 }"
+                    :layout4="{ span: 4 }"
+                    :style="{ marginBottom: '24px' }"
+                  >
+                    <ResourceItem
+                      data-test="recommended-resource"
+                      :contentNode="contentNode"
+                      :contentNodeRoute="genContentLink(
+                        contentNode.id,
+                        null,
+                        contentNode.is_leaf,
+                        $route.query.last,
+                        $route.query
+                      )"
+                      :size="recommendedResourceItemSize"
+                    />
+                  </KGridItem>
+                </KGrid>
+              </CompletionModalSection>
+            </template>
           </div>
 
           <KIconButton
@@ -222,6 +224,7 @@
          * to the next resource
          */
         nextContentNode: null,
+        loading: true,
       };
     },
     computed: {
@@ -281,14 +284,19 @@
       },
     },
     created() {
+      const promises = [];
       if (this.lessonId) {
-        this.loadNextLessonContent();
+        promises.push(this.loadNextLessonContent());
       } else if (this.canAccessUnassignedContent) {
-        this.loadNextContent();
+        promises.push(this.loadNextContent());
       }
       if (this.canAccessUnassignedContent) {
-        this.loadRecommendedContent();
+        promises.push(this.loadRecommendedContent());
       }
+      Promise.all(promises).then(() => {
+        this.loading = false;
+        this.$nextTick(this.setFocusTrap);
+      });
     },
     beforeMount() {
       this.lastFocus = document.activeElement;
@@ -297,16 +305,7 @@
       // Remove scrollbars from the <html> tag, so user's can't scroll while modal is open
       window.document.documentElement.style['overflow'] = 'hidden';
       this.$nextTick(() => {
-        if (this.$refs.modal && !this.$refs.modal.contains(document.activeElement)) {
-          this.focusModal();
-        }
-
-        if (this.nextContentNode) {
-          this.firstFocusableEl = this.$refs.nextContentNodeSection.getButtonRef().$el;
-        } else {
-          this.firstFocusableEl = this.$refs.staySection.getButtonRef().$el;
-        }
-        this.lastFocusableEl = this.$refs.closeButton.$el;
+        this.setFocusTrap();
       });
       window.addEventListener('focus', this.focusElementTest, true);
     },
@@ -322,18 +321,30 @@
       window.setTimeout(() => this.lastFocus.focus());
     },
     methods: {
+      setFocusTrap() {
+        if (this.$refs.modal && !this.$refs.modal.contains(document.activeElement)) {
+          this.focusModal();
+        }
+
+        if (this.nextContentNode && this.$refs.nextContentNodeSection) {
+          this.firstFocusableEl = this.$refs.nextContentNodeSection.getButtonRef().$el;
+        } else if (this.$refs.staySection) {
+          this.firstFocusableEl = this.$refs.staySection.getButtonRef().$el;
+        }
+        this.lastFocusableEl = this.$refs.closeButton.$el;
+      },
       loadNextContent() {
-        ContentNodeResource.fetchNextContent(this.contentNodeId).then(data => {
+        return ContentNodeResource.fetchNextContent(this.contentNodeId).then(data => {
           this.nextContentNode = data;
         });
       },
       loadRecommendedContent() {
-        ContentNodeResource.fetchRecommendationsFor(this.contentNodeId).then(data => {
+        return ContentNodeResource.fetchRecommendationsFor(this.contentNodeId).then(data => {
           this.recommendedContentNodes = data;
         });
       },
       loadNextLessonContent() {
-        this.fetchLesson({ lessonId: this.lessonId }).then(lesson => {
+        return this.fetchLesson({ lessonId: this.lessonId }).then(lesson => {
           const index = lesson.resources.findIndex(c => c.contentnode_id === this.contentNodeId);
           this.nextContentNode = lesson.resources[index + 1]
             ? lesson.resources[index + 1].contentnode
@@ -495,6 +506,11 @@
     .points {
       font-size: 24px;
     }
+  }
+
+  .loader {
+    margin-top: 16px;
+    margin-bottom: 16px;
   }
 
 </style>
