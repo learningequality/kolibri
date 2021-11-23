@@ -1,6 +1,10 @@
 <template>
 
-  <MultiPaneLayout ref="multiPaneLayout" class="container">
+  <component
+    :is="practiceQuiz ? 'EmbeddedMultiPaneLayout' : 'MultiPaneLayout'"
+    ref="multiPaneLayout"
+    class="container"
+  >
     <template #header>
       <slot name="header">
         <PageStatus
@@ -10,8 +14,6 @@
           :completionTimestamp="completionTimestamp"
           :completed="complete"
           :timeSpent="timeSpent"
-          :retry="retry"
-          @repeat="$emit('repeat')"
         />
       </slot>
     </template>
@@ -37,20 +39,23 @@
           :checked="showCorrectAnswer"
           @change="toggleShowCorrectAnswer"
         />
+        <div v-if="currentAttemptDiff" style="padding-bottom: 15px;">
+          <AttemptIconDiff
+            :correct="currentAttempt.correct"
+            :diff="currentAttemptDiff.correct"
+          />
+          <AttemptTextDiff
+            :userId="userId"
+            :correct="currentAttempt.correct"
+            :diff="currentAttemptDiff.correct"
+          />
+        </div>
         <InteractionList
           v-if="!showCorrectAnswer"
           :interactions="currentInteractionHistory"
           :selectedInteractionIndex="selectedInteractionIndex"
           @select="navigateToQuestionAttempt"
         />
-        <div v-if="currentAttempt && currentAttempt.diff && currentAttempt.diff.text">
-          <AttemptLogDiffIcon
-            class="diff-item item"
-            :correct="currentAttempt.correct"
-            :diff="currentAttempt.diff.correct"
-          />
-          {{ currentAttempt.diff.text }}
-        </div>
         <KContentRenderer
           v-if="exercise"
           :itemId="itemId"
@@ -70,7 +75,7 @@
         {{ $tr('noItemId') }}
       </p>
     </template>
-  </MultiPaneLayout>
+  </component>
 
 </template>
 
@@ -81,8 +86,10 @@
   import InteractionList from 'kolibri.coreVue.components.InteractionList';
   import find from 'lodash/find';
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
+  import EmbeddedMultiPaneLayout from 'kolibri.coreVue.components.EmbeddedMultiPaneLayout';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import AttemptLogDiffIcon from '../AttemptLogDiffIcon';
+  import AttemptTextDiff from './AttemptTextDiff';
+  import AttemptIconDiff from './AttemptIconDiff';
   import PageStatus from './PageStatus';
 
   export default {
@@ -92,7 +99,9 @@
       AttemptLogList,
       InteractionList,
       MultiPaneLayout,
-      AttemptLogDiffIcon,
+      EmbeddedMultiPaneLayout,
+      AttemptIconDiff,
+      AttemptTextDiff,
     },
     mixins: [commonCoreStrings],
     props: {
@@ -102,6 +111,10 @@
       },
       exam: {
         type: Object,
+        required: true,
+      },
+      userId: {
+        type: String,
         required: true,
       },
       userName: {
@@ -158,13 +171,13 @@
         type: Array,
         default: () => [],
       },
-      retry: {
-        type: Boolean,
-        default: false,
-      },
       timeSpent: {
         type: Number,
         default: 0,
+      },
+      practiceQuiz: {
+        type: Boolean,
+        default: false,
       },
     },
     data() {
@@ -201,6 +214,13 @@
       },
       currentAttempt() {
         return this.attemptLogs.find(a => a.item === this.itemId);
+      },
+      currentAttemptDiff() {
+        return this.currentAttempt &&
+          this.currentAttempt.diff &&
+          this.currentAttempt.diff.correct !== null
+          ? this.currentAttempt.diff
+          : null;
       },
     },
     methods: {

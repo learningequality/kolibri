@@ -5,11 +5,6 @@
     :style="{ fill: $themeTokens.correct }"
     icon="plus"
   />
-  <KIcon
-    v-else-if="!correct && diff < 0"
-    :style="{ fill: $themeTokens.incorrect }"
-    icon="minus"
-  />
 
 </template>
 
@@ -17,7 +12,7 @@
 <script>
 
   export default {
-    name: 'AttemptLogDiffIcon',
+    name: 'AttemptIconDiff',
     props: {
       correct: {
         type: Number,

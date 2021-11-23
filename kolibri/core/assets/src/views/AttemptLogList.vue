@@ -1,7 +1,7 @@
 <template>
 
   <div :style="{ backgroundColor: $themeTokens.surface }">
-    <h3 class="header" :style="iconStyle">
+    <h3 class="header" :class="windowIsLargeClass">
       {{ $tr('answerHistoryLabel') }}
     </h3>
 
@@ -27,14 +27,15 @@
           <a
             ref="attemptListOption"
             role="option"
+            class="attempt-item-anchor"
+            :class="windowIsLargeClass"
             :aria-selected="isSelected(index).toString()"
             :tabindex="isSelected(index) ? 0 : -1"
-            :style="iconStyle"
             @click.prevent="setSelectedAttemptLog(index)"
             @keydown.enter="setSelectedAttemptLog(index)"
             @keydown.space.prevent="setSelectedAttemptLog(index)"
           >
-            <p class="item text-item">
+            <p class="item text-item" :class="windowIsLargeClass">
               {{
                 windowIsLarge ?
                   coreString(
@@ -46,41 +47,44 @@
                   "&nbsp;"
               }}
             </p>
-            <KIcon
-              v-if="attemptLog.noattempt"
-              class="item svg-item"
-              icon="notStarted"
-            />
-            <KIcon
-              v-else-if="attemptLog.correct"
-              class="item svg-item"
-              :style="{ fill: $themeTokens.correct }"
-              icon="correct"
-            />
-            <KIcon
-              v-else-if="attemptLog.error"
-              class="svg-item"
-              :style=" { fill: $themeTokens.annotation }"
-              icon="helpNeeded"
-            />
-            <KIcon
-              v-else-if="!attemptLog.correct"
-              class="item svg-item"
-              :style="{ fill: $themeTokens.incorrect }"
-              icon="incorrect"
-            />
-            <KIcon
-              v-else-if="attemptLog.hinted"
-              class="item svg-item"
-              :style=" { fill: $themeTokens.annotation }"
-              icon="hint"
-            />
-            <AttemptLogDiffIcon
-              v-if="attemptLog.diff"
-              class="diff-item item"
-              :correct="attemptLog.correct"
-              :diff="attemptLog.diff.correct"
-            />
+            <span class="icon-item item" :class="windowIsLargeClass">
+              <AttemptIconDiff
+                v-if="attemptLog.diff && attemptLog.diff.correct !== null"
+                class="diff-item item"
+                :correct="attemptLog.correct"
+                :diff="attemptLog.diff.correct"
+              />
+              <KIcon
+                v-if="attemptLog.noattempt"
+                class="item svg-item"
+                icon="notStarted"
+              />
+              <KIcon
+                v-else-if="attemptLog.correct"
+                class="item svg-item"
+                :style="{ fill: $themeTokens.correct }"
+                icon="correct"
+              />
+              <KIcon
+                v-else-if="attemptLog.error"
+                class="svg-item"
+                :style=" { fill: $themeTokens.annotation }"
+                icon="helpNeeded"
+              />
+              <KIcon
+                v-else-if="!attemptLog.correct"
+                class="item svg-item"
+                :style="{ fill: $themeTokens.incorrect }"
+                icon="incorrect"
+              />
+              <KIcon
+                v-else-if="attemptLog.hinted"
+                class="item svg-item"
+                :style=" { fill: $themeTokens.annotation }"
+                icon="hint"
+              />
+            </span>
+
             <CoachContentLabel
               v-if="windowIsLarge"
               class="coach-content-label"
@@ -101,13 +105,13 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import AttemptLogDiffIcon from './AttemptLogDiffIcon';
+  import AttemptIconDiff from './ExamReport/AttemptIconDiff';
 
   export default {
     name: 'AttemptLogList',
     components: {
       CoachContentLabel,
-      AttemptLogDiffIcon,
+      AttemptIconDiff,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
     props: {
@@ -121,15 +125,8 @@
       },
     },
     computed: {
-      iconStyle() {
-        if (this.windowIsLarge) {
-          return {};
-        } else {
-          return {
-            textAlign: 'center',
-            padding: 0,
-          };
-        }
+      windowIsLargeClass() {
+        return { 'window-is-large': this.windowIsLarge };
       },
     },
     mounted() {
@@ -187,8 +184,12 @@
   .header {
     padding-top: 10px;
     padding-bottom: 10px;
-    padding-left: 20px;
+    padding-left: 16px;
     margin: 0;
+
+    &:not(.window-is-large) {
+      text-align: center;
+    }
   }
 
   .history-list {
@@ -203,17 +204,22 @@
     height: 24px;
   }
 
-  .text-item {
+  .text-item.window-is-large {
     width: calc(100% - 50px);
   }
 
+  .icon-item.window-is-large {
+    width: 50px;
+    text-align: right;
+  }
+
   .svg-item {
-    margin-bottom: -4px;
+    margin: 0 0 -4px;
     font-size: 24px;
   }
 
   .diff-item {
-    margin-bottom: -4px;
+    margin: 0 0 -4px;
     font-size: 16px;
   }
 
@@ -223,10 +229,17 @@
     clear: both;
   }
 
-  .attempt-item > a {
+  .attempt-item-anchor {
     display: block;
-    padding-left: 20px;
     cursor: pointer;
+
+    &.window-is-large {
+      padding: 0 16px;
+    }
+
+    &:not(.window-is-large) {
+      text-align: center;
+    }
   }
 
 </style>

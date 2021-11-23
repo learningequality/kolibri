@@ -21,14 +21,9 @@
         :completionTimestamp="completionTimestamp"
         :completed="completed"
         :timeSpent="timeSpent"
-        :diff="diff"
       />
     </KFixedGridItem>
-    <KFixedGridItem span="1" alignment="right">
-      <KButton v-if="retry" @click="$emit('repeat')">
-        {{ coreString('tryAgainButton') }}
-      </KButton>
-    </KFixedGridItem>
+    <KFixedGridItem span="1" alignment="right" />
   </KFixedGrid>
 
 </template>
@@ -66,17 +61,9 @@
         type: String,
         required: true,
       },
-      retry: {
-        type: Boolean,
-        default: false,
-      },
       timeSpent: {
         type: Number,
         default: 0,
-      },
-      diff: {
-        type: Object,
-        default: () => ({}),
       },
     },
     computed: {

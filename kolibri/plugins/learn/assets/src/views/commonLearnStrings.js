@@ -80,27 +80,6 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
     message: 'Suggested time',
     context: 'Time suggested by coach for how long an independent practice quiz should take',
   },
-  answerLogCorrectLabel: {
-    message: 'You answered this correctly on the previous attempt',
-    context:
-      'Label that indicates to the learner that they answered this question correctly last time they took the quiz',
-  },
-  answerLogIncorrectLabel: {
-    message: 'You also answered this incorrectly on the previous attempt',
-    context:
-      'Label that indicates to the learner that they answered this question incorrectly both on this attempt and on the previous one',
-  },
-  answerLogImprovedLabel: {
-    message: 'You improved your incorrect answer from the previous attempt',
-    context:
-      'Label that indicates to the learner that they got the question wrong on the previous attempt, but got it correctly this time.',
-  },
-  practiceQuizReportImprovedLabel: {
-    message:
-      'You improved at {value, number, integer} {value, plural, one {question} other {questions}}',
-    context:
-      'Indicates to the learner how many questions they answered correctly compared to the previous attempt',
-  },
 });
 
 export default {

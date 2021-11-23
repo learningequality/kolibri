@@ -23,11 +23,12 @@
             :completionTimestamp="completionTimestamp"
             :completed="true"
             :bestTimeSpent="bestTimeSpent"
+            :suggestedTime="content.duration"
           />
         </KFixedGridItem>
         <KFixedGridItem span="1" alignment="right">
           <KButton @click="$emit('repeat')">
-            {{ coreString('tryAgainButton') }}
+            {{ $tr('tryAgainButton') }}
           </KButton>
         </KFixedGridItem>
       </KFixedGrid>
@@ -36,6 +37,7 @@
     <template #main>
       <ExamReport
         v-if="currentTry"
+        practiceQuiz
         :examAttempts="quizAttempts"
         class="report"
         :exam="content"
@@ -53,30 +55,31 @@
         :navigateToQuestionAttempt="navigateToQuestionAttempt"
         :questions="questions"
         :timeSpent="timeSpent"
-        @repeat="$emit('repeat')"
       >
         <template #header>
-          <KSelect
-            v-if="pastTriesOptions"
-            v-model="selectedTry"
-            :label="coreString('attemptDropdownLabel')"
-            appearance="flat-button"
-            class="try-selection"
-            :options="pastTriesOptions"
-          />
-          <CurrentTryOverview
-            :progress="1"
-            :questionsCorrect="questionsCorrect"
-            :questionsCorrectText="questionsCorrectText"
-            :score="score"
-            :totalQuestions="questions.length"
-            :completionTimestamp="completionTimestamp"
-            :completed="true"
-            :timeSpent="timeSpent"
-            :timeSpentText="timeSpentText"
-            :diff="null"
-            :hideStatus="true"
-          />
+          <div style="padding: 16px">
+            <KSelect
+              v-if="pastTriesOptions"
+              v-model="selectedTry"
+              :label="$tr('attemptDropdownLabel')"
+              :options="pastTriesOptions"
+              :style="{ background: $themePalette.grey.v_100 }"
+              appearance="flat-button"
+              class="try-selection"
+            />
+            <CurrentTryOverview
+              :userId="userId"
+              :progress="1"
+              :questionsCorrect="questionsCorrect"
+              :score="score"
+              :totalQuestions="questions.length"
+              :completionTimestamp="completionTimestamp"
+              :completed="true"
+              :timeSpent="timeSpent"
+              :previousTryDiff="previousTryDiff"
+              :hideStatus="true"
+            />
+          </div>
         </template>
       </ExamReport>
     </template>
@@ -89,7 +92,7 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ExamReport from 'kolibri.coreVue.components.ExamReport';
-  import PageStatus from 'kolibri.coreVue.components.PageStatus';
+  import CurrentTryOverview from 'kolibri.coreVue.components.CurrentTryOverview';
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
   import { MasteryLogResource } from 'kolibri.resources';
   import { now } from 'kolibri.utils.serverClock';
@@ -101,7 +104,7 @@
     components: {
       ExamReport,
       MultiPaneLayout,
-      CurrentTryOverview: PageStatus.components.CurrentTryOverview,
+      CurrentTryOverview,
       TriesOverview,
     },
     mixins: [commonCoreStrings, commonLearnStrings],
@@ -167,16 +170,6 @@
           const attempt = this.pastattempts.find(a => a.item === itemId);
           const questionNumber = index + 1;
           const noattempt = !attempt;
-          if (attempt && attempt.diff) {
-            if (attempt.correct === attempt.diff.correct) {
-              attempt.diff.text =
-                attempt.correct >= 1
-                  ? this.learnString('answerLogImprovedLabel')
-                  : this.learnString('answerLogIncorrectLabel');
-            } else if (!attempt.correct && attempt.diff.correct < 0) {
-              attempt.diff.text = this.learnString('answerLogCorrectLabel');
-            }
-          }
           return {
             ...(attempt || {}),
             noattempt,
@@ -186,33 +179,16 @@
       },
       content() {
         // TODO: REPLACE THIS
-        return { title: 'test' };
+        return { title: 'test', duration: 0 };
       },
       questionsCorrect() {
         return this.currentTry ? this.currentTry.correct : 0;
-      },
-      questionsCorrectText() {
-        return this.currentTry && this.currentTry.diff && this.currentTry.diff.correct > 0
-          ? this.learnString('practiceQuizReportImprovedLabel', {
-              value: this.currentTry.diff.correct,
-            })
-          : null;
       },
       score() {
         return this.questionsCorrect / this.questions.length;
       },
       timeSpent() {
         return this.currentTry ? this.currentTry.time_spent : 0;
-      },
-      timeSpentText() {
-        const fasterTime =
-          this.currentTry && this.currentTry.diff && this.currentTry.diff.time_spent < 0
-            ? Math.floor(Math.abs(this.currentTry.diff.time_spent / 60))
-            : 0;
-
-        return fasterTime >= 1
-          ? this.coreString('practiceQuizReportFasterTimeLabel', { value: fasterTime })
-          : null;
       },
       itemId() {
         return this.questions[this.questionNumber];
@@ -238,6 +214,9 @@
             label: `(${score}%) ${time}`,
           };
         });
+      },
+      previousTryDiff() {
+        return this.currentTry && this.currentTry.diff ? this.currentTry.diff : null;
       },
       bestTimeSpent() {
         return Math.min(...this.pastTries.map(t => t.time_spent));
@@ -297,6 +276,17 @@
         );
       },
     },
+    $trs: {
+      attemptDropdownLabel: {
+        message: 'Attempt',
+        context:
+          'Label in the dropdown menu where one can choose an attempt from their five most recent attempts at a practice quiz',
+      },
+      tryAgainButton: {
+        message: 'Try again',
+        context: 'Label for a button used to retake the quiz',
+      },
+    },
   };
 
 </script>
@@ -317,10 +307,15 @@
 
   .try-selection {
     max-width: 400px;
-    padding: 5px;
+    padding: 5px 5px 0;
   }
+
   .report {
     margin: auto;
+  }
+
+  .page-status {
+    padding: 16px;
   }
 
 </style>
