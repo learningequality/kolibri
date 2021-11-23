@@ -30,6 +30,7 @@ function makeWrapper({ propsData, data } = {}) {
     methods: {
       loadNextContent: jest.fn(),
       loadRecommendedContent: jest.fn(),
+      loadNextLessonContent: jest.fn(),
     },
   });
 }

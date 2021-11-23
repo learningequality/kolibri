@@ -150,6 +150,8 @@
   import FocusTrap from 'kolibri.coreVue.components.FocusTrap';
   import PointsIcon from 'kolibri.coreVue.components.PointsIcon';
   import { ContentNodeResource } from 'kolibri.resources';
+  import useDeviceSettings from '../../composables/useDeviceSettings';
+  import useLearnerResources from '../../composables/useLearnerResources';
   import genContentLink from '../../utils/genContentLink';
   import commonLearnStrings from '../commonLearnStrings';
   import CompletionModalSection from './CompletionModalSection';
@@ -175,6 +177,11 @@
       UiAlert,
     },
     mixins: [KResponsiveWindowMixin, commonLearnStrings],
+    setup() {
+      const { canAccessUnassignedContent } = useDeviceSettings();
+      const { fetchLesson } = useLearnerResources();
+      return { canAccessUnassignedContent, fetchLesson };
+    },
     props: {
       /**
        * A sign-in prompt is displayed if a user
@@ -188,6 +195,10 @@
       contentNodeId: {
         type: String,
         required: true,
+      },
+      lessonId: {
+        type: String,
+        default: null,
       },
     },
     data() {
@@ -270,8 +281,14 @@
       },
     },
     created() {
-      this.loadNextContent();
-      this.loadRecommendedContent();
+      if (this.lessonId) {
+        this.loadNextLessonContent();
+      } else if (this.canAccessUnassignedContent) {
+        this.loadNextContent();
+      }
+      if (this.canAccessUnassignedContent) {
+        this.loadRecommendedContent();
+      }
     },
     beforeMount() {
       this.lastFocus = document.activeElement;
@@ -313,6 +330,14 @@
       loadRecommendedContent() {
         ContentNodeResource.fetchRecommendationsFor(this.contentNodeId).then(data => {
           this.recommendedContentNodes = data;
+        });
+      },
+      loadNextLessonContent() {
+        this.fetchLesson({ lessonId: this.lessonId }).then(lesson => {
+          const index = lesson.resources.findIndex(c => c.contentnode_id === this.contentNodeId);
+          this.nextContentNode = lesson.resources[index + 1]
+            ? lesson.resources[index + 1].contentnode
+            : null;
         });
       },
       genContentLink,
