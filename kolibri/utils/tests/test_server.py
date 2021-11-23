@@ -46,6 +46,25 @@ class TestServerInstallation(object):
             ].format("1.0")
 
     @mock.patch("sys.argv", ["/usr/bin/kolibri", "start"])
+    def test_dpkg_version(self):
+        DPKG_OUTPUT = """
+        Package: kolibri
+        Status: install ok installed
+        Priority: optional
+        Section: education
+        Architecture: all
+        Source: kolibri-source
+        Version: 0.15.0~beta2-0ubuntu1
+        Depends: python3 (>= 3.4), python3-pkg-resources, adduser
+        Recommends: python3-cryptography (>= 1.2.3)
+        """
+        with mock.patch("kolibri.utils.server.check_output", return_value=DPKG_OUTPUT):
+            install_type = server.installation_type()
+            assert install_type == installation_types.install_type_map[
+                installation_types.DEB
+            ].format("0.15.0~beta2-0ubuntu1")
+
+    @mock.patch("sys.argv", ["/usr/bin/kolibri", "start"])
     @mock.patch("os.environ", {"KOLIBRI_INSTALLER_VERSION": "1.0"})
     def test_apt(apt):
         with mock.patch("kolibri.utils.server.check_output", return_value="any repo"):

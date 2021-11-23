@@ -926,7 +926,7 @@ def get_installer_version(installer_type):  # noqa: C901
             if hasattr(output, "decode"):  # needed in python 2.x
                 output = output.decode("utf-8")
             package_info = output.split("\n")
-            version_info = [output for output in package_info if "Version" in output]
+            version_info = [line for line in package_info if "Version" in line]
             if version_info:
                 version = version_info[0].split(":")[1].strip()
                 return version
