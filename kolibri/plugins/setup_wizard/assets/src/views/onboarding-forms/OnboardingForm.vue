@@ -33,7 +33,6 @@
 
           <KButton
             v-if="finishButton"
-            primary
             :text="coreString('finishAction')"
             @click="$emit('click_finish')"
           />
