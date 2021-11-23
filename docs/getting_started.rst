@@ -524,4 +524,3 @@ file *./docker/env.list*:
 
  * ``KOLIBRI_PEX_URL``: Download URL or the string ``default``
  * ``DOCKERMNT_PEX_PATH``: Local path such as ``/docker/mnt/nameof.pex``
-

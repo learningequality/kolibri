@@ -43,4 +43,3 @@ If the `KOLIBRI_PROVISIONDEVICE_FACILITY` environment variable is set, the entry
 * `KOLIBRI_PROVISIONDEVICE_PRESET`: defaults to `formal`, with the other options being `nonformal` and `informal`
 * `KOLIBRI_PROVISIONDEVICE_SUPERUSERNAME`: default `devowner`
 * `KOLIBRI_PROVISIONDEVICE_SUPERUSERPASSWORD`: default `admin123`
-
