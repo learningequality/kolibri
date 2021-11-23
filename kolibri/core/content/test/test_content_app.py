@@ -278,6 +278,7 @@ class ContentNodeAPITestCase(APITestCase):
             )
             .first()
         )
+        thumbnail = None
         files = []
         for f in expected.files.all():
             "local_file__id",
@@ -304,6 +305,8 @@ class ContentNodeAPITestCase(APITestCase):
             file["lang"] = self.map_language(f.lang)
             file["storage_url"] = f.get_storage_url()
             files.append(file)
+            if f.thumbnail:
+                thumbnail = f.get_storage_url()
         self.assertEqual(
             actual,
             {
@@ -349,6 +352,7 @@ class ContentNodeAPITestCase(APITestCase):
                     .order_by("tag_name")
                     .values_list("tag_name", flat=True)
                 ),
+                "thumbnail": thumbnail,
                 "assessmentmetadata": assessmentmetadata,
                 "is_leaf": expected.kind != "topic",
                 "files": files,

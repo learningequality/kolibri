@@ -143,6 +143,36 @@ class ChannelMetadataViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         return models.ChannelMetadata.objects.all().select_related("root__lang")
 
+    @list_route(methods=["get"])
+    def filter_options(self, request, **kwargs):
+        channel_id = self.request.query_params.get("id")
+
+        nodes = models.ContentNode.objects.filter(channel_id=channel_id)
+        authors = (
+            nodes.exclude(author="")
+            .order_by("author")
+            .values_list("author")
+            .annotate(Count("author"))
+        )
+        kinds = nodes.order_by("kind").values_list("kind").annotate(Count("kind"))
+
+        tag_nodes = models.ContentTag.objects.filter(
+            tagged_content__channel_id=channel_id
+        )
+        tags = (
+            tag_nodes.order_by("tag_name")
+            .values_list("tag_name")
+            .annotate(Count("tag_name"))
+        )
+
+        data = {
+            "available_authors": dict(authors),
+            "available_kinds": dict(kinds),
+            "available_tags": dict(tags),
+        }
+
+        return Response(data)
+
 
 class IdFilter(FilterSet):
     ids = CharFilter(method="filter_ids")
@@ -217,10 +247,34 @@ class ContentNodeFilter(IdFilter):
     categories__isnull = BooleanFilter(field_name="categories", lookup_expr="isnull")
     lft__gt = NumberFilter(field_name="lft", lookup_expr="gt")
     rght__lt = NumberFilter(field_name="rght", lookup_expr="lt")
+    authors = CharFilter(method="filter_by_authors")
+    tags = CharFilter(method="filter_by_tags")
 
     class Meta:
         model = models.ContentNode
         fields = contentnode_filter_fields
+
+    def filter_by_authors(self, queryset, name, value):
+        """
+        Show content filtered by author
+
+        :param queryset: all content nodes for this channel
+        :param value: an array of authors to filter by
+        :return: content nodes that match the authors
+        """
+        authors = value.split(",")
+        return queryset.filter(author__in=authors).order_by("lft")
+
+    def filter_by_tags(self, queryset, name, value):
+        """
+        Show content filtered by tag
+
+        :param queryset: all content nodes for this channel
+        :param value: an array of tags to filter by
+        :return: content nodes that match the tags
+        """
+        tags = value.split(",")
+        return queryset.filter(tags__tag_name__in=tags).order_by("lft")
 
     def filter_kind(self, queryset, name, value):
         """
@@ -442,6 +496,14 @@ class BaseContentNodeMixin(object):
                 item["assessmentmetadata"] = assessmentmetadata.get(item["id"])
                 item["tags"] = tags.get(item["id"], [])
                 item["files"] = files_map.get(item["id"], [])
+                thumb_file = next(
+                    iter(filter(lambda f: f["thumbnail"] is True, item["files"])),
+                    None,
+                )
+                if thumb_file:
+                    item["thumbnail"] = thumb_file["storage_url"]
+                else:
+                    item["thumbnail"] = None
                 lang_id = item.pop("lang_id")
                 item["lang"] = languages_map.get(lang_id)
                 item["is_leaf"] = item.get("kind") != content_kinds.TOPIC
@@ -514,6 +576,13 @@ def get_resume_queryset(request, queryset):
 @method_decorator(cache_forever, name="dispatch")
 class ContentNodeViewset(BaseContentNodeMixin, ReadOnlyValuesViewset):
     pagination_class = OptionalContentNodePagination
+
+    @list_route(methods=["get"])
+    def random(self, request, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        max_results = int(self.request.query_params.get("max_results", 10))
+        queryset = queryset.order_by("?")[:max_results]
+        return Response(self.serialize(queryset))
 
     @list_route(methods=["get"])
     def descendants(self, request):

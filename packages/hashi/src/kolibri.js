@@ -41,11 +41,34 @@ import { events, nameSpace, DataTypes } from './hashiBase';
  */
 
 /**
+ * Type definition for pagination more object
+ * @typedef {Object} MoreObject
+ * @property {string} cursor - the cursor object to request more
+ */
+
+/**
  * Type definition for pagination object
  * @typedef {Object} PageResult
- * @property {number} page - the page that this pagination object represents
- * @property {number} pageSize - the page size for this pagination object
+ * @property {MoreObject} more - the context object to query more
+ * @property {number} maxResults - the maximum number of nodes per request
  * @property {ContentNode[]} results - the array of ContentNodes for this page
+ */
+
+/**
+ * Type definition for channel metadata object
+ * @typedef {Object} ChannelMetadata
+ * @property {string} id - the channel id
+ * @property {string} title - the channel title
+ * @property {string} description - the channel description
+ * @property {string} thumbnail - the channel thumbnail
+ */
+
+/**
+ * Type definition for channel filter options object
+ * @typedef {Object} ChannelFilterOptions
+ * @property {string[]} availableAuthors - list of authors on this channel
+ * @property {string[]} availableTags - list of tags in this channel
+ * @property {string[]} availableKinds - list of kinds in this channel
  */
 
 /**
@@ -92,14 +115,35 @@ export default class Kolibri extends BaseShim {
        * @param {Object} options - The different options to filter by
        * @param {string=} options.parent - id of the parent node to filter by, or 'self'
        * @param {string[]} options.ids - an array of ids to filter by
-       * @param {number} [options.page=1] - which page to return from the result set
-       * @param {number} [options.pageSize=50] - the page size for pagination
+       * @param {number} [options.maxResults=50] - the maximum number of nodes per request
+       * @param {string[]} options.kinds - an array of kinds to filer by
+       * @param {string[]} options.authors - an array of authors to filter by
+       * @param {string[]} options.tags - an array of tags to filter by
+       * @param {boolean} options.onlyTopics - set to true to query only topic nodes
+       * @param {boolean} options.onlyContent - set to true to query only content nodes
+       * @param {boolean} [options.limitToChannel=true] - true to limit the
+       * results to the topic channel
        * @return {Promise<PageResult>} - a Promise that resolves to an array of ContentNodes
        */
       getContentByFilter(options) {
         return self.mediator.sendMessageAwaitReply({
           event: events.DATAREQUESTED,
           data: { options, dataType: DataTypes.COLLECTION },
+          nameSpace,
+        });
+      }
+      /*
+       * Method to query next page of contentnodes from Kolibri and return
+       * an array
+       * @param {Object} options - The different options to filter by
+       * @param {string} options.cursor - the cursor pagination
+       * @param {number} [options.maxResults=50] - the maximum number of nodes per request
+       * @return {Promise<PageResult>} - a Promise that resolves to an array of ContentNodes
+       */
+      getContentPage(options) {
+        return self.mediator.sendMessageAwaitReply({
+          event: events.DATAREQUESTED,
+          data: { options, dataType: DataTypes.COLLECTIONPAGE },
           nameSpace,
         });
       }
@@ -121,9 +165,9 @@ export default class Kolibri extends BaseShim {
        * an array of matching metadata
        * @param {Object} options - The different options to search by
        * @param {string=} options.keyword - search term for key word search
-       * @param {string=} options.under - id of topic to search under, or 'self'
-       * @param {number} [options.page=1] - which page to return from the result set
-       * @param {number} [options.pageSize=50] - the page size for pagination
+       * @param {number} [options.maxResults=50] - the maximum number of nodes per request
+       * @param {boolean} [options.limitToChannel=true] - true to limit the
+       * results to the topic channel
        * @return {Promise<PageResult>} - a Promise that resolves to an array of ContentNodes
        */
       searchContent(options) {
@@ -206,6 +250,50 @@ export default class Kolibri extends BaseShim {
         return self.mediator.sendMessageAwaitReply({
           event: events.DATAREQUESTED,
           data: { dataType: DataTypes.KOLIBRIVERSION },
+          nameSpace,
+        });
+      }
+
+      /*
+       * Method to query channel metadata from Kolibri
+       * @return {Promise<ChannelMetadata>} - a Promise that resolves to ChannelMetadata
+       */
+      getChannelMetadata() {
+        return self.mediator.sendMessageAwaitReply({
+          event: events.DATAREQUESTED,
+          data: { dataType: DataTypes.CHANNELMETADATA },
+          nameSpace,
+        });
+      }
+
+      /*
+       * Method to query channel filter options from Kolibri
+       * @return {Promise<ChannelFilterOptions>} - a Promise that resolves to ChannelFilterOptions
+       */
+      getChannelFilterOptions() {
+        return self.mediator.sendMessageAwaitReply({
+          event: events.DATAREQUESTED,
+          data: { dataType: DataTypes.CHANNELFILTEROPTIONS },
+          nameSpace,
+        });
+      }
+
+      /*
+       * Method to query random contentnodes from Kolibri and return an array
+       * of matching metadata
+       * @param {Object} options - The different options to filter by
+       * @param {string=} options.parent - id of the parent node to filter by, or 'self'
+       * @param {number} [options.maxResults=10] - the maximum number of nodes per request
+       * @param {string[]} options.kinds - an array of kinds to filer by
+       * @param {boolean} options.onlyContent - set to true to query only content nodes
+       * @param {boolean} [options.limitToChannel=true] - true to limit the
+       * results to the topic channel
+       * @return {Promise<PageResult>} - a Promise that resolves to an array of ContentNodes
+       */
+      getRandomNodes(options) {
+        return self.mediator.sendMessageAwaitReply({
+          event: events.DATAREQUESTED,
+          data: { options, dataType: DataTypes.RANDOMCOLLECTION },
           nameSpace,
         });
       }
