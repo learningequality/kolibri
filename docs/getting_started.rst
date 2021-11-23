@@ -275,8 +275,8 @@ Vue development tools
 To ensure a more efficient workflow, install appropriate editor plugins for Vue.js, ESLint, and stylelint.
 
 
-Sample data for development
----------------------------
+Sample resources and data
+-------------------------
 
 Once you have the server running, proceed to import some channels and resources. To quickly import all available and supported Kolibri resource types, use the token ``nakav-mafak`` for the `Kolibri QA channel <https://kolibri-beta.learningequality.org/en/learn/#/topics/95a52b386f2c485cb97dd60901674a98>`__ (~350MB).
 
