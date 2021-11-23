@@ -18,7 +18,8 @@ import tempfile
 
 import noto_source
 import utils
-from fontTools import merge, subset
+from fontTools import merge
+from fontTools import subset
 
 logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
 logging.getLogger("fontTools").setLevel(logging.WARNING)
