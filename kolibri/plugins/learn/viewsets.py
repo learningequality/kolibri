@@ -49,6 +49,49 @@ class LearnStateView(APIView):
         )
 
 
+def _consolidate_lessons_data(request, lessons):
+    lesson_contentnode_ids = set()
+    for lesson in lessons:
+        lesson_contentnode_ids |= {
+            resource["contentnode_id"] for resource in lesson["resources"]
+        }
+
+    contentnode_progress = (
+        contentnode_progress_viewset.serialize_list(
+            request, {"ids": lesson_contentnode_ids}
+        )
+        if lesson_contentnode_ids
+        else []
+    )
+
+    contentnodes = (
+        contentnode_viewset.serialize_list(request, {"ids": lesson_contentnode_ids})
+        if lesson_contentnode_ids
+        else []
+    )
+
+    progress_map = {l["content_id"]: l["progress"] for l in contentnode_progress}
+
+    contentnode_map = {c["id"]: c for c in contentnodes}
+
+    for lesson in lessons:
+        lesson["progress"] = {
+            "resource_progress": sum(
+                (
+                    progress_map[resource["content_id"]]
+                    for resource in lesson["resources"]
+                    if resource["content_id"] in progress_map
+                )
+            ),
+            "total_resources": len(lesson["resources"]),
+        }
+        for resource in lesson["resources"]:
+            resource["progress"] = progress_map.get(resource["content_id"], 0)
+            resource["contentnode"] = contentnode_map.get(
+                resource["contentnode_id"], None
+            )
+
+
 class LearnerClassroomViewset(ReadOnlyValuesViewset):
     """
     Returns all Classrooms for which the requesting User is a member,
@@ -79,48 +122,7 @@ class LearnerClassroomViewset(ReadOnlyValuesViewset):
                 "description", "id", "is_active", "title", "resources", "collection"
             )
         )
-        lesson_contentnode_ids = set()
-        for lesson in lessons:
-            lesson_contentnode_ids |= {
-                resource["contentnode_id"] for resource in lesson["resources"]
-            }
-
-        contentnode_progress = (
-            contentnode_progress_viewset.serialize_list(
-                self.request, {"ids": lesson_contentnode_ids}
-            )
-            if lesson_contentnode_ids
-            else []
-        )
-
-        contentnodes = (
-            contentnode_viewset.serialize_list(
-                self.request, {"ids": lesson_contentnode_ids}
-            )
-            if lesson_contentnode_ids
-            else []
-        )
-
-        progress_map = {l["content_id"]: l["progress"] for l in contentnode_progress}
-
-        contentnode_map = {c["id"]: c for c in contentnodes}
-
-        for lesson in lessons:
-            lesson["progress"] = {
-                "resource_progress": sum(
-                    (
-                        progress_map[resource["content_id"]]
-                        for resource in lesson["resources"]
-                        if resource["content_id"] in progress_map
-                    )
-                ),
-                "total_resources": len(lesson["resources"]),
-            }
-            for resource in lesson["resources"]:
-                resource["progress"] = progress_map.get(resource["content_id"], 0)
-                resource["contentnode"] = contentnode_map.get(
-                    resource["contentnode_id"], None
-                )
+        _consolidate_lessons_data(self.request, lessons)
 
         user_masterylog_content_ids = MasteryLog.objects.filter(
             user=self.request.user
@@ -280,3 +282,11 @@ class LearnerLessonViewset(ReadOnlyValuesViewset):
             lesson_assignments__collection__membership__user=self.request.user,
             is_active=True,
         )
+
+    def consolidate(self, items, queryset):
+        if not items:
+            return items
+
+        _consolidate_lessons_data(self.request, items)
+
+        return items
