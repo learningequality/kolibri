@@ -581,7 +581,7 @@ class ContentNodeViewset(BaseContentNodeMixin, ReadOnlyValuesViewset):
     def random(self, request, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         max_results = int(self.request.query_params.get("max_results", 10))
-        queryset = queryset.order_by('?')[:max_results]
+        queryset = queryset.order_by("?")[:max_results]
         return Response(self.serialize(queryset))
 
     @list_route(methods=["get"])

@@ -144,7 +144,7 @@
           const err = new Error('onlyContent and onlyTopics can not be used at the same time');
           return createReturnMsg({ message, err });
         }
-        const kind = onlyContent ? 'content' : (onlyTopics ? ContentNodeKinds.TOPIC : undefined);
+        const kind = onlyContent ? 'content' : onlyTopics ? ContentNodeKinds.TOPIC : undefined;
 
         // limit to channel, defaults to true
         const limitToChannel = 'limitToChannel' in options ? options.limitToChannel : true;
