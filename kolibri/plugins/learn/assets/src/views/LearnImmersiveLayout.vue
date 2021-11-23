@@ -101,7 +101,7 @@
     LearningActivities,
     ContentKindsToLearningActivitiesMap,
   } from 'kolibri.coreVue.vuex.constants';
-  import { ContentNodeResource, LessonResource } from 'kolibri.resources';
+  import { ContentNodeResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import client from 'kolibri.client';
   import urls from 'kolibri.urls';
@@ -110,6 +110,7 @@
   import AppError from '../../../../../../kolibri/core/assets/src/views/AppError';
   import useCoreLearn from '../composables/useCoreLearn';
   import useContentNodeProgress from '../composables/useContentNodeProgress';
+  import useLearnerResources from '../composables/useLearnerResources';
   import LessonResourceViewer from './classes/LessonResourceViewer';
   import CurrentlyViewedResourceMetadata from './CurrentlyViewedResourceMetadata';
   import ContentPage from './ContentPage';
@@ -153,7 +154,8 @@
     setup() {
       const { canDownload } = useCoreLearn();
       const { fetchContentNodeProgress, fetchContentNodeTreeProgress } = useContentNodeProgress();
-      return { canDownload, fetchContentNodeProgress, fetchContentNodeTreeProgress };
+      const { fetchLesson } = useLearnerResources();
+      return { canDownload, fetchContentNodeProgress, fetchContentNodeTreeProgress, fetchLesson };
     },
     props: {
       content: {
@@ -296,19 +298,14 @@
        * @modifies useContentNodeProgress.contentNodeProgressMap (indirectly)
        */
       fetchLessonSiblings() {
-        // Map the progress for this lesson to start with
-        this.fetchContentNodeProgress({ lesson_id: this.lessonId });
-
         // Get the lesson and then assign its resources to this.viewResourcesContents
-        return LessonResource.fetchModel({ id: this.lessonId }).then(lesson => {
-          ContentNodeResource.fetchCollection({
-            getParams: {
-              ids: lesson.resources.map(resource => resource.contentnode_id),
-            },
-          }).then(contentNodes => {
-            // Filter out this.content
-            this.viewResourcesContents = contentNodes.filter(n => n.id !== this.content.id);
-          });
+        // fetchLesson also handles fetching the progress data for this lesson and
+        // the content node data for the resources
+        this.fetchLesson({ lessonId: this.lessonId }).then(lesson => {
+          // Filter out this.content
+          this.viewResourcesContents = lesson.resources
+            .filter(n => n.contentnode_id !== this.content.id)
+            .map(n => n.contentnode);
         });
       },
       /**
