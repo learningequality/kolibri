@@ -1,3 +1,9 @@
+kolibri-server (0.4.0~beta2-0ubuntu1) bionic; urgency=medium
+
+  * export KOLIBRI_INSTALLATION_TYPE for kolibri stats
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Wed, 24 Nov 2021 19:53:34 +0100
+
 kolibri-server (0.4.0~beta1-0ubuntu1) bionic; urgency=low
 
   * New upstream release, compatible with kolibri 0.15.x
