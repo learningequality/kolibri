@@ -604,7 +604,6 @@ oriented data synchronization.
   .hint-btn-container {
     display: flex;
     align-items: center;
-    padding-right: 8px !important;
     font-size: medium;
 
     // Ensures the tooltip is visible on the screen in RTL and LTR
