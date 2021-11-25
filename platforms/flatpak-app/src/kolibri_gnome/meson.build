@@ -3,6 +3,7 @@ python_installation.install_sources(
         'application.py',
         '__init__.py',
         'kolibri_daemon_manager.py',
+        'kolibri_window.py',
         'main.py',
         'utils.py',
     ],
