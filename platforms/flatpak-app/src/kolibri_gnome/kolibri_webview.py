@@ -11,6 +11,10 @@ from .kolibri_context import KolibriContext
 from .utils import bubble_signal
 
 
+MOUSE_BUTTON_BACK = 8
+MOUSE_BUTTON_FORWARD = 9
+
+
 class KolibriWebView(WebKit2.WebView):
     """
     A WebView that is confined to showing Kolibri content from the provided
@@ -38,6 +42,7 @@ class KolibriWebView(WebKit2.WebView):
 
         self.__context.connect("kolibri-ready", self.__context_on_kolibri_ready)
 
+        self.connect("button-press-event", self.__on_button_press_event)
         self.connect("decide-policy", self.__on_decide_policy)
         self.connect("notify::uri", self.__on_notify_uri)
         self.connect("load-changed", self.__on_load_changed)
@@ -50,6 +55,18 @@ class KolibriWebView(WebKit2.WebView):
         http_url = self.__context.get_absolute_url(kolibri_url)
         self.load_uri(http_url)
         self.__deferred_load_kolibri_url = None
+
+    def __on_button_press_event(
+        self, webview: WebKit2.WebView, event: Gdk.EventButton
+    ) -> bool:
+        if event.button == MOUSE_BUTTON_BACK:
+            self.go_back()
+            return True
+        elif event.button == MOUSE_BUTTON_FORWARD:
+            self.go_forward()
+            return True
+        else:
+            return False
 
     def __continue_load_kolibri_url(self):
         if self.__deferred_load_kolibri_url:
