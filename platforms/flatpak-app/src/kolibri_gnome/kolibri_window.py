@@ -1,0 +1,297 @@
+from __future__ import annotations
+
+import typing
+from gettext import gettext as _
+
+from gi.repository import Gio
+from gi.repository import GObject
+from gi.repository import Gtk
+from gi.repository import WebKit2
+
+from .kolibri_context import KolibriContext
+from .kolibri_webview import KolibriWebView
+from .kolibri_webview import KolibriWebViewStack
+from .utils import bubble_signal
+
+DEFAULT_WIDTH = 1024
+DEFAULT_HEIGHT = 768
+
+
+class KolibriWindow(Gtk.ApplicationWindow):
+    """
+    A window for the Kolibri application. Contains a KolibriWebViewStack and a
+    header bar.
+    """
+
+    __context: KolibriContext
+
+    __webview_stack: KolibriWebViewStack
+    __header_bar: Gtk.HeaderBar
+
+    __present_on_main_webview_ready: bool = True
+
+    __gsignals__ = {
+        "open-new-window": (
+            GObject.SIGNAL_RUN_FIRST,
+            KolibriWebView,
+            (
+                str,
+                WebKit2.WebView,
+            ),
+        ),
+        "external-url": (GObject.SIGNAL_RUN_FIRST, None, (str,)),
+    }
+
+    def __init__(
+        self,
+        application: Gtk.Application,
+        context: KolibriContext,
+        *args,
+        related_webview: typing.Optional[WebKit2.WebView] = None,
+        **kwargs
+    ):
+        super().__init__(application=application, *args, **kwargs)
+
+        self.__context = context
+
+        self.add_action_entries(
+            [
+                ("close", self.__on_close),
+                ("open-in-browser", self.__on_open_in_browser),
+                ("navigate-back", self.__on_navigate_back),
+                ("navigate-forward", self.__on_navigate_forward),
+                ("navigate-home", self.__on_navigate_home),
+                ("reload", self.__on_reload),
+                ("zoom-reset", self.__on_zoom_reset),
+                ("zoom-in", self.__on_zoom_in),
+                ("zoom-out", self.__on_zoom_out),
+            ]
+        )
+
+        self.set_default_size(DEFAULT_WIDTH, DEFAULT_HEIGHT)
+
+        application.bind_property(
+            "application-name",
+            self,
+            "title",
+            GObject.BindingFlags.SYNC_CREATE,
+        )
+
+        self.__header_bar = Gtk.HeaderBar(spacing=6, show_close_button=True)
+        self.set_titlebar(self.__header_bar)
+
+        application.bind_property(
+            "application-name",
+            self.__header_bar,
+            "title",
+            GObject.BindingFlags.SYNC_CREATE,
+        )
+
+        menu_button = Gtk.MenuButton(direction=Gtk.ArrowType.NONE)
+        self.__header_bar.pack_end(menu_button)
+
+        menu_popover = Gtk.Popover.new_from_model(menu_button, _KolibriWindowMenu())
+        menu_button.set_popover(menu_popover)
+
+        navigation_revealer = Gtk.Revealer(
+            transition_type=Gtk.RevealerTransitionType.CROSSFADE,
+            transition_duration=300,
+        )
+        self.__header_bar.pack_start(navigation_revealer)
+
+        navigation_box = Gtk.Box.new(Gtk.Orientation.HORIZONTAL, 0)
+        navigation_box.get_style_context().add_class("linked")
+        navigation_revealer.add(navigation_box)
+
+        back_button = Gtk.Button.new_from_icon_name(
+            "go-previous-symbolic", Gtk.IconSize.BUTTON
+        )
+        back_button.set_action_name("win.navigate-back")
+        navigation_box.add(back_button)
+
+        forward_button = Gtk.Button.new_from_icon_name(
+            "go-next-symbolic", Gtk.IconSize.BUTTON
+        )
+        forward_button.set_action_name("win.navigate-forward")
+        navigation_box.add(forward_button)
+
+        home_revealer = Gtk.Revealer(
+            transition_type=Gtk.RevealerTransitionType.CROSSFADE,
+            transition_duration=300,
+        )
+        self.__header_bar.pack_start(home_revealer)
+
+        home_button = Gtk.Button.new_from_icon_name(
+            "go-home-symbolic", Gtk.IconSize.BUTTON
+        )
+        home_button.set_action_name("win.navigate-home")
+        home_revealer.add(home_button)
+
+        self.__webview_stack = KolibriWebViewStack(
+            self.__context,
+            related_webview=related_webview,
+            transition_type=Gtk.StackTransitionType.CROSSFADE,
+            transition_duration=300,
+        )
+        self.add(self.__webview_stack)
+
+        self.__webview_stack.show()
+        self.__header_bar.show_all()
+
+        bubble_signal(self.__webview_stack, "open-new-window", self)
+        bubble_signal(self.__webview_stack, "external-url", self)
+
+        self.__webview_stack.connect(
+            "main-webview-ready", self.__webview_stack_on_main_webview_ready
+        )
+
+        self.__webview_stack.bind_property(
+            "can_go_back",
+            self.lookup_action("navigate-back"),
+            "enabled",
+            GObject.BindingFlags.SYNC_CREATE,
+        )
+        self.__webview_stack.bind_property(
+            "can_go_forward",
+            self.lookup_action("navigate-forward"),
+            "enabled",
+            GObject.BindingFlags.SYNC_CREATE,
+        )
+        self.__webview_stack.bind_property(
+            "is_main_visible",
+            self.lookup_action("navigate-home"),
+            "enabled",
+            GObject.BindingFlags.SYNC_CREATE,
+        )
+        self.__webview_stack.bind_property(
+            "is_main_visible",
+            self.lookup_action("reload"),
+            "enabled",
+            GObject.BindingFlags.SYNC_CREATE,
+        )
+        self.__webview_stack.bind_property(
+            "is_main_visible",
+            self.lookup_action("open-in-browser"),
+            "enabled",
+            GObject.BindingFlags.SYNC_CREATE,
+        )
+        self.__webview_stack.bind_property(
+            "is_main_visible",
+            navigation_revealer,
+            "reveal_child",
+            GObject.BindingFlags.SYNC_CREATE,
+        )
+        self.__webview_stack.bind_property(
+            "is_main_visible",
+            home_revealer,
+            "reveal_child",
+            GObject.BindingFlags.SYNC_CREATE,
+        )
+
+    @staticmethod
+    def set_accels(application: Gtk.Application):
+        application.set_accels_for_action(
+            "win.navigate-back", ["<Control>bracketleft", "<Alt>leftarrow"]
+        )
+        application.set_accels_for_action(
+            "win.navigate-forward", ["<Control>bracketright", "<Alt>rightarrow"]
+        )
+        application.set_accels_for_action("win.navigate-home", ["<Alt>Home"])
+        application.set_accels_for_action("win.zoom-reset", ["<Control>0"])
+        application.set_accels_for_action("win.zoom-in", ["<Control>plus"])
+        application.set_accels_for_action("win.zoom-out", ["<Control>minus"])
+        application.set_accels_for_action("win.close", ["<Control>w"])
+
+    def load_kolibri_url(self, url: str, present=False):
+        self.__present_on_main_webview_ready = present
+        self.__webview_stack.load_kolibri_url(url)
+
+    def get_main_webview(self):
+        return self.__webview_stack.get_main_webview()
+
+    def __on_close(self, action, *args):
+        self.close()
+
+    def __on_open_in_browser(self, action, *args):
+        url = self.__webview_stack.get_uri()
+        if url:
+            self.emit("external-url", url)
+
+    def __on_navigate_back(self, action, *args):
+        self.__webview_stack.go_back()
+
+    def __on_navigate_forward(self, action, *args):
+        self.__webview_stack.go_forward()
+
+    def __on_navigate_home(self, action, *args):
+        self.load_kolibri_url(self.__context.default_url)
+
+    def __on_reload(self, action, *args):
+        self.__webview_stack.reload()
+
+    def __on_zoom_reset(self, action, *args):
+        self.__webview_stack.set_zoom_step(self.__webview_stack.default_zoom_step)
+        self.__update_zoom_actions()
+
+    def __on_zoom_in(self, action, *args):
+        self.__webview_stack.set_zoom_step(self.__webview_stack.zoom_step + 1)
+        self.__update_zoom_actions()
+
+    def __on_zoom_out(self, action, *args):
+        self.__webview_stack.set_zoom_step(self.__webview_stack.zoom_step - 1)
+        self.__update_zoom_actions()
+
+    def __update_zoom_actions(self):
+        self.lookup_action("zoom-reset").set_enabled(
+            self.__webview_stack.zoom_step != self.__webview_stack.default_zoom_step
+        )
+        self.lookup_action("zoom-in").set_enabled(
+            self.__webview_stack.zoom_step < self.__webview_stack.max_zoom_step
+        )
+        self.lookup_action("zoom-out").set_enabled(self.__webview_stack.zoom_step > 0)
+
+    def __webview_stack_on_open_new_window(
+        self,
+        webview_stack: KolibriWebViewStack,
+        target_url: str,
+        related_webview: WebKit2.WebView,
+    ) -> typing.Optional[KolibriWebViewStack]:
+        window = self.emit("open-new-window", target_url, related_webview)
+        return window.__webview_stack if window else None
+
+    def __webview_stack_on_main_webview_ready(self, webview_stack: KolibriWebViewStack):
+        if self.__present_on_main_webview_ready:
+            self.__present_on_main_webview_ready = False
+            self.present()
+
+
+class _KolibriWindowMenu(Gio.Menu):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        main_section = Gio.Menu()
+        main_section.append_item(Gio.MenuItem.new(_("New Window"), "app.new-window"))
+        main_section.append_item(
+            Gio.MenuItem.new(_("Open Kolibri Home Folder"), "app.open-kolibri-home")
+        )
+        self.append_section(None, main_section)
+
+        view_section = Gio.Menu()
+        view_section.append_item(Gio.MenuItem.new(_("Reload"), "win.reload"))
+        view_section.append_item(Gio.MenuItem.new(_("Actual Size"), "win.zoom-reset"))
+        view_section.append_item(Gio.MenuItem.new(_("Zoom In"), "win.zoom-in"))
+        view_section.append_item(Gio.MenuItem.new(_("Zoom Out"), "win.zoom-out"))
+        view_section.append_item(
+            Gio.MenuItem.new(_("Open in Browser"), "win.open-in-browser")
+        )
+        self.append_section(None, view_section)
+
+        help_section = Gio.Menu()
+        help_section.append_item(
+            Gio.MenuItem.new(_("Documentation"), "app.open-documentation")
+        )
+        help_section.append_item(
+            Gio.MenuItem.new(_("Community Forums"), "app.open-forums")
+        )
+        help_section.append_item(Gio.MenuItem.new(_("About"), "app.about"))
+        self.append_section(None, help_section)
