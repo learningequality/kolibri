@@ -1,20 +1,22 @@
 from __future__ import annotations
 
+import json
 import logging
 import typing
+from functools import partial
 from urllib.parse import urlencode
 from urllib.parse import urljoin
 from urllib.parse import urlsplit
 
-import requests
 from gi.repository import Gio
 from gi.repository import GLib
 from gi.repository import GObject
 from gi.repository import KolibriDaemonDBus
 from gi.repository import Soup
-
 from kolibri_app.config import DAEMON_APPLICATION_ID
 from kolibri_app.config import DAEMON_MAIN_OBJECT_PATH
+
+from .utils import GioInputStreamIO
 
 logger = logging.getLogger(__name__)
 
@@ -125,21 +127,38 @@ class KolibriDaemonManager(object):
             )
         )
 
-    def kolibri_api_get(self, path: str, *args, **kwargs) -> typing.Any:
+    def kolibri_api_get(self, path: str) -> typing.Any:
         url = self.get_kolibri_url(path)
-        if url:
-            request = requests.get(url, *args, **kwargs)
-        else:
-            logger.debug("Skipping Kolibri API request: Kolibri is not ready")
+
+        if not url:
             return None
 
-        try:
-            return request.json()
-        except ValueError as error:
-            logger.info(
-                "Error reading Kolibri API response: {error}".format(error=error)
-            )
-            return None
+        soup_session = Soup.Session.new()
+        soup_message = Soup.Message.new("GET", url)
+        stream = soup_session.send(soup_message, None)
+        return _read_json_from_input_stream(stream)
+
+    def kolibri_api_get_async(self, path: str, result_cb: typing.Callable):
+        url = self.get_kolibri_url(path)
+
+        if not url:
+            result_cb(None)
+            return
+
+        soup_session = Soup.Session.new()
+        soup_message = Soup.Message.new("GET", url)
+        soup_session.send_async(
+            soup_message,
+            None,
+            partial(self.__kolibri_api_get_async_on_soup_send, result_cb=result_cb),
+        )
+
+    def __kolibri_api_get_async_on_soup_send(
+        self, session: Soup.Session, result: Gio.AsyncResult, result_cb: typing.Callable
+    ):
+        stream = session.send_finish(result)
+        data = _read_json_from_input_stream(stream)
+        result_cb(data)
 
     def __on_dbus_proxy_changed(self):
         self.__on_change_cb()
@@ -228,3 +247,13 @@ class KolibriDaemonManager(object):
         else:
             self.__dbus_proxy_has_error = False
         self.__on_dbus_proxy_changed()
+
+
+def _read_json_from_input_stream(stream: Gio.InputStream):
+    stream_io = GioInputStreamIO(stream)
+
+    try:
+        return json.load(stream_io)
+    except ValueError as error:
+        logger.info("Error reading Kolibri API response: {error}".format(error=error))
+        return None
