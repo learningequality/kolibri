@@ -10,12 +10,7 @@ oriented data synchronization.
 <template v-if="ready">
 
   <div>
-    <LessonMasteryBar
-      data-test="lessonMasteryBar"
-      :availableHintsMessage="hint$tr('hint', { hintsLeft: availableHints })"
-      :requiredCorrectAnswers="totalCorrectRequiredM"
-      @takeHint="takeHint"
-    >
+    <LessonMasteryBar :requiredCorrectAnswers="totalCorrectRequiredM">
       <template #hint>
         <div
           v-if="totalHints > 0"
