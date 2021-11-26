@@ -62,6 +62,8 @@ DAEMON_HASHI_UWSGI_ARGS="--ini /etc/kolibri/dist/hashi_uwsgi.ini --uid=$KOLIBRI_
 # and status_of_proc is working.
 . /lib/lsb/init-functions
 
+export KOLIBRI_INSTALLATION_TYPE="kolibriserver"
+
 do_start()
 {
   # Return
