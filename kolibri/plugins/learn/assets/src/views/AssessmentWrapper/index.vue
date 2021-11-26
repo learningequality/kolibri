@@ -13,6 +13,7 @@ oriented data synchronization.
     <LessonMasteryBar
       data-test="lessonMasteryBar"
       :availableHintsMessage="hint$tr('hint', { hintsLeft: availableHints })"
+      :requiredCorrectAnswers="totalCorrectRequiredM"
       @takeHint="takeHint"
     >
       <template #hint>

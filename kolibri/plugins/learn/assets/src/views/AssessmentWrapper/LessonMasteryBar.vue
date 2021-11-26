@@ -5,7 +5,7 @@
     <div class="container" :style="{ flexWrap: windowBreakpoint > 0 ? 'nowrap' : 'wrap' }">
       <TextTruncatorCss
         class="requirements"
-        :text="overallStatusStrings.$tr('goal', { count: totalCorrectRequiredM })"
+        :text="overallStatusStrings.$tr('goal', { count: requiredCorrectAnswers })"
       />
       <span class="hint">
         <slot name="hint"></slot>
@@ -18,8 +18,6 @@
 
 <script>
 
-  import { mapState } from 'vuex';
-  import { MasteryModelGenerators } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import BaseToolbar from 'kolibri.coreVue.components.BaseToolbar';
   import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
@@ -36,25 +34,17 @@
       TextTruncatorCss,
     },
     mixins: [KResponsiveWindowMixin, commonCoreStrings],
+    props: {
+      // typically this would be "m" from "m of n" mastery model
+      requiredCorrectAnswers: {
+        type: Number,
+        required: true,
+      },
+    },
     data() {
       return {
         overallStatusStrings,
       };
-    },
-    computed: {
-      ...mapState('topicsTree', ['content']),
-      masteryModel() {
-        return this.content.masteryModel;
-      },
-      mOfNMasteryModel() {
-        return MasteryModelGenerators[this.masteryModel.type](
-          this.content.assessmentIds,
-          this.masteryModel
-        );
-      },
-      totalCorrectRequiredM() {
-        return this.mOfNMasteryModel.m;
-      },
     },
   };
 
