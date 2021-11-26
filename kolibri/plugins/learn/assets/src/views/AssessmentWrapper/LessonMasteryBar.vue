@@ -7,7 +7,9 @@
         class="requirements"
         :text="overallStatusStrings.$tr('goal', { count: requiredCorrectAnswers })"
       />
-      <span class="hint">
+      <span
+        :style="[ { flexShrink: '0' }, isRtl ? { marginRight: 'auto' } : { marginLeft: 'auto' }]"
+      >
         <slot name="hint"></slot>
       </span>
     </div>
@@ -63,10 +65,6 @@
   .requirements {
     min-width: 0; // allow text to be shrinked and truncated
     margin-right: 8px;
-  }
-
-  .hint {
-    flex-shrink: 0;
   }
 
 </style>
