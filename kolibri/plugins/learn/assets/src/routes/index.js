@@ -84,11 +84,11 @@ export default [
   {
     name: PageNames.LIBRARY,
     path: '/library',
-    handler: () => {
+    handler: to => {
       if (unassignedContentGuard()) {
         return unassignedContentGuard();
       }
-      showLibrary(store);
+      showLibrary(store, to.query);
     },
     component: LibraryPage,
   },

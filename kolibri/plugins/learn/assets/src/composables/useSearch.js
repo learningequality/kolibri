@@ -6,7 +6,7 @@ import { deduplicateResources } from '../utils/contentNode';
 import { normalizeContentNode } from '../modules/coreLearn/utils';
 import useContentNodeProgress from './useContentNodeProgress';
 
-const searchKeys = [
+export const searchKeys = [
   'learning_activities',
   'categories',
   'learner_needs',
