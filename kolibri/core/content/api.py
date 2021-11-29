@@ -1222,15 +1222,19 @@ class ContentNodeBookmarksViewset(
 
     def consolidate(self, items, queryset):
         items = super(ContentNodeBookmarksViewset, self).consolidate(items, queryset)
+        sorted_items = []
         if items:
-            bookmark_lookup = {}
+            item_lookup = {item["id"]: item for item in items}
+
+            # now loop through ordered bookmark queryset to order nodes returned by same order
             for bookmark in self.bookmark_queryset.values(
                 "id", "contentnode_id", "created"
             ):
-                bookmark_lookup[bookmark["contentnode_id"]] = bookmark
-            for item in items:
-                item["bookmark"] = bookmark_lookup[item["id"]]
-        return items
+                item = item_lookup.pop(bookmark["contentnode_id"], None)
+                if item:
+                    item["bookmark"] = bookmark
+                    sorted_items.append(item)
+        return sorted_items
 
 
 def get_cache_key(*args, **kwargs):
