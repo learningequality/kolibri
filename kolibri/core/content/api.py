@@ -135,13 +135,36 @@ class ChannelMetadataFilter(FilterSet):
 
 
 @method_decorator(cache_forever, name="dispatch")
-class ChannelMetadataViewSet(viewsets.ReadOnlyModelViewSet):
-    serializer_class = serializers.ChannelMetadataSerializer
+class ChannelMetadataViewSet(ReadOnlyValuesViewset):
     filter_backends = (DjangoFilterBackend,)
     filter_class = ChannelMetadataFilter
 
+    values = (
+        "author",
+        "description",
+        "tagline",
+        "id",
+        "last_updated",
+        "root__lang__lang_code",
+        "root__lang__lang_name",
+        "name",
+        "root",
+        "thumbnail",
+        "version",
+        "root__available",
+        "root__num_coach_contents",
+        "public",
+    )
+
+    field_map = {
+        "num_coach_contents": "root__num_coach_contents",
+        "available": "root__available",
+        "lang_code": "root__lang__lang_code",
+        "lang_name": "root__lang__lang_name",
+    }
+
     def get_queryset(self):
-        return models.ChannelMetadata.objects.all().select_related("root__lang")
+        return models.ChannelMetadata.objects.all()
 
     @list_route(methods=["get"])
     def filter_options(self, request, **kwargs):
