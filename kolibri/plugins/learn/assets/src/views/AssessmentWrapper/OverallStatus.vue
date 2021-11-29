@@ -14,6 +14,7 @@
   export default {
     name: 'OverallStatus',
     $trs: {
+      // eslint-disable-next-line kolibri/vue-no-unused-translations
       goal: {
         message: 'Get {count, number, integer} {count, plural, other {correct}}',
         context:
