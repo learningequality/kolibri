@@ -82,6 +82,9 @@ import ConditionalPromise from '../conditionalPromise';
 export default new Resource({
   name: 'contentnode',
   useContentCacheKey: true,
+  fetchRandomCollection({ getParams: params }) {
+    return this.getListEndpoint('random', params);
+  },
   fetchDescendants(ids, getParams = {}) {
     return this.getListEndpoint('descendants', { ids, ...getParams });
   },

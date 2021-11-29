@@ -79,12 +79,20 @@ export default class MainClient {
       let event;
       if (message.dataType === DataTypes.COLLECTION) {
         event = events.COLLECTIONREQUESTED;
+      } else if (message.dataType === DataTypes.COLLECTIONPAGE) {
+        event = events.COLLECTIONPAGEREQUESTED;
       } else if (message.dataType === DataTypes.MODEL) {
         event = events.MODELREQUESTED;
       } else if (message.dataType === DataTypes.SEARCHRESULT) {
         event = events.SEARCHRESULTREQUESTED;
       } else if (message.dataType === DataTypes.KOLIBRIVERSION) {
         event = events.KOLIBRIVERSIONREQUESTED;
+      } else if (message.dataType === DataTypes.CHANNELMETADATA) {
+        event = events.CHANNELMETADATAREQUESTED;
+      } else if (message.dataType === DataTypes.CHANNELFILTEROPTIONS) {
+        event = events.CHANNELFILTEROPTIONSREQUESTED;
+      } else if (message.dataType === DataTypes.RANDOMCOLLECTION) {
+        event = events.RANDOMCOLLECTIONREQUESTED;
       }
 
       if (event) {

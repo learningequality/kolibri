@@ -15,7 +15,11 @@
           />
         </div>
         <KGrid>
-          <KGridItem :layout="{ span: 8 }">
+          <!-- Layout notes
+            - Layout12 span8 -> ~66% width on windowIsLarge
+            - No other layout definitions means span will be 100%
+          -->
+          <KGridItem :layout12="{ span: 6 }">
             <div
               id="problem-area"
               class="problem-area"
@@ -25,7 +29,7 @@
             </div>
           </KGridItem>
 
-          <KGridItem :layout="{ span: 4 }">
+          <KGridItem :layout12="{ span: 6 }">
             <div v-if="hinted" id="hintlabel" class="hintlabel" :dir="contentDirection">
               {{ $tr("hintLabel") }}
             </div>
@@ -603,7 +607,9 @@
   }
 
   .solutionarea {
+    max-width: 100%;
     padding: 0 !important;
+    margin: 0 !important;
     border-bottom-style: none !important;
   }
 
@@ -613,33 +619,6 @@
 
   .hintsarea {
     padding-right: 16px;
-  }
-
-  .hint-btn-container {
-    display: flex;
-    align-items: center;
-    font-size: medium;
-
-    &.rtl {
-      /deep/ .k-tooltip {
-        right: auto !important;
-        left: 0 !important;
-      }
-    }
-
-    /deep/ .k-tooltip {
-      right: 0 !important;
-      left: auto !important;
-      transform: translate3d(0, 23px, 0) !important;
-    }
-  }
-
-  .hint-btn {
-    vertical-align: text-bottom;
-
-    /deep/ .link-text {
-      text-align: right;
-    }
   }
 
   .info-icon {
@@ -652,7 +631,19 @@
   }
 
   .problem-area {
-    padding: 0 16px 16px;
+    padding: 0 16px;
+  }
+
+  .perseus-mobile {
+    .perseus {
+      padding: 16px;
+    }
+    .problem-area {
+      padding: 0;
+    }
+    /deep/ .perseus-renderer {
+      padding: 0;
+    }
   }
 
   /* Perseus Hacks */
@@ -693,6 +684,11 @@
 
   /deep/ .perseus-renderer {
     padding: 16px;
+  }
+
+  /deep/ .pure-g {
+    // Overrides Perseus smushing the letter spacing on mobile
+    letter-spacing: inherit;
   }
 
 </style>

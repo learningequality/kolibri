@@ -5,7 +5,7 @@
       :value="isCoachContent"
       style="margin-top: 8px; width: auto;"
     />
-    <KLabeledIcon :style="{ 'margin-top': '8px', 'width': 'auto' }">
+    <KLabeledIcon :style="{ 'margin-top': '8px' }">
       <template #icon>
         <LearningActivityIcon
           data-test="learningActivityIcon"
@@ -13,14 +13,13 @@
           :shaded="true"
         />
       </template>
-      <TextTruncator
+      <TextTruncatorCss
         :text="resourceTitle"
-        :maxHeight="26"
+        :maxLines="1"
       />
-      <template #iconAfter>
-        <ProgressIcon :progress="contentProgress" class="progress-icon" />
-      </template>
     </KLabeledIcon>
+    <ProgressIcon :progress="contentProgress" class="progress-icon" />
+
     <template #icon>
       <KIconButton
         icon="back"
@@ -140,7 +139,7 @@
   import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
-  import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
+  import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import { validateLearningActivity } from 'kolibri.utils.validators';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
@@ -155,7 +154,7 @@
       CoachContentLabel,
       CoreMenu,
       CoreMenuOption,
-      TextTruncator,
+      TextTruncatorCss,
       LearningActivityIcon,
       MarkAsCompleteModal,
       ProgressIcon,
@@ -456,8 +455,33 @@
     transform: translateY(16px);
   }
 
+  /*
+    Make truncation via text ellipsis work well in UIToolbar's body flex item:
+    By default, `min-width` is `auto`  for a flex item which means it
+    cannot be smaller than the size of its content which causes the whole
+    title being visible even in cases when it should be already truncated.
+    Overriding it to `0` allows the title to be shrinked and then truncated
+    properly. Labeled icon wrapper needs to have this set too for its parent
+    flex item to shrink.
+  */
+  /deep/ .ui-toolbar__body,
+  /deep/ .labeled-icon-wrapper {
+    min-width: 0;
+  }
+
+  /deep/ .ui-toolbar__body {
+    flex-grow: 0; // make sure that the completion icon is right next to the title
+    align-items: center;
+  }
+
+  /deep/ .ui-toolbar__right {
+    // never shrink controls on the right side of the toolbar
+    flex-shrink: 0;
+  }
+
   /deep/ .progress-icon .ui-icon {
     margin-top: -2px;
+    margin-left: 16px;
 
     svg {
       width: 18px;

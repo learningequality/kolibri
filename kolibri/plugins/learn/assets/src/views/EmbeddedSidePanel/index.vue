@@ -103,6 +103,9 @@
         v-if="Object.keys(resourcesNeededList).length"
         class="section"
       >
+        <h2 class="title">
+          {{ coreString('showResources') }}
+        </h2>
         <div
           v-for="(val, activity) in resourcesNeededList"
 

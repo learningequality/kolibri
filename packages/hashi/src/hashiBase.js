@@ -6,6 +6,7 @@ export const events = {
   USERDATAUPDATE: 'userdataupdate',
   DATAREQUESTED: 'datarequested',
   COLLECTIONREQUESTED: 'collectionrequested',
+  COLLECTIONPAGEREQUESTED: 'collectionpagerequested',
   MODELREQUESTED: 'modelrequested',
   SEARCHRESULTREQUESTED: 'searchresultrequested',
   DATARETURNED: 'datareturned',
@@ -14,6 +15,9 @@ export const events = {
   CONTEXT: 'context',
   THEMECHANGED: 'themechanged',
   KOLIBRIVERSIONREQUESTED: 'kolibriversionrequested',
+  CHANNELMETADATAREQUESTED: 'channelmetadatarequested',
+  CHANNELFILTEROPTIONSREQUESTED: 'channelfilteroptionsrequested',
+  RANDOMCOLLECTIONREQUESTED: 'randomcollectionrequested',
   NOW: 'now',
   RESIZE: 'resize',
   LOADING: 'loading',
@@ -24,7 +28,11 @@ export const DataTypes = {
   MODEL: 'Model',
   SEARCHRESULT: 'SearchResult',
   COLLECTION: 'Collection',
+  COLLECTIONPAGE: 'CollectionPage',
   KOLIBRIVERSION: 'KolibriVersion',
+  CHANNELMETADATA: 'ChannelMetadata',
+  CHANNELFILTEROPTIONS: 'ChannelFilterOptions',
+  RANDOMCOLLECTION: 'RandomCollection',
 };
 
 export const MessageStatuses = {

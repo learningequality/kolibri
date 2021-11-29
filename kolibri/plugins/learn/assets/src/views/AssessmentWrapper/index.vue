@@ -601,4 +601,34 @@ oriented data synchronization.
     margin: 0;
   }
 
+  .hint-btn-container {
+    display: flex;
+    align-items: center;
+    padding-right: 8px !important;
+    font-size: medium;
+
+    // Ensures the tooltip is visible on the screen in RTL and LTR
+    /deep/ &.rtl {
+      /deep/ .k-tooltip {
+        right: auto !important;
+        left: 0 !important;
+      }
+    }
+
+    /deep/ .k-tooltip {
+      right: 0 !important;
+      left: auto !important;
+      transform: translate3d(0, 23px, 0) !important;
+    }
+  }
+
+  .hint-btn {
+    padding: 0 4px; // Space from btn in RTL and LTR
+    vertical-align: text-bottom;
+
+    /deep/ .link-text {
+      text-align: right;
+    }
+  }
+
 </style>
