@@ -25,6 +25,7 @@ export function showLibrary(store, query) {
   const promises = [];
 
   if (!searchKeys.some(key => query[key])) {
+    // If not currently on a route with search terms
     promises.push(
       ContentNodeResource.fetchCollection({
         getParams: {
