@@ -8840,7 +8840,7 @@ kolibri-constants@^0.1.34:
 
 "kolibri-design-system@git://github.com/learningequality/kolibri-design-system#v1.2.0":
   version "1.2.0"
-  resolved "git://github.com/learningequality/kolibri-design-system#9eaaa5f7232fbcaa2ee8efb2dbca23603be78f36"
+  resolved "git://github.com/learningequality/kolibri-design-system#718831f11eb327b4fc5929a9e62231c6ce42b072"
   dependencies:
     aphrodite "https://github.com/learningequality/aphrodite/"
     autosize "^3.0.21"
