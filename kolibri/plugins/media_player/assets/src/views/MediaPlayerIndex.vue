@@ -576,17 +576,14 @@
   @import './videojs-style/videojs-font/css/videojs-icons.css';
   @import './videojs-style/variables';
   @import '~kolibri-design-system/lib/styles/definitions';
-  $transcript-wrap-fill-height: 100% * 9 / 16;
-  $video-height: 100% * 9 / 16;
-  // basically (100% of height) - (video height) - (app bar + padding)
-  $transcript-wrap-height: #{$video-player-max-height} - #{(100% - $video-height) / 100% * 100vw} - 72px;
+
   .fullscreen-wrapper {
     box-sizing: border-box;
   }
   .wrapper {
     box-sizing: content-box;
     max-width: 100%;
-    max-height: $video-player-max-height;
+    max-height: calc(#{$video-player-max-vh});
   }
   .wrapper.transcript-visible.transcript-wrap {
     padding-bottom: calc(#{$transcript-wrap-height});
@@ -608,7 +605,7 @@
   .loading-space,
   /deep/ .loading-space {
     box-sizing: border-box;
-    padding-top: #{$video-height};
+    padding-top: #{$video-player-height-by-width};
   }
   /deep/ .loader {
     position: absolute;
@@ -659,11 +656,11 @@
     .wrapper.transcript-visible.transcript-wrap .media-player-transcript {
       top: 0;
       height: auto;
-      margin-top: #{$video-height};
+      margin-top: #{$video-player-height-by-width};
     }
     .wrapper.transcript-visible.transcript-wrap .video-js.vjs-fill {
       height: auto;
-      padding-top: #{$video-height};
+      padding-top: #{$video-player-height-by-width};
     }
   }
 

@@ -30,7 +30,8 @@
   .vjs-menu {
     left: -8em;
     width: 16em;
-    max-height: calc(#{$video-player-max-height} - #{$video-player-control-height});
+    // minus 32px max immersive layout padding
+    max-height: calc(#{$video-player-height-vw} - #{$video-player-control-height} - 32px);
     overflow-y: auto;
   }
 
