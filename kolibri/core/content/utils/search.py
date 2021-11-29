@@ -101,7 +101,7 @@ def get_available_metadata_labels(base_queryset):
         aggregates = {}
         for field in bitmask_fieldnames:
             field_agg = field + "_agg"
-            if connections[base_queryset.db].vendor == "sqlite":
+            if connections[base_queryset.db].vendor == "sqlite" or BitOr is None:
                 aggregates[field_agg] = SQLiteBitwiseORAggregate(
                     field, num_bits=len(bitmask_fieldnames[field])
                 )
