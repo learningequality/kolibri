@@ -79,6 +79,7 @@
         :nextContent="nextContent"
         :title="viewResourcesTitle"
         :isLesson="lessonContext"
+        :loading="resourcesSidePanelLoading"
       />
     </FullScreenSidePanel>
 
@@ -151,8 +152,8 @@
     mixins: [responsiveWindowMixin, commonCoreStrings],
     setup() {
       const { canDownload } = useCoreLearn();
-      const { fetchContentNodeProgress } = useContentNodeProgress();
-      return { canDownload, fetchContentNodeProgress };
+      const { fetchContentNodeProgress, fetchContentNodeTreeProgress } = useContentNodeProgress();
+      return { canDownload, fetchContentNodeProgress, fetchContentNodeTreeProgress };
     },
     props: {
       content: {
@@ -184,6 +185,8 @@
         showViewResourcesSidePanel: false,
         nextContent: null,
         viewResourcesContents: [],
+        resourcesSidePanelFetched: false,
+        resourcesSidePanelLoading: false,
       };
     },
     computed: {
@@ -244,8 +247,7 @@
     watch: {
       content(newContent, oldContent) {
         if ((newContent && !oldContent) || newContent.id !== oldContent.id) {
-          this.showViewResourcesSidePanel = false;
-          this.getSidebarInfo();
+          this.resetSidebarInfo();
           client({
             method: 'get',
             url: urls['kolibri:core:bookmarks-list'](),
@@ -255,18 +257,33 @@
           });
         }
       },
-    },
-    mounted() {
-      /** I got 404s because content wasn't provided immediately upon mounting, so we check
-       * this here, otherwise a watcher on `content` should trigger calling the same */
-      this.getSidebarInfo();
+      showViewResourcesSidePanel(newVal, oldVal) {
+        if (newVal && !oldVal) {
+          this.getSidebarInfo();
+        }
+      },
     },
     methods: {
+      resetSidebarInfo() {
+        this.showViewResourcesSidePanel = false;
+        this.nextContent = null;
+        this.viewResourcesContents = [];
+        this.resourcesSidePanelFetched = false;
+        this.resourcesSidePanelLoading = false;
+      },
       getSidebarInfo() {
-        if (this.lessonId) {
-          this.fetchLessonSiblings();
-        } else if (this.content && this.content.id) {
-          this.fetchSiblings();
+        if (!this.resourcesSidePanelFetched && !this.resourcesSidePanelLoading) {
+          this.resourcesSidePanelLoading = true;
+          let promise = Promise.resolve();
+          if (this.lessonId) {
+            promise = this.fetchLessonSiblings();
+          } else if (this.content && this.content.id) {
+            promise = this.fetchSiblings();
+          }
+          promise.then(() => {
+            this.resourcesSidePanelLoading = false;
+            this.resourcesSidePanelFetched = true;
+          });
         }
       },
       /**
@@ -283,7 +300,7 @@
         this.fetchContentNodeProgress({ lesson_id: this.lessonId });
 
         // Get the lesson and then assign its resources to this.viewResourcesContents
-        LessonResource.fetchModel({ id: this.lessonId }).then(lesson => {
+        return LessonResource.fetchModel({ id: this.lessonId }).then(lesson => {
           ContentNodeResource.fetchCollection({
             getParams: {
               ids: lesson.resources.map(resource => resource.contentnode_id),
@@ -308,7 +325,17 @@
        * is logged in
        */
       fetchSiblings() {
-        ContentNodeResource.fetchTree({
+        // Fetch the next content
+        const nextPromise = ContentNodeResource.fetchNextContent(this.content.parent, {
+          topicOnly: true,
+        }).then(nextContent => {
+          // This may return the immediate parent if nothing else is found so let's be sure
+          // not to assign that
+          if (nextContent && this.content.parent !== nextContent.id) {
+            this.nextContent = nextContent;
+          }
+        });
+        const treeParams = {
           id: this.content.parent,
           params: {
             include_coach_content:
@@ -317,31 +344,18 @@
               this.$store.getters.isSuperuser,
             depth: 1,
           },
-        }).then(parent => {
+        };
+        // Fetch and map the progress for the nodes if logged in
+        if (this.$store.getters.isUserLoggedIn) {
+          this.fetchContentNodeTreeProgress(treeParams);
+        }
+        const treePromise = ContentNodeResource.fetchTree(treeParams).then(parent => {
           // Filter out this.content
           this.viewResourcesContents = parent.children.results.filter(
             n => n.id !== this.content.id
           );
-
-          // Fetch and map the progress for the nodes if logged in
-          if (this.$store.getters.isUserLoggedIn) {
-            const getParams = {
-              ids: this.viewResourcesContents.map(node => node.id),
-            };
-            this.fetchContentNodeProgress(getParams);
-          }
-
-          // Finally fetch the next content
-          ContentNodeResource.fetchNextContent(parent.id, {
-            topicOnly: true,
-          }).then(nextContent => {
-            // This may return the immediate parent if nothing else is found so let's be sure
-            // not to assign that
-            if (nextContent && this.content.parent !== nextContent.id) {
-              this.nextContent = nextContent;
-            }
-          });
         });
+        return Promise.all([nextPromise, treePromise]);
       },
       navigateBack() {
         this.$router.push(this.back);
