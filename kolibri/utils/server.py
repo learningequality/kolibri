@@ -656,6 +656,10 @@ class KolibriProcessBus(ProcessBus):
 
         if getattr(settings, "DEVELOPER_MODE", False):
             autoreloader = Autoreloader(self)
+            plugins = os.path.join(conf.KOLIBRI_HOME, "plugins.json")
+            options = os.path.join(conf.KOLIBRI_HOME, "options.ini")
+            autoreloader.files.add(plugins)
+            autoreloader.files.add(options)
             autoreloader.subscribe()
 
         reload_plugin = ProcessControlPlugin(self)
