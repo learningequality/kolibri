@@ -509,8 +509,8 @@
   }
 
   .loader {
-    margin-top: 16px;
-    margin-bottom: 16px;
+    margin-top: 56px;
+    margin-bottom: 56px;
   }
 
 </style>
