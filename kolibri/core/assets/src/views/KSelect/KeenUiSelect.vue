@@ -482,7 +482,7 @@
         return {};
       },
       clearableState() {
-        return this.clearable && this.value && Object.keys(this.value).length;
+        return this.clearable && this.value && Object.keys(this.value).length && !this.disabled;
       },
     },
 
@@ -938,8 +938,6 @@
       .ui-select-display {
         color: $ui-input-text-color--disabled;
         cursor: default;
-        border-bottom-style: $ui-input-border-style--disabled;
-        border-bottom-width: $ui-input-border-width--active;
       }
 
       .ui-select-dropdown-button,

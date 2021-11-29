@@ -146,7 +146,9 @@
       },
       selection(newSelection) {
         /* Emits new selection.*/
-        this.$emit('change', newSelection);
+        if (!this.disabled) {
+          this.$emit('change', newSelection);
+        }
       },
     },
     methods: {
@@ -161,6 +163,8 @@
 
 <style lang="scss" scoped>
 
+  @import 'kolibri-design-system/lib/keen/styles/imports';
+
   .k-select-inline {
     display: inline-block;
     width: 150px;
@@ -171,6 +175,16 @@
   .k-select-disabled /deep/ .ui-select__label-text.is-inline {
     cursor: default;
   }
+
+  /* stylelint-disable csstree/validator */
+
+  .k-select-disabled {
+    border-bottom-color: $ui-input-text-color--disabled;
+    border-bottom-style: $ui-input-border-style--disabled;
+    border-bottom-width: $ui-input-border-width--active;
+  }
+
+  /* stylelint-enable */
 
   /deep/ .ui-select__display-value {
     line-height: 1.3;
