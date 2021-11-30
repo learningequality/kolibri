@@ -77,7 +77,7 @@ do_start()
   # ensure PIDFILE_UWSGI is not a world-writable pidfile
   chmod 660 $PIDFILE_UWSGI || true
   chmod 660 $PIDFILE_UWSGI_HASHI || true
-  $SU_COMMAND $KOLIBRI_USER -c "$KOLIBRI_COMMAND start &"
+  $SU_COMMAND $KOLIBRI_USER -c "$KOLIBRI_COMMAND services &"
   mkdir -p /var/run/$NAME
   chown "$KOLIBRI_USER" /var/run/$NAME
   start-stop-daemon --start --quiet --exec $DAEMON_UWSGI --test -- $DAEMON_UWSGI_ARGS > /dev/null \
@@ -118,7 +118,7 @@ do_check_nginx()
       service nginx reload
   else
       $SU_COMMAND $KOLIBRI_USER -c "$KOLIBRI_COMMAND stop"
-      $SU_COMMAND $KOLIBRI_USER -c "$KOLIBRI_COMMAND start"
+      $SU_COMMAND $KOLIBRI_USER -c "$KOLIBRI_COMMAND services"
       service nginx start
   fi
 }

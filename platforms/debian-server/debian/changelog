@@ -1,3 +1,9 @@
+kolibri-server (0.4.0-0ubuntu2) bionic; urgency=high
+
+  * Fix daemon to start services correctly
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Tue, 30 Nov 2021 20:09:32 +0100
+
 kolibri-server (0.4.0-0ubuntu1) bionic; urgency=medium
 
   * export KOLIBRI_INSTALLATION_TYPE for kolibri stats
