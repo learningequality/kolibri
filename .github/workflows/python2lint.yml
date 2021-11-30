@@ -14,7 +14,7 @@ jobs:
         uses: fkirc/skip-duplicate-actions@master
         with:
           github_token: ${{ github.token }}
-          paths: '["kolibri/**.py"]'
+          paths: '["kolibri/**/*.py"]'
   lint:
     name: Python 2 syntax checking
     needs: pre_job
