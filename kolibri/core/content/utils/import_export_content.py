@@ -61,9 +61,9 @@ def _mptt_descendant_ids(channel_id, node_ids, min_boundary, max_boundary):
         ContentNode.objects.filter(
             channel_id=channel_id, rght__gte=min_boundary, rght__lte=max_boundary
         )
-        .exclude(kind=content_kinds.TOPIC)
-        .filter_by_uuids(node_ids)
-        .order_by()
+            .exclude(kind=content_kinds.TOPIC)
+            .filter_by_uuids(node_ids)
+            .order_by()
     )
 
     descendants_queryset = (
@@ -78,11 +78,11 @@ def _mptt_descendant_ids(channel_id, node_ids, min_boundary, max_boundary):
             rght__gte=min_boundary,
             kind=content_kinds.TOPIC,
         )
-        .filter_by_uuids(node_ids)
-        .get_descendants(include_self=False)
-        .filter(rght__gte=min_boundary, rght__lte=max_boundary)
-        .exclude(kind=content_kinds.TOPIC)
-        .order_by()
+            .filter_by_uuids(node_ids)
+            .get_descendants(include_self=False)
+            .filter(rght__gte=min_boundary, rght__lte=max_boundary)
+            .exclude(kind=content_kinds.TOPIC)
+            .order_by()
     )
 
     return list(
@@ -170,16 +170,17 @@ def get_import_export_data(  # noqa: C901
                 )
             )
 
-        included_content_ids = nodes_segment.values_list("content_id", flat=True)
-        content_ids.extend(included_content_ids)
+        included_content_ids = nodes_segment.values_list(
+            "content_id", flat=True
+        )
 
         # Only bother with this query if there were any resources returned above.
         if included_content_ids:
-            content_ids.update(included_content_ids)
+            content_ids.extend(included_content_ids)
             file_objects = LocalFile.objects.filter(
                 files__contentnode__in=nodes_segment
-            )
-            if available:
+            ).values("id", "file_size", "extension")
+            if available is not None:
                 file_objects = file_objects.filter(available=available)
             for f in file_objects:
                 queried_file_objects[f["id"]] = f
@@ -206,7 +207,6 @@ def get_import_export_data(  # noqa: C901
     files_to_download = list(queried_file_objects.values())
 
     total_bytes_to_transfer = sum(map(lambda x: x["file_size"] or 0, files_to_download))
-
     return len(content_ids), files_to_download, total_bytes_to_transfer
 
 
