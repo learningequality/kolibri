@@ -1,17 +1,21 @@
 <template>
 
-  <MultiPaneLayout ref="multiPaneLayout" class="container">
+  <component
+    :is="practiceQuiz ? 'EmbeddedMultiPaneLayout' : 'MultiPaneLayout'"
+    ref="multiPaneLayout"
+    class="container"
+  >
     <template #header>
-      <PageStatus
-        :contentName="exam.title"
-        :userName="userName"
-        :questions="examAttempts"
-        :completionTimestamp="completionTimestamp"
-        :completed="complete"
-        :timeSpent="timeSpent"
-        :retry="retry"
-        @repeat="$emit('repeat')"
-      />
+      <slot name="header">
+        <PageStatus
+          :contentName="exam.title"
+          :userName="userName"
+          :questions="examAttempts"
+          :completionTimestamp="completionTimestamp"
+          :completed="complete"
+          :timeSpent="timeSpent"
+        />
+      </slot>
     </template>
 
     <template #aside>
@@ -35,6 +39,17 @@
           :checked="showCorrectAnswer"
           @change="toggleShowCorrectAnswer"
         />
+        <div v-if="currentAttemptDiff" style="padding-bottom: 15px;">
+          <AttemptIconDiff
+            :correct="currentAttempt.correct"
+            :diff="currentAttemptDiff.correct"
+          />
+          <AttemptTextDiff
+            :userId="userId"
+            :correct="currentAttempt.correct"
+            :diff="currentAttemptDiff.correct"
+          />
+        </div>
         <InteractionList
           v-if="!showCorrectAnswer"
           :interactions="currentInteractionHistory"
@@ -60,7 +75,7 @@
         {{ $tr('noItemId') }}
       </p>
     </template>
-  </MultiPaneLayout>
+  </component>
 
 </template>
 
@@ -71,7 +86,10 @@
   import InteractionList from 'kolibri.coreVue.components.InteractionList';
   import find from 'lodash/find';
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
+  import EmbeddedMultiPaneLayout from 'kolibri.coreVue.components.EmbeddedMultiPaneLayout';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import AttemptTextDiff from './AttemptTextDiff';
+  import AttemptIconDiff from './AttemptIconDiff';
   import PageStatus from './PageStatus';
 
   export default {
@@ -81,6 +99,9 @@
       AttemptLogList,
       InteractionList,
       MultiPaneLayout,
+      EmbeddedMultiPaneLayout,
+      AttemptIconDiff,
+      AttemptTextDiff,
     },
     mixins: [commonCoreStrings],
     props: {
@@ -90,6 +111,10 @@
       },
       exam: {
         type: Object,
+        required: true,
+      },
+      userId: {
+        type: String,
         required: true,
       },
       userName: {
@@ -146,13 +171,13 @@
         type: Array,
         default: () => [],
       },
-      retry: {
-        type: Boolean,
-        default: false,
-      },
       timeSpent: {
         type: Number,
         default: 0,
+      },
+      practiceQuiz: {
+        type: Boolean,
+        default: false,
       },
     },
     data() {
@@ -187,6 +212,16 @@
         }
         return null;
       },
+      currentAttempt() {
+        return this.attemptLogs.find(a => a.item === this.itemId);
+      },
+      currentAttemptDiff() {
+        return this.currentAttempt &&
+          this.currentAttempt.diff &&
+          this.currentAttempt.diff.correct !== null
+          ? this.currentAttempt.diff
+          : null;
+      },
     },
     methods: {
       handleNavigateToQuestion(questionNumber) {
@@ -220,6 +255,7 @@
   .container {
     top: 24px;
     max-width: 1000px;
+    margin: 0 auto;
     background-color: white;
   }
 

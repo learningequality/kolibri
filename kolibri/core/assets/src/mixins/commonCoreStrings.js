@@ -1030,68 +1030,18 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
 
   // TODO - move these into diff sections as we make this a full feature in 0.16
   // Past Papers Project (12/2021) strings
-  scoreLabel: {
-    message: 'Score',
-    context:
-      'Score obtained by a learner on a quiz, indicated by the percentage of correct answers given.',
-  },
   timeSpentLabel: {
     message: 'Time spent',
     context: 'The time a learner has spent on a quiz.',
-  },
-  practiceQuizReportTitle: {
-    message: 'Report for {quizTitle}',
-    context: 'Label for a report corresponding to a practice quiz',
-  },
-  tryAgainButton: {
-    message: 'Try again',
-    context: 'Label for a button used to retake the quiz',
   },
   statusLabel: {
     message: 'Status',
     context:
       'In a learner\'s independent practice quiz report, indicates if the practice quiz is "In progress" or "Completed"',
   },
-  attemptedLabel: {
-    message: 'Attempted',
-    context: 'This verb will be used to indicate when a learner last attempted a quiz',
-  },
-  bestScoreLabel: {
-    message: 'Best score',
-    context:
-      'When there have been multiple attempts on a practice quiz, indicates to learner the percentage of their highest score',
-  },
-  bestScoreTimeLabel: {
-    message: 'Best score time',
-    context:
-      'When there have been multiple attempts on a practice quiz, it indicates to the learner how long the attempt with the best score has taken',
-  },
-  attemptDropdownLabel: {
-    message: 'Attempt',
-    context:
-      'Label in the dropdown menu where one can choose an attempt from their five most recent attempts at a practice quiz',
-  },
-  practiceQuizReportFasterSuggestedLabel: {
-    message:
-      '{value, number, integer} {value, plural, one {minute} other {minutes}} faster than the suggested time',
-    context: 'Indicates to the learner how many minutes faster they were than the suggested time',
-  },
-  practiceQuizReportSlowerSuggestedLabel: {
-    message:
-      '{value, number, integer} {value, plural, one {minute} other {minutes}} slower than the suggested time',
-    context: 'Indicates to the learner how many minutes slower they were than the suggested time',
-  },
-  practiceQuizReportFasterTimeLabel: {
-    message:
-      '{value, number, integer} {value, plural, one {minute} other {minutes}} faster than the previous attempt',
-    context:
-      'Indicates to the learner how much faster they were on this attempt compared to the previous one',
-  },
-  practiceQuizReportSlowerTimeLabel: {
-    message:
-      '{value, number, integer} {value, plural, one {minute} other {minutes}} slower than the previous attempt',
-    context:
-      'Indicates to the learner how much slower they were on this attempt compared to the previous one',
+  practiceQuizReportTitle: {
+    message: 'Report for {quizTitle}',
+    context: 'Label for a report corresponding to a practice quiz',
   },
 });
 

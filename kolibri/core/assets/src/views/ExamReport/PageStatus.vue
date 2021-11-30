@@ -23,11 +23,7 @@
         :timeSpent="timeSpent"
       />
     </KFixedGridItem>
-    <KFixedGridItem span="1" alignment="right">
-      <KButton v-if="retry" @click="$emit('repeat')">
-        {{ coreString('tryAgainButton') }}
-      </KButton>
-    </KFixedGridItem>
+    <KFixedGridItem span="1" alignment="right" />
   </KFixedGrid>
 
 </template>
@@ -64,10 +60,6 @@
       contentName: {
         type: String,
         required: true,
-      },
-      retry: {
-        type: Boolean,
-        default: false,
       },
       timeSpent: {
         type: Number,

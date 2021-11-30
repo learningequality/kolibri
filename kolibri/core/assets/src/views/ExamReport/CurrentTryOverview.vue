@@ -1,7 +1,7 @@
 <template>
 
   <table class="scores">
-    <tr>
+    <tr v-if="!hideStatus">
       <th>
         {{ coreString('statusLabel') }}
       </th>
@@ -12,7 +12,7 @@
     </tr>
     <tr>
       <th>
-        {{ coreString('scoreLabel') }}
+        {{ $tr('scoreLabel') }}
       </th>
       <td>
         {{ $formatNumber(score, { style: 'percent' }) }}
@@ -26,6 +26,12 @@
         {{ $tr('questionsCorrectValue', {
           correct: questionsCorrect, total: totalQuestions
         }) }}
+        <br>
+        <span
+          v-if="questionsCorrectAnnotation"
+          class="try-annotation"
+          :style="{ color: $themeTokens.annotation }"
+        >{{ questionsCorrectAnnotation }}</span>
       </td>
     </tr>
     <tr>
@@ -34,11 +40,17 @@
       </th>
       <td>
         <TimeDuration :seconds="timeSpent" />
+        <br>
+        <span
+          v-if="timeSpentAnnotation"
+          class="try-annotation"
+          :style="{ color: $themeTokens.annotation }"
+        >{{ timeSpentAnnotation }}</span>
       </td>
     </tr>
     <tr>
       <th>
-        {{ coreString('attemptedLabel') }}
+        {{ $tr('attemptedLabel') }}
       </th>
       <td>
         <ElapsedTime :date="completionTimestamp" />
@@ -51,6 +63,8 @@
 
 <script>
 
+  import has from 'lodash/has';
+  import { mapGetters } from 'vuex';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
@@ -97,8 +111,28 @@
         type: Number,
         required: true,
       },
+      hideStatus: {
+        type: Boolean,
+        default: false,
+      },
+      userId: {
+        type: String,
+        default: '',
+      },
+      previousTryDiff: {
+        type: Object,
+        required: false,
+        default: () => ({}),
+        validator(diff) {
+          if (!diff || Object.keys(diff).length === 0) {
+            return true;
+          }
+          return has(diff, 'correct') && has(diff, 'time_spent');
+        },
+      },
     },
     computed: {
+      ...mapGetters(['currentUserId']),
       progressIconLabel() {
         if (this.completed) {
           return this.coreString('completedLabel');
@@ -108,8 +142,45 @@
           return this.$tr('notStartedLabel');
         }
       },
+      questionsCorrectAnnotation() {
+        if (!this.previousTryDiff || this.userId !== this.currentUserId) {
+          return null;
+        }
+
+        return this.previousTryDiff.correct > 0
+          ? this.$tr('practiceQuizReportImprovedLabelSecondPerson', {
+              value: this.previousTryDiff.correct,
+            })
+          : null;
+      },
+      timeSpentAnnotation() {
+        if (!this.previousTryDiff) {
+          return null;
+        }
+
+        const fasterTime = this.previousTryDiff.time_spent
+          ? Math.floor(this.previousTryDiff.time_spent / 60)
+          : 0;
+
+        if (fasterTime <= -1) {
+          return this.$tr('practiceQuizReportFasterTimeLabel', { value: Math.abs(fasterTime) });
+        } else if (fasterTime >= 1) {
+          return this.$tr('practiceQuizReportSlowerTimeLabel', { value: fasterTime });
+        }
+
+        return null;
+      },
     },
     $trs: {
+      scoreLabel: {
+        message: 'Score',
+        context:
+          'Score obtained by a learner on a quiz, indicated by the percentage of correct answers given.',
+      },
+      attemptedLabel: {
+        message: 'Attempted',
+        context: 'This verb will be used to indicate when a learner last attempted a quiz',
+      },
       questionsCorrectLabel: {
         message: 'Questions answered correctly',
         context:
@@ -129,6 +200,24 @@
         message: 'Not started',
         context:
           "When a coach creates a quiz, by default it is marked as 'Not started'. This means that learners will not see it in the Learn > Classes view.\n\nThe coach needs to use the 'START QUIZ' button to enable learners to see the quiz and start answering the questions.",
+      },
+      practiceQuizReportFasterTimeLabel: {
+        message:
+          '{value, number, integer} {value, plural, one {minute} other {minutes}} faster than the previous attempt',
+        context:
+          'Indicates to the learner how much faster they were on this attempt compared to the previous one',
+      },
+      practiceQuizReportSlowerTimeLabel: {
+        message:
+          '{value, number, integer} {value, plural, one {minute} other {minutes}} slower than the previous attempt',
+        context:
+          'Indicates to the learner how much slower they were on this attempt compared to the previous one',
+      },
+      practiceQuizReportImprovedLabelSecondPerson: {
+        message:
+          'You improved at {value, number, integer} {value, plural, one {question} other {questions}}',
+        context:
+          'Indicates to the learner how many questions they answered correctly compared to the previous attempt',
       },
     },
   };
@@ -162,6 +251,10 @@
       max-width: 16px !important;
       max-height: 16px !important;
     }
+  }
+
+  .try-annotation {
+    font-size: 0.9em;
   }
 
 </style>
