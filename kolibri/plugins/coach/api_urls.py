@@ -5,6 +5,7 @@ from rest_framework import routers
 from .api import ClassroomNotificationsViewset
 from .api import ExerciseDifficultQuestionsViewset
 from .api import LessonReportViewset
+from .api import PracticeQuizDifficultQuestionsViewset
 from .api import QuizDifficultQuestionsViewset
 from .class_summary_api import ClassSummaryViewSet
 
@@ -22,6 +23,11 @@ router.register(
 )
 router.register(
     r"quizdifficulties", QuizDifficultQuestionsViewset, base_name="quizdifficulties"
+)
+router.register(
+    r"practicequizdifficulties",
+    PracticeQuizDifficultQuestionsViewset,
+    base_name="practicequizdifficulties",
 )
 
 urlpatterns = [url(r"^", include(router.urls))]
