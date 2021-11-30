@@ -10,11 +10,7 @@ oriented data synchronization.
 <template v-if="ready">
 
   <div>
-    <LessonMasteryBar
-      data-test="lessonMasteryBar"
-      :availableHintsMessage="hint$tr('hint', { hintsLeft: availableHints })"
-      @takeHint="takeHint"
-    >
+    <LessonMasteryBar :requiredCorrectAnswers="totalCorrectRequiredM">
       <template #hint>
         <div
           v-if="totalHints > 0"
@@ -604,7 +600,6 @@ oriented data synchronization.
   .hint-btn-container {
     display: flex;
     align-items: center;
-    padding-right: 8px !important;
     font-size: medium;
 
     // Ensures the tooltip is visible on the screen in RTL and LTR

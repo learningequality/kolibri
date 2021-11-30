@@ -78,6 +78,7 @@ import DragContainer from '../views/sortable/DragContainer';
 import DragSortWidget from '../views/sortable/DragSortWidget';
 import FocusTrap from '../views/FocusTrap';
 import BottomAppBar from '../views/BottomAppBar';
+import BaseToolbar from '../views/BaseToolbar';
 import GenderSelect from '../views/userAccounts/GenderSelect';
 import BirthYearSelect from '../views/userAccounts/BirthYearSelect';
 import FullNameTextbox from '../views/userAccounts/FullNameTextbox';
@@ -184,6 +185,7 @@ export default {
       DragSortWidget,
       FocusTrap,
       BottomAppBar,
+      BaseToolbar,
       GenderSelect,
       GenderDisplayText,
       BirthYearSelect,
