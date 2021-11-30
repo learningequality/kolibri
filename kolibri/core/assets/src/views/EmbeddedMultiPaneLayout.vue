@@ -51,6 +51,15 @@
         };
       },
     },
+    methods: {
+      /**
+       * Maintain the same interface as `MultiPaneLayout`, but in contrast this component does not
+       * define any scrolling behavior for the main content since it's assumed this is "embedded"
+       * within something else that scrolls
+       * @public
+       */
+      scrollMainToTop() {},
+    },
   };
 
 </script>
