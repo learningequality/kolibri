@@ -185,8 +185,14 @@ class FrontendHeadAssetsHook(WebpackBundleHook):
         common_file = static("assets/fonts/noto-common.css")
         subset_file = static("assets/fonts/noto-subset.{}.css".format(language_code))
         return [
+            '<link type="text/css" href="{common_css_file}?v={version}" rel="preload" as="style"/>'.format(
+                common_css_file=common_file, version=kolibri.__version__
+            ),
             '<link type="text/css" href="{common_css_file}?v={version}" rel="stylesheet"/>'.format(
                 common_css_file=common_file, version=kolibri.__version__
+            ),
+            '<link type="text/css" href="{common_css_file}?v={version}" rel="preload" as="style"/>'.format(
+                common_css_file=subset_file, version=kolibri.__version__
             ),
             '<link type="text/css" href="{subset_css_file}?v={version}" rel="stylesheet"/>'.format(
                 subset_css_file=subset_file, version=kolibri.__version__

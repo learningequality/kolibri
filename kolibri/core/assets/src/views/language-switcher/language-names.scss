@@ -9,6 +9,6 @@
   .full-fonts-loaded & {
     // Unlike in the 'font-family-noto' mixin, here 'noto-full' has the lowest priority
     // to prevent downloading full font files simply to display a single language name.
-    font-family: 'noto-subset', 'noto-common', 'noto-full', sans-serif;
+    font-family: 'noto-common', 'noto-subset', 'noto-full', sans-serif;
   }
 }

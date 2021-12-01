@@ -471,18 +471,12 @@ def _merge_fonts(fonts, output_file_path):
     logging.info("created {}".format(output_file_path))
 
 
-def _cannot_merge(font):
-    # all fonts must have equal units per em for merging, and 1000 is most common
-    return font["head"].unitsPerEm != 1000
-
-
 def _subset_and_merge_fonts(text, default_font, subset_reg_path, subset_bold_path):
     """
     Given text, generate both a bold and a regular font that can render it.
     """
     reg_subsets = []
     bold_subsets = []
-    skipped = []
 
     # track which glyphs are left
     remaining_glyphs = set([ord(c) for c in text])
@@ -493,16 +487,15 @@ def _subset_and_merge_fonts(text, default_font, subset_reg_path, subset_bold_pat
         reg_subset = _get_subset_font(full_reg_path, text)
         bold_subset = _get_subset_font(full_bold_path, text)
 
-        if _cannot_merge(reg_subset) or _cannot_merge(bold_subset):
-            skipped.append(font_name)
-            continue
-
         reg_subsets.append(reg_subset)
         bold_subsets.append(bold_subset)
 
-        remaining_glyphs -= _font_glyphs(full_reg_path)
+        new_glyphs = _font_glyphs(full_reg_path)
+        remaining_glyphs -= new_glyphs
         if not remaining_glyphs:
             break
+
+        text = "".join([c for c in text if ord(c) in remaining_glyphs])
 
     _merge_fonts(reg_subsets, os.path.join(OUTPUT_PATH, subset_reg_path))
     _merge_fonts(bold_subsets, os.path.join(OUTPUT_PATH, subset_bold_path))
@@ -590,7 +583,8 @@ def main():
 
     Newer browsers have full support for the unicode-range attribute of font-face
     definitions, which allow the browser to download fonts as-needed based on the text
-    observed. This allows us to make _all_ font alphabets available, and ensures that
+    observed. They also support 'font-display: swap' which allows for using preloaded
+    subsets. These allow us to make _all_ font alphabets available, and ensures that
     content will be rendered using the best font possible for all content, regardless
     of selected app language.
 
