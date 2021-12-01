@@ -395,7 +395,10 @@ kolibri_preinst()
         # was removed with "apt-get remove" instead of "apt-get purge"
         # NB! Using "dpkg -i" on 16.04 most definitely triggers that the preinst
         # scripts are run with the "install" flag, even though they are upgrades :/
-        kolibri_debconf_set_defaults
+        if [ "${args[0]}" = "install" ]
+        then
+            kolibri_debconf_set_defaults
+        fi
 
         # Ask questions - consider not doing that during upgrade, but this is
         # not a good idea in case we add new entries in kolibri.template

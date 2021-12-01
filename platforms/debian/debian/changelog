@@ -1,3 +1,9 @@
+kolibri-source (0.15.0~beta2-0ubuntu1) bionic; urgency=low
+
+  * New upstream release
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Fri, 19 Nov 2021 18:39:16 +0100
+
 kolibri-source (0.14.7-0ubuntu1) trusty; urgency=medium
 
   * New upstream release
