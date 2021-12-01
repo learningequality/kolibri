@@ -47,17 +47,12 @@ class KolibriContext(GObject.GObject):
     def __init__(self):
         GObject.GObject.__init__(self)
 
+        cache_dir = Path(GLib.get_user_cache_dir(), FRONTEND_APPLICATION_ID)
         data_dir = Path(GLib.get_user_data_dir(), FRONTEND_APPLICATION_ID)
 
         website_data_manager = WebKit2.WebsiteDataManager(
-            base_data_directory=data_dir.as_posix()
-        )
-
-        cookies_filename = Path(data_dir, "cookies.sqlite")
-        cookie_manager = website_data_manager.get_cookie_manager()
-        cookie_manager.set_accept_policy(WebKit2.CookieAcceptPolicy.NO_THIRD_PARTY)
-        cookie_manager.set_persistent_storage(
-            cookies_filename.as_posix(), WebKit2.CookiePersistentStorage.SQLITE
+            base_cache_directory=cache_dir.as_posix(),
+            base_data_directory=data_dir.as_posix(),
         )
 
         loader_path = get_localized_file(
