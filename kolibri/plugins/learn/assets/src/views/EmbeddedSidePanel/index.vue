@@ -261,7 +261,7 @@
           width: '100%',
           border: '2px solid transparent',
           'text-transform': 'capitalize',
-          'text-align': 'left',
+          'text-align': this.isRtl ? 'right' : 'left',
           'font-weight': 'normal',
           position: 'relative',
           transition: 'none',
