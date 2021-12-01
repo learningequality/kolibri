@@ -263,9 +263,7 @@
           color: this.$themeTokens.text,
           width: '100%',
           border: '2px solid transparent',
-          'text-transform': 'capitalize',
           'text-align': this.isRtl ? 'right' : 'left',
-
           'font-weight': 'normal',
           'text-transform': 'none',
           position: 'relative',
