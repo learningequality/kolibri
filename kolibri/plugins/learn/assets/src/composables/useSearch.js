@@ -2,10 +2,11 @@ import { get, set } from '@vueuse/core';
 import { computed, getCurrentInstance, ref, watch } from 'kolibri.lib.vueCompositionApi';
 import { ContentNodeResource } from 'kolibri.resources';
 import { AllCategories, NoCategories } from 'kolibri.coreVue.vuex.constants';
+import { deduplicateResources } from '../utils/contentNode';
 import { normalizeContentNode } from '../modules/coreLearn/utils';
 import useContentNodeProgress from './useContentNodeProgress';
 
-const searchKeys = [
+export const searchKeys = [
   'learning_activities',
   'categories',
   'learner_needs',
@@ -27,7 +28,7 @@ export default function useSearch(store, router) {
 
   const searchLoading = ref(false);
   const moreLoading = ref(false);
-  const results = ref([]);
+  const _results = ref([]);
   const more = ref(null);
   const labels = ref(null);
 
@@ -123,7 +124,7 @@ export default function useSearch(store, router) {
         fetchContentNodeProgress(getParams);
       }
       ContentNodeResource.fetchCollection({ getParams }).then(data => {
-        set(results, (data.results || []).map(normalizeContentNode));
+        set(_results, (data.results || []).map(normalizeContentNode));
         set(more, data.more);
         set(labels, data.labels);
         set(searchLoading, false);
@@ -149,7 +150,7 @@ export default function useSearch(store, router) {
         fetchContentNodeProgress(get(more));
       }
       return ContentNodeResource.fetchCollection({ getParams: get(more) }).then(data => {
-        set(results, [...get(results), ...(data.results || []).map(normalizeContentNode)]);
+        set(_results, [...get(_results), ...(data.results || []).map(normalizeContentNode)]);
         set(more, data.more);
         set(labels, data.labels);
         set(moreLoading, false);
@@ -182,6 +183,10 @@ export default function useSearch(store, router) {
   }
 
   watch(searchTerms, search);
+
+  const results = computed(() => {
+    return deduplicateResources(get(_results));
+  });
 
   return {
     searchTerms,

@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount, mount } from '@vue/test-utils';
+import { createLocalVue, mount } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 
 import CompletionModal from '../../src/views/CompletionModal';
@@ -28,20 +28,16 @@ function makeWrapper({ propsData, data } = {}) {
     propsData,
     data,
     methods: {
-      loadNextContent: jest.fn(),
-      loadRecommendedContent: jest.fn(),
+      loadNextContent: jest.fn().mockResolvedValue(null),
+      loadRecommendedContent: jest.fn().mockResolvedValue([]),
+      loadNextLessonContent: jest.fn().mockResolvedValue(null),
     },
   });
 }
 
 describe('CompletionModal', () => {
   it('smoke test', () => {
-    const wrapper = shallowMount(CompletionModal, {
-      methods: {
-        loadNextContent: jest.fn(),
-        loadRecommendedContent: jest.fn(),
-      },
-    });
+    const wrapper = makeWrapper();
 
     expect(wrapper.exists()).toBe(true);
   });
@@ -100,15 +96,16 @@ describe('CompletionModal', () => {
     });
   });
 
-  it("displays 'Stay and practice' section with 'Stay here' button", () => {
+  it("displays 'Stay and practice' section with 'Stay here' button", async () => {
     const wrapper = makeWrapper();
-
+    await wrapper.vm.$nextTick();
     expect(wrapper.text()).toContain('Stay and practice');
     expect(getStayHereButton(wrapper).exists()).toBe(true);
   });
 
-  it("emits `close` even on 'Stay here' button click", () => {
+  it("emits `close` even on 'Stay here' button click", async () => {
     const wrapper = makeWrapper();
+    await wrapper.vm.$nextTick();
     getStayHereButton(wrapper).trigger('click');
 
     expect(wrapper.emitted().close).toBeTruthy();

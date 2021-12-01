@@ -53,6 +53,7 @@
       v-if="progress >= 1 && wasIncomplete"
       :isUserLoggedIn="isUserLoggedIn"
       :contentNodeId="content.id"
+      :lessonId="lessonId"
       @close="markAsComplete"
     />
   </div>

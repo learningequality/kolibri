@@ -103,6 +103,9 @@
         v-if="Object.keys(resourcesNeededList).length"
         class="section"
       >
+        <h2 class="title">
+          {{ coreString('showResources') }}
+        </h2>
         <div
           v-for="(val, activity) in resourcesNeededList"
 
@@ -262,7 +265,9 @@
           border: '2px solid transparent',
           'text-transform': 'capitalize',
           'text-align': this.isRtl ? 'right' : 'left',
+
           'font-weight': 'normal',
+          'text-transform': 'none',
           position: 'relative',
           transition: 'none',
           ':hover': {

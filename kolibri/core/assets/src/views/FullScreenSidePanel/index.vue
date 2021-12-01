@@ -22,8 +22,8 @@
           <KIconButton
             icon="close"
             class="close-button"
-            :ariaLabel="coreString('close')"
-            :tooltip="coreString('close')"
+            :ariaLabel="coreString('closeAction')"
+            :tooltip="coreString('closeAction')"
             @click="closePanel"
           />
         </div>

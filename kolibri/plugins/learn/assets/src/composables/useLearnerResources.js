@@ -11,41 +11,46 @@ import flatMap from 'lodash/flatMap';
 import flatMapDepth from 'lodash/flatMapDepth';
 
 import { ContentNodeResource } from 'kolibri.resources';
+import { deduplicateResources } from '../utils/contentNode';
 import genContentLink from '../utils/genContentLink';
-import { LearnerClassroomResource } from '../apiResources';
+import { LearnerClassroomResource, LearnerLessonResource } from '../apiResources';
 import { PageNames, ClassesPageNames } from '../constants';
 import { normalizeContentNode } from '../modules/coreLearn/utils';
 import useContentNodeProgress, { setContentNodeProgress } from './useContentNodeProgress';
 
 // The refs are defined in the outer scope so they can be used as a shared store
-const resumableContentNodes = ref([]);
+const _resumableContentNodes = ref([]);
 const moreResumableContentNodes = ref(null);
 const classes = ref([]);
 const { fetchContentNodeProgress } = useContentNodeProgress();
 
 export function setResumableContentNodes(nodes, more = null) {
-  set(resumableContentNodes, nodes.map(normalizeContentNode));
+  set(_resumableContentNodes, nodes.map(normalizeContentNode));
   set(moreResumableContentNodes, more);
   ContentNodeResource.cacheData(nodes);
 }
 
 function addResumableContentNodes(nodes, more = null) {
-  set(resumableContentNodes, [...get(resumableContentNodes), ...nodes.map(normalizeContentNode)]);
+  set(_resumableContentNodes, [...get(_resumableContentNodes), ...nodes.map(normalizeContentNode)]);
   set(moreResumableContentNodes, more);
   ContentNodeResource.cacheData(nodes);
 }
 
+function _cacheLessonResources(lesson) {
+  for (let resource of lesson.resources) {
+    if (resource.contentnode && resource.contentnode.content_id) {
+      ContentNodeResource.cacheData(resource.contentnode);
+      setContentNodeProgress({
+        content_id: resource.contentnode.content_id,
+        progress: resource.progress,
+      });
+    }
+  }
+}
+
 function setClassData(classroom) {
   for (let lesson of classroom.assignments.lessons) {
-    for (let resource of lesson.resources) {
-      if (resource.contentnode && resource.contentnode.content_id) {
-        ContentNodeResource.cacheData(resource.contentnode);
-        setContentNodeProgress({
-          content_id: resource.contentnode.content_id,
-          progress: resource.progress,
-        });
-      }
-    }
+    _cacheLessonResources(lesson);
   }
 }
 
@@ -301,6 +306,13 @@ export default function useLearnerResources() {
     });
   }
 
+  function fetchLesson({ lessonId } = {}) {
+    return LearnerLessonResource.fetchModel({ id: lessonId }).then(lesson => {
+      _cacheLessonResources(lesson);
+      return lesson;
+    });
+  }
+
   /**
    * Fetches resumable content nodes with their progress data
    * and saves data to this composable's store
@@ -342,6 +354,10 @@ export default function useLearnerResources() {
     });
   }
 
+  const resumableContentNodes = computed(() => {
+    return deduplicateResources(get(_resumableContentNodes));
+  });
+
   return {
     classes,
     activeClassesLessons,
@@ -358,6 +374,7 @@ export default function useLearnerResources() {
     getTopicContentNodeLink,
     fetchClass,
     fetchClasses,
+    fetchLesson,
     fetchResumableContentNodes,
     fetchMoreResumableContentNodes,
     resumableContentNodes,

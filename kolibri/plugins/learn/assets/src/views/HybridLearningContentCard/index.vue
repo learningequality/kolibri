@@ -39,9 +39,9 @@
       />
       <div class="text" :style="{ color: $themeTokens.text }">
         <h3 class="title" dir="auto">
-          <TextTruncator
+          <TextTruncatorCss
             :text="content.title"
-            :maxHeight="maxTitleHeight"
+            :maxLines="5"
           />
         </h3>
       </div>
@@ -53,9 +53,9 @@
       />
       <div class="footer-icons">
         <CoachContentLabel
-          v-if="isUserLoggedIn && !isLearner && content.numCoachContents"
+          v-if="isUserLoggedIn && !isLearner && content.num_coach_contents"
           class="coach-content-label"
-          :value="content.numCoachContents"
+          :value="content.num_coach_contents"
           :isTopic="isTopic"
         />
         <KIconButton
@@ -68,11 +68,10 @@
           @click="$emit('toggleInfoPanel')"
         />
         <KButton
-          v-if="content.copies_count > 1"
+          v-if="content.copies"
           appearance="basic-link"
-          class="copies"
-          :text="coreString('copies', { num: content.copies_count })"
-          @click.prevent="$emit('openCopiesModal', contentId)"
+          :text="coreString('copies', { num: content.copies.length })"
+          @click.prevent="$emit('openCopiesModal', content.copies)"
         />
         <slot name="actions"></slot>
       </div>
@@ -87,7 +86,7 @@
   import { mapGetters } from 'vuex';
   import { validateLinkObject } from 'kolibri.utils.validators';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
-  import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
+  import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ProgressBar from '../ProgressBar';
   import LearningActivityLabel from '../cards/ResourceCard/LearningActivityLabel';
@@ -99,7 +98,7 @@
     components: {
       CardThumbnail,
       CoachContentLabel,
-      TextTruncator,
+      TextTruncatorCss,
       LearningActivityLabel,
       ProgressBar,
     },
@@ -139,20 +138,12 @@
         }
         return styles;
       },
-      maxTitleHeight() {
-        if (this.footerLength && this.subtitle) {
-          return 20;
-        } else if (this.footerLength || this.subtitle) {
-          return 40;
-        }
-        return 120;
-      },
       footerLength() {
         return (
           1 +
           this.content.is_leaf +
-          (this.isUserLoggedIn && !this.isLearner && this.content.numCoachContents) +
-          (this.content.numCoachContents > 0) +
+          (this.isUserLoggedIn && !this.isLearner && this.content.num_coach_contents) +
+          (this.content.num_coach_contents > 0) +
           (this.content.copies_count > 1) +
           (this.$slots.actions ? this.$slots.actions.length : 0)
         );

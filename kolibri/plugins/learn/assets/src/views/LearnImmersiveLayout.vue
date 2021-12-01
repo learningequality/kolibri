@@ -79,6 +79,7 @@
         :nextContent="nextContent"
         :title="viewResourcesTitle"
         :isLesson="lessonContext"
+        :loading="resourcesSidePanelLoading"
       />
     </FullScreenSidePanel>
 
@@ -100,11 +101,7 @@
     LearningActivities,
     ContentKindsToLearningActivitiesMap,
   } from 'kolibri.coreVue.vuex.constants';
-  import {
-    ContentNodeProgressResource,
-    ContentNodeResource,
-    LessonResource,
-  } from 'kolibri.resources';
+  import { ContentNodeResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import client from 'kolibri.client';
   import urls from 'kolibri.urls';
@@ -112,6 +109,8 @@
   import SkipNavigationLink from '../../../../../../kolibri/core/assets/src/views/SkipNavigationLink';
   import AppError from '../../../../../../kolibri/core/assets/src/views/AppError';
   import useCoreLearn from '../composables/useCoreLearn';
+  import useContentNodeProgress from '../composables/useContentNodeProgress';
+  import useLearnerResources from '../composables/useLearnerResources';
   import LessonResourceViewer from './classes/LessonResourceViewer';
   import CurrentlyViewedResourceMetadata from './CurrentlyViewedResourceMetadata';
   import ContentPage from './ContentPage';
@@ -154,7 +153,9 @@
     mixins: [responsiveWindowMixin, commonCoreStrings],
     setup() {
       const { canDownload } = useCoreLearn();
-      return { canDownload };
+      const { fetchContentNodeProgress, fetchContentNodeTreeProgress } = useContentNodeProgress();
+      const { fetchLesson } = useLearnerResources();
+      return { canDownload, fetchContentNodeProgress, fetchContentNodeTreeProgress, fetchLesson };
     },
     props: {
       content: {
@@ -186,6 +187,8 @@
         showViewResourcesSidePanel: false,
         nextContent: null,
         viewResourcesContents: [],
+        resourcesSidePanelFetched: false,
+        resourcesSidePanelLoading: false,
       };
     },
     computed: {
@@ -244,124 +247,112 @@
       },
     },
     watch: {
-      content: function() {
-        this.showViewResourcesSidePanel = false;
-        this.getSidebarInfo();
+      content(newContent, oldContent) {
+        if ((newContent && !oldContent) || newContent.id !== oldContent.id) {
+          this.resetSidebarInfo();
+          client({
+            method: 'get',
+            url: urls['kolibri:core:bookmarks-list'](),
+            params: { contentnode_id: this.content.id },
+          }).then(response => {
+            this.bookmark = response.data[0] || false;
+          });
+        }
       },
-    },
-    mounted() {
-      /** I got 404s because content wasn't provided immediately upon mounting, so we check
-       * this here, otherwise a watcher on `content` should trigger calling the same */
-      this.getSidebarInfo();
-    },
-    beforeUpdate() {
-      client({
-        method: 'get',
-        url: urls['kolibri:core:bookmarks-list'](),
-        params: { contentnode_id: this.content.id },
-      }).then(response => {
-        this.bookmark = response.data[0] || false;
-      });
+      showViewResourcesSidePanel(newVal, oldVal) {
+        if (newVal && !oldVal) {
+          this.getSidebarInfo();
+        }
+      },
     },
     methods: {
-      getSidebarInfo() {
-        if (this.lessonId) {
-          this.fetchLessonSiblings();
-        } else {
-          if (this.content.id) {
-            this.fetchSiblings();
-          }
-        }
+      resetSidebarInfo() {
+        this.showViewResourcesSidePanel = false;
+        this.nextContent = null;
+        this.viewResourcesContents = [];
+        this.resourcesSidePanelFetched = false;
+        this.resourcesSidePanelLoading = false;
       },
-      /** Returns a promise which will get the progress for a set of nodes and map it back onto
-       *  the nodes, which are then set to this.viewResourcesContents.
-       *  @modifies this.viewResourcesContents - Sets it to the value of nodes, mapped with
-       *  progress, if found
-       *  @returns {Promise} - Just returns a meaningless Promise in case you want to chain
-       *  synchronously
-       */
-      progressPromise(nodes) {
-        // Avoid unnecessary fetches, set values, return empty Promise
-        if (!this.$store.getters.isUserLoggedIn) {
-          nodes.map(node => (node.progress = 0));
-          this.viewResourcesContents = nodes;
-          return Promise.resolve();
+      getSidebarInfo() {
+        if (!this.resourcesSidePanelFetched && !this.resourcesSidePanelLoading) {
+          this.resourcesSidePanelLoading = true;
+          let promise = Promise.resolve();
+          if (this.lessonId) {
+            promise = this.fetchLessonSiblings();
+          } else if (this.content && this.content.id) {
+            promise = this.fetchSiblings();
+          }
+          promise.then(() => {
+            this.resourcesSidePanelLoading = false;
+            this.resourcesSidePanelFetched = true;
+          });
         }
-        const getParams = {
-          content_ids: nodes.map(node => node.content_id),
-        };
-        return ContentNodeProgressResource.fetchCollection({ getParams }).then(progresses => {
-          this.viewResourcesContents = nodes
-            .map(node => {
-              const matchingProgress = progresses.find(p => p.content_id === node.content_id) || {
-                progress: 0,
-              };
-              node.progress = matchingProgress.progress;
-              return node;
-            })
-            .filter(node => node.content_id !== this.content.content_id);
-        });
       },
       /**
-       * Prepares a list of content nodes which are also in the same lesson as this.lessonId
-       * @modifies this.viewResourcesContents - Sets it to the progress-mapped nodes
+       * When a lessonId is given, this method will fetch the lesson and then fetch its
+       * content nodes. The user is guaranteed to be logged in if there is a lessonId.
+       *
+       * The nodes' progresses are mapped via the useContentNodeProgress composable
+       *
+       * @modifies this.viewResourcesContents - Assigned the content nodes retrieved
+       * @modifies useContentNodeProgress.contentNodeProgressMap (indirectly)
        */
       fetchLessonSiblings() {
-        LessonResource.fetchModel({ id: this.lessonId }).then(lesson => {
-          ContentNodeResource.fetchCollection({
-            getParams: {
-              ids: lesson.resources.map(resource => resource.contentnode_id),
-            },
-          }).then(contentNodes => {
-            return this.progressPromise(contentNodes);
-          });
+        // Get the lesson and then assign its resources to this.viewResourcesContents
+        // fetchLesson also handles fetching the progress data for this lesson and
+        // the content node data for the resources
+        this.fetchLesson({ lessonId: this.lessonId }).then(lesson => {
+          // Filter out this.content
+          this.viewResourcesContents = lesson.resources
+            .filter(n => n.contentnode_id !== this.content.id)
+            .map(n => n.contentnode);
         });
       },
       /**
        * Prepares a list of content nodes which are children of this.content.parent without
-       * this.content. The prepared nodes have their progress values for the current user
-       * (if there is one) mapped onto each node.
+       * this.content and calls fetchContentNodeProgress when the user is logged in.
        *
-       * Largely borrowed from modules/topicsTree/handlers.js
+       * Then it will fetch the "next folder" - which is the next content for this.content that
+       * is a topic.
        *
        * @modifies this.viewResourcesContents - Sets it to the progress-mapped nodes
-       * @modifies this.nextFolder - Sets the value with this.content's parents next sibling folder
+       * @modifies this.nextContent - Sets the value with this.content's parents next sibling folder
        * if found
+       * @modifies useContentNodeProgress.contentNodeProgressMap (indirectly) if the user
+       * is logged in
        */
       fetchSiblings() {
-        // Guard against this in lesson context
-        if (this.lessonId) {
-          return;
-        }
-
-        ContentNodeResource.fetchTree({
+        // Fetch the next content
+        const nextPromise = ContentNodeResource.fetchNextContent(this.content.parent, {
+          topicOnly: true,
+        }).then(nextContent => {
+          // This may return the immediate parent if nothing else is found so let's be sure
+          // not to assign that
+          if (nextContent && this.content.parent !== nextContent.id) {
+            this.nextContent = nextContent;
+          }
+        });
+        const treeParams = {
           id: this.content.parent,
           params: {
             include_coach_content:
               this.$store.getters.isAdmin ||
               this.$store.getters.isCoach ||
               this.$store.getters.isSuperuser,
+            depth: 1,
           },
-        }).then(parent => {
+        };
+        // Fetch and map the progress for the nodes if logged in
+        if (this.$store.getters.isUserLoggedIn) {
+          this.fetchContentNodeTreeProgress(treeParams);
+        }
+        const treePromise = ContentNodeResource.fetchTree(treeParams).then(parent => {
           // Filter out this.content
-          const nodes = parent.children.results.filter(node => node.id !== this.content.id);
-
-          /** A promise to get the nextFolder content - done always */
-          const nextFolderPromise = ContentNodeResource.fetchNextContent(parent.id, {
-            topicOnly: true,
-          }).then(nextContent => {
-            // This may return the immediate parent if nothing else is found so let's be sure
-            // not to assign that
-            if (nextContent && this.content.parent !== nextContent.id) {
-              this.nextContent = nextContent;
-            }
-          });
-
-          const promises = [nextFolderPromise];
-          // Push progressPromise, which handles user logged in logic
-          promises.push(this.progressPromise(nodes));
-          Promise.all(promises);
+          this.viewResourcesContents = parent.children.results.filter(
+            n => n.id !== this.content.id
+          );
         });
+        return Promise.all([nextPromise, treePromise]);
       },
       navigateBack() {
         this.$router.push(this.back);
