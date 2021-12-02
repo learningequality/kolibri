@@ -1,10 +1,10 @@
 <template>
 
-  <div v-if="contentNode">
+  <div v-if="contentNode" :class="[ condensed ? 'condensed' : '']">
     <div class="learning-activity">
       <span
         v-if="!labelAfter"
-        class="label"
+        class="label-before"
         data-test="label"
       >
         {{ label }}
@@ -17,15 +17,18 @@
           :kind="learningActivity"
           :style="{ fontSize: '18px' }"
         />
-        <span
-          v-if="labelAfter"
-          class="label"
-          data-test="label"
-        >
-          {{ label }}
-        </span>
       </template>
+      <span
+        v-if="labelAfter"
+        class="label-after"
+        data-test="label"
+      >
+        {{ label }}
+      </span>
     </div>
+
+    <span v-if="condensed" class="separator">|</span>
+
     <div
       v-if="!hideDuration"
       class="duration"
@@ -79,6 +82,12 @@
       },
       // allows for switching the order of the label and the icon
       labelAfter: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
+      // show the label and duration on one row separated by a vertical line
+      condensed: {
         type: Boolean,
         required: false,
         default: false,
@@ -168,23 +177,40 @@
     display: flex;
     align-items: center;
     justify-content: flex-end;
+  }
 
-    .label {
-      padding-right: 4px;
-      padding-left: 4px;
-    }
+  .label-before {
+    padding-right: 4px;
+  }
 
-    .icon {
-      // override KIcon's `position: relative` to allow
-      // for precise vertical centering of label and icon
-      position: static;
-      padding-left: 2px;
-    }
+  .label-after {
+    padding-left: 4px;
+  }
+
+  .icon {
+    // override KIcon's `position: relative` to allow
+    // for precise vertical centering of label and icon
+    position: static;
   }
 
   .duration {
     margin-top: 8px;
     text-align: right;
+  }
+
+  .condensed {
+    display: flex;
+    align-items: center;
+
+    .duration {
+      margin-top: 0;
+      text-align: left;
+    }
+
+    .separator {
+      padding-right: 4px;
+      padding-left: 4px;
+    }
   }
 
 </style>
