@@ -398,7 +398,7 @@ class KolibriChannelContext(KolibriContext):
         if contentnode_id == self.__channel_id:
             return True
 
-        response = self.__kolibri_daemon.kolibri_api_get(
+        response = self.kolibri_api_get(
             "/api/content/contentnode/{contentnode_id}".format(
                 contentnode_id=contentnode_id
             )
