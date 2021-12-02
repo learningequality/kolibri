@@ -54,12 +54,6 @@ SHOW_K_FOOTER_LOGO = "showKolibriFooterLogo"
 SHOW_POWERED_BY = "showPoweredBy"
 POWERED_BY_STYLE = "poweredByStyle"
 
-# This is the image file name that will be used when customizing the sign-in background
-# image using the 'kolibri manage background' command. It does not attempt to use a file
-# extension (like .jpg) because we don't know if it's a JPG, SVG, PNG, etc...
-DEFAULT_BG_IMAGE_FILE = "background_image"
-DEFAULT_BG_MD5_FILE = "background_image_md5"
-
 
 def _isSet(theme, keys):
     """
@@ -167,18 +161,6 @@ class ThemeHook(hooks.KolibriHook):
             theme[APP_BAR][TOP_LOGO][IMG_SRC] += bust
         if _isSet(theme, [SIDE_NAV, BRANDED_FOOTER, LOGO, IMG_SRC]):
             theme[SIDE_NAV][BRANDED_FOOTER][LOGO][IMG_SRC] += bust
-
-        # if a background image has been locally set using the `manage background` command, use it
-        bg_img = os.path.join(settings.MEDIA_ROOT, DEFAULT_BG_IMAGE_FILE)
-        if os.path.exists(bg_img):
-            theme[SIGN_IN][BACKGROUND] = parse.urljoin(
-                settings.MEDIA_URL, DEFAULT_BG_IMAGE_FILE
-            )
-            # add cache busting
-            md5_file = os.path.join(settings.MEDIA_ROOT, DEFAULT_BG_MD5_FILE)
-            if os.path.exists(md5_file):
-                with open(md5_file) as f:
-                    theme[SIGN_IN][BACKGROUND] += "?{}".format(f.read())
 
         return theme
 
