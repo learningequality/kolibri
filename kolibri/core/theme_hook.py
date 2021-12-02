@@ -3,19 +3,14 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import logging
-import os
 from abc import abstractproperty
 
-from django.conf import settings
-from django.utils.six.moves.urllib import parse
-
-import kolibri
 from kolibri.plugins import hooks
 
 logger = logging.getLogger(__name__)
 
 
-# Important for cache busting
+# previously used for cache busting
 THEME_NAME = "themeName"
 THEME_VERSION = "themeVersion"
 
@@ -55,24 +50,13 @@ SHOW_POWERED_BY = "showPoweredBy"
 POWERED_BY_STYLE = "poweredByStyle"
 
 
-def _isSet(theme, keys):
-    """
-    Given a theme dict, recursively check that all the keys are populated
-    and that the associated value is truthy
-    """
-    obj = theme
-    for key in keys:
-        if not obj or key not in obj:
-            return False
-        obj = obj[key]
-    return bool(obj)
-
-
 def _validateMetadata(theme):
-    if THEME_NAME not in theme:
-        logger.error("a theme name must be set")
-    if THEME_VERSION not in theme:
-        logger.error("a theme version must be set")
+    def deprecated_msg(key):
+        if key in theme:
+            logger.info("Note: '{}' is deprecated as of v0.15.0".format(key))
+
+    deprecated_msg(THEME_NAME)
+    deprecated_msg(THEME_VERSION)
 
 
 def _validateBrandColors(theme):
@@ -131,37 +115,12 @@ class ThemeHook(hooks.KolibriHook):
     """
 
     @classmethod
-    def cacheKey(cls):
-        theme = list(cls.registered_hooks)[0].theme
-        return parse.quote(
-            "{}-{}-{}".format(
-                kolibri.__version__, theme[THEME_NAME], theme[THEME_VERSION]
-            )
-        )
-
-    @classmethod
     def get_theme(cls):
         theme = list(cls.registered_hooks)[0].theme
-
-        # some validation and initialization
         _initFields(theme)
         _validateMetadata(theme)
         _validateBrandColors(theme)
         _validateScrimOpacity(theme)
-
-        # set up cache busting
-        bust = "?" + cls.cacheKey()
-        if _isSet(theme, [SIGN_IN, BACKGROUND]):
-            theme[SIGN_IN][BACKGROUND] += bust
-        if _isSet(theme, [SIGN_IN, TOP_LOGO, IMG_SRC]):
-            theme[SIGN_IN][TOP_LOGO][IMG_SRC] += bust
-        if _isSet(theme, [SIDE_NAV, TOP_LOGO, IMG_SRC]):
-            theme[SIDE_NAV][TOP_LOGO][IMG_SRC] += bust
-        if _isSet(theme, [APP_BAR, TOP_LOGO, IMG_SRC]):
-            theme[APP_BAR][TOP_LOGO][IMG_SRC] += bust
-        if _isSet(theme, [SIDE_NAV, BRANDED_FOOTER, LOGO, IMG_SRC]):
-            theme[SIDE_NAV][BRANDED_FOOTER][LOGO][IMG_SRC] += bust
-
         return theme
 
     @abstractproperty

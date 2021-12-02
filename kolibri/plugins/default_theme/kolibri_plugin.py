@@ -18,9 +18,6 @@ class DefaultThemeHook(theme_hook.ThemeHook):
     @property
     def theme(self):
         return {
-            # metadata
-            theme_hook.THEME_NAME: "Default theme",
-            theme_hook.THEME_VERSION: 1,  # increment when changes are made
             # specify primary and secondary brand colors
             theme_hook.BRAND_COLORS: {
                 theme_hook.PRIMARY: {

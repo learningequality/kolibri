@@ -83,8 +83,8 @@ class DynamicWhiteNoise(WhiteNoise):
         self, application, dynamic_locations=None, static_prefix=None, **kwargs
     ):
         whitenoise_settings = {
-            # Use 1 day as the default cache time for static assets
-            "max_age": 24 * 60 * 60,
+            # Use 120 seconds as the default cache time for static assets
+            "max_age": 120,
             # Add a test for any file name that contains a semantic version number
             # or a 32 digit number (assumed to be a file hash)
             # these files will be cached indefinitely
