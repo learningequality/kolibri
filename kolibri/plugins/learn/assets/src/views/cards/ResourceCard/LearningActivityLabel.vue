@@ -27,7 +27,7 @@
       </span>
     </div>
 
-    <span v-if="condensed" class="separator">|</span>
+    <span v-if="displaySeparator" class="separator">|</span>
 
     <div
       v-if="!hideDuration"
@@ -164,6 +164,11 @@
           return '';
         }
         return this.LearningActivityToLabelMap[this.contentNode.learning_activities[0]];
+      },
+      displaySeparator() {
+        return (
+          this.condensed && !this.hideDuration && (this.durationEstimation || this.displayMinutes)
+        );
       },
     },
   };
