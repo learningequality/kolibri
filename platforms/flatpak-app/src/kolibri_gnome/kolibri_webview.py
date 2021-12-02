@@ -198,7 +198,9 @@ class KolibriWebViewStack(Gtk.Stack):
             )
         self.add(self.__main_webview)
 
-        self.__loading_webview = WebKit2.WebView(is_ephemeral=True)
+        self.__loading_webview = WebKit2.WebView(
+            web_context=self.__context.webkit_web_context, is_ephemeral=True
+        )
         self.add(self.__loading_webview)
 
         self.__main_webview.show()
