@@ -40,7 +40,7 @@ class DeviceSerializerMixin(object):
 class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
     facility = FacilitySerializer()
     preset = serializers.ChoiceField(choices=choices)
-    superuser = NoFacilityFacilityUserSerializer()
+    superuser = NoFacilityFacilityUserSerializer(allow_null=True)
     language_id = serializers.CharField(max_length=15)
     device_name = serializers.CharField(max_length=50, allow_null=True)
     settings = serializers.JSONField()
@@ -78,12 +78,16 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
             facility.dataset.save()
 
             # Create superuser
-            superuser = FacilityUser.objects.create_superuser(
-                validated_data["superuser"]["username"],
-                validated_data["superuser"]["password"],
-                facility=facility,
-                full_name=validated_data["superuser"].get("full_name"),
-            )
+            superuser_data = validated_data.pop("superuser")
+            if superuser_data:
+                superuser = FacilityUser.objects.create_superuser(
+                    superuser_data["username"],
+                    superuser_data["password"],
+                    facility=facility,
+                    full_name=superuser_data.get("full_name"),
+                )
+            else:
+                superuser = None
 
             # Create device settings
             language_id = validated_data.pop("language_id")
