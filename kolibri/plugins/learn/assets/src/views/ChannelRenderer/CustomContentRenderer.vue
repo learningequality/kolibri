@@ -159,6 +159,7 @@
             max_results: options.maxResults ? options.maxResults : 50,
             kind: kind,
             kind_in: kinds,
+            descendant_of: options.descendantOf,
           },
         })
           .then(contentNodes => {

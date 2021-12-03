@@ -272,6 +272,7 @@ class ContentNodeFilter(IdFilter):
     rght__lt = NumberFilter(field_name="rght", lookup_expr="lt")
     authors = CharFilter(method="filter_by_authors")
     tags = CharFilter(method="filter_by_tags")
+    descendant_of = UUIDFilter(method="filter_descendant_of")
 
     class Meta:
         model = models.ContentNode
@@ -298,6 +299,24 @@ class ContentNodeFilter(IdFilter):
         """
         tags = value.split(",")
         return queryset.filter(tags__tag_name__in=tags).order_by("lft")
+
+    def filter_descendant_of(self, queryset, name, value):
+        """
+        Show content that is descendant of the given node
+
+        :param queryset: all content nodes for this channel
+        :param value: the root node to filter descendant of
+        :return: all descendants content
+        """
+        try:
+            node = models.ContentNode.objects.values("lft", "rght", "tree_id").get(
+                pk=value
+            )
+        except (models.ContentNode.DoesNotExist, ValueError):
+            return queryset.none()
+        return queryset.filter(
+            lft__gt=node["lft"], rght__lt=node["rght"], tree_id=node["tree_id"]
+        )
 
     def filter_kind(self, queryset, name, value):
         """
