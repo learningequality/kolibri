@@ -148,8 +148,9 @@
     <FullScreenSidePanel
       v-if="!windowIsLarge && sidePanelIsOpen"
       class="full-screen-side-panel"
+      alignment="left"
       :closeButtonHidden="true"
-      :sidePanelOverrideWidth="`${sidePanelOverlayWidth + 64}px`"
+      :sidePanelOverrideWidth="`${sidePanelOverlayWidth}px`"
       @closePanel="toggleSidePanelVisibility"
     >
       <KIconButton
@@ -172,7 +173,7 @@
       <EmbeddedSidePanel
         v-if="!currentCategory"
         v-model="searchTerms"
-        :width="`${sidePanelOverlayWidth}px`"
+        :width="`${sidePanelOverlayWidth - 64}px`"
         :availableLabels="labels"
         position="overlay"
         :activeActivityButtons="activeActivityButtons"
@@ -320,13 +321,18 @@
         }
       },
       sidePanelOverlayWidth() {
-        return 300;
+        if (!this.windowIsSmall) {
+          return 364;
+        }
+        return null;
       },
       numCols() {
-        if (this.windowIsSmall) {
+        if (this.windowIsMedium) {
           return 2;
-        } else {
+        } else if (!this.windowIsSmall) {
           return 3;
+        } else {
+          return null;
         }
       },
       activeActivityButtons() {
@@ -419,6 +425,7 @@
 
   .full-screen-side-panel {
     position: relative;
+    width: 100vw;
   }
   .overlay-close-button {
     position: absolute;
