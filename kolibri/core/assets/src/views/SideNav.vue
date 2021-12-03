@@ -43,11 +43,11 @@
           :style="{ top: `${headerHeight}px`, width: `${width}px` }"
         >
           <img
-            v-if="$kolibriBranding.sideNav.topLogo"
+            v-if="themeConfig.sideNav.topLogo"
             class="logo"
-            :src="$kolibriBranding.sideNav.topLogo.src"
-            :alt="$kolibriBranding.sideNav.topLogo.alt"
-            :style="$kolibriBranding.sideNav.topLogo.style"
+            :src="themeConfig.sideNav.topLogo.src"
+            :alt="themeConfig.sideNav.topLogo.alt"
+            :style="themeConfig.sideNav.topLogo.style"
           >
           <CoreMenu
             ref="coreMenu"
@@ -67,21 +67,21 @@
 
           <div class="side-nav-scrollable-area-footer" :style="{ color: $themeTokens.annotation }">
             <!-- custom branded footer logo + text -->
-            <template v-if="$kolibriBranding.sideNav.brandedFooter">
+            <template v-if="themeConfig.sideNav.brandedFooter">
               <img
-                v-if="$kolibriBranding.sideNav.brandedFooter.logo"
+                v-if="themeConfig.sideNav.brandedFooter.logo"
                 class="side-nav-scrollable-area-footer-logo"
-                :src="$kolibriBranding.sideNav.brandedFooter.logo.src"
-                :alt="$kolibriBranding.sideNav.brandedFooter.logo.alt"
-                :style="$kolibriBranding.sideNav.brandedFooter.logo.style"
+                :src="themeConfig.sideNav.brandedFooter.logo.src"
+                :alt="themeConfig.sideNav.brandedFooter.logo.alt"
+                :style="themeConfig.sideNav.brandedFooter.logo.style"
               >
               <div
-                v-if="$kolibriBranding.sideNav.brandedFooter.paragraphArray
-                  && $kolibriBranding.sideNav.brandedFooter.paragraphArray.length"
+                v-if="themeConfig.sideNav.brandedFooter.paragraphArray
+                  && themeConfig.sideNav.brandedFooter.paragraphArray.length"
                 class="side-nav-scrollable-area-footer-info"
               >
                 <p
-                  v-for="(line, index) in $kolibriBranding.sideNav.brandedFooter.paragraphArray"
+                  v-for="(line, index) in themeConfig.sideNav.brandedFooter.paragraphArray"
                   :key="index"
                 >
                   {{ line }}
@@ -90,7 +90,7 @@
             </template>
             <!-- Kolibri footer logo -->
             <CoreLogo
-              v-if="$kolibriBranding.sideNav.showKolibriFooterLogo"
+              v-if="themeConfig.sideNav.showKolibriFooterLogo"
               class="side-nav-scrollable-area-footer-logo"
             />
             <div class="side-nav-scrollable-area-footer-info">
@@ -143,7 +143,7 @@
   import LearnOnlyDeviceNotice from 'kolibri.coreVue.components.LearnOnlyDeviceNotice';
   import navComponents from 'kolibri.utils.navComponents';
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
-  import branding from 'kolibri.utils.branding';
+  import { themeConfig } from 'kolibri.themeConfig';
   import Backdrop from 'kolibri.coreVue.components.Backdrop';
   import navComponentsMixin from '../mixins/nav-components';
   import logout from './LogoutSideNavEntry';
@@ -171,6 +171,9 @@
       PrivacyInfoModal,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin, responsiveElementMixin, navComponentsMixin],
+    setup() {
+      return { themeConfig };
+    },
     props: {
       navShown: {
         type: Boolean,
@@ -214,8 +217,8 @@
         );
       },
       sideNavTitleText() {
-        if (this.$kolibriBranding.sideNav.title) {
-          return this.$kolibriBranding.sideNav.title;
+        if (this.themeConfig.sideNav.title) {
+          return this.themeConfig.sideNav.title;
         }
         return this.coreString('kolibriLabel');
       },
@@ -233,9 +236,6 @@
           }
         });
       },
-    },
-    created() {
-      this.$kolibriBranding = branding;
     },
     methods: {
       toggleNav() {

@@ -33,12 +33,10 @@ const defaults = {
   },
 };
 
-const globalBrandingState = Vue.observable(defaults);
+export const themeConfig = Vue.observable(defaults);
 
-globalBrandingState.setBranding = state => {
+export function setThemeConfig(theme) {
   Object.keys(defaults).forEach(key => {
-    Vue.set(globalBrandingState, key, state[key]);
+    Vue.set(themeConfig, key, theme[key]);
   });
-};
-
-export default globalBrandingState;
+}

@@ -3,13 +3,7 @@
  * @module Facade
  */
 import 'core-js';
-import '../styles/main.scss';
 import urls from 'kolibri.urls';
-import * as theme from 'kolibri-design-system/lib/styles/theme';
-import generateGlobalStyles from 'kolibri-design-system/lib/styles/generateGlobalStyles';
-import trackInputModality from 'kolibri-design-system/lib/styles/trackInputModality';
-import trackMediaType from 'kolibri-design-system/lib/styles/trackMediaType';
-import branding from 'kolibri.utils.branding';
 import logging from 'kolibri.lib.logging';
 import store from 'kolibri.coreVue.vuex.store';
 import Vue from 'vue';
@@ -20,11 +14,12 @@ import VueCompositionApi from '@vue/composition-api';
 import KThemePlugin from 'kolibri-design-system/lib/KThemePlugin';
 import heartbeat from 'kolibri.heartbeat';
 import KContentPlugin from 'kolibri-design-system/lib/content/KContentPlugin';
+import initializeTheme from '../styles/initializeTheme';
 import KSelect from '../views/KSelect';
 import { i18nSetup, languageDirection } from '../utils/i18n';
 import ContentRendererErrorComponent from '../views/ContentRenderer/ContentRendererError';
 import apiSpec from './apiSpec';
-import plugin_data from 'plugin_data';
+
 // Do this before any async imports to ensure that public paths
 // are set correctly
 urls.setUp();
@@ -50,21 +45,7 @@ const coreApp = {
 };
 
 // set up theme
-const kolibriTheme = plugin_data.kolibriTheme;
-
-theme.setBrandColors(kolibriTheme.brandColors);
-theme.setTokenMapping(kolibriTheme.tokenMapping);
-// set up branding
-branding.setBranding(kolibriTheme);
-
-// global styles
-generateGlobalStyles();
-
-// monitor input modality
-trackInputModality();
-
-// monitor media type, "print" vs "screen"
-trackMediaType();
+initializeTheme();
 
 // monitor page visibility
 document.addEventListener('visibilitychange', function() {
@@ -75,8 +56,12 @@ document.addEventListener('visibilitychange', function() {
 Vue.use(Vuex);
 Vue.use(VueRouter);
 Vue.use(VueMeta);
-Vue.use(KThemePlugin);
 Vue.use(VueCompositionApi);
+
+// - Installs helpers on Vue instances: $themeBrand, $themeTokens, $themePalette
+// - Set up global state, listeners, and styles
+// - Register KDS components
+Vue.use(KThemePlugin);
 
 Vue.use(KContentPlugin, {
   languageDirection,

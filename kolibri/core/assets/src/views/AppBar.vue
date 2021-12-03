@@ -24,10 +24,10 @@
 
       <template #brand>
         <img
-          v-if="$kolibriBranding.appBar.topLogo"
-          :src="$kolibriBranding.appBar.topLogo.src"
-          :alt="$kolibriBranding.appBar.topLogo.alt"
-          :style="$kolibriBranding.appBar.topLogo.style"
+          v-if="themeConfig.appBar.topLogo"
+          :src="themeConfig.appBar.topLogo.src"
+          :alt="themeConfig.appBar.topLogo.alt"
+          :style="themeConfig.appBar.topLogo.style"
           class="brand-logo"
         >
       </template>
@@ -136,7 +136,7 @@
   import UiButton from 'kolibri-design-system/lib/keen/UiButton';
   import navComponents from 'kolibri.utils.navComponents';
   import { NavComponentSections, SyncStatus, UserKinds } from 'kolibri.coreVue.vuex.constants';
-  import branding from 'kolibri.utils.branding';
+  import { themeConfig } from 'kolibri.themeConfig';
   import navComponentsMixin from '../mixins/nav-components';
   import LogoutSideNavEntry from './LogoutSideNavEntry';
   import SkipNavigationLink from './SkipNavigationLink';
@@ -160,6 +160,9 @@
       SyncStatusDisplay,
     },
     mixins: [commonCoreStrings, navComponentsMixin],
+    setup() {
+      return { themeConfig };
+    },
     props: {
       title: {
         type: String,
@@ -211,7 +214,6 @@
     },
     created() {
       window.addEventListener('click', this.handleWindowClick);
-      this.$kolibriBranding = branding;
     },
     beforeDestroy() {
       window.removeEventListener('click', this.handleWindowClick);
