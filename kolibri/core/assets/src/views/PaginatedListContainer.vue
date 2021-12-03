@@ -3,7 +3,7 @@
   <div>
     <KGrid>
       <KGridItem :layout12="{ span: 7 }">
-        <slot name="otherFilter"></slot>
+        <slot name="otherFilter" :roles="roles"></slot>
       </KGridItem>
       <KGridItem
         :layout12="{ span: 5, alignment: 'right' }"
@@ -96,6 +96,8 @@
         userList: this.items,
         totalPageNumbers: this.totalPageNumber,
         totalItems: this.items.length,
+        userType: 'admin',
+        roles: ['admin', 'coach'],
       };
     },
     computed: {
@@ -199,19 +201,20 @@
       get_users() {
         const facilityId = store.getters.activeFacilityId;
         console.log(this.filterInput, '<<<<<<<<<<<<<<<<<<<<<<');
-        console.log(otherFilter);
+        console.log(this.userList);
         FacilityUserResource.fetchCollection({
           getParams: {
             member_of: facilityId,
             page_size: this.itemsPerPage,
             page: this.currentPageNumber,
             search: this.filterInput,
-            user_type({
-              el: admin,
-              data: {
-                otherFilter: admin,
-              }
-            }),
+            // user_type: this.userType,
+            // user_type({
+            //   el: admin,
+            //   data: {
+            //     otherFilter: admin,
+            //   }
+            // }),
             // onChange: function(event) {
             //   console.log(event.target.user_type);
             // },
@@ -224,7 +227,7 @@
           force: true,
         }).then(
           users => {
-            console.log(users);
+            // console.log('users', users.results[0].roles[0].kind);
             this.currentPageNumber = users.page;
             // this.items = users.results;
 
