@@ -378,11 +378,6 @@
     align-items: center;
   }
 
-  /deep/ .ui-toolbar__right {
-    // never shrink controls on the right side of the toolbar
-    flex-shrink: 0;
-  }
-
   /deep/ .progress-icon .ui-icon {
     margin-top: -2px;
     margin-left: 16px;
