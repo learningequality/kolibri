@@ -54,6 +54,7 @@
       <div class="footer-icons">
         <CoachContentLabel
           v-if="isUserLoggedIn && !isLearner && content.num_coach_contents"
+          :style="coachContentLabelStyles"
           class="coach-content-label"
           :value="content.num_coach_contents"
           :isTopic="isTopic"
@@ -66,12 +67,6 @@
           :ariaLabel="coreString('viewInformation')"
           :tooltip="coreString('viewInformation')"
           @click="$emit('toggleInfoPanel')"
-        />
-        <KButton
-          v-if="content.copies"
-          appearance="basic-link"
-          :text="coreString('copies', { num: content.copies.length })"
-          @click.prevent="$emit('openCopiesModal', content.copies)"
         />
         <slot name="actions"></slot>
       </div>
@@ -147,6 +142,13 @@
           (this.content.copies_count > 1) +
           (this.$slots.actions ? this.$slots.actions.length : 0)
         );
+      },
+      coachContentLabelStyles() {
+        if (this.content.num_coach_contents < 2) {
+          return { maxWidth: '24px', marginTop: '4px' };
+        } else {
+          return {};
+        }
       },
     },
   };
@@ -251,7 +253,7 @@
   }
 
   .coach-content-label {
-    max-width: 30px;
+    // max-width: 30px;
     vertical-align: top;
   }
 
