@@ -22,7 +22,7 @@
           class="grid"
           :contents="rootNodes"
         />
-        <div v-if="!(windowBreakpoint < 1 )" class="toggle-view-buttons">
+        <div v-if="!(windowBreakpoint < 1 ) && results.length" class="toggle-view-buttons">
           <KIconButton
             icon="menu"
             :ariaLabel="$tr('viewAsList')"
