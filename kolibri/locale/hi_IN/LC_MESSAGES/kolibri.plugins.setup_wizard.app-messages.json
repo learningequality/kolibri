@@ -81,7 +81,7 @@
   "SuperuserCredentialsForm.rememberThisAccountInformation": "महत्वपूर्ण: कृपया इस खाते की जानकारी याद रखें । अगर ज़रूरत हो तो इसे लिख लें",
   "UserTable.role": "भूमिका",
   "UserTable.selectAllLabel": "सभी का चयन करें",
-  "UserTable.userCheckboxLabel": "उपयोगकर्ता (user) का चयन करें",
+  "UserTable.userCheckboxLabel": "उपयोगकर्ता चुनें",
   "YesNoForm.details": "आप बाद में अपनी सुविधा सेटिंग में इसे बदल सकते हैं",
   "YesNoForm.yesOptionLabel": "हाँ"
 }
