@@ -6,7 +6,7 @@ import { _userState } from '../mappers';
 export function showUserPage(store, toRoute) {
   store.dispatch('preparePage');
   const facilityId = toRoute.params.facility_id || store.getters.activeFacilityId;
-
+  console.log('showUserPage');
   return FacilityUserResource.fetchCollection({
     getParams: { member_of: facilityId, page_size: 30 },
     force: true,

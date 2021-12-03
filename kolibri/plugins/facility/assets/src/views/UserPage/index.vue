@@ -128,7 +128,6 @@
         ];
       },
       usersFilteredByRow() {
-        console.log(this.facilityUsers.total_pages);
         return this.facilityUsers.results.filter(user =>
           this.userMatchesRole(user, this.roleFilter)
         );

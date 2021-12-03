@@ -17,7 +17,9 @@
     </KGrid>
 
     <div>
-      <slot v-bind="{ items: visibleFilteredItems, filterInput }"></slot>
+      <!--<slot v-bind="{ items: visibleFilteredItems, filterInput }"></slot>-->
+      <!--<slot :items="filterInput == '' ? initialUsersList : filteredItems "></slot>-->
+      <slot :items="initialUsersList"></slot>
     </div>
 
     <nav class="pagination-nav">
@@ -81,44 +83,78 @@
         type: Number,
         required: true,
       },
-      currentPageNumber: {
-        type: Number,
-        required: true,
-      },
+      // currentPageNumber: {
+      //   type: Number,
+      //   required: true,
+      // },
     },
     data() {
       return {
         filterInput: '',
         currentPage: 1,
+        currentPageNumber: 1,
+        userList: this.items,
+        totalPageNumbers: this.totalPageNumber,
+        totalItems: this.items.length,
       };
     },
     computed: {
+      initialUsersList() {
+        console.log('in initial');
+        // if (this.filterInput !== '') {
+        //   this.filteredItems;
+        // }
+        // this.filteredItems;
+        // if (this.filterInput == '' && this.currentPageNumber == 1) {
+        //   console.log('in if', this.filterInput);
+        //   this.filterInput = '';
+        //   return this.items;
+        // }
+        return this.userList;
+      },
       filteredItems() {
-        const facilityId = store.getters.activeFacilityId;
-        FacilityUserResource.fetchCollection({
-          getParams: {
-            member_of: facilityId,
-            page_size: 30,
-            search: this.filterInput,
-          },
-          force: true,
-        }).then(
-          users => {
-            this.currentPageNumber = users.page;
-            this.items = users.results;
-            this.totalPageNumber = users.total_pages;
-          },
-          error => {
-            store.dispatch('handleApiError', error);
-          }
-        );
-        return filterUsersByNames(this.items, this.filterInput);
+        console.log('in filtered items', this.filterInput);
+
+        // if (this.filterInput != '') {
+        //   this.get_users();
+        // }
+        // this.filterInput = '';
+        // if (this.filterInput != '') {
+        //   this.currentPageNumber = 1;
+        //   this.get_users();
+        // }
+        // this.get_users();
+
+        // this.get_users();
+        // this.get_users();
+        // const facilityId = store.getters.activeFacilityId;
+        // FacilityUserResource.fetchCollection({
+        //   getParams: {
+        //     member_of: facilityId,
+        //     page_size: 30,
+        //     // search: this.filterInput || '',
+        //     page: this.currentPageNumber || 1,
+        //   },
+        //   force: true,
+        // }).then(
+        //   users => {
+        //     // this.currentPageNumber = users.page;
+        //     this.items = users.results;
+        //     // this.totalPageNumber = users.total_pages;
+        //     // return users.results;
+        //   },
+        //   error => {
+        //     store.dispatch('handleApiError', error);
+        //   }
+        // );
+        // return filterUsersByNames(this.items, this.filterInput);
+        return this.userList;
       },
       numFilteredItems() {
-        return this.totalPageNumber;
+        return this.totalPageNumbers;
       },
       totalPages() {
-        return this.total_pages;
+        // return this.total_pages;
         return Math.ceil(this.numFilteredItems / this.itemsPerPage);
       },
       startRange() {
@@ -135,7 +171,7 @@
         return Math.min(this.endRange, this.numFilteredItems);
       },
       visibleFilteredItems() {
-        console.log(1);
+        console.log('in visible filter');
         return this.filteredItems.slice(this.startRange, this.endRange);
       },
       previousButtonDisabled() {
@@ -143,43 +179,93 @@
       },
       nextButtonDisabled() {
         return (
-          this.totalPages === 1 ||
-          this.currentPageNumber === this.totalPageNumber ||
+          this.totalPageNumbers === 1 ||
+          this.currentPageNumber === this.totalPageNumbers ||
           this.numFilteredItems === 0
         );
       },
     },
-    // watch: {
-    //   visibleFilteredItems: {
-    //     handler(newVal) {
-    //       console.log(newVal);
-    //       this.$emit('pageChanged', {
-    //         page: this.currentPage,
-    //         items: newVal,
-    //       });
-    //     },
-    //     immediate: true,
-    //   },
-    // },
+    watch: {
+      filterInput: {
+        handler(newVal) {
+          console.log('in watch', newVal);
+          this.currentPageNumber = 1;
+          this.get_users();
+        },
+        immediate: true,
+      },
+    },
     methods: {
-      changePage(change) {
+      get_users() {
         const facilityId = store.getters.activeFacilityId;
+        console.log(this.filterInput, '<<<<<<<<<<<<<<<<<<<<<<');
+        console.log(otherFilter);
         FacilityUserResource.fetchCollection({
           getParams: {
             member_of: facilityId,
-            page_size: 30,
-            page: this.currentPageNumber + change,
+            page_size: this.itemsPerPage,
+            page: this.currentPageNumber,
+            search: this.filterInput,
+            user_type({
+              el: admin,
+              data: {
+                otherFilter: admin,
+              }
+            }),
+            // onChange: function(event) {
+            //   console.log(event.target.user_type);
+            // },
+            // onChange(event) {
+            //   console.log(event.target.value)
+            // },
+            // user_type: ['admin'],
+            // search_by: [{ user_type: 'admin' }],
           },
           force: true,
         }).then(
           users => {
+            console.log(users);
             this.currentPageNumber = users.page;
-            this.items = users.results;
+            // this.items = users.results;
+
+            this.userList = users.results;
+            this.totalPageNumbers = users.total_pages;
+            this.userList = users.results;
+            this.totalItems = users.count;
           },
           error => {
             store.dispatch('handleApiError', error);
           }
         );
+      },
+      changePage(change) {
+        this.currentPageNumber += change;
+        this.get_users();
+
+        // this.currentPageNumber += change;
+        // const facilityId = store.getters.activeFacilityId;
+        // FacilityUserResource.fetchCollection({
+        //   getParams: {
+        //     member_of: facilityId,
+        //     page_size: 30,
+        //     page: this.currentPageNumber + change,
+        //   },
+        //   force: true,
+        // }).then(
+        //   users => {
+        //     this.currentPageNumber = users.page;
+        //     // this.items = users.results;
+        //     console.log(' in page change', users.results);
+        //     this.items = users.results;
+        //     // this.$emit('items', {
+        //     //   page: this.currentPageNumber,
+        //     //   items: users.results,
+        //     // });
+        //   },
+        //   error => {
+        //     store.dispatch('handleApiError', error);
+        //   }
+        // );
 
         // this.items = [
         //   {
