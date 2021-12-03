@@ -136,7 +136,7 @@
   import UiButton from 'kolibri-design-system/lib/keen/UiButton';
   import navComponents from 'kolibri.utils.navComponents';
   import { NavComponentSections, SyncStatus, UserKinds } from 'kolibri.coreVue.vuex.constants';
-  import { themeConfig } from 'kolibri.themeConfig';
+  import themeConfig from 'kolibri.themeConfig';
   import navComponentsMixin from '../mixins/nav-components';
   import LogoutSideNavEntry from './LogoutSideNavEntry';
   import SkipNavigationLink from './SkipNavigationLink';

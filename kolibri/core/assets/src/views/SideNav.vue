@@ -143,7 +143,7 @@
   import LearnOnlyDeviceNotice from 'kolibri.coreVue.components.LearnOnlyDeviceNotice';
   import navComponents from 'kolibri.utils.navComponents';
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
-  import { themeConfig } from 'kolibri.themeConfig';
+  import themeConfig from 'kolibri.themeConfig';
   import Backdrop from 'kolibri.coreVue.components.Backdrop';
   import navComponentsMixin from '../mixins/nav-components';
   import logout from './LogoutSideNavEntry';
