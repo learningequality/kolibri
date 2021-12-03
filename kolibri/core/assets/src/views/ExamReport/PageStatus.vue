@@ -10,6 +10,17 @@
         <h1 class="title">
           <KLabeledIcon icon="person" :label="userName" />
         </h1>
+        <div v-if="windowIsSmall" class="completion-status">
+          <ProgressIcon class="svg-icon" :progress="progress" />
+          <span class="completion-component">
+            <strong>
+              {{ progressIconLabel }}
+            </strong>
+            <div v-if="completed">
+              <ElapsedTime :date="completionTimestamp" class="completion-component" />
+            </div>
+          </span>
+        </div>
         <KLabeledIcon icon="quiz" :label="contentName" />
       </div>
 
@@ -36,7 +47,7 @@
         </tr>
       </table>
     </KFixedGridItem>
-    <KFixedGridItem span="1" alignment="right">
+    <KFixedGridItem v-if="!windowIsSmall" span="1" alignment="right">
       <div>
         <ProgressIcon class="svg-icon" :progress="progress" />
         <strong>
@@ -57,6 +68,7 @@
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
 
   export default {
     name: 'PageStatus',
@@ -64,7 +76,7 @@
       ProgressIcon,
       ElapsedTime,
     },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, responsiveWindowMixin],
     props: {
       userName: {
         type: String,
@@ -168,6 +180,12 @@
 
   .title {
     margin-top: 0;
+  }
+
+  .completion-component {
+    display: inline-block;
+    margin-bottom: 16px;
+    vertical-align: top;
   }
 
   .scores {

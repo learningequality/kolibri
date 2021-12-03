@@ -11,7 +11,7 @@
       />
     </template>
 
-    <template #aside>
+    <template v-if="!windowIsSmall" #aside>
       <AttemptLogList
         :attemptLogs="attemptLogs"
         :selectedQuestionNumber="questionNumber"
@@ -20,9 +20,18 @@
     </template>
 
     <template #main>
+      <AttemptLogList
+        v-if="windowIsSmall"
+        :isMobile="windowIsSmall"
+        :class="windowIsSmall ? 'mobile-attempt-log-list' : ''"
+        :attemptLogs="attemptLogs"
+        :selectedQuestionNumber="questionNumber"
+        @select="handleNavigateToQuestion"
+      />
       <div
         v-if="exercise"
         class="exercise-container"
+        :class="windowIsSmall ? 'mobile-exercise-container' : ''"
         :style="{ backgroundColor: $themeTokens.surface }"
       >
         <h3>{{ coreString('questionNumberLabel', { questionNumber: questionNumber + 1 }) }}</h3>
@@ -69,6 +78,7 @@
   import find from 'lodash/find';
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import PageStatus from './PageStatus';
 
   export default {
@@ -79,7 +89,7 @@
       InteractionList,
       MultiPaneLayout,
     },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, responsiveWindowMixin],
     props: {
       examAttempts: {
         type: Array,
@@ -176,6 +186,7 @@
     },
     methods: {
       handleNavigateToQuestion(questionNumber) {
+        console.log(questionNumber);
         this.navigateToQuestion(questionNumber);
         this.$refs.multiPaneLayout.scrollMainToTop();
         this.showCorrectAnswer = false;
@@ -201,6 +212,14 @@
 
   .exercise-container {
     padding: 8px;
+  }
+
+  .mobile-exercise-container {
+    margin-top: 16px;
+  }
+
+  .mobile-attempt-log-list {
+    margin-top: 16px;
   }
 
   h3 {
