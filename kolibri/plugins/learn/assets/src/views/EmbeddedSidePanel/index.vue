@@ -316,13 +316,19 @@
       handleActivity(activity) {
         let learning_activities;
         if (activity) {
-          learning_activities = {
-            [activity]: true,
-          };
+          if (this.value.learning_activities[activity]) {
+            delete this.value.learning_activities[activity];
+            this.$emit('input', { learning_activities });
+          } else {
+            learning_activities = {
+              [activity]: true,
+            };
+            this.$emit('input', { ...this.value, learning_activities });
+          }
         } else {
           learning_activities = {};
+          this.$emit('input', { ...this.value, learning_activities });
         }
-        this.$emit('input', { ...this.value, learning_activities });
       },
       handleNeed(need) {
         if (this.value.learner_needs[need]) {
