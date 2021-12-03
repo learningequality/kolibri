@@ -163,7 +163,7 @@
 
 <style lang="scss" scoped>
 
-  @import 'kolibri-design-system/lib/keen/styles/imports';
+  @import '~kolibri-design-system/lib/keen/styles/imports';
 
   .k-select-inline {
     display: inline-block;
