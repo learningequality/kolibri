@@ -271,7 +271,7 @@
           ':hover': {
             'background-color': 'rgb(235, 210, 235)',
             border: '2px',
-            'border-color': '#996189',
+            'border-color': `${this.$themeTokens.primary} !important`,
             'border-style': 'solid',
             'border-radius': '4px',
             'line-spacing': '0',
