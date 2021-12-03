@@ -26,7 +26,7 @@
           :style="{ color: $themeTokens.text }"
         />
         <img
-          v-if="content.is_leaf"
+          v-if="content.is_leaf && content.channel_thumbnail.length > 0"
           :src="content.channel_thumbnail"
           :alt="learnString('logo', { channelTitle: content.channel_title })"
           class="channel-logo"
