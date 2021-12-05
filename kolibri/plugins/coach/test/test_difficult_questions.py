@@ -955,9 +955,9 @@ class PracticeQuizDifficultQuestionTestCase(APITestCase):
             )
 
         if not hasattr(self, "masterylog"):
-            mastery_level = 1
+            mastery_level = -1
         else:
-            mastery_level = self.masterylog.mastery_level + 1
+            mastery_level = self.masterylog.mastery_level - 1
 
         self.masterylog = MasteryLog.objects.create(
             user=user,
@@ -1312,3 +1312,32 @@ class PracticeQuizDifficultQuestionTestCase(APITestCase):
             },
         )
         self.assertEqual(len(response.data), 0)
+
+    def test_coach_repeated_tries_by_lesson_id_one_not_quiz(self):
+        self._set_one_difficult(self.classroom_group_learner)
+        self._set_one_difficult(self.classroom_group_learner)
+        self.masterylog.mastery_level = 1
+        self.masterylog.save()
+        AttemptLog.objects.create(
+            masterylog=self.masterylog,
+            sessionlog=self.sessionlog,
+            start_timestamp=now(),
+            end_timestamp=now(),
+            complete=True,
+            correct=0,
+            user=self.classroom_group_learner,
+            item="nottest",
+        )
+        self.client.login(
+            username=self.facility_and_classroom_coach.username, password=DUMMY_PASSWORD
+        )
+        response = self.client.get(
+            reverse(
+                self.exercise_difficulties_basename + "-detail",
+                kwargs={"pk": self.content_ids[0]},
+            ),
+            data={"lesson_id": self.lesson.id, "classroom_id": self.classroom.id},
+        )
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["total"], 1)
+        self.assertEqual(response.data[0]["correct"], 0)
