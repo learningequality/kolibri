@@ -34,14 +34,11 @@ export function setLearners(store, params) {
             Object.assign(returnLearner, attemptLog);
           } else {
             Object.assign(returnLearner, {
-              item: questionId.split(':')[1],
+              item: questionId,
               noattempt: true,
             });
           }
           Object.assign(returnLearner, store.rootState.classSummary.learnerMap[learner.learner_id]);
-          // This item value is used to pass into KContentRenderer to set the correct question,
-          // so reclaim the actual item id value here by splitting on ':'.
-          returnLearner.item = returnLearner.item.split(':')[1];
           return returnLearner;
         }
       );
