@@ -3,12 +3,17 @@ import uuid
 from random import randint
 
 from django.utils import timezone
+from le_utils.constants import content_kinds
+from le_utils.constants import exercises
+from le_utils.constants import modalities
 
 from .factory_logger import ContentSessionLogFactory
 from .factory_logger import ContentSummaryLogFactory
 from .factory_logger import FacilityUserFactory
 from kolibri.core.auth.test.helpers import create_superuser
 from kolibri.core.auth.test.test_api import FacilityFactory
+from kolibri.core.content.models import AssessmentMetaData
+from kolibri.core.content.models import ContentNode
 from kolibri.core.logger.api import MIN_INTEGER
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import MasteryLog
@@ -48,12 +53,37 @@ class EvaluationMixin(object):
             for content_id in cls.content_ids
         }
 
+        channel_id = uuid.uuid4().hex
+
+        cls.content_nodes = [
+            ContentNode.objects.create(
+                id=uuid.uuid4().hex,
+                kind=content_kinds.EXERCISE,
+                content_id=content_id,
+                channel_id=channel_id,
+                title="Test {}".format(content_id),
+                available=True,
+                options={"modality": modalities.QUIZ},
+            )
+            for content_id in cls.content_ids
+        ]
+
+        for content_node in cls.content_nodes:
+            items = cls.items[content_node.content_id]
+            AssessmentMetaData.objects.create(
+                id=uuid.uuid4().hex,
+                contentnode=content_node,
+                assessment_item_ids=items,
+                number_of_assessments=len(items),
+                mastery_model={"type": exercises.QUIZ},
+            )
+
         cls.summary_logs = [
             [
                 ContentSummaryLogFactory.create(
                     user=user,
                     content_id=content_id,
-                    channel_id="6199dde695db4ee4ab392222d5af1e5c",
+                    channel_id=channel_id,
                 )
                 for content_id in cls.content_ids
             ]
@@ -65,7 +95,7 @@ class EvaluationMixin(object):
                 ContentSessionLogFactory.create(
                     user=user,
                     content_id=content_id,
-                    channel_id="6199dde695db4ee4ab392222d5af1e5c",
+                    channel_id=channel_id,
                 )
                 for content_id in cls.content_ids
             ]

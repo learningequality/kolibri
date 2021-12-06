@@ -12,15 +12,15 @@ from django.db.models import Subquery
 from django.db.models import Sum
 from django.db.models import Value
 from django.http import Http404
-from django_filters.filters import NumberFilter
+from django_filters.rest_framework import BooleanFilter
 from django_filters.rest_framework import CharFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
+from django_filters.rest_framework import NumberFilter
 from django_filters.rest_framework import UUIDFilter
 from le_utils.constants import content_kinds
 from le_utils.constants import exercises
 from le_utils.constants import modalities
-from rest_framework import filters
 from rest_framework import serializers
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -38,16 +38,13 @@ from kolibri.core.auth.models import dataset_cache
 from kolibri.core.content.api import OptionalPageNumberPagination
 from kolibri.core.content.models import AssessmentMetaData
 from kolibri.core.content.models import ContentNode
+from kolibri.core.decorators import query_params_required
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.constants import interaction_types
 from kolibri.core.logger.constants.exercise_attempts import MAPPING
 from kolibri.core.logger.evaluation import attempts_diff
-from kolibri.core.logger.evaluation import find_previous_tries_attempts
-from kolibri.core.logger.evaluation import find_tries
-from kolibri.core.logger.evaluation import get_previous_try
 from kolibri.core.logger.evaluation import LOG_ORDER_BY
-from kolibri.core.logger.evaluation import try_diff
 from kolibri.core.notifications.api import create_summarylog
 from kolibri.core.notifications.api import parse_attemptslog
 from kolibri.core.notifications.api import parse_summarylog
@@ -910,108 +907,111 @@ class BaseLogFilter(FilterSet):
 
 class MasteryFilter(BaseLogFilter):
     content = UUIDFilter(name="summarylog__content_id")
+    quiz = BooleanFilter(method="filter_by_quiz")
+
+    def filter_by_quiz(self, queryset, name, value):
+        if value:
+            return queryset.filter(mastery_level__lt=0)
+        return queryset.filter(mastery_level__gte=0)
 
     class Meta:
         model = MasteryLog
-        fields = ["content", "user"]
+        fields = ["content", "user", "complete"]
 
 
+attemptlog_values = (
+    "id",
+    "item",
+    "start_timestamp",
+    "end_timestamp",
+    "completion_timestamp",
+    "time_spent",
+    "complete",
+    "correct",
+    "hinted",
+    "answer",
+    "simple_answer",
+    "interaction_history",
+    "user",
+    "error",
+    "masterylog",
+    "sessionlog",
+)
+
+
+@query_params_required(content=str, user=str)
 class MasteryLogViewSet(ReadOnlyValuesViewset):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (
         KolibriAuthPermissionsFilter,
         DjangoFilterBackend,
     )
-    queryset = MasteryLog.objects.all()
+    queryset = MasteryLog.objects.all().order_by(LOG_ORDER_BY)
     pagination_class = OptionalPageNumberPagination
     filter_class = MasteryFilter
     values = (
-        "user",
-        "summarylog",
+        "id",
         "mastery_criterion",
         "start_timestamp",
         "end_timestamp",
         "completion_timestamp",
-        "mastery_level",
         "complete",
-        "time_spent",
-        "correct",
-    )
-    summary_values = (
-        "id",
-        "start_timestamp",
-        "completion_timestamp",
         "correct",
         "time_spent",
     )
-
-    def __init__(self, *args, **kwargs):
-        super(MasteryLogViewSet, self).__init__(*args, **kwargs)
-        self.attempt_log_view_set = AttemptLogViewSet()
 
     def annotate_queryset(self, queryset):
         return queryset.annotate(correct=Sum("attemptlogs__correct"))
 
-    @action(detail=False)
-    def summary(self, request):
-        user_id = request.GET.get("user")
-        content_id = request.GET.get("content")
-
-        # required parameters
-        if not user_id:
-            return Response("Parameter `user` is required", status=412)
-        if not content_id:
-            return Response("Parameter `content` is required", status=412)
-
-        queryset = (
-            self.annotate_queryset(
-                self.filter_queryset(find_tries(content_id, user_id))
-            )
-            .values(*self.summary_values)
-            .order_by(LOG_ORDER_BY)
-        )
-
-        return Response(queryset)
-
-    def _get_diff_response(self, target_try):
-        previous_try = get_previous_try(target_try)
-
-        diff = try_diff(target_try, previous_try)
-
-        attempt_logs = target_try.attemptlogs.all()
-        if previous_try:
-            attempt_logs = attempts_diff(attempt_logs, previous_try.attemptlogs.all())
-
-        data = self.serialize_object(id=target_try.id)
-        data["diff"] = diff
-        data["attemptlogs"] = self.attempt_log_view_set.serialize(attempt_logs)
-        return Response(data)
-
     @action(detail=True)
-    def diff(self, request, pk):
-        target_try = self.get_object()
-        return self._get_diff_response(target_try)
+    def diff(self, request, pk=0):
+        back = pk
 
-    @action(detail=False)
-    def most_recent_diff(self, request):
-        user_id = request.GET.get("user")
-        content_id = request.GET.get("content")
+        try:
+            back = int(back)
+        except ValueError:
+            return Response("Parameter must be an integer", status=404)
 
-        # required parameters
-        if not user_id:
-            return Response("Parameter `user` is required", status=412)
-        if not content_id:
-            return Response("Parameter `content` is required", status=412)
+        tries_queryset = self.annotate_queryset(
+            self.filter_queryset(self.get_queryset())
+        ).values(*self.values)[back : back + 2]
 
-        target_try = (
-            self.filter_queryset(find_tries(content_id, user_id))
-            .order_by(LOG_ORDER_BY)
-            .first()
+        try:
+            target_try = tries_queryset[0]
+        except IndexError:
+            return Response("No mastery log found", status=404)
+
+        try:
+            previous_try = tries_queryset[1]
+        except IndexError:
+            previous_try = None
+
+        diff = None
+        if previous_try:
+            diff = {
+                "correct": target_try["correct"] - previous_try["correct"],
+                "time_spent": target_try["time_spent"] - previous_try["time_spent"],
+            }
+
+        attempt_logs = AttemptLog.objects.filter(masterylog=target_try["id"])
+        if previous_try:
+            attempt_logs = attempts_diff(
+                attempt_logs, AttemptLog.objects.filter(masterylog=previous_try["id"])
+            )
+        else:
+            attempt_logs = attempt_logs.annotate(
+                diff__correct=Value(None, output_field=IntegerField())
+            )
+
+        target_try["diff"] = diff
+        target_try["attemptlogs"] = attempt_logs.values(
+            *(attemptlog_values + ("diff__correct",))
         )
 
-        # Note that for consistency with the `diff` detail view above, this list view
-        # returns a single object, not a list.
-        return self._get_diff_response(target_try)
+        for attempt in target_try["attemptlogs"]:
+            attempt["diff"] = {"correct": attempt.pop("diff__correct")}
+
+        return Response(target_try)
 
 
 class AttemptFilter(BaseLogFilter):
@@ -1026,87 +1026,14 @@ class AttemptFilter(BaseLogFilter):
         fields = ["masterylog", "complete", "user", "content", "item", "mastery_level"]
 
 
-def _attempts_diff(item):
-    return {key: item.pop("diff__{}".format(key), None) for key in ("correct",)}
-
-
 class AttemptLogViewSet(ReadOnlyValuesViewset):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (
         KolibriAuthPermissionsFilter,
         DjangoFilterBackend,
-        filters.OrderingFilter,
     )
     queryset = AttemptLog.objects.all()
     pagination_class = OptionalPageNumberPagination
     filter_class = AttemptFilter
-    ordering_fields = ("end_timestamp",)
-    ordering = ("end_timestamp",)
 
-    values = (
-        "item",
-        "start_timestamp",
-        "end_timestamp",
-        "completion_timestamp",
-        "time_spent",
-        "complete",
-        "correct",
-        "hinted",
-        "answer",
-        "simple_answer",
-        "interaction_history",
-        "user",
-        "error",
-        "masterylog",
-        "sessionlog",
-        "diff__correct",
-    )
-    field_map = {"diff": _attempts_diff}
-
-    def annotate_queryset(self, queryset):
-        if "diff__correct" not in queryset.query.annotations:
-            queryset = queryset.annotate(
-                diff__correct=Value(None, output_field=IntegerField())
-            )
-        return queryset
-
-    @action(detail=False)
-    def diff(self, request):
-        # protect against expensive queries from loose unsupported filtering
-        min_required_filter_sets = (
-            {"masterylog"},
-            {"content", "item"},
-            {"content", "user"},
-        )
-        for filter_set in min_required_filter_sets:
-            if all(k in request.GET for k in filter_set):
-                break
-        else:
-            return Response("Minimum filter condition not met", status=412)
-
-        # apply filters, narrow down to most recent try
-        target_attempt_logs = self.get_queryset()
-        # masterylog filter would filter it to a specific try
-        if "masterylog" not in request.GET:
-            # without masterylog filter, narrow down to most recent attempt for user+item
-            target_attempt_logs = AttemptLog.objects.filter(
-                id__in=Subquery(
-                    target_attempt_logs.order_by(LOG_ORDER_BY)
-                    .filter(
-                        item=OuterRef("item"),
-                        user_id=OuterRef("user_id"),
-                        masterylog__complete=True,
-                    )
-                    .values("id")[:1]
-                )
-            )
-
-        # find corresponding previous attempts
-        previous_attempt_logs = find_previous_tries_attempts(target_attempt_logs)
-        return Response(
-            self.serialize(
-                self.filter_queryset(
-                    attempts_diff(target_attempt_logs, previous_attempt_logs)
-                )
-            )
-        )
+    values = attemptlog_values
