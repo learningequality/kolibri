@@ -26,6 +26,7 @@ const QUIZZES = '/quizzes';
 const QUIZ = '/quizzes/:quizId';
 const QUESTIONS = '/questions';
 const QUESTION = '/questions/:questionId';
+const TRY = '/try/:tryIndex';
 const ATTEMPT = '/attempts/:attemptId';
 const INTERACTION = '/interactions/:interactionIndex';
 const EXERCISE = '/exercises/:exerciseId';
@@ -179,7 +180,7 @@ export default [
     },
   },
   {
-    path: path(CLASS, GROUP, QUIZ, LEARNER, QUESTION, INTERACTION),
+    path: path(CLASS, GROUP, QUIZ, LEARNER, TRY, QUESTION, INTERACTION),
     component: pages.ReportsGroupReportQuizLearnerPage,
     handler: generateExamReportDetailHandler(['groupId', 'learnerId', 'quizId']),
     meta: {
@@ -483,7 +484,7 @@ export default [
     },
   },
   {
-    path: path(CLASS, QUIZ, LEARNER, QUESTION, INTERACTION),
+    path: path(CLASS, QUIZ, LEARNER, TRY, QUESTION, INTERACTION),
     component: pages.ReportsQuizLearnerPage,
     handler: generateExamReportDetailHandler(['learnerId', 'quizId']),
     meta: {

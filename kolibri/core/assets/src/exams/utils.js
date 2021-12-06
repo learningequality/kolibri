@@ -147,13 +147,7 @@ export function annotateQuestionSourcesWithCounter(questionSources) {
 }
 
 // idk the best place to place this function
-export function getExamReport(
-  examId,
-  userId,
-  tryIndex = 0,
-  questionNumber = 0,
-  interactionIndex = 0
-) {
+export function getExamReport(examId, tryIndex = 0, questionNumber = 0, interactionIndex = 0) {
   return new Promise((resolve, reject) => {
     const examPromise = ExamResource.fetchModel({ id: examId });
 

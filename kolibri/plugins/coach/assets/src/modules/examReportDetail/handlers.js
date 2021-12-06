@@ -11,7 +11,7 @@ const translator = createTranslator('ExamReportPageTitles', {
 
 export function generateExamReportDetailHandler(paramsToCheck) {
   return function showExamReportDetailPage({ params }, from) {
-    const { learnerId, quizId, questionId, interactionIndex } = params;
+    const { learnerId, quizId, questionId, interactionIndex, tryIndex } = params;
     const fromParams = from.params;
     const setLoading = paramsToCheck.some(param => params[param] !== fromParams[param]);
     if (setLoading) {
@@ -19,7 +19,7 @@ export function generateExamReportDetailHandler(paramsToCheck) {
       // different views of the same learner's exercise report.
       store.dispatch('loading');
     }
-    getExamReport(store, quizId, learnerId, questionId, interactionIndex).then(examReport => {
+    getExamReport(quizId, tryIndex, questionId, interactionIndex).then(examReport => {
       store.commit('examReportDetail/SET_STATE', {
         ...examReport,
         learnerId,

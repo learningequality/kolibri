@@ -8,14 +8,7 @@ export function showExamReport(store, params) {
   store.commit('CORE_SET_PAGE_LOADING', true);
   store.commit('SET_PAGE_NAME', ClassesPageNames.EXAM_REPORT_VIEWER);
 
-  const userId = store.getters.currentUserId;
-  const examReportPromise = getExamReport(
-    examId,
-    userId,
-    tryIndex,
-    questionNumber,
-    questionInteraction
-  );
+  const examReportPromise = getExamReport(examId, tryIndex, questionNumber, questionInteraction);
   ConditionalPromise.all([examReportPromise]).then(
     ([examReport]) => {
       store.commit('examReportViewer/SET_STATE', examReport);
