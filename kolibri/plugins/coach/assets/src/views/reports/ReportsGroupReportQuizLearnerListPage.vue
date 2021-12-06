@@ -1,50 +1,8 @@
 <template>
 
-  <CoreBase
-    :immersivePage="false"
-    :authorized="userIsAuthorized"
-    authorizedRole="adminOrCoach"
-    :showSubNav="true"
-  >
-
-    <template #sub-nav>
-      <TopNavbar />
-    </template>
-
-    <KPageContainer>
-
-      <ReportsGroupReportQuizHeader />
-
-      <ReportsControls @export="exportCSV" />
-
-      <CoreTable :emptyMessage="coachString('activityListEmptyState')">
-        <template #headers>
-          <th>{{ coachString('nameLabel') }}</th>
-          <th>{{ coreString('progressLabel') }}</th>
-          <th>{{ coreString('scoreLabel') }}</th>
-        </template>
-        <template #tbody>
-          <transition-group tag="tbody" name="list">
-            <tr v-for="tableRow in table" :key="tableRow.id">
-              <td>
-                <KRouterLink
-                  v-if="tableRow.statusObj.status !== STATUSES.notStarted"
-                  :text="tableRow.name"
-                  :to="detailLink(tableRow.id)"
-                  icon="person"
-                />
-                <KLabeledIcon v-else :label="tableRow.name" icon="person" />
-              </td>
-              <td>
-                <StatusSimple :status="tableRow.statusObj.status" />
-              </td>
-              <td><Score :value="tableRow.statusObj.score" /></td>
-            </tr>
-          </transition-group>
-        </template>
-      </CoreTable>
-    </KPageContainer>
-  </CoreBase>
+  <ReportsQuizBaseListPage @export="exportCSV">
+    <ReportsLearnersTable :entries="table" :questionCount="exam.question_count" />
+  </ReportsQuizBaseListPage>
 
 </template>
 
@@ -57,38 +15,17 @@
   import { PageNames } from '../../constants';
   import CSVExporter from '../../csv/exporter';
   import * as csvFields from '../../csv/fields';
-  import ReportsGroupReportQuizHeader from './ReportsGroupReportQuizHeader';
-  import ReportsControls from './ReportsControls';
+  import ReportsQuizBaseListPage from './ReportsQuizBaseListPage';
+  import ReportsLearnersTable from './ReportsLearnersTable';
 
   export default {
     name: 'ReportsGroupReportQuizLearnerListPage',
     components: {
-      ReportsGroupReportQuizHeader,
-      ReportsControls,
+      ReportsQuizBaseListPage,
+      ReportsLearnersTable,
     },
     mixins: [commonCoach, commonCoreStrings],
-    data() {
-      return {
-        filter: 'allQuizzes',
-      };
-    },
     computed: {
-      filterOptions() {
-        return [
-          {
-            label: this.coachString('allQuizzesLabel'),
-            value: 'allQuizzes',
-          },
-          // {
-          //   label: this.coachString('activeQuizzesLabel'),
-          //   value: 'activeQuizzes',
-          // },
-          // {
-          //   label: this.coachString('inactiveQuizzesLabel'),
-          //   value: 'inactiveQuizzes',
-          // },
-        ];
-      },
       group() {
         return this.groupMap[this.$route.params.groupId];
       },
@@ -105,14 +42,12 @@
           const tableRow = {
             groups: this.getGroupNamesForLearner(learner.id),
             statusObj: this.getExamStatusObjForLearner(this.exam.id, learner.id),
+            link: this.detailLink(learner.id),
           };
           Object.assign(tableRow, learner);
           return tableRow;
         });
       },
-    },
-    beforeMount() {
-      this.filter = this.filterOptions[0];
     },
     methods: {
       detailLink(learnerId) {

@@ -52,7 +52,7 @@
             />
           </p>
 
-          <ReportsResourceLearners
+          <ReportsLearnersTable
             :entries="getGroupEntries(group.id)"
             :showGroupsColumn="false"
           />
@@ -69,7 +69,7 @@
             {{ coachString('ungroupedLearnersLabel') }}
           </h2>
 
-          <ReportsResourceLearners
+          <ReportsLearnersTable
             :entries="ungroupedEntries"
             :showGroupsColumn="false"
           />
@@ -91,7 +91,7 @@
           />
         </p>
 
-        <ReportsResourceLearners :entries="allEntries" />
+        <ReportsLearnersTable :entries="allEntries" />
       </template>
     </KPageContainer>
   </CoreBase>
@@ -102,12 +102,13 @@
 <script>
 
   import sortBy from 'lodash/sortBy';
+  import fromPairs from 'lodash/fromPairs';
   import { mapState } from 'vuex';
   import { LastPages } from '../../constants/lastPagesConstants';
   import commonCoach from '../common';
   import CSVExporter from '../../csv/exporter';
   import * as csvFields from '../../csv/fields';
-  import ReportsResourceLearners from './ReportsResourceLearners';
+  import ReportsLearnersTable from './ReportsLearnersTable';
   import ReportsResourcesStats from './ReportsResourcesStats';
   import ReportsControls from './ReportsControls';
   import ReportsResourceHeader from './ReportsResourceHeader';
@@ -115,7 +116,7 @@
   export default {
     name: 'ReportsLessonResourceLearnerListPage',
     components: {
-      ReportsResourceLearners,
+      ReportsLearnersTable,
       ReportsResourcesStats,
       ReportsControls,
       ReportsResourceHeader,
@@ -151,10 +152,8 @@
         const learners = this.recipients.map(learnerId => this.learnerMap[learnerId]);
         const sorted = sortBy(learners, ['name']);
         return sorted.map(learner => {
-          const groups = this.getLearnerLessonGroups(learner.id);
           const tableRow = {
-            groups,
-            groupNames: groups.map(group => group.name),
+            groups: this.getGroupNamesForLearner(learner.id),
             statusObj: this.getContentStatusObjForLearner(
               this.$route.params.resourceId,
               learner.id
@@ -186,13 +185,12 @@
 
         this.$router.replace({ query });
       },
-      getLearnerLessonGroups(learnerId) {
-        return this.lessonGroups.filter(group => group.member_ids.includes(learnerId));
-      },
       getGroupEntries(groupId) {
+        const learnerIdMap = fromPairs(
+          this.getLearnersForGroups([groupId]).map(learnerId => [learnerId, true])
+        );
         return this.allEntries.filter(entry => {
-          const entryGroupIds = entry.groups.map(group => group.id);
-          return entryGroupIds.includes(groupId);
+          return learnerIdMap[entry.id];
         });
       },
       getGroupTally(groupId) {
