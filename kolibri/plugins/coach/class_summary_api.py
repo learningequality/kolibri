@@ -1,11 +1,10 @@
 from django.db import connections
-from django.db.models import Count
+from django.db.models import Exists
 from django.db.models import F
 from django.db.models import Max
 from django.db.models import OuterRef
 from django.db.models import Q
 from django.db.models import Subquery
-from django.db.models import Sum
 from django.db.utils import OperationalError
 from django.shortcuts import get_object_or_404
 from le_utils.constants import content_kinds
@@ -25,6 +24,7 @@ from kolibri.core.logger import models as logger_models
 from kolibri.core.notifications.models import LearnerProgressNotification
 from kolibri.core.notifications.models import NotificationEventType
 from kolibri.core.query import annotate_array_aggregate
+from kolibri.core.query import SQCount
 from kolibri.core.sqlite.utils import repair_sqlite_db
 from kolibri.deployment.default.sqlite_db_names import NOTIFICATIONS
 
@@ -34,6 +34,62 @@ NOT_STARTED = "NotStarted"
 STARTED = "Started"
 HELP_NEEDED = "HelpNeeded"
 COMPLETED = "Completed"
+
+
+def _get_quiz_status(queryset):
+    queryset = queryset.filter(
+        mastery_level__lt=0,
+    ).order_by("-end_timestamp")
+    items = []
+    statuses = queryset.annotate(
+        last_activity=Max("attemptlogs__end_timestamp"),
+        num_correct=SQCount(
+            logger_models.AttemptLog.objects.filter(
+                masterylog=OuterRef("id"), correct=1
+            )
+            .order_by()
+            .values_list("item")
+            .distinct(),
+            field="item",
+        ),
+        num_answered=SQCount(
+            logger_models.AttemptLog.objects.filter(masterylog=OuterRef("id"))
+            .order_by()
+            .values_list("item")
+            .distinct(),
+            field="item",
+        ),
+        previous_masterylog=Subquery(
+            queryset.filter(
+                summarylog=OuterRef("summarylog"),
+                end_timestamp__lt=OuterRef("end_timestamp"),
+            ).values_list("id")[:1]
+        ),
+        previous_num_correct=SQCount(
+            logger_models.AttemptLog.objects.filter(
+                masterylog=OuterRef("previous_masterylog"), correct=1
+            )
+            .order_by()
+            .values_list("item")
+            .distinct(),
+            field="item",
+        ),
+    ).values(
+        "summarylog__content_id",
+        "complete",
+        "last_activity",
+        "num_correct",
+        "num_answered",
+        "previous_num_correct",
+        learner_id=F("user_id"),
+    )
+    seen = set()
+    for item in statuses:
+        key = "{}-{}".format(item["learner_id"], item["summarylog__content_id"])
+        if key not in seen:
+            items.append(item)
+            seen.add(key)
+    return items
 
 
 def content_status_serializer(lesson_data, learners_data, classroom):  # noqa C901
@@ -53,14 +109,28 @@ def content_status_serializer(lesson_data, learners_data, classroom):  # noqa C9
         )
     }
 
+    learner_ids = {learner["id"] for learner in learners_data}
+
+    content_ids = set(content_map.values())
+
     # Get all the values we need from the summary logs to be able to summarize current status on the
     # relevant content items.
     content_log_values = (
         logger_models.ContentSummaryLog.objects.filter(
-            content_id__in=set(content_map.values()),
-            user__in=[learner["id"] for learner in learners_data],
+            content_id__in=content_ids,
+            user__in=learner_ids,
         )
-        .annotate(attempts=Count("masterylogs__attemptlogs"))
+        .annotate(
+            attempts_exist=Exists(
+                logger_models.AttemptLog.objects.filter(
+                    masterylog__summarylog=OuterRef("id")
+                )
+            ),
+            tries=SQCount(
+                logger_models.MasteryLog.objects.filter(summarylog=OuterRef("id")),
+                field="id",
+            ),
+        )
         .values(
             "user_id",
             "content_id",
@@ -68,9 +138,19 @@ def content_status_serializer(lesson_data, learners_data, classroom):  # noqa C9
             "time_spent",
             "progress",
             "kind",
-            "attempts",
+            "attempts_exist",
+            "tries",
         )
     )
+
+    masterylog_queryset = logger_models.MasteryLog.objects.filter(
+        summarylog__content_id__in=content_ids, user__in=learner_ids
+    )
+
+    practice_quiz_data = {
+        "{}-{}".format(s.pop("learner_id"), s.pop("summarylog__content_id")): s
+        for s in _get_quiz_status(masterylog_queryset)
+    }
 
     # In order to make the lookup speedy, generate a unique key for each user/node that we find
     # listed in the needs help notifications that are relevant. We can then just check
@@ -127,7 +207,7 @@ def content_status_serializer(lesson_data, learners_data, classroom):  # noqa C9
             return COMPLETED
         if log["kind"] == content_kinds.EXERCISE:
             # if there are no attempt logs for this exercise, status is NOT_STARTED
-            if log["attempts"] == 0:
+            if not log["attempts_exist"]:
                 return NOT_STARTED
         return STARTED
 
@@ -135,15 +215,20 @@ def content_status_serializer(lesson_data, learners_data, classroom):  # noqa C9
         """
         Parse the content logs to return objects in the expected format.
         """
-        return {
+        output = {
             "learner_id": log["user_id"],
             "content_id": log["content_id"],
             "status": get_status(log),
             "last_activity": log["end_timestamp"],
             "time_spent": log["time_spent"],
+            "tries": log["tries"],
         }
+        key = "{}-{}".format(log["user_id"], log["content_id"])
+        if key in practice_quiz_data:
+            output.update(practice_quiz_data[key])
+        return output
 
-    return map(map_content_logs, content_log_values)
+    return list(map(map_content_logs, content_log_values))
 
 
 def _map_exam_status(item):
@@ -153,42 +238,11 @@ def _map_exam_status(item):
     return item
 
 
-def serialize_exam_status(queryset):
-    return list(
-        map(
-            _map_exam_status,
-            queryset.annotate(
-                last_activity=Max("attemptlogs__end_timestamp"),
-                num_correct=Subquery(
-                    logger_models.AttemptLog.objects.filter(masterylog=OuterRef("id"))
-                    .order_by()
-                    .values_list("item")
-                    .distinct()
-                    .values("masterylog")
-                    .annotate(total_correct=Sum("correct"))
-                    .values("total_correct")
-                ),
-                num_answered=Subquery(
-                    logger_models.AttemptLog.objects.filter(masterylog=OuterRef("id"))
-                    .order_by()
-                    .values_list("item")
-                    .distinct()
-                    .values("masterylog")
-                    .annotate(total_complete=Count("id"))
-                    .values("total_complete")
-                ),
-            )
-            .values(
-                "summarylog__content_id",
-                "complete",
-                "last_activity",
-                "num_correct",
-                "num_answered",
-                learner_id=F("user_id"),
-            )
-            .order_by(),
-        )
-    )
+def serialize_coach_assigned_quiz_status(queryset):
+    queryset = logger_models.MasteryLog.objects.filter(
+        summarylog__content_id__in=queryset.values("id"),
+    ).order_by()
+    return list(map(_map_exam_status, _get_quiz_status(queryset)))
 
 
 def serialize_groups(queryset):
@@ -286,10 +340,6 @@ class ClassSummaryViewSet(viewsets.ViewSet):
         query_learners = FacilityUser.objects.filter(memberships__collection=classroom)
         query_lesson = Lesson.objects.filter(collection=pk)
         query_exams = Exam.objects.filter(collection=pk)
-        query_exam_mastery_logs = logger_models.MasteryLog.objects.filter(
-            summarylog__content_id__in=query_exams.values("id")
-        ).order_by()
-
         lesson_data = serialize_lessons(query_lesson)
         exam_data = serialize_exams(query_exams)
 
@@ -365,9 +415,16 @@ class ClassSummaryViewSet(viewsets.ViewSet):
                 classroom.get_individual_learners_group()
             ),
             "exams": exam_data,
-            "exam_learner_status": serialize_exam_status(query_exam_mastery_logs),
-            "content": query_content.values(
-                "content_id", "title", "kind", "channel_id", node_id=F("id")
+            "exam_learner_status": serialize_coach_assigned_quiz_status(query_exams),
+            "content": list(
+                query_content.values(
+                    "content_id",
+                    "title",
+                    "kind",
+                    "channel_id",
+                    "options",
+                    node_id=F("id"),
+                )
             ),
             "content_learner_status": content_status_serializer(
                 lesson_data, learners_data, classroom
