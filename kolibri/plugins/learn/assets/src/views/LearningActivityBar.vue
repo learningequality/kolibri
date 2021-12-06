@@ -199,6 +199,15 @@
         required: false,
         default: null,
       },
+      /**
+      A Boolean check whether we should show the Bookmark Icon
+      what should not happen if the user is not logged in
+      */
+      showBookmark: {
+        type: Boolean,
+        required: false,
+        default: true,
+      },
     },
     data() {
       return {
@@ -218,7 +227,9 @@
             event: 'viewResourceList',
             dataTest: this.isLessonContext ? 'viewLessonPlanButton' : 'viewTopicResourcesButton',
           },
-          {
+        ];
+        if (this.showBookmark) {
+          actions.push({
             id: 'bookmark',
             icon: this.isBookmarked ? 'bookmark' : 'bookmarkEmpty',
             label: this.isBookmarked
@@ -227,8 +238,8 @@
             event: 'toggleBookmark',
             disabled: this.isBookmarked === null,
             dataTest: this.isBookmarked ? 'removeBookmarkButton' : 'addBookmarkButton',
-          },
-        ];
+          });
+        }
         if (this.allowMarkComplete) {
           actions.push({
             id: 'mark-complete',
@@ -255,7 +266,8 @@
           actions.push(this.allActions.find(action => action.id === 'view-resource-list'));
         }
         if (this.windowBreakpoint >= 2) {
-          actions.push(this.allActions.find(action => action.id === 'bookmark'));
+          if (this.showBookmark)
+            actions.push(this.allActions.find(action => action.id === 'bookmark'));
           // if a resource doesn’t have the option for learners to manually mark as complete,
           // the 'More options' bar icon button changes to the 'View information' bar icon button
           if (!this.allowMarkComplete) {

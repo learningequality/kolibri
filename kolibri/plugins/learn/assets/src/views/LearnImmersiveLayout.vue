@@ -17,6 +17,7 @@
       :contentProgress="contentProgress"
       :allowMarkComplete="allowMarkComplete"
       :contentKind="content.kind"
+      :showBookmark="isUserLoggedIn"
       data-test="learningActivityBar"
       @navigateBack="navigateBack"
       @toggleBookmark="toggleBookmark"
@@ -192,7 +193,7 @@
       };
     },
     computed: {
-      ...mapGetters(['currentUserId']),
+      ...mapGetters(['currentUserId', 'isUserLoggedIn']),
       ...mapState({
         contentProgress: state => state.core.logging.progress,
         error: state => state.core.error,
