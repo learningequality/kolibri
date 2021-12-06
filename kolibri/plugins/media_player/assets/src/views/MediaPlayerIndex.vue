@@ -2,10 +2,10 @@
 
   <MediaPlayerFullscreen
     ref="fullscreen"
-    class="fill-space"
+    class="fill-space fullscreen-wrapper"
     :style="{
       'border-color': $themeTokens.fineLine,
-      padding: '32px 24px',
+      padding: fullscreenWrapperPadding,
     }"
     @changeFullscreen="isFullscreen = $event"
   >
@@ -17,7 +17,7 @@
           'keyboard-modality': $inputModality === 'keyboard',
           'video-loading': loading,
           'transcript-visible': transcriptVisible,
-          'transcript-wrap': windowIsPortrait || (!isFullscreen && windowIsSmall),
+          'transcript-wrap': transcriptWrap,
         },
         $computedClass(progressStyle)
       ]"
@@ -193,6 +193,16 @@
         return this.player.duration();
       },
       /* eslint-enable kolibri/vue-no-unused-properties */
+      transcriptWrap() {
+        return this.windowIsPortrait || (!this.isFullscreen && this.windowIsSmall);
+      },
+      fullscreenWrapperPadding() {
+        if (this.isFullscreen) {
+          return 0;
+        }
+
+        return this.transcriptWrap ? '16px' : '32px 24px';
+      },
     },
     watch: {
       isFullscreen() {
@@ -566,16 +576,17 @@
   @import './videojs-style/videojs-font/css/videojs-icons.css';
   @import './videojs-style/variables';
   @import '~kolibri-design-system/lib/styles/definitions';
-  $transcript-wrap-height: 250px;
-  $transcript-wrap-fill-height: 100% * 9 / 16;
-  $video-height: 100% * 9 / 16;
+
+  .fullscreen-wrapper {
+    box-sizing: border-box;
+  }
   .wrapper {
     box-sizing: content-box;
     max-width: 100%;
-    max-height: $video-player-max-height;
+    max-height: calc(#{$video-player-max-vh});
   }
   .wrapper.transcript-visible.transcript-wrap {
-    padding-bottom: $transcript-wrap-height;
+    padding-bottom: calc(#{$transcript-wrap-height});
   }
   .wrapper.video-loading video {
     position: absolute;
@@ -594,7 +605,7 @@
   .loading-space,
   /deep/ .loading-space {
     box-sizing: border-box;
-    padding-top: #{$video-height};
+    padding-top: #{$video-player-height-by-width};
   }
   /deep/ .loader {
     position: absolute;
@@ -625,7 +636,7 @@
   }
   .wrapper.transcript-wrap .media-player-transcript {
     left: 0;
-    height: $transcript-wrap-height;
+    height: calc(#{$transcript-wrap-height});
     /deep/ .loading-space {
       padding-top: 90px;
     }
@@ -645,11 +656,11 @@
     .wrapper.transcript-visible.transcript-wrap .media-player-transcript {
       top: 0;
       height: auto;
-      margin-top: #{$video-height};
+      margin-top: #{$video-player-height-by-width};
     }
     .wrapper.transcript-visible.transcript-wrap .video-js.vjs-fill {
       height: auto;
-      padding-top: #{$video-height};
+      padding-top: #{$video-player-height-by-width};
     }
   }
 

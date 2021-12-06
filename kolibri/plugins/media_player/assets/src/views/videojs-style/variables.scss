@@ -5,8 +5,20 @@ $video-player-color-2: tint($video-player-color, 7%);
 $video-player-color-3: tint($video-player-color, 15%);
 
 $video-player-control-height: 3.25em;
-
 $video-player-font-color: white;
-
 $video-player-font-size: 12px;
-$video-player-max-height: 562px;
+
+// 16:9 video aspect ratio
+$video-player-aspect: 9 / 16;
+
+// max height, minus appbar and padding
+$video-player-max-vh: 100vh - #{132px};
+
+// height based off width
+$video-player-height-by-width: 100% * $video-player-aspect;
+
+// height based off vw (viewport width)
+$video-player-height-vw: $video-player-aspect * 100vw;
+
+// (100% of allowable height) - (video height)
+$transcript-wrap-height: $video-player-max-vh - #{$video-player-height-vw};
