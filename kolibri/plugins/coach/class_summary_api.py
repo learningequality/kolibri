@@ -40,6 +40,14 @@ def _get_quiz_status(queryset):
     queryset = queryset.filter(
         mastery_level__lt=0,
     ).order_by("-end_timestamp")
+    queryset = queryset.annotate(
+        previous_masterylog=Subquery(
+            queryset.filter(
+                summarylog=OuterRef("summarylog"),
+                end_timestamp__lt=OuterRef("end_timestamp"),
+            ).values_list("id")[:1]
+        ),
+    )
     items = []
     statuses = queryset.annotate(
         last_activity=Max("attemptlogs__end_timestamp"),
@@ -58,12 +66,6 @@ def _get_quiz_status(queryset):
             .values_list("item")
             .distinct(),
             field="item",
-        ),
-        previous_masterylog=Subquery(
-            queryset.filter(
-                summarylog=OuterRef("summarylog"),
-                end_timestamp__lt=OuterRef("end_timestamp"),
-            ).values_list("id")[:1]
         ),
         previous_num_correct=SQCount(
             logger_models.AttemptLog.objects.filter(
