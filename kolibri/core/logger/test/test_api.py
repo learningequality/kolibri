@@ -266,3 +266,39 @@ class MasteryLogViewSetTestCase(EvaluationMixin, APITestCase):
                 else:
                     for attempt_log in response.data.get("attemptlogs"):
                         self.assertEqual(attempt_log["diff"], {"correct": None})
+
+    def test_diff_no_attempts_first_try(self):
+        user_index = 2
+        try_index = 0
+        user_try = self.user_tries[user_index][try_index]
+        user_try.attemptlogs.all().delete()
+        self.client.force_login(self.users[user_index])
+        response = self.client.get(
+            reverse("kolibri:core:masterylog-diff", kwargs={"pk": try_index}),
+            data={
+                "content": user_try.summarylog.content_id,
+                "user": user_try.user_id,
+                "complete": True,
+                "quiz": True,
+            },
+        )
+        diff = response.data.get("diff")
+        self.assertEqual(diff["correct"], -3.0)
+
+    def test_diff_no_attempts_second_try(self):
+        user_index = 2
+        try_index = 0
+        user_try = self.user_tries[user_index][try_index + 1]
+        user_try.attemptlogs.all().delete()
+        self.client.force_login(self.users[user_index])
+        response = self.client.get(
+            reverse("kolibri:core:masterylog-diff", kwargs={"pk": try_index}),
+            data={
+                "content": user_try.summarylog.content_id,
+                "user": user_try.user_id,
+                "complete": True,
+                "quiz": True,
+            },
+        )
+        diff = response.data.get("diff")
+        self.assertEqual(diff["correct"], 3.0)

@@ -11,6 +11,7 @@ from django.db.models import Q
 from django.db.models import Subquery
 from django.db.models import Sum
 from django.db.models import Value
+from django.db.models.functions import Coalesce
 from django.http import Http404
 from django_filters.rest_framework import BooleanFilter
 from django_filters.rest_framework import CharFilter
@@ -961,7 +962,9 @@ class MasteryLogViewSet(ReadOnlyValuesViewset):
     )
 
     def annotate_queryset(self, queryset):
-        return queryset.annotate(correct=Sum("attemptlogs__correct"))
+        return queryset.annotate(
+            correct=Coalesce(Sum("attemptlogs__correct"), Value(0))
+        )
 
     @action(detail=True)
     def diff(self, request, pk=0):
