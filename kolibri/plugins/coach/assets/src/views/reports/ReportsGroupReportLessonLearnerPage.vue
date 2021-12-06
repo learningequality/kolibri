@@ -10,7 +10,7 @@
   import ReportsLessonLearnerBase from './ReportsLessonLearnerBase';
 
   export default {
-    name: 'ReportsLessonLearnerPage',
+    name: 'ReportsGroupReportLessonLearnerPage',
     components: { ReportsLessonLearnerBase },
   };
 

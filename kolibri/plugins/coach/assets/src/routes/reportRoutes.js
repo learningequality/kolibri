@@ -73,6 +73,14 @@ export default [
     },
   },
   {
+    path: path(CLASS, GROUP, LESSON, LEARNER),
+    component: pages.ReportsGroupReportLessonLearnerPage,
+    handler: defaultHandler,
+    meta: {
+      titleParts: ['learnersLabel', 'LESSON_NAME', 'GROUP_NAME', 'CLASS_NAME'],
+    },
+  },
+  {
     path: path(CLASS, GROUP, LESSON, EXERCISE, LEARNERS),
     component: pages.ReportsGroupReportLessonExerciseLearnerListPage,
     handler: generateResourceHandler(['exerciseId']),
@@ -134,8 +142,16 @@ export default [
     },
   },
   {
-    path: path(CLASS, GROUP, LESSON),
+    path: path(CLASS, GROUP, LESSON, RESOURCES),
     component: pages.ReportsGroupReportLessonPage,
+    handler: defaultHandler,
+    meta: {
+      titleParts: ['LESSON_NAME', 'LEARNER_NAME', 'CLASS_NAME'],
+    },
+  },
+  {
+    path: path(CLASS, GROUP, LESSON, LEARNERS),
+    component: pages.ReportsGroupReportLessonLearnerListPage,
     handler: defaultHandler,
     meta: {
       titleParts: ['LESSON_NAME', 'GROUP_NAME', 'CLASS_NAME'],
@@ -144,7 +160,7 @@ export default [
   {
     path: path(CLASS, GROUP, LESSON, RESOURCE, LEARNERS),
     component: pages.ReportsGroupReportLessonResourceLearnerListPage,
-    handler: defaultHandler,
+    handler: generateResourceHandler(['resourceId']),
     meta: {
       titleParts: ['learnersLabel', 'RESOURCE_NAME', 'LESSON_NAME', 'GROUP_NAME', 'CLASS_NAME'],
     },
@@ -329,7 +345,7 @@ export default [
   {
     path: path(CLASS, LESSON, EXERCISE, LEARNERS),
     component: pages.ReportsLessonExerciseLearnerListPage,
-    handler: defaultHandler,
+    handler: generateResourceHandler(['exerciseId']),
     meta: {
       titleParts: ['learnersLabel', 'EXERCISE_NAME', 'LESSON_NAME', 'CLASS_NAME'],
     },
@@ -450,7 +466,7 @@ export default [
   {
     path: path(CLASS, LESSON, RESOURCE, LEARNERS),
     component: pages.ReportsLessonResourceLearnerListPage,
-    handler: defaultHandler,
+    handler: generateResourceHandler(['resourceId']),
     meta: {
       titleParts: ['RESOURCE_NAME', 'LESSON_NAME', 'CLASS_NAME'],
     },
