@@ -96,7 +96,7 @@
           this.$router.getRoute(
             'RESOURCE_CONTENT_PREVIEW',
             {
-              contentId: this.exercise.node_id,
+              contentId: this.exercise.id,
             },
             {
               last: LastPages.EXERCISE_QUESTION_LIST,

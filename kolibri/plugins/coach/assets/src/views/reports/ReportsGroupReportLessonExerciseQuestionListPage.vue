@@ -121,7 +121,7 @@
           this.$router.getRoute(
             'RESOURCE_CONTENT_PREVIEW',
             {
-              contentId: this.resource.id,
+              contentId: this.exercise.id,
             },
             this.defaultBackLinkQuery
           )
