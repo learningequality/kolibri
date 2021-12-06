@@ -51,12 +51,14 @@
             </template>
           </KGridItem>
         </KGrid>
-        <!-- eslint-disable-next-line vue/no-v-html -->
-        <p v-if="description" dir="auto" v-html="description"></p>
+        <SlotTruncator v-if="description" :maxHeight="96" :showViewMore="true">
+          <!-- eslint-disable-next-line vue/no-v-html -->
+          <p dir="auto" v-html="description"></p>
+        </SlotTruncator>
         <template>
           <HeaderTable>
             <HeaderTableRow
-              v-if="content.options.modality === 'QUIZ'"
+              v-if="practiceQuiz"
               :keyText="$tr('totalQuestionsHeader')"
             >
               <template #value>
@@ -136,16 +138,19 @@
 
 <script>
 
+  import get from 'lodash/get';
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import InfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
+  import SlotTruncator from 'kolibri.coreVue.components.SlotTruncator';
+  import MasteryModel from 'kolibri.coreVue.components.MasteryModel';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import {
     licenseLongName,
     licenseDescriptionForConsumer,
   } from 'kolibri.utils.licenseTranslations';
   import markdownIt from 'markdown-it';
-  import MasteryModel from '../../common/MasteryModel';
+  import Modalities from 'kolibri-constants/Modalities';
   import commonCoach from '../../common';
   import QuestionList from './QuestionList';
   import ContentArea from './ContentArea';
@@ -164,6 +169,7 @@
       InfoIcon,
       MultiPaneLayout,
       MasteryModel,
+      SlotTruncator,
     },
     mixins: [commonCoreStrings, commonCoach],
     props: {
@@ -200,6 +206,9 @@
     computed: {
       isExercise() {
         return this.content.kind === 'exercise';
+      },
+      practiceQuiz() {
+        return get(this, ['content', 'options', 'modality']) === Modalities.QUIZ;
       },
       selectedQuestion() {
         if (this.isExercise) {

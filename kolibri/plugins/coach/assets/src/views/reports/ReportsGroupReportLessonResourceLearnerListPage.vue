@@ -12,42 +12,7 @@
     </template>
 
     <KPageContainer>
-      <p>
-        <BackLink
-          :to="classRoute('ReportsGroupReportLessonPage', {})"
-          :text="coachString('backToLessonLabel', { lesson: lesson.title })"
-        />
-      </p>
-      <h1>
-        <KLabeledIcon :icon="resource.kind" :label="resource.title" />
-      </h1>
-
-      <HeaderTable>
-        <HeaderTableRow v-if="$isPrint">
-          <template #key>
-            {{ coachString('groupNameLabel') }}
-          </template>
-          <template #value>
-            {{ group.name }}
-          </template>
-        </HeaderTableRow>
-        <HeaderTableRow v-if="$isPrint">
-          <template #key>
-            {{ coachString('lessonLabel') }}
-          </template>
-          <template #value>
-            {{ lesson.title }}
-          </template>
-        </HeaderTableRow>
-        <HeaderTableRow>
-          <template #key>
-            {{ coachString('avgTimeSpentLabel') }}
-          </template>
-          <template #value>
-            <TimeDuration :seconds="360" />
-          </template>
-        </HeaderTableRow>
-      </HeaderTable>
+      <ReportsResourceHeader :resource="resource" @previewClick="onPreviewClick" />
 
       <ReportsControls @export="exportCSV">
         <p>
@@ -94,24 +59,25 @@
 <script>
 
   import sortBy from 'lodash/sortBy';
+  import { mapState } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import CSVExporter from '../../csv/exporter';
   import * as csvFields from '../../csv/fields';
   import ReportsControls from './ReportsControls';
+  import ReportsResourceHeader from './ReportsResourceHeader';
 
   export default {
     name: 'ReportsGroupReportLessonResourceLearnerListPage',
     components: {
       ReportsControls,
+      ReportsResourceHeader,
     },
     mixins: [commonCoach, commonCoreStrings],
     computed: {
+      ...mapState('resourceDetail', ['resource']),
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];
-      },
-      resource() {
-        return this.contentMap[this.$route.params.resourceId];
       },
       group() {
         return this.groupMap[this.$route.params.groupId];
@@ -156,6 +122,17 @@
         });
 
         exporter.export(this.table);
+      },
+      onPreviewClick() {
+        this.$router.push(
+          this.$router.getRoute(
+            'RESOURCE_CONTENT_PREVIEW',
+            {
+              contentId: this.resource.id,
+            },
+            this.defaultBackLinkQuery
+          )
+        );
       },
     },
   };

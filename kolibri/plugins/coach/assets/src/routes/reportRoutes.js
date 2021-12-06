@@ -11,6 +11,7 @@ import {
   questionRootRedirectHandler,
 } from '../modules/questionDetail/handlers';
 import { generateQuestionListHandler } from '../modules/questionList/handlers';
+import { generateResourceHandler } from '../modules/resourceDetail/handlers';
 import LessonEditDetailsPage from '../views/plan/LessonEditDetailsPage';
 import QuizEditDetailsPage from '../views/plan/QuizEditDetailsPage';
 
@@ -74,7 +75,7 @@ export default [
   {
     path: path(CLASS, GROUP, LESSON, EXERCISE, LEARNERS),
     component: pages.ReportsGroupReportLessonExerciseLearnerListPage,
-    handler: defaultHandler,
+    handler: generateResourceHandler(['exerciseId']),
     meta: {
       titleParts: ['learnersLabel', 'EXERCISE_NAME', 'LESSON_NAME', 'GROUP_NAME', 'CLASS_NAME'],
     },

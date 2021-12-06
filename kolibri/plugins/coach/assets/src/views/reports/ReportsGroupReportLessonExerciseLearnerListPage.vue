@@ -13,7 +13,7 @@
 
     <KPageContainer>
 
-      <ReportsGroupReportLessonExerciseHeader />
+      <ReportsResourceHeader :resource="resource" @previewClick="onPreviewClick" />
 
       <ReportsControls @export="exportCSV">
         <p>
@@ -67,27 +67,26 @@
 <script>
 
   import sortBy from 'lodash/sortBy';
+  import { mapState } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import { PageNames } from '../../constants';
   import CSVExporter from '../../csv/exporter';
   import * as csvFields from '../../csv/fields';
-  import ReportsGroupReportLessonExerciseHeader from './ReportsGroupReportLessonExerciseHeader';
+  import ReportsResourceHeader from './ReportsResourceHeader';
   import ReportsControls from './ReportsControls';
 
   export default {
     name: 'ReportsGroupReportLessonExerciseLearnerListPage',
     components: {
-      ReportsGroupReportLessonExerciseHeader,
+      ReportsResourceHeader,
       ReportsControls,
     },
     mixins: [commonCoach, commonCoreStrings],
     computed: {
+      ...mapState('resourceDetail', ['resource']),
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];
-      },
-      resource() {
-        return this.contentMap[this.$route.params.exerciseId];
       },
       group() {
         return this.groupMap[this.$route.params.groupId];
@@ -140,6 +139,17 @@
         });
 
         exporter.export(this.table);
+      },
+      onPreviewClick() {
+        this.$router.push(
+          this.$router.getRoute(
+            'RESOURCE_CONTENT_PREVIEW',
+            {
+              contentId: this.resource.id,
+            },
+            this.defaultBackLinkQuery
+          )
+        );
       },
     },
   };

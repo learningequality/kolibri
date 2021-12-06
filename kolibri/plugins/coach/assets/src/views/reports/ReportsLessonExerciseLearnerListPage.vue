@@ -13,7 +13,7 @@
 
     <KPageContainer>
 
-      <ReportsLessonExerciseHeader @previewClick="onPreviewClick" />
+      <ReportsResourceHeader :resource="resource" @previewClick="onPreviewClick" />
 
       <ReportsControls @export="exportCSV">
         <KCheckbox
@@ -88,19 +88,20 @@
 <script>
 
   import sortBy from 'lodash/sortBy';
+  import { mapState } from 'vuex';
   import commonCoach from '../common';
   import { PageNames } from '../../constants';
   import { LastPages } from '../../constants/lastPagesConstants';
   import CSVExporter from '../../csv/exporter';
   import * as csvFields from '../../csv/fields';
-  import ReportsLessonExerciseHeader from './ReportsLessonExerciseHeader';
+  import ReportsResourceHeader from './ReportsResourceHeader';
   import ReportsExerciseLearners from './ReportsExerciseLearners';
   import ReportsControls from './ReportsControls';
 
   export default {
     name: 'ReportsLessonExerciseLearnerListPage',
     components: {
-      ReportsLessonExerciseHeader,
+      ReportsResourceHeader,
       ReportsExerciseLearners,
       ReportsControls,
     },
@@ -111,6 +112,7 @@
       };
     },
     computed: {
+      ...mapState('resourceDetail', ['resource']),
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];
       },

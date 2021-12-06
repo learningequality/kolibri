@@ -12,25 +12,7 @@
     </template>
 
     <KPageContainer>
-      <section>
-        <HeaderWithOptions>
-          <template #header>
-            <BackLink
-              :to="classRoute('ReportsLessonReportPage', {})"
-              :text="coachString('backToLessonLabel', { lesson: lesson.title })"
-            />
-          </template>
-          <template #options>
-            <KButton
-              :text="coachString('previewAction')"
-              @click="onPreviewClick"
-            />
-          </template>
-        </HeaderWithOptions>
-        <h1>
-          <KLabeledIcon :icon="resource.kind" :label="resource.title" />
-        </h1>
-      </section>
+      <ReportsResourceHeader :resource="resource" @previewClick="onPreviewClick" />
 
       <ReportsControls @export="exportCSV">
         <KCheckbox
@@ -120,22 +102,23 @@
 <script>
 
   import sortBy from 'lodash/sortBy';
+  import { mapState } from 'vuex';
   import { LastPages } from '../../constants/lastPagesConstants';
   import commonCoach from '../common';
-  import HeaderWithOptions from '../common/HeaderWithOptions';
   import CSVExporter from '../../csv/exporter';
   import * as csvFields from '../../csv/fields';
   import ReportsResourceLearners from './ReportsResourceLearners';
   import ReportsResourcesStats from './ReportsResourcesStats';
   import ReportsControls from './ReportsControls';
+  import ReportsResourceHeader from './ReportsResourceHeader';
 
   export default {
     name: 'ReportsLessonResourceLearnerListPage',
     components: {
-      HeaderWithOptions,
       ReportsResourceLearners,
       ReportsResourcesStats,
       ReportsControls,
+      ReportsResourceHeader,
     },
     mixins: [commonCoach],
     data() {
@@ -144,11 +127,9 @@
       };
     },
     computed: {
+      ...mapState('resourceDetail', ['resource']),
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];
-      },
-      resource() {
-        return this.contentMap[this.$route.params.resourceId];
       },
       recipients() {
         return this.getLearnersForLesson(this.lesson);

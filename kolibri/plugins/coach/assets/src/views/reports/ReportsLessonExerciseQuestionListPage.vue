@@ -13,7 +13,7 @@
 
     <KPageContainer>
 
-      <ReportsLessonExerciseHeader @previewClick="onPreviewClick" />
+      <ReportsResourceHeader :resource="exercise" @previewClick="onPreviewClick" />
 
       <ReportsControls @export="exportCSV" />
 
@@ -52,31 +52,29 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import { mapGetters, mapState } from 'vuex';
   import commonCoach from '../common';
   import LearnerProgressRatio from '../common/status/LearnerProgressRatio';
   import { LastPages } from '../../constants/lastPagesConstants';
   import CSVExporter from '../../csv/exporter';
   import * as csvFields from '../../csv/fields';
-  import ReportsLessonExerciseHeader from './ReportsLessonExerciseHeader';
+  import ReportsResourceHeader from './ReportsResourceHeader';
   import ReportsControls from './ReportsControls';
   import { PageNames } from './../../constants';
 
   export default {
     name: 'ReportsLessonExerciseQuestionListPage',
     components: {
-      ReportsLessonExerciseHeader,
+      ReportsResourceHeader,
       ReportsControls,
       LearnerProgressRatio,
     },
     mixins: [commonCoach],
     computed: {
       ...mapGetters('questionList', ['difficultQuestions']),
+      ...mapState('questionList', ['exercise']),
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];
-      },
-      exercise() {
-        return this.contentMap[this.$route.params.exerciseId];
       },
       table() {
         return this.difficultQuestions.map(question => {
