@@ -72,6 +72,7 @@
           },
           aside: {
             maxHeight: `${this.windowHeight}px`,
+            overflowY: 'auto',
           },
           footer: {
             borderTopColor: this.$themeTokens.textDisabled,
@@ -105,9 +106,7 @@
   }
 
   .aside {
-    height: 100%;
     padding: 16px;
-    overflow-y: auto;
   }
 
   .main-with-aside {

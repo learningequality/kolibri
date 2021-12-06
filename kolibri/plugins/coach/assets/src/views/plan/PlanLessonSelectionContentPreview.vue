@@ -9,7 +9,7 @@
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
   >
-    <KPageContainer noPadding>
+    <KPageContainer :topMargin="0">
       <LessonContentPreviewPage
         :currentContentNode="currentContentNode"
         :isSelected="isSelected"

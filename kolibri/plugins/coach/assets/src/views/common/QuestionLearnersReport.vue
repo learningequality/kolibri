@@ -1,6 +1,6 @@
 <template>
 
-  <KPageContainer noPadding>
+  <KPageContainer :topMargin="0">
     <MultiPaneLayout ref="multiPaneLayout">
       <template #header>
         <div>

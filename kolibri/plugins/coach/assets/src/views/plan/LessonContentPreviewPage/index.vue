@@ -68,7 +68,7 @@
 
             <HeaderTableRow
               v-else-if="completionData"
-              :keyText="coachString('masteryModelLabel')"
+              :keyText="coreString('masteryModelLabel')"
             >
               <template #value>
                 <MasteryModel
