@@ -10,26 +10,39 @@
       <slot name="header"></slot>
     </header>
 
-    <div>
-      <aside
+    <section
+      v-if="$slots.subheader"
+      ref="subheader"
+      class="subheader"
+    >
+      <slot name="subheader"></slot>
+    </section>
+
+    <KFixedGrid
+      numCols="3"
+    >
+      <KFixedGridItem
         v-if="$slots.aside"
         ref="aside"
-        class="aside"
         :style="styles.aside"
+        span="1"
       >
-        <slot name="aside"></slot>
-      </aside>
+        <div class="aside">
+          <slot name="aside"></slot>
+        </div>
+      </KFixedGridItem>
 
-      <main
+      <KFixedGridItem
         ref="main"
-        class="main"
+        :span="$slots.aside ? 2 : 3"
         :class="{ 'main-with-aside': $slots.aside }"
-        :style="styles.main"
       >
-        <slot name="main"></slot>
-      </main>
+        <div class="main">
+          <slot name="main"></slot>
+        </div>
+      </KFixedGridItem>
 
-    </div>
+    </KFixedGrid>
     <footer
       v-if="$slots.footer"
       ref="footer"
@@ -60,9 +73,6 @@
           aside: {
             maxHeight: `${this.windowHeight}px`,
           },
-          main: {
-            maxHeight: this.$slots.aside ? `${this.windowHeight}px` : '',
-          },
           footer: {
             borderTopColor: this.$themeTokens.textDisabled,
           },
@@ -90,21 +100,17 @@
     border-bottom-width: 1px;
   }
 
-  .main,
-  .aside {
-    height: 100%;
-    overflow-y: auto;
-  }
-
-  .aside {
-    display: inline-block;
-    width: 33%;
+  .subheader {
     padding: 16px;
   }
 
+  .aside {
+    height: 100%;
+    padding: 16px;
+    overflow-y: auto;
+  }
+
   .main-with-aside {
-    display: inline-block;
-    width: 67%;
     padding: 16px;
     vertical-align: top;
   }
