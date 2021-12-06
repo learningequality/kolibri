@@ -233,6 +233,7 @@ export default function useLearnerResources() {
           examId: quiz.id,
           questionNumber: 0,
           questionInteraction: 0,
+          tryIndex: 0,
         },
       };
     }

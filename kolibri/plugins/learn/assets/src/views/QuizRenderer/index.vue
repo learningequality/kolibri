@@ -6,13 +6,7 @@
       v-else-if="currentlyMastered"
       :userId="userId"
       :userName="userFullName"
-      :questions="assessmentIds"
-      :kind="kind"
-      :files="files"
-      :available="available"
-      :extraFields="extraFields"
-      :masteryLevel="masteryLevel"
-      :contentId="contentId"
+      :content="content"
       @repeat="repeat"
     />
     <KGrid v-else :gridStyle="gridStyle">
@@ -43,10 +37,10 @@
             <KContentRenderer
               v-if="itemId"
               ref="contentRenderer"
-              :kind="kind"
-              :lang="lang"
-              :files="files"
-              :available="available"
+              :kind="content.kind"
+              :lang="content.lang"
+              :files="content.files"
+              :available="content.available"
               :extraFields="extraFields"
               :itemId="itemId"
               :assessment="true"
@@ -196,7 +190,6 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import shuffled from 'kolibri.utils.shuffled';
-  import { defaultLanguage } from 'kolibri-design-system/lib/utils/i18n';
   import { LearnerClassroomResource } from '../../apiResources';
   import AnswerHistory from './AnswerHistory';
   import QuizReport from './QuizReport';
@@ -212,32 +205,8 @@
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
     props: {
-      contentId: {
-        type: String,
-        required: true,
-      },
-      lang: {
+      content: {
         type: Object,
-        default: () => defaultLanguage,
-      },
-      kind: {
-        type: String,
-        required: true,
-      },
-      files: {
-        type: Array,
-        default: () => [],
-      },
-      available: {
-        type: Boolean,
-        default: false,
-      },
-      assessmentIds: {
-        type: Array,
-        required: true,
-      },
-      randomize: {
-        type: Boolean,
         required: true,
       },
       extraFields: {
@@ -316,9 +285,9 @@
         if (this.randomize) {
           // Differentiate the seed for each 'try' indicated by the masteryLevel.
           const seed = this.userid ? this.userid + this.masteryLevel : Date.now();
-          return shuffled(this.assessmentIds, seed);
+          return shuffled(this.content.assessmentmetadata.assessment_item_ids, seed);
         }
-        return this.assessmentIds;
+        return this.content.assessmentmetadata.assessment_item_ids;
       },
       itemId() {
         return this.itemIdArray[this.questionNumber];
@@ -330,7 +299,7 @@
         return this.questionsTotal - this.questionsAnswered;
       },
       questionsTotal() {
-        return this.assessmentIds.length;
+        return this.content.assessmentmetadata.assessment_item_ids.length;
       },
       debouncedSetAndSaveCurrentExamAttemptLog() {
         // So as not to share debounced functions between instances of the same component
@@ -398,7 +367,10 @@
           // as interacted with.
           data.progress = Math.max(
             0.001,
-            Math.min(this.pastattempts.length / this.assessmentIds.length, 0.99)
+            Math.min(
+              this.pastattempts.length / this.content.assessmentmetadata.assessment_item_ids.length,
+              0.99
+            )
           );
         }
         if (close) {

@@ -1,127 +1,176 @@
 <template>
 
-  <component
-    :is="practiceQuiz ? 'EmbeddedMultiPaneLayout' : 'MultiPaneLayout'"
+  <MultiPaneLayout
     ref="multiPaneLayout"
     class="container"
   >
     <template #header>
-      <slot name="header">
-        <PageStatus
-          :contentName="exam.title"
-          :userName="userName"
-          :questions="examAttempts"
-          :completionTimestamp="completionTimestamp"
-          :completed="complete"
-          :timeSpent="timeSpent"
-        />
-      </slot>
+      <KFixedGrid
+        numCols="4"
+        class="page-status"
+        :style="{ backgroundColor: $themeTokens.surface }"
+      >
+        <KFixedGridItem span="3">
+          <div>
+            <h1 class="title">
+              <KLabeledIcon icon="person" :label="userName" />
+            </h1>
+            <KLabeledIcon :icon="isQuiz ? 'quiz' : exercise.kind" :label="title" />
+          </div>
+          <!-- only show the current try if the user has only one try -->
+          <TriesOverview
+            v-if="pastTries.length > 1"
+            :pastTries="pastTries"
+            :totalQuestions="questions.length"
+            :suggestedTime="duration"
+          />
+          <CurrentTryOverview
+            v-else-if="currentTry"
+            :userId="userId"
+            :currentTry="currentTry"
+            :totalQuestions="questions.length"
+          />
+        </KFixedGridItem>
+        <KFixedGridItem span="1" alignment="right">
+          <slot name="actions"></slot>
+        </KFixedGridItem>
+      </KFixedGrid>
     </template>
 
-    <template v-if="!windowIsSmall" #aside>
+    <template v-if="!loading" #subheader>
+      <KSelect
+        v-if="pastTries.length > 1"
+        :value="pastTriesOptions[tryIndex]"
+        :label="$tr('attemptDropdownLabel')"
+        :options="pastTriesOptions"
+        :style="{ background: $themePalette.grey.v_100 }"
+        appearance="flat-button"
+        class="try-selection"
+        @change="navigateToTry"
+      />
+      <CurrentTryOverview
+        v-if="currentTry && pastTries.length > 1"
+        :userId="userId"
+        :currentTry="currentTry"
+        :totalQuestions="questions.length"
+        :hideStatus="true"
+      />
+    </template>
+
+    <template v-if="!windowIsSmall && !loading" #aside>
       <AttemptLogList
         :attemptLogs="attemptLogs"
         :selectedQuestionNumber="questionNumber"
-        @select="handleNavigateToQuestion"
+        @select="navigateToQuestion"
       />
     </template>
 
     <template #main>
-      <AttemptLogList
-        v-if="windowIsSmall"
-        :isMobile="windowIsSmall"
-        :class="windowIsSmall ? 'mobile-attempt-log-list' : ''"
-        :attemptLogs="attemptLogs"
-        :selectedQuestionNumber="questionNumber"
-        @select="handleNavigateToQuestion"
-      />
-      <div
-        v-if="exercise"
-        class="exercise-container"
-        :class="windowIsSmall ? 'mobile-exercise-container' : ''"
-        :style="{ backgroundColor: $themeTokens.surface }"
-      >
-        <h3>{{ coreString('questionNumberLabel', { questionNumber: questionNumber + 1 }) }}</h3>
-
-        <KCheckbox
-          :label="coreString('showCorrectAnswerLabel')"
-          :checked="showCorrectAnswer"
-          @change="toggleShowCorrectAnswer"
+      <KCircularLoader v-if="loading" class="loader" />
+      <template v-else-if="itemId">
+        <AttemptLogList
+          v-if="windowIsSmall"
+          :isMobile="windowIsSmall"
+          :class="windowIsSmall ? 'mobile-attempt-log-list' : ''"
+          :attemptLogs="attemptLogs"
+          :selectedQuestionNumber="questionNumber"
+          @select="navigateToQuestion"
         />
-        <div v-if="currentAttemptDiff" style="padding-bottom: 15px;">
-          <AttemptIconDiff
-            :correct="currentAttempt.correct"
-            :diff="currentAttemptDiff.correct"
+        <div
+          class="exercise-container"
+          :class="windowIsSmall ? 'mobile-exercise-container' : ''"
+          :style="{ backgroundColor: $themeTokens.surface }"
+        >
+          <h3>{{ coreString('questionNumberLabel', { questionNumber: questionNumber + 1 }) }}</h3>
+
+          <KCheckbox
+            :label="coreString('showCorrectAnswerLabel')"
+            :checked="showCorrectAnswer"
+            @change="toggleShowCorrectAnswer"
           />
-          <AttemptTextDiff
-            :userId="userId"
-            :correct="currentAttempt.correct"
-            :diff="currentAttemptDiff.correct"
+          <div v-if="currentAttemptDiff" style="padding-bottom: 15px;">
+            <AttemptIconDiff
+              :correct="currentAttempt.correct"
+              :diff="currentAttemptDiff.correct"
+            />
+            <AttemptTextDiff
+              :userId="userId"
+              :correct="currentAttempt.correct"
+              :diff="currentAttemptDiff.correct"
+            />
+          </div>
+          <InteractionList
+            v-if="!showCorrectAnswer"
+            :interactions="currentInteractionHistory"
+            :selectedInteractionIndex="selectedInteractionIndex"
+            @select="navigateToQuestionAttempt"
+          />
+          <KContentRenderer
+            v-if="exercise"
+            :itemId="renderableItemId"
+            :allowHints="false"
+            :kind="exercise.kind"
+            :files="exercise.files"
+            :available="exercise.available"
+            :extraFields="exercise.extra_fields"
+            :interactive="false"
+            :assessment="true"
+            :answerState="answerState"
+            :showCorrectAnswer="showCorrectAnswer"
           />
         </div>
-        <InteractionList
-          v-if="!showCorrectAnswer"
-          :interactions="currentInteractionHistory"
-          :selectedInteractionIndex="selectedInteractionIndex"
-          @select="navigateToQuestionAttempt"
-        />
-        <KContentRenderer
-          v-if="exercise"
-          :itemId="itemId"
-          :allowHints="false"
-          :kind="exercise.kind"
-          :files="exercise.files"
-          :available="exercise.available"
-          :extraFields="exercise.extra_fields"
-          :interactive="false"
-          :assessment="true"
-          :answerState="answerState"
-          :showCorrectAnswer="showCorrectAnswer"
-        />
-      </div>
+      </template>
 
       <p v-else>
         {{ $tr('noItemId') }}
       </p>
     </template>
-  </component>
+  </MultiPaneLayout>
 
 </template>
 
 
 <script>
 
-  import AttemptLogList from 'kolibri.coreVue.components.AttemptLogList';
+  import sortBy from 'lodash/sortBy';
+  import isFinite from 'lodash/isFinite';
   import InteractionList from 'kolibri.coreVue.components.InteractionList';
   import find from 'lodash/find';
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
-  import EmbeddedMultiPaneLayout from 'kolibri.coreVue.components.EmbeddedMultiPaneLayout';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import { MasteryLogResource } from 'kolibri.resources';
+  import { now } from 'kolibri.utils.serverClock';
+  import AttemptLogList from '../AttemptLogList';
   import AttemptTextDiff from './AttemptTextDiff';
   import AttemptIconDiff from './AttemptIconDiff';
-  import PageStatus from './PageStatus';
+  import TriesOverview from './TriesOverview';
+  import CurrentTryOverview from './CurrentTryOverview';
 
   export default {
     name: 'ExamReport',
     components: {
-      PageStatus,
       AttemptLogList,
       InteractionList,
       MultiPaneLayout,
-      EmbeddedMultiPaneLayout,
       AttemptIconDiff,
       AttemptTextDiff,
+      TriesOverview,
+      CurrentTryOverview,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
     props: {
-      examAttempts: {
-        type: Array,
+      contentId: {
+        type: String,
         required: true,
       },
-      exam: {
-        type: Object,
+      title: {
+        type: String,
         required: true,
+      },
+      duration: {
+        type: Number,
+        default: null,
       },
       userId: {
         type: String,
@@ -131,15 +180,6 @@
         type: String,
         required: true,
       },
-      currentInteractionHistory: {
-        type: Array,
-        required: true,
-      },
-      currentInteraction: {
-        type: Object,
-        required: false,
-        default: null,
-      },
       selectedInteractionIndex: {
         type: Number,
         required: true,
@@ -148,28 +188,15 @@
         type: Number,
         required: true,
       },
+      tryIndex: {
+        type: Number,
+        default: 0,
+      },
       exercise: {
         type: Object,
         required: true,
       },
-      itemId: {
-        type: String,
-        required: true,
-      },
-      completionTimestamp: {
-        type: Date,
-        required: false,
-        default: null,
-      },
-      complete: {
-        type: Boolean,
-        required: true,
-      },
-      navigateToQuestion: {
-        type: Function,
-        required: true,
-      },
-      navigateToQuestionAttempt: {
+      navigateTo: {
         type: Function,
         required: true,
       },
@@ -181,34 +208,26 @@
         type: Array,
         default: () => [],
       },
-      timeSpent: {
-        type: Number,
-        default: 0,
-      },
-      practiceQuiz: {
+      isQuiz: {
         type: Boolean,
-        default: false,
+        default: true,
       },
     },
     data() {
       return {
         showCorrectAnswer: false,
+        now: now(),
+        pastTries: [],
+        currentTry: null,
+        loading: true,
       };
     },
     computed: {
       attemptLogs() {
-        return this.examAttempts.map(attempt => {
-          if (!this.exerciseContentNodes.length) {
-            return attempt;
-          }
-          let num_coach_contents = 0;
-          const exerciseId = this.questions[attempt.questionNumber - 1].exercise_id;
-          const exerciseMatch = find(this.exerciseContentNodes, { id: exerciseId });
-          if (exerciseMatch) {
-            num_coach_contents = exerciseMatch.num_coach_contents;
-          }
-          return { ...attempt, num_coach_contents };
-        });
+        if (this.isQuiz) {
+          return this.quizAttempts();
+        }
+        return this.masteryAttempts();
       },
       answerState() {
         // Do not pass in answerState if showCorrectAnswer is set to true
@@ -232,16 +251,155 @@
           ? this.currentAttempt.diff
           : null;
       },
+      pastTriesOptions() {
+        return this.pastTries.map((quizTry, index) => {
+          const score = Math.floor((quizTry.correct / this.questions.length) * 100);
+          const time = this.$formatRelative(quizTry.completion_timestamp, { now: this.now });
+          return {
+            value: index,
+            label: `(${score}%) ${time}`,
+          };
+        });
+      },
+      itemId() {
+        return this.isQuiz
+          ? this.questions[this.questionNumber].item
+          : this.attemptLogs[this.questionNumber].item;
+      },
+      renderableItemId() {
+        // This item value is used to pass into KContentRenderer to set the correct question,
+        // so reclaim the actual item id value here by splitting on ':'.
+        // This is only needed in cases where the item id has been artificially generated for coach
+        // assigned quizzes.
+        return this.itemId.split(':')[1] || this.itemId;
+      },
+      currentInteractionHistory() {
+        // filter out interactions without answers but keep hints and errors
+        return this.currentAttempt
+          ? this.currentAttempt.interaction_history.filter(interaction =>
+              Boolean(
+                interaction.answer || interaction.type === 'hint' || interaction.type === 'error'
+              )
+            ) || []
+          : [];
+      },
+      currentInteraction() {
+        return (
+          this.currentInteractionHistory &&
+          this.currentInteractionHistory[this.selectedInteractionIndex]
+        );
+      },
+    },
+    watch: {
+      tryIndex(newVal, oldVal) {
+        if (newVal !== oldVal) {
+          this.loadAttempts();
+        }
+      },
+    },
+    created() {
+      this.loadAttempts();
+      this.loadAllTries();
     },
     methods: {
-      handleNavigateToQuestion(questionNumber) {
-        this.navigateToQuestion(questionNumber);
+      navigateToQuestion(questionNumber) {
+        this.navigateTo(this.tryIndex, questionNumber, 0);
         this.$refs.multiPaneLayout.scrollMainToTop();
         this.showCorrectAnswer = false;
+      },
+      navigateToQuestionAttempt(interaction) {
+        this.navigateTo(this.tryIndex, this.questionNumber, interaction);
+        this.$refs.multiPaneLayout.scrollMainToTop();
+        this.showCorrectAnswer = false;
+      },
+      navigateToTry(tryOption) {
+        if (tryOption.value !== this.tryIndex) {
+          this.navigateTo(tryOption.value, 0, 0);
+          this.$refs.multiPaneLayout.scrollMainToTop();
+          this.showCorrectAnswer = false;
+        }
       },
       toggleShowCorrectAnswer() {
         this.showCorrectAnswer = !this.showCorrectAnswer;
         this.$forceUpdate();
+      },
+      getParams() {
+        return {
+          content: this.contentId,
+          user: this.userId,
+          back: this.tryIndex,
+          complete: this.isQuiz ? true : undefined,
+          quiz: this.isQuiz,
+        };
+      },
+      loadAttempts() {
+        if (!isFinite(this.tryIndex)) {
+          return;
+        }
+        this.loading = true;
+        MasteryLogResource.fetchMostRecentDiff(this.getParams())
+          .then(currentTry => {
+            this.currentTry = currentTry;
+            this.loading = false;
+          })
+          .catch(err => {
+            if (err.response && err.response.status_code === 404) {
+              this.$emit('noCompleteTries');
+            }
+          });
+      },
+      loadAllTries() {
+        MasteryLogResource.fetchCollection({ getParams: this.getParams() }).then(pastTries => {
+          this.pastTries = pastTries;
+        });
+      },
+      quizAttempts() {
+        const mostRecentAttempts = sortBy(
+          this.currentTry ? this.currentTry.attemptlogs : [],
+          'end_timestamp'
+        ).reverse();
+        return sortBy(
+          this.questions.map((question, index) => {
+            const attempt = mostRecentAttempts.find(a => a.item === question.item);
+            const questionNumber = index + 1;
+            const noattempt = !attempt;
+            let num_coach_contents;
+            if (this.exerciseContentNodes.length) {
+              const exerciseId = this.questions[questionNumber - 1].exercise_id;
+              const exerciseMatch = find(this.exerciseContentNodes, { id: exerciseId });
+              if (exerciseMatch) {
+                num_coach_contents = exerciseMatch.num_coach_contents;
+              }
+            }
+            return {
+              ...(attempt || {}),
+              noattempt,
+              questionNumber,
+              num_coach_contents,
+            };
+          }),
+          'questionNumber'
+        );
+      },
+      masteryAttempts() {
+        return sortBy(this.currentTry ? this.currentTry.attemptlogs : [], 'end_timestamp')
+          .reverse()
+          .map(attempt => {
+            const questionNumber = this.questions.findIndex(q => q.item === attempt.item) + 1;
+            let num_coach_contents;
+            if (this.exerciseContentNodes.length) {
+              const exerciseId = this.questions[questionNumber - 1].exercise_id;
+              const exerciseMatch = find(this.exerciseContentNodes, { id: exerciseId });
+              if (exerciseMatch) {
+                num_coach_contents = exerciseMatch.num_coach_contents;
+              }
+            }
+            return {
+              ...attempt,
+              questionNumber,
+              num_coach_contents,
+            };
+          });
       },
     },
     $trs: {
@@ -249,6 +407,11 @@
         message: 'This question has an error, please move on to the next question',
         context:
           'Message that a coach would see in a report that indicates that there is an error in one of the questions in a quiz.',
+      },
+      attemptDropdownLabel: {
+        message: 'Attempt',
+        context:
+          'Label in the dropdown menu where one can choose an attempt from their five most recent attempts at a practice quiz',
       },
     },
   };
@@ -263,7 +426,6 @@
   }
 
   .container {
-    top: 24px;
     max-width: 1000px;
     margin: 0 auto;
     background-color: white;
@@ -279,6 +441,28 @@
 
   h3 {
     margin-top: 0;
+  }
+
+  .try-selection {
+    max-width: 400px;
+    padding: 8px 8px 0;
+    margin-top: 16px;
+  }
+
+  .loader {
+    padding-top: 64px;
+    padding-bottom: 64px;
+  }
+
+  th {
+    text-align: left;
+  }
+
+  th,
+  td {
+    height: 2em;
+    padding-right: 24px;
+    font-size: 14px;
   }
 
 </style>

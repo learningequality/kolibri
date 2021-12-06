@@ -1032,6 +1032,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Folders',
     context: "Tab label in the 'Browse channel' page that allows to navigate through its topics.",
   },
+  scoreLabel: {
+    message: 'Score',
+    context:
+      'Score obtained by a learner on a quiz, indicated by the percentage of correct answers given.',
+  },
 
   // TODO - move these into diff sections as we make this a full feature in 0.16
   // Past Papers Project (12/2021) strings
@@ -1047,6 +1052,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   practiceQuizReportTitle: {
     message: 'Report for {quizTitle}',
     context: 'Label for a report corresponding to a practice quiz',
+  },
+  masteryModelLabel: {
+    message: 'Completion requirement',
+    context: 'Denotes whether a specific exercise needs to be completed by the learner.',
   },
 });
 

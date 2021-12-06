@@ -10,21 +10,29 @@
         {{ progressIconLabel }}
       </td>
     </tr>
-    <tr>
+    <tr v-if="masteryModel">
       <th>
-        {{ $tr('scoreLabel') }}
+        {{ coreString('masteryModelLabel') }}
+      </th>
+      <td>
+        <MasteryModel :masteryModel="masteryModel" />
+      </td>
+    </tr>
+    <tr v-if="correctDefined && !masteryModel">
+      <th>
+        {{ coreString('scoreLabel') }}
       </th>
       <td>
         {{ $formatNumber(score, { style: 'percent' }) }}
       </td>
     </tr>
-    <tr>
+    <tr v-if="correctDefined && !masteryModel">
       <th>
         {{ $tr('questionsCorrectLabel') }}
       </th>
       <td>
         {{ $tr('questionsCorrectValue', {
-          correct: questionsCorrect, total: totalQuestions
+          correct: currentTry.correct, total: totalQuestions
         }) }}
         <br>
         <span
@@ -34,12 +42,12 @@
         >{{ questionsCorrectAnnotation }}</span>
       </td>
     </tr>
-    <tr>
+    <tr v-if="currentTry.time_spent">
       <th>
         {{ coreString('timeSpentLabel') }}
       </th>
       <td>
-        <TimeDuration :seconds="timeSpent" />
+        <TimeDuration :seconds="currentTry.time_spent" />
         <br>
         <span
           v-if="timeSpentAnnotation"
@@ -53,7 +61,9 @@
         {{ $tr('attemptedLabel') }}
       </th>
       <td>
-        <ElapsedTime :date="completionTimestamp" />
+        <ElapsedTime
+          :date="new Date(currentTry.completion_timestamp || currentTry.end_timestamp)"
+        />
       </td>
     </tr>
   </table>
@@ -64,11 +74,13 @@
 <script>
 
   import has from 'lodash/has';
+  import isUndefined from 'lodash/isUndefined';
   import { mapGetters } from 'vuex';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
+  import MasteryModel from 'kolibri.coreVue.components.MasteryModel';
 
   export default {
     name: 'CurrentTryOverview',
@@ -76,38 +88,25 @@
       ElapsedTime,
       TimeDuration,
       ProgressIcon,
+      MasteryModel,
     },
     mixins: [commonCoreStrings],
     props: {
-      completionTimestamp: {
-        type: Date,
-        default: null,
-      },
-      progress: {
-        type: Number,
-        required: false,
-        default: 0.0,
-        validator(value) {
-          return value >= 0.0 && value <= 1.0;
+      currentTry: {
+        type: Object,
+        required: true,
+        validator(currentTry) {
+          const requiredFields = ['correct', 'time_spent', 'completion_timestamp', 'complete'];
+          if (!requiredFields.every(key => has(currentTry, key))) {
+            return false;
+          }
+          if (!currentTry.diff || Object.keys(currentTry.diff).length === 0) {
+            return true;
+          }
+          return has(currentTry.diff, 'correct') && has(currentTry.diff, 'time_spent');
         },
       },
-      score: {
-        type: Number,
-        required: true,
-      },
-      completed: {
-        type: Boolean,
-        default: false,
-      },
-      questionsCorrect: {
-        type: Number,
-        required: true,
-      },
       totalQuestions: {
-        type: Number,
-        required: true,
-      },
-      timeSpent: {
         type: Number,
         required: true,
       },
@@ -119,47 +118,60 @@
         type: String,
         default: '',
       },
-      previousTryDiff: {
-        type: Object,
-        required: false,
-        default: () => ({}),
-        validator(diff) {
-          if (!diff || Object.keys(diff).length === 0) {
-            return true;
-          }
-          return has(diff, 'correct') && has(diff, 'time_spent');
-        },
-      },
     },
     computed: {
       ...mapGetters(['currentUserId']),
       progressIconLabel() {
-        if (this.completed) {
+        if (this.currentTry.complete) {
           return this.coreString('completedLabel');
-        } else if (this.completed !== null) {
+        } else if (this.currentTry.complete !== null) {
           return this.$tr('inProgress');
         } else {
           return this.$tr('notStartedLabel');
         }
       },
+      progress() {
+        if (this.currentTry.complete) {
+          return 1.0;
+        } else if (this.currentTry.complete !== null) {
+          return 0.5;
+        } else {
+          return 0.0;
+        }
+      },
+      masteryModel() {
+        if (
+          this.currentTry.mastery_criterion &&
+          this.currentTry.mastery_criterion.type !== 'quiz'
+        ) {
+          return this.currentTry.mastery_criterion;
+        }
+        return null;
+      },
+      correctDefined() {
+        return !isUndefined(this.currentTry.correct);
+      },
+      score() {
+        return this.currentTry.correct / this.totalQuestions;
+      },
       questionsCorrectAnnotation() {
-        if (!this.previousTryDiff || this.userId !== this.currentUserId) {
+        if (!this.currentTry.diff || this.userId !== this.currentUserId) {
           return null;
         }
 
-        return this.previousTryDiff.correct > 0
+        return this.currentTry.diff.correct > 0
           ? this.$tr('practiceQuizReportImprovedLabelSecondPerson', {
-              value: this.previousTryDiff.correct,
+              value: this.currentTry.diff.correct,
             })
           : null;
       },
       timeSpentAnnotation() {
-        if (!this.previousTryDiff) {
+        if (!this.currentTry.diff) {
           return null;
         }
 
-        const fasterTime = this.previousTryDiff.time_spent
-          ? Math.floor(this.previousTryDiff.time_spent / 60)
+        const fasterTime = this.currentTry.diff.time_spent
+          ? Math.floor(this.currentTry.diff.time_spent / 60)
           : 0;
 
         if (fasterTime <= -1) {
@@ -172,11 +184,6 @@
       },
     },
     $trs: {
-      scoreLabel: {
-        message: 'Score',
-        context:
-          'Score obtained by a learner on a quiz, indicated by the percentage of correct answers given.',
-      },
       attemptedLabel: {
         message: 'Attempted',
         context: 'This verb will be used to indicate when a learner last attempted a quiz',

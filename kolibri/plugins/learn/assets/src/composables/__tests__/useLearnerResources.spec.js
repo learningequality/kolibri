@@ -579,6 +579,7 @@ describe(`useLearnerResources`, () => {
           examId: 'class-1-active-finished-quiz',
           questionNumber: 0,
           questionInteraction: 0,
+          tryIndex: 0,
         },
       });
     });

@@ -7,7 +7,15 @@
       </th>
       <td>
         <ProgressIcon class="svg-icon" :progress="progress" />
-        {{ coreString('completedLabel') }}
+        <template v-if="complete">
+          {{ coreString('completedLabel') }}
+        </template>
+        <template v-else-if="progress">
+          {{ coreString('inProgressLabel') }}
+        </template>
+        <template v-else>
+          {{ coreString('notStartedLabel') }}
+        </template>
       </td>
     </tr>
     <tr>
@@ -49,6 +57,7 @@
 
 <script>
 
+  import has from 'lodash/has';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
@@ -61,27 +70,15 @@
     },
     mixins: [commonCoreStrings],
     props: {
-      progress: {
-        type: Number,
-        required: false,
-        default: 0.0,
-        validator(value) {
-          return value >= 0.0 && value <= 1.0;
+      pastTries: {
+        type: Array,
+        required: true,
+        validator(pastTries) {
+          const requiredFields = ['time_spent', 'correct'];
+          return pastTries.every(tryData => requiredFields.every(field => has(tryData, field)));
         },
       },
-      bestScore: {
-        type: Number,
-        required: true,
-      },
-      maxQuestionsCorrect: {
-        type: Number,
-        required: true,
-      },
       totalQuestions: {
-        type: Number,
-        required: true,
-      },
-      bestTimeSpent: {
         type: Number,
         required: true,
       },
@@ -91,6 +88,27 @@
       },
     },
     computed: {
+      complete() {
+        return this.pastTries.some(tryInfo => tryInfo.completion_timestamp);
+      },
+      progress() {
+        if (this.complete) {
+          return 1.0;
+        } else if (this.pastTries.length) {
+          return 0.5;
+        } else {
+          return 0.0;
+        }
+      },
+      bestTimeSpent() {
+        return Math.min(...this.pastTries.map(t => t.time_spent));
+      },
+      maxQuestionsCorrect() {
+        return Math.max(...this.pastTries.map(t => t.correct));
+      },
+      bestScore() {
+        return this.maxQuestionsCorrect / this.totalQuestions || 0;
+      },
       suggestedTimeAnnotation() {
         if (!this.suggestedTime) {
           return null;
