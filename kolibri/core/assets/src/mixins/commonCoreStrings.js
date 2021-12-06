@@ -404,6 +404,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       'This button appears in Kolibri to indicate to users that there are more results available when they search for resources, for example.',
   },
+  viewLessAction: {
+    message: 'View less',
+    context:
+      "Button which allows a user to view less information. It's the opposite of 'View more'.",
+  },
   copies: {
     message: '{ num, number} locations',
     context:

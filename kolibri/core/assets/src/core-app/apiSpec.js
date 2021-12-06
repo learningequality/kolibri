@@ -102,6 +102,7 @@ import AttemptLogList from '../views/AttemptLogList';
 import CurrentTryOverview from '../views/ExamReport/CurrentTryOverview';
 import InteractionList from '../views/InteractionList';
 import ExamReport from '../views/ExamReport';
+import SlotTruncator from '../views/SlotTruncator';
 import TextTruncator from '../views/TextTruncator';
 import TextTruncatorCss from '../views/TextTruncatorCss';
 import TimeDuration from '../views/TimeDuration';
@@ -169,6 +170,7 @@ export default {
       AttemptLogList,
       InteractionList,
       ExamReport,
+      SlotTruncator,
       TextTruncator,
       TextTruncatorCss,
       TimeDuration,
