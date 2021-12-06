@@ -1,6 +1,6 @@
 <template>
 
-  <ReportsLessonBase :showResources="true" />
+  <ReportsLessonBase :showLearners="true" />
 
 </template>
 
@@ -10,17 +10,10 @@
   import ReportsLessonBase from './ReportsLessonBase';
 
   export default {
-    name: 'ReportsGroupReportLessonPage',
+    name: 'ReportsGroupReportLessonLearnerListPage',
     components: {
       ReportsLessonBase,
     },
   };
 
 </script>
-
-
-<style lang="scss" scoped>
-
-  @import '../common/print-table';
-
-</style>
