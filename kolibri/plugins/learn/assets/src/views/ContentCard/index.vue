@@ -133,7 +133,11 @@
       },
     },
     $trs: {
-      copies: '{ num, number} locations',
+      copies: {
+        message: '{ num, number} locations',
+        context:
+          'Some Kolibri resources may be duplicated in different topics or channels.\n\nSearch results will indicate when a resource is duplicated, and learners can click on the "...locations" link to discover the details for each location of the resource.',
+      },
     },
   };
 

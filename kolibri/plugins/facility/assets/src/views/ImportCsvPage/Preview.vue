@@ -267,7 +267,10 @@
         message: 'Error',
         context: 'Title of error message in the CSV file.',
       },
-      close: 'Close',
+      close: {
+        message: 'Close',
+        context: 'Generic button used to close an open window.',
+      },
       back: {
         message: 'Back',
         context:
