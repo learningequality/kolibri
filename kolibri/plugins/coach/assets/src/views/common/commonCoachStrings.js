@@ -364,10 +364,6 @@ const coachStrings = createTranslator('CommonCoachStrings', {
     context:
       "Refers to the number of resources in a lesson. Only translate 'resource' and 'resources'.",
   },
-  percentage: {
-    message: '{value, number, percent}',
-    context: 'DO NOT TRANSLATE\nCopy the source string.',
-  },
   ratioShort: {
     message: '{value, number, integer} of {total, number, integer}',
     context:
