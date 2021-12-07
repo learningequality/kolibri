@@ -126,6 +126,7 @@ export function showExamCreationTopicPage(store, params) {
     });
   });
 }
+
 export function showExamCreationBookmarksPage(store, params) {
   return store.dispatch('loading').then(() => {
     const { topicId } = params;
@@ -179,7 +180,7 @@ function getBookmarks() {
     });
 }
 
-export function showExamCreationPreviewPage(store, params, query = {}) {
+export function showExamCreationPreviewPage(store, params, fromRoute, query = {}) {
   const { classId, contentId } = params;
   return store.dispatch('loading').then(() => {
     return Promise.all([_prepExamContentPreview(store, classId, contentId)])
@@ -193,12 +194,16 @@ export function showExamCreationPreviewPage(store, params, query = {}) {
             },
             query: otherQueryParams,
           });
-        } else {
+        } else if (fromRoute && fromRoute.name === PageNames.EXAM_CREATION_TOPIC) {
           store.commit('SET_TOOLBAR_ROUTE', {
             name: PageNames.EXAM_CREATION_TOPIC,
             params: {
               topicId: contentNode.parent,
             },
+          });
+        } else {
+          store.commit('SET_TOOLBAR_ROUTE', {
+            name: PageNames.EXAM_CREATION_ROOT,
           });
         }
         store.dispatch('notLoading');
@@ -312,6 +317,8 @@ const creationPages = [
   PageNames.EXAM_CREATION_TOPIC,
   PageNames.EXAM_CREATION_PREVIEW,
   PageNames.EXAM_CREATION_SEARCH,
+  PageNames.EXAM_CREATION_BOOKMARKS,
+  PageNames.EXAM_CREATION_BOOKMARKS_MAIN,
 ];
 
 export function showExamCreationQuestionSelectionPage(store, toRoute, fromRoute) {
