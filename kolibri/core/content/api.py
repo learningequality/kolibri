@@ -1216,7 +1216,6 @@ class BookmarkFilter(FilterSet):
         queryset = queryset.annotate(
             kind=Subquery(
                 models.ContentNode.objects.filter(
-                    available=True,
                     id=OuterRef("contentnode_id"),
                 ).values_list("kind", flat=True)[:1]
             )
