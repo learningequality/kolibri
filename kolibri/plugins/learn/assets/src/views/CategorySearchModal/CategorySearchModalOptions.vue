@@ -142,7 +142,7 @@
         default: null,
       },
       span: {
-        type: String,
+        type: [Number, String],
         required: true,
         default: null,
       },
