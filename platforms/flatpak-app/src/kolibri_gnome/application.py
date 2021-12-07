@@ -107,7 +107,7 @@ class Application(Gtk.Application):
         about_dialog = Gtk.AboutDialog(
             transient_for=self.get_active_window(),
             modal=True,
-            copyright=_("Copyright (c) 2019 Learning Equality"),
+            copyright=_("Copyright (c) 2022 Learning Equality"),
             program_name=_("Kolibri"),
             license_type=Gtk.License.MIT_X11,
             logo_icon_name=BASE_APPLICATION_ID,
