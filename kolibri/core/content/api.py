@@ -10,6 +10,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import Exists
 from django.db.models import OuterRef
 from django.db.models import Q
+from django.db.models import Subquery
 from django.db.models import Sum
 from django.db.models.aggregates import Count
 from django.http import Http404
@@ -1199,6 +1200,41 @@ class ContentNodeSearchViewset(ContentNodeViewset):
         )
 
 
+class BookmarkFilter(FilterSet):
+    available = BooleanFilter(
+        method="filter_available",
+    )
+    kind = CharFilter(
+        method="filter_kind",
+    )
+
+    class Meta:
+        model = Bookmark
+        fields = ("kind",)
+
+    def filter_kind(self, queryset, name, value):
+        queryset = queryset.annotate(
+            kind=Subquery(
+                models.ContentNode.objects.filter(
+                    available=True,
+                    id=OuterRef("contentnode_id"),
+                ).values_list("kind", flat=True)[:1]
+            )
+        )
+
+        return queryset.filter(kind=value)
+
+    def filter_available(self, queryset, name, value):
+        queryset = queryset.annotate(
+            available=Subquery(
+                models.ContentNode.objects.filter(
+                    available=True,
+                    id=OuterRef("contentnode_id"),
+                ).values_list("available", flat=True)[:1]
+            )
+        )
+
+
 class ContentNodeBookmarksViewset(
     BaseContentNodeMixin, BaseValuesViewset, ListModelMixin
 ):
@@ -1207,7 +1243,7 @@ class ContentNodeBookmarksViewset(
         KolibriAuthPermissionsFilter,
         DjangoFilterBackend,
     )
-    filter_class = None
+    filter_class = BookmarkFilter
     pagination_class = ValuesViewsetLimitOffsetPagination
 
     def get_queryset(self):
