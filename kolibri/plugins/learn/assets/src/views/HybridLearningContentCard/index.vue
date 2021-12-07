@@ -144,8 +144,10 @@
         );
       },
       coachContentLabelStyles() {
-        if (this.content.num_coach_contents < 2) {
+        if (this.content.num_coach_contents < 2 && !this.isTopic) {
           return { maxWidth: '24px', marginTop: '4px' };
+        } else if (this.content.num_coach_contents < 2 && this.isTopic) {
+          return { maxWidth: '24px', marginTop: '4px', marginRight: '16px' };
         } else {
           return {};
         }
@@ -253,7 +255,6 @@
   }
 
   .coach-content-label {
-    // max-width: 30px;
     vertical-align: top;
   }
 
