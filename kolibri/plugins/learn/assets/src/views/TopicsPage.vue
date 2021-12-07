@@ -359,6 +359,7 @@
 <script>
 
   import { mapActions, mapState } from 'vuex';
+  import isEqual from 'lodash/isEqual';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
@@ -644,6 +645,11 @@
       subTopicId(newValue, oldValue) {
         if (newValue && newValue !== oldValue) {
           this.handleLoadMoreinSubtopic(newValue);
+        }
+      },
+      searchTerms(newVal, oldVal) {
+        if (!isEqual(newVal, oldVal) && this.displayingSearchResults) {
+          this.$router.push({ ...this.searchLink, sidePanel: false });
         }
       },
     },
