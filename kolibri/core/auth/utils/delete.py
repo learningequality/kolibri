@@ -296,6 +296,19 @@ def get_delete_group_for_facility(facility):
     )
 
 
+def clean_up_legacy_counters():
+    # remove any legacy counters with empty partition, and add corresponding counters for remaining facility datasets
+    for dmc in DatabaseMaxCounter.objects.filter(partition=""):
+        for dataset in FacilityDataset.objects.all():
+            newdmc, _ = DatabaseMaxCounter.objects.get_or_create(
+                instance_id=dmc.instance_id, partition=dataset.id
+            )
+            if newdmc.counter != dmc.counter:
+                newdmc.counter = max(newdmc.counter, dmc.counter)
+                newdmc.save()
+        dmc.delete()
+
+
 def delete_facility(facility):
     logger.info("Deleting facility {}".format(facility.name))
     delete_group = get_delete_group_for_facility(facility)
@@ -307,6 +320,7 @@ def delete_facility(facility):
     )
     with DisablePostDeleteSignal(), transaction.atomic():
         count, _ = delete_group.delete()
+        clean_up_legacy_counters()
         dataset_cache.clear()
     if count == total_to_delete:
         logger.info(

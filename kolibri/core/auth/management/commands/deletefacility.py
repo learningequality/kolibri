@@ -7,6 +7,7 @@ from django.db import transaction
 from kolibri.core.auth.management.utils import confirm_or_exit
 from kolibri.core.auth.management.utils import get_facility
 from kolibri.core.auth.models import dataset_cache
+from kolibri.core.auth.utils.delete import clean_up_legacy_counters
 from kolibri.core.auth.utils.delete import DisablePostDeleteSignal
 from kolibri.core.auth.utils.delete import get_delete_group_for_facility
 from kolibri.core.tasks.management.commands.base import AsyncCommand
@@ -78,6 +79,8 @@ class Command(AsyncCommand):
                 total_deleted += count
                 # clear related cache
                 dataset_cache.clear()
+
+            clean_up_legacy_counters()
 
             # if count doesn't match, something doesn't seem right
             if total_count != total_deleted:
