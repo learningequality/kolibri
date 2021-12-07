@@ -202,3 +202,69 @@ class ClassSummaryTestCase(EvaluationMixin, APITestCase):
                 if previous_try
                 else 0,
             )
+
+
+class ClassSummaryDiffTestCase(EvaluationMixin, APITestCase):
+    def test_practice_quiz_summary(self):
+        provision_device()
+        classroom = Classroom.objects.create(name="classrom", parent=self.facility)
+        facility_coach = helpers.create_coach(
+            username="facility_coach",
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+            is_facility_coach=True,
+        )
+
+        models.Lesson.objects.create(
+            title="title",
+            is_active=True,
+            collection=classroom,
+            created_by=facility_coach,
+            # Add all created nodes from the evaluation mixin.
+            resources=[
+                {
+                    "contentnode_id": node.id,
+                    "content_id": node.content_id,
+                    "channel_id": node.channel_id,
+                }
+                for node in self.content_nodes
+            ],
+        )
+
+        # Add all users to the classroom so their data will appear in the summary
+        for user in self.users:
+            classroom.add_member(user)
+
+        # Delete in progress tries for this test.
+        MasteryLog.objects.filter(complete=False).delete()
+        self.client.login(username=facility_coach.username, password=DUMMY_PASSWORD)
+        response = self.client.get(
+            reverse(
+                "kolibri:kolibri.plugins.coach:classsummary-detail",
+                kwargs={"pk": classroom.id},
+            )
+        )
+        content_status = response.data["content_learner_status"]
+        self.assertEqual(len(content_status), 2 * len(self.users))
+        for user_index, user in enumerate(self.users):
+            current_try = self.user_tries[user_index][0]
+            try:
+                previous_try = self.user_tries[user_index][1]
+            except IndexError:
+                previous_try = None
+            content_id = current_try.summarylog.content_id
+            data = next(
+                d
+                for d in content_status
+                if d["learner_id"] == user.id and d["content_id"] == content_id
+            )
+            self.assertEquals(
+                data["num_correct"],
+                sum(current_try.attemptlogs.values_list("correct", flat=True)),
+            )
+            self.assertEquals(
+                data["previous_num_correct"],
+                sum(previous_try.attemptlogs.values_list("correct", flat=True))
+                if previous_try
+                else 0,
+            )
