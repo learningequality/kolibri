@@ -16,22 +16,18 @@ export function setItemStats(store, { classId, exerciseId, quizId, lessonId, gro
 
   if (quizId) {
     pk = quizId;
+    resource = QuizDifficulties;
     itemPromise = ExamResource.fetchModel({
       id: quizId,
     }).then(fetchNodeDataAndConvertExam);
-    resource = QuizDifficulties;
   } else {
     pk = exerciseId;
+    practiceQuiz =
+      get(store.rootState.classSummary.contentMap[pk], ['options', 'modality']) === Modalities.QUIZ;
+    resource = practiceQuiz ? PracticeQuizDifficulties : ExerciseDifficulties;
     itemPromise = ContentNodeResource.fetchModel({
       id: store.rootState.classSummary.contentMap[pk].node_id,
     });
-    practiceQuiz =
-      get(store.rootState.classSummary.contentMap[pk], ['options', 'modality']) === Modalities.QUIZ;
-    if (practiceQuiz) {
-      resource = PracticeQuizDifficulties;
-    } else {
-      resource = ExerciseDifficulties;
-    }
   }
 
   const difficultiesPromise = resource.fetchDetailCollection(
@@ -88,7 +84,7 @@ export function setItemStats(store, { classId, exerciseId, quizId, lessonId, gro
         stats = stats.map(stat => {
           const questionNumber = Math.max(
             1,
-            item.assessmentmetadata.assessmentIds.indexOf(stat.item)
+            item.assessmentmetadata.assessment_item_ids.indexOf(stat.item)
           );
           const title = coachStrings.$tr('nthExerciseName', {
             name: item.title,
