@@ -9,6 +9,7 @@ import sys
 from sqlite3 import DatabaseError as SQLite3DatabaseError
 
 import django
+from diskcache.fanout import FanoutCache
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.management import call_command
@@ -23,6 +24,7 @@ from kolibri.core.deviceadmin.utils import get_backup_files
 from kolibri.core.tasks.main import import_tasks_module_from_django_apps
 from kolibri.core.upgrade import matches_version
 from kolibri.core.upgrade import run_upgrades
+from kolibri.core.utils.cache import process_cache
 from kolibri.deployment.default.sqlite_db_names import ADDITIONAL_SQLITE_DATABASES
 from kolibri.plugins.utils import autoremove_unavailable_plugins
 from kolibri.plugins.utils import check_plugin_config_file_location
@@ -207,6 +209,21 @@ def _upgrades_before_django_setup(updated, version):
             _copy_preseeded_db(db_name)
 
 
+def _post_django_initialization():
+    if OPTIONS["Cache"]["CACHE_BACKEND"] != "redis":
+        try:
+            process_cache.cull()
+        except SQLite3DatabaseError:
+            shutil.rmtree(process_cache.directory, ignore_errors=True)
+            os.mkdir(process_cache.directory)
+            process_cache._cache = FanoutCache(
+                process_cache.directory,
+                settings.CACHES["process_cache"]["SHARDS"],
+                settings.CACHES["process_cache"]["TIMEOUT"],
+                **settings.CACHES["process_cache"]["OPTIONS"]
+            )
+
+
 def _upgrades_after_django_setup(updated, version):
     # If device is not provisioned, attempt automatic provisioning
     if not device_provisioned() and OPTIONS["Paths"]["AUTOMATIC_PROVISION_FILE"]:
@@ -253,6 +270,8 @@ def initialize(
     _upgrades_before_django_setup(updated, version)
 
     _setup_django()
+
+    _post_django_initialization()
 
     if updated and not skip_update:
         conditional_backup(kolibri.__version__, version)
