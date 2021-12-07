@@ -29,7 +29,7 @@
         v-if="contentNodes.length"
         currentPage="lessonPage"
         cardViewStyle="list"
-        :numCols="1"
+        :numCols="null"
         :getContentNodeThumbnail="getContentNodeThumbnail"
         :genContentLink="genContentLink"
         :contents="contentNodes"
