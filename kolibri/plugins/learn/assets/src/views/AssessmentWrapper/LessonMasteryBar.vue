@@ -7,9 +7,7 @@
         class="requirements"
         :text="overallStatusStrings.$tr('goal', { count: requiredCorrectAnswers })"
       />
-      <span
-        :style="[ { flexShrink: '0' }, isRtl ? { marginRight: 'auto' } : { marginLeft: 'auto' }]"
-      >
+      <span>
         <slot name="hint"></slot>
       </span>
     </div>
