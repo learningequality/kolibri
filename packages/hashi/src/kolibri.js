@@ -114,6 +114,8 @@ export default class Kolibri extends BaseShim {
        * an array of matching metadata
        * @param {Object} options - The different options to filter by
        * @param {string=} options.parent - id of the parent node to filter by, or 'self'
+       * @param {string=} options.descendantOf - id of the root node to filter
+       * by, to show all descendants, not just direct children
        * @param {string[]} options.ids - an array of ids to filter by
        * @param {number} [options.maxResults=50] - the maximum number of nodes per request
        * @param {string[]} options.kinds - an array of kinds to filer by
