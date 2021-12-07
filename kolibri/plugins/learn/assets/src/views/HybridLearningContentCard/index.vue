@@ -135,7 +135,6 @@
       },
       footerLength() {
         return (
-          1 +
           this.content.is_leaf +
           (this.isUserLoggedIn && !this.isLearner && this.content.num_coach_contents) +
           (this.content.num_coach_contents > 0) +
@@ -211,8 +210,8 @@
   .folder-header-text {
     display: inline-block;
     padding: 0;
-    margin: 0;
-    font-size: 16px;
+    margin: 7px 0;
+    font-size: 13px;
   }
 
   .k-labeled-icon {
