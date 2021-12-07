@@ -31,6 +31,7 @@ no_default_value = object()
 
 def get_device_setting(setting, default=no_default_value):
     from .models import DeviceSettings
+    from kolibri.core.auth.models import Facility
 
     try:
         device_settings = DeviceSettings.objects.get()
@@ -41,6 +42,8 @@ def get_device_setting(setting, default=no_default_value):
         if default is not no_default_value:
             return default
         raise DeviceNotProvisioned
+    except Facility.DoesNotExist:
+        return None
 
 
 def device_provisioned():

@@ -9,8 +9,8 @@ from morango.models import RecordMaxCounterBuffer
 from morango.models import SyncSession
 from morango.models import TransferSession
 
-from kolibri.core.auth.management.utils import GroupDeletion
-from kolibri.core.auth.utils import confirm_or_exit
+from kolibri.core.auth.management.utils import confirm_or_exit
+from kolibri.core.auth.utils.delete import GroupDeletion
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 
 
