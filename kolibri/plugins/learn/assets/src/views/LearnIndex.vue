@@ -132,6 +132,9 @@
       currentPage() {
         return pageNameToComponentMap[this.pageName] || null;
       },
+      pageName() {
+        return this.$route.name;
+      },
       currentPageIsTopic() {
         return [
           pageNameToComponentMap[PageNames.TOPICS_TOPIC],
@@ -249,7 +252,7 @@
         };
       },
       showSearch() {
-        return this.canAccessUnassignedContent;
+        return this.canAccessUnassignedContent && this.pageName !== PageNames.LIBRARY;
       },
       topNavIsVisible() {
         return (
