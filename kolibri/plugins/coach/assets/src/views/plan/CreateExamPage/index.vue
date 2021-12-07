@@ -327,17 +327,7 @@
           const topicExercises = flatMap(topics, ({ exercises }) => exercises);
           return [...exercises, ...topicExercises];
         } else if (this.bookmarks) {
-          const bookmarkedTopics = this.bookmarks.filter(
-            ({ kind }) => kind === ContentNodeKinds.TOPIC
-          );
-          const bookmarkedExercises = this.bookmarks.filter(
-            ({ kind }) => kind === ContentNodeKinds.EXERCISE
-          );
-          const bookmarkedTopicExercises = flatMap(
-            bookmarkedTopics,
-            ({ bookmarkedExercises }) => bookmarkedExercises
-          );
-          return [...bookmarkedExercises, ...bookmarkedTopicExercises];
+          return this.bookmarks;
         }
         return [];
       },
