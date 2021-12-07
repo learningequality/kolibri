@@ -10,6 +10,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import Exists
 from django.db.models import OuterRef
 from django.db.models import Q
+from django.db.models import Subquery
 from django.db.models import Sum
 from django.db.models.aggregates import Count
 from django.http import Http404
@@ -135,13 +136,36 @@ class ChannelMetadataFilter(FilterSet):
 
 
 @method_decorator(cache_forever, name="dispatch")
-class ChannelMetadataViewSet(viewsets.ReadOnlyModelViewSet):
-    serializer_class = serializers.ChannelMetadataSerializer
+class ChannelMetadataViewSet(ReadOnlyValuesViewset):
     filter_backends = (DjangoFilterBackend,)
     filter_class = ChannelMetadataFilter
 
+    values = (
+        "author",
+        "description",
+        "tagline",
+        "id",
+        "last_updated",
+        "root__lang__lang_code",
+        "root__lang__lang_name",
+        "name",
+        "root",
+        "thumbnail",
+        "version",
+        "root__available",
+        "root__num_coach_contents",
+        "public",
+    )
+
+    field_map = {
+        "num_coach_contents": "root__num_coach_contents",
+        "available": "root__available",
+        "lang_code": "root__lang__lang_code",
+        "lang_name": "root__lang__lang_name",
+    }
+
     def get_queryset(self):
-        return models.ChannelMetadata.objects.all().select_related("root__lang")
+        return models.ChannelMetadata.objects.all()
 
     @list_route(methods=["get"])
     def filter_options(self, request, **kwargs):
@@ -249,6 +273,7 @@ class ContentNodeFilter(IdFilter):
     rght__lt = NumberFilter(field_name="rght", lookup_expr="lt")
     authors = CharFilter(method="filter_by_authors")
     tags = CharFilter(method="filter_by_tags")
+    descendant_of = UUIDFilter(method="filter_descendant_of")
 
     class Meta:
         model = models.ContentNode
@@ -275,6 +300,24 @@ class ContentNodeFilter(IdFilter):
         """
         tags = value.split(",")
         return queryset.filter(tags__tag_name__in=tags).order_by("lft")
+
+    def filter_descendant_of(self, queryset, name, value):
+        """
+        Show content that is descendant of the given node
+
+        :param queryset: all content nodes for this channel
+        :param value: the root node to filter descendant of
+        :return: all descendants content
+        """
+        try:
+            node = models.ContentNode.objects.values("lft", "rght", "tree_id").get(
+                pk=value
+            )
+        except (models.ContentNode.DoesNotExist, ValueError):
+            return queryset.none()
+        return queryset.filter(
+            lft__gt=node["lft"], rght__lt=node["rght"], tree_id=node["tree_id"]
+        )
 
     def filter_kind(self, queryset, name, value):
         """
@@ -581,7 +624,8 @@ class ContentNodeViewset(BaseContentNodeMixin, ReadOnlyValuesViewset):
     def random(self, request, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         max_results = int(self.request.query_params.get("max_results", 10))
-        queryset = queryset.order_by("?")[:max_results]
+        ids = list(queryset.order_by("?")[:max_results].values_list("id", flat=True))
+        queryset = models.ContentNode.objects.filter(id__in=ids)
         return Response(self.serialize(queryset))
 
     @list_route(methods=["get"])
@@ -1175,6 +1219,40 @@ class ContentNodeSearchViewset(ContentNodeViewset):
         )
 
 
+class BookmarkFilter(FilterSet):
+    available = BooleanFilter(
+        method="filter_available",
+    )
+    kind = CharFilter(
+        method="filter_kind",
+    )
+
+    class Meta:
+        model = Bookmark
+        fields = ("kind",)
+
+    def filter_kind(self, queryset, name, value):
+        queryset = queryset.annotate(
+            kind=Subquery(
+                models.ContentNode.objects.filter(
+                    id=OuterRef("contentnode_id"),
+                ).values_list("kind", flat=True)[:1]
+            )
+        )
+
+        return queryset.filter(kind=value)
+
+    def filter_available(self, queryset, name, value):
+        queryset = queryset.annotate(
+            available=Subquery(
+                models.ContentNode.objects.filter(
+                    available=True,
+                    id=OuterRef("contentnode_id"),
+                ).values_list("available", flat=True)[:1]
+            )
+        )
+
+
 class ContentNodeBookmarksViewset(
     BaseContentNodeMixin, BaseValuesViewset, ListModelMixin
 ):
@@ -1183,7 +1261,7 @@ class ContentNodeBookmarksViewset(
         KolibriAuthPermissionsFilter,
         DjangoFilterBackend,
     )
-    filter_class = None
+    filter_class = BookmarkFilter
     pagination_class = ValuesViewsetLimitOffsetPagination
 
     def get_queryset(self):
@@ -1198,15 +1276,19 @@ class ContentNodeBookmarksViewset(
 
     def consolidate(self, items, queryset):
         items = super(ContentNodeBookmarksViewset, self).consolidate(items, queryset)
+        sorted_items = []
         if items:
-            bookmark_lookup = {}
+            item_lookup = {item["id"]: item for item in items}
+
+            # now loop through ordered bookmark queryset to order nodes returned by same order
             for bookmark in self.bookmark_queryset.values(
                 "id", "contentnode_id", "created"
             ):
-                bookmark_lookup[bookmark["contentnode_id"]] = bookmark
-            for item in items:
-                item["bookmark"] = bookmark_lookup[item["id"]]
-        return items
+                item = item_lookup.pop(bookmark["contentnode_id"], None)
+                if item:
+                    item["bookmark"] = bookmark
+                    sorted_items.append(item)
+        return sorted_items
 
 
 def get_cache_key(*args, **kwargs):

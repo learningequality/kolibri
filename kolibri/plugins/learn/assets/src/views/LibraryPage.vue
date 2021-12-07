@@ -22,7 +22,10 @@
           class="grid"
           :contents="rootNodes"
         />
-        <div v-if="!(windowBreakpoint < 1 )" class="toggle-view-buttons">
+        <div
+          v-if="!(windowBreakpoint < 1 ) && resumableContentNodes.length "
+          class="toggle-view-buttons"
+        >
           <KIconButton
             icon="menu"
             :ariaLabel="$tr('viewAsList')"
@@ -148,8 +151,9 @@
     <FullScreenSidePanel
       v-if="!windowIsLarge && sidePanelIsOpen"
       class="full-screen-side-panel"
+      alignment="left"
       :closeButtonHidden="true"
-      :sidePanelOverrideWidth="`${sidePanelOverlayWidth + 64}px`"
+      :sidePanelOverrideWidth="`${sidePanelOverlayWidth}px`"
       @closePanel="toggleSidePanelVisibility"
     >
       <KIconButton
@@ -172,7 +176,7 @@
       <EmbeddedSidePanel
         v-if="!currentCategory"
         v-model="searchTerms"
-        :width="`${sidePanelOverlayWidth}px`"
+        :width="`${sidePanelOverlayWidth - 64}px`"
         :availableLabels="labels"
         position="overlay"
         :activeActivityButtons="activeActivityButtons"
@@ -320,13 +324,18 @@
         }
       },
       sidePanelOverlayWidth() {
-        return 300;
+        if (!this.windowIsSmall) {
+          return 364;
+        }
+        return null;
       },
       numCols() {
-        if (this.windowIsSmall) {
+        if (this.windowIsMedium) {
           return 2;
-        } else {
+        } else if (!this.windowIsSmall) {
           return 3;
+        } else {
+          return null;
         }
       },
       activeActivityButtons() {
@@ -339,6 +348,11 @@
         return this.isRtl
           ? { marginRight: `${this.sidePanelWidth + 24}px` }
           : { marginLeft: `${this.sidePanelWidth + 24}px` };
+      },
+    },
+    watch: {
+      searchTerms() {
+        this.sidePanelIsOpen = false;
       },
     },
     created() {
@@ -419,6 +433,7 @@
 
   .full-screen-side-panel {
     position: relative;
+    width: 100vw;
   }
   .overlay-close-button {
     position: absolute;

@@ -111,7 +111,7 @@
 
   .filter-chip {
     display: inline-block;
-    margin: 2px;
+    margin-left: 8px;
     font-size: 14px;
     vertical-align: top;
     background-color: #dedede;

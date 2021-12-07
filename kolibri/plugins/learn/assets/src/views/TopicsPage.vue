@@ -124,6 +124,7 @@
         class="main-content-grid"
         :style="gridOffset"
       >
+        <slot v-if="windowIsSmall" name="breadcrumbs" class="breadcrumbs"></slot>
         <div
           class="card-grid"
         >
@@ -234,7 +235,7 @@
             />
             <div v-if="more" class="end-button-block">
               <KButton
-                v-if="moreLoading"
+                v-if="!moreLoading"
                 :text="coreString('viewMoreAction')"
                 appearance="basic-link"
                 :disabled="moreLoading"
@@ -285,7 +286,7 @@
         v-if="!windowIsLarge && sidePanelIsOpen"
         class="full-screen-side-panel"
         :closeButtonHidden="true"
-        :sidePanelOverrideWidth="`${sidePanelOverlayWidth + 64}px`"
+        :sidePanelOverrideWidth="`${sidePanelOverlayWidth}px`"
         @closePanel="$router.push(currentLink)"
       >
         <KIconButton
@@ -314,7 +315,7 @@
           :topicsLoading="topicMoreLoading"
           :more="topicMore"
           :genContentLink="genContentLink"
-          :width="`${sidePanelOverlayWidth}px`"
+          :width="`${sidePanelOverlayWidth - 64}px`"
           :availableLabels="labels"
           :activeActivityButtons="activeActivityButtons"
           :activeCategories="activeCategories"
@@ -358,6 +359,7 @@
 <script>
 
   import { mapActions, mapState } from 'vuex';
+  import isEqual from 'lodash/isEqual';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
@@ -462,7 +464,7 @@
       foldersLink() {
         if (this.topic) {
           const query = {};
-          if (this.windowIsSmall || this.windowIsMedium) {
+          if (this.windowIsSmall) {
             query.sidePanel = String(
               this.$route.name === PageNames.TOPICS_TOPIC ? !this.sidePanelIsOpen : true
             );
@@ -605,13 +607,13 @@
         return 300;
       },
       numCols() {
-        if (this.windowBreakpoint < 2) {
+        if (this.windowBreakpoint > 1 && this.windowBreakpoint < 2) {
           return 2;
-        } else if (this.windowBreakpoint <= 4) {
+        } else if (this.windowBreakpoint >= 2 && this.windowBreakpoint <= 4) {
           return 3;
-        } else {
+        } else if (this.windowBreakpoint > 4) {
           return 4;
-        }
+        } else return null;
       },
       // calls handleScroll no more than every 17ms
       throttledHandleScroll() {
@@ -643,6 +645,11 @@
       subTopicId(newValue, oldValue) {
         if (newValue && newValue !== oldValue) {
           this.handleLoadMoreinSubtopic(newValue);
+        }
+      },
+      searchTerms(newVal, oldVal) {
+        if (!isEqual(newVal, oldVal) && this.displayingSearchResults) {
+          this.$router.push({ ...this.searchLink, sidePanel: false });
         }
       },
     },
@@ -816,6 +823,7 @@
     top: 0;
     bottom: 0;
     z-index: 12;
+    width: 100vw;
   }
 
   .mobile-header {

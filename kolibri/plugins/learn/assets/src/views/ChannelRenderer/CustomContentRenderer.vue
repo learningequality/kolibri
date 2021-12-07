@@ -36,7 +36,7 @@
   import router from 'kolibri.coreVue.router';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { events, MessageStatuses } from 'hashi/src/hashiBase';
-  import { validateTheme } from '../../utils/themes';
+  import { validateChannelTheme } from '../../utils/validateChannelTheme';
   import genContentLink from '../../utils/genContentLink';
   import useChannels from '../../composables/useChannels';
   import ContentModal from './ContentModal';
@@ -159,6 +159,7 @@
             max_results: options.maxResults ? options.maxResults : 50,
             kind: kind,
             kind_in: kinds,
+            descendant_of: options.descendantOf,
           },
         })
           .then(contentNodes => {
@@ -311,7 +312,7 @@
       updateTheme(message) {
         const themeCopy = { ...message };
         delete themeCopy.message_id;
-        this.channelTheme = validateTheme(themeCopy);
+        this.channelTheme = validateChannelTheme(themeCopy);
         const newMsg = createReturnMsg({ message, data: {} });
         return this.hashi.mediator.sendMessage(newMsg);
       },

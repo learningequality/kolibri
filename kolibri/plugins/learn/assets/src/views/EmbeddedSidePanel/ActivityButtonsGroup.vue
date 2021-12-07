@@ -22,10 +22,10 @@
       <KButton
         appearance="flat-button"
         :appearanceOverrides="customActivityStyles"
+        :style="!!activeKeys.filter(k => k.includes(value)).length ? activeStyles : ''"
         :disabled="availableActivities &&
           !availableActivities[value] &&
           !activeKeys.filter(k => k.includes(value)).length "
-        :class="!!activeKeys.filter(k => k.includes(value)).length ? 'active' : ''"
         @click="$emit('input', value)"
       >
         <KIcon :icon="activityIcon(activity)" class="activity-icon" />
@@ -93,11 +93,20 @@
           ':hover': {
             'background-color': 'rgb(235, 210, 235)',
             border: '2px',
-            'border-color': '#996189',
+            'border-color': this.$themeTokens.primary,
             'border-style': 'solid',
             'border-radius': '4px',
             'line-spacing': '0',
           },
+        };
+      },
+      activeStyles() {
+        return {
+          'background-color': 'rgb(235, 210, 235)',
+          border: '2px !important',
+          'border-color': ` ${this.$themeTokens.primary} !important`,
+          'border-style': 'solid !important',
+          'border-radius': '4px !important',
         };
       },
       availableActivities() {
@@ -147,14 +156,6 @@
   .activity-button-text {
     margin: auto;
     margin-top: -12px;
-  }
-
-  .active {
-    background-color: rgb(235, 210, 235);
-    border: 2px !important;
-    border-color: #996189 !important;
-    border-style: solid !important;
-    border-radius: 4px !important;
   }
 
 </style>

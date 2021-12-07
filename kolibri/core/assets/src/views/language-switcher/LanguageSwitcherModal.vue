@@ -4,6 +4,7 @@
     :title="$tr('changeLanguageModalHeader')"
     :submitText="coreString('confirmAction')"
     :cancelText="coreString('cancelAction')"
+    :size="600"
     @cancel="cancel"
     @submit="setLang"
   >

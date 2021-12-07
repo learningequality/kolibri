@@ -18,7 +18,7 @@
       </slot>
     </template>
 
-    <template #aside>
+    <template v-if="!windowIsSmall" #aside>
       <AttemptLogList
         :attemptLogs="attemptLogs"
         :selectedQuestionNumber="questionNumber"
@@ -27,9 +27,18 @@
     </template>
 
     <template #main>
+      <AttemptLogList
+        v-if="windowIsSmall"
+        :isMobile="windowIsSmall"
+        :class="windowIsSmall ? 'mobile-attempt-log-list' : ''"
+        :attemptLogs="attemptLogs"
+        :selectedQuestionNumber="questionNumber"
+        @select="handleNavigateToQuestion"
+      />
       <div
         v-if="exercise"
         class="exercise-container"
+        :class="windowIsSmall ? 'mobile-exercise-container' : ''"
         :style="{ backgroundColor: $themeTokens.surface }"
       >
         <h3>{{ coreString('questionNumberLabel', { questionNumber: questionNumber + 1 }) }}</h3>
@@ -88,6 +97,7 @@
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
   import EmbeddedMultiPaneLayout from 'kolibri.coreVue.components.EmbeddedMultiPaneLayout';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import AttemptTextDiff from './AttemptTextDiff';
   import AttemptIconDiff from './AttemptIconDiff';
   import PageStatus from './PageStatus';
@@ -103,7 +113,7 @@
       AttemptIconDiff,
       AttemptTextDiff,
     },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, responsiveWindowMixin],
     props: {
       examAttempts: {
         type: Array,
@@ -257,6 +267,14 @@
     max-width: 1000px;
     margin: 0 auto;
     background-color: white;
+  }
+
+  .mobile-exercise-container {
+    margin-top: 16px;
+  }
+
+  .mobile-attempt-log-list {
+    margin-top: 16px;
   }
 
   h3 {

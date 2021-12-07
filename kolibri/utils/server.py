@@ -238,11 +238,6 @@ class ServicesPlugin(SimplePlugin):
         self.bus = bus
         self.workers = None
 
-    def ENTER(self):
-        from kolibri.deployment.default.cache import recreate_diskcache
-
-        recreate_diskcache()
-
     def START(self):
         from kolibri.core.tasks.main import initialize_workers
         from kolibri.core.tasks.main import scheduler
@@ -656,6 +651,10 @@ class KolibriProcessBus(ProcessBus):
 
         if getattr(settings, "DEVELOPER_MODE", False):
             autoreloader = Autoreloader(self)
+            plugins = os.path.join(conf.KOLIBRI_HOME, "plugins.json")
+            options = os.path.join(conf.KOLIBRI_HOME, "options.ini")
+            autoreloader.files.add(plugins)
+            autoreloader.files.add(options)
             autoreloader.subscribe()
 
         reload_plugin = ProcessControlPlugin(self)

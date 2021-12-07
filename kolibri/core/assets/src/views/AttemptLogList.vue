@@ -1,13 +1,30 @@
 <template>
 
   <div :style="{ backgroundColor: $themeTokens.surface }">
-    <h3 class="header" :class="windowIsLargeClass">
+    <h3
+      id="answer-history-label"
+      class="header"
+      :class="windowIsLargeClass"
+      :style="iconStyle"
+    >
       {{ $tr('answerHistoryLabel') }}
     </h3>
 
+    <KSelect
+      v-if="isMobile"
+      class="history-select"
+      :value="selected"
+      aria-labelledby="answer-history-label"
+      :options="options"
+      :disabled="$attrs.disabled"
+      @change="handleDropdownChange($event.value)"
+    />
+
     <ul
+      v-else
       ref="attemptList"
       class="history-list"
+      :class="isMobile ? 'mobile-list' : ''"
       role="listbox"
       @keydown.home="setSelectedAttemptLog(0)"
       @keydown.end="setSelectedAttemptLog(attemptLogs.length - 1)"
@@ -37,14 +54,10 @@
           >
             <p class="item text-item" :class="windowIsLargeClass">
               {{
-                windowIsLarge ?
-                  coreString(
-                    'questionNumberLabel',
-                    { questionNumber: attemptLog.questionNumber }
-                  )
-                  :
-                  // Add non-breaking space to preserve vertical centering
-                  "&nbsp;"
+                coreString(
+                  'questionNumberLabel',
+                  { questionNumber: attemptLog.questionNumber }
+                )
               }}
             </p>
             <span class="icon-item item" :class="windowIsLargeClass">
@@ -119,6 +132,10 @@
         type: Array,
         required: true,
       },
+      isMobile: {
+        type: Boolean,
+        required: false,
+      },
       selectedQuestionNumber: {
         type: Number,
         required: true,
@@ -128,6 +145,21 @@
       windowIsLargeClass() {
         return { 'window-is-large': this.windowIsLarge };
       },
+      selected() {
+        return this.options.find(o => o.value === this.selectedQuestionNumber + 1) || {};
+      },
+      options() {
+        let label = '';
+        return this.attemptLogs.map(attemptLog => {
+          label = this.coreString('questionNumberLabel', {
+            questionNumber: attemptLog.questionNumber,
+          });
+          return {
+            value: attemptLog.questionNumber,
+            label: label,
+          };
+        });
+      },
     },
     mounted() {
       this.$nextTick(() => {
@@ -135,6 +167,9 @@
       });
     },
     methods: {
+      handleDropdownChange(value) {
+        this.$emit('select', value - 1);
+      },
       setSelectedAttemptLog(questionNumber) {
         const listOption = this.$refs.attemptListOption[questionNumber];
         listOption.focus();
@@ -146,7 +181,10 @@
         return Number(this.selectedQuestionNumber) === questionNumber;
       },
       scrollToSelectedAttemptLog(questionNumber) {
-        const selectedElement = this.$refs.attemptList.children[questionNumber];
+        let selectedElement;
+        if (this.$refs.attemptListOption && this.$refs.attemptList.children) {
+          selectedElement = this.$refs.attemptList.children[questionNumber];
+        }
         if (selectedElement) {
           const parent = this.$el.parentElement;
           parent.scrollTop =
@@ -197,6 +235,12 @@
     padding-left: 0;
     margin: 0;
     list-style-type: none;
+  }
+
+  .history-select {
+    max-width: 90%;
+    padding-top: 16px;
+    margin: auto;
   }
 
   .item {

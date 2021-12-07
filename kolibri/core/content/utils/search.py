@@ -4,10 +4,17 @@ that should not initiate the Django app registry.
 """
 import hashlib
 
+try:
+    from django.contrib.postgres.aggregates import BitOr
+except ImportError:
+    BitOr = None
+
+from django.db import connections
+from django.db.models import Aggregate
 from django.db.models import Case
-from django.db.models import Exists
 from django.db.models import Value
 from django.db.models import When
+from django.db.models.fields import IntegerField
 from le_utils.constants.labels.accessibility_categories import (
     ACCESSIBILITYCATEGORIESLIST,
 )
@@ -53,34 +60,35 @@ for key, labels in metadata_lookup.items():
 
 
 def _get_available_languages(base_queryset):
-    from kolibri.core.content.models import Language
-
     lang_ids = (
-        base_queryset.exclude(lang=None)
-        .order_by("lang_id")
-        .values_list("lang_id", flat=True)
+        base_queryset.exclude(lang=None).values_list("lang_id", flat=True).distinct()
     )
-    return list(
-        Language.objects.filter(id__in=lang_ids)
-        .distinct()
-        .order_by("id")
-        .values("id", "lang_name")
-    )
+    return list(lang_ids)
 
 
 def _get_available_channels(base_queryset):
-    from kolibri.core.content.models import ChannelMetadata
+    return list(base_queryset.values_list("channel_id", flat=True).distinct())
 
-    return list(
-        ChannelMetadata.objects.filter(
-            id__in=base_queryset.values_list("channel_id", flat=True).distinct()
+
+class SQLiteBitwiseORAggregate(Aggregate):
+    name = "BitwiseOR"
+
+    def __init__(self, expression, num_bits=None, **extra):
+        if not num_bits:
+            raise ValueError("num_bits must be a positive integer")
+        self.num_bits = num_bits
+        super(SQLiteBitwiseORAggregate, self).__init__(
+            expression, output_field=IntegerField(), **extra
         )
-        .order_by("order")
-        .values("id", "name", "thumbnail")
-    )
+
+    @property
+    def template(self):
+        return " + ".join(
+            "max(%(expressions)s&{})".format(2 ** i) for i in range(0, self.num_bits)
+        )
 
 
-def get_available_metadata_labels(base_queryset, limit_to_known_fields=True):
+def get_available_metadata_labels(base_queryset):
     from kolibri.core.device.models import ContentCacheKey
 
     content_cache_key = ContentCacheKey.get_cache_key()
@@ -89,27 +97,25 @@ def get_available_metadata_labels(base_queryset, limit_to_known_fields=True):
         hashlib.md5(str(base_queryset.query).encode("utf8")).hexdigest(),
     )
     if cache_key not in cache:
-        base_queryset = base_queryset.values("id").order_by()
-        queryset = base_queryset
-        all_values = []
-        if limit_to_known_fields:
-            lookup = get_all_contentnode_label_metadata()
-            lookup.pop("channels")
-            lookup.pop("languages")
-        else:
-            lookup = metadata_lookup
-        for field, values in lookup.items():
-            queryset = queryset.annotate(
-                **{
-                    value: Exists(base_queryset.has_all_labels(field, [value]))
-                    for value in values
-                }
-            )
-            all_values += values
-        result = queryset.values(*all_values).first()
+        base_queryset = base_queryset.order_by()
+        aggregates = {}
+        for field in bitmask_fieldnames:
+            field_agg = field + "_agg"
+            if connections[base_queryset.db].vendor == "sqlite" or BitOr is None:
+                aggregates[field_agg] = SQLiteBitwiseORAggregate(
+                    field, num_bits=len(bitmask_fieldnames[field])
+                )
+            elif connections[base_queryset.db].vendor == "postgresql":
+                aggregates[field_agg] = BitOr(field)
         output = {}
-        for field, values in lookup.items():
-            output[field] = [v for v in values if result and result.get(v)]
+        agg = base_queryset.aggregate(**aggregates)
+        for field, values in bitmask_fieldnames.items():
+            bit_value = agg[field + "_agg"]
+            for value in values:
+                if value["field_name"] not in output:
+                    output[value["field_name"]] = []
+                if bit_value is not None and bit_value & value["bits"]:
+                    output[value["field_name"]].append(value["label"])
         output["languages"] = _get_available_languages(base_queryset)
         output["channels"] = _get_available_channels(base_queryset)
         cache.set(cache_key, output, timeout=None)
@@ -119,9 +125,7 @@ def get_available_metadata_labels(base_queryset, limit_to_known_fields=True):
 def get_all_contentnode_label_metadata():
     from kolibri.core.content.models import ContentNode
 
-    return get_available_metadata_labels(
-        ContentNode.objects.filter(available=True), limit_to_known_fields=False
-    )
+    return get_available_metadata_labels(ContentNode.objects.filter(available=True))
 
 
 def annotate_label_bitmasks(queryset):
