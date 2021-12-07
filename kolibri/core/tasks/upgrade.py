@@ -4,6 +4,7 @@ A file to contain specific logic to handle version upgrades in Kolibri.
 import logging
 
 from kolibri.core.tasks.main import job_storage
+from kolibri.core.tasks.main import scheduler
 from kolibri.core.upgrade import version_upgrade
 
 logger = logging.getLogger(__name__)
@@ -20,3 +21,4 @@ def drop_old_iceqube_tables():
     and let iceqube reinitialize the tables from scratch.
     """
     job_storage.recreate_tables()
+    scheduler.recreate_tables()

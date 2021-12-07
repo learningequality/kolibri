@@ -238,11 +238,6 @@ class ServicesPlugin(SimplePlugin):
         self.bus = bus
         self.workers = None
 
-    def ENTER(self):
-        from kolibri.deployment.default.cache import recreate_diskcache
-
-        recreate_diskcache()
-
     def START(self):
         from kolibri.core.tasks.main import initialize_workers
         from kolibri.core.tasks.main import scheduler
