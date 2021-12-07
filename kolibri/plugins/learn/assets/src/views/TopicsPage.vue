@@ -235,7 +235,7 @@
             />
             <div v-if="more" class="end-button-block">
               <KButton
-                v-if="moreLoading"
+                v-if="!moreLoading"
                 :text="coreString('viewMoreAction')"
                 appearance="basic-link"
                 :disabled="moreLoading"
