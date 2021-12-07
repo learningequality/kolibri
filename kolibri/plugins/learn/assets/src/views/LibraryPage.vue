@@ -70,16 +70,11 @@
       <!-- for interacting or updating the results   -->
       <div v-else-if="!searchLoading">
         <h2 class="results-title">
-          {{ $tr('results', { results: results.length }) }}
+          {{ more ?
+            coreString('overCertainNumberOfSearchResults', { num: results.length }) :
+            $tr('results', { results: results.length })
+          }}
         </h2>
-        <KButton
-          v-if="more"
-          :text="coreString('viewMoreAction')"
-          appearance="basic-link"
-          :disabled="moreLoading"
-          class="filter-action-button"
-          @click="searchMore"
-        />
         <div v-if="!(windowBreakpoint < 1) && results.length" class="toggle-view-buttons">
           <KIconButton
             icon="menu"
