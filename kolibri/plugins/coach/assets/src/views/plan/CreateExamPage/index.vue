@@ -81,38 +81,47 @@
       </KGrid>
 
       <h2>{{ $tr('chooseExercises') }}</h2>
-      <div v-if="!showChannels">
+      <div v-if="bookmarksRoute">
+        <strong>
+          <KRouterLink
+            :text="coreString('channelsLabel')"
+            :to="channelsLink"
+          />
+        </strong>
         <ContentCardList
-          :contentList="bookmarksContentList"
-          :contentHasCheckbox="c => !contentIsDirectoryKind(c)"
+          :contentList="bookmarks"
+          :contentHasCheckbox="contentHasCheckbox"
           :contentCardMessage="() => ''"
+          :selectAllChecked="selectAllChecked"
+          :selectAllIndeterminate="selectAllIndeterminate"
           :contentCardLink="bookmarksLink"
-          :contentIsChecked="() => false"
+          :contentIsChecked="contentIsSelected"
           :viewMoreButtonState="viewMoreButtonState"
           :showSelectAll="selectAllIsVisible"
-          :contentIsIndeterminate="() => false"
+          :contentIsIndeterminate="contentIsIndeterminate"
           @changeselectall="toggleTopicInWorkingResources"
           @change_content_card="toggleSelected"
           @moreresults="handleMoreResults"
         />
       </div>
-      <div v-if="showChannels">
-        <p>Select from bookmarks</p>
-        <div @click="lessonCardClicked">
-          <KRouterLink
-            v-if="bookmarksCount"
-            :style="{ width: '100%' }"
-            :to="getBookmarksLink()"
-          >
-            <div class="bookmark-container">
-              <BookmarkIcon />
-              <div class="text">
-                <h3>{{ coreString('bookmarksLabel') }}</h3>
-                <p>{{ $tr('resources', { count: bookmarksCount }) }}</p>
-              </div>
+      <div v-if="examCreationRoute">
+        <p>{{ coreString('selectFromBookmarks') }}</p>
+        <KRouterLink
+          v-if="bookmarksCount"
+          :style="{ width: '100%' }"
+          :to="getBookmarksLink()"
+        >
+          <div class="bookmark-container">
+            <BookmarkIcon />
+            <div class="text">
+              <h3>{{ coreString('bookmarksLabel') }}</h3>
+              <p>{{ $tr('resources', { count: bookmarksCount }) }}</p>
             </div>
-          </KRouterLink>
-        </div>
+          </div>
+        </KRouterLink>
+      </div>
+
+      <div v-if="examCreationRoute || examTopicRoute">
         <LessonsSearchBox
           class="search-box"
           @searchterm="handleSearchTerm"
@@ -132,7 +141,6 @@
         />
         <h2>{{ topicTitle }}</h2>
         <p>{{ topicDescription }}</p>
-        <p>Select from channels</p>
         <ContentCardList
           :contentList="filteredContentList"
           :showSelectAll="selectAllIsVisible"
@@ -184,7 +192,7 @@
   import pickBy from 'lodash/pickBy';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { BookmarksResource } from 'kolibri.resources';
+  import { ContentNodeResource } from 'kolibri.resources';
   import { PageNames } from '../../../constants/';
   import { MAX_QUESTIONS } from '../../../constants/examConstants';
   import LessonsSearchBox from '../../plan/LessonResourceSelectionPage/SearchTools/LessonsSearchBox';
@@ -218,8 +226,9 @@
           role: this.$route.query.role || null,
         },
         numQuestionsBlurred: false,
-        showChannels: true,
         bookmarksCount: 0,
+        bookmarks: [],
+        more: null,
       };
     },
     computed: {
@@ -228,7 +237,6 @@
       ...mapState('examCreation', [
         'numberOfQuestions',
         'contentList',
-        'bookmarksList',
         'selectedExercises',
         'availableQuestions',
         'searchResults',
@@ -252,6 +260,20 @@
       maxQs() {
         return MAX_QUESTIONS;
       },
+      bookmarksRoute() {
+        return (
+          this.pageName === PageNames.EXAM_CREATION_BOOKMARKS_MAIN ||
+          this.pageName === PageNames.EXAM_CREATION_BOOKMARKS
+        );
+      },
+      examCreationRoute() {
+        return this.pageName === PageNames.EXAM_CREATION_ROOT;
+      },
+
+      examTopicRoute() {
+        return this.pageName === PageNames.EXAM_CREATION_TOPIC;
+      },
+
       examTitle: {
         get() {
           return this.$store.state.examCreation.title;
@@ -280,9 +302,6 @@
           }
         },
       },
-      bookmarksContentList() {
-        return this.bookmarksList ? this.bookmarksList : [];
-      },
       filteredContentList() {
         const { role } = this.filters || {};
         if (!this.inSearchMode) {
@@ -300,10 +319,27 @@
         });
       },
       allExercises() {
-        const topics = this.contentList.filter(({ kind }) => kind === ContentNodeKinds.TOPIC);
-        const exercises = this.contentList.filter(({ kind }) => kind === ContentNodeKinds.EXERCISE);
-        const topicExercises = flatMap(topics, ({ exercises }) => exercises);
-        return [...exercises, ...topicExercises];
+        if (this.contentList) {
+          const topics = this.contentList.filter(({ kind }) => kind === ContentNodeKinds.TOPIC);
+          const exercises = this.contentList.filter(
+            ({ kind }) => kind === ContentNodeKinds.EXERCISE
+          );
+          const topicExercises = flatMap(topics, ({ exercises }) => exercises);
+          return [...exercises, ...topicExercises];
+        } else if (this.bookmarks) {
+          const bookmarkedTopics = this.bookmarks.filter(
+            ({ kind }) => kind === ContentNodeKinds.TOPIC
+          );
+          const bookmarkedExercises = this.bookmarks.filter(
+            ({ kind }) => kind === ContentNodeKinds.EXERCISE
+          );
+          const bookmarkedTopicExercises = flatMap(
+            bookmarkedTopics,
+            ({ bookmarkedExercises }) => bookmarkedExercises
+          );
+          return [...bookmarkedExercises, ...bookmarkedTopicExercises];
+        }
+        return [];
       },
       addableExercises() {
         return this.allExercises.filter(exercise => !this.selectedExercises[exercise.id]);
@@ -400,8 +436,13 @@
       },
     },
     created() {
-      BookmarksResource.fetchCollection().then(bookmarks => {
-        this.bookmarksCount = bookmarks.length;
+      ContentNodeResource.fetchBookmarks({
+        params: { limit: 25, kind: ContentNodeKinds.EXERCISE },
+      }).then(data => {
+        this.more = data.more;
+        this.bookmarks = data.results;
+        this.bookmarksCount = data.count;
+        this.loading = false;
       });
     },
     methods: {
@@ -410,9 +451,6 @@
         'removeFromSelectedExercises',
         'fetchAdditionalSearchResults',
       ]),
-      lessonCardClicked() {
-        this.showChannels = false;
-      },
       getBookmarksLink() {
         return {
           name: PageNames.EXAM_CREATION_BOOKMARKS_MAIN,
@@ -518,12 +556,10 @@
           this.removeFromSelectedExercises(this.allExercises);
         }
       },
-      contentIsDirectoryKind({ is_leaf }) {
-        return !is_leaf;
-      },
       toggleSelected({ content, checked }) {
         let exercises;
-        const list = this.contentList.length ? this.contentList : this.bookmarksList;
+        const list =
+          this.contentList && this.contentList.length ? this.contentList : this.bookmarks;
         const contentNode = list.find(item => item.id === content.id);
         const isTopic = contentNode.kind === ContentNodeKinds.TOPIC;
         if (checked && isTopic) {
