@@ -35,6 +35,21 @@ initialized.
 
 ### Developer documentation
 
+#### Setup repository
+
+Please setup `pre-commit` as a git hook before submitting a pull
+request:
+
+```
+# If you don't have pre-commit already:
+pip install pre-commit
+
+# Setup git hook:
+pre-commit install
+```
+
+Now `pre-commit` will run automatically on `git commit`!
+
 #### Using GNOME Builder
 
 This project is ready to be built with Builder. Since this project has
