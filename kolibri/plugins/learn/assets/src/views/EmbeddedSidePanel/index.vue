@@ -271,7 +271,7 @@
           ':hover': {
             'background-color': 'rgb(235, 210, 235)',
             border: '2px',
-            'border-color': '#996189',
+            'border-color': `${this.$themeTokens.primary} !important`,
             'border-style': 'solid',
             'border-radius': '4px',
             'line-spacing': '0',
@@ -315,14 +315,15 @@
       },
       handleActivity(activity) {
         let learning_activities;
-        if (activity) {
+        if (this.value.learning_activities[activity]) {
+          learning_activities = {};
+          this.$emit('input', { ...this.value, learning_activities });
+        } else if (activity || !this.value.learning_activities[activity]) {
           learning_activities = {
             [activity]: true,
           };
-        } else {
-          learning_activities = {};
+          this.$emit('input', { ...this.value, learning_activities });
         }
-        this.$emit('input', { ...this.value, learning_activities });
       },
       handleNeed(need) {
         if (this.value.learner_needs[need]) {
