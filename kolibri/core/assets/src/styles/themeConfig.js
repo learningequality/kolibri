@@ -1,6 +1,6 @@
 import Vue from 'vue';
 
-const defaults = {
+const themeConfig = Vue.observable({
   appBar: {
     topLogo: {
       src: null,
@@ -31,14 +31,6 @@ const defaults = {
     brandedFooter: {},
     showKFooterLogo: true,
   },
-};
+});
 
-const globalBrandingState = Vue.observable(defaults);
-
-globalBrandingState.setBranding = state => {
-  Object.keys(defaults).forEach(key => {
-    Vue.set(globalBrandingState, key, state[key]);
-  });
-};
-
-export default globalBrandingState;
+export default themeConfig;

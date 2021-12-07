@@ -12,7 +12,7 @@ const defaultTheme = {
   backgroundColor: null,
 };
 
-export function validateTheme(theme) {
+export function validateChannelTheme(theme) {
   const updatedTheme = {
     ...defaultTheme,
   };
