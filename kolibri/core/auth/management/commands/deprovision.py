@@ -7,10 +7,10 @@ from morango.models import DatabaseIDModel
 from morango.models import DeletedModels
 from morango.models import Store
 
-from kolibri.core.auth.management.utils import DisablePostDeleteSignal
+from kolibri.core.auth.management.utils import confirm_or_exit
 from kolibri.core.auth.models import FacilityDataset
 from kolibri.core.auth.models import FacilityUser
-from kolibri.core.auth.utils import confirm_or_exit
+from kolibri.core.auth.utils.delete import DisablePostDeleteSignal
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
 from kolibri.core.logger.models import AttemptLog

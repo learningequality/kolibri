@@ -221,11 +221,13 @@ Note that you have to specify branch names for most commands.
 Prerequisites
 ~~~~~~~~~~~~~
 
-First, you'll need to have GNU ``gettext`` available on your path. You may be able to install it using your system's package manager.
+The tooling requires a minimum Python version of 3.7 and the dependencies in ``requirements/fonts.txt`` installed.
+
+You'll need to have GNU ``gettext`` available on your path. You may be able to install it using your system's package manager.
 
 .. note:: If you install ``gettext`` on Mac with Homebrew, you may need to add the binary to your path manually
 
-Next, ensure you have an environment variable ``CROWDIN_API_KEY`` set to the Learning Equality organization `account API key <https://support.crowdin.com/api/api-integration-setup/>`__.
+Finally, ensure you have an environment variable ``CROWDIN_API_KEY`` set to the Learning Equality organization `account API key <https://support.crowdin.com/api/api-integration-setup/>`__.
 
 
 .. _crowdin_upload:

@@ -74,6 +74,7 @@
       v-if="progress >= 1 && wasIncomplete && !practiceQuiz"
       :isUserLoggedIn="isUserLoggedIn"
       :contentNodeId="content.id"
+      :lessonId="lessonId"
       @close="markAsComplete"
     />
   </div>

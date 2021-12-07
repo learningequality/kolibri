@@ -388,7 +388,8 @@
         }
       },
       addToSelectedResources(content) {
-        const list = this.contentList.length ? this.contentList : this.bookmarksList;
+        const list =
+          this.contentList && this.contentList.length ? this.contentList : this.bookmarksList;
         this.addToResourceCache({
           node: list.find(n => n.id === content.id),
         });

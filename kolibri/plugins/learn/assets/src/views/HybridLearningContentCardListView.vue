@@ -32,7 +32,11 @@
           class="metadata-info"
           :style="{ color: $themePalette.grey.v_700 }"
         >
-          <LearningActivityLabel :contentNode="content" class="learning-activity-label" />
+          <LearningActivityLabel
+            :contentNode="content"
+            labelAfter
+            condensed
+          />
         </div>
         <h3 class="title">
           <TextTruncator
@@ -265,13 +269,6 @@
     bottom: 0;
     width: 100%;
     padding: $margin;
-  }
-
-  .learning-activity-label {
-    width: 100px;
-    /deep/ .learning-activity {
-      justify-content: flex-start;
-    }
   }
 
   .metadata-info-footer {

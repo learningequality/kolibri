@@ -1,6 +1,6 @@
 from .models import ExamAssignment
 from .models import IndividualSyncableExam
-from kolibri.core.auth.management.utils import DisablePostDeleteSignal
+from kolibri.core.auth.utils.delete import DisablePostDeleteSignal
 
 
 def update_individual_syncable_exams_from_assignments(user_id):

@@ -115,6 +115,23 @@ describe('LearningActivityBar', () => {
       });
     });
 
+    describe('when a bookmark icon is not shown', () => {
+      let wrapper;
+
+      beforeEach(() => {
+        wrapper = makeWrapper({
+          propsData: {
+            showBookmark: false,
+            learningActivities: [LearningActivities.WATCH],
+          },
+        });
+      });
+
+      it("doesn't show the add bookmark button in the bar", () => {
+        expect(wrapper.find("[data-test='bar_addBookmarkButton']").exists()).toBeFalsy();
+      });
+    });
+
     describe('when a resource is bookmarked', () => {
       let wrapper;
 

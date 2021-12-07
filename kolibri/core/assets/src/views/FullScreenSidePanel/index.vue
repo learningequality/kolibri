@@ -13,8 +13,8 @@
         :style="{
           color: $themeTokens.text,
           backgroundColor: $themeTokens.surface,
-          right: (alignment === 'right' ? 0 : ''),
-          left: (alignment === 'left' ? 0 : ''),
+          right: (alignment === 'left' ? 0 : ''),
+          left: (alignment === 'right' ? 0 : ''),
           width: (sidePanelOverrideWidth ? sidePanelOverrideWidth : '')
         }"
       >
@@ -139,7 +139,6 @@
     bottom: 0;
     // Must be <= 12 z-index so that KDropdownMenu shows over
     z-index: 12;
-    width: 472px;
     height: 100vh;
     padding: 32px;
     overflow: auto;

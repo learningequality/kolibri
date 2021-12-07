@@ -78,6 +78,7 @@ import DragContainer from '../views/sortable/DragContainer';
 import DragSortWidget from '../views/sortable/DragSortWidget';
 import FocusTrap from '../views/FocusTrap';
 import BottomAppBar from '../views/BottomAppBar';
+import BaseToolbar from '../views/BaseToolbar';
 import GenderSelect from '../views/userAccounts/GenderSelect';
 import BirthYearSelect from '../views/userAccounts/BirthYearSelect';
 import FullNameTextbox from '../views/userAccounts/FullNameTextbox';
@@ -89,7 +90,7 @@ import PrivacyLinkAndModal from '../views/userAccounts/PrivacyLinkAndModal.vue';
 import PaginatedListContainer from '../views/PaginatedListContainer';
 import PageStatus from '../views/ExamReport/PageStatus';
 import LearnOnlyDeviceNotice from '../views/LearnOnlyDeviceNotice';
-import branding from '../utils/branding';
+import themeConfig from '../styles/themeConfig';
 import sortLanguages from '../utils/sortLanguages';
 import * as sync from '../views/sync/syncComponentSet';
 import PageRoot from '../views/PageRoot';
@@ -186,6 +187,7 @@ export default {
       DragSortWidget,
       FocusTrap,
       BottomAppBar,
+      BaseToolbar,
       GenderSelect,
       GenderDisplayText,
       BirthYearSelect,
@@ -215,10 +217,10 @@ export default {
     },
   },
   resources,
+  themeConfig,
   urls,
   utils: {
     appCapabilities,
-    branding,
     browserInfo,
     bytesForHumans,
     CatchErrors,
