@@ -1,23 +1,22 @@
 from __future__ import annotations
 
+import logging
 import re
 import typing
-import logging
-from pathlib import Path
 from gettext import gettext as _
+from pathlib import Path
 from urllib.parse import parse_qs
 from urllib.parse import SplitResult
 from urllib.parse import urlsplit
 
-from gi.repository import Gtk
 from gi.repository import GLib
 from gi.repository import GObject
+from gi.repository import Gtk
 from gi.repository import WebKit2
+from kolibri.utils.i18n import KOLIBRI_SUPPORTED_LANGUAGES
 from kolibri_app.config import DATA_DIR
 from kolibri_app.config import FRONTEND_APPLICATION_ID
-
 from langcodes import closest_supported_match
-from kolibri.utils.i18n import KOLIBRI_SUPPORTED_LANGUAGES
 
 from .kolibri_daemon_manager import KolibriDaemonManager
 from .utils import await_properties

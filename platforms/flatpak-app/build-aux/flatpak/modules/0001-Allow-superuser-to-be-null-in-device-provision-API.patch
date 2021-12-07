@@ -22,7 +22,7 @@ index 6db1cb1a9..fe92ecc16 100644
      settings = serializers.JSONField()
 @@ -83,7 +83,13 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
              facility.dataset.save()
- 
+
              # Create superuser
 -            superuser = create_superuser(validated_data["superuser"], facility=facility)
 +            superuser_data = validated_data.pop("superuser")
@@ -32,9 +32,8 @@ index 6db1cb1a9..fe92ecc16 100644
 +                )
 +            else:
 +                superuser = None
- 
+
              # Create device settings
              language_id = validated_data.pop("language_id")
--- 
+--
 2.33.1
-

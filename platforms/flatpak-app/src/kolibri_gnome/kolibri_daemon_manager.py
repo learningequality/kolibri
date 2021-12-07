@@ -103,13 +103,24 @@ class KolibriDaemonManager(GObject.GObject):
     def kolibri_api_get_async(self, path: str, result_cb: typing.Callable):
         self.__kolibri_api_call_async(path, "GET", result_cb)
 
-    def kolibri_api_post_async(self, path: str, result_cb: typing.Callable, request_body: typing.Optional[dict] = None):
+    def kolibri_api_post_async(
+        self,
+        path: str,
+        result_cb: typing.Callable,
+        request_body: typing.Optional[dict] = None,
+    ):
         self.__kolibri_api_call_async(path, "POST", result_cb, request_body)
 
     def __request_body_object_to_bytes(self, request_body: dict):
-        return bytes(json.dumps(request_body), 'utf8')
+        return bytes(json.dumps(request_body), "utf8")
 
-    def __kolibri_api_call_async(self, path: str, method: str, result_cb: typing.Callable, request_body: typing.Optional[dict] = None):
+    def __kolibri_api_call_async(
+        self,
+        path: str,
+        method: str,
+        result_cb: typing.Callable,
+        request_body: typing.Optional[dict] = None,
+    ):
         url = self.get_absolute_url(path)
 
         if not url:
@@ -124,7 +135,8 @@ class KolibriDaemonManager(GObject.GObject):
             soup_message.set_request(
                 "application/json",
                 Soup.MemoryUse.COPY,
-                self.__request_body_object_to_bytes(request_body))
+                self.__request_body_object_to_bytes(request_body),
+            )
         soup_session.send_async(
             soup_message,
             None,
@@ -136,13 +148,19 @@ class KolibriDaemonManager(GObject.GObject):
         )
 
     def __kolibri_api_get_async_on_soup_send(
-        self, session: Soup.Session, result: Gio.AsyncResult, result_cb: typing.Callable, soup_message: Soup.Message
+        self,
+        session: Soup.Session,
+        result: Gio.AsyncResult,
+        result_cb: typing.Callable,
+        soup_message: Soup.Message,
     ):
         # On HTTP client (4xx) or server (5xx) errors:
         if soup_message.status_code >= 400:
             # FIXME: It would be better to raise an exception, and
             # handle it in the other side to set SESSION_STATUS_ERROR.
-            logger.warning(f"Error calling Kolibri API, code: {soup_message.status_code}")
+            logger.warning(
+                f"Error calling Kolibri API, code: {soup_message.status_code}"
+            )
             result_cb(None)
             return
 
@@ -236,9 +254,7 @@ class KolibriDaemonManager(GObject.GObject):
         user_data: typing.Any = None,
     ):
         if isinstance(result, Exception):
-            logger.warning(
-                "Error communicating with Kolibri daemon: {}".format(result)
-            )
+            logger.warning("Error communicating with Kolibri daemon: {}".format(result))
             self.props.has_error = True
 
 
@@ -248,5 +264,7 @@ def _read_json_from_input_stream(stream: Gio.InputStream):
     try:
         return json.load(stream_io)
     except json.JSONDecodeError as error:
-        logger.warning("Error reading Kolibri API response: {error}".format(error=error))
+        logger.warning(
+            "Error reading Kolibri API response: {error}".format(error=error)
+        )
         return None

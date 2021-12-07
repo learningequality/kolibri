@@ -73,4 +73,3 @@ kolibri_app_config.set('SEARCH_PROVIDER_OBJECT_PATH', search_provider_object_pat
 subdir('data')
 subdir('po')
 subdir('src')
-
