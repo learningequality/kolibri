@@ -347,6 +347,11 @@
           : { marginLeft: `${this.sidePanelWidth + 24}px` };
       },
     },
+    watch: {
+      searchTerms() {
+        this.sidePanelIsOpen = false;
+      },
+    },
     created() {
       this.search();
     },
