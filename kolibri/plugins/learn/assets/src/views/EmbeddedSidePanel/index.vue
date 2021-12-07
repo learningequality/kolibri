@@ -315,18 +315,13 @@
       },
       handleActivity(activity) {
         let learning_activities;
-        if (activity) {
-          if (this.value.learning_activities[activity]) {
-            delete this.value.learning_activities[activity];
-            this.$emit('input', { learning_activities });
-          } else {
-            learning_activities = {
-              [activity]: true,
-            };
-            this.$emit('input', { ...this.value, learning_activities });
-          }
-        } else {
+        if (this.value.learning_activities[activity]) {
           learning_activities = {};
+          this.$emit('input', { ...this.value, learning_activities });
+        } else if (activity || !this.value.learning_activities[activity]) {
+          learning_activities = {
+            [activity]: true,
+          };
           this.$emit('input', { ...this.value, learning_activities });
         }
       },
