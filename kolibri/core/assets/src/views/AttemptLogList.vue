@@ -1,7 +1,7 @@
 <template>
 
   <div :style="{ backgroundColor: $themeTokens.surface }">
-    <h3 class="header" :style="iconStyle">
+    <h3 id="answer-history-label" class="header" :style="iconStyle">
       {{ $tr('answerHistoryLabel') }}
     </h3>
 
@@ -9,7 +9,7 @@
       v-if="isMobile"
       class="history-select"
       :value="selected"
-      label=""
+      aria-labelledby="answer-history-label"
       :options="options"
       :disabled="$attrs.disabled"
       @change="handleDropdownChange($event.value)"

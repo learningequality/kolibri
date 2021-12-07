@@ -186,7 +186,6 @@
     },
     methods: {
       handleNavigateToQuestion(questionNumber) {
-        console.log(questionNumber);
         this.navigateToQuestion(questionNumber);
         this.$refs.multiPaneLayout.scrollMainToTop();
         this.showCorrectAnswer = false;
