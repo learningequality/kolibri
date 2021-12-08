@@ -151,7 +151,7 @@
     <FullScreenSidePanel
       v-if="!windowIsLarge && sidePanelIsOpen"
       class="full-screen-side-panel"
-      alignment="left"
+      alignment="right"
       :closeButtonHidden="true"
       :sidePanelOverrideWidth="`${sidePanelOverlayWidth}px`"
       @closePanel="toggleSidePanelVisibility"

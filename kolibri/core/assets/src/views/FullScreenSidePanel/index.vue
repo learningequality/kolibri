@@ -13,8 +13,8 @@
         :style="{
           color: $themeTokens.text,
           backgroundColor: $themeTokens.surface,
-          right: (alignment === 'left' ? 0 : ''),
-          left: (alignment === 'right' ? 0 : ''),
+          right: (alignment === 'right' ? 0 : ''),
+          left: (alignment === 'left' ? 0 : ''),
           width: (sidePanelOverrideWidth ? sidePanelOverrideWidth : '')
         }"
       >
