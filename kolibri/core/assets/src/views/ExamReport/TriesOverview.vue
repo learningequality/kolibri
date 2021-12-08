@@ -36,7 +36,7 @@
         }) }}
       </td>
     </tr>
-    <tr>
+    <tr v-if="bestTimeSpent !== null">
       <th>
         {{ $tr('bestScoreTimeLabel') }}
       </th>
@@ -112,16 +112,22 @@
         }
       },
       bestTimeSpent() {
-        return Math.min(...this.pastTries.map(t => t.time_spent));
+        const bestScoreAttempt = this.pastTries.find(t => t.correct === this.maxQuestionsCorrect);
+        if (!bestScoreAttempt) {
+          return null;
+        }
+        return bestScoreAttempt.time_spent;
       },
       maxQuestionsCorrect() {
-        return Math.max(...this.pastTries.map(t => t.correct));
+        return this.pastTries.length ? Math.max(...this.pastTries.map(t => t.correct)) : null;
       },
       bestScore() {
-        return this.maxQuestionsCorrect / this.totalQuestions || 0;
+        return this.maxQuestionsCorrect !== null
+          ? this.maxQuestionsCorrect / this.totalQuestions
+          : null;
       },
       suggestedTimeAnnotation() {
-        if (!this.suggestedTime) {
+        if (!this.suggestedTime || this.bestTimeSpent === null) {
           return null;
         }
 
