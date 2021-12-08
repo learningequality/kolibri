@@ -192,6 +192,7 @@
   .header-bar {
     display: flex;
     justify-content: space-between;
+    height: 48px;
     padding: 8px 16px;
     font-size: 13px;
     .channel-logo {
@@ -210,7 +211,7 @@
   .folder-header-text {
     display: inline-block;
     padding: 0;
-    margin: 7px 0;
+    margin: 0;
     font-size: 13px;
   }
 
