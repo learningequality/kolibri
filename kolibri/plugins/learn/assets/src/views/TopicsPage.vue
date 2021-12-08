@@ -209,16 +209,11 @@
           </div>
           <div v-else-if="!searchLoading">
             <h2 class="results-title">
-              {{ translator.$tr('results', { results: results.length }) }}
+              {{ more ?
+                coreString('overCertainNumberOfSearchResults', { num: results.length }) :
+                translator.$tr('results', { results: results.length })
+              }}
             </h2>
-            <KButton
-              v-if="more"
-              :text="coreString('viewMoreAction')"
-              appearance="basic-link"
-              :disabled="moreLoading"
-              class="filter-action-button"
-              @click="searchMore"
-            />
             <SearchChips
               :searchTerms="searchTerms"
               @removeItem="removeFilterTag"
