@@ -179,4 +179,9 @@
     margin-bottom: 32px;
   }
 
+  /deep/ svg {
+    width: 2.5em;
+    height: 2.5em;
+  }
+
 </style>
