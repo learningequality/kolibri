@@ -140,6 +140,8 @@
 
   import sortBy from 'lodash/sortBy';
   import isFinite from 'lodash/isFinite';
+  import isNumber from 'lodash/isNumber';
+  import isString from 'lodash/isString';
   import InteractionList from 'kolibri.coreVue.components.InteractionList';
   import find from 'lodash/find';
   import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
@@ -166,54 +168,107 @@
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
     props: {
+      // Unique identifier of the item for the report
+      // this will be used to filter for previous tries
       contentId: {
         type: String,
         required: true,
       },
+      // The title of the item
       title: {
         type: String,
         required: true,
       },
+      // The suggested duration of the item in seconds
       duration: {
         type: Number,
         default: null,
       },
+      // The user id of the user for the report
       userId: {
         type: String,
         required: true,
       },
+      // The name of the user for the report
       userName: {
         type: String,
         required: true,
       },
+      // Which specific interaction within an attempt to show
       selectedInteractionIndex: {
         type: Number,
         required: true,
       },
+      // Which specific question within a try to show
+      // A zero based index
+      // For quiz type assessments, this is the specific question number
+      // For exercise type assessments, 0 is the most recent attempt in the try
       questionNumber: {
         type: Number,
         required: true,
       },
+      // Which 'try' to show - this is a zero based index with 0 being the most recent.
+      // To the user we describe this as an 'attempt' but to avoid confusion with the
+      // attempt logs that describe a users interaction with a specific question, we
+      // refer to this as a 'try'
       tryIndex: {
         type: Number,
         default: 0,
       },
+      // An object containing all of the content metadata for the item.
+      // TODO: Add general purpose content node validator here.
       exercise: {
         type: Object,
         required: true,
       },
+      // A function that has the signature tryIndex, questionNumber, interactionIndex
+      // this should handle changes to the three parameters above.
       navigateTo: {
         type: Function,
         required: true,
       },
+      // An array of questions in the format:
+      // {
+      //   exercise_id: <exercise_id>,
+      //   question_id: <item id for question>,
+      //   title: <title to use when displaying the question>,
+      //   counter_in_exercise: <zero based index of question in exercise>,
+      //   item: <a unique identifier for the question>
+      // }
+      // The question_id and item are identical for non-coach assigned/generated quizzes
+      // for coach generated quizzes, we currently use a concatenation of the exercise_id
+      // and question_id in order to generate a globally unique item identifier:
+      // <exercise_id>:<question_id>
+      // in case two exercises have a colliding question_id.
+      // For exercises and practice quizzes there is no risk of collision, so this is not done.
       questions: {
         type: Array,
         required: true,
+        validator: questions => {
+          return questions.every(question => {
+            return (
+              isString(question.exercise_id) &&
+              isString(question.question_id) &&
+              isNumber(question.counter_in_exercise) &&
+              isString(question.title) &&
+              isString(question.item)
+            );
+          });
+        },
       },
+      // An array containing all of the content metadata for the item.
+      // Note: this is only really needed for coach assigned quizzes
+      // for exercises and practice quizzes, this is just the exercise prop
+      // wrapped in an array.
+      // TODO: Add general purpose content node validator here.
       exerciseContentNodes: {
         type: Array,
         default: () => [],
       },
+      // Is this a coach assigned quiz or a practice quiz?
+      // This is used to determine the ordering of displayed attempts
+      // For quizzes it's by question number, for non-quizzes it's by most recent attempt
+      // and whether to show non-attempted questions.
       isQuiz: {
         type: Boolean,
         default: true,

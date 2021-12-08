@@ -1,6 +1,6 @@
 <template>
 
-  <table class="scores">
+  <table v-if="currentTryDefined" class="scores">
     <tr v-if="!hideStatus">
       <th>
         {{ coreString('statusLabel') }}
@@ -73,7 +73,7 @@
 
 <script>
 
-  import has from 'lodash/has';
+  import isPlainObject from 'lodash/isPlainObject';
   import isUndefined from 'lodash/isUndefined';
   import { mapGetters } from 'vuex';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
@@ -81,6 +81,7 @@
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
   import MasteryModel from 'kolibri.coreVue.components.MasteryModel';
+  import { tryValidator } from './utils';
 
   export default {
     name: 'CurrentTryOverview',
@@ -92,28 +93,37 @@
     },
     mixins: [commonCoreStrings],
     props: {
+      // This should be an object with the following properties:
+      // id: the unique id for the mastery log for this try
+      // mastery_criterion: the mastery criterion
+      // start_timestamp: the start time
+      // end_timestamp: the last time this try was interacted with
+      // completion_timestamp: the time when this try was completed
+      // complete: whether this try is complete or not
+      // correct: the number of correct responses in this try
+      // time_spent: the total time spent on this try
       currentTry: {
         type: Object,
         required: true,
-        validator(currentTry) {
-          const requiredFields = ['correct', 'time_spent', 'completion_timestamp', 'complete'];
-          if (!requiredFields.every(key => has(currentTry, key))) {
-            return false;
-          }
-          if (!currentTry.diff || Object.keys(currentTry.diff).length === 0) {
-            return true;
-          }
-          return has(currentTry.diff, 'correct') && has(currentTry.diff, 'time_spent');
-        },
+        validator: tryValidator,
       },
+      // The total number of questions that this assessment has
+      // used for calculating scores for quizzes
       totalQuestions: {
         type: Number,
         required: true,
       },
+      // Whether to hide the current overal progress
+      // used when using the CurrentTry component in the context
+      // of multiple tries, where the overall progress is determined
+      // from the most recent try.
       hideStatus: {
         type: Boolean,
         default: false,
       },
+      // The id of the user - this is used to determine whether
+      // to display second person or third person language,
+      // by comparing the user id to the currently active user id.
       userId: {
         type: String,
         default: '',
@@ -121,7 +131,13 @@
     },
     computed: {
       ...mapGetters(['currentUserId']),
+      currentTryDefined() {
+        return isPlainObject(this.currentTry);
+      },
       progressIconLabel() {
+        if (!this.currentTryDefined) {
+          return '';
+        }
         if (this.currentTry.complete) {
           return this.coreString('completedLabel');
         } else if (this.currentTry.complete !== null) {
@@ -131,16 +147,19 @@
         }
       },
       progress() {
+        if (!this.currentTryDefined) {
+          return 0.0;
+        }
         if (this.currentTry.complete) {
           return 1.0;
         } else if (this.currentTry.complete !== null) {
           return 0.5;
-        } else {
-          return 0.0;
         }
+        return 0.0;
       },
       masteryModel() {
         if (
+          this.currentTryDefined &&
           this.currentTry.mastery_criterion &&
           this.currentTry.mastery_criterion.type !== 'quiz'
         ) {
@@ -149,13 +168,17 @@
         return null;
       },
       correctDefined() {
-        return !isUndefined(this.currentTry.correct);
+        return this.currentTryDefined && !isUndefined(this.currentTry.correct);
       },
       score() {
-        return this.currentTry.correct / this.totalQuestions;
+        return this.currentTryDefined ? this.currentTry.correct / this.totalQuestions : 0;
       },
       questionsCorrectAnnotation() {
-        if (!this.currentTry.diff || this.userId !== this.currentUserId) {
+        if (
+          !this.currentTryDefined ||
+          !this.currentTry.diff ||
+          this.userId !== this.currentUserId
+        ) {
           return null;
         }
 
@@ -166,7 +189,7 @@
           : null;
       },
       timeSpentAnnotation() {
-        if (!this.currentTry.diff) {
+        if (!this.currentTryDefined || !this.currentTry.diff) {
           return null;
         }
 

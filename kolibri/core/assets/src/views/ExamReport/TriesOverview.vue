@@ -57,10 +57,10 @@
 
 <script>
 
-  import has from 'lodash/has';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
+  import { tryValidator } from './utils';
 
   export default {
     name: 'TriesOverview',
@@ -70,18 +70,29 @@
     },
     mixins: [commonCoreStrings],
     props: {
+      // This should be an array of objects with the following properties:
+      // id: the unique id for the mastery log for this try
+      // mastery_criterion: the mastery criterion
+      // start_timestamp: the start time
+      // end_timestamp: the last time this try was interacted with
+      // completion_timestamp: the time when this try was completed
+      // complete: whether this try is complete or not
+      // correct: the number of correct responses in this try
+      // time_spent: the total time spent on this try
       pastTries: {
         type: Array,
         required: true,
         validator(pastTries) {
-          const requiredFields = ['time_spent', 'correct'];
-          return pastTries.every(tryData => requiredFields.every(field => has(tryData, field)));
+          return pastTries.every(tryValidator);
         },
       },
+      // The total number of questions that this assessment has
+      // used for calculating scores for quizzes
       totalQuestions: {
         type: Number,
         required: true,
       },
+      // The suggested time that a user should take to complete this assessment
       suggestedTime: {
         type: Number,
         default: null,
