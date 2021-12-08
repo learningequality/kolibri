@@ -275,7 +275,7 @@
     flex: auto;
     align-self: center;
     margin: 0;
-    font-size: 14px;
+    font-size: 13px;
   }
 
   .footer-elements {
@@ -307,7 +307,6 @@
   .thumbnail {
     display: inline-block;
     width: 240px;
-    height: 100px;
     margin-top: 8px;
     margin-right: 24px;
     margin-left: 24px;
