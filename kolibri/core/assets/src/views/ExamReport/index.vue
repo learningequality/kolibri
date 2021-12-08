@@ -364,14 +364,18 @@
     },
     methods: {
       navigateToQuestion(questionNumber) {
-        this.navigateTo(this.tryIndex, questionNumber, 0);
-        this.$refs.multiPaneLayout.scrollMainToTop();
-        this.showCorrectAnswer = false;
+        if (questionNumber !== this.questionNumber) {
+          this.navigateTo(this.tryIndex, questionNumber, 0);
+          this.$refs.multiPaneLayout.scrollMainToTop();
+          this.showCorrectAnswer = false;
+        }
       },
       navigateToQuestionAttempt(interaction) {
-        this.navigateTo(this.tryIndex, this.questionNumber, interaction);
-        this.$refs.multiPaneLayout.scrollMainToTop();
-        this.showCorrectAnswer = false;
+        if (interaction !== this.selectedInteractionIndex) {
+          this.navigateTo(this.tryIndex, this.questionNumber, interaction);
+          this.$refs.multiPaneLayout.scrollMainToTop();
+          this.showCorrectAnswer = false;
+        }
       },
       navigateToTry(tryOption) {
         if (tryOption.value !== this.tryIndex) {

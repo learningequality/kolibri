@@ -8,7 +8,7 @@
         :key="index"
         :selected="isSelected(index)"
         :interaction="interaction"
-        @click.native="setCurrentInteractionIndex(index)"
+        @click.native="!isSelected(index) ? setCurrentInteractionIndex(index) : null"
       />
     </div>
 

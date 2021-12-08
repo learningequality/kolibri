@@ -2,7 +2,10 @@
 
   <div
     class="attempt-box"
-    :style="{ border: `2px solid ${selected ? $themeTokens.text : $themeTokens.textDisabled }` }"
+    :style="{
+      border: `2px solid ${selected ? $themeTokens.text : $themeTokens.textDisabled }`,
+      cursor: selected ? 'auto' : 'pointer',
+    }"
   >
     <template v-if="isAnswer">
       <KIcon
@@ -79,7 +82,6 @@
     height: 60px;
     padding: 10px;
     margin-right: 10px;
-    cursor: pointer;
     border-radius: 10px;
   }
 
