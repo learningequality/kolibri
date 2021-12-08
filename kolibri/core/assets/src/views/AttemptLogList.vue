@@ -5,7 +5,6 @@
       id="answer-history-label"
       class="header"
       :class="windowIsLargeClass"
-      :style="iconStyle"
     >
       {{ $tr('answerHistoryLabel') }}
     </h3>
@@ -226,6 +225,7 @@
     margin: 0;
 
     &:not(.window-is-large) {
+      padding: 0;
       text-align: center;
     }
   }
@@ -282,6 +282,7 @@
     }
 
     &:not(.window-is-large) {
+      padding: 0;
       text-align: center;
     }
   }
