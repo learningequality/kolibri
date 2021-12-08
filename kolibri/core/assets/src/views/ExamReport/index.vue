@@ -5,12 +5,18 @@
     class="container"
   >
     <template #header>
-      <KFixedGrid
-        numCols="4"
+      <KGrid
         class="page-status"
         :style="{ backgroundColor: $themeTokens.surface }"
       >
-        <KFixedGridItem span="3">
+        <KGridItem v-if="windowIsSmall" :layout4="{ span: 4, alignment: 'right' }">
+          <slot name="actions"></slot>
+        </KGridItem>
+        <KGridItem
+          :layout12="{ span: 10, alignment: 'left' }"
+          :layout8="{ span: 6, alignment: 'left' }"
+          :layout4="{ span: 4, alignment: 'left' }"
+        >
           <div>
             <h1 class="title">
               <KLabeledIcon icon="person" :label="userName" />
@@ -30,11 +36,11 @@
             :currentTry="currentTry"
             :totalQuestions="questions.length"
           />
-        </KFixedGridItem>
-        <KFixedGridItem span="1" alignment="right">
+        </KGridItem>
+        <KGridItem v-if="!windowIsSmall" :layout="{ span: 2, alignment: 'right' }">
           <slot name="actions"></slot>
-        </KFixedGridItem>
-      </KFixedGrid>
+        </KGridItem>
+      </KGrid>
     </template>
 
     <template v-if="!loading" #subheader>
