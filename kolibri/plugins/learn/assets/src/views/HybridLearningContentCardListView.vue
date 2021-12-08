@@ -70,7 +70,7 @@
       </span>
     </router-link>
     <KFixedGrid :numCols="10" class="footer">
-      <KFixedGridItem span="6" class="footer-elements">
+      <KFixedGridItem span="3" class="footer-elements">
         <p
           v-if="isBookmarksPage"
           class="metadata-info-footer"
@@ -80,7 +80,7 @@
         </p>
         <ProgressBar :contentNode="content" />
       </KFixedGridItem>
-      <KFixedGridItem span="3" alignment="right" class="footer-elements footer-icons">
+      <KFixedGridItem span="10" alignment="right" class="footer-elements footer-icons">
         <KIconButton
           v-for="(value, key) in footerIcons"
           :key="key"
@@ -198,7 +198,7 @@
   @import '~kolibri-design-system/lib/styles/definitions';
   @import './ContentCard/card';
 
-  $margin: 24px;
+  $margin: 16px;
 
   .drop-shadow {
     @extend %dropshadow-1dp;
@@ -268,24 +268,20 @@
     position: absolute;
     bottom: 0;
     width: 100%;
-    padding: $margin;
+    padding: $margin 24px;
   }
 
   .metadata-info-footer {
-    flex: auto;
-    align-self: center;
     margin: 0;
     font-size: 13px;
   }
 
   .footer-elements {
-    position: absolute;
-    bottom: 16px;
-    display: inline;
+    position: relative;
+    display: inline-block;
   }
 
   .footer-icons {
-    right: 16px;
     // this override fixes an existing KDS bug with
     // the hover state circle being squished
     // and can be removed upon that hover state fix
