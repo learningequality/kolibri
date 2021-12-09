@@ -14,6 +14,7 @@ import classSummary from './classSummary';
 import coachNotifications from './coachNotifications';
 import questionDetail from './questionDetail';
 import questionList from './questionList';
+import resourceDetail from './resourceDetail';
 
 const logging = logger.getLogger(__filename);
 
@@ -132,5 +133,6 @@ export default {
     lessonsRoot,
     questionDetail,
     questionList,
+    resourceDetail,
   },
 };

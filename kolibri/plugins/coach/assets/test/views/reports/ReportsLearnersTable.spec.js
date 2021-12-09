@@ -1,22 +1,19 @@
 import { shallowMount, mount, RouterLinkStub } from '@vue/test-utils';
 
 import { STATUSES } from '../../../src/modules/classSummary/constants';
-import ReportsExerciseLearners from '../../../src/views/reports/ReportsExerciseLearners';
+import ReportsLearnersTable from '../../../src/views/reports/ReportsLearnersTable';
 
 const entries = [
   {
     id: 'd4b',
     name: 'learner1',
     username: 'learner1',
-    groups: [
-      { id: 'dc2', name: 'group1' },
-      { id: '23s', name: 'group2' },
-    ],
+    groups: ['group1', 'group2'],
     assignments: [
       { id: 'dc2', name: 'group1' },
       { id: '23s', name: 'group2' },
     ],
-    exerciseLearnerLink: '#/2e3/reports/lessons/79b/exercises/a97/learners/d4b',
+    link: '#/2e3/reports/lessons/79b/exercises/a97/learners/d4b',
     statusObj: {
       learner_id: 'd4b',
       content_id: 'a97',
@@ -29,9 +26,9 @@ const entries = [
     id: 'a5d',
     name: 'learner2',
     username: 'learner2',
-    groups: [{ id: '23s', name: 'group2' }],
+    groups: ['group2'],
     assignments: [{ id: '23s', name: 'group2' }],
-    exerciseLearnerLink: '#/2e3/reports/lessons/79b/exercises/a97/learners/a5d',
+    link: '#/2e3/reports/lessons/79b/exercises/a97/learners/a5d',
     statusObj: {
       learner_id: 'a5d',
       content_id: 'a97',
@@ -43,7 +40,7 @@ const entries = [
 ];
 
 const initWrapper = propsData => {
-  return mount(ReportsExerciseLearners, {
+  return mount(ReportsLearnersTable, {
     propsData,
     stubs: {
       RouterLink: RouterLinkStub,
@@ -65,19 +62,11 @@ jest.mock('kolibri.utils.serverClock', () => {
   };
 });
 
-describe('ReportsExerciseLearners', () => {
+describe('ReportsLearnersTable', () => {
   it('smoke test', () => {
-    const wrapper = shallowMount(ReportsExerciseLearners);
+    const wrapper = shallowMount(ReportsLearnersTable);
 
     expect(wrapper.exists()).toBe(true);
-  });
-
-  it('renders all entries', () => {
-    const wrapper = initWrapper({
-      entries,
-    });
-
-    expect(wrapper.html()).toMatchSnapshot();
   });
 
   it("doesn't render groups information when show groups set to false", () => {
@@ -98,7 +87,7 @@ describe('ReportsExerciseLearners', () => {
           {
             name: 'learner1',
             groups: [],
-            exerciseLearnerLink: '#/2e3/reports/lessons/79b/exercises/a97/learners/d4b',
+            link: '#/2e3/reports/lessons/79b/exercises/a97/learners/d4b',
             statusObj: {
               status: STATUSES.completed,
               last_activity: new Date('2019-05-05T08:13:22Z'),
@@ -112,7 +101,7 @@ describe('ReportsExerciseLearners', () => {
     });
 
     it("renders learner's name as a link to an exercise", () => {
-      const link = getCol(row, 0).find('[data-test="exercise-learner-link"]');
+      const link = getCol(row, 0).find('[data-test="learner-link"]');
 
       expect(link.element).toBeTruthy();
       expect(link.props().to).toEqual('#/2e3/reports/lessons/79b/exercises/a97/learners/d4b');
@@ -136,9 +125,11 @@ describe('ReportsExerciseLearners', () => {
           {
             name: 'learner1',
             groups: [],
-            exerciseLearnerLink: '#/2e3/reports/lessons/79b/exercises/a97/learners/d4b',
+            link: '#/2e3/reports/lessons/79b/exercises/a97/learners/d4b',
             statusObj: {
               status: STATUSES.notStarted,
+              last_activity: new Date('2019-05-05T08:13:22Z'),
+              time_spent: 17.14,
             },
           },
         ],
@@ -148,7 +139,7 @@ describe('ReportsExerciseLearners', () => {
     });
 
     it("doesn't render learner's as a link", () => {
-      expect(getCol(row, 0).find('[data-test="exercise-learner-link"]').element).toBeFalsy();
+      expect(getCol(row, 0).find('[data-test="learner-link"]').element).toBeFalsy();
     });
 
     it("doesn't render time spent", () => {

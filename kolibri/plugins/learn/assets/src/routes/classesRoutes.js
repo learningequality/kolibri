@@ -70,7 +70,7 @@ export default [
   },
   {
     name: ClassesPageNames.EXAM_REPORT_VIEWER,
-    path: '/classes/:classId/examReport/:examId/:questionNumber/:questionInteraction',
+    path: '/classes/:classId/examReport/:examId/:tryIndex/:questionNumber/:questionInteraction',
     handler: toRoute => {
       if (noClassesGuard()) {
         return noClassesGuard();

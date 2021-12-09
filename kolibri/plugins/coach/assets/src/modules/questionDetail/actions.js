@@ -1,3 +1,5 @@
+import get from 'lodash/get';
+import Modalities from 'kolibri-constants/Modalities';
 import { AttemptLogResource } from 'kolibri.resources';
 
 export function setLearners(store, params) {
@@ -15,6 +17,10 @@ export function setLearners(store, params) {
   if (groupId) {
     getParams.learner_group = groupId;
   }
+  const practiceQuiz =
+    exerciseId &&
+    get(store.rootState.classSummary.contentMap[exerciseId], ['options', 'modality']) ===
+      Modalities.QUIZ;
   return AttemptLogResource.fetchCollection({
     getParams,
     force: !learnerId,
@@ -22,29 +28,37 @@ export function setLearners(store, params) {
     let learners;
     // Add learner information to each attemptLog to turn this into
     // a list of learners with attempt information intermixed.
-    if (quizId) {
+    if (quizId || practiceQuiz) {
       // For quizzes, run through all learners in the appropriate collection
       // So that we can show 'not attempted' in the sidebar for additional
       // info.
-      learners = Object.values(store.rootState.classSummary.examLearnerStatusMap[quizId]).map(
-        learner => {
-          const returnLearner = {};
-          const attemptLog = attemptLogs.find(log => log.user === learner.learner_id);
-          if (attemptLog) {
-            Object.assign(returnLearner, attemptLog);
-          } else {
-            Object.assign(returnLearner, {
-              item: questionId.split(':')[1],
-              noattempt: true,
-            });
-          }
-          Object.assign(returnLearner, store.rootState.classSummary.learnerMap[learner.learner_id]);
-          // This item value is used to pass into KContentRenderer to set the correct question,
-          // so reclaim the actual item id value here by splitting on ':'.
-          returnLearner.item = returnLearner.item.split(':')[1];
-          return returnLearner;
+      if (practiceQuiz) {
+        if (groupId) {
+          // If for a group just show learners in the group
+          learners = store.getters.getLearnersForGroups([groupId]);
+        } else {
+          // Otherwise just get all the learners in the class
+          learners = Object.keys(store.rootState.classSummary.learnerMap);
         }
-      );
+        learners = learners.map(learner_id => ({ learner_id }));
+      } else {
+        learners = Object.values(store.rootState.classSummary.examLearnerStatusMap[quizId]);
+      }
+      learners = learners.map(learner => {
+        const returnLearner = {};
+        const attemptLog = attemptLogs.find(log => log.user === learner.learner_id);
+        if (attemptLog) {
+          Object.assign(returnLearner, attemptLog);
+        } else {
+          Object.assign(returnLearner, {
+            item: questionId,
+            noattempt: true,
+          });
+        }
+        returnLearner.item = returnLearner.item.split(':')[1] || returnLearner.item;
+        Object.assign(returnLearner, store.rootState.classSummary.learnerMap[learner.learner_id]);
+        return returnLearner;
+      });
     } else {
       // For exercises, only run through the learners with attempts
       learners = attemptLogs.map(attemptLog => {

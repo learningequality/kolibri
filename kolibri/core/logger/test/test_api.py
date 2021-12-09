@@ -195,10 +195,12 @@ class MasteryLogViewSetTestCase(EvaluationMixin, APITestCase):
             for user_index, user in enumerate(self.users):
                 self.client.force_login(user)
                 response = self.client.get(
-                    reverse("kolibri:core:masterylog-summary"),
+                    reverse("kolibri:core:masterylog-list"),
                     data={
                         "content": content_id,
                         "user": user.id,
+                        "complete": True,
+                        "quiz": True,
                     },
                 )
                 user_mod = user_index % 2
@@ -216,7 +218,13 @@ class MasteryLogViewSetTestCase(EvaluationMixin, APITestCase):
             for try_index, user_try in enumerate(user_tries):
                 self.client.force_login(self.users[user_index])
                 response = self.client.get(
-                    reverse("kolibri:core:masterylog-diff", kwargs={"pk": user_try.id})
+                    reverse("kolibri:core:masterylog-diff", kwargs={"pk": try_index}),
+                    data={
+                        "content": user_try.summarylog.content_id,
+                        "user": user_try.user_id,
+                        "complete": True,
+                        "quiz": True,
+                    },
                 )
                 diff = response.data.get("diff")
                 if try_index > 0 or user_index in (0, 1):
@@ -259,52 +267,38 @@ class MasteryLogViewSetTestCase(EvaluationMixin, APITestCase):
                     for attempt_log in response.data.get("attemptlogs"):
                         self.assertEqual(attempt_log["diff"], {"correct": None})
 
+    def test_diff_no_attempts_first_try(self):
+        user_index = 2
+        try_index = 0
+        user_try = self.user_tries[user_index][try_index]
+        user_try.attemptlogs.all().delete()
+        self.client.force_login(self.users[user_index])
+        response = self.client.get(
+            reverse("kolibri:core:masterylog-diff", kwargs={"pk": try_index}),
+            data={
+                "content": user_try.summarylog.content_id,
+                "user": user_try.user_id,
+                "complete": True,
+                "quiz": True,
+            },
+        )
+        diff = response.data.get("diff")
+        self.assertEqual(diff["correct"], -3.0)
 
-class AttemptLogViewSetTestCase(EvaluationMixin, APITestCase):
-    def test_diff__masterylog(self):
-        for user_tries in self.user_tries:
-            try0 = user_tries[0]
-            self.client.force_login(try0.user)
-            response = self.client.get(
-                reverse("kolibri:core:attemptlog-diff"),
-                data={
-                    "masterylog": try0.id,
-                },
-            )
-            self.assertEqual(3, len(response.data))
-            self.assertEqual(
-                3, len([1 for al in response.data if al["user"] == try0.user_id])
-            )
-            self.assertAttemptDiffs(response.data)
-
-    def test_diff__content_item(self):
-        self.client.force_login(self.superuser)
-        # among 6 users, 3 users tried each content_id
-        for content_index, content_id in enumerate(self.content_ids):
-            content_mod = content_index % 2
-            for item_index, item in enumerate(self.items[content_id]):
-                response = self.client.get(
-                    reverse("kolibri:core:attemptlog-diff"),
-                    data={"content": content_id, "item": item},
-                )
-                self.assertEqual(3, len(response.data))
-                self.assertAttemptDiffs(response.data, content_mod=content_mod)
-
-    def test_diff__content_user(self):
-        # among 6 users, 3 users tried each content_id
-        for content_index, content_id in enumerate(self.content_ids):
-            content_mod = content_index % 2
-            for user_index, user in enumerate(self.users):
-                self.client.force_login(user)
-                response = self.client.get(
-                    reverse("kolibri:core:attemptlog-diff"),
-                    data={
-                        "content": content_id,
-                        "user": user.id,
-                    },
-                )
-                user_mod = user_index % 2
-                self.assertEqual(
-                    3 if content_mod == user_mod else 0, len(response.data)
-                )
-                self.assertAttemptDiffs(response.data, content_mod=content_mod)
+    def test_diff_no_attempts_second_try(self):
+        user_index = 2
+        try_index = 0
+        user_try = self.user_tries[user_index][try_index + 1]
+        user_try.attemptlogs.all().delete()
+        self.client.force_login(self.users[user_index])
+        response = self.client.get(
+            reverse("kolibri:core:masterylog-diff", kwargs={"pk": try_index}),
+            data={
+                "content": user_try.summarylog.content_id,
+                "user": user_try.user_id,
+                "complete": True,
+                "quiz": True,
+            },
+        )
+        diff = response.data.get("diff")
+        self.assertEqual(diff["correct"], 3.0)

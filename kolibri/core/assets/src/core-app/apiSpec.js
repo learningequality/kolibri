@@ -88,7 +88,7 @@ import GenderDisplayText from '../views/userAccounts/GenderDisplayText';
 import BirthYearDisplayText from '../views/userAccounts/BirthYearDisplayText';
 import PrivacyLinkAndModal from '../views/userAccounts/PrivacyLinkAndModal.vue';
 import PaginatedListContainer from '../views/PaginatedListContainer';
-import PageStatus from '../views/ExamReport/PageStatus';
+import MasteryModel from '../views/MasteryModel';
 import LearnOnlyDeviceNotice from '../views/LearnOnlyDeviceNotice';
 import themeConfig from '../styles/themeConfig';
 import sortLanguages from '../utils/sortLanguages';
@@ -98,16 +98,14 @@ import PageRoot from '../views/PageRoot';
 // webpack optimization
 import CoreInfoIcon from '../views/CoreInfoIcon';
 import * as contentNode from '../utils/contentNodeUtils';
-import AttemptLogList from '../views/AttemptLogList';
-import CurrentTryOverview from '../views/ExamReport/CurrentTryOverview';
 import InteractionList from '../views/InteractionList';
 import ExamReport from '../views/ExamReport';
+import SlotTruncator from '../views/SlotTruncator';
 import TextTruncator from '../views/TextTruncator';
 import TextTruncatorCss from '../views/TextTruncatorCss';
 import TimeDuration from '../views/TimeDuration';
 import SuggestedTime from '../views/SuggestedTime';
 
-import EmbeddedMultiPaneLayout from '../views/EmbeddedMultiPaneLayout';
 import MultiPaneLayout from '../views/MultiPaneLayout';
 import filterUsersByNames from '../utils/filterUsersByNames';
 import navComponents from '../utils/navComponents';
@@ -166,9 +164,9 @@ export default {
       CoreMenuOption,
       CoreTable,
       CoreInfoIcon,
-      AttemptLogList,
       InteractionList,
       ExamReport,
+      SlotTruncator,
       TextTruncator,
       TextTruncatorCss,
       TimeDuration,
@@ -197,12 +195,10 @@ export default {
       BirthYearDisplayText,
       PaginatedListContainer,
       PrivacyLinkAndModal,
-      PageStatus,
       LearnOnlyDeviceNotice,
       SuggestedTime,
       PageRoot,
-      CurrentTryOverview,
-      EmbeddedMultiPaneLayout,
+      MasteryModel,
     },
     componentSets: {
       sync,

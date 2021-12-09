@@ -7,7 +7,15 @@
       </th>
       <td>
         <ProgressIcon class="svg-icon" :progress="progress" />
-        {{ coreString('completedLabel') }}
+        <template v-if="complete">
+          {{ coreString('completedLabel') }}
+        </template>
+        <template v-else-if="progress">
+          {{ coreString('inProgressLabel') }}
+        </template>
+        <template v-else>
+          {{ coreString('notStartedLabel') }}
+        </template>
       </td>
     </tr>
     <tr>
@@ -28,7 +36,7 @@
         }) }}
       </td>
     </tr>
-    <tr>
+    <tr v-if="bestTimeSpent !== null">
       <th>
         {{ $tr('bestScoreTimeLabel') }}
       </th>
@@ -52,6 +60,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
+  import { tryValidator } from './utils';
 
   export default {
     name: 'TriesOverview',
@@ -61,38 +70,64 @@
     },
     mixins: [commonCoreStrings],
     props: {
-      progress: {
-        type: Number,
-        required: false,
-        default: 0.0,
-        validator(value) {
-          return value >= 0.0 && value <= 1.0;
+      // This should be an array of objects with the following properties:
+      // id: the unique id for the mastery log for this try
+      // mastery_criterion: the mastery criterion
+      // start_timestamp: the start time
+      // end_timestamp: the last time this try was interacted with
+      // completion_timestamp: the time when this try was completed
+      // complete: whether this try is complete or not
+      // correct: the number of correct responses in this try
+      // time_spent: the total time spent on this try
+      pastTries: {
+        type: Array,
+        required: true,
+        validator(pastTries) {
+          return pastTries.every(tryValidator);
         },
       },
-      bestScore: {
-        type: Number,
-        required: true,
-      },
-      maxQuestionsCorrect: {
-        type: Number,
-        required: true,
-      },
+      // The total number of questions that this assessment has
+      // used for calculating scores for quizzes
       totalQuestions: {
         type: Number,
         required: true,
       },
-      bestTimeSpent: {
-        type: Number,
-        required: true,
-      },
+      // The suggested time that a user should take to complete this assessment
       suggestedTime: {
         type: Number,
         default: null,
       },
     },
     computed: {
+      complete() {
+        return this.pastTries.some(tryInfo => tryInfo.completion_timestamp);
+      },
+      progress() {
+        if (this.complete) {
+          return 1.0;
+        } else if (this.pastTries.length) {
+          return 0.5;
+        } else {
+          return 0.0;
+        }
+      },
+      bestTimeSpent() {
+        const bestScoreAttempt = this.pastTries.find(t => t.correct === this.maxQuestionsCorrect);
+        if (!bestScoreAttempt) {
+          return null;
+        }
+        return bestScoreAttempt.time_spent;
+      },
+      maxQuestionsCorrect() {
+        return this.pastTries.length ? Math.max(...this.pastTries.map(t => t.correct)) : null;
+      },
+      bestScore() {
+        return this.maxQuestionsCorrect !== null
+          ? this.maxQuestionsCorrect / this.totalQuestions
+          : null;
+      },
       suggestedTimeAnnotation() {
-        if (!this.suggestedTime) {
+        if (!this.suggestedTime || this.bestTimeSpent === null) {
           return null;
         }
 

@@ -1,19 +1,18 @@
+import get from 'lodash/get';
 import pickBy from 'lodash/pickBy';
+import Modalities from 'kolibri-constants/Modalities';
 import { ContentNodeResource, ExamResource } from 'kolibri.resources';
-import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { fetchNodeDataAndConvertExam } from 'kolibri.utils.exams';
 import { coachStrings } from '../../views/common/commonCoachStrings';
 import ExerciseDifficulties from './../../apiResources/exerciseDifficulties';
 import QuizDifficulties from './../../apiResources/quizDifficulties';
 import PracticeQuizDifficulties from './../../apiResources/practiceQuizDifficulties';
 
-export function setItemStats(
-  store,
-  { classId, exerciseId, quizId, lessonId, groupId, practiceQuiz = false } = {}
-) {
+export function setItemStats(store, { classId, exerciseId, quizId, lessonId, groupId }) {
   let itemPromise;
   let resource;
   let pk;
+  let practiceQuiz;
 
   if (quizId) {
     pk = quizId;
@@ -23,9 +22,11 @@ export function setItemStats(
     }).then(fetchNodeDataAndConvertExam);
   } else {
     pk = exerciseId;
+    practiceQuiz =
+      get(store.rootState.classSummary.contentMap[pk], ['options', 'modality']) === Modalities.QUIZ;
     resource = practiceQuiz ? PracticeQuizDifficulties : ExerciseDifficulties;
     itemPromise = ContentNodeResource.fetchModel({
-      id: store.rootState.classSummary.contentMap[exerciseId].node_id,
+      id: store.rootState.classSummary.contentMap[pk].node_id,
     });
   }
 
@@ -39,6 +40,7 @@ export function setItemStats(
     }),
     true
   );
+
   return Promise.all([itemPromise, difficultiesPromise]).then(([item, stats]) => {
     if (quizId) {
       store.commit('SET_STATE', { exam: item });
@@ -60,10 +62,9 @@ export function setItemStats(
         };
       });
     } else {
-      item.assessmentmetadata = assessmentMetaDataState(item);
       store.commit('SET_STATE', { exercise: item });
       if (practiceQuiz) {
-        stats = item.assessmentmetadata.assessmentIds.map((id, questionNumber) => {
+        stats = item.assessmentmetadata.assessment_item_ids.map((id, questionNumber) => {
           const stat = stats.find(stat => stat.item === id) || {
             correct: 0,
             total: (stats[0] || {}).total || 0,
@@ -79,23 +80,24 @@ export function setItemStats(
             title,
           };
         });
-      }
-      stats = stats.map(stat => {
-        const questionNumber = Math.max(
-          1,
-          item.assessmentmetadata.assessmentIds.indexOf(stat.item)
-        );
-        const title = coachStrings.$tr('nthExerciseName', {
-          name: item.title,
-          number: questionNumber,
+      } else {
+        stats = stats.map(stat => {
+          const questionNumber = Math.max(
+            1,
+            item.assessmentmetadata.assessment_item_ids.indexOf(stat.item)
+          );
+          const title = coachStrings.$tr('nthExerciseName', {
+            name: item.title,
+            number: questionNumber,
+          });
+          return {
+            ...stat,
+            exercise_id: exerciseId,
+            question_id: stat.item,
+            title,
+          };
         });
-        return {
-          ...stat,
-          exercise_id: exerciseId,
-          question_id: stat.item,
-          title,
-        };
-      });
+      }
     }
 
     // Set the ItemStat data

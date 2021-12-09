@@ -13,7 +13,7 @@
 
     <KPageContainer>
 
-      <ReportsGroupReportLessonExerciseHeader />
+      <ReportsResourceHeader :resource="resource" @previewClick="onPreviewClick" />
 
       <ReportsControls @export="exportCSV">
         <p>
@@ -21,43 +21,11 @@
         </p>
       </ReportsControls>
 
-      <CoreTable :emptyMessage="coachString('activityListEmptyState')">
-        <template #headers>
-          <th>{{ coachString('nameLabel') }}</th>
-          <th>{{ coreString('progressLabel') }}</th>
-          <th>{{ coreString('timeSpentLabel') }}</th>
-          <th>{{ coachString('groupsLabel') }}</th>
-          <th>{{ coachString('lastActivityLabel') }}</th>
-        </template>
-        <template #tbody>
-          <transition-group tag="tbody" name="list">
-            <tr v-for="tableRow in table" :key="tableRow.id">
-              <td>
-                <KRouterLink
-                  v-if="showLink(tableRow.statusObj.status)"
-                  :text="tableRow.name"
-                  :to="link(tableRow.id)"
-                />
-                <template v-else>
-                  {{ tableRow.name }}
-                </template>
-              </td>
-              <td>
-                <StatusSimple :status="tableRow.statusObj.status" />
-              </td>
-              <td>
-                <TimeDuration :seconds="tableRow.statusObj.time_spent" />
-              </td>
-              <td>
-                <TruncatedItemList :items="tableRow.groups" />
-              </td>
-              <td>
-                <ElapsedTime :date="tableRow.statusObj.last_activity" />
-              </td>
-            </tr>
-          </transition-group>
-        </template>
-      </CoreTable>
+      <ReportsLearnersTable
+        :entries="table"
+        :questionCount="resource.assessmentmetadata &&
+          resource.assessmentmetadata.number_of_assessments"
+      />
     </KPageContainer>
   </CoreBase>
 
@@ -67,27 +35,28 @@
 <script>
 
   import sortBy from 'lodash/sortBy';
+  import { mapState } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import { PageNames } from '../../constants';
   import CSVExporter from '../../csv/exporter';
   import * as csvFields from '../../csv/fields';
-  import ReportsGroupReportLessonExerciseHeader from './ReportsGroupReportLessonExerciseHeader';
+  import ReportsResourceHeader from './ReportsResourceHeader';
   import ReportsControls from './ReportsControls';
+  import ReportsLearnersTable from './ReportsLearnersTable';
 
   export default {
     name: 'ReportsGroupReportLessonExerciseLearnerListPage',
     components: {
-      ReportsGroupReportLessonExerciseHeader,
+      ReportsResourceHeader,
       ReportsControls,
+      ReportsLearnersTable,
     },
     mixins: [commonCoach, commonCoreStrings],
     computed: {
+      ...mapState('resourceDetail', ['resource']),
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];
-      },
-      resource() {
-        return this.contentMap[this.$route.params.exerciseId];
       },
       group() {
         return this.groupMap[this.$route.params.groupId];
@@ -102,13 +71,16 @@
         const learners = this.recipients.map(learnerId => this.learnerMap[learnerId]);
         const sorted = sortBy(learners, ['name']);
         return sorted.map(learner => {
+          const groups = this.getGroupNamesForLearner(learner.id);
           const tableRow = {
-            groups: this.getGroupNamesForLearner(learner.id),
+            groups,
             statusObj: this.getContentStatusObjForLearner(
               this.$route.params.exerciseId,
               learner.id
             ),
+            link: this.link(learner.id),
           };
+
           Object.assign(tableRow, learner);
           return tableRow;
         });
@@ -119,9 +91,6 @@
         return this.classRoute(PageNames.REPORTS_GROUP_REPORT_LESSON_EXERCISE_LEARNER_PAGE_ROOT, {
           learnerId,
         });
-      },
-      showLink(status) {
-        return status !== this.STATUSES.notStarted;
       },
       exportCSV() {
         const columns = [
@@ -140,6 +109,17 @@
         });
 
         exporter.export(this.table);
+      },
+      onPreviewClick() {
+        this.$router.push(
+          this.$router.getRoute(
+            'RESOURCE_CONTENT_PREVIEW',
+            {
+              contentId: this.resource.id,
+            },
+            this.defaultBackLinkQuery
+          )
+        );
       },
     },
   };

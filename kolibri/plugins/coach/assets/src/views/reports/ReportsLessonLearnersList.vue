@@ -1,32 +1,28 @@
 <template>
 
-  <CoreTable :emptyMessage="coachString('activityListEmptyState')">
+  <CoreTable :emptyMessage="coachString('learnerListEmptyState')">
     <template #headers>
       <th>{{ coachString('nameLabel') }}</th>
-      <th>{{ coachString('statusLabel') }}</th>
-      <th>{{ coreString('timeSpentLabel') }}</th>
+      <th>{{ coreString('progressLabel') }}</th>
       <th v-if="showGroupsColumn">
         {{ coachString('groupsLabel') }}
       </th>
-      <th>{{ coachString('lastActivityLabel') }}</th>
     </template>
     <template #tbody>
       <transition-group tag="tbody" name="list">
-        <tr v-for="entry in entries" :key="entry.id">
+        <tr v-for="tableRow in entries" :key="tableRow.id">
           <td>
-            <KLabeledIcon icon="person" :label="entry.name" />
+            <KRouterLink
+              :text="tableRow.name"
+              :to="tableRow.link"
+              icon="person"
+            />
           </td>
           <td>
-            <StatusSimple :status="entry.statusObj.status" />
-          </td>
-          <td>
-            <TimeDuration :seconds="entry.statusObj.time_spent" />
+            <StatusSimple :status="tableRow.status" />
           </td>
           <td v-if="showGroupsColumn">
-            <TruncatedItemList :items="getGroupNames(entry)" />
-          </td>
-          <td>
-            <ElapsedTime :date="entry.statusObj.last_activity" />
+            <TruncatedItemList :items="tableRow.groups" />
           </td>
         </tr>
       </transition-group>
@@ -39,20 +35,16 @@
 <script>
 
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
-  import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
-  import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { coachStringsMixin } from '../common/commonCoachStrings';
   import StatusSimple from '../common/status/StatusSimple';
   import TruncatedItemList from '../common/TruncatedItemList';
 
   export default {
-    name: 'ReportsResourceLearners',
+    name: 'ReportsLessonLearnersList',
     components: {
       CoreTable,
-      ElapsedTime,
       StatusSimple,
-      TimeDuration,
       TruncatedItemList,
     },
     mixins: [coachStringsMixin, commonCoreStrings],
@@ -64,15 +56,6 @@
       showGroupsColumn: {
         type: Boolean,
         default: true,
-      },
-    },
-    methods: {
-      getGroupNames(entry) {
-        if (!entry || !entry.groups) {
-          return [];
-        }
-
-        return entry.groups.map(group => group.name);
       },
     },
   };

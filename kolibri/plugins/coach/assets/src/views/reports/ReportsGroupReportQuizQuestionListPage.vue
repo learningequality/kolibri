@@ -1,52 +1,35 @@
 <template>
 
-  <CoreBase
-    :immersivePage="false"
-    :authorized="userIsAuthorized"
-    authorizedRole="adminOrCoach"
-    :showSubNav="true"
-  >
-
-    <template #sub-nav>
-      <TopNavbar />
-    </template>
-
-    <KPageContainer>
-
-      <ReportsGroupReportQuizHeader />
-
-      <ReportsControls @export="exportCSV" />
-
-      <CoreTable :emptyMessage="coachString('questionListEmptyState')">
-        <template #headers>
-          <th>{{ coachString('questionLabel') }}</th>
-          <th>{{ coachString('helpNeededLabel') }}</th>
-        </template>
-        <template #tbody>
-          <transition-group tag="tbody" name="list">
-            <tr v-for="tableRow in table" :key="tableRow.question_id">
-              <td>
-                <KRouterLink
-                  :text="tableRow.title"
-                  :to="questionLink(tableRow.question_id)"
-                  icon="question"
-                />
-              </td>
-              <td>
-                <LearnerProgressRatio
-                  :verb="VERBS.needHelp"
-                  :icon="ICONS.help"
-                  :total="tableRow.total"
-                  :count="tableRow.total - tableRow.correct"
-                  :verbosity="1"
-                />
-              </td>
-            </tr>
-          </transition-group>
-        </template>
-      </CoreTable>
-    </KPageContainer>
-  </CoreBase>
+  <ReportsQuizBaseListPage @export="exportCSV">
+    <CoreTable :emptyMessage="coachString('questionListEmptyState')">
+      <template #headers>
+        <th>{{ coachString('questionLabel') }}</th>
+        <th>{{ coachString('helpNeededLabel') }}</th>
+      </template>
+      <template #tbody>
+        <transition-group tag="tbody" name="list">
+          <tr v-for="tableRow in table" :key="tableRow.question_id">
+            <td>
+              <KRouterLink
+                :text="tableRow.title"
+                :to="questionLink(tableRow.question_id)"
+                icon="question"
+              />
+            </td>
+            <td>
+              <LearnerProgressRatio
+                :verb="VERBS.needHelp"
+                :icon="ICONS.help"
+                :total="tableRow.total"
+                :count="tableRow.total - tableRow.correct"
+                :verbosity="1"
+              />
+            </td>
+          </tr>
+        </transition-group>
+      </template>
+    </CoreTable>
+  </ReportsQuizBaseListPage>
 
 </template>
 
@@ -58,15 +41,13 @@
   import LearnerProgressRatio from '../common/status/LearnerProgressRatio';
   import CSVExporter from '../../csv/exporter';
   import * as csvFields from '../../csv/fields';
-  import ReportsGroupReportQuizHeader from './ReportsGroupReportQuizHeader';
-  import ReportsControls from './ReportsControls';
+  import ReportsQuizBaseListPage from './ReportsQuizBaseListPage';
   import { PageNames } from './../../constants';
 
   export default {
     name: 'ReportsGroupReportQuizQuestionListPage',
     components: {
-      ReportsGroupReportQuizHeader,
-      ReportsControls,
+      ReportsQuizBaseListPage,
       LearnerProgressRatio,
     },
     mixins: [commonCoach],

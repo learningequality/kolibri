@@ -177,10 +177,6 @@ const coachStrings = createTranslator('CommonCoachStrings', {
     context:
       'Indicates which lessons have been assigned to a learner or a group in the reports section.',
   },
-  masteryModelLabel: {
-    message: 'Completion requirement',
-    context: 'Denotes whether a specific exercise needs to be completed by the learner.',
-  },
   membersLabel: {
     message: 'Members',
     context:
@@ -364,10 +360,6 @@ const coachStrings = createTranslator('CommonCoachStrings', {
     context:
       "Refers to the number of resources in a lesson. Only translate 'resource' and 'resources'.",
   },
-  percentage: {
-    message: '{value, number, percent}',
-    context: 'DO NOT TRANSLATE\nCopy the source string.',
-  },
   ratioShort: {
     message: '{value, number, integer} of {total, number, integer}',
     context:
@@ -460,6 +452,43 @@ const coachStrings = createTranslator('CommonCoachStrings', {
     context:
       'Snackbar message telling the user that the lesson is now visible to learners. This will display whenever the user changes the lesson from not visible to visible.',
   },
+  // TODO - move these into diff sections as we make this a full feature in 0.16
+  // Past Papers Project (12/2021) strings
+  latestScoreLabel: {
+    message: 'Latest score',
+    context:
+      'Heading for most recent score for a practice quiz in table of learners. Found in Reports > Lesson > Practice quiz.',
+  },
+  attemptsLabel: {
+    message: 'Attempts',
+    context:
+      'Heading for total number of times a learner took a practice quiz in table of learners. Found in Reports > Lesson > Practice quiz.',
+  },
+  difficultQuestionsDescription: {
+    message: 'Difficult questions in the most recent attempt of all learners',
+    context: "Description for the 'Difficult questions' subtab.",
+  },
+  answerLogCorrectLabel: {
+    message: 'Learner answered this correctly on the previous attempt',
+    context:
+      'Label that indicates to the coach that the learner answered this question correctly last time they took the quiz.',
+  },
+  answerLogIncorrectLabel: {
+    message: 'Learner also answered this incorrectly on the previous attempt',
+    context:
+      'Label that indicates to the coach that the learner answered this question incorrectly both on this attempt and on the previous one',
+  },
+  answerLogImprovedLabel: {
+    message: 'Learner improved their incorrect answer from the previous attempt',
+    context:
+      'Label that indicates to the coach that the learner got the question wrong on the previous attempt, but got it correctly this time.',
+  },
+  practiceQuizReportImprovedLabel: {
+    message:
+      'Learner improved at {value, number, integer} {value, plural, one {question} other {questions}}',
+    context:
+      'Indicates to the coach how many questions the learner answered correctly compared to the previous attempt',
+  },
 });
 
 // Strings for the Missing Content modals, tooltips, alerts, etc.
@@ -504,44 +533,6 @@ const MissingContentStrings = createTranslator('MissingContentStrings', {
     message: 'Go to download page',
     context:
       'Text for the link displayed at the bottom of the "Upgrade Kolibri to view resources" modal',
-  },
-
-  // TODO - move these into diff sections as we make this a full feature in 0.16
-  // Past Papers Project (12/2021) strings
-  latestScoreLabel: {
-    message: 'Latest score',
-    context:
-      'Heading for most recent score for a practice quiz in table of learners. Found in Reports > Lesson > Practice quiz.',
-  },
-  attemptsLabel: {
-    message: 'Attempts',
-    context:
-      'Heading for total number of times a learner took a practice quiz in table of learners. Found in Reports > Lesson > Practice quiz.',
-  },
-  difficultQuestionsDescription: {
-    message: 'Difficult questions in the most recent attempt of all learners',
-    context: "Description for the 'Difficult questions' subtab.",
-  },
-  answerLogCorrectLabel: {
-    message: 'Learner answered this correctly on the previous attempt',
-    context:
-      'Label that indicates to the coach that the learner answered this question correctly last time they took the quiz.',
-  },
-  answerLogIncorrectLabel: {
-    message: 'Learner also answered this incorrectly on the previous attempt',
-    context:
-      'Label that indicates to the coach that the learner answered this question incorrectly both on this attempt and on the previous one',
-  },
-  answerLogImprovedLabel: {
-    message: 'Learner improved their incorrect answer from the previous attempt',
-    context:
-      'Label that indicates to the coach that the learner got the question wrong on the previous attempt, but got it correctly this time.',
-  },
-  practiceQuizReportImprovedLabel: {
-    message:
-      'Learner improved at {value, number, integer} {value, plural, one {question} other {questions}}',
-    context:
-      'Indicates to the coach how many questions the learner answered correctly compared to the previous attempt',
   },
 });
 

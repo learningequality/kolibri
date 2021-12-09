@@ -427,7 +427,7 @@ class PracticeQuizDifficultQuestionsViewset(BaseExerciseDifficultQuestionsViewse
         # For practice quizzes we only look at complete MasteryLogs because there practice quiz
         # itself can never be made inactive, unlike for a coach assigned quiz (see above)
         masterylog_queryset = MasteryLog.objects.filter(
-            summarylog__content_id=pk, complete=True
+            summarylog__content_id=pk, complete=True, mastery_level__lt=0
         )
         attemptlog_queryset = AttemptLog.objects.all()
         if lesson_id is not None:
@@ -461,6 +461,7 @@ class PracticeQuizDifficultQuestionsViewset(BaseExerciseDifficultQuestionsViewse
                 .filter(
                     user_id=OuterRef("user_id"),
                     summarylog__content_id=pk,
+                    mastery_level__lt=0,
                     complete=True,
                 )
                 .values_list("id")[:1]

@@ -3,10 +3,7 @@ import Modalities from 'kolibri-constants/Modalities';
 
 function defaultState() {
   return {
-    exercise: {},
-    interactionIndex: 0,
-    questionId: 0,
-    tryIndex: 0,
+    resource: {},
   };
 }
 
@@ -15,7 +12,7 @@ export default {
   state: defaultState(),
   getters: {
     isQuiz(state) {
-      return get(state.exercise, ['options', 'modality']) === Modalities.QUIZ;
+      return get(state.resource, ['options', 'modality']) === Modalities.QUIZ;
     },
   },
   mutations: {

@@ -32,7 +32,7 @@
           {{ coachString('avgScoreLabel') }}
         </template>
         <template #value>
-          {{ coachString('percentage', { value: avgScore }) }}
+          {{ $formatNumber(avgScore, { style: 'percent', maximumFractionDigits: 0 }) }}
         </template>
       </HeaderTableRow>
       <HeaderTableRow>

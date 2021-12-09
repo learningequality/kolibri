@@ -71,7 +71,7 @@
           immersivePage: true,
           immersivePageIcon: 'close',
           immersivePagePrimary: false,
-          immersivePageRoute: this.$router.getRoute('ReportsQuizLearnerListPage'),
+          immersivePageRoute: this.backRouteForQuery(this.$route.query),
         };
       },
     },

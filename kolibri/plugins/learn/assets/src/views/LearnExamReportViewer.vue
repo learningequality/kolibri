@@ -1,26 +1,20 @@
 <template>
 
-  <KPageContainer noPadding>
-    <div v-if="examAttempts">
+  <KPageContainer :topMargin="0">
+    <div v-if="exerciseContentNodes && exerciseContentNodes.length">
       <ExamReport
-        :examAttempts="examAttempts"
-        :exam="exam"
+        :contentId="exam.id"
+        :title="exam.title"
         :userName="userName"
         :userId="userId"
-        :currentAttempt="currentAttempt"
-        :currentInteractionHistory="currentInteractionHistory"
-        :currentInteraction="currentInteraction"
         :selectedInteractionIndex="selectedInteractionIndex"
         :questionNumber="questionNumber"
+        :tryIndex="tryIndex"
         :exercise="exercise"
-        :itemId="itemId"
-        :completionTimestamp="completionTimestamp"
-        :complete="complete"
-        :backPageLink="backPageLink"
-        :navigateToQuestion="navigateToQuestion"
-        :navigateToQuestionAttempt="navigateToQuestionAttempt"
-        :questions="questions"
         :exerciseContentNodes="exerciseContentNodes"
+        :navigateTo="navigateTo"
+        :questions="questions"
+        @noCompleteTries="noCompleteTries"
       />
     </div>
     <div v-else>
@@ -51,50 +45,39 @@
     },
     computed: {
       ...mapState('examReportViewer', [
-        'currentAttempt',
-        'currentInteraction',
-        'currentInteractionHistory',
         'exam',
-        'examAttempts',
         'exercise',
         'exerciseContentNodes',
-        'itemId',
         'questionNumber',
         'questions',
+        'tryIndex',
       ]),
       ...mapState('examReportViewer', {
         classId: state => state.exam.collection,
-        userName: state => state.user.full_name,
-        userId: state => state.user.id,
         selectedInteractionIndex: state => state.interactionIndex,
-        completionTimestamp: state => state.masteryLog.completion_timestamp,
-        complete: state => state.masteryLog.complete,
       }),
-      backPageLink() {
-        return {
-          name: ClassesPageNames.CLASS_ASSIGNMENTS,
-          params: {
-            classId: this.classId,
-          },
-        };
-      },
+      ...mapState({
+        userName: state => state.core.session.full_name,
+        userId: state => state.core.session.user_id,
+      }),
     },
     methods: {
-      navigateToQuestion(questionNumber) {
-        this.navigateTo(questionNumber, 0);
-      },
-      navigateToQuestionAttempt(interaction) {
-        this.navigateTo(this.questionNumber, interaction);
-      },
-      navigateTo(question, interaction) {
+      navigateTo(tryIndex, questionNumber, interaction) {
         this.$router.push({
           name: ClassesPageNames.EXAM_REPORT_VIEWER,
           params: {
             classId: this.classId,
             questionInteraction: interaction,
-            questionNumber: question,
+            questionNumber,
+            tryIndex,
             examId: this.exam.id,
           },
+        });
+      },
+      noCompleteTries() {
+        this.$router.replace({
+          name: ClassesPageNames.CLASS_ASSIGNMENTS,
+          params: { classId: this.classId },
         });
       },
     },

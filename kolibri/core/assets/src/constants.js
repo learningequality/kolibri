@@ -75,6 +75,7 @@ export const MasteryModelTypes = Object.freeze({
   num_correct_in_a_row_5: 'num_correct_in_a_row_5',
   num_correct_in_a_row_10: 'num_correct_in_a_row_10',
   m_of_n: 'm_of_n',
+  quiz: 'quiz',
 });
 
 export const MasteryModelGenerators = {

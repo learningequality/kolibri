@@ -10,61 +10,76 @@ from rest_framework.test import APITestCase
 
 from . import helpers
 from kolibri.core.auth.models import Classroom
-from kolibri.core.auth.models import Facility
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.content.models import ContentNode
 from kolibri.core.lessons import models
+from kolibri.core.logger.models import MasteryLog
+from kolibri.core.logger.test.helpers import EvaluationMixin
 
 DUMMY_PASSWORD = "password"
 
 
-class ClassSummaryTestCase(APITestCase):
+class ClassSummaryTestCase(EvaluationMixin, APITestCase):
 
     fixtures = ["content_test.json"]
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
 
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         provision_device()
-        self.facility = Facility.objects.create(name="MyFac")
-        self.classroom = Classroom.objects.create(name="classrom", parent=self.facility)
-        self.another_classroom = Classroom.objects.create(
-            name="another classrom", parent=self.facility
+        super(ClassSummaryTestCase, cls).setUpTestData()
+        cls.classroom = Classroom.objects.create(name="classrom", parent=cls.facility)
+        cls.another_classroom = Classroom.objects.create(
+            name="another classrom", parent=cls.facility
         )
 
-        self.facility_admin = helpers.create_facility_admin(
-            username="facility_admin", password=DUMMY_PASSWORD, facility=self.facility
+        cls.facility_admin = helpers.create_facility_admin(
+            username="facility_admin", password=DUMMY_PASSWORD, facility=cls.facility
         )
-        self.facility_coach = helpers.create_coach(
+        cls.facility_coach = helpers.create_coach(
             username="facility_coach",
             password=DUMMY_PASSWORD,
-            facility=self.facility,
+            facility=cls.facility,
             is_facility_coach=True,
         )
-        self.classroom_coach = helpers.create_coach(
+        cls.classroom_coach = helpers.create_coach(
             username="classroom_coach",
             password=DUMMY_PASSWORD,
-            facility=self.facility,
-            classroom=self.classroom,
+            facility=cls.facility,
+            classroom=cls.classroom,
         )
-        self.another_classroom_coach = helpers.create_coach(
+        cls.another_classroom_coach = helpers.create_coach(
             username="another_classroom_coach",
             password=DUMMY_PASSWORD,
-            facility=self.facility,
-            classroom=self.another_classroom,
+            facility=cls.facility,
+            classroom=cls.another_classroom,
         )
-        self.learner = helpers.create_learner(
-            username="learner", password=DUMMY_PASSWORD, facility=self.facility
+        cls.learner = helpers.create_learner(
+            username="learner", password=DUMMY_PASSWORD, facility=cls.facility
         )
 
-        self.lesson = models.Lesson.objects.create(
+        cls.lesson = models.Lesson.objects.create(
             title="title",
             is_active=True,
-            collection=self.classroom,
-            created_by=self.facility_admin,
+            collection=cls.classroom,
+            created_by=cls.facility_admin,
+            # Add all created nodes from the evaluation mixin.
+            resources=[
+                {
+                    "contentnode_id": node.id,
+                    "content_id": node.content_id,
+                    "channel_id": node.channel_id,
+                }
+                for node in cls.content_nodes
+            ],
         )
 
-        self.basename = "kolibri:kolibri.plugins.coach:classsummary"
-        self.detail_name = self.basename + "-detail"
+        # Add all users to the classroom so their data will appear in the summary
+        for user in cls.users:
+            cls.classroom.add_member(user)
+
+        cls.basename = "kolibri:kolibri.plugins.coach:classsummary"
+        cls.detail_name = cls.basename + "-detail"
 
     def test_non_existent_nodes_dont_show_up_in_lessons(self):
         node = ContentNode.objects.exclude(kind=content_kinds.TOPIC).first()
@@ -153,3 +168,103 @@ class ClassSummaryTestCase(APITestCase):
         )
 
         self.assertEqual(response.status_code, 200)
+
+    def test_practice_quiz_summary(self):
+        # Delete in progress tries for this test.
+        MasteryLog.objects.filter(complete=False).delete()
+        self.client.login(
+            username=self.facility_coach.username, password=DUMMY_PASSWORD
+        )
+        response = self.client.get(
+            reverse(self.detail_name, kwargs={"pk": self.classroom.id})
+        )
+        content_status = response.data["content_learner_status"]
+        self.assertEqual(len(content_status), 2 * len(self.users))
+        for user_index, user in enumerate(self.users):
+            current_try = self.user_tries[user_index][0]
+            try:
+                previous_try = self.user_tries[user_index][1]
+            except IndexError:
+                previous_try = None
+            content_id = current_try.summarylog.content_id
+            data = next(
+                d
+                for d in content_status
+                if d["learner_id"] == user.id and d["content_id"] == content_id
+            )
+            self.assertEquals(
+                data["num_correct"],
+                sum(current_try.attemptlogs.values_list("correct", flat=True)),
+            )
+            self.assertEquals(
+                data["previous_num_correct"],
+                sum(previous_try.attemptlogs.values_list("correct", flat=True))
+                if previous_try
+                else 0,
+            )
+
+
+class ClassSummaryDiffTestCase(EvaluationMixin, APITestCase):
+    def test_practice_quiz_summary(self):
+        provision_device()
+        classroom = Classroom.objects.create(name="classrom", parent=self.facility)
+        facility_coach = helpers.create_coach(
+            username="facility_coach",
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+            is_facility_coach=True,
+        )
+
+        models.Lesson.objects.create(
+            title="title",
+            is_active=True,
+            collection=classroom,
+            created_by=facility_coach,
+            # Add all created nodes from the evaluation mixin.
+            resources=[
+                {
+                    "contentnode_id": node.id,
+                    "content_id": node.content_id,
+                    "channel_id": node.channel_id,
+                }
+                for node in self.content_nodes
+            ],
+        )
+
+        # Add all users to the classroom so their data will appear in the summary
+        for user in self.users:
+            classroom.add_member(user)
+
+        # Delete in progress tries for this test.
+        MasteryLog.objects.filter(complete=False).delete()
+        self.client.login(username=facility_coach.username, password=DUMMY_PASSWORD)
+        response = self.client.get(
+            reverse(
+                "kolibri:kolibri.plugins.coach:classsummary-detail",
+                kwargs={"pk": classroom.id},
+            )
+        )
+        content_status = response.data["content_learner_status"]
+        self.assertEqual(len(content_status), 2 * len(self.users))
+        for user_index, user in enumerate(self.users):
+            current_try = self.user_tries[user_index][0]
+            try:
+                previous_try = self.user_tries[user_index][1]
+            except IndexError:
+                previous_try = None
+            content_id = current_try.summarylog.content_id
+            data = next(
+                d
+                for d in content_status
+                if d["learner_id"] == user.id and d["content_id"] == content_id
+            )
+            self.assertEquals(
+                data["num_correct"],
+                sum(current_try.attemptlogs.values_list("correct", flat=True)),
+            )
+            self.assertEquals(
+                data["previous_num_correct"],
+                sum(previous_try.attemptlogs.values_list("correct", flat=True))
+                if previous_try
+                else 0,
+            )
