@@ -305,6 +305,9 @@ class ZeroConfPlugin(Monitor):
         else:
             self.broadcast.update_broadcast(instance=instance)
 
+        # cache the list of addresses active right now, so we can detect changes
+        self.addresses = get_all_addresses()
+
     def UPDATE_ZEROCONF(self):
         self.SERVING(self.port)
 
@@ -316,17 +319,16 @@ class ZeroConfPlugin(Monitor):
             self.broadcast = None
 
     def run(self):
-        # If the current addresses that zeroconf is listening on does not
-        # match the current set of all addresses for this device, then
-        # we should reinitialize zeroconf, the listener, and the broadcast
-        # kolibri service.
-        if self.broadcast is not None and self.broadcast.addresses != set(
-            get_all_addresses()
-        ):
+        # If set of addresses that were present at the last time zeroconf updated its broadcast list
+        # don't match the current set of all addresses for this device, then we should reinitialize
+        # zeroconf, the listener, and the broadcast kolibri service.
+        current_addresses = get_all_addresses()
+        if self.addresses != current_addresses:
             logger.info(
-                "New addresses detected since zeroconf was initialized, updating now"
+                "List of local addresses has changed since zeroconf was last initialized, updating now"
             )
             self.broadcast.update_broadcast(interfaces=InterfaceChoice.All)
+            self.addresses = current_addresses
 
 
 status_map = {
