@@ -260,6 +260,8 @@
         }
         this.$emit('startTracking');
         this.updateContentStateInterval = setInterval(this.updateProgress, 30000);
+        // Even if user does not pause while scrolling on first page, we store that as visited
+        this.storeVisitedPage(1);
       });
     },
     beforeDestroy() {
