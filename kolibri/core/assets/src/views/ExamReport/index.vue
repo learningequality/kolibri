@@ -393,7 +393,6 @@
           content: this.contentId,
           user: this.userId,
           back: this.tryIndex,
-          complete: this.isQuiz ? true : undefined,
           quiz: this.isQuiz,
         };
       },
