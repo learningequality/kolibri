@@ -376,9 +376,6 @@
   import LibraryPage from './LibraryPage';
   import plugin_data from 'plugin_data';
 
-  const carouselLimit = 4;
-  const mobileCarouselLimit = 3;
-
   export default {
     name: 'TopicsPage',
     metaInfo() {
@@ -449,6 +446,7 @@
         expandedTopics: {},
         subTopicLoading: null,
         topicMoreLoading: false,
+        childrenToDisplay: 3,
       };
     },
     computed: {
@@ -619,9 +617,6 @@
       },
       activeCategories() {
         return this.searchTerms.categories;
-      },
-      childrenToDisplay() {
-        return this.windowIsLarge ? carouselLimit : mobileCarouselLimit;
       },
       topicMore() {
         return this.topic.children && this.topic.children.more;
