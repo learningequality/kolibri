@@ -10,7 +10,7 @@
     <SkipNavigationLink />
     <LearningActivityBar
       :resourceTitle="resourceTitle"
-      :learningActivities="mappedLearningActivities"
+      :learningActivities="content.learning_activities"
       :isLessonContext="lessonContext"
       :isBookmarked="bookmark ? true : bookmark"
       :isCoachContent="isCoachContent"
@@ -98,10 +98,6 @@
 
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import FullScreenSidePanel from 'kolibri.coreVue.components.FullScreenSidePanel';
-  import {
-    LearningActivities,
-    ContentKindsToLearningActivitiesMap,
-  } from 'kolibri.coreVue.vuex.constants';
   import { ContentNodeResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import client from 'kolibri.client';
@@ -220,18 +216,6 @@
       },
       allowMarkComplete() {
         return get(this, ['content', 'options', 'completion_criteria', 'learner_managed'], false);
-      },
-      mappedLearningActivities() {
-        let learningActivities = [];
-        if (this.content && this.content.kind) {
-          if (Object.values(LearningActivities).includes(this.content.kind)) {
-            learningActivities.push(this.content.kind);
-          } else {
-            // otherwise reassign the old content types to the new metadata
-            learningActivities.push(ContentKindsToLearningActivitiesMap[this.content.kind]);
-          }
-        }
-        return learningActivities;
       },
       lessonContext() {
         return Boolean(this.lessonId);
