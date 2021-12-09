@@ -607,7 +607,14 @@ class KolibriProcessBus(ProcessBus):
         # If there are, then we need to stop users from starting kolibri again.
         pid, _, _, status = _read_pid_file(self.pid_file)
 
-        if status in IS_RUNNING and pid_exists(pid):
+        if (
+            status in IS_RUNNING
+            and pid_exists(pid)
+            and (
+                not self.serve_http
+                or check_port_availability(self.listen_address, self.port)
+            )
+        ):
             logger.error(
                 "There is another Kolibri server running. "
                 "Please use `kolibri stop` and try again."
