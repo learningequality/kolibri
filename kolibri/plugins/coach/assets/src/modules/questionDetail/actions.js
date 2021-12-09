@@ -55,6 +55,7 @@ export function setLearners(store, params) {
             noattempt: true,
           });
         }
+        returnLearner.item = returnLearner.item.split(':')[1] || returnLearner.item;
         Object.assign(returnLearner, store.rootState.classSummary.learnerMap[learner.learner_id]);
         return returnLearner;
       });
