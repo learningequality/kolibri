@@ -135,7 +135,6 @@
       },
       footerLength() {
         return (
-          1 +
           this.content.is_leaf +
           (this.isUserLoggedIn && !this.isLearner && this.content.num_coach_contents) +
           (this.content.num_coach_contents > 0) +
@@ -193,6 +192,7 @@
   .header-bar {
     display: flex;
     justify-content: space-between;
+    height: 48px;
     padding: 8px 16px;
     font-size: 13px;
     .channel-logo {
@@ -212,7 +212,7 @@
     display: inline-block;
     padding: 0;
     margin: 0;
-    font-size: 16px;
+    font-size: 13px;
   }
 
   .k-labeled-icon {
