@@ -128,11 +128,12 @@ class DatabaseBusyErrorHandler(object):
             return None
         # Return a 503 response with a Retry-After of 10 seconds. In future we may be able to customize this value
         # based on what is currently happening on the server.
-        return HttpResponse(
+        response = HttpResponse(
             "Database is not available for write operations",
             status=503,
-            headers={"Retry-After": 10},
         )
+        response["Retry-After"] = 10
+        return response
 
     def __call__(self, request):
         return self.get_response(request)
