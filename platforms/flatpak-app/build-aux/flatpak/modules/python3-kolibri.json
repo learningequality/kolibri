@@ -3,8 +3,8 @@
     "buildsystem": "simple",
     "build-commands": [
         "pip3 install --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} kolibri",
-        "patch /app/lib/python3.8/site-packages/kolibri/utils/server.py server.py.diff",
-        "patch /app/lib/python3.8/site-packages/kolibri/utils/cli.py cli.py.diff"
+        "patch -d /app/lib/python3.8/site-packages/kolibri -p2 < 0001-Get-port-number-for-zeroconf-from-cherrypy.server.patch",
+        "patch -d /app/lib/python3.8/site-packages/kolibri -p2 < 0001-Allow-superuser-to-be-null-in-device-provision-API.patch"
     ],
     "sources": [
         {
@@ -14,11 +14,11 @@
         },
         {
             "type": "file",
-            "path": "server.py.diff"
+            "path": "0001-Get-port-number-for-zeroconf-from-cherrypy.server.patch"
         },
         {
             "type": "file",
-            "path": "cli.py.diff"
+            "path": "0001-Allow-superuser-to-be-null-in-device-provision-API.patch"
         }
     ]
 }

@@ -1,0 +1,39 @@
+From 05d9b7bbfbb97c00226139fa5d94230680f30000 Mon Sep 17 00:00:00 2001
+From: Dylan McCall <dylan@endlessos.org>
+Date: Thu, 2 Dec 2021 15:31:30 -0800
+Subject: [PATCH] Allow superuser to be null in device provision API
+
+---
+ kolibri/core/device/serializers.py | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/kolibri/core/device/serializers.py b/kolibri/core/device/serializers.py
+index 6db1cb1a9..fe92ecc16 100644
+--- a/kolibri/core/device/serializers.py
++++ b/kolibri/core/device/serializers.py
+@@ -45,7 +45,7 @@ class DeviceSerializerMixin(object):
+ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
+     facility = FacilitySerializer()
+     preset = serializers.ChoiceField(choices=choices)
+-    superuser = NoFacilityFacilityUserSerializer()
++    superuser = NoFacilityFacilityUserSerializer(allow_null=True)
+     language_id = serializers.CharField(max_length=15)
+     device_name = serializers.CharField(max_length=50, allow_null=True)
+     settings = serializers.JSONField()
+@@ -83,7 +83,13 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
+             facility.dataset.save()
+
+             # Create superuser
+-            superuser = create_superuser(validated_data["superuser"], facility=facility)
++            superuser_data = validated_data.pop("superuser")
++            if superuser_data:
++                superuser = create_superuser(
++                    validated_data["superuser"], facility=facility
++                )
++            else:
++                superuser = None
+
+             # Create device settings
+             language_id = validated_data.pop("language_id")
+--
+2.33.1
