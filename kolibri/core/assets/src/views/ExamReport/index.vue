@@ -315,7 +315,9 @@
       pastTriesOptions() {
         return this.pastTries.map((quizTry, index) => {
           const score = Math.floor((quizTry.correct / this.questions.length) * 100);
-          const time = this.$formatRelative(quizTry.completion_timestamp, { now: this.now });
+          const time = this.$formatRelative(quizTry.completion_timestamp || quizTry.end_timestamp, {
+            now: this.now,
+          });
           return {
             value: index,
             label: `(${score}%) ${time}`,
