@@ -139,12 +139,6 @@
           </div>
           <!-- default/preview display of nested folder structure, not search -->
           <div v-if="!displayingSearchResults">
-            <h2>
-              <TextTruncator
-                :text="topic.title"
-                :maxHeight="maxTitleHeight"
-              />
-            </h2>
             <!-- display for each nested topic/folder  -->
             <div v-for="t in topicsForDisplay" :key="t.id">
               <!-- header link to folder -->
