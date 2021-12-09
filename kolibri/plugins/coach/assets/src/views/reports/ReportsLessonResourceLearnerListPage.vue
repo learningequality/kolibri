@@ -13,7 +13,9 @@
 
     <KPageContainer>
       <section>
-        <HeaderWithOptions>
+        <HeaderWithOptions
+          style="padding-top:24px;"
+        >
           <template #header>
             <BackLink
               :to="classRoute('ReportsLessonReportPage', {})"
