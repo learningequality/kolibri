@@ -116,7 +116,7 @@ class Server(BaseServer):
         return logger.log(level, msg)
 
 
-def check_port_availability(host, port):
+def port_is_available_on_host(host, port):
     """
     Make sure the port is available for the server to start.
     """
@@ -152,7 +152,7 @@ class PortCache:
                     if not self.values[p] and p not in self.occupied_ports
                 )
                 if port:
-                    if check_port_availability(host, port):
+                    if port_is_available_on_host(host, port):
                         self.values[port] = True
                         return port
             except StopIteration:
@@ -612,7 +612,7 @@ class KolibriProcessBus(ProcessBus):
             and pid_exists(pid)
             and (
                 not self.serve_http
-                or check_port_availability(self.listen_address, self.port)
+                or not port_is_available_on_host(self.listen_address, self.port)
             )
         ):
             logger.error(
@@ -679,7 +679,7 @@ class KolibriProcessBus(ProcessBus):
         if (
             not os.environ.get("LISTEN_PID", None)
             and port
-            and not check_port_availability(self.listen_address, port)
+            and not port_is_available_on_host(self.listen_address, port)
         ):
             # Port is occupied
             logger.error(
