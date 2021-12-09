@@ -116,7 +116,7 @@ class Server(BaseServer):
         return logger.log(level, msg)
 
 
-def check_port_availability(host, port):
+def port_is_available_on_host(host, port):
     """
     Make sure the port is available for the server to start.
     """
@@ -152,7 +152,7 @@ class PortCache:
                     if not self.values[p] and p not in self.occupied_ports
                 )
                 if port:
-                    if check_port_availability(host, port):
+                    if port_is_available_on_host(host, port):
                         self.values[port] = True
                         return port
             except StopIteration:
@@ -603,11 +603,10 @@ class KolibriProcessBus(ProcessBus):
         if sys.platform == "darwin":
             self.background = False
 
-        # Check if there are other kolibri instances running
-        # If there are, then we need to stop users from starting kolibri again.
-        pid, _, _, status = _read_pid_file(self.pid_file)
-
-        if status in IS_RUNNING and pid_exists(pid):
+        if (
+            self._kolibri_appears_to_be_running()
+            and self._kolibri_main_port_is_occupied()
+        ):
             logger.error(
                 "There is another Kolibri server running. "
                 "Please use `kolibri stop` and try again."
@@ -662,6 +661,17 @@ class KolibriProcessBus(ProcessBus):
         reload_plugin = ProcessControlPlugin(self)
         reload_plugin.subscribe()
 
+    def _kolibri_appears_to_be_running(self):
+        # Check if there are other kolibri instances running
+        # If there are, then we need to stop users from starting kolibri again.
+        pid, _, _, status = _read_pid_file(self.pid_file)
+        return status in IS_RUNNING and pid_exists(pid)
+
+    def _kolibri_main_port_is_occupied(self):
+        if not self.serve_http:
+            return False
+        return not port_is_available_on_host(self.listen_address, self.port)
+
     def _port_check(self, port):
         # In case that something other than Kolibri occupies the port,
         # check the port's availability.
@@ -672,7 +682,7 @@ class KolibriProcessBus(ProcessBus):
         if (
             not os.environ.get("LISTEN_PID", None)
             and port
-            and not check_port_availability(self.listen_address, port)
+            and not port_is_available_on_host(self.listen_address, port)
         ):
             # Port is occupied
             logger.error(

@@ -288,11 +288,15 @@ class ServerInitializationTestCase(TestCase):
             run_mock.assert_called()
 
     @mock.patch("kolibri.utils.server.pid_exists")
-    def test_server_running(self, pid_exists_mock, read_pid_file_mock):
+    @mock.patch("kolibri.utils.server.wait_for_free_port")
+    def test_server_running(
+        self, wait_for_port_mock, pid_exists_mock, read_pid_file_mock
+    ):
+        wait_for_port_mock.side_effect = OSError
         pid_exists_mock.return_value = True
         read_pid_file_mock.return_value = (1000, 8000, 8001, server.STATUS_RUNNING)
         with self.assertRaises(SystemExit):
-            server.start()
+            server.start(port=8000)
 
 
 class ServerSignalHandlerTestCase(TestCase):
