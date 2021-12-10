@@ -16,9 +16,6 @@
     authorizedRole="registeredUser"
     v-bind="immersivePageProps"
   >
-    <template #app-bar-actions>
-      <ActionBarSearchBox v-if="showSearch" />
-    </template>
 
     <template #sub-nav>
       <LearnTopNav />
@@ -73,7 +70,6 @@
   import ClassAssignmentsPage from './classes/ClassAssignmentsPage';
   import LessonPlaylistPage from './classes/LessonPlaylistPage';
   import LessonResourceViewer from './classes/LessonResourceViewer';
-  import ActionBarSearchBox from './ActionBarSearchBox';
   import LearnTopNav from './LearnTopNav';
   import { ASSESSMENT_FOOTER, QUIZ_FOOTER } from './footers.js';
   import BookmarkPage from './BookmarkPage.vue';
@@ -96,7 +92,6 @@
   export default {
     name: 'LearnIndex',
     components: {
-      ActionBarSearchBox,
       Breadcrumbs,
       CoreBase,
       LearnTopNav,
@@ -111,7 +106,7 @@
       };
     },
     computed: {
-      ...mapGetters(['isUserLoggedIn', 'canAccessUnassignedContent']),
+      ...mapGetters(['isUserLoggedIn']),
       ...mapState('lessonPlaylist/resource', {
         lessonContent: 'content',
       }),
@@ -247,9 +242,6 @@
           appBarTitle: this.learnString('learnLabel'),
           immersivePage: false,
         };
-      },
-      showSearch() {
-        return this.canAccessUnassignedContent;
       },
       topNavIsVisible() {
         return (

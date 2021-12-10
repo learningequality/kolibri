@@ -29,7 +29,7 @@
           :text="metadataStrings.$tr('viewResource')"
           appearance="raised-button"
           :primary="false"
-          :to="genContentLink(content.id, null, content.is_leaf, null, {})"
+          :to="genContentLink(content.id, null, content.is_leaf, $route.name, { ...$route.query })"
           data-test="view-resource-link"
         />
       </div>

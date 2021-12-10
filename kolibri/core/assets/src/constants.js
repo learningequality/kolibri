@@ -1,5 +1,4 @@
 import invert from 'lodash/invert';
-import LearningActivities from 'kolibri-constants/labels/LearningActivities';
 import Subjects from 'kolibri-constants/labels/Subjects';
 // coach-facing
 export { default as ContentNodeResourceType } from 'kolibri-constants/labels/ResourceType';
@@ -40,15 +39,6 @@ export const ContentNodeKinds = {
   ACTIVITY: 'ACTIVITY',
   SLIDESHOW: 'slideshow',
   BOOKMARK: 'bookmark',
-};
-
-export const ContentKindsToLearningActivitiesMap = {
-  audio: LearningActivities.LISTEN,
-  document: LearningActivities.READ,
-  exercise: LearningActivities.PRACTICE,
-  html5: LearningActivities.EXPLORE,
-  video: LearningActivities.WATCH,
-  topic: 'folder',
 };
 
 export const CategoriesLookup = invert(Subjects);

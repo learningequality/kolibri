@@ -11,7 +11,8 @@
         <KGridItem sizes="100, 75, 75" percentage>
           <h1>{{ $tr('detailsHeader') }}</h1>
         </KGridItem>
-        <KGridItem sizes="100, 25, 25" percentage alignment="right">
+        <!-- Users cannot edit their profile if on a SoUD -->
+        <KGridItem v-if="!isSubsetOfUsersDevice" sizes="100, 25, 25" percentage alignment="right">
           <KRouterLink
             :text="$tr('editAction')"
             appearance="raised-button"
@@ -141,6 +142,7 @@
   import { ComponentMap } from '../../constants';
   import ChangeUserPasswordModal from './ChangeUserPasswordModal';
   import useCurrentUser from './useCurrentUser';
+  import plugin_data from 'plugin_data';
 
   export default {
     name: 'ProfilePage',
@@ -162,8 +164,10 @@
     setup() {
       const showPasswordModal = ref(false);
       const { currentUser } = useCurrentUser();
+      const { isSubsetOfUsersDevice } = plugin_data;
       return {
         currentUser,
+        isSubsetOfUsersDevice,
         showPasswordModal,
       };
     },

@@ -82,7 +82,7 @@
        */
       label: {
         type: String,
-        required: true,
+        default: null,
       },
       /**
        * Whether disabled or not

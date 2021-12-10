@@ -1,4 +1,5 @@
-import { shallowMount } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils';
+import VueRouter from 'vue-router';
 import { ContentNodeResource } from 'kolibri.resources';
 import KRouterLink from 'kolibri-design-system/lib/buttons-and-links/KRouterLink';
 import LearnerNeeds from 'kolibri-constants/labels/Needs';
@@ -11,6 +12,21 @@ import ContentNodeThumbnail from '../../src/views/thumbnails/ContentNodeThumbnai
 import LearningActivityChip from '../../src/views/LearningActivityChip';
 import BrowseResourceMetadata from '../../src/views/BrowseResourceMetadata';
 import genContentLink from '../../src/utils/genContentLink';
+import routes from '../../src/routes/index.js';
+
+const localVue = createLocalVue();
+localVue.use(VueRouter);
+
+jest.mock('plugin_data', () => {
+  return {
+    __esModule: true,
+    default: {
+      accessibilityLabels: [],
+      gradeLevels: [],
+      learnerNeeds: [],
+    },
+  };
+});
 
 const promise = new Promise(() => []);
 
@@ -67,7 +83,9 @@ function makeWrapper(metadata = {}, options = {}) {
   const content = makeContentNode(metadata);
   const propsData = { content };
   return shallowMount(BrowseResourceMetadata, {
+    localVue,
     propsData,
+    router: new VueRouter(routes),
     ...options,
   });
 }
@@ -158,7 +176,6 @@ describe('BrowseResourceMetadata', () => {
     });
 
     it('does not show the forBeginners chip when one of LearnerNeeds is FOR_BEGINNERS', () => {
-      console.log(wrapper.vm.forBeginners);
       expect(wrapper.find("[data-test='beginners-chip']").exists()).toBeFalsy();
     });
 
