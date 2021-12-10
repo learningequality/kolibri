@@ -918,6 +918,7 @@ class AttemptLogViewSet(ReadOnlyValuesViewset):
     ordering = ("end_timestamp",)
 
     values = (
+        "id",
         "item",
         "start_timestamp",
         "end_timestamp",
