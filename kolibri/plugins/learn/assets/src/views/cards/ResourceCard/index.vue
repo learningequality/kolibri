@@ -20,7 +20,15 @@
         />
       </template>
       <template #topRight>
-        <LearningActivityLabel :contentNode="contentNode" />
+        <LearningActivityLabel
+          v-if="contentNode.is_leaf"
+          :contentNode="contentNode"
+        />
+        <KLabeledIcon
+          v-else
+          iconAfter="topic"
+          :label="coreString('folder')"
+        />
         <KButton
           v-if="contentNode.copies"
           appearance="basic-link"
