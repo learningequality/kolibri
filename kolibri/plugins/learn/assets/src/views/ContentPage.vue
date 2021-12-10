@@ -64,10 +64,11 @@
     <KCircularLoader v-else />
 
     <CompletionModal
-      v-if="progress >= 1 && wasIncomplete && !practiceQuiz"
+      v-if="progress >= 1 && wasIncomplete"
       :isUserLoggedIn="isUserLoggedIn"
       :contentNodeId="content.id"
       :lessonId="lessonId"
+      :isQuiz="practiceQuiz"
       @close="markAsComplete"
     />
   </div>

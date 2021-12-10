@@ -86,11 +86,11 @@
 
               <CompletionModalSection
                 ref="staySection"
-                icon="restart"
+                :icon="isQuiz ? 'reports' : 'restart'"
                 :class="sectionClass"
-                :title="$tr('stayTitle')"
-                :description="$tr('stayDescription')"
-                :buttonLabel="$tr('stayButtonLabel')"
+                :title="isQuiz ? $tr('reviewQuizTitle') : $tr('stayTitle')"
+                :description="isQuiz ? $tr('reviewQuizDescription') : $tr('stayDescription')"
+                :buttonLabel="isQuiz ? $tr('reviewQuizButtonLabel') : $tr('stayButtonLabel')"
                 @buttonClick="$emit('close')"
               />
 
@@ -201,6 +201,10 @@
       lessonId: {
         type: String,
         default: null,
+      },
+      isQuiz: {
+        type: Boolean,
+        default: false,
       },
     },
     data() {
@@ -428,6 +432,18 @@
       stayButtonLabel: {
         message: 'Stay here',
         context: 'Label for a button used if learner decides to repeat the completed resource.',
+      },
+      reviewQuizTitle: {
+        message: 'Review quiz',
+        context: 'Message to the user to review a quiz after they completed it.',
+      },
+      reviewQuizDescription: {
+        message: 'Open the quiz report to review your answers',
+        context: 'After learner submitted a practice quiz, they can view the report page.',
+      },
+      reviewQuizButtonLabel: {
+        message: 'View report',
+        context: 'Label for a button used if learner decides to view the practice quiz report.',
       },
       helpfulResourcesTitle: {
         message: 'You may find helpful',
