@@ -25,20 +25,7 @@
       <TotalPoints />
     </template>
 
-    <!--
-      Topics pages have a different heading style which
-      includes passing the breadcrumbs
-    -->
-    <div v-if="currentPageIsTopic">
-      <component :is="currentPage">
-        <template #breadcrumbs>
-          <Breadcrumbs />
-        </template>
-      </component>
-      <router-view />
-    </div>
-
-    <div v-else>
+    <div>
       <component :is="currentPage" v-if="currentPage" />
       <router-view />
     </div>
@@ -61,7 +48,6 @@
   import TopicsPage from './TopicsPage';
   import ContentPage from './ContentPage';
   import ContentUnavailablePage from './ContentUnavailablePage';
-  import Breadcrumbs from './Breadcrumbs';
   import LearnImmersiveLayout from './LearnImmersiveLayout';
   import ExamPage from './ExamPage';
   import ExamReportViewer from './LearnExamReportViewer';
@@ -90,7 +76,6 @@
   export default {
     name: 'LearnIndex',
     components: {
-      Breadcrumbs,
       CoreBase,
       LearnTopNav,
       TotalPoints,
@@ -118,12 +103,6 @@
       },
       currentPage() {
         return pageNameToComponentMap[this.pageName] || null;
-      },
-      currentPageIsTopic() {
-        return [
-          pageNameToComponentMap[PageNames.TOPICS_TOPIC],
-          pageNameToComponentMap[PageNames.TOPICS_TOPIC_SEARCH],
-        ].includes(this.currentPage);
       },
       currentPageIsContent() {
         return this.pageName === PageNames.TOPICS_CONTENT;

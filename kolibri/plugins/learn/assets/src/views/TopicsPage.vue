@@ -16,7 +16,7 @@
             :layout8="{ span: 8 }"
             :layout12="{ span: 12 }"
           >
-            <slot name="breadcrumbs"></slot>
+            <KBreadcrumbs v-if="breadcrumbs.length" :items="breadcrumbs" />
           </KGridItem>
           <KGridItem
             :layout4="{ span: 4 }"
@@ -349,6 +349,7 @@
 
   import { mapActions, mapState } from 'vuex';
   import isEqual from 'lodash/isEqual';
+  import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
@@ -387,6 +388,7 @@
       return { title };
     },
     components: {
+      KBreadcrumbs,
       CardThumbnail,
       HybridLearningCardGrid,
       CustomContentRenderer,
@@ -445,6 +447,22 @@
     },
     computed: {
       ...mapState('topicsTree', ['channel', 'contents', 'isRoot', 'topic']),
+      breadcrumbs() {
+        if (!this.topic || !this.topic.ancestors) {
+          return [];
+        }
+        return [
+          ...this.topic.ancestors.map(({ title, id }, index) => ({
+            // Use the channel name just in case the root node does not have a title.
+            text: index === 0 ? this.channelTitle : title,
+            link: {
+              name: PageNames.TOPICS_TOPIC,
+              params: { id },
+            },
+          })),
+          { text: this.topic.ancestors.length ? this.topic.title : this.channelTitle },
+        ];
+      },
       sidePanelIsOpen() {
         return this.$route.query.sidePanel === 'true';
       },
@@ -488,7 +506,7 @@
         return this.$route.name === PageNames.TOPICS_TOPIC_SEARCH;
       },
       channelTitle() {
-        return this.channel.title;
+        return this.channel.name;
       },
       resources() {
         const resources = this.contents.filter(content => content.kind !== ContentNodeKinds.TOPIC);
