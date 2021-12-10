@@ -34,7 +34,7 @@
         >
           <LearningActivityLabel
             :contentNode="content"
-            labelAfter
+            :labelAfter="true"
             condensed
           />
         </div>
