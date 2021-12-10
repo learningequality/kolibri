@@ -1,30 +1,40 @@
 <template>
 
-  <BaseCard
+  <div
     v-if="contentNode"
-    v-bind="{ to, title, collectionTitle }"
+    class="resource-card-outer"
   >
-    <template #topLeft>
-      <ContentNodeThumbnail
-        :contentNode="contentNode"
-        rounded
-      />
-    </template>
-    <template #topRight>
-      <LearningActivityLabel :contentNode="contentNode" />
-      <KButton
-        v-if="contentNode.copies"
-        appearance="basic-link"
-        class="copies"
-        :text="coreString('copies', { num: contentNode.copies.length })"
-        @click.prevent="$emit('openCopiesModal', contentNode.copies)"
-      />
-    </template>
+    <div
+      v-if="!contentNode.is_leaf"
+      class="topic-bar"
+      :style="{ backgroundColor: $themeTokens.text }"
+    ></div>
+    <BaseCard
+      v-bind="{ to, title, collectionTitle }"
+      class="resource-card"
+    >
+      <template #topLeft>
+        <ContentNodeThumbnail
+          :contentNode="contentNode"
+          rounded
+        />
+      </template>
+      <template #topRight>
+        <LearningActivityLabel :contentNode="contentNode" />
+        <KButton
+          v-if="contentNode.copies"
+          appearance="basic-link"
+          class="copies"
+          :text="coreString('copies', { num: contentNode.copies.length })"
+          @click.prevent="$emit('openCopiesModal', contentNode.copies)"
+        />
+      </template>
 
-    <template #progress>
-      <ProgressBar :contentNode="contentNode" />
-    </template>
-  </BaseCard>
+      <template #progress>
+        <ProgressBar :contentNode="contentNode" />
+      </template>
+    </BaseCard>
+  </div>
 
 </template>
 
@@ -78,6 +88,23 @@
 
   .copies {
     float: right;
+  }
+
+  .resource-card-outer {
+    position: relative;
+  }
+
+  .topic-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 10px;
+    border-radius: 8px 8px 0 0;
+  }
+
+  .resource-card {
+    padding-top: 26px;
   }
 
 </style>
