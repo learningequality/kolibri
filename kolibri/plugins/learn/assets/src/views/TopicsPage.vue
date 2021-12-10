@@ -142,7 +142,7 @@
             <!-- display for each nested topic/folder  -->
             <div v-for="t in topicsForDisplay" :key="t.id">
               <!-- header link to folder -->
-              <h3>
+              <h2>
                 <KRouterLink
                   :text="t.title"
                   :to="genContentLink(t.id)"
@@ -150,7 +150,7 @@
                   iconAfter="chevronRight"
                   :appearanceOverrides="{ color: $themeTokens.text }"
                 />
-              </h3>
+              </h2>
               <!-- card grid of items in folder -->
               <HybridLearningCardGrid
                 v-if="t.children && t.children.length"
