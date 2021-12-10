@@ -209,16 +209,11 @@
           </div>
           <div v-else-if="!searchLoading">
             <h2 class="results-title">
-              {{ translator.$tr('results', { results: results.length }) }}
+              {{ more ?
+                coreString('overCertainNumberOfSearchResults', { num: results.length }) :
+                translator.$tr('results', { results: results.length })
+              }}
             </h2>
-            <KButton
-              v-if="more"
-              :text="coreString('viewMoreAction')"
-              appearance="basic-link"
-              :disabled="moreLoading"
-              class="filter-action-button"
-              @click="searchMore"
-            />
             <SearchChips
               :searchTerms="searchTerms"
               @removeItem="removeFilterTag"
@@ -381,9 +376,6 @@
   import LibraryPage from './LibraryPage';
   import plugin_data from 'plugin_data';
 
-  const carouselLimit = 4;
-  const mobileCarouselLimit = 3;
-
   export default {
     name: 'TopicsPage',
     metaInfo() {
@@ -454,6 +446,7 @@
         expandedTopics: {},
         subTopicLoading: null,
         topicMoreLoading: false,
+        childrenToDisplay: 3,
       };
     },
     computed: {
@@ -624,9 +617,6 @@
       },
       activeCategories() {
         return this.searchTerms.categories;
-      },
-      childrenToDisplay() {
-        return this.windowIsLarge ? carouselLimit : mobileCarouselLimit;
       },
       topicMore() {
         return this.topic.children && this.topic.children.more;

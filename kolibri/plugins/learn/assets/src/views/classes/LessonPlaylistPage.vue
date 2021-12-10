@@ -45,12 +45,13 @@
 
 <script>
 
-  import { mapState } from 'vuex';
+  import { mapMutations, mapState } from 'vuex';
   import sumBy from 'lodash/sumBy';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
   import genContentLink from '../../utils/genContentLink';
+  import { PageNames } from '../../constants';
   import HybridLearningCardGrid from './../HybridLearningCardGrid';
 
   export default {
@@ -84,7 +85,15 @@
         return undefined;
       },
     },
+    beforeDestroy() {
+      /* If we are going anywhere except for content we unset the lesson */
+
+      if (this.$route.name !== PageNames.TOPICS_CONTENT) {
+        this.SET_CURRENT_LESSON({});
+      }
+    },
     methods: {
+      ...mapMutations('lessonPlaylist', ['SET_CURRENT_LESSON']),
       getContentNodeThumbnail,
       genContentLink,
     },

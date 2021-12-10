@@ -117,6 +117,11 @@
         };
       },
     },
+    watch: {
+      value(current) {
+        this.searchInputValue = current || '';
+      },
+    },
     methods: {
       clearInput() {
         this.searchInputValue = '';

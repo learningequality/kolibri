@@ -351,6 +351,11 @@ export default {
         // convert dates
         status.last_activity = status.last_activity ? new Date(status.last_activity) : null;
       });
+      const patchedSummaryContent = summary.content.map(item => {
+        const obj = Object.assign({}, item);
+        obj['kind'] = obj['kind'] == 'h5p' ? 'html5' : obj['kind'];
+        return obj;
+      });
       Object.assign(state, {
         id: summary.id,
         facility_id: summary.facility_id,
@@ -361,8 +366,8 @@ export default {
         adHocGroupsMap: _itemMap(summary.adhoclearners, 'id'),
         examMap,
         examLearnerStatusMap: _statusMap(summary.exam_learner_status, 'exam_id'),
-        contentMap: _itemMap(summary.content, 'content_id'),
-        contentNodeMap: _itemMap(summary.content, 'node_id'),
+        contentMap: _itemMap(patchedSummaryContent, 'content_id'),
+        contentNodeMap: _itemMap(patchedSummaryContent, 'node_id'),
         contentLearnerStatusMap: _statusMap(summary.content_learner_status, 'content_id'),
         lessonMap,
       });
