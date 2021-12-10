@@ -115,6 +115,22 @@ export default [
       };
     },
   },
+  {
+    // Handle redirect for links without the /folder appended
+    path: '/topics/t/:id',
+    redirect: '/topics/t/:id/:subtopic?/folders',
+    handler: (toRoute, fromRoute) => {
+      if (unassignedContentGuard()) {
+        return unassignedContentGuard();
+      }
+      // If navigation is triggered by a custom navigation updating the
+      // context query param, do not run the handler
+      if (toRoute.params.id === fromRoute.params.id) {
+        return;
+      }
+      showTopicsTopic(store, { id: toRoute.params.id, pageName: toRoute.name });
+    },
+  },
   // Have to put TOPICS_TOPIC_SEARCH before TOPICS_TOPIC to ensure
   // search gets picked up before being interpreted as a subtopic id.
   {
@@ -134,7 +150,7 @@ export default [
   },
   {
     name: PageNames.TOPICS_TOPIC,
-    path: '/topics/t/:id/:subtopic?',
+    path: '/topics/t/:id/:subtopic?/folders',
     handler: (toRoute, fromRoute) => {
       if (unassignedContentGuard()) {
         return unassignedContentGuard();

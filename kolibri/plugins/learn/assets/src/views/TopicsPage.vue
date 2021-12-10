@@ -64,55 +64,30 @@
         </KGrid>
         <!-- Nested tabs within the header, for toggling sidebar options -->
         <!-- larger screens -->
-        <div class="tabs">
-          <KRouterLink
-            v-if="topics && topics.length"
-            ref="tab_button"
-            :to="foldersLink"
+        <HeaderTabs>
+          <HeaderTab
             :text="coreString('folders')"
-            appearance="flat-button"
-            class="tab-button"
-            :style="!searchActive ? {
-              color: `${this.$themeTokens.primary} !important`,
-              borderBottom: `2px solid ${this.$themeTokens.primary}`,
-              paddingBottom: '2px',
-            } : {}"
-            :appearanceOverrides="customTabButtonOverrides"
+            :to="foldersLink"
           />
-          <KRouterLink
-            ref="tab_button"
-            :to="searchLink"
+          <HeaderTab
             :text="coreString('searchLabel')"
-            appearance="flat-button"
-            class="tab-button"
-            :style="searchActive ? {
-              color: `${this.$themeTokens.primary} !important`,
-              borderBottom: `2px solid ${this.$themeTokens.primary}`,
-              paddingBottom: '2px',
-            } : {}"
-            :appearanceOverrides="customTabButtonOverrides"
+            :to="searchLink"
           />
-        </div>
+        </HeaderTabs>
       </div>
       <!-- mobile tabs (different alignment and interactions) -->
       <div v-if="windowIsSmall" class="mobile-header">
         <div class="mobile-header-contents">
-          <div class="mobile-tabs">
-            <KRouterLink
-              ref="tab_button"
-              :to="foldersLink"
+          <HeaderTabs>
+            <HeaderTab
               :text="coreString('folders')"
-              appearance="flat-button"
-              :appearanceOverrides="customTabButtonOverrides"
+              :to="foldersLink"
             />
-            <KRouterLink
-              ref="tab_button"
-              :to="searchLink"
+            <HeaderTab
               :text="coreString('searchLabel')"
-              appearance="flat-button"
-              :appearanceOverrides="customTabButtonOverrides"
+              :to="searchLink"
             />
-          </div>
+          </HeaderTabs>
           <img
             :src="topic.thumbnail"
             class="channel-logo"
@@ -371,6 +346,8 @@
   import { normalizeContentNode } from '../modules/coreLearn/utils.js';
   import useSearch from '../composables/useSearch';
   import genContentLink from '../utils/genContentLink';
+  import HeaderTabs from '../../../../coach/assets/src/views/common/HeaderTabs';
+  import HeaderTab from '../../../../coach/assets/src/views/common/HeaderTabs/HeaderTab';
   import HybridLearningCardGrid from './HybridLearningCardGrid';
   import EmbeddedSidePanel from './EmbeddedSidePanel';
   import BrowseResourceMetadata from './BrowseResourceMetadata';
@@ -410,6 +387,8 @@
       BrowseResourceMetadata,
       SearchChips,
       TextTruncator,
+      HeaderTab,
+      HeaderTabs,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
     setup() {
@@ -576,18 +555,6 @@
           return true;
         }
         return false;
-      },
-      customTabButtonOverrides() {
-        return {
-          textTransform: 'capitalize',
-          paddingBottom: '10px',
-          fontWeight: 'normal',
-          ':hover': {
-            color: this.$themeTokens.primary,
-            'background-color': this.$themeTokens.surface,
-            borderBottom: `2px solid ${this.$themeTokens.primary}`,
-          },
-        };
       },
       sidePanelWidth() {
         if (this.windowIsSmall || (this.windowIsMedium && this.searchActive)) {
@@ -775,14 +742,10 @@
     margin: 12px;
   }
 
-  .tabs {
+  .tab-block {
     position: absolute;
     bottom: 0;
-  }
-
-  .tab-button {
-    padding: 18px;
-    border-bottom: 2px solid transparent;
+    margin-bottom: 0;
   }
 
   .main-content-grid {
@@ -828,13 +791,8 @@
 
   .mobile-header {
     position: relative;
-    height: 100px;
+    height: 120px;
     background-color: white;
-  }
-
-  .mobile-tabs {
-    position: absolute;
-    bottom: 0;
   }
 
   .channel-logo {
