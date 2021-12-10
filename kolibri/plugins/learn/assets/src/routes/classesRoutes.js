@@ -2,7 +2,7 @@ import { get } from '@vueuse/core';
 import store from 'kolibri.coreVue.vuex.store';
 import router from 'kolibri.coreVue.router';
 import { ClassesPageNames, PageNames } from '../constants';
-import { showLessonPlaylist, showLessonResourceViewer } from '../modules/lessonPlaylist/handlers';
+import { showLessonPlaylist } from '../modules/lessonPlaylist/handlers';
 import { showClassAssignmentsPage } from '../modules/classAssignments/handlers';
 import { showAllClassesPage } from '../modules/classes/handlers';
 import { showExam } from '../modules/examViewer/handlers';
@@ -41,17 +41,6 @@ export default [
     handler: toRoute => {
       const { classId, lessonId } = toRoute.params;
       return noClassesGuard() || showLessonPlaylist(store, { classId, lessonId });
-    },
-  },
-  {
-    name: ClassesPageNames.LESSON_RESOURCE_VIEWER,
-    path: '/classes/:classId/lesson/:lessonId/item/:resourceNumber',
-    handler: toRoute => {
-      if (noClassesGuard()) {
-        return noClassesGuard();
-      }
-      const { lessonId, resourceNumber } = toRoute.params;
-      showLessonResourceViewer(store, { lessonId, resourceNumber });
     },
   },
   {

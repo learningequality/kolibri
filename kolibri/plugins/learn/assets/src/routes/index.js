@@ -41,7 +41,6 @@ function hydrateHomePage() {
 }
 
 export default [
-  ...classesRoutes,
   {
     name: PageNames.ROOT,
     path: '/',
@@ -81,6 +80,13 @@ export default [
       });
     },
   },
+  // Next class routes under home page
+  ...classesRoutes.map(route => {
+    return {
+      ...route,
+      path: `/home${route.path}`,
+    };
+  }),
   {
     name: PageNames.LIBRARY,
     path: '/library',

@@ -1,6 +1,7 @@
 <template>
 
   <div>
+    <KBreadcrumbs :items="breadcrumbs" />
     <h1 class="classroom-name">
       <KLabeledIcon icon="classes" :label="className" />
     </h1>
@@ -17,6 +18,10 @@
 
   import { computed, onBeforeMount, onBeforeUnmount } from 'kolibri.lib.vueCompositionApi';
   import { get } from '@vueuse/core';
+  import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+
+  import { PageNames, ClassesPageNames } from '../../constants';
 
   import useLearnerResources from '../../composables/useLearnerResources';
   import AssignedQuizzesCards from './AssignedQuizzesCards';
@@ -32,7 +37,9 @@
     components: {
       AssignedQuizzesCards,
       AssignedLessonsCards,
+      KBreadcrumbs,
     },
+    mixins: [commonCoreStrings],
     setup(_, { root }) {
       const {
         fetchClass,
@@ -73,6 +80,23 @@
         activeLessons,
         activeQuizzes,
       };
+    },
+    computed: {
+      breadcrumbs() {
+        return [
+          {
+            text: this.coreString('homeLabel'),
+            link: { name: PageNames.HOME },
+          },
+          {
+            text: this.coreString('classesLabel'),
+            link: { name: ClassesPageNames.ALL_CLASSES },
+          },
+          {
+            text: this.className,
+          },
+        ];
+      },
     },
     $trs: {
       documentTitle: {

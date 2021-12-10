@@ -66,7 +66,6 @@
   import { mapState, mapGetters, mapActions } from 'vuex';
   import { ContentNodeResource } from 'kolibri.resources';
   import router from 'kolibri.coreVue.router';
-  import { ClassesPageNames } from '../constants';
   import { updateContentNodeProgress } from '../modules/coreLearn/utils';
   import AssessmentWrapper from './AssessmentWrapper';
   import commonLearnStrings from './commonLearnStrings';
@@ -75,10 +74,6 @@
   export default {
     name: 'ContentPage',
     metaInfo() {
-      // Do not overwrite metaInfo of LessonResourceViewer
-      if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
-        return {};
-      }
       return {
         title: this.$tr('documentTitle', {
           contentTitle: this.content.title,
@@ -114,7 +109,6 @@
     },
     computed: {
       ...mapGetters(['isUserLoggedIn', 'currentUserId']),
-      ...mapState(['pageName']),
       ...mapState({
         progress: state => state.core.logging.progress,
         timeSpent: state => state.core.logging.time_spent,
