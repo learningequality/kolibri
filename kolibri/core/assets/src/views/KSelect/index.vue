@@ -18,7 +18,21 @@
     :placeholder="placeholder"
     @change="handleChange"
     @blur="$emit('blur')"
-  />
+  >
+    <template #display>
+      <slot name="display"></slot>
+    </template>
+    <template #option="{ highlighted, index, option, selected }">
+      <slot
+        name="option"
+        :highlighted="highlighted"
+        :index="index"
+        :option="option"
+        :selected="selected"
+      >
+      </slot>
+    </template>
+  </UiSelect>
 
 </template>
 
