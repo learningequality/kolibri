@@ -28,7 +28,7 @@
   import { mapState, mapGetters } from 'vuex';
   import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import { updateContentNodeProgress } from '../../modules/coreLearn/utils';
+  import { setContentNodeProgress } from '../../composables/useContentNodeProgress';
   import useProgressTracking from '../../composables/useProgressTracking';
   import AssessmentWrapper from '../AssessmentWrapper';
 
@@ -150,6 +150,8 @@
       }).then(() => {
         this.sessionReady = true;
         this.setWasIncomplete();
+        // Set progress into the content node progress store in case it was not already loaded
+        this.cacheProgress();
       });
     },
     beforeDestroy() {
@@ -159,21 +161,20 @@
       setWasIncomplete() {
         this.wasIncomplete = this.progress < 1;
       },
+      cacheProgress() {
+        setContentNodeProgress({ content_id: this.content.content_id, progress: this.progress });
+      },
       updateInteraction({ progress, interaction }) {
         this.updateContentSession({
           interaction,
           progress,
-        }).then(() => updateContentNodeProgress(this.contentNodeId, this.progress));
+        }).then(this.cacheProgress);
       },
       updateProgress(progress) {
-        this.updateContentSession({ progress }).then(() =>
-          updateContentNodeProgress(this.contentNodeId, this.progress)
-        );
+        this.updateContentSession({ progress }).then(this.cacheProgress);
       },
       addProgress(progressDelta) {
-        this.updateContentSession({ progressDelta }).then(() =>
-          updateContentNodeProgress(this.contentNodeId, this.progress)
-        );
+        this.updateContentSession({ progressDelta }).then(this.cacheProgress);
       },
       updateContentState(contentState) {
         this.updateContentSession({ contentState });

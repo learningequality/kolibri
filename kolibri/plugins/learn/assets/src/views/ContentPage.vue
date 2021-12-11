@@ -70,7 +70,7 @@
   import { mapState, mapGetters } from 'vuex';
   import { ContentNodeResource } from 'kolibri.resources';
   import router from 'kolibri.coreVue.router';
-  import { updateContentNodeProgress } from '../modules/coreLearn/utils';
+  import { setContentNodeProgress } from '../composables/useContentNodeProgress';
   import useProgressTracking from '../composables/useProgressTracking';
   import AssessmentWrapper from './AssessmentWrapper';
   import commonLearnStrings from './commonLearnStrings';
@@ -151,6 +151,8 @@
       }).then(() => {
         this.sessionReady = true;
         this.setWasIncomplete();
+        // Set progress into the content node progress store in case it was not already loaded
+        this.cacheProgress();
       });
     },
     beforeDestroy() {
@@ -160,23 +162,17 @@
       setWasIncomplete() {
         this.wasIncomplete = this.progress < 1;
       },
+      cacheProgress() {
+        setContentNodeProgress({ content_id: this.content.content_id, progress: this.progress });
+      },
       updateInteraction({ progress, interaction }) {
-        this.updateContentSession({ progress, interaction }).then(() =>
-          updateContentNodeProgress(this.contentNodeId, this.progress)
-        );
-        this.$emit('updateProgress', progress);
+        this.updateContentSession({ progress, interaction }).then(this.cacheProgress);
       },
       updateProgress(progress) {
-        this.updateContentSession({ progress }).then(() =>
-          updateContentNodeProgress(this.contentNodeId, this.progress)
-        );
-        this.$emit('updateProgress', progress);
+        this.updateContentSession({ progress }).then(this.cacheProgress);
       },
       addProgress(progressDelta) {
-        this.updateContentSession({ progressDelta }).then(() =>
-          updateContentNodeProgress(this.contentNodeId, this.progress)
-        );
-        this.$emit('addProgress', progressDelta);
+        this.updateContentSession({ progressDelta }).then(this.cacheProgress);
       },
       updateContentState(contentState) {
         this.updateContentSession({ contentState });

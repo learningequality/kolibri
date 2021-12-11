@@ -1,5 +1,4 @@
 import { get } from '@vueuse/core';
-import { ContentNodeProgressResource } from 'kolibri.resources';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
@@ -33,19 +32,4 @@ export function _collectionState(data) {
   return data.map(item =>
     item.kind === ContentNodeKinds.TOPICS ? normalizeContentNode(item) : contentState(item)
   );
-}
-
-/**
- * Cache utility functions
- *
- * These methods are used to manipulate client side cache to reduce requests
- */
-
-export function updateContentNodeProgress(nodeId, progressFraction) {
-  /*
-   * Update the progress_fraction directly on the model object, so as to prevent having
-   * to cache bust the model (and hence the entire collection), because some progress was
-   * made on this ContentNode.
-   */
-  ContentNodeProgressResource.getModel(nodeId).set({ progress_fraction: progressFraction });
 }

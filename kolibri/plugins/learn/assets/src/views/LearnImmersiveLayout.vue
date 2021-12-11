@@ -150,9 +150,19 @@
     mixins: [responsiveWindowMixin, commonCoreStrings],
     setup() {
       const { canDownload } = useCoreLearn();
-      const { fetchContentNodeProgress, fetchContentNodeTreeProgress } = useContentNodeProgress();
+      const {
+        fetchContentNodeProgress,
+        fetchContentNodeTreeProgress,
+        contentNodeProgressMap,
+      } = useContentNodeProgress();
       const { fetchLesson } = useLearnerResources();
-      return { canDownload, fetchContentNodeProgress, fetchContentNodeTreeProgress, fetchLesson };
+      return {
+        canDownload,
+        contentNodeProgressMap,
+        fetchContentNodeProgress,
+        fetchContentNodeTreeProgress,
+        fetchLesson,
+      };
     },
     props: {
       content: {
@@ -191,7 +201,6 @@
     computed: {
       ...mapGetters(['currentUserId', 'isUserLoggedIn']),
       ...mapState({
-        contentProgress: state => state.core.logging.progress,
         error: state => state.core.error,
         loading: state => state.core.loading,
         blockDoubleClicks: state => state.core.blockDoubleClicks,
@@ -199,6 +208,9 @@
       ...mapState('topicsTree', {
         isCoachContent: state => (state.content.coach_content ? 1 : 0),
       }),
+      contentProgress() {
+        return this.contentNodeProgressMap[this.content.content_id];
+      },
       notAuthorized() {
         // catch "not authorized" error, display AuthMessage
         if (
