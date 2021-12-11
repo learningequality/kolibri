@@ -12,6 +12,8 @@
         <div class="column-contents-wrapper">
           <KPageContainer>
             <AnswerHistory
+              :pastattempts="pastattempts"
+              :questions="questions"
               :questionNumber="questionNumber"
               :wrapperComponentRefs="this.$refs"
               @goToQuestion="goToQuestion"
@@ -163,7 +165,7 @@
 
 <script>
 
-  import { mapState, mapActions } from 'vuex';
+  import { mapState } from 'vuex';
   import isEqual from 'lodash/isEqual';
   import debounce from 'lodash/debounce';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
@@ -171,6 +173,7 @@
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import useProgressTracking from '../../composables/useProgressTracking';
   import { ClassesPageNames } from '../../constants';
   import { LearnerClassroomResource } from '../../apiResources';
   import AnswerHistory from './AnswerHistory';
@@ -189,6 +192,22 @@
       BottomAppBar,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
+    setup() {
+      const {
+        pastattempts,
+        initContentSession,
+        updateContentSession,
+        startTrackingProgress,
+        stopTrackingProgress,
+      } = useProgressTracking();
+      return {
+        pastattempts,
+        initContentSession,
+        updateContentSession,
+        startTrackingProgress,
+        stopTrackingProgress,
+      };
+    },
     data() {
       return {
         submitModalOpen: false,
@@ -198,9 +217,6 @@
       };
     },
     computed: {
-      ...mapState({
-        pastattempts: state => state.core.logging.pastattempts,
-      }),
       ...mapState('examViewer', ['exam', 'contentNodeMap', 'questions', 'questionNumber']),
       gridStyle() {
         if (!this.windowIsSmall) {
@@ -290,14 +306,25 @@
       },
     },
     created() {
-      this.startTracking();
+      this.initContentSession({ quizId: this.exam.id })
+        .then(this.startTrackingProgress)
+        .catch(err => {
+          if (err.response && err.response.status === 403) {
+            // If exam is closed, then redirect to route for the report
+            return this.router.replace({
+              name: ClassesPageNames.EXAM_REPORT_VIEWER,
+              params: {
+                userId: this.$store.getters.currentUserId,
+                examId: this.exam.id,
+                questionNumber: 0,
+                questionInteraction: 0,
+              },
+            });
+          }
+          this.$store.dispatch('handleApiError', err);
+        });
     },
     methods: {
-      ...mapActions({
-        updateContentSession: 'updateContentSession',
-        startTracking: 'startTrackingProgress',
-        stopTracking: 'stopTrackingProgress',
-      }),
       setAndSaveCurrentExamAttemptLog({ close, interaction } = {}) {
         // Clear the learner classroom cache here as its progress data is now
         // stale
