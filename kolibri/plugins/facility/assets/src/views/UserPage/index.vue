@@ -28,6 +28,7 @@
       :filterPlaceholder="$tr('searchText')"
       :totalPageNumber="getTotalPages"
       :currentPageNumber="getCurrentPage"
+      :roleFilter="roleFilter"
     >
       <template #otherFilter>
         <KSelect

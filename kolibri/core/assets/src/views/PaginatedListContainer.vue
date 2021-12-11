@@ -3,7 +3,7 @@
   <div>
     <KGrid>
       <KGridItem :layout12="{ span: 7 }">
-        <slot name="otherFilter" :roles="roles"></slot>
+        <slot name="otherFilter"></slot>
       </KGridItem>
       <KGridItem
         :layout12="{ span: 5, alignment: 'right' }"
@@ -17,8 +17,6 @@
     </KGrid>
 
     <div>
-      <!--<slot v-bind="{ items: visibleFilteredItems, filterInput }"></slot>-->
-      <!--<slot :items="filterInput == '' ? initialUsersList : filteredItems "></slot>-->
       <slot :items="initialUsersList"></slot>
     </div>
 
@@ -52,11 +50,8 @@
 
 <script>
 
-  import clamp from 'lodash/clamp';
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
-  import filterUsersByNames from 'kolibri.utils.filterUsersByNames';
   import { FacilityUserResource } from 'kolibri.resources';
-
   import store from 'kolibri.coreVue.vuex.store';
 
   export default {
@@ -83,10 +78,10 @@
         type: Number,
         required: true,
       },
-      // currentPageNumber: {
-      //   type: Number,
-      //   required: true,
-      // },
+      roleFilter: {
+        type: Object,
+        required: true,
+      },
     },
     data() {
       return {
@@ -96,67 +91,16 @@
         userList: this.items,
         totalPageNumbers: this.totalPageNumber,
         totalItems: this.items.length,
-        userType: 'admin',
-        roles: ['admin', 'coach'],
       };
     },
     computed: {
       initialUsersList() {
-        console.log('in initial');
-        // if (this.filterInput !== '') {
-        //   this.filteredItems;
-        // }
-        // this.filteredItems;
-        // if (this.filterInput == '' && this.currentPageNumber == 1) {
-        //   console.log('in if', this.filterInput);
-        //   this.filterInput = '';
-        //   return this.items;
-        // }
-        return this.userList;
-      },
-      filteredItems() {
-        console.log('in filtered items', this.filterInput);
-
-        // if (this.filterInput != '') {
-        //   this.get_users();
-        // }
-        // this.filterInput = '';
-        // if (this.filterInput != '') {
-        //   this.currentPageNumber = 1;
-        //   this.get_users();
-        // }
-        // this.get_users();
-
-        // this.get_users();
-        // this.get_users();
-        // const facilityId = store.getters.activeFacilityId;
-        // FacilityUserResource.fetchCollection({
-        //   getParams: {
-        //     member_of: facilityId,
-        //     page_size: 30,
-        //     // search: this.filterInput || '',
-        //     page: this.currentPageNumber || 1,
-        //   },
-        //   force: true,
-        // }).then(
-        //   users => {
-        //     // this.currentPageNumber = users.page;
-        //     this.items = users.results;
-        //     // this.totalPageNumber = users.total_pages;
-        //     // return users.results;
-        //   },
-        //   error => {
-        //     store.dispatch('handleApiError', error);
-        //   }
-        // );
-        // return filterUsersByNames(this.items, this.filterInput);
         return this.userList;
       },
       numFilteredItems() {
         return this.totalPageNumbers;
       },
       totalPages() {
-        // return this.total_pages;
         return Math.ceil(this.numFilteredItems / this.itemsPerPage);
       },
       startRange() {
@@ -164,7 +108,6 @@
       },
       visibleStartRange() {
         return this.currentPageNumber;
-        return Math.min(this.startRange + 1, this.numFilteredItems);
       },
       endRange() {
         return this.currentPage * this.itemsPerPage;
@@ -173,7 +116,6 @@
         return Math.min(this.endRange, this.numFilteredItems);
       },
       visibleFilteredItems() {
-        console.log('in visible filter');
         return this.filteredItems.slice(this.startRange, this.endRange);
       },
       previousButtonDisabled() {
@@ -189,51 +131,35 @@
     },
     watch: {
       filterInput: {
-        handler(newVal) {
-          console.log('in watch', newVal);
+        handler() {
           this.currentPageNumber = 1;
           this.get_users();
         },
-        immediate: true,
+      },
+      roleFilter: {
+        handler() {
+          this.currentPageNumber = 1;
+          this.get_users();
+        },
       },
     },
     methods: {
       get_users() {
         const facilityId = store.getters.activeFacilityId;
-        console.log(this.filterInput, '<<<<<<<<<<<<<<<<<<<<<<');
-        console.log(this.userList);
         FacilityUserResource.fetchCollection({
           getParams: {
             member_of: facilityId,
             page_size: this.itemsPerPage,
             page: this.currentPageNumber,
             search: this.filterInput,
-            // user_type: this.userType,
-            // user_type({
-            //   el: admin,
-            //   data: {
-            //     otherFilter: admin,
-            //   }
-            // }),
-            // onChange: function(event) {
-            //   console.log(event.target.user_type);
-            // },
-            // onChange(event) {
-            //   console.log(event.target.value)
-            // },
-            // user_type: ['admin'],
-            // search_by: [{ user_type: 'admin' }],
+            user_type: this.roleFilter.value === 'all' ? '' : this.roleFilter.value,
           },
           force: true,
         }).then(
           users => {
-            // console.log('users', users.results[0].roles[0].kind);
             this.currentPageNumber = users.page;
-            // this.items = users.results;
-
             this.userList = users.results;
             this.totalPageNumbers = users.total_pages;
-            this.userList = users.results;
             this.totalItems = users.count;
           },
           error => {
@@ -244,59 +170,6 @@
       changePage(change) {
         this.currentPageNumber += change;
         this.get_users();
-
-        // this.currentPageNumber += change;
-        // const facilityId = store.getters.activeFacilityId;
-        // FacilityUserResource.fetchCollection({
-        //   getParams: {
-        //     member_of: facilityId,
-        //     page_size: 30,
-        //     page: this.currentPageNumber + change,
-        //   },
-        //   force: true,
-        // }).then(
-        //   users => {
-        //     this.currentPageNumber = users.page;
-        //     // this.items = users.results;
-        //     console.log(' in page change', users.results);
-        //     this.items = users.results;
-        //     // this.$emit('items', {
-        //     //   page: this.currentPageNumber,
-        //     //   items: users.results,
-        //     // });
-        //   },
-        //   error => {
-        //     store.dispatch('handleApiError', error);
-        //   }
-        // );
-
-        // this.items = [
-        //   {
-        //     id: '00015fd69777c038d748eb294c362bd4',
-        //     username: 'checktest',
-        //     full_name: 'user19962',
-        //     facility: '78415936a1cb642db556db8a59371619',
-        //     id_number: '',
-        //     gender: '',
-        //     birth_year: '',
-        //     is_superuser: false,
-        //     roles: [],
-        //   },
-        //   {
-        //     id: '0005d91ebec0af167a080e9b577a2e6a',
-        //     username: 'kkdfjkasld',
-        //     full_name: 'user23425',
-        //     facility: '78415936a1cb642db556db8a59371619',
-        //     id_number: '',
-        //     gender: '',
-        //     birth_year: '',
-        //     is_superuser: false,
-        //     roles: [],
-        //   },
-        // ];
-        // Clamp the newPage number between the bounds if browser doesn't correctly
-        // disable buttons (see #6454 issue with old versions of MS Edge)
-        // this.currentPageNumber = clamp(this.currentPageNumber + change, 1, this.totalPageNumber);
       },
     },
     $trs: {
