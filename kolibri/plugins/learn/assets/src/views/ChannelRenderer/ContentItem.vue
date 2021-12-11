@@ -29,12 +29,39 @@
   import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { updateContentNodeProgress } from '../../modules/coreLearn/utils';
+  import useProgressTracking from '../../composables/useProgressTracking';
   import AssessmentWrapper from '../AssessmentWrapper';
 
   export default {
     name: 'ContentItem',
     components: {
       AssessmentWrapper,
+    },
+    setup() {
+      const {
+        progress,
+        timeSpent,
+        extraFields,
+        pastattempts,
+        complete,
+        totalattempts,
+        initContentSession,
+        updateContentSession,
+        startTrackingProgress,
+        stopTrackingProgress,
+      } = useProgressTracking();
+      return {
+        progress,
+        timeSpent,
+        extraFields,
+        pastattempts,
+        complete,
+        totalattempts,
+        initContentSession,
+        updateContentSession,
+        startTracking: startTrackingProgress,
+        stopTracking: stopTrackingProgress,
+      };
     },
     props: {
       contentNode: {
@@ -51,9 +78,6 @@
     computed: {
       ...mapGetters(['currentUserId']),
       ...mapState({
-        progress: state => state.core.logging.progress,
-        timeSpent: state => state.core.logging.time_spent,
-        extraFields: state => state.core.logging.extra_fields,
         fullName: state => state.core.session.full_name,
       }),
       contentIsExercise() {
@@ -66,6 +90,7 @@
           updateProgress: this.updateProgress,
           addProgress: this.addProgress,
           updateContentState: this.updateContentState,
+          updateInteraction: this.updateInteraction,
         };
       },
       contentProps() {
@@ -103,6 +128,9 @@
           userId: this.currentUserId,
           userFullName: this.fullName,
           timeSpent: this.timeSpent,
+          pastattempts: this.pastattempts,
+          mastered: this.complete,
+          totalattempts: this.totalattempts,
         };
       },
       contentNodeId() {
@@ -117,40 +145,38 @@
       },
     },
     created() {
-      return this.$store
-        .dispatch('initContentSession', {
-          nodeId: this.contentNodeId,
-        })
-        .then(() => {
-          this.sessionReady = true;
-          this.setWasIncomplete();
-        });
+      return this.initContentSession({
+        nodeId: this.contentNodeId,
+      }).then(() => {
+        this.sessionReady = true;
+        this.setWasIncomplete();
+      });
     },
     beforeDestroy() {
       this.stopTracking();
     },
     methods: {
-      startTracking() {
-        return this.$store.dispatch('startTrackingProgress');
-      },
-      stopTracking() {
-        return this.$store.dispatch('stopTrackingProgress');
-      },
       setWasIncomplete() {
         this.wasIncomplete = this.progress < 1;
       },
+      updateInteraction({ progress, interaction }) {
+        this.updateContentSession({
+          interaction,
+          progress,
+        }).then(() => updateContentNodeProgress(this.contentNodeId, this.progress));
+      },
       updateProgress(progress) {
-        this.$store
-          .dispatch('updateContentSession', { progress })
-          .then(() => updateContentNodeProgress(this.contentNodeId, this.progress));
+        this.updateContentSession({ progress }).then(() =>
+          updateContentNodeProgress(this.contentNodeId, this.progress)
+        );
       },
       addProgress(progressDelta) {
-        this.$store
-          .dispatch('updateContentSession', { progressDelta })
-          .then(() => updateContentNodeProgress(this.contentNodeId, this.progress));
+        this.updateContentSession({ progressDelta }).then(() =>
+          updateContentNodeProgress(this.contentNodeId, this.progress)
+        );
       },
       updateContentState(contentState) {
-        this.$store.dispatch('updateContentSession', { contentState });
+        this.updateContentSession({ contentState });
       },
     },
   };

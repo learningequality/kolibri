@@ -41,8 +41,12 @@
         :userId="currentUserId"
         :userFullName="fullName"
         :timeSpent="timeSpent"
+        :pastattempts="pastattempts"
+        :mastered="complete"
+        :totalattempts="totalattempts"
         @startTracking="startTracking"
         @stopTracking="stopTracking"
+        @updateInteraction="updateInteraction"
         @updateProgress="updateProgress"
         @updateContentState="updateContentState"
       />
@@ -63,10 +67,11 @@
 
 <script>
 
-  import { mapState, mapGetters, mapActions } from 'vuex';
+  import { mapState, mapGetters } from 'vuex';
   import { ContentNodeResource } from 'kolibri.resources';
   import router from 'kolibri.coreVue.router';
   import { updateContentNodeProgress } from '../modules/coreLearn/utils';
+  import useProgressTracking from '../composables/useProgressTracking';
   import AssessmentWrapper from './AssessmentWrapper';
   import commonLearnStrings from './commonLearnStrings';
   import CompletionModal from './CompletionModal';
@@ -86,6 +91,32 @@
       CompletionModal,
     },
     mixins: [commonLearnStrings],
+    setup() {
+      const {
+        progress,
+        timeSpent,
+        extraFields,
+        pastattempts,
+        complete,
+        totalattempts,
+        initContentSession,
+        updateContentSession,
+        startTrackingProgress,
+        stopTrackingProgress,
+      } = useProgressTracking();
+      return {
+        progress,
+        timeSpent,
+        extraFields,
+        pastattempts,
+        complete,
+        totalattempts,
+        initContentSession,
+        updateContentSession,
+        startTracking: startTrackingProgress,
+        stopTracking: stopTrackingProgress,
+      };
+    },
     props: {
       content: {
         type: Object,
@@ -110,9 +141,6 @@
     computed: {
       ...mapGetters(['isUserLoggedIn', 'currentUserId']),
       ...mapState({
-        progress: state => state.core.logging.progress,
-        timeSpent: state => state.core.logging.time_spent,
-        extraFields: state => state.core.logging.extra_fields,
         fullName: state => state.core.session.full_name,
       }),
     },
@@ -129,14 +157,14 @@
       this.stopTracking();
     },
     methods: {
-      ...mapActions({
-        initContentSession: 'initContentSession',
-        updateContentSession: 'updateContentSession',
-        startTracking: 'startTrackingProgress',
-        stopTracking: 'stopTrackingProgress',
-      }),
       setWasIncomplete() {
         this.wasIncomplete = this.progress < 1;
+      },
+      updateInteraction({ progress, interaction }) {
+        this.updateContentSession({ progress, interaction }).then(() =>
+          updateContentNodeProgress(this.contentNodeId, this.progress)
+        );
+        this.$emit('updateProgress', progress);
       },
       updateProgress(progress) {
         this.updateContentSession({ progress }).then(() =>
