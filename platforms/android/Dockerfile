@@ -55,14 +55,14 @@ ENV P4A_BRANCH=pew_webview
 
 # Allows us to invalidate cache if those repos update.
 # Intentionally not pinning for dev velocity.
-ADD https://github.com/kollivier/pyeverywhere/archive/$PEW_BRANCH.zip pew.zip
-ADD https://github.com/kollivier/python-for-android/archive/$P4A_BRANCH.zip p4a.zip
+ADD https://github.com/learningequality/pyeverywhere/archive/$PEW_BRANCH.zip pew.zip
+ADD https://github.com/learningequality/python-for-android/archive/$P4A_BRANCH.zip p4a.zip
 
 # install python dependencies
 RUN pip install cython virtualenv pbxproj && \
   # get kevin's custom packages
-  pip install -e git+https://github.com/kollivier/pyeverywhere@$PEW_BRANCH#egg=pyeverywhere && \
-  pip install -e git+https://github.com/kollivier/python-for-android@$P4A_BRANCH#egg=python-for-android && \
+  pip install -e git+https://github.com/learningequality/pyeverywhere@$PEW_BRANCH#egg=pyeverywhere && \
+  pip install -e git+https://github.com/learningequality/python-for-android@$P4A_BRANCH#egg=python-for-android && \
   useradd -lm kivy
 
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \

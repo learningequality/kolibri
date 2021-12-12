@@ -12,7 +12,7 @@
     "android": {
       "services": ["kolibri:android_service.py"],
       "extra_permissions": ["FOREGROUND_SERVICE"],
-      "sdk": 29,
+      "sdk": 30,
       "minsdk": 21,
       "fileprovider_paths_filename": "fileprovider_paths.xml"
     }
