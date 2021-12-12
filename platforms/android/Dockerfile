@@ -34,7 +34,7 @@ RUN dpkg --add-architecture i386 && \
     zlib1g:i386 \
     python-wxgtk3.0 \
     libgtk-3-dev \
-    python3 \fvcdg
+    python3 \
     && apt-get clean
 
 # Use java 1.8 because Ubuntu's gradle version doesn't support 1.11
