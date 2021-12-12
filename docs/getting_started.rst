@@ -338,7 +338,7 @@ Pre-commit is already installed as a development dependency, but you also need t
 .. code-block:: bash
 
   pre-commit install
-  
+
 To run all pre-commit checks in the same way that they will be run on our Github CI servers, run:
 
 .. code-block:: bash
