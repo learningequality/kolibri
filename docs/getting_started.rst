@@ -338,6 +338,12 @@ Pre-commit is already installed as a development dependency, but you also need t
 .. code-block:: bash
 
   pre-commit install
+  
+To run all pre-commit checks in the same way that they will be run on our Github CI servers, run:
+
+.. code-block:: bash
+
+  pre-commit run --all-files
 
 .. tip:: As a convenience, many developers install linting and formatting plugins in their code editor (IDE). Installing ESLint, Prettier, Black, and Flake8 plugins in your editor will catch most (but not all) code-quality checks.
 
