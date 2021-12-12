@@ -25,3 +25,9 @@ export function validateLearningActivity(arr) {
   const isValidLearningActivity = v => Object.values(LearningActivities).includes(v);
   return arr.length > 0 && arr.every(isValidLearningActivity);
 }
+
+export function objectValidator(spec) {
+  console.log('VALIDATE');
+  console.log(spec);
+  return () => true;
+}
