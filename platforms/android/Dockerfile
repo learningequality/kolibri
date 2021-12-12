@@ -60,7 +60,7 @@ ADD https://github.com/learningequality/python-for-android/archive/$P4A_BRANCH.z
 
 # install python dependencies
 RUN pip install cython virtualenv pbxproj && \
-  # get kevin's custom packages
+  # get custom packages
   pip install -e git+https://github.com/learningequality/pyeverywhere@$PEW_BRANCH#egg=pyeverywhere && \
   pip install -e git+https://github.com/learningequality/python-for-android@$P4A_BRANCH#egg=python-for-android && \
   useradd -lm kivy
