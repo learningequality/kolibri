@@ -50,24 +50,13 @@ class DefaultThemeHook(theme_hook.ThemeHook):
                 "background": static("background.jpg"),
                 "backgroundImgCredit": "Thomas Van Den Driessche",
                 "scrimOpacity": 0.7,
-                "title": None,  # use default: "Kolibri"
                 "topLogo": {
-                    "src": None,  # use default Kolibri bird
                     "style": "padding-left: 64px; padding-right: 64px; margin-bottom: 8px; margin-top: 8px",
-                    "alt": None,
                 },
-                "showPoweredBy": False,
                 "showTitle": True,
-                "showKolibriFooterLogo": False,
             },
             # side-nav config
             "sideNav": {
-                "title": None,  # use default: "Kolibri"
-                "brandedFooter": {},
                 "showKolibriFooterLogo": True,
-            },
-            # app bar config
-            "appBar": {
-                "topLogo": None,
             },
         }
