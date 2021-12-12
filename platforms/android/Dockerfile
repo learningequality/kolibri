@@ -58,7 +58,7 @@ ADD https://github.com/learningequality/pyeverywhere/archive/$PEW_BRANCH.zip pew
 ADD https://github.com/learningequality/python-for-android/archive/$P4A_BRANCH.zip p4a.zip
 
 # clean up the pew cache if the source repos changed
-rm -r /home/kivy/.pyeverywhere || true
+RUN rm -r /home/kivy/.pyeverywhere || true
 
 # install python dependencies
 RUN pip install cython virtualenv pbxproj && \
