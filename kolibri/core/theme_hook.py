@@ -10,10 +10,6 @@ from kolibri.plugins import hooks
 logger = logging.getLogger(__name__)
 
 
-# previously used for cache busting
-THEME_NAME = "themeName"
-THEME_VERSION = "themeVersion"
-
 # These constants are used by theme.js and the $theme mixin on the front-end
 TOKEN_MAPPING = "tokenMapping"
 BRAND_COLORS = "brandColors"
@@ -48,15 +44,6 @@ SHOW_TITLE = "showTitle"
 SHOW_K_FOOTER_LOGO = "showKolibriFooterLogo"
 SHOW_POWERED_BY = "showPoweredBy"
 POWERED_BY_STYLE = "poweredByStyle"
-
-
-def _validateMetadata(theme):
-    def deprecated_msg(key):
-        if key in theme:
-            logger.info("Note: '{}' is deprecated as of v0.15.0".format(key))
-
-    deprecated_msg(THEME_NAME)
-    deprecated_msg(THEME_VERSION)
 
 
 def _validateBrandColors(theme):
@@ -118,7 +105,6 @@ class ThemeHook(hooks.KolibriHook):
     def get_theme(cls):
         theme = list(cls.registered_hooks)[0].theme
         _initFields(theme)
-        _validateMetadata(theme)
         _validateBrandColors(theme)
         _validateScrimOpacity(theme)
         return theme
