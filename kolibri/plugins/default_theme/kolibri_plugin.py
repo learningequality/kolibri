@@ -18,54 +18,56 @@ class DefaultThemeHook(theme_hook.ThemeHook):
     @property
     def theme(self):
         return {
-            # specify primary and secondary brand colors
-            theme_hook.BRAND_COLORS: {
-                theme_hook.PRIMARY: {
-                    theme_hook.COLOR_V50: "#f0e7ed",
-                    theme_hook.COLOR_V100: "#dbc3d4",
-                    theme_hook.COLOR_V200: "#c59db9",
-                    theme_hook.COLOR_V300: "#ac799d",
-                    theme_hook.COLOR_V400: "#996189",
-                    theme_hook.COLOR_V500: "#874e77",
-                    theme_hook.COLOR_V600: "#7c4870",
-                    theme_hook.COLOR_V700: "#6e4167",
-                    theme_hook.COLOR_V800: "#5f3b5c",
-                    theme_hook.COLOR_V900: "#4b2e4d",
+            # primary and secondary brand colors
+            "brandColors": {
+                "primary": {
+                    "v_50": "#f0e7ed",
+                    "v_100": "#dbc3d4",
+                    "v_200": "#c59db9",
+                    "v_300": "#ac799d",
+                    "v_400": "#996189",
+                    "v_500": "#874e77",
+                    "v_600": "#7c4870",
+                    "v_700": "#6e4167",
+                    "v_800": "#5f3b5c",
+                    "v_900": "#4b2e4d",
                 },
-                theme_hook.SECONDARY: {
-                    theme_hook.COLOR_V50: "#e3f0ed",
-                    theme_hook.COLOR_V100: "#badbd2",
-                    theme_hook.COLOR_V200: "#8dc5b6",
-                    theme_hook.COLOR_V300: "#62af9a",
-                    theme_hook.COLOR_V400: "#479e86",
-                    theme_hook.COLOR_V500: "#368d74",
-                    theme_hook.COLOR_V600: "#328168",
-                    theme_hook.COLOR_V700: "#2c715a",
-                    theme_hook.COLOR_V800: "#26614d",
-                    theme_hook.COLOR_V900: "#1b4634",
+                "secondary": {
+                    "v_50": "#e3f0ed",
+                    "v_100": "#badbd2",
+                    "v_200": "#8dc5b6",
+                    "v_300": "#62af9a",
+                    "v_400": "#479e86",
+                    "v_500": "#368d74",
+                    "v_600": "#328168",
+                    "v_700": "#2c715a",
+                    "v_800": "#26614d",
+                    "v_900": "#1b4634",
                 },
             },
             # sign-in page config
-            theme_hook.SIGN_IN: {
-                theme_hook.BACKGROUND: static("background.jpg"),
-                theme_hook.BACKGROUND_IMG_CREDIT: "Thomas Van Den Driessche",
-                theme_hook.SCRIM_OPACITY: 0.7,
-                theme_hook.TITLE: None,  # use default: "Kolibri"
-                theme_hook.TOP_LOGO: {
-                    theme_hook.IMG_SRC: None,  # use default Kolibri bird
-                    theme_hook.IMG_STYLE: "padding-left: 64px; padding-right: 64px; margin-bottom: 8px; margin-top: 8px",
-                    theme_hook.IMG_ALT: None,
+            "signIn": {
+                "background": static("background.jpg"),
+                "backgroundImgCredit": "Thomas Van Den Driessche",
+                "scrimOpacity": 0.7,
+                "title": None,  # use default: "Kolibri"
+                "topLogo": {
+                    "src": None,  # use default Kolibri bird
+                    "style": "padding-left: 64px; padding-right: 64px; margin-bottom: 8px; margin-top: 8px",
+                    "alt": None,
                 },
-                theme_hook.SHOW_POWERED_BY: False,
-                theme_hook.SHOW_TITLE: True,
-                theme_hook.SHOW_K_FOOTER_LOGO: False,
+                "showPoweredBy": False,
+                "showTitle": True,
+                "showKolibriFooterLogo": False,
             },
             # side-nav config
-            theme_hook.SIDE_NAV: {
-                theme_hook.TITLE: None,  # use default: "Kolibri"
-                theme_hook.BRANDED_FOOTER: {},
-                theme_hook.SHOW_K_FOOTER_LOGO: True,
+            "sideNav": {
+                "title": None,  # use default: "Kolibri"
+                "brandedFooter": {},
+                "showKolibriFooterLogo": True,
             },
             # app bar config
-            theme_hook.APP_BAR: {theme_hook.TOP_LOGO: None},
+            "appBar": {
+                "topLogo": None,
+            },
         }
