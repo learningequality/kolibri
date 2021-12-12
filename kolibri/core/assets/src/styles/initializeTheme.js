@@ -4,6 +4,7 @@ import generateGlobalStyles from 'kolibri-design-system/lib/styles/generateGloba
 import Vue from 'vue';
 import trackInputModality from 'kolibri-design-system/lib/styles/trackInputModality';
 import trackMediaType from 'kolibri-design-system/lib/styles/trackMediaType';
+import validateTheme from './validateTheme';
 import themeConfig from './themeConfig';
 import plugin_data from 'plugin_data';
 
@@ -14,6 +15,7 @@ export function setThemeConfig(theme) {
 }
 
 export default function initializeTheme() {
+  validateTheme(plugin_data.kolibriTheme);
   setBrandColors(plugin_data.kolibriTheme.brandColors);
   setTokenMapping(plugin_data.kolibriTheme.tokenMapping);
   setThemeConfig(plugin_data.kolibriTheme);
