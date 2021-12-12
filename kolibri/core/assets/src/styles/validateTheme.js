@@ -1,10 +1,14 @@
 import logger from 'kolibri.lib.logging';
-import { objectValidator } from 'kolibri.utils.validators';
+import { createObjectValidator } from 'kolibri.utils.validators';
+import isObject from 'lodash/isObject';
 
 const logging = logger.getLogger(__filename);
 
 function _colorScaleValidator(value) {
-  if (typeof yourVariable !== 'object') return false;
+  if (!isObject(value)) {
+    logging.error(`Expected object but got '${value}'`);
+    return false;
+  }
   const COLOR_NAMES = [
     'v_50',
     'v_100',
@@ -19,14 +23,14 @@ function _colorScaleValidator(value) {
   ];
   for (const colorName of COLOR_NAMES) {
     if (!value[colorName]) {
-      logging.error(`${color} '${name}' not defined by theme`);
+      logging.error(`${colorName} '${name}' not defined by theme`);
       return false;
     }
-    return true;
   }
+  return true;
 }
 
-const _imageValidator = objectValidator({
+const _imageSpec = {
   src: {
     type: String,
     required: true,
@@ -39,13 +43,13 @@ const _imageValidator = objectValidator({
     type: String,
     default: null,
   },
-});
+};
 
-const validateTheme = objectValidator({
+const themeSpec = {
   brandColors: {
     type: Object,
     default: null,
-    validator: objectValidator({
+    spec: {
       primary: {
         type: Object,
         required: true,
@@ -56,7 +60,7 @@ const validateTheme = objectValidator({
         required: true,
         validator: _colorScaleValidator,
       },
-    }),
+    },
   },
   tokenMapping: {
     type: Object,
@@ -65,7 +69,7 @@ const validateTheme = objectValidator({
   signIn: {
     type: Object,
     default: null,
-    validator: objectValidator({
+    spec: {
       background: {
         type: String,
         default: null,
@@ -88,7 +92,7 @@ const validateTheme = objectValidator({
       topLogo: {
         type: Object,
         default: null,
-        validator: _imageValidator,
+        spec: _imageSpec,
       },
       poweredByStyle: {
         type: String,
@@ -110,12 +114,12 @@ const validateTheme = objectValidator({
         type: Boolean,
         default: true,
       },
-    }),
+    },
   },
   sideNav: {
     type: Object,
     default: null,
-    validator: objectValidator({
+    spec: {
       title: {
         type: String,
         default: null,
@@ -123,7 +127,7 @@ const validateTheme = objectValidator({
       topLogo: {
         type: Object,
         default: null,
-        validator: _imageValidator,
+        spec: _imageSpec,
       },
       showKolibriFooterLogo: {
         type: Boolean,
@@ -136,20 +140,20 @@ const validateTheme = objectValidator({
       brandedFooter: {
         type: Object,
         default: null,
-        validator: objectValidator({
+        spec: {
           logo: {
             type: Object,
             default: null,
-            validator: _imageValidator,
+            spec: _imageSpec,
           },
           paragraphArray: {
             type: Array,
             default: [],
           },
-        }),
+        },
       },
-    }),
+    },
   },
-});
+};
 
-export default validateTheme;
+export default createObjectValidator(themeSpec);
