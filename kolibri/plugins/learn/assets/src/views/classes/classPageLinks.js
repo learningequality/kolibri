@@ -9,15 +9,6 @@ export function classAssignmentsLink(classId) {
   };
 }
 
-export function lessonResourceViewerLink(resourceNumber) {
-  return {
-    name: ClassesPageNames.LESSON_RESOURCE_VIEWER,
-    params: {
-      resourceNumber,
-    },
-  };
-}
-
 export function lessonPlaylistLink(lessonId) {
   return {
     name: ClassesPageNames.LESSON_PLAYLIST,

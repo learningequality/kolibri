@@ -1,13 +1,26 @@
 import VueRouter from 'vue-router';
 import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
 import { mount, createLocalVue } from '@vue/test-utils';
-import Breadcrumbs from '../../src/views/Breadcrumbs';
+import TopicsPage from '../../src/views/TopicsPage';
 import makeStore from '../makeStore';
 import { PageNames } from '../../src/constants';
-// eslint-disable-next-line import/named
-import useChannels, { useChannelsMock } from '../../src/composables/useChannels';
+
+jest.mock('plugin_data', () => {
+  return {
+    __esModule: true,
+    default: {
+      accessibilityLabels: [],
+      gradeLevels: [],
+      learnerNeeds: [],
+      languages: [],
+      channels: [],
+    },
+  };
+});
 
 jest.mock('../../src/composables/useChannels');
+
+jest.mock('../../src/composables/useSearch');
 
 const localVue = createLocalVue();
 localVue.use(VueRouter);
@@ -24,11 +37,15 @@ const router = new VueRouter({
       path: '/topics/t/:id',
       name: PageNames.TOPICS_TOPIC,
     },
+    {
+      path: '/topics/t/:id/search',
+      name: PageNames.TOPICS_TOPIC_SEARCH,
+    },
   ],
 });
 
 function makeWrapper(options = {}) {
-  return mount(Breadcrumbs, { ...options, localVue, router });
+  return mount(TopicsPage, { ...options, localVue, router });
 }
 
 function getElements(wrapper) {
@@ -49,17 +66,16 @@ describe('learn page breadcrumbs', () => {
 
     it('shows correct breadcrumbs at a Channel', () => {
       const store = makeStore({ pageName: PageNames.TOPICS_TOPIC });
-      useChannels.mockImplementation(() =>
-        useChannelsMock({
-          channelsMap: {
-            'channel-1': { id: 'channel-1', root: 'root-1', name: 'Recommended Channel' },
-          },
-        })
-      );
+      store.state.topicsTree.channel = {
+        id: 'channel-1',
+        root: 'root-1',
+        name: 'Recommended Channel',
+      };
       store.state.topicsTree.topic = {
         title: 'Recommended Channel Root Node',
         ancestors: [],
         channel_id: 'channel-1',
+        id: 'topic-1',
       };
       const wrapper = makeWrapper({ store });
       const { breadcrumbItems } = getElements(wrapper);
@@ -71,13 +87,11 @@ describe('learn page breadcrumbs', () => {
 
     it('shows correct breadcrumbs at a non-Channel Topic', () => {
       const store = makeStore({ pageName: PageNames.TOPICS_TOPIC });
-      useChannels.mockImplementation(() =>
-        useChannelsMock({
-          channelsMap: {
-            'channel-1': { id: 'channel-1', root: 'root-1', name: 'Another Recommended Channel' },
-          },
-        })
-      );
+      store.state.topicsTree.channel = {
+        id: 'channel-1',
+        root: 'root-1',
+        name: 'Another Recommended Channel',
+      };
       store.state.topicsTree.topic = {
         title: 'Recommended Topic',
         channel_id: 'channel-1',

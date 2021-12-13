@@ -149,14 +149,14 @@ describe(`HomePage`, () => {
                 lessonId: 'class-1-lesson',
                 classId: 'class-1',
                 progress: 0.5,
-                contentNode: { id: 'class-resource-1', title: 'Class resource 1' },
+                contentNode: { id: 'class-resource-1', title: 'Class resource 1', is_leaf: true },
               },
               {
                 contentNodeId: 'class-resource-2',
                 lessonId: 'class-2-lesson',
                 classId: 'class-2',
                 progress: 0.5,
-                contentNode: { id: 'class-resource-2', title: 'Class resource 2' },
+                contentNode: { id: 'class-resource-2', title: 'Class resource 2', is_leaf: true },
               },
             ],
             getClassQuizLink() {
@@ -299,8 +299,8 @@ describe(`HomePage`, () => {
           useLearnerResourcesMock({
             learnerFinishedAllClasses: true,
             resumableContentNodes: [
-              { id: 'non-class-resource-1', title: 'Non-class resource 1' },
-              { id: 'non-class-resource-2', title: 'Non-class resource 2' },
+              { id: 'non-class-resource-1', title: 'Non-class resource 1', is_leaf: true },
+              { id: 'non-class-resource-2', title: 'Non-class resource 2', is_leaf: true },
             ],
             getTopicContentNodeLink() {
               return { path: '/topic-resource' };

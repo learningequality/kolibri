@@ -13,7 +13,7 @@
       :learningActivities="content.learning_activities"
       :isLessonContext="lessonContext"
       :isQuiz="practiceQuiz"
-      :showingReportState="currentlyMastered"
+      :showingReportState="contentProgress >= 1"
       :duration="content.duration"
       :timeSpent="timeSpent"
       :isBookmarked="bookmark ? true : bookmark"
@@ -53,11 +53,13 @@
       class="main"
     >
       <ContentPage
+        ref="contentPage"
         class="content"
         data-test="contentPage"
         :content="content"
         :lessonId="lessonId"
         :style="{ backgroundColor: ( content.assessment ? '' : $themeTokens.textInverted ) }"
+        @mounted="contentPageMounted = true"
       />
     </div>
 
@@ -66,6 +68,7 @@
     <!-- Side Panel for content metadata -->
     <FullScreenSidePanel
       v-if="sidePanelContent"
+      alignment="right"
       @closePanel="sidePanelContent = null"
     >
       <CurrentlyViewedResourceMetadata
@@ -78,6 +81,7 @@
     <FullScreenSidePanel
       v-if="showViewResourcesSidePanel"
       class="also-in-this-side-panel"
+      alignment="right"
       @closePanel="showViewResourcesSidePanel = false"
     >
       <AlsoInThis
@@ -156,9 +160,19 @@
     mixins: [responsiveWindowMixin, commonCoreStrings],
     setup() {
       const { canDownload } = useCoreLearn();
-      const { fetchContentNodeProgress, fetchContentNodeTreeProgress } = useContentNodeProgress();
+      const {
+        fetchContentNodeProgress,
+        fetchContentNodeTreeProgress,
+        contentNodeProgressMap,
+      } = useContentNodeProgress();
       const { fetchLesson } = useLearnerResources();
-      return { canDownload, fetchContentNodeProgress, fetchContentNodeTreeProgress, fetchLesson };
+      return {
+        canDownload,
+        contentNodeProgressMap,
+        fetchContentNodeProgress,
+        fetchContentNodeTreeProgress,
+        fetchLesson,
+      };
     },
     props: {
       content: {
@@ -192,23 +206,24 @@
         viewResourcesContents: [],
         resourcesSidePanelFetched: false,
         resourcesSidePanelLoading: false,
+        contentPageMounted: false,
       };
     },
     computed: {
       ...mapGetters(['currentUserId', 'isUserLoggedIn']),
       ...mapState({
-        contentProgress: state => state.core.logging.progress,
-        currentlyMastered: state => state.core.logging.complete,
         error: state => state.core.error,
         loading: state => state.core.loading,
         blockDoubleClicks: state => state.core.blockDoubleClicks,
-        timeSpent: state => state.core.logging.time_spent,
       }),
       ...mapState('topicsTree', {
         isCoachContent: state => (state.content.coach_content ? 1 : 0),
       }),
       practiceQuiz() {
         return get(this, ['content', 'options', 'modality']) === Modalities.QUIZ;
+      },
+      contentProgress() {
+        return this.contentNodeProgressMap[this.content.content_id];
       },
       notAuthorized() {
         // catch "not authorized" error, display AuthMessage
@@ -240,6 +255,9 @@
           ? lessonStrings.$tr('nextInLesson')
           : sidepanelStrings.$tr('topicHeader');
         /* eslint-enable */
+      },
+      timeSpent() {
+        return this.contentPageMounted ? this.$refs.contentPage.time_spent : 0;
       },
     },
     watch: {

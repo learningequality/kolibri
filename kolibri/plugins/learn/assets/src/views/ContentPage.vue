@@ -12,11 +12,11 @@
         :options="content.options"
         :available="content.available"
         :duration="content.duration"
-        :extraFields="extraFields"
+        :extraFields="extra_fields"
         :progress="progress"
         :userId="currentUserId"
         :userFullName="fullName"
-        :timeSpent="timeSpent"
+        :timeSpent="time_spent"
         @startTracking="startTracking"
         @stopTracking="stopTracking"
         @updateProgress="updateProgress"
@@ -29,11 +29,11 @@
         v-else-if="practiceQuiz"
         class="content-renderer"
         :content="content"
-        :extraFields="extraFields"
+        :extraFields="extra_fields"
         :progress="progress"
         :userId="currentUserId"
         :userFullName="fullName"
-        :timeSpent="timeSpent"
+        :timeSpent="time_spent"
         @startTracking="startTracking"
         @stopTracking="stopTracking"
         @updateProgress="updateProgress"
@@ -50,13 +50,17 @@
         :masteryModel="content.masteryModel"
         :assessmentIds="content.assessmentIds"
         :available="content.available"
-        :extraFields="extraFields"
+        :extraFields="extra_fields"
         :progress="progress"
         :userId="currentUserId"
         :userFullName="fullName"
-        :timeSpent="timeSpent"
+        :timeSpent="time_spent"
+        :pastattempts="pastattempts"
+        :mastered="complete"
+        :totalattempts="totalattempts"
         @startTracking="startTracking"
         @stopTracking="stopTracking"
+        @updateInteraction="updateInteraction"
         @updateProgress="updateProgress"
         @updateContentState="updateContentState"
       />
@@ -79,24 +83,20 @@
 <script>
 
   import get from 'lodash/get';
-  import { mapState, mapGetters, mapActions } from 'vuex';
+  import { mapState, mapGetters } from 'vuex';
   import { ContentNodeResource } from 'kolibri.resources';
   import router from 'kolibri.coreVue.router';
   import Modalities from 'kolibri-constants/Modalities';
-  import { ClassesPageNames } from '../constants';
-  import { updateContentNodeProgress } from '../modules/coreLearn/utils';
-  import QuizRenderer from './QuizRenderer';
+  import { setContentNodeProgress } from '../composables/useContentNodeProgress';
+  import useProgressTracking from '../composables/useProgressTracking';
   import AssessmentWrapper from './AssessmentWrapper';
   import commonLearnStrings from './commonLearnStrings';
   import CompletionModal from './CompletionModal';
+  import QuizRenderer from './QuizRenderer';
 
   export default {
     name: 'ContentPage',
     metaInfo() {
-      // Do not overwrite metaInfo of LessonResourceViewer
-      if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
-        return {};
-      }
       return {
         title: this.$tr('documentTitle', {
           contentTitle: this.content.title,
@@ -110,6 +110,32 @@
       QuizRenderer,
     },
     mixins: [commonLearnStrings],
+    setup() {
+      const {
+        progress,
+        time_spent,
+        extra_fields,
+        pastattempts,
+        complete,
+        totalattempts,
+        initContentSession,
+        updateContentSession,
+        startTrackingProgress,
+        stopTrackingProgress,
+      } = useProgressTracking();
+      return {
+        progress,
+        time_spent,
+        extra_fields,
+        pastattempts,
+        complete,
+        totalattempts,
+        initContentSession,
+        updateContentSession,
+        startTracking: startTrackingProgress,
+        stopTracking: stopTrackingProgress,
+      };
+    },
     props: {
       content: {
         type: Object,
@@ -133,11 +159,7 @@
     },
     computed: {
       ...mapGetters(['isUserLoggedIn', 'currentUserId']),
-      ...mapState(['pageName']),
       ...mapState({
-        progress: state => state.core.logging.progress,
-        timeSpent: state => state.core.logging.time_spent,
-        extraFields: state => state.core.logging.extra_fields,
         fullName: state => state.core.session.full_name,
       }),
       practiceQuiz() {
@@ -147,30 +169,29 @@
     created() {
       return this.initSession();
     },
-    beforeDestroy() {
-      this.stopTracking();
+    mounted() {
+      this.$emit('mounted');
     },
     methods: {
-      ...mapActions({
-        initContentSession: 'initContentSession',
-        updateContentSession: 'updateContentSession',
-        startTracking: 'startTrackingProgress',
-        stopTracking: 'stopTrackingProgress',
-      }),
       setWasIncomplete() {
         this.wasIncomplete = this.progress < 1;
       },
+      /*
+       * Update the progress of the content node in the shared progress store
+       * in the useContentNodeProgress composable. Do this to have a single
+       * source of truth for referencing progress of content nodes.
+       */
+      cacheProgress() {
+        setContentNodeProgress({ content_id: this.content.content_id, progress: this.progress });
+      },
+      updateInteraction({ progress, interaction }) {
+        this.updateContentSession({ progress, interaction }).then(this.cacheProgress);
+      },
       updateProgress(progress) {
-        this.updateContentSession({ progress }).then(() =>
-          updateContentNodeProgress(this.contentNodeId, this.progress)
-        );
-        this.$emit('updateProgress', progress);
+        this.updateContentSession({ progress }).then(this.cacheProgress);
       },
       addProgress(progressDelta) {
-        this.updateContentSession({ progressDelta }).then(() =>
-          updateContentNodeProgress(this.contentNodeId, this.progress)
-        );
-        this.$emit('addProgress', progressDelta);
+        this.updateContentSession({ progressDelta }).then(this.cacheProgress);
       },
       updateContentState(contentState) {
         this.updateContentSession({ contentState });
@@ -200,6 +221,8 @@
         }).then(() => {
           this.sessionReady = true;
           this.setWasIncomplete();
+          // Set progress into the content node progress store in case it was not already loaded
+          this.cacheProgress();
         });
       },
       repeat() {
