@@ -1,6 +1,7 @@
 import { ContentNodeKinds, LearningActivities } from 'kolibri.coreVue.vuex.constants';
 import logger from 'kolibri.lib.logging';
 
+import clone from 'lodash/clone';
 import every from 'lodash/every';
 import isArray from 'lodash/isArray';
 import isBoolean from 'lodash/isBoolean';
@@ -137,4 +138,30 @@ export function validateObject(object, spec) {
     logging.error(object);
   }
   return isValid;
+}
+
+export function objectWithDefaults(object, spec) {
+  // create a shallow clone
+  const cloned = clone(object);
+  // iterate over spec options
+  for (const dataKey in spec) {
+    const option = spec[dataKey];
+    // set defaults if necessary
+    if (isUndefined(cloned[dataKey]) && !isUndefined(option.default)) {
+      // arrays and objects need to use a function to return defaults
+      const needsFunction = option.type === Array || option.type === Object;
+      if (needsFunction && option.default !== null) {
+        cloned[dataKey] = option.default();
+      }
+      // all other types can be assigned directly
+      else {
+        cloned[dataKey] = option.default;
+      }
+    }
+    // recurse down into sub-specs if necessary
+    else if (cloned[dataKey] && option.spec) {
+      cloned[dataKey] = objectWithDefaults(cloned[dataKey], option.spec);
+    }
+  }
+  return cloned;
 }

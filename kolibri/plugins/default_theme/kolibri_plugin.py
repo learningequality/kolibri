@@ -18,18 +18,11 @@ class DefaultThemeHook(theme_hook.ThemeHook):
     @property
     def theme(self):
         return {
-            # sign-in page config
             "signIn": {
                 "background": static("background.jpg"),
                 "backgroundImgCredit": "Thomas Van Den Driessche",
-                "scrimOpacity": 0.7,
                 "topLogo": {
                     "style": "padding-left: 64px; padding-right: 64px; margin-bottom: 8px; margin-top: 8px",
                 },
-                "showTitle": True,
-            },
-            # side-nav config
-            "sideNav": {
-                "showKolibriFooterLogo": True,
             },
         }

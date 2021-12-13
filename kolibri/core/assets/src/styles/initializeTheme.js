@@ -4,7 +4,7 @@ import generateGlobalStyles from 'kolibri-design-system/lib/styles/generateGloba
 import Vue from 'vue';
 import trackInputModality from 'kolibri-design-system/lib/styles/trackInputModality';
 import trackMediaType from 'kolibri-design-system/lib/styles/trackMediaType';
-import { validateObject } from 'kolibri.utils.validators';
+import { validateObject, objectWithDefaults } from 'kolibri.utils.validators';
 import themeSpec from './themeSpec';
 import themeConfig from './themeConfig';
 import plugin_data from 'plugin_data';
@@ -17,11 +17,12 @@ export function setThemeConfig(theme) {
 
 export default function initializeTheme() {
   validateObject(plugin_data.kolibriTheme, themeSpec);
-  if (plugin_data.kolibriTheme.brandColors) {
-    setBrandColors(plugin_data.kolibriTheme.brandColors);
+  const theme = objectWithDefaults(plugin_data.kolibriTheme, themeSpec);
+  if (theme.brandColors) {
+    setBrandColors(theme.brandColors);
   }
-  setTokenMapping(plugin_data.kolibriTheme.tokenMapping);
-  setThemeConfig(plugin_data.kolibriTheme);
+  setTokenMapping(theme.tokenMapping);
+  setThemeConfig(theme);
   generateGlobalStyles();
   trackInputModality();
   trackMediaType();
