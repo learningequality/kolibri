@@ -4,7 +4,7 @@ import generateGlobalStyles from 'kolibri-design-system/lib/styles/generateGloba
 import Vue from 'vue';
 import trackInputModality from 'kolibri-design-system/lib/styles/trackInputModality';
 import trackMediaType from 'kolibri-design-system/lib/styles/trackMediaType';
-import { validateObject, objectWithDefaults } from 'kolibri.utils.validators';
+import { validateObject, objectWithDefaults } from 'kolibri.utils.objectSpecs';
 import themeSpec from './themeSpec';
 import themeConfig from './themeConfig';
 import plugin_data from 'plugin_data';

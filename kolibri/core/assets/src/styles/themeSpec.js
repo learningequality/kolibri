@@ -44,7 +44,7 @@ const _imageSpec = {
   },
 };
 
-const themeSpec = {
+export default {
   brandColors: {
     type: Object,
     default: null,
@@ -154,5 +154,3 @@ const themeSpec = {
     },
   },
 };
-
-export default themeSpec;
