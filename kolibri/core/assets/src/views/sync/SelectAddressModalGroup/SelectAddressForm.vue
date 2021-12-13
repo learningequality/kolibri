@@ -262,7 +262,7 @@
           .filter(
             address =>
               address.available &&
-              (this.$route.path == '/content' || address.application === 'kolibri')
+              (this.$route.path === '/content' || address.application === 'kolibri')
           )
           .map(address => address.id);
         if (!this.availableAddressIds.includes(this.selectedAddressId)) {
