@@ -12,11 +12,11 @@
         :options="content.options"
         :available="content.available"
         :duration="content.duration"
-        :extraFields="extraFields"
+        :extraFields="extra_fields"
         :progress="progress"
         :userId="currentUserId"
         :userFullName="fullName"
-        :timeSpent="timeSpent"
+        :timeSpent="time_spent"
         @startTracking="startTracking"
         @stopTracking="stopTracking"
         @updateProgress="updateProgress"
@@ -36,11 +36,11 @@
         :masteryModel="content.masteryModel"
         :assessmentIds="content.assessmentIds"
         :available="content.available"
-        :extraFields="extraFields"
+        :extraFields="extra_fields"
         :progress="progress"
         :userId="currentUserId"
         :userFullName="fullName"
-        :timeSpent="timeSpent"
+        :timeSpent="time_spent"
         :pastattempts="pastattempts"
         :mastered="complete"
         :totalattempts="totalattempts"
@@ -94,8 +94,8 @@
     setup() {
       const {
         progress,
-        timeSpent,
-        extraFields,
+        time_spent,
+        extra_fields,
         pastattempts,
         complete,
         totalattempts,
@@ -106,8 +106,8 @@
       } = useProgressTracking();
       return {
         progress,
-        timeSpent,
-        extraFields,
+        time_spent,
+        extra_fields,
         pastattempts,
         complete,
         totalattempts,

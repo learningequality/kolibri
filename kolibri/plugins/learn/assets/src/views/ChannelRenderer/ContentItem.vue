@@ -40,8 +40,8 @@
     setup() {
       const {
         progress,
-        timeSpent,
-        extraFields,
+        time_spent,
+        extra_fields,
         pastattempts,
         complete,
         totalattempts,
@@ -52,8 +52,8 @@
       } = useProgressTracking();
       return {
         progress,
-        timeSpent,
-        extraFields,
+        time_spent,
+        extra_fields,
         pastattempts,
         complete,
         totalattempts,
@@ -103,11 +103,11 @@
           files: this.contentNode.files,
           options: this.contentNode.options,
           available: this.contentNode.available,
-          extraFields: this.extraFields,
+          extraFields: this.extra_fields,
           progress: this.progress,
           userId: this.currentUserId,
           userFullName: this.fullName,
-          timeSpent: this.timeSpent,
+          timeSpent: this.time_spent,
         };
       },
       exerciseProps() {
@@ -123,11 +123,11 @@
           masteryModel: assessment.masteryModel,
           assessmentIds: assessment.assessmentIds,
           available: this.contentNode.available,
-          extraFields: this.extraFields,
+          extraFields: this.extra_fields,
           progress: this.progress,
           userId: this.currentUserId,
           userFullName: this.fullName,
-          timeSpent: this.timeSpent,
+          timeSpent: this.time_spent,
           pastattempts: this.pastattempts,
           mastered: this.complete,
           totalattempts: this.totalattempts,
