@@ -17,7 +17,9 @@ export function setThemeConfig(theme) {
 
 export default function initializeTheme() {
   validateObject(plugin_data.kolibriTheme, themeSpec);
-  setBrandColors(plugin_data.kolibriTheme.brandColors);
+  if (plugin_data.kolibriTheme.brandColors) {
+    setBrandColors(plugin_data.kolibriTheme.brandColors);
+  }
   setTokenMapping(plugin_data.kolibriTheme.tokenMapping);
   setThemeConfig(plugin_data.kolibriTheme);
   generateGlobalStyles();
