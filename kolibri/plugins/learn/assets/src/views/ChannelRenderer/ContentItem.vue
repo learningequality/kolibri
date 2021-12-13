@@ -158,6 +158,11 @@
       setWasIncomplete() {
         this.wasIncomplete = this.progress < 1;
       },
+      /*
+       * Update the progress of the content node in the shared progress store
+       * in the useContentNodeProgress composable. Do this to have a single
+       * source of truth for referencing progress of content nodes.
+       */
       cacheProgress() {
         setContentNodeProgress({ content_id: this.content.content_id, progress: this.progress });
       },

@@ -93,7 +93,8 @@ export default function useProgressTracking(store) {
     // Some browsers entirely suspend code execution in background tabs,
     // which can lead to unreliable timing if a tab has been in the background
     // if the time elasped is significantly longer than the interval that we are
-    // checking this at, we should discard the result.
+    // checking this at, we should discard the measured time elapsed here as erroneous,
+    // and just say that no time has elapsed at all.
     if (timeElapsed > intervalTime * 10) {
       return 0;
     }
