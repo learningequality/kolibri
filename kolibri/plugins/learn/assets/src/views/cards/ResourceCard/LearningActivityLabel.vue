@@ -29,20 +29,11 @@
 
     <span v-if="displaySeparator" class="separator">|</span>
 
-    <div
+    <LearningActivityDuration
       v-if="!hideDuration"
+      :contentNode="contentNode"
       class="duration"
-      data-test="duration"
-    >
-      <TimeDuration
-        v-if="displayMinutes"
-        :style="{ display: 'block' }"
-        :seconds="contentNode.duration"
-      />
-      <span v-else>
-        {{ durationEstimation }}
-      </span>
-    </div>
+    />
   </div>
 
 </template>
@@ -50,26 +41,44 @@
 
 <script>
 
-  import { LearningActivities } from 'kolibri.coreVue.vuex.constants';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
+  import { computed } from 'kolibri.lib.vueCompositionApi';
+  import { get } from '@vueuse/core';
+  import useLearningActivities from '../../../composables/useLearningActivities';
   import LearningActivityIcon from '../../LearningActivityIcon';
+  import LearningActivityDuration from './LearningActivityDuration';
 
   /**
-   * Shows an icon and a label for a learning activity.
+   * Shows icon, label, and duration of a learning activity.
    * Multiple icons and no label are displayed for multiple learning activities.
-   *
-   * Also shows time duration or textual representation of duration (which
-   * of these is displayed depends on a learning activity type and its length).
-   * For read activity, 'Reference' is displayed instead of time.
    */
   export default {
     name: 'LearningActivityLabel',
     components: {
       LearningActivityIcon,
-      TimeDuration,
+      LearningActivityDuration,
     },
-    mixins: [commonCoreStrings],
+    setup(props) {
+      const {
+        hasSingleActivity,
+        firstActivity,
+        isReference,
+        hasDuration,
+        getLearningActivityLabel,
+      } = useLearningActivities(props.contentNode);
+
+      const label = computed(() => {
+        return get(hasSingleActivity) ? getLearningActivityLabel(get(firstActivity)) : '';
+      });
+
+      const displaySeparator = computed(() => {
+        return props.condensed && !props.hideDuration && (get(isReference) || get(hasDuration));
+      });
+
+      return {
+        label,
+        displaySeparator,
+      };
+    },
     props: {
       contentNode: {
         type: Object,
@@ -91,84 +100,6 @@
         type: Boolean,
         required: false,
         default: false,
-      },
-    },
-    computed: {
-      LearningActivityToLabelMap() {
-        return {
-          [LearningActivities.CREATE]: this.coreString('create'),
-          [LearningActivities.LISTEN]: this.coreString('listen'),
-          [LearningActivities.REFLECT]: this.coreString('reflect'),
-          [LearningActivities.PRACTICE]: this.coreString('practice'),
-          [LearningActivities.READ]: this.coreString('read'),
-          [LearningActivities.WATCH]: this.coreString('watch'),
-          [LearningActivities.EXPLORE]: this.coreString('explore'),
-        };
-      },
-      hasSomeActivities() {
-        return (
-          this.contentNode.learning_activities && this.contentNode.learning_activities.length > 0
-        );
-      },
-      hasMultipleActivities() {
-        return this.hasSomeActivities && this.contentNode.learning_activities.length > 1;
-      },
-      hasSingleActivity() {
-        return this.hasSomeActivities && this.contentNode.learning_activities.length === 1;
-      },
-      firstActivity() {
-        if (!this.hasSomeActivities) {
-          return null;
-        }
-        return this.contentNode.learning_activities[0];
-      },
-      displayMinutes() {
-        return (
-          this.contentNode.duration &&
-          this.hasSingleActivity &&
-          [LearningActivities.WATCH, LearningActivities.LISTEN].includes(this.firstActivity)
-        );
-      },
-      isShortActivity() {
-        return this.contentNode.duration && this.contentNode.duration < 1800;
-      },
-      durationEstimation() {
-        if (this.hasSingleActivity && this.firstActivity === LearningActivities.READ) {
-          return this.coreString('readReference');
-        }
-        if (!this.contentNode.duration) {
-          return '';
-        }
-        if (this.hasMultipleActivities) {
-          return this.isShortActivity
-            ? this.coreString('shortActivity')
-            : this.coreString('longActivity');
-        }
-        if (
-          this.hasSingleActivity &&
-          [
-            LearningActivities.CREATE,
-            LearningActivities.REFLECT,
-            LearningActivities.PRACTICE,
-            LearningActivities.EXPLORE,
-          ].includes(this.firstActivity)
-        ) {
-          return this.isShortActivity
-            ? this.coreString('shortActivity')
-            : this.coreString('longActivity');
-        }
-        return '';
-      },
-      label() {
-        if (!this.hasSomeActivities || this.hasMultipleActivities) {
-          return '';
-        }
-        return this.LearningActivityToLabelMap[this.contentNode.learning_activities[0]];
-      },
-      displaySeparator() {
-        return (
-          this.condensed && !this.hideDuration && (this.durationEstimation || this.displayMinutes)
-        );
       },
     },
   };
