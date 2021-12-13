@@ -69,7 +69,7 @@
     >
       <KIcon class="folder-icon" icon="topic" />
       <div class="next-label">
-        Next folder
+        {{ nextFolderMessage }}
       </div>
       <div class="next-title">
         {{ nextContent.title }}
@@ -162,6 +162,11 @@
       },
       context() {
         return this.$route.query;
+      },
+      nextFolderMessage() {
+        /* eslint-disable kolibri/vue-no-undefined-string-uses */
+        return sidePanelStrings.$tr('nextFolder');
+        /* eslint-enable */
       },
     },
     methods: {
