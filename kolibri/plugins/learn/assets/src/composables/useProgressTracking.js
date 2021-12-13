@@ -246,6 +246,7 @@ export default function useProgressTracking(store) {
 
   let updateContentSessionResolveRejectStack = [];
   let updateContentSessionTimeout;
+  let forceSessionUpdate = false;
 
   function loggingSaving() {
     set(progress_delta, 0);
@@ -253,6 +254,7 @@ export default function useProgressTracking(store) {
     set(extra_fields_dirty_bit, false);
     // Do this to reactively clear the array
     unsaved_interactions.splice(0);
+    forceSessionUpdate = false;
   }
 
   function immediatelyUpdateContentSession() {
@@ -275,7 +277,8 @@ export default function useProgressTracking(store) {
       progressDelta >= progressThreshold ||
       (progressDelta && progress >= 1) ||
       timeSpentDelta >= timeThreshold ||
-      extraFieldsChanged
+      extraFieldsChanged ||
+      forceSessionUpdate
     ) {
       // Clear the temporary state that we've
       // picked up to save to the backend.
@@ -330,6 +333,9 @@ export default function useProgressTracking(store) {
     contentState,
     interaction,
     immediate = false,
+    // Whether to update regardless of any conditions.
+    // Used to ensure state is always saved when a session closes.
+    force = false,
   } = {}) {
     if (get(session_id) === null) {
       throw ReferenceError(noSessionErrorText);
@@ -401,6 +407,7 @@ export default function useProgressTracking(store) {
     }
 
     immediate = (!isUndefined(interaction) && !interaction.id) || immediate;
+    forceSessionUpdate = forceSessionUpdate || force;
     // Logic for promise returning debounce vendored and modified from:
     // https://github.com/sindresorhus/p-debounce/blob/main/index.js
     // Return a promise that will consistently resolve when this debounced
@@ -441,7 +448,7 @@ export default function useProgressTracking(store) {
   function stopTrackingProgress() {
     clearTrackingInterval();
     try {
-      updateContentSession({ immediate: true }).catch(err => {
+      updateContentSession({ immediate: true, force: true }).catch(err => {
         logging.debug(err);
       });
     } catch (e) {
