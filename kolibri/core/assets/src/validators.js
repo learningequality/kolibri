@@ -39,81 +39,75 @@ export function validateLearningActivity(arr) {
   return arr.length > 0 && arr.every(isValidLearningActivity);
 }
 
-function _validationLogger(msg, dataKey, data) {
+function _fail(msg, dataKey, data) {
   logging.error(`Problem with key '${dataKey}': ${msg}`);
   logging.error('Data:', data);
+  return false;
 }
 
 function _validateObjectData(data, option, dataKey) {
   // data is not available but required
   const hasData = !isUndefined(data) && data !== null;
   if (option.required && !hasData) {
-    _validationLogger('Required but undefined data', dataKey, data);
-    return false;
+    return _fail('Required but undefined data', dataKey, data);
+  }
+
+  // should only have a validator or a spec, not both
+  if (option.validator && option.spec) {
+    return _fail('Should either have a validator or a sub-spec', dataKey, data);
   }
 
   // validation function
   if (hasData && option.validator && !option.validator(data)) {
-    console.log(option.validator);
-    _validationLogger('Validator function failed', dataKey, data);
-    return false;
+    return _fail('Validator function failed', dataKey, data);
   }
 
   // object sub-spec
   if (hasData && option.spec) {
+    if (!isObject(data)) {
+      return _fail('Only objects can have sub-specs', dataKey, data);
+    }
     if (!validateObject(data, option.spec)) {
-      _validationLogger('Validator sub-spec failed', dataKey, data);
-      return false;
+      return _fail('Validator sub-spec failed', dataKey, data);
     }
   }
 
   // Check types
   const KNOWN_TYPES = [Array, Boolean, Date, Function, Object, Number, String, Symbol];
   if (isUndefined(option.type)) {
-    _validationLogger('No type information provided', dataKey, data);
-    return false;
+    return _fail('No type information provided', dataKey, data);
   } else if (!KNOWN_TYPES.includes(option.type)) {
-    _validationLogger(`Type '${option.type}' not currently handled`, dataKey);
+    _fail(`Type '${option.type}' not currently handled`, dataKey);
     return false;
   }
   if (hasData) {
     if (option.type === Array && !isArray(data)) {
-      _validationLogger('Expected Array', dataKey, data);
-      return false;
+      return _fail('Expected Array', dataKey, data);
     } else if (option.type === Boolean && !isBoolean(data)) {
-      _validationLogger('Expected Boolean', dataKey, data);
-      return false;
+      return _fail('Expected Boolean', dataKey, data);
     } else if (option.type === Date && !isDate(data)) {
-      _validationLogger('Expected Date', dataKey, data);
-      return false;
+      return _fail('Expected Date', dataKey, data);
     } else if (option.type === Function && !isFunction(data)) {
-      _validationLogger('Expected Function', dataKey, data);
-      return false;
+      return _fail('Expected Function', dataKey, data);
     } else if (option.type === Object && !isObject(data)) {
-      _validationLogger('Expected Object', dataKey, data);
-      return false;
+      return _fail('Expected Object', dataKey, data);
     } else if (option.type === Number && !isNumber(data)) {
-      _validationLogger('Expected Number', dataKey, data);
-      return false;
+      return _fail('Expected Number', dataKey, data);
     } else if (option.type === String && !isString(data)) {
-      _validationLogger('Expected String', dataKey, data);
-      return false;
+      return _fail('Expected String', dataKey, data);
     } else if (option.type === Symbol && !isSymbol(data)) {
-      _validationLogger('Expected Symbol', dataKey, data);
-      return false;
+      return _fail('Expected Symbol', dataKey, data);
     }
   }
 
   // ensure spec has a default when not required
   if (!option.required && isUndefined(option.default)) {
-    _validationLogger('Must be either required or have a default', dataKey, data);
-    return false;
+    return _fail('Must be either required or have a default', dataKey, data);
   }
 
   // objects and arrays must use a generator function for their default value
   if (option.default && (isArray(data) || isObject(data)) && !isFunction(option.default)) {
-    _validationLogger('Need a function to return array and object default values', dataKey, data);
-    return false;
+    return _fail('Need a function to return array and object default values', dataKey, data);
   }
 
   return true;
