@@ -15,18 +15,18 @@
           backgroundColor: $themeTokens.surface,
           right: (rtlAlignment === 'right' ? 0 : ''),
           left: (rtlAlignment === 'left' ? 0 : ''),
-          width: (sidePanelOverrideWidth ? sidePanelOverrideWidth : '')
+          width: sidePanelOverrideWidth,
         }"
       >
-        <div v-if="!closeButtonHidden">
-          <KIconButton
-            icon="close"
-            class="close-button"
-            :ariaLabel="coreString('closeAction')"
-            :tooltip="coreString('closeAction')"
-            @click="closePanel"
-          />
-        </div>
+        <KIconButton
+          v-if="!closeButtonHidden"
+          icon="close"
+          class="close-button"
+          :ariaLabel="coreString('closeAction')"
+          :tooltip="coreString('closeAction')"
+          @click="closePanel"
+        />
+
         <slot></slot>
       </div>
     </transition>
@@ -125,12 +125,13 @@
   .side-panel {
     position: fixed;
     top: 0;
+    right: 0;
     bottom: 0;
     // Must be <= 12 z-index so that KDropdownMenu shows over
     z-index: 12;
     width: 436px;
     height: 100vh;
-    padding: 32px;
+    padding: 24px 32px 32px;
     overflow: auto;
     font-size: 14px;
 
@@ -146,7 +147,7 @@
 
   .close-button {
     position: fixed;
-    top: 32px;
+    top: 24px;
     right: 32px;
     z-index: 24; // Always above everything
   }
