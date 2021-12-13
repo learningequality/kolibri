@@ -343,7 +343,7 @@
         return this.updateContentSession(data)
           .then(() => {
             if (close) {
-              this.stopTracking();
+              this.stopTrackingProgress();
             }
           })
           .catch(() => {
