@@ -1,5 +1,4 @@
 import logger from 'kolibri.lib.logging';
-import { createObjectValidator } from 'kolibri.utils.validators';
 import isObject from 'lodash/isObject';
 
 const logging = logger.getLogger(__filename);
@@ -156,4 +155,4 @@ const themeSpec = {
   },
 };
 
-export default createObjectValidator(themeSpec);
+export default themeSpec;
