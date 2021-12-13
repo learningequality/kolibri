@@ -61,8 +61,7 @@ function _validateObjectData(data, option, dataKey) {
 
   // object sub-spec
   if (hasData && option.spec) {
-    const validator = createObjectValidator(option.spec);
-    if (!validator(data)) {
+    if (!validateObject(data, option.spec)) {
       _validationLogger('Validator sub-spec failed', dataKey, data);
       return false;
     }
@@ -120,25 +119,28 @@ function _validateObjectData(data, option, dataKey) {
   return true;
 }
 
-export function createObjectValidator(spec) {
-  return function validateObject(value) {
-    let isValid = true;
-    for (const dataKey in spec) {
-      const option = spec[dataKey];
-      if (!isObject(option)) {
-        logging.error(`Expected an Object for '${dataKey}' in spec. Got:`, option);
-        isValid = false;
-        continue;
-      }
-      // Don't end early: provide as much validation messaging as possible
-      isValid = _validateObjectData(value[dataKey], option, dataKey) && isValid;
+export function validateObject(object, spec) {
+  if (process.env.NODE_ENV !== 'production') {
+    // skip validation in production
+    return true;
+  }
+
+  let isValid = true;
+  for (const dataKey in spec) {
+    const option = spec[dataKey];
+    if (!isObject(option)) {
+      logging.error(`Expected an Object for '${dataKey}' in spec. Got:`, option);
+      isValid = false;
+      continue;
     }
-    if (!isValid) {
-      logging.error('Spec:');
-      logging.error(spec);
-      logging.error('Value:');
-      logging.error(value);
-    }
-    return isValid;
-  };
+    // Don't end early: provide as much validation messaging as possible
+    isValid = _validateObjectData(object[dataKey], option, dataKey) && isValid;
+  }
+  if (!isValid) {
+    logging.error('Spec:');
+    logging.error(spec);
+    logging.error('Value:');
+    logging.error(object);
+  }
+  return isValid;
 }
