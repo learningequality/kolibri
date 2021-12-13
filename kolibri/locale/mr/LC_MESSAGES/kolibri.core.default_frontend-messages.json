@@ -423,6 +423,7 @@
   "ReportErrorModal.forumPrompt": "कम्युनिटी फोरमला भेट द्या",
   "ReportErrorModal.forumUseTips": "इतरांना यासारख्या समस्या आल्या का हे पाहण्यासाठी कम्युनिटी फोरममध्ये शोध घ्या. जर काही सापडले नाही तर चुकीबाबतचा तपशील खाली एका नवीन फोरम पोस्टमध्ये पेस्ट करा, जेणेकरून कोलिब्रीच्या भविष्यातील आवृत्तीमध्ये आम्ही ती चूक सुधारू शकू.",
   "ReportErrorModal.reportErrorHeader": "चुकीबाबत माहिती द्या",
+  "SearchSideBar.overCertainNumberOfSearchResults": "सुमारे {num, number, integer} {num, plural, one {परिणाम} other {परिणाम}}",
   "SelectAddressForm.deletingFailedText": "हा पत्ता काढून टाकताना समस्या आली",
   "SelectAddressForm.fetchingFailedText": "उपलब्ध पत्ते मिळवण्यात समस्या आली",
   "SelectAddressForm.forgetAddressButtonLabel": "काढून टाका",

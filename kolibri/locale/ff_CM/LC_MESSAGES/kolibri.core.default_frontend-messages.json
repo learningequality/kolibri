@@ -423,6 +423,7 @@
   "ReportErrorModal.forumPrompt": "Yahu hirde",
   "ReportErrorModal.forumUseTips": "Raaru \"hirde\", a taway habaru nannduɗum bee ko fe''ii. To walaa ko tawuɗaa ton, takku habaru fitina ley, ton to ɗum winndata habaru kesum ngam hirde. Yeeso, to min ɓeyday Kolibri min mbo''inay fitina ɗu'um.",
   "ReportErrorModal.reportErrorHeader": "Anndingo fitina",
+  "SearchSideBar.overCertainNumberOfSearchResults": "Ɓurii {num, plural, one {jawaabu} other {jawaabuuji}} {num, number, integer}",
   "SelectAddressForm.deletingFailedText": "E woodi fitina ittugo innde hoɗorde nde'e",
   "SelectAddressForm.fetchingFailedText": "E woodi fitina heɓugo inɗe koɗolle gooduɗe",
   "SelectAddressForm.forgetAddressButtonLabel": "Ittugo",

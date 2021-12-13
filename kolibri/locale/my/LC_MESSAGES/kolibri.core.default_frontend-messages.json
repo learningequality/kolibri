@@ -423,6 +423,7 @@
   "ReportErrorModal.forumPrompt": "ဆွေးနွေးပြောဆိုရန် ဖိုရမ်သို့ သွားရောက်မည်။",
   "ReportErrorModal.forumUseTips": "ယခုပြဿနာနှင့် ပတ်သက်၍  ဆွေးနွေးပြောဆိုရန် ဖိုရမ်တွင် အခြားသူများပြောဆိုခဲ့ဖူးခြင်း ရှိမရှိရှာမည်။ ရှာ၍ မတွေ့ပါက အခက်အခဲချို့ယွင်းချက်ပြဿနာ အသေးစိတ်ကို ဖိုရိမ်တွင် ခေါင်းစဉ်အသစ်ဖြင့် တင်ပြမည်။ သို့မှသာ အသစ်ထွက်ရှိမည့် Kolibri တွင် ယခုပြဿနာကို ဖြေရှင်းနိုင်ရန်ဖြစ်သည်။",
   "ReportErrorModal.reportErrorHeader": "အမှားများကို ပေးပို့မည်",
+  "SearchSideBar.overCertainNumberOfSearchResults": "{num, number, integer} {num, plural, other {ခုထက်ပိုသောရလဒ်များ}}",
   "SelectAddressForm.deletingFailedText": "ဒီလိပ်စာကိုဖယ်ရှားရန်ပျက်သနာရှိနေခဲ့ပါသည်။",
   "SelectAddressForm.fetchingFailedText": "ရရှိနိုင်သောလိပ်စာများကို ရယူနိုင်ရန်အခက်အခဲဖြစ်နေသည်",
   "SelectAddressForm.forgetAddressButtonLabel": "ဖြုတ်ခဲ့သည်",

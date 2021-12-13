@@ -62,7 +62,6 @@
   "CompletionModal.stayButtonLabel": "Tetap di sini",
   "CompletionModal.stayDescription": "Tetap di sumber ini untuk terus berlatih",
   "CompletionModal.stayTitle": "Tetap di sini dan berlatih",
-  "ContentCard.copies": "{ num, number} lokasi",
   "ContentPage.documentTitle": "{ contentTitle } - { channelTitle }",
   "ContentUnavailablePage.adminLink": "Impor saluran ke perangkat Anda",
   "ContentUnavailablePage.documentTitle": "Materi tidak tersedia",

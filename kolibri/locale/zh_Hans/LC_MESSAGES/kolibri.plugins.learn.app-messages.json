@@ -62,7 +62,6 @@
   "CompletionModal.stayButtonLabel": "留在这里",
   "CompletionModal.stayDescription": "停留在此资源继续练习",
   "CompletionModal.stayTitle": "停下来练习",
-  "ContentCard.copies": "{ num, number} 位置",
   "ContentPage.documentTitle": "{ contentTitle } - { channelTitle }",
   "ContentUnavailablePage.adminLink": "导入频道到您的设备",
   "ContentUnavailablePage.documentTitle": "资源不可用",

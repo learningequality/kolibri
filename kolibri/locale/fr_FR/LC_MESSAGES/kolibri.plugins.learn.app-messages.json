@@ -62,7 +62,6 @@
   "CompletionModal.stayButtonLabel": "Rester ici",
   "CompletionModal.stayDescription": "Restez sur cette ressource pour continuer à pratiquer",
   "CompletionModal.stayTitle": "Rester et s'entraîner",
-  "ContentCard.copies": "{ num, number} emplacements",
   "ContentPage.documentTitle": "{ contentTitle } - { channelTitle }",
   "ContentUnavailablePage.adminLink": "Importer des chaînes sur votre appareil",
   "ContentUnavailablePage.documentTitle": "Ressource non disponible",

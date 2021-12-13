@@ -62,7 +62,6 @@
   "CompletionModal.stayButtonLabel": "এখানেই থাকুন",
   "CompletionModal.stayDescription": "এখানে থেকে এই উপকরণটিই চর্চা করতে থাকুন",
   "CompletionModal.stayTitle": "এখানেই চর্চা করতে থাকুন",
-  "ContentCard.copies": "{ num, number}টি স্থান",
   "ContentPage.documentTitle": "{ contentTitle } - { channelTitle }",
   "ContentUnavailablePage.adminLink": "আপনার ডিভাইসে চ্যানেল ইম্পোর্ট করুন",
   "ContentUnavailablePage.documentTitle": "উপকরণ পাওয়া যায় নি",
