@@ -42,18 +42,7 @@
           {{ $tr('categories') }}
         </h2>
         <!-- list of category metadata - clicking prompts a filter modal -->
-        <div
-          span="4"
-          class="category-list-item"
-        >
-          <KButton
-            :text="$tr('allCategories')"
-            appearance="flat-button"
-            :class="!!activeKeys.filter(k => k.includes('all_categories')).length ? 'active' : ''"
-            :appearanceOverrides="customCategoryStyles"
-            @click="allCategories"
-          />
-        </div>
+        
 
         <div
           v-for="(category, val) in libraryCategoriesList"
@@ -131,8 +120,8 @@
 
   import pick from 'lodash/pick';
   import uniq from 'lodash/uniq';
+  // removed "AllCategories", need to delete it from 'kolibri.coreVue.vuex.constants'
   import {
-    AllCategories,
     CategoriesLookup,
     NoCategories,
     ResourcesNeededTypes,
@@ -307,9 +296,6 @@
     },
     methods: {
       genContentLink,
-      allCategories() {
-        this.$emit('input', { ...this.value, categories: { [AllCategories]: true } });
-      },
       noCategories() {
         this.$emit('input', { ...this.value, categories: { [NoCategories]: true } });
       },
@@ -350,10 +336,6 @@
       categories: {
         message: 'Categories',
         context: 'Section header label in the Library page sidebar.',
-      },
-      allCategories: {
-        message: 'All categories',
-        context: 'Option in the Library page sidebar.',
       },
     },
   };
