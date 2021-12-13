@@ -285,7 +285,7 @@
       <FullScreenSidePanel
         v-if="!windowIsLarge && sidePanelIsOpen"
         class="full-screen-side-panel"
-        alignment="right"
+        alignment="left"
         :closeButtonHidden="true"
         :sidePanelOverrideWidth="`${sidePanelOverlayWidth}px`"
         @closePanel="$router.push(currentLink)"
