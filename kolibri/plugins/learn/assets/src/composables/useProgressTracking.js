@@ -250,7 +250,8 @@ export default function useProgressTracking(store) {
     set(progress_delta, 0);
     set(time_spent_delta, 0);
     set(extra_fields_dirty_bit, false);
-    set(unsaved_interactions, []);
+    // Do this to reactively clear the array
+    unsaved_interactions.splice(0);
   }
 
   function immediatelyUpdateContentSession() {
@@ -466,5 +467,6 @@ export default function useProgressTracking(store) {
     pastattempts,
     pastattemptMap,
     mastery_criterion,
+    unsaved_interactions,
   };
 }

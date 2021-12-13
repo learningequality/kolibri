@@ -527,6 +527,8 @@ describe('useProgressTracking composable', () => {
       await updateContentSession({
         interaction: interaction1,
       });
+      // Interaction without an id so gets saved to the backend.
+      expect(client).toHaveBeenCalled();
       client.__reset();
       const interaction2 = {
         id: 'testid',
@@ -556,6 +558,10 @@ describe('useProgressTracking composable', () => {
       await updateContentSession({
         interaction: interaction3,
       });
+      const interaction4 = { id: 'testid', item: 'testitem', error: true };
+      await updateContentSession({
+        interaction: interaction4,
+      });
       expect(get(pastattempts)).toHaveLength(1);
       expect(get(pastattempts)[0]).toEqual({
         id: 'testid',
@@ -578,9 +584,9 @@ describe('useProgressTracking composable', () => {
         },
       });
       expect(client.mock.calls[0][0].data.interactions).toEqual([
-        interaction1,
         interaction2,
         interaction3,
+        interaction4,
       ]);
     });
     it('should not overwrite correct, answer or simple_answer if not passed with the replace flag', async () => {
@@ -638,6 +644,30 @@ describe('useProgressTracking composable', () => {
           hinted: true,
         },
       });
+    });
+    it('should clear unsaved_interactions when successfully saved', async () => {
+      const { updateContentSession, unsaved_interactions } = await initStore();
+      client.__setPayload({
+        attempts: [
+          {
+            id: 'testid',
+            item: 'testitem',
+            answer: { response: 'answer' },
+            correct: 1,
+            complete: true,
+          },
+        ],
+      });
+      await updateContentSession({
+        interaction: {
+          item: 'testitem',
+          answer: { response: 'answer' },
+          simple_answer: 'nah',
+          correct: 1,
+          complete: true,
+        },
+      });
+      expect(get(unsaved_interactions)).toHaveLength(0);
     });
     it('should multiple unrelated interactions without overwriting', async () => {
       const { updateContentSession, pastattempts, pastattemptMap } = await initStore();
