@@ -109,13 +109,19 @@ function _validateObjectData(data, options, dataKey) {
     }
   }
 
-  // ensure spec has a default when not required
+  // ensure spec has a default when not required and not vice-versa
   if (!options.required && isUndefined(options.default)) {
     return _fail('Must be either required or have a default', dataKey, data);
+  } else if (options.required && !isUndefined(options.default)) {
+    return _fail('Cannot be required and have a default', dataKey, data);
   }
 
   // objects and arrays must use a generator function for their default value
-  if (options.default && (isArray(data) || isObject(data)) && !isFunction(options.default)) {
+  if (
+    options.default &&
+    (options.type === Array || options.type === Object) &&
+    !isFunction(options.default)
+  ) {
     return _fail('Need a function to return array and object default values', dataKey, data);
   }
 
