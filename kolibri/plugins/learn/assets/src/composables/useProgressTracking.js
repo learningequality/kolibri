@@ -4,7 +4,7 @@
  * All data exposed by this function belong to a current learner.
  */
 
-import { ref, reactive, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
+import { ref, reactive, getCurrentInstance, onBeforeUnmount } from 'kolibri.lib.vueCompositionApi';
 import { get, set } from '@vueuse/core';
 import fromPairs from 'lodash/fromPairs';
 import isNumber from 'lodash/isNumber';
@@ -440,7 +440,9 @@ export default function useProgressTracking(store) {
   function stopTrackingProgress() {
     clearTrackingInterval();
     try {
-      updateContentSession({ immediate: true });
+      updateContentSession({ immediate: true }).catch(err => {
+        logging.debug(err);
+      });
     } catch (e) {
       if (e instanceof ReferenceError && e.message === noSessionErrorText) {
         logging.debug(
@@ -451,6 +453,9 @@ export default function useProgressTracking(store) {
       }
     }
   }
+
+  onBeforeUnmount(stopTrackingProgress);
+
   return {
     initContentSession,
     updateContentSession,

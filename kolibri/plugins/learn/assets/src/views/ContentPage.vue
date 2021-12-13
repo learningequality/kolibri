@@ -155,9 +155,6 @@
         this.cacheProgress();
       });
     },
-    beforeDestroy() {
-      this.stopTracking();
-    },
     methods: {
       setWasIncomplete() {
         this.wasIncomplete = this.progress < 1;
