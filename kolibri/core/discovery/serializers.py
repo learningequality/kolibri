@@ -51,6 +51,7 @@ class NetworkLocationSerializer(serializers.ModelSerializer):
                 ),
                 code=e.code,
             )
+        data["base_url"] = client.base_url
         info = {k: v for (k, v) in client.info.items() if v is not None}
         data.update(info)
         return super(NetworkLocationSerializer, self).validate(data)
