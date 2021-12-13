@@ -61,6 +61,7 @@
     <!-- Side Panel for content metadata -->
     <FullScreenSidePanel
       v-if="sidePanelContent"
+      alignment="right"
       @closePanel="sidePanelContent = null"
     >
       <CurrentlyViewedResourceMetadata
@@ -73,6 +74,7 @@
     <FullScreenSidePanel
       v-if="showViewResourcesSidePanel"
       class="also-in-this-side-panel"
+      alignment="right"
       @closePanel="showViewResourcesSidePanel = false"
     >
       <AlsoInThis

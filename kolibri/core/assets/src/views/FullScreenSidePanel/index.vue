@@ -13,45 +13,21 @@
         :style="{
           color: $themeTokens.text,
           backgroundColor: $themeTokens.surface,
-          right: (alignment === 'left' ? 0 : ''),
-          left: (alignment === 'right' ? 0 : ''),
-          width: (sidePanelOverrideWidth ? sidePanelOverrideWidth : '')
+          right: (rtlAlignment === 'right' ? 0 : ''),
+          left: (rtlAlignment === 'left' ? 0 : ''),
+          width: sidePanelOverrideWidth,
         }"
       >
-        <div v-if="!closeButtonHidden">
-          <KIconButton
-            icon="close"
-            class="close-button"
-            :ariaLabel="coreString('closeAction')"
-            :tooltip="coreString('closeAction')"
-            @click="closePanel"
-          />
-        </div>
-        <slot></slot>
+        <KIconButton
+          v-if="!closeButtonHidden"
+          icon="close"
+          class="close-button"
+          :ariaLabel="coreString('closeAction')"
+          :tooltip="coreString('closeAction')"
+          @click="closePanel"
+        />
 
-      <!--
-        <h2 class="title">
-          {{ title }}
-          <span>
-            <KIconButton
-              icon="close"
-              class="close-button"
-              @click="togglePanel"
-            />
-          </span>
-        </h2>
-        <SidePanelResourceMetadata
-          v-if="panelType === 'resourceMetadata'"
-          :togglePanel="togglePanel"
-        />
-        <SidePanelResourcesList
-          v-if="panelType === 'resourcesList'"
-          :contents="siblingNodes"
-          :currentContent="content"
-          :togglePanel="togglePanel"
-          :nextTopic="nextTopic"
-        />
-      -->
+        <slot></slot>
       </div>
     </transition>
     <Backdrop
@@ -68,15 +44,12 @@
 
   import Backdrop from 'kolibri.coreVue.components.Backdrop';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  //import { mapState } from 'vuex';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  //import SidePanelResourcesList from './SidePanelResourcesList';
 
   export default {
     name: 'FullScreenSidePanel',
     components: {
       Backdrop,
-      //SidePanelResourcesList,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
     props: {
@@ -90,13 +63,29 @@
         required: false,
         default: null,
       },
+      // to which side of the screen should the panel be fixed?
+      // set alignment based on LTR languages
+      // rtl is handled as appropriate through computed props
+      alignment: {
+        type: String,
+        required: true,
+        validator(value) {
+          return ['right', 'left'].includes(value);
+        },
+      },
     },
     computed: {
       isMobile() {
         return this.windowBreakpoint == 0;
       },
-      alignment() {
-        return this.isRtl ? 'left' : 'right';
+      rtlAlignment() {
+        if (this.isRtl && this.alignment === 'left') {
+          return 'right';
+        } else if (this.isRtl && this.alignment === 'right') {
+          return 'left';
+        } else {
+          return this.alignment;
+        }
       },
     },
     /* this is the easiest way I could think to avoid having dual scroll bars */
@@ -136,11 +125,13 @@
   .side-panel {
     position: fixed;
     top: 0;
+    right: 0;
     bottom: 0;
     // Must be <= 12 z-index so that KDropdownMenu shows over
     z-index: 12;
+    width: 436px;
     height: 100vh;
-    padding: 32px;
+    padding: 24px 32px 32px;
     overflow: auto;
     font-size: 14px;
 
@@ -156,7 +147,7 @@
 
   .close-button {
     position: fixed;
-    top: 32px;
+    top: 24px;
     right: 32px;
     z-index: 24; // Always above everything
   }

@@ -274,6 +274,7 @@
       <FullScreenSidePanel
         v-if="!windowIsLarge && sidePanelIsOpen"
         class="full-screen-side-panel"
+        alignment="left"
         :closeButtonHidden="true"
         :sidePanelOverrideWidth="`${sidePanelOverlayWidth}px`"
         @closePanel="$router.push(currentLink)"
@@ -336,6 +337,7 @@
     </div>
     <FullScreenSidePanel
       v-if="sidePanelContent"
+      alignment="right"
       @closePanel="sidePanelContent = null"
     >
       <BrowseResourceMetadata :content="sidePanelContent" :showLocationsInChannel="true" />
