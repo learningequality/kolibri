@@ -329,9 +329,16 @@
         return questionState;
       },
       getSerializedState() {
-        const hints = Object.keys(this.itemRenderer.hintsRenderer.refs).map(key =>
-          this.itemRenderer.hintsRenderer.refs[key].getSerializedState()
-        );
+        if (!this.itemRenderer) {
+          return {};
+        }
+        // Default to empty array
+        let hints = [];
+        if (this.itemRenderer.hintsRenderer) {
+          hints = Object.keys(this.itemRenderer.hintsRenderer.refs || {}).map(key =>
+            this.itemRenderer.hintsRenderer.refs[key].getSerializedState()
+          );
+        }
         const question = this.addSorterState(
           this.itemRenderer.questionRenderer.getSerializedState()
         );
