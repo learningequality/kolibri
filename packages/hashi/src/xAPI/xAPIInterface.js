@@ -67,35 +67,18 @@ export default class xAPI extends BaseShim {
    * be calculated.
    */
   __calculateProgress() {
-    if (
-      find(
-        this.data[STATEMENT],
-        s =>
-          s.verb.id === XAPIVerbMap.mastered ||
-          s.verb.id === XAPIVerbMap.passed ||
-          s.verb.id === XAPIVerbMap.completed ||
-          (s.result && s.result.success)
-      )
-    ) {
-      return 1;
-    }
-    const scoreStatement = find(
+    const successStatement = find(
       this.data[STATEMENT],
       s =>
-        s.result &&
-        s.result.score &&
-        (s.result.score.scaled || (s.result.score.min && s.result.score.max && s.result.score.raw))
+        s.verb.id === XAPIVerbMap.mastered ||
+        s.verb.id === XAPIVerbMap.passed ||
+        s.verb.id === XAPIVerbMap.completed
     );
-    if (scoreStatement) {
-      if (scoreStatement.result.score.scaled) {
-        return scoreStatement.result.score.scaled;
-      }
-      return (
-        (scoreStatement.result.score.raw - scoreStatement.result.score.min) /
-        (scoreStatement.result.score.max - scoreStatement.result.score.min)
-      );
+    if (successStatement) {
+      return 1;
     }
-    return null;
+    // If there has been any interaction return some progress, otherwise null.
+    return Object.keys(this.data[STATEMENT]).length ? 0.01 : null;
   }
 
   createAgent() {
