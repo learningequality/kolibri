@@ -26,7 +26,6 @@
       v-else
       ref="attemptList"
       class="history-list"
-      :class="isMobile ? 'mobile-list' : ''"
       role="listbox"
       @keydown.home="setSelectedAttemptLog(0)"
       @keydown.end="setSelectedAttemptLog(attemptLogs.length - 1)"
@@ -90,16 +89,6 @@
       },
     },
     computed: {
-      iconStyle() {
-        if (this.windowIsLarge) {
-          return {};
-        } else {
-          return {
-            textAlign: 'center',
-            padding: 0,
-          };
-        }
-      },
       selected() {
         return this.options.find(o => o.value === this.selectedQuestionNumber + 1) || {};
       },
@@ -180,8 +169,10 @@
 
   .history-list {
     max-height: inherit;
+    padding-right: 0;
     padding-left: 0;
     margin: 0;
+    text-align: justify;
     list-style-type: none;
   }
 
@@ -199,7 +190,8 @@
 
   .attempt-item > a {
     display: block;
-    padding-left: 20px;
+    padding-right: 1vw;
+    padding-left: 1vw;
     cursor: pointer;
   }
 
