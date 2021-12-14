@@ -177,7 +177,7 @@ class UnsupportedBrowserView(TemplateView):
             ThemeHook.get_theme()
             .get("brandColors", {})
             .get("primary", {})
-            .get("v_400", "purple")
+            .get("v_400", "#212121")
         )
         return context
 
