@@ -1,6 +1,9 @@
 <template>
 
-  <span>
+  <span
+    :class="[ appearance === 'chip' ? 'chip' : '']"
+    :style="[ appearance === 'chip' ? { color: $themeTokens.textInverted } : {}]"
+  >
     <template v-if="isReference">
       {{ ReferenceLabel }}
     </template>
@@ -59,7 +62,31 @@
         type: Object,
         required: true,
       },
+      /**
+       * `text` - duration is rendered as plain text
+       * `chip` - duration is displayed in the dark gray chip
+       */
+      appearance: {
+        type: String,
+        required: false,
+        default: 'text',
+        validator: value => {
+          return ['text', 'chip'].includes(value);
+        },
+      },
     },
   };
 
 </script>
+
+
+<style lang="scss" scoped>
+
+  .chip {
+    padding: 8px;
+    font-size: 13px;
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 4px;
+  }
+
+</style>
