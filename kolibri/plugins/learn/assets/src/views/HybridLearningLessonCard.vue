@@ -44,7 +44,7 @@
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ProgressBar from './ProgressBar';
-  import LearningActivityLabel from './cards/ResourceCard/LearningActivityLabel';
+  import LearningActivityLabel from './LearningActivityLabel';
   import commonLearnStrings from './commonLearnStrings';
   import CardThumbnail from './HybridLearningContentCard/CardThumbnail';
 

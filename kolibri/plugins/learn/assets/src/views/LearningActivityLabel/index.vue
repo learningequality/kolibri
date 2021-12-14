@@ -36,9 +36,9 @@
 
   import { computed } from 'kolibri.lib.vueCompositionApi';
   import { get } from '@vueuse/core';
-  import useLearningActivities from '../../../composables/useLearningActivities';
-  import LearningActivityIcon from '../../LearningActivityIcon';
-  import LearningActivityDuration from './LearningActivityDuration';
+  import useLearningActivities from '../../composables/useLearningActivities';
+  import LearningActivityIcon from '../LearningActivityIcon';
+  import LearningActivityDuration from '../LearningActivityDuration';
 
   /**
    * Shows icon, label, and duration of a learning activity.

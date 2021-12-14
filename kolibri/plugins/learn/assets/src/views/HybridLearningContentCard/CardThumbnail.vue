@@ -19,7 +19,7 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import LearningActivityDuration from '../cards/ResourceCard/LearningActivityDuration';
+  import LearningActivityDuration from '../LearningActivityDuration';
 
   export default {
     name: 'CardThumbnail',

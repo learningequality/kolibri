@@ -1,7 +1,7 @@
 import { shallowMount, mount } from '@vue/test-utils';
 
 import { LearningActivities } from 'kolibri.coreVue.vuex.constants';
-import LearningActivityLabel from '../LearningActivityLabel';
+import LearningActivityLabel from '../index';
 
 function makeWrapper(propsData) {
   return mount(LearningActivityLabel, { propsData });

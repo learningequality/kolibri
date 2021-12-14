@@ -107,7 +107,7 @@
   import { now } from 'kolibri.utils.serverClock';
   import { PageNames } from '../constants';
   import ProgressBar from './ProgressBar';
-  import LearningActivityLabel from './cards/ResourceCard/LearningActivityLabel';
+  import LearningActivityLabel from './LearningActivityLabel';
   import commonLearnStrings from './commonLearnStrings';
   import CardThumbnail from './HybridLearningContentCard/CardThumbnail';
 
