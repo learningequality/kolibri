@@ -72,7 +72,7 @@
           />
           <HeaderTab
             :text="coreString('searchLabel')"
-            :to="topics.length ? searchLink : {} "
+            :to="topics.length ? searchTabLink : {} "
           />
         </HeaderTabs>
       </div>
@@ -81,6 +81,7 @@
         <div class="mobile-header-contents">
           <HeaderTabs>
             <HeaderTab
+              v-if="topics.length"
               :text="coreString('folders')"
               :to="foldersLink"
             />
@@ -100,7 +101,7 @@
         class="main-content-grid"
         :style="gridOffset"
       >
-        <slot v-if="windowIsSmall" name="breadcrumbs" class="breadcrumbs"></slot>
+        <KBreadcrumbs v-if="breadcrumbs.length && windowIsSmall" :items="breadcrumbs" />
         <div
           class="card-grid"
         >
@@ -110,7 +111,7 @@
               class="filter-overlay-toggle-button"
               :text="filterTranslator.$tr('filter')"
               :primary="false"
-              @click="$router.push(searchButtonLink)"
+              @click="$router.push(searchLink)"
             />
           </div>
           <!-- default/preview display of nested folder structure, not search -->
@@ -465,7 +466,8 @@
         }
         return {};
       },
-      searchLink() {
+      searchTabLink() {
+        // navigates the main page to the search view
         if (this.topic) {
           const query = { ...this.$route.query };
           delete query.dropdown;
@@ -477,7 +479,8 @@
         }
         return {};
       },
-      searchButtonLink() {
+      searchLink() {
+        // responsible for opening the search overlay
         if (this.topic) {
           const query = { ...this.$route.query };
           if (this.windowIsSmall || this.windowIsMedium) {
@@ -495,7 +498,7 @@
         return {};
       },
       currentLink() {
-        return this.searchActive ? this.searchButtonLink : this.foldersLink;
+        return this.searchActive ? this.searchLink : this.foldersLink;
       },
       searchActive() {
         return this.$route.name === PageNames.TOPICS_TOPIC_SEARCH;
