@@ -124,7 +124,6 @@
   import LearningActivityBar from './LearningActivityBar';
   import AlsoInThis from './AlsoInThis';
 
-  const sidepanelStrings = crossComponentTranslator(FullScreenSidePanel);
   const lessonStrings = crossComponentTranslator(LessonResourceViewer);
 
   export default {
@@ -253,7 +252,7 @@
         /* eslint-disable kolibri/vue-no-undefined-string-uses */
         return this.lessonContext
           ? lessonStrings.$tr('nextInLesson')
-          : sidepanelStrings.$tr('topicHeader');
+          : this.content && this.content.ancestors.slice(-1)[0].title;
         /* eslint-enable */
       },
       timeSpent() {
