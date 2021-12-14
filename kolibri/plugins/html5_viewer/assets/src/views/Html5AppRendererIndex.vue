@@ -125,6 +125,9 @@
         return 300;
       },
       /* eslint-enable kolibri/vue-no-unused-properties */
+      entry() {
+        return (this.options && this.options.entry) || 'index.html';
+      },
     },
     watch: {
       userData(newValue) {
@@ -155,7 +158,7 @@
         (this.extraFields && this.extraFields.contentState) || {},
         this.userData,
         this.defaultFile.extension === 'zip'
-          ? urls.zipContentUrl(this.defaultFile.checksum, this.defaultFile.extension, 'index.html')
+          ? urls.zipContentUrl(this.defaultFile.checksum, this.defaultFile.extension, this.entry)
           : this.defaultFile.storage_url,
         this.defaultFile.checksum
       );
