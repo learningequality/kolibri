@@ -34,8 +34,13 @@
         :userId="currentUserId"
         :userFullName="fullName"
         :timeSpent="time_spent"
+        :pastattempts="pastattempts"
+        :mastered="complete"
+        :masteryLevel="masteryLevel"
+        :updateContentSession="wrappedUpdateContentSession"
         @startTracking="startTracking"
         @stopTracking="stopTracking"
+        @updateInteraction="updateInteraction"
         @updateProgress="updateProgress"
         @updateContentState="updateContentState"
         @repeat="repeat"
@@ -118,6 +123,7 @@
         pastattempts,
         complete,
         totalattempts,
+        context,
         initContentSession,
         updateContentSession,
         startTrackingProgress,
@@ -130,6 +136,7 @@
         pastattempts,
         complete,
         totalattempts,
+        context,
         initContentSession,
         updateContentSession,
         startTracking: startTrackingProgress,
@@ -165,6 +172,9 @@
       practiceQuiz() {
         return get(this, ['content', 'options', 'modality']) === Modalities.QUIZ;
       },
+      masteryLevel() {
+        return get(this, ['context', 'mastery_level']);
+      },
     },
     created() {
       return this.initSession();
@@ -183,6 +193,9 @@
        */
       cacheProgress() {
         setContentNodeProgress({ content_id: this.content.content_id, progress: this.progress });
+      },
+      wrappedUpdateContentSession(data) {
+        return this.updateContentSession(data).then(this.cacheProgress);
       },
       updateInteraction({ progress, interaction }) {
         this.updateContentSession({ progress, interaction }).then(this.cacheProgress);
