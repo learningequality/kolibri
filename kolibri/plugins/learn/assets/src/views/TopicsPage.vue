@@ -66,12 +66,13 @@
         <!-- larger screens -->
         <HeaderTabs>
           <HeaderTab
+            v-if="topics.length"
             :text="coreString('folders')"
             :to="foldersLink"
           />
           <HeaderTab
             :text="coreString('searchLabel')"
-            :to="searchLink"
+            :to="topics.length ? searchLink : {} "
           />
         </HeaderTabs>
       </div>
@@ -85,7 +86,7 @@
             />
             <HeaderTab
               :text="coreString('searchLabel')"
-              :to="searchLink"
+              :to="searchLink "
             />
           </HeaderTabs>
           <img
@@ -467,6 +468,18 @@
       searchLink() {
         if (this.topic) {
           const query = { ...this.$route.query };
+          delete query.dropdown;
+          return {
+            name: PageNames.TOPICS_TOPIC_SEARCH,
+            id: this.topic.id,
+            query: query,
+          };
+        }
+        return {};
+      },
+      searchButtonLink() {
+        if (this.topic) {
+          const query = { ...this.$route.query };
           if (this.windowIsSmall || this.windowIsMedium) {
             query.sidePanel = String(
               this.$route.name === PageNames.TOPICS_TOPIC_SEARCH ? !this.sidePanelIsOpen : true
@@ -482,7 +495,7 @@
         return {};
       },
       currentLink() {
-        return this.searchActive ? this.searchLink : this.foldersLink;
+        return this.searchActive ? this.searchButtonLink : this.foldersLink;
       },
       searchActive() {
         return this.$route.name === PageNames.TOPICS_TOPIC_SEARCH;
