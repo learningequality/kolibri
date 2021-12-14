@@ -96,6 +96,7 @@
 
   .copies {
     float: right;
+    padding-top: 4px;
   }
 
   .resource-card-outer {

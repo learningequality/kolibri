@@ -259,13 +259,7 @@
   }
 
   .learning-activity-label {
-    top: 0;
-    display: inline-block;
     width: 60%;
-    /deep/ .learning-activity {
-      justify-content: flex-start;
-      margin-top: 2px;
-    }
   }
 
   .mobile-card.card {

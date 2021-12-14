@@ -1,38 +1,31 @@
 <template>
 
-  <div v-if="contentNode" :class="[ condensed ? 'condensed' : '']">
-    <div class="learning-activity">
+  <div v-if="contentNode">
+    <span
+      class="learning-activity"
+      :class="[ condensed || labelAfter ? 'reversed' : '' ]"
+    >
       <span
-        v-if="!labelAfter"
-        class="label-before"
+        class="label"
         data-test="label"
       >
         {{ label }}
       </span>
-      <template v-if="contentNode.learning_activities">
+      <span v-if="contentNode.learning_activities">
         <LearningActivityIcon
           v-for="(learningActivity, idx) in contentNode.learning_activities"
           :key="idx"
           class="icon"
           :kind="learningActivity"
-          :style="{ fontSize: '18px' }"
         />
-      </template>
-      <span
-        v-if="labelAfter"
-        class="label-after"
-        data-test="label"
-      >
-        {{ label }}
       </span>
-    </div>
-
-    <span v-if="displaySeparator" class="separator">|</span>
+    </span>
 
     <LearningActivityDuration
       v-if="!hideDuration"
       :contentNode="contentNode"
       class="duration"
+      :class="[ condensed ? 'condensed' : '' ]"
     />
   </div>
 
@@ -58,25 +51,16 @@
       LearningActivityDuration,
     },
     setup(props) {
-      const {
-        hasSingleActivity,
-        firstActivity,
-        isReference,
-        hasDuration,
-        getLearningActivityLabel,
-      } = useLearningActivities(props.contentNode);
+      const { hasSingleActivity, firstActivity, getLearningActivityLabel } = useLearningActivities(
+        props.contentNode
+      );
 
       const label = computed(() => {
         return get(hasSingleActivity) ? getLearningActivityLabel(get(firstActivity)) : '';
       });
 
-      const displaySeparator = computed(() => {
-        return props.condensed && !props.hideDuration && (get(isReference) || get(hasDuration));
-      });
-
       return {
         label,
-        displaySeparator,
       };
     },
     props: {
@@ -110,42 +94,38 @@
 <style lang="scss" scoped>
 
   .learning-activity {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    justify-content: flex-end;
+
+    &.reversed {
+      flex-direction: row-reverse;
+    }
   }
 
-  .label-before {
+  .label {
     padding-right: 4px;
-  }
-
-  .label-after {
     padding-left: 4px;
   }
 
   .icon {
-    // override KIcon's `position: relative` to allow
-    // for precise vertical centering of label and icon
-    position: static;
+    font-size: 18px;
+
+    &:not(:first-child) {
+      margin-left: 2px;
+    }
   }
 
   .duration {
-    margin-top: 8px;
-    text-align: right;
-  }
+    display: block;
+    margin-top: 4px;
 
-  .condensed {
-    display: flex;
-    align-items: center;
-
-    .duration {
+    &.condensed {
+      display: inline-block;
       margin-top: 0;
-      text-align: left;
-    }
 
-    .separator {
-      padding-right: 4px;
-      padding-left: 4px;
+      &::before {
+        content: '|';
+      }
     }
   }
 

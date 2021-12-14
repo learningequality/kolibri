@@ -151,9 +151,6 @@
     top: $margin;
     right: $margin;
     width: 100px;
-    /deep/ .learning-activity {
-      justify-content: flex-end;
-    }
   }
 
   .mobile-card.card {
