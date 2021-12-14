@@ -319,7 +319,11 @@ class ZeroConfPlugin(Monitor):
         # don't match the current set of all addresses for this device, then we should reinitialize
         # zeroconf, the listener, and the broadcast kolibri service.
         current_addresses = set(get_all_addresses())
-        if self.broadcast is not None and self.broadcast.addresses != current_addresses:
+        if (
+            self.broadcast is not None
+            and self.broadcast.is_broadcasting
+            and self.broadcast.addresses != current_addresses
+        ):
             logger.info(
                 "List of local addresses has changed since zeroconf was last initialized, updating now"
             )
