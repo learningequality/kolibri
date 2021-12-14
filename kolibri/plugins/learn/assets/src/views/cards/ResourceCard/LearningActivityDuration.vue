@@ -1,6 +1,7 @@
 <template>
 
   <span
+    v-if="isReference || hasDuration"
     :class="[ appearance === 'chip' ? 'chip' : '']"
     :style="[ appearance === 'chip' ? { color: $themeTokens.textInverted } : {}]"
   >
@@ -43,6 +44,7 @@
       const {
         ReferenceLabel,
         isReference,
+        hasDuration,
         displayPreciseDuration,
         durationInSeconds,
         durationEstimation,
@@ -51,6 +53,7 @@
       return {
         ReferenceLabel,
         isReference,
+        hasDuration,
         displayPreciseDuration,
         durationInSeconds,
         durationEstimation,
