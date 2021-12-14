@@ -61,6 +61,12 @@ const replaceBlocklist = {
   replace: true,
 };
 
+function clearObject(obj) {
+  for (let key in obj) {
+    delete obj[key];
+  }
+}
+
 export default function useProgressTracking(store) {
   store = store || getCurrentInstance().proxy.$store;
   const complete = ref(null);
@@ -150,15 +156,18 @@ export default function useProgressTracking(store) {
       set(time_spent, valOrNull(data.time_spent));
       set(time_spent_delta, 0);
       set(session_id, valOrNull(data.session_id));
+      clearObject(extra_fields);
       Object.assign(extra_fields, data.extra_fields || {});
       set(mastery_criterion, valOrNull(data.mastery_criterion));
+      pastattempts.splice(0);
       pastattempts.push(...(data.pastattempts || []));
+      clearObject(pastattemptMap);
       Object.assign(
         pastattemptMap,
         data.pastattempts ? fromPairs(data.pastattempts.map(a => [a.id, a])) : {}
       );
       set(totalattempts, valOrNull(data.totalattempts));
-      set(unsaved_interactions, []);
+      unsaved_interactions.splice(0);
     });
   }
 
