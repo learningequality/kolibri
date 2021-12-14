@@ -464,7 +464,7 @@ export default function useProgressTracking(store) {
   function stopTrackingProgress() {
     clearTrackingInterval();
     try {
-      updateContentSession({ immediate: true, force: true }).catch(err => {
+      return updateContentSession({ immediate: true, force: true }).catch(err => {
         logging.debug(err);
       });
     } catch (e) {
@@ -476,6 +476,7 @@ export default function useProgressTracking(store) {
         throw e;
       }
     }
+    return Promise.resolve();
   }
 
   onBeforeUnmount(stopTrackingProgress);
