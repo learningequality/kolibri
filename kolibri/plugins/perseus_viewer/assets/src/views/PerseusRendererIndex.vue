@@ -682,10 +682,11 @@
   .framework-perseus {
     padding-bottom: 104px;
 
-    // Draggable box wrapper. Stops it from going off screen right
-    /deep/ .draggy-boxy-thing {
-      display: inline;
+    // Orderer widget wrapper. Stops it from going off screen right
+    /deep/ .orderer {
+      min-width: 0;
     }
+
     // Multiple choice table padding/margin fixes for clean appearance
     /deep/ .widget-block > div {
       padding: 0 !important;
