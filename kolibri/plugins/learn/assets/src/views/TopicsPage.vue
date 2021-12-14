@@ -107,9 +107,9 @@
             <KButton
               icon="filter"
               class="filter-overlay-toggle-button"
-              :text="coreString('searchLabel')"
+              :text="filterTranslator.$tr('filter')"
               :primary="false"
-              @click="$router.push(searchLink)"
+              @click="$router.push(searchButtonLink)"
             />
           </div>
           <!-- default/preview display of nested folder structure, not search -->
@@ -330,6 +330,7 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
+  import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import FullScreenSidePanel from 'kolibri.coreVue.components.FullScreenSidePanel';
@@ -629,6 +630,7 @@
     },
     created() {
       this.translator = crossComponentTranslator(LibraryPage);
+      this.filterTranslator = crossComponentTranslator(FilterTextbox);
       window.addEventListener('scroll', this.throttledHandleScroll);
       this.setSearchWithinDescendant(this.topic);
       this.search();
