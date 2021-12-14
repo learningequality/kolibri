@@ -3,7 +3,7 @@
   <div>
     <KCircularLoader v-if="submitting" />
     <QuizReport
-      v-else-if="currentlyMastered"
+      v-else-if="mastered"
       :userId="userId"
       :userName="userFullName"
       :content="content"
@@ -20,6 +20,7 @@
         <div class="column-contents-wrapper">
           <KPageContainer>
             <AnswerHistory
+              :pastattempts="pastattempts"
               :questionNumber="questionNumber"
               :wrapperComponentRefs="this.$refs"
               :questions="itemIdArray"
@@ -51,8 +52,6 @@
               :userFullName="userFullName"
               :timeSpent="timeSpent"
               @interaction="saveAnswer"
-              @startTracking="startTracking"
-              @stopTracking="stopTracking"
               @updateProgress="updateProgress"
               @updateContentState="updateContentState"
             />
@@ -181,7 +180,6 @@
 
 <script>
 
-  import { mapState, mapActions } from 'vuex';
   import isEqual from 'lodash/isEqual';
   import debounce from 'lodash/debounce';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
@@ -232,6 +230,23 @@
         type: Number,
         default: null,
       },
+      pastattempts: {
+        type: Array,
+        default: () => [],
+      },
+      mastered: {
+        type: Boolean,
+        default: false,
+      },
+      masteryLevel: {
+        type: Number,
+        default: 0,
+      },
+      // TODO: is this a sustainable way to pass this?
+      updateContentSession: {
+        type: Function,
+        default: () => {},
+      },
     },
     data() {
       return {
@@ -244,12 +259,6 @@
       };
     },
     computed: {
-      ...mapState({
-        pastattempts: state => state.core.logging.pastattempts,
-        masteryLevel: state =>
-          state.core.logging.context && state.core.logging.context.mastery_level,
-        currentlyMastered: state => state.core.logging.complete,
-      }),
       gridStyle() {
         if (!this.windowIsSmall) {
           return {
@@ -328,7 +337,7 @@
           this.startTime = Date.now();
         }
       },
-      currentlyMastered(newVal, oldVal) {
+      mastered(newVal, oldVal) {
         if (!newVal && oldVal) {
           // We were looking at a report before but now we are retaking
           // the quiz, so start tracking.
@@ -338,16 +347,11 @@
     },
     created() {
       // Only start tracking if we're not currently on a completed try
-      if (!this.currentlyMastered) {
+      if (!this.mastered) {
         this.startTracking();
       }
     },
     methods: {
-      ...mapActions({
-        updateContentSession: 'updateContentSession',
-        startTracking: 'startTrackingProgress',
-        stopTracking: 'stopTrackingProgress',
-      }),
       setAndSaveCurrentExamAttemptLog({ close, interaction } = {}) {
         // Clear the learner classroom cache here as its progress data is now
         // stale

@@ -2,7 +2,6 @@ import { ContentNodeResource, ClassroomResource, ExamResource } from 'kolibri.re
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import { convertExamQuestionSources } from 'kolibri.utils.exams';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
-import router from 'kolibri.coreVue.router';
 import shuffled from 'kolibri.utils.shuffled';
 import { ClassesPageNames } from '../../constants';
 import { contentState } from '../coreLearn/utils';
@@ -16,7 +15,6 @@ export function showExam(store, params, alreadyOnQuiz) {
   store.commit('SET_PAGE_NAME', ClassesPageNames.EXAM_VIEWER);
 
   const userId = store.getters.currentUserId;
-  const examParams = { user: userId, exam: examId };
 
   if (!userId) {
     store.commit('CORE_SET_ERROR', 'You must be logged in as a learner to view this page');
@@ -25,27 +23,12 @@ export function showExam(store, params, alreadyOnQuiz) {
     const promises = [
       ClassroomResource.fetchModel({ id: classId }),
       ExamResource.fetchModel({ id: examId }),
-      store
-        .dispatch('initContentSession', { quizId: examId })
-        .catch(err => (err.response.status === 403 ? true : Promise.reject(err))),
       store.dispatch('setAndCheckChannels'),
     ];
     ConditionalPromise.all(promises).only(
       samePageCheckGenerator(store),
-      ([classroom, exam, closed]) => {
+      ([classroom, exam]) => {
         store.commit('classAssignments/SET_CURRENT_CLASSROOM', classroom);
-
-        if (closed) {
-          // If exam is closed, then redirect to route for the report
-          return router.replace({
-            name: ClassesPageNames.EXAM_REPORT_VIEWER,
-            params: {
-              ...examParams,
-              questionNumber: 0,
-              questionInteraction: 0,
-            },
-          });
-        }
 
         let contentPromise;
         if (exam.question_sources.length) {

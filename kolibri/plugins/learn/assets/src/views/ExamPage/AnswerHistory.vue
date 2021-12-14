@@ -30,8 +30,6 @@
 
 <script>
 
-  import { mapState } from 'vuex';
-
   function isAboveContainer(element, container) {
     return element.offsetTop < container.scrollTop;
   }
@@ -43,6 +41,14 @@
   export default {
     name: 'AnswerHistory',
     props: {
+      pastattempts: {
+        type: Array,
+        required: true,
+      },
+      questions: {
+        type: Array,
+        required: true,
+      },
       questionNumber: {
         type: Number,
         required: true,
@@ -52,10 +58,6 @@
         type: Object,
         required: true,
       },
-    },
-    computed: {
-      ...mapState('examViewer', ['questions']),
-      ...mapState({ pastattempts: state => state.core.logging.pastattempts }),
     },
     watch: {
       questionNumber(index) {

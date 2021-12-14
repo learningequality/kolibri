@@ -6,7 +6,6 @@
       :style="gridOffset"
     >
       <div v-if="!windowIsLarge">
-        <!-- TO DO Marcella swap out new icon after KDS update -->
         <KButton
           icon="filter"
           :text="coreString('searchLabel')"
@@ -203,6 +202,7 @@
 
     <FullScreenSidePanel
       v-if="sidePanelContent"
+      alignment="right"
       @closePanel="sidePanelContent = null"
     >
       <BrowseResourceMetadata :content="sidePanelContent" :canDownloadContent="true" />

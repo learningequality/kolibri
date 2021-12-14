@@ -18,13 +18,11 @@ const createComponent = (totalattempts, pastattempts, masteryModel) => {
     assessmentIds: [],
     masteryModel: masteryModel || {},
     randomize: false,
+    totalattempts,
+    pastattempts,
   };
   const store = makeStore();
   store.state.core = {
-    logging: {
-      totalattempts,
-      pastattempts,
-    },
     session: {
       user_id: 'test',
     },

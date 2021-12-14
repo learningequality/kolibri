@@ -13,18 +13,6 @@
       />
     </NavbarLink>
     <NavbarLink
-      v-if="showClassesLink"
-      name="classes-link"
-      :title="coreString('classesLabel')"
-      :link="allClassesLink"
-    >
-      <KIcon
-        icon="classes"
-        style="top: 0; width: 24px; height: 24px;"
-        :color="$themeTokens.textInverted"
-      />
-    </NavbarLink>
-    <NavbarLink
       v-if="canAccessUnassignedContent"
       :title="learnString('libraryLabel')"
       :link="libraryLink"
@@ -58,7 +46,7 @@
   import Navbar from 'kolibri.coreVue.components.Navbar';
   import NavbarLink from 'kolibri.coreVue.components.NavbarLink';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { ClassesPageNames, PageNames } from '../constants';
+  import { PageNames } from '../constants';
   import useCoreLearn from '../composables/useCoreLearn';
   import commonLearnStrings from './commonLearnStrings';
 
@@ -80,9 +68,6 @@
         homePageLink: {
           name: PageNames.HOME,
         },
-        allClassesLink: {
-          name: ClassesPageNames.ALL_CLASSES,
-        },
         libraryLink: {
           name: PageNames.LIBRARY,
         },
@@ -93,9 +78,6 @@
     },
     computed: {
       ...mapGetters(['isUserLoggedIn', 'canAccessUnassignedContent']),
-      showClassesLink() {
-        return this.isUserLoggedIn && (this.inClasses || !this.canAccessUnassignedContent);
-      },
     },
   };
 

@@ -461,7 +461,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             masterylogs = masterylogs.filter(mastery_level__lt=0)
         else:
             masterylogs = masterylogs.filter(mastery_level__gt=0)
-        masterylog = masterylogs.order_by("-complete", "-end_timestamp").first()
+        masterylog = masterylogs.order_by("complete", "-end_timestamp").first()
 
         if masterylog is None or (masterylog.complete and repeat):
             # There is no previous masterylog, or the previous masterylog

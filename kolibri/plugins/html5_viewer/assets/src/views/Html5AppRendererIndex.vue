@@ -37,6 +37,7 @@
         :style="{ backgroundColor: $themePalette.grey.v_100 }"
         frameBorder="0"
         :src="rooturl"
+        allow="fullscreen"
       >
       </iframe>
       <KCircularLoader

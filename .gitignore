@@ -46,7 +46,6 @@ htmlcov/
 kolibrihome_test/
 
 # Translations
-kolibri/locale/en/
 kolibri/locale/**/LC_MESSAGES/*.csv
 
 # Mr Developer

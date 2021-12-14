@@ -61,6 +61,10 @@
       icon() {
         let icon;
 
+        if (this.kind === undefined || this.kind === null) {
+          return null;
+        }
+
         if (Array.isArray(this.kind)) {
           if (this.kind.length === 0) {
             return null;

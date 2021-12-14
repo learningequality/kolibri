@@ -32,6 +32,7 @@
 
     <FullScreenSidePanel
       v-if="sidePanelContent"
+      alignment="right"
       @closePanel="sidePanelContent = null"
     >
       <BrowseResourceMetadata :content="sidePanelContent" :canDownloadContent="true" />
