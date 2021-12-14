@@ -35,6 +35,7 @@
           <LearningActivityLabel
             :contentNode="content"
             :labelAfter="true"
+            :hideDuration="!isMobile"
             condensed
           />
         </div>
