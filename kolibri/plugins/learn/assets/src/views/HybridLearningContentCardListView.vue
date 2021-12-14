@@ -24,7 +24,7 @@
         <CardThumbnail
           :kind="content.kind"
           v-bind="{ thumbnail, isMobile }"
-          :activityLength="content.duration"
+          :contentNode="content"
         />
       </div>
       <span class="details" :style="{ color: $themeTokens.text }">

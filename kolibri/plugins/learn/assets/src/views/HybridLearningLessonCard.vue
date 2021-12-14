@@ -14,7 +14,7 @@
         <CardThumbnail
           v-bind="{ thumbnail, isMobile }"
           :kind="content.kind"
-          :activityLength="content.duration"
+          :contentNode="content"
         />
       </div>
       <h3 class="title">
