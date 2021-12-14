@@ -567,6 +567,22 @@ class ProgressTrackingViewSetStartSessionAssessmentResumeTestCase(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(MasteryLog.objects.all().count(), 1)
 
+    def test_start_assessment_session_logged_in_previous_completed_no_new(self):
+        self.mastery_log.complete = True
+        self.mastery_log.save()
+        self.mastery_log = MasteryLog.objects.create(
+            mastery_criterion=self.mastery_model,
+            summarylog=self.summary_log,
+            start_timestamp=self.summary_log.start_timestamp,
+            user=self.user,
+            mastery_level=2,
+        )
+        response = self._make_request({})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(MasteryLog.objects.all().count(), 2)
+        self.assertEqual(response.data["complete"], False)
+
     def test_start_assessment_session_logged_in_completed_repeat_new(self):
         self.mastery_log.complete = True
         self.mastery_log.save()

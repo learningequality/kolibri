@@ -436,7 +436,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                 summarylog=summarylog,
                 user=user,
             )
-            .order_by("-complete", "-end_timestamp")
+            .order_by("complete", "-end_timestamp")
             .first()
         )
 
