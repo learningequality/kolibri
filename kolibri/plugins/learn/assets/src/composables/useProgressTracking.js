@@ -400,7 +400,7 @@ export default function useProgressTracking(store) {
     // Reset the elapsed time in the timer
     const elapsedTime = getNewTimeElapsed();
     // Discard the time that has passed if the page is not visible.
-    if (store.state.pageVisible && elapsedTime) {
+    if (store.state.core.pageVisible && elapsedTime) {
       /* Update the logging state with new timing information */
       set(time_spent, get(time_spent) + threeDecimalPlaceRoundup(elapsedTime));
       set(time_spent_delta, threeDecimalPlaceRoundup(get(time_spent_delta) + elapsedTime));
