@@ -11,12 +11,9 @@ from urllib.parse import urlsplit
 
 from gi.repository import GLib
 from gi.repository import GObject
-from gi.repository import Gtk
 from gi.repository import WebKit2
-from kolibri.utils.i18n import KOLIBRI_SUPPORTED_LANGUAGES
 from kolibri_app.config import DATA_DIR
 from kolibri_app.config import FRONTEND_APPLICATION_ID
-from langcodes import closest_supported_match
 
 from .kolibri_daemon_manager import KolibriDaemonManager
 from .utils import await_properties
@@ -307,16 +304,14 @@ class _KolibriSetupHelper(GObject.GObject):
 
     def __automatic_device_provision(self):
         logger.info("Provisioning device…")
-        language_id = self.__get_closest_system_kolibri_language()
         request_body_data = {
-            "language_id": language_id,
+            "language_id": None,
             "facility": {"name": _("Kolibri at home")},
             "preset": "nonformal",
             "superuser": None,
-            "device_name": _("Kolibri at home"),
-            "device_name": "Kolibri at home",
+            "device_name": None,
             "settings": {},
-            "allow_guest_access": "",
+            "allow_guest_access": None,
         }
         self.__kolibri_daemon.kolibri_api_post_async(
             "/api/device/deviceprovision/",
@@ -327,10 +322,6 @@ class _KolibriSetupHelper(GObject.GObject):
     def __on_kolibri_api_deviceprovision_response(self, data: dict):
         logger.info("Device provisioned.")
         self.props.is_facility_ready = True
-
-    def __get_closest_system_kolibri_language(self):
-        system_language = Gtk.get_default_language().to_string()
-        return closest_supported_match(system_language, KOLIBRI_SUPPORTED_LANGUAGES)
 
     def __on_await_login_token_and_kolibri_is_started(
         self, login_token: str, is_facility_ready: bool, is_started: bool
