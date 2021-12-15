@@ -302,7 +302,14 @@
         return this.itemIdArray[this.questionNumber];
       },
       questionsAnswered() {
-        return this.pastattempts.reduce((count, attempt) => count + (attempt.answer ? 1 : 0), 0);
+        return Object.keys(
+          this.pastattempts.reduce((map, attempt) => {
+            if (attempt.answer) {
+              map[attempt.item] = true;
+            }
+            return map;
+          }, {})
+        ).length;
       },
       questionsUnanswered() {
         return this.questionsTotal - this.questionsAnswered;
