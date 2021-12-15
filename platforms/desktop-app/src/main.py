@@ -91,6 +91,8 @@ elif sys.platform == "darwin":
     os.environ["KOLIBRI_INSTALLATION_TYPE"] = "mac"
     os.environ["KOLIBRI_INSTALLER_VERSION"] = "0.1.3"
 
+
+LOCALHOST = 'http://localhost'
 KOLIBRI_ROOT_URL = 'http://localhost:{}'.format(KOLIBRI_PORT)
 os.environ["DJANGO_SETTINGS_MODULE"] = "kolibri.deployment.default.settings.base"
 
@@ -369,7 +371,7 @@ class Application(pew.ui.PEWApp):
         return window
 
     def should_load_url(self, url):
-        if url.startswith('http') and not url.startswith(KOLIBRI_ROOT_URL):
+        if url.startswith('http') and not url.startswith(LOCALHOST):
             webbrowser.open(url)
             return False
 
