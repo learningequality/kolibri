@@ -42,7 +42,6 @@
           {{ $tr('categories') }}
         </h2>
         <!-- list of category metadata - clicking prompts a filter modal -->
-        
         <div
           v-for="(category, val) in libraryCategoriesList"
           :key="category"
