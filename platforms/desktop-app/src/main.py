@@ -89,7 +89,7 @@ if pew.ui.platform == "android":
     os.environ['KOLIBRI_STATIC_USE_SYMLINKS'] = "False"
 elif sys.platform == "darwin":
     os.environ["KOLIBRI_INSTALLATION_TYPE"] = "mac"
-    os.environ["KOLIBRI_INSTALLER_VERSION"] = "0.1.3"
+    os.environ["KOLIBRI_INSTALLER_VERSION"] = "0.2.1"
 
 
 LOCALHOST = 'http://localhost'
