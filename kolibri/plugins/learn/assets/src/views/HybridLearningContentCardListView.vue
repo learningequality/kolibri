@@ -60,7 +60,7 @@
           class="channel-logo"
         >
         <KButton
-          v-if="!isMobile && isLibraryPage && content.copies"
+          v-if="!isMobile && content.copies"
           appearance="basic-link"
           class="copies"
           :style="{ color: $themeTokens.text }"
@@ -170,9 +170,6 @@
         } else {
           return null;
         }
-      },
-      isLibraryPage() {
-        return this.currentPage === PageNames.LIBRARY;
       },
       isBookmarksPage() {
         return this.currentPage === PageNames.BOOKMARKS;
