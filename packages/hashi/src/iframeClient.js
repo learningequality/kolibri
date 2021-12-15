@@ -82,6 +82,7 @@ export default class SandboxEnvironment {
         this.xAPI.iframeInitialize(this.iframe.contentWindow);
         patchIndexedDB(this.contentNamespace, this.iframe.contentWindow);
       } catch (e) {
+        console.debug(e);
         console.log('Shimming storage APIs failed, data will not persist'); // eslint-disable-line no-console
       }
     }
