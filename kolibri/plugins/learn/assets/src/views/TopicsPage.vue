@@ -856,6 +856,7 @@
     margin-top: 16px;
     text-align: center;
   }
+
   .side-panel-chips {
     display: flex;
     flex-wrap: wrap;

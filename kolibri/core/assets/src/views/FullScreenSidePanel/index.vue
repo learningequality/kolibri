@@ -12,30 +12,27 @@
       >
 
         <!-- Fixed header with optional close button -->
-        <div class="fixed-header" :style="fixedHeaderStyles">
+        <div v-if="$slots.header" ref="fixedHeader" class="fixed-header" :style="fixedHeaderStyles">
 
-          <div ref="fixedHeader" class="header-content" tabindex="0">
+          <div class="header-content" tabindex="0">
             <slot name="header">
             </slot>
           </div>
 
-          <KIconButton
-            v-if="!closeButtonHidden"
-            icon="close"
-            class="close-button"
-            :ariaLabel="coreString('closeAction')"
-            :tooltip="coreString('closeAction')"
-            @click="closePanel"
-          />
-
         </div>
 
+        <KIconButton
+          v-if="!closeButtonHidden"
+          icon="close"
+          class="close-button"
+          :style="closeButtonStyles"
+          :ariaLabel="coreString('closeAction')"
+          :tooltip="coreString('closeAction')"
+          @click="closePanel"
+        />
+
         <!-- Default slot for inserting content which will scroll on overflow -->
-        <div
-          class="side-panel-content"
-          :style="contentStyles"
-          :class="$computedClass({ 'height': `calc(100vh - ${fixedHeaderHeight})` })"
-        >
+        <div class="side-panel-content" :style="contentStyles">
           <slot></slot>
         </div>
 
@@ -148,6 +145,12 @@
           'margin-top': this.fixedHeaderHeight,
           padding: '24px 32px 16px',
           'overflow-y': 'scroll',
+          height: `calc((100vh - ${this.fixedHeaderHeight}))`,
+        };
+      },
+      closeButtonStyles() {
+        return {
+          top: `calc((${this.fixedHeaderHeight} - 40px) / 2)`,
         };
       },
     },
@@ -157,7 +160,7 @@
       htmlTag.style['overflow-y'] = 'hidden';
 
       // Gets the height of the fixed header - adds 40 to account for padding
-      this.fixedHeaderHeight = this.$refs.fixedHeader.clientHeight + 40 + 'px';
+      this.fixedHeaderHeight = this.$refs.fixedHeader.clientHeight + 'px';
 
       // Ensures user starts at top header with keyboard focus
       this.$refs.fixedHeader.focus();
@@ -193,9 +196,8 @@
 
   .close-button {
     position: fixed;
-    top: 24px;
     right: 32px;
-    z-index: 24; // Always above everything
+    z-index: 24;
   }
 
   /** Need to be sure a KDropdownMenu shows up on the Side Panel */
