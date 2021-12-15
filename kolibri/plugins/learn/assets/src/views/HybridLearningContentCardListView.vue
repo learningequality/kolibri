@@ -69,18 +69,20 @@
         />
       </span>
     </router-link>
-    <KFixedGrid :numCols="10" class="footer">
-      <KFixedGridItem span="3" class="footer-elements">
-        <p
-          v-if="isBookmarksPage"
-          class="metadata-info-footer"
-          :style="{ color: $themePalette.grey.v_700 }"
-        >
-          {{ bookmarkCreated }}
-        </p>
-        <ProgressBar :contentNode="content" />
-      </KFixedGridItem>
-      <KFixedGridItem span="10" alignment="right" class="footer-elements footer-icons">
+    <div class="footer">
+      <div class="footer-elements">
+        <div class="footer-progress">
+          <p
+            v-if="isBookmarksPage"
+            class="metadata-info-footer"
+            :style="{ color: $themePalette.grey.v_700 }"
+          >
+            {{ bookmarkCreated }}
+          </p>
+          <ProgressBar :contentNode="content" />
+        </div>
+      </div>
+      <div class="footer-elements footer-icons">
         <KIconButton
           v-for="(value, key) in footerIcons"
           :key="key"
@@ -91,8 +93,8 @@
           :tooltip="coreString(value)"
           @click="$emit(value)"
         />
-      </KFixedGridItem>
-    </KFixedGrid>
+      </div>
+    </div>
   </div>
 
 </template>
@@ -198,8 +200,6 @@
   @import '~kolibri-design-system/lib/styles/definitions';
   @import './ContentCard/card';
 
-  $margin: 16px;
-
   .drop-shadow {
     @extend %dropshadow-1dp;
     &:hover {
@@ -278,13 +278,18 @@
 
   .footer-elements {
     position: relative;
-    display: inline-block;
+    display: block;
+  }
+
+  .footer-progress {
+    width: 240px;
   }
 
   .footer-icons {
     // this override fixes an existing KDS bug with
     // the hover state circle being squished
     // and can be removed upon that hover state fix
+    float: right;
     .button {
       width: 32px !important;
       height: 32px !important;
