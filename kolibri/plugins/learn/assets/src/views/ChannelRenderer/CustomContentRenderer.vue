@@ -163,12 +163,14 @@
           },
         })
           .then(contentNodes => {
+            const { more, results } = contentNodes;
+
             return createReturnMsg({
               message,
               data: {
                 maxResults: options.maxResults ? options.maxResults : 50,
-                more: contentNodes.more,
-                results: contentNodes.results,
+                more,
+                results,
               },
             });
           })
@@ -184,18 +186,17 @@
         const { options } = message;
 
         return ContentNodeResource.fetchCollection({
-          getParams: {
-            cursor: options.cursor,
-            max_results: options.maxResults ? options.maxResults : 50,
-          },
+          getParams: options,
         })
           .then(contentNodes => {
+            const { more, results } = contentNodes;
+
             return createReturnMsg({
               message,
               data: {
-                maxResults: options.maxResults ? options.maxResults : 50,
-                more: contentNodes.more,
-                results: contentNodes.results,
+                maxResults: options.max_results ? options.max_results : 50,
+                more,
+                results,
               },
             });
           })
