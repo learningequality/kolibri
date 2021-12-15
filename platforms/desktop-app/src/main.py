@@ -87,7 +87,9 @@ if pew.ui.platform == "android":
     # We can't use symlinks as at least some Android devices have the user storage
     # and app data directories on different mount points.
     os.environ['KOLIBRI_STATIC_USE_SYMLINKS'] = "False"
-
+elif sys.platform == "darwin":
+    os.environ["KOLIBRI_INSTALLATION_TYPE"] = "mac"
+    os.environ["KOLIBRI_INSTALLER_VERSION"] = "0.1.3"
 
 KOLIBRI_ROOT_URL = 'http://localhost:{}'.format(KOLIBRI_PORT)
 os.environ["DJANGO_SETTINGS_MODULE"] = "kolibri.deployment.default.settings.base"
