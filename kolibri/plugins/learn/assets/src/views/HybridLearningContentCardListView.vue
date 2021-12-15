@@ -268,7 +268,7 @@
     position: absolute;
     bottom: 0;
     width: 100%;
-    padding: $margin 24px;
+    padding: 16px 24px;
   }
 
   .metadata-info-footer {
