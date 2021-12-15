@@ -726,11 +726,9 @@
 
   .header {
     position: relative;
-    // z-index: 4;
     width: 100%;
-    height: 324px;
     padding-top: 32px;
-    padding-bottom: 0;
+    padding-bottom: 32px;
     padding-left: 32px;
     background-color: white;
     border: 1px solid #dedede;
@@ -798,14 +796,15 @@
 
   .mobile-header {
     position: relative;
-    height: 120px;
+    height: 100%;
     background-color: white;
   }
 
   .mobile-title {
+    height: 100%;
     padding-right: 16px;
-    // padding-top: 16px;
     padding-left: 16px;
+    margin-top: 16px;
     font-size: 18px;
   }
 
@@ -813,8 +812,7 @@
     position: absolute;
     top: 16px;
     right: 16px;
-    max-height: 45px;
-    vertical-align: bottom;
+    max-height: 40px;
   }
   .overlay-close-button {
     position: absolute;
