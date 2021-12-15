@@ -70,9 +70,10 @@ export default class xAPI extends BaseShim {
     const successStatement = find(
       this.data[STATEMENT],
       s =>
-        s.verb.id === XAPIVerbMap.mastered ||
-        s.verb.id === XAPIVerbMap.passed ||
-        s.verb.id === XAPIVerbMap.completed
+        !s.error &&
+        (s.verb.id === XAPIVerbMap.mastered ||
+          s.verb.id === XAPIVerbMap.passed ||
+          s.verb.id === XAPIVerbMap.completed)
     );
     if (successStatement) {
       return 1;
