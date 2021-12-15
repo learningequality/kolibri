@@ -19,6 +19,7 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
   import LearningActivityDuration from '../LearningActivityDuration';
 
   export default {
@@ -28,10 +29,6 @@
     },
     mixins: [commonCoreStrings],
     props: {
-      thumbnail: {
-        type: String,
-        default: null,
-      },
       isMobile: {
         type: Boolean,
         default: false,
@@ -42,6 +39,12 @@
       },
     },
     computed: {
+      thumbnail() {
+        if (!this.contentNode) {
+          return null;
+        }
+        return getContentNodeThumbnail(this.contentNode);
+      },
       thumbnailBackground() {
         return {
           backgroundColor: this.$themePalette.grey.v_200,

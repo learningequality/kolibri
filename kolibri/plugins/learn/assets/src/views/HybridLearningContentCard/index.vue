@@ -34,8 +34,9 @@
       </div>
       <CardThumbnail
         class="thumbnail"
+        :isMobile="isMobile"
         :kind="content.kind"
-        v-bind="{ thumbnail, isMobile }"
+        :contentNode="content"
       />
       <div class="text" :style="{ color: $themeTokens.text }">
         <h3 class="title" dir="auto">
@@ -99,10 +100,6 @@
     },
     mixins: [commonLearnStrings, commonCoreStrings],
     props: {
-      thumbnail: {
-        type: String,
-        default: null,
-      },
       link: {
         type: Object,
         required: true,

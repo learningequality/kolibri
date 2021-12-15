@@ -23,7 +23,7 @@
       <div class="thumbnail">
         <CardThumbnail
           :kind="content.kind"
-          v-bind="{ thumbnail, isMobile }"
+          :isMobile="isMobile"
           :contentNode="content"
         />
       </div>
@@ -122,10 +122,6 @@
     mixins: [commonLearnStrings, commonCoreStrings],
     props: {
       createdDate: {
-        type: String,
-        default: null,
-      },
-      thumbnail: {
         type: String,
         default: null,
       },
