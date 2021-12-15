@@ -336,6 +336,12 @@ class _KolibriSetupHelper(GObject.GObject):
         self, kolibri_daemon: KolibriDaemonManager, login_token: typing.Optional[str]
     ):
         self.props.login_token = login_token
+        if login_token is None:
+            # If we are unable to get a login token, pretend the session cookie
+            # is ready so the app will proceed as usual. This should only happen
+            # in an edge case where kolibri-daemon is running on the system bus
+            # but is unable to communicate with AccountsService.
+            self.props.is_session_cookie_ready = True
 
     def __kolibri_daemon_on_notify_app_key_cookie(
         self, kolibri_daemon: KolibriDaemonManager, pspec: GObject.ParamSpec = None
