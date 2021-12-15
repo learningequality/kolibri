@@ -8,18 +8,18 @@ import { get } from '@vueuse/core';
 import { LearningActivities } from 'kolibri.coreVue.vuex.constants';
 import { coreStrings } from '../../../../../core/assets/src/mixins/commonCoreStrings';
 
-const ReferenceLabel = coreStrings.$tr('readReference');
-const _LearningActivityToLabelMap = {
-  [LearningActivities.CREATE]: coreStrings.$tr('create'),
-  [LearningActivities.LISTEN]: coreStrings.$tr('listen'),
-  [LearningActivities.REFLECT]: coreStrings.$tr('reflect'),
-  [LearningActivities.PRACTICE]: coreStrings.$tr('practice'),
-  [LearningActivities.READ]: coreStrings.$tr('read'),
-  [LearningActivities.WATCH]: coreStrings.$tr('watch'),
-  [LearningActivities.EXPLORE]: coreStrings.$tr('explore'),
-};
-
 export default function useLearningActivities(contentNode) {
+  const ReferenceLabel = coreStrings.$tr('readReference');
+  const _LearningActivityToLabelMap = {
+    [LearningActivities.CREATE]: coreStrings.$tr('create'),
+    [LearningActivities.LISTEN]: coreStrings.$tr('listen'),
+    [LearningActivities.REFLECT]: coreStrings.$tr('reflect'),
+    [LearningActivities.PRACTICE]: coreStrings.$tr('practice'),
+    [LearningActivities.READ]: coreStrings.$tr('read'),
+    [LearningActivities.WATCH]: coreStrings.$tr('watch'),
+    [LearningActivities.EXPLORE]: coreStrings.$tr('explore'),
+  };
+
   /**
    * @returns {Boolean} Does the content node have exactly
    *                    one learning activity associated with it?
