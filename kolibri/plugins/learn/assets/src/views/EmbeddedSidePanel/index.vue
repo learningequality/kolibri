@@ -43,7 +43,6 @@
         </h2>
         <!-- list of category metadata - clicking prompts a filter modal -->
         
-
         <div
           v-for="(category, val) in libraryCategoriesList"
           :key="category"
@@ -120,8 +119,8 @@
 
   import pick from 'lodash/pick';
   import uniq from 'lodash/uniq';
-  // removed "AllCategories", need to delete it from 'kolibri.coreVue.vuex.constants'
   import {
+    AllCategories,
     CategoriesLookup,
     NoCategories,
     ResourcesNeededTypes,
@@ -296,6 +295,9 @@
     },
     methods: {
       genContentLink,
+      allCategories() {
+        this.$emit('input', { ...this.value, categories: { [AllCategories]: true } });
+      },
       noCategories() {
         this.$emit('input', { ...this.value, categories: { [NoCategories]: true } });
       },
