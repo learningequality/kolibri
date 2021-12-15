@@ -22,7 +22,6 @@
       ></div>
       <div class="thumbnail">
         <CardThumbnail
-          :kind="content.kind"
           :isMobile="isMobile"
           :contentNode="content"
         />

@@ -35,7 +35,6 @@
       <CardThumbnail
         class="thumbnail"
         :isMobile="isMobile"
-        :kind="content.kind"
         :contentNode="content"
       />
       <div class="text" :style="{ color: $themeTokens.text }">

@@ -13,7 +13,6 @@
       <div class="thumbnail">
         <CardThumbnail
           :isMobile="isMobile"
-          :kind="content.kind"
           :contentNode="content"
         />
       </div>
