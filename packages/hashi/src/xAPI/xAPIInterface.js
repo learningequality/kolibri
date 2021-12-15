@@ -178,6 +178,8 @@ export default class xAPI extends BaseShim {
       // not directly from the data 'statements' property, so reversing in place is safe
       statements.reverse();
     }
+    // Only return statements that we have not flagged as errored.
+    statements = statements.filter(s => !s.error);
     if (limit && isNumber(limit)) {
       statements = statements.slice(0, limit);
     }
@@ -275,7 +277,7 @@ export default class xAPI extends BaseShim {
        * @return {Promise} a Promise that resolves when the statement has been successfully stored
        */
       sendStatement(statement, compress = false) {
-        return new Promise((resolve, reject) => {
+        return new Promise(resolve => {
           return import(
             /* webpackChunkName: "xAPISchema", webpackPrefetch: true */ './xAPISchema'
           ).then(({ Statement }) => {
@@ -283,8 +285,8 @@ export default class xAPI extends BaseShim {
             try {
               statement = Statement.clean(statement);
             } catch (e) {
-              reject(e);
-              return;
+              console.debug('Statement: ', statement, 'gave the following error: ', e);
+              statement.error = e.message;
             }
             if (compress) {
               // If we are compressing, then remove things that we
