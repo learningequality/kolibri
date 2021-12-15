@@ -7,6 +7,8 @@
       :facilityUsers="facilityUsers"
       :classUsers="classUsers"
       :disabled="formIsDisabled"
+      :classId="classId"
+      :totalPageNumber="totalPageNumber"
       pageType="learners"
       @submit="enrollLearners"
     />
@@ -38,9 +40,17 @@
       };
     },
     computed: {
-      ...mapState('classAssignMembers', ['class', 'facilityUsers', 'classUsers']),
+      ...mapState('classAssignMembers', [
+        'class',
+        'facilityUsers',
+        'classUsers',
+        'totalPageNumber',
+      ]),
       className() {
         return this.class.name;
+      },
+      classId() {
+        return this.class.id;
       },
     },
     methods: {

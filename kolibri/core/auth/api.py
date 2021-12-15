@@ -22,6 +22,7 @@ from django.db.models import Q
 from django.db.models import Subquery
 from django.db.models import TextField
 from django.db.models import Value
+from django.db.models.expressions import Col
 from django.db.models.functions import Cast
 from django.http import Http404
 from django.http import HttpResponseForbidden
@@ -209,6 +210,14 @@ class FacilityUserFilter(FilterSet):
         choices = CHOICES,
         method = "filter_user_type",
     )
+    exclude_member_of = ModelChoiceFilter(
+        method = "filter_exclude_member_of" , queryset = Collection.objects.all()
+    )
+    exclude_user_type = ChoiceFilter(
+        choices = CHOICES,
+        method = "filter_exclude_user_type",
+    )
+
 
     def filter_member_of(self, queryset, name, value):        
         return queryset.filter(Q(memberships__collection=value) | Q(facility=value))
@@ -217,6 +226,16 @@ class FacilityUserFilter(FilterSet):
         if value == 'learner':
             value = None
         return queryset.filter(roles__kind=value)
+
+    def filter_exclude_member_of(self , queryset, name, value):
+        return queryset.exclude(Q(memberships__collection=value) | Q(facility=value))
+    
+    def filter_exclude_user_type(self, queryset, name, value):
+        if value == 'learner':
+            value = None
+        if value == 'superuser':
+            return queryset.exclude(devicepermissions__is_superuser = True)
+        return queryset.exclude(roles__kind=value)
 
     class Meta:
         model = FacilityUser

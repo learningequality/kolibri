@@ -5,6 +5,9 @@
     <PaginatedListContainer
       :items="usersNotInClass"
       :filterPlaceholder="$tr('searchForUser')"
+      :excludeMemberOf="excludeMemberOf"
+      :totalPageNumber="totalPages"
+      :userAssignmentType="userAssignmentType"
     >
       <template #default="{ items, filterInput }">
         <UserTable
@@ -62,6 +65,14 @@
         type: Boolean,
         default: false,
       },
+      classId: {
+        type: String,
+        required: false,
+      },
+      totalPageNumber: {
+        type: Number,
+        required: false,
+      },
     },
     data() {
       return {
@@ -70,7 +81,17 @@
     },
     computed: {
       usersNotInClass() {
-        return differenceWith(this.facilityUsers, this.classUsers, (a, b) => a.id === b.id);
+        // return differenceWith(this.facilityUsers, this.classUsers, (a, b) => a.id === b.id);
+        return this.facilityUsers;
+      },
+      excludeMemberOf() {
+        return this.classId;
+      },
+      totalPages() {
+        return this.totalPageNumber;
+      },
+      userAssignmentType() {
+        return this.pageType;
       },
     },
     methods: {

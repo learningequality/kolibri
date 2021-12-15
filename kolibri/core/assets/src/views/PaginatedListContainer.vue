@@ -76,11 +76,20 @@
       },
       totalPageNumber: {
         type: Number,
-        required: true,
+        required: false,
+        default: 1,
       },
       roleFilter: {
         type: Object,
-        required: true,
+        required: false,
+      },
+      excludeMemberOf: {
+        type: String,
+        required: false,
+      },
+      userAssignmentType: {
+        type: String,
+        required: false,
       },
     },
     data() {
@@ -152,7 +161,10 @@
             page_size: this.itemsPerPage,
             page: this.currentPageNumber,
             search: this.filterInput,
-            user_type: this.roleFilter.value === 'all' ? '' : this.roleFilter.value,
+            exclude_member_of: !this.excludeMemberOf ? '' : this.excludeMemberOf,
+            user_type:
+              !this.roleFilter || this.roleFilter.value === 'all' ? '' : this.roleFilter.value,
+            exclude_user_type: this.userAssignmentType === 'coaches' ? 'learner' : '',
           },
           force: true,
         }).then(

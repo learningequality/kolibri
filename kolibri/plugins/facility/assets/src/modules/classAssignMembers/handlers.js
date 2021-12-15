@@ -9,7 +9,12 @@ export function showLearnerClassEnrollmentPage(store, toRoute) {
   store.dispatch('preparePage');
   // all users in facility
   const userPromise = FacilityUserResource.fetchCollection({
-    getParams: { member_of: facility_id || store.getters.activeFacilityId },
+    getParams: {
+      member_of: facility_id || store.getters.activeFacilityId,
+      page_size: 30,
+      page: 1,
+      exclude_member_of: id,
+    },
   });
   // current class
   const classPromise = ClassroomResource.fetchModel({ id });
@@ -17,6 +22,8 @@ export function showLearnerClassEnrollmentPage(store, toRoute) {
   const classUsersPromise = FacilityUserResource.fetchCollection({
     getParams: {
       member_of: id,
+      page_size: 30,
+      page: 1,
     },
     force: true,
   });
@@ -25,8 +32,9 @@ export function showLearnerClassEnrollmentPage(store, toRoute) {
     samePageCheckGenerator(store),
     ([facilityUsers, classroom, classUsers]) => {
       store.commit('classAssignMembers/SET_STATE', {
-        facilityUsers: facilityUsers.map(_userState),
-        classUsers: classUsers.map(_userState),
+        facilityUsers: facilityUsers.results.map(_userState),
+        classUsers: classUsers.results.map(_userState),
+        totalPageNumber: facilityUsers.total_pages,
         class: classroom,
         modalShown: false,
       });
