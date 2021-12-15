@@ -338,6 +338,10 @@
         message: 'Categories',
         context: 'Section header label in the Library page sidebar.',
       },
+      allCategories: {
+        message: 'All categories',
+        context: 'Option in the Library page sidebar.',
+      },
     },
   };
 
