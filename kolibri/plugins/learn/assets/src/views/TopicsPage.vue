@@ -617,7 +617,9 @@
       },
       searchTerms(newVal, oldVal) {
         if (!isEqual(newVal, oldVal)) {
-          this.$router.push({ ...this.searchTabLink });
+          if (!isEqual(this.searchTabLink, this.$route)) {
+            this.$router.push({ ...this.searchTabLink }).catch(() => {});
+          }
           this.sidePanelIsOpen = false;
         }
       },
@@ -727,8 +729,9 @@
   .header {
     position: relative;
     width: 100%;
+    height: 324px;
     padding-top: 32px;
-    padding-bottom: 32px;
+    padding-bottom: 48px;
     padding-left: 32px;
     background-color: white;
     border: 1px solid #dedede;
