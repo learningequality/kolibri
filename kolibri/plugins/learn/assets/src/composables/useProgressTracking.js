@@ -65,7 +65,7 @@ export default function useProgressTracking(store) {
   store = store || getCurrentInstance().proxy.$store;
   const complete = ref(null);
   const progress_state = ref(null);
-  const progress_delta = ref(null);
+  const progress_delta = ref(0);
   const time_spent = ref(null);
   const time_spent_delta = ref(null);
   const session_id = ref(null);
@@ -350,7 +350,9 @@ export default function useProgressTracking(store) {
       progress = _zeroToOne(progress);
       progress = threeDecimalPlaceRoundup(progress);
       if (get(progress_state) < progress) {
-        set(progress_delta, threeDecimalPlaceRoundup(progress - get(progress_state)));
+        const newProgressDelta =
+          get(progress_delta) + threeDecimalPlaceRoundup(progress - get(progress_state));
+        set(progress_delta, newProgressDelta);
         set(progress_state, progress);
       }
     }

@@ -354,6 +354,13 @@ describe('useProgressTracking composable', () => {
       expect(get(progress_delta)).toEqual(0.1);
       expect(client).not.toHaveBeenCalled();
     });
+    it('should increment progress_delta if progress is updated twice', async () => {
+      const { updateContentSession, progress_delta } = await initStore();
+      await updateContentSession({ progress: 0.6 });
+      await updateContentSession({ progress: 0.7 });
+      expect(get(progress_delta)).toEqual(0.2);
+      expect(client).not.toHaveBeenCalled();
+    });
     it('should update progress and store progress_delta if progress is updated over threshold', async () => {
       const { updateContentSession, progress } = await initStore();
       await updateContentSession({ progress: 1 });
