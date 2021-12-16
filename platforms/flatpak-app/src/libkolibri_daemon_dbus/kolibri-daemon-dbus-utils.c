@@ -92,7 +92,7 @@ local_kolibri_exists(void)
 static gboolean
 getenv_boolean(const gchar *name)
 {
-  const gchar *value = g_getenv(PROFILE_ENV_PREFIX "USE_SYSTEM_INSTANCE");
+  const gchar *value = g_getenv(name);
   return value != NULL && value[0] != '\0';
 }
 
