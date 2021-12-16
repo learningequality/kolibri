@@ -73,16 +73,23 @@ def init_logging(log_file_name: str = "kolibri-app.txt", level: int = logging.DE
 
 def init_kolibri():
     from kolibri.plugins.registry import registered_plugins
+    from kolibri.plugins.utils import enable_plugin
     from kolibri.utils.cli import initialize, setup_logging
 
     registered_plugins.register_plugins(["kolibri.plugins.app"])
+    enable_plugin("kolibri.plugins.app")
 
-    available_plugins = []
-    for optional_plugin in OPTIONAL_PLUGINS:
-        if importlib.util.find_spec(optional_plugin):
-            available_plugins.append(optional_plugin)
-    if available_plugins:
-        registered_plugins.register_plugins(available_plugins)
+    available_plugins = [
+        optional_plugin
+        for optional_plugin in OPTIONAL_PLUGINS
+        if importlib.util.find_spec(optional_plugin)
+    ]
+
+    registered_plugins.register_plugins(available_plugins)
+
+    for plugin_name in available_plugins:
+        logger.debug(f"Enabling optional plugin {plugin_name}")
+        enable_plugin(plugin_name)
 
     setup_logging(debug=False)
     initialize()
