@@ -5,9 +5,12 @@
 
 import { computed } from 'kolibri.lib.vueCompositionApi';
 import { get } from '@vueuse/core';
+import CompletionCriteria from 'kolibri-constants/CompletionCriteria';
 import lodashGet from 'lodash/get';
 import { LearningActivities } from 'kolibri.coreVue.vuex.constants';
 import coreStrings from 'kolibri.utils.coreStrings';
+
+const DURATION_THRESHOLD = 60 * 30; // 30 minutes in seconds
 
 export default function useLearningActivities(contentNode) {
   const ReferenceLabel = coreStrings.$tr('readReference');
@@ -52,7 +55,10 @@ export default function useLearningActivities(contentNode) {
    *                   set to reference.
    */
   const isReference = computed(() => {
-    return lodashGet(contentNode, ['options', 'completion_criteria', 'model']) === 'reference';
+    return (
+      lodashGet(contentNode, ['options', 'completion_criteria', 'model']) ===
+      CompletionCriteria.REFERENCE
+    );
   });
 
   /**
@@ -65,14 +71,30 @@ export default function useLearningActivities(contentNode) {
   /**
    * Should we display precise time duration for the content node?
    *
-   * @returns {Boolean} `true` when the content node has exactly one learning activity
-   *                    associated and that activity is watching or listening
+   * @returns {Boolean} `true` when the content node has a duration and the time
+   *                    completion criterion.
    */
   const displayPreciseDuration = computed(() => {
     return (
       contentNode &&
       contentNode.duration &&
-      lodashGet(contentNode, ['options', 'completion_criteria', 'model']) === 'time'
+      lodashGet(contentNode, ['options', 'completion_criteria', 'model']) ===
+        CompletionCriteria.TIME
+    );
+  });
+
+  /**
+   * Should we display an estimated duration for the content node?
+   *
+   * @returns {Boolean} `true` when the content node has a duration and the approx_time
+   *                    completion criterion.
+   */
+  const displayEstimatedDuration = computed(() => {
+    return (
+      contentNode &&
+      contentNode.duration &&
+      lodashGet(contentNode, ['options', 'completion_criteria', 'model']) ===
+        CompletionCriteria.APPROX_TIME
     );
   });
 
@@ -85,13 +107,14 @@ export default function useLearningActivities(contentNode) {
 
   /**
    * @returns {String} Returns the translated 'Short activity' label when duration is less
-   *                   than 30 minutes. Otherwise returns the translated 'Long activity' label.
+   *                   than or equal to 30 minutes.
+   *                   Otherwise returns the translated 'Long activity' label.
    */
   const durationEstimation = computed(() => {
     if (!get(hasDuration)) {
       return '';
     }
-    return contentNode.duration < 1800
+    return contentNode.duration <= DURATION_THRESHOLD
       ? coreStrings.$tr('shortActivity')
       : coreStrings.$tr('longActivity');
   });
@@ -111,6 +134,7 @@ export default function useLearningActivities(contentNode) {
     isReference,
     hasDuration,
     displayPreciseDuration,
+    displayEstimatedDuration,
     durationInSeconds,
     durationEstimation,
     getLearningActivityLabel,

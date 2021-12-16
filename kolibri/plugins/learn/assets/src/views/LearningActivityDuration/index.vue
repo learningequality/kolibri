@@ -1,7 +1,7 @@
 <template>
 
   <span
-    v-if="isReference || hasDuration"
+    v-if="isReference || displayPreciseDuration || displayEstimatedDuration"
     :class="[ appearance === 'chip' ? 'chip' : '']"
     :style="[ appearance === 'chip' ? { color: $themeTokens.textInverted } : {}]"
   >
@@ -12,7 +12,7 @@
       v-else-if="displayPreciseDuration"
       :seconds="durationInSeconds"
     />
-    <template v-else>
+    <template v-else-if="displayEstimatedDuration">
       {{ durationEstimation }}
     </template>
   </span>
@@ -44,8 +44,8 @@
       const {
         ReferenceLabel,
         isReference,
-        hasDuration,
         displayPreciseDuration,
+        displayEstimatedDuration,
         durationInSeconds,
         durationEstimation,
       } = useLearningActivities(props.contentNode);
@@ -53,8 +53,8 @@
       return {
         ReferenceLabel,
         isReference,
-        hasDuration,
         displayPreciseDuration,
+        displayEstimatedDuration,
         durationInSeconds,
         durationEstimation,
       };
