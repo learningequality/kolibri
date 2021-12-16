@@ -44,6 +44,13 @@
             :maxLines="5"
           />
         </h3>
+        <KButton
+          v-if="content.copies && content.copies.length"
+          appearance="basic-link"
+          class="copies"
+          :text="coreString('copies', { num: content.copies.length })"
+          @click.prevent="$emit('openCopiesModal', content.copies)"
+        />
       </div>
     </router-link>
     <div class="footer">
@@ -134,7 +141,7 @@
           this.content.is_leaf +
           (this.isUserLoggedIn && !this.isLearner && this.content.num_coach_contents) +
           (this.content.num_coach_contents > 0) +
-          (this.content.copies_count > 1) +
+          (this.content.copies && this.content.copies.length > 1) +
           (this.$slots.actions ? this.$slots.actions.length : 0)
         );
       },
@@ -183,6 +190,13 @@
 
   .card-link {
     text-decoration: none;
+  }
+
+  .copies {
+    display: inline-block;
+    font-size: 13px;
+    text-decoration: none;
+    vertical-align: top;
   }
 
   .header-bar {
