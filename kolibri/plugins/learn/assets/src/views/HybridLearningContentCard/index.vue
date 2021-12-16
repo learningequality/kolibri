@@ -145,7 +145,7 @@
           this.content.is_leaf +
           (this.isUserLoggedIn && !this.isLearner && this.content.num_coach_contents) +
           (this.content.num_coach_contents > 0) +
-          (this.content.copies > 1) +
+          (this.content.copies && this.content.copies.length > 1) +
           (this.$slots.actions ? this.$slots.actions.length : 0)
         );
       },
