@@ -9,6 +9,7 @@ from urllib.parse import parse_qs
 from urllib.parse import SplitResult
 from urllib.parse import urlsplit
 
+from gi.repository import Gio
 from gi.repository import GLib
 from gi.repository import GObject
 from gi.repository import WebKit2
@@ -76,9 +77,7 @@ class KolibriContext(GObject.GObject):
         map_properties(
             [
                 (self.__kolibri_daemon, "has-error"),
-                (self.__setup_helper, "is-cookie-ready"),
-                (self.__setup_helper, "is-login-ready"),
-                (self.__setup_helper, "is-facility-ready"),
+                (self.__setup_helper, "is-setup-complete"),
             ],
             self.__update_session_status,
         )
@@ -187,16 +186,10 @@ class KolibriContext(GObject.GObject):
         """
         return url_tuple._replace(scheme="", netloc="").geturl()
 
-    def __update_session_status(
-        self,
-        has_error: bool,
-        is_cookie_ready: bool,
-        is_login_ready: bool,
-        is_facility_ready: bool,
-    ):
+    def __update_session_status(self, has_error: bool, is_setup_complete: bool):
         if has_error:
             self.props.session_status = KolibriContext.SESSION_STATUS_ERROR
-        elif is_cookie_ready and is_login_ready and is_facility_ready:
+        elif is_setup_complete:
             self.props.session_status = KolibriContext.SESSION_STATUS_READY
             self.emit("kolibri-ready")
         else:
@@ -208,9 +201,7 @@ class _KolibriSetupHelper(GObject.GObject):
     Helper to set up a Kolibri web session. This helper communicates with the
     Kolibri web service and with kolibri-daemon to create an "app mode" cookie,
     and logs in as the desktop user through the login token mechanism. If
-    Kolibri has not been set up, it will automatically create a facility or emit
-    the "requires-user-interaction" signal to begin showing the setup wizard in
-    a dialog.
+    Kolibri has not been set up, it will automatically create a facility.
     """
 
     __webkit_web_context: WebKit2.WebContext
@@ -218,17 +209,15 @@ class _KolibriSetupHelper(GObject.GObject):
 
     __login_webview: WebKit2.WebView
 
-    login_token = GObject.Property(type=str, default=None)
-
     AUTOLOGIN_URL_TEMPLATE = "kolibri_desktop_auth_plugin/login/{token}"
 
-    is_cookie_ready = GObject.Property(type=bool, default=False)
-    is_login_ready = GObject.Property(type=bool, default=False)
+    login_token = GObject.Property(type=str, default=None)
+
+    is_app_key_cookie_ready = GObject.Property(type=bool, default=False)
+    is_session_cookie_ready = GObject.Property(type=bool, default=False)
     is_facility_ready = GObject.Property(type=bool, default=False)
 
-    __gsignals__ = {
-        "requires-user-interaction": (GObject.SIGNAL_RUN_FIRST, None, ()),
-    }
+    is_setup_complete = GObject.Property(type=bool, default=False)
 
     def __init__(
         self,
@@ -257,11 +246,19 @@ class _KolibriSetupHelper(GObject.GObject):
 
         await_properties(
             [
-                (self, "login-token"),
                 (self, "is-facility-ready"),
-                (self.__kolibri_daemon, "is-started"),
+                (self, "login-token"),
             ],
-            self.__on_await_login_token_and_kolibri_is_started,
+            self.__on_await_facility_ready_and_login_token,
+        )
+
+        map_properties(
+            [
+                (self, "is-app-key-cookie-ready"),
+                (self, "is-session-cookie-ready"),
+                (self, "is-facility-ready"),
+            ],
+            self.__update_is_setup_complete,
         )
 
         self.__kolibri_daemon_on_notify_app_key_cookie(self.__kolibri_daemon)
@@ -271,13 +268,13 @@ class _KolibriSetupHelper(GObject.GObject):
     ):
         # Show the main webview once it finishes loading.
         if load_event == WebKit2.LoadEvent.FINISHED:
-            self.props.is_login_ready = True
+            self.props.is_session_cookie_ready = True
             self.props.login_token = None
 
     def __kolibri_daemon_on_dbus_owner_changed(
         self, kolibri_daemon: KolibriDaemonManager
     ):
-        self.props.is_login_ready = False
+        self.props.is_session_cookie_ready = False
 
         kolibri_daemon.get_login_token(self.__kolibri_daemon_on_login_token_ready)
 
@@ -323,10 +320,10 @@ class _KolibriSetupHelper(GObject.GObject):
         logger.info("Device provisioned.")
         self.props.is_facility_ready = True
 
-    def __on_await_login_token_and_kolibri_is_started(
-        self, login_token: str, is_facility_ready: bool, is_started: bool
+    def __on_await_facility_ready_and_login_token(
+        self, is_facility_ready: bool, login_token: str
     ):
-        if self.props.is_login_ready:
+        if self.props.is_session_cookie_ready:
             return
 
         login_url = self.__kolibri_daemon.get_absolute_url(
@@ -339,11 +336,17 @@ class _KolibriSetupHelper(GObject.GObject):
         self, kolibri_daemon: KolibriDaemonManager, login_token: typing.Optional[str]
     ):
         self.props.login_token = login_token
+        if login_token is None:
+            # If we are unable to get a login token, pretend the session cookie
+            # is ready so the app will proceed as usual. This should only happen
+            # in an edge case where kolibri-daemon is running on the system bus
+            # but is unable to communicate with AccountsService.
+            self.props.is_session_cookie_ready = True
 
     def __kolibri_daemon_on_notify_app_key_cookie(
         self, kolibri_daemon: KolibriDaemonManager, pspec: GObject.ParamSpec = None
     ):
-        self.props.is_cookie_ready = False
+        self.props.is_app_key_cookie_ready = False
 
         if not self.__kolibri_daemon.props.app_key_cookie:
             return
@@ -352,11 +355,16 @@ class _KolibriSetupHelper(GObject.GObject):
         cookie_manager.add_cookie(
             self.__kolibri_daemon.props.app_key_cookie,
             None,
-            self.__on_cookie_ready,
+            self.__on_app_key_cookie_ready,
         )
 
-    def __on_cookie_ready(self, cookie_manager, result):
-        self.props.is_cookie_ready = True
+    def __on_app_key_cookie_ready(
+        self, cookie_manager: WebKit2.CookieManager, result: Gio.Task
+    ):
+        self.props.is_app_key_cookie_ready = True
+
+    def __update_is_setup_complete(self, *setup_flags):
+        self.props.is_setup_complete = all(setup_flags)
 
 
 class KolibriChannelContext(KolibriContext):
