@@ -62,7 +62,6 @@
   "CompletionModal.stayButtonLabel": "અહીં રહો",
   "CompletionModal.stayDescription": "મહાવરો કરવાનું ચાલુ રાખવા માટે આ સ્ત્રોત પર રહો",
   "CompletionModal.stayTitle": "રહો અને મહાવરો કરો",
-  "ContentCard.copies": "{ num, number} સ્થળો",
   "ContentPage.documentTitle": "{ contentTitle } - { channelTitle }",
   "ContentUnavailablePage.adminLink": "તમારા ઉપકરણ પર ચેનલો આયાત કરો",
   "ContentUnavailablePage.documentTitle": "સ્ત્રોતો ઉપલબ્ધ નથી",

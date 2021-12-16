@@ -62,7 +62,6 @@
   "CompletionModal.stayButtonLabel": "여기 머무르기",
   "CompletionModal.stayDescription": "이 자료에 남아서 계속 연습하기",
   "CompletionModal.stayTitle": "남아서 연습하기",
-  "ContentCard.copies": "{ num, number}개 지역",
   "ContentPage.documentTitle": "{ contentTitle } - { channelTitle }",
   "ContentUnavailablePage.adminLink": "채널을 내 기기로 불러오기",
   "ContentUnavailablePage.documentTitle": "자료를 이용할 수 없음",

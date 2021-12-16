@@ -62,7 +62,6 @@
   "CompletionModal.stayButtonLabel": "ဒီမှာပဲ ရှိနေစေပါ",
   "CompletionModal.stayDescription": "ဒီ ရင်းမြစ်ကိုပဲ ဆက်လေ့ကျင့်မယ်",
   "CompletionModal.stayTitle": "ဒီမှာဆက်နေပြီး လေ့ကျင့်မယ်။",
-  "ContentCard.copies": "{ num, number} တည်နေရာများ",
   "ContentPage.documentTitle": "{ contentTitle } - { channelTitle }",
   "ContentUnavailablePage.adminLink": "သင်ကြားရေးလိုင်း-ချန်နယ်များကို သင့်စက်ထဲသို့ ထည့်သင်းမည်။",
   "ContentUnavailablePage.documentTitle": "ရင်းမြစ်များ အဆင်သင့်မဖြစ်သေးပါ။",

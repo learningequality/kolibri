@@ -215,6 +215,12 @@ EXTRA_LANG_INFO = {
         "name": "Fulfulde (Cameroon)",
         "name_local": "Fulfulde Mbororoore",
     },
+    "el": {
+        "bidi": False,
+        "code": "el",
+        "name": "Greek",
+        "name_local": "Ελληνικά",
+    },
     "es-419": {
         "bidi": False,
         "code": "es-419",

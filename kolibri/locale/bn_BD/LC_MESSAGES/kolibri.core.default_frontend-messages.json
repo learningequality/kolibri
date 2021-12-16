@@ -423,6 +423,7 @@
   "ReportErrorModal.forumPrompt": "কমিউনিটি ফোরামগুলো ঘুরে দেখুন",
   "ReportErrorModal.forumUseTips": "কমিউনিটি ফোরামে খুঁজে দেখুন, আর কেউ একই সমস্যায় পরেছে কিনা। যদি এমন কিছু না পাওয়া যায়, তাহলে সমস্যার বিস্তারিত একটি পোস্টে লিখে আমাদের জানান যাতে আমরা পরবর্তী কলিব্রি সংস্করণে সেটা সমাধান করতে পারি।",
   "ReportErrorModal.reportErrorHeader": "সমস্যা রিপোর্ট করুন",
+  "SearchSideBar.overCertainNumberOfSearchResults": "{num, number, integer}টির বেশি {num, plural, one {ফলাফল} other {ফলাফল}}",
   "SelectAddressForm.deletingFailedText": "এই ঠিকানাটি মুছে ফেলতে একটি সমস্যা হয়েছে",
   "SelectAddressForm.fetchingFailedText": "উপলব্ধ ঠিকানাগুলি পেতে কিছু সমস্যা হয়েছে",
   "SelectAddressForm.forgetAddressButtonLabel": "অপসারণ করুন",
