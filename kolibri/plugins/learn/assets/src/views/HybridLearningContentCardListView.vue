@@ -60,7 +60,7 @@
           class="channel-logo"
         >
         <KButton
-          v-if="!isMobile && content.copies.length"
+          v-if="!isMobile && content.copies && content.copies.length"
           appearance="basic-link"
           class="copies"
           :style="{ color: $themeTokens.text }"
