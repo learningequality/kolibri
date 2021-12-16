@@ -5,6 +5,7 @@
 
 import { computed } from 'kolibri.lib.vueCompositionApi';
 import { get } from '@vueuse/core';
+import lodashGet from 'lodash/get';
 import { LearningActivities } from 'kolibri.coreVue.vuex.constants';
 import coreStrings from 'kolibri.utils.coreStrings';
 
@@ -47,11 +48,11 @@ export default function useLearningActivities(contentNode) {
   });
 
   /**
-   * @returns {Boolean} `true` if the content node has exactly one learning
-   *                    activity associated and that activity is reading
+   * @returns {Boolean} `true` if the content node has completion criterion
+   *                   set to reference.
    */
   const isReference = computed(() => {
-    return get(hasSingleActivity) && get(firstActivity) === LearningActivities.READ;
+    return lodashGet(contentNode, ['options', 'completion_criteria', 'model']) === 'reference';
   });
 
   /**
@@ -71,8 +72,7 @@ export default function useLearningActivities(contentNode) {
     return (
       contentNode &&
       contentNode.duration &&
-      get(hasSingleActivity) &&
-      [LearningActivities.WATCH, LearningActivities.LISTEN].includes(get(firstActivity))
+      lodashGet(contentNode, ['options', 'completion_criteria', 'model']) === 'time'
     );
   });
 
