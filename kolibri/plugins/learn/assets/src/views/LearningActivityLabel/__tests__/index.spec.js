@@ -3,6 +3,24 @@ import { shallowMount, mount } from '@vue/test-utils';
 import { LearningActivities } from 'kolibri.coreVue.vuex.constants';
 import LearningActivityLabel from '../index';
 
+jest.mock('kolibri.utils.coreStrings', () => {
+  const translations = {
+    all: 'All',
+    watch: 'Watch',
+    create: 'Create',
+    read: 'Read',
+    practice: 'Practice',
+    reflect: 'Reflect',
+    listen: 'Listen',
+    explore: 'Explore',
+  };
+  return {
+    $tr: jest.fn(key => {
+      return translations[key];
+    }),
+  };
+});
+
 function makeWrapper(propsData) {
   return mount(LearningActivityLabel, { propsData });
 }

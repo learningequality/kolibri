@@ -6,7 +6,7 @@
 import { computed } from 'kolibri.lib.vueCompositionApi';
 import { get } from '@vueuse/core';
 import { LearningActivities } from 'kolibri.coreVue.vuex.constants';
-import { coreStrings } from '../../../../../core/assets/src/mixins/commonCoreStrings';
+import coreStrings from 'kolibri.utils.coreStrings';
 
 export default function useLearningActivities(contentNode) {
   const ReferenceLabel = coreStrings.$tr('readReference');
