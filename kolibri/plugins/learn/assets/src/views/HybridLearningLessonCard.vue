@@ -12,9 +12,8 @@
     >
       <div class="thumbnail">
         <CardThumbnail
-          v-bind="{ thumbnail, isMobile }"
-          :kind="content.kind"
-          :activityLength="content.duration"
+          :isMobile="isMobile"
+          :contentNode="content"
         />
       </div>
       <h3 class="title">
@@ -44,7 +43,7 @@
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ProgressBar from './ProgressBar';
-  import LearningActivityLabel from './cards/ResourceCard/LearningActivityLabel';
+  import LearningActivityLabel from './LearningActivityLabel';
   import commonLearnStrings from './commonLearnStrings';
   import CardThumbnail from './HybridLearningContentCard/CardThumbnail';
 
@@ -58,10 +57,6 @@
     },
     mixins: [commonLearnStrings, commonCoreStrings],
     props: {
-      thumbnail: {
-        type: String,
-        default: null,
-      },
       content: {
         type: Object,
         required: true,
@@ -151,9 +146,6 @@
     top: $margin;
     right: $margin;
     width: 100px;
-    /deep/ .learning-activity {
-      justify-content: flex-end;
-    }
   }
 
   .mobile-card.card {

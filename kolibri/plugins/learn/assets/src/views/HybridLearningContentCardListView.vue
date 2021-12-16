@@ -22,9 +22,8 @@
       ></div>
       <div class="thumbnail">
         <CardThumbnail
-          :kind="content.kind"
-          v-bind="{ thumbnail, isMobile }"
-          :activityLength="content.duration"
+          :isMobile="isMobile"
+          :contentNode="content"
         />
       </div>
       <span class="details" :style="{ color: $themeTokens.text }">
@@ -35,6 +34,7 @@
           <LearningActivityLabel
             :contentNode="content"
             :labelAfter="true"
+            :hideDuration="!isMobile"
             condensed
           />
         </div>
@@ -106,7 +106,7 @@
   import { now } from 'kolibri.utils.serverClock';
   import { PageNames } from '../constants';
   import ProgressBar from './ProgressBar';
-  import LearningActivityLabel from './cards/ResourceCard/LearningActivityLabel';
+  import LearningActivityLabel from './LearningActivityLabel';
   import commonLearnStrings from './commonLearnStrings';
   import CardThumbnail from './HybridLearningContentCard/CardThumbnail';
 
@@ -121,10 +121,6 @@
     mixins: [commonLearnStrings, commonCoreStrings],
     props: {
       createdDate: {
-        type: String,
-        default: null,
-      },
-      thumbnail: {
         type: String,
         default: null,
       },

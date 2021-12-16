@@ -31,7 +31,6 @@
         currentPage="lessonPage"
         cardViewStyle="list"
         :numCols="null"
-        :getContentNodeThumbnail="getContentNodeThumbnail"
         :genContentLink="genContentLink"
         :contents="contentNodes"
       />
@@ -51,7 +50,6 @@
   import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
-  import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import genContentLink from '../../utils/genContentLink';
   import { PageNames, ClassesPageNames } from '../../constants';
@@ -121,7 +119,6 @@
     },
     methods: {
       ...mapMutations('lessonPlaylist', ['SET_CURRENT_LESSON']),
-      getContentNodeThumbnail,
       genContentLink,
     },
     $trs: {
