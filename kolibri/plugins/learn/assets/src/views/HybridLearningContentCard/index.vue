@@ -45,7 +45,7 @@
           />
         </h3>
         <KButton
-          v-if="content.copies"
+          v-if="content.copies && content.copies.length"
           appearance="basic-link"
           class="copies"
           :text="coreString('copies', { num: content.copies.length })"
