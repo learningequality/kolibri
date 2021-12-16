@@ -2,7 +2,7 @@
 
   <div>
     <h1>{{ $tr('header') }}</h1>
-    <table>
+    <table :class="windowIsSmall ? 'mobile-table' : ''">
       <tr>
         <th>
           {{ $tr('url', { count: deviceInfo.urls.length }) }}
@@ -24,8 +24,12 @@
         <td>{{ deviceInfo.content_storage_free_space }}</td>
       </tr>
       <tr>
-        <th>{{ $tr('kolibriVersion') }}</th>
-        <td>{{ deviceInfo.version }}</td>
+        <th>
+          {{ $tr('kolibriVersion') }}
+        </th>
+        <td :class="windowIsSmall ? 'mobile' : ''">
+          {{ deviceInfo.version }}
+        </td>
       </tr>
       <tr>
         <th>{{ coreString('deviceNameLabel') }}</th>
@@ -72,6 +76,7 @@
   import { mapState } from 'vuex';
   import TechnicalTextBlock from 'kolibri.coreVue.components.TechnicalTextBlock';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import DeviceNameModal from './DeviceNameModal';
 
   export default {
@@ -85,7 +90,7 @@
       DeviceNameModal,
       TechnicalTextBlock,
     },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, responsiveWindowMixin],
     data() {
       return {
         advancedShown: false,
@@ -204,6 +209,15 @@
 
   .edit-button {
     display: inline;
+  }
+
+  .mobile-table {
+    table-layout: fixed;
+  }
+
+  .mobile {
+    max-width: 1px;
+    word-wrap: break-word;
   }
 
 </style>
