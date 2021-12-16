@@ -137,9 +137,7 @@ export default class Kolibri extends BaseShim {
       /*
        * Method to query next page of contentnodes from Kolibri and return
        * an array
-       * @param {Object} options - The different options to filter by
-       * @param {string} options.cursor - the cursor pagination
-       * @param {number} [options.maxResults=50] - the maximum number of nodes per request
+       * @param {MoreObject} options - A more object returned in a call to getContentByFilter
        * @return {Promise<PageResult>} - a Promise that resolves to an array of ContentNodes
        */
       getContentPage(options) {
