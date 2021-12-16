@@ -82,6 +82,7 @@
 <style lang="scss" scoped>
 
   .onboarding-form-fields {
+    min-width: 0;
     padding: 0;
     margin: 0;
     margin-bottom: 24px;
