@@ -6,13 +6,24 @@
       class="thumbnail"
       :thumbnail="thumbnail"
       :kind="kind"
-      :isMobile="true"
+      :isMobile="windowIsSmall"
     />
 
-    <div class="text" :style="{ color: $themeTokens.text }">
+    <div :class="windowIsSmall ? 'mobile-text' : 'text'" :style="{ color: $themeTokens.text }">
       <h3
+        v-if="!windowIsSmall"
         class="title"
         :class="{ 'has-message': Boolean(message) }"
+        dir="auto"
+      >
+        <KLabeledIcon :label="title">
+          <template #icon>
+            <ContentIcon :kind="kind" />
+          </template>
+        </KLabeledIcon>
+      </h3>
+      <h3
+        v-if="windowIsSmall"
         dir="auto"
       >
         <KLabeledIcon :label="title">
@@ -25,6 +36,7 @@
         {{ message }}
       </div>
       <TextTruncator
+        v-if="!windowIsSmall"
         :text="description"
         :maxHeight="80"
         class="description"
@@ -49,6 +61,7 @@
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import CardThumbnail from './CardThumbnail';
 
   export default {
@@ -59,6 +72,7 @@
       TextTruncator,
       CoachContentLabel,
     },
+    mixins: [responsiveWindowMixin],
     props: {
       title: {
         type: String,
@@ -140,6 +154,10 @@
 
   .text {
     margin-left: $thumb-width + 8;
+  }
+
+  .mobile-text {
+    margin-left: $mobile-thumb-width + 8;
   }
 
   .title,
