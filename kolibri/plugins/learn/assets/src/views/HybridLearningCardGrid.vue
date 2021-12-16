@@ -34,10 +34,10 @@
     >
       <ResourceCard
         v-for="(content, idx) in contents"
-
         :key="`resource-${idx}`"
         :contentNode="content"
         :to="genContentLink(content)"
+        @openCopiesModal="openCopiesModal"
       />
     </CardGrid>
 
