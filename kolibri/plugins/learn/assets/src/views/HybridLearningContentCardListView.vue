@@ -198,6 +198,7 @@
     display: inline-block;
     width: 100%;
     height: 246px;
+    margin-bottom: 24px;
     text-decoration: none;
     vertical-align: top;
     border-radius: 8px;
