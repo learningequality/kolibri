@@ -7,7 +7,7 @@
 
     <div v-else class="page">
       <!-- Header with thumbail and tagline -->
-      <div v-if="!windowIsSmall" class="header">
+      <div v-if="!windowIsSmall" ref="header" class="header">
         <KGrid>
           <KGridItem
             class="breadcrumbs"
@@ -237,6 +237,7 @@
         v-if="!!windowIsLarge"
         v-model="searchTerms"
         :topicsListDisplayed="!desktopSearchActive"
+        class="side-panel"
         topicPage="True"
         :topics="topics"
         :activeActivityButtons="activeActivityButtons"
@@ -248,10 +249,7 @@
         :availableLabels="labels"
         :showChannels="false"
         position="embedded"
-        :style="{ position: 'fixed',
-                  marginTop: stickyTop,
-                  paddingTop: '24px',
-                  paddingBottom: '200px' }"
+        :style="sidePanelStyleOverrides"
         @currentCategory="handleShowSearchModal"
         @loadMoreTopics="handleLoadMoreInTopic"
       />
@@ -451,7 +449,7 @@
     },
     data: function() {
       return {
-        stickyTop: '388px',
+        sidePanelStyleOverrides: {},
         currentViewStyle: 'card',
         currentCategory: null,
         showSearchModal: false,
@@ -683,21 +681,25 @@
         option == 'search' ? (this.mobileSearchActive = true) : (this.mobileSearchActive = false);
         this.sidePanelIsOpen = !this.sidePanelIsOpen;
       },
+      // Stick the side panel to top. That can be on the very top of the viewport
+      // or right under the 'Browse channel' toolbar, depending on whether the toolbar
+      // is visible or no (the toolbar hides on smaller resolutions when scrolling
+      // down and appears again when scrolling up).
+      // Takes effect only when the side panel is not displayed full-screen.
       stickyCalculation() {
-        let header = document.getElementsByClassName('header')[0];
-        let topbar = document.getElementsByClassName('ui-toolbar')[0];
-        if (header) {
-          let position = header.getBoundingClientRect();
-          let topbarPosition = topbar.getBoundingClientRect();
-          if (position.bottom >= 64) {
-            this.stickyTop = `${position.bottom}px`;
-          } else if (position.bottom < 0 && topbarPosition.bottom < 0) {
-            this.stickyTop = '0px';
-          } else {
-            this.stickyTop = '64px';
-          }
+        const header = this.$refs.header;
+        const topbar = document.querySelector('.scrolling-header');
+        const headerBottom = header ? header.getBoundingClientRect().bottom : 0;
+        const topbarBottom = topbar ? topbar.getBoundingClientRect().bottom : 0;
+
+        if (headerBottom < Math.max(topbarBottom, 0)) {
+          this.sidePanelStyleOverrides = {
+            position: 'fixed',
+            top: `${Math.max(0, headerBottom, topbarBottom)}px`,
+            height: '100%',
+          };
         } else {
-          null;
+          this.sidePanelStyleOverrides = {};
         }
       },
       handleShowMore(topicId) {
@@ -745,6 +747,8 @@
 
 <style lang="scss" scoped>
 
+  $header-height: 324px;
+
   .page {
     position: relative;
     overflow-x: hidden;
@@ -753,7 +757,7 @@
   .header {
     position: relative;
     width: 100%;
-    height: 324px;
+    height: $header-height;
     padding-top: 32px;
     padding-bottom: 48px;
     padding-left: 32px;
@@ -778,6 +782,13 @@
     position: absolute;
     bottom: 0;
     margin-bottom: 0;
+  }
+
+  .side-panel {
+    position: absolute;
+    top: $header-height;
+    height: calc(100% - #{$header-height});
+    padding-top: 16px;
   }
 
   .main-content-grid {
