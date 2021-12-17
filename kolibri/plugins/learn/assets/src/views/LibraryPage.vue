@@ -351,8 +351,10 @@
       numCols() {
         if (this.windowIsMedium) {
           return 2;
-        } else if (!this.windowIsSmall) {
+        } else if (this.windowBreakpoint < 7) {
           return 3;
+        } else if (this.windowBreakpoint >= 7) {
+          return 4;
         } else {
           return null;
         }

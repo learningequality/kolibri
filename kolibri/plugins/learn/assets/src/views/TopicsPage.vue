@@ -458,12 +458,14 @@
         expandedTopics: {},
         subTopicLoading: null,
         topicMoreLoading: false,
-        childrenToDisplay: 3,
         mobileSearchActive: false,
       };
     },
     computed: {
       ...mapState('topicsTree', ['channel', 'contents', 'isRoot', 'topic']),
+      childrenToDisplay() {
+        return Math.max(this.numCols, 3);
+      },
       breadcrumbs() {
         if (!this.topic || !this.topic.ancestors) {
           return [];
