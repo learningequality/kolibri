@@ -57,7 +57,7 @@
       <ProgressBar
         class="progress-bar"
         :contentNode="content"
-        :style="{ maxWidth: `calc(100% - ${28 * footerLength}px)` }"
+        :style="{ maxWidth: `calc(100% - ${24 + 32 * footerLength}px)` }"
       />
       <div class="footer-icons">
         <CoachContentLabel
@@ -139,10 +139,8 @@
       },
       footerLength() {
         return (
-          this.content.is_leaf +
-          (this.isUserLoggedIn && !this.isLearner && this.content.num_coach_contents) +
-          (this.content.num_coach_contents > 0) +
-          (this.content.copies && this.content.copies.length ? 1 : 0) +
+          (this.content.is_leaf ? 1 : 0) +
+          (this.isUserLoggedIn && !this.isLearner && this.content.num_coach_contents ? 1 : 0) +
           (this.$slots.actions ? this.$slots.actions.length : 0)
         );
       },
