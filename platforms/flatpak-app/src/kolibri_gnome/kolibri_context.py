@@ -276,7 +276,10 @@ class _KolibriSetupHelper(GObject.GObject):
     ):
         self.props.is_session_cookie_ready = False
 
-        kolibri_daemon.get_login_token(self.__kolibri_daemon_on_login_token_ready)
+        if kolibri_daemon.do_automatic_login:
+            kolibri_daemon.get_login_token(self.__kolibri_daemon_on_login_token_ready)
+        else:
+            self.props.is_session_cookie_ready = True
 
     def __kolibri_daemon_on_notify_is_started(
         self, kolibri_daemon: KolibriDaemonManager, pspec: GObject.ParamSpec = None
@@ -284,6 +287,11 @@ class _KolibriSetupHelper(GObject.GObject):
         self.props.is_facility_ready = False
 
         if not self.__kolibri_daemon.props.is_started:
+            return
+
+        if not self.__kolibri_daemon.do_automatic_login:
+            # No automatic login so we don't need a facility:
+            self.props.is_facility_ready = True
             return
 
         self.__kolibri_daemon.kolibri_api_get_async(

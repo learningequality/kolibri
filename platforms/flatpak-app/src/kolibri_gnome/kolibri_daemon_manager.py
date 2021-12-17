@@ -31,7 +31,7 @@ class KolibriDaemonManager(GObject.GObject):
 
     __dbus_proxy: KolibriDaemonDBus.MainProxy
 
-    __was_started: bool = False
+    __do_automatic_login: bool = False
     __did_init: bool = False
     __dbus_proxy_owner: typing.Optional[str] = None
 
@@ -46,8 +46,12 @@ class KolibriDaemonManager(GObject.GObject):
     def __init__(self):
         GObject.GObject.__init__(self)
 
+        g_bus_type = KolibriDaemonDBus.get_default_bus_type()
+
+        self.__do_automatic_login = g_bus_type == Gio.BusType.SYSTEM
+
         self.__dbus_proxy = KolibriDaemonDBus.MainProxy(
-            g_bus_type=KolibriDaemonDBus.get_default_bus_type(),
+            g_bus_type=g_bus_type,
             g_name=DAEMON_APPLICATION_ID,
             g_object_path=DAEMON_MAIN_OBJECT_PATH,
             g_interface_name=KolibriDaemonDBus.main_interface_info().name,
@@ -56,6 +60,10 @@ class KolibriDaemonManager(GObject.GObject):
             "notify::g-name-owner", self.__dbus_proxy_on_notify_g_name_owner
         )
         self.__dbus_proxy.connect("notify", self.__dbus_proxy_on_notify)
+
+    @property
+    def do_automatic_login(self) -> bool:
+        return self.__do_automatic_login
 
     def init(self):
         if self.__did_init:
