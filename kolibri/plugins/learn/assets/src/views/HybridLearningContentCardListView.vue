@@ -183,6 +183,7 @@
     width: 100%;
     min-height: 246px;
     padding: $v-padding $h-padding;
+    margin-bottom: 24px;
     text-decoration: none;
     vertical-align: top;
     border-radius: 8px;
