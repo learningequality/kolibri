@@ -205,7 +205,27 @@
       alignment="right"
       @closePanel="sidePanelContent = null"
     >
-      <BrowseResourceMetadata :content="sidePanelContent" :canDownloadContent="true" />
+      <template #header>
+        <!-- Flex styles tested in ie11 and look good. Ensures good spacing between
+            multiple chips - not a common thing but just in case -->
+        <div
+          v-for="activity in sidePanelContent.learning_activities"
+          :key="activity"
+          class="side-panel-chips"
+          :class="$computedClass({ '::after': {
+            content: '',
+            flex: 'auto'
+          } })"
+        >
+          <LearningActivityChip
+            class="chip"
+            style="margin-left: 8px; margin-bottom: 8px;"
+            :kind="activity"
+          />
+        </div>
+      </template>
+
+      <BrowseResourceMetadata :content="sidePanelContent" :showLocationsInChannel="true" />
     </FullScreenSidePanel>
   </div>
 
@@ -226,6 +246,7 @@
   import BrowseResourceMetadata from './BrowseResourceMetadata';
   import commonLearnStrings from './commonLearnStrings';
   import ChannelCardGroupGrid from './ChannelCardGroupGrid';
+  import LearningActivityChip from './LearningActivityChip';
   import HybridLearningCardGrid from './HybridLearningCardGrid';
   import EmbeddedSidePanel from './EmbeddedSidePanel';
   import CategorySearchModal from './CategorySearchModal';
@@ -244,6 +265,7 @@
     components: {
       HybridLearningCardGrid,
       ChannelCardGroupGrid,
+      LearningActivityChip,
       EmbeddedSidePanel,
       FullScreenSidePanel,
       CategorySearchModal,
@@ -448,6 +470,18 @@
   .filter-action-button {
     display: inline-block;
     margin: 4px;
+    margin-left: 8px;
+  }
+
+  .side-panel-chips {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    margin-bottom: -8px;
+    margin-left: -8px;
+  }
+  .chip {
+    margin-bottom: 8px;
     margin-left: 8px;
   }
 

@@ -321,11 +321,33 @@
       />
 
     </div>
+
+    <!-- Side panel for showing the information of selected content with a link to view it -->
     <FullScreenSidePanel
       v-if="sidePanelContent"
       alignment="right"
       @closePanel="sidePanelContent = null"
     >
+      <template #header>
+        <!-- Flex styles tested in ie11 and look good. Ensures good spacing between
+            multiple chips - not a common thing but just in case -->
+        <div
+          v-for="activity in sidePanelContent.learning_activities"
+          :key="activity"
+          class="side-panel-chips"
+          :class="$computedClass({ '::after': {
+            content: '',
+            flex: 'auto'
+          } })"
+        >
+          <LearningActivityChip
+            class="chip"
+            style="margin-left: 8px; margin-bottom: 8px;"
+            :kind="activity"
+          />
+        </div>
+      </template>
+
       <BrowseResourceMetadata :content="sidePanelContent" :showLocationsInChannel="true" />
     </FullScreenSidePanel>
   </div>
@@ -355,6 +377,7 @@
   import HybridLearningCardGrid from './HybridLearningCardGrid';
   import EmbeddedSidePanel from './EmbeddedSidePanel';
   import BrowseResourceMetadata from './BrowseResourceMetadata';
+  import LearningActivityChip from './LearningActivityChip';
   import CustomContentRenderer from './ChannelRenderer/CustomContentRenderer';
   import CardThumbnail from './ContentCard/CardThumbnail';
   import CategorySearchModal from './CategorySearchModal';
@@ -386,6 +409,7 @@
       CategorySearchModal,
       EmbeddedSidePanel,
       FullScreenSidePanel,
+      LearningActivityChip,
       BrowseResourceMetadata,
       SearchChips,
       TextTruncator,
@@ -831,6 +855,18 @@
     width: 100%;
     margin-top: 16px;
     text-align: center;
+  }
+
+  .side-panel-chips {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    margin-bottom: -8px;
+    margin-left: -8px;
+  }
+  .chip {
+    margin-bottom: 8px;
+    margin-left: 8px;
   }
 
 </style>

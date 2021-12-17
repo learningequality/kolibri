@@ -5,7 +5,6 @@ import GradeLevels from 'kolibri-constants/labels/Levels';
 import ResourceTypes from 'kolibri-constants/labels/ResourceType';
 import Subjects from 'kolibri-constants/labels/Subjects';
 import LearningActivities from 'kolibri-constants/labels/LearningActivities';
-import LearningActivityChip from '../../src/views/LearningActivityChip';
 import CurrentlyViewedResourceMetadata from '../../src/views/CurrentlyViewedResourceMetadata';
 
 const baseContentNode = {
@@ -79,10 +78,6 @@ describe('CurrentlyViewedResourceMetadata', () => {
       expect(wrapper.find("[data-test='download-button']").exists()).toBeTruthy();
     });
 
-    it('shows properly translated learning activities as LearningActivityChip', () => {
-      expect(wrapper.findComponent(LearningActivityChip).exists()).toBeTruthy();
-    });
-
     it('shows the forBeginners chip when one of LearnerNeeds is FOR_BEGINNERS', () => {
       expect(wrapper.find("[data-test='beginners-chip']").exists()).toBeTruthy();
     });
@@ -137,10 +132,6 @@ describe('CurrentlyViewedResourceMetadata', () => {
           { propsData: { canDownloadContent: false } }
         ))
     );
-
-    it('does not show properly translated learning activities as LearningActivityChip', () => {
-      expect(wrapper.findComponent(LearningActivityChip).exists()).toBeFalsy();
-    });
 
     it('does not show the forBeginners chip when one of LearnerNeeds is FOR_BEGINNERS', () => {
       console.log(wrapper.vm.forBeginners);

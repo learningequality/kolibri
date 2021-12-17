@@ -9,7 +9,6 @@ import ResourceTypes from 'kolibri-constants/labels/ResourceType';
 import Subjects from 'kolibri-constants/labels/Subjects';
 import LearningActivities from 'kolibri-constants/labels/LearningActivities';
 import ContentNodeThumbnail from '../../src/views/thumbnails/ContentNodeThumbnail';
-import LearningActivityChip from '../../src/views/LearningActivityChip';
 import BrowseResourceMetadata from '../../src/views/BrowseResourceMetadata';
 import genContentLink from '../../src/utils/genContentLink';
 import routes from '../../src/routes/index.js';
@@ -102,10 +101,6 @@ describe('BrowseResourceMetadata', () => {
   describe('metadata is displayed when present on given content', () => {
     beforeAll(() => (wrapper = makeWrapper()));
 
-    it('shows properly translated learning activities as LearningActivityChip', () => {
-      expect(wrapper.findComponent(LearningActivityChip).exists()).toBeTruthy();
-    });
-
     it('shows the forBeginners chip when one of LearnerNeeds is FOR_BEGINNERS', () => {
       expect(wrapper.find("[data-test='beginners-chip']").exists()).toBeTruthy();
     });
@@ -170,10 +165,6 @@ describe('BrowseResourceMetadata', () => {
           license_owner: null,
         }))
     );
-
-    it('does not show properly translated learning activities as LearningActivityChip', () => {
-      expect(wrapper.findComponent(LearningActivityChip).exists()).toBeFalsy();
-    });
 
     it('does not show the forBeginners chip when one of LearnerNeeds is FOR_BEGINNERS', () => {
       expect(wrapper.find("[data-test='beginners-chip']").exists()).toBeFalsy();
