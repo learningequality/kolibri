@@ -1,18 +1,9 @@
 <template>
 
-  <div
-    class="card drop-shadow"
-    :class="[
-      { 'mobile-card': isMobile }
-    ]"
-  >
-    <router-link
-      :to="link"
+  <router-link :to="link" :class="$computedClass({ ':focus': $coreOutline })">
+    <div
       class="card"
-      :class="[
-        { 'mobile-card': isMobile },
-        $computedClass({ ':focus': $coreOutline })
-      ]"
+      :class="{ 'mobile-card': isMobile }"
       :style="{ backgroundColor: $themeTokens.surface }"
     >
       <div
@@ -68,34 +59,34 @@
           @click.prevent="$emit('openCopiesModal', content.copies)"
         />
       </span>
-    </router-link>
-    <div class="footer">
-      <div class="footer-elements">
-        <div class="footer-progress">
-          <p
-            v-if="isBookmarksPage"
-            class="metadata-info-footer"
-            :style="{ color: $themePalette.grey.v_700 }"
-          >
-            {{ bookmarkCreated }}
-          </p>
-          <ProgressBar :contentNode="content" />
+      <div class="footer">
+        <div class="footer-elements">
+          <div class="footer-progress">
+            <p
+              v-if="isBookmarksPage"
+              class="metadata-info-footer"
+              :style="{ color: $themePalette.grey.v_700 }"
+            >
+              {{ bookmarkCreated }}
+            </p>
+            <ProgressBar :contentNode="content" />
+          </div>
+        </div>
+        <div class="footer-elements footer-icons">
+          <KIconButton
+            v-for="(value, key) in footerIcons"
+            :key="key"
+            :icon="key"
+            size="mini"
+            :color="$themePalette.grey.v_400"
+            :ariaLabel="coreString(value)"
+            :tooltip="coreString(value)"
+            @click.prevent="$emit(value)"
+          />
         </div>
       </div>
-      <div class="footer-elements footer-icons">
-        <KIconButton
-          v-for="(value, key) in footerIcons"
-          :key="key"
-          :icon="key"
-          size="mini"
-          :color="$themePalette.grey.v_400"
-          :ariaLabel="coreString(value)"
-          :tooltip="coreString(value)"
-          @click="$emit(value)"
-        />
-      </div>
     </div>
-  </div>
+  </router-link>
 
 </template>
 
@@ -200,13 +191,9 @@
   @import '~kolibri-design-system/lib/styles/definitions';
   @import './ContentCard/card';
 
-  .drop-shadow {
-    @extend %dropshadow-1dp;
-    &:hover {
-      @extend %dropshadow-4dp;
-    }
-  }
   .card {
+    @extend %dropshadow-1dp;
+
     position: relative;
     display: inline-block;
     width: 100%;
@@ -216,9 +203,8 @@
     border-radius: 8px;
     transition: box-shadow $core-time ease;
 
-    &:focus {
-      outline-width: 4px;
-      outline-offset: 6px;
+    &:hover {
+      @extend %dropshadow-4dp;
     }
   }
 
