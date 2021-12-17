@@ -1,18 +1,9 @@
 <template>
 
-  <div
-    class="card drop-shadow"
-    :class="[
-      { 'mobile-card': isMobile }
-    ]"
-  >
-    <router-link
-      :to="link"
+  <router-link :to="link" :class="$computedClass({ ':focus': $coreOutline })">
+    <div
       class="card"
-      :class="[
-        { 'mobile-card': isMobile },
-        $computedClass({ ':focus': $coreOutline })
-      ]"
+      :class="{ 'mobile-card': isMobile }"
       :style="{ backgroundColor: $themeTokens.surface }"
     >
       <div
@@ -68,32 +59,34 @@
           @click.prevent="$emit('openCopiesModal', content.copies)"
         />
       </span>
-    </router-link>
-    <KFixedGrid :numCols="10" class="footer">
-      <KFixedGridItem span="6" class="footer-elements">
-        <p
-          v-if="isBookmarksPage"
-          class="metadata-info-footer"
-          :style="{ color: $themePalette.grey.v_700 }"
-        >
-          {{ bookmarkCreated }}
-        </p>
-        <ProgressBar :contentNode="content" />
-      </KFixedGridItem>
-      <KFixedGridItem span="3" alignment="right" class="footer-elements footer-icons">
-        <KIconButton
-          v-for="(value, key) in footerIcons"
-          :key="key"
-          :icon="key"
-          size="mini"
-          :color="$themePalette.grey.v_400"
-          :ariaLabel="coreString(value)"
-          :tooltip="coreString(value)"
-          @click="$emit(value)"
-        />
-      </KFixedGridItem>
-    </KFixedGrid>
-  </div>
+      <div class="footer">
+        <div class="footer-elements">
+          <div class="footer-progress">
+            <p
+              v-if="isBookmarksPage"
+              class="metadata-info-footer"
+              :style="{ color: $themePalette.grey.v_700 }"
+            >
+              {{ bookmarkCreated }}
+            </p>
+            <ProgressBar :contentNode="content" />
+          </div>
+        </div>
+        <div class="footer-elements footer-icons">
+          <KIconButton
+            v-for="(value, key) in footerIcons"
+            :key="key"
+            :icon="key"
+            size="mini"
+            :color="$themePalette.grey.v_400"
+            :ariaLabel="coreString(value)"
+            :tooltip="coreString(value)"
+            @click.prevent="$emit(value)"
+          />
+        </div>
+      </div>
+    </div>
+  </router-link>
 
 </template>
 
@@ -191,27 +184,21 @@
   @import '~kolibri-design-system/lib/styles/definitions';
   @import './ContentCard/card';
 
-  $margin: 24px;
-
-  .drop-shadow {
-    @extend %dropshadow-1dp;
-    &:hover {
-      @extend %dropshadow-4dp;
-    }
-  }
   .card {
+    @extend %dropshadow-1dp;
+
     position: relative;
     display: inline-block;
     width: 100%;
     height: 246px;
+    margin-bottom: 24px;
     text-decoration: none;
     vertical-align: top;
     border-radius: 8px;
     transition: box-shadow $core-time ease;
 
-    &:focus {
-      outline-width: 4px;
-      outline-offset: 6px;
+    &:hover {
+      @extend %dropshadow-4dp;
     }
   }
 
@@ -261,27 +248,28 @@
     position: absolute;
     bottom: 0;
     width: 100%;
-    padding: $margin;
+    padding: 16px 24px;
   }
 
   .metadata-info-footer {
-    flex: auto;
-    align-self: center;
     margin: 0;
-    font-size: 14px;
+    font-size: 13px;
   }
 
   .footer-elements {
-    position: absolute;
-    bottom: 16px;
-    display: inline;
+    position: relative;
+    display: block;
+  }
+
+  .footer-progress {
+    width: 240px;
   }
 
   .footer-icons {
-    right: 16px;
     // this override fixes an existing KDS bug with
     // the hover state circle being squished
     // and can be removed upon that hover state fix
+    float: right;
     .button {
       width: 32px !important;
       height: 32px !important;
@@ -300,7 +288,6 @@
   .thumbnail {
     display: inline-block;
     width: 240px;
-    height: 100px;
     margin-top: 8px;
     margin-right: 24px;
     margin-left: 24px;
