@@ -17,6 +17,17 @@ jest.mock('../../../composables/useUser');
 jest.mock('../../../composables/useDeviceSettings');
 jest.mock('../../../composables/useLearnerResources');
 
+jest.mock('kolibri.utils.coreStrings', () => {
+  const translations = {
+    readReference: 'Reference',
+  };
+  return {
+    $tr: jest.fn(key => {
+      return translations[key];
+    }),
+  };
+});
+
 const localVue = createLocalVue();
 localVue.use(VueRouter);
 

@@ -10,7 +10,6 @@
       <div v-if="!windowIsSmall" class="header">
         <KGrid>
           <KGridItem
-            v-if="!displayingSearchResults"
             class="breadcrumbs"
             :layout4="{ span: 4 }"
             :layout8="{ span: 8 }"
@@ -63,54 +62,66 @@
           </KGridItem>
         </KGrid>
         <!-- Nested tabs within the header, for toggling sidebar options -->
-        <!-- larger screens -->
-        <HeaderTabs>
+        <!-- large screens -->
+        <HeaderTabs v-if="!!windowIsLarge">
           <HeaderTab
+            v-if="topics.length"
             :text="coreString('folders')"
             :to="foldersLink"
           />
           <HeaderTab
             :text="coreString('searchLabel')"
-            :to="searchLink"
+            :to="topics.length ? searchTabLink : {} "
           />
         </HeaderTabs>
       </div>
       <!-- mobile tabs (different alignment and interactions) -->
-      <div v-if="windowIsSmall" class="mobile-header">
-        <div class="mobile-header-contents">
-          <HeaderTabs>
-            <HeaderTab
-              :text="coreString('folders')"
-              :to="foldersLink"
+      <KGrid v-if="windowIsSmall" class="mobile-header">
+        <KGridItem
+          :layout4="{ span: 3 }"
+        >
+          <h1 class="mobile-title">
+            <TextTruncator
+              :text="topic.title"
+              :maxHeight="maxDescriptionHeight"
             />
-            <HeaderTab
-              :text="coreString('searchLabel')"
-              :to="searchLink"
-            />
-          </HeaderTabs>
+          </h1>
+        </KGridItem>
+        <KGridItem
+          :layout4="{ span: 1 }"
+        >
           <img
             :src="topic.thumbnail"
             class="channel-logo"
           >
-        </div>
-      </div>
+        </KGridItem>
+      </KGrid>
 
       <main
         class="main-content-grid"
         :style="gridOffset"
       >
-        <slot v-if="windowIsSmall" name="breadcrumbs" class="breadcrumbs"></slot>
+        <KBreadcrumbs v-if="breadcrumbs.length && windowIsSmall" :items="breadcrumbs" />
         <div
           class="card-grid"
         >
-          <div v-if="(windowIsMedium && searchActive)">
+          <div v-if="!windowIsLarge">
+            <KButton
+              v-if="topics.length"
+              icon="topic"
+              class="overlay-toggle-button"
+              :text="coreString('folders')"
+              :primary="false"
+              @click="toggleFolderSearchSidePanel('folder')"
+            />
             <KButton
               icon="filter"
-              class="filter-overlay-toggle-button"
-              :text="coreString('searchLabel')"
+              class="overlay-toggle-button"
+              :text="filterTranslator.$tr('filter')"
               :primary="false"
-              @click="$router.push(searchLink)"
+              @click="toggleFolderSearchSidePanel('search')"
             />
+
           </div>
           <!-- default/preview display of nested folder structure, not search -->
           <div v-if="!displayingSearchResults">
@@ -223,9 +234,9 @@
 
       <!-- Embedded Side panel is on larger views, and exists next to content -->
       <EmbeddedSidePanel
-        v-if="!!windowIsLarge || (windowIsMedium && !searchActive)"
+        v-if="!!windowIsLarge"
         v-model="searchTerms"
-        :topicsListDisplayed="!searchActive"
+        :topicsListDisplayed="!desktopSearchActive"
         topicPage="True"
         :topics="topics"
         :activeActivityButtons="activeActivityButtons"
@@ -252,7 +263,7 @@
         alignment="left"
         :closeButtonHidden="true"
         :sidePanelOverrideWidth="`${sidePanelOverlayWidth}px`"
-        @closePanel="$router.push(currentLink)"
+        @closePanel="toggleFolderSearchSidePanel"
       >
         <KIconButton
           v-if="windowIsSmall && !currentCategory"
@@ -261,7 +272,7 @@
           :ariaLabel="coreString('closeAction')"
           :color="$themeTokens.text"
           :tooltip="coreString('closeAction')"
-          @click="$router.push(currentLink)"
+          @click="toggleFolderSearchSidePanel"
         />
         <KIconButton
           v-if="windowIsSmall && currentCategory"
@@ -274,7 +285,7 @@
         <EmbeddedSidePanel
           v-if="!currentCategory"
           v-model="searchTerms"
-          :topicsListDisplayed="!searchActive"
+          :topicsListDisplayed="!mobileSearchActive"
           topicPage="True"
           :topics="topics"
           :topicsLoading="topicMoreLoading"
@@ -330,6 +341,7 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
+  import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import FullScreenSidePanel from 'kolibri.coreVue.components.FullScreenSidePanel';
@@ -419,11 +431,13 @@
         currentViewStyle: 'card',
         currentCategory: null,
         showSearchModal: false,
+        sidePanelIsOpen: false,
         sidePanelContent: null,
         expandedTopics: {},
         subTopicLoading: null,
         topicMoreLoading: false,
         childrenToDisplay: 3,
+        mobileSearchActive: false,
       };
     },
     computed: {
@@ -444,33 +458,19 @@
           { text: this.topic.ancestors.length ? this.topic.title : this.channelTitle },
         ];
       },
-      sidePanelIsOpen() {
-        return this.$route.query.sidePanel === 'true';
-      },
       foldersLink() {
         if (this.topic) {
-          const query = {};
-          if (this.windowIsSmall) {
-            query.sidePanel = String(
-              this.$route.name === PageNames.TOPICS_TOPIC ? !this.sidePanelIsOpen : true
-            );
-          }
           return {
             name: PageNames.TOPICS_TOPIC,
             id: this.topic.id,
-            query,
           };
         }
         return {};
       },
-      searchLink() {
+      searchTabLink() {
+        // navigates the main page to the search view
         if (this.topic) {
           const query = { ...this.$route.query };
-          if (this.windowIsSmall || this.windowIsMedium) {
-            query.sidePanel = String(
-              this.$route.name === PageNames.TOPICS_TOPIC_SEARCH ? !this.sidePanelIsOpen : true
-            );
-          }
           delete query.dropdown;
           return {
             name: PageNames.TOPICS_TOPIC_SEARCH,
@@ -480,10 +480,7 @@
         }
         return {};
       },
-      currentLink() {
-        return this.searchActive ? this.searchLink : this.foldersLink;
-      },
-      searchActive() {
+      desktopSearchActive() {
         return this.$route.name === PageNames.TOPICS_TOPIC_SEARCH;
       },
       channelTitle() {
@@ -564,7 +561,7 @@
         return false;
       },
       sidePanelWidth() {
-        if (this.windowIsSmall || (this.windowIsMedium && this.searchActive)) {
+        if (!this.windowIsLarge) {
           return 0;
         } else if (this.windowBreakpoint < 4) {
           return 234;
@@ -619,8 +616,11 @@
         }
       },
       searchTerms(newVal, oldVal) {
-        if (!isEqual(newVal, oldVal) && this.displayingSearchResults) {
-          this.$router.push({ ...this.searchLink, sidePanel: false });
+        if (!isEqual(newVal, oldVal)) {
+          if (!isEqual(this.searchTabLink, this.$route)) {
+            this.$router.push({ ...this.searchTabLink }).catch(() => {});
+          }
+          this.sidePanelIsOpen = false;
         }
       },
     },
@@ -629,6 +629,7 @@
     },
     created() {
       this.translator = crossComponentTranslator(LibraryPage);
+      this.filterTranslator = crossComponentTranslator(FilterTextbox);
       window.addEventListener('scroll', this.throttledHandleScroll);
       this.setSearchWithinDescendant(this.topic);
       this.search();
@@ -653,6 +654,10 @@
       },
       toggleInfoPanel(content) {
         this.sidePanelContent = content;
+      },
+      toggleFolderSearchSidePanel(option) {
+        option == 'search' ? (this.mobileSearchActive = true) : (this.mobileSearchActive = false);
+        this.sidePanelIsOpen = !this.sidePanelIsOpen;
       },
       stickyCalculation() {
         let header = document.getElementsByClassName('header')[0];
@@ -723,11 +728,10 @@
 
   .header {
     position: relative;
-    // z-index: 4;
     width: 100%;
     height: 324px;
     padding-top: 32px;
-    padding-bottom: 0;
+    padding-bottom: 48px;
     padding-left: 32px;
     background-color: white;
     border: 1px solid #dedede;
@@ -781,8 +785,8 @@
     margin-left: 8px;
   }
 
-  .filter-overlay-toggle-button {
-    margin-bottom: 16px;
+  .overlay-toggle-button {
+    margin: 16px 16px 16px 0;
   }
 
   .full-screen-side-panel {
@@ -795,16 +799,23 @@
 
   .mobile-header {
     position: relative;
-    height: 120px;
+    height: 100%;
     background-color: white;
+  }
+
+  .mobile-title {
+    height: 100%;
+    padding-right: 16px;
+    padding-left: 16px;
+    margin-top: 16px;
+    font-size: 18px;
   }
 
   .channel-logo {
     position: absolute;
-    top: 24px;
-    right: 24px;
-    max-height: 55px;
-    vertical-align: bottom;
+    top: 16px;
+    right: 16px;
+    max-height: 40px;
   }
   .overlay-close-button {
     position: absolute;

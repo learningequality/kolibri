@@ -272,7 +272,14 @@
         return `${this.nodeId}:${this.itemId}`;
       },
       questionsAnswered() {
-        return this.pastattempts.reduce((count, attempt) => count + (attempt.answer ? 1 : 0), 0);
+        return Object.keys(
+          this.pastattempts.reduce((map, attempt) => {
+            if (attempt.answer) {
+              map[attempt.item] = true;
+            }
+            return map;
+          }, {})
+        ).length;
       },
       questionsUnanswered() {
         return this.exam.question_count - this.questionsAnswered;

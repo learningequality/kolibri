@@ -92,7 +92,7 @@
       },
     },
     created() {
-      ContentNodeResource.fetchBookmarks({ params: { limit: 25 } }).then(data => {
+      ContentNodeResource.fetchBookmarks({ params: { limit: 25, available: true } }).then(data => {
         this.more = data.more;
         this.bookmarks = data.results ? data.results.map(normalizeContentNode) : [];
         this.loading = false;
