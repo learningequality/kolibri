@@ -249,6 +249,8 @@ class Job(object):
                 raise ReferenceError(
                     "storage is not defined on this job, cannot update progress"
                 )
+            self.progress = progress
+            self.total_progress = progress
             self.storage.update_job_progress(self.job_id, progress, total_progress)
 
     def check_for_cancel(self):
