@@ -529,9 +529,10 @@
           .map(t => {
             let childrenToDisplay;
             const topicChildren = t.children ? t.children.results : [];
-            if (this.subTopicId) {
+            if (this.subTopicId || this.topics.length === 1) {
               // If we are in a subtopic display, we should only be displaying this topic
               // so don't bother checking if the ids match.
+              // Alternatively, if there is only one topic, we should display all of its children.
               childrenToDisplay = topicChildren.length;
             } else if (this.expandedTopics[t.id]) {
               // If topic is expanded show three times as many children.
