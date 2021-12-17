@@ -270,6 +270,7 @@ class Job(object):
             raise ReferenceError(
                 "storage is not defined on this job, cannot save as cancellable"
             )
+        self.job.cancellable = cancellable
         self.storage.save_job_as_cancellable(self.job_id, cancellable=cancellable)
 
     @property
