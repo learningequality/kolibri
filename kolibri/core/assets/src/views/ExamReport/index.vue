@@ -22,8 +22,8 @@
     <template #main>
       <AttemptLogList
         v-if="windowIsSmall"
-        :isMobile="windowIsSmall"
-        :class="windowIsSmall ? 'mobile-attempt-log-list' : ''"
+        class="mobile-attempt-log-list"
+        :isMobile="true"
         :attemptLogs="attemptLogs"
         :selectedQuestionNumber="questionNumber"
         @select="handleNavigateToQuestion"
