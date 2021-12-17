@@ -8,7 +8,7 @@
       <div v-if="!windowIsLarge">
         <KButton
           icon="filter"
-          :text="coreString('searchLabel')"
+          :text="translator.$tr('filter')"
           :primary="false"
           @click="toggleSidePanelVisibility"
         />
@@ -239,6 +239,8 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import FullScreenSidePanel from 'kolibri.coreVue.components.FullScreenSidePanel';
+  import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import genContentLink from '../utils/genContentLink';
   import { PageNames } from '../constants';
   import useSearch from '../composables/useSearch';
@@ -374,6 +376,7 @@
     },
     created() {
       this.search();
+      this.translator = crossComponentTranslator(FilterTextbox);
     },
     methods: {
       genContentLink,
