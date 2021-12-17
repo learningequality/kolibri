@@ -3,7 +3,7 @@
   <div>
 
     <section>
-      <HeaderWithOptions>
+      <HeaderWithOptions style="position: relative; top: 24px">
         <template #header>
           <BackLink
             :to="classRoute('ReportsLessonReportPage')"
@@ -66,6 +66,14 @@
 
   .stats {
     margin-right: 16px;
+  }
+
+  /deep/ .pad-button {
+    // TODO revisit how HeaderWithOptions is styled - this ensures the backlink is aligned with
+    // the preview button. Changing it in HeaderWithOptions to fix this breaks elsewhere and this
+    // seems isolated to two places right now
+    padding-top: 0 !important;
+    padding-bottom: 16px;
   }
 
 </style>

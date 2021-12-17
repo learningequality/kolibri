@@ -11,7 +11,6 @@
           class="card-grid-item"
           :isMobile="windowIsSmall"
           :content="content"
-          :thumbnail="content.thumbnail"
           :link="genContentLink(content)"
           @openCopiesModal="openCopiesModal"
           @toggleInfoPanel="$emit('toggleInfoPanel', content)"
@@ -23,7 +22,6 @@
         v-for="content in contents"
         :key="content.id"
         :content="content"
-        :thumbnail="content.thumbnail || getContentNodeThumbnail(content)"
         class="card-grid-item"
         :isMobile="windowIsSmall"
         :link="genContentLink(content)"
@@ -34,10 +32,10 @@
     >
       <ResourceCard
         v-for="(content, idx) in contents"
-
         :key="`resource-${idx}`"
         :contentNode="content"
         :to="genContentLink(content)"
+        @openCopiesModal="openCopiesModal"
       />
     </CardGrid>
 
@@ -46,7 +44,6 @@
       v-else
       :key="content.id"
       :content="content"
-      :thumbnail="content.thumbnail"
       :currentPage="currentPage"
       class="card-grid-item"
       :isMobile="windowIsSmall"
@@ -114,11 +111,6 @@
         type: Number,
         required: false,
         default: null,
-      },
-      getContentNodeThumbnail: {
-        type: Function,
-        default: () => '',
-        required: false,
       },
       footerIcons: {
         type: Object,

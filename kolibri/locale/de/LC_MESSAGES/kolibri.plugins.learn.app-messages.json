@@ -62,7 +62,6 @@
   "CompletionModal.stayButtonLabel": "Hier bleiben",
   "CompletionModal.stayDescription": "Noch einmal mit diesem Material üben",
   "CompletionModal.stayTitle": "Hier bleiben und üben",
-  "ContentCard.copies": "{ num, number} Standort(e)",
   "ContentPage.documentTitle": "{ contentTitle } - { channelTitle }",
   "ContentUnavailablePage.adminLink": "Kanäle auf das Gerät importieren",
   "ContentUnavailablePage.documentTitle": "Material nicht verfügbar",

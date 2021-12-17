@@ -34,8 +34,8 @@
       </div>
       <CardThumbnail
         class="thumbnail"
-        :kind="content.kind"
-        v-bind="{ thumbnail, isMobile }"
+        :isMobile="isMobile"
+        :contentNode="content"
       />
       <div class="text" :style="{ color: $themeTokens.text }">
         <h3 class="title" dir="auto">
@@ -44,6 +44,13 @@
             :maxLines="5"
           />
         </h3>
+        <KButton
+          v-if="content.copies && content.copies.length"
+          appearance="basic-link"
+          class="copies"
+          :text="coreString('copies', { num: content.copies.length })"
+          @click.prevent="$emit('openCopiesModal', content.copies)"
+        />
       </div>
     </router-link>
     <div class="footer">
@@ -84,7 +91,7 @@
   import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ProgressBar from '../ProgressBar';
-  import LearningActivityLabel from '../cards/ResourceCard/LearningActivityLabel';
+  import LearningActivityLabel from '../LearningActivityLabel';
   import commonLearnStrings from '../commonLearnStrings';
   import CardThumbnail from './CardThumbnail.vue';
 
@@ -99,10 +106,6 @@
     },
     mixins: [commonLearnStrings, commonCoreStrings],
     props: {
-      thumbnail: {
-        type: String,
-        default: null,
-      },
       link: {
         type: Object,
         required: true,
@@ -135,11 +138,10 @@
       },
       footerLength() {
         return (
-          1 +
           this.content.is_leaf +
           (this.isUserLoggedIn && !this.isLearner && this.content.num_coach_contents) +
           (this.content.num_coach_contents > 0) +
-          (this.content.copies_count > 1) +
+          (this.content.copies && this.content.copies.length > 1) +
           (this.$slots.actions ? this.$slots.actions.length : 0)
         );
       },
@@ -190,9 +192,17 @@
     text-decoration: none;
   }
 
+  .copies {
+    display: inline-block;
+    font-size: 13px;
+    text-decoration: none;
+    vertical-align: top;
+  }
+
   .header-bar {
     display: flex;
     justify-content: space-between;
+    height: 48px;
     padding: 8px 16px;
     font-size: 13px;
     .channel-logo {
@@ -212,7 +222,7 @@
     display: inline-block;
     padding: 0;
     margin: 0;
-    font-size: 16px;
+    font-size: 13px;
   }
 
   .k-labeled-icon {
@@ -259,13 +269,7 @@
   }
 
   .learning-activity-label {
-    top: 0;
-    display: inline-block;
     width: 60%;
-    /deep/ .learning-activity {
-      justify-content: flex-start;
-      margin-top: 2px;
-    }
   }
 
   .mobile-card.card {

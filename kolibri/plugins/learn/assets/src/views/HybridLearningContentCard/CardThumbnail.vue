@@ -5,13 +5,12 @@
     :class="{ 'mobile-thumbnail': isMobile }"
     :style="thumbnailBackground"
   >
-    <div
-      v-if="activityLength && !isMobile"
-      class="chip"
-      :style="{ color: $themeTokens.textInverted }"
-    >
-      {{ coreString(activityLength) }}
-    </div>
+    <LearningActivityDuration
+      v-if="!isMobile"
+      :contentNode="contentNode"
+      appearance="chip"
+      class="duration"
+    />
   </div>
 
 </template>
@@ -20,25 +19,32 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
+  import LearningActivityDuration from '../LearningActivityDuration';
 
   export default {
     name: 'CardThumbnail',
+    components: {
+      LearningActivityDuration,
+    },
     mixins: [commonCoreStrings],
     props: {
-      thumbnail: {
-        type: String,
-        default: null,
-      },
       isMobile: {
         type: Boolean,
         default: false,
       },
-      activityLength: {
-        type: String,
-        default: null,
+      contentNode: {
+        type: Object,
+        required: true,
       },
     },
     computed: {
+      thumbnail() {
+        if (!this.contentNode) {
+          return null;
+        }
+        return getContentNodeThumbnail(this.contentNode);
+      },
       thumbnailBackground() {
         return {
           backgroundColor: this.$themePalette.grey.v_200,
@@ -67,14 +73,10 @@
     width: 56px;
     height: 56px;
   }
-  .chip {
+  .duration {
     position: absolute;
     bottom: 16px;
     left: 10px;
-    padding: 8px;
-    font-size: 13px;
-    background-color: rgba(0, 0, 0, 0.7);
-    border-radius: 4px;
   }
 
   /* MOBILE OVERRIDES */

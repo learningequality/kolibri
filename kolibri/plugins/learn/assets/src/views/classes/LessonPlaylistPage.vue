@@ -1,6 +1,7 @@
 <template>
 
   <div>
+    <KBreadcrumbs :items="breadcrumbs" />
     <section class="lesson-details">
       <div>
         <ContentIcon
@@ -30,7 +31,6 @@
         currentPage="lessonPage"
         cardViewStyle="list"
         :numCols="null"
-        :getContentNodeThumbnail="getContentNodeThumbnail"
         :genContentLink="genContentLink"
         :contents="contentNodes"
       />
@@ -47,11 +47,12 @@
 
   import { mapMutations, mapState } from 'vuex';
   import sumBy from 'lodash/sumBy';
+  import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
-  import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import genContentLink from '../../utils/genContentLink';
-  import { PageNames } from '../../constants';
+  import { PageNames, ClassesPageNames } from '../../constants';
   import HybridLearningCardGrid from './../HybridLearningCardGrid';
 
   export default {
@@ -62,10 +63,12 @@
       };
     },
     components: {
+      KBreadcrumbs,
       HybridLearningCardGrid,
       ContentIcon,
       ProgressIcon,
     },
+    mixins: [commonCoreStrings],
     computed: {
       ...mapState('lessonPlaylist', ['contentNodes', 'currentLesson']),
       lessonHasResources() {
@@ -84,6 +87,28 @@
 
         return undefined;
       },
+      breadcrumbs() {
+        return [
+          {
+            text: this.coreString('homeLabel'),
+            link: { name: PageNames.HOME },
+          },
+          {
+            text: this.coreString('classesLabel'),
+            link: { name: ClassesPageNames.ALL_CLASSES },
+          },
+          {
+            text: this.currentLesson.classroom.name,
+            link: {
+              name: ClassesPageNames.CLASS_ASSIGNMENTS,
+              params: { classId: this.currentLesson.classroom.id },
+            },
+          },
+          {
+            text: this.currentLesson.title,
+          },
+        ];
+      },
     },
     beforeDestroy() {
       /* If we are going anywhere except for content we unset the lesson */
@@ -94,7 +119,6 @@
     },
     methods: {
       ...mapMutations('lessonPlaylist', ['SET_CURRENT_LESSON']),
-      getContentNodeThumbnail,
       genContentLink,
     },
     $trs: {

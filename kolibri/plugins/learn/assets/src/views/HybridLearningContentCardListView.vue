@@ -41,7 +41,7 @@
                 class="channel-logo"
               >
               <KButton
-                v-if="isLibraryPage && content.copies"
+                v-if="content.copies && content.copies.length"
                 appearance="basic-link"
                 class="copies"
                 :style="{ color: $themeTokens.text }"
@@ -80,7 +80,7 @@
   import { now } from 'kolibri.utils.serverClock';
   import { PageNames } from '../constants';
   import ProgressBar from './ProgressBar';
-  import LearningActivityLabel from './cards/ResourceCard/LearningActivityLabel';
+  import LearningActivityLabel from './LearningActivityLabel';
   import commonLearnStrings from './commonLearnStrings';
   import CardThumbnail from './HybridLearningContentCard/CardThumbnail';
 
@@ -95,10 +95,6 @@
     mixins: [commonLearnStrings, commonCoreStrings],
     props: {
       createdDate: {
-        type: String,
-        default: null,
-      },
-      thumbnail: {
         type: String,
         default: null,
       },
@@ -128,9 +124,6 @@
       now: now(),
     }),
     computed: {
-      isLibraryPage() {
-        return this.currentPage === PageNames.LIBRARY;
-      },
       isBookmarksPage() {
         return this.currentPage === PageNames.BOOKMARKS;
       },

@@ -203,6 +203,7 @@
 
   .coach-content-label {
     display: inline-block;
+    width: auto; // keeps on same line as question
     margin-top: -4px;
     margin-left: 8px;
     vertical-align: middle;

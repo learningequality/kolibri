@@ -259,7 +259,11 @@
       },
       combinedAddresses(addrs) {
         this.availableAddressIds = addrs
-          .filter(address => address.available)
+          .filter(
+            address =>
+              address.available &&
+              (this.$route.path === '/content' || address.application === 'kolibri')
+          )
           .map(address => address.id);
         if (!this.availableAddressIds.includes(this.selectedAddressId)) {
           this.selectedAddressId = '';

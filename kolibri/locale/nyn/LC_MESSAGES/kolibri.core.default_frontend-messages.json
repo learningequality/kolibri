@@ -423,6 +423,7 @@
   "ReportErrorModal.forumPrompt": "Pitani pa folamu",
   "ReportErrorModal.forumUseTips": "Fufuzani pa folamu kuti mudziwe ngati enanso akumanapo ndi vuto limeneli. Ngati simunapeze yankho, positani m'munsimu zimene munakopera zokhudza vutolo kuti tifufuze njira yothetsera vutoli mu pulogalamu ya Kolibri yam'tsogolo.",
   "ReportErrorModal.reportErrorHeader": "Lipoti la vuto",
+  "SearchSideBar.overCertainNumberOfSearchResults": "Zapezeka {num, plural, one {zotsatira} other {zotsatira}} zoposa {num, number, integer}",
   "SelectAddressForm.deletingFailedText": "Zinazake zalakwika pochotsa adiresiyi",
   "SelectAddressForm.fetchingFailedText": "Zinazake zalakwika pofufuza ma adiresi omwe alipo",
   "SelectAddressForm.forgetAddressButtonLabel": "Chotsani",

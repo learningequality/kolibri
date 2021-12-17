@@ -1246,11 +1246,12 @@ class BookmarkFilter(FilterSet):
         queryset = queryset.annotate(
             available=Subquery(
                 models.ContentNode.objects.filter(
-                    available=True,
                     id=OuterRef("contentnode_id"),
                 ).values_list("available", flat=True)[:1]
             )
         )
+
+        return queryset.filter(available=value)
 
 
 class ContentNodeBookmarksViewset(

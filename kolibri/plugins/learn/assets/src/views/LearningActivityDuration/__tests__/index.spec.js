@@ -1,53 +1,29 @@
 import { shallowMount, mount } from '@vue/test-utils';
 
 import { LearningActivities } from 'kolibri.coreVue.vuex.constants';
-import LearningActivityLabel from '../LearningActivityLabel';
+import LearningActivityDuration from '../index';
+
+jest.mock('kolibri.utils.coreStrings', () => {
+  const translations = {
+    readReference: 'Reference',
+    shortActivity: 'Short activity',
+    longActivity: 'Long activity',
+  };
+  return {
+    $tr: jest.fn(key => {
+      return translations[key];
+    }),
+  };
+});
 
 function makeWrapper(propsData) {
-  return mount(LearningActivityLabel, { propsData });
+  return mount(LearningActivityDuration, { propsData });
 }
 
-function getLabel(wrapper) {
-  return wrapper.find('[data-test="label"]');
-}
-
-function getDuration(wrapper) {
-  return wrapper.find('[data-test="duration"]');
-}
-
-describe(`LearningActivityLabel`, () => {
+describe(`LearningActivityDuration`, () => {
   it(`smoke test`, () => {
-    const wrapper = shallowMount(LearningActivityLabel);
+    const wrapper = shallowMount(LearningActivityDuration);
     expect(wrapper.exists()).toBe(true);
-  });
-
-  it.each(
-    Object.values(LearningActivities).filter(activity => activity !== LearningActivities.TOPIC)
-  )(`displays a correct label for '%s' activity`, activity => {
-    const wrapper = makeWrapper({
-      contentNode: {
-        learning_activities: [activity],
-      },
-    });
-    const activityToLabelMap = {
-      [LearningActivities.CREATE]: 'Create',
-      [LearningActivities.LISTEN]: 'Listen',
-      [LearningActivities.REFLECT]: 'Reflect',
-      [LearningActivities.PRACTICE]: 'Practice',
-      [LearningActivities.READ]: 'Read',
-      [LearningActivities.WATCH]: 'Watch',
-      [LearningActivities.EXPLORE]: 'Explore',
-    };
-    expect(getLabel(wrapper).text()).toBe(activityToLabelMap[activity]);
-  });
-
-  it(`doesn't display a label for multiple activities`, () => {
-    const wrapper = makeWrapper({
-      contentNode: {
-        learning_activities: [LearningActivities.WATCH, LearningActivities.EXPLORE],
-      },
-    });
-    expect(getLabel(wrapper).text()).toBe('');
   });
 
   it.each([LearningActivities.LISTEN, LearningActivities.WATCH])(
@@ -59,7 +35,7 @@ describe(`LearningActivityLabel`, () => {
           learning_activities: [activity],
         },
       });
-      expect(getDuration(wrapper).text()).toBe('5 minutes');
+      expect(wrapper.text()).toBe('5 minutes');
     }
   );
 
@@ -78,7 +54,7 @@ describe(`LearningActivityLabel`, () => {
           learning_activities: [activity],
         },
       });
-      expect(getDuration(wrapper).text()).toBe('Short activity');
+      expect(wrapper.text()).toBe('Short activity');
     }
   );
 
@@ -97,7 +73,7 @@ describe(`LearningActivityLabel`, () => {
           learning_activities: [activity],
         },
       });
-      expect(getDuration(wrapper).text()).toBe('Long activity');
+      expect(wrapper.text()).toBe('Long activity');
     }
   );
 
@@ -109,7 +85,7 @@ describe(`LearningActivityLabel`, () => {
         learning_activities: [LearningActivities.WATCH, LearningActivities.EXPLORE],
       },
     });
-    expect(getDuration(wrapper).text()).toBe('Short activity');
+    expect(wrapper.text()).toBe('Short activity');
   });
 
   it(`displays 'Long activity' as duration for multiple activities
@@ -120,7 +96,7 @@ describe(`LearningActivityLabel`, () => {
         learning_activities: [LearningActivities.WATCH, LearningActivities.EXPLORE],
       },
     });
-    expect(getDuration(wrapper).text()).toBe('Long activity');
+    expect(wrapper.text()).toBe('Long activity');
   });
 
   it(`displays 'Reference' and no time duration for 'read' activity`, () => {
@@ -130,6 +106,6 @@ describe(`LearningActivityLabel`, () => {
         learning_activities: [LearningActivities.READ],
       },
     });
-    expect(getDuration(wrapper).text()).toBe('Reference');
+    expect(wrapper.text()).toBe('Reference');
   });
 });
