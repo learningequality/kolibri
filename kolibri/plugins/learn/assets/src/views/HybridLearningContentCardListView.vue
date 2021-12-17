@@ -73,6 +73,12 @@
           </div>
         </div>
         <div class="footer-elements footer-icons">
+          <CoachContentLabel
+            v-if="isUserLoggedIn && !isLearner && content.num_coach_contents"
+            class="coach-footer-icon"
+            :value="content.num_coach_contents"
+            :isTopic="isTopic"
+          />
           <KIconButton
             v-for="(value, key) in footerIcons"
             :key="key"
@@ -93,10 +99,12 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import { validateLinkObject } from 'kolibri.utils.validators';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { now } from 'kolibri.utils.serverClock';
+  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import { PageNames } from '../constants';
   import ProgressBar from './ProgressBar';
   import LearningActivityLabel from './LearningActivityLabel';
@@ -110,6 +118,7 @@
       TextTruncator,
       LearningActivityLabel,
       ProgressBar,
+      CoachContentLabel,
     },
     mixins: [commonLearnStrings, commonCoreStrings],
     props: {
@@ -143,6 +152,7 @@
       now: now(),
     }),
     computed: {
+      ...mapGetters(['isUserLoggedIn', 'isLearner']),
       maxTitleHeight() {
         return 40;
       },
@@ -248,7 +258,8 @@
     position: absolute;
     bottom: 0;
     width: 100%;
-    padding: 16px 24px;
+    height: 80px;
+    padding: 24px;
   }
 
   .metadata-info-footer {
@@ -258,7 +269,8 @@
 
   .footer-elements {
     position: relative;
-    display: block;
+    display: inline-block;
+    max-width: 240px;
   }
 
   .footer-progress {
@@ -269,7 +281,8 @@
     // this override fixes an existing KDS bug with
     // the hover state circle being squished
     // and can be removed upon that hover state fix
-    float: right;
+    position: absolute;
+    right: 16px;
     .button {
       width: 32px !important;
       height: 32px !important;
@@ -290,7 +303,7 @@
     width: 240px;
     margin-top: 8px;
     margin-right: 24px;
-    margin-left: 24px;
+    margin-left: 12px;
   }
 
   .mobile-card.card {
@@ -301,15 +314,27 @@
   .mobile-card {
     .thumbnail {
       position: absolute;
-      top: 24px;
-      width: calc(100% - 48px);
-      height: calc(100% - 24px);
-      margin-left: 24px;
+      width: 100%;
+      max-height: 240px;
+      margin-top: 0;
+      margin-left: 0;
+
+      /deep/ .image {
+        border-radius: 8px 8px 0 0;
+      }
+    }
+
+    .footer-progress {
+      max-width: 200px;
     }
     .details {
       max-width: 100%;
-      margin-top: 224px;
+      margin-top: 200px;
     }
+  }
+
+  .coach-footer-icon {
+    max-width: 24px;
   }
 
 </style>
