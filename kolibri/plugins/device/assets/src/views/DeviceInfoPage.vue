@@ -7,7 +7,7 @@
         <th>
           {{ $tr('url', { count: deviceInfo.urls.length }) }}
         </th>
-        <td>
+        <td :class="windowIsSmall ? 'mobile' : ''">
           <KExternalLink
             v-for="(url, index) in deviceInfo.urls"
             :key="index"
