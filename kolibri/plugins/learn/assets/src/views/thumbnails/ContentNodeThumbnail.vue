@@ -15,6 +15,10 @@
         :color="$themePalette.grey.v_500"
       />
     </template>
+
+    <template #labels>
+      <slot name="labels"></slot>
+    </template>
   </Thumbnail>
 
 </template>
