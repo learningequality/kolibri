@@ -10,8 +10,9 @@
         <KFixedGridItem :span="isMobile ? 4 : 1" class="thumb-area">
           <CardThumbnail
             :kind="content.kind"
-            v-bind="{ thumbnail, isMobile }"
+            v-bind="{ thumbnail }"
             :activityLength="content.duration"
+            :contentNode="content"
           />
           <p
             v-if="isBookmarksPage"
