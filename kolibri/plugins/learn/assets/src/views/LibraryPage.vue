@@ -51,6 +51,7 @@
           :numCols="numCols"
           :genContentLink="genContentLink"
           :contents="trimmedResume"
+          :footerIcons="footerIcons"
           :currentPage="currentPage"
           @toggleInfoPanel="toggleInfoPanel"
         />
@@ -332,6 +333,9 @@
       },
       currentPage() {
         return PageNames.LIBRARY;
+      },
+      footerIcons() {
+        return { info: 'viewInformation' };
       },
       sidePanelWidth() {
         if (this.windowIsSmall || this.windowIsMedium) {
