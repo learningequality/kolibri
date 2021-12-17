@@ -35,6 +35,7 @@
               <TextTruncatorCss :text="content.description" :maxLines="4" />
             </p>
             <div v-if="!isMobile" class="bottom-items">
+              <p v-if="categoryAndLevelString">{{ categoryAndLevelString }}</p>
               <img
                 :src="content.channel_thumbnail"
                 :alt="learnString('logo', { channelTitle: content.channel_title })"
@@ -124,6 +125,16 @@
       now: now(),
     }),
     computed: {
+      categoryAndLevelString() {
+        if (this.category && this.level) {
+          return this.coreString(this.category) + ' | ' + this.coreString(this.level);
+        } else if (this.category) {
+          return this.coreString(this.category);
+        } else if (this.level) {
+          return this.coreString(this.level);
+        }
+        return null;
+      },
       isBookmarksPage() {
         return this.currentPage === PageNames.BOOKMARKS;
       },
