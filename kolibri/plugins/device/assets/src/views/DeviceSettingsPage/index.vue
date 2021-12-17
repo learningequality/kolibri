@@ -2,7 +2,7 @@
 
   <div>
     <section>
-      <h1>
+      <h1 style="word-break: break-all">
         {{ $tr('pageHeader') }}
       </h1>
       <p>
