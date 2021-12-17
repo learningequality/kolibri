@@ -423,6 +423,7 @@
   "ReportErrorModal.forumPrompt": "સમુદાય ફોરમની મુલાકાત લો",
   "ReportErrorModal.forumUseTips": "સમુદાય ફોરમમાં શોધો કે શું અન્ય લોકોને સમાન સમસ્યાઓનો સામનો કરવો પડ્યો હતો. જો તમને કંઈપણ મળતું નથી, તો ભૂલની વિગતો નવી ફોરમ પોસ્ટમાં પેસ્ટ કરો જેથી અમે કોલિબ્રીના આગામી સંસ્કરણમાં ભૂલને સુધારી શકીએ.",
   "ReportErrorModal.reportErrorHeader": "ભૂલની જાણ કરો",
+  "SearchSideBar.overCertainNumberOfSearchResults": "{num, number, integer} {num, plural, one {કરતાં વધુ પરિણામ} other {કરતાં વધુ પરિણામો}}",
   "SelectAddressForm.deletingFailedText": "આ સરનામું કાઢી નાખવામાં સમસ્યા આવી હતી",
   "SelectAddressForm.fetchingFailedText": "ઉપલબ્ધ સરનામાં મેળવવામાં સમસ્યા આવી હતી",
   "SelectAddressForm.forgetAddressButtonLabel": "દૂર કરો",

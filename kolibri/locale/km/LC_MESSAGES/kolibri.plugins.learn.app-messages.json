@@ -62,7 +62,6 @@
   "CompletionModal.stayButtonLabel": "នៅទីនេះ",
   "CompletionModal.stayDescription": "រក្សាធនធាននេះដើម្បីបន្កការអនុវត្ត",
   "CompletionModal.stayTitle": "រក្សានៅ ហើយអនុវត្ត",
-  "ContentCard.copies": "{ num, number} ទីតាំង",
   "ContentPage.documentTitle": "{ contentTitle } - { channelTitle }",
   "ContentUnavailablePage.adminLink": "នាំចូលឆានែលទៅឧបករណ៍របស់អ្នក",
   "ContentUnavailablePage.documentTitle": "ធនធានមិនមាន",

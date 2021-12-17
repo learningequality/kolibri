@@ -62,7 +62,6 @@
   "CompletionModal.stayButtonLabel": "येथे थांबा",
   "CompletionModal.stayDescription": "सराव करत राहण्यासाठी या संसाधनावर रहा",
   "CompletionModal.stayTitle": "थांबा व सराव चालू ठेवा",
-  "ContentCard.copies": "{ num, number} ठिकाणे",
   "ContentPage.documentTitle": "{ contentTitle } - { channelTitle }",
   "ContentUnavailablePage.adminLink": "तुमच्या उपकरणावर वाहिन्या आयात करा",
   "ContentUnavailablePage.documentTitle": "संसाधन अनुपलब्ध",

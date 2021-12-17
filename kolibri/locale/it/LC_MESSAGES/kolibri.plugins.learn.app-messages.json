@@ -62,7 +62,6 @@
   "CompletionModal.stayButtonLabel": "Rimani qui",
   "CompletionModal.stayDescription": "Rimani su questa risorsa per continuare a esercitarti",
   "CompletionModal.stayTitle": "Rimani ed esercitati",
-  "ContentCard.copies": "{ num, number} posizioni",
   "ContentPage.documentTitle": "{ contentTitle } - { channelTitle }",
   "ContentUnavailablePage.adminLink": "Importa canali sul tuo dispositivo",
   "ContentUnavailablePage.documentTitle": "Risorsa non disponibile",
