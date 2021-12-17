@@ -109,4 +109,9 @@
     margin-top: 24px;
   }
 
+  /deep/ .truncate-text {
+    // Ensure long text (like German) wrap and stay on screen
+    white-space: normal;
+  }
+
 </style>
