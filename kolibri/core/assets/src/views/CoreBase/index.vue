@@ -607,9 +607,4 @@
     line-height: 2em;
   }
 
-  .small {
-    max-width: 100%;
-    overflow-x: hidden !important;
-  }
-
 </style>
