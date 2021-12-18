@@ -138,7 +138,7 @@
     width: 100%;
     padding-right: $margin;
     padding-left: $margin;
-    margin-top: 8px;
+    margin-top: $margin;
   }
 
   .learning-activity-label {

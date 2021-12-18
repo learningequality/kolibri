@@ -51,6 +51,7 @@
           :numCols="numCols"
           :genContentLink="genContentLink"
           :contents="trimmedResume"
+          :footerIcons="footerIcons"
           :currentPage="currentPage"
           @toggleInfoPanel="toggleInfoPanel"
         />
@@ -333,6 +334,9 @@
       currentPage() {
         return PageNames.LIBRARY;
       },
+      footerIcons() {
+        return { info: 'viewInformation' };
+      },
       sidePanelWidth() {
         if (this.windowIsSmall || this.windowIsMedium) {
           return 0;
@@ -351,8 +355,10 @@
       numCols() {
         if (this.windowIsMedium) {
           return 2;
-        } else if (!this.windowIsSmall) {
+        } else if (this.windowBreakpoint < 7) {
           return 3;
+        } else if (this.windowBreakpoint >= 7) {
+          return 4;
         } else {
           return null;
         }

@@ -41,7 +41,7 @@
         <h3 class="title" dir="auto">
           <TextTruncatorCss
             :text="content.title"
-            :maxLines="5"
+            :maxLines="3"
           />
         </h3>
         <KButton
@@ -55,8 +55,9 @@
     </router-link>
     <div class="footer">
       <ProgressBar
+        class="progress-bar"
         :contentNode="content"
-        :style="{ maxWidth: `calc(100% - ${32 * footerLength}px)` }"
+        :style="{ maxWidth: `calc(100% - ${24 + 32 * footerLength}px)` }"
       />
       <div class="footer-icons">
         <CoachContentLabel
@@ -138,10 +139,8 @@
       },
       footerLength() {
         return (
-          this.content.is_leaf +
-          (this.isUserLoggedIn && !this.isLearner && this.content.num_coach_contents) +
-          (this.content.num_coach_contents > 0) +
-          (this.content.copies && this.content.copies.length > 1) +
+          (this.content.is_leaf ? 1 : 0) +
+          (this.isUserLoggedIn && !this.isLearner && this.content.num_coach_contents ? 1 : 0) +
           (this.$slots.actions ? this.$slots.actions.length : 0)
         );
       },
@@ -235,7 +234,7 @@
 
   .text {
     position: relative;
-    height: 190px;
+    height: 120px;
     padding: 0 $margin $margin $margin;
   }
 
@@ -245,6 +244,12 @@
     display: flex;
     width: 100%;
     padding: $margin;
+  }
+
+  .progress-bar {
+    position: absolute;
+    bottom: 12px;
+    left: $margin-thin;
   }
 
   .footer-icons {
