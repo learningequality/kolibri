@@ -312,10 +312,10 @@
   }
 
   .mobile-card {
+    max-height: 450px;
     .thumbnail {
       position: absolute;
       width: 100%;
-      max-height: 240px;
       margin-top: 0;
       margin-left: 0;
 
@@ -329,7 +329,7 @@
     }
     .details {
       max-width: 100%;
-      margin-top: 200px;
+      margin-top: 240px;
     }
   }
 

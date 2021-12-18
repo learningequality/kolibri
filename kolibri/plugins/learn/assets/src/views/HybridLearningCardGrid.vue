@@ -46,7 +46,7 @@
       :content="content"
       :currentPage="currentPage"
       class="card-grid-item"
-      :isMobile="windowIsSmall"
+      :isMobile="windowIsExtraSmall"
       :link="genContentLink(content)"
       :footerIcons="footerIcons"
       :createdDate="content.bookmark ? content.bookmark.created : null"
@@ -154,6 +154,9 @@
       },
       backRoute() {
         return this.pageName;
+      },
+      windowIsExtraSmall() {
+        return this.windowBreakpoint === 0;
       },
     },
     methods: {
