@@ -260,6 +260,8 @@
         }
         this.$emit('startTracking');
         this.updateContentStateInterval = setInterval(this.updateProgress, 30000);
+        // Even if user does not pause while scrolling on first page, we store that as visited
+        this.storeVisitedPage(1);
       });
     },
     beforeDestroy() {
@@ -323,8 +325,9 @@
           // TODO: there is a miscalculation that causes a wrong position change on scale
           this.savePosition(this.calculatePosition());
 
-          // determine how many pages user has viewed/visited
-          let currentPage = parseInt(this.currentLocation * this.totalPages) + 1;
+          // determine how many pages user has viewed/visited; fix edge case of 2 pages
+          let currentPage =
+            this.totalPages === 2 ? 2 : parseInt(this.currentLocation * this.totalPages) + 1;
           this.storeVisitedPage(currentPage);
           this.updateProgress();
           this.updateContentState();

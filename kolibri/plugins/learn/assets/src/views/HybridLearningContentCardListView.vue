@@ -1,18 +1,9 @@
 <template>
 
-  <div
-    class="card drop-shadow"
-    :class="[
-      { 'mobile-card': isMobile }
-    ]"
-  >
-    <router-link
-      :to="link"
+  <router-link :to="link" :class="$computedClass({ ':focus': $coreOutline })">
+    <div
       class="card"
-      :class="[
-        { 'mobile-card': isMobile },
-        $computedClass({ ':focus': $coreOutline })
-      ]"
+      :class="{ 'mobile-card': isMobile }"
       :style="{ backgroundColor: $themeTokens.surface }"
     >
       <div
@@ -22,9 +13,8 @@
       ></div>
       <div class="thumbnail">
         <CardThumbnail
-          :kind="content.kind"
-          v-bind="{ thumbnail, isMobile }"
-          :activityLength="content.duration"
+          :isMobile="isMobile"
+          :contentNode="content"
         />
       </div>
       <span class="details" :style="{ color: $themeTokens.text }">
@@ -35,6 +25,7 @@
           <LearningActivityLabel
             :contentNode="content"
             :labelAfter="true"
+            :hideDuration="!isMobile"
             condensed
           />
         </div>
@@ -60,7 +51,7 @@
           class="channel-logo"
         >
         <KButton
-          v-if="!isMobile && isLibraryPage && content.copies"
+          v-if="!isMobile && content.copies && content.copies.length"
           appearance="basic-link"
           class="copies"
           :style="{ color: $themeTokens.text }"
@@ -68,45 +59,55 @@
           @click.prevent="$emit('openCopiesModal', content.copies)"
         />
       </span>
-    </router-link>
-    <KFixedGrid :numCols="10" class="footer">
-      <KFixedGridItem span="6" class="footer-elements">
-        <p
-          v-if="isBookmarksPage"
-          class="metadata-info-footer"
-          :style="{ color: $themePalette.grey.v_700 }"
-        >
-          {{ bookmarkCreated }}
-        </p>
-        <ProgressBar :contentNode="content" />
-      </KFixedGridItem>
-      <KFixedGridItem span="3" alignment="right" class="footer-elements footer-icons">
-        <KIconButton
-          v-for="(value, key) in footerIcons"
-          :key="key"
-          :icon="key"
-          size="mini"
-          :color="$themePalette.grey.v_400"
-          :ariaLabel="coreString(value)"
-          :tooltip="coreString(value)"
-          @click="$emit(value)"
-        />
-      </KFixedGridItem>
-    </KFixedGrid>
-  </div>
+      <div class="footer">
+        <div class="footer-elements">
+          <div class="footer-progress">
+            <p
+              v-if="isBookmarksPage"
+              class="metadata-info-footer"
+              :style="{ color: $themePalette.grey.v_700 }"
+            >
+              {{ bookmarkCreated }}
+            </p>
+            <ProgressBar :contentNode="content" />
+          </div>
+        </div>
+        <div class="footer-elements footer-icons">
+          <CoachContentLabel
+            v-if="isUserLoggedIn && !isLearner && content.num_coach_contents"
+            class="coach-footer-icon"
+            :value="content.num_coach_contents"
+            :isTopic="isTopic"
+          />
+          <KIconButton
+            v-for="(value, key) in footerIcons"
+            :key="key"
+            :icon="key"
+            size="mini"
+            :color="$themePalette.grey.v_400"
+            :ariaLabel="coreString(value)"
+            :tooltip="coreString(value)"
+            @click.prevent="$emit(value)"
+          />
+        </div>
+      </div>
+    </div>
+  </router-link>
 
 </template>
 
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import { validateLinkObject } from 'kolibri.utils.validators';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { now } from 'kolibri.utils.serverClock';
+  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import { PageNames } from '../constants';
   import ProgressBar from './ProgressBar';
-  import LearningActivityLabel from './cards/ResourceCard/LearningActivityLabel';
+  import LearningActivityLabel from './LearningActivityLabel';
   import commonLearnStrings from './commonLearnStrings';
   import CardThumbnail from './HybridLearningContentCard/CardThumbnail';
 
@@ -117,14 +118,11 @@
       TextTruncator,
       LearningActivityLabel,
       ProgressBar,
+      CoachContentLabel,
     },
     mixins: [commonLearnStrings, commonCoreStrings],
     props: {
       createdDate: {
-        type: String,
-        default: null,
-      },
-      thumbnail: {
         type: String,
         default: null,
       },
@@ -154,6 +152,7 @@
       now: now(),
     }),
     computed: {
+      ...mapGetters(['isUserLoggedIn', 'isLearner']),
       maxTitleHeight() {
         return 40;
       },
@@ -170,9 +169,6 @@
         } else {
           return null;
         }
-      },
-      isLibraryPage() {
-        return this.currentPage === PageNames.LIBRARY;
       },
       isBookmarksPage() {
         return this.currentPage === PageNames.BOOKMARKS;
@@ -198,27 +194,21 @@
   @import '~kolibri-design-system/lib/styles/definitions';
   @import './ContentCard/card';
 
-  $margin: 24px;
-
-  .drop-shadow {
-    @extend %dropshadow-1dp;
-    &:hover {
-      @extend %dropshadow-4dp;
-    }
-  }
   .card {
+    @extend %dropshadow-1dp;
+
     position: relative;
     display: inline-block;
     width: 100%;
     height: 246px;
+    margin-bottom: 24px;
     text-decoration: none;
     vertical-align: top;
     border-radius: 8px;
     transition: box-shadow $core-time ease;
 
-    &:focus {
-      outline-width: 4px;
-      outline-offset: 6px;
+    &:hover {
+      @extend %dropshadow-4dp;
     }
   }
 
@@ -268,27 +258,31 @@
     position: absolute;
     bottom: 0;
     width: 100%;
-    padding: $margin;
+    height: 80px;
+    padding: 24px;
   }
 
   .metadata-info-footer {
-    flex: auto;
-    align-self: center;
     margin: 0;
-    font-size: 14px;
+    font-size: 13px;
   }
 
   .footer-elements {
-    position: absolute;
-    bottom: 16px;
-    display: inline;
+    position: relative;
+    display: inline-block;
+    max-width: 240px;
+  }
+
+  .footer-progress {
+    width: 240px;
   }
 
   .footer-icons {
-    right: 16px;
     // this override fixes an existing KDS bug with
     // the hover state circle being squished
     // and can be removed upon that hover state fix
+    position: absolute;
+    right: 16px;
     .button {
       width: 32px !important;
       height: 32px !important;
@@ -307,10 +301,9 @@
   .thumbnail {
     display: inline-block;
     width: 240px;
-    height: 100px;
     margin-top: 8px;
     margin-right: 24px;
-    margin-left: 24px;
+    margin-left: 12px;
   }
 
   .mobile-card.card {
@@ -319,17 +312,29 @@
   }
 
   .mobile-card {
+    max-height: 450px;
     .thumbnail {
       position: absolute;
-      top: 24px;
-      width: calc(100% - 48px);
-      height: calc(100% - 24px);
-      margin-left: 24px;
+      width: 100%;
+      margin-top: 0;
+      margin-left: 0;
+
+      /deep/ .image {
+        border-radius: 8px 8px 0 0;
+      }
+    }
+
+    .footer-progress {
+      max-width: 200px;
     }
     .details {
       max-width: 100%;
-      margin-top: 224px;
+      margin-top: 240px;
     }
+  }
+
+  .coach-footer-icon {
+    max-width: 24px;
   }
 
 </style>

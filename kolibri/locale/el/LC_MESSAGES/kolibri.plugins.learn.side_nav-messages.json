@@ -1,0 +1,17 @@
+{
+  "CommonLearnStrings.dontShowThisAgainLabel": "Να μην εμφανιστεί ξανά",
+  "CommonLearnStrings.exploreResources": "Εξερεύνηση πηγών",
+  "CommonLearnStrings.learnLabel": "Μαθαίνω",
+  "CommonLearnStrings.libraryLabel": "Βιβλιοθήκη",
+  "CommonLearnStrings.logo": "Από το κανάλι {channelTitle}",
+  "CommonLearnStrings.markResourceAsCompleteLabel": "Σήμανση πηγής ως ολοκληρωμένης",
+  "CommonLearnStrings.mostPopularLabel": "Πιο δημοφιλή",
+  "CommonLearnStrings.multipleLearningActivities": "Ποικίλες δραστηριότητες μάθησης",
+  "CommonLearnStrings.multipleLearningActivitiesLabel": "",
+  "CommonLearnStrings.nextStepsLabel": "Επόμενα βήματα",
+  "CommonLearnStrings.popularLabel": "Δημοφιλή",
+  "CommonLearnStrings.resourceCompletedLabel": "Η πηγή ολοκληρώθηκε",
+  "CommonLearnStrings.resourceHidden": "Κρυφή πηγή",
+  "CommonLearnStrings.resumeLabel": "Συνέχιση",
+  "CommonLearnStrings.suggestedTimeToComplete": "Εκτιμώμενος χρόνος για ολοκλήρωση"
+}

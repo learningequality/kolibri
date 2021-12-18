@@ -62,7 +62,6 @@
   "CompletionModal.stayButtonLabel": "ఇక్కడే ఉండండి",
   "CompletionModal.stayDescription": "అభ్యాసం కొనసాగిస్తూ ఉండేందుకు ఈ వనరుతో ఉండండి",
   "CompletionModal.stayTitle": "ఇక్కడే ఉండి అభ్యాసం చేయండి",
-  "ContentCard.copies": "{ num, number} స్థానాలు",
   "ContentPage.documentTitle": "{ contentTitle } - { channelTitle }",
   "ContentUnavailablePage.adminLink": "మీ పరికరానికి ఛానెల్‌లను దిగుమతి చేయండి",
   "ContentUnavailablePage.documentTitle": "వనరు అందుబాటులో లేదు",

@@ -62,7 +62,6 @@
   "CompletionModal.stayButtonLabel": "ابق في هذا المصدر",
   "CompletionModal.stayDescription": "ابق في هذا المصدر لمواصلة التمرين",
   "CompletionModal.stayTitle": "ابق وتمرن",
-  "ContentCard.copies": "{ num, number} مواقع",
   "ContentPage.documentTitle": "{ contentTitle } - { channelTitle }",
   "ContentUnavailablePage.adminLink": "استيراد القنوات إلى جهازك",
   "ContentUnavailablePage.documentTitle": "مصدر غير متاح",

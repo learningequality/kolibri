@@ -423,6 +423,7 @@
   "ReportErrorModal.forumPrompt": "Truy cập diễn đàn cộng đồng",
   "ReportErrorModal.forumUseTips": "Tìm kiếm trong diễn đàn cộng đồng để xem những người khác có gặp vấn đề tương tự hay không. Nếu không tìm được gì, hãy dán chi tiết lỗi vào một bài mới đăng trên diễn đàn để chúng tôi có thể sửa lỗi trong những phiên bản sau của Kolibri.",
   "ReportErrorModal.reportErrorHeader": "Báo cáo lỗi",
+  "SearchSideBar.overCertainNumberOfSearchResults": "Hơn {num, number, integer} {num, plural, one {kết quả} other {các kết quả}}",
   "SelectAddressForm.deletingFailedText": "Đã có lỗi xảy ra khi loại bỏ địa chỉ này",
   "SelectAddressForm.fetchingFailedText": "Đã có lỗi xảy ra khi tìm các địa chỉ khả dụng",
   "SelectAddressForm.forgetAddressButtonLabel": "Loại bỏ",

@@ -62,7 +62,6 @@
   "CompletionModal.stayButtonLabel": "აქ დარჩით",
   "CompletionModal.stayDescription": "გააგრძელეთ ამ რესურსზე ვარჯიში",
   "CompletionModal.stayTitle": "დარჩით და ივარჯიშეთ",
-  "ContentCard.copies": "{ num, number} ადგილას",
   "ContentPage.documentTitle": "{ contentTitle } — { channelTitle }",
   "ContentUnavailablePage.adminLink": "არხების იმპორტი მოწყობილობაზე",
   "ContentUnavailablePage.documentTitle": "რესურსი მიუწვდომელია",

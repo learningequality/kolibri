@@ -1,0 +1,15 @@
+{
+  "ChangeUserPasswordModal.passwordChangeFormHeader": "Αλλαγή Κωδικού Πρόσβασης",
+  "ChangeUserPasswordModal.passwordChangedNotification": "Ο κωδικός σας έχει αλλάξει.",
+  "ProfileEditPage.editProfileHeader": "Επεξεργασία προφίλ",
+  "ProfilePage.changePasswordPrompt": "Αλλαγή κωδικού πρόσβασης",
+  "ProfilePage.detailsHeader": "Λεπτομέρειες",
+  "ProfilePage.documentTitle": "Προφίλ Χρήστη",
+  "ProfilePage.editAction": "Επεξεργασία",
+  "ProfilePage.isSuperuser": "Δικαιώματα υπερδιαχειριστή ",
+  "ProfilePage.limitedPermissions": "Περιορισμένα δικαιώματα",
+  "ProfilePage.manageContent": "Διαχείριση καναλιών και πηγών",
+  "ProfilePage.manageDevicePermissions": "Διαχείριση δικαιωμάτων συσκευής",
+  "ProfilePage.points": "Πόντοι",
+  "ProfilePage.youCan": "Μπορείτε:"
+}

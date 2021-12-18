@@ -55,8 +55,10 @@
             class="ui-select-display-value"
             :class="{ 'is-placeholder': !hasDisplayText }"
           >
-            {{ hasDisplayText ? displayText : (
-              hasFloatingLabel && isLabelInline) ? null : placeholder }}
+            <slot name="display">
+              {{ hasDisplayText ? displayText : (
+                hasFloatingLabel && isLabelInline) ? null : placeholder }}
+            </slot>
           </div>
 
           <UiIcon v-if="!clearableState" class="ui-select-dropdown-button">

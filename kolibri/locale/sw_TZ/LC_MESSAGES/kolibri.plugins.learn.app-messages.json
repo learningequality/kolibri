@@ -62,7 +62,6 @@
   "CompletionModal.stayButtonLabel": "Kaa hapa",
   "CompletionModal.stayDescription": "Kaa kwenye rasilimali hii ili kuendelea kufanya mazoezi",
   "CompletionModal.stayTitle": "Kaa na ufanye mazoezi",
-  "ContentCard.copies": "{ num, number} maeneo",
   "ContentPage.documentTitle": "{ contentTitle } - { channelTitle }",
   "ContentUnavailablePage.adminLink": "Ingiza vituo kwenye kifaa chako",
   "ContentUnavailablePage.documentTitle": "Rasilimali haipo",

@@ -20,8 +20,9 @@
             v-if="route"
             :text="linkText"
             :to="route"
+            class="link"
           />
-          <span v-else>
+          <span v-else class="link">
             {{ linkText }}
           </span>
         </div>
@@ -177,6 +178,10 @@
 
   .button-wrapper {
     position: relative;
+  }
+
+  .link {
+    overflow-wrap: break-word;
   }
 
   /* Fixes spacing only observed in this notification card content icon */

@@ -423,6 +423,7 @@
   "ReportErrorModal.forumPrompt": "前往社区论坛",
   "ReportErrorModal.forumUseTips": "搜索社区论坛，查看其他人是否遇到类似问题。如果找不到任何内容，请将下面的错误详细信息粘贴到新的论坛帖子中，以便我们可以在未来版本的课励彼中修正错误。",
   "ReportErrorModal.reportErrorHeader": "报告错误",
+  "SearchSideBar.overCertainNumberOfSearchResults": "超过 {num, number, integer} {num, plural, other {结果}}",
   "SelectAddressForm.deletingFailedText": "移除地址时出错",
   "SelectAddressForm.fetchingFailedText": "获取可用地址时出错",
   "SelectAddressForm.forgetAddressButtonLabel": "移除",

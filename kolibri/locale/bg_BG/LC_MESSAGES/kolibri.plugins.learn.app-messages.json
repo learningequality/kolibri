@@ -62,7 +62,6 @@
   "CompletionModal.stayButtonLabel": "Остани тук",
   "CompletionModal.stayDescription": "Остани в това съдържание и се упражнявай",
   "CompletionModal.stayTitle": "Остани и се упражнявай",
-  "ContentCard.copies": "{ num, number} местоположения",
   "ContentPage.documentTitle": "{ contentTitle } - { channelTitle }",
   "ContentUnavailablePage.adminLink": "Импортирай канали на твоето устройство",
   "ContentUnavailablePage.documentTitle": "Съдържанието е недостъпно",

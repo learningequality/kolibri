@@ -423,6 +423,7 @@
   "ReportErrorModal.forumPrompt": "Visita i forum della community",
   "ReportErrorModal.forumUseTips": "Cerca nel forum della community per vedere se altri hanno riscontrato problemi simili. Se non riesci a trovare nulla, incolla i dettagli dell'errore di seguito in un nuovo post del forum in modo da poter correggere l'errore in una versione futura di Kolibri.",
   "ReportErrorModal.reportErrorHeader": "Segnala errore",
+  "SearchSideBar.overCertainNumberOfSearchResults": "Oltre {num, number, integer} {num, plural, one {risultato} other {risultati}}",
   "SelectAddressForm.deletingFailedText": "Si è verificato un problema durante la rimozione di questo indirizzo",
   "SelectAddressForm.fetchingFailedText": "Si è verificato un problema durante il recupero degli indirizzi disponibili",
   "SelectAddressForm.forgetAddressButtonLabel": "Elimina",
