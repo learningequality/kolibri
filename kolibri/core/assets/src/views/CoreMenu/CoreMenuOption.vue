@@ -15,7 +15,7 @@
           <template v-if="icon" #icon>
             <KIcon
               :icon="icon"
-              :class="$computedClass(optionIconStyle)"
+              :style="optionIconStyle"
             />
           </template>
           <div v-if="label">{{ label }}</div>

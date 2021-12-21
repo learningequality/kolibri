@@ -2,7 +2,7 @@
 
   <form
     class="box"
-    :class="searchClasses"
+    :style="{ borderColor: $themeTokens.annotation }"
     @submit.prevent="search"
     @keydown.esc.prevent="clearSearchTerm"
   >
@@ -70,11 +70,6 @@
       };
     },
     computed: {
-      searchClasses() {
-        return this.$computedClass({
-          borderColor: this.$themeTokens.annotation,
-        });
-      },
       searchTermHasChanged() {
         return this.searchTerm !== this.$route.params.searchTerm;
       },
