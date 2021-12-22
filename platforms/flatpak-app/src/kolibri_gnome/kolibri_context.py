@@ -74,6 +74,12 @@ class KolibriContext(GObject.GObject):
             self.__webkit_web_context, self.__kolibri_daemon
         )
 
+        if not self.__kolibri_daemon.do_automatic_login:
+            cookies_filename = Path(data_dir, "cookies.sqlite")
+            website_data_manager.get_cookie_manager().set_persistent_storage(
+                cookies_filename.as_posix(), WebKit2.CookiePersistentStorage.SQLITE
+            )
+
         map_properties(
             [
                 (self.__kolibri_daemon, "has-error"),
@@ -361,8 +367,7 @@ class _KolibriSetupHelper(GObject.GObject):
         if not self.__kolibri_daemon.props.app_key_cookie:
             return
 
-        cookie_manager = self.__webkit_web_context.get_cookie_manager()
-        cookie_manager.add_cookie(
+        self.__webkit_web_context.get_cookie_manager().add_cookie(
             self.__kolibri_daemon.props.app_key_cookie,
             None,
             self.__on_app_key_cookie_ready,
