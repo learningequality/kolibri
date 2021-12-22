@@ -2,10 +2,13 @@ from __future__ import annotations
 
 import os
 
+from kolibri.dist.magicbus import ProcessBus
+from kolibri.dist.magicbus.plugins import SimplePlugin
 from kolibri_app.globals import init_kolibri
 from kolibri_app.globals import KOLIBRI_HOME_PATH
 
 from .content_extensions import ContentExtensionsList
+from .context import KolibriServiceContext
 from .context import KolibriServiceProcess
 
 # TODO: We need to use multiprocessing because Kolibri occasionally calls
@@ -69,23 +72,28 @@ class DjangoProcess(KolibriServiceProcess):
 
         self.__active_extensions.update_kolibri_environ(os.environ)
 
-        self.__kolibri_start_with_ready_cb()
+        self.__kolibri_start_process_bus()
 
-    def __kolibri_start_with_ready_cb(self):
-        from kolibri.utils.cli import start_with_ready_cb
+    def __kolibri_start_process_bus(self):
         from kolibri.utils.conf import OPTIONS
+        from kolibri.utils.server import KolibriProcessBus
 
         init_kolibri()
 
         self.__update_app_key()
         self.__update_kolibri_home()
 
+        bus = KolibriProcessBus(
+            port=OPTIONS["Deployment"]["HTTP_PORT"],
+            zip_port=OPTIONS["Deployment"]["ZIP_CONTENT_PORT"],
+            background=False,
+        )
+
+        kolibri_daemon_plugin = _KolibriDaemonPlugin(bus, self.context)
+        kolibri_daemon_plugin.subscribe()
+
         try:
-            start_with_ready_cb(
-                port=OPTIONS["Deployment"]["HTTP_PORT"],
-                background=False,
-                ready_cb=self.__kolibri_ready_cb,
-            )
+            bus.run()
         except SystemExit:
             # Kolibri sometimes calls sys.exit, but we don't want to stop this process
             raise Exception("Caught SystemExit")
@@ -98,13 +106,6 @@ class DjangoProcess(KolibriServiceProcess):
         except SystemExit:
             pass
 
-    def __kolibri_ready_cb(
-        self, urls: list, bind_addr: str = None, bind_port: int = None
-    ):
-        self.context.base_url = urls[0]
-        self.context.start_result = self.context.StartResult.SUCCESS
-        self.context.is_starting = False
-
     def __update_app_key(self):
         from kolibri.core.device.models import DeviceAppKey
 
@@ -112,3 +113,25 @@ class DjangoProcess(KolibriServiceProcess):
 
     def __update_kolibri_home(self):
         self.context.kolibri_home = KOLIBRI_HOME_PATH.as_posix()
+
+
+class _KolibriDaemonPlugin(SimplePlugin):
+    __context: KolibriServiceContext
+
+    def __init__(self, bus: ProcessBus, context: KolibriServiceContext):
+        self.bus = bus
+        self.__context = context
+
+        self.bus.subscribe("SERVING", self.SERVING)
+
+    def SERVING(self, port):
+        from kolibri.utils.server import get_urls
+
+        __, urls = get_urls(listen_port=port)
+
+        self.__context.base_url = urls[0]
+        self.__context.start_result = self.__context.StartResult.SUCCESS
+        self.__context.is_starting = False
+
+    def EXIT(self):
+        self.__context.is_stopped = True

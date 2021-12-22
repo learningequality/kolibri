@@ -1,17 +1,17 @@
-From 7d4db6489176c17477b2f12ec3e6f96b1f84fe6c Mon Sep 17 00:00:00 2001
+From cdb3ae92eba9ee22ed5b264784e2c1bf72541666 Mon Sep 17 00:00:00 2001
 From: Dylan McCall <dylan@endlessos.org>
 Date: Thu, 2 Dec 2021 15:31:30 -0800
 Subject: [PATCH] Allow superuser to be null in device provision API
 
 ---
- kolibri/core/device/serializers.py | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ kolibri/core/device/serializers.py | 20 ++++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
 
 diff --git a/kolibri/core/device/serializers.py b/kolibri/core/device/serializers.py
-index 6db1cb1a92..20b4117d4f 100644
+index 9103e49f93..c84de06979 100644
 --- a/kolibri/core/device/serializers.py
 +++ b/kolibri/core/device/serializers.py
-@@ -45,8 +45,8 @@ class DeviceSerializerMixin(object):
+@@ -40,8 +40,8 @@ class DeviceSerializerMixin(object):
  class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
      facility = FacilitySerializer()
      preset = serializers.ChoiceField(choices=choices)
@@ -22,14 +22,24 @@ index 6db1cb1a92..20b4117d4f 100644
      device_name = serializers.CharField(max_length=50, allow_null=True)
      settings = serializers.JSONField()
      allow_guest_access = serializers.BooleanField(allow_null=True)
-@@ -83,7 +83,11 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
+@@ -78,12 +78,16 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
              facility.dataset.save()
  
              # Create superuser
--            superuser = create_superuser(validated_data["superuser"], facility=facility)
+-            superuser = FacilityUser.objects.create_superuser(
+-                validated_data["superuser"]["username"],
+-                validated_data["superuser"]["password"],
+-                facility=facility,
+-                full_name=validated_data["superuser"].get("full_name"),
+-            )
 +            superuser_data = validated_data.pop("superuser")
 +            if superuser_data:
-+                superuser = create_superuser(superuser_data, facility=facility)
++                superuser = FacilityUser.objects.create_superuser(
++                    superuser_data["username"],
++                    superuser_data["password"],
++                    facility=facility,
++                    full_name=superuser_data.get("full_name"),
++                )
 +            else:
 +                superuser = None
  
