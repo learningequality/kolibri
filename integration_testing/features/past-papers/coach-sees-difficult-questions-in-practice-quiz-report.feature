@@ -16,5 +16,3 @@ Feature: Coach sees detailed information for difficult questions in practice qui
       And I click on the title of an practice quiz in the 'Reports' subtab
     When I click on the 'Difficult questions' subtab
     Then I see the correct difficult questions for most recent attempt
-
-

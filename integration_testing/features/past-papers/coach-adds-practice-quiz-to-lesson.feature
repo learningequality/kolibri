@@ -3,7 +3,7 @@ Feature: Coach adds practice quiz to a lesson
   Scenario: Coaches can add an practice quiz to a lesson resource list
     Given that I am on the lesson resource management page
     When I browse the content tree
-      And I find and select a practice quiz card checkbox 
+      And I find and select a practice quiz card checkbox
     Then I see a snackbar appear confirming my action
     When I exit the lesson resource management page
     Then I see that the practice quiz is in the lesson resource list
