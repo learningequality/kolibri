@@ -132,6 +132,8 @@ class KolibriContext(GObject.GObject):
             url.startswith(base_url + "static/")
             or url.startswith(base_url + "downloadcontent/")
             or url.startswith(base_url + "content/storage/")
+            or url.startswith(base_url + "facility/api/downloadcsvfile/")
+            or url.startswith(base_url + "api/logger/downloadcsvfile/")
         )
 
     def is_url_in_scope(self, url: str) -> bool:
