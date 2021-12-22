@@ -33,7 +33,6 @@
 
 <script>
 
-  import differenceWith from 'lodash/differenceWith';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
@@ -53,10 +52,6 @@
         type: Array,
         required: true,
       },
-      classUsers: {
-        type: Array,
-        required: true,
-      },
       pageType: {
         type: String,
         required: true,
@@ -68,10 +63,12 @@
       classId: {
         type: String,
         required: false,
+        default: '',
       },
       totalPageNumber: {
         type: Number,
         required: false,
+        default: 1,
       },
     },
     data() {

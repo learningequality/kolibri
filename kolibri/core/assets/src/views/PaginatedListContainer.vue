@@ -5,14 +5,8 @@
       <KGridItem :layout12="{ span: 7 }">
         <slot name="otherFilter"></slot>
       </KGridItem>
-      <KGridItem
-        :layout12="{ span: 5, alignment: 'right' }"
-        class="text-filter"
-      >
-        <FilterTextbox
-          v-model="filterInput"
-          :placeholder="filterPlaceholder"
-        />
+      <KGridItem :layout12="{ span: 5, alignment: 'right' }" class="text-filter">
+        <FilterTextbox v-model="filterInput" :placeholder="filterPlaceholder" />
       </KGridItem>
     </KGrid>
 
@@ -29,7 +23,6 @@
           :ariaLabel="$tr('previousResults')"
           :disabled="previousButtonDisabled"
           size="small"
-
           icon="back"
           @click="changePage(-1)"
         />
@@ -37,7 +30,6 @@
           :ariaLabel="$tr('nextResults')"
           :disabled="nextButtonDisabled"
           size="small"
-
           icon="forward"
           @click="changePage(+1)"
         />
@@ -82,14 +74,17 @@
       roleFilter: {
         type: Object,
         required: false,
+        default: null,
       },
       excludeMemberOf: {
         type: String,
         required: false,
+        default: '',
       },
       userAssignmentType: {
         type: String,
         required: false,
+        default: '',
       },
     },
     data() {
@@ -109,12 +104,6 @@
       numFilteredItems() {
         return this.totalPageNumbers;
       },
-      totalPages() {
-        return Math.ceil(this.numFilteredItems / this.itemsPerPage);
-      },
-      startRange() {
-        return (this.currentPage - 1) * this.itemsPerPage;
-      },
       visibleStartRange() {
         return this.currentPageNumber;
       },
@@ -123,9 +112,6 @@
       },
       visibleEndRange() {
         return Math.min(this.endRange, this.numFilteredItems);
-      },
-      visibleFilteredItems() {
-        return this.filteredItems.slice(this.startRange, this.endRange);
       },
       previousButtonDisabled() {
         return this.currentPageNumber === 1 || this.numFilteredItems === 0;
@@ -195,10 +181,7 @@
         context: 'Text which indicates the next page of results when a user makes a search query.',
       },
       pagination: {
-        message:
-          //   '{ visibleStartRange, number } - { visibleEndRange, number } of { numFilteredItems, number }',
-          // context: "Refers to pagination. Only translate the word \"of''.",
-          'Page { visibleStartRange, number } of { numFilteredItems, number }',
+        message: 'Page { visibleStartRange, number } of { numFilteredItems, number }',
         context: "Refers to pagination. Only translate the word \"of''.",
       },
     },

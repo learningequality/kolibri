@@ -9,7 +9,7 @@ from django.db.models import Sum
 from django.db.utils import OperationalError
 from django.shortcuts import get_object_or_404
 from le_utils.constants import content_kinds
-from rest_framework import pagination, permissions
+from rest_framework import permissions
 from rest_framework import viewsets
 from rest_framework.response import Response
 
@@ -18,8 +18,8 @@ from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.models import AdHocGroup
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.content.api import OptionalPageNumberPagination  # added
 from kolibri.core.content.models import ContentNode
-from kolibri.core.content.api import OptionalPageNumberPagination #added
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger import models as logger_models
