@@ -16,7 +16,7 @@ Feature: Learner engages with an assigned quiz
     Then I see the quiz is marked as *Completed*
 
   Scenario: Resume a paused quiz
-    When I click to select a previously started quiz with the label *Started*
+    When I click to select a previously started quiz with the label *In progress*
     Then I see all quiz questions
     When I answer the remaining questions
     When I click *Submit quiz* button
