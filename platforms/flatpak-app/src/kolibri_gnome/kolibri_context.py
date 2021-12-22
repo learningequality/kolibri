@@ -426,11 +426,6 @@ class KolibriChannelContext(KolibriContext):
             url_tuple.path,
         ):
             return True
-        elif re.match(
-            r"^\/(?P<lang>[\w\-]+\/)?\/app\/api\/initialize\/?",
-            url_tuple.path,
-        ):
-            return True
         elif re.match(r"^\/(?P<lang>[\w\-]+\/)?learn\/?", url_tuple.path):
             return self.__is_learn_fragment_in_channel(url_tuple.fragment)
         else:
