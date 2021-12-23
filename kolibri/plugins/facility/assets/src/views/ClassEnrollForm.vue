@@ -78,7 +78,6 @@
     },
     computed: {
       usersNotInClass() {
-        // return differenceWith(this.facilityUsers, this.classUsers, (a, b) => a.id === b.id);
         return this.facilityUsers;
       },
       excludeMemberOf() {

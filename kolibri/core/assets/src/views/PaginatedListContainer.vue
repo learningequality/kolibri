@@ -5,7 +5,10 @@
       <KGridItem :layout12="{ span: 7 }">
         <slot name="otherFilter"></slot>
       </KGridItem>
-      <KGridItem :layout12="{ span: 5, alignment: 'right' }" class="text-filter">
+      <KGridItem
+        :layout12="{ span: 5, alignment: 'right' }"
+        class="text-filter"
+      >
         <FilterTextbox v-model="filterInput" :placeholder="filterPlaceholder" />
       </KGridItem>
     </KGrid>
@@ -42,6 +45,7 @@
 
 <script>
 
+  import clamp from 'lodash/clamp';
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
   import { FacilityUserResource } from 'kolibri.resources';
   import store from 'kolibri.coreVue.vuex.store';
@@ -166,7 +170,7 @@
         );
       },
       changePage(change) {
-        this.currentPageNumber += change;
+        this.currentPageNumber = clamp(this.currentPageNumber + change, 1, this.totalPageNumbers);
         this.get_users();
       },
     },

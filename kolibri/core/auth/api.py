@@ -29,7 +29,7 @@ from django.utils.decorators import method_decorator
 from django.utils.timezone import now
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django_filters.rest_framework import CharFilter
-from django_filters.rest_framework import ChoiceFilter  # added
+from django_filters.rest_framework import ChoiceFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
 from django_filters.rest_framework import ModelChoiceFilter
@@ -76,11 +76,11 @@ from kolibri.core.mixins import BulkCreateMixin
 from kolibri.core.mixins import BulkDeleteMixin
 from kolibri.core.query import annotate_array_aggregate
 from kolibri.core.query import SQCount
-from kolibri.core.utils.pagination import ValuesViewsetPageNumberPagination  # added
+from kolibri.core.utils.pagination import ValuesViewsetPageNumberPagination
 from kolibri.plugins.app.utils import interface
 
 
-class OptionalPageNumberPagination(ValuesViewsetPageNumberPagination):  # added
+class OptionalPageNumberPagination(ValuesViewsetPageNumberPagination):
     """
     Pagination class that allows for page number-style pagination, when requested.
     To activate, the `page_size` argument must be set. For example, to request the first 20 records:
@@ -289,7 +289,7 @@ class PublicFacilityUserViewSet(ReadOnlyValuesViewset):
 
 class FacilityUserViewSet(ValuesViewset):
     permission_classes = (KolibriAuthPermissions,)
-    pagination_class = OptionalPageNumberPagination  # added
+    pagination_class = OptionalPageNumberPagination
     filter_backends = (
         KolibriAuthPermissionsFilter,
         DjangoFilterBackend,

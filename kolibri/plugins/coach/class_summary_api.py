@@ -351,22 +351,6 @@ class ClassSummaryViewSet(viewsets.ViewSet):
             lesson["node_ids"] = node_ids
 
         learners_data = serialize_users(query_learners)
-        # learners_data = {
-        #     "results":[]
-        # }
-        # print(request.query_params)
-        # #added
-        # paginate = OptionalPageNumberPagination()
-        # page = paginate.paginate_queryset(query_learners ,  request)
-        # if page is not None:
-        #     serializer = serialize_users(page)
-        #     paginated_data = {
-        #         "page": paginate.page.number,
-        #         "count": paginate.page.paginator.count,
-        #         "total_pages": paginate.page.paginator.num_pages,
-        #         "results": serializer,
-        #     }
-        #     learners_data = paginated_data
 
         output = {
             "id": pk,
