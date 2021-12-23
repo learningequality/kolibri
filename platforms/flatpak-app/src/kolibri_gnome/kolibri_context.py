@@ -28,7 +28,7 @@ class KolibriContext(GObject.GObject):
     """
     Keeps track of global context related to accessing Kolibri over HTTP. A
     single KolibriContext object is shared between all Application,
-    KolibriWindow, and KolbriWebView objects. Generates a WebKit2.WebContext
+    KolibriWindow, and KolibriWebView objects. Generates a WebKit2.WebContext
     with the appropriate cookies to enable Kolibri's app mode and to log in as
     the correct user. Use the session-status property or kolibri-ready signal to
     determine whether Kolibri is ready to use.
@@ -54,10 +54,15 @@ class KolibriContext(GObject.GObject):
 
         cache_dir = Path(GLib.get_user_cache_dir(), FRONTEND_APPLICATION_ID)
         data_dir = Path(GLib.get_user_data_dir(), FRONTEND_APPLICATION_ID)
+        cookies_filename = Path(data_dir, "cookies.sqlite")
 
         website_data_manager = WebKit2.WebsiteDataManager(
             base_cache_directory=cache_dir.as_posix(),
             base_data_directory=data_dir.as_posix(),
+        )
+
+        website_data_manager.get_cookie_manager().set_persistent_storage(
+            cookies_filename.as_posix(), WebKit2.CookiePersistentStorage.SQLITE
         )
 
         loader_path = get_localized_file(
@@ -73,12 +78,6 @@ class KolibriContext(GObject.GObject):
         self.__setup_helper = _KolibriSetupHelper(
             self.__webkit_web_context, self.__kolibri_daemon
         )
-
-        if not self.__kolibri_daemon.do_automatic_login:
-            cookies_filename = Path(data_dir, "cookies.sqlite")
-            website_data_manager.get_cookie_manager().set_persistent_storage(
-                cookies_filename.as_posix(), WebKit2.CookiePersistentStorage.SQLITE
-            )
 
         map_properties(
             [
@@ -352,6 +351,7 @@ class _KolibriSetupHelper(GObject.GObject):
         self, kolibri_daemon: KolibriDaemonManager, login_token: typing.Optional[str]
     ):
         self.props.login_token = login_token
+
         if login_token is None:
             # If we are unable to get a login token, pretend the session cookie
             # is ready so the app will proceed as usual. This should only happen
