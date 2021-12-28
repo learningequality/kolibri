@@ -203,6 +203,10 @@
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
     props: {
+      hideSubmitModal: {
+        type: Boolean,
+        default: false,
+      },
       content: {
         type: Object,
         required: true,
@@ -335,6 +339,12 @@
       },
     },
     watch: {
+      hideSubmitModal(newVal, oldVal) {
+        if (newVal === true) {
+          this.submitModalOpen = false;
+        }
+        console.log(oldVal);
+      },
       itemId(newVal, oldVal) {
         // HACK: manually dismiss the perseus renderer message when moving
         // to a different item (fixes #3853)
