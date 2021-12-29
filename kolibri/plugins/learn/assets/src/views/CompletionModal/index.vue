@@ -384,6 +384,12 @@
         if ($coreSnackbar && $coreSnackbar.contains(target)) {
           return;
         }
+        // If there is an open KModal, the base case allows us to avoid
+        // the infinite recursion caused by trying to focus trap the KModal
+        const $coreModal = document.getElementById('modal-window');
+        if ($coreModal && $coreModal.contains(target)) {
+          return;
+        }
         // focus has escaped the modal - put it back!
         if (!this.$refs.modal.contains(target)) {
           this.focusModal();
