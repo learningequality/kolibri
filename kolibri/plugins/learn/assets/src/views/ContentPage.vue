@@ -38,7 +38,6 @@
         :mastered="complete"
         :masteryLevel="masteryLevel"
         :updateContentSession="wrappedUpdateContentSession"
-        :hideSubmitModal="progress >= 1 && wasIncomplete"
         @startTracking="startTracking"
         @stopTracking="stopTracking"
         @updateInteraction="updateInteraction"
