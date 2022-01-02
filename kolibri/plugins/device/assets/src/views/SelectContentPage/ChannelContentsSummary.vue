@@ -12,7 +12,7 @@
           {{ $tr('unlistedChannelTooltip') }}
         </KTooltip>
         <h1>
-          <KLabeledIcon icon="channel" :label="channel.name">
+          <KLabeledIcon icon="channel">
             <template #iconAfter>
               <KIcon
                 v-if="channel.public === false"
@@ -20,6 +20,7 @@
                 icon="unlistedchannel"
               />
             </template>
+            <TextTruncatorCss :text="channel.name" />
           </KLabeledIcon>
         </h1>
       </div>
@@ -74,11 +75,15 @@
 
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import DeviceInfoPage from '../DeviceInfoPage.vue';
 
   export default {
     name: 'ChannelContentsSummary',
+    components: {
+      TextTruncatorCss,
+    },
     mixins: [commonCoreStrings],
     props: {
       channel: {
@@ -151,11 +156,6 @@
 
 
 <style lang="scss" scoped>
-
-  .labeled-icon-wrapper {
-    width: auto;
-    white-space: nowrap;
-  }
 
   .channel-header {
     margin-top: 16px;
