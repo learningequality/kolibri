@@ -26,10 +26,18 @@
       </div>
 
       <KFixedGrid numCols="4">
-        <KFixedGridItem span="1" class="version">
-          <p>{{ $tr('version', { version: versionNumber }) }}</p>
+        <KFixedGridItem
+          :span="windowIsSmall ? 4 : 1"
+          class="version"
+        >
+          <p :style="[windowIsSmall ? { marginBottom: 0 } : {}]">
+            {{ $tr('version', { version: versionNumber }) }}
+          </p>
         </KFixedGridItem>
-        <KFixedGridItem span="3" alignment="right">
+        <KFixedGridItem
+          :span="windowIsSmall ? 4 : 3"
+          :alignment="windowIsSmall ? 'left' : 'right'"
+        >
           <p><slot></slot></p>
         </KFixedGridItem>
       </KFixedGrid>
@@ -77,6 +85,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
+  import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
   import DeviceInfoPage from '../DeviceInfoPage.vue';
 
   export default {
@@ -84,7 +93,7 @@
     components: {
       TextTruncatorCss,
     },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, KResponsiveWindowMixin],
     props: {
       channel: {
         type: Object,
