@@ -3,18 +3,13 @@
     "buildsystem": "simple",
     "build-commands": [
         "pip3 install --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} kolibri",
-        "patch -d /app/lib/python3.8/site-packages/kolibri -p2 < 0001-Get-port-number-for-zeroconf-from-cherrypy.server.patch",
         "patch -d /app/lib/python3.8/site-packages/kolibri -p2 < 0001-Allow-superuser-to-be-null-in-device-provision-API.patch"
     ],
     "sources": [
         {
             "type": "file",
-            "url": "https://files.pythonhosted.org/packages/6b/62/a1767e2941c7355a5d0492747cf0640b2f371428bfb0189a6d77814fe30f/kolibri-0.14.7-py2.py3-none-any.whl",
-            "sha256": "50e77473e55fe03fc886b805b942922754155cc94e969ccc5aef176fab2693f3"
-        },
-        {
-            "type": "file",
-            "path": "0001-Get-port-number-for-zeroconf-from-cherrypy.server.patch"
+            "url": "https://files.pythonhosted.org/packages/fa/bc/09466e65258d0efd83446ad317d0b64cfe0705ed5dd0d0dfddc1760aab9a/kolibri-0.15.0-py2.py3-none-any.whl",
+            "sha256": "d9ecffd66aa8749cf51e2cccc97bf7915aedcebfe04f69dc7bc9175f6c4c141a"
         },
         {
             "type": "file",
