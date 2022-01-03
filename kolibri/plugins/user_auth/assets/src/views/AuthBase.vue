@@ -20,7 +20,7 @@
             <h1
               v-if="themeConfig.signIn.showTitle"
               class="kolibri-title"
-              :style="[ themeConfig.signIn.titleStyle, { color: $themeBrand.primary.v_300 }]"
+              :style="[ { color: $themeBrand.primary.v_300 }, themeConfig.signIn.titleStyle]"
             >
               {{ logoText }}
             </h1>
@@ -41,7 +41,7 @@
             <h1
               v-if="themeConfig.signIn.showTitle"
               class="kolibri-title"
-              :style="[ themeConfig.signIn.titleStyle, { color: $themeBrand.primary.v_300 }]"
+              :style="[ { color: $themeBrand.primary.v_300 }, themeConfig.signIn.titleStyle]"
             >
               {{ logoText }}
             </h1>
