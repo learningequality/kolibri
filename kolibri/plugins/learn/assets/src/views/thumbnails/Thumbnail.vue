@@ -4,9 +4,7 @@
     class="thumbnail"
     :style="thumbnailStyles"
   >
-    <span
-      class="icon"
-    >
+    <span class="icon">
       <slot name="icon"></slot>
     </span>
 
