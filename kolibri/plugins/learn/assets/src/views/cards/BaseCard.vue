@@ -38,7 +38,7 @@
 
     <div
       class="progress"
-      :class="themeClasses.progress"
+      :style="{ color: $themeTokens.annotation }"
     >
       <slot name="progress">
         <KLabeledIcon
@@ -110,16 +110,6 @@
         type: String,
         required: false,
         default: '',
-      },
-    },
-    computed: {
-      themeClasses() {
-        const { annotation } = this.$themeTokens;
-        return {
-          progress: this.$computedClass({
-            color: annotation,
-          }),
-        };
       },
     },
   };

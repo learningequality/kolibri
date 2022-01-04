@@ -2,7 +2,7 @@
 
   <span
     class="thumbnail"
-    :class="thumbnailComputedClass"
+    :style="thumbnailStyles"
   >
     <span class="icon">
       <slot name="icon"></slot>
@@ -48,7 +48,7 @@
       },
     },
     computed: {
-      thumbnailComputedClass() {
+      thumbnailStyles() {
         const styles = {
           backgroundColor: this.$themePalette.grey.v_200,
         };
@@ -56,7 +56,7 @@
           styles.borderRadius = '4px';
           styles.overflow = 'hidden';
         }
-        return this.$computedClass(styles);
+        return styles;
       },
     },
   };
