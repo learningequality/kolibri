@@ -379,9 +379,6 @@ export default function useProgressTracking(store) {
         Math.min(threeDecimalPlaceRoundup(get(progress_state) + progressDelta), 1)
       );
     }
-    if (get(progress_state) >= 1) {
-      set(complete, true);
-    }
     if (!isUndefined(contentState)) {
       if (!isPlainObject(contentState)) {
         throw TypeError('contentState must be an object');

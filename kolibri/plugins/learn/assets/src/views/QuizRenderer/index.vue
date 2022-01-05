@@ -372,6 +372,9 @@
 
         if (close) {
           data.progress = 1;
+          data.force = true;
+          data.immediate = true;
+          this.submitting = true;
         } else {
           // We don't set progress to 1 until the quiz is submitted, so we max out here.
           // If any interaction has happened, we set a peppercorn progress so that it shows
@@ -383,9 +386,6 @@
               0.99
             )
           );
-        }
-        if (close) {
-          this.submitting = true;
         }
         return this.updateContentSession(data).then(() => {
           if (close) {
