@@ -5,11 +5,10 @@
       v-if="languageOptionsList.length"
       :options="languageOptionsList"
       :disabled="!langId && enabledLanguageOptions.length < 2"
-      class="selector"
       :clearable="true"
       :value="selectedLanguage"
       :label="coreString('languageLabel')"
-      :style="{ color: $themeTokens.text }"
+      :style="selectorStyle"
       @change="val => handleChange('languages', val)"
     />
     <KSelect
@@ -20,7 +19,7 @@
       :clearable="true"
       :value="selectedLevel"
       :label="coreString('levelLabel')"
-      :style="{ color: $themeTokens.text }"
+      :style="selectorStyle"
       @change="val => handleChange('grade_levels', val)"
     />
     <KSelect
@@ -31,7 +30,7 @@
       :clearable="true"
       :value="selectedChannel"
       :label="coreString('channelLabel')"
-      :style="{ color: $themeTokens.text }"
+      :style="selectorStyle"
       @change="val => handleChange('channels', val)"
     />
     <KSelect
@@ -42,7 +41,7 @@
       :clearable="true"
       :value="selectedAccessibilityFilter"
       :label="coreString('accessibility')"
-      :style="{ color: $themeTokens.text }"
+      :style="selectorStyle"
       @change="val => handleChange('accessibility_labels', val)"
     />
   </div>
@@ -92,6 +91,15 @@
       },
     },
     computed: {
+      selectorStyle() {
+        return {
+          color: this.$themeTokens.text,
+          backgroundColor: this.$themePalette.grey.v_200,
+          height: '52px',
+          paddingTop: '10px',
+          borderRadius: '2px',
+        };
+      },
       languageOptionsList() {
         return plugin_data.languages.map(language => {
           return {
@@ -232,15 +240,9 @@
     padding-left: 20px;
     font-size: 14px;
   }
-  .selector {
-    height: 52px !important;
-    padding-top: 10px;
-    background-color: rgba(189, 189, 189, 0.25);
-    border-radius: 2px;
 
-    /deep/ .ui-icon {
-      margin-right: 10px;
-    }
+  /deep/ .ui-icon {
+    margin-right: 10px;
   }
 
 </style>
