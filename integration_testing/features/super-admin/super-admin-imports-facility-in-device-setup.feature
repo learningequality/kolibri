@@ -17,10 +17,10 @@ Feature: Super admin imports facility in device setup
     Then I see *Select network address*
       And I see a list of devices in my network
 
-  Scenario: Import facility from a device with multiple facilities #valid also when importing a facility from a 0.14.x device to a 0.15.x device
+  Scenario: Import facility from a device with multiple facilities
     Given I am at *Select network address* modal
       And I select a device
-      And that device has more than one facilities loaded
+      And that device has more than one facility loaded
     When I click *Continue*
     Then I see *Import facility - 1 of 4*
     	And I see *Select facility*
@@ -41,7 +41,53 @@ Feature: Super admin imports facility in device setup
     When I click *Continue*
     Then I see *Import facility - 3 of 4*
 
-  Scenario: Import facility from a device with only one facility #valid also when importing a facility from a 0.14.x device to a 0.15.x device
+  Scenario: Import facility from a device with only one facility
+    Given I am on *Select network address* modal
+      And I select a device
+      And that device has only one facility loaded
+    When I click *Continue*
+    Then I see *Import facility - 1 of 4*
+      And I see *Import facility*
+      And I see the name of the device from which I am importing
+      And I see the network address of that device
+      And I see *Enter the username and password for a facility admin or a super admin of '<device>'*
+    When I enter the username and password of a facility admin or super admin
+      And I click *Continue*
+    Then I see *Import facility - 2 of 4*
+    	And I see *Loading '<facility>'*
+      And I see loading status bar
+    When the facility has finished loading
+    Then I see the status *Finished*
+      And I see a green check icon
+      And I see *'<facility>' successfully loaded to this device*
+    When I click *Continue*
+    Then I see *Import facility - 3 of 4*
+
+    Scenario: Import facility from a 0.14.x device with multiple facilities to a 0.15.x device
+    Given I am at *Select network address* modal
+      And I select a device
+      And that device has more than one facility loaded
+    When I click *Continue*
+    Then I see *Import facility - 1 of 4*
+    	And I see *Select facility*
+      And I see the name of the device from which I am importing
+      And I see the network address of that device
+      And I see a list of facilities on that device
+    When I select a facility
+    Then I see *Enter the username and password for a facility admin of <facility> or a super admin of <device>
+    When I enter the username and password of a facility admin or super admin
+      And I click *Continue*
+    Then I see *Import facility - 2 of 4*
+    	And I see *Loading '<facility>'*
+      And I see loading status bar
+    When the facility has finished loading
+    Then I see the status *Finished*
+      And I see a green check icon
+      And I see *'<facility>' successfully loaded to this device*
+    When I click *Continue*
+    Then I see *Import facility - 3 of 4*
+
+  Scenario: Import facility from a a 0.14.x device with only one facility
     Given I am on *Select network address* modal
       And I select a device
       And that device has only one facility loaded
