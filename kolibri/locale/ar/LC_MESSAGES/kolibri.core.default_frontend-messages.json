@@ -423,6 +423,7 @@
   "ReportErrorModal.forumPrompt": "زيارة المنتديات الحوارية",
   "ReportErrorModal.forumUseTips": "ابحث عن مشكلتك في المنتديات الحوارية لمعرفة إذا كان قد واجه آخرون قضايا مماثلة. إذا لم تعثر على إجابة مرضية، أَرفِق تفاصيل الخطأ أدناه بإضافة منشور جديد على المنتدى حتى يتمكن لنا من تصحيح الخطأ في النسخة الجديدة من كوليبري.",
   "ReportErrorModal.reportErrorHeader": "الإبلاغ عن مشكلة",
+  "SearchSideBar.overCertainNumberOfSearchResults": "أكثر من {num, number, integer} {num, plural, zero {} one {نتيجة} two {نتيجتين} few {نتائج} many {نتيجة} other {نتائج}}",
   "SelectAddressForm.deletingFailedText": "هناك مشكلة في حفظ هذا الدرس",
   "SelectAddressForm.fetchingFailedText": "هناك مشكلة في الوصول إلى عناوين الشبكات المتوفرة",
   "SelectAddressForm.forgetAddressButtonLabel": "إزالة",

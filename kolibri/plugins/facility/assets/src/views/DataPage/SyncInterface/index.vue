@@ -204,6 +204,7 @@
       },
       handleConfirmationSuccess(payload) {
         this.$store.commit('manageCSV/SET_REGISTERED', payload);
+        this.theFacility.dataset.registered = true;
         this.closeModal();
       },
       handleSyncFacilitySuccess(taskId) {

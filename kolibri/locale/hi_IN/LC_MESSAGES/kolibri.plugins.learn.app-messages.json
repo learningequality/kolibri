@@ -62,7 +62,6 @@
   "CompletionModal.stayButtonLabel": "यहाँ रुकें",
   "CompletionModal.stayDescription": "अभ्यास करते रहने के लिए इस संसाधन पर बने रहें",
   "CompletionModal.stayTitle": "यहाँ रुके और अभ्यास करें",
-  "ContentCard.copies": "{ num, number} स्थान",
   "ContentPage.documentTitle": "{ contentTitle } - { channelTitle }",
   "ContentUnavailablePage.adminLink": "अपने उपकरण पर चैनल आयात करें",
   "ContentUnavailablePage.documentTitle": "संसाधन उपलब्ध नहीं है",

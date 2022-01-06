@@ -423,6 +423,7 @@
   "ReportErrorModal.forumPrompt": "Visitez les forums de la communauté",
   "ReportErrorModal.forumUseTips": "Recherche sur le forum de la communauté pour voir si d’autres rencontrent des problèmes similaires. S’il est impossible de trouver quoi que ce soit, indiquez ci-dessous les détails de l’erreur dans un nouveau post sur le forum afin que nous puissions corriger l’erreur dans une future version de Kolibri.",
   "ReportErrorModal.reportErrorHeader": "Signaler une erreur",
+  "SearchSideBar.overCertainNumberOfSearchResults": "Parmi {num, number, integer} {num, plural, one {résultat} other {résultats}}",
   "SelectAddressForm.deletingFailedText": "Un problème est survenu lors de la suppression de l'adresse",
   "SelectAddressForm.fetchingFailedText": "Un problème est survenu lors de la récupération des adresses",
   "SelectAddressForm.forgetAddressButtonLabel": "Supprimer",

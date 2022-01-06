@@ -50,10 +50,10 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import ContentNodeThumbnail from '../../thumbnails/ContentNodeThumbnail';
-  import ProgressBar from '../../ProgressBar';
-  import BaseCard from '../BaseCard';
-  import LearningActivityLabel from './LearningActivityLabel';
+  import ContentNodeThumbnail from '../thumbnails/ContentNodeThumbnail';
+  import ProgressBar from '../ProgressBar';
+  import LearningActivityLabel from '../LearningActivityLabel';
+  import BaseCard from './BaseCard';
 
   export default {
     name: 'ResourceCard',
@@ -96,6 +96,7 @@
 
   .copies {
     float: right;
+    padding-top: 4px;
   }
 
   .resource-card-outer {

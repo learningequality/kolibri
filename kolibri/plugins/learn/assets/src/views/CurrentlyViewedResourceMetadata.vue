@@ -2,14 +2,6 @@
 
   <section v-if="content" class="metadata">
 
-    <div class="chips section">
-      <div v-for="activity in content.learning_activities" :key="activity">
-        <LearningActivityChip
-          :kind="activity"
-        />
-      </div>
-    </div>
-
     <div>
       <span
         v-if="forBeginners"
@@ -157,7 +149,6 @@
     licenseDescriptionForConsumer,
   } from 'kolibri.utils.licenseTranslations';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
-  import LearningActivityChip from './LearningActivityChip';
   import ContentNodeThumbnail from './thumbnails/ContentNodeThumbnail';
   import SidePanelResourceMetadata from './SidePanelResourceMetadata';
 
@@ -165,7 +156,6 @@
     name: 'CurrentlyViewedResourceMetadata',
     components: {
       DownloadButton,
-      LearningActivityChip,
       ContentNodeThumbnail,
       TimeDuration,
     },
@@ -312,15 +302,6 @@
     &.title {
       font-size: 1.25em;
       font-weight: bold;
-    }
-
-    &.chips {
-      display: flex;
-      flex-wrap: wrap;
-      max-width: 426px;
-      // Ensures space on line w/ closing X icon whether
-      // chips are visible or not
-      min-height: 40px;
     }
 
     .label {

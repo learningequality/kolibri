@@ -423,6 +423,7 @@
   "ReportErrorModal.forumPrompt": "Visitar os community forums",
   "ReportErrorModal.forumUseTips": "Visite nosso 'community forum' para ver se outras pessoas reportaram problemas semelhantes. Se não encontrar nada, por favor, copie e cole os detalhes do erro abaixo numa nova postagem para que possamos corrigir o erro o mais rapidamente possível. Obrigado.",
   "ReportErrorModal.reportErrorHeader": "Relatar erro",
+  "SearchSideBar.overCertainNumberOfSearchResults": "Mais de {num, number, integer} {num, plural, one {resultado} other {resultados}}",
   "SelectAddressForm.deletingFailedText": "Houve um problema ao remover este endereço",
   "SelectAddressForm.fetchingFailedText": "Houve um problema ao obter os endereços disponíveis",
   "SelectAddressForm.forgetAddressButtonLabel": "Remover",

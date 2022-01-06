@@ -4,7 +4,6 @@
     <h3
       id="answer-history-label"
       class="header"
-      :class="windowIsLargeClass"
     >
       {{ $tr('answerHistoryLabel') }}
     </h3>
@@ -17,13 +16,19 @@
       :options="options"
       :disabled="$attrs.disabled"
       @change="handleDropdownChange($event.value)"
-    />
+    >
+      <template #display>
+        <AttemptLogItem :attemptLog="attemptLogs[selectedQuestionNumber]" displayTag="span" />
+      </template>
+      <template #option="{ index }">
+        <AttemptLogItem :attemptLog="attemptLogs[index]" displayTag="span" />
+      </template>
+    </KSelect>
 
     <ul
       v-else
       ref="attemptList"
       class="history-list"
-      :class="isMobile ? 'mobile-list' : ''"
       role="listbox"
       @keydown.home="setSelectedAttemptLog(0)"
       @keydown.end="setSelectedAttemptLog(attemptLogs.length - 1)"
@@ -44,65 +49,13 @@
             ref="attemptListOption"
             role="option"
             class="attempt-item-anchor"
-            :class="windowIsLargeClass"
             :aria-selected="isSelected(index).toString()"
             :tabindex="isSelected(index) ? 0 : -1"
             @click.prevent="setSelectedAttemptLog(index)"
             @keydown.enter="setSelectedAttemptLog(index)"
             @keydown.space.prevent="setSelectedAttemptLog(index)"
           >
-            <p class="item text-item" :class="windowIsLargeClass">
-              {{
-                coreString(
-                  'questionNumberLabel',
-                  { questionNumber: attemptLog.questionNumber }
-                )
-              }}
-            </p>
-            <span class="icon-item item" :class="windowIsLargeClass">
-              <AttemptIconDiff
-                v-if="attemptLog.diff && attemptLog.diff.correct !== null"
-                class="diff-item item"
-                :correct="attemptLog.correct"
-                :diff="attemptLog.diff.correct"
-              />
-              <KIcon
-                v-if="attemptLog.noattempt"
-                class="item svg-item"
-                icon="notStarted"
-              />
-              <KIcon
-                v-else-if="attemptLog.correct"
-                class="item svg-item"
-                :style="{ fill: $themeTokens.correct }"
-                icon="correct"
-              />
-              <KIcon
-                v-else-if="attemptLog.error"
-                class="svg-item"
-                :style=" { fill: $themeTokens.annotation }"
-                icon="helpNeeded"
-              />
-              <KIcon
-                v-else-if="!attemptLog.correct"
-                class="item svg-item"
-                :style="{ fill: $themeTokens.incorrect }"
-                icon="incorrect"
-              />
-              <KIcon
-                v-else-if="attemptLog.hinted"
-                class="item svg-item"
-                :style=" { fill: $themeTokens.annotation }"
-                icon="hint"
-              />
-            </span>
-
-            <CoachContentLabel
-              v-if="windowIsLarge"
-              class="coach-content-label"
-              :value="attemptLog.num_coach_contents || 0"
-              :isTopic="false"
-            />
+            <AttemptLogItem :attemptLog="attemptLog" displayTag="p" />
           </a>
         </li>
       </template>
@@ -115,15 +68,13 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import AttemptIconDiff from './ExamReport/AttemptIconDiff';
+  import AttemptLogItem from './AttemptLogItem';
 
   export default {
     name: 'AttemptLogList',
     components: {
-      CoachContentLabel,
-      AttemptIconDiff,
+      AttemptLogItem,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
     props: {
@@ -141,9 +92,6 @@
       },
     },
     computed: {
-      windowIsLargeClass() {
-        return { 'window-is-large': this.windowIsLarge };
-      },
       selected() {
         return this.options.find(o => o.value === this.selectedQuestionNumber + 1) || {};
       },
@@ -181,7 +129,11 @@
       },
       scrollToSelectedAttemptLog(questionNumber) {
         let selectedElement;
-        if (this.$refs.attemptListOption && this.$refs.attemptList.children) {
+        if (
+          this.$refs.attemptListOption &&
+          this.$refs.attemptList &&
+          this.$refs.attemptList.children
+        ) {
           selectedElement = this.$refs.attemptList.children[questionNumber];
         }
         if (selectedElement) {
@@ -211,30 +163,19 @@
 
 <style lang="scss" scoped>
 
-  .coach-content-label {
-    display: inline-block;
-    width: auto; // keeps on same line as question
-    margin-top: -4px;
-    margin-left: 8px;
-    vertical-align: middle;
-  }
-
   .header {
     padding-top: 10px;
     padding-bottom: 10px;
     padding-left: 16px;
     margin: 0;
-
-    &:not(.window-is-large) {
-      padding: 0;
-      text-align: center;
-    }
   }
 
   .history-list {
     max-height: inherit;
+    padding-right: 0;
     padding-left: 0;
     margin: 0;
+    text-align: justify;
     list-style-type: none;
   }
 
@@ -242,30 +183,6 @@
     max-width: 90%;
     padding-top: 16px;
     margin: auto;
-  }
-
-  .item {
-    display: inline-block;
-    height: 24px;
-  }
-
-  .text-item.window-is-large {
-    width: calc(100% - 50px);
-  }
-
-  .icon-item.window-is-large {
-    width: 50px;
-    text-align: right;
-  }
-
-  .svg-item {
-    margin: 0 0 -4px;
-    font-size: 24px;
-  }
-
-  .diff-item {
-    margin: 0 0 -4px;
-    font-size: 16px;
   }
 
   .attempt-item {
@@ -276,16 +193,9 @@
 
   .attempt-item-anchor {
     display: block;
+    padding-right: 1vw;
+    padding-left: 1vw;
     cursor: pointer;
-
-    &.window-is-large {
-      padding: 0 16px;
-    }
-
-    &:not(.window-is-large) {
-      padding: 0;
-      text-align: center;
-    }
   }
 
 </style>

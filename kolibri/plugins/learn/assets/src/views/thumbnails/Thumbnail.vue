@@ -18,6 +18,7 @@
       :src="thumbnailUrl"
       alt=""
     >
+    <slot name="labels"></slot>
   </span>
 
 </template>

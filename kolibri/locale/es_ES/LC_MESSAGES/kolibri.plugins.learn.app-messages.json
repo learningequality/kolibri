@@ -62,7 +62,6 @@
   "CompletionModal.stayButtonLabel": "Quédate aquí",
   "CompletionModal.stayDescription": "Continua practicando con este material",
   "CompletionModal.stayTitle": "Quédate y practica más",
-  "ContentCard.copies": "{ num, number} ubicaciones",
   "ContentPage.documentTitle": "{ contentTitle } - { channelTitle }",
   "ContentUnavailablePage.adminLink": "Importar canales a tu dispositivo",
   "ContentUnavailablePage.documentTitle": "Material no disponible",

@@ -8,7 +8,7 @@
       <div v-if="!windowIsLarge">
         <KButton
           icon="filter"
-          :text="coreString('searchLabel')"
+          :text="translator.$tr('filter')"
           :primary="false"
           @click="toggleSidePanelVisibility"
         />
@@ -51,6 +51,7 @@
           :numCols="numCols"
           :genContentLink="genContentLink"
           :contents="trimmedResume"
+          :footerIcons="footerIcons"
           :currentPage="currentPage"
           @toggleInfoPanel="toggleInfoPanel"
         />
@@ -205,7 +206,27 @@
       alignment="right"
       @closePanel="sidePanelContent = null"
     >
-      <BrowseResourceMetadata :content="sidePanelContent" :canDownloadContent="true" />
+      <template #header>
+        <!-- Flex styles tested in ie11 and look good. Ensures good spacing between
+            multiple chips - not a common thing but just in case -->
+        <div
+          v-for="activity in sidePanelContent.learning_activities"
+          :key="activity"
+          class="side-panel-chips"
+          :class="$computedClass({ '::after': {
+            content: '',
+            flex: 'auto'
+          } })"
+        >
+          <LearningActivityChip
+            class="chip"
+            style="margin-left: 8px; margin-bottom: 8px;"
+            :kind="activity"
+          />
+        </div>
+      </template>
+
+      <BrowseResourceMetadata :content="sidePanelContent" :showLocationsInChannel="true" />
     </FullScreenSidePanel>
   </div>
 
@@ -219,6 +240,8 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import FullScreenSidePanel from 'kolibri.coreVue.components.FullScreenSidePanel';
+  import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import genContentLink from '../utils/genContentLink';
   import { PageNames } from '../constants';
   import useSearch from '../composables/useSearch';
@@ -226,6 +249,7 @@
   import BrowseResourceMetadata from './BrowseResourceMetadata';
   import commonLearnStrings from './commonLearnStrings';
   import ChannelCardGroupGrid from './ChannelCardGroupGrid';
+  import LearningActivityChip from './LearningActivityChip';
   import HybridLearningCardGrid from './HybridLearningCardGrid';
   import EmbeddedSidePanel from './EmbeddedSidePanel';
   import CategorySearchModal from './CategorySearchModal';
@@ -244,6 +268,7 @@
     components: {
       HybridLearningCardGrid,
       ChannelCardGroupGrid,
+      LearningActivityChip,
       EmbeddedSidePanel,
       FullScreenSidePanel,
       CategorySearchModal,
@@ -309,6 +334,9 @@
       currentPage() {
         return PageNames.LIBRARY;
       },
+      footerIcons() {
+        return { info: 'viewInformation' };
+      },
       sidePanelWidth() {
         if (this.windowIsSmall || this.windowIsMedium) {
           return 0;
@@ -327,8 +355,10 @@
       numCols() {
         if (this.windowIsMedium) {
           return 2;
-        } else if (!this.windowIsSmall) {
+        } else if (this.windowBreakpoint < 7) {
           return 3;
+        } else if (this.windowBreakpoint >= 7) {
+          return 4;
         } else {
           return null;
         }
@@ -352,6 +382,7 @@
     },
     created() {
       this.search();
+      this.translator = crossComponentTranslator(FilterTextbox);
     },
     methods: {
       genContentLink,
@@ -448,6 +479,18 @@
   .filter-action-button {
     display: inline-block;
     margin: 4px;
+    margin-left: 8px;
+  }
+
+  .side-panel-chips {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    margin-bottom: -8px;
+    margin-left: -8px;
+  }
+  .chip {
+    margin-bottom: 8px;
     margin-left: 8px;
   }
 

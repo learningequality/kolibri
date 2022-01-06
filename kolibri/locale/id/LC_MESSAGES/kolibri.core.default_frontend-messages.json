@@ -423,6 +423,7 @@
   "ReportErrorModal.forumPrompt": "Kunjungi forum komunitas",
   "ReportErrorModal.forumUseTips": "Telusuri forum komunitas untuk melihat apakah orang lain mengalami masalah serupa. Jika tidak dapat menemukan apa pun, tempelkan detail kesalahan di bawah ini ke postingan forum baru sehingga kami dapat memperbaiki kesalahan tersebut di versi Kolibri yang akan datang.",
   "ReportErrorModal.reportErrorHeader": "Lapor kesalahan",
+  "SearchSideBar.overCertainNumberOfSearchResults": "Lebih dari {num, number, integer} {num, plural, one {hasil} other {hasil}}",
   "SelectAddressForm.deletingFailedText": "Terjadi masalah saat menghapus alamat ini",
   "SelectAddressForm.fetchingFailedText": "Terjadi masalah saat mendapatkan alamat yang tersedia",
   "SelectAddressForm.forgetAddressButtonLabel": "Hapus",

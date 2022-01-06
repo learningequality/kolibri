@@ -423,6 +423,7 @@
   "ReportErrorModal.forumPrompt": "ចូលមើលវេទិកាសហគមន៍",
   "ReportErrorModal.forumUseTips": "ស្វែងរកវេទិកាសហគមន៍ថាតើមានអ្នកផ្សេងបានជួបបញ្ហាស្រដៀងគ្នាឬទេ។ ប្រសិនបើមិនអាចរកឃើញអ្វីទេ សូមបញ្ចូលព័ត៌មានលម្អិតនៃកំហុសខាងក្រោមនេះទៅក្នុងផុសថ្មីក្នុងវេទិកា ដើម្បីឲយើងអាចកែតម្រូវកំហុសនៅជំនាន់ក្រោយរបស់ Kolibri ។",
   "ReportErrorModal.reportErrorHeader": "រាយការណ៍កំហុស​",
+  "SearchSideBar.overCertainNumberOfSearchResults": "លទ្ធផលលើសពី {num, number, integer} {num, plural, one {លទ្ធផល} other {លទ្ធផល}}",
   "SelectAddressForm.deletingFailedText": "មាន​បញ្ហា​ក្នុង​ការលុបអាសយដ្ឋាននេះ",
   "SelectAddressForm.fetchingFailedText": "មានបញ្ហាពេលយកអាសយដ្ឋានដែលទំនេរ",
   "SelectAddressForm.forgetAddressButtonLabel": "ដកចេញ",

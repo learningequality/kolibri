@@ -423,6 +423,7 @@
   "ReportErrorModal.forumPrompt": "Community-Forum aufrufen",
   "ReportErrorModal.forumUseTips": "Im Community-Forum können Sie sehen, ob bei anderen Personen ähnliche Fehler auftraten. Wenn Sie in diesen Foren nicht fündig werden, kopieren Sie die Fehlerdetails in einen neuen Post, damit der Fehler in einer zukünftigen Kolibri-Version behoben werden kann.",
   "ReportErrorModal.reportErrorHeader": "Fehler melden",
+  "SearchSideBar.overCertainNumberOfSearchResults": "Mehr als {num, number, integer} {num, plural, one {Ergebnis} other {Ergebnisse}}",
   "SelectAddressForm.deletingFailedText": "Fehler beim Entfernen dieser Adresse",
   "SelectAddressForm.fetchingFailedText": "Fehler beim Abrufen der verfügbaren Adressen",
   "SelectAddressForm.forgetAddressButtonLabel": "Löschen",

@@ -30,12 +30,33 @@
       :delay="false"
     />
 
+    <!-- Side panel for showing the information of selected content with a link to view it -->
     <FullScreenSidePanel
       v-if="sidePanelContent"
       alignment="right"
       @closePanel="sidePanelContent = null"
     >
-      <BrowseResourceMetadata :content="sidePanelContent" :canDownloadContent="true" />
+      <template #header>
+        <!-- Flex styles tested in ie11 and look good. Ensures good spacing between
+            multiple chips - not a common thing but just in case -->
+        <div
+          v-for="activity in sidePanelContent.learning_activities"
+          :key="activity"
+          class="side-panel-chips"
+          :class="$computedClass({ '::after': {
+            content: '',
+            flex: 'auto'
+          } })"
+        >
+          <LearningActivityChip
+            class="chip"
+            style="margin-left: 8px; margin-bottom: 8px;"
+            :kind="activity"
+          />
+        </div>
+      </template>
+
+      <BrowseResourceMetadata :content="sidePanelContent" :showLocationsInChannel="true" />
     </FullScreenSidePanel>
   </div>
 
@@ -55,6 +76,7 @@
   import { PageNames } from '../constants';
   import { normalizeContentNode } from '../modules/coreLearn/utils.js';
   import useContentNodeProgress from '../composables/useContentNodeProgress';
+  import LearningActivityChip from './LearningActivityChip';
   import HybridLearningCardGrid from './HybridLearningCardGrid';
   import BrowseResourceMetadata from './BrowseResourceMetadata';
 
@@ -68,6 +90,7 @@
     components: {
       BrowseResourceMetadata,
       FullScreenSidePanel,
+      LearningActivityChip,
       HybridLearningCardGrid,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
@@ -92,7 +115,7 @@
       },
     },
     created() {
-      ContentNodeResource.fetchBookmarks({ params: { limit: 25 } }).then(data => {
+      ContentNodeResource.fetchBookmarks({ params: { limit: 25, available: true } }).then(data => {
         this.more = data.more;
         this.bookmarks = data.results ? data.results.map(normalizeContentNode) : [];
         this.loading = false;
@@ -147,3 +170,20 @@
   };
 
 </script>
+
+
+<style scoped lang="scss">
+
+  .side-panel-chips {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    margin-bottom: -8px;
+    margin-left: -8px;
+  }
+  .chip {
+    margin-bottom: 8px;
+    margin-left: 8px;
+  }
+
+</style>
