@@ -18,6 +18,7 @@
 
       <FocusTrap
         ref="focusTrap"
+        class="ui-menu-options"
         :disabled="!containFocus"
         :firstEl="firstFocusableEl"
         :lastEl="lastFocusableEl"
@@ -113,11 +114,17 @@
 <style lang="scss" scoped>
 
   @import '~kolibri-design-system/lib/styles/definitions';
+
   .ui-menu-header {
     padding: 1rem 1rem 1rem 1.2rem;
     font-size: 0.9375rem;
     border-bottom: 1px solid rgba(0, 0, 0, 0.08);
   }
+
+  .ui-menu-options {
+    padding-top: 4px; // make enough space for the keyboard focus ring
+  }
+
   .ui-menu-footer {
     padding: 1rem 1rem 0 1.2rem;
     border-top: 1px solid rgba(0, 0, 0, 0.08);

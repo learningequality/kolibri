@@ -366,7 +366,7 @@
     position: fixed;
     bottom: 0;
     left: 0;
-    padding-top: 8px;
+    padding-top: 4px;
     overflow: auto;
   }
 
