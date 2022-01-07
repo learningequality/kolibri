@@ -8,7 +8,8 @@ Feature: Learners can bookmark resources
 		When I navigate to a resource
 			And I select the bookmark icon of the resource
 		Then I see the color of the icon changed to black indicating that the resource was bookmarked
-			And the resource is added to my list of bookmarks
+		When I go to the *Learn > Bookmarks* page
+		Then I can see that the resource is added to my list of bookmarks
 
 	Scenario: Learners can remove bookmarks while viewing a resource
 		When I navigate to a bookmarked resource
@@ -20,7 +21,8 @@ Feature: Learners can bookmark resources
 		When I go to the *Learn > Bookmarks* page
 			And I select the *Remove from bookmarks* icon of a bookmarked resource
 		Then I see a snackbar confirming that the resource was removed
-			And the resource disappears from my bookmarks list
+		When I go to the *Learn > Bookmarks* page
+		Then I can see that the resource is no longer displayed in my bookmarks list
 
 	Scenario: Learners can view information for a bookmarked resource
 		When I go to the *Learn > Bookmarks* page

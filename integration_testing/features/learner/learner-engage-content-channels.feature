@@ -1,5 +1,5 @@
 Feature: Learner engages content channels
-  Learner should be able to engage with content at the Library page
+  Learner needs to engage with content at the Library page
 
   Background:
     Given I am signed in to Kolibri as a Learner user
