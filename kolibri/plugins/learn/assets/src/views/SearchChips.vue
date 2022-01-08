@@ -127,7 +127,6 @@
   .filter-chip-button {
     min-width: 24px !important;
     margin: 2px;
-    color: #dadada;
     vertical-align: middle;
   }
 
