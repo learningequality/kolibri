@@ -1,6 +1,9 @@
 <template>
 
-  <div class="activity-chip">
+  <div
+    class="activity-chip"
+    :style="{ backgroundColor: $themePalette.grey.v_100 }"
+  >
     <KLabeledIcon :label="coreString(kind)" class="activity-chip-label">
       <template #icon>
         <LearningActivityIcon :kind="kind" />
@@ -48,7 +51,6 @@
     display: inline-block;
     padding: 12px;
     font-weight: bold;
-    background-color: #f5f5f5;
     border-radius: 4px;
 
     /deep/ svg {
