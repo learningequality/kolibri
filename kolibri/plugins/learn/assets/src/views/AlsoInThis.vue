@@ -178,7 +178,6 @@
   $parent-padding: 32px; // The SidePanel
   $icon-size: 32px;
   $progress-width: 48px;
-  $top-bar-height: 40px;
   $next-content-link-height: 100px;
 
   .content-list.bottom-link {
@@ -192,15 +191,6 @@
 
     /* Avoids overflow issues, aligns bottom bit */
     height: calc(100% - 16px);
-  }
-
-  .top-bar {
-    position: relative;
-    top: 0;
-    right: 0;
-    left: 0;
-    height: $top-bar-height;
-    background-color: #ffffff;
   }
 
   .item {
