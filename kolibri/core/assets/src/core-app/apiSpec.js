@@ -45,7 +45,8 @@ import PointsIcon from '../views/PointsIcon';
 import AuthMessage from '../views/AuthMessage';
 import FilterTextbox from '../views/FilterTextbox';
 import router from '../router';
-import commonCoreStrings from '../mixins/commonCoreStrings';
+import commonCoreStrings from '../mixins/commonCoreStrings'; // eslint-disable-line import/no-duplicates
+import { coreStrings } from '../mixins/commonCoreStrings'; // eslint-disable-line import/no-duplicates
 import commonTaskStrings from '../mixins/taskStrings';
 import commonSyncElements from '../mixins/commonSyncElements';
 import CoreFullscreen from '../views/CoreFullscreen';
@@ -237,5 +238,6 @@ export default {
     sortLanguages,
     UserType,
     validators,
+    coreStrings,
   },
 };

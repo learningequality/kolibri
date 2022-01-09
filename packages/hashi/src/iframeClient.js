@@ -81,21 +81,14 @@ export default class SandboxEnvironment {
         this.H5P.iframeInitialize(this.iframe.contentWindow);
         this.xAPI.iframeInitialize(this.iframe.contentWindow);
         patchIndexedDB(this.contentNamespace, this.iframe.contentWindow);
-        this.mutationObserver.observe(this.iframe.contentDocument, {
-          attributes: true,
-          childList: true,
-          subtree: true,
-        });
       } catch (e) {
+        console.debug(e);
         console.log('Shimming storage APIs failed, data will not persist'); // eslint-disable-line no-console
       }
     }
   }
 
   clearIframe() {
-    try {
-      this.mutationObserver.disconnect();
-    } catch (e) {} // eslint-disable-line no-empty
     try {
       document.body.removeChild(this.iframe);
     } catch (e) {} // eslint-disable-line no-empty

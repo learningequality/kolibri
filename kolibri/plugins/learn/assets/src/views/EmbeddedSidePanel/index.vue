@@ -301,14 +301,18 @@
         this.$emit('input', { ...this.value, categories: { [NoCategories]: true } });
       },
       handleActivity(activity) {
-        let learning_activities;
-        if (this.value.learning_activities[activity]) {
-          learning_activities = {};
+        if (activity === null) {
+          const learning_activities = {};
           this.$emit('input', { ...this.value, learning_activities });
-        } else if (activity || !this.value.learning_activities[activity]) {
-          learning_activities = {
+        } else if (activity && !this.value.learning_activities[activity]) {
+          const learning_activities = {
             [activity]: true,
+            ...this.value.learning_activities,
           };
+          this.$emit('input', { ...this.value, learning_activities });
+        } else if (activity && this.value.learning_activities[activity]) {
+          const learning_activities = { ...this.value.learning_activities };
+          delete learning_activities[activity];
           this.$emit('input', { ...this.value, learning_activities });
         }
       },

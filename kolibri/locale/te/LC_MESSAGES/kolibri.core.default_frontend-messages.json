@@ -423,6 +423,7 @@
   "ReportErrorModal.forumPrompt": "సంఘం ఫోరమ్‌లని సందర్శించండి",
   "ReportErrorModal.forumUseTips": "ఇతరులెవరైనా ఇటువంటి సారూప్య సమస్యలను ఎదుర్కొన్నారేమోనని చూసేందుకు సంఘం ఫోరమ్‌ని శోధించండి. మీరు ఏమీ కనుగొనలేని పక్షంలో, లోపం వివరాలను దిగువన పేస్ట్ చేసి ఒక కొత్త ఫోరమ్ పోస్ట్‌ని సృష్టించండి తద్వారా మేము భవిష్యత్తులోని మా Kolibri సంస్కరణలలో ఈ లోపాన్ని సరిదిద్దుకుంటాము.",
   "ReportErrorModal.reportErrorHeader": "లోపాన్ని నివేదించండి",
+  "SearchSideBar.overCertainNumberOfSearchResults": "{num, number, integer} {num, plural, one {result} other {results}} కంటే ఎక్కువ",
   "SelectAddressForm.deletingFailedText": "ఈ చిరునామాని తీసివేయడంలో ఒక సమస్య ఉంది",
   "SelectAddressForm.fetchingFailedText": "అందుబాటులో ఉన్న చిరునామాలను పొందడంలో ఒక సమస్య ఏర్పడింది",
   "SelectAddressForm.forgetAddressButtonLabel": "తీసివేయి",

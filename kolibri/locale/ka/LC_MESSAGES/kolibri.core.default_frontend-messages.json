@@ -423,6 +423,7 @@
   "ReportErrorModal.forumPrompt": "ეწვიეთ თემის ფორუმებს",
   "ReportErrorModal.forumUseTips": "თემის ფორუმში მოძებნეთ, რომ ნახოთ სხვებიც თუ გადააწყდნენ მსგავს პრობლემას. თუ ვერაფერს იპოვით, ქვემოთ, ფორუმის ახალ პოსტში დაწერეთ შეცდომის დეტალები. მაგით ჩვენ შევძლებთ გამოვასწოროთ შეცდომა კოლიბრის მომავალ ვერსიაში.",
   "ReportErrorModal.reportErrorHeader": "შეცდომის შეტყობინება",
+  "SearchSideBar.overCertainNumberOfSearchResults": "{num, number, integer}-ზე მეტი {num, plural, one {შედეგი} other {შედეგი}}",
   "SelectAddressForm.deletingFailedText": "ამ მისამართის წაშლისას შეცდომა მოხდა",
   "SelectAddressForm.fetchingFailedText": "ხელმისაწვდომი მისამართების მოპოვებისას შეცდომა მოხდა",
   "SelectAddressForm.forgetAddressButtonLabel": "წაშლა",

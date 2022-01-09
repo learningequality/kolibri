@@ -46,7 +46,6 @@
   import useChannels from '../composables/useChannels';
   import commonLearnStrings from './commonLearnStrings';
   import TopicsPage from './TopicsPage';
-  import ContentPage from './ContentPage';
   import ContentUnavailablePage from './ContentUnavailablePage';
   import LearnImmersiveLayout from './LearnImmersiveLayout';
   import ExamPage from './ExamPage';
@@ -63,7 +62,6 @@
   const pageNameToComponentMap = {
     [PageNames.TOPICS_TOPIC]: TopicsPage,
     [PageNames.TOPICS_TOPIC_SEARCH]: TopicsPage,
-    [PageNames.TOPICS_CONTENT]: ContentPage,
     [PageNames.CONTENT_UNAVAILABLE]: ContentUnavailablePage,
     [PageNames.BOOKMARKS]: BookmarkPage,
     [ClassesPageNames.EXAM_VIEWER]: ExamPage,

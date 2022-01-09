@@ -28,13 +28,40 @@
   import { mapState, mapGetters } from 'vuex';
   import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import { updateContentNodeProgress } from '../../modules/coreLearn/utils';
+  import { setContentNodeProgress } from '../../composables/useContentNodeProgress';
+  import useProgressTracking from '../../composables/useProgressTracking';
   import AssessmentWrapper from '../AssessmentWrapper';
 
   export default {
     name: 'ContentItem',
     components: {
       AssessmentWrapper,
+    },
+    setup() {
+      const {
+        progress,
+        time_spent,
+        extra_fields,
+        pastattempts,
+        complete,
+        totalattempts,
+        initContentSession,
+        updateContentSession,
+        startTrackingProgress,
+        stopTrackingProgress,
+      } = useProgressTracking();
+      return {
+        progress,
+        time_spent,
+        extra_fields,
+        pastattempts,
+        complete,
+        totalattempts,
+        initContentSession,
+        updateContentSession,
+        startTracking: startTrackingProgress,
+        stopTracking: stopTrackingProgress,
+      };
     },
     props: {
       contentNode: {
@@ -51,9 +78,6 @@
     computed: {
       ...mapGetters(['currentUserId']),
       ...mapState({
-        progress: state => state.core.logging.progress,
-        timeSpent: state => state.core.logging.time_spent,
-        extraFields: state => state.core.logging.extra_fields,
         fullName: state => state.core.session.full_name,
       }),
       contentIsExercise() {
@@ -66,6 +90,7 @@
           updateProgress: this.updateProgress,
           addProgress: this.addProgress,
           updateContentState: this.updateContentState,
+          updateInteraction: this.updateInteraction,
         };
       },
       contentProps() {
@@ -78,11 +103,11 @@
           files: this.contentNode.files,
           options: this.contentNode.options,
           available: this.contentNode.available,
-          extraFields: this.extraFields,
+          extraFields: this.extra_fields,
           progress: this.progress,
           userId: this.currentUserId,
           userFullName: this.fullName,
-          timeSpent: this.timeSpent,
+          timeSpent: this.time_spent,
         };
       },
       exerciseProps() {
@@ -98,11 +123,14 @@
           masteryModel: assessment.masteryModel,
           assessmentIds: assessment.assessmentIds,
           available: this.contentNode.available,
-          extraFields: this.extraFields,
+          extraFields: this.extra_fields,
           progress: this.progress,
           userId: this.currentUserId,
           userFullName: this.fullName,
-          timeSpent: this.timeSpent,
+          timeSpent: this.time_spent,
+          pastattempts: this.pastattempts,
+          mastered: this.complete,
+          totalattempts: this.totalattempts,
         };
       },
       contentNodeId() {
@@ -117,40 +145,41 @@
       },
     },
     created() {
-      return this.$store
-        .dispatch('initContentSession', {
-          nodeId: this.contentNodeId,
-        })
-        .then(() => {
-          this.sessionReady = true;
-          this.setWasIncomplete();
-        });
-    },
-    beforeDestroy() {
-      this.stopTracking();
+      return this.initContentSession({
+        nodeId: this.contentNodeId,
+      }).then(() => {
+        this.sessionReady = true;
+        this.setWasIncomplete();
+        // Set progress into the content node progress store in case it was not already loaded
+        this.cacheProgress();
+      });
     },
     methods: {
-      startTracking() {
-        return this.$store.dispatch('startTrackingProgress');
-      },
-      stopTracking() {
-        return this.$store.dispatch('stopTrackingProgress');
-      },
       setWasIncomplete() {
         this.wasIncomplete = this.progress < 1;
       },
+      /*
+       * Update the progress of the content node in the shared progress store
+       * in the useContentNodeProgress composable. Do this to have a single
+       * source of truth for referencing progress of content nodes.
+       */
+      cacheProgress() {
+        setContentNodeProgress({ content_id: this.content.content_id, progress: this.progress });
+      },
+      updateInteraction({ progress, interaction }) {
+        this.updateContentSession({
+          interaction,
+          progress,
+        }).then(this.cacheProgress);
+      },
       updateProgress(progress) {
-        this.$store
-          .dispatch('updateContentSession', { progress })
-          .then(() => updateContentNodeProgress(this.contentNodeId, this.progress));
+        this.updateContentSession({ progress }).then(this.cacheProgress);
       },
       addProgress(progressDelta) {
-        this.$store
-          .dispatch('updateContentSession', { progressDelta })
-          .then(() => updateContentNodeProgress(this.contentNodeId, this.progress));
+        this.updateContentSession({ progressDelta }).then(this.cacheProgress);
       },
       updateContentState(contentState) {
-        this.$store.dispatch('updateContentSession', { contentState });
+        this.updateContentSession({ contentState });
       },
     },
   };

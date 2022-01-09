@@ -2,17 +2,7 @@
 
   <section class="metadata">
 
-    <div class="chips section">
-      <div v-for="activity in content.learning_activities" :key="activity">
-        <LearningActivityChip
-          :kind="activity"
-        />
-      </div>
-    </div>
-
     <div class="flex section">
-      <!-- Wrapping each flex child content in the plain div keeps them flex-spaced
-        properly even when one isn't there -->
       <div>
         <span
           v-if="forBeginners"
@@ -214,7 +204,6 @@
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import { ContentNodeResource } from 'kolibri.resources';
   import genContentLink from '../utils/genContentLink';
-  import LearningActivityChip from './LearningActivityChip';
   import LearningActivityIcon from './LearningActivityIcon';
   import ContentNodeThumbnail from './thumbnails/ContentNodeThumbnail';
   import SidePanelResourceMetadata from './SidePanelResourceMetadata';
@@ -222,7 +211,6 @@
   export default {
     name: 'BrowseResourceMetadata',
     components: {
-      LearningActivityChip,
       LearningActivityIcon,
       TimeDuration,
       ContentNodeThumbnail,
@@ -409,15 +397,6 @@
     &.title {
       font-size: 1.25em;
       font-weight: bold;
-    }
-
-    &.chips {
-      display: flex;
-      flex-wrap: wrap;
-      max-width: 426px;
-      // Ensures space on line w/ closing X icon whether
-      // chips are visible or not
-      min-height: 40px;
     }
 
     &.flex {

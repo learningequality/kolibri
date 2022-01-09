@@ -34,12 +34,15 @@
         <div @click="lessonCardClicked">
           <KRouterLink
             v-if="bookmarksCount"
-            :style="{ width: '100%' }"
+            :appearanceOverrides="{
+              width: '100%',
+              textDecoration: 'none',
+              color: $themeTokens.text }"
             :to="getBookmarksLink()"
           >
-            <div class="bookmark-container">
-              <BookmarkIcon />
-              <div class="text">
+            <div :class="windowIsSmall ? 'mobile-bookmark-container' : 'bookmark-container'">
+              <BookmarkIcon :class="windowIsSmall ? 'mobile-bookmark-icon' : ''" />
+              <div :class="windowIsSmall ? 'mobile-text' : 'text'">
                 <h3>{{ coreString('bookmarksLabel') }}</h3>
                 <p>{{ $tr('resources', { count: bookmarksCount }) }}</p>
               </div>
@@ -116,6 +119,7 @@
   import pickBy from 'lodash/pickBy';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoach from '../../common';
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
   import { BookmarksResource } from '../../../../../../../../kolibri/core/assets/src/api-resources/index.js';
@@ -141,7 +145,7 @@
       BottomAppBar,
       BookmarkIcon,
     },
-    mixins: [commonCoach, commonCoreStrings],
+    mixins: [commonCoach, commonCoreStrings, responsiveWindowMixin],
     data() {
       return {
         // null corresponds to 'All' filter value
@@ -557,6 +561,8 @@
 
 <style lang="scss" scoped>
 
+  @import '~kolibri-design-system/lib/styles/definitions';
+
   .search-filters {
     margin-top: 24px;
   }
@@ -568,6 +574,32 @@
     border-radius: 2px;
     box-shadow: 0 1px 5px 0 #a1a1a1, 0 2px 2px 0 #e6e6e6, 0 3px 1px -2px #ffffff;
     transition: box-shadow 0.25s ease;
+  }
+
+  .mobile-bookmark-container {
+    @extend %dropshadow-2dp;
+
+    display: flex;
+    max-width: 100%;
+    min-height: 141px;
+    margin: auto;
+    margin-bottom: 24px;
+    border-radius: 2px;
+    .ease:hover {
+      @extend %dropshadow-8dp;
+      @extend %md-decelerate-func;
+
+      transition: all $core-time;
+    }
+  }
+
+  .mobile-bookmark-icon {
+    left: 24px !important;
+  }
+
+  .mobile-text {
+    margin-top: 20px;
+    margin-left: 60px;
   }
 
   .bookmark-container:hover {

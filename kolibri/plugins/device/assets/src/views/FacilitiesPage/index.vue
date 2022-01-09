@@ -3,14 +3,17 @@
   <div>
     <HeaderWithOptions :headerText="coreString('facilitiesLabel')">
       <template #options>
+        <!-- Margins to and bottom adds space when buttons are vertically stacked -->
         <KButtonGroup>
           <KButton
             :text="$tr('syncAllAction')"
+            style="margin-top: 16px; margin-bottom: -16px;"
             @click="showSyncAllModal = true"
           />
           <KButton
             :text="$tr('importFacilityAction')"
             primary
+            style="margin-top: 16px; margin-bottom: -16px;"
             @click="showImportModal = true"
           />
         </KButtonGroup>
@@ -29,7 +32,43 @@
         <th>{{ coreString('facilityLabel') }}</th>
       </template>
       <template #tbody>
-        <tbody>
+        <!-- On mobile, put buttons on a row of their own -->
+        <tbody v-if="windowIsSmall">
+          <template v-for="(facility, idx) in facilities">
+            <tr :key="idx" style="border: none!important">
+              <td>
+                <FacilityNameAndSyncStatus
+                  :facility="facility"
+                  :isSyncing="facilityIsSyncing(facility)"
+                  :isDeleting="facilityIsDeleting(facility)"
+                  :syncHasFailed="facility.syncHasFailed"
+                />
+              </td>
+            </tr>
+            <!-- May cause error on device with > 10000 facilities... -->
+            <tr :key="idx + 10000">
+              <td style="padding: 0 0 16px 0;">
+                <!-- Gives most space possible to buttons and aligns them with text -->
+                <KButtonGroup style="margin-left: -16px; margin-right: -16px; max-width: 100%">
+                  <KButton
+                    :text="coreString('syncAction')"
+                    appearance="flat-button"
+                    @click="facilityForSync = facility"
+                  />
+                  <KDropdownMenu
+                    :text="coreString('optionsLabel')"
+                    :options="facilityOptions(facility)"
+                    appearance="flat-button"
+                    @select="handleOptionSelect($event.value, facility)"
+                  />
+                </KButtonGroup>
+              </td>
+            </tr>
+          </template>
+        </tbody>
+
+        <!-- Non-mobile -->
+        <tbody v-else>
           <tr v-for="(facility, idx) in facilities" :key="idx">
             <td>
               <FacilityNameAndSyncStatus
@@ -112,6 +151,7 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import { FacilityResource } from 'kolibri.resources';
@@ -153,7 +193,7 @@
       SyncAllFacilitiesModal,
       TasksBar,
     },
-    mixins: [commonCoreStrings, commonSyncElements, facilityTaskQueue],
+    mixins: [commonCoreStrings, commonSyncElements, facilityTaskQueue, responsiveWindowMixin],
     data() {
       return {
         showSyncAllModal: false,

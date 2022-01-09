@@ -1,0 +1,10 @@
+{
+  "DemoServerBannerContent.demoServerA1": "Read the documentation",
+  "DemoServerBannerContent.demoServerA2": "Download and install the latest release",
+  "DemoServerBannerContent.demoServerHeader": "Welcome to the Kolibri demo site",
+  "DemoServerBannerContent.demoServerL1": "Learner ({user}/{pass} or explore without an account)",
+  "DemoServerBannerContent.demoServerL2": "Coach ({user}/{pass})",
+  "DemoServerBannerContent.demoServerP1": "Explore any of these user types:",
+  "DemoServerBannerContent.demoServerP2": "This online version of Kolibri is intended for demonstration purposes only. Users and data will be periodically deleted. The demo shows features of the latest Kolibri version, and all resources found are samples.",
+  "DemoServerBannerContent.demoServerP3": "To learn more about using Kolibri in an offline context and better understand the platform:"
+}

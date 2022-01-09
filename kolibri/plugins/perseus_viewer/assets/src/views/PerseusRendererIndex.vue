@@ -87,6 +87,7 @@
 
 <script>
 
+  import invert from 'lodash/invert';
   import JSZip from 'jszip';
   import client from 'kolibri.client';
   import urls from 'kolibri.urls';
@@ -120,6 +121,8 @@
   // Regex for all images, we use the differential matches in the first matching
   // group to determine if it's a graphie image or a regular image.
   const allImageRegex = /((web\+graphie:)?)\$\{☣ LOCALPATH\}\/([^)^"]+)/g;
+
+  const blobImageRegex = /blob:[^)^"]+/g;
 
   export default {
     name: 'PerseusRendererIndex',
@@ -329,18 +332,25 @@
         return questionState;
       },
       getSerializedState() {
-        const hints = Object.keys(this.itemRenderer.hintsRenderer.refs).map(key =>
-          this.itemRenderer.hintsRenderer.refs[key].getSerializedState()
-        );
+        if (!this.itemRenderer) {
+          return {};
+        }
+        // Default to empty array
+        let hints = [];
+        if (this.itemRenderer.hintsRenderer) {
+          hints = Object.keys(this.itemRenderer.hintsRenderer.refs || {}).map(key =>
+            this.itemRenderer.hintsRenderer.refs[key].getSerializedState()
+          );
+        }
         const question = this.addSorterState(
           this.itemRenderer.questionRenderer.getSerializedState()
         );
-        return {
-          question,
-          hints,
-        };
+        // To prevent propagation of our locally replace blob URLs into answers,
+        // we need to replace them with the original URLs.
+        return this.restoreImageUrls({ hints, question });
       },
       restoreSerializedState(answerState) {
+        answerState = this.replaceImageUrls(JSON.stringify(answerState));
         this.itemRenderer.restoreSerializedState(answerState);
         this.itemRenderer.getWidgetIds().forEach(id => {
           if (sorterWidgetRegex.test(id)) {
@@ -514,23 +524,7 @@
                   return Promise.reject('error loading assessment item images');
                 })
                 .then(() => {
-                  this.setItemData(
-                    JSON.parse(
-                      itemResponse.replace(allImageRegex, (match, g1, g2, image) => {
-                        if (g1) {
-                          // Replace any placeholder values for image URLs with the
-                          // `web+graphie:` prefix separately from any others,
-                          // as they are parsed slightly differently to standard image
-                          // urls (Perseus adds the protocol in place of `web+graphie:`).
-                          return `web+graphie:${image}`;
-                        } else {
-                          // Replace any placeholder values for image URLs with
-                          // the base URL for the perseus file we are reading from
-                          return this.imageUrls[image] || imageMissing;
-                        }
-                      })
-                    )
-                  );
+                  this.setItemData(this.replaceImageUrls(itemResponse));
                 });
             })
             .catch(reason => {
@@ -539,6 +533,32 @@
               this.$emit('itemError', reason);
             });
         }
+      },
+      replaceImageUrls(itemResponse) {
+        return JSON.parse(
+          itemResponse.replace(allImageRegex, (match, g1, g2, image) => {
+            if (g1) {
+              // Replace any placeholder values for image URLs with the
+              // `web+graphie:` prefix separately from any others,
+              // as they are parsed slightly differently to standard image
+              // urls (Perseus adds the protocol in place of `web+graphie:`).
+              return `web+graphie:${image}`;
+            } else {
+              // Replace any placeholder values for image URLs with
+              // the base URL for the perseus file we are reading from
+              return this.imageUrls[image] || imageMissing;
+            }
+          })
+        );
+      },
+      restoreImageUrls(itemResponse) {
+        const lookup = invert(this.imageUrls);
+        return JSON.parse(
+          JSON.stringify(itemResponse).replace(blobImageRegex, match => {
+            // Make sure to add our prefix back in
+            return '${☣ LOCALPATH}/' + lookup[match] || '';
+          })
+        );
       },
       setItemData(itemData) {
         if (this.validateItemData(itemData)) {
@@ -662,10 +682,11 @@
   .framework-perseus {
     padding-bottom: 104px;
 
-    // Draggable box wrapper. Stops it from going off screen right
-    /deep/ .draggy-boxy-thing {
-      display: inline;
+    // Orderer widget wrapper. Stops it from going off screen right
+    /deep/ .orderer {
+      min-width: 0;
     }
+
     // Multiple choice table padding/margin fixes for clean appearance
     /deep/ .widget-block > div {
       padding: 0 !important;

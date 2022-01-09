@@ -427,7 +427,7 @@
     },
     created() {
       ContentNodeResource.fetchBookmarks({
-        params: { limit: 25, kind: ContentNodeKinds.EXERCISE },
+        params: { limit: 25, kind: ContentNodeKinds.EXERCISE, available: true },
       }).then(data => {
         this.more = data.more;
         this.bookmarks = data.results;

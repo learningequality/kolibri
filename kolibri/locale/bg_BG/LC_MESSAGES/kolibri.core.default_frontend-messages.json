@@ -423,6 +423,7 @@
   "ReportErrorModal.forumPrompt": "Посети форума на общността",
   "ReportErrorModal.forumUseTips": "Прегледай форума, за да видиш дали някой друг не е срещнал подобен проблем. Ако не намериш сходна тема, постави информацията относно грешката по-долу и създай нова публикация, а ние ще се погрижим в следваща версия на Колибри проблемът да е разрешен.",
   "ReportErrorModal.reportErrorHeader": "Докладвай грешка",
+  "SearchSideBar.overCertainNumberOfSearchResults": "Над {num, number, integer} {num, plural, one {резултат} other {резултата}}",
   "SelectAddressForm.deletingFailedText": "Възникна проблем при премахването на този адрес",
   "SelectAddressForm.fetchingFailedText": "Възникна проблем при получаване на наличните адреси",
   "SelectAddressForm.forgetAddressButtonLabel": "Премахни",

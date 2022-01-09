@@ -1,0 +1,17 @@
+{
+  "CommonLearnStrings.dontShowThisAgainLabel": "Don’t show this again",
+  "CommonLearnStrings.exploreResources": "Explore resources",
+  "CommonLearnStrings.learnLabel": "Learn",
+  "CommonLearnStrings.libraryLabel": "Library",
+  "CommonLearnStrings.logo": "From the channel {channelTitle}",
+  "CommonLearnStrings.markResourceAsCompleteLabel": "Mark resource as complete",
+  "CommonLearnStrings.mostPopularLabel": "Most popular",
+  "CommonLearnStrings.multipleLearningActivities": "Multiple learning activities",
+  "CommonLearnStrings.multipleLearningActivitiesLabel": "Multiple learning activities",
+  "CommonLearnStrings.nextStepsLabel": "Next steps",
+  "CommonLearnStrings.popularLabel": "Popular",
+  "CommonLearnStrings.resourceCompletedLabel": "Resource completed",
+  "CommonLearnStrings.resourceHidden": "Resource hidden",
+  "CommonLearnStrings.resumeLabel": "Resume",
+  "CommonLearnStrings.suggestedTimeToComplete": "Suggested time to complete"
+}

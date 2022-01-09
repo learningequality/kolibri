@@ -62,7 +62,6 @@
   "CompletionModal.stayButtonLabel": "Đứng yên ở đây",
   "CompletionModal.stayDescription": "Giữ tài liệu này để tiếp tục luyện tập",
   "CompletionModal.stayTitle": "Ở lại và luyện tập",
-  "ContentCard.copies": "{ num, number} vị trí",
   "ContentPage.documentTitle": "{ contentTitle } – { channelTitle }",
   "ContentUnavailablePage.adminLink": "Nhập kênh vào thiết bị của bạn",
   "ContentUnavailablePage.documentTitle": "Tài liệu không có sẵn",

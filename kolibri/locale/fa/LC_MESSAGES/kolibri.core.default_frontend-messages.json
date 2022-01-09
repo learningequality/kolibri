@@ -423,6 +423,7 @@
   "ReportErrorModal.forumPrompt": "بازدید از انجمن‌های عمومی",
   "ReportErrorModal.forumUseTips": "قسمت مربوط به انجمن عموم را جستجو کنید تا ببینید که آیا دیگران نیز با مشکلات مشابه مواجه شده‌اند یا نه. اگر هیچ‌چیز پیدا نکردید، جزییات خطا را در زیر و به عنوان یک پُست جدید در انجمن بگذارید تا ما بتوانیم در نسخه‌ی بعدیِ Kolibri آن را برطرف و اصلاح کنیم.",
   "ReportErrorModal.reportErrorHeader": "گزارش خطا",
+  "SearchSideBar.overCertainNumberOfSearchResults": "بیش از {num, number, integer} {num, plural, one {نتیجه} other {نتیجه}}",
   "SelectAddressForm.deletingFailedText": "مشکلی در حذف این درس به وجود آمد",
   "SelectAddressForm.fetchingFailedText": "مشکلی در دریافت آدرس موجود به وجود آمد",
   "SelectAddressForm.forgetAddressButtonLabel": "پاک کردن",

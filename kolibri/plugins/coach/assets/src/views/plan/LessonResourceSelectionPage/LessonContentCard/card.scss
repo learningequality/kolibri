@@ -3,3 +3,6 @@ $ratio: 16 / 9;
 $thumb-height: 125px;
 $thumb-width: round($thumb-height * $ratio);
 $checkbox-offset: 42px;
+
+$mobile-thumb-width: 60px;
+$mobile-thumb-height: round($thumb-width / $ratio);

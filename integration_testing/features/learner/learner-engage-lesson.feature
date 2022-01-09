@@ -14,7 +14,7 @@ Feature: Learner engages with an assigned lesson
     Then I am on *'<lesson>' > '<exercise1>'* page
       And I see the <exercise> questions
       When I start the <exercise>
-      Then I see the blue *Started* icon added to the title
+      Then I see the blue *In progress* icon added to the title
       And I see the *Next in lesson* heading and <video> video content card under the exercise
     When I answer 2 questions correctly
       And I see two green checkmarks at the bottom of the lesson viewer
@@ -25,7 +25,7 @@ Feature: Learner engages with an assigned lesson
       When I click the <video> video content card under the *Next in lesson* heading
       Then I am on *'<lesson>' > '<video>'* page
         And I see the video starts playing automatically
-        And I see the blue *Started* icon added to the title
+        And I see the blue *In progress* icon added to the title
       When video finishes
       Then I see the yellow *Completed* icon added to the title
         And I see the *+500 points* snackbar alert
@@ -33,13 +33,13 @@ Feature: Learner engages with an assigned lesson
       When I click the *X* button to close the <lesson> content viewer
       Then I am on the *Learn > Classes > '<class>' > '<lesson>'* page again
         And I see my points counter is increased by 500
-        And I see the <exercise1> exercise is marked with *Started* icon
+        And I see the <exercise1> exercise is marked with *In progress* icon
         And I see the <video> video is marked with *Completed* icon
           But I don't see any icons for <exercise2> exercise
 
   Scenario: Resume engaging with unfinished exercise
     Given I am on the *Learn > Classes > '<class>' > '<lesson>'* page
-      When I click on <exercise1> exercise content card marked with *Started* icon
+      When I click on <exercise1> exercise content card marked with *In progress* icon
       Then I am on *'<lesson>' > '<exercise1>'* page
         And I see two green checkmarks at the bottom of the lesson viewer
       When I finish answering all the required questions
