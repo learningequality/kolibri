@@ -13,13 +13,19 @@
       :options="options"
       :disabled="$attrs.disabled"
       @change="handleDropdownChange($event.value)"
-    />
+    >
+      <template #display>
+        <AttemptLogItem :attemptLog="attemptLogs[selectedQuestionNumber]" displayTag="span" />
+      </template>
+      <template #option="{ index }">
+        <AttemptLogItem :attemptLog="attemptLogs[index]" displayTag="span" />
+      </template>
+    </KSelect>
 
     <ul
       v-else
       ref="attemptList"
       class="history-list"
-      :class="isMobile ? 'mobile-list' : ''"
       role="listbox"
       @keydown.home="setSelectedAttemptLog(0)"
       @keydown.end="setSelectedAttemptLog(attemptLogs.length - 1)"
@@ -46,48 +52,7 @@
             @keydown.enter="setSelectedAttemptLog(index)"
             @keydown.space.prevent="setSelectedAttemptLog(index)"
           >
-            <KIcon
-              v-if="attemptLog.noattempt"
-              class="item svg-item"
-              icon="notStarted"
-            />
-            <KIcon
-              v-else-if="attemptLog.correct"
-              class="item svg-item"
-              :style="{ fill: $themeTokens.correct }"
-              icon="correct"
-            />
-            <KIcon
-              v-else-if="attemptLog.error"
-              class="svg-item"
-              :style=" { fill: $themeTokens.annotation }"
-              icon="helpNeeded"
-            />
-            <KIcon
-              v-else-if="!attemptLog.correct"
-              class="item svg-item"
-              :style="{ fill: $themeTokens.incorrect }"
-              icon="incorrect"
-            />
-            <KIcon
-              v-else-if="attemptLog.hinted"
-              class="item svg-item"
-              :style=" { fill: $themeTokens.annotation }"
-              icon="hint"
-            />
-            <p class="item">
-              {{ coreString(
-                'questionNumberLabel',
-                { questionNumber: attemptLog.questionNumber }
-              )
-              }}
-            </p>
-            <CoachContentLabel
-              v-if="windowIsLarge"
-              class="coach-content-label"
-              :value="attemptLog.num_coach_contents || 0"
-              :isTopic="false"
-            />
+            <AttemptLogItem :attemptLog="attemptLog" displayTag="p" />
           </a>
         </li>
       </template>
@@ -100,13 +65,13 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import AttemptLogItem from './AttemptLogItem';
 
   export default {
     name: 'AttemptLogList',
     components: {
-      CoachContentLabel,
+      AttemptLogItem,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
     props: {
@@ -124,16 +89,6 @@
       },
     },
     computed: {
-      iconStyle() {
-        if (this.windowIsLarge) {
-          return {};
-        } else {
-          return {
-            textAlign: 'center',
-            padding: 0,
-          };
-        }
-      },
       selected() {
         return this.options.find(o => o.value === this.selectedQuestionNumber + 1) || {};
       },
@@ -171,7 +126,11 @@
       },
       scrollToSelectedAttemptLog(questionNumber) {
         let selectedElement;
-        if (this.$refs.attemptListOption && this.$refs.attemptList.children) {
+        if (
+          this.$refs.attemptListOption &&
+          this.$refs.attemptList &&
+          this.$refs.attemptList.children
+        ) {
           selectedElement = this.$refs.attemptList.children[questionNumber];
         }
         if (selectedElement) {
@@ -201,14 +160,6 @@
 
 <style lang="scss" scoped>
 
-  .coach-content-label {
-    display: inline-block;
-    width: auto; // keeps on same line as question
-    margin-top: -4px;
-    margin-left: 8px;
-    vertical-align: middle;
-  }
-
   .header {
     padding-top: 10px;
     padding-bottom: 10px;
@@ -218,8 +169,10 @@
 
   .history-list {
     max-height: inherit;
+    padding-right: 0;
     padding-left: 0;
     margin: 0;
+    text-align: justify;
     list-style-type: none;
   }
 
@@ -227,17 +180,6 @@
     max-width: 90%;
     padding-top: 16px;
     margin: auto;
-  }
-
-  .item {
-    display: inline-block;
-    height: 24px;
-  }
-
-  .svg-item {
-    margin-right: 12px;
-    margin-bottom: -4px;
-    font-size: 24px;
   }
 
   .attempt-item {
@@ -248,7 +190,8 @@
 
   .attempt-item > a {
     display: block;
-    padding-left: 20px;
+    padding-right: 1vw;
+    padding-left: 1vw;
     cursor: pointer;
   }
 

@@ -423,6 +423,7 @@
   "ReportErrorModal.forumPrompt": "Tembelea jukwaa za jamii",
   "ReportErrorModal.forumUseTips": "Tafuta jukwaa la jamii ili kuona ikiwa wengine wamekumbana na masuala kama haya. Ikiwa hutapata chochote, weka maelezo ya hitilafu hapa chini kwenye chapisho jipya la jukwaa ili tuweze kurekebisha hitilafu katika toleo la baadaye la Kolibri.",
   "ReportErrorModal.reportErrorHeader": "Ripoti Hitilafu",
+  "SearchSideBar.overCertainNumberOfSearchResults": "Kwa {num, number, integer} {num, plural, one {matokeo} other {matokeo}}",
   "SelectAddressForm.deletingFailedText": "Kulikuwa na tatizo la kuondoa anwani hii",
   "SelectAddressForm.fetchingFailedText": "Kulikuwa na tatizo kupata anwani zilizopo",
   "SelectAddressForm.forgetAddressButtonLabel": "Ondoa",

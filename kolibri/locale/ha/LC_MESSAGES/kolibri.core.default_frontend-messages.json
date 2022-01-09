@@ -423,6 +423,7 @@
   "ReportErrorModal.forumPrompt": "Ziyarci dandamalin masu amfani",
   "ReportErrorModal.forumUseTips": "Bincika dandamalin masu amfani don ganin idan wasu sun fuskanci irin matsalolin. Idan ka kasa gano komai, manna bayanin kuskuren a kasan nan a cikin sabon wallafa saboda mu gyara kuskuren a wani sigar Kolibri na gaba.",
   "ReportErrorModal.reportErrorHeader": "Bada rahoton kuskure",
+  "SearchSideBar.overCertainNumberOfSearchResults": "Fiye da {num, number, integer} {num, plural, one {sakamako} other {sakamako}}",
   "SelectAddressForm.deletingFailedText": "An samu matsala wajen cire wannan adireshi",
   "SelectAddressForm.fetchingFailedText": "An samu matsala wajen samar da adireshin da akwai",
   "SelectAddressForm.forgetAddressButtonLabel": "Cire",

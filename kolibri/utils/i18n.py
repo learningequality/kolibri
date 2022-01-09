@@ -46,6 +46,7 @@ KOLIBRI_SUPPORTED_LANGUAGES = [
     "bg-bg",
     "bn-bd",
     "de",
+    "el",
     "en",
     "es-es",
     "es-419",

@@ -62,7 +62,6 @@
   "CompletionModal.stayButtonLabel": "Ficar por aqui",
   "CompletionModal.stayDescription": "Permanecer neste conteúdo para praticar um pouco mais",
   "CompletionModal.stayTitle": "Continuar a praticar",
-  "ContentCard.copies": "Encontrado em { num, number} canais",
   "ContentPage.documentTitle": "{ contentTitle } - { channelTitle }",
   "ContentUnavailablePage.adminLink": "Importe canais para o seu dispositivo",
   "ContentUnavailablePage.documentTitle": "Conteúdo indisponível",

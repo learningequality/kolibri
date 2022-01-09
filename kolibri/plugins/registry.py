@@ -50,6 +50,9 @@ from kolibri.plugins.utils import PluginLoadsApp
 logger = logging.getLogger(__name__)
 
 
+__initialized = False
+
+
 class PluginExistsInApp(Exception):
     """
     This exception is raise when a plugin is initialized inside a Django app and
@@ -163,6 +166,7 @@ def __initialize():
     """
     Called once to register hook callbacks.
     """
+    global __initialized
     registry = Registry()
     logger.debug("Loading kolibri plugin registry...")
     was_configured = settings.configured
@@ -171,7 +175,12 @@ def __initialize():
             "Django settings already configured when plugin registry initialized"
         )
     registry.register_plugins(config.ACTIVE_PLUGINS)
+    __initialized = True
     return registry
 
 
 registered_plugins = SimpleLazyObject(__initialize)
+
+
+def is_initialized():
+    return __initialized

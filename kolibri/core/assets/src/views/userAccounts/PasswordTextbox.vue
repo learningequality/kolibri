@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div class="password-textbox">
     <KTextbox
       ref="password"
       :value="value"
@@ -146,4 +146,10 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  .password-textbox {
+    padding-top: 8px; // make enough space for the keyboard focus ring
+  }
+
+</style>

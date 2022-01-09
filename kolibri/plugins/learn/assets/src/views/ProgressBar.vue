@@ -76,6 +76,7 @@
   }
 
   .k-linear-loader {
+    top: -8px;
     display: block;
     margin-bottom: 0;
   }

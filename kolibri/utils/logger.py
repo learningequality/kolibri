@@ -2,8 +2,6 @@ import logging
 import os
 from logging.handlers import TimedRotatingFileHandler
 
-from . import conf
-
 
 GET_FILES_TO_DELETE = "getFilesToDelete"
 DO_ROLLOVER = "doRollover"
@@ -105,11 +103,14 @@ class FalseFilter(logging.Filter):
         return False
 
 
-class RequireDebugTrue(logging.Filter):
-    """A copy from Django to avoid loading Django's settings stack"""
+def get_require_debug_true(debug):
+    class RequireDebugTrue(logging.Filter):
+        """A copy from Django to avoid loading Django's settings stack"""
 
-    def filter(self, record):
-        return conf.OPTIONS["Server"]["DEBUG"]
+        def filter(self, record):
+            return debug
+
+    return RequireDebugTrue
 
 
 def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
@@ -227,7 +228,7 @@ def get_base_logging_config(LOG_ROOT, debug=False, debug_database=False):
     config = get_default_logging_config(
         LOG_ROOT, debug=debug, debug_database=debug_database
     )
-    config["filters"]["require_debug_true"] = {"()": RequireDebugTrue}
+    config["filters"]["require_debug_true"] = {"()": get_require_debug_true(debug)}
 
     return config
 

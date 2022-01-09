@@ -423,6 +423,7 @@
   "ReportErrorModal.forumPrompt": "کمیونٹی کے فورم کا دورہ کریں",
   "ReportErrorModal.forumUseTips": "کمیونٹی فورم کو یہ دیکھنے کے لیے تلاش کریں کہ آیا دوسروں کو بھی اسی طرح کے مسائل کا سامنا کرنا پڑ رھا ہے۔ اگر کچھ تلاش کرنے سے قاصر ہوں تو، ذیل میں نقص کی تفصیلات کو ایک نئے فورم میں شامل کریں تاکہ ہم کولیبری کے نئے شمارے میں اس نقص کو ٹھیک کرسکیں.",
   "ReportErrorModal.reportErrorHeader": "اس نقص کی خبر دیں",
+  "SearchSideBar.overCertainNumberOfSearchResults": "{num, number, integer} {num, plural, one {result} other {results}} میں سے",
   "SelectAddressForm.deletingFailedText": "اس ایڈرس کو ہٹانے میں مسئلہ تھا",
   "SelectAddressForm.fetchingFailedText": "دستیاب ایڈرس حاصل کرنے میں مسئلہ تھا ۔",
   "SelectAddressForm.forgetAddressButtonLabel": "نکال دیں",

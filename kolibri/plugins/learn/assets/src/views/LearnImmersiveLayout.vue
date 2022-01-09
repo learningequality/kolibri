@@ -61,8 +61,28 @@
     <!-- Side Panel for content metadata -->
     <FullScreenSidePanel
       v-if="sidePanelContent"
+      alignment="right"
       @closePanel="sidePanelContent = null"
     >
+      <template #header>
+        <!-- Flex styles tested in ie11 and look good. Ensures good spacing between
+            multiple chips - not a common thing but just in case -->
+        <div
+          v-for="activity in sidePanelContent.learning_activities"
+          :key="activity"
+          class="side-panel-chips"
+          :class="$computedClass({ '::after': {
+            content: '',
+            flex: 'auto'
+          } })"
+        >
+          <LearningActivityChip
+            class="chip"
+            style="margin-left: 8px; margin-bottom: 8px;"
+            :kind="activity"
+          />
+        </div>
+      </template>
       <CurrentlyViewedResourceMetadata
         :content="sidePanelContent"
         :canDownloadContent="canDownload"
@@ -73,12 +93,18 @@
     <FullScreenSidePanel
       v-if="showViewResourcesSidePanel"
       class="also-in-this-side-panel"
+      alignment="right"
       @closePanel="showViewResourcesSidePanel = false"
     >
+      <template #header>
+        <h2 style="margin: 0;">
+          {{ viewResourcesTitle }}
+        </h2>
+      </template>
       <AlsoInThis
+        style="margin-top: 8px"
         :contentNodes="viewResourcesContents"
         :nextContent="nextContent"
-        :title="viewResourcesTitle"
         :isLesson="lessonContext"
         :loading="resourcesSidePanelLoading"
       />
@@ -108,13 +134,13 @@
   import useCoreLearn from '../composables/useCoreLearn';
   import useContentNodeProgress from '../composables/useContentNodeProgress';
   import useLearnerResources from '../composables/useLearnerResources';
+  import LearningActivityChip from './LearningActivityChip';
   import LessonResourceViewer from './classes/LessonResourceViewer';
   import CurrentlyViewedResourceMetadata from './CurrentlyViewedResourceMetadata';
   import ContentPage from './ContentPage';
   import LearningActivityBar from './LearningActivityBar';
   import AlsoInThis from './AlsoInThis';
 
-  const sidepanelStrings = crossComponentTranslator(FullScreenSidePanel);
   const lessonStrings = crossComponentTranslator(LessonResourceViewer);
 
   export default {
@@ -144,15 +170,26 @@
       FullScreenSidePanel,
       GlobalSnackbar,
       LearningActivityBar,
+      LearningActivityChip,
       CurrentlyViewedResourceMetadata,
       SkipNavigationLink,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
     setup() {
       const { canDownload } = useCoreLearn();
-      const { fetchContentNodeProgress, fetchContentNodeTreeProgress } = useContentNodeProgress();
+      const {
+        fetchContentNodeProgress,
+        fetchContentNodeTreeProgress,
+        contentNodeProgressMap,
+      } = useContentNodeProgress();
       const { fetchLesson } = useLearnerResources();
-      return { canDownload, fetchContentNodeProgress, fetchContentNodeTreeProgress, fetchLesson };
+      return {
+        canDownload,
+        contentNodeProgressMap,
+        fetchContentNodeProgress,
+        fetchContentNodeTreeProgress,
+        fetchLesson,
+      };
     },
     props: {
       content: {
@@ -191,7 +228,6 @@
     computed: {
       ...mapGetters(['currentUserId', 'isUserLoggedIn']),
       ...mapState({
-        contentProgress: state => state.core.logging.progress,
         error: state => state.core.error,
         loading: state => state.core.loading,
         blockDoubleClicks: state => state.core.blockDoubleClicks,
@@ -199,6 +235,9 @@
       ...mapState('topicsTree', {
         isCoachContent: state => (state.content.coach_content ? 1 : 0),
       }),
+      contentProgress() {
+        return this.contentNodeProgressMap[this.content.content_id];
+      },
       notAuthorized() {
         // catch "not authorized" error, display AuthMessage
         if (
@@ -227,7 +266,7 @@
         /* eslint-disable kolibri/vue-no-undefined-string-uses */
         return this.lessonContext
           ? lessonStrings.$tr('nextInLesson')
-          : sidepanelStrings.$tr('topicHeader');
+          : this.content && this.content.ancestors.slice(-1)[0].title;
         /* eslint-enable */
       },
     },
@@ -428,6 +467,18 @@
     /deep/ .side-panel {
       padding-bottom: 0;
     }
+  }
+
+  .side-panel-chips {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    margin-bottom: -8px;
+    margin-left: -8px;
+  }
+  .chip {
+    margin-bottom: 8px;
+    margin-left: 8px;
   }
 
 </style>

@@ -423,6 +423,7 @@
   "ReportErrorModal.forumPrompt": "Se abewo si Àgbàjọ àpéjọ ìtàkúrọ̀sọ",
   "ReportErrorModal.forumUseTips": "Tu Àgbàjọ àpéjọ ìtàkúrọ̀sọ lati ri boya elomiran ni irufe isoro yii. Ti o ko ba ri ohun ti o jo, lẹ kúlẹ̀kúlẹ̀ isoro naa si ibi yii ninu àpéjọ ìtàkúrọ̀sọ titun ki a le satunse isoro naa ninu ẹ̀yà Kolibri ti yio je àṣẹ̀ṣẹ̀jáde.",
   "ReportErrorModal.reportErrorHeader": "Fi isoro to ni leti",
+  "SearchSideBar.overCertainNumberOfSearchResults": "{num, number, integer} {num, plural, one {esi} other {awon esi}}",
   "SelectAddressForm.deletingFailedText": "Ó ṣòro láti yọ àdírẹ́ẹ̀sì yìí kuro",
   "SelectAddressForm.fetchingFailedText": "Ó ṣòro láti rí àdírẹ́ẹ̀sì tó wà báyìí",
   "SelectAddressForm.forgetAddressButtonLabel": "Yọ kúrò",

@@ -1,14 +1,10 @@
 <template>
 
   <div class="wrapper">
-    <div class="top-bar">
-      <h2>{{ title }}</h2>
-    </div>
-
     <div
       v-if="contentNodes.length"
       class="content-list"
-      :class="nextContent ? '' : 'no-bottom-link'"
+      :class="nextContent ? 'bottom-link' : ''"
     >
       <KRouterLink
         v-for="content in contentNodes"
@@ -69,7 +65,7 @@
     >
       <KIcon class="folder-icon" icon="topic" />
       <div class="next-label">
-        Next folder
+        {{ nextFolderMessage }}
       </div>
       <div class="next-title">
         {{ nextContent.title }}
@@ -118,11 +114,6 @@
         required: true,
         default: () => [],
       },
-      /** Title text for the component. */
-      title: {
-        type: String,
-        required: true,
-      },
       /** Content node with the following properties: id, is_leaf, title */
       nextContent: {
         type: Object, // or falsy
@@ -163,6 +154,11 @@
       context() {
         return this.$route.query;
       },
+      nextFolderMessage() {
+        /* eslint-disable kolibri/vue-no-undefined-string-uses */
+        return sidePanelStrings.$tr('nextFolder');
+        /* eslint-enable */
+      },
     },
     methods: {
       genContentLink,
@@ -185,6 +181,11 @@
   $top-bar-height: 40px;
   $next-content-link-height: 100px;
 
+  .content-list.bottom-link {
+    // Ensure all items are visible when bottom link visible
+    padding-bottom: $next-content-link-height;
+  }
+
   .wrapper {
     position: relative;
     width: 100%;
@@ -200,22 +201,6 @@
     left: 0;
     height: $top-bar-height;
     background-color: #ffffff;
-  }
-
-  .content-list {
-    height: calc(100% - #{$top-bar-height} - #{$next-content-link-height});
-    padding-right: 32px;
-
-    /** margin <> padding offset keeps content aligned the same way
-     *  whether the scrollbar is there or not and pushes the scrollbar
-     *  agains the side of the screen, while being as tall as the scroll */
-    margin-right: -32px;
-    overflow-y: scroll;
-
-    /* When there is nothing to link to in the next-content-link */
-    &.no-bottom-link {
-      height: calc(100% - #{$top-bar-height});
-    }
   }
 
   .item {
@@ -306,12 +291,13 @@
 
   /** Most of the styles for the footer piece */
   .next-content-link {
-    position: absolute;
-    right: -32px;
+    position: fixed;
     bottom: 0;
-    left: -32px;
+    width: 436px;
     height: $next-content-link-height;
     padding: 12px 32px 8px;
+    margin-right: -32px;
+    margin-left: -32px;
     background: white;
 
     .next-label {

@@ -7,7 +7,7 @@ from kolibri.core.tasks.job import RegisteredJob
 
 class JobTest(TestCase):
     def setUp(self):
-        self.job = Job(id)
+        self.job = Job(id, track_progress=True)
         self.job.storage = mock.MagicMock()
 
     def test_job_save_as_cancellable(self):
@@ -17,6 +17,23 @@ class JobTest(TestCase):
         self.job.storage.save_job_as_cancellable.assert_called_once_with(
             self.job.job_id, cancellable=cancellable
         )
+
+    def test_job_save_as_cancellable_sets_cancellable(self):
+        cancellable = not self.job.cancellable
+
+        self.job.save_as_cancellable(cancellable=cancellable)
+        self.assertEqual(self.job.cancellable, cancellable)
+
+    def test_job_update_progress_saves_progress_to_storage(self):
+        self.job.update_progress(0.5, 1.5)
+        self.job.storage.update_job_progress.assert_called_once_with(
+            self.job.job_id, 0.5, 1.5
+        )
+
+    def test_job_update_progress_sets_progress(self):
+        self.job.update_progress(0.5, 1.5)
+        self.assertEqual(self.job.progress, 0.5)
+        self.assertEqual(self.job.total_progress, 1.5)
 
     def test_job_save_as_cancellable__skip(self):
         cancellable = self.job.cancellable

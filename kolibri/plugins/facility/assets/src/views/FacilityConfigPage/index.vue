@@ -78,6 +78,7 @@
 
             <KButton
               :primary="true"
+              :class="windowIsSmall ? 'mobile-button' : ''"
               appearance="raised-button"
               :text="coreString('saveChangesAction')"
               name="save-settings"
@@ -112,6 +113,8 @@
 <script>
 
   import { mapActions, mapGetters, mapState } from 'vuex';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+
   import camelCase from 'lodash/camelCase';
   import isEqual from 'lodash/isEqual';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -140,7 +143,7 @@
       ConfirmResetModal,
       EditFacilityNameModal,
     },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, responsiveWindowMixin],
     data() {
       return {
         showModal: false,
@@ -312,6 +315,10 @@
 
   .checkbox-password {
     margin-left: 24px;
+  }
+
+  .mobile-button {
+    margin-top: 16px;
   }
 
 </style>

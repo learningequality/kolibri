@@ -62,7 +62,6 @@
   "CompletionModal.stayButtonLabel": "ماندن در همین‌جا",
   "CompletionModal.stayDescription": "در همين منبع بمانید و بيشتر تمرين کنید",
   "CompletionModal.stayTitle": "بمانید و تمرين کنید",
-  "ContentCard.copies": "{ num, number} موقعیت",
   "ContentPage.documentTitle": "{ contentTitle } - { channelTitle }",
   "ContentUnavailablePage.adminLink": "وارد کردن کانال‌ها به دستگاه‌تان",
   "ContentUnavailablePage.documentTitle": "منبع خارج از دسترس",

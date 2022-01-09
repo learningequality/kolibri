@@ -1,0 +1,86 @@
+import { shallowMount, mount } from '@vue/test-utils';
+import CompletionCriteria from 'kolibri-constants/CompletionCriteria';
+
+import LearningActivityDuration from '../index';
+
+jest.mock('kolibri.utils.coreStrings', () => {
+  const translations = {
+    readReference: 'Reference',
+    shortActivity: 'Short activity',
+    longActivity: 'Long activity',
+  };
+  return {
+    $tr: jest.fn(key => {
+      return translations[key];
+    }),
+  };
+});
+
+function makeWrapper(propsData) {
+  return mount(LearningActivityDuration, { propsData });
+}
+
+describe(`LearningActivityDuration`, () => {
+  it(`smoke test`, () => {
+    const wrapper = shallowMount(LearningActivityDuration);
+    expect(wrapper.exists()).toBe(true);
+  });
+
+  it('displays time duration for exact time', () => {
+    const wrapper = makeWrapper({
+      contentNode: {
+        duration: 322,
+        options: {
+          completion_criteria: {
+            model: CompletionCriteria.TIME,
+          },
+        },
+      },
+    });
+    expect(wrapper.text()).toBe('5 minutes');
+  });
+
+  it(`displays 'Short activity' as duration for approximate time
+    when estimated time is less than 30 minutes`, () => {
+    const wrapper = makeWrapper({
+      contentNode: {
+        duration: 322,
+        options: {
+          completion_criteria: {
+            model: CompletionCriteria.APPROX_TIME,
+          },
+        },
+      },
+    });
+    expect(wrapper.text()).toBe('Short activity');
+  });
+
+  it(`displays 'Long activity' as duration for approximate time
+    when estimated time is more than 30 minutes`, () => {
+    const wrapper = makeWrapper({
+      contentNode: {
+        duration: 1800 + 322,
+        options: {
+          completion_criteria: {
+            model: CompletionCriteria.APPROX_TIME,
+          },
+        },
+      },
+    });
+    expect(wrapper.text()).toBe('Long activity');
+  });
+
+  it(`displays 'Reference' and no time duration for reference`, () => {
+    const wrapper = makeWrapper({
+      contentNode: {
+        duration: 322,
+        options: {
+          completion_criteria: {
+            model: CompletionCriteria.REFERENCE,
+          },
+        },
+      },
+    });
+    expect(wrapper.text()).toBe('Reference');
+  });
+});

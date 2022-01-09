@@ -190,11 +190,20 @@ def _upgrades_before_django_setup(updated, version):
     if version and updated:
         check_plugin_config_file_location(version)
 
+    # Do this here so that we can fix any issues with our configuration file before
+    # we attempt to set up django.
+    autoremove_unavailable_plugins()
+
     if updated:
         # Reset the enabled plugins to the defaults
         # This needs to be run before dbbackup because
         # dbbackup relies on settings.INSTALLED_APPS
         enable_new_default_plugins()
+
+    # Ensure that we have done all manipulations of our plugins registry before
+    # we do the check for options.ini as that will invoke our plugin registry.
+    # Check if there is an options.ini file exist inside the KOLIBRI_HOME folder
+    check_default_options_exist()
 
     if OPTIONS["Database"]["DATABASE_ENGINE"] == "sqlite":
         # If we are using sqlite,
@@ -255,13 +264,6 @@ def initialize(
     default_options = DefaultDjangoOptions(settings, pythonpath)
 
     handle_default_options(default_options)
-
-    # Do this here so that we can fix any issues with our configuration file before
-    # we attempt to set up django.
-    autoremove_unavailable_plugins()
-
-    # Check if there is an options.ini file exist inside the KOLIBRI_HOME folder
-    check_default_options_exist()
 
     version = get_version()
 

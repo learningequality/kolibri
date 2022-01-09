@@ -7,10 +7,9 @@
 
     <div v-else class="page">
       <!-- Header with thumbail and tagline -->
-      <div v-if="!windowIsSmall" class="header">
+      <div v-if="!windowIsSmall" ref="header" class="header">
         <KGrid>
           <KGridItem
-            v-if="!displayingSearchResults"
             class="breadcrumbs"
             :layout4="{ span: 4 }"
             :layout8="{ span: 8 }"
@@ -63,79 +62,66 @@
           </KGridItem>
         </KGrid>
         <!-- Nested tabs within the header, for toggling sidebar options -->
-        <!-- larger screens -->
-        <div class="tabs">
-          <KRouterLink
-            v-if="topics && topics.length"
-            ref="tab_button"
-            :to="foldersLink"
+        <!-- large screens -->
+        <HeaderTabs v-if="!!windowIsLarge">
+          <HeaderTab
+            v-if="topics.length"
             :text="coreString('folders')"
-            appearance="flat-button"
-            class="tab-button"
-            :style="!searchActive ? {
-              color: `${this.$themeTokens.primary} !important`,
-              borderBottom: `2px solid ${this.$themeTokens.primary}`,
-              paddingBottom: '2px',
-            } : {}"
-            :appearanceOverrides="customTabButtonOverrides"
+            :to="foldersLink"
           />
-          <KRouterLink
-            ref="tab_button"
-            :to="searchLink"
+          <HeaderTab
             :text="coreString('searchLabel')"
-            appearance="flat-button"
-            class="tab-button"
-            :style="searchActive ? {
-              color: `${this.$themeTokens.primary} !important`,
-              borderBottom: `2px solid ${this.$themeTokens.primary}`,
-              paddingBottom: '2px',
-            } : {}"
-            :appearanceOverrides="customTabButtonOverrides"
+            :to="topics.length ? searchTabLink : {} "
           />
-        </div>
+        </HeaderTabs>
       </div>
       <!-- mobile tabs (different alignment and interactions) -->
-      <div v-if="windowIsSmall" class="mobile-header">
-        <div class="mobile-header-contents">
-          <div class="mobile-tabs">
-            <KRouterLink
-              ref="tab_button"
-              :to="foldersLink"
-              :text="coreString('folders')"
-              appearance="flat-button"
-              :appearanceOverrides="customTabButtonOverrides"
+      <KGrid v-if="windowIsSmall" class="mobile-header">
+        <KGridItem
+          :layout4="{ span: 3 }"
+        >
+          <h1 class="mobile-title">
+            <TextTruncator
+              :text="topic.title"
+              :maxHeight="maxDescriptionHeight"
             />
-            <KRouterLink
-              ref="tab_button"
-              :to="searchLink"
-              :text="coreString('searchLabel')"
-              appearance="flat-button"
-              :appearanceOverrides="customTabButtonOverrides"
-            />
-          </div>
+          </h1>
+        </KGridItem>
+        <KGridItem
+          :layout4="{ span: 1 }"
+        >
           <img
             :src="topic.thumbnail"
             class="channel-logo"
           >
-        </div>
-      </div>
+        </KGridItem>
+      </KGrid>
 
       <main
         class="main-content-grid"
         :style="gridOffset"
       >
-        <slot v-if="windowIsSmall" name="breadcrumbs" class="breadcrumbs"></slot>
+        <KBreadcrumbs v-if="breadcrumbs.length && windowIsSmall" :items="breadcrumbs" />
         <div
           class="card-grid"
         >
-          <div v-if="(windowIsMedium && searchActive)">
+          <div v-if="!windowIsLarge">
+            <KButton
+              v-if="topics.length"
+              icon="topic"
+              class="overlay-toggle-button"
+              :text="coreString('folders')"
+              :primary="false"
+              @click="toggleFolderSearchSidePanel('folder')"
+            />
             <KButton
               icon="filter"
-              class="filter-overlay-toggle-button"
-              :text="coreString('searchLabel')"
+              class="overlay-toggle-button"
+              :text="filterTranslator.$tr('filter')"
               :primary="false"
-              @click="$router.push(searchLink)"
+              @click="toggleFolderSearchSidePanel('search')"
             />
+
           </div>
           <!-- default/preview display of nested folder structure, not search -->
           <div v-if="!displayingSearchResults">
@@ -248,9 +234,10 @@
 
       <!-- Embedded Side panel is on larger views, and exists next to content -->
       <EmbeddedSidePanel
-        v-if="!!windowIsLarge || (windowIsMedium && !searchActive)"
+        v-if="!!windowIsLarge"
         v-model="searchTerms"
-        :topicsListDisplayed="!searchActive"
+        :topicsListDisplayed="!desktopSearchActive"
+        class="side-panel"
         topicPage="True"
         :topics="topics"
         :activeActivityButtons="activeActivityButtons"
@@ -262,10 +249,7 @@
         :availableLabels="labels"
         :showChannels="false"
         position="embedded"
-        :style="{ position: 'fixed',
-                  marginTop: stickyTop,
-                  paddingTop: '24px',
-                  paddingBottom: '200px' }"
+        :style="sidePanelStyleOverrides"
         @currentCategory="handleShowSearchModal"
         @loadMoreTopics="handleLoadMoreInTopic"
       />
@@ -274,9 +258,10 @@
       <FullScreenSidePanel
         v-if="!windowIsLarge && sidePanelIsOpen"
         class="full-screen-side-panel"
+        alignment="left"
         :closeButtonHidden="true"
         :sidePanelOverrideWidth="`${sidePanelOverlayWidth}px`"
-        @closePanel="$router.push(currentLink)"
+        @closePanel="toggleFolderSearchSidePanel"
       >
         <KIconButton
           v-if="windowIsSmall && !currentCategory"
@@ -285,7 +270,7 @@
           :ariaLabel="coreString('closeAction')"
           :color="$themeTokens.text"
           :tooltip="coreString('closeAction')"
-          @click="$router.push(currentLink)"
+          @click="toggleFolderSearchSidePanel"
         />
         <KIconButton
           v-if="windowIsSmall && currentCategory"
@@ -298,7 +283,7 @@
         <EmbeddedSidePanel
           v-if="!currentCategory"
           v-model="searchTerms"
-          :topicsListDisplayed="!searchActive"
+          :topicsListDisplayed="!mobileSearchActive"
           topicPage="True"
           :topics="topics"
           :topicsLoading="topicMoreLoading"
@@ -334,10 +319,33 @@
       />
 
     </div>
+
+    <!-- Side panel for showing the information of selected content with a link to view it -->
     <FullScreenSidePanel
       v-if="sidePanelContent"
+      alignment="right"
       @closePanel="sidePanelContent = null"
     >
+      <template #header>
+        <!-- Flex styles tested in ie11 and look good. Ensures good spacing between
+            multiple chips - not a common thing but just in case -->
+        <div
+          v-for="activity in sidePanelContent.learning_activities"
+          :key="activity"
+          class="side-panel-chips"
+          :class="$computedClass({ '::after': {
+            content: '',
+            flex: 'auto'
+          } })"
+        >
+          <LearningActivityChip
+            class="chip"
+            style="margin-left: 8px; margin-bottom: 8px;"
+            :kind="activity"
+          />
+        </div>
+      </template>
+
       <BrowseResourceMetadata :content="sidePanelContent" :showLocationsInChannel="true" />
     </FullScreenSidePanel>
   </div>
@@ -353,6 +361,7 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
+  import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import FullScreenSidePanel from 'kolibri.coreVue.components.FullScreenSidePanel';
@@ -361,9 +370,12 @@
   import { normalizeContentNode } from '../modules/coreLearn/utils.js';
   import useSearch from '../composables/useSearch';
   import genContentLink from '../utils/genContentLink';
+  import HeaderTabs from '../../../../coach/assets/src/views/common/HeaderTabs';
+  import HeaderTab from '../../../../coach/assets/src/views/common/HeaderTabs/HeaderTab';
   import HybridLearningCardGrid from './HybridLearningCardGrid';
   import EmbeddedSidePanel from './EmbeddedSidePanel';
   import BrowseResourceMetadata from './BrowseResourceMetadata';
+  import LearningActivityChip from './LearningActivityChip';
   import CustomContentRenderer from './ChannelRenderer/CustomContentRenderer';
   import CardThumbnail from './ContentCard/CardThumbnail';
   import CategorySearchModal from './CategorySearchModal';
@@ -395,9 +407,12 @@
       CategorySearchModal,
       EmbeddedSidePanel,
       FullScreenSidePanel,
+      LearningActivityChip,
       BrowseResourceMetadata,
       SearchChips,
       TextTruncator,
+      HeaderTab,
+      HeaderTabs,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
     setup() {
@@ -434,19 +449,23 @@
     },
     data: function() {
       return {
-        stickyTop: '388px',
+        sidePanelStyleOverrides: {},
         currentViewStyle: 'card',
         currentCategory: null,
         showSearchModal: false,
+        sidePanelIsOpen: false,
         sidePanelContent: null,
         expandedTopics: {},
         subTopicLoading: null,
         topicMoreLoading: false,
-        childrenToDisplay: 3,
+        mobileSearchActive: false,
       };
     },
     computed: {
       ...mapState('topicsTree', ['channel', 'contents', 'isRoot', 'topic']),
+      childrenToDisplay() {
+        return Math.max(this.numCols, 3);
+      },
       breadcrumbs() {
         if (!this.topic || !this.topic.ancestors) {
           return [];
@@ -463,33 +482,19 @@
           { text: this.topic.ancestors.length ? this.topic.title : this.channelTitle },
         ];
       },
-      sidePanelIsOpen() {
-        return this.$route.query.sidePanel === 'true';
-      },
       foldersLink() {
         if (this.topic) {
-          const query = {};
-          if (this.windowIsSmall) {
-            query.sidePanel = String(
-              this.$route.name === PageNames.TOPICS_TOPIC ? !this.sidePanelIsOpen : true
-            );
-          }
           return {
             name: PageNames.TOPICS_TOPIC,
             id: this.topic.id,
-            query,
           };
         }
         return {};
       },
-      searchLink() {
+      searchTabLink() {
+        // navigates the main page to the search view
         if (this.topic) {
           const query = { ...this.$route.query };
-          if (this.windowIsSmall || this.windowIsMedium) {
-            query.sidePanel = String(
-              this.$route.name === PageNames.TOPICS_TOPIC_SEARCH ? !this.sidePanelIsOpen : true
-            );
-          }
           delete query.dropdown;
           return {
             name: PageNames.TOPICS_TOPIC_SEARCH,
@@ -499,10 +504,7 @@
         }
         return {};
       },
-      currentLink() {
-        return this.searchActive ? this.searchLink : this.foldersLink;
-      },
-      searchActive() {
+      desktopSearchActive() {
         return this.$route.name === PageNames.TOPICS_TOPIC_SEARCH;
       },
       channelTitle() {
@@ -527,9 +529,10 @@
           .map(t => {
             let childrenToDisplay;
             const topicChildren = t.children ? t.children.results : [];
-            if (this.subTopicId) {
+            if (this.subTopicId || this.topics.length === 1) {
               // If we are in a subtopic display, we should only be displaying this topic
               // so don't bother checking if the ids match.
+              // Alternatively, if there is only one topic, we should display all of its children.
               childrenToDisplay = topicChildren.length;
             } else if (this.expandedTopics[t.id]) {
               // If topic is expanded show three times as many children.
@@ -582,20 +585,8 @@
         }
         return false;
       },
-      customTabButtonOverrides() {
-        return {
-          textTransform: 'capitalize',
-          paddingBottom: '10px',
-          fontWeight: 'normal',
-          ':hover': {
-            color: this.$themeTokens.primary,
-            'background-color': this.$themeTokens.surface,
-            borderBottom: `2px solid ${this.$themeTokens.primary}`,
-          },
-        };
-      },
       sidePanelWidth() {
-        if (this.windowIsSmall || (this.windowIsMedium && this.searchActive)) {
+        if (!this.windowIsLarge) {
           return 0;
         } else if (this.windowBreakpoint < 4) {
           return 234;
@@ -650,8 +641,11 @@
         }
       },
       searchTerms(newVal, oldVal) {
-        if (!isEqual(newVal, oldVal) && this.displayingSearchResults) {
-          this.$router.push({ ...this.searchLink, sidePanel: false });
+        if (!isEqual(newVal, oldVal)) {
+          if (!isEqual(this.searchTabLink, this.$route)) {
+            this.$router.push({ ...this.searchTabLink }).catch(() => {});
+          }
+          this.sidePanelIsOpen = false;
         }
       },
     },
@@ -660,6 +654,7 @@
     },
     created() {
       this.translator = crossComponentTranslator(LibraryPage);
+      this.filterTranslator = crossComponentTranslator(FilterTextbox);
       window.addEventListener('scroll', this.throttledHandleScroll);
       this.setSearchWithinDescendant(this.topic);
       this.search();
@@ -685,21 +680,29 @@
       toggleInfoPanel(content) {
         this.sidePanelContent = content;
       },
+      toggleFolderSearchSidePanel(option) {
+        option == 'search' ? (this.mobileSearchActive = true) : (this.mobileSearchActive = false);
+        this.sidePanelIsOpen = !this.sidePanelIsOpen;
+      },
+      // Stick the side panel to top. That can be on the very top of the viewport
+      // or right under the 'Browse channel' toolbar, depending on whether the toolbar
+      // is visible or no (the toolbar hides on smaller resolutions when scrolling
+      // down and appears again when scrolling up).
+      // Takes effect only when the side panel is not displayed full-screen.
       stickyCalculation() {
-        let header = document.getElementsByClassName('header')[0];
-        let topbar = document.getElementsByClassName('ui-toolbar')[0];
-        if (header) {
-          let position = header.getBoundingClientRect();
-          let topbarPosition = topbar.getBoundingClientRect();
-          if (position.bottom >= 64) {
-            this.stickyTop = `${position.bottom}px`;
-          } else if (position.bottom < 0 && topbarPosition.bottom < 0) {
-            this.stickyTop = '0px';
-          } else {
-            this.stickyTop = '64px';
-          }
+        const header = this.$refs.header;
+        const topbar = document.querySelector('.scrolling-header');
+        const headerBottom = header ? header.getBoundingClientRect().bottom : 0;
+        const topbarBottom = topbar ? topbar.getBoundingClientRect().bottom : 0;
+
+        if (headerBottom < Math.max(topbarBottom, 0)) {
+          this.sidePanelStyleOverrides = {
+            position: 'fixed',
+            top: `${Math.max(0, headerBottom, topbarBottom)}px`,
+            height: '100%',
+          };
         } else {
-          null;
+          this.sidePanelStyleOverrides = {};
         }
       },
       handleShowMore(topicId) {
@@ -747,6 +750,8 @@
 
 <style lang="scss" scoped>
 
+  $header-height: 324px;
+
   .page {
     position: relative;
     overflow-x: hidden;
@@ -754,11 +759,10 @@
 
   .header {
     position: relative;
-    // z-index: 4;
     width: 100%;
-    height: 324px;
+    height: $header-height;
     padding-top: 32px;
-    padding-bottom: 0;
+    padding-bottom: 48px;
     padding-left: 32px;
     background-color: white;
     border: 1px solid #dedede;
@@ -777,14 +781,17 @@
     margin: 12px;
   }
 
-  .tabs {
+  .tab-block {
     position: absolute;
     bottom: 0;
+    margin-bottom: 0;
   }
 
-  .tab-button {
-    padding: 18px;
-    border-bottom: 2px solid transparent;
+  .side-panel {
+    position: absolute;
+    top: $header-height;
+    height: calc(100% - #{$header-height});
+    padding-top: 16px;
   }
 
   .main-content-grid {
@@ -816,8 +823,8 @@
     margin-left: 8px;
   }
 
-  .filter-overlay-toggle-button {
-    margin-bottom: 16px;
+  .overlay-toggle-button {
+    margin: 16px 16px 16px 0;
   }
 
   .full-screen-side-panel {
@@ -830,21 +837,23 @@
 
   .mobile-header {
     position: relative;
-    height: 100px;
+    height: 100%;
     background-color: white;
   }
 
-  .mobile-tabs {
-    position: absolute;
-    bottom: 0;
+  .mobile-title {
+    height: 100%;
+    padding-right: 16px;
+    padding-left: 16px;
+    margin-top: 16px;
+    font-size: 18px;
   }
 
   .channel-logo {
     position: absolute;
-    top: 24px;
-    right: 24px;
-    max-height: 55px;
-    vertical-align: bottom;
+    top: 16px;
+    right: 16px;
+    max-height: 40px;
   }
   .overlay-close-button {
     position: absolute;
@@ -860,6 +869,18 @@
     width: 100%;
     margin-top: 16px;
     text-align: center;
+  }
+
+  .side-panel-chips {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    margin-bottom: -8px;
+    margin-left: -8px;
+  }
+  .chip {
+    margin-bottom: 8px;
+    margin-left: 8px;
   }
 
 </style>

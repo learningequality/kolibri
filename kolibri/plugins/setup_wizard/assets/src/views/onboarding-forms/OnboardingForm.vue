@@ -82,6 +82,7 @@
 <style lang="scss" scoped>
 
   .onboarding-form-fields {
+    min-width: 0;
     padding: 0;
     margin: 0;
     margin-bottom: 24px;
@@ -107,6 +108,11 @@
   .form-footer {
     margin: 24px 0;
     margin-top: 24px;
+  }
+
+  /deep/ .truncate-text {
+    // Ensure long text (like German) wrap and stay on screen
+    white-space: normal;
   }
 
 </style>
