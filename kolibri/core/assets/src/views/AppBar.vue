@@ -352,15 +352,6 @@
     right: 8px;
     z-index: 8;
 
-    // Holdover from previous CoreMenuOption format. Will keep the profile
-    // dropdown formatted correctly.
-    /deep/ .core-menu-option-content {
-      padding-right: 8px;
-      padding-left: 8px;
-      font-size: 0.9375rem;
-      color: black !important;
-    }
-
     /deep/ svg {
       fill: black !important;
     }
