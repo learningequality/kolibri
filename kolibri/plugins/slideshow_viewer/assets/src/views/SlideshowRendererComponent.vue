@@ -324,7 +324,6 @@
     top: 8px;
     right: 8px;
     z-index: 12;
-    fill: white;
   }
 
   .slideshow-renderer {
