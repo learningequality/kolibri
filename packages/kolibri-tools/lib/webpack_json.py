@@ -118,7 +118,7 @@ def plugin_data(module_path):
     # Python 3.7 raises a TypeError for an empty directory
     except (NotImplementedError, TypeError):
         pass
-    raise ImportError("No frontend build assets")
+    raise ImportError("No frontend build assets for plugin {}".format(module_path))
 
 
 def initialize_plugins(build_list):
