@@ -12,7 +12,7 @@
           {{ $tr('unlistedChannelTooltip') }}
         </KTooltip>
         <h1>
-          <KLabeledIcon icon="channel" :label="channel.name">
+          <KLabeledIcon icon="channel">
             <template #iconAfter>
               <KIcon
                 v-if="channel.public === false"
@@ -20,15 +20,24 @@
                 icon="unlistedchannel"
               />
             </template>
+            <TextTruncatorCss :text="channel.name" />
           </KLabeledIcon>
         </h1>
       </div>
 
       <KFixedGrid numCols="4">
-        <KFixedGridItem span="1" class="version">
-          <p>{{ $tr('version', { version: versionNumber }) }}</p>
+        <KFixedGridItem
+          :span="windowIsSmall ? 4 : 1"
+          class="version"
+        >
+          <p :style="[windowIsSmall ? { marginBottom: 0 } : {}]">
+            {{ $tr('version', { version: versionNumber }) }}
+          </p>
         </KFixedGridItem>
-        <KFixedGridItem span="3" alignment="right">
+        <KFixedGridItem
+          :span="windowIsSmall ? 4 : 3"
+          :alignment="windowIsSmall ? 'left' : 'right'"
+        >
           <p><slot></slot></p>
         </KFixedGridItem>
       </KFixedGrid>
@@ -74,12 +83,17 @@
 
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
+  import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
   import DeviceInfoPage from '../DeviceInfoPage.vue';
 
   export default {
     name: 'ChannelContentsSummary',
-    mixins: [commonCoreStrings],
+    components: {
+      TextTruncatorCss,
+    },
+    mixins: [commonCoreStrings, KResponsiveWindowMixin],
     props: {
       channel: {
         type: Object,
@@ -151,11 +165,6 @@
 
 
 <style lang="scss" scoped>
-
-  .labeled-icon-wrapper {
-    width: auto;
-    white-space: nowrap;
-  }
 
   .channel-header {
     margin-top: 16px;

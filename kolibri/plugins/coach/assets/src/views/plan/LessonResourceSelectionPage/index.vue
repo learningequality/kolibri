@@ -561,6 +561,8 @@
 
 <style lang="scss" scoped>
 
+  @import '~kolibri-design-system/lib/styles/definitions';
+
   .search-filters {
     margin-top: 24px;
   }

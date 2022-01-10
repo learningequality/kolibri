@@ -357,7 +357,7 @@
         }
         return {
           top: this.fixedAppBar ? `${this.appbarHeight}px` : 0,
-          padding: `${this.windowIsSmall ? 16 : 32}px`,
+          padding: `32px ${this.windowIsSmall ? 16 : 32}px`,
         };
       },
       mainStyles() {
