@@ -22,7 +22,19 @@
     </screenshot>
   </screenshots>
   <releases>
-    <release date="2020-04-29" version="1.0"/>
+    <release version="2.0" date="2022-01-10" type="stable">
+      <description>
+        <p>Changes included in this release:</p>
+        <ul>
+          <li>The header bar now has navigation controls.</li>
+          <li>The loading screen will appear more reliably.</li>
+          <li>Desktop launchers for Kolibri channels will open as separate applications, and include search providers.</li>
+          <li>Kolibri now copies static files instead of creating symbolic links.</li>
+          <li>When kolibri-daemon is a system service, Kolibri will sign in automatically without needing to create a user account.</li>
+        </ul>
+      </description>
+    </release>
+    <release version="1.0" date="2020-04-29" type="stable"/>
   </releases>
   <content_rating type="oars-1.1" />
   <update_contact>info_at_learningequality.org</update_contact>
