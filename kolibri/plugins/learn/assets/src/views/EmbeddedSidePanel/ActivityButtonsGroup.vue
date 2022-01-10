@@ -7,6 +7,7 @@
     <KButton
       appearance="flat-button"
       :appearanceOverrides="customActivityStyles"
+      :disabled="activeKeys.length === 0"
       @click="$emit('input', null)"
     >
       <KIcon icon="allActivities" class="activity-icon" />
