@@ -351,10 +351,6 @@
     position: fixed;
     right: 8px;
     z-index: 8;
-
-    /deep/ svg {
-      fill: black !important;
-    }
   }
 
   .role {

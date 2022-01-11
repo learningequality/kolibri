@@ -81,7 +81,7 @@
         };
       },
       optionIconColor() {
-        return this.active ? this.$themeTokens.primary : this.$themePalette.grey.v_600;
+        return this.active ? this.$themeTokens.primary : null;
       },
     },
     methods: {
