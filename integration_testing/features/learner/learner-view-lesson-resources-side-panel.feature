@@ -7,7 +7,7 @@ Feature: Learner interacts with the View lesson resources side panel
 			And I am at *Learn > Home > Classes > '<class>'* page
 			And there is a <lesson> lesson assigned to me, with several resources
 
-  Scenario: Opening the side panel and selecting another resource
+  Scenario: Learner opens the side panel and selects another resource
     When I click on a content card
     Then I see the <content_item> page
     When I click the *View lesson resources* icon
@@ -15,7 +15,7 @@ Feature: Learner interacts with the View lesson resources side panel
     When I click on a title
     Then I see the <content_item> page for the selected resource
 
-  Scenario: Opening the side panel and viewing the progress status of a <content_item>
+  Scenario: Learner opens the side panel and views the progress status of an item
   	Given I have several completed and in progress resources
   		And I am on a <content_item> page
   	When I click the *View lesson resources* icon
