@@ -3,7 +3,7 @@
     "buildsystem": "simple",
     "build-commands": [
         "pip3 install --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} kolibri",
-        "patch -d /app/lib/python3.9/site-packages/kolibri -p2 < 0001-Allow-superuser-to-be-null-in-device-provision-API.patch"
+        "patch -d ${KOLIBRI_MODULE_PATH} -p2 < 0001-Allow-superuser-to-be-null-in-device-provision-API.patch"
     ],
     "sources": [
         {

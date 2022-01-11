@@ -26,6 +26,11 @@
             "no-autodownload" : true
         }
     },
+    "build-options": {
+        "env": {
+            "KOLIBRI_MODULE_PATH": "/app/lib/python3.9/site-packages/kolibri"
+        }
+    },
     "modules" : [
         "modules/iproute2.json",
         "modules/python3-kolibri.json",

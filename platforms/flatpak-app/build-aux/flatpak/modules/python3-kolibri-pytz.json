@@ -2,7 +2,7 @@
     "name": "python3-pytz",
     "buildsystem": "simple",
     "build-commands": [
-        "pip3 install --exists-action=i --no-index --find-links=\"file://${PWD}\" pytz==2021.3 --upgrade --target=\"/app/lib/python3.9/site-packages/kolibri/dist/\""
+        "pip3 install --exists-action=i --no-index --find-links=\"file://${PWD}\" pytz==2021.3 --upgrade --target=\"${KOLIBRI_MODULE_PATH}/dist/\""
     ],
     "sources": [
         {
