@@ -12,13 +12,16 @@
       >
 
         <!-- Fixed header with optional close button -->
-        <div v-if="$slots.header" ref="fixedHeader" class="fixed-header" :style="fixedHeaderStyles">
-
+        <div
+          v-show="$slots.header"
+          ref="fixedHeader"
+          class="fixed-header"
+          :style="fixedHeaderStyles"
+        >
           <div class="header-content" tabindex="0">
             <slot name="header">
             </slot>
           </div>
-
         </div>
 
         <KIconButton
@@ -158,7 +161,6 @@
     mounted() {
       const htmlTag = window.document.getElementsByTagName('html')[0];
       htmlTag.style['overflow-y'] = 'hidden';
-
       // Gets the height of the fixed header - adds 40 to account for padding
       this.fixedHeaderHeight = this.$refs.fixedHeader.clientHeight + 'px';
 
