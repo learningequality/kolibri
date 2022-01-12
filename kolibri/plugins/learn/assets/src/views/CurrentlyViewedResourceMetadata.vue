@@ -291,7 +291,7 @@
 
   .beginners-chip {
     display: inline-block;
-    padding: 12px;
+    padding: 10px;
     font-weight: bold;
     border-radius: 4px;
   }
