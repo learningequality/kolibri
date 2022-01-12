@@ -2,7 +2,7 @@
 
   <section v-if="content" class="metadata">
 
-    <div>
+    <div class="section">
       <span
         v-if="forBeginners"
         class="beginners-chip"
