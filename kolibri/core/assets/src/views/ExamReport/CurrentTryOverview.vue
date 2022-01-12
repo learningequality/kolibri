@@ -1,7 +1,7 @@
 <template>
 
   <table v-if="currentTryDefined" class="scores">
-    <tr v-if="!hideStatus">
+    <tr v-if="!hideStatus" data-test="try-status">
       <th>
         {{ coreString('statusLabel') }}
       </th>
@@ -10,7 +10,7 @@
         {{ progressIconLabel }}
       </td>
     </tr>
-    <tr v-if="masteryModel">
+    <tr v-if="masteryModel && !isSurvey" data-test="try-mastery-model">
       <th>
         {{ coreString('masteryModelLabel') }}
       </th>
@@ -18,7 +18,7 @@
         <MasteryModel :masteryModel="masteryModel" />
       </td>
     </tr>
-    <tr v-if="correctDefined && !masteryModel">
+    <tr v-if="!isSurvey && correctDefined && !masteryModel" data-test="try-score">
       <th>
         {{ coreString('scoreLabel') }}
       </th>
@@ -26,7 +26,7 @@
         {{ $formatNumber(score, { style: 'percent' }) }}
       </td>
     </tr>
-    <tr v-if="correctDefined && !masteryModel">
+    <tr v-if="!isSurvey && correctDefined && !masteryModel" data-test="try-questions-correct">
       <th>
         {{ $tr('questionsCorrectLabel') }}
       </th>
@@ -42,7 +42,7 @@
         >{{ questionsCorrectAnnotation }}</span>
       </td>
     </tr>
-    <tr v-if="currentTry.time_spent">
+    <tr v-if="!isSurvey && currentTry.time_spent" data-test="try-time-spent">
       <th>
         {{ coreString('timeSpentLabel') }}
       </th>
@@ -56,7 +56,7 @@
         >{{ timeSpentAnnotation }}</span>
       </td>
     </tr>
-    <tr>
+    <tr data-test="try-attempted-ago">
       <th>
         {{ $tr('attemptedLabel') }}
       </th>
@@ -73,6 +73,7 @@
 
 <script>
 
+  import get from 'lodash/get';
   import isPlainObject from 'lodash/isPlainObject';
   import isUndefined from 'lodash/isUndefined';
   import { mapGetters } from 'vuex';
@@ -113,7 +114,7 @@
         type: Number,
         required: true,
       },
-      // Whether to hide the current overal progress
+      // Whether to hide the current overall progress
       // used when using the CurrentTry component in the context
       // of multiple tries, where the overall progress is determined
       // from the most recent try.
@@ -128,9 +129,15 @@
         type: String,
         default: '',
       },
+      // Whether the modality is a Survey - conditionalizes styles
+      isSurvey: {
+        type: Boolean,
+        default: false,
+      },
     },
     computed: {
       ...mapGetters(['currentUserId']),
+      // QUESTION: Why? Wouldn't anything else fail validation? Why not just call tryValidator here?
       currentTryDefined() {
         return isPlainObject(this.currentTry);
       },
@@ -158,11 +165,8 @@
         return 0.0;
       },
       masteryModel() {
-        if (
-          this.currentTryDefined &&
-          this.currentTry.mastery_criterion &&
-          this.currentTry.mastery_criterion.type !== 'quiz'
-        ) {
+        const masteryModel = get(this, 'currentTry.mastery_criterion.type', null);
+        if (masteryModel && masteryModel !== 'quiz') {
           return this.currentTry.mastery_criterion;
         }
         return null;
@@ -171,7 +175,9 @@
         return this.currentTryDefined && !isUndefined(this.currentTry.correct);
       },
       score() {
-        return this.currentTryDefined ? this.currentTry.correct / this.totalQuestions : 0;
+        // Get will return 0 if currentTry.correct is undefined - we || to 0 also
+        // in case the value is for some reason falsy;
+        return get(this, 'currentTry.correct', 0) || 0;
       },
       questionsCorrectAnnotation() {
         if (
@@ -187,6 +193,9 @@
               value: this.currentTry.diff.correct,
             })
           : null;
+      },
+      diffTimeSpent() {
+        return Math.floor(get(this, 'currentTry.diff.time_spent', 0) / 60) || null;
       },
       timeSpentAnnotation() {
         if (!this.currentTryDefined || !this.currentTry.diff) {
