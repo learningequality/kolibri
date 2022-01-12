@@ -79,7 +79,7 @@ export default class xAPI extends BaseShim {
       return 1;
     }
     // If there has been any interaction return some progress, otherwise null.
-    return Object.keys(this.data[STATEMENT]).length ? 0.01 : null;
+    return Object.keys(this.data[STATEMENT] || {}).length ? 0.01 : null;
   }
 
   createAgent() {
