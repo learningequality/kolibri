@@ -6,7 +6,7 @@ const ESLintCLIEngine = require('eslint').CLIEngine;
 const HTMLHint = require('htmlhint').HTMLHint;
 const esLintFormatter = require('eslint/lib/cli-engine/formatters/stylish');
 const stylelint = require('stylelint');
-const colors = require('colors');
+const chalk = require('chalk');
 const stylelintFormatter = require('stylelint').formatters.string;
 const { insertContent } = require('./vueTools');
 
@@ -114,9 +114,9 @@ function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
           linted = prettier.format(code, options);
         } catch (e) {
           messages.push(
-            `${colors.underline(file)}\n${colors.red(
-              'Parsing error during prettier formatting:'
-            )}\n${e.message}`
+            `${chalk.underline(file)}\n${chalk.red('Parsing error during prettier formatting:')}\n${
+              e.message
+            }`
           );
         }
         return linted;
@@ -253,7 +253,7 @@ function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
           }
         }
         if (notSoPretty) {
-          messages.push(colors.yellow(`${file} did not conform to prettier standards`));
+          messages.push(chalk.yellow(`${file} did not conform to prettier standards`));
         }
       } catch (e) {
         // Something went wrong, return the source to be safe.

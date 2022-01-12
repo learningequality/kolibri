@@ -12,7 +12,7 @@ const path = require('path');
 const WebpackDevServer = require('webpack-dev-server');
 const webpack = require('webpack');
 const openInEditor = require('launch-editor-middleware');
-const webpackBaseConfig = require('./webpack.config.base');
+const webpackPluginConfig = require('./webpack.config.plugin');
 const logger = require('./logging');
 const { getEnvVars } = require('./build');
 
@@ -33,20 +33,11 @@ const CONFIG = {
 };
 
 function webpackConfig(pluginData, hot) {
-  const pluginBundle = webpackBaseConfig(pluginData, { hot });
+  const pluginBundle = webpackPluginConfig(pluginData, { hot });
   pluginBundle.devtool = 'cheap-module-source-map';
-  pluginBundle.plugins = pluginBundle.plugins.concat([
-    new webpack.DefinePlugin({
-      'process.env': {
-        NODE_ENV: '"debug"',
-      },
-    }),
-  ]);
   if (hot) {
-    pluginBundle.plugins = pluginBundle.plugins.concat([
-      new webpack.HotModuleReplacementPlugin(),
-      new webpack.NamedModulesPlugin(), // show correct file names in console on update
-    ]);
+    pluginBundle.optimization.moduleIds = 'named';
+    pluginBundle.plugins = pluginBundle.plugins.concat([new webpack.HotModuleReplacementPlugin()]);
   }
   pluginBundle.output.path = path.resolve(path.join('./', CONFIG.basePath));
   return pluginBundle;

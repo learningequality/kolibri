@@ -123,7 +123,6 @@ class WebpackBundleHook(hooks.KolibriHook):
 
         stats_file_content = {
             "files": stats.get("chunks", {}).get(self.unique_id, []),
-            "hasMessages": stats.get("messages", False),
         }
 
         return stats_file_content

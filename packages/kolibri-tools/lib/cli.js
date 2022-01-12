@@ -162,12 +162,9 @@ program
 
     function spawnWebpackProcesses({ completionCallback = null, persistent = true } = {}) {
       const numberOfBundles = bundleData.length;
-      let currentlyCompiling = numberOfBundles;
+      let currentlyCompiling = 0;
       let firstRun = true;
       const start = new Date();
-      // The way we are binding this callback to the webpack compilation hooks
-      // it seems to miss this on first compilation, so we will only use this for
-      // watched builds where rebuilds are possible.
       function startCallback() {
         currentlyCompiling += 1;
       }

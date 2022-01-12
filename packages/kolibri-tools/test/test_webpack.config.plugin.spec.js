@@ -1,6 +1,6 @@
 const path = require('path');
 const _ = require('lodash');
-const webpackConfigBase = require('../lib/webpack.config.base');
+const webpackConfigPlugin = require('../lib/webpack.config.plugin');
 
 jest.mock('../lib/apiSpecExportTools', () => ({
   coreAliases: () => ({}),
@@ -39,53 +39,53 @@ const baseData = {
   index: null,
 };
 
-describe('webpackConfigBase', function() {
+describe('webpackConfigPlugin', function() {
   let data;
   beforeEach(function() {
     data = _.clone(baseData);
   });
   describe('input is valid, bundles output', function() {
     it('should have one entry', function() {
-      expect(Object.keys(webpackConfigBase(data).entry)).toHaveLength(1);
+      expect(Object.keys(webpackConfigPlugin(data).entry)).toHaveLength(1);
     });
     it('should add plugin node modules to resolve paths', function() {
-      expect(webpackConfigBase(data).resolve.modules).toContain(
+      expect(webpackConfigPlugin(data).resolve.modules).toContain(
         path.join(data.plugin_path, 'node_modules')
       );
     });
     it('should add plugin node modules first to resolve paths', function() {
-      expect(webpackConfigBase(data).resolve.modules[0]).toEqual(
+      expect(webpackConfigPlugin(data).resolve.modules[0]).toEqual(
         path.join(data.plugin_path, 'node_modules')
       );
     });
     it('should add plugin node modules to resolve loader paths', function() {
-      expect(webpackConfigBase(data).resolveLoader.modules).toContain(
+      expect(webpackConfigPlugin(data).resolveLoader.modules).toContain(
         path.join(data.plugin_path, 'node_modules')
       );
     });
     it('should add plugin node modules first to resolve loader paths', function() {
-      expect(webpackConfigBase(data).resolveLoader.modules[0]).toEqual(
+      expect(webpackConfigPlugin(data).resolveLoader.modules[0]).toEqual(
         path.join(data.plugin_path, 'node_modules')
       );
     });
     it('should set the name to data.name', function() {
-      expect(webpackConfigBase(data).name).toEqual(data.name);
+      expect(webpackConfigPlugin(data).name).toEqual(data.name);
     });
     it('should set the output path to the correct subdir in static', function() {
-      expect(webpackConfigBase(data).output.path).toEqual(
+      expect(webpackConfigPlugin(data).output.path).toEqual(
         path.resolve(path.join(data.static_dir, data.name))
       );
     });
     it('should include the version in the output filename', function() {
-      expect(webpackConfigBase(data).output.filename).toContain(data.version);
+      expect(webpackConfigPlugin(data).output.filename).toContain(data.version);
     });
     it('should include the version in the output chunk filename', function() {
-      expect(webpackConfigBase(data).output.chunkFilename).toContain(data.version);
+      expect(webpackConfigPlugin(data).output.chunkFilename).toContain(data.version);
     });
   });
 
   function expectParsedDataIsUndefined(data) {
-    expect(webpackConfigBase(data)).toBeUndefined();
+    expect(webpackConfigPlugin(data)).toBeUndefined();
   }
 
   describe('input is missing name, bundles output', function() {

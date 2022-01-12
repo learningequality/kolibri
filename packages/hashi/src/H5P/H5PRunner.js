@@ -6,10 +6,12 @@ import debounce from 'lodash/debounce';
 import unset from 'lodash/unset';
 import Toposort from 'toposort-class';
 import { unzip, strFromU8 } from 'fflate';
-import { filename as H5PFilename } from '../../h5p_build.json';
+import filenameObj from '../../h5p_build.json';
 import mimetypes from '../mimetypes.json';
 import { XAPIVerbMap } from '../xAPI/xAPIVocabulary';
 import loadBinary from './loadBinary';
+
+const H5PFilename = filenameObj.filename;
 
 class Zip {
   constructor(file) {

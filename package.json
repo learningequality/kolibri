@@ -58,10 +58,11 @@
   },
   "engineStrict": true,
   "engines": {
-    "node": "10.x",
+    "node": "16.x",
     "yarn": ">= 1.12.3"
   },
   "browserslist": [
     "extends browserslist-config-kolibri"
-  ]
+  ],
+  "dependencies": {}
 }
