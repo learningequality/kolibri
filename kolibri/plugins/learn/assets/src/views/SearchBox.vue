@@ -44,7 +44,6 @@
             class="search-submit-button"
             :disabled="searchBarDisabled"
             :class="{ 'rtl-icon': icon === 'forward' && isRtl }"
-            :style="{ fill: $themeTokens.textInverted }"
             :ariaLabel="coreString('startSearchButtonLabel')"
             type="submit"
           />
