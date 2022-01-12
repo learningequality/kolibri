@@ -83,16 +83,21 @@ class KolibriDaemonManager(GObject.GObject):
                     "Error calling Kolibri daemon release: {error}".format(error=error)
                 )
 
-    def is_absolute_url(self, url: str) -> bool:
+    def is_url_in_scope(self, url: str) -> bool:
+        return self.__is_base_url(url) or self.__is_extra_url(url)
+
+    def __is_base_url(self, url: str) -> bool:
         base_url = self.__dbus_proxy.props.base_url
+        return base_url and url.startswith(base_url)
 
-        if not base_url:
-            return False
-
-        return url.startswith(base_url)
+    def __is_extra_url(self, url: str) -> bool:
+        extra_url = self.__dbus_proxy.props.extra_url
+        return extra_url and url.startswith(extra_url)
 
     def get_absolute_url(self, url: str = "") -> typing.Optional[str]:
-        if self.__dbus_proxy.props.base_url:
+        if self.is_url_in_scope(url):
+            return url
+        elif self.__dbus_proxy.props.base_url:
             return urljoin(self.__dbus_proxy.props.base_url, url)
         else:
             return None

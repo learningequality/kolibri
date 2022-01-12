@@ -7,6 +7,7 @@ from gettext import gettext as _
 from pathlib import Path
 from urllib.parse import parse_qs
 from urllib.parse import SplitResult
+from urllib.parse import urlencode
 from urllib.parse import urlsplit
 
 from gi.repository import Gio
@@ -89,7 +90,7 @@ class KolibriContext(GObject.GObject):
 
     @property
     def default_url(self) -> str:
-        return "x-kolibri-app:/"
+        return "x-kolibri-app:/learn"
 
     @property
     def webkit_web_context(self) -> WebKit2.WebContext:
@@ -125,20 +126,18 @@ class KolibriContext(GObject.GObject):
         )
 
     def default_is_url_in_scope(self, url: str) -> bool:
-        if not self.__kolibri_daemon.is_absolute_url(url):
+        if not self.__kolibri_daemon.is_url_in_scope(url):
             return False
 
-        base_url = self.__kolibri_daemon.get_absolute_url()
-
-        if not base_url:
-            return False
+        url_tuple = urlsplit(url)
+        url_path = url_tuple.path.lstrip("/")
 
         return not (
-            url.startswith(base_url + "static/")
-            or url.startswith(base_url + "downloadcontent/")
-            or url.startswith(base_url + "content/storage/")
-            or url.startswith(base_url + "facility/api/downloadcsvfile/")
-            or url.startswith(base_url + "api/logger/downloadcsvfile/")
+            url_path.startswith("static/")
+            or url_path.startswith("downloadcontent/")
+            or url_path.startswith("content/storage/")
+            or url_path.startswith("facility/api/downloadcsvfile/")
+            or url_path.startswith("api/logger/downloadcsvfile/")
         )
 
     def is_url_in_scope(self, url: str) -> bool:
@@ -156,29 +155,44 @@ class KolibriContext(GObject.GObject):
 
         Examples:
 
-        - kolibri:t/TOPIC_NODE_ID?searchTerm=addition
+        - kolibri:t/TOPIC_NODE_ID?search=addition
         - kolibri:c/CONTENT_NODE_ID
-        - kolibri:?searchTerm=addition
+        - kolibri:?search=addition
         """
 
+        url_path = url_tuple.path.lstrip("/")
         url_query = parse_qs(url_tuple.query, keep_blank_values=True)
+        url_search = " ".join(url_query.get("search", []))
 
-        if url_tuple.path and url_tuple.path != "/":
-            item_path = "/learn"
-            item_fragment = "/topics/" + url_tuple.path.lstrip("/")
-        elif url_tuple.query:
-            item_path = "/learn"
-            item_fragment = "/search"
+        node_type, _, node_id = url_path.partition("/")
+
+        if node_type == "c":
+            return self._get_kolibri_content_path(node_id, url_search)
+        elif node_type == "t":
+            return self._get_kolibri_topic_path(node_id, url_search)
         else:
-            item_path = "/"
-            item_fragment = ""
+            return self._get_kolibri_library_path(url_search)
 
-        if "searchTerm" in url_query:
-            item_fragment += "?searchTerm={search}".format(
-                search=" ".join(url_query["searchTerm"])
-            )
+    def _get_kolibri_content_path(self, node_id: str, search: str = None) -> str:
+        if search:
+            query = {"keywords": search, "last": "TOPICS_TOPIC_SEARCH"}
+            return f"/learn#/topics/c/{node_id}?{urlencode(query)}"
+        else:
+            return f"/learn#/topics/c/{node_id}"
 
-        return "{path}#{fragment}".format(path=item_path, fragment=item_fragment)
+    def _get_kolibri_topic_path(self, node_id: str, search: str = None) -> str:
+        if search:
+            query = {"keywords": search}
+            return f"/learn#/topics/t/{node_id}/search?{urlencode(query)}"
+        else:
+            return f"/learn#/topics/t/{node_id}"
+
+    def _get_kolibri_library_path(self, search: str = None) -> str:
+        if search:
+            query = {"keywords": search}
+            return f"/learn#/library?{urlencode(query)}"
+        else:
+            return "/learn/#/home"
 
     def url_to_x_kolibri_app(self, url: str) -> str:
         return urlsplit(url)._replace(scheme="x-kolibri-app", netloc="").geturl()
@@ -398,9 +412,18 @@ class KolibriChannelContext(KolibriContext):
 
     @property
     def default_url(self) -> str:
-        return "x-kolibri-app:/learn#topics/{channel_id}".format(
-            channel_id=self.__channel_id
-        )
+        return f"x-kolibri-app:{self.__default_path}"
+
+    @property
+    def __default_path(self) -> str:
+        return f"/learn#/topics/t/{self.__channel_id}"
+
+    def _get_kolibri_library_path(self, search: str = None) -> str:
+        if search:
+            query = {"keywords": search}
+            return f"{self.__default_path}/search?{urlencode(query)}"
+        else:
+            return self.__default_path
 
     def is_url_in_scope(self, url: str) -> bool:
         # Allow the user to navigate to login and account management pages, as
@@ -409,29 +432,30 @@ class KolibriChannelContext(KolibriContext):
 
         # TODO: This is costly and complicated. Instead, we should be able to
         #       ask the Kolibri web frontend to avoid showing links outside of
-        #       the channel, and any such links in a new window.
+        #       the channel, and target external links to a new window.
 
         if not super().is_url_in_scope(url):
             return False
 
         url_tuple = urlsplit(url)
+        url_path = url_tuple.path.lstrip("/")
 
         if re.match(
-            r"^\/(zipcontent|app|static|downloadcontent|content\/storage)\/?",
-            url_tuple.path,
+            r"^(app|static|downloadcontent|content\/storage|content\/static|content\/zipcontent)\/?",
+            url_path,
         ):
             return True
         elif re.match(
-            r"^\/(?P<lang>[\w\-]+\/)?(user|logout|redirectuser|learn\/app)\/?",
-            url_tuple.path,
+            r"^(?P<lang>[\w\-]+\/)?(user|logout|redirectuser|learn\/app)\/?",
+            url_path,
         ):
             return True
         elif re.match(
-            r"^\/(?P<lang>[\w\-]+\/)?kolibri_desktop_auth_plugin\/?",
-            url_tuple.path,
+            r"^(?P<lang>[\w\-]+\/)?kolibri_desktop_auth_plugin\/?",
+            url_path,
         ):
             return True
-        elif re.match(r"^\/(?P<lang>[\w\-]+\/)?learn\/?", url_tuple.path):
+        elif re.match(r"^(?P<lang>[\w\-]+\/)?learn\/?", url_path):
             return self.__is_learn_fragment_in_channel(url_tuple.fragment)
         else:
             return False
@@ -450,11 +474,7 @@ class KolibriChannelContext(KolibriContext):
         if contentnode_id == self.__channel_id:
             return True
 
-        response = self.kolibri_api_get(
-            "/api/content/contentnode/{contentnode_id}".format(
-                contentnode_id=contentnode_id
-            )
-        )
+        response = self.kolibri_api_get(f"/api/content/contentnode/{contentnode_id}")
 
         if not isinstance(response, dict):
             return False

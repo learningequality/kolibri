@@ -47,6 +47,7 @@ class DjangoProcess(KolibriServiceProcess):
             self.context.start_result = None
         self.context.is_stopped = True
         self.context.base_url = ""
+        self.context.extra_url = ""
         self.context.app_key = ""
 
     def __run_kolibri_main(self):
@@ -123,15 +124,24 @@ class _KolibriDaemonPlugin(SimplePlugin):
         self.__context = context
 
         self.bus.subscribe("SERVING", self.SERVING)
+        self.bus.subscribe("ZIP_SERVING", self.ZIP_SERVING)
 
-    def SERVING(self, port):
+    def SERVING(self, port: int):
         from kolibri.utils.server import get_urls
 
-        __, urls = get_urls(listen_port=port)
+        _, base_urls = get_urls(listen_port=port)
 
-        self.__context.base_url = urls[0]
+
+        self.__context.base_url = base_urls[0]
         self.__context.start_result = self.__context.StartResult.SUCCESS
         self.__context.is_starting = False
 
+    def ZIP_SERVING(self, zip_port: int):
+        from kolibri.utils.server import get_urls
+
+        _, zip_urls = get_urls(listen_port=zip_port)
+
+        self.__context.extra_url = zip_urls[0]
+
     def EXIT(self):
-        self.__context.is_stopped = True
+        self.__context.is_starting = False

@@ -17,6 +17,7 @@ class KolibriServiceContext(object):
 
     APP_KEY_LENGTH: int = 32
     BASE_URL_LENGTH: int = 1024
+    EXTRA_URL_LENGTH: int = 1024
     KOLIBRI_HOME_LENGTH: int = 4096
 
     __changed_event: multiprocessing.synchronize.Event
@@ -85,6 +86,9 @@ class KolibriServiceContext(object):
 
         self.__base_url_value = multiprocessing.Array(c_char, self.BASE_URL_LENGTH)
         self.__base_url_set_event = multiprocessing.Event()
+
+        self.__extra_url_value = multiprocessing.Array(c_char, self.EXTRA_URL_LENGTH)
+        self.__extra_url_set_event = multiprocessing.Event()
 
         self.__kolibri_home_value = multiprocessing.Array(
             c_char, self.KOLIBRI_HOME_LENGTH
@@ -255,6 +259,27 @@ class KolibriServiceContext(object):
     def await_base_url(self) -> typing.Optional[str]:
         self.__base_url_set_event.wait()
         return self.base_url
+
+    @property
+    def extra_url(self) -> typing.Optional[str]:
+        if self.__extra_url_set_event.is_set():
+            return self.__extra_url_value.value.decode("ascii")  # type: ignore[attr-defined]
+        else:
+            return None
+
+    @extra_url.setter
+    def extra_url(self, extra_url: typing.Optional[str]):
+        if extra_url is None:
+            self.__extra_url_set_event.clear()
+            self.__extra_url_value.value = None  # type: ignore[attr-defined]
+        else:
+            self.__extra_url_value.value = bytes(extra_url, encoding="ascii")  # type: ignore[attr-defined]
+            self.__extra_url_set_event.set()
+        self.push_has_changes()
+
+    def await_extra_url(self) -> typing.Optional[str]:
+        self.__extra_url_set_event.wait()
+        return self.extra_url
 
     @property
     def kolibri_home(self) -> typing.Optional[str]:
