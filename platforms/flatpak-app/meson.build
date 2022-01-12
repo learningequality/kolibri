@@ -1,5 +1,5 @@
 project('kolibri-gnome', ['c'],
-    meson_version: '>= 0.50.0',
+    meson_version: '>= 0.56.0',
     version: '2.1~devel'
 )
 
@@ -43,7 +43,7 @@ daemon_private_object_path = daemon_object_path + '/Private'
 search_provider_application_id = base_application_id + '.SearchProvider'
 search_provider_object_path = base_object_path + '/SearchProvider'
 
-po_dir = join_paths(meson.source_root(), 'po')
+po_dir = join_paths(meson.project_source_root(), 'po')
 
 kolibri_app_libexecdir = join_paths(libexecdir, 'kolibri-app')
 kolibri_app_datadir = join_paths(datadir, 'kolibri-app')
@@ -75,3 +75,5 @@ kolibri_app_config.set('SEARCH_PROVIDER_OBJECT_PATH', search_provider_object_pat
 subdir('data')
 subdir('po')
 subdir('src')
+
+subdir('tests')
