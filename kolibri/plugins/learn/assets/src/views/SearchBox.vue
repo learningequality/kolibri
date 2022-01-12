@@ -40,7 +40,7 @@
         >
           <KIconButton
             :icon="icon"
-            color="white"
+            :color="$themeTokens.textInverted"
             class="search-submit-button"
             :disabled="searchBarDisabled"
             :class="{ 'rtl-icon': icon === 'forward' && isRtl }"
