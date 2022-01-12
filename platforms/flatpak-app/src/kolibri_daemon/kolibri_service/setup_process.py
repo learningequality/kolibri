@@ -5,7 +5,7 @@ import logging
 import os
 import subprocess
 import typing
-from collections import Mapping
+from collections.abc import Mapping
 from pathlib import Path
 
 from kolibri_app.globals import init_kolibri

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import collections
 import typing
+from collections.abc import Mapping
 from concurrent.futures import ProcessPoolExecutor
 
 from kolibri_app.globals import init_kolibri
@@ -65,16 +65,14 @@ class SearchHandler(object):
         return node_id
 
     @staticmethod
-    def _node_data_to_search_metadata(
-        item_id: str, node_data: collections.Mapping
-    ) -> dict:
+    def _node_data_to_search_metadata(item_id: str, node_data: Mapping) -> dict:
         """
         Given a node data object, returns search metadata as described in the
         GNOME Shell SearchProvider interface:
         <https://developer.gnome.org/SearchProvider/#The_SearchProvider_interface>
         """
 
-        if not isinstance(node_data, collections.Mapping):
+        if not isinstance(node_data, Mapping):
             return None
 
         node_kind = node_data.get("kind")
