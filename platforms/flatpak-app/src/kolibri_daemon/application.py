@@ -309,6 +309,8 @@ class PublicDBusInterface(object):
     def __begin_stop_kolibri_timeout(self):
         if self.__stop_kolibri_timeout_source:
             return
+        if self.__stop_kolibri_timeout_interval < 0:
+            return
         self.__stop_kolibri_timeout_source = GLib.timeout_add_seconds(
             self.__stop_kolibri_timeout_interval, self.__stop_kolibri_timeout_cb
         )
