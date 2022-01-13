@@ -18,10 +18,18 @@
       @change="handleDropdownChange($event.value)"
     >
       <template #display>
-        <AttemptLogItem :attemptLog="attemptLogs[selectedQuestionNumber]" displayTag="span" />
+        <AttemptLogItem
+          :isSurvey="isSurvey"
+          :attemptLog="attemptLogs[selectedQuestionNumber]"
+          displayTag="span"
+        />
       </template>
       <template #option="{ index }">
-        <AttemptLogItem :attemptLog="attemptLogs[index]" displayTag="span" />
+        <AttemptLogItem
+          :isSurvey="isSurvey"
+          :attemptLog="attemptLogs[index]"
+          displayTag="span"
+        />
       </template>
     </KSelect>
 
@@ -55,7 +63,7 @@
             @keydown.enter="setSelectedAttemptLog(index)"
             @keydown.space.prevent="setSelectedAttemptLog(index)"
           >
-            <AttemptLogItem :attemptLog="attemptLog" displayTag="p" />
+            <AttemptLogItem :isSurvey="isSurvey" :attemptLog="attemptLog" displayTag="p" />
           </a>
         </li>
       </template>
@@ -89,6 +97,10 @@
       selectedQuestionNumber: {
         type: Number,
         required: true,
+      },
+      isSurvey: {
+        type: Boolean,
+        default: false,
       },
     },
     computed: {

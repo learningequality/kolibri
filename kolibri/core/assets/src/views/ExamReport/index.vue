@@ -23,18 +23,20 @@
             </h1>
             <KLabeledIcon :icon="isQuiz ? 'quiz' : exercise.kind" :label="title" />
           </div>
-          <!-- only show the current try if the user has only one try -->
+          <!-- only show the current try if the user has only one try or if its a survey -->
           <TriesOverview
-            v-if="pastTries.length > 1"
+            v-if="pastTries.length > 1 && !isSurvey"
             :pastTries="pastTries"
             :totalQuestions="questions.length"
             :suggestedTime="duration"
+            :isSurvey="isSurvey"
           />
           <CurrentTryOverview
             v-else-if="currentTry"
             :userId="userId"
             :currentTry="currentTry"
             :totalQuestions="questions.length"
+            :isSurvey="isSurvey"
           />
         </KGridItem>
         <KGridItem v-if="!windowIsSmall" :layout="{ span: 2, alignment: 'right' }">
@@ -60,6 +62,7 @@
         :currentTry="currentTry"
         :totalQuestions="questions.length"
         :hideStatus="true"
+        :isSurvey="isSurvey"
       />
     </template>
 
@@ -67,6 +70,7 @@
       <AttemptLogList
         :attemptLogs="attemptLogs"
         :selectedQuestionNumber="questionNumber"
+        :isSurvey="isSurvey"
         @select="navigateToQuestion"
       />
     </template>
@@ -80,6 +84,7 @@
           :isMobile="true"
           :attemptLogs="attemptLogs"
           :selectedQuestionNumber="questionNumber"
+          :isSurvey="isSurvey"
           @select="navigateToQuestion"
         />
         <div
@@ -89,28 +94,30 @@
         >
           <h3>{{ coreString('questionNumberLabel', { questionNumber: questionNumber + 1 }) }}</h3>
 
-          <KCheckbox
-            :label="coreString('showCorrectAnswerLabel')"
-            :checked="showCorrectAnswer"
-            @change="toggleShowCorrectAnswer"
-          />
-          <div v-if="currentAttemptDiff" style="padding-bottom: 15px;">
-            <AttemptIconDiff
-              :correct="currentAttempt.correct"
-              :diff="currentAttemptDiff.correct"
+          <div v-if="!isSurvey" data-test="diff-business">
+            <KCheckbox
+              :label="coreString('showCorrectAnswerLabel')"
+              :checked="showCorrectAnswer"
+              @change="toggleShowCorrectAnswer"
             />
-            <AttemptTextDiff
-              :userId="userId"
-              :correct="currentAttempt.correct"
-              :diff="currentAttemptDiff.correct"
+            <div v-if="currentAttemptDiff" style="padding-bottom: 15px;">
+              <AttemptIconDiff
+                :correct="currentAttempt.correct"
+                :diff="currentAttemptDiff.correct"
+              />
+              <AttemptTextDiff
+                :userId="userId"
+                :correct="currentAttempt.correct"
+                :diff="currentAttemptDiff.correct"
+              />
+            </div>
+            <InteractionList
+              v-if="!showCorrectAnswer"
+              :interactions="currentInteractionHistory"
+              :selectedInteractionIndex="selectedInteractionIndex"
+              @select="navigateToQuestionAttempt"
             />
           </div>
-          <InteractionList
-            v-if="!showCorrectAnswer"
-            :interactions="currentInteractionHistory"
-            :selectedInteractionIndex="selectedInteractionIndex"
-            @select="navigateToQuestionAttempt"
-          />
           <KContentRenderer
             v-if="exercise"
             :itemId="renderableItemId"
@@ -273,6 +280,11 @@
         type: Boolean,
         default: true,
       },
+      // Is this.content a survey modality?
+      isSurvey: {
+        type: Boolean,
+        default: false,
+      },
     },
     data() {
       return {
@@ -403,6 +415,7 @@
           return;
         }
         this.loading = true;
+        console.log(this.getParams());
         MasteryLogResource.fetchMostRecentDiff(this.getParams())
           .then(currentTry => {
             this.currentTry = currentTry;

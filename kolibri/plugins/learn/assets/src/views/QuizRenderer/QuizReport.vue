@@ -15,6 +15,8 @@
     :exerciseContentNodes="[content]"
     :navigateTo="navigateTo"
     :questions="questions"
+    :isSurvey="isSurvey"
+    :isQuiz="!isSurvey"
   >
     <template #actions>
       <KButton @click="$emit('repeat')">
@@ -28,6 +30,8 @@
 
 <script>
 
+  import get from 'lodash/get';
+  import Modalities from 'kolibri-constants/Modalities';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ExamReport from 'kolibri.coreVue.components.ExamReport';
   import commonLearnStrings from '../commonLearnStrings';
@@ -70,6 +74,9 @@
               title: this.content.title,
             }))
           : [];
+      },
+      isSurvey() {
+        return get(this, ['content', 'options', 'modality']) === Modalities.SURVEY;
       },
     },
     methods: {

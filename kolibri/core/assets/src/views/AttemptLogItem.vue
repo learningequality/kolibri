@@ -8,46 +8,48 @@
       )
       }}
     </component>
-    <AttemptIconDiff
-      v-if="showDiff"
-      class="diff-item item"
-      :correct="attemptLog.correct"
-      :diff="attemptLog.diff.correct"
-    />
-    <KIcon
-      v-if="attemptLog.noattempt"
-      class="item svg-item"
-      icon="notStarted"
-    />
-    <KIcon
-      v-else-if="attemptLog.correct"
-      class="item svg-item"
-      :style="{ fill: $themeTokens.correct }"
-      icon="correct"
-    />
-    <KIcon
-      v-else-if="attemptLog.error"
-      class="svg-item"
-      :style=" { fill: $themeTokens.annotation }"
-      icon="helpNeeded"
-    />
-    <KIcon
-      v-else-if="!attemptLog.correct"
-      class="item svg-item"
-      :style="{ fill: $themeTokens.incorrect }"
-      icon="incorrect"
-    />
-    <KIcon
-      v-else-if="attemptLog.hinted"
-      class="item svg-item"
-      :style=" { fill: $themeTokens.annotation }"
-      icon="hint"
-    />
-    <CoachContentLabel
-      class="coach-content-label"
-      :value="attemptLog.num_coach_contents || 0"
-      :isTopic="false"
-    />
+    <div v-if="!isSurvey" data-test="question-attempt-icons">
+      <AttemptIconDiff
+        v-if="showDiff"
+        class="diff-item item"
+        :correct="attemptLog.correct"
+        :diff="attemptLog.diff.correct"
+      />
+      <KIcon
+        v-if="attemptLog.noattempt"
+        class="item svg-item"
+        icon="notStarted"
+      />
+      <KIcon
+        v-else-if="attemptLog.correct"
+        class="item svg-item"
+        :style="{ fill: $themeTokens.correct }"
+        icon="correct"
+      />
+      <KIcon
+        v-else-if="attemptLog.error"
+        class="svg-item"
+        :style=" { fill: $themeTokens.annotation }"
+        icon="helpNeeded"
+      />
+      <KIcon
+        v-else-if="!attemptLog.correct"
+        class="item svg-item"
+        :style="{ fill: $themeTokens.incorrect }"
+        icon="incorrect"
+      />
+      <KIcon
+        v-else-if="attemptLog.hinted"
+        class="item svg-item"
+        :style=" { fill: $themeTokens.annotation }"
+        icon="hint"
+      />
+      <CoachContentLabel
+        class="coach-content-label"
+        :value="attemptLog.num_coach_contents || 0"
+        :isTopic="false"
+      />
+    </div>
   </span>
 
 </template>
@@ -73,6 +75,10 @@
       },
       displayTag: {
         type: String,
+        required: true,
+      },
+      isSurvey: {
+        type: Boolean,
         required: true,
       },
     },

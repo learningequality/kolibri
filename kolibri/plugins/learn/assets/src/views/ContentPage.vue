@@ -26,7 +26,7 @@
         @error="onError"
       />
       <QuizRenderer
-        v-else-if="practiceQuiz"
+        v-else-if="practiceQuiz || survey"
         class="content-renderer"
         :content="content"
         :extraFields="extra_fields"
@@ -77,7 +77,7 @@
       :isUserLoggedIn="isUserLoggedIn"
       :contentNodeId="content.id"
       :lessonId="lessonId"
-      :isQuiz="practiceQuiz"
+      :isQuiz="practiceQuiz || survey"
       @close="markAsComplete"
     />
   </div>
@@ -171,6 +171,9 @@
       }),
       practiceQuiz() {
         return get(this, ['content', 'options', 'modality']) === Modalities.QUIZ;
+      },
+      survey() {
+        return get(this, ['content', 'options', 'modality']) === Modalities.SURVEY;
       },
       masteryLevel() {
         return get(this, ['context', 'mastery_level']);

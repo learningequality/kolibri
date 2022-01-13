@@ -247,6 +247,9 @@
       practiceQuiz() {
         return get(this, ['content', 'options', 'modality']) === Modalities.QUIZ;
       },
+      survey() {
+        return get(this, ['content', 'options', 'modality']) === Modalities.SURVEY;
+      },
       contentProgress() {
         return this.contentNodeProgressMap[this.content.content_id];
       },
