@@ -3,10 +3,10 @@ Feature: Learner manually marks resource as complete
 
   Background:
     Given that I am signed in to Kolibri as a learner user
-      And that I am viewing a resouce that I have not completed
+      And that I am viewing a resource that I have not completed
 
   Scenario: Marking an incomplete resource as complete
-    #not yest implemented
+    #not yet implemented
     When I click the context menu for the resource
     Then I see an option *Mark resource as completed*
     When I click *Mark resource as completed*
