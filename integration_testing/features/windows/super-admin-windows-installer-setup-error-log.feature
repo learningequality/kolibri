@@ -9,12 +9,8 @@ Feature: Super admin can see error logs during a failed Windows installer setup
     When I see the setup message that Python is required to install
       And I click "Yes" to install Python
     Then I see the Python is installing
-      And I manually delete or rename the "pip.exe" in the "C:\Python34\Script" path
+      And I manually delete or rename the "pip.exe" in the "C:\Python36\Script" path
       And I continue the Kolibri installation
     Then I see a Kolibri error message
     When I click the 'Kolibri-setup.log' link
     Then I see the installation error log file
-
-Examples:
-| language |
-| Spanish  |
