@@ -5,6 +5,8 @@ from __future__ import unicode_literals
 from functools import partial
 
 from django.db import migrations
+from django.db import OperationalError
+from django.db import ProgrammingError
 
 import kolibri.core.fields
 import kolibri.utils.time_utils
@@ -13,8 +15,15 @@ import kolibri.utils.time_utils
 def convert_datetime_to_datetimetz(apps, schema_editor, model_name=None):
     if model_name:
         Model = apps.get_model("logger", model_name)
-        for model in Model.objects.all():
-            model.save()
+        try:
+            # Prevent the non-existence of this table from blowing up test runs
+            # Seems to only occur on test runs on Travis, but otherwise works fine
+            # Hopefully future migration squashes should prevent this code being
+            # called at all for new users
+            for model in Model.objects.all():
+                model.save()
+        except (OperationalError, ProgrammingError):
+            pass
 
 
 class Migration(migrations.Migration):
