@@ -7,32 +7,39 @@ Feature: Super admin imports facility in device setup
       And the browser is opened at the IP address 127.0.0.1:8080
       And there is another auto-discoverable device in the local network that is running a server with a Kolibri facility
       And I have selected a language in the device setup
-      And I have selected *Organized use*
-      And I have chosen a *Device name*
+      And I have selected *Advanced setup*
+      And I have entered a *Device name*
 
-  Scenario: Import facility
-    Given I see *Create or import facility*
-    When I click *Import facility*
-    Then I see *Select device*
+  Scenario: View a list of devices in my network
+    Given I see *Select a facility setup for this device*
+    When I select *Import all data from an existing facility*
+    	And I click *Continue*
+    Then I see *Select network address*
       And I see a list of devices in my network
 
   Scenario: Import facility from a device with multiple facilities
-    Given I am on *Select network address* modal
+    Given I am at *Select network address* modal
       And I select a device
       And that device has more than one facility loaded
     When I click *Continue*
-    Then I see *Select facility*
-    When I select the facility I want to import
-      And I click *Continue*
     Then I see *Import facility - 1 of 4*
-      And I see the device name I am importing from
+    	And I see *Select facility*
+      And I see the name of the device from which I am importing
       And I see the network address of that device
       And I see a list of facilities on that device
     When I select a facility
-    Then I see *Enter the credentials of a facility admin or a super admin of <device>*
+    Then I see *Enter the username and password for a facility admin of <facility> or a super admin of <device>
     When I enter the username and password of a facility admin or super admin
       And I click *Continue*
     Then I see *Import facility - 2 of 4*
+    	And I see *Loading '<facility>'*
+      And I see loading status bar
+    When the facility has finished loading
+    Then I see the status *Finished*
+      And I see a green check icon
+      And I see *'<facility>' successfully loaded to this device*
+    When I click *Continue*
+    Then I see *Import facility - 3 of 4*
 
   Scenario: Import facility from a device with only one facility
     Given I am on *Select network address* modal
@@ -40,20 +47,62 @@ Feature: Super admin imports facility in device setup
       And that device has only one facility loaded
     When I click *Continue*
     Then I see *Import facility - 1 of 4*
-      And I see the device name I am importing from
+      And I see *Import facility*
+      And I see the name of the device from which I am importing
       And I see the network address of that device
       And I see *Enter the username and password for a facility admin or a super admin of '<device>'*
     When I enter the username and password of a facility admin or super admin
       And I click *Continue*
     Then I see *Import facility - 2 of 4*
+    	And I see *Loading '<facility>'*
+      And I see loading status bar
+    When the facility has finished loading
+    Then I see the status *Finished*
+      And I see a green check icon
+      And I see *'<facility>' successfully loaded to this device*
+    When I click *Continue*
+    Then I see *Import facility - 3 of 4*
 
-  Scenario: Successfully load facility
-    Given I am on *Import facility - 2 of 4* step
-      And I see *Loading '<facility>'*
-      And I see loading status messages
-      And I see an indeterminate loading spinner
-      And I don't see a back arrow in the app bar
-    When the facility is done loading
+    Scenario: Import facility from a 0.14.x device with multiple facilities to a 0.15.x device
+    Given I am at *Select network address* modal
+      And I select a device
+      And that device has more than one facility loaded
+    When I click *Continue*
+    Then I see *Import facility - 1 of 4*
+    	And I see *Select facility*
+      And I see the name of the device from which I am importing
+      And I see the network address of that device
+      And I see a list of facilities on that device
+    When I select a facility
+    Then I see *Enter the username and password for a facility admin of <facility> or a super admin of <device>
+    When I enter the username and password of a facility admin or super admin
+      And I click *Continue*
+    Then I see *Import facility - 2 of 4*
+    	And I see *Loading '<facility>'*
+      And I see loading status bar
+    When the facility has finished loading
+    Then I see the status *Finished*
+      And I see a green check icon
+      And I see *'<facility>' successfully loaded to this device*
+    When I click *Continue*
+    Then I see *Import facility - 3 of 4*
+
+  Scenario: Import facility from a a 0.14.x device with only one facility
+    Given I am on *Select network address* modal
+      And I select a device
+      And that device has only one facility loaded
+    When I click *Continue*
+    Then I see *Import facility - 1 of 4*
+      And I see *Import facility*
+      And I see the name of the device from which I am importing
+      And I see the network address of that device
+      And I see *Enter the username and password for a facility admin or a super admin of '<device>'*
+    When I enter the username and password of a facility admin or super admin
+      And I click *Continue*
+    Then I see *Import facility - 2 of 4*
+    	And I see *Loading '<facility>'*
+      And I see loading status bar
+    When the facility has finished loading
     Then I see the status *Finished*
       And I see a green check icon
       And I see *'<facility>' successfully loaded to this device*
