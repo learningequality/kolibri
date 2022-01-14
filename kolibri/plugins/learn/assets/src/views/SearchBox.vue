@@ -34,20 +34,21 @@
           :ariaLabel="coreString('clearAction')"
           @click="handleClickClear"
         />
-        <div
-          class="search-submit-button-wrapper"
-          :style="{ backgroundColor: $themeTokens.primaryDark }"
+        <KButton
+          :disabled="searchBarDisabled"
+          :primary="true"
+          :appearanceOverrides="{ minWidth: '36px', padding: 0 }"
+          :aria-label="coreString('startSearchButtonLabel')"
+          type="submit"
         >
-          <KIconButton
-            :icon="icon"
-            :color="$themeTokens.textInverted"
-            class="search-submit-button"
-            :disabled="searchBarDisabled"
-            :class="{ 'rtl-icon': icon === 'forward' && isRtl }"
-            :ariaLabel="coreString('startSearchButtonLabel')"
-            type="submit"
-          />
-        </div>
+          <template #icon>
+            <KIcon
+              :icon="icon"
+              :style="{ width: '24px', height: '24px', top: '7px' }"
+              :color="$themeTokens.textInverted"
+            />
+          </template>
+        </KButton>
       </div>
     </div>
   </form>
@@ -212,16 +213,6 @@
 
   .search-clear-button-visible {
     visibility: visible;
-  }
-
-  .search-submit-button {
-    width: 36px;
-    height: 36px;
-  }
-
-  .search-submit-button-wrapper {
-    display: inline-block;
-    vertical-align: middle;
   }
 
   .filter-icon {
