@@ -20,7 +20,7 @@
   >
     <template #actions>
       <KButton @click="$emit('repeat')">
-        {{ $tr('tryAgainButton') }}
+        {{ isSurvey ? $tr('submitAgainButton') : $tr('tryAgainButton') }}
       </KButton>
     </template>
   </ExamReport>
@@ -90,6 +90,10 @@
       tryAgainButton: {
         message: 'Try again',
         context: 'Label for a button used to retake the quiz',
+      },
+      submitAgainButton: {
+        message: 'Submit again',
+        context: 'Label for a button used to retake the survey',
       },
     },
   };

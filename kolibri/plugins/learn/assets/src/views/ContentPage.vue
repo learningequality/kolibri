@@ -38,6 +38,7 @@
         :mastered="complete"
         :masteryLevel="masteryLevel"
         :updateContentSession="wrappedUpdateContentSession"
+        :isSurvey="survey"
         @startTracking="startTracking"
         @stopTracking="stopTracking"
         @updateInteraction="updateInteraction"
@@ -77,7 +78,8 @@
       :isUserLoggedIn="isUserLoggedIn"
       :contentNodeId="content.id"
       :lessonId="lessonId"
-      :isQuiz="practiceQuiz || survey"
+      :isQuiz="practiceQuiz"
+      :isSurvey="survey"
       @close="markAsComplete"
     />
   </div>

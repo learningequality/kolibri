@@ -86,11 +86,11 @@
 
               <CompletionModalSection
                 ref="staySection"
-                :icon="isQuiz ? 'reports' : 'restart'"
+                :icon="(isQuiz || isSurvey) ? 'reports' : 'restart'"
                 :class="sectionClass"
-                :title="isQuiz ? $tr('reviewQuizTitle') : $tr('stayTitle')"
-                :description="isQuiz ? $tr('reviewQuizDescription') : $tr('stayDescription')"
-                :buttonLabel="isQuiz ? $tr('reviewQuizButtonLabel') : $tr('stayButtonLabel')"
+                :title="staySectionTitle"
+                :description="staySectionDescription"
+                :buttonLabel="(isQuiz || isSurvey) ? $tr('reviewReportButtonLabel') : $tr('stayButtonLabel')"
                 @buttonClick="$emit('close')"
               />
 
@@ -206,6 +206,10 @@
         type: Boolean,
         default: false,
       },
+      isSurvey: {
+        type: Boolean,
+        default: false,
+      },
     },
     data() {
       return {
@@ -232,6 +236,24 @@
       };
     },
     computed: {
+      staySectionDescription() {
+        if (this.isQuiz) {
+          return this.$tr('reviewQuizDescription');
+        }
+        if (this.isSurvey) {
+          return this.$tr('reviewSurveyDescription');
+        }
+        return this.$tr('stayDescription');
+      },
+      staySectionTitle() {
+        if (this.isQuiz) {
+          return this.$tr('reviewQuizTitle');
+        }
+        if (this.isSurvey) {
+          return this.$tr('reviewSurveyTitle');
+        }
+        return this.$tr('stayTitle');
+      },
       points() {
         return MaxPointsPerContent;
       },
@@ -439,6 +461,14 @@
         message: 'Stay here',
         context: 'Label for a button used if learner decides to repeat the completed resource.',
       },
+      reviewSurveyTitle: {
+        message: 'Review survey',
+        context: 'Message to the user to review a survey after they completed it.',
+      },
+      reviewSurveyDescription: {
+        message: 'Open the survey report to review your answers',
+        context: 'After learner submitted a practice survey, they can view the report page.',
+      },
       reviewQuizTitle: {
         message: 'Review quiz',
         context: 'Message to the user to review a quiz after they completed it.',
@@ -447,7 +477,7 @@
         message: 'Open the quiz report to review your answers',
         context: 'After learner submitted a practice quiz, they can view the report page.',
       },
-      reviewQuizButtonLabel: {
+      reviewReportButtonLabel: {
         message: 'View report',
         context: 'Label for a button used if learner decides to view the practice quiz report.',
       },
