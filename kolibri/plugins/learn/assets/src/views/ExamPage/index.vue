@@ -58,7 +58,7 @@
               >
                 <KIcon
                   icon="forward"
-                  :style="{ fill: $themeTokens.primary }"
+                  :color="$themeTokens.primary"
                 />
               </UiIconButton>
               <KButton
@@ -89,7 +89,7 @@
               >
                 <KIcon
                   icon="back"
-                  :style="{ fill: $themeTokens.primary }"
+                  :color="$themeTokens.primary"
                 />
               </UiIconButton>
               <KButton
