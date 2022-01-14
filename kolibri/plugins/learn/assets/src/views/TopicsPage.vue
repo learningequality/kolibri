@@ -7,7 +7,15 @@
 
     <div v-else class="page">
       <!-- Header with thumbail and tagline -->
-      <div v-if="!windowIsSmall" ref="header" class="header">
+      <div
+        v-if="!windowIsSmall"
+        ref="header"
+        class="header"
+        :style="{
+          backgroundColor: $themeTokens.surface,
+          borderBottom: `1px solid ${$themeTokens.fineLine}`
+        }"
+      >
         <KGrid>
           <KGridItem
             class="breadcrumbs"
@@ -76,7 +84,11 @@
         </HeaderTabs>
       </div>
       <!-- mobile tabs (different alignment and interactions) -->
-      <KGrid v-if="windowIsSmall" class="mobile-header">
+      <KGrid
+        v-if="windowIsSmall"
+        class="mobile-header"
+        :style="{ backgroundColor: $themeTokens.surface }"
+      >
         <KGridItem
           :layout4="{ span: 3 }"
         >
@@ -133,9 +145,15 @@
                   :text="t.title"
                   :to="genContentLink(t.id)"
                   class="folder-header-link"
-                  iconAfter="chevronRight"
                   :appearanceOverrides="{ color: $themeTokens.text }"
-                />
+                >
+                  <template #iconAfter>
+                    <KIcon
+                      icon="chevronRight"
+                      :style="{ top: '4px' }"
+                    />
+                  </template>
+                </KRouterLink>
               </h2>
               <!-- card grid of items in folder -->
               <HybridLearningCardGrid
@@ -764,16 +782,11 @@
     padding-top: 32px;
     padding-bottom: 48px;
     padding-left: 32px;
-    background-color: white;
-    border: 1px solid #dedede;
   }
 
   .folder-header-link {
     /deep/ .link-text {
       text-decoration: none !important;
-    }
-    /deep/ svg {
-      fill: black !important;
     }
   }
 
@@ -838,7 +851,6 @@
   .mobile-header {
     position: relative;
     height: 100%;
-    background-color: white;
   }
 
   .mobile-title {
