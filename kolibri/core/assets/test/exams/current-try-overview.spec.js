@@ -100,7 +100,8 @@ describe('ExamReport/CurrentTryOverview', () => {
     });
 
     describe('computed masteryModel', () => {
-      // mastery_criterion: null fails tryValidator so it cannot be tested, but the same should happen with {}
+      // mastery_criterion: null fails tryValidator so it cannot
+      // be tested, but the same should happen with {}
       it('is null when currentTry prop has no mastery_criterion', () => {
         const wrapper = shallowMount(CurrentTryOverview, {
           propsData: defaultPropsWith({}, { mastery_criterion: {} }),
@@ -228,14 +229,7 @@ describe('ExamReport/CurrentTryOverview', () => {
       /* Testing a relevant computed property before getting to the display logic */
       describe('computed questionsCorrectAnnotation', () => {
         describe('currentTry.diff.correct > 0 and user viewing own try', () => {
-          /* This would be an $tr, at current 'practiceQuizReportImprovedLabelSecondPerson':
-          practiceQuizReportImprovedLabelSecondPerson: {
-            message:
-              'You improved at {value, number, integer} {value, plural, one {question} other {questions}}',
-            context:
-              'Indicates to the learner how many questions they answered correctly compared to the previous attempt',
-            },
-          */
+          /* This would be an $tr, at current 'practiceQuizReportImprovedLabelSecondPerson': */
           it('returns a string including currentTry.diff.correct in it', () => {
             const wrapper = shallowMount(CurrentTryOverview, {
               propsData: defaultPropsWith({}, { diff: betterDiff }),
@@ -403,7 +397,7 @@ describe('ExamReport/CurrentTryOverview', () => {
       const wrapper = shallowMount(CurrentTryOverview, { propsData: defaultProps });
       expect(wrapper.findComponent(ElapsedTime)).toBeTruthy();
     });
-    // Not testing the "don't show this" because there is no reason for BOTH to be undefined so this should
-    // always be shown for now.
+    // Not testing the "don't show this" because there is no reason for BOTH to be undefined
+    // so this should always be shown for now.
   });
 });

@@ -202,14 +202,12 @@
           return null;
         }
 
-        const fasterTime = this.currentTry.diff.time_spent
-          ? Math.floor(this.currentTry.diff.time_spent / 60)
-          : 0;
-
-        if (fasterTime <= -1) {
-          return this.$tr('practiceQuizReportFasterTimeLabel', { value: Math.abs(fasterTime) });
-        } else if (fasterTime >= 1) {
-          return this.$tr('practiceQuizReportSlowerTimeLabel', { value: fasterTime });
+        if (this.diffTimeSpent <= -1) {
+          return this.$tr('practiceQuizReportFasterTimeLabel', {
+            value: Math.abs(this.diffTimeSpent),
+          });
+        } else if (this.diffTimeSpent >= 1) {
+          return this.$tr('practiceQuizReportSlowerTimeLabel', { value: this.diffTimeSpent });
         }
 
         return null;

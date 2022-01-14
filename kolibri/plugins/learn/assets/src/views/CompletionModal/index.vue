@@ -90,7 +90,8 @@
                 :class="sectionClass"
                 :title="staySectionTitle"
                 :description="staySectionDescription"
-                :buttonLabel="(isQuiz || isSurvey) ? $tr('reviewReportButtonLabel') : $tr('stayButtonLabel')"
+                :buttonLabel="(isQuiz || isSurvey) ?
+                  $tr('reviewReportButtonLabel') : $tr('stayButtonLabel')"
                 @buttonClick="$emit('close')"
               />
 
