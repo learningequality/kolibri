@@ -17,6 +17,9 @@ export default {
     isQuiz(state) {
       return get(state.exercise, ['options', 'modality']) === Modalities.QUIZ;
     },
+    isSurvey(state) {
+      return get(state.exercise, ['options', 'modality']) === Modalities.SURVEY;
+    },
   },
   mutations: {
     SET_STATE(state, payload) {
