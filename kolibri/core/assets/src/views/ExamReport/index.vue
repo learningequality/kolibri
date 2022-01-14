@@ -21,7 +21,7 @@
             <h1 class="title">
               <KLabeledIcon icon="person" :label="userName" />
             </h1>
-            <KLabeledIcon :icon="isQuiz ? 'quiz' : exercise.kind" :label="title" />
+            <KLabeledIcon :icon="titleIcon" :label="title" />
           </div>
           <!-- only show the current try if the user has only one try or if its a survey -->
           <TriesOverview
@@ -363,6 +363,12 @@
           this.currentInteractionHistory &&
           this.currentInteractionHistory[this.selectedInteractionIndex]
         );
+      },
+      titleIcon() {
+        if (this.isSurvey) {
+          return 'reflectSolid';
+        }
+        return this.isQuiz ? 'quiz' : this.exercise.kind;
       },
     },
     watch: {
