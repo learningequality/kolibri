@@ -11,7 +11,6 @@
       <KIconButton
         icon="back"
         :color="$themeTokens.textInverted"
-        :class="{ 'rtl-icon': isRtl }"
         @click="$emit('click_back')"
       />
     </template>
