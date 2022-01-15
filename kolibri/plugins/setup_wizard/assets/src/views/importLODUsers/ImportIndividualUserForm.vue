@@ -13,7 +13,7 @@
       {{ formatNameAndId(facility.name, facility.id) }}
     </p>
     <p>{{ $tr('enterCredentials') }}</p>
-    <p v-if="error && !useAdmin" class="error">
+    <p v-if="error && !useAdmin" :style="{ color: $themeTokens.error }">
       {{ coreString('invalidCredentialsError') }}
     </p>
     <KTextbox
@@ -58,7 +58,7 @@
       @submit="moveAdmin"
     >
       <p> {{ adminModalMessage }} </p>
-      <p v-if="error && useAdmin" class="error">
+      <p v-if="error && useAdmin" :style="{ color: $themeTokens.error }">
         {{ coreString('invalidCredentialsError') }}
       </p>
       <KTextbox
@@ -292,10 +292,6 @@
 
   .facility-name {
     font-weight: bold;
-  }
-
-  .error {
-    color: red;
   }
 
 </style>
