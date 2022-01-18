@@ -181,7 +181,6 @@
 
   .title {
     padding: 0 48px $margin $margin;
-    border-bottom: 2px solid #cecece;
   }
 
   .progress-icon {
