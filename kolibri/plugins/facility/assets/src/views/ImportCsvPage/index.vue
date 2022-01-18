@@ -106,11 +106,6 @@
 
 <style lang="scss" scoped>
 
-  .caution {
-    font-weight: bold;
-    color: red;
-  }
-
   .loader-wrapper {
     margin: 32px;
   }
