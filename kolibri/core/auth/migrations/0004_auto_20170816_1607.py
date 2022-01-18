@@ -14,6 +14,4 @@ class Migration(migrations.Migration):
         ("device", "0001_initial"),
     ]
 
-    operations = [
-        migrations.DeleteModel(name="DeviceOwner"),
-    ]
+    operations = []  # no operations to perform, kept for consistency
