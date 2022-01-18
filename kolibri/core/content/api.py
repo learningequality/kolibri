@@ -555,14 +555,11 @@ class BaseContentNodeMixin(object):
 
 
 class OptionalPagination(ValuesViewsetCursorPagination):
-    ordering = "id"
+    ordering = ("lft", "id")
     page_size_query_param = "max_results"
 
 
 class OptionalContentNodePagination(OptionalPagination):
-    ordering = "id"
-    page_size_query_param = "max_results"
-
     def paginate_queryset(self, queryset, request, view=None):
         # Record the queryset for use in returning available filters
         self.queryset = queryset
