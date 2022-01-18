@@ -128,10 +128,6 @@
     overflow-x: auto;
   }
 
-  /deep/ tr:not(:last-child) {
-    border-bottom: 1px solid rgb(223, 223, 223);
-  }
-
   /deep/ .core-table-checkbox-col {
     width: 40px;
     .k-checkbox-container {
