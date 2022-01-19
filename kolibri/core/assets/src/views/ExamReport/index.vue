@@ -421,7 +421,6 @@
           return;
         }
         this.loading = true;
-        console.log(this.getParams());
         MasteryLogResource.fetchMostRecentDiff(this.getParams())
           .then(currentTry => {
             this.currentTry = currentTry;

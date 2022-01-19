@@ -137,7 +137,6 @@
     },
     computed: {
       ...mapGetters(['currentUserId']),
-      // QUESTION: Why? Wouldn't anything else fail validation? Why not just call tryValidator here?
       currentTryDefined() {
         return isPlainObject(this.currentTry);
       },
