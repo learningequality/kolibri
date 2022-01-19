@@ -11,6 +11,7 @@ from gi.repository import GObject
 from gi.repository import Gtk
 from gi.repository import WebKit2
 from kolibri_app.config import BASE_APPLICATION_ID
+from kolibri_app.config import PROJECT_VERSION
 from kolibri_app.globals import KOLIBRI_HOME_PATH
 from kolibri_app.globals import XDG_CURRENT_DESKTOP
 
@@ -109,6 +110,7 @@ class Application(Gtk.Application):
             modal=True,
             copyright=_("Copyright (c) 2022 Learning Equality"),
             program_name=_("Kolibri"),
+            version=PROJECT_VERSION,
             license_type=Gtk.License.MIT_X11,
             logo_icon_name=BASE_APPLICATION_ID,
             website="https://learningequality.org",

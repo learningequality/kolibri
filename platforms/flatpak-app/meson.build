@@ -1,6 +1,6 @@
 project('kolibri-gnome', ['c'],
     meson_version: '>= 0.50.0',
-    version: '2.0'
+    version: '2.1~devel'
 )
 
 package_string = '@0@-@1@'.format(meson.project_name(), meson.project_version())
@@ -52,6 +52,7 @@ kolibri_app_config = configuration_data()
 kolibri_app_config.set('BINDIR', bindir)
 kolibri_app_config.set('PYTHON', 'python3')
 kolibri_app_config.set('PACKAGE_STRING', package_string)
+kolibri_app_config.set('PROJECT_VERSION', meson.project_version())
 kolibri_app_config.set('GETTEXT_PACKAGE', meson.project_name())
 kolibri_app_config.set('LOCALE_DIR', locale_dir)
 kolibri_app_config.set('BUILD_PROFILE', build_profile)
