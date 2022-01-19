@@ -152,10 +152,12 @@ describe('ExamReport/CurrentTryOverview', () => {
       });
 
       const wrapper = shallowMount(CurrentTryOverview, { propsData: defaultProps });
-      it.each(
-        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 49],
+      it.each([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 49])(
         `returns currentTry.correct (%i) / this.totalQuestions (${defaultProps.totalQuestions})`,
-        n => expect(wrapper.vm.score).toEqual(n / defaultProps.totalQuestions)
+        n => {
+          wrapper.setProps(defaultPropsWith({}, { correct: n }));
+          expect(wrapper.vm.score).toEqual(n / defaultProps.totalQuestions);
+        }
       );
     });
 

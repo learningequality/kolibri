@@ -177,7 +177,7 @@
       score() {
         // Get will return 0 if currentTry.correct is undefined - we || to 0 also
         // in case the value is for some reason falsy;
-        return get(this, 'currentTry.correct', 0) || 0;
+        return get(this, 'currentTry.correct', 0) / this.totalQuestions || 0;
       },
       questionsCorrectAnnotation() {
         if (
