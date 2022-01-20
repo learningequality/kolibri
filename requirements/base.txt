@@ -1,5 +1,5 @@
 diskcache==4.1.0
-django-filter==1.1.0 # pyup: <2.0.0
+django-filter==2.4.0 # pyup: <2.0.0
 django-js-reverse==0.9.1
 djangorestframework==3.9.1
 django==1.11.29  # pyup: >=1.11,<2
