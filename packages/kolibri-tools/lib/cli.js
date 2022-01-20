@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 const fs = require('fs');
 const path = require('path');
+const mkdirp = require('mkdirp');
 const program = require('commander');
 const checkVersion = require('check-node-version');
 const ini = require('ini');
@@ -55,6 +56,7 @@ program
   .option('-h, --hot', 'Use hot module reloading in the webpack devserver', false)
   .option('-p, --port <port>', 'Set a port number to start devserver on', Number, 3000)
   .option('--host <host>', 'Set a host to serve devserver', String, '0.0.0.0')
+  .option('--json', 'Output webpack stats in JSON format - only works in prod mode', false)
   .action(function(mode, options) {
     const buildLogging = logger.getLogger('Kolibri Build');
     const modes = {
@@ -84,6 +86,11 @@ program
 
     if (options.hot && mode !== modes.DEV) {
       cliLogging.error('Hot module reloading can only be used in dev mode.');
+      process.exit(1);
+    }
+
+    if (options.json && mode !== modes.PROD) {
+      cliLogging.error('Stats can only be output in production build mode.');
       process.exit(1);
     }
 
@@ -146,6 +153,39 @@ program
         if (err || stats.hasErrors()) {
           buildLogging.error(err || stats.toString('errors-only'));
           process.exit(1);
+        }
+        if (options.json) {
+          // Recommended output stats taken from:
+          // https://github.com/statoscope/statoscope/tree/master/packages/webpack-plugin#which-stats-flags-statoscope-use
+          // Can use in conjunction with statoscope.
+          const statsJson = stats.toJson({
+            all: false, // disable all the stats
+            hash: true, // compilation hash
+            entrypoints: true, // entrypoints
+            chunks: true, // chunks
+            chunkModules: true, // modules
+            reasons: true, // modules reasons
+            ids: true, // IDs of modules and chunks (webpack 5)
+            dependentModules: true, // dependent modules of chunks (webpack 5)
+            chunkRelations: true, // chunk parents, children and siblings (webpack 5)
+            cachedAssets: true, // information about the cached assets (webpack 5)
+
+            nestedModules: true, // concatenated modules
+            usedExports: true, // used exports
+            providedExports: true, // provided imports
+            assets: true, // assets
+            chunkOrigins: true, // chunks origins stats (to find out which modules require a chunk)
+            version: true, // webpack version
+            builtAt: true, // build at time
+            timings: true, // modules timing information
+            performance: true, // info about oversized assets
+          });
+          mkdirp.sync('./.stats');
+          for (let stat of statsJson.children) {
+            fs.writeFileSync(`.stats/${stat.name}.json`, JSON.stringify(stat, null, 2), {
+              encoding: 'utf-8',
+            });
+          }
         }
       });
     }
