@@ -12,6 +12,7 @@
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Vendored and simplified from https://github.com/romainberger/webpack-rtl-plugin/blob/master/src/index.js
 const path = require('path');
 const rtlcss = require('rtlcss');
 const webpack = require('webpack');
@@ -30,11 +31,16 @@ class WebpackRTLPlugin {
 
   apply(compiler) {
     compiler.hooks.compilation.tap(pluginName, compilation => {
-      compilation.hooks.processAssets.tapAsync(pluginName, (chunks, callback) => {
-        for (let chunk in chunks) {
-          for (let asset in chunk.files) {
-            if (path.extname(asset) !== '.css') {
-              const baseSource = compilation.assets[asset].source();
+      compilation.hooks.processAssets.tap(
+        {
+          name: pluginName,
+          stage: compilation.PROCESS_ASSETS_STAGE_DERIVED,
+          additionalAssets: true,
+        },
+        assets => {
+          for (let asset in assets) {
+            if (asset.endsWith('.css') && !asset.endsWith('.rtl.css')) {
+              const baseSource = assets[asset].source();
               const rtlSource = rtlcss.process(
                 baseSource,
                 this.options.options,
@@ -44,13 +50,11 @@ class WebpackRTLPlugin {
               const newFilename = `${path.basename(asset, '.css')}.rtl`;
               const filename = asset.replace(path.basename(asset, '.css'), newFilename);
 
-              compilation.assets[filename] = new webpack.sources.RawSource(rtlSource);
-              chunk.files.add(filename);
+              compilation.emitAsset(filename, new webpack.sources.RawSource(rtlSource));
             }
           }
         }
-        callback();
-      });
+      );
     });
   }
 }
