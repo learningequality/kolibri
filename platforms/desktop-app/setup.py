@@ -2,12 +2,8 @@ import sys
 
 from setuptools import setup
 
-
-version = "0.3.0"
-
 setup(
     name="kolibri-app",
-    version=version,
     description="wxPython app for the Kolibri Learning Platform.",
     author="Learning Equality",
     author_email="dev@learningequality.org",

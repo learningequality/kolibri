@@ -97,8 +97,7 @@ class KolibriApp(wx.App):
         if (
             url is not None
             and url.startswith("http")
-            and self.kolibri_origin is None
-            and not url.startswith(self.kolibri_origin)
+            and not url.startswith("http://localhost")
         ):
             webbrowser.open(url)
             return False
