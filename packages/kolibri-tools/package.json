@@ -35,7 +35,6 @@
     "css-loader": "6.5.1",
     "css-minimizer-webpack-plugin": "3.3.1",
     "csv-parse": "^4.14.1",
-    "csv-parser": "^2.3.3",
     "csv-writer": "^1.3.0",
     "del": "^6.0.0",
     "eslint": "^6.8.0",
@@ -48,14 +47,11 @@
     "espree": "6.2.1",
     "esquery": "^1.0.1",
     "express": "^4.16.4",
-    "file-loader": "^6.2.0",
     "glob": "^7.1.2",
     "htmlhint": "^0.9.13",
     "ini": "^2.0.0",
-    "intl-messageformat-parser": "^1.3.0",
     "jest": "^24.5.0",
     "jest-serializer-vue": "^2.0.2",
-    "json-loader": "^0.5.4",
     "launch-editor-middleware": "^2.2.1",
     "lodash": "^4.17.21",
     "mini-css-extract-plugin": "^1.4.1",
@@ -66,12 +62,10 @@
     "process": "^0.11.10",
     "query-ast": "^1.0.1",
     "readline-sync": "^1.4.9",
-    "rewire": "^2.5.2",
     "rtlcss": "3.5.0",
     "sass-loader": "12.4.0",
     "scss-parser": "^1.0.0",
     "semver": "^5.6.0",
-    "shelljs": "^0.7.4",
     "strip-ansi": "6.0.1",
     "style-loader": "^2.0.0",
     "stylelint": "14.2.0",
@@ -99,6 +93,7 @@
     "npm": ">= 8"
   },
   "devDependencies": {
-    "recast": "^0.20.4"
+    "recast": "^0.20.4",
+    "rewire": "^2.5.2"
   }
 }
