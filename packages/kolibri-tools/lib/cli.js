@@ -51,15 +51,10 @@ program
     String,
     ''
   )
-  .option('-s, --single', 'Run using a single core to reduce CPU burden', false)
+  .option('--parallel <parallel>', 'Run multiple bundles in parallel', Number, 0)
   .option('-h, --hot', 'Use hot module reloading in the webpack devserver', false)
-  .option(
-    '-p, --port <port>',
-    'Set a port number to start devservers or bundle stats servers on',
-    Number,
-    3000
-  )
-  .option('--host <host>', 'Set a host to server devserver or bundle stats on', String, '0.0.0.0')
+  .option('-p, --port <port>', 'Set a port number to start devserver on', Number, 3000)
+  .option('--host <host>', 'Set a host to serve devserver', String, '0.0.0.0')
   .action(function(mode, options) {
     const buildLogging = logger.getLogger('Kolibri Build');
     const modes = {
@@ -120,6 +115,10 @@ program
 
     const webpackArray = bundleData.map(bundle => webpackConfig(bundle, buildOptions));
 
+    if (options.parallel) {
+      webpackArray.parallelism = options.parallel;
+    }
+
     const webpack = require('webpack');
 
     const compiler = webpack(webpackArray);
@@ -147,8 +146,6 @@ program
         if (err || stats.hasErrors()) {
           buildLogging.error(err || stats.toString('errors-only'));
           process.exit(1);
-        } else {
-          buildLogging.info('Build complete');
         }
       });
     }
