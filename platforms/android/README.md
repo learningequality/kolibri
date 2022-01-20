@@ -16,7 +16,7 @@ This project was primarily developed on Docker, so this method is more rigorousl
 
 ## Build on Host
 
-1. Install [PyEverywhere](https://github.com/kollivier/pyeverywhere) and its build dependencies (for building Python). For Ubuntu, you can find the list of dependencies in the [Dockerfile](./Dockerfile).
+1. Install [PyEverywhere](https://github.com/learningequality/pyeverywhere) and its build dependencies (for building Python). For Ubuntu, you can find the list of dependencies in the [Dockerfile](./Dockerfile).
 
 2. Build or download a Kolibri WHL file, and place it in the `whl/` directory.
 
