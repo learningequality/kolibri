@@ -143,6 +143,20 @@ program
         headers: {
           'Access-Control-Allow-Origin': '*',
         },
+        setupMiddlewares: (middlewares, devServer) => {
+          if (!devServer) {
+            throw new Error('webpack-dev-server is not defined');
+          }
+          const openInEditor = require('launch-editor-middleware');
+
+          middlewares.unshift({
+            name: 'open-in-editor',
+            path: '/__open-in-editor',
+            middleware: openInEditor(),
+          });
+
+          return middlewares;
+        },
       };
 
       const WebpackDevServer = require('webpack-dev-server');
