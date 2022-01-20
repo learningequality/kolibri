@@ -91,7 +91,7 @@
                 :title="staySectionTitle"
                 :description="staySectionDescription"
                 :buttonLabel="(isQuiz || isSurvey) ?
-                  $tr('reviewReportButtonLabel') : $tr('stayButtonLabel')"
+                  $tr('reviewQuizButtonLabel') : $tr('stayButtonLabel')"
                 @buttonClick="$emit('close')"
               />
 
@@ -468,7 +468,7 @@
       },
       reviewSurveyDescription: {
         message: 'Open the survey report to review your answers',
-        context: 'After learner submitted a practice survey, they can view the report page.',
+        context: 'After learner submitted a survey, they can view the report page.',
       },
       reviewQuizTitle: {
         message: 'Review quiz',
@@ -478,7 +478,7 @@
         message: 'Open the quiz report to review your answers',
         context: 'After learner submitted a practice quiz, they can view the report page.',
       },
-      reviewReportButtonLabel: {
+      reviewQuizButtonLabel: {
         message: 'View report',
         context: 'Label for a button used if learner decides to view the practice quiz report.',
       },

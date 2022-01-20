@@ -469,7 +469,7 @@
       submitSurvey: {
         message: 'Submit survey',
         context:
-          'Action that learner takes to submit their exam answers so that the coach can review them.',
+          'Action that learner takes to submit their exam answers so that they can be reviewed.',
       },
       questionsAnswered: {
         message:

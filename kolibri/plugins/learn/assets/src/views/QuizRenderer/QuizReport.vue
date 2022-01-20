@@ -93,7 +93,7 @@
       },
       submitAgainButton: {
         message: 'Submit again',
-        context: 'Label for a button used to retake the survey',
+        context: 'Label for a button used to resubmit the survey',
       },
     },
   };
