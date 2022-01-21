@@ -259,19 +259,10 @@
         v-if="!windowIsLarge && sidePanelIsOpen"
         class="full-screen-side-panel"
         alignment="left"
-        :closeButtonHidden="true"
+        :fullScreenSidePanelCloseButton="true"
         :sidePanelOverrideWidth="`${sidePanelOverlayWidth}px`"
         @closePanel="toggleFolderSearchSidePanel"
       >
-        <KIconButton
-          v-if="windowIsSmall && !currentCategory"
-          class="overlay-close-button"
-          icon="close"
-          :ariaLabel="coreString('closeAction')"
-          :color="$themeTokens.text"
-          :tooltip="coreString('closeAction')"
-          @click="toggleFolderSearchSidePanel"
-        />
         <KIconButton
           v-if="windowIsSmall && currentCategory"
           icon="back"
@@ -854,11 +845,6 @@
     top: 16px;
     right: 16px;
     max-height: 40px;
-  }
-  .overlay-close-button {
-    position: absolute;
-    top: 8px;
-    right: 24px;
   }
 
   .more-after-grid {

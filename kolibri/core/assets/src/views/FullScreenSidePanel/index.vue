@@ -22,7 +22,16 @@
         </div>
 
         <KIconButton
-          v-if="!closeButtonHidden"
+          v-if="fullScreenSidePanelCloseButton"
+          icon="close"
+          class="close-button"
+          :style="closeButtonFullScreenSidePanelStyles"
+          :ariaLabel="coreString('closeAction')"
+          :tooltip="coreString('closeAction')"
+          @click="closePanel"
+        />
+        <KIconButton
+          v-else
           icon="close"
           class="close-button"
           :style="closeButtonStyles"
@@ -62,9 +71,7 @@
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
     props: {
-      /* Hides the (X) icon button to close the side panel. In this case, clicking off of the
-         panel or hitting the ESC keys are the only way to close the panel */
-      closeButtonHidden: {
+      fullScreenSidePanelCloseButton: {
         type: Boolean,
         default: false,
       },
@@ -151,6 +158,13 @@
       closeButtonStyles() {
         return {
           top: `calc((${this.fixedHeaderHeight} - 40px) / 2)`,
+        };
+      },
+      closeButtonFullScreenSidePanelStyles() {
+        return {
+          position: 'absolute',
+          top: '8px',
+          right: '8px',
         };
       },
     },
