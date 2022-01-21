@@ -214,7 +214,9 @@
           this.focusSidePanel();
         }
         this.firstFocusableEl =
-          this.$el.querySelector('.search-box') || this.$el.querySelector('.raised');
+          this.$el.querySelector('.search-box') ||
+          this.$el.querySelector('.raised') ||
+          this.$el.querySelector('.side-panel-folder-link');
         this.lastFocusableEl = this.$refs.closeButton.$el;
       },
       focusSidePanel() {
