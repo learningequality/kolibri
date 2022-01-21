@@ -18,9 +18,10 @@
           <!-- Layout notes
             - Layout12 span8 -> ~66% width on windowIsLarge
             - No other layout definitions means span will be 100%
-            - When not interactive, this should be full width
+            - If we're not allowingHints, then it should be 100% because
+              they're the reason we'd go smaller at all
           -->
-          <KGridItem :layout12="{ span: interactive ? 6 : 12 }">
+          <KGridItem :layout12="{ span: allowHints && interactive ? 6 : 12 }">
             <div
               id="problem-area"
               class="problem-area"
@@ -31,13 +32,11 @@
           </KGridItem>
 
           <!--
-              - Only show the hints section at all if in interactive mode
-                Initially done to hide it in Coach reports after recent improvements to
-                the styles here for Learners.
+              - Hide when not allowing hints
               - It is a v-show because seems without the proper anchors in place
                 it will fail to properly mount the react component
           -->
-          <KGridItem v-show="interactive" :layout12="{ span: 6 }">
+          <KGridItem v-show="interactive && allowHints" :layout12="{ span: 6 }">
             <div v-if="hinted" id="hintlabel" class="hintlabel" :dir="contentDirection">
               {{ $tr("hintLabel") }}
             </div>
