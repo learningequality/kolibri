@@ -34,6 +34,7 @@
       <SearchBox
         key="channel-search"
         placeholder="findSomethingToLearn"
+        :tabindex="0"
         :value="value.keywords || ''"
         @change="val => $emit('input', { ...value, keywords: val })"
       />
