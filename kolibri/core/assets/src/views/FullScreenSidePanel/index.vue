@@ -16,7 +16,7 @@
           :style="sidePanelStyles"
         >
 
-          <!-- Fixed header with optional close button -->
+          <!-- Fixed header -->
           <div
             v-show="$slots.header"
             ref="fixedHeader"
