@@ -2,53 +2,61 @@
 
   <div
     ref="sidePanel"
+    :tabindex="0"
     :class="{ 'is-rtl': isRtl, 'is-mobile': isMobile }"
     @keyup.esc="closePanel"
   >
     <transition name="side-panel">
-      <div
-        class="side-panel"
-        :style="sidePanelStyles"
+      <FocusTrap
+        :firstEl="firstFocusableEl"
+        :lastEl="lastFocusableEl"
       >
-
-        <!-- Fixed header with optional close button -->
         <div
-          v-show="$slots.header"
-          ref="fixedHeader"
-          class="fixed-header"
-          :style="fixedHeaderStyles"
+          class="side-panel"
+          :style="sidePanelStyles"
         >
-          <div class="header-content" tabindex="0">
-            <slot name="header">
-            </slot>
+
+          <!-- Fixed header with optional close button -->
+          <div
+            v-show="$slots.header"
+            ref="fixedHeader"
+            class="fixed-header"
+            :style="fixedHeaderStyles"
+          >
+            <div class="header-content">
+              <slot name="header">
+              </slot>
+            </div>
           </div>
+
+          <!-- Default slot for inserting content which will scroll on overflow -->
+          <div class="side-panel-content" :style="contentStyles">
+            <slot></slot>
+          </div>
+
+          <KIconButton
+            v-if="fullScreenSidePanelCloseButton"
+            ref="closeButton"
+            icon="close"
+            class="close-button"
+            :style="closeButtonFullScreenSidePanelStyles"
+            :ariaLabel="coreString('closeAction')"
+            :tooltip="coreString('closeAction')"
+            @click="closePanel"
+          />
+          <KIconButton
+            v-else
+            ref="closeButton"
+            icon="close"
+            class="close-button"
+            :style="closeButtonStyles"
+            :ariaLabel="coreString('closeAction')"
+            :tooltip="coreString('closeAction')"
+            @click="closePanel"
+          />
+
         </div>
-
-        <KIconButton
-          v-if="fullScreenSidePanelCloseButton"
-          icon="close"
-          class="close-button"
-          :style="closeButtonFullScreenSidePanelStyles"
-          :ariaLabel="coreString('closeAction')"
-          :tooltip="coreString('closeAction')"
-          @click="closePanel"
-        />
-        <KIconButton
-          v-else
-          icon="close"
-          class="close-button"
-          :style="closeButtonStyles"
-          :ariaLabel="coreString('closeAction')"
-          :tooltip="coreString('closeAction')"
-          @click="closePanel"
-        />
-
-        <!-- Default slot for inserting content which will scroll on overflow -->
-        <div class="side-panel-content" :style="contentStyles">
-          <slot></slot>
-        </div>
-
-      </div>
+      </FocusTrap>
     </transition>
 
     <Backdrop
@@ -66,11 +74,13 @@
   import Backdrop from 'kolibri.coreVue.components.Backdrop';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import FocusTrap from 'kolibri.coreVue.components.FocusTrap';
 
   export default {
     name: 'FullScreenSidePanel',
     components: {
       Backdrop,
+      FocusTrap,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
     props: {
@@ -97,6 +107,9 @@
       return {
         /* Will be calculated in mounted() as it will get the height of the fixedHeader then */
         fixedHeaderHeight: 0,
+        firstFocusableEl: null,
+        lastFocusableEl: null,
+        lastFocus: null,
       };
     },
     computed: {
@@ -171,6 +184,9 @@
         };
       },
     },
+    beforeMount() {
+      this.lastFocus = document.activeElement;
+    },
     /* this is the easiest way I could think to avoid having dual scroll bars */
     mounted() {
       const htmlTag = window.document.getElementsByTagName('html')[0];
@@ -178,16 +194,31 @@
       // Gets the height of the fixed header - adds 40 to account for padding
       this.fixedHeaderHeight = this.$refs.fixedHeader.clientHeight + 'px';
 
-      // Ensures user starts at top header with keyboard focus
-      this.$refs.fixedHeader.focus();
+      this.$nextTick(() => {
+        this.setFocusTrap();
+      });
     },
     beforeDestroy() {
       const htmlTag = window.document.getElementsByTagName('html')[0];
       htmlTag.style['overflow-y'] = 'auto';
     },
+    destroyed() {
+      window.setTimeout(() => this.lastFocus.focus());
+    },
     methods: {
       closePanel() {
         this.$emit('closePanel');
+      },
+      setFocusTrap() {
+        if (this.$refs.sidePanel && !this.$refs.sidePanel.contains(document.activeElement)) {
+          this.focusSidePanel();
+        }
+        this.firstFocusableEl =
+          this.$el.querySelector('.search-box') || this.$el.querySelector('.raised');
+        this.lastFocusableEl = this.$refs.closeButton.$el;
+      },
+      focusSidePanel() {
+        this.$refs.sidePanel.focus();
       },
     },
     $trs: {
