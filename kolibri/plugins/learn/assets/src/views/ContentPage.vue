@@ -28,6 +28,7 @@
       <QuizRenderer
         v-else-if="practiceQuiz || survey"
         class="content-renderer"
+        :style="{ paddingBottom: windowIsSmall ? '80px' : '0px' }"
         :content="content"
         :extraFields="extra_fields"
         :progress="progress"
@@ -92,6 +93,7 @@
   import get from 'lodash/get';
   import { mapState, mapGetters } from 'vuex';
   import { ContentNodeResource } from 'kolibri.resources';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import router from 'kolibri.coreVue.router';
   import Modalities from 'kolibri-constants/Modalities';
   import { setContentNodeProgress } from '../composables/useContentNodeProgress';
@@ -116,7 +118,7 @@
       CompletionModal,
       QuizRenderer,
     },
-    mixins: [commonLearnStrings],
+    mixins: [commonLearnStrings, responsiveWindowMixin],
     setup() {
       const {
         progress,

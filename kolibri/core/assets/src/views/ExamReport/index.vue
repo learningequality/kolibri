@@ -57,7 +57,7 @@
         @change="navigateToTry"
       />
       <CurrentTryOverview
-        v-if="currentTry && pastTries.length > 1"
+        v-if="currentTry && pastTries.length > 1 && currentTry.attemptlogs.length"
         :userId="userId"
         :currentTry="currentTry"
         :totalQuestions="questions.length"
@@ -66,7 +66,7 @@
       />
     </template>
 
-    <template v-if="!windowIsSmall && !loading" #aside>
+    <template v-if="!windowIsSmall && !loading && currentTry.attemptlogs.length" #aside>
       <AttemptLogList
         :attemptLogs="attemptLogs"
         :selectedQuestionNumber="questionNumber"
@@ -75,7 +75,7 @@
       />
     </template>
 
-    <template #main>
+    <template v-if="currentTry.attemptlogs.length" #main>
       <KCircularLoader v-if="loading" class="loader" />
       <template v-else-if="itemId">
         <AttemptLogList
@@ -297,7 +297,7 @@
     },
     computed: {
       attemptLogs() {
-        if (this.isQuiz) {
+        if (this.isQuiz || this.isSurvey) {
           return this.quizAttempts();
         }
         return this.masteryAttempts();
@@ -332,12 +332,12 @@
           });
           return {
             value: index,
-            label: `(${score}%) ${time}`,
+            label: this.isSurvey ? time : `(${score}%) ${time}`,
           };
         });
       },
       itemId() {
-        return this.isQuiz
+        return this.isQuiz || this.isSurvey
           ? this.questions[this.questionNumber].item
           : this.attemptLogs[this.questionNumber].item;
       },
@@ -424,13 +424,13 @@
         MasteryLogResource.fetchMostRecentDiff(this.getParams())
           .then(currentTry => {
             this.currentTry = currentTry;
-            this.loading = false;
           })
           .catch(err => {
             if (err.response && err.response.status_code === 404) {
               this.$emit('noCompleteTries');
             }
-          });
+          })
+          .finally(() => (this.loading = false));
       },
       loadAllTries() {
         MasteryLogResource.fetchCollection({ getParams: this.getParams(), force: true }).then(
