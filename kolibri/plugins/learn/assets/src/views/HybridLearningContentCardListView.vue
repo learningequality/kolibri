@@ -21,7 +21,7 @@
           >
             {{ bookmarkCreated }}
           </p>
-          <ProgressBar :contentNode="content" />
+          <ProgressBar v-if="!isMobile" :contentNode="content" />
         </KFixedGridItem>
 
         <KFixedGridItem :span="isMobile ? 4 : 3" class="text-area">
@@ -54,19 +54,21 @@
           </span>
         </KFixedGridItem>
       </KFixedGrid>
-
       <div class="footer">
-        <KIconButton
-          v-for="(value, key) in footerIcons"
-          :key="key"
-          :icon="key"
-          size="mini"
-          :color="$themePalette.grey.v_400"
-          :ariaLabel="coreString(value)"
-          :tooltip="coreString(value)"
-          class="icon-fix"
-          @click.prevent="$emit(value)"
-        />
+        <ProgressBar v-if="!!isMobile" :contentNode="content" class="footer-progress" />
+        <div class="footer-icons">
+          <KIconButton
+            v-for="(value, key) in footerIcons"
+            :key="key"
+            :icon="key"
+            size="mini"
+            :color="$themePalette.grey.v_400"
+            :ariaLabel="coreString(value)"
+            :tooltip="coreString(value)"
+            class="icon-fix"
+            @click.prevent="$emit(value)"
+          />
+        </div>
       </div>
     </div>
   </router-link>
@@ -211,9 +213,24 @@
     position: absolute;
     right: 0;
     bottom: 0;
+    width: 100%;
     height: $footer-height;
+  }
+
+  .footer-icons {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    display: inline-block;
     margin-right: $h-padding;
     margin-bottom: $v-padding;
+  }
+  .footer-progress {
+    display: inline-block;
+    max-width: 60%;
+    margin-bottom: $v-padding;
+    margin-left: $h-padding;
+    vertical-align: middle;
   }
 
   .created-info {
