@@ -4,7 +4,7 @@
   "private": true,
   "version": "0.0.1",
   "dependencies": {
-    "epubjs": "0.3.84",
+    "epubjs": "0.3.89",
     "mark.js": "^8.11.1",
     "vue-focus-lock": "^1.2.0"
   }
