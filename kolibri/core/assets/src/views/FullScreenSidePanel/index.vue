@@ -22,10 +22,10 @@
         </div>
 
         <KIconButton
-          v-if="!fullScreenSidePanelCloseButton"
+          v-if="fullScreenSidePanelCloseButton"
           icon="close"
           class="close-button"
-          :style="closeButtonStyles"
+          :style="closeButtonFullScreenSidePanelStyles"
           :ariaLabel="coreString('closeAction')"
           :tooltip="coreString('closeAction')"
           @click="closePanel"
@@ -34,7 +34,7 @@
           v-else
           icon="close"
           class="close-button"
-          :style="closeButtonFullScreenSidePanelStyles"
+          :style="closeButtonStyles"
           :ariaLabel="coreString('closeAction')"
           :tooltip="coreString('closeAction')"
           @click="closePanel"
