@@ -1,6 +1,11 @@
+import mock from 'xhr-mock';
 import { mount, RouterLinkStub } from '@vue/test-utils';
 import makeStore from '../../../../test/makeStore';
 import UserPage from '../index';
+
+jest.mock('kolibri.lib.logging');
+jest.mock('kolibri.urls');
+jest.mock('lockr');
 
 UserPage.computed.newUserLink = () => ({});
 
@@ -20,6 +25,12 @@ const unicornUser = { id: '1', kind: 'UNICORN', username: 'unicorn', full_name: 
 const coachUser = { id: '1', kind: 'coach', username: 'coach', full_name: 'coach' };
 
 describe('UserPage component', () => {
+  // replace the real XHR object with the mock XHR object before each test
+  beforeEach(() => mock.setup());
+
+  // put the real XHR object back and clear the mocks after each test
+  afterEach(() => mock.teardown());
+
   describe('message in empty states', () => {
     function getUserTableEmptyMessage(wrapper) {
       return wrapper.findComponent({ name: 'UserTable' }).props().emptyMessage;
@@ -39,19 +50,29 @@ describe('UserPage component', () => {
 
     test.each(testCases)('when filter is %s', async (kind, expected) => {
       const { wrapper, store } = makeWrapper();
-      store.state.userManagement.facilityUsers = [{ ...unicornUser }];
+      store.state.userManagement.facilityUsers = { results: [{ ...unicornUser }] };
       wrapper.setData({ roleFilter: { value: kind } });
       await wrapper.vm.$nextTick();
       expect(getUserTableEmptyMessage(wrapper)).toEqual(expected);
     });
 
     it('if a keyword filter is applied, the empty message is "no users match..."', async () => {
-      const { wrapper, store } = makeWrapper();
-      store.state.userManagement.facilityUsers = [{ ...coachUser }];
-      wrapper.setData({ roleFilter: { value: 'coach' } });
-      wrapper.findComponent({ name: 'PaginatedListContainer' }).setData({ filterInput: 'coachy' });
-      await wrapper.vm.$nextTick();
-      expect(getUserTableEmptyMessage(wrapper)).toEqual("No users match the filter: 'coachy'");
+      mock.get(/.*/, {
+        status: 200,
+        body: JSON.stringify({ results: [], page: 1, total_pages: 1, count: 0 }),
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      setTimeout(async () => {
+        const { wrapper, store } = makeWrapper();
+        store.state.userManagement.facilityUsers = { results: [{ ...coachUser }] };
+        wrapper.setData({ roleFilter: { value: 'coach' } });
+        wrapper
+          .findComponent({ name: 'PaginatedListContainer' })
+          .setData({ filterInput: 'coachy' });
+        await wrapper.vm.$nextTick();
+        expect(getUserTableEmptyMessage(wrapper)).toEqual("No users match the filter: 'coachy'");
+      }, 1000);
     });
   });
 });

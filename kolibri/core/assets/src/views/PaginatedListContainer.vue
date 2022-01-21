@@ -14,7 +14,11 @@
     </KGrid>
 
     <div>
-      <slot :items="initialUsersList"></slot>
+      <slot
+        :items="userList"
+        :filterInput="filterInput"
+      >
+      </slot>
     </div>
 
     <nav class="pagination-nav">
@@ -102,9 +106,6 @@
       };
     },
     computed: {
-      initialUsersList() {
-        return this.userList;
-      },
       numFilteredItems() {
         return this.totalPageNumbers;
       },

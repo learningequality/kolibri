@@ -145,7 +145,7 @@
     },
     methods: {
       emptyMessageForItems(items, filterText) {
-        if (this.facilityUsers.length === 0) {
+        if (this.facilityUsers.results.length === 0) {
           return this.$tr('noUsersExist');
         } else if (this.roleFilter && filterText === '') {
           switch (this.roleFilter.value) {
