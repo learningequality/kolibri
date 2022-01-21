@@ -74,6 +74,11 @@
             $tr('results', { results: results.length })
           }}
         </h2>
+        <SearchChips
+          :searchTerms="searchTerms"
+          @removeItem="removeFilterTag"
+          @clearSearch="clearSearch"
+        />
         <div v-if="!(windowBreakpoint < 1) && results.length" class="toggle-view-buttons">
           <KIconButton
             icon="menu"
@@ -92,11 +97,6 @@
             @click="toggleCardView('card')"
           />
         </div>
-        <SearchChips
-          :searchTerms="searchTerms"
-          @removeItem="removeFilterTag"
-          @clearSearch="clearSearch"
-        />
         <!-- Grid of search results  -->
         <LibraryAndChannelBrowserMainContent
           :contents="results"
