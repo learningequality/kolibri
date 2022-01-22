@@ -214,9 +214,9 @@
           this.focusSidePanel();
         }
         this.firstFocusableEl =
-          this.$el.querySelector('.search-box') ||
-          this.$el.querySelector('.raised') ||
-          this.$el.querySelector('.side-panel-folder-link');
+          this.$el.querySelector('.search-box') || // if `EmbeddedSidePanel` is for search/filter btn
+          this.$el.querySelector('.raised') || // if `EmbeddedSidePanel` is for info btn
+          this.$el.querySelector('.side-panel-folder-link'); // if `EmbeddedSidePanel` is for folders btn
         this.lastFocusableEl = this.$refs.closeButton.$el;
       },
       focusSidePanel() {
