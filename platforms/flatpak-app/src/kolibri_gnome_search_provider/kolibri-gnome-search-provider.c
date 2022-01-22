@@ -260,7 +260,7 @@ build_kolibri_dispatch_uri(const gchar  *channel_id,
     }
 
   if (query != NULL)
-    uri_query = g_strdup_printf("searchTerm=%s", query);
+    uri_query = g_strdup_printf("search=%s", query);
 
   if (node_path != NULL)
     uri_path = g_strconcat("/", node_path, NULL);
