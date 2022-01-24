@@ -44,4 +44,38 @@ describe('LibraryPage', () => {
   describe('when page is loading', () => {
     it('shows a KCircularLoader', () => {});
   });
+
+  describe('method: handleShowSearchModal', () => {
+    it('sets this.currentCategory to the first param', () => {});
+    it('sets this.showSearchModal to true', () => {});
+    it('sets this.sidePanelIsOpen to false, if the window is not small');
+  });
+
+  describe('method: toggleInfoPanel', () => {
+    it('sets this.sidePanelContent to the first param', () => {});
+  });
+
+  describe('method: closeCategoryModal', () => {
+    it('sets this.currentCategory to null', () => {});
+  });
+
+  describe('method: handleCategory', () => {
+    it('passes the first param to this.setCategory', () => {});
+    it('sets this.currentCategory to null', () => {});
+  });
+
+  describe('on large screens, the search/filter panel should display embedded within the main page', () => {
+    // is there a way to test the currentCategory event?
+    it('displays EmbeddedSidePanel', () => {});
+  });
+
+  describe('on non-large screens, the search/filter panel is displayed in a FullScreenSidePanel', () => {
+    describe();
+    // need to follow up on whether or not we will be changing the category search display (
+    // modal vs. side panel) on medium screens
+  });
+
+  describe('when there is sidePanelContent, show FullScreenSidePanel', () => {
+    it('shows BrowseResourceMetadata', () => {});
+  });
 });
