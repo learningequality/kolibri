@@ -15,10 +15,12 @@
     :exerciseContentNodes="[content]"
     :navigateTo="navigateTo"
     :questions="questions"
+    :isSurvey="isSurvey"
+    :isQuiz="!isSurvey"
   >
     <template #actions>
       <KButton @click="$emit('repeat')">
-        {{ $tr('tryAgainButton') }}
+        {{ isSurvey ? $tr('submitAgainButton') : $tr('tryAgainButton') }}
       </KButton>
     </template>
   </ExamReport>
@@ -28,6 +30,8 @@
 
 <script>
 
+  import get from 'lodash/get';
+  import Modalities from 'kolibri-constants/Modalities';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ExamReport from 'kolibri.coreVue.components.ExamReport';
   import commonLearnStrings from '../commonLearnStrings';
@@ -71,6 +75,9 @@
             }))
           : [];
       },
+      isSurvey() {
+        return get(this, ['content', 'options', 'modality']) === Modalities.SURVEY;
+      },
     },
     methods: {
       navigateTo(tryIndex, question, interaction) {
@@ -83,6 +90,10 @@
       tryAgainButton: {
         message: 'Try again',
         context: 'Label for a button used to retake the quiz',
+      },
+      submitAgainButton: {
+        message: 'Submit again',
+        context: 'Label for a button used to resubmit the survey',
       },
     },
   };

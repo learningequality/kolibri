@@ -21,20 +21,22 @@
             <h1 class="title">
               <KLabeledIcon icon="person" :label="userName" />
             </h1>
-            <KLabeledIcon :icon="isQuiz ? 'quiz' : exercise.kind" :label="title" />
+            <KLabeledIcon :icon="titleIcon" :label="title" />
           </div>
-          <!-- only show the current try if the user has only one try -->
+          <!-- only show the current try if the user has only one try or if its a survey -->
           <TriesOverview
-            v-if="pastTries.length > 1"
+            v-if="pastTries.length > 1 && !isSurvey"
             :pastTries="pastTries"
             :totalQuestions="questions.length"
             :suggestedTime="duration"
+            :isSurvey="isSurvey"
           />
           <CurrentTryOverview
             v-else-if="currentTry"
             :userId="userId"
             :currentTry="currentTry"
             :totalQuestions="questions.length"
+            :isSurvey="isSurvey"
           />
         </KGridItem>
         <KGridItem v-if="!windowIsSmall" :layout="{ span: 2, alignment: 'right' }">
@@ -55,23 +57,25 @@
         @change="navigateToTry"
       />
       <CurrentTryOverview
-        v-if="currentTry && pastTries.length > 1"
+        v-if="currentTry && pastTries.length > 1 && currentTry.attemptlogs.length"
         :userId="userId"
         :currentTry="currentTry"
         :totalQuestions="questions.length"
         :hideStatus="true"
+        :isSurvey="isSurvey"
       />
     </template>
 
-    <template v-if="!windowIsSmall && !loading" #aside>
+    <template v-if="!windowIsSmall && !loading && currentTry.attemptlogs.length" #aside>
       <AttemptLogList
         :attemptLogs="attemptLogs"
         :selectedQuestionNumber="questionNumber"
+        :isSurvey="isSurvey"
         @select="navigateToQuestion"
       />
     </template>
 
-    <template #main>
+    <template v-if="currentTry.attemptlogs.length" #main>
       <KCircularLoader v-if="loading" class="loader" />
       <template v-else-if="itemId">
         <AttemptLogList
@@ -80,6 +84,7 @@
           :isMobile="true"
           :attemptLogs="attemptLogs"
           :selectedQuestionNumber="questionNumber"
+          :isSurvey="isSurvey"
           @select="navigateToQuestion"
         />
         <div
@@ -89,28 +94,30 @@
         >
           <h3>{{ coreString('questionNumberLabel', { questionNumber: questionNumber + 1 }) }}</h3>
 
-          <KCheckbox
-            :label="coreString('showCorrectAnswerLabel')"
-            :checked="showCorrectAnswer"
-            @change="toggleShowCorrectAnswer"
-          />
-          <div v-if="currentAttemptDiff" style="padding-bottom: 15px;">
-            <AttemptIconDiff
-              :correct="currentAttempt.correct"
-              :diff="currentAttemptDiff.correct"
+          <div v-if="!isSurvey" data-test="diff-business">
+            <KCheckbox
+              :label="coreString('showCorrectAnswerLabel')"
+              :checked="showCorrectAnswer"
+              @change="toggleShowCorrectAnswer"
             />
-            <AttemptTextDiff
-              :userId="userId"
-              :correct="currentAttempt.correct"
-              :diff="currentAttemptDiff.correct"
+            <div v-if="currentAttemptDiff" style="padding-bottom: 15px;">
+              <AttemptIconDiff
+                :correct="currentAttempt.correct"
+                :diff="currentAttemptDiff.correct"
+              />
+              <AttemptTextDiff
+                :userId="userId"
+                :correct="currentAttempt.correct"
+                :diff="currentAttemptDiff.correct"
+              />
+            </div>
+            <InteractionList
+              v-if="!showCorrectAnswer"
+              :interactions="currentInteractionHistory"
+              :selectedInteractionIndex="selectedInteractionIndex"
+              @select="navigateToQuestionAttempt"
             />
           </div>
-          <InteractionList
-            v-if="!showCorrectAnswer"
-            :interactions="currentInteractionHistory"
-            :selectedInteractionIndex="selectedInteractionIndex"
-            @select="navigateToQuestionAttempt"
-          />
           <KContentRenderer
             v-if="exercise"
             :itemId="renderableItemId"
@@ -273,6 +280,11 @@
         type: Boolean,
         default: true,
       },
+      // Is this.content a survey modality?
+      isSurvey: {
+        type: Boolean,
+        default: false,
+      },
     },
     data() {
       return {
@@ -285,7 +297,7 @@
     },
     computed: {
       attemptLogs() {
-        if (this.isQuiz) {
+        if (this.isQuiz || this.isSurvey) {
           return this.quizAttempts();
         }
         return this.masteryAttempts();
@@ -320,12 +332,12 @@
           });
           return {
             value: index,
-            label: `(${score}%) ${time}`,
+            label: this.isSurvey ? time : `(${score}%) ${time}`,
           };
         });
       },
       itemId() {
-        return this.isQuiz
+        return this.isQuiz || this.isSurvey
           ? this.questions[this.questionNumber].item
           : this.attemptLogs[this.questionNumber].item;
       },
@@ -351,6 +363,12 @@
           this.currentInteractionHistory &&
           this.currentInteractionHistory[this.selectedInteractionIndex]
         );
+      },
+      titleIcon() {
+        if (this.isSurvey) {
+          return 'reflectSolid';
+        }
+        return this.isQuiz ? 'quiz' : this.exercise.kind;
       },
     },
     watch: {
@@ -406,13 +424,13 @@
         MasteryLogResource.fetchMostRecentDiff(this.getParams())
           .then(currentTry => {
             this.currentTry = currentTry;
-            this.loading = false;
           })
           .catch(err => {
             if (err.response && err.response.status_code === 404) {
               this.$emit('noCompleteTries');
             }
-          });
+          })
+          .finally(() => (this.loading = false));
       },
       loadAllTries() {
         MasteryLogResource.fetchCollection({ getParams: this.getParams(), force: true }).then(

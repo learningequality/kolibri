@@ -129,7 +129,7 @@
                 {{ answeredText }}
               </div>
               <KButton
-                :text="$tr('submitExam')"
+                :text="isSurvey ? $tr('submitSurvey') : $tr('submitExam')"
                 :primary="false"
                 appearance="flat-button"
                 @click="toggleModal"
@@ -148,7 +148,7 @@
                 {{ answeredText }}
               </div>
               <KButton
-                :text="$tr('submitExam')"
+                :text="isSurvey ? $tr('submitSurvey') : $tr('submitExam')"
                 :primary="false"
                 appearance="flat-button"
                 @click="toggleModal"
@@ -162,8 +162,8 @@
 
     <KModal
       v-if="submitModalOpen"
-      :title="$tr('submitExam')"
-      :submitText="$tr('submitExam')"
+      :title="isSurvey ? $tr('submitSurvey') : $tr('submitExam')"
+      :submitText="isSurvey ? $tr('submitSurvey') : $tr('submitExam')"
       :cancelText="coreString('goBackAction')"
       @submit="finishExam"
       @cancel="toggleModal"
@@ -245,6 +245,10 @@
       // TODO: is this a sustainable way to pass this?
       updateContentSession: {
         type: Function,
+        default: () => {},
+      },
+      isSurvey: {
+        type: Boolean,
         default: () => {},
       },
     },
@@ -461,6 +465,11 @@
         message: 'Submit quiz',
         context:
           'Action that learner takes to submit their quiz answers so that the coach can review them.',
+      },
+      submitSurvey: {
+        message: 'Submit survey',
+        context:
+          'Action that learner takes to submit their exam answers so that they can be reviewed.',
       },
       questionsAnswered: {
         message:

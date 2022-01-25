@@ -14,6 +14,7 @@
       :navigateTo="navigateTo"
       :questions="questions"
       :isQuiz="isQuiz"
+      :isSurvey="isSurvey"
     />
   </KPageContainer>
 
@@ -34,7 +35,7 @@
     },
     mixins: [commonCoach, commonCoreStrings],
     computed: {
-      ...mapGetters('exerciseDetail', ['isQuiz']),
+      ...mapGetters('exerciseDetail', ['isQuiz', 'isSurvey']),
       ...mapState('classSummary', ['learnerMap']),
       ...mapState('exerciseDetail', [
         'questionId',

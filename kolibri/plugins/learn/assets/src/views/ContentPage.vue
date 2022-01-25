@@ -26,8 +26,9 @@
         @error="onError"
       />
       <QuizRenderer
-        v-else-if="practiceQuiz"
+        v-else-if="practiceQuiz || survey"
         class="content-renderer"
+        :style="{ paddingBottom: windowIsSmall ? '80px' : '0px' }"
         :content="content"
         :extraFields="extra_fields"
         :progress="progress"
@@ -38,6 +39,7 @@
         :mastered="complete"
         :masteryLevel="masteryLevel"
         :updateContentSession="wrappedUpdateContentSession"
+        :isSurvey="survey"
         @startTracking="startTracking"
         @stopTracking="stopTracking"
         @updateInteraction="updateInteraction"
@@ -78,6 +80,7 @@
       :contentNodeId="content.id"
       :lessonId="lessonId"
       :isQuiz="practiceQuiz"
+      :isSurvey="survey"
       @close="markAsComplete"
     />
   </div>
@@ -90,6 +93,7 @@
   import get from 'lodash/get';
   import { mapState, mapGetters } from 'vuex';
   import { ContentNodeResource } from 'kolibri.resources';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import router from 'kolibri.coreVue.router';
   import Modalities from 'kolibri-constants/Modalities';
   import { setContentNodeProgress } from '../composables/useContentNodeProgress';
@@ -114,7 +118,7 @@
       CompletionModal,
       QuizRenderer,
     },
-    mixins: [commonLearnStrings],
+    mixins: [commonLearnStrings, responsiveWindowMixin],
     setup() {
       const {
         progress,
@@ -171,6 +175,9 @@
       }),
       practiceQuiz() {
         return get(this, ['content', 'options', 'modality']) === Modalities.QUIZ;
+      },
+      survey() {
+        return get(this, ['content', 'options', 'modality']) === Modalities.SURVEY;
       },
       masteryLevel() {
         return get(this, ['context', 'mastery_level']);
