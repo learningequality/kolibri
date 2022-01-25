@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-01 22:12-0700\n"
-"PO-Revision-Date: 2021-12-13 18:40\n"
+"POT-Creation-Date: 2022-01-12 06:47-0800\n"
+"PO-Revision-Date: 2022-01-25 01:56\n"
 "Last-Translator: \n"
 "Language-Team: Spanish, Latin America\n"
 "Language: es_LA\n"
@@ -14,12 +14,12 @@ msgstr ""
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Project-ID: 201933\n"
 "X-Crowdin-Language: la\n"
-"X-Crowdin-File: /release-v0.15.x/django.po\n"
-"X-Crowdin-File-ID: 4105\n"
+"X-Crowdin-File: /release-v0.16.x/django.po\n"
+"X-Crowdin-File-ID: 4241\n"
 
 #: core/auth/constants/commands_errors.py:17
 msgid "Unexpected exception [{}]: {}"
-msgstr "Excepción inesperada [{}]: {}"
+msgstr "Error no esperado [{}]: {}"
 
 #: core/auth/constants/commands_errors.py:20
 msgctxt "Error report message when the allowed number of digits has been exceeded."
@@ -42,7 +42,7 @@ msgstr "Los nombres de usuario solo pueden contener letras, números y guiones b
 
 #: core/auth/constants/commands_errors.py:30
 msgid "The column '{}' is required"
-msgstr "La columna '{}' es obligatoria"
+msgstr "Falta la columna '{}'"
 
 #: core/auth/constants/commands_errors.py:31
 msgid "Mix of valid and/or invalid header labels found in first row"
@@ -55,12 +55,12 @@ msgstr "No existe centro educativo predeterminado. Asegúrese de configurar un c
 #: core/auth/constants/commands_errors.py:35
 #: core/auth/management/commands/bulkimportusers.py:99
 msgid "Error trying to read csv file: {}"
-msgstr "Error al intentar leer el archivo CSV: {}"
+msgstr "Se ha producido un error al leer el archivo csv: {}"
 
 #: core/auth/constants/commands_errors.py:36
 #: core/auth/management/commands/bulkimportusers.py:100
 msgid "Error trying to write csv file: {}"
-msgstr "Error al intentar guardar el archivo CSV: {}"
+msgstr "Se ha producido un error al escribir el archivo csv: {}"
 
 #: core/auth/management/commands/bulkexportusers.py:42
 #: core/auth/management/commands/bulkexportusers.py:124
@@ -148,7 +148,7 @@ msgstr "Nombre de usuario duplicado"
 #: core/auth/management/commands/bulkimportusers.py:89
 msgctxt "Error message indicating that the CSV file selected for import is missing a required column"
 msgid "The column '{}' is required"
-msgstr "La columna '{}' es obligatoria"
+msgstr "Falta la columna '{}'"
 
 #: core/auth/management/commands/bulkimportusers.py:93
 msgctxt "Error message indicating that one column header in the CSV file selected for import is missing or incorrect"
@@ -172,15 +172,15 @@ msgstr "No se puede actualizar el usuario con ID: '{}' porque no existe ningún 
 msgid "Database ID is not valid"
 msgstr "El ID de la base de datos no es válido"
 
-#: core/content/api.py:170
+#: core/content/api.py:254
 msgid "Resource"
-msgstr "Recurso"
+msgstr "Material"
 
-#: core/content/api.py:1327
+#: core/content/api.py:1467
 msgid "The requested channel does not exist on the content server"
 msgstr "El canal solicitado no existe en el servidor de contenidos"
 
-#: core/content/models.py:252
+#: core/content/models.py:256
 msgid "Unknown format"
 msgstr "Formato desconocido"
 

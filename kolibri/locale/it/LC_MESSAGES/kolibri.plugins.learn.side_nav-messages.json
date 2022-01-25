@@ -10,8 +10,10 @@
   "CommonLearnStrings.multipleLearningActivitiesLabel": "Attività di apprendimento multiplo",
   "CommonLearnStrings.nextStepsLabel": "Prossimi passi",
   "CommonLearnStrings.popularLabel": "Popolare",
+  "CommonLearnStrings.quizLabel": "Quiz",
   "CommonLearnStrings.resourceCompletedLabel": "Risorsa completata",
   "CommonLearnStrings.resourceHidden": "Risorsa nascosta",
   "CommonLearnStrings.resumeLabel": "Riprendi",
+  "CommonLearnStrings.suggestedTime": "",
   "CommonLearnStrings.suggestedTimeToComplete": "Tempo suggerito per completare"
 }

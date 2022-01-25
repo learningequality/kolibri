@@ -7,11 +7,13 @@
   "CommonLearnStrings.markResourceAsCompleteLabel": "উপকরণটি \"সমাপ্ত\" হিসেবে চিহ্নিত করুন",
   "CommonLearnStrings.mostPopularLabel": "সবচেয়ে জনপ্রিয়",
   "CommonLearnStrings.multipleLearningActivities": "একাধিক শিক্ষা-কার্যক্রম",
-  "CommonLearnStrings.multipleLearningActivitiesLabel": "",
+  "CommonLearnStrings.multipleLearningActivitiesLabel": "একাধিক শিক্ষা-কার্যক্রম",
   "CommonLearnStrings.nextStepsLabel": "পরবর্তী ধাপ",
   "CommonLearnStrings.popularLabel": "জনপ্রিয়",
+  "CommonLearnStrings.quizLabel": "কুইজ",
   "CommonLearnStrings.resourceCompletedLabel": "উপকরণ পড়া শেষ",
   "CommonLearnStrings.resourceHidden": "উপকরণ লুকনো হয়েছে",
   "CommonLearnStrings.resumeLabel": "আবার শুরু কর",
+  "CommonLearnStrings.suggestedTime": "",
   "CommonLearnStrings.suggestedTimeToComplete": "শেষ করার আনুমানিক সময়"
 }

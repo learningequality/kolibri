@@ -7,11 +7,13 @@
   "CommonLearnStrings.markResourceAsCompleteLabel": "Marcar conteúdo como completado",
   "CommonLearnStrings.mostPopularLabel": "Mais populares",
   "CommonLearnStrings.multipleLearningActivities": "Conteúdo com múltiplas atividades",
-  "CommonLearnStrings.multipleLearningActivitiesLabel": "",
+  "CommonLearnStrings.multipleLearningActivitiesLabel": "Conteúdo com múltiplas atividades",
   "CommonLearnStrings.nextStepsLabel": "Próximos passos",
   "CommonLearnStrings.popularLabel": "Populares",
+  "CommonLearnStrings.quizLabel": "Teste",
   "CommonLearnStrings.resourceCompletedLabel": "Conteúdo completado",
   "CommonLearnStrings.resourceHidden": "Conteúdo ocultado",
   "CommonLearnStrings.resumeLabel": "Continuar",
+  "CommonLearnStrings.suggestedTime": "Tempo sugerido",
   "CommonLearnStrings.suggestedTimeToComplete": "Tempo estimado para a conclusão"
 }

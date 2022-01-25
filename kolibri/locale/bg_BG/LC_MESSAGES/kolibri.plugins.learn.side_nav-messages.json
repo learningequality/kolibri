@@ -7,11 +7,13 @@
   "CommonLearnStrings.markResourceAsCompleteLabel": "Маркирай съдържание като завършено",
   "CommonLearnStrings.mostPopularLabel": "Най-популярни",
   "CommonLearnStrings.multipleLearningActivities": "Множество учебни дейности",
-  "CommonLearnStrings.multipleLearningActivitiesLabel": "",
+  "CommonLearnStrings.multipleLearningActivitiesLabel": "Множество учебни дейности",
   "CommonLearnStrings.nextStepsLabel": "Следващи стъпки",
   "CommonLearnStrings.popularLabel": "Популярни",
+  "CommonLearnStrings.quizLabel": "Тест",
   "CommonLearnStrings.resourceCompletedLabel": "Съдържанието е завършено",
   "CommonLearnStrings.resourceHidden": "Съдържанието е скрито",
   "CommonLearnStrings.resumeLabel": "Възобнови",
+  "CommonLearnStrings.suggestedTime": "",
   "CommonLearnStrings.suggestedTimeToComplete": "Приблизително време за завършване"
 }

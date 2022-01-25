@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-01 22:12-0700\n"
-"PO-Revision-Date: 2021-12-14 20:58\n"
+"POT-Creation-Date: 2022-01-12 06:47-0800\n"
+"PO-Revision-Date: 2022-01-25 01:56\n"
 "Last-Translator: \n"
 "Language-Team: Greek\n"
 "Language: el_GR\n"
@@ -14,8 +14,8 @@ msgstr ""
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Project-ID: 201933\n"
 "X-Crowdin-Language: el\n"
-"X-Crowdin-File: /release-v0.15.x/django.po\n"
-"X-Crowdin-File-ID: 4105\n"
+"X-Crowdin-File: /release-v0.16.x/django.po\n"
+"X-Crowdin-File-ID: 4241\n"
 
 #: core/auth/constants/commands_errors.py:17
 msgid "Unexpected exception [{}]: {}"
@@ -50,7 +50,7 @@ msgstr "Μείγμα έγκυρων και/ή μη έγκυρων ετικετώ
 
 #: core/auth/constants/commands_errors.py:33
 msgid "No default facility exists. Make sure to set up a facility on the device before running this command"
-msgstr "Δεν υπάρχει προεπιλεγμένη εγκατάσταση. Βεβαιωθείτε ότι έχετε ρυθμίσει μια εγκατάσταση στη συσκευή πριν από την εκτέλεση αυτής της εντολής"
+msgstr "Δεν υπάρχει προεπιλεγμένο εκπαιδευτικό πλαίσιο. Βεβαιωθείτε ότι έχετε ρυθμίσει ένα εκπαιδευτικό πλαίσιο στη συσκευή πριν από την εκτέλεση αυτής της εντολής"
 
 #: core/auth/constants/commands_errors.py:35
 #: core/auth/management/commands/bulkimportusers.py:99
@@ -158,7 +158,7 @@ msgstr "Λανθασμένη ετικέτα κεφαλίδας βρέθηκε σ
 #: core/auth/management/commands/bulkimportusers.py:97
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
 msgid "No default facility exists. Make sure to set up a facility on the  device before importing users and classes"
-msgstr "Δεν υπάρχει προεπιλεγμένη εγκατάσταση. Βεβαιωθείτε ότι έχετε δημιουργήσει μια εγκατάσταση στη συσκευή πριν από την εισαγωγή χρηστών και κλάσεων"
+msgstr "Δεν υπάρχει προεπιλεγμένο εκπαιδευτικό πλαίσιο. Βεβαιωθείτε ότι έχετε δημιουργήσει ένα εκπαιδευτικό πλαίσιο στη συσκευή πριν από την εισαγωγή χρηστών και κλάσεων"
 
 #: core/auth/management/commands/bulkimportusers.py:102
 msgid "The password field is required. To leave the password unchanged in existing users, insert an asterisk (*)"
@@ -166,21 +166,21 @@ msgstr "Το πεδίο κωδικού πρόσβασης απαιτείται. 
 
 #: core/auth/management/commands/bulkimportusers.py:105
 msgid "Cannot update user with ID: '{}' because no user with that database ID exists in this facility"
-msgstr "Δεν είναι δυνατή η ενημέρωση χρήστη με ID: '{}' επειδή κανένας χρήστης με αυτό το ID βάσης δεδομένων δεν υπάρχει σε αυτή την εγκατάσταση"
+msgstr "Δεν είναι δυνατή η ενημέρωση χρήστη με ID: '{}' επειδή κανένας χρήστης με αυτό το ID βάσης δεδομένων δεν υπάρχει σε αυτό το εκπαιδευτικό πλαίσιο"
 
 #: core/auth/management/commands/bulkimportusers.py:107
 msgid "Database ID is not valid"
 msgstr "Το ID βάσης δεδομένων δεν είναι έγκυρο"
 
-#: core/content/api.py:170
+#: core/content/api.py:254
 msgid "Resource"
 msgstr "Πηγή"
 
-#: core/content/api.py:1327
+#: core/content/api.py:1467
 msgid "The requested channel does not exist on the content server"
 msgstr "Το ζητούμενο κανάλι δεν υπάρχει στον διακομιστή περιεχομένου"
 
-#: core/content/models.py:252
+#: core/content/models.py:256
 msgid "Unknown format"
 msgstr "Άγνωστη μορφή"
 

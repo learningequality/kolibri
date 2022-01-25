@@ -7,11 +7,13 @@
   "CommonLearnStrings.markResourceAsCompleteLabel": "ရင်းမြစ်အား အားလုံးလုပ်ဆောင်ပြီးကြောင်း မှတ်သားပါ။",
   "CommonLearnStrings.mostPopularLabel": "နာမည်အကြီးဆုံး",
   "CommonLearnStrings.multipleLearningActivities": "များပြားလှစွာသော သင်ယူခြင်းဆိုင်ရာလုပ်ဆောင်မှုများ",
-  "CommonLearnStrings.multipleLearningActivitiesLabel": "",
+  "CommonLearnStrings.multipleLearningActivitiesLabel": "များပြားလှစွာသော သင်ယူခြင်းဆိုင်ရာလုပ်ဆောင်မှုများ",
   "CommonLearnStrings.nextStepsLabel": "နောက်အဆင့်",
   "CommonLearnStrings.popularLabel": "ကျော်ကြားသော",
+  "CommonLearnStrings.quizLabel": "ဉာဏ်စမ်း မေးခွန်းတို",
   "CommonLearnStrings.resourceCompletedLabel": "ရင်းမြစ်များ ပြီးစီးခဲ့သည်။",
   "CommonLearnStrings.resourceHidden": "ရင်းမြစ်များ ဖွက်ထားခြင်း",
   "CommonLearnStrings.resumeLabel": "ပြန်လည်စတင်မည်",
+  "CommonLearnStrings.suggestedTime": "",
   "CommonLearnStrings.suggestedTimeToComplete": "ပြီးစီးရန် ခန့်မှန်းကြာချိန်"
 }

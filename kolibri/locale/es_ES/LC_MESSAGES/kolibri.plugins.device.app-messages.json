@@ -211,7 +211,7 @@
   "TaskPanel.statusCanceled": "Cancelada",
   "TaskPanel.statusCanceling": "Cancelando",
   "TaskPanel.statusComplete": "Completada",
-  "TaskPanel.statusFailed": "La operación ha fallado",
+  "TaskPanel.statusFailed": "Ha fallado",
   "TaskPanel.statusInProgress": "En curso",
   "TaskPanel.statusInQueue": "Esperando",
   "TaskPanel.stopAction": "Detener",
