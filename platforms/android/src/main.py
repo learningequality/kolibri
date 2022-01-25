@@ -68,8 +68,7 @@ class Application(pew.ui.PEWApp):
         """
 
         # Set loading screen
-        loader_page = os.path.abspath(os.path.join("assets", "_load.html"))
-        self.loader_url = "file://{}".format(loader_page)
+        self.loader_url = "file:///android_asset/_load.html"
         self.kolibri_loaded = False
         self.view = pew.ui.WebUIView("Kolibri", self.loader_url, delegate=self)
 
