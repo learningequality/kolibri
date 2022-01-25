@@ -78,12 +78,10 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
   import { validateLinkObject } from 'kolibri.utils.validators';
   import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { now } from 'kolibri.utils.serverClock';
-  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import { PageNames } from '../constants';
   import ProgressBar from './ProgressBar';
   import LearningActivityLabel from './LearningActivityLabel';
@@ -97,7 +95,6 @@
       TextTruncatorCss,
       LearningActivityLabel,
       ProgressBar,
-      CoachContentLabel,
     },
     mixins: [commonLearnStrings, commonCoreStrings],
     props: {
@@ -228,7 +225,6 @@
   .footer-progress {
     display: inline-block;
     max-width: 60%;
-    margin-bottom: $v-padding;
     margin-left: $h-padding;
     vertical-align: middle;
   }
@@ -256,26 +252,11 @@
     margin-bottom: 16px;
   }
 
-  .mobile-card {
-    max-height: 450px;
-    .thumbnail {
-      position: absolute;
-      width: 100%;
-      margin-top: 0;
-      margin-left: 0;
+  .details {
+    max-width: 100%;
+    margin-top: 240px;
+  }
 
-      /deep/ .image {
-        border-radius: 8px 8px 0 0;
-      }
-    }
-
-    .footer-progress {
-      max-width: 200px;
-    }
-    .details {
-      max-width: 100%;
-      margin-top: 240px;
-    }
   .text-area {
     margin-bottom: $footer-height;
   }
