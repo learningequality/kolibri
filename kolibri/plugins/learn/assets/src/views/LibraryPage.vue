@@ -42,19 +42,46 @@
             @click="toggleCardView('card')"
           />
         </div>
-        <h2 v-if="resumableContentNodes.length">
-          {{ $tr('recent') }}
-        </h2>
-        <HybridLearningCardGrid
-          v-if="resumableContentNodes.length"
-          :cardViewStyle="currentViewStyle"
-          :numCols="numCols"
-          :genContentLink="genContentLink"
-          :contents="trimmedResume"
-          :footerIcons="footerIcons"
-          :currentPage="currentPage"
-          @toggleInfoPanel="toggleInfoPanel"
-        />
+        <div v-if="resumableContentNodes.length">
+          <h2>
+            {{ $tr('recent') }}
+          </h2>
+
+          <!-- small and xs displays -->
+          <CardGrid
+            v-if="windowIsSmall"
+          >
+            <ResourceCard
+              v-for="(content, idx) in resumableContentNodes"
+              :key="`resource-${idx}`"
+              :contentNode="content"
+              :to="genContentLink(content)"
+              @openCopiesModal="openCopiesModal"
+            />
+          </CardGrid>
+          <!-- larger than mobile views -->
+          <KGrid
+            v-else
+            gutter="24"
+          >
+            <KGridItem
+              v-for="content in trimmedResume"
+              :key="content.id"
+              :layout4="{ span: 4 }"
+              :layout8="{ span: 4 }"
+              :layout12="{ span: 4 }"
+            >
+              <HybridLearningContentCard
+                class="card-grid-item"
+                :isMobile="windowIsSmall"
+                :content="content"
+                :link="genContentLink(content)"
+                @openCopiesModal="openCopiesModal"
+                @toggleInfoPanel="toggleInfoPanel(content)"
+              />
+            </KGridItem>
+          </KGrid>
+        </div>
         <KButton
           v-if="moreResumableContentNodes"
           appearance="basic-link"
@@ -99,16 +126,39 @@
           @clearSearch="clearSearch"
         />
         <!-- Grid of search results  -->
-        <HybridLearningCardGrid
-          v-if="results.length"
-          :numCols="numCols"
-          :cardViewStyle="currentViewStyle"
-          :genContentLink="genContentLink"
-          :contents="results"
-          :footerIcons="footerIcons"
-          :currentPage="currentPage"
-          @toggleInfoPanel="toggleInfoPanel"
-        />
+        <CardGrid
+          v-if="windowIsSmall"
+        >
+          <ResourceCard
+            v-for="(content, idx) in resumableContentNodes"
+            :key="`resource-${idx}`"
+            :contentNode="content"
+            :to="genContentLink(content)"
+            @openCopiesModal="openCopiesModal"
+          />
+        </CardGrid>
+        <!-- larger than mobile views -->
+        <KGrid
+          v-else
+          gutter="24"
+        >
+          <KGridItem
+            v-for="content in trimmedResume"
+            :key="content.id"
+            :layout4="{ span: 4 }"
+            :layout8="{ span: 4 }"
+            :layout12="{ span: 4 }"
+          >
+            <HybridLearningContentCard
+              class="card-grid-item"
+              :isMobile="windowIsSmall"
+              :content="content"
+              :link="genContentLink(content)"
+              @openCopiesModal="openCopiesModal"
+              @toggleInfoPanel="$emit('toggleInfoPanel', content)"
+            />
+          </KGridItem>
+        </KGrid>
         <!-- conditionally displayed button if there are additional results -->
         <KButton
           v-if="more"
@@ -197,6 +247,13 @@
       @input="handleCategory"
     />
 
+    <CopiesModal
+      v-if="displayedCopies.length"
+      :copies="displayedCopies"
+      :genContentLink="genContentLink"
+      @submit="displayedCopies = []"
+    />
+
     <FullScreenSidePanel
       v-if="sidePanelContent"
       alignment="right"
@@ -245,14 +302,16 @@
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import genContentLink from '../utils/genContentLink';
-  import { PageNames } from '../constants';
   import useSearch from '../composables/useSearch';
   import useLearnerResources from '../composables/useLearnerResources';
   import BrowseResourceMetadata from './BrowseResourceMetadata';
   import commonLearnStrings from './commonLearnStrings';
   import ChannelCardGroupGrid from './ChannelCardGroupGrid';
   import LearningActivityChip from './LearningActivityChip';
-  import HybridLearningCardGrid from './HybridLearningCardGrid';
+  import ResourceCard from './cards/ResourceCard';
+  import CardGrid from './cards/CardGrid';
+  import HybridLearningContentCard from './HybridLearningContentCard';
+
   import EmbeddedSidePanel from './EmbeddedSidePanel';
   import CategorySearchModal from './CategorySearchModal';
   import SearchChips from './SearchChips';
@@ -268,7 +327,7 @@
       };
     },
     components: {
-      HybridLearningCardGrid,
+      HybridLearningContentCard,
       ChannelCardGroupGrid,
       LearningActivityChip,
       EmbeddedSidePanel,
@@ -276,6 +335,8 @@
       CategorySearchModal,
       BrowseResourceMetadata,
       SearchChips,
+      ResourceCard,
+      CardGrid,
     },
     mixins: [commonLearnStrings, commonCoreStrings, responsiveWindowMixin],
     setup() {
@@ -323,6 +384,7 @@
         showSearchModal: false,
         sidePanelIsOpen: false,
         sidePanelContent: null,
+        displayedCopies: [],
       };
     },
     computed: {
@@ -332,12 +394,6 @@
       },
       trimmedResume() {
         return this.resumableContentNodes.slice(0, this.carouselLimit);
-      },
-      currentPage() {
-        return PageNames.LIBRARY;
-      },
-      footerIcons() {
-        return { infoOutline: 'viewInformation' };
       },
       sidePanelWidth() {
         if (this.windowIsSmall || this.windowIsMedium) {
@@ -407,6 +463,9 @@
         this.showSearchModal = true;
         !(this.windowIsSmall || this.windowIsMedium) ? (this.sidePanelIsOpen = false) : '';
       },
+      openCopiesModal(copies) {
+        this.displayedCopies = copies;
+      },
       toggleCardView(value) {
         this.currentViewStyle = value;
       },
@@ -472,6 +531,12 @@
   .main-grid {
     margin-top: 40px;
     margin-right: 24px;
+  }
+
+  $gutters: 24px;
+
+  .card-grid-item {
+    margin-bottom: $gutters;
   }
 
   .loader {
