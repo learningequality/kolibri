@@ -15,7 +15,7 @@
             :contentNode="content"
           />
           <p
-            v-if="isBookmarksPage"
+            v-if="isBookmarksPage && !isMobile"
             class="created-info"
             :style="{ color: $themePalette.grey.v_700 }"
           >
@@ -55,7 +55,15 @@
         </KFixedGridItem>
       </KFixedGrid>
       <div class="footer">
+        <p
+          v-if="isBookmarksPage && isMobile"
+          class="created-info-mobile"
+          :style="{ color: $themePalette.grey.v_700 }"
+        >
+          {{ bookmarkCreated }}
+        </p>
         <ProgressBar v-if="!!isMobile" :contentNode="content" class="footer-progress" />
+
         <div class="footer-icons">
           <KIconButton
             v-for="(value, key) in footerIcons"
@@ -223,10 +231,22 @@
     margin-bottom: $v-padding;
   }
   .footer-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
     display: inline-block;
     max-width: 60%;
+    margin-bottom: 8px;
     margin-left: $h-padding;
-    vertical-align: middle;
+  }
+
+  .created-info-mobile {
+    position: absolute;
+    bottom: 8px;
+    left: 0;
+    display: inline-block;
+    margin-bottom: $v-padding;
+    margin-left: $h-padding;
   }
 
   .created-info {
