@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-01-12 06:47-0800\n"
-"PO-Revision-Date: 2022-01-25 01:56\n"
+"PO-Revision-Date: 2022-01-25 19:10\n"
 "Last-Translator: \n"
 "Language-Team: Yoruba\n"
 "Language: yo_NG\n"
@@ -19,224 +19,224 @@ msgstr ""
 
 #: core/auth/constants/commands_errors.py:17
 msgid "Unexpected exception [{}]: {}"
-msgstr ""
+msgstr "Aṣìṣe àìròtẹ́lẹ̀ [{}]: {}"
 
 #: core/auth/constants/commands_errors.py:20
 msgctxt "Error report message when the allowed number of digits has been exceeded."
 msgid "Content of cell '{}' is too long"
-msgstr ""
+msgstr "Àkoonú sẹ́ẹ̀lì '{}' ti gun jù"
 
 #: core/auth/constants/commands_errors.py:24
 msgctxt "Error report message when the cell contains an improper data format."
 msgid "Content of cell '{}' is not valid"
-msgstr ""
+msgstr "Àkoonú sẹ́ẹ̀lì '{}' kò péye"
 
 #: core/auth/constants/commands_errors.py:26
 msgid "Duplicated username"
-msgstr ""
+msgstr "Orúkọ aṣàmúlò ti di pupo"
 
 #: core/auth/constants/commands_errors.py:28
 #: core/auth/management/commands/bulkimportusers.py:85
 msgid "Username only can contain characters, numbers and underscores"
-msgstr ""
+msgstr "Orúkọ aṣàmúlò le wa ni àwọn ẹyọ ọ̀rọ̀, nọmba ati àwọn ìlà abẹ́"
 
 #: core/auth/constants/commands_errors.py:30
 msgid "The column '{}' is required"
-msgstr ""
+msgstr "Apayi '{}' se pataki"
 
 #: core/auth/constants/commands_errors.py:31
 msgid "Mix of valid and/or invalid header labels found in first row"
-msgstr ""
+msgstr "Àdàpọ̀ àkọlé ìlà abẹ́gbẹ́mu àti/tàbí aláìbẹ́gbẹ́mu wa ní ìlà ìbú àkọkọ́"
 
 #: core/auth/constants/commands_errors.py:33
 msgid "No default facility exists. Make sure to set up a facility on the device before running this command"
-msgstr ""
+msgstr "Ko si ohun elo àsàyàn. Rii daju lati ṣeto ohun elo lori ẹrọ ṣaaju ṣiṣe aṣẹ yii"
 
 #: core/auth/constants/commands_errors.py:35
 #: core/auth/management/commands/bulkimportusers.py:99
 msgid "Error trying to read csv file: {}"
-msgstr ""
+msgstr "Àṣìṣe wa ni kíka fáìlì csv: {}"
 
 #: core/auth/constants/commands_errors.py:36
 #: core/auth/management/commands/bulkimportusers.py:100
 msgid "Error trying to write csv file: {}"
-msgstr ""
+msgstr "Àṣìṣe wa ni kíkọ fáìlì csv: {}"
 
 #: core/auth/management/commands/bulkexportusers.py:42
 #: core/auth/management/commands/bulkexportusers.py:124
 msgid "Database ID ({})"
-msgstr ""
+msgstr "ÌDÁNIMỌ̀ Oruko ti o wa tele ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:43
 #: core/auth/management/commands/bulkexportusers.py:125
 msgid "Username ({})"
-msgstr ""
+msgstr "Orúkọ aṣàmúlò ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:44
 #: core/auth/management/commands/bulkexportusers.py:126
 msgid "Password ({})"
-msgstr ""
+msgstr "Ọ̀rọ̀ aṣayàn ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:45
 #: core/auth/management/commands/bulkexportusers.py:127
 msgid "Full name ({})"
-msgstr ""
+msgstr "Orúkọ lekún rere({})"
 
 #: core/auth/management/commands/bulkexportusers.py:50
 msgctxt "CSV column header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
-msgstr ""
+msgstr "Irúfẹ́ aṣàmúlò ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:53
 #: core/auth/management/commands/bulkexportusers.py:135
 msgid "Identifier ({})"
-msgstr ""
+msgstr "Àfidámọ̀ ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:54
 #: core/auth/management/commands/bulkexportusers.py:136
 msgid "Birth year ({})"
-msgstr ""
+msgstr "Ọdún ìbí ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:55
 #: core/auth/management/commands/bulkexportusers.py:137
 msgid "Gender ({})"
-msgstr ""
+msgstr "Abo tàbí akọ ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:60
 msgctxt "CSV column header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
-msgstr ""
+msgstr "Ìforúkọsílẹ̀ akẹ́kọ̀ọ́ ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:67
 msgctxt "CSV column header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
-msgstr ""
+msgstr "Iṣẹ́ àmúrelé olùkọ́ ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:132
 msgctxt "CSV header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
-msgstr ""
+msgstr "Irúfẹ́ aṣàmúlò ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:142
 msgctxt "CSV file header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
-msgstr ""
+msgstr "Ìforúkọsílẹ̀ akẹ́kọ̀ọ́ ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:149
 msgctxt "CSV file header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
-msgstr ""
+msgstr "Iṣẹ́ àmúrelé olùkọ́ ({})"
 
 #: core/auth/management/commands/bulkimportusers.py:76
 msgctxt "Error message that might appear when there's a programming error importing a CSV file"
 msgid "Unexpected error [{}]: {}"
-msgstr ""
+msgstr "Asise àìròtẹ́lẹ̀ [{}]: {}"
 
 #: core/auth/management/commands/bulkimportusers.py:80
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
 msgid "Value in column '{}' has too many characters"
-msgstr ""
+msgstr "Orọ̀ ti o  wa ninu Ila yi ti poju'{}' "
 
 #: core/auth/management/commands/bulkimportusers.py:82
 msgid "Value in column '{}' not valid"
-msgstr ""
+msgstr "Iye nínu ìlà òòró '{}' Iye nkan"
 
 #: core/auth/management/commands/bulkimportusers.py:83
 msgid "Username is duplicated"
-msgstr ""
+msgstr "Ìṣenírúméjí orúkọ-aṣàmúlò"
 
 #: core/auth/management/commands/bulkimportusers.py:89
 msgctxt "Error message indicating that the CSV file selected for import is missing a required column"
 msgid "The column '{}' is required"
-msgstr ""
+msgstr "Apayi se'{}' Pataki"
 
 #: core/auth/management/commands/bulkimportusers.py:93
 msgctxt "Error message indicating that one column header in the CSV file selected for import is missing or incorrect"
 msgid "Incorrect header label found in the first row"
-msgstr ""
+msgstr "Aamì àkọlé ti ko tọ̀nà wà nínu ilà àkọkọ́"
 
 #: core/auth/management/commands/bulkimportusers.py:97
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
 msgid "No default facility exists. Make sure to set up a facility on the  device before importing users and classes"
-msgstr ""
+msgstr "Ko si ohun elo àsàyàn. Rii daju lati ṣeto ohun elo lori ẹrọ ṣaaju agbewọle awọn oluṣamulo ati awọn kilaasi"
 
 #: core/auth/management/commands/bulkimportusers.py:102
 msgid "The password field is required. To leave the password unchanged in existing users, insert an asterisk (*)"
-msgstr ""
+msgstr "A nílò ọ̀rọ̀-aṣàyan. Láti fi ọ̀rọ̀ aṣínà sílẹ̀ láìyípadà ní àwọn olùṣàmúlò tí ó wà tẹ́lẹ̀, lo àmì ìràwọ̀ (*)"
 
 #: core/auth/management/commands/bulkimportusers.py:105
 msgid "Cannot update user with ID: '{}' because no user with that database ID exists in this facility"
-msgstr ""
+msgstr "Kòle ṣàfikún àwọn ìrísí olùlò pẹ̀lú Idanimo: '{}' nítorí kòsí Oruko to jo olùṣàmúlò ninu àkójọpọ̀ ohun elò yìí"
 
 #: core/auth/management/commands/bulkimportusers.py:107
 msgid "Database ID is not valid"
-msgstr ""
+msgstr "Ibùgbéìwífúnalálàyé ìdánimọ̀ kò kòjú òṣùwọ̀n"
 
 #: core/content/api.py:254
 msgid "Resource"
-msgstr ""
+msgstr "Ohun èlò"
 
 #: core/content/api.py:1467
 msgid "The requested channel does not exist on the content server"
-msgstr ""
+msgstr "Ìkànnì yìí kò sí lóri Ero afefe yi"
 
 #: core/content/models.py:256
 msgid "Unknown format"
-msgstr ""
+msgstr "Agbekale yìí kò sí"
 
 #: core/device/serializers.py:36
 msgid "Language is not supported by Kolibri"
-msgstr ""
+msgstr "Èdè yìí ko sese lorí Kolibri"
 
 #: core/logger/csv_export.py:205
 msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
 msgid "content_session_logs"
-msgstr ""
+msgstr "àkóónú_sáà_àwọn-àkọsílẹ̀-iṣẹ́"
 
 #: core/logger/csv_export.py:215
 msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
 msgid "content_summary_logs"
-msgstr ""
+msgstr "àkóónù_níṣókí_àwọn-àkọsílẹ̀-iṣẹ́"
 
 #: core/tasks/api.py:82
 msgid "There was a network error."
-msgstr ""
+msgstr "Ero ayelukara ń ṣe ségesège."
 
 #: core/tasks/api.py:84
 msgid "There was a disk access error."
-msgstr ""
+msgstr "Àṣìṣe ìráàyèsì dísíkì wáyé."
 
 #: core/tasks/api.py:86
 msgid "There was an unknown error."
-msgstr ""
+msgstr "Àṣìṣe ti ko sese alaye wáyé."
 
 #: core/templates/kolibri/base.html:13
 #: core/templates/kolibri/unsupported_browser.html:13
 msgid "Kolibri"
-msgstr ""
+msgstr "Kolibri"
 
 #: core/templates/kolibri/unsupported_browser.html:42
 msgid "Unsupported browser"
-msgstr ""
+msgstr "Ìlujá ìwádìí yìí kò lè ṣiṣẹ́"
 
 #: core/templates/kolibri/unsupported_browser.html:43
 msgid "Sorry, your browser version is not supported."
-msgstr ""
+msgstr "Má bínú, ìlujá ìwádìí tí ò ń lò kò lè ṣiṣẹ́."
 
 #: core/templates/kolibri/unsupported_browser.html:44
 msgid "To use Kolibri, we recommend using Firefox or Chrome."
-msgstr ""
+msgstr "Láti lo Kolibiri, a dàbá pé kó o lo Firefox tàbí Chrome."
 
 #: core/templates/kolibri/unsupported_browser.html:45
 msgid "You can also try updating your current browser."
-msgstr ""
+msgstr "O tún lè gbìyànjú láti lo ìlujá ìwádìí ti o peye."
 
 #: core/views.py:168
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
-msgstr ""
+msgstr "Kò sí àwọn ojú ewé tí ò peye. Ó ṣeé ṣe kó jẹ́ pé ìkànnì Kolibiri kò ṣiṣẹ́ bó ṣe yẹ"
 
 #: plugins/facility/views.py:52
 msgctxt "Default name for the exported CSV file of facility user data. Please keep the underscore between words in the translation"
 msgid "users_{}"
-msgstr ""
+msgstr "àwọn olùṣàmúlò_{}"
 

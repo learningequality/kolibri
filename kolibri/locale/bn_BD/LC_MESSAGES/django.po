@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-01-12 06:47-0800\n"
-"PO-Revision-Date: 2022-01-25 01:56\n"
+"PO-Revision-Date: 2022-01-25 19:10\n"
 "Last-Translator: \n"
 "Language-Team: Bengali\n"
 "Language: bn_BD\n"
@@ -19,224 +19,224 @@ msgstr ""
 
 #: core/auth/constants/commands_errors.py:17
 msgid "Unexpected exception [{}]: {}"
-msgstr ""
+msgstr "অপ্রত্যাশিত ত্রুটি [{}]: {}"
 
 #: core/auth/constants/commands_errors.py:20
 msgctxt "Error report message when the allowed number of digits has been exceeded."
 msgid "Content of cell '{}' is too long"
-msgstr ""
+msgstr "'{}' সেলটির বিষয়বস্তু খুব বেশি দীর্ঘ"
 
 #: core/auth/constants/commands_errors.py:24
 msgctxt "Error report message when the cell contains an improper data format."
 msgid "Content of cell '{}' is not valid"
-msgstr ""
+msgstr "'{}' সেলটির ডেটা যথাযথ নয়"
 
 #: core/auth/constants/commands_errors.py:26
 msgid "Duplicated username"
-msgstr ""
+msgstr "একই ব্যবহারকারীর নাম একাধিকবার রয়েছে"
 
 #: core/auth/constants/commands_errors.py:28
 #: core/auth/management/commands/bulkimportusers.py:85
 msgid "Username only can contain characters, numbers and underscores"
-msgstr ""
+msgstr "ব্যবহারকারীর নামে শুধুমাত্র অক্ষর, সংখ্যা, এবং আন্ডারস্কোর থাকতে পারে"
 
 #: core/auth/constants/commands_errors.py:30
 msgid "The column '{}' is required"
-msgstr ""
+msgstr "'{}' কলামটি প্রয়োজন"
 
 #: core/auth/constants/commands_errors.py:31
 msgid "Mix of valid and/or invalid header labels found in first row"
-msgstr ""
+msgstr "প্রথম সারিতে কিছু বৈধ এবং/বা অবৈধ হেডার লেবেল রয়েছে"
 
 #: core/auth/constants/commands_errors.py:33
 msgid "No default facility exists. Make sure to set up a facility on the device before running this command"
-msgstr ""
+msgstr "কোনও ডিফল্ট ফ্যাসিলিটি নেই। এই কাজটি করার আগে ডিভাইসে একটা ফ্যাসিলিটি সেট আপ করতে হবে"
 
 #: core/auth/constants/commands_errors.py:35
 #: core/auth/management/commands/bulkimportusers.py:99
 msgid "Error trying to read csv file: {}"
-msgstr ""
+msgstr "csv ফাইলটা পড়তে কিছু সমস্যা হয়েছে: {}"
 
 #: core/auth/constants/commands_errors.py:36
 #: core/auth/management/commands/bulkimportusers.py:100
 msgid "Error trying to write csv file: {}"
-msgstr ""
+msgstr "csv ফাইলে লিখতে কিছু সমস্যা হয়েছে: {}"
 
 #: core/auth/management/commands/bulkexportusers.py:42
 #: core/auth/management/commands/bulkexportusers.py:124
 msgid "Database ID ({})"
-msgstr ""
+msgstr "ডেটাবেস আইডি ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:43
 #: core/auth/management/commands/bulkexportusers.py:125
 msgid "Username ({})"
-msgstr ""
+msgstr "ব্যবহারকারী নাম ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:44
 #: core/auth/management/commands/bulkexportusers.py:126
 msgid "Password ({})"
-msgstr ""
+msgstr "পাসওয়ার্ড ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:45
 #: core/auth/management/commands/bulkexportusers.py:127
 msgid "Full name ({})"
-msgstr ""
+msgstr "পুরো নাম ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:50
 msgctxt "CSV column header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
-msgstr ""
+msgstr "ব্যবহারকারীর ধরন ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:53
 #: core/auth/management/commands/bulkexportusers.py:135
 msgid "Identifier ({})"
-msgstr ""
+msgstr "শনাক্তকারী ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:54
 #: core/auth/management/commands/bulkexportusers.py:136
 msgid "Birth year ({})"
-msgstr ""
+msgstr "জন্মসাল ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:55
 #: core/auth/management/commands/bulkexportusers.py:137
 msgid "Gender ({})"
-msgstr ""
+msgstr "জেন্ডার ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:60
 msgctxt "CSV column header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
-msgstr ""
+msgstr "শিক্ষার্থীর তালিকাভুক্তি ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:67
 msgctxt "CSV column header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
-msgstr ""
+msgstr "প্রশিক্ষকের শ্রেণীকক্ষ ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:132
 msgctxt "CSV header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
-msgstr ""
+msgstr "ব্যবহারকারীর ধরন ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:142
 msgctxt "CSV file header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
-msgstr ""
+msgstr "শিক্ষার্থীর তালিকাভুক্তি ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:149
 msgctxt "CSV file header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
-msgstr ""
+msgstr "প্রশিক্ষকের শ্রেণীকক্ষ ({})"
 
 #: core/auth/management/commands/bulkimportusers.py:76
 msgctxt "Error message that might appear when there's a programming error importing a CSV file"
 msgid "Unexpected error [{}]: {}"
-msgstr ""
+msgstr "অপ্রত্যাশিত সমস্যা [{}]: {}"
 
 #: core/auth/management/commands/bulkimportusers.py:80
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
 msgid "Value in column '{}' has too many characters"
-msgstr ""
+msgstr "'{}' কলামের মানে অনেক বেশী অক্ষর রয়েছে"
 
 #: core/auth/management/commands/bulkimportusers.py:82
 msgid "Value in column '{}' not valid"
-msgstr ""
+msgstr "'{}' কলামের তথ্য বৈধ নয়"
 
 #: core/auth/management/commands/bulkimportusers.py:83
 msgid "Username is duplicated"
-msgstr ""
+msgstr "ইউসারনেম নাম নকল করা"
 
 #: core/auth/management/commands/bulkimportusers.py:89
 msgctxt "Error message indicating that the CSV file selected for import is missing a required column"
 msgid "The column '{}' is required"
-msgstr ""
+msgstr "'{}' কলামটি প্রয়োজন"
 
 #: core/auth/management/commands/bulkimportusers.py:93
 msgctxt "Error message indicating that one column header in the CSV file selected for import is missing or incorrect"
 msgid "Incorrect header label found in the first row"
-msgstr ""
+msgstr "প্রথম সারিতে ভুল হেডার লেবেল রয়েছে"
 
 #: core/auth/management/commands/bulkimportusers.py:97
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
 msgid "No default facility exists. Make sure to set up a facility on the  device before importing users and classes"
-msgstr ""
+msgstr "কোনও ডিফল্ট ফ্যাসিলিটি নেই। ব্যবহারকারী এবং শ্রেণীগুলি ইম্পোর্ট করার আগে ডিভাইসে একটা ফ্যাসিলিটি সেট আপ করতে হবে"
 
 #: core/auth/management/commands/bulkimportusers.py:102
 msgid "The password field is required. To leave the password unchanged in existing users, insert an asterisk (*)"
-msgstr ""
+msgstr "পাসওয়ার্ড ক্ষেত্রটি প্রয়োজন। বর্তমান ব্যবহারকারীরা পাসওয়ার্ড অপরিবর্তিত রাখতে চাইলে, একটা আস্টারিক্স (*) লিখুন"
 
 #: core/auth/management/commands/bulkimportusers.py:105
 msgid "Cannot update user with ID: '{}' because no user with that database ID exists in this facility"
-msgstr ""
+msgstr "এই আইডি সহ ব্যবহারকারী আপডেট করা যায়নি: '{}' কারণ এই ফ্যাসিলিটিতে ওই ডেটাবেস আইডি সহ কোনও ব্যবহারকারী নেই"
 
 #: core/auth/management/commands/bulkimportusers.py:107
 msgid "Database ID is not valid"
-msgstr ""
+msgstr "ডেটাবেস আই.ডি বৈধ নয়"
 
 #: core/content/api.py:254
 msgid "Resource"
-msgstr ""
+msgstr "উপকরণ"
 
 #: core/content/api.py:1467
 msgid "The requested channel does not exist on the content server"
-msgstr ""
+msgstr "এই চ্যানেলের বিষয়বস্তু সার্ভারে বিদ্যমান নয়"
 
 #: core/content/models.py:256
 msgid "Unknown format"
-msgstr ""
+msgstr "ভুল হয়েছে"
 
 #: core/device/serializers.py:36
 msgid "Language is not supported by Kolibri"
-msgstr ""
+msgstr "ভাষাটি কলিব্রিতে ব্যবহারযোগ্য নয়"
 
 #: core/logger/csv_export.py:205
 msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
 msgid "content_session_logs"
-msgstr ""
+msgstr "কন্টেন্ট_সেশন_লগস"
 
 #: core/logger/csv_export.py:215
 msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
 msgid "content_summary_logs"
-msgstr ""
+msgstr "কন্টেন্ত_সামারি_লগস"
 
 #: core/tasks/api.py:82
 msgid "There was a network error."
-msgstr ""
+msgstr "নেটওয়ার্কে সমস্যা হয়েছে।"
 
 #: core/tasks/api.py:84
 msgid "There was a disk access error."
-msgstr ""
+msgstr "ডিস্ক অ্যাক্সেস করতে সমস্যা হচ্ছে।"
 
 #: core/tasks/api.py:86
 msgid "There was an unknown error."
-msgstr ""
+msgstr "একটা অজানা সমস্যা হয়েছে।"
 
 #: core/templates/kolibri/base.html:13
 #: core/templates/kolibri/unsupported_browser.html:13
 msgid "Kolibri"
-msgstr ""
+msgstr "কলিব্রি"
 
 #: core/templates/kolibri/unsupported_browser.html:42
 msgid "Unsupported browser"
-msgstr ""
+msgstr "এই ব্রাউজারটি ব্যবহার করা যাবে না"
 
 #: core/templates/kolibri/unsupported_browser.html:43
 msgid "Sorry, your browser version is not supported."
-msgstr ""
+msgstr "দুঃখিত, আপনার ব্রাউজারের এই সংস্করণটি ব্যবহার করা যাবে না।"
 
 #: core/templates/kolibri/unsupported_browser.html:44
 msgid "To use Kolibri, we recommend using Firefox or Chrome."
-msgstr ""
+msgstr "কলিব্রি ব্যবহারের জন্য আমরা ফায়ারফক্স এবং ক্রোম ব্যবহারের পরামর্শ দিই।"
 
 #: core/templates/kolibri/unsupported_browser.html:45
 msgid "You can also try updating your current browser."
-msgstr ""
+msgstr "আপনার বর্তমান ব্রাউজারটি আপডেট করার চেষ্টাও করতে পারেন।"
 
 #: core/views.py:168
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
-msgstr ""
+msgstr "কোনও উপযুক্ত পুনর্নির্দেশ পাতা খুঁজে পাওয়া যায়নি। সম্ভবত কলিব্রি ঠিকভাবে কনফিগার করা হয়নি।"
 
 #: plugins/facility/views.py:52
 msgctxt "Default name for the exported CSV file of facility user data. Please keep the underscore between words in the translation"
 msgid "users_{}"
-msgstr ""
+msgstr "ব্যবহারকারীগণ_{}"
 

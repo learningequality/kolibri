@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-01-12 06:47-0800\n"
-"PO-Revision-Date: 2022-01-25 01:56\n"
+"PO-Revision-Date: 2022-01-25 19:10\n"
 "Last-Translator: \n"
 "Language-Team: Chewa\n"
 "Language: ny_MW\n"
@@ -19,224 +19,224 @@ msgstr ""
 
 #: core/auth/constants/commands_errors.py:17
 msgid "Unexpected exception [{}]: {}"
-msgstr ""
+msgstr "Chinachake chosayembekezereka [{}]: {}"
 
 #: core/auth/constants/commands_errors.py:20
 msgctxt "Error report message when the allowed number of digits has been exceeded."
 msgid "Content of cell '{}' is too long"
-msgstr ""
+msgstr "Zomwe mwalowetsa mu '{}' zatalika kwambiri"
 
 #: core/auth/constants/commands_errors.py:24
 msgctxt "Error report message when the cell contains an improper data format."
 msgid "Content of cell '{}' is not valid"
-msgstr ""
+msgstr "Zomwe mwalemba umu '{}' ndi zolakwika"
 
 #: core/auth/constants/commands_errors.py:26
 msgid "Duplicated username"
-msgstr ""
+msgstr "Dzina lolowera labwerezedwa"
 
 #: core/auth/constants/commands_errors.py:28
 #: core/auth/management/commands/bulkimportusers.py:85
 msgid "Username only can contain characters, numbers and underscores"
-msgstr ""
+msgstr "Dzina lolowera liyenera kukhala ndi zilembo, nambala komanso zizindikiro zotere \"_\""
 
 #: core/auth/constants/commands_errors.py:30
 msgid "The column '{}' is required"
-msgstr ""
+msgstr "Pakufunika gawo ili '{}'"
 
 #: core/auth/constants/commands_errors.py:31
 msgid "Mix of valid and/or invalid header labels found in first row"
-msgstr ""
+msgstr "Mu mzere woyambirira mwapezeka zizindikiro za ma heda zovomerezeka ndi zosavomerezeka zomwe"
 
 #: core/auth/constants/commands_errors.py:33
 msgid "No default facility exists. Make sure to set up a facility on the device before running this command"
-msgstr ""
+msgstr "Simunapezeke malo aliwonse a akaunti kapena kalasi. Onetsetsani kuti mwakhazikitsa malo muchipangizochi musanasankhe kuchita zimenezi"
 
 #: core/auth/constants/commands_errors.py:35
 #: core/auth/management/commands/bulkimportusers.py:99
 msgid "Error trying to read csv file: {}"
-msgstr ""
+msgstr "Pepani tikuyesa kuona fayilo ya csv: {}"
 
 #: core/auth/constants/commands_errors.py:36
 #: core/auth/management/commands/bulkimportusers.py:100
 msgid "Error trying to write csv file: {}"
-msgstr ""
+msgstr "Pepani tikuyesa kulemba fayilo ya csv: {}"
 
 #: core/auth/management/commands/bulkexportusers.py:42
 #: core/auth/management/commands/bulkexportusers.py:124
 msgid "Database ID ({})"
-msgstr ""
+msgstr "Chizindikiro cha Databezi ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:43
 #: core/auth/management/commands/bulkexportusers.py:125
 msgid "Username ({})"
-msgstr ""
+msgstr "Dzina lolowera ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:44
 #: core/auth/management/commands/bulkexportusers.py:126
 msgid "Password ({})"
-msgstr ""
+msgstr "Nambala yachinsinsi ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:45
 #: core/auth/management/commands/bulkexportusers.py:127
 msgid "Full name ({})"
-msgstr ""
+msgstr "Dzina lonse ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:50
 msgctxt "CSV column header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
-msgstr ""
+msgstr "Mtundu wa akaunti ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:53
 #: core/auth/management/commands/bulkexportusers.py:135
 msgid "Identifier ({})"
-msgstr ""
+msgstr "Chozindikiritsa ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:54
 #: core/auth/management/commands/bulkexportusers.py:136
 msgid "Birth year ({})"
-msgstr ""
+msgstr "Chaka chobadwa ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:55
 #: core/auth/management/commands/bulkexportusers.py:137
 msgid "Gender ({})"
-msgstr ""
+msgstr "Mwamuna/Mkazi ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:60
 msgctxt "CSV column header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
-msgstr ""
+msgstr "Kalasi yoti wophunzira alowetsedwe ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:67
 msgctxt "CSV column header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
-msgstr ""
+msgstr "Zoti m'phunzitsi achite ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:132
 msgctxt "CSV header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
-msgstr ""
+msgstr "Mtundu wa akaunti ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:142
 msgctxt "CSV file header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
-msgstr ""
+msgstr "Kalasi yoti wophunzira alowetsedwe ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:149
 msgctxt "CSV file header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
-msgstr ""
+msgstr "Zoti m'phunzitsi achite ({})"
 
 #: core/auth/management/commands/bulkimportusers.py:76
 msgctxt "Error message that might appear when there's a programming error importing a CSV file"
 msgid "Unexpected error [{}]: {}"
-msgstr ""
+msgstr "Chinachake chalakwika [{}]: {}"
 
 #: core/auth/management/commands/bulkimportusers.py:80
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
 msgid "Value in column '{}' has too many characters"
-msgstr ""
+msgstr "Mwalowetsa zilembo zambiri mu gawo ili '{}'"
 
 #: core/auth/management/commands/bulkimportusers.py:82
 msgid "Value in column '{}' not valid"
-msgstr ""
+msgstr "Nambala kapena mawu omwe ali mugawo '{}' ndi osagwira"
 
 #: core/auth/management/commands/bulkimportusers.py:83
 msgid "Username is duplicated"
-msgstr ""
+msgstr "Dzina lolowera labwerezedwa"
 
 #: core/auth/management/commands/bulkimportusers.py:89
 msgctxt "Error message indicating that the CSV file selected for import is missing a required column"
 msgid "The column '{}' is required"
-msgstr ""
+msgstr "Pakufunika gawo ili '{}'"
 
 #: core/auth/management/commands/bulkimportusers.py:93
 msgctxt "Error message indicating that one column header in the CSV file selected for import is missing or incorrect"
 msgid "Incorrect header label found in the first row"
-msgstr ""
+msgstr "Mumzere woyambirira mwapezeka chizindikiro cholakwika"
 
 #: core/auth/management/commands/bulkimportusers.py:97
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
 msgid "No default facility exists. Make sure to set up a facility on the  device before importing users and classes"
-msgstr ""
+msgstr "Simunapezeke malo aliwonse a akaunti kapena kalasi. Onetsetsani kuti mwakhazikitsa malo muchipangizochi musanasankhe kulowetsa ma akaunti ndi makalasi"
 
 #: core/auth/management/commands/bulkimportusers.py:102
 msgid "The password field is required. To leave the password unchanged in existing users, insert an asterisk (*)"
-msgstr ""
+msgstr "Mukufunika kulowetsa nambala yachinsinsi. Kuti nambala yachinsinsi ya ma akaunti omwe alimo kale isasinthe, ikani chizindikiro ichi (*)"
 
 #: core/auth/management/commands/bulkimportusers.py:105
 msgid "Cannot update user with ID: '{}' because no user with that database ID exists in this facility"
-msgstr ""
+msgstr "Sizingatheke kupanga apudeti akaunti yokhala ndi ID: '{}' chifukwa choti pamalo amenewa palibe akaunti yokhala ndi ID yotero."
 
 #: core/auth/management/commands/bulkimportusers.py:107
 msgid "Database ID is not valid"
-msgstr ""
+msgstr "Databezi ID ndi yosavomerezeka"
 
 #: core/content/api.py:254
 msgid "Resource"
-msgstr ""
+msgstr "Zophunzirira"
 
 #: core/content/api.py:1467
 msgid "The requested channel does not exist on the content server"
-msgstr ""
+msgstr "Tchanelo imene mukufuna sikupezeka pa seva"
 
 #: core/content/models.py:256
 msgid "Unknown format"
-msgstr ""
+msgstr "Fomati yosadziwika"
 
 #: core/device/serializers.py:36
 msgid "Language is not supported by Kolibri"
-msgstr ""
+msgstr "Chilankhulo chimenechi sichili pa Kolibri"
 
 #: core/logger/csv_export.py:205
 msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
 msgid "content_session_logs"
-msgstr ""
+msgstr "content_session_logs"
 
 #: core/logger/csv_export.py:215
 msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
 msgid "content_summary_logs"
-msgstr ""
+msgstr "content_summary_logs"
 
 #: core/tasks/api.py:82
 msgid "There was a network error."
-msgstr ""
+msgstr "Panali vuto la netiweki."
 
 #: core/tasks/api.py:84
 msgid "There was a disk access error."
-msgstr ""
+msgstr "Panali vuto potsekula disiki."
 
 #: core/tasks/api.py:86
 msgid "There was an unknown error."
-msgstr ""
+msgstr "Panali vuto losadziwika bwino."
 
 #: core/templates/kolibri/base.html:13
 #: core/templates/kolibri/unsupported_browser.html:13
 msgid "Kolibri"
-msgstr ""
+msgstr "Kolibri"
 
 #: core/templates/kolibri/unsupported_browser.html:42
 msgid "Unsupported browser"
-msgstr ""
+msgstr "Bulawuza imeneyi ndi yosagwirizana ndi Kolibri"
 
 #: core/templates/kolibri/unsupported_browser.html:43
 msgid "Sorry, your browser version is not supported."
-msgstr ""
+msgstr "Pepani, bulawuza imeneyi ndi yosagwirizana ndi Kolibri."
 
 #: core/templates/kolibri/unsupported_browser.html:44
 msgid "To use Kolibri, we recommend using Firefox or Chrome."
-msgstr ""
+msgstr "Kuti muthe kugwiritsa ntchito Kolibri, mufunika kugwiritsa ntchito Firefox kapena Chrome."
 
 #: core/templates/kolibri/unsupported_browser.html:45
 msgid "You can also try updating your current browser."
-msgstr ""
+msgstr "Mungayesenso kupanga apudeti bulawuza imene mukugwiritsa ntchito panopo."
 
 #: core/views.py:168
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
-msgstr ""
+msgstr "Palibe tsamba limene latseguka. N'kutheka kuti simunaike bwino Kolibri"
 
 #: plugins/facility/views.py:52
 msgctxt "Default name for the exported CSV file of facility user data. Please keep the underscore between words in the translation"
 msgid "users_{}"
-msgstr ""
+msgstr "ma akaunti_{}"
 

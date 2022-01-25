@@ -1,10 +1,10 @@
 {
-  "DemoServerBannerContent.demoServerA1": "",
-  "DemoServerBannerContent.demoServerA2": "",
-  "DemoServerBannerContent.demoServerHeader": "",
-  "DemoServerBannerContent.demoServerL1": "",
-  "DemoServerBannerContent.demoServerL2": "",
-  "DemoServerBannerContent.demoServerP1": "",
-  "DemoServerBannerContent.demoServerP2": "",
-  "DemoServerBannerContent.demoServerP3": ""
+  "DemoServerBannerContent.demoServerA1": "Прочети документацията",
+  "DemoServerBannerContent.demoServerA2": "Изтегли и инсталирай най-новата версия",
+  "DemoServerBannerContent.demoServerHeader": "Добре дошли в Колибри демо сайта",
+  "DemoServerBannerContent.demoServerL1": "Учащ ({user}/{pass} или разгледай без профил)",
+  "DemoServerBannerContent.demoServerL2": "Учител ({user}/{pass})",
+  "DemoServerBannerContent.demoServerP1": "Разгледай някои от тези видове потребители:",
+  "DemoServerBannerContent.demoServerP2": "Тази онлайн версия на Колибри е предназначена само за демонстрационни цели. Потребителите и данните ще бъдат периодично изтривани. Демото показва функциите на най-новата версия на Колибри и всички налични ресурси са примерни.",
+  "DemoServerBannerContent.demoServerP3": "За да научиш повече как да използваш Колибри офлайн, както и платформата като цяло:"
 }

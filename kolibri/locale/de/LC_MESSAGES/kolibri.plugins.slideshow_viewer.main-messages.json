@@ -1,4 +1,4 @@
 {
-  "SlideshowRendererComponent.enterFullscreen": "",
-  "SlideshowRendererComponent.exitFullscreen": ""
+  "SlideshowRendererComponent.enterFullscreen": "Vollbildmodus aktivieren",
+  "SlideshowRendererComponent.exitFullscreen": "Vollbildmodus beenden"
 }

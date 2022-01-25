@@ -1,10 +1,10 @@
 {
-  "DemoServerBannerContent.demoServerA1": "",
-  "DemoServerBannerContent.demoServerA2": "",
-  "DemoServerBannerContent.demoServerHeader": "",
-  "DemoServerBannerContent.demoServerL1": "",
-  "DemoServerBannerContent.demoServerL2": "",
-  "DemoServerBannerContent.demoServerP1": "",
-  "DemoServerBannerContent.demoServerP2": "",
-  "DemoServerBannerContent.demoServerP3": ""
+  "DemoServerBannerContent.demoServerA1": "مستندات را بخوانید",
+  "DemoServerBannerContent.demoServerA2": "آخرین نسخه را دانلود و نصب کنید",
+  "DemoServerBannerContent.demoServerHeader": "به نسخه نمایشی سایت Kolibri خوش آمدید",
+  "DemoServerBannerContent.demoServerL1": "یادگیرنده ({user}/{pass} یا بدون حساب کاربری جستجو کنید)",
+  "DemoServerBannerContent.demoServerL2": "مربی ({user}/{pass})",
+  "DemoServerBannerContent.demoServerP1": "یکی از این نوع کاربرها را جستجو کنید:",
+  "DemoServerBannerContent.demoServerP2": "این نسخه از Kolibri فقط برای نمایش ساخته شده است. کاربران و داده‌ها در فواصل معین حذف خواهند شد. این نسخه‌ی نمایشی، آخرین ویژگی‌های نسخه‌ی جدید Kolibri را نشان می‌دهد و همه‌ی منابعی که روی آن پیدا می‌کنید، نمونه هستند.",
+  "DemoServerBannerContent.demoServerP3": "برای اطلاعات بیشتر در مورد استفاده از Kolibri در یک فضای آفلاین و درک بهتر پلت‌فُرم:"
 }
