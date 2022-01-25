@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-01 22:12-0700\n"
-"PO-Revision-Date: 2021-11-02 05:29\n"
+"POT-Creation-Date: 2022-01-12 06:47-0800\n"
+"PO-Revision-Date: 2022-01-25 01:56\n"
 "Last-Translator: \n"
 "Language-Team: Vietnamese\n"
 "Language: vi_VN\n"
@@ -14,229 +14,229 @@ msgstr ""
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Project-ID: 201933\n"
 "X-Crowdin-Language: vi\n"
-"X-Crowdin-File: /release-v0.15.x/django.po\n"
-"X-Crowdin-File-ID: 4105\n"
+"X-Crowdin-File: /release-v0.16.x/django.po\n"
+"X-Crowdin-File-ID: 4241\n"
 
 #: core/auth/constants/commands_errors.py:17
 msgid "Unexpected exception [{}]: {}"
-msgstr "Ngoại lệ ngoài ý muốn [{}]: {}"
+msgstr ""
 
 #: core/auth/constants/commands_errors.py:20
 msgctxt "Error report message when the allowed number of digits has been exceeded."
 msgid "Content of cell '{}' is too long"
-msgstr "Nội dung của ô '{}' quá dài"
+msgstr ""
 
 #: core/auth/constants/commands_errors.py:24
 msgctxt "Error report message when the cell contains an improper data format."
 msgid "Content of cell '{}' is not valid"
-msgstr "Nội dung của ô '{}' không hợp lệ"
+msgstr ""
 
 #: core/auth/constants/commands_errors.py:26
 msgid "Duplicated username"
-msgstr "Tên người dùng bị trùng lắp"
+msgstr ""
 
 #: core/auth/constants/commands_errors.py:28
 #: core/auth/management/commands/bulkimportusers.py:85
 msgid "Username only can contain characters, numbers and underscores"
-msgstr "Tên người dùng chỉ có thể chứa chữ cái, số và dấu gạch dưới"
+msgstr ""
 
 #: core/auth/constants/commands_errors.py:30
 msgid "The column '{}' is required"
-msgstr "Cần có cột '{}'"
+msgstr ""
 
 #: core/auth/constants/commands_errors.py:31
 msgid "Mix of valid and/or invalid header labels found in first row"
-msgstr "Hàng đầu tiên chứa cả nhãn đầu đề hợp lệ và không hợp lệ"
+msgstr ""
 
 #: core/auth/constants/commands_errors.py:33
 msgid "No default facility exists. Make sure to set up a facility on the device before running this command"
-msgstr "Công cụ mặc định không tồn tại. Bảo đảm thiết lập công cụ trên thiết bị trước khi chạy lệnh này"
+msgstr ""
 
 #: core/auth/constants/commands_errors.py:35
 #: core/auth/management/commands/bulkimportusers.py:99
 msgid "Error trying to read csv file: {}"
-msgstr "Lỗi khi đọc tệp csv: {}"
+msgstr ""
 
 #: core/auth/constants/commands_errors.py:36
 #: core/auth/management/commands/bulkimportusers.py:100
 msgid "Error trying to write csv file: {}"
-msgstr "Lỗi khi ghi tệp csv: {}"
+msgstr ""
 
 #: core/auth/management/commands/bulkexportusers.py:42
 #: core/auth/management/commands/bulkexportusers.py:124
 msgid "Database ID ({})"
-msgstr "Cơ sở dữ liệu ID"
+msgstr ""
 
 #: core/auth/management/commands/bulkexportusers.py:43
 #: core/auth/management/commands/bulkexportusers.py:125
 msgid "Username ({})"
-msgstr "Tên người dùng ({})"
+msgstr ""
 
 #: core/auth/management/commands/bulkexportusers.py:44
 #: core/auth/management/commands/bulkexportusers.py:126
 msgid "Password ({})"
-msgstr "Mật khẩu ({})"
+msgstr ""
 
 #: core/auth/management/commands/bulkexportusers.py:45
 #: core/auth/management/commands/bulkexportusers.py:127
 msgid "Full name ({})"
-msgstr "Họ tên ({})"
+msgstr ""
 
 #: core/auth/management/commands/bulkexportusers.py:50
 msgctxt "CSV column header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
-msgstr "Loại người dùng ({})"
+msgstr ""
 
 #: core/auth/management/commands/bulkexportusers.py:53
 #: core/auth/management/commands/bulkexportusers.py:135
 msgid "Identifier ({})"
-msgstr "Mã định danh ({})"
+msgstr ""
 
 #: core/auth/management/commands/bulkexportusers.py:54
 #: core/auth/management/commands/bulkexportusers.py:136
 msgid "Birth year ({})"
-msgstr "Năm sinh ({})"
+msgstr ""
 
 #: core/auth/management/commands/bulkexportusers.py:55
 #: core/auth/management/commands/bulkexportusers.py:137
 msgid "Gender ({})"
-msgstr "Giới tính ({})"
+msgstr ""
 
 #: core/auth/management/commands/bulkexportusers.py:60
 msgctxt "CSV column header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
-msgstr "Học viên ghi danh ({})"
+msgstr ""
 
 #: core/auth/management/commands/bulkexportusers.py:67
 msgctxt "CSV column header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
-msgstr "Phân công giáo viên ({})"
+msgstr ""
 
 #: core/auth/management/commands/bulkexportusers.py:132
 msgctxt "CSV header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
-msgstr "Loại người dùng ({})"
+msgstr ""
 
 #: core/auth/management/commands/bulkexportusers.py:142
 msgctxt "CSV file header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
-msgstr "Học viên ghi danh ({})"
+msgstr ""
 
 #: core/auth/management/commands/bulkexportusers.py:149
 msgctxt "CSV file header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
-msgstr "Phân công giáo viên ({})"
+msgstr ""
 
 #: core/auth/management/commands/bulkimportusers.py:76
 msgctxt "Error message that might appear when there's a programming error importing a CSV file"
 msgid "Unexpected error [{}]: {}"
-msgstr "Lỗi không mong muốn [{}]: {}"
+msgstr ""
 
 #: core/auth/management/commands/bulkimportusers.py:80
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
 msgid "Value in column '{}' has too many characters"
-msgstr "Giá trị trong cột '{}' có quá nhiều ký tự"
+msgstr ""
 
 #: core/auth/management/commands/bulkimportusers.py:82
 msgid "Value in column '{}' not valid"
-msgstr "Giá trị trong cột '{}' không hợp lệ"
+msgstr ""
 
 #: core/auth/management/commands/bulkimportusers.py:83
 msgid "Username is duplicated"
-msgstr "Tên người dùng bị trùng lắp"
+msgstr ""
 
 #: core/auth/management/commands/bulkimportusers.py:89
 msgctxt "Error message indicating that the CSV file selected for import is missing a required column"
 msgid "The column '{}' is required"
-msgstr "Cần có cột '{}'"
+msgstr ""
 
 #: core/auth/management/commands/bulkimportusers.py:93
 msgctxt "Error message indicating that one column header in the CSV file selected for import is missing or incorrect"
 msgid "Incorrect header label found in the first row"
-msgstr "Nhãn tiêu đề trong hàng đầu tiên không chính xác"
+msgstr ""
 
 #: core/auth/management/commands/bulkimportusers.py:97
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
 msgid "No default facility exists. Make sure to set up a facility on the  device before importing users and classes"
-msgstr "Không tìm thấy địa điểm mặc định. Hãy chắc chắn đã thiết lập địa điểm trên thiết bị trước khi nhập người dùng và lớp học"
+msgstr ""
 
 #: core/auth/management/commands/bulkimportusers.py:102
 msgid "The password field is required. To leave the password unchanged in existing users, insert an asterisk (*)"
-msgstr "Trường dữ liệu mật khẩu là bắt buộc. Để giữ nguyên mật khẩu của người dùng hiện tại, hãy nhập vào một dấu hoa thị (*)"
+msgstr ""
 
 #: core/auth/management/commands/bulkimportusers.py:105
 msgid "Cannot update user with ID: '{}' because no user with that database ID exists in this facility"
-msgstr "Không thể cập nhật thông tin cho người dùng mang mã số: '{}' vì không có người dùng mang mã cơ sở dữ liệu đó tại địa điểm này"
+msgstr ""
 
 #: core/auth/management/commands/bulkimportusers.py:107
 msgid "Database ID is not valid"
-msgstr "Mã cơ sở dữ liệu không hợp lệ"
+msgstr ""
 
-#: core/content/api.py:170
+#: core/content/api.py:254
 msgid "Resource"
-msgstr "Nguồn tài liệu"
+msgstr ""
 
-#: core/content/api.py:1327
+#: core/content/api.py:1467
 msgid "The requested channel does not exist on the content server"
-msgstr "Kênh được yêu cầu không tồn tại trên máy chủ nội dung"
+msgstr ""
 
-#: core/content/models.py:252
+#: core/content/models.py:256
 msgid "Unknown format"
-msgstr "Không xác định được định dạng"
+msgstr ""
 
 #: core/device/serializers.py:36
 msgid "Language is not supported by Kolibri"
-msgstr "Kolibri không hỗ trợ ngôn ngữ này"
+msgstr ""
 
 #: core/logger/csv_export.py:205
 msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
 msgid "content_session_logs"
-msgstr "nhật_ký_nội_dung_phiên_làm_việc"
+msgstr ""
 
 #: core/logger/csv_export.py:215
 msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
 msgid "content_summary_logs"
-msgstr "nhật ký_phần tóm tắt_nội dung"
+msgstr ""
 
 #: core/tasks/api.py:82
 msgid "There was a network error."
-msgstr "Đã xảy ra lỗi mạng."
+msgstr ""
 
 #: core/tasks/api.py:84
 msgid "There was a disk access error."
-msgstr "Đã xảy ra lỗi truy cập đĩa."
+msgstr ""
 
 #: core/tasks/api.py:86
 msgid "There was an unknown error."
-msgstr "Đã xảy ra lỗi không xác định."
+msgstr ""
 
 #: core/templates/kolibri/base.html:13
 #: core/templates/kolibri/unsupported_browser.html:13
 msgid "Kolibri"
-msgstr "Kolibri"
+msgstr ""
 
 #: core/templates/kolibri/unsupported_browser.html:42
 msgid "Unsupported browser"
-msgstr "Trình duyệt không được hỗ trợ"
+msgstr ""
 
 #: core/templates/kolibri/unsupported_browser.html:43
 msgid "Sorry, your browser version is not supported."
-msgstr "Rất tiếc, phiên bản trình duyệt của bạn không được hỗ trợ."
+msgstr ""
 
 #: core/templates/kolibri/unsupported_browser.html:44
 msgid "To use Kolibri, we recommend using Firefox or Chrome."
-msgstr "Chúng tôi đề nghị dùng Firefox hoặc Chrome để sử dụng Kolibri."
+msgstr ""
 
 #: core/templates/kolibri/unsupported_browser.html:45
 msgid "You can also try updating your current browser."
-msgstr "Bạn cũng có thể thử cập nhật trình duyệt hiện tại."
+msgstr ""
 
 #: core/views.py:168
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
-msgstr "Không tìm thấy trang chuyển hướng phù hợp. Có thể Kolibri đặt cấu hình không tốt"
+msgstr ""
 
 #: plugins/facility/views.py:52
 msgctxt "Default name for the exported CSV file of facility user data. Please keep the underscore between words in the translation"
 msgid "users_{}"
-msgstr "người dùng_{}"
+msgstr ""
 

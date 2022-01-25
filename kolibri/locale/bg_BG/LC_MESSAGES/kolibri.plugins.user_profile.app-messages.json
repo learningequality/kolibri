@@ -1,15 +1,15 @@
 {
-  "ChangeUserPasswordModal.passwordChangeFormHeader": "Промяна на паролата",
-  "ChangeUserPasswordModal.passwordChangedNotification": "Паролата бе променена.",
-  "ProfileEditPage.editProfileHeader": "Редактиране на профил",
-  "ProfilePage.changePasswordPrompt": "Промяна на паролата",
-  "ProfilePage.detailsHeader": "Подробности",
-  "ProfilePage.documentTitle": "Потребителски профил",
-  "ProfilePage.editAction": "Редактирай",
-  "ProfilePage.isSuperuser": "Суперадминистраторски разрешения ",
-  "ProfilePage.limitedPermissions": "Ограничени разрешения",
-  "ProfilePage.manageContent": "Управление на канали и ресурси",
-  "ProfilePage.manageDevicePermissions": "Управление на правата за достъп до устройството",
-  "ProfilePage.points": "Точки",
-  "ProfilePage.youCan": "Можеш:"
+  "ChangeUserPasswordModal.passwordChangeFormHeader": "",
+  "ChangeUserPasswordModal.passwordChangedNotification": "",
+  "ProfileEditPage.editProfileHeader": "",
+  "ProfilePage.changePasswordPrompt": "",
+  "ProfilePage.detailsHeader": "",
+  "ProfilePage.documentTitle": "",
+  "ProfilePage.editAction": "",
+  "ProfilePage.isSuperuser": "",
+  "ProfilePage.limitedPermissions": "",
+  "ProfilePage.manageContent": "",
+  "ProfilePage.manageDevicePermissions": "",
+  "ProfilePage.points": "",
+  "ProfilePage.youCan": ""
 }

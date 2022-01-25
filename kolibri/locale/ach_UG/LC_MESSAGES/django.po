@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-01 22:12-0700\n"
-"PO-Revision-Date: 2021-11-02 05:29\n"
+"POT-Creation-Date: 2022-01-12 06:47-0800\n"
+"PO-Revision-Date: 2022-01-25 01:56\n"
 "Last-Translator: \n"
 "Language-Team: Acholi\n"
 "Language: ach_UG\n"
@@ -14,229 +14,229 @@ msgstr ""
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Project-ID: 201933\n"
 "X-Crowdin-Language: ach\n"
-"X-Crowdin-File: /release-v0.15.x/django.po\n"
-"X-Crowdin-File-ID: 4105\n"
+"X-Crowdin-File: /release-v0.16.x/django.po\n"
+"X-Crowdin-File-ID: 4241\n"
 
 #: core/auth/constants/commands_errors.py:17
 msgid "Unexpected exception [{}]: {}"
-msgstr "crwdns319843:0crwdne319843:0"
+msgstr "crwdns333087:0crwdne333087:0"
 
 #: core/auth/constants/commands_errors.py:20
 msgctxt "Error report message when the allowed number of digits has been exceeded."
 msgid "Content of cell '{}' is too long"
-msgstr "crwdns319845:0crwdne319845:0"
+msgstr "crwdns333089:0crwdne333089:0"
 
 #: core/auth/constants/commands_errors.py:24
 msgctxt "Error report message when the cell contains an improper data format."
 msgid "Content of cell '{}' is not valid"
-msgstr "crwdns319847:0crwdne319847:0"
+msgstr "crwdns333091:0crwdne333091:0"
 
 #: core/auth/constants/commands_errors.py:26
 msgid "Duplicated username"
-msgstr "crwdns319849:0crwdne319849:0"
+msgstr "crwdns333093:0crwdne333093:0"
 
 #: core/auth/constants/commands_errors.py:28
 #: core/auth/management/commands/bulkimportusers.py:85
 msgid "Username only can contain characters, numbers and underscores"
-msgstr "crwdns319851:0crwdne319851:0"
+msgstr "crwdns333095:0crwdne333095:0"
 
 #: core/auth/constants/commands_errors.py:30
 msgid "The column '{}' is required"
-msgstr "crwdns319853:0crwdne319853:0"
+msgstr "crwdns333097:0crwdne333097:0"
 
 #: core/auth/constants/commands_errors.py:31
 msgid "Mix of valid and/or invalid header labels found in first row"
-msgstr "crwdns319855:0crwdne319855:0"
+msgstr "crwdns333099:0crwdne333099:0"
 
 #: core/auth/constants/commands_errors.py:33
 msgid "No default facility exists. Make sure to set up a facility on the device before running this command"
-msgstr "crwdns319857:0crwdne319857:0"
+msgstr "crwdns333101:0crwdne333101:0"
 
 #: core/auth/constants/commands_errors.py:35
 #: core/auth/management/commands/bulkimportusers.py:99
 msgid "Error trying to read csv file: {}"
-msgstr "crwdns319859:0crwdne319859:0"
+msgstr "crwdns333103:0crwdne333103:0"
 
 #: core/auth/constants/commands_errors.py:36
 #: core/auth/management/commands/bulkimportusers.py:100
 msgid "Error trying to write csv file: {}"
-msgstr "crwdns319861:0crwdne319861:0"
+msgstr "crwdns333105:0crwdne333105:0"
 
 #: core/auth/management/commands/bulkexportusers.py:42
 #: core/auth/management/commands/bulkexportusers.py:124
 msgid "Database ID ({})"
-msgstr "crwdns319863:0crwdne319863:0"
+msgstr "crwdns333107:0crwdne333107:0"
 
 #: core/auth/management/commands/bulkexportusers.py:43
 #: core/auth/management/commands/bulkexportusers.py:125
 msgid "Username ({})"
-msgstr "crwdns319865:0crwdne319865:0"
+msgstr "crwdns333109:0crwdne333109:0"
 
 #: core/auth/management/commands/bulkexportusers.py:44
 #: core/auth/management/commands/bulkexportusers.py:126
 msgid "Password ({})"
-msgstr "crwdns319867:0crwdne319867:0"
+msgstr "crwdns333111:0crwdne333111:0"
 
 #: core/auth/management/commands/bulkexportusers.py:45
 #: core/auth/management/commands/bulkexportusers.py:127
 msgid "Full name ({})"
-msgstr "crwdns319869:0crwdne319869:0"
+msgstr "crwdns333113:0crwdne333113:0"
 
 #: core/auth/management/commands/bulkexportusers.py:50
 msgctxt "CSV column header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
-msgstr "crwdns319871:0crwdne319871:0"
+msgstr "crwdns333115:0crwdne333115:0"
 
 #: core/auth/management/commands/bulkexportusers.py:53
 #: core/auth/management/commands/bulkexportusers.py:135
 msgid "Identifier ({})"
-msgstr "crwdns319873:0crwdne319873:0"
+msgstr "crwdns333117:0crwdne333117:0"
 
 #: core/auth/management/commands/bulkexportusers.py:54
 #: core/auth/management/commands/bulkexportusers.py:136
 msgid "Birth year ({})"
-msgstr "crwdns319875:0crwdne319875:0"
+msgstr "crwdns333119:0crwdne333119:0"
 
 #: core/auth/management/commands/bulkexportusers.py:55
 #: core/auth/management/commands/bulkexportusers.py:137
 msgid "Gender ({})"
-msgstr "crwdns319877:0crwdne319877:0"
+msgstr "crwdns333121:0crwdne333121:0"
 
 #: core/auth/management/commands/bulkexportusers.py:60
 msgctxt "CSV column header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
-msgstr "crwdns319879:0crwdne319879:0"
+msgstr "crwdns333123:0crwdne333123:0"
 
 #: core/auth/management/commands/bulkexportusers.py:67
 msgctxt "CSV column header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
-msgstr "crwdns319881:0crwdne319881:0"
+msgstr "crwdns333125:0crwdne333125:0"
 
 #: core/auth/management/commands/bulkexportusers.py:132
 msgctxt "CSV header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
-msgstr "crwdns319883:0crwdne319883:0"
+msgstr "crwdns333127:0crwdne333127:0"
 
 #: core/auth/management/commands/bulkexportusers.py:142
 msgctxt "CSV file header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
-msgstr "crwdns319885:0crwdne319885:0"
+msgstr "crwdns333129:0crwdne333129:0"
 
 #: core/auth/management/commands/bulkexportusers.py:149
 msgctxt "CSV file header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
-msgstr "crwdns319887:0crwdne319887:0"
+msgstr "crwdns333131:0crwdne333131:0"
 
 #: core/auth/management/commands/bulkimportusers.py:76
 msgctxt "Error message that might appear when there's a programming error importing a CSV file"
 msgid "Unexpected error [{}]: {}"
-msgstr "crwdns319889:0crwdne319889:0"
+msgstr "crwdns333133:0crwdne333133:0"
 
 #: core/auth/management/commands/bulkimportusers.py:80
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
 msgid "Value in column '{}' has too many characters"
-msgstr "crwdns319891:0crwdne319891:0"
+msgstr "crwdns333135:0crwdne333135:0"
 
 #: core/auth/management/commands/bulkimportusers.py:82
 msgid "Value in column '{}' not valid"
-msgstr "crwdns323225:0crwdne323225:0"
+msgstr "crwdns333137:0crwdne333137:0"
 
 #: core/auth/management/commands/bulkimportusers.py:83
 msgid "Username is duplicated"
-msgstr "crwdns319895:0crwdne319895:0"
+msgstr "crwdns333139:0crwdne333139:0"
 
 #: core/auth/management/commands/bulkimportusers.py:89
 msgctxt "Error message indicating that the CSV file selected for import is missing a required column"
 msgid "The column '{}' is required"
-msgstr "crwdns319897:0crwdne319897:0"
+msgstr "crwdns333141:0crwdne333141:0"
 
 #: core/auth/management/commands/bulkimportusers.py:93
 msgctxt "Error message indicating that one column header in the CSV file selected for import is missing or incorrect"
 msgid "Incorrect header label found in the first row"
-msgstr "crwdns323227:0crwdne323227:0"
+msgstr "crwdns333143:0crwdne333143:0"
 
 #: core/auth/management/commands/bulkimportusers.py:97
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
 msgid "No default facility exists. Make sure to set up a facility on the  device before importing users and classes"
-msgstr "crwdns319901:0crwdne319901:0"
+msgstr "crwdns333145:0crwdne333145:0"
 
 #: core/auth/management/commands/bulkimportusers.py:102
 msgid "The password field is required. To leave the password unchanged in existing users, insert an asterisk (*)"
-msgstr "crwdns319903:0crwdne319903:0"
+msgstr "crwdns333147:0crwdne333147:0"
 
 #: core/auth/management/commands/bulkimportusers.py:105
 msgid "Cannot update user with ID: '{}' because no user with that database ID exists in this facility"
-msgstr "crwdns319905:0crwdne319905:0"
+msgstr "crwdns333149:0crwdne333149:0"
 
 #: core/auth/management/commands/bulkimportusers.py:107
 msgid "Database ID is not valid"
-msgstr "crwdns319907:0crwdne319907:0"
+msgstr "crwdns333151:0crwdne333151:0"
 
-#: core/content/api.py:170
+#: core/content/api.py:254
 msgid "Resource"
-msgstr "crwdns319909:0crwdne319909:0"
+msgstr "crwdns333153:0crwdne333153:0"
 
-#: core/content/api.py:1327
+#: core/content/api.py:1467
 msgid "The requested channel does not exist on the content server"
-msgstr "crwdns319911:0crwdne319911:0"
+msgstr "crwdns333155:0crwdne333155:0"
 
-#: core/content/models.py:252
+#: core/content/models.py:256
 msgid "Unknown format"
-msgstr "crwdns319913:0crwdne319913:0"
+msgstr "crwdns333157:0crwdne333157:0"
 
 #: core/device/serializers.py:36
 msgid "Language is not supported by Kolibri"
-msgstr "crwdns319915:0crwdne319915:0"
+msgstr "crwdns333159:0crwdne333159:0"
 
 #: core/logger/csv_export.py:205
 msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
 msgid "content_session_logs"
-msgstr "crwdns319917:0crwdne319917:0"
+msgstr "crwdns333161:0crwdne333161:0"
 
 #: core/logger/csv_export.py:215
 msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
 msgid "content_summary_logs"
-msgstr "crwdns319919:0crwdne319919:0"
+msgstr "crwdns333163:0crwdne333163:0"
 
 #: core/tasks/api.py:82
 msgid "There was a network error."
-msgstr "crwdns319921:0crwdne319921:0"
+msgstr "crwdns333165:0crwdne333165:0"
 
 #: core/tasks/api.py:84
 msgid "There was a disk access error."
-msgstr "crwdns319923:0crwdne319923:0"
+msgstr "crwdns333167:0crwdne333167:0"
 
 #: core/tasks/api.py:86
 msgid "There was an unknown error."
-msgstr "crwdns319925:0crwdne319925:0"
+msgstr "crwdns333169:0crwdne333169:0"
 
 #: core/templates/kolibri/base.html:13
 #: core/templates/kolibri/unsupported_browser.html:13
 msgid "Kolibri"
-msgstr "crwdns319927:0crwdne319927:0"
+msgstr "crwdns333171:0crwdne333171:0"
 
 #: core/templates/kolibri/unsupported_browser.html:42
 msgid "Unsupported browser"
-msgstr "crwdns319929:0crwdne319929:0"
+msgstr "crwdns333173:0crwdne333173:0"
 
 #: core/templates/kolibri/unsupported_browser.html:43
 msgid "Sorry, your browser version is not supported."
-msgstr "crwdns319931:0crwdne319931:0"
+msgstr "crwdns333175:0crwdne333175:0"
 
 #: core/templates/kolibri/unsupported_browser.html:44
 msgid "To use Kolibri, we recommend using Firefox or Chrome."
-msgstr "crwdns319933:0crwdne319933:0"
+msgstr "crwdns333177:0crwdne333177:0"
 
 #: core/templates/kolibri/unsupported_browser.html:45
 msgid "You can also try updating your current browser."
-msgstr "crwdns319935:0crwdne319935:0"
+msgstr "crwdns333179:0crwdne333179:0"
 
 #: core/views.py:168
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
-msgstr "crwdns319937:0crwdne319937:0"
+msgstr "crwdns333181:0crwdne333181:0"
 
 #: plugins/facility/views.py:52
 msgctxt "Default name for the exported CSV file of facility user data. Please keep the underscore between words in the translation"
 msgid "users_{}"
-msgstr "crwdns319939:0crwdne319939:0"
+msgstr "crwdns333183:0crwdne333183:0"
 

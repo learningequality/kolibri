@@ -7,11 +7,13 @@
   "CommonLearnStrings.markResourceAsCompleteLabel": "Σήμανση πηγής ως ολοκληρωμένης",
   "CommonLearnStrings.mostPopularLabel": "Πιο δημοφιλή",
   "CommonLearnStrings.multipleLearningActivities": "Ποικίλες δραστηριότητες μάθησης",
-  "CommonLearnStrings.multipleLearningActivitiesLabel": "",
+  "CommonLearnStrings.multipleLearningActivitiesLabel": "Ποικίλες δραστηριότητες μάθησης",
   "CommonLearnStrings.nextStepsLabel": "Επόμενα βήματα",
   "CommonLearnStrings.popularLabel": "Δημοφιλή",
+  "CommonLearnStrings.quizLabel": "Κουίζ",
   "CommonLearnStrings.resourceCompletedLabel": "Η πηγή ολοκληρώθηκε",
   "CommonLearnStrings.resourceHidden": "Κρυφή πηγή",
   "CommonLearnStrings.resumeLabel": "Συνέχιση",
+  "CommonLearnStrings.suggestedTime": "Προτεινόμενος χρόνος για ολοκλήρωση",
   "CommonLearnStrings.suggestedTimeToComplete": "Εκτιμώμενος χρόνος για ολοκλήρωση"
 }

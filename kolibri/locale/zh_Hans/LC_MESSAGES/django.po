@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-01 22:12-0700\n"
-"PO-Revision-Date: 2021-11-02 05:29\n"
+"POT-Creation-Date: 2022-01-12 06:47-0800\n"
+"PO-Revision-Date: 2022-01-25 01:56\n"
 "Last-Translator: \n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
@@ -14,229 +14,229 @@ msgstr ""
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Project-ID: 201933\n"
 "X-Crowdin-Language: zh-CN\n"
-"X-Crowdin-File: /release-v0.15.x/django.po\n"
-"X-Crowdin-File-ID: 4105\n"
+"X-Crowdin-File: /release-v0.16.x/django.po\n"
+"X-Crowdin-File-ID: 4241\n"
 
 #: core/auth/constants/commands_errors.py:17
 msgid "Unexpected exception [{}]: {}"
-msgstr "意外异常[{}]: {}"
+msgstr ""
 
 #: core/auth/constants/commands_errors.py:20
 msgctxt "Error report message when the allowed number of digits has been exceeded."
 msgid "Content of cell '{}' is too long"
-msgstr "单元格'{}'的内容太长"
+msgstr ""
 
 #: core/auth/constants/commands_errors.py:24
 msgctxt "Error report message when the cell contains an improper data format."
 msgid "Content of cell '{}' is not valid"
-msgstr "单元格'{}'的内容无效"
+msgstr ""
 
 #: core/auth/constants/commands_errors.py:26
 msgid "Duplicated username"
-msgstr "重复的用户名"
+msgstr ""
 
 #: core/auth/constants/commands_errors.py:28
 #: core/auth/management/commands/bulkimportusers.py:85
 msgid "Username only can contain characters, numbers and underscores"
-msgstr "用户名只能包含字符、 数字和下划线"
+msgstr ""
 
 #: core/auth/constants/commands_errors.py:30
 msgid "The column '{}' is required"
-msgstr "必须填写列 '{}'"
+msgstr ""
 
 #: core/auth/constants/commands_errors.py:31
 msgid "Mix of valid and/or invalid header labels found in first row"
-msgstr "在第一行中发现有效和/或无效的标题标签组合"
+msgstr ""
 
 #: core/auth/constants/commands_errors.py:33
 msgid "No default facility exists. Make sure to set up a facility on the device before running this command"
-msgstr "不存在默认设施。请确保在运行此命令之前在设备上设置一个设施"
+msgstr ""
 
 #: core/auth/constants/commands_errors.py:35
 #: core/auth/management/commands/bulkimportusers.py:99
 msgid "Error trying to read csv file: {}"
-msgstr "尝试读取 csv 文件时出错：{}"
+msgstr ""
 
 #: core/auth/constants/commands_errors.py:36
 #: core/auth/management/commands/bulkimportusers.py:100
 msgid "Error trying to write csv file: {}"
-msgstr "试图写入 csv 文件时出错：{}"
+msgstr ""
 
 #: core/auth/management/commands/bulkexportusers.py:42
 #: core/auth/management/commands/bulkexportusers.py:124
 msgid "Database ID ({})"
-msgstr "数据库 ID ({})"
+msgstr ""
 
 #: core/auth/management/commands/bulkexportusers.py:43
 #: core/auth/management/commands/bulkexportusers.py:125
 msgid "Username ({})"
-msgstr "用户名 ({})"
+msgstr ""
 
 #: core/auth/management/commands/bulkexportusers.py:44
 #: core/auth/management/commands/bulkexportusers.py:126
 msgid "Password ({})"
-msgstr "密码 ({})"
+msgstr ""
 
 #: core/auth/management/commands/bulkexportusers.py:45
 #: core/auth/management/commands/bulkexportusers.py:127
 msgid "Full name ({})"
-msgstr "全名 ({})"
+msgstr ""
 
 #: core/auth/management/commands/bulkexportusers.py:50
 msgctxt "CSV column header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
-msgstr "用户类型 ({})"
+msgstr ""
 
 #: core/auth/management/commands/bulkexportusers.py:53
 #: core/auth/management/commands/bulkexportusers.py:135
 msgid "Identifier ({})"
-msgstr "识别号 ({})"
+msgstr ""
 
 #: core/auth/management/commands/bulkexportusers.py:54
 #: core/auth/management/commands/bulkexportusers.py:136
 msgid "Birth year ({})"
-msgstr "出生年份 ({})"
+msgstr ""
 
 #: core/auth/management/commands/bulkexportusers.py:55
 #: core/auth/management/commands/bulkexportusers.py:137
 msgid "Gender ({})"
-msgstr "性别({})"
+msgstr ""
 
 #: core/auth/management/commands/bulkexportusers.py:60
 msgctxt "CSV column header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
-msgstr "学习者登记({})"
+msgstr ""
 
 #: core/auth/management/commands/bulkexportusers.py:67
 msgctxt "CSV column header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
-msgstr "教练作业({})"
+msgstr ""
 
 #: core/auth/management/commands/bulkexportusers.py:132
 msgctxt "CSV header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
-msgstr "用户类型 ({})"
+msgstr ""
 
 #: core/auth/management/commands/bulkexportusers.py:142
 msgctxt "CSV file header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
-msgstr "学习者登记({})"
+msgstr ""
 
 #: core/auth/management/commands/bulkexportusers.py:149
 msgctxt "CSV file header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
-msgstr "教练作业({})"
+msgstr ""
 
 #: core/auth/management/commands/bulkimportusers.py:76
 msgctxt "Error message that might appear when there's a programming error importing a CSV file"
 msgid "Unexpected error [{}]: {}"
-msgstr "意外错误[{}]: {}"
+msgstr ""
 
 #: core/auth/management/commands/bulkimportusers.py:80
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
 msgid "Value in column '{}' has too many characters"
-msgstr "“{}”列中的值包含过多字符"
+msgstr ""
 
 #: core/auth/management/commands/bulkimportusers.py:82
 msgid "Value in column '{}' not valid"
-msgstr "“{}”列中的值无效"
+msgstr ""
 
 #: core/auth/management/commands/bulkimportusers.py:83
 msgid "Username is duplicated"
-msgstr "用户名已重复"
+msgstr ""
 
 #: core/auth/management/commands/bulkimportusers.py:89
 msgctxt "Error message indicating that the CSV file selected for import is missing a required column"
 msgid "The column '{}' is required"
-msgstr "必须填写列 '{}'"
+msgstr ""
 
 #: core/auth/management/commands/bulkimportusers.py:93
 msgctxt "Error message indicating that one column header in the CSV file selected for import is missing or incorrect"
 msgid "Incorrect header label found in the first row"
-msgstr "在第一行中发现无效的标题标签"
+msgstr ""
 
 #: core/auth/management/commands/bulkimportusers.py:97
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
 msgid "No default facility exists. Make sure to set up a facility on the  device before importing users and classes"
-msgstr "不存在默认设施。请确保在导入用户和班级之前在设备上设置一个设施"
+msgstr ""
 
 #: core/auth/management/commands/bulkimportusers.py:102
 msgid "The password field is required. To leave the password unchanged in existing users, insert an asterisk (*)"
-msgstr "密码字段是必需的。要保持现有用户密码不变，请插入一个星号(*)"
+msgstr ""
 
 #: core/auth/management/commands/bulkimportusers.py:105
 msgid "Cannot update user with ID: '{}' because no user with that database ID exists in this facility"
-msgstr "无法更新用户 ID：'{}'，因为此设施中没有使用该数据库 ID 的用户"
+msgstr ""
 
 #: core/auth/management/commands/bulkimportusers.py:107
 msgid "Database ID is not valid"
-msgstr "数据库 ID 无效"
+msgstr ""
 
-#: core/content/api.py:170
+#: core/content/api.py:254
 msgid "Resource"
-msgstr "资源"
+msgstr ""
 
-#: core/content/api.py:1327
+#: core/content/api.py:1467
 msgid "The requested channel does not exist on the content server"
-msgstr "请求的频道不在内容服务器上"
+msgstr ""
 
-#: core/content/models.py:252
+#: core/content/models.py:256
 msgid "Unknown format"
-msgstr "未知格式"
+msgstr ""
 
 #: core/device/serializers.py:36
 msgid "Language is not supported by Kolibri"
-msgstr "课励彼不支持此语言"
+msgstr ""
 
 #: core/logger/csv_export.py:205
 msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
 msgid "content_session_logs"
-msgstr "内容会话日志"
+msgstr ""
 
 #: core/logger/csv_export.py:215
 msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
 msgid "content_summary_logs"
-msgstr "内容摘要日志"
+msgstr ""
 
 #: core/tasks/api.py:82
 msgid "There was a network error."
-msgstr "发生了网络错误。"
+msgstr ""
 
 #: core/tasks/api.py:84
 msgid "There was a disk access error."
-msgstr "发生了磁盘访问错误。"
+msgstr ""
 
 #: core/tasks/api.py:86
 msgid "There was an unknown error."
-msgstr "发生了未知错误。"
+msgstr ""
 
 #: core/templates/kolibri/base.html:13
 #: core/templates/kolibri/unsupported_browser.html:13
 msgid "Kolibri"
-msgstr "课励彼"
+msgstr ""
 
 #: core/templates/kolibri/unsupported_browser.html:42
 msgid "Unsupported browser"
-msgstr "不支持此浏览器"
+msgstr ""
 
 #: core/templates/kolibri/unsupported_browser.html:43
 msgid "Sorry, your browser version is not supported."
-msgstr "对不起，不支持您的浏览器版本。"
+msgstr ""
 
 #: core/templates/kolibri/unsupported_browser.html:44
 msgid "To use Kolibri, we recommend using Firefox or Chrome."
-msgstr "要使用课励彼，我们建议使用火狐（Firefox）或谷歌Chrome浏览器。"
+msgstr ""
 
 #: core/templates/kolibri/unsupported_browser.html:45
 msgid "You can also try updating your current browser."
-msgstr "您也可以尝试更新您当前的浏览器。"
+msgstr ""
 
 #: core/views.py:168
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
-msgstr "没有找到合适的重定向页面。可能是课励彼没有配置好"
+msgstr ""
 
 #: plugins/facility/views.py:52
 msgctxt "Default name for the exported CSV file of facility user data. Please keep the underscore between words in the translation"
 msgid "users_{}"
-msgstr "用户_{}"
+msgstr ""
 

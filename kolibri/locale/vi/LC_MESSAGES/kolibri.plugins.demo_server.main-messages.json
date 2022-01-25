@@ -1,10 +1,10 @@
 {
-  "DemoServerBannerContent.demoServerA1": "Hãy đọc tài liệu này",
-  "DemoServerBannerContent.demoServerA2": "Tải và cài đặt bản mới nhất",
-  "DemoServerBannerContent.demoServerHeader": "Chào mừng đến với trang thử nghiệm của Kolibri",
-  "DemoServerBannerContent.demoServerL1": "Học viên ({user}/{pass} hoặc tìm hiểu mà không cần tạo tài khoản)",
-  "DemoServerBannerContent.demoServerL2": "Giáo viên ({user}/{pass})",
-  "DemoServerBannerContent.demoServerP1": "Tìm hiểu về bất kỳ loại người dùng sau:",
-  "DemoServerBannerContent.demoServerP2": "Phiên bản Kolibri trực tuyến này chỉ có mục đích thử nghiệm. Người dùng và dữ liệu sẽ bị xóa định kỳ. Bản thử nghiệm này trình bày các tính năng của phiên bản Kolibri mới nhất và tất cả tài liệu trong bản đều là mẫu tiêu biểu.",
-  "DemoServerBannerContent.demoServerP3": "Để tìm hiểu thêm về việc sử dụng Kolibri ngoại tuyến và hiểu sâu thêm về nền tảng:"
+  "DemoServerBannerContent.demoServerA1": "",
+  "DemoServerBannerContent.demoServerA2": "",
+  "DemoServerBannerContent.demoServerHeader": "",
+  "DemoServerBannerContent.demoServerL1": "",
+  "DemoServerBannerContent.demoServerL2": "",
+  "DemoServerBannerContent.demoServerP1": "",
+  "DemoServerBannerContent.demoServerP2": "",
+  "DemoServerBannerContent.demoServerP3": ""
 }
