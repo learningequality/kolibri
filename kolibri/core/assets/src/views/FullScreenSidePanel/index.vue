@@ -214,7 +214,7 @@
           this.focusSidePanel();
         }
         this.firstFocusableEl =
-          this.$el.querySelector('.search-box') || // if `EmbeddedSidePanel` is for search/filter btn
+          this.$el.querySelector('input[id="searchfield"]') || // if `EmbeddedSidePanel` is for search/filter btn
           this.$el.querySelector('.raised') || // if `EmbeddedSidePanel` is for info btn
           this.$el.querySelector('.side-panel-folder-link'); // if `EmbeddedSidePanel` is for folders btn
         this.lastFocusableEl = this.$refs.closeButton.$el;
