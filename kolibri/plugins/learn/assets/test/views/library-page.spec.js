@@ -1,15 +1,66 @@
+import { shallowMount, createLocalVue } from '@vue/test-utils';
+import Vuex from 'vuex';
+import LibraryPage from '../../src/views/LibraryPage';
+import ChannelCardGroupGrid from '../../src/views/ChannelCardGroupGrid';
+import useSearch from '../../src/composables/useSearch';
+import { useSearchMock } from '../../src/composables/__mocks__/useSearch';
+// import useLearnerResources from '../../src/composables/useLearnerResources';
+
+const localVue = createLocalVue();
+localVue.use(Vuex);
+
+// rootNodes used when showing default view, should always have length
+const mockStore = new Vuex.Store({ state: { rootNodes: ['length'] } });
+
+jest.mock('../../src/composables/useSearch');
+jest.mock('../../src/composables/useLearnerResources');
+
+// function makeWrapper() {
+//   return mount(LibraryPage);
+// }
+//const wrapper = mount(LibraryPage, { computed: { windowIsLarge: jest.fn(() => true) } });
+
 describe('LibraryPage', () => {
   describe('displaying the filters button', () => {
-    it('is visible when the page is not large', () => {});
-    it('is hidden when the page is large', () => {});
+    it('is visible when the page is not large', () => {
+      const wrapper = shallowMount(LibraryPage, {
+        computed: { windowIsLarge: () => false },
+        localVue,
+        store: mockStore,
+      });
+      expect(wrapper.find('[data-test="filter-button"').element).toBeTruthy();
+    });
+    it('is hidden when the page is large', () => {
+      const wrapper = shallowMount(LibraryPage, {
+        computed: { windowIsLarge: () => true },
+        localVue,
+        store: mockStore,
+      });
+      expect(wrapper.find('[data-test="filter-button"').element).toBeFalsy();
+    });
   });
 
   describe('method: toggleSidePanelVisibility', () => {
-    it('toggles the visibility of the side panel', () => {});
+    it('toggles `this/vm.sidePanelIsOpen`', () => {
+      const wrapper = shallowMount(LibraryPage, {
+        localVue,
+        store: mockStore,
+      });
+      expect(wrapper.vm.sidePanelIsOpen).toBeFalsy();
+      wrapper.vm.toggleSidePanelVisibility();
+      expect(wrapper.vm.sidePanelIsOpen).toBeTruthy();
+    });
   });
 
-  describe('default view: when displayingSearchResults is falsy', () => {
-    it('displays a ChannelCardGroupGrid', () => {});
+  describe('default view: when displayingSearchResults is falsy and there are rootNodes', () => {
+    it('displays a ChannelCardGroupGrid', () => {
+      useSearch.mockImplementation(() => useSearchMock({ displayingSearchResults: false }));
+      const wrapper = shallowMount(LibraryPage, {
+        localVue,
+        store: mockStore,
+      });
+      expect(wrapper.findComponent(ChannelCardGroupGrid).exists()).toBe(true);
+    });
 
     it('displays grid / list toggle buttons when on small screens', () => {});
 
@@ -23,6 +74,14 @@ describe('LibraryPage', () => {
   });
 
   describe('when search results are loaded (displayingSearchResults is true, isLoading false)', () => {
+    it('does not display a ChannelCardGroupGrid', () => {
+      useSearch.mockImplementation(() => useSearchMock({ displayingSearchResults: true }));
+      const wrapper = shallowMount(LibraryPage, {
+        localVue,
+        store: mockStore,
+      });
+      expect(wrapper.findComponent(ChannelCardGroupGrid).exists()).toBe(false);
+    });
     it('displays $trs.overCertainNumberOfSearchResults with results.length', () => {});
 
     describe('when there are results', () => {
@@ -48,7 +107,7 @@ describe('LibraryPage', () => {
   describe('method: handleShowSearchModal', () => {
     it('sets this.currentCategory to the first param', () => {});
     it('sets this.showSearchModal to true', () => {});
-    it('sets this.sidePanelIsOpen to false, if the window is not small');
+    it('sets this.sidePanelIsOpen to false, if the window is not small', () => {});
   });
 
   describe('method: toggleInfoPanel', () => {
@@ -70,7 +129,7 @@ describe('LibraryPage', () => {
   });
 
   describe('on non-large screens, the search/filter panel is displayed in a FullScreenSidePanel', () => {
-    describe();
+    //describe();
     // need to follow up on whether or not we will be changing the category search display (
     // modal vs. side panel) on medium screens
   });

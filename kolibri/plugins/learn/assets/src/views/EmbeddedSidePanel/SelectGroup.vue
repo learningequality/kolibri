@@ -52,6 +52,7 @@
 <script>
 
   import camelCase from 'lodash/camelCase';
+  import get from 'lodash/get';
   import { ContentLevels, AccessibilityCategories } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import plugin_data from 'plugin_data';
@@ -59,13 +60,18 @@
   const contentLevelsList = Object.keys(ContentLevels).filter(key => {
     const value = ContentLevels[key];
     // TODO rtibbles: remove this condition
-    return plugin_data.gradeLevels.includes(value) || process.env.NODE_ENV !== 'production';
+    return (
+      get(plugin_data, 'gradeLevels', []).includes(value) || process.env.NODE_ENV !== 'production'
+    );
   });
 
   const accessibilityOptionsList = Object.keys(AccessibilityCategories).filter(key => {
     const value = AccessibilityCategories[key];
     // TODO rtibbles: remove this condition
-    return plugin_data.accessibilityLabels.includes(value) || process.env.NODE_ENV !== 'production';
+    return (
+      get(plugin_data, 'accessibilityLabels', []).includes(value) ||
+      process.env.NODE_ENV !== 'production'
+    );
   });
 
   export default {

@@ -8,6 +8,7 @@
       <div v-if="!windowIsLarge">
         <KButton
           icon="filter"
+          data-test="filter-button"
           :text="translator.$tr('filter')"
           :primary="false"
           @click="toggleSidePanelVisibility"
