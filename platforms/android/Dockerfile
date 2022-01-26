@@ -50,7 +50,7 @@ RUN cd /usr/local/bin && \
   ln -s $(which python3) python
 
 ENV PEW_BRANCH=p4a_update
-ENV P4A_BRANCH=latest_p4a
+ENV P4A_BRANCH=pew_webview
 
 # Allows us to invalidate cache if those repos update.
 # Intentionally not pinning for dev velocity.
