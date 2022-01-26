@@ -109,6 +109,33 @@ Feature: Super admin imports facility in device setup
     When I click *Continue*
     Then I see *Import facility - 3 of 4*
 
+  Scenario: Import facility by manually adding the URL address of an existing Kolibri instance
+    Given I am on *Select network address* modal
+    When I click *Add new address*
+    Then I see the *New address* modal
+    When I enter the URL address of an existing Kolibri instance in the *Full network address* field
+    	And I enter a name for this address in the *Name* field
+    	And I click *Add*
+    Then I am back at the *Select network address* modal
+    	And I see that the added network address is selected
+    When I click *Continue*
+    Then I see *Import facility - 1 of 4*
+      And I see *Import facility*
+      And I see the name of the device from which I am importing
+      And I see the network address of that device
+      And I see *Enter the username and password for a facility admin or a super admin of '<device>'*
+    When I enter the username and password of a facility admin or super admin
+      And I click *Continue*
+    Then I see *Import facility - 2 of 4*
+    	And I see *Loading '<facility>'*
+      And I see loading status bar
+    When the facility has finished loading
+    Then I see the status *Finished*
+      And I see a green check icon
+      And I see *'<facility>' successfully loaded to this device*
+    When I click *Continue*
+    Then I see *Import facility - 3 of 4*
+
   # to test this you will have to stop or disconnect the peer device
   Scenario: Loading facility fails and user starts over
     Given I am on *Import facility - 2 of 4* step
