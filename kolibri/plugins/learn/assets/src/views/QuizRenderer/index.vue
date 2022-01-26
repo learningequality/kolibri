@@ -295,7 +295,7 @@
         );
       },
       itemIdArray() {
-        if (this.randomize) {
+        if (this.content.assessmentmetadata.randomize) {
           // Differentiate the seed for each 'try' indicated by the masteryLevel.
           const seed = this.userid ? this.userid + this.masteryLevel : Date.now();
           return shuffled(this.content.assessmentmetadata.assessment_item_ids, seed);
