@@ -23,8 +23,9 @@
           :contents="rootNodes"
         />
         <div
-          v-if="!(windowBreakpoint < 1 ) && resumableContentNodes.length "
+          v-if="!(windowIsSmall) && resumableContentNodes.length"
           class="toggle-view-buttons"
+          data-test="toggle-view-buttons"
         >
           <KIconButton
             icon="menu"
@@ -43,12 +44,13 @@
             @click="toggleCardView('card')"
           />
         </div>
-        <div v-if="resumableContentNodes.length">
+        <div v-if="resumableContentNodes.length" data-test="recent-content-nodes-title">
           <h2>
             {{ $tr('recent') }}
           </h2>
           <LibraryAndChannelBrowserMainContent
             :contents="resumableContentNodes"
+            data-test="resumable-content-card-grid"
             :currentCardViewStyle="currentCardViewStyle"
             :gridType="1"
             @openCopiesModal="openCopiesModal"
@@ -56,7 +58,8 @@
           />
         </div>
         <KButton
-          v-if="moreResumableContentNodes"
+          v-if="moreResumableContentNodes && moreResumableContentNodes.length"
+          data-test="more-resumable-nodes-button"
           appearance="basic-link"
           @click="fetchMoreResumableContentNodes"
         >
@@ -80,7 +83,7 @@
           @removeItem="removeFilterTag"
           @clearSearch="clearSearch"
         />
-        <div v-if="!(windowBreakpoint < 1) && results.length" class="toggle-view-buttons">
+        <div v-if="!(windowIsSmall) && results.length" class="toggle-view-buttons">
           <KIconButton
             icon="menu"
             :ariaLabel="$tr('viewAsList')"

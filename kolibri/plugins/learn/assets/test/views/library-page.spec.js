@@ -2,9 +2,12 @@ import { shallowMount, createLocalVue } from '@vue/test-utils';
 import Vuex from 'vuex';
 import LibraryPage from '../../src/views/LibraryPage';
 import ChannelCardGroupGrid from '../../src/views/ChannelCardGroupGrid';
-import useSearch from '../../src/composables/useSearch';
-import { useSearchMock } from '../../src/composables/__mocks__/useSearch';
-// import useLearnerResources from '../../src/composables/useLearnerResources';
+/* eslint-disable import/named */
+import useSearch, { useSearchMock } from '../../src/composables/useSearch';
+import useLearnerResources, {
+  useLearnerResourcesMock,
+} from '../../src/composables/useLearnerResources';
+/* eslint-enable import/named */
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
@@ -62,14 +65,74 @@ describe('LibraryPage', () => {
       expect(wrapper.findComponent(ChannelCardGroupGrid).exists()).toBe(true);
     });
 
-    it('displays grid / list toggle buttons when on small screens', () => {});
-
     describe('when there are resumableContentNodes', () => {
-      it('displays resumable content nodes string', () => {});
+      beforeEach(() =>
+        useLearnerResources.mockImplementation(() =>
+          useLearnerResourcesMock({
+            resumableContentNodes: [{ node: 1 }],
+            moreResumableContentNodes: [{ node: 2 }],
+          })
+        )
+      );
+      afterEach(() => jest.clearAllMocks());
+      it('displays resumable content nodes string', () => {
+        const wrapper = shallowMount(LibraryPage, {
+          localVue,
+          store: mockStore,
+        });
+        expect(wrapper.find('[data-test="recent-content-nodes-title"').element).toBeTruthy();
+      });
 
-      it('displays HybridLearningCardGrid', () => {});
+      it('displays grid / list toggle buttons when on medium or larger screens', () => {
+        const wrapper = shallowMount(LibraryPage, {
+          computed: { windowIsMedium: () => true },
+          localVue,
+          store: mockStore,
+        });
+        expect(wrapper.find('[data-test="toggle-view-buttons"]').element).toBeTruthy();
+      });
 
-      it('displays button to show more resumableContentNodes when there are moreResumableContentNodes', () => {});
+      it('does not show the grid / list toggle buttons when on extra small screens', async () => {
+        const wrapper = shallowMount(LibraryPage, {
+          computed: { windowIsSmall: () => true },
+          localVue,
+          store: mockStore,
+        });
+        expect(wrapper.find('[data-test="toggle-view-buttons"]').element).toBeFalsy();
+      });
+
+      it('displays HybridLearningCardGrid', () => {
+        const wrapper = shallowMount(LibraryPage, {
+          localVue,
+          store: mockStore,
+        });
+        expect(wrapper.find('[data-test="resumable-content-card-grid"').element).toBeTruthy();
+      });
+
+      it('displays button to show more resumableContentNodes when there are moreResumableContentNodes', () => {
+        const wrapper = shallowMount(LibraryPage, {
+          localVue,
+          store: mockStore,
+        });
+        expect(wrapper.find('[data-test="more-resumable-nodes-button"').element).toBeTruthy();
+      });
+
+      it('does not show a button to show more resumableContentNodes when there are moreResumableContentNodes', () => {
+        jest.clearAllMocks();
+        useLearnerResources.mockImplementation(() =>
+          useLearnerResourcesMock({
+            resumableContentNodes: [{ node: 1 }],
+            moreResumableContentNodes: [],
+          })
+        );
+        const wrapper = shallowMount(LibraryPage, {
+          localVue,
+          store: mockStore,
+        });
+        console.log(wrapper.vm.moreResumableContentNodes);
+
+        expect(wrapper.find('[data-test="more-resumable-nodes-button"').element).toBeFalsy();
+      });
     });
   });
 
