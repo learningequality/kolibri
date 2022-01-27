@@ -22,7 +22,7 @@
         v-for="(content, idx) in contents"
         :key="`resource-${idx}`"
         class="card-grid-item"
-        data-test="hybrid-learning-content-card"
+        data-test="content-card"
         :isMobile="windowIsSmall"
         :content="content"
         :link="genContentLink(content)"
@@ -33,12 +33,11 @@
     <!-- large displays, list view -->
     <HybridLearningContentCardListView
       v-for="content in contents"
-      v-else
+      v-else-if="!windowIsSmall && currentCardViewStyle === 'list'"
       :key="content.id"
       :content="content"
       class="card-grid-item"
-      data-test="hybrid-learning-content-card-list-view"
-      :isMobile="windowIsSmall"
+      data-test="card-list-view"
       :link="genContentLink(content)"
       :footerIcons="footerIcons"
       :createdDate="content.bookmark ? content.bookmark.created : null"
