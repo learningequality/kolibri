@@ -14,7 +14,7 @@ jobs:
         uses: fkirc/skip-duplicate-actions@master
         with:
           github_token: ${{ github.token }}
-          paths: '["docs/**", "requirements/docs.txt", ".github/workflows/check_docs.yml"]'
+          paths: '["docs/**", "requirements/docs.txt", ".github/workflows/check_docs.yml", "*.md"]'
   docs:
     name: Checking docs build
     needs: pre_job
