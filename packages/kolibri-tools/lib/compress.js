@@ -1,6 +1,6 @@
 const { constants, createGzip } = require('zlib');
 const { pipeline } = require('stream');
-const { createReadStream, createWriteStream } = require('fs');
+const { createReadStream, createWriteStream, truncate } = require('fs');
 const logger = require('./logging');
 
 const logging = logger.getLogger('Kolibri Compressor');
@@ -16,10 +16,16 @@ function compressFile(input) {
       if (err) {
         logging.error('An error occurred compressing file: ', input);
         logging.error(err);
+        resolve();
       } else {
-        logging.info('Successfully compressed: ', input);
+        truncate(input, err => {
+          if (err) {
+            logging.error('An error occurred truncating original file: ', input);
+          }
+          logging.info('Successfully compressed: ', input);
+          resolve();
+        });
       }
-      resolve();
     });
   });
 }

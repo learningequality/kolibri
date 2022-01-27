@@ -113,6 +113,37 @@ class EndRangeStaticFile(StaticFile):
         headers.append(("Content-Length", str(end - start + 1)))
         return Response(HTTPStatus.PARTIAL_CONTENT, headers, file_handle)
 
+    @staticmethod
+    def get_alternatives(base_headers, files):
+        # Sort by size so that the smallest compressed alternative matches first
+        # but always put the uncompressed alternative last to allow for our truncation
+        # of uncompressed files in production distributions.
+        # The key in files is None for the uncompressed version.
+        alternatives = []
+        files_by_size = sorted(
+            files.items(), key=lambda i: (i[0] is None, i[1].stat.st_size)
+        )
+        for encoding, file_entry in files_by_size:
+            headers = Headers(base_headers.items())
+            headers["Content-Length"] = str(file_entry.stat.st_size)
+            if encoding:
+                headers["Content-Encoding"] = encoding
+                encoding_re = re.compile(r"\b%s\b" % encoding)
+            else:
+                encoding_re = re.compile("")
+            alternatives.append((encoding_re, file_entry.path, headers.items()))
+        return alternatives
+
+    def get_path_and_headers(self, request_headers):
+        """
+        Vendored from Whitenoise to handle "*" and no Accept-Encoding header
+        """
+        accept_encoding = request_headers.get("HTTP_ACCEPT_ENCODING", "*")
+        # These are sorted by size so first match is the best
+        for encoding_re, path, headers in self.alternatives:
+            if accept_encoding == "*" or encoding_re.search(accept_encoding):
+                return path, headers
+
 
 class DynamicWhiteNoise(WhiteNoise):
     index_file = "index.html"
