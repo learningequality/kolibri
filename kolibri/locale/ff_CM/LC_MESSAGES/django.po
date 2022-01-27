@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-11-01 22:12-0700\n"
-"PO-Revision-Date: 2021-11-02 05:29\n"
+"PO-Revision-Date: 2022-01-27 01:06\n"
 "Last-Translator: \n"
 "Language-Team: Fulfulde Mbororoore\n"
 "Language: ff_fuv\n"
@@ -162,7 +162,7 @@ msgstr "Wuro bote no wonirno walaa. Waɗu wuro bote nder serwar kompiita ɗu'um 
 
 #: core/auth/management/commands/bulkimportusers.py:102
 msgid "The password field is required. To leave the password unchanged in existing users, insert an asterisk (*)"
-msgstr "Doole winndugo paltirgel. To kuutiniroowo faɓɓi yiɗaa sannjugo paltirgel maako no woniri, sey nastin hoodere dow (*)"
+msgstr "Doole winndugo paltirgel. To kuutiniroowo faɓɓi yiɗaa sanjugo paltirgel maako no woniri, sey nastin hoodere dow (*)"
 
 #: core/auth/management/commands/bulkimportusers.py:105
 msgid "Cannot update user with ID: '{}' because no user with that database ID exists in this facility"

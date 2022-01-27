@@ -1,15 +1,15 @@
 {
-  "ChangeUserPasswordModal.passwordChangeFormHeader": "crwdns316857:0crwdne316857:0",
-  "ChangeUserPasswordModal.passwordChangedNotification": "crwdns316859:0crwdne316859:0",
-  "ProfileEditPage.editProfileHeader": "crwdns316881:0crwdne316881:0",
-  "ProfilePage.changePasswordPrompt": "crwdns316883:0crwdne316883:0",
-  "ProfilePage.detailsHeader": "crwdns316885:0crwdne316885:0",
-  "ProfilePage.documentTitle": "crwdns316887:0crwdne316887:0",
-  "ProfilePage.editAction": "crwdns316889:0crwdne316889:0",
-  "ProfilePage.isSuperuser": "crwdns316891:0crwdne316891:0",
-  "ProfilePage.limitedPermissions": "crwdns316893:0crwdne316893:0",
-  "ProfilePage.manageContent": "crwdns323209:0crwdne323209:0",
-  "ProfilePage.manageDevicePermissions": "crwdns316897:0crwdne316897:0",
-  "ProfilePage.points": "crwdns316899:0crwdne316899:0",
-  "ProfilePage.youCan": "crwdns316901:0crwdne316901:0"
+  "ChangeUserPasswordModal.passwordChangeFormHeader": "crwdns333205:0crwdne333205:0",
+  "ChangeUserPasswordModal.passwordChangedNotification": "crwdns333207:0crwdne333207:0",
+  "ProfileEditPage.editProfileHeader": "crwdns333209:0crwdne333209:0",
+  "ProfilePage.changePasswordPrompt": "crwdns333211:0crwdne333211:0",
+  "ProfilePage.detailsHeader": "crwdns333213:0crwdne333213:0",
+  "ProfilePage.documentTitle": "crwdns333215:0crwdne333215:0",
+  "ProfilePage.editAction": "crwdns333217:0crwdne333217:0",
+  "ProfilePage.isSuperuser": "crwdns333219:0crwdne333219:0",
+  "ProfilePage.limitedPermissions": "crwdns333221:0crwdne333221:0",
+  "ProfilePage.manageContent": "crwdns333223:0crwdne333223:0",
+  "ProfilePage.manageDevicePermissions": "crwdns333225:0crwdne333225:0",
+  "ProfilePage.points": "crwdns333227:0crwdne333227:0",
+  "ProfilePage.youCan": "crwdns333229:0crwdne333229:0"
 }

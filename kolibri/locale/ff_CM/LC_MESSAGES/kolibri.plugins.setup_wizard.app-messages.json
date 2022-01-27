@@ -65,7 +65,7 @@
   "SelectSuperAdminAccountForm.enterPasswordPrompt": "Nastin paltirgel {username}",
   "SelectSuperAdminAccountForm.header": "Suɓtugo sigorɗum dawroowo mawɗo",
   "SetupMethod.createNewFacilityAction": "Waɗugo wuro bote heso",
-  "SetupMethod.descriptionImportLOD": "Kompiita ɗu'um jaɓay sannjindirgo feere maajum bee kompiita marɗum Kolibri fuu to wuro bote no go'o",
+  "SetupMethod.descriptionImportLOD": "Kompiita ɗu'um jaɓay sanjindirgo feere maajum bee kompiita marɗum Kolibri fuu to wuro bote no go'o",
   "SetupMethod.descriptionParagraph1": "Wuro bote woni to serwar Kolibri jooɗoto, bana janngirde, suudu kawtal ekkitaago koo suudu goɗɗo.",
   "SetupMethod.fullDevice": "Kompiita bee Kolibri fuu",
   "SetupMethod.fullDeviceTooltip": "Kompiita bee senndirɗum Kolibri kuutinirteeɗum dawrooɓe, jannginooɓe bee fukaraaɓe",
@@ -82,6 +82,6 @@
   "UserTable.role": "Moye nder Kolibri",
   "UserTable.selectAllLabel": "Suɓtugo fuu",
   "UserTable.userCheckboxLabel": "Suɓtugo kuutiniroowo",
-  "YesNoForm.details": "A waaway sannjugoɗum yeeso nder settings wuro bote maaɗa",
+  "YesNoForm.details": "A waaway sanjugoɗum yeeso nder settings wuro bote maaɗa",
   "YesNoForm.yesOptionLabel": "Ee, ɗum jaɓi"
 }
