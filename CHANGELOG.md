@@ -23,7 +23,7 @@ Selected high-level technical updates:
   - Fix dataset mismatch between exams and lessons, to allow for syncing
   - Adding content metadata search, API, and fields
 
-### ### Fixed
+### Fixed
 #8442 Segments SQLite databases to allow concurrent writes to SyncQueue and NetworkLocation models
 #8446 Forces Learner only device sync request retries when server responds with 500+ status code
 #8438 Fixes failure to sync FacilityUser updates when a login has occurred on a Learner only device prior to syncing
