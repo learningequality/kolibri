@@ -58,7 +58,7 @@
               >
                 <KIcon
                   icon="forward"
-                  :style="{ fill: $themeTokens.primary }"
+                  :color="$themeTokens.primary"
                 />
               </UiIconButton>
               <KButton
@@ -71,7 +71,11 @@
               >
                 {{ $tr('nextQuestion') }}
                 <template #iconAfter>
-                  <KIcon icon="forward" color="white" class="forward-icon" />
+                  <KIcon
+                    icon="forward"
+                    :color="$themeTokens.textInverted"
+                    class="forward-icon"
+                  />
                 </template>
               </KButton>
               <UiIconButton
@@ -85,7 +89,7 @@
               >
                 <KIcon
                   icon="back"
-                  :style="{ fill: $themeTokens.primary }"
+                  :color="$themeTokens.primary"
                 />
               </UiIconButton>
               <KButton
@@ -98,7 +102,11 @@
                 @click="goToQuestion(questionNumber - 1)"
               >
                 <template #icon>
-                  <KIcon icon="back" color="white" class="back-icon" />
+                  <KIcon
+                    icon="back"
+                    :color="$themeTokens.textInverted"
+                    class="back-icon"
+                  />
                 </template>
                 {{ $tr('previousQuestion') }}
               </KButton>

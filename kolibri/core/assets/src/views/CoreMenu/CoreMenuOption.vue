@@ -15,7 +15,7 @@
           <template v-if="icon" #icon>
             <KIcon
               :icon="icon"
-              :class="$computedClass(optionIconStyle)"
+              :color="optionIconColor"
             />
           </template>
           <div v-if="label">{{ label }}</div>
@@ -80,11 +80,8 @@
           ':focus': this.$coreOutline,
         };
       },
-      optionIconStyle() {
-        if (this.active) {
-          return { fill: this.$themeTokens.primary };
-        }
-        return { fill: this.$themePalette.grey.v_600 };
+      optionIconColor() {
+        return this.active ? this.$themeTokens.primary : null;
       },
     },
     methods: {

@@ -8,7 +8,7 @@
       {{ prompt }}
     </p>
 
-    <p v-if="error" class="error">
+    <p v-if="error" :style="{ color: $themeTokens.error }">
       {{ coreString('invalidCredentialsError') }}
     </p>
     <p v-if="false">
@@ -161,10 +161,6 @@
 
   .facility-name {
     font-weight: bold;
-  }
-
-  .error {
-    color: red;
   }
 
 </style>

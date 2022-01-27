@@ -432,7 +432,6 @@
   .main-wrapper {
     display: inline-block;
     width: 100%;
-    background-color: white;
 
     @media print {
       /* Without this, things won't print correctly

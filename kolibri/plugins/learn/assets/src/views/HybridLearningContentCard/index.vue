@@ -12,7 +12,11 @@
     >
       <div class="header-bar" :style="headerStyles">
         <div v-if="!content.is_leaf">
-          <KIcon icon="topic" color="white" class="folder-header-bar" />
+          <KIcon
+            icon="topic"
+            :color="$themeTokens.textInverted"
+            class="folder-header-bar"
+          />
           <p class="folder-header-text">
             {{ coreString('folder') }}
           </p>

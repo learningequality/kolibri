@@ -3,6 +3,7 @@
   <aside
     :dir="languageDir"
     :class="['media-player-transcript', { showing }]"
+    :style="{ background: $themeTokens.surface }"
     :aria-hidden="(!showing).toString()"
     :aria-label="coreString('transcript')"
     @mouseenter="hovering = true"
@@ -246,7 +247,6 @@
   .media-player-transcript {
     overflow-x: hidden;
     overflow-y: auto;
-    background: #ffffff;
   }
 
   .transcript-cap {
