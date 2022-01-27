@@ -8,15 +8,18 @@
       {{ $tr('noBookmarks') }}
     </p>
 
-    <HybridLearningCardGrid
-      v-if="bookmarks.length"
-      :contents="bookmarks"
-      :currentPage="currentPage"
-      :genContentLink="genContentLink"
-      :cardViewStyle="windowIsSmall ? 'card' : 'list'"
+    <HybridLearningContentCardListView
+      v-for="content in bookmarks"
+      v-else
+      :key="content.id"
+      :content="content"
+      class="card-grid-item"
+      :isMobile="windowIsSmall"
+      :link="genContentLink(content)"
       :footerIcons="footerIcons"
-      @removeFromBookmarks="removeFromBookmarks"
-      @toggleInfoPanel="toggleInfoPanel"
+      :createdDate="content.bookmark ? content.bookmark.created : null"
+      @viewInformation="toggleInfoPanel(content)"
+      @removeFromBookmarks="removeFromBookmarks(content.bookmark)"
     />
 
     <KButton
@@ -78,11 +81,11 @@
   import client from 'kolibri.client';
   import urls from 'kolibri.urls';
   import genContentLink from '../utils/genContentLink';
-  import { PageNames } from '../constants';
   import { normalizeContentNode } from '../modules/coreLearn/utils.js';
   import useContentNodeProgress from '../composables/useContentNodeProgress';
   import LearningActivityChip from './LearningActivityChip';
-  import HybridLearningCardGrid from './HybridLearningCardGrid';
+  import HybridLearningContentCardListView from './HybridLearningContentCardListView';
+
   import BrowseResourceMetadata from './BrowseResourceMetadata';
 
   export default {
@@ -96,7 +99,7 @@
       BrowseResourceMetadata,
       FullScreenSidePanel,
       LearningActivityChip,
-      HybridLearningCardGrid,
+      HybridLearningContentCardListView,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
     setup() {
@@ -115,8 +118,8 @@
       footerIcons() {
         return { infoOutline: 'viewInformation', close: 'removeFromBookmarks' };
       },
-      currentPage() {
-        return PageNames.BOOKMARKS;
+      backRoute() {
+        return this.$route.name;
       },
     },
     created() {
@@ -129,7 +132,15 @@
     },
     methods: {
       ...mapActions(['createSnackbar']),
-      genContentLink,
+      genContentLink(content) {
+        return genContentLink(
+          content.id,
+          this.topicId,
+          content.is_leaf,
+          this.backRoute,
+          this.context
+        );
+      },
       loadMore() {
         if (!this.loading) {
           this.loading = true;
