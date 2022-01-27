@@ -30,7 +30,7 @@
             :ariaLabel="$tr('viewAsList')"
             :color="$themeTokens.text"
             :tooltip="$tr('viewAsList')"
-            :disabled="currentViewStyle === 'list'"
+            :disabled="currentCardViewStyle === 'list'"
             @click="toggleCardView('list')"
           />
           <KIconButton
@@ -38,7 +38,7 @@
             :ariaLabel="$tr('viewAsGrid')"
             :color="$themeTokens.text"
             :tooltip="$tr('viewAsGrid')"
-            :disabled="currentViewStyle === 'card'"
+            :disabled="currentCardViewStyle === 'card'"
             @click="toggleCardView('card')"
           />
         </div>
@@ -46,41 +46,13 @@
           <h2>
             {{ $tr('recent') }}
           </h2>
-
-          <!-- small and xs displays -->
-          <CardGrid
-            v-if="windowIsSmall"
-          >
-            <ResourceCard
-              v-for="(content, idx) in resumableContentNodes"
-              :key="`resource-${idx}`"
-              :contentNode="content"
-              :to="genContentLink(content)"
-              @openCopiesModal="openCopiesModal"
-            />
-          </CardGrid>
-          <!-- larger than mobile views -->
-          <KGrid
-            v-else
-            gutter="24"
-          >
-            <KGridItem
-              v-for="content in trimmedResume"
-              :key="content.id"
-              :layout4="{ span: 4 }"
-              :layout8="{ span: 4 }"
-              :layout12="{ span: 4 }"
-            >
-              <HybridLearningContentCard
-                class="card-grid-item"
-                :isMobile="windowIsSmall"
-                :content="content"
-                :link="genContentLink(content)"
-                @openCopiesModal="openCopiesModal"
-                @toggleInfoPanel="toggleInfoPanel(content)"
-              />
-            </KGridItem>
-          </KGrid>
+          <LibraryAndChannelBrowserMainContent
+            :contents="resumableContentNodes"
+            :currentCardViewStyle="currentCardViewStyle"
+            :gridType="1"
+            @openCopiesModal="openCopiesModal"
+            @toggleInfoPanel="toggleInfoPanel"
+          />
         </div>
         <KButton
           v-if="moreResumableContentNodes"
@@ -108,7 +80,7 @@
             :ariaLabel="$tr('viewAsList')"
             :color="$themeTokens.text"
             :tooltip="$tr('viewAsList')"
-            :disabled="currentViewStyle === 'list'"
+            :disabled="currentCardViewStyle === 'list'"
             @click="toggleCardView('list')"
           />
           <KIconButton
@@ -116,7 +88,7 @@
             :ariaLabel="$tr('viewAsGrid')"
             :color="$themeTokens.text"
             :tooltip="$tr('viewAsGrid')"
-            :disabled="currentViewStyle === 'card'"
+            :disabled="currentCardViewStyle === 'card'"
             @click="toggleCardView('card')"
           />
         </div>
@@ -126,39 +98,13 @@
           @clearSearch="clearSearch"
         />
         <!-- Grid of search results  -->
-        <CardGrid
-          v-if="windowIsSmall"
-        >
-          <ResourceCard
-            v-for="(content, idx) in resumableContentNodes"
-            :key="`resource-${idx}`"
-            :contentNode="content"
-            :to="genContentLink(content)"
-            @openCopiesModal="openCopiesModal"
-          />
-        </CardGrid>
-        <!-- larger than mobile views -->
-        <KGrid
-          v-else
-          gutter="24"
-        >
-          <KGridItem
-            v-for="content in trimmedResume"
-            :key="content.id"
-            :layout4="{ span: 4 }"
-            :layout8="{ span: 4 }"
-            :layout12="{ span: 4 }"
-          >
-            <HybridLearningContentCard
-              class="card-grid-item"
-              :isMobile="windowIsSmall"
-              :content="content"
-              :link="genContentLink(content)"
-              @openCopiesModal="openCopiesModal"
-              @toggleInfoPanel="$emit('toggleInfoPanel', content)"
-            />
-          </KGridItem>
-        </KGrid>
+        <LibraryAndChannelBrowserMainContent
+          :contents="resumableContentNodes"
+          :currentCardViewStyle="currentCardViewStyle"
+          :gridType="1"
+          @openCopiesModal="openCopiesModal"
+          @toggleInfoPanel="toggleInfoPanel"
+        />
         <!-- conditionally displayed button if there are additional results -->
         <KButton
           v-if="more"
@@ -308,16 +254,11 @@
   import commonLearnStrings from './commonLearnStrings';
   import ChannelCardGroupGrid from './ChannelCardGroupGrid';
   import LearningActivityChip from './LearningActivityChip';
-  import ResourceCard from './cards/ResourceCard';
-  import CardGrid from './cards/CardGrid';
-  import HybridLearningContentCard from './HybridLearningContentCard';
-
+  import LibraryAndChannelBrowserMainContent from './LibraryAndChannelBrowserMainContent';
+  import CopiesModal from './CopiesModal';
   import EmbeddedSidePanel from './EmbeddedSidePanel';
   import CategorySearchModal from './CategorySearchModal';
   import SearchChips from './SearchChips';
-
-  const mobileCarouselLimit = 3;
-  const desktopCarouselLimit = 15;
 
   export default {
     name: 'LibraryPage',
@@ -327,7 +268,7 @@
       };
     },
     components: {
-      HybridLearningContentCard,
+      LibraryAndChannelBrowserMainContent,
       ChannelCardGroupGrid,
       LearningActivityChip,
       EmbeddedSidePanel,
@@ -335,8 +276,7 @@
       CategorySearchModal,
       BrowseResourceMetadata,
       SearchChips,
-      ResourceCard,
-      CardGrid,
+      CopiesModal,
     },
     mixins: [commonLearnStrings, commonCoreStrings, responsiveWindowMixin],
     setup() {
@@ -379,7 +319,7 @@
     },
     data: function() {
       return {
-        currentViewStyle: 'card',
+        currentCardViewStyle: 'card',
         currentCategory: null,
         showSearchModal: false,
         sidePanelIsOpen: false,
@@ -389,12 +329,6 @@
     },
     computed: {
       ...mapState(['rootNodes']),
-      carouselLimit() {
-        return this.windowIsSmall ? mobileCarouselLimit : desktopCarouselLimit;
-      },
-      trimmedResume() {
-        return this.resumableContentNodes.slice(0, this.carouselLimit);
-      },
       sidePanelWidth() {
         if (this.windowIsSmall || this.windowIsMedium) {
           return 0;
@@ -467,7 +401,7 @@
         this.displayedCopies = copies;
       },
       toggleCardView(value) {
-        this.currentViewStyle = value;
+        this.currentCardViewStyle = value;
       },
       toggleSidePanelVisibility() {
         this.sidePanelIsOpen = !this.sidePanelIsOpen;

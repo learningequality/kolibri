@@ -156,12 +156,11 @@
                 </KRouterLink>
               </h2>
               <!-- card grid of items in folder -->
-              <HybridLearningCardGrid
+              <LibraryAndChannelBrowserMainContent
                 v-if="t.children && t.children.length"
                 :contents="t.children"
-                :numCols="numCols"
-                :genContentLink="genContentLink"
-                cardViewStyle="card"
+                currentCardViewStyle="card"
+                :gridType="2"
                 @toggleInfoPanel="toggleInfoPanel"
               />
               <KButton
@@ -397,6 +396,7 @@
   import CategorySearchModal from './CategorySearchModal';
   import SearchChips from './SearchChips';
   import LibraryPage from './LibraryPage';
+  import LibraryAndChannelBrowserMainContent from './LibraryAndChannelBrowserMainContent';
   import plugin_data from 'plugin_data';
 
   export default {
@@ -419,6 +419,7 @@
       KBreadcrumbs,
       CardThumbnail,
       HybridLearningCardGrid,
+      LibraryAndChannelBrowserMainContent,
       CustomContentRenderer,
       CategorySearchModal,
       EmbeddedSidePanel,
