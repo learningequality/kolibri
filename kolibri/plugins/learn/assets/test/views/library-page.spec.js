@@ -27,11 +27,6 @@ const mockStore = new Vuex.Store({ state: { rootNodes: ['length'] } });
 jest.mock('../../src/composables/useSearch');
 jest.mock('../../src/composables/useLearnerResources');
 
-// function makeWrapper() {
-//   return mount(LibraryPage);
-// }
-//const wrapper = mount(LibraryPage, { computed: { windowIsLarge: jest.fn(() => true) } });
-
 describe('LibraryPage', () => {
   describe('displaying the filters button', () => {
     it('is visible when the page is not large', () => {
@@ -138,8 +133,6 @@ describe('LibraryPage', () => {
           localVue,
           store: mockStore,
         });
-        console.log(wrapper.vm.moreResumableContentNodes);
-
         expect(wrapper.find('[data-test="more-resumable-nodes-button"').element).toBeFalsy();
       });
     });
@@ -275,6 +268,7 @@ describe('LibraryPage', () => {
           store: mockStore,
           stubs: ['HybridLearningCardGrid'],
         });
+
         const moreButton = wrapper.find('[data-test="more-results-button"]');
         moreButton.trigger('click');
         expect(searchMoreSpy).toBeCalled();

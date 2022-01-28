@@ -107,7 +107,7 @@
         };
       },
       languageOptionsList() {
-        return plugin_data.languages.map(language => {
+        return get(plugin_data, 'languages', []).map(language => {
           return {
             value: language.id,
             disabled: this.availableLabels && !this.availableLabels.languages.includes(language.id),
@@ -156,7 +156,7 @@
         return this.contentLevelsList.filter(c => !c.disabled);
       },
       channelOptionsList() {
-        return plugin_data.channels.map(channel => ({
+        return get(plugin_data, 'channels', []).map(channel => ({
           value: channel.id,
           disabled: this.availableLabels && !this.availableLabels.channels.includes(channel.id),
           label: channel.name,
