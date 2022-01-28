@@ -1,5 +1,9 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { mount, shallowMount, createLocalVue } from '@vue/test-utils';
+import { createTranslator } from 'kolibri.utils.i18n';
+import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 import Vuex from 'vuex';
+import VueRouter from 'vue-router';
+import KCircularLoader from 'kolibri-design-system/lib/loaders/KCircularLoader';
 import LibraryPage from '../../src/views/LibraryPage';
 import ChannelCardGroupGrid from '../../src/views/ChannelCardGroupGrid';
 /* eslint-disable import/named */
@@ -11,6 +15,11 @@ import useLearnerResources, {
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
+localVue.use(VueRouter);
+const router = new VueRouter();
+
+const LibPageStrings = createTranslator('LibraryPage', LibraryPage.$trs);
+const coreStrings = commonCoreStrings.methods.coreString;
 
 // rootNodes used when showing default view, should always have length
 const mockStore = new Vuex.Store({ state: { rootNodes: ['length'] } });
@@ -145,59 +154,255 @@ describe('LibraryPage', () => {
       });
       expect(wrapper.findComponent(ChannelCardGroupGrid).exists()).toBe(false);
     });
-    it('displays $trs.overCertainNumberOfSearchResults with results.length', () => {});
+
+    it('displays coreString.overCertainNumberOfSearchResults with useSearch#results.length when useSearch#more is truthy', () => {
+      useSearch.mockImplementation(() =>
+        useSearchMock({
+          more: true,
+          results: [],
+          displayingSearchResults: true,
+          searchLoading: false,
+        })
+      );
+      const wrapper = shallowMount(LibraryPage, {
+        localVue,
+        store: mockStore,
+      });
+      expect(wrapper.find('[data-test="search-results-title"]').element).toHaveTextContent(
+        coreStrings('overCertainNumberOfSearchResults', { num: 0 })
+      );
+    });
+
+    it('displays $trs.results with useSearch#results.length when useSearch#more is falsy', () => {
+      useSearch.mockImplementation(() =>
+        useSearchMock({
+          more: false,
+          results: ['1 result'],
+          displayingSearchResults: true,
+          searchLoading: false,
+        })
+      );
+      const wrapper = shallowMount(LibraryPage, {
+        localVue,
+        store: mockStore,
+      });
+      expect(wrapper.find('[data-test="search-results-title"]').element).toHaveTextContent(
+        LibPageStrings.$tr('results', { results: 1 })
+      );
+    });
 
     describe('when there are results', () => {
-      describe('when window is not extra small', () => {
-        it('displays buttons to toggle between list and grid views', () => {});
-
-        describe('method: toggleCardView', () => {
-          it('sets this.currentViewStyle to the first param', () => {});
+      describe('when the windowIsSmall', () => {
+        it('does not show toggle buttons between list and grid views', () => {
+          useSearch.mockImplementation(() =>
+            useSearchMock({
+              more: false,
+              results: ['1 result'],
+              displayingSearchResults: true,
+              searchLoading: false,
+            })
+          );
+          const wrapper = shallowMount(LibraryPage, {
+            localVue,
+            store: mockStore,
+            computed: { windowIsSmall: () => true },
+          });
+          expect(wrapper.find('[data-test="toggle-view-buttons"]').exists()).toBeFalsy();
         });
       });
 
-      it('displays HybridLearningCardGrid of results', () => {});
+      describe('when window is not extra small', () => {
+        it('displays buttons to toggle between list and grid views', () => {
+          useSearch.mockImplementation(() =>
+            useSearchMock({
+              more: false,
+              results: ['1 result'],
+              displayingSearchResults: true,
+              searchLoading: false,
+            })
+          );
+          const wrapper = shallowMount(LibraryPage, {
+            localVue,
+            store: mockStore,
+            computed: { windowIsSmall: () => false },
+          });
+          expect(wrapper.find('[data-test="toggle-view-buttons"]').exists()).toBeTruthy();
+        });
+
+        describe('method: toggleCardView', () => {
+          it('sets this.currentViewStyle to the first param', () => {
+            const wrapper = shallowMount(LibraryPage, {
+              localVue,
+              store: mockStore,
+            });
+            wrapper.vm.toggleCardView('something else');
+            expect(wrapper.vm.currentViewStyle).toEqual('something else');
+          });
+        });
+      });
+
+      it('displays HybridLearningCardGrid of results', () => {
+        useSearch.mockImplementation(() =>
+          useSearchMock({
+            more: false,
+            results: ['1 result'],
+            displayingSearchResults: true,
+            searchLoading: false,
+          })
+        );
+        const wrapper = shallowMount(LibraryPage, {
+          localVue,
+          store: mockStore,
+        });
+        expect(wrapper.find('[data-test="search-results-card-grid"]').exists()).toBeTruthy();
+      });
+
       it('displays a button to view more when there are more to be displayed', () => {
-        // Try to test that the useSearch#searchMore fn is called on @click?
+        const searchMoreSpy = jest.spyOn(useSearch(), 'searchMore');
+
+        useSearch.mockImplementation(() =>
+          useSearchMock({
+            more: true,
+            results: ['1 result'],
+            displayingSearchResults: true,
+            searchLoading: false,
+          })
+        );
+
+        const wrapper = mount(LibraryPage, {
+          localVue,
+          router,
+          store: mockStore,
+          stubs: ['HybridLearningCardGrid'],
+        });
+        const moreButton = wrapper.find('[data-test="more-results-button"]');
+        moreButton.trigger('click');
+        expect(searchMoreSpy).toBeCalled();
       });
     });
   });
 
   describe('when page is loading', () => {
-    it('shows a KCircularLoader', () => {});
+    it('shows a KCircularLoader', () => {
+      useSearch.mockImplementation(() => useSearchMock({ searchLoading: true }));
+      const wrapper = shallowMount(LibraryPage, {
+        localVue,
+        store: mockStore,
+      });
+      expect(wrapper.findComponent(KCircularLoader).exists()).toBeTruthy();
+    });
   });
 
   describe('method: handleShowSearchModal', () => {
-    it('sets this.currentCategory to the first param', () => {});
-    it('sets this.showSearchModal to true', () => {});
-    it('sets this.sidePanelIsOpen to false, if the window is not small', () => {});
+    describe('when windowIsMedium or windowIsLarge', () => {
+      const wrapper = shallowMount(LibraryPage, {
+        localVue,
+        store: mockStore,
+        computed: { windowIsSmall: () => false },
+      });
+      wrapper.vm.handleShowSearchModal('value');
+      it('sets this.currentCategory to the first param', () => {
+        expect(wrapper.vm.currentCategory).toEqual('value');
+      });
+      it('sets this.showSearchModal to true, sidePanelIsOpen to false', () => {
+        expect(wrapper.vm.showSearchModal).toBe(true);
+        expect(wrapper.vm.sidePanelIsOpen).toBe(false);
+      });
+    });
+    describe('when windowIsSmall', () => {
+      it('sets this.sidePanelIsOpen to false, if the window is not small', () => {
+        const wrapper = shallowMount(LibraryPage, {
+          localVue,
+          store: mockStore,
+          computed: { windowIsSmall: () => true },
+        });
+        wrapper.vm.handleShowSearchModal('value');
+        expect(wrapper.vm.sidePanelIsOpen).toBe(true);
+      });
+    });
   });
 
   describe('method: toggleInfoPanel', () => {
-    it('sets this.sidePanelContent to the first param', () => {});
+    it('sets this.sidePanelContent to the first param', () => {
+      const wrapper = shallowMount(LibraryPage, {
+        localVue,
+        store: mockStore,
+      });
+      wrapper.vm.toggleInfoPanel('content');
+      expect(wrapper.vm.sidePanelContent).toBe('content');
+    });
   });
 
   describe('method: closeCategoryModal', () => {
-    it('sets this.currentCategory to null', () => {});
+    it('sets this.currentCategory to null', () => {
+      const wrapper = shallowMount(LibraryPage, {
+        localVue,
+        store: mockStore,
+      });
+      wrapper.vm.closeCategoryModal();
+      expect(wrapper.vm.currentCategory).toBeNull();
+    });
   });
 
   describe('method: handleCategory', () => {
-    it('passes the first param to this.setCategory', () => {});
-    it('sets this.currentCategory to null', () => {});
+    it('passes the first param to useSearch#setCategory', () => {
+      const setCategorySpy = jest.spyOn(useSearch(), 'setCategory');
+      const wrapper = shallowMount(LibraryPage, {
+        localVue,
+        store: mockStore,
+      });
+      wrapper.vm.handleCategory('category');
+      expect(setCategorySpy).toBeCalledWith('category');
+    });
+
+    it('sets this.currentCategory to null', () => {
+      const wrapper = shallowMount(LibraryPage, {
+        localVue,
+        store: mockStore,
+      });
+      wrapper.vm.handleCategory('category');
+      expect(wrapper.vm.currentCategory).toBeNull();
+    });
   });
 
   describe('on large screens, the search/filter panel should display embedded within the main page', () => {
     // is there a way to test the currentCategory event?
-    it('displays EmbeddedSidePanel', () => {});
+    it('displays EmbeddedSidePanel', async () => {
+      const wrapper = shallowMount(LibraryPage, {
+        localVue,
+        store: mockStore,
+        computed: { windowIsLarge: () => true },
+      });
+      expect(wrapper.find("[data-test='desktop-search-side-panel']").exists()).toBeTruthy();
+      // Even if sidePanelIsOpen is true, this shouldn't show
+      wrapper.setData({ sidePanelIsOpen: true });
+      expect(
+        wrapper.find('[data-test="smallscreen-search-fullscreen-side-panel"]').exists()
+      ).toBeFalsy();
+    });
   });
 
   describe('on non-large screens, the search/filter panel is displayed in a FullScreenSidePanel', () => {
-    //describe();
-    // need to follow up on whether or not we will be changing the category search display (
-    // modal vs. side panel) on medium screens
+    it('displays EmbeddedSidePanel within FullScreenSidePanel', async () => {
+      const wrapper = shallowMount(LibraryPage, {
+        localVue,
+        store: mockStore,
+        computed: { windowIsLarge: () => false },
+      });
+      await wrapper.setData({ sidePanelIsOpen: true });
+      expect(wrapper.find('[data-test="full-screen-side-panel"]').exists()).toBeTruthy();
+      expect(wrapper.find("[data-test='desktop-search-side-panel']").exists()).toBeFalsy();
+    });
   });
 
   describe('when there is sidePanelContent, show FullScreenSidePanel', () => {
-    it('shows BrowseResourceMetadata', () => {});
+    it('shows BrowseResourceMetadata', async () => {
+      const wrapper = shallowMount(LibraryPage, {
+        localVue,
+        store: mockStore,
+      });
+      await wrapper.setData({ sidePanelContent: { some: 'content' } });
+      expect(wrapper.find("[data-test='content-side-panel']").exists()).toBeTruthy();
+    });
   });
 });

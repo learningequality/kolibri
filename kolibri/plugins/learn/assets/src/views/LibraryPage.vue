@@ -14,8 +14,15 @@
           @click="toggleSidePanelVisibility"
         />
       </div>
+      <!-- loader for search loading -->
+      <KCircularLoader
+        v-if="searchLoading"
+        class="loader"
+        type="indeterminate"
+        :delay="false"
+      />
       <!-- "Default" display - channels and recent/popular content -->
-      <div v-if="!displayingSearchResults">
+      <div v-else-if="!displayingSearchResults">
         <h2>{{ coreString('channelsLabel') }}</h2>
         <ChannelCardGroupGrid
           v-if="rootNodes.length"
@@ -72,7 +79,7 @@
       <!-- First section is the results title and the various display buttons  -->
       <!-- for interacting or updating the results   -->
       <div v-else-if="!searchLoading">
-        <h2 class="results-title">
+        <h2 class="results-title" data-test="search-results-title">
           {{ more ?
             coreString('overCertainNumberOfSearchResults', { num: results.length }) :
             $tr('results', { results: results.length })
@@ -83,7 +90,11 @@
           @removeItem="removeFilterTag"
           @clearSearch="clearSearch"
         />
-        <div v-if="!(windowIsSmall) && results.length" class="toggle-view-buttons">
+        <div
+          v-if="!(windowIsSmall) && results.length"
+          class="toggle-view-buttons"
+          data-test="toggle-view-buttons"
+        >
           <KIconButton
             icon="menu"
             :ariaLabel="$tr('viewAsList')"
@@ -116,16 +127,8 @@
           appearance="basic-link"
           :disabled="moreLoading"
           class="filter-action-button"
+          data-test="more-results-button"
           @click="searchMore"
-        />
-      </div>
-      <!-- loader for search loading -->
-      <div v-else>
-        <KCircularLoader
-          v-if="searchLoading"
-          class="loader"
-          type="indeterminate"
-          :delay="false"
         />
       </div>
     </main>
@@ -134,8 +137,9 @@
 
     <!-- Embedded Side panel is on larger views, and exists next to content -->
     <EmbeddedSidePanel
-      v-if="!!windowIsLarge"
+      v-if="windowIsLarge"
       v-model="searchTerms"
+      data-test="desktop-search-side-panel"
       :width="`${sidePanelWidth}px`"
       :availableLabels="labels"
       position="embedded"
@@ -146,8 +150,9 @@
     <!-- The full screen side panel is used on smaller screens, and toggles as an overlay -->
     <!-- FullScreen is a container component, and then the EmbeddedSidePanel sits within -->
     <FullScreenSidePanel
-      v-if="!windowIsLarge && sidePanelIsOpen"
+      v-else-if="sidePanelIsOpen"
       class="full-screen-side-panel"
+      data-test="full-screen-side-panel"
       alignment="left"
       :fullScreenSidePanelCloseButton="displayCloseButton"
       :sidePanelOverrideWidth="`${sidePanelOverlayWidth}px`"
@@ -206,6 +211,7 @@
 
     <FullScreenSidePanel
       v-if="sidePanelContent"
+      data-test="content-side-panel"
       alignment="right"
       :fullScreenSidePanelCloseButton="true"
       @closePanel="sidePanelContent = null"
