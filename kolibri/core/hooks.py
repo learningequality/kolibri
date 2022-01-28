@@ -26,9 +26,7 @@ from kolibri.plugins.utils import plugin_url
 
 @define_hook
 class NavigationHook(WebpackBundleHook):
-
-    # Set this to True so that the resulting frontend code will be rendered inline.
-    inline = True
+    pass
 
 
 @define_hook
