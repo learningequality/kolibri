@@ -3,7 +3,7 @@ Feature: Learner stays logged in
 
   Background:
     Given I am signed in as a learner user
-      And I am on *Learn > Classes* page
+      And I am on *Learn > Home* page
 
   Scenario: Browser window is minimized
     When I minimize my browser window

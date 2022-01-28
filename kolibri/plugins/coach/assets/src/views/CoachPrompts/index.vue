@@ -1,7 +1,7 @@
 <template>
 
   <!-- eslint-disable max-len -->
-  <div class="wrapper">
+  <div :style="{ padding: '32px', backgroundColor: $themeTokens.surface }">
     <h1>Prompts while "Planning a lesson"</h1>
     <h2>
       Prompt 1
@@ -1061,13 +1061,3 @@
   };
 
 </script>
-
-
-<style scoped>
-
-  .wrapper {
-    padding: 32px;
-    background-color: white;
-  }
-
-</style>

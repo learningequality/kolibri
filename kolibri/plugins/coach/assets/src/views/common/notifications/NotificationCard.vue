@@ -5,7 +5,10 @@
       :icon="statusIcon"
       class="icon"
     />
-    <p class="context icon-spacer">
+    <p
+      class="context icon-spacer"
+      :style="{ color: $themeTokens.annotation }"
+    >
       {{ context }}
     </p>
     <KFixedGrid numCols="4">
@@ -173,7 +176,6 @@
     margin-top: 4px;
     margin-bottom: 4px;
     font-size: small;
-    color: gray;
   }
 
   .button-wrapper {

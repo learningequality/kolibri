@@ -2,13 +2,17 @@ import os
 import re
 import stat
 from collections import OrderedDict
+from io import BufferedIOBase
+from wsgiref.headers import Headers
 
 from django.contrib.staticfiles import finders
 from django.core.files.storage import FileSystemStorage
 from django.utils._os import safe_join
 from whitenoise import WhiteNoise
 from whitenoise.httpstatus_backport import HTTPStatus
+from whitenoise.responders import MissingFileError
 from whitenoise.responders import Response
+from whitenoise.responders import StaticFile
 from whitenoise.string_utils import decode_path_info
 
 
@@ -74,6 +78,40 @@ class FileFinder(finders.FileSystemFinder):
         path = safe_join(root, path)
         if os.path.exists(path):
             return path
+
+
+class SlicedFile(BufferedIOBase):
+    def __init__(self, fileobj, start, end):
+        fileobj.seek(start)
+        self.fileobj = fileobj
+        self.remaining = end - start + 1
+
+    def read(self, size=-1):
+        if self.remaining <= 0:
+            return b""
+        if size >= 0:
+            size = min(size, self.remaining)
+        data = self.fileobj.read(size)
+        self.remaining -= size
+        return data
+
+
+class EndRangeStaticFile(StaticFile):
+    def get_range_response(self, range_header, base_headers, file_handle):
+        headers = []
+        for item in base_headers:
+            if item[0] == "Content-Length":
+                size = int(item[1])
+            else:
+                headers.append(item)
+        start, end = self.get_byte_range(range_header, size)
+        if start >= end:
+            return self.get_range_not_satisfiable_response(file_handle, size)
+        if file_handle is not None:
+            file_handle = SlicedFile(file_handle, start, end)
+        headers.append(("Content-Range", "bytes {}-{}/{}".format(start, end, size)))
+        headers.append(("Content-Length", str(end - start + 1)))
+        return Response(HTTPStatus.PARTIAL_CONTENT, headers, file_handle)
 
 
 class DynamicWhiteNoise(WhiteNoise):
@@ -152,3 +190,25 @@ class DynamicWhiteNoise(WhiteNoise):
         path = self.get_dynamic_path(url)
         if path:
             yield path
+
+    def get_static_file(self, path, url, stat_cache=None):
+        """
+        Vendor this function from source to substitute in our
+        own StaticFile class that can properly handle ranges.
+        """
+        # Optimization: bail early if file does not exist
+        if stat_cache is None and not os.path.exists(path):
+            raise MissingFileError(path)
+        headers = Headers([])
+        self.add_mime_headers(headers, path, url)
+        self.add_cache_headers(headers, path, url)
+        if self.allow_all_origins:
+            headers["Access-Control-Allow-Origin"] = "*"
+        if self.add_headers_function:
+            self.add_headers_function(headers, path, url)
+        return EndRangeStaticFile(
+            path,
+            headers.items(),
+            stat_cache=stat_cache,
+            encodings={"gzip": path + ".gz", "br": path + ".br"},
+        )

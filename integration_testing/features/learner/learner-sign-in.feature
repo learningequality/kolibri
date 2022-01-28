@@ -25,8 +25,7 @@ Feature: Learner sign-in
       Then I see *Signing in to '<facility>' as '<username>'*
       When I fill out my password <password>
         And I click the *Sign in* button
-      Then I am signed in and I can see the *Learn > Classes* page
-      # If learner is not enrolled in any of the classes in the facility, the landing page is *Learn > Channels*
+      Then I am signed in and I can see the *Learn > Home* page
 
     Scenario: Sign-in on a new browser (no recorded cookies of my previous signing in; one facility; no password)
       Given I am viewing Kolibri for the first time in my current browser
@@ -40,8 +39,7 @@ Feature: Learner sign-in
         And I see a *Explore without account* link
       When I fill out my username <username>
         And I click the *Next* button
-      Then I am signed in and I can see the *Learn > Classes* page
-      # If learner is not enrolled in any of the classes in the facility, the landing page is *Learn > Channels*
+      Then I am signed in and I can see the *Learn > Home* page
 
     Scenario: Sign-in on a new browser (no recorded cookies of my previous signing in; multiple facilities; with password)
       Given I am viewing Kolibri for the first time in my current browser
@@ -61,8 +59,7 @@ Feature: Learner sign-in
       Then I see *Signing in to '<facility>' as '<username>'*
       When I fill out my password <password>
         And I click the *Sign in* button
-      Then I am signed in and I can see the *Learn > Classes* page
-      # If learner is not enrolled in any of the classes in the facility, the landing page is *Learn > Channels*
+      Then I am signed in and I can see the *Learn > Home* page
 
     Scenario: Sign-in on a new browser (no recorded cookies of my previous signing in; multiple facilities; no password)
       Given I am viewing Kolibri for the first time in my current browser
@@ -79,8 +76,7 @@ Feature: Learner sign-in
       When I click the <facility> button
         And I fill out my username <username>
         And I click the *Next* button
-      Then I am signed in and I can see the *Learn > Classes* page
-      # If learner is not enrolled in any of the classes in the facility, the landing page is *Learn > Channels*
+      Then I am signed in and I can see the *Learn > Home* page
 
     Scenario: Any subsequent session on Kolibri after first sign in (multiple facilities; with password)
       Given the device has more than one facility
@@ -95,8 +91,7 @@ Feature: Learner sign-in
         And I see the input field for entering my password
       When I type in my password
         And I click on *Sign in*
-      Then I am signed in and I can see the *Learn > Classes* page
-      # If learner is not enrolled in any of the classes in the facility, the landing page is *Learn > Channels*
+      Then I am signed in and I can see the *Learn > Home* page
 
     Scenario: Any subsequent session on Kolibri after first sign in (multiple facilities; no password)
       Given the device has more than one facility
@@ -108,8 +103,7 @@ Feature: Learner sign-in
         And I see the *Change facility* link above
       When I fill out my username <username>
         And I click on *Sign in*
-      Then I am signed in and I can see the *Learn > Classes* page
-      # If learner is not enrolled in any of the classes in the facility, the landing page is *Learn > Channels*
+      Then I am signed in and I can see the *Learn > Home* page
 
     Scenario: User changes their mind or makes errors during sign-in
       Given the user is on the password input step, but sees a wrong username or facility
@@ -134,7 +128,7 @@ Feature: Learner sign-in
           But I don't see any facility name displayed in the sign in container box
       When I type in my username
         And I click on the *Sign in* button
-      Then I am signed in and I can see my *Learn* page
+      Then I am signed in and I can see my *Learn > Home* page
 
     Scenario: Facility name is displayed on the sign in page if there is only 1 facility on the device and the use context is formal or non formal (no password)
       Given I have a Kolibri account
@@ -148,7 +142,7 @@ Feature: Learner sign-in
         And I see a *Explore without account* link
       When I type in my username
         And I click on the *Sign in* button
-      Then I am signed in and I can see my *Learn* page
+      Then I am signed in and I can see my *Learn > Home* page
 
     Scenario: Password creation for learners who did not set one when their account was created
         Given that the facility setting *Require password for learners* is checked
@@ -160,7 +154,7 @@ Feature: Learner sign-in
           And I see the input fields to type a new password and retype the same
         When I type my password
           And I click *Continue*
-        Then I am signed in and I can see my *Learn* page
+        Then I am signed in and I can see my *Learn > Home* page
 
   Examples:
   | username | password | facility   |

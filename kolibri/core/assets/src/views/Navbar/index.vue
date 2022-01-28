@@ -15,7 +15,6 @@
         <KIcon
           icon="chevronLeft"
           :style="{ fill: $themeTokens.textInverted, top: 0, width: '24px', height: '24px', }"
-          :class="{ 'rtl-icon': isRtl }"
         />
       </button>
 
@@ -38,7 +37,6 @@
         <KIcon
           icon="chevronRight"
           :style="{ fill: $themeTokens.textInverted, top: 0, width: '24px', height: '24px', }"
-          :class="{ 'rtl-icon': isRtl }"
         />
       </button>
     </nav>
