@@ -17,7 +17,7 @@
           :selectable="false"
           :showDemographicInfo="false"
           :value="usersID"
-          :selectedStyle="importedStyle"
+          :selectedStyle="`color:${$themeTokens.textDisabled}`"
         >
           <template #action="userRow">
             <KButton
@@ -91,9 +91,6 @@
           });
         }
         return '';
-      },
-      importedStyle() {
-        return 'color:#CCCCCC;';
       },
     },
     beforeMount() {

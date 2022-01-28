@@ -77,7 +77,7 @@
             v-if="isUserLoggedIn && !isLearner && content.num_coach_contents"
             class="coach-footer-icon"
             :value="content.num_coach_contents"
-            :isTopic="isTopic"
+            :isTopic="!content.is_leaf"
           />
           <KIconButton
             v-for="(value, key) in footerIcons"

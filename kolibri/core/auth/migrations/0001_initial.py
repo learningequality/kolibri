@@ -21,56 +21,6 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name="DeviceOwner",
-            fields=[
-                ("password", models.CharField(max_length=128, verbose_name="password")),
-                (
-                    "last_login",
-                    models.DateTimeField(
-                        blank=True, null=True, verbose_name="last login"
-                    ),
-                ),
-                (
-                    "username",
-                    models.CharField(
-                        help_text="Required. 30 characters or fewer. Letters and digits only",
-                        max_length=30,
-                        validators=[
-                            django.core.validators.RegexValidator(
-                                "^\\w+$",
-                                "Enter a valid username. This value may contain only letters and numbers.",
-                            )
-                        ],
-                        verbose_name="username",
-                    ),
-                ),
-                (
-                    "full_name",
-                    models.CharField(
-                        blank=True, max_length=120, verbose_name="full name"
-                    ),
-                ),
-                (
-                    "date_joined",
-                    models.DateTimeField(
-                        default=django.utils.timezone.now,
-                        editable=False,
-                        verbose_name="date joined",
-                    ),
-                ),
-                (
-                    "id",
-                    morango.models.UUIDField(
-                        default=uuid.uuid4,
-                        editable=False,
-                        primary_key=True,
-                        serialize=False,
-                    ),
-                ),
-            ],
-            options={"abstract": False},
-        ),
-        migrations.CreateModel(
             name="Collection",
             fields=[
                 (

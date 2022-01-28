@@ -55,7 +55,7 @@ Feature: Admin changes facility settings
     Given the *Show 'download' button with content* checkbox is unchecked
     When I check the *Show 'download' button with content* checkbox
       And I click the *Save changes* button
-    When I go to *Learn > Channels* page
+    When I go to *Learn > Library* page
       And browse any channel's topics until I open an single resource
     Then I see the *Download content* button
 
@@ -64,9 +64,9 @@ Feature: Admin changes facility settings
     When I check the *Allow users to access content without signing in* checkbox
       And I click the *Save changes* button
       And I sign out
-    Then I see the *Continues as a guest* link on the sign-in page
-    When I click *Continues as a guest*
-    Then I see the *Learn > Channels* page
+    Then I see the *Explore without account* link on the sign-in page
+    When I click *Explore without account*
+    Then I see the *Learn > Library* page
 
 
 Examples:

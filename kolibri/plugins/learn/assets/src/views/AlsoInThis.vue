@@ -61,7 +61,11 @@
       v-if="nextContent"
       :to="genContentLink(nextContent.id, null, nextContent.is_leaf, null, context)"
       class="next-content-link"
-      :style="{ borderTop: '1px solid ' + $themeTokens.fineLine, ...linkStyles }"
+      :style="{
+        borderTop: '1px solid ' + $themeTokens.fineLine,
+        background: $themeTokens.surface,
+        ...linkStyles
+      }"
     >
       <KIcon class="folder-icon" icon="topic" />
       <div class="next-label">
@@ -178,7 +182,6 @@
   $parent-padding: 32px; // The SidePanel
   $icon-size: 32px;
   $progress-width: 48px;
-  $top-bar-height: 40px;
   $next-content-link-height: 100px;
 
   .content-list.bottom-link {
@@ -192,15 +195,6 @@
 
     /* Avoids overflow issues, aligns bottom bit */
     height: calc(100% - 16px);
-  }
-
-  .top-bar {
-    position: relative;
-    top: 0;
-    right: 0;
-    left: 0;
-    height: $top-bar-height;
-    background-color: #ffffff;
   }
 
   .item {
@@ -298,7 +292,6 @@
     padding: 12px 32px 8px;
     margin-right: -32px;
     margin-left: -32px;
-    background: white;
 
     .next-label {
       position: absolute;

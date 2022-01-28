@@ -1,6 +1,9 @@
 <template>
 
-  <div class="time-context">
+  <div
+    class="time-context"
+    :style="{ color: $themeTokens.annotation }"
+  >
     {{ formattedTime }}
   </div>
 
@@ -192,7 +195,6 @@
     margin-top: 2px;
     margin-bottom: -1rem;
     font-size: small;
-    color: gray;
   }
 
 </style>

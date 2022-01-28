@@ -12,17 +12,29 @@
       >
 
         <!-- Fixed header with optional close button -->
-        <div v-if="$slots.header" ref="fixedHeader" class="fixed-header" :style="fixedHeaderStyles">
-
+        <div
+          v-show="$slots.header"
+          ref="fixedHeader"
+          class="fixed-header"
+          :style="fixedHeaderStyles"
+        >
           <div class="header-content" tabindex="0">
             <slot name="header">
             </slot>
           </div>
-
         </div>
 
         <KIconButton
-          v-if="!closeButtonHidden"
+          v-if="fullScreenSidePanelCloseButton"
+          icon="close"
+          class="close-button"
+          :style="closeButtonFullScreenSidePanelStyles"
+          :ariaLabel="coreString('closeAction')"
+          :tooltip="coreString('closeAction')"
+          @click="closePanel"
+        />
+        <KIconButton
+          v-else
           icon="close"
           class="close-button"
           :style="closeButtonStyles"
@@ -62,9 +74,7 @@
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
     props: {
-      /* Hides the (X) icon button to close the side panel. In this case, clicking off of the
-         panel or hitting the ESC keys are the only way to close the panel */
-      closeButtonHidden: {
+      fullScreenSidePanelCloseButton: {
         type: Boolean,
         default: false,
       },
@@ -86,7 +96,7 @@
     data() {
       return {
         /* Will be calculated in mounted() as it will get the height of the fixedHeader then */
-        fixedHeaderHeight: null,
+        fixedHeaderHeight: 0,
       };
     },
     computed: {
@@ -145,7 +155,7 @@
           'margin-top': this.fixedHeaderHeight,
           padding: '24px 32px 16px',
           'overflow-y': 'scroll',
-          height: `calc((100vh - ${this.fixedHeaderHeight}))`,
+          height: `calc((100vh - ${this.fixedHeaderHeight}px))`,
         };
       },
       closeButtonStyles() {
@@ -153,12 +163,18 @@
           top: `calc((${this.fixedHeaderHeight} - 40px) / 2)`,
         };
       },
+      closeButtonFullScreenSidePanelStyles() {
+        return {
+          position: 'absolute',
+          top: '8px',
+          right: '8px',
+        };
+      },
     },
     /* this is the easiest way I could think to avoid having dual scroll bars */
     mounted() {
       const htmlTag = window.document.getElementsByTagName('html')[0];
       htmlTag.style['overflow-y'] = 'hidden';
-
       // Gets the height of the fixed header - adds 40 to account for padding
       this.fixedHeaderHeight = this.$refs.fixedHeader.clientHeight + 'px';
 

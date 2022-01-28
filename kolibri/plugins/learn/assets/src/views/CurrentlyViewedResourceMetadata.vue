@@ -2,11 +2,14 @@
 
   <section v-if="content" class="metadata">
 
-    <div>
+    <div class="section">
       <span
         v-if="forBeginners"
         class="beginners-chip"
-        :style="{ 'background-color': $themeBrand.secondary.v_600 }"
+        :style="{
+          backgroundColor: $themeBrand.secondary.v_600,
+          color: $themeTokens.textInverted
+        }"
         data-test="beginners-chip"
       >
         {{ coreString("ForBeginners") }}
@@ -288,9 +291,8 @@
 
   .beginners-chip {
     display: inline-block;
-    padding: 12px;
+    padding: 10px;
     font-weight: bold;
-    color: white;
     border-radius: 4px;
   }
 
