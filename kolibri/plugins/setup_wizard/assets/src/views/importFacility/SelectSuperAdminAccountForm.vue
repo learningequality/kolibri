@@ -8,7 +8,10 @@
     @click_next="handleClickNext"
   >
     <template #aboveform>
-      <p v-if="error" class="error">
+      <p
+        v-if="error"
+        :style="{ color: $themeTokens.error }"
+      >
         {{ coreString('invalidCredentialsError') }}
       </p>
       <p>
@@ -244,10 +247,6 @@
   .select {
     max-width: 400px;
     margin: 24px 0;
-  }
-
-  .error {
-    color: red;
   }
 
 </style>

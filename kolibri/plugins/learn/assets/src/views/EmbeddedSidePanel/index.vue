@@ -49,26 +49,28 @@
           <KButton
             :text="$tr('allCategories')"
             appearance="flat-button"
-            :class="!!activeKeys.filter(k => k.includes('all_categories')).length ? 'active' : ''"
-            :appearanceOverrides="customCategoryStyles"
+            :appearanceOverrides="isKeyActive('all_categories')
+              ? { ...categoryListItemStyles, ...categoryListItemActiveStyles }
+              : categoryListItemStyles"
             @click="allCategories"
           />
         </div>
 
         <div
-          v-for="(category, val) in libraryCategoriesList"
+          v-for="(category, key) in libraryCategoriesList"
           :key="category"
           span="4"
           class="category-list-item"
         >
           <KButton
-            :text="coreString(val)"
+            :text="coreString(key)"
             appearance="flat-button"
-            :appearanceOverrides="customCategoryStyles"
+            :appearanceOverrides="isKeyActive(key)
+              ? { ...categoryListItemStyles, ...categoryListItemActiveStyles }
+              : categoryListItemStyles"
             :disabled="availableRootCategories &&
-              !availableRootCategories[val] &&
-              !activeKeys.filter(k => k.includes(val)).length"
-            :class="!!activeKeys.filter(k => k.includes(val)).length ? 'active' : ''"
+              !availableRootCategories[key] &&
+              !isKeyActive(key)"
             iconAfter="chevronRight"
             @click="$emit('currentCategory', category)"
           />
@@ -80,8 +82,9 @@
           <KButton
             :text="coreString('None of the above')"
             appearance="flat-button"
-            :appearanceOverrides="customCategoryStyles"
-            :class="!!activeKeys.filter(k => k.includes('no_categories')).length ? 'active' : ''"
+            :appearanceOverrides="isKeyActive('no_categories')
+              ? { ...categoryListItemStyles, ...categoryListItemActiveStyles }
+              : categoryListItemStyles"
             @click="noCategories"
           />
         </div>
@@ -258,24 +261,26 @@
       resourcesNeededList() {
         return resourcesNeeded;
       },
-      customCategoryStyles() {
+      categoryListItemStyles() {
         return {
           color: this.$themeTokens.text,
           width: '100%',
           border: '2px solid transparent',
-          'text-align': this.isRtl ? 'right' : 'left',
-          'font-weight': 'normal',
-          'text-transform': 'none',
+          textAlign: this.isRtl ? 'right' : 'left',
+          fontWeight: 'normal',
+          textTransform: 'none',
           position: 'relative',
           transition: 'none',
-          ':hover': {
-            'background-color': 'rgb(235, 210, 235)',
-            border: '2px',
-            'border-color': `${this.$themeTokens.primary} !important`,
-            'border-style': 'solid',
-            'border-radius': '4px',
-            'line-spacing': '0',
-          },
+          ':hover': this.categoryListItemActiveStyles,
+        };
+      },
+      categoryListItemActiveStyles() {
+        return {
+          backgroundColor: this.$themeBrand.primary.v_50,
+          border: '2px',
+          borderColor: this.$themeTokens.primary,
+          borderStyle: 'solid',
+          borderRadius: '4px',
         };
       },
       availableRootCategories() {
@@ -307,6 +312,9 @@
     },
     methods: {
       genContentLink,
+      isKeyActive(key) {
+        return !!this.activeKeys.filter(k => k.includes(key)).length;
+      },
       allCategories() {
         this.$emit('input', { ...this.value, categories: { [AllCategories]: true } });
       },
@@ -389,14 +397,6 @@
 
   .section {
     margin-top: 40px;
-  }
-
-  .active {
-    background-color: rgb(235, 210, 235);
-    border: 2px !important;
-    border-color: #996189 !important;
-    border-style: solid !important;
-    border-radius: 4px !important;
   }
 
   .card-grid {

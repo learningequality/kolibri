@@ -77,7 +77,6 @@
     left: -1000px;
     padding: 8px 16px;
     font-size: 14px;
-    background-color: white;
     outline-offset: 0 !important;
 
     &:focus {

@@ -127,7 +127,7 @@
               right: 0,
               width: ellipsisWidth,
               height: '100%',
-              background: 'white',
+              background: this.$themeTokens.surface,
             },
           };
         }

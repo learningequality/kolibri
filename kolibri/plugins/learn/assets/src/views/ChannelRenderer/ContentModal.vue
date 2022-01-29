@@ -70,7 +70,7 @@
           appBarColor: this.$themeTokens.primary,
           textColor: this.$themeTokens.textInverted,
           backdropColor: 'rgba(0, 0, 0, 0.7)',
-          backgroundColor: 'white',
+          backgroundColor: this.$themeTokens.surface,
         };
       },
       toolbarStyle() {
@@ -116,7 +116,6 @@
     max-height: calc(100vh - 80px);
     margin: 40px auto;
     overflow: hidden;
-    background: white;
     border-radius: 4px;
   }
 

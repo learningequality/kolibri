@@ -147,19 +147,10 @@
       v-if="!windowIsLarge && sidePanelIsOpen"
       class="full-screen-side-panel"
       alignment="left"
-      :closeButtonHidden="true"
+      :fullScreenSidePanelCloseButton="true"
       :sidePanelOverrideWidth="`${sidePanelOverlayWidth}px`"
       @closePanel="toggleSidePanelVisibility"
     >
-      <KIconButton
-        v-if="windowIsSmall && !currentCategory"
-        class="overlay-close-button"
-        icon="close"
-        :ariaLabel="coreString('closeAction')"
-        :color="$themeTokens.text"
-        :tooltip="coreString('closeAction')"
-        @click="toggleSidePanelVisibility"
-      />
       <KIconButton
         v-if="windowIsSmall && currentCategory"
         icon="back"
@@ -460,11 +451,6 @@
   .full-screen-side-panel {
     position: relative;
     width: 100vw;
-  }
-  .overlay-close-button {
-    position: absolute;
-    top: 8px;
-    right: 8px;
   }
 
   .results-title {

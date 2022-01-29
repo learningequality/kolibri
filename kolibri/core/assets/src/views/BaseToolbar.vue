@@ -2,7 +2,10 @@
 
   <div
     class="base-toolbar"
-    :style="{ color: $themeTokens.text }"
+    :style="{
+      color: $themeTokens.text,
+      backgroundColor: $themeTokens.surface
+    }"
   >
     <slot></slot>
   </div>
@@ -36,7 +39,6 @@
     padding-right: 24px;
     padding-left: 24px;
     font-size: 1.125rem;
-    background-color: white;
     box-shadow: 0 0 2px rgba(0, 0, 0, 0.12), 0 2px 2px rgba(0, 0, 0, 0.2);
   }
 
