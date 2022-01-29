@@ -199,20 +199,23 @@ class FacilityDatasetViewSet(ValuesViewset):
 
 class FacilityUserFilter(FilterSet):
 
-    CHOICES = (("learner", "learner"), ("superuser", "superuser")) + role_kinds.choices
+    USER_TYPE_CHOICES = (
+        ("learner", "learner"),
+        ("superuser", "superuser"),
+    ) + role_kinds.choices
 
     member_of = ModelChoiceFilter(
         method="filter_member_of", queryset=Collection.objects.all()
     )
     user_type = ChoiceFilter(
-        choices=CHOICES,
+        choices=USER_TYPE_CHOICES,
         method="filter_user_type",
     )
     exclude_member_of = ModelChoiceFilter(
         method="filter_exclude_member_of", queryset=Collection.objects.all()
     )
     exclude_user_type = ChoiceFilter(
-        choices=CHOICES,
+        choices=USER_TYPE_CHOICES,
         method="filter_exclude_user_type",
     )
 
@@ -221,7 +224,7 @@ class FacilityUserFilter(FilterSet):
 
     def filter_user_type(self, queryset, name, value):
         if value == "learner":
-            value = None
+            return queryset.filter(roles__isnull=True)
         if value == "superuser":
             return queryset.filter(devicepermissions__is_superuser=True)
         return queryset.filter(roles__kind=value)
@@ -231,14 +234,14 @@ class FacilityUserFilter(FilterSet):
 
     def filter_exclude_user_type(self, queryset, name, value):
         if value == "learner":
-            value = None
+            return queryset.exclude(roles__isnull=True)
         if value == "superuser":
             return queryset.exclude(devicepermissions__is_superuser=True)
         return queryset.exclude(roles__kind=value)
 
     class Meta:
         model = FacilityUser
-        fields = ["member_of", "user_type"]
+        fields = ["member_of", "user_type", "exclude_member_of", "exclude_user_type"]
 
 
 class PublicFacilityUserViewSet(ReadOnlyValuesViewset):
