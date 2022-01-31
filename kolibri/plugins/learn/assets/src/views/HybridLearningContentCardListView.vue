@@ -6,79 +6,65 @@
       :class="{ 'mobile-card': isMobile }"
       :style="{ backgroundColor: $themeTokens.surface }"
     >
-      <div
-        v-if="!isMobile"
-        class="folder-header"
-        :style="{ backgroundColor: (!content.is_leaf ? $themeTokens.text : null ) }"
-      ></div>
-      <div class="thumbnail">
-        <CardThumbnail
-          :isMobile="isMobile"
-          :contentNode="content"
-        />
-      </div>
-      <span class="details" :style="{ color: $themeTokens.text }">
-        <div
-          class="metadata-info"
+      <KFixedGrid numCols="4">
+        <KFixedGridItem :span="isMobile ? 4 : 1" class="thumb-area">
+          <CardThumbnail
+            :kind="content.kind"
+            v-bind="{ thumbnail }"
+            :activityLength="content.duration"
+            :contentNode="content"
+          />
+          <p
+            v-if="isBookmarksPage && !isMobile"
+            class="created-info"
+            :style="{ color: $themePalette.grey.v_700 }"
+          >
+            {{ bookmarkCreated }}
+          </p>
+          <ProgressBar v-if="!isMobile" :contentNode="content" />
+        </KFixedGridItem>
+
+        <KFixedGridItem :span="isMobile ? 4 : 3" class="text-area">
+          <span :style="{ color: $themeTokens.text }">
+            <div class="metadata-info" :style="{ color: $themePalette.grey.v_700 }">
+              <LearningActivityLabel :contentNode="content" labelAfter condensed />
+            </div>
+            <h3>
+              <TextTruncatorCss :text="content.title" :maxLines="1" />
+            </h3>
+            <p v-if="content.description" style="font-size: 14px;">
+              <TextTruncatorCss :text="content.description" :maxLines="4" />
+            </p>
+            <div v-if="!isMobile" class="bottom-items">
+              <p v-if="categoryAndLevelString">{{ categoryAndLevelString }}</p>
+              <img
+                :src="content.channel_thumbnail"
+                :alt="learnString('logo', { channelTitle: content.channel_title })"
+                class="channel-logo"
+              >
+              <KButton
+                v-if="isLibraryPage && content.copies"
+                appearance="basic-link"
+                class="copies"
+                :style="{ color: $themeTokens.text }"
+                :text="coreString('copies', { num: content.copies.length })"
+                @click.prevent="$emit('openCopiesModal', content.copies)"
+              />
+            </div>
+          </span>
+        </KFixedGridItem>
+      </KFixedGrid>
+      <div class="footer">
+        <p
+          v-if="isBookmarksPage && isMobile"
+          class="created-info-mobile"
           :style="{ color: $themePalette.grey.v_700 }"
         >
-          <LearningActivityLabel
-            :contentNode="content"
-            :labelAfter="true"
-            :hideDuration="!isMobile"
-            condensed
-          />
-        </div>
-        <h3 class="title">
-          <TextTruncator
-            :text="content.title"
-            :maxHeight="maxTitleHeight"
-          />
-        </h3>
-        <p class="text">
-          <TextTruncator
-            :text="content.description"
-            :maxHeight="maxDescriptionHeight"
-          />
+          {{ bookmarkCreated }}
         </p>
-        <div v-if="displayCategoryAndLevelMetadata && !isMobile" class="metadata-info">
-          <p> {{ coreString(displayCategoryAndLevelMetadata) }}</p>
-        </div>
-        <img
-          v-if="!isMobile"
-          :src="content.channel_thumbnail"
-          :alt="learnString('logo', { channelTitle: content.channel_title })"
-          class="channel-logo"
-        >
-        <KButton
-          v-if="!isMobile && content.copies && content.copies.length"
-          appearance="basic-link"
-          class="copies"
-          :style="{ color: $themeTokens.text }"
-          :text="coreString('copies', { num: content.copies.length })"
-          @click.prevent="$emit('openCopiesModal', content.copies)"
-        />
-      </span>
-      <div class="footer">
-        <div class="footer-elements">
-          <div class="footer-progress">
-            <p
-              v-if="isBookmarksPage"
-              class="metadata-info-footer"
-              :style="{ color: $themePalette.grey.v_700 }"
-            >
-              {{ bookmarkCreated }}
-            </p>
-            <ProgressBar :contentNode="content" />
-          </div>
-        </div>
-        <div class="footer-elements footer-icons">
-          <CoachContentLabel
-            v-if="isUserLoggedIn && !isLearner && content.num_coach_contents"
-            class="coach-footer-icon"
-            :value="content.num_coach_contents"
-            :isTopic="!content.is_leaf"
-          />
+        <ProgressBar v-if="!!isMobile" :contentNode="content" class="footer-progress" />
+
+        <div class="footer-icons">
           <KIconButton
             v-for="(value, key) in footerIcons"
             :key="key"
@@ -87,6 +73,7 @@
             :color="$themePalette.grey.v_400"
             :ariaLabel="coreString(value)"
             :tooltip="coreString(value)"
+            class="icon-fix"
             @click.prevent="$emit(value)"
           />
         </div>
@@ -99,12 +86,10 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
   import { validateLinkObject } from 'kolibri.utils.validators';
-  import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
+  import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { now } from 'kolibri.utils.serverClock';
-  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import { PageNames } from '../constants';
   import ProgressBar from './ProgressBar';
   import LearningActivityLabel from './LearningActivityLabel';
@@ -115,10 +100,9 @@
     name: 'HybridLearningContentCardListView',
     components: {
       CardThumbnail,
-      TextTruncator,
+      TextTruncatorCss,
       LearningActivityLabel,
       ProgressBar,
-      CoachContentLabel,
     },
     mixins: [commonLearnStrings, commonCoreStrings],
     props: {
@@ -152,23 +136,15 @@
       now: now(),
     }),
     computed: {
-      ...mapGetters(['isUserLoggedIn', 'isLearner']),
-      maxTitleHeight() {
-        return 40;
-      },
-      maxDescriptionHeight() {
-        return 64;
-      },
-      displayCategoryAndLevelMetadata() {
+      categoryAndLevelString() {
         if (this.category && this.level) {
-          return `${this.category}| ${this.level} `;
+          return this.coreString(this.category) + ' | ' + this.coreString(this.level);
         } else if (this.category) {
-          return this.category;
+          return this.coreString(this.category);
         } else if (this.level) {
-          return this.level;
-        } else {
-          return null;
+          return this.coreString(this.level);
         }
+        return null;
       },
       isBookmarksPage() {
         return this.currentPage === PageNames.BOOKMARKS;
@@ -192,7 +168,10 @@
 <style lang="scss" scoped>
 
   @import '~kolibri-design-system/lib/styles/definitions';
-  @import './ContentCard/card';
+
+  $footer-height: 36px;
+  $h-padding: 24px;
+  $v-padding: 16px;
 
   .card {
     @extend %dropshadow-1dp;
@@ -200,7 +179,8 @@
     position: relative;
     display: inline-block;
     width: 100%;
-    height: 246px;
+    min-height: 246px;
+    padding: $v-padding $h-padding;
     margin-bottom: 24px;
     text-decoration: none;
     vertical-align: top;
@@ -212,32 +192,18 @@
     }
   }
 
-  .details {
-    display: inline-block;
-    max-width: calc(100% - 350px);
-    margin: 24px;
-    margin-top: 8px;
-    vertical-align: top;
-  }
-
-  .title {
-    margin: 0;
-  }
-
-  .text {
-    font-size: 14px;
+  .mobile-card {
+    min-height: 490px;
   }
 
   .metadata-info {
-    margin-top: 8px;
-    margin-bottom: 8px;
     font-size: 14px;
   }
 
   .channel-logo {
     display: inline-block;
     height: 24px;
-    margin: 4px;
+    margin-right: 8px;
   }
 
   .copies {
@@ -248,89 +214,71 @@
     vertical-align: top;
   }
 
-  .folder-header {
-    width: 100%;
-    height: 15px;
-    border-radius: 8px 8px 0 0;
-  }
-
   .footer {
     position: absolute;
+    right: 0;
     bottom: 0;
     width: 100%;
-    height: 80px;
-    padding: 24px;
-  }
-
-  .metadata-info-footer {
-    margin: 0;
-    font-size: 13px;
-  }
-
-  .footer-elements {
-    position: relative;
-    display: inline-block;
-    max-width: 240px;
-  }
-
-  .footer-progress {
-    width: 240px;
+    height: $footer-height;
   }
 
   .footer-icons {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    display: inline-block;
+    margin-right: $h-padding;
+    margin-bottom: $v-padding;
+  }
+  .footer-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    display: inline-block;
+    max-width: 60%;
+    margin-bottom: 8px;
+    margin-left: $h-padding;
+  }
+
+  .created-info-mobile {
+    position: absolute;
+    bottom: 8px;
+    left: 0;
+    display: inline-block;
+    margin-bottom: $v-padding;
+    margin-left: $h-padding;
+  }
+
+  .created-info {
+    font-size: 13px;
+  }
+
+  .icon-fix {
     // this override fixes an existing KDS bug with
     // the hover state circle being squished
     // and can be removed upon that hover state fix
-    position: absolute;
-    right: 16px;
-    .button {
-      width: 32px !important;
-      height: 32px !important;
-      /deep/ svg {
-        top: 4px !important;
-      }
+    width: 32px !important;
+    height: 32px !important;
+    /deep/ svg {
+      top: 4px !important;
     }
   }
 
-  .k-linear-loader {
-    display: block;
-    width: 240px;
-    margin-top: -4px;
-  }
-
-  .thumbnail {
-    display: inline-block;
-    width: 240px;
+  .bottom-items {
     margin-top: 8px;
-    margin-right: 24px;
-    margin-left: 12px;
   }
 
-  .mobile-card.card {
-    width: 100%;
-    height: 490px;
+  .thumb-area {
+    margin-bottom: 16px;
   }
 
-  .mobile-card {
-    max-height: 450px;
-    .thumbnail {
-      position: absolute;
-      width: 100%;
-      margin-top: 0;
-      margin-left: 0;
+  .details {
+    max-width: 100%;
+    margin-top: 240px;
+  }
 
-      /deep/ .image {
-        border-radius: 8px 8px 0 0;
-      }
-    }
-
-    .footer-progress {
-      max-width: 200px;
-    }
-    .details {
-      max-width: 100%;
-      margin-top: 240px;
-    }
+  .text-area {
+    margin-bottom: $footer-height;
   }
 
   .coach-footer-icon {
