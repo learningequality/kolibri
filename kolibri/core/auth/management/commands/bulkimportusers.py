@@ -683,7 +683,7 @@ class Command(AsyncCommand):
 
     def get_number_lines(self, filepath):
         try:
-            with open(filepath) as f:
+            with open_csv_for_reading(filepath) as f:
                 number_lines = len(f.readlines())
         except (ValueError, FileNotFoundError, csv.Error) as e:
             number_lines = None
