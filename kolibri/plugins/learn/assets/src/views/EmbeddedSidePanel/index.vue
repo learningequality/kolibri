@@ -11,7 +11,7 @@
     <div v-if="topics && topics.length && topicsListDisplayed">
       <div v-for="t in topics" :key="t.id">
         <KRouterLink
-          ref="routerLink"
+          ref="folders"
           :text="t.title"
           class="side-panel-folder-link"
           :appearanceOverrides="{ color: $themeTokens.text }"
@@ -349,11 +349,15 @@
       },
       /**
        * @public
-       * Determines first focusable element for FocusTrap depending on content rendered in
-       * EmbeddedSidePanel.
+       * Focuses on correct first element for FocusTrap depending on content
+       * rendered in EmbeddedSidePanel.
        */
       focusFirstEl() {
-        this.$refs.searchBox.focusSearchBox();
+        if (this.$refs.searchBox) {
+          this.$refs.searchBox.focusSearchBox();
+        } else if (this.$refs.folders) {
+          this.$refs.folders[0].$el.focus();
+        }
       },
     },
     $trs: {
