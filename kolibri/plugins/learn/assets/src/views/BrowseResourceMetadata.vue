@@ -16,6 +16,7 @@
 
       <div>
         <KRouterLink
+          ref="resourceButton"
           :text="metadataStrings.$tr('viewResource')"
           appearance="raised-button"
           :primary="false"
@@ -327,6 +328,13 @@
         if (this.$refs.description && this.$refs.description.scrollHeight > 175) {
           this.descriptionOverflow = true;
         }
+      },
+      /**
+       * @public
+       * Determines and calls first focusable element for FocusTrap
+       */
+      focusFirstEl() {
+        this.$refs.resourceButton.$el.focus();
       },
     },
   };
