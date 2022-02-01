@@ -10,6 +10,8 @@
       <FocusTrap
         :firstEl="firstFocusableEl"
         :lastEl="lastFocusableEl"
+        @shouldFocusFirstEl="$emit('shouldFocusFirstEl')"
+        @shouldFocusLastEl="focusLastEl"
       >
         <div
           class="side-panel"
@@ -117,7 +119,7 @@
         return this.windowBreakpoint == 0;
       },
       /* Returns an object with properties left or right set to the appropriate value
-         depending on isRtl and this.alignment */
+           depending on isRtl and this.alignment */
       rtlAlignment() {
         if (this.isRtl && this.alignment === 'left') {
           return 'right';
@@ -193,9 +195,8 @@
       htmlTag.style['overflow-y'] = 'hidden';
       // Gets the height of the fixed header - adds 40 to account for padding
       this.fixedHeaderHeight = this.$refs.fixedHeader.clientHeight + 'px';
-
       this.$nextTick(() => {
-        this.setFocusTrap();
+        this.$emit('shouldFocusFirstEl');
       });
     },
     beforeDestroy() {
@@ -209,18 +210,8 @@
       closePanel() {
         this.$emit('closePanel');
       },
-      setFocusTrap() {
-        if (this.$refs.sidePanel && !this.$refs.sidePanel.contains(document.activeElement)) {
-          this.focusSidePanel();
-        }
-        this.firstFocusableEl =
-          this.$el.querySelector('input[id="searchfield"]') || // if `EmbeddedSidePanel` is for search/filter btn
-          this.$el.querySelector('.raised') || // if `EmbeddedSidePanel` is for info btn
-          this.$el.querySelector('.side-panel-folder-link'); // if `EmbeddedSidePanel` is for folders btn
-        this.lastFocusableEl = this.$refs.closeButton.$el;
-      },
-      focusSidePanel() {
-        this.$refs.sidePanel.focus();
+      focusLastEl() {
+        this.$el.querySelector('.close-button').focus();
       },
     },
     $trs: {

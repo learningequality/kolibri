@@ -150,6 +150,7 @@
       :fullScreenSidePanelCloseButton="true"
       :sidePanelOverrideWidth="`${sidePanelOverlayWidth}px`"
       @closePanel="toggleSidePanelVisibility"
+      @shouldFocusFirstEl="findFirstEl()"
     >
       <KIconButton
         v-if="windowIsSmall && currentCategory"
@@ -161,6 +162,7 @@
       />
       <EmbeddedSidePanel
         v-if="!currentCategory"
+        ref="embeddedPanel"
         v-model="searchTerms"
         :width="`${sidePanelOverlayWidth - 64}px`"
         :availableLabels="labels"
@@ -397,6 +399,11 @@
       handleCategory(category) {
         this.setCategory(category);
         this.currentCategory = null;
+      },
+      findFirstEl() {
+        this.$nextTick(() => {
+          this.$refs.embeddedPanel.focusFirstEl();
+        });
       },
     },
     $trs: {

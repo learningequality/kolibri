@@ -262,6 +262,7 @@
         :fullScreenSidePanelCloseButton="true"
         :sidePanelOverrideWidth="`${sidePanelOverlayWidth}px`"
         @closePanel="toggleFolderSearchSidePanel"
+        @shouldFocusFirstEl="findFirstEl()"
       >
         <KIconButton
           v-if="windowIsSmall && currentCategory"
@@ -273,6 +274,7 @@
         />
         <EmbeddedSidePanel
           v-if="!currentCategory"
+          ref="embeddedPanel"
           v-model="searchTerms"
           :topicsListDisplayed="!mobileSearchActive"
           topicPage="True"
@@ -712,6 +714,11 @@
         this.topicMoreLoading = true;
         this.loadMoreTopics().then(() => {
           this.topicMoreLoading = false;
+        });
+      },
+      findFirstEl() {
+        this.$nextTick(() => {
+          this.$refs.embeddedPanel.focusFirstEl();
         });
       },
     },

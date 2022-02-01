@@ -11,6 +11,7 @@
     <div v-if="topics && topics.length && topicsListDisplayed">
       <div v-for="t in topics" :key="t.id">
         <KRouterLink
+          ref="routerLink"
           :text="t.title"
           class="side-panel-folder-link"
           :appearanceOverrides="{ color: $themeTokens.text }"
@@ -33,6 +34,7 @@
       </h2>
       <SearchBox
         key="channel-search"
+        ref="searchBox"
         placeholder="findSomethingToLearn"
         :value="value.keywords || ''"
         @change="val => $emit('input', { ...value, keywords: val })"
@@ -344,6 +346,14 @@
             learner_needs: { ...this.value.learner_needs, [need]: true },
           });
         }
+      },
+      /**
+       * @public
+       * Determines first focusable element for FocusTrap depending on content rendered in
+       * EmbeddedSidePanel.
+       */
+      focusFirstEl() {
+        this.$refs.searchBox.focusSearchBox();
       },
     },
     $trs: {
