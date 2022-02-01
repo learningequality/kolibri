@@ -99,7 +99,7 @@
         />
         <!-- Grid of search results  -->
         <LibraryAndChannelBrowserMainContent
-          :contents="resumableContentNodes"
+          :contents="results"
           :currentCardViewStyle="currentCardViewStyle"
           :gridType="1"
           @openCopiesModal="openCopiesModal"
