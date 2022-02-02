@@ -646,6 +646,13 @@
           this.sidePanelIsOpen = false;
         }
       },
+      sidePanelContent() {
+        if (this.sidePanelContent) {
+          document.documentElement.style.position = 'fixed';
+          return;
+        }
+        document.documentElement.style.position = '';
+      },
     },
     beforeDestroy() {
       window.removeEventListener('scroll', this.throttledHandleScroll);

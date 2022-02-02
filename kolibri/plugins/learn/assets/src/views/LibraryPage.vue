@@ -372,6 +372,13 @@
       searchTerms() {
         this.sidePanelIsOpen = false;
       },
+      sidePanelIsOpen() {
+        if (this.sidePanelIsOpen) {
+          document.documentElement.style.position = 'fixed';
+          return;
+        }
+        document.documentElement.style.position = '';
+      },
     },
     created() {
       this.search();
