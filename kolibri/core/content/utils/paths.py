@@ -294,7 +294,9 @@ def get_hashi_html_filename():
     global HASHI_FILENAME
     if HASHI_FILENAME is None or getattr(settings, "DEVELOPER_MODE", None):
         with io.open(
-            os.path.join(os.path.dirname(__file__), "../build/hashi_filename"),
+            os.path.abspath(
+                os.path.join(os.path.dirname(__file__), "../build/hashi_filename")
+            ),
             mode="r",
             encoding="utf-8",
         ) as f:
