@@ -8,15 +8,14 @@ from glob import glob
 
 block_cipher = None
 
-build_version = os.environ.get("APP_BUILD_NUMBER", datetime.now().strftime("%Y%m%d%H%M%S"))
+import kolibri
+kolibri_version = kolibri.__version__
 
-try:
-    import kolibri
-    kolibri_version = kolibri.__version__
-except ImportError:
-    kolibri_version = "unknown"
 
-name = "Kolibri-{}-{}".format(kolibri_version, build_version)
+import kolibri_app
+app_version = kolibri_app.__version__
+
+name = "Kolibri-{}-{}".format(kolibri_version, app_version)
 
 locale_datas = [
     (mo_file, os.path.sep.join(os.path.dirname(mo_file).split(os.path.sep)[1:]))
@@ -93,7 +92,7 @@ if sys.platform == 'darwin':
                         'NSExceptionAllowsInsecureHTTPLoads': True
                     }
                 },
-                "CFBundleVersion": build_version,
+                "CFBundleVersion": app_version,
             },
         }
     )
