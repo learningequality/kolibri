@@ -144,6 +144,9 @@
       isBookmarksPage() {
         return this.currentPage === PageNames.BOOKMARKS;
       },
+      isLibraryPage() {
+        return this.currentPage === PageNames.LIBRARY;
+      },
       ceilingDate() {
         if (this.createdDate > this.now) {
           return this.now;

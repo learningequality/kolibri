@@ -105,6 +105,7 @@
           :cardViewStyle="currentViewStyle"
           :genContentLink="genContentLink"
           :contents="results"
+          :currentPage="currentPage"
           @toggleInfoPanel="toggleInfoPanel"
         />
         <!-- conditionally displayed button if there are additional results -->
