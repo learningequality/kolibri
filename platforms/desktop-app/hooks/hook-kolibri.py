@@ -87,8 +87,6 @@ exclude_django_submodules = [
 def submodule_filter(name):
     if name.startswith("kolibri.plugins.demo_server"):
         return False
-    if name.startswith("pycountry."):
-        return False
     if any(name.startswith(subm) for subm in exclude_django_submodules):
         return False
     if "test" in name:
@@ -127,7 +125,6 @@ hiddenimports = collect_submodules("kolibri", submodule_filter)
 datas = []
 
 migration_modules = [
-    "django.conf.app_template.migrations",
     "django.contrib.admin.migrations",
     "django.contrib.auth.migrations",
     "django.contrib.contenttypes.migrations",
@@ -155,8 +152,11 @@ for value in settings.values():
 for mod in settings_imports:
     hiddenimports += collect_submodules(mod, submodule_filter)
 
-for subm in hiddenimports:
-    datas += collect_data_files(subm)
+datas += collect_data_files("kolibri")
+
+for submod in hiddenimports:
+    if not submod.startswith("kolibri."):
+        datas += collect_data_files(submod)
 
 datas = list(set(filter(datas_filter, datas)))
 
