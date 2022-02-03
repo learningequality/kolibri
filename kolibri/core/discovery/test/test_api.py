@@ -105,3 +105,16 @@ class NetworkLocationAPITestCase(APITestCase):
             format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_reading_network_location_list_filter_soud(self):
+        self.login(self.superuser)
+        models.NetworkLocation.objects.create(
+            base_url="https://kolibrihappyurl.qqq/",
+            subset_of_users_device=True,
+        )
+        response = self.client.get(
+            reverse("kolibri:core:staticnetworklocation-list"),
+            data={"subset_of_users_device": False},
+        )
+        for location in response.data:
+            self.assertFalse(location["subset_of_users_device"])
