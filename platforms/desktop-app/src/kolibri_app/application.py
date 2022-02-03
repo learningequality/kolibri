@@ -65,7 +65,7 @@ class KolibriApp(wx.App):
 
     def start_server(self):
         if self.server_thread:
-            del self.server_thread
+            return
 
         logging.info("Preparing to start Kolibri server")
         self.server_thread = Thread(target=self.start_kolibri_server)
