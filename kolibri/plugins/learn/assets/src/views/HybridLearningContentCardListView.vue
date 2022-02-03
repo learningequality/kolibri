@@ -65,7 +65,7 @@
             :key="key"
             :icon="key"
             size="mini"
-            :color="$themePalette.grey.v_400"
+            :color="$themePalette.grey.v_600"
             :ariaLabel="coreString(value)"
             :tooltip="coreString(value)"
             class="icon-fix"

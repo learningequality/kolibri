@@ -327,7 +327,7 @@
         return PageNames.LIBRARY;
       },
       footerIcons() {
-        return { info: 'viewInformation' };
+        return { infoOutline: 'viewInformation' };
       },
       sidePanelWidth() {
         if (this.windowIsSmall || this.windowIsMedium) {
