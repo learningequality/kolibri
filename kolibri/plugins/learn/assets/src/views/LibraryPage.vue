@@ -155,7 +155,7 @@
       @shouldFocusFirstEl="findFirstEl()"
     >
       <KIconButton
-        v-if="windowIsSmall && currentCategory"
+        v-if="(windowIsSmall || windowIsMedium) && currentCategory"
         icon="back"
         :ariaLabel="coreString('goBackAction')"
         :color="$themeTokens.text"
@@ -174,7 +174,7 @@
         @currentCategory="handleShowSearchModal"
       />
       <CategorySearchModal
-        v-if="currentCategory && windowIsSmall"
+        v-if="currentCategory && (windowIsSmall || windowIsMedium)"
         :selectedCategory="currentCategory"
         :numCols="numCols"
         :availableLabels="labels"
@@ -184,10 +184,10 @@
       />
     </FullScreenSidePanel>
 
-    <!-- Category Search modal for larger screens. On smaller screens, it is -->
+    <!-- Category Search modal for large screens. On smaller screens, it is -->
     <!-- contained within the full screen search modal (different design) -->
     <CategorySearchModal
-      v-if="(windowIsMedium || windowIsLarge) && currentCategory"
+      v-if="windowIsLarge && currentCategory"
       :selectedCategory="currentCategory"
       :numCols="numCols"
       :availableLabels="labels"
@@ -396,7 +396,7 @@
       handleShowSearchModal(value) {
         this.currentCategory = value;
         this.showSearchModal = true;
-        !this.windowIsSmall ? (this.sidePanelIsOpen = false) : '';
+        !(this.windowIsSmall || this.windowIsMedium) ? (this.sidePanelIsOpen = false) : '';
       },
       toggleCardView(value) {
         this.currentViewStyle = value;
