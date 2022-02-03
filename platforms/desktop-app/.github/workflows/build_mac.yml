@@ -17,8 +17,6 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: 3.9
-    - name: Download file
-      run: make get-whl
     - name: Run the build
       run: |
         make get-whl whl=${{ github.event.inputs.whlurl }}

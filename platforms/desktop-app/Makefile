@@ -11,12 +11,12 @@ needs-version:
 	$(eval APP_VERSION ?= $(shell python -c "import kolibri_app; print(kolibri_app.__version__)"))
 
 clean:
-	rm -rf build dist src/kolibri
+	rm -rf build dist
 
 get-whl:
-	mkdir dist
-	wget -O dist/kolibri.whl "${whl}"
-	pip install dist/kolibri.whl
+	mkdir -p dist
+	$(eval WHLFILE = $(shell wget -P whl/ "${whl}" 2>&1 | grep "Saving to: " | sed 's/Saving to: ‘//' | sed 's/’//'))
+	pip install ${WHLFILE}
 
 build-mac-app:
 	pip3 install .
