@@ -15,7 +15,9 @@ clean:
 
 get-whl:
 	mkdir -p dist
-	$(eval WHLFILE = $(shell wget -P whl/ "${whl}" 2>&1 | grep "Saving to: " | sed 's/Saving to: ‘//' | sed 's/’//'))
+	$(eval DLFILE = $(shell wget --content-disposition -P whl/ "${whl}" 2>&1 | grep "Saving to: " | sed 's/Saving to: ‘//' | sed 's/’//'))
+	$(eval WHLFILE = $(shell echo "${DLFILE}" | sed "s/\?.*//"))
+	mv "${DLFILE}" ${WHLFILE}
 	pip install ${WHLFILE}
 
 build-mac-app:
