@@ -8,8 +8,6 @@
   >
     <transition name="side-panel">
       <FocusTrap
-        :firstEl="firstFocusableEl"
-        :lastEl="lastFocusableEl"
         @shouldFocusFirstEl="$emit('shouldFocusFirstEl')"
         @shouldFocusLastEl="focusLastEl"
       >
@@ -109,8 +107,6 @@
       return {
         /* Will be calculated in mounted() as it will get the height of the fixedHeader then */
         fixedHeaderHeight: 0,
-        firstFocusableEl: null,
-        lastFocusableEl: null,
         lastFocus: null,
       };
     },
