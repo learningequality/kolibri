@@ -105,6 +105,7 @@
           :cardViewStyle="currentViewStyle"
           :genContentLink="genContentLink"
           :contents="results"
+          :footerIcons="footerIcons"
           :currentPage="currentPage"
           @toggleInfoPanel="toggleInfoPanel"
         />
