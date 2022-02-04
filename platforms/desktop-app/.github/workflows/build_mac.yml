@@ -20,7 +20,7 @@ jobs:
     - name: Run the build
       run: |
         make get-whl whl=${{ github.event.inputs.whlurl }}
-        pip install wheel
+        make dependencies
         make build-mac-app
         make build-dmg
     - uses: actions/upload-artifact@v2

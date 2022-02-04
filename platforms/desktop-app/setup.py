@@ -1,5 +1,3 @@
-import sys
-
 from setuptools import setup
 
 setup(
@@ -13,7 +11,5 @@ setup(
     zip_safe=True,
     license="MIT",
     install_requires=["wxPython==4.1.1"],
-    setup_requires=["PyInstaller==4.5.1"]
-    + ["dmgbuild==1.5.2" if sys.platform == "darwin" else []],
     extras_require={"dev": ["pre-commit"]},
 )

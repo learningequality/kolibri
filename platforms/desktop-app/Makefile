@@ -1,5 +1,11 @@
 .PHONY: clean get-whl build-mac-app pyinstaller build-dmg compile-mo codesign-windows codesign-mac needs-version
 
+ifeq ($(OS),Windows_NT)
+    OSNAME := WIN32
+else
+    OSNAME := $(shell uname -s)
+endif
+
 guard-%:
 	@ if [ "${${*}}" = "" ]; then \
 		echo "Environment variable $* not set"; \
@@ -19,6 +25,13 @@ get-whl:
 	$(eval WHLFILE = $(shell echo "${DLFILE}" | sed "s/\?.*//"))
 	mv "${DLFILE}" ${WHLFILE}
 	pip install ${WHLFILE}
+
+dependencies:
+	pip install wheel
+	pip install PyInstaller==4.5.1
+ifeq ($(OSNAME), Darwin)
+	pip install dmgbuild==1.5.2
+endif
 
 build-mac-app:
 	pip3 install .
