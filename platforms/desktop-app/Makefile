@@ -24,7 +24,7 @@ build-mac-app:
 	pip3 install .
 	mkdir -p logs
 	$(eval LIBPYTHON_FOLDER = $(shell python3 -c 'from distutils.sysconfig import get_config_var; print(get_config_var("LIBDIR"))'))
-	ln -s ${LIBPYTHON_FOLDER}/libpython3.9m.dylib ${LIBPYTHON_FOLDER}/libpython3.9.dylib
+	test -f ${LIBPYTHON_FOLDER}/libpython3.9.dylib || ln -s ${LIBPYTHON_FOLDER}/libpython3.9m.dylib ${LIBPYTHON_FOLDER}/libpython3.9.dylib
 	$(MAKE) pyinstaller
 
 pyinstaller: clean
