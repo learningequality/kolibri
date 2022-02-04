@@ -46,7 +46,7 @@
           </KPageContainer>
 
           <BottomAppBar :dir="bottomBarLayoutDirection" :maxWidth="null">
-            <KButtonGroup>
+            <component :is="windowIsSmall ? 'div' : 'KButtonGroup'">
               <UiIconButton
                 v-if="windowBreakpoint === 0"
                 :aria-label="$tr('nextQuestion')"
@@ -110,7 +110,7 @@
                 </template>
                 {{ $tr('previousQuestion') }}
               </KButton>
-            </KButtonGroup>
+            </component>
 
             <!-- below prev/next buttons in tab and DOM order, in footer -->
             <div
