@@ -26,6 +26,7 @@
         <h2>{{ coreString('channelsLabel') }}</h2>
         <ChannelCardGroupGrid
           v-if="rootNodes.length"
+          data-test="channel-cards"
           class="grid"
           :contents="rootNodes"
         />
@@ -115,6 +116,7 @@
         <!-- Grid of search results  -->
         <LibraryAndChannelBrowserMainContent
           :contents="results"
+          data-test="search-results-card-grid"
           :currentCardViewStyle="currentCardViewStyle"
           :gridType="1"
           @openCopiesModal="openCopiesModal"
@@ -152,7 +154,7 @@
     <FullScreenSidePanel
       v-else-if="sidePanelIsOpen"
       class="full-screen-side-panel"
-      data-test="full-screen-side-panel"
+      data-test="filters-side-panel"
       alignment="left"
       :fullScreenSidePanelCloseButton="displayCloseButton"
       :sidePanelOverrideWidth="`${sidePanelOverlayWidth}px`"
