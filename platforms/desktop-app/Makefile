@@ -20,11 +20,12 @@ clean:
 	rm -rf build dist
 
 get-whl:
-	mkdir -p dist
+	rm -rf kolibri
 	$(eval DLFILE = $(shell wget --content-disposition -P whl/ "${whl}" 2>&1 | grep "Saving to: " | sed 's/Saving to: ‘//' | sed 's/’//'))
 	$(eval WHLFILE = $(shell echo "${DLFILE}" | sed "s/\?.*//"))
 	mv "${DLFILE}" ${WHLFILE}
 	pip install ${WHLFILE}
+	pip install ${WHLFILE} -t kolibri/
 
 dependencies:
 	pip install wheel
@@ -34,17 +35,17 @@ ifeq ($(OSNAME), Darwin)
 endif
 
 build-mac-app:
-	pip3 install .
-	mkdir -p logs
 	$(eval LIBPYTHON_FOLDER = $(shell python3 -c 'from distutils.sysconfig import get_config_var; print(get_config_var("LIBDIR"))'))
 	test -f ${LIBPYTHON_FOLDER}/libpython3.9.dylib || ln -s ${LIBPYTHON_FOLDER}/libpython3.9m.dylib ${LIBPYTHON_FOLDER}/libpython3.9.dylib
 	$(MAKE) pyinstaller
 
 pyinstaller: clean
+	mkdir -p logs
+	pip3 install .
 	python3 -OO -m PyInstaller kolibri.spec
 
 build-dmg: needs_version
-	dmgbuild -s build_config/dmgbuild_settings.py kolibri-${KOLIBRI_VERSION}-${APP_VERSION}.app dist/kolibri-${KOLIBRI_VERSION}-${APP_VERSION}.dmg
+	dmgbuild -s build_config/dmgbuild_settings.py dist/kolibri-${KOLIBRI_VERSION}-${APP_VERSION}.app dist/kolibri-${KOLIBRI_VERSION}-${APP_VERSION}.dmg
 
 compile-mo:
 	find src/kolibri_app/locales -name LC_MESSAGES -exec msgfmt {}/wxapp.po -o {}/wxapp.mo \;
