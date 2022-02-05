@@ -1244,7 +1244,7 @@ class SingleUserSyncRegressionsTestCase(TestCase):
         )
 
     @multiple_kolibri_servers(3)
-    def test_new_morango_issue(self, servers):
+    def test_issue_fixed_in_morango_pull_146(self, servers):
 
         server1, server2, soud = servers
 
