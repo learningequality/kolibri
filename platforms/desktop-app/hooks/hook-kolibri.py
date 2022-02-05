@@ -85,6 +85,8 @@ exclude_django_submodules = [
 
 
 def submodule_filter(name):
+    if name.startswith("kolibri.dist"):
+        return False
     if name.startswith("kolibri.plugins.demo_server"):
         return False
     if any(name.startswith(subm) for subm in exclude_django_submodules):
@@ -110,6 +112,8 @@ django_locales = [
 
 
 def datas_filter(item):
+    if "kolibri/dist" in item[0] and "kolibri/dist/home" not in item[0]:
+        return False
     if item[0].endswith(".js.map"):
         return False
     if "locale" in item[0]:

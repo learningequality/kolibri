@@ -24,7 +24,7 @@ locale_datas = [
 
 a = Analysis(
     [os.path.join('src', 'kolibri_app', '__main__.py')],
-    pathex=[],
+    pathex=[os.path.join('kolibri', 'kolibri', 'dist')],
     binaries=[],
     datas=[('src/kolibri_app/assets/*.*', 'kolibri_app/assets')] + locale_datas,
     hiddenimports=[],
