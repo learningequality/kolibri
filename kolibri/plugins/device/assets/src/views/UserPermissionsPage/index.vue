@@ -259,6 +259,10 @@
   }
   th {
     min-width: 112px;
+    padding-right: 4px;
+  }
+  td {
+    padding-left: 4px;
   }
 
   .super-admin-checkbox {
