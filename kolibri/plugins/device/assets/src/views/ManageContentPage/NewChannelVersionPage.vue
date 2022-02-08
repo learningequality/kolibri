@@ -244,7 +244,9 @@
                 }
               });
             } else {
-              this.$router.push(this.$router.getRoute(PageNames.MANAGE_TASKS));
+              this.$router.push({
+                ...this.$router.getRoute(PageNames.SELECT_CONTENT),
+              });
             }
           })
           .catch(error => {
