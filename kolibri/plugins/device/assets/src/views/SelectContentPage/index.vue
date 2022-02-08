@@ -65,7 +65,7 @@
       objectType="resource"
       actionType="import"
       :resourceCounts="{ count: transferResourceCount, fileSize: transferFileSize }"
-      :disabled="disableBottomBar || newVersionAvailable || transferFileSize > availableSpace"
+      :disabled="disableBottomBar || transferFileSize > availableSpace"
       @clickconfirm="handleClickConfirm"
     />
   </div>
