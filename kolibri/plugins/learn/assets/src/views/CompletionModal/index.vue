@@ -15,8 +15,8 @@
         :style="[ modalSizeStyles, { background: $themeTokens.surface } ]"
       >
         <FocusTrap
-          :firstEl="firstFocusableEl"
-          :lastEl="lastFocusableEl"
+          @shouldFocusFirstEl="$emit('shouldFocusFirstEl')"
+          @shouldFocusLastEl="focusLastEl"
         >
           <KFixedGrid
             :numCols="12"
@@ -205,9 +205,6 @@
     },
     data() {
       return {
-        // to be used by the modal focus trap
-        firstFocusableEl: null,
-        lastFocusableEl: null,
         // where the focus was before opening the modal
         // so we can return it back after it's closed
         lastFocus: null,
@@ -295,7 +292,7 @@
       }
       Promise.all(promises).then(() => {
         this.loading = false;
-        this.$nextTick(this.setFocusTrap);
+        this.$nextTick(this.focusFirstEl);
       });
     },
     beforeMount() {
@@ -305,14 +302,12 @@
       // Remove scrollbars from the <html> tag, so user's can't scroll while modal is open
       window.document.documentElement.style['overflow'] = 'hidden';
       this.$nextTick(() => {
-        this.setFocusTrap();
+        this.focusFirstEl();
       });
-      window.addEventListener('focus', this.focusElementTest, true);
     },
     destroyed() {
       // Restore scrollbars to <html> tag
       window.document.documentElement.style['overflow'] = '';
-      window.removeEventListener('focus', this.focusElementTest, true);
       // Wait for events to finish propagating before changing the focus.
       // Otherwise the `lastFocus` item receives events such as 'enter'.
       // (setTimeout(fn, 0) will execute the next event cycle, as soon as the main thread stack
@@ -321,17 +316,8 @@
       window.setTimeout(() => this.lastFocus.focus());
     },
     methods: {
-      setFocusTrap() {
-        if (this.$refs.modal && !this.$refs.modal.contains(document.activeElement)) {
-          this.focusModal();
-        }
-
-        if (this.nextContentNode && this.$refs.nextContentNodeSection) {
-          this.firstFocusableEl = this.$refs.nextContentNodeSection.getButtonRef().$el;
-        } else if (this.$refs.staySection) {
-          this.firstFocusableEl = this.$refs.staySection.getButtonRef().$el;
-        }
-        this.lastFocusableEl = this.$refs.closeButton.$el;
+      focusLastEl() {
+        this.$el.querySelector('.close-button').focus();
       },
       loadNextContent() {
         return ContentNodeResource.fetchNextContent(this.contentNodeId).then(data => {
@@ -358,31 +344,16 @@
       goToNextContentNode() {
         this.$router.push(this.nextContentNodeRoute);
       },
-      focusModal() {
-        this.$refs.modal.focus();
-      },
       /**
-       * Forked from `KModal`
+       * @public
+       * Focuses on correct first element for FocusTrap depending on content
+       * rendered in CompletionModal.
        */
-      focusElementTest(event) {
-        const { target } = event;
-        const noopOnFocus =
-          target === window || // switching apps
-          !this.$refs.modal || // if $refs.modal isn't available
-          target === this.$refs.modal || // addresses #3824
-          this.$refs.modal.contains(target.activeElement);
-        if (noopOnFocus) {
-          return;
-        }
-        // Fixes possible infinite recursion when disconnection
-        // snackbars appear along with the modal (#6301)
-        const $coreSnackbar = document.getElementById('coresnackbar');
-        if ($coreSnackbar && $coreSnackbar.contains(target)) {
-          return;
-        }
-        // focus has escaped the modal - put it back!
-        if (!this.$refs.modal.contains(target)) {
-          this.focusModal();
+      focusFirstEl() {
+        if (this.nextContentNode && this.$refs.nextContentNodeSection) {
+          this.$refs.nextContentNodeSection.getButtonRef().$el.focus();
+        } else if (this.$refs.staySection) {
+          this.$refs.staySection.getButtonRef().$el.focus();
         }
       },
     },
