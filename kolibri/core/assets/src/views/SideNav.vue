@@ -54,6 +54,7 @@
             role="navigation"
             :style="{ backgroundColor: $themeTokens.surface }"
             :aria-label="$tr('navigationLabel')"
+            @shouldFocusFirstEl="findFirstEl()"
           >
             <template #options>
               <component :is="component" v-for="component in menuOptions" :key="component.name" />
@@ -271,6 +272,11 @@
           this.$refs.coreMenu.$el.focus();
         }
         return event;
+      },
+      findFirstEl() {
+        this.$nextTick(() => {
+          this.$refs.coreMenu.focusFirstEl();
+        });
       },
     },
     $trs: {
