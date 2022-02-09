@@ -292,7 +292,7 @@
       }
       Promise.all(promises).then(() => {
         this.loading = false;
-        this.$nextTick(this.focusFirstEl);
+        this.$nextTick(this.$refs.modal.focus());
       });
     },
     beforeMount() {
