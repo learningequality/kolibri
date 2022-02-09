@@ -760,9 +760,11 @@
 <style lang="scss" scoped>
 
   $header-height: 324px;
+  $toolbar-height: 70px;
 
   .page {
     position: relative;
+    min-height: calc(100vh - #{$toolbar-height});
     overflow-x: hidden;
   }
 
