@@ -198,6 +198,7 @@
       v-if="sidePanelContent"
       alignment="right"
       @closePanel="sidePanelContent = null"
+      @shouldFocusFirstEl="findFirstEl()"
     >
       <template #header>
         <!-- Flex styles tested in ie11 and look good. Ensures good spacing between
@@ -219,7 +220,11 @@
         </div>
       </template>
 
-      <BrowseResourceMetadata :content="sidePanelContent" :showLocationsInChannel="true" />
+      <BrowseResourceMetadata
+        ref="resourcePanel"
+        :content="sidePanelContent"
+        :showLocationsInChannel="true"
+      />
     </FullScreenSidePanel>
   </div>
 
@@ -408,9 +413,11 @@
         this.currentCategory = null;
       },
       findFirstEl() {
-        this.$nextTick(() => {
+        if (this.$refs.embeddedPanel) {
           this.$refs.embeddedPanel.focusFirstEl();
-        });
+        } else {
+          this.$refs.resourcePanel.focusFirstEl();
+        }
       },
     },
     $trs: {
