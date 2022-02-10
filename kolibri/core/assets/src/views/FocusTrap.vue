@@ -33,16 +33,6 @@
   export default {
     name: 'FocusTrap',
     props: {
-      firstEl: {
-        type: HTMLElement,
-        required: false,
-        default: null,
-      },
-      lastEl: {
-        type: HTMLElement,
-        required: false,
-        default: null,
-      },
       disabled: {
         type: Boolean,
         required: false,
@@ -71,15 +61,9 @@
       },
       focusFirstEl() {
         this.$emit('shouldFocusFirstEl');
-        if (this.firstEl) {
-          this.firstEl.focus();
-        }
       },
       focusLastEl() {
         this.$emit('shouldFocusLastEl');
-        if (this.lastEl) {
-          this.lastEl.focus();
-        }
       },
       /**
        * @public
