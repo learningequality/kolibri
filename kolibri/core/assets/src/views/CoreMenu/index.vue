@@ -112,7 +112,6 @@
        * rendered in CoreMenu.
        */
       focusLastEl() {
-        this.$emit('shouldFocusLastEl');
         last(this.$el.querySelectorAll('.core-menu-option')).focus();
       },
       /**
