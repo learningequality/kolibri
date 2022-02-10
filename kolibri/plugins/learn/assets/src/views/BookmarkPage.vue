@@ -108,7 +108,7 @@
     },
     computed: {
       footerIcons() {
-        return { info: 'viewInformation', close: 'removeFromBookmarks' };
+        return { infoOutline: 'viewInformation', close: 'removeFromBookmarks' };
       },
       currentPage() {
         return PageNames.BOOKMARKS;

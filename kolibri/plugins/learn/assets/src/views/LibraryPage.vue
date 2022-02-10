@@ -105,6 +105,8 @@
           :cardViewStyle="currentViewStyle"
           :genContentLink="genContentLink"
           :contents="results"
+          :footerIcons="footerIcons"
+          :currentPage="currentPage"
           @toggleInfoPanel="toggleInfoPanel"
         />
         <!-- conditionally displayed button if there are additional results -->
@@ -326,7 +328,7 @@
         return PageNames.LIBRARY;
       },
       footerIcons() {
-        return { info: 'viewInformation' };
+        return { infoOutline: 'viewInformation' };
       },
       sidePanelWidth() {
         if (this.windowIsSmall || this.windowIsMedium) {

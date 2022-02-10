@@ -8,12 +8,7 @@
     >
       <KFixedGrid numCols="4">
         <KFixedGridItem :span="isMobile ? 4 : 1" class="thumb-area">
-          <CardThumbnail
-            :kind="content.kind"
-            v-bind="{ thumbnail }"
-            :activityLength="content.duration"
-            :contentNode="content"
-          />
+          <CardThumbnail :contentNode="content" />
           <p
             v-if="isBookmarksPage && !isMobile"
             class="created-info"
@@ -70,7 +65,7 @@
             :key="key"
             :icon="key"
             size="mini"
-            :color="$themePalette.grey.v_400"
+            :color="$themePalette.grey.v_600"
             :ariaLabel="coreString(value)"
             :tooltip="coreString(value)"
             class="icon-fix"
@@ -148,6 +143,9 @@
       },
       isBookmarksPage() {
         return this.currentPage === PageNames.BOOKMARKS;
+      },
+      isLibraryPage() {
+        return this.currentPage === PageNames.LIBRARY;
       },
       ceilingDate() {
         if (this.createdDate > this.now) {
