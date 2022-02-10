@@ -355,7 +355,7 @@
       focusFirstEl() {
         if (this.$refs.searchBox) {
           this.$refs.searchBox.focusSearchBox();
-        } else if (this.$refs.folders) {
+        } else if (this.$refs.folders && this.$refs.folders.length > 0) {
           this.$refs.folders[0].$el.focus();
         }
       },
