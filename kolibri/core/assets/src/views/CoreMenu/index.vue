@@ -92,11 +92,13 @@
         }
       },
     },
+    beforeMount() {
+      this.lastFocus = document.activeElement;
+    },
     mounted() {
       // make sure that all child components have been mounted
       // before attempting to access their elements
       this.$nextTick(() => {
-        // this.$nextTick(this.$refs.modal.focus());
         this.focusFirstEl();
       });
     },
@@ -104,7 +106,13 @@
       window.setTimeout(() => this.lastFocus.focus());
     },
     methods: {
+      /**
+       * @public
+       * Focuses on correct last element for FocusTrap depending on content
+       * rendered in CoreMenu.
+       */
       focusLastEl() {
+        this.$emit('shouldFocusLastEl');
         last(this.$el.querySelectorAll('.core-menu-option')).focus();
       },
       /**
@@ -113,7 +121,9 @@
        * rendered in CoreMenu.
        */
       focusFirstEl() {
-        this.$el.querySelector('.core-menu-option').focus();
+        if (this.$el.querySelector('.core-menu-option')) {
+          this.$el.querySelector('.core-menu-option').focus();
+        }
       },
     },
   };

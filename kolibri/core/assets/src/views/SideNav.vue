@@ -16,101 +16,110 @@
           backgroundColor: $themeTokens.surface,
         }"
       >
-        <div
-          class="side-nav-header"
-          :style="{
-            height: headerHeight + 'px',
-            width: `${width}px`, paddingTop: windowIsSmall ? '4px' : '8px',
-            backgroundColor: $themeTokens.appBar,
-          }"
+        <FocusTrap
+          @shouldFocusFirstEl="$emit('shouldFocusFirstEl')"
+          @shouldFocusLastEl="focusLastEl"
         >
-          <KIconButton
-            icon="close"
-            :color="$themeTokens.textInverted"
-            class="side-nav-header-icon"
-            :ariaLabel="$tr('closeNav')"
-            size="large"
-            @click="toggleNav"
-          />
-          <span
-            class="side-nav-header-name"
-            :style="{ color: $themeTokens.textInverted }"
-          >{{ sideNavTitleText }}</span>
-        </div>
 
-        <div
-          class="side-nav-scrollable-area"
-          :style="{ top: `${headerHeight}px`, width: `${width}px` }"
-        >
-          <img
-            v-if="themeConfig.sideNav.topLogo"
-            class="logo"
-            :src="themeConfig.sideNav.topLogo.src"
-            :alt="themeConfig.sideNav.topLogo.alt"
-            :style="themeConfig.sideNav.topLogo.style"
+
+          <div
+            class="side-nav-scrollable-area"
+            :style="{ top: `${headerHeight}px`, width: `${width}px` }"
           >
-          <CoreMenu
-            ref="coreMenu"
-            role="navigation"
-            :style="{ backgroundColor: $themeTokens.surface }"
-            :aria-label="$tr('navigationLabel')"
-            @shouldFocusFirstEl="findFirstEl()"
-          >
-            <template #options>
-              <component :is="component" v-for="component in menuOptions" :key="component.name" />
-              <SideNavDivider />
-            </template>
-          </CoreMenu>
+            <img
+              v-if="themeConfig.sideNav.topLogo"
+              class="logo"
+              :src="themeConfig.sideNav.topLogo.src"
+              :alt="themeConfig.sideNav.topLogo.alt"
+              :style="themeConfig.sideNav.topLogo.style"
+            >
+            <CoreMenu
+              ref="coreMenu"
+              role="navigation"
+              :style="{ backgroundColor: $themeTokens.surface }"
+              :aria-label="$tr('navigationLabel')"
+            >
+              <template #options>
+                <component :is="component" v-for="component in menuOptions" :key="component.name" />
+                <SideNavDivider />
+              </template>
+            </CoreMenu>
 
-          <div v-if="showSoudNotice" style="padding: 16px">
-            <LearnOnlyDeviceNotice />
-          </div>
+            <div v-if="showSoudNotice" style="padding: 16px">
+              <LearnOnlyDeviceNotice />
+            </div>
 
-          <div class="side-nav-scrollable-area-footer" :style="{ color: $themeTokens.annotation }">
-            <!-- custom branded footer logo + text -->
-            <template v-if="themeConfig.sideNav.brandedFooter">
-              <img
-                v-if="themeConfig.sideNav.brandedFooter.logo"
-                class="side-nav-scrollable-area-footer-logo"
-                :src="themeConfig.sideNav.brandedFooter.logo.src"
-                :alt="themeConfig.sideNav.brandedFooter.logo.alt"
-                :style="themeConfig.sideNav.brandedFooter.logo.style"
-              >
-              <div
-                v-if="themeConfig.sideNav.brandedFooter.paragraphArray
-                  && themeConfig.sideNav.brandedFooter.paragraphArray.length"
-                class="side-nav-scrollable-area-footer-info"
-              >
-                <p
-                  v-for="(line, index) in themeConfig.sideNav.brandedFooter.paragraphArray"
-                  :key="index"
+            <div
+              class="side-nav-scrollable-area-footer"
+              :style="{ color: $themeTokens.annotation }"
+            >
+              <!-- custom branded footer logo + text -->
+              <template v-if="themeConfig.sideNav.brandedFooter">
+                <img
+                  v-if="themeConfig.sideNav.brandedFooter.logo"
+                  class="side-nav-scrollable-area-footer-logo"
+                  :src="themeConfig.sideNav.brandedFooter.logo.src"
+                  :alt="themeConfig.sideNav.brandedFooter.logo.alt"
+                  :style="themeConfig.sideNav.brandedFooter.logo.style"
                 >
-                  {{ line }}
+                <div
+                  v-if="themeConfig.sideNav.brandedFooter.paragraphArray
+                    && themeConfig.sideNav.brandedFooter.paragraphArray.length"
+                  class="side-nav-scrollable-area-footer-info"
+                >
+                  <p
+                    v-for="(line, index) in themeConfig.sideNav.brandedFooter.paragraphArray"
+                    :key="index"
+                  >
+                    {{ line }}
+                  </p>
+                </div>
+              </template>
+              <!-- Kolibri footer logo -->
+              <CoreLogo
+                v-if="themeConfig.sideNav.showKolibriFooterLogo"
+                class="side-nav-scrollable-area-footer-logo"
+              />
+              <div class="side-nav-scrollable-area-footer-info">
+                <p>{{ footerMsg }}</p>
+                <!-- Not translated -->
+                <p>© {{ copyrightYear }} Learning Equality</p>
+                <p>
+                  <KButton
+                    ref="privacyLink"
+                    :text="coreString('usageAndPrivacyLabel')"
+                    class="privacy-link"
+                    appearance="basic-link"
+                    @click="handleClickPrivacyLink"
+                  />
                 </p>
               </div>
-            </template>
-            <!-- Kolibri footer logo -->
-            <CoreLogo
-              v-if="themeConfig.sideNav.showKolibriFooterLogo"
-              class="side-nav-scrollable-area-footer-logo"
-            />
-            <div class="side-nav-scrollable-area-footer-info">
-              <p>{{ footerMsg }}</p>
-              <!-- Not translated -->
-              <p>© {{ copyrightYear }} Learning Equality</p>
-              <p>
-                <KButton
-                  ref="privacyLink"
-                  :text="coreString('usageAndPrivacyLabel')"
-                  class="privacy-link"
-                  appearance="basic-link"
-                  @click="handleClickPrivacyLink"
-                />
-              </p>
             </div>
           </div>
-        </div>
-
+          <div
+            class="side-nav-header"
+            :style="{
+              height: headerHeight + 'px',
+              width: `${width}px`, paddingTop: windowIsSmall ? '4px' : '8px',
+              backgroundColor: $themeTokens.appBar,
+            }"
+          >
+            <KIconButton
+              ref="closeButton"
+              tabindex="0"
+              icon="close"
+              :color="$themeTokens.textInverted"
+              class="side-nav-header-icon"
+              :ariaLabel="$tr('closeNav')"
+              size="large"
+              @click="toggleNav"
+            />
+            <span
+              class="side-nav-header-name"
+              :style="{ color: $themeTokens.textInverted }"
+            >{{ sideNavTitleText }}</span>
+          </div>
+        </FocusTrap>
       </div>
     </transition>
 
@@ -149,6 +158,7 @@
   import navComponentsMixin from '../mixins/nav-components';
   import logout from './LogoutSideNavEntry';
   import SideNavDivider from './SideNavDivider';
+  import FocusTrap from './FocusTrap.vue';
   import plugin_data from 'plugin_data';
 
   // Explicit ordered list of roles for nav item sorting
@@ -170,6 +180,7 @@
       LearnOnlyDeviceNotice,
       SideNavDivider,
       PrivacyInfoModal,
+      FocusTrap,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin, responsiveElementMixin, navComponentsMixin],
     setup() {
@@ -191,7 +202,6 @@
     },
     data() {
       return {
-        previouslyFocusedElement: null,
         // __copyrightYear is injected by Webpack DefinePlugin
         copyrightYear: __copyrightYear,
         privacyModalVisible: false,
@@ -228,15 +238,15 @@
       navShown(isShown) {
         this.$nextTick(() => {
           if (isShown) {
-            window.addEventListener('focus', this.containFocus, true);
-            this.previouslyFocusedElement = document.activeElement;
-            this.$refs.sideNav && this.$refs.sideNav.focus();
-          } else {
-            window.removeEventListener('focus', this.containFocus, true);
-            this.previouslyFocusedElement.focus();
+            this.focusFirstEl();
           }
         });
       },
+    },
+    mounted() {
+      this.$nextTick(() => {
+        this.$emit('shouldFocusFirstEl');
+      });
     },
     methods: {
       toggleNav() {
@@ -264,19 +274,17 @@
         // There is no difference!
         return 0;
       },
-      containFocus(event) {
-        if (event.target === window) {
-          return event;
-        }
-        if (!this.$refs.sideNav.contains(event.target)) {
-          this.$refs.coreMenu.$el.focus();
-        }
-        return event;
-      },
-      findFirstEl() {
+      /**
+       * @public
+       * Focuses on correct first element for FocusTrap.
+       */
+      focusFirstEl() {
         this.$nextTick(() => {
           this.$refs.coreMenu.focusFirstEl();
         });
+      },
+      focusLastEl() {
+        this.$refs.closeButton.$el.focus();
       },
     },
     $trs: {
