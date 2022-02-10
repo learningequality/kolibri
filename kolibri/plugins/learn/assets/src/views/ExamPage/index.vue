@@ -46,71 +46,43 @@
           </KPageContainer>
 
           <BottomAppBar :dir="bottomBarLayoutDirection" :maxWidth="null">
-            <KButtonGroup>
-              <UiIconButton
-                v-if="windowBreakpoint === 0"
-                :aria-label="$tr('nextQuestion')"
-                size="large"
-                type="secondary"
-                class="footer-button"
-                :disabled="questionNumber === exam.question_count - 1"
-                @click="goToQuestion(questionNumber + 1)"
-              >
-                <KIcon
-                  icon="forward"
-                  :color="$themeTokens.primary"
-                />
-              </UiIconButton>
+            <component :is="windowIsSmall ? 'div' : 'KButtonGroup'">
               <KButton
-                v-else
                 :disabled="questionNumber === exam.question_count - 1"
                 :primary="true"
-                class="footer-button"
                 :dir="layoutDirReset"
+                :aria-label="$tr('nextQuestion')"
+                :appearanceOverrides="navigationButtonStyle"
                 @click="goToQuestion(questionNumber + 1)"
               >
-                {{ $tr('nextQuestion') }}
+                <span v-if="displayNavigationButtonLabel">{{ $tr('nextQuestion') }}</span>
                 <template #iconAfter>
                   <KIcon
                     icon="forward"
                     :color="$themeTokens.textInverted"
-                    class="forward-icon"
+                    :style="navigationIconStyleNext"
                   />
                 </template>
               </KButton>
-              <UiIconButton
-                v-if="windowBreakpoint === 0"
-                :aria-label="$tr('previousQuestion')"
-                size="large"
-                type="secondary"
-                class="footer-button left-align"
-                :disabled="questionNumber === 0"
-                @click="goToQuestion(questionNumber - 1)"
-              >
-                <KIcon
-                  icon="back"
-                  :color="$themeTokens.primary"
-                />
-              </UiIconButton>
               <KButton
-                v-else
                 :disabled="questionNumber === 0"
                 :primary="true"
-                class="footer-button"
                 :dir="layoutDirReset"
+                :appearanceOverrides="navigationButtonStyle"
                 :class="{ 'left-align': windowIsSmall }"
+                :aria-label="$tr('previousQuestion')"
                 @click="goToQuestion(questionNumber - 1)"
               >
                 <template #icon>
                   <KIcon
                     icon="back"
                     :color="$themeTokens.textInverted"
-                    class="back-icon"
+                    :style="navigationIconStylePrevious"
                   />
                 </template>
-                {{ $tr('previousQuestion') }}
+                <span v-if="displayNavigationButtonLabel">{{ $tr('previousQuestion') }}</span>
               </KButton>
-            </KButtonGroup>
+            </component>
 
             <!-- below prev/next buttons in tab and DOM order, in footer -->
             <div
@@ -308,6 +280,24 @@
         // Overrides bottomBarLayoutDirection reversal
         return this.isRtl ? 'rtl' : 'ltr';
       },
+      displayNavigationButtonLabel() {
+        return this.windowBreakpoint > 0;
+      },
+      navigationButtonStyle() {
+        return this.displayNavigationButtonLabel
+          ? {}
+          : { minWidth: '36px', width: '36px', padding: 0 };
+      },
+      navigationIconStyleNext() {
+        return this.displayNavigationButtonLabel
+          ? { position: 'relative', top: '3px', left: '4px' }
+          : {};
+      },
+      navigationIconStylePrevious() {
+        return this.displayNavigationButtonLabel
+          ? { position: 'relative', top: '3px', left: '-4px' }
+          : {};
+      },
     },
     watch: {
       attemptLogItemValue(newVal, oldVal) {
@@ -499,25 +489,9 @@
     text-align: center;
   }
 
-  .back-icon {
-    position: relative;
-    top: 3px;
-    left: -4px;
-  }
-
-  .forward-icon {
-    position: relative;
-    top: 3px;
-    left: 4px;
-  }
-
   .left-align {
     position: absolute;
     left: 16px;
-    display: inline-block;
-  }
-
-  .footer-button {
     display: inline-block;
   }
 
