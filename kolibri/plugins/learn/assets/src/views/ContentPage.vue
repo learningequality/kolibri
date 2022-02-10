@@ -55,10 +55,12 @@
 
     <CompletionModal
       v-if="progress >= 1 && wasIncomplete"
+      ref="completionModal"
       :isUserLoggedIn="isUserLoggedIn"
       :contentNodeId="content.id"
       :lessonId="lessonId"
       @close="markAsComplete"
+      @shouldFocusFirstEl="findFirstEl()"
     />
   </div>
 
@@ -194,6 +196,11 @@
       },
       onError(error) {
         this.$store.dispatch('handleApiError', error);
+      },
+      findFirstEl() {
+        this.$nextTick(() => {
+          this.$refs.completionModal.focusFirstEl();
+        });
       },
     },
     $trs: {

@@ -280,6 +280,7 @@
         :fullScreenSidePanelCloseButton="true"
         :sidePanelOverrideWidth="`${sidePanelOverlayWidth}px`"
         @closePanel="toggleFolderSearchSidePanel"
+        @shouldFocusFirstEl="findFirstEl()"
       >
         <KIconButton
           v-if="windowIsSmall && currentCategory"
@@ -291,6 +292,7 @@
         />
         <EmbeddedSidePanel
           v-if="!currentCategory"
+          ref="embeddedPanel"
           v-model="searchTerms"
           :topicsListDisplayed="!mobileSearchActive"
           topicPage="True"
@@ -334,6 +336,7 @@
       v-if="sidePanelContent"
       alignment="right"
       @closePanel="sidePanelContent = null"
+      @shouldFocusFirstEl="findFirstEl()"
     >
       <template #header>
         <!-- Flex styles tested in ie11 and look good. Ensures good spacing between
@@ -355,7 +358,11 @@
         </div>
       </template>
 
-      <BrowseResourceMetadata :content="sidePanelContent" :showLocationsInChannel="true" />
+      <BrowseResourceMetadata
+        ref="resourcePanel"
+        :content="sidePanelContent"
+        :showLocationsInChannel="true"
+      />
     </FullScreenSidePanel>
   </div>
 
@@ -657,6 +664,13 @@
           this.sidePanelIsOpen = false;
         }
       },
+      sidePanelContent() {
+        if (this.sidePanelContent) {
+          document.documentElement.style.position = 'fixed';
+          return;
+        }
+        document.documentElement.style.position = '';
+      },
     },
     beforeDestroy() {
       window.removeEventListener('scroll', this.throttledHandleScroll);
@@ -731,6 +745,13 @@
         this.loadMoreTopics().then(() => {
           this.topicMoreLoading = false;
         });
+      },
+      findFirstEl() {
+        if (this.$refs.embeddedPanel) {
+          this.$refs.embeddedPanel.focusFirstEl();
+        } else {
+          this.$refs.resourcePanel.focusFirstEl();
+        }
       },
     },
     $trs: {
