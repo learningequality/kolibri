@@ -29,20 +29,20 @@
             </div>
           </div>
 
-        <KIconButton
-          v-if="fullScreenSidePanelCloseButton"
-          icon="close"
-          class="close-button"
-          :styles="closeButtonStyles"
-          :ariaLabel="coreString('closeAction')"
-          :tooltip="coreString('closeAction')"
-          @click="closePanel"
-        />
+          <KIconButton
+            v-if="fullScreenSidePanelCloseButton"
+            icon="close"
+            class="close-button"
+            :styles="closeButtonStyles"
+            :ariaLabel="coreString('closeAction')"
+            :tooltip="coreString('closeAction')"
+            @click="closePanel"
+          />
 
-        <!-- Default slot for inserting content which will scroll on overflow -->
-        <div class="side-panel-content" :style="contentStyles">
-          <slot></slot>
-        </div>
+          <!-- Default slot for inserting content which will scroll on overflow -->
+          <div class="side-panel-content" :style="contentStyles">
+            <slot></slot>
+          </div>
 
         </div>
       </FocusTrap>
