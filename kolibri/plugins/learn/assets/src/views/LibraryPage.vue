@@ -145,13 +145,11 @@
     />
     <!-- The full screen side panel is used on smaller screens, and toggles as an overlay -->
     <!-- FullScreen is a container component, and then the EmbeddedSidePanel sits within -->
-    <!-- The currentCategory Boolean value is also used to deterine if the close button -->
-    <!-- should appear, since it should NOT be present if the category selection is open -->
     <FullScreenSidePanel
       v-if="!windowIsLarge && sidePanelIsOpen"
       class="full-screen-side-panel"
       alignment="left"
-      :fullScreenSidePanelCloseButton="!currentCategory"
+      :fullScreenSidePanelCloseButton="displayCloseButton"
       :sidePanelOverrideWidth="`${sidePanelOverlayWidth}px`"
       @closePanel="toggleSidePanelVisibility"
       @shouldFocusFirstEl="findFirstEl()"
@@ -201,6 +199,7 @@
     <FullScreenSidePanel
       v-if="sidePanelContent"
       alignment="right"
+      :fullScreenSidePanelCloseButton="true"
       @closePanel="sidePanelContent = null"
       @shouldFocusFirstEl="findFirstEl()"
     >
@@ -353,6 +352,13 @@
           return 364;
         }
         return null;
+      },
+      displayCloseButton() {
+        if (this.currentCategory) {
+          return false;
+        } else {
+          return true;
+        }
       },
       numCols() {
         if (this.windowIsMedium) {

@@ -33,7 +33,6 @@
             v-if="fullScreenSidePanelCloseButton"
             icon="close"
             class="close-button"
-            :styles="closeButtonStyles"
             :ariaLabel="coreString('closeAction')"
             :tooltip="coreString('closeAction')"
             @click="closePanel"
@@ -75,7 +74,7 @@
     props: {
       fullScreenSidePanelCloseButton: {
         type: Boolean,
-        default: false,
+        default: true,
       },
       /* Optionally override the default width of the side panel with valid CSS value */
       sidePanelWidth: {
@@ -128,6 +127,7 @@
         return {
           ...this.langDirStyles,
           width: this.responsiveWidth,
+          minHeight: '60px',
           position: 'fixed',
           top: 0,
           backgroundColor: this.$themeTokens.surface,
@@ -209,6 +209,7 @@
     position: absolute;
     top: 16px;
     right: 16px;
+    z-index: 24;
   }
 
   /** Need to be sure a KDropdownMenu shows up on the Side Panel */
