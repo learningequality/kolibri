@@ -171,7 +171,7 @@
       },
       closeButtonStyles() {
         return {
-          top: `calc((${this.fixedHeaderHeight} - 40px) / 2)`,
+          top: `${(this.fixedHeaderHeight - 40) / 2}px`,
         };
       },
       closeButtonFullScreenSidePanelStyles() {
