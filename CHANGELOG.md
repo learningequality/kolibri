@@ -3,6 +3,41 @@
 List of the most important changes for each release.
 
 
+## 0.15.1
+
+### Overview of new features
+The goals of this release were to fix a bug preventing proper syncing of an individual user's data across multiple devices and to made some small frontend improvements
+
+#### Added
+
+  - Depreciation warnings for Python 3.4 and 3.5
+  - Added auto-alignment property for text display in cards, based on the language
+  - Allow untranslated headers in csv + correct serialization into json
+
+#### Changed
+
+  - Several morango bumps, now on latest version v0.6.8
+  - Bump zeroconf for fix to properly trigger service update events
+  - Bump KDS version to latest version v1.3.0
+  - Updated to latest from Crowdin
+  - Updated gherkin scenarios for new features
+  - Content API: Change default ordering to "lft"
+
+#### Fixed
+
+  - Keyboard accessibility/tab navigation focusing for searching and filtering
+  - Allow for scrolling in side panel, and have side panel take up full height of page when 0 results
+  - Small UI improvements including focus ring spacing, button alignment
+  - Perseus to only show hints when allowHints or interactive is true
+  - Handle no xAPI statements existing
+  - Don't package core node_modules dir
+  - Refactoring card components
+  - Update tech debt around KDS theming colors
+  - Fixed several front end console errors
+  - Ensure that we filter by subset_of_users_device on network location API
+
+
+
 ## 0.15.0
 ### Internationalization and localization
 New language support for: Hausa, Georgian, Indonesian, Mozambican Portuguese, and Greek
@@ -24,81 +59,81 @@ Selected high-level technical updates:
   - Adding content metadata search, API, and fields
 
 ### Fixed
- - #8442 Segments SQLite databases to allow concurrent writes to SyncQueue and NetworkLocation models
- - #8446 Forces Learner only device sync request retries when server responds with 500+ status code
- - #8438 Fixes failure to sync FacilityUser updates when a login has occurred on a Learner only device prior to syncing
- - #8438 Fixes failure to sync all updated records when multiple learner only devices have been setup for a single FacilityUser
- - #8069 Fix backdrop not being shown while searching resources on mobile
- - #8000 Ensure progress_fraction is propagated through resource API
- - #7983 Validate usernames during sign-in flow, fix bug in facility settings page
- - #7981 Correct the component namespace in the JSON files
- - #7953 Fix non-localized numerals
- - #7951 Tasks queue cleared on server start
- - #7932 Fix DemoBanner focus
- - #8174 Fix errors from ContentNodeResource changes
- - #8162 Fix dynamic file discovering and serving on Windows
- - (#8159, #8132) Fix IE11 compatibility
- - #8199 Don't modify lessons when content is deleted
- - #8133 Prevent iterable changes size during iteration
- - #8121 Error properly on startup
- - #8103 Update values viewset implementation and pagination
- - #8102 Fix KLabeledIcon UI
- - #8101 Stop TextTruncator flash of full text before truncation
+  - #8442 Segments SQLite databases to allow concurrent writes to SyncQueue and NetworkLocation models
+  - #8446 Forces Learner only device sync request retries when server responds with 500+ status code
+  - #8438 Fixes failure to sync FacilityUser updates when a login has occurred on a Learner only device prior to syncing
+  - #8438 Fixes failure to sync all updated records when multiple learner only devices have been setup for a single FacilityUser
+  - #8069 Fix backdrop not being shown while searching resources on mobile
+  - #8000 Ensure progress_fraction is propagated through resource API
+  - #7983 Validate usernames during sign-in flow, fix bug in facility settings page
+  - #7981 Correct the component namespace in the JSON files
+  - #7953 Fix non-localized numerals
+  - #7951 Tasks queue cleared on server start
+  - #7932 Fix DemoBanner focus
+  - #8174 Fix errors from ContentNodeResource changes
+  - #8162 Fix dynamic file discovering and serving on Windows
+  - (#8159, #8132) Fix IE11 compatibility
+  - #8199 Don't modify lessons when content is deleted
+  - #8133 Prevent iterable changes size during iteration
+  - #8121 Error properly on startup
+  - #8103 Update values viewset implementation and pagination
+  - #8102 Fix KLabeledIcon UI
+  - #8101 Stop TextTruncator flash of full text before truncation
 
 ### Changed
- - #8220 Update reference to most recent Kolibri Design System
- - #8194 Update data flow docs for accuracy
- - #8088 Update DeviceSettingsPage layout. Add labels, tests
- - #7936 Change template for personal facility name to "Home facility for {name}"
- - #7928 Update memberships, roles, and permissions handling and validation
- - #8195 Use a double tap strategy to ensure against zombies
- - #8184 Bump morango version to 0.5.6
- - #8168 Use consistent "not started" icon and background color in AnswerHistory and AttemptLogList
- - #8143 Increase scrolling room for question lists in MultiPanelLayout
- - #8130 Replace migration applied check
- - #8123 Don't use KResponsiveElementMixin in all ContentCards
- - #8592 Fix quiz log syncing
+  - #8220 Update reference to most recent Kolibri Design System
+  - #8194 Update data flow docs for accuracy
+  - #8088 Update DeviceSettingsPage layout. Add labels, tests
+  - #7936 Change template for personal facility name to "Home facility for {name}"
+  - #7928 Update memberships, roles, and permissions handling and validation
+  - #8195 Use a double tap strategy to ensure against zombies
+  - #8184 Bump morango version to 0.5.6
+  - #8168 Use consistent "not started" icon and background color in AnswerHistory and AttemptLogList
+  - #8143 Increase scrolling room for question lists in MultiPanelLayout
+  - #8130 Replace migration applied check
+  - #8123 Don't use KResponsiveElementMixin in all ContentCards
+  - #8592 Fix quiz log syncing
 
 ### Added
- - (#8185, #8595) Add setup wizard for SoUD configuration
- - #8229 Add SoUD setup via command line
- - (#8202 , #8247 , #8329) Add UI for sync status reporting with notifications for coaches and learners
- - (#8192, #8205) Create user sync status tracking, add add permissions to model
- - (#8333, #8342, #8345, #8349, #8262) Create queue for SoUD syncing
- - #8223 Add notification generation during cleanup stage of sync
- - #8222 Add device info versioning
- - #8219 Assignment handling within single-user syncing
- - #8126 Create API for a subset of user devices to request permission to sync
- - #8122 Zeroconf broadcast of SoUD status
- - #8165 Initiate auto-syncing from zeroconf
- - #8228 Sidechannel loading of assignments
- - (#8212, #8215) Create channel-based quizzes, and corresponding gherkin scenarios
- - #8095 Add Bookmarks API
- - #8084 Allow Kolibri themes to provide a "Photo credit" for the Sign-In page background image
- - #8043 Add explicit include_coach_content filter instead of role filter
- - (#7989, #8214) Frontend only H5P Rendering and xAPI progress tracking integration
- - #7947 Open CSV file with utf-8 encoding in Py3
- - #7921 Add content tags to ContentNodeViewset
- - #7939 Add endpoint to check for duplicate username and use it to check for existing username while creating an account
- - (#8150, #8151) Add learning activity bar component, constants, and icon components
- - (#8190, #8180 ) Add support for multiple learning activities icon, and create related constants
- - #8186 Create API endpoint for Tasks backend
- - #8177 Return learning_activities and duration from contentnode endpoints
- - #8142 Add task decorators and task APIs for functions registered via decorators
- - #8138 Add Tree viewset for retrieving nested, paginated views of topic trees
- - #8136 Add new card design to AllClassesPage and ClassAssignmentPage and add base card elements
- - #8134) Update navigateTo for non-custom HTML5 Apps
- - (#8118, #8146) Add @vue-composition-api plugin, and expose through apiSpec, so it is available to all SPAs
- - #8117 Add vacuum for morango tables in Postgresql databases
- - #8367 Ensure the user will see the welcome modal after login
- - #8370 Restart zeroconf after setup
- - #8383 filter SoUD devices when scanning the network to import new facilities
- - #8385 Do not create accounts in Subset of users devices
- - #8411 Upgrade zeroconf
- - #8412 Reduce default sync retry interval
- - #8413 Reuse kolibriLogin to begin user sessions in the setup wizard
- - #8596 Add new icons
- - #8742 Allow facility forking and recreation
+  - (#8185, #8595) Add setup wizard for SoUD configuration
+  - #8229 Add SoUD setup via command line
+  - (#8202 , #8247 , #8329) Add UI for sync status reporting with notifications for coaches and learners
+  - (#8192, #8205) Create user sync status tracking, add add permissions to model
+  - (#8333, #8342, #8345, #8349, #8262) Create queue for SoUD syncing
+  - #8223 Add notification generation during cleanup stage of sync
+  - #8222 Add device info versioning
+  - #8219 Assignment handling within single-user syncing
+  - #8126 Create API for a subset of user devices to request permission to sync
+  - #8122 Zeroconf broadcast of SoUD status
+  - #8165 Initiate auto-syncing from zeroconf
+  - #8228 Sidechannel loading of assignments
+  - (#8212, #8215) Create channel-based quizzes, and corresponding gherkin scenarios
+  - #8095 Add Bookmarks API
+  - #8084 Allow Kolibri themes to provide a "Photo credit" for the Sign-In page background image
+  - #8043 Add explicit include_coach_content filter instead of role filter
+  - (#7989, #8214) Frontend only H5P Rendering and xAPI progress tracking integration
+  - #7947 Open CSV file with utf-8 encoding in Py3
+  - #7921 Add content tags to ContentNodeViewset
+  - #7939 Add endpoint to check for duplicate username and use it to check for existing username while creating an account
+  - (#8150, #8151) Add learning activity bar component, constants, and icon components
+  - (#8190, #8180 ) Add support for multiple learning activities icon, and create related constants
+  - #8186 Create API endpoint for Tasks backend
+  - #8177 Return learning_activities and duration from contentnode endpoints
+  - #8142 Add task decorators and task APIs for functions registered via decorators
+  - #8138 Add Tree viewset for retrieving nested, paginated views of topic trees
+  - #8136 Add new card design to AllClassesPage and ClassAssignmentPage and add base card elements
+  - #8134) Update navigateTo for non-custom HTML5 Apps
+  - (#8118, #8146) Add @vue-composition-api plugin, and expose through apiSpec, so it is available to all SPAs
+  - #8117 Add vacuum for morango tables in Postgresql databases
+  - #8367 Ensure the user will see the welcome modal after login
+  - #8370 Restart zeroconf after setup
+  - #8383 filter SoUD devices when scanning the network to import new facilities
+  - #8385 Do not create accounts in Subset of users devices
+  - #8411 Upgrade zeroconf
+  - #8412 Reduce default sync retry interval
+  - #8413 Reuse kolibriLogin to begin user sessions in the setup wizard
+  - #8596 Add new icons
+  - #8742 Allow facility forking and recreation
 
 ([Full Release Notes](https://github.com/learningequality/kolibri/releases/tag/v0.15.0))
 
