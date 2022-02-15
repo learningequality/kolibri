@@ -29,31 +29,19 @@
             </div>
           </div>
 
+          <KIconButton
+            v-if="fullScreenSidePanelCloseButton"
+            icon="close"
+            class="close-button"
+            :ariaLabel="coreString('closeAction')"
+            :tooltip="coreString('closeAction')"
+            @click="closePanel"
+          />
+
           <!-- Default slot for inserting content which will scroll on overflow -->
           <div class="side-panel-content" :style="contentStyles">
             <slot></slot>
           </div>
-
-          <KIconButton
-            v-if="fullScreenSidePanelCloseButton"
-            ref="closeButton"
-            icon="close"
-            class="close-button"
-            :style="closeButtonFullScreenSidePanelStyles"
-            :ariaLabel="coreString('closeAction')"
-            :tooltip="coreString('closeAction')"
-            @click="closePanel"
-          />
-          <KIconButton
-            v-else
-            ref="closeButton"
-            icon="close"
-            class="close-button"
-            :style="closeButtonStyles"
-            :ariaLabel="coreString('closeAction')"
-            :tooltip="coreString('closeAction')"
-            @click="closePanel"
-          />
 
         </div>
       </FocusTrap>
@@ -86,7 +74,7 @@
     props: {
       fullScreenSidePanelCloseButton: {
         type: Boolean,
-        default: false,
+        default: true,
       },
       /* Optionally override the default width of the side panel with valid CSS value */
       sidePanelWidth: {
@@ -139,6 +127,7 @@
         return {
           ...this.langDirStyles,
           width: this.responsiveWidth,
+          minHeight: '60px',
           position: 'fixed',
           top: 0,
           backgroundColor: this.$themeTokens.surface,
@@ -146,8 +135,6 @@
           padding: '24px 32px',
           // Header border stays over content with this, but under any tooltips
           'z-index': 16,
-          // Ensure the content doesn't overlap the close button when present, accounts for RTL
-          [`padding-${this.rtlAlignment}`]: this.closeButtonHidden ? 0 : '80px',
         };
       },
       sidePanelStyles() {
@@ -167,18 +154,6 @@
           padding: '24px 32px 16px',
           'overflow-y': 'scroll',
           height: `calc((100vh - ${this.fixedHeaderHeight}px))`,
-        };
-      },
-      closeButtonStyles() {
-        return {
-          top: `calc((${this.fixedHeaderHeight} - 40px) / 2)`,
-        };
-      },
-      closeButtonFullScreenSidePanelStyles() {
-        return {
-          position: 'absolute',
-          top: '8px',
-          right: '8px',
         };
       },
     },
@@ -231,8 +206,9 @@
   }
 
   .close-button {
-    position: fixed;
-    right: 32px;
+    position: absolute;
+    top: 16px;
+    right: 16px;
     z-index: 24;
   }
 

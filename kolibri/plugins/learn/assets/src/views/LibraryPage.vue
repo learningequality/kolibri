@@ -149,13 +149,13 @@
       v-if="!windowIsLarge && sidePanelIsOpen"
       class="full-screen-side-panel"
       alignment="left"
-      :fullScreenSidePanelCloseButton="true"
+      :fullScreenSidePanelCloseButton="displayCloseButton"
       :sidePanelOverrideWidth="`${sidePanelOverlayWidth}px`"
       @closePanel="toggleSidePanelVisibility"
       @shouldFocusFirstEl="findFirstEl()"
     >
       <KIconButton
-        v-if="windowIsSmall && currentCategory"
+        v-if="(windowIsSmall || windowIsMedium) && currentCategory"
         icon="back"
         :ariaLabel="coreString('goBackAction')"
         :color="$themeTokens.text"
@@ -174,7 +174,7 @@
         @currentCategory="handleShowSearchModal"
       />
       <CategorySearchModal
-        v-if="currentCategory && windowIsSmall"
+        v-if="currentCategory && (windowIsSmall || windowIsMedium)"
         :selectedCategory="currentCategory"
         :numCols="numCols"
         :availableLabels="labels"
@@ -184,10 +184,10 @@
       />
     </FullScreenSidePanel>
 
-    <!-- Category Search modal for larger screens. On smaller screens, it is -->
+    <!-- Category Search modal for large screens. On smaller screens, it is -->
     <!-- contained within the full screen search modal (different design) -->
     <CategorySearchModal
-      v-if="(windowIsMedium || windowIsLarge) && currentCategory"
+      v-if="windowIsLarge && currentCategory"
       :selectedCategory="currentCategory"
       :numCols="numCols"
       :availableLabels="labels"
@@ -199,6 +199,7 @@
     <FullScreenSidePanel
       v-if="sidePanelContent"
       alignment="right"
+      :fullScreenSidePanelCloseButton="true"
       @closePanel="sidePanelContent = null"
       @shouldFocusFirstEl="findFirstEl()"
     >
@@ -352,6 +353,13 @@
         }
         return null;
       },
+      displayCloseButton() {
+        if (this.currentCategory) {
+          return false;
+        } else {
+          return true;
+        }
+      },
       numCols() {
         if (this.windowIsMedium) {
           return 2;
@@ -396,7 +404,7 @@
       handleShowSearchModal(value) {
         this.currentCategory = value;
         this.showSearchModal = true;
-        !this.windowIsSmall ? (this.sidePanelIsOpen = false) : '';
+        !(this.windowIsSmall || this.windowIsMedium) ? (this.sidePanelIsOpen = false) : '';
       },
       toggleCardView(value) {
         this.currentViewStyle = value;
