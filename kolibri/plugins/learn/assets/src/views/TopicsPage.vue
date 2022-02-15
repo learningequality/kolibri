@@ -26,9 +26,9 @@
             <KBreadcrumbs v-if="breadcrumbs.length" :items="breadcrumbs" />
           </KGridItem>
           <KGridItem
-            :layout4="{ span: 4 }"
-            :layout8="{ span: 8 }"
-            :layout12="{ span: 12 }"
+            :layout4="{ span: 4, alignment: 'auto' }"
+            :layout8="{ span: 8, alignment: 'auto' }"
+            :layout12="{ span: 12, alignment: 'auto' }"
           >
             <h1 class="title">
               <TextTruncator
@@ -59,9 +59,9 @@
           <KGridItem
             v-if="topic.description"
             class="text"
-            :layout4="{ span: topic.thumbnail ? 3 : 4 }"
-            :layout8="{ span: topic.thumbnail ? 6 : 8 }"
-            :layout12="{ span: topic.thumbnail ? 10 : 12 }"
+            :layout4="{ span: topic.thumbnail ? 3 : 4, alignment: 'auto' }"
+            :layout8="{ span: topic.thumbnail ? 6 : 8, alignment: 'auto' }"
+            :layout12="{ span: topic.thumbnail ? 10 : 12, alignment: 'auto' }"
           >
             <TextTruncator
               :text="topic.description"

@@ -36,7 +36,7 @@
           :showContentIcon="false"
         />
       </KFixedGridItem>
-      <KFixedGridItem span="3">
+      <KFixedGridItem span="3" alignment="auto">
         <TextTruncator
           :text="tagline"
           :maxHeight="taglineHeight"
