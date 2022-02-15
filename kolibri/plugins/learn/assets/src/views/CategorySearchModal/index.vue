@@ -10,6 +10,7 @@
       @cancel="$emit('cancel')"
     >
       <CategorySearchOptions
+        ref="searchOptions"
         :selectedCategory="selectedCategory"
         :availableLabels="availableLabels"
         v-on="$listeners"
@@ -18,6 +19,7 @@
     <div v-else>
       <h2>{{ $tr('title') }}</h2>
       <CategorySearchOptions
+        ref="searchOptions"
         :selectedCategory="selectedCategory"
         :availableLabels="availableLabels"
         v-on="$listeners"
@@ -115,6 +117,16 @@
         type: Object,
         required: false,
         default: null,
+      },
+    },
+    methods: {
+      /**
+       * @public
+       * Focuses on correct first element for FocusTrap depending on content
+       * rendered in the search modal.
+       */
+      focusFirstEl() {
+        this.$refs.searchOptions.$el.querySelector('.filter-list-title > h2 > a').focus();
       },
     },
     $trs: {
