@@ -175,6 +175,7 @@
       />
       <CategorySearchModal
         v-if="currentCategory && (windowIsSmall || windowIsMedium)"
+        ref="searchModal"
         :selectedCategory="currentCategory"
         :numCols="numCols"
         :availableLabels="labels"
@@ -425,8 +426,10 @@
       findFirstEl() {
         if (this.$refs.embeddedPanel) {
           this.$refs.embeddedPanel.focusFirstEl();
-        } else {
+        } else if (this.$refs.resourcePanel) {
           this.$refs.resourcePanel.focusFirstEl();
+        } else {
+          this.$refs.searchModal.focusFirstEl();
         }
       },
     },
