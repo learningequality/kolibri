@@ -2,6 +2,7 @@ import logging
 import os
 import platform
 import sys
+from warnings import warn
 
 from colorlog import ColoredFormatter
 from colorlog import getLogger
@@ -87,6 +88,15 @@ def prepend_cext_path(dist_path):
         logger.info("No C extensions are available for this platform")
 
 
+def check_python_versions():
+    if sys.version_info.major == 3 and (
+        sys.version_info.minor == 4 or sys.version_info.minor == 5
+    ):
+        warning_text = "Python 3.4 and 3.5 support will be dropped in Kolibri 0.16, please upgrade your Python version"
+        logger.warn(warning_text)
+        warn(warning_text, DeprecationWarning)
+
+
 def set_env():
     """
     Sets the Kolibri environment for the CLI or other application worker
@@ -97,6 +107,8 @@ def set_env():
     else.
     """
     from kolibri import dist as kolibri_dist  # noqa
+
+    check_python_versions()
 
     sys.path = [os.path.realpath(os.path.dirname(kolibri_dist.__file__))] + sys.path
 
