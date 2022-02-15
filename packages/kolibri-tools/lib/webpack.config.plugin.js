@@ -30,9 +30,14 @@ const WebpackMessages = require('./webpackMessages');
  * @param {string} data.stats_file - The name of the webpack bundle stats file that the plugin data
  * @param {string} mode - The webpack mode to set for the configuration
  * @param {boolean} hot - Activate hot module reloading
+ * @param {Number} port - port that the dev server is served on
+ * @param {string} address - address that the dev server is served on
  * @returns {Object} bundle - An object defining the webpack config.
  */
-module.exports = (data, { mode = 'development', hot = false } = {}) => {
+module.exports = (
+  data,
+  { mode = 'development', hot = false, port = 3000, address = 'localhost' } = {}
+) => {
   if (
     typeof data.name === 'undefined' ||
     typeof data.bundle_id === 'undefined' ||
@@ -79,7 +84,9 @@ module.exports = (data, { mode = 'development', hot = false } = {}) => {
 
   let externals;
 
-  if (!webpackConfig.output || webpackConfig.output.library !== kolibriName) {
+  const isCoreBundle = webpackConfig.output && webpackConfig.output.library === kolibriName;
+
+  if (!isCoreBundle) {
     // If this is not the core bundle, then we need to add the external library mappings.
     externals = coreExternals;
   } else {
@@ -150,7 +157,24 @@ module.exports = (data, { mode = 'development', hot = false } = {}) => {
     ],
   };
 
+  if (isCoreBundle && mode === 'production') {
+    bundle.plugins.push(
+      // requires >= v3.0.0, which is specified in the kolibri-core yarn workspace
+      new webpack.NormalModuleReplacementPlugin(/^vue-intl$/, 'vue-intl/dist/vue-intl.prod.min.js')
+    );
+  }
+
   bundle = merge(bundle, baseConfig({ mode, hot }), webpackConfig);
+
+  if (mode === 'development') {
+    const publicPath = `http://${address}:${port}/${data.name}/`;
+    bundle.output.publicPath = publicPath;
+    bundle.watch = true;
+    bundle.watchOptions = {
+      aggregateTimeout: 300,
+      poll: 1000,
+    };
+  }
 
   return bundle;
 };

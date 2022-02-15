@@ -129,6 +129,7 @@ module.exports = ({ mode = 'development', hot = false } = {}) => {
         process: 'process/browser',
       }),
     ],
-    stats: 'minimal',
+    devtool: production ? 'source-map' : 'cheap-module-source-map',
+    stats: production ? 'normal' : 'none',
   };
 };

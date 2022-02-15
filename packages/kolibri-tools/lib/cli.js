@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 const fs = require('fs');
-const os = require('os');
 const path = require('path');
 const program = require('commander');
 const checkVersion = require('check-node-version');
@@ -34,48 +33,11 @@ const config = ini.parse(configFile || '');
 
 program.version(version).description('Tools for Kolibri frontend plugins');
 
-function statsCompletionCallback(bundleData, options) {
-  const express = require('express');
-  const http = require('http');
-  const host = '127.0.0.1';
-  const rootPort = options.port || 8888;
-  if (bundleData.length > 1) {
-    const app = express();
-    let response = `<html>
-    <body>
-    <h1>Kolibri Stats Links</h1>
-    <ul>`;
-    bundleData.forEach((bundle, i) => {
-      response += `<li><a href="http://${host}:${rootPort + i + 1}">${bundle.name}</a></li>`;
-    });
-    response += '</ul></body></html>';
-
-    app.use('/', (req, res) => {
-      res.send(response);
-    });
-    const server = http.createServer(app);
-    server.listen(rootPort, host, () => {
-      const url = `http://${host}:${server.address().port}`;
-      logger.info(
-        `Webpack Bundle Analyzer Reports are available at ${url}\n` + `Use ${'Ctrl+C'} to close it`
-      );
-    });
-  } else {
-    const url = `http://${host}:${rootPort + 1}`;
-    logger.info(
-      `Webpack Bundle Analyzer Report is available at ${url}\n` + `Use ${'Ctrl+C'} to close it`
-    );
-  }
-}
-
 // Build
 program
   .command('build')
   .description('Build frontend assets for Kolibri frontend plugins')
-  .arguments(
-    '<mode>',
-    'Mode to run in, options are: d/dev/development, p/prod/production, i/i18n/internationalization, c/clean, s/stats'
-  )
+  .arguments('<mode>', 'Mode to run in, options are: d/dev/development, p/prod/production, c/clean')
   .option('-f , --file <file>', 'Set custom file which lists plugins that should be built')
   .option(
     '-p, --plugins <plugins...>',
@@ -97,14 +59,13 @@ program
     Number,
     3000
   )
+  .option('--host <host>', 'Set a host to server devserver or bundle stats on', String, '0.0.0.0')
   .action(function(mode, options) {
-    const { fork } = require('child_process');
     const buildLogging = logger.getLogger('Kolibri Build');
     const modes = {
       DEV: 'dev',
       PROD: 'prod',
       CLEAN: 'clean',
-      STATS: 'stats',
     };
     const modeMaps = {
       c: modes.CLEAN,
@@ -115,8 +76,6 @@ program
       p: modes.PROD,
       prod: modes.PROD,
       production: modes.PROD,
-      s: modes.STATS,
-      stats: modes.STATS,
     };
     if (typeof mode !== 'string') {
       cliLogging.error('Build mode must be specified');
@@ -126,21 +85,12 @@ program
     if (!mode) {
       cliLogging.error('Build mode invalid value');
       program.help();
-      process.exit(1);
     }
-    // Use one less than the number of cpus to allow other
-    // processes to carry on.
-    const numberOfCPUs = Math.max(1, os.cpus().length - 1);
-    // Don't bother using multiprocessor mode if there is only one processor that we can
-    // use without bogging down the system.
-    const multi = !options.single && !process.env.KOLIBRI_BUILD_SINGLE && numberOfCPUs > 1;
 
     if (options.hot && mode !== modes.DEV) {
       cliLogging.error('Hot module reloading can only be used in dev mode.');
       process.exit(1);
     }
-
-    const buildOptions = { hot: options.hot, port: options.port };
 
     const bundleData = readWebpackJson({
       pluginFile: options.file,
@@ -151,99 +101,55 @@ program
       cliLogging.error('No valid bundle data was returned from the plugins specified');
       process.exit(1);
     }
-    const buildModule = {
-      [modes.PROD]: 'production.js',
-      [modes.DEV]: 'webpackdevserver.js',
-      [modes.STATS]: 'bundleStats.js',
-      [modes.CLEAN]: 'clean.js',
-    }[mode];
-
-    const modulePath = path.resolve(__dirname, buildModule);
-
-    function spawnWebpackProcesses({ completionCallback = null, persistent = true } = {}) {
-      const numberOfBundles = bundleData.length;
-      let currentlyCompiling = 0;
-      let firstRun = true;
-      const start = new Date();
-      function startCallback() {
-        currentlyCompiling += 1;
-      }
-      function doneCallback() {
-        currentlyCompiling -= 1;
-        if (currentlyCompiling === 0) {
-          if (firstRun) {
-            firstRun = false;
-            buildLogging.info(`Initial build complete in ${(new Date() - start) / 1000} seconds`);
-          } else {
-            buildLogging.info('All builds complete!');
-          }
-          if (completionCallback) {
-            completionCallback(bundleData, buildOptions);
-          }
-        }
-      }
-      const children = [];
-      for (let index = 0; index < numberOfBundles; index++) {
-        if (multi) {
-          const data = JSON.stringify(bundleData[index]);
-          const options_data = JSON.stringify(buildOptions);
-          const childProcess = fork(modulePath, {
-            env: {
-              // needed to keep same context for child process (e.g. launching editors)
-              ...process.env,
-              data,
-              index,
-              // Only start a number of processes equal to the number of
-              // available CPUs.
-              start: Math.floor(index / numberOfCPUs) === 0,
-              options: options_data,
-            },
-            stdio: 'inherit',
-          });
-          children.push(childProcess);
-          if (persistent) {
-            childProcess.on('exit', (code, signal) => {
-              children.forEach(child => {
-                if (signal) {
-                  child.kill(signal);
-                } else {
-                  child.kill();
-                }
-              });
-              process.exit(code);
-            });
-          }
-          childProcess.on('message', msg => {
-            if (msg === 'compile') {
-              startCallback();
-            } else if (msg === 'done') {
-              doneCallback();
-              const nextIndex = index + numberOfCPUs;
-              if (children[nextIndex]) {
-                children[nextIndex].send('start');
-              }
-            }
-          });
-        } else {
-          const buildFunction = require(modulePath);
-          buildFunction(bundleData[index], index, startCallback, doneCallback, buildOptions);
-        }
-      }
-    }
 
     if (mode === modes.CLEAN) {
-      const clean = require(modulePath);
+      const clean = require('./clean');
       clean(bundleData);
-    } else if (mode === modes.STATS) {
-      spawnWebpackProcesses({
-        completionCallback: statsCompletionCallback,
-      });
-    } else if (mode === modes.DEV) {
-      spawnWebpackProcesses();
+      return;
+    }
+
+    const webpackMode = {
+      [modes.PROD]: 'production',
+      [modes.DEV]: 'development',
+      [modes.STATS]: 'production',
+    }[mode];
+
+    const buildOptions = { hot: options.hot, port: options.port, mode: webpackMode };
+
+    const webpackConfig = require('./webpack.config.plugin');
+
+    const webpackArray = bundleData.map(bundle => webpackConfig(bundle, buildOptions));
+
+    const webpack = require('webpack');
+
+    const compiler = webpack(webpackArray);
+
+    compiler.hooks.done.tap('Kolibri', () => {
+      buildLogging.info('Build complete');
+    });
+
+    if (mode === modes.DEV) {
+      const devServerOptions = {
+        hot: options.hot,
+        liveReload: !options.hot,
+        host: options.host,
+        port: options.port,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+        },
+      };
+
+      const WebpackDevServer = require('webpack-dev-server');
+      const server = new WebpackDevServer(devServerOptions, compiler);
+      server.start();
     } else {
-      // Don't persist for production builds or message extraction
-      spawnWebpackProcesses({
-        persistent: false,
+      compiler.run((err, stats) => {
+        if (err || stats.hasErrors()) {
+          buildLogging.error(err || stats.toString('errors-only'));
+          process.exit(1);
+        } else {
+          buildLogging.info('Build complete');
+        }
       });
     }
   });
