@@ -8,6 +8,14 @@ DO_ROLLOVER = "doRollover"
 
 NO_FILE_BASED_LOGGING = os.environ.get("KOLIBRI_NO_FILE_BASED_LOGGING", False)
 
+LOG_COLORS = {
+    "DEBUG": "blue",
+    "INFO": "white",
+    "WARNING": "yellow",
+    "ERROR": "red",
+    "CRITICAL": "bold_red",
+}
+
 
 class KolibriTimedRotatingFileHandler(TimedRotatingFileHandler):
     """
@@ -143,13 +151,7 @@ def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
             "color": {
                 "()": "colorlog.ColoredFormatter",
                 "format": "%(log_color)s%(levelname)-8s %(message)s",
-                "log_colors": {
-                    "DEBUG": "blue",
-                    "INFO": "white",
-                    "WARNING": "yellow",
-                    "ERROR": "red",
-                    "CRITICAL": "bold_red",
-                },
+                "log_colors": LOG_COLORS,
             },
         },
         "handlers": {

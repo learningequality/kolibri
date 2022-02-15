@@ -3,8 +3,24 @@ import os
 import platform
 import sys
 
+from colorlog import ColoredFormatter
+from colorlog import getLogger
+from colorlog import StreamHandler
+
+from .logger import LOG_COLORS
+
+
 logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
 logging.StreamHandler(sys.stdout)
+
+handler = StreamHandler()
+handler.setFormatter(
+    ColoredFormatter(
+        fmt="%(log_color)s%(levelname)-8s %(message)s", log_colors=LOG_COLORS
+    )
+)
+logger = getLogger("env")
+logger.addHandler(handler)
 
 
 def settings_module():
@@ -68,7 +84,7 @@ def prepend_cext_path(dist_path):
         # add it + the matching noarch (OpenSSL) modules to sys.path
         sys.path = [str(dirname), str(noarch_dir)] + sys.path
     else:
-        logging.info("No C extensions are available for this platform")
+        logger.info("No C extensions are available for this platform")
 
 
 def set_env():
