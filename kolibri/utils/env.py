@@ -4,9 +4,18 @@ import platform
 import sys
 from warnings import warn
 
-from colorlog import ColoredFormatter
-from colorlog import getLogger
-from colorlog import StreamHandler
+try:
+    # Do this to allow this to be accessed
+    # during build, when dependencies are not
+    # installed.
+    # TODO: Move version tools to build tools, so we don't have to do this
+    from colorlog import ColoredFormatter
+    from colorlog import getLogger
+    from colorlog import StreamHandler
+except ImportError:
+    StreamHandler = None
+    getLogger = None
+    ColoredFormatter = None
 
 from .logger import LOG_COLORS
 
@@ -14,14 +23,17 @@ from .logger import LOG_COLORS
 logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
 logging.StreamHandler(sys.stdout)
 
-handler = StreamHandler()
-handler.setFormatter(
-    ColoredFormatter(
-        fmt="%(log_color)s%(levelname)-8s %(message)s", log_colors=LOG_COLORS
+if StreamHandler and getLogger and ColoredFormatter:
+    handler = StreamHandler()
+    handler.setFormatter(
+        ColoredFormatter(
+            fmt="%(log_color)s%(levelname)-8s %(message)s", log_colors=LOG_COLORS
+        )
     )
-)
-logger = getLogger("env")
-logger.addHandler(handler)
+    logger = getLogger("env")
+    logger.addHandler(handler)
+else:
+    logger = logging.getLogger("env")
 
 
 def settings_module():
