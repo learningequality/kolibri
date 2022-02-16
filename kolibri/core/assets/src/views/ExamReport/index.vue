@@ -66,7 +66,10 @@
       />
     </template>
 
-    <template v-if="!windowIsSmall && !loading && currentTry.attemptlogs.length" #aside>
+    <template
+      v-if="!windowIsSmall && !loading && currentTry && currentTry.attemptlogs.length"
+      #aside
+    >
       <AttemptLogList
         :attemptLogs="attemptLogs"
         :selectedQuestionNumber="questionNumber"
@@ -75,7 +78,7 @@
       />
     </template>
 
-    <template v-if="currentTry.attemptlogs.length" #main>
+    <template v-if="currentTry && currentTry.attemptlogs.length" #main>
       <KCircularLoader v-if="loading" class="loader" />
       <template v-else-if="itemId">
         <AttemptLogList
