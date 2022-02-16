@@ -26,9 +26,9 @@
             <KBreadcrumbs v-if="breadcrumbs.length" :items="breadcrumbs" />
           </KGridItem>
           <KGridItem
-            :layout4="{ span: 4 }"
-            :layout8="{ span: 8 }"
-            :layout12="{ span: 12 }"
+            :layout4="{ span: 4, alignment: 'auto' }"
+            :layout8="{ span: 8, alignment: 'auto' }"
+            :layout12="{ span: 12, alignment: 'auto' }"
           >
             <h1 class="title">
               <TextTruncator
@@ -59,9 +59,9 @@
           <KGridItem
             v-if="topic.description"
             class="text"
-            :layout4="{ span: topic.thumbnail ? 3 : 4 }"
-            :layout8="{ span: topic.thumbnail ? 6 : 8 }"
-            :layout12="{ span: topic.thumbnail ? 10 : 12 }"
+            :layout4="{ span: topic.thumbnail ? 3 : 4, alignment: 'auto' }"
+            :layout8="{ span: topic.thumbnail ? 6 : 8, alignment: 'auto' }"
+            :layout12="{ span: topic.thumbnail ? 10 : 12, alignment: 'auto' }"
           >
             <TextTruncator
               :text="topic.description"
@@ -280,6 +280,7 @@
         :fullScreenSidePanelCloseButton="true"
         :sidePanelOverrideWidth="`${sidePanelOverlayWidth}px`"
         @closePanel="toggleFolderSearchSidePanel"
+        @shouldFocusFirstEl="findFirstEl()"
       >
         <KIconButton
           v-if="windowIsSmall && currentCategory"
@@ -291,6 +292,7 @@
         />
         <EmbeddedSidePanel
           v-if="!currentCategory"
+          ref="embeddedPanel"
           v-model="searchTerms"
           :topicsListDisplayed="!mobileSearchActive"
           topicPage="True"
@@ -334,6 +336,7 @@
       v-if="sidePanelContent"
       alignment="right"
       @closePanel="sidePanelContent = null"
+      @shouldFocusFirstEl="findFirstEl()"
     >
       <template #header>
         <!-- Flex styles tested in ie11 and look good. Ensures good spacing between
@@ -355,7 +358,11 @@
         </div>
       </template>
 
-      <BrowseResourceMetadata :content="sidePanelContent" :showLocationsInChannel="true" />
+      <BrowseResourceMetadata
+        ref="resourcePanel"
+        :content="sidePanelContent"
+        :showLocationsInChannel="true"
+      />
     </FullScreenSidePanel>
   </div>
 
@@ -657,6 +664,13 @@
           this.sidePanelIsOpen = false;
         }
       },
+      sidePanelContent() {
+        if (this.sidePanelContent) {
+          document.documentElement.style.position = 'fixed';
+          return;
+        }
+        document.documentElement.style.position = '';
+      },
     },
     beforeDestroy() {
       window.removeEventListener('scroll', this.throttledHandleScroll);
@@ -732,6 +746,13 @@
           this.topicMoreLoading = false;
         });
       },
+      findFirstEl() {
+        if (this.$refs.embeddedPanel) {
+          this.$refs.embeddedPanel.focusFirstEl();
+        } else {
+          this.$refs.resourcePanel.focusFirstEl();
+        }
+      },
     },
     $trs: {
       documentTitleForChannel: {
@@ -760,9 +781,11 @@
 <style lang="scss" scoped>
 
   $header-height: 324px;
+  $toolbar-height: 70px;
 
   .page {
     position: relative;
+    min-height: calc(100vh - #{$toolbar-height});
     overflow-x: hidden;
   }
 

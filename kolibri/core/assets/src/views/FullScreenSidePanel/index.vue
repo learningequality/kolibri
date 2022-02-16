@@ -2,53 +2,49 @@
 
   <div
     ref="sidePanel"
+    :tabindex="0"
     :class="{ 'is-rtl': isRtl, 'is-mobile': isMobile }"
     @keyup.esc="closePanel"
   >
     <transition name="side-panel">
-      <div
-        class="side-panel"
-        :style="sidePanelStyles"
+      <FocusTrap
+        @shouldFocusFirstEl="$emit('shouldFocusFirstEl')"
+        @shouldFocusLastEl="focusLastEl"
       >
-
-        <!-- Fixed header with optional close button -->
         <div
-          v-show="$slots.header"
-          ref="fixedHeader"
-          class="fixed-header"
-          :style="fixedHeaderStyles"
+          class="side-panel"
+          :style="sidePanelStyles"
         >
-          <div class="header-content" tabindex="0">
-            <slot name="header">
-            </slot>
+
+          <!-- Fixed header -->
+          <div
+            v-show="$slots.header"
+            ref="fixedHeader"
+            class="fixed-header"
+            :style="fixedHeaderStyles"
+          >
+            <div class="header-content">
+              <slot name="header">
+              </slot>
+            </div>
           </div>
+
+          <KIconButton
+            v-if="fullScreenSidePanelCloseButton"
+            icon="close"
+            class="close-button"
+            :ariaLabel="coreString('closeAction')"
+            :tooltip="coreString('closeAction')"
+            @click="closePanel"
+          />
+
+          <!-- Default slot for inserting content which will scroll on overflow -->
+          <div class="side-panel-content" :style="contentStyles">
+            <slot></slot>
+          </div>
+
         </div>
-
-        <KIconButton
-          v-if="fullScreenSidePanelCloseButton"
-          icon="close"
-          class="close-button"
-          :style="closeButtonFullScreenSidePanelStyles"
-          :ariaLabel="coreString('closeAction')"
-          :tooltip="coreString('closeAction')"
-          @click="closePanel"
-        />
-        <KIconButton
-          v-else
-          icon="close"
-          class="close-button"
-          :style="closeButtonStyles"
-          :ariaLabel="coreString('closeAction')"
-          :tooltip="coreString('closeAction')"
-          @click="closePanel"
-        />
-
-        <!-- Default slot for inserting content which will scroll on overflow -->
-        <div class="side-panel-content" :style="contentStyles">
-          <slot></slot>
-        </div>
-
-      </div>
+      </FocusTrap>
     </transition>
 
     <Backdrop
@@ -66,17 +62,19 @@
   import Backdrop from 'kolibri.coreVue.components.Backdrop';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import FocusTrap from 'kolibri.coreVue.components.FocusTrap';
 
   export default {
     name: 'FullScreenSidePanel',
     components: {
       Backdrop,
+      FocusTrap,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
     props: {
       fullScreenSidePanelCloseButton: {
         type: Boolean,
-        default: false,
+        default: true,
       },
       /* Optionally override the default width of the side panel with valid CSS value */
       sidePanelWidth: {
@@ -97,6 +95,7 @@
       return {
         /* Will be calculated in mounted() as it will get the height of the fixedHeader then */
         fixedHeaderHeight: 0,
+        lastFocus: null,
       };
     },
     computed: {
@@ -104,7 +103,7 @@
         return this.windowBreakpoint == 0;
       },
       /* Returns an object with properties left or right set to the appropriate value
-         depending on isRtl and this.alignment */
+           depending on isRtl and this.alignment */
       rtlAlignment() {
         if (this.isRtl && this.alignment === 'left') {
           return 'right';
@@ -128,6 +127,7 @@
         return {
           ...this.langDirStyles,
           width: this.responsiveWidth,
+          minHeight: '60px',
           position: 'fixed',
           top: 0,
           backgroundColor: this.$themeTokens.surface,
@@ -135,8 +135,6 @@
           padding: '24px 32px',
           // Header border stays over content with this, but under any tooltips
           'z-index': 16,
-          // Ensure the content doesn't overlap the close button when present, accounts for RTL
-          [`padding-${this.rtlAlignment}`]: this.closeButtonHidden ? 0 : '80px',
         };
       },
       sidePanelStyles() {
@@ -158,18 +156,9 @@
           height: `calc((100vh - ${this.fixedHeaderHeight}px))`,
         };
       },
-      closeButtonStyles() {
-        return {
-          top: `calc((${this.fixedHeaderHeight} - 40px) / 2)`,
-        };
-      },
-      closeButtonFullScreenSidePanelStyles() {
-        return {
-          position: 'absolute',
-          top: '8px',
-          right: '8px',
-        };
-      },
+    },
+    beforeMount() {
+      this.lastFocus = document.activeElement;
     },
     /* this is the easiest way I could think to avoid having dual scroll bars */
     mounted() {
@@ -177,17 +166,23 @@
       htmlTag.style['overflow-y'] = 'hidden';
       // Gets the height of the fixed header - adds 40 to account for padding
       this.fixedHeaderHeight = this.$refs.fixedHeader.clientHeight + 'px';
-
-      // Ensures user starts at top header with keyboard focus
-      this.$refs.fixedHeader.focus();
+      this.$nextTick(() => {
+        this.$emit('shouldFocusFirstEl');
+      });
     },
     beforeDestroy() {
       const htmlTag = window.document.getElementsByTagName('html')[0];
       htmlTag.style['overflow-y'] = 'auto';
     },
+    destroyed() {
+      window.setTimeout(() => this.lastFocus.focus());
+    },
     methods: {
       closePanel() {
         this.$emit('closePanel');
+      },
+      focusLastEl() {
+        this.$el.querySelector('.close-button').focus();
       },
     },
     $trs: {
@@ -211,8 +206,9 @@
   }
 
   .close-button {
-    position: fixed;
-    right: 32px;
+    position: absolute;
+    top: 16px;
+    right: 16px;
     z-index: 24;
   }
 

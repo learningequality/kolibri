@@ -173,16 +173,11 @@ class WebpackBundleHook(hooks.KolibriHook):
         An auto-generated path to where the build-time files are stored,
         containing information about the built bundles.
         """
-        return os.path.join(
-            self._build_path, "{plugin}_stats.json".format(plugin=self.unique_id)
+        return os.path.abspath(
+            os.path.join(
+                self._build_path, "{plugin}_stats.json".format(plugin=self.unique_id)
+            )
         )
-
-    @property
-    def _module_file_path(self):
-        """
-        Returns the path of the class inheriting this classmethod.
-        """
-        return os.path.dirname(self._build_path)
 
     def frontend_message_file(self, lang_code):
         message_file_name = "{name}-messages.json".format(name=self.unique_id)

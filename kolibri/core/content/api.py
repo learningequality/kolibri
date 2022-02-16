@@ -299,7 +299,7 @@ class ContentNodeFilter(IdFilter):
         :return: content nodes that match the tags
         """
         tags = value.split(",")
-        return queryset.filter(tags__tag_name__in=tags).order_by("lft")
+        return queryset.filter(tags__tag_name__in=tags).order_by("lft").distinct()
 
     def filter_descendant_of(self, queryset, name, value):
         """

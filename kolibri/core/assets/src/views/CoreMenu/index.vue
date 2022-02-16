@@ -20,8 +20,8 @@
         ref="focusTrap"
         class="ui-menu-options"
         :disabled="!containFocus"
-        :firstEl="firstFocusableEl"
-        :lastEl="lastFocusableEl"
+        @shouldFocusFirstEl="$emit('shouldFocusFirstEl')"
+        @shouldFocusLastEl="focusLastEl"
       >
         <slot name="options"></slot>
       </FocusTrap>
@@ -77,12 +77,6 @@
         showActive: this.showActive,
       };
     },
-    data() {
-      return {
-        firstFocusableEl: null,
-        lastFocusableEl: null,
-      };
-    },
     computed: {
       classes() {
         return {
@@ -98,13 +92,38 @@
         }
       },
     },
+    beforeMount() {
+      this.lastFocus = document.activeElement;
+    },
     mounted() {
       // make sure that all child components have been mounted
       // before attempting to access their elements
       this.$nextTick(() => {
-        this.firstFocusableEl = this.$el.querySelector('.core-menu-option');
-        this.lastFocusableEl = last(this.$el.querySelectorAll('.core-menu-option'));
+        this.focusFirstEl();
       });
+    },
+    destroyed() {
+      window.setTimeout(() => this.lastFocus.focus());
+    },
+    methods: {
+      /**
+       * @public
+       * Focuses on correct last element for FocusTrap depending on content
+       * rendered in CoreMenu.
+       */
+      focusLastEl() {
+        last(this.$el.querySelectorAll('.core-menu-option')).focus();
+      },
+      /**
+       * @public
+       * Focuses on correct first element for FocusTrap depending on content
+       * rendered in CoreMenu.
+       */
+      focusFirstEl() {
+        if (this.$el.querySelector('.core-menu-option')) {
+          this.$el.querySelector('.core-menu-option').focus();
+        }
+      },
     },
   };
 

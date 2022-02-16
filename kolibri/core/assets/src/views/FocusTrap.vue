@@ -33,16 +33,6 @@
   export default {
     name: 'FocusTrap',
     props: {
-      firstEl: {
-        type: HTMLElement,
-        required: false,
-        default: null,
-      },
-      lastEl: {
-        type: HTMLElement,
-        required: false,
-        default: null,
-      },
       disabled: {
         type: Boolean,
         required: false,
@@ -59,15 +49,21 @@
         e.stopPropagation();
         if (!this.isTrapActive) {
           // On first focus, redirect to first option, then activate trap
-          this.firstEl.focus();
+          this.focusFirstEl();
           this.isTrapActive = true;
         } else {
-          this.lastEl.focus();
+          this.focusLastEl();
         }
       },
       handleLastTrapFocus(e) {
         e.stopPropagation();
-        this.firstEl.focus();
+        this.focusFirstEl();
+      },
+      focusFirstEl() {
+        this.$emit('shouldFocusFirstEl');
+      },
+      focusLastEl() {
+        this.$emit('shouldFocusLastEl');
       },
       /**
        * @public
