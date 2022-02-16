@@ -81,6 +81,14 @@ class FileFinder(finders.FileSystemFinder):
 
 
 class SlicedFile(BufferedIOBase):
+    """
+    A file like wrapper to handle seeking to the start byte of a range request
+    and to return no further output once the end byte of a range request has
+    been reached.
+    Vendored from https://github.com/evansd/whitenoise/blob/master/whitenoise/responders.py
+    as we cannot upgrade whitenoise due to Python 2.7 compatibility issues.
+    """
+
     def __init__(self, fileobj, start, end):
         fileobj.seek(start)
         self.fileobj = fileobj
@@ -89,11 +97,16 @@ class SlicedFile(BufferedIOBase):
     def read(self, size=-1):
         if self.remaining <= 0:
             return b""
-        if size >= 0:
+        if size < 0:
+            size = self.remaining
+        else:
             size = min(size, self.remaining)
         data = self.fileobj.read(size)
-        self.remaining -= size
+        self.remaining -= len(data)
         return data
+
+    def close(self):
+        self.fileobj.close()
 
 
 class EndRangeStaticFile(StaticFile):

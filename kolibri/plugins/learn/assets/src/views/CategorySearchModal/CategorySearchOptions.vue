@@ -1,14 +1,14 @@
 <template>
 
-  <KFixedGrid
-    v-if="categoryGroupIsNested"
-    :numCols="numCols"
+  <KGrid
     :style="{ margin: '24px' }"
   >
-    <KFixedGridItem
+    <KGridItem
       v-for="(nestedObject, key) in displaySelectedCategories"
       :key="key"
-      :span="span"
+      :layout4="{ span: 4 }"
+      :layout8="{ span: 8 }"
+      :layout12="{ span: 4 }"
       class="category-item"
     >
       <div class="filter-list-title">
@@ -38,37 +38,8 @@
           @click="$emit('input', item.value)"
         />
       </div>
-    </KFixedGridItem>
-  </KFixedGrid>
-  <KFixedGrid
-    v-else
-    :numCols="numCols"
-    :style="{ margin: '24px' }"
-  >
-    <KFixedGridItem
-      v-for="(value, key) in displaySelectedCategories"
-      :key="value.value"
-      :span="span"
-      class="category-item"
-      @click="$emit('input', value.value)"
-    >
-      <KIcon
-        :icon="icon(key)"
-        size="large"
-      />
-      <h2>
-        <KButton
-          class="filter-list-item"
-          appearance="basic-link"
-          :text="coreString(camelCase(key))"
-          :disabled="availablePaths && !availablePaths[value.value]"
-          :appearanceOverrides="appearanceOverrides"
-          @click="$emit('input', value.value)"
-        />
-      </h2>
-
-    </KFixedGridItem>
-  </KFixedGrid>
+    </KGridItem>
+  </KGrid>
 
 </template>
 
@@ -78,6 +49,7 @@
   import camelCase from 'lodash/camelCase';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { Categories, CategoriesLookup } from 'kolibri.coreVue.vuex.constants';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import plugin_data from 'plugin_data';
 
   const availablePaths = {};
@@ -123,8 +95,8 @@
   }
 
   export default {
-    name: 'CategorySearchModalOptions',
-    mixins: [commonCoreStrings],
+    name: 'CategorySearchOptions',
+    mixins: [commonCoreStrings, responsiveWindowMixin],
     props: {
       selectedCategory: {
         type: String,
@@ -134,16 +106,6 @@
       availableLabels: {
         type: Object,
         required: false,
-        default: null,
-      },
-      numCols: {
-        type: String,
-        required: true,
-        default: null,
-      },
-      span: {
-        type: [Number, String],
-        required: true,
         default: null,
       },
     },
@@ -162,11 +124,6 @@
           return paths;
         }
         return null;
-      },
-      categoryGroupIsNested() {
-        return Object.values(this.displaySelectedCategories).some(
-          obj => Object.keys(obj.nested).length
-        );
       },
       displaySelectedCategories() {
         return libraryCategories[this.selectedCategory].nested;

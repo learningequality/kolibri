@@ -71,6 +71,7 @@
             :showActive="false"
             :style="{ backgroundColor: $themeTokens.surface }"
             @close="handleCoreMenuClose"
+            @shouldFocusFirstEl="findFirstEl()"
           >
             <template v-if="isUserLoggedIn" #header>
               <div class="role">
@@ -278,6 +279,11 @@
         this.$emit('showLanguageModal');
         this.userMenuDropdownIsOpen = false;
         this.isPolling = false;
+      },
+      findFirstEl() {
+        this.$nextTick(() => {
+          this.$refs.userMenuDropdown.focusFirstEl();
+        });
       },
     },
     $trs: {

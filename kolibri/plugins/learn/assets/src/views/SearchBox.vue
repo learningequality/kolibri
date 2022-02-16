@@ -123,6 +123,12 @@
       },
     },
     methods: {
+      /**
+       * @public
+       */
+      focusSearchBox() {
+        this.$refs.searchInput.focus();
+      },
       clearInput() {
         this.searchInputValue = '';
       },

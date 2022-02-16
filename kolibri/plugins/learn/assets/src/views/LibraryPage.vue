@@ -105,6 +105,8 @@
           :cardViewStyle="currentViewStyle"
           :genContentLink="genContentLink"
           :contents="results"
+          :footerIcons="footerIcons"
+          :currentPage="currentPage"
           @toggleInfoPanel="toggleInfoPanel"
         />
         <!-- conditionally displayed button if there are additional results -->
@@ -147,12 +149,13 @@
       v-if="!windowIsLarge && sidePanelIsOpen"
       class="full-screen-side-panel"
       alignment="left"
-      :fullScreenSidePanelCloseButton="true"
+      :fullScreenSidePanelCloseButton="displayCloseButton"
       :sidePanelOverrideWidth="`${sidePanelOverlayWidth}px`"
       @closePanel="toggleSidePanelVisibility"
+      @shouldFocusFirstEl="findFirstEl()"
     >
       <KIconButton
-        v-if="windowIsSmall && currentCategory"
+        v-if="(windowIsSmall || windowIsMedium) && currentCategory"
         icon="back"
         :ariaLabel="coreString('goBackAction')"
         :color="$themeTokens.text"
@@ -161,6 +164,7 @@
       />
       <EmbeddedSidePanel
         v-if="!currentCategory"
+        ref="embeddedPanel"
         v-model="searchTerms"
         :width="`${sidePanelOverlayWidth - 64}px`"
         :availableLabels="labels"
@@ -170,7 +174,8 @@
         @currentCategory="handleShowSearchModal"
       />
       <CategorySearchModal
-        v-if="currentCategory && windowIsSmall"
+        v-if="currentCategory && (windowIsSmall || windowIsMedium)"
+        ref="searchModal"
         :selectedCategory="currentCategory"
         :numCols="numCols"
         :availableLabels="labels"
@@ -180,10 +185,10 @@
       />
     </FullScreenSidePanel>
 
-    <!-- Category Search modal for larger screens. On smaller screens, it is -->
+    <!-- Category Search modal for large screens. On smaller screens, it is -->
     <!-- contained within the full screen search modal (different design) -->
     <CategorySearchModal
-      v-if="(windowIsMedium || windowIsLarge) && currentCategory"
+      v-if="windowIsLarge && currentCategory"
       :selectedCategory="currentCategory"
       :numCols="numCols"
       :availableLabels="labels"
@@ -195,7 +200,9 @@
     <FullScreenSidePanel
       v-if="sidePanelContent"
       alignment="right"
+      :fullScreenSidePanelCloseButton="true"
       @closePanel="sidePanelContent = null"
+      @shouldFocusFirstEl="findFirstEl()"
     >
       <template #header>
         <!-- Flex styles tested in ie11 and look good. Ensures good spacing between
@@ -217,7 +224,11 @@
         </div>
       </template>
 
-      <BrowseResourceMetadata :content="sidePanelContent" :showLocationsInChannel="true" />
+      <BrowseResourceMetadata
+        ref="resourcePanel"
+        :content="sidePanelContent"
+        :showLocationsInChannel="true"
+      />
     </FullScreenSidePanel>
   </div>
 
@@ -326,7 +337,7 @@
         return PageNames.LIBRARY;
       },
       footerIcons() {
-        return { info: 'viewInformation' };
+        return { infoOutline: 'viewInformation' };
       },
       sidePanelWidth() {
         if (this.windowIsSmall || this.windowIsMedium) {
@@ -342,6 +353,13 @@
           return 364;
         }
         return null;
+      },
+      displayCloseButton() {
+        if (this.currentCategory) {
+          return false;
+        } else {
+          return true;
+        }
       },
       numCols() {
         if (this.windowIsMedium) {
@@ -370,6 +388,13 @@
       searchTerms() {
         this.sidePanelIsOpen = false;
       },
+      sidePanelIsOpen() {
+        if (this.sidePanelIsOpen) {
+          document.documentElement.style.position = 'fixed';
+          return;
+        }
+        document.documentElement.style.position = '';
+      },
     },
     created() {
       this.search();
@@ -380,7 +405,7 @@
       handleShowSearchModal(value) {
         this.currentCategory = value;
         this.showSearchModal = true;
-        !this.windowIsSmall ? (this.sidePanelIsOpen = false) : '';
+        !(this.windowIsSmall || this.windowIsMedium) ? (this.sidePanelIsOpen = false) : '';
       },
       toggleCardView(value) {
         this.currentViewStyle = value;
@@ -397,6 +422,15 @@
       handleCategory(category) {
         this.setCategory(category);
         this.currentCategory = null;
+      },
+      findFirstEl() {
+        if (this.$refs.embeddedPanel) {
+          this.$refs.embeddedPanel.focusFirstEl();
+        } else if (this.$refs.resourcePanel) {
+          this.$refs.resourcePanel.focusFirstEl();
+        } else {
+          this.$refs.searchModal.focusFirstEl();
+        }
       },
     },
     $trs: {

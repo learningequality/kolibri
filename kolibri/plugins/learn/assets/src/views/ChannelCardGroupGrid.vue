@@ -4,7 +4,7 @@
     <KGridItem
       v-for="content in contents"
       :key="content.id"
-      :layout="{ span: cardColumnSpan }"
+      :layout="{ span: cardColumnSpan, alignment: 'auto' }"
     >
       <ChannelCard
         :isMobile="windowIsSmall"

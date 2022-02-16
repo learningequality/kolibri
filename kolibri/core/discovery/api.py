@@ -18,7 +18,7 @@ class NetworkLocationViewSet(viewsets.ModelViewSet):
     serializer_class = NetworkLocationSerializer
     queryset = NetworkLocation.objects.all()
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = [
+    filter_fields = [
         "subset_of_users_device",
     ]
 

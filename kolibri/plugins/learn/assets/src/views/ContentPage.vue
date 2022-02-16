@@ -76,12 +76,14 @@
 
     <CompletionModal
       v-if="progress >= 1 && wasIncomplete"
+      ref="completionModal"
       :isUserLoggedIn="isUserLoggedIn"
       :contentNodeId="content.id"
       :lessonId="lessonId"
       :isQuiz="practiceQuiz"
       :isSurvey="survey"
       @close="markAsComplete"
+      @shouldFocusFirstEl="findFirstEl()"
     />
   </div>
 
@@ -248,6 +250,11 @@
       repeat() {
         this.stopTracking().then(() => {
           this.initSession(true);
+        });
+      },
+      findFirstEl() {
+        this.$nextTick(() => {
+          this.$refs.completionModal.focusFirstEl();
         });
       },
     },

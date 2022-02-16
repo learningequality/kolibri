@@ -6,7 +6,7 @@
       :numCols="numCols"
       gutter="24"
     >
-      <KFixedGridItem v-for="content in contents" :key="content.id" span="1">
+      <KFixedGridItem v-for="content in contents" :key="content.id" span="1" alignment="auto">
         <HybridLearningContentCard
           class="card-grid-item"
           :isMobile="windowIsSmall"

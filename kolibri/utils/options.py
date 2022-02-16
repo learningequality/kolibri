@@ -296,7 +296,7 @@ base_option_spec = {
             "type": "option",
             "options": ("sqlite", "postgres"),
             "default": "sqlite",
-            "description": "Which database backend to use, choices are 'sqlite' or 'postgresql'",
+            "description": "Which database backend to use, choices are 'sqlite' or 'postgres'",
         },
         "DATABASE_NAME": {
             "type": "string",

@@ -56,10 +56,12 @@
     </ScrollingHeader>
 
     <SideNav
+      ref="sideNav"
       :navShown="navShown"
       :headerHeight="headerHeight"
       :width="navWidth"
       @toggleSideNav="navShown = !navShown"
+      @shouldFocusFirstEl="findFirstEl()"
     />
 
     <div
@@ -516,6 +518,11 @@
         if (this.scrollPosition > 0) {
           this.$nextTick().then(this.showHeader);
         }
+      },
+      findFirstEl() {
+        this.$nextTick(() => {
+          this.$refs.sideNav.focusFirstEl();
+        });
       },
     },
     $trs: {

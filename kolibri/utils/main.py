@@ -170,9 +170,11 @@ def _copy_preseeded_db(db_name, target=None):
         try:
             import kolibri.dist
 
-            db_path = os.path.join(
-                os.path.dirname(kolibri.dist.__file__),
-                "home/{}.sqlite3".format(db_name),
+            db_path = os.path.abspath(
+                os.path.join(
+                    os.path.dirname(kolibri.dist.__file__),
+                    "home/{}.sqlite3".format(db_name),
+                )
             )
             shutil.copy(db_path, target)
             logger.info(

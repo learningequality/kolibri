@@ -96,6 +96,7 @@
           :isOpen="isMenuOpen"
           :containFocus="true"
           @close="closeMenu"
+          @shouldFocusFirstEl="findFirstEl()"
         >
           <template #options>
             <CoreMenuOption
@@ -428,6 +429,11 @@
             this.closeTimer({ focusTimerButton: false });
           }
         }
+      },
+      findFirstEl() {
+        this.$nextTick(() => {
+          this.$refs.menu.focusFirstEl();
+        });
       },
     },
     $trs: {

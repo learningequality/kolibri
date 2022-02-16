@@ -35,6 +35,7 @@
       v-if="sidePanelContent"
       alignment="right"
       @closePanel="sidePanelContent = null"
+      @shouldFocusFirstEl="findFirstEl()"
     >
       <template #header>
         <!-- Flex styles tested in ie11 and look good. Ensures good spacing between
@@ -56,7 +57,11 @@
         </div>
       </template>
 
-      <BrowseResourceMetadata :content="sidePanelContent" :showLocationsInChannel="true" />
+      <BrowseResourceMetadata
+        ref="resourcePanel"
+        :content="sidePanelContent"
+        :showLocationsInChannel="true"
+      />
     </FullScreenSidePanel>
   </div>
 
@@ -108,7 +113,7 @@
     },
     computed: {
       footerIcons() {
-        return { info: 'viewInformation', close: 'removeFromBookmarks' };
+        return { infoOutline: 'viewInformation', close: 'removeFromBookmarks' };
       },
       currentPage() {
         return PageNames.BOOKMARKS;
@@ -149,6 +154,9 @@
       },
       toggleInfoPanel(content) {
         this.sidePanelContent = content;
+      },
+      findFirstEl() {
+        this.$refs.resourcePanel.focusFirstEl();
       },
     },
     $trs: {

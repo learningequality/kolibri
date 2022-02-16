@@ -1193,3 +1193,92 @@ class SingleUserSyncRegressionsTestCase(TestCase):
             .filter(**base_log_params)
             .exists()
         )
+
+    @multiple_kolibri_servers(3)
+    def test_morango_issue_144(self, servers):
+        """
+        This is to test the syncing issue identified in https://github.com/learningequality/morango/issues/144
+        by ensuring that the data synced from a SoUD to a full-facility device is then synced onwards from there
+        through a full-facility sync to another full-facility device.
+        """
+
+        server1, soud, server2 = servers
+
+        facility, learner, _ = server1.generate_base_data()
+
+        # set up soud as a single-user device
+        soud.sync(server1, facility, user=learner)
+
+        # create a log on soud
+        base_log_params = {
+            "channel_id": "725257a0570044acbd59f8cf6a68b2be",
+            "content_id": "9f9438fe6b0d42dd8e913d7d04cfb277",
+            "user_id": learner.id,
+        }
+
+        soud.create_model(
+            ContentSummaryLog,
+            start_timestamp=timezone.now(),
+            kind="audio",
+            **base_log_params
+        )
+
+        # sync the log from soud back to the first server
+        soud.sync(server1, facility, user=learner)
+
+        # verify that it was synced correctly
+        assert (
+            ContentSummaryLog.objects.using(server1.db_alias)
+            .filter(**base_log_params)
+            .exists()
+        )
+
+        # sync the full facility onto a new server
+        server2.sync(server1, facility)
+
+        # verify that the log has made it over to the new server as well
+        assert (
+            ContentSummaryLog.objects.using(server2.db_alias)
+            .filter(**base_log_params)
+            .exists()
+        )
+
+    @multiple_kolibri_servers(3)
+    def test_issue_fixed_in_morango_pull_146(self, servers):
+
+        server1, server2, soud = servers
+
+        facility, learner, _ = server1.generate_base_data()
+
+        # create a log on server1
+        base_log_params = {
+            "channel_id": "725257a0570044acbd59f8cf6a68b2be",
+            "content_id": "9f9438fe6b0d42dd8e913d7d04cfb277",
+            "user_id": learner.id,
+        }
+        server1.create_model(
+            ContentSummaryLog,
+            start_timestamp=timezone.now(),
+            kind="audio",
+            **base_log_params
+        )
+
+        # do a full facility sync from the first server to the second server
+        server2.sync(server1, facility)
+
+        # verify that it was synced correctly
+        assert (
+            ContentSummaryLog.objects.using(server2.db_alias)
+            .filter(**base_log_params)
+            .exists()
+        )
+
+        # sync from the second server to the single-user device
+        soud.sync(server2, facility, user=learner)
+
+        # verify that the log has made it over to the single-user device as well
+        assert (
+            ContentSummaryLog.objects.using(soud.db_alias)
+            .filter(**base_log_params)
+            .exists()
+        )
