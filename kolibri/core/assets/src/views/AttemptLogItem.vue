@@ -8,7 +8,7 @@
       )
       }}
     </component>
-    <div v-if="!isSurvey" data-test="question-attempt-icons">
+    <template v-if="!isSurvey" data-test="question-attempt-icons">
       <AttemptIconDiff
         v-if="showDiff"
         class="diff-item item"
@@ -49,7 +49,7 @@
         :value="attemptLog.num_coach_contents || 0"
         :isTopic="false"
       />
-    </div>
+    </template>
   </span>
 
 </template>
