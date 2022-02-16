@@ -10,29 +10,29 @@ The goals of this release were to fix a bug preventing proper syncing of an indi
 
 #### Added
 
-  - Depreciation warnings for Python 3.4 and 3.5
+  - Deprecation warnings for Python 3.4 and 3.5
   - Added auto-alignment property for text display in cards, based on the language
-  - Allow untranslated headers in csv + correct serialization into json
+  - Allow untranslated headers in csv imports and correct serialization into json
 
 #### Changed
 
-  - Several morango bumps, now on latest version v0.6.8
+  - Updated morango to v0.6.8 to support syncing fixes
   - Bump zeroconf for fix to properly trigger service update events
-  - Bump KDS version to latest version v1.3.0
-  - Updated to latest from Crowdin
+  - Bump KDS version to v1.3.0
+  - Updated translations to support minor translation fixes
   - Updated gherkin scenarios for new features
-  - Content API: Change default ordering to "lft"
+  - Content API: Change default ordering to combination of "lft" and "id"
 
 #### Fixed
 
   - Keyboard accessibility/tab navigation focusing for searching and filtering
-  - Allow for scrolling in side panel, and have side panel take up full height of page when 0 results
+  - Allow for scrolling in side panel, and have side panel always take up full height of page even with 0 results
   - Small UI improvements including focus ring spacing, button alignment
-  - Perseus to only show hints when allowHints or interactive is true
-  - Handle no xAPI statements existing
+  - Hide hints column in Perseus renderer when it could not be displayed to improve display on smaller screens
+  - Handle no xAPI statements existing when calculating H5P and HTML5 progress
   - Don't package core node_modules dir
-  - Refactoring card components
-  - Update tech debt around KDS theming colors
+  - Refactor card components for consistency and comprehensibility
+  - Address tech debt around KDS theming colors
   - Fixed several front end console errors
   - Ensure that we filter by subset_of_users_device on network location API
 
