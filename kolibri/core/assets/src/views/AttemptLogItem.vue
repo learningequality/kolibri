@@ -8,48 +8,54 @@
       )
       }}
     </component>
-    <div v-if="!isSurvey" data-test="question-attempt-icons">
+    <template v-if="!isSurvey">
       <AttemptIconDiff
         v-if="showDiff"
         class="diff-item item"
+        data-test="question-attempt-icons"
         :correct="attemptLog.correct"
         :diff="attemptLog.diff.correct"
       />
       <KIcon
         v-if="attemptLog.noattempt"
         class="item svg-item"
+        data-test="question-attempt-icons"
         icon="notStarted"
       />
       <KIcon
         v-else-if="attemptLog.correct"
         class="item svg-item"
+        data-test="question-attempt-icons"
         :style="{ fill: $themeTokens.correct }"
         icon="correct"
       />
       <KIcon
         v-else-if="attemptLog.error"
         class="svg-item"
+        data-test="question-attempt-icons"
         :style=" { fill: $themeTokens.annotation }"
         icon="helpNeeded"
       />
       <KIcon
         v-else-if="!attemptLog.correct"
         class="item svg-item"
+        data-test="question-attempt-icons"
         :style="{ fill: $themeTokens.incorrect }"
         icon="incorrect"
       />
       <KIcon
         v-else-if="attemptLog.hinted"
         class="item svg-item"
+        data-test="question-attempt-icons"
         :style=" { fill: $themeTokens.annotation }"
         icon="hint"
       />
-      <CoachContentLabel
-        class="coach-content-label"
-        :value="attemptLog.num_coach_contents || 0"
-        :isTopic="false"
-      />
-    </div>
+    </template>
+    <CoachContentLabel
+      class="coach-content-label"
+      :value="attemptLog.num_coach_contents || 0"
+      :isTopic="false"
+    />
   </span>
 
 </template>
