@@ -145,7 +145,6 @@
     position: absolute;
     top: $margin;
     right: $margin;
-    width: 100px;
   }
 
   .mobile-card.card {
