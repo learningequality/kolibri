@@ -6,3 +6,9 @@ jobs:
   whl:
     name: Build WHL file
     uses: ./.github/workflows/build_whl.yml
+  pex:
+    name: Build PEX file
+    needs: whl
+    uses: ./.github/workflows/build_pex.yml
+    with:
+      whl-file-name: ${{ needs.whl.outputs.whl-file-name }}
