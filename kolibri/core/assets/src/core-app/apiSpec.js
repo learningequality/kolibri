@@ -95,6 +95,7 @@ import themeConfig from '../styles/themeConfig';
 import sortLanguages from '../utils/sortLanguages';
 import * as sync from '../views/sync/syncComponentSet';
 import PageRoot from '../views/PageRoot';
+import NotificationsRoot from '../views/NotificationsRoot';
 
 // webpack optimization
 import CoreInfoIcon from '../views/CoreInfoIcon';
@@ -200,6 +201,7 @@ export default {
       SuggestedTime,
       PageRoot,
       MasteryModel,
+      NotificationsRoot,
     },
     componentSets: {
       sync,
