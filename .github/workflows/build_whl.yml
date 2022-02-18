@@ -42,12 +42,20 @@ jobs:
       run: |
         yarn --frozen-lockfile
         npm rebuild node-sass
-    - uses: actions/cache@v2
+    - name: Cache Python dependencies
+      uses: actions/cache@v2
       with:
         path: ~/.cache/pip
         key: ${{ runner.os }}-pip-${{ hashFiles('requirements/*.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-
+    - name: Cache C extensions
+      uses: actions/cache@v2
+      with:
+        path: cext_cache
+        key: ${{ runner.os }}-cext-${{ hashFiles('requirements/cext*.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-cext-
     - name: Install Python build dependencies
       run: pip install -r requirements/build.txt
     - name: Build Kolibri
