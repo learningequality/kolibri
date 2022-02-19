@@ -1,12 +1,21 @@
 <template>
 
-  <div>
-    <div>
+  <div
+    ref="mainWrapper"
+    class="main-wrapper"
+    :style="mainWrapperStyles"
+  >
+    <div
+      v-if="!loading"
+      :class="fullScreen ? 'scrolling-pane' : 'content'"
+      :style="contentStyles"
+    >
       <KPageContainer v-if="notAuthorized">
         <AuthMessage
           :authorizedRole="authorizedRole"
           :header="authorizationErrorHeader"
           :details="authorizationErrorDetails"
+          :style="mainStyles"
         />
       </KPageContainer>
       <KPageContainer v-else-if="error">
@@ -19,6 +28,7 @@
         role="main"
         tabindex="-1"
         class="main"
+        :style="mainStyles"
       >
         <slot></slot>
       </div>
@@ -77,6 +87,26 @@
         type: String,
         default: null,
       },
+      // Prop that determines whether to show nav components and provide margins
+      fullScreen: {
+        type: Boolean,
+        default: false,
+      },
+      // Prop that determines if the page contains an embedded sidebar
+      hasSidebar: {
+        type: Boolean,
+        default: false,
+      },
+      maxMainWidth: {
+        type: Number,
+        required: false,
+        default: 1000,
+      },
+      // reserve space at the bottom for floating widgets
+      marginBottom: {
+        type: Number,
+        default: 0,
+      },
     },
     data() {
       return {
@@ -89,6 +119,16 @@
         loading: state => state.core.loading,
         notifications: state => state.core.notifications,
       }),
+      mainWrapperStyles() {
+        if (this.$isPrint) {
+          return {};
+        }
+
+        return {
+          backgroundColor: this.$themePalette.grey.v_100,
+          paddingBottom: `${this.marginBottom}px`,
+        };
+      },
       notAuthorized() {
         // catch "not authorized" error, display AuthMessage
         if (
@@ -129,6 +169,35 @@
           linkUrl: notification.link_url,
         };
       },
+      contentStyles() {
+        if (this.fullScreen || this.$isPrint || this.hasSidebar) {
+          return {
+            marginTop: '0px',
+            marginBottom: '0px',
+            padding: '0px',
+          };
+        }
+        return {
+          top: 0,
+          padding: `32px ${this.windowIsSmall ? 16 : 32}px`,
+        };
+      },
+      mainStyles() {
+        let styles = {
+          marginLeft: 'auto',
+          marginRight: 'auto',
+        };
+        if (!this.fullScreen) {
+          styles['maxWidth'] = this.maxMainWidth + 'px';
+        }
+        if (this.hasSidebar) {
+          styles = {
+            marginLeft: '0',
+            marginRight: '0',
+          };
+        }
+        return styles;
+      },
     },
     methods: {
       dismissUpdateModal() {
@@ -143,4 +212,40 @@
 </script>
 
 
-<style lang="scss"></style>
+<style lang="scss" scoped>
+
+  @import '~kolibri-design-system/lib/styles/definitions';
+
+  .main-wrapper {
+    display: inline-block;
+    width: 100%;
+
+    @media print {
+      /* Without this, things won't print correctly
+         *  - Firefox: Tables will get cutoff
+         *  - Chrome: Table header won't repeat correctly on each page
+         */
+      display: block;
+    }
+  }
+
+  .main {
+    height: 100%;
+  }
+
+  .scrolling-pane {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    overflow-x: auto;
+  }
+
+  .content {
+    margin-right: auto;
+    margin-bottom: 128px;
+    margin-left: auto;
+  }
+
+</style>
