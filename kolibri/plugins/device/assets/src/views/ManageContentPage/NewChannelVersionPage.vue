@@ -2,83 +2,99 @@
 
   <div v-if="!loadingChannel">
 
-    <section>
+    <section v-if="isUpdatingChannel">
       <h1>
-        {{ versionAvailableText }}
+        {{ $tr('updateChannelAction') }}
       </h1>
-      <p> {{ $tr('youAreCurrentlyOnVersion', { currentVersion }) }}</p>
-      <p v-if="channelIsIncomplete">
-        {{ $tr('channelIsIncomplete', { available, total }) }}
-      </p>
-    </section>
-
-    <section>
-      <p>
-        <strong>
-          {{ $tr('versionChangesHeader', {
-            oldVersion: currentVersion,
-            newVersion: nextVersion
-          }) }}
-        </strong>
-      </p>
-      <table v-if="!loadingChannel && !loadingTask">
-        <tr>
-          <th>{{ $tr('resourcesAvailableForImport') }}</th>
-          <td class="col-2">
-            <span
-              :class="{ 'count-added': newResources }"
-              :style="{ color: $themeTokens.success }"
-            >
-              {{ newResources }}
-            </span>
-          </td>
-        </tr>
-        <tr>
-          <th>{{ $tr('resourcesToBeDeleted') }}</th>
-          <td>
-            <span
-              :class="{ 'count-deleted': deletedResources > 0 }"
-              :style="{ color: $themeTokens.error }"
-            >
-              {{ deletedResources }}
-            </span>
-          </td>
-          <td>
-            <CoreInfoIcon
-              v-if="deletedResources"
-              class="info-icon"
-              :tooltipText="$tr('resourcesToBeDeletedTooltip')"
-              :iconAriaLabel="$tr('resourcesToBeDeletedTooltip')"
-              tooltipPlacement="right"
-            />
-          </td>
-        </tr>
-        <tr>
-          <th>{{ $tr('resourcesToBeUpdated') }}</th>
-          <td>
-            {{ updatedResources }}
-          </td>
-        </tr>
-      </table>
-      <KLinearLoader
-        v-else
-        :indeterminate="true"
-        :delay="false"
+      <TaskPanel
+        v-if="currentTask"
+        :task="currentTask"
+        :nextStep="true"
+        class="task-panel"
+        :style="{ borderBottomColor: $themePalette.grey.v_200 }"
+        @clickclear="handleClickContinue(currentTask)"
+        @clickcancel="handleClickCancel(currentTask)"
       />
-
     </section>
 
-    <dl>
-      <template v-for="(note, idx) in sortedFilteredVersionNotes">
-        <dt :key="`dt-${idx}`">
-          {{ $tr('versionNumberHeader', { version: note.version }) }}
-        </dt>
-        <dd :key="`dd-${idx}`" dir="auto">
-          {{ note.notes }}
-        </dd>
-      </template>
-    </dl>
+    <div v-else>
+      <section>
+        <h1>
+          {{ versionAvailableText }}
+        </h1>
+        <p> {{ $tr('youAreCurrentlyOnVersion', { currentVersion }) }}</p>
+        <p v-if="channelIsIncomplete">
+          {{ $tr('channelIsIncomplete', { available, total }) }}
+        </p>
+      </section>
 
+      <section>
+        <p>
+          <strong>
+            {{ $tr('versionChangesHeader', {
+              oldVersion: currentVersion,
+              newVersion: nextVersion
+            }) }}
+          </strong>
+        </p>
+        <table v-if="!loadingChannel && !loadingTask">
+          <tr>
+            <th>{{ $tr('resourcesAvailableForImport') }}</th>
+            <td class="col-2">
+              <span
+                :class="{ 'count-added': newResources }"
+                :style="{ color: $themeTokens.success }"
+              >
+                {{ newResources }}
+              </span>
+            </td>
+          </tr>
+          <tr>
+            <th>{{ $tr('resourcesToBeDeleted') }}</th>
+            <td>
+              <span
+                :class="{ 'count-deleted': deletedResources > 0 }"
+                :style="{ color: $themeTokens.error }"
+              >
+                {{ deletedResources }}
+              </span>
+            </td>
+            <td>
+              <CoreInfoIcon
+                v-if="deletedResources"
+                class="info-icon"
+                :tooltipText="$tr('resourcesToBeDeletedTooltip')"
+                :iconAriaLabel="$tr('resourcesToBeDeletedTooltip')"
+                tooltipPlacement="right"
+              />
+            </td>
+          </tr>
+          <tr>
+            <th>{{ $tr('resourcesToBeUpdated') }}</th>
+            <td>
+              {{ updatedResources }}
+            </td>
+          </tr>
+        </table>
+        <KLinearLoader
+          v-else
+          :indeterminate="true"
+          :delay="false"
+        />
+
+      </section>
+
+      <dl>
+        <template v-for="(note, idx) in sortedFilteredVersionNotes">
+          <dt :key="`dt-${idx}`">
+            {{ $tr('versionNumberHeader', { version: note.version }) }}
+          </dt>
+          <dd :key="`dd-${idx}`" dir="auto">
+            {{ note.notes }}
+          </dd>
+        </template>
+      </dl>
+    </div>
     <KModal
       v-if="showModal"
       :title="$tr('updateChannelAction')"
@@ -93,11 +109,20 @@
 
     <BottomAppBar>
       <KButton
+        v-if="!channelIsUpdated"
         :text="$tr('updateChannelAction')"
         appearance="raised-button"
         :primary="true"
         :disabled="loadingChannel || loadingTask"
         @click="showModal = true"
+      />
+      <KButton
+        v-else
+        :text="coreString('continueAction')"
+        appearance="raised-button"
+        :primary="true"
+        :disabled="loadingChannel || !channelIsUpdated"
+        @click="handleSubmit"
       />
     </BottomAppBar>
   </div>
@@ -111,11 +136,14 @@
   import pickBy from 'lodash/pickBy';
   import sortBy from 'lodash/sortBy';
   import map from 'lodash/map';
+  import reverse from 'lodash/fp/reverse';
+  import { mapGetters } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskResource } from 'kolibri.resources';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import { TaskStatuses, PageNames } from '../../constants';
+  import TaskPanel from '../ManageTasksPage/TaskPanel';
   import { fetchOrTriggerChannelDiffStatsTask, fetchChannelAtSource } from './api';
 
   export default {
@@ -128,6 +156,7 @@
     components: {
       CoreInfoIcon,
       BottomAppBar,
+      TaskPanel,
     },
     mixins: [commonCoreStrings],
     data() {
@@ -144,9 +173,12 @@
         loadingTask: true,
         loadingChannel: true,
         watchedTaskId: null,
+        isUpdatingChannel: false,
+        channelIsUpdated: false,
       };
     },
     computed: {
+      ...mapGetters('manageContent', ['managedTasks']),
       channelIsIncomplete() {
         return false;
       },
@@ -178,6 +210,15 @@
       },
       watchedTaskHasFinished() {
         return this.$store.getters['manageContent/taskFinished'](this.watchedTaskId);
+      },
+      currentTask() {
+        if (this.managedTasks && this.managedTasks.length > 1) {
+          return reverse(this.managedTasks)[0];
+        } else if (this.managedTasks && this.managedTasks.length == 1) {
+          return this.managedTasks;
+        } else {
+          return null;
+        }
       },
     },
     watch: {
@@ -225,22 +266,19 @@
             // If there are new resources in the new version, wait until the new
             // metadata DB is loaded, then redirect to the "Import More from Studio" flow.
             if (this.newResources) {
+              this.isUpdatingChannel = true;
               this.loadingTask = true;
+              this.showModal = false;
               const taskId = taskResponse.data.id;
               const taskList = state => state.manageContent.taskList;
               const stopWatching = this.$store.watch(taskList, tasks => {
                 const match = tasks.find(task => task.id === taskId) || {};
-                if (match && match.database_ready) {
-                  stopWatching();
-                  this.$router.push({
-                    ...this.$router.getRoute(PageNames.SELECT_CONTENT),
-                    query: {
-                      last: PageNames.MANAGE_CONTENT_PAGE,
-                    },
-                  });
-                } else if (match.status === TaskStatuses.FAILED) {
+                if (match.status === TaskStatuses.FAILED) {
                   stopWatching();
                   this.$router.push(this.$router.getRoute(PageNames.MANAGE_TASKS));
+                } else if (match && match.database_ready) {
+                  stopWatching();
+                  this.channelIsUpdated = true;
                 }
               });
             } else {
@@ -300,6 +338,15 @@
         this.updatedResources = task.updated_resources_count;
 
         return TaskResource.deleteFinishedTask(task.id);
+      },
+      handleClickContinue(task) {
+        TaskResource.deleteFinishedTask(task.id).catch(() => {
+          // error silently
+        });
+        this.handleSubmit();
+      },
+      handleClickCancel(task) {
+        TaskResource.cancelTask(task.id);
       },
       onWatchedTaskFinished() {
         const task = find(this.$store.state.manageContent.taskList, { id: this.watchedTaskId });

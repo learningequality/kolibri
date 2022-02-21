@@ -7,16 +7,6 @@
     />
 
     <template v-else>
-      <TaskPanel
-        v-for="task in sortedTaskList"
-        :key="task.id"
-        :task="task"
-        class="task-panel"
-        :style="{ borderBottomColor: $themePalette.grey.v_200 }"
-        @clickclear="handleClickClear(task)"
-        @clickcancel="handleClickCancel(task)"
-      />
-
       <template v-if="onDeviceInfoIsReady">
         <section
           v-if="transferredChannel && onDeviceInfoIsReady"
@@ -81,12 +71,10 @@
   import { mapState, mapActions, mapMutations, mapGetters } from 'vuex';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import isEmpty from 'lodash/isEmpty';
-  import reverse from 'lodash/fp/reverse';
   import find from 'lodash/find';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { TaskResource } from 'kolibri.resources';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
-  import TaskPanel from '../ManageTasksPage/TaskPanel';
   import { ContentWizardErrors, TaskTypes, PageNames } from '../../constants';
   import SelectionBottomBar from '../ManageContentPage/SelectionBottomBar';
   import taskNotificationMixin from '../taskNotificationMixin';
@@ -112,7 +100,6 @@
       ContentWizardUiAlert,
       NewChannelVersionBanner,
       SelectionBottomBar,
-      TaskPanel,
       UiAlert,
     },
     mixins: [responsiveWindowMixin, taskNotificationMixin],
@@ -126,7 +113,7 @@
       };
     },
     computed: {
-      ...mapGetters('manageContent', ['channelIsOnDevice', 'managedTasks']),
+      ...mapGetters('manageContent', ['channelIsOnDevice']),
       ...mapState('manageContent', ['taskList']),
       ...mapGetters('manageContent/wizard', [
         'inLocalImportMode',
@@ -148,9 +135,6 @@
       },
       onDeviceInfoIsReady() {
         return !isEmpty(this.currentTopicNode);
-      },
-      sortedTaskList() {
-        return reverse(this.managedTasks);
       },
       metadataDownloadTask() {
         return find(this.taskList, ({ type, channel_id }) => {
@@ -296,14 +280,6 @@
             this.disableBottomBar = false;
             this.createTaskFailedSnackbar();
           });
-      },
-      handleClickClear(task) {
-        TaskResource.deleteFinishedTask(task.id).catch(() => {
-          // error silently
-        });
-      },
-      handleClickCancel(task) {
-        TaskResource.cancelTask(task.id);
       },
       startImportTask,
       handleClickViewNewVersion() {

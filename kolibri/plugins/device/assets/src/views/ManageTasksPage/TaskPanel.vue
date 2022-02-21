@@ -136,13 +136,20 @@
         type: Object,
         required: true,
       },
+      nextStep: {
+        type: Boolean,
+        required: false,
+      },
     },
     computed: {
       buttonLabel() {
-        if (this.taskIsClearable) {
+        if (this.taskIsClearable && !this.nextStep) {
           return this.coreString('clearAction');
+        } else if (this.taskIsClearable && this.nextStep) {
+          return this.coreString('continueAction');
+        } else {
+          return this.coreString('cancelAction');
         }
-        return this.coreString('cancelAction');
       },
       taskIsRunning() {
         return this.task.status === TaskStatuses.RUNNING;
