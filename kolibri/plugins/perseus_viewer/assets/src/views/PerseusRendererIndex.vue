@@ -665,9 +665,11 @@
     .perseus {
       padding: 16px;
     }
+
     .problem-area {
       padding: 0;
     }
+
     /deep/ .perseus-renderer {
       padding: 0;
     }
@@ -691,9 +693,11 @@
       padding: 0 !important;
       margin: 0 !important;
     }
+
     /deep/ .perseus-widget-radio {
       margin: 0 !important;
     }
+
     /deep/ .perseus-widget-radio-fieldset {
       padding-right: 0 !important;
       padding-left: 0 !important;

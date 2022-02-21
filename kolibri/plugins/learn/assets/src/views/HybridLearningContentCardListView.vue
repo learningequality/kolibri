@@ -228,6 +228,7 @@
     margin-right: $h-padding;
     margin-bottom: $v-padding;
   }
+
   .footer-progress {
     position: absolute;
     bottom: 0;
@@ -257,6 +258,7 @@
     // and can be removed upon that hover state fix
     width: 32px !important;
     height: 32px !important;
+
     /deep/ svg {
       top: 4px !important;
     }

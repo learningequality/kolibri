@@ -404,6 +404,7 @@
   .side-panel-folder-link {
     margin-top: 12px;
     margin-bottom: 12px;
+
     /deep/ .link-text {
       text-decoration: none !important;
     }

@@ -225,20 +225,24 @@
   .fullscreen-header {
     text-align: right;
   }
+
   .fs-icon {
     position: relative;
     top: 8px;
     width: 24px;
     height: 24px;
   }
+
   .html5-renderer {
     position: relative;
     text-align: center;
   }
+
   .iframe {
     width: 100%;
     height: 100%;
   }
+
   .iframe-container {
     @extend %momentum-scroll;
 

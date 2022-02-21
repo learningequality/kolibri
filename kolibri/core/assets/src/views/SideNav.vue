@@ -397,6 +397,7 @@
     margin-top: 8px;
     font-size: 12px;
     line-height: 16px;
+
     p {
       margin: 0;
     }

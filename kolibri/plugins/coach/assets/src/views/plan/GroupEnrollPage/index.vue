@@ -250,6 +250,7 @@
   .pagination-nav {
     text-align: right;
   }
+
   .pagination-nav {
     margin-bottom: 8px;
   }

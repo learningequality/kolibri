@@ -173,6 +173,7 @@
 
   .drop-shadow {
     @extend %dropshadow-1dp;
+
     &:hover {
       @extend %dropshadow-8dp;
     }
@@ -185,6 +186,7 @@
     vertical-align: top;
     border-radius: 8px;
     transition: box-shadow $core-time ease;
+
     &:focus {
       outline-width: 4px;
       outline-offset: 6px;
@@ -208,6 +210,7 @@
     height: 48px;
     padding: 8px 16px;
     font-size: 13px;
+
     .channel-logo {
       align-self: end;
       height: 28px;
@@ -267,6 +270,7 @@
     .button {
       width: 32px !important;
       height: 32px !important;
+
       /deep/ svg {
         top: 4px !important;
       }
@@ -290,6 +294,7 @@
     .thumbnail {
       position: absolute;
     }
+
     .text {
       height: 84px;
       margin-top: $thumb-height-mobile-hybrid-learning;

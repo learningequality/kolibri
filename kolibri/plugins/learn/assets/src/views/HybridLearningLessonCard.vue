@@ -90,6 +90,7 @@
 
   .drop-shadow {
     @extend %dropshadow-1dp;
+
     &:hover {
       @extend %dropshadow-4dp;
     }
@@ -103,6 +104,7 @@
     vertical-align: top;
     border-radius: 8px;
     transition: box-shadow $core-time ease;
+
     &:focus {
       outline-width: 4px;
       outline-offset: 6px;
@@ -157,6 +159,7 @@
     .thumbnail {
       margin-left: $margin;
     }
+
     .card-thumbnail-wrapper {
       height: 60px;
       margin-top: 16px;

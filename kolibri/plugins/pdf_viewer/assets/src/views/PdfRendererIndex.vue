@@ -429,11 +429,13 @@
     height: calc(100vh - #{$top-bar-height} - #{$controls-height} + 16px);
     overflow-y: hidden;
   }
+
   .controls {
     position: relative;
     z-index: 0; // Hide icons with transition
     margin: 0 4px;
   }
+
   .progress-bar {
     top: 50%;
     max-width: 200px;
@@ -445,13 +447,16 @@
       overflow-x: auto;
     }
   }
+
   .fullscreen-button {
     margin: 0;
+
     svg {
       position: relative;
       top: 8px;
     }
   }
+
   .fullscreen-header {
     position: absolute;
     top: 0;
@@ -462,16 +467,19 @@
     justify-content: flex-end;
     height: $controls-height;
   }
+
   .slide-enter-active {
     @extend %md-accelerate-func;
 
     transition: all 0.3s;
   }
+
   .slide-leave-active {
     @extend %md-decelerate-func;
 
     transition: all 0.3s;
   }
+
   .slide-enter,
   .slide-leave-to {
     transform: translateY(-40px);

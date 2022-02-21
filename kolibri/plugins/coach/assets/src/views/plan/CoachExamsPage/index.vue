@@ -311,6 +311,7 @@
     display: flex;
     flex-wrap: wrap-reverse;
     justify-content: space-between;
+
     button {
       align-self: flex-end;
     }

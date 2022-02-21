@@ -164,9 +164,11 @@
     vertical-align: top;
     border-radius: 2px;
     transition: box-shadow $core-time ease;
+
     &:hover {
       @extend %dropshadow-8dp;
     }
+
     &:focus {
       outline-width: 4px;
       outline-offset: 6px;
@@ -222,10 +224,12 @@
     .thumbnail {
       position: absolute;
     }
+
     .description {
       padding: 8px;
       margin-top: $thumb-height-mobile;
     }
+
     .title {
       margin-left: 16px;
       text-decoration: none;

@@ -283,6 +283,7 @@
 
   .svg-icon {
     right: 0;
+
     /deep/ .icon {
       max-width: 16px !important;
       max-height: 16px !important;

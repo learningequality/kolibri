@@ -175,6 +175,7 @@
   /deep/ .link-text {
     text-decoration: none !important;
   }
+
   .category-item {
     margin-bottom: 32px;
   }

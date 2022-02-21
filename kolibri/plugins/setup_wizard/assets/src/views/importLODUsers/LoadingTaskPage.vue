@@ -176,6 +176,7 @@
   .another-user {
     padding-left: 20px;
   }
+
   .this-device {
     font-weight: bold;
   }

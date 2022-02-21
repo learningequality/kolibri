@@ -585,6 +585,7 @@
     margin: auto;
     margin-bottom: 24px;
     border-radius: 2px;
+
     .ease:hover {
       @extend %dropshadow-8dp;
       @extend %md-decelerate-func;

@@ -220,6 +220,7 @@
 
   .single-line .item {
     display: inline-block;
+
     &:not(:last-child) {
       margin-right: 16px;
     }

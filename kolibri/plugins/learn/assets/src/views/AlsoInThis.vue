@@ -242,6 +242,7 @@
       margin-right: 4px; // puts mastery star aligned center with bars
     }
   }
+
   .mastered-icon {
     top: 0;
     right: 16px;
@@ -259,11 +260,13 @@
     .content-meta {
       width: calc(100% - #{$icon-size});
     }
+
     .time-duration {
       display: block;
       width: 100%;
       margin-top: 8px;
     }
+
     .text-and-time {
       display: block;
       width: 100%;
@@ -276,6 +279,7 @@
       width: 100%;
       margin-top: 8px;
     }
+
     .mastered-icon {
       right: auto;
       bottom: 0;
@@ -313,6 +317,7 @@
       width: $icon-size;
       height: $icon-size;
     }
+
     .forward-icon {
       position: absolute;
       top: 34px;

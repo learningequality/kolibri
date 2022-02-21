@@ -838,6 +838,7 @@
     top: 0;
     z-index: 2;
   }
+
   .settings-button {
     right: 72px;
   }

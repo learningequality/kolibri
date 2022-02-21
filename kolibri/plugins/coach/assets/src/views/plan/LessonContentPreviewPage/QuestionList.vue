@@ -97,6 +97,7 @@
     text-align: left;
     text-transform: none;
     border-radius: 0;
+
     &.selected {
       font-weight: bold;
     }
