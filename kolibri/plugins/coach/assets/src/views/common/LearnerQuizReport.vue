@@ -71,6 +71,7 @@
 
   .no-exercise-x {
     text-align: center;
+
     svg {
       width: 200px;
       height: 200px;

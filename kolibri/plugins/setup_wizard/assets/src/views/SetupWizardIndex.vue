@@ -100,11 +100,13 @@
   // from http://nicolasgallagher.com/micro-clearfix-hack/
   @mixin clearfix() {
     zoom: 1;
+
     &::after,
     &::before {
       display: table;
       content: '';
     }
+
     &::after {
       clear: both;
     }

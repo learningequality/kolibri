@@ -149,6 +149,7 @@
 
   .exercise-section {
     padding: 16px;
+
     h3 {
       margin-top: 0;
     }

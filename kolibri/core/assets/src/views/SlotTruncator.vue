@@ -96,6 +96,7 @@
   .truncated {
     overflow: hidden;
   }
+
   .overlay {
     position: absolute;
     width: 100%;

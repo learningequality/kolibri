@@ -38,6 +38,7 @@
     font-size: small;
     font-weight: bold;
   }
+
   .notice {
     font-size: 14px;
     font-weight: normal;

@@ -1,6 +1,6 @@
 FROM ubuntu:bionic
 
-ENV NODE_VERSION=10.24.1
+ENV NODE_VERSION=16.13.2
 
 # install required packages
 RUN apt-get update && \
@@ -21,7 +21,7 @@ RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources
 
 # install nodejs and yarn
 RUN apt-get update && \
-    curl -sSO https://deb.nodesource.com/node_10.x/pool/main/n/nodejs/nodejs_$NODE_VERSION-1nodesource1_amd64.deb && \
+    curl -sSO https://deb.nodesource.com/node_16.x/pool/main/n/nodejs/nodejs_$NODE_VERSION-1nodesource1_amd64.deb && \
     dpkg -i ./nodejs_$NODE_VERSION-1nodesource1_amd64.deb && \
     rm nodejs_$NODE_VERSION-1nodesource1_amd64.deb && \
     apt-get install yarn

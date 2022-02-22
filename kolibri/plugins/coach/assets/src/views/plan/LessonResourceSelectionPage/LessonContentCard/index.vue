@@ -139,6 +139,7 @@
     text-decoration: none;
     border-radius: 2px;
     transition: box-shadow $core-time ease;
+
     &:hover,
     &:focus {
       @extend %dropshadow-8dp;

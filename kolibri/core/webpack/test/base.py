@@ -21,7 +21,6 @@ TEST_STATS_FILE_DATA = {
         ]
     },
     "publicPath": "default_frontend/",
-    "messages": "true",
 }
 
 

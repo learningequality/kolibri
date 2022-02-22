@@ -110,22 +110,25 @@
   }
 
   /deep/ .draggable-source--placed {
-    animation-name: bounceIn;
+    animation-name: bounce-in;
     animation-duration: $core-time;
   }
 
-  @keyframes bounceIn {
+  @keyframes bounce-in {
     from,
     50%,
     to {
       animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
     }
+
     0% {
       transform: scale3d(1.05, 1.05, 1.05);
     }
+
     50% {
       transform: scale3d(0.98, 0.98, 0.98);
     }
+
     to {
       transform: scale3d(1, 1, 1);
     }

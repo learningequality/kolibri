@@ -246,6 +246,7 @@
   .moving {
     margin: 64px;
   }
+
   .moving > :last-child {
     margin-top: 8px;
     margin-bottom: 64px;

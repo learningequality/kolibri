@@ -162,6 +162,7 @@
     display: inline-block;
     margin-right: 0.5em;
     font-size: 1.8em;
+
     /deep/ .ui-icon {
       margin-bottom: 12px;
       vertical-align: middle;
@@ -172,6 +173,7 @@
     display: inline-block;
     margin-right: 0.5em;
     font-size: 1.8em;
+
     /deep/ .ui-icon {
       margin-top: 4px;
       vertical-align: middle;

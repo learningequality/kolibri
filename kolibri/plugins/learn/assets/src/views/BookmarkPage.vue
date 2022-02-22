@@ -189,6 +189,7 @@
     margin-bottom: -8px;
     margin-left: -8px;
   }
+
   .chip {
     margin-bottom: 8px;
     margin-left: 8px;
