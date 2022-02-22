@@ -112,8 +112,6 @@ django_locales = [
 
 
 def datas_filter(item):
-    if "kolibri/dist" in item[0] and "kolibri/dist/home" not in item[0]:
-        return False
     if item[0].endswith(".js.map"):
         return False
     if "locale" in item[0]:
@@ -138,8 +136,12 @@ migration_modules = [
     "django.contrib.sites.migrations",
 ] + [module + ".migrations" for module in settings["installed_apps"]]
 
+template_tag_modules = [
+    module + ".templatetags" for module in settings["installed_apps"]
+]
+
 # Copy migration files.
-for mod in migration_modules:
+for mod in migration_modules + template_tag_modules:
     mod_name, bundle_name = mod.split(".", 1)
     mod_dir = os.path.dirname(get_module_file_attribute(mod_name))
     bundle_dir = bundle_name.replace(".", os.sep)
