@@ -24,12 +24,13 @@ get-whl:
 	$(eval DLFILE = $(shell wget --content-disposition -P whl/ "${whl}" 2>&1 | grep "Saving to: " | sed 's/Saving to: ‘//' | sed 's/’//'))
 	$(eval WHLFILE = $(shell echo "${DLFILE}" | sed "s/\?.*//"))
 	mv "${DLFILE}" ${WHLFILE}
-	pip install ${WHLFILE}
 	pip install ${WHLFILE} -t kolibri/
+	rm -rf kolibri/kolibri/dist/sqlalchemy
 
 dependencies:
 	pip install wheel
 	pip install PyInstaller==4.5.1
+	pip install sqlalchemy==1.3.17
 ifeq ($(OSNAME), Darwin)
 	pip install dmgbuild==1.5.2
 endif
