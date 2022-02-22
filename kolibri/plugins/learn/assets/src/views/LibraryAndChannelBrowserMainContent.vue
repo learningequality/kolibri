@@ -6,7 +6,7 @@
       <ResourceCard
         v-for="(content, idx) in contents"
         :key="`resource-${idx}`"
-        data-test="resource-card"
+        :data-test="'resource-card-' + idx"
         :contentNode="content"
         :to="genContentLink(content)"
         @openCopiesModal="$emit('openCopiesModal', content.copies)"
@@ -22,7 +22,7 @@
         v-for="(content, idx) in contents"
         :key="`resource-${idx}`"
         class="card-grid-item"
-        data-test="content-card"
+        :data-test="'content-card-' + idx"
         :isMobile="windowIsSmall"
         :content="content"
         :link="genContentLink(content)"
@@ -37,7 +37,7 @@
       :key="content.id"
       :content="content"
       class="card-grid-item"
-      data-test="card-list-view"
+      :data-test="'card-list-view-' + idx"
       :link="genContentLink(content)"
       :footerIcons="footerIcons"
       :createdDate="content.bookmark ? content.bookmark.created : null"
@@ -85,6 +85,9 @@
           return ['card', 'list'].includes(value);
         },
       },
+      // Used to define the "type" (number of columns) for <CardGrid />
+      // Currently only either `1` or `2`
+      // See props in CardGrid.vue for more details on # of cards per level
       gridType: {
         type: Number,
         required: true,
