@@ -15,7 +15,6 @@
           :authorizedRole="authorizedRole"
           :header="authorizationErrorHeader"
           :details="authorizationErrorDetails"
-          :style="mainStyles"
         />
       </KPageContainer>
       <KPageContainer v-else-if="error">
@@ -28,6 +27,7 @@
         role="main"
         tabindex="-1"
         class="main"
+        data-test="main"
         :style="mainStyles"
       >
         <slot></slot>
