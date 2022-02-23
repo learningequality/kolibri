@@ -1,7 +1,8 @@
 import os
 
-from kolibri.main import enable_plugin
 from kolibri_app.constants import MAC
+
+from kolibri.main import enable_plugin
 
 __version__ = "0.3.0"
 

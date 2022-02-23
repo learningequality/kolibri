@@ -2,10 +2,10 @@
 from __future__ import unicode_literals
 
 # Symlinks to create
-symlinks = { 'Applications': '/Applications' }
+symlinks = {"Applications": "/Applications"}
 
 # Volume icon
-badge_icon = 'icons/kolibri.icns'
+badge_icon = "icons/kolibri.icns"
 
 files = ["dist/Kolibri.app"]
 
