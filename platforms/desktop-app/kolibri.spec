@@ -79,7 +79,7 @@ if sys.platform == 'darwin':
 
     app = BUNDLE(
         coll,
-        name="{}.app".format(name),
+        name="Kolibri.app",
         icon="icons/kolibri.icns",
         bundle_identifier="org.learningequality.Kolibri",
         version=kolibri_version,

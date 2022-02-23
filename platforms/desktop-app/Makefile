@@ -13,8 +13,8 @@ guard-%:
 	fi
 
 needs-version:
-	$(eval KOLIBRI_VERSION ?= $(shell python -c "import kolibri; print(kolibri.__version__)"))
-	$(eval APP_VERSION ?= $(shell python -c "import kolibri_app; print(kolibri_app.__version__)"))
+	$(eval KOLIBRI_VERSION ?= $(shell python3 -c "import os; import sys; sys.path = [os.path.abspath('kolibri')] + sys.path; import kolibri; print(kolibri.__version__)"))
+	$(eval APP_VERSION ?= $(shell python3 -c "import os; import sys; sys.path = [os.path.abspath('kolibri')] + sys.path; import kolibri_app; print(kolibri_app.__version__)"))
 
 clean:
 	rm -rf build dist
@@ -24,15 +24,15 @@ get-whl:
 	$(eval DLFILE = $(shell wget --content-disposition -P whl/ "${whl}" 2>&1 | grep "Saving to: " | sed 's/Saving to: ‘//' | sed 's/’//'))
 	$(eval WHLFILE = $(shell echo "${DLFILE}" | sed "s/\?.*//"))
 	mv "${DLFILE}" ${WHLFILE}
-	pip install ${WHLFILE} -t kolibri/
+	pip3 install ${WHLFILE} -t kolibri/
 	rm -rf kolibri/kolibri/dist/sqlalchemy
 
 dependencies:
-	pip install wheel
-	pip install PyInstaller==4.5.1
-	pip install sqlalchemy==1.3.17
+	pip3 install wheel
+	pip3 install PyInstaller==4.5.1
+	pip3 install sqlalchemy==1.3.17
 ifeq ($(OSNAME), Darwin)
-	pip install dmgbuild==1.5.2
+	pip3 install dmgbuild==1.5.2
 endif
 
 build-mac-app:
@@ -45,8 +45,8 @@ pyinstaller: clean
 	pip3 install .
 	python3 -OO -m PyInstaller kolibri.spec
 
-build-dmg: needs_version
-	dmgbuild -s build_config/dmgbuild_settings.py dist/kolibri-${KOLIBRI_VERSION}-${APP_VERSION}.app dist/kolibri-${KOLIBRI_VERSION}-${APP_VERSION}.dmg
+build-dmg: needs-version
+	python3 -m dmgbuild -s build_config/dmgbuild_settings.py "Kolibri ${KOLIBRI_VERSION}-${APP_VERSION}" dist/kolibri-${KOLIBRI_VERSION}-${APP_VERSION}.dmg
 
 compile-mo:
 	find src/kolibri_app/locales -name LC_MESSAGES -exec msgfmt {}/wxapp.po -o {}/wxapp.mo \;
@@ -57,7 +57,7 @@ codesign-windows:
 	$(MAKE) guard-WIN_CODESIGN_CERT
 	C:\Program Files (x86)\Windows Kits\8.1\bin\x64\signtool.exe sign /f ${WIN_CODESIGN_PFX} /p ${WIN_CODESIGN_PWD} /ac ${WIN_CODESIGN_CERT} /tr http://timestamp.ssl.trustwave.com /td SHA256 /fd SHA256 dist/kolibri-${KOLIBRI_VERSION}-${APP_VERSION}.exe
 
-codesign-mac: needs_version
+codesign-mac: needs-version
 	$(MAKE) guard-MAC_DEV_ID_EMAIL
 	$(MAKE) guard-MAC_CODESIGN_PWD
 	$(MAKE) guard-MAC_CODESIGN_ID
