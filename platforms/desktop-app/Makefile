@@ -30,6 +30,7 @@ get-whl:
 dependencies:
 	pip3 install wheel
 	pip3 install PyInstaller==4.5.1
+	python3 -c "import PyInstaller; import os; os.truncate(os.path.join(PyInstaller.__path__[0], 'hooks', 'rthooks', 'pyi_rth_django.py'), 0)"
 	pip3 install sqlalchemy==1.3.17
 ifeq ($(OSNAME), Darwin)
 	pip3 install dmgbuild==1.5.2
