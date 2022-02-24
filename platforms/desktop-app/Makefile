@@ -1,4 +1,4 @@
-.PHONY: clean get-whl build-mac-app pyinstaller build-dmg compile-mo codesign-windows codesign-mac needs-version
+.PHONY: clean get-whl install-whl clean-whl build-mac-app pyinstaller build-dmg compile-mo codesign-windows codesign-mac needs-version
 
 ifeq ($(OS),Windows_NT)
     OSNAME := WIN32

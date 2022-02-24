@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     # Inputs the workflow accepts.
     inputs:
-      whlurl:
+      whl-url:
         description: 'URL for Kolibri whl file'
         required: true
   workflow_call:
@@ -35,8 +35,8 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-pip-
     - name: Download the whlfile from URL and install
-      if: ${{ github.event.inputs.whlurl }}
-      run: make get-whl whl=${{ github.event.inputs.whlurl }}
+      if: ${{ github.event.inputs.whl-url }}
+      run: make get-whl whl=${{ github.event.inputs.whl-url }}
     - name: Download the whlfile from artifacts
       if: ${{ inputs.whl-file-name }}
       uses: actions/download-artifact@v2
