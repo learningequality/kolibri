@@ -19,22 +19,26 @@ needs-version:
 clean:
 	rm -rf build dist
 
-get-whl:
+clean-whl:
+	rm -rf whl
+	mkdir whl
+
+install-whl:
 	rm -rf kolibri
-	$(eval DLFILE = $(shell wget --content-disposition -P whl/ "${whl}" 2>&1 | grep "Saving to: " | sed 's/Saving to: ‘//' | sed 's/’//'))
-	$(eval WHLFILE = $(shell echo "${DLFILE}" | sed "s/\?.*//"))
-	mv "${DLFILE}" ${WHLFILE}
-	pip3 install ${WHLFILE} -t kolibri/
+	pip3 install ${whl} -t kolibri/
 	rm -rf kolibri/kolibri/dist/sqlalchemy
 
+get-whl: clean-whl
+# The eval and shell commands here are evaluated when the recipe is parsed, so we put the cleanup
+# into a prerequisite make step, in order to ensure they happen prior to the download.
+	$(eval DLFILE = $(shell wget --content-disposition -P whl/ "${whl}" 2>&1 | grep "Saving to: " | sed 's/Saving to: ‘//' | sed 's/’//'))
+	$(eval WHLFILE = $(shell echo "${DLFILE}" | sed "s/\?.*//"))
+	[ "${DLFILE}" = "${WHLFILE}" ] || mv "${DLFILE}" "${WHLFILE}"
+	$(MAKE) install-whl whl="${WHLFILE}"
+
 dependencies:
-	pip3 install wheel
-	pip3 install PyInstaller==4.5.1
+	pip3 install -r build_requires.txt
 	python3 -c "import PyInstaller; import os; os.truncate(os.path.join(PyInstaller.__path__[0], 'hooks', 'rthooks', 'pyi_rth_django.py'), 0)"
-	pip3 install sqlalchemy==1.3.17
-ifeq ($(OSNAME), Darwin)
-	pip3 install dmgbuild==1.5.2
-endif
 
 build-mac-app:
 	$(eval LIBPYTHON_FOLDER = $(shell python3 -c 'from distutils.sysconfig import get_config_var; print(get_config_var("LIBDIR"))'))

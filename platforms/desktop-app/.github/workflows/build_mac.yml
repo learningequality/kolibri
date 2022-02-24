@@ -7,23 +7,54 @@ on:
       whlurl:
         description: 'URL for Kolibri whl file'
         required: true
+  workflow_call:
+    inputs:
+      whl-file-name:
+        required: true
+        type: string
+    outputs:
+      dmg-file-name:
+        description: "DMG file name"
+        value: ${{ jobs.build_dmg.outputs.dmg-file-name }}
 
 jobs:
-  build:
+  build_dmg:
     runs-on: macos-latest
+    outputs:
+      dmg-file-name: ${{ steps.get-dmg-filename.outputs.dmg-file-name }}
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python 3.9
       uses: actions/setup-python@v2
       with:
         python-version: 3.9
+    - uses: actions/cache@v2
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('setup.py', 'build_requires.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    - name: Download the whlfile from URL and install
+      if: ${{ github.event.inputs.whlurl }}
+      run: make get-whl whl=${{ github.event.inputs.whlurl }}
+    - name: Download the whlfile from artifacts
+      if: ${{ inputs.whl-file-name }}
+      uses: actions/download-artifact@v2
+      with:
+        name: ${{ inputs.whl-file-name }}
+        path: whl
+    - name: Install WHL file from artifacts
+      if: ${{ inputs.whl-file-name }}
+      run: make install-whl whl=${{ inputs.whl-file-name }}
     - name: Run the build
       run: |
-        make get-whl whl=${{ github.event.inputs.whlurl }}
         make dependencies
         make build-mac-app
         make build-dmg
+    - name: Get DMG filename
+      id: get-dmg-filename
+      run: echo "::set-output name=dmg-file-name::$(ls dist | grep .dmg | cat)"
     - uses: actions/upload-artifact@v2
       with:
-        name: dmg-files
-        path: dist/*.dmg
+        name: ${{ steps.get-dmg-filename.outputs.dmg-file-name }}
+        path: dist/${{ steps.get-dmg-filename.outputs.dmg-file-name }}
