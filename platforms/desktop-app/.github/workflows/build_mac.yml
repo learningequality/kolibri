@@ -12,6 +12,10 @@ on:
       whl-file-name:
         required: true
         type: string
+      ref:
+        description: 'A ref for this workflow to check out its own repo'
+        required: true
+        type: string
     outputs:
       dmg-file-name:
         description: "DMG file name"
@@ -24,6 +28,12 @@ jobs:
       dmg-file-name: ${{ steps.get-dmg-filename.outputs.dmg-file-name }}
     steps:
     - uses: actions/checkout@v2
+      if: ${{ !inputs.ref }}
+    - uses: actions/checkout@v2
+      if: ${{ inputs.ref }}
+      with:
+        repository: learningequality/kolibri-app
+        ref: ${{ inputs.ref }}
     - name: Set up Python 3.9
       uses: actions/setup-python@v2
       with:
@@ -45,7 +55,7 @@ jobs:
         path: whl
     - name: Install WHL file from artifacts
       if: ${{ inputs.whl-file-name }}
-      run: make install-whl whl=${{ inputs.whl-file-name }}
+      run: make install-whl whl=whl/${{ inputs.whl-file-name }}
     - name: Run the build
       run: |
         make dependencies
