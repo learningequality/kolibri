@@ -12,3 +12,10 @@ jobs:
     uses: ./.github/workflows/build_pex.yml
     with:
       whl-file-name: ${{ needs.whl.outputs.whl-file-name }}
+  dmg:
+    name: Build DMG file
+    needs: whl
+    uses: learningequality/kolibri-app/.github/workflows/build_mac.yml@develop
+    with:
+      whl-file-name: ${{ needs.whl.outputs.whl-file-name }}
+      ref: develop
