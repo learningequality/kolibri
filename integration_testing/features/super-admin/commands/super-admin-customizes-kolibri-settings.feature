@@ -30,7 +30,7 @@ Feature: Super admin customizes the Kolibri settings with the options.ini file
     When I add "CENTRAL_CONTENT_BASE_URL = <content base URL>" under the [Urls] section
       And I save my changes
       And I run the "kolibri start" command in the terminal or command prompt
-      And I go to *Device>Channels*
+      And I go to *Device > Channels*
       And I click the *Import* button
     Then I see the *Select a source* modal
       And I see the *Kolibri Studio (online)* option selected
@@ -59,7 +59,7 @@ Feature: Super admin customizes the Kolibri settings with the options.ini file
     When I add "ENABLE_CUSTOM_CHANNEL_NAV = True" under the [Learn] section
       And I save my changes
       And I run the "kolibri start" command in the terminal or command prompt
-      And I go to *Device>Channels*
+      And I go to *Device > Channels*
       And I click the *Import* button
     Then I see the *Select a source* modal
       And I see the *Kolibri Studio (online)* option selected
@@ -71,7 +71,7 @@ Feature: Super admin customizes the Kolibri settings with the options.ini file
     When I input a token for a channel with custom navigation such as "bovir-dubov"
     	And I click *Continue*
     Then I see the imported channel
-    When I go to the *Learn>Library* page
+    When I go to the *Learn > Library* page
     	And I click on the channel with custom navigation
     Then I am at the *Browse channel* modal window
     	And I can interact with the contents of the channel
