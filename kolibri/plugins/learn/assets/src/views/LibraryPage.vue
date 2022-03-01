@@ -30,7 +30,7 @@
             :ariaLabel="$tr('viewAsList')"
             :color="$themeTokens.text"
             :tooltip="$tr('viewAsList')"
-            :disabled="currentViewStyle === 'list'"
+            :disabled="currentCardViewStyle === 'list'"
             @click="toggleCardView('list')"
           />
           <KIconButton
@@ -38,23 +38,22 @@
             :ariaLabel="$tr('viewAsGrid')"
             :color="$themeTokens.text"
             :tooltip="$tr('viewAsGrid')"
-            :disabled="currentViewStyle === 'card'"
+            :disabled="currentCardViewStyle === 'card'"
             @click="toggleCardView('card')"
           />
         </div>
-        <h2 v-if="resumableContentNodes.length">
-          {{ $tr('recent') }}
-        </h2>
-        <HybridLearningCardGrid
-          v-if="resumableContentNodes.length"
-          :cardViewStyle="currentViewStyle"
-          :numCols="numCols"
-          :genContentLink="genContentLink"
-          :contents="trimmedResume"
-          :footerIcons="footerIcons"
-          :currentPage="currentPage"
-          @toggleInfoPanel="toggleInfoPanel"
-        />
+        <div v-if="resumableContentNodes.length">
+          <h2>
+            {{ $tr('recent') }}
+          </h2>
+          <LibraryAndChannelBrowserMainContent
+            :contents="resumableContentNodes"
+            :currentCardViewStyle="currentCardViewStyle"
+            :gridType="1"
+            @openCopiesModal="openCopiesModal"
+            @toggleInfoPanel="toggleInfoPanel"
+          />
+        </div>
         <KButton
           v-if="moreResumableContentNodes"
           appearance="basic-link"
@@ -81,7 +80,7 @@
             :ariaLabel="$tr('viewAsList')"
             :color="$themeTokens.text"
             :tooltip="$tr('viewAsList')"
-            :disabled="currentViewStyle === 'list'"
+            :disabled="currentCardViewStyle === 'list'"
             @click="toggleCardView('list')"
           />
           <KIconButton
@@ -89,7 +88,7 @@
             :ariaLabel="$tr('viewAsGrid')"
             :color="$themeTokens.text"
             :tooltip="$tr('viewAsGrid')"
-            :disabled="currentViewStyle === 'card'"
+            :disabled="currentCardViewStyle === 'card'"
             @click="toggleCardView('card')"
           />
         </div>
@@ -99,14 +98,11 @@
           @clearSearch="clearSearch"
         />
         <!-- Grid of search results  -->
-        <HybridLearningCardGrid
-          v-if="results.length"
-          :numCols="numCols"
-          :cardViewStyle="currentViewStyle"
-          :genContentLink="genContentLink"
+        <LibraryAndChannelBrowserMainContent
           :contents="results"
-          :footerIcons="footerIcons"
-          :currentPage="currentPage"
+          :currentCardViewStyle="currentCardViewStyle"
+          :gridType="1"
+          @openCopiesModal="openCopiesModal"
           @toggleInfoPanel="toggleInfoPanel"
         />
         <!-- conditionally displayed button if there are additional results -->
@@ -197,6 +193,13 @@
       @input="handleCategory"
     />
 
+    <CopiesModal
+      v-if="displayedCopies.length"
+      :copies="displayedCopies"
+      :genContentLink="genContentLink"
+      @submit="displayedCopies = []"
+    />
+
     <FullScreenSidePanel
       v-if="sidePanelContent"
       alignment="right"
@@ -245,20 +248,17 @@
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import genContentLink from '../utils/genContentLink';
-  import { PageNames } from '../constants';
   import useSearch from '../composables/useSearch';
   import useLearnerResources from '../composables/useLearnerResources';
   import BrowseResourceMetadata from './BrowseResourceMetadata';
   import commonLearnStrings from './commonLearnStrings';
   import ChannelCardGroupGrid from './ChannelCardGroupGrid';
   import LearningActivityChip from './LearningActivityChip';
-  import HybridLearningCardGrid from './HybridLearningCardGrid';
+  import LibraryAndChannelBrowserMainContent from './LibraryAndChannelBrowserMainContent';
+  import CopiesModal from './CopiesModal';
   import EmbeddedSidePanel from './EmbeddedSidePanel';
   import CategorySearchModal from './CategorySearchModal';
   import SearchChips from './SearchChips';
-
-  const mobileCarouselLimit = 3;
-  const desktopCarouselLimit = 15;
 
   export default {
     name: 'LibraryPage',
@@ -268,7 +268,7 @@
       };
     },
     components: {
-      HybridLearningCardGrid,
+      LibraryAndChannelBrowserMainContent,
       ChannelCardGroupGrid,
       LearningActivityChip,
       EmbeddedSidePanel,
@@ -276,6 +276,7 @@
       CategorySearchModal,
       BrowseResourceMetadata,
       SearchChips,
+      CopiesModal,
     },
     mixins: [commonLearnStrings, commonCoreStrings, responsiveWindowMixin],
     setup() {
@@ -318,27 +319,16 @@
     },
     data: function() {
       return {
-        currentViewStyle: 'card',
+        currentCardViewStyle: 'card',
         currentCategory: null,
         showSearchModal: false,
         sidePanelIsOpen: false,
         sidePanelContent: null,
+        displayedCopies: [],
       };
     },
     computed: {
       ...mapState(['rootNodes']),
-      carouselLimit() {
-        return this.windowIsSmall ? mobileCarouselLimit : desktopCarouselLimit;
-      },
-      trimmedResume() {
-        return this.resumableContentNodes.slice(0, this.carouselLimit);
-      },
-      currentPage() {
-        return PageNames.LIBRARY;
-      },
-      footerIcons() {
-        return { infoOutline: 'viewInformation' };
-      },
       sidePanelWidth() {
         if (this.windowIsSmall || this.windowIsMedium) {
           return 0;
@@ -407,8 +397,11 @@
         this.showSearchModal = true;
         !(this.windowIsSmall || this.windowIsMedium) ? (this.sidePanelIsOpen = false) : '';
       },
+      openCopiesModal(copies) {
+        this.displayedCopies = copies;
+      },
       toggleCardView(value) {
-        this.currentViewStyle = value;
+        this.currentCardViewStyle = value;
       },
       toggleSidePanelVisibility() {
         this.sidePanelIsOpen = !this.sidePanelIsOpen;
@@ -472,6 +465,12 @@
   .main-grid {
     margin-top: 40px;
     margin-right: 24px;
+  }
+
+  $gutters: 24px;
+
+  .card-grid-item {
+    margin-bottom: $gutters;
   }
 
   .loader {

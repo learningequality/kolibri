@@ -25,14 +25,14 @@
       </div>
     </section>
 
-    <section class="content-cards">
-      <HybridLearningCardGrid
-        v-if="contentNodes.length"
-        currentPage="lessonPage"
-        cardViewStyle="list"
-        :numCols="null"
-        :genContentLink="genContentLink"
-        :contents="contentNodes"
+    <section v-if="contentNodes && contentNodes.length" class="content-cards">
+      <HybridLearningLessonCard
+        v-for="content in contentNodes"
+        :key="content.id"
+        :content="content"
+        class="content-card"
+        :isMobile="windowIsSmall"
+        :link="genContentLink(content)"
       />
       <p v-if="!lessonHasResources" class="no-resources-message">
         {{ $tr('noResourcesInLesson') }}
@@ -48,12 +48,13 @@
   import { mapMutations, mapState } from 'vuex';
   import sumBy from 'lodash/sumBy';
   import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import genContentLink from '../../utils/genContentLink';
   import { PageNames, ClassesPageNames } from '../../constants';
-  import HybridLearningCardGrid from './../HybridLearningCardGrid';
+  import HybridLearningLessonCard from './../HybridLearningLessonCard';
 
   export default {
     name: 'LessonPlaylistPage',
@@ -64,11 +65,11 @@
     },
     components: {
       KBreadcrumbs,
-      HybridLearningCardGrid,
+      HybridLearningLessonCard,
       ContentIcon,
       ProgressIcon,
     },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, responsiveWindowMixin],
     computed: {
       ...mapState('lessonPlaylist', ['contentNodes', 'currentLesson']),
       lessonHasResources() {
@@ -109,6 +110,19 @@
           },
         ];
       },
+      backRoute() {
+        return this.$route.name;
+      },
+      context() {
+        const context = {};
+        if (this.currentLesson && this.currentLesson.classroom) {
+          context.lessonId = this.currentLesson.id;
+          context.classId = this.currentLesson.classroom.id;
+        } else if (this.isLibraryPage || this.pageName === PageNames.TOPICS_TOPIC_SEARCH) {
+          Object.assign(context, this.$route.query);
+        }
+        return context;
+      },
     },
     beforeDestroy() {
       /* If we are going anywhere except for content we unset the lesson */
@@ -119,7 +133,15 @@
     },
     methods: {
       ...mapMutations('lessonPlaylist', ['SET_CURRENT_LESSON']),
-      genContentLink,
+      genContentLink(content) {
+        return genContentLink(
+          content.id,
+          this.topicId,
+          content.is_leaf,
+          this.backRoute,
+          this.context
+        );
+      },
     },
     $trs: {
       noResourcesInLesson: {
