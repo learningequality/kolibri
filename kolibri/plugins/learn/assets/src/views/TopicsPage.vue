@@ -300,7 +300,6 @@
           :topicsLoading="topicMoreLoading"
           :more="topicMore"
           :genContentLink="genContentLink"
-          :width="`${sidePanelOverlayWidth - 64}px`"
           :availableLabels="labels"
           :activeActivityButtons="activeActivityButtons"
           :activeCategories="activeCategories"
