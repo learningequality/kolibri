@@ -1,28 +1,19 @@
 <template>
 
   <div>
-    <div
-      v-if="!loading"
-    >
-      <KPageContainer v-if="notAuthorized">
-        <AuthMessage
-          :authorizedRole="authorizedRole"
-          :header="authorizationErrorHeader"
-          :details="authorizationErrorDetails"
-        />
-      </KPageContainer>
-      <KPageContainer v-else-if="error">
-        <AppError />
-      </KPageContainer>
+    <KPageContainer v-if="!loading && notAuthorized">
+      <AuthMessage
+        :authorizedRole="authorizedRole"
+        :header="authorizationErrorHeader"
+        :details="authorizationErrorDetails"
+      />
+    </KPageContainer>
+    <KPageContainer v-else-if="error">
+      <AppError />
+    </KPageContainer>
 
-      <div
-        v-else
-        role="main"
-        tabindex="-1"
-        data-test="main"
-      >
-        <slot></slot>
-      </div>
+    <div v-else role="main" tabindex="-1" data-test="main">
+      <slot></slot>
     </div>
 
     <GlobalSnackbar />
@@ -60,7 +51,6 @@
       UpdateNotification,
     },
     props: {
-      // AUTHORIZATION SPECIFIC
       authorized: {
         type: Boolean,
         required: false,
