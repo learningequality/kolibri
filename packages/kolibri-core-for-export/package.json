@@ -10,7 +10,7 @@
     "@shopify/draggable": "^1.0.0-beta.8",
     "@vue/composition-api": "^1.0.0-rc.11",
     "@vueuse/core": "^4.11.1",
-    "axios": "^0.19.2",
+    "axios": "^0.21.2",
     "clipboard": "^2.0.1",
     "core-js": "^3.13",
     "csv-generator-client": "^2.1.1",
