@@ -23,12 +23,13 @@
       </KGridItem>
     </KGrid>
 
-    <PaginatedListContainer
+    <PaginatedListContainerWithBackend
       :items="usersFilteredByRow"
       :filterPlaceholder="$tr('searchText')"
       :totalPageNumber="getTotalPages"
       :currentPageNumber="getCurrentPage"
       :roleFilter="roleFilter"
+      :totalUsers="getTotalUsersCount"
     >
       <template #otherFilter>
         <KSelect
@@ -58,7 +59,7 @@
           </template>
         </UserTable>
       </template>
-    </PaginatedListContainer>
+    </PaginatedListContainerWithBackend>
 
     <!-- Modals -->
 
@@ -86,7 +87,7 @@
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import cloneDeep from 'lodash/cloneDeep';
-  import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
+  import PaginatedListContainerWithBackend from 'kolibri.coreVue.components.PaginatedListContainerWithBackend';
   import UserTable from '../UserTable';
   import { Modals } from '../../constants';
   import ResetUserPasswordModal from './ResetUserPasswordModal';
@@ -105,7 +106,7 @@
       ResetUserPasswordModal,
       DeleteUserModal,
       UserTable,
-      PaginatedListContainer,
+      PaginatedListContainerWithBackend,
     },
     mixins: [commonCoreStrings],
     data() {
@@ -135,6 +136,9 @@
       },
       getTotalPages() {
         return this.facilityUsers.total_pages;
+      },
+      getTotalUsersCount() {
+        return this.facilityUsers.count;
       },
       getCurrentPage() {
         return this.facilityUsers.page;

@@ -2,12 +2,13 @@
 
   <form>
 
-    <PaginatedListContainer
+    <PaginatedListContainerWithBackend
       :items="usersNotInClass"
       :filterPlaceholder="$tr('searchForUser')"
       :excludeMemberOf="excludeMemberOf"
       :totalPageNumber="totalPages"
       :userAssignmentType="userAssignmentType"
+      :totalUsers="totalUsersCount"
     >
       <template #default="{ items, filterInput }">
         <UserTable
@@ -18,7 +19,7 @@
           :emptyMessage="emptyMessageForItems(items, filterInput)"
         />
       </template>
-    </PaginatedListContainer>
+    </PaginatedListContainerWithBackend>
     <SelectionBottomBar
       :count="selectedUsers.length"
       :disabled="disabled || selectedUsers.length === 0"
@@ -35,7 +36,7 @@
 
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
+  import PaginatedListContainerWithBackend from 'kolibri.coreVue.components.PaginatedListContainerWithBackend';
   import SelectionBottomBar from './SelectionBottomBar';
   import UserTable from './UserTable';
 
@@ -43,7 +44,7 @@
     name: 'ClassEnrollForm',
     components: {
       SelectionBottomBar,
-      PaginatedListContainer,
+      PaginatedListContainerWithBackend,
       UserTable,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
@@ -70,6 +71,11 @@
         required: false,
         default: 1,
       },
+      totalUsers: {
+        type: Number,
+        required: false,
+        default: 0,
+      },
     },
     data() {
       return {
@@ -88,6 +94,9 @@
       },
       userAssignmentType() {
         return this.pageType;
+      },
+      totalUsersCount() {
+        return this.totalUsers;
       },
     },
     methods: {

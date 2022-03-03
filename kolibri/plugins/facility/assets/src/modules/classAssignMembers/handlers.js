@@ -35,6 +35,7 @@ export function showLearnerClassEnrollmentPage(store, toRoute) {
         facilityUsers: facilityUsers.results.map(_userState),
         classUsers: classUsers.results.map(_userState),
         totalPageNumber: facilityUsers.total_pages,
+        totalLearners: facilityUsers.count,
         class: classroom,
         modalShown: false,
       });
@@ -67,16 +68,18 @@ export function showCoachClassAssignmentPage(store, toRoute) {
   return ConditionalPromise.all([userPromise, classPromise]).only(
     samePageCheckGenerator(store),
     ([facilityUsers, classroom]) => {
+      let filteredFacilityUsers = facilityUsers
+        .filter(user => {
+          // filter out users who are not eligible to be coaches
+          return user.roles.some(({ kind }) => eligibleRoles.includes(kind));
+        })
+        .map(_userState);
       store.commit('classAssignMembers/SET_STATE', {
         // facilityUsers now only contains users that are eligible for coachdom
         // TODO rename
-        facilityUsers: facilityUsers
-          // filter out users who are not eligible to be coaches
-          .filter(user => {
-            return user.roles.some(({ kind }) => eligibleRoles.includes(kind));
-          })
-          .map(_userState),
+        facilityUsers: filteredFacilityUsers,
         classUsers: classroom.coaches.map(_userState),
+        totalCoaches: filteredFacilityUsers.length,
         class: classroom,
         modalShown: false,
       });

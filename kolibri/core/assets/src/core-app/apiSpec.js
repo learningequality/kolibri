@@ -89,6 +89,7 @@ import GenderDisplayText from '../views/userAccounts/GenderDisplayText';
 import BirthYearDisplayText from '../views/userAccounts/BirthYearDisplayText';
 import PrivacyLinkAndModal from '../views/userAccounts/PrivacyLinkAndModal.vue';
 import PaginatedListContainer from '../views/PaginatedListContainer';
+import PaginatedListContainerWithBackend from '../views/PaginatedListContainerWithBackend';
 import PageStatus from '../views/ExamReport/PageStatus';
 import LearnOnlyDeviceNotice from '../views/LearnOnlyDeviceNotice';
 import themeConfig from '../styles/themeConfig';
@@ -195,6 +196,7 @@ export default {
       PasswordTextbox,
       BirthYearDisplayText,
       PaginatedListContainer,
+      PaginatedListContainerWithBackend,
       PrivacyLinkAndModal,
       PageStatus,
       LearnOnlyDeviceNotice,

@@ -9,6 +9,7 @@
       :disabled="formIsDisabled"
       :classId="classId"
       :totalPageNumber="totalPageNumber"
+      :totalUsers="totalLearners"
       pageType="learners"
       @submit="enrollLearners"
     />
@@ -45,6 +46,7 @@
         'facilityUsers',
         'classUsers',
         'totalPageNumber',
+        'totalLearners',
       ]),
       className() {
         return this.class.name;

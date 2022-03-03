@@ -9,15 +9,16 @@
         :layout12="{ span: 5, alignment: 'right' }"
         class="text-filter"
       >
-        <FilterTextbox
-          v-model="filterInput"
-          :placeholder="filterPlaceholder"
-        />
+        <FilterTextbox v-model="filterInput" :placeholder="filterPlaceholder" />
       </KGridItem>
     </KGrid>
 
     <div>
-      <slot v-bind="{ items: visibleFilteredItems, filterInput }"></slot>
+      <slot
+        :items="userList"
+        :filterInput="filterInput"
+      >
+      </slot>
     </div>
 
     <nav class="pagination-nav">
@@ -29,7 +30,6 @@
           :ariaLabel="$tr('previousResults')"
           :disabled="previousButtonDisabled"
           size="small"
-
           icon="back"
           @click="changePage(-1)"
         />
@@ -37,7 +37,6 @@
           :ariaLabel="$tr('nextResults')"
           :disabled="nextButtonDisabled"
           size="small"
-
           icon="forward"
           @click="changePage(+1)"
         />
@@ -52,10 +51,11 @@
 
   import clamp from 'lodash/clamp';
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
-  import filterUsersByNames from 'kolibri.utils.filterUsersByNames';
+  import { FacilityUserResource } from 'kolibri.resources';
+  import store from 'kolibri.coreVue.vuex.store';
 
   export default {
-    name: 'PaginatedListContainer',
+    name: 'PaginatedListContainerWithBackend',
     components: {
       FilterTextbox,
     },
@@ -74,27 +74,49 @@
         required: false,
         default: 30,
       },
+      totalPageNumber: {
+        type: Number,
+        required: false,
+        default: 1,
+      },
+      totalUsers: {
+        type: Number,
+        required: true,
+      },
+      roleFilter: {
+        type: Object,
+        required: false,
+        default: null,
+      },
+      excludeMemberOf: {
+        type: String,
+        required: false,
+        default: '',
+      },
+      userAssignmentType: {
+        type: String,
+        required: false,
+        default: '',
+      },
     },
     data() {
       return {
         filterInput: '',
         currentPage: 1,
+        userList: this.items,
+        totalPageNumbers: this.totalPageNumber,
+        usersCount: this.totalUsers,
       };
     },
     computed: {
-      filteredItems() {
-        return filterUsersByNames(this.items, this.filterInput);
-      },
       numFilteredItems() {
-        return this.filteredItems.length;
-      },
-      totalPages() {
-        return Math.ceil(this.numFilteredItems / this.itemsPerPage);
+        return this.usersCount;
       },
       startRange() {
         return (this.currentPage - 1) * this.itemsPerPage;
       },
       visibleStartRange() {
+        // return this.currentPage;
         return Math.min(this.startRange + 1, this.numFilteredItems);
       },
       endRange() {
@@ -103,36 +125,63 @@
       visibleEndRange() {
         return Math.min(this.endRange, this.numFilteredItems);
       },
-      visibleFilteredItems() {
-        return this.filteredItems.slice(this.startRange, this.endRange);
-      },
       previousButtonDisabled() {
         return this.currentPage === 1 || this.numFilteredItems === 0;
       },
       nextButtonDisabled() {
         return (
-          this.totalPages === 1 ||
-          this.currentPage === this.totalPages ||
+          this.totalPageNumbers === 1 ||
+          this.currentPage === this.totalPageNumbers ||
           this.numFilteredItems === 0
         );
       },
     },
     watch: {
-      visibleFilteredItems: {
-        handler(newVal) {
-          this.$emit('pageChanged', {
-            page: this.currentPage,
-            items: newVal,
-          });
+      filterInput: {
+        handler() {
+          this.currentPage = 1;
+          this.get_users();
         },
-        immediate: true,
+      },
+      roleFilter: {
+        handler() {
+          this.currentPage = 1;
+          this.get_users();
+        },
       },
     },
     methods: {
+      get_users() {
+        const facilityId = store.getters.activeFacilityId;
+        FacilityUserResource.fetchCollection({
+          getParams: {
+            member_of: facilityId,
+            page_size: this.itemsPerPage,
+            page: this.currentPage,
+            search: this.filterInput,
+            exclude_member_of: !this.excludeMemberOf ? '' : this.excludeMemberOf,
+            user_type:
+              !this.roleFilter || this.roleFilter.value === 'all' ? '' : this.roleFilter.value,
+            exclude_user_type: this.userAssignmentType === 'coaches' ? 'learner' : '',
+          },
+          force: true,
+        }).then(
+          users => {
+            this.currentPage = users.page;
+            this.userList = users.results;
+            this.totalPageNumbers = users.total_pages;
+            this.usersCount = users.count;
+          },
+          error => {
+            store.dispatch('handleApiError', error);
+          }
+        );
+      },
       changePage(change) {
         // Clamp the newPage number between the bounds if browser doesn't correctly
         // disable buttons (see #6454 issue with old versions of MS Edge)
-        this.currentPage = clamp(this.currentPage + change, 1, this.totalPages);
+        this.currentPage = clamp(this.currentPage + change, 1, this.totalPageNumbers);
+        this.get_users();
       },
     },
     $trs: {
