@@ -8,7 +8,7 @@
         :details="authorizationErrorDetails"
       />
     </KPageContainer>
-    <KPageContainer v-else-if="error">
+    <KPageContainer v-else-if="!loading && error">
       <AppError />
     </KPageContainer>
 
@@ -33,7 +33,7 @@
 
 <script>
 
-  import { mapState } from 'vuex';
+  import { mapState, mapGetters } from 'vuex';
   import Lockr from 'lockr';
   import { UPDATE_MODAL_DISMISSED } from 'kolibri.coreVue.vuex.constants';
   import { currentLanguage, defaultLanguage } from 'kolibri.utils.i18n';
@@ -75,6 +75,7 @@
       };
     },
     computed: {
+      ...mapGetters(['isAdmin', 'isSuperuser']),
       ...mapState({
         error: state => state.core.error,
         loading: state => state.core.loading,
