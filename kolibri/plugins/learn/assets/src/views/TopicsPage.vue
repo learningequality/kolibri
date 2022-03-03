@@ -19,6 +19,7 @@
         <KGrid>
           <KGridItem
             class="breadcrumbs"
+            data-test="header-breadcrumbs"
             :layout4="{ span: 4 }"
             :layout8="{ span: 8 }"
             :layout12="{ span: 12 }"
@@ -30,7 +31,7 @@
             :layout8="{ span: 8, alignment: 'auto' }"
             :layout12="{ span: 12, alignment: 'auto' }"
           >
-            <h1 class="title">
+            <h1 class="title" data-test="header-title">
               <TextTruncator
                 :text="topic.title"
                 :maxHeight="maxTitleHeight"
@@ -71,7 +72,7 @@
         </KGrid>
         <!-- Nested tabs within the header, for toggling sidebar options -->
         <!-- large screens -->
-        <HeaderTabs v-if="!!windowIsLarge">
+        <HeaderTabs v-if="!!windowIsLarge" data-test="header-tabs">
           <HeaderTab
             v-if="topics.length"
             :text="coreString('folders')"
@@ -87,12 +88,13 @@
       <KGrid
         v-if="windowIsSmall"
         class="mobile-header"
+        data-test="mobile-header"
         :style="{ backgroundColor: $themeTokens.surface }"
       >
         <KGridItem
           :layout4="{ span: 3 }"
         >
-          <h1 class="mobile-title">
+          <h1 class="mobile-title" data-test="mobile-title">
             <TextTruncator
               :text="topic.title"
               :maxHeight="maxDescriptionHeight"
@@ -113,14 +115,19 @@
         class="main-content-grid"
         :style="gridOffset"
       >
-        <KBreadcrumbs v-if="breadcrumbs.length && windowIsSmall" :items="breadcrumbs" />
+        <KBreadcrumbs
+          v-if="breadcrumbs.length && windowIsSmall"
+          data-test="mobile-breadcrumbs"
+          :items="breadcrumbs"
+        />
         <div
           class="card-grid"
         >
-          <div v-if="!windowIsLarge">
+          <div v-if="!windowIsLarge" data-test="tab-buttons">
             <KButton
               v-if="topics.length"
               icon="topic"
+              data-test="folders-button"
               class="overlay-toggle-button"
               :text="coreString('folders')"
               :primary="false"
@@ -129,6 +136,7 @@
             <KButton
               icon="filter"
               class="overlay-toggle-button"
+              data-test="filter-button"
               :text="filterTranslator.$tr('filter')"
               :primary="false"
               @click="toggleFolderSearchSidePanel('search')"
@@ -136,7 +144,7 @@
 
           </div>
           <!-- default/preview display of nested folder structure, not search -->
-          <div v-if="!displayingSearchResults">
+          <div v-if="!displayingSearchResults" data-test="topics">
             <!-- display for each nested topic/folder  -->
             <div v-for="t in topicsForDisplay" :key="t.id">
               <!-- header link to folder -->
@@ -158,6 +166,7 @@
               <!-- card grid of items in folder -->
               <LibraryAndChannelBrowserMainContent
                 v-if="t.children && t.children.length"
+                data-test="children-cards-grid"
                 :contents="t.children"
                 currentCardViewStyle="card"
                 :gridType="2"
@@ -185,8 +194,12 @@
               <KCircularLoader v-if="t.id === subTopicLoading" />
             </div>
             <!-- search results -->
+            <!----
+              TODO - is this necessary at all? how is this different than the search results below?
+            -->
             <HybridLearningCardGrid
               v-if="resources.length"
+              data-test="search-results"
               :contents="resources"
               :numCols="numCols"
               :genContentLink="genContentLink"
@@ -212,6 +225,7 @@
               }}
             </h2>
             <SearchChips
+              data-test="search-terms"
               :searchTerms="searchTerms"
               @removeItem="removeFilterTag"
               @clearSearch="clearSearch"
@@ -219,13 +233,14 @@
             <!-- search results display -->
             <HybridLearningCardGrid
               v-if="results.length"
+              data-test="search-results"
               :numCols="numCols"
               :cardViewStyle="currentViewStyle"
               :genContentLink="genContentLink"
               :contents="results"
               @toggleInfoPanel="toggleInfoPanel"
             />
-            <div v-if="more" class="end-button-block">
+            <div v-if="more" data-test="more-button" class="end-button-block">
               <KButton
                 v-if="!moreLoading"
                 :text="coreString('viewMoreAction')"
