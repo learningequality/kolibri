@@ -156,7 +156,7 @@
   resourcesNeededShown.map(key => {
     const value = ResourcesNeededTypes[key];
     // TODO rtibbles: remove this condition
-    if (plugin_data.learnerNeeds.includes(value) || process.env.NODE_ENV !== 'production') {
+    if ((plugin_data.learnerNeeds || []).includes(value) || process.env.NODE_ENV !== 'production') {
       resourcesNeeded[key] = value;
     }
   });
