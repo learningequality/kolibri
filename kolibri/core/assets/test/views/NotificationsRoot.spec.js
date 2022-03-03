@@ -1,4 +1,5 @@
 import { shallowMount } from '@vue/test-utils';
+import { UserKinds } from 'kolibri.coreVue.vuex.constants';
 import NotificationsRoot from '../../src/views/NotificationsRoot.vue';
 import { coreStoreFactory as makeStore } from '../../src/state/store';
 
@@ -8,8 +9,6 @@ function makeWrapper(options = {}) {
     store,
     ...options,
     computed: {
-      notAuthorized: () => false,
-      showNotification: () => false,
       mostRecentNotification: () => {
         return {
           id: 1,
@@ -42,9 +41,10 @@ describe('NotificationsRoot', function() {
       expect(wrapper.findComponent({ name: 'AppError' }).exists()).toBeFalsy();
     });
 
-    it('if user is not authorized, AuthMessage component should be rendered', async () => {
-      const { wrapper, store } = makeWrapper({ computed: { notAuthorized: () => true } });
+    it('if user is not authorized, authorization component in the main page should be rendered', async () => {
+      const { wrapper, store } = makeWrapper();
       store.state.core.loading = false;
+      store.state.core.error = { response: { status: 403 } };
       await wrapper.vm.$nextTick();
 
       expect(wrapper.findComponent({ name: 'AuthMessage' }).exists()).toBeTruthy();
@@ -52,7 +52,7 @@ describe('NotificationsRoot', function() {
       expect(wrapper.find('[data-test="main"]').exists()).toBeFalsy();
     });
 
-    it('if there is an error, AppError component should be rendered', async () => {
+    it('if there is an error, the error component in the main page should be rendered', async () => {
       const { wrapper, store } = makeWrapper();
       store.state.core.loading = false;
       store.state.core.error = 'some error here';
@@ -63,22 +63,29 @@ describe('NotificationsRoot', function() {
       expect(wrapper.find('[data-test="main"]').exists()).toBeFalsy();
     });
 
-    it('UpdateNotification should be rendered ', async () => {
-      const { wrapper, store } = makeWrapper({ computed: { showNotification: () => true } });
+    it('notification modal should be rendered if the user is an admin/superuser, a notification exists, and there is a recent notification', async () => {
+      const { wrapper, store } = makeWrapper();
+      store.commit('CORE_SET_SESSION', { kind: [UserKinds.ADMIN] });
       store.state.core.loading = false;
+      store.state.core.notifications = [
+        {
+          id: 2,
+          title: 'title',
+          msg: 'notification',
+          linkText: 'linktext',
+          linkUrl: 'url',
+        },
+      ];
       await wrapper.vm.$nextTick();
 
       expect(wrapper.findComponent({ name: 'UpdateNotification' }).exists()).toBeTruthy();
     });
 
-    it('UpdateNotification should not be rendered ', async () => {
-      const { wrapper, store } = makeWrapper({
-        computed: {
-          showNotification: () => true,
-          mostRecentNotification: () => null,
-        },
-      });
+    it('notification modal should not be rendered if notifications do not exist', async () => {
+      const { wrapper, store } = makeWrapper();
+      store.commit('CORE_SET_SESSION', { kind: [UserKinds.ADMIN] });
       store.state.core.loading = false;
+      store.state.core.notifications = [];
       await wrapper.vm.$nextTick();
 
       expect(wrapper.findComponent({ name: 'UpdateNotification' }).exists()).toBeFalsy();
