@@ -1,0 +1,79 @@
+
+name: Build Debian installer
+
+on:
+  workflow_dispatch:
+    # Inputs the workflow accepts.
+    inputs:
+      tar-url:
+        description: 'URL for Kolibri tar file'
+        required: true
+  workflow_call:
+    inputs:
+      tar-file-name:
+        required: true
+        type: string
+      ref:
+        description: 'A ref for this workflow to check out its own repo'
+        required: true
+        type: string
+    outputs:
+      deb-file-name:
+        description: "DEB file name"
+        value: ${{ jobs.build_deb.outputs.deb-file-name }}
+
+jobs:
+  build_deb:
+    name: Build DEB file
+    runs-on: ubuntu-latest
+    outputs:
+      deb-file-name: ${{ steps.get-deb-filename.outputs.deb-file-name }}
+    steps:
+    - uses: actions/checkout@v2
+      if: ${{ !inputs.ref }}
+    - uses: actions/checkout@v2
+      if: ${{ inputs.ref }}
+      with:
+        repository: learningequality/kolibri-installer-debian
+        ref: ${{ inputs.ref }}
+    - uses: actions/cache@v2
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('setup.py', 'build_requires.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    - name: Download the tarfile from URL
+      if: ${{ github.event.inputs.tar-url }}
+      run: make get-tar tar=${{ github.event.inputs.tar-url }}
+    - name: Download the tarfile from artifacts
+      if: ${{ inputs.tar-file-name }}
+      uses: actions/download-artifact@v2
+      with:
+        name: ${{ inputs.tar-file-name }}
+        path: build_src
+    - name: Register the kolibri PPA
+      id: ppa
+      run: |
+        sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys AD405B4A
+        sudo add-apt-repository -y -u -s ppa:learningequality/kolibri-proposed
+        echo "::set-output name=deb-version::$(apt-cache policy kolibri | grep 'Candidate: ')"
+    - name: Install Ubuntu dependencies
+      run: sudo apt install -y devscripts debhelper dh-python python3-all python3-pytest po-debconf
+    - uses: actions/cache@v2
+      with:
+        path: kolibri-source-*
+        key: ${{ runner.os }}-deb-source-${{ steps.ppa.outputs.deb-version }}
+        restore-keys: |
+          ${{ runner.os }}-deb-source-
+    - name: Download the most recent kolibri from the PPA
+      # Only do this if a cached folder for this doesn't exist already
+      run: test -d kolibri-source-* || apt-get -y source kolibri
+    - name: Run the build
+      run: make kolibri.deb
+    - name: Get DEB filename
+      id: get-deb-filename
+      run: echo "::set-output name=deb-file-name::$(ls dist | grep .deb | cat)"
+    - uses: actions/upload-artifact@v2
+      with:
+        name: ${{ steps.get-deb-filename.outputs.deb-file-name }}
+        path: dist/${{ steps.get-deb-filename.outputs.deb-file-name }}

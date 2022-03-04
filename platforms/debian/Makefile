@@ -43,3 +43,16 @@ docker-deb:
 .PHONY: docker-test
 docker-test:
 	export DOCKER_IMAGES=$(DOCKER_IMAGES) && build_tools/docker_test.sh
+
+.PHONY:
+clean-tar:
+	rm -rf build_src
+	mkdir build_src
+
+.PHONY: get-tar
+get-tar: clean-tar
+# The eval and shell commands here are evaluated when the recipe is parsed, so we put the cleanup
+# into a prerequisite make step, in order to ensure they happen prior to the download.
+	$(eval DLFILE = $(shell wget --content-disposition -P build_src/ "${tar}" 2>&1 | grep "Saving to: " | sed 's/Saving to: ‘//' | sed 's/’//'))
+	$(eval TARFILE = $(shell echo "${DLFILE}" | sed "s/\?.*//"))
+	[ "${DLFILE}" = "${TARFILE}" ] || mv "${DLFILE}" "${TARFILE}"
