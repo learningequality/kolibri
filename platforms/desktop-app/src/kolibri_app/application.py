@@ -4,16 +4,15 @@ import webbrowser
 from threading import Thread
 
 import wx
-from kolibri_app.constants import APP_NAME
-from kolibri_app.logger import logging
-from kolibri_app.view import KolibriView
-from magicbus.plugins import SimplePlugin
-
 from kolibri.main import initialize
 from kolibri.plugins.app.utils import interface
 from kolibri.plugins.app.utils import SHARE_FILE
 from kolibri.utils.conf import KOLIBRI_HOME
 from kolibri.utils.server import KolibriProcessBus
+from kolibri_app.constants import APP_NAME
+from kolibri_app.logger import logging
+from kolibri_app.view import KolibriView
+from magicbus.plugins import SimplePlugin
 
 
 share_file = None

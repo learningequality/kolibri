@@ -51,7 +51,7 @@ To export the necessary p12 certificate used for codesigning, first be sure to h
 
 Then, be sure that the certificate is valid (selecting it will show a checkmark and say that it is valid), and that it has an associated private key. You can check if there is a private key in keychain access. Next to the name on the left, there should be a toggle, which would open to show that there is a private key, associated with your name. This is the bundle that is able to be exported. Using a certificate without this associated private key will NOT work.
 
-Once you have confirmed that the private key is linked with the certificate, right click, Export, and then select p12 as the file option. If there is no p12 as an option, your certificate does not have the private key. 
+Once you have confirmed that the private key is linked with the certificate, right click, Export, and then select p12 as the file option. If there is no p12 as an option, your certificate does not have the private key.
 
 Choose a password that will be associate with the certificate, and enter when prompted (also, write it down because you will not access it again). Add the password and the file in 1Password for team access.
 
