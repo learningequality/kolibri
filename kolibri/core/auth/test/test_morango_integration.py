@@ -8,6 +8,7 @@ import uuid
 
 import requests
 from django.core.management import call_command
+from django.db.utils import IntegrityError
 from django.test import TestCase
 from django.utils import timezone
 from le_utils.constants import content_kinds
@@ -26,6 +27,7 @@ from ..models import LearnerGroup
 from ..models import Membership
 from ..models import Role
 from .helpers import DUMMY_PASSWORD
+from .migrationtestcase import TestMigrations
 from .sync_utils import multiple_kolibri_servers
 from kolibri.core.auth.management.utils import get_client_and_server_certs
 from kolibri.core.exams.models import Exam
@@ -75,6 +77,37 @@ class DateTimeTZFieldTestCase(TestCase):
             self.controller.deserialize_from_store()
         except AttributeError as e:
             self.fail(e.message)
+
+
+class MorangoNullableMigrationTest(TestMigrations):
+    """
+    Test migration that applies nullable status to `transfer_stage` and `transfer_stage_status`
+    """
+
+    app = "morango"
+    migrate_from = "0017_store_last_transfer_session_id"
+    migrate_to = "0018_auto_20210714_2216"
+
+    def test_nullable(self):
+        SyncSession = self.apps.get_model("morango", "SyncSession")
+        TransferSession = self.apps.get_model("morango", "TransferSession")
+
+        sync_session = SyncSession.objects.create(
+            id=uuid.uuid4().hex,
+            profile=PROFILE_FACILITY_DATA,
+            last_activity_timestamp=timezone.now(),
+        )
+        try:
+            TransferSession.objects.create(
+                id=uuid.uuid4().hex,
+                sync_session_id=sync_session.id,
+                push=True,
+                last_activity_timestamp=timezone.now(),
+                transfer_stage=None,
+                transfer_stage_status=None,
+            )
+        except IntegrityError:
+            self.fail("Couldn't create TransferSession with nullable fields")
 
 
 @unittest.skipIf(
