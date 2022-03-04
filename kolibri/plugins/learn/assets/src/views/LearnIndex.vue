@@ -95,6 +95,9 @@
       ...mapState('examReportViewer', ['exam']),
       ...mapState(['pageName']),
       userIsAuthorized() {
+        if (this.pageName === PageNames.BOOKMARKS) {
+          return this.isUserLoggedIn;
+        }
         return (
           (plugin_data.allowGuestAccess && this.$store.getters.allowAccess) || this.isUserLoggedIn
         );
