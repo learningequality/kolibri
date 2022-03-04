@@ -1,2 +1,0 @@
--r requirements.in
--e git://github.com/kollivier/python-for-android.git@pew_webview#egg=python-for-android

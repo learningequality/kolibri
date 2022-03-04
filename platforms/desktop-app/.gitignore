@@ -31,7 +31,6 @@ MANIFEST
 #  Usually these files are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
-*.spec
 
 # Installer logs
 pip-log.txt
@@ -52,8 +51,8 @@ coverage.xml
 .pytest_cache/
 
 # Translations
-*.mo
 *.pot
+*.mo
 
 # Django stuff:
 *.log
@@ -138,3 +137,4 @@ src/stdlib_imports.py
 tmpenv
 whl
 package
+kolibri

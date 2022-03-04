@@ -1,0 +1,120 @@
+name: Build Mac installer
+
+on:
+  workflow_dispatch:
+    # Inputs the workflow accepts.
+    inputs:
+      whl-url:
+        description: 'URL for Kolibri whl file'
+        required: true
+      release:
+        description: 'Is this a release asset?'
+        required: false
+        type: boolean
+        default: false
+  workflow_call:
+    inputs:
+      whl-file-name:
+        required: true
+        type: string
+      ref:
+        description: 'A ref for this workflow to check out its own repo'
+        required: true
+        type: string
+      release:
+        description: 'Is this a release asset?'
+        required: false
+        type: boolean
+        default: false
+    secrets:
+      KOLIBRI_MAC_APP_IDENTITY:
+        required: false
+      KOLIBRI_MAC_APP_CERTIFICATE:
+        required: false
+      KOLIBRI_MAC_APP_CERTIFICATE_PASSWORD:
+        required: false
+      KOLIBRI_MAC_APP_USERNAME:
+        required: false
+      KOLIBRI_MAC_APP_PASSWORD:
+        required: false
+    outputs:
+      dmg-file-name:
+        description: "DMG file name"
+        value: ${{ jobs.build_dmg.outputs.dmg-file-name }}
+
+jobs:
+  build_dmg:
+    runs-on: macos-latest
+    outputs:
+      dmg-file-name: ${{ steps.get-dmg-filename.outputs.dmg-file-name }}
+    steps:
+    - uses: actions/checkout@v2
+      if: ${{ !inputs.ref }}
+    - uses: actions/checkout@v2
+      if: ${{ inputs.ref }}
+      with:
+        repository: learningequality/kolibri-app
+        ref: ${{ inputs.ref }}
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+    - uses: actions/cache@v2
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('setup.py', 'build_requires.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    - name: Download the whlfile from URL and install
+      if: ${{ github.event.inputs.whl-url }}
+      run: make get-whl whl=${{ github.event.inputs.whl-url }}
+    - name: Download the whlfile from artifacts
+      if: ${{ inputs.whl-file-name }}
+      uses: actions/download-artifact@v2
+      with:
+        name: ${{ inputs.whl-file-name }}
+        path: whl
+    - name: Install WHL file from artifacts
+      if: ${{ inputs.whl-file-name }}
+      run: make install-whl whl=whl/${{ inputs.whl-file-name }}
+    - name: Install dependencies
+      run: make dependencies
+    - name: Setup app signing certificate
+      if: ${{ inputs.release == true || github.event.inputs.release == 'true' }}
+      env:
+        KEYCHAIN_PASSWORD: ${{ hashFiles('*')}}
+      run: |
+        security create-keychain -p "$KEYCHAIN_PASSWORD" temp.keychain
+        security set-keychain-settings -lut 21600 temp.keychain
+        security unlock-keychain -p "$KEYCHAIN_PASSWORD" temp.keychain
+        echo -n "${{ secrets.KOLIBRI_MAC_APP_CERTIFICATE }}" | base64 --decode --output certificate.p12
+        # -A option allows any application to read keys.
+        # This would be insecure if the keychain was retained but GitHub action
+        # VMs are thrown away after use.
+        security import certificate.p12 -k temp.keychain -f pkcs12 -A -T '/usr/bin/codesign' -T '/usr/bin/security' -P "${{ secrets.KOLIBRI_MAC_APP_CERTIFICATE_PASSWORD }}"
+        security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" temp.keychain
+        security list-keychains -d user -s temp.keychain login.keychain
+    - name: Build the app
+      run: make build-mac-app
+    - name: Codesign the app
+      if: ${{ inputs.release == true || github.event.inputs.release == 'true' }}
+      run: MAC_CODESIGN_IDENTITY="${{ secrets.KOLIBRI_MAC_APP_IDENTITY }}" make codesign-mac-app
+    - name: Build the DMG
+      run: make build-dmg
+    - name: Codesign the DMG
+      if: ${{ inputs.release == true || github.event.inputs.release == 'true' }}
+      run: MAC_CODESIGN_IDENTITY="${{ secrets.KOLIBRI_MAC_APP_IDENTITY }}" make codesign-dmg
+    - name: Notarize the DMG
+      if: ${{ inputs.release == true || github.event.inputs.release == 'true' }}
+      env:
+        MAC_NOTARIZE_USERNAME: ${{ secrets.KOLIBRI_MAC_APP_USERNAME }}
+        MAC_NOTARIZE_PW: ${{ secrets.KOLIBRI_MAC_APP_PASSWORD }}
+        MAC_NOTARIZE_PASSWORD: "@env:MAC_NOTARIZE_PW"
+      run: make notarize-dmg
+    - name: Get DMG filename
+      id: get-dmg-filename
+      run: echo "::set-output name=dmg-file-name::$(ls dist | grep .dmg | cat)"
+    - uses: actions/upload-artifact@v2
+      with:
+        name: ${{ steps.get-dmg-filename.outputs.dmg-file-name }}
+        path: dist/${{ steps.get-dmg-filename.outputs.dmg-file-name }}

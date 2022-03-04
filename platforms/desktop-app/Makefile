@@ -1,41 +1,103 @@
-# run with envvar `ARCH=64bit` to build for v8a
+.PHONY: clean get-whl install-whl clean-whl build-mac-app pyinstaller build-dmg compile-mo codesign-windows needs-version
 
-ifeq (${ARCH}, 64bit)
-  ARM_VER=v8a
+ifeq ($(OS),Windows_NT)
+    OSNAME := WIN32
 else
-  ARM_VER=v7a
+    OSNAME := $(shell uname -s)
 endif
 
-.PHONY: p4a_android_distro
-p4a_android_distro:
-	python kapew.py prep-kolibri-dist --custom-whl
-	# Source kolibri folder extraction from whl
-	# Preseeds kolibri home. Extracts whl, run kolibri server locally.
-	# Gives a special kolibri home folder, and puts the generated files in the app
-	python kapew.py init android ${ARCH}
+guard-%:
+	@ if [ "${${*}}" = "" ]; then \
+		echo "Environment variable $* not set"; \
+		exit 1; \
+	fi
 
-ifdef P4A_RELEASE_KEYSTORE_PASSWD
-pew_release_flag = --release
-endif
+needs-version:
+	$(eval KOLIBRI_VERSION ?= $(shell python3 -c "import os; import sys; sys.path = [os.path.abspath('kolibri')] + sys.path; import kolibri; print(kolibri.__version__)"))
+	$(eval APP_VERSION ?= $(shell python3 -c "import os; import sys; sys.path = [os.path.abspath('kolibri')] + sys.path; import kolibri_app; print(kolibri_app.__version__)"))
 
-.PHONY: kolibri.apk
-# Build the debug version of the apk
-kolibri.apk: p4a_android_distro
-	python kapew.py build $(pew_release_flag) android ${ARCH}
+clean:
+	rm -rf build dist
 
+clean-whl:
+	rm -rf whl
+	mkdir whl
 
-# DOCKER BUILD
+install-whl:
+	rm -rf kolibri
+	pip3 install ${whl} -t kolibri/
+	rm -rf kolibri/kolibri/dist/sqlalchemy
 
-# Build the docker image. Should only ever need to be rebuilt if project requirements change.
-# Makes dummy file
-.PHONY: build_docker
-build_docker: Dockerfile
-	docker build -t android_kolibri .
+get-whl: clean-whl
+# The eval and shell commands here are evaluated when the recipe is parsed, so we put the cleanup
+# into a prerequisite make step, in order to ensure they happen prior to the download.
+	$(eval DLFILE = $(shell wget --content-disposition -P whl/ "${whl}" 2>&1 | grep "Saving to: " | sed 's/Saving to: ‘//' | sed 's/’//'))
+	$(eval WHLFILE = $(shell echo "${DLFILE}" | sed "s/\?.*//"))
+	[ "${DLFILE}" = "${WHLFILE}" ] || mv "${DLFILE}" "${WHLFILE}"
+	$(MAKE) install-whl whl="${WHLFILE}"
 
-# Run the docker image.
-# TODO Would be better to just specify the file here?
-run_docker: build_docker
-	./docker/android/rundocker.sh
+dependencies:
+	pip3 install -r build_requires.txt
+	python3 -c "import PyInstaller; import os; os.truncate(os.path.join(PyInstaller.__path__[0], 'hooks', 'rthooks', 'pyi_rth_django.py'), 0)"
 
-softbuild: project_info.json
-	python kapew.py build $(pew_release_flag) android ${ARCH}
+build-mac-app:
+	$(eval LIBPYTHON_FOLDER = $(shell python3 -c 'from distutils.sysconfig import get_config_var; print(get_config_var("LIBDIR"))'))
+	test -f ${LIBPYTHON_FOLDER}/libpython3.9.dylib || ln -s ${LIBPYTHON_FOLDER}/libpython3.9m.dylib ${LIBPYTHON_FOLDER}/libpython3.9.dylib
+	$(MAKE) pyinstaller
+
+pyinstaller: clean
+	mkdir -p logs
+	pip3 install .
+	python3 -OO -m PyInstaller kolibri.spec
+
+build-dmg: needs-version
+	python3 -m dmgbuild -s build_config/dmgbuild_settings.py "Kolibri ${KOLIBRI_VERSION}-${APP_VERSION}" dist/kolibri-${KOLIBRI_VERSION}-${APP_VERSION}.dmg
+
+compile-mo:
+	find src/kolibri_app/locales -name LC_MESSAGES -exec msgfmt {}/wxapp.po -o {}/wxapp.mo \;
+
+codesign-windows:
+	$(MAKE) guard-WIN_CODESIGN_PFX
+	$(MAKE) guard-WIN_CODESIGN_PWD
+	$(MAKE) guard-WIN_CODESIGN_CERT
+	C:\Program Files (x86)\Windows Kits\8.1\bin\x64\signtool.exe sign /f ${WIN_CODESIGN_PFX} /p ${WIN_CODESIGN_PWD} /ac ${WIN_CODESIGN_CERT} /tr http://timestamp.ssl.trustwave.com /td SHA256 /fd SHA256 dist/kolibri-${KOLIBRI_VERSION}-${APP_VERSION}.exe
+
+.PHONY: codesign-mac-app
+codesign-mac-app:
+	$(MAKE) guard-MAC_CODESIGN_IDENTITY
+# Mac App Code Signing
+# CODESIGN should start with "Developer ID Application: ..."
+	xattr -cr dist/Kolibri.app
+	codesign \
+		--sign "Developer ID Application: $(MAC_CODESIGN_IDENTITY)" \
+		--verbose=3 \
+		--deep \
+		--timestamp \
+		--force \
+		--strict \
+		--entitlements build_config/entitlements.plist \
+		-o runtime \
+		dist/Kolibri.app
+	codesign --display --verbose=3 --entitlements :- dist/Kolibri.app
+	codesign --verify --verbose=3 --deep --strict=all dist/Kolibri.app
+
+.PHONY: codesign-dmg
+codesign-dmg: needs-version
+	$(MAKE) guard-MAC_CODESIGN_IDENTITY
+	xattr -cr dist/kolibri-${KOLIBRI_VERSION}-${APP_VERSION}.dmg
+	codesign \
+		--sign "Developer ID Application: $(MAC_CODESIGN_IDENTITY)" \
+		--verbose=3 \
+		--deep \
+		--timestamp \
+		--force \
+		--strict \
+		--entitlements build_config/entitlements.plist \
+		-o runtime \
+		dist/kolibri-${KOLIBRI_VERSION}-${APP_VERSION}.dmg
+
+.PHONY: notarize-dmg
+notarize-dmg: needs-version
+	$(MAKE) guard-MAC_NOTARIZE_USERNAME
+	$(MAKE) guard-MAC_NOTARIZE_PASSWORD
+	./notarize-dmg.sh "./dist/kolibri-${KOLIBRI_VERSION}-${APP_VERSION}.dmg"
