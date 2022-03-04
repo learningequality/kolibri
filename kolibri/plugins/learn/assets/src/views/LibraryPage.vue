@@ -173,7 +173,6 @@
         v-if="!currentCategory"
         ref="embeddedPanel"
         v-model="searchTerms"
-        :width="`${sidePanelOverlayWidth - 64}px`"
         :availableLabels="labels"
         position="overlay"
         :activeActivityButtons="activeActivityButtons"
