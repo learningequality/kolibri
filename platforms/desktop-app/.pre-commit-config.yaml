@@ -11,7 +11,7 @@ repos:
     -   id: end-of-file-fixer
         exclude: '^.+?(\.json|\.po)$'
 -   repo: https://github.com/asottile/reorder_python_imports
-    rev: v1.3.3
+    rev: v2.7.1
     hooks:
     -   id: reorder-python-imports
         language_version: python3.9
