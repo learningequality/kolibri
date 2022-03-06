@@ -831,22 +831,26 @@
     right: 0;
   }
 
+  .toc-button {
+    left: 3px;
+  }
+
   .toc-button,
   .settings-button,
   .search-button {
     position: absolute;
-    top: 0;
+    top: 2px;
     z-index: 2;
   }
 
   .settings-button {
-    right: 72px;
+    right: 67px;
   }
 
   .search-button {
     // Positioned to be in the exact same spot as the TopBar's SearchButton,
     // which is given opacity: 0 when this button is shown
-    right: 32px;
+    right: 35px;
   }
 
   .bottom-bar {
