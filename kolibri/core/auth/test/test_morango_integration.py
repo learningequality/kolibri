@@ -88,17 +88,28 @@ class MorangoNullableMigrationTest(TestMigrations):
     migrate_from = "0017_store_last_transfer_session_id"
     migrate_to = "0018_auto_20210714_2216"
 
+    def setUpBeforeMigration(self, apps):
+        # simulate as if 0018_auto_20210714_2216 hadn't applied Nullablity to the columns,
+        # a change which we added after the migration might have run on other
+        TransferSession = apps.get_model("morango", "TransferSession")
+        TransferSession.objects.raw(
+            "ALTER TABLE morango_transfersession ALTER COLUMN transfer_stage SET NOT NULL;"
+        )
+        TransferSession.objects.raw(
+            "ALTER TABLE morango_transfersession ALTER COLUMN transfer_stage_status SET NOT NULL;"
+        )
+
     def test_nullable(self):
         SyncSession = self.apps.get_model("morango", "SyncSession")
         TransferSession = self.apps.get_model("morango", "TransferSession")
 
         sync_session = SyncSession.objects.create(
             id=uuid.uuid4().hex,
-            profile=PROFILE_FACILITY_DATA,
+            profile="facilitydata",
             last_activity_timestamp=timezone.now(),
         )
         try:
-            TransferSession.objects.create(
+            transfer_session = TransferSession.objects.create(
                 id=uuid.uuid4().hex,
                 sync_session_id=sync_session.id,
                 push=True,
@@ -108,6 +119,9 @@ class MorangoNullableMigrationTest(TestMigrations):
             )
         except IntegrityError:
             self.fail("Couldn't create TransferSession with nullable fields")
+
+        self.assertIsNone(transfer_session.transfer_stage)
+        self.assertIsNone(transfer_session.transfer_stage_status)
 
 
 @unittest.skipIf(
