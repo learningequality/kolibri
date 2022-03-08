@@ -175,15 +175,33 @@ class BundleTrackerPlugin {
 
       output.assets[assetName] = fileInfo;
     });
+    const cssFilesInChunks = {};
+
     each(stats.compilation.chunkGroups, chunkGroup => {
       if (!chunkGroup.isInitial()) return;
 
       output.chunks[chunkGroup.name] = chunkGroup.getFiles().map(f => output.assets[f]);
+      cssFilesInChunks[chunkGroup.name] = output.chunks[chunkGroup.name]
+        .map(f => f.name)
+        .filter(f => f.endsWith('.css') && !f.endsWith('.rtl.css'));
     });
 
     if (this.options.logTime === true) {
       output.startTime = stats.startTime;
       output.endTime = stats.endTime;
+    }
+
+    // Hack to ensure that our RTL plugin assets also get added into the chunk group.
+    // Should probably try to fix this within the context of the RTL plugin,
+    // but the webpack API is a bit too opaque to understand how to add the RTL asset
+    // to the chunk group as well as to the emitted assets.
+    for (let chunkGroupName in cssFilesInChunks) {
+      for (let cssFile of cssFilesInChunks[chunkGroupName]) {
+        const rtlCssFile = cssFile.replace('.css', '.rtl.css');
+        if (output.assets[rtlCssFile]) {
+          output.chunks[chunkGroupName].push(output.assets[rtlCssFile]);
+        }
+      }
     }
 
     this._writeOutput(compiler, output);
