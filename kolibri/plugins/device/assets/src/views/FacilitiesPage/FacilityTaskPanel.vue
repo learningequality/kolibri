@@ -25,6 +25,9 @@
     syncFacilityTaskDisplayInfo,
     removeFacilityTaskDisplayInfo,
     importFacilityTaskDisplayInfo,
+    isSyncTask,
+    isImportSyncTask,
+    isSetupWizardImportSyncTask,
   } from '../syncTaskUtils';
   import { TaskTypes } from '../../constants';
   import FacilityTaskPanelDetails from './FacilityTaskPanelDetails';
@@ -55,21 +58,16 @@
     },
     computed: {
       isSyncTask() {
-        return (
-          this.task.type === TaskTypes.SYNCDATAPORTAL ||
-          this.task.type === TaskTypes.SYNCPEERFULL ||
-          this.task.type === TaskTypes.SYNCLOD
-        );
+        return isSyncTask(this.task);
       },
       isDeleteTask() {
         return this.task.type === TaskTypes.DELETEFACILITY;
       },
       isSetupImportTask() {
-        // HACK infer that we're in the setup wizard because the started_by field is null
-        return !this.task.started_by && this.task.type === TaskTypes.SYNCPEERPULL;
+        return isSetupWizardImportSyncTask(this.task);
       },
       isImportTask() {
-        return this.task.type === TaskTypes.SYNCPEERPULL;
+        return isImportSyncTask(this.task);
       },
       taskInfo() {
         if (this.isSetupImportTask) {
@@ -111,12 +109,7 @@
         if (this.taskInfo.canCancel) {
           return 'cancel';
         } else if (this.taskInfo.canClear) {
-          // Import tasks can't be retried since we don't save the username/password
-          if (this.isImportTask) {
-            return 'clear';
-          } else {
-            return this.taskInfo.canRetry ? 'retry' : 'clear';
-          }
+          return this.taskInfo.canRetry ? 'retry' : 'clear';
         } else {
           return '';
         }

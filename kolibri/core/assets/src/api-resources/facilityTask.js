@@ -67,4 +67,13 @@ export default new Resource({
       return response.data;
     });
   },
+  /**
+   * @param taskId
+   * @return {Promise}
+   */
+  retrySync(taskId) {
+    return this.postListEndpoint('retrysync', {
+      task_id: taskId,
+    });
+  },
 });

@@ -16,6 +16,7 @@ from django.http.response import HttpResponseBadRequest
 from django.utils.translation import get_language_from_request
 from django.utils.translation import gettext_lazy as _
 from morango.models import ScopeDefinition
+from morango.models.core import SyncSession
 from morango.sync.controller import MorangoProfileController
 from requests.exceptions import HTTPError
 from rest_framework import decorators
@@ -1044,6 +1045,58 @@ class FacilityTasksViewSet(BaseViewSet):
         )
         job_id = facility_queue.enqueue(call_command, "sync", **job_data)
 
+        resp = _job_to_response(facility_queue.fetch_job(job_id))
+        return Response(resp)
+
+    @decorators.action(
+        methods=["post"], detail=False, permission_classes=[FacilitySyncPermissions]
+    )
+    def retrysync(self, request):
+        """
+        Retry a peer facility or KDP sync
+        """
+        failed_task_id = request.data.get("task_id")
+        try:
+            job = facility_queue.fetch_job(failed_task_id)
+        except JobNotFound:
+            return HttpResponseBadRequest("Cannot retry nonexistent task")
+
+        # KDP or peer syncs should have type that starts with `SYNC`
+        existing_type = job.extra_metadata.get("type", "")
+        if not existing_type.startswith("SYNC"):
+            return HttpResponseBadRequest(
+                "Task isn't a sync task: `{}`".format(existing_type)
+            )
+
+        sync_session_id = job.extra_metadata.get("sync_session_id")
+        if sync_session_id:
+            try:
+                SyncSession.objects.get(pk=sync_session_id, active=True)
+            except SyncSession.DoesNotExist:
+                sync_session_id = None
+
+        extra_metadata = job.extra_metadata.copy()
+        extra_metadata.update(
+            sync_state=FacilitySyncState.PENDING, bytes_sent=0, bytes_received=0
+        )
+        job_data = {
+            "baseurl": job.kwargs.get("baseurl"),
+            "noninteractive": True,
+            "chunk_size": 200,
+            "track_progress": True,
+            "cancellable": False,
+            "extra_metadata": extra_metadata,
+        }
+
+        # if the existing sync session is closed, then we'll use the normal sync command to retry
+        if sync_session_id:
+            command = "resumesync"
+            job_data.update(id=sync_session_id)
+        else:
+            command = "sync"
+            job_data.update(facility=job.kwargs.get("facility"))
+
+        job_id = facility_queue.enqueue(call_command, command, **job_data)
         resp = _job_to_response(facility_queue.fetch_job(job_id))
         return Response(resp)
 

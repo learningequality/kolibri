@@ -2,35 +2,10 @@
 // the task queue
 import { FacilityTaskResource } from 'kolibri.resources';
 import { TaskTypes } from '../../constants';
-
-function isSyncTask(task) {
-  return task.type === TaskTypes.SYNCDATAPORTAL || task.type === TaskTypes.SYNCPEERFULL;
-}
+import { isSyncTask } from '../syncTaskUtils';
 
 function taskFacilityMatch(task, facility) {
   return task.facility === facility.id;
-}
-
-function retryKdpSync(task) {
-  return FacilityTaskResource.cleartask(task.id).then(() => {
-    return FacilityTaskResource.dataportalsync({
-      id: task.facility,
-      name: task.facility_name,
-    });
-  });
-}
-
-function retryPeerSync(task) {
-  const retryData = {
-    facility: task.facility,
-    facility_name: task.facility_name,
-    device_name: task.device_name,
-    device_id: task.device_id,
-    baseurl: task.baseurl,
-  };
-  return FacilityTaskResource.cleartask(task.id).then(() => {
-    return FacilityTaskResource.startpeerfacilitysync(retryData);
-  });
 }
 
 export default {
@@ -57,14 +32,12 @@ export default {
         return FacilityTaskResource.canceltask(task.id);
       } else if (action === 'clear') {
         return FacilityTaskResource.cleartask(task.id);
-      } else if (action === 'retry') {
-        if (task.type === TaskTypes.SYNCDATAPORTAL) {
-          return retryKdpSync(task);
-        } else if (task.type === TaskTypes.SYNCPEERFULL) {
-          return retryPeerSync(task);
-        } else {
-          return Promise.resolve();
-        }
+      } else if (action === 'retry' && isSyncTask(task)) {
+        return FacilityTaskResource.retrySync(task.id).then(() => {
+          // clear old task after we've initiated the retry, because the backend will pull
+          // necessary information from the existing task for retrying
+          return FacilityTaskResource.clearTask(task.id);
+        });
       } else {
         return Promise.resolve();
       }

@@ -164,3 +164,18 @@ export function importFacilityTaskDisplayInfo(task) {
   info.canClear = false;
   return info;
 }
+
+const SyncTaskTypes = [TaskTypes.SYNCDATAPORTAL, TaskTypes.SYNCPEERFULL, TaskTypes.SYNCPEERPULL];
+
+export function isSyncTask(task) {
+  return SyncTaskTypes.includes(task.type);
+}
+
+export function isImportSyncTask(task) {
+  return task.type === TaskTypes.SYNCPEERPULL;
+}
+
+export function isSetupWizardImportSyncTask(task) {
+  // HACK infer that we're in the setup wizard because the started_by field is null
+  return !task.started_by && task.type === TaskTypes.SYNCPEERPULL;
+}
