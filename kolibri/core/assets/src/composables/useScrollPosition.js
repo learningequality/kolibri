@@ -1,4 +1,5 @@
-/* eslint-disable */
+import { computed } from 'kolibri.lib.vueCompositionApi';
+import { get } from '@vueuse/core';
 
 export default function useScrollPosition() {
   let _scrollPositions = {};
@@ -8,47 +9,45 @@ export default function useScrollPosition() {
       // Use key set by Vue Router on the history state.
       const key = (window.history.state || {}).key;
       const defaultPos = { x: 0, y: 0 };
-      if (key && this._scrollPositions[key]) {
-        return this._scrollPositions[key];
+      if (key && _scrollPositions[key]) {
+        return _scrollPositions[key];
       }
       return defaultPos;
     },
-    set(oldLocation, newLocation) {
-      if (newLocation !== oldLocation) {
-        // reference location can be { x: 0, y: 0 } coordinates using a Object,
-        // or a string i.e. a css selector
-        // for any instance
-        let x, y;
-        if (newLocation instanceof String) {
-          if (document.querySelector(newLocation)) {
-            const position = document.querySelector(newLocation).getBoundingClientRect();
-            x = position.left;
-            y = position.top;
-          } else {
-            x = 0;
-            y = 0;
-          }
-        } else if (newLocation instanceof Object) {
-          if (newLocation.x instanceof Number && newLocation.x >= 0) {
-            x = newLocation.x;
-          } else {
-            x = 0;
-          }
-          if (newLocation.y instanceof Number && newLocation.y >= 0) {
-            y = newLocation.y;
-          } else {
-            y = 0;
-          }
+    set(newLocation) {
+      // reference location can be { x: 0, y: 0 } coordinates using a Object,
+      // or a string i.e. a css selector
+      // for any instance
+      let x, y;
+      if (newLocation instanceof String) {
+        if (document.querySelector(newLocation)) {
+          const position = document.querySelector(newLocation).getBoundingClientRect();
+          x = position.left;
+          y = position.top;
         } else {
           x = 0;
           y = 0;
         }
-        const key = (window.history.state || {}).key;
-        // Only set if we have a vue router key on the state,
-        // otherwise we don't do anything.
-        if (key) {
-          this._scrollPositions[window.history.state.key] = { x: x, y: y };
+      } else if (newLocation instanceof Object) {
+        if (!isNaN(newLocation.x)) {
+          x = newLocation.x;
+        } else {
+          x = 0;
         }
+        if (!isNaN(newLocation.y)) {
+          y = newLocation.y;
+        } else {
+          y = 0;
+        }
+      } else {
+        x = 0;
+        y = 0;
+      }
+      const key = (window.history.state || {}).key;
+      // Only set if we have a vue router key on the state,
+      // otherwise we don't do anything.
+      if (key) {
+        _scrollPositions[window.history.state.key] = { x: x, y: y };
       }
     },
   });
@@ -56,7 +55,7 @@ export default function useScrollPosition() {
   function scrollToSavedPosition() {
     // set the scrollPosition of the window to the saved position state
     // for the current history state OR to the default scrollPosition { x: 0, y: 0}
-    const position = this.scrollPosition;
+    const position = get(scrollPosition);
     window.scrollTo(position.x, position.y);
   }
 
@@ -65,8 +64,14 @@ export default function useScrollPosition() {
     const key = (window.history.state || {}).key;
     // If we have a vue router key on the state, unset it.
     if (key) {
-      delete this._scrollPositions[window.history.state.key];
+      delete _scrollPositions[window.history.state.key];
     }
     // Otherwise we don't do anything.
   }
+
+  return {
+    scrollPosition,
+    scrollToSavedPosition,
+    doNotSaveScrollPosition,
+  };
 }
