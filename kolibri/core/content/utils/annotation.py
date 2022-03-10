@@ -342,7 +342,7 @@ def set_leaf_node_availability_from_local_file_availability(
             )
         )
         # Only look at files that are required (not supplementary)
-        .where(FileTable.c.supplementary == False)
+        .where(FileTable.c.supplementary == False)  # noqa
         # Correlate between the contentnode id and the foreign key
         # to the content node on the file table to complete the
         # many to many lookup
