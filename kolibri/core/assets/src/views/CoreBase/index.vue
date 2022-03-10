@@ -145,6 +145,9 @@
   import CoreBanner from '../CoreBanner';
   import ScrollingHeader from './ScrollingHeader';
 
+  // NOTE: there is a new useScrollPosition composable in kolibri.core
+  // that can be used when CoreBase is refactored
+  // This version should be depricated
   const scrollPositions = {
     _scrollPositions: {},
     getScrollPosition() {
