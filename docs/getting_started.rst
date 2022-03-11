@@ -45,13 +45,13 @@ Next, initialize Git LFS:
 
 .. code-block:: bash
 
+  cd kolibri  # Enter the Kolibri directory
   git lfs install
 
 Finally, add the Learning Equality repo as a remote. That way you can keep your local checkout updated with the most recent changes:
 
 .. code-block:: bash
 
-  cd kolibri  # Enter the Kolibri directory
   git remote add upstream git@github.com:learningequality/kolibri.git
   git fetch --all  # Check if there are changes upstream
   git checkout develop # Checkout the development branch
@@ -154,7 +154,7 @@ Note that the ``--upgrade`` flags above can usually be omitted to speed up the p
 Install Node.js, Yarn and other dependencies
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#. Install Node.js (version 10 is required)
+#. Install Node.js (version 16.x is required)
 #. Install `Yarn <https://yarnpkg.com/>`__
 #. Install non-python project-specific dependencies
 
