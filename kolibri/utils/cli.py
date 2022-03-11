@@ -346,7 +346,7 @@ def initialize(skip_update=False):  # noqa: max-complexity=12
 
     updated = version_updated(kolibri.__version__, version)
 
-    if updated:
+    if version and updated:
         check_plugin_config_file_location(version)
         # Reset the enabled plugins to the defaults
         # This needs to be run before dbbackup because

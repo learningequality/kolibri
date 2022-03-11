@@ -6,3 +6,4 @@ sphinx-intl==1.0.0
 sphinx-rtd-theme==0.4.3
 sphinx-autobuild==0.7.1
 m2r==0.2.1
+mistune==0.8.4
