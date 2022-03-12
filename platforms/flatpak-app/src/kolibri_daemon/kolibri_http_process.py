@@ -8,22 +8,19 @@ from kolibri.dist.magicbus import ProcessBus
 from kolibri.dist.magicbus.plugins import SimplePlugin
 from kolibri_app.globals import KOLIBRI_HOME_PATH
 
-from ..kolibri_utils import init_kolibri
-from .context import KolibriServiceContext
-from .context import KolibriServiceProcess
-
-# TODO: We need to use multiprocessing because Kolibri occasionally calls
-#       os.kill against its own process ID.
+from .kolibri_service_context import KolibriServiceContext
+from .kolibri_service_context import KolibriServiceProcess
+from .kolibri_utils import init_kolibri
 
 
-class DjangoProcess(KolibriServiceProcess):
+class KolibriHttpProcess(KolibriServiceProcess):
     """
-    Starts Kolibri in the foreground and shares its device app key.
-    - Sets context.is_starting to True when Kolibri is being started.
-    - Sets context.is_stopped to True when Kolibri stops for any reason.
+    Manages a KolibriProcessBus, starting and stopping it according to commands
+    sent by the owning process. Updates the provided KolibriServiceContext
+    according to Kolibri's state.
     """
 
-    PROCESS_NAME: str = "kolibri-daemon-django"
+    PROCESS_NAME: str = "kolibri-daemon-http"
 
     __command_rx: multiprocessing.connection.Connection
     __keep_alive: bool
@@ -72,9 +69,6 @@ class DjangoProcess(KolibriServiceProcess):
             if not self.__run_next_command(timeout=5):
                 self.__shutdown()
 
-        # TODO: Equivalent to this?
-        # self.__join()
-
     def __run_next_command(self, timeout: int) -> bool:
         has_next = self.__command_rx.poll(timeout)
 
@@ -93,7 +87,7 @@ class DjangoProcess(KolibriServiceProcess):
 
         return True
 
-    def __run_command(self, command: DjangoProcess.Command):
+    def __run_command(self, command: KolibriHttpProcess.Command):
         fn = self.__commands.get(command, None)
 
         if not callable(fn):

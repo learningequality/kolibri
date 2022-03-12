@@ -8,22 +8,14 @@ python_installation.install_sources(
         'futures.py',
         'glib_helpers.py',
         '__init__.py',
+        'kolibri_http_process.py',
         'kolibri_search_handler.py',
+        'kolibri_service_context.py',
         'kolibri_service_manager.py',
         'kolibri_utils.py',
         'main.py',
     ],
     subdir: 'kolibri_daemon'
-)
-
-python_installation.install_sources(
-    [
-        'kolibri_service/context.py',
-        'kolibri_service/django_process.py',
-        'kolibri_service/__init__.py',
-        'kolibri_service_manager.py',
-    ],
-    subdir: 'kolibri_daemon/kolibri_service'
 )
 
 configure_file(

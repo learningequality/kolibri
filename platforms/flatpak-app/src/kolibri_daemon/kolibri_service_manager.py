@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import multiprocessing
 
-from .kolibri_service.context import KolibriServiceContext
-from .kolibri_service.django_process import DjangoProcess
+from .kolibri_http_process import KolibriHttpProcess
+from .kolibri_service_context import KolibriServiceContext
 
 
 class KolibriServiceManager(object):
@@ -15,12 +15,12 @@ class KolibriServiceManager(object):
     __context: KolibriServiceContext
     __command_tx: multiprocessing.connection.Connection
     __command_rx: multiprocessing.connection.Connection
-    __django_process: DjangoProcess
+    __http_process: KolibriHttpProcess
 
     def __init__(self):
         self.__context = KolibriServiceContext()
         self.__command_rx, self.__command_tx = multiprocessing.Pipe(duplex=False)
-        self.__django_process = DjangoProcess(
+        self.__http_process = KolibriHttpProcess(
             self.__context, command_rx=self.__command_rx
         )
 
@@ -29,19 +29,19 @@ class KolibriServiceManager(object):
         return self.__context
 
     def init(self):
-        self.__django_process.start()
+        self.__http_process.start()
 
-    def __send_command(self, command: DjangoProcess.Command):
+    def __send_command(self, command: KolibriHttpProcess.Command):
         self.__command_tx.send(command)
 
     def start_kolibri(self):
-        self.__send_command(DjangoProcess.Command.START_KOLIBRI)
+        self.__send_command(KolibriHttpProcess.Command.START_KOLIBRI)
 
     def stop_kolibri(self):
-        self.__send_command(DjangoProcess.Command.STOP_KOLIBRI)
+        self.__send_command(KolibriHttpProcess.Command.STOP_KOLIBRI)
 
     def shutdown(self):
-        self.__send_command(DjangoProcess.Command.SHUTDOWN)
+        self.__send_command(KolibriHttpProcess.Command.SHUTDOWN)
 
     def join(self):
-        self.__django_process.join()
+        self.__http_process.join()
