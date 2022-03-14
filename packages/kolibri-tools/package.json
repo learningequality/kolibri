@@ -98,7 +98,7 @@
     "webpack-rtl-plugin": "^2.0.0"
   },
   "engines": {
-    "node": "10.x",
+    "node": "16.x",
     "npm": ">= 3"
   },
   "devDependencies": {
