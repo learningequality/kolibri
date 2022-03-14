@@ -1,78 +1,80 @@
 <template>
 
-  <KPageContainer>
-    <KGrid>
-      <KGridItem
-        :layout8="{ span: 4 }"
-        :layout12="{ span: 6 }"
-      >
-        <h1>{{ coreString('usersLabel') }}</h1>
-      </KGridItem>
-      <KGridItem
-        :layout="{ alignment: 'right' }"
-        :layout8="{ span: 4 }"
-        :layout12="{ span: 6 }"
-      >
-        <KRouterLink
-          :text="$tr('newUserButtonLabel')"
-          :primary="true"
-          appearance="raised-button"
-          class="move-down"
-          :to="$store.getters.facilityPageLinks.UserCreatePage"
-        />
-      </KGridItem>
-    </KGrid>
-
-    <PaginatedListContainer
-      :items="usersFilteredByRow"
-      :filterPlaceholder="$tr('searchText')"
-    >
-      <template #otherFilter>
-        <KSelect
-          v-model="roleFilter"
-          :label="coreString('userTypeLabel')"
-          :options="userKinds"
-          :inline="true"
-          class="type-filter"
-        />
-      </template>
-
-      <template #default="{ items, filterInput }">
-        <UserTable
-          class="move-down user-roster"
-          :users="items"
-          :emptyMessage="emptyMessageForItems(items, filterInput)"
-          :showDemographicInfo="true"
+  <AppBarPageRoot>
+    <KPageContainer>
+      <KGrid>
+        <KGridItem
+          :layout8="{ span: 4 }"
+          :layout12="{ span: 6 }"
         >
-          <template #action="userRow">
-            <KDropdownMenu
-              :text="$tr('optionsButtonLabel')"
-              :options="manageUserOptions(userRow.user.id)"
-              :disabled="!userCanBeEdited(userRow.user)"
-              appearance="flat-button"
-              @select="handleManageUserSelection($event, userRow.user)"
-            />
-          </template>
-        </UserTable>
-      </template>
-    </PaginatedListContainer>
+          <h1>{{ coreString('usersLabel') }}</h1>
+        </KGridItem>
+        <KGridItem
+          :layout="{ alignment: 'right' }"
+          :layout8="{ span: 4 }"
+          :layout12="{ span: 6 }"
+        >
+          <KRouterLink
+            :text="$tr('newUserButtonLabel')"
+            :primary="true"
+            appearance="raised-button"
+            class="move-down"
+            :to="$store.getters.facilityPageLinks.UserCreatePage"
+          />
+        </KGridItem>
+      </KGrid>
 
-    <!-- Modals -->
+      <PaginatedListContainer
+        :items="usersFilteredByRow"
+        :filterPlaceholder="$tr('searchText')"
+      >
+        <template #otherFilter>
+          <KSelect
+            v-model="roleFilter"
+            :label="coreString('userTypeLabel')"
+            :options="userKinds"
+            :inline="true"
+            class="type-filter"
+          />
+        </template>
 
-    <ResetUserPasswordModal
-      v-if="modalShown === Modals.RESET_USER_PASSWORD"
-      :id="selectedUser.id"
-      :username="selectedUser.username"
-      @cancel="closeModal"
-    />
+        <template #default="{ items, filterInput }">
+          <UserTable
+            class="move-down user-roster"
+            :users="items"
+            :emptyMessage="emptyMessageForItems(items, filterInput)"
+            :showDemographicInfo="true"
+          >
+            <template #action="userRow">
+              <KDropdownMenu
+                :text="$tr('optionsButtonLabel')"
+                :options="manageUserOptions(userRow.user.id)"
+                :disabled="!userCanBeEdited(userRow.user)"
+                appearance="flat-button"
+                @select="handleManageUserSelection($event, userRow.user)"
+              />
+            </template>
+          </UserTable>
+        </template>
+      </PaginatedListContainer>
 
-    <DeleteUserModal
-      v-if="modalShown === Modals.DELETE_USER"
-      :id="selectedUser.id"
-      :username="selectedUser.username"
-      @cancel="closeModal"
-    />
-  </KPageContainer>
+      <!-- Modals -->
+
+      <ResetUserPasswordModal
+        v-if="modalShown === Modals.RESET_USER_PASSWORD"
+        :id="selectedUser.id"
+        :username="selectedUser.username"
+        @cancel="closeModal"
+      />
+
+      <DeleteUserModal
+        v-if="modalShown === Modals.DELETE_USER"
+        :id="selectedUser.id"
+        :username="selectedUser.username"
+        @cancel="closeModal"
+      />
+    </KPageContainer>
+  </AppBarPageRoot>
 
 </template>
 
@@ -86,6 +88,7 @@
   import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
   import UserTable from '../UserTable';
   import { Modals } from '../../constants';
+  import AppBarPageRoot from '../AppBarPageRoot';
   import ResetUserPasswordModal from './ResetUserPasswordModal';
   import DeleteUserModal from './DeleteUserModal';
 
@@ -99,6 +102,7 @@
       };
     },
     components: {
+      AppBarPageRoot,
       ResetUserPasswordModal,
       DeleteUserModal,
       UserTable,
