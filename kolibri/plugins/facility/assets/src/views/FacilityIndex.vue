@@ -18,17 +18,14 @@
   import { mapState, mapGetters } from 'vuex';
   import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import coreLayoutMixin from 'kolibri.coreVue.mixins.coreLayoutMixin';
   import { PageNames } from '../constants';
-  import FacilityAppBar from './FacilityAppBar';
 
   export default {
     name: 'FacilityIndex',
     components: {
       NotificationsRoot,
-      FacilityAppBar,
     },
-    mixins: [commonCoreStrings, coreLayoutMixin],
+    mixins: [commonCoreStrings],
     computed: {
       ...mapGetters([
         'isAdmin',
