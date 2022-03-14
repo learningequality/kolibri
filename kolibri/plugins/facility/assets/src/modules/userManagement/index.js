@@ -17,7 +17,7 @@ export default {
       Object.assign(state, defaultState());
     },
     DELETE_USER(state, id) {
-      state.facilityUsers = state.facilityUsers.results.filter(user => user.id !== id);
+      state.facilityUsers.results = state.facilityUsers.results.filter(user => user.id !== id);
     },
   },
   actions: userManagementActions,

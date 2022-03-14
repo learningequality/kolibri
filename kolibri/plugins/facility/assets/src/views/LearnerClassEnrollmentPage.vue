@@ -10,6 +10,7 @@
       :classId="classId"
       :totalPageNumber="totalPageNumber"
       :totalUsers="totalLearners"
+      :isBackendPaginated="true"
       pageType="learners"
       @submit="enrollLearners"
     />

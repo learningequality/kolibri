@@ -7,7 +7,7 @@ import { _userState } from '../mappers';
 export function showLearnerClassEnrollmentPage(store, toRoute) {
   const { id, facility_id } = toRoute.params;
   store.dispatch('preparePage');
-  // all users in facility
+  // facility users that are not enrolled in this class
   const userPromise = FacilityUserResource.fetchCollection({
     getParams: {
       member_of: facility_id || store.getters.activeFacilityId,
@@ -15,6 +15,7 @@ export function showLearnerClassEnrollmentPage(store, toRoute) {
       page: 1,
       exclude_member_of: id,
     },
+    force: true,
   });
   // current class
   const classPromise = ClassroomResource.fetchModel({ id });
@@ -59,8 +60,12 @@ export function showCoachClassAssignmentPage(store, toRoute) {
   store.commit('CORE_SET_PAGE_LOADING', true);
   const facilityId = facility_id || store.getters.activeFacilityId;
   // all users in facility
+  // NOTE:
+  // don't use backend pagination here, since we are filtering users with multiple eligible roles
+  // just exclude the learners to reduce the queryset size
   const userPromise = FacilityUserResource.fetchCollection({
-    getParams: { member_of: facilityId },
+    getParams: { member_of: facilityId, exclude_member_of: id, exclude_user_type: 'learner' },
+    force: true,
   });
   // current class
   const classPromise = ClassroomResource.fetchModel({ id, force: true });
@@ -79,7 +84,6 @@ export function showCoachClassAssignmentPage(store, toRoute) {
         // TODO rename
         facilityUsers: filteredFacilityUsers,
         classUsers: classroom.coaches.map(_userState),
-        totalCoaches: filteredFacilityUsers.length,
         class: classroom,
         modalShown: false,
       });

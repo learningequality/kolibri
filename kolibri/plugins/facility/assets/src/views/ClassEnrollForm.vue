@@ -3,6 +3,7 @@
   <form>
 
     <PaginatedListContainerWithBackend
+      v-if="isBackendPaginated"
       :items="usersNotInClass"
       :filterPlaceholder="$tr('searchForUser')"
       :excludeMemberOf="excludeMemberOf"
@@ -20,6 +21,21 @@
         />
       </template>
     </PaginatedListContainerWithBackend>
+    <PaginatedListContainer
+      v-else
+      :items="usersNotInClass"
+      :filterPlaceholder="$tr('searchForUser')"
+    >
+      <template #default="{ items, filterInput }">
+        <UserTable
+          v-model="selectedUsers"
+          :users="items"
+          :selectable="true"
+          :disabled="disabled"
+          :emptyMessage="emptyMessageForItems(items, filterInput)"
+        />
+      </template>
+    </PaginatedListContainer>
     <SelectionBottomBar
       :count="selectedUsers.length"
       :disabled="disabled || selectedUsers.length === 0"
@@ -34,9 +50,11 @@
 
 <script>
 
+  import differenceWith from 'lodash/differenceWith';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import PaginatedListContainerWithBackend from 'kolibri.coreVue.components.PaginatedListContainerWithBackend';
+  import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
   import SelectionBottomBar from './SelectionBottomBar';
   import UserTable from './UserTable';
 
@@ -44,6 +62,9 @@
     name: 'ClassEnrollForm',
     components: {
       SelectionBottomBar,
+      // conditionally render paginated list container based on whether there are
+      // more than one page of users
+      PaginatedListContainer,
       PaginatedListContainerWithBackend,
       UserTable,
     },
@@ -56,6 +77,11 @@
       pageType: {
         type: String,
         required: true,
+      },
+      classUsers: {
+        type: Array,
+        required: false,
+        default: () => [],
       },
       disabled: {
         type: Boolean,
@@ -76,6 +102,11 @@
         required: false,
         default: 0,
       },
+      isBackendPaginated: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
     },
     data() {
       return {
@@ -84,7 +115,9 @@
     },
     computed: {
       usersNotInClass() {
-        return this.facilityUsers;
+        return this.isBackendPaginated
+          ? this.facilityUsers
+          : differenceWith(this.facilityUsers, this.classUsers, (a, b) => a.id === b.id);
       },
       excludeMemberOf() {
         return this.classId;

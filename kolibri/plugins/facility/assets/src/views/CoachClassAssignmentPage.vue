@@ -6,7 +6,6 @@
     <ClassEnrollForm
       :facilityUsers="facilityUsers"
       :classUsers="classUsers"
-      :totalUsers="totalCoaches"
       pageType="coaches"
       :disabled="formIsDisabled"
       @submit="assignCoaches"
@@ -39,7 +38,7 @@
       };
     },
     computed: {
-      ...mapState('classAssignMembers', ['class', 'classUsers', 'facilityUsers', 'totalCoaches']),
+      ...mapState('classAssignMembers', ['class', 'classUsers', 'facilityUsers']),
       className() {
         return this.class.name;
       },
