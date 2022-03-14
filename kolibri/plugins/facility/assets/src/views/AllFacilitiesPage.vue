@@ -1,30 +1,32 @@
 <template>
 
-  <KPageContainer>
-    <h1>{{ coreString('facilitiesLabel') }} </h1>
-    <CoreTable>
-      <template #headers>
-        <th>{{ coreString('nameLabel') }}</th>
-        <th>{{ coreString('classesLabel') }}</th>
-      </template>
-      <template #tbody>
-        <tbody>
-          <tr v-for="facility in facilities" :key="facility.id">
-            <td>
-              <KRouterLink
-                :text="facility.name"
-                :to="facilityLink(facility)"
-                icon="facility"
-              />
-            </td>
-            <td>
-              {{ $formatNumber(facility.num_classrooms) }}
-            </td>
-          </tr>
-        </tbody>
-      </template>
-    </CoreTable>
-  </KPageContainer>
+  <AppBarPageRoot :appBarTitle="coreString('facilityLabel')" :hideNavBar="true">
+    <KPageContainer>
+      <h1>{{ coreString('facilitiesLabel') }} </h1>
+      <CoreTable>
+        <template #headers>
+          <th>{{ coreString('nameLabel') }}</th>
+          <th>{{ coreString('classesLabel') }}</th>
+        </template>
+        <template #tbody>
+          <tbody>
+            <tr v-for="facility in facilities" :key="facility.id">
+              <td>
+                <KRouterLink
+                  :text="facility.name"
+                  :to="facilityLink(facility)"
+                  icon="facility"
+                />
+              </td>
+              <td>
+                {{ $formatNumber(facility.num_classrooms) }}
+              </td>
+            </tr>
+          </tbody>
+        </template>
+      </CoreTable>
+    </KPageContainer>
+  </AppBarPageRoot>
 
 </template>
 
@@ -35,6 +37,7 @@
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import cloneDeep from 'lodash/cloneDeep';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import AppBarPageRoot from './AppBarPageRoot';
 
   export default {
     name: 'AllFacilitiesPage',
@@ -44,6 +47,7 @@
       };
     },
     components: {
+      AppBarPageRoot,
       CoreTable,
     },
     mixins: [commonCoreStrings],
