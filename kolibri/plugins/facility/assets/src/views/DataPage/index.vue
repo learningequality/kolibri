@@ -1,6 +1,7 @@
 <template>
 
-  <div>
+  <AppBarPageRoot>
+
     <KPageContainer v-if="canUploadDownloadFiles">
       <KGrid gutter="48">
 
@@ -81,7 +82,7 @@
     <ImportInterface v-if="canUploadDownloadFiles" />
     <SyncInterface />
 
-  </div>
+  </AppBarPageRoot>
 
 </template>
 
@@ -92,7 +93,9 @@
   import { isEmbeddedWebView } from 'kolibri.utils.browserInfo';
   import urls from 'kolibri.urls';
   import { FacilityResource } from 'kolibri.resources';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../../constants';
+  import AppBarPageRoot from '../AppBarPageRoot';
   import GeneratedElapsedTime from './GeneratedElapsedTime';
   import DataPageTaskProgress from './DataPageTaskProgress';
   import SyncInterface from './SyncInterface';
@@ -106,19 +109,21 @@
       };
     },
     components: {
-      GeneratedElapsedTime,
+      AppBarPageRoot,
       DataPageTaskProgress,
-      SyncInterface,
+      GeneratedElapsedTime,
       ImportInterface,
+      SyncInterface,
     },
+    mixins: [commonCoreStrings],
     computed: {
       ...mapGetters('manageCSV', [
+        'availableSessionCSVLog',
+        'availableSummaryCSVLog',
         'inSessionCSVCreation',
         'inSummaryCSVCreation',
         'noSessionLogs',
         'noSummaryLogs',
-        'availableSessionCSVLog',
-        'availableSummaryCSVLog',
       ]),
       ...mapGetters(['activeFacilityId']),
       ...mapState('manageCSV', ['sessionDateCreated', 'summaryDateCreated']),
@@ -193,6 +198,49 @@
       },
     },
     $trs: {
+      detailsHeading: {
+        message: 'Session logs',
+        context: "'Session logs' refer to individual visits to each resource made by a user.",
+      },
+      detailsInfo: {
+        message:
+          'When a user views a resource, we record how long they spend and the progress they make. Each row in this file records a single visit a user made to a specific resource. This includes anonymous usage, when no user is signed in.',
+        context: "Detailed explanation of 'Session logs'.",
+      },
+      detailsSubHeading: {
+        message: 'Individual visits to each resource',
+        context: "Description of 'Session logs'.",
+      },
+      documentTitle: {
+        message: 'Manage Data',
+        context: 'Refers to the page title of the Facility > Data section of Kolibri.',
+      },
+      download: {
+        message: 'Download',
+        context: 'Button used to download logs contained in CSV files.',
+      },
+      generateLog: {
+        message: 'Generate log file',
+        context:
+          "Option to generate a log file which can then be downloaded in CSV format.\n\nWhen there are no logs, this string is displayed, after the user generates logs, the string is replaced with 'Generate a new log file'.",
+      },
+      generatingLog: {
+        message: 'Generating log file...',
+        context:
+          "Message that displays when user clicks on 'Generate a new log file'. Log files contain information about users and their interactions with the resources on the device.",
+      },
+      noDownload: {
+        message: 'Download is not supported on Android',
+        context: 'Android specific message.',
+      },
+      noLogsYet: {
+        message: 'No logs are available to download.',
+        context: "Message that displays if no logs are available yet in the user's facility.",
+      },
+      note: {
+        message: 'Note:',
+        context: 'Text that precedes the more detailed explanation of what logs are.',
+      },
       pageHeading: {
         message: 'Export usage data',
         context: 'Heading for the Facilty > Data page.',
@@ -202,13 +250,9 @@
           'Download CSV (comma-separated value) files containing information about users and their interactions with the resources on this device',
         context: "Description of the 'Export usage data' page.\n",
       },
-      detailsHeading: {
-        message: 'Session logs',
-        context: "'Session logs' refer to individual visits to each resource made by a user.",
-      },
-      detailsSubHeading: {
-        message: 'Individual visits to each resource',
-        context: "Description of 'Session logs'.",
+      regenerateLog: {
+        message: 'Generate a new log file',
+        context: 'Option to generate a log file which can then be downloaded in CSV format.',
       },
       summaryHeading: {
         message: 'Summary logs',
@@ -219,49 +263,10 @@
         message: 'Total time/progress for each resource',
         context: "Description of 'Summary logs'.",
       },
-      detailsInfo: {
-        message:
-          'When a user views a resource, we record how long they spend and the progress they make. Each row in this file records a single visit a user made to a specific resource. This includes anonymous usage, when no user is signed in.',
-        context: "Detailed explanation of 'Session logs'.",
-      },
       summaryInfo: {
         message:
           'A user may visit the same resource multiple times. This file records the total time and progress each user has achieved for each resource, summarized across possibly more than one visit. Anonymous usage is not included.',
         context: "Detailed explanation of 'Summary logs'.\n",
-      },
-      generateLog: {
-        message: 'Generate log file',
-        context:
-          "Option to generate a log file which can then be downloaded in CSV format.\n\nWhen there are no logs, this string is displayed, after the user generates logs, the string is replaced with 'Generate a new log file'.",
-      },
-      regenerateLog: {
-        message: 'Generate a new log file',
-        context: 'Option to generate a log file which can then be downloaded in CSV format.',
-      },
-      noLogsYet: {
-        message: 'No logs are available to download.',
-        context: "Message that displays if no logs are available yet in the user's facility.",
-      },
-      download: {
-        message: 'Download',
-        context: 'Button used to download logs contained in CSV files.',
-      },
-      note: {
-        message: 'Note:',
-        context: 'Text that precedes the more detailed explanation of what logs are.',
-      },
-      noDownload: {
-        message: 'Download is not supported on Android',
-        context: 'Android specific message.',
-      },
-      documentTitle: {
-        message: 'Manage Data',
-        context: 'Refers to the page title of the Facility > Data section of Kolibri.',
-      },
-      generatingLog: {
-        message: 'Generating log file...',
-        context:
-          "Message that displays when user clicks on 'Generate a new log file'. Log files contain information about users and their interactions with the resources on the device.",
       },
     },
   };
