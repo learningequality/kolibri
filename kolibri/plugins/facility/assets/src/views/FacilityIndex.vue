@@ -1,18 +1,14 @@
 <template>
 
-  <CoreBase
+  <NotificationsRoot
+    :style="mainWrapperStyles"
     :authorized="userIsAuthorized"
     :authorizationErrorDetails="$tr('adminOrSuperuser')"
     :showSubNav="showSubNav"
     v-bind="immersivePageProps"
   >
-    <template #sub-nav>
-      <FacilityTopNav />
-    </template>
-
     <router-view />
-
-  </CoreBase>
+  </NotificationsRoot>
 
 </template>
 
@@ -20,18 +16,19 @@
 <script>
 
   import { mapState, mapGetters } from 'vuex';
-  import CoreBase from 'kolibri.coreVue.components.CoreBase';
+  import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import coreLayoutMixin from 'kolibri.coreVue.mixins.coreLayoutMixin';
   import { PageNames } from '../constants';
-  import FacilityTopNav from './FacilityTopNav';
+  import FacilityAppBar from './FacilityAppBar';
 
   export default {
     name: 'FacilityIndex',
     components: {
-      CoreBase,
-      FacilityTopNav,
+      NotificationsRoot,
+      FacilityAppBar,
     },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, coreLayoutMixin],
     computed: {
       ...mapGetters([
         'isAdmin',
@@ -131,4 +128,10 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  .facility-index {
+    height: 100%;
+  }
+
+</style>
