@@ -81,7 +81,7 @@ def build_number():
         return str(build_number)
 
     print('Buildkite build # not found, using dev alternative')
-    alt_build_number = datetime.now().strftime('%y%m%d%H%M')
+    alt_build_number = (int(datetime.now().strftime('%y%m%d%H%M')) - build_base_number) * 2 + increment_for_64bit
     print(alt_build_number)
     return alt_build_number
 
