@@ -138,8 +138,7 @@ def get_import_export_data(  # noqa: C901
     )
 
     queried_file_objects = {}
-
-    content_ids = list()
+    number_of_resources = 0
 
     while min_boundary < max_rght:
 
@@ -176,7 +175,7 @@ def get_import_export_data(  # noqa: C901
 
         # Only bother with this query if there were any resources returned above.
         if included_content_ids:
-            content_ids.extend(included_content_ids)
+            number_of_resources = number_of_resources + len(included_content_ids)
             file_objects = LocalFile.objects.filter(
                 files__contentnode__in=nodes_segment
             ).values("id", "file_size", "extension")
@@ -207,7 +206,7 @@ def get_import_export_data(  # noqa: C901
     files_to_download = list(queried_file_objects.values())
 
     total_bytes_to_transfer = sum(map(lambda x: x["file_size"] or 0, files_to_download))
-    return len(content_ids), files_to_download, total_bytes_to_transfer
+    return number_of_resources, files_to_download, total_bytes_to_transfer
 
 
 def retry_import(e):
