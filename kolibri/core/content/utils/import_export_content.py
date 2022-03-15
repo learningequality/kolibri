@@ -169,11 +169,11 @@ def get_import_export_data(  # noqa: C901
                 )
             )
 
-        included_content_ids = nodes_segment.values_list("content_id", flat=True)
+        count_content_ids = nodes_segment.count()
 
         # Only bother with this query if there were any resources returned above.
-        if included_content_ids:
-            number_of_resources = number_of_resources + len(included_content_ids)
+        if count_content_ids:
+            number_of_resources = number_of_resources + count_content_ids
             file_objects = LocalFile.objects.filter(
                 files__contentnode__in=nodes_segment
             ).values("id", "file_size", "extension")
