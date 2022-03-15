@@ -20,25 +20,27 @@ class LearnModule extends KolibriApp {
     return pluginModule;
   }
   ready() {
-    // If we are not logged in and are forbidden from accessing as guest
-    // redirect to CONTENT_UNAVAILABLE.
     router.beforeEach((to, from, next) => {
-      if (
-        to.name !== PageNames.CONTENT_UNAVAILABLE &&
-        !this.store.state.allowGuestAccess &&
-        !this.store.getters.isUserLoggedIn
-      ) {
-        // Pass the ?next param on to AuthMessage
-        const currentURL = window.encodeURIComponent(window.location.href);
-        router.replace({
-          name: PageNames.CONTENT_UNAVAILABLE,
-          query: {
-            next: currentURL,
-          },
-        });
-      } else {
-        next();
+      if (to.name !== PageNames.CONTENT_UNAVAILABLE && !this.store.getters.isUserLoggedIn) {
+        // if we are not logged in and are forbidden from accessing as guest
+        // redirect to content_unavailable.
+        if (!this.store.state.allowGuestAccess) {
+          // Pass the ?next param on to AuthMessage
+          const currentURL = window.encodeURIComponent(window.location.href);
+          router.replace({
+            name: PageNames.CONTENT_UNAVAILABLE,
+            query: {
+              next: currentURL,
+            },
+          });
+        }
+
+        if (to.name === PageNames.BOOKMARKS) {
+          this.store.commit('CORE_SET_ERROR', { response: { status: 403 } });
+          this.store.commit('CORE_SET_PAGE_LOADING', false);
+        }
       }
+      next();
     });
 
     // after every navigation, block double-clicks
