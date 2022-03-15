@@ -1,6 +1,6 @@
 <template>
 
-  <AppBarPageRoot>
+  <FacilityAppBarPage>
 
     <KPageContainer v-if="canUploadDownloadFiles">
       <KGrid gutter="48">
@@ -82,7 +82,7 @@
     <ImportInterface v-if="canUploadDownloadFiles" />
     <SyncInterface />
 
-  </AppBarPageRoot>
+  </FacilityAppBarPage>
 
 </template>
 
@@ -95,7 +95,7 @@
   import { FacilityResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../../constants';
-  import AppBarPageRoot from '../AppBarPageRoot';
+  import FacilityAppBarPage from '../FacilityAppBarPage';
   import GeneratedElapsedTime from './GeneratedElapsedTime';
   import DataPageTaskProgress from './DataPageTaskProgress';
   import SyncInterface from './SyncInterface';
@@ -109,7 +109,7 @@
       };
     },
     components: {
-      AppBarPageRoot,
+      FacilityAppBarPage,
       DataPageTaskProgress,
       GeneratedElapsedTime,
       ImportInterface,

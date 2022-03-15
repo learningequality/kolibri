@@ -1,6 +1,6 @@
 <template>
 
-  <AppBarPageRoot>
+  <FacilityAppBarPage>
     <KPageContainer>
 
       <div class="mb">
@@ -107,7 +107,7 @@
         @cancel="showEditFacilityModal = false"
       />
     </KPageContainer>
-  </AppBarPageRoot>
+  </FacilityAppBarPage>
 
 </template>
 
@@ -121,7 +121,7 @@
   import isEqual from 'lodash/isEqual';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import urls from 'kolibri.urls';
-  import AppBarPageRoot from '../AppBarPageRoot';
+  import FacilityAppBarPage from '../FacilityAppBarPage';
   import ConfirmResetModal from './ConfirmResetModal';
   import EditFacilityNameModal from './EditFacilityNameModal';
 
@@ -143,7 +143,7 @@
       };
     },
     components: {
-      AppBarPageRoot,
+      FacilityAppBarPage,
       ConfirmResetModal,
       EditFacilityNameModal,
     },

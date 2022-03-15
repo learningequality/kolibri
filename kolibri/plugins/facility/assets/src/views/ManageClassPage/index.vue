@@ -1,6 +1,6 @@
 <template>
 
-  <AppBarPageRoot>  
+  <FacilityAppBarPage>
 
     <KPageContainer>
       <p>
@@ -110,7 +110,7 @@
 
     </KPageContainer>
 
-  </AppBarPageRoot>
+  </FacilityAppBarPage>
 
 </template>
 
@@ -122,7 +122,7 @@
   import orderBy from 'lodash/orderBy';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { Modals } from '../../constants';
-  import AppBarPageRoot from '../AppBarPageRoot';
+  import FacilityAppBarPage from '../FacilityAppBarPage';
   import ClassCreateModal from './ClassCreateModal';
   import ClassDeleteModal from './ClassDeleteModal';
   import useDeleteClass from './useDeleteClass';
@@ -135,7 +135,7 @@
       };
     },
     components: {
-      AppBarPageRoot,
+      FacilityAppBarPage,
       CoreTable,
       ClassCreateModal,
       ClassDeleteModal,

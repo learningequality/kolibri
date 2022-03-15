@@ -34,6 +34,7 @@ import ContentIcon from '../views/ContentIcon';
 import ProgressIcon from '../views/ProgressIcon';
 import PermissionsIcon from '../views/PermissionsIcon';
 import CoreBase from '../views/CoreBase';
+import AppBarCorePage from '../views/AppBarCorePage';
 import ScrollingHeader from '../views/CoreBase/ScrollingHeader';
 import FullScreenSidePanel from '../views/FullScreenSidePanel';
 import SideNav from '../views/SideNav';
@@ -153,6 +154,7 @@ export default {
       ContentIcon,
       ProgressIcon,
       PermissionsIcon,
+      AppBarCorePage,
       CoreBase,
       FullScreenSidePanel,
       SideNav,

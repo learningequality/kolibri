@@ -1,6 +1,6 @@
 <template>
 
-  <AppBarPageRoot>
+  <FacilityAppBarPage>
     <KPageContainer>
       <KGrid>
         <KGridItem
@@ -74,7 +74,7 @@
         @cancel="closeModal"
       />
     </KPageContainer>
-  </AppBarPageRoot>
+  </FacilityAppBarPage>
 
 </template>
 
@@ -88,7 +88,7 @@
   import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
   import UserTable from '../UserTable';
   import { Modals } from '../../constants';
-  import AppBarPageRoot from '../AppBarPageRoot';
+  import FacilityAppBarPage from '../FacilityAppBarPage';
   import ResetUserPasswordModal from './ResetUserPasswordModal';
   import DeleteUserModal from './DeleteUserModal';
 
@@ -102,7 +102,7 @@
       };
     },
     components: {
-      AppBarPageRoot,
+      FacilityAppBarPage,
       ResetUserPasswordModal,
       DeleteUserModal,
       UserTable,

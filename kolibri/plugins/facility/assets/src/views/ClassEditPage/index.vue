@@ -1,6 +1,6 @@
 <template>
 
-  <AppBarPageRoot>
+  <FacilityAppBarPage>
 
     <KPageContainer>
 
@@ -111,7 +111,7 @@
         </template>
       </UserTable>
     </KPageContainer>
-  </AppBarPageRoot>
+  </FacilityAppBarPage>
 
 </template>
 
@@ -122,7 +122,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UserTable from '../UserTable';
   import { Modals } from '../../constants';
-  import AppBarPageRoot from '../AppBarPageRoot';
+  import FacilityAppBarPage from '../FacilityAppBarPage';
   import ClassRenameModal from './ClassRenameModal';
   import UserRemoveConfirmationModal from './UserRemoveConfirmationModal';
 
@@ -134,7 +134,7 @@
       };
     },
     components: {
-      AppBarPageRoot,
+      FacilityAppBarPage,
       ClassRenameModal,
       UserTable,
       UserRemoveConfirmationModal,

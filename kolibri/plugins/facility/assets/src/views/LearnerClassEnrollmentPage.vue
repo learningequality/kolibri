@@ -1,6 +1,6 @@
 <template>
 
-  <ImmersivePageRoot 
+  <ImmersivePageRoot
     :appBarTitle="className"
     :route="$store.getters.facilityPageLinks.ClassEditPage($route.params.id)"
   >
