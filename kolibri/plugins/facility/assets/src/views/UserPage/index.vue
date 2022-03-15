@@ -24,7 +24,7 @@
     </KGrid>
 
     <PaginatedListContainerWithBackend
-      :items="usersFilteredByRow"
+      :items="facilityUsers.results"
       :filterPlaceholder="$tr('searchText')"
       :totalPageNumber="getTotalPages"
       :currentPageNumber="getCurrentPage"
@@ -129,11 +129,6 @@
           { label: this.$tr('superAdmins'), value: UserKinds.SUPERUSER },
         ];
       },
-      usersFilteredByRow() {
-        return this.facilityUsers.results.filter(user =>
-          this.userMatchesRole(user, this.roleFilter)
-        );
-      },
       getTotalPages() {
         return this.facilityUsers.total_pages;
       },
@@ -171,22 +166,6 @@
       },
       closeModal() {
         this.modalShown = '';
-      },
-      userMatchesRole(user, roleFilter) {
-        const { value: filterKind } = roleFilter;
-        if (filterKind === ALL_FILTER) {
-          return true;
-        }
-        if (user.kind === UserKinds.ASSIGNABLE_COACH) {
-          return filterKind === UserKinds.COACH;
-        }
-        if (filterKind === UserKinds.ADMIN) {
-          return user.kind === UserKinds.ADMIN || user.kind === UserKinds.SUPERUSER;
-        }
-        if (filterKind === UserKinds.SUPERUSER) {
-          return user.kind === UserKinds.SUPERUSER;
-        }
-        return filterKind === user.kind;
       },
       manageUserOptions(userId) {
         return [

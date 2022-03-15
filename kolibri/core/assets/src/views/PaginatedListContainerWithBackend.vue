@@ -149,6 +149,11 @@
           this.get_users();
         },
       },
+      items: {
+        handler() {
+          this.get_users();
+        },
+      },
     },
     methods: {
       get_users() {
