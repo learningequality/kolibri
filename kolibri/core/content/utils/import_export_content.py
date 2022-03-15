@@ -61,9 +61,9 @@ def _mptt_descendant_ids(channel_id, node_ids, min_boundary, max_boundary):
         ContentNode.objects.filter(
             channel_id=channel_id, rght__gte=min_boundary, rght__lte=max_boundary
         )
-            .exclude(kind=content_kinds.TOPIC)
-            .filter_by_uuids(node_ids)
-            .order_by()
+        .exclude(kind=content_kinds.TOPIC)
+        .filter_by_uuids(node_ids)
+        .order_by()
     )
 
     descendants_queryset = (
@@ -78,11 +78,11 @@ def _mptt_descendant_ids(channel_id, node_ids, min_boundary, max_boundary):
             rght__gte=min_boundary,
             kind=content_kinds.TOPIC,
         )
-            .filter_by_uuids(node_ids)
-            .get_descendants(include_self=False)
-            .filter(rght__gte=min_boundary, rght__lte=max_boundary)
-            .exclude(kind=content_kinds.TOPIC)
-            .order_by()
+        .filter_by_uuids(node_ids)
+        .get_descendants(include_self=False)
+        .filter(rght__gte=min_boundary, rght__lte=max_boundary)
+        .exclude(kind=content_kinds.TOPIC)
+        .order_by()
     )
 
     return list(
@@ -169,9 +169,7 @@ def get_import_export_data(  # noqa: C901
                 )
             )
 
-        included_content_ids = nodes_segment.values_list(
-            "content_id", flat=True
-        )
+        included_content_ids = nodes_segment.values_list("content_id", flat=True)
 
         # Only bother with this query if there were any resources returned above.
         if included_content_ids:
