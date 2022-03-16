@@ -337,6 +337,12 @@ class Bridge(object):
         """
         return self.get_class(DjangoModel).__table__
 
+    def get_current_table(self, DjangoModel):
+        """
+        Convenience method to get a table for the Django database schema
+        """
+        return get_class(DjangoModel, BASES[CURRENT_SCHEMA_VERSION]).__table__
+
     def get_raw_connection(self):
         conn = self.get_connection()
         return conn.connection
