@@ -275,7 +275,7 @@
         this.$router.push(this.$store.getters.facilityPageLinks.UserPage);
       },
       usernameIsUnique(value) {
-        const match = this.facilityUsers.results.find(
+        const match = this.facilityUsers.find(
           ({ username }) => username.toLowerCase() === value.toLowerCase()
         );
         if (match && match.username.toLowerCase() === this.userCopy.username.toLowerCase()) {

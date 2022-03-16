@@ -24,12 +24,11 @@
     </KGrid>
 
     <PaginatedListContainerWithBackend
-      :items="facilityUsers.results"
+      :items="facilityUsers"
       :filterPlaceholder="$tr('searchText')"
-      :totalPageNumber="getTotalPages"
-      :currentPageNumber="getCurrentPage"
+      :totalPageNumber="totalPages"
       :roleFilter="roleFilter"
-      :totalUsers="getTotalUsersCount"
+      :totalUsers="usersCount"
     >
       <template #otherFilter>
         <KSelect
@@ -118,7 +117,7 @@
     },
     computed: {
       ...mapGetters(['currentUserId', 'isSuperuser']),
-      ...mapState('userManagement', ['facilityUsers']),
+      ...mapState('userManagement', ['facilityUsers', 'totalPages', 'usersCount']),
       Modals: () => Modals,
       userKinds() {
         return [
@@ -129,22 +128,13 @@
           { label: this.$tr('superAdmins'), value: UserKinds.SUPERUSER },
         ];
       },
-      getTotalPages() {
-        return this.facilityUsers.total_pages;
-      },
-      getTotalUsersCount() {
-        return this.facilityUsers.count;
-      },
-      getCurrentPage() {
-        return this.facilityUsers.page;
-      },
     },
     beforeMount() {
       this.roleFilter = this.userKinds[0];
     },
     methods: {
       emptyMessageForItems(items, filterText) {
-        if (this.facilityUsers.results.length === 0) {
+        if (this.facilityUsers.length === 0) {
           return this.$tr('noUsersExist');
         } else if (this.roleFilter && filterText === '') {
           switch (this.roleFilter.value) {

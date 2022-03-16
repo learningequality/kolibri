@@ -2,7 +2,7 @@ import * as userManagementActions from './actions';
 
 function defaultState() {
   return {
-    facilityUsers: { results: [] },
+    facilityUsers: [],
   };
 }
 
@@ -17,7 +17,7 @@ export default {
       Object.assign(state, defaultState());
     },
     DELETE_USER(state, id) {
-      state.facilityUsers.results = state.facilityUsers.results.filter(user => user.id !== id);
+      state.facilityUsers = state.facilityUsers.filter(user => user.id !== id);
     },
   },
   actions: userManagementActions,

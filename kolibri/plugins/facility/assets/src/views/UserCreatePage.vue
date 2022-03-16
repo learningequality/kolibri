@@ -208,7 +208,7 @@
         this.$router.push(this.$store.getters.facilityPageLinks.UserPage, onComplete);
       },
       usernameIsUnique(value) {
-        return !this.facilityUsers.results.find(
+        return !this.facilityUsers.find(
           ({ username }) => username.toLowerCase() === value.toLowerCase()
         );
       },

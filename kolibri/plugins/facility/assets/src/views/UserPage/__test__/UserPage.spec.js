@@ -50,7 +50,7 @@ describe('UserPage component', () => {
 
     test.each(testCases)('when filter is %s', async (kind, expected) => {
       const { wrapper, store } = makeWrapper();
-      store.state.userManagement.facilityUsers = { results: [{ ...unicornUser }] };
+      store.state.userManagement.facilityUsers = [{ ...unicornUser }];
       wrapper.setData({ roleFilter: { value: kind } });
       await wrapper.vm.$nextTick();
       expect(getUserTableEmptyMessage(wrapper)).toEqual(expected);
@@ -65,7 +65,7 @@ describe('UserPage component', () => {
 
       setTimeout(async () => {
         const { wrapper, store } = makeWrapper();
-        store.state.userManagement.facilityUsers = { results: [{ ...coachUser }] };
+        store.state.userManagement.facilityUsers = [{ ...coachUser }];
         wrapper.setData({ roleFilter: { value: 'coach' } });
         wrapper
           .findComponent({ name: 'PaginatedListContainer' })

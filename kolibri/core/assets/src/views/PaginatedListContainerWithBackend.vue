@@ -53,6 +53,7 @@
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
   import { FacilityUserResource } from 'kolibri.resources';
   import store from 'kolibri.coreVue.vuex.store';
+  import { _userState } from '../../../../plugins/facility/assets/src/modules/mappers';
 
   export default {
     name: 'PaginatedListContainerWithBackend',
@@ -173,12 +174,24 @@
         }).then(
           users => {
             this.currentPage = users.page;
-            this.userList = users.results;
+            this.userList = users.results.map(_userState);
             this.totalPageNumbers = users.total_pages;
             this.usersCount = users.count;
           },
           error => {
-            store.dispatch('handleApiError', error);
+            // check if this error is raised by the api because of currentPage is more than
+            // the total pages
+            if (
+              error.response.status === 404 &&
+              error.response.data &&
+              error.response.data[0].id === 'NOT_FOUND'
+            ) {
+              // set the currentPage to 1 and recall the api
+              this.currentPage = 1;
+              this.get_users();
+            } else {
+              store.dispatch('handleApiError', error);
+            }
           }
         );
       },
