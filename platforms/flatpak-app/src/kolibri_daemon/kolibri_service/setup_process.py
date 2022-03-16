@@ -8,9 +8,9 @@ import typing
 from collections.abc import Mapping
 from pathlib import Path
 
-from kolibri_app.globals import init_kolibri
 from kolibri_app.globals import KOLIBRI_HOME_PATH
 
+from ..kolibri_utils import init_kolibri
 from .content_extensions import ContentChannelCompare
 from .content_extensions import ContentExtensionsList
 from .context import KolibriServiceProcess

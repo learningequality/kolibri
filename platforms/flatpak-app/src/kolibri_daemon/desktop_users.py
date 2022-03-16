@@ -8,8 +8,8 @@ from concurrent.futures import Future
 from gi.repository import Gio
 from gi.repository import GLib
 
-from .utils import AsyncResultFuture
-from .utils import future_chain
+from .futures import future_chain
+from .glib_helpers import AsyncResultFuture
 
 
 LOCAL_USER: typing.Optional[str] = os.environ.get("USER", None)

@@ -4,9 +4,9 @@ import os
 
 from kolibri.dist.magicbus import ProcessBus
 from kolibri.dist.magicbus.plugins import SimplePlugin
-from kolibri_app.globals import init_kolibri
 from kolibri_app.globals import KOLIBRI_HOME_PATH
 
+from ..kolibri_utils import init_kolibri
 from .content_extensions import ContentExtensionsList
 from .context import KolibriServiceContext
 from .context import KolibriServiceProcess
@@ -130,7 +130,6 @@ class _KolibriDaemonPlugin(SimplePlugin):
         from kolibri.utils.server import get_urls
 
         _, base_urls = get_urls(listen_port=port)
-
 
         self.__context.base_url = base_urls[0]
         self.__context.start_result = self.__context.StartResult.SUCCESS

@@ -90,7 +90,7 @@ class LauncherProcess(KolibriServiceProcess):
     def run(self):
         super().run()
 
-        from .utils import kolibri_update_from_home_template
+        from .kolibri_utils import kolibri_update_from_home_template
 
         kolibri_update_from_home_template()
 

@@ -3,11 +3,13 @@ python_installation.install_sources(
         'application.py',
         'dbus_helpers.py',
         'desktop_users.py',
+        'futures.py',
+        'glib_helpers.py',
         '__init__.py',
         'kolibri_search_handler.py',
         'kolibri_service_manager.py',
+        'kolibri_utils.py',
         'main.py',
-        'utils.py',
     ],
     subdir: 'kolibri_daemon'
 )

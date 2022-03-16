@@ -5,7 +5,7 @@ from concurrent.futures import Future
 from gi.repository import Gio
 from gi.repository import GLib
 
-from .utils import AsyncResultFuture
+from .glib_helpers import AsyncResultFuture
 
 
 class DBusManagerProxy(Gio.DBusProxy):
