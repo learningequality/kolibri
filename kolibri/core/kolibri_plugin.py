@@ -164,7 +164,6 @@ class FrontendHeadAssetsHook(WebpackBundleHook):
     """
 
     bundle_id = "frontend_head_assets"
-    inline = True
 
     def render_to_page_load_sync_html(self):
         """

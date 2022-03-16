@@ -110,9 +110,7 @@ Here is the definition of the abstract NavigatonHook in kolibri.core.hooks:
 
     @define_hook
     class NavigationHook(WebpackBundleHook):
-
-        # Set this to True so that the resulting frontend code will be rendered inline.
-        inline = True
+        pass
 
 As can be seen from above, to define an abstract hook, instead of using the ``@register_hook``
 decorator, the ``@define_hook`` decorator is used instead, to signal that this instance of
