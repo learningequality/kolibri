@@ -22,12 +22,14 @@
     </div>
 
     <SideNav
+      ref="sideNav"
       :navShown="navShown"
       @toggleSideNav="navShown = !navShown"
     />
 
     <LanguageSwitcherModal
       v-if="languageModalShown"
+      ref="languageSwitcherModal"
       :style="{ color: $themeTokens.text }"
       @cancel="languageModalShown = false"
     />

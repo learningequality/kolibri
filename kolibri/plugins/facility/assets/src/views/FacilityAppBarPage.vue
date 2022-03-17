@@ -3,7 +3,7 @@
   <AppBarCorePage :title="title">
 
     <template #subNav>
-      <FacilityTopNav />
+      <FacilityTopNav ref="topNav" />
     </template>
 
     <slot></slot>
@@ -36,11 +36,14 @@
          the facility label appropriate to whether there are multiple facilities
          and the current user is the correct kind of admin */
       title() {
-        return this.appBarTitle || (this.userIsMultiFacilityAdmin && this.currentFacilityName)
-          ? this.$tr('facilityLabelWithName', {
-              facilityName: this.currentFacilityName,
-            })
-          : this.coreString('facilityLabel');
+        return (
+          this.appBarTitle ||
+          (this.userIsMultiFacilityAdmin && this.currentFacilityName
+            ? this.$tr('facilityLabelWithName', {
+                facilityName: this.currentFacilityName,
+              })
+            : this.coreString('facilityLabel'))
+        );
       },
     },
     $trs: {
