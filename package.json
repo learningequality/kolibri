@@ -36,7 +36,7 @@
     "publish-packages": "node ./packages/publish.js",
     "hashi-dev": "yarn workspace hashi run dev",
     "hashi-build": "yarn workspace hashi run build",
-    "compress": "kolibri-tools compress 'kolibri/*/**/static/**/*.{js,css,ico,svg,map,eot,woff,ttf,woff2}'"
+    "compress": "kolibri-tools compress 'kolibri/*/**/static/**/*.{html,js,css,ico,svg,map,eot,woff,ttf,woff2}'"
   },
   "repository": {
     "type": "git",
