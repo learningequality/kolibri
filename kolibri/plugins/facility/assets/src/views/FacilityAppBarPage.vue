@@ -6,7 +6,9 @@
       <FacilityTopNav ref="topNav" />
     </template>
 
-    <slot></slot>
+    <div style="max-width: 1000px; margin: 0 auto;">
+      <slot></slot>
+    </div>
 
   </AppBarCorePage>
 
