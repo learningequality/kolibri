@@ -17,11 +17,13 @@
 
   import { mapGetters } from 'vuex';
   import AppBarCorePage from 'kolibri.coreVue.components.AppBarCorePage';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import FacilityTopNav from './FacilityTopNav';
 
   export default {
     name: 'FacilityAppBarPage',
     components: { AppBarCorePage, FacilityTopNav },
+    mixins: [commonCoreStrings],
     props: {
       appBarTitle: {
         type: String,
