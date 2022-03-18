@@ -1,8 +1,8 @@
+
 import os
-import re
 import subprocess
+import sys
 from datetime import datetime
-from string import Template
 
 
 def kolibri_version():
@@ -16,7 +16,6 @@ def kolibri_version():
 def commit_hash():
     """
     Returns the number of commits of the Kolibri Android repo. Returns 0 if something fails.
-
     TODO hash, unless there's a tag. Use alias to annotate
     """
     repo_dir = os.path.dirname(os.path.abspath(__file__))
@@ -73,25 +72,16 @@ def build_number():
     buildkite_build_number = os.getenv('BUILDKITE_BUILD_NUMBER')
     increment_for_64bit = 1 if os.getenv('ARCH', '') == '64bit' else 0
     
-    print('--- Assigning Build Number')
-
     if buildkite_build_number is not None:
         build_number = build_base_number + 2 * int(buildkite_build_number) + increment_for_64bit
-        print(build_number)
         return str(build_number)
 
-    print('Buildkite build # not found, using dev alternative')
     alt_build_number = (int(datetime.now().strftime('%y%m%d%H%M')) - build_base_number) * 2 + increment_for_64bit
-    print(alt_build_number)
     return alt_build_number
 
-def create_project_info():
-    """
-    Generates project_info.json based on project_info.template
-    """
-    with open('project_info.template', 'r') as pi_template_file, open('./project_info.json', 'w') as pi_file:
-        pi_template = Template(pi_template_file.read())
-        pi = pi_template.substitute(apk_version=apk_version(), build_number=build_number())
-        pi_file.write(pi)
 
-create_project_info()
+if __name__ == '__main__':
+    if sys.argv[1] == "apk_version":
+        print(apk_version())
+    elif sys.argv[1] == "build_number":
+        print(build_number())

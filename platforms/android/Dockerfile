@@ -49,22 +49,16 @@ ENV PATH /usr/local/bin:$PATH
 RUN cd /usr/local/bin && \
   ln -s $(which python3) python
 
-ENV PEW_BRANCH=p4a_update
-ENV P4A_BRANCH=pew_webview
+ENV P4A_BRANCH=webview_updates
 
 # Allows us to invalidate cache if those repos update.
 # Intentionally not pinning for dev velocity.
-ADD https://github.com/learningequality/pyeverywhere/archive/$PEW_BRANCH.zip pew.zip
 ADD https://github.com/learningequality/python-for-android/archive/$P4A_BRANCH.zip p4a.zip
-
-# clean up the pew cache if the source repos changed
-RUN rm -r /home/kivy/.pyeverywhere || true
 
 # install python dependencies
 RUN pip install cython virtualenv pbxproj && \
-  # get custom packages
-  pip install -e git+https://github.com/learningequality/pyeverywhere@$PEW_BRANCH#egg=pyeverywhere && \
-  pip install -e git+https://github.com/learningequality/python-for-android@$P4A_BRANCH#egg=python-for-android && \
+  # get learningequality's custom python-for-android
+  pip install git+https://github.com/learningequality/python-for-android@$P4A_BRANCH#egg=python-for-android && \
   useradd -lm kivy
 
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
@@ -78,7 +72,7 @@ WORKDIR /home/kivy
 ARG ARCH=$ARCH
 
 # Initializes the directory, owned by new user. Volume mounts adopt existing permissions, etc.
-RUN mkdir ~/.local ~/.pyeverywhere
+RUN mkdir ~/.local
 
 COPY --chown=kivy:kivy . .
 

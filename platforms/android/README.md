@@ -1,6 +1,6 @@
 # Kolibri Android Installer
 
-Wraps Kolibri in an android-compatibility layer. Uses PyEverywhere to automate build, and relies on Python-For-Android for compatibility on the Android platform.
+Wraps Kolibri in an android-compatibility layer. Relies on Python-For-Android to build the APK and for compatibility on the Android platform.
 
 ## Build on Docker
 
@@ -14,27 +14,28 @@ This project was primarily developed on Docker, so this method is more rigorousl
 
 4. The generated APK will end up in the `bin/` folder.
 
-## Build on Host
+## Building for Development
 
-1. Install [PyEverywhere](https://github.com/learningequality/pyeverywhere) and its build dependencies (for building Python). For Ubuntu, you can find the list of dependencies in the [Dockerfile](./Dockerfile).
+1. Install the Android SDK and Android NDK.
+
+Run `make setup`.
+Follow the instructions from the command to set your environment variables.
 
 2. Build or download a Kolibri WHL file, and place it in the `whl/` directory.
 
-3. Run `make Kolibri*.apk` to set up the build environment (downloads depenedencies and sets up project template) on first run, then build the apk. Watch for success at the end, or errors, which might indicate missing build dependencies or build errors. If successful, there should be an APK in the `bin/` directory.
+To download a Kolibri WHL file, you can use `make whl=<URL>` from the command line. It will download it and put it in the correct directory.
+
+3. If you need a 64bit build, set the `ARCH` environment variable to `64bit`.
+
+4. Run `make kolibri.apk.unsigned` to build the apk. Watch for success at the end, or errors, which might indicate missing build dependencies or build errors. If successful, there should be an APK in the `dist/` directory.
 
 ## Installing the apk
 1. Connect your Android device over USB, with USB Debugging enabled.
 
-2. Ensure that `adb devices` brings up your device. Afterward, run `adb install bin/Kolibri-*-debug.apk` to install onto the device. (Assuming you built the apk in `debug` mode, the default.
+2. Ensure that `adb devices` brings up your device. Afterward, run `make install` to install onto the device.
 
 
 ## Running the apk from the terminal
-
-### If you have `pew` installed
-
-1. Run `pew run android`. You will be able to monitor the output in the terminal. The app should show a black screen and then a loading screen.
-
-### If you only have `adb` installed
 
 1. Run `adb shell am start -n org.learningequality.Kolibri/org.kivy.android.PythonActivity`
 
