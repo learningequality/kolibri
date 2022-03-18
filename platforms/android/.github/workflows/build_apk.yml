@@ -1,0 +1,89 @@
+name: Build Android App
+
+on:
+  workflow_dispatch:
+    # Inputs the workflow accepts.
+    inputs:
+      whl-url:
+        description: 'URL for Kolibri whl file'
+        required: true
+      arch:
+        description: 'Architecture of the build'
+        required: true
+        default: '32bit'
+        type: choice
+        options:
+          - 32bit
+          - 64bit
+  workflow_call:
+    inputs:
+      whl-file-name:
+        required: true
+        type: string
+      arch:
+        description: 'Architecture of the build: 32bit or 64bit'
+        required: true
+        type: string
+      ref:
+        description: 'A ref for this workflow to check out its own repo'
+        required: true
+        type: string
+    outputs:
+      apk-file-name:
+        description: "APK file name"
+        value: ${{ jobs.build_apk.outputs.apk-file-name }}
+
+jobs:
+  build_apk:
+    runs-on: ubuntu-latest
+    outputs:
+      apk-file-name: ${{ steps.get-apk-filename.outputs.apk-file-name }}
+    steps:
+    - uses: actions/checkout@v2
+      if: ${{ !inputs.ref }}
+    - uses: actions/checkout@v2
+      if: ${{ inputs.ref }}
+      with:
+        repository: learningequality/kolibri-android-installer
+        ref: ${{ inputs.ref }}
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+    - uses: actions/cache@v2
+      with:
+        path: ~/.local
+        key: ${{ runner.os }}-local-${{ hashFiles('*') }}
+        restore-keys: |
+          ${{ runner.os }}-local-
+    - uses: actions/cache@v2
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    - name: Download the whlfile from URL
+      if: ${{ github.event.inputs.whl-url }}
+      run: make get-whl whl=${{ github.event.inputs.whl-url }}
+    - name: Download the whlfile from artifacts
+      if: ${{ inputs.whl-file-name }}
+      uses: actions/download-artifact@v2
+      with:
+        name: ${{ inputs.whl-file-name }}
+        path: whl
+    - name: Install dependencies
+      run: pip install -r requirements.txt
+    - name: Build the app
+      env:
+        ARCH: ${{ github.event.inputs.arch || inputs.arch }}
+        # https://github.com/actions/virtual-environments/blob/main/images/linux/Ubuntu2004-Readme.md#environment-variables-3
+        ANDROIDSDK: ${{ env.ANDROID_SDK_ROOT }}
+        ANDROIDNDK: ${{ env.ANDROID_NDK_ROOT }}
+      run: make kolibri.apk.unsigned
+    - name: Get APK filename
+      id: get-apk-filename
+      run: echo "::set-output name=apk-file-name::$(ls dist | grep .apk | cat)"
+    - uses: actions/upload-artifact@v2
+      with:
+        name: ${{ steps.get-apk-filename.outputs.apk-file-name }}
+        path: dist/${{ steps.get-apk-filename.outputs.apk-file-name }}
