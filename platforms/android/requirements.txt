@@ -1,0 +1,1 @@
+git+https://github.com/learningequality/python-for-android@1df3bb03264048e4022c7c737b4d1512a94c5595#egg=python-for-android

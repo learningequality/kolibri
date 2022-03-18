@@ -137,6 +137,7 @@ setup:
 	@echo "Make sure to set the necessary environment variables"
 	@echo "export ANDROIDSDK=$(SDK)"
 	@echo "export ANDROIDNDK=$(SDK)/ndk/$(ANDROIDNDKVER)"
+	@echo "ANDROIDSDK=$(SDK)\nANDROIDNDK=$(SDK)/ndk/$(ANDROIDNDKVER)" > .env
 
 clean-tools:
 	rm -rf ${ANDROID_HOME}

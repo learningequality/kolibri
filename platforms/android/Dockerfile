@@ -49,16 +49,10 @@ ENV PATH /usr/local/bin:$PATH
 RUN cd /usr/local/bin && \
   ln -s $(which python3) python
 
-ENV P4A_BRANCH=webview_updates
-
-# Allows us to invalidate cache if those repos update.
-# Intentionally not pinning for dev velocity.
-ADD https://github.com/learningequality/python-for-android/archive/$P4A_BRANCH.zip p4a.zip
-
 # install python dependencies
 RUN pip install cython virtualenv pbxproj && \
   # get learningequality's custom python-for-android
-  pip install git+https://github.com/learningequality/python-for-android@$P4A_BRANCH#egg=python-for-android && \
+  pip install -r requirements.txt && \
   useradd -lm kivy
 
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
@@ -75,6 +69,10 @@ ARG ARCH=$ARCH
 RUN mkdir ~/.local
 
 COPY --chown=kivy:kivy . .
+
+RUN make setup
+
+RUN set -a; source .env; set +a
 
 ENTRYPOINT [ "make" ]
 
