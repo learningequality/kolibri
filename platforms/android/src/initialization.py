@@ -33,6 +33,8 @@ os.environ["KOLIBRI_HOME"] = get_home_folder()
 os.environ["KOLIBRI_APK_VERSION_NAME"] = get_version_name()
 os.environ["DJANGO_SETTINGS_MODULE"] = "kolibri_app_settings"
 
+os.environ["KOLIBRI_CHERRYPY_THREAD_POOL"] = "2"
+
 Secure = autoclass('android.provider.Settings$Secure')
 
 node_id = Secure.getString(
