@@ -56,11 +56,13 @@
         this.formIsDisabled = true;
         this.enrollLearnersInClass({ classId: this.class.id, users: selectedUsers })
           .then(() => {
-            this.$router.push(this.$store.getters.facilityPageLinks.ClassEditPage).then(() => {
-              this.showSnackbarNotification('learnersEnrolledNoCount', {
-                count: selectedUsers.length,
+            this.$router
+              .push(this.$store.getters.facilityPageLinks.ClassEditPage(this.class.id))
+              .then(() => {
+                this.showSnackbarNotification('learnersEnrolledNoCount', {
+                  count: selectedUsers.length,
+                });
               });
-            });
           })
           .catch(() => {
             this.formIsDisabled = false;

@@ -57,9 +57,11 @@
         this.assignCoachesToClass({ classId: this.class.id, coaches })
           .then(() => {
             // do this in action?
-            this.$router.push(this.$store.getters.facilityPageLinks.ClassEditPage).then(() => {
-              this.showSnackbarNotification('coachesAssignedNoCount', { count: coaches.length });
-            });
+            this.$router
+              .push(this.$store.getters.facilityPageLinks.ClassEditPage(this.class.id))
+              .then(() => {
+                this.showSnackbarNotification('coachesAssignedNoCount', { count: coaches.length });
+              });
           })
           .catch(() => {
             this.formIsDisabled = false;

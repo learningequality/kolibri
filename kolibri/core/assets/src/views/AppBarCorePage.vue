@@ -7,7 +7,6 @@
       <AppBar
         ref="appBar"
         :title="title"
-        :hideNavBar="hideNavBar"
         @toggleSideNav="navShown = !navShown"
         @showLanguageModal="languageModalShown = true"
       >
@@ -42,11 +41,12 @@
 
   import LanguageSwitcherModal from 'kolibri.coreVue.components.LanguageSwitcherModal';
   import AppBar from 'kolibri.coreVue.components.AppBar';
+  import ScrollingHeader from 'kolibri.coreVue.components.ScrollingHeader';
   import SideNav from 'kolibri.coreVue.components.SideNav';
 
   export default {
     name: 'AppBarCorePage',
-    components: { AppBar, LanguageSwitcherModal, SideNav },
+    components: { AppBar, LanguageSwitcherModal, ScrollingHeader, SideNav },
     props: {
       title: {
         type: String,
@@ -55,6 +55,7 @@
     },
     data() {
       return {
+        appBarHeight: 0,
         languageModalShown: false,
         navShown: false,
       };
@@ -67,11 +68,16 @@
           backgroundColor: this.$themePalette.grey.v_100,
           paddingLeft: '32px',
           paddingRight: '32px',
-          paddingTop: '32px',
+          paddingTop: this.appBarHeight + 'px',
           paddingBottom: '72px',
           marginTop: 0,
         };
       },
+    },
+    mounted() {
+      this.$nextTick(() => {
+        this.appBarHeight = this.$refs.appBar.$el.scrollHeight || 0;
+      });
     },
   };
 
