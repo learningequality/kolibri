@@ -3,8 +3,8 @@ import initialization  # keep this first, to ensure we're set up for other impor
 import logging
 import os
 
-from config import KOLIBRI_PORT
-from android_utils import make_service_foreground, share_by_intent
+from android_utils import make_service_foreground
+from android_utils import share_by_intent
 from kolibri.main import initialize
 from kolibri.main import start
 from kolibri.plugins.app.utils import interface
@@ -23,4 +23,4 @@ interface.register(share_file=share_by_intent)
 logging.info("Home folder: {}".format(KOLIBRI_HOME))
 logging.info("Timezone: {}".format(os.environ.get("TZ", "(default)")))
 # start the kolibri server
-start(port=KOLIBRI_PORT)
+start()
