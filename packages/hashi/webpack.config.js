@@ -40,7 +40,7 @@ module.exports = {
       {
         test: /\.js$/,
         loader: 'babel-loader',
-        exclude: [/(uuid|core-js)/, { not: [/\.(esm\.js|mjs)$/] }],
+        exclude: { and: [/(uuid|core-js)/, { not: [/\.(esm\.js|mjs)$/] }] },
       },
     ],
   },
