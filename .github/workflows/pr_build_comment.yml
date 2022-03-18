@@ -1,0 +1,88 @@
+name: Build Asset Comment for Pull Request
+
+on:
+  workflow_run:
+    workflows: [Kolibri Build Assets for Pull Request]
+    types:
+      - completed
+
+jobs:
+  post:
+    name: Add build artifact PR comment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Find build comment
+        id: find-comment
+        uses: actions/github-script@v6
+        with:
+          script: |
+              let comment;
+              let page = 1
+              while (!comment) {
+                const comments = github.rest.issues.listComments({
+                  issue_number: context.payload.workflow_run.pull_requests[0].number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  page,
+                })
+                if (!comments.length) {
+                  return;
+                }
+                comment = comments.find(c => c.body.includes('[**Build Artifacts**]'))
+                page += 1;
+              }
+              return comment && comment.id
+      - name: Make text for build comment
+        id: comment-text
+        uses: actions/github-script@v6
+        with:
+          script: |
+              const opts = github.rest.actions.listWorkflowRunArtifacts.endpoint.merge({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                run_id: ${{ context.payload.workflow_run.id }},
+              })
+              const artifacts = await github.paginate(opts)
+              let text = `[**Build Artifacts**](${{ context.payload.workflow_run.html_url }})`
+              artifacts.sort((a, b) => {
+                if (a.name < b.name) {
+                  return -1
+                }
+                if (b.name < a.name) {
+                  return 1
+                }
+                return 0
+              })
+
+              for (let artifact of artifacts) {
+                if (!artifact.expired) {
+                  text += '\n'
+                  text += `[${artifact.name}](${artifact.archive_download_url})`
+                }
+              }
+              return text
+      - name: Create build comment
+        if: ${{!steps.find-comment.outputs.result}}
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+              github.rest.issues.createComment({
+                issue_number: context.payload.workflow_run.pull_requests[0].number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: '${{ steps.comment-text.outputs.result }}'
+              })
+      - name: Update build comment
+        if: ${{steps.find-comment.outputs.result}}
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+              github.rest.issues.createComment({
+                issue_number: context.payload.workflow_run.pull_requests[0].number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: ${{steps.find-comment.outputs.result}},
+                body: '${{ steps.comment-text.outputs.result }}'
+              })
