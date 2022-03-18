@@ -15,7 +15,7 @@ jobs:
   dmg:
     name: Build DMG file
     needs: whl
-    uses: learningequality/kolibri-app/.github/workflows/build_mac.yml@develop
+    uses: learningequality/kolibri-app/.github/workflows/build_mac.yml@main
     with:
       whl-file-name: ${{ needs.whl.outputs.whl-file-name }}
-      ref: develop
+      ref: main
