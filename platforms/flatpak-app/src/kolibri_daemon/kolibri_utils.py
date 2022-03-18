@@ -3,7 +3,7 @@ from __future__ import annotations
 import filecmp
 import importlib.util
 import logging
-import re
+import os
 import shutil
 from pathlib import Path
 
@@ -11,9 +11,6 @@ from kolibri_app.config import KOLIBRI_HOME_TEMPLATE_DIR
 from kolibri_app.globals import KOLIBRI_HOME_PATH
 
 logger = logging.getLogger(__name__)
-
-# HTML tags and entities
-TAGRE = re.compile("<.*?>|&([a-z0-9]+|#[0-9]{1,6}|#x[0-9a-f]{1,6});")
 
 # These Kolibri plugins will be dynamically enabled if they are
 # available:
@@ -23,10 +20,13 @@ OPTIONAL_PLUGINS = [
 ]
 
 
-def init_kolibri():
+def init_kolibri(**kwargs):
+    _init_kolibri_env()
+    kolibri_update_from_home_template()
+
     from kolibri.plugins.registry import registered_plugins
     from kolibri.plugins.utils import enable_plugin
-    from kolibri.utils.cli import initialize, setup_logging
+    from kolibri.utils.main import initialize
 
     registered_plugins.register_plugins(["kolibri.plugins.app"])
     enable_plugin("kolibri.plugins.app")
@@ -43,8 +43,21 @@ def init_kolibri():
         logger.debug(f"Enabling optional plugin {plugin_name}")
         enable_plugin(plugin_name)
 
-    setup_logging(debug=False)
-    initialize()
+    initialize(**kwargs)
+
+
+def _init_kolibri_env():
+    os.environ["DJANGO_SETTINGS_MODULE"] = "kolibri_app.kolibri_settings"
+
+    # Automatically provision with $KOLIBRI_HOME/automatic_provision.json if it
+    # exists.
+    # TODO: Once kolibri-gnome supports automatic login for all cases, use an
+    #       included automatic provision file by default.
+    automatic_provision_path = KOLIBRI_HOME_PATH.joinpath("automatic_provision.json")
+    if automatic_provision_path.is_file():
+        os.environ.setdefault(
+            "KOLIBRI_AUTOMATIC_PROVISION_FILE", automatic_provision_path.as_posix()
+        )
 
 
 def kolibri_update_from_home_template():

@@ -126,7 +126,7 @@ class LocalSearchHandler(SearchHandler):
 
         init_logging("kolibri-daemon-search.txt")
 
-        init_kolibri()
+        init_kolibri(skip_update=True)
 
     def get_item_ids_for_search(self, search: str) -> list:
         assert self.__executor
