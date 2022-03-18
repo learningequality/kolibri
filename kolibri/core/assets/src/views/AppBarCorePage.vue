@@ -68,7 +68,7 @@
           backgroundColor: this.$themePalette.grey.v_100,
           paddingLeft: '32px',
           paddingRight: '32px',
-          paddingTop: this.appBarHeight + 'px',
+          paddingTop: this.appBarHeight + 32 + 'px',
           paddingBottom: '72px',
           marginTop: 0,
         };
