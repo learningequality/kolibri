@@ -1,4 +1,4 @@
-import initialization
+# import initialization
 
 import django
 import os
@@ -6,7 +6,7 @@ import os
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.backends import default_backend
-from twisted.internet import reactor
+from twisted.internet import reactor, defer
 from twisted.cred import portal, checkers, error, credentials
 from twisted.conch import manhole, manhole_ssh
 from twisted.conch.ssh import keys
@@ -50,12 +50,21 @@ def get_key_pair(refresh=False):
 @implementer(checkers.ICredentialsChecker)
 class KolibriSuperAdminCredentialsChecker(object):
     """
-    Check that the device is unprovisioned, or the credentials are for a super admin.
+    Check that the device is unprovisioned, or the credentials are for a super admin,
+    or the password matches the temp password set over ADB.
     """
     credentialInterfaces = (credentials.IUsernamePassword,)
 
     def requestAvatarId(self, creds):
         from kolibri.core.auth.models import FacilityUser
+
+        # if a temporary password was set over ADB, allow login with it
+        TEMP_ADMIN_PASS_PATH = os.path.join(os.environ.get("KOLIBRI_HOME", "."), "temp_admin_pass")
+        if os.path.isfile(TEMP_ADMIN_PASS_PATH):
+            with open(TEMP_ADMIN_PASS_PATH) as f:
+                provided_password = creds.password.decode()
+                if provided_password and provided_password == f.read().strip():
+                    return creds.username
 
         # if there are no users yet (not yet provisioned), allow anon
         if FacilityUser.objects.count() == 0:
