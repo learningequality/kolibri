@@ -597,6 +597,7 @@ class Application(Gio.Application):
     def __on_system_name_acquired(self, connection: Gio.DBusConnection, name: str):
         pass
 
-    def __on_system_name_lost(self, connection: Gio.DBusConnection, name: str):
-        self.__public_interface.unexport(connection)
-        self.__private_interface.unexport(connection)
+    def __on_system_name_lost(self, connection: typing.Optional[Gio.DBusConnection], name: str):
+        if connection:
+            self.__public_interface.unexport(connection)
+            self.__private_interface.unexport(connection)
