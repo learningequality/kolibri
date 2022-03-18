@@ -1,23 +1,19 @@
-import initialization  # keep this first, to ensure we're set up for other imports
-
 import logging
 import time
 
-from jnius import autoclass
-
+import initialization  # noqa: F401 keep this first, to ensure we're set up for other imports
 from android_utils import start_service
-from runnable import Runnable
-
-# we need to initialize Kolibri to allow us to access the app key
-from kolibri.utils.cli import initialize
+from jnius import autoclass
+from kolibri.main import enable_plugin
 from kolibri.plugins.app.utils import interface
-from kolibri.utils.server import STATUS_RUNNING
-from kolibri.utils.server import wait_for_status
+from kolibri.utils.cli import initialize
 from kolibri.utils.server import _read_pid_file
 from kolibri.utils.server import PID_FILE
+from kolibri.utils.server import STATUS_RUNNING
+from kolibri.utils.server import wait_for_status
+from runnable import Runnable
 
-
-PythonActivity = autoclass('org.kivy.android.PythonActivity')
+PythonActivity = autoclass("org.kivy.android.PythonActivity")
 
 loadUrl = Runnable(PythonActivity.mWebView.loadUrl)
 
@@ -25,6 +21,10 @@ logging.info("Initializing Kolibri and running any upgrade routines")
 
 loadUrl("file:///android_asset/_load.html")
 
+# activate app mode
+enable_plugin("kolibri.plugins.app")
+
+# we need to initialize Kolibri to allow us to access the app key
 initialize()
 
 # start kolibri server

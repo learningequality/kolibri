@@ -1,8 +1,7 @@
-import initialization  # keep this first, to ensure we're set up for other imports
-
 import logging
 import os
 
+import initialization  # noqa: F401 keep this first, to ensure we're set up for other imports
 from android_utils import make_service_foreground
 from android_utils import share_by_intent
 from kolibri.main import initialize

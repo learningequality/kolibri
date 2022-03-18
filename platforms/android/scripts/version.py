@@ -1,4 +1,3 @@
-
 import os
 import subprocess
 import sys
@@ -9,9 +8,10 @@ def kolibri_version():
     """
     Returns the major.minor version of Kolibri if it exists
     """
-    with open('./src/kolibri/VERSION', 'r') as version_file:
+    with open("./src/kolibri/VERSION", "r") as version_file:
         # p4a only likes digits and decimals
         return version_file.read().strip()
+
 
 def commit_hash():
     """
@@ -25,9 +25,10 @@ def commit_hash():
         stderr=subprocess.PIPE,
         shell=True,
         cwd=repo_dir,
-        universal_newlines=True
+        universal_newlines=True,
     )
     return p.communicate()[0].rstrip()
+
 
 def git_tag():
     repo_dir = os.path.dirname(os.path.abspath(__file__))
@@ -37,17 +38,19 @@ def git_tag():
         stderr=subprocess.PIPE,
         shell=True,
         cwd=repo_dir,
-        universal_newlines=True
+        universal_newlines=True,
     )
     return p.communicate()[0].rstrip()
 
+
 def build_type():
-    key_alias = os.getenv('P4A_RELEASE_KEYALIAS', 'unknown')
-    if key_alias == 'LE_DEV_KEY':
-        return 'dev'
-    if key_alias == 'LE_RELEASE_KEY':
-        return 'official'
+    key_alias = os.getenv("P4A_RELEASE_KEYALIAS", "unknown")
+    if key_alias == "LE_DEV_KEY":
+        return "dev"
+    if key_alias == "LE_RELEASE_KEY":
+        return "official"
     return key_alias
+
 
 def apk_version():
     """
@@ -55,7 +58,8 @@ def apk_version():
     Schema: [kolibri version]-[android installer version or githash]-[build signature type]
     """
     android_version_indicator = git_tag() or commit_hash()
-    return '{}-{}-{}'.format(kolibri_version(), android_version_indicator, build_type())
+    return "{}-{}-{}".format(kolibri_version(), android_version_indicator, build_type())
+
 
 def build_number():
     """
@@ -69,18 +73,22 @@ def build_number():
     # We can't go backwards. So we're adding to the one submitted at first.
     build_base_number = 2008998000
 
-    buildkite_build_number = os.getenv('BUILDKITE_BUILD_NUMBER')
-    increment_for_64bit = 1 if os.getenv('ARCH', '') == '64bit' else 0
-    
+    buildkite_build_number = os.getenv("BUILDKITE_BUILD_NUMBER")
+    increment_for_64bit = 1 if os.getenv("ARCH", "") == "64bit" else 0
+
     if buildkite_build_number is not None:
-        build_number = build_base_number + 2 * int(buildkite_build_number) + increment_for_64bit
+        build_number = (
+            build_base_number + 2 * int(buildkite_build_number) + increment_for_64bit
+        )
         return str(build_number)
 
-    alt_build_number = (int(datetime.now().strftime('%y%m%d%H%M')) - build_base_number) * 2 + increment_for_64bit
+    alt_build_number = (
+        int(datetime.now().strftime("%y%m%d%H%M")) - build_base_number
+    ) * 2 + increment_for_64bit
     return alt_build_number
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     if sys.argv[1] == "apk_version":
         print(apk_version())
     elif sys.argv[1] == "build_number":

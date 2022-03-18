@@ -1,0 +1,30 @@
+repos:
+    -   repo: https://github.com/python/black
+        rev: 21.12b0
+        hooks:
+            -   id: black
+                types_or: [ python, pyi ]
+                exclude: '^.+?\.template$'
+    -   repo: https://github.com/pycqa/flake8
+        rev: 4.0.1
+        hooks:
+            -   id: flake8
+                exclude: '^.+?\.template$'
+    -   repo: https://github.com/pre-commit/pre-commit-hooks
+        rev: v4.1.0
+        hooks:
+            -   id: trailing-whitespace
+                exclude: '^.+?\.template$'
+            -   id: check-yaml
+                exclude: '^.+?\.template$'
+            -   id: check-added-large-files
+                exclude: '^.+?\.template$'
+            -   id: debug-statements
+                exclude: '^.+?\.template$'
+            -   id: end-of-file-fixer
+                exclude: '^.+?(\.json|\.template)$'
+
+    -   repo: https://github.com/asottile/reorder_python_imports
+        rev: v2.6.0
+        hooks:
+            -   id: reorder-python-imports
