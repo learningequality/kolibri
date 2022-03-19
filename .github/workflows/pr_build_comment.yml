@@ -48,10 +48,29 @@ jobs:
               const checkSuiteNumber = context.payload.workflow_run.check_suite_id
               const repoHtmlUrl = context.payload.repository.html_url
 
-              for (let artifact of artifacts) {
+              const artifactsToDisplay = artifacts.filter((artifact) => {
+                return !artifact.expired && artifact.name != "pr_number"
+              })
+
+              const file_manifest = {
+                "deb": "Debian Package",
+                "dmg": "Mac Installer (DMG)",
+                "exe": "Unsigned Windows installer",
+                "pex": "PEX file",
+                "whl": "WHL file",
+                "gz": "Source Tarball",
+                "zip": "Raspberry Pi Image",
+              }
+
+              if (artifactsToDisplay.length) {
+                text += '\n| Asset type | Download link |\n|-|-|'
+              }
+
+              for (let artifact of artifactsToDisplay) {
                 if (!artifact.expired && artifact.name != "pr_number") {
-                  text += '\n\n'
-                  text += `- [${artifact.name}](${repoHtmlUrl}/suites/${checkSuiteNumber}/artifacts/${artifact.id.toString()})`
+                  const extension = artifact.name.split('.').pop()
+                  const readableName = file_manifest[extension] || artifact.name
+                  text += `\n| ${readableName} | [${artifact.name}](${repoHtmlUrl}/suites/${checkSuiteNumber}/artifacts/${artifact.id.toString()}) |`
                 }
               }
               return text
@@ -107,8 +126,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-              github.rest.issues.createComment({
-                issue_number: ${{steps.pr-number.outputs.result}},
+              github.rest.issues.updateComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 comment_id: ${{steps.find-comment.outputs.result}},
