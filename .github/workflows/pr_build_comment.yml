@@ -34,7 +34,7 @@ jobs:
               const fs = require('fs');
               fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/pr_number.zip`, Buffer.from(download.data));
 
-              let text = `[**Build Artifacts**](${context.payload.workflow_run.html_url})`
+              let text = `### [**Build Artifacts**](${context.payload.workflow_run.html_url})`
               artifacts.sort((a, b) => {
                 if (a.name < b.name) {
                   return -1
@@ -45,10 +45,13 @@ jobs:
                 return 0
               })
 
+              const checkSuiteNumber = context.payload.workflow_run.check_suite_id
+              const repoHtmlUrl = context.payload.repository.html_url
+
               for (let artifact of artifacts) {
                 if (!artifact.expired && artifact.name != "pr_number") {
-                  text += '\n'
-                  text += `[${artifact.name}](${artifact.archive_download_url})`
+                  text += '\n\n'
+                  text += `- [${artifact.name}](${repoHtmlUrl}/suites/${checkSuiteNumber}/artifacts/${artifact.id.toString()})`
                 }
               }
               return text
@@ -93,7 +96,7 @@ jobs:
                 issue_number: ${{steps.pr-number.outputs.result}},
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                body: '${{ steps.comment-text.outputs.result }}'
+                body: ${{ steps.comment-text.outputs.result }}
               })
       - name: Update build comment
         if: ${{steps.find-comment.outputs.result}}
@@ -106,5 +109,5 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 comment_id: ${{steps.find-comment.outputs.result}},
-                body: '${{ steps.comment-text.outputs.result }}'
+                body: ${{ steps.comment-text.outputs.result }}
               })
