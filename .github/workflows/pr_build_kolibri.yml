@@ -3,6 +3,25 @@ name: Kolibri Build Assets for Pull Request
 on: pull_request
 
 jobs:
+  prnumber:
+    # The workflow_run event can't access the pull request
+    # information unless the pull request comes from a non-fork
+    # repository. Therefore to get the pull request information,
+    # we need to store it as a workflow artifact in this workflow.
+    # Implementation taken from:
+    # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#using-data-from-the-triggering-workflow
+    runs-on: ubuntu-latest
+    steps:
+      - name: Save PR number
+        env:
+          PR_NUMBER: ${{ github.event.number }}
+        run: |
+          mkdir -p ./pr
+          echo $PR_NUMBER > ./pr/pr_number
+      - uses: actions/upload-artifact@v3
+        with:
+          name: pr_number
+          path: pr/
   whl:
     name: Build WHL file
     uses: ./.github/workflows/build_whl.yml

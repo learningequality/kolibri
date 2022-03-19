@@ -11,27 +11,6 @@ jobs:
     name: Add build artifact PR comment
     runs-on: ubuntu-latest
     steps:
-      - name: Find build comment
-        id: find-comment
-        uses: actions/github-script@v6
-        with:
-          script: |
-              let comment;
-              let page = 1
-              while (!comment) {
-                const comments = github.rest.issues.listComments({
-                  issue_number: context.payload.workflow_run.pull_requests[0].number,
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  page,
-                })
-                if (!comments.length) {
-                  return;
-                }
-                comment = comments.find(c => c.body.includes('[**Build Artifacts**]'))
-                page += 1;
-              }
-              return comment && comment.id
       - name: Make text for build comment
         id: comment-text
         uses: actions/github-script@v6
@@ -43,6 +22,18 @@ jobs:
                 run_id: context.payload.workflow_run.id,
               })
               const artifacts = await github.paginate(opts)
+              const matchArtifact = artifacts.filter((artifact) => {
+                return artifact.name == "pr_number"
+              })[0];
+              const download = await github.rest.actions.downloadArtifact({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                artifact_id: matchArtifact.id,
+                archive_format: 'zip',
+              });
+              const fs = require('fs');
+              fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/pr_number.zip`, Buffer.from(download.data));
+
               let text = `[**Build Artifacts**](${context.payload.workflow_run.html_url})`
               artifacts.sort((a, b) => {
                 if (a.name < b.name) {
@@ -55,12 +46,43 @@ jobs:
               })
 
               for (let artifact of artifacts) {
-                if (!artifact.expired) {
+                if (!artifact.expired && artifact.name != "pr_number") {
                   text += '\n'
                   text += `[${artifact.name}](${artifact.archive_download_url})`
                 }
               }
               return text
+      - name: Unzip PR number artifact
+        run: unzip pr_number.zip
+      - name: Get PR number
+        id: pr-number
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const prNumber = Number(fs.readFileSync('./pr_number'));
+            return prNumber
+      - name: Find build comment
+        id: find-comment
+        uses: actions/github-script@v6
+        with:
+          script: |
+              let comment;
+              let page = 1
+              while (!comment) {
+                const comments = github.rest.issues.listComments({
+                  issue_number: ${{steps.pr-number.outputs.result}},
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  page,
+                })
+                if (!comments.length) {
+                  return;
+                }
+                comment = comments.find(c => c.body.includes('[**Build Artifacts**]'))
+                page += 1;
+              }
+              return comment && comment.id
       - name: Create build comment
         if: ${{!steps.find-comment.outputs.result}}
         uses: actions/github-script@v6
@@ -68,7 +90,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
               github.rest.issues.createComment({
-                issue_number: context.payload.workflow_run.pull_requests[0].number,
+                issue_number: ${{steps.pr-number.outputs.result}},
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 body: '${{ steps.comment-text.outputs.result }}'
@@ -80,7 +102,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
               github.rest.issues.createComment({
-                issue_number: context.payload.workflow_run.pull_requests[0].number,
+                issue_number: ${{steps.pr-number.outputs.result}},
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 comment_id: ${{steps.find-comment.outputs.result}},
