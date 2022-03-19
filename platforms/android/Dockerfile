@@ -50,9 +50,7 @@ RUN cd /usr/local/bin && \
   ln -s $(which python3) python
 
 # install python dependencies
-RUN pip install cython virtualenv pbxproj && \
-  # get learningequality's custom python-for-android
-  pip install -r requirements.txt && \
+RUN pip install -r requirements.txt && \
   useradd -lm kivy
 
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \

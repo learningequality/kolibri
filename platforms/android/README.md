@@ -21,13 +21,19 @@ This project was primarily developed on Docker, so this method is more rigorousl
 Run `make setup`.
 Follow the instructions from the command to set your environment variables.
 
-2. Build or download a Kolibri WHL file, and place it in the `whl/` directory.
+2. Install the Python dependencies:
+
+`pip install -r requirements.txt`
+
+3. Ensure you have all [necessary packages for Python for Android](https://python-for-android.readthedocs.io/en/latest/quickstart/#installing-dependencies).
+
+4. Build or download a Kolibri WHL file, and place it in the `whl/` directory.
 
 To download a Kolibri WHL file, you can use `make whl=<URL>` from the command line. It will download it and put it in the correct directory.
 
-3. If you need a 64bit build, set the `ARCH` environment variable to `64bit`.
+5. If you need a 64bit build, set the `ARCH` environment variable to `64bit`.
 
-4. Run `make kolibri.apk.unsigned` to build the apk. Watch for success at the end, or errors, which might indicate missing build dependencies or build errors. If successful, there should be an APK in the `dist/` directory.
+6. Run `make kolibri.apk.unsigned` to build the apk. Watch for success at the end, or errors, which might indicate missing build dependencies or build errors. If successful, there should be an APK in the `dist/` directory.
 
 ## Installing the apk
 1. Connect your Android device over USB, with USB Debugging enabled.
