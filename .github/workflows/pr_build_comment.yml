@@ -73,19 +73,22 @@ jobs:
               let comment;
               let page = 1
               while (!comment) {
-                const comments = github.rest.issues.listComments({
+                const request = await github.rest.issues.listComments({
                   issue_number: ${{steps.pr-number.outputs.result}},
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   page,
                 })
+                const comments = request.data
                 if (!comments.length) {
                   return;
                 }
-                comment = comments.find(c => c.body.includes('[**Build Artifacts**]'))
+                comment = comments.find(c => c.body && c.body.includes('[**Build Artifacts**]'))
+                if (comment) {
+                  return comment.id.toString()
+                }
                 page += 1;
               }
-              return comment && comment.id
       - name: Create build comment
         if: ${{!steps.find-comment.outputs.result}}
         uses: actions/github-script@v6
