@@ -204,7 +204,7 @@ class PublicAPITestCase(APITransactionTestCase):
             "name": "science",
             "language": "es",  # root node language
             "description": "",
-            "total_resource_count": 2,  # should account for nodes with duplicate content_ids
+            "total_resource_count": 3,  # should account for nodes with duplicate content_ids
             "version": 0,
             "published_size": 20,
             "last_published": None,

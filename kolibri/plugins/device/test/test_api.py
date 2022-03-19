@@ -175,8 +175,8 @@ class DeviceChannelMetadataAPITestCase(APITestCase):
             get_params,
         )
         # N.B. Because of our not very good fixture data, most of our content nodes are by default not renderable
-        # Hence this will return 1 if everything is deduped properly.
-        self.assertEqual(response.data["total_resources"], 1)
+        # Hence this will return 2 if everything is duplicated properly.
+        self.assertEqual(response.data["total_resources"], 2)
         self.assertEqual(response.data["total_file_size"], 0)
         self.assertEqual(response.data["on_device_resources"], 4)
         self.assertEqual(response.data["on_device_file_size"], 0)
@@ -188,7 +188,7 @@ class DeviceChannelMetadataAPITestCase(APITestCase):
             reverse("kolibri:kolibri.plugins.device:device_channel-list"),
             {"include_fields": "total_resources"},
         )
-        self.assertEqual(response.data[0]["total_resources"], 1)
+        self.assertEqual(response.data[0]["total_resources"], 2)
 
     def test_channelmetadata_include_fields_filter_has_total_file_size(self):
         LocalFile.objects.filter(
@@ -263,7 +263,7 @@ class CalculateImportExportSizeViewTestCase(APITestCase):
             data={"channel_id": self.the_channel_id},
             format="json",
         )
-        self.assertEqual(response.data["resource_count"], 2)
+        self.assertEqual(response.data["resource_count"], 3)
         self.assertEqual(
             response.data["file_size"],
             sum(
@@ -310,7 +310,7 @@ class CalculateImportExportSizeViewTestCase(APITestCase):
             data={"channel_id": self.the_channel_id, "export": True},
             format="json",
         )
-        self.assertEqual(response.data["resource_count"], 2)
+        self.assertEqual(response.data["resource_count"], 3)
         self.assertEqual(
             response.data["file_size"],
             sum(
