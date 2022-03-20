@@ -263,11 +263,10 @@ class BaseValuesViewset(viewsets.GenericViewSet):
         try:
             filter_kwargs = filter_kwargs or self._get_lookup_filter()
             return self.serialize(queryset.filter(**filter_kwargs))[0]
-        except Exception:
+        except (IndexError, ValueError, TypeError):
             raise Http404(
                 "No %s matches the given query." % queryset.model._meta.object_name
             )
-
 
 class QueryParamRequest(Request):
     def __init__(self, query_params, *args, **kwargs):
