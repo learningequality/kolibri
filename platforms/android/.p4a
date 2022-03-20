@@ -13,7 +13,8 @@
 --permission FOREGROUND_SERVICE
 --service server:server.py
 --service remoteshell:remoteshell.py
---presplash assets/launch-image.png
+--presplash assets/icon.png
+--presplash-color #FFFFFF
 --icon assets/icon.png
 --fileprovider-paths src/fileprovider_paths.xml
 --add-asset assets/_load.html:_load.html

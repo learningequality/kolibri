@@ -107,12 +107,8 @@ install:
 	adb uninstall org.learningequality.Kolibri || true 2> /dev/null
 	adb install dist/*$(ARM_VER)-debug-*.apk
 
-run: install
-	adb shell am start -n org.learningequality.Kolibri/org.kivy.android.PythonActivity
-	sleep 1
+logcat:
 	adb logcat | grep -i -E "python|kolibr| `adb shell ps | grep ' org.learningequality.Kolibri$$' | tr -s [:space:] ' ' | cut -d' ' -f2` " | grep -E -v "WifiTrafficPoller|localhost:5000|NetworkManagementSocketTagger|No jobs to start"
-
-launch: kolibri.apk.unsigned run
 
 $(SDK)/cmdline-tools:
 	@echo "Downloading Android SDK build tools"
