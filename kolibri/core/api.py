@@ -269,7 +269,6 @@ class BaseValuesViewset(viewsets.GenericViewSet):
                 "No %s matches the given query." % queryset.model._meta.object_name
             )
 
-
 class QueryParamRequest(Request):
     def __init__(self, query_params, *args, **kwargs):
         super(QueryParamRequest, self).__init__(*args, **kwargs)
