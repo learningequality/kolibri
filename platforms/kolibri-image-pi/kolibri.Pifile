@@ -1,0 +1,22 @@
+FROM images/base.img
+TO images/Kolibri.img
+
+PUMP 100M
+
+ENV DEBIAN_FRONTEND noninteractive
+
+echo "--- Using Kolibri deb"
+
+# All files copied at build stage to /pi-gen
+INSTALL dist/*.deb /tmp/kolibri.deb
+
+RUN dpkg -i /tmp/kolibri.deb
+RUN rm /tmp/kolibri.deb
+
+RUN ls -la /home/pi/.kolibri/options.ini
+
+RUN apt-get install -y kolibri-server
+
+RUN systemctl enable kolibri-server
+
+ENV DEBIAN_FRONTEND

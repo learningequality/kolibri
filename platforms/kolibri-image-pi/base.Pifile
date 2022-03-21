@@ -1,0 +1,84 @@
+# Start with the base raspiOS-lite image
+FROM images/source.img
+TO images/base.img
+
+ENV DEBIAN_FRONTEND noninteractive
+
+user=pi
+
+# Enable SSH
+RUN touch /boot/ssh
+
+hostname=kolibri
+
+# Write hostname to /etc/hostname and /etc/hosts
+RUN sed -i "s/raspberrypi/${hostname}/g" /etc/hostname
+RUN sed -i "s/raspberrypi/${hostname}/g" /etc/hosts
+  
+# Set password for specified user (pi by default)
+
+echo "Changing password of pi..."
+
+# Redirect output to prevent echoing sensitive information to stdout
+RUN << EOF &> /dev/null
+bash -c "echo ${user}:kolibrifly | chpasswd"
+EOF
+
+echo "Done."
+
+INSTALL 644 files/learningequality-ubuntu-kolibri-bionic.list /etc/apt/sources.list.d/
+
+RUN apt-key add - <<EOF
+$(cat files/learningequality.gpg.key)
+EOF
+
+RUN mkdir -p "/home/${user}/.kolibri"
+RUN mkdir -p /KOLIBRI_DATA/content
+INSTALL 644 files/options.ini "/home/${user}/.kolibri/"
+
+RUN chown -R ${user}:${user} /KOLIBRI_DATA
+RUN chmod -R +rwx /KOLIBRI_DATA
+RUN chown -R ${user}:${user} /home/${user}
+RUN chmod -R +rwx /home/${user}
+
+RUN apt-get update
+RUN apt-get install -y nginx-full uwsgi uwsgi-plugin-python3 redis-server dnsmasq hostapd
+
+RUN debconf-set-selections <<EOF
+$(cat files/debconf)
+EOF
+
+INSTALL files/dnsmasq_hotspot.conf /etc/dnsmasq.d/hotspot.conf
+INSTALL files/hostapd.conf /etc/hostapd/hostapd.conf
+INSTALL files/hostapd_5ghz.conf /etc/hostapd/hostapd_5ghz.conf
+
+INSTALL 755 files/usb-mount.sh /usr/local/bin/usb-mount.sh
+INSTALL files/usb-mount@.service /etc/systemd/system/usb-mount@.service
+
+RUN tee /etc/dhcpcd.conf <<EOF
+interface wlan0
+    static ip_address=10.10.10.10/24
+    nohook resolv.conf, wpa_supplicant
+EOF
+
+RUN tee /etc/default/hostapd <<EOF
+DAEMON_CONF="/etc/hostapd/hostapd.conf"
+EOF
+
+RUN tee /etc/default/dnsmasq <<EOF
+DNSMASQ_EXCEPT=lo
+EOF
+
+RUN tee /etc/udev/rules.d/99-local.rules <<EOF
+KERNEL=="sd[a-z]*[0-9]", SUBSYSTEMS=="usb", ACTION=="add", RUN+="/bin/systemctl start usb-mount@%k.service"
+KERNEL=="sd[a-z]*[0-9]", SUBSYSTEMS=="usb", ACTION=="remove", RUN+="/bin/systemctl stop usb-mount@%k.service"
+EOF
+
+RUN rm /etc/nginx/sites-enabled/default
+
+RUN systemctl enable dhcpcd
+RUN systemctl enable hostapd
+RUN systemctl enable dnsmasq
+RUN systemctl enable nginx
+
+ENV DEBIAN_FRONTEND
