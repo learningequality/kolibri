@@ -21,7 +21,7 @@
         :icon="immersivePageIcon"
         :route="immersivePageRoute"
         :isFullscreen="!immersivePagePrimary"
-        :height="headerHeight"
+        :height="topBarHeight"
         @nav-icon-click="$emit('navIconClick')"
       />
       <AppBar
@@ -29,7 +29,7 @@
         ref="appBar"
         class="app-bar"
         :title="toolbarTitle || appBarTitle"
-        :height="headerHeight"
+        :height="topBarHeight"
         :navShown="navShown"
         @toggleSideNav="navShown = !navShown"
         @showLanguageModal="languageModalShown = true"
@@ -58,8 +58,6 @@
     <SideNav
       ref="sideNav"
       :navShown="navShown"
-      :headerHeight="headerHeight"
-      :width="navWidth"
       @toggleSideNav="navShown = !navShown"
       @shouldFocusFirstEl="findFirstEl()"
     />
@@ -137,6 +135,7 @@
   import { currentLanguage, defaultLanguage } from 'kolibri.utils.i18n';
   import coreBannerContent from 'kolibri.utils.coreBannerContent';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import navComponentsMixin from '../../mixins/nav-components';
   import AppError from '../AppError';
   import GlobalSnackbar from '../GlobalSnackbar';
   import ImmersiveToolbar from '../ImmersiveToolbar';
@@ -200,7 +199,7 @@
       UpdateNotification,
       LanguageSwitcherModal,
     },
-    mixins: [responsiveWindowMixin, commonCoreStrings],
+    mixins: [navComponentsMixin, responsiveWindowMixin, commonCoreStrings],
     props: {
       appBarTitle: {
         type: String,
@@ -316,18 +315,12 @@
         blockDoubleClicks: state => state.core.blockDoubleClicks,
         notifications: state => state.core.notifications,
       }),
-      headerHeight() {
-        return this.windowIsSmall ? 56 : 64;
-      },
       appbarHeight() {
         if (this.showSubNav) {
           // Adds the height of KNavBar
-          return this.headerHeight + 48;
+          return this.topBarHeight + 48;
         }
-        return this.headerHeight;
-      },
-      navWidth() {
-        return this.headerHeight * 4;
+        return this.topBarHeight;
       },
       notAuthorized() {
         // catch "not authorized" error, display AuthMessage

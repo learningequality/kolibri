@@ -1,114 +1,117 @@
 <template>
 
-  <KPageContainer>
+  <FacilityAppBarPage>
 
-    <p>
-      <KRouterLink
-        :text="coreString('allClassesLabel')"
-        :to="$store.getters.facilityPageLinks.ManageClassPage"
-        icon="back"
-      />
-    </p>
-    <div>
-      <h1 class="title-header" dir="auto">
-        <KLabeledIcon icon="classes" :label="currentClass.name" />
-      </h1>
-      <KButton
-        :text="$tr('renameButtonLabel')"
-        appearance="basic-link"
-        :primary="true"
-        @click="displayModal(Modals.EDIT_CLASS_NAME)"
-      />
-    </div>
+    <KPageContainer>
 
-    <p>{{ $tr('coachEnrollmentPageTitle') }}</p>
-
-    <!-- Modals -->
-    <ClassRenameModal
-      v-if="modalShown === Modals.EDIT_CLASS_NAME"
-      :classname="currentClass.name"
-      :classid="currentClass.id"
-      :classes="classes"
-      @cancel="closeModal"
-    />
-    <UserRemoveConfirmationModal
-      v-if="modalShown === Modals.REMOVE_USER"
-      :classname="currentClass.name"
-      :username="userToBeRemoved.username"
-      @submit="removalAction({ classId: currentClass.id, userId: userToBeRemoved.id })"
-      @cancel="closeModal"
-    />
-    <!-- /Modals -->
-
-    <KGrid>
-      <KGridItem
-        :layout8="{ span: 4 }"
-        :layout12="{ span: 6 }"
-      >
-        <h2>{{ coreString('coachesLabel') }}</h2>
-      </KGridItem>
-      <KGridItem
-        :layout="{ alignment: 'right' }"
-        :layout8="{ span: 4 }"
-        :layout12="{ span: 6 }"
-      >
+      <p>
         <KRouterLink
-          :text="$tr('assignCoachesButtonLabel')"
-          :to="$store.getters.facilityPageLinks.CoachClassAssignmentPage"
-          appearance="raised-button"
+          :text="coreString('allClassesLabel')"
+          :to="$store.getters.facilityPageLinks.ManageClassPage"
+          icon="back"
         />
-      </KGridItem>
-    </KGrid>
-
-    <UserTable
-      :users="classCoaches"
-      :emptyMessage="$tr('noCoachesInClassMessge')"
-      isCoach
-    >
-      <!-- Don't need template in Vue 2.5+ -->
-      <template #action="userRow">
+      </p>
+      <div>
+        <h1 class="title-header" dir="auto">
+          <KLabeledIcon icon="classes" :label="classDetails.name" />
+        </h1>
         <KButton
-          :text="coreString('removeAction')"
-          appearance="flat-button"
-          @click="confirmRemoval(userRow.user, removeClassCoach)"
-        />
-      </template>
-    </UserTable>
-
-    <KGrid class="top-margin">
-      <KGridItem
-        :layout8="{ span: 4 }"
-        :layout12="{ span: 6 }"
-      >
-        <h2>{{ coreString('learnersLabel') }}</h2>
-      </KGridItem>
-      <KGridItem
-        :layout="{ alignment: 'right' }"
-        :layout8="{ span: 4 }"
-        :layout12="{ span: 6 }"
-      >
-        <KRouterLink
-          :text="$tr('enrollLearnerButtonLabel')"
-          :to="$store.getters.facilityPageLinks.LearnerClassEnrollmentPage"
+          :text="$tr('renameButtonLabel')"
+          appearance="basic-link"
           :primary="true"
-          appearance="raised-button"
+          @click="displayModal(Modals.EDIT_CLASS_NAME)"
         />
-      </KGridItem>
-    </KGrid>
+      </div>
 
-    <UserTable
-      :users="classLearners"
-      :emptyMessage="$tr('noLearnersInClassMessage')"
-    >
-      <template #action="userRow">
-        <KButton
-          :text="coreString('removeAction')"
-          appearance="flat-button"
-          @click="confirmRemoval(userRow.user, removeClassLearner)"
-        />
-      </template>
-    </UserTable>
-  </KPageContainer>
+      <p>{{ $tr('coachEnrollmentPageTitle') }}</p>
+
+      <!-- Modals -->
+      <ClassRenameModal
+        v-if="modalShown === Modals.EDIT_CLASS_NAME"
+        :classname="classDetails.name"
+        :classid="classDetails.id"
+        :classes="classes"
+        @cancel="closeModal"
+      />
+      <UserRemoveConfirmationModal
+        v-if="modalShown === Modals.REMOVE_USER"
+        :classname="classDetails.name"
+        :username="userToBeRemoved.username"
+        @submit="removalAction({ classId: classDetails.id, userId: userToBeRemoved.id })"
+        @cancel="closeModal"
+      />
+      <!-- /Modals -->
+
+      <KGrid>
+        <KGridItem
+          :layout8="{ span: 4 }"
+          :layout12="{ span: 6 }"
+        >
+          <h2>{{ coreString('coachesLabel') }}</h2>
+        </KGridItem>
+        <KGridItem
+          :layout="{ alignment: 'right' }"
+          :layout8="{ span: 4 }"
+          :layout12="{ span: 6 }"
+        >
+          <KRouterLink
+            :text="$tr('assignCoachesButtonLabel')"
+            :to="$store.getters.facilityPageLinks.CoachClassAssignmentPage"
+            appearance="raised-button"
+          />
+        </KGridItem>
+      </KGrid>
+
+      <UserTable
+        :users="classCoaches"
+        :emptyMessage="$tr('noCoachesInClassMessge')"
+        isCoach
+      >
+        <!-- Don't need template in Vue 2.5+ -->
+        <template #action="userRow">
+          <KButton
+            :text="coreString('removeAction')"
+            appearance="flat-button"
+            @click="confirmRemoval(userRow.user, removeClassCoach)"
+          />
+        </template>
+      </UserTable>
+
+      <KGrid class="top-margin">
+        <KGridItem
+          :layout8="{ span: 4 }"
+          :layout12="{ span: 6 }"
+        >
+          <h2>{{ coreString('learnersLabel') }}</h2>
+        </KGridItem>
+        <KGridItem
+          :layout="{ alignment: 'right' }"
+          :layout8="{ span: 4 }"
+          :layout12="{ span: 6 }"
+        >
+          <KRouterLink
+            :text="$tr('enrollLearnerButtonLabel')"
+            :to="$store.getters.facilityPageLinks.LearnerClassEnrollmentPage"
+            :primary="true"
+            appearance="raised-button"
+          />
+        </KGridItem>
+      </KGrid>
+
+      <UserTable
+        :users="classLearners"
+        :emptyMessage="$tr('noLearnersInClassMessage')"
+      >
+        <template #action="userRow">
+          <KButton
+            :text="coreString('removeAction')"
+            appearance="flat-button"
+            @click="confirmRemoval(userRow.user, removeClassLearner)"
+          />
+        </template>
+      </UserTable>
+    </KPageContainer>
+  </FacilityAppBarPage>
 
 </template>
 
@@ -119,6 +122,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UserTable from '../UserTable';
   import { Modals } from '../../constants';
+  import FacilityAppBarPage from '../FacilityAppBarPage';
   import ClassRenameModal from './ClassRenameModal';
   import UserRemoveConfirmationModal from './UserRemoveConfirmationModal';
 
@@ -130,8 +134,9 @@
       };
     },
     components: {
-      UserTable,
+      FacilityAppBarPage,
       ClassRenameModal,
+      UserTable,
       UserRemoveConfirmationModal,
     },
     mixins: [commonCoreStrings],
@@ -149,6 +154,10 @@
         'currentClass',
         'modalShown',
       ]),
+      classDetails() {
+        // No errors due to race condition around currentClass being undefined
+        return this.currentClass || {};
+      },
       Modals() {
         return Modals;
       },

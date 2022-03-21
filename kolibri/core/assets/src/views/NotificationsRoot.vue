@@ -1,16 +1,21 @@
 <template>
 
   <div>
-    <KPageContainer v-if="!loading && notAuthorized">
-      <AuthMessage
-        :authorizedRole="authorizedRole"
-        :header="authorizationErrorHeader"
-        :details="authorizationErrorDetails"
-      />
-    </KPageContainer>
-    <KPageContainer v-else-if="!loading && error">
-      <AppError />
-    </KPageContainer>
+    <AppBarCorePage v-if="!loading && notAuthorized">
+      <KPageContainer>
+        <AuthMessage
+          :authorizedRole="authorizedRole"
+          :header="authorizationErrorHeader"
+          :details="authorizationErrorDetails"
+        />
+      </KPageContainer>
+    </AppBarCorePage>
+
+    <AppBarCorePage v-else-if="!loading && error">
+      <KPageContainer>
+        <AppError />
+      </KPageContainer>
+    </AppBarCorePage>
 
     <div v-else role="main" tabindex="-1" data-test="main">
       <slot></slot>
@@ -38,6 +43,7 @@
   import { UPDATE_MODAL_DISMISSED } from 'kolibri.coreVue.vuex.constants';
   import { currentLanguage, defaultLanguage } from 'kolibri.utils.i18n';
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
+  import AppBarCorePage from 'kolibri.coreVue.components.AppBarCorePage';
   import GlobalSnackbar from './GlobalSnackbar.vue';
   import UpdateNotification from './UpdateNotification.vue';
   import AppError from './AppError';
@@ -45,6 +51,7 @@
   export default {
     name: 'NotificationsRoot',
     components: {
+      AppBarCorePage,
       AppError,
       AuthMessage,
       GlobalSnackbar,
