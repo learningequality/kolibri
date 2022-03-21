@@ -387,6 +387,8 @@ SESSION_ENGINE = "django.contrib.sessions.backends.file"
 
 SESSION_FILE_PATH = os.path.join(conf.KOLIBRI_HOME, "sessions")
 
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
 if not os.path.exists(SESSION_FILE_PATH):
     if not os.path.exists(conf.KOLIBRI_HOME):
         raise RuntimeError("The KOLIBRI_HOME dir does not exist")
