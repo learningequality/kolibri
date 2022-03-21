@@ -38,3 +38,17 @@ jobs:
     with:
       whl-file-name: ${{ needs.whl.outputs.whl-file-name }}
       ref: main
+  deb:
+    name: Build DEB file
+    needs: whl
+    uses: learningequality/kolibri-installer-debian/.github/workflows/build_deb.yml@master
+    with:
+      tar-file-name: ${{ needs.whl.outputs.tar-file-name }}
+      ref: master
+  exe:
+    name: Build EXE file
+    needs: whl
+    uses: learningequality/kolibri-installer-windows/.github/workflows/build_exe.yml@develop
+    with:
+      whl-file-name: ${{ needs.whl.outputs.whl-file-name }}
+      ref: develop
