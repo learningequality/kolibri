@@ -230,7 +230,14 @@ class ChannelImport(object):
         if destination is None:
             # If no destination is set then we are targeting the default database
             self.destination = Bridge(
-                schema_version=CONTENT_SCHEMA_VERSION, app_name=CONTENT_APP_NAME
+                # It is a little counter intuitive that we are setting the schema version for the
+                # Django database *not* to be CURRENT_SCHEMA_VERSION, but we do so because
+                # this allows for precise mapping from channel database tables and columns to
+                # the Django database tables and columns. If we were to reference the current schema,
+                # then channel imports would fail because we did not properly specify the other
+                # fields that are annotated not imported.
+                schema_version=CONTENT_SCHEMA_VERSION,
+                app_name=CONTENT_APP_NAME,
             )
         else:
             # If a destination is set then pass that explicitly. At the moment, this only supports
@@ -729,8 +736,9 @@ class ChannelImport(object):
                     )
                 ).fetchone()
 
+                self.delete_old_channel_many_to_many_fields(self.channel_id)
                 if root_node:
-                    self.delete_old_channel_data(root_node["tree_id"])
+                    self.delete_old_channel_tree_data(root_node["tree_id"])
             else:
                 # We have previously loaded this channel, with the same or newer version, so our work here is done
                 logger.warn(
@@ -753,7 +761,21 @@ class ChannelImport(object):
         table_mapper = self.generate_table_mapper(mapping.get("per_table"))
         return self.can_use_sqlite_attach_method(model, table_mapper)
 
-    def delete_old_channel_data(self, old_tree_id):
+    def delete_old_channel_many_to_many_fields(self, channel_id):
+        # Delete all many to many through entries for the channel
+        # being deleted to prevent referential integrity errors in Postgresql.
+        for m2m in ChannelMetadata._meta.local_many_to_many:
+            model = getattr(ChannelMetadata, m2m.attname).through
+            # Our destination's schema is set to the latest import schema version
+            # NOT the schema that precisely reflects the tables of the Django database.
+            # So here we reference the actual current schema for the Django database
+            # because annotated channel metadata many to many fields are not included
+            # in channel databases, and their information is annotated after import.
+            m2mtable = self.destination.get_current_table(model)
+            query = m2mtable.delete().where(m2mtable.c.channelmetadata_id == channel_id)
+            self.destination.execute(query)
+
+    def delete_old_channel_tree_data(self, old_tree_id):
 
         # we want to delete all content models, but not "merge models" (ones that might also be used by other channels), and ContentNode last
         models_to_delete = [

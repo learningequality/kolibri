@@ -1,16 +1,21 @@
 <template>
 
-  <KPageContainer>
-    <h1>{{ $tr('pageHeader', { className }) }}</h1>
-    <p>{{ $tr('pageSubheader') }}</p>
-    <ClassEnrollForm
-      :facilityUsers="facilityUsers"
-      :classUsers="classUsers"
-      pageType="coaches"
-      :disabled="formIsDisabled"
-      @submit="assignCoaches"
-    />
-  </KPageContainer>
+  <ImmersivePageRoot
+    :appBarTitle="className"
+    :route="$store.getters.facilityPageLinks.ClassEditPage($route.params.id)"
+  >
+    <KPageContainer>
+      <h1>{{ $tr('pageHeader', { className }) }}</h1>
+      <p>{{ $tr('pageSubheader') }}</p>
+      <ClassEnrollForm
+        :facilityUsers="facilityUsers"
+        :classUsers="classUsers"
+        pageType="coaches"
+        :disabled="formIsDisabled"
+        @submit="assignCoaches"
+      />
+    </KPageContainer>
+  </ImmersivePageRoot>
 
 </template>
 
@@ -20,6 +25,7 @@
   import { mapState, mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ClassEnrollForm from './ClassEnrollForm';
+  import ImmersivePageRoot from './ImmersivePageRoot';
 
   export default {
     name: 'CoachClassAssignmentPage',
@@ -30,6 +36,7 @@
     },
     components: {
       ClassEnrollForm,
+      ImmersivePageRoot,
     },
     mixins: [commonCoreStrings],
     data() {
@@ -50,9 +57,11 @@
         this.assignCoachesToClass({ classId: this.class.id, coaches })
           .then(() => {
             // do this in action?
-            this.$router.push(this.$store.getters.facilityPageLinks.ClassEditPage).then(() => {
-              this.showSnackbarNotification('coachesAssignedNoCount', { count: coaches.length });
-            });
+            this.$router
+              .push(this.$store.getters.facilityPageLinks.ClassEditPage(this.class.id))
+              .then(() => {
+                this.showSnackbarNotification('coachesAssignedNoCount', { count: coaches.length });
+              });
           })
           .catch(() => {
             this.formIsDisabled = false;

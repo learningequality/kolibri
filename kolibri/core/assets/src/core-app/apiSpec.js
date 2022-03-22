@@ -34,12 +34,15 @@ import ContentIcon from '../views/ContentIcon';
 import ProgressIcon from '../views/ProgressIcon';
 import PermissionsIcon from '../views/PermissionsIcon';
 import CoreBase from '../views/CoreBase';
+import AppBarCorePage from '../views/AppBarCorePage';
+import ScrollingHeader from '../views/CoreBase/ScrollingHeader';
 import FullScreenSidePanel from '../views/FullScreenSidePanel';
 import SideNav from '../views/SideNav';
 import Navbar from '../views/Navbar';
 import NavbarLink from '../views/Navbar/NavbarLink';
 import CoreLogo from '../views/CoreLogo';
 import LanguageSwitcherList from '../views/language-switcher/LanguageSwitcherList';
+import LanguageSwitcherModal from '../views/language-switcher/LanguageSwitcherModal';
 import ElapsedTime from '../views/ElapsedTime';
 import PointsIcon from '../views/PointsIcon';
 import AuthMessage from '../views/AuthMessage';
@@ -62,6 +65,7 @@ import bytesForHumans from '../utils/bytesForHumans';
 import UserType from '../utils/UserType';
 import samePageCheckGenerator from '../utils/samePageCheckGenerator';
 import AppBar from '../views/AppBar';
+import ImmersiveToolbar from '../views/ImmersiveToolbar';
 import Backdrop from '../views/Backdrop';
 import CoreSnackbar from '../views/CoreSnackbar';
 import CoreMenu from '../views/CoreMenu';
@@ -142,6 +146,7 @@ export default {
       mappers,
     },
     components: {
+      ScrollingHeader,
       Backdrop,
       CoachContentLabel,
       DownloadButton,
@@ -149,17 +154,20 @@ export default {
       ContentIcon,
       ProgressIcon,
       PermissionsIcon,
+      AppBarCorePage,
       CoreBase,
       FullScreenSidePanel,
       SideNav,
       Navbar,
       NavbarLink,
+      LanguageSwitcherModal,
       LanguageSwitcherList,
       ElapsedTime,
       PointsIcon,
       AuthMessage,
       FilterTextbox,
       AppBar,
+      ImmersiveToolbar,
       CoreSnackbar,
       CoreMenu,
       CoreMenuDivider,

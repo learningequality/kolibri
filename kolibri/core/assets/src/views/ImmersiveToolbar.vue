@@ -6,7 +6,11 @@
     type="clear"
     :showIcon="showIcon"
     :style="{
-      height: height + 'px',
+      height: topBarHeight + 'px',
+      position: 'fixed',
+      top: 0,
+      right: 0,
+      left: 0,
       backgroundColor: isFullscreen ? $themeTokens.appBar : $themeTokens.appBarFullscreen,
     }"
     @nav-icon-click="$emit('navIconClick')"
@@ -57,19 +61,17 @@
 
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
   import { validateLinkObject } from 'kolibri.utils.validators';
+  import navComponentsMixin from '../mixins/nav-components';
 
   export default {
     name: 'ImmersiveToolbar',
     components: {
       UiToolbar,
     },
+    mixins: [navComponentsMixin],
     props: {
       appBarTitle: {
         type: String,
-        required: true,
-      },
-      height: {
-        type: Number,
         required: true,
       },
       icon: {

@@ -24,7 +24,7 @@
 
           <div
             class="side-nav-scrollable-area"
-            :style="{ top: `${headerHeight}px`, width: `${width}px` }"
+            :style="{ top: `${topBarHeight}px`, width: `${width}px` }"
           >
             <img
               v-if="themeConfig.sideNav.topLogo"
@@ -99,7 +99,7 @@
           <div
             class="side-nav-header"
             :style="{
-              height: headerHeight + 'px',
+              height: topBarHeight + 'px',
               width: `${width}px`, paddingTop: windowIsSmall ? '4px' : '8px',
               backgroundColor: $themeTokens.appBar,
             }"
@@ -191,14 +191,6 @@
         type: Boolean,
         required: true,
       },
-      headerHeight: {
-        type: Number,
-        required: true,
-      },
-      width: {
-        type: Number,
-        required: true,
-      },
     },
     data() {
       return {
@@ -210,6 +202,9 @@
     },
     computed: {
       ...mapGetters(['isAdmin', 'isCoach']),
+      width() {
+        return this.topBarHeight * 4;
+      },
       showSoudNotice() {
         return this.isSubsetOfUsersDevice && (this.isAdmin || this.isCoach);
       },
@@ -328,6 +323,7 @@
     position: fixed;
     top: 0;
     bottom: 0;
+    left: 0;
     z-index: 16;
   }
 
