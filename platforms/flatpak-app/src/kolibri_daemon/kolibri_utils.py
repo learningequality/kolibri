@@ -24,7 +24,7 @@ OPTIONAL_PLUGINS = [
 
 def init_kolibri(**kwargs):
     _init_kolibri_env()
-    kolibri_update_from_home_template()
+    _kolibri_update_from_home_template()
 
     from kolibri.plugins.registry import registered_plugins
     from kolibri.plugins.utils import enable_plugin
@@ -65,7 +65,7 @@ def _init_kolibri_env():
     content_extensions_manager.apply(os.environ)
 
 
-def kolibri_update_from_home_template():
+def _kolibri_update_from_home_template():
     """
     Construct a Kolibri home directory based on the Kolibri home template, if
     necessary.

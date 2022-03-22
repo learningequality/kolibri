@@ -1,13 +1,14 @@
 from __future__ import annotations
 
-import os
+import multiprocessing
+from enum import auto
+from enum import Enum
 
 from kolibri.dist.magicbus import ProcessBus
 from kolibri.dist.magicbus.plugins import SimplePlugin
 from kolibri_app.globals import KOLIBRI_HOME_PATH
 
 from ..kolibri_utils import init_kolibri
-from .content_extensions import ContentExtensionsList
 from .context import KolibriServiceContext
 from .context import KolibriServiceProcess
 
@@ -24,22 +25,99 @@ class DjangoProcess(KolibriServiceProcess):
 
     PROCESS_NAME: str = "kolibri-daemon-django"
 
-    __active_extensions: ContentExtensionsList
+    __command_rx: multiprocessing.connection.Connection
+    __keep_alive: bool
+    __commands: dict
 
-    def __init__(self, *args, **kwargs):
+    __kolibri_bus: ProcessBus
+
+    class Command(Enum):
+        START_KOLIBRI = auto()
+        STOP_KOLIBRI = auto()
+        SHUTDOWN = auto()
+
+    def __init__(
+        self, *args, command_rx: multiprocessing.connection.Connection, **kwargs
+    ):
         super().__init__(*args, **kwargs)
-        self.__active_extensions = ContentExtensionsList.from_flatpak_info()
+        self.__command_rx = command_rx
+        self.__keep_alive = True
+        self.__commands = {
+            self.Command.START_KOLIBRI: self.__start_kolibri,
+            self.Command.STOP_KOLIBRI: self.__stop_kolibri,
+            self.Command.SHUTDOWN: self.__shutdown,
+        }
 
     def run(self):
         super().run()
 
+        init_kolibri()
+
+        from kolibri.utils.conf import OPTIONS
+        from kolibri.utils.server import KolibriProcessBus
+
+        self.__update_app_key()
+        self.__update_kolibri_home()
+
+        self.__kolibri_bus = KolibriProcessBus(
+            port=OPTIONS["Deployment"]["HTTP_PORT"],
+            zip_port=OPTIONS["Deployment"]["ZIP_CONTENT_PORT"],
+            background=False,
+        )
+
+        kolibri_daemon_plugin = _KolibriDaemonPlugin(self.__kolibri_bus, self.context)
+        kolibri_daemon_plugin.subscribe()
+
+        while self.__keep_alive:
+            if not self.__run_next_command(timeout=5):
+                self.__shutdown()
+
+        # TODO: Equivalent to this?
+        # self.__join()
+
+    def __run_next_command(self, timeout: int) -> bool:
+        has_next = self.__command_rx.poll(timeout)
+
+        if not has_next:
+            return True
+
         try:
-            self.__run_kolibri_main()
-        except Exception:
-            self.context.start_result = self.context.StartResult.ERROR
-            self.__run_kolibri_cleanup()
-        finally:
-            self.reset_context()
+            command = self.__command_rx.recv()
+        except EOFError:
+            return False
+
+        try:
+            self.__run_command(command)
+        except ValueError:
+            return False
+
+        return True
+
+    def __run_command(self, command: DjangoProcess.Command):
+        fn = self.__commands.get(command, None)
+
+        if not callable(fn):
+            raise ValueError("Unknown command '{}'".format(command))
+
+        return fn()
+
+    def __start_kolibri(self):
+        # FIXME: KolibriProcessBus figures out its bind address early on and
+        #        then replaces port=0 with port=bind_port. This means it will
+        #        continue using the same port after stopping and starting. It
+        #        becomes an issue because another process could bind to the same
+        #        port at a time when Kolibri is not running.
+        self.__kolibri_bus.transition("START")
+
+    def __stop_kolibri(self):
+        self.__kolibri_bus.transition("IDLE")
+
+    def __shutdown(self):
+        self.__stop_kolibri()
+        self.__keep_alive = False
+
+    def stop(self):
+        pass
 
     def reset_context(self):
         self.context.is_starting = False
@@ -49,57 +127,6 @@ class DjangoProcess(KolibriServiceProcess):
         self.context.base_url = ""
         self.context.extra_url = ""
         self.context.app_key = ""
-
-    def __run_kolibri_main(self):
-        self.context.await_is_stopped()
-
-        self.context.is_starting = True
-        self.context.is_stopped = False
-        self.context.start_result = None
-
-        # Crudely ignore if there is already a server.pid file
-        # This is probably safe because we are inside a (unique) dbus service.
-
-        try:
-            KOLIBRI_HOME_PATH.joinpath("server.pid").unlink()
-        except FileNotFoundError:
-            pass
-
-        self.__active_extensions.update_kolibri_environ(os.environ)
-
-        self.__kolibri_start_process_bus()
-
-    def __kolibri_start_process_bus(self):
-        from kolibri.utils.conf import OPTIONS
-        from kolibri.utils.server import KolibriProcessBus
-
-        init_kolibri()
-
-        self.__update_app_key()
-        self.__update_kolibri_home()
-
-        bus = KolibriProcessBus(
-            port=OPTIONS["Deployment"]["HTTP_PORT"],
-            zip_port=OPTIONS["Deployment"]["ZIP_CONTENT_PORT"],
-            background=False,
-        )
-
-        kolibri_daemon_plugin = _KolibriDaemonPlugin(bus, self.context)
-        kolibri_daemon_plugin.subscribe()
-
-        try:
-            bus.run()
-        except SystemExit:
-            # Kolibri sometimes calls sys.exit, but we don't want to stop this process
-            raise Exception("Caught SystemExit")
-
-    def __run_kolibri_cleanup(self):
-        from kolibri.utils.cli import stop
-
-        try:
-            stop.callback()
-        except SystemExit:
-            pass
 
     def __update_app_key(self):
         from kolibri.core.device.models import DeviceAppKey
@@ -119,6 +146,7 @@ class _KolibriDaemonPlugin(SimplePlugin):
 
         self.bus.subscribe("SERVING", self.SERVING)
         self.bus.subscribe("ZIP_SERVING", self.ZIP_SERVING)
+        self.bus.subscribe("STOP", self.STOP)
 
     def SERVING(self, port: int):
         from kolibri.utils.server import get_urls
@@ -136,5 +164,9 @@ class _KolibriDaemonPlugin(SimplePlugin):
 
         self.__context.extra_url = zip_urls[0]
 
-    def EXIT(self):
+    def STOP(self):
         self.__context.is_starting = False
+        self.__context.start_result = self.__context.StartResult.NONE
+        self.__context.base_url = ""
+        self.__context.extra_url = ""
+        self.__context.is_stopped = True
