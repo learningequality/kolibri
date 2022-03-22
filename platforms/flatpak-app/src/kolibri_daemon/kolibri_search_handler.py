@@ -1,14 +1,17 @@
 from __future__ import annotations
 
+import re
 import typing
 from collections.abc import Mapping
 from concurrent.futures import ProcessPoolExecutor
 
-from kolibri_app.globals import init_kolibri
+from kolibri_app.config import BASE_APPLICATION_ID
 from kolibri_app.globals import init_logging
 
-from .utils import get_search_media_icon
-from .utils import sanitize_text
+from .kolibri_utils import init_kolibri
+
+# HTML tags and entities
+TAGRE = re.compile("<.*?>|&([a-z0-9]+|#[0-9]{1,6}|#x[0-9a-f]{1,6});")
 
 
 class SearchHandler(object):
@@ -123,7 +126,7 @@ class LocalSearchHandler(SearchHandler):
 
         init_logging("kolibri-daemon-search.txt")
 
-        init_kolibri()
+        init_kolibri(skip_update=True)
 
     def get_item_ids_for_search(self, search: str) -> list:
         assert self.__executor
@@ -172,3 +175,31 @@ class LocalSearchHandler(SearchHandler):
         node_data = response.data
 
         return SearchHandler._node_data_to_search_metadata(item_id, node_data)
+
+
+def sanitize_text(text: str) -> str:
+    """
+    Replace all line break with spaces and removes all the html tags
+    """
+
+    lines = text.splitlines()
+    lines = [re.sub(TAGRE, "", line) for line in lines]
+
+    return " ".join(lines)
+
+
+def get_search_media_icon(kind: str) -> str:
+    node_icon_lookup = {
+        "video": "play-circle-outline",
+        "exercise": "checkbox-marked-circle-outline",
+        "document": "text-box-outline",
+        "topic": "cube-outline",
+        "audio": "podcast",
+        "html5": "motion-outline",
+        "slideshow": "image-outline",
+    }
+
+    return "{prefix}-{icon}".format(
+        prefix=BASE_APPLICATION_ID,
+        icon=node_icon_lookup.get(kind, "cube-outline"),
+    )
