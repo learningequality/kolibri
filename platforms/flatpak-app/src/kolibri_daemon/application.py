@@ -16,10 +16,10 @@ from kolibri_app.config import DAEMON_PRIVATE_OBJECT_PATH
 from .dbus_helpers import DBusManagerProxy
 from .desktop_users import AccountsServiceManager
 from .desktop_users import UserInfo
+from .futures import future_chain
+from .glib_helpers import dict_to_vardict
 from .kolibri_search_handler import LocalSearchHandler
 from .kolibri_service_manager import KolibriServiceManager
-from .utils import dict_to_vardict
-from .utils import future_chain
 
 
 INACTIVITY_TIMEOUT_MS = 30 * 1000  # 30 seconds in milliseconds
@@ -270,6 +270,7 @@ class PublicDBusInterface(object):
     def __update_cached_properties(self):
         self.__skeleton.props.app_key = self.__kolibri_service.context.app_key
         self.__skeleton.props.base_url = self.__kolibri_service.context.base_url
+        self.__skeleton.props.extra_url = self.__kolibri_service.context.extra_url
         self.__skeleton.props.kolibri_home = self.__kolibri_service.context.kolibri_home
         self.__skeleton.props.status = self.__kolibri_service.context.status.name
         self.__skeleton.props.version = self.VERSION

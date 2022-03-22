@@ -51,14 +51,6 @@ class Launcher(Gio.Application):
 
         kolibri_gnome_args = []
 
-        # Don't include search context for channel-specific URIs, because
-        # it causes Kolibri to add a Close button which leads outside the
-        # channel.
-        # TODO: Implement channel-specific search endpoints in Kolibri and
-        #       remove this special case.
-        if channel_id:
-            node_query = None  # type: ignore[assignment]
-
         if channel_id and channel_id != "_":
             kolibri_gnome_args.extend(["--channel-id", channel_id])
 

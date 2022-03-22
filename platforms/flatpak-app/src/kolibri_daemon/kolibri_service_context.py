@@ -17,6 +17,7 @@ class KolibriServiceContext(object):
 
     APP_KEY_LENGTH: int = 32
     BASE_URL_LENGTH: int = 1024
+    EXTRA_URL_LENGTH: int = 1024
     KOLIBRI_HOME_LENGTH: int = 4096
 
     __changed_event: multiprocessing.synchronize.Event
@@ -33,9 +34,6 @@ class KolibriServiceContext(object):
     __is_stopped_value: multiprocessing.sharedctypes.Synchronized[c_bool]
     __is_stopped_set_event: multiprocessing.synchronize.Event
 
-    __setup_result_value: multiprocessing.sharedctypes.Synchronized[c_int]
-    __setup_result_set_event: multiprocessing.synchronize.Event
-
     __app_key_value: multiprocessing.sharedctypes.SynchronizedArray[c_char]
     __app_key_set_event: multiprocessing.synchronize.Event
 
@@ -44,11 +42,6 @@ class KolibriServiceContext(object):
 
     __kolibri_home_value: multiprocessing.sharedctypes.SynchronizedArray[c_char]
     __kolibri_home_set_event: multiprocessing.synchronize.Event
-
-    class SetupResult(Enum):
-        NONE = auto()
-        SUCCESS = auto()
-        ERROR = auto()
 
     class StartResult(Enum):
         NONE = auto()
@@ -77,14 +70,14 @@ class KolibriServiceContext(object):
         self.__is_stopped_value = multiprocessing.Value(c_bool)
         self.__is_stopped_set_event = multiprocessing.Event()
 
-        self.__setup_result_value = multiprocessing.Value(c_int)
-        self.__setup_result_set_event = multiprocessing.Event()
-
         self.__app_key_value = multiprocessing.Array(c_char, self.APP_KEY_LENGTH)
         self.__app_key_set_event = multiprocessing.Event()
 
         self.__base_url_value = multiprocessing.Array(c_char, self.BASE_URL_LENGTH)
         self.__base_url_set_event = multiprocessing.Event()
+
+        self.__extra_url_value = multiprocessing.Array(c_char, self.EXTRA_URL_LENGTH)
+        self.__extra_url_set_event = multiprocessing.Event()
 
         self.__kolibri_home_value = multiprocessing.Array(
             c_char, self.KOLIBRI_HOME_LENGTH
@@ -122,8 +115,8 @@ class KolibriServiceContext(object):
             self.__is_starting_set_event.set()
         self.push_has_changes()
 
-    def await_is_starting(self) -> typing.Optional[bool]:
-        self.__is_starting_set_event.wait()
+    def await_is_starting(self, timeout: int = None) -> typing.Optional[bool]:
+        self.__is_starting_set_event.wait(timeout)
         return self.is_starting
 
     @property
@@ -143,8 +136,8 @@ class KolibriServiceContext(object):
             self.__is_started_set_event.set()
         self.push_has_changes()
 
-    def await_is_started(self) -> typing.Optional[bool]:
-        self.__is_started_set_event.wait()
+    def await_is_started(self, timeout: int = None) -> typing.Optional[bool]:
+        self.__is_started_set_event.wait(timeout)
         return self.is_started
 
     @property
@@ -166,8 +159,10 @@ class KolibriServiceContext(object):
             self.__start_result_set_event.set()
         self.push_has_changes()
 
-    def await_start_result(self) -> typing.Optional[KolibriServiceContext.StartResult]:
-        self.__start_result_set_event.wait()
+    def await_start_result(
+        self, timeout: int = None
+    ) -> typing.Optional[KolibriServiceContext.StartResult]:
+        self.__start_result_set_event.wait(timeout)
         return self.start_result
 
     @property
@@ -187,32 +182,9 @@ class KolibriServiceContext(object):
             self.__is_stopped_set_event.set()
         self.push_has_changes()
 
-    def await_is_stopped(self) -> typing.Optional[bool]:
-        self.__is_stopped_set_event.wait()
+    def await_is_stopped(self, timeout: int = None) -> typing.Optional[bool]:
+        self.__is_stopped_set_event.wait(timeout)
         return self.is_stopped
-
-    @property
-    def setup_result(self) -> KolibriServiceContext.SetupResult:
-        if self.__setup_result_set_event.is_set():
-            return self.SetupResult(self.__setup_result_value.value)
-        else:
-            return self.SetupResult.NONE
-
-    @setup_result.setter
-    def setup_result(
-        self, setup_result: typing.Optional[KolibriServiceContext.SetupResult]
-    ):
-        if setup_result is None:
-            self.__setup_result_set_event.clear()
-            self.__setup_result_value.value = 0  # type: ignore[assignment]
-        else:
-            self.__setup_result_value.value = setup_result.value  # type: ignore[assignment]
-            self.__setup_result_set_event.set()
-        self.push_has_changes()
-
-    def await_setup_result(self) -> typing.Optional[KolibriServiceContext.SetupResult]:
-        self.__setup_result_set_event.wait()
-        return self.setup_result
 
     @property
     def app_key(self) -> typing.Optional[str]:
@@ -231,8 +203,8 @@ class KolibriServiceContext(object):
             self.__app_key_set_event.set()
         self.push_has_changes()
 
-    def await_app_key(self) -> typing.Optional[str]:
-        self.__app_key_set_event.wait()
+    def await_app_key(self, timeout: int = None) -> typing.Optional[str]:
+        self.__app_key_set_event.wait(timeout)
         return self.app_key
 
     @property
@@ -252,9 +224,30 @@ class KolibriServiceContext(object):
             self.__base_url_set_event.set()
         self.push_has_changes()
 
-    def await_base_url(self) -> typing.Optional[str]:
-        self.__base_url_set_event.wait()
+    def await_base_url(self, timeout: int = None) -> typing.Optional[str]:
+        self.__base_url_set_event.wait(timeout)
         return self.base_url
+
+    @property
+    def extra_url(self) -> typing.Optional[str]:
+        if self.__extra_url_set_event.is_set():
+            return self.__extra_url_value.value.decode("ascii")  # type: ignore[attr-defined]
+        else:
+            return None
+
+    @extra_url.setter
+    def extra_url(self, extra_url: typing.Optional[str]):
+        if extra_url is None:
+            self.__extra_url_set_event.clear()
+            self.__extra_url_value.value = None  # type: ignore[attr-defined]
+        else:
+            self.__extra_url_value.value = bytes(extra_url, encoding="ascii")  # type: ignore[attr-defined]
+            self.__extra_url_set_event.set()
+        self.push_has_changes()
+
+    def await_extra_url(self, timeout: int = None) -> typing.Optional[str]:
+        self.__extra_url_set_event.wait(timeout)
+        return self.extra_url
 
     @property
     def kolibri_home(self) -> typing.Optional[str]:
@@ -273,8 +266,8 @@ class KolibriServiceContext(object):
             self.__kolibri_home_set_event.set()
         self.push_has_changes()
 
-    def await_kolibri_home(self) -> typing.Optional[str]:
-        self.__kolibri_home_set_event.wait()
+    def await_kolibri_home(self, timeout: int = None) -> typing.Optional[str]:
+        self.__kolibri_home_set_event.wait(timeout)
         return self.kolibri_home
 
     @property
@@ -284,8 +277,6 @@ class KolibriServiceContext(object):
         elif self.start_result == self.StartResult.SUCCESS:
             return self.Status.STARTED
         elif self.start_result == self.StartResult.ERROR:
-            return self.Status.ERROR
-        elif self.setup_result == self.SetupResult.ERROR:
             return self.Status.ERROR
         elif self.is_stopped:
             return self.Status.STOPPED

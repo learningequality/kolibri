@@ -1,4 +1,3 @@
-import os
 import signal
 import sys
 from functools import partial
@@ -19,7 +18,6 @@ def application_signal_handler(application, sig, frame):
 
 def main():
     setproctitle(PROCESS_NAME)
-    os.environ["DJANGO_SETTINGS_MODULE"] = "kolibri_app.kolibri_settings"
 
     kolibri_service = KolibriServiceManager()
     kolibri_service.init()

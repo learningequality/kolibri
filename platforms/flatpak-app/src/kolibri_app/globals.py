@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import gettext
-import importlib.util
 import logging
 import os
 import typing
@@ -29,13 +28,6 @@ if "KOLIBRI_HOME" in os.environ:
     KOLIBRI_HOME_PATH = Path(os.environ["KOLIBRI_HOME"]).expanduser().absolute()
 else:
     KOLIBRI_HOME_PATH = DEFAULT_KOLIBRI_HOME_PATH
-
-# These Kolibri plugins will be dynamically enabled if they are
-# available:
-OPTIONAL_PLUGINS = [
-    "kolibri_app_desktop_xdg_plugin",
-    "kolibri_desktop_auth_plugin",
-]
 
 
 def init_gettext():
@@ -69,30 +61,6 @@ def init_logging(log_file_name: str = "kolibri-app.txt", level: int = logging.DE
     root_logger.addHandler(file_handler)
 
     return logs_dir_path
-
-
-def init_kolibri():
-    from kolibri.plugins.registry import registered_plugins
-    from kolibri.plugins.utils import enable_plugin
-    from kolibri.utils.cli import initialize, setup_logging
-
-    registered_plugins.register_plugins(["kolibri.plugins.app"])
-    enable_plugin("kolibri.plugins.app")
-
-    available_plugins = [
-        optional_plugin
-        for optional_plugin in OPTIONAL_PLUGINS
-        if importlib.util.find_spec(optional_plugin)
-    ]
-
-    registered_plugins.register_plugins(available_plugins)
-
-    for plugin_name in available_plugins:
-        logger.debug(f"Enabling optional plugin {plugin_name}")
-        enable_plugin(plugin_name)
-
-    setup_logging(debug=False)
-    initialize()
 
 
 def get_current_language() -> typing.Optional[str]:
