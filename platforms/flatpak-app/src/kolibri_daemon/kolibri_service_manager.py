@@ -8,7 +8,6 @@ from enum import Enum
 from .kolibri_service.context import KolibriServiceContext
 from .kolibri_service.context import KolibriServiceProcess
 from .kolibri_service.django_process import DjangoProcess
-from .kolibri_service.setup_process import SetupProcess
 from .kolibri_service.stop_process import StopProcess
 
 
@@ -67,7 +66,6 @@ class LauncherProcess(KolibriServiceProcess):
     __commands: dict
 
     __django_process: typing.Optional[DjangoProcess] = None
-    __setup_process: typing.Optional[SetupProcess] = None
     __stop_process: typing.Optional[StopProcess] = None
 
     class Command(Enum):
@@ -131,10 +129,6 @@ class LauncherProcess(KolibriServiceProcess):
         if self.__django_process and self.__django_process.is_alive():
             return
 
-        if not self.__setup_process:
-            self.__setup_process = SetupProcess(self.context)
-            self.__setup_process.start()
-
         self.__django_process = DjangoProcess(self.context)
         self.__django_process.start()
 
@@ -152,8 +146,6 @@ class LauncherProcess(KolibriServiceProcess):
         self.__keep_alive = False
 
     def __join(self):
-        if self.__setup_process and self.__setup_process.is_alive():
-            self.__setup_process.join()
         if self.__django_process and self.__django_process.is_alive():
             self.__django_process.join()
         if self.__stop_process and self.__stop_process.is_alive():
@@ -161,8 +153,6 @@ class LauncherProcess(KolibriServiceProcess):
 
     def __cleanup(self):
         # Periodically clean up finished processes without blocking.
-        if self.__setup_process and not self.__setup_process.is_alive():
-            self.__setup_process = None
 
         if self.__django_process and not self.__django_process.is_alive():
             # Sometimes django_process exits prematurely, so we need to update

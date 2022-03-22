@@ -10,6 +10,8 @@ from pathlib import Path
 from kolibri_app.config import KOLIBRI_HOME_TEMPLATE_DIR
 from kolibri_app.globals import KOLIBRI_HOME_PATH
 
+from .content_extensions_manager import ContentExtensionsManager
+
 logger = logging.getLogger(__name__)
 
 # These Kolibri plugins will be dynamically enabled if they are
@@ -58,6 +60,9 @@ def _init_kolibri_env():
         os.environ.setdefault(
             "KOLIBRI_AUTOMATIC_PROVISION_FILE", automatic_provision_path.as_posix()
         )
+
+    content_extensions_manager = ContentExtensionsManager()
+    content_extensions_manager.apply(os.environ)
 
 
 def kolibri_update_from_home_template():

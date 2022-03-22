@@ -53,12 +53,6 @@ class DjangoProcess(KolibriServiceProcess):
     def __run_kolibri_main(self):
         self.context.await_is_stopped()
 
-        setup_result = self.context.await_setup_result()
-
-        if setup_result != self.context.SetupResult.SUCCESS:
-            self.context.is_starting = False
-            return
-
         self.context.is_starting = True
         self.context.is_stopped = False
         self.context.start_result = None

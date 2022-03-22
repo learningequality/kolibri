@@ -1,54 +1,48 @@
 from __future__ import annotations
 
-import json
 import logging
 import os
 import subprocess
 import typing
-from collections.abc import Mapping
 from pathlib import Path
 
 from kolibri_app.globals import KOLIBRI_HOME_PATH
 
-from ..kolibri_utils import init_kolibri
 from .content_extensions import ContentChannelCompare
 from .content_extensions import ContentExtensionsList
-from .context import KolibriServiceProcess
 
 logger = logging.getLogger(__name__)
 
 KOLIBRI_BIN = "kolibri"
 
+# TODO: We would like to remove support for content extensions, but this feature
+#       may be in use by some existing systems.
 
-class SetupProcess(KolibriServiceProcess):
-    """
-    Does initial setup for Kolibri such as scanning for pre-installed content.
-    Initial database migrations and provisioning will also happen here, as
-    this is the first time running the Kolibri CLI inside our KOLIBRI_HOME.
-    - Sets context.setup_result to True if sucessful, or to False if not.
-    """
 
-    PROCESS_NAME: str = "kolibri-daemon-setup"
+class ContentExtensionsManager(object):
+    """
+    Manages Kolibri content that is provided by external content extensions.
+    This will keep track of when content extensions change and automatically
+    import new content.
+    """
 
     __cached_extensions: ContentExtensionsList
     __active_extensions: ContentExtensionsList
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self):
         self.__cached_extensions = ContentExtensionsList.from_cache()
         self.__active_extensions = ContentExtensionsList.from_flatpak_info()
 
-    def run(self):
-        super().run()
+    def apply(self, environ: os._Environ) -> bool:
+        if len(self.__cached_extensions) == 0 and len(self.__active_extensions) == 0:
+            logger.warning("Extensions: nothing to do")
+            return False
 
-        try:
-            self.__automatic_provisiondevice()
-        except Exception as error:
-            logger.warning("Error initializing Kolibri: %s", error)
-            self.context.setup_result = self.context.SetupResult.ERROR
-            return
+        logger.warning(
+            "Support for content extensions will be removed in a future release"
+        )
 
-        self.__active_extensions.update_kolibri_environ(os.environ)
+        self.__active_extensions.update_kolibri_environ(environ)
 
         logger.info("Updating content extensions...")
 
@@ -60,47 +54,10 @@ class SetupProcess(KolibriServiceProcess):
         if success:
             logger.info("Finished updating content extensions.")
             self.__active_extensions.write_to_cache()
-            self.context.setup_result = self.context.SetupResult.SUCCESS
         else:
             logger.warning("Failed to update content extensions.")
-            self.context.setup_result = self.context.SetupResult.ERROR
 
-    def __automatic_provisiondevice(self):
-        from kolibri.core.device.utils import device_provisioned
-        from kolibri.dist.django.core.management import call_command
-
-        init_kolibri()
-
-        AUTOMATIC_PROVISION_PATH = KOLIBRI_HOME_PATH.joinpath(
-            "automatic_provision.json"
-        )
-
-        if not AUTOMATIC_PROVISION_PATH.exists():
-            return
-        elif device_provisioned():
-            return
-
-        try:
-            with AUTOMATIC_PROVISION_PATH.open("r") as f:
-                logger.info("Running provisiondevice from 'automatic_provision.json'")
-                options = json.load(f)
-        except ValueError as e:
-            logger.error(
-                "Attempted to load 'automatic_provision.json' but failed to parse JSON:\n{}".format(
-                    e
-                )
-            )
-        except FileNotFoundError:
-            options = None
-
-        if isinstance(options, Mapping):
-            options.setdefault("superusername", None)
-            options.setdefault("superuserpassword", None)
-            options.setdefault("preset", "nonformal")
-            options.setdefault("language_id", None)
-            options.setdefault("facility_settings", {})
-            options.setdefault("device_settings", {})
-            call_command("provisiondevice", interactive=False, **options)
+        return True
 
     def __run_kolibri_command(self, *args) -> bool:
         result = subprocess.run([KOLIBRI_BIN, "manage", *args], check=False)

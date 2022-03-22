@@ -94,6 +94,9 @@ class ContentExtensionsList(object):
     def __iter__(self) -> typing.Iterator[ContentExtension]:
         return iter(self.__extensions)
 
+    def __len__(self):
+        return len(self.__extensions)
+
     @staticmethod
     def compare(
         old: ContentExtensionsList, new: ContentExtensionsList
@@ -197,7 +200,10 @@ class ContentExtension(object):
 
     @property
     def __channels(self) -> set:
-        channels_json = self.content_json.get("channels", [])
+        if isinstance(self.content_json, dict):
+            channels_json = self.content_json.get("channels", [])
+        else:
+            channels_json = self.content_json
         return set(map(ContentChannel.from_json, channels_json))
 
     @property
