@@ -35,6 +35,7 @@ class KolibriDaemonManager(GObject.GObject):
     __did_init: bool = False
     __dbus_proxy_owner: typing.Optional[str] = None
 
+    is_stopped = GObject.Property(type=bool, default=False)
     is_started = GObject.Property(type=bool, default=False)
     has_error = GObject.Property(type=bool, default=False)
     app_key_cookie = GObject.Property(type=Soup.Cookie, default=None)
@@ -60,6 +61,8 @@ class KolibriDaemonManager(GObject.GObject):
             "notify::g-name-owner", self.__dbus_proxy_on_notify_g_name_owner
         )
         self.__dbus_proxy.connect("notify", self.__dbus_proxy_on_notify)
+
+        self.connect("notify::is-stopped", self.__on_notify_is_stopped)
 
     @property
     def do_automatic_login(self) -> bool:
@@ -222,14 +225,17 @@ class KolibriDaemonManager(GObject.GObject):
 
         if dbus_proxy_owner_changed:
             dbus_proxy.Hold(result_handler=self.__dbus_proxy_default_result_handler)
-            dbus_proxy.Start(result_handler=self.__dbus_proxy_default_result_handler)
             self.emit("dbus-owner-changed")
 
     def __dbus_proxy_on_notify(
         self, dbus_proxy: KolibriDaemonDBus.MainProxy, param_spec: GObject.ParamSpec
     ):
+        is_stopped = dbus_proxy.props.status in ("STOPPED", "")
         is_started = dbus_proxy.props.status == "STARTED"
         has_error = dbus_proxy.props.status == "ERROR"
+
+        if self.props.is_stopped != is_stopped:
+            self.props.is_stopped = is_stopped
 
         if self.props.is_started != is_started:
             self.props.is_started = is_started
@@ -245,6 +251,10 @@ class KolibriDaemonManager(GObject.GObject):
         else:
             if self.props.app_key_cookie != cookie:
                 self.props.app_key_cookie = cookie
+
+    def __on_notify_is_stopped(self, kolibri_daemon: KolibriDaemonManager, pspec: GObject.ParamSpec):
+        if kolibri_daemon.props.is_stopped:
+            self.__dbus_proxy.Start(result_handler=self.__dbus_proxy_default_result_handler)
 
     def __create_app_key_cookie(self) -> typing.Optional[Soup.Cookie]:
         if not self.__dbus_proxy.props.base_url or not self.__dbus_proxy.props.app_key:
