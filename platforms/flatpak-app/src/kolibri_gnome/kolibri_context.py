@@ -169,7 +169,10 @@ class KolibriContext(GObject.GObject):
         if node_type == "c":
             return self._get_kolibri_content_path(node_id, url_search)
         elif node_type == "t":
-            return self._get_kolibri_topic_path(node_id, url_search)
+            # As a special case, don't include the search property for topic
+            # nodes. This means Kolibri will always show a simple browsing
+            # interface for a topic, instead of a search interface.
+            return self._get_kolibri_topic_path(node_id, None)
         else:
             return self._get_kolibri_library_path(url_search)
 
