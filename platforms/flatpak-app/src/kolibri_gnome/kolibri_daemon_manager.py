@@ -252,9 +252,13 @@ class KolibriDaemonManager(GObject.GObject):
             if self.props.app_key_cookie != cookie:
                 self.props.app_key_cookie = cookie
 
-    def __on_notify_is_stopped(self, kolibri_daemon: KolibriDaemonManager, pspec: GObject.ParamSpec):
+    def __on_notify_is_stopped(
+        self, kolibri_daemon: KolibriDaemonManager, pspec: GObject.ParamSpec
+    ):
         if kolibri_daemon.props.is_stopped:
-            self.__dbus_proxy.Start(result_handler=self.__dbus_proxy_default_result_handler)
+            self.__dbus_proxy.Start(
+                result_handler=self.__dbus_proxy_default_result_handler
+            )
 
     def __create_app_key_cookie(self) -> typing.Optional[Soup.Cookie]:
         if not self.__dbus_proxy.props.base_url or not self.__dbus_proxy.props.app_key:
