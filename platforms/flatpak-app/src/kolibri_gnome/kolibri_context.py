@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import platform
 import re
 import typing
 from gettext import gettext as _
@@ -329,15 +330,29 @@ class _KolibriSetupHelper(GObject.GObject):
         self.__automatic_device_provision()
 
     def __automatic_device_provision(self):
+        # TODO: In the future, this could be done in kolibri-daemon itself by
+        #       using a simple automatic_provision.json file in the Kolibri home
+        #       template. We need to do it here for now because we are only
+        #       using this configuration with automatic login, which is only
+        #       enabled in certain cases.
         logger.info("Provisioning device…")
+        facility_name = _("Kolibri on {host}").format(
+            host=platform.node() or "localhost"
+        )
         request_body_data = {
-            "language_id": None,
-            "facility": {"name": _("Kolibri at home")},
-            "preset": "nonformal",
+            "facility": {
+                "name": facility_name,
+                "learner_can_login_with_no_password": False,
+            },
+            "preset": "formal",
             "superuser": None,
+            "language_id": None,
             "device_name": None,
-            "settings": {},
-            "allow_guest_access": None,
+            "settings": {
+                "landing_page": "learn",
+                "allow_other_browsers_to_connect": False,
+            },
+            "allow_guest_access": False,
         }
         self.__kolibri_daemon.kolibri_api_post_async(
             "/api/device/deviceprovision/",
