@@ -65,6 +65,8 @@ class KolibriHttpProcess(KolibriServiceProcess):
         kolibri_daemon_plugin = _KolibriDaemonPlugin(self.__kolibri_bus, self.context)
         kolibri_daemon_plugin.subscribe()
 
+        self.context.is_bus_ready = True
+
         while self.__keep_alive:
             if not self.__run_next_command(timeout=5):
                 self.__shutdown()
@@ -101,6 +103,8 @@ class KolibriHttpProcess(KolibriServiceProcess):
         #        continue using the same port after stopping and starting. It
         #        becomes an issue because another process could bind to the same
         #        port at a time when Kolibri is not running.
+        if self.__kolibri_bus.state != "START":
+            self.context.is_starting = True
         self.__kolibri_bus.transition("START")
 
     def __stop_kolibri(self):

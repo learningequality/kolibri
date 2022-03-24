@@ -22,6 +22,9 @@ class KolibriServiceContext(object):
 
     __changed_event: multiprocessing.synchronize.Event
 
+    __is_bus_ready_value: multiprocessing.sharedctypes.Synchronized[c_bool]
+    __is_bus_ready_set_event: multiprocessing.synchronize.Event
+
     __is_starting_value: multiprocessing.sharedctypes.Synchronized[c_bool]
     __is_starting_set_event: multiprocessing.synchronize.Event
 
@@ -57,6 +60,9 @@ class KolibriServiceContext(object):
 
     def __init__(self):
         self.__changed_event = multiprocessing.Event()
+
+        self.__is_bus_ready_value = multiprocessing.Value(c_bool)
+        self.__is_bus_ready_set_event = multiprocessing.Event()
 
         self.__is_starting_value = multiprocessing.Value(c_bool)
         self.__is_starting_set_event = multiprocessing.Event()
@@ -97,6 +103,27 @@ class KolibriServiceContext(object):
             return True
         else:
             return False
+
+    @property
+    def is_bus_ready(self) -> typing.Optional[bool]:
+        if self.__is_bus_ready_set_event.is_set():
+            return bool(self.__is_bus_ready_value.value)
+        else:
+            return None
+
+    @is_bus_ready.setter
+    def is_bus_ready(self, is_bus_ready: typing.Optional[bool]):
+        if is_bus_ready is None:
+            self.__is_bus_ready_set_event.clear()
+            self.__is_bus_ready_value.value = False  # type: ignore[assignment]
+        else:
+            self.__is_bus_ready_value.value = bool(is_bus_ready)  # type: ignore[assignment]
+            self.__is_bus_ready_set_event.set()
+        self.push_has_changes()
+
+    def await_is_bus_ready(self, timeout: int = None) -> typing.Optional[bool]:
+        self.__is_bus_ready_set_event.wait(timeout)
+        return self.is_bus_ready
 
     @property
     def is_starting(self) -> typing.Optional[bool]:

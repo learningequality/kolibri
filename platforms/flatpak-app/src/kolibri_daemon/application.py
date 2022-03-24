@@ -485,6 +485,8 @@ class Application(Gio.Application):
             None,
         )
 
+        self.__begin_await_kolibri_bus_ready_timeout()
+
     @property
     def use_session_bus(self) -> bool:
         return self.__use_session_bus
@@ -577,6 +579,22 @@ class Application(Gio.Application):
         self.__kolibri_service.join()
 
         Gio.Application.do_shutdown(self)
+
+    def __begin_await_kolibri_bus_ready_timeout(self):
+        self.hold()
+        GLib.timeout_add_seconds(1, self.__await_kolibri_bus_ready_timeout_cb)
+
+    def __cancel_await_kolibri_bus_ready_timeout(self):
+        if self.__await_kolibri_bus_ready_timeout_source:
+            GLib.source_remove(self.__await_kolibri_bus_ready_timeout_source)
+            self.__await_kolibri_bus_ready_timeout_source = None
+
+    def __await_kolibri_bus_ready_timeout_cb(self) -> bool:
+        if not self.__kolibri_service.context.is_bus_ready:
+            return GLib.SOURCE_CONTINUE
+
+        self.release()
+        return GLib.SOURCE_REMOVE
 
     def __system_bus_on_get(self, source: GLib.Object, result: Gio.AsyncResult):
         connection = Gio.bus_get_finish(result)
