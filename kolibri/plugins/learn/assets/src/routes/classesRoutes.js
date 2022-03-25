@@ -8,6 +8,11 @@ import { showAllClassesPage } from '../modules/classes/handlers';
 import { showExam } from '../modules/examViewer/handlers';
 import { showExamReport } from '../modules/examReportViewer/handlers';
 import { inClasses } from '../composables/useCoreLearn';
+import ExamPage from '../views/ExamPage';
+import ExamReportViewer from '../views/LearnExamReportViewer';
+import AllClassesPage from '../views/classes/AllClassesPage';
+import ClassAssignmentsPage from '../views/classes/ClassAssignmentsPage';
+import LessonPlaylistPage from '../views/classes/LessonPlaylistPage';
 
 function noClassesGuard() {
   const { canAccessUnassignedContent } = store.getters;
@@ -26,6 +31,7 @@ export default [
     handler: () => {
       return noClassesGuard() || showAllClassesPage(store);
     },
+    component: AllClassesPage,
   },
   {
     name: ClassesPageNames.CLASS_ASSIGNMENTS,
@@ -34,6 +40,7 @@ export default [
       const { classId } = toRoute.params;
       return noClassesGuard() || showClassAssignmentsPage(store, classId);
     },
+    component: ClassAssignmentsPage,
   },
   {
     name: ClassesPageNames.LESSON_PLAYLIST,
@@ -42,6 +49,7 @@ export default [
       const { classId, lessonId } = toRoute.params;
       return noClassesGuard() || showLessonPlaylist(store, { classId, lessonId });
     },
+    component: LessonPlaylistPage,
   },
   {
     name: ClassesPageNames.EXAM_VIEWER,
@@ -56,6 +64,7 @@ export default [
         toRoute.params.classId === fromRoute.params.classId;
       showExam(store, toRoute.params, alreadyOnQuiz);
     },
+    component: ExamPage,
   },
   {
     name: ClassesPageNames.EXAM_REPORT_VIEWER,
@@ -66,5 +75,6 @@ export default [
       }
       showExamReport(store, toRoute.params);
     },
+    component: ExamReportViewer,
   },
 ];
