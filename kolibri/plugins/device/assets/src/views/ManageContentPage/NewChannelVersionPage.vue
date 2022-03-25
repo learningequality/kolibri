@@ -2,7 +2,7 @@
 
   <div v-if="!loadingChannel">
 
-    <section v-if="isUpdatingChannel">
+    <section v-if="!isUpdatingChannel">
       <h1>
         {{ $tr('updateChannelAction') }}
       </h1>
@@ -109,7 +109,7 @@
 
     <BottomAppBar>
       <KButton
-        v-if="!channelIsUpdated"
+        v-if="channelIsUpdated"
         :text="$tr('updateChannelAction')"
         appearance="raised-button"
         :primary="true"
@@ -246,7 +246,7 @@
     },
     methods: {
       handleSubmit() {
-        this.disableModal = true;
+        this.showModal = false;
         const updateParams = {
           sourcetype: 'remote',
           channel_id: this.params.channelId,
