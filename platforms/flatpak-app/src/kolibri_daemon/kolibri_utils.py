@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import filecmp
 import importlib.util
+import json
 import logging
 import os
 import shutil
+import typing
 from pathlib import Path
 
 from kolibri_app.config import KOLIBRI_HOME_TEMPLATE_DIR
@@ -23,8 +25,9 @@ OPTIONAL_PLUGINS = [
 
 
 def init_kolibri(**kwargs):
-    _init_kolibri_env()
     _kolibri_update_from_home_template()
+
+    _init_kolibri_env()
 
     from kolibri.plugins.registry import registered_plugins
     from kolibri.plugins.utils import enable_plugin
@@ -55,14 +58,41 @@ def _init_kolibri_env():
     # exists.
     # TODO: Once kolibri-gnome supports automatic login for all cases, use an
     #       included automatic provision file by default.
-    automatic_provision_path = KOLIBRI_HOME_PATH.joinpath("automatic_provision.json")
-    if automatic_provision_path.is_file():
+    automatic_provision_path = _get_automatic_provision_path()
+    if automatic_provision_path:
         os.environ.setdefault(
             "KOLIBRI_AUTOMATIC_PROVISION_FILE", automatic_provision_path.as_posix()
         )
 
     content_extensions_manager = ContentExtensionsManager()
     content_extensions_manager.apply(os.environ)
+
+
+def _get_automatic_provision_path() -> typing.Optional[Path]:
+    path = KOLIBRI_HOME_PATH.joinpath("automatic_provision.json")
+
+    if not path.is_file():
+        return None
+
+    with path.open("r") as in_file:
+        try:
+            data = json.load(in_file)
+        except json.JSONDecodeError as error:
+            logger.warning(
+                "Error reading automatic provision data from '{path}': {error}".format(
+                    path=path.as_posix(), error=error
+                )
+            )
+            return None
+
+    if not data.isdisjoint(
+        ["facility", "superusername", "superuserpassword", "preset"]
+    ):
+        # If a file has an attribute unique to the old format, we will asume it
+        # is outdated.
+        return None
+
+    return path
 
 
 def _kolibri_update_from_home_template():
