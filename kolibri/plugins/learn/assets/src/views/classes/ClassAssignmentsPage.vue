@@ -1,6 +1,8 @@
 <template>
 
-  <div>
+  <LearnAppBarPage
+    :appBarTitle="learnString('learnLabel')"
+  >
     <KBreadcrumbs :items="breadcrumbs" />
     <h1 class="classroom-name">
       <KLabeledIcon icon="classes" :label="className" />
@@ -9,7 +11,7 @@
     <AssignedLessonsCards :lessons="activeLessons" />
     <AssignedQuizzesCards :quizzes="activeQuizzes" :style="{ marginTop: '44px' }" />
 
-  </div>
+  </LearnAppBarPage>
 
 </template>
 
@@ -24,6 +26,8 @@
   import { PageNames, ClassesPageNames } from '../../constants';
 
   import useLearnerResources from '../../composables/useLearnerResources';
+  import commonLearnStrings from './../commonLearnStrings';
+  import LearnAppBarPage from './../LearnAppBarPage';
   import AssignedQuizzesCards from './AssignedQuizzesCards';
   import AssignedLessonsCards from './AssignedLessonsCards';
 
@@ -38,8 +42,9 @@
       AssignedQuizzesCards,
       AssignedLessonsCards,
       KBreadcrumbs,
+      LearnAppBarPage,
     },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, commonLearnStrings],
     setup(_, { root }) {
       const {
         fetchClass,

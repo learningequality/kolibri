@@ -1,6 +1,8 @@
 <template>
 
-  <div>
+  <LearnAppBarPage
+    :appBarTitle="learnString('learnLabel')"
+  >
     <h1>{{ $tr('header') }}</h1>
     <p>
       <KExternalLink v-if="deviceContentUrl" :text="$tr('adminLink')" :href="deviceContentUrl" />
@@ -8,7 +10,7 @@
     <p v-if="showLearnerText">
       {{ $tr('learnerText') }}
     </p>
-  </div>
+  </LearnAppBarPage>
 
 </template>
 
@@ -17,6 +19,8 @@
 
   import { mapGetters } from 'vuex';
   import urls from 'kolibri.urls';
+  import LearnAppBarPage from './LearnAppBarPage';
+  import commonLearnStrings from './commonLearnStrings';
 
   export default {
     name: 'ContentUnavailablePage',
@@ -25,6 +29,10 @@
         title: this.$tr('documentTitle'),
       };
     },
+    components: {
+      LearnAppBarPage,
+    },
+    mixins: [commonLearnStrings],
 
     computed: {
       ...mapGetters(['canManageContent', 'isLearner']),

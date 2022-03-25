@@ -1,6 +1,9 @@
 <template>
 
-  <div>
+  <LearnAppBarPage
+    :appBarTitle="learnString('learnLabel')"
+    :applyStandardLayout="false"
+  >
     <main
       class="main-grid"
       :style="gridOffset"
@@ -104,7 +107,7 @@
         :showLocationsInChannel="true"
       />
     </SidePanelModal>
-  </div>
+  </LearnAppBarPage>
 
 </template>
 
@@ -128,6 +131,7 @@
   import SearchResultsGrid from '../SearchResultsGrid';
   import ResumableContentGrid from './ResumableContentGrid';
   import SidePanel from './SidePanel';
+  import LearnAppBarPage from './LearnAppBarPage';
 
   export default {
     name: 'LibraryPage',
@@ -144,6 +148,7 @@
       ResumableContentGrid,
       SearchResultsGrid,
       SidePanel,
+      LearnAppBarPage,
     },
     mixins: [commonLearnStrings, commonCoreStrings, responsiveWindowMixin],
     setup() {

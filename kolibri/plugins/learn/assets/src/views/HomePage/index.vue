@@ -1,6 +1,8 @@
 <template>
 
-  <div>
+  <LearnAppBarPage
+    :appBarTitle="learnString('learnLabel')"
+  >
     <YourClasses
       v-if="displayClasses"
       class="section"
@@ -43,7 +45,7 @@
         hasActiveClassesQuizzes
       "
     />
-  </div>
+  </LearnAppBarPage>
 
 </template>
 
@@ -59,6 +61,8 @@
   import AssignedLessonsCards from '../classes/AssignedLessonsCards';
   import AssignedQuizzesCards from '../classes/AssignedQuizzesCards';
   import YourClasses from '../YourClasses';
+  import LearnAppBarPage from '../LearnAppBarPage';
+  import commonLearnStrings from './../commonLearnStrings';
   import ContinueLearning from './ContinueLearning';
   import ExploreChannels from './ExploreChannels';
 
@@ -76,7 +80,9 @@
       YourClasses,
       ContinueLearning,
       ExploreChannels,
+      LearnAppBarPage,
     },
+    mixins: [commonLearnStrings],
     setup() {
       const { isUserLoggedIn } = useUser();
       const { canAccessUnassignedContent } = useDeviceSettings();
