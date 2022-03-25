@@ -24,7 +24,7 @@ index 9103e49f93..c84de06979 100644
      allow_guest_access = serializers.BooleanField(allow_null=True)
 @@ -78,12 +78,16 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
              facility.dataset.save()
- 
+
              # Create superuser
 -            superuser = FacilityUser.objects.create_superuser(
 -                validated_data["superuser"]["username"],
@@ -42,9 +42,8 @@ index 9103e49f93..c84de06979 100644
 +                )
 +            else:
 +                superuser = None
- 
+
              # Create device settings
              language_id = validated_data.pop("language_id")
--- 
+--
 2.33.1
-
