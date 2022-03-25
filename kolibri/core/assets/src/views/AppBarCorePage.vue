@@ -6,6 +6,7 @@
     <ScrollingHeader :scrollPosition="0">
       <AppBar
         ref="appBar"
+        class="app-bar"
         :title="title"
         @toggleSideNav="navShown = !navShown"
         @showLanguageModal="languageModalShown = true"
@@ -14,6 +15,11 @@
           <slot name="subNav"></slot>
         </template>
       </AppBar>
+      <KLinearLoader
+        v-if="loading"
+        type="indeterminate"
+        :delay="false"
+      />
     </ScrollingHeader>
 
     <div class="main-wrapper" :style="wrapperStyles">
@@ -43,6 +49,7 @@
   import AppBar from 'kolibri.coreVue.components.AppBar';
   import ScrollingHeader from 'kolibri.coreVue.components.ScrollingHeader';
   import SideNav from 'kolibri.coreVue.components.SideNav';
+  import { mapState } from 'vuex';
 
   export default {
     name: 'AppBarCorePage',
@@ -51,6 +58,10 @@
       title: {
         type: String,
         default: null,
+      },
+      applyStandardLayout: {
+        type: Boolean,
+        default: true,
       },
     },
     data() {
@@ -61,17 +72,22 @@
       };
     },
     computed: {
+      ...mapState({
+        loading: state => state.core.loading,
+      }),
       wrapperStyles() {
-        return {
-          width: '100%',
-          display: 'inline-block',
-          backgroundColor: this.$themePalette.grey.v_100,
-          paddingLeft: '32px',
-          paddingRight: '32px',
-          paddingTop: this.appBarHeight + 32 + 'px',
-          paddingBottom: '72px',
-          marginTop: 0,
-        };
+        return this.applyStandardLayout
+          ? {
+              width: '100%',
+              display: 'inline-block',
+              backgroundColor: this.$themePalette.grey.v_100,
+              paddingLeft: '32px',
+              paddingRight: '32px',
+              paddingTop: this.appBarHeight + 32 + 'px',
+              paddingBottom: '72px',
+              marginTop: 0,
+            }
+          : '';
       },
     },
     mounted() {
@@ -82,3 +98,16 @@
   };
 
 </script>
+
+
+<style lang="scss" scoped>
+
+  @import '~kolibri-design-system/lib/styles/definitions';
+
+  .app-bar {
+    @extend %dropshadow-4dp;
+
+    width: 100%;
+  }
+
+</style>
