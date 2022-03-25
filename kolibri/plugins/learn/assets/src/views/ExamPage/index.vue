@@ -1,6 +1,10 @@
 <template>
 
-  <div>
+  <ImmersivePageRoot
+    :route="$store.getters.learnPageLinks.HomePage"
+    :appBarTitle="exam.title || ''"
+    :applyStandardLayout="false"
+  >
     <KGrid :gridStyle="gridStyle">
       <!-- this.$refs.questionListWrapper is referenced inside AnswerHistory for scrolling -->
       <KGridItem
@@ -16,10 +20,14 @@
               <div :style="{ paddingBottom: '8px' }">
                 <TimeDuration class="timer" :seconds="time_spent" />
               </div>
-              <p v-if="duration">
+              <p v-if="content && content.duration">
                 {{ learnString('suggestedTime') }}
               </p>
-              <SuggestedTime v-if="content.duration" class="timer" :seconds="content.duration" />
+              <SuggestedTime
+                v-if="content && content.duration"
+                class="timer"
+                :seconds="content.duration"
+              />
             </div>
             <span
               class="divider"
@@ -153,7 +161,7 @@
         {{ $tr('unanswered', { numLeft: questionsUnanswered } ) }}
       </p>
     </KModal>
-  </div>
+  </ImmersivePageRoot>
 
 </template>
 
@@ -173,15 +181,17 @@
   import useProgressTracking from '../../composables/useProgressTracking';
   import { ClassesPageNames } from '../../constants';
   import { LearnerClassroomResource } from '../../apiResources';
+  import ImmersivePageRoot from './../ImmersivePageRoot';
+
   import AnswerHistory from './AnswerHistory';
 
   export default {
     name: 'ExamPage',
-    metaInfo() {
-      return {
-        title: this.exam.title,
-      };
-    },
+    // metaInfo() {
+    //   return {
+    //     title: this.exam.title,
+    //   };
+    // },
     components: {
       AnswerHistory,
       UiAlert,
@@ -189,6 +199,7 @@
       BottomAppBar,
       TimeDuration,
       SuggestedTime,
+      ImmersivePageRoot,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
     setup() {
@@ -262,10 +273,10 @@
         return this.questions[this.questionNumber];
       },
       nodeId() {
-        return this.currentQuestion.exercise_id;
+        return this.currentQuestion ? this.currentQuestion.exercise_id : null;
       },
       itemId() {
-        return this.currentQuestion.question_id;
+        return this.currentQuestion ? this.currentQuestion.question_id : null;
       },
       // We generate a special item value to save to the backend that encodes
       // both the itemId and the nodeId
@@ -328,7 +339,7 @@
       },
     },
     created() {
-      this.initContentSession({ quizId: this.exam.id })
+      this.initContentSession({ quizId: this.$route.params.examId })
         .then(this.startTrackingProgress)
         .catch(err => {
           if (err.response && err.response.status === 403) {

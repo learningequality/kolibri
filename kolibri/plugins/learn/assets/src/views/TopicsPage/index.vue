@@ -4,8 +4,13 @@
     <div v-if="currentChannelIsCustom">
       <CustomContentRenderer :topic="topic" />
     </div>
-
-    <div v-else class="page">
+    <ImmersivePageRoot
+      v-else
+      :route="$store.getters.learnPageLinks.LibraryPage"
+      :appBarTitle="topic.title || ''"
+      :applyStandardLayout="false"
+      class="page"
+    >
       <!-- Header with thumbail and tagline -->
       <TopicsHeader
         v-if="!windowIsSmall"
@@ -196,7 +201,6 @@
         @input="handleCategory"
       />
 
-    </div>
 
     <!-- Side panel for showing the information of selected content with a link to view it -->
     <SidePanelModal
@@ -209,31 +213,33 @@
       <template #header>
         <!-- Flex styles tested in ie11 and look good. Ensures good spacing between
             multiple chips - not a common thing but just in case -->
-        <div
-          v-for="activity in metadataSidePanelContent.learning_activities"
-          :key="activity"
-          class="side-panel-chips"
-          :class="$computedClass({ '::after': {
-            content: '',
-            flex: 'auto'
-          } })"
-        >
-          <LearningActivityChip
-            class="chip"
-            style="margin-left: 8px; margin-bottom: 8px;"
-            :kind="activity"
-          />
-        </div>
-      </template>
+          <div
+            v-for="activity in sidePanelContent.learning_activities"
+            :key="activity"
+            class="side-panel-chips"
+            :class="$computedClass({ '::after': {
+              content: '',
+              flex: 'auto'
+            } })"
+          >
+            <LearningActivityChip
+              class="chip"
+              style="margin-left: 8px; margin-bottom: 8px;"
+              :kind="activity"
+            />
+          </div>
+        </template>
 
-      <BrowseResourceMetadata
-        ref="resourcePanel"
-        :content="metadataSidePanelContent"
-        :showLocationsInChannel="true"
-      />
-    </SidePanelModal>
-
+        <BrowseResourceMetadata
+          ref="resourcePanel"
+          :content="sidePanelContent"
+          :showLocationsInChannel="true"
+        />
+      </FullScreenSidePanel>
+    </ImmersivePageRoot>
   </div>
+
+  <!-- Side panel for showing the information of selected content with a link to view it -->
 
 </template>
 
@@ -298,6 +304,7 @@
       TopicsMobileHeader,
       TopicSubsection,
       SearchPanelModal,
+      ImmersivePageRoot,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
     setup() {
@@ -662,7 +669,6 @@
   .side-panel {
     position: absolute;
     top: $header-height;
-    height: calc(100% - #{$header-height});
     padding-top: 16px;
   }
 
