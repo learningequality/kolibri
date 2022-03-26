@@ -7,6 +7,8 @@ from functools import partial
 from gettext import gettext as _
 from urllib.parse import urlsplit
 
+from gi.repository import Adw
+from gi.repository import Gdk
 from gi.repository import Gio
 from gi.repository import GLib
 from gi.repository import GObject
@@ -25,10 +27,14 @@ from .kolibri_window import KolibriWindow
 logger = logging.getLogger(__name__)
 
 
-class Application(Gtk.Application):
+class Application(Adw.Application):
     __context: KolibriContext
 
     application_name = GObject.Property(type=str, default=_("Kolibri"))
+
+    CSS_OVERRIDE: str = ""
+
+    css_provider: Gtk.CssProvider
 
     def __init__(self, *args, context: KolibriContext = None, **kwargs):
         super().__init__(*args, flags=Gio.ApplicationFlags.HANDLES_OPEN, **kwargs)
@@ -36,6 +42,15 @@ class Application(Gtk.Application):
         self.__context = context or KolibriContext()
         self.__context.connect("download-started", self.__context_on_download_started)
         self.__context.connect("open-external-url", self.__context_on_open_external_url)
+
+        # TODO: There may be an API to do this from Adw itself in the future.
+        self.css_provider = Gtk.CssProvider()
+        Gtk.StyleContext.add_provider_for_display(
+            Gdk.Display.get_default(),
+            self.css_provider,
+            Gtk.STYLE_PROVIDER_PRIORITY_THEME + 1,
+        )
+        self.css_provider.load_from_data(bytes(self.CSS_OVERRIDE, "utf-8"))
 
         action = Gio.SimpleAction.new("open-documentation", None)
         action.connect("activate", self.__on_open_documentation)
@@ -72,12 +87,12 @@ class Application(Gtk.Application):
         return self.__context
 
     def do_startup(self):
-        Gtk.Application.do_startup(self)
+        Adw.Application.do_startup(self)
 
         self.__context.init()
 
     def do_activate(self):
-        Gtk.Application.do_activate(self)
+        Adw.Application.do_activate(self)
 
         if not self.get_windows():
             self.open_kolibri_window()
@@ -87,7 +102,7 @@ class Application(Gtk.Application):
             self.__handle_open_file_url(file.get_uri())
 
     def do_shutdown(self):
-        Gtk.Application.do_shutdown(self)
+        Adw.Application.do_shutdown(self)
 
         self.__context.shutdown()
 
@@ -109,22 +124,21 @@ class Application(Gtk.Application):
         self.open_url_in_external_application(KOLIBRI_HOME_PATH.as_uri())
 
     def __on_about(self, action, *args):
-        about_dialog = Gtk.AboutDialog(
+        about_window = Adw.AboutWindow(
             transient_for=self.get_active_window(),
             modal=True,
+            application_name=_("Kolibri"),
+            application_icon=BASE_APPLICATION_ID,
             copyright=_("© 2022 Learning Equality"),
-            program_name=_("Kolibri"),
-            version=_(
-                "{kolibri_version}\n<small>App version {app_version}</small>"
-            ).format(
+            version=_("{kolibri_version} ({app_version})").format(
                 app_version=PROJECT_VERSION,
                 kolibri_version=self.__context.kolibri_version,
             ),
             license_type=Gtk.License.MIT_X11,
-            logo_icon_name=BASE_APPLICATION_ID,
             website="https://learningequality.org",
+            issue_url="https://community.learningequality.org/",
         )
-        about_dialog.present()
+        about_window.present()
 
     def __on_quit(self, action, *args):
         self.quit()
@@ -152,7 +166,8 @@ class Application(Gtk.Application):
         #        However, our WM_CLASS becomes `"main.py", "Main.py"`, which
         #        causes GNOME Shell to treat unique instances of this
         #        application (with different application IDs) as the same.
-        window.set_wmclass("Kolibri", self.get_application_id())
+        # FIXME: !!!
+        # window.set_wmclass("Kolibri", self.get_application_id())
 
         window.load_kolibri_url(target_url, present=True)
 
@@ -199,20 +214,36 @@ class Application(Gtk.Application):
             None,
         )
         file_chooser.set_current_name(suggested_filename)
-        file_chooser.set_do_overwrite_confirmation(True)
 
-        # We need to block on the dialog here because webkit will be unhappy if
-        # we return before setting a destination.
+        # We need to create a nested loop to wait for the response signal,
+        # because WebKit's download API doesn't allow setting a destination
+        # asynchronously: <https://bugs.webkit.org/show_bug.cgi?id=238748>
 
-        response = file_chooser.run()
+        nested_loop = GLib.MainLoop.new(None, False)
+        file_chooser.connect(
+            "response", partial(self.__download_file_chooser_on_response, download)
+        )
+        file_chooser.connect("response", lambda *args: nested_loop.quit())
+        file_chooser.show()
+        nested_loop.run()
 
-        if response != Gtk.ResponseType.ACCEPT:
-            download.cancel()
+        if not download.get_destination():
             return False
 
-        download.set_allow_overwrite(True)
-        download.set_destination(file_chooser.get_uri())
         return True
+
+    def __download_file_chooser_on_response(
+        self,
+        download: WebKit2.Download,
+        file_chooser: Gtk.FileChooserNative,
+        response: Gtk.ResponseType,
+    ):
+        if response != Gtk.ResponseType.ACCEPT:
+            download.cancel()
+            return
+        response_file = file_chooser.get_file()
+        download.set_allow_overwrite(True)
+        download.set_destination(response_file.get_uri())
 
     def __context_on_open_external_url(
         self, context: KolibriContext, external_url: str

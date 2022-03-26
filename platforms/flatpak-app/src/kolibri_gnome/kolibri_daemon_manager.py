@@ -162,6 +162,7 @@ class KolibriDaemonManager(GObject.GObject):
             )
         soup_session.send_async(
             soup_message,
+            GLib.PRIORITY_DEFAULT,
             None,
             partial(
                 self.__kolibri_api_get_async_on_soup_send,
@@ -178,7 +179,7 @@ class KolibriDaemonManager(GObject.GObject):
         soup_message: Soup.Message,
     ):
         # On HTTP client (4xx) or server (5xx) errors:
-        if soup_message.status_code >= 400:
+        if soup_message.get_status() >= Soup.Status.BAD_REQUEST:
             # FIXME: It would be better to raise an exception, and
             # handle it in the other side to set SESSION_STATUS_ERROR.
             logger.warning(

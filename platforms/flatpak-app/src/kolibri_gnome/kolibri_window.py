@@ -3,6 +3,7 @@ from __future__ import annotations
 import typing
 from gettext import gettext as _
 
+from gi.repository import Adw
 from gi.repository import Gio
 from gi.repository import GObject
 from gi.repository import Gtk
@@ -17,7 +18,7 @@ DEFAULT_WIDTH = 1024
 DEFAULT_HEIGHT = 768
 
 
-class KolibriWindow(Gtk.ApplicationWindow):
+class KolibriWindow(Adw.ApplicationWindow):
     """
     A window for the Kolibri application. Contains a KolibriWebViewStack and a
     header bar.
@@ -26,7 +27,7 @@ class KolibriWindow(Gtk.ApplicationWindow):
     __context: KolibriContext
 
     __webview_stack: KolibriWebViewStack
-    __header_bar: Gtk.HeaderBar
+    __header_bar: Adw.HeaderBar
 
     __present_on_main_webview_ready: bool = True
 
@@ -45,7 +46,7 @@ class KolibriWindow(Gtk.ApplicationWindow):
 
     def __init__(
         self,
-        application: Gtk.Application,
+        application: Adw.Application,
         context: KolibriContext,
         *args,
         related_webview: typing.Optional[WebKit2.WebView] = None,
@@ -71,6 +72,9 @@ class KolibriWindow(Gtk.ApplicationWindow):
 
         self.set_default_size(DEFAULT_WIDTH, DEFAULT_HEIGHT)
 
+        content_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        self.set_content(content_box)
+
         application.bind_property(
             "application-name",
             self,
@@ -78,20 +82,14 @@ class KolibriWindow(Gtk.ApplicationWindow):
             GObject.BindingFlags.SYNC_CREATE,
         )
 
-        self.__header_bar = Gtk.HeaderBar(spacing=6, show_close_button=True)
-        self.set_titlebar(self.__header_bar)
-
-        application.bind_property(
-            "application-name",
-            self.__header_bar,
-            "title",
-            GObject.BindingFlags.SYNC_CREATE,
-        )
+        self.__header_bar = Adw.HeaderBar()
+        self.__header_bar.show()
+        content_box.append(self.__header_bar)
 
         menu_button = Gtk.MenuButton(direction=Gtk.ArrowType.NONE)
         self.__header_bar.pack_end(menu_button)
 
-        menu_popover = Gtk.Popover.new_from_model(menu_button, _KolibriWindowMenu())
+        menu_popover = Gtk.PopoverMenu.new_from_model(_KolibriWindowMenu())
         menu_button.set_popover(menu_popover)
 
         navigation_revealer = Gtk.Revealer(
@@ -102,19 +100,15 @@ class KolibriWindow(Gtk.ApplicationWindow):
 
         navigation_box = Gtk.Box.new(Gtk.Orientation.HORIZONTAL, 0)
         navigation_box.get_style_context().add_class("linked")
-        navigation_revealer.add(navigation_box)
+        navigation_revealer.set_child(navigation_box)
 
-        back_button = Gtk.Button.new_from_icon_name(
-            "go-previous-symbolic", Gtk.IconSize.BUTTON
-        )
+        back_button = Gtk.Button.new_from_icon_name("go-previous-symbolic")
         back_button.set_action_name("win.navigate-back")
-        navigation_box.add(back_button)
+        navigation_box.append(back_button)
 
-        forward_button = Gtk.Button.new_from_icon_name(
-            "go-next-symbolic", Gtk.IconSize.BUTTON
-        )
+        forward_button = Gtk.Button.new_from_icon_name("go-next-symbolic")
         forward_button.set_action_name("win.navigate-forward")
-        navigation_box.add(forward_button)
+        navigation_box.append(forward_button)
 
         home_revealer = Gtk.Revealer(
             transition_type=Gtk.RevealerTransitionType.CROSSFADE,
@@ -122,22 +116,22 @@ class KolibriWindow(Gtk.ApplicationWindow):
         )
         self.__header_bar.pack_start(home_revealer)
 
-        home_button = Gtk.Button.new_from_icon_name(
-            "go-home-symbolic", Gtk.IconSize.BUTTON
-        )
+        home_button = Gtk.Button.new_from_icon_name("go-home-symbolic")
         home_button.set_action_name("win.navigate-home")
-        home_revealer.add(home_button)
+        home_revealer.set_child(home_button)
 
         self.__webview_stack = KolibriWebViewStack(
             self.__context,
             related_webview=related_webview,
             transition_type=Gtk.StackTransitionType.CROSSFADE,
             transition_duration=300,
+            vexpand=True,
+            hexpand=True,
         )
-        self.add(self.__webview_stack)
+        content_box.append(self.__webview_stack)
 
         self.__webview_stack.show()
-        self.__header_bar.show_all()
+        self.__header_bar.show()
 
         bubble_signal(self.__webview_stack, "open-new-window", self)
         bubble_signal(self.__webview_stack, "main-webview-blank", self, "auto-close")
@@ -189,8 +183,10 @@ class KolibriWindow(Gtk.ApplicationWindow):
             GObject.BindingFlags.SYNC_CREATE,
         )
 
+        self.__update_zoom_actions()
+
     @staticmethod
-    def set_accels(application: Gtk.Application):
+    def set_accels(application: Adw.Application):
         application.set_accels_for_action(
             "win.navigate-back", ["<Control>bracketleft", "<Alt>leftarrow"]
         )
@@ -209,6 +205,10 @@ class KolibriWindow(Gtk.ApplicationWindow):
 
     def get_main_webview(self):
         return self.__webview_stack.get_main_webview()
+
+    def do_unmap(self):
+        self.__present_on_main_webview_ready = False
+        Adw.ApplicationWindow.do_unmap(self)
 
     def __on_close(self, action, *args):
         self.close()

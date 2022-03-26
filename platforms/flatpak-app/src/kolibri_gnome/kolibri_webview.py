@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import typing
 
-from gi.repository import Gdk
 from gi.repository import GObject
 from gi.repository import Gtk
 from gi.repository import WebKit2
@@ -41,7 +40,21 @@ class KolibriWebView(WebKit2.WebView):
 
         self.__context.connect("kolibri-ready", self.__context_on_kolibri_ready)
 
-        self.connect("button-press-event", self.__on_button_press_event)
+        # FIXME: These events are also handled by the webview itself, which is a
+        #        problem. How do we stop it from doing that?
+
+        click_back_gesture = Gtk.GestureClick(
+            button=MOUSE_BUTTON_BACK, propagation_phase=Gtk.PropagationPhase.CAPTURE
+        )
+        click_back_gesture.connect("pressed", self.__on_back_button_pressed)
+        self.add_controller(click_back_gesture)
+
+        click_forward_gesture = Gtk.GestureClick(
+            button=MOUSE_BUTTON_FORWARD, propagation_phase=Gtk.PropagationPhase.CAPTURE
+        )
+        click_forward_gesture.connect("pressed", self.__on_forward_button_pressed)
+        self.add_controller(click_forward_gesture)
+
         self.connect("decide-policy", self.__on_decide_policy)
         self.connect("notify::uri", self.__on_notify_uri)
         self.connect("load-changed", self.__on_load_changed)
@@ -55,17 +68,17 @@ class KolibriWebView(WebKit2.WebView):
         self.load_uri(http_url)
         self.__deferred_load_kolibri_url = None
 
-    def __on_button_press_event(
-        self, webview: WebKit2.WebView, event: Gdk.EventButton
+    def __on_back_button_pressed(
+        self, gesture: Gtk.GestureClick, n_press: int, x: int, y: int
     ) -> bool:
-        if event.button == MOUSE_BUTTON_BACK:
-            self.go_back()
-            return True
-        elif event.button == MOUSE_BUTTON_FORWARD:
-            self.go_forward()
-            return True
-        else:
-            return False
+        self.go_back()
+        return True
+
+    def __on_forward_button_pressed(
+        self, gesture: Gtk.GestureClick, n_press: int, x: int, y: int
+    ) -> bool:
+        self.go_forward()
+        return True
 
     def __continue_load_kolibri_url(self):
         if self.__deferred_load_kolibri_url:
@@ -126,12 +139,13 @@ class KolibriWebView(WebKit2.WebView):
         return None
 
     def __context_on_kolibri_ready(self, context: KolibriContext):
+        current_url = self.get_uri()
         if self.__deferred_load_kolibri_url:
             self.__continue_load_kolibri_url()
-        elif not self.__context.should_open_url(self.get_uri()):
-            self.load_kolibri_url(self.__context.default_url)
-        else:
+        elif current_url and self.__context.should_open_url(current_url):
             self.emit("kolibri-load-finished")
+        else:
+            self.load_kolibri_url(self.__context.default_url)
 
 
 class KolibriWebViewStack(Gtk.Stack):
@@ -188,12 +202,12 @@ class KolibriWebViewStack(Gtk.Stack):
             self.__main_webview = KolibriWebView(
                 self.__context, web_context=self.__context.webkit_web_context
             )
-        self.add(self.__main_webview)
+        self.add_child(self.__main_webview)
 
         self.__loading_webview = WebKit2.WebView(
             web_context=self.__context.webkit_web_context, is_ephemeral=True
         )
-        self.add(self.__loading_webview)
+        self.add_child(self.__loading_webview)
 
         self.__main_webview.show()
         self.__loading_webview.show()
