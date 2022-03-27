@@ -117,16 +117,18 @@ def execute_job(job_id, db_type, db_url):
     args, kwargs = copy.copy(job.args), copy.copy(job.kwargs)
 
     try:
+        # First check whether the job has been cancelled
+        job.check_for_cancel()
         result = func(*args, **kwargs)
+        storage.complete_job(job_id, result=result)
+    except UserCancelledError:
+        storage.mark_job_as_canceled(job_id)
     except Exception as e:
-        # If any error occurs, clear the job tracker and reraise
-        setattr(current_state_tracker, "job", None)
+        # If any error occurs, mark the job as failed and save the exception
         traceback_str = traceback.format_exc()
         e.traceback = traceback_str
-        connection.dispose()
-        # Close any django connections opened here
-        django_connection.close()
-        raise
+        logger.error("Job {} raised an exception: {}".format(job_id, traceback_str))
+        storage.mark_job_as_failed(job_id, e, traceback_str)
 
     setattr(current_state_tracker, "job", None)
 
@@ -134,8 +136,6 @@ def execute_job(job_id, db_type, db_url):
 
     # Close any django connections opened here
     django_connection.close()
-
-    return result
 
 
 class Job(object):

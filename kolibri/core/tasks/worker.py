@@ -1,5 +1,4 @@
 import logging
-import traceback
 from concurrent.futures import CancelledError
 
 from kolibri.core.tasks.compat import PoolExecutor
@@ -58,19 +57,9 @@ class Worker(object):
         del self.future_job_mapping[job.job_id]
 
         try:
-            result = future.result()
+            future.result()
         except CancelledError:
-            self.report_cancelled(job.job_id)
-            return
-        except Exception as e:
-            if hasattr(e, "traceback"):
-                traceback = e.traceback
-            else:
-                traceback = ""
-            self.report_error(job.job_id, e, traceback)
-            return
-
-        self.report_success(job.job_id, result)
+            self.storage.mark_job_as_canceled(job.job_id)
 
     def shutdown(self, wait=True):
         logger.info("Asking job schedulers to shut down.")
@@ -107,21 +96,7 @@ class Worker(object):
             if job_id in self.future_job_mapping:
                 self.cancel(job_id)
             else:
-                self.report_cancelled(job_id)
-
-    def report_cancelled(self, job_id):
-        self.storage.mark_job_as_canceled(job_id)
-
-    def report_success(self, job_id, result):
-        self.storage.complete_job(job_id, result=result)
-
-    def report_error(self, job_id, exc, trace):
-        trace = traceback.format_exc()
-        logger.error("Job {} raised an exception: {}".format(job_id, trace))
-        self.storage.mark_job_as_failed(job_id, exc, trace)
-
-    def update_progress(self, job_id, progress, total_progress, stage=""):
-        self.storage.update_job_progress(job_id, progress, total_progress)
+                self.storage.mark_job_as_canceled(job_id)
 
     def get_next_job(self):
         """
@@ -185,11 +160,6 @@ class Worker(object):
     def cancel(self, job_id):
         """
         Request a cancellation from the futures executor pool.
-        If that didn't work (because it's already running), then mark
-        a special variable inside the future that we can check
-        inside a special check_for_cancel function passed to the
-        job.
-
         :param job_id:
         :return:
         """
@@ -200,10 +170,4 @@ class Worker(object):
             # In the case that the future does not even exist, say it has been cancelled.
             is_future_cancelled = True
 
-        if is_future_cancelled:  # success!
-            return True
-        if future.running():
-            # Already running, so we manually mark the future as cancelled
-            setattr(future, "_is_cancelled", True)
-            return False
-        return False
+        return is_future_cancelled
