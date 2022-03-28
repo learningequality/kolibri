@@ -1,6 +1,7 @@
 <template>
 
   <KModal
+    v-if="displayedCopies.length"
     :title="$tr('copies')"
     :submitText="coreString('closeAction')"
     @submit="$emit('submit')"
@@ -39,21 +40,19 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import genContentLink from '../utils/genContentLink';
+  import useCopies from '../composables/useCopies';
 
   export default {
     name: 'CopiesModal',
     mixins: [commonCoreStrings],
-    props: {
-      copies: {
-        type: Array,
-        required: true,
-      },
-      genContentLink: {
-        type: Function,
-        required: true,
-      },
+    setup() {
+      const { displayedCopies } = useCopies();
+      return {
+        displayedCopies,
+      };
     },
-    computed: {},
+    methods: { genContentLink },
     $trs: {
       copies: {
         message: 'Locations',
