@@ -388,22 +388,22 @@
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import FullScreenSidePanel from 'kolibri.coreVue.components.FullScreenSidePanel';
   import { throttle } from 'frame-throttle';
-  import { PageNames } from '../constants';
-  import { normalizeContentNode } from '../modules/coreLearn/utils.js';
-  import useSearch from '../composables/useSearch';
-  import genContentLink from '../utils/genContentLink';
-  import HeaderTabs from '../../../../coach/assets/src/views/common/HeaderTabs';
-  import HeaderTab from '../../../../coach/assets/src/views/common/HeaderTabs/HeaderTab';
-  import HybridLearningCardGrid from './HybridLearningCardGrid';
-  import EmbeddedSidePanel from './EmbeddedSidePanel';
-  import BrowseResourceMetadata from './BrowseResourceMetadata';
-  import LearningActivityChip from './LearningActivityChip';
-  import CustomContentRenderer from './ChannelRenderer/CustomContentRenderer';
-  import CardThumbnail from './ContentCard/CardThumbnail';
-  import CategorySearchModal from './CategorySearchModal';
-  import SearchChips from './SearchChips';
-  import LibraryPage from './LibraryPage';
-  import LibraryAndChannelBrowserMainContent from './LibraryAndChannelBrowserMainContent';
+  import { PageNames } from '../../constants';
+  import { normalizeContentNode } from '../../modules/coreLearn/utils.js';
+  import useSearch from '../../composables/useSearch';
+  import genContentLink from '../../utils/genContentLink';
+  import HeaderTabs from '../../../../../coach/assets/src/views/common/HeaderTabs';
+  import HeaderTab from '../../../../../coach/assets/src/views/common/HeaderTabs/HeaderTab';
+  import HybridLearningCardGrid from '../HybridLearningCardGrid';
+  import EmbeddedSidePanel from '../EmbeddedSidePanel';
+  import BrowseResourceMetadata from '../BrowseResourceMetadata';
+  import LearningActivityChip from '../LearningActivityChip';
+  import CustomContentRenderer from '../ChannelRenderer/CustomContentRenderer';
+  import CardThumbnail from '../ContentCard/CardThumbnail';
+  import CategorySearchModal from '../CategorySearchModal';
+  import SearchChips from '../SearchChips';
+  import LibraryPage from '../LibraryPage';
+  import LibraryAndChannelBrowserMainContent from '../LibraryAndChannelBrowserMainContent';
   import plugin_data from 'plugin_data';
 
   export default {
