@@ -4,7 +4,7 @@
     v-if="displayedCopies.copies.length"
     :title="$tr('copies')"
     :submitText="coreString('closeAction')"
-    @submit="$emit('submit')"
+    @submit="clearCopies"
   >
     <transition mode="out-in">
       <ul>
@@ -47,8 +47,9 @@
     name: 'CopiesModal',
     mixins: [commonCoreStrings],
     setup() {
-      const { displayedCopies } = useCopies();
+      const { clearCopies, displayedCopies } = useCopies();
       return {
+        clearCopies,
         displayedCopies,
       };
     },

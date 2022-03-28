@@ -45,9 +45,7 @@
     >
       {{ coreString('viewMoreAction') }}
     </KButton>
-    <CopiesModal
-      @submit="clearCopies"
-    />
+    <CopiesModal />
   </section>
 
 </template>
@@ -117,10 +115,9 @@
         return last(contentNode.ancestors).title;
       }
 
-      const { clearCopies, setCopies } = useCopies();
+      const { setCopies } = useCopies();
 
       return {
-        clearCopies,
         setCopies,
         resumableClassesQuizzes,
         resumableContentNodes,

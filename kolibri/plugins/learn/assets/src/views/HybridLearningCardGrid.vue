@@ -54,9 +54,7 @@
       @viewInformation="$emit('toggleInfoPanel', content)"
       @removeFromBookmarks="removeFromBookmarks(content, contents)"
     />
-    <CopiesModal
-      @submit="clearCopies"
-    />
+    <CopiesModal />
   </div>
 
 </template>
@@ -88,8 +86,8 @@
     },
     mixins: [responsiveWindowMixin],
     setup() {
-      const { clearCopies, setCopies } = useCopies();
-      return { clearCopies, setCopies };
+      const { setCopies } = useCopies();
+      return { setCopies };
     },
     props: {
       contents: {

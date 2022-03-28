@@ -33,6 +33,8 @@
 
 const MOCK_DEFAULTS = {
   displayedCopies: [],
+  clearCopies: jest.fn(),
+  setCopies: jest.fn(),
 };
 
 export function useCopiesMock(overrides = {}) {

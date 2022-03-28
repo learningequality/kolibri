@@ -45,9 +45,7 @@
       {{ coreString('viewMoreAction') }}
     </KButton>
 
-    <CopiesModal
-      @submit="clearCopies"
-    />
+    <CopiesModal />
 
     <FullScreenSidePanel
       v-if="sidePanelContent"
@@ -119,7 +117,7 @@
         fetchMoreResumableContentNodes,
       } = useLearnerResources();
 
-      const { setCopies, clearCopies } = useCopies();
+      const { setCopies } = useCopies();
 
       var sidePanelContent = ref(null);
       const toggleInfoPanel = content => (sidePanelContent.value = content);
@@ -138,7 +136,6 @@
         activityRefs,
         findFirstEl,
         setCopies,
-        clearCopies,
         sidePanelContent,
         toggleInfoPanel,
         resumableContentNodes,

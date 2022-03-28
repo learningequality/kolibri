@@ -56,9 +56,7 @@
       @click="searchMore"
     />
 
-    <CopiesModal
-      @submit="clearCopies"
-    />
+    <CopiesModal />
   </div>
 
 </template>
@@ -107,7 +105,7 @@
           search(keywords);
         }
       });
-      const { setCopies, clearCopies } = useCopies();
+      const { setCopies } = useCopies();
 
       var sidePanelContent = ref(null);
       const toggleInfoPanel = content => (sidePanelContent.value = content);
@@ -116,7 +114,6 @@
         searchTerms,
         displayingSearchResults,
         setCopies,
-        clearCopies,
         searchLoading,
         moreLoading,
         results,
