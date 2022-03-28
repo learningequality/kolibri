@@ -1,7 +1,7 @@
 import { set } from '@vueuse/core';
 import { reactive } from 'kolibri.lib.vueCompositionApi';
 
-// Shared store
+// Shared store - an object because it uses Vue.observable under the hood
 var displayedCopies = reactive({ copies: [] });
 
 export default function useCopies() {
