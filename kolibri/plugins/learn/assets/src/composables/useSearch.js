@@ -73,7 +73,7 @@ export default function useSearch(store, router) {
       }
       // Just catch an error from making a redundant navigation rather
       // than try to precalculate this.
-      router.push({ ...get(route), query }).catch(() => console.error('BAD'));
+      router.push({ ...get(route), query }).catch(() => {});
     },
   });
 
