@@ -66,7 +66,7 @@
 
 <script>
 
-  import { ref } from 'kolibri.lib.vueCompositionApi';
+  import { onMounted, ref } from 'kolibri.lib.vueCompositionApi';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useSearch from '../../composables/useSearch';
@@ -97,8 +97,16 @@
         removeFilterTag,
         clearSearch,
         setCategory,
+        currentRoute,
       } = useSearch();
 
+      // Ensure queries in URL are searched on load
+      onMounted(() => {
+        const keywords = currentRoute().query.keywords;
+        if (keywords && keywords.length) {
+          search(keywords);
+        }
+      });
       const { setCopies, clearCopies } = useCopies();
 
       var sidePanelContent = ref(null);

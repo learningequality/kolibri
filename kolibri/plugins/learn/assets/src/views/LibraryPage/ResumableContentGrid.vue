@@ -61,8 +61,9 @@
         <!-- Flex styles tested in ie11 and look good. Ensures good spacing between
             multiple chips - not a common thing but just in case -->
         <div
-          v-for="activity in sidePanelContent.learning_activities"
+          v-for="(activity, index) in sidePanelContent.learning_activities"
           :key="activity"
+          :ref="el => activityRefs[activity + index] = el"
           class="side-panel-chips"
           :class="$computedClass({ '::after': {
             content: '',
@@ -123,7 +124,19 @@
       var sidePanelContent = ref(null);
       const toggleInfoPanel = content => (sidePanelContent.value = content);
 
+      const activityRefs = {};
+
+      const findFirstEl = () => {
+        const activityKeys = Object.keys(activityRefs);
+        const firstActivity = activityKeys.find(key => key.endsWith('0'));
+        if (firstActivity) {
+          activityKeys[firstActivity].value.focusFirstEl();
+        }
+      };
+
       return {
+        activityRefs,
+        findFirstEl,
         setCopies,
         clearCopies,
         sidePanelContent,

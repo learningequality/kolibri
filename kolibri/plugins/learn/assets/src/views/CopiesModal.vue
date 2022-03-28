@@ -1,7 +1,7 @@
 <template>
 
   <KModal
-    v-if="displayedCopies.length"
+    v-if="displayedCopies.copies.length"
     :title="$tr('copies')"
     :submitText="coreString('closeAction')"
     @submit="$emit('submit')"
@@ -9,7 +9,7 @@
     <transition mode="out-in">
       <ul>
         <li
-          v-for="(copy, index) in copies"
+          v-for="(copy, index) in displayedCopies.copies"
           :key="index"
           class="copy"
         >

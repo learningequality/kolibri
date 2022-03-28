@@ -35,7 +35,7 @@
         :key="`resource-${idx}`"
         :contentNode="content"
         :to="genContentLink(content)"
-        @openCopiesModal="openCopiesModal"
+        @openCopiesModal="setCopies"
       />
     </CardGrid>
 
@@ -50,15 +50,12 @@
       :link="genContentLink(content)"
       :footerIcons="footerIcons"
       :createdDate="content.bookmark ? content.bookmark.created : null"
-      @openCopiesModal="openCopiesModal"
+      @openCopiesModal="setCopies"
       @viewInformation="$emit('toggleInfoPanel', content)"
       @removeFromBookmarks="removeFromBookmarks(content, contents)"
     />
     <CopiesModal
-      v-if="displayedCopies.length"
-      :copies="displayedCopies"
-      :genContentLink="genContentLink"
-      @submit="displayedCopies = []"
+      @submit="clearCopies"
     />
   </div>
 
@@ -70,6 +67,7 @@
   import { mapState } from 'vuex';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { PageNames } from '../constants';
+  import useCopies from '../composables/useCopies';
   import genContentLink from '../utils/genContentLink';
   import HybridLearningContentCardListView from './HybridLearningContentCardListView';
   import HybridLearningContentCard from './HybridLearningContentCard';
@@ -89,6 +87,10 @@
       CardGrid,
     },
     mixins: [responsiveWindowMixin],
+    setup() {
+      const { clearCopies, setCopies } = useCopies();
+      return { clearCopies, setCopies };
+    },
     props: {
       contents: {
         type: Array,
@@ -118,9 +120,6 @@
         default: null,
       },
     },
-    data: () => ({
-      displayedCopies: [],
-    }),
     computed: {
       ...mapState('lessonPlaylist', ['currentLesson']),
       pageName() {
@@ -168,9 +167,6 @@
           this.backRoute,
           this.context
         );
-      },
-      openCopiesModal(copies) {
-        this.displayedCopies = copies;
       },
       removeFromBookmarks(content, contents) {
         return this.$emit('removeFromBookmarks', content.bookmark, contents.indexOf(content));

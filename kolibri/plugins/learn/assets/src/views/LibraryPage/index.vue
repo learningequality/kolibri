@@ -38,8 +38,7 @@
         <ResumableContentGrid />
       </div>
 
-      <!-- SearchResultsGrid handles whether it renders or not internally -->
-      <SearchResultsGrid :currentCardViewStyle="currentCardViewStyle" />
+      <SearchResultsGrid v-else :currentCardViewStyle="currentCardViewStyle" />
     </main>
 
     <!-- Side Panels for filtering and searching  -->
