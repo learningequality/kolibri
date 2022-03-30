@@ -300,49 +300,6 @@ class Command(AsyncCommand):
             if method == DOWNLOAD_METHOD:
                 session = requests.Session()
 
-            file_transfers = []
-            for f in files_to_download:
-
-                if self.is_cancelled():
-                    break
-
-                filename = get_content_file_name(f)
-                try:
-                    dest = paths.get_content_storage_file_path(filename)
-                except InvalidStorageFilenameError:
-                    # If the destination file name is malformed, just stop now.
-                    overall_progress_update(f["file_size"])
-                    continue
-
-                # if the file already exists add its size to our overall progress, and skip
-                if os.path.isfile(dest) and os.path.getsize(dest) == f["file_size"]:
-                    overall_progress_update(f["file_size"])
-                    file_checksums_to_annotate.append(f["id"])
-                    transferred_file_size += f["file_size"]
-                    continue
-
-                # determine where we're downloading/copying from, and create appropriate transfer object
-                if method == DOWNLOAD_METHOD:
-                    url = paths.get_content_storage_remote_url(
-                        filename, baseurl=baseurl
-                    )
-                    filetransfer = transfer.FileDownload(
-                        url, dest, session=session, cancel_check=self.is_cancelled
-                    )
-                    file_transfers.append((f, filetransfer))
-                elif method == COPY_METHOD:
-                    try:
-                        srcpath = paths.get_content_storage_file_path(
-                            filename, datafolder=path
-                        )
-                    except InvalidStorageFilenameError:
-                        # If the source file name is malformed, just stop now.
-                        overall_progress_update(f["file_size"])
-                        continue
-                    filetransfer = transfer.FileCopy(
-                        srcpath, dest, cancel_check=self.is_cancelled
-                    )
-                    file_transfers.append((f, filetransfer))
             with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
                 batch_size = 100
                 # ThreadPoolExecutor allows us to download files concurrently,
@@ -350,11 +307,54 @@ class Command(AsyncCommand):
                 # all the downloads into the pool requires considerable memory,
                 # so we divide the downloads into batches to keep memory usage down.
                 # In batches of 100, total RAM usage doesn't exceed 250MB in testing.
-                while file_transfers:
+                while files_to_download:
+                    if self.is_cancelled():
+                        break
                     future_file_transfers = {}
                     for i in range(batch_size):
-                        if file_transfers:
-                            f, filetransfer = file_transfers.pop()
+                        if files_to_download:
+                            f = files_to_download.pop()
+                            filename = get_content_file_name(f)
+                            try:
+                                dest = paths.get_content_storage_file_path(filename)
+                            except InvalidStorageFilenameError:
+                                # If the destination file name is malformed, just stop now.
+                                overall_progress_update(f["file_size"])
+                                continue
+
+                            # if the file already exists add its size to our overall progress, and skip
+                            if (
+                                os.path.isfile(dest)
+                                and os.path.getsize(dest) == f["file_size"]
+                            ):
+                                overall_progress_update(f["file_size"])
+                                file_checksums_to_annotate.append(f["id"])
+                                transferred_file_size += f["file_size"]
+                                continue
+
+                            # determine where we're downloading/copying from, and create appropriate transfer object
+                            if method == DOWNLOAD_METHOD:
+                                url = paths.get_content_storage_remote_url(
+                                    filename, baseurl=baseurl
+                                )
+                                filetransfer = transfer.FileDownload(
+                                    url,
+                                    dest,
+                                    session=session,
+                                    cancel_check=self.is_cancelled,
+                                )
+                            elif method == COPY_METHOD:
+                                try:
+                                    srcpath = paths.get_content_storage_file_path(
+                                        filename, datafolder=path
+                                    )
+                                except InvalidStorageFilenameError:
+                                    # If the source file name is malformed, just stop now.
+                                    overall_progress_update(f["file_size"])
+                                    continue
+                                filetransfer = transfer.FileCopy(
+                                    srcpath, dest, cancel_check=self.is_cancelled
+                                )
                             future = executor.submit(
                                 self._start_file_transfer, f, filetransfer
                             )
@@ -400,6 +400,9 @@ class Command(AsyncCommand):
                             else:
                                 self.exception = e
                                 break
+                    if self.is_cancelled():
+                        for future in future_file_transfers:
+                            future.cancel()
 
         annotation.set_content_visibility(
             channel_id,
