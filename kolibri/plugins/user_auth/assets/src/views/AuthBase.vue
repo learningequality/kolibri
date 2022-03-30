@@ -20,9 +20,9 @@
             <h1
               v-if="themeConfig.signIn.showTitle"
               class="kolibri-title"
-              :style="[ { color: $themeBrand.primary.v_300 }, themeConfig.signIn.titleStyle]"
+              :style="[{ color: $themeBrand.primary.v_300 }, themeConfig.signIn.titleStyle]"
             >
-              {{ logoText }}
+              <!-- {{ logoText }} -->
             </h1>
             <p data-test="restrictedAccess">
               {{ $tr('restrictedAccess') }}
@@ -41,9 +41,9 @@
             <h1
               v-if="themeConfig.signIn.showTitle"
               class="kolibri-title"
-              :style="[ { color: $themeBrand.primary.v_300 }, themeConfig.signIn.titleStyle]"
+              :style="[{ color: $themeBrand.primary.v_300 }, themeConfig.signIn.titleStyle]"
             >
-              {{ logoText }}
+              <!-- {{ logoText }} -->
             </h1>
             <p
               v-if="themeConfig.signIn.showPoweredBy"
@@ -60,7 +60,8 @@
                 v-else
                 :text="$tr('poweredByKolibri')"
                 :primary="true"
-                href="https://learningequality.org/r/powered_by_kolibri"
+                href="#
+                "
                 :openInNewTab="true"
                 appearance="basic-link"
               />
@@ -75,7 +76,7 @@
                 :primary="false"
                 appearance="raised-button"
                 :disabled="busy"
-                style="width: 100%;"
+                style="width: 100%"
                 data-test="createUser"
               />
             </p>
@@ -94,17 +95,14 @@
           </div>
         </div>
       </div>
-      <div class="table-row">
+      <!-- <div class="table-row">
         <div class="footer-cell table-cell" :style="{ backgroundColor: $themeTokens.surface }">
           <LanguageSwitcherFooter />
           <div class="small-text">
             <span class="version-string">
               {{ versionMsg }}
             </span>
-            <CoreLogo
-              v-if="themeConfig.signIn.showKolibriFooterLogo"
-              class="footer-logo"
-            />
+            <CoreLogo v-if="themeConfig.signIn.showKolibriFooterLogo" class="footer-logo" />
             <span v-else> • </span>
             <KButton
               :text="coreString('usageAndPrivacyLabel')"
@@ -113,13 +111,15 @@
             />
             <template v-if="themeConfig.signIn.backgroundImgCredit">
               <span> • </span>
-              {{ $tr('photoCreditLabel', {
-                photoCredit: themeConfig.signIn.backgroundImgCredit
-              }) }}
+              {{
+                $tr('photoCreditLabel', {
+                  photoCredit: themeConfig.signIn.backgroundImgCredit,
+                })
+              }}
             </template>
           </div>
         </div>
-      </div>
+      </div> -->
     </div>
 
     <PrivacyInfoModal
@@ -138,9 +138,9 @@
       <p>{{ $tr('oidcGenericExplanation') }}</p>
       <p>
         <KExternalLink
-          text="https://learningequality.org/kolibri"
+          text="#"
           :primary="true"
-          href="https://learningequality.org/r/powered_by_kolibri"
+          href="#"
           :openInNewTab="true"
           appearance="basic-link"
         />
@@ -195,10 +195,7 @@
       ...mapGetters(['facilityConfig']),
       backgroundImageStyle() {
         if (this.themeConfig.signIn.background) {
-          const scrimOpacity =
-            this.themeConfig.signIn.scrimOpacity !== undefined
-              ? this.themeConfig.signIn.scrimOpacity
-              : 0.7;
+          const scrimOpacity = 0.3;
           return {
             backgroundColor: this.$themeTokens.primary,
             backgroundImage: `linear-gradient(rgba(0, 0, 0, ${scrimOpacity}), rgba(0, 0, 0, ${scrimOpacity})), url(${this.themeConfig.signIn.background})`,
@@ -231,20 +228,20 @@
         // POC, in the future sorting of different login options can be implemented
         return [...loginComponents];
       },
-      logoText() {
-        return this.themeConfig.signIn.title
-          ? this.themeConfig.signIn.title
-          : this.coreString('kolibriLabel');
-      },
+      // logoText() {
+      //   return this.themeConfig.signIn.title
+      //     ? this.themeConfig.signIn.title
+      //     : this.coreString('kolibriLabel');
+      // },
       oidcProviderFlow() {
         return plugin_data.oidcProviderEnabled && this.nextParam;
       },
       showGuestAccess() {
         return plugin_data.allowGuestAccess && !this.oidcProviderFlow;
       },
-      versionMsg() {
-        return this.$tr('poweredBy', { version: __version });
-      },
+      // versionMsg() {
+      //   return this.$tr('poweredBy', { version: __version });
+      // },
     },
     $trs: {
       accessAsGuest: {
@@ -264,11 +261,6 @@
         context:
           'Explanation of Kolibri that a user sees if they are sent to Kolibri from a different application.',
       },
-      poweredBy: {
-        message: 'Kolibri {version}',
-        context:
-          'Indicates the current version of Kolibri.\n\nFor languages with non-latin scripts, Kolibri should be transcribed phonetically into the target language, similar to a person\'s name. It should not be translated as "hummingbird".',
-      },
       poweredByKolibri: {
         message: 'Powered by Kolibri',
         context: 'Indicates that Kolibri is the technology behind this application.',
@@ -284,10 +276,10 @@
 
         context: 'Error message description',
       },
-      photoCreditLabel: {
-        message: 'Photo credit: {photoCredit}',
-        context: 'Gives credit to the photographer of the background image.',
-      },
+      // photoCreditLabel: {
+      //   message: 'Photo credit: {photoCredit}',
+      //   context: 'Gives credit to the photographer of the background image.',
+      // },
     },
   };
 

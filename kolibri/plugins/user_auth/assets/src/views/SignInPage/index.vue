@@ -8,14 +8,14 @@
     <div v-if="!needsToCreatePassword">
       <!-- ** Text and Backlinks ** -->
 
-      <div style="width: 100%; text-align: left; display: block;">
+      <div style="width: 100%; text-align: left; display: block">
         <!-- In MFD show return to facility select when not asking for password -->
         <KRouterLink
           v-if="hasMultipleFacilities && !showPasswordForm"
           icon="back"
           :text="$tr('changeFacility')"
           :to="backToFacilitySelectionRoute"
-          style="margin-top: 24px; margin-left: -4px;"
+          style="margin-top: 24px; margin-left: -4px"
         />
 
         <!-- When password form shows, show a change user link -->
@@ -24,25 +24,20 @@
           v-if="showPasswordForm"
           appearance="basic-link"
           :text="$tr('changeUser')"
-          style="margin-top: 24px; margin-left: 4px;"
+          style="margin-top: 24px; margin-left: 4px"
           @click="clearUser"
         >
           <template #icon>
             <KIcon
-              style="width: 24px; height: 24px; top: 6px; right: 8px;"
+              style="width: 24px; height: 24px; top: 6px; right: 8px"
               icon="back"
               :color="$themeTokens.primary"
             />
           </template>
         </KButton>
-
       </div>
 
-      <SignInHeading
-        :showFacilityName="showFacilityName"
-        :showPasswordForm="showPasswordForm"
-        :username="username"
-      />
+      <SignInHeading :showPasswordForm="showPasswordForm" :username="username" />
 
       <!-- END Text & Backlinks -->
 
@@ -98,11 +93,7 @@
           </div>
         </div>
         <div v-if="showPasswordForm">
-          <UiAlert
-            v-if="invalidCredentials"
-            type="error"
-            :dismissible="false"
-          >
+          <UiAlert v-if="invalidCredentials" type="error" :dismissible="false">
             {{ $tr('incorrectPasswordError') }}
           </UiAlert>
           <transition name="textbox">

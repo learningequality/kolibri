@@ -21,18 +21,7 @@ class DefaultThemeHook(theme_hook.ThemeHook):
             # specify primary and secondary brand colors
             theme_hook.BRAND_COLORS: {
                 theme_hook.PRIMARY: {
-                    theme_hook.COLOR_V50: "#f0e7ed",
-                    theme_hook.COLOR_V100: "#dbc3d4",
-                    theme_hook.COLOR_V200: "#c59db9",
-                    theme_hook.COLOR_V300: "#ac799d",
-                    theme_hook.COLOR_V400: "#996189",
-                    theme_hook.COLOR_V500: "#874e77",
-                    theme_hook.COLOR_V600: "#7c4870",
-                    theme_hook.COLOR_V700: "#6e4167",
-                    theme_hook.COLOR_V800: "#5f3b5c",
-                    theme_hook.COLOR_V900: "#4b2e4d",
-                },
-                theme_hook.SECONDARY: {
+
                     theme_hook.COLOR_V50: "#e3f0ed",
                     theme_hook.COLOR_V100: "#badbd2",
                     theme_hook.COLOR_V200: "#8dc5b6",
@@ -43,6 +32,20 @@ class DefaultThemeHook(theme_hook.ThemeHook):
                     theme_hook.COLOR_V700: "#2c715a",
                     theme_hook.COLOR_V800: "#26614d",
                     theme_hook.COLOR_V900: "#1b4634",
+
+
+                },
+                theme_hook.SECONDARY: {
+                    theme_hook.COLOR_V50: "#f0e7ed",
+                    theme_hook.COLOR_V100: "#dbc3d4",
+                    theme_hook.COLOR_V200: "#c59db9",
+                    theme_hook.COLOR_V300: "#ac799d",
+                    theme_hook.COLOR_V400: "#996189",
+                    theme_hook.COLOR_V500: "#874e77",
+                    theme_hook.COLOR_V600: "#7c4870",
+                    theme_hook.COLOR_V700: "#6e4167",
+                    theme_hook.COLOR_V800: "#5f3b5c",
+                    theme_hook.COLOR_V900: "#4b2e4d",
                 },
             },
             # sign-in page config

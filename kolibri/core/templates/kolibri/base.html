@@ -4,36 +4,39 @@
 {% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
 <html dir="{{ LANGUAGE_BIDI|yesno:'rtl,ltr' }}" lang="{{ LANGUAGE_CODE }}">
+
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="google" content="notranslate">
   <link rel="shortcut icon" href="{% static 'assets/logo.ico' %}">
-  <title>{% trans "Kolibri" %}</title>
+  <title>{% trans "E-Library" %}</title>
   {% if LANGUAGE_CODE == "ach-ug" %}
-    <script type="text/javascript">
-      var _jipt = [];
-      _jipt.push(['project', 'kolibri']);
-    </script>
-    <script type="text/javascript" src="//cdn.crowdin.com/jipt/jipt.js"></script>
+  <script type="text/javascript">
+    var _jipt = [];
+    _jipt.push(['project', 'kolibri']);
+  </script>
+  <script type="text/javascript" src="//cdn.crowdin.com/jipt/jipt.js"></script>
   {% endif %}
   {% webpack_asset 'kolibri.core.frontend_head_assets' %}
 </head>
+
 <body>
-<rootvue>
-  {% include "kolibri/loading_snippet.html" %}
-</rootvue>
-{% block frontend_assets %}
-{% webpack_asset 'kolibri.core.default_frontend' %}
-{% frontend_base_assets %}
-{% frontend_base_async_assets %}
-{% content_renderer_assets %}
-{% endblock %}
+  <rootvue>
+    {% include "kolibri/loading_snippet.html" %}
+  </rootvue>
+  {% block frontend_assets %}
+  {% webpack_asset 'kolibri.core.default_frontend' %}
+  {% frontend_base_assets %}
+  {% frontend_base_async_assets %}
+  {% content_renderer_assets %}
+  {% endblock %}
 
-{% block content %}
+  {% block content %}
 
-{% endblock %}
+  {% endblock %}
 
 </body>
+
 </html>

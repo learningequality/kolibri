@@ -4,35 +4,47 @@
 {% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
 <html dir="{{ LANGUAGE_BIDI|yesno:'rtl,ltr' }}" lang="{{ LANGUAGE_CODE }}">
+
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="google" content="notranslate">
   <link rel="shortcut icon" href="{% static 'assets/logo.ico' %}">
-  <title>{% trans "Kolibri" %}</title>
+  <title>{% trans "E-Library" %}</title>
   <style>
     body {
       margin: 0;
       font-family: sans-serif;
       background-color: white;
     }
+
     .topbar {
       width: 100%;
       color: white;
-      background-color: {{ brand_primary_v400 }} !important;
+
+      background-color: {
+          {
+          brand_primary_v400
+        }
+      }
+
+       !important;
     }
+
     .topbar h1 {
       display: inline-block;
       padding-right: 32px;
       padding-left: 32px;
       font-size: x-large;
     }
+
     .content-container {
       padding: 32px;
     }
   </style>
 </head>
+
 <body>
   <div class="topbar">
     <h1>Kolibri</h1>
@@ -45,4 +57,5 @@
     <p>{% trans "You can also try updating your current browser." %}</p>
   </div>
 </body>
+
 </html>

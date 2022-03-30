@@ -1,11 +1,6 @@
 <template>
 
-  <div
-    ref="mainWrapper"
-    class="main-wrapper"
-    :style="mainWrapperStyles"
-  >
-
+  <div ref="mainWrapper" class="main-wrapper" :style="mainWrapperStyles">
     <div v-if="blockDoubleClicks" class="click-mask"></div>
 
     <ScrollingHeader
@@ -62,11 +57,7 @@
       @shouldFocusFirstEl="findFirstEl()"
     />
 
-    <div
-      v-if="!loading"
-      :class="fullScreen ? 'scrolling-pane' : 'content'"
-      :style="contentStyles"
-    >
+    <div v-if="!loading" :class="fullScreen ? 'scrolling-pane' : 'content'" :style="contentStyles">
       <CoreBanner v-if="coreBannerComponent && showDemoBanner">
         <template #default="props">
           <component :is="coreBannerComponent" :bannerClosed="props.bannerClosed" />
@@ -116,7 +107,6 @@
       :style="{ color: $themeTokens.text }"
       @cancel="languageModalShown = false"
     />
-
   </div>
 
 </template>
@@ -526,7 +516,7 @@
     },
     $trs: {
       kolibriTitleMessage: {
-        message: '{ title } - Kolibri',
+        message: '{ title } | E-Library',
         context: 'DO NOT TRANSLATE\nCopy the source string.',
       },
       errorPageTitle: {
@@ -550,9 +540,9 @@
 
     @media print {
       /* Without this, things won't print correctly
-         *  - Firefox: Tables will get cutoff
-         *  - Chrome: Table header won't repeat correctly on each page
-         */
+             *  - Firefox: Tables will get cutoff
+             *  - Chrome: Table header won't repeat correctly on each page
+             */
       display: block;
     }
   }

@@ -1,11 +1,6 @@
 <template>
 
-  <div
-    ref="sideNav"
-    class="side-nav-wrapper"
-    tabindex="0"
-    @keyup.esc="toggleNav"
-  >
+  <div ref="sideNav" class="side-nav-wrapper" tabindex="0" @keyup.esc="toggleNav">
     <transition name="side-nav">
       <div
         v-show="navShown"
@@ -20,8 +15,6 @@
           @shouldFocusFirstEl="$emit('shouldFocusFirstEl')"
           @shouldFocusLastEl="focusLastEl"
         >
-
-
           <div
             class="side-nav-scrollable-area"
             :style="{ top: `${topBarHeight}px`, width: `${width}px` }"
@@ -63,8 +56,10 @@
                   :style="themeConfig.sideNav.brandedFooter.logo.style"
                 >
                 <div
-                  v-if="themeConfig.sideNav.brandedFooter.paragraphArray
-                    && themeConfig.sideNav.brandedFooter.paragraphArray.length"
+                  v-if="
+                    themeConfig.sideNav.brandedFooter.paragraphArray &&
+                      themeConfig.sideNav.brandedFooter.paragraphArray.length
+                  "
                   class="side-nav-scrollable-area-footer-info"
                 >
                   <p
@@ -81,18 +76,8 @@
                 class="side-nav-scrollable-area-footer-logo"
               />
               <div class="side-nav-scrollable-area-footer-info">
-                <p>{{ footerMsg }}</p>
                 <!-- Not translated -->
-                <p>© {{ copyrightYear }} Learning Equality</p>
-                <p>
-                  <KButton
-                    ref="privacyLink"
-                    :text="coreString('usageAndPrivacyLabel')"
-                    class="privacy-link"
-                    appearance="basic-link"
-                    @click="handleClickPrivacyLink"
-                  />
-                </p>
+                <p>Copyrite © {{ copyrightYear }} E-Library</p>
               </div>
             </div>
           </div>
@@ -100,7 +85,8 @@
             class="side-nav-header"
             :style="{
               height: topBarHeight + 'px',
-              width: `${width}px`, paddingTop: windowIsSmall ? '4px' : '8px',
+              width: `${width}px`,
+              paddingTop: windowIsSmall ? '4px' : '8px',
               backgroundColor: $themeTokens.appBar,
             }"
           >
@@ -114,28 +100,21 @@
               size="large"
               @click="toggleNav"
             />
-            <span
-              class="side-nav-header-name"
-              :style="{ color: $themeTokens.textInverted }"
-            >{{ sideNavTitleText }}</span>
+            <span class="side-nav-header-name" :style="{ color: $themeTokens.textInverted }">{{
+              sideNavTitleText
+            }}</span>
           </div>
         </FocusTrap>
       </div>
     </transition>
 
-    <Backdrop
-      v-show="navShown"
-      :transitions="true"
-      class="side-nav-backdrop"
-      @click="toggleNav"
-    />
+    <Backdrop v-show="navShown" :transitions="true" class="side-nav-backdrop" @click="toggleNav" />
 
     <PrivacyInfoModal
       v-if="privacyModalVisible"
       @cancel="privacyModalVisible = false"
       @submit="privacyModalVisible = false"
     />
-
   </div>
 
 </template>
@@ -208,9 +187,6 @@
       showSoudNotice() {
         return this.isSubsetOfUsersDevice && (this.isAdmin || this.isCoach);
       },
-      footerMsg() {
-        return this.$tr('poweredBy', { version: __version });
-      },
       menuOptions() {
         const topComponents = navComponents
           .filter(component => component.section !== NavComponentSections.ACCOUNT)
@@ -247,9 +223,9 @@
       toggleNav() {
         this.$emit('toggleSideNav');
       },
-      handleClickPrivacyLink() {
-        this.privacyModalVisible = true;
-      },
+      // handleClickPrivacyLink() {
+      //   this.privacyModalVisible = true;
+      // },
       compareMenuComponents(navComponentA, navComponentB) {
         // Compare menu items to allow sorting by the following priority:
         // Sort by role
@@ -292,11 +268,6 @@
         message: 'Close navigation',
         context:
           "This message is providing additional context to the screen-reader users, but is not visible in the Kolibri UI.\n\nIn this case the screen-reader will announce the message when user navigates to the 'X' button with the keyboard, to indicate that it allows them to close the sidebar navigation menu. (Note that the sidebar needs to have been previously opened)",
-      },
-      poweredBy: {
-        message: 'Kolibri {version}',
-        context:
-          'Indicates the current version of Kolibri.\n\nFor languages with non-latin scripts, Kolibri should be transcribed phonetically into the target language, similar to a person\'s name. It should not be translated as "hummingbird".',
       },
     },
   };
