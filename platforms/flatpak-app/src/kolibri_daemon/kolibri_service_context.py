@@ -31,11 +31,8 @@ class KolibriServiceContext(object):
     __is_started_value: multiprocessing.sharedctypes.Synchronized[c_bool]
     __is_started_set_event: multiprocessing.synchronize.Event
 
-    __start_result_value: multiprocessing.sharedctypes.Synchronized[c_int]
-    __start_result_set_event: multiprocessing.synchronize.Event
-
-    __is_stopped_value: multiprocessing.sharedctypes.Synchronized[c_bool]
-    __is_stopped_set_event: multiprocessing.synchronize.Event
+    __start_error_value: multiprocessing.sharedctypes.Synchronized[c_int]
+    __start_error_set_event: multiprocessing.synchronize.Event
 
     __app_key_value: multiprocessing.sharedctypes.SynchronizedArray[c_char]
     __app_key_set_event: multiprocessing.synchronize.Event
@@ -46,16 +43,15 @@ class KolibriServiceContext(object):
     __kolibri_home_value: multiprocessing.sharedctypes.SynchronizedArray[c_char]
     __kolibri_home_set_event: multiprocessing.synchronize.Event
 
-    class StartResult(Enum):
-        NONE = auto()
-        SUCCESS = auto()
-        ERROR = auto()
-
     class Status(Enum):
         NONE = auto()
         STARTING = auto()
         STOPPED = auto()
         STARTED = auto()
+        ERROR = auto()
+
+    class StartError(Enum):
+        NONE = auto()
         ERROR = auto()
 
     def __init__(self):
@@ -70,8 +66,8 @@ class KolibriServiceContext(object):
         self.__is_started_value = multiprocessing.Value(c_bool)
         self.__is_started_set_event = multiprocessing.Event()
 
-        self.__start_result_value = multiprocessing.Value(c_int)
-        self.__start_result_set_event = multiprocessing.Event()
+        self.__start_error_value = multiprocessing.Value(c_int)
+        self.__start_error_set_event = multiprocessing.Event()
 
         self.__is_stopped_value = multiprocessing.Value(c_bool)
         self.__is_stopped_set_event = multiprocessing.Event()
@@ -89,8 +85,6 @@ class KolibriServiceContext(object):
             c_char, self.KOLIBRI_HOME_LENGTH
         )
         self.__kolibri_home_set_event = multiprocessing.Event()
-
-        self.is_stopped = True
 
     def push_has_changes(self):
         self.__changed_event.set()
@@ -168,50 +162,29 @@ class KolibriServiceContext(object):
         return self.is_started
 
     @property
-    def start_result(self) -> typing.Optional[KolibriServiceContext.StartResult]:
-        if self.__start_result_set_event.is_set():
-            return self.StartResult(self.__start_result_value.value)
+    def start_error(self) -> KolibriServiceContext.StartError:
+        if self.__start_error_set_event.is_set():
+            return self.StartError(self.__start_error_value.value)
         else:
-            return None
+            return self.StartError.NONE
 
-    @start_result.setter
-    def start_result(
-        self, start_result: typing.Optional[KolibriServiceContext.StartResult]
+    @start_error.setter
+    def start_error(
+        self, start_error: typing.Optional[KolibriServiceContext.StartError]
     ):
-        if start_result is None:
-            self.__start_result_set_event.clear()
-            self.__start_result_value.value = 0  # type: ignore[assignment]
+        if start_error is None:
+            self.__start_error_set_event.clear()
+            self.__start_error_value.value = 0  # type: ignore[assignment]
         else:
-            self.__start_result_value.value = start_result.value  # type: ignore[assignment]
-            self.__start_result_set_event.set()
+            self.__start_error_value.value = start_error.value  # type: ignore[assignment]
+            self.__start_error_set_event.set()
         self.push_has_changes()
 
-    def await_start_result(
+    def await_start_error(
         self, timeout: int = None
-    ) -> typing.Optional[KolibriServiceContext.StartResult]:
-        self.__start_result_set_event.wait(timeout)
-        return self.start_result
-
-    @property
-    def is_stopped(self) -> typing.Optional[bool]:
-        if self.__is_stopped_set_event.is_set():
-            return bool(self.__is_stopped_value.value)
-        else:
-            return None
-
-    @is_stopped.setter
-    def is_stopped(self, is_stopped: typing.Optional[bool]):
-        if is_stopped is None:
-            self.__is_stopped_set_event.clear()
-            self.__is_stopped_value.value = False  # type: ignore[assignment]
-        else:
-            self.__is_stopped_value.value = bool(is_stopped)  # type: ignore[assignment]
-            self.__is_stopped_set_event.set()
-        self.push_has_changes()
-
-    def await_is_stopped(self, timeout: int = None) -> typing.Optional[bool]:
-        self.__is_stopped_set_event.wait(timeout)
-        return self.is_stopped
+    ) -> typing.Optional[KolibriServiceContext.StartError]:
+        self.__start_error_set_event.wait(timeout)
+        return self.start_error
 
     @property
     def app_key(self) -> typing.Optional[str]:
@@ -301,17 +274,18 @@ class KolibriServiceContext(object):
     def status(self) -> KolibriServiceContext.Status:
         if self.is_starting:
             return self.Status.STARTING
-        elif self.start_result == self.StartResult.SUCCESS:
+        elif self.is_started:
             return self.Status.STARTED
-        elif self.start_result == self.StartResult.ERROR:
+        elif self.start_error != self.StartError.NONE:
             return self.Status.ERROR
-        elif self.is_stopped:
-            return self.Status.STOPPED
         else:
-            return self.Status.NONE
+            return self.Status.STOPPED
 
     def is_running(self) -> bool:
         return self.status in [self.Status.STARTING, self.Status.STARTED]
+
+    def has_error(self) -> bool:
+        return self.start_error != self.StartError.NONE
 
 
 class KolibriServiceProcess(multiprocessing.Process):
