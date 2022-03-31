@@ -85,7 +85,7 @@ def _get_automatic_provision_path() -> typing.Optional[Path]:
             )
             return None
 
-    if not data.isdisjoint(
+    if not data.keys().isdisjoint(
         ["facility", "superusername", "superuserpassword", "preset"]
     ):
         # If a file has an attribute unique to the old format, we will asume it
