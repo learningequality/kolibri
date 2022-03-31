@@ -15,6 +15,7 @@ from django.utils.functional import SimpleLazyObject
 from django.utils.six import string_types
 from six.moves.urllib.parse import urlparse
 from six.moves.urllib.parse import urlunparse
+from validate import is_boolean
 from validate import Validator
 from validate import VdtTypeError
 from validate import VdtValueError
@@ -220,6 +221,24 @@ def url_prefix(value):
     if not isinstance(value, string_types):
         raise VdtValueError(value)
     return value.lstrip("/").rstrip("/") + "/"
+
+
+def multiprocess_bool(value):
+    """
+    Validate the boolean value of a multiprocessing option.
+    Do this by checking it's a boolean, and also that multiprocessing
+    can be imported properly on this platform.
+    """
+    value = is_boolean(value)
+    try:
+        if not value:
+            raise ImportError()
+        # Import in order to check if multiprocessing is supported on this platform
+        from multiprocessing import synchronize  # noqa
+
+        return True
+    except ImportError:
+        return False
 
 
 base_option_spec = {
@@ -529,13 +548,27 @@ base_option_spec = {
     },
     "Tasks": {
         "USE_WORKER_MULTIPROCESSING": {
-            "type": "boolean",
+            "type": "multiprocess_bool",
             "default": False,
             "description": """
                 Whether to use Python multiprocessing for worker pools. If False, then it will use threading. This may be useful,
                 if running on a dedicated device with multiple cores, and a lot of asynchronous tasks get run.
             """,
-        }
+        },
+        "REGULAR_PRIORITY_WORKERS": {
+            "type": "integer",
+            "default": 4,
+            "description": """
+                The number of workers to spin up for regular priority asynchronous tasks.
+            """,
+        },
+        "HIGH_PRIORITY_WORKERS": {
+            "type": "integer",
+            "default": 2,
+            "description": """
+                The number of workers to spin up for high priority asynchronous tasks.
+            """,
+        },
     },
 }
 
@@ -550,6 +583,7 @@ def _get_validator():
             "port": port,
             "url_prefix": url_prefix,
             "bytes": validate_bytes,
+            "multiprocess_bool": multiprocess_bool,
         }
     )
 
