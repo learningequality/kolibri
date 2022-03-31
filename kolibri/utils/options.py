@@ -48,6 +48,10 @@ FD_PER_THREAD = sum(
     )
 )
 
+# Reserve some file descriptors for file operations happening in asynchronous tasks
+# when the server is running with threaded task runners.
+MIN_RESERVED_FD = 64
+
 
 def calculate_thread_pool():
     """
@@ -80,8 +84,9 @@ def calculate_thread_pool():
         pool_size = MAX_POOL
 
     # ensure (number of threads) x (open file descriptors) < (fd limit)
-    max_threads = get_fd_limit() // FD_PER_THREAD
-    return min(pool_size, max_threads)
+    max_threads = (get_fd_limit() - MIN_RESERVED_FD) // FD_PER_THREAD
+    # Ensure that the number of threads never goes below 1
+    return max(1, min(pool_size, max_threads))
 
 
 ALL_LANGUAGES = "kolibri-all"
