@@ -64,7 +64,7 @@ class TestKolibriContext(KolibriContextTestCase):
             self.kolibri_context.parse_kolibri_url_tuple(
                 urlsplit(f"kolibri:t/{self.TOPIC_ID}?search=addition")
             ),
-            f"/learn#/topics/t/{self.TOPIC_ID}/search?keywords=addition",
+            f"/learn#/topics/t/{self.TOPIC_ID}",
         )
 
     def test_parse_kolibri_url_tuple_base_with_search(self):
