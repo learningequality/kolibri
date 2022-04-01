@@ -13,6 +13,7 @@ import { PageNames, ClassesPageNames } from '../constants';
 import LibraryPage from '../views/LibraryPage';
 import HomePage from '../views/HomePage';
 import TopicsPage from '../views/TopicsPage';
+import LearnImmersiveLayout from '../views/LearnImmersiveLayout';
 import ContentUnavailablePage from '../views/ContentUnavailablePage';
 import BookmarkPage from '../views/BookmarkPage.vue';
 import classesRoutes from './classesRoutes';
@@ -181,12 +182,9 @@ export default [
     name: PageNames.TOPICS_CONTENT,
     path: '/topics/c/:id',
     handler: toRoute => {
-      store.commit('CORE_SET_PAGE_LOADING', true);
       showTopicsContent(store, toRoute.params.id);
-      store.commit('SET_PAGE_NAME', PageNames.BOOKMARKS);
-      store.commit('CORE_SET_PAGE_LOADING', false);
     },
-    component: TopicsPage,
+    component: LearnImmersiveLayout,
   },
   {
     name: PageNames.BOOKMARKS,

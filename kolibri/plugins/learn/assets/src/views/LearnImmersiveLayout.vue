@@ -148,6 +148,7 @@
   import useCoreLearn from '../composables/useCoreLearn';
   import useContentNodeProgress from '../composables/useContentNodeProgress';
   import useLearnerResources from '../composables/useLearnerResources';
+  import { PageNames } from '../constants';
   import LearningActivityChip from './LearningActivityChip';
   import LessonResourceViewer from './classes/LessonResourceViewer';
   import CurrentlyViewedResourceMetadata from './CurrentlyViewedResourceMetadata';
@@ -206,11 +207,6 @@
       };
     },
     props: {
-      content: {
-        type: Object,
-        required: false,
-        default: null,
-      },
       // AUTHORIZATION SPECIFIC
       authorized: {
         type: Boolean,
@@ -219,12 +215,6 @@
       },
       authorizedRole: {
         type: String,
-        default: null,
-      },
-      // link to where the 'back' button should go
-      back: {
-        type: Object,
-        required: true,
         default: null,
       },
     },
@@ -247,6 +237,7 @@
         loading: state => state.core.loading,
         blockDoubleClicks: state => state.core.blockDoubleClicks,
       }),
+      ...mapState('topicsTree', ['content']),
       ...mapState('topicsTree', {
         isCoachContent: state => (state.content.coach_content ? 1 : 0),
       }),
@@ -289,6 +280,40 @@
       },
       timeSpent() {
         return this.contentPageMounted ? this.$refs.contentPage.time_spent : 0;
+      },
+      back() {
+        // extract the key pieces of routing from immersive page props, but since we don't need
+        // them all, just create two alternative route paths for return/'back' navigation
+        let route = {};
+        const query = { ...this.$route.query };
+        delete query.last;
+        delete query.topicId;
+        if (
+          this.$route.query.last === PageNames.TOPICS_TOPIC_SEARCH ||
+          this.$route.query.last === PageNames.TOPICS_TOPIC
+        ) {
+          const lastId = this.$route.query.topicId
+            ? this.$route.query.topicId
+            : this.content.parent;
+          const lastPage = this.$route.query.last;
+          // Need to guard for parent being non-empty to avoid console errors
+          route = this.$router.getRoute(
+            lastPage,
+            {
+              id: lastId,
+            },
+            query
+          );
+        } else if (this.$route.query && this.$route.query.last === PageNames.LIBRARY) {
+          const lastPage = this.$route.query.last;
+          route = this.$router.getRoute(lastPage, {}, query);
+        } else if (this.$route.query && this.$route.query.last) {
+          const last = this.$route.query.last;
+          route = this.$router.getRoute(last, query);
+        } else {
+          route = this.$router.getRoute(PageNames.HOME);
+        }
+        return route;
       },
     },
     watch: {
