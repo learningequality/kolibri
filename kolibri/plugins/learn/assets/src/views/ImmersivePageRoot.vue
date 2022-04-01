@@ -59,7 +59,9 @@
       },
     },
     mounted() {
-      this.appBarHeight = this.$refs.appBar.$el.clientHeight;
+      if (this.$refs.appBar) {
+        this.appBarHeight = this.$refs.appBar.$el.clientHeight;
+      }
     },
   };
 

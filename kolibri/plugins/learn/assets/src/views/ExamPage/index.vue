@@ -46,7 +46,7 @@
       </KGridItem>
       <KGridItem :layout12="{ span: 8 }" class="column-pane">
         <div :class="{ 'column-contents-wrapper': !windowIsSmall }">
-          <KPageContainer>
+          <KPageContainer v-if="!loading">
             <h1>
               {{ $tr('question', { num: questionNumber + 1, total: exam.question_count }) }}
             </h1>
@@ -230,6 +230,9 @@
     },
     computed: {
       ...mapState('examViewer', ['exam', 'contentNodeMap', 'questions', 'questionNumber']),
+      ...mapState({
+        loading: state => state.core.loading,
+      }),
       gridStyle() {
         if (!this.windowIsSmall) {
           return {
@@ -333,7 +336,11 @@
     },
     watch: {
       attemptLogItemValue(newVal, oldVal) {
-        if (newVal !== oldVal) {
+        // HACK: manually dismiss the perseus renderer message when moving
+        // to a different item (fixes #3853)
+        if (newVal !== oldVal && this.$refs.contentRenderer) {
+          this.$refs.contentRenderer.$refs.contentView.dismissMessage &&
+            this.$refs.contentRenderer.$refs.contentView.dismissMessage();
           this.startTime = Date.now();
         }
       },
