@@ -74,13 +74,14 @@
             <!----
               TODO - is this necessary at all? how is this different than the search results below?
             -->
-            <HybridLearningCardGrid
+            <LibraryAndChannelBrowserMainContent
               v-if="resources.length"
+              :gridType="2"
               data-test="search-results"
               :contents="resources"
               :numCols="numCols"
               :genContentLink="genContentLink"
-              cardViewStyle="card"
+              currentCardViewStyle="card"
               @toggleInfoPanel="toggleInfoPanel"
             />
             <div v-if="topicMore" class="end-button-block">
