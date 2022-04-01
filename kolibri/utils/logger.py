@@ -201,6 +201,10 @@ def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
             },
         },
         "loggers": {
+            "": {
+                "handlers": DEFAULT_HANDLERS,
+                "level": DEFAULT_LEVEL,
+            },
             "kolibri": {
                 "handlers": DEFAULT_HANDLERS,
                 "level": DEFAULT_LEVEL,
