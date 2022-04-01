@@ -24,14 +24,16 @@ logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
 logging.StreamHandler(sys.stdout)
 
 if StreamHandler and getLogger and ColoredFormatter:
-    handler = StreamHandler()
+    handler = StreamHandler(stream=sys.stdout)
     handler.setFormatter(
         ColoredFormatter(
             fmt="%(log_color)s%(levelname)-8s %(message)s", log_colors=LOG_COLORS
         )
     )
+    handler.setLevel(logging.INFO)
     logger = getLogger("env")
     logger.addHandler(handler)
+    logger.propagate = False
 else:
     logger = logging.getLogger("env")
 
