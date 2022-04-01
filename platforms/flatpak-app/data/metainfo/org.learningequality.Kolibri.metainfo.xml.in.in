@@ -28,6 +28,7 @@
         <ul>
           <li>Kolibri is updated to version 0.15.0.</li>
           <li>The application runtime is updated to GNOME 41.</li>
+          <li>Use a smaller number of cherrypy threads by default.</li>
         </ul>
       </description>
     </release>
