@@ -1,6 +1,14 @@
 name: Javascript Tests
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+    - develop
+    - 'release-v**'
+  pull_request:
+    branches:
+    - develop
+    - 'release-v**'
 
 jobs:
   pre_job:
