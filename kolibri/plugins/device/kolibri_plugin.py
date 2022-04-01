@@ -9,6 +9,7 @@ from kolibri.core.hooks import RoleBasedRedirectHook
 from kolibri.core.webpack.hooks import WebpackBundleHook
 from kolibri.plugins import KolibriPluginBase
 from kolibri.plugins.hooks import register_hook
+from kolibri.utils.conf import OPTIONS
 
 
 class DeviceManagementPlugin(KolibriPluginBase):
@@ -26,6 +27,7 @@ class DeviceManagementAsset(WebpackBundleHook):
             "isSubsetOfUsersDevice": get_device_setting(
                 "subset_of_users_device", False
             ),
+            "isRemoteContent": OPTIONS["Deployment"]["REMOTE_CONTENT"]
         }
 
 
