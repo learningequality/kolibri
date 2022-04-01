@@ -2,12 +2,17 @@
 
   <div class="main-wrapper" :style="wrapperStyles">
     <ImmersiveToolbar
-      v-if="!loading"
       ref="appBar"
       :appBarTitle="appBarTitle"
       :route="route"
     />
-    <slot></slot>
+    <slot v-if="!loading"></slot>
+    <KLinearLoader
+      v-else
+      class="loader"
+      type="indeterminate"
+      :delay="false"
+    />
   </div>
 
 </template>
@@ -66,3 +71,15 @@
   };
 
 </script>
+
+
+<style lang="scss" scoped>
+
+  .loader {
+    position: fixed;
+    top: 64px;
+    right: 0;
+    left: 0;
+  }
+
+</style>

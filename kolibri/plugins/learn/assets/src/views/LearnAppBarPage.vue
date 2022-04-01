@@ -6,9 +6,15 @@
       <LearnTopNav ref="topNav" />
     </template>
 
-    <div :style="styles">
+    <div v-if="!loading" :style="styles">
       <slot></slot>
     </div>
+    <KLinearLoader
+      v-if="loading"
+      class="loader"
+      type="indeterminate"
+      :delay="false"
+    />
 
   </AppBarCorePage>
 
@@ -17,6 +23,7 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   import AppBarCorePage from 'kolibri.coreVue.components.AppBarCorePage';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import LearnTopNav from './LearnTopNav';
@@ -36,6 +43,9 @@
       },
     },
     computed: {
+      ...mapState({
+        loading: state => state.core.loading,
+      }),
       styles() {
         return this.applyStandardLayout ? 'max-width: 1000px; margin: 0 auto;' : '';
       },
@@ -43,3 +53,15 @@
   };
 
 </script>
+
+
+<style lang="scss" scoped>
+
+  .loader {
+    position: fixed;
+    top: 64px;
+    right: 0;
+    left: 0;
+  }
+
+</style>
