@@ -331,7 +331,9 @@ class Command(AsyncCommand):
                 # the actual destination file that it is moved to. To add tolerance, we divide
                 # the number of file descriptors that could be allocated to this task by four,
                 # which should give us leeway in case of unforeseen descriptor use during the process.
-                max_workers = min(1, max_descriptors_per_download_task // 4)
+                max_workers = min(
+                    max_workers, min(1, max_descriptors_per_download_task // 4)
+                )
 
             with executor(max_workers=max_workers) as executor:
                 batch_size = 100
@@ -345,6 +347,8 @@ class Command(AsyncCommand):
                         break
                     future_file_transfers = {}
                     for i in range(batch_size):
+                        if self.is_cancelled():
+                            break
                         if files_to_download:
                             f = files_to_download.pop()
                             filename = get_content_file_name(f)
