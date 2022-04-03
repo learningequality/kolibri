@@ -1,6 +1,6 @@
 exclude: (\.git/|\.tox/|\.venv/|build/|static/|dist/|node_modules/|kolibripip\.pex)
 repos:
--   repo: git://github.com/pre-commit/pre-commit-hooks
+-   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v2.0.0
     hooks:
     -   id: trailing-whitespace
@@ -11,11 +11,11 @@ repos:
     -   id: end-of-file-fixer
         exclude: '^.+?(\.json|\.po)$'
 -   repo: https://github.com/asottile/reorder_python_imports
-    rev: v2.7.1
+    rev: v3.0.1
     hooks:
     -   id: reorder-python-imports
         language_version: python3.9
 -   repo: https://github.com/python/black
-    rev: 20.8b1
+    rev: 22.3.0
     hooks:
     - id: black
