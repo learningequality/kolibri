@@ -121,6 +121,16 @@ def get_require_debug_true(debug):
     return RequireDebugTrue
 
 
+class NoExceptionsFilter(logging.Filter):
+    """
+    A filter that ignores errors and critical messages, used to suppress
+    error messages to stdout that are also being piped to stderr.
+    """
+
+    def filter(self, record):
+        return record.levelno < logging.ERROR
+
+
 def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
     """
     A minimal logging config for just kolibri without any Django
@@ -131,7 +141,9 @@ def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
     """
 
     DEFAULT_HANDLERS = (
-        ["console"] if NO_FILE_BASED_LOGGING else ["file", "console", "file_debug"]
+        ["console", "console-error"]
+        if NO_FILE_BASED_LOGGING
+        else ["file", "console", "console-error", "file_debug"]
     )
 
     # This is the general level
@@ -141,7 +153,10 @@ def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
     return {
         "version": 1,
         "disable_existing_loggers": False,
-        "filters": {"require_debug_true": {"()": FalseFilter}},  # Replaced later
+        "filters": {
+            "require_debug_true": {"()": FalseFilter},  # Replaced later
+            "no_exceptions": {"()": NoExceptionsFilter},
+        },
         "formatters": {
             "verbose": {
                 "format": "%(levelname)s %(asctime)s %(name)s %(process)d %(thread)d %(message)s"
@@ -155,10 +170,18 @@ def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
             },
         },
         "handlers": {
-            "console": {
-                "level": DEFAULT_LEVEL,
+            "console-error": {
+                "level": "ERROR",
                 "class": "logging.StreamHandler",
                 "formatter": "color",
+                "stream": "ext://sys.stderr",
+            },
+            "console": {
+                "level": DEFAULT_LEVEL,
+                "filters": ["no_exceptions"],
+                "class": "logging.StreamHandler",
+                "formatter": "color",
+                "stream": "ext://sys.stdout",
             },
             "file": {
                 "level": "INFO",
@@ -178,6 +201,10 @@ def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
             },
         },
         "loggers": {
+            "": {
+                "handlers": DEFAULT_HANDLERS,
+                "level": DEFAULT_LEVEL,
+            },
             "kolibri": {
                 "handlers": DEFAULT_HANDLERS,
                 "level": DEFAULT_LEVEL,
