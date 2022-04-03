@@ -20,15 +20,10 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python 2.7
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v3
       with:
         python-version: 2.7
-    - uses: actions/cache@v2
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('requirements/*.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
+        cache: 'pip'
     - name: Install Python build dependencies
       run: pip install -r requirements/build.txt
     - uses: actions/download-artifact@v2

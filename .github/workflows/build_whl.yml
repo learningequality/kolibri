@@ -24,13 +24,15 @@ jobs:
         sudo apt-get -y -qq update
         sudo apt-get install -y gettext
     - name: Set up Python 2.7
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v3
       with:
         python-version: 2.7
+        cache: 'pip'
     - name: Use Node.js
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v3
       with:
         node-version: '16.x'
+        cache: 'yarn'
     - name: Cache Node.js modules
       uses: actions/cache@v2
       with:
@@ -39,16 +41,7 @@ jobs:
         restore-keys: |
           ${{ runner.OS }}-node-
     - name: Install Javascript dependencies
-      run: |
-        yarn --frozen-lockfile
-        npm rebuild node-sass
-    - name: Cache Python dependencies
-      uses: actions/cache@v2
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('requirements/*.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
+      run: yarn --frozen-lockfile
     - name: Cache C extensions
       uses: actions/cache@v2
       with:
