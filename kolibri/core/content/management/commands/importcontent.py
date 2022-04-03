@@ -502,11 +502,17 @@ class Command(AsyncCommand):
             # id indicated in the database, it means that the destination file
             # is corrupted, either from origin or during import. Skip importing
             # this file.
-            checksum_correctness = compare_checksums(filetransfer.dest, f["id"])
+            try:
+                checksum_correctness = compare_checksums(filetransfer.dest, f["id"])
+            except (IOError, OSError):
+                checksum_correctness = False
             if not checksum_correctness:
                 e = "File {} is corrupted.".format(filetransfer.source)
                 logger.error("An error occurred during content import: {}".format(e))
-                os.remove(filetransfer.dest)
+                try:
+                    os.remove(filetransfer.dest)
+                except OSError:
+                    pass
                 return FILE_SKIPPED, data_transferred
 
         return FILE_TRANSFERRED, data_transferred
