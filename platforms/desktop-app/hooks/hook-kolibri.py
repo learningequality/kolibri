@@ -1,13 +1,17 @@
 import glob
+import json
 import os
 
 from PyInstaller.utils.hooks import collect_data_files
 from PyInstaller.utils.hooks import collect_submodules
-from PyInstaller.utils.hooks import eval_statement
+from PyInstaller.utils.hooks import exec_statement
 from PyInstaller.utils.hooks import get_module_file_attribute
 
-settings = eval_statement(
+delimiter = "~~~~~~~~~~~~~~~~~"
+
+settings_output = exec_statement(
     """
+    import json
     from django.conf import settings
     from kolibri.main import initialize
     from kolibri.main import enable_plugin
@@ -67,9 +71,23 @@ settings = eval_statement(
 
     settings_output["caches"] = caches
 
-    print(settings_output)
+    print("~~~~~~~~~~~~~~~~~")
+
+    print(json.dumps(settings_output))
+
+    print("~~~~~~~~~~~~~~~~~")
     """
 )
+
+settings = None
+
+for line in settings_output.split(delimiter):
+    try:
+        settings = json.loads(line.strip())
+        break
+    except Exception:
+        pass
+
 
 exclude_django_submodules = [
     "django.contrib.gis",
