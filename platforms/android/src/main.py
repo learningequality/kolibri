@@ -1,148 +1,45 @@
-import initialization  # keep this first, to ensure we're set up for other imports
-
 import logging
-import os
 import time
-import urllib.error
-import urllib.request
 
-# initialize logging before loading any third-party modules, as they may cause logging to get configured.
-logging.basicConfig(level=logging.DEBUG)
+import initialization  # noqa: F401 keep this first, to ensure we're set up for other imports
+from android_utils import start_service
+from jnius import autoclass
+from kolibri.main import enable_plugin
+from kolibri.plugins.app.utils import interface
+from kolibri.utils.cli import initialize
+from kolibri.utils.server import _read_pid_file
+from kolibri.utils.server import PID_FILE
+from kolibri.utils.server import STATUS_RUNNING
+from kolibri.utils.server import wait_for_status
+from runnable import Runnable
 
-import pew
-import pew.ui
+PythonActivity = autoclass("org.kivy.android.PythonActivity")
 
-from config import KOLIBRI_PORT
+loadUrl = Runnable(PythonActivity.mWebView.loadUrl)
 
-pew.set_app_name("Kolibri")
-logging.info("Entering main.py...")
+logging.info("Initializing Kolibri and running any upgrade routines")
 
+loadUrl("file:///android_asset/_load.html")
 
-if pew.ui.platform == "android":
+# activate app mode
+enable_plugin("kolibri.plugins.app")
 
-    from android_utils import get_home_folder, get_version_name
+# we need to initialize Kolibri to allow us to access the app key
+initialize()
 
-    os.environ["KOLIBRI_HOME"] = get_home_folder()
-    os.environ["KOLIBRI_APK_VERSION_NAME"] = get_version_name()
-    # We can't use symlinks as at least some Android devices have the user storage
-    # and app data directories on different mount points.
-    os.environ['KOLIBRI_STATIC_USE_SYMLINKS'] = "False"
+# start kolibri server
+logging.info("Starting kolibri server via Android service...")
+start_service("server")
 
+# Tie up this thread until the server is running
+wait_for_status(STATUS_RUNNING, timeout=120)
 
-def get_init_url(next_url='/'):
-    # we need to initialize Kolibri to allow us to access the app key
-    from kolibri.utils.cli import initialize
-    initialize(skip_update=True)
+_, port, _, _ = _read_pid_file(PID_FILE)
 
-    from kolibri.plugins.app.utils import interface
-    return interface.get_initialize_url(next_url=next_url)
+start_url = "http://127.0.0.1:{port}".format(port=port) + interface.get_initialize_url()
+loadUrl(start_url)
 
+start_service("remoteshell")
 
-def start_kolibri(port):
-
-    os.environ["KOLIBRI_HTTP_PORT"] = str(port)
-
-    if pew.ui.platform == "android":
-
-        logging.info("Starting kolibri server via Android service...")
-
-        from android_utils import start_service
-        start_service("kolibri", dict(os.environ))
-
-    else:
-
-        logging.info("Starting kolibri server directly as thread...")
-
-        from kolibri_utils import start_kolibri_server
-
-        thread = pew.ui.PEWThread(target=start_kolibri_server)
-        thread.daemon = True
-        thread.start()
-
-
-class Application(pew.ui.PEWApp):
-
-    def setUp(self):
-        """
-        Start your UI and app run loop here.
-        """
-
-        # Set loading screen
-        self.loader_url = "file:///android_asset/_load.html"
-        self.kolibri_loaded = False
-        self.view = pew.ui.WebUIView("Kolibri", self.loader_url, delegate=self)
-
-        # start kolibri server
-        start_kolibri(KOLIBRI_PORT)
-
-        self.load_thread = pew.ui.PEWThread(target=self.wait_for_server)
-        self.load_thread.daemon = True
-        self.load_thread.start()
-
-        # make sure we show the UI before run completes, as otherwise
-        # it is possible the run can complete before the UI is shown,
-        # causing the app to shut down early
-        self.view.show()
-        return 0
-
-    def page_loaded(self, url):
-        """
-        This is a PyEverywhere delegate method to let us know the WebView is ready to use.
-        """
-
-        # On Android, there is a system back button, that works like the browser back button. Make sure we clear the
-        # history after first load so that the user cannot go back to the loading screen. We cannot clear the history
-        # during load, so we do it here.
-        # For more info, see: https://stackoverflow.com/questions/8103532/how-to-clear-webview-history-in-android
-        if (
-            pew.ui.platform == "android"
-            and not self.kolibri_loaded
-            and url != self.loader_url
-        ):
-            # FIXME: Change pew to reference the native webview as webview.native_webview rather than webview.webview
-            # for clarity.
-            self.kolibri_loaded = True
-            self.view.webview.webview.clearHistory()
-
-    def wait_for_server(self):
-        home_url = "http://localhost:{port}".format(port=KOLIBRI_PORT)
-        # test url to see if server has started
-        def running():
-            try:
-                with urllib.request.urlopen(home_url) as response:
-                   response.read()
-                return True
-            except urllib.error.URLError:
-                return False
-
-        # Tie up this thread until the server is running
-        while not running():
-            logging.info(
-                "Kolibri server not yet started, checking again in one second..."
-            )
-            time.sleep(1)
-
-        # Check for saved URL, which exists when the app was put to sleep last time it ran
-        saved_state = self.view.get_view_state()
-        logging.debug("Persisted View State: {}".format(self.view.get_view_state()))
-
-        next_url = '/'
-        if "URL" in saved_state and saved_state["URL"].startswith(home_url):
-            next_url = saved_state["URL"].replace(home_url, '')
-
-        start_url = home_url + get_init_url(next_url)
-        pew.ui.run_on_main_thread(self.view.load_url, start_url)
-
-        if pew.ui.platform == "android":
-            from remoteshell import launch_remoteshell
-            self.remoteshell_thread = pew.ui.PEWThread(target=launch_remoteshell)
-            self.remoteshell_thread.daemon = True
-            self.remoteshell_thread.start()
-
-    def get_main_window(self):
-        return self.view
-
-
-if __name__ == "__main__":
-    app = Application()
-    app.run()
+while True:
+    time.sleep(0.05)

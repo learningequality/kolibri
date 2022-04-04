@@ -1,18 +1,19 @@
 import json
-import logging
 import os
 import re
+
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
-from jnius import autoclass, cast, jnius
+from jnius import autoclass
+from jnius import cast
+from jnius import jnius
 
-logging.basicConfig(level=logging.DEBUG)
 
 AndroidString = autoclass("java.lang.String")
 Context = autoclass("android.content.Context")
 Environment = autoclass("android.os.Environment")
 File = autoclass("java.io.File")
-FileProvider = autoclass('android.support.v4.content.FileProvider')
+FileProvider = autoclass("android.support.v4.content.FileProvider")
 Intent = autoclass("android.content.Intent")
 NotificationBuilder = autoclass("android.app.Notification$Builder")
 NotificationManager = autoclass("android.app.NotificationManager")
@@ -31,7 +32,9 @@ def is_service_context():
 
 
 def get_service():
-    assert is_service_context(), "Cannot get service, as we are not in a service context."
+    assert (
+        is_service_context()
+    ), "Cannot get service, as we are not in a service context."
     PythonService = autoclass("org.kivy.android.PythonService")
     return PythonService.mService
 
@@ -40,13 +43,18 @@ def get_timezone_name():
     return Timezone.getDefault().getDisplayName()
 
 
-def start_service(service_name, service_args):
-    service = autoclass("org.learningequality.Kolibri.Service{}".format(service_name.title()))
+def start_service(service_name, service_args=None):
+    service_args = service_args or {}
+    service = autoclass(
+        "org.learningequality.Kolibri.Service{}".format(service_name.title())
+    )
     service.start(PythonActivity.mActivity, json.dumps(dict(service_args)))
 
 
 def get_service_args():
-    assert is_service_context(), "Cannot get service args, as we are not in a service context."
+    assert (
+        is_service_context()
+    ), "Cannot get service args, as we are not in a service context."
     return json.loads(os.environ.get("PYTHON_SERVICE_ARGUMENT") or "{}")
 
 
@@ -71,7 +79,7 @@ def is_app_installed(app_id):
 
     try:
         manager.getPackageInfo(app_id, PackageManager.GET_ACTIVITIES)
-    except jnius.JavaException as e:
+    except jnius.JavaException:
         return False
 
     return True
@@ -84,12 +92,14 @@ def get_home_folder():
 
 
 def send_whatsapp_message(msg):
-    share_by_intent(msg=msg, app="com.whatsapp")
+    share_by_intent(message=msg, app="com.whatsapp")
 
 
 def share_by_intent(path=None, filename=None, message=None, app=None, mimetype=None):
 
-    assert path or message or filename, "Must provide either a path, a filename, or a msg to share"
+    assert (
+        path or message or filename
+    ), "Must provide either a path, a filename, or a msg to share"
 
     sendIntent = Intent()
     sendIntent.setAction(Intent.ACTION_SEND)
@@ -97,7 +107,7 @@ def share_by_intent(path=None, filename=None, message=None, app=None, mimetype=N
         uri = FileProvider.getUriForFile(
             Context.getApplicationContext(),
             "org.learningequality.Kolibri.fileprovider",
-            File(path)
+            File(path),
         )
         parcelable = cast("android.os.Parcelable", uri)
         sendIntent.putExtra(Intent.EXTRA_STREAM, parcelable)
@@ -120,9 +130,16 @@ def make_service_foreground(title, message):
 
     if SDK_INT >= 26:
         NotificationChannel = autoclass("android.app.NotificationChannel")
-        notification_service = cast(NotificationManager, get_activity().getSystemService(Context.NOTIFICATION_SERVICE))
+        notification_service = cast(
+            NotificationManager,
+            get_activity().getSystemService(Context.NOTIFICATION_SERVICE),
+        )
         channel_id = get_activity().getPackageName()
-        app_channel = NotificationChannel(channel_id, "Kolibri Background Server", NotificationManager.IMPORTANCE_DEFAULT)
+        app_channel = NotificationChannel(
+            channel_id,
+            "Kolibri Background Server",
+            NotificationManager.IMPORTANCE_DEFAULT,
+        )
         notification_service.createNotificationChannel(app_channel)
         notification_builder = NotificationBuilder(app_context, channel_id)
     else:
@@ -131,7 +148,11 @@ def make_service_foreground(title, message):
     notification_builder.setContentTitle(AndroidString(title))
     notification_builder.setContentText(AndroidString(message))
     notification_intent = Intent(app_context, PythonActivity)
-    notification_intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK)
+    notification_intent.setFlags(
+        Intent.FLAG_ACTIVITY_CLEAR_TOP
+        | Intent.FLAG_ACTIVITY_SINGLE_TOP
+        | Intent.FLAG_ACTIVITY_NEW_TASK
+    )
     notification_intent.setAction(Intent.ACTION_MAIN)
     notification_intent.addCategory(Intent.CATEGORY_LAUNCHER)
     intent = PendingIntent.getActivity(service, 0, notification_intent, 0)
@@ -144,7 +165,9 @@ def make_service_foreground(title, message):
 
 def get_signature_key_issuer():
     signature = get_package_info(flags=PackageManager.GET_SIGNATURES).signatures[0]
-    cert = x509.load_der_x509_certificate(signature.toByteArray().tostring(), default_backend())
+    cert = x509.load_der_x509_certificate(
+        signature.toByteArray().tostring(), default_backend()
+    )
 
     return cert.issuer.rfc4514_string()
 

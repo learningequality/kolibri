@@ -6,7 +6,6 @@ CONTAINER_HOME=/home/kivy
 
 # Specifies the name of the docker volume used to store p4a cache
 P4A_CACHE=p4a_cached_dir_$ARCH
-PEW_CACHE=pew_cache_dir
 
 CID_FILE=kolibri-android-app-container-id.cid.txt
 
@@ -14,13 +13,13 @@ CID_FILE=kolibri-android-app-container-id.cid.txt
 # creates a volume for reuse between builds, holding p4a's android distro
 docker create -it \
   --mount type=volume,src=${P4A_CACHE},dst=${CONTAINER_HOME}/.local \
-  --mount type=volume,src=${PEW_CACHE},dst=${CONTAINER_HOME}/.pyeverywhere \
   --env BUILDKITE_BUILD_NUMBER \
   --env P4A_RELEASE_KEYSTORE=${CONTAINER_HOME}/$(basename "${P4A_RELEASE_KEYSTORE}") \
   --env P4A_RELEASE_KEYALIAS \
   --env P4A_RELEASE_KEYSTORE_PASSWD \
   --env P4A_RELEASE_KEYALIAS_PASSWD \
   --env ARCH \
+  --env ANDROID_HOME=${CONTAINER_HOME}/.local/android \
   --cidfile ${CID_FILE} \
   android_kolibri
 
