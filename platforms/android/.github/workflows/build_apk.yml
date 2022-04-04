@@ -52,10 +52,14 @@ jobs:
         python-version: 3.9
     - uses: actions/cache@v2
       with:
+        # This is where python for android puts its intermediary build
+        # files - we cache this to improve build performance, but be
+        # aggressive in clearing the cache whenever any file changes
+        # in the repository.
         path: ~/.local
-        key: ${{ runner.os }}-local-${{ hashFiles('*') }}
+        key: ${{ runner.os }}-local-${{ github.event.inputs.arch || inputs.arch }}-${{ hashFiles('*') }}
         restore-keys: |
-          ${{ runner.os }}-local-
+          ${{ runner.os }}-local-${{ github.event.inputs.arch || inputs.arch }}-
     - uses: actions/cache@v2
       with:
         path: ~/.cache/pip
@@ -76,6 +80,9 @@ jobs:
     - name: Build the app
       env:
         ARCH: ${{ github.event.inputs.arch || inputs.arch }}
+        # No need to set the ANDROID_HOME environment variable here that is used for
+        # setting up the ANDROID SDK and ANDROID NDK, as the github actions images
+        # have these SDKs and NDKs already installed.
         # https://github.com/actions/virtual-environments/blob/main/images/linux/Ubuntu2004-Readme.md#environment-variables-3
         ANDROIDSDK: ${{ env.ANDROID_SDK_ROOT }}
         ANDROIDNDK: ${{ env.ANDROID_NDK_ROOT }}

@@ -21,6 +21,11 @@ ANDROIDNDKVER := 21.4.7075529
 
 SDK := ${ANDROID_HOME}/android-sdk-$(PLATFORM)
 
+# This checks if an environment variable with a specific name
+# exists. If it doesn't, it prints an error message and exits.
+# For example to check for the presence of the ANDROIDSDK environment
+# variable, you could use:
+# make guard-ANDROIDSDK
 guard-%:
 	@ if [ "${${*}}" = "" ]; then \
 		echo "Environment variable $* not set"; \
@@ -72,6 +77,7 @@ needs-version:
 
 .PHONY: kolibri.apk
 # Build the signed version of the apk
+# For some reason, p4a defauls to adding a final '-' to the filename, so we remove it in the final step.
 kolibri.apk: p4a_android_distro src/kolibri needs-version
 	$(MAKE) guard-P4A_RELEASE_KEYSTORE
 	$(MAKE) guard-P4A_RELEASE_KEYALIAS
@@ -84,6 +90,7 @@ kolibri.apk: p4a_android_distro src/kolibri needs-version
 
 .PHONY: kolibri.apk.unsigned
 # Build the unsigned debug version of the apk
+# For some reason, p4a defauls to adding a final '-' to the filename, so we remove it in the final step.
 kolibri.apk.unsigned: p4a_android_distro src/kolibri needs-version
 	@echo "--- :android: Build APK (unsigned)"
 	p4a apk --arch=$(P4A_ARCH) --version=$(APK_VERSION) --numeric-version=$(BUILD_NUMBER)
@@ -125,6 +132,9 @@ sdk:
 	@echo "Accepting all licenses"
 	yes | $(SDK)/cmdline-tools/bin/sdkmanager --licenses --sdk_root=$(SDK)
 
+# All of these commands are non-destructive, so if the cmdline-tools are already installed, make will skip
+# based on the directory existing.
+# The SDK installations will take a little time, but will not attempt to redownload if already installed.
 setup:
 	$(MAKE) guard-ANDROID_HOME
 	mkdir -p $(SDK)
