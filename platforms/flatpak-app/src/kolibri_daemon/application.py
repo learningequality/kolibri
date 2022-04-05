@@ -299,6 +299,10 @@ class PublicDBusInterface(object):
         else:
             self.__cancel_stop_kolibri_timeout()
 
+        # Even if self.__kolibri_service.context.has_error() is True, we will
+        # continue running for connected clients. This is because the error
+        # state usually requires manual intervention.
+
         # Add a GApplication hold if clients are connected or Kolibri is running
         if self.clients_count > 0 or self.__kolibri_service.context.is_running():
             self.__application.hold_with_token(self)

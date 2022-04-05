@@ -103,9 +103,13 @@ class KolibriHttpProcess(KolibriServiceProcess):
         #        continue using the same port after stopping and starting. It
         #        becomes an issue because another process could bind to the same
         #        port at a time when Kolibri is not running.
-        if self.__kolibri_bus.state != "START":
+
+        if self.context.has_error():
+            return
+
+        if _process_bus_has_transition(self.__kolibri_bus, "START"):
             self.context.is_starting = True
-        self.__kolibri_bus.transition("START")
+            self.__kolibri_bus.transition("START")
 
     def __stop_kolibri(self):
         self.__kolibri_bus.transition("IDLE")
@@ -116,15 +120,6 @@ class KolibriHttpProcess(KolibriServiceProcess):
 
     def stop(self):
         pass
-
-    def reset_context(self):
-        self.context.is_starting = False
-        if self.context.start_result != self.context.StartResult.ERROR:
-            self.context.start_result = None
-        self.context.is_stopped = True
-        self.context.base_url = ""
-        self.context.extra_url = ""
-        self.context.app_key = ""
 
     def __update_app_key(self):
         from kolibri.core.device.models import DeviceAppKey
@@ -142,17 +137,14 @@ class _KolibriDaemonPlugin(SimplePlugin):
         self.bus = bus
         self.__context = context
 
-        self.bus.subscribe("SERVING", self.SERVING)
-        self.bus.subscribe("ZIP_SERVING", self.ZIP_SERVING)
-        self.bus.subscribe("STOP", self.STOP)
-
     def SERVING(self, port: int):
         from kolibri.utils.server import get_urls
 
         _, base_urls = get_urls(listen_port=port)
 
         self.__context.base_url = base_urls[0]
-        self.__context.start_result = self.__context.StartResult.SUCCESS
+        self.__context.start_error = self.__context.StartError.NONE
+        self.__context.is_started = True
         self.__context.is_starting = False
 
     def ZIP_SERVING(self, zip_port: int):
@@ -162,9 +154,20 @@ class _KolibriDaemonPlugin(SimplePlugin):
 
         self.__context.extra_url = zip_urls[0]
 
+    def START_ERROR(self, error_class, error, traceback):
+        # TODO: We could report different types of errors here.
+        # Kolibri transitions to the EXIT state from here. This is potentially
+        # problematic because it is unrecoverable, but we don't allow a client
+        # to restart Kolibri when it is in an error state either.
+        self.__context.start_error = self.__context.StartError.ERROR
+
     def STOP(self):
-        self.__context.is_starting = False
-        self.__context.start_result = self.__context.StartResult.NONE
         self.__context.base_url = ""
         self.__context.extra_url = ""
+        self.__context.is_starting = False
+        self.__context.is_started = False
         self.__context.is_stopped = True
+
+
+def _process_bus_has_transition(bus: ProcessBus, to_state: str) -> bool:
+    return (bus.state, to_state) in bus.transitions
