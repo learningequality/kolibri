@@ -161,14 +161,6 @@
       @closePanel="closeEventHandler()"
       @shouldFocusFirstEl="findFirstEl()"
     >
-      <!-- <KIconButton
-        v-if="(windowIsSmall || windowIsMedium) && currentCategory"
-        icon="close"
-        :ariaLabel="coreString('goBackAction')"
-        :color="$themeTokens.text"
-        :tooltip="coreString('goBackAction')"
-        @click="closeEventHandler()"
-      /> -->
       <EmbeddedSidePanel
         v-if="!currentCategory"
         ref="embeddedPanel"

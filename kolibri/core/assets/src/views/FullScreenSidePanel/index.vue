@@ -77,6 +77,9 @@
         type: String,
         required: true,
         default: 'close',
+        validator: value => {
+          return ['close', 'back'].includes(value);
+        },
       },
       /* Optionally override the default width of the side panel with valid CSS value */
       sidePanelWidth: {
@@ -150,7 +153,7 @@
           'z-index': 12,
         };
       },
-      /* Change of position with change of close button type, default is close, */
+      /* Change of position with change of close button type, default is close */
       closeButtonStyle() {
         if (this.isRtl) {
           if (this.closeButtonIconType === 'close') {
