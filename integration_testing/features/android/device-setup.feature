@@ -1,4 +1,5 @@
 Feature: Device setup
+
   Background:
     Given that the Kolibri installation was successful
 
@@ -255,4 +256,3 @@ Feature: Device setup
 		Given I selected the *Group learning > Full device* setup options
 			And I selected the *Create new facility* setup option
  		# add minor scenario for user writing the desired facility name
-

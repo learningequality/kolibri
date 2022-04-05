@@ -64,7 +64,6 @@ Feature: Change facility after device setup
 			And I am signed in
 
 	Scenario: Change learning facility by creating a new account with existing username and password
-
 		Given I am at *Merge account*
 			And both username and password exist
 		Then I’m on the next *Merge accounts* page
@@ -74,7 +73,6 @@ Feature: Change facility after device setup
 		Then I can proceed with the process of merging the accounts by following the onscreen instructions
 
 	Scenario: Change learning facility by creating a new account with existing username and not existing password
-
 		Given I am at *Merge account*
 		And the username already exists
 		But the password doesn’t exist
