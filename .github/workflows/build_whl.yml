@@ -19,6 +19,9 @@ jobs:
       tar-file-name: ${{ steps.get-tar-filename.outputs.tar-file-name }}
     steps:
     - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+        lfs: true
     - name: Install Ubuntu dependencies
       run: |
         sudo apt-get -y -qq update
