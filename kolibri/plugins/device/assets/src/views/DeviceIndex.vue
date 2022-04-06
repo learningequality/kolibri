@@ -100,6 +100,12 @@
         return this.pageName === 'AVAILABLE_CHANNELS' && this.$route.query.multiple;
       },
       immersivePageRoute() {
+        if (this.$route.query && this.pageName === PageNames.MANAGE_TASKS) {
+          const route = this.$router.getRoute(this.$route.query.last, {
+            channel_id: this.$route.query.channel_id,
+          });
+          return route;
+        }
         if (this.$route.query.last) {
           return {
             name: this.$route.query.last,
@@ -108,9 +114,7 @@
             query: omit(this.$route.query, ['last']),
           };
         }
-        if (this.pageName === PageNames.MANAGE_TASKS) {
-          return this.$route.params.lastRoute || { name: PageNames.MANAGE_CONTENT_PAGE };
-        }
+
         if (this.pageName === PageNames.MANAGE_CHANNEL) {
           return { name: PageNames.MANAGE_CONTENT_PAGE };
         }
@@ -145,7 +149,7 @@
       },
       immersivePagePrimary() {
         if (this.pageName === PageNames.MANAGE_TASKS) {
-          return false;
+          return true;
         }
         return this.inContentManagementPage;
       },
@@ -161,10 +165,7 @@
         return 'close';
       },
       currentPageIsImmersive() {
-        if (
-          this.pageName == PageNames.MANAGE_CONTENT_PAGE ||
-          this.pageName === PageNames.MANAGE_TASKS
-        ) {
+        if (this.pageName == PageNames.MANAGE_CONTENT_PAGE) {
           return false;
         }
         return (
