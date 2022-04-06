@@ -1,10 +1,11 @@
 import logging
 import sys
 
-from morango.models import Buffer
 from morango.models import Certificate
 from morango.models import DatabaseIDModel
+from morango.models import DatabaseMaxCounter
 from morango.models import DeletedModels
+from morango.models import HardDeletedModels
 from morango.models import Store
 
 from kolibri.core.auth.management.utils import confirm_or_exit
@@ -27,13 +28,14 @@ MODELS_TO_DELETE = [
     ContentSummaryLog,
     FacilityUser,
     FacilityDataset,
+    HardDeletedModels,
     Certificate,
     DatabaseIDModel,
     Store,
-    Buffer,
     DevicePermissions,
     DeletedModels,
     DeviceSettings,
+    DatabaseMaxCounter,
 ]
 
 
