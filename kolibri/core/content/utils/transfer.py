@@ -72,7 +72,10 @@ class Transfer(object):
 
         if os.path.isfile(self.dest_tmp):
             if remove_existing_temp_file:
-                os.remove(self.dest_tmp)
+                try:
+                    os.remove(self.dest_tmp)
+                except OSError:
+                    pass
             else:
                 raise ExistingTransferInProgress(
                     "Temporary transfer destination '{}' already exists!".format(
