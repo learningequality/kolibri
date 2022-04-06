@@ -1,13 +1,6 @@
 <template>
 
   <div>
-
-    <p>
-      <BackLink
-        :to="$router.getRoute(homeRoute)"
-        :text="$tr('backToChannelsAction')"
-      />
-    </p>
     <KGrid>
       <KGridItem :layout8="{ span: 5 }" :layout12="{ span: 8 }">
         <h1>
@@ -20,7 +13,7 @@
       >
         <KButton
           v-if="showClearCompletedButton"
-          :text="$tr('clearCompletedAction')"
+          :text="coreString('continueAction')"
           :class="{ 'button-offset': windowIsLarge }"
           @click="handleClickClearAll"
         />
@@ -57,10 +50,8 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonDeviceStrings from '../commonDeviceStrings';
-  import { PageNames } from '../../constants';
 
   import TaskPanel from './TaskPanel';
-  import BackLink from './BackLink';
 
   // A page to view content import/export/deletion tasks
   export default {
@@ -72,7 +63,6 @@
     },
     components: {
       TaskPanel,
-      BackLink,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings, commonDeviceStrings],
     data() {
@@ -87,9 +77,6 @@
       },
       showClearCompletedButton() {
         return some(this.managedTasks, task => task.clearable);
-      },
-      homeRoute() {
-        return PageNames.MANAGE_CONTENT_PAGE;
       },
     },
     watch: {
@@ -118,14 +105,14 @@
       },
       handleClickClearAll() {
         TaskResource.deleteFinishedTasks();
+        this.$router.push(
+          this.$router.getRoute(this.$route.query.last, {
+            channel_id: this.$route.query.channel_id,
+          })
+        );
       },
     },
     $trs: {
-      backToChannelsAction: {
-        message: 'Back to channels',
-        context:
-          'Link that takes user back to the list of channels in the Device > Channels section.',
-      },
       tasksHeader: {
         message: 'Tasks',
         context: 'Heading in the task manager section.',
@@ -133,11 +120,6 @@
       appBarTitle: {
         message: 'Task manager',
         context: 'Title of the page that displays all the tasks in the task manager. ',
-      },
-      clearCompletedAction: {
-        message: 'Clear completed',
-        context:
-          'Button on the task manager page. When pressed it will clear all the completed tasks from the list.',
       },
     },
   };
