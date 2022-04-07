@@ -27,7 +27,7 @@ class DeviceManagementAsset(WebpackBundleHook):
             "isSubsetOfUsersDevice": get_device_setting(
                 "subset_of_users_device", False
             ),
-            "isRemoteContent": OPTIONS["Deployment"]["REMOTE_CONTENT"]
+            "isRemoteContent": OPTIONS["Deployment"]["REMOTE_CONTENT"],
         }
 
 
