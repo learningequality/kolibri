@@ -39,12 +39,11 @@
         />
       </transition-group>
     </div>
-    <BottomAppBar>
+    <BottomAppBar v-if="immersivePage">
       <KButton
         :text="coreString('continueAction')"
         appearance="raised-button"
         :primary="true"
-        :disabled="loadingChannel || loadingTask"
         @click="handleRedirectToImportPage()"
       />
     </BottomAppBar>
@@ -91,6 +90,9 @@
       },
       showClearCompletedButton() {
         return some(this.managedTasks, task => task.clearable);
+      },
+      immersivePage() {
+        return this.$route.query && this.$route.query.last;
       },
     },
     watch: {

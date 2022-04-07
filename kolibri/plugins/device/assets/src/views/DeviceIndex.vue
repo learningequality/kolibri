@@ -148,8 +148,17 @@
         }
       },
       immersivePagePrimary() {
-        if (this.pageName === PageNames.MANAGE_TASKS) {
+        if (
+          this.pageName === PageNames.MANAGE_TASKS &&
+          this.$route.query &&
+          this.$route.query.last
+        ) {
           return true;
+        } else if (
+          this.pageName === PageNames.MANAGE_TASKS &&
+          (!this.$route.query || !this.$route.query.last)
+        ) {
+          return false;
         }
         return this.inContentManagementPage;
       },
