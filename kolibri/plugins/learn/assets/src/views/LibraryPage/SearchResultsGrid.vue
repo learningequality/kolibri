@@ -56,7 +56,10 @@
       @click="searchMore"
     />
 
-    <CopiesModal />
+    <CopiesModal
+      :displayedCopies="displayedCopies"
+      @closeModal="setCopies([])"
+    />
   </div>
 
 </template>
@@ -64,11 +67,9 @@
 
 <script>
 
-  import { onMounted, ref } from 'kolibri.lib.vueCompositionApi';
+  import { ref } from 'kolibri.lib.vueCompositionApi';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import useSearch from '../../composables/useSearch';
-  import useCopies from '../../composables/useCopies';
   import CopiesModal from '../CopiesModal';
   import SearchChips from '../SearchChips';
   import LibraryAndChannelBrowserMainContent from '../LibraryAndChannelBrowserMainContent';
@@ -82,48 +83,15 @@
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
     setup() {
-      const {
-        searchTerms,
-        displayingSearchResults,
-        searchLoading,
-        moreLoading,
-        results,
-        more,
-        labels,
-        search,
-        searchMore,
-        removeFilterTag,
-        clearSearch,
-        setCategory,
-        currentRoute,
-      } = useSearch();
-
-      // Ensure queries in URL are searched on load
-      onMounted(() => {
-        const keywords = currentRoute().query.keywords;
-        if (keywords && keywords.length) {
-          search(keywords);
-        }
-      });
-      const { setCopies } = useCopies();
+      var displayedCopies = ref({ copies: [] });
+      const setCopies = _copies => (displayedCopies.value = { copies: _copies });
 
       var sidePanelContent = ref(null);
       const toggleInfoPanel = content => (sidePanelContent.value = content);
 
       return {
-        searchTerms,
-        displayingSearchResults,
+        displayedCopies,
         setCopies,
-        searchLoading,
-        moreLoading,
-        results,
-        more,
-        labels,
-        search,
-        searchMore,
-        removeFilterTag,
-        clearSearch,
-        setCategory,
         sidePanelContent,
         toggleInfoPanel,
       };
@@ -132,6 +100,38 @@
       currentCardViewStyle: {
         type: String,
         default: 'card',
+      },
+      clearSearch: {
+        type: Function,
+        default: () => {},
+      },
+      more: {
+        type: Object,
+        default: () => {},
+      },
+      moreLoading: {
+        type: Boolean,
+        default: false,
+      },
+      results: {
+        type: Array,
+        default: () => [],
+      },
+      removeFilterTag: {
+        type: Function,
+        default: () => {},
+      },
+      searchLoading: {
+        type: Boolean,
+        default: false,
+      },
+      searchMore: {
+        type: Function,
+        default: () => {},
+      },
+      searchTerms: {
+        type: Object,
+        default: () => {},
       },
     },
     $trs: {

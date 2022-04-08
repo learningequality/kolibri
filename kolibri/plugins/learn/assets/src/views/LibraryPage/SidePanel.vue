@@ -7,13 +7,14 @@
     <!-- Embedded Side panel is on larger views, and exists next to content -->
     <EmbeddedSidePanel
       v-if="windowIsLarge"
-      v-model="searchTerms"
+      :value="searchTerms"
       data-test="desktop-search-side-panel"
       :width="`${sidePanelWidth}px`"
       :availableLabels="labels"
       position="embedded"
       :activeActivityButtons="searchTerms.learning_activities"
       :activeCategories="searchTerms.categories"
+      @input="val => $emit('setSearchTerms', val)"
       @currentCategory="handleCategory"
     />
     <!-- The full screen side panel is used on smaller screens, and toggles as an overlay -->
@@ -38,12 +39,13 @@
       <EmbeddedSidePanel
         v-if="!currentCategory"
         ref="embeddedPanel"
-        v-model="searchTerms"
+        :value="searchTerms"
         :width="`${sidePanelOverlayWidth}px`"
         :availableLabels="labels"
         position="overlay"
         :activeActivityButtons="searchTerms.learning_activities"
         :activeCategories="searchTerms.categories"
+        @input="val => $emit('setSearchTerms', val)"
         @currentCategory="handleCategory"
       />
       <CategorySearchModal
@@ -81,7 +83,6 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import FullScreenSidePanel from 'kolibri.coreVue.components.FullScreenSidePanel';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import useSearch from '../../composables/useSearch';
   import CategorySearchModal from '../CategorySearchModal';
   import EmbeddedSidePanel from '../EmbeddedSidePanel';
 
@@ -93,14 +94,13 @@
       FullScreenSidePanel,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
-    setup() {
-      const { labels, searchTerms, setCategory } = useSearch();
-
-      var currentCategory = null;
-      const closeCategoryModal = () => (currentCategory = null);
+    /* eslint-disable-next-line no-unused-vars */
+    setup(props, context) {
+      var currentCategory = ref(null);
+      const closeCategoryModal = () => (currentCategory.value = null);
       const handleCategory = category => {
-        setCategory(category);
-        closeCategoryModal();
+        context.emit('setCategory', category);
+        currentCategory.value = category;
       };
 
       const embeddedPanel = ref(null);
@@ -116,20 +116,26 @@
       };
 
       return {
-        currentCategory,
         closeCategoryModal,
+        currentCategory,
         embeddedPanel,
         searchModal,
         findFirstEl,
         handleCategory,
-        labels,
-        searchTerms,
       };
     },
     props: {
+      labels: {
+        type: Object,
+        default: () => {},
+      },
       mobileSidePanelIsOpen: {
         type: Boolean,
         default: false,
+      },
+      searchTerms: {
+        type: Object,
+        default: () => {},
       },
     },
     computed: {
@@ -147,6 +153,11 @@
           return 364;
         }
         return null;
+      },
+    },
+    watch: {
+      searchTerms(val) {
+        this.$emit('searchTerms', val);
       },
     },
   };

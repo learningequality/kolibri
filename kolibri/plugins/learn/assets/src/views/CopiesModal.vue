@@ -4,7 +4,7 @@
     v-if="displayedCopies.copies.length"
     :title="$tr('copies')"
     :submitText="coreString('closeAction')"
-    @submit="clearCopies"
+    @submit="$emit('closeModal')"
   >
     <transition mode="out-in">
       <ul>
@@ -16,7 +16,7 @@
           <div class="title">
             <KRouterLink
               :text="copy.title"
-              :to="genContentLink(copy)"
+              :to="contentLink(copy)"
             />
           </div>
           <ol>
@@ -41,19 +41,21 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import genContentLink from '../utils/genContentLink';
-  import useCopies from '../composables/useCopies';
 
   export default {
     name: 'CopiesModal',
     mixins: [commonCoreStrings],
-    setup() {
-      const { clearCopies, displayedCopies } = useCopies();
-      return {
-        clearCopies,
-        displayedCopies,
-      };
+    props: {
+      displayedCopies: {
+        type: Object,
+        required: true,
+      },
     },
-    methods: { genContentLink },
+    methods: {
+      contentLink(copy) {
+        return genContentLink(copy);
+      },
+    },
     $trs: {
       copies: {
         message: 'Locations',

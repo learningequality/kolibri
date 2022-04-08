@@ -54,7 +54,10 @@
       @viewInformation="$emit('toggleInfoPanel', content)"
       @removeFromBookmarks="removeFromBookmarks(content, contents)"
     />
-    <CopiesModal />
+    <CopiesModal
+      :displayedCopies="displayedCopies"
+      @closeModal="setCopies([])"
+    />
   </div>
 
 </template>
@@ -62,10 +65,10 @@
 
 <script>
 
+  import { ref } from 'kolibri.lib.vueCompositionApi';
   import { mapState } from 'vuex';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { PageNames } from '../constants';
-  import useCopies from '../composables/useCopies';
   import genContentLink from '../utils/genContentLink';
   import HybridLearningContentCardListView from './HybridLearningContentCardListView';
   import HybridLearningContentCard from './HybridLearningContentCard';
@@ -86,8 +89,9 @@
     },
     mixins: [responsiveWindowMixin],
     setup() {
-      const { setCopies } = useCopies();
-      return { setCopies };
+      var displayedCopies = ref({ copies: [] });
+      const setCopies = _copies => (displayedCopies.value = { copies: _copies });
+      return { displayedCopies, setCopies };
     },
     props: {
       contents: {

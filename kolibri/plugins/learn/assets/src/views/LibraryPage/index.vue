@@ -38,13 +38,28 @@
         <ResumableContentGrid />
       </div>
 
-      <SearchResultsGrid v-else :currentCardViewStyle="currentCardViewStyle" />
+      <SearchResultsGrid 
+        v-else-if="displayingSearchResults"
+        :results="results" 
+        :removeFilterTag="removeFilterTag"
+        :clearSearch="clearSearch"
+        :moreLoading="moreLoading"
+        :searchMore="searchMore"
+        :currentCardViewStyle="currentCardViewStyle"
+        :searchTerms="searchTerms"
+        :searchLoading="searchLoading"
+        :more="more"
+      />
     </main>
 
     <!-- Side Panels for filtering and searching  -->
     <SidePanel
+      :labels="labels"
+      :searchTerms="searchTerms"
       :mobileSidePanelIsOpen="mobileSidePanelIsOpen"
       @toggleMobileSidePanel="toggleSidePanelVisibility"
+      @setSearchTerms="newTerms => searchTerms = newTerms"
+      @setCategory="category => setCategory(category)"
     />
   </div>
 
@@ -55,6 +70,7 @@
 
   import { mapState } from 'vuex';
 
+  import { onMounted } from 'kolibri.lib.vueCompositionApi';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
@@ -95,15 +111,24 @@
         removeFilterTag,
         clearSearch,
         setCategory,
+        currentRoute,
       } = useSearch();
       const {
         resumableContentNodes,
         moreResumableContentNodes,
         fetchMoreResumableContentNodes,
       } = useLearnerResources();
+
+      onMounted(() => {
+        const keywords = currentRoute().query.keywords;
+        if (keywords && keywords.length) {
+          search(keywords);
+        }
+      });
+
       return {
-        searchTerms,
         displayingSearchResults,
+        searchTerms,
         searchLoading,
         moreLoading,
         results,
