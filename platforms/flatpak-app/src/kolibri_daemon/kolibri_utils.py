@@ -16,6 +16,12 @@ from .content_extensions_manager import ContentExtensionsManager
 
 logger = logging.getLogger(__name__)
 
+# These Kolibri plugins must be enabled for the application to function
+# correctly:
+REQUIRED_PLUGINS = [
+    "kolibri.plugins.app",
+]
+
 # These Kolibri plugins will be dynamically enabled if they are
 # available:
 OPTIONAL_PLUGINS = [
@@ -29,24 +35,13 @@ def init_kolibri(**kwargs):
 
     _init_kolibri_env()
 
-    from kolibri.plugins.registry import registered_plugins
-    from kolibri.plugins.utils import enable_plugin
     from kolibri.utils.main import initialize
 
-    registered_plugins.register_plugins(["kolibri.plugins.app"])
-    enable_plugin("kolibri.plugins.app")
+    for plugin_name in REQUIRED_PLUGINS:
+        _enable_kolibri_plugin(plugin_name)
 
-    available_plugins = [
-        optional_plugin
-        for optional_plugin in OPTIONAL_PLUGINS
-        if importlib.util.find_spec(optional_plugin)
-    ]
-
-    registered_plugins.register_plugins(available_plugins)
-
-    for plugin_name in available_plugins:
-        logger.debug(f"Enabling optional plugin {plugin_name}")
-        enable_plugin(plugin_name)
+    for plugin_name in OPTIONAL_PLUGINS:
+        _enable_kolibri_plugin(plugin_name, optional=True)
 
     initialize(**kwargs)
 
@@ -73,6 +68,22 @@ def _init_kolibri_env():
     content_extensions_manager.apply(os.environ)
 
 
+def _enable_kolibri_plugin(plugin_name: str, optional=False) -> bool:
+    from kolibri.plugins import config as plugins_config
+    from kolibri.plugins.registry import registered_plugins
+    from kolibri.plugins.utils import enable_plugin
+
+    if optional and not importlib.util.find_spec(plugin_name):
+        return False
+
+    if plugin_name not in plugins_config.ACTIVE_PLUGINS:
+        logger.info(f"Enabling plugin {plugin_name}")
+        registered_plugins.register_plugins([plugin_name])
+        enable_plugin(plugin_name)
+
+    return True
+
+
 def _get_automatic_provision_path() -> typing.Optional[Path]:
     path = KOLIBRI_HOME_PATH.joinpath("automatic_provision.json")
 
@@ -84,9 +95,7 @@ def _get_automatic_provision_path() -> typing.Optional[Path]:
             data = json.load(in_file)
         except json.JSONDecodeError as error:
             logger.warning(
-                "Error reading automatic provision data from '{path}': {error}".format(
-                    path=path.as_posix(), error=error
-                )
+                f"Error reading automatic provision data from '{path.as_posix()}': {error}"
             )
             return None
 
@@ -128,7 +137,7 @@ def _kolibri_update_from_home_template():
     # If Kolibri home was not already initialized, copy files from the
     # template directory to the new home directory.
 
-    logger.info("Copying KOLIBRI_HOME template to '{}'".format(KOLIBRI_HOME_PATH))
+    logger.info(f"Copying KOLIBRI_HOME template to '{KOLIBRI_HOME_PATH.as_posix()}'")
 
     for filename in compare.left_only:
         left_file = Path(compare.left, filename)

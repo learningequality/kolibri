@@ -3,7 +3,9 @@
     "buildsystem": "simple",
     "build-commands": [
         "pip3 install --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} kolibri",
-        "patch -d ${KOLIBRI_MODULE_PATH} -p2 < 0001-Allow-superuser-to-be-null-in-device-provision-API.patch"
+        "patch -d ${KOLIBRI_MODULE_PATH} -p2 < 0001-Allow-superuser-to-be-null-in-device-provision-API.patch",
+        "patch -d ${KOLIBRI_MODULE_PATH} -p2 < 0002-Allow-disabling-PortCache-in-KolibriProcessBus.patch",
+        "patch -d ${KOLIBRI_MODULE_PATH}/dist/ifcfg -p3 < dist_ifcfg/0001-Remove-needless-ifcfg-warning.patch"
     ],
     "sources": [
         {
@@ -12,8 +14,8 @@
             "sha256": "50f7cd1fd8a7da38c8897670c0b1c43d7fa68c698e65cfca1a326ceff14491cb"
         },
         {
-            "type": "file",
-            "path": "0001-Allow-superuser-to-be-null-in-device-provision-API.patch"
+            "type": "dir",
+            "path": "python3-kolibri-patches"
         }
     ]
 }
