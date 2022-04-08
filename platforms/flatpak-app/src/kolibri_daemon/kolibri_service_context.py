@@ -53,6 +53,7 @@ class KolibriServiceContext(object):
     class StartError(Enum):
         NONE = auto()
         ERROR = auto()
+        INVALID_STATE = auto()
 
     def __init__(self):
         self.__changed_event = multiprocessing.Event()
