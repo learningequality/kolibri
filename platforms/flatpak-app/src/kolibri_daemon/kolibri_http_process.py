@@ -98,15 +98,6 @@ class KolibriHttpProcess(KolibriServiceProcess):
         return fn()
 
     def __start_kolibri(self):
-        # FIXME: KolibriProcessBus figures out its bind address early on and
-        #        then replaces port=0 with port=bind_port. This means it will
-        #        continue using the same port after stopping and starting. It
-        #        becomes an issue because another process could bind to the same
-        #        port at a time when Kolibri is not running.
-
-        if self.context.has_error():
-            return
-
         if _process_bus_has_transition(self.__kolibri_bus, "START"):
             self.context.is_starting = True
             self.__kolibri_bus.transition("START")
