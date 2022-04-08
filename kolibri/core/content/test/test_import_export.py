@@ -1121,6 +1121,63 @@ class ImportContentTestCase(TestCase):
                 public=False,
             )
 
+    @patch("kolibri.core.content.management.commands.importcontent.logger.warning")
+    @patch(
+        "kolibri.core.content.management.commands.importcontent.paths.get_content_storage_file_path"
+    )
+    def test_remote_import_fail_on_error(
+        self,
+        path_mock,
+        logger_mock,
+        annotation_mock,
+        get_import_export_mock,
+        channel_list_status_mock,
+    ):
+        fd1, local_dest_path_1 = tempfile.mkstemp()
+        fd2, local_dest_path_2 = tempfile.mkstemp()
+        fd3, local_dest_path_3 = tempfile.mkstemp()
+        os.close(fd1)
+        os.close(fd2)
+        os.close(fd3)
+        path_mock.side_effect = [
+            local_dest_path_1,
+            local_dest_path_2,
+            local_dest_path_3,
+        ]
+        ContentNode.objects.filter(pk="2b6926ed22025518a8b9da91745b51d3").update(
+            available=False
+        )
+        LocalFile.objects.filter(
+            files__contentnode__pk="2b6926ed22025518a8b9da91745b51d3"
+        ).update(file_size=1, available=False)
+        get_import_export_mock.return_value = (
+            1,
+            list(
+                LocalFile.objects.filter(
+                    files__contentnode__pk="2b6926ed22025518a8b9da91745b51d3"
+                ).values("id", "file_size", "extension")
+            ),
+            10,
+        )
+
+        node_id = ["2b6926ed22025518a8b9da91745b51d3"]
+        with self.assertRaises(HTTPError):
+            call_command(
+                "importcontent",
+                "network",
+                self.the_channel_id,
+                node_ids=node_id,
+                renderable_only=False,
+                fail_on_error=True,
+            )
+        annotation_mock.set_content_visibility.assert_called_with(
+            self.the_channel_id,
+            [],
+            node_ids=node_id,
+            exclude_node_ids=None,
+            public=False,
+        )
+
 
 @override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())
 class ExportChannelTestCase(TestCase):
