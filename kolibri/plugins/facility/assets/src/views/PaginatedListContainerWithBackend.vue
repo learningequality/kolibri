@@ -53,7 +53,7 @@
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
   import { FacilityUserResource } from 'kolibri.resources';
   import store from 'kolibri.coreVue.vuex.store';
-  import { _userState } from '../../../../plugins/facility/assets/src/modules/mappers';
+  import { _userState } from '../modules/mappers';
 
   export default {
     name: 'PaginatedListContainerWithBackend',

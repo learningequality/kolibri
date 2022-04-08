@@ -86,7 +86,7 @@
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import cloneDeep from 'lodash/cloneDeep';
-  import PaginatedListContainerWithBackend from 'kolibri.coreVue.components.PaginatedListContainerWithBackend';
+  import PaginatedListContainerWithBackend from '../PaginatedListContainerWithBackend';
   import UserTable from '../UserTable';
   import { Modals } from '../../constants';
   import ResetUserPasswordModal from './ResetUserPasswordModal';

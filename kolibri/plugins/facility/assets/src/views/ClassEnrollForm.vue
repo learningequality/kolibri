@@ -53,8 +53,8 @@
   import differenceWith from 'lodash/differenceWith';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import PaginatedListContainerWithBackend from 'kolibri.coreVue.components.PaginatedListContainerWithBackend';
   import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
+  import PaginatedListContainerWithBackend from './PaginatedListContainerWithBackend';
   import SelectionBottomBar from './SelectionBottomBar';
   import UserTable from './UserTable';
 
