@@ -35,7 +35,7 @@ class ContentExtensionsManager(object):
 
     def apply(self, environ: os._Environ) -> bool:
         if len(self.__cached_extensions) == 0 and len(self.__active_extensions) == 0:
-            logger.warning("Extensions: nothing to do")
+            logger.info("Extensions: nothing to do")
             return False
 
         logger.warning(
