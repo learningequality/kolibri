@@ -30,6 +30,7 @@
           :channel="transferredChannel"
           :channelOnDevice="channelOnDevice"
           :freeSpace="availableSpace"
+          :remoteContentEnabled="remoteContentEnabled"
         />
 
         <UiAlert
@@ -48,7 +49,7 @@
           {{ $tr('problemTransferringContents') }}
         </UiAlert>
         <UiAlert
-          v-show="transferFileSize > availableSpace"
+          v-show="isFileSpaceEnough"
           :dismissible="false"
           type="error"
         >
@@ -67,7 +68,7 @@
       objectType="resource"
       actionType="import"
       :resourceCounts="{ count: transferResourceCount, fileSize: transferFileSize }"
-      :disabled="disableBottomBar || newVersionAvailable || transferFileSize > availableSpace"
+      :disabled="disableBottomBar || newVersionAvailable || isFileSpaceEnough"
       @clickconfirm="handleClickConfirm"
     />
   </div>
@@ -96,6 +97,7 @@
   import ContentTreeViewer from './ContentTreeViewer';
   import ContentWizardUiAlert from './ContentWizardUiAlert';
   import { startImportTask } from './api';
+  import plugin_data from 'plugin_data';
 
   export default {
     name: 'SelectContentPage',
@@ -121,6 +123,7 @@
         // in beforeRouteLeave
         metadataDownloadTaskId: '',
         disableBottomBar: false,
+        remoteContentEnabled: plugin_data.isRemoteContent,
       };
     },
     computed: {
@@ -175,6 +178,11 @@
       },
       newVersionAvailable() {
         return this.availableVersions.source > this.availableVersions.installed;
+      },
+      isFileSpaceEnough() {
+        if (this.remoteContentEnabled) {
+          return false;
+        } else return this.transferFileSize > this.availableSpace;
       },
     },
     watch: {

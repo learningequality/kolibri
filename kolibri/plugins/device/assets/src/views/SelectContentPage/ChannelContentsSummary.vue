@@ -68,7 +68,7 @@
         <td>{{ $tr('resourceCount', { count: channel.new_resource_count || 0 }) }}</td>
         <td>{{ bytesForHumans(channel.new_resource_total_size || 0) }}</td>
       </tr>
-      <tr>
+      <tr v-if="!remoteContentEnabled">
         <th>{{ deviceInfo.$tr('freeDisk') }}</th>
         <td></td>
         <td>{{ bytesForHumans(freeSpace || 0) }}</td>
@@ -108,6 +108,11 @@
       freeSpace: {
         type: Number,
         required: true,
+      },
+      remoteContentEnabled: {
+        type: Boolean,
+        required: true,
+        default: false,
       },
     },
     computed: {

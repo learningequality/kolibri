@@ -126,6 +126,7 @@
   import ChannelTokenModal from './ChannelTokenModal';
   import ChannelUpdateModal from './ChannelUpdateModal';
   import { getFreeSpaceOnServer } from './api';
+  import plugin_data from 'plugin_data';
 
   export default {
     name: 'AvailableChannelsPage',
@@ -154,6 +155,7 @@
         freeSpace: null,
         disableBottomBar: false,
         disableModal: false,
+        remoteContentEnabled: plugin_data.isRemoteContent,
       };
     },
     computed: {
@@ -235,6 +237,10 @@
         return this.channelsAreAvailable && (this.inRemoteImportMode || this.isStudioApplication);
       },
       notEnoughFreeSpace() {
+        // if the REMOTE_CONTENT option is true, we should not be submitting disk space issues
+        if (this.remoteContentEnabled) {
+          return false;
+        }
         if (this.freeSpace === null) {
           return false;
         }
