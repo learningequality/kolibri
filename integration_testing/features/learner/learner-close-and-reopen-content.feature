@@ -10,9 +10,9 @@ Feature: Learner closes and reopens content
       When I reopen it within a lesson
       Then the video/audio starts playing at the timecode where I had left it off
 
-  Scenario: Learner reopens a video/audio through *Channels* or *Recommended*
+  Scenario: Learner reopens a video/audio through *Library* or *Bookmarks*
     Given <content_item> is a video/audio
-      When I reopen it through *Channels* or *Recommended*
+      When I reopen it through *Library* or *Bookmarks*
       Then the video/audio starts playing at the timecode where I had left it off
 
   Scenario: Learner reopens an epub within a lesson
@@ -20,9 +20,9 @@ Feature: Learner closes and reopens content
       When I reopen it within a lesson
       Then the epub opens at the page I left off at
 
-  Scenario: Learner reopens an epub through *Channels* or *Recommended*
+  Scenario: Learner reopens an epub through *Library* or *Bookmarks*
     Given <content_item> is an epub
-      When I reopen it through *Channels* or *Recommended*
+      When I reopen it through *Library* or *Bookmarks*
       Then the epub opens at the page I left off at
 
   Scenario: Learner reopens a pdf within a lesson
@@ -30,9 +30,9 @@ Feature: Learner closes and reopens content
     When I reopen it within a lesson
     Then the pdf opens at the page I left off at
 
-  Scenario: Learner reopens a pdf through *Channels* or *Recommended*
+  Scenario: Learner reopens a pdf through *Library* or *Bookmarks*
     Given <content_item> is a pdf
-    When I reopen it through *Channels* or *Recommended*
+    When I reopen it through *Library* or *Bookmarks*
     Then the pdf opens at the page I left off at
 
 Examples:

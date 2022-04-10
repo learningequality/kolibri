@@ -2,13 +2,19 @@ import logging
 import os
 from logging.handlers import TimedRotatingFileHandler
 
-from . import conf
-
 
 GET_FILES_TO_DELETE = "getFilesToDelete"
 DO_ROLLOVER = "doRollover"
 
 NO_FILE_BASED_LOGGING = os.environ.get("KOLIBRI_NO_FILE_BASED_LOGGING", False)
+
+LOG_COLORS = {
+    "DEBUG": "blue",
+    "INFO": "white",
+    "WARNING": "yellow",
+    "ERROR": "red",
+    "CRITICAL": "bold_red",
+}
 
 
 class KolibriTimedRotatingFileHandler(TimedRotatingFileHandler):
@@ -105,11 +111,24 @@ class FalseFilter(logging.Filter):
         return False
 
 
-class RequireDebugTrue(logging.Filter):
-    """A copy from Django to avoid loading Django's settings stack"""
+def get_require_debug_true(debug):
+    class RequireDebugTrue(logging.Filter):
+        """A copy from Django to avoid loading Django's settings stack"""
+
+        def filter(self, record):
+            return debug
+
+    return RequireDebugTrue
+
+
+class NoExceptionsFilter(logging.Filter):
+    """
+    A filter that ignores errors and critical messages, used to suppress
+    error messages to stdout that are also being piped to stderr.
+    """
 
     def filter(self, record):
-        return conf.OPTIONS["Server"]["DEBUG"]
+        return record.levelno < logging.ERROR
 
 
 def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
@@ -122,7 +141,9 @@ def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
     """
 
     DEFAULT_HANDLERS = (
-        ["console"] if NO_FILE_BASED_LOGGING else ["file", "console", "file_debug"]
+        ["console", "console-error"]
+        if NO_FILE_BASED_LOGGING
+        else ["file", "console", "console-error", "file_debug"]
     )
 
     # This is the general level
@@ -132,7 +153,10 @@ def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
     return {
         "version": 1,
         "disable_existing_loggers": False,
-        "filters": {"require_debug_true": {"()": FalseFilter}},  # Replaced later
+        "filters": {
+            "require_debug_true": {"()": FalseFilter},  # Replaced later
+            "no_exceptions": {"()": NoExceptionsFilter},
+        },
         "formatters": {
             "verbose": {
                 "format": "%(levelname)s %(asctime)s %(name)s %(process)d %(thread)d %(message)s"
@@ -142,20 +166,22 @@ def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
             "color": {
                 "()": "colorlog.ColoredFormatter",
                 "format": "%(log_color)s%(levelname)-8s %(message)s",
-                "log_colors": {
-                    "DEBUG": "blue",
-                    "INFO": "white",
-                    "WARNING": "yellow",
-                    "ERROR": "red",
-                    "CRITICAL": "bold_red",
-                },
+                "log_colors": LOG_COLORS,
             },
         },
         "handlers": {
-            "console": {
-                "level": DEFAULT_LEVEL,
+            "console-error": {
+                "level": "ERROR",
                 "class": "logging.StreamHandler",
                 "formatter": "color",
+                "stream": "ext://sys.stderr",
+            },
+            "console": {
+                "level": DEFAULT_LEVEL,
+                "filters": ["no_exceptions"],
+                "class": "logging.StreamHandler",
+                "formatter": "color",
+                "stream": "ext://sys.stdout",
             },
             "file": {
                 "level": "INFO",
@@ -175,6 +201,10 @@ def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
             },
         },
         "loggers": {
+            "": {
+                "handlers": DEFAULT_HANDLERS,
+                "level": DEFAULT_LEVEL,
+            },
             "kolibri": {
                 "handlers": DEFAULT_HANDLERS,
                 "level": DEFAULT_LEVEL,
@@ -227,7 +257,7 @@ def get_base_logging_config(LOG_ROOT, debug=False, debug_database=False):
     config = get_default_logging_config(
         LOG_ROOT, debug=debug, debug_database=debug_database
     )
-    config["filters"]["require_debug_true"] = {"()": RequireDebugTrue}
+    config["filters"]["require_debug_true"] = {"()": get_require_debug_true(debug)}
 
     return config
 

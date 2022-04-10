@@ -1,15 +1,8 @@
 import every from 'lodash/every';
 import uniq from 'lodash/uniq';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
-import {
-  ExamResource,
-  MasteryLogResource,
-  FacilityUserResource,
-  AttemptLogResource,
-  ContentNodeResource,
-} from 'kolibri.resources';
+import { ExamResource, ContentNodeResource } from 'kolibri.resources';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
-import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 
 /*
  * Converts from v0 exam structures to v1
@@ -154,28 +147,12 @@ export function annotateQuestionSourcesWithCounter(questionSources) {
 }
 
 // idk the best place to place this function
-export function getExamReport(store, examId, userId, questionNumber = 0, interactionIndex = 0) {
+export function getExamReport(examId, tryIndex = 0, questionNumber = 0, interactionIndex = 0) {
   return new Promise((resolve, reject) => {
     const examPromise = ExamResource.fetchModel({ id: examId });
-    const masteryLogPromise = MasteryLogResource.fetchCollection({
-      getParams: {
-        content: examId,
-        user: userId,
-      },
-    });
-    const attemptLogPromise = AttemptLogResource.fetchCollection({
-      getParams: {
-        content: examId,
-        user: userId,
-      },
-      force: true,
-    });
-    const userPromise = FacilityUserResource.fetchModel({ id: userId });
 
-    ConditionalPromise.all([examPromise, masteryLogPromise, attemptLogPromise, userPromise]).only(
-      samePageCheckGenerator(store),
-      ([exam, masteryLogs, attempts, user]) => {
-        const masteryLog = masteryLogs[0] || {};
+    examPromise.then(
+      exam => {
         const questionSources = exam.question_sources;
 
         let contentPromise;
@@ -190,69 +167,27 @@ export function getExamReport(store, examId, userId, questionNumber = 0, interac
           contentPromise = ConditionalPromise.resolve([]);
         }
 
-        contentPromise.only(
-          samePageCheckGenerator(store),
+        contentPromise.then(
           contentNodes => {
             const questions = convertExamQuestionSources(exam, { contentNodes });
 
             // When all the Exercises are not available on the server
             if (questions.length === 0) {
-              return resolve({ exam, masteryLog, user });
+              return resolve({ exam });
             }
 
-            const examAttempts = questions.map((question, index) => {
-              const attemptLog = attempts.filter(log => log.item === question.item);
-              let examAttemptLog = attemptLog[0]
-                ? attemptLog[0]
-                : { interaction_history: [], correct: false, noattempt: true };
-              if (attemptLog.length > 1) {
-                let completionTimeStamp = attemptLog.map(function(att) {
-                  return att.completion_timestamp;
-                });
-                examAttemptLog = attemptLog.find(
-                  log => log.completion_timestamp === completionTimeStamp.sort().reverse()[0]
-                );
-              }
-              return Object.assign(
-                {
-                  questionNumber: index + 1,
-                },
-                examAttemptLog
-              );
-            });
-
-            examAttempts.sort((loga, logb) => loga.questionNumber - logb.questionNumber);
-
-            const currentQuestion = questions[questionNumber];
-            const itemId = currentQuestion.question_id;
-            const exercise = contentNodes.find(node => node.id === currentQuestion.exercise_id);
-            const currentAttempt = examAttempts[questionNumber];
-            // filter out interactions without answers but keep hints and errors
-            const currentInteractionHistory = currentAttempt.interaction_history.filter(
-              interaction =>
-                Boolean(
-                  interaction.answer || interaction.type === 'hint' || interaction.type === 'error'
-                )
+            const exercise = contentNodes.find(
+              node => node.id === questions[questionNumber].exercise_id
             );
-            const currentInteraction = currentInteractionHistory[interactionIndex];
-            if (masteryLog.completion_timestamp) {
-              masteryLog.completion_timestamp = new Date(masteryLog.completion_timestamp);
-            }
+
             const payload = {
               exerciseContentNodes: [...contentNodes],
               exam,
-              itemId,
               questions,
-              currentQuestion,
+              tryIndex: Number(tryIndex),
               questionNumber: Number(questionNumber),
-              currentAttempt,
               exercise,
               interactionIndex: Number(interactionIndex),
-              currentInteraction,
-              currentInteractionHistory,
-              user,
-              examAttempts,
-              masteryLog,
             };
             resolve(payload);
           },

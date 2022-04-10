@@ -6,7 +6,8 @@
     </h2>
     <KButton
       appearance="flat-button"
-      :appearanceOverrides="customActivityStyles"
+      :appearanceOverrides="activityStyles"
+      :disabled="activeKeys.length === 0"
       @click="$emit('input', null)"
     >
       <KIcon icon="allActivities" class="activity-icon" />
@@ -15,18 +16,19 @@
       </p>
     </KButton>
     <span
-      v-for="(value, activity) in learningActivitiesList"
-      :key="value"
+      v-for="(key, activity) in learningActivitiesList"
+      :key="key"
       alignment="center"
     >
       <KButton
         appearance="flat-button"
-        :appearanceOverrides="customActivityStyles"
+        :appearanceOverrides="isKeyActive(key)
+          ? { ...activityStyles, ...activityActiveStyles }
+          : activityStyles"
         :disabled="availableActivities &&
-          !availableActivities[value] &&
-          !activeKeys.filter(k => k.includes(value)).length "
-        :class="!!activeKeys.filter(k => k.includes(value)).length ? 'active' : ''"
-        @click="$emit('input', value)"
+          !availableActivities[key] &&
+          !isKeyActive(key)"
+        @click="$emit('input', key)"
       >
         <KIcon :icon="activityIcon(activity)" class="activity-icon" />
         <p class="activity-button-text">
@@ -81,23 +83,25 @@
       learningActivitiesList() {
         return learningActivitiesShown;
       },
-      customActivityStyles() {
+      activityStyles() {
         return {
           color: this.$themeTokens.text,
           width: '50%',
           height: '100px',
           border: '2px solid transparent',
-          'text-transform': 'capitalize',
-          'font-weight': 'normal',
+          textTransform: 'capitalize',
+          fontWeight: 'normal',
           transition: 'none',
-          ':hover': {
-            'background-color': 'rgb(235, 210, 235)',
-            border: '2px',
-            'border-color': '#996189',
-            'border-style': 'solid',
-            'border-radius': '4px',
-            'line-spacing': '0',
-          },
+          ':hover': this.activityActiveStyles,
+        };
+      },
+      activityActiveStyles() {
+        return {
+          backgroundColor: this.$themeBrand.primary.v_50,
+          border: '2px',
+          borderColor: this.$themeTokens.primary,
+          borderStyle: 'solid',
+          borderRadius: '4px',
         };
       },
       availableActivities() {
@@ -125,6 +129,9 @@
           return `${camelCase(activity) + 'Shaded'}`;
         }
       },
+      isKeyActive(key) {
+        return key !== null && !!this.activeKeys.filter(k => k.includes(key)).length;
+      },
     },
     $trs: {
       activities: {
@@ -147,14 +154,6 @@
   .activity-button-text {
     margin: auto;
     margin-top: -12px;
-  }
-
-  .active {
-    background-color: rgb(235, 210, 235);
-    border: 2px !important;
-    border-color: #996189 !important;
-    border-style: solid !important;
-    border-radius: 4px !important;
   }
 
 </style>

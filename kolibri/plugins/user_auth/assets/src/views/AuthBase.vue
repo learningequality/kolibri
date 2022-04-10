@@ -11,17 +11,16 @@
             :style="{ backgroundColor: $themePalette.grey.v_100 }"
           >
             <CoreLogo
-              v-if="$kolibriBranding.signIn.topLogo"
+              v-if="themeConfig.signIn.topLogo"
               class="logo"
-              :src="$kolibriBranding.signIn.topLogo.src"
-              :alt="$kolibriBranding.signIn.topLogo.alt"
-              :style="$kolibriBranding.signIn.topLogo.style"
+              :src="themeConfig.signIn.topLogo.src"
+              :alt="themeConfig.signIn.topLogo.alt"
+              :style="themeConfig.signIn.topLogo.style"
             />
             <h1
-              v-if="$kolibriBranding.signIn.showTitle"
+              v-if="themeConfig.signIn.showTitle"
               class="kolibri-title"
-              :class="$computedClass({ color: $themeBrand.primary.v_300 })"
-              :style="$kolibriBranding.signIn.titleStyle"
+              :style="[ { color: $themeBrand.primary.v_300 }, themeConfig.signIn.titleStyle]"
             >
               {{ logoText }}
             </h1>
@@ -33,23 +32,22 @@
           <!-- remote access enabled -->
           <div v-else class="box" :style="{ backgroundColor: $themePalette.grey.v_100 }">
             <CoreLogo
-              v-if="$kolibriBranding.signIn.topLogo"
+              v-if="themeConfig.signIn.topLogo"
               class="logo"
-              :src="$kolibriBranding.signIn.topLogo.src"
-              :alt="$kolibriBranding.signIn.topLogo.alt"
-              :style="$kolibriBranding.signIn.topLogo.style"
+              :src="themeConfig.signIn.topLogo.src"
+              :alt="themeConfig.signIn.topLogo.alt"
+              :style="themeConfig.signIn.topLogo.style"
             />
             <h1
-              v-if="$kolibriBranding.signIn.showTitle"
+              v-if="themeConfig.signIn.showTitle"
               class="kolibri-title"
-              :class="$computedClass({ color: $themeBrand.primary.v_300 })"
-              :style="$kolibriBranding.signIn.titleStyle"
+              :style="[ { color: $themeBrand.primary.v_300 }, themeConfig.signIn.titleStyle]"
             >
               {{ logoText }}
             </h1>
             <p
-              v-if="$kolibriBranding.signIn.showPoweredBy"
-              :style="$kolibriBranding.signIn.poweredByStyle"
+              v-if="themeConfig.signIn.showPoweredBy"
+              :style="themeConfig.signIn.poweredByStyle"
               class="small-text"
             >
               <KButton
@@ -104,7 +102,7 @@
               {{ versionMsg }}
             </span>
             <CoreLogo
-              v-if="$kolibriBranding.signIn.showKolibriFooterLogo"
+              v-if="themeConfig.signIn.showKolibriFooterLogo"
               class="footer-logo"
             />
             <span v-else> • </span>
@@ -113,10 +111,10 @@
               appearance="basic-link"
               @click="privacyModalVisible = true"
             />
-            <template v-if="$kolibriBranding.signIn.backgroundImgCredit">
+            <template v-if="themeConfig.signIn.backgroundImgCredit">
               <span> • </span>
               {{ $tr('photoCreditLabel', {
-                photoCredit: $kolibriBranding.signIn.backgroundImgCredit
+                photoCredit: themeConfig.signIn.backgroundImgCredit
               }) }}
             </template>
           </div>
@@ -159,7 +157,7 @@
   import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import branding from 'kolibri.utils.branding';
+  import themeConfig from 'kolibri.themeConfig';
   import loginComponents from 'kolibri.utils.loginComponents';
   import urls from 'kolibri.urls';
   import { ComponentMap } from '../constants';
@@ -172,6 +170,9 @@
     name: 'AuthBase',
     components: { CoreLogo, LanguageSwitcherFooter, PrivacyInfoModal },
     mixins: [commonCoreStrings, commonUserStrings],
+    setup() {
+      return { themeConfig };
+    },
     props: {
       hideCreateAccount: {
         type: Boolean,
@@ -193,14 +194,14 @@
     computed: {
       ...mapGetters(['facilityConfig']),
       backgroundImageStyle() {
-        if (this.$kolibriBranding.signIn.background) {
+        if (this.themeConfig.signIn.background) {
           const scrimOpacity =
-            this.$kolibriBranding.signIn.scrimOpacity !== undefined
-              ? this.$kolibriBranding.signIn.scrimOpacity
+            this.themeConfig.signIn.scrimOpacity !== undefined
+              ? this.themeConfig.signIn.scrimOpacity
               : 0.7;
           return {
             backgroundColor: this.$themeTokens.primary,
-            backgroundImage: `linear-gradient(rgba(0, 0, 0, ${scrimOpacity}), rgba(0, 0, 0, ${scrimOpacity})), url(${this.$kolibriBranding.signIn.background})`,
+            backgroundImage: `linear-gradient(rgba(0, 0, 0, ${scrimOpacity}), rgba(0, 0, 0, ${scrimOpacity})), url(${this.themeConfig.signIn.background})`,
           };
         }
         return { backgroundColor: this.$themeBrand.primary.v_900 };
@@ -231,8 +232,8 @@
         return [...loginComponents];
       },
       logoText() {
-        return this.$kolibriBranding.signIn.title
-          ? this.$kolibriBranding.signIn.title
+        return this.themeConfig.signIn.title
+          ? this.themeConfig.signIn.title
           : this.coreString('kolibriLabel');
       },
       oidcProviderFlow() {
@@ -244,9 +245,6 @@
       versionMsg() {
         return this.$tr('poweredBy', { version: __version });
       },
-    },
-    created() {
-      this.$kolibriBranding = branding;
     },
     $trs: {
       accessAsGuest: {

@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-01 22:12-0700\n"
-"PO-Revision-Date: 2021-11-08 19:02\n"
+"POT-Creation-Date: 2022-01-12 06:47-0800\n"
+"PO-Revision-Date: 2022-01-25 19:10\n"
 "Last-Translator: \n"
 "Language-Team: Gujarati\n"
 "Language: gu_IN\n"
@@ -14,8 +14,8 @@ msgstr ""
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Project-ID: 201933\n"
 "X-Crowdin-Language: gu-IN\n"
-"X-Crowdin-File: /release-v0.15.x/django.po\n"
-"X-Crowdin-File-ID: 4105\n"
+"X-Crowdin-File: /release-v0.16.x/django.po\n"
+"X-Crowdin-File-ID: 4241\n"
 
 #: core/auth/constants/commands_errors.py:17
 msgid "Unexpected exception [{}]: {}"
@@ -38,7 +38,7 @@ msgstr "ડુપ્લિકેટ થયેલ વપરાશકર્તા 
 #: core/auth/constants/commands_errors.py:28
 #: core/auth/management/commands/bulkimportusers.py:85
 msgid "Username only can contain characters, numbers and underscores"
-msgstr "વપરાશકર્તાનામમાં માત્ર અક્ષરો, સંખ્યાઓ અને અન્ડરસ્કોર હોઈ શકે છે"
+msgstr "વપરાશકર્તા નામમાં માત્ર અક્ષરો, સંખ્યાઓ અને અન્ડરસ્કૉર હોઈ શકે છે"
 
 #: core/auth/constants/commands_errors.py:30
 msgid "The column '{}' is required"
@@ -50,7 +50,7 @@ msgstr "માન્ય અને/અથવા અમાન્ય હેડર �
 
 #: core/auth/constants/commands_errors.py:33
 msgid "No default facility exists. Make sure to set up a facility on the device before running this command"
-msgstr "કોઈ ડિફૉલ્ટ સુવિધા અસ્તિત્વમાં નથી. આ કમાંડ ચલાવતા પહેલા ઉપકરણ પર કોઈ સુવિધા ઇન્સ્ટોલ કરેલી હોવાની ખાતરી કરો"
+msgstr "કોઈ ડિફૉલ્ટ સુવિધા અસ્તિત્વમાં નથી. આ કમાન્ડ ચલાવતા પહેલાં ઉપકરણ પર સુવિધા ઇન્સ્ટૉલ કરેલી હોવાની ખાતરી કરો"
 
 #: core/auth/constants/commands_errors.py:35
 #: core/auth/management/commands/bulkimportusers.py:99
@@ -65,7 +65,7 @@ msgstr "સીએસવી ફાઇલ લખવાનો પ્રયાસ �
 #: core/auth/management/commands/bulkexportusers.py:42
 #: core/auth/management/commands/bulkexportusers.py:124
 msgid "Database ID ({})"
-msgstr "ડેટાબેસ આઈડી ({})"
+msgstr "ડેટાબેઝ આઈડી ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:43
 #: core/auth/management/commands/bulkexportusers.py:125
@@ -105,12 +105,12 @@ msgstr "લિંગ ({})"
 #: core/auth/management/commands/bulkexportusers.py:60
 msgctxt "CSV column header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
-msgstr "લર્નર એનરોલમેન્ટ ({})"
+msgstr "વિદ્યાર્થીની નોંધણી ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:67
 msgctxt "CSV column header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
-msgstr "કોચ અસાઇનમેન્ટ ({})"
+msgstr "પ્રશિક્ષકને સોંપાયેલું કામ ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:132
 msgctxt "CSV header for the type of user: ADMIN, LEARNER, COACH..."
@@ -120,12 +120,12 @@ msgstr "વપરાશકર્તા પ્રકાર ({})"
 #: core/auth/management/commands/bulkexportusers.py:142
 msgctxt "CSV file header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
-msgstr "લર્નર એનરોલમેન્ટ ({})"
+msgstr "વિદ્યાર્થીની નોંધણી ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:149
 msgctxt "CSV file header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
-msgstr "કોચ અસાઇનમેન્ટ ({})"
+msgstr "પ્રશિક્ષકને સોંપાયેલું કાર્ય ({})"
 
 #: core/auth/management/commands/bulkimportusers.py:76
 msgctxt "Error message that might appear when there's a programming error importing a CSV file"
@@ -143,7 +143,7 @@ msgstr "કૉલમ '{}' માંનું મૂલ્ય માન્ય ન
 
 #: core/auth/management/commands/bulkimportusers.py:83
 msgid "Username is duplicated"
-msgstr "વપરાશકર્તાનામ ડુપ્લિકેટ થયેલ છે"
+msgstr "વપરાશકર્તા નામ ડુપ્લિકેટ થયેલ છે"
 
 #: core/auth/management/commands/bulkimportusers.py:89
 msgctxt "Error message indicating that the CSV file selected for import is missing a required column"
@@ -158,11 +158,11 @@ msgstr "પ્રથમ હરોળમાં ખોટું હેડર લ�
 #: core/auth/management/commands/bulkimportusers.py:97
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
 msgid "No default facility exists. Make sure to set up a facility on the  device before importing users and classes"
-msgstr "કોઈ ડિફોલ્ટ સુવિધા અસ્તિત્વમાં નથી. વપરાશકર્તાઓ અને વર્ગો ઈમ્પોર્ટ કરતા પહેલા ઉપકરણ પર સુવિધા સેટ કરવાની ખાતરી કરો"
+msgstr "કોઈ ડિફૉલ્ટ સુવિધા અસ્તિત્વમાં નથી. વપરાશકર્તાઓ અને વર્ગો આયાત કરતા પહેલાં ઉપકરણ પર સુવિધા સેટ કરવાની ખાતરી કરો"
 
 #: core/auth/management/commands/bulkimportusers.py:102
 msgid "The password field is required. To leave the password unchanged in existing users, insert an asterisk (*)"
-msgstr "પાસવર્ડ ફીલ્ડ જરૂરી છે. હાલના વપરાશકર્તાઓમાં પાસવર્ડને યથાવત રાખવા માટે, ફૂદડી (*) દાખલ કરો"
+msgstr "પાસવર્ડ ક્ષેત્ર જરૂરી છે. હાલના વપરાશકર્તાઓમાં પાસવર્ડને યથાવત રાખવા માટે, ફૂદડી (*) દાખલ કરો"
 
 #: core/auth/management/commands/bulkimportusers.py:105
 msgid "Cannot update user with ID: '{}' because no user with that database ID exists in this facility"
@@ -170,17 +170,17 @@ msgstr "આઈડી : '{}' સાથે વપરાશકર્તાને �
 
 #: core/auth/management/commands/bulkimportusers.py:107
 msgid "Database ID is not valid"
-msgstr "ડેટાબેસ આઈડી માન્ય નથી"
+msgstr "ડેટાબેઝ આઈડી માન્ય નથી"
 
-#: core/content/api.py:170
+#: core/content/api.py:254
 msgid "Resource"
 msgstr "સંસાધનો"
 
-#: core/content/api.py:1327
+#: core/content/api.py:1467
 msgid "The requested channel does not exist on the content server"
 msgstr "વિનંતી કરેલ ચેનલ સામગ્રી સર્વર પર અસ્તિત્વમાં નથી"
 
-#: core/content/models.py:252
+#: core/content/models.py:256
 msgid "Unknown format"
 msgstr "અજ્ઞાત ફોર્મેટ"
 

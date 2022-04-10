@@ -1,5 +1,5 @@
 import logging from 'kolibri.lib.logging';
-import { validateTheme } from '../themes';
+import { validateChannelTheme } from '../validateChannelTheme';
 
 const defaultTheme = {
   appBarColor: null,
@@ -25,7 +25,7 @@ describe('theme validator', () => {
       backdropColor: 'lightblue',
       backgroundColor: 'rgba(40, 42, 54, 1.00)',
     };
-    const theme = validateTheme(validTheme);
+    const theme = validateChannelTheme(validTheme);
     expect(logWarn).not.toHaveBeenCalled();
     expect(logError).not.toHaveBeenCalled();
     expect(theme).toEqual({
@@ -44,20 +44,20 @@ describe('theme validator', () => {
   ];
   it.each(invalidThemeTests)('handles invalid setting of %s to %s', (key, color) => {
     const expectedLog = `invalid color '${color}' provided for '${key}'`;
-    const theme = validateTheme({ ...defaultTheme, [key]: color });
+    const theme = validateChannelTheme({ ...defaultTheme, [key]: color });
     expect(logError).toHaveBeenCalledWith(expectedLog);
     // No changes are made
     expect(theme).toEqual(defaultTheme);
   });
 
   it('logs an error if an invalid theme key is provided', () => {
-    const theme = validateTheme({ fontFamily: 'Roboto Mono' });
+    const theme = validateChannelTheme({ fontFamily: 'Roboto Mono' });
     expect(logError).toHaveBeenCalledWith(`'fontFamily' is not a valid custom theme option`);
     expect(theme).toEqual(defaultTheme);
   });
 
   it('logs a warning if the chosen colors do not pass WCAG Level AA', () => {
-    const theme = validateTheme({
+    const theme = validateChannelTheme({
       textColor: 'white',
       appBarColor: 'rgb(238, 238, 238)', // a light grey
     });
@@ -79,7 +79,7 @@ describe('theme validator', () => {
   it.each(requiredOptionsTests)(
     'logs an error if valid values for both textColor and appBarColor are not provided',
     (appBarColor, textColor) => {
-      const theme = validateTheme({
+      const theme = validateChannelTheme({
         textColor,
         appBarColor,
       });

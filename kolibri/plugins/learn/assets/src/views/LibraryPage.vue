@@ -6,28 +6,41 @@
       :style="gridOffset"
     >
       <div v-if="!windowIsLarge">
-        <!-- TO DO Marcella swap out new icon after KDS update -->
         <KButton
           icon="filter"
-          :text="coreString('searchLabel')"
+          data-test="filter-button"
+          :text="translator.$tr('filter')"
           :primary="false"
           @click="toggleSidePanelVisibility"
         />
       </div>
+      <!-- loader for search loading -->
+      <KCircularLoader
+        v-if="searchLoading"
+        class="loader"
+        type="indeterminate"
+        :delay="false"
+      />
       <!-- "Default" display - channels and recent/popular content -->
-      <div v-if="!displayingSearchResults">
+      <div v-else-if="!displayingSearchResults">
         <h2>{{ coreString('channelsLabel') }}</h2>
         <ChannelCardGroupGrid
           v-if="rootNodes.length"
+          data-test="channel-cards"
           class="grid"
           :contents="rootNodes"
         />
-        <div v-if="!(windowBreakpoint < 1 )" class="toggle-view-buttons">
+        <div
+          v-if="!(windowIsSmall) && resumableContentNodes.length"
+          class="toggle-view-buttons"
+          data-test="toggle-view-buttons"
+        >
           <KIconButton
             icon="menu"
             :ariaLabel="$tr('viewAsList')"
             :color="$themeTokens.text"
             :tooltip="$tr('viewAsList')"
+            :disabled="currentCardViewStyle === 'list'"
             @click="toggleCardView('list')"
           />
           <KIconButton
@@ -35,23 +48,26 @@
             :ariaLabel="$tr('viewAsGrid')"
             :color="$themeTokens.text"
             :tooltip="$tr('viewAsGrid')"
+            :disabled="currentCardViewStyle === 'card'"
             @click="toggleCardView('card')"
           />
         </div>
-        <h2 v-if="resumableContentNodes.length">
-          {{ $tr('recent') }}
-        </h2>
-        <HybridLearningCardGrid
-          v-if="resumableContentNodes.length"
-          :cardViewStyle="currentViewStyle"
-          :numCols="numCols"
-          :genContentLink="genContentLink"
-          :contents="trimmedResume"
-          :currentPage="currentPage"
-          @toggleInfoPanel="toggleInfoPanel"
-        />
+        <div v-if="resumableContentNodes.length" data-test="recent-content-nodes-title">
+          <h2>
+            {{ $tr('recent') }}
+          </h2>
+          <LibraryAndChannelBrowserMainContent
+            :contents="resumableContentNodes"
+            data-test="resumable-content-card-grid"
+            :currentCardViewStyle="currentCardViewStyle"
+            :gridType="1"
+            @openCopiesModal="openCopiesModal"
+            @toggleInfoPanel="toggleInfoPanel"
+          />
+        </div>
         <KButton
-          v-if="moreResumableContentNodes"
+          v-if="moreResumableContentNodes && moreResumableContentNodes.length"
+          data-test="more-resumable-nodes-button"
           appearance="basic-link"
           @click="fetchMoreResumableContentNodes"
         >
@@ -64,23 +80,28 @@
       <!-- First section is the results title and the various display buttons  -->
       <!-- for interacting or updating the results   -->
       <div v-else-if="!searchLoading">
-        <h2 class="results-title">
-          {{ $tr('results', { results: results.length }) }}
+        <h2 class="results-title" data-test="search-results-title">
+          {{ more ?
+            coreString('overCertainNumberOfSearchResults', { num: results.length }) :
+            $tr('results', { results: results.length })
+          }}
         </h2>
-        <KButton
-          v-if="more"
-          :text="coreString('viewMoreAction')"
-          appearance="basic-link"
-          :disabled="moreLoading"
-          class="filter-action-button"
-          @click="searchMore"
+        <SearchChips
+          :searchTerms="searchTerms"
+          @removeItem="removeFilterTag"
+          @clearSearch="clearSearch"
         />
-        <div v-if="!(windowBreakpoint < 1) && results.length" class="toggle-view-buttons">
+        <div
+          v-if="!(windowIsSmall) && results.length"
+          class="toggle-view-buttons"
+          data-test="toggle-view-buttons"
+        >
           <KIconButton
             icon="menu"
             :ariaLabel="$tr('viewAsList')"
             :color="$themeTokens.text"
             :tooltip="$tr('viewAsList')"
+            :disabled="currentCardViewStyle === 'list'"
             @click="toggleCardView('list')"
           />
           <KIconButton
@@ -88,21 +109,17 @@
             :ariaLabel="$tr('viewAsGrid')"
             :color="$themeTokens.text"
             :tooltip="$tr('viewAsGrid')"
+            :disabled="currentCardViewStyle === 'card'"
             @click="toggleCardView('card')"
           />
         </div>
-        <SearchChips
-          :searchTerms="searchTerms"
-          @removeItem="removeFilterTag"
-          @clearSearch="clearSearch"
-        />
         <!-- Grid of search results  -->
-        <HybridLearningCardGrid
-          v-if="results.length"
-          :numCols="numCols"
-          :cardViewStyle="currentViewStyle"
-          :genContentLink="genContentLink"
+        <LibraryAndChannelBrowserMainContent
           :contents="results"
+          data-test="search-results-card-grid"
+          :currentCardViewStyle="currentCardViewStyle"
+          :gridType="1"
+          @openCopiesModal="openCopiesModal"
           @toggleInfoPanel="toggleInfoPanel"
         />
         <!-- conditionally displayed button if there are additional results -->
@@ -112,16 +129,8 @@
           appearance="basic-link"
           :disabled="moreLoading"
           class="filter-action-button"
+          data-test="more-results-button"
           @click="searchMore"
-        />
-      </div>
-      <!-- loader for search loading -->
-      <div v-else>
-        <KCircularLoader
-          v-if="searchLoading"
-          class="loader"
-          type="indeterminate"
-          :delay="false"
         />
       </div>
     </main>
@@ -130,8 +139,9 @@
 
     <!-- Embedded Side panel is on larger views, and exists next to content -->
     <EmbeddedSidePanel
-      v-if="!!windowIsLarge"
+      v-if="windowIsLarge"
       v-model="searchTerms"
+      data-test="desktop-search-side-panel"
       :width="`${sidePanelWidth}px`"
       :availableLabels="labels"
       position="embedded"
@@ -142,33 +152,27 @@
     <!-- The full screen side panel is used on smaller screens, and toggles as an overlay -->
     <!-- FullScreen is a container component, and then the EmbeddedSidePanel sits within -->
     <FullScreenSidePanel
-      v-if="!windowIsLarge && sidePanelIsOpen"
+      v-else-if="sidePanelIsOpen"
       class="full-screen-side-panel"
-      :closeButtonHidden="true"
-      :sidePanelOverrideWidth="`${sidePanelOverlayWidth + 64}px`"
+      data-test="filters-side-panel"
+      alignment="left"
+      :fullScreenSidePanelCloseButton="displayCloseButton"
+      :sidePanelOverrideWidth="`${sidePanelOverlayWidth}px`"
       @closePanel="toggleSidePanelVisibility"
+      @shouldFocusFirstEl="findFirstEl()"
     >
       <KIconButton
-        v-if="windowIsSmall && !currentCategory"
-        class="overlay-close-button"
-        icon="close"
-        :ariaLabel="coreString('closeAction')"
-        :color="$themeTokens.text"
-        :tooltip="coreString('closeAction')"
-        @click="toggleSidePanelVisibility"
-      />
-      <KIconButton
-        v-if="windowIsSmall && currentCategory"
+        v-if="(windowIsSmall || windowIsMedium) && currentCategory"
         icon="back"
-        :ariaLabel="coreString('back')"
+        :ariaLabel="coreString('goBackAction')"
         :color="$themeTokens.text"
-        :tooltip="coreString('back')"
+        :tooltip="coreString('goBackAction')"
         @click="closeCategoryModal"
       />
       <EmbeddedSidePanel
         v-if="!currentCategory"
+        ref="embeddedPanel"
         v-model="searchTerms"
-        :width="`${sidePanelOverlayWidth}px`"
         :availableLabels="labels"
         position="overlay"
         :activeActivityButtons="activeActivityButtons"
@@ -176,7 +180,8 @@
         @currentCategory="handleShowSearchModal"
       />
       <CategorySearchModal
-        v-if="currentCategory && windowIsSmall"
+        v-if="currentCategory && (windowIsSmall || windowIsMedium)"
+        ref="searchModal"
         :selectedCategory="currentCategory"
         :numCols="numCols"
         :availableLabels="labels"
@@ -186,10 +191,10 @@
       />
     </FullScreenSidePanel>
 
-    <!-- Category Search modal for larger screens. On smaller screens, it is -->
+    <!-- Category Search modal for large screens. On smaller screens, it is -->
     <!-- contained within the full screen search modal (different design) -->
     <CategorySearchModal
-      v-if="(windowIsMedium || windowIsLarge) && currentCategory"
+      v-if="windowIsLarge && currentCategory"
       :selectedCategory="currentCategory"
       :numCols="numCols"
       :availableLabels="labels"
@@ -198,11 +203,46 @@
       @input="handleCategory"
     />
 
+    <CopiesModal
+      v-if="displayedCopies.length"
+      :copies="displayedCopies"
+      :genContentLink="genContentLink"
+      @submit="displayedCopies = []"
+    />
+
     <FullScreenSidePanel
       v-if="sidePanelContent"
+      data-test="content-side-panel"
+      alignment="right"
+      :fullScreenSidePanelCloseButton="true"
       @closePanel="sidePanelContent = null"
+      @shouldFocusFirstEl="findFirstEl()"
     >
-      <BrowseResourceMetadata :content="sidePanelContent" :canDownloadContent="true" />
+      <template #header>
+        <!-- Flex styles tested in ie11 and look good. Ensures good spacing between
+            multiple chips - not a common thing but just in case -->
+        <div
+          v-for="activity in sidePanelContent.learning_activities"
+          :key="activity"
+          class="side-panel-chips"
+          :class="$computedClass({ '::after': {
+            content: '',
+            flex: 'auto'
+          } })"
+        >
+          <LearningActivityChip
+            class="chip"
+            style="margin-left: 8px; margin-bottom: 8px;"
+            :kind="activity"
+          />
+        </div>
+      </template>
+
+      <BrowseResourceMetadata
+        ref="resourcePanel"
+        :content="sidePanelContent"
+        :showLocationsInChannel="true"
+      />
     </FullScreenSidePanel>
   </div>
 
@@ -216,20 +256,20 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import FullScreenSidePanel from 'kolibri.coreVue.components.FullScreenSidePanel';
+  import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import genContentLink from '../utils/genContentLink';
-  import { PageNames } from '../constants';
   import useSearch from '../composables/useSearch';
   import useLearnerResources from '../composables/useLearnerResources';
   import BrowseResourceMetadata from './BrowseResourceMetadata';
   import commonLearnStrings from './commonLearnStrings';
   import ChannelCardGroupGrid from './ChannelCardGroupGrid';
-  import HybridLearningCardGrid from './HybridLearningCardGrid';
+  import LearningActivityChip from './LearningActivityChip';
+  import LibraryAndChannelBrowserMainContent from './LibraryAndChannelBrowserMainContent';
+  import CopiesModal from './CopiesModal';
   import EmbeddedSidePanel from './EmbeddedSidePanel';
   import CategorySearchModal from './CategorySearchModal';
   import SearchChips from './SearchChips';
-
-  const mobileCarouselLimit = 3;
-  const desktopCarouselLimit = 15;
 
   export default {
     name: 'LibraryPage',
@@ -239,13 +279,15 @@
       };
     },
     components: {
-      HybridLearningCardGrid,
+      LibraryAndChannelBrowserMainContent,
       ChannelCardGroupGrid,
+      LearningActivityChip,
       EmbeddedSidePanel,
       FullScreenSidePanel,
       CategorySearchModal,
       BrowseResourceMetadata,
       SearchChips,
+      CopiesModal,
     },
     mixins: [commonLearnStrings, commonCoreStrings, responsiveWindowMixin],
     setup() {
@@ -288,24 +330,16 @@
     },
     data: function() {
       return {
-        currentViewStyle: 'card',
+        currentCardViewStyle: 'card',
         currentCategory: null,
         showSearchModal: false,
         sidePanelIsOpen: false,
         sidePanelContent: null,
+        displayedCopies: [],
       };
     },
     computed: {
       ...mapState(['rootNodes']),
-      carouselLimit() {
-        return this.windowIsSmall ? mobileCarouselLimit : desktopCarouselLimit;
-      },
-      trimmedResume() {
-        return this.resumableContentNodes.slice(0, this.carouselLimit);
-      },
-      currentPage() {
-        return PageNames.LIBRARY;
-      },
       sidePanelWidth() {
         if (this.windowIsSmall || this.windowIsMedium) {
           return 0;
@@ -316,13 +350,27 @@
         }
       },
       sidePanelOverlayWidth() {
-        return 300;
+        if (!this.windowIsSmall) {
+          return 364;
+        }
+        return null;
+      },
+      displayCloseButton() {
+        if (this.currentCategory) {
+          return false;
+        } else {
+          return true;
+        }
       },
       numCols() {
-        if (this.windowIsSmall) {
+        if (this.windowIsMedium) {
           return 2;
-        } else {
+        } else if (this.windowBreakpoint < 7) {
           return 3;
+        } else if (this.windowBreakpoint >= 7) {
+          return 4;
+        } else {
+          return null;
         }
       },
       activeActivityButtons() {
@@ -337,18 +385,34 @@
           : { marginLeft: `${this.sidePanelWidth + 24}px` };
       },
     },
+    watch: {
+      searchTerms() {
+        this.sidePanelIsOpen = false;
+      },
+      sidePanelIsOpen() {
+        if (this.sidePanelIsOpen) {
+          document.documentElement.style.position = 'fixed';
+          return;
+        }
+        document.documentElement.style.position = '';
+      },
+    },
     created() {
       this.search();
+      this.translator = crossComponentTranslator(FilterTextbox);
     },
     methods: {
       genContentLink,
       handleShowSearchModal(value) {
         this.currentCategory = value;
         this.showSearchModal = true;
-        !this.windowIsSmall ? (this.sidePanelIsOpen = false) : '';
+        !(this.windowIsSmall || this.windowIsMedium) ? (this.sidePanelIsOpen = false) : '';
+      },
+      openCopiesModal(copies) {
+        this.displayedCopies = copies;
       },
       toggleCardView(value) {
-        this.currentViewStyle = value;
+        this.currentCardViewStyle = value;
       },
       toggleSidePanelVisibility() {
         this.sidePanelIsOpen = !this.sidePanelIsOpen;
@@ -362,6 +426,15 @@
       handleCategory(category) {
         this.setCategory(category);
         this.currentCategory = null;
+      },
+      findFirstEl() {
+        if (this.$refs.embeddedPanel) {
+          this.$refs.embeddedPanel.focusFirstEl();
+        } else if (this.$refs.resourcePanel) {
+          this.$refs.resourcePanel.focusFirstEl();
+        } else {
+          this.$refs.searchModal.focusFirstEl();
+        }
       },
     },
     $trs: {
@@ -405,6 +478,12 @@
     margin-right: 24px;
   }
 
+  $gutters: 24px;
+
+  .card-grid-item {
+    margin-bottom: $gutters;
+  }
+
   .loader {
     margin-top: 60px;
   }
@@ -415,11 +494,7 @@
 
   .full-screen-side-panel {
     position: relative;
-  }
-  .overlay-close-button {
-    position: absolute;
-    top: 8px;
-    right: 8px;
+    width: 100vw;
   }
 
   .results-title {
@@ -434,6 +509,19 @@
   .filter-action-button {
     display: inline-block;
     margin: 4px;
+    margin-left: 8px;
+  }
+
+  .side-panel-chips {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    margin-bottom: -8px;
+    margin-left: -8px;
+  }
+
+  .chip {
+    margin-bottom: 8px;
     margin-left: 8px;
   }
 

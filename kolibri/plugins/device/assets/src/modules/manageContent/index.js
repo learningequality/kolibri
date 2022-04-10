@@ -106,6 +106,7 @@ export default {
             TaskTypes.REMOTECHANNELIMPORT,
             TaskTypes.DISKCHANNELIMPORT,
             TaskTypes.CHANNELDIFFSTATS,
+            TaskTypes.SYNCLOD,
           ].includes(task.type)
       );
     },

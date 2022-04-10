@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-01 22:12-0700\n"
-"PO-Revision-Date: 2021-11-02 05:29\n"
+"POT-Creation-Date: 2022-01-12 06:47-0800\n"
+"PO-Revision-Date: 2022-02-02 17:58\n"
 "Last-Translator: \n"
 "Language-Team: Fulfulde Mbororoore\n"
 "Language: ff_fuv\n"
@@ -14,8 +14,8 @@ msgstr ""
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Project-ID: 201933\n"
 "X-Crowdin-Language: fv\n"
-"X-Crowdin-File: /release-v0.15.x/django.po\n"
-"X-Crowdin-File-ID: 4105\n"
+"X-Crowdin-File: /release-v0.16.x/django.po\n"
+"X-Crowdin-File-ID: 4241\n"
 
 #: core/auth/constants/commands_errors.py:17
 msgid "Unexpected exception [{}]: {}"
@@ -162,7 +162,7 @@ msgstr "Wuro bote no wonirno walaa. Waɗu wuro bote nder serwar kompiita ɗu'um 
 
 #: core/auth/management/commands/bulkimportusers.py:102
 msgid "The password field is required. To leave the password unchanged in existing users, insert an asterisk (*)"
-msgstr "Doole winndugo paltirgel. To kuutiniroowo faɓɓi yiɗaa sannjugo paltirgel maako no woniri, sey nastin hoodere dow (*)"
+msgstr "Doole winndugo paltirgel. To kuutiniroowo faɓɓi yiɗaa sanjugo paltirgel maako no woniri, sey nastin hoodere dow (*)"
 
 #: core/auth/management/commands/bulkimportusers.py:105
 msgid "Cannot update user with ID: '{}' because no user with that database ID exists in this facility"
@@ -172,15 +172,15 @@ msgstr "Fotaayi hesɗitingo kuutiniroowo marɗo dantitee: '{}' ngam wuro bote ng
 msgid "Database ID is not valid"
 msgstr "Dantite database jaɓaaka"
 
-#: core/content/api.py:170
+#: core/content/api.py:254
 msgid "Resource"
 msgstr "Jannginillum"
 
-#: core/content/api.py:1327
+#: core/content/api.py:1467
 msgid "The requested channel does not exist on the content server"
 msgstr "Wuro janngugo ngon ngo ngiɗɗa walaa nder serwar nastinoojum"
 
-#: core/content/models.py:252
+#: core/content/models.py:256
 msgid "Unknown format"
 msgstr "Iri fomat anndaaka"
 

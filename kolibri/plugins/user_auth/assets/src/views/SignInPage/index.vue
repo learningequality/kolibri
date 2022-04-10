@@ -486,8 +486,6 @@
                   name: ComponentMap.NEW_PASSWORD,
                   query: sessionPayload,
                 });
-                // This error overrides the whole layout
-                this.loginError = err;
               } else {
                 // Otherwise, only show errors when we've submitted a password
                 this.usernameSubmittedWithoutPassword = !this.password;

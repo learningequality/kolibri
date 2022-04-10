@@ -1,7 +1,7 @@
 {
   "MediaPlayerIndex.captions": "Subtítulos",
   "MediaPlayerIndex.captionsOff": "Subtítulos desactivados",
-  "MediaPlayerIndex.corruptionOrSupportError": "Se anuló la reproducción multimedia debido a un problema de corrupción o porque los elementos multimedia utilizaron funciones que no admitía tu navegador",
+  "MediaPlayerIndex.corruptionOrSupportError": "Se anuló la reproducción multimedia debido a un problema de corrupción o porque los elementos multimedia utilizaron funciones que tu navegador no admite",
   "MediaPlayerIndex.currentTime": "Tiempo actual",
   "MediaPlayerIndex.durationTime": "Duración",
   "MediaPlayerIndex.encryptionError": "Multimedia está encriptado y no tenemos las claves para descifrarlo",
@@ -25,7 +25,7 @@
   "MediaPlayerTranscript.transcriptBeginning": "Inicio de la transcripción",
   "MediaPlayerTranscript.transcriptEnd": "Final de la transcripción",
   "SubtitlesMenuItem.subtitles": "Subtítulos",
-  "TranscriptCue.textLabel": "Texto del subtítulo actual",
+  "TranscriptCue.textLabel": "Texto subtítulo actual",
   "TranscriptCue.timeLabel": "Inicio del subtítulo actual",
   "TranscriptCue.title": "Reproducir desde {startTime}"
 }

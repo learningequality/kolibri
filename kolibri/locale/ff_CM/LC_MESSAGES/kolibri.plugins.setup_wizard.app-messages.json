@@ -26,7 +26,7 @@
   "GettingStartedFormAlt.descriptionParagraph1": "Bee Kolibri a huutiniray bee wuro bote ngam hakkilango moɓgal fukaraaɓe ɗuɗɓe. Misaalu: janngirde, kawtal elto ɓiɓɓe, bee kawte fukaraaɓe feere-feere. A waaway hakkilango iri gure bote feere-feere nder kompiita go'o.",
   "GettingStartedFormAlt.descriptionParagraph2": "A yiɗi jernugo wuro bote na?",
   "GettingStartedFormAlt.gettingStartedHeader": "Ɗume woni dabare ma dow huutinirgo bee Kolibri?",
-  "GettingStartedFormAlt.skipAction": "Diwugo",
+  "GettingStartedFormAlt.skipAction": "Diwu",
   "GuestAccessForm.description": "Jaɓugo koo moye waawa raarugo jannginillum nder Kolibri bannda waɗugo sigorɗum",
   "GuestAccessForm.header": "Koɗo nastay bannda sigorɗum na?",
   "GuestAccessForm.noOptionLabel": "Ɗum jaɓaayi. Sey marɗo sigorɗum tan yi'ata jannginillum nder Kolibri",
@@ -65,7 +65,7 @@
   "SelectSuperAdminAccountForm.enterPasswordPrompt": "Nastin paltirgel {username}",
   "SelectSuperAdminAccountForm.header": "Suɓtugo sigorɗum dawroowo mawɗo",
   "SetupMethod.createNewFacilityAction": "Waɗugo wuro bote heso",
-  "SetupMethod.descriptionImportLOD": "Kompiita ɗu'um jaɓay sannjindirgo feere maajum bee kompiita marɗum Kolibri fuu to wuro bote no go'o",
+  "SetupMethod.descriptionImportLOD": "Kompiita ɗu'um jaɓay sanjindirgo feere maajum bee kompiita marɗum Kolibri fuu to wuro bote no go'o",
   "SetupMethod.descriptionParagraph1": "Wuro bote woni to serwar Kolibri jooɗoto, bana janngirde, suudu kawtal ekkitaago koo suudu goɗɗo.",
   "SetupMethod.fullDevice": "Kompiita bee Kolibri fuu",
   "SetupMethod.fullDeviceTooltip": "Kompiita bee senndirɗum Kolibri kuutinirteeɗum dawrooɓe, jannginooɓe bee fukaraaɓe",
@@ -82,6 +82,6 @@
   "UserTable.role": "Moye nder Kolibri",
   "UserTable.selectAllLabel": "Suɓtugo fuu",
   "UserTable.userCheckboxLabel": "Suɓtugo kuutiniroowo",
-  "YesNoForm.details": "A waaway sannjugoɗum yeeso nder settings wuro bote maaɗa",
+  "YesNoForm.details": "A waaway sanjugoɗum yeeso nder settings wuro bote maaɗa",
   "YesNoForm.yesOptionLabel": "Ee, ɗum jaɓi"
 }

@@ -1,0 +1,46 @@
+name: Build PEX file
+
+on:
+  workflow_call:
+    inputs:
+      whl-file-name:
+        required: true
+        type: string
+    outputs:
+      pex-file-name:
+        description: "PEX file name"
+        value: ${{ jobs.build_pex.outputs.pex-file-name }}
+
+jobs:
+  build_pex:
+    name: Build PEX
+    runs-on: ubuntu-latest
+    outputs:
+      pex-file-name: ${{ steps.get-pex-filename.outputs.pex-file-name }}
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 2.7
+      uses: actions/setup-python@v2
+      with:
+        python-version: 2.7
+    - uses: actions/cache@v2
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('requirements/*.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    - name: Install Python build dependencies
+      run: pip install -r requirements/build.txt
+    - uses: actions/download-artifact@v2
+      with:
+        name: ${{ inputs.whl-file-name }}
+        path: dist
+    - name: Build PEX
+      run: make pex
+    - name: Get PEX filename
+      id: get-pex-filename
+      run: echo "::set-output name=pex-file-name::$(ls dist | grep .pex | cat)"
+    - uses: actions/upload-artifact@v2
+      with:
+        name: ${{ steps.get-pex-filename.outputs.pex-file-name }}
+        path: dist/${{ steps.get-pex-filename.outputs.pex-file-name }}

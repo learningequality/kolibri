@@ -9,6 +9,7 @@ import sys
 from sqlite3 import DatabaseError as SQLite3DatabaseError
 
 import django
+from diskcache.fanout import FanoutCache
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.management import call_command
@@ -23,6 +24,7 @@ from kolibri.core.deviceadmin.utils import get_backup_files
 from kolibri.core.tasks.main import import_tasks_module_from_django_apps
 from kolibri.core.upgrade import matches_version
 from kolibri.core.upgrade import run_upgrades
+from kolibri.core.utils.cache import process_cache
 from kolibri.deployment.default.sqlite_db_names import ADDITIONAL_SQLITE_DATABASES
 from kolibri.plugins.utils import autoremove_unavailable_plugins
 from kolibri.plugins.utils import check_plugin_config_file_location
@@ -168,9 +170,11 @@ def _copy_preseeded_db(db_name, target=None):
         try:
             import kolibri.dist
 
-            db_path = os.path.join(
-                os.path.dirname(kolibri.dist.__file__),
-                "home/{}.sqlite3".format(db_name),
+            db_path = os.path.abspath(
+                os.path.join(
+                    os.path.dirname(kolibri.dist.__file__),
+                    "home/{}.sqlite3".format(db_name),
+                )
             )
             shutil.copy(db_path, target)
             logger.info(
@@ -188,11 +192,20 @@ def _upgrades_before_django_setup(updated, version):
     if version and updated:
         check_plugin_config_file_location(version)
 
+    # Do this here so that we can fix any issues with our configuration file before
+    # we attempt to set up django.
+    autoremove_unavailable_plugins()
+
     if updated:
         # Reset the enabled plugins to the defaults
         # This needs to be run before dbbackup because
         # dbbackup relies on settings.INSTALLED_APPS
         enable_new_default_plugins()
+
+    # Ensure that we have done all manipulations of our plugins registry before
+    # we do the check for options.ini as that will invoke our plugin registry.
+    # Check if there is an options.ini file exist inside the KOLIBRI_HOME folder
+    check_default_options_exist()
 
     if OPTIONS["Database"]["DATABASE_ENGINE"] == "sqlite":
         # If we are using sqlite,
@@ -205,6 +218,21 @@ def _upgrades_before_django_setup(updated, version):
 
         for db_name in ADDITIONAL_SQLITE_DATABASES:
             _copy_preseeded_db(db_name)
+
+
+def _post_django_initialization():
+    if OPTIONS["Cache"]["CACHE_BACKEND"] != "redis":
+        try:
+            process_cache.cull()
+        except SQLite3DatabaseError:
+            shutil.rmtree(process_cache.directory, ignore_errors=True)
+            os.mkdir(process_cache.directory)
+            process_cache._cache = FanoutCache(
+                process_cache.directory,
+                settings.CACHES["process_cache"]["SHARDS"],
+                settings.CACHES["process_cache"]["TIMEOUT"],
+                **settings.CACHES["process_cache"]["OPTIONS"]
+            )
 
 
 def _upgrades_after_django_setup(updated, version):
@@ -239,13 +267,6 @@ def initialize(
 
     handle_default_options(default_options)
 
-    # Do this here so that we can fix any issues with our configuration file before
-    # we attempt to set up django.
-    autoremove_unavailable_plugins()
-
-    # Check if there is an options.ini file exist inside the KOLIBRI_HOME folder
-    check_default_options_exist()
-
     version = get_version()
 
     updated = version_updated(kolibri.__version__, version)
@@ -253,6 +274,8 @@ def initialize(
     _upgrades_before_django_setup(updated, version)
 
     _setup_django()
+
+    _post_django_initialization()
 
     if updated and not skip_update:
         conditional_backup(kolibri.__version__, version)

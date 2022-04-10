@@ -15,7 +15,13 @@
           />
         </div>
         <KGrid>
-          <KGridItem :layout="{ span: 8 }">
+          <!-- Layout notes
+            - Layout12 span8 -> ~66% width on windowIsLarge
+            - No other layout definitions means span will be 100%
+            - If we're not allowingHints, then it should be 100% because
+              they're the reason we'd go smaller at all
+          -->
+          <KGridItem :layout12="{ span: allowHints && interactive ? 6 : 12 }">
             <div
               id="problem-area"
               class="problem-area"
@@ -25,7 +31,12 @@
             </div>
           </KGridItem>
 
-          <KGridItem :layout="{ span: 4 }">
+          <!--
+              - Hide when not allowing hints
+              - It is a v-show because seems without the proper anchors in place
+                it will fail to properly mount the react component
+          -->
+          <KGridItem v-show="interactive && allowHints" :layout12="{ span: 6 }">
             <div v-if="hinted" id="hintlabel" class="hintlabel" :dir="contentDirection">
               {{ $tr("hintLabel") }}
             </div>
@@ -75,6 +86,7 @@
 
 <script>
 
+  import invert from 'lodash/invert';
   import JSZip from 'jszip';
   import client from 'kolibri.client';
   import urls from 'kolibri.urls';
@@ -108,6 +120,8 @@
   // Regex for all images, we use the differential matches in the first matching
   // group to determine if it's a graphie image or a regular image.
   const allImageRegex = /((web\+graphie:)?)\$\{☣ LOCALPATH\}\/([^)^"]+)/g;
+
+  const blobImageRegex = /blob:[^)^"]+/g;
 
   export default {
     name: 'PerseusRendererIndex',
@@ -317,18 +331,25 @@
         return questionState;
       },
       getSerializedState() {
-        const hints = Object.keys(this.itemRenderer.hintsRenderer.refs).map(key =>
-          this.itemRenderer.hintsRenderer.refs[key].getSerializedState()
-        );
+        if (!this.itemRenderer) {
+          return {};
+        }
+        // Default to empty array
+        let hints = [];
+        if (this.itemRenderer.hintsRenderer) {
+          hints = Object.keys(this.itemRenderer.hintsRenderer.refs || {}).map(key =>
+            this.itemRenderer.hintsRenderer.refs[key].getSerializedState()
+          );
+        }
         const question = this.addSorterState(
           this.itemRenderer.questionRenderer.getSerializedState()
         );
-        return {
-          question,
-          hints,
-        };
+        // To prevent propagation of our locally replace blob URLs into answers,
+        // we need to replace them with the original URLs.
+        return this.restoreImageUrls({ hints, question });
       },
       restoreSerializedState(answerState) {
+        answerState = this.replaceImageUrls(JSON.stringify(answerState));
         this.itemRenderer.restoreSerializedState(answerState);
         this.itemRenderer.getWidgetIds().forEach(id => {
           if (sorterWidgetRegex.test(id)) {
@@ -502,23 +523,7 @@
                   return Promise.reject('error loading assessment item images');
                 })
                 .then(() => {
-                  this.setItemData(
-                    JSON.parse(
-                      itemResponse.replace(allImageRegex, (match, g1, g2, image) => {
-                        if (g1) {
-                          // Replace any placeholder values for image URLs with the
-                          // `web+graphie:` prefix separately from any others,
-                          // as they are parsed slightly differently to standard image
-                          // urls (Perseus adds the protocol in place of `web+graphie:`).
-                          return `web+graphie:${image}`;
-                        } else {
-                          // Replace any placeholder values for image URLs with
-                          // the base URL for the perseus file we are reading from
-                          return this.imageUrls[image] || imageMissing;
-                        }
-                      })
-                    )
-                  );
+                  this.setItemData(this.replaceImageUrls(itemResponse));
                 });
             })
             .catch(reason => {
@@ -527,6 +532,32 @@
               this.$emit('itemError', reason);
             });
         }
+      },
+      replaceImageUrls(itemResponse) {
+        return JSON.parse(
+          itemResponse.replace(allImageRegex, (match, g1, g2, image) => {
+            if (g1) {
+              // Replace any placeholder values for image URLs with the
+              // `web+graphie:` prefix separately from any others,
+              // as they are parsed slightly differently to standard image
+              // urls (Perseus adds the protocol in place of `web+graphie:`).
+              return `web+graphie:${image}`;
+            } else {
+              // Replace any placeholder values for image URLs with
+              // the base URL for the perseus file we are reading from
+              return this.imageUrls[image] || imageMissing;
+            }
+          })
+        );
+      },
+      restoreImageUrls(itemResponse) {
+        const lookup = invert(this.imageUrls);
+        return JSON.parse(
+          JSON.stringify(itemResponse).replace(blobImageRegex, match => {
+            // Make sure to add our prefix back in
+            return '${☣ LOCALPATH}/' + lookup[match] || '';
+          })
+        );
       },
       setItemData(itemData) {
         if (this.validateItemData(itemData)) {
@@ -603,7 +634,9 @@
   }
 
   .solutionarea {
+    max-width: 100%;
     padding: 0 !important;
+    margin: 0 !important;
     border-bottom-style: none !important;
   }
 
@@ -613,33 +646,6 @@
 
   .hintsarea {
     padding-right: 16px;
-  }
-
-  .hint-btn-container {
-    display: flex;
-    align-items: center;
-    font-size: medium;
-
-    &.rtl {
-      /deep/ .k-tooltip {
-        right: auto !important;
-        left: 0 !important;
-      }
-    }
-
-    /deep/ .k-tooltip {
-      right: 0 !important;
-      left: auto !important;
-      transform: translate3d(0, 23px, 0) !important;
-    }
-  }
-
-  .hint-btn {
-    vertical-align: text-bottom;
-
-    /deep/ .link-text {
-      text-align: right;
-    }
   }
 
   .info-icon {
@@ -652,7 +658,21 @@
   }
 
   .problem-area {
-    padding: 0 16px 16px;
+    padding: 0 16px;
+  }
+
+  .perseus-mobile {
+    .perseus {
+      padding: 16px;
+    }
+
+    .problem-area {
+      padding: 0;
+    }
+
+    /deep/ .perseus-renderer {
+      padding: 0;
+    }
   }
 
   /* Perseus Hacks */
@@ -663,18 +683,21 @@
   .framework-perseus {
     padding-bottom: 104px;
 
-    // Draggable box wrapper. Stops it from going off screen right
-    /deep/ .draggy-boxy-thing {
-      display: inline;
+    // Orderer widget wrapper. Stops it from going off screen right
+    /deep/ .orderer {
+      min-width: 0;
     }
+
     // Multiple choice table padding/margin fixes for clean appearance
     /deep/ .widget-block > div {
       padding: 0 !important;
       margin: 0 !important;
     }
+
     /deep/ .perseus-widget-radio {
       margin: 0 !important;
     }
+
     /deep/ .perseus-widget-radio-fieldset {
       padding-right: 0 !important;
       padding-left: 0 !important;
@@ -693,6 +716,11 @@
 
   /deep/ .perseus-renderer {
     padding: 16px;
+  }
+
+  /deep/ .pure-g {
+    // Overrides Perseus smushing the letter spacing on mobile
+    letter-spacing: inherit;
   }
 
 </style>

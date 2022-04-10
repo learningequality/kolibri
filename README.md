@@ -16,8 +16,9 @@ This repository is for software developers wishing to contribute to Kolibri. If 
 
 ## What is Kolibri?
 
-[Kolibri](https://learningequality.org/kolibri/) is the offline learning platform
-from [Learning Equality](https://learningequality.org/).
+[Kolibri Learning Platform](https://learningequality.org/kolibri/): the offline-first platform for teaching and learning with technology without requiring the Internet.
+
+Developed with and for the community by [Learning Equality](https://learningequality.org/).
 
 
 ## How can I use it?

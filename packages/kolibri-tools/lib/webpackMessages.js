@@ -64,8 +64,8 @@ const format = stats => {
   const json = stats.toJson({}, true);
 
   const result = {
-    errors: json.errors.map(msg => formatMessage(msg)),
-    warnings: json.warnings.map(msg => formatMessage(msg)),
+    errors: json.errors.map(msg => formatMessage(msg.message)),
+    warnings: json.warnings.map(msg => formatMessage(msg.message)),
   };
 
   // Only show syntax errors if we have them

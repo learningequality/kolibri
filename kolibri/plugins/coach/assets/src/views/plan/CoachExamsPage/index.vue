@@ -26,7 +26,7 @@
             while the above <KSelect> is hidden
         -->
         <div>&nbsp;</div>
-        <KButtonGroup>
+        <KButtonGroup v-if="practiceQuizzesExist">
           <KDropdownMenu
             appearance="raised-button"
             :primary="true"
@@ -36,6 +36,13 @@
             @select="handleSelect"
           />
         </KButtonGroup>
+        <KRouterLink
+          v-else
+          :primary="true"
+          appearance="raised-button"
+          :to="newExamRoute"
+          :text="coachString('newQuizAction')"
+        />
       </div>
       <CoreTable>
         <template #headers>
@@ -145,6 +152,7 @@
   import { PageNames } from '../../../constants';
   import commonCoach from '../../common';
   import PlanHeader from '../../plan/PlanHeader';
+  import plugin_data from 'plugin_data';
 
   export default {
     name: 'CoachExamsPage',
@@ -171,6 +179,9 @@
     computed: {
       sortedExams() {
         return this._.orderBy(this.exams, ['date_created'], ['desc']);
+      },
+      practiceQuizzesExist() {
+        return plugin_data.practice_quizzes_exist;
       },
       // Hidden temporarily per https://github.com/learningequality/kolibri/issues/6174
       // Uncomment this once we use the filters again.
@@ -206,6 +217,9 @@
         //   return this.inactiveExams;
         // }
         return this.sortedExams;
+      },
+      newExamRoute() {
+        return { name: PageNames.EXAM_CREATION_ROOT };
       },
       dropdownOptions() {
         return [
@@ -258,7 +272,7 @@
       handleSelect({ value }) {
         const nextRoute = {
           MAKE_NEW_QUIZ: PageNames.EXAM_CREATION_ROOT,
-          SELECT_QUIZ: PageNames.EXAM_CREATION_CHANNEL_QUIZ,
+          SELECT_QUIZ: PageNames.EXAM_CREATION_PRACTICE_QUIZ,
         }[value];
         this.$router.push(this.$router.getRoute(nextRoute));
       },
@@ -281,9 +295,9 @@
         context: "Title of the screen launched from the 'New quiz' button on the 'Plan' tab.\n",
       },
       selectQuiz: {
-        message: 'Select channel quiz',
+        message: 'Select quiz',
         context:
-          "Channel quizzes are pre-made quizzes, that don't require the curation work on the part of the coach. Selecting a channel quiz refers to importing a ready-to-use quiz.",
+          "Practice quizzes are pre-made quizzes, that don't require the curation work on the part of the coach. Selecting a practice quiz refers to importing a ready-to-use quiz.",
       },
     },
   };
@@ -297,6 +311,7 @@
     display: flex;
     flex-wrap: wrap-reverse;
     justify-content: space-between;
+
     button {
       align-self: flex-end;
     }

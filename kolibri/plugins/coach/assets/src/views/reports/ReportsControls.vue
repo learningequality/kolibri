@@ -4,7 +4,7 @@
     <slot></slot>
     <div class="report-controls-buttons">
       <KRouterLink
-        v-if="isQuizTab"
+        v-if="isMainReport"
         :text="$tr('viewLearners')"
         appearance="basic-link"
         :to="classLearnersListRoute"
@@ -63,8 +63,13 @@
         // Always disable in app mode until we add the ability to download files.
         return isEmbeddedWebView || this.disableExport;
       },
-      isQuizTab() {
-        return this.$route.name === 'ReportsQuizListPage';
+      isMainReport() {
+        return (
+          this.$route.name === 'ReportsQuizListPage' ||
+          this.$route.name === 'ReportsGroupListPage' ||
+          this.$route.name === 'ReportsLearnerListPage' ||
+          this.$route.name === 'ReportsLessonListPage'
+        );
       },
       classLearnersListRoute() {
         const { query } = this.$route;

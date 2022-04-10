@@ -34,18 +34,22 @@ import ContentIcon from '../views/ContentIcon';
 import ProgressIcon from '../views/ProgressIcon';
 import PermissionsIcon from '../views/PermissionsIcon';
 import CoreBase from '../views/CoreBase';
+import AppBarCorePage from '../views/AppBarCorePage';
+import ScrollingHeader from '../views/CoreBase/ScrollingHeader';
 import FullScreenSidePanel from '../views/FullScreenSidePanel';
 import SideNav from '../views/SideNav';
 import Navbar from '../views/Navbar';
 import NavbarLink from '../views/Navbar/NavbarLink';
 import CoreLogo from '../views/CoreLogo';
 import LanguageSwitcherList from '../views/language-switcher/LanguageSwitcherList';
+import LanguageSwitcherModal from '../views/language-switcher/LanguageSwitcherModal';
 import ElapsedTime from '../views/ElapsedTime';
 import PointsIcon from '../views/PointsIcon';
 import AuthMessage from '../views/AuthMessage';
 import FilterTextbox from '../views/FilterTextbox';
 import router from '../router';
-import commonCoreStrings from '../mixins/commonCoreStrings';
+import commonCoreStrings from '../mixins/commonCoreStrings'; // eslint-disable-line import/no-duplicates
+import { coreStrings } from '../mixins/commonCoreStrings'; // eslint-disable-line import/no-duplicates
 import commonTaskStrings from '../mixins/taskStrings';
 import commonSyncElements from '../mixins/commonSyncElements';
 import CoreFullscreen from '../views/CoreFullscreen';
@@ -61,6 +65,7 @@ import bytesForHumans from '../utils/bytesForHumans';
 import UserType from '../utils/UserType';
 import samePageCheckGenerator from '../utils/samePageCheckGenerator';
 import AppBar from '../views/AppBar';
+import ImmersiveToolbar from '../views/ImmersiveToolbar';
 import Backdrop from '../views/Backdrop';
 import CoreSnackbar from '../views/CoreSnackbar';
 import CoreMenu from '../views/CoreMenu';
@@ -78,6 +83,7 @@ import DragContainer from '../views/sortable/DragContainer';
 import DragSortWidget from '../views/sortable/DragSortWidget';
 import FocusTrap from '../views/FocusTrap';
 import BottomAppBar from '../views/BottomAppBar';
+import BaseToolbar from '../views/BaseToolbar';
 import GenderSelect from '../views/userAccounts/GenderSelect';
 import BirthYearSelect from '../views/userAccounts/BirthYearSelect';
 import FullNameTextbox from '../views/userAccounts/FullNameTextbox';
@@ -87,19 +93,20 @@ import GenderDisplayText from '../views/userAccounts/GenderDisplayText';
 import BirthYearDisplayText from '../views/userAccounts/BirthYearDisplayText';
 import PrivacyLinkAndModal from '../views/userAccounts/PrivacyLinkAndModal.vue';
 import PaginatedListContainer from '../views/PaginatedListContainer';
-import PageStatus from '../views/ExamReport/PageStatus';
+import MasteryModel from '../views/MasteryModel';
 import LearnOnlyDeviceNotice from '../views/LearnOnlyDeviceNotice';
-import branding from '../utils/branding';
+import themeConfig from '../styles/themeConfig';
 import sortLanguages from '../utils/sortLanguages';
 import * as sync from '../views/sync/syncComponentSet';
 import PageRoot from '../views/PageRoot';
+import NotificationsRoot from '../views/NotificationsRoot';
 
 // webpack optimization
 import CoreInfoIcon from '../views/CoreInfoIcon';
 import * as contentNode from '../utils/contentNodeUtils';
-import AttemptLogList from '../views/AttemptLogList';
 import InteractionList from '../views/InteractionList';
 import ExamReport from '../views/ExamReport';
+import SlotTruncator from '../views/SlotTruncator';
 import TextTruncator from '../views/TextTruncator';
 import TextTruncatorCss from '../views/TextTruncatorCss';
 import TimeDuration from '../views/TimeDuration';
@@ -139,6 +146,7 @@ export default {
       mappers,
     },
     components: {
+      ScrollingHeader,
       Backdrop,
       CoachContentLabel,
       DownloadButton,
@@ -146,26 +154,29 @@ export default {
       ContentIcon,
       ProgressIcon,
       PermissionsIcon,
+      AppBarCorePage,
       CoreBase,
       FullScreenSidePanel,
       SideNav,
       Navbar,
       NavbarLink,
+      LanguageSwitcherModal,
       LanguageSwitcherList,
       ElapsedTime,
       PointsIcon,
       AuthMessage,
       FilterTextbox,
       AppBar,
+      ImmersiveToolbar,
       CoreSnackbar,
       CoreMenu,
       CoreMenuDivider,
       CoreMenuOption,
       CoreTable,
       CoreInfoIcon,
-      AttemptLogList,
       InteractionList,
       ExamReport,
+      SlotTruncator,
       TextTruncator,
       TextTruncatorCss,
       TimeDuration,
@@ -184,6 +195,7 @@ export default {
       DragSortWidget,
       FocusTrap,
       BottomAppBar,
+      BaseToolbar,
       GenderSelect,
       GenderDisplayText,
       BirthYearSelect,
@@ -193,10 +205,11 @@ export default {
       BirthYearDisplayText,
       PaginatedListContainer,
       PrivacyLinkAndModal,
-      PageStatus,
       LearnOnlyDeviceNotice,
       SuggestedTime,
       PageRoot,
+      MasteryModel,
+      NotificationsRoot,
     },
     componentSets: {
       sync,
@@ -211,10 +224,10 @@ export default {
     },
   },
   resources,
+  themeConfig,
   urls,
   utils: {
     appCapabilities,
-    branding,
     browserInfo,
     bytesForHumans,
     CatchErrors,
@@ -235,5 +248,6 @@ export default {
     sortLanguages,
     UserType,
     validators,
+    coreStrings,
   },
 };

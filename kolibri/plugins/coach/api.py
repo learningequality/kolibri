@@ -2,6 +2,9 @@ import datetime
 
 from django.db import connections
 from django.db.models import Count
+from django.db.models import F
+from django.db.models import OuterRef
+from django.db.models import Subquery
 from django.db.models import Sum
 from django.db.utils import DatabaseError
 from django.db.utils import OperationalError
@@ -405,6 +408,77 @@ class QuizDifficultQuestionsViewset(viewsets.ViewSet):
             .distinct()
             .count()
         )
+        for datum in data:
+            datum["total"] = total
+        return Response(data)
+
+
+class PracticeQuizDifficultQuestionsViewset(BaseExerciseDifficultQuestionsViewset):
+    permission_classes = (permissions.IsAuthenticated, ExerciseDifficultiesPermissions)
+
+    def retrieve(self, request, pk):
+        """
+        Get the difficult questions for a particular practice quiz.
+        pk maps to the content_id of the practice quiz in question.
+        """
+        classroom_id = request.GET.get("classroom_id", None)
+        group_id = request.GET.get("group_id", None)
+        lesson_id = request.GET.get("lesson_id", None)
+        # For practice quizzes we only look at complete MasteryLogs because there practice quiz
+        # itself can never be made inactive, unlike for a coach assigned quiz (see above)
+        masterylog_queryset = MasteryLog.objects.filter(
+            summarylog__content_id=pk, complete=True, mastery_level__lt=0
+        )
+        attemptlog_queryset = AttemptLog.objects.all()
+        if lesson_id is not None:
+            collection_ids = Lesson.objects.get(
+                id=lesson_id
+            ).lesson_assignments.values_list("collection_id", flat=True)
+            if group_id is not None:
+                if (
+                    group_id not in collection_ids
+                    and classroom_id not in collection_ids
+                ):
+                    # In the special case that the group is not in the lesson assignments
+                    # nor the containing classroom, just return an empty queryset.
+                    attemptlog_queryset = AttemptLog.objects.none()
+            else:
+                # Only filter by all the collections in the lesson if we are not also
+                # filtering by a specific group. Otherwise the group should be sufficient.
+                masterylog_queryset = masterylog_queryset.filter(
+                    user__memberships__collection_id__in=collection_ids
+                )
+        if group_id is not None:
+            collection_id = group_id or classroom_id
+            masterylog_queryset = masterylog_queryset.filter(
+                user__memberships__collection_id=collection_id
+            )
+
+        masterylog_queryset = masterylog_queryset.filter(
+            id__in=Subquery(
+                MasteryLog.objects.all()
+                .order_by(F("completion_timestamp").desc(nulls_last=True))
+                .filter(
+                    user_id=OuterRef("user_id"),
+                    summarylog__content_id=pk,
+                    mastery_level__lt=0,
+                    complete=True,
+                )
+                .values_list("id")[:1]
+            )
+        )
+
+        masterylog_queryset = masterylog_queryset.values_list("id", flat=True)
+
+        attemptlog_queryset = attemptlog_queryset.filter(
+            masterylog_id__in=masterylog_queryset
+        )
+
+        data = attemptlog_queryset.values("item").annotate(correct=Sum("correct"))
+
+        # Instead of inferring the totals from the number of attempt logs, use the total
+        # number of people who have a completed try on the practice quiz
+        total = masterylog_queryset.distinct().count()
         for datum in data:
             datum["total"] = total
         return Response(data)

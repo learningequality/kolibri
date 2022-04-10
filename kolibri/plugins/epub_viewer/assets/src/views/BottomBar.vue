@@ -109,6 +109,7 @@
   .bottom-bar-heading {
     height: 17px;
     margin-bottom: 4px;
+
     h3 {
       @include truncate-text;
 

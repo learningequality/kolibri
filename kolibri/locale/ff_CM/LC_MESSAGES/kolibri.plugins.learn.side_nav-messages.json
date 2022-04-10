@@ -7,11 +7,13 @@
   "CommonLearnStrings.markResourceAsCompleteLabel": "Maandaago jannginillum to timmi",
   "CommonLearnStrings.mostPopularLabel": "Giɗaaɗum soosey",
   "CommonLearnStrings.multipleLearningActivities": "Kuuɗe janngugo feere-feere",
-  "CommonLearnStrings.multipleLearningActivitiesLabel": "",
+  "CommonLearnStrings.multipleLearningActivitiesLabel": "Kuuɗe janngugo feere-feere",
   "CommonLearnStrings.nextStepsLabel": "Jokkotooɗum",
   "CommonLearnStrings.popularLabel": "Giɗaaɗum",
+  "CommonLearnStrings.quizLabel": "Poondol",
   "CommonLearnStrings.resourceCompletedLabel": "A timmini jannginillum ɗu'um",
   "CommonLearnStrings.resourceHidden": "Jannginillum suudiiɗum",
   "CommonLearnStrings.resumeLabel": "Nanngu to alunoɗa",
+  "CommonLearnStrings.suggestedTime": "",
   "CommonLearnStrings.suggestedTimeToComplete": "Foti hoosay wakkati"
 }

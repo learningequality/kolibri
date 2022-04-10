@@ -14,7 +14,7 @@ from kolibri.core.auth.constants.collection_kinds import ADHOCLEARNERSGROUP
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import Membership
-from kolibri.core.auth.utils import create_adhoc_group_for_learners
+from kolibri.core.auth.utils.users import create_adhoc_group_for_learners
 
 
 class ResourceSerializer(Serializer):

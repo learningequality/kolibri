@@ -165,12 +165,6 @@ __SQLALCHEMY_CLASSES_PATH = ("contentschema", "versions")
 
 __SQLALCHEMY_CLASSES_MODULE_NAME = "content_schema_{name}"
 
-SQLALCHEMY_CLASSES_PATH_TEMPLATE = os.path.join(
-    os.path.dirname(__file__),
-    "..",
-    *(__SQLALCHEMY_CLASSES_PATH + (__SQLALCHEMY_CLASSES_MODULE_NAME + ".py",))
-)
-
 SQLALCHEMY_CLASSES_MODULE_PATH_TEMPLATE = ".".join(
     tuple(__name__.split(".")[:-2])
     + __SQLALCHEMY_CLASSES_PATH
@@ -342,6 +336,12 @@ class Bridge(object):
         https://docs.sqlalchemy.org/en/13/orm/extensions/declarative/table_config.html#using-a-hybrid-approach-with-table
         """
         return self.get_class(DjangoModel).__table__
+
+    def get_current_table(self, DjangoModel):
+        """
+        Convenience method to get a table for the Django database schema
+        """
+        return get_class(DjangoModel, BASES[CURRENT_SCHEMA_VERSION]).__table__
 
     def get_raw_connection(self):
         conn = self.get_connection()

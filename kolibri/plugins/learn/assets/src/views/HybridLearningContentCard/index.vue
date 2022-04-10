@@ -12,7 +12,11 @@
     >
       <div class="header-bar" :style="headerStyles">
         <div v-if="!content.is_leaf">
-          <KIcon icon="topic" color="white" class="folder-header-bar" />
+          <KIcon
+            icon="topic"
+            :color="$themeTokens.textInverted"
+            class="folder-header-bar"
+          />
           <p class="folder-header-text">
             {{ coreString('folder') }}
           </p>
@@ -26,7 +30,7 @@
           :style="{ color: $themeTokens.text }"
         />
         <img
-          v-if="content.is_leaf"
+          v-if="content.is_leaf && content.channel_thumbnail.length > 0"
           :src="content.channel_thumbnail"
           :alt="learnString('logo', { channelTitle: content.channel_title })"
           class="channel-logo"
@@ -34,28 +38,37 @@
       </div>
       <CardThumbnail
         class="thumbnail"
-        :kind="content.kind"
-        v-bind="{ thumbnail, isMobile }"
+        :isMobile="isMobile"
+        :contentNode="content"
       />
       <div class="text" :style="{ color: $themeTokens.text }">
         <h3 class="title" dir="auto">
-          <TextTruncator
+          <TextTruncatorCss
             :text="content.title"
-            :maxHeight="maxTitleHeight"
+            :maxLines="3"
           />
         </h3>
+        <KButton
+          v-if="content.copies && content.copies.length"
+          appearance="basic-link"
+          class="copies"
+          :text="coreString('copies', { num: content.copies.length })"
+          @click.prevent="$emit('openCopiesModal', content.copies)"
+        />
       </div>
     </router-link>
     <div class="footer">
       <ProgressBar
+        class="progress-bar"
         :contentNode="content"
-        :style="{ maxWidth: `calc(100% - ${32 * footerLength}px)` }"
+        :style="{ maxWidth: `calc(100% - ${24 + 32 * footerLength}px)` }"
       />
       <div class="footer-icons">
         <CoachContentLabel
-          v-if="isUserLoggedIn && !isLearner && content.numCoachContents"
+          v-if="isUserLoggedIn && !isLearner && content.num_coach_contents"
+          :style="coachContentLabelStyles"
           class="coach-content-label"
-          :value="content.numCoachContents"
+          :value="content.num_coach_contents"
           :isTopic="isTopic"
         />
         <KIconButton
@@ -66,13 +79,6 @@
           :ariaLabel="coreString('viewInformation')"
           :tooltip="coreString('viewInformation')"
           @click="$emit('toggleInfoPanel')"
-        />
-        <KButton
-          v-if="content.copies_count > 1"
-          appearance="basic-link"
-          class="copies"
-          :text="coreString('copies', { num: content.copies_count })"
-          @click.prevent="$emit('openCopiesModal', contentId)"
         />
         <slot name="actions"></slot>
       </div>
@@ -87,10 +93,10 @@
   import { mapGetters } from 'vuex';
   import { validateLinkObject } from 'kolibri.utils.validators';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
-  import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
+  import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ProgressBar from '../ProgressBar';
-  import LearningActivityLabel from '../cards/ResourceCard/LearningActivityLabel';
+  import LearningActivityLabel from '../LearningActivityLabel';
   import commonLearnStrings from '../commonLearnStrings';
   import CardThumbnail from './CardThumbnail.vue';
 
@@ -99,16 +105,12 @@
     components: {
       CardThumbnail,
       CoachContentLabel,
-      TextTruncator,
+      TextTruncatorCss,
       LearningActivityLabel,
       ProgressBar,
     },
     mixins: [commonLearnStrings, commonCoreStrings],
     props: {
-      thumbnail: {
-        type: String,
-        default: null,
-      },
       link: {
         type: Object,
         required: true,
@@ -139,23 +141,21 @@
         }
         return styles;
       },
-      maxTitleHeight() {
-        if (this.footerLength && this.subtitle) {
-          return 20;
-        } else if (this.footerLength || this.subtitle) {
-          return 40;
-        }
-        return 120;
-      },
       footerLength() {
         return (
-          1 +
-          this.content.is_leaf +
-          (this.isUserLoggedIn && !this.isLearner && this.content.numCoachContents) +
-          (this.content.numCoachContents > 0) +
-          (this.content.copies_count > 1) +
+          (this.content.is_leaf ? 1 : 0) +
+          (this.isUserLoggedIn && !this.isLearner && this.content.num_coach_contents ? 1 : 0) +
           (this.$slots.actions ? this.$slots.actions.length : 0)
         );
+      },
+      coachContentLabelStyles() {
+        if (this.content.num_coach_contents < 2 && !this.isTopic) {
+          return { maxWidth: '24px', marginTop: '4px' };
+        } else if (this.content.num_coach_contents < 2 && this.isTopic) {
+          return { maxWidth: '24px', marginTop: '4px', marginRight: '16px' };
+        } else {
+          return {};
+        }
       },
     },
   };
@@ -173,6 +173,7 @@
 
   .drop-shadow {
     @extend %dropshadow-1dp;
+
     &:hover {
       @extend %dropshadow-8dp;
     }
@@ -185,6 +186,7 @@
     vertical-align: top;
     border-radius: 8px;
     transition: box-shadow $core-time ease;
+
     &:focus {
       outline-width: 4px;
       outline-offset: 6px;
@@ -195,11 +197,20 @@
     text-decoration: none;
   }
 
+  .copies {
+    display: inline-block;
+    font-size: 13px;
+    text-decoration: none;
+    vertical-align: top;
+  }
+
   .header-bar {
     display: flex;
     justify-content: space-between;
+    height: 48px;
     padding: 8px 16px;
     font-size: 13px;
+
     .channel-logo {
       align-self: end;
       height: 28px;
@@ -217,7 +228,7 @@
     display: inline-block;
     padding: 0;
     margin: 0;
-    font-size: 16px;
+    font-size: 13px;
   }
 
   .k-labeled-icon {
@@ -230,7 +241,7 @@
 
   .text {
     position: relative;
-    height: 190px;
+    height: 120px;
     padding: 0 $margin $margin $margin;
   }
 
@@ -240,6 +251,12 @@
     display: flex;
     width: 100%;
     padding: $margin;
+  }
+
+  .progress-bar {
+    position: absolute;
+    bottom: 12px;
+    left: $margin-thin;
   }
 
   .footer-icons {
@@ -253,6 +270,7 @@
     .button {
       width: 32px !important;
       height: 32px !important;
+
       /deep/ svg {
         top: 4px !important;
       }
@@ -260,18 +278,11 @@
   }
 
   .coach-content-label {
-    max-width: 30px;
     vertical-align: top;
   }
 
   .learning-activity-label {
-    top: 0;
-    display: inline-block;
     width: 60%;
-    /deep/ .learning-activity {
-      justify-content: flex-start;
-      margin-top: 2px;
-    }
   }
 
   .mobile-card.card {
@@ -283,6 +294,7 @@
     .thumbnail {
       position: absolute;
     }
+
     .text {
       height: 84px;
       margin-top: $thumb-height-mobile-hybrid-learning;

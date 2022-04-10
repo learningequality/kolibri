@@ -8,9 +8,10 @@
     }"
     :class="position === 'embedded' ? 'side-panel' : ''"
   >
-    <div v-if="topics && topicsListDisplayed">
+    <div v-if="topics && topics.length && topicsListDisplayed">
       <div v-for="t in topics" :key="t.id">
         <KRouterLink
+          ref="folders"
           :text="t.title"
           class="side-panel-folder-link"
           :appearanceOverrides="{ color: $themeTokens.text }"
@@ -33,6 +34,7 @@
       </h2>
       <SearchBox
         key="channel-search"
+        ref="searchBox"
         placeholder="findSomethingToLearn"
         :value="value.keywords || ''"
         @change="val => $emit('input', { ...value, keywords: val })"
@@ -49,26 +51,28 @@
           <KButton
             :text="$tr('allCategories')"
             appearance="flat-button"
-            :class="!!activeKeys.filter(k => k.includes('all_categories')).length ? 'active' : ''"
-            :appearanceOverrides="customCategoryStyles"
+            :appearanceOverrides="isKeyActive('all_categories')
+              ? { ...categoryListItemStyles, ...categoryListItemActiveStyles }
+              : categoryListItemStyles"
             @click="allCategories"
           />
         </div>
 
         <div
-          v-for="(category, val) in libraryCategoriesList"
+          v-for="(category, key) in libraryCategoriesList"
           :key="category"
           span="4"
           class="category-list-item"
         >
           <KButton
-            :text="coreString(val)"
+            :text="coreString(key)"
             appearance="flat-button"
-            :appearanceOverrides="customCategoryStyles"
+            :appearanceOverrides="isKeyActive(key)
+              ? { ...categoryListItemStyles, ...categoryListItemActiveStyles }
+              : categoryListItemStyles"
             :disabled="availableRootCategories &&
-              !availableRootCategories[val] &&
-              !activeKeys.filter(k => k.includes(val)).length"
-            :class="!!activeKeys.filter(k => k.includes(val)).length ? 'active' : ''"
+              !availableRootCategories[key] &&
+              !isKeyActive(key)"
             iconAfter="chevronRight"
             @click="$emit('currentCategory', category)"
           />
@@ -80,8 +84,9 @@
           <KButton
             :text="coreString('None of the above')"
             appearance="flat-button"
-            :appearanceOverrides="customCategoryStyles"
-            :class="!!activeKeys.filter(k => k.includes('no_categories')).length ? 'active' : ''"
+            :appearanceOverrides="isKeyActive('no_categories')
+              ? { ...categoryListItemStyles, ...categoryListItemActiveStyles }
+              : categoryListItemStyles"
             @click="noCategories"
           />
         </div>
@@ -103,6 +108,9 @@
         v-if="Object.keys(resourcesNeededList).length"
         class="section"
       >
+        <h2 class="title">
+          {{ coreString('showResources') }}
+        </h2>
         <div
           v-for="(val, activity) in resourcesNeededList"
 
@@ -148,7 +156,7 @@
   resourcesNeededShown.map(key => {
     const value = ResourcesNeededTypes[key];
     // TODO rtibbles: remove this condition
-    if (plugin_data.learnerNeeds.includes(value) || process.env.NODE_ENV !== 'production') {
+    if ((plugin_data.learnerNeeds || []).includes(value) || process.env.NODE_ENV !== 'production') {
       resourcesNeeded[key] = value;
     }
   });
@@ -255,24 +263,26 @@
       resourcesNeededList() {
         return resourcesNeeded;
       },
-      customCategoryStyles() {
+      categoryListItemStyles() {
         return {
           color: this.$themeTokens.text,
           width: '100%',
           border: '2px solid transparent',
-          'text-transform': 'capitalize',
-          'text-align': 'left',
-          'font-weight': 'normal',
+          textAlign: this.isRtl ? 'right' : 'left',
+          fontWeight: 'normal',
+          textTransform: 'none',
           position: 'relative',
           transition: 'none',
-          ':hover': {
-            'background-color': 'rgb(235, 210, 235)',
-            border: '2px',
-            'border-color': '#996189',
-            'border-style': 'solid',
-            'border-radius': '4px',
-            'line-spacing': '0',
-          },
+          ':hover': this.categoryListItemActiveStyles,
+        };
+      },
+      categoryListItemActiveStyles() {
+        return {
+          backgroundColor: this.$themeBrand.primary.v_50,
+          border: '2px',
+          borderColor: this.$themeTokens.primary,
+          borderStyle: 'solid',
+          borderRadius: '4px',
         };
       },
       availableRootCategories() {
@@ -304,6 +314,9 @@
     },
     methods: {
       genContentLink,
+      isKeyActive(key) {
+        return !!this.activeKeys.filter(k => k.includes(key)).length;
+      },
       allCategories() {
         this.$emit('input', { ...this.value, categories: { [AllCategories]: true } });
       },
@@ -311,15 +324,20 @@
         this.$emit('input', { ...this.value, categories: { [NoCategories]: true } });
       },
       handleActivity(activity) {
-        let learning_activities;
-        if (activity) {
-          learning_activities = {
+        if (activity === null) {
+          const learning_activities = {};
+          this.$emit('input', { ...this.value, learning_activities });
+        } else if (activity && !this.value.learning_activities[activity]) {
+          const learning_activities = {
             [activity]: true,
+            ...this.value.learning_activities,
           };
-        } else {
-          learning_activities = {};
+          this.$emit('input', { ...this.value, learning_activities });
+        } else if (activity && this.value.learning_activities[activity]) {
+          const learning_activities = { ...this.value.learning_activities };
+          delete learning_activities[activity];
+          this.$emit('input', { ...this.value, learning_activities });
         }
-        this.$emit('input', { ...this.value, learning_activities });
       },
       handleNeed(need) {
         if (this.value.learner_needs[need]) {
@@ -335,6 +353,18 @@
             ...this.value,
             learner_needs: { ...this.value.learner_needs, [need]: true },
           });
+        }
+      },
+      /**
+       * @public
+       * Focuses on correct first element for FocusTrap depending on content
+       * rendered in EmbeddedSidePanel.
+       */
+      focusFirstEl() {
+        if (this.$refs.searchBox) {
+          this.$refs.searchBox.focusSearchBox();
+        } else if (this.$refs.folders && this.$refs.folders.length > 0) {
+          this.$refs.folders[0].$el.focus();
         }
       },
     },
@@ -374,6 +404,7 @@
   .side-panel-folder-link {
     margin-top: 12px;
     margin-bottom: 12px;
+
     /deep/ .link-text {
       text-decoration: none !important;
     }
@@ -381,14 +412,6 @@
 
   .section {
     margin-top: 40px;
-  }
-
-  .active {
-    background-color: rgb(235, 210, 235);
-    border: 2px !important;
-    border-color: #996189 !important;
-    border-style: solid !important;
-    border-radius: 4px !important;
   }
 
   .card-grid {

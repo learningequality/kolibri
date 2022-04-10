@@ -7,11 +7,13 @@
   "CommonLearnStrings.markResourceAsCompleteLabel": "منبع را به عنوان کامل‌شده نشانه‌گذاری کنید",
   "CommonLearnStrings.mostPopularLabel": "محبوب‌ترین‌",
   "CommonLearnStrings.multipleLearningActivities": "فعالیت‌های یادگیری چندگانه",
-  "CommonLearnStrings.multipleLearningActivitiesLabel": "",
+  "CommonLearnStrings.multipleLearningActivitiesLabel": "فعالیت‌های یادگیری چندگانه",
   "CommonLearnStrings.nextStepsLabel": "مراحل بعدی",
   "CommonLearnStrings.popularLabel": "متداول و محبوب",
+  "CommonLearnStrings.quizLabel": "آزمون",
   "CommonLearnStrings.resourceCompletedLabel": "منبع کامل‌شده",
   "CommonLearnStrings.resourceHidden": "منبع پنهان",
   "CommonLearnStrings.resumeLabel": "خلاصه",
+  "CommonLearnStrings.suggestedTime": "",
   "CommonLearnStrings.suggestedTimeToComplete": "زمان پیشنهادی برای تکمیل کردن"
 }

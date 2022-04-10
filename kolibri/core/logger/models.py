@@ -242,6 +242,16 @@ class MasteryLog(BaseLogModel):
     mastery_level = models.IntegerField()
     # Has this mastery level been completed?
     complete = models.BooleanField(default=False)
+    # How long did the learner spend on this specific try of the exercise or quiz?
+    # Field is added as nullable so that we can distinguish values from older instances
+    # of Kolibri prior to this being added and zero values.
+    time_spent = models.FloatField(
+        help_text="(in seconds)",
+        null=True,
+        blank=True,
+        default=0.0,
+        validators=[MinValueValidator(0)],
+    )
 
     def infer_dataset(self, *args, **kwargs):
         return self.cached_related_dataset_lookup("user")

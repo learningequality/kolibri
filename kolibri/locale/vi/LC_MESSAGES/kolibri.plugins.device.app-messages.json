@@ -103,7 +103,7 @@
   "FacilitiesPage.facilityRemovedSnackbar": "Đã gỡ bỏ '{facilityName}' từ thiết bị này",
   "FacilitiesPage.importFacilityAction": "Nhập địa điểm",
   "FacilitiesPage.syncAllAction": "Đồng bộ tất cả",
-  "FacilitiesTasksPage.backToFacilitiesLabel": "Trở về \bcác địa điểm",
+  "FacilitiesTasksPage.backToFacilitiesLabel": "Trở về các địa điểm",
   "FilteredChannelListContainer.allLanguages": "Tất cả ngôn ngữ",
   "FilteredChannelListContainer.languageFilterLabel": "Ngôn ngữ",
   "FilteredChannelListContainer.noMatchingItems": "Không có kênh nào khớp với những bộ lọc này",

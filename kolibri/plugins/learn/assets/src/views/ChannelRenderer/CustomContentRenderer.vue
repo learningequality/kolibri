@@ -24,15 +24,24 @@
 
 <script>
 
+  import { get } from '@vueuse/core';
   import urls from 'kolibri.urls';
   import Hashi from 'hashi';
   import { now } from 'kolibri.utils.serverClock';
-  import { ContentNodeResource, ContentNodeSearchResource } from 'kolibri.resources';
+  import {
+    ChannelResource,
+    ContentNodeResource,
+    ContentNodeSearchResource,
+  } from 'kolibri.resources';
   import router from 'kolibri.coreVue.router';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { events, MessageStatuses } from 'hashi/src/hashiBase';
-  import { validateTheme } from '../../utils/themes';
+  import { validateChannelTheme } from '../../utils/validateChannelTheme';
   import genContentLink from '../../utils/genContentLink';
+  import useChannels from '../../composables/useChannels';
   import ContentModal from './ContentModal';
+
+  const { channelsMap } = useChannels();
 
   function createReturnMsg({ message, data, err }) {
     // Infer status from data or err
@@ -75,12 +84,18 @@
       rooturl() {
         return urls.hashi();
       },
+      currentChannel() {
+        return get(channelsMap)[this.topic.channel_id];
+      },
     },
     mounted() {
       this.hashi = new Hashi({ iframe: this.$refs.iframe, now });
       const zipFile = this.topic.files.find(f => f.extension === 'zip');
       this.hashi.on(events.COLLECTIONREQUESTED, message => {
         this.fetchContentCollection(message);
+      });
+      this.hashi.on(events.COLLECTIONPAGEREQUESTED, message => {
+        this.fetchMore(message);
       });
       this.hashi.on(events.MODELREQUESTED, message => {
         this.fetchContentModel.call(this, message);
@@ -100,6 +115,15 @@
       this.hashi.on(events.KOLIBRIVERSIONREQUESTED, message => {
         this.sendKolibriVersion.call(this, message);
       });
+      this.hashi.on(events.CHANNELMETADATAREQUESTED, message => {
+        this.sendChannelMetadata.call(this, message);
+      });
+      this.hashi.on(events.CHANNELFILTEROPTIONSREQUESTED, message => {
+        this.sendChannelFilterOptions.call(this, message);
+      });
+      this.hashi.on(events.RANDOMCOLLECTIONREQUESTED, message => {
+        this.sendRandomCollection.call(this, message);
+      });
       this.hashi.initialize(
         {},
         {},
@@ -114,19 +138,65 @@
       // called in mainClient.js
       fetchContentCollection(message) {
         const { options } = message;
+        const { kinds, onlyContent, onlyTopics } = options;
+
+        if (onlyContent && onlyTopics) {
+          const err = new Error('onlyContent and onlyTopics can not be used at the same time');
+          return createReturnMsg({ message, err });
+        }
+        const kind = onlyContent ? 'content' : onlyTopics ? ContentNodeKinds.TOPIC : undefined;
+
+        // limit to channel, defaults to true
+        const limitToChannel = 'limitToChannel' in options ? options.limitToChannel : true;
+
         return ContentNodeResource.fetchCollection({
           getParams: {
             ids: options.ids,
+            authors: options.authors,
+            tags: options.tags,
             parent: options.parent === 'self' ? this.topic.id : options.parent,
+            channel_id: limitToChannel ? this.topic.channel_id : undefined,
+            max_results: options.maxResults ? options.maxResults : 50,
+            kind: kind,
+            kind_in: kinds,
+            descendant_of: options.descendantOf,
           },
         })
           .then(contentNodes => {
+            const { more, results } = contentNodes;
+
             return createReturnMsg({
               message,
               data: {
-                page: options.page ? options.page : 1,
-                pageSize: options.pageSize ? options.pageSize : 50,
-                results: contentNodes,
+                maxResults: options.maxResults ? options.maxResults : 50,
+                more,
+                results,
+              },
+            });
+          })
+          .catch(err => {
+            return createReturnMsg({ message, err });
+          })
+          .then(newMsg => {
+            this.hashi.mediator.sendMessage(newMsg);
+          });
+      },
+
+      fetchMore(message) {
+        const { options } = message;
+
+        return ContentNodeResource.fetchCollection({
+          getParams: options,
+        })
+          .then(contentNodes => {
+            const { more, results } = contentNodes;
+
+            return createReturnMsg({
+              message,
+              data: {
+                maxResults: options.max_results ? options.max_results : 50,
+                more,
+                results,
               },
             });
           })
@@ -153,20 +223,26 @@
 
       fetchSearchResult(message) {
         let searchPromise;
-        const { keyword } = message.options;
+        const { options } = message;
+        const { keyword } = options;
         if (!keyword) {
           searchPromise = Promise.resolve({
-            page: 0,
-            pageSize: 0,
+            maxResults: 0,
             results: [],
           });
         } else {
+          // limit to channel, defaults to true
+          const limitToChannel = 'limitToChannel' in options ? options.limitToChannel : true;
           searchPromise = ContentNodeSearchResource.fetchCollection({
-            getParams: { search: keyword },
+            getParams: {
+              search: keyword,
+              channel_id: limitToChannel ? this.topic.channel_id : undefined,
+              max_results: options.maxResults ? options.maxResults : 50,
+            },
           }).then(searchResults => {
             return {
-              page: 0,
-              pageSize: searchResults.total_results,
+              maxResults: options.maxResults ? options.maxResults : 50,
+              more: searchResults.more,
               results: searchResults.results,
             };
           });
@@ -237,13 +313,70 @@
       updateTheme(message) {
         const themeCopy = { ...message };
         delete themeCopy.message_id;
-        this.channelTheme = validateTheme(themeCopy);
+        this.channelTheme = validateChannelTheme(themeCopy);
         const newMsg = createReturnMsg({ message, data: {} });
         return this.hashi.mediator.sendMessage(newMsg);
       },
       sendKolibriVersion(message) {
         const newMsg = createReturnMsg({ message, data: __version });
         return this.hashi.mediator.sendMessage(newMsg);
+      },
+      sendChannelMetadata(message) {
+        const newMsg = createReturnMsg({ message, data: this.currentChannel });
+        return this.hashi.mediator.sendMessage(newMsg);
+      },
+      sendChannelFilterOptions(message) {
+        return ChannelResource.fetchFilterOptions(this.topic.channel_id)
+          .then(response => {
+            return createReturnMsg({
+              message,
+              data: {
+                availableAuthors: response.data.available_authors,
+                availableTags: response.data.available_tags,
+                availableKinds: response.data.available_kinds,
+              },
+            });
+          })
+          .catch(err => {
+            return createReturnMsg({ message, err });
+          })
+          .then(newMsg => {
+            this.hashi.mediator.sendMessage(newMsg);
+          });
+      },
+      sendRandomCollection(message) {
+        const { options } = message;
+        const { kinds, onlyContent } = options;
+
+        // limit to channel, defaults to true
+        const limitToChannel = 'limitToChannel' in options ? options.limitToChannel : true;
+
+        return ContentNodeResource.fetchRandomCollection({
+          getParams: {
+            parent: options.parent === 'self' ? this.topic.id : options.parent,
+            channel_id: limitToChannel ? this.topic.channel_id : undefined,
+            max_results: options.maxResults ? options.maxResults : 10,
+            kind: onlyContent ? 'content' : undefined,
+            kind_in: kinds,
+            // Time seed to avoid cache
+            seed: Date.now().toString(),
+          },
+        })
+          .then(contentNodes => {
+            return createReturnMsg({
+              message,
+              data: {
+                maxResults: options.maxResults ? options.maxResults : 10,
+                results: contentNodes.results,
+              },
+            });
+          })
+          .catch(err => {
+            return createReturnMsg({ message, err });
+          })
+          .then(newMsg => {
+            this.hashi.mediator.sendMessage(newMsg);
+          });
       },
     },
   };

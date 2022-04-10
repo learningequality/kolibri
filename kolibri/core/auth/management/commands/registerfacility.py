@@ -5,8 +5,8 @@ from morango.models import Certificate
 from requests import exceptions
 
 from kolibri.core import error_constants
+from kolibri.core.auth.management.utils import confirm_or_exit
 from kolibri.core.auth.management.utils import get_facility
-from kolibri.core.auth.utils import confirm_or_exit
 from kolibri.core.utils.portal import registerfacility
 
 

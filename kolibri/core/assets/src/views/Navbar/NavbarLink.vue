@@ -95,6 +95,7 @@
     border-top-left-radius: $radius;
     border-top-right-radius: $radius;
     transition: background-color $core-time ease;
+
     .dimmable {
       opacity: 0.6;
     }
@@ -112,6 +113,7 @@
     border-bottom-color: white;
     border-bottom-style: solid;
     border-bottom-width: 2px;
+
     .dimmable {
       opacity: 1;
     }

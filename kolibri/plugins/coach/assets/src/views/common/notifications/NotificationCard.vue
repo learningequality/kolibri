@@ -5,7 +5,10 @@
       :icon="statusIcon"
       class="icon"
     />
-    <p class="context icon-spacer">
+    <p
+      class="context icon-spacer"
+      :style="{ color: $themeTokens.annotation }"
+    >
       {{ context }}
     </p>
     <KFixedGrid numCols="4">
@@ -20,8 +23,9 @@
             v-if="route"
             :text="linkText"
             :to="route"
+            class="link"
           />
-          <span v-else>
+          <span v-else class="link">
             {{ linkText }}
           </span>
         </div>
@@ -172,11 +176,14 @@
     margin-top: 4px;
     margin-bottom: 4px;
     font-size: small;
-    color: gray;
   }
 
   .button-wrapper {
     position: relative;
+  }
+
+  .link {
+    overflow-wrap: break-word;
   }
 
   /* Fixes spacing only observed in this notification card content icon */

@@ -37,6 +37,7 @@
         :style="{ backgroundColor: $themePalette.grey.v_100 }"
         frameBorder="0"
         :src="rooturl"
+        allow="fullscreen"
       >
       </iframe>
       <KCircularLoader
@@ -124,6 +125,12 @@
         return 300;
       },
       /* eslint-enable kolibri/vue-no-unused-properties */
+      entry() {
+        return (this.options && this.options.entry) || 'index.html';
+      },
+      isH5P() {
+        return this.defaultFile.extension === 'h5p';
+      },
     },
     watch: {
       userData(newValue) {
@@ -136,6 +143,10 @@
       this.hashi = new Hashi({ iframe: this.$refs.iframe, now });
       this.hashi.onStateUpdate(data => {
         this.$emit('updateContentState', data);
+        const hashiProgress = this.hashi.getProgress();
+        if (hashiProgress !== null && !this.forceDurationBasedProgress) {
+          this.$emit('updateProgress', hashiProgress);
+        }
       });
       this.hashi.on('navigateTo', message => {
         this.$emit('navigateTo', message);
@@ -153,13 +164,15 @@
       this.hashi.initialize(
         (this.extraFields && this.extraFields.contentState) || {},
         this.userData,
-        this.defaultFile.extension === 'zip'
-          ? urls.zipContentUrl(this.defaultFile.checksum, this.defaultFile.extension, 'index.html')
-          : this.defaultFile.storage_url,
+        this.isH5P
+          ? this.defaultFile.storage_url
+          : urls.zipContentUrl(this.defaultFile.checksum, this.defaultFile.extension, this.entry),
         this.defaultFile.checksum
       );
       this.$emit('startTracking');
-      this.pollProgress();
+      if (!this.isH5P) {
+        this.pollProgress();
+      }
     },
     beforeDestroy() {
       if (this.timeout) {
@@ -169,17 +182,21 @@
     },
     methods: {
       recordProgress() {
-        const hashiProgress = this.hashi ? this.hashi.getProgress() : null;
-        this.$emit(
-          'updateProgress',
-          hashiProgress === null ? this.durationBasedProgress : hashiProgress
-        );
+        if (this.forceDurationBasedProgress) {
+          this.$emit('updateProgress', this.durationBasedProgress);
+        } else {
+          const hashiProgress = this.hashi ? this.hashi.getProgress() : null;
+          this.$emit(
+            'updateProgress',
+            hashiProgress === null ? this.durationBasedProgress : hashiProgress
+          );
+        }
         this.pollProgress();
       },
       pollProgress() {
         this.timeout = setTimeout(() => {
           this.recordProgress();
-        }, 15000);
+        }, 5000);
       },
     },
     $trs: {
@@ -208,20 +225,24 @@
   .fullscreen-header {
     text-align: right;
   }
+
   .fs-icon {
     position: relative;
     top: 8px;
     width: 24px;
     height: 24px;
   }
+
   .html5-renderer {
     position: relative;
     text-align: center;
   }
+
   .iframe {
     width: 100%;
     height: 100%;
   }
+
   .iframe-container {
     @extend %momentum-scroll;
 

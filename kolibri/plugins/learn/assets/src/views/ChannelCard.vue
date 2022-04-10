@@ -36,7 +36,7 @@
           :showContentIcon="false"
         />
       </KFixedGridItem>
-      <KFixedGridItem span="3">
+      <KFixedGridItem span="3" alignment="auto">
         <TextTruncator
           :text="tagline"
           :maxHeight="taglineHeight"
@@ -170,9 +170,11 @@
     vertical-align: top;
     border-radius: $radius;
     transition: box-shadow $core-time ease;
+
     &:hover {
       @extend %dropshadow-8dp;
     }
+
     &:focus {
       outline-width: 4px;
       outline-offset: 6px;
@@ -181,7 +183,6 @@
 
   .title {
     padding: 0 48px $margin $margin;
-    border-bottom: 2px solid #cecece;
   }
 
   .progress-icon {

@@ -11,7 +11,8 @@
         <KGridItem sizes="100, 75, 75" percentage>
           <h1>{{ $tr('detailsHeader') }}</h1>
         </KGridItem>
-        <KGridItem sizes="100, 25, 25" percentage alignment="right">
+        <!-- Users cannot edit their profile if on a SoUD -->
+        <KGridItem v-if="!isSubsetOfUsersDevice" sizes="100, 25, 25" percentage alignment="right">
           <KRouterLink
             :text="$tr('editAction')"
             appearance="raised-button"
@@ -78,12 +79,12 @@
 
         <tr>
           <th>{{ coreString('fullNameLabel') }}</th>
-          <td>{{ session.full_name }}</td>
+          <td>{{ currentUser.full_name }}</td>
         </tr>
 
         <tr>
           <th>{{ coreString('usernameLabel') }}</th>
-          <td>{{ session.username }}</td>
+          <td>{{ currentUser.username }}</td>
         </tr>
 
         <tr>
@@ -126,7 +127,7 @@
 <script>
 
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
-  import { mapState, mapGetters } from 'vuex';
+  import { mapGetters } from 'vuex';
   import { ref } from 'kolibri.lib.vueCompositionApi';
   import find from 'lodash/find';
   import pickBy from 'lodash/pickBy';
@@ -141,6 +142,7 @@
   import { ComponentMap } from '../../constants';
   import ChangeUserPasswordModal from './ChangeUserPasswordModal';
   import useCurrentUser from './useCurrentUser';
+  import plugin_data from 'plugin_data';
 
   export default {
     name: 'ProfilePage',
@@ -162,8 +164,10 @@
     setup() {
       const showPasswordModal = ref(false);
       const { currentUser } = useCurrentUser();
+      const { isSubsetOfUsersDevice } = plugin_data;
       return {
         currentUser,
+        isSubsetOfUsersDevice,
         showPasswordModal,
       };
     },
@@ -177,9 +181,6 @@
         'totalPoints',
         'userHasPermissions',
       ]),
-      ...mapState({
-        session: state => state.core.session,
-      }),
       profileEditRoute() {
         return this.$router.getRoute(ComponentMap.PROFILE_EDIT);
       },

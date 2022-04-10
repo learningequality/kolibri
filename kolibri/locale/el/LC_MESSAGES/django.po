@@ -1,0 +1,242 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: kolibri\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-01-12 06:47-0800\n"
+"PO-Revision-Date: 2022-01-25 01:56\n"
+"Last-Translator: \n"
+"Language-Team: Greek\n"
+"Language: el_GR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Crowdin-Project: kolibri\n"
+"X-Crowdin-Project-ID: 201933\n"
+"X-Crowdin-Language: el\n"
+"X-Crowdin-File: /release-v0.16.x/django.po\n"
+"X-Crowdin-File-ID: 4241\n"
+
+#: core/auth/constants/commands_errors.py:17
+msgid "Unexpected exception [{}]: {}"
+msgstr "Μη αναμενόμενη εξαίρεση [{}]: {}"
+
+#: core/auth/constants/commands_errors.py:20
+msgctxt "Error report message when the allowed number of digits has been exceeded."
+msgid "Content of cell '{}' is too long"
+msgstr "Το περιεχόμενο του κελιού '{}' είναι πολύ μεγάλο"
+
+#: core/auth/constants/commands_errors.py:24
+msgctxt "Error report message when the cell contains an improper data format."
+msgid "Content of cell '{}' is not valid"
+msgstr "Το περιεχόμενο του κελιού '{}' δεν είναι έγκυρο"
+
+#: core/auth/constants/commands_errors.py:26
+msgid "Duplicated username"
+msgstr "Το όνομα χρήστη χρησιμοποιείται ήδη"
+
+#: core/auth/constants/commands_errors.py:28
+#: core/auth/management/commands/bulkimportusers.py:85
+msgid "Username only can contain characters, numbers and underscores"
+msgstr "Το όνομα χρήστη μπορεί να περιέχει μόνο χαρακτήρες, αριθμούς και κάτω παύλες"
+
+#: core/auth/constants/commands_errors.py:30
+msgid "The column '{}' is required"
+msgstr "Απαιτείται η στήλη '{}'"
+
+#: core/auth/constants/commands_errors.py:31
+msgid "Mix of valid and/or invalid header labels found in first row"
+msgstr "Μείγμα έγκυρων και/ή μη έγκυρων ετικετών κεφαλίδων που βρίσκονται στην πρώτη γραμμή"
+
+#: core/auth/constants/commands_errors.py:33
+msgid "No default facility exists. Make sure to set up a facility on the device before running this command"
+msgstr "Δεν υπάρχει προεπιλεγμένο εκπαιδευτικό πλαίσιο. Βεβαιωθείτε ότι έχετε ρυθμίσει ένα εκπαιδευτικό πλαίσιο στη συσκευή πριν από την εκτέλεση αυτής της εντολής"
+
+#: core/auth/constants/commands_errors.py:35
+#: core/auth/management/commands/bulkimportusers.py:99
+msgid "Error trying to read csv file: {}"
+msgstr "Σφάλμα κατά την ανάγνωση αρχείου csv: {}"
+
+#: core/auth/constants/commands_errors.py:36
+#: core/auth/management/commands/bulkimportusers.py:100
+msgid "Error trying to write csv file: {}"
+msgstr "Σφάλμα κατά την εγγραφή αρχείου csv: {}"
+
+#: core/auth/management/commands/bulkexportusers.py:42
+#: core/auth/management/commands/bulkexportusers.py:124
+msgid "Database ID ({})"
+msgstr "ID Βάσης Δεδομένων ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:43
+#: core/auth/management/commands/bulkexportusers.py:125
+msgid "Username ({})"
+msgstr "Όνομα Χρήστη ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:44
+#: core/auth/management/commands/bulkexportusers.py:126
+msgid "Password ({})"
+msgstr "Κωδικός Πρόσβασης ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:45
+#: core/auth/management/commands/bulkexportusers.py:127
+msgid "Full name ({})"
+msgstr "Ονοματεπώνυμο ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:50
+msgctxt "CSV column header for the type of user: ADMIN, LEARNER, COACH..."
+msgid "User type ({})"
+msgstr "Τύπος χρήστη ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:53
+#: core/auth/management/commands/bulkexportusers.py:135
+msgid "Identifier ({})"
+msgstr "Αναγνωριστικό ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:54
+#: core/auth/management/commands/bulkexportusers.py:136
+msgid "Birth year ({})"
+msgstr "Έτος γέννησης ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:55
+#: core/auth/management/commands/bulkexportusers.py:137
+msgid "Gender ({})"
+msgstr "Φύλο ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:60
+msgctxt "CSV column header for the list of classrooms names where the learner is going to be enrolled"
+msgid "Learner enrollment ({})"
+msgstr "Εγγραφή εκπαιδευόμενου ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:67
+msgctxt "CSV column header for the list of classrooms names where the tutor is going to be a coach"
+msgid "Coach assignment ({})"
+msgstr "Ασκήσεις του εκπαιδευτή ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:132
+msgctxt "CSV header for the type of user: ADMIN, LEARNER, COACH..."
+msgid "User type ({})"
+msgstr "Τύπος χρήστη ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:142
+msgctxt "CSV file header for the list of classrooms names where the learner is going to be enrolled"
+msgid "Learner enrollment ({})"
+msgstr "Εγγραφή εκπαιδευόμενου ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:149
+msgctxt "CSV file header for the list of classrooms names where the tutor is going to be a coach"
+msgid "Coach assignment ({})"
+msgstr "Ασκήσεις του εκπαιδευτή ({})"
+
+#: core/auth/management/commands/bulkimportusers.py:76
+msgctxt "Error message that might appear when there's a programming error importing a CSV file"
+msgid "Unexpected error [{}]: {}"
+msgstr "Μη αναμενόμενο σφάλμα [{}]: {}"
+
+#: core/auth/management/commands/bulkimportusers.py:80
+msgctxt "Error when the command is executed in the Terminal (command prompt)"
+msgid "Value in column '{}' has too many characters"
+msgstr "Η τιμή στη στήλη '{}' έχει πάρα πολλούς χαρακτήρες"
+
+#: core/auth/management/commands/bulkimportusers.py:82
+msgid "Value in column '{}' not valid"
+msgstr "Η τιμή στη στήλη '{}' δεν είναι έγκυρη"
+
+#: core/auth/management/commands/bulkimportusers.py:83
+msgid "Username is duplicated"
+msgstr "Το όνομα χρήστη χρησιμοποιείται ήδη"
+
+#: core/auth/management/commands/bulkimportusers.py:89
+msgctxt "Error message indicating that the CSV file selected for import is missing a required column"
+msgid "The column '{}' is required"
+msgstr "Απαιτείται η στήλη '{}'"
+
+#: core/auth/management/commands/bulkimportusers.py:93
+msgctxt "Error message indicating that one column header in the CSV file selected for import is missing or incorrect"
+msgid "Incorrect header label found in the first row"
+msgstr "Λανθασμένη ετικέτα κεφαλίδας βρέθηκε στην πρώτη γραμμή"
+
+#: core/auth/management/commands/bulkimportusers.py:97
+msgctxt "Error when the command is executed in the Terminal (command prompt)"
+msgid "No default facility exists. Make sure to set up a facility on the  device before importing users and classes"
+msgstr "Δεν υπάρχει προεπιλεγμένο εκπαιδευτικό πλαίσιο. Βεβαιωθείτε ότι έχετε δημιουργήσει ένα εκπαιδευτικό πλαίσιο στη συσκευή πριν από την εισαγωγή χρηστών και κλάσεων"
+
+#: core/auth/management/commands/bulkimportusers.py:102
+msgid "The password field is required. To leave the password unchanged in existing users, insert an asterisk (*)"
+msgstr "Το πεδίο κωδικού πρόσβασης απαιτείται. Για να αφήσετε τον κωδικό πρόσβασης αμετάβλητο σε υπάρχοντες χρήστες, εισάγετε έναν αστερίσκο (*)"
+
+#: core/auth/management/commands/bulkimportusers.py:105
+msgid "Cannot update user with ID: '{}' because no user with that database ID exists in this facility"
+msgstr "Δεν είναι δυνατή η ενημέρωση χρήστη με ID: '{}' επειδή κανένας χρήστης με αυτό το ID βάσης δεδομένων δεν υπάρχει σε αυτό το εκπαιδευτικό πλαίσιο"
+
+#: core/auth/management/commands/bulkimportusers.py:107
+msgid "Database ID is not valid"
+msgstr "Το ID βάσης δεδομένων δεν είναι έγκυρο"
+
+#: core/content/api.py:254
+msgid "Resource"
+msgstr "Πηγή"
+
+#: core/content/api.py:1467
+msgid "The requested channel does not exist on the content server"
+msgstr "Το ζητούμενο κανάλι δεν υπάρχει στον διακομιστή περιεχομένου"
+
+#: core/content/models.py:256
+msgid "Unknown format"
+msgstr "Άγνωστη μορφή"
+
+#: core/device/serializers.py:36
+msgid "Language is not supported by Kolibri"
+msgstr "Η γλώσσα δεν υποστηρίζεται από το Kolibri"
+
+#: core/logger/csv_export.py:205
+msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
+msgid "content_session_logs"
+msgstr "content_session_logs"
+
+#: core/logger/csv_export.py:215
+msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
+msgid "content_summary_logs"
+msgstr "content_summary_logs"
+
+#: core/tasks/api.py:82
+msgid "There was a network error."
+msgstr "Παρουσιάστηκε σφάλμα δικτύου."
+
+#: core/tasks/api.py:84
+msgid "There was a disk access error."
+msgstr "Παρουσιάστηκε σφάλμα πρόσβασης στον δίσκο."
+
+#: core/tasks/api.py:86
+msgid "There was an unknown error."
+msgstr "Παρουσιάστηκε ένα άγνωστο σφάλμα."
+
+#: core/templates/kolibri/base.html:13
+#: core/templates/kolibri/unsupported_browser.html:13
+msgid "Kolibri"
+msgstr "Kolibri"
+
+#: core/templates/kolibri/unsupported_browser.html:42
+msgid "Unsupported browser"
+msgstr "Μη υποστηριζόμενο πρόγραμμα περιήγησης"
+
+#: core/templates/kolibri/unsupported_browser.html:43
+msgid "Sorry, your browser version is not supported."
+msgstr "Λυπούμαστε, η έκδοση του προγράμματος περιήγησης δεν υποστηρίζεται."
+
+#: core/templates/kolibri/unsupported_browser.html:44
+msgid "To use Kolibri, we recommend using Firefox or Chrome."
+msgstr "Για να χρησιμοποιήσετε το Kolibri, σας συνιστούμε να χρησιμοποιήσετε Firefox ή Chrome."
+
+#: core/templates/kolibri/unsupported_browser.html:45
+msgid "You can also try updating your current browser."
+msgstr "Μπορείτε επίσης να δοκιμάσετε την ενημέρωση του τρέχοντος προγράμματος περιήγησης."
+
+#: core/views.py:168
+msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
+msgstr "Δεν βρέθηκαν οι κατάλληλες σελίδες ανακατεύθυνσης. Είναι πιθανό ότι οι ρυθμίσεις για το Kolibri είναι λανθασμένες"
+
+#: plugins/facility/views.py:52
+msgctxt "Default name for the exported CSV file of facility user data. Please keep the underscore between words in the translation"
+msgid "users_{}"
+msgstr "χρήστες_{}"
+

@@ -2,56 +2,51 @@
 
   <div
     ref="sidePanel"
-    class="side-panel-wrapper"
+    :tabindex="0"
     :class="{ 'is-rtl': isRtl, 'is-mobile': isMobile }"
-    tabindex="0"
     @keyup.esc="closePanel"
   >
     <transition name="side-panel">
-      <div
-        class="side-panel"
-        :style="{
-          color: $themeTokens.text,
-          backgroundColor: $themeTokens.surface,
-          right: (alignment === 'right' ? 0 : ''),
-          left: (alignment === 'left' ? 0 : ''),
-          width: (sidePanelOverrideWidth ? sidePanelOverrideWidth : '')
-        }"
+      <FocusTrap
+        @shouldFocusFirstEl="$emit('shouldFocusFirstEl')"
+        @shouldFocusLastEl="focusLastEl"
       >
-        <div v-if="!closeButtonHidden">
+        <div
+          class="side-panel"
+          :style="sidePanelStyles"
+        >
+
+          <!-- Fixed header -->
+          <div
+            v-show="$slots.header"
+            ref="fixedHeader"
+            class="fixed-header"
+            :style="fixedHeaderStyles"
+          >
+            <div class="header-content">
+              <slot name="header">
+              </slot>
+            </div>
+          </div>
+
           <KIconButton
+            v-if="fullScreenSidePanelCloseButton"
             icon="close"
             class="close-button"
+            :ariaLabel="coreString('closeAction')"
+            :tooltip="coreString('closeAction')"
             @click="closePanel"
           />
-        </div>
-        <slot></slot>
 
-      <!--
-        <h2 class="title">
-          {{ title }}
-          <span>
-            <KIconButton
-              icon="close"
-              class="close-button"
-              @click="togglePanel"
-            />
-          </span>
-        </h2>
-        <SidePanelResourceMetadata
-          v-if="panelType === 'resourceMetadata'"
-          :togglePanel="togglePanel"
-        />
-        <SidePanelResourcesList
-          v-if="panelType === 'resourcesList'"
-          :contents="siblingNodes"
-          :currentContent="content"
-          :togglePanel="togglePanel"
-          :nextTopic="nextTopic"
-        />
-      -->
-      </div>
+          <!-- Default slot for inserting content which will scroll on overflow -->
+          <div class="side-panel-content" :style="contentStyles">
+            <slot></slot>
+          </div>
+
+        </div>
+      </FocusTrap>
     </transition>
+
     <Backdrop
       :transitions="true"
       class="backdrop"
@@ -65,49 +60,129 @@
 <script>
 
   import Backdrop from 'kolibri.coreVue.components.Backdrop';
-  //import { mapState } from 'vuex';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  //import SidePanelResourcesList from './SidePanelResourcesList';
+  import FocusTrap from 'kolibri.coreVue.components.FocusTrap';
 
   export default {
     name: 'FullScreenSidePanel',
     components: {
       Backdrop,
-      //SidePanelResourcesList,
+      FocusTrap,
     },
-    mixins: [responsiveWindowMixin],
+    mixins: [responsiveWindowMixin, commonCoreStrings],
     props: {
-      closeButtonHidden: {
+      fullScreenSidePanelCloseButton: {
         type: Boolean,
-        default: false,
+        default: true,
       },
-      // to customize the width of the side panel in different scenarios
-      sidePanelOverrideWidth: {
+      /* Optionally override the default width of the side panel with valid CSS value */
+      sidePanelWidth: {
         type: String,
         required: false,
-        default: null,
+        default: '436px',
       },
+      /* Which side of the screen should the panel be fixed? Reverses the value when isRtl */
+      alignment: {
+        type: String,
+        required: true,
+        validator(value) {
+          return ['right', 'left'].includes(value);
+        },
+      },
+    },
+    data() {
+      return {
+        /* Will be calculated in mounted() as it will get the height of the fixedHeader then */
+        fixedHeaderHeight: 0,
+        lastFocus: null,
+      };
     },
     computed: {
       isMobile() {
         return this.windowBreakpoint == 0;
       },
-      alignment() {
-        return this.isRtl ? 'left' : 'right';
+      /* Returns an object with properties left or right set to the appropriate value
+           depending on isRtl and this.alignment */
+      rtlAlignment() {
+        if (this.isRtl && this.alignment === 'left') {
+          return 'right';
+        } else if (this.isRtl && this.alignment === 'right') {
+          return 'left';
+        } else {
+          return this.alignment;
+        }
       },
+      /* Returns an object with this.rtlAlignment set to 0 */
+      langDirStyles() {
+        return {
+          [this.rtlAlignment]: 0,
+        };
+      },
+      responsiveWidth() {
+        return this.isMobile ? '100vw' : this.sidePanelWidth;
+      },
+      /** Styling Properties */
+      fixedHeaderStyles() {
+        return {
+          ...this.langDirStyles,
+          width: this.responsiveWidth,
+          minHeight: '60px',
+          position: 'fixed',
+          top: 0,
+          backgroundColor: this.$themeTokens.surface,
+          'border-bottom': `1px solid ${this.$themePalette.grey.v_500}`,
+          padding: '24px 32px',
+          // Header border stays over content with this, but under any tooltips
+          'z-index': 16,
+        };
+      },
+      sidePanelStyles() {
+        return {
+          ...this.langDirStyles,
+          width: this.responsiveWidth,
+          top: 0,
+          position: 'fixed',
+          color: this.$themeTokens.text,
+          backgroundColor: this.$themeTokens.surface,
+          'z-index': 12,
+        };
+      },
+      contentStyles() {
+        return {
+          'margin-top': this.fixedHeaderHeight,
+          padding: '24px 32px 16px',
+          'overflow-y': 'scroll',
+          height: `calc((100vh - ${this.fixedHeaderHeight}px))`,
+        };
+      },
+    },
+    beforeMount() {
+      this.lastFocus = document.activeElement;
     },
     /* this is the easiest way I could think to avoid having dual scroll bars */
     mounted() {
       const htmlTag = window.document.getElementsByTagName('html')[0];
       htmlTag.style['overflow-y'] = 'hidden';
+      // Gets the height of the fixed header - adds 40 to account for padding
+      this.fixedHeaderHeight = this.$refs.fixedHeader.clientHeight + 'px';
+      this.$nextTick(() => {
+        this.$emit('shouldFocusFirstEl');
+      });
     },
     beforeDestroy() {
       const htmlTag = window.document.getElementsByTagName('html')[0];
       htmlTag.style['overflow-y'] = 'auto';
     },
+    destroyed() {
+      window.setTimeout(() => this.lastFocus.focus());
+    },
     methods: {
       closePanel() {
         this.$emit('closePanel');
+      },
+      focusLastEl() {
+        this.$el.querySelector('.close-button').focus();
       },
     },
     $trs: {
@@ -126,47 +201,15 @@
 
   @import '~kolibri-design-system/lib/styles/definitions';
 
-  .side-panel-wrapper {
-    overflow-x: hidden;
-  }
-
-  .side-panel {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    // Must be <= 12 z-index so that KDropdownMenu shows over
-    z-index: 12;
-    width: 472px;
-    height: 100vh;
-    padding: 32px;
-    overflow: auto;
-    font-size: 14px;
-
-    .is-mobile & {
-      width: 100vw;
-    }
-  }
-
-  .title {
-    max-width: 70vw;
-    margin-left: 32px;
+  .header-content {
+    width: 100%;
   }
 
   .close-button {
-    position: fixed;
-    top: 32px;
-    right: 32px;
-    z-index: 24; // Always above everything
-  }
-
-  .next-resource-footer {
-    position: fixed;
-    bottom: 0;
-    height: 100px;
-  }
-
-  .backdrop {
-    color: rgba(0, 0, 0, 0.7);
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 24;
   }
 
   /** Need to be sure a KDropdownMenu shows up on the Side Panel */

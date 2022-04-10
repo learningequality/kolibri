@@ -9,7 +9,7 @@
       type="clear"
       textColor="white"
       class="app-bar"
-      :style="{ height: height + 'px' }"
+      :style="{ height: topBarHeight + 'px' }"
       :raised="false"
       :removeBrandDivider="true"
     >
@@ -24,10 +24,10 @@
 
       <template #brand>
         <img
-          v-if="$kolibriBranding.appBar.topLogo"
-          :src="$kolibriBranding.appBar.topLogo.src"
-          :alt="$kolibriBranding.appBar.topLogo.alt"
-          :style="$kolibriBranding.appBar.topLogo.style"
+          v-if="themeConfig.appBar.topLogo"
+          :src="themeConfig.appBar.topLogo.src"
+          :alt="themeConfig.appBar.topLogo.alt"
+          :style="themeConfig.appBar.topLogo.style"
           class="brand-logo"
         >
       </template>
@@ -71,6 +71,7 @@
             :showActive="false"
             :style="{ backgroundColor: $themeTokens.surface }"
             @close="handleCoreMenuClose"
+            @shouldFocusFirstEl="findFirstEl()"
           >
             <template v-if="isUserLoggedIn" #header>
               <div class="role">
@@ -136,7 +137,7 @@
   import UiButton from 'kolibri-design-system/lib/keen/UiButton';
   import navComponents from 'kolibri.utils.navComponents';
   import { NavComponentSections, SyncStatus, UserKinds } from 'kolibri.coreVue.vuex.constants';
-  import branding from 'kolibri.utils.branding';
+  import themeConfig from 'kolibri.themeConfig';
   import navComponentsMixin from '../mixins/nav-components';
   import LogoutSideNavEntry from './LogoutSideNavEntry';
   import SkipNavigationLink from './SkipNavigationLink';
@@ -160,13 +161,12 @@
       SyncStatusDisplay,
     },
     mixins: [commonCoreStrings, navComponentsMixin],
+    setup() {
+      return { themeConfig };
+    },
     props: {
       title: {
         type: String,
-        required: true,
-      },
-      height: {
-        type: Number,
         required: true,
       },
     },
@@ -211,7 +211,6 @@
     },
     created() {
       window.addEventListener('click', this.handleWindowClick);
-      this.$kolibriBranding = branding;
     },
     beforeDestroy() {
       window.removeEventListener('click', this.handleWindowClick);
@@ -276,6 +275,11 @@
         this.$emit('showLanguageModal');
         this.userMenuDropdownIsOpen = false;
         this.isPolling = false;
+      },
+      findFirstEl() {
+        this.$nextTick(() => {
+          this.$refs.userMenuDropdown.focusFirstEl();
+        });
       },
     },
     $trs: {
@@ -349,19 +353,6 @@
     position: fixed;
     right: 8px;
     z-index: 8;
-
-    // Holdover from previous CoreMenuOption format. Will keep the profile
-    // dropdown formatted correctly.
-    /deep/ .core-menu-option-content {
-      padding-right: 8px;
-      padding-left: 8px;
-      font-size: 0.9375rem;
-      color: black !important;
-    }
-
-    /deep/ svg {
-      fill: black !important;
-    }
   }
 
   .role {

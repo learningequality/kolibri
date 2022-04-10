@@ -11,7 +11,24 @@
       >
         <div class="column-contents-wrapper">
           <KPageContainer>
+            <div>
+              <p>{{ coreString('timeSpentLabel') }}</p>
+              <div :style="{ paddingBottom: '8px' }">
+                <TimeDuration class="timer" :seconds="time_spent" />
+              </div>
+              <p v-if="duration">
+                {{ learnString('suggestedTime') }}
+              </p>
+              <SuggestedTime v-if="content.duration" class="timer" :seconds="content.duration" />
+            </div>
+            <span
+              class="divider"
+              :style="{ borderTop: `solid 1px ${$themeTokens.fineLine}` }"
+            >
+            </span>
             <AnswerHistory
+              :pastattempts="pastattempts"
+              :questions="questions"
               :questionNumber="questionNumber"
               :wrapperComponentRefs="this.$refs"
               @goToQuestion="goToQuestion"
@@ -44,63 +61,43 @@
           </KPageContainer>
 
           <BottomAppBar :dir="bottomBarLayoutDirection" :maxWidth="null">
-            <KButtonGroup>
-              <UiIconButton
-                v-if="windowBreakpoint === 0"
-                :aria-label="$tr('nextQuestion')"
-                size="large"
-                type="secondary"
-                class="footer-button"
-                :disabled="questionNumber === exam.question_count - 1"
-                @click="goToQuestion(questionNumber + 1)"
-              >
-                <KIcon
-                  icon="forward"
-                  :style="{ fill: $themeTokens.primary }"
-                />
-              </UiIconButton>
+            <component :is="windowIsSmall ? 'div' : 'KButtonGroup'">
               <KButton
-                v-else
                 :disabled="questionNumber === exam.question_count - 1"
                 :primary="true"
-                class="footer-button"
                 :dir="layoutDirReset"
+                :aria-label="$tr('nextQuestion')"
+                :appearanceOverrides="navigationButtonStyle"
                 @click="goToQuestion(questionNumber + 1)"
               >
-                {{ $tr('nextQuestion') }}
+                <span v-if="displayNavigationButtonLabel">{{ $tr('nextQuestion') }}</span>
                 <template #iconAfter>
-                  <KIcon icon="forward" color="white" class="forward-icon" />
+                  <KIcon
+                    icon="forward"
+                    :color="$themeTokens.textInverted"
+                    :style="navigationIconStyleNext"
+                  />
                 </template>
               </KButton>
-              <UiIconButton
-                v-if="windowBreakpoint === 0"
-                :aria-label="$tr('previousQuestion')"
-                size="large"
-                type="secondary"
-                class="footer-button left-align"
-                :disabled="questionNumber === 0"
-                @click="goToQuestion(questionNumber - 1)"
-              >
-                <KIcon
-                  icon="back"
-                  :style="{ fill: $themeTokens.primary }"
-                />
-              </UiIconButton>
               <KButton
-                v-else
                 :disabled="questionNumber === 0"
                 :primary="true"
-                class="footer-button"
                 :dir="layoutDirReset"
+                :appearanceOverrides="navigationButtonStyle"
                 :class="{ 'left-align': windowIsSmall }"
+                :aria-label="$tr('previousQuestion')"
                 @click="goToQuestion(questionNumber - 1)"
               >
                 <template #icon>
-                  <KIcon icon="back" color="white" class="back-icon" />
+                  <KIcon
+                    icon="back"
+                    :color="$themeTokens.textInverted"
+                    :style="navigationIconStylePrevious"
+                  />
                 </template>
-                {{ $tr('previousQuestion') }}
+                <span v-if="displayNavigationButtonLabel">{{ $tr('previousQuestion') }}</span>
               </KButton>
-            </KButtonGroup>
+            </component>
 
             <!-- below prev/next buttons in tab and DOM order, in footer -->
             <div
@@ -163,14 +160,17 @@
 
 <script>
 
-  import { mapState, mapActions } from 'vuex';
+  import { mapState } from 'vuex';
   import isEqual from 'lodash/isEqual';
   import debounce from 'lodash/debounce';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import SuggestedTime from 'kolibri.coreVue.components.SuggestedTime';
+  import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import useProgressTracking from '../../composables/useProgressTracking';
   import { ClassesPageNames } from '../../constants';
   import { LearnerClassroomResource } from '../../apiResources';
   import AnswerHistory from './AnswerHistory';
@@ -187,8 +187,28 @@
       UiAlert,
       UiIconButton,
       BottomAppBar,
+      TimeDuration,
+      SuggestedTime,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
+    setup() {
+      const {
+        pastattempts,
+        time_spent,
+        initContentSession,
+        updateContentSession,
+        startTrackingProgress,
+        stopTrackingProgress,
+      } = useProgressTracking();
+      return {
+        pastattempts,
+        time_spent,
+        initContentSession,
+        updateContentSession,
+        startTrackingProgress,
+        stopTrackingProgress,
+      };
+    },
     data() {
       return {
         submitModalOpen: false,
@@ -198,9 +218,6 @@
       };
     },
     computed: {
-      ...mapState({
-        pastattempts: state => state.core.logging.pastattempts,
-      }),
       ...mapState('examViewer', ['exam', 'contentNodeMap', 'questions', 'questionNumber']),
       gridStyle() {
         if (!this.windowIsSmall) {
@@ -256,7 +273,14 @@
         return `${this.nodeId}:${this.itemId}`;
       },
       questionsAnswered() {
-        return this.pastattempts.reduce((count, attempt) => count + (attempt.answer ? 1 : 0), 0);
+        return Object.keys(
+          this.pastattempts.reduce((map, attempt) => {
+            if (attempt.answer) {
+              map[attempt.item] = true;
+            }
+            return map;
+          }, {})
+        ).length;
       },
       questionsUnanswered() {
         return this.exam.question_count - this.questionsAnswered;
@@ -266,7 +290,7 @@
         // and also to allow access to the cancel method of the debounced function
         // best practice seems to be to do it as a computed property and not a method:
         // https://github.com/vuejs/vue/issues/2870#issuecomment-219096773
-        return debounce(this.setAndSaveCurrentExamAttemptLog, 5000);
+        return debounce(this.setAndSaveCurrentExamAttemptLog, 500);
       },
       bottomBarLayoutDirection() {
         // Allows contents to be displayed visually in reverse-order,
@@ -276,6 +300,24 @@
       layoutDirReset() {
         // Overrides bottomBarLayoutDirection reversal
         return this.isRtl ? 'rtl' : 'ltr';
+      },
+      displayNavigationButtonLabel() {
+        return this.windowBreakpoint > 0;
+      },
+      navigationButtonStyle() {
+        return this.displayNavigationButtonLabel
+          ? {}
+          : { minWidth: '36px', width: '36px', padding: 0 };
+      },
+      navigationIconStyleNext() {
+        return this.displayNavigationButtonLabel
+          ? { position: 'relative', top: '3px', left: '4px' }
+          : {};
+      },
+      navigationIconStylePrevious() {
+        return this.displayNavigationButtonLabel
+          ? { position: 'relative', top: '3px', left: '-4px' }
+          : {};
       },
     },
     watch: {
@@ -290,14 +332,25 @@
       },
     },
     created() {
-      this.startTracking();
+      this.initContentSession({ quizId: this.exam.id })
+        .then(this.startTrackingProgress)
+        .catch(err => {
+          if (err.response && err.response.status === 403) {
+            // If exam is closed, then redirect to route for the report
+            return this.router.replace({
+              name: ClassesPageNames.EXAM_REPORT_VIEWER,
+              params: {
+                userId: this.$store.getters.currentUserId,
+                examId: this.exam.id,
+                questionNumber: 0,
+                questionInteraction: 0,
+              },
+            });
+          }
+          this.$store.dispatch('handleApiError', err);
+        });
     },
     methods: {
-      ...mapActions({
-        updateContentSession: 'updateContentSession',
-        startTracking: 'startTrackingProgress',
-        stopTracking: 'stopTrackingProgress',
-      }),
       setAndSaveCurrentExamAttemptLog({ close, interaction } = {}) {
         // Clear the learner classroom cache here as its progress data is now
         // stale
@@ -316,7 +369,7 @@
         return this.updateContentSession(data)
           .then(() => {
             if (close) {
-              this.stopTracking();
+              this.stopTrackingProgress();
             }
           })
           .catch(() => {
@@ -457,26 +510,23 @@
     text-align: center;
   }
 
-  .back-icon {
-    position: relative;
-    top: 3px;
-    left: -4px;
-  }
-
-  .forward-icon {
-    position: relative;
-    top: 3px;
-    left: 4px;
-  }
-
   .left-align {
     position: absolute;
     left: 16px;
     display: inline-block;
   }
 
-  .footer-button {
-    display: inline-block;
+  .timer {
+    font-size: 18px;
+    font-weight: bold;
+  }
+
+  .divider {
+    display: block;
+    min-width: 100%;
+    height: 1px;
+    margin: 16px 0;
+    overflow-y: hidden;
   }
 
 </style>

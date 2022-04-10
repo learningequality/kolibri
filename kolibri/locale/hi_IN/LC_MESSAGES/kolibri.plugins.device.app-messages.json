@@ -118,7 +118,7 @@
   "ManageContentPage.emptyChannelListMessage": "कोई चैनल स्थापित नहीं हैं",
   "ManageContentPage.exportChannels": "चैनल निर्यात करें",
   "ManageContentPage.import": "आयात",
-  "ManagePermissionsPage.adminsLabel": "व्यवस्थापक (ऐड्मिन)",
+  "ManagePermissionsPage.adminsLabel": "एडमिन",
   "ManagePermissionsPage.allFacilityFilter": "सभी",
   "ManagePermissionsPage.allPermissionsFilterLabel": "सभी",
   "ManagePermissionsPage.allUserTypeFilter": "सभी",

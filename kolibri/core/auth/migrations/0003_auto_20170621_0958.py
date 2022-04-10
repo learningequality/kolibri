@@ -6,6 +6,7 @@ from functools import partial
 
 from django.db import migrations
 from django.db import OperationalError
+from django.db import ProgrammingError
 
 import kolibri.core.fields
 import kolibri.utils.time_utils
@@ -21,7 +22,7 @@ def convert_datetime_to_datetimetz(apps, schema_editor, model_name=None):
             # called at all for new users
             for model in Model.objects.all():
                 model.save()
-        except OperationalError:
+        except (OperationalError, ProgrammingError):
             pass
 
 
@@ -30,18 +31,6 @@ class Migration(migrations.Migration):
     dependencies = [("kolibriauth", "0002_auto_20170608_2125")]
 
     operations = [
-        migrations.AlterField(
-            model_name="deviceowner",
-            name="date_joined",
-            field=kolibri.core.fields.DateTimeTzField(
-                default=kolibri.utils.time_utils.local_now,
-                editable=False,
-                verbose_name="date joined",
-            ),
-        ),
-        migrations.RunPython(
-            partial(convert_datetime_to_datetimetz, model_name="DeviceOwner")
-        ),
         migrations.AlterField(
             model_name="facilityuser",
             name="date_joined",

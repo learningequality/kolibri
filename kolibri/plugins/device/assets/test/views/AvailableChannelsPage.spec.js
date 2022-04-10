@@ -3,6 +3,8 @@ import AvailableChannelsPage from '../../src/views/AvailableChannelsPage';
 import { makeAvailableChannelsPageStore } from '../utils/makeStore';
 import router from './testRouter';
 
+jest.mock('kolibri.urls');
+
 function makeWrapper(options = {}) {
   const { store, props = {} } = options;
   const defaultProps = {};

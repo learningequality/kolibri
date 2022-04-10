@@ -5,13 +5,15 @@
     :description="formDescription"
     :submitText="coreString('importAction')"
     :disabled="checkFormDisabled"
+    :finishButton="users.length !== 0"
     @submit="handleSubmit"
+    @click_finish="redirectToChannels"
   >
     <p class="facility-name">
       {{ formatNameAndId(facility.name, facility.id) }}
     </p>
     <p>{{ $tr('enterCredentials') }}</p>
-    <p v-if="error && !useAdmin" class="error">
+    <p v-if="error && !useAdmin" :style="{ color: $themeTokens.error }">
       {{ coreString('invalidCredentialsError') }}
     </p>
     <KTextbox
@@ -56,7 +58,7 @@
       @submit="moveAdmin"
     >
       <p> {{ adminModalMessage }} </p>
-      <p v-if="error && useAdmin" class="error">
+      <p v-if="error && useAdmin" :style="{ color: $themeTokens.error }">
         {{ coreString('invalidCredentialsError') }}
       </p>
       <KTextbox
@@ -88,7 +90,11 @@
   import { DemographicConstants, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import OnboardingForm from '../onboarding-forms/OnboardingForm';
-  import { FacilityImportResource, SetupSoUDTasksResource } from '../../api';
+  import {
+    FacilityImportResource,
+    FinishSoUDSyncingResource,
+    SetupSoUDTasksResource,
+  } from '../../api';
 
   export default {
     name: 'ImportIndividualUserForm',
@@ -117,6 +123,9 @@
       },
       facility() {
         return this.state.value.facility;
+      },
+      users() {
+        return this.state.value.users;
       },
       checkFormDisabled() {
         return (
@@ -227,6 +236,9 @@
             } else this.$store.dispatch('handleApiError', error);
           });
       },
+      redirectToChannels() {
+        FinishSoUDSyncingResource.finish();
+      },
     },
     $trs: {
       commaSeparatedPair: {
@@ -280,10 +292,6 @@
 
   .facility-name {
     font-weight: bold;
-  }
-
-  .error {
-    color: red;
   }
 
 </style>

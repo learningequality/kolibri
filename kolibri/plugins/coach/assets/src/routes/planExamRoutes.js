@@ -8,11 +8,11 @@ import {
   showExamCreationSearchPage,
   showExamCreationQuestionSelectionPage,
   showExamCreationPreviewPage,
-  showChannelQuizCreationRootPage,
-  showChannelQuizCreationTopicPage,
-  showChannelQuizCreationPreviewPage,
+  showPracticeQuizCreationRootPage,
+  showPracticeQuizCreationTopicPage,
+  showPracticeQuizCreationPreviewPage,
 } from '../modules/examCreation/handlers';
-import CreateChannelQuizPage from '../views/plan/CreateExamPage/CreateChannelQuizPage.vue';
+import CreatePracticeQuizPage from '../views/plan/CreateExamPage/CreatePracticeQuizPage.vue';
 import CreateExamPage from '../views/plan/CreateExamPage';
 import CreateExamPreview from '../views/plan/CreateExamPage/CreateExamPreview.vue';
 import PlanQuizPreviewPage from '../views/plan/PlanQuizPreviewPage';
@@ -20,7 +20,7 @@ import CoachExamsPage from '../views/plan/CoachExamsPage';
 import { showExamsPage } from '../modules/examsRoot/handlers';
 import QuizSummaryPage from '../views/plan/QuizSummaryPage';
 import QuizEditDetailsPage from '../views/plan/QuizEditDetailsPage';
-import PlanChannelQuizPreviewPage from '../views/plan/CreateExamPage/PlanChannelQuizPreviewPage';
+import PlanPracticeQuizPreviewPage from '../views/plan/CreateExamPage/PlanPracticeQuizPreviewPage';
 
 export default [
   {
@@ -43,19 +43,19 @@ export default [
     },
   },
   {
-    name: PageNames.EXAM_CREATION_CHANNEL_QUIZ,
-    path: '/:classId/plan/quizzes/new/channel_quiz',
-    component: CreateChannelQuizPage,
+    name: PageNames.EXAM_CREATION_PRACTICE_QUIZ,
+    path: '/:classId/plan/quizzes/new/practice_quiz',
+    component: CreatePracticeQuizPage,
     handler: toRoute => {
-      showChannelQuizCreationRootPage(store, toRoute.params);
+      showPracticeQuizCreationRootPage(store, toRoute.params);
     },
   },
   {
-    name: PageNames.EXAM_CREATION_SELECT_CHANNEL_QUIZ_TOPIC,
-    path: '/:classId/plan/quizzes/new/channel_quiz/topic/:topicId',
-    component: CreateChannelQuizPage,
+    name: PageNames.EXAM_CREATION_SELECT_PRACTICE_QUIZ_TOPIC,
+    path: '/:classId/plan/quizzes/new/practice_quiz/topic/:topicId',
+    component: CreatePracticeQuizPage,
     handler: toRoute => {
-      showChannelQuizCreationTopicPage(store, toRoute.params);
+      showPracticeQuizCreationTopicPage(store, toRoute.params);
     },
   },
   {
@@ -99,19 +99,19 @@ export default [
     },
   },
   {
-    name: PageNames.EXAM_CREATION_CHANNEL_QUIZ_PREVIEW,
-    path: '/:classId/plan/quizzes/new/channel_quiz/preview/',
-    component: PlanChannelQuizPreviewPage,
+    name: PageNames.EXAM_CREATION_PRACTICE_QUIZ_PREVIEW,
+    path: '/:classId/plan/quizzes/new/practice_quiz/preview/',
+    component: PlanPracticeQuizPreviewPage,
     handler: toRoute => {
-      showChannelQuizCreationPreviewPage(store, toRoute.params);
+      showPracticeQuizCreationPreviewPage(store, toRoute.params);
     },
   },
   {
     name: PageNames.EXAM_CREATION_PREVIEW,
     path: '/:classId/plan/quizzes/new/preview/',
     component: PlanQuizPreviewPage,
-    handler: toRoute => {
-      showExamCreationPreviewPage(store, toRoute.params);
+    handler: (toRoute, fromRoute) => {
+      showExamCreationPreviewPage(store, toRoute.params, fromRoute);
     },
   },
   {

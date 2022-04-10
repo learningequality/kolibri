@@ -5,5 +5,11 @@ module.exports = {
       main: './assets/src/module.js',
       pdfJSWorker: 'pdfjs-dist/build/pdf.worker.entry',
     },
+    resolve: {
+      fallback: {
+        "zlib": false,
+        "stream": require.resolve("web-streams-polyfill/ponyfill")
+      },
+    },
   },
 };

@@ -301,9 +301,11 @@
     font-size: 16px;
     font-weight: bold;
   }
+
   .table-header {
     padding: 24px 0;
   }
+
   .table-checkbox-header {
     padding: 8px;
   }

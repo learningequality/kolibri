@@ -25,6 +25,7 @@ from zeroconf import get_all_addresses
 from zeroconf import InterfaceChoice
 
 import kolibri
+from .constants import installation_types
 from .system import become_daemon
 from .system import pid_exists
 from kolibri.utils import conf
@@ -115,7 +116,7 @@ class Server(BaseServer):
         return logger.log(level, msg)
 
 
-def check_port_availability(host, port):
+def port_is_available_on_host(host, port):
     """
     Make sure the port is available for the server to start.
     """
@@ -151,7 +152,7 @@ class PortCache:
                     if not self.values[p] and p not in self.occupied_ports
                 )
                 if port:
-                    if check_port_availability(host, port):
+                    if port_is_available_on_host(host, port):
                         self.values[port] = True
                         return port
             except StopIteration:
@@ -237,11 +238,6 @@ class ServicesPlugin(SimplePlugin):
         self.bus = bus
         self.workers = None
 
-    def ENTER(self):
-        from kolibri.deployment.default.cache import recreate_diskcache
-
-        recreate_diskcache()
-
     def START(self):
         from kolibri.core.tasks.main import initialize_workers
         from kolibri.core.tasks.main import scheduler
@@ -278,7 +274,6 @@ class ServicesPlugin(SimplePlugin):
 
 class ZeroConfPlugin(Monitor):
     def __init__(self, bus, port):
-        self.addresses = set()
         self.port = port
         Monitor.__init__(self, bus, self.run, frequency=5)
         self.bus.subscribe("SERVING", self.SERVING)
@@ -320,15 +315,17 @@ class ZeroConfPlugin(Monitor):
             self.broadcast = None
 
     def run(self):
-        # If the current addresses that zeroconf is listening on does not
-        # match the current set of all addresses for this device, then
-        # we should reinitialize zeroconf, the listener, and the broadcast
-        # kolibri service.
-        if self.broadcast is not None and self.broadcast.addresses != set(
-            get_all_addresses()
+        # If set of addresses that were present at the last time zeroconf updated its broadcast list
+        # don't match the current set of all addresses for this device, then we should reinitialize
+        # zeroconf, the listener, and the broadcast kolibri service.
+        current_addresses = set(get_all_addresses())
+        if (
+            self.broadcast is not None
+            and self.broadcast.is_broadcasting
+            and self.broadcast.addresses != current_addresses
         ):
             logger.info(
-                "New addresses detected since zeroconf was initialized, updating now"
+                "List of local addresses has changed since zeroconf was last initialized, updating now"
             )
             self.broadcast.update_broadcast(interfaces=InterfaceChoice.All)
 
@@ -605,11 +602,10 @@ class KolibriProcessBus(ProcessBus):
         if sys.platform == "darwin":
             self.background = False
 
-        # Check if there are other kolibri instances running
-        # If there are, then we need to stop users from starting kolibri again.
-        pid, _, _, status = _read_pid_file(self.pid_file)
-
-        if status in IS_RUNNING and pid_exists(pid):
+        if (
+            self._kolibri_appears_to_be_running()
+            and self._kolibri_main_port_is_occupied()
+        ):
             logger.error(
                 "There is another Kolibri server running. "
                 "Please use `kolibri stop` and try again."
@@ -655,10 +651,25 @@ class KolibriProcessBus(ProcessBus):
 
         if getattr(settings, "DEVELOPER_MODE", False):
             autoreloader = Autoreloader(self)
+            plugins = os.path.join(conf.KOLIBRI_HOME, "plugins.json")
+            options = os.path.join(conf.KOLIBRI_HOME, "options.ini")
+            autoreloader.files.add(plugins)
+            autoreloader.files.add(options)
             autoreloader.subscribe()
 
         reload_plugin = ProcessControlPlugin(self)
         reload_plugin.subscribe()
+
+    def _kolibri_appears_to_be_running(self):
+        # Check if there are other kolibri instances running
+        # If there are, then we need to stop users from starting kolibri again.
+        pid, _, _, status = _read_pid_file(self.pid_file)
+        return status in IS_RUNNING and pid_exists(pid)
+
+    def _kolibri_main_port_is_occupied(self):
+        if not self.serve_http:
+            return False
+        return not port_is_available_on_host(self.listen_address, self.port)
 
     def _port_check(self, port):
         # In case that something other than Kolibri occupies the port,
@@ -670,7 +681,7 @@ class KolibriProcessBus(ProcessBus):
         if (
             not os.environ.get("LISTEN_PID", None)
             and port
-            and not check_port_availability(self.listen_address, port)
+            and not port_is_available_on_host(self.listen_address, port)
         ):
             # Port is occupied
             logger.error(
@@ -734,7 +745,7 @@ class KolibriProcessBus(ProcessBus):
     def run(self):
         self.graceful()
         if not self.serve_http:
-            self.publish("SERVING", None)
+            self.publish("SERVING", self.port)
 
         self.block()
 
@@ -913,77 +924,116 @@ def get_urls(listen_port=None):
         return e.status_code, []
 
 
+def get_installer_version(installer_type):  # noqa: C901
+    def get_debian_pkg_version(package):
+        """
+        In case we want to distinguish between dpkg and apt installations
+        we can use apt-cache show madison and compare versions with dpkg
+        if dpkg > madison, it's dpkg otherwise it's apt
+        """
+        try:
+            output = check_output(["dpkg", "-s", package])
+            if hasattr(output, "decode"):  # needed in python 2.x
+                output = output.decode("utf-8")
+            package_info = output.split("\n")
+            version_info = [line for line in package_info if "Version" in line]
+            if version_info:
+                version = version_info[0].split(":")[1].strip()
+                return version
+        except CalledProcessError:  # package not installed!
+            pass  # will return None
+        return None
+
+    def get_deb_kolibriserver_version():
+        return get_debian_pkg_version("kolibri-server")
+
+    def get_deb_version():
+        return get_debian_pkg_version("kolibri")
+
+    def get_apk_version():
+        return os.environ.get("KOLIBRI_APK_VERSION_NAME")
+
+    installer_version = os.environ.get("KOLIBRI_INSTALLER_VERSION")
+    if installer_version:
+        return installer_version
+
+    version_funcs = {
+        installation_types.DEB: get_deb_version,
+        installation_types.KOLIBRI_SERVER: get_deb_kolibriserver_version,
+        installation_types.APK: get_apk_version,
+    }
+
+    if installer_type in version_funcs:
+        return version_funcs[installer_type]()
+    else:
+        return None
+
+
 def installation_type(cmd_line=None):  # noqa:C901
     """
     Tries to guess how the running kolibri server was installed
 
     :returns: install_type is the type of detected installation
     """
+
+    install_type = os.environ.get("KOLIBRI_INSTALLATION_TYPE", "Unknown")
+
     if cmd_line is None:
         cmd_line = sys.argv
-    install_type = "Unknown"
 
     def is_debian_package():
         # find out if this is from the debian package
-        install_type = "dpkg"
+        install_type = installation_types.DEB
         try:
-            check_output(["apt-cache", "show", "kolibri"])
-            apt_repo = str(check_output(["apt-cache", "madison", "kolibri"]))
-            if len(apt_repo) > 4:  # repo will have at least http
-                install_type = "apt"
+            check_output(["dpkg", "-s", "kolibri"])
         except (
             CalledProcessError,
             FileNotFoundError,
         ):  # kolibri package not installed!
             if sys.path[-1] != "/usr/lib/python3/dist-packages":
-                install_type = "whl"
+                install_type = installation_types.WHL
         return install_type
 
     def is_kolibri_server():
         # running under uwsgi, finding out if we are using kolibri-server
-        install_type = ""
+        install_type = "Unknown"
         try:
-            package_info = (
-                check_output(["apt-cache", "show", "kolibri-server"])
-                .decode("utf-8")
-                .split("\n")
-            )
-            version = [output for output in package_info if "Version" in output]
-            install_type = "kolibri-server {}".format(version[0])
+            check_output(["dpkg", "-s", "kolibri-server"])
+            install_type = installation_types.KOLIBRI_SERVER
         except CalledProcessError:  # kolibri-server package not installed!
-            install_type = "uwsgi"
+            install_type = installation_types.WHL
         return install_type
 
-    if len(cmd_line) > 1 or "uwsgi" in cmd_line:
-        launcher = cmd_line[0]
-        if launcher.endswith(".pex"):
-            install_type = "pex"
-        elif "runserver" in cmd_line:
-            install_type = "devserver"
-        elif launcher == "/usr/bin/kolibri":
-            install_type = is_debian_package()
-        elif launcher == "uwsgi":
-            package = is_debian_package()
-            if package != "whl":
-                kolibri_server = is_kolibri_server()
-                install_type = "kolibri({kolibri_type}) with {kolibri_server}".format(
-                    kolibri_type=package, kolibri_server=kolibri_server
-                )
-        elif "\\Scripts\\kolibri" in launcher:
-            paths = sys.path
-            for path in paths:
-                if "kolibri.exe" in path:
-                    install_type = "Windows"
-                    break
-        elif "start" in cmd_line:
-            install_type = "whl"
-    if on_android():
+    # in case the KOLIBRI_INSTALLATION_TYPE is not set, let's use the old method:
+    if install_type == "Unknown":
+        if on_android():
+            install_type = installation_types.APK
+        elif len(cmd_line) > 1 or "uwsgi" in cmd_line:
+            launcher = cmd_line[0]
+            if launcher.endswith(".pex"):
+                install_type = installation_types.PEX
+            elif "runserver" in cmd_line:
+                install_type = "devserver"
+            elif launcher == "/usr/bin/kolibri":
+                install_type = is_debian_package()
+            elif launcher == "uwsgi":
+                package = is_debian_package()
+                if package != "whl":
+                    install_type = is_kolibri_server()
+            elif "\\Scripts\\kolibri" in launcher:
+                paths = sys.path
+                for path in paths:
+                    if "kolibri.exe" in path:
+                        install_type = installation_types.WINDOWS
+                        break
+            elif "start" in cmd_line:
+                install_type = installation_types.WHL
 
-        version_name = os.environ.get("KOLIBRI_APK_VERSION_NAME")
-
-        if version_name:
-            install_type = "apk - {}".format(version_name)
+    if install_type in installation_types.install_type_map:
+        version = get_installer_version(install_type)
+        if version:
+            return installation_types.install_type_map[install_type].format(version)
         else:
-            install_type = "apk"
+            return installation_types.install_type_map[install_type].split(" - ")[0]
 
     return install_type

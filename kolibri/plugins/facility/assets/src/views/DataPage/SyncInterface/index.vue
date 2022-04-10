@@ -28,17 +28,50 @@
             <td class="button-col">
               <KButtonGroup style="margin-top: 8px; overflow: visible">
                 <KButton
+                  v-if="!theFacility.dataset.registered"
                   appearance="raised-button"
                   :text="$tr('register')"
-                  :disabled="Boolean(syncTaskId) || theFacility.dataset.registered"
                   @click="displayModal(Modals.REGISTER_FACILITY)"
                 />
                 <KButton
+                  v-else-if="!Boolean(syncTaskId)"
                   appearance="raised-button"
                   :text="$tr('sync')"
-                  :disabled="Boolean(syncTaskId)"
                   @click="displayModal(Modals.SYNC_FACILITY)"
                 />
+                <KIconButton
+                  ref="moreOptionsButton"
+                  data-test="moreOptionsButton"
+                  icon="optionsHorizontal"
+                  :tooltip="coreString('optionsLabel')"
+                  :ariaLabel="coreString('optionsLabel')"
+                  @click="toggleMenu"
+                />
+                <CoreMenu
+                  v-show="isMenuOpen"
+                  ref="menu"
+                  class="menu"
+                  :raised="true"
+                  :isOpen="isMenuOpen"
+                  :containFocus="true"
+                  @close="closeMenu"
+                  @shouldFocusFirstEl="findFirstEl()"
+                >
+                  <template #options>
+                    <CoreMenuOption
+                      v-if="theFacility.dataset.registered"
+                      :style="{ 'cursor': 'pointer', textAlign: 'left' }"
+                      :label="$tr('register')"
+                      @select="displayModal(Modals.REGISTER_FACILITY)"
+                    />
+                    <CoreMenuOption
+                      v-else
+                      :style="{ 'cursor': 'pointer', textAlign: 'left' }"
+                      :label="$tr('sync')"
+                      @select="displayModal(Modals.SYNC_FACILITY)"
+                    />
+                  </template>
+                </CoreMenu>
               </KButtonGroup>
             </td>
           </tr>
@@ -89,6 +122,9 @@
   } from 'kolibri.coreVue.componentSets.sync';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import { FacilityTaskResource, FacilityResource } from 'kolibri.resources';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
+  import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
   import { TaskStatuses } from '../../../constants';
   import PrivacyModal from './PrivacyModal';
 
@@ -108,8 +144,10 @@
       RegisterFacilityModal,
       ConfirmationRegisterModal,
       SyncFacilityModalGroup,
+      CoreMenu,
+      CoreMenuOption,
     },
-    mixins: [commonSyncElements],
+    mixins: [commonSyncElements, commonCoreStrings],
     data() {
       return {
         theFacility: null,
@@ -119,6 +157,7 @@
         isSyncing: false,
         syncHasFailed: false,
         Modals,
+        isMenuOpen: false,
       };
     },
     beforeMount() {
@@ -166,6 +205,7 @@
       },
       handleConfirmationSuccess(payload) {
         this.$store.commit('manageCSV/SET_REGISTERED', payload);
+        this.theFacility.dataset.registered = true;
         this.closeModal();
       },
       handleSyncFacilitySuccess(taskId) {
@@ -177,6 +217,29 @@
       handleSyncFacilityFailure() {
         this.syncHasFailed = true;
         this.closeModal();
+      },
+      closeMenu({ focusMoreOptionsButton = true } = {}) {
+        this.isMenuOpen = false;
+        if (!focusMoreOptionsButton) {
+          return;
+        }
+        this.$nextTick(() => {
+          this.$refs.moreOptionsButton.$el.focus();
+        });
+      },
+      toggleMenu() {
+        this.isMenuOpen = !this.isMenuOpen;
+        if (!this.isMenuOpen) {
+          return;
+        }
+        this.$nextTick(() => {
+          this.$refs.menu.$el.focus();
+        });
+      },
+      findFirstEl() {
+        this.$nextTick(() => {
+          this.$refs.menu.focusFirstEl();
+        });
       },
     },
     $trs: {

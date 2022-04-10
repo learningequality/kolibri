@@ -112,7 +112,9 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         # Load in the user data from the csv file to give a predictable source of user data
-        data_path = os.path.join(os.path.dirname(__file__), "user_data.csv")
+        data_path = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "user_data.csv")
+        )
         with io.open(data_path, mode="r", encoding="utf-8") as f:
             user_data = [data for data in csv.DictReader(f)]
 

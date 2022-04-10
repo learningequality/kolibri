@@ -48,7 +48,7 @@ These modules would now be available for import anywhere with the following stat
 Styling
 -------
 
-To help enforce style guide specs, we provide global variables that can be used throughout the codebase. This requires including  ``@import '~kolibri.styles.definitions';`` within a SCSS file or a component's ``<style>`` block. This exposes all variables in ``definitions.scss``.
+To help enforce style guide specs, we provide global variables that can be used throughout the codebase. This requires including  ``@import '~kolibri-design-system/lib/styles/definitions';`` within a SCSS file or a component's ``<style>`` block. This exposes all variables in ``definitions.scss``.
 
 Dynamic core theme
 ------------------

@@ -7,12 +7,14 @@ import uuid
 from django.core.management import call_command
 from django.test import TestCase
 from mock import patch
+from morango.sync.controller import MorangoProfileController
 
 from .. import models as auth_models
 from ..management.commands import deprovision
 from .helpers import setup_device
 from .test_api import ClassroomFactory
 from .test_api import LearnerGroupFactory
+from kolibri.core.auth.constants.morango_sync import PROFILE_FACILITY_DATA
 from kolibri.core.content import models as content_models
 from kolibri.core.logger.test.factory_logger import ContentSessionLogFactory
 from kolibri.core.logger.test.factory_logger import ContentSummaryLogFactory
@@ -50,6 +52,7 @@ class UserImportCommandTestCase(TestCase):
                     user=user, content_id=uuid.uuid4().hex, channel_id=uuid.uuid4().hex
                 )
                 UserSessionLogFactory.create(user=user)
+        MorangoProfileController(PROFILE_FACILITY_DATA).serialize_into_store()
 
     @patch("kolibri.core.auth.management.commands.deprovision.confirm_or_exit")
     def test_setup_no_headers_bad_user_good_user(self, confirm_or_exit_mock):
@@ -60,7 +63,8 @@ class UserImportCommandTestCase(TestCase):
             content_models.AssessmentMetaData,
         ]
         assert count_instances(deprovision.MODELS_TO_DELETE) > 0
-        assert count_instances(models_that_should_remain) > 0
+        initial_model_count = count_instances(models_that_should_remain)
+        assert initial_model_count > 0
         call_command("deprovision")
         assert count_instances(deprovision.MODELS_TO_DELETE) == 0
-        assert count_instances(models_that_should_remain) > 0
+        assert count_instances(models_that_should_remain) == initial_model_count

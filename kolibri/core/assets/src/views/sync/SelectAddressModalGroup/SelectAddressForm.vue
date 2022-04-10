@@ -60,7 +60,10 @@
         </div>
       </template>
 
-      <hr v-if="!hideSavedAddresses && discoveredAddresses.length > 0">
+      <hr
+        v-if="!hideSavedAddresses && discoveredAddresses.length > 0"
+        :style="{ border: 0, borderBottom: `1px solid ${$themeTokens.fineLine}` }"
+      >
 
       <!-- Dynamic Addresses -->
       <template v-for="d in discoveredAddresses">
@@ -259,7 +262,11 @@
       },
       combinedAddresses(addrs) {
         this.availableAddressIds = addrs
-          .filter(address => address.available)
+          .filter(
+            address =>
+              address.available &&
+              (this.$route.path === '/content' || address.application === 'kolibri')
+          )
           .map(address => address.id);
         if (!this.availableAddressIds.includes(this.selectedAddressId)) {
           this.selectedAddressId = '';
@@ -382,11 +389,6 @@
     margin-right: 2px;
     margin-bottom: 2px;
     vertical-align: middle;
-  }
-
-  hr {
-    border: 0;
-    border-bottom: 1px solid #cbcbcb;
   }
 
   .loader {

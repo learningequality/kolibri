@@ -2,14 +2,14 @@
 
   <div>
     <YourClasses
-      v-if="isUserLoggedIn && classes.length"
+      v-if="displayClasses"
       class="section"
       :classes="classes"
       data-test="classes"
       short
     />
     <ContinueLearning
-      v-if="continueLearningFromClasses || continueLearningOnYourOwn"
+      v-if="continueLearning"
       class="section"
       :fromClasses="continueLearningFromClasses"
       :data-test="continueLearningFromClasses ?
@@ -37,7 +37,11 @@
       :channels="channels"
       class="section"
       data-test="exploreChannels"
-      short
+      :short="displayClasses ||
+        continueLearning ||
+        hasActiveClassesLessons ||
+        hasActiveClassesQuizzes
+      "
     />
   </div>
 
@@ -99,6 +103,11 @@
           get(canAccessUnassignedContent) &&
           get(resumableContentNodes).length > 0
       );
+
+      const continueLearning = computed(
+        () => get(continueLearningFromClasses) || get(continueLearningOnYourOwn)
+      );
+
       const hasActiveClassesLessons = computed(
         () =>
           get(isUserLoggedIn) && get(activeClassesLessons) && get(activeClassesLessons).length > 0
@@ -118,6 +127,10 @@
         );
       });
 
+      const displayClasses = computed(() => {
+        return get(isUserLoggedIn) && (get(classes).length || !get(canAccessUnassignedContent));
+      });
+
       return {
         isUserLoggedIn,
         channels,
@@ -127,8 +140,9 @@
         hasActiveClassesLessons,
         hasActiveClassesQuizzes,
         continueLearningFromClasses,
-        continueLearningOnYourOwn,
+        continueLearning,
         displayExploreChannels,
+        displayClasses,
       };
     },
   };

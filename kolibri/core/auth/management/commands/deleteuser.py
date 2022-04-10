@@ -1,8 +1,8 @@
 from django.core.management.base import BaseCommand
 from django.core.management.base import CommandError
 
+from kolibri.core.auth.management.utils import confirm_or_exit
 from kolibri.core.auth.models import FacilityUser
-from kolibri.core.auth.utils import confirm_or_exit
 
 
 class Command(BaseCommand):

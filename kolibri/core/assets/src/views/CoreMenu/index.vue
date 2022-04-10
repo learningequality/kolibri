@@ -18,9 +18,10 @@
 
       <FocusTrap
         ref="focusTrap"
+        class="ui-menu-options"
         :disabled="!containFocus"
-        :firstEl="firstFocusableEl"
-        :lastEl="lastFocusableEl"
+        @shouldFocusFirstEl="$emit('shouldFocusFirstEl')"
+        @shouldFocusLastEl="focusLastEl"
       >
         <slot name="options"></slot>
       </FocusTrap>
@@ -76,12 +77,6 @@
         showActive: this.showActive,
       };
     },
-    data() {
-      return {
-        firstFocusableEl: null,
-        lastFocusableEl: null,
-      };
-    },
     computed: {
       classes() {
         return {
@@ -97,13 +92,38 @@
         }
       },
     },
+    beforeMount() {
+      this.lastFocus = document.activeElement;
+    },
     mounted() {
       // make sure that all child components have been mounted
       // before attempting to access their elements
       this.$nextTick(() => {
-        this.firstFocusableEl = this.$el.querySelector('.core-menu-option');
-        this.lastFocusableEl = last(this.$el.querySelectorAll('.core-menu-option'));
+        this.focusFirstEl();
       });
+    },
+    destroyed() {
+      window.setTimeout(() => this.lastFocus.focus());
+    },
+    methods: {
+      /**
+       * @public
+       * Focuses on correct last element for FocusTrap depending on content
+       * rendered in CoreMenu.
+       */
+      focusLastEl() {
+        last(this.$el.querySelectorAll('.core-menu-option')).focus();
+      },
+      /**
+       * @public
+       * Focuses on correct first element for FocusTrap depending on content
+       * rendered in CoreMenu.
+       */
+      focusFirstEl() {
+        if (this.$el.querySelector('.core-menu-option')) {
+          this.$el.querySelector('.core-menu-option').focus();
+        }
+      },
     },
   };
 
@@ -113,11 +133,17 @@
 <style lang="scss" scoped>
 
   @import '~kolibri-design-system/lib/styles/definitions';
+
   .ui-menu-header {
     padding: 1rem 1rem 1rem 1.2rem;
     font-size: 0.9375rem;
     border-bottom: 1px solid rgba(0, 0, 0, 0.08);
   }
+
+  .ui-menu-options {
+    padding-top: 4px; // make enough space for the keyboard focus ring
+  }
+
   .ui-menu-footer {
     padding: 1rem 1rem 0 1.2rem;
     border-top: 1px solid rgba(0, 0, 0, 0.08);

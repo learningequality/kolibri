@@ -7,11 +7,13 @@
   "CommonLearnStrings.markResourceAsCompleteLabel": "حوالہ جات کو مکمل کے بطور نشان زد کریں",
   "CommonLearnStrings.mostPopularLabel": "مشہور ترین",
   "CommonLearnStrings.multipleLearningActivities": "متعدد سیکھنے والی سرگرمیاں",
-  "CommonLearnStrings.multipleLearningActivitiesLabel": "",
+  "CommonLearnStrings.multipleLearningActivitiesLabel": "متعدد سیکھنے والی سرگرمیاں",
   "CommonLearnStrings.nextStepsLabel": "اگلے مرحلے",
   "CommonLearnStrings.popularLabel": "مشہور",
+  "CommonLearnStrings.quizLabel": "کوئز",
   "CommonLearnStrings.resourceCompletedLabel": "مکمل حوالہ جات",
   "CommonLearnStrings.resourceHidden": "پوشیدہ حوالہ جات",
   "CommonLearnStrings.resumeLabel": "دوبارہ شروع کریں",
+  "CommonLearnStrings.suggestedTime": "",
   "CommonLearnStrings.suggestedTimeToComplete": "مکمل کرنے کے لیے تجویز کردہ وقت"
 }

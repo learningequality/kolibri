@@ -1,24 +1,28 @@
 <template>
 
   <!--
-    Text is wrapped in two `div`s to allow parent components adding
+    Text is wrapped in two `spans`s to allow parent components adding
     padding style directly on `<TextTruncatorCss>` component no matter
     of what truncating technique is used. Otherwise adding padding directly
     would break when using technique (B) since text that should be truncated
     would show in padding area.
 
-    Attributes are inherited by the inner `div` to emulate the same behavior
+    Attributes are inherited by the inner `span` to emulate the same behavior
     like if only one element would wrap the text to allow attributes be applied
     as close as possible to the text element.
+
+    Some width information need to be provided to `<span>s` to allow `text-overflow`
+    calculate properly when ellipsis should be added.
   -->
-  <div>
-    <div
+  <span :style="{ display: 'inline-block', maxWidth: '100%' }">
+    <span
       v-bind="$attrs"
+      :style="{ display: 'inline-block', maxWidth: '100%' }"
       :class="$computedClass(truncate)"
     >
       {{ text }}
-    </div>
-  </div>
+    </span>
+  </span>
 
 </template>
 
@@ -123,7 +127,7 @@
               right: 0,
               width: ellipsisWidth,
               height: '100%',
-              background: 'white',
+              background: this.$themeTokens.surface,
             },
           };
         }

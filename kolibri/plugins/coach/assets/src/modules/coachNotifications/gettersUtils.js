@@ -15,6 +15,7 @@ function makeParams(notification) {
     // For individual Quiz or Exercise notifications, default to first index for everything
     questionId: 0,
     interactionIndex: 0,
+    tryIndex: 0,
   };
 }
 

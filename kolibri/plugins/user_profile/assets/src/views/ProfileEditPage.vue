@@ -1,6 +1,8 @@
 <template>
 
+  <!-- The v-if ensures the page isn't visible briefly before redirection -->
   <CoreBase
+    v-if="!isSubsetOfUsersDevice"
     :immersivePage="true"
     immersivePageIcon="close"
     :appBarTitle="$tr('editProfileHeader')"
@@ -69,6 +71,7 @@
 
   import every from 'lodash/every';
   import pickBy from 'lodash/pickBy';
+  import redirectBrowser from 'kolibri.utils.redirectBrowser';
   import { mapGetters } from 'vuex';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
@@ -80,6 +83,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import { ComponentMap } from '../constants';
+  import plugin_data from 'plugin_data';
 
   export default {
     name: 'ProfileEditPage',
@@ -97,11 +101,10 @@
     },
     mixins: [commonCoreStrings],
     data() {
-      const { username, full_name } = this.$store.state.core.session;
       return {
-        fullName: full_name,
+        fullName: '',
         fullNameValid: false,
-        username: username,
+        username: '',
         usernameValid: false,
         birthYear: '',
         gender: '',
@@ -109,6 +112,7 @@
         formSubmitted: false,
         status: '',
         userCopy: {},
+        isSubsetOfUsersDevice: plugin_data['isSubsetOfUsersDevice'],
       };
     },
     computed: {
@@ -141,6 +145,13 @@
     mounted() {
       this.setFacilityUser();
     },
+    created() {
+      // Users cannot edit profiles on SoUD so redirect them if they get here which should
+      // only be possible by direct linking to the URL that leads here
+      if (plugin_data['isSubsetOfUsersDevice']) {
+        redirectBrowser();
+      }
+    },
     methods: {
       // Have to query FacilityUser again since we don't put demographic info on the session
       setFacilityUser() {
@@ -148,6 +159,8 @@
           facilityUser => {
             this.birthYear = facilityUser.birth_year;
             this.gender = facilityUser.gender;
+            this.fullName = facilityUser.full_name;
+            this.username = facilityUser.username;
             this.userCopy = { ...facilityUser };
           }
         );

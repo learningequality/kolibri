@@ -17,6 +17,17 @@ jest.mock('../../../composables/useUser');
 jest.mock('../../../composables/useDeviceSettings');
 jest.mock('../../../composables/useLearnerResources');
 
+jest.mock('kolibri.utils.coreStrings', () => {
+  const translations = {
+    readReference: 'Reference',
+  };
+  return {
+    $tr: jest.fn(key => {
+      return translations[key];
+    }),
+  };
+});
+
 const localVue = createLocalVue();
 localVue.use(VueRouter);
 
@@ -85,10 +96,22 @@ describe(`HomePage`, () => {
       expect(getClassesSection(wrapper).exists()).toBe(false);
     });
 
-    it(`the section is not displayed for a signed in user with no classes`, () => {
+    it(`the section is not displayed for a signed in user who has no classes and can access unassigned content`, () => {
+      useDeviceSettings.mockImplementation(() =>
+        useDeviceSettingsMock({ canAccessUnassignedContent: true })
+      );
       useUser.mockImplementation(() => useUserMock({ isUserLoggedIn: true }));
       const wrapper = makeWrapper();
       expect(getClassesSection(wrapper).exists()).toBe(false);
+    });
+
+    it(`the section is displayed for a signed in user with no classes who cannot access unassigned content`, () => {
+      useDeviceSettings.mockImplementation(() =>
+        useDeviceSettingsMock({ canAccessUnassignedContent: false })
+      );
+      useUser.mockImplementation(() => useUserMock({ isUserLoggedIn: true }));
+      const wrapper = makeWrapper();
+      expect(getClassesSection(wrapper).exists()).toBe(true);
     });
 
     it(`classes are displayed for a signed in user who is enrolled in some classes`, () => {
@@ -137,14 +160,14 @@ describe(`HomePage`, () => {
                 lessonId: 'class-1-lesson',
                 classId: 'class-1',
                 progress: 0.5,
-                contentNode: { id: 'class-resource-1', title: 'Class resource 1' },
+                contentNode: { id: 'class-resource-1', title: 'Class resource 1', is_leaf: true },
               },
               {
                 contentNodeId: 'class-resource-2',
                 lessonId: 'class-2-lesson',
                 classId: 'class-2',
                 progress: 0.5,
-                contentNode: { id: 'class-resource-2', title: 'Class resource 2' },
+                contentNode: { id: 'class-resource-2', title: 'Class resource 2', is_leaf: true },
               },
             ],
             getClassQuizLink() {
@@ -287,8 +310,8 @@ describe(`HomePage`, () => {
           useLearnerResourcesMock({
             learnerFinishedAllClasses: true,
             resumableContentNodes: [
-              { id: 'non-class-resource-1', title: 'Non-class resource 1' },
-              { id: 'non-class-resource-2', title: 'Non-class resource 2' },
+              { id: 'non-class-resource-1', title: 'Non-class resource 1', is_leaf: true },
+              { id: 'non-class-resource-2', title: 'Non-class resource 2', is_leaf: true },
             ],
             getTopicContentNodeLink() {
               return { path: '/topic-resource' };

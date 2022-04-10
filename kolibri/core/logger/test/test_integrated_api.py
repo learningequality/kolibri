@@ -9,6 +9,7 @@ from django.core.urlresolvers import reverse
 from django.http.cookie import SimpleCookie
 from le_utils.constants import content_kinds
 from le_utils.constants import exercises
+from le_utils.constants import modalities
 from mock import patch
 from rest_framework.test import APITestCase
 from six import string_types
@@ -311,7 +312,7 @@ class ProgressTrackingViewSetStartSessionFreshTestCase(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             response.json()["mastery_criterion"],
-            {"type": "quiz", "coach_assigned": True},
+            {"type": exercises.QUIZ, "coach_assigned": True},
         )
         self.assertEqual(ContentSessionLog.objects.all().count(), 1)
         log = ContentSessionLog.objects.get()
@@ -326,7 +327,7 @@ class ProgressTrackingViewSetStartSessionFreshTestCase(APITestCase):
         self.assertEqual(ContentSummaryLog.objects.all().count(), 1)
         log = MasteryLog.objects.get()
         self.assertEqual(
-            log.mastery_criterion, {"type": "quiz", "coach_assigned": True}
+            log.mastery_criterion, {"type": exercises.QUIZ, "coach_assigned": True}
         )
         result = response.json()
         self.assertEqual(result["progress"], 0)
@@ -361,6 +362,47 @@ class ProgressTrackingViewSetStartSessionFreshTestCase(APITestCase):
             save_queue_mock.assert_not_called()
 
         self.assertEqual(response.status_code, 403)
+
+    def test_start_assessment_session_logged_in_practice_quiz_succeeds(self):
+        self.node.kind = content_kinds.EXERCISE
+        self.node.options = {"modality": modalities.QUIZ}
+        self.node.save()
+        mastery_model = {"type": exercises.M_OF_N, "m": 8, "n": 10}
+        AssessmentMetaData.objects.create(
+            mastery_model=mastery_model,
+            contentnode=self.node,
+            id=uuid.uuid4().hex,
+            number_of_assessments=20,
+        )
+        self.client.login(
+            username=self.user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self._make_request({})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["mastery_criterion"], {"type": exercises.QUIZ})
+        self.assertEqual(ContentSessionLog.objects.all().count(), 1)
+        log = ContentSessionLog.objects.get()
+        self.assertEqual(log.content_id, self.content_id)
+        self.assertEqual(log.channel_id, self.channel_id)
+        self.assertEqual(ContentSummaryLog.objects.all().count(), 1)
+        log = ContentSummaryLog.objects.get()
+        self.assertEqual(log.content_id, self.content_id)
+        self.assertEqual(log.channel_id, self.channel_id)
+        self.assertEqual(ContentSummaryLog.objects.all().count(), 1)
+        log = MasteryLog.objects.get()
+        self.assertEqual(log.mastery_criterion, {"type": exercises.QUIZ})
+        self.assertLess(log.mastery_level, 0)
+        result = response.json()
+        self.assertEqual(result["progress"], 0)
+        self.assertEqual(result["time_spent"], 0)
+        self.assertEqual(result["complete"], False)
+        self.assertEqual(result["extra_fields"], {})
+        self.assertEqual(result["pastattempts"], [])
+        self.assertEqual(result["totalattempts"], 0)
+        self.assertEqual(result["context"]["node_id"], self.node.id)
 
     def tearDown(self):
         self.client.logout()
@@ -490,6 +532,7 @@ class ProgressTrackingViewSetStartSessionAssessmentResumeTestCase(APITestCase):
             start_timestamp=local_now(),
             end_timestamp=local_now(),
             kind="exercise",
+            time_spent=17,
         )
 
         self.mastery_log = MasteryLog.objects.create(
@@ -498,6 +541,7 @@ class ProgressTrackingViewSetStartSessionAssessmentResumeTestCase(APITestCase):
             start_timestamp=self.summary_log.start_timestamp,
             user=self.user,
             mastery_level=1,
+            time_spent=7,
         )
         self.client.login(
             username=self.user.username,
@@ -533,16 +577,52 @@ class ProgressTrackingViewSetStartSessionAssessmentResumeTestCase(APITestCase):
         self.assertEqual(log.channel_id, new_channel_id)
         self.assertEqual(ContentSummaryLog.objects.all().count(), 1)
         data = response.json()
-        self.assertEqual(log.time_spent, data["time_spent"])
         self.assertEqual(log.progress, data["progress"])
         self.assertEqual(log.extra_fields, data["extra_fields"])
         self.assertEqual(self.node.id, data["context"]["node_id"])
         self.assertEqual(session_id, data["session_id"])
         log = MasteryLog.objects.get()
+        self.assertEqual(log.time_spent, data["time_spent"])
         self.assertEqual(log.mastery_level, data["context"]["mastery_level"])
         self.assertEqual(log.mastery_level, data["context"]["mastery_level"])
         self.assertEqual(log.mastery_criterion, self.mastery_model)
         self.assertEqual(data["mastery_criterion"], self.mastery_model)
+        self.assertEqual(log.complete, data["complete"])
+
+    def test_start_assessment_session_logged_in_practice_quiz_succeeds(self):
+        new_channel_id = uuid.uuid4().hex
+        self.node.channel_id = new_channel_id
+        self.node.options["modality"] = modalities.QUIZ
+        self.node.save()
+        self.mastery_log.delete()
+        self.mastery_log.mastery_level = -10
+        self.mastery_log.mastery_criterion = {"type": exercises.QUIZ}
+        self.mastery_log.save()
+        response = self._make_request({})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["mastery_criterion"], {"type": exercises.QUIZ})
+        self.assertEqual(ContentSessionLog.objects.all().count(), 2)
+        log = ContentSessionLog.objects.filter(channel_id=new_channel_id).get()
+        self.assertEqual(log.content_id, self.content_id)
+        self.assertEqual(log.channel_id, new_channel_id)
+        self.assertEqual(ContentSummaryLog.objects.all().count(), 1)
+        session_id = log.id
+        log = ContentSummaryLog.objects.get()
+        self.assertEqual(log.content_id, self.content_id)
+        self.assertEqual(log.channel_id, new_channel_id)
+        self.assertEqual(ContentSummaryLog.objects.all().count(), 1)
+        data = response.json()
+        self.assertEqual(log.progress, data["progress"])
+        self.assertEqual(log.extra_fields, data["extra_fields"])
+        self.assertEqual(self.node.id, data["context"]["node_id"])
+        self.assertEqual(session_id, data["session_id"])
+        log = MasteryLog.objects.get(mastery_level=-10)
+        self.assertEqual(log.time_spent, data["time_spent"])
+        self.assertEqual(log.mastery_level, data["context"]["mastery_level"])
+        self.assertEqual(log.mastery_level, data["context"]["mastery_level"])
+        self.assertEqual(log.mastery_criterion, {"type": exercises.QUIZ})
+        self.assertEqual(data["mastery_criterion"], {"type": exercises.QUIZ})
         self.assertEqual(log.complete, data["complete"])
 
     def test_start_assessment_session_logged_in_changed_mastery_model_succeeds(self):
@@ -567,7 +647,55 @@ class ProgressTrackingViewSetStartSessionAssessmentResumeTestCase(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(MasteryLog.objects.all().count(), 1)
 
+    def test_start_assessment_session_logged_in_completed_practice_quiz_no_new(self):
+        self.node.options["modality"] = modalities.QUIZ
+        self.node.save()
+        self.mastery_log.delete()
+        self.mastery_log.mastery_level = -10
+        self.mastery_log.mastery_criterion = {"type": exercises.QUIZ}
+        self.mastery_log.complete = True
+        self.mastery_log.save()
+        response = self._make_request({})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(MasteryLog.objects.all().count(), 1)
+
+    def test_start_assessment_session_logged_in_previous_completed_no_new(self):
+        self.mastery_log.complete = True
+        self.mastery_log.save()
+        self.mastery_log = MasteryLog.objects.create(
+            mastery_criterion=self.mastery_model,
+            summarylog=self.summary_log,
+            start_timestamp=self.summary_log.start_timestamp,
+            user=self.user,
+            mastery_level=2,
+        )
+        response = self._make_request({})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(MasteryLog.objects.all().count(), 2)
+        self.assertEqual(response.data["complete"], False)
+
     def test_start_assessment_session_logged_in_completed_repeat_new(self):
+        self.mastery_log.complete = True
+        self.mastery_log.save()
+        response = self._make_request(
+            {
+                "repeat": True,
+            }
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(MasteryLog.objects.all().count(), 2)
+
+    def test_start_assessment_session_logged_in_completed_practice_quiz_repeat_new(
+        self,
+    ):
+        self.node.options["modality"] = modalities.QUIZ
+        self.node.save()
+        self.mastery_log.delete()
+        self.mastery_log.mastery_level = -10
+        self.mastery_log.mastery_criterion = {"type": exercises.QUIZ}
         self.mastery_log.complete = True
         self.mastery_log.save()
         response = self._make_request(
@@ -658,14 +786,18 @@ class ProgressTrackingViewSetStartSessionAssessmentResumeTestCase(APITestCase):
         self.assertEqual(response.json()["totalattempts"], 15)
         self.assertEqual(len(response.json()["pastattempts"]), 2)
 
-    def test_start_assessment_session_logged_in_with_history_quiz_type(self):
+    def test_start_assessment_session_logged_in_with_history_practice_quiz_type(self):
         timestamp = local_now()
         interaction = {
             "type": interaction_types.ANSWER,
             "answer": {"response": "hinty mchintyson"},
             "correct": 0,
         }
-        self.mastery_log.mastery_criterion = {"type": "quiz", "coach_assigned": True}
+        self.node.options["modality"] = modalities.QUIZ
+        self.node.save()
+        self.mastery_log.delete()
+        self.mastery_log.mastery_criterion = {"type": exercises.QUIZ}
+        self.mastery_log.mastery_level = -10
         self.mastery_log.save()
         for i in range(0, 15):
             AttemptLog.objects.create(
@@ -674,7 +806,59 @@ class ProgressTrackingViewSetStartSessionAssessmentResumeTestCase(APITestCase):
                 start_timestamp=timestamp,
                 end_timestamp=timestamp,
                 correct=0,
-                item="{}:test_item_id".format(i),
+                item="{}test_item_id".format(i),
+                user=self.user,
+                answer=interaction["answer"],
+                interaction_history=[interaction],
+            )
+        response = self._make_request({})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["totalattempts"], 15)
+        self.assertEqual(len(response.json()["pastattempts"]), 15)
+
+    def test_start_assessment_session_logged_in_with_history_practice_quiz_type_exercise_collision(
+        self,
+    ):
+        """
+        Test that if an exercise masterylog exists for this practice quiz that doesn't interfere with
+        the quiz.
+        """
+        timestamp = local_now()
+        interaction = {
+            "type": interaction_types.ANSWER,
+            "answer": {"response": "hinty mchintyson"},
+            "correct": 0,
+        }
+        for i in range(0, 15):
+            AttemptLog.objects.create(
+                masterylog=self.mastery_log,
+                sessionlog=self.session_log,
+                start_timestamp=timestamp,
+                end_timestamp=timestamp,
+                correct=0,
+                item="{}test_item_id".format(i),
+                user=self.user,
+                answer=interaction["answer"],
+                interaction_history=[interaction],
+            )
+        self.node.options["modality"] = modalities.QUIZ
+        self.node.save()
+        self.mastery_log = MasteryLog.objects.create(
+            mastery_criterion={"type": exercises.QUIZ},
+            summarylog=self.summary_log,
+            start_timestamp=self.summary_log.start_timestamp,
+            user=self.user,
+            mastery_level=-10,
+        )
+        for i in range(0, 15):
+            AttemptLog.objects.create(
+                masterylog=self.mastery_log,
+                sessionlog=self.session_log,
+                start_timestamp=timestamp,
+                end_timestamp=timestamp,
+                correct=0,
+                item="{}test_item_id".format(i),
                 user=self.user,
                 answer=interaction["answer"],
                 interaction_history=[interaction],
@@ -714,14 +898,16 @@ class ProgressTrackingViewSetStartSessionCoachQuizResumeTestCase(APITestCase):
             start_timestamp=local_now(),
             end_timestamp=local_now(),
             kind="quiz",
+            time_spent=24,
         )
 
         self.mastery_log = MasteryLog.objects.create(
-            mastery_criterion={"type": "quiz", "coach_assigned": True},
+            mastery_criterion={"type": exercises.QUIZ, "coach_assigned": True},
             summarylog=self.summary_log,
             start_timestamp=self.summary_log.start_timestamp,
             user=self.user,
             mastery_level=-1,
+            time_spent=17,
         )
         self.client.login(
             username=self.user.username,
@@ -753,6 +939,7 @@ class ProgressTrackingViewSetStartSessionCoachQuizResumeTestCase(APITestCase):
         self.assertEqual(log.content_id, self.content_id)
         self.assertIsNone(log.channel_id)
         self.assertEqual(ContentSummaryLog.objects.all().count(), 1)
+        self.assertEqual(self.mastery_log.time_spent, response.json()["time_spent"])
 
     def test_start_assessment_session_logged_in_quiz_not_active_fails(self):
         self.quiz.active = False
@@ -796,7 +983,10 @@ class ProgressTrackingViewSetStartSessionCoachQuizResumeTestCase(APITestCase):
             "answer": {"response": "hinty mchintyson"},
             "correct": 0,
         }
-        self.mastery_log.mastery_criterion = {"type": "quiz", "coach_assigned": True}
+        self.mastery_log.mastery_criterion = {
+            "type": exercises.QUIZ,
+            "coach_assigned": True,
+        }
         self.mastery_log.save()
         for i in range(0, 15):
             AttemptLog.objects.create(
@@ -1886,6 +2076,24 @@ class ProgressTrackingViewSetLoggedInUpdateSessionAssessmentTestCase(
     def mastery_level(self):
         return self.mastery_log.mastery_level
 
+    def test_update_assessment_session_update_time_delta_succeeds(self):
+        self.session_log.extra_fields = {
+            "context": {
+                "node_id": self.node.id,
+                "mastery_level": self.mastery_level,
+            }
+        }
+        self.session_log.save()
+        response = self._make_request(
+            {
+                "time_spent_delta": 5,
+            }
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.mastery_log.refresh_from_db()
+        self.assertEqual(self.mastery_log.time_spent, 5)
+
     def test_update_assessment_session_create_attempt_in_lesson_succeeds(self):
         lesson = create_assigned_lesson_for_user(self.user)
         lesson_id = lesson.id
@@ -2026,7 +2234,7 @@ class ProgressTrackingViewSetLoggedInUpdateSessionCoachQuizTestCase(
         )
 
         self.mastery_log = MasteryLog.objects.create(
-            mastery_criterion={"type": "quiz", "coach_assigned": True},
+            mastery_criterion={"type": exercises.QUIZ, "coach_assigned": True},
             summarylog=self.summary_log,
             start_timestamp=self.summary_log.start_timestamp,
             user=self.user,
@@ -2053,6 +2261,18 @@ class ProgressTrackingViewSetLoggedInUpdateSessionCoachQuizTestCase(
             data=data,
             format="json",
         )
+
+    def test_update_assessment_session_update_time_delta_succeeds(self):
+        with patch("kolibri.core.logger.api.wrap_to_save_queue"):
+            response = self._make_request(
+                {
+                    "time_spent_delta": 5,
+                }
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.mastery_log.refresh_from_db()
+        self.assertEqual(self.mastery_log.time_spent, 5)
 
     def test_update_assessment_session_create_attempt_succeeds(self):
         with patch("kolibri.core.logger.api.wrap_to_save_queue") as save_queue_mock:
@@ -2193,6 +2413,196 @@ class ProgressTrackingViewSetLoggedInUpdateSessionCoachQuizTestCase(
         )
 
         self.assertEqual(response.status_code, 403)
+
+    def tearDown(self):
+        self.client.logout()
+
+
+class ProgressTrackingViewSetLoggedInUpdateSessionAssessmentPracticeQuizTestCase(
+    ProgressTrackingViewSetUpdateSessionAssessmentBase, APITestCase
+):
+    def setUp(self):
+        self.facility = FacilityFactory.create()
+        # provision device to pass the setup_wizard middleware check
+        provision_device()
+        self.user = FacilityUserFactory.create(facility=self.facility)
+
+        self.channel_id = uuid.uuid4().hex
+        self.content_id = uuid.uuid4().hex
+
+        self.node = ContentNode.objects.create(
+            channel_id=self.channel_id,
+            content_id=self.content_id,
+            id=uuid.uuid4().hex,
+            options={"modality": modalities.QUIZ},
+        )
+        mastery_model = {"type": exercises.M_OF_N, "m": 8, "n": 10}
+        AssessmentMetaData.objects.create(
+            mastery_model=mastery_model,
+            contentnode=self.node,
+            id=uuid.uuid4().hex,
+            number_of_assessments=20,
+        )
+
+        self.session_log = ContentSessionLog.objects.create(
+            user=self.user,
+            content_id=self.content_id,
+            channel_id=self.channel_id,
+            start_timestamp=local_now(),
+            end_timestamp=local_now(),
+            kind="exercise",
+            extra_fields={"context": {"node_id": self.node.id, "mastery_level": -1}},
+        )
+        self.summary_log = ContentSummaryLog.objects.create(
+            user=self.user,
+            content_id=self.content_id,
+            channel_id=self.channel_id,
+            start_timestamp=local_now(),
+            end_timestamp=local_now(),
+            kind="exercise",
+        )
+
+        self.item = "test_item_id"
+
+        self.mastery_log = MasteryLog.objects.create(
+            mastery_criterion={"type": exercises.QUIZ},
+            summarylog=self.summary_log,
+            start_timestamp=self.summary_log.start_timestamp,
+            user=self.user,
+            mastery_level=-1,
+        )
+        self.client.login(
+            username=self.user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+
+    @property
+    def mastery_level(self):
+        return self.mastery_log.mastery_level
+
+    def test_update_assessment_session_update_time_delta_succeeds(self):
+        self.session_log.extra_fields = {
+            "context": {
+                "node_id": self.node.id,
+                "mastery_level": self.mastery_level,
+            }
+        }
+        self.session_log.save()
+        response = self._make_request(
+            {
+                "time_spent_delta": 5,
+            }
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.mastery_log.refresh_from_db()
+        self.assertEqual(self.mastery_log.time_spent, 5)
+
+    def test_update_assessment_session_create_attempt_in_lesson_succeeds(self):
+        lesson = create_assigned_lesson_for_user(self.user)
+        lesson_id = lesson.id
+        self.session_log.extra_fields = {
+            "context": {
+                "lesson_id": lesson_id,
+                "node_id": self.node.id,
+                "mastery_level": self.mastery_level,
+            }
+        }
+        self.session_log.save()
+        with patch("kolibri.core.logger.api.wrap_to_save_queue") as save_queue_mock:
+            response = self._make_request(
+                {
+                    "interactions": [
+                        {
+                            "item": self.item,
+                            "answer": {"response": "test"},
+                            "correct": 1.0,
+                            "time_spent": 10,
+                        }
+                    ],
+                }
+            )
+            save_queue_mock.assert_called()
+            self.assertEqual(save_queue_mock.mock_calls[0][1][0], parse_attemptslog)
+            self.assertTrue(isinstance(save_queue_mock.mock_calls[0][1][1], AttemptLog))
+
+        self.assertEqual(response.status_code, 200)
+        attempt_id = response.json().get("attempts", [{}])[0].get("id")
+        self.assertIsNotNone(attempt_id)
+        try:
+            attempt = AttemptLog.objects.get(id=attempt_id)
+        except AttemptLog.DoesNotExist:
+            self.fail("Attempt not created")
+        self.assertEqual(attempt.item, self.item)
+        self.assertEqual(attempt.correct, 1.0)
+        self.assertEqual(attempt.answer, {"response": "test"})
+        self.assertEqual(attempt.time_spent, 10)
+
+    def test_update_assessment_session_update_attempt_in_lesson_succeeds(self):
+        timestamp = local_now()
+        hinteraction = {
+            "type": interaction_types.HINT,
+            "answer": {"response": "hinty mchintyson"},
+        }
+        attemptlog = AttemptLog.objects.create(
+            masterylog=self.mastery_log,
+            sessionlog=self.session_log,
+            start_timestamp=timestamp,
+            end_timestamp=timestamp,
+            correct=0,
+            item="test_item_id",
+            user=self.user,
+            interaction_history=[hinteraction],
+        )
+        lesson = create_assigned_lesson_for_user(self.user)
+        lesson_id = lesson.id
+        self.session_log.extra_fields = {
+            "context": {
+                "lesson_id": lesson_id,
+                "node_id": self.node.id,
+                "mastery_level": self.mastery_level,
+            }
+        }
+        self.session_log.save()
+        with patch("kolibri.core.logger.api.wrap_to_save_queue") as save_queue_mock:
+            response = self._make_request(
+                {
+                    "interactions": [
+                        {
+                            "id": attemptlog.id,
+                            "item": self.item,
+                            "answer": {"response": "test"},
+                            "correct": 1,
+                            "time_spent": 10,
+                            "replace": True,
+                        }
+                    ],
+                }
+            )
+            save_queue_mock.assert_called()
+            self.assertEqual(save_queue_mock.mock_calls[0][1][0], parse_attemptslog)
+            self.assertTrue(isinstance(save_queue_mock.mock_calls[0][1][1], AttemptLog))
+
+        self.assertEqual(response.status_code, 200)
+        attempt_id = response.json().get("attempts", [{}])[0].get("id")
+        self.assertIsNotNone(attempt_id)
+        try:
+            attempt = AttemptLog.objects.get(id=attempt_id)
+        except AttemptLog.DoesNotExist:
+            self.fail("Nonexistent attempt_id returned")
+        self.assertEqual(attempt.correct, 1.0)
+        self.assertEqual(attempt.answer, {"response": "test"})
+        self.assertEqual(attempt.time_spent, 10)
+        self.assertEqual(attempt.interaction_history[0], hinteraction)
+        self.assertEqual(
+            attempt.interaction_history[1],
+            {
+                "type": interaction_types.ANSWER,
+                "answer": {"response": "test"},
+                "correct": 1.0,
+            },
+        )
 
     def tearDown(self):
         self.client.logout()

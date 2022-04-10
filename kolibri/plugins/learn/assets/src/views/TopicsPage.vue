@@ -7,23 +7,31 @@
 
     <div v-else class="page">
       <!-- Header with thumbail and tagline -->
-      <div v-if="!windowIsSmall" class="header">
+      <div
+        v-if="!windowIsSmall"
+        ref="header"
+        class="header"
+        :style="{
+          backgroundColor: $themeTokens.surface,
+          borderBottom: `1px solid ${$themeTokens.fineLine}`
+        }"
+      >
         <KGrid>
           <KGridItem
-            v-if="!displayingSearchResults"
             class="breadcrumbs"
+            data-test="header-breadcrumbs"
             :layout4="{ span: 4 }"
             :layout8="{ span: 8 }"
             :layout12="{ span: 12 }"
           >
-            <slot name="breadcrumbs"></slot>
+            <KBreadcrumbs v-if="breadcrumbs.length" :items="breadcrumbs" />
           </KGridItem>
           <KGridItem
-            :layout4="{ span: 4 }"
-            :layout8="{ span: 8 }"
-            :layout12="{ span: 12 }"
+            :layout4="{ span: 4, alignment: 'auto' }"
+            :layout8="{ span: 8, alignment: 'auto' }"
+            :layout12="{ span: 12, alignment: 'auto' }"
           >
-            <h1 class="title">
+            <h1 class="title" data-test="header-title">
               <TextTruncator
                 :text="topic.title"
                 :maxHeight="maxTitleHeight"
@@ -52,9 +60,9 @@
           <KGridItem
             v-if="topic.description"
             class="text"
-            :layout4="{ span: topic.thumbnail ? 3 : 4 }"
-            :layout8="{ span: topic.thumbnail ? 6 : 8 }"
-            :layout12="{ span: topic.thumbnail ? 10 : 12 }"
+            :layout4="{ span: topic.thumbnail ? 3 : 4, alignment: 'auto' }"
+            :layout8="{ span: topic.thumbnail ? 6 : 8, alignment: 'auto' }"
+            :layout12="{ span: topic.thumbnail ? 10 : 12, alignment: 'auto' }"
           >
             <TextTruncator
               :text="topic.description"
@@ -63,105 +71,105 @@
           </KGridItem>
         </KGrid>
         <!-- Nested tabs within the header, for toggling sidebar options -->
-        <!-- larger screens -->
-        <div class="tabs">
-          <KRouterLink
-            ref="tab_button"
-            :to="foldersLink"
+        <!-- large screens -->
+        <HeaderTabs v-if="!!windowIsLarge" data-test="header-tabs">
+          <HeaderTab
+            v-if="topics.length"
             :text="coreString('folders')"
-            appearance="flat-button"
-            class="tab-button"
-            :style="!searchActive ? {
-              color: `${this.$themeTokens.primary} !important`,
-              borderBottom: `2px solid ${this.$themeTokens.primary}`,
-              paddingBottom: '2px',
-            } : {}"
-            :appearanceOverrides="customTabButtonOverrides"
+            :to="foldersLink"
           />
-          <KRouterLink
-            ref="tab_button"
-            :to="searchLink"
+          <HeaderTab
             :text="coreString('searchLabel')"
-            appearance="flat-button"
-            class="tab-button"
-            :style="searchActive ? {
-              color: `${this.$themeTokens.primary} !important`,
-              borderBottom: `2px solid ${this.$themeTokens.primary}`,
-              paddingBottom: '2px',
-            } : {}"
-            :appearanceOverrides="customTabButtonOverrides"
+            :to="topics.length ? searchTabLink : {} "
           />
-        </div>
+        </HeaderTabs>
       </div>
       <!-- mobile tabs (different alignment and interactions) -->
-      <div v-if="windowIsSmall" class="mobile-header">
-        <div class="mobile-header-contents">
-          <div class="mobile-tabs">
-            <KRouterLink
-              ref="tab_button"
-              :to="foldersLink"
-              :text="coreString('folders')"
-              appearance="flat-button"
-              :appearanceOverrides="customTabButtonOverrides"
+      <KGrid
+        v-if="windowIsSmall"
+        class="mobile-header"
+        data-test="mobile-header"
+        :style="{ backgroundColor: $themeTokens.surface }"
+      >
+        <KGridItem
+          :layout4="{ span: 3 }"
+        >
+          <h1 class="mobile-title" data-test="mobile-title">
+            <TextTruncator
+              :text="topic.title"
+              :maxHeight="maxDescriptionHeight"
             />
-            <KRouterLink
-              ref="tab_button"
-              :to="searchLink"
-              :text="coreString('searchLabel')"
-              appearance="flat-button"
-              :appearanceOverrides="customTabButtonOverrides"
-            />
-          </div>
+          </h1>
+        </KGridItem>
+        <KGridItem
+          :layout4="{ span: 1 }"
+        >
           <img
             :src="topic.thumbnail"
             class="channel-logo"
           >
-        </div>
-      </div>
+        </KGridItem>
+      </KGrid>
 
       <main
         class="main-content-grid"
         :style="gridOffset"
       >
+        <KBreadcrumbs
+          v-if="breadcrumbs.length && windowIsSmall"
+          data-test="mobile-breadcrumbs"
+          :items="breadcrumbs"
+        />
         <div
           class="card-grid"
         >
-          <div v-if="(windowIsMedium && searchActive)">
+          <div v-if="!windowIsLarge" data-test="tab-buttons">
+            <KButton
+              v-if="topics.length"
+              icon="topic"
+              data-test="folders-button"
+              class="overlay-toggle-button"
+              :text="coreString('folders')"
+              :primary="false"
+              @click="toggleFolderSearchSidePanel('folder')"
+            />
             <KButton
               icon="filter"
-              class="filter-overlay-toggle-button"
-              :text="coreString('searchLabel')"
+              class="overlay-toggle-button"
+              data-test="filter-button"
+              :text="filterTranslator.$tr('filter')"
               :primary="false"
-              @click="$router.push(searchLink)"
+              @click="toggleFolderSearchSidePanel('search')"
             />
+
           </div>
           <!-- default/preview display of nested folder structure, not search -->
-          <div v-if="!displayingSearchResults">
-            <h2>
-              <TextTruncator
-                :text="topic.title"
-                :maxHeight="maxTitleHeight"
-              />
-            </h2>
+          <div v-if="!displayingSearchResults" data-test="topics">
             <!-- display for each nested topic/folder  -->
             <div v-for="t in topicsForDisplay" :key="t.id">
               <!-- header link to folder -->
-              <h3>
+              <h2>
                 <KRouterLink
                   :text="t.title"
                   :to="genContentLink(t.id)"
                   class="folder-header-link"
-                  iconAfter="chevronRight"
                   :appearanceOverrides="{ color: $themeTokens.text }"
-                />
-              </h3>
+                >
+                  <template #iconAfter>
+                    <KIcon
+                      icon="chevronRight"
+                      :style="{ top: '4px' }"
+                    />
+                  </template>
+                </KRouterLink>
+              </h2>
               <!-- card grid of items in folder -->
-              <HybridLearningCardGrid
+              <LibraryAndChannelBrowserMainContent
                 v-if="t.children && t.children.length"
+                data-test="children-cards-grid"
                 :contents="t.children"
-                :numCols="numCols"
-                :genContentLink="genContentLink"
-                cardViewStyle="card"
+                currentCardViewStyle="card"
+                :gridType="2"
                 @toggleInfoPanel="toggleInfoPanel"
               />
               <KButton
@@ -186,8 +194,12 @@
               <KCircularLoader v-if="t.id === subTopicLoading" />
             </div>
             <!-- search results -->
+            <!----
+              TODO - is this necessary at all? how is this different than the search results below?
+            -->
             <HybridLearningCardGrid
               v-if="resources.length"
+              data-test="search-results"
               :contents="resources"
               :numCols="numCols"
               :genContentLink="genContentLink"
@@ -207,17 +219,13 @@
           </div>
           <div v-else-if="!searchLoading">
             <h2 class="results-title">
-              {{ translator.$tr('results', { results: results.length }) }}
+              {{ more ?
+                coreString('overCertainNumberOfSearchResults', { num: results.length }) :
+                translator.$tr('results', { results: results.length })
+              }}
             </h2>
-            <KButton
-              v-if="more"
-              :text="coreString('viewMoreAction')"
-              appearance="basic-link"
-              :disabled="moreLoading"
-              class="filter-action-button"
-              @click="searchMore"
-            />
             <SearchChips
+              data-test="search-terms"
               :searchTerms="searchTerms"
               @removeItem="removeFilterTag"
               @clearSearch="clearSearch"
@@ -225,15 +233,16 @@
             <!-- search results display -->
             <HybridLearningCardGrid
               v-if="results.length"
+              data-test="search-results"
               :numCols="numCols"
               :cardViewStyle="currentViewStyle"
               :genContentLink="genContentLink"
               :contents="results"
               @toggleInfoPanel="toggleInfoPanel"
             />
-            <div v-if="more" class="end-button-block">
+            <div v-if="more" data-test="more-button" class="end-button-block">
               <KButton
-                v-if="moreLoading"
+                v-if="!moreLoading"
                 :text="coreString('viewMoreAction')"
                 appearance="basic-link"
                 :disabled="moreLoading"
@@ -257,9 +266,10 @@
 
       <!-- Embedded Side panel is on larger views, and exists next to content -->
       <EmbeddedSidePanel
-        v-if="!!windowIsLarge || (windowIsMedium && !searchActive)"
+        v-if="!!windowIsLarge"
         v-model="searchTerms"
-        :topicsListDisplayed="!searchActive"
+        :topicsListDisplayed="!desktopSearchActive"
+        class="side-panel"
         topicPage="True"
         :topics="topics"
         :activeActivityButtons="activeActivityButtons"
@@ -271,10 +281,7 @@
         :availableLabels="labels"
         :showChannels="false"
         position="embedded"
-        :style="{ position: 'fixed',
-                  marginTop: stickyTop,
-                  paddingTop: '24px',
-                  paddingBottom: '200px' }"
+        :style="sidePanelStyleOverrides"
         @currentCategory="handleShowSearchModal"
         @loadMoreTopics="handleLoadMoreInTopic"
       />
@@ -283,19 +290,12 @@
       <FullScreenSidePanel
         v-if="!windowIsLarge && sidePanelIsOpen"
         class="full-screen-side-panel"
-        :closeButtonHidden="true"
-        :sidePanelOverrideWidth="`${sidePanelOverlayWidth + 64}px`"
-        @closePanel="$router.push(currentLink)"
+        alignment="left"
+        :fullScreenSidePanelCloseButton="true"
+        :sidePanelOverrideWidth="`${sidePanelOverlayWidth}px`"
+        @closePanel="toggleFolderSearchSidePanel"
+        @shouldFocusFirstEl="findFirstEl()"
       >
-        <KIconButton
-          v-if="windowIsSmall && !currentCategory"
-          class="overlay-close-button"
-          icon="close"
-          :ariaLabel="coreString('closeAction')"
-          :color="$themeTokens.text"
-          :tooltip="coreString('closeAction')"
-          @click="$router.push(currentLink)"
-        />
         <KIconButton
           v-if="windowIsSmall && currentCategory"
           icon="back"
@@ -306,14 +306,14 @@
         />
         <EmbeddedSidePanel
           v-if="!currentCategory"
+          ref="embeddedPanel"
           v-model="searchTerms"
-          :topicsListDisplayed="!searchActive"
+          :topicsListDisplayed="!mobileSearchActive"
           topicPage="True"
           :topics="topics"
           :topicsLoading="topicMoreLoading"
           :more="topicMore"
           :genContentLink="genContentLink"
-          :width="`${sidePanelOverlayWidth}px`"
           :availableLabels="labels"
           :activeActivityButtons="activeActivityButtons"
           :activeCategories="activeCategories"
@@ -343,11 +343,39 @@
       />
 
     </div>
+
+    <!-- Side panel for showing the information of selected content with a link to view it -->
     <FullScreenSidePanel
       v-if="sidePanelContent"
+      alignment="right"
       @closePanel="sidePanelContent = null"
+      @shouldFocusFirstEl="findFirstEl()"
     >
-      <BrowseResourceMetadata :content="sidePanelContent" :showLocationsInChannel="true" />
+      <template #header>
+        <!-- Flex styles tested in ie11 and look good. Ensures good spacing between
+            multiple chips - not a common thing but just in case -->
+        <div
+          v-for="activity in sidePanelContent.learning_activities"
+          :key="activity"
+          class="side-panel-chips"
+          :class="$computedClass({ '::after': {
+            content: '',
+            flex: 'auto'
+          } })"
+        >
+          <LearningActivityChip
+            class="chip"
+            style="margin-left: 8px; margin-bottom: 8px;"
+            :kind="activity"
+          />
+        </div>
+      </template>
+
+      <BrowseResourceMetadata
+        ref="resourcePanel"
+        :content="sidePanelContent"
+        :showLocationsInChannel="true"
+      />
     </FullScreenSidePanel>
   </div>
 
@@ -357,9 +385,12 @@
 <script>
 
   import { mapActions, mapState } from 'vuex';
+  import isEqual from 'lodash/isEqual';
+  import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
+  import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import FullScreenSidePanel from 'kolibri.coreVue.components.FullScreenSidePanel';
@@ -368,18 +399,19 @@
   import { normalizeContentNode } from '../modules/coreLearn/utils.js';
   import useSearch from '../composables/useSearch';
   import genContentLink from '../utils/genContentLink';
+  import HeaderTabs from '../../../../coach/assets/src/views/common/HeaderTabs';
+  import HeaderTab from '../../../../coach/assets/src/views/common/HeaderTabs/HeaderTab';
   import HybridLearningCardGrid from './HybridLearningCardGrid';
   import EmbeddedSidePanel from './EmbeddedSidePanel';
   import BrowseResourceMetadata from './BrowseResourceMetadata';
+  import LearningActivityChip from './LearningActivityChip';
   import CustomContentRenderer from './ChannelRenderer/CustomContentRenderer';
   import CardThumbnail from './ContentCard/CardThumbnail';
   import CategorySearchModal from './CategorySearchModal';
   import SearchChips from './SearchChips';
   import LibraryPage from './LibraryPage';
+  import LibraryAndChannelBrowserMainContent from './LibraryAndChannelBrowserMainContent';
   import plugin_data from 'plugin_data';
-
-  const carouselLimit = 4;
-  const mobileCarouselLimit = 3;
 
   export default {
     name: 'TopicsPage',
@@ -398,15 +430,20 @@
       return { title };
     },
     components: {
+      KBreadcrumbs,
       CardThumbnail,
       HybridLearningCardGrid,
+      LibraryAndChannelBrowserMainContent,
       CustomContentRenderer,
       CategorySearchModal,
       EmbeddedSidePanel,
       FullScreenSidePanel,
+      LearningActivityChip,
       BrowseResourceMetadata,
       SearchChips,
       TextTruncator,
+      HeaderTab,
+      HeaderTabs,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
     setup() {
@@ -443,45 +480,52 @@
     },
     data: function() {
       return {
-        stickyTop: '388px',
+        sidePanelStyleOverrides: {},
         currentViewStyle: 'card',
         currentCategory: null,
         showSearchModal: false,
+        sidePanelIsOpen: false,
         sidePanelContent: null,
         expandedTopics: {},
         subTopicLoading: null,
         topicMoreLoading: false,
+        mobileSearchActive: false,
       };
     },
     computed: {
       ...mapState('topicsTree', ['channel', 'contents', 'isRoot', 'topic']),
-      sidePanelIsOpen() {
-        return this.$route.query.sidePanel === 'true';
+      childrenToDisplay() {
+        return Math.max(this.numCols, 3);
+      },
+      breadcrumbs() {
+        if (!this.topic || !this.topic.ancestors) {
+          return [];
+        }
+        return [
+          ...this.topic.ancestors.map(({ title, id }, index) => ({
+            // Use the channel name just in case the root node does not have a title.
+            text: index === 0 ? this.channelTitle : title,
+            link: {
+              name: PageNames.TOPICS_TOPIC,
+              params: { id },
+            },
+          })),
+          { text: this.topic.ancestors.length ? this.topic.title : this.channelTitle },
+        ];
       },
       foldersLink() {
         if (this.topic) {
-          const query = {};
-          if (this.windowIsSmall || this.windowIsMedium) {
-            query.sidePanel = String(
-              this.$route.name === PageNames.TOPICS_TOPIC ? !this.sidePanelIsOpen : true
-            );
-          }
           return {
             name: PageNames.TOPICS_TOPIC,
             id: this.topic.id,
-            query,
           };
         }
         return {};
       },
-      searchLink() {
+      searchTabLink() {
+        // navigates the main page to the search view
         if (this.topic) {
           const query = { ...this.$route.query };
-          if (this.windowIsSmall || this.windowIsMedium) {
-            query.sidePanel = String(
-              this.$route.name === PageNames.TOPICS_TOPIC_SEARCH ? !this.sidePanelIsOpen : true
-            );
-          }
           delete query.dropdown;
           return {
             name: PageNames.TOPICS_TOPIC_SEARCH,
@@ -491,14 +535,11 @@
         }
         return {};
       },
-      currentLink() {
-        return this.searchActive ? this.searchLink : this.foldersLink;
-      },
-      searchActive() {
+      desktopSearchActive() {
         return this.$route.name === PageNames.TOPICS_TOPIC_SEARCH;
       },
       channelTitle() {
-        return this.channel.title;
+        return this.channel.name;
       },
       resources() {
         const resources = this.contents.filter(content => content.kind !== ContentNodeKinds.TOPIC);
@@ -519,9 +560,10 @@
           .map(t => {
             let childrenToDisplay;
             const topicChildren = t.children ? t.children.results : [];
-            if (this.subTopicId) {
+            if (this.subTopicId || this.topics.length === 1) {
               // If we are in a subtopic display, we should only be displaying this topic
               // so don't bother checking if the ids match.
+              // Alternatively, if there is only one topic, we should display all of its children.
               childrenToDisplay = topicChildren.length;
             } else if (this.expandedTopics[t.id]) {
               // If topic is expanded show three times as many children.
@@ -574,20 +616,8 @@
         }
         return false;
       },
-      customTabButtonOverrides() {
-        return {
-          textTransform: 'capitalize',
-          paddingBottom: '10px',
-          fontWeight: 'normal',
-          ':hover': {
-            color: this.$themeTokens.primary,
-            'background-color': this.$themeTokens.surface,
-            borderBottom: `2px solid ${this.$themeTokens.primary}`,
-          },
-        };
-      },
       sidePanelWidth() {
-        if (this.windowIsSmall || (this.windowIsMedium && this.searchActive)) {
+        if (!this.windowIsLarge) {
           return 0;
         } else if (this.windowBreakpoint < 4) {
           return 234;
@@ -604,13 +634,13 @@
         return 300;
       },
       numCols() {
-        if (this.windowBreakpoint < 2) {
+        if (this.windowBreakpoint > 1 && this.windowBreakpoint < 2) {
           return 2;
-        } else if (this.windowBreakpoint <= 4) {
+        } else if (this.windowBreakpoint >= 2 && this.windowBreakpoint <= 4) {
           return 3;
-        } else {
+        } else if (this.windowBreakpoint > 4) {
           return 4;
-        }
+        } else return null;
       },
       // calls handleScroll no more than every 17ms
       throttledHandleScroll() {
@@ -621,9 +651,6 @@
       },
       activeCategories() {
         return this.searchTerms.categories;
-      },
-      childrenToDisplay() {
-        return this.windowIsLarge ? carouselLimit : mobileCarouselLimit;
       },
       topicMore() {
         return this.topic.children && this.topic.children.more;
@@ -644,12 +671,28 @@
           this.handleLoadMoreinSubtopic(newValue);
         }
       },
+      searchTerms(newVal, oldVal) {
+        if (!isEqual(newVal, oldVal)) {
+          if (!isEqual(this.searchTabLink, this.$route)) {
+            this.$router.push({ ...this.searchTabLink }).catch(() => {});
+          }
+          this.sidePanelIsOpen = false;
+        }
+      },
+      sidePanelContent() {
+        if (this.sidePanelContent) {
+          document.documentElement.style.position = 'fixed';
+          return;
+        }
+        document.documentElement.style.position = '';
+      },
     },
     beforeDestroy() {
       window.removeEventListener('scroll', this.throttledHandleScroll);
     },
     created() {
       this.translator = crossComponentTranslator(LibraryPage);
+      this.filterTranslator = crossComponentTranslator(FilterTextbox);
       window.addEventListener('scroll', this.throttledHandleScroll);
       this.setSearchWithinDescendant(this.topic);
       this.search();
@@ -675,21 +718,29 @@
       toggleInfoPanel(content) {
         this.sidePanelContent = content;
       },
+      toggleFolderSearchSidePanel(option) {
+        option == 'search' ? (this.mobileSearchActive = true) : (this.mobileSearchActive = false);
+        this.sidePanelIsOpen = !this.sidePanelIsOpen;
+      },
+      // Stick the side panel to top. That can be on the very top of the viewport
+      // or right under the 'Browse channel' toolbar, depending on whether the toolbar
+      // is visible or no (the toolbar hides on smaller resolutions when scrolling
+      // down and appears again when scrolling up).
+      // Takes effect only when the side panel is not displayed full-screen.
       stickyCalculation() {
-        let header = document.getElementsByClassName('header')[0];
-        let topbar = document.getElementsByClassName('ui-toolbar')[0];
-        if (header) {
-          let position = header.getBoundingClientRect();
-          let topbarPosition = topbar.getBoundingClientRect();
-          if (position.bottom >= 64) {
-            this.stickyTop = `${position.bottom}px`;
-          } else if (position.bottom < 0 && topbarPosition.bottom < 0) {
-            this.stickyTop = '0px';
-          } else {
-            this.stickyTop = '64px';
-          }
+        const header = this.$refs.header;
+        const topbar = document.querySelector('.scrolling-header');
+        const headerBottom = header ? header.getBoundingClientRect().bottom : 0;
+        const topbarBottom = topbar ? topbar.getBoundingClientRect().bottom : 0;
+
+        if (headerBottom < Math.max(topbarBottom, 0)) {
+          this.sidePanelStyleOverrides = {
+            position: 'fixed',
+            top: `${Math.max(0, headerBottom, topbarBottom)}px`,
+            height: '100%',
+          };
         } else {
-          null;
+          this.sidePanelStyleOverrides = {};
         }
       },
       handleShowMore(topicId) {
@@ -709,6 +760,13 @@
         this.loadMoreTopics().then(() => {
           this.topicMoreLoading = false;
         });
+      },
+      findFirstEl() {
+        if (this.$refs.embeddedPanel) {
+          this.$refs.embeddedPanel.focusFirstEl();
+        } else {
+          this.$refs.resourcePanel.focusFirstEl();
+        }
       },
     },
     $trs: {
@@ -737,29 +795,27 @@
 
 <style lang="scss" scoped>
 
+  $header-height: 324px;
+  $toolbar-height: 70px;
+
   .page {
     position: relative;
+    min-height: calc(100vh - #{$toolbar-height});
     overflow-x: hidden;
   }
 
   .header {
     position: relative;
-    // z-index: 4;
     width: 100%;
-    height: 324px;
+    height: $header-height;
     padding-top: 32px;
-    padding-bottom: 0;
+    padding-bottom: 48px;
     padding-left: 32px;
-    background-color: white;
-    border: 1px solid #dedede;
   }
 
   .folder-header-link {
     /deep/ .link-text {
       text-decoration: none !important;
-    }
-    /deep/ svg {
-      fill: black !important;
     }
   }
 
@@ -767,14 +823,17 @@
     margin: 12px;
   }
 
-  .tabs {
+  .tab-block {
     position: absolute;
     bottom: 0;
+    margin-bottom: 0;
   }
 
-  .tab-button {
-    padding: 18px;
-    border-bottom: 2px solid transparent;
+  .side-panel {
+    position: absolute;
+    top: $header-height;
+    height: calc(100% - #{$header-height});
+    padding-top: 16px;
   }
 
   .main-content-grid {
@@ -806,8 +865,8 @@
     margin-left: 8px;
   }
 
-  .filter-overlay-toggle-button {
-    margin-bottom: 16px;
+  .overlay-toggle-button {
+    margin: 16px 16px 16px 0;
   }
 
   .full-screen-side-panel {
@@ -815,30 +874,27 @@
     top: 0;
     bottom: 0;
     z-index: 12;
+    width: 100vw;
   }
 
   .mobile-header {
     position: relative;
-    height: 100px;
-    background-color: white;
+    height: 100%;
   }
 
-  .mobile-tabs {
-    position: absolute;
-    bottom: 0;
+  .mobile-title {
+    height: 100%;
+    padding-right: 16px;
+    padding-left: 16px;
+    margin-top: 16px;
+    font-size: 18px;
   }
 
   .channel-logo {
     position: absolute;
-    top: 24px;
-    right: 24px;
-    max-height: 55px;
-    vertical-align: bottom;
-  }
-  .overlay-close-button {
-    position: absolute;
-    top: 8px;
-    right: 24px;
+    top: 16px;
+    right: 16px;
+    max-height: 40px;
   }
 
   .more-after-grid {
@@ -849,6 +905,19 @@
     width: 100%;
     margin-top: 16px;
     text-align: center;
+  }
+
+  .side-panel-chips {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    margin-bottom: -8px;
+    margin-left: -8px;
+  }
+
+  .chip {
+    margin-bottom: 8px;
+    margin-left: 8px;
   }
 
 </style>

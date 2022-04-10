@@ -215,6 +215,12 @@ EXTRA_LANG_INFO = {
         "name": "Fulfulde (Cameroon)",
         "name_local": "Fulfulde Mbororoore",
     },
+    "el": {
+        "bidi": False,
+        "code": "el",
+        "name": "Greek",
+        "name_local": "Ελληνικά",
+    },
     "es-419": {
         "bidi": False,
         "code": "es-419",
@@ -380,6 +386,8 @@ ENABLE_DATA_BOOTSTRAPPING = True
 SESSION_ENGINE = "django.contrib.sessions.backends.file"
 
 SESSION_FILE_PATH = os.path.join(conf.KOLIBRI_HOME, "sessions")
+
+SECURE_CONTENT_TYPE_NOSNIFF = True
 
 if not os.path.exists(SESSION_FILE_PATH):
     if not os.path.exists(conf.KOLIBRI_HOME):

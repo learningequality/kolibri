@@ -183,7 +183,7 @@ export function recipients(className) {
 export function score() {
   return [
     {
-      name: coachStrings.$tr('scoreLabel'),
+      name: coreStrings.$tr('scoreLabel'),
       key: 'score',
       format: row => {
         if (!row.statusObj.score && row.statusObj.score !== 0) {

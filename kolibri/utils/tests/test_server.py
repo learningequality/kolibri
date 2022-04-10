@@ -14,13 +14,14 @@ import pytest
 from kolibri.core.tasks.scheduler import Scheduler
 from kolibri.core.tasks.test.base import connection
 from kolibri.utils import server
+from kolibri.utils.constants import installation_types
 
 
 class TestServerInstallation(object):
     @mock.patch("sys.argv", ["kolibri-0.9.3.pex", "start"])
     def test_pex(self):
         install_type = server.installation_type()
-        assert install_type == "pex"
+        assert install_type == installation_types.PEX
 
     def test_dev(self):
         sys_args = [
@@ -36,27 +37,57 @@ class TestServerInstallation(object):
             assert install_type == "devserver"
 
     @mock.patch("sys.argv", ["/usr/bin/kolibri", "start"])
+    @mock.patch("os.environ", {"KOLIBRI_INSTALLER_VERSION": "1.0"})
     def test_dpkg(self):
         with mock.patch("kolibri.utils.server.check_output", return_value=""):
             install_type = server.installation_type()
-            assert install_type == "dpkg"
+            assert install_type == installation_types.install_type_map[
+                installation_types.DEB
+            ].format("1.0")
 
     @mock.patch("sys.argv", ["/usr/bin/kolibri", "start"])
+    def test_dpkg_version(self):
+        DPKG_OUTPUT = """
+        Package: kolibri
+        Status: install ok installed
+        Priority: optional
+        Section: education
+        Architecture: all
+        Source: kolibri-source
+        Version: 0.15.0~beta2-0ubuntu1
+        Depends: python3 (>= 3.4), python3-pkg-resources, adduser
+        Recommends: python3-cryptography (>= 1.2.3)
+        """
+        with mock.patch("kolibri.utils.server.check_output", return_value=DPKG_OUTPUT):
+            install_type = server.installation_type()
+            assert install_type == installation_types.install_type_map[
+                installation_types.DEB
+            ].format("0.15.0~beta2-0ubuntu1")
+
+    @mock.patch("sys.argv", ["/usr/bin/kolibri", "start"])
+    @mock.patch("os.environ", {"KOLIBRI_INSTALLER_VERSION": "1.0"})
     def test_apt(apt):
         with mock.patch("kolibri.utils.server.check_output", return_value="any repo"):
             install_type = server.installation_type()
-            assert install_type == "apt"
+            assert install_type == installation_types.install_type_map[
+                installation_types.DEB
+            ].format("1.0")
 
     @mock.patch("sys.argv", ["C:\\Python34\\Scripts\\kolibri", "start"])
     @mock.patch("sys.path", ["", "C:\\Program Files\\Kolibri\\kolibri.exe"])
+    @mock.patch("os.environ", {"KOLIBRI_INSTALLER_VERSION": "1.0"})
     def test_windows(self):
         install_type = server.installation_type()
-        assert install_type == "Windows"
+        assert install_type == installation_types.install_type_map[
+            installation_types.WINDOWS
+        ].format("1.0")
 
     @mock.patch("sys.argv", ["/usr/local/bin/kolibri", "start"])
     def test_whl(self):
         install_type = server.installation_type()
-        assert install_type == "whl"
+        assert (
+            install_type == installation_types.install_type_map[installation_types.WHL]
+        )
 
 
 @pytest.fixture
@@ -257,11 +288,15 @@ class ServerInitializationTestCase(TestCase):
             run_mock.assert_called()
 
     @mock.patch("kolibri.utils.server.pid_exists")
-    def test_server_running(self, pid_exists_mock, read_pid_file_mock):
+    @mock.patch("kolibri.utils.server.wait_for_free_port")
+    def test_server_running(
+        self, wait_for_port_mock, pid_exists_mock, read_pid_file_mock
+    ):
+        wait_for_port_mock.side_effect = OSError
         pid_exists_mock.return_value = True
         read_pid_file_mock.return_value = (1000, 8000, 8001, server.STATUS_RUNNING)
         with self.assertRaises(SystemExit):
-            server.start()
+            server.start(port=8000)
 
 
 class ServerSignalHandlerTestCase(TestCase):

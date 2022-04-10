@@ -51,7 +51,7 @@
   "DeleteChannelModal.confirmationQuestion": "Tem a certeza que deseja eliminar '{channelTitle}' do seu dispositivo?",
   "DeleteChannelModal.confirmationQuestionMultipleChannels": "Tem a certeza que deseja eliminar estes canais do seu dispositivo?",
   "DeleteChannelModal.confirmationQuestionOneChannel": "Tem a certeza que deseja eliminar este canal do seu dispositivo?",
-  "DeleteChannelModal.titleMultipleChannels": "Eliminar canal",
+  "DeleteChannelModal.titleMultipleChannels": "Eliminar canais",
   "DeleteChannelModal.titleSingleChannel": "Eliminar canal",
   "DeleteExportChannelsPage.channelSelectedMessage": "{bytesText} selecionado",
   "DeleteExportChannelsPage.channelsOnDevice": "Canais disponíveis no dispositivo",

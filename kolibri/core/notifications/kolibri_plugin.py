@@ -29,7 +29,7 @@ class NotificationsSyncHook(FacilityDataSyncHook):
         "receiver" meaning we have received data
         """
         # if we've just received data on a single-user device, update the exams and assignments
-        if context.is_receiver:
+        if context.is_receiver and not local_is_single_user:
             batch_process_summarylogs(
                 context.transfer_session.get_touched_record_ids_for_model(
                     ContentSummaryLog

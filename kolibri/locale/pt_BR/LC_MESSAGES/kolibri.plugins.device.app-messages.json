@@ -163,7 +163,7 @@
   "RemoveFacilityModal.facilityReloadExplanation": "Se você sincronizou este centro educativo com o Portal de Dados Kolibri ou com outro dispositivo na sua rede local, é possível carregá-lo novamente neste dispositivo.",
   "RemoveFacilityModal.removeFacilityHeader": "Eliminar centro educativo deste dispositivo",
   "RemoveFacilityModal.removingFacilityConfirmation": "Entendo as conseqüências da eliminação deste centro educativo",
-  "RemoveFacilityModal.signInAsOtherAdminExplanation": "Você não pode eliminar um centro educativo do qual você faz parte. Para eliminar a  '{facilityName}' ', crie uma conta de super admin num outro centro educativo e utilize essa conta para poder completar essa operação. ",
+  "RemoveFacilityModal.signInAsOtherAdminExplanation": "Você não pode eliminar um centro educativo do qual você faz parte. Para eliminar a '{facilityName}' ', crie uma conta de super admin num outro centro educativo e utilize essa conta para poder completar essa operação.",
   "RemoveFacilityModal.willLoseAccessWarning": "Você perderá acesso a todos os dados do centro educativo '{facilityName}'.",
   "SelectContentPage.importingFromDrive": "Importando da unidade '{driveName}'",
   "SelectContentPage.importingFromPeer": "Importando desde '{deviceName}' ({url})",

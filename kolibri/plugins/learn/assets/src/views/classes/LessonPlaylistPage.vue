@@ -1,6 +1,7 @@
 <template>
 
   <div>
+    <KBreadcrumbs :items="breadcrumbs" />
     <section class="lesson-details">
       <div>
         <ContentIcon
@@ -24,15 +25,14 @@
       </div>
     </section>
 
-    <section class="content-cards">
-      <HybridLearningCardGrid
-        v-if="contentNodes.length"
-        currentPage="lessonPage"
-        cardViewStyle="list"
-        :numCols="1"
-        :getContentNodeThumbnail="getContentNodeThumbnail"
-        :genContentLink="genContentLink"
-        :contents="contentNodes"
+    <section v-if="contentNodes && contentNodes.length" class="content-cards">
+      <HybridLearningLessonCard
+        v-for="content in contentNodes"
+        :key="content.id"
+        :content="content"
+        class="content-card"
+        :isMobile="windowIsSmall"
+        :link="genContentLink(content)"
       />
       <p v-if="!lessonHasResources" class="no-resources-message">
         {{ $tr('noResourcesInLesson') }}
@@ -45,13 +45,16 @@
 
 <script>
 
-  import { mapState } from 'vuex';
+  import { mapMutations, mapState } from 'vuex';
   import sumBy from 'lodash/sumBy';
+  import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
-  import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import genContentLink from '../../utils/genContentLink';
-  import HybridLearningCardGrid from './../HybridLearningCardGrid';
+  import { PageNames, ClassesPageNames } from '../../constants';
+  import HybridLearningLessonCard from './../HybridLearningLessonCard';
 
   export default {
     name: 'LessonPlaylistPage',
@@ -61,10 +64,12 @@
       };
     },
     components: {
-      HybridLearningCardGrid,
+      KBreadcrumbs,
+      HybridLearningLessonCard,
       ContentIcon,
       ProgressIcon,
     },
+    mixins: [commonCoreStrings, responsiveWindowMixin],
     computed: {
       ...mapState('lessonPlaylist', ['contentNodes', 'currentLesson']),
       lessonHasResources() {
@@ -83,10 +88,60 @@
 
         return undefined;
       },
+      breadcrumbs() {
+        return [
+          {
+            text: this.coreString('homeLabel'),
+            link: { name: PageNames.HOME },
+          },
+          {
+            text: this.coreString('classesLabel'),
+            link: { name: ClassesPageNames.ALL_CLASSES },
+          },
+          {
+            text: this.currentLesson.classroom.name,
+            link: {
+              name: ClassesPageNames.CLASS_ASSIGNMENTS,
+              params: { classId: this.currentLesson.classroom.id },
+            },
+          },
+          {
+            text: this.currentLesson.title,
+          },
+        ];
+      },
+      backRoute() {
+        return this.$route.name;
+      },
+      context() {
+        const context = {};
+        if (this.currentLesson && this.currentLesson.classroom) {
+          context.lessonId = this.currentLesson.id;
+          context.classId = this.currentLesson.classroom.id;
+        } else if (this.isLibraryPage || this.pageName === PageNames.TOPICS_TOPIC_SEARCH) {
+          Object.assign(context, this.$route.query);
+        }
+        return context;
+      },
+    },
+    beforeDestroy() {
+      /* If we are going anywhere except for content we unset the lesson */
+
+      if (this.$route.name !== PageNames.TOPICS_CONTENT) {
+        this.SET_CURRENT_LESSON({});
+      }
     },
     methods: {
-      getContentNodeThumbnail,
-      genContentLink,
+      ...mapMutations('lessonPlaylist', ['SET_CURRENT_LESSON']),
+      genContentLink(content) {
+        return genContentLink(
+          content.id,
+          this.topicId,
+          content.is_leaf,
+          this.backRoute,
+          this.context
+        );
+      },
     },
     $trs: {
       noResourcesInLesson: {
@@ -129,6 +184,7 @@
     display: inline-block;
     margin-right: 0.5em;
     font-size: 1.8em;
+
     /deep/ .ui-icon {
       margin-bottom: 12px;
       vertical-align: middle;
@@ -139,6 +195,7 @@
     display: inline-block;
     margin-right: 0.5em;
     font-size: 1.8em;
+
     /deep/ .ui-icon {
       margin-top: 4px;
       vertical-align: middle;

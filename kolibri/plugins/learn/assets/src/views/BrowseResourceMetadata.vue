@@ -2,22 +2,15 @@
 
   <section class="metadata">
 
-    <div class="chips section">
-      <div v-for="activity in content.learning_activities" :key="activity">
-        <LearningActivityChip
-          :kind="activity"
-        />
-      </div>
-    </div>
-
     <div class="flex section">
-      <!-- Wrapping each flex child content in the plain div keeps them flex-spaced
-        properly even when one isn't there -->
       <div>
         <span
           v-if="forBeginners"
           class="beginners-chip"
-          :style="{ 'background-color': $themeBrand.secondary.v_600 }"
+          :style="{
+            backgroundColor: $themeBrand.secondary.v_600,
+            color: $themeTokens.textInverted
+          }"
           data-test="beginners-chip"
         >
           {{ coreString("ForBeginners") }}
@@ -26,10 +19,11 @@
 
       <div>
         <KRouterLink
+          ref="resourceButton"
           :text="metadataStrings.$tr('viewResource')"
           appearance="raised-button"
           :primary="false"
-          :to="genContentLink(content.id, null, content.is_leaf, null, {})"
+          :to="genContentLink(content.id, null, content.is_leaf, $route.name, { ...$route.query })"
           data-test="view-resource-link"
         />
       </div>
@@ -214,7 +208,6 @@
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import { ContentNodeResource } from 'kolibri.resources';
   import genContentLink from '../utils/genContentLink';
-  import LearningActivityChip from './LearningActivityChip';
   import LearningActivityIcon from './LearningActivityIcon';
   import ContentNodeThumbnail from './thumbnails/ContentNodeThumbnail';
   import SidePanelResourceMetadata from './SidePanelResourceMetadata';
@@ -222,7 +215,6 @@
   export default {
     name: 'BrowseResourceMetadata',
     components: {
-      LearningActivityChip,
       LearningActivityIcon,
       TimeDuration,
       ContentNodeThumbnail,
@@ -340,6 +332,13 @@
           this.descriptionOverflow = true;
         }
       },
+      /**
+       * @public
+       * Determines and calls first focusable element for FocusTrap
+       */
+      focusFirstEl() {
+        this.$refs.resourceButton.$el.focus();
+      },
     },
   };
 
@@ -397,7 +396,6 @@
     display: inline-block;
     padding: 10px;
     font-weight: bold;
-    color: white;
     border-radius: 4px;
   }
 
@@ -409,15 +407,6 @@
     &.title {
       font-size: 1.25em;
       font-weight: bold;
-    }
-
-    &.chips {
-      display: flex;
-      flex-wrap: wrap;
-      max-width: 426px;
-      // Ensures space on line w/ closing X icon whether
-      // chips are visible or not
-      min-height: 40px;
     }
 
     &.flex {

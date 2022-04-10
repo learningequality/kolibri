@@ -471,7 +471,8 @@ class Command(AsyncCommand):
             header = next(csv.reader(f, strict=True))
             has_header = False
             self.header_translation = {
-                lbl.partition("(")[2].partition(")")[0]: lbl for lbl in header
+                lbl if "(" not in lbl else lbl.partition("(")[2].partition(")")[0]: lbl
+                for lbl in header
             }
             neutral_header = self.header_translation.keys()
             # If every item in the first row matches an item in the fieldnames, consider it a header row
@@ -682,7 +683,7 @@ class Command(AsyncCommand):
 
     def get_number_lines(self, filepath):
         try:
-            with open(filepath) as f:
+            with open_csv_for_reading(filepath) as f:
                 number_lines = len(f.readlines())
         except (ValueError, FileNotFoundError, csv.Error) as e:
             number_lines = None
@@ -760,14 +761,16 @@ class Command(AsyncCommand):
         if self.overall_error:
             classes_report = {"created": 0, "updated": 0, "cleared": 0}
             users_report = {"created": 0, "updated": 0, "deleted": 0}
+            # force translation to str type, to be serialized into json:
+            overall_error = [str(msg) for msg in self.overall_error]
             if self.job:
-                self.job.extra_metadata["overall_error"] = self.overall_error
+                self.job.extra_metadata["overall_error"] = overall_error
                 self.job.extra_metadata["per_line_errors"] = 0
                 self.job.extra_metadata["classes"] = classes_report
                 self.job.extra_metadata["users"] = users_report
                 self.job.extra_metadata["filename"] = ""
                 self.job.save_meta()
-            raise CommandError("File errors: {}".format(str(self.overall_error)))
+            raise CommandError("File errors: {}".format(overall_error))
         return
 
     def remove_memberships(self, users, enrolled, assigned):

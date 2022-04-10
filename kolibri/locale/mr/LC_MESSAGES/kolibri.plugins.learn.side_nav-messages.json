@@ -7,11 +7,13 @@
   "CommonLearnStrings.markResourceAsCompleteLabel": "संसाधन पूर्ण म्हणून नमूद करा",
   "CommonLearnStrings.mostPopularLabel": "सर्वाधिक लोकप्रिय",
   "CommonLearnStrings.multipleLearningActivities": "एकाविध शैक्षणिक उपक्रम",
-  "CommonLearnStrings.multipleLearningActivitiesLabel": "",
+  "CommonLearnStrings.multipleLearningActivitiesLabel": "एकाविध शैक्षणिक उपक्रम",
   "CommonLearnStrings.nextStepsLabel": "पुढील पायऱ्या",
   "CommonLearnStrings.popularLabel": "लोकप्रिय",
+  "CommonLearnStrings.quizLabel": "चाचणी",
   "CommonLearnStrings.resourceCompletedLabel": "संसाधन पूर्ण",
   "CommonLearnStrings.resourceHidden": "संसाधन लपवले",
   "CommonLearnStrings.resumeLabel": "पुन्हा सुरू करा",
+  "CommonLearnStrings.suggestedTime": "",
   "CommonLearnStrings.suggestedTimeToComplete": "पूर्ण करण्यासाठी सुचवलेला कालावधी"
 }

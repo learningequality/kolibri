@@ -133,7 +133,11 @@
       },
     },
     $trs: {
-      copies: '{ num, number} locations',
+      copies: {
+        message: '{ num, number} locations',
+        context:
+          'Some Kolibri resources may be duplicated in different topics or channels.\n\nSearch results will indicate when a resource is duplicated, and learners can click on the "...locations" link to discover the details for each location of the resource.',
+      },
     },
   };
 
@@ -160,9 +164,11 @@
     vertical-align: top;
     border-radius: 2px;
     transition: box-shadow $core-time ease;
+
     &:hover {
       @extend %dropshadow-8dp;
     }
+
     &:focus {
       outline-width: 4px;
       outline-offset: 6px;
@@ -218,10 +224,12 @@
     .thumbnail {
       position: absolute;
     }
+
     .description {
       padding: 8px;
       margin-top: $thumb-height-mobile;
     }
+
     .title {
       margin-left: 16px;
       text-decoration: none;

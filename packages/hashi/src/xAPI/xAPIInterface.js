@@ -67,35 +67,19 @@ export default class xAPI extends BaseShim {
    * be calculated.
    */
   __calculateProgress() {
-    if (
-      find(
-        this.data[STATEMENT],
-        s =>
-          s.verb.id === XAPIVerbMap.mastered ||
-          s.verb.id === XAPIVerbMap.passed ||
-          s.verb.id === XAPIVerbMap.completed ||
-          (s.result && s.result.success)
-      )
-    ) {
-      return 1;
-    }
-    const scoreStatement = find(
+    const successStatement = find(
       this.data[STATEMENT],
       s =>
-        s.result &&
-        s.result.score &&
-        (s.result.score.scaled || (s.result.score.min && s.result.score.max && s.result.score.raw))
+        !s.error &&
+        (s.verb.id === XAPIVerbMap.mastered ||
+          s.verb.id === XAPIVerbMap.passed ||
+          s.verb.id === XAPIVerbMap.completed)
     );
-    if (scoreStatement) {
-      if (scoreStatement.result.score.scaled) {
-        return scoreStatement.result.score.scaled;
-      }
-      return (
-        (scoreStatement.result.score.raw - scoreStatement.result.score.min) /
-        (scoreStatement.result.score.max - scoreStatement.result.score.min)
-      );
+    if (successStatement) {
+      return 1;
     }
-    return null;
+    // If there has been any interaction return some progress, otherwise null.
+    return Object.keys(this.data[STATEMENT] || {}).length ? 0.01 : null;
   }
 
   createAgent() {
@@ -195,6 +179,8 @@ export default class xAPI extends BaseShim {
       // not directly from the data 'statements' property, so reversing in place is safe
       statements.reverse();
     }
+    // Only return statements that we have not flagged as errored.
+    statements = statements.filter(s => !s.error);
     if (limit && isNumber(limit)) {
       statements = statements.slice(0, limit);
     }
@@ -292,7 +278,7 @@ export default class xAPI extends BaseShim {
        * @return {Promise} a Promise that resolves when the statement has been successfully stored
        */
       sendStatement(statement, compress = false) {
-        return new Promise((resolve, reject) => {
+        return new Promise(resolve => {
           return import(
             /* webpackChunkName: "xAPISchema", webpackPrefetch: true */ './xAPISchema'
           ).then(({ Statement }) => {
@@ -300,8 +286,8 @@ export default class xAPI extends BaseShim {
             try {
               statement = Statement.clean(statement);
             } catch (e) {
-              reject(e);
-              return;
+              console.debug('Statement: ', statement, 'gave the following error: ', e);
+              statement.error = e.message;
             }
             if (compress) {
               // If we are compressing, then remove things that we

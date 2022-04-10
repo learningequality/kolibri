@@ -3,10 +3,10 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 from django.conf import settings
-from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.core.urlresolvers import get_resolver
 from django.core.urlresolvers import reverse
 from django.template.loader import render_to_string
+from django.templatetags.static import static
 from django.utils.html import mark_safe
 from django.utils.translation import get_language
 from django.utils.translation import get_language_bidi
@@ -164,7 +164,6 @@ class FrontendHeadAssetsHook(WebpackBundleHook):
     """
 
     bundle_id = "frontend_head_assets"
-    inline = True
 
     def render_to_page_load_sync_html(self):
         """
@@ -185,8 +184,14 @@ class FrontendHeadAssetsHook(WebpackBundleHook):
         common_file = static("assets/fonts/noto-common.css")
         subset_file = static("assets/fonts/noto-subset.{}.css".format(language_code))
         return [
+            '<link type="text/css" href="{common_css_file}?v={version}" rel="preload" as="style"/>'.format(
+                common_css_file=common_file, version=kolibri.__version__
+            ),
             '<link type="text/css" href="{common_css_file}?v={version}" rel="stylesheet"/>'.format(
                 common_css_file=common_file, version=kolibri.__version__
+            ),
+            '<link type="text/css" href="{common_css_file}?v={version}" rel="preload" as="style"/>'.format(
+                common_css_file=subset_file, version=kolibri.__version__
             ),
             '<link type="text/css" href="{subset_css_file}?v={version}" rel="stylesheet"/>'.format(
                 subset_css_file=subset_file, version=kolibri.__version__

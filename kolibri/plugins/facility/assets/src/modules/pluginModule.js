@@ -60,9 +60,11 @@ export default {
           name: PageNames.USER_MGMT_PAGE,
           params,
         },
-        ClassEditPage: {
-          name: PageNames.CLASS_EDIT_MGMT_PAGE,
-          params,
+        ClassEditPage: classId => {
+          return {
+            name: PageNames.CLASS_EDIT_MGMT_PAGE,
+            params: { ...params, id: classId },
+          };
         },
         CoachClassAssignmentPage: {
           name: PageNames.CLASS_ASSIGN_COACH,

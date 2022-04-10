@@ -16,7 +16,7 @@ def get_installed_app_locale_path(appname):
     try:
         m = importlib.import_module(appname)
         module_path = os.path.dirname(m.__file__)
-        module_locale_path = os.path.join(module_path, "locale")
+        module_locale_path = os.path.abspath(os.path.join(module_path, "locale"))
 
         if os.path.isdir(module_locale_path):
             return module_locale_path
@@ -26,8 +26,8 @@ def get_installed_app_locale_path(appname):
 
 
 def _get_language_info():
-    file_path = os.path.join(
-        os.path.dirname(kolibri.__file__), "locale", "language_info.json"
+    file_path = os.path.abspath(
+        os.path.join(os.path.dirname(kolibri.__file__), "locale", "language_info.json")
     )
     with io.open(file_path, encoding="utf-8") as f:
         languages = json.load(f)
@@ -46,6 +46,7 @@ KOLIBRI_SUPPORTED_LANGUAGES = [
     "bg-bg",
     "bn-bd",
     "de",
+    "el",
     "en",
     "es-es",
     "es-419",

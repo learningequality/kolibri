@@ -7,11 +7,13 @@
   "CommonLearnStrings.markResourceAsCompleteLabel": "标记资源为已完成",
   "CommonLearnStrings.mostPopularLabel": "最受欢迎",
   "CommonLearnStrings.multipleLearningActivities": "多种学习活动",
-  "CommonLearnStrings.multipleLearningActivitiesLabel": "",
+  "CommonLearnStrings.multipleLearningActivitiesLabel": "多种学习活动",
   "CommonLearnStrings.nextStepsLabel": "下一步",
   "CommonLearnStrings.popularLabel": "受欢迎",
+  "CommonLearnStrings.quizLabel": "测验",
   "CommonLearnStrings.resourceCompletedLabel": "资源已完成",
   "CommonLearnStrings.resourceHidden": "隐藏资源",
   "CommonLearnStrings.resumeLabel": "继续",
+  "CommonLearnStrings.suggestedTime": "",
   "CommonLearnStrings.suggestedTimeToComplete": "建议完成时间"
 }

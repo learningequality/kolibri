@@ -10,8 +10,7 @@
     <template #icon>
       <KIconButton
         icon="back"
-        color="white"
-        :class="{ 'rtl-icon': isRtl }"
+        :color="$themeTokens.textInverted"
         @click="$emit('click_back')"
       />
     </template>
@@ -43,13 +42,3 @@
   };
 
 </script>
-
-
-<style lang="scss" scoped>
-
-  // TODO - refactor to use theme
-  .progress-toolbar {
-    fill: white;
-  }
-
-</style>

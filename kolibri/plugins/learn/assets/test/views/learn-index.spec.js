@@ -28,7 +28,7 @@ const router = new VueRouter({
   routes: [
     { path: '/home', name: 'HOME' },
     { path: '/library', name: 'LIBRARY' },
-    { path: '/classes', name: 'ALL_CLASSES' },
+    { path: '/bookmarks', name: 'BOOKMARKS' },
   ],
 });
 
@@ -60,7 +60,7 @@ function getElements(wrapper) {
   return {
     // hrefs need to match the routes in the mock router above
     homeLink: () => wrapper.find('[href="#/home"]'),
-    classesLink: () => wrapper.find('[href="#/classes"]'),
+    bookmarksLink: () => wrapper.find('[href="#/bookmarks"]'),
     libraryLink: () => wrapper.find('[href="#/library"]'),
     tabLinks: () => wrapper.findAllComponents({ name: 'NavbarLink' }),
     CoreBase: () => wrapper.findComponent({ name: 'CoreBase' }),
@@ -106,39 +106,18 @@ describe('learn plugin index page', () => {
       setSessionUserKind('anonymous');
       setMemberships([]);
       const wrapper = makeWrapper({ store });
-      const { tabLinks, homeLink, libraryLink } = getElements(wrapper);
-      expect(tabLinks().length).toEqual(2);
-      expect(homeLink().element.tagName).toBe('A');
+      const { tabLinks, libraryLink } = getElements(wrapper);
+      expect(tabLinks().length).toEqual(1);
       expect(libraryLink().element.tagName).toBe('A');
     });
 
-    it('the classes tab is available if user is logged in and has memberships', () => {
-      // should work for any user 'kind' except for 'anonymous'
-      setSessionUserKind('learner');
-      setMemberships([{ id: 'membership_1' }]);
-      const wrapper = makeWrapper({ store });
-      const { classesLink, tabLinks } = getElements(wrapper);
-      expect(tabLinks().length).toEqual(4);
-      expect(classesLink().element.tagName).toBe('A');
-    });
-
-    it('the classes tab and bookmarks tabs are not available if user is not logged in', () => {
-      // in current implementation, anonymous user implies empty memberships
+    it('the bookmarks tabs are not available if user is not logged in', () => {
       setSessionUserKind('anonymous');
       setMemberships([]);
       const wrapper = makeWrapper({ store });
-      const { classesLink, tabLinks } = getElements(wrapper);
-      expect(tabLinks().length).toEqual(2);
-      expect(!classesLink().exists()).toEqual(true);
-    });
-
-    it('the classes tab is not available if user has no memberships/classes', () => {
-      setSessionUserKind('learner');
-      setMemberships([]);
-      const wrapper = makeWrapper({ store });
-      const { classesLink, tabLinks } = getElements(wrapper);
-      expect(tabLinks().length).toEqual(3);
-      expect(!classesLink().exists()).toEqual(true);
+      const { bookmarksLink, tabLinks } = getElements(wrapper);
+      expect(tabLinks().length).toEqual(1);
+      expect(!bookmarksLink().exists()).toEqual(true);
     });
   });
 
@@ -147,24 +126,22 @@ describe('learn plugin index page', () => {
       setCanAccessUnassignedContent(false);
     });
 
-    it('only the home tab is available when not signed-in', () => {
+    it('no tab is available when not signed-in', () => {
       setSessionUserKind('anonymous');
       setMemberships([]);
       const wrapper = makeWrapper({ store });
-      const { tabLinks, homeLink } = getElements(wrapper);
-      expect(tabLinks().length).toEqual(1);
-      expect(homeLink().element.tagName).toBe('A');
+      const { tabLinks } = getElements(wrapper);
+      expect(tabLinks().length).toEqual(0);
     });
 
-    it('the home and classes tab is available if signed in', () => {
+    it('the home tab is available if signed in', () => {
       // should work for any user 'kind' except for 'anonymous'
       setSessionUserKind('learner');
       setMemberships([{ id: 'membership_1' }]);
       const wrapper = makeWrapper({ store });
-      const { tabLinks, homeLink, classesLink } = getElements(wrapper);
-      expect(tabLinks().length).toEqual(2);
+      const { tabLinks, homeLink } = getElements(wrapper);
+      expect(tabLinks().length).toEqual(1);
       expect(homeLink().element.tagName).toBe('A');
-      expect(classesLink().element.tagName).toBe('A');
     });
   });
 });

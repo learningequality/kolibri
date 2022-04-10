@@ -15,7 +15,7 @@
   "license": "MIT",
   "devDependencies": {
     "eslint-plugin-compat": "^3.0.0",
-    "html-webpack-plugin": "4",
+    "html-webpack-plugin": "5.5.0",
     "jquery": "3.5.1",
     "mime-db": "^1.46.0",
     "mutationobserver-shim": "^0.3.7",

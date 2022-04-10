@@ -13,7 +13,7 @@
         <KFixedGridItem span="1">
           <slot name="topLeft"></slot>
         </KFixedGridItem>
-        <KFixedGridItem span="1">
+        <KFixedGridItem span="1" alignment="right">
           <slot name="topRight"></slot>
         </KFixedGridItem>
       </KFixedGrid>
@@ -38,7 +38,7 @@
 
     <div
       class="progress"
-      :class="themeClasses.progress"
+      :style="{ color: $themeTokens.annotation }"
     >
       <slot name="progress">
         <KLabeledIcon
@@ -110,16 +110,6 @@
         type: String,
         required: false,
         default: '',
-      },
-    },
-    computed: {
-      themeClasses() {
-        const { annotation } = this.$themeTokens;
-        return {
-          progress: this.$computedClass({
-            color: annotation,
-          }),
-        };
       },
     },
   };

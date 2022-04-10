@@ -766,10 +766,7 @@ def calculate_published_size(channel):
 def calculate_total_resource_count(channel):
     content_nodes = ContentNode.objects.filter(channel_id=channel.id)
     channel.total_resource_count = (
-        content_nodes.filter(available=True)
-        .exclude(kind=content_kinds.TOPIC)
-        .dedupe_by_content_id()
-        .count()
+        content_nodes.filter(available=True).exclude(kind=content_kinds.TOPIC).count()
     )
     channel.save()
 

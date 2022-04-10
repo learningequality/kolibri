@@ -185,6 +185,7 @@
     top: -2px;
     width: 5%;
     text-align: center;
+
     .inprogress {
       display: inline-block;
     }

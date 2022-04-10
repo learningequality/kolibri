@@ -86,7 +86,7 @@ export function fetchAdditionalSearchResults(store, params) {
   });
 }
 
-export function createChannelQuizAndRoute(store, { classId, randomized }) {
+export function createPracticeQuizAndRoute(store, { classId, randomized }) {
   // 'randomized' means question order IS random, so fixed order means randomized is false
   store.commit('SET_FIXED_ORDER', !randomized);
   const exam = {
@@ -237,7 +237,7 @@ export function updateSelectedQuestions(store) {
   });
 }
 
-export function fetchChannelQuizzes(parent = null) {
+export function fetchPracticeQuizzes(parent = null) {
   return ContentNodeResource.fetchCollection({
     getParams: {
       [parent ? 'parent' : 'parent__isnull']: parent ? parent : true,

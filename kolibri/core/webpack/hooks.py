@@ -69,10 +69,6 @@ class WebpackBundleHook(hooks.KolibriHook):
     def bundle_id(self):
         pass
 
-    # : When being included for synchronous loading, should the source files
-    # : for this be inlined?
-    inline = False
-
     # : A mapping of key to JSON serializable value.
     # : This plugin_data will be bootstrapped into a global object on window
     # : with a key of the unique_id as a Javascript object
@@ -123,7 +119,6 @@ class WebpackBundleHook(hooks.KolibriHook):
 
         stats_file_content = {
             "files": stats.get("chunks", {}).get(self.unique_id, []),
-            "hasMessages": stats.get("messages", False),
         }
 
         return stats_file_content
@@ -173,16 +168,11 @@ class WebpackBundleHook(hooks.KolibriHook):
         An auto-generated path to where the build-time files are stored,
         containing information about the built bundles.
         """
-        return os.path.join(
-            self._build_path, "{plugin}_stats.json".format(plugin=self.unique_id)
+        return os.path.abspath(
+            os.path.join(
+                self._build_path, "{plugin}_stats.json".format(plugin=self.unique_id)
+            )
         )
-
-    @property
-    def _module_file_path(self):
-        """
-        Returns the path of the class inheriting this classmethod.
-        """
-        return os.path.dirname(self._build_path)
 
     def frontend_message_file(self, lang_code):
         message_file_name = "{name}-messages.json".format(name=self.unique_id)
@@ -211,37 +201,12 @@ class WebpackBundleHook(hooks.KolibriHook):
     def js_and_css_tags(self):
         js_tag = '<script type="text/javascript" src="{url}"></script>'
         css_tag = '<link type="text/css" href="{url}" rel="stylesheet"/>'
-        inline_js_tag = '<script type="text/javascript">{src}</script>'
-        inline_css_tag = "<style>{src}</style>"
         # Sorted to load css before js
         for chunk in self.sorted_chunks():
-            src = None
             if chunk["name"].endswith(".js"):
-                if self.inline:
-                    # During development, we do not write built files to disk
-                    # Because of this, this call might return None
-                    src = self.get_filecontent(chunk["url"])
-                if src is not None:
-                    # If it is not None, then we can inline it
-                    yield inline_js_tag.format(src=src)
-                else:
-                    # If src is None, either this is not something we should be inlining
-                    # or we are in development mode and need to fetch the file from the
-                    # development server, not the disk
-                    yield js_tag.format(url=chunk["url"])
+                yield js_tag.format(url=chunk["url"])
             elif chunk["name"].endswith(".css"):
-                if self.inline:
-                    # During development, we do not write built files to disk
-                    # Because of this, this call might return None
-                    src = self.get_filecontent(chunk["url"])
-                if src is not None:
-                    # If it is not None, then we can inline it
-                    yield inline_css_tag.format(src=src)
-                else:
-                    # If src is None, either this is not something we should be inlining
-                    # or we are in development mode and need to fetch the file from the
-                    # development server, not the disk
-                    yield css_tag.format(url=chunk["url"])
+                yield css_tag.format(url=chunk["url"])
 
     def frontend_message_tag(self):
         if self.frontend_messages():

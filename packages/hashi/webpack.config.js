@@ -40,10 +40,7 @@ module.exports = {
       {
         test: /\.js$/,
         loader: 'babel-loader',
-        exclude: {
-          test: /(uuid|core-js)/,
-          not: [/\.(esm\.js|mjs)$/],
-        },
+        exclude: { and: [/(uuid|core-js)/, { not: [/\.(esm\.js|mjs)$/] }] },
       },
     ],
   },
@@ -55,7 +52,7 @@ module.exports = {
   plugins: [
     new Plugin(),
     new HtmlWebpackPlugin({
-      filename: 'hashi-[contenthash].html',
+      filename: 'hashi-[fullhash].html',
       template: 'src/iframe.html',
     }),
   ],

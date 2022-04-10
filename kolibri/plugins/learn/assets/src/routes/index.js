@@ -41,12 +41,14 @@ function hydrateHomePage() {
 }
 
 export default [
-  ...classesRoutes,
   {
     name: PageNames.ROOT,
     path: '/',
     handler: () => {
-      return router.replace({ name: PageNames.HOME });
+      if (get(isUserLoggedIn)) {
+        return router.replace({ name: PageNames.HOME });
+      }
+      return router.replace({ name: PageNames.LIBRARY });
     },
   },
   {
@@ -58,15 +60,16 @@ export default [
         router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
         return;
       }
-      const promises = [];
-      // force fetch classes and resumable content nodes to make sure that the home
-      // page is up-to-date when navigating to other 'Learn' pages and then back
-      // to the home page
-      if (get(isUserLoggedIn)) {
-        promises.push(hydrateHomePage());
+
+      if (!get(isUserLoggedIn)) {
+        router.replace({ name: PageNames.LIBRARY });
+        return;
       }
       return store.dispatch('loading').then(() => {
-        return Promise.all(promises)
+        // force fetch classes and resumable content nodes to make sure that the home
+        // page is up-to-date when navigating to other 'Learn' pages and then back
+        // to the home page
+        return hydrateHomePage()
           .then(() => {
             store.commit('SET_PAGE_NAME', PageNames.HOME);
             store.dispatch('notLoading');
@@ -77,14 +80,21 @@ export default [
       });
     },
   },
+  // Next class routes under home page
+  ...classesRoutes.map(route => {
+    return {
+      ...route,
+      path: `/home${route.path}`,
+    };
+  }),
   {
     name: PageNames.LIBRARY,
     path: '/library',
-    handler: () => {
+    handler: to => {
       if (unassignedContentGuard()) {
         return unassignedContentGuard();
       }
-      showLibrary(store);
+      showLibrary(store, to.query);
     },
     component: LibraryPage,
   },
@@ -111,6 +121,22 @@ export default [
       };
     },
   },
+  {
+    // Handle redirect for links without the /folder appended
+    path: '/topics/t/:id',
+    redirect: '/topics/t/:id/:subtopic?/folders',
+    handler: (toRoute, fromRoute) => {
+      if (unassignedContentGuard()) {
+        return unassignedContentGuard();
+      }
+      // If navigation is triggered by a custom navigation updating the
+      // context query param, do not run the handler
+      if (toRoute.params.id === fromRoute.params.id) {
+        return;
+      }
+      showTopicsTopic(store, { id: toRoute.params.id, pageName: toRoute.name });
+    },
+  },
   // Have to put TOPICS_TOPIC_SEARCH before TOPICS_TOPIC to ensure
   // search gets picked up before being interpreted as a subtopic id.
   {
@@ -130,7 +156,7 @@ export default [
   },
   {
     name: PageNames.TOPICS_TOPIC,
-    path: '/topics/t/:id/:subtopic?',
+    path: '/topics/t/:id/:subtopic?/folders',
     handler: (toRoute, fromRoute) => {
       if (unassignedContentGuard()) {
         return unassignedContentGuard();
@@ -147,9 +173,6 @@ export default [
     name: PageNames.TOPICS_CONTENT,
     path: '/topics/c/:id',
     handler: toRoute => {
-      if (unassignedContentGuard()) {
-        return unassignedContentGuard();
-      }
       showTopicsContent(store, toRoute.params.id);
     },
   },

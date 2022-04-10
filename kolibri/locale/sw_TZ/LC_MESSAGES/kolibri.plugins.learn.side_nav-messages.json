@@ -7,11 +7,13 @@
   "CommonLearnStrings.markResourceAsCompleteLabel": "Tia alama kuwa rasilimali imekamilika",
   "CommonLearnStrings.mostPopularLabel": "Maarufu zaidi",
   "CommonLearnStrings.multipleLearningActivities": "Shughuli kadhaa za kujifunza",
-  "CommonLearnStrings.multipleLearningActivitiesLabel": "",
+  "CommonLearnStrings.multipleLearningActivitiesLabel": "Shughuli kadhaa za kujifunza",
   "CommonLearnStrings.nextStepsLabel": "Kipengee kinachofuata",
   "CommonLearnStrings.popularLabel": "Maarufu",
+  "CommonLearnStrings.quizLabel": "Mtihani",
   "CommonLearnStrings.resourceCompletedLabel": "Rasilimali imekamilika",
   "CommonLearnStrings.resourceHidden": "Rasilimali imefichwa",
   "CommonLearnStrings.resumeLabel": "Endelea",
+  "CommonLearnStrings.suggestedTime": "Muda uliopendekezwa",
   "CommonLearnStrings.suggestedTimeToComplete": "Muda uliopendekezwa ili kukamilika"
 }

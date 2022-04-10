@@ -3,16 +3,16 @@ Feature: Learner engages ePUB content
 
   Background:
     Given I am signed in to Kolibri as a Learner user
-      And there are one or more channels imported on the device with ePUB content
-      And I am on the *Channels* page for a channel with ePUB content
+      And there is at least one channel imported on the device with ePUB content
+      And I am on the *Browse channel* page for a channel with ePUB content
 
     Scenario: Browse and find ePUB content
-      When I am on the *Channels* page for <channel>
-      Then I see the *Channels > '<channel>'* breadcrumb
-        And I see all the topics for the channel <channel>
-      When I click the topic <topic>
-      Then I see the *Channels > '<channel>' > '<topic>'* breadcrumb
-        And I see all the the subtopics and resources of the topic <topic>
+      When I am on the *Browse channel* page for <channel>
+      Then I see the <channel> name, logo and description
+        And I see all the available folders for the channel <channel>
+      When I click the folder <folder>
+      Then I see the *'<channel>' > '<folder>'* breadcrumb
+        And I see all the the subfolders and resources of the folder <folder>
         And I recognize <resource> resource as an ePUB document by the content type icon in the upper left corner
 
     Scenario: Open paginated ePUB
@@ -28,7 +28,7 @@ Feature: Learner engages ePUB content
     Scenario: Open ePUB with tables
       Given that <resource> resource contains tables
         When I click the <resource> resource
-        Then I see the *Channels > '<channel>' > '<topic>' > '<resource>'* breadcrumb
+        Then I see the *'<channel>' > '<folder>' > '<resource>'* breadcrumb
           And I see the <resource> content
           And I am able to scroll vertically the <resource> content
             But I do not see left and right arrow buttons to go to next and previous page
@@ -93,6 +93,6 @@ Feature: Learner engages ePUB content
 
 
 Examples:
-  | channel              | topic            | resource                          | search |
+  | channel              | folder            | resource                          | search |
   | EPub Testing Channel | Richard's EPubs  | The Adventures of Sherlock Holmes | home   |
   | EPub Testing Channel | Blaine's EPubs   | Epub with Tables!                 | street |

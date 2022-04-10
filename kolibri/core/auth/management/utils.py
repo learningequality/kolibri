@@ -5,13 +5,12 @@ import getpass
 import json
 import logging
 import math
-import time
+import sys
 from contextlib import contextmanager
 from functools import wraps
 
 import requests
 from django.core.management.base import CommandError
-from django.db.models.signals import post_delete
 from django.urls import reverse
 from django.utils.six.moves import input
 from morango.models import Certificate
@@ -36,28 +35,22 @@ from kolibri.core.device.utils import provision_single_user_device
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
 from kolibri.core.discovery.utils.network.errors import URLParseError
-from kolibri.core.logger.utils.data import bytes_for_humans
 from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.core.utils.lock import db_lock
+from kolibri.utils.data import bytes_for_humans
 
 
 logger = logging.getLogger(__name__)
 
 
-class DisablePostDeleteSignal(object):
-    """
-    Helper that disables the post_delete signal temporarily when deleting, so Morango doesn't
-    create DeletedModels objects for what we're deleting
-    """
-
-    def __enter__(self):
-        self.receivers = post_delete.receivers
-        post_delete.receivers = []
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        post_delete.receivers = self.receivers
-        self.receivers = None
+def confirm_or_exit(message):
+    answer = ""
+    while answer not in ["yes", "n", "no"]:
+        answer = input("{} [Type 'yes' or 'no'.] ".format(message)).lower()
+    if answer != "yes":
+        print("Canceled! Exiting without touching the database.")
+        sys.exit(1)
 
 
 def _interactive_client_facility_selection():
@@ -382,89 +375,6 @@ def run_once(f):
 
     wrapper.has_run = False
     return wrapper
-
-
-class GroupDeletion(object):
-    """
-    Helper to manage deleting many models, or groups of models
-    """
-
-    def __init__(self, name, groups=None, querysets=None, sleep=None):
-        """
-        :type groups: GroupDeletion[]
-        :type querysets: QuerySet[]
-        :type sleep: int
-        """
-        self.name = name
-        groups = [] if groups is None else groups
-        if querysets is not None:
-            groups.extend(querysets)
-        self.groups = groups
-        self.sleep = sleep
-
-    def count(self, progress_updater):
-        """
-        :type progress_updater: function
-        :rtype: int
-        """
-        sum = 0
-        for qs in self.groups:
-            if isinstance(qs, GroupDeletion):
-                count = qs.count(progress_updater)
-                logger.debug("Counted {} in group `{}`".format(count, qs.name))
-            else:
-                count = qs.count()
-                progress_updater(increment=1)
-                logger.debug(
-                    "Counted {} of `{}`".format(count, qs.model._meta.model_name)
-                )
-
-            sum += count
-
-        return sum
-
-    def group_count(self):
-        """
-        :rtype: int
-        """
-        return sum(
-            [
-                qs.group_count() if isinstance(qs, GroupDeletion) else 1
-                for qs in self.groups
-            ]
-        )
-
-    def delete(self, progress_updater, sleep=None):
-        """
-        :type progress_updater: function
-        :type sleep: int
-        :rtype: tuple(int, dict)
-        """
-        total_count = 0
-        all_deletions = {}
-        sleep = self.sleep if sleep is None else sleep
-
-        for qs in self.groups:
-            if isinstance(qs, GroupDeletion):
-                count, deletions = qs.delete(progress_updater)
-                debug_msg = "Deleted {} of `{}` in group `{}`"
-                name = qs.name
-            else:
-                count, deletions = qs.delete()
-                debug_msg = "Deleted {} of `{}` with model `{}`"
-                name = qs.model._meta.model_name
-
-            total_count += count
-            progress_updater(increment=count)
-
-            for obj_name, count in deletions.items():
-                if not isinstance(qs, GroupDeletion):
-                    logger.debug(debug_msg.format(count, obj_name, name))
-                all_deletions.update({obj_name: all_deletions.get(obj_name, 0) + count})
-            if self.sleep is not None:
-                time.sleep(sleep)
-
-        return total_count, all_deletions
 
 
 class MorangoSyncCommand(AsyncCommand):

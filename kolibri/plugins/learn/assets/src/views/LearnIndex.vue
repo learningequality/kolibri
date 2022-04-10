@@ -1,7 +1,7 @@
 <template>
 
   <LearnImmersiveLayout
-    v-if="currentPageIsContentOrLesson"
+    v-if="currentPageIsContent"
     :authorized="userIsAuthorized"
     authorizedRole="registeredUser"
     :back="learnBackPageRoute"
@@ -16,9 +16,6 @@
     authorizedRole="registeredUser"
     v-bind="immersivePageProps"
   >
-    <template #app-bar-actions>
-      <ActionBarSearchBox v-if="showSearch" />
-    </template>
 
     <template #sub-nav>
       <LearnTopNav />
@@ -28,20 +25,7 @@
       <TotalPoints />
     </template>
 
-    <!--
-      Topics pages have a different heading style which
-      includes passing the breadcrumbs
-    -->
-    <div v-if="currentPageIsTopic">
-      <component :is="currentPage">
-        <template #breadcrumbs>
-          <Breadcrumbs />
-        </template>
-      </component>
-      <router-view />
-    </div>
-
-    <div v-else>
+    <div>
       <component :is="currentPage" v-if="currentPage" />
       <router-view />
     </div>
@@ -62,9 +46,7 @@
   import useChannels from '../composables/useChannels';
   import commonLearnStrings from './commonLearnStrings';
   import TopicsPage from './TopicsPage';
-  import ContentPage from './ContentPage';
   import ContentUnavailablePage from './ContentUnavailablePage';
-  import Breadcrumbs from './Breadcrumbs';
   import LearnImmersiveLayout from './LearnImmersiveLayout';
   import ExamPage from './ExamPage';
   import ExamReportViewer from './LearnExamReportViewer';
@@ -72,8 +54,6 @@
   import AllClassesPage from './classes/AllClassesPage';
   import ClassAssignmentsPage from './classes/ClassAssignmentsPage';
   import LessonPlaylistPage from './classes/LessonPlaylistPage';
-  import LessonResourceViewer from './classes/LessonResourceViewer';
-  import ActionBarSearchBox from './ActionBarSearchBox';
   import LearnTopNav from './LearnTopNav';
   import { ASSESSMENT_FOOTER, QUIZ_FOOTER } from './footers.js';
   import BookmarkPage from './BookmarkPage.vue';
@@ -82,7 +62,6 @@
   const pageNameToComponentMap = {
     [PageNames.TOPICS_TOPIC]: TopicsPage,
     [PageNames.TOPICS_TOPIC_SEARCH]: TopicsPage,
-    [PageNames.TOPICS_CONTENT]: ContentPage,
     [PageNames.CONTENT_UNAVAILABLE]: ContentUnavailablePage,
     [PageNames.BOOKMARKS]: BookmarkPage,
     [ClassesPageNames.EXAM_VIEWER]: ExamPage,
@@ -90,14 +69,11 @@
     [ClassesPageNames.ALL_CLASSES]: AllClassesPage,
     [ClassesPageNames.CLASS_ASSIGNMENTS]: ClassAssignmentsPage,
     [ClassesPageNames.LESSON_PLAYLIST]: LessonPlaylistPage,
-    [ClassesPageNames.LESSON_RESOURCE_VIEWER]: LessonResourceViewer,
   };
 
   export default {
     name: 'LearnIndex',
     components: {
-      ActionBarSearchBox,
-      Breadcrumbs,
       CoreBase,
       LearnTopNav,
       TotalPoints,
@@ -111,20 +87,17 @@
       };
     },
     computed: {
-      ...mapGetters(['isUserLoggedIn', 'canAccessUnassignedContent']),
-      ...mapState('lessonPlaylist/resource', {
-        lessonContent: 'content',
-      }),
+      ...mapGetters(['isUserLoggedIn']),
       ...mapState('classAssignments', {
         classroomName: state => state.currentClassroom.name,
       }),
-      ...mapState('topicsTree', {
-        topicsTreeContent: 'content',
-        topicsTreeTopic: 'topic',
-      }),
+      ...mapState('topicsTree', ['content', 'topic']),
       ...mapState('examReportViewer', ['exam']),
       ...mapState(['pageName']),
       userIsAuthorized() {
+        if (this.pageName === PageNames.BOOKMARKS) {
+          return this.isUserLoggedIn;
+        }
         return (
           (plugin_data.allowGuestAccess && this.$store.getters.allowAccess) || this.isUserLoggedIn
         );
@@ -132,23 +105,12 @@
       currentPage() {
         return pageNameToComponentMap[this.pageName] || null;
       },
-      currentPageIsTopic() {
-        return [
-          pageNameToComponentMap[PageNames.TOPICS_TOPIC],
-          pageNameToComponentMap[PageNames.TOPICS_TOPIC_SEARCH],
-        ].includes(this.currentPage);
-      },
-      currentPageIsContentOrLesson() {
-        return (
-          this.pageName === PageNames.TOPICS_CONTENT ||
-          this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER
-        );
+      currentPageIsContent() {
+        return this.pageName === PageNames.TOPICS_CONTENT;
       },
       currentTopicIsCustom() {
         return (
-          this.topicsTreeTopic &&
-          this.topicsTreeTopic.options &&
-          this.topicsTreeTopic.options.modality === 'CUSTOM_NAVIGATION'
+          this.topic && this.topic.options && this.topic.options.modality === 'CUSTOM_NAVIGATION'
         );
       },
       immersivePageProps() {
@@ -176,7 +138,7 @@
         }
         if (this.pageName === PageNames.TOPICS_TOPIC && this.currentTopicIsCustom) {
           return {
-            appBarTitle: this.channelsMap[this.topicsTreeTopic.channel_id].title || '',
+            appBarTitle: this.channelsMap[this.topic.channel_id].title || '',
             immersivePage: true,
             immersivePageRoute: this.$router.getRoute(PageNames.LIBRARY),
             immersivePagePrimary: false,
@@ -196,17 +158,17 @@
               [PageNames.RECOMMENDED_NEXT_STEPS]: this.learnString('nextStepsLabel'),
               [PageNames.LIBRARY]: this.learnString('libraryLabel'),
             }[last];
-          } else if (this.topicsTreeContent.parent) {
+          } else if (this.content.parent) {
             // Need to guard for parent being non-empty to avoid console errors
             immersivePageRoute = this.$router.getRoute(PageNames.TOPICS_TOPIC, {
-              id: this.topicsTreeContent.parent,
+              id: this.content.parent,
             });
 
-            if (this.topicsTreeContent.ancestors.length > 1) {
-              appBarTitle = lastItem(this.topicsTreeContent.ancestors).title;
+            if (this.content.ancestors.length > 1) {
+              appBarTitle = lastItem(this.content.ancestors).title;
             } else {
               // `ancestors` only has one entry if the direct parent is the channel
-              appBarTitle = this.channelsMap[this.topicsTreeContent.channel_id].title;
+              appBarTitle = this.channelsMap[this.content.channel_id].title;
             }
           }
           return {
@@ -248,22 +210,10 @@
           immersivePage: false,
         };
       },
-      showSearch() {
-        return this.canAccessUnassignedContent;
-      },
       topNavIsVisible() {
         return (
           this.pageName !== PageNames.CONTENT_UNAVAILABLE && !this.immersivePageProps.immersivePage
         );
-      },
-      content() {
-        let content;
-        if (this.pageName === PageNames.TOPICS_CONTENT) {
-          content = this.topicsTreeContent;
-        } else if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
-          content = this.lessonContent;
-        }
-        return content;
       },
       bottomSpaceReserved() {
         if (this.pageName === ClassesPageNames.EXAM_VIEWER) {
@@ -271,9 +221,7 @@
         }
         let content;
         if (this.pageName === PageNames.RECOMMENDED_CONTENT) {
-          content = this.topicsTreeContent;
-        } else if (this.pageName === ClassesPageNames.LESSON_RESOURCE_VIEWER) {
-          content = this.lessonContent;
+          content = this.content;
         }
         const isAssessment = content && content.assessment;
         // height of .attempts-container in AssessmentWrapper
@@ -283,25 +231,31 @@
         // extract the key pieces of routing from immersive page props, but since we don't need
         // them all, just create two alternative route paths for return/'back' navigation
         let route = {};
+        const query = { ...this.$route.query };
+        delete query.last;
+        delete query.topicId;
         if (
           this.$route.query.last === PageNames.TOPICS_TOPIC_SEARCH ||
           this.$route.query.last === PageNames.TOPICS_TOPIC
         ) {
           const lastId = this.$route.query.topicId
             ? this.$route.query.topicId
-            : this.topicsTreeContent.parent;
+            : this.content.parent;
           const lastPage = this.$route.query.last;
           // Need to guard for parent being non-empty to avoid console errors
-          route = this.$router.getRoute(lastPage, {
-            id: lastId,
-          });
+          route = this.$router.getRoute(
+            lastPage,
+            {
+              id: lastId,
+            },
+            query
+          );
+        } else if (this.$route.query && this.$route.query.last === PageNames.LIBRARY) {
+          const lastPage = this.$route.query.last;
+          route = this.$router.getRoute(lastPage, {}, query);
         } else if (this.$route.query && this.$route.query.last) {
           const last = this.$route.query.last;
-          route = this.$router.getRoute(last);
-          if (this.$route.query) {
-            const params = this.$route.query;
-            route = { ...route, params };
-          }
+          route = this.$router.getRoute(last, query);
         } else {
           route = this.$router.getRoute(PageNames.HOME);
         }

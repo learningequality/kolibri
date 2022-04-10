@@ -5,7 +5,7 @@
       :value="isCoachContent"
       style="margin-top: 8px; width: auto;"
     />
-    <KLabeledIcon :style="{ 'margin-top': '8px', 'width': 'auto' }">
+    <KLabeledIcon :style="{ 'margin-top': '8px' }">
       <template #icon>
         <LearningActivityIcon
           data-test="learningActivityIcon"
@@ -13,14 +13,12 @@
           :shaded="true"
         />
       </template>
-      <TextTruncator
+      <TextTruncatorCss
         :text="resourceTitle"
-        :maxHeight="26"
+        :maxLines="1"
       />
-      <template #iconAfter>
-        <ProgressIcon :progress="contentProgress" class="progress-icon" />
-      </template>
     </KLabeledIcon>
+    <ProgressIcon :progress="contentProgress" class="progress-icon" />
 
     <template #icon>
       <KIconButton
@@ -33,6 +31,40 @@
     </template>
 
     <template #actions>
+      <KIconButton
+        v-if="isQuiz && !showingReportState"
+        ref="timerButton"
+        data-test="timerButton"
+        icon="timer"
+        :tooltip="coreString('timeSpentLabel')"
+        :ariaLabel="coreString('timeSpentLabel')"
+        @click="toggleTimer"
+      />
+      <CoreMenu
+        v-show="isTimerOpen"
+        ref="timer"
+        class="menu"
+        :style="{ left: isRtl ? '16px' : 'auto', right: isRtl ? 'auto' : '16px' }"
+        :raised="true"
+        :isOpen="isTimerOpen"
+        :containFocus="true"
+        @close="closeTimer"
+      >
+        <template #options>
+          <div class="timer-display">
+            <div>
+              <strong>{{ coreString('timeSpentLabel') }}</strong>
+            </div>
+            <div :style="{ paddingBottom: '8px' }">
+              <TimeDuration :seconds="timeSpent" />
+            </div>
+            <div v-if="duration">
+              <strong>{{ learnString('suggestedTime') }}</strong>
+            </div>
+            <SuggestedTime v-if="duration" :seconds="duration" />
+          </div>
+        </template>
+      </CoreMenu>
       <KIconButton
         v-for="action in barActions"
         :key="action.id"
@@ -64,6 +96,7 @@
           :isOpen="isMenuOpen"
           :containFocus="true"
           @close="closeMenu"
+          @shouldFocusFirstEl="findFirstEl()"
         >
           <template #options>
             <CoreMenuOption
@@ -107,9 +140,11 @@
   import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
-  import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
+  import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import { validateLearningActivity } from 'kolibri.utils.validators';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
+  import SuggestedTime from 'kolibri.coreVue.components.SuggestedTime';
   import LearningActivityIcon from './LearningActivityIcon.vue';
   import MarkAsCompleteModal from './MarkAsCompleteModal';
   import commonLearnStrings from './commonLearnStrings';
@@ -120,11 +155,13 @@
       CoachContentLabel,
       CoreMenu,
       CoreMenuOption,
-      TextTruncator,
+      TextTruncatorCss,
       LearningActivityIcon,
       MarkAsCompleteModal,
       ProgressIcon,
       UiToolbar,
+      TimeDuration,
+      SuggestedTime,
     },
     mixins: [KResponsiveWindowMixin, commonLearnStrings, commonCoreStrings],
     /**
@@ -201,10 +238,52 @@
         required: false,
         default: null,
       },
+      /**
+      Is this a practice quiz?
+      */
+      isQuiz: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
+      /**
+      Is the post-quiz report what is currently displayed?
+      */
+      showingReportState: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
+      /**
+      Suggested time in seconds
+      */
+      duration: {
+        type: Number,
+        required: false,
+        default: null,
+      },
+      /**
+      Actual time spent in seconds
+      */
+      timeSpent: {
+        type: Number,
+        required: false,
+        default: null,
+      },
+      /**
+      A Boolean check whether we should show the Bookmark Icon
+      what should not happen if the user is not logged in
+      */
+      showBookmark: {
+        type: Boolean,
+        required: false,
+        default: true,
+      },
     },
     data() {
       return {
         isMenuOpen: false,
+        isTimerOpen: false,
         showMarkAsCompleteModal: false,
       };
     },
@@ -220,7 +299,9 @@
             event: 'viewResourceList',
             dataTest: this.isLessonContext ? 'viewLessonPlanButton' : 'viewTopicResourcesButton',
           },
-          {
+        ];
+        if (this.showBookmark) {
+          actions.push({
             id: 'bookmark',
             icon: this.isBookmarked ? 'bookmark' : 'bookmarkEmpty',
             label: this.isBookmarked
@@ -229,8 +310,8 @@
             event: 'toggleBookmark',
             disabled: this.isBookmarked === null,
             dataTest: this.isBookmarked ? 'removeBookmarkButton' : 'addBookmarkButton',
-          },
-        ];
+          });
+        }
         if (this.allowMarkComplete) {
           actions.push({
             id: 'mark-complete',
@@ -257,7 +338,8 @@
           actions.push(this.allActions.find(action => action.id === 'view-resource-list'));
         }
         if (this.windowBreakpoint >= 2) {
-          actions.push(this.allActions.find(action => action.id === 'bookmark'));
+          if (this.showBookmark)
+            actions.push(this.allActions.find(action => action.id === 'bookmark'));
           // if a resource doesn’t have the option for learners to manually mark as complete,
           // the 'More options' bar icon button changes to the 'View information' bar icon button
           if (!this.allowMarkComplete) {
@@ -296,6 +378,24 @@
           this.$refs.moreOptionsButton.$el.focus();
         });
       },
+      toggleTimer() {
+        this.isTimerOpen = !this.isTimerOpen;
+        if (!this.isTimerOpen) {
+          return;
+        }
+        this.$nextTick(() => {
+          this.$refs.timer.$el.focus();
+        });
+      },
+      closeTimer({ focusTimerButton = true } = {}) {
+        this.isTimerOpen = false;
+        if (!focusTimerButton) {
+          return;
+        }
+        this.$nextTick(() => {
+          this.$refs.timerButton.$el.focus();
+        });
+      },
       toggleMenu() {
         this.isMenuOpen = !this.isMenuOpen;
         if (!this.isMenuOpen) {
@@ -312,16 +412,28 @@
         this.$emit(actionEvent);
       },
       onWindowClick(event) {
-        if (!this.isMenuOpen) {
-          return;
-        }
         // close menu on outside click
-        if (
-          !this.$refs.menu.$el.contains(event.target) &&
-          !this.$refs.moreOptionsButton.$el.contains(event.target)
-        ) {
-          this.closeMenu({ focusMoreOptionsButton: false });
+        if (this.isMenuOpen) {
+          if (
+            !this.$refs.menu.$el.contains(event.target) &&
+            !this.$refs.moreOptionsButton.$el.contains(event.target)
+          ) {
+            this.closeMenu({ focusMoreOptionsButton: false });
+          }
         }
+        if (this.isTimerOpen) {
+          if (
+            !this.$refs.timerButton.$el.contains(event.target) &&
+            !this.$refs.timer.$el.contains(event.target)
+          ) {
+            this.closeTimer({ focusTimerButton: false });
+          }
+        }
+      },
+      findFirstEl() {
+        this.$nextTick(() => {
+          this.$refs.menu.focusFirstEl();
+        });
       },
     },
     $trs: {
@@ -361,13 +473,38 @@
     transform: translateY(16px);
   }
 
+  /*
+    Make truncation via text ellipsis work well in UIToolbar's body flex item:
+    By default, `min-width` is `auto`  for a flex item which means it
+    cannot be smaller than the size of its content which causes the whole
+    title being visible even in cases when it should be already truncated.
+    Overriding it to `0` allows the title to be shrinked and then truncated
+    properly. Labeled icon wrapper needs to have this set too for its parent
+    flex item to shrink.
+  */
+  /deep/ .ui-toolbar__body,
+  /deep/ .labeled-icon-wrapper {
+    min-width: 0;
+  }
+
+  /deep/ .ui-toolbar__body {
+    flex-grow: 0; // make sure that the completion icon is right next to the title
+    align-items: center;
+  }
+
   /deep/ .progress-icon .ui-icon {
     margin-top: -2px;
+    margin-left: 16px;
 
     svg {
       width: 18px;
       height: 18px;
     }
+  }
+
+  .timer-display {
+    padding: 16px;
+    font-size: 14px;
   }
 
 </style>

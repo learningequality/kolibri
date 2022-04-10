@@ -164,10 +164,11 @@ export function showLessonResourceBookmarks(store, params) {
     });
   });
 }
-export function showLessonResourceBookmarksMain(store) {
+export function showLessonResourceBookmarksMain(store, params) {
   return store.dispatch('loading').then(() => {
     getBookmarks().then(bookmarks => {
       return showResourceSelectionPage(store, {
+        lessonId: params.lessonId,
         bookmarksList: bookmarks[0],
       });
     });
@@ -199,7 +200,6 @@ export function showLessonResourceContentPreview(store, params) {
 }
 
 export function showLessonSelectionContentPreview(store, params, query = {}) {
-  console.log('in prview', params);
   const { classId, lessonId, contentId } = params;
   return store.dispatch('loading').then(() => {
     const pendingSelections = store.state.lessonSummary.workingResources || [];

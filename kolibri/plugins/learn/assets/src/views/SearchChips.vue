@@ -1,7 +1,12 @@
 <template>
 
   <div class="results-header-group">
-    <div v-for="item in items" :key="item.key + item.value" class="filter-chip">
+    <div
+      v-for="item in items"
+      :key="item.key + item.value"
+      class="filter-chip"
+      :style="{ backgroundColor: $themePalette.grey.v_300 }"
+    >
       <span>
         <p class="filter-chip-text">{{ item.text }}</p>
         <KIconButton
@@ -111,10 +116,9 @@
 
   .filter-chip {
     display: inline-block;
-    margin: 2px;
+    margin-left: 8px;
     font-size: 14px;
     vertical-align: top;
-    background-color: #dedede;
     border-radius: 34px;
   }
 
@@ -127,7 +131,6 @@
   .filter-chip-button {
     min-width: 24px !important;
     margin: 2px;
-    color: #dadada;
     vertical-align: middle;
   }
 

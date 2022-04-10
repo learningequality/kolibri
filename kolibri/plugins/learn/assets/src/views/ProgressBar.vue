@@ -56,11 +56,7 @@
     },
     computed: {
       progress() {
-        return (
-          this.contentNode.progress ||
-          this.contentNodeProgressMap[this.contentNode && this.contentNode.content_id] ||
-          0
-        );
+        return this.contentNodeProgressMap[this.contentNode && this.contentNode.content_id] || 0;
       },
       completed() {
         return this.progress >= 1;
@@ -80,6 +76,7 @@
   }
 
   .k-linear-loader {
+    top: -8px;
     display: block;
     margin-bottom: 0;
   }

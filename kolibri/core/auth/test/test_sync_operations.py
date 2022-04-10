@@ -3,6 +3,7 @@ import json
 import mock
 from django.test import SimpleTestCase
 from morango.constants import transfer_statuses
+from morango.errors import MorangoSkipOperation
 from morango.sync.context import LocalSessionContext
 from morango.sync.context import SessionContext
 from morango.sync.operations import BaseOperation
@@ -186,7 +187,7 @@ class KolibriVersionedSyncOperationTestCase(SimpleTestCase):
 
     def test_handle__assert_version(self):
         self.operation.version = None
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(MorangoSkipOperation):
             self.operation.handle(self.context)
 
     def test_handle__server__upgrade_not_needed(self):
@@ -313,7 +314,7 @@ class KolibriSingleUserSyncOperationTestCase(SimpleTestCase):
     ):
         mock_is_local.return_value = False
         mock_is_remote.return_value = False
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(MorangoSkipOperation):
             self.assertFalse(self.operation.handle_initial(self.context))
         self.handle_local_user.assert_not_called()
         self.handle_remote_user.assert_not_called()

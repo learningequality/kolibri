@@ -28,7 +28,7 @@ Feature: Multiple facility sign in
     When I click *Continue*
     Then I see *Gender* and *Birth year* dropdowns
     When I click *Finish*
-    Then I see the *Channels* page
+    Then I see the *Learn > Home* page
       And I see my username in the top right
 
   Scenario: User attempts to create an account when the "Allow learners to create accounts" is disabled

@@ -404,6 +404,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       'This button appears in Kolibri to indicate to users that there are more results available when they search for resources, for example.',
   },
+  viewLessAction: {
+    message: 'View less',
+    context:
+      "Button which allows a user to view less information. It's the opposite of 'View more'.",
+  },
   copies: {
     message: '{ num, number} locations',
     context:
@@ -1027,90 +1032,30 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Folders',
     context: "Tab label in the 'Browse channel' page that allows to navigate through its topics.",
   },
-
-  // TODO - move these into diff sections as we make this a full feature in 0.16
-  // Past Papers Project (12/2021) strings
   scoreLabel: {
     message: 'Score',
     context:
-      "In the 'Reports' tab, coaches can see the score that each learner has obtained on a quiz.\n\nThis is represented as a percentage and indicates the questions they've answered correctly.",
+      'Score obtained by a learner on a quiz, indicated by the percentage of correct answers given.',
   },
+
+  // TODO - move these into diff sections as we make this a full feature in 0.16
+  // Past Papers Project (12/2021) strings
   timeSpentLabel: {
     message: 'Time spent',
-    context:
-      'Column header indicating the time a learner has taken on a specific learning resource. The time spent could be, for example, 2 hours or 15 minutes.',
-  },
-  practiceQuizReportTitle: {
-    message: 'Report for {quizTitle}',
-    context: 'Title of the independent practice quiz',
-  },
-  practiceAgainButton: {
-    message: 'Practice again',
-    context: 'Label for a button used to retake the same independent practice quiz again',
+    context: 'The time a learner has spent on a quiz.',
   },
   statusLabel: {
     message: 'Status',
     context:
       'In a learner\'s independent practice quiz report, indicates if the practice quiz is "In progress" or "Completed"',
   },
-  attemptedLabel: {
-    message: 'Attempted',
-    context:
-      'A number (time) that indicates the when the learner last took this independent practice quiz',
+  practiceQuizReportTitle: {
+    message: 'Report for {quizTitle}',
+    context: 'Label for a report corresponding to a practice quiz',
   },
-  bestScoreLabel: {
-    message: 'Best score',
-    context:
-      'When there have been multiple attempts on a practice quiz, indicates to learner the percentage of their highest score',
-  },
-  bestScoreTimeLabel: {
-    message: 'Best score time',
-    context:
-      'When there have been multiple attempts on a practice quiz, indicates to learner the length of time taken for the attempt with the highest score',
-  },
-  attemptDropdownLabel: {
-    message: 'Attempt',
-    context:
-      'Label for the dropdown to choose one of their five most recent attempts at the practice quiz',
-  },
-  answerLogCorrectLabel: {
-    message: 'You answered this correctly on the previous attempt',
-    context:
-      'Label that indicates to learner they answered the question correctly the previous time they took the practice quiz',
-  },
-  answerLogIncorrectLabel: {
-    message: 'You also answered this incorrectly on the previous attempt',
-    context:
-      'Label that indicates to learner they answered this question incorrectly this attempt and also the attempt before this',
-  },
-  answerLogImprovedLabel: {
-    message: 'You improved your incorrect answer on the previous attempt',
-    context:
-      'Label that indicates to learner they got the question wrong the previous time, but got it correctly on this attempt',
-  },
-  practiceQuizReportImprovedLabel: {
-    message:
-      'You improved at {value, number, integer} {value, plural, one {question} other {questions}}',
-    context:
-      'Indicates to learner how many questions they answered correctly compared to the most recent attempt',
-  },
-  practiceQuizReportFasterSuggestedLabel: {
-    message: '{value, number, integer} minutes faster than the suggested time',
-    context: 'Indicates to learner how many minutes faster they were than the suggested time',
-  },
-  practiceQuizReportSlowerSuggestedLabel: {
-    message: '{value, number, integer} minutes slower than the suggested time',
-    context: 'Indicates to learner how many minutes slower they were than the suggested time',
-  },
-  practiceQuizReportFasterTimeLabel: {
-    message: '{value, number, integer} minutes faster than the previous attempt',
-    context:
-      'Indicates to learner how many minutes faster they were during this attempt than the previous attempt',
-  },
-  practiceQuizReportSlowerTimeLabel: {
-    message: '{value, number, integer} minutes slower than the previous attempt',
-    context:
-      'Indicates to learner how many minutes slower they were during this attempt than the previous attempt',
+  masteryModelLabel: {
+    message: 'Completion requirement',
+    context: 'Denotes whether a specific exercise needs to be completed by the learner.',
   },
 });
 
@@ -1119,6 +1064,17 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
 // TODO: 0.16 - remove this and put a proper string in place
 const noneOfTheAboveTranslator = createTranslator('PerseusInternalMessages', {
   'None of the above': 'None of the above',
+});
+
+// We forgot another string, so we are using one from the EPubRenderer SearchSideBar namespace
+// do not do this, do as I say, not as I do, etc. etc.
+// TODO: 0.16 - remove this and put a proper string in place
+const overResultsTranslator = createTranslator('SearchSideBar', {
+  overCertainNumberOfSearchResults: {
+    message: 'Over {num, number, integer} {num, plural, one {result} other {results}}',
+    context:
+      'Refers to number of search results when there are over a specified amount. Only translate "over", "result" and "results".\n',
+  },
 });
 
 /**
@@ -1140,7 +1096,7 @@ const nonconformingKeys = {
   BASIC_SKILLS: 'allLevelsBasicSkills',
   FOUNDATIONS: 'basicSkills',
   toolsAndSoftwareTraining: 'softwareToolsAndTraining',
-  FOUNDATIONS_LOGIC_AND_CRITICAL_THINKING: 'logicAndCriticalThinking',
+  foundationsLogicAndCriticalThinking: 'logicAndCriticalThinking',
 };
 
 /**
@@ -1175,6 +1131,10 @@ export default {
     coreString(key, args) {
       if (key === 'None of the above' || key === METADATA.NoCategories) {
         return noneOfTheAboveTranslator.$tr('None of the above', args);
+      }
+
+      if (key === 'overCertainNumberOfSearchResults') {
+        return overResultsTranslator.$tr(key, args);
       }
 
       const metadataKey = get(MetadataLookup, key, null);

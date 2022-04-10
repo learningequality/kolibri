@@ -146,6 +146,7 @@
     left: 0;
     z-index: 24;
     margin: 16px;
+
     &:focus {
       outline-style: none !important;
     }

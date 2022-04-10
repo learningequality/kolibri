@@ -15,8 +15,8 @@
         :style="[ modalSizeStyles, { background: $themeTokens.surface } ]"
       >
         <FocusTrap
-          :firstEl="firstFocusableEl"
-          :lastEl="lastFocusableEl"
+          @shouldFocusFirstEl="$emit('shouldFocusFirstEl')"
+          @shouldFocusLastEl="focusLastEl"
         >
           <KFixedGrid
             :numCols="12"
@@ -66,64 +66,67 @@
               </div>
               <div>{{ $tr('keepUpTheGreatProgress') }}</div>
             </div>
+            <KCircularLoader v-if="loading" class="loader" />
+            <template v-else>
+              <CompletionModalSection
+                v-if="nextContentNode"
+                ref="nextContentNodeSection"
+                icon="forwardRounded"
+                :class="sectionClass"
+                :title="$tr('moveOnTitle')"
+                :description="$tr('moveOnDescription')"
+                :buttonLabel="$tr('moveOnButtonLabel')"
+                :buttonRoute="nextContentNodeRoute"
+              >
+                <ResourceItem
+                  :contentNode="nextContentNode"
+                  size="small"
+                />
+              </CompletionModalSection>
 
-            <CompletionModalSection
-              v-if="nextContentNode"
-              ref="nextContentNodeSection"
-              icon="forwardRounded"
-              :class="sectionClass"
-              :title="$tr('moveOnTitle')"
-              :description="$tr('moveOnDescription')"
-              :buttonLabel="$tr('moveOnButtonLabel')"
-              :buttonRoute="nextContentNodeRoute"
-            >
-              <ResourceItem
-                :contentNode="nextContentNode"
-                size="small"
+              <CompletionModalSection
+                ref="staySection"
+                :icon="(isQuiz || isSurvey) ? 'reports' : 'restart'"
+                :class="sectionClass"
+                :title="staySectionTitle"
+                :description="staySectionDescription"
+                :buttonLabel="(isQuiz || isSurvey) ?
+                  $tr('reviewQuizButtonLabel') : $tr('stayButtonLabel')"
+                @buttonClick="$emit('close')"
               />
-            </CompletionModalSection>
 
-            <CompletionModalSection
-              ref="staySection"
-              icon="restart"
-              :class="sectionClass"
-              :title="$tr('stayTitle')"
-              :description="$tr('stayDescription')"
-              :buttonLabel="$tr('stayButtonLabel')"
-              @buttonClick="$emit('close')"
-            />
-
-            <CompletionModalSection
-              v-if="recommendedContentNodes && recommendedContentNodes.length"
-              icon="alternativeRoute"
-              :class="sectionClass"
-              :title="$tr('helpfulResourcesTitle')"
-              :description="$tr('helpfulResourcesDescription')"
-            >
-              <KGrid :style="{ marginTop: '6px' }">
-                <KGridItem
-                  v-for="contentNode in recommendedContentNodes"
-                  :key="contentNode.id"
-                  :layout12="{ span: 6 }"
-                  :layout8="{ span: 4 }"
-                  :layout4="{ span: 4 }"
-                  :style="{ marginBottom: '24px' }"
-                >
-                  <ResourceItem
-                    data-test="recommended-resource"
-                    :contentNode="contentNode"
-                    :contentNodeRoute="genContentLink(
-                      contentNode.id,
-                      null,
-                      contentNode.is_leaf,
-                      $route.query.last,
-                      $route.query
-                    )"
-                    :size="recommendedResourceItemSize"
-                  />
-                </KGridItem>
-              </KGrid>
-            </CompletionModalSection>
+              <CompletionModalSection
+                v-if="recommendedContentNodes && recommendedContentNodes.length"
+                icon="alternativeRoute"
+                :class="sectionClass"
+                :title="$tr('helpfulResourcesTitle')"
+                :description="$tr('helpfulResourcesDescription')"
+              >
+                <KGrid :style="{ marginTop: '6px' }">
+                  <KGridItem
+                    v-for="contentNode in recommendedContentNodes"
+                    :key="contentNode.id"
+                    :layout12="{ span: 6 }"
+                    :layout8="{ span: 4 }"
+                    :layout4="{ span: 4 }"
+                    :style="{ marginBottom: '24px' }"
+                  >
+                    <ResourceItem
+                      data-test="recommended-resource"
+                      :contentNode="contentNode"
+                      :contentNodeRoute="genContentLink(
+                        contentNode.id,
+                        null,
+                        contentNode.is_leaf,
+                        $route.query.last,
+                        $route.query
+                      )"
+                      :size="recommendedResourceItemSize"
+                    />
+                  </KGridItem>
+                </KGrid>
+              </CompletionModalSection>
+            </template>
           </div>
 
           <KIconButton
@@ -150,6 +153,8 @@
   import FocusTrap from 'kolibri.coreVue.components.FocusTrap';
   import PointsIcon from 'kolibri.coreVue.components.PointsIcon';
   import { ContentNodeResource } from 'kolibri.resources';
+  import useDeviceSettings from '../../composables/useDeviceSettings';
+  import useLearnerResources from '../../composables/useLearnerResources';
   import genContentLink from '../../utils/genContentLink';
   import commonLearnStrings from '../commonLearnStrings';
   import CompletionModalSection from './CompletionModalSection';
@@ -175,6 +180,11 @@
       UiAlert,
     },
     mixins: [KResponsiveWindowMixin, commonLearnStrings],
+    setup() {
+      const { canAccessUnassignedContent } = useDeviceSettings();
+      const { fetchLesson } = useLearnerResources();
+      return { canAccessUnassignedContent, fetchLesson };
+    },
     props: {
       /**
        * A sign-in prompt is displayed if a user
@@ -189,12 +199,21 @@
         type: String,
         required: true,
       },
+      lessonId: {
+        type: String,
+        default: null,
+      },
+      isQuiz: {
+        type: Boolean,
+        default: false,
+      },
+      isSurvey: {
+        type: Boolean,
+        default: false,
+      },
     },
     data() {
       return {
-        // to be used by the modal focus trap
-        firstFocusableEl: null,
-        lastFocusableEl: null,
         // where the focus was before opening the modal
         // so we can return it back after it's closed
         lastFocus: null,
@@ -211,9 +230,28 @@
          * to the next resource
          */
         nextContentNode: null,
+        loading: true,
       };
     },
     computed: {
+      staySectionDescription() {
+        if (this.isQuiz) {
+          return this.$tr('reviewQuizDescription');
+        }
+        if (this.isSurvey) {
+          return this.$tr('reviewSurveyDescription');
+        }
+        return this.$tr('stayDescription');
+      },
+      staySectionTitle() {
+        if (this.isQuiz) {
+          return this.$tr('reviewQuizTitle');
+        }
+        if (this.isSurvey) {
+          return this.$tr('reviewSurveyTitle');
+        }
+        return this.$tr('stayTitle');
+      },
       points() {
         return MaxPointsPerContent;
       },
@@ -270,8 +308,19 @@
       },
     },
     created() {
-      this.loadNextContent();
-      this.loadRecommendedContent();
+      const promises = [];
+      if (this.lessonId) {
+        promises.push(this.loadNextLessonContent());
+      } else if (this.canAccessUnassignedContent) {
+        promises.push(this.loadNextContent());
+      }
+      if (this.canAccessUnassignedContent) {
+        promises.push(this.loadRecommendedContent());
+      }
+      Promise.all(promises).then(() => {
+        this.loading = false;
+        this.$nextTick(this.$refs.modal.focus());
+      });
     },
     beforeMount() {
       this.lastFocus = document.activeElement;
@@ -280,23 +329,12 @@
       // Remove scrollbars from the <html> tag, so user's can't scroll while modal is open
       window.document.documentElement.style['overflow'] = 'hidden';
       this.$nextTick(() => {
-        if (this.$refs.modal && !this.$refs.modal.contains(document.activeElement)) {
-          this.focusModal();
-        }
-
-        if (this.nextContentNode) {
-          this.firstFocusableEl = this.$refs.nextContentNodeSection.getButtonRef().$el;
-        } else {
-          this.firstFocusableEl = this.$refs.staySection.getButtonRef().$el;
-        }
-        this.lastFocusableEl = this.$refs.closeButton.$el;
+        this.focusFirstEl();
       });
-      window.addEventListener('focus', this.focusElementTest, true);
     },
     destroyed() {
       // Restore scrollbars to <html> tag
       window.document.documentElement.style['overflow'] = '';
-      window.removeEventListener('focus', this.focusElementTest, true);
       // Wait for events to finish propagating before changing the focus.
       // Otherwise the `lastFocus` item receives events such as 'enter'.
       // (setTimeout(fn, 0) will execute the next event cycle, as soon as the main thread stack
@@ -305,14 +343,25 @@
       window.setTimeout(() => this.lastFocus.focus());
     },
     methods: {
+      focusLastEl() {
+        this.$el.querySelector('.close-button').focus();
+      },
       loadNextContent() {
-        ContentNodeResource.fetchNextContent(this.contentNodeId).then(data => {
+        return ContentNodeResource.fetchNextContent(this.contentNodeId).then(data => {
           this.nextContentNode = data;
         });
       },
       loadRecommendedContent() {
-        ContentNodeResource.fetchRecommendationsFor(this.contentNodeId).then(data => {
+        return ContentNodeResource.fetchRecommendationsFor(this.contentNodeId).then(data => {
           this.recommendedContentNodes = data;
+        });
+      },
+      loadNextLessonContent() {
+        return this.fetchLesson({ lessonId: this.lessonId }).then(lesson => {
+          const index = lesson.resources.findIndex(c => c.contentnode_id === this.contentNodeId);
+          this.nextContentNode = lesson.resources[index + 1]
+            ? lesson.resources[index + 1].contentnode
+            : null;
         });
       },
       genContentLink,
@@ -322,11 +371,10 @@
       goToNextContentNode() {
         this.$router.push(this.nextContentNodeRoute);
       },
-      focusModal() {
-        this.$refs.modal.focus();
-      },
       /**
-       * Forked from `KModal`
+       * @public
+       * Focuses on correct first element for FocusTrap depending on content
+       * rendered in CompletionModal.
        */
       focusElementTest(event) {
         const { target } = event;
@@ -344,9 +392,22 @@
         if ($coreSnackbar && $coreSnackbar.contains(target)) {
           return;
         }
+        // If there is an open KModal, the base case allows us to avoid
+        // the infinite recursion caused by trying to focus trap the KModal
+        const $coreModal = document.getElementById('modal-window');
+        if ($coreModal && $coreModal.contains(target)) {
+          return;
+        }
         // focus has escaped the modal - put it back!
         if (!this.$refs.modal.contains(target)) {
           this.focusModal();
+        }
+      },
+      focusFirstEl() {
+        if (this.nextContentNode && this.$refs.nextContentNodeSection) {
+          this.$refs.nextContentNodeSection.getButtonRef().$el.focus();
+        } else if (this.$refs.staySection) {
+          this.$refs.staySection.getButtonRef().$el.focus();
         }
       },
     },
@@ -392,6 +453,26 @@
       stayButtonLabel: {
         message: 'Stay here',
         context: 'Label for a button used if learner decides to repeat the completed resource.',
+      },
+      reviewSurveyTitle: {
+        message: 'Review survey',
+        context: 'Message to the user to review a survey after they completed it.',
+      },
+      reviewSurveyDescription: {
+        message: 'Open the survey report to review your answers',
+        context: 'After learner submitted a survey, they can view the report page.',
+      },
+      reviewQuizTitle: {
+        message: 'Review quiz',
+        context: 'Message to the user to review a quiz after they completed it.',
+      },
+      reviewQuizDescription: {
+        message: 'Open the quiz report to review your answers',
+        context: 'After learner submitted a practice quiz, they can view the report page.',
+      },
+      reviewQuizButtonLabel: {
+        message: 'View report',
+        context: 'Label for a button used if learner decides to view the practice quiz report.',
       },
       helpfulResourcesTitle: {
         message: 'You may find helpful',
@@ -470,6 +551,11 @@
     .points {
       font-size: 24px;
     }
+  }
+
+  .loader {
+    margin-top: 56px;
+    margin-bottom: 56px;
   }
 
 </style>

@@ -3,27 +3,25 @@
   <div>
 
     <KModal
-      v-if="position === 'modal'"
+      v-if="windowIsLarge"
       :title="$tr('title')"
       :cancelText="coreString('closeAction')"
       size="large"
       @cancel="$emit('cancel')"
     >
-      <CategorySearchModalOptions
+      <CategorySearchOptions
+        ref="searchOptions"
         :selectedCategory="selectedCategory"
         :availableLabels="availableLabels"
-        :span="windowIsMedium ? 6 : 4"
-        numCols="12"
         v-on="$listeners"
       />
     </KModal>
     <div v-else>
       <h2>{{ $tr('title') }}</h2>
-      <CategorySearchModalOptions
+      <CategorySearchOptions
+        ref="searchOptions"
         :selectedCategory="selectedCategory"
         :availableLabels="availableLabels"
-        span="1"
-        numCols="1"
         v-on="$listeners"
       />
     </div>
@@ -39,7 +37,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { Categories, CategoriesLookup } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import CategorySearchModalOptions from './CategorySearchModalOptions';
+  import CategorySearchOptions from './CategorySearchOptions';
   import plugin_data from 'plugin_data';
 
   const availablePaths = {};
@@ -106,7 +104,7 @@
   export default {
     name: 'CategorySearchModal',
     components: {
-      CategorySearchModalOptions,
+      CategorySearchOptions,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
     props: {
@@ -120,12 +118,15 @@
         required: false,
         default: null,
       },
-      position: {
-        type: String,
-        required: true,
-        validator(val) {
-          return ['modal', 'fullscreen'].includes(val);
-        },
+    },
+    methods: {
+      /**
+       * @public
+       * Focuses on correct first element for FocusTrap depending on content
+       * rendered in the search modal.
+       */
+      focusFirstEl() {
+        this.$refs.searchOptions.$el.querySelector('.filter-list-title > h2 > a').focus();
       },
     },
     $trs: {

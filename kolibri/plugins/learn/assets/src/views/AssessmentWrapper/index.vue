@@ -10,11 +10,7 @@ oriented data synchronization.
 <template v-if="ready">
 
   <div>
-    <LessonMasteryBar
-      data-test="lessonMasteryBar"
-      :availableHintsMessage="hint$tr('hint', { hintsLeft: availableHints })"
-      @takeHint="takeHint"
-    >
+    <LessonMasteryBar :requiredCorrectAnswers="totalCorrectRequiredM">
       <template #hint>
         <div
           v-if="totalHints > 0"
@@ -142,7 +138,7 @@ oriented data synchronization.
 
 <script>
 
-  import { mapState, mapActions } from 'vuex';
+  import { mapState } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { MasteryModelGenerators } from 'kolibri.coreVue.vuex.constants';
   import shuffled from 'kolibri.utils.shuffled';
@@ -233,6 +229,18 @@ oriented data synchronization.
         type: Number,
         default: null,
       },
+      pastattempts: {
+        type: Array,
+        default: () => [],
+      },
+      mastered: {
+        type: Boolean,
+        default: false,
+      },
+      totalattempts: {
+        type: Number,
+        default: 0,
+      },
     },
     data() {
       return {
@@ -252,9 +260,6 @@ oriented data synchronization.
     },
     computed: {
       ...mapState({
-        pastattempts: state => (state.core.logging.pastattempts || []).filter(a => !a.error),
-        mastered: state => state.core.logging.complete,
-        totalattempts: state => state.core.logging.totalattempts,
         userid: state => state.core.session.user_id,
       }),
       currentattempt() {
@@ -337,7 +342,6 @@ oriented data synchronization.
       this.nextQuestion();
     },
     methods: {
-      ...mapActions(['updateContentSession']),
       takeHint() {
         this.renderer && this.renderer.takeHint();
       },
@@ -422,7 +426,7 @@ oriented data synchronization.
         } else {
           interaction.id = this.currentattempt.id;
         }
-        this.updateContentSession({ progress, interaction });
+        this.updateInteraction({ progress, interaction });
       },
       setItemId() {
         const index = this.totalattempts % this.assessmentIds.length;
@@ -448,6 +452,9 @@ oriented data synchronization.
         this.itemError = true;
         this.complete = true;
         this.updateAttempt();
+      },
+      updateInteraction(...args) {
+        this.$emit('updateInteraction', ...args);
       },
       updateProgress(...args) {
         this.$emit('updateProgress', ...args);
@@ -581,15 +588,18 @@ oriented data synchronization.
     90% {
       transform: translate3d(-1px, 0, 0);
     }
+
     20%,
     80% {
       transform: translate3d(2px, 0, 0);
     }
+
     30%,
     50%,
     70% {
       transform: translate3d(-4px, 0, 0);
     }
+
     40%,
     60% {
       transform: translate3d(4px, 0, 0);
@@ -599,6 +609,35 @@ oriented data synchronization.
   .current-status {
     height: 18px;
     margin: 0;
+  }
+
+  .hint-btn-container {
+    display: flex;
+    align-items: center;
+    font-size: medium;
+
+    // Ensures the tooltip is visible on the screen in RTL and LTR
+    /deep/ &.rtl {
+      /deep/ .k-tooltip {
+        right: auto !important;
+        left: 0 !important;
+      }
+    }
+
+    /deep/ .k-tooltip {
+      right: 0 !important;
+      left: auto !important;
+      transform: translate3d(0, 23px, 0) !important;
+    }
+  }
+
+  .hint-btn {
+    padding: 0 4px; // Space from btn in RTL and LTR
+    vertical-align: text-bottom;
+
+    /deep/ .link-text {
+      text-align: right;
+    }
   }
 
 </style>
