@@ -63,11 +63,4 @@ describe('when there are nodes with progress that can be resumed', () => {
     const wrapper = shallowMount(ResumableContentGrid, {});
     expect(wrapper.find('[data-test="more-resumable-nodes-button"').element).toBeFalsy();
   });
-  describe('showing the side panel when there is `sidePanelContent`', async () => {
-    it('shows BrowseResourceMetadata', async () => {
-      const wrapper = shallowMount(ResumableContentGrid);
-      await wrapper.setData({ sidePanelContent: { some: 'content' } });
-      expect(wrapper.find("[data-test='content-side-panel']").exists()).toBeTruthy();
-    });
-  });
 });

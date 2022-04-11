@@ -33,7 +33,7 @@
           :contentNode="contentNode"
           :to="getTopicContentNodeLink(contentNode.id)"
           :collectionTitle="getContentNodeTopicName(contentNode)"
-          @openCopiesModal="setCopies"
+          @openCopiesModal="openCopiesModal"
         />
       </template>
     </CardGrid>
@@ -45,7 +45,11 @@
     >
       {{ coreString('viewMoreAction') }}
     </KButton>
-    <CopiesModal />
+    <CopiesModal
+      v-if="displayedCopies.length"
+      :copies="displayedCopies"
+      @submit="displayedCopies = []"
+    />
   </section>
 
 </template>
@@ -58,7 +62,6 @@
   import { computed } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { get } from '@vueuse/core';
-  import useCopies from '../../composables/useCopies';
   import CardGrid from '../cards/CardGrid';
   import QuizCard from '../cards/QuizCard';
   import ResourceCard from '../cards/ResourceCard';
@@ -115,10 +118,7 @@
         return last(contentNode.ancestors).title;
       }
 
-      const { setCopies } = useCopies();
-
       return {
-        setCopies,
         resumableClassesQuizzes,
         resumableContentNodes,
         moreResumableContentNodes,
@@ -143,11 +143,21 @@
         default: false,
       },
     },
+    data() {
+      return {
+        displayedCopies: [],
+      };
+    },
     computed: {
       header() {
         return this.fromClasses
           ? this.$tr('continueLearningFromClassesHeader')
           : this.$tr('continueLearningOnYourOwnHeader');
+      },
+    },
+    methods: {
+      openCopiesModal(copies) {
+        this.displayedCopies = copies;
       },
     },
     $trs: {

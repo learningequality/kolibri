@@ -35,12 +35,16 @@
           :contents="rootNodes"
         />
         <!-- ResumableContentGrid handles whether it renders or not internally -->
-        <ResumableContentGrid />
+        <ResumableContentGrid
+          :currentCardViewStyle="currentCardViewStyle"
+          @setCardStyle="style => currentCardViewStyle = style"
+          @setSidePanelMetadataContent="content => metadataSidePanelContent = content"
+        />
       </div>
 
-      <SearchResultsGrid 
+      <SearchResultsGrid
         v-else-if="displayingSearchResults"
-        :results="results" 
+        :results="results"
         :removeFilterTag="removeFilterTag"
         :clearSearch="clearSearch"
         :moreLoading="moreLoading"
@@ -49,11 +53,14 @@
         :searchTerms="searchTerms"
         :searchLoading="searchLoading"
         :more="more"
+        @setCardStyle="style => currentCardViewStyle = style"
+        @setSidePanelMetadataContent="content => metadataSidePanelContent = content"
       />
     </main>
 
     <!-- Side Panels for filtering and searching  -->
     <SidePanel
+      ref="sidePanel"
       :labels="labels"
       :searchTerms="searchTerms"
       :mobileSidePanelIsOpen="mobileSidePanelIsOpen"
@@ -61,6 +68,42 @@
       @setSearchTerms="newTerms => searchTerms = newTerms"
       @setCategory="category => setCategory(category)"
     />
+
+    <!-- Side Panel for metadata -->
+    <FullScreenSidePanel
+      v-if="metadataSidePanelContent"
+      data-test="content-side-panel"
+      alignment="right"
+      :closeButtonIconType="close"
+      @closePanel="metadataSidePanelContent = null"
+      @shouldFocusFirstEl="findFirstEl()"
+    >
+      <template v-if="metadataSidePanelContent.learning_activities.length" #header>
+        <!-- Flex styles tested in ie11 and look good. Ensures good spacing between
+            multiple chips - not a common thing but just in case -->
+        <div
+          v-for="activity in metadataSidePanelContent.learning_activities"
+          :key="activity"
+          class="side-panel-chips"
+          :class="$computedClass({ '::after': {
+            content: '',
+            flex: 'auto'
+          } })"
+        >
+          <LearningActivityChip
+            class="chip"
+            style="margin-left: 8px; margin-bottom: 8px;"
+            :kind="activity"
+          />
+        </div>
+      </template>
+
+      <BrowseResourceMetadata
+        ref="resourcePanel"
+        :content="metadataSidePanelContent"
+        :showLocationsInChannel="true"
+      />
+    </FullScreenSidePanel>
   </div>
 
 </template>
@@ -74,11 +117,14 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
+  import FullScreenSidePanel from 'kolibri.coreVue.components.FullScreenSidePanel';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import useSearch from '../../composables/useSearch';
   import useLearnerResources from '../../composables/useLearnerResources';
+  import BrowseResourceMetadata from '../BrowseResourceMetadata';
   import commonLearnStrings from '../commonLearnStrings';
   import ChannelCardGroupGrid from '../ChannelCardGroupGrid';
+  import LearningActivityChip from '../LearningActivityChip';
   import ResumableContentGrid from './ResumableContentGrid';
   import SearchResultsGrid from './SearchResultsGrid';
   import SidePanel from './SidePanel';
@@ -91,7 +137,10 @@
       };
     },
     components: {
+      BrowseResourceMetadata,
       ChannelCardGroupGrid,
+      FullScreenSidePanel,
+      LearningActivityChip,
       ResumableContentGrid,
       SearchResultsGrid,
       SidePanel,
@@ -147,6 +196,7 @@
     data: function() {
       return {
         currentCardViewStyle: 'card',
+        metadataSidePanelContent: null,
         mobileSidePanelIsOpen: false,
       };
     },
@@ -184,6 +234,9 @@
       this.translator = crossComponentTranslator(FilterTextbox);
     },
     methods: {
+      findFirstEl() {
+        this.$refs.resourcePanel.focusFirstEl();
+      },
       toggleSidePanelVisibility() {
         this.mobileSidePanelIsOpen = !this.mobileSidePanelIsOpen;
       },
@@ -224,38 +277,8 @@
     margin-right: 24px;
   }
 
-  $gutters: 24px;
-
-  .card-grid-item {
-    margin-bottom: $gutters;
-  }
-
   .loader {
     margin-top: 60px;
-  }
-
-  .toggle-view-buttons {
-    float: right;
-  }
-
-  .full-screen-side-panel {
-    position: relative;
-    width: 100vw;
-  }
-
-  .results-title {
-    display: inline-block;
-    margin-bottom: 24px;
-  }
-
-  .results-header-group {
-    margin-bottom: 24px;
-  }
-
-  .filter-action-button {
-    display: inline-block;
-    margin: 4px;
-    margin-left: 8px;
   }
 
   .side-panel-chips {

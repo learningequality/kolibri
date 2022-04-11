@@ -35,7 +35,7 @@
         :key="`resource-${idx}`"
         :contentNode="content"
         :to="genContentLink(content)"
-        @openCopiesModal="setCopies"
+        @openCopiesModal="copies => displayedCopies = copies"
       />
     </CardGrid>
 
@@ -50,13 +50,14 @@
       :link="genContentLink(content)"
       :footerIcons="footerIcons"
       :createdDate="content.bookmark ? content.bookmark.created : null"
-      @openCopiesModal="setCopies"
+      @openCopiesModal="copies => displayedCopies = copies"
       @viewInformation="$emit('toggleInfoPanel', content)"
       @removeFromBookmarks="removeFromBookmarks(content, contents)"
     />
     <CopiesModal
+      v-if="displayedCopies.length"
       :displayedCopies="displayedCopies"
-      @closeModal="setCopies([])"
+      @submit="displayedCopies = []"
     />
   </div>
 
@@ -65,7 +66,6 @@
 
 <script>
 
-  import { ref } from 'kolibri.lib.vueCompositionApi';
   import { mapState } from 'vuex';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { PageNames } from '../constants';
@@ -88,11 +88,6 @@
       CardGrid,
     },
     mixins: [responsiveWindowMixin],
-    setup() {
-      var displayedCopies = ref({ copies: [] });
-      const setCopies = _copies => (displayedCopies.value = { copies: _copies });
-      return { displayedCopies, setCopies };
-    },
     props: {
       contents: {
         type: Array,
@@ -121,6 +116,11 @@
         required: false,
         default: null,
       },
+    },
+    data() {
+      return {
+        displayedCopies: [],
+      };
     },
     computed: {
       ...mapState('lessonPlaylist', ['currentLesson']),

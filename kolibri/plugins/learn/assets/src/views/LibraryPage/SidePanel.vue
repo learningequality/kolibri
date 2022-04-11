@@ -25,6 +25,7 @@
       data-test="filters-side-panel"
       alignment="left"
       :sidePanelOverrideWidth="`${sidePanelOverlayWidth}px`"
+      :closeButtonIconType="closeButtonIcon"
       @closePanel="$emit('toggleMobileSidePanel')"
       @shouldFocusFirstEl="findFirstEl()"
     >
@@ -139,6 +140,11 @@
       },
     },
     computed: {
+      closeButtonIcon() {
+        return (this.windowIsSmall || this.windowIsMedium) && this.currentCategory
+          ? 'back'
+          : 'close';
+      },
       sidePanelWidth() {
         if (this.windowIsSmall || this.windowIsMedium) {
           return 0;

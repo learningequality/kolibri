@@ -42,8 +42,8 @@
       data-test="search-results-card-grid"
       :currentCardViewStyle="currentCardViewStyle"
       :gridType="1"
-      @openCopiesModal="setCopies"
-      @toggleInfoPanel="toggleInfoPanel"
+      @openCopiesModal="copies => displayedCopies = copies"
+      @toggleInfoPanel="$emit('setSidePanelMetadataContent', $event)"
     />
     <!-- conditionally displayed button if there are additional results -->
     <KButton
@@ -57,8 +57,10 @@
     />
 
     <CopiesModal
-      :displayedCopies="displayedCopies"
-      @closeModal="setCopies([])"
+      v-if="displayedCopies.length"
+      :copies="displayedCopies"
+      :genContentLink="genContentLink"
+      @submit="displayedCopies = []"
     />
   </div>
 
@@ -73,6 +75,7 @@
   import CopiesModal from '../CopiesModal';
   import SearchChips from '../SearchChips';
   import LibraryAndChannelBrowserMainContent from '../LibraryAndChannelBrowserMainContent';
+  import genContentLink from '../../utils/genContentLink';
 
   export default {
     name: 'SearchResultsGrid',
@@ -83,15 +86,10 @@
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
     setup() {
-      var displayedCopies = ref({ copies: [] });
-      const setCopies = _copies => (displayedCopies.value = { copies: _copies });
-
       var sidePanelContent = ref(null);
       const toggleInfoPanel = content => (sidePanelContent.value = content);
 
       return {
-        displayedCopies,
-        setCopies,
         sidePanelContent,
         toggleInfoPanel,
       };
@@ -107,7 +105,7 @@
       },
       more: {
         type: Object,
-        default: () => {},
+        default: null,
       },
       moreLoading: {
         type: Boolean,
@@ -134,6 +132,27 @@
         default: () => {},
       },
     },
+    data() {
+      return {
+        displayedCopies: [],
+      };
+    },
+    computed: {
+      backRoute() {
+        return this.$route.name;
+      },
+    },
+    methods: {
+      genContentLink(content) {
+        return genContentLink(content.id, this.topicId, content.is_leaf, this.backRoute, {
+          ...this.context,
+          ...this.$route.query,
+        });
+      },
+      toggleCardView(value) {
+        this.$emit('setCardStyle', value);
+      },
+    },
     $trs: {
       results: {
         message: '{results, number, integer} {results, plural, one {result} other {results}}',
@@ -151,3 +170,23 @@
   };
 
 </script>
+
+
+<style lang="scss" scoped>
+
+  .results-title {
+    display: inline-block;
+    margin-bottom: 24px;
+  }
+
+  .toggle-view-buttons {
+    float: right;
+  }
+
+  .filter-action-button {
+    display: inline-block;
+    margin: 4px;
+    margin-left: 8px;
+  }
+
+</style>

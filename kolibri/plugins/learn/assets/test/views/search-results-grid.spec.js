@@ -107,8 +107,8 @@ describe('when search results are loaded', () => {
 
       useSearch.mockImplementation(() =>
         useSearchMock({
-          more: true,
-          results: ['1 result'],
+          more: { a: 'another result' },
+          results: [{ just: '1 result' }],
           displayingSearchResults: true,
           searchLoading: false,
         })
@@ -119,6 +119,7 @@ describe('when search results are loaded', () => {
       });
 
       const moreButton = wrapper.find('[data-test="more-results-button"]');
+      console.log(moreButton);
       moreButton.trigger('click');
       expect(searchMoreSpy).toBeCalled();
     });
