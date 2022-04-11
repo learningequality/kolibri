@@ -276,6 +276,12 @@ EXTRA_LANG_INFO = {
         "name": "Portuguese (Mozambique)",
         "name_local": "Português (Moçambique)",
     },
+    "uk": {
+        "bidi": False,
+        "code": "uk",
+        "name": "Ukrainian",
+        "name_local": "Украї́нська мо́ва",
+    },
     "zh": {
         "bidi": False,
         "code": "zh-hans",
