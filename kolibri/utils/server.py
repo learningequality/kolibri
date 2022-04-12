@@ -131,6 +131,9 @@ class ServerPlugin(BaseServerPlugin):
         httpserver = kwargs.get("httpserver")
         if not isinstance(httpserver, BaseServer):
             raise TypeError("httpserver must be a cheroot.wsgi.BaseServer")
+        # The server is initialized without a bind address before it is passed into the plugin.
+        # Because of the property setter below for `bind_addr` the setting of `self.bind_addr`
+        # in the super invocation here, results in the httpserver's `bind_addr` property being set.
         super(ServerPlugin, self).__init__(*args, **kwargs)
         self._default_bind_addr = self.bind_addr
 
