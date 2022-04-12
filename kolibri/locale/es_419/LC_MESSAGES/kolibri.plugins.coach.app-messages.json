@@ -288,7 +288,7 @@
   "NotificationsFilter.progressTypeLabel": "Progreso",
   "NotificationsFilter.resourceTypeLabel": "Tipo del material",
   "NotificationsFilter.videosLabel": "Vídeos",
-  "OverviewBlock.allClassesLabel": "Todas los grupos",
+  "OverviewBlock.allClassesLabel": "Todos los grupos",
   "OverviewBlock.coach": "{count, plural, one {Tutor} other {Tutores}}",
   "OverviewBlock.learner": "{count, plural, one {Estudiante} other {Estudiantes}}",
   "OverviewBlock.viewLearners": "Ver estudiantes",

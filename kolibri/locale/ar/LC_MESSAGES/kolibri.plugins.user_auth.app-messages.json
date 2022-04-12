@@ -3,7 +3,7 @@
   "AuthBase.oidcGenericExplanation": "كوليبري هي منصة تعلّم إلكترونية. يمكنك أيضاً استخدام حساب كوليبري الخاص بك لتسجيل الدخول إلى بعض تطبيقات الطرف الثالث.",
   "AuthBase.oidcSpecificExplanation": "لقد تم توجيهك إلى هنا بواسطة تطبيق '{app_name}'. كوليبري هي منصة تعليم إلكترونية، وبإمكانك أيضاً استخدام حساب كوليبري الخاص بك للوصول إلى '{app_name}'.",
   "AuthBase.photoCreditLabel": "صاحب الصورة: {photoCredit}",
-  "AuthBase.poweredBy": "كوليبري {version}",
+  "AuthBase.poweredBy": " كوليبري {version}",
   "AuthBase.poweredByKolibri": "مدعوم من قبل كوليبري",
   "AuthBase.restrictedAccess": "تم تقييد الوصول إلى كوليبري بالنسبة للأجهزة الخارجية",
   "AuthBase.restrictedAccessDescription": "لتغيير ذلك، قم بتسجيل الدخول كمشرف متميز ومن ثم تحديث إعدادات الوصول إلى شبكة الجهاز",
