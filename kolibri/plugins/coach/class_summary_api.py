@@ -18,7 +18,6 @@ from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.models import AdHocGroup
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
-from kolibri.core.content.api import OptionalPageNumberPagination  # added
 from kolibri.core.content.models import ContentNode
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
@@ -281,7 +280,6 @@ class ClassSummaryPermissions(permissions.BasePermission):
 
 class ClassSummaryViewSet(viewsets.ViewSet):
     permission_classes = (permissions.IsAuthenticated, ClassSummaryPermissions)
-    pagination_class = OptionalPageNumberPagination
 
     def retrieve(self, request, pk):
         classroom = get_object_or_404(auth_models.Classroom, id=pk)
