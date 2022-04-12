@@ -100,11 +100,15 @@
         return this.pageName === 'AVAILABLE_CHANNELS' && this.$route.query.multiple;
       },
       immersivePageRoute() {
-        if (this.$route.query && this.pageName === PageNames.MANAGE_TASKS) {
-          const route = this.$router.getRoute(this.$route.query.last, {
-            channel_id: this.$route.query.channel_id,
-          });
-          return route;
+        if (this.pageName === PageNames.MANAGE_TASKS) {
+          if (this.$route.query.last) {
+            const route = this.$router.getRoute(this.$route.query.last, {
+              channel_id: this.$route.query.channel_id,
+            });
+            return route;
+          } else {
+            return { name: PageNames.MANAGE_CONTENT_PAGE };
+          }
         }
         if (this.$route.query.last) {
           return {
@@ -114,7 +118,6 @@
             query: omit(this.$route.query, ['last']),
           };
         }
-
         if (this.pageName === PageNames.MANAGE_CHANNEL) {
           return { name: PageNames.MANAGE_CONTENT_PAGE };
         }
