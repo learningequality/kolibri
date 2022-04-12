@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import multiprocessing
 from enum import auto
 from enum import Enum
@@ -11,6 +12,8 @@ from kolibri_app.globals import KOLIBRI_HOME_PATH
 from .kolibri_service_context import KolibriServiceContext
 from .kolibri_service_context import KolibriServiceProcess
 from .kolibri_utils import init_kolibri
+
+logger = logging.getLogger(__name__)
 
 
 class KolibriHttpProcess(KolibriServiceProcess):
@@ -98,24 +101,28 @@ class KolibriHttpProcess(KolibriServiceProcess):
         return fn()
 
     def __start_kolibri(self):
-        # FIXME: KolibriProcessBus figures out its bind address early on and
-        #        then replaces port=0 with port=bind_port. This means it will
-        #        continue using the same port after stopping and starting. It
-        #        becomes an issue because another process could bind to the same
-        #        port at a time when Kolibri is not running.
-
-        if self.context.has_error():
-            return
-
         if _process_bus_has_transition(self.__kolibri_bus, "START"):
             self.context.is_starting = True
             self.__kolibri_bus.transition("START")
+        elif self.__kolibri_bus.state != "START":
+            self.context.start_error = self.context.StartError.INVALID_STATE
+            logger.warning(
+                f"Kolibri is unable to start because its state is '{self.__kolibri_bus.state}'"
+            )
 
     def __stop_kolibri(self):
-        self.__kolibri_bus.transition("IDLE")
+        if _process_bus_has_transition(self.__kolibri_bus, "IDLE"):
+            self.__kolibri_bus.transition("IDLE")
+        elif self.__kolibri_bus.state != "IDLE":
+            logger.warning(
+                f"Kolibri is unable to stop because its state is '{self.__kolibri_bus.state}"
+            )
+
+    def __exit_kolibri(self):
+        self.__kolibri_bus.transition("EXITED")
 
     def __shutdown(self):
-        self.__stop_kolibri()
+        self.__exit_kolibri()
         self.__keep_alive = False
 
     def stop(self):
@@ -137,36 +144,41 @@ class _KolibriDaemonPlugin(SimplePlugin):
         self.bus = bus
         self.__context = context
 
+    @property
+    def context(self):
+        return self.__context
+
     def SERVING(self, port: int):
         from kolibri.utils.server import get_urls
 
         _, base_urls = get_urls(listen_port=port)
 
-        self.__context.base_url = base_urls[0]
-        self.__context.start_error = self.__context.StartError.NONE
-        self.__context.is_started = True
-        self.__context.is_starting = False
+        self.context.base_url = base_urls[0]
+        self.context.start_error = self.context.StartError.NONE
+        self.context.is_started = True
+        self.context.is_starting = False
 
     def ZIP_SERVING(self, zip_port: int):
         from kolibri.utils.server import get_urls
 
         _, zip_urls = get_urls(listen_port=zip_port)
 
-        self.__context.extra_url = zip_urls[0]
+        self.context.extra_url = zip_urls[0]
 
     def START_ERROR(self, error_class, error, traceback):
         # TODO: We could report different types of errors here.
         # Kolibri transitions to the EXIT state from here. This is potentially
         # problematic because it is unrecoverable, but we don't allow a client
         # to restart Kolibri when it is in an error state either.
-        self.__context.start_error = self.__context.StartError.ERROR
+        self.context.start_error = self.context.StartError.ERROR
+        logger.error(f"Kolibri failed to start due to an error: {error}")
 
     def STOP(self):
-        self.__context.base_url = ""
-        self.__context.extra_url = ""
-        self.__context.is_starting = False
-        self.__context.is_started = False
-        self.__context.is_stopped = True
+        self.context.base_url = ""
+        self.context.extra_url = ""
+        self.context.is_starting = False
+        self.context.is_started = False
+        self.context.is_stopped = True
 
 
 def _process_bus_has_transition(bus: ProcessBus, to_state: str) -> bool:
