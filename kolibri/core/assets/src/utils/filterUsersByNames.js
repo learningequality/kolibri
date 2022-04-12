@@ -1,5 +1,4 @@
 import Fuse from 'fuse.js';
-
 // Filters array of FacilityUser objects based on their `username` or `full_name` fields
 export default function filterUsersByNames(users, searchTerm) {
   const searcher = new Fuse(users, {
