@@ -33,7 +33,7 @@ class Transfer(object):
         dest,
         block_size=2097152,
         remove_existing_temp_file=True,
-        timeout=20,
+        timeout=60,
         cancel_check=None,
     ):
         self.source = source

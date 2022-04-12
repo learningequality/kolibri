@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-12 06:47-0800\n"
-"PO-Revision-Date: 2022-01-25 01:56\n"
+"POT-Creation-Date: 2021-11-01 22:12-0700\n"
+"PO-Revision-Date: 2022-04-11 21:35\n"
 "Last-Translator: \n"
 "Language-Team: Portuguese, Brazilian\n"
 "Language: pt_BR\n"
@@ -14,8 +14,8 @@ msgstr ""
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Project-ID: 201933\n"
 "X-Crowdin-Language: pt-BR\n"
-"X-Crowdin-File: /release-v0.16.x/django.po\n"
-"X-Crowdin-File-ID: 4241\n"
+"X-Crowdin-File: /release-v0.15.x/django.po\n"
+"X-Crowdin-File-ID: 4105\n"
 
 #: core/auth/constants/commands_errors.py:17
 msgid "Unexpected exception [{}]: {}"
@@ -172,15 +172,15 @@ msgstr "Não foi possível atualizar o usuário ID: '{}' porque nenhum usuário 
 msgid "Database ID is not valid"
 msgstr "O ID deste banco de dados não é valido"
 
-#: core/content/api.py:254
+#: core/content/api.py:170
 msgid "Resource"
 msgstr "Conteúdo"
 
-#: core/content/api.py:1467
+#: core/content/api.py:1327
 msgid "The requested channel does not exist on the content server"
 msgstr "O canal solicitado não existe no servidor de conteúdo"
 
-#: core/content/models.py:256
+#: core/content/models.py:252
 msgid "Unknown format"
 msgstr "Formato desconhecido"
 

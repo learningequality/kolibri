@@ -24,9 +24,12 @@
         </KGridItem>
       </KGrid>
 
-      <PaginatedListContainer
-        :items="usersFilteredByRow"
+      <PaginatedListContainerWithBackend
+        :items="facilityUsers"
         :filterPlaceholder="$tr('searchText')"
+        :totalPageNumber="totalPages"
+        :roleFilter="roleFilter"
+        :totalUsers="usersCount"
       >
         <template #otherFilter>
           <KSelect
@@ -56,7 +59,7 @@
             </template>
           </UserTable>
         </template>
-      </PaginatedListContainer>
+      </PaginatedListContainerWithBackend>
 
       <!-- Modals -->
 
@@ -85,7 +88,7 @@
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import cloneDeep from 'lodash/cloneDeep';
-  import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
+  import PaginatedListContainerWithBackend from '../PaginatedListContainerWithBackend';
   import UserTable from '../UserTable';
   import { Modals } from '../../constants';
   import FacilityAppBarPage from '../FacilityAppBarPage';
@@ -106,7 +109,7 @@
       ResetUserPasswordModal,
       DeleteUserModal,
       UserTable,
-      PaginatedListContainer,
+      PaginatedListContainerWithBackend,
     },
     mixins: [commonCoreStrings],
     data() {
@@ -118,7 +121,7 @@
     },
     computed: {
       ...mapGetters(['currentUserId', 'isSuperuser']),
-      ...mapState('userManagement', ['facilityUsers']),
+      ...mapState('userManagement', ['facilityUsers', 'totalPages', 'usersCount']),
       Modals: () => Modals,
       userKinds() {
         return [
@@ -128,9 +131,6 @@
           { label: this.$tr('admins'), value: UserKinds.ADMIN },
           { label: this.$tr('superAdmins'), value: UserKinds.SUPERUSER },
         ];
-      },
-      usersFilteredByRow() {
-        return this.facilityUsers.filter(user => this.userMatchesRole(user, this.roleFilter));
       },
     },
     beforeMount() {
@@ -160,22 +160,6 @@
       },
       closeModal() {
         this.modalShown = '';
-      },
-      userMatchesRole(user, roleFilter) {
-        const { value: filterKind } = roleFilter;
-        if (filterKind === ALL_FILTER) {
-          return true;
-        }
-        if (user.kind === UserKinds.ASSIGNABLE_COACH) {
-          return filterKind === UserKinds.COACH;
-        }
-        if (filterKind === UserKinds.ADMIN) {
-          return user.kind === UserKinds.ADMIN || user.kind === UserKinds.SUPERUSER;
-        }
-        if (filterKind === UserKinds.SUPERUSER) {
-          return user.kind === UserKinds.SUPERUSER;
-        }
-        return filterKind === user.kind;
       },
       manageUserOptions(userId) {
         return [

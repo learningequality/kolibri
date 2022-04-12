@@ -94,7 +94,7 @@
   import ClassSummaryResource from '../../../apiResources/classSummary';
   import commonCoachStrings from '../../common';
 
-  const DEFAULT_ITEMS_PER_PAGE = 50;
+  const DEFAULT_ITEMS_PER_PAGE = 30;
 
   export default {
     name: 'IndividualLearnerSelector',

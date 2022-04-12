@@ -166,6 +166,12 @@ module.exports = function(locale) {
           resolve(() => require('intl/locale-data/jsonp/te.js'));
         });
       });
+    case 'uk':
+      return new Promise(function(resolve) {
+        require.ensure(['intl/locale-data/jsonp/uk.js'], function(require) {
+          resolve(() => require('intl/locale-data/jsonp/uk.js'));
+        });
+      });
     case 'ur-pk':
       return new Promise(function(resolve) {
         require.ensure(['intl/locale-data/jsonp/ur-PK.js'], function(require) {

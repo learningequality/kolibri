@@ -112,6 +112,14 @@ class Command(AsyncCommand):
             help="Import all updated content after a channel version upgrade",
         )
 
+        parser.add_argument(
+            "--fail-on-error",
+            action="store_true",
+            default=False,
+            dest="fail_on_error",
+            help="Raise an error when a file has failed to be imported",
+        )
+
         # to implement these two groups of commands and their corresponding
         # arguments, we'll need argparse.subparsers.
         subparsers = parser.add_subparsers(
@@ -160,6 +168,7 @@ class Command(AsyncCommand):
         peer_id=None,
         renderable_only=True,
         import_updates=False,
+        fail_on_error=False,
     ):
         self._transfer(
             DOWNLOAD_METHOD,
@@ -170,6 +179,7 @@ class Command(AsyncCommand):
             peer_id=peer_id,
             renderable_only=renderable_only,
             import_updates=import_updates,
+            fail_on_error=fail_on_error,
         )
 
     def copy_content(
@@ -181,6 +191,7 @@ class Command(AsyncCommand):
         exclude_node_ids=None,
         renderable_only=True,
         import_updates=False,
+        fail_on_error=False,
     ):
         self._transfer(
             COPY_METHOD,
@@ -191,6 +202,7 @@ class Command(AsyncCommand):
             exclude_node_ids=exclude_node_ids,
             renderable_only=renderable_only,
             import_updates=import_updates,
+            fail_on_error=fail_on_error,
         )
 
     def _transfer(  # noqa: max-complexity=16
@@ -205,6 +217,7 @@ class Command(AsyncCommand):
         peer_id=None,
         renderable_only=True,
         import_updates=False,
+        fail_on_error=False,
     ):
         try:
             if not import_updates:
@@ -426,8 +439,10 @@ class Command(AsyncCommand):
                             logger.error(
                                 "An error occurred during content import: {}".format(e)
                             )
+
                             if (
-                                isinstance(e, requests.exceptions.HTTPError)
+                                not fail_on_error
+                                and isinstance(e, requests.exceptions.HTTPError)
                                 and e.response.status_code == 404
                             ) or (isinstance(e, OSError) and e.errno == 2):
                                 # Continue file import when the current file is not found from the source and is skipped.
@@ -537,6 +552,7 @@ class Command(AsyncCommand):
                 peer_id=options["peer_id"],
                 renderable_only=options["renderable_only"],
                 import_updates=options["import_updates"],
+                fail_on_error=options["fail_on_error"],
             )
         elif options["command"] == "disk":
             self.copy_content(
@@ -547,6 +563,7 @@ class Command(AsyncCommand):
                 exclude_node_ids=options["exclude_node_ids"],
                 renderable_only=options["renderable_only"],
                 import_updates=options["import_updates"],
+                fail_on_error=options["fail_on_error"],
             )
         else:
             self._parser.print_help()

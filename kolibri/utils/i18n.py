@@ -68,6 +68,7 @@ KOLIBRI_SUPPORTED_LANGUAGES = [
     "pt-mz",
     "sw-tz",
     "te",
+    "uk",
     "ur-pk",
     "vi",
     "yo",

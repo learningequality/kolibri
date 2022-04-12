@@ -50,7 +50,7 @@
   "CsvInfoModal.required": "Obrigatório",
   "CsvInfoModal.sectionDescription": "Uma planilha CSV deve usar a primeira linha como cabeçalho e conter as seguintes colunas:",
   "CsvInfoModal.userType": "Tipo de usuário",
-  "CsvInfoModal.username": "Nome de utilizador",
+  "CsvInfoModal.username": "Nome de usuário",
   "CsvInfoModal.usernameInfo": "Máximo de 125 caracteres. Pode conter letras, números e sublinhados",
   "CsvInfoModal.uuid": "ID do banco de dados",
   "CsvInfoModal.uuidInfo": "É um identificador (ID) para cada usuário de Kolibri. Deixe esse campo em branco para criar um novo usuário.",
