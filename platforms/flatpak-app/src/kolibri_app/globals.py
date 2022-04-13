@@ -19,6 +19,10 @@ KOLIBRI_APP_DEVELOPER_EXTRAS = os.environ.get(
     profile_environ_prefix + "APP_DEVELOPER_EXTRAS"
 )
 
+KOLIBRI_APP_FORCE_AUTOMATIC_LOGIN = os.environ.get(
+    profile_environ_prefix + "APP_FORCE_AUTOMATIC_LOGIN"
+)
+
 XDG_CURRENT_DESKTOP = os.environ.get("XDG_CURRENT_DESKTOP")
 
 # Logic for KOLIBRI_HOME is from kolibri.utils.conf. We avoid importing it from

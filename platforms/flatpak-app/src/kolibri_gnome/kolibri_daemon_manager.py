@@ -14,6 +14,7 @@ from gi.repository import KolibriDaemonDBus
 from gi.repository import Soup
 from kolibri_app.config import DAEMON_APPLICATION_ID
 from kolibri_app.config import DAEMON_MAIN_OBJECT_PATH
+from kolibri_app.globals import KOLIBRI_APP_FORCE_AUTOMATIC_LOGIN
 
 from .utils import GioInputStreamIO
 
@@ -49,7 +50,9 @@ class KolibriDaemonManager(GObject.GObject):
 
         g_bus_type = KolibriDaemonDBus.get_default_bus_type()
 
-        self.__do_automatic_login = g_bus_type == Gio.BusType.SYSTEM
+        self.__do_automatic_login = (
+            g_bus_type == Gio.BusType.SYSTEM or KOLIBRI_APP_FORCE_AUTOMATIC_LOGIN
+        )
 
         self.__dbus_proxy = KolibriDaemonDBus.MainProxy(
             g_bus_type=g_bus_type,
