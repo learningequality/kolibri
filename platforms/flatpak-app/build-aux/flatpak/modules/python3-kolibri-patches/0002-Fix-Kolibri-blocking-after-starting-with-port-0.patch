@@ -1,15 +1,24 @@
-From fd6f836b5bcc9611c366e6e234450ca9d9a5ce48 Mon Sep 17 00:00:00 2001
+From 609b938945f614bd9d086eb33e8652ea697543c6 Mon Sep 17 00:00:00 2001
 From: Dylan McCall <dylan@endlessos.org>
 Date: Thu, 7 Apr 2022 11:27:01 -0700
-Subject: [PATCH] Allow disabling PortCache in KolibriProcessBus
+Subject: [PATCH] Fix Kolibri blocking after starting with port 0
 
-This feature is not necessary on certain platforms.
+After the server starts, BaseServerPlugin waits for it to respond on the
+expected port number. For this feature to work, we need it to see the
+bind address from the associated httpserver, which is different from the
+original bind address when binding to port 0.
+
+For clarity, we will not initialize the cheroot.wsgi Server with a
+bind_addr. Instead, it will be controlled by ServerPlugin itself.
+
+With this change in place, we can remove PortCache because we no longer
+need to reuse port numbers.
 ---
- kolibri/utils/server.py | 91 ++++++++++-------------------------------
- 1 file changed, 22 insertions(+), 69 deletions(-)
+ kolibri/utils/server.py | 89 ++++++++++-------------------------------
+ 1 file changed, 21 insertions(+), 68 deletions(-)
 
 diff --git a/kolibri/utils/server.py b/kolibri/utils/server.py
-index 7e02dfe78a..066c12f02b 100644
+index d9080d0073..bc582f69ef 100644
 --- a/kolibri/utils/server.py
 +++ b/kolibri/utils/server.py
 @@ -61,9 +61,6 @@ PID_FILE = os.path.join(conf.KOLIBRI_HOME, "server.pid")
@@ -76,16 +85,23 @@ index 7e02dfe78a..066c12f02b 100644
 -    def subscribe(self):
 -        super(ServerPlugin, self).subscribe()
 -        self.bus.subscribe("ENTER", self.ENTER)
--
--    def unsubscribe(self):
--        super(ServerPlugin, self).unsubscribe()
--        self.bus.unsubscribe("ENTER", self.ENTER)
 +    def __init__(self, *args, **kwargs):
 +        httpserver = kwargs.get("httpserver")
-+        if not isinstance(httpserver, Server):
++        if not isinstance(httpserver, BaseServer):
 +            raise TypeError("httpserver must be a cheroot.wsgi.BaseServer")
 +        super(ServerPlugin, self).__init__(*args, **kwargs)
 +        self._default_bind_addr = self.bind_addr
+ 
+-    def unsubscribe(self):
+-        super(ServerPlugin, self).unsubscribe()
+-        self.bus.unsubscribe("ENTER", self.ENTER)
++    @property
++    def bind_addr(self):
++        # Instead of using our own copy of bind_addr, mirror httpserver.
++        # This is necessary because methods in BaseServerPlugin expect
++        # bind_addr to match the bind address the server is using, such as
++        # when binding to port 0.
++        return self.httpserver.bind_addr
  
 -    def ENTER(self):
 -        host, bind_port = self.bind_addr
@@ -94,14 +110,6 @@ index 7e02dfe78a..066c12f02b 100644
 -            if port:
 -                self.bind_addr = (host, port)
 -                self.httpserver.bind_addr = (host, port)
-+    @property
-+    def bind_addr(self):
-+        # Instead of using our own copy of bind_addr, mirror httpserver.
-+        # This is necessary because methods in BaseServerPlugin expect
-+        # bind_addr to match the bind address the server is using, such as
-+        # when binding to port 0.
-+        return self.httpserver.bind_addr
-+    
 +    @bind_addr.setter
 +    def bind_addr(self, value):
 +        self.httpserver.bind_addr = value
@@ -116,7 +124,7 @@ index 7e02dfe78a..066c12f02b 100644
  
      @property
      def interface(self):
-@@ -595,9 +550,7 @@ class KolibriProcessBus(ProcessBus):
+@@ -594,9 +549,7 @@ class KolibriProcessBus(ProcessBus):
          self.background = background
          self.serve_http = serve_http
          self.port = int(port)
@@ -126,7 +134,7 @@ index 7e02dfe78a..066c12f02b 100644
          # On Mac, Python crashes when forking the process, so prevent daemonization until we can figure out
          # a better fix. See https://github.com/learningequality/kolibri/issues/4821
          if sys.platform == "darwin":
-@@ -725,7 +678,7 @@ class KolibriProcessBus(ProcessBus):
+@@ -724,7 +677,7 @@ class KolibriProcessBus(ProcessBus):
  
              kolibri_server = KolibriServerPlugin(
                  self,
@@ -135,7 +143,7 @@ index 7e02dfe78a..066c12f02b 100644
                  bind_addr=kolibri_address,
              )
  
-@@ -736,7 +689,7 @@ class KolibriProcessBus(ProcessBus):
+@@ -735,7 +688,7 @@ class KolibriProcessBus(ProcessBus):
  
              alt_port_server = ZipContentServerPlugin(
                  self,
