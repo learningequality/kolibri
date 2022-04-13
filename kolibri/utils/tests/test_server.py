@@ -228,17 +228,15 @@ class TestZeroConfPlugin(object):
     "kolibri.utils.server._read_pid_file", return_value=((None, None, None, None))
 )
 class ServerInitializationTestCase(TestCase):
-    @mock.patch("kolibri.utils.server.logging.error")
+    @mock.patch("kolibri.utils.server.logger.error")
     @mock.patch("kolibri.utils.server.wait_for_free_port")
     def test_port_occupied(self, wait_for_port_mock, logging_mock, read_pid_file_mock):
         wait_for_port_mock.side_effect = OSError
         with self.assertRaises(SystemExit):
-            process = server.KolibriProcessBus("8080", "8081")
-            process.background = True
-            process.background_port_check()
-            logging_mock.assert_called()
+            server._port_check("8080")
+        logging_mock.assert_called()
 
-    @mock.patch("kolibri.utils.server.logging.error")
+    @mock.patch("kolibri.utils.server.logger.error")
     @mock.patch("kolibri.utils.server.wait_for_free_port")
     def test_port_occupied_socket_activation(
         self, wait_for_port_mock, logging_mock, read_pid_file_mock
@@ -246,20 +244,16 @@ class ServerInitializationTestCase(TestCase):
         wait_for_port_mock.side_effect = OSError
         # LISTEN_PID environment variable would be set if using socket activation
         with mock.patch.dict(os.environ, {"LISTEN_PID": "1234"}):
-            process = server.KolibriProcessBus("8080", "8081")
-            process.background = True
-            process.background_port_check()
+            server._port_check("8080")
             logging_mock.assert_not_called()
 
-    @mock.patch("kolibri.utils.server.logging.error")
+    @mock.patch("kolibri.utils.server.logger.error")
     @mock.patch("kolibri.utils.server.wait_for_free_port")
     def test_port_zero_zip_port_zero(
         self, wait_for_port_mock, logging_mock, read_pid_file_mock
     ):
         wait_for_port_mock.side_effect = OSError
-        process = server.KolibriProcessBus(0, 0)
-        process.background = True
-        process.background_port_check()
+        server._port_check(0)
         logging_mock.assert_not_called()
 
     @mock.patch("kolibri.utils.server.pid_exists")
