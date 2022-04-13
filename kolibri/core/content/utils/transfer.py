@@ -27,13 +27,15 @@ class TransferNotYetClosed(Exception):
 
 
 class Transfer(object):
+    DEFAULT_TIMEOUT = 60
+
     def __init__(
         self,
         source,
         dest,
         block_size=2097152,
         remove_existing_temp_file=True,
-        timeout=60,
+        timeout=DEFAULT_TIMEOUT,
         cancel_check=None,
     ):
         self.source = source
