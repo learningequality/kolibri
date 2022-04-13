@@ -48,7 +48,7 @@ class KolibriWindow(Gtk.ApplicationWindow):
         context: KolibriContext,
         *args,
         related_webview: typing.Optional[WebKit2.WebView] = None,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(application=application, *args, **kwargs)
 

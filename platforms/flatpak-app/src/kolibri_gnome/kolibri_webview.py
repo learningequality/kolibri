@@ -183,7 +183,7 @@ class KolibriWebViewStack(Gtk.Stack):
         context: KolibriContext,
         related_webview: typing.Optional[WebKit2.WebView] = None,
         *args,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(*args, **kwargs)
 

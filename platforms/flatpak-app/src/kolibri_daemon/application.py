@@ -437,7 +437,7 @@ class Application(Gio.Application):
         kolibri_service: KolibriServiceManager,
         search_handler: LocalSearchHandler,
         *args,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(
             *args,
@@ -446,7 +446,7 @@ class Application(Gio.Application):
                 Gio.ApplicationFlags.IS_SERVICE | Gio.ApplicationFlags.ALLOW_REPLACEMENT
             ),
             inactivity_timeout=INACTIVITY_TIMEOUT_MS,
-            **kwargs
+            **kwargs,
         )
 
         self.__kolibri_service = kolibri_service
