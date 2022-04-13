@@ -94,7 +94,7 @@
     data() {
       return {
         /* Will be calculated in mounted() as it will get the height of the fixedHeader then */
-        fixedHeaderHeight: 0,
+        fixedHeaderHeight: '0px',
         lastFocus: null,
       };
     },
@@ -153,7 +153,7 @@
           'margin-top': this.fixedHeaderHeight,
           padding: '24px 32px 16px',
           'overflow-y': 'scroll',
-          height: `calc((100vh - ${this.fixedHeaderHeight}px))`,
+          height: `calc(100vh - ${this.fixedHeaderHeight})`,
         };
       },
     },
