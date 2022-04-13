@@ -91,7 +91,7 @@ class KolibriContext(GObject.GObject):
 
     @property
     def default_url(self) -> str:
-        return "x-kolibri-app:/learn"
+        return "x-kolibri-app:/"
 
     @property
     def webkit_web_context(self) -> WebKit2.WebContext:
