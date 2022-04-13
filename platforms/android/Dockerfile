@@ -60,6 +60,14 @@ RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
     locale-gen
 ENV LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
 
+# Install Android SDK
+ENV ANDROID_HOME=/opt/android
+ENV ANDROIDSDK=$ANDROID_HOME/sdk
+ENV ANDROIDNDK=$ANDROIDSDK/ndk-bundle
+COPY Makefile /tmp/
+RUN make -C /tmp setup SDK=$ANDROIDSDK && \
+  rm -f /tmp/Makefile
+
 USER kivy:kivy
 WORKDIR /home/kivy
 
@@ -67,8 +75,6 @@ WORKDIR /home/kivy
 RUN mkdir ~/.local
 
 COPY --chown=kivy:kivy . .
-
-RUN make setup
 
 ENTRYPOINT [ "make" ]
 

@@ -19,7 +19,6 @@ docker create -it \
   --env P4A_RELEASE_KEYSTORE_PASSWD \
   --env P4A_RELEASE_KEYALIAS_PASSWD \
   --env ARCH \
-  --env ANDROID_HOME=${CONTAINER_HOME}/.local/android \
   --cidfile ${CID_FILE} \
   android_kolibri
 
