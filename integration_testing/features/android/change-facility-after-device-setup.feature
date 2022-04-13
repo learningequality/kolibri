@@ -6,7 +6,6 @@ Feature: Change facility after device setup
 			And I am at the *Profile* page
 
 	Scenario: Change learning facility - default path
-	#
 		When I click the *Change* button
 		Then I see *Select* facility
 			And I see a list with facilities

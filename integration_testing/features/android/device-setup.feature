@@ -20,7 +20,7 @@ Feature: Device setup
 			And I see an option to change the language
 		When I click the *Change* button
 		Then I see the *Change language* modal
-		When I select a <language> language
+		When I select a language
 			And I press the *Confirm* button
 		Then I see the the *Selected: <language>*
 		When I click *Continue*
@@ -61,6 +61,8 @@ Feature: Device setup
 		When I click *Finish*
 		Then I see the *Setting up Kolibri* page
 		When the setup has finished
+		Then I am at the *Device > Channels* page
+			And I can see the *Add materials* modal
 
 	Scenario: Group learning - Full device - Create a formal facility
 		Given I am at the *How are you using Kolibri?* page
@@ -190,13 +192,14 @@ Feature: Device setup
 		When I click *Continue*
 		Then I am at the *Learn > Library* page
 
-	Scenario: Facility not available in *Join a facility* setup path
+	Scenario: Group learning - Learn-only - Facility not available in *Join a facility* setup path
 		Given I selected the *Group learning* setup option
-			And I chose *Select a facility setup for this device
 			And I am on the *Select facility* page
 			And there is another Kolibri server running with <facility> in my network
-			And <facility> has the facility setting *Allow learners to join this facility?* disabled
+			And the facility setting *Allow learners to join this facility?* for <facility> is disabled
+		When I try to select the facility <facility>
 		Then I see that the facility <facility> is disabled in the list
+			And I see *You don't have permission to join this facility*
 
 	Scenario: Finish device setup, user does not have content imported on the device yet
 		# For quick start, create new facility, and sometimes other setup paths
@@ -211,16 +214,20 @@ Feature: Device setup
 		Given
 
 	Scenario: Use the device setup wizard on the smallest breakpoint
-		Given Kolibri has finished loading after opening it for the first time
+		Given Kolibri has finished loading after opening it for the first time in a mobile device
+			And I see a *Get started* button
 		When I click *Get started*
-		Then I see a full-width *Continue* button at the bottom of the page
+		Then I am at the *How are you using Kolibri?* page
 			And I see a button with the current language at the top right
 			And I do not see a page container
 			And I see a white background
+			And I see the *On my own* and *Group learning* radio buttons
+			And I see a full-width *Continue* button at the bottom of the page
 		When I click *Continue*
-		Then I see a back arrow icon in the top left
+		Then I see *What language do you want to learn in?*
+			And I see a back arrow icon in the top left
 
-	Scenario: Use the *On my own* setup option on the desktop app
+	Scenario: Use the *On my own* setup option on the desktop app #this scenario needs to be revisited/clarified
 		# Users should be required to create an account for the *On my own* setup path the desktop app
 		Given I am using desktop app
 			And I selected the *On my own* setup path
@@ -250,9 +257,3 @@ Feature: Device setup
 			And I completed the *Device name* step
 		Then I see the *Select a facility setup for this device* page
 			And I see *Learn-only device* section is above the *Full device* section
-
-	Scenario: Enable *Allow learners to join this facility* during *Create a new facility* setup path
-		# Reframes the facility setting: *Allow learners to create accounts*
-		Given I selected the *Group learning > Full device* setup options
-			And I selected the *Create new facility* setup option
- 		# add minor scenario for user writing the desired facility name

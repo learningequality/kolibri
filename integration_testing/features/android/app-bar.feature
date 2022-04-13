@@ -64,4 +64,3 @@ Feature: Device setup
 		When I rotate the device in a landscape mode
 		Then I can see the app bar
 			And I can see all of the tabs evenly spaced
-
