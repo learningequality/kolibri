@@ -2,7 +2,27 @@
 
   <form>
 
+    <PaginatedListContainerWithBackend
+      v-if="isBackendPaginated"
+      :items="usersNotInClass"
+      :filterPlaceholder="$tr('searchForUser')"
+      :excludeMemberOf="excludeMemberOf"
+      :totalPageNumber="totalPages"
+      :userAssignmentType="userAssignmentType"
+      :totalUsers="totalUsersCount"
+    >
+      <template #default="{ items, filterInput }">
+        <UserTable
+          v-model="selectedUsers"
+          :users="items"
+          :selectable="true"
+          :disabled="disabled"
+          :emptyMessage="emptyMessageForItems(items, filterInput)"
+        />
+      </template>
+    </PaginatedListContainerWithBackend>
     <PaginatedListContainer
+      v-else
       :items="usersNotInClass"
       :filterPlaceholder="$tr('searchForUser')"
     >
@@ -34,6 +54,7 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
+  import PaginatedListContainerWithBackend from './PaginatedListContainerWithBackend';
   import SelectionBottomBar from './SelectionBottomBar';
   import UserTable from './UserTable';
 
@@ -41,7 +62,10 @@
     name: 'ClassEnrollForm',
     components: {
       SelectionBottomBar,
+      // conditionally render paginated list container based on whether there are
+      // more than one page of users
       PaginatedListContainer,
+      PaginatedListContainerWithBackend,
       UserTable,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
@@ -50,16 +74,37 @@
         type: Array,
         required: true,
       },
-      classUsers: {
-        type: Array,
-        required: true,
-      },
       pageType: {
         type: String,
         required: true,
       },
+      classUsers: {
+        type: Array,
+        required: false,
+        default: () => [],
+      },
       disabled: {
         type: Boolean,
+        default: false,
+      },
+      classId: {
+        type: String,
+        required: false,
+        default: '',
+      },
+      totalPageNumber: {
+        type: Number,
+        required: false,
+        default: 1,
+      },
+      totalUsers: {
+        type: Number,
+        required: false,
+        default: 0,
+      },
+      isBackendPaginated: {
+        type: Boolean,
+        required: false,
         default: false,
       },
     },
@@ -70,7 +115,21 @@
     },
     computed: {
       usersNotInClass() {
-        return differenceWith(this.facilityUsers, this.classUsers, (a, b) => a.id === b.id);
+        return this.isBackendPaginated
+          ? this.facilityUsers
+          : differenceWith(this.facilityUsers, this.classUsers, (a, b) => a.id === b.id);
+      },
+      excludeMemberOf() {
+        return this.classId;
+      },
+      totalPages() {
+        return this.totalPageNumber;
+      },
+      userAssignmentType() {
+        return this.pageType;
+      },
+      totalUsersCount() {
+        return this.totalUsers;
       },
     },
     methods: {

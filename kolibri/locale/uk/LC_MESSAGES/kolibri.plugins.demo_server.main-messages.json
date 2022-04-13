@@ -1,0 +1,10 @@
+{
+  "DemoServerBannerContent.demoServerA1": "Читати документацію",
+  "DemoServerBannerContent.demoServerA2": "Завантажте та встановіть останню версію",
+  "DemoServerBannerContent.demoServerHeader": "Ласкаво просимо на демо-сайт Колібрі",
+  "DemoServerBannerContent.demoServerL1": "Учень ({user}/{pass} або переглянути без облікового запису)",
+  "DemoServerBannerContent.demoServerL2": "Інструктор ({user}/{pass})",
+  "DemoServerBannerContent.demoServerP1": "Спробуйте будь-який з цих типів користувачів:",
+  "DemoServerBannerContent.demoServerP2": "Ця онлайн-версія Колібрі, призначена виключно для демонстраційних цілей. Користувачі та дані періодично видаляються. Демоверсія показує функції останньої версії Колібрі, а всі матеріали наведено для прикладу.",
+  "DemoServerBannerContent.demoServerP3": "Щоб дізнатися більше про використання Колібрі в автономному режимі та краще зрозуміти платформу:"
+}

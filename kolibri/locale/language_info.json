@@ -189,6 +189,13 @@
     "default_font": "NotoSansTelugu"
   },
   {
+    "crowdin_code": "uk",
+    "intl_code": "uk",
+    "language_name": "Украї́нська мо́ва",
+    "english_name": "Ukrainian",
+    "default_font": "NotoSans"
+  },
+  {
     "crowdin_code": "ur-PK",
     "intl_code": "ur-pk",
     "language_name": "اُردو (پاکستان)‏",
