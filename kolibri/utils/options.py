@@ -540,6 +540,14 @@ base_option_spec = {
                 Value can either be a number suffixed with a unit (e.g. MB, GB, TB) or an integer number of bytes.
             """,
         },
+        "LISTEN_ADDRESS": {
+            "type": "ip_addr",
+            "default": "0.0.0.0",
+            "description": """
+                The address that the server should listen on. This can be used to restrict access to the server
+                to a specific network interface.
+            """,
+        },
     },
     "Python": {
         "PICKLE_PROTOCOL": {
