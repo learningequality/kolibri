@@ -129,6 +129,7 @@ sdk:
 	yes y | $(SDK)/cmdline-tools/bin/sdkmanager "system-images;android-$(ANDROID_API);default;x86_64" --sdk_root=$(SDK)
 	yes y | $(SDK)/cmdline-tools/bin/sdkmanager "build-tools;30.0.3" --sdk_root=$(SDK)
 	yes y | $(SDK)/cmdline-tools/bin/sdkmanager "ndk;$(ANDROIDNDKVER)" --sdk_root=$(SDK)
+	ln -sfT ndk/$(ANDROIDNDKVER) $(SDK)/ndk-bundle
 	@echo "Accepting all licenses"
 	yes | $(SDK)/cmdline-tools/bin/sdkmanager --licenses --sdk_root=$(SDK)
 
@@ -142,8 +143,8 @@ setup:
 	$(MAKE) sdk
 	@echo "Make sure to set the necessary environment variables"
 	@echo "export ANDROIDSDK=$(SDK)"
-	@echo "export ANDROIDNDK=$(SDK)/ndk/$(ANDROIDNDKVER)"
-	@echo "ANDROIDSDK=$(SDK)\nANDROIDNDK=$(SDK)/ndk/$(ANDROIDNDKVER)" > .env
+	@echo "export ANDROIDNDK=$(SDK)/ndk-bundle"
+	@echo "ANDROIDSDK=$(SDK)\nANDROIDNDK=$(SDK)/ndk-bundle" > .env
 
 clean-tools:
 	rm -rf ${ANDROID_HOME}
