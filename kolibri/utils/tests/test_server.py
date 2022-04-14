@@ -232,7 +232,7 @@ class ServerInitializationTestCase(TestCase):
     @mock.patch("kolibri.utils.server.wait_for_free_port")
     def test_port_occupied(self, wait_for_port_mock, logging_mock, read_pid_file_mock):
         wait_for_port_mock.side_effect = OSError
-        with self.assertRaises(SystemExit):
+        with self.assertRaises(server.PortOccupied):
             server._port_check("8080")
         logging_mock.assert_called()
 
@@ -272,7 +272,7 @@ class ServerInitializationTestCase(TestCase):
         wait_for_port_mock.side_effect = OSError
         pid_exists_mock.return_value = True
         read_pid_file_mock.return_value = (1000, 8000, 8001, server.STATUS_RUNNING)
-        with self.assertRaises(SystemExit):
+        with self.assertRaises(server.PortOccupied):
             server.start(port=8000)
 
 

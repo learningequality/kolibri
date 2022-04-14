@@ -255,12 +255,15 @@ def start(port, zip_port, background):
     zip_port = (
         OPTIONS["Deployment"]["ZIP_CONTENT_PORT"] if zip_port is None else zip_port
     )
-    server.start(
-        port=port,
-        zip_port=zip_port,
-        serve_http=OPTIONS["Server"]["CHERRYPY_START"],
-        background=background,
-    )
+    try:
+        server.start(
+            port=port,
+            zip_port=zip_port,
+            serve_http=OPTIONS["Server"]["CHERRYPY_START"],
+            background=background,
+        )
+    except server.PortOccupied:
+        sys.exit(1)
 
 
 @main.command(cls=KolibriCommand, help="Stop the Kolibri process")
@@ -340,8 +343,10 @@ def services(port, background):
     port = OPTIONS["Deployment"]["HTTP_PORT"] if port is None else port
 
     logger.info("Starting Kolibri background services")
-
-    server.start(port=port, zip_port=0, serve_http=False, background=background)
+    try:
+        server.start(port=port, zip_port=0, serve_http=False, background=background)
+    except server.PortOccupied:
+        sys.exit(1)
 
 
 @main.command(cls=KolibriCommand, help="Restart the Kolibri process")

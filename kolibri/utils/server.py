@@ -99,6 +99,18 @@ class NotRunning(Exception):
         super(NotRunning, self).__init__()
 
 
+class PortOccupied(OSError):
+    pass
+
+
+class RunningException(PortOccupied):
+    """
+    Raised when server already appears to be running
+    """
+
+    pass
+
+
 class Server(BaseServer):
     def error_log(self, msg="", level=20, traceback=False):
         if traceback:
@@ -195,7 +207,7 @@ class KolibriServerPlugin(ServerPlugin):
                 "There is another Kolibri server running. "
                 "Please use `kolibri stop` and try again."
             )
-            sys.exit(1)
+            raise RunningException("There is another Kolibri server running.")
         super(KolibriServerPlugin, self).__init__(bus, port)
 
     @property
@@ -399,7 +411,7 @@ def _port_check(port):
             "Please check that you do not have other processes "
             "running on this port and try again.\n".format(port)
         )
-        sys.exit(1)
+        raise PortOccupied("Port {} is occupied.".format(port))
 
 
 class DaemonizePlugin(SimplePlugin):
