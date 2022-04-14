@@ -152,6 +152,14 @@ class Command(AsyncCommand):
             "--peer_id", type=str, default="", dest="peer_id"
         )
 
+        network_subparser.add_argument(
+            "--timeout",
+            type=int,
+            default=transfer.Transfer.DEFAULT_TIMEOUT,
+            dest="timeout",
+            help="Specify network timeout in seconds (default: %(default)d)",
+        )
+
         disk_subparser = subparsers.add_parser(
             name="disk", cmd=self, help="Copy the content from the given folder."
         )
@@ -169,6 +177,7 @@ class Command(AsyncCommand):
         renderable_only=True,
         import_updates=False,
         fail_on_error=False,
+        timeout=transfer.Transfer.DEFAULT_TIMEOUT,
     ):
         self._transfer(
             DOWNLOAD_METHOD,
@@ -180,6 +189,7 @@ class Command(AsyncCommand):
             renderable_only=renderable_only,
             import_updates=import_updates,
             fail_on_error=fail_on_error,
+            timeout=timeout,
         )
 
     def copy_content(
@@ -218,6 +228,7 @@ class Command(AsyncCommand):
         renderable_only=True,
         import_updates=False,
         fail_on_error=False,
+        timeout=transfer.Transfer.DEFAULT_TIMEOUT,
     ):
         try:
             if not import_updates:
@@ -392,6 +403,7 @@ class Command(AsyncCommand):
                                     dest,
                                     session=session,
                                     cancel_check=self.is_cancelled,
+                                    timeout=timeout,
                                 )
                             elif method == COPY_METHOD:
                                 try:
@@ -553,6 +565,7 @@ class Command(AsyncCommand):
                 renderable_only=options["renderable_only"],
                 import_updates=options["import_updates"],
                 fail_on_error=options["fail_on_error"],
+                timeout=options["timeout"],
             )
         elif options["command"] == "disk":
             self.copy_content(
