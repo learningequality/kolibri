@@ -68,8 +68,6 @@ COPY --chown=kivy:kivy . .
 
 RUN make setup
 
-RUN set -a; source .env; set +a
-
 ENTRYPOINT [ "make" ]
 
 CMD [ "kolibri.apk" ]
