@@ -155,7 +155,7 @@ class Job(object):
 
         keys = [
             "job_id",
-            "facility_id",
+            "job_facility_id",
             "state",
             "exception",
             "traceback",
@@ -211,7 +211,7 @@ class Job(object):
             kwargs["track_progress"] = func.track_progress
             kwargs["cancellable"] = func.cancellable
             kwargs["extra_metadata"] = func.extra_metadata.copy()
-            kwargs["facility_id"] = func.facility_id
+            kwargs["job_facility_id"] = func.job_facility_id
             func = func.func
         elif not callable(func) and not isinstance(func, string_types):
             raise TypeError(
@@ -227,7 +227,7 @@ class Job(object):
             exc = type(exc).__name__
 
         self.job_id = job_id
-        self.facility_id = kwargs.pop("facility_id", None)
+        self.job_facility_id = kwargs.pop("job_facility_id", None)
         self.state = kwargs.pop("state", State.PENDING)
         self.exception = exc
         self.traceback = kwargs.pop("traceback", "")
@@ -342,7 +342,7 @@ class RegisteredJob(object):
             raise ValueError("priority must be one of 'regular' or 'high' (string).")
         if not isinstance(permission_classes, list):
             raise TypeError("permission_classes must be of list type.")
-        elif not isinstance(queue, string_types):
+        if not isinstance(queue, string_types):
             raise TypeError("queue must be of string type.")
 
         self.func = func

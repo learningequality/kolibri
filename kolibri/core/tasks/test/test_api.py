@@ -42,7 +42,7 @@ DUMMY_PASSWORD = "password"
 
 fake_job_defaults = dict(
     job_id=None,
-    facility_id=None,
+    job_facility_id=None,
     state=None,
     exception="",
     traceback="",
@@ -276,7 +276,7 @@ class CreateTaskAPITestCase(BaseAPITestCase):
         # the user's facility_id and the request's data as keyword args
         # to enqueue method?
         mock_enqueue.assert_called_once_with(
-            facility_id=self.superuser.facility_id, **{"kolibri": "fly"}
+            job_facility_id=self.superuser.facility_id, **{"kolibri": "fly"}
         )
 
         # Do we retrieve the task from db to ready the response?
@@ -336,8 +336,8 @@ class CreateTaskAPITestCase(BaseAPITestCase):
         self.assertEqual(mock_enqueue.call_count, 2)
         mock_enqueue.assert_has_calls(
             [
-                call(facility_id=self.superuser.facility_id, **{"kolibri": "fly"}),
-                call(facility_id=self.superuser.facility_id, **{"kolibri": "fly"}),
+                call(job_facility_id=self.superuser.facility_id, **{"kolibri": "fly"}),
+                call(job_facility_id=self.superuser.facility_id, **{"kolibri": "fly"}),
             ]
         )
 
@@ -391,7 +391,7 @@ class CreateTaskAPITestCase(BaseAPITestCase):
         # the user's facility_id and the request's data as keyword args
         # to enqueue method?
         mock_enqueue.assert_called_once_with(
-            facility_id=self.superuser.facility_id,
+            job_facility_id=self.superuser.facility_id,
             **{"x": 0, "y": 42, "extra_metadata": {"facility": "kolibri HQ"}}
         )
 
@@ -461,11 +461,11 @@ class CreateTaskAPITestCase(BaseAPITestCase):
         mock_enqueue.assert_has_calls(
             [
                 call(
-                    facility_id=self.superuser.facility_id,
+                    job_facility_id=self.superuser.facility_id,
                     **{"x": 0, "y": 42, "extra_metadata": {"facility": "kolibri HQ"}}
                 ),
                 call(
-                    facility_id=self.superuser.facility_id,
+                    job_facility_id=self.superuser.facility_id,
                     **{"x": 0, "y": 42, "extra_metadata": {"facility": "kolibri HQ"}}
                 ),
             ]
@@ -491,13 +491,13 @@ class TaskManagementAPITestCase(BaseAPITestCase):
             Job(
                 func=add,
                 job_id="0",
-                facility_id=self.superuser.facility_id,
+                job_facility_id=self.superuser.facility_id,
                 state=State.QUEUED,
             ),
             Job(
                 func=subtract,
                 job_id="1",
-                facility_id=self.facility2user.facility_id,
+                job_facility_id=self.facility2user.facility_id,
                 state=State.QUEUED,
             ),
         ]

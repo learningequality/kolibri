@@ -348,7 +348,7 @@ class BaseViewSet(viewsets.ViewSet):
                 user_facility_id = None
 
             job_id = registered_job.enqueue(
-                facility_id=user_facility_id, **request_data
+                job_facility_id=user_facility_id, **request_data
             )
             enqueued_jobs_response.append(_job_to_response(job_storage.get_job(job_id)))
 
