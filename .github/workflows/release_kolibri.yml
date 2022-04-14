@@ -42,6 +42,14 @@ jobs:
     with:
       whl-file-name: ${{ needs.whl.outputs.whl-file-name }}
       ref: develop
+  zip:
+    name: Build Raspberry Pi Image
+    needs: deb
+    uses: learningequality/pi-gen/.github/workflows/build_zip.yml@master
+    with:
+      deb-file-name: ${{ needs.deb.outputs.deb-file-name }}
+      release: true
+      ref: master
   test_pypi_upload:
     name: Upload to TestPyPi
     needs: whl
@@ -68,7 +76,7 @@ jobs:
   github_upload:
     name: Upload to Github release
     runs-on: ubuntu-latest
-    needs: [deployment_block, whl, pex, dmg, deb, exe]
+    needs: [deployment_block, whl, pex, dmg, deb, exe, zip]
     steps:
       - uses: actions/github-script@v6
         with:
@@ -80,6 +88,7 @@ jobs:
               '${{ needs.dmg.outputs.dmg-file-name }}',
               '${{ needs.deb.outputs.deb-file-name }}',
               '${{ needs.exe.outputs.exe-file-name }}',
+              '${{ needs.zip.outputs.zip-file-name }}',
             ]
             for (let filename of filesToUpload) {
               await utils.uploadReleaseAsset(github, context, filename, '${{ github.event.release.release_id }}')
@@ -87,7 +96,7 @@ jobs:
   gcs_upload:
     name: Upload to Google Cloud Storage
     runs-on: ubuntu-latest
-    needs: [deployment_block, whl, pex, dmg, deb, exe]
+    needs: [deployment_block, whl, pex, dmg, deb, exe, zip]
     steps:
     - name: Download all artifacts
       uses: actions/download-artifact@v3
