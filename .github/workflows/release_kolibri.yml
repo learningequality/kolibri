@@ -1,0 +1,103 @@
+name: Release Kolibri
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  whl:
+    name: Build WHL file
+    uses: ./.github/workflows/build_whl.yml
+  pex:
+    name: Build PEX file
+    needs: whl
+    uses: ./.github/workflows/build_pex.yml
+    with:
+      whl-file-name: ${{ needs.whl.outputs.whl-file-name }}
+  dmg:
+    name: Build DMG file
+    needs: whl
+    uses: learningequality/kolibri-app/.github/workflows/build_mac.yml@main
+    with:
+      whl-file-name: ${{ needs.whl.outputs.whl-file-name }}
+      release: true
+      ref: main
+    secrets:
+      KOLIBRI_MAC_APP_IDENTITY: ${{ secrets.KOLIBRI_MAC_APP_IDENTITY }}
+      KOLIBRI_MAC_APP_CERTIFICATE: ${{ secrets.KOLIBRI_MAC_APP_CERTIFICATE }}
+      KOLIBRI_MAC_APP_CERTIFICATE_PASSWORD: ${{ secrets.KOLIBRI_MAC_APP_CERTIFICATE_PASSWORD }}
+      KOLIBRI_MAC_APP_USERNAME: ${{ secrets.KOLIBRI_MAC_APP_USERNAME }}
+      KOLIBRI_MAC_APP_PASSWORD: ${{ secrets.KOLIBRI_MAC_APP_PASSWORD }}
+  deb:
+    name: Build DEB file
+    needs: whl
+    uses: learningequality/kolibri-installer-debian/.github/workflows/build_deb.yml@master
+    with:
+      tar-file-name: ${{ needs.whl.outputs.tar-file-name }}
+      ref: master
+  exe:
+    name: Build EXE file
+    needs: whl
+    uses: learningequality/kolibri-installer-windows/.github/workflows/build_exe.yml@develop
+    with:
+      whl-file-name: ${{ needs.whl.outputs.whl-file-name }}
+      ref: develop
+  test_pypi_upload:
+    name: Upload to TestPyPi
+    needs: whl
+    uses: ./.github/workflows/pypi_upload.yml
+    with:
+      whl-file-name: ${{ needs.whl.outputs.whl-file-name }}
+      tar-file-name: ${{ needs.whl.outputs.tar-file-name }}
+      test: true
+  deployment_block:
+    name: Job to block publish of a release until it has been manually approved
+    needs: [whl, pex, dmg, deb, exe, test_pypi_upload]
+    runs-on: ubuntu-latest
+    environment: release
+    steps:
+      - run: echo "Release now publishing!"
+  pypi_upload:
+    name: Upload to PyPi
+    needs: [whl, deployment_block]
+    uses: ./.github/workflows/pypi_upload.yml
+    with:
+      whl-file-name: ${{ needs.whl.outputs.whl-file-name }}
+      tar-file-name: ${{ needs.whl.outputs.tar-file-name }}
+      test: false
+  github_upload:
+    name: Upload to Github release
+    runs-on: ubuntu-latest
+    needs: [deployment_block, whl, pex, dmg, deb, exe]
+    steps:
+      - uses: actions/github-script@v6
+        with:
+          script: |
+            const utils = require('./.github/githubUtils.js')
+            const filesToUpload = [
+              '${{ needs.whl.outputs.whl-file-name }}',
+              '${{ needs.pex.outputs.pex-file-name }}',
+              '${{ needs.dmg.outputs.dmg-file-name }}',
+              '${{ needs.deb.outputs.deb-file-name }}',
+              '${{ needs.exe.outputs.exe-file-name }}',
+            ]
+            for (let filename of filesToUpload) {
+              await utils.uploadReleaseAsset(github, context, filename, '${{ github.event.release.release_id }}')
+            }
+  gcs_upload:
+    name: Upload to Google Cloud Storage
+    runs-on: ubuntu-latest
+    needs: [deployment_block, whl, pex, dmg, deb, exe]
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v3
+      with:
+        path: dist
+    - name: Setup GoogleCloud
+      uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+      with:
+        service_account_key: ${{ secrets.GCS_SA_KEY }}
+        project_id: ${{ secrets.GCS_PROJECT }}
+        export_default_credentials: true
+    - name: Upload files to Google Cloud Storage
+      run: gsutil cp dist/*.* gs://${{ secrets.GCS_BUCKET }}/downloads/kolibri/${{ github.event.release.release_id }}

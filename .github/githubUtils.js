@@ -128,8 +128,21 @@ async function findComment(github, context, issue_number) {
   }
 }
 
+async function uploadReleaseAsset(github, context, name, release_id) {
+  const extension = name.split('.').pop()
+  const label = (file_manifest[extension] || {}).description || name
+  await github.rest.repos.uploadReleaseAsset({
+    owner: context.repo.owner,
+    repo: context.repo.repo,
+    release_id,
+    name,
+    label,
+    data: fs.readFileSync(name),
+  });
+}
 
 module.exports = {
   findComment,
   generateAssetComment,
+  uploadReleaseAsset,
 }
