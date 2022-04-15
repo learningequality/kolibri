@@ -76,6 +76,4 @@ RUN mkdir ~/.local
 
 COPY --chown=kivy:kivy . .
 
-ENTRYPOINT [ "make" ]
-
-CMD [ "kolibri.apk" ]
+CMD [ "make", "kolibri.apk" ]
