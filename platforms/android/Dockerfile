@@ -51,7 +51,9 @@ RUN cd /usr/local/bin && \
   ln -s $(which python3) python
 
 # install python dependencies
-RUN pip install -r requirements.txt && \
+COPY requirements.txt /tmp/
+RUN pip install -r /tmp/requirements.txt && \
+  rm -f /tmp/requirements.txt && \
   useradd -lm kivy
 
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
