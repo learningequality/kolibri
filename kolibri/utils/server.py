@@ -902,7 +902,12 @@ def get_urls(listen_port=None):
         urls = []
         if port:
             try:
-                for ip in get_all_addresses():
+                all_addresses = (
+                    get_all_addresses()
+                    if conf.OPTIONS["Deployment"]["LISTEN_ADDRESS"] == "0.0.0.0"
+                    else [conf.OPTIONS["Deployment"]["LISTEN_ADDRESS"]]
+                )
+                for ip in all_addresses:
                     urls.append("http://{}:{}/".format(ip, port))
             except RuntimeError:
                 logger.error("Error retrieving network interface list!")
