@@ -281,10 +281,21 @@ class ServicesPlugin(SimplePlugin):
 class ZeroConfPlugin(Monitor):
     def __init__(self, bus, port):
         self.port = port
-        Monitor.__init__(self, bus, self.run, frequency=5)
+        if conf.OPTIONS["Deployment"]["LISTEN_ADDRESS"] == "0.0.0.0":
+            # Only bother doing dynamic updates of the zeroconf service if we're bound
+            # to all available IP addresses.
+            Monitor.__init__(self, bus, self.run, frequency=5)
         self.bus.subscribe("SERVING", self.SERVING)
         self.bus.subscribe("UPDATE_ZEROCONF", self.UPDATE_ZEROCONF)
         self.broadcast = None
+
+    @property
+    def interfaces(self):
+        return (
+            InterfaceChoice.All
+            if conf.OPTIONS["Deployment"]["LISTEN_ADDRESS"] == "0.0.0.0"
+            else [conf.OPTIONS["Deployment"]["LISTEN_ADDRESS"]]
+        )
 
     def SERVING(self, port):
         # Register the Kolibri zeroconf service so it will be discoverable on the network
@@ -302,13 +313,15 @@ class ZeroConfPlugin(Monitor):
         instance = build_broadcast_instance(port)
 
         if self.broadcast is None:
-            self.broadcast = KolibriBroadcast(instance)
+            self.broadcast = KolibriBroadcast(instance, interfaces=self.interfaces)
             self.broadcast.add_listener(DynamicNetworkLocationListener)
             self.broadcast.add_listener(SoUDClientListener)
             self.broadcast.add_listener(SoUDServerListener)
             self.broadcast.start_broadcast()
         else:
-            self.broadcast.update_broadcast(instance=instance)
+            self.broadcast.update_broadcast(
+                instance=instance, interfaces=self.interfaces
+            )
 
     def UPDATE_ZEROCONF(self):
         self.SERVING(self.port)
@@ -333,7 +346,7 @@ class ZeroConfPlugin(Monitor):
             logger.info(
                 "List of local addresses has changed since zeroconf was last initialized, updating now"
             )
-            self.broadcast.update_broadcast(interfaces=InterfaceChoice.All)
+            self.broadcast.update_broadcast(interfaces=self.interfaces)
 
 
 status_map = {
