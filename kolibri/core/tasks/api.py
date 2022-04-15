@@ -211,7 +211,7 @@ class BaseViewSet(viewsets.ViewSet):
         """
         job_facility_id = None
         if job:
-            job_facility_id = getattr(job, "facility_id", None)
+            job_facility_id = getattr(job, "job_facility_id", None)
 
         try:
             if not request.user.is_superuser and request.user.is_facility_user:
