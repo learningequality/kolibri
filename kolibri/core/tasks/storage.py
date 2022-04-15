@@ -11,7 +11,9 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 from kolibri.core.tasks.exceptions import JobNotFound
+from kolibri.core.tasks.exceptions import JobNotRestartable
 from kolibri.core.tasks.job import Job
+from kolibri.core.tasks.job import JobRegistry
 from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.job import State
 
@@ -153,10 +155,6 @@ class Storage(StorageMixin):
         Looks for the oldest queued job with priorities provided in `priority_order`. It
         runs through the `priority_oder` list sequentially.
 
-        If `queues` is not None and a list of queue names, we only look in those `queues` else
-        we look irrespective of `queue`.
-
-        :param queues: the queue names we should look into.
         :param priority_order: the order of priority we should follow.
         :return: job if found else None.
         """
@@ -215,6 +213,31 @@ class Storage(StorageMixin):
         with self.session_scope() as session:
             job, _ = self._get_job_and_orm_job(job_id, session)
             return job
+
+    def restart_job(self, job_id):
+        """
+        First deletes the job with id = job_id then enqueues a new job with the same
+        job_id as the one we deleted, with same args and kwargs.
+
+        Returns the job_id of enqueued job.
+
+        Raises `JobNotRestartable` exception if the job with id = job_id state is
+        not in CANCELED or FAILED.
+        """
+        job_to_restart = self.get_job(job_id=job_id)
+        registered_job = JobRegistry.REGISTERED_JOBS[job_to_restart.func]
+
+        if job_to_restart.state in [State.CANCELED, State.FAILED]:
+            self.clear(job_id=job_to_restart.job_id, force=False)
+            return registered_job.enqueue(
+                *job_to_restart.args,
+                job_id=job_to_restart.job_id,
+                **job_to_restart.kwargs
+            )
+        else:
+            raise JobNotRestartable(
+                "Cannot restart job with state={}".format(job_to_restart.state)
+            )
 
     def check_job_canceled(self, job_id):
         job = self.get_job(job_id)

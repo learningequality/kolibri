@@ -15,6 +15,9 @@ from kolibri.core.tasks.utils import stringify_func
 logger = logging.getLogger(__name__)
 
 
+DEFAULT_QUEUE = "ICEQUBE_DEFAULT_QUEUE"
+
+
 class JobRegistry(object):
     """
     All jobs that get registered via `register_task` decorator are placed
@@ -152,6 +155,7 @@ class Job(object):
 
         keys = [
             "job_id",
+            "job_facility_id",
             "state",
             "exception",
             "traceback",
@@ -207,6 +211,7 @@ class Job(object):
             kwargs["track_progress"] = func.track_progress
             kwargs["cancellable"] = func.cancellable
             kwargs["extra_metadata"] = func.extra_metadata.copy()
+            kwargs["job_facility_id"] = func.job_facility_id
             func = func.func
         elif not callable(func) and not isinstance(func, string_types):
             raise TypeError(
@@ -222,9 +227,10 @@ class Job(object):
             exc = type(exc).__name__
 
         self.job_id = job_id
+        self.job_facility_id = kwargs.pop("job_facility_id", None)
         self.state = kwargs.pop("state", State.PENDING)
         self.exception = exc
-        self.traceback = kwargs.pop("traceback", None)
+        self.traceback = kwargs.pop("traceback", "")
         self.track_progress = kwargs.pop("track_progress", False)
         self.cancellable = kwargs.pop("cancellable", False)
         self.extra_metadata = kwargs.pop("extra_metadata", {})
@@ -320,23 +326,23 @@ class RegisteredJob(object):
     def __init__(
         self,
         func,
-        validator,
-        priority,
-        permission_classes,
-        queue,
-        job_id,
-        cancellable,
-        track_progress,
+        job_id=None,
+        queue=DEFAULT_QUEUE,
+        validator=None,
+        priority=Priority.REGULAR,
+        cancellable=False,
+        track_progress=False,
+        permission_classes=None,
     ):
         if permission_classes is None:
             permission_classes = []
         if validator is not None and not callable(validator):
             raise TypeError("Can't assign validator of type {}".format(type(validator)))
-        elif priority.upper() not in Priority.PriorityOrder:
+        if priority.upper() not in Priority.PriorityOrder:
             raise ValueError("priority must be one of 'regular' or 'high' (string).")
-        elif not isinstance(permission_classes, list):
+        if not isinstance(permission_classes, list):
             raise TypeError("permission_classes must be of list type.")
-        elif not isinstance(queue, string_types):
+        if not isinstance(queue, string_types):
             raise TypeError("queue must be of string type.")
 
         self.func = func
@@ -412,9 +418,9 @@ class RegisteredJob(object):
         job_obj = Job(
             self.func,
             *args,
-            job_id=self.job_id,
-            cancellable=self.cancellable,
-            track_progress=self.track_progress,
+            job_id=kwargs.pop("job_id", self.job_id),
+            cancellable=kwargs.pop("cancellable", self.cancellable),
+            track_progress=kwargs.pop("track_progress", self.track_progress),
             **kwargs
         )
         return job_obj

@@ -177,6 +177,14 @@ class SetupWizardSoUDTaskView(TasksViewSet):
 
     permission_classes = [HasPermissionDuringSetup | HasPermissionDuringLODSetup]
 
+    def list(self, request):
+        # Set query param to prevent pingback job from getting returned.
+        mutable_query_params = request._request.GET.copy()
+        mutable_query_params["queue"] = "soud"
+        request._request.GET = mutable_query_params
+
+        return super(SetupWizardSoUDTaskView, self).list(request)
+
 
 class SetupWizardRestartZeroconf(ViewSet):
     """
