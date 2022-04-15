@@ -18,6 +18,7 @@ RUN dpkg --add-architecture i386 && \
     libffi-dev \
     libltdl-dev\
     libncurses5:i386 \
+    libssl-dev \
     libstdc++6:i386 \
     libtool \
     locales \
