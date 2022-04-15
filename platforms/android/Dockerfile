@@ -74,6 +74,11 @@ WORKDIR /home/kivy
 # Initializes the directory, owned by new user. Volume mounts adopt existing permissions, etc.
 RUN mkdir ~/.local
 
+# Configure gradle for use in docker. Disable gradle's automatically
+# detected rich console doesn't work in docker. Disable the gradle
+# daemon since it will be stopped as soon as the container exits.
+ENV GRADLE_OPTS="-Dorg.gradle.console=plain -Dorg.gradle.daemon=false"
+
 COPY --chown=kivy:kivy . .
 
 CMD [ "make", "kolibri.apk" ]
