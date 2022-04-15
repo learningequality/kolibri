@@ -20,7 +20,8 @@ docker create -it \
   --env P4A_RELEASE_KEYALIAS_PASSWD \
   --env ARCH \
   --cidfile ${CID_FILE} \
-  android_kolibri
+  android_kolibri \
+  "$@"
 
 # Used to reference container, rather than name. For concurrency.
 # Removing immediately, but could use this to check if running.
