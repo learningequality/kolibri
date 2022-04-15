@@ -50,12 +50,6 @@ ENV PATH /usr/local/bin:$PATH
 RUN cd /usr/local/bin && \
   ln -s $(which python3) python
 
-# install python dependencies
-COPY requirements.txt /tmp/
-RUN pip install -r /tmp/requirements.txt && \
-  rm -f /tmp/requirements.txt && \
-  useradd -lm kivy
-
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
     locale-gen
 ENV LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
@@ -67,6 +61,12 @@ ENV ANDROIDNDK=$ANDROIDSDK/ndk-bundle
 COPY Makefile /tmp/
 RUN make -C /tmp setup SDK=$ANDROIDSDK && \
   rm -f /tmp/Makefile
+
+# install python dependencies
+COPY requirements.txt /tmp/
+RUN pip install -r /tmp/requirements.txt && \
+  rm -f /tmp/requirements.txt && \
+  useradd -lm kivy
 
 USER kivy:kivy
 WORKDIR /home/kivy
