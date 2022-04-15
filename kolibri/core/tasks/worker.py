@@ -119,7 +119,7 @@ class Worker(object):
         if workers_currently_busy < self.regular_workers:
             job = self.storage.get_next_queued_job()
         elif workers_currently_busy < self.max_workers:
-            job = self.storage.get_next_queued_job(priority_order=[Priority.HIGH])
+            job = self.storage.get_next_queued_job(priority=Priority.HIGH)
         else:
             logger.debug("All workers busy.")
             return None

@@ -8,6 +8,7 @@ from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.exceptions import JobNotRestartable
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import JobRegistry
+from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.job import State
 from kolibri.core.tasks.storage import Storage
 from kolibri.core.tasks.test.base import connection
@@ -124,19 +125,19 @@ class TestBackend:
         assert job.cancellable, "Job is not cancellable default"
 
     def test_can_get_high_priority_job_first(self, defaultbackend, simplejob):
-        job_id = defaultbackend.enqueue_job(simplejob, QUEUE, "HIGH")
+        job_id = defaultbackend.enqueue_job(simplejob, QUEUE, Priority.HIGH)
 
-        defaultbackend.enqueue_job(simplejob, QUEUE, "REGULAR")
-        defaultbackend.enqueue_job(simplejob, QUEUE, "REGULAR")
+        defaultbackend.enqueue_job(simplejob, QUEUE, Priority.REGULAR)
+        defaultbackend.enqueue_job(simplejob, QUEUE, Priority.REGULAR)
 
         assert defaultbackend.get_next_queued_job().job_id == job_id
 
     def test_gets_oldest_high_priority_job_first(self, defaultbackend, simplejob):
-        job_id = defaultbackend.enqueue_job(simplejob, QUEUE, "HIGH")
+        job_id = defaultbackend.enqueue_job(simplejob, QUEUE, Priority.HIGH)
 
         # Sleep to prevent same time_created timestamp.
         time.sleep(2)
-        defaultbackend.enqueue_job(simplejob, QUEUE, "HIGH")
+        defaultbackend.enqueue_job(simplejob, QUEUE, Priority.HIGH)
 
         assert defaultbackend.get_next_queued_job().job_id == job_id
 

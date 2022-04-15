@@ -11,7 +11,7 @@ from unittest import TestCase
 import mock
 import pytest
 
-from kolibri.core.tasks.scheduler import Scheduler
+from kolibri.core.tasks.storage import Storage
 from kolibri.core.tasks.test.base import connection
 from kolibri.utils import server
 from kolibri.utils.constants import installation_types
@@ -91,12 +91,12 @@ class TestServerInstallation(object):
 
 
 @pytest.fixture
-def scheduler():
+def job_storage():
     with connection() as c:
-        s = Scheduler(connection=c)
-        s.clear_scheduler()
+        s = Storage(connection=c)
+        s.clear()
         yield s
-        s.clear_scheduler()
+        s.clear()
 
 
 class TestServerServices(object):
@@ -111,19 +111,14 @@ class TestServerServices(object):
         schedule_ping,
         schedule_vacuum,
     ):
-        with mock.patch("kolibri.core.tasks.main.scheduler") as scheduler:
+        # Start server services
+        services_plugin = server.ServicesPlugin(mock.MagicMock(name="bus"))
+        services_plugin.START()
 
-            # Start server services
-            services_plugin = server.ServicesPlugin(mock.MagicMock(name="bus"))
-            services_plugin.START()
+        # Do we initialize workers when services start?
+        initialize_workers.assert_called_once()
 
-            # Do we initialize workers when services start?
-            initialize_workers.assert_called_once()
-
-            # Do we start scheduler when services start?
-            scheduler.start_scheduler.assert_called_once()
-
-            mock_kolibri_broadcast.assert_not_called()
+        mock_kolibri_broadcast.assert_not_called()
 
     @mock.patch("kolibri.core.tasks.main.initialize_workers")
     @mock.patch("kolibri.core.discovery.utils.network.broadcast.KolibriBroadcast")
@@ -131,20 +126,17 @@ class TestServerServices(object):
         self,
         mock_kolibri_broadcast,
         initialize_workers,
-        scheduler,
+        job_storage,
     ):
-        with mock.patch("kolibri.core.tasks.main.scheduler", wraps=scheduler):
-
-            # Don't start scheduler in real, otherwise we may end up in infinite thread loop
-            scheduler.start_scheduler = mock.MagicMock(name="start_scheduler")
+        with mock.patch("kolibri.core.tasks.main.job_storage", wraps=job_storage):
 
             # Schedule two userdefined jobs
             from kolibri.utils.time_utils import local_now
             from datetime import timedelta
 
             schedule_time = local_now() + timedelta(hours=1)
-            scheduler.schedule(schedule_time, id, job_id="test01")
-            scheduler.schedule(schedule_time, id, job_id="test02")
+            job_storage.schedule(schedule_time, id, kwargs=dict(job_id="test01"))
+            job_storage.schedule(schedule_time, id, kwargs=dict(job_id="test02"))
 
             # Now, start services plugin
             service_plugin = server.ServicesPlugin(mock.MagicMock(name="bus"))
@@ -155,49 +147,40 @@ class TestServerServices(object):
             from kolibri.core.analytics.utils import DEFAULT_PING_JOB_ID
             from kolibri.core.deviceadmin.utils import SCH_VACUUM_JOB_ID
 
-            assert scheduler.count() == 4
-            assert scheduler.get_job("test01") is not None
-            assert scheduler.get_job("test02") is not None
-            assert scheduler.get_job(DEFAULT_PING_JOB_ID) is not None
-            assert scheduler.get_job(SCH_VACUUM_JOB_ID) is not None
+            assert len(job_storage) == 4
+            assert job_storage.get_job("test01") is not None
+            assert job_storage.get_job("test02") is not None
+            assert job_storage.get_job(DEFAULT_PING_JOB_ID) is not None
+            assert job_storage.get_job(SCH_VACUUM_JOB_ID) is not None
 
             # Restart services
             service_plugin.STOP()
             service_plugin.START()
 
             # Make sure all scheduled jobs persist after restart
-            assert scheduler.count() == 4
-            assert scheduler.get_job("test01") is not None
-            assert scheduler.get_job("test02") is not None
-            assert scheduler.get_job(DEFAULT_PING_JOB_ID) is not None
-            assert scheduler.get_job(SCH_VACUUM_JOB_ID) is not None
+            assert len(job_storage) == 4
+            assert job_storage.get_job("test01") is not None
+            assert job_storage.get_job("test02") is not None
+            assert job_storage.get_job(DEFAULT_PING_JOB_ID) is not None
+            assert job_storage.get_job(SCH_VACUUM_JOB_ID) is not None
 
     def test_services_shutdown_on_stop(self):
-        with mock.patch("kolibri.core.tasks.main.scheduler") as scheduler:
 
-            # Initialize and ready services plugin for testing
-            services_plugin = server.ServicesPlugin(mock.MagicMock(name="bus"))
+        # Initialize and ready services plugin for testing
+        services_plugin = server.ServicesPlugin(mock.MagicMock(name="bus"))
 
-            from kolibri.core.tasks.worker import Worker
+        from kolibri.core.tasks.worker import Worker
 
-            services_plugin.workers = [
-                mock.MagicMock(name="worker", spec_set=Worker),
-                mock.MagicMock(name="worker", spec_set=Worker),
-                mock.MagicMock(name="worker", spec_set=Worker),
-            ]
+        services_plugin.worker = mock.MagicMock(name="worker", spec_set=Worker)
 
-            # Now, let us stop services plugin
-            services_plugin.STOP()
+        # Now, let us stop services plugin
+        services_plugin.STOP()
 
-            # Do we shutdown scheduler?
-            scheduler.shutdown_scheduler.assert_called_once()
-
-            # Do we shutdown workers correctly?
-            for mock_worker in services_plugin.workers:
-                assert mock_worker.shutdown.call_count == 1
-                assert mock_worker.mock_calls == [
-                    mock.call.shutdown(wait=True),
-                ]
+        # Do we shutdown workers correctly?
+        assert services_plugin.worker.shutdown.call_count == 1
+        assert services_plugin.worker.mock_calls == [
+            mock.call.shutdown(wait=True),
+        ]
 
 
 class TestZeroConfPlugin(object):

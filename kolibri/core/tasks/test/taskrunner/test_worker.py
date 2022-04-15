@@ -4,6 +4,7 @@ import time
 import pytest
 
 from kolibri.core.tasks.job import Job
+from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.job import State
 from kolibri.core.tasks.test.base import connection
 from kolibri.core.tasks.worker import Worker
@@ -95,7 +96,7 @@ class TestWorker:
         worker.future_job_mapping = {"job_id": "future"}
 
         job = Job(id, 10)
-        worker.storage.enqueue_job(job, QUEUE, "REGULAR")
+        worker.storage.enqueue_job(job, QUEUE, Priority.REGULAR)
 
         job = worker.get_next_job()
         worker.future_job_mapping.clear()
@@ -108,7 +109,7 @@ class TestWorker:
         worker.future_job_mapping = {"job_id": "future"}
 
         job = Job(id, 10)
-        worker.storage.enqueue_job(job, QUEUE, "HIGH")
+        worker.storage.enqueue_job(job, QUEUE, Priority.HIGH)
 
         job = worker.get_next_job()
         worker.future_job_mapping.clear()

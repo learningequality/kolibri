@@ -95,7 +95,7 @@ class TestRequestSoUDSync(TestCase):
             request_soud_sync, "whatever_server", self.test_user.id
         )
 
-    @mock.patch("kolibri.core.public.utils.scheduler")
+    @mock.patch("kolibri.core.public.utils.job_storage")
     @mock.patch("kolibri.core.public.utils.requests")
     @mock.patch("kolibri.core.tasks.api.MorangoProfileController")
     @mock.patch("kolibri.core.tasks.api.get_client_and_server_certs")
@@ -106,7 +106,7 @@ class TestRequestSoUDSync(TestCase):
         get_client_and_server_certs,
         MorangoProfileController,
         requests_mock,
-        scheduler,
+        job_storage,
     ):
 
         get_client_and_server_certs.return_value = None
@@ -123,7 +123,7 @@ class TestRequestSoUDSync(TestCase):
         controller.create_network_connection.return_value = network_connection
 
         request_soud_sync("http://whatever:8000", self.test_user.id)
-        self.assertEqual(scheduler.enqueue_in.call_count, 0)
+        self.assertEqual(job_storage.enqueue_in.call_count, 0)
 
         requests_mock.post.return_value.status_code = 200
         requests_mock.post.return_value.json.return_value = {
@@ -132,9 +132,9 @@ class TestRequestSoUDSync(TestCase):
             "id": str(uuid4()),
         }
         request_soud_sync("whatever_server", self.test_user.id)
-        self.assertEqual(scheduler.enqueue_in.call_count, 1)
+        self.assertEqual(job_storage.enqueue_in.call_count, 1)
 
-    @mock.patch("kolibri.core.public.utils.scheduler")
+    @mock.patch("kolibri.core.public.utils.job_storage")
     @mock.patch("kolibri.core.public.utils.requests")
     @mock.patch("kolibri.core.tasks.api.MorangoProfileController")
     @mock.patch("kolibri.core.tasks.api.get_client_and_server_certs")
@@ -145,7 +145,7 @@ class TestRequestSoUDSync(TestCase):
         get_client_and_server_certs,
         MorangoProfileController,
         requests_mock,
-        scheduler,
+        job_storage,
     ):
 
         get_client_and_server_certs.return_value = None
@@ -162,9 +162,9 @@ class TestRequestSoUDSync(TestCase):
 
         request_soud_sync("http://whatever:8000", self.test_user.id)
 
-        self.assertEqual(scheduler.enqueue_in.call_count, 1)
+        self.assertEqual(job_storage.enqueue_in.call_count, 1)
 
-    @mock.patch("kolibri.core.public.utils.scheduler")
+    @mock.patch("kolibri.core.public.utils.job_storage")
     @mock.patch("kolibri.core.public.utils.requests")
     @mock.patch("kolibri.core.tasks.api.MorangoProfileController")
     @mock.patch("kolibri.core.tasks.api.get_client_and_server_certs")
@@ -175,7 +175,7 @@ class TestRequestSoUDSync(TestCase):
         get_client_and_server_certs,
         MorangoProfileController,
         requests_mock,
-        scheduler,
+        job_storage,
     ):
 
         get_client_and_server_certs.return_value = None
@@ -192,4 +192,4 @@ class TestRequestSoUDSync(TestCase):
 
         request_soud_sync("http://whatever:8000", self.test_user.id)
 
-        self.assertEqual(scheduler.enqueue_in.call_count, 1)
+        self.assertEqual(job_storage.enqueue_in.call_count, 1)

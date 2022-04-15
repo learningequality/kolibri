@@ -194,40 +194,32 @@ class ZipContentServerPlugin(ServerPlugin):
 class ServicesPlugin(SimplePlugin):
     def __init__(self, bus):
         self.bus = bus
-        self.workers = None
+        self.worker = None
 
     def START(self):
         from kolibri.core.tasks.main import initialize_workers
-        from kolibri.core.tasks.main import scheduler
+        from kolibri.core.tasks.main import job_storage
         from kolibri.core.analytics.utils import DEFAULT_PING_JOB_ID
         from kolibri.core.deviceadmin.utils import SCH_VACUUM_JOB_ID
 
         # schedule the pingback job if not already scheduled
-        if DEFAULT_PING_JOB_ID not in scheduler:
+        if DEFAULT_PING_JOB_ID not in job_storage:
             from kolibri.core.analytics.utils import schedule_ping
 
             schedule_ping()
 
         # schedule the vacuum job if not already scheduled
-        if SCH_VACUUM_JOB_ID not in scheduler:
+        if SCH_VACUUM_JOB_ID not in job_storage:
             from kolibri.core.deviceadmin.utils import schedule_vacuum
 
             schedule_vacuum()
 
         # Initialize the iceqube engine to handle queued tasks
-        self.workers = initialize_workers()
-
-        # Initialize the iceqube scheduler to handle scheduled tasks
-        scheduler.start_scheduler()
+        self.worker = initialize_workers()
 
     def STOP(self):
-        from kolibri.core.tasks.main import scheduler
-
-        scheduler.shutdown_scheduler()
-
-        if self.workers is not None:
-            for worker in self.workers:
-                worker.shutdown(wait=True)
+        if self.worker is not None:
+            self.worker.shutdown(wait=True)
 
 
 class ZeroConfPlugin(Monitor):
@@ -529,7 +521,7 @@ class KolibriProcessBus(ProcessBus):
     This class is the state machine that manages the starting, restarting, and shutdown of
     a running Kolibri instance. It is responsible for starting any WSGI servers that respond
     to HTTP requests in the Kolibri lifecycle, and also other ancillary services like
-    a ZeroConf server, task runner work pool, scheduler, etc.
+    a ZeroConf server, task runner work pool, etc.
 
     The primary use case for this process bus is for running Kolibri in a consumer server or
     application context - although it can still be used to run the background services in

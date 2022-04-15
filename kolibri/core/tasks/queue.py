@@ -1,5 +1,4 @@
-from kolibri.core.tasks.job import DEFAULT_QUEUE
-from kolibri.core.tasks.job import Job
+from kolibri.core.tasks.constants import DEFAULT_QUEUE
 from kolibri.core.tasks.storage import Storage
 
 
@@ -51,14 +50,10 @@ class Queue(object):
         :param func: A callable object that will be scheduled for running.
         :return: a string representing the job_id.
         """
-        # if the func is already a job object, just schedule that directly.
-        if isinstance(func, Job):
-            job = func
-        # else, turn it into a job first.
-        else:
-            job = Job(func, *args, **kwargs)
 
-        job_id = self.storage.enqueue_job(job, self.name)
+        job_id = self.storage.enqueue_job(
+            func, queue=self.name, args=args, kwargs=kwargs
+        )
         return job_id
 
     def cancel(self, job_id):
