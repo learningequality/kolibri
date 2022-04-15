@@ -265,9 +265,7 @@ class TestQueue(object):
 
         # Now let's cancel...
         inmem_queue.cancel(job_id)
-        # And check the job state to make sure it's marked as cancelling
         job = inmem_queue.fetch_job(job_id)
-        assert job.state == State.CANCELING
         time_spent = 0
         while job.state != State.CANCELED:
             time.sleep(interval)
@@ -294,9 +292,7 @@ class TestQueue(object):
 
         # Now let's cancel...
         inmem_queue.cancel(job_id)
-        # And check the job state to make sure it's marked as cancelling
         job = inmem_queue.fetch_job(job_id)
-        assert job.state == State.CANCELING
         time_spent = 0
         while job.state != State.CANCELED:
             time.sleep(interval)

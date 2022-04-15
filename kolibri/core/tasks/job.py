@@ -78,7 +78,7 @@ class State(object):
 
 class Priority(object):
     """
-    This class defines the priority levels and their corresponding string values.
+    This class defines the priority levels and their corresponding integer values.
 
     REGULAR priority is for tasks that can wait for some time before it actually
     starts executing. Tasks that are tracked on task manager should use this priority.
@@ -88,12 +88,11 @@ class Priority(object):
     channel metadata.
     """
 
-    REGULAR = "REGULAR"
-    HIGH = "HIGH"
+    REGULAR = 10
+    HIGH = 5
 
-    # PriorityOrder is for ordering all the priority levels in their
-    # descending order of priority. Used for fetching the next queued job.
-    PriorityOrder = [HIGH, REGULAR]
+    # A set of all valid priorities
+    Priorities = {HIGH, REGULAR}
 
 
 def execute_job(job_id, db_type, db_url):
@@ -117,16 +116,18 @@ def execute_job(job_id, db_type, db_url):
     args, kwargs = copy.copy(job.args), copy.copy(job.kwargs)
 
     try:
+        # First check whether the job has been cancelled
+        job.check_for_cancel()
         result = func(*args, **kwargs)
+        storage.complete_job(job_id, result=result)
+    except UserCancelledError:
+        storage.mark_job_as_canceled(job_id)
     except Exception as e:
-        # If any error occurs, clear the job tracker and reraise
-        setattr(current_state_tracker, "job", None)
+        # If any error occurs, mark the job as failed and save the exception
         traceback_str = traceback.format_exc()
         e.traceback = traceback_str
-        connection.dispose()
-        # Close any django connections opened here
-        django_connection.close()
-        raise
+        logger.error("Job {} raised an exception: {}".format(job_id, traceback_str))
+        storage.mark_job_as_failed(job_id, e, traceback_str)
 
     setattr(current_state_tracker, "job", None)
 
@@ -134,8 +135,6 @@ def execute_job(job_id, db_type, db_url):
 
     # Close any django connections opened here
     django_connection.close()
-
-    return result
 
 
 class Job(object):
@@ -311,7 +310,7 @@ class RegisteredJob(object):
 
     For example, if `add` is registered as:
 
-        @register_task(priority="high", cancellable=True)
+        @register_task(priority=Priority.HIGH, cancellable=True)
         def add(x, y):
             return x + y
 
@@ -338,8 +337,8 @@ class RegisteredJob(object):
             permission_classes = []
         if validator is not None and not callable(validator):
             raise TypeError("Can't assign validator of type {}".format(type(validator)))
-        if priority.upper() not in Priority.PriorityOrder:
-            raise ValueError("priority must be one of 'regular' or 'high' (string).")
+        if priority not in Priority.Priorities:
+            raise ValueError("priority must be one of '5' or '10' (integer).")
         if not isinstance(permission_classes, list):
             raise TypeError("permission_classes must be of list type.")
         if not isinstance(queue, string_types):
@@ -347,7 +346,7 @@ class RegisteredJob(object):
 
         self.func = func
         self.validator = validator
-        self.priority = priority.upper()
+        self.priority = priority
         self.queue = queue
 
         self.permissions = [perm() for perm in permission_classes]
@@ -365,7 +364,9 @@ class RegisteredJob(object):
         from kolibri.core.tasks.main import job_storage
 
         job_obj = self._ready_job(*args, **kwargs)
-        return job_storage.enqueue_job(job_obj, self.queue, self.priority)
+        return job_storage.enqueue_job(
+            job_obj, queue=self.queue, priority=self.priority
+        )
 
     def enqueue_in(self, delta_time, interval=0, repeat=0, args=(), kwargs=None):
         """
@@ -379,12 +380,14 @@ class RegisteredJob(object):
         """
         if kwargs is None:
             kwargs = {}
-        from kolibri.core.tasks.main import scheduler
+        from kolibri.core.tasks.main import job_storage
 
         job_obj = self._ready_job(*args, **kwargs)
-        return scheduler.enqueue_in(
-            func=job_obj,
-            delta_t=delta_time,
+        return job_storage.enqueue_in(
+            delta_time,
+            job_obj,
+            queue=self.queue,
+            priority=self.priority,
             interval=interval,
             repeat=repeat,
         )
@@ -401,12 +404,14 @@ class RegisteredJob(object):
         """
         if kwargs is None:
             kwargs = {}
-        from kolibri.core.tasks.main import scheduler
+        from kolibri.core.tasks.main import job_storage
 
         job_obj = self._ready_job(*args, **kwargs)
-        return scheduler.enqueue_at(
-            func=job_obj,
-            dt=datetime,
+        return job_storage.enqueue_at(
+            datetime,
+            job_obj,
+            queue=self.queue,
+            priority=self.priority,
             interval=interval,
             repeat=repeat,
         )

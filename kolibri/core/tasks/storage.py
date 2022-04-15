@@ -1,21 +1,28 @@
 import logging
 from contextlib import contextmanager
+from datetime import datetime
+from datetime import timedelta
 
 from sqlalchemy import Column
 from sqlalchemy import DateTime
 from sqlalchemy import func
+from sqlalchemy import Index
+from sqlalchemy import Integer
 from sqlalchemy import or_
 from sqlalchemy import String
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
+from kolibri.core.tasks.constants import DEFAULT_QUEUE
 from kolibri.core.tasks.exceptions import JobNotFound
 from kolibri.core.tasks.exceptions import JobNotRestartable
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import JobRegistry
 from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.job import State
+from kolibri.utils.time_utils import local_now
+from kolibri.utils.time_utils import naive_utc_datetime
 
 Base = declarative_base()
 
@@ -38,7 +45,7 @@ class ORMJob(Base):
     state = Column(String, index=True)
 
     # The job's priority. Helps to decide which job to run next.
-    priority = Column(String, index=True)
+    priority = Column(Integer, index=True)
 
     # The queue name passed to the client when the job is scheduled.
     queue = Column(String, index=True)
@@ -49,8 +56,18 @@ class ORMJob(Base):
     time_created = Column(DateTime(timezone=True), server_default=func.now())
     time_updated = Column(DateTime(timezone=True), server_onupdate=func.now())
 
+    # Repeat interval in seconds.
+    interval = Column(Integer, default=0)
 
-class StorageMixin(object):
+    # Number of times to repeat - None means repeat forever.
+    repeat = Column(Integer, nullable=True)
+
+    scheduled_time = Column(DateTime())
+
+    __table_args__ = (Index("queue__scheduled_time", "queue", "scheduled_time"),)
+
+
+class Storage(object):
     def __init__(self, connection, Base=Base):
         self.engine = connection
         if self.engine.name == "sqlite":
@@ -71,6 +88,26 @@ class StorageMixin(object):
         finally:
             session.close()
 
+    def __len__(self):
+        """
+        Returns the number of jobs currently in the storage.
+        """
+        with self.session_scope() as session:
+            return session.query(ORMJob).count()
+
+    def __contains__(self, item):
+        """
+        Returns a boolean indicating whether the given job instance or job id
+        is scheduled for execution.
+        """
+        job_id = item
+        if isinstance(item, Job):
+            job_id = item.job_id
+        with self.session_scope() as session:
+            return session.query(
+                session.query(ORMJob).filter_by(id=job_id).exists()
+            ).scalar()
+
     def recreate_tables(self):
         self.Base.metadata.drop_all(self.engine)
         self.Base.metadata.create_all(self.engine)
@@ -89,8 +126,6 @@ class StorageMixin(object):
         except OperationalError:
             pass
 
-
-class Storage(StorageMixin):
     def _orm_to_job(self, orm_job):
         """
         Extracts a Job object from the saved_job string column of ORMJob
@@ -103,37 +138,25 @@ class Storage(StorageMixin):
         job.storage = self
         return job
 
-    def enqueue_job(self, j, queue, priority=Priority.REGULAR):
+    def enqueue_job(
+        self, func, queue=DEFAULT_QUEUE, priority=Priority.REGULAR, args=(), kwargs=None
+    ):
         """
         Add the job given by j to the job queue.
 
         Note: Does not actually run the job.
         """
-        with self.session_scope() as session:
-            orm_job = session.query(ORMJob).get(j.job_id)
-            if orm_job and orm_job.state not in [
-                State.COMPLETED,
-                State.FAILED,
-                State.CANCELED,
-            ]:
-                # If this job is already queued or running, don't try to replace it.
-                return j.job_id
-
-            j.state = State.QUEUED
-            orm_job = ORMJob(
-                id=j.job_id,
-                state=j.state,
-                priority=priority.upper(),
-                queue=queue,
-                saved_job=j.to_json(),
-            )
-            session.merge(orm_job)
-            try:
-                session.commit()
-            except Exception as e:
-                logger.error("Got an error running session.commit(): {}".format(e))
-
-            return j.job_id
+        dt = self._now()
+        return self.schedule(
+            dt,
+            func,
+            queue,
+            priority=priority,
+            interval=0,
+            repeat=0,
+            args=args,
+            kwargs=kwargs,
+        )
 
     def mark_job_as_canceled(self, job_id):
         """
@@ -150,7 +173,7 @@ class Storage(StorageMixin):
         """
         self._update_job(job_id, State.CANCELING)
 
-    def get_next_queued_job(self, priority_order=Priority.PriorityOrder):
+    def get_next_queued_job(self, priority=Priority.REGULAR):
         """
         Looks for the oldest queued job with priorities provided in `priority_order`. It
         runs through the `priority_oder` list sequentially.
@@ -158,18 +181,16 @@ class Storage(StorageMixin):
         :param priority_order: the order of priority we should follow.
         :return: job if found else None.
         """
+        naive_utc_now = datetime.utcnow()
         with self.session_scope() as s:
-            q = s.query(ORMJob).filter(ORMJob.state == State.QUEUED)
-
-            orm_job = None
-            for priority in priority_order:
-                orm_job = (
-                    q.filter(ORMJob.priority == priority)
-                    .order_by(ORMJob.time_created)
-                    .first()
-                )
-                if orm_job:
-                    break
+            orm_job = (
+                s.query(ORMJob)
+                .filter(ORMJob.state == State.QUEUED)
+                .filter(ORMJob.scheduled_time <= naive_utc_now)
+                .filter(ORMJob.priority <= priority)
+                .order_by(ORMJob.priority, ORMJob.time_created)
+                .first()
+            )
 
             if orm_job:
                 job = self._orm_to_job(orm_job)
@@ -242,6 +263,19 @@ class Storage(StorageMixin):
     def check_job_canceled(self, job_id):
         job = self.get_job(job_id)
         return job.state == State.CANCELED or job.state == State.CANCELING
+
+    def cancel(self, job_id):
+        """
+        Mark a job as canceling, and let the worker pick this up to initiate
+        the cancel of the job.
+
+        :param job_id: the job_id of the Job to cancel.
+        """
+        job = self.get_job(job_id)
+        if job.state == State.QUEUED:
+            self.clear(job_id=job_id, force=True)
+        else:
+            self.mark_job_as_canceling(job_id)
 
     def clear(self, queue=None, job_id=None, force=False):
         """
@@ -318,6 +352,17 @@ class Storage(StorageMixin):
                 job, orm_job = self._get_job_and_orm_job(job_id, session)
                 if state is not None:
                     orm_job.state = job.state = state
+                    if state in {State.COMPLETED, State.FAILED, State.CANCELED}:
+                        if orm_job.repeat is None or orm_job.repeat > 0:
+                            orm_job.repeat = (
+                                orm_job.repeat - 1
+                                if orm_job.repeat is not None
+                                else None
+                            )
+                            orm_job.state = State.QUEUED
+                            orm_job.scheduled_time = naive_utc_datetime(
+                                self._now() + timedelta(seconds=orm_job.interval)
+                            )
                 for kwarg in kwargs:
                     setattr(job, kwarg, kwargs[kwarg])
                 orm_job.saved_job = job.to_json()
@@ -343,3 +388,137 @@ class Storage(StorageMixin):
             raise JobNotFound()
         job = self._orm_to_job(orm_job)
         return job, orm_job
+
+    def change_execution_time(self, job, date_time):
+        """
+        Change a job's execution time.
+        """
+        if date_time.tzinfo is None:
+            raise ValueError(
+                "Must use a timezone aware datetime object for scheduling tasks"
+            )
+
+        with self.session_scope() as session:
+            scheduled_job = session.query(ORMJob).filter_by(id=job.job_id).one_or_none()
+            if scheduled_job:
+                scheduled_job.scheduled_time = naive_utc_datetime(date_time)
+                session.merge(scheduled_job)
+            else:
+                raise ValueError("Job not in jobs queue")
+
+    def enqueue_at(
+        self,
+        dt,
+        func,
+        queue=DEFAULT_QUEUE,
+        priority=Priority.REGULAR,
+        interval=0,
+        repeat=0,
+        args=(),
+        kwargs=None,
+    ):
+        """
+        Add the job for the specified time
+        """
+        return self.schedule(
+            dt,
+            func,
+            queue,
+            priority=priority,
+            interval=interval,
+            repeat=repeat,
+            args=args,
+            kwargs=kwargs,
+        )
+
+    def enqueue_in(
+        self,
+        delta_t,
+        func,
+        queue=DEFAULT_QUEUE,
+        priority=Priority.REGULAR,
+        interval=0,
+        repeat=0,
+        args=(),
+        kwargs=None,
+    ):
+        """
+        Add the job in the specified time delta
+        """
+        if not isinstance(delta_t, timedelta):
+            raise ValueError("Time argument must be a timedelta object.")
+        dt = self._now() + delta_t
+        return self.schedule(
+            dt,
+            func,
+            queue=queue,
+            priority=priority,
+            interval=interval,
+            repeat=repeat,
+            args=args,
+            kwargs=kwargs,
+        )
+
+    def schedule(
+        self,
+        dt,
+        func,
+        queue=DEFAULT_QUEUE,
+        priority=Priority.REGULAR,
+        interval=0,
+        repeat=0,
+        args=(),
+        kwargs=None,
+    ):
+        """
+        Add the job for the specified time, interval, and number of repeats.
+        Repeat of None with a specified interval means the job will repeat forever at that
+        interval.
+        """
+        if not isinstance(dt, datetime):
+            raise ValueError("Time argument must be a datetime object.")
+        if not interval and repeat != 0:
+            raise ValueError("Must specify an interval if the task is repeating")
+        if dt.tzinfo is None:
+            raise ValueError(
+                "Must use a timezone aware datetime object for scheduling tasks"
+            )
+        if kwargs is None:
+            kwargs = {}
+        if isinstance(func, Job):
+            job = func
+        # else, turn it into a job first.
+        else:
+            job = Job(func, *args, **kwargs)
+
+        with self.session_scope() as session:
+            orm_job = session.query(ORMJob).get(job.job_id)
+            if orm_job and orm_job.state not in {
+                State.COMPLETED,
+                State.FAILED,
+                State.CANCELED,
+            }:
+                # If this job is already queued or running, don't try to replace it.
+                return job.job_id
+
+            job.state = State.QUEUED
+            orm_job = ORMJob(
+                id=job.job_id,
+                state=job.state,
+                priority=priority,
+                queue=queue,
+                interval=interval,
+                repeat=repeat,
+                scheduled_time=naive_utc_datetime(dt),
+                saved_job=job.to_json(),
+            )
+            session.merge(orm_job)
+            try:
+                session.commit()
+            except Exception as e:
+                logger.error("Got an error running session.commit(): {}".format(e))
+
+            return job.job_id
+
+    def _now(self):
+        return local_now()

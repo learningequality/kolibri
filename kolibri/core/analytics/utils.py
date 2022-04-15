@@ -46,7 +46,7 @@ from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import MasteryLog
 from kolibri.core.logger.models import UserSessionLog
 from kolibri.core.tasks.decorators import register_task
-from kolibri.core.tasks.main import scheduler
+from kolibri.core.tasks.main import job_storage
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.utils.lock import db_lock
 from kolibri.utils import conf
@@ -371,7 +371,7 @@ def extract_channel_statistics(channel):
         "pi": [item["content_id"][:10] for item in pop],
         # popular_counts
         "pc": [item["count"] for item in pop],
-        # storage calculated by the MB
+        # job_storage calculated by the MB
         # rtibbles: This is the one remaining instance of non-SI bytes units calculations that
         # I have discovered still extant in Kolibri. As this is being used for statistics reporting
         # I have not updated it to use SI units as with all other instances, as that would
@@ -514,8 +514,8 @@ def _ping(started, server, checkrate):
         )
     connection.close()
     job = get_current_job()
-    if job and job in scheduler:
-        scheduler.change_execution_time(
+    if job and job in job_storage:
+        job_storage.change_execution_time(
             job, local_now() + datetime.timedelta(seconds=checkrate * 60)
         )
 

@@ -2,6 +2,7 @@ import mock
 from django.test.testcases import TestCase
 
 from kolibri.core.tasks.job import Job
+from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.job import RegisteredJob
 
 
@@ -52,7 +53,7 @@ class TestRegisteredJob(TestCase):
         self.registered_job = RegisteredJob(
             int,
             validator=int,
-            priority="high",
+            priority=Priority.HIGH,
             queue="test",
             permission_classes=[int],
             job_id="test",
@@ -63,7 +64,7 @@ class TestRegisteredJob(TestCase):
     def test_constructor_sets_required_params(self):
         self.assertEqual(self.registered_job.func, int)
         self.assertEqual(self.registered_job.validator, int)
-        self.assertEqual(self.registered_job.priority, "HIGH")
+        self.assertEqual(self.registered_job.priority, Priority.HIGH)
         self.assertEqual(self.registered_job.permissions, [p() for p in [int]])
         self.assertEqual(self.registered_job.job_id, "test")
         self.assertEqual(self.registered_job.queue, "test")
@@ -87,8 +88,8 @@ class TestRegisteredJob(TestCase):
         self.assertIsInstance(result, Job)
 
     @mock.patch("kolibri.core.tasks.job.RegisteredJob._ready_job")
-    @mock.patch("kolibri.core.tasks.main.scheduler")
-    def test_enqueue_in(self, mock_scheduler, _ready_job_mock):
+    @mock.patch("kolibri.core.tasks.main.job_storage")
+    def test_enqueue_in(self, mock_job_storage, _ready_job_mock):
         args = ("10",)
         kwargs = dict(base=10)
 
@@ -103,16 +104,13 @@ class TestRegisteredJob(TestCase):
         )
 
         _ready_job_mock.assert_called_once_with(*args, **kwargs)
-        mock_scheduler.enqueue_in.assert_called_once_with(
-            func="job",
-            delta_t="delta_time",
-            interval=10,
-            repeat=10,
+        mock_job_storage.enqueue_in.assert_called_once_with(
+            "delta_time", "job", queue="test", interval=10, priority=5, repeat=10
         )
 
     @mock.patch("kolibri.core.tasks.job.RegisteredJob._ready_job")
-    @mock.patch("kolibri.core.tasks.main.scheduler")
-    def test_enqueue_at(self, mock_scheduler, _ready_job_mock):
+    @mock.patch("kolibri.core.tasks.main.job_storage")
+    def test_enqueue_at(self, mock_job_storage, _ready_job_mock):
         args = ("10",)
         kwargs = dict(base=10)
 
@@ -127,11 +125,8 @@ class TestRegisteredJob(TestCase):
         )
 
         _ready_job_mock.assert_called_once_with(*args, **kwargs)
-        mock_scheduler.enqueue_at.assert_called_once_with(
-            func="job",
-            dt="datetime",
-            interval=10,
-            repeat=10,
+        mock_job_storage.enqueue_at.assert_called_once_with(
+            "datetime", "job", queue="test", interval=10, priority=5, repeat=10
         )
 
     @mock.patch("kolibri.core.tasks.job.RegisteredJob._ready_job")
@@ -146,5 +141,7 @@ class TestRegisteredJob(TestCase):
 
         _ready_job_mock.assert_called_once_with(*args, **kwargs)
         job_storage_mock.enqueue_job.assert_called_once_with(
-            "job", self.registered_job.queue, self.registered_job.priority
+            "job",
+            queue=self.registered_job.queue,
+            priority=self.registered_job.priority,
         )

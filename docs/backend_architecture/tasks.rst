@@ -22,7 +22,7 @@ Kolibri plugins and kolibri's Django apps can pass several arguments to the deco
 - ``job_id (string)``: job's id.
 - ``queue (string)``: queue in which the job should be enqueued.
 - ``validator (callable)``: validator for the job. The details of how validation works is described later.
-- ``priority ("high" or "regular")``: priority of the job. It can be ``"high"`` or ``"regular"``. ``"regular"`` priority is for tasks that can wait for some time before it actually starts executing. Tasks that are shown to users in the task manager should use ``"regular"`` priority. ``"high"`` priority is used for tasks that need execution as soon as possible. These are often short-lived tasks that temporarily block user interaction using a loading animation (for example, tasks that import channel metadata before browsing).
+- ``priority (5 or 10)``: priority of the job. It can be ``"HIGH"`` (``5``) or ``"REGULAR"``(``10``). ``"REGULAR"`` priority is for tasks that can wait for some time before it actually starts executing. Tasks that are shown to users in the task manager should use ``"REGULAR"`` priority. ``"HIGH"`` priority is used for tasks that need execution as soon as possible. These are often short-lived tasks that temporarily block user interaction using a loading animation (for example, tasks that import channel metadata before browsing).
 - ``cancellable (boolean)``: whether the job is cancellable or not.
 - ``track_progress (boolean)``: whether to track progress of the job or not.
 - ``permission_classes (Django Rest Framework's permission classes)``: a list of DRF permissions user should have in order to enqueue the job.
@@ -39,6 +39,7 @@ We will refer to below sample code in the later sections also.
 .. code-block:: python
 
     from kolibri.core.tasks.decorators import register_task
+    from kolibri.core.tasks.job import Priority
     from kolibri.core.device.permissions import IsSuperuser
 
     def add_validator(req, req_data):
@@ -52,7 +53,7 @@ We will refer to below sample code in the later sections also.
           }
         }
 
-    @register_task(job_id="02", queue="maths", validator=add_validator, priority="high", cancellable=False, track_progress=True, permission_classes=[IsSuperuser])
+    @register_task(job_id="02", queue="maths", validator=add_validator, priority=Priority.HIGH, cancellable=False, track_progress=True, permission_classes=[IsSuperuser])
     def add(a, b):
         return a + b
 

@@ -31,8 +31,8 @@ from kolibri.core.tasks.api import prepare_sync_task
 from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import State
+from kolibri.core.tasks.main import job_storage
 from kolibri.core.tasks.main import queue
-from kolibri.core.tasks.main import scheduler
 from kolibri.utils.conf import OPTIONS
 
 
@@ -237,7 +237,7 @@ def stoppeerusersync(server, user_id):
     # clear jobs with matching ID
     job_id = hashlib.md5("{}::{}".format(server, user_id).encode()).hexdigest()
     queue.clear_job(job_id)
-    scheduler.cancel(job_id)
+    job_storage.cancel(job_id)
 
     # skip if we couldn't find one for resume
     if sync_session is None:
@@ -362,7 +362,7 @@ def request_soud_sync(server, user, queue_id=None, ttl=4):
         interval = random.randint(1, 30 * (10 - ttl))
         job = Job(request_soud_sync, server, user, queue_id, ttl)
         dt = datetime.timedelta(seconds=interval)
-        scheduler.enqueue_in(dt, job)
+        job_storage.enqueue_in(dt, job)
         if queue_id:
             logger.warning(
                 "Connection error connecting to server {} for user {}, for queue id {}. Trying to connect in {} seconds".format(
@@ -420,7 +420,7 @@ def handle_server_sync_response(response, server, user):
         time_alive = server_response["keep_alive"]
         dt = datetime.timedelta(seconds=int(time_alive))
         job = Job(request_soud_sync, server, user, pk, job_id=JOB_ID)
-        scheduler.enqueue_in(dt, job)
+        job_storage.enqueue_in(dt, job)
         logger.info(
             "Server {} busy for user {}, will try again in {} seconds with pk={}".format(
                 server, user, time_alive, pk
@@ -438,7 +438,7 @@ def schedule_new_sync(server, user, interval=OPTIONS["Deployment"]["SYNC_INTERVA
     dt = datetime.timedelta(seconds=interval)
     JOB_ID = hashlib.md5("{}:{}".format(server, user).encode()).hexdigest()
     job = Job(request_soud_sync, server, user, job_id=JOB_ID)
-    scheduler.enqueue_in(dt, job)
+    job_storage.enqueue_in(dt, job)
 
 
 @register_task
