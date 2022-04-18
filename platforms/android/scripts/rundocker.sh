@@ -4,6 +4,7 @@ set -e
 
 SCRIPTDIR=$(realpath "$(dirname "$0")")
 SRCDIR=$(dirname "$SCRIPTDIR")
+DOCKER=${DOCKER:-"docker"}
 
 BUILD_CACHE_VOLUME="kolibri-android-cache-$ARCH"
 BUILD_CACHE_PATH=/cache
@@ -46,4 +47,4 @@ if [ -e "${P4A_RELEASE_KEYSTORE}" ]; then
   )
 fi
 
-exec docker run "${RUN_OPTS[@]}" android_kolibri "$@"
+exec "${DOCKER}" run "${RUN_OPTS[@]}" android_kolibri "$@"

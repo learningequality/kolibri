@@ -21,6 +21,11 @@ ANDROIDNDKVER := 21.4.7075529
 
 SDK := ${ANDROID_HOME}/android-sdk-$(PLATFORM)
 
+ADB := adb
+DOCKER := docker
+P4A := p4a
+PYTHON_FOR_ANDROID := python-for-android
+
 # This checks if an environment variable with a specific name
 # exists. If it doesn't, it prints an error message and exits.
 # For example to check for the presence of the ANDROIDSDK environment
@@ -41,9 +46,9 @@ clean:
 	- rm -rf dist/*.apk src/kolibri tmpenv
 
 deepclean: clean
-	python-for-android clean_dists
+	$(PYTHON_FOR_ANDROID) clean_dists
 	rm -r dist || true
-	yes y | docker system prune -a || true
+	yes y | $(DOCKER) system prune -a || true
 	rm build_docker 2> /dev/null
 
 .PHONY: clean-whl
@@ -68,7 +73,7 @@ src/kolibri: clean
 
 .PHONY: p4a_android_distro
 p4a_android_distro: needs-android-dirs
-	p4a create --arch=$(P4A_ARCH)
+	$(P4A) create --arch=$(P4A_ARCH)
 
 .PHONY: needs-version
 needs-version:
@@ -84,7 +89,7 @@ kolibri.apk: p4a_android_distro src/kolibri needs-version
 	$(MAKE) guard-P4A_RELEASE_KEYSTORE_PASSWD
 	$(MAKE) guard-P4A_RELEASE_KEYALIAS_PASSWD
 	@echo "--- :android: Build APK"
-	p4a apk --release --sign --arch=$(P4A_ARCH) --version=$(APK_VERSION) --numeric-version=$(BUILD_NUMBER)
+	$(P4A) apk --release --sign --arch=$(P4A_ARCH) --version=$(APK_VERSION) --numeric-version=$(BUILD_NUMBER)
 	mkdir -p dist
 	mv kolibri-release-$(APK_VERSION)-.apk dist/kolibri__$(ARM_VER)-$(APK_VERSION).apk
 
@@ -93,7 +98,7 @@ kolibri.apk: p4a_android_distro src/kolibri needs-version
 # For some reason, p4a defauls to adding a final '-' to the filename, so we remove it in the final step.
 kolibri.apk.unsigned: p4a_android_distro src/kolibri needs-version
 	@echo "--- :android: Build APK (unsigned)"
-	p4a apk --arch=$(P4A_ARCH) --version=$(APK_VERSION) --numeric-version=$(BUILD_NUMBER)
+	$(P4A) apk --arch=$(P4A_ARCH) --version=$(APK_VERSION) --numeric-version=$(BUILD_NUMBER)
 	mkdir -p dist
 	mv kolibri-debug-$(APK_VERSION)-.apk dist/kolibri__$(ARM_VER)-debug-$(APK_VERSION).apk
 
@@ -103,19 +108,19 @@ kolibri.apk.unsigned: p4a_android_distro src/kolibri needs-version
 # Makes dummy file
 .PHONY: build_docker
 build_docker: Dockerfile
-	docker build -t android_kolibri .
+	$(DOCKER) build -t android_kolibri .
 
 # Run the docker image.
 # TODO Would be better to just specify the file here?
 run_docker: build_docker
-	./scripts/rundocker.sh
+	env DOCKER="$(DOCKER)" ./scripts/rundocker.sh
 
 install:
-	adb uninstall org.learningequality.Kolibri || true 2> /dev/null
-	adb install dist/*$(ARM_VER)-debug-*.apk
+	$(ADB) uninstall org.learningequality.Kolibri || true 2> /dev/null
+	$(ADB) install dist/*$(ARM_VER)-debug-*.apk
 
 logcat:
-	adb logcat | grep -i -E "python|kolibr| `adb shell ps | grep ' org.learningequality.Kolibri$$' | tr -s [:space:] ' ' | cut -d' ' -f2` " | grep -E -v "WifiTrafficPoller|localhost:5000|NetworkManagementSocketTagger|No jobs to start"
+	$(ADB) logcat | grep -i -E "python|kolibr| `$(ADB) shell ps | grep ' org.learningequality.Kolibri$$' | tr -s [:space:] ' ' | cut -d' ' -f2` " | grep -E -v "WifiTrafficPoller|localhost:5000|NetworkManagementSocketTagger|No jobs to start"
 
 $(SDK)/cmdline-tools:
 	@echo "Downloading Android SDK build tools"
