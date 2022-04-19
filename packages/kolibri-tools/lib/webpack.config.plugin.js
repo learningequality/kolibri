@@ -172,7 +172,6 @@ module.exports = (
     bundle.watch = true;
     bundle.watchOptions = {
       aggregateTimeout: 300,
-      poll: 1000,
     };
   }
 
