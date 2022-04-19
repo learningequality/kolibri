@@ -86,7 +86,7 @@ kolibri.apk: p4a_android_distro src/kolibri needs-version
 	@echo "--- :android: Build APK"
 	p4a apk --release --sign --arch=$(P4A_ARCH) --version=$(APK_VERSION) --numeric-version=$(BUILD_NUMBER)
 	mkdir -p dist
-	mv kolibri__$(P4A_ARCH)-$(APK_VERSION)-.apk dist/kolibri__$(P4A_ARCH)-$(APK_VERSION).apk
+	mv kolibri-$(APK_VERSION)-.apk dist/kolibri__$(ARM_VER)-$(APK_VERSION).apk
 
 .PHONY: kolibri.apk.unsigned
 # Build the unsigned debug version of the apk
@@ -95,7 +95,7 @@ kolibri.apk.unsigned: p4a_android_distro src/kolibri needs-version
 	@echo "--- :android: Build APK (unsigned)"
 	p4a apk --arch=$(P4A_ARCH) --version=$(APK_VERSION) --numeric-version=$(BUILD_NUMBER)
 	mkdir -p dist
-	mv kolibri__$(P4A_ARCH)-debug-$(APK_VERSION)-.apk dist/kolibri__$(P4A_ARCH)-debug-$(APK_VERSION).apk
+	mv kolibri-debug-$(APK_VERSION)-.apk dist/kolibri__$(ARM_VER)-debug-$(APK_VERSION).apk
 
 # DOCKER BUILD
 
