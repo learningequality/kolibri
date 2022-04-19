@@ -24,7 +24,15 @@
   <releases>
     <release version="2.2~devel" date="2022-03-13" type="development">
     </release>
-    <release version="2.1" date="2022-03-13" type="stable">
+    <release version="2.1.1" date="2022-04-19" type="stable">
+      <p>Changes included in this release:</p>
+      <ul>
+        <li>
+          Minor bug fix for initial setup in some environments.
+        </li>
+      </ul>
+    </release>
+    <release version="2.1" date="2022-04-13" type="stable">
       <description>
         <p>Changes included in this release:</p>
         <ul>
