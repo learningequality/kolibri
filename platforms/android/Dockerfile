@@ -65,20 +65,16 @@ RUN make -C /tmp setup SDK=$ANDROIDSDK && \
 # install python dependencies
 COPY requirements.txt /tmp/
 RUN pip install -r /tmp/requirements.txt && \
-  rm -f /tmp/requirements.txt && \
-  useradd -lm kivy
-
-USER kivy:kivy
-WORKDIR /home/kivy
-
-# Initializes the directory, owned by new user. Volume mounts adopt existing permissions, etc.
-RUN mkdir ~/.local
+  rm -f /tmp/requirements.txt
 
 # Configure gradle for use in docker. Disable gradle's automatically
 # detected rich console doesn't work in docker. Disable the gradle
 # daemon since it will be stopped as soon as the container exits.
 ENV GRADLE_OPTS="-Dorg.gradle.console=plain -Dorg.gradle.daemon=false"
 
-COPY --chown=kivy:kivy . .
+# Create a mount point for the build cache and make it world writable so
+# that the volume can be used by an unprivileged user without additional
+# setup.
+RUN mkdir /cache && chmod 777 /cache
 
 CMD [ "make", "kolibri.apk" ]
