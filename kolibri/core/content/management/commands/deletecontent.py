@@ -2,13 +2,15 @@ import logging
 import os
 
 from django.core.management.base import CommandError
+from django.db.models import Sum
+from le_utils.constants import content_kinds
 
 from kolibri.core.content.models import ChannelMetadata
+from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.annotation import propagate_forced_localfile_removal
 from kolibri.core.content.utils.annotation import reannotate_all_channels
 from kolibri.core.content.utils.annotation import set_content_invisible
-from kolibri.core.content.utils.import_export_content import get_import_export_data
 from kolibri.core.content.utils.importability_annotation import clear_channel_stats
 from kolibri.core.content.utils.paths import get_content_database_file_path
 from kolibri.core.tasks.management.commands.base import AsyncCommand
@@ -22,27 +24,35 @@ def delete_metadata(channel, node_ids, exclude_node_ids, force_delete):
     # Only delete all metadata if we are not doing selective deletion
     delete_all_metadata = not (node_ids or exclude_node_ids)
 
-    (
-        total_resource_number,
-        unused_files,
-        total_bytes_to_transfer,
-    ) = get_import_export_data(
-        channel.id,
-        node_ids,
-        exclude_node_ids,
-        # Don't filter by availability as we have set nodes invisible
-        # above, but the localfiles we are trying to delete are still
-        # available
-        None,
-        renderable_only=False,
-        topic_thumbnails=False,
+    resources_before = (
+        ContentNode.objects.filter(channel_id=channel.id, available=True)
+        .exclude(kind=content_kinds.TOPIC)
+        .count()
     )
 
-    if node_ids or exclude_node_ids:
-        # If we have been passed node ids do not do a full deletion pass
-        set_content_invisible(channel.id, node_ids, exclude_node_ids)
-        # If everything has been made invisible, delete all the metadata
-        delete_all_metadata = not channel.root.available
+    # If we have been passed node ids do not do a full deletion pass
+    set_content_invisible(channel.id, node_ids, exclude_node_ids)
+    # If everything has been made invisible, delete all the metadata
+    delete_all_metadata = not channel.root.available
+
+    total_resource_number = (
+        resources_before
+        - ContentNode.objects.filter(channel_id=channel.id, available=True)
+        .exclude(kind=content_kinds.TOPIC)
+        .count()
+    )
+
+    unused_files = (
+        LocalFile.objects.filter(
+            available=True,
+            files__contentnode__channel_id=channel.id,
+            files__contentnode__available=False,
+        )
+        .distinct()
+        .values("id", "file_size", "extension")
+    )
+
+    deleted_bytes = unused_files.aggregate(size=Sum("file_size"))["size"] or 0
 
     if force_delete:
         # Do this before we delete all the metadata, as otherwise we lose
@@ -65,7 +75,7 @@ def delete_metadata(channel, node_ids, exclude_node_ids, force_delete):
     # Clear any previously set channel availability stats for this channel
     clear_channel_stats(channel.id)
 
-    return total_resource_number, delete_all_metadata, total_bytes_to_transfer
+    return total_resource_number, delete_all_metadata, deleted_bytes
 
 
 class Command(AsyncCommand):
