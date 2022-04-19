@@ -99,9 +99,7 @@ def _get_automatic_provision_path() -> typing.Optional[Path]:
             )
             return None
 
-    if not data.keys().isdisjoint(
-        ["facility", "superusername", "superuserpassword", "preset"]
-    ):
+    if not data.keys().isdisjoint(["facility", "superusername", "superuserpassword"]):
         # If a file has an attribute unique to the old format, we will asume it
         # is outdated.
         return None
