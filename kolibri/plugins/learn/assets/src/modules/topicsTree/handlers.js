@@ -64,6 +64,8 @@ export function showTopicsTopic(store, { id, pageName }) {
         }
         const children = topic.children.results || [];
 
+        // if there are no children which are not leaf nodes (i.e. they have children themselves)
+        // then redirect to search results
         if (!children.some(c => !c.is_leaf) && pageName !== PageNames.TOPICS_TOPIC_SEARCH) {
           router.replace({ name: PageNames.TOPICS_TOPIC_SEARCH, id });
           store.commit('SET_PAGE_NAME', PageNames.TOPICS_TOPIC_SEARCH);

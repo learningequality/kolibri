@@ -125,8 +125,8 @@
   import commonLearnStrings from '../commonLearnStrings';
   import ChannelCardGroupGrid from '../ChannelCardGroupGrid';
   import LearningActivityChip from '../LearningActivityChip';
+  import SearchResultsGrid from '../SearchResultsGrid';
   import ResumableContentGrid from './ResumableContentGrid';
-  import SearchResultsGrid from './SearchResultsGrid';
   import SidePanel from './SidePanel';
 
   export default {

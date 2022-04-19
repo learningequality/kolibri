@@ -12,7 +12,7 @@
           :isMobile="windowIsSmall"
           :content="content"
           :link="genContentLink(content)"
-          @openCopiesModal="openCopiesModal"
+          @openCopiesModal="copies => displayedCopies = copies"
           @toggleInfoPanel="$emit('toggleInfoPanel', content)"
         />
       </KFixedGridItem>
