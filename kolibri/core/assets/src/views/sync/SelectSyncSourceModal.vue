@@ -81,13 +81,13 @@
       },
       localNetworkLabel: {
         message: 'Local network or internet',
-        context: 'Label on radio button for Local or internet',
+        context: 'Label on radio button for Local or Internet',
       },
       localNetworkDescription: {
         message:
-          'Sync facility data with another instance of Kolibri on your local network or the internet',
+          'Sync facility data with another Kolibri server on your local network or the internet',
 
-        context: 'Description of the sync option',
+        context: 'Description of the sync option.',
       },
     },
   };

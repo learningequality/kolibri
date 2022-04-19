@@ -1,7 +1,9 @@
+import Vue from 'vue';
 import { mapGetters } from 'vuex';
 import { UserKinds } from 'kolibri.coreVue.vuex.constants';
+import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
 
-export default {
+const mixin = Vue.util.mergeOptions(responsiveWindowMixin, {
   computed: {
     ...mapGetters([
       'isUserLoggedIn',
@@ -11,6 +13,9 @@ export default {
       'isLearner',
       'canManageContent',
     ]),
+    topBarHeight() {
+      return this.windowIsSmall ? 56 : 64;
+    },
   },
   methods: {
     filterByRole(navItem) {
@@ -38,4 +43,6 @@ export default {
       }
     },
   },
-};
+});
+
+export default mixin;

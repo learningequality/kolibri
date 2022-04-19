@@ -3,8 +3,9 @@
   <aside
     :dir="languageDir"
     :class="['media-player-transcript', { showing }]"
+    :style="{ background: $themeTokens.surface }"
     :aria-hidden="(!showing).toString()"
-    :aria-label="$tr('label')"
+    :aria-label="coreString('transcript')"
     @mouseenter="hovering = true"
     @mouseleave="hovering = false"
   >
@@ -50,11 +51,13 @@
   import { mapState } from 'vuex';
   import { throttle } from 'frame-throttle';
   import { getLangDir } from 'kolibri.utils.i18n';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import TranscriptCue from './TranscriptCue';
 
   export default {
     name: 'MediaPlayerTranscript',
     components: { TranscriptCue },
+    mixins: [commonCoreStrings],
     data() {
       return {
         // TODO figure if this is supposed to be used
@@ -221,11 +224,6 @@
       },
     },
     $trs: {
-      label: {
-        message: 'Transcript',
-        context:
-          'Refers to the option to present the captions (subtitles) of the video in the form of the interactive transcript.',
-      },
       transcriptBeginning: {
         message: 'Beginning of transcript',
         context:
@@ -249,7 +247,6 @@
   .media-player-transcript {
     overflow-x: hidden;
     overflow-y: auto;
-    background: #ffffff;
   }
 
   .transcript-cap {

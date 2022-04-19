@@ -45,6 +45,7 @@
           [SyncStatus.QUEUED]: this.$tr('queued'),
           [SyncStatus.SYNCING]: this.$tr('syncing'),
           [SyncStatus.UNABLE_TO_SYNC]: this.$tr('unableToSync'),
+          [SyncStatus.NOT_RECENTLY_SYNCED]: this.$tr('notRecentlySynced'),
           [SyncStatus.UNABLE_OR_NOT_SYNCED]: this.$tr('unableOrNotSynced'),
           [SyncStatus.NOT_CONNECTED]: this.$tr('notConnected'),
         };
@@ -68,12 +69,35 @@
       },
     },
     $trs: {
-      recentlySynced: 'Synced',
-      syncing: 'Syncing...',
-      queued: 'Waiting to sync...',
-      unableToSync: 'Unable to sync',
-      unableOrNotSynced: 'Not recently synced or unable to sync',
-      notConnected: 'Not connected to server',
+      recentlySynced: {
+        message: 'Synced',
+        context: 'Status label for a device that has been synced.',
+      },
+      syncing: {
+        message: 'Syncing...',
+        context: 'Status label for a device where syncing is in progress.',
+      },
+      queued: {
+        message: 'Waiting to sync...',
+        context: 'Status label for a device awaiting to sync with server.',
+      },
+      unableToSync: {
+        message: 'Unable to sync',
+        context: 'Status label for a device not synced with server.',
+      },
+      notRecentlySynced: {
+        message: 'Not recently synced',
+        context:
+          'Status label for a device not synced with server.\n\nThis message appears when a learn-only device has synced with the server at least once before, but its last sync has been over an hour ago.',
+      },
+      unableOrNotSynced: {
+        message: 'Not recently synced or unable to sync',
+        context: 'Status label for a device not synced with server.',
+      },
+      notConnected: {
+        message: 'Not connected to server',
+        context: 'Status label for a disconnected device.',
+      },
     },
   };
 

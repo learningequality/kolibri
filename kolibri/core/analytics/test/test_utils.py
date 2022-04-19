@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 
 import csv
 import datetime
+import hashlib
 import io
 import os
 import random
@@ -17,6 +18,7 @@ from kolibri.core.analytics.constants.nutrition_endpoints import STATISTICS
 from kolibri.core.analytics.models import PingbackNotification
 from kolibri.core.analytics.utils import calculate_list_stats
 from kolibri.core.analytics.utils import create_and_update_notifications
+from kolibri.core.analytics.utils import encodestring
 from kolibri.core.analytics.utils import extract_channel_statistics
 from kolibri.core.analytics.utils import extract_facility_statistics
 from kolibri.core.auth.constants import demographics
@@ -28,14 +30,15 @@ from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import LocalFile
+from kolibri.core.device.models import DeviceSettings
 from kolibri.core.device.utils import provision_device
+from kolibri.core.device.utils import provision_single_user_device
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
-from kolibri.core.logger.models import ExamAttemptLog
-from kolibri.core.logger.models import ExamLog
+from kolibri.core.logger.models import MasteryLog
 from kolibri.core.logger.models import UserSessionLog
 from kolibri.core.logger.utils import user_data
 
@@ -50,7 +53,15 @@ def mean(data):
 
 
 class BaseDeviceSetupMixin(object):
+    n_facilities = 1
+    n_superusers = 1
+    n_users = 20  # 20 users x 1 facility = 20 users
+    n_classes = 1  # 1 class x 1 facility = 1 class
+    min_timestamp = datetime.datetime(2018, 10, 11)
+    max_timestamp = datetime.datetime(2019, 10, 11)
+
     def setUp(self):
+        super(BaseDeviceSetupMixin, self).setUp()
         # create dummy channel
         channel_id = uuid.uuid4().hex
         root = ContentNode.objects.create(
@@ -59,9 +70,8 @@ class BaseDeviceSetupMixin(object):
             channel_id=channel_id,
             content_id=uuid.uuid4().hex,
         )
-        min_timestamp = datetime.datetime(2018, 10, 11)
         self.channel = ChannelMetadata.objects.create(
-            id=channel_id, name="channel", last_updated=min_timestamp, root=root
+            id=channel_id, name="channel", last_updated=self.min_timestamp, root=root
         )
         lf = LocalFile.objects.create(
             id=uuid.uuid4().hex, available=True, file_size=1048576  # 1 MB
@@ -73,56 +83,65 @@ class BaseDeviceSetupMixin(object):
         with io.open(data_path, mode="r", encoding="utf-8") as f:
             users = [data for data in csv.DictReader(f)]
 
-        n_facilities = 1
-        n_classes = 1  # 1 class x 1 facility = 1 class
-        n_users = 20  # 20 users x 1 facility = 20 users
-        max_timestamp = datetime.datetime(2019, 10, 11)
+        self.facilities = user_data.get_or_create_facilities(
+            n_facilities=self.n_facilities
+        )
+        self.users = []
 
-        self.facilities = user_data.get_or_create_facilities(n_facilities=n_facilities)
         for facility in self.facilities:
             dataset = facility.dataset
             # create superuser and login session
-            superuser = create_superuser(facility=facility)
-            facility.add_role(superuser, role_kinds.ADMIN)
-            UserSessionLog.objects.create(
-                user=superuser,
-                start_timestamp=min_timestamp,
-                last_interaction_timestamp=max_timestamp,
-            )
-            # create lesson and exam for facility
-            Lesson.objects.create(
-                created_by=superuser, title="lesson", collection=facility
-            )
-            exam = Exam.objects.create(
-                creator=superuser, title="exam", question_count=1, collection=facility
-            )
+            for i in range(self.n_superusers):
+                superuser = create_superuser(
+                    facility=facility, username="superuser{}".format(i)
+                )
+                facility.add_role(superuser, role_kinds.ADMIN)
+                UserSessionLog.objects.create(
+                    user=superuser,
+                    start_timestamp=self.min_timestamp,
+                    last_interaction_timestamp=self.max_timestamp,
+                )
+                # create lesson and exam for facility
+                Lesson.objects.create(
+                    created_by=superuser, title="lesson", collection=facility
+                )
+                exam = Exam.objects.create(
+                    creator=superuser,
+                    title="exam",
+                    question_count=1,
+                    collection=facility,
+                )
+                exam_id = exam.id
+            else:
+                exam_id = uuid.uuid4().hex
 
             classrooms = user_data.get_or_create_classrooms(
-                n_classes=n_classes, facility=facility
+                n_classes=self.n_classes, facility=facility
             )
 
             # Get all the user data at once so that it is distinct across classrooms
-            facility_user_data = random.sample(users, n_classes * n_users)
+            facility_user_data = random.sample(users, self.n_classes * self.n_users)
 
             # create random content id for the session logs
             self.content_id = uuid.uuid4().hex
             for i, classroom in enumerate(classrooms):
                 classroom_user_data = facility_user_data[
-                    i * n_users : (i + 1) * n_users
+                    i * self.n_users : (i + 1) * self.n_users
                 ]
                 users = user_data.get_or_create_classroom_users(
-                    n_users=n_users,
+                    n_users=self.n_users,
                     classroom=classroom,
                     user_data=classroom_user_data,
                     facility=facility,
                 )
+                self.users.extend(users)
                 # create 1 of each type of log per user
                 for user in users:
                     for _ in range(1):
                         sessionlog = ContentSessionLog.objects.create(
                             user=user,
-                            start_timestamp=min_timestamp,
-                            end_timestamp=max_timestamp,
+                            start_timestamp=self.min_timestamp,
+                            end_timestamp=self.max_timestamp,
                             content_id=self.content_id,
                             channel_id=self.channel.id,
                             time_spent=60,  # 1 minute
@@ -130,9 +149,9 @@ class BaseDeviceSetupMixin(object):
                         )
                         AttemptLog.objects.create(
                             item="item",
-                            start_timestamp=min_timestamp,
-                            end_timestamp=max_timestamp,
-                            completion_timestamp=max_timestamp,
+                            start_timestamp=self.min_timestamp,
+                            end_timestamp=self.max_timestamp,
+                            completion_timestamp=self.max_timestamp,
                             correct=1,
                             sessionlog=sessionlog,
                         )
@@ -140,8 +159,8 @@ class BaseDeviceSetupMixin(object):
                         ContentSessionLog.objects.create(
                             dataset=dataset,
                             user=None,
-                            start_timestamp=min_timestamp,
-                            end_timestamp=max_timestamp,
+                            start_timestamp=self.min_timestamp,
+                            end_timestamp=self.max_timestamp,
                             content_id=self.content_id,
                             channel_id=self.channel.id,
                             time_spent=60,  # 1 minute,
@@ -150,29 +169,58 @@ class BaseDeviceSetupMixin(object):
                     for _ in range(1):
                         UserSessionLog.objects.create(
                             user=user,
-                            start_timestamp=min_timestamp,
-                            last_interaction_timestamp=max_timestamp,
+                            start_timestamp=self.min_timestamp,
+                            last_interaction_timestamp=self.max_timestamp,
                             device_info="Android,9/Chrome Mobile,86",
                         )
                     for _ in range(1):
                         ContentSummaryLog.objects.create(
                             user=user,
-                            start_timestamp=min_timestamp,
-                            end_timestamp=max_timestamp,
-                            completion_timestamp=max_timestamp,
+                            start_timestamp=self.min_timestamp,
+                            end_timestamp=self.max_timestamp,
+                            completion_timestamp=self.max_timestamp,
                             content_id=uuid.uuid4().hex,
                             channel_id=self.channel.id,
                         )
                     for _ in range(1):
-                        examlog = ExamLog.objects.create(exam=exam, user=user)
-                        ExamAttemptLog.objects.create(
-                            examlog=examlog,
-                            start_timestamp=min_timestamp,
-                            end_timestamp=max_timestamp,
-                            completion_timestamp=max_timestamp,
-                            correct=1,
-                            content_id=uuid.uuid4().hex,
+                        sl = ContentSessionLog.objects.create(
+                            user=user,
+                            start_timestamp=self.min_timestamp,
+                            end_timestamp=self.max_timestamp,
+                            content_id=exam_id,
+                            channel_id=None,
+                            time_spent=60,  # 1 minute
+                            kind=content_kinds.QUIZ,
                         )
+                        summarylog = ContentSummaryLog.objects.create(
+                            user=user,
+                            start_timestamp=self.min_timestamp,
+                            end_timestamp=self.max_timestamp,
+                            completion_timestamp=self.max_timestamp,
+                            content_id=exam_id,
+                            channel_id=None,
+                            kind=content_kinds.QUIZ,
+                        )
+                        masterylog = MasteryLog.objects.create(
+                            mastery_criterion={"type": "quiz", "coach_assigned": True},
+                            summarylog=summarylog,
+                            start_timestamp=summarylog.start_timestamp,
+                            user=user,
+                            mastery_level=-1,
+                        )
+                        AttemptLog.objects.create(
+                            masterylog=masterylog,
+                            sessionlog=sl,
+                            start_timestamp=self.min_timestamp,
+                            end_timestamp=self.max_timestamp,
+                            completion_timestamp=self.max_timestamp,
+                            correct=1,
+                            item="test:test",
+                        )
+
+    def tearDown(self):
+        super(BaseDeviceSetupMixin, self).tearDown()
+        DeviceSettings.objects.all().delete()
 
 
 class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
@@ -209,17 +257,21 @@ class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
             "clc": 1,  # coach_login_count
             "f": "2018-10-11",  # first interaction
             "l": "2019-10-11",  # last interaction
-            "ss": 20,  # summarylog_started
-            "sc": 20,  # summarylog_complete
-            "sk": {content_kinds.EXERCISE: 20, content_kinds.VIDEO: 20},  # sess_kinds
+            "ss": 40,  # summarylog_started
+            "sc": 40,  # summarylog_complete
+            "sk": {
+                content_kinds.EXERCISE: 20,
+                content_kinds.VIDEO: 20,
+                content_kinds.QUIZ: 20,
+            },  # sess_kinds
             "lec": 1,  # lesson_count
             "ec": 1,  # exam_count
             "elc": 20,  # exam_log_count
             "alc": 20,  # att_log_count
             "ealc": 20,  # exam_att_log_count
-            "suc": 20,  # sess_user_count
+            "suc": 40,  # sess_user_count
             "sac": 20,  # sess_anon_count
-            "sut": 20,  # sess_user_time
+            "sut": 40,  # sess_user_time
             "sat": 20,  # sess_anon_time
             "dsl": {
                 "bys": {
@@ -245,6 +297,7 @@ class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
         }
 
         assert actual == expected
+        self.assertNotIn("sh", actual)
 
     def test_regression_4606_no_usersessions(self):
         UserSessionLog.objects.all().delete()
@@ -270,6 +323,23 @@ class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
         actual = extract_facility_statistics(facility)
         assert actual["f"] is None
         assert actual["l"] is None
+
+
+class SoudFacilityStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
+    n_facilities = 1
+    n_superusers = 0
+    n_users = 2
+
+    def test_extract_facility_statistics__soud_hash(self):
+        provision_single_user_device(self.users[0])
+        facility = self.facilities[0]
+        actual = extract_facility_statistics(facility)
+        users = sorted(self.users, key=lambda u: u.id)
+        user_ids = ":".join([user.id for user in users])
+        expected_soud_hash = encodestring(hashlib.md5(user_ids.encode()).digest())[
+            :10
+        ].decode()
+        self.assertEqual(expected_soud_hash, actual.pop("sh"))
 
 
 class ChannelStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):

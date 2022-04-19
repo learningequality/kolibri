@@ -23,7 +23,7 @@ const FieldsMixinStrings = createTranslator('FieldsMixinStrings', {
   },
   wholeClass: {
     message: 'Whole class',
-    context: 'Column header for the quiz report exported as CSV.',
+    context: 'Column header for the quiz report exported as CSV. Refers to the entire class.',
   },
   questionsCorrect: {
     message: 'Questions answered correctly',
@@ -59,10 +59,10 @@ function padTime(interval) {
   return pad(interval, 2, '0');
 }
 
-export function avgScore(quiz = false) {
+export function avgScore() {
   return [
     {
-      name: coachStrings.$tr(quiz ? 'avgQuizScoreLabel' : 'avgScoreLabel'),
+      name: coachStrings.$tr('avgScoreLabel'),
       key: 'avgScore',
       format(row) {
         if (!row.avgScore && row.avgScore !== 0) {
@@ -183,7 +183,7 @@ export function recipients(className) {
 export function score() {
   return [
     {
-      name: coachStrings.$tr('scoreLabel'),
+      name: coreStrings.$tr('scoreLabel'),
       key: 'score',
       format: row => {
         if (!row.statusObj.score && row.statusObj.score !== 0) {

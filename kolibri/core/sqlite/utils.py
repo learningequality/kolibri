@@ -10,6 +10,8 @@ from django.core.management import call_command
 from django.db.utils import DatabaseError
 from sqlalchemy import exc
 
+from kolibri.deployment.default.sqlite_db_names import NOTIFICATIONS
+
 logger = logging.getLogger(__name__)
 
 
@@ -27,7 +29,7 @@ def regenerate_database(connection):
 
     connection.close()
     common_clean(connection.alias, connection.get_connection_params()["database"])
-    if connection.alias == "notifications_db":
+    if connection.alias == NOTIFICATIONS:
         logger.error("Regenerating {}".format(connection.alias))
         # delete the db migrations and run them again
         connection_migrations = MigrationRecorder(connection).Migration
@@ -37,7 +39,7 @@ def regenerate_database(connection):
             interactive=False,
             verbosity=False,
             app_label="notifications",
-            database="notifications_db",
+            database=NOTIFICATIONS,
         )
         call_command("migrate", interactive=False, verbosity=False)
 

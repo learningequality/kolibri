@@ -5,5 +5,9 @@ when a SoUD request to sync
 from __future__ import unicode_literals
 
 
-SYNC = "sync"  # can begin a sync right now
-QUEUED = "queued"  # request added to the queue
+SYNC = "SYNC"  # can begin a sync right now
+RECENTLY_SYNCED = "RECENTLY_SYNCED"
+SYNCING = "SYNCING"
+QUEUED = "QUEUED"
+NOT_RECENTLY_SYNCED = "NOT_RECENTLY_SYNCED"
+UNABLE_TO_SYNC = "UNABLE_TO_SYNC"

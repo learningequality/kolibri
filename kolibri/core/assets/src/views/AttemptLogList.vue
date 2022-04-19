@@ -1,11 +1,40 @@
 <template>
 
   <div :style="{ backgroundColor: $themeTokens.surface }">
-    <h3 class="header" :style="iconStyle">
+    <h3
+      id="answer-history-label"
+      class="header"
+    >
       {{ $tr('answerHistoryLabel') }}
     </h3>
 
+    <KSelect
+      v-if="isMobile"
+      class="history-select"
+      :value="selected"
+      aria-labelledby="answer-history-label"
+      :options="options"
+      :disabled="$attrs.disabled"
+      @change="handleDropdownChange($event.value)"
+    >
+      <template #display>
+        <AttemptLogItem
+          :isSurvey="isSurvey"
+          :attemptLog="attemptLogs[selectedQuestionNumber]"
+          displayTag="span"
+        />
+      </template>
+      <template #option="{ index }">
+        <AttemptLogItem
+          :isSurvey="isSurvey"
+          :attemptLog="attemptLogs[index]"
+          displayTag="span"
+        />
+      </template>
+    </KSelect>
+
     <ul
+      v-else
       ref="attemptList"
       class="history-list"
       role="listbox"
@@ -27,60 +56,14 @@
           <a
             ref="attemptListOption"
             role="option"
+            class="attempt-item-anchor"
             :aria-selected="isSelected(index).toString()"
             :tabindex="isSelected(index) ? 0 : -1"
-            :style="iconStyle"
             @click.prevent="setSelectedAttemptLog(index)"
             @keydown.enter="setSelectedAttemptLog(index)"
             @keydown.space.prevent="setSelectedAttemptLog(index)"
           >
-            <KIcon
-              v-if="attemptLog.noattempt"
-              class="item svg-item"
-              icon="notStarted"
-            />
-            <KIcon
-              v-else-if="attemptLog.correct"
-              class="item svg-item"
-              :style="{ fill: $themeTokens.correct }"
-              icon="correct"
-            />
-            <KIcon
-              v-else-if="attemptLog.error"
-              class="svg-item"
-              :style=" { fill: $themeTokens.annotation }"
-              icon="helpNeeded"
-            />
-            <KIcon
-              v-else-if="!attemptLog.correct"
-              class="item svg-item"
-              :style="{ fill: $themeTokens.incorrect }"
-              icon="incorrect"
-            />
-            <KIcon
-              v-else-if="attemptLog.hinted"
-              class="item svg-item"
-              :style=" { fill: $themeTokens.annotation }"
-              icon="hint"
-            />
-            <p class="item">
-              {{
-                windowIsLarge ?
-                  coreString(
-                    'questionNumberLabel',
-                    { questionNumber: attemptLog.questionNumber }
-                  )
-                  :
-                  // Add non-breaking space to preserve vertical centering
-                  "&nbsp;"
-              }}
-            </p>
-            <CoachContentLabel
-              v-if="windowIsLarge"
-              class="coach-content-label"
-              :value="attemptLog.num_coach_contents || 0"
-              :isTopic="false"
-            />
+            <AttemptLogItem :isSurvey="isSurvey" :attemptLog="attemptLog" displayTag="p" />
           </a>
         </li>
       </template>
@@ -93,13 +76,13 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import AttemptLogItem from './AttemptLogItem';
 
   export default {
     name: 'AttemptLogList',
     components: {
-      CoachContentLabel,
+      AttemptLogItem,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
     props: {
@@ -107,21 +90,34 @@
         type: Array,
         required: true,
       },
+      isMobile: {
+        type: Boolean,
+        required: false,
+      },
       selectedQuestionNumber: {
         type: Number,
         required: true,
       },
+      isSurvey: {
+        type: Boolean,
+        default: false,
+      },
     },
     computed: {
-      iconStyle() {
-        if (this.windowIsLarge) {
-          return {};
-        } else {
+      selected() {
+        return this.options.find(o => o.value === this.selectedQuestionNumber + 1) || {};
+      },
+      options() {
+        let label = '';
+        return this.attemptLogs.map(attemptLog => {
+          label = this.coreString('questionNumberLabel', {
+            questionNumber: attemptLog.questionNumber,
+          });
           return {
-            textAlign: 'center',
-            padding: 0,
+            value: attemptLog.questionNumber,
+            label: label,
           };
-        }
+        });
       },
     },
     mounted() {
@@ -130,6 +126,9 @@
       });
     },
     methods: {
+      handleDropdownChange(value) {
+        this.$emit('select', value - 1);
+      },
       setSelectedAttemptLog(questionNumber) {
         const listOption = this.$refs.attemptListOption[questionNumber];
         listOption.focus();
@@ -141,7 +140,14 @@
         return Number(this.selectedQuestionNumber) === questionNumber;
       },
       scrollToSelectedAttemptLog(questionNumber) {
-        const selectedElement = this.$refs.attemptList.children[questionNumber];
+        let selectedElement;
+        if (
+          this.$refs.attemptListOption &&
+          this.$refs.attemptList &&
+          this.$refs.attemptList.children
+        ) {
+          selectedElement = this.$refs.attemptList.children[questionNumber];
+        }
         if (selectedElement) {
           const parent = this.$el.parentElement;
           parent.scrollTop =
@@ -159,7 +165,7 @@
       answerHistoryLabel: {
         message: 'Answer history',
         context:
-          'Indicates to a record of answers that a learner has responded to questions in a quiz, for example.',
+          'Indicates a record of answers that a learner has responded to questions in a quiz, for example.',
       },
     },
   };
@@ -169,36 +175,26 @@
 
 <style lang="scss" scoped>
 
-  .coach-content-label {
-    display: inline-block;
-    margin-top: -4px;
-    margin-left: 8px;
-    vertical-align: middle;
-  }
-
   .header {
     padding-top: 10px;
     padding-bottom: 10px;
-    padding-left: 20px;
+    padding-left: 16px;
     margin: 0;
   }
 
   .history-list {
     max-height: inherit;
+    padding-right: 0;
     padding-left: 0;
     margin: 0;
+    text-align: justify;
     list-style-type: none;
   }
 
-  .item {
-    display: inline-block;
-    height: 24px;
-  }
-
-  .svg-item {
-    margin-right: 12px;
-    margin-bottom: -4px;
-    font-size: 24px;
+  .history-select {
+    max-width: 90%;
+    padding-top: 16px;
+    margin: auto;
   }
 
   .attempt-item {
@@ -207,9 +203,10 @@
     clear: both;
   }
 
-  .attempt-item > a {
+  .attempt-item-anchor {
     display: block;
-    padding-left: 20px;
+    padding-right: 1vw;
+    padding-left: 1vw;
     cursor: pointer;
   }
 

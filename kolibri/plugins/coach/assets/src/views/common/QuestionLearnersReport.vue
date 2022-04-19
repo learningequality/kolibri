@@ -1,6 +1,6 @@
 <template>
 
-  <KPageContainer noPadding>
+  <KPageContainer :topMargin="0">
     <MultiPaneLayout ref="multiPaneLayout">
       <template #header>
         <div>
@@ -149,6 +149,7 @@
 
   .exercise-section {
     padding: 16px;
+
     h3 {
       margin-top: 0;
     }

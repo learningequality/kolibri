@@ -2,12 +2,36 @@ import os
 import re
 import stat
 from collections import OrderedDict
+from io import BufferedIOBase
+from wsgiref.headers import Headers
 
 from django.contrib.staticfiles import finders
 from django.core.files.storage import FileSystemStorage
 from django.utils._os import safe_join
 from whitenoise import WhiteNoise
+from whitenoise.httpstatus_backport import HTTPStatus
+from whitenoise.responders import MissingFileError
+from whitenoise.responders import Response
+from whitenoise.responders import StaticFile
 from whitenoise.string_utils import decode_path_info
+
+
+compressed_file_extensions = ("gz",)
+
+not_found_status = HTTPStatus(404, "Not Found")
+
+
+class NotFoundStaticFile(object):
+    """
+    A special static file class to give a not found response,
+    rather than letting it be further handled by the wrapped WSGI server.
+    """
+
+    def get_response(self, method, request_headers):
+        return Response(not_found_status, [], None)
+
+
+NOT_FOUND = NotFoundStaticFile()
 
 
 class FileFinder(finders.FileSystemFinder):
@@ -56,13 +80,62 @@ class FileFinder(finders.FileSystemFinder):
             return path
 
 
+class SlicedFile(BufferedIOBase):
+    """
+    A file like wrapper to handle seeking to the start byte of a range request
+    and to return no further output once the end byte of a range request has
+    been reached.
+    Vendored from https://github.com/evansd/whitenoise/blob/master/whitenoise/responders.py
+    as we cannot upgrade whitenoise due to Python 2.7 compatibility issues.
+    """
+
+    def __init__(self, fileobj, start, end):
+        fileobj.seek(start)
+        self.fileobj = fileobj
+        self.remaining = end - start + 1
+
+    def read(self, size=-1):
+        if self.remaining <= 0:
+            return b""
+        if size < 0:
+            size = self.remaining
+        else:
+            size = min(size, self.remaining)
+        data = self.fileobj.read(size)
+        self.remaining -= len(data)
+        return data
+
+    def close(self):
+        self.fileobj.close()
+
+
+class EndRangeStaticFile(StaticFile):
+    def get_range_response(self, range_header, base_headers, file_handle):
+        headers = []
+        for item in base_headers:
+            if item[0] == "Content-Length":
+                size = int(item[1])
+            else:
+                headers.append(item)
+        start, end = self.get_byte_range(range_header, size)
+        if start >= end:
+            return self.get_range_not_satisfiable_response(file_handle, size)
+        if file_handle is not None:
+            file_handle = SlicedFile(file_handle, start, end)
+        headers.append(("Content-Range", "bytes {}-{}/{}".format(start, end, size)))
+        headers.append(("Content-Length", str(end - start + 1)))
+        return Response(HTTPStatus.PARTIAL_CONTENT, headers, file_handle)
+
+
 class DynamicWhiteNoise(WhiteNoise):
     index_file = "index.html"
 
-    def __init__(self, application, dynamic_locations=None, **kwargs):
+    def __init__(
+        self, application, dynamic_locations=None, static_prefix=None, **kwargs
+    ):
         whitenoise_settings = {
-            # Use 1 day as the default cache time for static assets
-            "max_age": 24 * 60 * 60,
+            # Use 120 seconds as the default cache time for static assets
+            "max_age": 120,
             # Add a test for any file name that contains a semantic version number
             # or a 32 digit number (assumed to be a file hash)
             # these files will be cached indefinitely
@@ -79,6 +152,9 @@ class DynamicWhiteNoise(WhiteNoise):
             if self.dynamic_finder.prefixes
             else None
         )
+        if static_prefix is not None and not static_prefix.endswith("/"):
+            raise ValueError("Static prefix must end in '/'")
+        self.static_prefix = static_prefix
 
     def __call__(self, environ, start_response):
         path = decode_path_info(environ.get("PATH_INFO", ""))
@@ -90,8 +166,7 @@ class DynamicWhiteNoise(WhiteNoise):
             static_file = self.find_and_cache_dynamic_file(path)
         if static_file is None:
             return self.application(environ, start_response)
-        else:
-            return self.serve(static_file, environ, start_response)
+        return self.serve(static_file, environ, start_response)
 
     def find_and_cache_dynamic_file(self, url):
         path = self.get_dynamic_path(url)
@@ -100,10 +175,24 @@ class DynamicWhiteNoise(WhiteNoise):
             # Only try to do matches for regular files.
             if stat.S_ISREG(file_stat.st_mode):
                 stat_cache = {path: os.stat(path)}
+                for ext in compressed_file_extensions:
+                    try:
+                        comp_path = "{}.{}".format(path, ext)
+                        stat_cache[comp_path] = os.stat(comp_path)
+                    except (IOError, OSError):
+                        pass
                 self.add_file_to_dictionary(url, path, stat_cache=stat_cache)
-                return self.files.get(url)
+        elif (
+            path is None
+            and self.static_prefix is not None
+            and url.startswith(self.static_prefix)
+        ):
+            self.files[url] = NOT_FOUND
+        return self.files.get(url)
 
     def get_dynamic_path(self, url):
+        if self.static_prefix is not None and url.startswith(self.static_prefix):
+            return finders.find(url[len(self.static_prefix) :])
         if self.dynamic_check is not None and self.dynamic_check.match(url):
             return self.dynamic_finder.find(url)
 
@@ -115,38 +204,24 @@ class DynamicWhiteNoise(WhiteNoise):
         if path:
             yield path
 
-
-class DjangoWhiteNoise(DynamicWhiteNoise):
-    def __init__(self, application, static_prefix=None, **kwargs):
-        super(DjangoWhiteNoise, self).__init__(application, **kwargs)
-        self.static_prefix = static_prefix
-        if not self.autorefresh and self.static_prefix:
-            self.add_files_from_finders()
-
-    def add_files_from_finders(self):
-        files = {}
-        for finder in finders.get_finders():
-            for path, storage in finder.list(None):
-                prefix = (getattr(storage, "prefix", None) or "").strip("/")
-                url = u"".join(
-                    (
-                        self.static_prefix,
-                        prefix,
-                        "/" if prefix else "",
-                        path.replace("\\", "/"),
-                    )
-                )
-                # Use setdefault as only first matching file should be used
-                files.setdefault(url, storage.path(path))
-        stat_cache = {path: os.stat(path) for path in files.values()}
-        for url, path in files.items():
-            self.add_file_to_dictionary(url, path, stat_cache=stat_cache)
-
-    def candidate_paths_for_url(self, url):
-        paths = super(DjangoWhiteNoise, self).candidate_paths_for_url(url)
-        for path in paths:
-            yield path
-        if self.autorefresh and url.startswith(self.static_prefix):
-            path = finders.find(url[len(self.static_prefix) :])
-            if path:
-                yield path
+    def get_static_file(self, path, url, stat_cache=None):
+        """
+        Vendor this function from source to substitute in our
+        own StaticFile class that can properly handle ranges.
+        """
+        # Optimization: bail early if file does not exist
+        if stat_cache is None and not os.path.exists(path):
+            raise MissingFileError(path)
+        headers = Headers([])
+        self.add_mime_headers(headers, path, url)
+        self.add_cache_headers(headers, path, url)
+        if self.allow_all_origins:
+            headers["Access-Control-Allow-Origin"] = "*"
+        if self.add_headers_function:
+            self.add_headers_function(headers, path, url)
+        return EndRangeStaticFile(
+            path,
+            headers.items(),
+            stat_cache=stat_cache,
+            encodings={"gzip": path + ".gz", "br": path + ".br"},
+        )

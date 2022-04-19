@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 const fs = require('fs');
-const os = require('os');
 const path = require('path');
+const mkdirp = require('mkdirp');
 const program = require('commander');
 const checkVersion = require('check-node-version');
 const ini = require('ini');
@@ -18,55 +18,27 @@ function list(val) {
 }
 
 function filePath(val) {
-  return path.resolve(process.cwd(), val);
-}
-
-const config = ini.parse(fs.readFileSync(path.join(process.cwd(), './setup.cfg'), 'utf-8'));
-
-program.version(version).description('Tools for Kolibri frontend plugins');
-
-function statsCompletionCallback(bundleData, options) {
-  const express = require('express');
-  const http = require('http');
-  const host = '127.0.0.1';
-  const rootPort = options.port || 8888;
-  if (bundleData.length > 1) {
-    const app = express();
-    let response = `<html>
-    <body>
-    <h1>Kolibri Stats Links</h1>
-    <ul>`;
-    bundleData.forEach((bundle, i) => {
-      response += `<li><a href="http://${host}:${rootPort + i + 1}">${bundle.name}</a></li>`;
-    });
-    response += '</ul></body></html>';
-
-    app.use('/', (req, res) => {
-      res.send(response);
-    });
-    const server = http.createServer(app);
-    server.listen(rootPort, host, () => {
-      const url = `http://${host}:${server.address().port}`;
-      logger.info(
-        `Webpack Bundle Analyzer Reports are available at ${url}\n` + `Use ${'Ctrl+C'} to close it`
-      );
-    });
-  } else {
-    const url = `http://${host}:${rootPort + 1}`;
-    logger.info(
-      `Webpack Bundle Analyzer Report is available at ${url}\n` + `Use ${'Ctrl+C'} to close it`
-    );
+  if (val) {
+    return path.resolve(process.cwd(), val);
   }
 }
+
+let configFile;
+try {
+  configFile = fs.readFileSync(path.join(process.cwd(), './setup.cfg'), 'utf-8');
+} catch (e) {
+  // do nothing
+}
+
+const config = ini.parse(configFile || '');
+
+program.version(version).description('Tools for Kolibri frontend plugins');
 
 // Build
 program
   .command('build')
   .description('Build frontend assets for Kolibri frontend plugins')
-  .arguments(
-    '<mode>',
-    'Mode to run in, options are: d/dev/development, p/prod/production, i/i18n/internationalization, c/clean, s/stats'
-  )
+  .arguments('<mode>', 'Mode to run in, options are: d/dev/development, p/prod/production, c/clean')
   .option('-f , --file <file>', 'Set custom file which lists plugins that should be built')
   .option(
     '-p, --plugins <plugins...>',
@@ -80,22 +52,17 @@ program
     String,
     ''
   )
-  .option('-s, --single', 'Run using a single core to reduce CPU burden', false)
+  .option('--parallel <parallel>', 'Run multiple bundles in parallel', Number, 0)
   .option('-h, --hot', 'Use hot module reloading in the webpack devserver', false)
-  .option(
-    '-p, --port <port>',
-    'Set a port number to start devservers or bundle stats servers on',
-    Number,
-    3000
-  )
+  .option('-p, --port <port>', 'Set a port number to start devserver on', Number, 3000)
+  .option('--host <host>', 'Set a host to serve devserver', String, '0.0.0.0')
+  .option('--json', 'Output webpack stats in JSON format - only works in prod mode', false)
   .action(function(mode, options) {
-    const { fork } = require('child_process');
     const buildLogging = logger.getLogger('Kolibri Build');
     const modes = {
       DEV: 'dev',
       PROD: 'prod',
       CLEAN: 'clean',
-      STATS: 'stats',
     };
     const modeMaps = {
       c: modes.CLEAN,
@@ -106,8 +73,6 @@ program
       p: modes.PROD,
       prod: modes.PROD,
       production: modes.PROD,
-      s: modes.STATS,
-      stats: modes.STATS,
     };
     if (typeof mode !== 'string') {
       cliLogging.error('Build mode must be specified');
@@ -117,21 +82,17 @@ program
     if (!mode) {
       cliLogging.error('Build mode invalid value');
       program.help();
-      process.exit(1);
     }
-    // Use one less than the number of cpus to allow other
-    // processes to carry on.
-    const numberOfCPUs = Math.max(1, os.cpus().length - 1);
-    // Don't bother using multiprocessor mode if there is only one processor that we can
-    // use without bogging down the system.
-    const multi = !options.single && !process.env.KOLIBRI_BUILD_SINGLE && numberOfCPUs > 1;
 
     if (options.hot && mode !== modes.DEV) {
       cliLogging.error('Hot module reloading can only be used in dev mode.');
       process.exit(1);
     }
 
-    const buildOptions = { hot: options.hot, port: options.port };
+    if (options.json && mode !== modes.PROD) {
+      cliLogging.error('Stats can only be output in production build mode.');
+      process.exit(1);
+    }
 
     const bundleData = readWebpackJson({
       pluginFile: options.file,
@@ -142,102 +103,104 @@ program
       cliLogging.error('No valid bundle data was returned from the plugins specified');
       process.exit(1);
     }
-    const buildModule = {
-      [modes.PROD]: 'production.js',
-      [modes.DEV]: 'webpackdevserver.js',
-      [modes.STATS]: 'bundleStats.js',
-      [modes.CLEAN]: 'clean.js',
-    }[mode];
-
-    const modulePath = path.resolve(__dirname, buildModule);
-
-    function spawnWebpackProcesses({ completionCallback = null, persistent = true } = {}) {
-      const numberOfBundles = bundleData.length;
-      let currentlyCompiling = numberOfBundles;
-      let firstRun = true;
-      const start = new Date();
-      // The way we are binding this callback to the webpack compilation hooks
-      // it seems to miss this on first compilation, so we will only use this for
-      // watched builds where rebuilds are possible.
-      function startCallback() {
-        currentlyCompiling += 1;
-      }
-      function doneCallback() {
-        currentlyCompiling -= 1;
-        if (currentlyCompiling === 0) {
-          if (firstRun) {
-            firstRun = false;
-            buildLogging.info(`Initial build complete in ${(new Date() - start) / 1000} seconds`);
-          } else {
-            buildLogging.info('All builds complete!');
-          }
-          if (completionCallback) {
-            completionCallback(bundleData, buildOptions);
-          }
-        }
-      }
-      const children = [];
-      for (let index = 0; index < numberOfBundles; index++) {
-        if (multi) {
-          const data = JSON.stringify(bundleData[index]);
-          const options_data = JSON.stringify(buildOptions);
-          const childProcess = fork(modulePath, {
-            env: {
-              // needed to keep same context for child process (e.g. launching editors)
-              ...process.env,
-              data,
-              index,
-              // Only start a number of processes equal to the number of
-              // available CPUs.
-              start: Math.floor(index / numberOfCPUs) === 0,
-              options: options_data,
-            },
-            stdio: 'inherit',
-          });
-          children.push(childProcess);
-          if (persistent) {
-            childProcess.on('exit', (code, signal) => {
-              children.forEach(child => {
-                if (signal) {
-                  child.kill(signal);
-                } else {
-                  child.kill();
-                }
-              });
-              process.exit(code);
-            });
-          }
-          childProcess.on('message', msg => {
-            if (msg === 'compile') {
-              startCallback();
-            } else if (msg === 'done') {
-              doneCallback();
-              const nextIndex = index + numberOfCPUs;
-              if (children[nextIndex]) {
-                children[nextIndex].send('start');
-              }
-            }
-          });
-        } else {
-          const buildFunction = require(modulePath);
-          buildFunction(bundleData[index], index, startCallback, doneCallback, buildOptions);
-        }
-      }
-    }
 
     if (mode === modes.CLEAN) {
-      const clean = require(modulePath);
+      const clean = require('./clean');
       clean(bundleData);
-    } else if (mode === modes.STATS) {
-      spawnWebpackProcesses({
-        completionCallback: statsCompletionCallback,
-      });
-    } else if (mode === modes.DEV) {
-      spawnWebpackProcesses();
+      return;
+    }
+
+    const webpackMode = {
+      [modes.PROD]: 'production',
+      [modes.DEV]: 'development',
+      [modes.STATS]: 'production',
+    }[mode];
+
+    const buildOptions = { hot: options.hot, port: options.port, mode: webpackMode };
+
+    const webpackConfig = require('./webpack.config.plugin');
+
+    const webpackArray = bundleData.map(bundle => webpackConfig(bundle, buildOptions));
+
+    if (options.parallel) {
+      webpackArray.parallelism = options.parallel;
+    }
+
+    const webpack = require('webpack');
+
+    const compiler = webpack(webpackArray);
+
+    compiler.hooks.done.tap('Kolibri', () => {
+      buildLogging.info('Build complete');
+    });
+
+    if (mode === modes.DEV) {
+      const devServerOptions = {
+        hot: options.hot,
+        liveReload: !options.hot,
+        host: options.host,
+        port: options.port,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+        },
+        setupMiddlewares: (middlewares, devServer) => {
+          if (!devServer) {
+            throw new Error('webpack-dev-server is not defined');
+          }
+          const openInEditor = require('launch-editor-middleware');
+
+          middlewares.unshift({
+            name: 'open-in-editor',
+            path: '/__open-in-editor',
+            middleware: openInEditor(),
+          });
+
+          return middlewares;
+        },
+      };
+
+      const WebpackDevServer = require('webpack-dev-server');
+      const server = new WebpackDevServer(devServerOptions, compiler);
+      server.start();
     } else {
-      // Don't persist for production builds or message extraction
-      spawnWebpackProcesses({
-        persistent: false,
+      compiler.run((err, stats) => {
+        if (err || stats.hasErrors()) {
+          buildLogging.error(err || stats.toString('errors-only'));
+          process.exit(1);
+        }
+        if (options.json) {
+          // Recommended output stats taken from:
+          // https://github.com/statoscope/statoscope/tree/master/packages/webpack-plugin#which-stats-flags-statoscope-use
+          // Can use in conjunction with statoscope.
+          const statsJson = stats.toJson({
+            all: false, // disable all the stats
+            hash: true, // compilation hash
+            entrypoints: true, // entrypoints
+            chunks: true, // chunks
+            chunkModules: true, // modules
+            reasons: true, // modules reasons
+            ids: true, // IDs of modules and chunks (webpack 5)
+            dependentModules: true, // dependent modules of chunks (webpack 5)
+            chunkRelations: true, // chunk parents, children and siblings (webpack 5)
+            cachedAssets: true, // information about the cached assets (webpack 5)
+
+            nestedModules: true, // concatenated modules
+            usedExports: true, // used exports
+            providedExports: true, // provided imports
+            assets: true, // assets
+            chunkOrigins: true, // chunks origins stats (to find out which modules require a chunk)
+            version: true, // webpack version
+            builtAt: true, // build at time
+            timings: true, // modules timing information
+            performance: true, // info about oversized assets
+          });
+          mkdirp.sync('./.stats');
+          for (let stat of statsJson.children) {
+            fs.writeFileSync(`.stats/${stat.name}.json`, JSON.stringify(stat, null, 2), {
+              encoding: 'utf-8',
+            });
+          }
+        }
       });
     }
   });

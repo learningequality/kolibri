@@ -1,4 +1,19 @@
 {
+  "CommonLearnStrings.dontShowThisAgainLabel": "Не показвай повече това",
+  "CommonLearnStrings.exploreResources": "Разгледай съдържанието",
   "CommonLearnStrings.learnLabel": "Научи",
-  "CommonLearnStrings.recommendedLabel": "Препоръчани"
+  "CommonLearnStrings.libraryLabel": "Библиотека",
+  "CommonLearnStrings.logo": "От канала {channelTitle}",
+  "CommonLearnStrings.markResourceAsCompleteLabel": "Маркирай съдържание като завършено",
+  "CommonLearnStrings.mostPopularLabel": "Най-популярни",
+  "CommonLearnStrings.multipleLearningActivities": "Множество учебни дейности",
+  "CommonLearnStrings.multipleLearningActivitiesLabel": "Множество учебни дейности",
+  "CommonLearnStrings.nextStepsLabel": "Следващи стъпки",
+  "CommonLearnStrings.popularLabel": "Популярни",
+  "CommonLearnStrings.quizLabel": "Тест",
+  "CommonLearnStrings.resourceCompletedLabel": "Съдържанието е завършено",
+  "CommonLearnStrings.resourceHidden": "Съдържанието е скрито",
+  "CommonLearnStrings.resumeLabel": "Възобнови",
+  "CommonLearnStrings.suggestedTime": "",
+  "CommonLearnStrings.suggestedTimeToComplete": "Приблизително време за завършване"
 }

@@ -37,6 +37,7 @@
         shouldValidate: false,
       };
     },
+    inject: ['wizardService'],
     computed: {
       invalidText() {
         if (!this.shouldValidate) {
@@ -55,7 +56,7 @@
           this.$refs.textbox.focus();
         } else {
           this.$store.commit('SET_DEVICE_NAME', this.value);
-          this.$emit('click_next');
+          this.wizardService.send('CONTINUE');
         }
       },
     },
@@ -64,7 +65,7 @@
         message:
           'Giving this device a meaningful name can help you and others you connect with to recognize it',
 
-        context: 'Device naming description ',
+        context: 'Device naming description which is displayed when a user creates a new device.',
       },
     },
   };

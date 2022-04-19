@@ -25,6 +25,7 @@ If you have contributed to Kolibri, feel free to add your name and Github accoun
 | John | BruvaJ |
 | Chao-Wen Tan | chaowentan |
 | Christian Memije | christianmemije |
+| Connor Robertson | conconrob |
 | Cyril Pauya | cpauya |
 | Chris Castle | crcastle |
 | David Garg | davidgarg20 |

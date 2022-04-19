@@ -37,6 +37,8 @@ export default function useSavedAddresses(props, context) {
   const fetchAddressArgs = computed(() => {
     if (props.filterByChannelId) {
       return { channelId: props.filterByChannelId };
+    } else if (props.filterLODAvailable) {
+      return { lod: true };
     } else if (props.filterByFacilityId) {
       return { facilityId: props.filterByFacilityId };
     } else {
@@ -75,7 +77,7 @@ export default function useSavedAddresses(props, context) {
   });
 
   onBeforeMount(() => {
-    refreshSavedAddressList();
+    if (!props.filterLODAvailable) refreshSavedAddressList();
   });
 
   const requestsFailed = computed(() => {

@@ -2,6 +2,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import base64
 import collections
 import sys
 from importlib import import_module
@@ -19,8 +20,8 @@ from .helpers import create_superuser
 from .helpers import DUMMY_PASSWORD
 from .helpers import provision_device
 from kolibri.core import error_constants
+from kolibri.core.auth.backends import FACILITY_CREDENTIAL_KEY
 from kolibri.core.device.utils import set_device_settings
-
 
 # A weird hack because of http://bugs.python.org/issue17866
 if sys.version_info >= (3,):
@@ -458,6 +459,64 @@ class FacilityAPITestCase(APITestCase):
         response = self.client.get(reverse("kolibri:core:publicfacility-list"))
         self.assertEqual(models.Facility.objects.all().count(), len(response.data))
 
+    def test_public_facilityuser_endpoint(self):
+        if sys.version_info[0] == 2:
+            credentials = base64.b64encode(
+                "username={}&{}={}:{}".format(
+                    self.user1.username,
+                    FACILITY_CREDENTIAL_KEY,
+                    self.facility1.id,
+                    DUMMY_PASSWORD,
+                ).encode("utf-8")
+            )
+        else:
+            credentials = base64.b64encode(
+                str.encode(
+                    "username={}&{}={}:{}".format(
+                        self.user1.username,
+                        FACILITY_CREDENTIAL_KEY,
+                        self.facility1.id,
+                        DUMMY_PASSWORD,
+                    )
+                )
+            ).decode("ascii")
+        self.client.credentials(HTTP_AUTHORIZATION="Basic {}".format(credentials))
+        response = self.client.get(
+            reverse("kolibri:core:publicuser-list"),
+            format="json",
+        )
+        self.assertEqual(len(response.data), 1)
+        if sys.version_info[0] == 2:
+            credentials = base64.b64encode(
+                "username={}&{}={}:{}".format(
+                    self.superuser.username,
+                    FACILITY_CREDENTIAL_KEY,
+                    self.facility1.id,
+                    DUMMY_PASSWORD,
+                ).encode("utf-8")
+            )
+        else:
+            credentials = base64.b64encode(
+                str.encode(
+                    "username={}&{}={}:{}".format(
+                        self.superuser.username,
+                        FACILITY_CREDENTIAL_KEY,
+                        self.facility1.id,
+                        DUMMY_PASSWORD,
+                    )
+                )
+            ).decode("ascii")
+        self.client.credentials(HTTP_AUTHORIZATION="Basic {}".format(credentials))
+        response = self.client.get(
+            reverse("kolibri:core:publicuser-list"),
+            {"facility_id": self.facility1.id},
+            format="json",
+        )
+        self.assertEqual(
+            models.FacilityUser.objects.filter(facility_id=self.facility1.id).count(),
+            len(response.data),
+        )
+
 
 class UserCreationTestCase(APITestCase):
     @classmethod
@@ -810,14 +869,14 @@ class LoginLogoutTestCase(APITestCase):
             },
             format="json",
         )
-        response = self.client.get(
+        response = self.client.put(
             reverse("kolibri:core:session-detail", kwargs={"pk": "current"})
         )
         self.assertIn(role_kinds.ADMIN, response.data["kind"])
         self.assertIn(role_kinds.COACH, response.data["kind"])
 
     def test_session_return_anon_kind(self):
-        response = self.client.get(
+        response = self.client.put(
             reverse("kolibri:core:session-detail", kwargs={"pk": "current"})
         )
         self.assertTrue(response.data["kind"][0], "anonymous")

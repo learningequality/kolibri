@@ -12,6 +12,10 @@ export const SyncTaskStatuses = {
   PUSHING: 'PUSHING',
   REMOTE_DEQUEUING: 'REMOTE_DEQUEUING',
   REMOVING_FACILITY: 'REMOVING_FACILITY',
+  PENDING: 'PENDING',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED',
+  FAILED: 'FAILED',
 };
 
 const { getTaskString } = taskStrings.methods;
@@ -89,7 +93,9 @@ export function syncFacilityTaskDisplayInfo(task) {
       description: statusDescription,
     });
   } else {
-    statusMsg = statusDescription;
+    if (task.type === TaskTypes.SYNCLOD && task.status === TaskStatuses.FAILED)
+      statusMsg = `${statusDescription}: ${task.exception}`;
+    else statusMsg = statusDescription;
   }
 
   if (task.status === TaskStatuses.COMPLETED) {

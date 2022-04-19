@@ -58,7 +58,7 @@ class UserCSVExportTestCase(TestCase):
         )
         csv_file = open_csv_for_reading(filepath)
         with csv_file as f:
-            results = list(row for row in csv.DictReader(f))
+            results = [row for row in csv.DictReader(f)]
 
         for row in results:
             user = next(
@@ -90,7 +90,7 @@ class UserCSVExportTestCase(TestCase):
         )
         csv_file = open_csv_for_reading(filepath)
         with csv_file as f:
-            results = list(row for row in csv.DictReader(f))
+            results = [row for row in csv.DictReader(f)]
 
         self.assertEqual(len(results), expected_count)
         for demo_field in DEMO_FIELDS:
@@ -111,7 +111,7 @@ class UserCSVExportTestCase(TestCase):
         )
         csv_file = open_csv_for_reading(filepath)
         with csv_file as f:
-            results = list(row for row in csv.DictReader(f))
+            results = [row for row in csv.DictReader(f)]
 
         self.assertEqual(len(results), 2)
 
@@ -129,7 +129,7 @@ class UserCSVExportTestCase(TestCase):
         )
         csv_file = open_csv_for_reading(filepath)
         with csv_file as f:
-            results = list(row for row in csv.DictReader(f))
+            results = [row for row in csv.DictReader(f)]
 
         self.assertEqual(len(results), 2)
 

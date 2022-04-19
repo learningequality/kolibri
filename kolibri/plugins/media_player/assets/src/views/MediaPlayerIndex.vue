@@ -2,9 +2,10 @@
 
   <MediaPlayerFullscreen
     ref="fullscreen"
-    class="fill-space"
+    class="fill-space fullscreen-wrapper"
     :style="{
       'border-color': $themeTokens.fineLine,
+      padding: fullscreenWrapperPadding,
     }"
     @changeFullscreen="isFullscreen = $event"
   >
@@ -16,7 +17,7 @@
           'keyboard-modality': $inputModality === 'keyboard',
           'video-loading': loading,
           'transcript-visible': transcriptVisible,
-          'transcript-wrap': windowIsPortrait || (!isFullscreen && windowIsSmall),
+          'transcript-wrap': transcriptWrap,
         },
         $computedClass(progressStyle)
       ]"
@@ -192,6 +193,16 @@
         return this.player.duration();
       },
       /* eslint-enable kolibri/vue-no-unused-properties */
+      transcriptWrap() {
+        return this.windowIsPortrait || (!this.isFullscreen && this.windowIsSmall);
+      },
+      fullscreenWrapperPadding() {
+        if (this.isFullscreen) {
+          return 0;
+        }
+
+        return this.transcriptWrap ? '16px' : '32px 24px';
+      },
     },
     watch: {
       isFullscreen() {
@@ -285,7 +296,7 @@
               'Playback Rate': this.$tr('playbackRate'),
               Captions: this.$tr('captions'),
               'captions off': this.$tr('captionsOff'),
-              Transcript: this.$tr('transcript'),
+              Transcript: this.coreString('transcript'),
               'Transcript off': this.$tr('transcriptOff'),
               Languages: this.$tr('languages'),
               'Volume Level': this.$tr('volumeLevel'),
@@ -449,7 +460,7 @@
     $trs: {
       replay: {
         message: 'Go back 10 seconds',
-        context: 'Option to rewind a video or audio file by 10 seconds.\n',
+        context: 'Option to rewind a video or audio file by 10 seconds.',
       },
       // Pulled from https://github.com/videojs/video.js/blob/master/lang/en.json
       forward: {
@@ -473,7 +484,7 @@
       durationTime: {
         message: 'Duration time',
         context:
-          'Indicates the length of a video or audio file. For example, 5:15, meaning 5 minutes and 10 seconds.',
+          'Indicates the length of a video or audio file. For example, 5:15, meaning 5 minutes and 15 seconds.',
       },
       loaded: {
         message: 'Loaded',
@@ -482,15 +493,15 @@
       progressBar: {
         message: 'Progress bar',
         context:
-          'Describes the time tracker indicator bar in the bottom of the media player which allows a learner to view the progress through a media file and skip to specific times.',
+          'Describes the time tracker indicator bar in the bottom of the media player which allows a learner to view the progress through a media file and skip to specific times. Not related to learner progress.',
       },
       fullscreen: {
-        message: 'Fullscreen',
+        message: 'Enter fullscreen',
         context:
-          'Learners can use the full screen button in the bottom right corner to open the media player in fullscreen view.\n',
+          'Learners can use the full screen button in the bottom right corner to open the media player in fullscreen view.',
       },
       nonFullscreen: {
-        message: 'Non-fullscreen',
+        message: 'Exit fullscreen',
         context:
           'Learners can use the full screen button in the bottom right corner to exit the media player from fullscreen view. This text appears upon mouse over of the button.\n',
       },
@@ -516,14 +527,9 @@
         message: 'Captions off',
         context: 'Option for the learner to turn off subtitles (captions) in the media player.',
       },
-      transcript: {
-        message: 'Transcript',
-        context:
-          '\nRefers to the option to present the captions (subtitles) of the video in the form of the interactive transcript.',
-      },
       transcriptOff: {
         message: 'Transcript off',
-        context: 'Describes option to turn off the transcript.',
+        context: 'Option to turn off the transcript on a video or audio file.',
       },
       languages: {
         message: 'Languages',
@@ -570,17 +576,21 @@
   @import './videojs-style/videojs-font/css/videojs-icons.css';
   @import './videojs-style/variables';
   @import '~kolibri-design-system/lib/styles/definitions';
-  $transcript-wrap-height: 250px;
-  $transcript-wrap-fill-height: 100% * 9 / 16;
-  $video-height: 100% * 9 / 16;
+
+  .fullscreen-wrapper {
+    box-sizing: border-box;
+  }
+
   .wrapper {
     box-sizing: content-box;
     max-width: 100%;
-    max-height: $video-player-max-height;
+    max-height: #{$video-player-max-vh};
   }
+
   .wrapper.transcript-visible.transcript-wrap {
-    padding-bottom: $transcript-wrap-height;
+    padding-bottom: #{$transcript-wrap-height};
   }
+
   .wrapper.video-loading video {
     position: absolute;
     top: 0;
@@ -588,6 +598,7 @@
     height: 100%;
     opacity: 0.1;
   }
+
   .fill-space,
   /deep/ .fill-space {
     position: relative;
@@ -595,65 +606,80 @@
     height: 100%;
     border: 1px solid transparent;
   }
+
   .loading-space,
   /deep/ .loading-space {
     box-sizing: border-box;
-    padding-top: #{$video-height};
+    padding-top: #{$video-player-height-by-width};
   }
+
   /deep/ .loader {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
   }
+
   .media-player-transcript {
     position: absolute;
     right: 0;
     bottom: 0;
     z-index: 0;
     box-sizing: border-box;
+
     /deep/ .fill-space {
       height: auto;
     }
+
     [dir='rtl'] & {
       right: auto;
       left: 0;
     }
   }
+
   .wrapper:not(.transcript-wrap) .media-player-transcript {
     top: 0;
     width: 33.333%;
+
     /deep/ .loading-space {
       padding-top: #{300% * 9 / 16};
     }
   }
+
   .wrapper.transcript-wrap .media-player-transcript {
     left: 0;
-    height: $transcript-wrap-height;
+    height: #{$transcript-wrap-height};
+
     /deep/ .loading-space {
       padding-top: 90px;
     }
+
     [dir='rtl'] & {
       right: 0;
     }
   }
+
   .normalize-fullscreen,
   .mimic-fullscreen {
     border-color: transparent !important;
+
     .wrapper {
       max-height: none;
     }
+
     .wrapper.transcript-visible.transcript-wrap {
       padding-bottom: 0;
     }
+
     .wrapper.transcript-visible.transcript-wrap .media-player-transcript {
       top: 0;
       height: auto;
-      margin-top: #{$video-height};
+      margin-top: #{$video-player-height-by-width};
     }
+
     .wrapper.transcript-visible.transcript-wrap .video-js.vjs-fill {
       height: auto;
-      padding-top: #{$video-height};
+      padding-top: #{$video-player-height-by-width};
     }
   }
 
@@ -700,15 +726,18 @@
       height: initial;
       visibility: inherit;
       opacity: inherit;
+
       .vjs-progress-holder {
         height: 8px;
         margin-right: 16px;
         margin-left: 16px;
+
         .vjs-load-progress {
           div {
             background: $video-player-color-3;
           }
         }
+
         .vjs-play-progress {
           &::before {
             top: -5px;
@@ -729,6 +758,7 @@
     .vjs-volume-vertical {
       display: none;
     }
+
     .vjs-volume-panel-vertical {
       &:hover {
         .vjs-volume-vertical {
@@ -736,6 +766,7 @@
         }
       }
     }
+
     .vjs-volume-level {
       background-color: $video-player-font-color;
     }
@@ -759,6 +790,7 @@
         line-height: $button-height-normal;
       }
     }
+
     .vjs-big-play-button {
       position: absolute;
       top: 50%;
@@ -773,6 +805,7 @@
       border-radius: 50%;
       transform: translate(-50%, -50%);
     }
+
     .vjs-volume-panel {
       margin-left: auto;
     }
@@ -781,6 +814,7 @@
     .vjs-button-transcript img {
       max-width: 20px;
     }
+
     .vjs-transcript-visible > .vjs-tech,
     .vjs-transcript-visible > .vjs-modal-dialog,
     .vjs-transcript-visible > .vjs-text-track-display,
@@ -796,27 +830,33 @@
         padding: 8px;
         font-size: $video-player-font-size;
         background-color: $video-player-color;
+
         &:focus,
         &:hover {
           background-color: $video-player-color-3;
         }
       }
+
       li.vjs-selected {
         font-weight: bold;
         color: $video-player-font-color;
         background-color: $video-player-color-2;
+
         &:focus,
         &:hover {
           background-color: $video-player-color-3;
         }
       }
     }
+
     .vjs-menu-content {
       @include font-family-noto;
     }
+
     .vjs-volume-control {
       background-color: $video-player-color;
     }
+
     .vjs-playback-rate .vjs-menu {
       min-width: 4em;
     }
@@ -825,19 +865,23 @@
     .vjs-current-time {
       display: block;
       padding-right: 0;
+
       .vjs-current-time-display {
         font-size: $video-player-font-size;
         line-height: $button-height-normal;
       }
     }
+
     .vjs-duration {
       display: block;
       padding-left: 0;
+
       .vjs-duration-display {
         font-size: $video-player-font-size;
         line-height: $button-height-normal;
       }
     }
+
     .vjs-time-divider {
       padding: 0;
       text-align: center;
@@ -870,6 +914,7 @@
     .vjs-time-divider {
       display: block;
     }
+
     .vjs-slider-bar::before {
       z-index: 0;
     }
@@ -884,6 +929,7 @@
     .vjs-control-bar {
       height: $button-height-small;
     }
+
     .vjs-button {
       .vjs-icon-placeholder {
         &::before {
@@ -891,6 +937,7 @@
         }
       }
     }
+
     .vjs-icon-replay_10,
     .vjs-icon-forward_10 {
       &::before {
@@ -910,9 +957,11 @@
       border-radius: 50%;
       transform: translate(-50%, -50%);
     }
+
     .vjs-big-play-button {
       display: none;
     }
+
     &.vjs-show-big-play-button-on-pause {
       .vjs-big-play-button {
         display: none;
@@ -945,11 +994,13 @@
         line-height: $button-height-small;
       }
     }
+
     .vjs-duration {
       .vjs-duration-display {
         line-height: $button-height-small;
       }
     }
+
     .vjs-time-divider {
       line-height: $button-height-small;
     }

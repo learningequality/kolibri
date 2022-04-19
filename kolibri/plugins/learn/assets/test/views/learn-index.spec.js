@@ -2,17 +2,33 @@ import VueRouter from 'vue-router';
 import { mount, createLocalVue } from '@vue/test-utils';
 import LearnIndex from '../../src/views/LearnIndex';
 import makeStore from '../makeStore';
+// eslint-disable-next-line import/named
+import useCoreLearn, { useCoreLearnMock } from '../../src/composables/useCoreLearn';
 
-LearnIndex.methods.getDemographicInfo = function() {};
+jest.mock('../../src/composables/useCoreLearn');
+
+jest.mock('plugin_data', () => {
+  return {
+    __esModule: true,
+    default: {
+      accessibilityLabels: [],
+      categories: [],
+      gradeLevels: [],
+      languages: [],
+      channels: [],
+      learnerNeeds: [],
+    },
+  };
+});
 
 const localVue = createLocalVue();
 localVue.use(VueRouter);
 
 const router = new VueRouter({
   routes: [
-    { path: '/recommended', name: 'RECOMMENDED' },
-    { path: '/topics', name: 'TOPICS_ROOT' },
-    { path: '/classes', name: 'ALL_CLASSES' },
+    { path: '/home', name: 'HOME' },
+    { path: '/library', name: 'LIBRARY' },
+    { path: '/bookmarks', name: 'BOOKMARKS' },
   ],
 });
 
@@ -43,9 +59,9 @@ function makeWrapper(options) {
 function getElements(wrapper) {
   return {
     // hrefs need to match the routes in the mock router above
-    classesLink: () => wrapper.find('[href="#/classes"]'),
-    recommendedLink: () => wrapper.find('[href="#/recommended"]'),
-    topicsLink: () => wrapper.find('[href="#/topics"]'),
+    homeLink: () => wrapper.find('[href="#/home"]'),
+    bookmarksLink: () => wrapper.find('[href="#/bookmarks"]'),
+    libraryLink: () => wrapper.find('[href="#/library"]'),
     tabLinks: () => wrapper.findAllComponents({ name: 'NavbarLink' }),
     CoreBase: () => wrapper.findComponent({ name: 'CoreBase' }),
   };
@@ -59,7 +75,9 @@ describe('learn plugin index page', () => {
     store.state.core.session.user_id = 'test';
   };
   const setMemberships = memberships => {
-    store.state.memberships = memberships;
+    useCoreLearn.mockImplementation(() =>
+      useCoreLearnMock({ inClasses: Boolean(memberships.length) })
+    );
   };
   const setPageName = pageName => {
     store.state.pageName = pageName;
@@ -84,43 +102,22 @@ describe('learn plugin index page', () => {
       setCanAccessUnassignedContent(true);
     });
 
-    it('the recommended and channel links are always available to everybody', () => {
+    it('the home and channels links are always available to everybody', () => {
       setSessionUserKind('anonymous');
       setMemberships([]);
       const wrapper = makeWrapper({ store });
-      const { tabLinks, recommendedLink, topicsLink } = getElements(wrapper);
-      expect(tabLinks().length).toEqual(2);
-      expect(recommendedLink().element.tagName).toBe('A');
-      expect(topicsLink().element.tagName).toBe('A');
+      const { tabLinks, libraryLink } = getElements(wrapper);
+      expect(tabLinks().length).toEqual(1);
+      expect(libraryLink().element.tagName).toBe('A');
     });
 
-    it('the classes tab is available if user is logged in and has memberships', () => {
-      // should work for any user 'kind' except for 'anonymous'
-      setSessionUserKind('learner');
-      setMemberships([{ id: 'membership_1' }]);
-      const wrapper = makeWrapper({ store });
-      const { classesLink, tabLinks } = getElements(wrapper);
-      expect(tabLinks().length).toEqual(3);
-      expect(classesLink().element.tagName).toBe('A');
-    });
-
-    it('the classes tab is not available if user is not logged in', () => {
-      // in current implementation, anonymous user implies empty memberships
+    it('the bookmarks tabs are not available if user is not logged in', () => {
       setSessionUserKind('anonymous');
       setMemberships([]);
       const wrapper = makeWrapper({ store });
-      const { classesLink, tabLinks } = getElements(wrapper);
-      expect(tabLinks().length).toEqual(2);
-      expect(!classesLink().exists()).toEqual(true);
-    });
-
-    it('the classes tab is not available if user has no memberships/classes', () => {
-      setSessionUserKind('learner');
-      setMemberships([]);
-      const wrapper = makeWrapper({ store });
-      const { classesLink, tabLinks } = getElements(wrapper);
-      expect(tabLinks().length).toEqual(2);
-      expect(!classesLink().exists()).toEqual(true);
+      const { bookmarksLink, tabLinks } = getElements(wrapper);
+      expect(tabLinks().length).toEqual(1);
+      expect(!bookmarksLink().exists()).toEqual(true);
     });
   });
 
@@ -129,7 +126,7 @@ describe('learn plugin index page', () => {
       setCanAccessUnassignedContent(false);
     });
 
-    it('no tabs are available', () => {
+    it('no tab is available when not signed-in', () => {
       setSessionUserKind('anonymous');
       setMemberships([]);
       const wrapper = makeWrapper({ store });
@@ -137,14 +134,14 @@ describe('learn plugin index page', () => {
       expect(tabLinks().length).toEqual(0);
     });
 
-    it('only classes tab is available if signed in', () => {
+    it('the home tab is available if signed in', () => {
       // should work for any user 'kind' except for 'anonymous'
       setSessionUserKind('learner');
       setMemberships([{ id: 'membership_1' }]);
       const wrapper = makeWrapper({ store });
-      const { classesLink, tabLinks } = getElements(wrapper);
+      const { tabLinks, homeLink } = getElements(wrapper);
       expect(tabLinks().length).toEqual(1);
-      expect(classesLink().element.tagName).toBe('A');
+      expect(homeLink().element.tagName).toBe('A');
     });
   });
 });

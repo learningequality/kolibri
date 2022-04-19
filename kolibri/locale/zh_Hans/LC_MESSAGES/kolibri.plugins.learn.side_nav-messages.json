@@ -1,4 +1,19 @@
 {
+  "CommonLearnStrings.dontShowThisAgainLabel": "不再显示此内容",
+  "CommonLearnStrings.exploreResources": "探索资源",
   "CommonLearnStrings.learnLabel": "学习",
-  "CommonLearnStrings.recommendedLabel": "推荐"
+  "CommonLearnStrings.libraryLabel": "库",
+  "CommonLearnStrings.logo": "来自 {channelTitle}频道",
+  "CommonLearnStrings.markResourceAsCompleteLabel": "标记资源为已完成",
+  "CommonLearnStrings.mostPopularLabel": "最受欢迎",
+  "CommonLearnStrings.multipleLearningActivities": "多种学习活动",
+  "CommonLearnStrings.multipleLearningActivitiesLabel": "多种学习活动",
+  "CommonLearnStrings.nextStepsLabel": "下一步",
+  "CommonLearnStrings.popularLabel": "受欢迎",
+  "CommonLearnStrings.quizLabel": "测验",
+  "CommonLearnStrings.resourceCompletedLabel": "资源已完成",
+  "CommonLearnStrings.resourceHidden": "隐藏资源",
+  "CommonLearnStrings.resumeLabel": "继续",
+  "CommonLearnStrings.suggestedTime": "",
+  "CommonLearnStrings.suggestedTimeToComplete": "建议完成时间"
 }

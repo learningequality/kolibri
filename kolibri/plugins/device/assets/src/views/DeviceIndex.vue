@@ -72,7 +72,10 @@
       ...mapState({ welcomeModalVisibleState: 'welcomeModalVisible' }),
       ...mapState('coreBase', ['appBarTitle']),
       welcomeModalVisible() {
-        return this.welcomeModalVisibleState && !window.sessionStorage.getItem(welcomeDimissalKey);
+        return (
+          this.welcomeModalVisibleState &&
+          window.sessionStorage.getItem(welcomeDimissalKey) !== 'true'
+        );
       },
       pageName() {
         return this.$route.name;
@@ -97,6 +100,16 @@
         return this.pageName === 'AVAILABLE_CHANNELS' && this.$route.query.multiple;
       },
       immersivePageRoute() {
+        if (this.pageName === PageNames.MANAGE_TASKS) {
+          if (this.$route.query.last) {
+            const route = this.$router.getRoute(this.$route.query.last, {
+              channel_id: this.$route.query.channel_id,
+            });
+            return route;
+          } else {
+            return { name: PageNames.MANAGE_CONTENT_PAGE };
+          }
+        }
         if (this.$route.query.last) {
           return {
             name: this.$route.query.last,
@@ -104,9 +117,6 @@
             // to handle longer breadcrumb trails
             query: omit(this.$route.query, ['last']),
           };
-        }
-        if (this.pageName === PageNames.MANAGE_TASKS) {
-          return this.$route.params.lastRoute || { name: PageNames.MANAGE_CONTENT_PAGE };
         }
         if (this.pageName === PageNames.MANAGE_CHANNEL) {
           return { name: PageNames.MANAGE_CONTENT_PAGE };
@@ -141,7 +151,16 @@
         }
       },
       immersivePagePrimary() {
-        if (this.pageName === PageNames.MANAGE_TASKS) {
+        if (
+          this.pageName === PageNames.MANAGE_TASKS &&
+          this.$route.query &&
+          this.$route.query.last
+        ) {
+          return true;
+        } else if (
+          this.pageName === PageNames.MANAGE_TASKS &&
+          (!this.$route.query || !this.$route.query.last)
+        ) {
           return false;
         }
         return this.inContentManagementPage;
@@ -158,10 +177,7 @@
         return 'close';
       },
       currentPageIsImmersive() {
-        if (
-          this.pageName == PageNames.MANAGE_CONTENT_PAGE ||
-          this.pageName === PageNames.MANAGE_TASKS
-        ) {
+        if (this.pageName == PageNames.MANAGE_CONTENT_PAGE) {
           return false;
         }
         return (

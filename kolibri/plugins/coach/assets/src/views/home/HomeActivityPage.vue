@@ -15,7 +15,7 @@
       <p>
         <BackLink
           :to="classRoute('HomePage', {})"
-          :text="$tr('back')"
+          :text="coreString('classHome')"
         />
       </p>
 
@@ -32,6 +32,7 @@
 
 <script>
 
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import { nStringsMixin } from '../common/notifications/notificationStrings';
   import ActivityList from '../common/notifications/ActivityList';
@@ -41,13 +42,8 @@
     components: {
       ActivityList,
     },
-    mixins: [commonCoach, nStringsMixin],
+    mixins: [commonCoach, nStringsMixin, commonCoreStrings],
     $trs: {
-      back: {
-        message: 'Class home',
-        context:
-          "Tab name of the main 'Class' section where the coach can see all the information relating to a specific class.\n",
-      },
       noActivityLabel: {
         message: 'No activity in your class',
         context:

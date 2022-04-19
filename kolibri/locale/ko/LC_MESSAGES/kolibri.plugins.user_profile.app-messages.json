@@ -1,0 +1,15 @@
+{
+  "ChangeUserPasswordModal.passwordChangeFormHeader": "비밀번호 변경",
+  "ChangeUserPasswordModal.passwordChangedNotification": "비밀번호가 변경 되었습니다.",
+  "ProfileEditPage.editProfileHeader": "프로필 편집",
+  "ProfilePage.changePasswordPrompt": "비밀번호 변경",
+  "ProfilePage.detailsHeader": "상세내용",
+  "ProfilePage.documentTitle": "사용자 프로필",
+  "ProfilePage.editAction": "편집",
+  "ProfilePage.isSuperuser": "최고운영자 권한 ",
+  "ProfilePage.limitedPermissions": "제한된 권한",
+  "ProfilePage.manageContent": "채널 및 자료 관리",
+  "ProfilePage.manageDevicePermissions": "기기 권한 관리",
+  "ProfilePage.points": "포인트",
+  "ProfilePage.youCan": "다음을 할 수 있습니다."
+}

@@ -1,303 +1,183 @@
-import json
 import logging
-import socket
 import time
 
 from django.core.exceptions import ValidationError
 from django.db import connection
 from django.db.utils import OperationalError
-from six import integer_types
-from six import string_types
-from zeroconf import get_all_addresses
-from zeroconf import NonUniqueNameException
-from zeroconf import ServiceInfo
-from zeroconf import USE_IP_OF_OUTGOING_INTERFACE
-from zeroconf import Zeroconf
 
 from kolibri.core.auth.models import FacilityUser
-from kolibri.core.device.utils import get_device_setting
 from kolibri.core.discovery.models import DynamicNetworkLocation
+from kolibri.core.discovery.utils.network.broadcast import KolibriInstanceListener
+from kolibri.core.discovery.utils.network.broadcast import NETWORK_EVENTS
 from kolibri.core.public.utils import begin_request_soud_sync
-from kolibri.core.public.utils import get_device_info
+from kolibri.core.public.utils import queue_soud_server_sync_cleanup
+from kolibri.core.public.utils import stop_request_soud_sync
 
 logger = logging.getLogger(__name__)
 
-SERVICE_TYPE = "Kolibri._sub._http._tcp.local."
-LOCAL_DOMAIN = "kolibri.local"
-TRUE = "TRUE"
-FALSE = "FALSE"
 
-ZEROCONF_STATE = {
-    "zeroconf": None,
-    "listener": None,
-    "service": None,
-    "addresses": None,
-}
+class DynamicNetworkLocationListener(KolibriInstanceListener):
+    """
+    Listener that subscribes to events to manage corresponding `DynamicNetworkLocation` models
+    """
 
+    def register_instance(self, instance):
+        # when we start broadcasting, start fresh with no DynamicNetworkLocations
+        DynamicNetworkLocation.objects.all().delete()
+        connection.close()
 
-def _id_from_name(name):
-    assert name.endswith(SERVICE_TYPE), (
-        "Invalid service name; must end with '%s'" % SERVICE_TYPE
-    )
-    return name.replace(SERVICE_TYPE, "").strip(".")
+    def unregister_instance(self, instance):
+        # when we stop broadcasting, cleanup DynamicNetworkLocations
+        DynamicNetworkLocation.objects.all().delete()
+        connection.close()
 
+    def add_instance(self, instance):
+        # when a new instance appears, store it
+        attempts = 0
+        db_locked = True
+        while db_locked and attempts <= 5:
+            db_locked = self._store_instance(instance)
+            attempts += 1
+            time.sleep(0.1)
 
-class KolibriZeroconfService(object):
+    def update_instance(self, instance):
+        # add_instance uses update_or_create, so call again
+        self.add_instance(instance)
 
-    info = None
+    def remove_instance(self, instance):
+        DynamicNetworkLocation.objects.filter(pk=instance.zeroconf_id).delete()
+        connection.close()
 
-    def __init__(self, id, port=8080, data={}):
-        self.id = id
-        self.port = port
-        self.data = {}
-        for key, val in data.items():
-            if not isinstance(key, string_types):
-                raise TypeError("Keys for the service info properties must be strings")
-            if not isinstance(val, string_types + integer_types + (bool,)):
-                raise TypeError(
-                    "Values for the service info properties must be a string, an integer or a boolean"
-                )
-            if isinstance(val, bool):
-                # For some reason zeroconf coerces a JSON dumped boolean to a bool
-                # So we set this to a special value so as not to break old versions of Kolibri which
-                # will error when they try to json.loads a boolean value
-                # TODO: No longer json.dumps at all here - but this will require making the zeroconf
-                # info backwards incompatible with older versions of Kolibri
-                val = TRUE if val else FALSE
-            self.data[key] = json.dumps(val)
-
-    def register(self):
-
-        if not ZEROCONF_STATE["zeroconf"]:
-            initialize_zeroconf_listener()
-
-        if self.info is not None:
-            logger.error("Service is already registered!")
-            return
-
-        i = 1
-        id = self.id
-
-        while not self.info:
-
-            # attempt to create an mDNS service and register it on the network
-            try:
-                info = ServiceInfo(
-                    SERVICE_TYPE,
-                    name=".".join([id, SERVICE_TYPE]),
-                    server=".".join([id, LOCAL_DOMAIN, ""]),
-                    address=USE_IP_OF_OUTGOING_INTERFACE,
-                    port=self.port,
-                    properties=self.data,
-                )
-
-                ZEROCONF_STATE["zeroconf"].register_service(info, ttl=60)
-
-                self.info = info
-
-            except NonUniqueNameException:
-                # if there's a name conflict, append incrementing integer until no conflict
-                i += 1
-                id = "%s-%d" % (self.id, i)
-
-            if i > 100:
-                raise NonUniqueNameException()
-
-        self.id = id
-
-        return self
-
-    def unregister(self):
-
-        if self.info is None:
-            logging.error("Service is not registered!")
-            return
-
-        if self.info.name.lower() in ZEROCONF_STATE["zeroconf"].services:
-            ZEROCONF_STATE["zeroconf"].unregister_service(self.info)
-
-        self.info = None
-
-    def cleanup(self, *args, **kwargs):
-
-        if self.info and ZEROCONF_STATE["zeroconf"]:
-            self.unregister()
-
-
-def parse_device_info(info):
-    obj = {}
-    for key, val in info.properties.items():
-        if isinstance(val, bytes):
-            val = val.decode("utf-8")
-        obj[bytes.decode(key)] = json.loads(val)
-        if obj[bytes.decode(key)] == TRUE:
-            obj[bytes.decode(key)] = True
-        if obj[bytes.decode(key)] == FALSE:
-            obj[bytes.decode(key)] = False
-    return obj
-
-
-class KolibriZeroconfListener(object):
-
-    instances = {}
-
-    def add_service(self, zeroconf, type, name):
-        timeout = 10000
-        info = zeroconf.get_service_info(type, name, timeout=timeout)
-        if info is None:
-            logger.warn(
-                "Zeroconf network service information could not be retrieved within {} seconds".format(
-                    str(timeout / 1000.0)
-                )
-            )
-            return
-        id = _id_from_name(name)
-        ip = socket.inet_ntoa(info.address)
-
-        base_url = "http://{ip}:{port}/".format(ip=ip, port=info.port)
-
-        zeroconf_service = ZEROCONF_STATE.get("service")
-        is_self = zeroconf_service and zeroconf_service.id == id
-
-        instance = {
-            "id": id,
-            "ip": ip,
-            "local": ip in get_all_addresses(),
-            "port": info.port,
-            "host": info.server.strip("."),
-            "base_url": base_url,
-            "self": is_self,
-        }
-
-        device_info = parse_device_info(info)
-
-        instance.update(device_info)
-        self.instances[id] = instance
-
-        if not is_self:
-
-            logger.info(
-                "Kolibri instance '%s' joined zeroconf network; service info: %s"
-                % (id, self.instances[id])
-            )
-
-            db_locked = self.store_service(id, base_url, device_info)
-
-            if get_device_setting(
-                "subset_of_users_device", False
-            ) and not device_info.get("subset_of_users_device", False):
-                server = base_url[:-1]  # removes ending slash
-                for user in FacilityUser.objects.all().values("id"):
-                    begin_request_soud_sync(server=server, user=user["id"])
-
-            attempts = 0
-            while db_locked and attempts < 5:
-                db_locked = self.store_service(id, base_url, device_info)
-                attempts += 1
-                time.sleep(0.1)
-
-    def store_service(self, id, base_url, device_info):
+    def _store_instance(self, instance):
         db_locked = False
+        logger.debug(
+            "Creating `DynamicNetworkLocation` for instance {}".format(instance.id)
+        )
         try:
-
             DynamicNetworkLocation.objects.update_or_create(
-                dict(base_url=base_url, **device_info), id=id
+                dict(base_url=instance.base_url, **instance.device_info),
+                pk=instance.zeroconf_id,
             )
-
         except ValidationError:
             import traceback
 
-            logger.warn(
+            logger.warning(
                 """
                     A new Kolibri instance '%s' was seen on the zeroconf network,
                     but we had trouble getting the information we needed about it.
-                    Service info:
+                    Device info:
                     %s
                     The following exception was raised:
                     %s
                     """
-                % (id, self.instances[id], traceback.format_exc(limit=1))
+                % (
+                    instance.zeroconf_id,
+                    instance.device_info,
+                    traceback.format_exc(limit=1),
+                )
             )
         except OperationalError as e:
             if "database is locked" not in str(e):
                 raise
+            logger.debug(
+                "Encountered locked database while creating `DynamicNetworkLocation`"
+            )
             db_locked = True
         finally:
             connection.close()
         return db_locked
 
-    def remove_service(self, zeroconf, type, name):
-        id = _id_from_name(name)
-        logger.info("Kolibri instance '%s' has left the zeroconf network." % (id,))
 
-        try:
-            if id in self.instances:
-                del self.instances[id]
-        except KeyError:
-            pass
+class SoUDClientListener(KolibriInstanceListener):
+    """
+    Listener that subscribes to events when our instance is a SoUD
+    """
 
-        DynamicNetworkLocation.objects.filter(pk=id).delete()
-        connection.close()
+    def _get_user_ids(self):
+        return FacilityUser.objects.all().values_list("id", flat=True)
 
+    def register_instance(self, instance):
+        """
+        When our instance is registered, we can pull out device information about ourselves
+        """
+        if not instance.device_info.get("subset_of_users_device", False):
+            # if we're not SoUD, just unsubscribe
+            self.partial_unsubscribe(NETWORK_EVENTS)
 
-def register_zeroconf_service(port):
-    device_info = get_device_info()
-    DynamicNetworkLocation.objects.all().delete()
-    connection.close()
+    def renew_instance(self, instance):
+        """
+        When our instance is renewed, it means we're updating the network with new information
+        which could include a change in our SoUD status
+        """
+        if instance.device_info.get("subset_of_users_device", False):
+            # when we weren't a SoUD but we are now, start requesting sync from all cached instances
+            for other_instance in self.broadcast.other_instances.values():
+                if other_instance.is_broadcasting:
+                    self.add_instance(other_instance)
+            self.partial_subscribe(NETWORK_EVENTS)
+        else:
+            self.partial_unsubscribe(NETWORK_EVENTS)
 
-    id = device_info.get("instance_id")
+    def unregister_instance(self, instance):
+        """
+        When our local instance has been unregistered from the network, we can stop our requests
+        for sync
+        """
+        if instance.device_info.get("subset_of_users_device", False):
+            for other_instance in self.broadcast.other_instances.values():
+                self.remove_instance(other_instance)
 
-    if ZEROCONF_STATE["service"] is not None:
-        unregister_zeroconf_service()
+    def add_instance(self, instance):
+        """
+        When a network instance is removed, if it wasn't a SoUD, we stop sync requests for it
+        """
+        if not instance.device_info.get("subset_of_users_device", False):
+            for user_id in self._get_user_ids():
+                begin_request_soud_sync(instance.base_url, user_id)
 
-    logger.info(
-        "Registering ourselves to zeroconf network with id '{}' and port '{}'".format(
-            id, port
-        )
-    )
-    data = device_info
-    ZEROCONF_STATE["service"] = KolibriZeroconfService(id=id, port=port, data=data)
-    ZEROCONF_STATE["service"].register()
+    def update_instance(self, instance):
+        """
+        When a network instance is updated, triggering removal and addition
+        """
+        self.remove_instance(instance)
+        self.add_instance(instance)
 
-
-def unregister_zeroconf_service():
-    if ZEROCONF_STATE["service"] is not None:
-        ZEROCONF_STATE["service"].cleanup()
-    ZEROCONF_STATE["service"] = None
-    if ZEROCONF_STATE["zeroconf"] is not None:
-        ZEROCONF_STATE["zeroconf"].close()
-
-
-def initialize_zeroconf_listener():
-    ZEROCONF_STATE["zeroconf"] = Zeroconf()
-    ZEROCONF_STATE["listener"] = KolibriZeroconfListener()
-    ZEROCONF_STATE["zeroconf"].add_service_listener(
-        SERVICE_TYPE, ZEROCONF_STATE["listener"]
-    )
-    ZEROCONF_STATE["addresses"] = set(get_all_addresses())
-
-
-def reinitialize_zeroconf_if_network_has_changed():
-    if ZEROCONF_STATE["addresses"] == set(get_all_addresses()):
-        return
-    if ZEROCONF_STATE["listener"] is None:
-        initialize_zeroconf_listener()
-        return
-    logger.info(
-        "New addresses detected since zeroconf was initialized, re-initializing now"
-    )
-    if ZEROCONF_STATE["zeroconf"] is not None:
-        ZEROCONF_STATE["zeroconf"].close()
-    ZEROCONF_STATE["zeroconf"] = Zeroconf()
-    ZEROCONF_STATE["zeroconf"].add_service_listener(
-        SERVICE_TYPE, ZEROCONF_STATE["listener"]
-    )
-    ZEROCONF_STATE["addresses"] = set(get_all_addresses())
-    logger.info("Zeroconf has reinitialized")
+    def remove_instance(self, instance):
+        """
+        When a network instance is removed, if it wasn't a SoUD, we stop sync requests for it
+        """
+        if not instance.device_info.get("subset_of_users_device", False):
+            for user_id in self._get_user_ids():
+                stop_request_soud_sync(instance.base_url, user_id)
 
 
-def get_peer_instances():
-    try:
-        return ZEROCONF_STATE["listener"].instances.values()
-    except AttributeError:
-        return []
+class SoUDServerListener(KolibriInstanceListener):
+    """
+    Listener that subscribes to events when our instance is NOT a SoUD
+    """
+
+    def register_instance(self, instance):
+        """
+        Upon registering ourselves, we can decide what events we really need to listen to
+        """
+        if instance.device_info.get("subset_of_users_device", False):
+            self.partial_unsubscribe(NETWORK_EVENTS)
+
+    def renew_instance(self, instance):
+        """
+        When the instance is renewed, device info may have changed, so we make sure our event
+        subscription aligns with device state
+        """
+        if instance.device_info.get("subset_of_users_device", False):
+            # if we're a SoUD, then we can unsubscribe
+            self.partial_unsubscribe(NETWORK_EVENTS)
+        else:
+            self.partial_subscribe(NETWORK_EVENTS)
+
+    def remove_instance(self, instance):
+        """
+        When a network instance is removed, if it was a SoUD, we trigger cleanup
+        """
+        if instance.device_info.get("subset_of_users_device", False):
+            logger.debug("SoUD listener: triggering cleanup of SoUD sync")
+            queue_soud_server_sync_cleanup(instance.ip)

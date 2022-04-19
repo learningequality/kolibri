@@ -1,7 +1,7 @@
 <template>
 
   <CoreBase
-    :immersivePage="true"
+    :immersivePage="getUserPermissions.can_manage_content"
     immersivePageIcon="close"
     :immersivePagePrimary="false"
     :immersivePageRoute="exitButtonRoute"
@@ -12,55 +12,88 @@
   >
 
     <KPageContainer>
-      <h1>
+      <h1 v-if="showChannels">
         {{ $tr('documentTitle', { lessonName: currentLesson.title }) }}
       </h1>
+      <div v-if="!showChannels">
+        <ContentCardList
+          :contentList="bookmarksContentList"
+          :showSelectAll="selectAllIsVisible"
+          :selectAllChecked="addableContent.length === 0"
+          :contentCardLink="bookmarkLink"
+          :contentIsChecked="contentIsInLesson"
+          :contentHasCheckbox="c => !contentIsDirectoryKind(c)"
+          :viewMoreButtonState="viewMoreButtonState"
+          :contentCardMessage="selectionMetadata"
+          @changeselectall="toggleTopicInWorkingResources"
+          @change_content_card="toggleSelected"
+          @moreresults="handleMoreResults"
+        />
+      </div>
+      <div v-else>
+        <div @click="lessonCardClicked">
+          <KRouterLink
+            v-if="bookmarksCount"
+            :appearanceOverrides="{
+              width: '100%',
+              textDecoration: 'none',
+              color: $themeTokens.text }"
+            :to="getBookmarksLink()"
+          >
+            <div :class="windowIsSmall ? 'mobile-bookmark-container' : 'bookmark-container'">
+              <BookmarkIcon :class="windowIsSmall ? 'mobile-bookmark-icon' : ''" />
+              <div :class="windowIsSmall ? 'mobile-text' : 'text'">
+                <h3>{{ coreString('bookmarksLabel') }}</h3>
+                <p>{{ $tr('resources', { count: bookmarksCount }) }}</p>
+              </div>
+            </div>
+          </KRouterLink>
+        </div>
+        <KGrid>
+          <KGridItem :layout12="{ span: 6 }">
+            <LessonsSearchBox @searchterm="handleSearchTerm" />
+          </KGridItem>
 
-      <KGrid>
-        <KGridItem :layout12="{ span: 6 }">
-          <LessonsSearchBox @searchterm="handleSearchTerm" />
-        </KGridItem>
+          <KGridItem :layout12="{ span: 6, alignment: 'right' }">
+            <p>
+              {{ $tr('totalResourcesSelected', { total: workingResources.length }) }}
+            </p>
+          </KGridItem>
+        </KGrid>
 
-        <KGridItem :layout12="{ span: 6, alignment: 'right' }">
-          <p>
-            {{ $tr('totalResourcesSelected', { total: workingResources.length }) }}
-          </p>
-        </KGridItem>
-      </KGrid>
+        <LessonsSearchFilters
+          v-if="inSearchMode"
+          v-model="filters"
+          class="search-filters"
+          :searchTerm="searchTerm"
+          :searchResults="searchResults"
+        />
 
-      <LessonsSearchFilters
-        v-if="inSearchMode"
-        v-model="filters"
-        class="search-filters"
-        :searchTerm="searchTerm"
-        :searchResults="searchResults"
-      />
+        <ResourceSelectionBreadcrumbs
+          v-if="!inSearchMode"
+          :ancestors="ancestors"
+          :channelsLink="channelsLink"
+          :topicsLink="topicsLink"
+        />
 
-      <ResourceSelectionBreadcrumbs
-        v-if="!inSearchMode"
-        :ancestors="ancestors"
-        :channelsLink="channelsLink"
-        :topicsLink="topicsLink"
-      />
+        <h2>{{ topicTitle }}</h2>
+        <p>{{ topicDescription }}</p>
 
-      <h2>{{ topicTitle }}</h2>
-      <p>{{ topicDescription }}</p>
-
-      <ContentCardList
-        v-if="!isExiting"
-        :contentList="filteredContentList"
-        :showSelectAll="selectAllIsVisible"
-        :viewMoreButtonState="viewMoreButtonState"
-        :selectAllChecked="addableContent.length === 0"
-        :contentIsChecked="contentIsInLesson"
-        :contentHasCheckbox="c => !contentIsDirectoryKind(c)"
-        :contentCardMessage="selectionMetadata"
-        :contentCardLink="contentLink"
-        @changeselectall="toggleTopicInWorkingResources"
-        @change_content_card="toggleSelected"
-        @moreresults="handleMoreResults"
-      />
-
+        <ContentCardList
+          v-if="!isExiting"
+          :contentList="filteredContentList"
+          :showSelectAll="selectAllIsVisible"
+          :viewMoreButtonState="viewMoreButtonState"
+          :selectAllChecked="addableContent.length === 0"
+          :contentIsChecked="contentIsInLesson"
+          :contentHasCheckbox="c => !contentIsDirectoryKind(c)"
+          :contentCardMessage="selectionMetadata"
+          :contentCardLink="contentLink"
+          @changeselectall="toggleTopicInWorkingResources"
+          @change_content_card="toggleSelected"
+          @moreresults="handleMoreResults"
+        />
+      </div>
     </KPageContainer>
 
     <BottomAppBar>
@@ -86,12 +119,15 @@
   import pickBy from 'lodash/pickBy';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoach from '../../common';
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
+  import { BookmarksResource } from '../../../../../../../../kolibri/core/assets/src/api-resources/index.js';
   import LessonsSearchBox from './SearchTools/LessonsSearchBox';
   import LessonsSearchFilters from './SearchTools/LessonsSearchFilters';
   import ResourceSelectionBreadcrumbs from './SearchTools/ResourceSelectionBreadcrumbs';
   import ContentCardList from './ContentCardList';
+  import BookmarkIcon from './LessonContentCard/BookmarkIcon';
 
   export default {
     // this is inaccurately named because it applies to exams also
@@ -107,8 +143,9 @@
       LessonsSearchBox,
       ResourceSelectionBreadcrumbs,
       BottomAppBar,
+      BookmarkIcon,
     },
-    mixins: [commonCoach, commonCoreStrings],
+    mixins: [commonCoach, commonCoreStrings, responsiveWindowMixin],
     data() {
       return {
         // null corresponds to 'All' filter value
@@ -120,6 +157,8 @@
         isExiting: false,
         moreResultsState: null,
         resourcesChanged: false,
+        bookmarksCount: 0,
+        showChannels: true,
       };
     },
     computed: {
@@ -129,10 +168,12 @@
       ...mapState('lessonSummary/resources', [
         'ancestorCounts',
         'contentList',
+        'bookmarksList',
         'searchResults',
         'ancestors',
       ]),
       ...mapGetters('lessonSummary/resources', ['numRemainingSearchResults']),
+      ...mapGetters(['getUserPermissions']),
       toolbarRoute() {
         if (this.$route.query.last) {
           return this.$router.getRoute(this.$route.query.last);
@@ -142,12 +183,16 @@
       pageTitle() {
         return this.$tr('documentTitle', { lessonName: this.currentLesson.title });
       },
+      bookmarksContentList() {
+        return this.bookmarksList ? this.bookmarksList : [];
+      },
       filteredContentList() {
         const { role } = this.filters;
         if (!this.inSearchMode) {
           return this.contentList;
         }
-        return this.contentList.filter(contentNode => {
+        const list = this.contentList ? this.contentList : this.bookmarksList;
+        return list.filter(contentNode => {
           let passesFilters = true;
           if (role === 'nonCoach') {
             passesFilters = passesFilters && contentNode.num_coach_contents === 0;
@@ -168,7 +213,10 @@
         return this.$route.params.searchTerm || '';
       },
       routerParams() {
-        return { classId: this.classId, lessonId: this.lessonId };
+        return {
+          classId: this.classId,
+          lessonId: this.lessonId ? this.lessonId : this.$route.params.lessonId,
+        };
       },
       debouncedSaveResources() {
         return debounce(this.saveResources, 1000);
@@ -197,7 +245,8 @@
       },
       addableContent() {
         // Content in the topic that can be added if 'Select All' is clicked
-        return this.contentList.filter(
+        const list = this.contentList ? this.contentList : this.bookmarksList;
+        return list.filter(
           content => !this.contentIsDirectoryKind(content) && !this.contentIsInLesson(content)
         );
       },
@@ -290,6 +339,11 @@
           });
       }
     },
+    created() {
+      this.getBookmarks().then(count => {
+        this.bookmarksCount = count;
+      });
+    },
     methods: {
       ...mapActions(['createSnackbar', 'clearSnackbar']),
       ...mapActions('lessonSummary', ['saveLessonResources', 'addToResourceCache']),
@@ -298,6 +352,19 @@
         addToWorkingResources: 'ADD_TO_WORKING_RESOURCES',
         removeFromSelectedResources: 'REMOVE_FROM_WORKING_RESOURCES',
       }),
+      getBookmarks() {
+        return BookmarksResource.fetchCollection().then(bookmarks => {
+          return bookmarks.length;
+        });
+      },
+      getBookmarksLink() {
+        return {
+          name: LessonsPageNames.LESSON_SELECTION_BOOKMARKS_MAIN,
+        };
+      },
+      lessonCardClicked() {
+        this.showChannels = false;
+      },
       showResourcesDifferenceMessage(difference) {
         if (difference === 0) {
           return;
@@ -310,7 +377,7 @@
         }
       },
       showResourcesChangedError() {
-        this.createSnackbar(this.$tr('resourcesChangedErrorSnackbarText'));
+        this.createSnackbar(this.coachString('saveLessonError'));
       },
       toggleTopicInWorkingResources(isChecked) {
         if (isChecked) {
@@ -325,8 +392,10 @@
         }
       },
       addToSelectedResources(content) {
+        const list =
+          this.contentList && this.contentList.length ? this.contentList : this.bookmarksList;
         this.addToResourceCache({
-          node: this.contentList.find(n => n.id === content.id),
+          node: list.find(n => n.id === content.id),
         });
         this.addToWorkingResources([content]);
       },
@@ -338,6 +407,32 @@
       },
       topicListingLink({ topicId }) {
         return this.$router.getRoute(LessonsPageNames.SELECTION, { topicId }, this.$route.query);
+      },
+      bookmarkListingLink({ topicId }) {
+        return this.$router.getRoute(
+          LessonsPageNames.LESSON_SELECTION_BOOKMARKS,
+          { topicId },
+          this.$route.query
+        );
+      },
+      bookmarkLink(content) {
+        if (this.contentIsDirectoryKind(content)) {
+          return this.bookmarkListingLink({ ...this.routerParams, topicId: content.id });
+        }
+        const { query } = this.$route;
+        return {
+          name: LessonsPageNames.SELECTION_CONTENT_PREVIEW,
+          params: {
+            ...this.routerParams,
+            contentId: content.id,
+          },
+          query: {
+            ...query,
+            ...pickBy({
+              searchTerm: this.$route.params.searchTerm,
+            }),
+          },
+        };
       },
       contentLink(content) {
         if (this.contentIsDirectoryKind(content)) {
@@ -422,11 +517,16 @@
       },
     },
     $trs: {
+      resources: {
+        message: '{count} {count, plural, one {resource} other {resources}}',
+        context: "Only translate 'resource' and 'resources'.",
+      },
       selectionInformation: {
         message:
-          '{count, number, integer} of {total, number, integer} {total, plural, one {resource} other {resources}} selected',
+          '{count, number, integer} of {total, number, integer} {total, plural, one {resource selected} other {resources selected}}',
+
         context:
-          "Indicates the amount of resources selected for a lesson in the 'Manage lesson resources' section.",
+          "Indicates the amount of resources selected for a lesson in the 'Manage lesson resources' section.\n\nFor example: '7 of 10 resources selected'.",
       },
       totalResourcesSelected: {
         message:
@@ -438,10 +538,6 @@
         message: `Manage resources in '{lessonName}'`,
         context:
           "Title of window that displays when the user clicks on the 'manage resources' button within an individual lesson.\n\nOn this page the user can add new learning resources to the lesson.",
-      },
-      resourcesChangedErrorSnackbarText: {
-        message: 'There was a problem updating this lesson',
-        context: 'Error message.',
       },
       saveBeforeExitSnackbarText: {
         message: 'Saving your changes…',
@@ -465,8 +561,54 @@
 
 <style lang="scss" scoped>
 
+  @import '~kolibri-design-system/lib/styles/definitions';
+
   .search-filters {
     margin-top: 24px;
+  }
+
+  .bookmark-container {
+    display: flex;
+    min-height: 141px;
+    margin-bottom: 24px;
+    border-radius: 2px;
+    box-shadow: 0 1px 5px 0 #a1a1a1, 0 2px 2px 0 #e6e6e6, 0 3px 1px -2px #ffffff;
+    transition: box-shadow 0.25s ease;
+  }
+
+  .mobile-bookmark-container {
+    @extend %dropshadow-2dp;
+
+    display: flex;
+    max-width: 100%;
+    min-height: 141px;
+    margin: auto;
+    margin-bottom: 24px;
+    border-radius: 2px;
+
+    .ease:hover {
+      @extend %dropshadow-8dp;
+      @extend %md-decelerate-func;
+
+      transition: all $core-time;
+    }
+  }
+
+  .mobile-bookmark-icon {
+    left: 24px !important;
+  }
+
+  .mobile-text {
+    margin-top: 20px;
+    margin-left: 60px;
+  }
+
+  .bookmark-container:hover {
+    box-shadow: 0 5px 5px -3px #a1a1a1, 0 8px 10px 1px #d1d1d1, 0 3px 14px 2px #d4d4d4;
+  }
+
+  .text {
+    margin-left: 15rem;
   }
 
 </style>

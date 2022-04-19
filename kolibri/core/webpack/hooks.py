@@ -22,6 +22,7 @@ from functools import partial
 from django.conf import settings
 from django.contrib.staticfiles.finders import find as find_staticfiles
 from django.contrib.staticfiles.storage import staticfiles_storage
+from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.functional import cached_property
 from django.utils.safestring import mark_safe
 from django.utils.six.moves.urllib.request import url2pathname
@@ -51,8 +52,7 @@ def filter_by_bidi(bidi, chunk):
         return True
     if bidi:
         return chunk["name"].split(".")[-2] == "rtl"
-    else:
-        return chunk["name"].split(".")[-2] != "rtl"
+    return chunk["name"].split(".")[-2] != "rtl"
 
 
 @hooks.define_hook
@@ -68,10 +68,6 @@ class WebpackBundleHook(hooks.KolibriHook):
     @abstractproperty
     def bundle_id(self):
         pass
-
-    # : When being included for synchronous loading, should the source files
-    # : for this be inlined?
-    inline = False
 
     # : A mapping of key to JSON serializable value.
     # : This plugin_data will be bootstrapped into a global object on window
@@ -123,7 +119,6 @@ class WebpackBundleHook(hooks.KolibriHook):
 
         stats_file_content = {
             "files": stats.get("chunks", {}).get(self.unique_id, []),
-            "hasMessages": stats.get("messages", False),
         }
 
         return stats_file_content
@@ -137,7 +132,7 @@ class WebpackBundleHook(hooks.KolibriHook):
         for f in self._stats_file_content["files"]:
             filename = f["name"]
             if not getattr(settings, "DEVELOPER_MODE", False):
-                if any(list(regex.match(filename) for regex in IGNORE_PATTERNS)):
+                if any(regex.match(filename) for regex in IGNORE_PATTERNS):
                     continue
             relpath = "{0}/{1}".format(self.unique_id, filename)
             if getattr(settings, "DEVELOPER_MODE", False):
@@ -173,16 +168,11 @@ class WebpackBundleHook(hooks.KolibriHook):
         An auto-generated path to where the build-time files are stored,
         containing information about the built bundles.
         """
-        return os.path.join(
-            self._build_path, "{plugin}_stats.json".format(plugin=self.unique_id)
+        return os.path.abspath(
+            os.path.join(
+                self._build_path, "{plugin}_stats.json".format(plugin=self.unique_id)
+            )
         )
-
-    @property
-    def _module_file_path(self):
-        """
-        Returns the path of the class inheriting this classmethod.
-        """
-        return os.path.dirname(self._build_path)
 
     def frontend_message_file(self, lang_code):
         message_file_name = "{name}-messages.json".format(name=self.unique_id)
@@ -211,45 +201,20 @@ class WebpackBundleHook(hooks.KolibriHook):
     def js_and_css_tags(self):
         js_tag = '<script type="text/javascript" src="{url}"></script>'
         css_tag = '<link type="text/css" href="{url}" rel="stylesheet"/>'
-        inline_js_tag = '<script type="text/javascript">{src}</script>'
-        inline_css_tag = "<style>{src}</style>"
         # Sorted to load css before js
         for chunk in self.sorted_chunks():
-            src = None
             if chunk["name"].endswith(".js"):
-                if self.inline:
-                    # During development, we do not write built files to disk
-                    # Because of this, this call might return None
-                    src = self.get_filecontent(chunk["url"])
-                if src is not None:
-                    # If it is not None, then we can inline it
-                    yield inline_js_tag.format(src=src)
-                else:
-                    # If src is None, either this is not something we should be inlining
-                    # or we are in development mode and need to fetch the file from the
-                    # development server, not the disk
-                    yield js_tag.format(url=chunk["url"])
+                yield js_tag.format(url=chunk["url"])
             elif chunk["name"].endswith(".css"):
-                if self.inline:
-                    # During development, we do not write built files to disk
-                    # Because of this, this call might return None
-                    src = self.get_filecontent(chunk["url"])
-                if src is not None:
-                    # If it is not None, then we can inline it
-                    yield inline_css_tag.format(src=src)
-                else:
-                    # If src is None, either this is not something we should be inlining
-                    # or we are in development mode and need to fetch the file from the
-                    # development server, not the disk
-                    yield css_tag.format(url=chunk["url"])
+                yield css_tag.format(url=chunk["url"])
 
     def frontend_message_tag(self):
         if self.frontend_messages():
             return [
                 """
-                <script>
-                    {kolibri_name}.registerLanguageAssets('{bundle}', '{lang_code}', JSON.parse({messages}));
-                </script>""".format(
+                        <script>
+                            {kolibri_name}.registerLanguageAssets('{bundle}', '{lang_code}', JSON.parse({messages}));
+                        </script>""".format(
                     kolibri_name="kolibriCoreAppGlobal",
                     bundle=self.unique_id,
                     lang_code=get_language(),
@@ -262,29 +227,30 @@ class WebpackBundleHook(hooks.KolibriHook):
                     ),
                 )
             ]
-        else:
-            return []
+        return []
 
     def plugin_data_tag(self):
         if self.plugin_data:
             return [
                 """
-                <script>
-                    window['{name}'] = window['{name}'] || {{}};
-                    window['{name}']['{bundle}'] = JSON.parse({plugin_data});
-                </script>
-                """.format(
+                        <script>
+                            window['{name}'] = window['{name}'] || {{}};
+                            window['{name}']['{bundle}'] = JSON.parse({plugin_data});
+                        </script>
+                        """.format(
                     name="kolibriPluginDataGlobal",
                     bundle=self.unique_id,
                     plugin_data=json.dumps(
                         json.dumps(
-                            self.plugin_data, separators=(",", ":"), ensure_ascii=False
+                            self.plugin_data,
+                            separators=(",", ":"),
+                            ensure_ascii=False,
+                            cls=DjangoJSONEncoder,
                         )
                     ),
                 )
             ]
-        else:
-            return []
+        return []
 
     def get_basename(self, url):
         """

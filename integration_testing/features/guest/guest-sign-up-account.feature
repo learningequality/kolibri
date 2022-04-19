@@ -16,11 +16,11 @@ Feature: Guest signs up for an account
     Then I am on *Step 2 of 2 > Create an account* page
     When I select my gender and birth year if I so chose
       And I click the *Finish* button
-    Then I am signed in and I can see the *Learn > Channels* page
+    Then I am signed in and I can see the *Learn > Home* page
 
   Scenario: Accounts created on *Create an account* page do not see a notification to update profile
     Given I completed the account creation workflow
-    When I am redirected to the *Learn* page
+    When I am redirected to the *Learn > Home* page
     Then I don't see the *Update your profile* modal
 
   Scenario: Username is already taken

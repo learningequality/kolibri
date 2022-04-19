@@ -26,7 +26,7 @@
             while the above <KSelect> is hidden
         -->
         <div>&nbsp;</div>
-        <KButtonGroup>
+        <KButtonGroup v-if="practiceQuizzesExist">
           <KDropdownMenu
             appearance="raised-button"
             :primary="true"
@@ -36,6 +36,13 @@
             @select="handleSelect"
           />
         </KButtonGroup>
+        <KRouterLink
+          v-else
+          :primary="true"
+          appearance="raised-button"
+          :to="newExamRoute"
+          :text="coachString('newQuizAction')"
+        />
       </div>
       <CoreTable>
         <template #headers>
@@ -96,7 +103,7 @@
       <p v-if="!exams.length">
         {{ $tr('noExams') }}
       </p>
-      <p
+      <!--       <p
         v-else-if="statusSelected.value === coachString('activeQuizzesLabel') &&
           !activeExams.length"
       >
@@ -107,7 +114,7 @@
           !inactiveExams.length"
       >
         {{ $tr('noInactiveExams') }}
-      </p>
+      </p> -->
 
       <!-- Modals for Close & Open of quiz from right-most column -->
       <KModal
@@ -145,6 +152,7 @@
   import { PageNames } from '../../../constants';
   import commonCoach from '../../common';
   import PlanHeader from '../../plan/PlanHeader';
+  import plugin_data from 'plugin_data';
 
   export default {
     name: 'CoachExamsPage',
@@ -160,10 +168,10 @@
     mixins: [commonCoach, commonCoreStrings],
     data() {
       return {
-        statusSelected: {
-          label: this.coachString('allQuizzesLabel'),
-          value: this.coachString('allQuizzesLabel'),
-        },
+        // statusSelected: {
+        //   label: this.coachString('allQuizzesLabel'),
+        //   value: this.coachString('allQuizzesLabel'),
+        // },
         showOpenConfirmationModal: false,
         showCloseConfirmationModal: false,
       };
@@ -171,6 +179,9 @@
     computed: {
       sortedExams() {
         return this._.orderBy(this.exams, ['date_created'], ['desc']);
+      },
+      practiceQuizzesExist() {
+        return plugin_data.practice_quizzes_exist;
       },
       // Hidden temporarily per https://github.com/learningequality/kolibri/issues/6174
       // Uncomment this once we use the filters again.
@@ -192,20 +203,23 @@
         ];
       },
       */
-      activeExams() {
-        return this.sortedExams.filter(exam => exam.active === true);
-      },
-      inactiveExams() {
-        return this.sortedExams.filter(exam => exam.active === false);
-      },
+      // activeExams() {
+      //   return this.sortedExams.filter(exam => exam.active === true);
+      // },
+      // inactiveExams() {
+      //   return this.sortedExams.filter(exam => exam.active === false);
+      // },
       filteredExams() {
-        const filter = this.statusSelected.label;
-        if (filter === this.coachString('activeQuizzesLabel')) {
-          return this.activeExams;
-        } else if (filter === this.coachString('inactiveQuizzesLabel')) {
-          return this.inactiveExams;
-        }
+        // const filter = this.statusSelected.label;
+        // if (filter === this.coachString('activeQuizzesLabel')) {
+        //   return this.activeExams;
+        // } else if (filter === this.coachString('inactiveQuizzesLabel')) {
+        //   return this.inactiveExams;
+        // }
         return this.sortedExams;
+      },
+      newExamRoute() {
+        return { name: PageNames.EXAM_CREATION_ROOT };
       },
       dropdownOptions() {
         return [
@@ -258,7 +272,7 @@
       handleSelect({ value }) {
         const nextRoute = {
           MAKE_NEW_QUIZ: PageNames.EXAM_CREATION_ROOT,
-          SELECT_QUIZ: PageNames.EXAM_CREATION_CHANNEL_QUIZ,
+          SELECT_QUIZ: PageNames.EXAM_CREATION_PRACTICE_QUIZ,
         }[value];
         this.$router.push(this.$router.getRoute(nextRoute));
       },
@@ -266,12 +280,25 @@
     $trs: {
       noExams: {
         message: 'You do not have any quizzes',
-        context: 'CoachExamsPage.noExams\n\n-- CONTEXT --',
+        context: 'Message displayed when there are no quizzes within a class.',
       },
-      noActiveExams: 'No active quizzes',
-      noInactiveExams: 'No inactive quizzes',
-      newQuiz: 'Create new quiz',
-      selectQuiz: 'Select channel quiz',
+      // noActiveExams: 'No active quizzes',
+      // noInactiveExams: {
+      //   message: 'No inactive quizzes',
+      //   context:
+      //     "Inactive quizzes are ones that are no longer in progress.
+      //     When the coach presses the 'End quiz' button, the quiz
+      //passes from 'active' to 'inactive'.",
+      // },
+      newQuiz: {
+        message: 'Create new quiz',
+        context: "Title of the screen launched from the 'New quiz' button on the 'Plan' tab.\n",
+      },
+      selectQuiz: {
+        message: 'Select quiz',
+        context:
+          "Practice quizzes are pre-made quizzes, that don't require the curation work on the part of the coach. Selecting a practice quiz refers to importing a ready-to-use quiz.",
+      },
     },
   };
 
@@ -284,6 +311,7 @@
     display: flex;
     flex-wrap: wrap-reverse;
     justify-content: space-between;
+
     button {
       align-self: flex-end;
     }

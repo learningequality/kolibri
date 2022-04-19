@@ -93,7 +93,7 @@
       v-if="multipleMode"
       objectType="channel"
       actionType="import"
-      :disabled="disableBottomBar || selectedChannels.length === 0"
+      :disabled="disableBottomBar || selectedChannels.length === 0 || notEnoughFreeSpace"
       :selectedObjects="selectedChannels"
       :fileSize.sync="fileSize"
       @clickconfirm="handleClickConfirm"
@@ -126,6 +126,7 @@
   import ChannelTokenModal from './ChannelTokenModal';
   import ChannelUpdateModal from './ChannelUpdateModal';
   import { getFreeSpaceOnServer } from './api';
+  import plugin_data from 'plugin_data';
 
   export default {
     name: 'AvailableChannelsPage',
@@ -154,6 +155,7 @@
         freeSpace: null,
         disableBottomBar: false,
         disableModal: false,
+        remoteContentEnabled: plugin_data.isRemoteContent,
       };
     },
     computed: {
@@ -235,8 +237,15 @@
         return this.channelsAreAvailable && (this.inRemoteImportMode || this.isStudioApplication);
       },
       notEnoughFreeSpace() {
+        // if the REMOTE_CONTENT option is true, we should not be submitting disk space issues
+        if (this.remoteContentEnabled) {
+          return false;
+        }
         if (this.freeSpace === null) {
           return false;
+        }
+        if (this.freeSpace === 0) {
+          return true;
         }
         return this.freeSpace < this.fileSize;
       },
@@ -246,6 +255,9 @@
       transferType(val) {
         this.setAppBarTitle(this.toolbarTitle(val));
       },
+    },
+    created() {
+      this.setFreeSpace();
     },
     beforeMount() {
       this.$store.commit('coreBase/SET_QUERY', this.$route.query);
@@ -334,8 +346,7 @@
           this.selectedChannels,
           c => c.installed_version < c.latest_version
         );
-        getFreeSpaceOnServer().then(({ freeSpace }) => {
-          this.freeSpace = freeSpace;
+        this.setFreeSpace().then(() => {
           if (this.notEnoughFreeSpace) {
             this.createTaskFailedSnackbar();
             this.disableBottomBar = false;
@@ -346,6 +357,11 @@
               this.startMultipleChannelImport();
             }
           }
+        });
+      },
+      setFreeSpace() {
+        return getFreeSpaceOnServer().then(({ freeSpace }) => {
+          this.freeSpace = freeSpace;
         });
       },
       handleConfirmUpgrade() {
@@ -437,19 +453,19 @@
       selectEntireChannels: {
         message: 'Select entire channels instead',
         context:
-          '\nAllow the user to select entire channels instead of individual topics/resources within a channel',
+          'Allow the user to select entire channels instead of individual topics/resources within a channel.',
       },
       selectTopicsAndResources: {
-        message: 'Select topics and resources instead',
+        message: 'Select folders and resources instead',
         context:
-          '\nAllow the user to select individual topics/resources within a channel instead of entire channels',
+          'Option to allow the user to select individual folders/resources within a channel instead of importing entire channels.',
       },
       notEnoughSpaceForChannelsWarning: {
         message:
           'Not enough space available on your device. Free up disk space or select fewer resources',
 
         context:
-          '\nWarning that appears when there is not enough space on the user’s device for the selected resources',
+          'Warning that appears when there is not enough space on the user’s device for the selected resources',
       },
     },
   };

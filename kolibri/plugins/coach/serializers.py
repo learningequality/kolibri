@@ -45,6 +45,5 @@ class LessonReportSerializer(serializers.ModelSerializer):
         # If no logs for the Content Item,
         if completed_content_logs.count() == 0:
             return response
-        else:
-            response["num_learners_completed"] = completed_content_logs[0]["total"]
-            return response
+        response["num_learners_completed"] = completed_content_logs[0]["total"]
+        return response

@@ -11,6 +11,7 @@ import {
   questionRootRedirectHandler,
 } from '../modules/questionDetail/handlers';
 import { generateQuestionListHandler } from '../modules/questionList/handlers';
+import { generateResourceHandler } from '../modules/resourceDetail/handlers';
 import LessonEditDetailsPage from '../views/plan/LessonEditDetailsPage';
 import QuizEditDetailsPage from '../views/plan/QuizEditDetailsPage';
 
@@ -26,7 +27,7 @@ const QUIZZES = '/quizzes';
 const QUIZ = '/quizzes/:quizId';
 const QUESTIONS = '/questions';
 const QUESTION = '/questions/:questionId';
-const ATTEMPT = '/attempts/:attemptId';
+const TRY = '/try/:tryIndex';
 const INTERACTION = '/interactions/:interactionIndex';
 const EXERCISE = '/exercises/:exerciseId';
 const RESOURCES = '/resources';
@@ -71,9 +72,17 @@ export default [
     },
   },
   {
+    path: path(CLASS, GROUP, LESSON, LEARNER),
+    component: pages.ReportsGroupReportLessonLearnerPage,
+    handler: defaultHandler,
+    meta: {
+      titleParts: ['learnersLabel', 'LESSON_NAME', 'GROUP_NAME', 'CLASS_NAME'],
+    },
+  },
+  {
     path: path(CLASS, GROUP, LESSON, EXERCISE, LEARNERS),
     component: pages.ReportsGroupReportLessonExerciseLearnerListPage,
-    handler: defaultHandler,
+    handler: generateResourceHandler(['exerciseId']),
     meta: {
       titleParts: ['learnersLabel', 'EXERCISE_NAME', 'LESSON_NAME', 'GROUP_NAME', 'CLASS_NAME'],
     },
@@ -94,7 +103,7 @@ export default [
     },
   },
   {
-    path: path(CLASS, GROUP, LESSON, EXERCISE, LEARNER, ATTEMPT, INTERACTION),
+    path: path(CLASS, GROUP, LESSON, EXERCISE, LEARNER, TRY, QUESTION, INTERACTION),
     component: pages.ReportsGroupReportLessonExerciseLearnerPage,
     handler: generateExerciseDetailHandler(['groupId', 'learnerId', 'lessonId', 'exerciseId']),
     meta: {
@@ -102,6 +111,7 @@ export default [
       titleParts: ['LEARNER_NAME', 'EXERCISE_NAME', 'LESSON_NAME', 'GROUP_NAME', 'CLASS_NAME'],
     },
   },
+
   {
     path: path(CLASS, GROUP, LESSON, EXERCISE, QUESTIONS),
     component: pages.ReportsGroupReportLessonExerciseQuestionListPage,
@@ -132,8 +142,16 @@ export default [
     },
   },
   {
-    path: path(CLASS, GROUP, LESSON),
+    path: path(CLASS, GROUP, LESSON, RESOURCES),
     component: pages.ReportsGroupReportLessonPage,
+    handler: defaultHandler,
+    meta: {
+      titleParts: ['LESSON_NAME', 'LEARNER_NAME', 'CLASS_NAME'],
+    },
+  },
+  {
+    path: path(CLASS, GROUP, LESSON, LEARNERS),
+    component: pages.ReportsGroupReportLessonLearnerListPage,
     handler: defaultHandler,
     meta: {
       titleParts: ['LESSON_NAME', 'GROUP_NAME', 'CLASS_NAME'],
@@ -142,7 +160,7 @@ export default [
   {
     path: path(CLASS, GROUP, LESSON, RESOURCE, LEARNERS),
     component: pages.ReportsGroupReportLessonResourceLearnerListPage,
-    handler: defaultHandler,
+    handler: generateResourceHandler(['resourceId']),
     meta: {
       titleParts: ['learnersLabel', 'RESOURCE_NAME', 'LESSON_NAME', 'GROUP_NAME', 'CLASS_NAME'],
     },
@@ -174,12 +192,13 @@ export default [
           ...params,
           questionId: 0,
           interactionIndex: 0,
+          tryIndex: 0,
         },
       };
     },
   },
   {
-    path: path(CLASS, GROUP, QUIZ, LEARNER, QUESTION, INTERACTION),
+    path: path(CLASS, GROUP, QUIZ, LEARNER, TRY, QUESTION, INTERACTION),
     component: pages.ReportsGroupReportQuizLearnerPage,
     handler: generateExamReportDetailHandler(['groupId', 'learnerId', 'quizId']),
     meta: {
@@ -230,7 +249,7 @@ export default [
     },
   },
   {
-    path: path(CLASS, LEARNER, ACTIVITY, EXERCISE, ATTEMPT, INTERACTION),
+    path: path(CLASS, LEARNER, ACTIVITY, EXERCISE, QUESTION, INTERACTION),
     component: pages.ReportsLearnerActivityExercisePage,
     handler: generateExerciseDetailHandler(['learnerId', 'exerciseId']),
     meta: {
@@ -269,7 +288,7 @@ export default [
     },
   },
   {
-    path: path(CLASS, LEARNER, LESSON, EXERCISE, ATTEMPT, INTERACTION),
+    path: path(CLASS, LEARNER, LESSON, EXERCISE, TRY, QUESTION, INTERACTION),
     component: pages.ReportsLearnerReportLessonExercisePage,
     handler: generateExerciseDetailHandler(['learnerId', 'lessonId', 'exerciseId']),
     meta: {
@@ -308,7 +327,7 @@ export default [
     },
   },
   {
-    path: path(CLASS, LEARNER, QUIZ, QUESTION, INTERACTION),
+    path: path(CLASS, LEARNER, QUIZ, TRY, QUESTION, INTERACTION),
     component: pages.ReportsLearnerReportQuizPage,
     handler: generateExamReportDetailHandler(['learnerId', 'quizId']),
     meta: {
@@ -327,7 +346,7 @@ export default [
   {
     path: path(CLASS, LESSON, EXERCISE, LEARNERS),
     component: pages.ReportsLessonExerciseLearnerListPage,
-    handler: defaultHandler,
+    handler: generateResourceHandler(['exerciseId']),
     meta: {
       titleParts: ['learnersLabel', 'EXERCISE_NAME', 'LESSON_NAME', 'CLASS_NAME'],
     },
@@ -348,8 +367,9 @@ export default [
       titleParts: ['LEARNER_NAME', 'EXERCISE_NAME', 'LESSON_NAME', 'CLASS_NAME'],
     },
   },
+
   {
-    path: path(CLASS, LESSON, EXERCISE, LEARNER, ATTEMPT, INTERACTION),
+    path: path(CLASS, LESSON, EXERCISE, LEARNER, TRY, QUESTION, INTERACTION),
     component: pages.ReportsLessonExerciseLearnerPage,
     handler: generateExerciseDetailHandler(['learnerId', 'lessonId', 'exerciseId']),
     meta: {
@@ -364,6 +384,7 @@ export default [
       titleParts: ['questionsLabel', 'EXERCISE_NAME', 'LESSON_NAME', 'CLASS_NAME'],
     },
   },
+
   {
     path: path(CLASS, LESSON, EXERCISE, QUESTION),
     name: PageNames.REPORTS_LESSON_EXERCISE_QUESTION_PAGE_ROOT,
@@ -397,7 +418,7 @@ export default [
     },
   },
   {
-    path: path(CLASS, LESSON, LEARNER, EXERCISE, ATTEMPT, INTERACTION),
+    path: path(CLASS, LESSON, LEARNER, EXERCISE, TRY, QUESTION, INTERACTION),
     component: pages.ReportsLessonLearnerExercisePage,
     handler: generateExerciseDetailHandler(['learnerId', 'lessonId', 'exerciseId']),
     meta: {
@@ -448,7 +469,7 @@ export default [
   {
     path: path(CLASS, LESSON, RESOURCE, LEARNERS),
     component: pages.ReportsLessonResourceLearnerListPage,
-    handler: defaultHandler,
+    handler: generateResourceHandler(['resourceId']),
     meta: {
       titleParts: ['RESOURCE_NAME', 'LESSON_NAME', 'CLASS_NAME'],
     },
@@ -477,13 +498,14 @@ export default [
         params: {
           ...params,
           questionId: 0,
+          tryIndex: 0,
           interactionIndex: 0,
         },
       };
     },
   },
   {
-    path: path(CLASS, QUIZ, LEARNER, QUESTION, INTERACTION),
+    path: path(CLASS, QUIZ, LEARNER, TRY, QUESTION, INTERACTION),
     component: pages.ReportsQuizLearnerPage,
     handler: generateExamReportDetailHandler(['learnerId', 'quizId']),
     meta: {

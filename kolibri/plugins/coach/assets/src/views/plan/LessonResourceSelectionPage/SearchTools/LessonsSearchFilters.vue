@@ -191,8 +191,8 @@
           "Title of search filter. Users have the option to either 'Show' or 'Hide' coach resources in a search.\n\nCoach resources can be lesson plans, professional development readings, training materials, etc. only viewable by coaches and not learners.",
       },
       topics: {
-        message: 'Topics',
-        context: 'Type of resource material.',
+        message: 'Folders',
+        context: 'A group of learning resource materials.',
       },
       videos: {
         message: 'Videos',

@@ -2,35 +2,35 @@
 
   <Navbar>
     <NavbarLink
-      v-if="showClassesLink"
-      name="classes-link"
-      :title="coreString('classesLabel')"
-      :link="allClassesLink"
+      v-if="isUserLoggedIn"
+      :title="coreString('homeLabel')"
+      :link="homePageLink"
     >
       <KIcon
-        icon="classes"
+        icon="dashboard"
         style="top: 0; width: 24px; height: 24px;"
         :color="$themeTokens.textInverted"
       />
     </NavbarLink>
     <NavbarLink
       v-if="canAccessUnassignedContent"
-      :title="coreString('channelsLabel')"
-      :link="channelsLink"
+      :title="learnString('libraryLabel')"
+      :link="libraryLink"
     >
+      <!-- todo update icon -->
       <KIcon
-        icon="channel"
+        icon="library"
         style="top: 0; width: 24px; height: 24px;"
         :color="$themeTokens.textInverted"
       />
     </NavbarLink>
     <NavbarLink
-      v-if="canAccessUnassignedContent"
-      :title="learnString('recommendedLabel')"
-      :link="recommendedLink"
+      v-if="isUserLoggedIn && canAccessUnassignedContent"
+      :title="coreString('bookmarksLabel')"
+      :link="bookmarksLink"
     >
       <KIcon
-        icon="recommended"
+        icon="bookmark"
         style="top: 0; width: 24px; height: 24px;"
         :color="$themeTokens.textInverted"
       />
@@ -42,11 +42,12 @@
 
 <script>
 
-  import { mapGetters, mapState } from 'vuex';
+  import { mapGetters } from 'vuex';
   import Navbar from 'kolibri.coreVue.components.Navbar';
   import NavbarLink from 'kolibri.coreVue.components.NavbarLink';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { ClassesPageNames, PageNames } from '../constants';
+  import { PageNames } from '../constants';
+  import useCoreLearn from '../composables/useCoreLearn';
   import commonLearnStrings from './commonLearnStrings';
 
   export default {
@@ -56,27 +57,27 @@
       NavbarLink,
     },
     mixins: [commonCoreStrings, commonLearnStrings],
+    setup() {
+      const { inClasses } = useCoreLearn();
+      return {
+        inClasses,
+      };
+    },
     data() {
       return {
-        allClassesLink: {
-          name: ClassesPageNames.ALL_CLASSES,
+        homePageLink: {
+          name: PageNames.HOME,
         },
-        channelsLink: {
-          name: PageNames.TOPICS_ROOT,
+        libraryLink: {
+          name: PageNames.LIBRARY,
         },
-        recommendedLink: {
-          name: PageNames.RECOMMENDED,
+        bookmarksLink: {
+          name: PageNames.BOOKMARKS,
         },
       };
     },
     computed: {
       ...mapGetters(['isUserLoggedIn', 'canAccessUnassignedContent']),
-      ...mapState({
-        userHasMemberships: state => state.memberships.length > 0,
-      }),
-      showClassesLink() {
-        return this.isUserLoggedIn && (this.userHasMemberships || !this.canAccessUnassignedContent);
-      },
     },
   };
 

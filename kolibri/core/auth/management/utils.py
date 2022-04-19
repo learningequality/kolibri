@@ -2,48 +2,55 @@
 Utility methods for syncing.
 """
 import getpass
+import json
 import logging
-import time
+import math
+import sys
+from contextlib import contextmanager
 from functools import wraps
 
 import requests
 from django.core.management.base import CommandError
-from django.db.models.signals import post_delete
 from django.urls import reverse
 from django.utils.six.moves import input
 from morango.models import Certificate
+from morango.models import InstanceIDModel
 from morango.models import ScopeDefinition
+from morango.sync.controller import MorangoProfileController
 from six.moves.urllib.parse import urljoin
 
 from kolibri.core.auth.backends import FACILITY_CREDENTIAL_KEY
+from kolibri.core.auth.constants.morango_sync import DATA_PORTAL_SYNCING_BASE_URL
+from kolibri.core.auth.constants.morango_sync import PROFILE_FACILITY_DATA
 from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
+from kolibri.core.auth.constants.morango_sync import State
+from kolibri.core.auth.models import dataset_cache
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.sync_event_hook_utils import register_sync_event_handlers
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.utils import device_provisioned
 from kolibri.core.device.utils import provision_device
-from kolibri.core.device.utils import set_device_settings
+from kolibri.core.device.utils import provision_single_user_device
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
 from kolibri.core.discovery.utils.network.errors import URLParseError
+from kolibri.core.tasks.exceptions import UserCancelledError
+from kolibri.core.tasks.management.commands.base import AsyncCommand
+from kolibri.core.utils.lock import db_lock
+from kolibri.utils.data import bytes_for_humans
 
 
 logger = logging.getLogger(__name__)
 
 
-class DisablePostDeleteSignal(object):
-    """
-    Helper that disables the post_delete signal temporarily when deleting, so Morango doesn't
-    create DeletedModels objects for what we're deleting
-    """
-
-    def __enter__(self):
-        self.receivers = post_delete.receivers
-        post_delete.receivers = []
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        post_delete.receivers = self.receivers
-        self.receivers = None
+def confirm_or_exit(message):
+    answer = ""
+    while answer not in ["yes", "n", "no"]:
+        answer = input("{} [Type 'yes' or 'no'.] ".format(message)).lower()
+    if answer != "yes":
+        print("Canceled! Exiting without touching the database.")
+        sys.exit(1)
 
 
 def _interactive_client_facility_selection():
@@ -71,7 +78,7 @@ def _interactive_server_facility_selection(facilities):
         message += "{}. {}\n".format(idx + 1, f["name"])
     idx = input(message)
     try:
-        return facilities[int(idx) - 1]["dataset"]
+        return facilities[int(idx) - 1]
     except IndexError:
         raise CommandError(
             (
@@ -116,7 +123,7 @@ def get_facility(facility_id=None, noninteractive=False):
     return facility
 
 
-def get_dataset_id(baseurl, identifier=None, noninteractive=False):
+def get_facility_dataset_id(baseurl, identifier=None, noninteractive=False):
     # get list of facilities and if more than 1, display all choices to user
     facility_url = urljoin(baseurl, reverse("kolibri:core:publicfacility-list"))
     response = requests.get(facility_url)
@@ -128,7 +135,7 @@ def get_dataset_id(baseurl, identifier=None, noninteractive=False):
     if identifier:
         for obj in facilities:
             if identifier == obj["dataset"] or identifier == obj.get("id"):
-                return obj["dataset"]
+                return identifier, obj["dataset"]
         raise CommandError(
             "Facility with ID {} does not exist on server".format(identifier)
         )
@@ -140,15 +147,25 @@ def get_dataset_id(baseurl, identifier=None, noninteractive=False):
                 "Please pass in a facility ID by passing in --facility {ID} after the command."
             )
         )
-    else:
-        return (
-            _interactive_server_facility_selection(facilities)
-            if len(facilities) > 1
-            else facilities[0]["dataset"]
-        )
+
+    facility = (
+        _interactive_server_facility_selection(facilities)
+        if len(facilities) > 1
+        else facilities[0]
+    )
+    return facility["id"], facility["dataset"]
+
+
+def is_portal_sync(baseurl):
+    return baseurl == DATA_PORTAL_SYNCING_BASE_URL
 
 
 def get_baseurl(baseurl):
+    # if url matches data portal, no need to validate it
+    if is_portal_sync(baseurl):
+        return baseurl
+
+    # validate base url
     try:
         return NetworkClient(address=baseurl).base_url
     except URLParseError:
@@ -159,6 +176,22 @@ def get_baseurl(baseurl):
         )
     except NetworkLocationNotFound:
         raise CommandError("Unable to connect to: {}".format(baseurl))
+
+
+def get_network_connection(baseurl):
+    controller = MorangoProfileController(PROFILE_FACILITY_DATA)
+    network_connection = controller.create_network_connection(get_baseurl(baseurl))
+
+    # validate instance IDs are differemt, which would mean this device is trying to sync with itself
+    if (
+        InstanceIDModel.get_or_create_current_instance()[0].id
+        == network_connection.server_info["instance_id"]
+    ):
+        raise CommandError(
+            "Device can not sync with itself. Please recheck base URL and try again."
+        )
+
+    return network_connection
 
 
 def get_client_and_server_certs(
@@ -235,7 +268,7 @@ def get_client_and_server_certs(
                 password = getpass.getpass("Please enter password: ")
 
         userargs = username
-        if user_id:
+        if facility_id:
             # add facility so `FacilityUserBackend` can validate
             userargs = {
                 FacilityUser.USERNAME_FIELD: username,
@@ -298,27 +331,32 @@ def create_superuser_and_provision_device(username, dataset_id, noninteractive=F
         )
 
 
-def provision_single_user_device(user_id):
-
-    user = FacilityUser.objects.get(id=user_id)
-
-    # if device has not been provisioned, set it up
-    if not device_provisioned():
-        provision_device(default_facility=user.facility)
-        set_device_settings(subset_of_users_device=True)
-
-    DevicePermissions.objects.get_or_create(
-        user=user, defaults={"is_superuser": False, "can_manage_content": True}
-    )
+def is_single_user_scoped(cert):
+    """
+    :type cert: Certificate
+    :rtype: bool
+    """
+    return cert.scope_definition_id == ScopeDefinitions.SINGLE_USER
 
 
-def get_single_user_sync_filter(dataset_id, user_id, is_read):
-    scopedef = ScopeDefinition.objects.get(id=ScopeDefinitions.SINGLE_USER)
-    scope = scopedef.get_scope({"dataset_id": dataset_id, "user_id": user_id})
-    if is_read:
-        return str(scope.read_filter)
-    else:
-        return str(scope.write_filter)
+def get_sync_filter_scope(client_cert, user_id=None):
+    """
+    :type client_cert: Certificate
+    :type user_id: str|None
+    :return: (Scope, dict)
+    """
+    scope = client_cert.get_scope()
+    params = json.loads(client_cert.scope_params)
+
+    # when a user_id has been passed in, but the sync cert isn't a single user cert, we want to
+    # use the same filters as a single user cert would, so we manually create a scope and to use
+    # the same filters for the single user scope definition
+    if user_id is not None and not is_single_user_scoped(client_cert):
+        params.update(user_id=user_id)
+        scope_def = ScopeDefinition.objects.get(id=ScopeDefinitions.SINGLE_USER)
+        scope = scope_def.get_scope(params)
+
+    return scope, params
 
 
 def run_once(f):
@@ -339,84 +377,338 @@ def run_once(f):
     return wrapper
 
 
-class GroupDeletion(object):
+class MorangoSyncCommand(AsyncCommand):
     """
-    Helper to manage deleting many models, or groups of models
+    Common methods for Morango sync commands
     """
 
-    def __init__(self, name, groups=None, querysets=None, sleep=None):
-        """
-        :type groups: GroupDeletion[]
-        :type querysets: QuerySet[]
-        :type sleep: int
-        """
-        self.name = name
-        groups = [] if groups is None else groups
-        if querysets is not None:
-            groups.extend(querysets)
-        self.groups = groups
-        self.sleep = sleep
+    TRANSFER_MESSAGE = "{records_transferred}/{records_total}, {transfer_total}"
 
-    def count(self, progress_updater):
+    def _sync(self, sync_session_client, **options):  # noqa: C901
         """
-        :type progress_updater: function
-        :rtype: int
+        :type sync_session_client: morango.sync.syncsession.SyncSessionClient
+        :param options: Command arguments
+        :return:
         """
-        sum = 0
-        for qs in self.groups:
-            if isinstance(qs, GroupDeletion):
-                count = qs.count(progress_updater)
-                logger.debug("Counted {} in group `{}`".format(count, qs.name))
-            else:
-                count = qs.count()
-                progress_updater(increment=1)
-                logger.debug(
-                    "Counted {} of `{}`".format(count, qs.model._meta.model_name)
-                )
-
-            sum += count
-
-        return sum
-
-    def group_count(self):
-        """
-        :rtype: int
-        """
-        return sum(
-            [
-                qs.group_count() if isinstance(qs, GroupDeletion) else 1
-                for qs in self.groups
-            ]
+        username = options.get("username")
+        (no_push, no_pull, noninteractive, no_provision, keep_alive, user_id) = (
+            options["no_push"],
+            options["no_pull"],
+            options["noninteractive"],
+            options["no_provision"],
+            options["keep_alive"],
+            options["user"],
         )
 
-    def delete(self, progress_updater, sleep=None):
-        """
-        :type progress_updater: function
-        :type sleep: int
-        :rtype: tuple(int, dict)
-        """
-        total_count = 0
-        all_deletions = dict()
-        sleep = self.sleep if sleep is None else sleep
+        client_cert = sync_session_client.sync_session.client_certificate
+        register_sync_event_handlers(sync_session_client.controller)
 
-        for qs in self.groups:
-            if isinstance(qs, GroupDeletion):
-                count, deletions = qs.delete(progress_updater)
-                debug_msg = "Deleted {} of `{}` in group `{}`"
-                name = qs.name
+        filter_scope, scope_params = get_sync_filter_scope(client_cert, user_id=user_id)
+        dataset_id = scope_params.get("dataset_id")
+        pull_filter = filter_scope.read_filter
+        push_filter = filter_scope.write_filter
+
+        # when given a user ID but the cert isn't a single user cert, we'll flip the read and write
+        # filters such that this performs a single user sync with the perspective that the instance
+        # we're syncing with is the SoUD
+        if user_id is not None and not is_single_user_scoped(client_cert):
+            pull_filter = filter_scope.write_filter
+            push_filter = filter_scope.read_filter
+
+        dataset_cache.clear()
+        dataset_cache.activate()
+
+        if not noninteractive:
+            # output session ID for CLI user
+            logger.info("Session ID: {}".format(sync_session_client.sync_session.id))
+            logger.info(
+                "Session instance info: {}".format(
+                    sync_session_client.sync_session.client_instance_data
+                )
+            )
+
+        try:
+            # pull from server
+            if not no_pull:
+                self._pull(
+                    sync_session_client,
+                    noninteractive,
+                    pull_filter,
+                )
+                # and push our own data to server
+            if not no_push:
+                self._push(
+                    sync_session_client,
+                    noninteractive,
+                    push_filter,
+                )
+
+            if not no_provision:
+                with self._lock():
+                    if user_id:
+                        provision_single_user_device(
+                            FacilityUser.objects.get(id=user_id)
+                        )
+                    else:
+                        create_superuser_and_provision_device(
+                            username, dataset_id, noninteractive=noninteractive
+                        )
+
+        except UserCancelledError:
+            if self.job:
+                self.job.extra_metadata.update(sync_state=State.CANCELLED)
+                self.job.save_meta()
+            logger.info("Syncing has been cancelled.")
+            return
+
+        conn = sync_session_client.sync_connection
+
+        # if not keeping the sync session alive, close it!
+        if not keep_alive:
+            conn.close_sync_session(sync_session_client.sync_session)
+
+        # close network connection
+        conn.close()
+
+        if self.job:
+            self.job.extra_metadata.update(sync_state=State.COMPLETED)
+            self.job.save_meta()
+
+        dataset_cache.deactivate()
+        if not noninteractive:
+            logger.info("Syncing has been completed.")
+
+    @contextmanager
+    def _lock(self):
+        cancellable = False
+        # job can't be cancelled while locked
+        if self.job:
+            cancellable = self.job.cancellable
+            self.job.save_as_cancellable(cancellable=False)
+
+        with db_lock():
+            yield
+
+        if self.job:
+            self.job.save_as_cancellable(cancellable=cancellable)
+
+    def _raise_cancel(self, *args, **kwargs):
+        if self.is_cancelled() and (not self.job or self.job.cancellable):
+            raise UserCancelledError()
+
+    def _pull(
+        self,
+        sync_session_client,
+        noninteractive,
+        sync_filter,
+    ):
+        """
+        :type sync_session_client: morango.sync.syncsession.SyncSessionClient
+        :type noninteractive: bool
+        :type sync_filter: Filter
+        """
+        sync_client = sync_session_client.get_pull_client()
+        sync_client.signals.queuing.connect(self._raise_cancel)
+        sync_client.signals.transferring.connect(self._raise_cancel)
+
+        self._queueing_tracker_adapter(
+            sync_client.signals.queuing,
+            "Remotely preparing data",
+            State.REMOTE_QUEUING,
+            noninteractive,
+        )
+        self._transfer_tracker_adapter(
+            sync_client.signals.transferring,
+            "Receiving data ({})".format(self.TRANSFER_MESSAGE),
+            State.PULLING,
+            noninteractive,
+        )
+        self._queueing_tracker_adapter(
+            sync_client.signals.dequeuing,
+            "Locally integrating received data",
+            State.LOCAL_DEQUEUING,
+            noninteractive,
+        )
+
+        self._session_tracker_adapter(
+            sync_client.signals.session,
+            noninteractive,
+        )
+
+        sync_client.initialize(sync_filter)
+
+        sync_client.run()
+        with self._lock():
+            sync_client.finalize()
+
+    def _push(
+        self,
+        sync_session_client,
+        noninteractive,
+        sync_filter,
+    ):
+        """
+        :type sync_session_client: morango.sync.syncsession.SyncSessionClient
+        :type noninteractive: bool
+        :type sync_filter: Filter
+        """
+        sync_client = sync_session_client.get_push_client()
+        sync_client.signals.transferring.connect(self._raise_cancel)
+
+        self._queueing_tracker_adapter(
+            sync_client.signals.queuing,
+            "Locally preparing data to send",
+            State.LOCAL_QUEUING,
+            noninteractive,
+        )
+        self._transfer_tracker_adapter(
+            sync_client.signals.transferring,
+            "Sending data ({})".format(self.TRANSFER_MESSAGE),
+            State.PUSHING,
+            noninteractive,
+        )
+        self._queueing_tracker_adapter(
+            sync_client.signals.dequeuing,
+            "Remotely integrating data",
+            State.REMOTE_DEQUEUING,
+            noninteractive,
+        )
+
+        self._session_tracker_adapter(
+            sync_client.signals.session,
+            noninteractive,
+        )
+
+        with self._lock():
+            sync_client.initialize(sync_filter)
+
+        sync_client.run()
+
+        # we can't cancel remotely integrating data
+        if self.job:
+            self.job.save_as_cancellable(cancellable=False)
+
+        # allow server timeout since remotely integrating data can take a while and the request
+        # could timeout. In that case, we'll assume everything is good.
+        sync_client.finalize()
+
+    def _update_all_progress(self, progress_fraction, progress):
+        """
+        Override parent progress update callback to report from the progress tracker we're sent
+        """
+        if self.job:
+            self.job.update_progress(progress_fraction, 1.0)
+            self.job.extra_metadata.update(progress.extra_data)
+            self.job.save_meta()
+
+    def _session_tracker_adapter(self, signal_group, noninteractive):
+        """
+        Attaches a signal handler to session creation signals
+
+        :type signal_group: morango.sync.syncsession.SyncSignalGroup
+        :type noninteractive: bool
+        """
+
+        @run_once
+        def session_creation(transfer_session):
+            """
+            A session is created individually for pushing and pulling
+            """
+            if self.job:
+                self.job.extra_metadata.update(sync_state=State.SESSION_CREATION)
+
+        @run_once
+        def session_destruction(transfer_session):
+            if not noninteractive and transfer_session.records_total == 0:
+                logger.info("There are no records to transfer")
+
+        signal_group.started.connect(session_creation)
+        signal_group.completed.connect(session_destruction)
+
+    def _transfer_tracker_adapter(
+        self, signal_group, message, sync_state, noninteractive
+    ):
+        """
+        Attaches a signal handler to pushing/pulling signals
+
+        :type signal_group: morango.sync.syncsession.SyncSignalGroup
+        :type message: str
+        :type sync_state: str
+        :type noninteractive: bool
+        """
+        tracker = self.start_progress(total=100)
+
+        def stats_msg(transfer_session):
+            transfer_total = (
+                transfer_session.bytes_sent + transfer_session.bytes_received
+            )
+            return message.format(
+                records_transferred=transfer_session.records_transferred,
+                records_total=transfer_session.records_total,
+                transfer_total=bytes_for_humans(transfer_total),
+            )
+
+        def stats(transfer_session):
+            if transfer_session.records_total > 0:
+                logger.info(stats_msg(transfer_session))
+
+        def handler(transfer_session):
+            """
+            :type transfer_session: morango.models.core.TransferSession
+            """
+            if transfer_session.records_total > 0:
+                progress = (
+                    100
+                    * transfer_session.records_transferred
+                    / float(transfer_session.records_total)
+                )
             else:
-                count, deletions = qs.delete()
-                debug_msg = "Deleted {} of `{}` with model `{}`"
-                name = qs.model._meta.model_name
+                progress = 100
 
-            total_count += count
-            progress_updater(increment=count)
+            tracker.update_progress(
+                increment=math.ceil(progress - tracker.progress),
+                message=stats_msg(transfer_session),
+                extra_data=dict(
+                    bytes_sent=transfer_session.bytes_sent,
+                    bytes_received=transfer_session.bytes_received,
+                    sync_state=sync_state,
+                ),
+            )
 
-            for obj_name, count in deletions.items():
-                if not isinstance(qs, GroupDeletion):
-                    logger.debug(debug_msg.format(count, obj_name, name))
-                all_deletions.update({obj_name: all_deletions.get(obj_name, 0) + count})
-            if self.sleep is not None:
-                time.sleep(sleep)
+        if noninteractive or tracker.progressbar is None:
+            signal_group.started.connect(stats)
+            signal_group.in_progress.connect(stats)
 
-        return total_count, all_deletions
+        signal_group.connect(handler)
+
+    def _queueing_tracker_adapter(
+        self, signal_group, message, sync_state, noninteractive
+    ):
+        """
+        Attaches a signal handler to queuing/dequeuing signals
+
+        :type signal_group: morango.sync.syncsession.SyncSignalGroup
+        :type message: str
+        :type sync_state: str
+        :type noninteractive: bool
+        """
+        tracker = self.start_progress(total=2)
+
+        def started(transfer_session):
+            dataset_cache.clear()
+            if noninteractive or tracker.progressbar is None:
+                if (
+                    not sync_state.endswith("DEQUEUING")
+                    or transfer_session.records_total > 0
+                ):
+                    logger.info(message)
+                else:
+                    logger.info("No records transferred")
+
+        def handler(transfer_session):
+            tracker.update_progress(
+                message=message, extra_data=dict(sync_state=sync_state)
+            )
+
+        signal_group.started.connect(started)
+        signal_group.started.connect(handler)

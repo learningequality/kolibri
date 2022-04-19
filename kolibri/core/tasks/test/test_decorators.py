@@ -3,6 +3,7 @@ from mock import patch
 
 from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.job import JobRegistry
+from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.job import RegisteredJob
 from kolibri.core.tasks.utils import stringify_func
 
@@ -20,7 +21,8 @@ class TestTaskDecorators(TestCase):
             job_id="test",
             validator=id,
             permission_classes=[int],
-            priority="high",
+            priority=Priority.HIGH,
+            queue="test",
             cancellable=True,
             track_progress=True,
         )
@@ -32,7 +34,8 @@ class TestTaskDecorators(TestCase):
             job_id="test",
             validator=id,
             permission_classes=[int],
-            priority="high",
+            priority=Priority.HIGH,
+            queue="test",
             cancellable=True,
             track_progress=True,
         )
@@ -57,7 +60,8 @@ class TestTaskDecorators(TestCase):
             job_id="test",
             validator=id,
             permission_classes=[int],
-            priority="high",
+            priority=Priority.HIGH,
+            queue="test",
             cancellable=True,
             track_progress=True,
         )

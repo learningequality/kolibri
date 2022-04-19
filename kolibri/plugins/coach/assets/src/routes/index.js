@@ -94,9 +94,9 @@ export default [
     // Redirect to AllFacilitiesPage if a superuser and device has > 1 facility
     beforeEnter(to, from, next) {
       if (store.getters.userIsMultiFacilityAdmin) {
-        next({ name: 'AllFacilitiesPage' });
+        next({ name: 'AllFacilitiesPage', replace: true });
       } else {
-        next({ name: 'CoachClassListPage' });
+        next({ name: 'CoachClassListPage', replace: true });
       }
     },
   },

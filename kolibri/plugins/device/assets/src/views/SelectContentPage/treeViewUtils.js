@@ -46,7 +46,10 @@ const translator = createTranslator('TreeViewRowMessages', {
     message: 'All resources on this device',
     context: 'Refers to a list of all the resources on a specific device.',
   },
-  resourceSelected: 'Resource selected',
+  resourceSelected: {
+    message: 'Resource selected',
+    context: 'Indicates that a resource has been selected for import.',
+  },
 });
 
 export const CheckboxTypes = {

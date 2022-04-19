@@ -3,10 +3,10 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 from django.conf import settings
-from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.core.urlresolvers import get_resolver
 from django.core.urlresolvers import reverse
 from django.template.loader import render_to_string
+from django.templatetags.static import static
 from django.utils.html import mark_safe
 from django.utils.translation import get_language
 from django.utils.translation import get_language_bidi
@@ -22,6 +22,7 @@ from kolibri.core.content.utils.paths import get_zip_content_base_path
 from kolibri.core.content.utils.paths import get_zip_content_config
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.device.utils import allow_other_browsers_to_connect
+from kolibri.core.device.utils import get_device_setting
 from kolibri.core.hooks import NavigationHook
 from kolibri.core.oidc_provider_hook import OIDCProviderHook
 from kolibri.core.theme_hook import ThemeHook
@@ -70,7 +71,7 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
             {js_name}.__zipContentUrl = '{zip_content_url}';
             {js_name}.__hashiUrl = '{hashi_url}';
             {js_name}.__zipContentOrigin = '{zip_content_origin}';
-            {js_name}.__zipContentPort = {zip_content_port};
+            {js_name}.__zipContentPort = '{zip_content_port}';
             </script>
             """.format(
                     js_name=js_name,
@@ -127,6 +128,9 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
             "languageGlobals": self.language_globals(),
             "oidcProviderEnabled": OIDCProviderHook.is_enabled(),
             "kolibriTheme": ThemeHook.get_theme(),
+            "isSubsetOfUsersDevice": get_device_setting(
+                "subset_of_users_device", False
+            ),
         }
 
     def language_globals(self):
@@ -160,7 +164,6 @@ class FrontendHeadAssetsHook(WebpackBundleHook):
     """
 
     bundle_id = "frontend_head_assets"
-    inline = True
 
     def render_to_page_load_sync_html(self):
         """
@@ -181,8 +184,14 @@ class FrontendHeadAssetsHook(WebpackBundleHook):
         common_file = static("assets/fonts/noto-common.css")
         subset_file = static("assets/fonts/noto-subset.{}.css".format(language_code))
         return [
+            '<link type="text/css" href="{common_css_file}?v={version}" rel="preload" as="style"/>'.format(
+                common_css_file=common_file, version=kolibri.__version__
+            ),
             '<link type="text/css" href="{common_css_file}?v={version}" rel="stylesheet"/>'.format(
                 common_css_file=common_file, version=kolibri.__version__
+            ),
+            '<link type="text/css" href="{common_css_file}?v={version}" rel="preload" as="style"/>'.format(
+                common_css_file=subset_file, version=kolibri.__version__
             ),
             '<link type="text/css" href="{subset_css_file}?v={version}" rel="stylesheet"/>'.format(
                 subset_css_file=subset_file, version=kolibri.__version__

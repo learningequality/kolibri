@@ -1,4 +1,6 @@
 import hashlib
+from base64 import b64encode
+from collections import OrderedDict
 
 from django.core.cache import cache
 from django.core.exceptions import EmptyResultSet
@@ -7,9 +9,13 @@ from django.core.paginator import Page
 from django.core.paginator import Paginator
 from django.db.models import QuerySet
 from django.utils.functional import cached_property
+from rest_framework.pagination import _reverse_ordering
+from rest_framework.pagination import CursorPagination
+from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.pagination import NotFound
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
+from six.moves.urllib.parse import urlencode
 
 
 class ValuesPage(Page):
@@ -28,9 +34,7 @@ class ValuesViewsetPaginator(Paginator):
             )
         self.queryset = object_list
         object_list = object_list.values_list("pk", flat=True).distinct()
-        return super(ValuesViewsetPaginator, self).__init__(
-            object_list, *args, **kwargs
-        )
+        super(ValuesViewsetPaginator, self).__init__(object_list, *args, **kwargs)
 
     def _get_page(self, object_list, *args, **kwargs):
         pks = list(object_list)
@@ -130,3 +134,186 @@ class ValuesViewsetPageNumberPagination(PageNumberPagination):
 
 class CachedListPagination(ValuesViewsetPageNumberPagination):
     django_paginator_class = CachedValuesViewsetPaginator
+
+
+class ValuesViewsetLimitOffsetPagination(LimitOffsetPagination):
+    def paginate_queryset(self, queryset, request, view=None):
+        """
+        Paginate a queryset if required, either returning a
+        the queryset of a page object so that it can be further annotated for serialization,
+        or `None` if pagination is not configured for this view.
+        This is vendored and modified from:
+        https://github.com/encode/django-rest-framework/blob/master/rest_framework/pagination.py#L382
+        """
+        self.limit = self.get_limit(request)
+        if self.limit is None:
+            return None
+
+        self.count = self.get_count(queryset)
+        self.offset = self.get_offset(request)
+        self.request = request
+        if self.count > self.limit and self.template is not None:
+            self.display_page_controls = True
+
+        if self.count == 0 or self.offset > self.count:
+            return queryset.none()
+        # Ensure we evaluate the sliced queryset and do an explicit filter by the subsequent PKs
+        # to avoid issues when we later try to annotate this queryset.
+        return queryset.filter(
+            pk__in=list(
+                queryset.values_list("pk", flat=True).distinct()[
+                    self.offset : self.offset + self.limit
+                ]
+            )
+        )
+
+    def get_more(self):
+        if self.offset + self.limit >= self.count:
+            return None
+
+        params = self.request.query_params.copy()
+        params.update(
+            {
+                "limit": self.limit,
+                "offset": self.offset + self.limit,
+            }
+        )
+        return params
+
+    def get_paginated_response(self, data):
+        return Response(
+            OrderedDict(
+                [("count", self.count), ("more", self.get_more()), ("results", data)]
+            )
+        )
+
+    def get_paginated_response_schema(self, schema):
+        return {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer",
+                    "example": 123,
+                },
+                "more": {
+                    "type": "object",
+                    "nullable": True,
+                    "example": {
+                        "limit": 25,
+                        "offset": 25,
+                    },
+                },
+                "results": schema,
+            },
+        }
+
+
+class ValuesViewsetCursorPagination(CursorPagination):
+    def paginate_queryset(self, queryset, request, view=None):
+        pks_queryset = super(ValuesViewsetCursorPagination, self).paginate_queryset(
+            queryset, request, view=view
+        )
+        if pks_queryset is None:
+            return None
+        self.request = request
+        if self.cursor is None:
+            reverse = False
+        else:
+            _, reverse, _ = self.cursor
+        ordering = _reverse_ordering(self.ordering) if reverse else self.ordering
+        return queryset.filter(pk__in=[obj.pk for obj in pks_queryset]).order_by(
+            *ordering
+        )
+
+    def get_more(self):  # noqa C901
+        """
+        Vendored and modified from
+        https://github.com/encode/django-rest-framework/blob/6ea95b6ad1bc0d4a4234a267b1ba32701878c6bb/rest_framework/pagination.py#L694
+        """
+        if not self.has_next:
+            return None
+
+        if (
+            self.page
+            and self.cursor
+            and self.cursor.reverse
+            and self.cursor.offset != 0
+        ):
+            # If we're reversing direction and we have an offset cursor
+            # then we cannot use the first position we find as a marker.
+            compare = self._get_position_from_instance(self.page[-1], self.ordering)
+        else:
+            compare = self.next_position
+        offset = 0
+
+        has_item_with_unique_position = False
+        for item in reversed(self.page):
+            position = self._get_position_from_instance(item, self.ordering)
+            if position != compare:
+                # The item in this position and the item following it
+                # have different positions. We can use this position as
+                # our marker.
+                has_item_with_unique_position = True
+                break
+
+            # The item in this position has the same position as the item
+            # following it, we can't use it as a marker position, so increment
+            # the offset and keep seeking to the previous item.
+            compare = position
+            offset += 1
+
+        if self.page and not has_item_with_unique_position:
+            # There were no unique positions in the page.
+            if not self.has_previous:
+                # We are on the first page.
+                # Our cursor will have an offset equal to the page size,
+                # but no position to filter against yet.
+                offset = self.page_size
+                position = None
+            elif self.cursor.reverse:
+                # The change in direction will introduce a paging artifact,
+                # where we end up skipping forward a few extra items.
+                offset = 0
+                position = self.previous_position
+            else:
+                # Use the position from the existing cursor and increment
+                # it's offset by the page size.
+                offset = self.cursor.offset + self.page_size
+                position = self.previous_position
+
+        if not self.page:
+            position = self.next_position
+
+        tokens = {}
+        if offset != 0:
+            tokens["o"] = str(offset)
+        if position is not None:
+            tokens["p"] = position
+
+        querystring = urlencode(tokens, doseq=True)
+        encoded = b64encode(querystring.encode("ascii")).decode("ascii")
+        params = self.request.query_params.copy()
+        params.update(
+            {
+                self.cursor_query_param: encoded,
+            }
+        )
+        return params
+
+    def get_paginated_response(self, data):
+        return Response(OrderedDict([("more", self.get_more()), ("results", data)]))
+
+    def get_paginated_response_schema(self, schema):
+        return {
+            "type": "object",
+            "properties": {
+                "more": {
+                    "type": "object",
+                    "nullable": True,
+                    "example": {
+                        "cursor": "asdadshjashjadh",
+                    },
+                },
+                "results": schema,
+            },
+        }

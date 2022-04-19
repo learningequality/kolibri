@@ -156,7 +156,7 @@ def _get_drive_usage(path):
     if sys.version_info >= (3, 3):
         usage = shutil.disk_usage(path)
         return {"total": usage.total, "used": usage.used, "free": usage.free}
-    elif on_android():
+    if on_android():
         from jnius import autoclass
 
         StatFs = autoclass("android.os.StatFs")
@@ -166,13 +166,11 @@ def _get_drive_usage(path):
             "total": stats.getBlockCountLong() * stats.getBlockSizeLong(),
             "free": stats.getAvailableBlocksLong() * stats.getBlockSizeLong(),
         }
-
-    else:
-        # with os.statvfs, we need to multiple block sizes by block counts to get bytes
-        stats = os.statvfs(path)
-        total = stats.f_frsize * stats.f_blocks
-        free = stats.f_frsize * stats.f_bavail
-        return {"total": total, "free": free, "used": total - free}
+    # with os.statvfs, we need to multiple block sizes by block counts to get bytes
+    stats = os.statvfs(path)
+    total = stats.f_frsize * stats.f_blocks
+    free = stats.f_frsize * stats.f_bavail
+    return {"total": total, "free": free, "used": total - free}
 
 
 def _try_to_get_drive_info_from_dbus(device):
@@ -236,16 +234,13 @@ def _get_drivetype_from_dbus_drive_properties(drive_props):
         or drive_props.get("Media") == "flash_sd"
     ):
         return drivetypes.SD_CARD
-    elif (
-        drive_props.get("ConnectionBus") == "usb" or drive_props.get("Media") == "thumb"
-    ):
+    if drive_props.get("ConnectionBus") == "usb" or drive_props.get("Media") == "thumb":
         return drivetypes.USB_DEVICE
-    elif drive_props.get("Optical"):
+    if drive_props.get("Optical"):
         return drivetypes.OPTICAL_DRIVE
-    elif drive_props.get("Removable") or drive_props.get("MediaRemovable"):
+    if drive_props.get("Removable") or drive_props.get("MediaRemovable"):
         return drivetypes.USB_DEVICE
-    else:
-        return drivetypes.UNKNOWN
+    return drivetypes.UNKNOWN
 
 
 def _try_to_get_drive_info_from_diskutil(device):

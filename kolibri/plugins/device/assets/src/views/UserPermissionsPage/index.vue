@@ -207,7 +207,7 @@
       devicePermissionsDetails: {
         message: 'Can manage resources on this device',
         context:
-          '\nLabel for the checkbox to confirm granting a user permissions to manage content on the device.',
+          'Label for the checkbox to confirm granting a user permissions to manage content on the device.',
       },
       documentTitle: {
         message: "{ name }'s Device Permissions",
@@ -217,7 +217,7 @@
       makeSuperAdmin: {
         message: 'Make super admin',
         context:
-          'Label for the checkbox to confirm giving the user super admin permissions on the device.\n',
+          'Label for the checkbox to confirm giving the user super admin permissions on the device.',
       },
       saveButton: {
         message: 'Save Changes',
@@ -257,8 +257,14 @@
     text-align: left;
     table-layout: fixed;
   }
+
   th {
     min-width: 112px;
+    padding-right: 4px;
+  }
+
+  td {
+    padding-left: 4px;
   }
 
   .super-admin-checkbox {

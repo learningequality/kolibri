@@ -21,7 +21,7 @@ except KeyError:
 # Create a dummy cache for each cache
 CACHES = {
     key: {"BACKEND": "django.core.cache.backends.dummy.DummyCache"}
-    for key in CACHES.keys()  # noqa F405
+    for key in CACHES  # noqa F405
 }
 
 if process_cache:

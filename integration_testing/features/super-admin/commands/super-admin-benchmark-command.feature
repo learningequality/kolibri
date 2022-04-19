@@ -3,7 +3,7 @@ Feature: Super admin runs benchmark manage command
 
   Background:
     Given that the Kolibri server is running
-      And I have opened a Terminal window in my operative system
+      And I have opened a Terminal window in my operating system
 
   Scenario: Execute the benchmark command
     When I run the 'kolibri manage benchmark' command in the Terminal

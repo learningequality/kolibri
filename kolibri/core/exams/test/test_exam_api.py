@@ -5,6 +5,8 @@ from __future__ import unicode_literals
 import uuid
 
 from django.core.urlresolvers import reverse
+from django.utils.timezone import now
+from le_utils.constants import content_kinds
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -16,7 +18,8 @@ from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import LearnerGroup
 from kolibri.core.auth.test.helpers import provision_device
-from kolibri.core.logger.models import ExamLog
+from kolibri.core.logger.models import ContentSummaryLog
+from kolibri.core.logger.models import MasteryLog
 
 
 DUMMY_PASSWORD = "password"
@@ -190,13 +193,11 @@ class ExamAPITestCase(APITestCase):
             models.Exam.objects.get(id=self.exam.id).title, "updated title"
         )
 
-    def test_close_exam_logs_when_exam_is_closed(self):
+    def test_complete_mastery_logs_when_exam_is_closed(self):
         self.login_as_admin()
         group = LearnerGroup.objects.create(name="test", parent=self.classroom)
 
-        import datetime
-
-        EXAM_LOGS = 0
+        MASTERY_LOGS = 0
         for i in range(10):
             user = FacilityUser.objects.create(
                 username="u{}".format(i), facility=self.facility
@@ -208,28 +209,40 @@ class ExamAPITestCase(APITestCase):
             group.add_learner(user)
 
             # Half of the students will _start_ the exam, half won't. So we will have
-            # 5 ExamLogs for this exam.
+            # 5 MasteryLogs for this exam.
             if i <= 5:
-                ExamLog.objects.create(
-                    closed=False,
-                    exam_id=self.exam.id,
-                    user_id=user.id,
-                    completion_timestamp=datetime.datetime.now(),
-                    dataset_id=self.exam.dataset_id,
+                summarylog = ContentSummaryLog.objects.create(
+                    user=user,
+                    start_timestamp=now(),
+                    end_timestamp=now(),
+                    completion_timestamp=now(),
+                    content_id=self.exam.id,
+                    kind=content_kinds.QUIZ,
                 )
-                EXAM_LOGS = EXAM_LOGS + 1
+                MasteryLog.objects.create(
+                    mastery_criterion={"type": "quiz", "coach_assigned": True},
+                    summarylog=summarylog,
+                    start_timestamp=summarylog.start_timestamp,
+                    user=user,
+                    mastery_level=-1,
+                )
+                MASTERY_LOGS = MASTERY_LOGS + 1
 
-        open_exam_logs = ExamLog.objects.filter(exam_id=self.exam.id, closed=False)
+        open_mastery_logs = MasteryLog.objects.filter(
+            summarylog__content_id=self.exam.id, complete=False
+        )
         # Make sure that the open exams in the DB match that which we counted above.
-        self.assertEquals(EXAM_LOGS, len(open_exam_logs))
+        self.assertEquals(MASTERY_LOGS, len(open_mastery_logs))
 
         # Finally - make the request.
         self.put_updated_exam(self.exam.id, {"archive": True})
-        exam_logs = ExamLog.objects.filter(exam_id=self.exam.id)
-        closed_exam_logs = ExamLog.objects.filter(exam_id=self.exam.id, closed=True)
-        # No new ExamLogs made - but all that were made previously are closed.
-        self.assertEquals(len(closed_exam_logs), len(exam_logs))
-        self.assertEquals(EXAM_LOGS, len(closed_exam_logs))
+        mastery_logs = MasteryLog.objects.filter(summarylog__content_id=self.exam.id)
+        closed_mastery_logs = MasteryLog.objects.filter(
+            summarylog__content_id=self.exam.id, complete=True
+        )
+        # No new MasteryLogs made - but all that were made previously are complete.
+        self.assertEquals(len(closed_mastery_logs), len(mastery_logs))
+        self.assertEquals(MASTERY_LOGS, len(closed_mastery_logs))
 
     def test_logged_in_user_exam_no_update(self):
         self.login_as_learner()

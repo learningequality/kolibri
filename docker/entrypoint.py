@@ -54,7 +54,7 @@ def set_default_envs():
     Set default values for ENV variables and infer DEPLOY_TYPE.
     """
     envs = os.environ
-    for key in DEFAULT_ENVS.keys():
+    for key in DEFAULT_ENVS:
         env = os.getenv(key, None)
         if env is None:
             envs[key] = DEFAULT_ENVS[key]
@@ -110,8 +110,7 @@ def get_kolibri_version(kolibri_cmd):
     if m:
         major, minor = m.groupdict()["major"], m.groupdict()["minor"]
         return int(major), int(minor)
-    else:
-        return None, None
+    return None, None
 
 
 def create_facility(kolibri_cmd):

@@ -20,6 +20,7 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import plugin_data from 'plugin_data';
 
   export default {
     name: 'WelcomeModal',
@@ -29,9 +30,23 @@
         type: Object,
         default: null,
       },
+      isLOD: {
+        type: Boolean,
+        default: plugin_data.isSubsetOfUsersDevice,
+      },
     },
     computed: {
       paragraphs() {
+        if (this.isLOD) {
+          let facility = this.importedFacility;
+          if (this.$store.getters.facilities.length > 0 && facility === null)
+            facility = this.$store.getters.facilities[0];
+          const sndParagraph =
+            facility === null
+              ? this.$tr('learnOnlyDeviceWelcomeMessage2')
+              : this.$tr('postSyncWelcomeMessage2', { facilityName: facility.name });
+          return [this.$tr('learnOnlyDeviceWelcomeMessage1'), sndParagraph];
+        }
         if (this.importedFacility) {
           return [
             this.$tr('postSyncWelcomeMessage1'),
@@ -45,6 +60,7 @@
         }
       },
     },
+
     render: createElement => window.setTimeout(createElement, 750),
     $trs: {
       welcomeModalHeader: {
@@ -64,10 +80,20 @@
       },
       postSyncWelcomeMessage1: {
         message: 'The first thing you should do is import some channels to this device.',
-        context: 'Welcome message for user which appears if there are no channels on the device.',
+        context:
+          "Welcome message for user which appears if there are no channels on the device. This is similar to the 'The first thing you should do is import some resources from the Channels tab' string.",
       },
       postSyncWelcomeMessage2: {
         message: `The learner reports, lessons, and quizzes in '{facilityName}' will not display properly until you import the resources associated with them.`,
+        context: 'Welcome message for user indicating that they need to import resources.',
+      },
+      learnOnlyDeviceWelcomeMessage1: {
+        message: 'The first thing you should do is import some channels to this device',
+        context:
+          "Welcome message for user which appears after provisioning a Learner Only Device.\n\nThis is similar to the 'The first thing you should do is import some resources from the Channels tab' string.",
+      },
+      learnOnlyDeviceWelcomeMessage2: {
+        message: `The user reports, lessons, and quizzes will not display properly until you import the resources associated with them.`,
         context: 'Welcome message for user indicating that they need to import resources.',
       },
     },

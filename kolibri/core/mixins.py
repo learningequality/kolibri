@@ -85,7 +85,7 @@ class UUIDIn(In):
             # prepare/transform those values.
             sqls, sqls_params = self.batch_process_rhs(compiler, connection, rhs)
             placeholder = "(" + ",".join("'{}'".format(p) for p in sqls_params) + ")"
-            sqls_params = tuple()
+            sqls_params = ()
             return (placeholder, sqls_params)
         else:
             return super(UUIDIn, self).process_rhs(compiler, connection)
@@ -103,7 +103,7 @@ class UUIDIn(In):
                 in_clause_elements.append(" OR ")
             in_clause_elements.append("%s IN (" % lhs)
             params.extend(lhs_params)
-            sqls_params = tuple()
+            sqls_params = ()
             param_group = (
                 "("
                 + ",".join(
@@ -178,5 +178,4 @@ class FilterByUUIDQuerysetMixin(object):
         kwargs = {"{}__{}".format(field_name, lookup): ids}
         if include:
             return self.filter(**kwargs)
-        else:
-            return self.exclude(**kwargs)
+        return self.exclude(**kwargs)

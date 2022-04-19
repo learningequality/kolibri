@@ -7,6 +7,13 @@ from itertools import chain
 from django.test import TestCase
 from le_utils.constants import content_kinds
 from le_utils.constants import format_presets
+from le_utils.constants.labels.accessibility_categories import (
+    ACCESSIBILITYCATEGORIESLIST,
+)
+from le_utils.constants.labels.learning_activities import LEARNINGACTIVITIESLIST
+from le_utils.constants.labels.levels import LEVELSLIST
+from le_utils.constants.labels.needs import NEEDSLIST
+from le_utils.constants.labels.subjects import SUBJECTSLIST
 from mock import patch
 from sqlalchemy import create_engine
 
@@ -33,6 +40,10 @@ def to_dict(instance):
 
 def uuid4_hex():
     return uuid.uuid4().hex
+
+
+def choices(sequence, k):
+    return [random.choice(sequence) for _ in range(0, k)]
 
 
 class ChannelBuilder(object):
@@ -400,6 +411,8 @@ class ChannelBuilder(object):
     def contentnode_data(
         self, node_id=None, content_id=None, parent_id=None, kind=None, root=False
     ):
+        # First kind in choices is Topic, so exclude it here.
+        kind = kind or random.choice(content_kinds.choices[1:])[0]
         return {
             "options": "{}",
             "content_id": content_id or uuid4_hex(),
@@ -413,10 +426,18 @@ class ChannelBuilder(object):
             "author": "",
             "title": "Test",
             "parent_id": None if root else parent_id or uuid4_hex(),
-            # First kind in choices is Topic, so exclude it here.
-            "kind": kind or random.choice(content_kinds.choices[1:])[0],
+            "kind": kind,
             "coach_content": False,
             "available": False,
+            "learning_activities": ",".join(
+                set(choices(LEARNINGACTIVITIESLIST, k=random.randint(1, 3)))
+            ),
+            "accessibility_labels": ",".join(
+                set(choices(ACCESSIBILITYCATEGORIESLIST, k=random.randint(1, 3)))
+            ),
+            "grade_levels": ",".join(set(choices(LEVELSLIST, k=random.randint(1, 2)))),
+            "categories": ",".join(set(choices(SUBJECTSLIST, k=random.randint(1, 10)))),
+            "learner_needs": ",".join(set(choices(NEEDSLIST, k=random.randint(1, 5)))),
         }
 
 

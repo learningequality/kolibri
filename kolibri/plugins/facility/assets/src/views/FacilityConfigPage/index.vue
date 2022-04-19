@@ -1,110 +1,113 @@
 <template>
 
-  <KPageContainer>
+  <FacilityAppBarPage>
+    <KPageContainer>
 
-    <div class="mb">
-      <h1>{{ $tr('pageHeader') }}</h1>
-      <p>
-        {{ $tr('pageDescription') }}
-        <KExternalLink
-          v-if="isSuperuser && deviceSettingsUrl"
-          :text="$tr('deviceSettings')"
-          :href="deviceSettingsUrl"
-        />
-      </p>
-    </div>
-
-    <template v-if="settings !== null">
       <div class="mb">
-        <h2>{{ coreString('facilityLabel') }}</h2>
-        <p class="current-facility-name">
-          {{ coreString('facilityNameWithId', { facilityName: facilityName, id: lastPartId }) }}
-          <KButton
-            appearance="basic-link"
-            :text="coreString('editAction')"
-            name="edit-facilityname"
-            @click="showEditFacilityModal = true"
+        <h1>{{ $tr('pageHeader') }}</h1>
+        <p>
+          {{ $tr('pageDescription') }}
+          <KExternalLink
+            v-if="isSuperuser && deviceSettingsUrl"
+            :text="$tr('deviceSettings')"
+            :href="deviceSettingsUrl"
           />
-
         </p>
       </div>
 
-      <div class="mb">
-        <div class="settings">
-          <template v-for="setting in settingsList">
-            <template
-              v-if="
-                setting !== 'learner_can_edit_password' &&
-                  setting !== 'learner_can_login_with_no_password'
-              "
-            >
-              <KCheckbox
-                :key="setting"
-                :label="$tr(camelCase(setting))"
-                :checked="settings[setting]"
-                @change="toggleSetting(setting)"
-              />
-            </template>
-            <template v-else-if="setting === 'learner_can_login_with_no_password'">
-              <KCheckbox
-                :key="setting"
-                :label="$tr('learnerNeedPasswordToLogin')"
-                :checked="!settings['learner_can_login_with_no_password']"
-                @change="toggleLearnerLoginPassword()"
-              />
-              <KCheckbox
-                :key="setting + 'learner_can_edit_password'"
-                :disabled="enableChangePassword"
-                :label="$tr('learnerCanEditPassword')"
-                :checked="!settings['learner_can_login_with_no_password']
-                  && settings['learner_can_edit_password']"
-                class="checkbox-password"
-                @change="toggleSetting('learner_can_edit_password')"
-              />
-            </template>
-          </template>
-        </div>
-
-        <div>
-          <KButtonGroup style="margin-top: 8px;">
+      <template v-if="settings !== null">
+        <div class="mb">
+          <h2>{{ coreString('facilityLabel') }}</h2>
+          <p class="current-facility-name">
+            {{ coreString('facilityNameWithId', { facilityName: facilityName, id: lastPartId }) }}
             <KButton
-              :primary="false"
-              appearance="raised-button"
-              :text="$tr('resetToDefaultSettings')"
-
-              name="reset-settings"
-              @click="showModal = true"
+              appearance="basic-link"
+              :text="coreString('editAction')"
+              name="edit-facilityname"
+              @click="showEditFacilityModal = true"
             />
 
-            <KButton
-              :primary="true"
-              appearance="raised-button"
-              :text="coreString('saveChangesAction')"
-              name="save-settings"
-
-              :disabled="!settingsHaveChanged"
-              @click="saveConfig()"
-            />
-          </KButtonGroup>
+          </p>
         </div>
-      </div>
-    </template>
 
-    <ConfirmResetModal
-      v-if="showModal"
-      id="confirm-reset"
-      @submit="resetToDefaultSettings"
-      @cancel="showModal = false"
-    />
-    <EditFacilityNameModal
-      v-if="showEditFacilityModal"
-      id="edit-facility"
-      :facilityId="facilityId"
-      :facilityName="facilityName"
-      @submit="sendFacilityName"
-      @cancel="showEditFacilityModal = false"
-    />
-  </KPageContainer>
+        <div class="mb">
+          <div class="settings">
+            <template v-for="setting in settingsList">
+              <template
+                v-if="
+                  setting !== 'learner_can_edit_password' &&
+                    setting !== 'learner_can_login_with_no_password'
+                "
+              >
+                <KCheckbox
+                  :key="setting"
+                  :label="$tr(camelCase(setting))"
+                  :checked="settings[setting]"
+                  @change="toggleSetting(setting)"
+                />
+              </template>
+              <template v-else-if="setting === 'learner_can_login_with_no_password'">
+                <KCheckbox
+                  :key="setting"
+                  :label="$tr('learnerNeedPasswordToLogin')"
+                  :checked="!settings['learner_can_login_with_no_password']"
+                  @change="toggleLearnerLoginPassword()"
+                />
+                <KCheckbox
+                  :key="setting + 'learner_can_edit_password'"
+                  :disabled="enableChangePassword"
+                  :label="$tr('learnerCanEditPassword')"
+                  :checked="!settings['learner_can_login_with_no_password']
+                    && settings['learner_can_edit_password']"
+                  class="checkbox-password"
+                  @change="toggleSetting('learner_can_edit_password')"
+                />
+              </template>
+            </template>
+          </div>
+
+          <div>
+            <KButtonGroup style="margin-top: 8px;">
+              <KButton
+                :primary="false"
+                appearance="raised-button"
+                :text="$tr('resetToDefaultSettings')"
+
+                name="reset-settings"
+                @click="showModal = true"
+              />
+
+              <KButton
+                :primary="true"
+                :class="windowIsSmall ? 'mobile-button' : ''"
+                appearance="raised-button"
+                :text="coreString('saveChangesAction')"
+                name="save-settings"
+
+                :disabled="!settingsHaveChanged"
+                @click="saveConfig()"
+              />
+            </KButtonGroup>
+          </div>
+        </div>
+      </template>
+
+      <ConfirmResetModal
+        v-if="showModal"
+        id="confirm-reset"
+        @submit="resetToDefaultSettings"
+        @cancel="showModal = false"
+      />
+      <EditFacilityNameModal
+        v-if="showEditFacilityModal"
+        id="edit-facility"
+        :facilityId="facilityId"
+        :facilityName="facilityName"
+        @submit="sendFacilityName"
+        @cancel="showEditFacilityModal = false"
+      />
+    </KPageContainer>
+  </FacilityAppBarPage>
 
 </template>
 
@@ -112,10 +115,13 @@
 <script>
 
   import { mapActions, mapGetters, mapState } from 'vuex';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+
   import camelCase from 'lodash/camelCase';
   import isEqual from 'lodash/isEqual';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import urls from 'kolibri.urls';
+  import FacilityAppBarPage from '../FacilityAppBarPage';
   import ConfirmResetModal from './ConfirmResetModal';
   import EditFacilityNameModal from './EditFacilityNameModal';
 
@@ -137,10 +143,11 @@
       };
     },
     components: {
+      FacilityAppBarPage,
       ConfirmResetModal,
       EditFacilityNameModal,
     },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, responsiveWindowMixin],
     data() {
       return {
         showModal: false,
@@ -261,7 +268,6 @@
         message: 'Allow learners to create accounts',
         context: "Option on 'Facility settings' page.",
       },
-      learnerCanLoginWithNoPassword: 'Allow learners to sign in with no password',
       learnerNeedPasswordToLogin: {
         message: 'Require password for learners',
         context: "Option on 'Facility settings' page.",
@@ -270,13 +276,12 @@
         message: "Show 'download' button with resources",
         context: "Option on 'Facility settings' page.\n",
       },
-      allowGuestAccess: 'Allow users to access resources without signing in',
       /* eslint-enable kolibri/vue-no-unused-translations */
       saveFailure: 'There was a problem saving your settings',
       saveSuccess: 'Facility settings updated',
       pageDescription: {
         message: 'Configure facility settings here.',
-        context: '\nInterpret as "[You can] configure facility settings here"',
+        context: 'Interpret as "[You can] configure facility settings here"',
       },
       deviceSettings: {
         message: 'You can also configure device settings',
@@ -291,8 +296,8 @@
         context: 'Button that resets the facility to its default settings.',
       },
       documentTitle: {
-        message: 'Configure Facility',
-        context: 'Title of page.',
+        message: 'Facility Settings',
+        context: 'Title of page where user can configure facility settings.',
       },
     },
   };
@@ -314,6 +319,10 @@
 
   .checkbox-password {
     margin-left: 24px;
+  }
+
+  .mobile-button {
+    margin-top: 16px;
   }
 
 </style>

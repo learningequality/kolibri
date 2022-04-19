@@ -15,7 +15,7 @@ const Stages = Object.freeze({
 });
 
 export default function useDynamicAddresses(props) {
-  const { fetchAddressArgs, discoverySpinnerTime } = props;
+  const { filterLODAvailable, discoverySpinnerTime } = props;
   const addresses = ref([]);
   const stage = ref('');
   const discoveredAddressesInitiallyFetched = ref(false);
@@ -27,10 +27,18 @@ export default function useDynamicAddresses(props) {
 
   const setStage = newStage => set(stage, newStage);
 
+  const fetchAddressArgs = computed(() => {
+    if (filterLODAvailable) {
+      return { lod: true };
+    } else {
+      return {};
+    }
+  });
+
   function discoverPeers() {
     parentEmit('started_peer_discovery');
     setStage(Stages.PEER_DISCOVERY_STARTED);
-    return fetchDynamicAddresses(fetchAddressArgs)
+    return fetchDynamicAddresses(get(fetchAddressArgs))
       .then(devices => {
         set(addresses, devices);
         parentEmit('finished_peer_discovery');

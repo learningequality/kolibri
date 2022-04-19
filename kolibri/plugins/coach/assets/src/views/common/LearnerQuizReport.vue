@@ -1,27 +1,22 @@
 <template>
 
-  <KPageContainer noPadding>
+  <KPageContainer :topMargin="0">
     <ExamReport
-      v-if="examAttempts"
-      :examAttempts="examAttempts"
-      :exam="exam"
+      v-if="exerciseContentNodes && exerciseContentNodes.length"
+      :contentId="exam.id"
+      :title="exam.title"
       :userName="learner.name"
-      :currentAttempt="currentAttempt"
-      :currentInteractionHistory="currentInteractionHistory"
-      :currentInteraction="currentInteraction"
-      :selectedInteractionIndex="selectedInteractionIndex"
+      :userId="learner.id"
+      :selectedInteractionIndex="interactionIndex"
       :questionNumber="questionNumber"
+      :tryIndex="tryIndex"
       :exercise="exercise"
-      :itemId="itemId"
-      :completionTimestamp="completionTimestamp"
-      :closed="closed"
-      :navigateToQuestion="navigateToQuestion"
-      :navigateToQuestionAttempt="navigateToQuestionAttempt"
-      :questions="questions"
       :exerciseContentNodes="exerciseContentNodes"
+      :navigateTo="navigateTo"
+      :questions="questions"
     />
     <div v-else>
-      {{ $tr('noAttemptsInExam') }}
+      {{ getMissingContentString('someResourcesMissingOrNotSupported') }}
     </div>
   </KPageContainer>
 
@@ -43,50 +38,28 @@
     computed: {
       ...mapState('classSummary', ['learnerMap']),
       ...mapState('examReportDetail', [
-        'currentAttempt',
-        'currentInteraction',
-        'currentInteractionHistory',
         'exam',
-        'examAttempts',
         'exercise',
         'exerciseContentNodes',
-        'itemId',
         'questionNumber',
+        'interactionIndex',
+        'tryIndex',
         'questions',
         'learnerId',
       ]),
-      ...mapState('examReportDetail', {
-        closed: state => state.examLog.closed,
-        completionTimestamp: state => state.examLog.completion_timestamp,
-        selectedInteractionIndex: state => state.interactionIndex,
-      }),
       learner() {
         return this.learnerMap[this.learnerId];
       },
     },
     methods: {
-      navigateToQuestion(questionNumber) {
-        this.$emit('navigate', {
-          examId: this.exam.id,
-          learnerId: this.learnerId,
-          interactionIndex: 0,
-          questionId: questionNumber,
-        });
-      },
-      navigateToQuestionAttempt(interactionIndex) {
+      navigateTo(tryIndex, questionId, interactionIndex) {
         this.$emit('navigate', {
           examId: this.exam.id,
           learnerId: this.learnerId,
           interactionIndex,
-          questionId: this.questionNumber,
+          questionId,
+          tryIndex,
         });
-      },
-    },
-    $trs: {
-      noAttemptsInExam: {
-        message: 'This quiz has not been started yet',
-        context:
-          'This message will display if the learner has not made any attempt to answer a quiz question.',
       },
     },
   };
@@ -98,6 +71,7 @@
 
   .no-exercise-x {
     text-align: center;
+
     svg {
       width: 200px;
       height: 200px;

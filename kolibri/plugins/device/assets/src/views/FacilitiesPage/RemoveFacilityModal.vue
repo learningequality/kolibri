@@ -10,7 +10,7 @@
   >
     <!-- Can Remove Facility state -->
     <template v-if="canRemove">
-      <p class="warning">
+      <p :style="{ color: $themeTokens.error }">
         {{ $tr('willLoseAccessWarning', { facilityName }) }}
       </p>
       <p>
@@ -122,7 +122,7 @@
       },
       cannotRemoveOwnFacilityExplanation: {
         message: 'Super admins cannot remove facilities they are a member of.',
-        context: 'Modal description text',
+        context: 'Modal description text.',
       },
       signInAsOtherAdminExplanation: {
         message:
@@ -134,12 +134,3 @@
   };
 
 </script>
-
-
-<style lang="scss" scoped>
-
-  .warning {
-    color: #df0f0f;
-  }
-
-</style>

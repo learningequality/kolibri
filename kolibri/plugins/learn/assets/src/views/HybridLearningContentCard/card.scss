@@ -1,0 +1,7 @@
+$ratio: 16 / 9;
+
+$thumb-height-desktop-hybrid-learning: 120px;
+$thumb-width-desktop-hybrid-learning: round($thumb-height-desktop-hybrid-learning * $ratio);
+
+$thumb-height-mobile-hybrid-learning: 185px;
+$thumb-width-mobile-hybrid-learning: round($thumb-height-mobile-hybrid-learning / $ratio);

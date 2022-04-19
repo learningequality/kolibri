@@ -2,10 +2,13 @@ import datetime
 
 from django.db import connections
 from django.db.models import Count
-from django.db.models import Q
+from django.db.models import F
+from django.db.models import OuterRef
+from django.db.models import Subquery
 from django.db.models import Sum
 from django.db.utils import DatabaseError
 from django.db.utils import OperationalError
+from django.http import Http404
 from rest_framework import permissions
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -20,11 +23,11 @@ from kolibri.core.decorators import query_params_required
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import AttemptLog
-from kolibri.core.logger.models import ExamAttemptLog
-from kolibri.core.logger.models import ExamLog
+from kolibri.core.logger.models import MasteryLog
 from kolibri.core.notifications.models import LearnerProgressNotification
 from kolibri.core.notifications.models import NotificationsLog
 from kolibri.core.sqlite.utils import repair_sqlite_db
+from kolibri.deployment.default.sqlite_db_names import NOTIFICATIONS
 
 collection_kind_choices = tuple(
     [choice[0] for choice in collection_kinds.choices] + ["user"]
@@ -200,7 +203,7 @@ class ClassroomNotificationsViewset(ValuesViewset):
             except (LearnerProgressNotification.DoesNotExist):
                 return LearnerProgressNotification.objects.none()
             except DatabaseError:
-                repair_sqlite_db(connections["notifications_db"])
+                repair_sqlite_db(connections[NOTIFICATIONS])
                 return LearnerProgressNotification.objects.none()
 
         limit = self.check_limit()
@@ -226,7 +229,7 @@ class ClassroomNotificationsViewset(ValuesViewset):
         try:
             queryset = self.filter_queryset(self.get_queryset())
         except (OperationalError, DatabaseError):
-            repair_sqlite_db(connections["notifications_db"])
+            repair_sqlite_db(connections[NOTIFICATIONS])
 
         # L
         logging_interval = datetime.datetime.now() - datetime.timedelta(minutes=5)
@@ -239,7 +242,7 @@ class ClassroomNotificationsViewset(ValuesViewset):
             )
         except (OperationalError, DatabaseError):
             logged_notifications = 0
-            repair_sqlite_db(connections["notifications_db"])
+            repair_sqlite_db(connections[NOTIFICATIONS])
         # if there are more than 10 notifications we limit the answer to 10
         if logged_notifications < 10:
             notification_info = NotificationsLog()
@@ -376,28 +379,106 @@ class QuizDifficultQuestionsViewset(viewsets.ViewSet):
         # Only return logs when the learner has submitted the Quiz OR
         # the coach has deactivated the Quiz. Do not return logs when Quiz is still
         # in-progress.
-        queryset = ExamAttemptLog.objects.filter(
-            Q(examlog__closed=True) | Q(examlog__exam__active=False), examlog__exam=pk
-        )
+        try:
+            quiz = Exam.objects.all().values("active", "collection_id").get(pk=pk)
+        except Exam.DoesNotExist:
+            raise Http404
+        quiz_active = quiz["active"]
+        queryset = AttemptLog.objects.filter(sessionlog__content_id=pk)
+        if quiz_active:
+            queryset = queryset.filter(masterylog__complete=True)
         if group_id is not None:
             queryset = queryset.filter(
                 user__memberships__collection_id=group_id
             ).distinct()
             collection_id = group_id
         else:
-            collection_id = Exam.objects.get(pk=pk).collection_id
-        data = queryset.values("item", "content_id").annotate(correct=Sum("correct"))
+            collection_id = quiz["collection_id"]
+        data = queryset.values("item").annotate(correct=Sum("correct"))
 
         # Instead of inferring the totals from the number of logs, use the total
         # number of people who submitted (if quiz is active) or started the exam
         # (if quiz is inactive) as our guide, as people who started the exam
         # but did not attempt the question are still important.
+        total_queryset = MasteryLog.objects.filter(summarylog__content_id=pk)
+        if quiz_active:
+            total_queryset = total_queryset.filter(complete=True)
         total = (
-            ExamLog.objects.filter(Q(closed=True) | Q(exam__active=False), exam_id=pk)
-            .filter(user__memberships__collection_id=collection_id)
+            total_queryset.filter(user__memberships__collection_id=collection_id)
             .distinct()
             .count()
         )
+        for datum in data:
+            datum["total"] = total
+        return Response(data)
+
+
+class PracticeQuizDifficultQuestionsViewset(BaseExerciseDifficultQuestionsViewset):
+    permission_classes = (permissions.IsAuthenticated, ExerciseDifficultiesPermissions)
+
+    def retrieve(self, request, pk):
+        """
+        Get the difficult questions for a particular practice quiz.
+        pk maps to the content_id of the practice quiz in question.
+        """
+        classroom_id = request.GET.get("classroom_id", None)
+        group_id = request.GET.get("group_id", None)
+        lesson_id = request.GET.get("lesson_id", None)
+        # For practice quizzes we only look at complete MasteryLogs because there practice quiz
+        # itself can never be made inactive, unlike for a coach assigned quiz (see above)
+        masterylog_queryset = MasteryLog.objects.filter(
+            summarylog__content_id=pk, complete=True, mastery_level__lt=0
+        )
+        attemptlog_queryset = AttemptLog.objects.all()
+        if lesson_id is not None:
+            collection_ids = Lesson.objects.get(
+                id=lesson_id
+            ).lesson_assignments.values_list("collection_id", flat=True)
+            if group_id is not None:
+                if (
+                    group_id not in collection_ids
+                    and classroom_id not in collection_ids
+                ):
+                    # In the special case that the group is not in the lesson assignments
+                    # nor the containing classroom, just return an empty queryset.
+                    attemptlog_queryset = AttemptLog.objects.none()
+            else:
+                # Only filter by all the collections in the lesson if we are not also
+                # filtering by a specific group. Otherwise the group should be sufficient.
+                masterylog_queryset = masterylog_queryset.filter(
+                    user__memberships__collection_id__in=collection_ids
+                )
+        if group_id is not None:
+            collection_id = group_id or classroom_id
+            masterylog_queryset = masterylog_queryset.filter(
+                user__memberships__collection_id=collection_id
+            )
+
+        masterylog_queryset = masterylog_queryset.filter(
+            id__in=Subquery(
+                MasteryLog.objects.all()
+                .order_by(F("completion_timestamp").desc(nulls_last=True))
+                .filter(
+                    user_id=OuterRef("user_id"),
+                    summarylog__content_id=pk,
+                    mastery_level__lt=0,
+                    complete=True,
+                )
+                .values_list("id")[:1]
+            )
+        )
+
+        masterylog_queryset = masterylog_queryset.values_list("id", flat=True)
+
+        attemptlog_queryset = attemptlog_queryset.filter(
+            masterylog_id__in=masterylog_queryset
+        )
+
+        data = attemptlog_queryset.values("item").annotate(correct=Sum("correct"))
+
+        # Instead of inferring the totals from the number of attempt logs, use the total
+        # number of people who have a completed try on the practice quiz
+        total = masterylog_queryset.distinct().count()
         for datum in data:
             datum["total"] = total
         return Response(data)

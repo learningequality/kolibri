@@ -89,7 +89,7 @@ module.exports = {
   plugins: [
     new Plugin(),
     new HtmlWebpackPlugin({
-      filename: 'h5p-[contenthash].html',
+      filename: 'h5p-[fullhash].html',
       template: 'src/h5p.html',
       minify: {
         collapseWhitespace: true,

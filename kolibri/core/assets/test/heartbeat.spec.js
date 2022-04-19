@@ -1,6 +1,6 @@
 import mock from 'xhr-mock';
 import coreStore from 'kolibri.coreVue.vuex.store';
-import * as redirectBrowser from 'kolibri.utils.redirectBrowser';
+import redirectBrowser from 'kolibri.utils.redirectBrowser';
 import * as serverClock from 'kolibri.utils.serverClock';
 import { HeartBeat } from '../src/heartbeat.js';
 import disconnectionErrorCodes from '../src/disconnectionErrorCodes';
@@ -8,6 +8,7 @@ import { trs } from '../src/disconnection';
 import { stubWindowLocation } from 'testUtils'; // eslint-disable-line
 
 jest.mock('kolibri.lib.logging');
+jest.mock('kolibri.utils.redirectBrowser');
 jest.mock('kolibri.urls');
 jest.mock('lockr');
 
@@ -185,7 +186,7 @@ describe('HeartBeat', function() {
     });
     it('should sign out if an auto logout is detected', function() {
       coreStore.commit('CORE_SET_SESSION', { user_id: 'test', id: 'current' });
-      mock.get(/.*/, {
+      mock.put(/.*/, {
         status: 200,
         body: JSON.stringify({ user_id: null, id: 'current' }),
         headers: { 'Content-Type': 'application/json' },
@@ -197,19 +198,19 @@ describe('HeartBeat', function() {
     });
     it('should redirect if a change in user is detected', function() {
       coreStore.commit('CORE_SET_SESSION', { user_id: 'test', id: 'current' });
-      mock.get(/.*/, {
+      redirectBrowser.mockReset();
+      mock.put(/.*/, {
         status: 200,
         body: JSON.stringify({ user_id: 'nottest', id: 'current' }),
         headers: { 'Content-Type': 'application/json' },
       });
-      const redirectStub = jest.spyOn(redirectBrowser, 'redirectBrowser');
       return heartBeat._checkSession().finally(() => {
-        expect(redirectStub).toHaveBeenCalledTimes(1);
+        expect(redirectBrowser).toHaveBeenCalledTimes(1);
       });
     });
     it('should not sign out if user_id changes but session is being set for first time', function() {
       coreStore.commit('CORE_SET_SESSION', { user_id: undefined, id: undefined });
-      mock.get(/.*/, {
+      mock.put(/.*/, {
         status: 200,
         body: JSON.stringify({ user_id: null, id: 'current' }),
         headers: { 'Content-Type': 'application/json' },
@@ -222,7 +223,7 @@ describe('HeartBeat', function() {
     it('should call setServerTime with a clientNow value that is between the start and finish of the poll', function() {
       coreStore.commit('CORE_SET_SESSION', { user_id: 'test', id: 'current' });
       const serverTime = new Date().toJSON();
-      mock.get(/.*/, {
+      mock.put(/.*/, {
         status: 200,
         body: JSON.stringify({ user_id: 'test', id: 'current', server_time: serverTime }),
         headers: { 'Content-Type': 'application/json' },
@@ -246,7 +247,7 @@ describe('HeartBeat', function() {
         .forEach(errorCode => {
           it('should call monitorDisconnect if it receives error code ' + errorCode, function() {
             const monitorStub = jest.spyOn(heartBeat, 'monitorDisconnect');
-            mock.get(/.*/, {
+            mock.put(/.*/, {
               status: errorCode,
               headers: { 'Content-Type': 'application/json' },
             });
@@ -270,7 +271,7 @@ describe('HeartBeat', function() {
         .forEach(errorCode => {
           it('should set snackbar to disconnected for error code ' + errorCode, function() {
             jest.spyOn(heartBeat, 'monitorDisconnect');
-            mock.get(/.*/, {
+            mock.put(/.*/, {
               status: errorCode,
               headers: { 'Content-Type': 'application/json' },
             });
@@ -287,7 +288,7 @@ describe('HeartBeat', function() {
         });
       it('should set snackbar to disconnected for error code 0', function() {
         jest.spyOn(heartBeat, 'monitorDisconnect');
-        mock.get(/.*/, () => Promise.reject(new Error()));
+        mock.put(/.*/, () => Promise.reject(new Error()));
         return heartBeat._checkSession().finally(() => {
           expect(coreStore.getters.snackbarIsVisible).toEqual(true);
           expect(
@@ -298,7 +299,7 @@ describe('HeartBeat', function() {
         });
       });
       it('should increase the reconnect time when it fails to connect', function() {
-        mock.get(/.*/, () => Promise.reject(new Error()));
+        mock.put(/.*/, () => Promise.reject(new Error()));
         coreStore.commit('CORE_SET_RECONNECT_TIME', 5);
         return heartBeat._checkSession().finally(() => {
           const oldReconnectTime = coreStore.getters.reconnectTime;
@@ -309,7 +310,7 @@ describe('HeartBeat', function() {
       });
       describe('and then gets reconnected', function() {
         beforeEach(function() {
-          mock.get(/.*/, {
+          mock.put(/.*/, {
             status: 200,
             headers: { 'Content-Type': 'application/json' },
           });

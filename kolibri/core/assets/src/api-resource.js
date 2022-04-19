@@ -854,7 +854,7 @@ export class Resource {
 
   /**
    * Fetch from a custom list endpoint on a resource, that returns an array of JSON objects.
-   * Mostly used as a convenience method for defining additional endpoint fethc methods
+   * Mostly used as a convenience method for defining additional endpoint fetch methods
    * on a resource object.
    * @param  {string} listName   The name given to the list endpoint
    * @param  {Object} getParams  Any getParams needed while fetching

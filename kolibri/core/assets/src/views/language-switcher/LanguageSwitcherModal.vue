@@ -4,6 +4,7 @@
     :title="$tr('changeLanguageModalHeader')"
     :submitText="coreString('confirmAction')"
     :cancelText="coreString('cancelAction')"
+    :size="600"
     @cancel="cancel"
     @submit="setLang"
   >
@@ -72,7 +73,7 @@
       changeLanguageModalHeader: {
         message: 'Change language',
         context:
-          "Option to change the Kolibri interface language on the  'Change language' screen.\n\n",
+          "Option to change the Kolibri interface language on the  'Change language' screen.",
       },
     },
   };

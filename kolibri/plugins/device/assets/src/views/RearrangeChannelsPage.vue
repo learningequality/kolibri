@@ -142,11 +142,11 @@
     $trs: {
       instructions: {
         message: 'Control the order in which channels will be displayed to learners and coaches',
-        context: '\nText explaining how the channel reordering feature works',
+        context: 'Text explaining how the channel reordering feature works',
       },
       successNotification: {
         message: 'Channel order saved',
-        context: '\nSuccess message shown when the admin re-orders channels',
+        context: 'Success message shown when the admin re-orders channels',
       },
       failureNotification: {
         message: 'There was a problem reordering the channels',

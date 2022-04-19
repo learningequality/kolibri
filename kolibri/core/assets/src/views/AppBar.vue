@@ -9,7 +9,7 @@
       type="clear"
       textColor="white"
       class="app-bar"
-      :style="{ height: height + 'px' }"
+      :style="{ height: topBarHeight + 'px' }"
       :raised="false"
       :removeBrandDivider="true"
     >
@@ -24,10 +24,10 @@
 
       <template #brand>
         <img
-          v-if="$kolibriBranding.appBar.topLogo"
-          :src="$kolibriBranding.appBar.topLogo.src"
-          :alt="$kolibriBranding.appBar.topLogo.alt"
-          :style="$kolibriBranding.appBar.topLogo.style"
+          v-if="themeConfig.appBar.topLogo"
+          :src="themeConfig.appBar.topLogo.src"
+          :alt="themeConfig.appBar.topLogo.alt"
+          :style="themeConfig.appBar.topLogo.style"
           class="brand-logo"
         >
       </template>
@@ -71,6 +71,7 @@
             :showActive="false"
             :style="{ backgroundColor: $themeTokens.surface }"
             @close="handleCoreMenuClose"
+            @shouldFocusFirstEl="findFirstEl()"
           >
             <template v-if="isUserLoggedIn" #header>
               <div class="role">
@@ -82,7 +83,7 @@
                   :userType="getUserKind"
                 />
               </div>
-              <div v-if="getUserKind === 'learner'">
+              <div v-if="isSubsetOfUsersDevice && userIsLearner" data-test="syncStatusInDropdown">
                 <div class="sync-status">
                   {{ $tr('deviceStatus') }}
                 </div>
@@ -104,6 +105,12 @@
               <LogoutSideNavEntry v-if="isUserLoggedIn" />
             </template>
 
+            <template #footer>
+              <!-- Only show this when on a SoUD -->
+              <div v-if="showSoudNotice" class="role" data-test="learnOnlyNotice">
+                <LearnOnlyDeviceNotice />
+              </div>
+            </template>
           </CoreMenu>
 
         </div>
@@ -122,18 +129,20 @@
   import { mapGetters, mapState, mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
+  import LearnOnlyDeviceNotice from 'kolibri.coreVue.components.LearnOnlyDeviceNotice';
   import KIconButton from 'kolibri-design-system/lib/buttons-and-links/KIconButton';
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
   import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
   import UiButton from 'kolibri-design-system/lib/keen/UiButton';
   import navComponents from 'kolibri.utils.navComponents';
-  import { NavComponentSections, SyncStatus } from 'kolibri.coreVue.vuex.constants';
-  import branding from 'kolibri.utils.branding';
+  import { NavComponentSections, SyncStatus, UserKinds } from 'kolibri.coreVue.vuex.constants';
+  import themeConfig from 'kolibri.themeConfig';
   import navComponentsMixin from '../mixins/nav-components';
   import LogoutSideNavEntry from './LogoutSideNavEntry';
   import SkipNavigationLink from './SkipNavigationLink';
   import SyncStatusDisplay from './SyncStatusDisplay';
+  import plugin_data from 'plugin_data';
 
   const hashedValuePattern = /^[a-f0-9]{30}$/;
 
@@ -145,19 +154,19 @@
       CoreMenu,
       UiButton,
       CoreMenuOption,
+      LearnOnlyDeviceNotice,
       LogoutSideNavEntry,
       UserTypeDisplay,
       SkipNavigationLink,
       SyncStatusDisplay,
     },
     mixins: [commonCoreStrings, navComponentsMixin],
+    setup() {
+      return { themeConfig };
+    },
     props: {
       title: {
         type: String,
-        required: true,
-      },
-      height: {
-        type: Number,
         required: true,
       },
     },
@@ -168,15 +177,22 @@
         isPolling: false,
         // poll every 10 seconds
         pollingInterval: 10000,
+        isSubsetOfUsersDevice: plugin_data['isSubsetOfUsersDevice'],
       };
     },
     computed: {
-      ...mapGetters(['isUserLoggedIn', 'getUserKind']),
+      ...mapGetters(['isUserLoggedIn', 'getUserKind', 'isAdmin', 'isCoach']),
       ...mapState({
         username: state => state.core.session.username,
         fullName: state => state.core.session.full_name,
         userId: state => state.core.session.user_id,
       }),
+      userIsLearner() {
+        return this.getUserKind == UserKinds.LEARNER;
+      },
+      showSoudNotice() {
+        return this.isSubsetOfUsersDevice && (this.isAdmin || this.isCoach);
+      },
       menuOptions() {
         return navComponents
           .filter(component => component.section === NavComponentSections.ACCOUNT)
@@ -188,30 +204,13 @@
       },
       mapSyncStatusOptionToLearner() {
         if (this.userSyncStatus) {
-          if (this.userSyncStatus.active) {
-            return SyncStatus.SYNCING;
-          } else if (this.userSyncStatus.queued) {
-            return SyncStatus.QUEUED;
-          } else if (this.userSyncStatus.last_synced) {
-            const currentDateTime = new Date();
-            const timeDifference = currentDateTime - this.userSyncStatus.last_synced;
-            if (timeDifference < 5184000000) {
-              return SyncStatus.RECENTLY_SYNCED;
-            } else {
-              return SyncStatus.NOT_RECENTLY_SYNCED;
-            }
-          }
+          return this.userSyncStatus.status;
         }
         return SyncStatus.NOT_CONNECTED;
       },
     },
     created() {
       window.addEventListener('click', this.handleWindowClick);
-      this.$kolibriBranding = branding;
-    },
-    mounted() {
-      this.isUserLoggedIn ? (this.isPolling = true) : null;
-      this.pollUserSyncStatusTask(this.userId);
     },
     beforeDestroy() {
       window.removeEventListener('click', this.handleWindowClick);
@@ -223,12 +222,22 @@
         this.fetchUserSyncStatus({ user: this.userId }).then(syncData => {
           if (syncData && syncData[0]) {
             this.userSyncStatus = syncData[0];
+            this.setPollingInterval(this.userSyncStatus.status);
           }
         });
-        if (this.isPolling) {
+        if (this.isPolling && this.isSubsetOfUsersDevice) {
           setTimeout(() => {
             this.pollUserSyncStatusTask();
           }, this.pollingInterval);
+        }
+      },
+      setPollingInterval(status) {
+        if (status === SyncStatus.QUEUED) {
+          // check more frequently for updates if the user is waiting to sync,
+          // so that the sync isn't missed
+          this.pollingInterval = 1000;
+        } else {
+          this.pollingInterval = 10000;
         }
       },
       handleUserMenuButtonClick(event) {
@@ -236,7 +245,11 @@
         if (this.userMenuDropdownIsOpen) {
           this.$nextTick(() => {
             this.$refs.userMenuDropdown.$el.focus();
+            this.isPolling = true;
+            this.pollUserSyncStatusTask(this.userId);
           });
+        } else if (!this.userMenuDropdownIsOpen) {
+          this.isPolling = false;
         }
         return event;
       },
@@ -247,11 +260,13 @@
           this.userMenuDropdownIsOpen
         ) {
           this.userMenuDropdownIsOpen = false;
+          this.isPolling = false;
         }
         return event;
       },
       handleCoreMenuClose() {
         this.userMenuDropdownIsOpen = false;
+        this.isPolling = false;
         if (this.$refs.userMenuButton) {
           this.$refs.userMenuButton.$el.focus();
         }
@@ -259,6 +274,12 @@
       handleChangeLanguage() {
         this.$emit('showLanguageModal');
         this.userMenuDropdownIsOpen = false;
+        this.isPolling = false;
+      },
+      findFirstEl() {
+        this.$nextTick(() => {
+          this.$refs.userMenuDropdown.focusFirstEl();
+        });
       },
     },
     $trs: {
@@ -277,7 +298,11 @@
         context:
           'The user menu is located in the upper right corner of the interface. \n\nUsers can use it to adjust their settings like the language used in Kolibri or their name.',
       },
-      deviceStatus: 'Device status',
+      deviceStatus: {
+        message: 'Device status',
+        context:
+          "Table column header in the 'Class learners' page. Indicates the status of an individual learner's device.",
+      },
     },
   };
 
@@ -328,19 +353,6 @@
     position: fixed;
     right: 8px;
     z-index: 8;
-
-    // Holdover from previous CoreMenuOption format. Will keep the profile
-    // dropdown formatted correctly.
-    /deep/ .core-menu-option-content {
-      padding-right: 8px;
-      padding-left: 8px;
-      font-size: 0.9375rem;
-      color: black !important;
-    }
-
-    /deep/ svg {
-      fill: black !important;
-    }
   }
 
   .role {
@@ -349,7 +361,8 @@
     font-weight: bold;
   }
 
-  .sync-status {
+  .sync-status,
+  .notice-label {
     margin-top: 16px;
     margin-bottom: 8px;
     font-size: small;

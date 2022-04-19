@@ -4,11 +4,13 @@ import CoreTable from 'kolibri.coreVue.components.CoreTable';
 import { ContentNodeKinds, CollectionKinds } from 'kolibri.coreVue.vuex.constants';
 import router from 'kolibri.coreVue.router';
 import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
+import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
 import meanBy from 'lodash/meanBy';
 import maxBy from 'lodash/maxBy';
 import find from 'lodash/find';
 import map from 'lodash/map';
 import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
+import MasteryModel from 'kolibri.coreVue.components.MasteryModel';
 import filter from 'lodash/filter';
 import get from 'lodash/get';
 import orderBy from 'lodash/orderBy';
@@ -22,10 +24,8 @@ import BackLink from './common/BackLink';
 import TruncatedItemList from './common/TruncatedItemList';
 import LessonActive from './common/LessonActive';
 import LessonStatus from './common/LessonStatus';
-import MasteryModel from './common/MasteryModel';
 import Recipients from './common/Recipients';
 import Score from './common/Score';
-import TimeDuration from './common/TimeDuration';
 import QuizActive from './common/QuizActive';
 import QuizLessonDetailsHeader from './common/QuizLessonDetailsHeader';
 import QuizStatus from './common/QuizStatus';
@@ -135,7 +135,6 @@ export default {
     MasteryModel,
     Recipients,
     Score,
-    TimeDuration,
     QuizActive,
     QuizLessonDetailsHeader,
     QuizStatus,
@@ -149,6 +148,7 @@ export default {
     HelpNeeded,
     Placeholder,
     StatusElapsedTime,
+    TimeDuration,
   },
   mixins: [coachStringsMixin],
   computed: {
@@ -232,6 +232,13 @@ export default {
         filter,
       };
     },
+    // Generic data to be used for adding backlink data to a URL
+    defaultBackLinkQuery() {
+      return {
+        last: this.$route.name,
+        ...this.$route.params,
+      };
+    },
   },
   methods: {
     // This is a safer way to get the content kind to quickly patch #6552
@@ -295,6 +302,9 @@ export default {
             }
           );
         default:
+          if (lastPage) {
+            return this.classRoute(lastPage, query);
+          }
           return null;
       }
     },

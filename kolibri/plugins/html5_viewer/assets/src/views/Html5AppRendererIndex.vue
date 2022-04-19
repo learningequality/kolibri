@@ -3,7 +3,7 @@
   <CoreFullscreen
     ref="html5Renderer"
     class="html5-renderer"
-    :style="{ height: contentRendererHeight, width: iframeWidth }"
+    :style="{ width: iframeWidth }"
     @changeFullscreen="isInFullscreen = $event"
   >
 
@@ -37,6 +37,7 @@
         :style="{ backgroundColor: $themePalette.grey.v_100 }"
         frameBorder="0"
         :src="rooturl"
+        allow="fullscreen"
       >
       </iframe>
       <KCircularLoader
@@ -59,7 +60,6 @@
 
   const defaultContentHeight = '500px';
   const frameTopbarHeight = '37px';
-  const pxStringAdd = (x, y) => parseInt(x, 10) + parseInt(y, 10) + 'px';
   export default {
     name: 'Html5AppRendererIndex',
     components: {
@@ -93,9 +93,6 @@
       iframeWidth() {
         return (this.options && this.options.width) || 'auto';
       },
-      contentRendererHeight() {
-        return pxStringAdd(this.iframeHeight, frameTopbarHeight);
-      },
       fullscreenText() {
         return this.isInFullscreen ? this.$tr('exitFullscreen') : this.$tr('enterFullscreen');
       },
@@ -117,7 +114,7 @@
             bottom: 0,
           };
         }
-        return { height: this.iframeHeight };
+        return {};
       },
       /* eslint-disable kolibri/vue-no-unused-properties */
       /**
@@ -128,6 +125,12 @@
         return 300;
       },
       /* eslint-enable kolibri/vue-no-unused-properties */
+      entry() {
+        return (this.options && this.options.entry) || 'index.html';
+      },
+      isH5P() {
+        return this.defaultFile.extension === 'h5p';
+      },
     },
     watch: {
       userData(newValue) {
@@ -140,6 +143,10 @@
       this.hashi = new Hashi({ iframe: this.$refs.iframe, now });
       this.hashi.onStateUpdate(data => {
         this.$emit('updateContentState', data);
+        const hashiProgress = this.hashi.getProgress();
+        if (hashiProgress !== null && !this.forceDurationBasedProgress) {
+          this.$emit('updateProgress', hashiProgress);
+        }
       });
       this.hashi.on('navigateTo', message => {
         this.$emit('navigateTo', message);
@@ -157,11 +164,15 @@
       this.hashi.initialize(
         (this.extraFields && this.extraFields.contentState) || {},
         this.userData,
-        this.defaultFile.storage_url,
+        this.isH5P
+          ? this.defaultFile.storage_url
+          : urls.zipContentUrl(this.defaultFile.checksum, this.defaultFile.extension, this.entry),
         this.defaultFile.checksum
       );
       this.$emit('startTracking');
-      this.pollProgress();
+      if (!this.isH5P) {
+        this.pollProgress();
+      }
     },
     beforeDestroy() {
       if (this.timeout) {
@@ -171,27 +182,31 @@
     },
     methods: {
       recordProgress() {
-        const hashiProgress = this.hashi ? this.hashi.getProgress() : null;
-        this.$emit(
-          'updateProgress',
-          hashiProgress === null ? this.durationBasedProgress : hashiProgress
-        );
+        if (this.forceDurationBasedProgress) {
+          this.$emit('updateProgress', this.durationBasedProgress);
+        } else {
+          const hashiProgress = this.hashi ? this.hashi.getProgress() : null;
+          this.$emit(
+            'updateProgress',
+            hashiProgress === null ? this.durationBasedProgress : hashiProgress
+          );
+        }
         this.pollProgress();
       },
       pollProgress() {
         this.timeout = setTimeout(() => {
           this.recordProgress();
-        }, 15000);
+        }, 5000);
       },
     },
     $trs: {
       exitFullscreen: {
-        message: 'Exit Fullscreen',
+        message: 'Exit fullscreen',
         context:
           "Learners can use the Esc key or the 'exit fullscreen' button to close the fullscreen view on an html5 app.",
       },
       enterFullscreen: {
-        message: 'View Fullscreen',
+        message: 'Enter fullscreen',
         context:
           'Learners can use the full screen button in the upper right corner to open an html5 app in fullscreen view.\n',
       },
@@ -204,28 +219,37 @@
 <style lang="scss" scoped>
 
   @import '~kolibri-design-system/lib/styles/definitions';
+  $frame-topbar-height: 37px;
+  $ui-toolbar-height: 56px;
+
   .fullscreen-header {
     text-align: right;
   }
+
   .fs-icon {
     position: relative;
     top: 8px;
     width: 24px;
     height: 24px;
   }
+
   .html5-renderer {
     position: relative;
     text-align: center;
   }
+
   .iframe {
     width: 100%;
     height: 100%;
   }
+
   .iframe-container {
     @extend %momentum-scroll;
 
     width: 100%;
-    overflow: visible;
+    height: calc(100vh - #{$frame-topbar-height} - #{$ui-toolbar-height});
+    margin-bottom: -8px;
+    overflow: hidden;
   }
 
   .loader {

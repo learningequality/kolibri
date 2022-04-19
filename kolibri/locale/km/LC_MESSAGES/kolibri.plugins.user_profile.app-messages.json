@@ -1,0 +1,15 @@
+{
+  "ChangeUserPasswordModal.passwordChangeFormHeader": "ប្តូរពាក្យសម្ងាត់",
+  "ChangeUserPasswordModal.passwordChangedNotification": "ពាក្យសម្ងាត់របស់អ្នកត្រូវបានផ្លាស់ប្ដូរ",
+  "ProfileEditPage.editProfileHeader": "កែប្រែពត៌មានផ្ទាល់ខ្លួន",
+  "ProfilePage.changePasswordPrompt": "ប្ដូរពាក្យសម្ងាត់",
+  "ProfilePage.detailsHeader": "ពត៌មាន​លម្អិត",
+  "ProfilePage.documentTitle": "ទម្រង់អ្នកប្រើប្រាស់",
+  "ProfilePage.editAction": "កែប្រែ",
+  "ProfilePage.isSuperuser": "ការអនុញ្ញាតរបស់អ្នកគ្រប់គ្រងកំពូល ",
+  "ProfilePage.limitedPermissions": "ការអនុញ្ញាត​មាន​ដែន​កំណត់",
+  "ProfilePage.manageContent": "គ្រប់គ្រងឆានែល និងធនធាន",
+  "ProfilePage.manageDevicePermissions": "គ្រប់គ្រងការអនុញ្ញាតក្នុងឧបករណ៍",
+  "ProfilePage.points": "ពិន្ទុ",
+  "ProfilePage.youCan": "អ្នកអាច៖"
+}

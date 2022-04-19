@@ -30,8 +30,6 @@
 
 <script>
 
-  import { mapState } from 'vuex';
-
   function isAboveContainer(element, container) {
     return element.offsetTop < container.scrollTop;
   }
@@ -43,6 +41,14 @@
   export default {
     name: 'AnswerHistory',
     props: {
+      pastattempts: {
+        type: Array,
+        required: true,
+      },
+      questions: {
+        type: Array,
+        required: true,
+      },
       questionNumber: {
         type: Number,
         required: true,
@@ -52,10 +58,6 @@
         type: Object,
         required: true,
       },
-    },
-    computed: {
-      ...mapState('examViewer', ['questions']),
-      ...mapState({ attemptLogs: 'examAttemptLogs' }),
     },
     watch: {
       questionNumber(index) {
@@ -76,7 +78,8 @@
         return this.$tr('question', { num });
       },
       isAnswered(question) {
-        return ((this.attemptLogs[question.exercise_id] || {})[question.question_id] || {}).answer;
+        const attempt = this.pastattempts.find(attempt => attempt.item === question.item);
+        return attempt && attempt.answer;
       },
       buttonClass(index) {
         if (this.questionNumber === index) {
@@ -94,7 +97,7 @@
       question: {
         message: 'Question { num, number, integer}',
         context:
-          "In the report section, the 'Answer history' shows the learner if they have answered questions correctly or incorrectly.",
+          "In the report section, the 'Answer history' shows the learner if they have answered questions correctly or incorrectly.\n\nOnly translate 'Question'.",
       },
     },
   };

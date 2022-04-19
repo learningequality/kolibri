@@ -16,8 +16,13 @@ function writeSourceToFile(filePath, fileSource) {
 
 // Compile all of the defined strings & context from the CSVs that have been downloaded
 // from Crowdin.
-function parseCSVDefinitions(dir, subDir = '**') {
-  return glob.sync(path.join(dir, 'CSV_FILES', subDir, '*.csv')).reduce((acc, filePath) => {
+function parseCSVDefinitions(dir, intlLangCode = null) {
+  if (intlLangCode) {
+    intlLangCode = toLocale(intlLangCode);
+  } else {
+    intlLangCode = '**';
+  }
+  return glob.sync(path.join(dir, intlLangCode, 'LC_MESSAGES', '*.csv')).reduce((acc, filePath) => {
     const csvFile = fs.readFileSync(filePath).toString();
 
     return [...acc, ...parseCsvSync(csvFile, { skip_empty_lines: true, columns: true })];

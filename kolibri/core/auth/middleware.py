@@ -6,6 +6,7 @@ from django.contrib.auth.middleware import AuthenticationMiddleware
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.core.cache import cache
 from django.core.exceptions import ImproperlyConfigured
+from django.db.models.signals import post_save
 from django.utils.functional import SimpleLazyObject
 
 
@@ -41,11 +42,14 @@ def get_anonymous_user_model():
         )
 
 
+USER_SESSION_CACHE_KEY = "USER_BY_SESSION_CACHE_{}"
+
+
 def _get_user(request):
     if not hasattr(request, "_cached_user"):
         try:
             user_id = _get_user_session_key(request)
-            USER_CACHE_KEY = "USER_BY_SESSION_CACHE_{}".format(user_id)
+            USER_CACHE_KEY = USER_SESSION_CACHE_KEY.format(user_id)
             user = cache.get(USER_CACHE_KEY)
             if not user:
                 user = get_user(request)
@@ -60,6 +64,14 @@ def _get_user(request):
     return request._cached_user
 
 
+def clear_user_cache(sender, instance, created, **kwargs):
+    if not created:
+        cache.delete(USER_SESSION_CACHE_KEY.format(instance.id))
+
+
+post_save.connect(clear_user_cache, sender=settings.AUTH_USER_MODEL)
+
+
 class CustomAuthenticationMiddleware(AuthenticationMiddleware):
     """
     Adaptation of Django's ``account.middleware.AuthenticationMiddleware``
@@ -67,12 +79,13 @@ class CustomAuthenticationMiddleware(AuthenticationMiddleware):
     """
 
     def process_request(self, request):
-        assert hasattr(request, "session"), (
-            "The authentication middleware requires session middleware "
-            "to be installed. Edit your MIDDLEWARE_CLASSES setting to insert "
-            "'django.contrib.sessions.middleware.SessionMiddleware' before "
-            "'kolibri.core.auth.middleware.CustomAuthenticationMiddleware'."
-        )
+        if not hasattr(request, "session"):
+            raise AssertionError(
+                "The authentication middleware requires session middleware "
+                "to be installed. Edit your MIDDLEWARE_CLASSES setting to insert "
+                "'django.contrib.sessions.middleware.SessionMiddleware' before "
+                "'kolibri.core.auth.middleware.CustomAuthenticationMiddleware'."
+            )
         request.user = SimpleLazyObject(lambda: _get_user(request))
 
 

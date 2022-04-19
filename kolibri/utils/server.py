@@ -2,6 +2,7 @@ import logging
 import os
 import signal
 import sys
+import threading
 import time
 import traceback as _traceback
 from functools import partial
@@ -21,8 +22,10 @@ from magicbus.plugins.signalhandler import SignalHandler as BaseSignalHandler
 from magicbus.plugins.tasks import Autoreloader
 from magicbus.plugins.tasks import Monitor
 from zeroconf import get_all_addresses
+from zeroconf import InterfaceChoice
 
 import kolibri
+from .constants import installation_types
 from .system import become_daemon
 from .system import pid_exists
 from kolibri.utils import conf
@@ -58,18 +61,12 @@ PID_FILE = os.path.join(conf.KOLIBRI_HOME, "server.pid")
 # File used to activate profiling middleware and get profiler PID
 PROFILE_LOCK = os.path.join(conf.KOLIBRI_HOME, "server_profile.lock")
 
-# File used to store previously available ports
-PORT_CACHE = os.path.join(conf.KOLIBRI_HOME, "port_cache")
-
 # File used to send a state transition command to the server process
 PROCESS_CONTROL_FLAG = os.path.join(conf.KOLIBRI_HOME, "process_control.flag")
 
 # This is a special file with daemon activity. It logs ALL stderr output, some
 # might not have made it to the log file!
 DAEMON_LOG = os.path.join(conf.LOG_ROOT, "daemon.txt")
-
-# Currently non-configurable until we know how to properly handle this
-LISTEN_ADDRESS = "0.0.0.0"
 
 status_messages = {
     STATUS_RUNNING: "OK, running",
@@ -88,6 +85,7 @@ status_messages = {
 
 RESTART = "restart"
 STOP = "stop"
+UPDATE_ZEROCONF = "update_zeroconf"
 
 
 class NotRunning(Exception):
@@ -101,6 +99,18 @@ class NotRunning(Exception):
         super(NotRunning, self).__init__()
 
 
+class PortOccupied(OSError):
+    pass
+
+
+class RunningException(PortOccupied):
+    """
+    Raised when server already appears to be running
+    """
+
+    pass
+
+
 class Server(BaseServer):
     def error_log(self, msg="", level=20, traceback=False):
         if traceback:
@@ -112,7 +122,7 @@ class Server(BaseServer):
         return logger.log(level, msg)
 
 
-def check_port_availability(host, port):
+def port_is_available_on_host(host, port):
     """
     Make sure the port is available for the server to start.
     """
@@ -125,86 +135,87 @@ def check_port_availability(host, port):
     return True
 
 
-class PortCache:
-    def __init__(self):
-        self.values = {}
-        self.occupied_ports = set()
-        self.load()
-
-    def lock_port(self, port):
-        if port:
-            self.occupied_ports.add(port)
-
-    def register_port(self, port):
-        self.values[port] = True
-        self.save()
-
-    def get_port(self, host):
-        if self.values:
-            try:
-                port = next(
-                    p
-                    for p in self.values
-                    if not self.values[p] and p not in self.occupied_ports
-                )
-                if port:
-                    if check_port_availability(host, port):
-                        self.values[port] = True
-                        return port
-            except StopIteration:
-                pass
-        return None
-
-    def save(self):
-        with open(PORT_CACHE, "w") as f:
-            f.write("\n".join(str(p) for p in self.values.keys()))
-
-    def load(self):
-        try:
-            with open(PORT_CACHE, "r") as f:
-                for port in f.readlines():
-                    self.values[int(port)] = False
-        except IOError:
-            pass
-
-
-port_cache = PortCache()
-
-
 class ServerPlugin(BaseServerPlugin):
-    def subscribe(self):
-        super(ServerPlugin, self).subscribe()
-        self.bus.subscribe("ENTER", self.ENTER)
+    def __init__(self, bus, port):
+        # The server is initialized without a bind address before it is passed into the plugin.
+        # Because of the property setter below for `bind_addr` the setting of `self.bind_addr`
+        # in the super invocation here, results in the httpserver's `bind_addr` property being set.
+        address = (conf.OPTIONS["Deployment"]["LISTEN_ADDRESS"], port)
 
-    def unsubscribe(self):
-        super(ServerPlugin, self).unsubscribe()
-        self.bus.unsubscribe("ENTER", self.ENTER)
+        super(ServerPlugin, self).__init__(
+            bus,
+            httpserver=Server(None, self.application, **self.server_config),
+            bind_addr=address,
+        )
+        self._default_bind_addr = self.bind_addr
 
-    def ENTER(self):
-        host, bind_port = self.bind_addr
-        if bind_port == 0:
-            port = port_cache.get_port(host)
-            if port:
-                self.bind_addr = (host, port)
-                self.httpserver.bind_addr = (host, port)
+    @property
+    def application(self):
+        raise NotImplementedError("ServerPlugin subclasses must implement application")
+
+    @property
+    def server_config(self):
+        return {
+            "numthreads": conf.OPTIONS["Server"]["CHERRYPY_THREAD_POOL"],
+            "request_queue_size": conf.OPTIONS["Server"]["CHERRYPY_QUEUE_SIZE"],
+            "timeout": conf.OPTIONS["Server"]["CHERRYPY_SOCKET_TIMEOUT"],
+            "accepted_queue_size": conf.OPTIONS["Server"]["CHERRYPY_QUEUE_SIZE"],
+            "accepted_queue_timeout": conf.OPTIONS["Server"]["CHERRYPY_QUEUE_TIMEOUT"],
+        }
+
+    @property
+    def bind_addr(self):
+        # Instead of using our own copy of bind_addr, mirror httpserver.
+        # This is necessary because methods in BaseServerPlugin expect
+        # bind_addr to match the bind address the server is using, such as
+        # when binding to port 0.
+        return self.httpserver.bind_addr
+
+    @bind_addr.setter
+    def bind_addr(self, value):
+        self.httpserver.bind_addr = value
 
     def START(self):
+        # Reset httpserver bind_addr. This value changes if httpserver has
+        # been started before.
+        self.httpserver.bind_addr = self._default_bind_addr
         super(ServerPlugin, self).START()
-        _, port = self.httpserver.bind_addr
-        port_cache.register_port(port)
 
     @property
     def interface(self):
         if self.httpserver.bind_addr is None:
             return "unknown interface (dynamic?)"
-        elif isinstance(self.httpserver.bind_addr, tuple):
+        if isinstance(self.httpserver.bind_addr, tuple):
             host, port = self.httpserver.bind_addr
             return "%s:%s" % (host, port)
-        else:
-            return "socket file: %s" % self.httpserver.bind_addr
+        return "socket file: %s" % self.httpserver.bind_addr
 
 
 class KolibriServerPlugin(ServerPlugin):
+    def __init__(self, bus, port):
+        # Check if there are other kolibri instances running
+        # If there are, then we need to stop users from starting kolibri again.
+        pid, port, _, status = _read_pid_file(bus.pid_file)
+        if (
+            status in IS_RUNNING
+            and pid_exists(pid)
+            and not port_is_available_on_host(
+                conf.OPTIONS["Deployment"]["LISTEN_ADDRESS"], port
+            )
+        ):
+            logger.error(
+                "There is another Kolibri server running. "
+                "Please use `kolibri stop` and try again."
+            )
+            raise RunningException("There is another Kolibri server running.")
+        super(KolibriServerPlugin, self).__init__(bus, port)
+
+    @property
+    def application(self):
+        from kolibri.deployment.default.wsgi import application
+
+        return application
+
     def ENTER(self):
         super(KolibriServerPlugin, self).ENTER()
         # Clear old sessions up
@@ -222,6 +233,12 @@ class KolibriServerPlugin(ServerPlugin):
 
 
 class ZipContentServerPlugin(ServerPlugin):
+    @property
+    def application(self):
+        from kolibri.deployment.default.alt_wsgi import alt_application
+
+        return alt_application
+
     def START(self):
         super(ZipContentServerPlugin, self).START()
         _, bind_port = self.httpserver.bind_addr
@@ -233,78 +250,103 @@ class ZipContentServerPlugin(ServerPlugin):
 class ServicesPlugin(SimplePlugin):
     def __init__(self, bus):
         self.bus = bus
-        self.workers = None
-
-    def ENTER(self):
-        from kolibri.deployment.default.cache import recreate_diskcache
-
-        recreate_diskcache()
+        self.worker = None
 
     def START(self):
         from kolibri.core.tasks.main import initialize_workers
-        from kolibri.core.tasks.main import scheduler
+        from kolibri.core.tasks.main import job_storage
         from kolibri.core.analytics.utils import DEFAULT_PING_JOB_ID
         from kolibri.core.deviceadmin.utils import SCH_VACUUM_JOB_ID
 
         # schedule the pingback job if not already scheduled
-        if DEFAULT_PING_JOB_ID not in scheduler:
+        if DEFAULT_PING_JOB_ID not in job_storage:
             from kolibri.core.analytics.utils import schedule_ping
 
             schedule_ping()
 
         # schedule the vacuum job if not already scheduled
-        if SCH_VACUUM_JOB_ID not in scheduler:
+        if SCH_VACUUM_JOB_ID not in job_storage:
             from kolibri.core.deviceadmin.utils import schedule_vacuum
 
             schedule_vacuum()
 
         # Initialize the iceqube engine to handle queued tasks
-        self.workers = initialize_workers()
-
-        # Initialize the iceqube scheduler to handle scheduled tasks
-        scheduler.start_scheduler()
+        self.worker = initialize_workers()
 
     def STOP(self):
-        from kolibri.core.tasks.main import scheduler
-
-        scheduler.shutdown_scheduler()
-
-        if self.workers is not None:
-            for worker in self.workers:
-                worker.shutdown(wait=True)
+        if self.worker is not None:
+            self.worker.shutdown(wait=True)
 
 
 class ZeroConfPlugin(Monitor):
     def __init__(self, bus, port):
-        self.addresses = set()
         self.port = port
-        Monitor.__init__(self, bus, self.run, 1)
+        if conf.OPTIONS["Deployment"]["LISTEN_ADDRESS"] == "0.0.0.0":
+            # Only bother doing dynamic updates of the zeroconf service if we're bound
+            # to all available IP addresses.
+            Monitor.__init__(self, bus, self.run, frequency=5)
         self.bus.subscribe("SERVING", self.SERVING)
+        self.bus.subscribe("UPDATE_ZEROCONF", self.UPDATE_ZEROCONF)
+        self.broadcast = None
+
+    @property
+    def interfaces(self):
+        return (
+            InterfaceChoice.All
+            if conf.OPTIONS["Deployment"]["LISTEN_ADDRESS"] == "0.0.0.0"
+            else [conf.OPTIONS["Deployment"]["LISTEN_ADDRESS"]]
+        )
 
     def SERVING(self, port):
         # Register the Kolibri zeroconf service so it will be discoverable on the network
+        from kolibri.core.discovery.utils.network.broadcast import (
+            build_broadcast_instance,
+            KolibriBroadcast,
+        )
         from kolibri.core.discovery.utils.network.search import (
-            register_zeroconf_service,
+            DynamicNetworkLocationListener,
+            SoUDClientListener,
+            SoUDServerListener,
         )
 
-        register_zeroconf_service(port=port or self.port)
+        self.port = port or self.port
+        instance = build_broadcast_instance(port)
+
+        if self.broadcast is None:
+            self.broadcast = KolibriBroadcast(instance, interfaces=self.interfaces)
+            self.broadcast.add_listener(DynamicNetworkLocationListener)
+            self.broadcast.add_listener(SoUDClientListener)
+            self.broadcast.add_listener(SoUDServerListener)
+            self.broadcast.start_broadcast()
+        else:
+            self.broadcast.update_broadcast(
+                instance=instance, interfaces=self.interfaces
+            )
+
+    def UPDATE_ZEROCONF(self):
+        self.SERVING(self.port)
 
     def STOP(self):
         super(ZeroConfPlugin, self).STOP()
-        from kolibri.core.discovery.utils.network.search import (
-            unregister_zeroconf_service,
-        )
 
-        unregister_zeroconf_service()
+        if self.broadcast is not None:
+            self.broadcast.stop_broadcast()
+            self.broadcast = None
 
     def run(self):
-        from kolibri.core.discovery.utils.network.search import ZEROCONF_STATE
-        from kolibri.core.discovery.utils.network.search import (
-            reinitialize_zeroconf_if_network_has_changed,
-        )
-
-        if ZEROCONF_STATE["service"] is not None:
-            reinitialize_zeroconf_if_network_has_changed()
+        # If set of addresses that were present at the last time zeroconf updated its broadcast list
+        # don't match the current set of all addresses for this device, then we should reinitialize
+        # zeroconf, the listener, and the broadcast kolibri service.
+        current_addresses = set(get_all_addresses())
+        if (
+            self.broadcast is not None
+            and self.broadcast.is_broadcasting
+            and self.broadcast.addresses != current_addresses
+        ):
+            logger.info(
+                "List of local addresses has changed since zeroconf was last initialized, updating now"
+            )
+            self.broadcast.update_broadcast(interfaces=self.interfaces)
 
 
 status_map = {
@@ -323,11 +365,9 @@ IS_RUNNING = set([STATUS_RUNNING, STATUS_STARTING_UP, STATUS_SHUTTING_DOWN])
 
 
 class PIDPlugin(SimplePlugin):
-    def __init__(self, bus, port, zip_port, pid_file=PID_FILE):
+    def __init__(self, bus):
         self.bus = bus
-        self.port = port
-        self.zip_port = zip_port
-        self.pid_file = pid_file
+
         # Do this during initialization to set a startup lock
         self.set_pid_file(STATUS_STARTING_UP)
         self.bus.subscribe("SERVING", self.SERVING)
@@ -343,31 +383,69 @@ class PIDPlugin(SimplePlugin):
 
         :param: status: status of the process
         """
-        with open(self.pid_file, "w") as f:
+        with open(self.bus.pid_file, "w") as f:
             f.write(
-                "{}\n{}\n{}\n{}\n".format(os.getpid(), self.port, self.zip_port, status)
+                "{}\n{}\n{}\n{}\n".format(
+                    os.getpid(), self.bus.port, self.bus.zip_port, status
+                )
             )
 
     def SERVING(self, port):
-        self.port = port or self.port
+        self.bus.port = port or self.bus.port
         self.set_pid_file(STATUS_RUNNING)
 
     def ZIP_SERVING(self, zip_port):
-        self.zip_port = zip_port or self.zip_port
+        self.bus.zip_port = zip_port or self.bus.zip_port
         self.set_pid_file(STATUS_RUNNING)
 
     def EXIT(self):
         try:
-            os.unlink(self.pid_file)
+            os.unlink(self.bus.pid_file)
         except OSError:
             pass
 
 
+def _port_check(port):
+    # In case that something other than Kolibri occupies the port,
+    # check the port's availability.
+    # Bypass check when socket activation is used
+    # https://manpages.debian.org/testing/libsystemd-dev/sd_listen_fds.3.en.html#ENVIRONMENT
+    # Also bypass when the port is 0, as that will choose a port
+    if (
+        not os.environ.get("LISTEN_PID", None)
+        and port
+        and not port_is_available_on_host(
+            conf.OPTIONS["Deployment"]["LISTEN_ADDRESS"], int(port)
+        )
+    ):
+        # Port is occupied
+        logger.error(
+            "Port {} is occupied.\n"
+            "Please check that you do not have other processes "
+            "running on this port and try again.\n".format(port)
+        )
+        raise PortOccupied("Port {} is occupied.".format(port))
+
+
 class DaemonizePlugin(SimplePlugin):
+    def __init__(self, bus, check_ports):
+        self.check_ports = check_ports
+        super(DaemonizePlugin, self).__init__(bus)
+
     def ENTER(self):
         self.bus.publish("log", "Running Kolibri as background process", 20)
+        if self.check_ports:
+            _port_check(self.bus.port)
+            _port_check(self.bus.zip_port)
+            if self.bus.port:
+                __, urls = get_urls(listen_port=self.bus.port)
+                for url in urls:
+                    logger.info("Kolibri running on: {}".format(url))
+            else:
+                logger.info(
+                    "No port specified, for information about accessing the server, run kolibri status"
+                )
         # Daemonize at this point, no more user output is needed
-        from django.conf import settings
 
         kolibri_log = settings.LOGGING["handlers"]["file"]["filename"]
         self.bus.publish(
@@ -454,8 +532,42 @@ class ProcessControlPlugin(Monitor):
                 self.bus.log("Stopping server.")
                 self.thread.cancel()
                 self.bus.transition("EXITED")
+            elif command == UPDATE_ZEROCONF:
+                self.bus.publish("UPDATE_ZEROCONF")
+                # since publish doesn't modify the bus state like `transition` does, we would keep
+                # triggering this if we didn't set modified time, so setting it means we'll wait
+                # for a new change
+                self.mtime = mtime
             else:
                 self.mtime = mtime
+
+
+class ThreadWait(SimplePlugin):
+    """
+    Vendored from magicbus for Python 3.9 compatibility.
+    The current released version of magicbus is still using isAlive
+    instead of is_alive which is no longer used in Python 3.9.
+    """
+
+    def EXIT(self):
+        # Waiting for ALL child threads to finish is necessary on OS X.
+        # See http://www.cherrypy.org/ticket/581.
+        # It's also good to let them all shut down before allowing
+        # the main thread to call atexit handlers.
+        # See http://www.cherrypy.org/ticket/751.
+        self.bus.log("Waiting for child threads to terminate...")
+        for t in threading.enumerate():
+            if t == threading.current_thread() or not t.is_alive():
+                continue
+
+            # Note that any dummy (external) threads are always daemonic.
+            if t.daemon or isinstance(t, threading._MainThread):
+                continue
+
+            self.bus.log("Waiting for thread %s." % t.getName())
+            t.join()
+
+    EXIT.priority = 100
 
 
 def wait_for_status(target, timeout=10):
@@ -467,6 +579,15 @@ def wait_for_status(target, timeout=10):
         else:
             return True
     return False
+
+
+# The SIGKILL signal does not exist on windows
+# We use CTRL_C_EVENT instead, as it is intended
+# to be passed to the os.kill command.
+if sys.platform == "win32":
+    SIGKILL = signal.CTRL_C_EVENT
+else:
+    SIGKILL = signal.SIGKILL
 
 
 def stop():
@@ -485,7 +606,7 @@ def stop():
     if pid_exists(pid):
         logger.debug("Process wth pid %s still exists; attempting a SIGKILL." % pid)
         try:
-            os.kill(pid, signal.SIGKILL)
+            os.kill(pid, SIGKILL)
         except SystemError as e:
             logger.debug(
                 "Received an error while trying to kill the Kolibri process: %s" % e
@@ -502,82 +623,102 @@ def stop():
     return STATUS_STOPPED
 
 
-def configure_http_server(port, zip_port, bus):
-    from kolibri.deployment.default.wsgi import application
-    from kolibri.deployment.default.alt_wsgi import alt_application
-
-    server_config = {
-        "numthreads": conf.OPTIONS["Server"]["CHERRYPY_THREAD_POOL"],
-        "request_queue_size": conf.OPTIONS["Server"]["CHERRYPY_QUEUE_SIZE"],
-        "timeout": conf.OPTIONS["Server"]["CHERRYPY_SOCKET_TIMEOUT"],
-        "accepted_queue_size": conf.OPTIONS["Server"]["CHERRYPY_QUEUE_SIZE"],
-        "accepted_queue_timeout": conf.OPTIONS["Server"]["CHERRYPY_QUEUE_TIMEOUT"],
-    }
-
-    kolibri_address = (LISTEN_ADDRESS, port)
-
-    kolibri_server = KolibriServerPlugin(
-        bus,
-        httpserver=Server(kolibri_address, application, **server_config),
-        bind_addr=kolibri_address,
-    )
-
-    alt_port_addr = (
-        LISTEN_ADDRESS,
-        zip_port,
-    )
-
-    alt_port_server = ZipContentServerPlugin(
-        bus,
-        httpserver=Server(alt_port_addr, alt_application, **server_config),
-        bind_addr=alt_port_addr,
-    )
-    # Subscribe these servers
-    kolibri_server.subscribe()
-    alt_port_server.subscribe()
-
-
-def background_port_check(port, zip_port):
-    # Do this before daemonization, otherwise just let the server processes handle this
-    # In case that something other than Kolibri occupies the port,
-    # check the port's availability.
-    # Bypass check when socket activation is used
-    # https://manpages.debian.org/testing/libsystemd-dev/sd_listen_fds.3.en.html#ENVIRONMENT
-    # Also bypass when the port is 0, as that will choose a port
-    port = int(port)
-    zip_port = int(zip_port)
-    if (
-        not os.environ.get("LISTEN_PID", None)
-        and port
-        and not check_port_availability(LISTEN_ADDRESS, port)
+class BaseKolibriProcessBus(ProcessBus):
+    def __init__(
+        self,
+        port=0,
+        zip_port=0,
+        pid_file=PID_FILE,
     ):
-        # Port is occupied
-        logger.error(
-            "Port {} is occupied.\n"
-            "Please check that you do not have other processes "
-            "running on this port and try again.\n".format(port)
+        self.pid_file = pid_file
+        self.port = int(port)
+        self.zip_port = int(zip_port)
+
+        super(BaseKolibriProcessBus, self).__init__()
+        # This can be removed when a new version of magicbus is released that
+        # includes their fix for Python 3.9 compatibility.
+        self.thread_wait.unsubscribe()
+        self.thread_wait = ThreadWait(self)
+        self.thread_wait.subscribe()
+        # Setup plugin for handling PID file cleanup
+        # Do this first to obtain a PID file lock as soon as
+        # possible and reduce the risk of competing servers
+        pid_plugin = PIDPlugin(self)
+        pid_plugin.subscribe()
+
+        logger.info("Starting Kolibri {version}".format(version=kolibri.__version__))
+
+        log_plugin = LogPlugin(self)
+        log_plugin.subscribe()
+
+        signal_handler = SignalHandler(self)
+
+        signal_handler.subscribe()
+
+        if getattr(settings, "DEVELOPER_MODE", False):
+            autoreloader = Autoreloader(self)
+            plugins = os.path.join(conf.KOLIBRI_HOME, "plugins.json")
+            options = os.path.join(conf.KOLIBRI_HOME, "options.ini")
+            autoreloader.files.add(plugins)
+            autoreloader.files.add(options)
+            autoreloader.subscribe()
+
+        reload_plugin = ProcessControlPlugin(self)
+        reload_plugin.subscribe()
+
+    def run(self):
+        self.graceful()
+        self.block()
+
+
+class KolibriServicesProcessBus(BaseKolibriProcessBus):
+    def __init__(self, *args, **kwargs):
+        super(KolibriServicesProcessBus, self).__init__(*args, **kwargs)
+
+        # Setup plugin for services
+        service_plugin = ServicesPlugin(self)
+        service_plugin.subscribe()
+
+        # Setup zeroconf plugin
+        zeroconf_plugin = ZeroConfPlugin(self, self.port)
+        zeroconf_plugin.subscribe()
+
+    def run(self):
+        self.graceful()
+        self.publish("SERVING", self.port)
+
+        self.block()
+
+
+class KolibriProcessBus(KolibriServicesProcessBus):
+    """
+    This class is the state machine that manages the starting, restarting, and shutdown of
+    a running Kolibri instance. It is responsible for starting any WSGI servers that respond
+    to HTTP requests in the Kolibri lifecycle, and also other ancillary services like
+    a ZeroConf server, task runner work pool, etc.
+
+    The primary use case for this process bus is for running Kolibri in a consumer server or
+    application context - although it can still be used to run the background services in
+    other contexts. One possible example for the extensibility of this class is if it is used
+    in conjunction with uwsgi, the 'restart' method of this class can be updated in a subclass
+    to run the specific `uwsgi.restart()` function that would otherwise not get invoked.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super(KolibriProcessBus, self).__init__(*args, **kwargs)
+
+        kolibri_server = KolibriServerPlugin(
+            self,
+            self.port,
         )
-        sys.exit(1)
-    if (
-        not os.environ.get("LISTEN_PID", None)
-        and zip_port
-        and not check_port_availability(LISTEN_ADDRESS, zip_port)
-    ):
-        # Port is occupied
-        logger.error(
-            "Port {} is occupied.\n"
-            "Please check that you do not have other processes "
-            "running on this port and try again.\n".format(zip_port)
+
+        alt_port_server = ZipContentServerPlugin(
+            self,
+            self.zip_port,
         )
-        sys.exit(1)
-    if port:
-        __, urls = get_urls(listen_port=port)
-        for url in urls:
-            logger.info("Kolibri running on: {}".format(url))
-    else:
-        logger.info(
-            "No port specified, for information about accessing the server, run kolibri status"
-        )
+        # Subscribe these servers
+        kolibri_server.subscribe()
+        alt_port_server.subscribe()
 
 
 def start(port=0, zip_port=0, serve_http=True, background=False):
@@ -586,73 +727,24 @@ def start(port=0, zip_port=0, serve_http=True, background=False):
 
     :param: port: Port number (default: 0) - assigned by free port
     """
-    port = int(port)
-    port_cache.lock_port(port)
-    zip_port = int(zip_port)
-    port_cache.lock_port(zip_port)
+    if serve_http:
+        bus = KolibriProcessBus(
+            port=port,
+            zip_port=zip_port,
+        )
+    else:
+        bus = KolibriServicesProcessBus(
+            port=port,
+            zip_port=zip_port,
+        )
+
     # On Mac, Python crashes when forking the process, so prevent daemonization until we can figure out
     # a better fix. See https://github.com/learningequality/kolibri/issues/4821
-    if sys.platform == "darwin":
-        background = False
-
-    # Check if there are other kolibri instances running
-    # If there are, then we need to stop users from starting kolibri again.
-    pid, _, _, status = _read_pid_file(PID_FILE)
-
-    if status in IS_RUNNING and pid_exists(pid):
-        logger.error(
-            "There is another Kolibri server running. "
-            "Please use `kolibri stop` and try again."
-        )
-        sys.exit(1)
-
-    bus = ProcessBus()
-
-    # Setup plugin for handling PID file cleanup
-    # Do this first to obtain a PID file lock as soon as
-    # possible and reduce the risk of competing servers
-    pid_plugin = PIDPlugin(bus, port, zip_port)
-    pid_plugin.subscribe()
-
-    if background and serve_http:
-        background_port_check(port, zip_port)
-
-    logger.info("Starting Kolibri {version}".format(version=kolibri.__version__))
-
-    if background:
-        daemonize_plugin = DaemonizePlugin(bus)
+    if background and sys.platform != "darwin":
+        daemonize_plugin = DaemonizePlugin(bus, serve_http)
         daemonize_plugin.subscribe()
 
-    log_plugin = LogPlugin(bus)
-    log_plugin.subscribe()
-
-    if serve_http:
-        configure_http_server(port, zip_port, bus)
-
-    # Setup plugin for services
-    service_plugin = ServicesPlugin(bus)
-    service_plugin.subscribe()
-
-    # Setup zeroconf plugin
-    zeroconf_plugin = ZeroConfPlugin(bus, port)
-    zeroconf_plugin.subscribe()
-
-    signal_handler = SignalHandler(bus)
-
-    signal_handler.subscribe()
-
-    if getattr(settings, "DEVELOPER_MODE", False):
-        autoreloader = Autoreloader(bus)
-        autoreloader.subscribe()
-
-    reload_plugin = ProcessControlPlugin(bus)
-    reload_plugin.subscribe()
-
-    bus.graceful()
-    if not serve_http:
-        bus.publish("SERVING", None)
-
-    bus.block()
+    bus.run()
 
 
 def restart():
@@ -661,6 +753,14 @@ def restart():
     if not wait_for_status(STATUS_STOPPED):
         return False
     return wait_for_status(STATUS_RUNNING)
+
+
+def update_zeroconf_broadcast():
+    """
+    Updates the instance registered on the Zeroconf network
+    """
+    with open(PROCESS_CONTROL_FLAG, "w") as f:
+        f.write(UPDATE_ZEROCONF)
 
 
 def _read_pid_file(filename):
@@ -676,7 +776,7 @@ def _read_pid_file(filename):
                           if they exist. If the port number doesn't exist, then
                           port is None. Lastly, the status code is returned.
     """
-    if not os.path.isfile(PID_FILE):
+    if not os.path.isfile(filename):
         return None, None, None, STATUS_STOPPED
 
     try:
@@ -718,13 +818,13 @@ def get_status():  # noqa: max-complexity=16
 
     if status == STATUS_STARTING_UP:
         try:
-            wait_for_occupied_port(LISTEN_ADDRESS, port)
+            wait_for_occupied_port(conf.OPTIONS["Deployment"]["LISTEN_ADDRESS"], port)
         except OSError:
             raise NotRunning(STATUS_FAILED_TO_START)
 
     if status == STATUS_SHUTTING_DOWN:
         try:
-            wait_for_free_port(LISTEN_ADDRESS, port)
+            wait_for_free_port(conf.OPTIONS["Deployment"]["LISTEN_ADDRESS"], port)
         except OSError:
             raise NotRunning(STATUS_UNCLEAN_SHUTDOWN)
         raise NotRunning(STATUS_STOPPED)
@@ -774,7 +874,11 @@ def get_status():  # noqa: max-complexity=16
         except (requests.exceptions.RequestException):
             return pid, "", ""
 
-    return pid, LISTEN_ADDRESS, listen_port  # Correct PID !
+    return (
+        pid,
+        conf.OPTIONS["Deployment"]["LISTEN_ADDRESS"],
+        listen_port,
+    )  # Correct PID !
     # We don't detect this at present:
     # Could be detected because we fetch the PID directly via HTTP, but this
     # is dumb because kolibri could be running in a worker pool with different
@@ -798,7 +902,12 @@ def get_urls(listen_port=None):
         urls = []
         if port:
             try:
-                for ip in get_all_addresses():
+                all_addresses = (
+                    get_all_addresses()
+                    if conf.OPTIONS["Deployment"]["LISTEN_ADDRESS"] == "0.0.0.0"
+                    else [conf.OPTIONS["Deployment"]["LISTEN_ADDRESS"]]
+                )
+                for ip in all_addresses:
                     urls.append("http://{}:{}/".format(ip, port))
             except RuntimeError:
                 logger.error("Error retrieving network interface list!")
@@ -807,77 +916,116 @@ def get_urls(listen_port=None):
         return e.status_code, []
 
 
+def get_installer_version(installer_type):  # noqa: C901
+    def get_debian_pkg_version(package):
+        """
+        In case we want to distinguish between dpkg and apt installations
+        we can use apt-cache show madison and compare versions with dpkg
+        if dpkg > madison, it's dpkg otherwise it's apt
+        """
+        try:
+            output = check_output(["dpkg", "-s", package])
+            if hasattr(output, "decode"):  # needed in python 2.x
+                output = output.decode("utf-8")
+            package_info = output.split("\n")
+            version_info = [line for line in package_info if "Version" in line]
+            if version_info:
+                version = version_info[0].split(":")[1].strip()
+                return version
+        except CalledProcessError:  # package not installed!
+            pass  # will return None
+        return None
+
+    def get_deb_kolibriserver_version():
+        return get_debian_pkg_version("kolibri-server")
+
+    def get_deb_version():
+        return get_debian_pkg_version("kolibri")
+
+    def get_apk_version():
+        return os.environ.get("KOLIBRI_APK_VERSION_NAME")
+
+    installer_version = os.environ.get("KOLIBRI_INSTALLER_VERSION")
+    if installer_version:
+        return installer_version
+
+    version_funcs = {
+        installation_types.DEB: get_deb_version,
+        installation_types.KOLIBRI_SERVER: get_deb_kolibriserver_version,
+        installation_types.APK: get_apk_version,
+    }
+
+    if installer_type in version_funcs:
+        return version_funcs[installer_type]()
+    else:
+        return None
+
+
 def installation_type(cmd_line=None):  # noqa:C901
     """
     Tries to guess how the running kolibri server was installed
 
     :returns: install_type is the type of detected installation
     """
+
+    install_type = os.environ.get("KOLIBRI_INSTALLATION_TYPE", "Unknown")
+
     if cmd_line is None:
         cmd_line = sys.argv
-    install_type = "Unknown"
 
     def is_debian_package():
         # find out if this is from the debian package
-        install_type = "dpkg"
+        install_type = installation_types.DEB
         try:
-            check_output(["apt-cache", "show", "kolibri"])
-            apt_repo = str(check_output(["apt-cache", "madison", "kolibri"]))
-            if len(apt_repo) > 4:  # repo will have at least http
-                install_type = "apt"
+            check_output(["dpkg", "-s", "kolibri"])
         except (
             CalledProcessError,
             FileNotFoundError,
         ):  # kolibri package not installed!
             if sys.path[-1] != "/usr/lib/python3/dist-packages":
-                install_type = "whl"
+                install_type = installation_types.WHL
         return install_type
 
     def is_kolibri_server():
         # running under uwsgi, finding out if we are using kolibri-server
-        install_type = ""
+        install_type = "Unknown"
         try:
-            package_info = (
-                check_output(["apt-cache", "show", "kolibri-server"])
-                .decode("utf-8")
-                .split("\n")
-            )
-            version = [output for output in package_info if "Version" in output]
-            install_type = "kolibri-server {}".format(version[0])
+            check_output(["dpkg", "-s", "kolibri-server"])
+            install_type = installation_types.KOLIBRI_SERVER
         except CalledProcessError:  # kolibri-server package not installed!
-            install_type = "uwsgi"
+            install_type = installation_types.WHL
         return install_type
 
-    if len(cmd_line) > 1 or "uwsgi" in cmd_line:
-        launcher = cmd_line[0]
-        if launcher.endswith(".pex"):
-            install_type = "pex"
-        elif "runserver" in cmd_line:
-            install_type = "devserver"
-        elif launcher == "/usr/bin/kolibri":
-            install_type = is_debian_package()
-        elif launcher == "uwsgi":
-            package = is_debian_package()
-            if package != "whl":
-                kolibri_server = is_kolibri_server()
-                install_type = "kolibri({kolibri_type}) with {kolibri_server}".format(
-                    kolibri_type=package, kolibri_server=kolibri_server
-                )
-        elif "\\Scripts\\kolibri" in launcher:
-            paths = sys.path
-            for path in paths:
-                if "kolibri.exe" in path:
-                    install_type = "Windows"
-                    break
-        elif "start" in cmd_line:
-            install_type = "whl"
-    if on_android():
+    # in case the KOLIBRI_INSTALLATION_TYPE is not set, let's use the old method:
+    if install_type == "Unknown":
+        if on_android():
+            install_type = installation_types.APK
+        elif len(cmd_line) > 1 or "uwsgi" in cmd_line:
+            launcher = cmd_line[0]
+            if launcher.endswith(".pex"):
+                install_type = installation_types.PEX
+            elif "runserver" in cmd_line:
+                install_type = "devserver"
+            elif launcher == "/usr/bin/kolibri":
+                install_type = is_debian_package()
+            elif launcher == "uwsgi":
+                package = is_debian_package()
+                if package != "whl":
+                    install_type = is_kolibri_server()
+            elif "\\Scripts\\kolibri" in launcher:
+                paths = sys.path
+                for path in paths:
+                    if "kolibri.exe" in path:
+                        install_type = installation_types.WINDOWS
+                        break
+            elif "start" in cmd_line:
+                install_type = installation_types.WHL
 
-        version_name = os.environ.get("KOLIBRI_APK_VERSION_NAME")
-
-        if version_name:
-            install_type = "apk - {}".format(version_name)
+    if install_type in installation_types.install_type_map:
+        version = get_installer_version(install_type)
+        if version:
+            return installation_types.install_type_map[install_type].format(version)
         else:
-            install_type = "apk"
+            return installation_types.install_type_map[install_type].split(" - ")[0]
 
     return install_type

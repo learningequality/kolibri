@@ -12,25 +12,7 @@
     </template>
 
     <KPageContainer>
-      <section>
-        <HeaderWithOptions>
-          <template #header>
-            <BackLink
-              :to="classRoute('ReportsLessonReportPage', {})"
-              :text="coachString('backToLessonLabel', { lesson: lesson.title })"
-            />
-          </template>
-          <template #options>
-            <KButton
-              :text="coachString('previewAction')"
-              @click="onPreviewClick"
-            />
-          </template>
-        </HeaderWithOptions>
-        <h1>
-          <KLabeledIcon :icon="resource.kind" :label="resource.title" />
-        </h1>
-      </section>
+      <ReportsResourceHeader :resource="resource" @previewClick="onPreviewClick" />
 
       <ReportsControls @export="exportCSV">
         <KCheckbox
@@ -70,7 +52,7 @@
             />
           </p>
 
-          <ReportsResourceLearners
+          <ReportsLearnersTable
             :entries="getGroupEntries(group.id)"
             :showGroupsColumn="false"
           />
@@ -87,7 +69,7 @@
             {{ coachString('ungroupedLearnersLabel') }}
           </h2>
 
-          <ReportsResourceLearners
+          <ReportsLearnersTable
             :entries="ungroupedEntries"
             :showGroupsColumn="false"
           />
@@ -109,7 +91,7 @@
           />
         </p>
 
-        <ReportsResourceLearners :entries="allEntries" />
+        <ReportsLearnersTable :entries="allEntries" />
       </template>
     </KPageContainer>
   </CoreBase>
@@ -120,22 +102,24 @@
 <script>
 
   import sortBy from 'lodash/sortBy';
+  import fromPairs from 'lodash/fromPairs';
+  import { mapState } from 'vuex';
   import { LastPages } from '../../constants/lastPagesConstants';
   import commonCoach from '../common';
-  import HeaderWithOptions from '../common/HeaderWithOptions';
   import CSVExporter from '../../csv/exporter';
   import * as csvFields from '../../csv/fields';
-  import ReportsResourceLearners from './ReportsResourceLearners';
+  import ReportsLearnersTable from './ReportsLearnersTable';
   import ReportsResourcesStats from './ReportsResourcesStats';
   import ReportsControls from './ReportsControls';
+  import ReportsResourceHeader from './ReportsResourceHeader';
 
   export default {
     name: 'ReportsLessonResourceLearnerListPage',
     components: {
-      HeaderWithOptions,
-      ReportsResourceLearners,
+      ReportsLearnersTable,
       ReportsResourcesStats,
       ReportsControls,
+      ReportsResourceHeader,
     },
     mixins: [commonCoach],
     data() {
@@ -144,11 +128,9 @@
       };
     },
     computed: {
+      ...mapState('resourceDetail', ['resource']),
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];
-      },
-      resource() {
-        return this.contentMap[this.$route.params.resourceId];
       },
       recipients() {
         return this.getLearnersForLesson(this.lesson);
@@ -170,10 +152,8 @@
         const learners = this.recipients.map(learnerId => this.learnerMap[learnerId]);
         const sorted = sortBy(learners, ['name']);
         return sorted.map(learner => {
-          const groups = this.getLearnerLessonGroups(learner.id);
           const tableRow = {
-            groups,
-            groupNames: groups.map(group => group.name),
+            groups: this.getGroupNamesForLearner(learner.id),
             statusObj: this.getContentStatusObjForLearner(
               this.$route.params.resourceId,
               learner.id
@@ -205,13 +185,12 @@
 
         this.$router.replace({ query });
       },
-      getLearnerLessonGroups(learnerId) {
-        return this.lessonGroups.filter(group => group.member_ids.includes(learnerId));
-      },
       getGroupEntries(groupId) {
+        const learnerIdMap = fromPairs(
+          this.getLearnersForGroups([groupId]).map(learnerId => [learnerId, true])
+        );
         return this.allEntries.filter(entry => {
-          const entryGroupIds = entry.groups.map(group => group.id);
-          return entryGroupIds.includes(groupId);
+          return learnerIdMap[entry.id];
         });
       },
       getGroupTally(groupId) {

@@ -25,7 +25,6 @@
 
   // PersonalSetup only has one step: Providing user credentials
   import every from 'lodash/every';
-  import commonSetupElements from '../../../commonSetupElements';
   import ProgressToolbar from './ProgressToolbar';
   import SuperuserCredentialsForm from './onboarding-forms/SuperuserCredentialsForm';
 
@@ -35,12 +34,10 @@
       ProgressToolbar,
       SuperuserCredentialsForm,
     },
-    mixins: [commonSetupElements],
+    inject: ['wizardService'],
     methods: {
       goToLastStep() {
-        this.$router.push({
-          name: 'GETTING_STARTED',
-        });
+        this.wizardService.send('BACK');
       },
       finalizeOnboardingData() {
         // Set defaults that are skipped in Personal setup. This should guarantee
@@ -60,8 +57,11 @@
     },
     $trs: {
       adminAccountCreationDescriptionPersonal: {
-        message: 'This account allows you to manage all content and user accounts on this device',
-        context: 'Alternative description for SuperuserCredentialsForm when doing a personal setup',
+        message:
+          'This account allows you to manage all resource channels and user accounts on this device',
+
+        context:
+          'Alternative description for SuperuserCredentialsForm when doing a personal setup.',
       },
     },
   };

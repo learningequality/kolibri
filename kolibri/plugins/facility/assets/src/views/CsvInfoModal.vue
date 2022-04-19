@@ -157,8 +157,11 @@
         context:
           "Title of the spreadsheet format reference window.\n\nCSV is a spreadsheet format that stands for 'Comma-separated values'. More here: https://en.wikipedia.org/wiki/Comma-separated_values",
       },
-      sectionDescription:
-        'A CSV spreadsheet should use the first row as a header, and contain the following columns:',
+      sectionDescription: {
+        message:
+          'A CSV spreadsheet should use the first row as a header, and contain the following columns:',
+        context: 'Description on CSV details window.',
+      },
       close: {
         message: 'Close',
         context: 'Button to close the spreadsheet format reference window.',
@@ -251,7 +254,7 @@
       columnNameHeader: {
         message: 'Column',
         context:
-          'Refers to the title of a type of data on the spreadsheet format reference window.\n',
+          'Refers to the title of a type of data on the spreadsheet format reference window.',
       },
       columnIDHeader: {
         message: 'Identifier',
@@ -312,25 +315,6 @@
         context:
           "Optional column that can be used on an imported spreadsheet.\n\nUsers see this information by clicking on the 'View spreadsheet format reference' link.",
       },
-      /* eslint-disable kolibri/vue-no-unused-translations */
-      // stub out some extra strings
-      downloadSample: 'Download a sample CSV file',
-      exampleUser: {
-        message: 'Example User {number}',
-        context:
-          'When downloading a sample CSV file, this string is used to generate some class names. These might be strings like "Example Name 1234", "Example Name 5678"',
-      },
-      exampleUsername: {
-        message: 'user-{number}',
-        context:
-          'When downloading a sample CSV file, this string is used to generate usernames. These must be valid Kolibri usernames (only letters, no spaces), for example "user-1234"',
-      },
-      exampleClass: {
-        message: 'Example Class - {letter}',
-        context:
-          'When downloading a sample CSV file, this string is used to generate some class names. These might be strings like "Example Class - A",  "Example Class - B",  and "Example Class - C"',
-      },
-      /* eslint-enable */
     },
   };
 

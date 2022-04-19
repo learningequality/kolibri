@@ -63,7 +63,7 @@ def test_settings_raise_if_tuple_setting_not_tuple(
 ):
     module_mock = ModuleType("module_mock")
     setting = "INSTALLED_APPS"
-    setattr(module_mock, setting, tuple())
+    setattr(module_mock, setting, ())
     plugin_settings_mock = ModuleType("settings_mock")
     setattr(plugin_settings_mock, setting, "app")
     plugin_mock = MagicMock(settings_module=plugin_settings_mock)

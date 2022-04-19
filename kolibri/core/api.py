@@ -2,6 +2,7 @@ import uuid
 
 import requests
 from django.http import Http404
+from django.http.request import QueryDict
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter
@@ -9,12 +10,14 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.mixins import CreateModelMixin as BaseCreateModelMixin
 from rest_framework.mixins import DestroyModelMixin
 from rest_framework.mixins import UpdateModelMixin as BaseUpdateModelMixin
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import Serializer
 from rest_framework.serializers import UUIDField
 from rest_framework.serializers import ValidationError
 from rest_framework.status import HTTP_201_CREATED
+from rest_framework.status import HTTP_503_SERVICE_UNAVAILABLE
 from six.moves.urllib.parse import urljoin
 
 from .utils.portal import registerfacility
@@ -35,11 +38,16 @@ class KolibriDataPortalViewSet(viewsets.ViewSet):
     @action(detail=False, methods=["get"])
     def validate_token(self, request):
         PORTAL_URL = conf.OPTIONS["Urls"]["DATA_PORTAL_SYNCING_BASE_URL"]
-        # token is in query params
-        response = requests.get(
-            urljoin(PORTAL_URL, "portal/api/public/v1/registerfacility/validate_token"),
-            params=request.query_params,
-        )
+        try:
+            # token is in query params
+            response = requests.get(
+                urljoin(
+                    PORTAL_URL, "portal/api/public/v1/registerfacility/validate_token"
+                ),
+                params=request.query_params,
+            )
+        except requests.exceptions.ConnectionError:
+            return Response({"status": "offline"}, status=HTTP_503_SERVICE_UNAVAILABLE)
         # handle any invalid json type responses
         try:
             data = response.json()
@@ -49,7 +57,7 @@ class KolibriDataPortalViewSet(viewsets.ViewSet):
 
 
 class ValuesViewsetOrderingFilter(OrderingFilter):
-    def get_default_valid_fields(self, queryset, view, context={}):
+    def get_default_valid_fields(self, queryset, view, context=None):
         """
         The original implementation of this makes the assumption that the DRF serializer for the class
         encodes all the serialization behaviour for the viewset:
@@ -62,6 +70,8 @@ class ValuesViewsetOrderingFilter(OrderingFilter):
         value is requried for ordering, it should be defined in the get_queryset method of the viewset, and not
         the annotate_queryset method, which is executed after filtering.
         """
+        if context is None:
+            context = {}
         default_fields = set()
         # All the fields that we have field maps defined for - this only allows for simple mapped fields
         # where the field is essentially a rename, as we have no good way of doing ordering on a field that
@@ -135,14 +145,13 @@ class BaseValuesViewset(viewsets.GenericViewSet):
     field_map = {}
 
     def __init__(self, *args, **kwargs):
-        viewset = super(BaseValuesViewset, self).__init__(*args, **kwargs)
+        super(BaseValuesViewset, self).__init__(*args, **kwargs)
         if not hasattr(self, "values") or not isinstance(self.values, tuple):
             raise TypeError("values must be defined as a tuple")
         self._values = tuple(self.values)
         if not isinstance(self.field_map, dict):
             raise TypeError("field_map must be defined as a dict")
         self._field_map = self.field_map.copy()
-        return viewset
 
     def generate_serializer(self):
         queryset = getattr(self, "queryset", None)
@@ -195,12 +204,13 @@ class BaseValuesViewset(viewsets.GenericViewSet):
     def _get_lookup_filter(self):
         lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
 
-        assert lookup_url_kwarg in self.kwargs, (
-            "Expected view %s to be called with a URL keyword argument "
-            'named "%s". Fix your URL conf, or set the `.lookup_field` '
-            "attribute on the view correctly."
-            % (self.__class__.__name__, lookup_url_kwarg)
-        )
+        if lookup_url_kwarg not in self.kwargs:
+            raise AssertionError(
+                "Expected view %s to be called with a URL keyword argument "
+                'named "%s". Fix your URL conf, or set the `.lookup_field` '
+                "attribute on the view correctly."
+                % (self.__class__.__name__, lookup_url_kwarg)
+            )
 
         return {self.lookup_field: self.kwargs[lookup_url_kwarg]}
 
@@ -253,10 +263,57 @@ class BaseValuesViewset(viewsets.GenericViewSet):
         try:
             filter_kwargs = filter_kwargs or self._get_lookup_filter()
             return self.serialize(queryset.filter(**filter_kwargs))[0]
-        except IndexError:
+        except (IndexError, ValueError, TypeError):
             raise Http404(
                 "No %s matches the given query." % queryset.model._meta.object_name
             )
+
+
+class QueryParamRequest(Request):
+    def __init__(self, query_params, *args, **kwargs):
+        super(QueryParamRequest, self).__init__(*args, **kwargs)
+        self._query_params = QueryDict(mutable=True)
+        for key, value in query_params.items():
+            self._query_params[key] = (
+                ",".join(value) if isinstance(value, (list, set)) else value
+            )
+        self._query_params._mutable = False
+
+    @property
+    def query_params(self):
+        return self._query_params
+
+
+def _generate_request(request, query_params, method="GET"):
+    ret = QueryParamRequest(
+        query_params,
+        request=request._request,
+        parsers=request.parsers,
+        authenticators=request.authenticators,
+        negotiator=request.negotiator,
+        parser_context=request.parser_context,
+    )
+    ret._data = request._data
+    ret._files = request._files
+    ret._full_data = request._full_data
+    ret._content_type = request._content_type
+    ret._stream = request._stream
+    ret.method = method
+    if hasattr(request, "_user"):
+        ret._user = request._user
+    if hasattr(request, "_auth"):
+        ret._auth = request._auth
+    if hasattr(request, "_authenticator"):
+        ret._authenticator = request._authenticator
+    if hasattr(request, "accepted_renderer"):
+        ret.accepted_renderer = request.accepted_renderer
+    if hasattr(request, "accepted_media_type"):
+        ret.accepted_media_type = request.accepted_media_type
+    if hasattr(request, "version"):
+        ret.version = request.version
+    if hasattr(request, "versioning_scheme"):
+        ret.versioning_scheme = request.versioning_scheme
+    return ret
 
 
 class ListModelMixin(object):
@@ -272,6 +329,16 @@ class ListModelMixin(object):
             return self.get_paginated_response(self.serialize(queryset))
 
         return Response(self.serialize(queryset))
+
+    def serialize_list(self, request, query_params=None, *args, **kwargs):
+        """
+        A method to allow serialization of objects for use outside of a regular
+        request/response cycle - useful for obtaining identical serialized responses
+        in a composite view that returns data from multiple viewsets at once.
+        """
+        self.request = _generate_request(request, query_params or {})
+        response = self.list(self.request)
+        return response.data
 
 
 class RetrieveModelMixin(object):

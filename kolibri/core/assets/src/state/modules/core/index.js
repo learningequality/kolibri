@@ -1,5 +1,4 @@
 import connectionModule from '../connection';
-import loggingModule from '../logging';
 import sessionModule from '../session';
 import snackbarModule from '../snackbar';
 import * as getters from './getters';
@@ -32,7 +31,6 @@ export default {
   mutations,
   modules: {
     connection: connectionModule,
-    logging: loggingModule,
     session: sessionModule,
     snackbar: snackbarModule,
   },

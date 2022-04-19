@@ -23,21 +23,29 @@
         <thead>
           <tr>
             <th></th>
-            <th class="numeric">
+            <th
+              class="numeric"
+              :style="{ color: $themeTokens.annotation }"
+            >
               {{ $tr('updated') }}
             </th>
-            <th class="numeric">
+            <th
+              class="numeric"
+              :style="{ color: $themeTokens.annotation }"
+            >
               {{ $tr('added') }}
             </th>
             <th
               v-if="showDeletionCol"
               class="numeric"
+              :style="{ color: $themeTokens.annotation }"
             >
               {{ $tr('deleted') }}
             </th>
             <th
               v-if="numSkipped"
               class="numeric"
+              :style="{ color: $themeTokens.annotation }"
             >
               {{ $tr('skipped') }}
             </th>
@@ -51,14 +59,14 @@
             </td>
             <td
               class="numeric"
-              style="color: green;"
+              :style="{ color: $themePalette.green.v_800 }"
             >
               {{ users_report.created }}
             </td>
             <td
               v-if="showDeletionCol"
               class="numeric"
-              style="color: red;"
+              :style="{ color: $themePalette.red.v_a700 }"
             >
               {{ users_report.deleted }}
             </td>
@@ -76,14 +84,14 @@
             </td>
             <td
               class="numeric"
-              style="color: green;"
+              :style="{ color: $themePalette.green.v_800 }"
             >
               {{ classes_report.created }}
             </td>
             <td
               v-if="showDeletionCol"
               class="numeric"
-              style="color: red;"
+              :style="{ color: $themePalette.red.v_a700 }"
             >
               {{ classes_report.cleared }}
             </td>
@@ -106,10 +114,18 @@
         <table class="indent">
           <thead>
             <tr>
-              <th>{{ $tr('rowNumber') }}</th>
-              <th>{{ $tr('columnName') }}</th>
-              <th>{{ $tr('value') }}</th>
-              <th>{{ $tr('error') }}</th>
+              <th :style="{ color: $themeTokens.annotation }">
+                {{ $tr('rowNumber') }}
+              </th>
+              <th :style="{ color: $themeTokens.annotation }">
+                {{ $tr('columnName') }}
+              </th>
+              <th :style="{ color: $themeTokens.annotation }">
+                {{ $tr('value') }}
+              </th>
+              <th :style="{ color: $themeTokens.annotation }">
+                {{ $tr('error') }}
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -254,13 +270,23 @@
         message: 'Row number',
         context: 'Refers to rows in the CSV file.\n',
       },
-      columnName: 'Column name',
-      value: 'Value',
+      columnName: {
+        message: 'Column name',
+        context: 'Refers to an element in the CSV file.',
+      },
+      value: {
+        message: 'Value',
+        context:
+          'Refers to values the CSV (comma separated values) file used to import and export users. A value could be a number or a string. The value is the representation of some entity that can be manipulated by the CSV file.',
+      },
       error: {
         message: 'Error',
-        context: 'Title of error message.',
+        context: 'Title of error message in the CSV file.',
       },
-      close: 'Close',
+      close: {
+        message: 'Close',
+        context: 'Generic button used to close an open window.',
+      },
       back: {
         message: 'Back',
         context:
@@ -292,7 +318,6 @@
   th {
     font-size: small;
     font-weight: bold;
-    color: gray;
   }
 
   .indent {

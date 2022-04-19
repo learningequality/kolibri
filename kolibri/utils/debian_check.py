@@ -1,9 +1,8 @@
 import getpass
 import os
 import sys
-from shutil import rmtree
-
 from builtins import input
+from shutil import rmtree
 
 from .conf import KOLIBRI_HOME
 from .server import installation_type

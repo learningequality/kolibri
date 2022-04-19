@@ -48,7 +48,11 @@
         <div :id="slideTextId(slide.id)" class="visuallyhidden">
           {{ slide.descriptive_text || slide.caption }}
         </div>
-        <div :ref="slide.id" class="caption">
+        <div
+          :ref="slide.id"
+          :style="{ background: $themePalette.grey.v_200 }"
+          class="caption"
+        >
           {{ slide.caption }}
         </div>
       </Slide>
@@ -58,7 +62,10 @@
         slot="hooper-addons"
         :class="{ 'hooper-navigation-fullscreen': isInFullscreen }"
       />
-      <HooperPagination slot="hooper-addons" />
+      <HooperPagination
+        slot="hooper-addons"
+        :style="{ background: $themePalette.grey.v_400, width: '100%' }"
+      />
       <!-- eslint-enable -->
     </Hooper>
   </CoreFullscreen>
@@ -302,12 +309,12 @@
       exitFullscreen: {
         message: 'Exit fullscreen',
         context:
-          "Learners can use the Esc key or the 'exit fullscreen' button to close the fullscreen view on a slideshow.",
+          "Learners can use the Esc key or the 'EXIT FULLSCREEN' button to close the fullscreen view on a slideshow.",
       },
       enterFullscreen: {
         message: 'Enter fullscreen',
         context:
-          'Learners can use the full screen button in the upper right corner to open a slideshow in fullscreen view.',
+          "Learners can use the 'ENTER FULLSCREEN' button in the upper right corner to open a slideshow in fullscreen view.",
       },
     },
   };
@@ -324,7 +331,6 @@
     top: 8px;
     right: 8px;
     z-index: 12;
-    fill: white;
   }
 
   .slideshow-renderer {
@@ -353,17 +359,11 @@
     height: 100%;
   }
 
-  .hooper-pagination {
-    width: 100%;
-    background: #cccccc;
-  }
-
   .caption {
     position: absolute;
     bottom: 30px;
     width: 100%;
     padding: 12px;
-    background: #efefef;
   }
 
 </style>

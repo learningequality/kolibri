@@ -11,17 +11,19 @@ module.exports = function(pathInfo, ignore, langInfo, localeDataFolder) {
   // are needed for full translation. Will be a map from:
   // name to an array of message ids of format namespace.key.
   const requiredMessages = {};
+  const allDefaultMessages = {};
   for (let pathData of pathInfo) {
     const moduleFilePath = pathData.moduleFilePath;
     const name = pathData.name;
     logging.info(`Gathering required string ids for ${name}`);
+    let messages;
     if (pathData.entry) {
-      requiredMessages[name] = Object.keys(
-        getAllMessagesFromEntryFiles(pathData.entry, moduleFilePath, ignore)
-      );
+      messages = getAllMessagesFromEntryFiles(pathData.entry, moduleFilePath, ignore);
     } else {
-      requiredMessages[name] = Object.keys(getAllMessagesFromFilePath(moduleFilePath, ignore));
+      messages = getAllMessagesFromFilePath(moduleFilePath, ignore);
     }
+    requiredMessages[name] = Object.keys(messages);
+    Object.assign(allDefaultMessages, messages);
     logging.info(`Gathered ${requiredMessages[name].length} required string ids for ${name}`);
   }
   for (let langObject of languageInfo) {
@@ -30,7 +32,7 @@ module.exports = function(pathInfo, ignore, langInfo, localeDataFolder) {
     logging.info(
       `Converting CSV files to JSON for crowdin code ${crowdinCode} / Intl code ${intlCode}`
     );
-    const csvDefinitions = parseCSVDefinitions(localeDataFolder, crowdinCode);
+    const csvDefinitions = parseCSVDefinitions(localeDataFolder, intlCode);
     let messagesExist = false;
     const localeFolder = path.join(localeDataFolder, toLocale(intlCode), 'LC_MESSAGES');
     for (let name in requiredMessages) {
@@ -38,6 +40,10 @@ module.exports = function(pathInfo, ignore, langInfo, localeDataFolder) {
       const messages = {};
       for (let msg of requiredMessages[name]) {
         const definition = csvDefinitions.find(o => o['Identifier'] === msg);
+        if (intlCode === 'en') {
+          messages[msg] = allDefaultMessages[msg].message;
+          continue;
+        }
         if (definition) {
           messages[msg] = definition['Translation'];
         } else {

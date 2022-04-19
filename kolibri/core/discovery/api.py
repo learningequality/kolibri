@@ -1,7 +1,9 @@
 import requests
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
 from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
+from six.moves.urllib.parse import urljoin
 
 from .models import DynamicNetworkLocation
 from .models import NetworkLocation
@@ -15,6 +17,10 @@ class NetworkLocationViewSet(viewsets.ModelViewSet):
     permission_classes = [NetworkLocationPermissions | NotProvisionedHasPermission]
     serializer_class = NetworkLocationSerializer
     queryset = NetworkLocation.objects.all()
+    filter_backends = [DjangoFilterBackend]
+    filter_fields = [
+        "subset_of_users_device",
+    ]
 
 
 class DynamicNetworkLocationViewSet(NetworkLocationViewSet):
@@ -40,9 +46,9 @@ class NetworkLocationFacilitiesView(viewsets.GenericViewSet):
             base_url = peer_device.base_url
 
             # Step 2: Make request to the /facility endpoint
-            response = requests.get("{}api/public/v1/facility".format(base_url))
+            response = requests.get(urljoin(base_url, "api/public/v1/facility"))
             response.raise_for_status()
-        except (Exception, NetworkLocation.DoesNotExist):
+        except (requests.RequestException, NetworkLocation.DoesNotExist):
             raise NotFound()
 
         # Step 3: Respond with the list of facilities, and append device info

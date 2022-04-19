@@ -1,4 +1,19 @@
 {
+  "CommonLearnStrings.dontShowThisAgainLabel": "Musaonetsenso izi",
+  "CommonLearnStrings.exploreResources": "Kuona zinthu",
   "CommonLearnStrings.learnLabel": "Phunzirani",
-  "CommonLearnStrings.recommendedLabel": "Zovomerezeka"
+  "CommonLearnStrings.libraryLabel": "Laibulale",
+  "CommonLearnStrings.logo": "Kuchokera kutchanelo {channelTitle}",
+  "CommonLearnStrings.markResourceAsCompleteLabel": "Ikani chizindikiro chosonyeza kuti zinthu zatheka",
+  "CommonLearnStrings.mostPopularLabel": "Zomwe zatchuka kwambiri",
+  "CommonLearnStrings.multipleLearningActivities": "Maphunziro osiyanasiyana",
+  "CommonLearnStrings.multipleLearningActivitiesLabel": "Maphunziro osiyanasiyana",
+  "CommonLearnStrings.nextStepsLabel": "Sitepi yotsatila",
+  "CommonLearnStrings.popularLabel": "Zotchuka",
+  "CommonLearnStrings.quizLabel": "Kwizi",
+  "CommonLearnStrings.resourceCompletedLabel": "Zinthu zatheka",
+  "CommonLearnStrings.resourceHidden": "Zinthu zabisika",
+  "CommonLearnStrings.resumeLabel": "Yambiranso",
+  "CommonLearnStrings.suggestedTime": "",
+  "CommonLearnStrings.suggestedTimeToComplete": "Nthawi yoti mumalize"
 }

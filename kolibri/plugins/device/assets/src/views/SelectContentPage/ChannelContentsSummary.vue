@@ -12,7 +12,7 @@
           {{ $tr('unlistedChannelTooltip') }}
         </KTooltip>
         <h1>
-          <KLabeledIcon icon="channel" :label="channel.name">
+          <KLabeledIcon icon="channel">
             <template #iconAfter>
               <KIcon
                 v-if="channel.public === false"
@@ -20,15 +20,24 @@
                 icon="unlistedchannel"
               />
             </template>
+            <TextTruncatorCss :text="channel.name" />
           </KLabeledIcon>
         </h1>
       </div>
 
       <KFixedGrid numCols="4">
-        <KFixedGridItem span="1" class="version">
-          <p>{{ $tr('version', { version: versionNumber }) }}</p>
+        <KFixedGridItem
+          :span="windowIsSmall ? 4 : 1"
+          class="version"
+        >
+          <p :style="[windowIsSmall ? { marginBottom: 0 } : {}]">
+            {{ $tr('version', { version: versionNumber }) }}
+          </p>
         </KFixedGridItem>
-        <KFixedGridItem span="3" alignment="right">
+        <KFixedGridItem
+          :span="windowIsSmall ? 4 : 3"
+          :alignment="windowIsSmall ? 'left' : 'right'"
+        >
           <p><slot></slot></p>
         </KFixedGridItem>
       </KFixedGrid>
@@ -59,6 +68,11 @@
         <td>{{ $tr('resourceCount', { count: channel.new_resource_count || 0 }) }}</td>
         <td>{{ bytesForHumans(channel.new_resource_total_size || 0) }}</td>
       </tr>
+      <tr v-if="!remoteContentEnabled">
+        <th>{{ deviceInfo.$tr('freeDisk') }}</th>
+        <td></td>
+        <td>{{ bytesForHumans(freeSpace || 0) }}</td>
+      </tr>
     </table>
   </section>
 
@@ -69,10 +83,17 @@
 
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
+  import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
+  import DeviceInfoPage from '../DeviceInfoPage.vue';
 
   export default {
     name: 'ChannelContentsSummary',
-    mixins: [commonCoreStrings],
+    components: {
+      TextTruncatorCss,
+    },
+    mixins: [commonCoreStrings, KResponsiveWindowMixin],
     props: {
       channel: {
         type: Object,
@@ -84,6 +105,15 @@
           return {};
         },
       },
+      freeSpace: {
+        type: Number,
+        required: true,
+      },
+      remoteContentEnabled: {
+        type: Boolean,
+        required: true,
+        default: false,
+      },
     },
     computed: {
       versionNumber() {
@@ -92,6 +122,9 @@
         }
         return this.channelOnDevice.version;
       },
+    },
+    created() {
+      this.deviceInfo = crossComponentTranslator(DeviceInfoPage);
     },
     methods: {
       bytesForHumans,
@@ -103,7 +136,7 @@
       },
       resourceCount: {
         message: '{count, number, useGrouping}',
-        context: 'DO NOT TRANSLATE.',
+        context: 'DO NOT TRANSLATE\nCopy the source string.',
       },
       sizeCol: {
         message: 'Size',
@@ -123,7 +156,7 @@
       unlistedChannelTooltip: {
         message: 'Unlisted channel',
         context:
-          'Tooltip to indicate a private channels which shows with the unlisted channel icon.\n',
+          'Tooltip to indicate a private channel which shows with the unlisted channel icon.\n\nSee also: https://kolibri.readthedocs.io/en/latest/manage/resources.html?#import-with-token',
       },
       newOrUpdatedLabel: {
         message: 'New or updated',
@@ -137,11 +170,6 @@
 
 
 <style lang="scss" scoped>
-
-  .labeled-icon-wrapper {
-    width: auto;
-    white-space: nowrap;
-  }
 
   .channel-header {
     margin-top: 16px;

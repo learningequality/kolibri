@@ -29,9 +29,11 @@ from django.utils.decorators import method_decorator
 from django.utils.timezone import now
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django_filters.rest_framework import CharFilter
+from django_filters.rest_framework import ChoiceFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
 from django_filters.rest_framework import ModelChoiceFilter
+from morango.api.permissions import BasicMultiArgumentAuthentication
 from morango.models import TransferSession
 from rest_framework import decorators
 from rest_framework import filters
@@ -39,6 +41,7 @@ from rest_framework import permissions
 from rest_framework import status
 from rest_framework import views
 from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
 
@@ -59,10 +62,12 @@ from .serializers import FacilityUserSerializer
 from .serializers import LearnerGroupSerializer
 from .serializers import MembershipSerializer
 from .serializers import PublicFacilitySerializer
+from .serializers import PublicFacilityUserSerializer
 from .serializers import RoleSerializer
 from kolibri.core import error_constants
 from kolibri.core.api import ReadOnlyValuesViewset
 from kolibri.core.api import ValuesViewset
+from kolibri.core.auth.permissions.general import _user_is_admin_for_own_facility
 from kolibri.core.device.utils import allow_guest_access
 from kolibri.core.device.utils import allow_other_browsers_to_connect
 from kolibri.core.device.utils import valid_app_key_on_request
@@ -71,7 +76,19 @@ from kolibri.core.mixins import BulkCreateMixin
 from kolibri.core.mixins import BulkDeleteMixin
 from kolibri.core.query import annotate_array_aggregate
 from kolibri.core.query import SQCount
+from kolibri.core.utils.pagination import ValuesViewsetPageNumberPagination
 from kolibri.plugins.app.utils import interface
+
+
+class OptionalPageNumberPagination(ValuesViewsetPageNumberPagination):
+    """
+    Pagination class that allows for page number-style pagination, when requested.
+    To activate, the `page_size` argument must be set. For example, to request the first 20 records:
+    `?page_size=20&page=1`
+    """
+
+    page_size = None
+    page_size_query_param = "page_size"
 
 
 class KolibriAuthPermissionsFilter(filters.BaseFilterBackend):
@@ -82,15 +99,17 @@ class KolibriAuthPermissionsFilter(filters.BaseFilterBackend):
     """
 
     def filter_queryset(self, request, queryset, view):
-        if request.method == "GET" and request.resolver_match.url_name.endswith(
-            "-list"
-        ):
+        # if the url name ends with "-list" or the endpoint is explicitly declared a list endpoint
+        # with .detail=False
+        is_list = request.resolver_match.url_name.endswith("-list") or not getattr(
+            request.resolver_match.func, "detail", True
+        )
+        if request.method == "GET" and is_list:
             # only filter down the queryset in the case of the list view being requested
             return request.user.filter_readable(queryset)
-        else:
-            # otherwise, return the full queryset, as permission checks will happen object-by-object
-            # (and filtering here then leads to 404's instead of the more correct 403's)
-            return queryset
+        # otherwise, return the full queryset, as permission checks will happen object-by-object
+        # (and filtering here then leads to 404's instead of the more correct 403's)
+        return queryset
 
 
 def _ensure_raw_dict(d):
@@ -130,12 +149,11 @@ class KolibriAuthPermissions(permissions.BasePermission):
         # note that there is no entry for POST here, as creation is handled by `has_permission`, above
         if request.method in permissions.SAFE_METHODS:  # 'GET', 'OPTIONS' or 'HEAD'
             return request.user.can_read(obj)
-        elif request.method in ["PUT", "PATCH"]:
+        if request.method in ["PUT", "PATCH"]:
             return request.user.can_update(obj)
-        elif request.method == "DELETE":
+        if request.method == "DELETE":
             return request.user.can_delete(obj)
-        else:
-            return False
+        return False
 
 
 class FacilityDatasetViewSet(ValuesViewset):
@@ -184,24 +202,109 @@ class FacilityDatasetViewSet(ValuesViewset):
 
 class FacilityUserFilter(FilterSet):
 
+    USER_TYPE_CHOICES = (
+        ("learner", "learner"),
+        ("superuser", "superuser"),
+    ) + role_kinds.choices
+
     member_of = ModelChoiceFilter(
         method="filter_member_of", queryset=Collection.objects.all()
+    )
+    user_type = ChoiceFilter(
+        choices=USER_TYPE_CHOICES,
+        method="filter_user_type",
+    )
+    exclude_member_of = ModelChoiceFilter(
+        method="filter_exclude_member_of", queryset=Collection.objects.all()
+    )
+    exclude_user_type = ChoiceFilter(
+        choices=USER_TYPE_CHOICES,
+        method="filter_exclude_user_type",
     )
 
     def filter_member_of(self, queryset, name, value):
         return queryset.filter(Q(memberships__collection=value) | Q(facility=value))
 
+    def filter_user_type(self, queryset, name, value):
+        if value == "learner":
+            return queryset.filter(roles__isnull=True)
+        if value == "superuser":
+            return queryset.filter(devicepermissions__is_superuser=True)
+        return queryset.filter(roles__kind=value)
+
+    def filter_exclude_member_of(self, queryset, name, value):
+        return queryset.exclude(Q(memberships__collection=value) | Q(facility=value))
+
+    def filter_exclude_user_type(self, queryset, name, value):
+        if value == "learner":
+            return queryset.exclude(roles__isnull=True)
+        if value == "superuser":
+            return queryset.exclude(devicepermissions__is_superuser=True)
+        return queryset.exclude(roles__kind=value)
+
     class Meta:
         model = FacilityUser
-        fields = ["member_of"]
+        fields = ["member_of", "user_type", "exclude_member_of", "exclude_user_type"]
+
+
+class PublicFacilityUserViewSet(ReadOnlyValuesViewset):
+    queryset = FacilityUser.objects.all()
+    serializer_class = PublicFacilityUserSerializer
+    authentication_classes = [BasicMultiArgumentAuthentication]
+    permission_classes = [IsAuthenticated]
+    values = (
+        "id",
+        "username",
+        "full_name",
+        "facility",
+        "roles__kind",
+        "devicepermissions__is_superuser",
+    )
+    field_map = {
+        "is_superuser": lambda x: bool(x.pop("devicepermissions__is_superuser")),
+    }
+
+    def get_queryset(self):
+        facility_id = self.request.query_params.get("facility_id", None)
+        if facility_id is None:
+            facility_id = self.request.user.facility_id
+
+        # if user has admin rights for the facility returns the list of users
+        queryset = self.queryset.filter(facility_id=facility_id)
+        # otherwise, the endpoint returns only the user information
+        if not self.request.user.is_superuser or not _user_is_admin_for_own_facility(
+            self.request.user
+        ):
+            queryset = queryset.filter(id=self.request.user.id)
+
+        return queryset
+
+    def consolidate(self, items, queryset):
+        output = []
+        items = sorted(items, key=lambda x: x["id"])
+        for key, group in groupby(items, lambda x: x["id"]):
+            roles = []
+            for item in group:
+                role = item.pop("roles__kind")
+                if role is not None:
+                    roles.append(role)
+            item["roles"] = roles
+            output.append(item)
+        return output
 
 
 class FacilityUserViewSet(ValuesViewset):
     permission_classes = (KolibriAuthPermissions,)
-    filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
+    pagination_class = OptionalPageNumberPagination
+    filter_backends = (
+        KolibriAuthPermissionsFilter,
+        DjangoFilterBackend,
+        filters.SearchFilter,
+    )
     queryset = FacilityUser.objects.all()
     serializer_class = FacilityUserSerializer
     filter_class = FacilityUserFilter
+    search_fields = ("username", "full_name")
 
     values = (
         "id",
@@ -345,6 +448,32 @@ class RoleViewSet(BulkDeleteMixin, BulkCreateMixin, viewsets.ModelViewSet):
     filter_fields = ["user", "collection", "kind", "user_ids"]
 
 
+dataset_keys = [
+    "dataset__id",
+    "dataset__learner_can_edit_username",
+    "dataset__learner_can_edit_name",
+    "dataset__learner_can_edit_password",
+    "dataset__learner_can_sign_up",
+    "dataset__learner_can_delete_account",
+    "dataset__learner_can_login_with_no_password",
+    "dataset__show_download_button_in_learn",
+    "dataset__description",
+    "dataset__location",
+    "dataset__registered",
+    "dataset__preset",
+]
+
+
+# map function to pop() all of the dataset__ items into an dict
+# then assign that new dict to the `dataset` key of the facility
+def _map_dataset(facility):
+    dataset = {}
+    for dataset_key in dataset_keys:
+        stripped_key = dataset_key.replace("dataset__", "")
+        dataset[stripped_key] = facility.pop(dataset_key)
+    return dataset
+
+
 class FacilityViewSet(ValuesViewset):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter,)
@@ -353,31 +482,7 @@ class FacilityViewSet(ValuesViewset):
 
     facility_values = ["id", "name", "num_classrooms", "num_users", "last_synced"]
 
-    dataset_keys = [
-        "dataset__id",
-        "dataset__learner_can_edit_username",
-        "dataset__learner_can_edit_name",
-        "dataset__learner_can_edit_password",
-        "dataset__learner_can_sign_up",
-        "dataset__learner_can_delete_account",
-        "dataset__learner_can_login_with_no_password",
-        "dataset__show_download_button_in_learn",
-        "dataset__description",
-        "dataset__location",
-        "dataset__registered",
-        "dataset__preset",
-    ]
-
     values = tuple(facility_values + dataset_keys)
-
-    # map function to pop() all of the dataset__ items into an dict
-    # then assign that new dict to the `dataset` key of the facility
-    def _map_dataset(facility, dataset_keys=dataset_keys):
-        dataset = {}
-        for dataset_key in dataset_keys:
-            stripped_key = dataset_key.replace("dataset__", "")
-            dataset[stripped_key] = facility.pop(dataset_key)
-        return dataset
 
     field_map = {"dataset": _map_dataset}
 
@@ -657,7 +762,7 @@ class SessionViewSet(viewsets.ViewSet):
             login(request, user)
             # Success!
             return self.get_session_response(request)
-        elif (
+        if (
             unauthenticated_user is not None
             and unauthenticated_user.password == "NOT_SPECIFIED"
         ):
@@ -676,7 +781,7 @@ class SessionViewSet(viewsets.ViewSet):
                 ],
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        elif (
+        if (
             not password
             and FacilityUser.objects.filter(
                 username__iexact=username, facility=facility_id
@@ -695,18 +800,17 @@ class SessionViewSet(viewsets.ViewSet):
                 ],
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        else:
-            # Respond with error
-            return Response(
-                [{"id": error_constants.INVALID_CREDENTIALS, "metadata": {}}],
-                status=status.HTTP_401_UNAUTHORIZED,
-            )
+        # Respond with error
+        return Response(
+            [{"id": error_constants.INVALID_CREDENTIALS, "metadata": {}}],
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
 
     def destroy(self, request, pk=None):
         logout(request)
         return Response([])
 
-    def retrieve(self, request, pk=None):
+    def update(self, request, pk=None):
         return self.get_session_response(request)
 
     def get_session_response(self, request):
@@ -742,12 +846,15 @@ class SessionViewSet(viewsets.ViewSet):
         # Only do this for logged in users, as anonymous users cannot get logged out!
         request.session["last_session_request"] = int(time.time())
         # Default to active, only assume not active when explicitly set.
-        active = True if request.GET.get("active", "true") == "true" else False
+        active = request.data.get("active", False)
 
         # Can only record user session log data for FacilityUsers.
         if active and isinstance(user, FacilityUser):
-            user_agent = request.META.get("HTTP_USER_AGENT", "")
-            UserSessionLog.update_log(user, user_agent)
+            UserSessionLog.update_log(
+                user,
+                os_info=request.data.get("os"),
+                browser_info=request.data.get("browser"),
+            )
 
         response = Response(session)
         return response

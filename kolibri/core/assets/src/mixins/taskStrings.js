@@ -16,7 +16,7 @@ const taskStrings = createTranslator('TaskStrings', {
   },
   taskFinishedStatus: {
     message: 'Finished',
-    context: 'Generic task status',
+    context: 'Generic task status indicating that a task has been completed.',
   },
   taskFailedStatus: {
     message: 'Failed',
@@ -30,13 +30,17 @@ const taskStrings = createTranslator('TaskStrings', {
     message: "Started by '{username}'",
     context: 'Displays the user that started a task',
   },
+  taskLODFinishedByLabel: {
+    message: '‘{fullname}’ from ‘{facilityname}’ successfully loaded to this device',
+    context: 'Displays the full name of the user that has been synced in a task',
+  },
   clearCompletedTasksAction: {
     message: 'Clear completed',
     context: 'Label for buttons that clear completed tasks',
   },
   unknownUsername: {
     message: 'Unknown user',
-    context: 'A placeholder username if the username is not attached to Task',
+    context: 'A placeholder username if the username is not attached to a task.',
   },
 
   // Sync Facility Task strings
@@ -88,7 +92,7 @@ const taskStrings = createTranslator('TaskStrings', {
   },
   removeFacilityTaskLabel: {
     message: 'Remove {facilityName}',
-    context: 'Description of a remove-facility task',
+    context: 'Description of a remove-facility task.',
   },
   removeFacilitySuccessStatus: {
     message: 'Facility successfully removed',

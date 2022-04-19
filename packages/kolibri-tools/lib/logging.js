@@ -4,7 +4,7 @@
  * @module logging
  */
 
-const colors = require('colors');
+const chalk = require('chalk');
 
 const logging = {
   /**
@@ -30,15 +30,15 @@ const logging = {
   },
   /** Info logging. */
   info(...messages) {
-    this.write('info', messages, colors.green);
+    this.write('info', messages, chalk.green);
   },
   /** Warn logging. */
   warn(...messages) {
-    this.write('warn', messages, colors.yellow);
+    this.write('warn', messages, chalk.yellow);
   },
   /** Error logging. */
   error(...messages) {
-    this.write('error', messages, colors.red);
+    this.write('error', messages, chalk.red);
   },
   /** Writes empty line, creating visual whitespace */
   break() {

@@ -1,15 +1,9 @@
-import * as actions from './actions';
-
 function defaultState() {
   return {
-    content: {},
-    currentAttempt: {},
-    currentQuestion: {},
+    contentNodeMap: {},
     exam: {},
-    itemId: '',
     questionNumber: 0,
     questions: [],
-    questionsAnswered: 0,
   };
 }
 
@@ -23,12 +17,5 @@ export default {
     RESET_STATE(state) {
       Object.assign(state, defaultState());
     },
-    SET_CURRENT_ATTEMPT_LOG(state, currentAttempt) {
-      state.currentAttempt = currentAttempt;
-    },
-    SET_QUESTIONS_ANSWERED(state, questionsAnswered) {
-      state.questionsAnswered = questionsAnswered;
-    },
   },
-  actions,
 };

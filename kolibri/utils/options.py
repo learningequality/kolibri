@@ -15,6 +15,7 @@ from django.utils.functional import SimpleLazyObject
 from django.utils.six import string_types
 from six.moves.urllib.parse import urlparse
 from six.moves.urllib.parse import urlunparse
+from validate import is_boolean
 from validate import Validator
 from validate import VdtTypeError
 from validate import VdtValueError
@@ -26,39 +27,66 @@ except NotImplementedError:
     psutil = None
 
 
+from kolibri.utils.data import bytes_from_humans
 from kolibri.utils.i18n import KOLIBRI_LANGUAGE_INFO
 from kolibri.utils.i18n import KOLIBRI_SUPPORTED_LANGUAGES
 from kolibri.plugins.utils.options import extend_config_spec
+from kolibri.deployment.default.sqlite_db_names import (
+    ADDITIONAL_SQLITE_DATABASES,
+)
+from kolibri.utils.system import get_fd_limit
+
+
+CACHE_SHARDS = 8
+
+# file descriptors per thread
+FD_PER_THREAD = sum(
+    (
+        5,  # minimum allowance
+        1 + len(ADDITIONAL_SQLITE_DATABASES),  # DBs assuming SQLite
+        CACHE_SHARDS,  # assuming diskcache
+    )
+)
+
+# Reserve some file descriptors for file operations happening in asynchronous tasks
+# when the server is running with threaded task runners.
+MIN_RESERVED_FD = 64
 
 
 def calculate_thread_pool():
     """
     Returns the default value for CherryPY thread_pool:
     - calculated based on the best values obtained in several partners installations
-    - value must be between 10 (default CherryPy value) and 200
     - servers with more memory can deal with more threads
     - calculations are done for servers with more than 2 Gb of RAM
+    - restricts value to avoid exceeding file descriptor limit
     """
     MIN_POOL = 50
     MAX_POOL = 150
+
+    pool_size = MIN_POOL
     if psutil:
         MIN_MEM = 2
         MAX_MEM = 6
-        total_memory = psutil.virtual_memory().total / pow(2, 30)  # in Gb
+        total_memory = psutil.virtual_memory().total / pow(10, 9)  # in GB
         # if it's in the range, scale thread count linearly with available memory
         if MIN_MEM < total_memory < MAX_MEM:
-            return MIN_POOL + int(
+            pool_size = MIN_POOL + int(
                 (MAX_POOL - MIN_POOL)
                 * float(total_memory - MIN_MEM)
                 / (MAX_MEM - MIN_MEM)
             )
-        # otherwise return either the min or max amount
-        return MAX_POOL if total_memory >= MAX_MEM else MIN_POOL
+        elif total_memory >= MAX_MEM:
+            pool_size = MAX_POOL
     elif sys.platform.startswith(
         "darwin"
     ):  # Considering MacOS has at least 4 Gb of RAM
-        return MAX_POOL
-    return MIN_POOL
+        pool_size = MAX_POOL
+
+    # ensure (number of threads) x (open file descriptors) < (fd limit)
+    max_threads = (get_fd_limit() - MIN_RESERVED_FD) // FD_PER_THREAD
+    # Ensure that the number of threads never goes below 1
+    return max(1, min(pool_size, max_threads))
 
 
 ALL_LANGUAGES = "kolibri-all"
@@ -125,8 +153,11 @@ def path(value):
 
     if not isinstance(value, string_types):
         raise VdtValueError(repr(value))
-    # ensure all path arguments, e.g. under section "Paths", are fully resolved and expanded, relative to KOLIBRI_HOME
-    return os.path.join(KOLIBRI_HOME, os.path.expanduser(value))
+    # Allow for blank paths
+    if value:
+        # ensure all path arguments, e.g. under section "Paths", are fully resolved and expanded, relative to KOLIBRI_HOME
+        return os.path.join(KOLIBRI_HOME, os.path.expanduser(value))
+    return value
 
 
 def path_list(value):
@@ -183,10 +214,36 @@ def origin_or_port(value):
     return value
 
 
+def validate_bytes(value):
+    try:
+        value = bytes_from_humans(value)
+    except ValueError:
+        raise VdtValueError(value)
+    return value
+
+
 def url_prefix(value):
     if not isinstance(value, string_types):
         raise VdtValueError(value)
     return value.lstrip("/").rstrip("/") + "/"
+
+
+def multiprocess_bool(value):
+    """
+    Validate the boolean value of a multiprocessing option.
+    Do this by checking it's a boolean, and also that multiprocessing
+    can be imported properly on this platform.
+    """
+    value = is_boolean(value)
+    try:
+        if not value:
+            raise ImportError()
+        # Import in order to check if multiprocessing is supported on this platform
+        from multiprocessing import synchronize  # noqa
+
+        return True
+    except ImportError:
+        return False
 
 
 base_option_spec = {
@@ -263,7 +320,7 @@ base_option_spec = {
             "type": "option",
             "options": ("sqlite", "postgres"),
             "default": "sqlite",
-            "description": "Which database backend to use, choices are 'sqlite' or 'postgresql'",
+            "description": "Which database backend to use, choices are 'sqlite' or 'postgres'",
         },
         "DATABASE_NAME": {
             "type": "string",
@@ -360,6 +417,11 @@ base_option_spec = {
             "default": "",
             "description": "Additional directories in which Kolibri will look for content files and content database files.",
         },
+        "AUTOMATIC_PROVISION_FILE": {
+            "type": "path",
+            "default": "",
+            "description": "The file that contains the automatic device provisioning data.",
+        },
     },
     "Urls": {
         "CENTRAL_CONTENT_BASE_URL": {
@@ -454,6 +516,38 @@ base_option_spec = {
                 Server configuration should handle ensuring that the files are properly served.
             """,
         },
+        "SYNC_INTERVAL": {
+            "type": "integer",
+            "default": 60,
+            "description": """
+                In case a SoUD connects to this server, the SoUD should use this interval to resync every user.
+            """,
+        },
+        "PROJECT": {
+            "type": "string",
+            "skip_blank": True,
+            "description": """
+                The custom identifier for a project. This is used to identify the project in the telemetry
+                data that is returned to our telemetry server.
+            """,
+        },
+        "MINIMUM_DISK_SPACE": {
+            "type": "bytes",
+            "default": "250MB",
+            "description": """
+                The minimum free disk space that Kolibri should try to maintain on the device. This will
+                be used as the floor value to prevent Kolibri completely filling the disk during file import.
+                Value can either be a number suffixed with a unit (e.g. MB, GB, TB) or an integer number of bytes.
+            """,
+        },
+        "LISTEN_ADDRESS": {
+            "type": "ip_addr",
+            "default": "0.0.0.0",
+            "description": """
+                The address that the server should listen on. This can be used to restrict access to the server
+                to a specific network interface.
+            """,
+        },
     },
     "Python": {
         "PICKLE_PROTOCOL": {
@@ -467,13 +561,27 @@ base_option_spec = {
     },
     "Tasks": {
         "USE_WORKER_MULTIPROCESSING": {
-            "type": "boolean",
+            "type": "multiprocess_bool",
             "default": False,
             "description": """
                 Whether to use Python multiprocessing for worker pools. If False, then it will use threading. This may be useful,
                 if running on a dedicated device with multiple cores, and a lot of asynchronous tasks get run.
             """,
-        }
+        },
+        "REGULAR_PRIORITY_WORKERS": {
+            "type": "integer",
+            "default": 4,
+            "description": """
+                The number of workers to spin up for regular priority asynchronous tasks.
+            """,
+        },
+        "HIGH_PRIORITY_WORKERS": {
+            "type": "integer",
+            "default": 2,
+            "description": """
+                The number of workers to spin up for high priority asynchronous tasks.
+            """,
+        },
     },
 }
 
@@ -487,6 +595,8 @@ def _get_validator():
             "origin_or_port": origin_or_port,
             "port": port,
             "url_prefix": url_prefix,
+            "bytes": validate_bytes,
+            "multiprocess_bool": multiprocess_bool,
         }
     )
 
@@ -515,15 +625,13 @@ def _get_option_spec():
     for section, opts in option_spec.items():
         for optname, attrs in opts.items():
             if "deprecated_aliases" in attrs:
-                attrs["deprecated_envvars"] = attrs.get("deprecated_envvars", tuple())
+                attrs["deprecated_envvars"] = attrs.get("deprecated_envvars", ())
                 for alias in attrs["deprecated_aliases"]:
                     alias_ev = "KOLIBRI_{}".format(alias)
                     if alias_ev not in envvars:
                         attrs["deprecated_envvars"] += (alias_ev,)
 
-            opt_envvars = attrs.get("envvars", tuple()) + attrs.get(
-                "deprecated_envvars", tuple()
-            )
+            opt_envvars = attrs.get("envvars", ()) + attrs.get("deprecated_envvars", ())
             default_envvar = "KOLIBRI_{}".format(optname.upper())
             if default_envvar not in envvars:
                 envvars.add(default_envvar)
@@ -587,7 +695,7 @@ def _set_from_envvars(conf):
         for optname, attrs in opts.items():
             for envvar in attrs.get("envvars", []):
                 if os.environ.get(envvar):
-                    deprecated_envvars = attrs.get("deprecated_envvars", tuple())
+                    deprecated_envvars = attrs.get("deprecated_envvars", ())
                     if envvar in deprecated_envvars:
                         logger.warn(
                             deprecation_warning.format(
@@ -632,7 +740,7 @@ def _set_from_deprecated_aliases(conf):
     # and check for use of deprecated environment variables and options
     for section, opts in option_spec.items():
         for optname, attrs in opts.items():
-            for alias in attrs.get("deprecated_aliases", tuple()):
+            for alias in attrs.get("deprecated_aliases", ()):
                 if alias in conf[section]:
                     logger.warn(
                         deprecation_warning.format(

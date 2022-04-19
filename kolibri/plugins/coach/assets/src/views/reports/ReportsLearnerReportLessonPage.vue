@@ -36,9 +36,9 @@
           <template #key>
             {{ coachString('statusLabel') }}
           </template>
-          <template #value>
+          <!--           <template #value>
             <LessonActive :active="lesson.active" />
-          </template>
+          </template> -->
         </HeaderTableRow>
         <HeaderTableRow v-show="!$isPrint">
           <template #key>
@@ -58,7 +58,7 @@
         <template #headers>
           <th>{{ coachString('titleLabel') }}</th>
           <th>{{ coreString('progressLabel') }}</th>
-          <th>{{ coachString('timeSpentLabel') }}</th>
+          <th>{{ coreString('timeSpentLabel') }}</th>
         </template>
         <template #tbody>
           <transition-group tag="tbody" name="list">
@@ -68,10 +68,7 @@
                   <KRouterLink
                     v-if="showLink(tableRow)"
                     :text="tableRow.title"
-                    :to="classRoute(
-                      'ReportsLearnerReportLessonExercisePage',
-                      { exerciseId: tableRow.content_id }
-                    )"
+                    :to="tableRow.link"
                   />
                   <template v-else>
                     {{ tableRow.title }}
@@ -99,6 +96,7 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { PageNames } from '../../constants';
   import commonCoach from '../common';
   import CSVExporter from '../../csv/exporter';
   import * as csvFields from '../../csv/fields';
@@ -125,6 +123,10 @@
         return contentArray.map(content => {
           const tableRow = {
             statusObj: this.getContentStatusObjForLearner(content.content_id, this.learner.id),
+            link: this.classRoute(PageNames.REPORTS_LEARNER_REPORT_LESSON_EXERCISE_PAGE_ROOT, {
+              exerciseId: content.content_id,
+              learnerId: this.learner.id,
+            }),
           };
           Object.assign(tableRow, content);
           return tableRow;

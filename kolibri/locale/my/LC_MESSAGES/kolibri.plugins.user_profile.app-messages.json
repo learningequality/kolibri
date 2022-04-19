@@ -1,0 +1,15 @@
+{
+  "ChangeUserPasswordModal.passwordChangeFormHeader": "စကားဝှက်ပြောင်းလဲပါ။",
+  "ChangeUserPasswordModal.passwordChangedNotification": "သင့်စကားဝှက်ကိုပြောင်းလဲပြီးပါပြီ",
+  "ProfileEditPage.editProfileHeader": "မိမိစာမျက်နှာကိုပြင်မည်",
+  "ProfilePage.changePasswordPrompt": "စကားဝှက်ပြောင်းခြင်း",
+  "ProfilePage.detailsHeader": "အသေးစိတ်အချက်အလက်များ",
+  "ProfilePage.documentTitle": "အသုံပြုသူစာမျက်နှာ",
+  "ProfilePage.editAction": "တည်းဖြတ်မည်။",
+  "ProfilePage.isSuperuser": "အဆင့်မြှင့်အက်ဒမင်ခွင့်ပြုချက်များ ",
+  "ProfilePage.limitedPermissions": "ကန့်သတ်ထားသောခွင့်ပြုချက်များ",
+  "ProfilePage.manageContent": "ချယ်နယ် နှင့် ရင်းမြစ် များအား စီမံမည်",
+  "ProfilePage.manageDevicePermissions": "ကိရိယာခွင့့်ပြု ချက်များကို စီမံခြင်း",
+  "ProfilePage.points": "အမှတ်များ",
+  "ProfilePage.youCan": "သင်လုပ်နိုင်သည်မှာ -"
+}

@@ -13,7 +13,7 @@
     >
       <KButton
         appearance="basic-link"
-        :text="viewAllText ? $tr('viewLessButtonPrompt') : coreString('viewMoreAction')"
+        :text="viewAllText ? $coreString('viewLessAction') : coreString('viewMoreAction')"
         @click.stop.prevent="viewAllText = !viewAllText"
       />
     </div>
@@ -111,13 +111,6 @@
         });
       },
     },
-    $trs: {
-      viewLessButtonPrompt: {
-        message: 'View less',
-        context:
-          "Button which allows a user to view less information. It's the opposite of 'View more'.",
-      },
-    },
   };
 
 </script>
@@ -135,6 +128,11 @@
   .truncated {
     overflow: hidden;
     text-overflow: ellipsis;
+    // this ensure that when the text truncator is used
+    // in a router-link card, the text is not underlined
+    a {
+      text-decoration: none !important;
+    }
   }
 
 </style>

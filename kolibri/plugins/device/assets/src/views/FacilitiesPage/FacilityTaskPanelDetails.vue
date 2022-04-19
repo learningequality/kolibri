@@ -105,7 +105,7 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonTaskStrings from 'kolibri.coreVue.mixins.commonTaskStrings';
-  import { TaskStatuses } from '../../constants';
+  import { TaskStatuses, TaskTypes } from '../../constants';
 
   export default {
     name: 'FacilityTaskPanelDetails',
@@ -170,9 +170,18 @@
         if (!this.task.started_by_username) {
           return '';
         }
-        return this.getTaskString('taskStartedByLabel', {
-          username: this.task.started_by_username || this.getTaskString('unknownUsername'),
-        });
+
+        if (this.task.type === TaskTypes.SYNCLOD)
+          if (this.task.status === TaskStatuses.COMPLETED)
+            return this.getTaskString('taskLODFinishedByLabel', {
+              fullname: this.task.full_name,
+              facilityname: this.task.facility_name,
+            });
+          else return '';
+        else
+          return this.getTaskString('taskStartedByLabel', {
+            username: this.task.started_by_username || this.getTaskString('unknownUsername'),
+          });
       },
       statusHidesLoader() {
         return (

@@ -2,9 +2,40 @@ import logging
 import os
 import platform
 import sys
+from warnings import warn
+
+try:
+    # Do this to allow this to be accessed
+    # during build, when dependencies are not
+    # installed.
+    # TODO: Move version tools to build tools, so we don't have to do this
+    from colorlog import ColoredFormatter
+    from colorlog import getLogger
+    from colorlog import StreamHandler
+except ImportError:
+    StreamHandler = None
+    getLogger = None
+    ColoredFormatter = None
+
+from .logger import LOG_COLORS
+
 
 logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
 logging.StreamHandler(sys.stdout)
+
+if StreamHandler and getLogger and ColoredFormatter:
+    handler = StreamHandler(stream=sys.stdout)
+    handler.setFormatter(
+        ColoredFormatter(
+            fmt="%(log_color)s%(levelname)-8s %(message)s", log_colors=LOG_COLORS
+        )
+    )
+    handler.setLevel(logging.INFO)
+    logger = getLogger("env")
+    logger.addHandler(handler)
+    logger.propagate = False
+else:
+    logger = logging.getLogger("env")
 
 
 def settings_module():
@@ -68,7 +99,16 @@ def prepend_cext_path(dist_path):
         # add it + the matching noarch (OpenSSL) modules to sys.path
         sys.path = [str(dirname), str(noarch_dir)] + sys.path
     else:
-        logging.info("No C extensions are available for this platform")
+        logger.info("No C extensions are available for this platform")
+
+
+def check_python_versions():
+    if sys.version_info.major == 3 and (
+        sys.version_info.minor == 4 or sys.version_info.minor == 5
+    ):
+        warning_text = "Python 3.4 and 3.5 support will be dropped in Kolibri 0.16, please upgrade your Python version"
+        logger.warn(warning_text)
+        warn(warning_text, DeprecationWarning)
 
 
 def set_env():
@@ -81,6 +121,8 @@ def set_env():
     else.
     """
     from kolibri import dist as kolibri_dist  # noqa
+
+    check_python_versions()
 
     sys.path = [os.path.realpath(os.path.dirname(kolibri_dist.__file__))] + sys.path
 

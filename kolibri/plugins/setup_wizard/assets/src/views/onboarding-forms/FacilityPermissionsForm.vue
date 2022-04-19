@@ -95,7 +95,7 @@
     $trs: {
       learningEnvironmentHeader: {
         message: 'What kind of learning environment is your facility?',
-        context: 'Page title',
+        context: 'Page title for facility setup process.',
       },
       facilityPermissionsSetupFormDescription: {
         message:
@@ -105,11 +105,11 @@
       },
       formalLabel: {
         message: 'Formal',
-        context: 'Label for the radio button option in the facility setup',
+        context: 'Label for the radio button option in the facility setup.',
       },
       formalDescription: {
         message: 'Schools and other formal learning contexts',
-        context: 'Option description text',
+        context: "Option description text for 'Formal' facility types.",
       },
       nonFormalLabel: {
         message: 'Non-formal',
@@ -119,7 +119,7 @@
         message:
           'Libraries, orphanages, correctional facilities, youth centers, computer labs, and other non-formal learning contexts',
 
-        context: 'Option description text',
+        context: "Option description text for 'Non-formal' facility types.",
       },
     },
     //

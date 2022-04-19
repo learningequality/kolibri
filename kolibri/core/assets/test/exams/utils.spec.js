@@ -110,18 +110,21 @@ describe('exam utils', () => {
           question_id: 'Q1',
           title: 'Question 1',
           counter_in_exercise: 1,
+          item: 'E1:Q1',
         },
         {
           exercise_id: 'E1',
           question_id: 'Q2',
           title: 'Question 2',
           counter_in_exercise: 2,
+          item: 'E1:Q2',
         },
         {
           exercise_id: 'E2',
           question_id: 'Q1',
           title: 'Question 1',
           counter_in_exercise: 1,
+          item: 'E2:Q1',
         },
       ];
       expect(converted).toEqual(expectedOutput);
@@ -151,12 +154,14 @@ describe('exam utils', () => {
           exercise_id: 'E1',
           title: 'Question 1',
           counter_in_exercise: 4000,
+          item: 'E1:Q1',
         },
         {
           question_id: 'Q1',
           exercise_id: 'E2',
           title: 'Question 2',
           counter_in_exercise: 1,
+          item: 'E2:Q1',
         },
       ]);
     });
@@ -275,7 +280,12 @@ describe('exam utils', () => {
         },
       ];
 
-      expect(converted).toEqual(expectedOutput);
+      expect(converted).toEqual(
+        expectedOutput.map(q => {
+          q.item = `${q.exercise_id}:${q.question_id}`;
+          return q;
+        })
+      );
     });
     it('should return 10 specific ordered questions from 1 exercise', () => {
       const exam = {
@@ -352,7 +362,12 @@ describe('exam utils', () => {
           title: 'Count with small numbers',
         },
       ];
-      expect(converted).toEqual(expectedOutput);
+      expect(converted).toEqual(
+        expectedOutput.map(q => {
+          q.item = `${q.exercise_id}:${q.question_id}`;
+          return q;
+        })
+      );
     });
     it('should return 3 specific ordered questions from 3 exercises', () => {
       const exam = {
@@ -397,7 +412,12 @@ describe('exam utils', () => {
           title: 'Find 1 more or 1 less than a number',
         },
       ];
-      expect(converted).toEqual(expectedOutput);
+      expect(converted).toEqual(
+        expectedOutput.map(q => {
+          q.item = `${q.exercise_id}:${q.question_id}`;
+          return q;
+        })
+      );
     });
   });
 });

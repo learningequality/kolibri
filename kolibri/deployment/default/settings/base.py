@@ -23,6 +23,7 @@ from tzlocal import get_localzone
 
 import kolibri
 from kolibri.deployment.default.cache import CACHES
+from kolibri.deployment.default.sqlite_db_names import ADDITIONAL_SQLITE_DATABASES
 from kolibri.plugins.utils.settings import apply_settings
 from kolibri.utils import conf
 from kolibri.utils import i18n
@@ -93,6 +94,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "kolibri.core.analytics.middleware.cherrypy_access_log_middleware",
     "kolibri.core.device.middleware.ProvisioningErrorHandler",
+    "kolibri.core.device.middleware.DatabaseBusyErrorHandler",
     "django.middleware.cache.UpdateCacheMiddleware",
     "kolibri.core.analytics.middleware.MetricsMiddleware",
     "kolibri.core.auth.middleware.KolibriSessionMiddleware",
@@ -148,13 +150,20 @@ if conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "sqlite":
             ),
             "OPTIONS": {"timeout": 100},
         },
-        "notifications_db": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": os.path.join(conf.KOLIBRI_HOME, "notifications.sqlite3"),
-            "OPTIONS": {"timeout": 100},
-        },
     }
-    DATABASE_ROUTERS = ("kolibri.core.notifications.models.NotificationsRouter",)
+
+    for additional_db in ADDITIONAL_SQLITE_DATABASES:
+        DATABASES[additional_db] = {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": os.path.join(conf.KOLIBRI_HOME, "{}.sqlite3".format(additional_db)),
+            "OPTIONS": {"timeout": 100},
+        }
+
+    DATABASE_ROUTERS = (
+        "kolibri.core.notifications.models.NotificationsRouter",
+        "kolibri.core.device.models.SyncQueueRouter",
+        "kolibri.core.discovery.models.NetworkLocationRouter",
+    )
 
 elif conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "postgres":
     DATABASES = {
@@ -206,6 +215,12 @@ EXTRA_LANG_INFO = {
         "name": "Fulfulde (Cameroon)",
         "name_local": "Fulfulde Mbororoore",
     },
+    "el": {
+        "bidi": False,
+        "code": "el",
+        "name": "Greek",
+        "name_local": "Ελληνικά",
+    },
     "es-419": {
         "bidi": False,
         "code": "es-419",
@@ -230,12 +245,42 @@ EXTRA_LANG_INFO = {
         "name": "Gujarati",
         "name_local": "ગુજરાતી",
     },
+    "ha": {
+        "bidi": False,
+        "code": "ha",
+        "name": "Hausa",
+        "name_local": "Hausa",
+    },
+    "id": {
+        "bidi": False,
+        "code": "id",
+        "name": "Indonesian",
+        "name_local": "Bahasa Indonesia",
+    },
+    "ka": {
+        "bidi": False,
+        "code": "ka",
+        "name": "Georgian",
+        "name_local": "ქართული",
+    },
     "km": {"bidi": False, "code": "km", "name": "Khmer", "name_local": "ភាសាខ្មែរ"},
     "nyn": {
         "bidi": False,
         "code": "nyn",
         "name": "Chichewa, Chewa, Nyanja",
         "name_local": "Chinyanja",
+    },
+    "pt-mz": {
+        "bidi": False,
+        "code": "pt-mz",
+        "name": "Portuguese (Mozambique)",
+        "name_local": "Português (Moçambique)",
+    },
+    "uk": {
+        "bidi": False,
+        "code": "uk",
+        "name": "Ukrainian",
+        "name_local": "Украї́нська мо́ва",
     },
     "zh": {
         "bidi": False,
@@ -348,6 +393,8 @@ SESSION_ENGINE = "django.contrib.sessions.backends.file"
 
 SESSION_FILE_PATH = os.path.join(conf.KOLIBRI_HOME, "sessions")
 
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
 if not os.path.exists(SESSION_FILE_PATH):
     if not os.path.exists(conf.KOLIBRI_HOME):
         raise RuntimeError("The KOLIBRI_HOME dir does not exist")
@@ -361,7 +408,28 @@ SESSION_COOKIE_AGE = 1200
 
 apply_settings(sys.modules[__name__])
 
-# prepend operation to generate notifications to sync cleanup
+MORANGO_INSTANCE_INFO = os.environ.get(
+    "MORANGO_INSTANCE_INFO",
+    "kolibri.core.auth.constants.morango_sync:CUSTOM_INSTANCE_INFO",
+)
+# prepend our own Morango Operation to handle custom behaviors during sync
+SYNC_OPERATIONS = ("kolibri.core.auth.sync_operations:KolibriSyncOperations",)
+MORANGO_INITIALIZE_OPERATIONS = (
+    SYNC_OPERATIONS + morango_settings.MORANGO_INITIALIZE_OPERATIONS
+)
+MORANGO_SERIALIZE_OPERATIONS = (
+    SYNC_OPERATIONS + morango_settings.MORANGO_SERIALIZE_OPERATIONS
+)
+MORANGO_QUEUE_OPERATIONS = SYNC_OPERATIONS + morango_settings.MORANGO_QUEUE_OPERATIONS
+MORANGO_TRANSFERRING_OPERATIONS = (
+    SYNC_OPERATIONS + morango_settings.MORANGO_TRANSFERRING_OPERATIONS
+)
+MORANGO_DEQUEUE_OPERATIONS = (
+    SYNC_OPERATIONS + morango_settings.MORANGO_DEQUEUE_OPERATIONS
+)
+MORANGO_DESERIALIZE_OPERATIONS = (
+    SYNC_OPERATIONS + morango_settings.MORANGO_DESERIALIZE_OPERATIONS
+)
 MORANGO_CLEANUP_OPERATIONS = (
-    "kolibri.core.auth.utils:GenerateNotifications",
-) + morango_settings.MORANGO_CLEANUP_OPERATIONS
+    SYNC_OPERATIONS + morango_settings.MORANGO_CLEANUP_OPERATIONS
+)

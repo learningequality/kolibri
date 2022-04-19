@@ -1,17 +1,24 @@
 import pickBy from 'lodash/pickBy';
 import uniq from 'lodash/uniq';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-import { ContentNodeResource, ContentNodeSearchResource, ChannelResource } from 'kolibri.resources';
+import {
+  ContentNodeResource,
+  BookmarksResource,
+  ContentNodeSearchResource,
+  ChannelResource,
+} from 'kolibri.resources';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import router from 'kolibri.coreVue.router';
+import chunk from 'lodash/chunk';
 import { PageNames } from '../../constants';
-import { filterAndAnnotateContentList, fetchChannelQuizzes } from './actions';
+import { filterAndAnnotateContentList, fetchPracticeQuizzes } from './actions';
 
 function showExamCreationPage(store, params) {
-  const { contentList, pageName, ancestors = [], searchResults = null } = params;
+  const { contentList, bookmarksList, pageName, ancestors = [], searchResults = null } = params;
   return store.dispatch('loading').then(() => {
     store.commit('examCreation/SET_ANCESTORS', ancestors);
     store.commit('examCreation/SET_CONTENT_LIST', contentList);
+    store.commit('examCreation/SET_BOOKMARKS_LIST', bookmarksList);
     if (searchResults) {
       store.commit('examCreation/SET_SEARCH_RESULTS', searchResults);
     }
@@ -43,8 +50,8 @@ export function showExamCreationRootPage(store, params) {
     });
   });
 }
-export function showChannelQuizCreationRootPage(store, params) {
-  return fetchChannelQuizzes().then(channels => {
+export function showPracticeQuizCreationRootPage(store, params) {
+  return fetchPracticeQuizzes().then(channels => {
     const channelContentList = channels.map(channel => ({
       ...channel,
       id: channel.id,
@@ -58,11 +65,11 @@ export function showChannelQuizCreationRootPage(store, params) {
     return showExamCreationPage(store, {
       classId: params.classId,
       contentList: channelContentList,
-      pageName: PageNames.EXAM_CREATION_CHANNEL_QUIZ,
+      pageName: PageNames.EXAM_CREATION_PRACTICE_QUIZ,
     });
   });
 }
-export function showChannelQuizCreationTopicPage(store, params) {
+export function showPracticeQuizCreationTopicPage(store, params) {
   return store.dispatch('loading').then(() => {
     const { topicId } = params;
     const topicNodePromise = ContentNodeResource.fetchModel({ id: topicId });
@@ -70,6 +77,7 @@ export function showChannelQuizCreationTopicPage(store, params) {
       getParams: {
         parent: topicId,
         kind_in: [ContentNodeKinds.TOPIC, ContentNodeKinds.EXERCISE],
+        contains_quiz: true,
       },
     });
     const loadRequirements = [topicNodePromise, childNodesPromise];
@@ -83,7 +91,7 @@ export function showChannelQuizCreationTopicPage(store, params) {
         return showExamCreationPage(store, {
           classId: params.classId,
           contentList,
-          pageName: PageNames.EXAM_CREATION_SELECT_CHANNEL_QUIZ_TOPIC,
+          pageName: PageNames.EXAM_CREATION_SELECT_PRACTICE_QUIZ_TOPIC,
           ancestors: [...topicNode.ancestors, topicNode],
         });
       });
@@ -119,7 +127,60 @@ export function showExamCreationTopicPage(store, params) {
   });
 }
 
-export function showExamCreationPreviewPage(store, params, query = {}) {
+export function showExamCreationBookmarksPage(store, params) {
+  return store.dispatch('loading').then(() => {
+    const { topicId } = params;
+    const topicNodePromise = ContentNodeResource.fetchModel({ id: topicId });
+    const childNodesPromise = ContentNodeResource.fetchCollection({
+      getParams: {
+        parent: topicId,
+        kind_in: [ContentNodeKinds.TOPIC, ContentNodeKinds.VIDEO, ContentNodeKinds.EXERCISE],
+      },
+    });
+    const loadRequirements = [topicNodePromise, childNodesPromise];
+
+    return Promise.all(loadRequirements).then(([topicNode, childNodes]) => {
+      return filterAndAnnotateContentList(childNodes).then(() => {
+        store.commit('SET_TOOLBAR_ROUTE', {
+          name: PageNames.EXAMS,
+        });
+        return showExamCreationPage(store, {
+          classId: params.classId,
+          bookmarksList: childNodes,
+          pageName: PageNames.EXAM_CREATION_BOOKMARKS,
+          ancestors: [...topicNode.ancestors, topicNode],
+        });
+      });
+    });
+  });
+}
+export function showExamCreationAllBookmarks(store) {
+  return store.dispatch('loading').then(() => {
+    getBookmarks().then(bookmarks => {
+      return showExamCreationPage(store, {
+        bookmarksList: bookmarks[0],
+      });
+    });
+  });
+}
+function getBookmarks() {
+  return BookmarksResource.fetchCollection()
+    .then(bookmarks => bookmarks.map(bookmark => bookmark.contentnode_id))
+    .then(contentNodeIds => {
+      const chunkedContentNodeIds = chunk(contentNodeIds, 50); // Breaking contentNodeIds into lists no more than 50 in length
+      // Now we will create an array of promises, each of which queries for the 50-id chunk
+      const fetchPromises = chunkedContentNodeIds.map(idsChunk => {
+        return ContentNodeResource.fetchCollection({
+          getParams: {
+            ids: idsChunk, // This filters only the ids we want
+          },
+        });
+      });
+      return Promise.all(fetchPromises);
+    });
+}
+
+export function showExamCreationPreviewPage(store, params, fromRoute, query = {}) {
   const { classId, contentId } = params;
   return store.dispatch('loading').then(() => {
     return Promise.all([_prepExamContentPreview(store, classId, contentId)])
@@ -133,12 +194,16 @@ export function showExamCreationPreviewPage(store, params, query = {}) {
             },
             query: otherQueryParams,
           });
-        } else {
+        } else if (fromRoute && fromRoute.name === PageNames.EXAM_CREATION_TOPIC) {
           store.commit('SET_TOOLBAR_ROUTE', {
             name: PageNames.EXAM_CREATION_TOPIC,
             params: {
               topicId: contentNode.parent,
             },
+          });
+        } else {
+          store.commit('SET_TOOLBAR_ROUTE', {
+            name: PageNames.EXAM_CREATION_ROOT,
           });
         }
         store.dispatch('notLoading');
@@ -149,13 +214,13 @@ export function showExamCreationPreviewPage(store, params, query = {}) {
       });
   });
 }
-export function showChannelQuizCreationPreviewPage(store, params) {
+export function showPracticeQuizCreationPreviewPage(store, params) {
   const { classId, contentId } = params;
   return store.dispatch('loading').then(() => {
-    return Promise.all([_prepChannelQuizContentPreview(store, classId, contentId)])
+    return Promise.all([_prepPracticeQuizContentPreview(store, classId, contentId)])
       .then(([contentNode]) => {
         store.commit('SET_TOOLBAR_ROUTE', {
-          name: PageNames.EXAM_CREATION_SELECT_CHANNEL_QUIZ_TOPIC,
+          name: PageNames.EXAM_CREATION_SELECT_PRACTICE_QUIZ_TOPIC,
           params: {
             topicId: contentNode.parent,
           },
@@ -169,7 +234,7 @@ export function showChannelQuizCreationPreviewPage(store, params) {
   });
 }
 
-function _prepChannelQuizContentPreview(store, classId, contentId) {
+function _prepPracticeQuizContentPreview(store, classId, contentId) {
   return ContentNodeResource.fetchModel({ id: contentId }).then(
     contentNode => {
       const contentMetadata = assessmentMetaDataState(contentNode);
@@ -179,7 +244,7 @@ function _prepChannelQuizContentPreview(store, classId, contentId) {
         questions: contentMetadata.assessmentIds,
         completionData: contentMetadata.masteryModel,
       });
-      store.commit('SET_PAGE_NAME', PageNames.EXAM_CREATION_CHANNEL_QUIZ_PREVIEW);
+      store.commit('SET_PAGE_NAME', PageNames.EXAM_CREATION_PRACTICE_QUIZ_PREVIEW);
       return contentNode;
     },
     error => {
@@ -252,6 +317,8 @@ const creationPages = [
   PageNames.EXAM_CREATION_TOPIC,
   PageNames.EXAM_CREATION_PREVIEW,
   PageNames.EXAM_CREATION_SEARCH,
+  PageNames.EXAM_CREATION_BOOKMARKS,
+  PageNames.EXAM_CREATION_BOOKMARKS_MAIN,
 ];
 
 export function showExamCreationQuestionSelectionPage(store, toRoute, fromRoute) {

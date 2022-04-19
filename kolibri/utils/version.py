@@ -110,6 +110,11 @@ from .lru_cache import lru_cache
 logger = logging.getLogger(__name__)
 
 ORDERED_VERSIONS = ("alpha", "beta", "rc", "final")
+MAJOR_VERSION = "major"
+MINOR_VERSION = "minor"
+PATCH_VERSION = "patch"
+PRERELEASE_VERSION = "prerelease"
+BUILD_VERSION = "build"
 
 
 def get_major_version(version=None):
@@ -129,8 +134,10 @@ def get_complete_version(version=None):
     if version is None:
         from kolibri import VERSION as version
     else:
-        assert len(version) == 5
-        assert version[3] in ORDERED_VERSIONS
+        if len(version) != 5:
+            raise AssertionError
+        if version[3] not in ORDERED_VERSIONS:
+            raise AssertionError
 
     return version
 
@@ -142,8 +149,7 @@ def get_docs_version(version=None):
     version = get_complete_version(version)
     if version[3] != "final":
         return "dev"
-    else:
-        return "%d.%d" % version[:2]
+    return "%d.%d" % version[:2]
 
 
 def get_git_changeset():
@@ -447,10 +453,8 @@ def version_matches_range(version, version_range):
     # support having multiple comma-delimited version criteria
     if "," in version_range:
         return all(
-            [
-                version_matches_range(version, vrange)
-                for vrange in version_range.split(",")
-            ]
+            version_matches_range(version, vrange)
+            for vrange in version_range.split(",")
         )
 
     # extract and normalize version strings
@@ -484,3 +488,38 @@ def normalize_version_to_semver(version):
     dev = (dev or "").replace("+", ".").replace("-", ".")
 
     return "{}-{}{}".format(numeric, after, dev).strip("-")
+
+
+def truncate_version(version, truncation_level=PATCH_VERSION):
+    """
+    Truncates a version string to a specific level
+
+    >>> truncate_version("0.15.0a5.dev0+git.682.g0be46de2")
+    '0.15.0'
+    >>> truncate_version("0.14.7", truncation_level=MINOR_VERSION)
+    '0.14.0'
+
+    :param version: The version str to truncate
+    :param truncation_level: The level beyond which to truncate the version
+    :return: A truncated version string
+    """
+    import semver
+
+    v = semver.parse_version_info(
+        normalize_version_to_semver(version).replace(".dev", "+dev")
+    )
+
+    if truncation_level == MAJOR_VERSION:
+        return semver.format_version(v.major, 0, 0)
+    if truncation_level == MINOR_VERSION:
+        return semver.format_version(v.major, v.minor, 0)
+    if truncation_level == PATCH_VERSION:
+        return semver.format_version(v.major, v.minor, v.patch)
+    if truncation_level == PRERELEASE_VERSION:
+        truncated_version = semver.format_version(
+            v.major, v.minor, v.patch, prerelease=v.prerelease
+        )
+        # ensure prerelease formatting matches our convention
+        truncated_version, prerelease_version = truncated_version.split("-")
+        return "{}{}".format(truncated_version, prerelease_version.replace(".", ""))
+    return version

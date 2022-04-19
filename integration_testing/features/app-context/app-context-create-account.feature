@@ -19,7 +19,7 @@ Feature: Create an account in app context
     Then I am on the step 2 of *Create an account* page
     When I select my gender and birth year if I so chose
       And I click the *Finish* button
-    Then I am signed in and I can see the *Learn > Channels* page
+    Then I am signed in and I can see the *Learn > Home* page
 
   Scenario: Create an account on facility where password is required
     Given that signing in without password is disabled in the *Facility Settings*
@@ -34,7 +34,7 @@ Feature: Create an account in app context
     Then I am on the step 2 of *Create an account* page
     When I select my gender and birth year if I so chose
       And I click the *Finish* button
-    Then I am signed in and I can see the *Learn > Channels* page
+    Then I am signed in and I can see the *Learn > Home* page
 
   Background:
     Given that there is more than one facility on the device I want to create an account on
@@ -55,7 +55,7 @@ Feature: Create an account in app context
     Then I am on the step 2 of *Create an account* page
     When I select my gender and birth year if I so chose
       And I click the *Finish* button
-    Then I am signed in and I can see the *Learn > Channels* page
+    Then I am signed in and I can see the *Learn > Home* page
 
   Scenario: Create an account on facility where password is required
     Given that signing in without password is disabled in the *Facility Settings*
@@ -73,11 +73,11 @@ Feature: Create an account in app context
     Then I am on the step 2 of *Create an account* page
     When I select my gender and birth year if I so chose
       And I click the *Finish* button
-    Then I am signed in and I can see the *Learn > Channels* page
+    Then I am signed in and I can see the *Learn > Home* page
 
   Scenario: Accounts created on *Create an account* page do not see a notification to update profile
     Given I completed the account creation workflow
-    When I am redirected to the *Learn* page
+    When I am redirected to the *Learn > Home* page
     Then I don't see the *Update your profile* modal
 
   Scenario: Username is already taken

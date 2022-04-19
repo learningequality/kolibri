@@ -70,7 +70,9 @@ function modifyTranslationObjectNode(node, namespace, definitions) {
   } else {
     messageProperty = node.value.properties.find(n => n.key.name === 'message');
     const contextProperty = node.value.properties.find(n => n.key.name === 'context');
+    // if the context is already there and there is no change, bail out
     if (
+      contextProperty &&
       contextProperty.value.type === 'StringLiteral' &&
       contextProperty.value.value === contextValue
     ) {

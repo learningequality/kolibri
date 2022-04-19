@@ -77,7 +77,8 @@ else:  # pragma: no cover
 
 
 def _cpu_times_deltas(t1, t2):
-    assert t1._fields == t2._fields, (t1, t2)
+    if t1._fields != t2._fields:
+        raise AssertionError(t1, t2)
     field_deltas = []
     for field in _psplatform.scputimes._fields:
         field_delta = getattr(t2, field) - getattr(t1, field)

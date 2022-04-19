@@ -103,7 +103,7 @@
         <KButtonGroup>
           <KRouterLink
             appearance="flat-button"
-            :text="coreString('goBackAction')"
+            :text="$tr('previousStep')"
             :to="toolbarRoute"
           />
           <KButton
@@ -276,7 +276,11 @@
         context:
           'When coaches have finished selecting resources for a quiz, they can preview the quiz to see what it looks like.',
       },
-      numQuestionsBetween: 'Enter a number between 1 and 50',
+      numQuestionsBetween: {
+        message: 'Enter a number between 1 and 50',
+        context:
+          "Refers to an error if the coach inputs a number of quiz questions that's not between 1 and 50. Quizzes cannot have less than 1 or more than 50 questions.",
+      },
       numQuestionsExceed: {
         message:
           'The max number of questions based on the exercises you selected is {maxQuestionsFromSelection}. Select more exercises to reach {inputNumQuestions} questions, or lower the number of questions to {maxQuestionsFromSelection}.',
@@ -286,6 +290,10 @@
       numQuestions: {
         message: 'Number of questions',
         context: 'Indicates the number of questions a quiz has.',
+      },
+      previousStep: {
+        message: 'Previous step',
+        context: 'Label for a button to exit the exam preview and return to resource selection.',
       },
     },
   };

@@ -94,7 +94,7 @@
   import ClassSummaryResource from '../../../apiResources/classSummary';
   import commonCoachStrings from '../../common';
 
-  const DEFAULT_ITEMS_PER_PAGE = 50;
+  const DEFAULT_ITEMS_PER_PAGE = 30;
 
   export default {
     name: 'IndividualLearnerSelector',
@@ -262,7 +262,7 @@
       onlyShowingEnrolledLabel: {
         message: 'Only showing learners that are enrolled in this class',
         context:
-          'A piece of text showing beneath selectedIndividualLearners explaining that the table only includes enrolled learners.',
+          "Shows beneath 'Select individual learners' explaining that the table only includes enrolled learners.",
       },
       selectAllLabel: {
         message: 'Select all on page',
@@ -275,7 +275,7 @@
       },
       searchPlaceholder: {
         message: 'Search for a user…',
-        context: 'Indicates the search function which allows coaches to add learners to a lesson.',
+        context: 'Indicates the search function which allows admins to import users.',
       },
       noUsersMatch: {
         message: 'No users match',
@@ -301,9 +301,11 @@
     font-size: 16px;
     font-weight: bold;
   }
+
   .table-header {
     padding: 24px 0;
   }
+
   .table-checkbox-header {
     padding: 8px;
   }

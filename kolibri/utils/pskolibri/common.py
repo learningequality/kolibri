@@ -120,12 +120,11 @@ def memoize_when_activated(fun):
     def wrapper(self):
         if not wrapper.cache_activated:
             return fun(self)
-        else:
-            try:
-                ret = cache[fun]
-            except KeyError:
-                ret = cache[fun] = fun(self)
-            return ret
+        try:
+            ret = cache[fun]
+        except KeyError:
+            ret = cache[fun] = fun(self)
+        return ret
 
     def cache_activate():
         """Activate cache."""

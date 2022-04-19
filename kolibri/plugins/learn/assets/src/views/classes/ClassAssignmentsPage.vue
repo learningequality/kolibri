@@ -1,12 +1,13 @@
 <template>
 
   <div>
+    <KBreadcrumbs :items="breadcrumbs" />
     <h1 class="classroom-name">
-      <KLabeledIcon icon="classes" :label="classroomName" />
+      <KLabeledIcon icon="classes" :label="className" />
     </h1>
 
-    <AssignedLessonsCards :items="lessons" />
-    <AssignedQuizzesCards :items="exams" />
+    <AssignedLessonsCards :lessons="activeLessons" />
+    <AssignedQuizzesCards :quizzes="activeQuizzes" :style="{ marginTop: '44px' }" />
 
   </div>
 
@@ -15,9 +16,16 @@
 
 <script>
 
-  import { mapState } from 'vuex';
-  import AssignedQuizzesCards from './AssignedQuizzesCards.vue';
-  import AssignedLessonsCards from './AssignedLessonsCards.vue';
+  import { computed, onBeforeMount, onBeforeUnmount } from 'kolibri.lib.vueCompositionApi';
+  import { get } from '@vueuse/core';
+  import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+
+  import { PageNames, ClassesPageNames } from '../../constants';
+
+  import useLearnerResources from '../../composables/useLearnerResources';
+  import AssignedQuizzesCards from './AssignedQuizzesCards';
+  import AssignedLessonsCards from './AssignedLessonsCards';
 
   export default {
     name: 'ClassAssignmentsPage',
@@ -29,33 +37,65 @@
     components: {
       AssignedQuizzesCards,
       AssignedLessonsCards,
+      KBreadcrumbs,
     },
-    data() {
+    mixins: [commonCoreStrings],
+    setup(_, { root }) {
+      const {
+        fetchClass,
+        getClass,
+        getClassActiveLessons,
+        getClassActiveQuizzes,
+      } = useLearnerResources();
+
+      const classId = root.$router.currentRoute.params.classId;
+      const classroom = computed(() => getClass(classId));
+      const className = computed(() => (get(classroom) ? get(classroom).name : ''));
+      const activeLessons = computed(() => getClassActiveLessons(get(classId)));
+      const activeQuizzes = computed(() => getClassActiveQuizzes(get(classId)));
+
+      function schedulePoll() {
+        const timeoutId = setTimeout(pollForUpdates, 30000);
+        return timeoutId;
+      }
+
+      function pollForUpdates() {
+        fetchClass({ classId, force: true }).then(() => {
+          schedulePoll();
+        });
+      }
+
+      let pollTimeoutId;
+
+      onBeforeMount(() => {
+        pollTimeoutId = schedulePoll();
+      });
+
+      onBeforeUnmount(() => {
+        clearTimeout(pollTimeoutId);
+      });
+
       return {
-        pollTimeoutId: null,
+        className,
+        activeLessons,
+        activeQuizzes,
       };
     },
     computed: {
-      ...mapState('classAssignments', {
-        classroomName: state => state.currentClassroom.name,
-        exams: state => state.currentClassroom.assignments.exams,
-        lessons: state => state.currentClassroom.assignments.lessons,
-      }),
-    },
-    mounted() {
-      this.schedulePoll();
-    },
-    beforeDestroy() {
-      clearTimeout(this.pollTimeoutId);
-    },
-    methods: {
-      schedulePoll() {
-        this.pollTimeoutId = setTimeout(this.pollForUpdates, 30000);
-      },
-      pollForUpdates() {
-        this.$store.dispatch('classAssignments/updateWithChanges').then(() => {
-          this.schedulePoll();
-        });
+      breadcrumbs() {
+        return [
+          {
+            text: this.coreString('homeLabel'),
+            link: { name: PageNames.HOME },
+          },
+          {
+            text: this.coreString('classesLabel'),
+            link: { name: ClassesPageNames.ALL_CLASSES },
+          },
+          {
+            text: this.className,
+          },
+        ];
       },
     },
     $trs: {

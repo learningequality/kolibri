@@ -3,7 +3,7 @@
   <Navbar>
     <NavbarLink
       :title="coreString('classesLabel')"
-      :link="$store.getters.facilityPageLinks.ManageClassPage"
+      :link="facilityPageLinks.ManageClassPage"
     >
       <KIcon
         icon="classes"
@@ -13,7 +13,7 @@
     </NavbarLink>
     <NavbarLink
       :title="coreString('usersLabel')"
-      :link="$store.getters.facilityPageLinks.UserPage"
+      :link="facilityPageLinks.UserPage"
     >
       <KIcon
         icon="people"
@@ -23,7 +23,7 @@
     </NavbarLink>
     <NavbarLink
       :title="$tr('settings')"
-      :link="$store.getters.facilityPageLinks.FacilitiesConfigPage"
+      :link="facilityPageLinks.FacilitiesConfigPage"
     >
       <KIcon
         icon="settings"
@@ -33,7 +33,7 @@
     </NavbarLink>
     <NavbarLink
       :title="$tr('data')"
-      :link="$store.getters.facilityPageLinks.DataPage"
+      :link="facilityPageLinks.DataPage"
     >
       <KIcon
         icon="save"
@@ -48,6 +48,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import Navbar from 'kolibri.coreVue.components.Navbar';
   import NavbarLink from 'kolibri.coreVue.components.NavbarLink';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -59,6 +60,9 @@
       NavbarLink,
     },
     mixins: [commonCoreStrings],
+    computed: {
+      ...mapGetters(['facilityPageLinks']),
+    },
     $trs: {
       data: {
         message: 'Data',

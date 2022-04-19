@@ -48,27 +48,21 @@ const urls = {
     }
     return generateUrl(this.__mediaUrl, { url });
   },
-  storageUrl(fileId, extension, embeddedFilePath = '') {
+  zipContentUrl(fileId, extension, embeddedFilePath = '') {
     const filename = `${fileId}.${extension}`;
-    if (['zip', 'h5p'].includes(extension)) {
-      if (!this.__zipContentUrl) {
-        throw new ReferenceError('Zipcontent Url is not defined');
-      }
-      return generateUrl(this.__zipContentUrl, {
-        url: `${filename}/${embeddedFilePath}`,
-        origin: this.__zipContentOrigin,
-        port: this.__zipContentPort,
-      });
-    }
-    if (!this.__contentUrl) {
+    if (!this.__zipContentUrl) {
       throw new ReferenceError('Zipcontent Url is not defined');
     }
-    return generateUrl(this.__contentUrl, { url: `${filename[0]}/${filename[1]}/${filename}` });
+    return generateUrl(this.__zipContentUrl, {
+      url: `${filename}/${embeddedFilePath}`,
+      origin: this.__zipContentOrigin,
+      port: this.__zipContentPort,
+    });
   },
-  downloadUrl(fileId, extension) {
+  storageUrl(fileId, extension) {
     const filename = `${fileId}.${extension}`;
     if (!this.__contentUrl) {
-      throw new ReferenceError('Content Url is not defined');
+      throw new ReferenceError('Zipcontent Url is not defined');
     }
     return generateUrl(this.__contentUrl, { url: `${filename[0]}/${filename[1]}/${filename}` });
   },

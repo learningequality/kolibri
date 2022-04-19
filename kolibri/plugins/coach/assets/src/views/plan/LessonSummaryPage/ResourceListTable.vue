@@ -103,7 +103,6 @@
     data() {
       return {
         workingResourcesBackup: [...this.$store.state.lessonSummary.workingResources],
-        firstRemovalTitle: '',
       };
     },
     computed: {
@@ -142,7 +141,6 @@
         return this.resourceContentNodes[resourceId].kind;
       },
       removeResource(resource) {
-        this.firstRemovalTitle = this.resourceTitle(resource.contentnode_id);
         this.removeFromWorkingResources([resource]);
 
         this.autoSave(this.lessonId, this.workingResources);

@@ -13,11 +13,9 @@
 
     <KPageContainer>
 
-      <ReportsGroupReportLessonExerciseHeader />
+      <ReportsResourceHeader :resource="exercise" @previewClick="onPreviewClick" />
 
-      <ReportsControls @export="exportCSV">
-        <h2>{{ coachString('overallLabel') }}</h2>
-      </ReportsControls>
+      <ReportsControls @export="exportCSV" />
 
       <CoreTable :emptyMessage="coachString('questionListEmptyState')">
         <template #headers>
@@ -55,24 +53,25 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import { mapGetters, mapState } from 'vuex';
   import commonCoach from '../common';
   import LearnerProgressRatio from '../common/status/LearnerProgressRatio';
   import CSVExporter from '../../csv/exporter';
   import * as csvFields from '../../csv/fields';
-  import ReportsGroupReportLessonExerciseHeader from './ReportsGroupReportLessonExerciseHeader';
+  import ReportsResourceHeader from './ReportsResourceHeader';
   import ReportsControls from './ReportsControls';
   import { PageNames } from './../../constants';
 
   export default {
     name: 'ReportsGroupReportLessonExerciseQuestionListPage',
     components: {
-      ReportsGroupReportLessonExerciseHeader,
+      ReportsResourceHeader,
       ReportsControls,
       LearnerProgressRatio,
     },
     mixins: [commonCoach],
     computed: {
+      ...mapState('questionList', ['exercise']),
       ...mapGetters('questionList', ['difficultQuestions']),
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];
@@ -116,6 +115,17 @@
         });
 
         exporter.export(this.table);
+      },
+      onPreviewClick() {
+        this.$router.push(
+          this.$router.getRoute(
+            'RESOURCE_CONTENT_PREVIEW',
+            {
+              contentId: this.exercise.id,
+            },
+            this.defaultBackLinkQuery
+          )
+        );
       },
     },
   };

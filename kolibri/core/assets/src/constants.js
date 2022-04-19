@@ -1,3 +1,14 @@
+import invert from 'lodash/invert';
+import Subjects from 'kolibri-constants/labels/Subjects';
+// coach-facing
+export { default as ContentNodeResourceType } from 'kolibri-constants/labels/ResourceType';
+export { default as LearningActivities } from 'kolibri-constants/labels/LearningActivities';
+export { default as AccessibilityCategories } from 'kolibri-constants/labels/AccessibilityCategories';
+// Used to categorize the level or audience of content
+export { default as ContentLevels } from 'kolibri-constants/labels/Levels';
+export { default as ResourcesNeededTypes } from 'kolibri-constants/labels/Needs';
+export { default as Categories } from 'kolibri-constants/labels/Subjects';
+
 export const UserKinds = {
   ADMIN: 'admin',
   COACH: 'coach',
@@ -27,53 +38,17 @@ export const ContentNodeKinds = {
   CLASSROOM: 'CLASSROOM',
   ACTIVITY: 'ACTIVITY',
   SLIDESHOW: 'slideshow',
+  BOOKMARK: 'bookmark',
 };
 
-export const LearningActivities = {
-  CREATE: 'create',
-  LISTEN: 'listen',
-  REFLECT: 'reflect',
-  PRACTICE: 'practice',
-  READ: 'read',
-  WATCH: 'watch',
-  EXPLORE: 'explore',
-  TOPIC: 'topic',
-};
+export const CategoriesLookup = invert(Subjects);
+
+export const AllCategories = 'all_categories';
+
+export const NoCategories = 'no_categories';
 
 // used internally on the client as a hack to allow content-icons to display users
 export const USER = 'user';
-
-export const MasteryLoggingMap = {
-  id: 'id',
-  summarylog: 'summarylog',
-  start_timestamp: 'start_timestamp',
-  completion_timestamp: 'completion_timestamp',
-  end_timestamp: 'end_timestamp',
-  mastery_level: 'mastery_level',
-  mastery_criterion: 'mastery_criterion',
-  complete: 'complete',
-  responsehistory: 'responsehistory',
-  pastattempts: 'pastattempts',
-  totalattempts: 'totalattempts',
-};
-
-export const AttemptLoggingMap = {
-  id: 'id',
-  sessionlog: 'sessionlog',
-  item: 'item',
-  user: 'user',
-  start_timestamp: 'start_timestamp',
-  completion_timestamp: 'completion_timestamp',
-  end_timestamp: 'end_timestamp',
-  time_spent: 'time_spent',
-  complete: 'complete',
-  correct: 'correct',
-  answer: 'answer',
-  simple_answer: 'simple_answer',
-  interaction_history: 'interaction_history',
-  masterylog: 'masterylog',
-  hinted: 'hinted',
-};
 
 export const InteractionTypes = {
   hint: 'hint',
@@ -90,6 +65,7 @@ export const MasteryModelTypes = Object.freeze({
   num_correct_in_a_row_5: 'num_correct_in_a_row_5',
   num_correct_in_a_row_10: 'num_correct_in_a_row_10',
   m_of_n: 'm_of_n',
+  quiz: 'quiz',
 });
 
 export const MasteryModelGenerators = {
@@ -160,6 +136,8 @@ export const ERROR_CONSTANTS = {
   PERMISSION_DENIED: 'PERMISSION_DENIED',
   NOT_AUTHENTICATED: 'NOT_AUTHENTICATED',
   PASSWORD_NOT_SPECIFIED: 'PASSWORD_NOT_SPECIFIED',
+  AUTHENTICATION_FAILED: 'AUTHENTICATION_FAILED',
+  DEVICE_LIMITATIONS: 'DEVICE_LIMITATIONS',
 };
 
 export const DemographicConstants = {

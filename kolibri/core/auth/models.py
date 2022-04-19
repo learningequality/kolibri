@@ -68,6 +68,7 @@ from .permissions.general import IsFromSameFacility
 from .permissions.general import IsOwn
 from .permissions.general import IsSelf
 from kolibri.core.auth.constants.demographics import choices as GENDER_CHOICES
+from kolibri.core.auth.constants.demographics import DEFERRED
 from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
 from kolibri.core.device.utils import DeviceNotProvisioned
 from kolibri.core.device.utils import get_device_setting
@@ -83,8 +84,14 @@ class DatasetCache(local):
     def __init__(self):
         self.deactivate()
 
+    def __enter__(self):
+        self.activate()
+
     def activate(self):
         self._active = True
+
+    def __exit__(self, type, value, traceback):
+        self.deactivate()
 
     def deactivate(self):
         self._active = False
@@ -160,8 +167,7 @@ class FacilityDataset(FacilityDataSyncableModel):
             return "FacilityDataset for {}".format(
                 Facility.objects.get(id=facilities[0].id)
             )
-        else:
-            return "FacilityDataset (no associated Facility)"
+        return "FacilityDataset (no associated Facility)"
 
     def save(self, *args, **kwargs):
         self.ensure_compatibility()
@@ -188,7 +194,8 @@ class FacilityDataset(FacilityDataSyncableModel):
     @staticmethod
     def compute_namespaced_id(partition_value, source_id_value, model_name):
         # assert partition_value.startswith(FacilityDataset.ID_PLACEHOLDER)
-        assert model_name == FacilityDataset.morango_model_name
+        if model_name != FacilityDataset.morango_model_name:
+            raise AssertionError
         # we use the source_id as the ID for the FacilityDataset
         return source_id_value
 
@@ -225,6 +232,10 @@ class AbstractFacilityDataModel(FacilityDataSyncableModel):
     class Meta:
         abstract = True
 
+    @classmethod
+    def get_related_dataset_cache_key(cls, id, db_table):
+        return "{id}_{db_table}_dataset".format(id=id, db_table=db_table)
+
     def cached_related_dataset_lookup(self, related_obj_name):
         """
         Attempt to get the dataset_id either from the cache or the actual related obj instance.
@@ -233,8 +244,8 @@ class AbstractFacilityDataModel(FacilityDataSyncableModel):
         :return: the dataset_id associated with the related obj
         """
         field = self._meta.get_field(related_obj_name)
-        key = "{id}_{db_table}_dataset".format(
-            id=getattr(self, field.attname), db_table=field.related_model._meta.db_table
+        key = self.get_related_dataset_cache_key(
+            getattr(self, field.attname), field.related_model._meta.db_table
         )
         dataset_id = dataset_cache.get(key)
         if dataset_id is None:
@@ -260,15 +271,17 @@ class AbstractFacilityDataModel(FacilityDataSyncableModel):
         )
         super(AbstractFacilityDataModel, self).full_clean(*args, **kwargs)
 
-    def save(self, *args, **kwargs):
-
-        # before saving, ensure we have a dataset, and convert any validation errors into integrity errors,
-        # since by this point the `clean_fields` method should already have prevented this situation from arising
+    def pre_save(self):
+        # before saving, ensure we have a dataset, and convert any validation errors into integrity
+        # errors, since by this point the `clean_fields` method should already have prevented
+        # this situation from arising
         try:
             self.ensure_dataset()
         except KolibriValidationError as e:
             raise IntegrityError(str(e))
 
+    def save(self, *args, **kwargs):
+        self.pre_save()
         super(AbstractFacilityDataModel, self).save(*args, **kwargs)
 
     def ensure_dataset(self, *args, **kwargs):
@@ -536,29 +549,25 @@ class KolibriAnonymousUser(AnonymousUser, KolibriAbstractBaseUser):
         # check the object permissions, if available, just in case permissions are granted to anon users
         if _has_permissions_class(obj):
             return obj.permissions.user_can_create_object(self, obj)
-        else:
-            return False
+        return False
 
     def can_read(self, obj):
         # check the object permissions, if available, just in case permissions are granted to anon users
         if _has_permissions_class(obj):
             return obj.permissions.user_can_read_object(self, obj)
-        else:
-            return False
+        return False
 
     def can_update(self, obj):
         # check the object permissions, if available, just in case permissions are granted to anon users
         if _has_permissions_class(obj):
             return obj.permissions.user_can_update_object(self, obj)
-        else:
-            return False
+        return False
 
     def can_delete(self, obj):
         # check the object permissions, if available, just in case permissions are granted to anon users
         if _has_permissions_class(obj):
             return obj.permissions.user_can_delete_object(self, obj)
-        else:
-            return False
+        return False
 
     def filter_readable(self, queryset):
         # check the object permissions, if available, just in case permissions are granted to anon users
@@ -566,8 +575,7 @@ class KolibriAnonymousUser(AnonymousUser, KolibriAbstractBaseUser):
             return queryset.filter(
                 queryset.model.permissions.readable_by_user_filter(self)
             ).distinct()
-        else:
-            return queryset.none()
+        return queryset.none()
 
 
 class FacilityUserModelManager(SyncableModelManager, UserManager):
@@ -589,7 +597,7 @@ class FacilityUserModelManager(SyncableModelManager, UserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, username, password, facility=None):
+    def create_superuser(self, username, password, facility=None, full_name=None):
 
         # import here to avoid circularity
         from kolibri.core.device.models import DevicePermissions
@@ -602,8 +610,15 @@ class FacilityUserModelManager(SyncableModelManager, UserManager):
             raise ValidationError("An account with that username already exists")
 
         # create the new account in that facility
+        # gender and birth_year are set to DEFERRED, since superusers do not
+        # need to provide this and are not nudged to update profile on Learn page
         superuser = FacilityUser(
-            full_name=username, username=username, password=password, facility=facility
+            full_name=full_name or username,
+            username=username,
+            password=password,
+            facility=facility,
+            gender=DEFERRED,
+            birth_year=DEFERRED,
         )
         superuser.full_clean()
         superuser.set_password(password)
@@ -616,6 +631,7 @@ class FacilityUserModelManager(SyncableModelManager, UserManager):
         DevicePermissions.objects.create(
             user=superuser, is_superuser=True, can_manage_content=True
         )
+        return superuser
 
 
 def validate_birth_year(value):
@@ -646,7 +662,7 @@ def validate_birth_year(value):
         raise ValidationError(error)
 
 
-role_kinds_set = set(r[0] for r in role_kinds.choices)
+role_kinds_set = {r[0] for r in role_kinds.choices}
 
 
 def validate_role_kinds(kinds):
@@ -747,7 +763,7 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
             target_user = FacilityUser.objects.get(id=scope_params.get("user_id"))
             if self == target_user:
                 return True
-            if self.has_role_for_user(target_user, role_kinds.ADMIN):
+            if self.has_role_for_user(role_kinds.ADMIN, target_user):
                 return True
             return False
         return False
@@ -836,8 +852,7 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
         # a FacilityUser's permissions are determined through the object's permission class
         if _has_permissions_class(obj):
             return obj.permissions.user_can_create_object(self, obj)
-        else:
-            return False
+        return False
 
     def can_read(self, obj):
         if self.is_superuser:
@@ -845,8 +860,7 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
         # a FacilityUser's permissions are determined through the object's permission class
         if _has_permissions_class(obj):
             return obj.permissions.user_can_read_object(self, obj)
-        else:
-            return False
+        return False
 
     def can_update(self, obj):
         # Superusers cannot update their own permissions, because they only thing they can do is make themselves
@@ -856,8 +870,7 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
         # a FacilityUser's permissions are determined through the object's permission class
         if _has_permissions_class(obj):
             return obj.permissions.user_can_update_object(self, obj)
-        else:
-            return False
+        return False
 
     def can_delete(self, obj):
         # Users cannot delete themselves
@@ -870,8 +883,7 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
         # a FacilityUser's permissions are determined through the object's permission class
         if _has_permissions_class(obj):
             return obj.permissions.user_can_delete_object(self, obj)
-        else:
-            return False
+        return False
 
     def filter_readable(self, queryset):
         if self.is_superuser:
@@ -880,8 +892,7 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
             return queryset.filter(
                 queryset.model.permissions.readable_by_user_filter(self)
             ).distinct()
-        else:
-            return queryset.none()
+        return queryset.none()
 
     def __str__(self):
         return '"{user}"@"{facility}"'.format(
@@ -1087,9 +1098,8 @@ class Collection(AbstractFacilityDataModel):
             # subcollections inherit dataset from root of their tree
             # (we can't call `get_root` directly on self, as it won't work if self hasn't yet been saved)
             return self.parent.dataset_id
-        else:
-            # the root node (i.e. Facility) must be explicitly tied to a dataset
-            return None
+        # the root node (i.e. Facility) must be explicitly tied to a dataset
+        return None
 
     def __str__(self):
         return '"{name}" ({kind})'.format(name=self.name, kind=self.kind)

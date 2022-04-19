@@ -221,23 +221,14 @@ Note that you have to specify branch names for most commands.
 Prerequisites
 ~~~~~~~~~~~~~
 
-First, you'll need to have GNU ``gettext`` available on your path. You may be able to install it using your system's package manager.
+The tooling requires a minimum Python version of 3.7 and the dependencies in ``requirements/fonts.txt`` installed.
+
+You'll need to have GNU ``gettext`` available on your path. You may be able to install it using your system's package manager.
 
 .. note:: If you install ``gettext`` on Mac with Homebrew, you may need to add the binary to your path manually
 
-Next, ensure you have an environment variable ``CROWDIN_API_KEY`` set to the Learning Equality organization `account API key <https://support.crowdin.com/api/api-integration-setup/>`__.
+Finally, ensure you have an environment variable ``CROWDIN_API_KEY`` set to the Learning Equality organization `account API key <https://support.crowdin.com/api/api-integration-setup/>`__.
 
-Finally, you'll need to install the Perseus Plugin (``kolibri_exercise_perseus_plugin`` Python package) in development mode. This is done by `checking out the repo <https://github.com/learningequality/kolibri-exercise-perseus-plugin#development-guide>`__ and then installing it to Kolibri by running:
-
-.. code-block:: bash
-
-  pip install -e [local_path_to_perseus_repo]
-
-This will allow the scripts to properly upload sources and download translations from and to the Perseus plugin, which may then need to be released if any strings have changed or if new languages were added.
-
-See the `Perseus plugin development guide <https://github.com/learningequality/kolibri-exercise-perseus-plugin#development-guide>`__ for more information on setup and publication.
-
-When uploading or downloading strings, ensure that your Perseus repo is in a clean checkout state with the correct Perseus branch.
 
 .. _crowdin_upload:
 
@@ -247,8 +238,6 @@ Extracting and uploading sources
 Typically, strings will be uploaded when a new release branch is cut from ``develop``, signifying the beginning of string freeze and the ``beta`` releases. (See :ref:`release_process`.)
 
 Before translators can begin working on the strings in our application, they need to be uploaded to Crowdin. Translations are maintained in release branches on Crowdin in the `Crowdin kolibri project <http://crowdin.com/project/kolibri>`__.
-
-.. warning:: You *must* have the Perseus plugin installed for development as described above, or not all strings will be extracted!
 
 This command will extract front- and backend strings and upload them to Crowdin, and may take a while:
 

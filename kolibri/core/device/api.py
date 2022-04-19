@@ -1,16 +1,19 @@
+from datetime import timedelta
 from sys import version_info
 
 from django.conf import settings
-from django.db.models import Exists
 from django.db.models import Max
 from django.db.models import OuterRef
+from django.db.models.expressions import Subquery
 from django.db.models.query import Q
 from django.http.response import HttpResponseBadRequest
+from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
 from django_filters.rest_framework import ModelChoiceFilter
+from morango.constants import transfer_statuses
 from morango.models import InstanceIDModel
-from morango.models import SyncSession
+from morango.models import TransferSession
 from rest_framework import mixins
 from rest_framework import status
 from rest_framework import views
@@ -31,6 +34,14 @@ from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.auth.models import Collection
 from kolibri.core.content.permissions import CanManageContent
+from kolibri.core.device.utils import get_device_setting
+from kolibri.core.discovery.models import DynamicNetworkLocation
+from kolibri.core.public.constants.user_sync_options import DELAYED_SYNC
+from kolibri.core.public.constants.user_sync_statuses import NOT_RECENTLY_SYNCED
+from kolibri.core.public.constants.user_sync_statuses import QUEUED
+from kolibri.core.public.constants.user_sync_statuses import RECENTLY_SYNCED
+from kolibri.core.public.constants.user_sync_statuses import SYNCING
+from kolibri.core.public.constants.user_sync_statuses import UNABLE_TO_SYNC
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.server import get_urls
 from kolibri.utils.server import installation_type
@@ -193,6 +204,34 @@ class SyncStatusFilter(FilterSet):
         fields = ["user", "member_of"]
 
 
+sync_diff = timedelta(seconds=DELAYED_SYNC)
+
+
+def map_status(status):
+    """
+    Summarize the current state of the sync into a constant for use by
+    the frontend.
+    """
+    transfer_status = status.pop("transfer_status", None)
+    queued = status.pop("queued", None)
+    recent = status["last_synced"] and (
+        timezone.now() - status["last_synced"] < sync_diff
+    )
+    if (
+        transfer_status == transfer_statuses.STARTED
+        or transfer_status == transfer_statuses.PENDING
+    ):
+        return SYNCING
+    elif transfer_status == transfer_statuses.ERRORED:
+        return UNABLE_TO_SYNC
+    elif recent:
+        return RECENTLY_SYNCED
+    elif queued:
+        return QUEUED
+    elif status["last_synced"] and not recent:
+        return NOT_RECENTLY_SYNCED
+
+
 class UserSyncStatusViewSet(ReadOnlyValuesViewset):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
@@ -200,16 +239,27 @@ class UserSyncStatusViewSet(ReadOnlyValuesViewset):
     filter_class = SyncStatusFilter
 
     values = (
-        "id",
         "queued",
         "last_synced",
-        "active",
+        "transfer_status",
         "user",
-        "user_id",
     )
 
+    field_map = {
+        "status": map_status,
+    }
+
     def get_queryset(self):
-        return UserSyncStatus.objects.filter()
+        # If this is a subset of users device, we should just return no data
+        # if there are no possible devices we could sync to.
+        if (
+            get_device_setting("subset_of_users_device", False)
+            and not DynamicNetworkLocation.objects.filter(
+                subset_of_users_device=False
+            ).exists()
+        ):
+            return UserSyncStatus.objects.none()
+        return UserSyncStatus.objects.all()
 
     def annotate_queryset(self, queryset):
 
@@ -217,10 +267,16 @@ class UserSyncStatusViewSet(ReadOnlyValuesViewset):
             last_synced=Max("sync_session__last_activity_timestamp")
         )
 
-        sync_sessions = SyncSession.objects.filter(
-            id=OuterRef("sync_session__pk"), active=True
+        most_recent_active_transfer_session_status = (
+            TransferSession.objects.filter(
+                sync_session=OuterRef("sync_session"), active=True
+            )
+            .values_list("transfer_stage_status", flat=True)
+            .order_by("-last_activity_timestamp")[:1]
         )
 
-        queryset = queryset.annotate(active=Exists(sync_sessions))
+        queryset = queryset.annotate(
+            transfer_status=Subquery(most_recent_active_transfer_session_status)
+        )
 
         return queryset

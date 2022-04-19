@@ -4,8 +4,8 @@ from functools import partial
 from kolibri.core.tasks.job import JobRegistry
 from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.job import RegisteredJob
+from kolibri.core.tasks.queue import DEFAULT_QUEUE
 from kolibri.core.tasks.utils import stringify_func
-
 
 logger = logging.getLogger(__name__)
 
@@ -13,19 +13,24 @@ logger = logging.getLogger(__name__)
 def register_task(
     func=None,
     job_id=None,
+    queue=DEFAULT_QUEUE,
     validator=None,
     priority=Priority.REGULAR,
     cancellable=False,
     track_progress=False,
-    permission_classes=[],
+    permission_classes=None,
 ):
     """
     Registers the decorated function as task.
+    :rtype: RegisteredJob|callable
     """
+    if permission_classes is None:
+        permission_classes = []
     if func is None:
         return partial(
             register_task,
             job_id=job_id,
+            queue=queue,
             validator=validator,
             priority=priority,
             cancellable=cancellable,
@@ -36,6 +41,7 @@ def register_task(
     registered_job = RegisteredJob(
         func,
         job_id=job_id,
+        queue=queue,
         validator=validator,
         priority=priority,
         cancellable=cancellable,

@@ -1,6 +1,6 @@
 <template>
 
-  <KIcon :icon="icon" />
+  <KIcon v-if="icon" :icon="icon" />
 
 </template>
 
@@ -23,7 +23,7 @@
   /**
    * Displays a corresponding icon for a single learning activity
    * or an icon for more activities if more than one learning
-   * activity is provided.
+   * activity is provided. Will render nothing at all if given [].
    */
   export default {
     name: 'LearningActivityIcon',
@@ -59,22 +59,29 @@
     },
     computed: {
       icon() {
-        // more activities
-        if (Array.isArray(this.kind) && this.kind.length > 1) {
-          return AllActivitiesIcon;
+        let icon;
+
+        if (this.kind === undefined || this.kind === null) {
+          return null;
         }
 
-        let kind = this.kind;
-        // one activity but as an array
-        if (Array.isArray(this.kind) && this.kind.length === 1) {
-          kind = this.kind[0];
+        if (Array.isArray(this.kind)) {
+          if (this.kind.length === 0) {
+            return null;
+          }
+
+          if (this.kind.length === 1) {
+            icon = LearningActivityToIconMap[this.kind[0]];
+          }
+
+          if (this.kind.length > 1) {
+            return AllActivitiesIcon;
+          }
+        } else {
+          icon = LearningActivityToIconMap[this.kind];
         }
 
-        const icon = LearningActivityToIconMap[kind];
-        if (this.shaded) {
-          return icon + 'Shaded';
-        }
-        return icon + 'Solid';
+        return icon + (this.shaded ? 'Shaded' : 'Solid');
       },
     },
   };

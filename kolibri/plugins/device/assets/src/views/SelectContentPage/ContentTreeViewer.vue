@@ -269,8 +269,8 @@
         context: 'Channel picker.',
       },
       topicHasNoContents: {
-        message: 'This topic has no sub-topics or resources',
-        context: 'Message displays if a topic has no content.',
+        message: 'This folder has no subfolders or resources',
+        context: 'Message displays if a folder is empty.',
       },
     },
   };
@@ -284,6 +284,7 @@
     // Overrides overflow-x: hidden rule for CoreTable th's
     overflow-x: visible;
     white-space: nowrap;
+
     .k-checkbox-container {
       margin-right: -70px;
     }

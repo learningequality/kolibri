@@ -1,14 +1,17 @@
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
+import pick from 'lodash/pick';
 import set from 'lodash/set';
 import debounce from 'lodash/debounce';
 import unset from 'lodash/unset';
 import Toposort from 'toposort-class';
 import { unzip, strFromU8 } from 'fflate';
-import { filename as H5PFilename } from '../../h5p_build.json';
+import filenameObj from '../../h5p_build.json';
 import mimetypes from '../mimetypes.json';
 import { XAPIVerbMap } from '../xAPI/xAPIVocabulary';
 import loadBinary from './loadBinary';
+
+const H5PFilename = filenameObj.filename;
 
 class Zip {
   constructor(file) {
@@ -56,6 +59,12 @@ const debounceDelay = 5;
 // Max time that debounce should delay by.
 const maxDelay = 30;
 
+const completionVerbs = ['completed', 'mastered', 'passed'];
+const completionVerbMap = {};
+for (let completionVerb of completionVerbs) {
+  completionVerbMap[XAPIVerbMap[completionVerb]] = true;
+}
+
 function contentIdentifier(contentId) {
   return `cid-${contentId}`;
 }
@@ -101,6 +110,21 @@ export function replacePaths(dep, packageFiles) {
     return match;
   });
 }
+
+const metadataKeys = [
+  'title',
+  'a11yTitle',
+  'authors',
+  'changes',
+  'source',
+  'license',
+  'licenseVersion',
+  'licenseExtras',
+  'authorComments',
+  'yearFrom',
+  'yearTo',
+  'defaultLanguage',
+];
 
 /*
  * Class that manages loading, parsing, and running an H5P file.
@@ -197,6 +221,7 @@ export default class H5PRunner {
         this.setDependencies();
         return this.processFiles().then(() => {
           console.debug(`H5P file processed in ${performance.now() - start} ms`);
+          this.metadata = pick(this.rootConfig, metadataKeys);
           // Do any URL substitition on CSS dependencies
           // and turn them into Blob URLs.
           // Also order the dendencies according to our sorted
@@ -369,6 +394,18 @@ export default class H5PRunner {
     H5P.externalDispatcher.on('xAPI', function(event) {
       if (contentWindow.xAPI) {
         const statement = event.data.statement;
+        if (
+          statement.object &&
+          statement.object.id.startsWith(self.H5PContentIdentifier) &&
+          statement.object.id !== self.H5PContentIdentifier &&
+          statement.verb &&
+          completionVerbMap[statement.verb.id]
+        ) {
+          // Catch any statements that might imply completion but are actually only for subcontent.
+          // H5P sends these events for subcontents, even though it is against the CMI5 spec.
+          // Swap them out for the progressed verb to indicate progression without completion.
+          statement.verb.id = XAPIVerbMap.progressed;
+        }
         if (doNotLogVerbMap[statement.verb.id]) {
           return;
         } else if (debouncedHandlers[statement.verb.id]) {
@@ -380,6 +417,13 @@ export default class H5PRunner {
         }
       }
     });
+  }
+
+  get H5PContentIdentifier() {
+    return (
+      (this.rootConfig && this.rootConfig.source) ||
+      `http://kolibri.to/content/${this.contentNamespace}`
+    );
   }
 
   /*
@@ -408,10 +452,11 @@ export default class H5PRunner {
             embedCode: '',
             resizeCode: '',
             mainId: self.contentNamespace,
-            url: self.rootConfig.source || `http://kolibri.to/content/${self.contentNamespace}`,
+            url: self.H5PContentIdentifier,
             title: self.rootConfig.title,
             styles: Object.keys(self.loadedCss),
             scripts: Object.keys(self.loadedJs),
+            metadata: self.metadata,
           },
         };
       },

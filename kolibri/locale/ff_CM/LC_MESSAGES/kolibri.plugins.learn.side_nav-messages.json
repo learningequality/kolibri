@@ -1,4 +1,19 @@
 {
-  "CommonLearnStrings.learnLabel": "Janngu",
-  "CommonLearnStrings.recommendedLabel": "E woodi nafoojum"
+  "CommonLearnStrings.dontShowThisAgainLabel": "Taa' hollu ɗuʼum fahin",
+  "CommonLearnStrings.exploreResources": "Raarugo jannginillum",
+  "CommonLearnStrings.learnLabel": "Janngugo",
+  "CommonLearnStrings.libraryLabel": "Suudu defte",
+  "CommonLearnStrings.logo": "Diga wuro janngugo {channelTitle}",
+  "CommonLearnStrings.markResourceAsCompleteLabel": "Maandaago jannginillum to timmi",
+  "CommonLearnStrings.mostPopularLabel": "Giɗaaɗum soosey",
+  "CommonLearnStrings.multipleLearningActivities": "Kuuɗe janngugo feere-feere",
+  "CommonLearnStrings.multipleLearningActivitiesLabel": "Kuuɗe janngugo feere-feere",
+  "CommonLearnStrings.nextStepsLabel": "Jokkotooɗum",
+  "CommonLearnStrings.popularLabel": "Giɗaaɗum",
+  "CommonLearnStrings.quizLabel": "Poondol",
+  "CommonLearnStrings.resourceCompletedLabel": "A timmini jannginillum ɗu'um",
+  "CommonLearnStrings.resourceHidden": "Jannginillum suudiiɗum",
+  "CommonLearnStrings.resumeLabel": "Nanngu to alunoɗa",
+  "CommonLearnStrings.suggestedTime": "",
+  "CommonLearnStrings.suggestedTimeToComplete": "Foti hoosay wakkati"
 }

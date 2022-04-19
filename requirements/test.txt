@@ -11,3 +11,4 @@ pytest-django==3.3.3
 pytest-env==0.6.2
 pytest-pythonpath==0.7.2
 attrs==20.3.0
+parameterized==0.8.1

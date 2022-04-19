@@ -1,0 +1,10 @@
+{
+  "DemoServerBannerContent.demoServerA1": "Διαβάστε την τεκμηρίωση",
+  "DemoServerBannerContent.demoServerA2": "Κατεβάστε και εγκαταστήστε την τελευταία έκδοση",
+  "DemoServerBannerContent.demoServerHeader": "Καλώς ήλθατε στο demo site του Kolibri",
+  "DemoServerBannerContent.demoServerL1": "Εκπαιδευόμενος ({user}/{pass} ή εξερεύνησε χωρίς λογαριασμό)",
+  "DemoServerBannerContent.demoServerL2": "Εκπαιδευτής ({user}/{pass})",
+  "DemoServerBannerContent.demoServerP1": "Εξερευνήστε οποιονδήποτε από αυτούς τους τύπους χρηστών:",
+  "DemoServerBannerContent.demoServerP2": "Αυτή η online έκδοση του Kolibri προορίζεται μόνο για σκοπούς επίδειξης. Οι χρήστες και τα δεδομένα θα διαγράφονται σε τακτά χρονικά διαστήματα. Το demo παρουσιάζει χαρακτηριστικά της τελευταίας έκδοσης του Kolibri και όλες οι πηγές που εμφανίζονται αποτελούν δείγματα.",
+  "DemoServerBannerContent.demoServerP3": "Για να μάθετε περισσότερα σχετικά με τη χρήση του Kolibri σε ένα περιβάλλον εκτός σύνδεσης και να κατανοήσετε καλύτερα την πλατφόρμα:"
+}

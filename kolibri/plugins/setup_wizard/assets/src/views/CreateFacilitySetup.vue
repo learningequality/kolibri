@@ -18,7 +18,6 @@
 
 <script>
 
-  import commonSetupElements from '../../../commonSetupElements';
   import FacilityPermissionsForm from './onboarding-forms/FacilityPermissionsForm';
   import GuestAccessForm from './onboarding-forms/GuestAccessForm';
   import CreateLearnerAccountForm from './onboarding-forms/CreateLearnerAccountForm';
@@ -45,7 +44,7 @@
     components: {
       ProgressToolbar,
     },
-    mixins: [commonSetupElements],
+    inject: ['wizardService'],
     computed: {
       currentComponent() {
         const { step } = this.$route.params;
@@ -81,7 +80,7 @@
             },
           });
         } else if (this.currentStep === 1) {
-          this.goToSetupMethodPage();
+          this.wizardService.send('BACK');
         }
       },
       finalizeOnboardingData() {
@@ -91,7 +90,8 @@
     $trs: {
       newFacilityStepTitle: {
         message: 'New facility - step {step, number} of {total, number}',
-        context: 'Title that goes on top of the screen to indicate the current step',
+        context:
+          'Browser window title that displays to indicate the current step in the setup process for a new facility.',
       },
     },
   };

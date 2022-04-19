@@ -1,16 +1,25 @@
 <template>
 
-  <KPageContainer>
-    <h1>{{ $tr('pageHeader', { className }) }}</h1>
-    <p>{{ $tr('pageSubheader') }}</p>
-    <ClassEnrollForm
-      :facilityUsers="facilityUsers"
-      :classUsers="classUsers"
-      :disabled="formIsDisabled"
-      pageType="learners"
-      @submit="enrollLearners"
-    />
-  </KPageContainer>
+  <ImmersivePageRoot
+    :appBarTitle="className"
+    :route="$store.getters.facilityPageLinks.ClassEditPage($route.params.id)"
+  >
+    <KPageContainer>
+      <h1>{{ $tr('pageHeader', { className }) }}</h1>
+      <p>{{ $tr('pageSubheader') }}</p>
+      <ClassEnrollForm
+        :facilityUsers="facilityUsers"
+        :classUsers="classUsers"
+        :disabled="formIsDisabled"
+        :classId="classId"
+        :totalPageNumber="totalPageNumber"
+        :totalUsers="totalLearners"
+        :isBackendPaginated="true"
+        pageType="learners"
+        @submit="enrollLearners"
+      />
+    </KPageContainer>
+  </ImmersivePageRoot>
 
 </template>
 
@@ -20,6 +29,7 @@
   import { mapState, mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ClassEnrollForm from './ClassEnrollForm';
+  import ImmersivePageRoot from './ImmersivePageRoot';
 
   export default {
     name: 'LearnerClassEnrollmentPage',
@@ -30,6 +40,7 @@
     },
     components: {
       ClassEnrollForm,
+      ImmersivePageRoot,
     },
     mixins: [commonCoreStrings],
     data() {
@@ -38,9 +49,18 @@
       };
     },
     computed: {
-      ...mapState('classAssignMembers', ['class', 'facilityUsers', 'classUsers']),
+      ...mapState('classAssignMembers', [
+        'class',
+        'facilityUsers',
+        'classUsers',
+        'totalPageNumber',
+        'totalLearners',
+      ]),
       className() {
         return this.class.name;
+      },
+      classId() {
+        return this.class.id;
       },
     },
     methods: {
@@ -49,11 +69,13 @@
         this.formIsDisabled = true;
         this.enrollLearnersInClass({ classId: this.class.id, users: selectedUsers })
           .then(() => {
-            this.$router.push(this.$store.getters.facilityPageLinks.ClassEditPage).then(() => {
-              this.showSnackbarNotification('learnersEnrolledNoCount', {
-                count: selectedUsers.length,
+            this.$router
+              .push(this.$store.getters.facilityPageLinks.ClassEditPage(this.class.id))
+              .then(() => {
+                this.showSnackbarNotification('learnersEnrolledNoCount', {
+                  count: selectedUsers.length,
+                });
               });
-            });
           })
           .catch(() => {
             this.formIsDisabled = false;

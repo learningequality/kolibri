@@ -9,6 +9,9 @@
     @cancel="$emit('cancel')"
   >
     <template>
+      <p v-if="filterLODAvailable">
+        {{ $tr('lodSubHeader') }}
+      </p>
       <p v-if="initialFetchingComplete && !combinedAddresses.length">
         {{ $tr('noAddressText') }}
       </p>
@@ -57,7 +60,10 @@
         </div>
       </template>
 
-      <hr v-if="!hideSavedAddresses && discoveredAddresses.length > 0">
+      <hr
+        v-if="!hideSavedAddresses && discoveredAddresses.length > 0"
+        :style="{ border: 0, borderBottom: `1px solid ${$themeTokens.fineLine}` }"
+      >
 
       <!-- Dynamic Addresses -->
       <template v-for="d in discoveredAddresses">
@@ -68,7 +74,7 @@
             class="radio-button"
             :value="d.instance_id"
             :label="formatNameAndId(d.device_name, d.id)"
-            :description="d.base_url"
+            :description="formatBaseAddress(d)"
             :disabled="formDisabled || discoveryFailed || !isAddressAvailable(d.id)"
           />
         </div>
@@ -206,6 +212,10 @@
         type: Boolean,
         default: false,
       },
+      filterLODAvailable: {
+        type: Boolean,
+        default: false,
+      },
     },
     data() {
       return {
@@ -223,14 +233,14 @@
       submitDisabled() {
         return (
           this.selectedAddressId === '' ||
-          this.fetchingAddresses ||
+          this.fetchingAddresses & !this.filterLODAvailable ||
           this.deletingAddress ||
           this.discoveryFailed ||
           this.availableAddressIds.length === 0
         );
       },
       newAddressButtonDisabled() {
-        return this.hideSavedAddresses || this.fetchingAddresses;
+        return this.filterLODAvailable || this.hideSavedAddresses || this.fetchingAddresses;
       },
       uiAlertProps() {
         let text;
@@ -252,7 +262,11 @@
       },
       combinedAddresses(addrs) {
         this.availableAddressIds = addrs
-          .filter(address => address.available)
+          .filter(
+            address =>
+              address.available &&
+              (this.$route.path === '/content' || address.application === 'kolibri')
+          )
           .map(address => address.id);
         if (!this.availableAddressIds.includes(this.selectedAddressId)) {
           this.selectedAddressId = '';
@@ -270,6 +284,16 @@
       }, 100);
     },
     methods: {
+      formatBaseAddress(device) {
+        const url = device.base_url;
+        if (this.filterLODAvailable) {
+          const version = device.kolibri_version
+            .split('.')
+            .slice(0, 3)
+            .join('.');
+          return `${url}, Kolibri ${version}`;
+        } else return url;
+      },
       resetSelectedAddress() {
         if (this.availableAddressIds.length !== 0) {
           const selectedId = this.selectedId || this.storageAddressId || this.selectedAddressId;
@@ -299,9 +323,9 @@
           'Error message that displays when an admin attempts to find a network address, but the address is not found.',
       },
       forgetAddressButtonLabel: {
-        message: 'Forget',
+        message: 'Remove',
         context:
-          "Selecting 'Forget' removes a network address from the list of network addresses which have been registered in the Device > Facilities section.",
+          'Removes a network address from the list of network addresses which have been registered in the Device > Facilities section.',
       },
       header: {
         message: 'Select network address',
@@ -312,6 +336,11 @@
         message: 'Add new address',
         context:
           'The "Add new address" link appears in the \'Select network address\' screen. This option allows you to add a new network address from which to sync data.',
+      },
+      lodSubHeader: {
+        message: 'Select a device with Kolibri version 0.15 to import learner user accounts',
+        context:
+          "In the first startup wizard, when you select to 'Import one or more user accounts from an existing facility' option to choose the network address you want to sync from.\n\nYou do this in the 'Select network address' section which displays a list of network addresses.",
       },
       noAddressText: {
         message: 'There are no addresses yet',
@@ -360,11 +389,6 @@
     margin-right: 2px;
     margin-bottom: 2px;
     vertical-align: middle;
-  }
-
-  hr {
-    border: 0;
-    border-bottom: 1px solid #cbcbcb;
   }
 
   .loader {

@@ -18,6 +18,7 @@ from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityDataset
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.test.test_api import FacilityUserFactory
+from kolibri.core.content.permissions import CanManageContent
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
 from kolibri.core.device.permissions import IsSuperuser
@@ -26,6 +27,7 @@ from kolibri.core.tasks.api import prepare_peer_sync_job
 from kolibri.core.tasks.api import prepare_sync_job
 from kolibri.core.tasks.api import prepare_sync_task
 from kolibri.core.tasks.api import ResourceGoneError
+from kolibri.core.tasks.api import validate_and_create_sync_credentials
 from kolibri.core.tasks.api import validate_facility
 from kolibri.core.tasks.api import validate_peer_sync_job
 from kolibri.core.tasks.api import validate_sync_task
@@ -40,12 +42,13 @@ DUMMY_PASSWORD = "password"
 
 fake_job_defaults = dict(
     job_id=None,
+    job_facility_id=None,
     state=None,
     exception="",
     traceback="",
     percentage_progress=0,
     cancellable=False,
-    extra_metadata=dict(),
+    extra_metadata={},
     func=lambda: None,
 )
 
@@ -60,21 +63,34 @@ class BaseAPITestCase(APITestCase):
     @classmethod
     def setUpTestData(cls):
         DeviceSettings.objects.create(is_provisioned=True)
+
         cls.facility = Facility.objects.create(name="facility")
+        cls.facility2 = Facility.objects.create(name="facility2")
+
         cls.superuser = FacilityUser.objects.create(
             username="superuser", facility=cls.facility
         )
         cls.superuser.set_password(DUMMY_PASSWORD)
         cls.superuser.save()
-        DevicePermissions.objects.create(user=cls.superuser, is_superuser=True)
 
-    def setUp(self):
-        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
+        cls.facility2user = FacilityUser.objects.create(
+            username="facility2user", facility=cls.facility2
+        )
+        cls.facility2user.set_password(DUMMY_PASSWORD)
+        cls.facility2user.save()
+
+        DevicePermissions.objects.create(user=cls.superuser, is_superuser=True)
+        DevicePermissions.objects.create(
+            user=cls.facility2user, can_manage_content=True
+        )
 
 
 @patch("kolibri.core.tasks.api.priority_queue")
 @patch("kolibri.core.tasks.api.queue")
 class TaskAPITestCase(BaseAPITestCase):
+    def setUp(self):
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
+
     def test_task_cancel(self, queue_mock, priority_queue_mock):
         queue_mock.fetch_job.return_value = fake_job(state=State.CANCELED)
         response = self.client.post(
@@ -89,66 +105,13 @@ class TaskAPITestCase(BaseAPITestCase):
         )
         self.assertEqual(response.status_code, 200)
 
-    def test_task_get_no_task(self, queue_mock, priority_queue_mock):
-        queue_mock.fetch_job.side_effect = JobNotFound()
-        priority_queue_mock.fetch_job.side_effect = JobNotFound()
-        response = self.client.get(
-            reverse("kolibri:core:task-detail", kwargs={"pk": "1"}),
-            {"task_id": "1"},
-            format="json",
-        )
-        self.assertEqual(response.status_code, 404)
-
-    def test_tasks_clearable_flag(self, queue_mock, priority_queue_mock):
-        queue_mock.jobs = [
-            fake_job(state=state)
-            for state in [
-                # not clearable
-                State.SCHEDULED,
-                State.QUEUED,
-                State.RUNNING,
-                State.CANCELING,
-                # clearable
-                State.FAILED,
-                State.CANCELED,
-                State.COMPLETED,
-            ]
-        ]
-        priority_queue_mock.jobs = []
-        response = self.client.get(reverse("kolibri:core:task-list"))
-
-        def assert_clearable(index, expected):
-            self.assertEqual(response.data[index]["clearable"], expected)
-
-        for i in [0, 1, 2, 3]:
-            assert_clearable(i, False)
-        for i in [4, 5, 6]:
-            assert_clearable(i, True)
-
-    def test_restart_task(self, queue_mock, priority_queue_mock):
-        queue_mock.restart_job.return_value = 1
-        queue_mock.fetch_job.return_value = fake_job(state=State.QUEUED, job_id=1)
-
-        response = self.client.post(
-            reverse("kolibri:core:task-restarttask"), {"task_id": "1"}, format="json"
-        )
-
-        expected_response = {
-            "status": "QUEUED",
-            "exception": "",
-            "traceback": "",
-            "percentage": 0,
-            "id": 1,
-            "cancellable": False,
-            "clearable": False,
-        }
-
-        self.assertDictEqual(response.data, expected_response)
-
 
 @patch("kolibri.core.tasks.api.job_storage")
 @patch("kolibri.core.tasks.job.RegisteredJob.enqueue")
 class CreateTaskAPITestCase(BaseAPITestCase):
+    def setUp(self):
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
+
     def tearDown(self):
         JobRegistry.REGISTERED_JOBS.clear()
 
@@ -230,12 +193,12 @@ class CreateTaskAPITestCase(BaseAPITestCase):
     def test_api_errors_on_task_validator_wrong_return_type(
         self, mock_enqueue, mock_job_storage
     ):
-        def add_validator(request, req_data):
+        def add_validator(req, req_data):
             return "kolibri"
 
         @register_task(validator=add_validator)
-        def add(**kwargs):
-            return kwargs["x"] + kwargs["y"]
+        def add(x, y):
+            return x + y
 
         response = self.client.post(
             reverse("kolibri:core:task-list"),
@@ -251,8 +214,8 @@ class CreateTaskAPITestCase(BaseAPITestCase):
             raise TypeError
 
         @register_task(validator=add_validator)
-        def add(**kwargs):
-            return kwargs["x"] + kwargs["y"]
+        def add(x, y):
+            return x + y
 
         with self.assertRaises(TypeError):
             self.client.post(
@@ -263,12 +226,12 @@ class CreateTaskAPITestCase(BaseAPITestCase):
 
     def test_api_checks_extra_metadata_type(self, mock_enqueue, mock_job_storage):
         def add_validator(req, req_data):
-            req_data["extra_metadata"] = "string"
-            return req_data
+            req.data["extra_metadata"] = "string"
+            return req.data
 
         @register_task(validator=add_validator)
-        def add(**kwargs):
-            return kwargs["x"] + kwargs["y"]
+        def add(x, y):
+            return x + y
 
         response = self.client.post(
             reverse("kolibri:core:task-list"),
@@ -281,8 +244,8 @@ class CreateTaskAPITestCase(BaseAPITestCase):
         self, mock_enqueue, mock_job_storage
     ):
         @register_task(permission_classes=[IsSuperuser])
-        def add(**kwargs):
-            return kwargs["x"] + kwargs["y"]
+        def add(x, y):
+            return x + y
 
         mock_enqueue.return_value = "test"
         mock_job_storage.get_job.return_value = fake_job(
@@ -310,9 +273,10 @@ class CreateTaskAPITestCase(BaseAPITestCase):
         self.assertDictEqual(response.data, expected_response)
 
         # Do we call enqueue the right way i.e. are we passing
-        # the request's data as keyword args to enqueue method?
+        # the user's facility_id and the request's data as keyword args
+        # to enqueue method?
         mock_enqueue.assert_called_once_with(
-            **{"task": "kolibri.core.tasks.test.test_api.add", "kolibri": "fly"}
+            job_facility_id=self.superuser.facility_id, **{"kolibri": "fly"}
         )
 
         # Do we retrieve the task from db to ready the response?
@@ -367,16 +331,13 @@ class CreateTaskAPITestCase(BaseAPITestCase):
         self.assertEqual(response.data, expected_response)
 
         # Do we call enqueue the right way i.e. are we passing
-        # the request's data as keyword args to enqueue method?
+        # the user's facility_id and the request's data as keyword args
+        # to enqueue method?
         self.assertEqual(mock_enqueue.call_count, 2)
         mock_enqueue.assert_has_calls(
             [
-                call(
-                    **{"task": "kolibri.core.tasks.test.test_api.add", "kolibri": "fly"}
-                ),
-                call(
-                    **{"task": "kolibri.core.tasks.test.test_api.add", "kolibri": "fly"}
-                ),
+                call(job_facility_id=self.superuser.facility_id, **{"kolibri": "fly"}),
+                call(job_facility_id=self.superuser.facility_id, **{"kolibri": "fly"}),
             ]
         )
 
@@ -392,7 +353,7 @@ class CreateTaskAPITestCase(BaseAPITestCase):
             self.assertIsInstance(req, Request)
             self.assertDictEqual(
                 req_data,
-                {"task": "kolibri.core.tasks.test.test_api.add", "kolibri": "fly"},
+                {"kolibri": "fly"},
             )
             return {"x": 0, "y": 42, "extra_metadata": {"facility": "kolibri HQ"}}
 
@@ -427,27 +388,29 @@ class CreateTaskAPITestCase(BaseAPITestCase):
         self.assertDictEqual(response.data, expected_response)
 
         # Do we call enqueue the right way i.e. are we passing
-        # the return value of validator as keyword args to enqueue method?
+        # the user's facility_id and the request's data as keyword args
+        # to enqueue method?
         mock_enqueue.assert_called_once_with(
+            job_facility_id=self.superuser.facility_id,
             **{"x": 0, "y": 42, "extra_metadata": {"facility": "kolibri HQ"}}
         )
 
         # Do we retrieve the task from db to ready the response?
         mock_job_storage.get_job.assert_called_once_with("test")
 
-    def test_api_handles_bulk_task_with_vaidator(self, mock_enqueue, mock_job_storage):
+    def test_api_handles_bulk_task_with_validator(self, mock_enqueue, mock_job_storage):
         def add_validator(req, req_data):
             # Does validator receives the right arguments?
             self.assertIsInstance(req, Request)
             self.assertDictEqual(
                 req_data,
-                {"task": "kolibri.core.tasks.test.test_api.add", "kolibri": "fly"},
+                {"kolibri": "fly"},
             )
             return {"x": 0, "y": 42, "extra_metadata": {"facility": "kolibri HQ"}}
 
         @register_task(validator=add_validator, permission_classes=[IsSuperuser])
-        def add(**kwargs):
-            return kwargs["x"] + kwargs["y"]
+        def add(x, y):
+            return x + y
 
         mock_enqueue.return_value = "test"
         mock_job_storage.get_job.return_value = fake_job(
@@ -458,7 +421,6 @@ class CreateTaskAPITestCase(BaseAPITestCase):
             {"task": "kolibri.core.tasks.test.test_api.add", "kolibri": "fly"},
             {"task": "kolibri.core.tasks.test.test_api.add", "kolibri": "fly"},
         ]
-
         response = self.client.post(
             reverse("kolibri:core:task-list"),
             request_payload,
@@ -493,18 +455,239 @@ class CreateTaskAPITestCase(BaseAPITestCase):
         self.assertEqual(response.data, expected_response)
 
         # Do we call enqueue the right way i.e. are we passing
-        # the return value of validator as keyword args to enqueue method?
+        # the user's facility_id and the request's data as keyword args
+        # to enqueue method?
         self.assertEqual(mock_enqueue.call_count, 2)
         mock_enqueue.assert_has_calls(
             [
-                call(**{"x": 0, "y": 42, "extra_metadata": {"facility": "kolibri HQ"}}),
-                call(**{"x": 0, "y": 42, "extra_metadata": {"facility": "kolibri HQ"}}),
+                call(
+                    job_facility_id=self.superuser.facility_id,
+                    **{"x": 0, "y": 42, "extra_metadata": {"facility": "kolibri HQ"}}
+                ),
+                call(
+                    job_facility_id=self.superuser.facility_id,
+                    **{"x": 0, "y": 42, "extra_metadata": {"facility": "kolibri HQ"}}
+                ),
             ]
         )
 
         # Do we retrieve the task from db to ready the response?
         self.assertEqual(mock_job_storage.get_job.call_count, 2)
         mock_job_storage.get_job.assert_has_calls([call("test"), call("test")])
+
+
+@patch("kolibri.core.tasks.api.job_storage")
+class TaskManagementAPITestCase(BaseAPITestCase):
+    def setUp(self):
+        @register_task(permission_classes=[IsSuperuser], queue="kolibri")
+        def add(x, y):
+            return x + y
+
+        @register_task(permission_classes=[CanManageContent], queue="kolibri")
+        def multiply(x, y):
+            return x * y
+
+        @register_task(permission_classes=[CanManageContent], queue="le")
+        def subtract(x, y):
+            return x - y
+
+        self.jobs = [
+            Job(
+                func=add,
+                job_id="0",
+                job_facility_id=self.superuser.facility_id,
+                state=State.QUEUED,
+            ),
+            Job(
+                func=multiply,
+                job_id="1",
+                job_facility_id=self.superuser.facility_id,
+                state=State.QUEUED,
+            ),
+            Job(
+                func=subtract,
+                job_id="2",
+                job_facility_id=self.facility2user.facility_id,
+                state=State.QUEUED,
+            ),
+        ]
+        self.jobs_response = [
+            {
+                "status": State.QUEUED,
+                "exception": "None",
+                "traceback": "",
+                "percentage": 0,
+                "id": "0",
+                "cancellable": False,
+                "clearable": False,
+            },
+            {
+                "status": State.QUEUED,
+                "exception": "None",
+                "traceback": "",
+                "percentage": 0,
+                "id": "1",
+                "cancellable": False,
+                "clearable": False,
+            },
+            {
+                "status": State.QUEUED,
+                "exception": "None",
+                "traceback": "",
+                "percentage": 0,
+                "id": "2",
+                "cancellable": False,
+                "clearable": False,
+            },
+        ]
+
+    def tearDown(self):
+        JobRegistry.REGISTERED_JOBS.clear()
+
+    def test_superuser_can_list_all_facility_jobs(self, mock_job_storage):
+        mock_job_storage.get_all_jobs.return_value = self.jobs
+
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
+        response = self.client.get(reverse("kolibri:core:task-list"))
+
+        self.assertEqual(response.data, self.jobs_response)
+        mock_job_storage.get_all_jobs.assert_called_once_with(queue=None)
+
+    def test_non_superuser_can_list_only_own_facility_jobs(self, mock_job_storage):
+        mock_job_storage.get_all_jobs.return_value = self.jobs
+
+        self.client.login(username=self.facility2user.username, password=DUMMY_PASSWORD)
+        response = self.client.get(reverse("kolibri:core:task-list"))
+
+        self.assertEqual(response.data, [self.jobs_response[2]])
+        mock_job_storage.get_all_jobs.assert_called_once_with(queue=None)
+
+    def test_do_list_api_respects_registered_job_permissions(self, mock_job_storage):
+        mock_job_storage.get_all_jobs.return_value = self.jobs
+        self.client.login(username=self.facility2user.username, password=DUMMY_PASSWORD)
+
+        response = self.client.get(reverse("kolibri:core:task-list"))
+
+        self.assertEqual(response.data, [self.jobs_response[2]])
+        mock_job_storage.get_all_jobs.assert_called_once_with(queue=None)
+
+    def test_can_list_queue_specific_jobs(self, mock_job_storage):
+        mock_job_storage.get_all_jobs.return_value = self.jobs[:2]
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
+
+        response = self.client.get(
+            reverse("kolibri:core:task-list"), {"queue": "kolibri"}
+        )
+
+        self.assertEqual(response.data, self.jobs_response[:2])
+        mock_job_storage.get_all_jobs.assert_called_once_with(queue="kolibri")
+
+    def test_task_clearable_flag(self, mock_job_storage):
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
+        mock_job_storage.get_all_jobs.return_value = [
+            fake_job(state=state)
+            for state in [
+                # Not clearable.
+                State.SCHEDULED,
+                State.QUEUED,
+                State.RUNNING,
+                State.CANCELING,
+                # Clearable.
+                State.FAILED,
+                State.CANCELED,
+                State.COMPLETED,
+            ]
+        ]
+
+        response = self.client.get(reverse("kolibri:core:task-list"))
+
+        def assert_clearable(index, expected):
+            self.assertEqual(response.data[index]["clearable"], expected)
+
+        for i in [0, 1, 2, 3]:
+            assert_clearable(i, False)
+        for i in [4, 5, 6]:
+            assert_clearable(i, True)
+
+    def test_can_superuser_retrieve_any_facility_job(self, mock_job_storage):
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
+        mock_job_storage.get_job.return_value = self.jobs[0]
+
+        response = self.client.get(
+            reverse("kolibri:core:task-detail", kwargs={"pk": "0"})
+        )
+        self.assertEqual(response.data, self.jobs_response[0])
+        mock_job_storage.get_job.assert_called_once_with(job_id="0")
+        mock_job_storage.reset_mock()
+
+        mock_job_storage.get_job.return_value = self.jobs[2]
+        response = self.client.get(
+            reverse("kolibri:core:task-detail", kwargs={"pk": "2"})
+        )
+        self.assertEqual(response.data, self.jobs_response[2])
+        mock_job_storage.get_job.assert_called_once_with(job_id="2")
+
+    def test_non_superuser_can_retrieve_only_own_facility_job(self, mock_job_storage):
+        self.client.login(username=self.facility2user.username, password=DUMMY_PASSWORD)
+        mock_job_storage.get_job.return_value = self.jobs[1]
+
+        response = self.client.get(
+            reverse("kolibri:core:task-detail", kwargs={"pk": "1"})
+        )
+        self.assertEqual(response.status_code, 403)
+        mock_job_storage.get_job.assert_called_once_with(job_id="1")
+        mock_job_storage.reset_mock()
+
+        mock_job_storage.get_job.return_value = self.jobs[2]
+        response = self.client.get(
+            reverse("kolibri:core:task-detail", kwargs={"pk": "2"})
+        )
+        self.assertEqual(response.data, self.jobs_response[2])
+        mock_job_storage.get_job.assert_called_once_with(job_id="2")
+
+    def test_retrieval_respects_registered_job_permissions(self, mock_job_storage):
+        self.client.login(username=self.facility2user.username, password=DUMMY_PASSWORD)
+        mock_job_storage.get_job.return_value = self.jobs[1]
+
+        response = self.client.get(
+            reverse("kolibri:core:task-detail", kwargs={"pk": "1"})
+        )
+        self.assertEqual(response.status_code, 403)
+
+    def test_retrieval_404(self, mock_job_storage):
+        self.client.login(username=self.facility2user.username, password=DUMMY_PASSWORD)
+        mock_job_storage.get_job.side_effect = JobNotFound
+
+        response = self.client.get(
+            reverse("kolibri:core:task-detail", kwargs={"pk": "2"})
+        )
+        self.assertEqual(response.status_code, 404)
+        mock_job_storage.get_job.assert_called_once_with(job_id="2")
+
+    def test_restart_task(self, mock_job_storage):
+        self.client.login(username=self.facility2user.username, password=DUMMY_PASSWORD)
+
+        mock_job_storage.restart_job.return_value = self.jobs[2].job_id
+        mock_job_storage.get_job.return_value = self.jobs[2]
+
+        response = self.client.post(
+            reverse("kolibri:core:task-restarttask"), {"task_id": "2"}, format="json"
+        )
+
+        self.assertEqual(response.data, self.jobs_response[2])
+        mock_job_storage.restart_job.assert_called_once_with(job_id="2")
+
+    def test_restart_task_respect_permissions(self, mock_job_storage):
+        self.client.login(username=self.facility2user.username, password=DUMMY_PASSWORD)
+
+        mock_job_storage.restart_job.return_value = self.jobs[1].job_id
+        mock_job_storage.get_job.return_value = self.jobs[1]
+
+        response = self.client.post(
+            reverse("kolibri:core:task-restarttask"), {"task_id": "1"}, format="json"
+        )
+
+        self.assertEqual(response.status_code, 403)
 
 
 @patch("kolibri.core.tasks.api.priority_queue")
@@ -533,7 +716,21 @@ class TaskAPIPermissionsTestCase(APITestCase):
 
 
 @patch("kolibri.core.tasks.api.facility_queue")
-class FacilityTaskAPITestCase(BaseAPITestCase):
+class FacilityTaskAPITestCase(APITestCase):
+    @classmethod
+    def setUpTestData(cls):
+        DeviceSettings.objects.create(is_provisioned=True)
+        cls.facility = Facility.objects.create(name="facility")
+        cls.superuser = FacilityUser.objects.create(
+            username="superuser", facility=cls.facility
+        )
+        cls.superuser.set_password(DUMMY_PASSWORD)
+        cls.superuser.save()
+        DevicePermissions.objects.create(user=cls.superuser, is_superuser=True)
+
+    def setUp(self):
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
+
     def assertJobResponse(self, job_data, response):
         id = job_data.get("job_id", fake_job_defaults.get("job_id"))
         self.assertEqual(id, response.data.get("id"))
@@ -567,8 +764,9 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
                 "Extra metadata key `{}` doesn't match".format(key),
             )
 
-    def test_list_unprovisioned(self, facility_queue):
-        facility_queue.jobs.return_value = []
+    @patch("kolibri.core.tasks.api.job_storage")
+    def test_list_unprovisioned(self, mock_job_storage, facility_queue):
+        mock_job_storage.get_all_jobs.return_value = []
         response = self.client.get(
             reverse("kolibri:core:facilitytask-list"), format="json"
         )
@@ -691,10 +889,10 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
 
     @patch("kolibri.core.tasks.api.validate_peer_sync_job")
     @patch("kolibri.core.tasks.api.prepare_peer_sync_job")
-    @patch("kolibri.core.tasks.api.get_client_and_server_certs")
+    @patch("kolibri.core.tasks.api.validate_and_create_sync_credentials")
     def test_startpeerfacilityimport(
         self,
-        get_client_and_server_certs,
+        validate_and_create_sync_credentials,
         prepare_peer_sync_job,
         validate_peer_sync_job,
         facility_queue,
@@ -756,10 +954,11 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
         prepare_peer_sync_job.assert_has_calls(
             [
                 call(
-                    *request_data.keys(),
+                    "baseurl",
+                    "facility",
                     no_push=True,
                     no_provision=True,
-                    extra_metadata=extra_metadata
+                    extra_metadata=extra_metadata,
                 )
             ]
         )
@@ -767,8 +966,13 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
 
     @patch("kolibri.core.tasks.api.prepare_peer_sync_job")
     @patch("kolibri.core.tasks.api.validate_peer_sync_job")
+    @patch("kolibri.core.tasks.api.validate_and_create_sync_credentials")
     def test_startpeerfacilitysync(
-        self, validate_peer_sync_job, prepare_peer_sync_job, facility_queue
+        self,
+        validate_and_create_sync_credentials,
+        validate_peer_sync_job,
+        prepare_peer_sync_job,
+        facility_queue,
     ):
         user = self.superuser
 
@@ -824,7 +1028,7 @@ class FacilityTaskAPITestCase(BaseAPITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertJobResponse(fake_job_data, response)
         prepare_peer_sync_job.assert_has_calls(
-            [call(*request_data.keys(), extra_metadata=extra_metadata)]
+            [call("baseurl", "facility", extra_metadata=extra_metadata)]
         )
         facility_queue.enqueue.assert_called_with(call_command, "sync", **prepared_data)
 
@@ -937,11 +1141,11 @@ class FacilityTaskHelperTestCase(TestCase):
             cancellable=False,
             extra_metadata=dict(type="test"),
         )
-        actual = prepare_sync_job(123, extra_metadata=dict(type="test"))
+        actual = prepare_sync_job(facility=123, extra_metadata=dict(type="test"))
         self.assertEqual(expected, actual)
 
     def test_validate_facility__parse_error(self):
-        req = Mock(spec="rest_framework.requests.Request", data=dict())
+        req = Mock(spec="rest_framework.requests.Request", data={})
 
         with self.assertRaises(ParseError):
             validate_facility(req)
@@ -955,10 +1159,10 @@ class FacilityTaskHelperTestCase(TestCase):
     @patch("kolibri.core.tasks.api.MorangoProfileController")
     @patch("kolibri.core.tasks.api.NetworkClient")
     @patch("kolibri.core.tasks.api.get_client_and_server_certs")
-    @patch("kolibri.core.tasks.api.get_dataset_id")
+    @patch("kolibri.core.tasks.api.get_facility_dataset_id")
     def test_validate_peer_sync_job(
         self,
-        get_dataset_id,
+        get_facility_dataset_id,
         get_client_and_server_certs,
         NetworkClient,
         MorangoProfileController,
@@ -981,7 +1185,7 @@ class FacilityTaskHelperTestCase(TestCase):
         controller = MorangoProfileController.return_value
         controller.create_network_connection.return_value = network_connection
 
-        get_dataset_id.return_value = dataset_id
+        get_facility_dataset_id.return_value = (123, dataset_id)
         get_client_and_server_certs.return_value = None
 
         expected = dict(
@@ -993,8 +1197,10 @@ class FacilityTaskHelperTestCase(TestCase):
             cancellable=False,
             extra_metadata=dict(type="test"),
         )
+        req_params = validate_peer_sync_job(req)
+        validate_and_create_sync_credentials(*req_params)
         actual = prepare_peer_sync_job(
-            *validate_peer_sync_job(req), extra_metadata=dict(type="test")
+            *req_params[:2], extra_metadata=dict(type="test")
         )
         self.assertEqual(expected, actual)
 
@@ -1003,7 +1209,7 @@ class FacilityTaskHelperTestCase(TestCase):
             "https://some.server.test/"
         )
 
-        get_dataset_id.assert_called_with(
+        get_facility_dataset_id.assert_called_with(
             "https://some.server.test/", identifier=123, noninteractive=True
         )
 
@@ -1044,9 +1250,9 @@ class FacilityTaskHelperTestCase(TestCase):
 
     @patch("kolibri.core.tasks.api.MorangoProfileController")
     @patch("kolibri.core.tasks.api.NetworkClient")
-    @patch("kolibri.core.tasks.api.get_dataset_id")
-    def test_validate_peer_sync_job__unknown_facility(
-        self, get_dataset_id, NetworkClient, MorangoProfileController
+    @patch("kolibri.core.tasks.api.get_facility_dataset_id")
+    def test_validate_and_create_sync_credentials__unknown_facility(
+        self, get_facility_dataset_id, NetworkClient, MorangoProfileController
     ):
         req = Mock(
             spec=Request,
@@ -1065,20 +1271,18 @@ class FacilityTaskHelperTestCase(TestCase):
         controller = MorangoProfileController.return_value
         controller.create_network_connection.return_value = network_connection
 
-        get_dataset_id.side_effect = CommandError()
+        get_facility_dataset_id.side_effect = CommandError()
 
         with self.assertRaises(AuthenticationFailed):
-            prepare_peer_sync_job(
-                *validate_peer_sync_job(req), extra_metadata=dict(type="test")
-            )
+            validate_and_create_sync_credentials(*validate_peer_sync_job(req))
 
     @patch("kolibri.core.tasks.api.MorangoProfileController")
     @patch("kolibri.core.tasks.api.NetworkClient")
     @patch("kolibri.core.tasks.api.get_client_and_server_certs")
-    @patch("kolibri.core.tasks.api.get_dataset_id")
-    def test_validate_peer_sync_job__not_authenticated(
+    @patch("kolibri.core.tasks.api.get_facility_dataset_id")
+    def test_validate_and_create_sync_credentials__not_authenticated(
         self,
-        get_dataset_id,
+        get_facility_dataset_id,
         get_client_and_server_certs,
         NetworkClient,
         MorangoProfileController,
@@ -1095,21 +1299,19 @@ class FacilityTaskHelperTestCase(TestCase):
         controller = MorangoProfileController.return_value
         controller.create_network_connection.return_value = network_connection
 
-        get_dataset_id.return_value = 456
+        get_facility_dataset_id.return_value = (123, 456)
         get_client_and_server_certs.side_effect = CommandError()
 
         with self.assertRaises(PermissionDenied):
-            prepare_peer_sync_job(
-                *validate_peer_sync_job(req), extra_metadata=dict(type="test")
-            )
+            validate_and_create_sync_credentials(*validate_peer_sync_job(req))
 
     @patch("kolibri.core.tasks.api.MorangoProfileController")
     @patch("kolibri.core.tasks.api.NetworkClient")
     @patch("kolibri.core.tasks.api.get_client_and_server_certs")
-    @patch("kolibri.core.tasks.api.get_dataset_id")
-    def test_validate_peer_sync_job__authentication_failed(
+    @patch("kolibri.core.tasks.api.get_facility_dataset_id")
+    def test_validate_and_create_sync_credentials__authentication_failed(
         self,
-        get_dataset_id,
+        get_facility_dataset_id,
         get_client_and_server_certs,
         NetworkClient,
         MorangoProfileController,
@@ -1131,10 +1333,8 @@ class FacilityTaskHelperTestCase(TestCase):
         controller = MorangoProfileController.return_value
         controller.create_network_connection.return_value = network_connection
 
-        get_dataset_id.return_value = 456
+        get_facility_dataset_id.return_value = (123, 456)
         get_client_and_server_certs.side_effect = CommandError()
 
         with self.assertRaises(AuthenticationFailed):
-            prepare_peer_sync_job(
-                *validate_peer_sync_job(req), extra_metadata=dict(type="test")
-            )
+            validate_and_create_sync_credentials(*validate_peer_sync_job(req))

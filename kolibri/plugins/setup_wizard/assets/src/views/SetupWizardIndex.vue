@@ -25,9 +25,11 @@
 
 <script>
 
+  import { interpret } from 'xstate';
   import { mapState } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import { wizardMachine } from '../machines/wizardMachine';
   import LoadingPage from './submission-states/LoadingPage';
   import ErrorPage from './submission-states/ErrorPage';
 
@@ -43,9 +45,35 @@
       ErrorPage,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
+    data() {
+      return {
+        service: interpret(wizardMachine),
+      };
+    },
+    provide() {
+      return {
+        wizardService: this.service,
+      };
+    },
     computed: {
       ...mapState(['loading', 'error']),
     },
+    created() {
+      this.service.start();
+      this.service.onTransition(state => {
+        const stateID = Object.keys(state.meta)[0];
+        let newRoute = state.meta[stateID].route;
+        if (newRoute != this.$router.currentRoute.name) {
+          if ('path' in state.meta[stateID])
+            this.$router.push({ name: newRoute, path: state.meta[stateID].path });
+          else this.$router.push(newRoute);
+        }
+      });
+    },
+    destroyed() {
+      this.service.stop();
+    },
+
     // As a minimal precaution, we restart the entire wizard if a user refreshes in the middle
     // and loses saved state
     beforeMount() {
@@ -72,11 +100,13 @@
   // from http://nicolasgallagher.com/micro-clearfix-hack/
   @mixin clearfix() {
     zoom: 1;
+
     &::after,
     &::before {
       display: table;
       content: '';
     }
+
     &::after {
       clear: both;
     }

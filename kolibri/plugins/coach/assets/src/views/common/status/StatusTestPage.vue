@@ -17,7 +17,7 @@
     </div>
 
     <table>
-      <tr style="color: gray">
+      <tr :style="{ color: $themePalette.grey.v_600 }">
         <th>scenario</th>
         <th>example tally</th>
         <th>status bar</th>
@@ -25,12 +25,22 @@
         <th>ratio variant</th>
         <th>count variant</th>
       </tr>
-      <tbody v-for="(tally, index) in testSummaries" :key="index" style="border: 2px solid gray">
+      <tbody
+        v-for="(tally, index) in testSummaries"
+        :key="index"
+        :style="thickBorderStyle"
+      >
         <tr>
-          <th rowspan="2" style="max-width: 100px; text-align: left;">
+          <th
+            rowspan="2"
+            :style="[{ maxWidth: '100px', textAlign: 'left' }, thinBorderStyle]"
+          >
             {{ tally.name }}
           </th>
-          <td rowspan="2">
+          <td
+            rowspan="2"
+            :style="thinBorderStyle"
+          >
             <table>
               <tr><td>not started</td><td> {{ tally.notStarted }}</td></tr>
               <tr><td>started</td><td> {{ tally.started }}</td></tr>
@@ -38,29 +48,35 @@
               <tr><td>help needed</td><td> {{ tally.helpNeeded }}</td></tr>
             </table>
           </td>
-          <td rowspan="2" style="position: relative; width: 200px; text-align: center;">
+          <td
+            rowspan="2"
+            :style="[
+              { position: 'relative', width: '200px', textAlign: 'center' },
+              thinBorderStyle
+            ]"
+          >
             <div class="bar">
               <ProgressSummaryBar :showErrorBar="true" :tally="tally" />
             </div>
           </td>
-          <td style="text-align: center">
+          <td :style="[{ textAlign: 'center' }, thinBorderStyle]">
             long
           </td>
-          <td>
+          <td :style="thinBorderStyle">
             <StatusSummary :tally="tally" :verbose="true" :ratio="true" />
           </td>
-          <td>
+          <td :style="thinBorderStyle">
             <StatusSummary :tally="tally" :verbose="true" :ratio="false" />
           </td>
         </tr>
         <tr>
-          <td style="text-align: center">
+          <td :style="[{ textAlign: 'center' }, thinBorderStyle]">
             short
           </td>
-          <td>
+          <td :style="thinBorderStyle">
             <StatusSummary :tally="tally" :verbose="false" :ratio="true" />
           </td>
-          <td>
+          <td :style="thinBorderStyle">
             <StatusSummary :tally="tally" :verbose="false" :ratio="false" />
           </td>
         </tr>
@@ -194,6 +210,12 @@
           helpNeeded: this.helpNeeded,
         };
       },
+      thinBorderStyle() {
+        return { border: `1px solid ${this.$themeTokens.fineLine}` };
+      },
+      thickBorderStyle() {
+        return { border: `2px solid ${this.$themePalette.grey.v_500}` };
+      },
     },
     mounted() {
       this.update();
@@ -224,6 +246,7 @@
   .moving {
     margin: 64px;
   }
+
   .moving > :last-child {
     margin-top: 8px;
     margin-bottom: 64px;
@@ -247,8 +270,6 @@
     padding-right: 8px;
     padding-left: 8px;
     font-weight: normal;
-    // TODO - refactor to use theme, probably $themeTokens.fineLine
-    border: 1px solid #dedede;
   }
 
   table table td,

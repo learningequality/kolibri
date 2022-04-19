@@ -16,6 +16,7 @@ from django.template.defaultfilters import slugify
 from django.utils import translation
 from django.utils.translation import get_language_from_request
 from django.utils.translation import pgettext
+from le_utils.constants import content_kinds
 
 from .models import ContentSessionLog
 from .models import ContentSummaryLog
@@ -98,7 +99,7 @@ def map_object(obj):
 
 classes_info = {
     "session": {
-        "queryset": ContentSessionLog.objects.all(),
+        "queryset": ContentSessionLog.objects.exclude(kind=content_kinds.QUIZ),
         "filename": CSV_EXPORT_FILENAMES["session"],
         "db_columns": (
             "user__username",
@@ -113,7 +114,7 @@ classes_info = {
         ),
     },
     "summary": {
-        "queryset": ContentSummaryLog.objects.all(),
+        "queryset": ContentSummaryLog.objects.exclude(kind=content_kinds.QUIZ),
         "filename": CSV_EXPORT_FILENAMES["summary"],
         "db_columns": (
             "user__username",
@@ -173,7 +174,7 @@ def exported_logs_info(request, facility_id, facility):
     logs_dir = os.path.join(conf.KOLIBRI_HOME, "log_export")
     csv_statuses = {}
 
-    for log_type in CSV_EXPORT_FILENAMES.keys():
+    for log_type in CSV_EXPORT_FILENAMES:
         log_path = os.path.join(
             logs_dir, CSV_EXPORT_FILENAMES[log_type].format(facility, facility_id[:4])
         )

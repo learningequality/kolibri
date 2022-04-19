@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
+import configparser
 import functools
 import io
 import json
 import logging
 import os
 import sys
-
-import configparser
 
 logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
 logging.StreamHandler(sys.stdout)
@@ -93,20 +92,8 @@ def local_locale_path(lang_object, locale_data_folder):
 
 # Defines where we find the extracted messages
 @memoize
-def local_locale_csv_source_path(locale_data_folder):
-    csv_path = os.path.abspath(os.path.join(locale_data_folder, "CSV_FILES", "en"))
-    if not os.path.exists(csv_path):
-        os.makedirs(csv_path)
-    return csv_path
-
-
-# Defines where we'll find the downloaded CSV files from Crowdin (non english files)
-@memoize
-def local_locale_csv_path(locale_data_folder):
-    csv_path = os.path.abspath(os.path.join(locale_data_folder, "CSV_FILES"))
-    if not os.path.exists(csv_path):
-        os.makedirs(csv_path)
-    return csv_path
+def local_locale_source_path(locale_data_folder):
+    return local_locale_path({KEY_INTL_CODE: "en"}, locale_data_folder)
 
 
 def json_dump_formatted(data, file_path, file_name):

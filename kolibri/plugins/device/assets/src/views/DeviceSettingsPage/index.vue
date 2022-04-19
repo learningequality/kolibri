@@ -306,7 +306,7 @@
       },
       pageHeader: {
         message: 'Device settings',
-        context: 'Title of page.',
+        context: 'Title of page where user can configure device settings.',
       },
       saveFailureNotification: {
         message: 'Settings have not been updated',
@@ -323,13 +323,16 @@
       facilitySettings: {
         message: 'You can also configure facility settings',
         context:
-          "Text link on the 'Device settings' page that links to the 'Facility settings' page.",
+          "Text link on the 'Device settings' page that links to the 'Facility settings' page. It is used when there is only one facility on device.",
       },
       allowGuestAccess: {
         message: 'Allow users to explore resources without signing in',
         context: "Option on the 'Device settings' page.",
       },
-      disallowGuestAccess: 'Learners must sign in to explore resources',
+      disallowGuestAccess: {
+        message: 'Learners must sign in to explore resources',
+        context: "Option on 'Device Settings' page.",
+      },
       lockedContent: {
         message: 'Signed in learners should only see resources assigned to them in classes',
         context: "Option on the 'Device settings' page.",
@@ -337,7 +340,7 @@
       landingPageLabel: {
         message: 'Default landing page',
         context:
-          "This option allows the admin to configure the default landing page for learners to be either the 'Kolibri Sign-in' page or the 'Learn' page.",
+          "This option allows the admin to configure the default landing page for learners to be either the 'Sign-in' page or the 'Learn' page.",
       },
       signInPageChoice: {
         message: 'Sign-in page',
@@ -345,7 +348,7 @@
       },
       learnerAppPageChoice: {
         message: 'Learn page',
-        context: '\nThis refers to the page you reach when you click "Learn" in the main side nav',
+        context: 'This refers to the page you reach when you click "Learn" in the main side nav.',
       },
       unlistedChannels: {
         message: 'Allow other computers on this network to import my unlisted channels',
@@ -353,7 +356,8 @@
       },
       configureFacilitySettingsHeader: {
         message: 'Configure facility settings',
-        context: "Title of the 'Facility settings' page.",
+        context:
+          "Option on 'Device settings' page to switch to the 'Facility settings' page. Will display a list of facilities if user manages more than one facility.",
       },
       allowExternalConnectionsApp: {
         message: 'Allow others in the network to access Kolibri on this device using a browser',
@@ -369,7 +373,7 @@
       },
       externalDeviceSettings: {
         message: 'External devices',
-        context: 'Label for settings controlling how Kolibri interacts with other devices',
+        context: 'Label for device settings controlling how Kolibri interacts with other devices.',
       },
     },
   };

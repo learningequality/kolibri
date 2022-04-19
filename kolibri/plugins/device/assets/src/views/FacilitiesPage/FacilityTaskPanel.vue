@@ -35,6 +35,7 @@
     SyncTaskStatuses.LOCAL_DEQUEUING,
     SyncTaskStatuses.REMOTE_QUEUING,
     SyncTaskStatuses.REMOTE_DEQUEUING,
+    SyncTaskStatuses.PENDING,
   ];
 
   export default {
@@ -55,7 +56,9 @@
     computed: {
       isSyncTask() {
         return (
-          this.task.type === TaskTypes.SYNCDATAPORTAL || this.task.type === TaskTypes.SYNCPEERFULL
+          this.task.type === TaskTypes.SYNCDATAPORTAL ||
+          this.task.type === TaskTypes.SYNCPEERFULL ||
+          this.task.type === TaskTypes.SYNCLOD
         );
       },
       isDeleteTask() {
@@ -92,15 +95,19 @@
         return this.taskInfo.statusMsg;
       },
       headingMsg() {
+        if (this.task.type === TaskTypes.SYNCLOD) return '';
         return this.taskInfo.headingMsg;
       },
       underHeadingMsg() {
+        if (this.task.type === TaskTypes.SYNCLOD) return '';
         return this.taskInfo.deviceNameMsg;
       },
       underProgressMsg() {
+        if (this.task.type === TaskTypes.SYNCLOD) return '';
         return this.taskInfo.bytesTransferredMsg;
       },
       buttonSet() {
+        if (this.task.type === TaskTypes.SYNCLOD) return '';
         if (this.taskInfo.canCancel) {
           return 'cancel';
         } else if (this.taskInfo.canClear) {

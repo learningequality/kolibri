@@ -14,8 +14,9 @@
       <KGridItem>
         <QuizLessonDetailsHeader
           examOrLesson="exam"
-          :backlink="classRoute('ReportsQuizListPage')"
-          :backlinkLabel="coachString('allQuizzesLabel')"
+          :backlink="
+            group ? classRoute('ReportsGroupReportPage') : classRoute('ReportsQuizListPage')"
+          :backlinkLabel="group ? group.name : coachString('allQuizzesLabel')"
           optionsFor="report"
         >
           <template #dropdown>
@@ -40,11 +41,17 @@
           <HeaderTabs :enablePrint="true">
             <HeaderTab
               :text="coachString('reportLabel')"
-              :to="classRoute('ReportsQuizLearnerListPage')"
+              :to="group ?
+                classRoute('ReportsGroupReportQuizLearnerListPage') :
+                classRoute('ReportsQuizLearnerListPage')
+              "
             />
             <HeaderTab
               :text="coachString('difficultQuestionsLabel')"
-              :to="classRoute('ReportsQuizQuestionListPage')"
+              :to="group ?
+                classRoute('ReportsGroupReportQuizQuestionListPage') :
+                classRoute('ReportsQuizQuestionListPage')
+              "
             />
           </HeaderTabs>
           <slot></slot>
@@ -70,11 +77,6 @@
       QuizOptionsDropdownMenu,
     },
     mixins: [commonCoach, commonCoreStrings],
-    data() {
-      return {
-        filter: 'allQuizzes',
-      };
-    },
     computed: {
       avgScore() {
         return this.getExamAvgScore(this.$route.params.quizId, this.recipients);
@@ -85,25 +87,9 @@
       recipients() {
         return this.getLearnersForExam(this.exam);
       },
-      filterOptions() {
-        return [
-          {
-            label: this.coachString('allQuizzesLabel'),
-            value: 'allQuizzes',
-          },
-          {
-            label: this.coachString('activeQuizzesLabel'),
-            value: 'activeQuizzes',
-          },
-          {
-            label: this.coachString('inactiveQuizzesLabel'),
-            value: 'inactiveQuizzes',
-          },
-        ];
+      group() {
+        return this.$route.params.groupId && this.groupMap[this.$route.params.groupId];
       },
-    },
-    beforeMount() {
-      this.filter = this.filterOptions[0];
     },
     methods: {
       handleSelectOption(option) {
@@ -111,7 +97,9 @@
           this.$router.push(this.$router.getRoute('QuizReportEditDetailsPage'));
         }
         if (option === 'PREVIEW') {
-          this.$router.push(this.$router.getRoute('ReportsQuizPreviewPage'));
+          this.$router.push(
+            this.$router.getRoute('ReportsQuizPreviewPage', {}, this.defaultBackLinkQuery)
+          );
         }
         if (option === 'PRINT_REPORT') {
           this.$print();
@@ -120,15 +108,6 @@
           this.$emit('export');
         }
       },
-    },
-    $trs: {
-      allQuizzes: {
-        message: 'All quizzes',
-        context:
-          "Link that takes user back to the list of quizzes on the 'Reports' tab, from the individual learner's information page.",
-      },
-      activeQuizzes: 'Active quizzes',
-      inactiveQuizzes: 'Inactive quizzes',
     },
   };
 

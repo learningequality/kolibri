@@ -77,7 +77,7 @@
     $trs: {
       progress: {
         message: `{progress, number, percent}`,
-        context: 'DO NOT TRANSLATE.',
+        context: 'DO NOT TRANSLATE\nCopy the source string.',
       },
       jumpToPositionInBook: {
         message: 'Jump to position in book',
@@ -109,6 +109,7 @@
   .bottom-bar-heading {
     height: 17px;
     margin-bottom: 4px;
+
     h3 {
       @include truncate-text;
 

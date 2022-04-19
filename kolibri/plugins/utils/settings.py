@@ -61,7 +61,7 @@ def _validate_module_setting(
 def _set_setting_value(setting, setting_value, settings_module):
     if setting in _tuple_settings:
         setting_value = tuple(setting_value)
-        original_value = tuple(getattr(settings_module, setting, tuple()))
+        original_value = tuple(getattr(settings_module, setting, ()))
         setattr(settings_module, setting, original_value + setting_value)
     else:
         setattr(settings_module, setting, setting_value)

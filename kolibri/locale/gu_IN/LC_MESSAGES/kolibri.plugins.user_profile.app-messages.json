@@ -1,0 +1,15 @@
+{
+  "ChangeUserPasswordModal.passwordChangeFormHeader": "પાસવર્ડ બદલો",
+  "ChangeUserPasswordModal.passwordChangedNotification": "તમારો પાસવર્ડ બદલાઈ ગયો છે.",
+  "ProfileEditPage.editProfileHeader": "પ્રોફાઇલ સંપાદિત કરો",
+  "ProfilePage.changePasswordPrompt": "પાસવર્ડ બદલો",
+  "ProfilePage.detailsHeader": "વિગતો",
+  "ProfilePage.documentTitle": "વપરાશકર્તા પ્રોફાઇલ",
+  "ProfilePage.editAction": "સંપાદિત કરો",
+  "ProfilePage.isSuperuser": "સુપર સંચાલન પરવાનગીઓ ",
+  "ProfilePage.limitedPermissions": "સીમિત પરવાનગીઓ",
+  "ProfilePage.manageContent": "ચેનલો અને સ્ત્રોતોનું વ્યવસ્થાપન કરો",
+  "ProfilePage.manageDevicePermissions": "ઉપકરણ ની પરવાનગીઓ મેનેજ કરો",
+  "ProfilePage.points": "પોઇન્ટ્સ",
+  "ProfilePage.youCan": "તમે આ કરી શકો છો:"
+}

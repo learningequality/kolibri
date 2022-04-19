@@ -34,7 +34,7 @@ except KeyError:
 # Create a memcache for each cache
 CACHES = {
     key: {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}
-    for key in CACHES.keys()  # noqa F405
+    for key in CACHES  # noqa F405
 }
 
 if process_cache:

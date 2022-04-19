@@ -1,36 +1,16 @@
 import copy
 import os
-import shutil
 import sys
-from sqlite3 import DatabaseError
-
-from diskcache import Cache
 
 from kolibri.utils.conf import KOLIBRI_HOME
 from kolibri.utils.conf import OPTIONS
+from kolibri.utils.options import CACHE_SHARDS
 
 cache_options = OPTIONS["Cache"]
 
 pickle_protocol = OPTIONS["Python"]["PICKLE_PROTOCOL"]
 
 diskcache_location = os.path.join(KOLIBRI_HOME, "process_cache")
-
-
-def recreate_diskcache():
-    if cache_options["CACHE_BACKEND"] != "redis":
-        try:
-            diskcache_cache = Cache(
-                diskcache_location, disk_pickle_protocol=pickle_protocol
-            )
-        except DatabaseError:
-            shutil.rmtree(diskcache_location, ignore_errors=True)
-            os.mkdir(diskcache_location)
-            diskcache_cache = Cache(
-                diskcache_location, disk_pickle_protocol=pickle_protocol
-            )
-        diskcache_cache.clear()
-        diskcache_cache.close()
-
 
 # Default to LocMemCache, as it has the simplest configuration
 default_cache = {
@@ -47,6 +27,8 @@ default_cache = {
 process_cache = {
     "BACKEND": "diskcache.DjangoCache",
     "LOCATION": diskcache_location,
+    "TIMEOUT": cache_options["CACHE_TIMEOUT"],
+    "SHARDS": CACHE_SHARDS,
     "OPTIONS": {
         "MAX_ENTRIES": cache_options["CACHE_MAX_ENTRIES"],
         # Pin pickle protocol for Python 2 compatibility

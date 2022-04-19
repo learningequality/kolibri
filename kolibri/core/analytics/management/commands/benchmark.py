@@ -139,7 +139,7 @@ class Command(BaseCommand):
         self.messages.append(format_line("Device name", instance_model.hostname))
         self.messages.append(
             format_line(
-                "Free disk space", "{} Mb".format(get_free_space() / pow(2, 20))
+                "Free disk space", "{} Mb".format(get_free_space() / pow(10, 6))
             )
         )
         self.messages.append(format_line("Server time", local_now()))

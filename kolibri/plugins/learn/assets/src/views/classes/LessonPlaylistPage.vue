@@ -1,6 +1,7 @@
 <template>
 
   <div>
+    <KBreadcrumbs :items="breadcrumbs" />
     <section class="lesson-details">
       <div>
         <ContentIcon
@@ -9,7 +10,11 @@
         />
         <h1 dir="auto" class="title">
           {{ currentLesson.title }}
-          <ProgressIcon v-if="lessonHasResources" :progress="lessonProgress" />
+          <ProgressIcon
+            v-if="lessonHasResources"
+            class="progress-icon"
+            :progress="lessonProgress"
+          />
         </h1>
       </div>
       <div v-if="currentLesson.description !== ''">
@@ -20,21 +25,15 @@
       </div>
     </section>
 
-    <section class="content-cards">
-      <ContentCard
-        v-for="(c, idx) in contentNodes"
-        :key="c.id"
+    <section v-if="contentNodes && contentNodes.length" class="content-cards">
+      <HybridLearningLessonCard
+        v-for="content in contentNodes"
+        :key="content.id"
+        :content="content"
         class="content-card"
-        :isMobile="true"
-        :kind="c.kind"
-        :isLeaf="c.is_leaf"
-        :link="lessonResourceViewerLink(idx)"
-        :progress="c.progress_fraction"
-        :numCoachContents="c.coach_content ? 1 : 0"
-        :thumbnail="getContentNodeThumbnail(c)"
-        :title="c.title"
+        :isMobile="windowIsSmall"
+        :link="genContentLink(content)"
       />
-
       <p v-if="!lessonHasResources" class="no-resources-message">
         {{ $tr('noResourcesInLesson') }}
       </p>
@@ -46,26 +45,31 @@
 
 <script>
 
-  import { mapState } from 'vuex';
+  import { mapMutations, mapState } from 'vuex';
   import sumBy from 'lodash/sumBy';
+  import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
-  import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
-  import ContentCard from '../ContentCard';
-  import { lessonResourceViewerLink } from './classPageLinks';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import genContentLink from '../../utils/genContentLink';
+  import { PageNames, ClassesPageNames } from '../../constants';
+  import HybridLearningLessonCard from './../HybridLearningLessonCard';
 
   export default {
     name: 'LessonPlaylistPage',
     metaInfo() {
       return {
-        title: this.$tr('documentTitle'),
+        title: this.currentLesson.title,
       };
     },
     components: {
-      ContentCard,
+      KBreadcrumbs,
+      HybridLearningLessonCard,
       ContentIcon,
       ProgressIcon,
     },
+    mixins: [commonCoreStrings, responsiveWindowMixin],
     computed: {
       ...mapState('lessonPlaylist', ['contentNodes', 'currentLesson']),
       lessonHasResources() {
@@ -84,10 +88,60 @@
 
         return undefined;
       },
+      breadcrumbs() {
+        return [
+          {
+            text: this.coreString('homeLabel'),
+            link: { name: PageNames.HOME },
+          },
+          {
+            text: this.coreString('classesLabel'),
+            link: { name: ClassesPageNames.ALL_CLASSES },
+          },
+          {
+            text: this.currentLesson.classroom.name,
+            link: {
+              name: ClassesPageNames.CLASS_ASSIGNMENTS,
+              params: { classId: this.currentLesson.classroom.id },
+            },
+          },
+          {
+            text: this.currentLesson.title,
+          },
+        ];
+      },
+      backRoute() {
+        return this.$route.name;
+      },
+      context() {
+        const context = {};
+        if (this.currentLesson && this.currentLesson.classroom) {
+          context.lessonId = this.currentLesson.id;
+          context.classId = this.currentLesson.classroom.id;
+        } else if (this.isLibraryPage || this.pageName === PageNames.TOPICS_TOPIC_SEARCH) {
+          Object.assign(context, this.$route.query);
+        }
+        return context;
+      },
+    },
+    beforeDestroy() {
+      /* If we are going anywhere except for content we unset the lesson */
+
+      if (this.$route.name !== PageNames.TOPICS_CONTENT) {
+        this.SET_CURRENT_LESSON({});
+      }
     },
     methods: {
-      getContentNodeThumbnail,
-      lessonResourceViewerLink,
+      ...mapMutations('lessonPlaylist', ['SET_CURRENT_LESSON']),
+      genContentLink(content) {
+        return genContentLink(
+          content.id,
+          this.topicId,
+          content.is_leaf,
+          this.backRoute,
+          this.context
+        );
+      },
     },
     $trs: {
       noResourcesInLesson: {
@@ -96,7 +150,6 @@
           "This text displays in the learner's 'Lessons' section if the coach has not added any resources to the lesson.",
       },
       teacherNote: 'Coach note',
-      documentTitle: 'Lesson contents',
     },
   };
 
@@ -114,7 +167,7 @@
   }
 
   .content-cards {
-    max-width: 800px;
+    max-width: 100%;
   }
 
   .content-card {
@@ -127,13 +180,25 @@
     text-align: center;
   }
 
-  // Copied from LessonSummaryPage
   .lesson-icon {
     display: inline-block;
     margin-right: 0.5em;
     font-size: 1.8em;
+
     /deep/ .ui-icon {
-      vertical-align: bottom;
+      margin-bottom: 12px;
+      vertical-align: middle;
+    }
+  }
+
+  .progress-icon {
+    display: inline-block;
+    margin-right: 0.5em;
+    font-size: 1.8em;
+
+    /deep/ .ui-icon {
+      margin-top: 4px;
+      vertical-align: middle;
     }
   }
 

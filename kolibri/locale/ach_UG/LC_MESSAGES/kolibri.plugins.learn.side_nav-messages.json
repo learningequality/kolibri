@@ -1,4 +1,19 @@
 {
-  "CommonLearnStrings.learnLabel": "crwdns275964:0crwdne275964:0",
-  "CommonLearnStrings.recommendedLabel": "crwdns275966:0crwdne275966:0"
+  "CommonLearnStrings.dontShowThisAgainLabel": "crwdns334195:0crwdne334195:0",
+  "CommonLearnStrings.exploreResources": "crwdns334197:0crwdne334197:0",
+  "CommonLearnStrings.learnLabel": "crwdns334199:0crwdne334199:0",
+  "CommonLearnStrings.libraryLabel": "crwdns334201:0crwdne334201:0",
+  "CommonLearnStrings.logo": "crwdns334203:0{channelTitle}crwdne334203:0",
+  "CommonLearnStrings.markResourceAsCompleteLabel": "crwdns334205:0crwdne334205:0",
+  "CommonLearnStrings.mostPopularLabel": "crwdns334207:0crwdne334207:0",
+  "CommonLearnStrings.multipleLearningActivities": "crwdns334209:0crwdne334209:0",
+  "CommonLearnStrings.multipleLearningActivitiesLabel": "crwdns334211:0crwdne334211:0",
+  "CommonLearnStrings.nextStepsLabel": "crwdns334213:0crwdne334213:0",
+  "CommonLearnStrings.popularLabel": "crwdns334215:0crwdne334215:0",
+  "CommonLearnStrings.quizLabel": "crwdns334217:0crwdne334217:0",
+  "CommonLearnStrings.resourceCompletedLabel": "crwdns334219:0crwdne334219:0",
+  "CommonLearnStrings.resourceHidden": "crwdns334221:0crwdne334221:0",
+  "CommonLearnStrings.resumeLabel": "crwdns334223:0crwdne334223:0",
+  "CommonLearnStrings.suggestedTime": "crwdns334225:0crwdne334225:0",
+  "CommonLearnStrings.suggestedTimeToComplete": "crwdns334227:0crwdne334227:0"
 }

@@ -29,6 +29,8 @@
         <ChannelContentsSummary
           :channel="transferredChannel"
           :channelOnDevice="channelOnDevice"
+          :freeSpace="availableSpace"
+          :remoteContentEnabled="remoteContentEnabled"
         />
 
         <UiAlert
@@ -46,6 +48,13 @@
         >
           {{ $tr('problemTransferringContents') }}
         </UiAlert>
+        <UiAlert
+          v-show="isFileSpaceEnough"
+          :dismissible="false"
+          type="error"
+        >
+          {{ spaceTranslator.$tr('notEnoughSpaceForChannelsWarning') }}
+        </UiAlert>
         <ContentTreeViewer
           v-if="!newVersionAvailable"
           class="block-item"
@@ -59,7 +68,7 @@
       objectType="resource"
       actionType="import"
       :resourceCounts="{ count: transferResourceCount, fileSize: transferFileSize }"
-      :disabled="disableBottomBar || newVersionAvailable"
+      :disabled="disableBottomBar || newVersionAvailable || isFileSpaceEnough"
       @clickconfirm="handleClickConfirm"
     />
   </div>
@@ -75,6 +84,7 @@
   import find from 'lodash/find';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { TaskResource } from 'kolibri.resources';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import TaskProgress from '../ManageContentPage/TaskProgress';
   import { ContentWizardErrors, TaskTypes, PageNames } from '../../constants';
   import SelectionBottomBar from '../ManageContentPage/SelectionBottomBar';
@@ -82,10 +92,12 @@
   import { updateTreeViewTopic } from '../../modules/wizard/handlers';
   import { getChannelWithContentSizes } from '../../modules/wizard/apiChannelMetadata';
   import NewChannelVersionBanner from '../ManageContentPage/NewChannelVersionBanner';
+  import AvailableChannelsPage from '../AvailableChannelsPage';
   import ChannelContentsSummary from './ChannelContentsSummary';
   import ContentTreeViewer from './ContentTreeViewer';
   import ContentWizardUiAlert from './ContentWizardUiAlert';
   import { startImportTask } from './api';
+  import plugin_data from 'plugin_data';
 
   export default {
     name: 'SelectContentPage',
@@ -111,6 +123,7 @@
         // in beforeRouteLeave
         metadataDownloadTaskId: '',
         disableBottomBar: false,
+        remoteContentEnabled: plugin_data.isRemoteContent,
       };
     },
     computed: {
@@ -129,6 +142,7 @@
         'transferredChannel',
         'transferFileSize',
         'transferResourceCount',
+        'availableSpace',
       ]),
       channelId() {
         return this.$route.params.channel_id;
@@ -165,6 +179,11 @@
       newVersionAvailable() {
         return this.availableVersions.source > this.availableVersions.installed;
       },
+      isFileSpaceEnough() {
+        if (this.remoteContentEnabled) {
+          return false;
+        } else return this.transferFileSize > this.availableSpace;
+      },
     },
     watch: {
       // A REMOTE/DISKCHANNELIMPORT Task should be created inside the showAvailableChannels via
@@ -193,6 +212,9 @@
       this.cancelMetadataDownloadTask();
       this.$store.commit('manageContent/wizard/RESET_NODE_LISTS');
       next();
+    },
+    created() {
+      this.spaceTranslator = crossComponentTranslator(AvailableChannelsPage);
     },
     mounted() {
       let title;
@@ -306,14 +328,12 @@
         context: 'Generic load error which may display if there is a problem retrieving channels.',
       },
       problemFetchingChannel: {
-        message: 'There was a problem getting the contents of this channel',
-        context:
-          '\nThis string should actually say "There was a problem getting the list of resources from this channel"',
+        message: 'There was a problem getting the resources of this channel',
+        context: 'Error during channel import.',
       },
       problemTransferringContents: {
-        message: 'There was a problem transferring the selected contents',
-        context:
-          '\nThis string should actually say "There was a problem transferring the selected resources"',
+        message: 'There was a problem transferring the selected resources',
+        context: 'Error during channel import.',
       },
       selectContent: {
         message: "Select resources from '{channelName}'",
@@ -322,7 +342,7 @@
       kolibriStudioLabel: {
         message: 'Kolibri Studio',
         context:
-          'Refers to importing channels from Kolibri Studio. Kolibri Studio is the tool used to organize learning resources and build channels for Kolibri.',
+          'Refers to importing channels from Kolibri Studio. Kolibri Studio is the tool used to organize learning resources and build channels for Kolibri. See also https://kolibri-studio.readthedocs.io/en/latest/index.html',
       },
       importingFromDrive: {
         message: `Importing from drive '{driveName}'`,

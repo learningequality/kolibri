@@ -122,7 +122,7 @@ class UserExportTestCase(TestCase):
         else:
             csv_file = open(self.filepath, "r", newline="")
         with csv_file as f:
-            results = list(row for row in csv.DictReader(f))
+            results = [row for row in csv.DictReader(f)]
         return results
 
     def test_csv_file(self):

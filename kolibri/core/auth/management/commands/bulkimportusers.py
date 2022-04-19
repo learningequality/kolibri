@@ -79,7 +79,7 @@ MESSAGES = {
         "Error when the command is executed in the Terminal (command prompt)",
         "Value in column '{}' has too many characters",
     ),
-    INVALID: _("Invalid value in column '{}'"),
+    INVALID: _("Value in column '{}' not valid"),
     DUPLICATED_USERNAME: _("Username is duplicated"),
     INVALID_USERNAME: _(
         "Username only can contain characters, numbers and underscores"
@@ -90,7 +90,7 @@ MESSAGES = {
     ),
     INVALID_HEADER: pgettext_lazy(
         "Error message indicating that one column header in the CSV file selected for import is missing or incorrect",
-        "Invalid header label found in the first row",
+        "Incorrect header label found in the first row",
     ),
     NO_FACILITY: pgettext_lazy(
         "Error when the command is executed in the Terminal (command prompt)",
@@ -251,12 +251,12 @@ class Validator(object):
     """
 
     def __init__(self, header_translation):
-        self._checks = list()
-        self.classrooms = dict()
-        self.coach_classrooms = dict()
-        self.users = dict()
+        self._checks = []
+        self.classrooms = {}
+        self.coach_classrooms = {}
+        self.users = {}
         self.header_translation = header_translation
-        self.roles = {r: list() for r in roles_map.values() if r is not None}
+        self.roles = {r: [] for r in roles_map.values() if r is not None}
 
     def add_check(self, header_name, check, message):
         """
@@ -471,7 +471,8 @@ class Command(AsyncCommand):
             header = next(csv.reader(f, strict=True))
             has_header = False
             self.header_translation = {
-                lbl.partition("(")[2].partition(")")[0]: lbl for lbl in header
+                lbl if "(" not in lbl else lbl.partition("(")[2].partition(")")[0]: lbl
+                for lbl in header
             }
             neutral_header = self.header_translation.keys()
             # If every item in the first row matches an item in the fieldnames, consider it a header row
@@ -529,10 +530,10 @@ class Command(AsyncCommand):
         return changed
 
     def build_users_objects(self, users):
-        new_users = list()
-        update_users = list()
-        keeping_users = list()
-        per_line_errors = list()
+        new_users = []
+        update_users = []
+        keeping_users = []
+        per_line_errors = []
         users_uuid = [
             u[self.header_translation["UUID"]]
             for u in users.values()
@@ -640,8 +641,8 @@ class Command(AsyncCommand):
         fixed_classes - Same original classes tuple, but with the names normalized
 
         """
-        new_classes = list()
-        update_classes = list()
+        new_classes = []
+        update_classes = []
         total_classes = set([k for k in classes[0]] + [v for v in classes[1]])
         existing_classes = (
             Classroom.objects.filter(parent=self.default_facility)
@@ -682,7 +683,7 @@ class Command(AsyncCommand):
 
     def get_number_lines(self, filepath):
         try:
-            with open(filepath) as f:
+            with open_csv_for_reading(filepath) as f:
                 number_lines = len(f.readlines())
         except (ValueError, FileNotFoundError, csv.Error) as e:
             number_lines = None
@@ -760,15 +761,16 @@ class Command(AsyncCommand):
         if self.overall_error:
             classes_report = {"created": 0, "updated": 0, "cleared": 0}
             users_report = {"created": 0, "updated": 0, "deleted": 0}
+            # force translation to str type, to be serialized into json:
+            overall_error = [str(msg) for msg in self.overall_error]
             if self.job:
-                self.job.extra_metadata["overall_error"] = self.overall_error
+                self.job.extra_metadata["overall_error"] = overall_error
                 self.job.extra_metadata["per_line_errors"] = 0
                 self.job.extra_metadata["classes"] = classes_report
                 self.job.extra_metadata["users"] = users_report
                 self.job.extra_metadata["filename"] = ""
                 self.job.save_meta()
-            raise CommandError("File errors: {}".format(str(self.overall_error)))
-            sys.exit(1)
+            raise CommandError("File errors: {}".format(overall_error))
         return
 
     def remove_memberships(self, users, enrolled, assigned):

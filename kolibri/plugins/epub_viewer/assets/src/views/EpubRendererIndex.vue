@@ -14,6 +14,7 @@
 
     <div
       class="epub-renderer-content"
+      :style="{ 'border-color': $themeTokens.fineLine }"
       :dir="contentDirection"
       @mousedown.stop="handleMouseDown"
       @keyup.esc="closeSideBar"
@@ -100,7 +101,16 @@
         <div
           class="column epubjs-navigation"
         >
+          <NextButton
+            v-if="contentIsRtl"
+            v-show="!isAtEnd"
+            :color="navigationButtonColor"
+            :isRtl="contentIsRtl"
+            :style="{ backgroundColor }"
+            @goToNextPage="goToNextPage"
+          />
           <PreviousButton
+            v-else
             v-show="!isAtStart"
             :color="navigationButtonColor"
             :isRtl="contentIsRtl"
@@ -117,7 +127,16 @@
         <div
           class="column epubjs-navigation"
         >
+          <PreviousButton
+            v-if="contentIsRtl"
+            v-show="!isAtStart"
+            :color="navigationButtonColor"
+            :isRtl="contentIsRtl"
+            :style="{ backgroundColor }"
+            @goToPreviousPage="goToPreviousPage"
+          />
           <NextButton
+            v-else
             v-show="!isAtEnd"
             :color="navigationButtonColor"
             :isRtl="contentIsRtl"
@@ -136,6 +155,7 @@
         @sliderChanged="handleSliderChanged"
       />
     </div>
+
   </CoreFullscreen>
 
 </template>
@@ -310,7 +330,6 @@
       epubRendererStyle() {
         return {
           backgroundColor: this.$themeTokens.surface,
-          borderColor: this.$themePalette.grey.v_300,
         };
       },
       navigationButtonColor() {
@@ -382,6 +401,7 @@
     created() {
       // Try to load the appropriate directional CSS for the particular content
       this.cssPromise = this.$options.contentModule.loadDirectionalCSS(this.contentDirection);
+      this.visitedPages = this.savedVisitedPages || {};
     },
     beforeMount() {
       global.ePub = Epub;
@@ -485,15 +505,17 @@
             // update progress using number of pages seen out of available pages
             this.$emit(
               'updateProgress',
-              Object.keys(this.savedVisitedPages).length / this.locations.length
+              Object.keys(this.visitedPages || {}).length / this.locations.length
             );
           }
         }
       },
       storeVisitedPage(currentLocation) {
-        let visited = this.savedVisitedPages;
-        visited[currentLocation] = true;
-        this.savedVisitedPages = visited;
+        if (currentLocation) {
+          let visited = this.savedVisitedPages;
+          visited[currentLocation] = true;
+          this.savedVisitedPages = visited;
+        }
       },
       handleReadyRendition() {
         this.updateRenditionTheme(this.themeStyle);
@@ -704,10 +726,22 @@
         this.currentSection = this.getCurrentSection(currentLocationStart);
       },
       relocatedHandler(location) {
-        this.sliderValue = location.start.percentage * 100;
+        // Ensures that when we're on the last page, we set the slider value to 100
+        // otherwise, we show the slider % using the start
+        if (location.atEnd) {
+          this.sliderValue = 100;
+        } else {
+          this.sliderValue = location.start.percentage * 100;
+        }
         this.updateCurrentSection(location.start);
         this.currentLocation = location.start.cfi;
-        this.storeVisitedPage(this.currentLocation);
+        for (
+          let locationIndex = location.start.location;
+          locationIndex <= location.end.location;
+          locationIndex++
+        ) {
+          this.storeVisitedPage(this.locations[locationIndex]);
+        }
         this.updateProgress();
         this.updateContentState();
       },
@@ -752,29 +786,25 @@
 
   .epub-renderer {
     position: relative;
-    max-height: 100%;
-    padding-top: calc(100% * 8.5 / 11);
+    // Counter-balance the padding to avoid unnecessary scroll
+    height: calc(100vh - 64px);
+    padding: 32px 24px;
     overflow: hidden;
     font-size: smaller;
-    border: solid 1px;
     border-radius: $radius;
-  }
-
-  .epub-renderer.small {
-    padding-top: calc(100% * 11 / 8.5);
   }
 
   .epub-renderer:fullscreen,
   .epub-renderer.small:fullscreen {
-    padding-top: 0;
+    padding: 0;
   }
 
   .epub-renderer-content {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
+    position: relative;
+    height: 100%;
+    overflow: hidden;
+    border: solid 1px;
+    border-radius: $radius;
   }
 
   .top-bar-component {
@@ -801,21 +831,26 @@
     right: 0;
   }
 
+  .toc-button {
+    left: 3px;
+  }
+
   .toc-button,
   .settings-button,
   .search-button {
     position: absolute;
-    top: 0;
+    top: 2px;
     z-index: 2;
   }
+
   .settings-button {
-    right: 72px;
+    right: 67px;
   }
 
   .search-button {
     // Positioned to be in the exact same spot as the TopBar's SearchButton,
     // which is given opacity: 0 when this button is shown
-    right: 32px;
+    right: 35px;
   }
 
   .bottom-bar {
@@ -823,6 +858,7 @@
     right: 0;
     bottom: 0;
     left: 0;
+    padding: 0 40px;
   }
 
   .d-t {

@@ -1,6 +1,6 @@
 import logger from 'kolibri.lib.logging';
 import store from 'kolibri.coreVue.vuex.store';
-import { redirectBrowser } from 'kolibri.utils.redirectBrowser';
+import redirectBrowser from 'kolibri.utils.redirectBrowser';
 import Lockr from 'lockr';
 import urls from 'kolibri.urls';
 import clientFactory from './core-app/baseClient';
@@ -11,6 +11,7 @@ import {
   createDisconnectedSnackbar,
   createReconnectedSnackbar,
 } from './disconnection';
+import { browser, os } from './utils/browserInfo';
 
 const logging = logger.getLogger(__filename);
 
@@ -166,12 +167,15 @@ export class HeartBeat {
     const pollStart = Date.now();
     return this._client
       .request({
-        params: {
+        data: {
           // Only send active when both connected and activity has been registered.
           // Do this to prevent a user logging activity cascade on the server side.
           active: connected && this._active,
+          browser,
+          os,
         },
         url: this._sessionUrl('current'),
+        method: 'put',
       })
       .then(response => {
         // Log the time that the poll of the session endpoint ended.

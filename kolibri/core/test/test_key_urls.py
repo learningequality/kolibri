@@ -17,7 +17,6 @@ from kolibri.core.auth.test.test_api import DUMMY_PASSWORD
 from kolibri.core.auth.test.test_api import FacilityFactory
 from kolibri.core.auth.test.test_api import FacilityUserFactory
 from kolibri.core.device.translation import get_settings_language
-from kolibri.deployment.default.urls import urlpatterns
 
 
 class BeforeDeviceProvisionTests(APITestCase):
@@ -54,7 +53,7 @@ class KolibriTagNavigationTestCase(APITestCase):
         self.assertEqual(response.get("location"), reverse(url_name))
 
     def test_anonymous_user_is_redirected_to_user_plugin(self):
-        self._assert_location_reverse_url("kolibri:kolibri.plugins.user:user")
+        self._assert_location_reverse_url("kolibri:kolibri.plugins.user_auth:user_auth")
 
     def test_superuser_is_redirected_to_device_plugin(self):
         self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
@@ -81,7 +80,7 @@ class AllUrlsTest(APITransactionTestCase):
 
     # Allow codes that may indicate a poorly formed response
     # 412 is returned from endpoints that have required GET params when these are not supplied
-    allowed_http_codes = [200, 302, 400, 401, 403, 404, 405, 412]
+    allowed_http_codes = [200, 301, 302, 400, 401, 403, 404, 405, 412]
 
     def setUp(self):
         provision_device()
@@ -160,7 +159,21 @@ class AllUrlsTest(APITransactionTestCase):
         ), patch("kolibri.core.tasks.api.queue"), patch(
             "kolibri.core.webpack.hooks.WebpackBundleHook.get_by_unique_id"
         ):
-            check_urls(urlpatterns)
+            # A slight hack to accommodate the SoUD tests ensuring that Coach and Facility plugins are not
+            # available to the frontend. If for any reason you decide to use get_device_setting in the
+            # kolibri_plugin of either Coach or Facility.
+            # This ensures that the subsequent import of urlpatterns doesn't try to touch the database and
+            # we touch the database in these two places.
+            with patch(
+                "kolibri.plugins.coach.kolibri_plugin.get_device_setting",
+                return_value=False,
+            ), patch(
+                "kolibri.plugins.facility.kolibri_plugin.get_device_setting",
+                return_value=False,
+            ):
+                from kolibri.deployment.default.urls import urlpatterns
+
+                check_urls(urlpatterns)
 
     def test_anonymous_responses(self):
         self.check_responses()

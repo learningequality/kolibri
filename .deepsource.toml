@@ -1,0 +1,31 @@
+version = 1
+
+test_patterns = [
+  "test/**.py",
+  "tests/**.py",
+  "test*.py",
+  "*.spec.js"
+]
+
+exclude_patterns = [
+  "migrations/**.py",
+  "dist/**.js"
+]
+
+[[analyzers]]
+name = "python"
+enabled = true
+
+  [analyzers.meta]
+  runtime_version = "2.x.x"
+
+[[analyzers]]
+name = "javascript"
+enabled = true
+
+  [analyzers.meta]
+  plugins = ["vue"]
+
+[[transformers]]
+name = "black"
+enabled = false

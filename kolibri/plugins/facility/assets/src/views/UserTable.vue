@@ -49,7 +49,7 @@
         </template>
         <th v-if="$scopedSlots.action" class="user-action-button">
           <span class="visuallyhidden">
-            {{ $tr('userActionsColumnHeader') }}
+            {{ coreString('userActionsColumnHeader') }}
           </span>
         </th>
       </template>
@@ -59,6 +59,7 @@
           <tr
             v-for="user in users"
             :key="user.id"
+            :style="isSelectedStyle(user.id)"
           >
             <td v-if="selectable" class="core-table-checkbox-col">
               <KCheckbox
@@ -185,6 +186,10 @@
         type: Boolean,
         default: false,
       },
+      selectedStyle: {
+        type: String,
+        default: '',
+      },
     },
     computed: {
       allAreSelected() {
@@ -193,7 +198,12 @@
     },
     methods: {
       userIsSelected(id) {
-        return this.value.includes(id);
+        if (this.value) return this.value.includes(id);
+        return false;
+      },
+      isSelectedStyle(id) {
+        if (this.userIsSelected(id)) return this.selectedStyle;
+        return '';
       },
       selectAll(checked) {
         const currentUsers = this.users.map(user => user.id);
@@ -219,7 +229,6 @@
         message: 'Role',
         context: "Indicates the user's role (coach, learner etc.)",
       },
-      userActionsColumnHeader: 'Actions',
       selectAllLabel: {
         message: 'Select all',
         context: 'Generic checkbox label used to select all elements in a list.',

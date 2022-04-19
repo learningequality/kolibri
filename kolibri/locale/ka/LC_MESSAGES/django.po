@@ -1,0 +1,242 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: kolibri\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-01-12 06:47-0800\n"
+"PO-Revision-Date: 2022-01-25 19:10\n"
+"Last-Translator: \n"
+"Language-Team: Georgian\n"
+"Language: ka_GE\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Crowdin-Project: kolibri\n"
+"X-Crowdin-Project-ID: 201933\n"
+"X-Crowdin-Language: ka\n"
+"X-Crowdin-File: /release-v0.16.x/django.po\n"
+"X-Crowdin-File-ID: 4241\n"
+
+#: core/auth/constants/commands_errors.py:17
+msgid "Unexpected exception [{}]: {}"
+msgstr "მოულოდნელი გამონაკლისი [{}]: {}"
+
+#: core/auth/constants/commands_errors.py:20
+msgctxt "Error report message when the allowed number of digits has been exceeded."
+msgid "Content of cell '{}' is too long"
+msgstr "უჯრის '{}' შიგთავსი ნამეტანი გრძელია"
+
+#: core/auth/constants/commands_errors.py:24
+msgctxt "Error report message when the cell contains an improper data format."
+msgid "Content of cell '{}' is not valid"
+msgstr "უჯრის '{}' შიგთავსი არაა მართებული"
+
+#: core/auth/constants/commands_errors.py:26
+msgid "Duplicated username"
+msgstr "დუბლირებული სამომხმარებლო სახელი"
+
+#: core/auth/constants/commands_errors.py:28
+#: core/auth/management/commands/bulkimportusers.py:85
+msgid "Username only can contain characters, numbers and underscores"
+msgstr "სამომხმარებლო სახელი შეიძლება შეიცავდეს ასოებს, ციბრებსა და ქვედა ტირეებს"
+
+#: core/auth/constants/commands_errors.py:30
+msgid "The column '{}' is required"
+msgstr "'{}' სვეტი აუცილებელია"
+
+#: core/auth/constants/commands_errors.py:31
+msgid "Mix of valid and/or invalid header labels found in first row"
+msgstr "პირველ სტრიქონში ნაპოვნია მართებული ან/და გაუმართავი სათაურის იარლიყების ნარევი"
+
+#: core/auth/constants/commands_errors.py:33
+msgid "No default facility exists. Make sure to set up a facility on the device before running this command"
+msgstr "არანაირი ნაგულისხმი დაწესებულება არ არსებობს. ამ ბრძანების გაშვებამდე დარწმუნდით, რომ დააყენეთ მოწყობილობაზე ეს დაწესებულება"
+
+#: core/auth/constants/commands_errors.py:35
+#: core/auth/management/commands/bulkimportusers.py:99
+msgid "Error trying to read csv file: {}"
+msgstr "csv ფაილის კითხვისას შეცდომა გამოვლინდა: {}"
+
+#: core/auth/constants/commands_errors.py:36
+#: core/auth/management/commands/bulkimportusers.py:100
+msgid "Error trying to write csv file: {}"
+msgstr "csv ფაილის ჩაწერისას შეცდომა გამოვლინდა: {}"
+
+#: core/auth/management/commands/bulkexportusers.py:42
+#: core/auth/management/commands/bulkexportusers.py:124
+msgid "Database ID ({})"
+msgstr "მონაცემთა ბაზის ID ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:43
+#: core/auth/management/commands/bulkexportusers.py:125
+msgid "Username ({})"
+msgstr "მომხმარებლის სახელი ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:44
+#: core/auth/management/commands/bulkexportusers.py:126
+msgid "Password ({})"
+msgstr "პაროლი ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:45
+#: core/auth/management/commands/bulkexportusers.py:127
+msgid "Full name ({})"
+msgstr "სახელი და გვარი ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:50
+msgctxt "CSV column header for the type of user: ADMIN, LEARNER, COACH..."
+msgid "User type ({})"
+msgstr "მომხმარებლის ტიპი ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:53
+#: core/auth/management/commands/bulkexportusers.py:135
+msgid "Identifier ({})"
+msgstr "იდენტიფიკატორი ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:54
+#: core/auth/management/commands/bulkexportusers.py:136
+msgid "Birth year ({})"
+msgstr "დაბადების წელი ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:55
+#: core/auth/management/commands/bulkexportusers.py:137
+msgid "Gender ({})"
+msgstr "სქესი ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:60
+msgctxt "CSV column header for the list of classrooms names where the learner is going to be enrolled"
+msgid "Learner enrollment ({})"
+msgstr "მსწავლელთა ჩარიცხვა ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:67
+msgctxt "CSV column header for the list of classrooms names where the tutor is going to be a coach"
+msgid "Coach assignment ({})"
+msgstr "მწვრთნელის დანიშნვა ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:132
+msgctxt "CSV header for the type of user: ADMIN, LEARNER, COACH..."
+msgid "User type ({})"
+msgstr "მომხმარებლის ტიპი ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:142
+msgctxt "CSV file header for the list of classrooms names where the learner is going to be enrolled"
+msgid "Learner enrollment ({})"
+msgstr "მსწავლელთა ჩარიცხვა ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:149
+msgctxt "CSV file header for the list of classrooms names where the tutor is going to be a coach"
+msgid "Coach assignment ({})"
+msgstr "მწვრთნელის დანიშნვა ({})"
+
+#: core/auth/management/commands/bulkimportusers.py:76
+msgctxt "Error message that might appear when there's a programming error importing a CSV file"
+msgid "Unexpected error [{}]: {}"
+msgstr "მოულოდნელი შეცდომა [{}]: {}"
+
+#: core/auth/management/commands/bulkimportusers.py:80
+msgctxt "Error when the command is executed in the Terminal (command prompt)"
+msgid "Value in column '{}' has too many characters"
+msgstr "'{}' სვეტის მნიშვნელობას აქვს ძალიან ბევრი სიმბოლო"
+
+#: core/auth/management/commands/bulkimportusers.py:82
+msgid "Value in column '{}' not valid"
+msgstr "'{}' სვეტის შიგთავსი არაა მართებული"
+
+#: core/auth/management/commands/bulkimportusers.py:83
+msgid "Username is duplicated"
+msgstr "სამომხმარებლო სახელი დუბლირებულია"
+
+#: core/auth/management/commands/bulkimportusers.py:89
+msgctxt "Error message indicating that the CSV file selected for import is missing a required column"
+msgid "The column '{}' is required"
+msgstr "'{}' სვეტი აუცილებელია"
+
+#: core/auth/management/commands/bulkimportusers.py:93
+msgctxt "Error message indicating that one column header in the CSV file selected for import is missing or incorrect"
+msgid "Incorrect header label found in the first row"
+msgstr "პირველ სტრიქონში ნაპოვნია სათაურის არასწორი იარლიყი"
+
+#: core/auth/management/commands/bulkimportusers.py:97
+msgctxt "Error when the command is executed in the Terminal (command prompt)"
+msgid "No default facility exists. Make sure to set up a facility on the  device before importing users and classes"
+msgstr "არანაირი ნაგულისხმი დაწესებულება არ არსებობს. მომხმარებლებისა და კლასების იმპორტირებამდე დარწმუნდით, რომ დააყენეთ მოწყობილობაზე დაწესებულება"
+
+#: core/auth/management/commands/bulkimportusers.py:102
+msgid "The password field is required. To leave the password unchanged in existing users, insert an asterisk (*)"
+msgstr "პაროლის ველი აუცილებელია. მიმდინარე მომხმარებლებისთვის პაროლის შეუცვლელად დასატოვად, ჩასვით ვარსკლავი (*)"
+
+#: core/auth/management/commands/bulkimportusers.py:105
+msgid "Cannot update user with ID: '{}' because no user with that database ID exists in this facility"
+msgstr "ვერ ვახერხებ ცვლილების გაკეთებას ამ ID-ის მქონე მომხმარებლისთვის: '{}' ვინაიდან, ამ დაწესებულების ID მონაცემთა ბაზაში ასეთი მომხმარებელი არ არსებობს"
+
+#: core/auth/management/commands/bulkimportusers.py:107
+msgid "Database ID is not valid"
+msgstr "მონაცემთა ბაზა უმოქმედოა"
+
+#: core/content/api.py:254
+msgid "Resource"
+msgstr "რესურსი"
+
+#: core/content/api.py:1467
+msgid "The requested channel does not exist on the content server"
+msgstr "მოცემული არხი არ არის მასალების სერვერზე"
+
+#: core/content/models.py:256
+msgid "Unknown format"
+msgstr "უცნობი ფორმატი"
+
+#: core/device/serializers.py:36
+msgid "Language is not supported by Kolibri"
+msgstr "ენა არ არის მხარდაჭერილი კოლიბრის მიერ"
+
+#: core/logger/csv_export.py:205
+msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
+msgid "content_session_logs"
+msgstr "content_session_logs"
+
+#: core/logger/csv_export.py:215
+msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
+msgid "content_summary_logs"
+msgstr "content_summary_logs"
+
+#: core/tasks/api.py:82
+msgid "There was a network error."
+msgstr "ქსელის შეცდომა იყო."
+
+#: core/tasks/api.py:84
+msgid "There was a disk access error."
+msgstr "დისკის წვდომაში შეფერხებაა."
+
+#: core/tasks/api.py:86
+msgid "There was an unknown error."
+msgstr "უცნობი შეცდომა იყო."
+
+#: core/templates/kolibri/base.html:13
+#: core/templates/kolibri/unsupported_browser.html:13
+msgid "Kolibri"
+msgstr "კოლიბრი"
+
+#: core/templates/kolibri/unsupported_browser.html:42
+msgid "Unsupported browser"
+msgstr "მხარდაუჭერელი ბრაუზერი"
+
+#: core/templates/kolibri/unsupported_browser.html:43
+msgid "Sorry, your browser version is not supported."
+msgstr "უკაცრავად, თქვენი ბრაუზერის ვერსია არ არის მხარდაჭერილი."
+
+#: core/templates/kolibri/unsupported_browser.html:44
+msgid "To use Kolibri, we recommend using Firefox or Chrome."
+msgstr "კოლიბრისთვის გირჩევთ გამოიყენოთ Firefox, ან Chrome."
+
+#: core/templates/kolibri/unsupported_browser.html:45
+msgid "You can also try updating your current browser."
+msgstr "შეგიძლიათ სცადოთ ბრაუზერის განახლება."
+
+#: core/views.py:168
+msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
+msgstr "სათანადო გადამისამართების გვერდები არაა ნოპოვნი. სავარაუდოდ Kolibri არაა სწორად კონფიგურირებული"
+
+#: plugins/facility/views.py:52
+msgctxt "Default name for the exported CSV file of facility user data. Please keep the underscore between words in the translation"
+msgid "users_{}"
+msgstr "მომხმარებლები_{}"
+

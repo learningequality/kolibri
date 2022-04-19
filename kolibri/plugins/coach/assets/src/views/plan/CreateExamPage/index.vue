@@ -81,44 +81,82 @@
       </KGrid>
 
       <h2>{{ $tr('chooseExercises') }}</h2>
+      <div v-if="bookmarksRoute">
+        <strong>
+          <KRouterLink
+            :text="coreString('channelsLabel')"
+            :to="channelsLink"
+          />
+        </strong>
+        <ContentCardList
+          :contentList="bookmarks"
+          :contentHasCheckbox="contentHasCheckbox"
+          :contentCardMessage="() => ''"
+          :selectAllChecked="selectAllChecked"
+          :selectAllIndeterminate="selectAllIndeterminate"
+          :contentCardLink="bookmarksLink"
+          :contentIsChecked="contentIsSelected"
+          :viewMoreButtonState="viewMoreButtonState"
+          :showSelectAll="selectAllIsVisible"
+          :contentIsIndeterminate="contentIsIndeterminate"
+          @changeselectall="toggleTopicInWorkingResources"
+          @change_content_card="toggleSelected"
+          @moreresults="handleMoreResults"
+        />
+      </div>
+      <div v-if="examCreationRoute">
+        <p>{{ coreString('selectFromBookmarks') }}</p>
+        <KRouterLink
+          v-if="bookmarksCount"
+          :style="{ width: '100%' }"
+          :to="getBookmarksLink()"
+        >
+          <div class="bookmark-container">
+            <BookmarkIcon />
+            <div class="text">
+              <h3>{{ coreString('bookmarksLabel') }}</h3>
+              <p>{{ $tr('resources', { count: bookmarksCount }) }}</p>
+            </div>
+          </div>
+        </KRouterLink>
+      </div>
 
-      <LessonsSearchBox
-        class="search-box"
-        @searchterm="handleSearchTerm"
-      />
+      <div v-if="examCreationRoute || examTopicRoute">
+        <LessonsSearchBox
+          class="search-box"
+          @searchterm="handleSearchTerm"
+        />
 
-      <LessonsSearchFilters
-        v-if="inSearchMode"
-        v-model="filters"
-        :searchTerm="searchTerm"
-        :searchResults="searchResults"
-      />
-      <ResourceSelectionBreadcrumbs
-        v-else
-        :ancestors="ancestors"
-        :channelsLink="channelsLink"
-        :topicsLink="topicsLink"
-      />
-
-      <h2>{{ topicTitle }}</h2>
-      <p>{{ topicDescription }}</p>
-
-      <ContentCardList
-        :contentList="filteredContentList"
-        :showSelectAll="selectAllIsVisible"
-        :viewMoreButtonState="viewMoreButtonState"
-        :selectAllChecked="selectAllChecked"
-        :selectAllIndeterminate="selectAllIndeterminate"
-        :contentIsChecked="contentIsSelected"
-        :contentIsIndeterminate="contentIsIndeterminate"
-        :contentHasCheckbox="contentHasCheckbox"
-        :contentCardMessage="selectionMetadata"
-        :contentCardLink="contentLink"
-        @changeselectall="toggleTopicInWorkingResources"
-        @change_content_card="toggleSelected"
-        @moreresults="handleMoreResults"
-      />
-
+        <LessonsSearchFilters
+          v-if="inSearchMode"
+          v-model="filters"
+          :searchTerm="searchTerm"
+          :searchResults="searchResults"
+        />
+        <ResourceSelectionBreadcrumbs
+          v-else
+          :ancestors="ancestors"
+          :channelsLink="channelsLink"
+          :topicsLink="topicsLink"
+        />
+        <h2>{{ topicTitle }}</h2>
+        <p>{{ topicDescription }}</p>
+        <ContentCardList
+          :contentList="filteredContentList"
+          :showSelectAll="selectAllIsVisible"
+          :viewMoreButtonState="viewMoreButtonState"
+          :selectAllChecked="selectAllChecked"
+          :selectAllIndeterminate="selectAllIndeterminate"
+          :contentIsChecked="contentIsSelected"
+          :contentIsIndeterminate="contentIsIndeterminate"
+          :contentHasCheckbox="contentHasCheckbox"
+          :contentCardMessage="selectionMetadata"
+          :contentCardLink="contentLink"
+          @changeselectall="toggleTopicInWorkingResources"
+          @change_content_card="toggleSelected"
+          @moreresults="handleMoreResults"
+        />
+      </div>
       <BottomAppBar v-if="inSearchMode">
         <KRouterLink
           appearance="raised-button"
@@ -129,11 +167,6 @@
       </BottomAppBar>
       <BottomAppBar v-else>
         <KButtonGroup>
-          <KRouterLink
-            appearance="flat-button"
-            :text="coreString('goBackAction')"
-            :to="toolbarRoute"
-          />
           <KButton
             :text="coreString('continueAction')"
             primary
@@ -159,6 +192,7 @@
   import pickBy from 'lodash/pickBy';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { ContentNodeResource } from 'kolibri.resources';
   import { PageNames } from '../../../constants/';
   import { MAX_QUESTIONS } from '../../../constants/examConstants';
   import LessonsSearchBox from '../../plan/LessonResourceSelectionPage/SearchTools/LessonsSearchBox';
@@ -166,6 +200,7 @@
   import ResourceSelectionBreadcrumbs from '../../plan/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs';
   import ContentCardList from '../../plan/LessonResourceSelectionPage/ContentCardList';
   import commonCoach from '../../common';
+  import BookmarkIcon from '../LessonResourceSelectionPage/LessonContentCard/BookmarkIcon';
 
   export default {
     // TODO: Rename this to 'ExamCreationPage'
@@ -177,6 +212,7 @@
       ResourceSelectionBreadcrumbs,
       ContentCardList,
       BottomAppBar,
+      BookmarkIcon,
     },
     mixins: [commonCoreStrings, commonCoach, responsiveWindowMixin],
     data() {
@@ -190,6 +226,9 @@
           role: this.$route.query.role || null,
         },
         numQuestionsBlurred: false,
+        bookmarksCount: 0,
+        bookmarks: [],
+        more: null,
       };
     },
     computed: {
@@ -221,6 +260,20 @@
       maxQs() {
         return MAX_QUESTIONS;
       },
+      bookmarksRoute() {
+        return (
+          this.pageName === PageNames.EXAM_CREATION_BOOKMARKS_MAIN ||
+          this.pageName === PageNames.EXAM_CREATION_BOOKMARKS
+        );
+      },
+      examCreationRoute() {
+        return this.pageName === PageNames.EXAM_CREATION_ROOT;
+      },
+
+      examTopicRoute() {
+        return this.pageName === PageNames.EXAM_CREATION_TOPIC;
+      },
+
       examTitle: {
         get() {
           return this.$store.state.examCreation.title;
@@ -266,10 +319,17 @@
         });
       },
       allExercises() {
-        const topics = this.contentList.filter(({ kind }) => kind === ContentNodeKinds.TOPIC);
-        const exercises = this.contentList.filter(({ kind }) => kind === ContentNodeKinds.EXERCISE);
-        const topicExercises = flatMap(topics, ({ exercises }) => exercises);
-        return [...exercises, ...topicExercises];
+        if (this.contentList) {
+          const topics = this.contentList.filter(({ kind }) => kind === ContentNodeKinds.TOPIC);
+          const exercises = this.contentList.filter(
+            ({ kind }) => kind === ContentNodeKinds.EXERCISE
+          );
+          const topicExercises = flatMap(topics, ({ exercises }) => exercises);
+          return [...exercises, ...topicExercises];
+        } else if (this.bookmarks) {
+          return this.bookmarks;
+        }
+        return [];
       },
       addableExercises() {
         return this.allExercises.filter(exercise => !this.selectedExercises[exercise.id]);
@@ -365,12 +425,52 @@
         });
       },
     },
+    created() {
+      ContentNodeResource.fetchBookmarks({
+        params: { limit: 25, kind: ContentNodeKinds.EXERCISE, available: true },
+      }).then(data => {
+        this.more = data.more;
+        this.bookmarks = data.results;
+        this.bookmarksCount = data.count;
+        this.loading = false;
+      });
+    },
     methods: {
       ...mapActions('examCreation', [
         'addToSelectedExercises',
         'removeFromSelectedExercises',
         'fetchAdditionalSearchResults',
       ]),
+      getBookmarksLink() {
+        return {
+          name: PageNames.EXAM_CREATION_BOOKMARKS_MAIN,
+        };
+      },
+      bookmarksLink(content) {
+        if (!content.is_leaf) {
+          return {
+            name: PageNames.EXAM_CREATION_BOOKMARKS,
+            params: {
+              classId: this.classId,
+              topicId: content.id,
+            },
+          };
+        }
+        const { query } = this.$route;
+        return {
+          name: PageNames.EXAM_CREATION_PREVIEW,
+          params: {
+            classId: this.classId,
+            contentId: content.id,
+          },
+          query: {
+            ...query,
+            ...pickBy({
+              searchTerm: this.$route.params.searchTerm,
+            }),
+          },
+        };
+      },
       contentLink(content) {
         if (!content.is_leaf) {
           return {
@@ -448,7 +548,9 @@
       },
       toggleSelected({ content, checked }) {
         let exercises;
-        const contentNode = this.contentList.find(item => item.id === content.id);
+        const list =
+          this.contentList && this.contentList.length ? this.contentList : this.bookmarks;
+        const contentNode = list.find(item => item.id === content.id);
         const isTopic = contentNode.kind === ContentNodeKinds.TOPIC;
         if (checked && isTopic) {
           this.showError = false;
@@ -526,28 +628,41 @@
       },
     },
     $trs: {
+      resources: {
+        message: '{count} {count, plural, one {resource} other {resources}}',
+        context: "Only translate 'resource' and 'resources'.",
+      },
       createNewExamLabel: {
         message: 'Create new quiz',
         context: "Title of the screen launched from the 'New quiz' button on the 'Plan' tab.",
       },
       chooseExercises: {
-        message: 'Select topics or exercises',
+        message: 'Select folders or exercises from these channels',
         context:
-          'When creating a new quiz, coaches can choose which topics or excercises they want to include in the quiz from the list of resources available.',
+          'When creating a new quiz, coaches can choose which folders or exercises they want to include in the quiz from the channels that contain exercise resources.',
       },
       numQuestions: {
         message: 'Number of questions',
         context: 'Indicates the number of questions that the quiz will have.',
       },
-      numQuestionsBetween: 'Enter a number between 1 and 50',
+      numQuestionsBetween: {
+        message: 'Enter a number between 1 and 50',
+        context:
+          "Refers to an error if the coach inputs a number of quiz questions that's not between 1 and 50. Quizzes cannot have less than 1 or more than 50 questions. ",
+      },
       numQuestionsExceed: {
         message:
           'The max number of questions based on the exercises you selected is {maxQuestionsFromSelection}. Select more exercises to reach {inputNumQuestions} questions, or lower the number of questions to {maxQuestionsFromSelection}.',
         context:
           'This message displays if the learning resource has less questions than the number selected by the coach initially.',
       },
-      numQuestionsExceedNoExercises:
-        'The max number of questions based on the exercises you selected is 0. Select more exercises to reach {inputNumQuestions} questions.',
+      numQuestionsExceedNoExercises: {
+        message:
+          'The max number of questions based on the exercises you selected is 0. Select more exercises to reach {inputNumQuestions} questions.',
+
+        context:
+          'This message displays if the learning resource selected by the coach has less questions then the number of questions coach wants to use in the quiz.\n',
+      },
       noneSelected: {
         message: 'No exercises are selected',
         context:
@@ -576,6 +691,32 @@
   .search-box {
     display: inline-block;
     vertical-align: middle;
+  }
+
+  .bookmarks-container {
+    display: flex;
+    align-items: center;
+  }
+
+  .lesson-content-card {
+    width: 100%;
+  }
+
+  .bookmark-container {
+    display: flex;
+    min-height: 141px;
+    margin-bottom: 24px;
+    border-radius: 2px;
+    box-shadow: 0 1px 5px 0 #a1a1a1, 0 2px 2px 0 #e6e6e6, 0 3px 1px -2px #ffffff;
+    transition: box-shadow 0.25s ease;
+  }
+
+  .bookmark-container:hover {
+    box-shadow: 0 5px 5px -3px #a1a1a1, 0 8px 10px 1px #d1d1d1, 0 3px 14px 2px #d4d4d4;
+  }
+
+  .text {
+    margin-left: 15rem;
   }
 
 </style>

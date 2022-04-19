@@ -40,7 +40,7 @@ def mock_check_if_port_open_function(url):
 class MockCache:
     def __init__(self, default):
         self.default = default
-        self.cache = dict()
+        self.cache = {}
 
     def get(self, k):
         return self.cache.get(k) or self.default

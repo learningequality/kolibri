@@ -35,8 +35,6 @@ def set_sqlite_connection_pragma(dbapi_connection, connection_record):
 
 logger = logging.getLogger(__name__)
 
-BASES = {}
-
 
 class ClassNotFoundError(Exception):
     pass
@@ -167,12 +165,6 @@ __SQLALCHEMY_CLASSES_PATH = ("contentschema", "versions")
 
 __SQLALCHEMY_CLASSES_MODULE_NAME = "content_schema_{name}"
 
-SQLALCHEMY_CLASSES_PATH_TEMPLATE = os.path.join(
-    os.path.dirname(__file__),
-    "..",
-    *(__SQLALCHEMY_CLASSES_PATH + (__SQLALCHEMY_CLASSES_MODULE_NAME + ".py",))
-)
-
 SQLALCHEMY_CLASSES_MODULE_PATH_TEMPLATE = ".".join(
     tuple(__name__.split(".")[:-2])
     + __SQLALCHEMY_CLASSES_PATH
@@ -195,18 +187,30 @@ def load_metadata(name):
     return module.Base.metadata
 
 
-def prepare_bases():
+class LazyBases(object):
+    _valid_bases = set(CONTENT_DB_SCHEMA_VERSIONS + [CURRENT_SCHEMA_VERSION])
+    _loaded_bases = {}
 
-    for name in CONTENT_DB_SCHEMA_VERSIONS + [CURRENT_SCHEMA_VERSION]:
-        try:
-            metadata = load_metadata(name)
-            BASES[name] = prepare_base(metadata, name=name)
-        except ImportError:
-            logger.error(
-                "Tried to load content schema version {} but valid schema import was not found".format(
-                    name
+    def __getitem__(self, name):
+        if name not in self._valid_bases:
+            raise AttributeError
+        if name not in self._loaded_bases:
+            try:
+                metadata = load_metadata(name)
+                self._loaded_bases[name] = prepare_base(metadata, name=name)
+            except ImportError:
+                logger.error(
+                    "Tried to load content schema version {} but valid schema import was not found".format(
+                        name
+                    )
                 )
-            )
+                self._loaded_bases[name] = None
+        if self._loaded_bases[name] is None:
+            raise AttributeError
+        return self._loaded_bases[name]
+
+
+BASES = LazyBases()
 
 
 def get_model_from_cls(cls):
@@ -265,15 +269,14 @@ def get_default_db_string():
     destination_db = settings.DATABASES.get("default")
     if "sqlite" in destination_db["ENGINE"]:
         return sqlite_connection_string(destination_db["NAME"])
-    else:
-        return "{dialect}://{user}:{password}@{host}{port}/{dbname}".format(
-            dialect=destination_db["ENGINE"].split(".")[-1],
-            user=destination_db["USER"],
-            password=destination_db["PASSWORD"],
-            host=destination_db.get("HOST", "localhost"),
-            port=":" + destination_db.get("PORT") if destination_db.get("PORT") else "",
-            dbname=destination_db["NAME"],
-        )
+    return "{dialect}://{user}:{password}@{host}{port}/{dbname}".format(
+        dialect=destination_db["ENGINE"].split(".")[-1],
+        user=destination_db["USER"],
+        password=destination_db["PASSWORD"],
+        host=destination_db.get("HOST", "localhost"),
+        port=":" + destination_db.get("PORT") if destination_db.get("PORT") else "",
+        dbname=destination_db["NAME"],
+    )
 
 
 class SchemaNotFoundError(Exception):
@@ -333,6 +336,12 @@ class Bridge(object):
         https://docs.sqlalchemy.org/en/13/orm/extensions/declarative/table_config.html#using-a-hybrid-approach-with-table
         """
         return self.get_class(DjangoModel).__table__
+
+    def get_current_table(self, DjangoModel):
+        """
+        Convenience method to get a table for the Django database schema
+        """
+        return get_class(DjangoModel, BASES[CURRENT_SCHEMA_VERSION]).__table__
 
     def get_raw_connection(self):
         conn = self.get_connection()

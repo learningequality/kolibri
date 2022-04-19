@@ -108,9 +108,27 @@ class FacilitySerializer(serializers.ModelSerializer):
 
 
 class PublicFacilitySerializer(serializers.ModelSerializer):
+    learner_can_login_with_no_password = serializers.SerializerMethodField()
+
+    def get_learner_can_login_with_no_password(self, instance):
+        return instance.dataset.learner_can_login_with_no_password
+
     class Meta:
         model = Facility
-        fields = ("id", "dataset", "name")
+        fields = ("id", "dataset", "name", "learner_can_login_with_no_password")
+
+
+class PublicFacilityUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FacilityUser
+        fields = (
+            "id",
+            "username",
+            "full_name",
+            "facility",
+            "roles",
+            "is_superuser",
+        )
 
 
 class ClassroomSerializer(serializers.ModelSerializer):

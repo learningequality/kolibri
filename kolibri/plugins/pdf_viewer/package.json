@@ -4,8 +4,9 @@
   "private": true,
   "version": "0.0.1",
   "dependencies": {
-    "pdfjs-dist": "^1.9.426",
     "intersection-observer": "0.5.0",
-    "vue-virtual-scroller": "0.12.0"
+    "pdfjs-dist": "^1.9.426",
+    "vue-virtual-scroller": "0.12.0",
+    "web-streams-polyfill": "^3.2.0"
   }
 }

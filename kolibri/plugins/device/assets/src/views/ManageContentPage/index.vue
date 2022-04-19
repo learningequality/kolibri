@@ -6,17 +6,20 @@
       <HeaderWithOptions :headerText="coreString('channelsLabel')">
         <template #options>
           <KButtonGroup>
+            <!-- Margins to and bottom adds space when buttons are vertically stacked -->
             <KDropdownMenu
               v-if="channelsAreInstalled"
               appearance="raised-button"
               :text="coreString('optionsLabel')"
               position="bottom left"
               :options="dropdownOptions"
+              style="margin-top: 16px; margin-bottom: -16px;"
               class="options-btn"
               @select="handleSelect"
             />
             <KButton
               :text="$tr('import')"
+              style="margin-top: 16px; margin-bottom: -16px;"
               :primary="true"
               @click="startImportWorkflow()"
             />
@@ -212,7 +215,7 @@
     $trs: {
       import: {
         message: 'Import',
-        context: 'Option to import channels from another device.\n',
+        context: 'Option to import channels or users from another device.',
       },
       documentTitle: {
         message: 'Manage Device Channels',

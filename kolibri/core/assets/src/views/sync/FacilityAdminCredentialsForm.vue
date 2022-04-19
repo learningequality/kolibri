@@ -8,7 +8,7 @@
       {{ prompt }}
     </p>
 
-    <p v-if="error" class="error">
+    <p v-if="error" :style="{ color: $themeTokens.error }">
       {{ coreString('invalidCredentialsError') }}
     </p>
     <p v-if="false">
@@ -139,7 +139,7 @@
           "Enter the username and password for a facility admin of '{facility}' or a super admin of '{device}'",
 
         context:
-          '\n        Menu description text: users must provide the facility admin credentials\n        for a selected source facility, or super admin credentials for the source\n        device, before they are able to import\n      ',
+          'Menu description text: users must provide the facility admin credentials  for a selected source facility, or super admin credentials for the source device, before they are able to import.',
       },
       adminCredentialsPromptOneFacility: {
         message:
@@ -161,10 +161,6 @@
 
   .facility-name {
     font-weight: bold;
-  }
-
-  .error {
-    color: red;
   }
 
 </style>

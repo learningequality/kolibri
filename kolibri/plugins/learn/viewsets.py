@@ -3,16 +3,93 @@ from django.db.models import OuterRef
 from django.db.models import Q
 from django.db.models import Subquery
 from django.db.models import Sum
+from django.db.models.fields import IntegerField
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from kolibri.core.api import ReadOnlyValuesViewset
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.auth.models import Classroom
+from kolibri.core.auth.models import Facility
+from kolibri.core.content.api import ContentNodeProgressViewset
+from kolibri.core.content.api import ContentNodeViewset
+from kolibri.core.content.api import UserContentNodeViewset
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
-from kolibri.core.logger.models import ContentSummaryLog
-from kolibri.core.logger.models import ExamAttemptLog
-from kolibri.core.logger.models import ExamLog
+from kolibri.core.logger.models import AttemptLog
+from kolibri.core.logger.models import MasteryLog
+
+
+contentnode_progress_viewset = ContentNodeProgressViewset()
+contentnode_viewset = ContentNodeViewset()
+user_contentnode_viewset = UserContentNodeViewset()
+
+
+class LearnStateView(APIView):
+    def get(self, request, format=None):
+        if request.user.is_anonymous():
+            default_facility = Facility.get_default_facility()
+            can_download_content = (
+                default_facility.dataset.show_download_button_in_learn
+                if default_facility
+                else True
+            )
+            return Response(
+                {
+                    "in_classes": False,
+                    "can_download_content": can_download_content,
+                }
+            )
+        return Response(
+            {
+                "in_classes": request.user.memberships.exists(),
+                "can_download_content": request.user.dataset.show_download_button_in_learn,
+            }
+        )
+
+
+def _consolidate_lessons_data(request, lessons):
+    lesson_contentnode_ids = set()
+    for lesson in lessons:
+        lesson_contentnode_ids |= {
+            resource["contentnode_id"] for resource in lesson["resources"]
+        }
+
+    contentnode_progress = (
+        contentnode_progress_viewset.serialize_list(
+            request, {"ids": lesson_contentnode_ids}
+        )
+        if lesson_contentnode_ids
+        else []
+    )
+
+    contentnodes = (
+        contentnode_viewset.serialize_list(request, {"ids": lesson_contentnode_ids})
+        if lesson_contentnode_ids
+        else []
+    )
+
+    progress_map = {l["content_id"]: l["progress"] for l in contentnode_progress}
+
+    contentnode_map = {c["id"]: c for c in contentnodes}
+
+    for lesson in lessons:
+        lesson["progress"] = {
+            "resource_progress": sum(
+                (
+                    progress_map[resource["content_id"]]
+                    for resource in lesson["resources"]
+                    if resource["content_id"] in progress_map
+                )
+            ),
+            "total_resources": len(lesson["resources"]),
+        }
+        for resource in lesson["resources"]:
+            resource["progress"] = progress_map.get(resource["content_id"], 0)
+            resource["contentnode"] = contentnode_map.get(
+                resource["contentnode_id"], None
+            )
 
 
 class LearnerClassroomViewset(ReadOnlyValuesViewset):
@@ -29,10 +106,11 @@ class LearnerClassroomViewset(ReadOnlyValuesViewset):
     def get_queryset(self):
         if self.request.user.is_anonymous():
             return Classroom.objects.none()
-        else:
-            return Classroom.objects.filter(membership__user=self.request.user)
+        return Classroom.objects.filter(membership__user=self.request.user)
 
     def consolidate(self, items, queryset):
+        if not items:
+            return items
         lessons = (
             Lesson.objects.filter(
                 lesson_assignments__collection__membership__user=self.request.user,
@@ -44,64 +122,47 @@ class LearnerClassroomViewset(ReadOnlyValuesViewset):
                 "description", "id", "is_active", "title", "resources", "collection"
             )
         )
-        lesson_content_ids = set()
-        for lesson in lessons:
-            lesson_content_ids |= set(
-                (resource["content_id"] for resource in lesson["resources"])
-            )
+        _consolidate_lessons_data(self.request, lessons)
 
-        progress_map = {
-            l["content_id"]: l["progress"]
-            for l in ContentSummaryLog.objects.filter(
-                content_id__in=lesson_content_ids, user=self.request.user
-            ).values("content_id", "progress")
-        }
-
-        for lesson in lessons:
-            lesson["progress"] = {
-                "resource_progress": sum(
-                    (
-                        progress_map[resource["content_id"]]
-                        for resource in lesson["resources"]
-                        if resource["content_id"] in progress_map
-                    )
-                ),
-                "total_resources": len(lesson["resources"]),
-            }
+        user_masterylog_content_ids = MasteryLog.objects.filter(
+            user=self.request.user
+        ).values("summarylog__content_id")
 
         exams = (
             Exam.objects.filter(
                 assignments__collection__membership__user=self.request.user,
                 collection__in=(c["id"] for c in items),
             )
-            .filter(Q(active=True) | Q(examlogs__user=self.request.user))
+            .filter(Q(active=True) | Q(id__in=user_masterylog_content_ids))
             .annotate(
                 closed=Subquery(
-                    ExamLog.objects.filter(
-                        exam=OuterRef("id"), user=self.request.user
-                    ).values("closed")[:1]
+                    MasteryLog.objects.filter(
+                        summarylog__content_id=OuterRef("id"), user=self.request.user
+                    ).values("complete")[:1]
                 ),
                 score=Subquery(
-                    ExamAttemptLog.objects.filter(
-                        examlog__exam=OuterRef("id"), user=self.request.user
+                    AttemptLog.objects.filter(
+                        sessionlog__content_id=OuterRef("id"), user=self.request.user
                     )
                     .order_by()
-                    .values_list("item", "content_id")
+                    .values_list("item")
                     .distinct()
-                    .values("examlog")
+                    .values("masterylog")
                     .annotate(total_correct=Sum("correct"))
-                    .values("total_correct")
+                    .values("total_correct"),
+                    output_field=IntegerField(),
                 ),
                 answer_count=Subquery(
-                    ExamAttemptLog.objects.filter(
-                        examlog__exam=OuterRef("id"), user=self.request.user
+                    AttemptLog.objects.filter(
+                        sessionlog__content_id=OuterRef("id"), user=self.request.user
                     )
                     .order_by()
-                    .values_list("item", "content_id")
+                    .values_list("item")
                     .distinct()
-                    .values("examlog")
+                    .values("masterylog")
                     .annotate(total_complete=Count("id"))
-                    .values("total_complete")
+                    .values("total_complete"),
+                    output_field=IntegerField(),
                 ),
             )
             .distinct()
@@ -148,6 +209,42 @@ class LearnerClassroomViewset(ReadOnlyValuesViewset):
         return out_items
 
 
+learner_classroom_viewset = LearnerClassroomViewset()
+
+
+def _resumable_resources(classrooms):
+    for classroom in classrooms:
+        for lesson in classroom["assignments"]["lessons"]:
+            for resource in lesson["resources"]:
+                yield 0 < resource["progress"] < 1
+
+
+class LearnHomePageHydrationView(APIView):
+    def get(self, request, format=None):
+        classrooms = []
+        resumable_resources = []
+        resumable_resources_progress = []
+        if not request.user.is_anonymous():
+            classrooms = learner_classroom_viewset.serialize_list(request)
+            if not classrooms or not any(_resumable_resources(classrooms)):
+                resumable_resources = user_contentnode_viewset.serialize_list(
+                    request, {"resume": True, "max_results": 12}
+                )
+                resumable_resources_progress = (
+                    contentnode_progress_viewset.serialize_list(
+                        request, {"resume": True, "max_results": 12}
+                    )
+                )
+
+        return Response(
+            {
+                "classrooms": classrooms,
+                "resumable_resources": resumable_resources,
+                "resumable_resources_progress": resumable_resources_progress,
+            }
+        )
+
+
 def _map_lesson_classroom(item):
     return {
         "id": item.pop("collection__id"),
@@ -181,8 +278,15 @@ class LearnerLessonViewset(ReadOnlyValuesViewset):
     def get_queryset(self):
         if self.request.user.is_anonymous():
             return Lesson.objects.none()
-        else:
-            return Lesson.objects.filter(
-                lesson_assignments__collection__membership__user=self.request.user,
-                is_active=True,
-            )
+        return Lesson.objects.filter(
+            lesson_assignments__collection__membership__user=self.request.user,
+            is_active=True,
+        )
+
+    def consolidate(self, items, queryset):
+        if not items:
+            return items
+
+        _consolidate_lessons_data(self.request, items)
+
+        return items

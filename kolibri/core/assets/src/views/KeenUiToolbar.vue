@@ -12,14 +12,17 @@
 
 <style lang="scss" scoped>
 
-  /deep/ .ui-toolbar__nav-icon {
-    margin-right: 27px;
-    margin-left: -5px;
-  }
-
   /deep/ .ui-toolbar__title {
     overflow: hidden;
     white-space: nowrap;
+  }
+
+  /deep/ .ui-toolbar__left {
+    margin-left: 16px;
+  }
+
+  .ui-toolbar {
+    padding: 0 16px;
   }
 
 </style>

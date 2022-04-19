@@ -124,14 +124,20 @@ function getObjectifiedValue(nodePropertyValue) {
   // If the value is not an object, then we'll make it into one to
   // have consistent data to work with (some will have an obj that
   // includes `context` key and value and some will have a string)
+  let message, context;
   if (nodePropertyValue.type !== 'ObjectExpression') {
-    return { message: nodePropertyValue.value };
+    message = nodePropertyValue.value;
+    context = '';
   } else {
     const contextNode = nodePropertyValue.properties.find(n => n.key.name === 'context');
     const messageNode = nodePropertyValue.properties.find(n => n.key.name === 'message');
 
-    const message = stringFromAnyLiteral(messageNode.value);
-    const context = stringFromAnyLiteral(contextNode.value);
+    message = stringFromAnyLiteral(messageNode.value);
+    try {
+      context = stringFromAnyLiteral(contextNode.value);
+    } catch (e) {
+      context = '';
+    }
 
     if (!message) {
       // This is mostly for dev debugging. If this happens then somethings wrong enough that
@@ -143,16 +149,18 @@ function getObjectifiedValue(nodePropertyValue) {
       );
       process.exit(1);
     }
-
-    return { message, context: `${CONTEXT_LINE}${context}` };
   }
+  return { message, context: `${CONTEXT_LINE}${context}` };
 }
 
 function getFileNameForImport(importPath, filePath) {
   const extensions = ['.js', '.vue'];
   const resolveAttempt = resolve(importPath, filePath, { extensions });
 
-  if (!resolveAttempt.found || !extensions.some(ext => resolveAttempt.path.endsWith(ext))) {
+  if (
+    !resolveAttempt.found ||
+    !extensions.some(ext => resolveAttempt.path && resolveAttempt.path.endsWith(ext))
+  ) {
     throw new ReferenceError(
       `Attempted to resolve an import in ${filePath} for module ${importPath} but could not be resolved as a Javascript or Vue file`
     );

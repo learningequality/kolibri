@@ -24,6 +24,7 @@ import six
 from django.db import connections
 
 from .conf import KOLIBRI_HOME
+from .conf import OPTIONS
 from kolibri.utils.android import on_android
 
 logger = logging.getLogger(__name__)
@@ -54,8 +55,7 @@ def _windows_pid_exists(pid):
     if process != 0:
         kernel32.CloseHandle(process)
         return True
-    else:
-        return False
+    return False
 
 
 buffering = int(six.PY3)  # No unbuffered text I/O on Python 3 (#20815).
@@ -171,7 +171,7 @@ def get_free_space(path=KOLIBRI_HOME):
         st = os.statvfs(os.path.realpath(path))
         result = st.f_bavail * st.f_frsize
 
-    return result
+    return max(result - OPTIONS["Deployment"]["MINIMUM_DISK_SPACE"], 0)
 
 
 _become_daemon_function = None
@@ -184,10 +184,32 @@ def become_daemon(**kwargs):
     _become_daemon_function(**kwargs)
 
 
-# Utility functions for pinging or killing PIDs
+def _posix_get_fd_limit():
+    """
+    Determines the File Descriptor (FD) limit
+    :return: int
+    """
+    import resource
+
+    fd_soft_limit, _ = resource.getrlimit(resource.RLIMIT_NOFILE)
+    return fd_soft_limit
+
+
+def _windows_get_fd_limit():
+    """
+    Determines the File Descriptor (FD) limit
+    :return: int
+    """
+    # TODO: "determine" it
+    return 512
+
+
+# Utility functions
 if os.name == "posix":
     pid_exists = _posix_pid_exists
+    get_fd_limit = _posix_get_fd_limit
     _become_daemon_function = _posix_become_daemon
 else:
     pid_exists = _windows_pid_exists
+    get_fd_limit = _windows_get_fd_limit
     _become_daemon_function = _windows_become_daemon

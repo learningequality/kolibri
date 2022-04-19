@@ -1,0 +1,54 @@
+name: Kolibri Build Assets for Pull Request
+
+on: pull_request
+
+jobs:
+  prnumber:
+    # The workflow_run event can't access the pull request
+    # information unless the pull request comes from a non-fork
+    # repository. Therefore to get the pull request information,
+    # we need to store it as a workflow artifact in this workflow.
+    # Implementation taken from:
+    # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#using-data-from-the-triggering-workflow
+    runs-on: ubuntu-latest
+    steps:
+      - name: Save PR number
+        env:
+          PR_NUMBER: ${{ github.event.number }}
+        run: |
+          mkdir -p ./pr
+          echo $PR_NUMBER > ./pr/pr_number
+      - uses: actions/upload-artifact@v3
+        with:
+          name: pr_number
+          path: pr/
+  whl:
+    name: Build WHL file
+    uses: ./.github/workflows/build_whl.yml
+  pex:
+    name: Build PEX file
+    needs: whl
+    uses: ./.github/workflows/build_pex.yml
+    with:
+      whl-file-name: ${{ needs.whl.outputs.whl-file-name }}
+  dmg:
+    name: Build DMG file
+    needs: whl
+    uses: learningequality/kolibri-app/.github/workflows/build_mac.yml@main
+    with:
+      whl-file-name: ${{ needs.whl.outputs.whl-file-name }}
+      ref: main
+  deb:
+    name: Build DEB file
+    needs: whl
+    uses: learningequality/kolibri-installer-debian/.github/workflows/build_deb.yml@master
+    with:
+      tar-file-name: ${{ needs.whl.outputs.tar-file-name }}
+      ref: master
+  exe:
+    name: Build EXE file
+    needs: whl
+    uses: learningequality/kolibri-installer-windows/.github/workflows/build_exe.yml@develop
+    with:
+      whl-file-name: ${{ needs.whl.outputs.whl-file-name }}
+      ref: develop

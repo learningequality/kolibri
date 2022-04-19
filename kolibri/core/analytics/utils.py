@@ -7,6 +7,7 @@ import math
 import sys
 
 import requests
+from dateutil import parser
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import connection
 from django.db import transaction
@@ -18,6 +19,7 @@ from django.db.models import Sum
 from django.utils.six.moves.urllib.parse import urljoin
 from django.utils.timezone import get_current_timezone
 from django.utils.timezone import localtime
+from le_utils.constants import content_kinds
 from morango.models import InstanceIDModel
 from requests.exceptions import ConnectionError
 from requests.exceptions import RequestException
@@ -41,11 +43,10 @@ from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
-from kolibri.core.logger.models import ExamAttemptLog
-from kolibri.core.logger.models import ExamLog
+from kolibri.core.logger.models import MasteryLog
 from kolibri.core.logger.models import UserSessionLog
 from kolibri.core.tasks.decorators import register_task
-from kolibri.core.tasks.main import scheduler
+from kolibri.core.tasks.main import job_storage
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.utils.lock import db_lock
 from kolibri.utils import conf
@@ -72,6 +73,15 @@ facility_settings = [
     "show_download_button_in_learn",
     "registered",
 ]
+
+if sys.version_info[0] >= 3:
+    # encodestring is a deprecated alias for
+    # encodebytes, which was finally removed
+    # in Python 3.9
+    encodestring = base64.encodebytes
+else:
+    # encodebytes does not exist in Python 2.7
+    encodestring = base64.encodestring
 
 
 def calculate_list_stats(data):
@@ -232,17 +242,8 @@ def extract_facility_statistics(facility):
         dataset_id=dataset_id, learners=False
     )
 
-    if sys.version_info[0] >= 3:
-        # encodestring is a deprecated alias for
-        # encodebytes, which was finally removed
-        # in Python 3.9
-        encodestring = base64.encodebytes
-    else:
-        # encodebytes does not exist in Python 2.7
-        encodestring = base64.encodestring
-
     # fmt: off
-    return {
+    data = {
         # facility_id
         "fi": encodestring(hashlib.md5(facility.id.encode()).digest())[:10].decode(),
         # settings
@@ -280,11 +281,11 @@ def extract_facility_statistics(facility):
         # exam_count
         "ec": Exam.objects.filter(dataset_id=dataset_id).count(),
         # exam_log_count
-        "elc": ExamLog.objects.filter(dataset_id=dataset_id).count(),
+        "elc": MasteryLog.objects.filter(dataset_id=dataset_id, summarylog__kind=content_kinds.QUIZ).count(),
         # att_log_count
-        "alc": AttemptLog.objects.filter(dataset_id=dataset_id).count(),
+        "alc": AttemptLog.objects.filter(dataset_id=dataset_id).exclude(sessionlog__kind=content_kinds.QUIZ).count(),
         # exam_att_log_count
-        "ealc": ExamAttemptLog.objects.filter(dataset_id=dataset_id).count(),
+        "ealc": AttemptLog.objects.filter(dataset_id=dataset_id, sessionlog__kind=content_kinds.QUIZ).count(),
         # sess_user_count
         "suc": contsessions_user.count(),
         # sess_anon_count
@@ -301,6 +302,16 @@ def extract_facility_statistics(facility):
         "dsnl": non_learner_demographics,
     }
     # fmt: on
+
+    # conditionally calculate and add soud_hash
+    if get_device_setting("subset_of_users_device", False):
+        user_ids = ":".join(
+            facility.facilityuser_set.order_by("id").values_list("id", flat=True)
+        )
+        # soud_hash
+        data["sh"] = encodestring(hashlib.md5(user_ids.encode()).digest())[:10].decode()
+
+    return data
 
 
 def extract_channel_statistics(channel):
@@ -360,7 +371,11 @@ def extract_channel_statistics(channel):
         "pi": [item["content_id"][:10] for item in pop],
         # popular_counts
         "pc": [item["count"] for item in pop],
-        # storage calculated by the MB
+        # job_storage calculated by the MB
+        # rtibbles: This is the one remaining instance of non-SI bytes units calculations that
+        # I have discovered still extant in Kolibri. As this is being used for statistics reporting
+        # I have not updated it to use SI units as with all other instances, as that would
+        # produce undesirable inconsistencies in reported statistics.
         "s": (localfiles.aggregate(Sum("file_size"))["file_size__sum"] or 0) / (2 ** 20),
         # summ_started
         "ss": summarylogs.count(),
@@ -423,6 +438,8 @@ def perform_ping(started, server=DEFAULT_SERVER_URL):
 
     language = get_device_setting("language_id", "")
 
+    started = parser.isoparse(started)
+
     try:
         timezone = get_current_timezone().zone
     except Exception:
@@ -432,6 +449,7 @@ def perform_ping(started, server=DEFAULT_SERVER_URL):
         "instance_id": instance.id,
         "version": kolibri.__version__,
         "mode": conf.OPTIONS["Deployment"]["RUN_MODE"],
+        "project": conf.OPTIONS["Deployment"]["PROJECT"],
         "platform": instance.platform,
         "sysversion": instance.sysversion,
         "database_id": instance.database.id,
@@ -496,8 +514,8 @@ def _ping(started, server, checkrate):
         )
     connection.close()
     job = get_current_job()
-    if job and job in scheduler:
-        scheduler.change_execution_time(
+    if job and job in job_storage:
+        job_storage.change_execution_time(
             job, local_now() + datetime.timedelta(seconds=checkrate * 60)
         )
 
@@ -509,9 +527,11 @@ def schedule_ping(
 ):
     # If pinging is not disabled by the environment
     if not conf.OPTIONS["Deployment"]["DISABLE_PING"]:
-        started = local_now()
+        # Scheduler needs datetime object, but job needs (serializable) string
+        now = local_now()
+        started = now.isoformat()
         _ping.enqueue_at(
-            started,
+            now,
             interval=interval * 60,
             repeat=None,
             kwargs=dict(started=started, server=server, checkrate=checkrate),

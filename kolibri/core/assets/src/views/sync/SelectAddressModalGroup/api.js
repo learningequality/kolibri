@@ -27,6 +27,26 @@ function channelIsAvailableAtLocation(channelId, location) {
     });
 }
 
+function versionCompare(version) {
+  //check if version is >= 0.15.0
+  const v = version.split('.');
+  if (v.length < 2) return false;
+  const mayor = parseInt(v[0]);
+  const minor = parseInt(v[1]);
+  if (!(!isNaN(mayor) && !isNaN(minor))) return false;
+  if (mayor > 0) return true;
+  if (minor >= 15) return true;
+  return false;
+}
+
+function fetchAddressesForLOD(LocationResource = NetworkLocationResource) {
+  return LocationResource.fetchCollection({ force: true }).then(locations => {
+    return locations.filter(
+      location => !location['subset_of_users_device'] && versionCompare(location.kolibri_version)
+    );
+  });
+}
+
 function fetchAddressesWithChannel(withChannelId = '', LocationResource = NetworkLocationResource) {
   return LocationResource.fetchCollection({ force: true }).then(locations => {
     // If channelId is provided, then we are in an 'import-more' workflow and disable
@@ -63,7 +83,10 @@ function facilityIsAvailableAtLocation(facilityId, location) {
 }
 
 function fetchAddressesWithFacility(facilityId = '', LocationResource = NetworkLocationResource) {
-  return LocationResource.fetchCollection({ force: true }).then(locations => {
+  return LocationResource.fetchCollection({
+    force: true,
+    getParams: { subset_of_users_device: false },
+  }).then(locations => {
     if (facilityId !== '') {
       const locationsWithAvailabilityPromises = locations.map(location => {
         // Need to wrap in normal promise, otherwise Promise.all will cause some of these
@@ -89,6 +112,8 @@ export function fetchStaticAddresses(args) {
     return fetchAddressesWithChannel(args.channelId, StaticNetworkLocationResource);
   } else if (has(args, 'facilityId')) {
     return fetchAddressesWithFacility(args.facilityId, StaticNetworkLocationResource);
+  } else if (has(args, 'lod')) {
+    return []; // Only devices discovered in the local network can be used
   } else {
     // As a default, just show any online location
     return fetchAddressesWithFacility('', StaticNetworkLocationResource);
@@ -100,6 +125,8 @@ export function fetchDynamicAddresses(args) {
     return fetchAddressesWithChannel(args.channelId, DynamicNetworkLocationResource);
   } else if (has(args, 'facilityId')) {
     return fetchAddressesWithFacility(args.facilityId, DynamicNetworkLocationResource);
+  } else if (has(args, 'lod')) {
+    return fetchAddressesForLOD(DynamicNetworkLocationResource);
   } else {
     // As a default, just show any online location
     return fetchAddressesWithFacility('', DynamicNetworkLocationResource);

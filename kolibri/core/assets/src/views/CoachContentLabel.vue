@@ -2,11 +2,11 @@
 
   <KLabeledIcon
     v-if="value > 0"
-    ref="something"
     :style="{ color: $themeTokens.coachContent }"
   >
     <template #icon>
       <KIcon
+        ref="something"
         icon="coach"
         :color="$themeTokens.coachContent"
       />
@@ -17,8 +17,7 @@
 
     <KTooltip
       reference="something"
-      placement="top"
-      style="position: relative;"
+      placement="bottom"
       :refs="$refs"
     >
       {{ titleText }}
@@ -60,7 +59,9 @@
       topicTitle: {
         message:
           'Contains {count, number, integer} {count, plural, one {coach resource} other {coach resources}}',
-        context: "You only need to translate the word 'Contains' here.",
+
+        context:
+          "For example, \"Contains 4 coach resources\".\n\nYou only need to translate the word 'Contains' and 'coach resource/coach resources' here.",
       },
     },
   };

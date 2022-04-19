@@ -1,4 +1,19 @@
 {
-  "CommonLearnStrings.learnLabel": "Học",
-  "CommonLearnStrings.recommendedLabel": "Đề nghị"
+  "CommonLearnStrings.dontShowThisAgainLabel": "Không hiển thị lại phần này",
+  "CommonLearnStrings.exploreResources": "Khám phá tài liệu",
+  "CommonLearnStrings.learnLabel": "Học tập",
+  "CommonLearnStrings.libraryLabel": "Thư viện",
+  "CommonLearnStrings.logo": "Từ kênh {channelTitle}",
+  "CommonLearnStrings.markResourceAsCompleteLabel": "Đánh dấu tài liệu đã hoàn thành",
+  "CommonLearnStrings.mostPopularLabel": "Phổ biến nhất",
+  "CommonLearnStrings.multipleLearningActivities": "Nhiều hoạt động học tập",
+  "CommonLearnStrings.multipleLearningActivitiesLabel": "Nhiều hoạt động học tập",
+  "CommonLearnStrings.nextStepsLabel": "Bước tiếp theo",
+  "CommonLearnStrings.popularLabel": "Phổ biến",
+  "CommonLearnStrings.quizLabel": "Bài kiểm tra",
+  "CommonLearnStrings.resourceCompletedLabel": "Đã hoàn thành tài nguyên",
+  "CommonLearnStrings.resourceHidden": "Tài liệu ẩn",
+  "CommonLearnStrings.resumeLabel": "Tiếp tục",
+  "CommonLearnStrings.suggestedTime": "",
+  "CommonLearnStrings.suggestedTimeToComplete": "Thời gian hoàn thành dự kiến"
 }

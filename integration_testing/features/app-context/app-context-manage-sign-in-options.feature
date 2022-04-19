@@ -20,7 +20,7 @@ Feature: Manage sign in options within app context
 		Given there is only one facility on the device
 			And I see *Sign into '<facility>'*
 		When I tap learner <learner> username
-		Then I see learner <learner> *Learn* page
+		Then I see learner <learner> *Learn > Home* page
 
 	Scenario: Require password for learner sign in
 		Given I am signed in to Kolibri as a super admin or a facility admin user
@@ -33,7 +33,7 @@ Feature: Manage sign in options within app context
 		Then I see another screen with a password input field
 		When I type learner <learner> password <password>
 			And I tap *Continue*
-		Then I see learner <learner> *Learn* page
+		Then I see learner <learner> *Learn > Home* page
 
 	Scenario: Sign in when password is required and more than 16 users in the facility
 		# create additional users for this scenario
@@ -46,7 +46,7 @@ Feature: Manage sign in options within app context
 		Then I see another screen with a password input field
 		When I type learner <learner> password <password>
 			And I tap *Continue*
-		Then I see learner <learner> *Learn* page
+		Then I see learner <learner> *Learn > Home* page
 
 	Scenario: Enable learners to sign in without password
 		Given I am signed in to Kolibri as a super admin or a facility admin user
@@ -59,7 +59,7 @@ Feature: Manage sign in options within app context
 		Then I see the sign in page with a username input field
 		When I type learner <learner> username
 			And I tap *Sign in*
-		Then I see learner <learner> *Learn* page
+		Then I see learner <learner> *Learn > Home* page
 
 	Scenario: Learner signs in directly by taping their username (multiple facilities)
 		Given there is more than one facility on the device
@@ -71,7 +71,7 @@ Feature: Manage sign in options within app context
 		When I tap the <facility> button
 		Then I see a list of all the usernames
 		When I tap learner <learner> username
-		Then I see learner <learner> *Learn* page
+		Then I see learner <learner> *Learn > Home* page
 
 	Scenario: Sign in when password is required and more than 16 users in the facility (multiple facilities)
 		Given there is more than one facility on the device
@@ -87,7 +87,7 @@ Feature: Manage sign in options within app context
 		Then I see the password input field
 		When I type learner <learner> password <password>
 			And I tap *Sign in*
-		Then I see learner <learner> *Learn* page
+		Then I see learner <learner> *Learn > Home* page
 
 	Scenario: Any subsequent session on Kolibri after first sign in (single facility; with password; less then 16 users)
 		Given the device has only one facility
@@ -101,7 +101,7 @@ Feature: Manage sign in options within app context
 			And I see the input field for entering my password
 			And I type my password
 			And I click on *Sign in*
-		Then I see my *Learn* page
+		Then I see my *Learn > Home* page
 
 	Scenario: Any subsequent session on Kolibri after first sign in (multiple facilities; with password; less then 16 users)
 		Given the device has multiple facilities
@@ -118,7 +118,7 @@ Feature: Manage sign in options within app context
 			And I see the input field for entering my password
 			And I type my password
 			And I click on *Sign in*
-		Then I see my *Learn* page
+		Then I see my *Learn > Home* page
 
 	Scenario: Facility name will not be displayed on the sign in page if there is only one facility on the device and the use context is personal
  		Given I have a Kolibri account

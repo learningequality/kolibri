@@ -48,8 +48,7 @@ class DeviceChannelMetadataSerializer(ChannelMetadataSerializer):
                     # count the total number of renderable non-topic resources in the channel
                     # (note: it's faster to count them all and then subtract the unrenderables, of which there are fewer)
                     value["total_resources"] = (
-                        channel_nodes.dedupe_by_content_id().count()
-                        - unrenderable_nodes.dedupe_by_content_id().count()
+                        channel_nodes.count() - unrenderable_nodes.count()
                     )
 
                 if "total_file_size" in include_fields:
@@ -125,7 +124,7 @@ class CalculateImportExportSizeView(APIView):
         try:
             (
                 total_resource_count,
-                files_to_download,
+                _,
                 total_bytes_to_transfer,
             ) = get_import_export_data(
                 channel_id,
@@ -169,8 +168,10 @@ class DeviceChannelOrderView(APIView):
     def post(self, request, *args, **kwargs):
         try:
             ids = request.data
-            assert isinstance(ids, list)
-            assert all(map(validate_uuid, ids))
+            if not isinstance(ids, list):
+                raise AssertionError
+            if not all(map(validate_uuid, ids)):
+                raise AssertionError
         except AssertionError:
             raise ParseError("Array of ids not sent in body of request")
         queryset = ChannelMetadata.objects.filter(root__available=True)

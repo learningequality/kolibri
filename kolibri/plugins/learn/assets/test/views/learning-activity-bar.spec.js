@@ -115,6 +115,23 @@ describe('LearningActivityBar', () => {
       });
     });
 
+    describe('when a bookmark icon is not shown', () => {
+      let wrapper;
+
+      beforeEach(() => {
+        wrapper = makeWrapper({
+          propsData: {
+            showBookmark: false,
+            learningActivities: [LearningActivities.WATCH],
+          },
+        });
+      });
+
+      it("doesn't show the add bookmark button in the bar", () => {
+        expect(wrapper.find("[data-test='bar_addBookmarkButton']").exists()).toBeFalsy();
+      });
+    });
+
     describe('when a resource is bookmarked', () => {
       let wrapper;
 
@@ -135,9 +152,9 @@ describe('LearningActivityBar', () => {
         expect(wrapper.find("[data-test='bar_removeBookmarkButton']").exists()).toBeTruthy();
       });
 
-      it('emits `toogleBookmark` event on the remove bookmark button click', () => {
+      it('emits `toggleBookmark` event on the remove bookmark button click', () => {
         wrapper.find("[data-test='bar_removeBookmarkButton']").trigger('click');
-        expect(wrapper.emitted().toogleBookmark.length).toBe(1);
+        expect(wrapper.emitted().toggleBookmark.length).toBe(1);
       });
     });
 
@@ -161,9 +178,9 @@ describe('LearningActivityBar', () => {
         expect(wrapper.find("[data-test='bar_addBookmarkButton']").exists()).toBeTruthy();
       });
 
-      it('emits `toogleBookmark` event on the add bookmark button click', () => {
+      it('emits `toggleBookmark` event on the add bookmark button click', () => {
         wrapper.find("[data-test='bar_addBookmarkButton']").trigger('click');
-        expect(wrapper.emitted().toogleBookmark.length).toBe(1);
+        expect(wrapper.emitted().toggleBookmark.length).toBe(1);
       });
     });
 

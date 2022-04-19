@@ -1,9 +1,5 @@
-from kolibri.core.tasks.exceptions import JobNotRestartable
-from kolibri.core.tasks.job import Job
-from kolibri.core.tasks.job import State
+from kolibri.core.tasks.constants import DEFAULT_QUEUE
 from kolibri.core.tasks.storage import Storage
-
-DEFAULT_QUEUE = "ICEQUBE_DEFAULT_QUEUE"
 
 
 class Queue(object):
@@ -45,8 +41,8 @@ class Queue(object):
         "check_for_cancel" parameter is passed in. When called, it raises an error when the user has requested a job
         to be cancelled.
 
-        The caller can also pass in any pickleable object into the "extra_metadata" parameter. This data is stored
-        within the job and can be retrieved when the job status is queried.
+        The caller can also pass in any json-serializable object into the "extra_metadata" parameter. This data is
+        stored within the job and can be retrieved when the job status is queried.
 
         All other parameters are directly passed to the function when it starts running.
 
@@ -55,34 +51,10 @@ class Queue(object):
         :return: a string representing the job_id.
         """
 
-        # if the func is already a job object, just schedule that directly.
-        if isinstance(func, Job):
-            job = func
-        # else, turn it into a job first.
-        else:
-            job = Job(func, *args, **kwargs)
-
-        job_id = self.storage.enqueue_job(job, self.name)
+        job_id = self.storage.enqueue_job(
+            func, queue=self.name, args=args, kwargs=kwargs
+        )
         return job_id
-
-    def restart_job(self, job_id):
-        """
-        Given a job_id, restart the job for that id. A job will only be restarted if
-        in CANCELED or FAILED state.
-
-        This first clears the job then creates a new job with the same job_id as
-        the cleared one.
-        """
-        old_job = self.fetch_job(job_id)
-        if old_job.state in [State.CANCELED, State.FAILED]:
-            self.clear_job(job_id)
-            job = Job(old_job)
-            job.job_id = job_id
-            return self.enqueue(job)
-        else:
-            raise JobNotRestartable(
-                "Cannot restart job with state={}".format(old_job.state)
-            )
 
     def cancel(self, job_id):
         """

@@ -205,7 +205,15 @@
         }
       },
     },
+    destroyed() {
+      // Reset the overflow on the HTML tag that we set to hidden in created()
+      window.document.getElementsByTagName('html')[0].style.overflow = 'auto';
+    },
     created() {
+      // Override, only on this component, the overflow style of the HTML tag
+      // so that PDFRenderer can scroll itself.
+      window.document.getElementsByTagName('html')[0].style.overflow = 'hidden';
+
       this.currentLocation = this.savedLocation;
       this.showControls = true; // Ensures it shows on load even if we're scrolled
       const loadPdfPromise = PDFJSLib.getDocument(this.defaultFile.storage_url);
@@ -230,7 +238,8 @@
         return this.getPage(firstPageToRender + 1).then(firstPage => {
           this.firstPageHeight = firstPage.view[3];
           this.firstPageWidth = firstPage.view[2];
-          this.scale = this.elementWidth / (this.firstPageWidth + MARGIN);
+          const screenSizeMultiplier = this.windowIsLarge ? 1.25 : this.windowIsSmall ? 1 : 1.125;
+          this.scale = this.elementWidth / (this.firstPageWidth * screenSizeMultiplier);
           // Set the firstPageToRender into the pdfPages object so that we do not refetch the page
           // from PDFJS when we do our initial render
           // splice so changes are detected
@@ -251,6 +260,8 @@
         }
         this.$emit('startTracking');
         this.updateContentStateInterval = setInterval(this.updateProgress, 30000);
+        // Even if user does not pause while scrolling on first page, we store that as visited
+        this.storeVisitedPage(1);
       });
     },
     beforeDestroy() {
@@ -314,8 +325,9 @@
           // TODO: there is a miscalculation that causes a wrong position change on scale
           this.savePosition(this.calculatePosition());
 
-          // determine how many pages user has viewed/visited
-          let currentPage = parseInt(this.currentLocation * this.totalPages) + 1;
+          // determine how many pages user has viewed/visited; fix edge case of 2 pages
+          let currentPage =
+            this.totalPages === 2 ? 2 : parseInt(this.currentLocation * this.totalPages) + 1;
           this.storeVisitedPage(currentPage);
           this.updateProgress();
           this.updateContentState();
@@ -407,22 +419,23 @@
 
   @import '~kolibri-design-system/lib/styles/definitions';
   $controls-height: 40px;
+  $top-bar-height: 32px;
+
   .pdf-renderer {
     @extend %momentum-scroll;
     @extend %dropshadow-2dp;
 
     position: relative;
-    height: 500px;
-    // This ensures that showing vs hiding the controls
-    // will not cover visible content below (ie, author name)
-    margin-bottom: $controls-height;
+    height: calc(100vh - #{$top-bar-height} - #{$controls-height} + 16px);
     overflow-y: hidden;
   }
+
   .controls {
     position: relative;
     z-index: 0; // Hide icons with transition
     margin: 0 4px;
   }
+
   .progress-bar {
     top: 50%;
     max-width: 200px;
@@ -434,33 +447,39 @@
       overflow-x: auto;
     }
   }
+
   .fullscreen-button {
     margin: 0;
+
     svg {
       position: relative;
       top: 8px;
     }
   }
+
   .fullscreen-header {
     position: absolute;
     top: 0;
     right: 0;
     left: 0;
-    z-index: 24;
+    z-index: 7;
     display: flex;
     justify-content: flex-end;
     height: $controls-height;
   }
+
   .slide-enter-active {
     @extend %md-accelerate-func;
 
     transition: all 0.3s;
   }
+
   .slide-leave-active {
     @extend %md-decelerate-func;
 
     transition: all 0.3s;
   }
+
   .slide-enter,
   .slide-leave-to {
     transform: translateY(-40px);

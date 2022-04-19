@@ -1,9 +1,11 @@
 import copy
+import json
 import logging
 import traceback
 import uuid
 
 from django.db import connection as django_connection
+from six import string_types
 
 from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.core.tasks.utils import current_state_tracker
@@ -11,6 +13,9 @@ from kolibri.core.tasks.utils import import_stringified_func
 from kolibri.core.tasks.utils import stringify_func
 
 logger = logging.getLogger(__name__)
+
+
+DEFAULT_QUEUE = "ICEQUBE_DEFAULT_QUEUE"
 
 
 class JobRegistry(object):
@@ -73,7 +78,7 @@ class State(object):
 
 class Priority(object):
     """
-    This class defines the priority levels and their corresponding string values.
+    This class defines the priority levels and their corresponding integer values.
 
     REGULAR priority is for tasks that can wait for some time before it actually
     starts executing. Tasks that are tracked on task manager should use this priority.
@@ -83,8 +88,11 @@ class Priority(object):
     channel metadata.
     """
 
-    REGULAR = "REGULAR"
-    HIGH = "HIGH"
+    REGULAR = 10
+    HIGH = 5
+
+    # A set of all valid priorities
+    Priorities = {HIGH, REGULAR}
 
 
 def execute_job(job_id, db_type, db_url):
@@ -108,16 +116,18 @@ def execute_job(job_id, db_type, db_url):
     args, kwargs = copy.copy(job.args), copy.copy(job.kwargs)
 
     try:
+        # First check whether the job has been cancelled
+        job.check_for_cancel()
         result = func(*args, **kwargs)
+        storage.complete_job(job_id, result=result)
+    except UserCancelledError:
+        storage.mark_job_as_canceled(job_id)
     except Exception as e:
-        # If any error occurs, clear the job tracker and reraise
-        setattr(current_state_tracker, "job", None)
+        # If any error occurs, mark the job as failed and save the exception
         traceback_str = traceback.format_exc()
         e.traceback = traceback_str
-        connection.dispose()
-        # Close any django connections opened here
-        django_connection.close()
-        raise
+        logger.error("Job {} raised an exception: {}".format(job_id, traceback_str))
+        storage.mark_job_as_failed(job_id, e, traceback_str)
 
     setattr(current_state_tracker, "job", None)
 
@@ -125,8 +135,6 @@ def execute_job(job_id, db_type, db_url):
 
     # Close any django connections opened here
     django_connection.close()
-
-    return result
 
 
 class Job(object):
@@ -137,12 +145,19 @@ class Job(object):
     to the workers.
     """
 
-    def __getstate__(self):
+    def to_json(self):
+        """
+        Creates and returns a JSON-serialized string representing this Job.
+        This is how Job objects are persisted through restarts.
+        This storage method is why task exceptions are stored as strings.
+        """
+
         keys = [
             "job_id",
+            "job_facility_id",
             "state",
-            "traceback",
             "exception",
+            "traceback",
             "track_progress",
             "cancellable",
             "extra_metadata",
@@ -153,7 +168,32 @@ class Job(object):
             "func",
             "result",
         ]
-        return {key: self.__dict__[key] for key in keys}
+
+        working_dictionary = {
+            key: self.__dict__[key] for key in keys if key in self.__dict__
+        }
+
+        try:
+            string_result = json.dumps(working_dictionary)
+        except TypeError as e:
+            # A Job's arguments, results, or metadata are prime suspects for
+            # what might cause this error.
+            raise TypeError(
+                "Job objects need to be JSON-serializable: {}".format(str(e))
+            )
+        return string_result
+
+    @classmethod
+    def from_json(cls, json_string):
+        working_dictionary = json.loads(json_string)
+
+        # func is required for a Job so it will always be in working_dictionary
+        func = working_dictionary.pop("func")
+        args = working_dictionary.pop("args", ())
+        kwargs = working_dictionary.pop("kwargs", {})
+        working_dictionary.update(kwargs)
+
+        return Job(func, *args, **working_dictionary)
 
     def __init__(self, func, *args, **kwargs):
         """
@@ -170,8 +210,9 @@ class Job(object):
             kwargs["track_progress"] = func.track_progress
             kwargs["cancellable"] = func.cancellable
             kwargs["extra_metadata"] = func.extra_metadata.copy()
+            kwargs["job_facility_id"] = func.job_facility_id
             func = func.func
-        elif not callable(func) and not isinstance(func, str):
+        elif not callable(func) and not isinstance(func, string_types):
             raise TypeError(
                 "Cannot create Job for object of type {}".format(type(func))
             )
@@ -180,18 +221,23 @@ class Job(object):
         if job_id is None:
             job_id = uuid.uuid4().hex
 
+        exc = kwargs.pop("exception", None)
+        if isinstance(exc, Exception):
+            exc = type(exc).__name__
+
         self.job_id = job_id
+        self.job_facility_id = kwargs.pop("job_facility_id", None)
         self.state = kwargs.pop("state", State.PENDING)
-        self.traceback = ""
-        self.exception = None
+        self.exception = exc
+        self.traceback = kwargs.pop("traceback", "")
         self.track_progress = kwargs.pop("track_progress", False)
         self.cancellable = kwargs.pop("cancellable", False)
         self.extra_metadata = kwargs.pop("extra_metadata", {})
-        self.progress = 0
-        self.total_progress = 0
+        self.progress = kwargs.pop("progress", 0)
+        self.total_progress = kwargs.pop("total_progress", 0)
+        self.result = kwargs.pop("result", None)
         self.args = args
         self.kwargs = kwargs
-        self.result = None
         self.storage = None
         self.func = stringify_func(func)
 
@@ -208,6 +254,8 @@ class Job(object):
                 raise ReferenceError(
                     "storage is not defined on this job, cannot update progress"
                 )
+            self.progress = progress
+            self.total_progress = total_progress
             self.storage.update_job_progress(self.job_id, progress, total_progress)
 
     def check_for_cancel(self):
@@ -227,6 +275,7 @@ class Job(object):
             raise ReferenceError(
                 "storage is not defined on this job, cannot save as cancellable"
             )
+        self.cancellable = cancellable
         self.storage.save_job_as_cancellable(self.job_id, cancellable=cancellable)
 
     @property
@@ -240,8 +289,7 @@ class Job(object):
 
         if self.total_progress != 0:
             return float(self.progress) / self.total_progress
-        else:
-            return self.progress
+        return self.progress
 
     def __repr__(self):
         return (
@@ -262,7 +310,7 @@ class RegisteredJob(object):
 
     For example, if `add` is registered as:
 
-        @register_task(priority="high", cancellable=True)
+        @register_task(priority=Priority.HIGH, cancellable=True)
         def add(x, y):
             return x + y
 
@@ -277,27 +325,35 @@ class RegisteredJob(object):
     def __init__(
         self,
         func,
+        job_id=None,
+        queue=DEFAULT_QUEUE,
         validator=None,
         priority=Priority.REGULAR,
-        permission_classes=[],
-        **kwargs
+        cancellable=False,
+        track_progress=False,
+        permission_classes=None,
     ):
+        if permission_classes is None:
+            permission_classes = []
         if validator is not None and not callable(validator):
             raise TypeError("Can't assign validator of type {}".format(type(validator)))
-        elif priority.upper() not in [Priority.REGULAR, Priority.HIGH]:
-            raise ValueError("priority must be one of 'regular' or 'high'.")
-        elif not isinstance(permission_classes, list):
+        if priority not in Priority.Priorities:
+            raise ValueError("priority must be one of '5' or '10' (integer).")
+        if not isinstance(permission_classes, list):
             raise TypeError("permission_classes must be of list type.")
+        if not isinstance(queue, string_types):
+            raise TypeError("queue must be of string type.")
 
         self.func = func
         self.validator = validator
-        self.priority = priority.upper()
+        self.priority = priority
+        self.queue = queue
 
         self.permissions = [perm() for perm in permission_classes]
 
-        self.job_id = kwargs.pop("job_id", None)
-        self.cancellable = kwargs.pop("cancellable", False)
-        self.track_progress = kwargs.pop("track_progress", False)
+        self.job_id = job_id
+        self.cancellable = cancellable
+        self.track_progress = track_progress
 
     def enqueue(self, *args, **kwargs):
         """
@@ -305,13 +361,14 @@ class RegisteredJob(object):
 
         :return: enqueued job's id.
         """
-        from kolibri.core.tasks.main import PRIORITY_TO_QUEUE_MAP
+        from kolibri.core.tasks.main import job_storage
 
         job_obj = self._ready_job(*args, **kwargs)
-        queue = PRIORITY_TO_QUEUE_MAP[self.priority]
-        return queue.enqueue(func=job_obj)
+        return job_storage.enqueue_job(
+            job_obj, queue=self.queue, priority=self.priority
+        )
 
-    def enqueue_in(self, delta_time, interval=0, repeat=0, args=(), kwargs={}):
+    def enqueue_in(self, delta_time, interval=0, repeat=0, args=(), kwargs=None):
         """
         Schedule the function to get enqueued in `delta_time` with args and
         kwargs as its positional and keyword arguments.
@@ -321,17 +378,21 @@ class RegisteredJob(object):
 
         :return: scheduled job's id.
         """
-        from kolibri.core.tasks.main import scheduler
+        if kwargs is None:
+            kwargs = {}
+        from kolibri.core.tasks.main import job_storage
 
         job_obj = self._ready_job(*args, **kwargs)
-        return scheduler.enqueue_in(
-            func=job_obj,
-            delta_t=delta_time,
+        return job_storage.enqueue_in(
+            delta_time,
+            job_obj,
+            queue=self.queue,
+            priority=self.priority,
             interval=interval,
             repeat=repeat,
         )
 
-    def enqueue_at(self, datetime, interval=0, repeat=0, args=(), kwargs={}):
+    def enqueue_at(self, datetime, interval=0, repeat=0, args=(), kwargs=None):
         """
         Schedule the function to get enqueued at a specific `datetime` with
         args and kwargs as its positional and keyword arguments.
@@ -341,12 +402,16 @@ class RegisteredJob(object):
 
         :return: scheduled job's id.
         """
-        from kolibri.core.tasks.main import scheduler
+        if kwargs is None:
+            kwargs = {}
+        from kolibri.core.tasks.main import job_storage
 
         job_obj = self._ready_job(*args, **kwargs)
-        return scheduler.enqueue_at(
-            func=job_obj,
-            dt=datetime,
+        return job_storage.enqueue_at(
+            datetime,
+            job_obj,
+            queue=self.queue,
+            priority=self.priority,
             interval=interval,
             repeat=repeat,
         )
@@ -358,9 +423,9 @@ class RegisteredJob(object):
         job_obj = Job(
             self.func,
             *args,
-            job_id=self.job_id,
-            cancellable=self.cancellable,
-            track_progress=self.track_progress,
+            job_id=kwargs.pop("job_id", self.job_id),
+            cancellable=kwargs.pop("cancellable", self.cancellable),
+            track_progress=kwargs.pop("track_progress", self.track_progress),
             **kwargs
         )
         return job_obj

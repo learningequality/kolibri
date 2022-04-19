@@ -11,6 +11,7 @@ import logging
 import os
 import shutil
 import sys
+import tempfile
 import zipfile
 
 import click
@@ -123,9 +124,9 @@ def crowdin_files(branch, details):
     if no_crowdin_branch(branch, details):
         return set()
     branch_node = next(node for node in details["files"] if node["name"] == branch)
-    return set(
+    return {
         node["name"] for node in branch_node["files"] if node["node_type"] == "file"
-    )
+    }
 
 
 def is_string_file(file_name):
@@ -285,13 +286,6 @@ Download translations
 """
 
 
-def _wipe_translations(locale_path):
-    for file_name in os.listdir(locale_path):
-        target = os.path.join(locale_path, file_name)
-        if file_name != "en" and os.path.isdir(target):
-            shutil.rmtree(target)
-
-
 @click.command(cls=CrowdinCommand)
 @branch_argument
 @locale_data_folder_option
@@ -301,32 +295,34 @@ def download_translations(branch, project, key, login, locale_data_folder):
     """
     logging.info("Crowdin: downloading '{}'...".format(branch))
 
-    # delete previous files
-    _wipe_translations(locale_data_folder)
-
     DOWNLOAD_URL = CROWDIN_API_URL.format(
         proj=project,
         key=key,
         username=login,
         cmd="download/all.zip",
-        params="&branch={branch}&language={language}",
+        params="&branch={branch}".format(branch=branch),
     )
 
-    csv_dir_path = utils.local_locale_csv_path(locale_data_folder)
+    zip_dir = tempfile.mkdtemp()
+
+    r = requests.get(DOWNLOAD_URL)
+    r.raise_for_status()
+    z = zipfile.ZipFile(io.BytesIO(r.content))
+    z.extractall(zip_dir)
+
     for lang_object in utils.available_languages(include_in_context=True):
         code = lang_object[utils.KEY_CROWDIN_CODE]
-        url = DOWNLOAD_URL.format(language=code, branch=branch)
-        r = requests.get(url)
-        r.raise_for_status()
-        z = zipfile.ZipFile(io.BytesIO(r.content))
-        logging.info("\tExtracting {} to {}".format(code, csv_dir_path))
-        z.extractall(csv_dir_path)
-        csv_locale_dir_path = os.path.join(csv_dir_path, lang_object["crowdin_code"])
-        po_file = os.path.join(csv_locale_dir_path, "django.po")
-        if os.path.exists(po_file):
-            shutil.move(
-                po_file, utils.local_locale_path(lang_object, locale_data_folder)
-            )
+        locale_dir_path = utils.local_locale_path(lang_object, locale_data_folder)
+        logging.info("\tExtracting {} to {}".format(code, locale_dir_path))
+        MESSAGES = os.path.join(zip_dir, code)
+        if os.path.exists(MESSAGES):
+            for msg_file in os.listdir(MESSAGES):
+                shutil.move(
+                    os.path.join(MESSAGES, msg_file),
+                    os.path.join(locale_dir_path, msg_file),
+                )
+
+    shutil.rmtree(zip_dir, ignore_errors=True)
 
     logging.info("Crowdin: download succeeded!")
 
@@ -386,7 +382,7 @@ Upload source files
 
 def _source_upload_ref(file_name, locale_data_folder):
     file_pointer = open(
-        os.path.join(utils.local_locale_csv_source_path(locale_data_folder), file_name),
+        os.path.join(utils.local_locale_source_path(locale_data_folder), file_name),
         "rb",
     )
     return ("files[{0}]".format(file_name), file_pointer)
@@ -435,13 +431,11 @@ def upload_sources(branch, project, key, login, locale_data_folder):
         r = requests.post(ADD_BRANCH_URL)
         r.raise_for_status()
 
-    source_files = set(
+    source_files = {
         file_name
-        for file_name in os.listdir(
-            utils.local_locale_csv_source_path(locale_data_folder)
-        )
+        for file_name in os.listdir(utils.local_locale_source_path(locale_data_folder))
         if is_string_file(file_name)
-    )
+    }
 
     current_files = crowdin_files(branch, details)
     to_add = source_files.difference(current_files)
@@ -470,7 +464,7 @@ def upload_sources(branch, project, key, login, locale_data_folder):
                 branch=branch
             ),
         )
-        _modify(UPDATE_SOURCE_URL, to_update)
+        _modify(UPDATE_SOURCE_URL, to_update, locale_data_folder)
 
     logging.info("Crowdin: source file upload succeeded!")
 

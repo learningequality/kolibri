@@ -1,104 +1,109 @@
 <template>
 
-  <KPageContainer v-if="!loading" class="narrow-container">
+  <ImmersivePageRoot
+    :route="this.$store.getters.facilityPageLinks.UserPage"
+    :appBarTitle="coreString('usersLabel')"
+  >
+    <KPageContainer v-if="!loading" class="narrow-container">
 
-    <form class="form" @submit.prevent="submitForm">
-      <h1>
-        {{ $tr('createNewUserHeader') }}
-      </h1>
+      <form class="form" @submit.prevent="submitForm">
+        <h1>
+          {{ $tr('createNewUserHeader') }}
+        </h1>
 
-      <section>
-        <FullNameTextbox
-          ref="fullNameTextbox"
-          :autofocus="true"
-          :disabled="busy"
-          :value.sync="fullName"
-          :isValid.sync="fullNameValid"
-          :shouldValidate="formSubmitted"
-        />
-
-        <UsernameTextbox
-          ref="usernameTextbox"
-          :disabled="busy"
-          :value.sync="username"
-          :isValid.sync="usernameValid"
-          :shouldValidate="formSubmitted"
-          :isUniqueValidator="usernameIsUnique"
-          :errors.sync="caughtErrors"
-        />
-        <template v-if="showPasswordInput">
-          <PasswordTextbox
-            ref="passwordTextbox"
+        <section>
+          <FullNameTextbox
+            ref="fullNameTextbox"
+            :autofocus="true"
             :disabled="busy"
-            :value.sync="password"
-            :isValid.sync="passwordValid"
+            :value.sync="fullName"
+            :isValid.sync="fullNameValid"
             :shouldValidate="formSubmitted"
           />
-        </template>
-        <KSelect
-          v-model="kind"
-          class="select"
-          :disabled="busy"
-          :label="coreString('userTypeLabel')"
-          :options="userTypeOptions"
-        />
 
-        <fieldset v-if="coachIsSelected" class="coach-selector">
-          <KRadioButton
-            v-model="classCoachIsSelected"
+          <UsernameTextbox
+            ref="usernameTextbox"
             :disabled="busy"
-            :label="coreString('classCoachLabel')"
-            :description="$tr('classCoachDescription')"
-            :value="true"
+            :value.sync="username"
+            :isValid.sync="usernameValid"
+            :shouldValidate="formSubmitted"
+            :isUniqueValidator="usernameIsUnique"
+            :errors.sync="caughtErrors"
           />
-          <KRadioButton
-            v-model="classCoachIsSelected"
+          <template v-if="showPasswordInput">
+            <PasswordTextbox
+              ref="passwordTextbox"
+              :disabled="busy"
+              :value.sync="password"
+              :isValid.sync="passwordValid"
+              :shouldValidate="formSubmitted"
+            />
+          </template>
+          <KSelect
+            v-model="kind"
+            class="select"
             :disabled="busy"
-            :label="coreString('facilityCoachLabel')"
-            :description="$tr('facilityCoachDescription')"
-            :value="false"
+            :label="coreString('userTypeLabel')"
+            :options="userTypeOptions"
           />
-        </fieldset>
 
-        <IdentifierTextbox
-          :value.sync="idNumber"
-          :disabled="busy"
-        />
+          <fieldset v-if="coachIsSelected" class="coach-selector">
+            <KRadioButton
+              v-model="classCoachIsSelected"
+              :disabled="busy"
+              :label="coreString('classCoachLabel')"
+              :description="coreString('classCoachDescription')"
+              :value="true"
+            />
+            <KRadioButton
+              v-model="classCoachIsSelected"
+              :disabled="busy"
+              :label="coreString('facilityCoachLabel')"
+              :description="coreString('facilityCoachDescription')"
+              :value="false"
+            />
+          </fieldset>
 
-        <BirthYearSelect
-          :value.sync="birthYear"
-          :disabled="busy"
-          class="select"
-        />
-
-        <GenderSelect
-          :value.sync="gender"
-          :disabled="busy"
-          class="select"
-        />
-
-      </section>
-
-      <div class="buttons">
-        <KButtonGroup style="margin-top: 8px;">
-          <KButton
-            type="submit"
-            :text="coreString('saveAction')"
+          <IdentifierTextbox
+            :value.sync="idNumber"
             :disabled="busy"
-
-            :primary="true"
           />
-          <KButton
-            :text="coreString('cancelAction')"
+
+          <BirthYearSelect
+            :value.sync="birthYear"
             :disabled="busy"
-
-            @click="goToUserManagementPage()"
+            class="select"
           />
-        </KButtonGroup>
-      </div>
 
-    </form>
-  </KPageContainer>
+          <GenderSelect
+            :value.sync="gender"
+            :disabled="busy"
+            class="select"
+          />
+
+        </section>
+
+        <div class="buttons">
+          <KButtonGroup style="margin-top: 8px;">
+            <KButton
+              type="submit"
+              :text="coreString('saveAction')"
+              :disabled="busy"
+
+              :primary="true"
+            />
+            <KButton
+              :text="coreString('cancelAction')"
+              :disabled="busy"
+
+              @click="goToUserManagementPage()"
+            />
+          </KButtonGroup>
+        </div>
+
+      </form>
+    </KPageContainer>
+  </ImmersivePageRoot>
 
 </template>
 
@@ -116,6 +121,7 @@
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import IdentifierTextbox from './IdentifierTextbox';
+  import ImmersivePageRoot from './ImmersivePageRoot';
 
   const { NOT_SPECIFIED } = DemographicConstants;
 
@@ -133,6 +139,7 @@
       FullNameTextbox,
       PasswordTextbox,
       IdentifierTextbox,
+      ImmersivePageRoot,
     },
     mixins: [commonCoreStrings],
     data() {
@@ -275,14 +282,6 @@
         message: 'Create new user',
         context:
           "Refers to the window accessed via the 'New user' button in the Facility > Users section.",
-      },
-      classCoachDescription: {
-        message: "Can only instruct classes that they're assigned to",
-        context: "Description of the 'Class coach' user type.",
-      },
-      facilityCoachDescription: {
-        message: 'Can instruct all classes in your facility',
-        context: "Refers to a description of the 'Facility coach' user type.",
       },
     },
   };

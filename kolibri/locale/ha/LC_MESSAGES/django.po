@@ -1,0 +1,242 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: kolibri\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-11-01 22:12-0700\n"
+"PO-Revision-Date: 2022-04-11 21:35\n"
+"Last-Translator: \n"
+"Language-Team: Hausa\n"
+"Language: ha_HG\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Crowdin-Project: kolibri\n"
+"X-Crowdin-Project-ID: 201933\n"
+"X-Crowdin-Language: ha\n"
+"X-Crowdin-File: /release-v0.15.x/django.po\n"
+"X-Crowdin-File-ID: 4105\n"
+
+#: core/auth/constants/commands_errors.py:17
+msgid "Unexpected exception [{}]: {}"
+msgstr "Banda aukuwa da ba tsammani [{}]: {}"
+
+#: core/auth/constants/commands_errors.py:20
+msgctxt "Error report message when the allowed number of digits has been exceeded."
+msgid "Content of cell '{}' is too long"
+msgstr "Abun cikin ɗakin '{}' yayi tsawo da yawa"
+
+#: core/auth/constants/commands_errors.py:24
+msgctxt "Error report message when the cell contains an improper data format."
+msgid "Content of cell '{}' is not valid"
+msgstr "Abun cikin ɗakin '{}' ba daidai yake ba"
+
+#: core/auth/constants/commands_errors.py:26
+msgid "Duplicated username"
+msgstr "Kwafin sunan mai amfani"
+
+#: core/auth/constants/commands_errors.py:28
+#: core/auth/management/commands/bulkimportusers.py:85
+msgid "Username only can contain characters, numbers and underscores"
+msgstr "Sunan mai amfani zai iya ƙunsar haruffa, lambobi da jigo kawai"
+
+#: core/auth/constants/commands_errors.py:30
+msgid "The column '{}' is required"
+msgstr "Ana buƙatar babi '{}'"
+
+#: core/auth/constants/commands_errors.py:31
+msgid "Mix of valid and/or invalid header labels found in first row"
+msgstr "An samu haɗuwa na alamun saman shafi masu inganci da/ko mara sa inganci a jeri na farko"
+
+#: core/auth/constants/commands_errors.py:33
+msgid "No default facility exists. Make sure to set up a facility on the device before running this command"
+msgstr "Babu wuraren aiki na asali. A tabbatar an saita wurin aiki akan na'urar kafin gudanar da wannan umurnin"
+
+#: core/auth/constants/commands_errors.py:35
+#: core/auth/management/commands/bulkimportusers.py:99
+msgid "Error trying to read csv file: {}"
+msgstr "An samu kuskure wajen karanta fayil ɗin csv: {}"
+
+#: core/auth/constants/commands_errors.py:36
+#: core/auth/management/commands/bulkimportusers.py:100
+msgid "Error trying to write csv file: {}"
+msgstr "An samu kuskure wajen rubuta fayil ɗin csv: {}"
+
+#: core/auth/management/commands/bulkexportusers.py:42
+#: core/auth/management/commands/bulkexportusers.py:124
+msgid "Database ID ({})"
+msgstr "ID na Kundin Bayanai ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:43
+#: core/auth/management/commands/bulkexportusers.py:125
+msgid "Username ({})"
+msgstr "Sunan mai amfani ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:44
+#: core/auth/management/commands/bulkexportusers.py:126
+msgid "Password ({})"
+msgstr "Kalmar sirri ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:45
+#: core/auth/management/commands/bulkexportusers.py:127
+msgid "Full name ({})"
+msgstr "Cikakken suna ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:50
+msgctxt "CSV column header for the type of user: ADMIN, LEARNER, COACH..."
+msgid "User type ({})"
+msgstr "Nau'in mai amfani ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:53
+#: core/auth/management/commands/bulkexportusers.py:135
+msgid "Identifier ({})"
+msgstr "Mai ganowa ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:54
+#: core/auth/management/commands/bulkexportusers.py:136
+msgid "Birth year ({})"
+msgstr "Shekarar haihuwa ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:55
+#: core/auth/management/commands/bulkexportusers.py:137
+msgid "Gender ({})"
+msgstr "Jinsi ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:60
+msgctxt "CSV column header for the list of classrooms names where the learner is going to be enrolled"
+msgid "Learner enrollment ({})"
+msgstr "Rijistar mai koyo ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:67
+msgctxt "CSV column header for the list of classrooms names where the tutor is going to be a coach"
+msgid "Coach assignment ({})"
+msgstr "Aikin Mai Horo ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:132
+msgctxt "CSV header for the type of user: ADMIN, LEARNER, COACH..."
+msgid "User type ({})"
+msgstr "Nau'in mai amfani ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:142
+msgctxt "CSV file header for the list of classrooms names where the learner is going to be enrolled"
+msgid "Learner enrollment ({})"
+msgstr "Rijistar mai koyo ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:149
+msgctxt "CSV file header for the list of classrooms names where the tutor is going to be a coach"
+msgid "Coach assignment ({})"
+msgstr "Aikin Mai Horo ({})"
+
+#: core/auth/management/commands/bulkimportusers.py:76
+msgctxt "Error message that might appear when there's a programming error importing a CSV file"
+msgid "Unexpected error [{}]: {}"
+msgstr "Banda aukuwa da ba tsammani [{}]: {}"
+
+#: core/auth/management/commands/bulkimportusers.py:80
+msgctxt "Error when the command is executed in the Terminal (command prompt)"
+msgid "Value in column '{}' has too many characters"
+msgstr "Ƙima a shafi '{}' yana da haruffa da yawa"
+
+#: core/auth/management/commands/bulkimportusers.py:82
+msgid "Value in column '{}' not valid"
+msgstr "Daraja da ke cikin baka '{}' ba daidai ba ce"
+
+#: core/auth/management/commands/bulkimportusers.py:83
+msgid "Username is duplicated"
+msgstr "An samu kwafi a sunan mai amfani"
+
+#: core/auth/management/commands/bulkimportusers.py:89
+msgctxt "Error message indicating that the CSV file selected for import is missing a required column"
+msgid "The column '{}' is required"
+msgstr "Ana da buƙatar babin '{}'"
+
+#: core/auth/management/commands/bulkimportusers.py:93
+msgctxt "Error message indicating that one column header in the CSV file selected for import is missing or incorrect"
+msgid "Incorrect header label found in the first row"
+msgstr "An sami kalmar saman shafi a layin farko ba dadidai ba"
+
+#: core/auth/management/commands/bulkimportusers.py:97
+msgctxt "Error when the command is executed in the Terminal (command prompt)"
+msgid "No default facility exists. Make sure to set up a facility on the  device before importing users and classes"
+msgstr "Babu wuraren aiki na asali. A tabbatar an saita wurin aiki akan na'urar kafin a shigo da masu amfani da azuzuwa"
+
+#: core/auth/management/commands/bulkimportusers.py:102
+msgid "The password field is required. To leave the password unchanged in existing users, insert an asterisk (*)"
+msgstr "Ana buƙatar filin kalmar sirri. Don barin kalmar sirri wanda ba'a musanya ba a cikin masu amfani da ke akwai, sai a saka alamar tauraro (*)"
+
+#: core/auth/management/commands/bulkimportusers.py:105
+msgid "Cannot update user with ID: '{}' because no user with that database ID exists in this facility"
+msgstr "Ba za'a iya sabunta mai amfani da ID: '{}' saboda babu mai amfani da wannan ID na kundun bayanai a wannan fasalin"
+
+#: core/auth/management/commands/bulkimportusers.py:107
+msgid "Database ID is not valid"
+msgstr "ID na kundun bayanai ba daidai yake ba"
+
+#: core/content/api.py:170
+msgid "Resource"
+msgstr "Kayayyaki"
+
+#: core/content/api.py:1327
+msgid "The requested channel does not exist on the content server"
+msgstr "Babu tashar da ake nema akan ma'ajiyar abun ciki"
+
+#: core/content/models.py:252
+msgid "Unknown format"
+msgstr "Tsarin da ba a sani ba"
+
+#: core/device/serializers.py:36
+msgid "Language is not supported by Kolibri"
+msgstr "Kolibri ba ta goyon bayan wannan harshen"
+
+#: core/logger/csv_export.py:205
+msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
+msgid "content_session_logs"
+msgstr "rijistar_na_lokutan_gudanarwar_abun_ciki"
+
+#: core/logger/csv_export.py:215
+msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
+msgid "content_summary_logs"
+msgstr "rijistar_na_taƙaitaccen_bayanin_abun_ciki"
+
+#: core/tasks/api.py:82
+msgid "There was a network error."
+msgstr "An samu matsala a cibiyar sadarwa."
+
+#: core/tasks/api.py:84
+msgid "There was a disk access error."
+msgstr "An samu matsala a hanyar kaiwa ga faifai."
+
+#: core/tasks/api.py:86
+msgid "There was an unknown error."
+msgstr "An samu matsala da ba a san menene ba."
+
+#: core/templates/kolibri/base.html:13
+#: core/templates/kolibri/unsupported_browser.html:13
+msgid "Kolibri"
+msgstr "Kolibri"
+
+#: core/templates/kolibri/unsupported_browser.html:42
+msgid "Unsupported browser"
+msgstr "Mashigar yanar gizo mara tallafi"
+
+#: core/templates/kolibri/unsupported_browser.html:43
+msgid "Sorry, your browser version is not supported."
+msgstr "Yi haƙuri, ba a goyan bayan samfurin mashigar yanar gizon ku."
+
+#: core/templates/kolibri/unsupported_browser.html:44
+msgid "To use Kolibri, we recommend using Firefox or Chrome."
+msgstr "Domin amfani da Kolibri, muna ba da shawarar amfani da mashigar yanar gizo na Firefox ko Chrome."
+
+#: core/templates/kolibri/unsupported_browser.html:45
+msgid "You can also try updating your current browser."
+msgstr "Hakanan kuna iya gwada sabunta mashigarku ta yanzu."
+
+#: core/views.py:168
+msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
+msgstr "Ba a samu shafukan sake juyawa da suka dace ba. Wata ƙila ba a gyara Kolibri yanda ya dace"
+
+#: plugins/facility/views.py:52
+msgctxt "Default name for the exported CSV file of facility user data. Please keep the underscore between words in the translation"
+msgid "users_{}"
+msgstr "masu_amfani_{}"
+

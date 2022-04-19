@@ -35,6 +35,13 @@
     "default_font": "NotoSans"
   },
   {
+    "crowdin_code": "el",
+    "intl_code": "el",
+    "language_name": "Ελληνικά",
+    "english_name": "Greek",
+    "default_font": "NotoSans"
+  },
+  {
     "crowdin_code": "en",
     "intl_code": "en",
     "language_name": "English",
@@ -84,6 +91,13 @@
     "default_font": "NotoSansGujarati"
   },
   {
+    "crowdin_code": "ha",
+    "intl_code": "ha",
+    "language_name": "Hausa",
+    "english_name": "Hausa",
+    "default_font": "NotoSans"
+  },
+  {
     "crowdin_code": "hi",
     "intl_code": "hi-in",
     "language_name": "हिंदी (भारत)",
@@ -91,11 +105,25 @@
     "default_font": "NotoSansDevanagari"
   },
   {
+    "crowdin_code": "id",
+    "intl_code": "id",
+    "language_name": "Bahasa Indonesia",
+    "english_name": "Indonesian",
+    "default_font": "NotoSans"
+  },
+  {
     "crowdin_code": "it",
     "intl_code": "it",
     "language_name": "Italiano",
     "english_name": "Italian",
     "default_font": "NotoSans"
+  },
+  {
+    "crowdin_code": "ka",
+    "intl_code": "ka",
+    "language_name": "ქართული",
+    "english_name": "Georgian",
+    "default_font": "NotoSansGeorgian"
   },
   {
     "crowdin_code": "km",
@@ -135,8 +163,15 @@
   {
     "crowdin_code": "pt-BR",
     "intl_code": "pt-br",
-    "language_name": "Português",
+    "language_name": "Português (Brazil)",
     "english_name": "Portuguese (Brazil)",
+    "default_font": "NotoSans"
+  },
+  {
+    "crowdin_code": "pt-mz",
+    "intl_code": "pt-mz",
+    "language_name": "Português (Moçambique)",
+    "english_name": "Portuguese (Mozambique)",
     "default_font": "NotoSans"
   },
   {
@@ -152,6 +187,13 @@
     "language_name": "తెలుగు",
     "english_name": "Telugu",
     "default_font": "NotoSansTelugu"
+  },
+  {
+    "crowdin_code": "uk",
+    "intl_code": "uk",
+    "language_name": "Украї́нська мо́ва",
+    "english_name": "Ukrainian",
+    "default_font": "NotoSans"
   },
   {
     "crowdin_code": "ur-PK",

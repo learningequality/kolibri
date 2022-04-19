@@ -33,7 +33,7 @@ class Transfer(object):
         dest,
         block_size=2097152,
         remove_existing_temp_file=True,
-        timeout=20,
+        timeout=60,
         cancel_check=None,
     ):
         self.source = source
@@ -53,9 +53,10 @@ class Transfer(object):
         # signal.signal(signal.SIGINT, self._kill_gracefully)
         # signal.signal(signal.SIGTERM, self._kill_gracefully)
 
-        assert not os.path.isdir(
-            dest
-        ), "dest must include the target filename, not just directory path"
+        if os.path.isdir(dest):
+            raise AssertionError(
+                "dest must include the target filename, not just directory path"
+            )
 
         # ensure the directories in the destination path exist
         try:
@@ -71,7 +72,10 @@ class Transfer(object):
 
         if os.path.isfile(self.dest_tmp):
             if remove_existing_temp_file:
-                os.remove(self.dest_tmp)
+                try:
+                    os.remove(self.dest_tmp)
+                except OSError:
+                    pass
             else:
                 raise ExistingTransferInProgress(
                     "Temporary transfer destination '{}' already exists!".format(
@@ -194,7 +198,10 @@ class FileDownload(Transfer):
         self.started = True
 
     def __iter__(self):
-        assert self.started, "File download must be started before it can be iterated."
+        if not self.started:
+            raise AssertionError(
+                "File download must be started before it can be iterated."
+            )
         self._content_iterator = self.response.iter_content(self.block_size)
         return self
 
@@ -275,9 +282,10 @@ class FileDownload(Transfer):
 
 class FileCopy(Transfer):
     def start(self):
-        assert (
-            not self.started
-        ), "File copy has already been started, and cannot be started again"
+        if self.started:
+            raise AssertionError(
+                "File copy has already been started, and cannot be started again"
+            )
         super(FileCopy, self).start()
         self.total_size = os.path.getsize(self.source)
         self.source_file_obj = open(self.source, "rb")

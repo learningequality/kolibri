@@ -2,12 +2,13 @@ import { ContentNodeResource } from 'kolibri.resources';
 import store from 'kolibri.coreVue.vuex.store';
 
 export function exerciseRootRedirectHandler(params, name, next, query) {
-  return showExerciseDetailView(params).then(attemptId => {
+  return showExerciseDetailView(params).then(() => {
     next({
       name: name,
       params: {
         ...params,
-        attemptId,
+        questionId: 0,
+        tryIndex: 0,
         interactionIndex: 0,
       },
       query,
@@ -34,25 +35,27 @@ export function generateExerciseDetailHandler(paramsToCheck) {
 }
 
 // needs exercise, attemptlog. Pass answerstate into contentrender to display answer
-function showExerciseDetailView({ learnerId, exerciseId, attemptId = null, interactionIndex = 0 }) {
+function showExerciseDetailView({
+  learnerId,
+  exerciseId,
+  questionId = 0,
+  tryIndex = 0,
+  interactionIndex = 0,
+} = {}) {
+  tryIndex = Number(tryIndex);
   interactionIndex = Number(interactionIndex);
+  questionId = Number(questionId);
   // Passed in exerciseId is the content_id of the contentNode
   // Map this to the id of the content node to do this fetch
   exerciseId = store.state.classSummary.contentMap[exerciseId].node_id;
   return ContentNodeResource.fetchModel({ id: exerciseId }).then(
     exercise => {
       store.commit('exerciseDetail/SET_STATE', {
-        attemptId,
+        questionId,
         exercise,
         interactionIndex,
+        tryIndex,
         learnerId,
-      });
-      return store.dispatch('exerciseDetail/setAttemptLogs').then(attemptLogs => {
-        // No attemptId was passed in, so we should trigger a url redirect
-        // to the first attempt.
-        if (attemptId === null) {
-          return attemptLogs[0].id;
-        }
       });
     },
     error => {

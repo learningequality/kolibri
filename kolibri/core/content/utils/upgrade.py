@@ -273,10 +273,10 @@ def get_new_resources_available_for_import(destination, channel_id):
         )
     )
 
-    new_resource_node_ids = list(
+    new_resource_node_ids = [
         coerce_key(c[0])
         for c in connection.execute(new_resource_node_ids_statement).fetchall()
-    )
+    ]
 
     trans.rollback()
 
@@ -337,10 +337,10 @@ def get_new_resources_available_for_import(destination, channel_id):
         .distinct()
     )
 
-    new_resource_content_ids = list(
+    new_resource_content_ids = [
         coerce_key(c[0])
         for c in connection.execute(new_resource_content_ids_statement).fetchall()
-    )
+    ]
 
     trans.rollback()
 
@@ -566,7 +566,6 @@ def get_import_data_for_update(
     i = 0
 
     updated_ids_slice = updated_resource_ids[i : i + batch_size]
-
     nodes_to_include = ContentNode.objects.filter(channel_id=channel_id)
 
     # if requested, filter out nodes we're not able to render
@@ -597,7 +596,7 @@ def get_import_data_for_update(
 
             files_to_transfer = LocalFile.objects.filter(
                 available=False, files__contentnode__in=batch_nodes
-            )
+            ).values("id", "file_size", "extension")
 
             queried_file_objects.extend(files_to_transfer)
 
@@ -612,7 +611,7 @@ def get_import_data_for_update(
             files__contentnode__in=ContentNode.objects.filter(
                 available=True, channel_id=channel_id
             ),
-        )
+        ).values("id", "file_size", "extension")
     )
 
     checksums = set()
@@ -622,9 +621,9 @@ def get_import_data_for_update(
     files_to_download = []
 
     for file in queried_file_objects:
-        if file.id not in checksums:
-            checksums.add(file.id)
-            total_bytes_to_transfer += file.file_size
+        if file["id"] not in checksums:
+            checksums.add(file["id"])
+            total_bytes_to_transfer += file["file_size"]
             files_to_download.append(file)
 
     return len(content_ids), files_to_download, total_bytes_to_transfer

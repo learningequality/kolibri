@@ -11,7 +11,24 @@
       >
         <div class="column-contents-wrapper">
           <KPageContainer>
+            <div>
+              <p>{{ coreString('timeSpentLabel') }}</p>
+              <div :style="{ paddingBottom: '8px' }">
+                <TimeDuration class="timer" :seconds="time_spent" />
+              </div>
+              <p v-if="duration">
+                {{ learnString('suggestedTime') }}
+              </p>
+              <SuggestedTime v-if="content.duration" class="timer" :seconds="content.duration" />
+            </div>
+            <span
+              class="divider"
+              :style="{ borderTop: `solid 1px ${$themeTokens.fineLine}` }"
+            >
+            </span>
             <AnswerHistory
+              :pastattempts="pastattempts"
+              :questions="questions"
               :questionNumber="questionNumber"
               :wrapperComponentRefs="this.$refs"
               @goToQuestion="goToQuestion"
@@ -44,63 +61,43 @@
           </KPageContainer>
 
           <BottomAppBar :dir="bottomBarLayoutDirection" :maxWidth="null">
-            <KButtonGroup>
-              <UiIconButton
-                v-if="windowBreakpoint === 0"
-                :aria-label="$tr('nextQuestion')"
-                size="large"
-                type="secondary"
-                class="footer-button"
-                :disabled="questionNumber === exam.question_count - 1"
-                @click="goToQuestion(questionNumber + 1)"
-              >
-                <KIcon
-                  icon="forward"
-                  :style="{ fill: $themeTokens.primary }"
-                />
-              </UiIconButton>
+            <component :is="windowIsSmall ? 'div' : 'KButtonGroup'">
               <KButton
-                v-else
                 :disabled="questionNumber === exam.question_count - 1"
                 :primary="true"
-                class="footer-button"
                 :dir="layoutDirReset"
+                :aria-label="$tr('nextQuestion')"
+                :appearanceOverrides="navigationButtonStyle"
                 @click="goToQuestion(questionNumber + 1)"
               >
-                {{ $tr('nextQuestion') }}
+                <span v-if="displayNavigationButtonLabel">{{ $tr('nextQuestion') }}</span>
                 <template #iconAfter>
-                  <KIcon icon="forward" color="white" class="forward-icon" />
+                  <KIcon
+                    icon="forward"
+                    :color="$themeTokens.textInverted"
+                    :style="navigationIconStyleNext"
+                  />
                 </template>
               </KButton>
-              <UiIconButton
-                v-if="windowBreakpoint === 0"
-                :aria-label="$tr('previousQuestion')"
-                size="large"
-                type="secondary"
-                class="footer-button left-align"
-                :disabled="questionNumber === 0"
-                @click="goToQuestion(questionNumber - 1)"
-              >
-                <KIcon
-                  icon="back"
-                  :style="{ fill: $themeTokens.primary }"
-                />
-              </UiIconButton>
               <KButton
-                v-else
                 :disabled="questionNumber === 0"
                 :primary="true"
-                class="footer-button"
                 :dir="layoutDirReset"
+                :appearanceOverrides="navigationButtonStyle"
                 :class="{ 'left-align': windowIsSmall }"
+                :aria-label="$tr('previousQuestion')"
                 @click="goToQuestion(questionNumber - 1)"
               >
                 <template #icon>
-                  <KIcon icon="back" color="white" class="back-icon" />
+                  <KIcon
+                    icon="back"
+                    :color="$themeTokens.textInverted"
+                    :style="navigationIconStylePrevious"
+                  />
                 </template>
-                {{ $tr('previousQuestion') }}
+                <span v-if="displayNavigationButtonLabel">{{ $tr('previousQuestion') }}</span>
               </KButton>
-            </KButtonGroup>
+            </component>
 
             <!-- below prev/next buttons in tab and DOM order, in footer -->
             <div
@@ -163,17 +160,19 @@
 
 <script>
 
-  import { mapState, mapActions } from 'vuex';
-  import { InteractionTypes } from 'kolibri.coreVue.vuex.constants';
+  import { mapState } from 'vuex';
   import isEqual from 'lodash/isEqual';
-  import { now } from 'kolibri.utils.serverClock';
   import debounce from 'lodash/debounce';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import SuggestedTime from 'kolibri.coreVue.components.SuggestedTime';
+  import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import useProgressTracking from '../../composables/useProgressTracking';
   import { ClassesPageNames } from '../../constants';
+  import { LearnerClassroomResource } from '../../apiResources';
   import AnswerHistory from './AnswerHistory';
 
   export default {
@@ -188,22 +187,38 @@
       UiAlert,
       UiIconButton,
       BottomAppBar,
+      TimeDuration,
+      SuggestedTime,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
+    setup() {
+      const {
+        pastattempts,
+        time_spent,
+        initContentSession,
+        updateContentSession,
+        startTrackingProgress,
+        stopTrackingProgress,
+      } = useProgressTracking();
+      return {
+        pastattempts,
+        time_spent,
+        initContentSession,
+        updateContentSession,
+        startTrackingProgress,
+        stopTrackingProgress,
+      };
+    },
     data() {
       return {
         submitModalOpen: false,
+        // Note this time is only used to calculate the time spent on a
+        // question, it is not used to generate any timestamps.
+        startTime: Date.now(),
       };
     },
     computed: {
-      ...mapState('examViewer', [
-        'exam',
-        'content',
-        'itemId',
-        'questionNumber',
-        'currentAttempt',
-        'questionsAnswered',
-      ]),
+      ...mapState('examViewer', ['exam', 'contentNodeMap', 'questions', 'questionNumber']),
       gridStyle() {
         if (!this.windowIsSmall) {
           return {
@@ -227,6 +242,46 @@
           name: ClassesPageNames.CLASS_ASSIGNMENTS,
         };
       },
+      content() {
+        return this.contentNodeMap[this.nodeId];
+      },
+      currentAttempt() {
+        return (
+          this.pastattempts.find(attempt => attempt.item === this.attemptLogItemValue) || {
+            item: this.attemptLogItemValue,
+            complete: false,
+            time_spent: 0,
+            correct: 0,
+            answer: null,
+            simple_answer: '',
+            hinted: false,
+          }
+        );
+      },
+      currentQuestion() {
+        return this.questions[this.questionNumber];
+      },
+      nodeId() {
+        return this.currentQuestion.exercise_id;
+      },
+      itemId() {
+        return this.currentQuestion.question_id;
+      },
+      // We generate a special item value to save to the backend that encodes
+      // both the itemId and the nodeId
+      attemptLogItemValue() {
+        return `${this.nodeId}:${this.itemId}`;
+      },
+      questionsAnswered() {
+        return Object.keys(
+          this.pastattempts.reduce((map, attempt) => {
+            if (attempt.answer) {
+              map[attempt.item] = true;
+            }
+            return map;
+          }, {})
+        ).length;
+      },
       questionsUnanswered() {
         return this.exam.question_count - this.questionsAnswered;
       },
@@ -235,7 +290,7 @@
         // and also to allow access to the cancel method of the debounced function
         // best practice seems to be to do it as a computed property and not a method:
         // https://github.com/vuejs/vue/issues/2870#issuecomment-219096773
-        return debounce(this.setAndSaveCurrentExamAttemptLog, 5000);
+        return debounce(this.setAndSaveCurrentExamAttemptLog, 500);
       },
       bottomBarLayoutDirection() {
         // Allows contents to be displayed visually in reverse-order,
@@ -246,58 +301,107 @@
         // Overrides bottomBarLayoutDirection reversal
         return this.isRtl ? 'rtl' : 'ltr';
       },
+      displayNavigationButtonLabel() {
+        return this.windowBreakpoint > 0;
+      },
+      navigationButtonStyle() {
+        return this.displayNavigationButtonLabel
+          ? {}
+          : { minWidth: '36px', width: '36px', padding: 0 };
+      },
+      navigationIconStyleNext() {
+        return this.displayNavigationButtonLabel
+          ? { position: 'relative', top: '3px', left: '4px' }
+          : {};
+      },
+      navigationIconStylePrevious() {
+        return this.displayNavigationButtonLabel
+          ? { position: 'relative', top: '3px', left: '-4px' }
+          : {};
+      },
     },
     watch: {
-      itemId(newVal, oldVal) {
+      attemptLogItemValue(newVal, oldVal) {
         // HACK: manually dismiss the perseus renderer message when moving
         // to a different item (fixes #3853)
         if (newVal !== oldVal) {
-          this.$refs.contentRenderer.$refs.contentView.dismissMessage();
+          this.$refs.contentRenderer.$refs.contentView.dismissMessage &&
+            this.$refs.contentRenderer.$refs.contentView.dismissMessage();
+          this.startTime = Date.now();
         }
       },
     },
+    created() {
+      this.initContentSession({ quizId: this.exam.id })
+        .then(this.startTrackingProgress)
+        .catch(err => {
+          if (err.response && err.response.status === 403) {
+            // If exam is closed, then redirect to route for the report
+            return this.router.replace({
+              name: ClassesPageNames.EXAM_REPORT_VIEWER,
+              params: {
+                userId: this.$store.getters.currentUserId,
+                examId: this.exam.id,
+                questionNumber: 0,
+                questionInteraction: 0,
+              },
+            });
+          }
+          this.$store.dispatch('handleApiError', err);
+        });
+    },
     methods: {
-      ...mapActions('examViewer', ['setAndSaveCurrentExamAttemptLog', 'closeExam']),
+      setAndSaveCurrentExamAttemptLog({ close, interaction } = {}) {
+        // Clear the learner classroom cache here as its progress data is now
+        // stale
+        LearnerClassroomResource.clearCache();
+
+        const data = {};
+
+        if (interaction) {
+          data.interaction = { ...interaction, replace: true };
+        }
+
+        if (close) {
+          data.progress = 1;
+        }
+
+        return this.updateContentSession(data)
+          .then(() => {
+            if (close) {
+              this.stopTrackingProgress();
+            }
+          })
+          .catch(() => {
+            this.$router.replace({ name: ClassesPageNames.CLASS_ASSIGNMENTS });
+          });
+      },
       checkAnswer() {
         if (this.$refs.contentRenderer) {
           return this.$refs.contentRenderer.checkAnswer();
         }
         return null;
       },
-      saveAnswer(force = false) {
+      saveAnswer(close = false) {
         const answer = this.checkAnswer();
         if (answer && !isEqual(answer.answerState, this.currentAttempt.answer)) {
-          const attempt = Object.assign({}, this.currentAttempt);
-          // Copy the interaction history separately, as otherwise we
-          // will still be modifying the underlying object
-          attempt.interaction_history = Array(...attempt.interaction_history);
-          attempt.answer = answer.answerState;
-          attempt.simple_answer = answer.simpleAnswer;
-          attempt.correct = answer.correct;
-          if (!attempt.completion_timestamp) {
-            attempt.completion_timestamp = now();
-          }
-          attempt.end_timestamp = now();
-          attempt.interaction_history.push({
-            type: InteractionTypes.answer,
+          const interaction = {
             answer: answer.answerState,
+            simple_answer: answer.simpleAnswer || '',
             correct: answer.correct,
-            timestamp: now(),
-          });
-          const saveData = {
-            contentId: this.content.id,
-            itemId: this.itemId,
-            currentAttemptLog: attempt,
-            examId: this.exam.id,
+            item: this.attemptLogItemValue,
+            id: this.currentAttempt.id,
+            time_spent:
+              ((this.currentAttempt.time_spent || 0) + Date.now() - this.startTime) / 1000,
           };
-          if (force) {
-            // Cancel any pending debounce
-            this.debouncedSetAndSaveCurrentExamAttemptLog.cancel();
-            // Force the save now instead
-            return this.setAndSaveCurrentExamAttemptLog(saveData);
+          this.startTime = Date.now();
+          if (close) {
+            return this.setAndSaveCurrentExamAttemptLog({ close, interaction });
           } else {
-            return this.debouncedSetAndSaveCurrentExamAttemptLog(saveData);
+            return this.debouncedSetAndSaveCurrentExamAttemptLog({ interaction });
           }
+        } else if (close) {
+          return this.setAndSaveCurrentExamAttemptLog({ close });
         }
         return Promise.resolve();
       },
@@ -326,11 +430,9 @@
         this.submitModalOpen = !this.submitModalOpen;
       },
       finishExam() {
-        this.saveAnswer(true).then(
-          this.closeExam().then(() => {
-            this.$router.push(this.backPageLink);
-          })
-        );
+        this.saveAnswer(true).then(() => {
+          this.$router.push(this.backPageLink);
+        });
       },
     },
     $trs: {
@@ -341,7 +443,7 @@
       },
       questionsAnswered: {
         message:
-          '{numAnswered, number} of {numTotal, number} {numTotal, plural, one {question} other {questions}} answered',
+          '{numAnswered, number} of {numTotal, number} {numTotal, plural, one {question answered} other {questions answered}}',
         context:
           'Indicates the number of questions a learner has answered. Only translate "of" and "question/questions answered".',
       },
@@ -360,8 +462,9 @@
       },
       unanswered: {
         message:
-          'You have {numLeft, number} {numLeft, plural, one {question} other {questions}} unanswered',
-        context: 'Indicates how many unanswered questions the learner has.',
+          'You have {numLeft, number} {numLeft, plural, one {question unanswered} other {questions unanswered}}',
+
+        context: 'Indicates how many questions the learner has not answered.',
       },
       noItemId: {
         message: 'This question has an error, please move on to the next question',
@@ -371,7 +474,7 @@
       question: {
         message: 'Question {num, number, integer} of {total, number, integer}',
         context:
-          'Indicates which question the user is working on currently and the total number of questions in a quiz.',
+          'Indicates which question the user is working on currently and the total number of questions in a quiz.\n\nFor example: "Question 2 of 10".',
       },
     },
   };
@@ -407,26 +510,23 @@
     text-align: center;
   }
 
-  .back-icon {
-    position: relative;
-    top: 3px;
-    left: -4px;
-  }
-
-  .forward-icon {
-    position: relative;
-    top: 3px;
-    left: 4px;
-  }
-
   .left-align {
     position: absolute;
     left: 16px;
     display: inline-block;
   }
 
-  .footer-button {
-    display: inline-block;
+  .timer {
+    font-size: 18px;
+    font-weight: bold;
+  }
+
+  .divider {
+    display: block;
+    min-width: 100%;
+    height: 1px;
+    margin: 16px 0;
+    overflow-y: hidden;
   }
 
 </style>

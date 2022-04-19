@@ -132,7 +132,7 @@ class ImportTestCase(TestCase):
         # Replace asterisk in passwords to be able to import it
         # Remove UUID so new users are created
         _, new_filepath = tempfile.mkstemp(suffix=".csv")
-        rows = list()
+        rows = []
         with open(self.filepath) as source:
             reader = csv.reader(source, strict=True)
             for row in reader:
@@ -493,7 +493,7 @@ class ImportTestCase(TestCase):
     def test_non_existing_uuid(self):
         self.import_exported_csv()
         _, new_filepath = tempfile.mkstemp(suffix=".csv")
-        rows = list()
+        rows = []
         with open(self.filepath) as source:
             reader = csv.reader(source, strict=True)
             for row in reader:

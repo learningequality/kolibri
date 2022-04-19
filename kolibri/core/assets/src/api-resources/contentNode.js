@@ -1,6 +1,5 @@
 import isPlainObject from 'lodash/isPlainObject';
 import { Resource } from 'kolibri.lib.apiResource';
-import Store from 'kolibri.coreVue.vuex.store';
 import urls from 'kolibri.urls';
 import cloneDeep from '../cloneDeep';
 import ConditionalPromise from '../conditionalPromise';
@@ -83,6 +82,9 @@ import ConditionalPromise from '../conditionalPromise';
 export default new Resource({
   name: 'contentnode',
   useContentCacheKey: true,
+  fetchRandomCollection({ getParams: params }) {
+    return this.getListEndpoint('random', params);
+  },
   fetchDescendants(ids, getParams = {}) {
     return this.getListEndpoint('descendants', { ids, ...getParams });
   },
@@ -95,8 +97,8 @@ export default new Resource({
   fetchCopiesCount(getParams = {}) {
     return this.fetchListCollection('copies_count', getParams);
   },
-  fetchNextContent(id) {
-    return this.fetchDetailModel('next_content', id);
+  fetchNextContent(id, getParams = {}) {
+    return this.fetchDetailModel('next_content', id, getParams);
   },
   fetchNodeAssessments(ids) {
     return this.getListEndpoint('node_assessments', { ids });
@@ -104,14 +106,20 @@ export default new Resource({
   fetchRecommendationsFor(id, getParams) {
     return this.fetchDetailCollection('recommendations_for', id, getParams);
   },
-  fetchResume(getParams) {
-    return this.fetchDetailCollection('resume', Store.getters.currentUserId, getParams);
+  fetchResume(params = { resume: true }) {
+    const promise = new ConditionalPromise();
+    const url = urls['kolibri:core:usercontentnode_list']();
+    promise._promise = this.client({ url, params }).then(response => {
+      this.cacheData(response.data);
+      return response.data;
+    });
+    return promise;
   },
   fetchPopular(getParams) {
     return this.fetchListCollection('popular', getParams);
   },
   fetchNextSteps(getParams) {
-    return this.fetchDetailCollection('next_steps', Store.getters.currentUserId, getParams);
+    return this.fetchListCollection('next_steps', getParams);
   },
   cache: {},
   fetchModel({ id }) {
@@ -161,22 +169,22 @@ export default new Resource({
    * may be both pagination and non-pagination specific parameters
    * @return {Promise<ContentNode>} Promise that resolves with the model data
    */
-  fetchTree(id, params) {
+  fetchTree({ id, params }) {
+    const promise = new ConditionalPromise();
     const url = urls['kolibri:core:contentnode_tree_detail'](id);
-    return this.client({ url, params }).then(response => {
+    promise._promise = this.client({ url, params }).then(response => {
       this.cacheData(response.data);
       return response.data;
     });
+    return promise;
   },
-  /**
-   * A method to simplify requesting more items from a previously paginated response from fetchTree
-   * @param {Object} more - the 'more' property of the 'children' pagination object from a response.
-   * @param {string} more.id - the id of the parent node for this request
-   * @param {Object} more.params - the GET parameters to return more results,
-   * may be both pagination and non-pagination specific parameters
-   * @return {Promise<ContentNode>} Promise that resolves with the model data
-   */
-  fetchMoreTree({ id, params }) {
-    return this.fetchTree(id, params);
+  fetchBookmarks({ params }) {
+    const promise = new ConditionalPromise();
+    const url = urls['kolibri:core:contentnode_bookmarks_list']();
+    promise._promise = this.client({ url, params }).then(response => {
+      this.cacheData(response.data);
+      return response.data;
+    });
+    return promise;
   },
 });

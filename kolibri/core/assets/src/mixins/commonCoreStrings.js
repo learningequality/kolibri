@@ -1,4 +1,8 @@
 import { createTranslator } from 'kolibri.utils.i18n';
+import camelCase from 'lodash/camelCase';
+import get from 'lodash/get';
+import invert from 'lodash/invert';
+import * as METADATA from 'kolibri.coreVue.vuex.constants';
 import notificationStrings from './notificationStrings';
 
 export const coreStrings = createTranslator('CommonCoreStrings', {
@@ -8,11 +12,14 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       'Button to cancel an action and return to the previous page. Usually this is the opposite of the save button which saves some piece of information.',
   },
-  cannotUndoActionWarning: 'This action cannot be undone',
+  cannotUndoActionWarning: {
+    message: 'This action cannot be undone',
+    context:
+      'Warning to indicate that a specific procedure that the user is carrying out at that time can not be reversed.',
+  },
   clearAction: {
     message: 'Clear',
-    context:
-      '\nButton that allows to clear a single *task* from the list in the task manager.\n\n\n',
+    context: 'Button that allows to clear a single *task* from the list in the task manager.',
   },
   closeAction: {
     message: 'Close',
@@ -53,6 +60,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       "Indicates going back to a previous step.\n\nFor example, when a user creates a quiz in Kolibri using the quiz builder they can either 'CONTINUE' to the next phase of the builder or 'GO BACK'.\n\nIf you go back you exit the quiz builder and loose the resource selection.",
   },
+  importAction: {
+    message: 'Import',
+    context:
+      'Indicates importing something into Kolibri, depending on the context can be a list of lessons, a single user, etc.',
+  },
   registerAction: {
     message: 'Register',
     context: 'Register a facility to the Kolibri Data Portal',
@@ -60,7 +72,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   retryAction: {
     message: 'Retry',
     context:
-      'Button which allows a user to retry a an action that may have failed due to an unexpected reason such as a loss of connection.',
+      'Button which allows a user to retry an action that may have failed due to an unexpected reason such as a loss of connection.',
   },
   removeAction: {
     message: 'Remove',
@@ -85,7 +97,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   showAction: {
     message: 'Show',
     context:
-      "In the Device > Info tab an admin can view detailed info about the device where Kolibri is running.\n\nThey select the 'Show' link to open the 'Advanced' device info.",
+      "Users have the option to either 'show' or 'hide' coach resources in the 'Manage lesson resources' section.",
   },
   startOverAction: {
     message: 'Start over',
@@ -111,6 +123,15 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'View tasks',
     context:
       "In the Kolibri Task Manager dashboard admins can view resource management tasks (import, export, deletion, update, etc.) and observe their progress.\n\nSelecting 'View task' will display more detail about the management task.",
+  },
+  removeFromBookmarks: {
+    message: 'Remove from bookmarks',
+    context:
+      "An action that removes a resource or topic from a user's bookmarks. The opposite of 'Save to bookmarks'.",
+  },
+  saveToBookmarks: {
+    message: 'Save to bookmarks',
+    context: "An action that adds a resource or topic to a user's bookmarks",
   },
 
   // labels, phrases, titles, headers...
@@ -144,10 +165,25 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       "This label appears in various places and indicates the year in which a user was born. The birth year only displays if this information has been provided when creating or editing the user, as it's an optional field.\n\nA super admin can see the birth year of the users in a facility that they manage, for example, if this information has been provided.",
   },
+  bookmarksLabel: {
+    message: 'Bookmarks',
+    context:
+      'Bookmarks are used to give all users a way of saving a reference for a specific resource or topic to come back to later.',
+  },
+  bookmarkedTimeAgoLabel: {
+    message: 'Bookmarked { time }',
+    context:
+      "Label indicating how long ago user bookmarked a resource or topic. Variable '{time}' uses the API that enables language-sensitive relative time formatting\nhttps://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/RelativeTimeFormat\n\nExamples (output is localized in the target language):\n- Bookmarked {3 months ago}\n- Bookmarked {5 minutes ago}\n- Bookmarked {6 days ago}",
+  },
   channelsLabel: {
     message: 'Channels',
     context:
-      'Channels are collections of educational resources (video, audio, document files or interactive apps) prepared and organized by the channel curator for their use in Kolibri. A learner will see a set of channels available to them when they first open Kolibri.',
+      'Channels are collections of educational resources (video, audio, document files or interactive apps) prepared and organized by the channel curator for their use in Kolibri.\n\nA learner will see a set of channels available to them when they first open Kolibri.',
+  },
+  channelLabel: {
+    message: 'Channel',
+    context:
+      'Channels are collections of educational resources (video, audio, document files or interactive apps) prepared and organized by the channel curator for their use in Kolibri.',
   },
   classCoachLabel: {
     message: 'Class coach',
@@ -204,11 +240,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
   facilityName: {
     message: 'Facility name',
-    context: 'The name of the facility.',
+    context: "The name of the facility. For example: 'Demo facility'.",
   },
   facilityNameWithId: {
     message: '{facilityName} ({id})',
-    context: 'DO NOT TRANSLATE.',
+    context: 'DO NOT TRANSLATE\nCopy the source string.',
   },
   facilityDuplicated: {
     message: 'There is already a facility with this name on this device',
@@ -225,16 +261,30 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       "Gender is an option which a user can select in Kolibri when they create another user.\n\nGender can be either 'Female', 'Male' or 'Not specified'.",
   },
+  homeLabel: {
+    message: 'Home',
+    context:
+      "Home page is a place for learners containing summary of their activities and suggestions for what to do next. For example, they can see a list of classess they're enrolled in, their recent lessons and quizess, and they can directly navigate to resources to continue learning from.",
+  },
   identifierLabel: {
     message: 'Identifier',
     context:
       "An 'Identifier' could be a student ID number or an existing user identification number. This is an optional field in the user create/edit screen.",
   },
-  inProgressLabel: 'In progress',
+  inProgressLabel: {
+    message: 'In progress',
+    context:
+      "Indicates a task such as a sync is in progress. A lesson or class could also be in progress if the learner hasn't finished it yet.",
+  },
   kolibriLabel: {
     message: 'Kolibri',
     context:
       'This proper noun is the name of the learning platform, and is pronounced ko-lee-bree (/kolibɹi/). For languages with non-latin scripts, the word should be transcribed phonetically into the target language, similar to a person\'s name. It should not be translated as "hummingbird".',
+  },
+  languageLabel: {
+    message: 'Language',
+    context:
+      'Refers to the language that is used in a resource or in Kolibri. For example, users can filter learning resources by language.',
   },
   learnerLabel: {
     message: 'Learner',
@@ -244,6 +294,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   learnersLabel: {
     message: 'Learners',
     context: 'Plural of learner.',
+  },
+  levelLabel: {
+    message: 'Level',
+    context: 'Filter label used to limit the search to a specific educational level.',
   },
   lessonsLabel: {
     message: 'Lessons',
@@ -260,7 +314,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
   noUsersExistLabel: {
     message: 'No users exist',
-    context: 'Message used to indicate when there are no users in a class, for example.',
+    context: 'Displays when there are no users in the facility.',
   },
   optionsLabel: {
     message: 'Options',
@@ -271,7 +325,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Password',
     context: "'Password' is a required field when you create an account as a user on Kolibri.",
   },
-  profileLabel: 'Profile',
+  profileLabel: {
+    message: 'Profile',
+    context: "Users can access and edit their personal details via the 'profile' option.",
+  },
   progressLabel: {
     message: 'Progress',
     context:
@@ -294,6 +351,14 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   searchLabel: {
     message: 'Search',
     context: 'Test used to indicate the Kolibri search field.',
+  },
+  findSomethingToLearn: {
+    message: 'Find something to learn',
+    context: 'Suggestion located inside the the keyword search field.',
+  },
+  startSearchButtonLabel: {
+    message: 'Start search',
+    context: 'Refers to the search button used to initiate a search.',
   },
   showCorrectAnswerLabel: {
     message: 'Show correct answer',
@@ -339,7 +404,531 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       'This button appears in Kolibri to indicate to users that there are more results available when they search for resources, for example.',
   },
+  viewLessAction: {
+    message: 'View less',
+    context:
+      "Button which allows a user to view less information. It's the opposite of 'View more'.",
+  },
+  copies: {
+    message: '{ num, number} locations',
+    context:
+      'Some Kolibri resources may be duplicated in different topics or channels.\n\nSearch results will indicate when a resource is duplicated, and learners can click on the "...locations" link to discover the details for each location.',
+  },
+  viewInformation: {
+    message: 'View information',
+    context: 'Option to show more detailed information about a resource.',
+  },
+  moreOptions: {
+    message: 'More options',
+    context: 'Reveals a set of more options when clicked.',
+  },
+  userActionsColumnHeader: {
+    message: 'Actions',
+    context:
+      'Column header for the table with class users. The column "Actions" contains buttons that allow admins to remove users from class.',
+  },
+  classHome: {
+    message: 'Class home',
+    context:
+      'The main section where the coach can see all the information relating to a specific class..',
+  },
+  classCoachDescription: {
+    message: 'Can only instruct classes that they are assigned to',
+    context: 'Description of the "Class coach" user type.',
+  },
+  facilityCoachDescription: {
+    message: 'Can instruct all classes in your facility',
+    context: 'Description of the "Facility coach" user type.',
+  },
+  transcript: {
+    message: 'Transcript',
+    context:
+      'Refers to the option to present the captions (subtitles) of the video in the form of the interactive transcript.',
+  },
 
+  // Learning Activities
+  all: {
+    message: 'All',
+    context: 'A label for everything in the group of activities.',
+  },
+  watch: {
+    message: 'Watch',
+    context:
+      'Resource and filter label for the type of learning activity with video. Translate as a VERB',
+  },
+  create: {
+    message: 'Create',
+    context: 'Resource and filter label for the type of learning activity. Translate as a VERB',
+  },
+  read: {
+    message: 'Read',
+    context:
+      'Resource and filter label for the type of learning activity with documents. Translate as a VERB',
+  },
+  practice: {
+    message: 'Practice',
+    context:
+      'Resource and filter label for the type of learning activity with questions and answers. Translate as a VERB',
+  },
+  reflect: {
+    message: 'Reflect',
+    context: 'Resource and filter label for the type of learning activity. Translate as a VERB',
+  },
+  listen: {
+    message: 'Listen',
+    context:
+      'Resource and filter label for the type of learning activity with audio. Translate as a VERB',
+  },
+  explore: {
+    message: 'Explore',
+    context: 'Resource and filter label for the type of learning activity. Translate as a VERB',
+  },
+
+  // Library Categories
+  school: {
+    message: 'School',
+    context: 'Category type.',
+  },
+  basicSkills: {
+    message: 'Basic skills',
+    context:
+      'Category type. Basic skills refer to learning resources focused on aspects like literacy, numeracy and digital literacy.',
+  },
+  work: {
+    message: 'Work',
+    context:
+      'Top level category group that contains resources for acquisition of professional skills.',
+  },
+  dailyLife: {
+    message: 'Daily life',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Everyday_life',
+  },
+  forTeachers: {
+    message: 'For teachers',
+    context: 'Category type',
+  },
+
+  // School Categories
+  mathematics: {
+    message: 'Mathematics',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Mathematics',
+  },
+  sciences: {
+    message: 'Sciences',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Science',
+  },
+  socialSciences: {
+    message: 'Social sciences',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Social_science',
+  },
+  arts: {
+    message: 'Arts',
+    context: 'Refers to a category group type. See https://en.wikipedia.org/wiki/The_arts',
+  },
+  computerScience: {
+    message: 'Computer science',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Computer_science',
+  },
+  languageLearning: {
+    message: 'Language learning',
+    context: 'Category type.',
+  },
+  history: {
+    message: 'History',
+    context: 'Category type.',
+  },
+  readingAndWriting: {
+    message: 'Reading and writing',
+    context: 'School subject category',
+  },
+
+  // Mathematics Subcategories
+  arithmetic: {
+    message: 'Arithmetic',
+    context: 'Math category type. See https://en.wikipedia.org/wiki/Arithmetic',
+  },
+  algebra: {
+    message: 'Algebra',
+    context: 'A type of math category. See https://en.wikipedia.org/wiki/Algebra',
+  },
+  geometry: {
+    message: 'Geometry',
+    context: 'Category type.',
+  },
+  calculus: {
+    message: 'Calculus',
+    context: 'Math category type. https://en.wikipedia.org/wiki/Calculus',
+  },
+  statistics: {
+    message: 'Statistics',
+    context: 'A math category. See https://en.wikipedia.org/wiki/Statistics',
+  },
+
+  // Sciences Subcategories
+  biology: {
+    message: 'Biology',
+    context: 'Science category type. See https://en.wikipedia.org/wiki/Biology',
+  },
+  chemistry: {
+    message: 'Chemistry',
+    context: 'Science category type. See https://en.wikipedia.org/wiki/Chemistry',
+  },
+  physics: {
+    message: 'Physics',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Physics.',
+  },
+  earthScience: {
+    message: 'Earth science',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Earth_science',
+  },
+  astronomy: {
+    message: 'Astronomy',
+    context: 'Science category type. See https://en.wikipedia.org/wiki/Astronomy',
+  },
+
+  //  Literature Subcategories
+  literature: {
+    message: 'Literature',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Literature',
+  },
+  readingComprehension: {
+    message: 'Reading comprehension',
+    context: 'Category type.',
+  },
+  writing: {
+    message: 'Writing',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Writing',
+  },
+  logicAndCriticalThinking: {
+    message: 'Logic and critical thinking',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Critical_thinking',
+  },
+
+  // Social Sciences Subcategories
+  politicalScience: {
+    message: 'Political science',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Political_science.',
+  },
+  sociology: {
+    message: 'Sociology',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Sociology',
+  },
+  anthropology: {
+    message: 'Anthropology',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Anthropology',
+  },
+  civicEducation: {
+    message: 'Civic education',
+    context:
+      'Category type. Civic education is the study of the rights and obligations of citizens in society. See https://en.wikipedia.org/wiki/Civics',
+  },
+
+  // Arts Subcategories = {
+  visualArt: {
+    message: 'Visual art',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Visual_arts',
+  },
+  music: {
+    message: 'Music',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Music',
+  },
+  dance: {
+    message: 'Dance',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Dance',
+  },
+  drama: {
+    message: 'Drama',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Drama',
+  },
+
+  //  Computer Science Subcategories
+  programming: {
+    message: 'Programming',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Computer_programming',
+  },
+  mechanicalEngineering: {
+    message: 'Mechanical engineering',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Mechanical_engineering.',
+  },
+  webDesign: {
+    message: 'Web design',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Web_design',
+  },
+
+  // Basic Skills
+  literacy: {
+    message: 'Literacy',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Literacy',
+  },
+  numeracy: {
+    message: 'Numeracy',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Numeracy',
+  },
+  digitialLiteracy: {
+    message: 'Digital literacy',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Digital_literacy',
+  },
+  learningSkills: {
+    message: 'Learning skills',
+    context:
+      'A category label and type of basic skill.\nhttps://en.wikipedia.org/wiki/Study_skills',
+  },
+
+  // Work Categories
+  professionalSkills: {
+    message: 'Professional skills',
+    context: 'Category type. Refers to skills that are related to a profession or a job.',
+  },
+  technicalAndVocationalTraining: {
+    message: 'Technical and vocational training',
+    context:
+      'A level of education. See https://en.wikipedia.org/wiki/TVET_(Technical_and_Vocational_Education_and_Training)',
+  },
+
+  //  VocationalSubcategories
+  softwareToolsAndTraining: {
+    message: 'Software tools and training',
+    context: 'Subcategory type for technical and vocational training.',
+  },
+  skillsTraining: {
+    message: 'Skills training',
+    context: 'Subcategory type for technical and vocational training.',
+  },
+  industryAndSectorSpecific: {
+    message: 'Industry and sector specific',
+    context: 'Subcategory type for technical and vocational training.',
+  },
+
+  // Daily Life Categories
+  publicHealth: {
+    message: 'Public health',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Public_health.',
+  },
+  entrepreneurship: {
+    message: 'Entrepreneurship',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Entrepreneurship',
+  },
+  financialLiteracy: {
+    message: 'Financial literacy',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Financial_literacy',
+  },
+  currentEvents: {
+    message: 'Current events',
+    context:
+      "Category type. Could also be translated as 'News'. See https://en.wikipedia.org/wiki/News",
+  },
+  environment: {
+    message: 'Environment',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Environmental_studies',
+  },
+  mediaLiteracy: {
+    message: 'Media literacy',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Media_literacy',
+  },
+  diversity: {
+    message: 'Diversity',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Diversity_(politics)',
+  },
+  mentalHealth: {
+    message: 'Mental health',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Mental_health',
+  },
+
+  // Teacher-Specific Categories
+  guides: {
+    message: 'Guides',
+    context:
+      'Category label in the Kolibri resources library; refers to any guide-type material for teacher professional development.',
+  },
+  lessonPlans: {
+    message: 'Lesson plans',
+    context:
+      'Category label in the Kolibri resources library; refers to lesson planning materials for teachers.',
+  },
+
+  // Resources Needed Categories = {
+  ForBeginners: {
+    message: 'For beginners',
+    context: 'Filter option and a label for the resources in the Kolibri Library.',
+  },
+  ToUseWithTeachersAndPeers: {
+    message: 'To use with teachers and peers',
+    context:
+      "'Peers' in this context refers to classmates or other learners who are interacting with Kolibri.",
+  },
+  ToUseWithPaperAndPencil: {
+    message: 'To use with paper and pencil',
+    context: 'Refers to a filter for resources.\n',
+  },
+  NeedsInternet: {
+    message: 'That need internet connection',
+    context: 'Refers to a filter for resources.',
+  },
+  NeedsMaterials: {
+    message: 'That need other materials',
+    context: 'Refers to a filter for resources.\n',
+  },
+
+  // Accessibility category name
+  accessibility: {
+    message: 'Accessibility',
+    context:
+      'Allows the user to filter for all the resources with accessibility features for learners with disabilities.',
+  },
+  // Accessibility Categories
+  signLanguage: {
+    message: 'Has sign language captions',
+    context:
+      'https://en.wikipedia.org/wiki/Sign_language\nhttps://en.wikipedia.org/wiki/List_of_sign_languages\nWherever communities of deaf people exist, sign languages have developed as useful means of communication, and they form the core of local Deaf cultures. Although signing is used primarily by the deaf and hard of hearing, it is also used by hearing individuals, such as those unable to physically speak, those who have trouble with spoken language due to a disability or condition (augmentative and alternative communication), or those with deaf family members, such as children of deaf adults. ',
+  },
+  audioDescription: {
+    message: 'Has audio descriptions',
+    context:
+      'Content has narration used to provide information surrounding key visual elements for the benefit of blind and visually impaired users.\nhttps://en.wikipedia.org/wiki/Audio_description',
+  },
+  taggedPdf: {
+    message: 'Tagged PDF',
+    context:
+      'A tagged PDF includes hidden accessibility markups (tags) that make the document accessible to those who use screen readers and other assistive technology (AT).\n\nhttps://taggedpdf.com/what-is-a-tagged-pdf/',
+  },
+  altText: {
+    message: 'Has alternative text description for images',
+    context:
+      'Alternative text, or alt text, is a written substitute for an image. It is used to describe information being provided by an image, graph, or any other visual element on a web page. It provides information about the context and function of an image for people with varying degrees of visual and cognitive impairments. When a screen reader encounters an image, it will read aloud the alternative text.\nhttps://www.med.unc.edu/webguide/accessibility/alt-text/',
+  },
+  highContrast: {
+    message: 'Has high contrast display for low vision',
+    context:
+      "Accessibility filter used to search for resources that have high contrast color themes for users with low vision ('display' refers to digital content, not the hardware like screens or monitors).\nhttps://veroniiiica.com/2019/10/25/high-contrast-color-schemes-low-vision/",
+  },
+  captionsSubtitles: {
+    message: 'Has captions or subtitles',
+    context:
+      'Accessibility filter to search for video and audio resources that have text captions for users who are deaf or hard of hearing.\nhttps://www.w3.org/WAI/media/av/captions/',
+  },
+
+  // Used to categorize the level or audience of content
+  // ContentLevels
+  preschool: {
+    message: 'Preschool',
+    context:
+      'Refers to a level of education offered to children before they begin compulsory education at primary school.\n\nSee https://en.wikipedia.org/wiki/Preschool',
+  },
+  lowerPrimary: {
+    message: 'Lower primary',
+    context:
+      'Refers to a level of learning. Approximately corresponds to the first half of primary school.',
+  },
+  upperPrimary: {
+    message: 'Upper primary',
+    context:
+      'Refers to a level of education. Approximately corresponds to the second half of primary school.\n',
+  },
+  lowerSecondary: {
+    message: 'Lower secondary',
+    context:
+      'Refers to a level of learning. Approximately corresponds to the first half of secondary school (high school).',
+  },
+  upperSecondary: {
+    message: 'Upper secondary',
+    context:
+      'Refers to a level of education. Approximately corresponds to the second half of secondary school.',
+  },
+  tertiary: {
+    message: 'Tertiary',
+    context: 'A level of education. See https://en.wikipedia.org/wiki/Tertiary_education',
+  },
+  specializedProfessionalTraining: {
+    message: 'Specialized professional training',
+    context: 'Level of education that refers to training for a profession (job).',
+  },
+  allLevelsBasicSkills: {
+    message: 'All levels -- basic skills',
+    context: 'Refers to a type of educational level.',
+  },
+  allLevelsWorkSkills: {
+    message: 'All levels -- work skills',
+    context: 'Refers to a type of educational level.',
+  },
+
+  browseChannel: {
+    message: 'Browse channel',
+    context: 'Heading on page where a user can browse the content within a channel',
+  },
+  topicLabel: {
+    message: 'Folder',
+    context:
+      'A collection of resources and other subfolders within a channel. Nested folders allow a channel to be organized as a tree or hierarchy.',
+  },
+  readReference: {
+    message: 'Reference',
+    context:
+      "Label displayed for the 'Read' learning activity, used instead of the time duration information, to indicate a resource that may not need sequential reading from the beginning to the end. Similar concept as the 'reference' books in the traditional library, that the user just  'consults', and does not read from cover to cover.",
+  },
+  shortActivity: {
+    message: 'Short activity',
+    context: 'Label with time estimation for learning activities that take less than 30 minutes.',
+  },
+  longActivity: {
+    message: 'Long activity',
+    context: 'Label with time estimation for learning activities that take more than 30 minutes.',
+  },
+
+  // assigning bookmarked resources
+
+  availableClasses: {
+    message: 'Available classes',
+    context: 'Heading for the window where coaches make class selection.',
+  },
+
+  assignToClass: {
+    message: 'Assign this resource to which class?',
+    context: 'Message for coaches to select a class.',
+  },
+  assignToLesson: {
+    message: 'Assign this resource to which lesson?',
+    context: 'Message for coaches to select lessons',
+  },
+  lessonsInClass: {
+    message: 'Lessons in {class name}',
+    context: 'Heading for the window where coaches make lesson selections.',
+  },
+  addedToClassLesson: {
+    message: 'Added to class lesson',
+    context:
+      'Notification that a bookmarked resource has been added to a lesson in a selected class.',
+  },
+  selectFromBookmarks: {
+    message: 'Select from bookmarks',
+    context: "Option on the 'Manage lesson resources' page.",
+  },
+  savedFromBookmarks: {
+    message: 'Saved from bookmarks',
+    context:
+      'Notification message after user clicked the bookmark icon button, indicating the resource has been  saved.',
+  },
+  related: {
+    message: 'Related',
+    context: 'Section header for the list of resources that are related to the current resource',
+  },
+  doNotShowAgain: {
+    message: "Don't show this again",
+    context:
+      'Option that allows the user to prevent this resource from displaying in the future while using category search',
+  },
+  resourceHidden: {
+    message: 'Resource hidden',
+    context:
+      'Notification message indicating the resource has been marked as hidden for future category searches.',
+  },
+  allLevels: {
+    message: 'All levels',
+    context: 'Filter label to include resources for all available educational levels.',
+  },
+  showResources: {
+    message: 'Show resources',
+    context: 'Subheader to filter resources with the options listed below (see the screenshot).',
+  },
   // Notifications
   changesSavedNotification: {
     message: 'Changes saved',
@@ -370,25 +959,28 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   // Formatting
   nameWithIdInParens: {
     message: `'{name}' ({id})`,
-    context: 'DO NOT TRANSLATE.',
+    context: 'DO NOT TRANSLATE\nCopy the source string.',
   },
   quotedPhrase: {
     message: `'{phrase}'`,
-    context: 'DO NOT TRANSLATE.',
+    context: 'DO NOT TRANSLATE\nCopy the source string.',
   },
   dashSeparatedPair: {
     message: '{item1} - {item2}',
-    context: 'DO NOT TRANSLATE.',
+    context: 'DO NOT TRANSLATE\nCopy the source string.',
   },
   dashSeparatedTriple: {
     message: '{item1} - {item2} - {item3}',
-    context: 'DO NOT TRANSLATE.',
+    context: 'DO NOT TRANSLATE\nCopy the source string.',
   },
   labelColonThenDetails: {
     message: '{label}: {details}',
-    context: 'DO NOT TRANSLATE.',
+    context: 'DO NOT TRANSLATE\nCopy the source string.',
   },
-  commaSeparatedPair: '{item1}, {item2}',
+  commaSeparatedPair: {
+    message: '{item1}, {item2}',
+    context: 'DO NOT TRANSLATE\nCopy the source string.',
+  },
 
   // Demographic-specific strings
   genderOptionMale: {
@@ -399,7 +991,6 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Female',
     context: "Female is an option in the 'Gender' drop down menu on the 'Create new user' page.",
   },
-  genderOptionOther: 'Other',
   genderOptionNotSpecified: {
     message: 'Not specified',
     context:
@@ -425,21 +1016,149 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   identifierAriaLabel: {
     message: 'About providing an identifier or ID number',
     context:
-      "\nCould also be translated as \"View information about providing identifier\"\n\nAll 'AriaLabel' type of messages are providing additional context to the screen-reader users. \n\nIn this case the screen-reader will announce the message to the user indicating that they can access more information and examples about the 'Identifier' through the 'i' icon.",
+      "Could also be translated as \"View information about providing identifier\"\n\nAll 'AriaLabel' type of messages are providing additional context to the screen-reader users. \n\nIn this case the screen-reader will announce the message to the user indicating that they can access more information and examples about the 'Identifier' through the 'i' icon.",
   },
 
   // Content activity
   notStartedLabel: {
     message: 'Not started',
-    context: 'For content that has not been viewed or engaged with yet',
+    context: 'Refers to content that has not been viewed nor engaged with yet.',
+  },
+  folder: {
+    message: 'Folder',
+    context: "Tab label in the 'Browse channel' page that allows to navigate through its topics.",
+  },
+  folders: {
+    message: 'Folders',
+    context: "Tab label in the 'Browse channel' page that allows to navigate through its topics.",
+  },
+  scoreLabel: {
+    message: 'Score',
+    context:
+      'Score obtained by a learner on a quiz, indicated by the percentage of correct answers given.',
+  },
+
+  // TODO - move these into diff sections as we make this a full feature in 0.16
+  // Past Papers Project (12/2021) strings
+  timeSpentLabel: {
+    message: 'Time spent',
+    context: 'The time a learner has spent on a quiz.',
+  },
+  statusLabel: {
+    message: 'Status',
+    context:
+      'In a learner\'s independent practice quiz report, indicates if the practice quiz is "In progress" or "Completed"',
+  },
+  practiceQuizReportTitle: {
+    message: 'Report for {quizTitle}',
+    context: 'Label for a report corresponding to a practice quiz',
+  },
+  masteryModelLabel: {
+    message: 'Completion requirement',
+    context: 'Denotes whether a specific exercise needs to be completed by the learner.',
   },
 });
 
+// We forgot a string, so we are using one from the PerseusInternalMessages namespace
+// do not do this, do as I say, not as I do, etc. etc.
+// TODO: 0.16 - remove this and put a proper string in place
+const noneOfTheAboveTranslator = createTranslator('PerseusInternalMessages', {
+  'None of the above': 'None of the above',
+});
+
+// We forgot another string, so we are using one from the EPubRenderer SearchSideBar namespace
+// do not do this, do as I say, not as I do, etc. etc.
+// TODO: 0.16 - remove this and put a proper string in place
+const overResultsTranslator = createTranslator('SearchSideBar', {
+  overCertainNumberOfSearchResults: {
+    message: 'Over {num, number, integer} {num, plural, one {result} other {results}}',
+    context:
+      'Refers to number of search results when there are over a specified amount. Only translate "over", "result" and "results".\n',
+  },
+});
+
+/**
+ * An object mapping ad hoc keys (like those to be passed to coreString()) which do not
+ * conform to the expectations. Examples:
+ *
+ * - Misspelling of the key in coreStrings but a kolibri-constant used to access it is
+ *   spelled correctly and will not map.
+ * - Keys were defined and string-froze which are not camelCase.
+ * - Keys which, when _.camelCase()'ed will not result in a valid key, requiring manual mapping
+ */
+const nonconformingKeys = {
+  PEOPLE: 'ToUseWithTeachersAndPeers',
+  PAPER_PENCIL: 'ToUseWithPaperAndPencil',
+  INTERNET: 'NeedsInternet',
+  MATERIALS: 'NeedsMaterials',
+  FOR_BEGINNERS: 'ForBeginners',
+  digitalLiteracy: 'digitialLiteracy',
+  BASIC_SKILLS: 'allLevelsBasicSkills',
+  FOUNDATIONS: 'basicSkills',
+  toolsAndSoftwareTraining: 'softwareToolsAndTraining',
+  foundationsLogicAndCriticalThinking: 'logicAndCriticalThinking',
+};
+
+/**
+ * An object made by taking all metadata namespaces, merging them, then inverting them so that the
+ * ID value (eg, 'rZy41Dc') instead are the keys of an object mapping to the names we use
+ * to find the translation key.
+ */
+const MetadataLookup = invert(
+  Object.assign(
+    {},
+    METADATA.AccessibilityCategories,
+    METADATA.Categories,
+    METADATA.ContentLevels,
+    METADATA.ContentNodeResourceType,
+    METADATA.LearningActivities,
+    METADATA.ResourcesNeededTypes
+  )
+);
+
 export default {
   methods: {
+    /**
+     * Return translated string for key defined in the coreStrings translator. Will map
+     * ID keys generated in the kolibri-constants library to their appropriate translations
+     * if available.
+     *
+     * @param {string} key - A key as defined in the coreStrings translator; also accepts keys
+     * for the object MetadataLookup.
+     * @param {object} args - An object with keys matching ICU syntax arguments for the translation
+     * string mapping to the values to be passed for those arguments.
+     */
     coreString(key, args) {
+      if (key === 'None of the above' || key === METADATA.NoCategories) {
+        return noneOfTheAboveTranslator.$tr('None of the above', args);
+      }
+
+      if (key === 'overCertainNumberOfSearchResults') {
+        return overResultsTranslator.$tr(key, args);
+      }
+
+      const metadataKey = get(MetadataLookup, key, null);
+      key = metadataKey ? camelCase(metadataKey) : key;
+
+      if (nonconformingKeys[key]) {
+        return coreStrings.$tr(nonconformingKeys[key], args);
+      }
+
+      if (nonconformingKeys[metadataKey]) {
+        return coreStrings.$tr(nonconformingKeys[metadataKey], args);
+      }
+
       return coreStrings.$tr(key, args);
     },
+    /**
+     * Shows a specific snackbar notification from our notificationStrings translator.
+     *
+     * @param {string} key - A key as defined in the notificationsStrings translator.
+     * @param {object} args - An object with keys matching ICU syntax arguments for the translation
+     * string mapping to the values to be passed for those arguments.
+     * @param {object} coreCreateSnackbarArgs - Arguments which will be passed to the
+     * `CORE_CREATE_SNACKBAR` mutation.
+     */
     showSnackbarNotification(key, args, coreCreateSnackbarArgs) {
       let text = notificationStrings.$tr(key, args || {});
       if (coreCreateSnackbarArgs) {

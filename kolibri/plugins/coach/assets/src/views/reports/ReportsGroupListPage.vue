@@ -20,7 +20,7 @@
           <th>{{ coreString('lessonsLabel') }}</th>
           <th>{{ coreString('quizzesLabel') }}</th>
           <th>{{ coreString('learnersLabel') }}</th>
-          <th>{{ coachString('avgQuizScoreLabel') }}</th>
+          <th>{{ coachString('avgScoreLabel') }}</th>
           <th>{{ coachString('lastActivityLabel') }}</th>
         </template>
         <template #tbody>

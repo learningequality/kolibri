@@ -18,6 +18,7 @@ from .paths import get_content_database_file_path
 from .sqlalchemybridge import Bridge
 from .sqlalchemybridge import ClassNotFoundError
 from kolibri.core.content.apps import KolibriContentConfig
+from kolibri.core.content.constants.kind_to_learningactivity import kind_activity_map
 from kolibri.core.content.constants.schema_versions import CONTENT_SCHEMA_VERSION
 from kolibri.core.content.constants.schema_versions import NO_VERSION
 from kolibri.core.content.constants.schema_versions import V020BETA1
@@ -26,6 +27,7 @@ from kolibri.core.content.constants.schema_versions import VERSION_1
 from kolibri.core.content.constants.schema_versions import VERSION_2
 from kolibri.core.content.constants.schema_versions import VERSION_3
 from kolibri.core.content.constants.schema_versions import VERSION_4
+from kolibri.core.content.constants.schema_versions import VERSION_5
 from kolibri.core.content.legacy_models import License
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
@@ -33,6 +35,8 @@ from kolibri.core.content.models import ContentTag
 from kolibri.core.content.models import File
 from kolibri.core.content.models import Language
 from kolibri.core.content.models import LocalFile
+from kolibri.core.content.utils.annotation import set_channel_ancestors
+from kolibri.core.content.utils.search import annotate_label_bitmasks
 from kolibri.utils.time_utils import local_now
 
 logger = logging.getLogger(__name__)
@@ -66,12 +70,11 @@ def column_not_auto_integer_pk(column):
 def convert_to_sqlite_value(python_value):
     if isinstance(python_value, bool):
         return "1" if python_value else "0"
-    elif python_value is None:
+    if python_value is None:
         return "null"
-    elif isinstance(python_value, dict) or isinstance(python_value, list):
+    if isinstance(python_value, dict) or isinstance(python_value, list):
         return '"{}"'.format(json.dumps(python_value))
-    else:
-        return repr(python_value)
+    return repr(python_value)
 
 
 def clean_csv_value(value):
@@ -227,7 +230,14 @@ class ChannelImport(object):
         if destination is None:
             # If no destination is set then we are targeting the default database
             self.destination = Bridge(
-                schema_version=CONTENT_SCHEMA_VERSION, app_name=CONTENT_APP_NAME
+                # It is a little counter intuitive that we are setting the schema version for the
+                # Django database *not* to be CURRENT_SCHEMA_VERSION, but we do so because
+                # this allows for precise mapping from channel database tables and columns to
+                # the Django database tables and columns. If we were to reference the current schema,
+                # then channel imports would fail because we did not properly specify the other
+                # fields that are annotated not imported.
+                schema_version=CONTENT_SCHEMA_VERSION,
+                app_name=CONTENT_APP_NAME,
             )
         else:
             # If a destination is set then pass that explicitly. At the moment, this only supports
@@ -331,8 +341,7 @@ class ChannelImport(object):
                     mapping = getattr(self, col_map)
                     if callable(mapping):
                         return mapping(record)
-                    else:
-                        return mapping
+                    return mapping
                 else:
                     # If neither of these true, we specified a column mapping that is invalid
                     raise AttributeError(
@@ -727,8 +736,9 @@ class ChannelImport(object):
                     )
                 ).fetchone()
 
+                self.delete_old_channel_many_to_many_fields(self.channel_id)
                 if root_node:
-                    self.delete_old_channel_data(root_node["tree_id"])
+                    self.delete_old_channel_tree_data(root_node["tree_id"])
             else:
                 # We have previously loaded this channel, with the same or newer version, so our work here is done
                 logger.warn(
@@ -751,7 +761,21 @@ class ChannelImport(object):
         table_mapper = self.generate_table_mapper(mapping.get("per_table"))
         return self.can_use_sqlite_attach_method(model, table_mapper)
 
-    def delete_old_channel_data(self, old_tree_id):
+    def delete_old_channel_many_to_many_fields(self, channel_id):
+        # Delete all many to many through entries for the channel
+        # being deleted to prevent referential integrity errors in Postgresql.
+        for m2m in ChannelMetadata._meta.local_many_to_many:
+            model = getattr(ChannelMetadata, m2m.attname).through
+            # Our destination's schema is set to the latest import schema version
+            # NOT the schema that precisely reflects the tables of the Django database.
+            # So here we reference the actual current schema for the Django database
+            # because annotated channel metadata many to many fields are not included
+            # in channel databases, and their information is annotated after import.
+            m2mtable = self.destination.get_current_table(model)
+            query = m2mtable.delete().where(m2mtable.c.channelmetadata_id == channel_id)
+            self.destination.execute(query)
+
+    def delete_old_channel_tree_data(self, old_tree_id):
 
         # we want to delete all content models, but not "merge models" (ones that might also be used by other channels), and ContentNode last
         models_to_delete = [
@@ -839,6 +863,19 @@ class ChannelImport(object):
                 pass
             self._sqlite_db_attached = False
 
+    def execute_post_operations(self, model, post_operations):
+        DestinationTable = self.destination.get_table(model)
+        for operation in post_operations:
+            try:
+                handler = getattr(self, operation)
+                handler(DestinationTable)
+            except AttributeError:
+                raise AttributeError(
+                    "Post operation {} specified for model {} but none found on class".format(
+                        operation, model
+                    )
+                )
+
     def import_channel_data(self):
 
         logger.debug("Beginning channel metadata import")
@@ -857,6 +894,7 @@ class ChannelImport(object):
                     table_mapper = self.generate_table_mapper(mapping.get("per_table"))
                     logger.info("Importing {model} data".format(model=model.__name__))
                     self.table_import(model, row_mapper, table_mapper)
+                    self.execute_post_operations(model, mapping.get("post", []))
                     logger.debug(
                         "{model} data imported after {seconds} seconds".format(
                             model=model.__name__, seconds=time.time() - model_start
@@ -889,7 +927,33 @@ class ChannelImport(object):
         self.destination.end()
 
 
-class NoVersionChannelImport(ChannelImport):
+class NoLearningActivitiesChannelImport(ChannelImport):
+    """
+    Class defining the schema mapping for importing content databases before learning activities metadata was added
+    """
+
+    schema_mapping = {
+        ContentNode: {
+            "per_row": {
+                "tree_id": "available_tree_id",
+                "available": "default_to_not_available",
+            },
+            "post": ["set_learning_activities_from_kind"],
+        },
+        LocalFile: {"per_row": {"available": "default_to_not_available"}},
+        File: {"per_row": {"available": "default_to_not_available"}},
+    }
+
+    def set_learning_activities_from_kind(self, ContentNodeTable):
+        for kind, la in kind_activity_map.items():
+            self.destination.execute(
+                ContentNodeTable.update()
+                .where(ContentNodeTable.c.kind == kind)
+                .values(learning_activities=la)
+            )
+
+
+class NoVersionChannelImport(NoLearningActivitiesChannelImport):
     """
     Class defining the schema mapping for importing old content databases (i.e. ones produced before the
     ChannelImport machinery was implemented). The schema mapping below defines how to bring in information
@@ -911,7 +975,8 @@ class NoVersionChannelImport(ChannelImport):
                 "available": "get_none",
                 "license_name": "get_license_name",
                 "license_description": "get_license_description",
-            }
+            },
+            "post": ["set_learning_activities_from_kind"],
         },
         File: {
             "per_row": {
@@ -997,10 +1062,11 @@ mappings = {
     V020BETA1: NoVersionChannelImport,
     V040BETA3: NoVersionChannelImport,
     NO_VERSION: NoVersionChannelImport,
-    VERSION_1: ChannelImport,
-    VERSION_2: ChannelImport,
-    VERSION_3: ChannelImport,
-    VERSION_4: ChannelImport,
+    VERSION_1: NoLearningActivitiesChannelImport,
+    VERSION_2: NoLearningActivitiesChannelImport,
+    VERSION_3: NoLearningActivitiesChannelImport,
+    VERSION_4: NoLearningActivitiesChannelImport,
+    VERSION_5: ChannelImport,
 }
 
 
@@ -1068,12 +1134,17 @@ def import_channel_from_local_db(channel_id, cancel_check=None):
     channel = ChannelMetadata.objects.get(id=channel_id)
     channel.last_updated = local_now()
     try:
-        assert channel.root
+        if not channel.root:
+            raise AssertionError
     except ContentNode.DoesNotExist:
         node_id = channel.root_id
         ContentNode.objects.create(
             id=node_id, title=channel.name, content_id=node_id, channel_id=channel_id
         )
+
+    annotate_label_bitmasks(ContentNode.objects.filter(channel_id=channel_id))
+    set_channel_ancestors(channel_id)
+
     channel.save()
 
     logger.info("Channel {} successfully imported into the database".format(channel_id))
