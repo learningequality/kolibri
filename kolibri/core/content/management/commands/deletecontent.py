@@ -33,7 +33,7 @@ def delete_metadata(channel, node_ids, exclude_node_ids, force_delete):
     # If we have been passed node ids do not do a full deletion pass
     set_content_invisible(channel.id, node_ids, exclude_node_ids)
     # If everything has been made invisible, delete all the metadata
-    delete_all_metadata = not channel.root.available
+    delete_all_metadata = delete_all_metadata or not channel.root.available
 
     total_resource_number = (
         resources_before
