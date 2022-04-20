@@ -22,7 +22,7 @@ Feature: Device setup
 	Scenario: New bottom bar on the native Android app
 		When I launch the Android app
 		Then I see the bottom bar
-			And I see the following tabs: *Home*, *Search*, *Bookmarks* and *Menu*
+			And I see the following tabs: *Home*, *Library*, *Bookmarks* and *Menu*
 			And I see that I am at the *Home* tab which is in a selected state
 
 	Scenario: Changing tabs on the native Android app
@@ -46,7 +46,7 @@ Feature: Device setup
 			And I can see my name, username and role
 			And I can see my points
 			And I can see that all the other sections of the menu are collapsed
-			And I can see the *Get later*, *Profile*, *Change language* and *Sign out* options
+			And I can see the *My downloads*, *Profile*, *Change language* and *Sign out* options
 			And I can see the kolibri icon, version of Kolibri, and copyrigt text
 			And I can see the *Usage and privacy* link
 

@@ -13,7 +13,7 @@ Feature: Change facility after device setup
 			And I see an *Add new address* link
 		When I click *Continue*
 		Then I see a *Change facility* label
-			And I see text that I am about to move my account and progress data to the selected ‘<facility>’
+			And I see *You are about to move your account and progress data to ‘<facility>’. Your data will still be available to you and will also be accessible to any administrators of this facility. Your user type will change from ‘[non-learner-role] to ‘learner’. You will need an admin to make you a(n) ‘[non-learner-role]’ again. You can also search for an account to merge with in ‘<facility>’. Progress data from both accounts will be combined into one account.*
 			And I see a *Merge accounts* option
 		When I click *Continue*
 		Then I see a *Confirm account* label

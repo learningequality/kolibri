@@ -69,7 +69,7 @@ Feature: Device settings
 		Then I see a *Settings have been updated* message #next steps to be further discussed
 
 	Scenario: Change the storage location
-		When I click the *Manage* link
+		When I click the *Change* link
 		Then I see the *Storage location* modal
 			And I see that the current path is already selected
 			And I see a number of other available paths
