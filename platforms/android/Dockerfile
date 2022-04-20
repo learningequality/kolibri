@@ -18,6 +18,7 @@ RUN dpkg --add-architecture i386 && \
     libffi-dev \
     libltdl-dev\
     libncurses5:i386 \
+    libssl-dev \
     libstdc++6:i386 \
     libtool \
     locales \
@@ -49,29 +50,31 @@ ENV PATH /usr/local/bin:$PATH
 RUN cd /usr/local/bin && \
   ln -s $(which python3) python
 
-# install python dependencies
-RUN pip install -r requirements.txt && \
-  useradd -lm kivy
-
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
     locale-gen
 ENV LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
 
-USER kivy:kivy
-WORKDIR /home/kivy
+# Install Android SDK
+ENV ANDROID_HOME=/opt/android
+ENV ANDROIDSDK=$ANDROID_HOME/sdk
+ENV ANDROIDNDK=$ANDROIDSDK/ndk-bundle
+COPY Makefile /tmp/
+RUN make -C /tmp setup SDK=$ANDROIDSDK && \
+  rm -f /tmp/Makefile
 
-# make sure the build is from scratch on a per-architecture basis
-ARG ARCH=$ARCH
+# install python dependencies
+COPY requirements.txt /tmp/
+RUN pip install -r /tmp/requirements.txt && \
+  rm -f /tmp/requirements.txt
 
-# Initializes the directory, owned by new user. Volume mounts adopt existing permissions, etc.
-RUN mkdir ~/.local
+# Configure gradle for use in docker. Disable gradle's automatically
+# detected rich console doesn't work in docker. Disable the gradle
+# daemon since it will be stopped as soon as the container exits.
+ENV GRADLE_OPTS="-Dorg.gradle.console=plain -Dorg.gradle.daemon=false"
 
-COPY --chown=kivy:kivy . .
+# Create a mount point for the build cache and make it world writable so
+# that the volume can be used by an unprivileged user without additional
+# setup.
+RUN mkdir /cache && chmod 777 /cache
 
-RUN make setup
-
-RUN set -a; source .env; set +a
-
-ENTRYPOINT [ "make" ]
-
-CMD [ "kolibri.apk" ]
+CMD [ "make", "kolibri.apk" ]
