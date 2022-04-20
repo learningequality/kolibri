@@ -4,9 +4,7 @@
     :authorized="userIsAuthorized"
     authorizedRole="registeredUser"
   >
-    <div>
-      <router-view />
-    </div>
+    <router-view />
 
   </NotificationsRoot>
 
@@ -43,10 +41,5 @@
 <style lang="scss" scoped>
 
   @import './learn';
-
-  .content {
-    height: 100%;
-    margin: auto;
-  }
 
 </style>

@@ -94,7 +94,6 @@
         return undefined;
       },
       breadcrumbs() {
-        console.log(this.currentLesson);
         return this.currentLesson && this.currentLesson.classroom
           ? [
               {

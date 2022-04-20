@@ -3,7 +3,6 @@
   <ImmersivePageRoot
     :route="$store.getters.learnPageLinks.HomePage"
     :appBarTitle="exam.title || ''"
-    :applyStandardLayout="false"
   >
     <KGrid :gridStyle="gridStyle">
       <!-- this.$refs.questionListWrapper is referenced inside AnswerHistory for scrolling -->
@@ -187,11 +186,11 @@
 
   export default {
     name: 'ExamPage',
-    // metaInfo() {
-    //   return {
-    //     title: this.exam.title,
-    //   };
-    // },
+    metaInfo() {
+      return {
+        title: this.exam.title,
+      };
+    },
     components: {
       AnswerHistory,
       UiAlert,
