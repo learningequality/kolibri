@@ -59,9 +59,10 @@
         type: String,
         default: null,
       },
-      applyStandardLayout: {
-        type: Boolean,
-        default: true,
+      appearanceOverrides: {
+        type: Object,
+        required: false,
+        default: null,
       },
     },
     data() {
@@ -76,8 +77,9 @@
         loading: state => state.core.loading,
       }),
       wrapperStyles() {
-        return this.applyStandardLayout
-          ? {
+        return this.appearanceOverrides
+          ? this.appearanceOverrides
+          : {
               width: '100%',
               display: 'inline-block',
               backgroundColor: this.$themePalette.grey.v_100,
@@ -86,8 +88,7 @@
               paddingTop: this.appBarHeight + 32 + 'px',
               paddingBottom: '72px',
               marginTop: 0,
-            }
-          : '';
+            };
       },
     },
     mounted() {

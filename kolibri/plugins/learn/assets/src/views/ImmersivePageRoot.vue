@@ -1,6 +1,6 @@
 <template>
 
-  <div class="main-wrapper" :style="wrapperStyles">
+  <div :style="wrapperStyles">
     <ImmersiveToolbar
       ref="appBar"
       :appBarTitle="appBarTitle"
@@ -35,9 +35,10 @@
         type: Object,
         default: null,
       },
-      applyStandardLayout: {
-        type: Boolean,
-        default: true,
+      appearanceOverrides: {
+        type: Object,
+        required: false,
+        default: null,
       },
     },
     data() {
@@ -50,8 +51,9 @@
         loading: state => state.core.loading,
       }),
       wrapperStyles() {
-        return this.applyStandardLayout
-          ? {
+        return this.appearanceOverrides
+          ? this.appearanceOverrides
+          : {
               width: '100%',
               display: 'inline-block',
               backgroundColor: this.$themePalette.grey.v_100,
@@ -59,8 +61,7 @@
               paddingRight: '32px',
               paddingBottom: '72px',
               paddingTop: this.appBarHeight + 16 + 'px',
-            }
-          : '';
+            };
       },
     },
     mounted() {

@@ -2,7 +2,7 @@
 
   <LearnAppBarPage
     :appBarTitle="learnString('learnLabel')"
-    :applyStandardLayout="false"
+    :appearanceOverrides="{}"
   >
     <main
       class="main-grid"

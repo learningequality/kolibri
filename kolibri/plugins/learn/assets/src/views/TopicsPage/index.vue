@@ -4,11 +4,13 @@
     <div v-if="currentChannelIsCustom">
       <CustomContentRenderer :topic="topic" />
     </div>
+    <!-- appearanceOverrides overrides the default page styling -->
+    <!-- by replacing it with an empty object -->
     <ImmersivePageRoot
       v-else
       :route="$store.getters.learnPageLinks.LibraryPage"
       :appBarTitle="topic.title || ''"
-      :applyStandardLayout="false"
+      :appearanceOverrides="{}"
       class="page"
     >
       <!-- Header with thumbail and tagline -->
