@@ -792,6 +792,14 @@ def _read_pid_file(filename):
     return None, None, None, STATUS_PID_FILE_INVALID
 
 
+def get_status_from_pid_file():
+    """
+    Returns the status of the server process from the PID file.
+    """
+    _, _, _, status = _read_pid_file(PID_FILE)
+    return status
+
+
 def get_zip_port():
     _, _, zip_port, _ = _read_pid_file(PID_FILE)
     return zip_port

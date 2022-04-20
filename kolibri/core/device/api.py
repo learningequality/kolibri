@@ -1,5 +1,7 @@
+import time
 from datetime import timedelta
 from sys import version_info
+from threading import Thread
 
 from django.conf import settings
 from django.db.models import Max
@@ -26,7 +28,6 @@ import kolibri
 from .models import DevicePermissions
 from .models import DeviceSettings
 from .models import UserSyncStatus
-from .permissions import IsSuperuser
 from .permissions import NotProvisionedCanPost
 from .permissions import UserHasAnyDevicePermissions
 from .serializers import DevicePermissionsSerializer
@@ -37,6 +38,7 @@ from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.auth.models import Collection
 from kolibri.core.content.permissions import CanManageContent
+from kolibri.core.device.permissions import IsSuperuser
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.discovery.models import DynamicNetworkLocation
 from kolibri.core.public.constants.user_sync_options import DELAYED_SYNC
@@ -49,8 +51,11 @@ from kolibri.plugins.utils import initialize_kolibri_plugin
 from kolibri.plugins.utils import iterate_plugins
 from kolibri.plugins.utils import PluginDoesNotExist
 from kolibri.utils.conf import OPTIONS
+from kolibri.utils.server import get_status_from_pid_file
 from kolibri.utils.server import get_urls
 from kolibri.utils.server import installation_type
+from kolibri.utils.server import restart
+from kolibri.utils.server import STATUS_RUNNING
 from kolibri.utils.system import get_free_space
 from kolibri.utils.time_utils import local_now
 
@@ -336,3 +341,28 @@ class PluginsViewSet(viewsets.ViewSet):
             elif not enabled and plugin.enabled:
                 plugin.disable()
         return Response(self._serialize(plugin))
+
+
+def delayed_restart(delay):
+    """
+    Restart the server after a delay.
+    Do this to allow the request to complete before restarting.
+    """
+    time.sleep(delay)
+    restart()
+
+
+class DeviceRestartView(views.APIView):
+
+    permission_classes = (IsSuperuser,)
+
+    def get(self, request):
+        status = get_status_from_pid_file()
+        return Response(status)
+
+    def post(self, request):
+        status = get_status_from_pid_file()
+        if status == STATUS_RUNNING:
+            thread = Thread(target=delayed_restart, args=(0.5,))
+            thread.start()
+        return Response(status)
