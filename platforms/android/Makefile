@@ -86,7 +86,7 @@ kolibri.apk: p4a_android_distro src/kolibri needs-version
 	@echo "--- :android: Build APK"
 	p4a apk --release --sign --arch=$(P4A_ARCH) --version=$(APK_VERSION) --numeric-version=$(BUILD_NUMBER)
 	mkdir -p dist
-	mv kolibri-$(APK_VERSION)-.apk dist/kolibri__$(ARM_VER)-$(APK_VERSION).apk
+	mv kolibri-release-$(APK_VERSION)-.apk dist/kolibri__$(ARM_VER)-$(APK_VERSION).apk
 
 .PHONY: kolibri.apk.unsigned
 # Build the unsigned debug version of the apk
