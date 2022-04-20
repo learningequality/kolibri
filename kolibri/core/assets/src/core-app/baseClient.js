@@ -19,6 +19,9 @@ export default function clientFactory(options) {
   client.interceptors.response.use(
     response => response,
     function(error) {
+      if (!error) {
+        error = {};
+      }
       if (!error.response) {
         error.response = {
           status: 0,
