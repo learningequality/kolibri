@@ -283,29 +283,31 @@
       },
       back() {
         let route = {};
-        const query = { ...this.$route.query };
-        const lastPage = (this.$route.query || {}).last;
-        delete query.last;
-        delete query.topicId;
-        // returning to a topic page requires an id
-        if (lastPage === PageNames.TOPICS_TOPIC_SEARCH || lastPage === PageNames.TOPICS_TOPIC) {
-          const lastId = this.$route.query.topicId
-            ? this.$route.query.topicId
-            : this.content.parent;
-          // Need to guard for parent being non-empty to avoid console errors
-          route = this.$router.getRoute(
-            lastPage,
-            {
-              id: lastId,
-            },
-            query
-          );
-        } else if (lastPage === PageNames.LIBRARY) {
-          route = this.$router.getRoute(lastPage, {}, query);
-        } else if (lastPage) {
-          route = this.$router.getRoute(lastPage, query);
-        } else {
-          route = this.$router.getRoute(PageNames.HOME);
+        if (this.$route) {
+          const query = { ...this.$route.query };
+          const lastPage = (this.$route.query || {}).last;
+          delete query.last;
+          delete query.topicId;
+          // returning to a topic page requires an id
+          if (lastPage === PageNames.TOPICS_TOPIC_SEARCH || lastPage === PageNames.TOPICS_TOPIC) {
+            const lastId = this.$route.query.topicId
+              ? this.$route.query.topicId
+              : this.content.parent;
+            // Need to guard for parent being non-empty to avoid console errors
+            route = this.$router.getRoute(
+              lastPage,
+              {
+                id: lastId,
+              },
+              query
+            );
+          } else if (lastPage === PageNames.LIBRARY) {
+            route = this.$router.getRoute(lastPage, {}, query);
+          } else if (lastPage) {
+            route = this.$router.getRoute(lastPage, query);
+          } else {
+            route = this.$router.getRoute(PageNames.HOME);
+          }
         }
         return route;
       },
