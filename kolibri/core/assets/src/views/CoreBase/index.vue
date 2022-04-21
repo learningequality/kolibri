@@ -340,6 +340,7 @@
         }
 
         return {
+          width: '100vw',
           backgroundColor: this.$themePalette.grey.v_100,
           paddingTop: `${this.appbarHeight}px`,
           paddingBottom: `${this.marginBottom}px`,
@@ -546,7 +547,7 @@
 
   .main-wrapper {
     display: inline-block;
-    width: 100%;
+    width: 100vw;
 
     @media print {
       /* Without this, things won't print correctly

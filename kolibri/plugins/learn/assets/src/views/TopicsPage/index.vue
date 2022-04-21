@@ -28,7 +28,6 @@
         />
 
         <div class="card-grid">
-
           <!-- Filter buttons - shown when not sidebar not visible -->
           <div v-if="!windowIsLarge" data-test="tab-buttons">
             <KButton
@@ -96,7 +95,7 @@
           <SearchResultsGrid
             v-else-if="!searchLoading"
             data-test="search-results"
-            currentCardViewStyle="card"
+            :currentCardViewStyle="currentSearchCardViewStyle"
             :results="results"
             :removeFilterTag="removeFilterTag"
             :clearSearch="clearSearch"
@@ -105,7 +104,7 @@
             :searchTerms="searchTerms"
             :searchLoading="searchLoading"
             :more="more"
-            @setCardStyle="style => currentCardViewStyle = style"
+            @setCardStyle="style => currentSearchCardViewStyle = style"
             @setSidePanelMetadataContent="content => metadataSidePanelContent = content"
           />
         </div>
@@ -346,6 +345,7 @@
         subTopicLoading: null,
         topicMoreLoading: false,
         mobileSearchActive: false,
+        currentSearchCardViewStyle: 'card',
       };
     },
     computed: {
@@ -653,8 +653,8 @@
 
   .page {
     position: relative;
+    width: 100vw;
     min-height: calc(100vh - #{$toolbar-height});
-    overflow-x: hidden;
   }
 
   .side-panel {

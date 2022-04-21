@@ -23,7 +23,7 @@
       data-test="children-cards-grid"
       :contents="topic.children"
       currentCardViewStyle="card"
-      :gridType="2"
+      :gridType="1"
       @toggleInfoPanel="$emit('toggleInfoPanel', $event)"
     />
     <KButton
@@ -75,7 +75,14 @@
     data() {
       return {};
     },
-    methods: { genContentLink },
+    methods: {
+      genContentLink(content) {
+        return genContentLink(content.id, this.topicId, content.is_leaf, this.backRoute, {
+          ...this.context,
+          ...this.$route.query,
+        });
+      },
+    },
     $trs: {
       showMore: {
         message: 'Show more',
