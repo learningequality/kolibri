@@ -19,7 +19,7 @@ RUN_OPTS=(
 
   # Bind mount the source directory into the container and make it the
   # working dirctory.
-  --mount "type=bind,src=${SRCDIR},dst=${SRCDIR}"
+  --volume "${SRCDIR}:${SRCDIR}:z"
   --workdir "${SRCDIR}"
 
   # Run as the calling user and make the cache volume the user's home
@@ -42,7 +42,7 @@ if [ -e "${P4A_RELEASE_KEYSTORE}" ]; then
   P4A_RELEASE_KEYSTORE=$(realpath "${P4A_RELEASE_KEYSTORE}")
   RUN_OPTS+=(
     --env P4A_RELEASE_KEYSTORE
-    --volume "${P4A_RELEASE_KEYSTORE}:${P4A_RELEASE_KEYSTORE}:ro"
+    --volume "${P4A_RELEASE_KEYSTORE}:${P4A_RELEASE_KEYSTORE}:ro,z"
   )
 fi
 
