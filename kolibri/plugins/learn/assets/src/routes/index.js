@@ -13,7 +13,7 @@ import { PageNames, ClassesPageNames } from '../constants';
 import LibraryPage from '../views/LibraryPage';
 import HomePage from '../views/HomePage';
 import TopicsPage from '../views/TopicsPage';
-import LearnImmersiveLayout from '../views/LearnImmersiveLayout';
+import TopicsContentPage from '../views/TopicsContentPage';
 import ContentUnavailablePage from '../views/ContentUnavailablePage';
 import BookmarkPage from '../views/BookmarkPage.vue';
 import classesRoutes from './classesRoutes';
@@ -184,7 +184,7 @@ export default [
     handler: toRoute => {
       showTopicsContent(store, toRoute.params.id);
     },
-    component: LearnImmersiveLayout,
+    component: TopicsContentPage,
   },
   {
     name: PageNames.BOOKMARKS,

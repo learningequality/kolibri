@@ -159,7 +159,7 @@
   const lessonStrings = crossComponentTranslator(LessonResourceViewer);
 
   export default {
-    name: 'LearnImmersiveLayout',
+    name: 'TopicsContentPage',
     metaInfo() {
       return {
         // Use arrow function to bind $tr to this component
