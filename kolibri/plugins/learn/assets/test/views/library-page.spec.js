@@ -22,7 +22,7 @@ const router = new VueRouter({
 
 // rootNodes used when showing default view, should always have length
 const mockStore = new Vuex.Store({
-  state: { rootNodes: ['length'] },
+  state: { rootNodes: ['length'], core: { loading: false } },
   getters: { isUserLoggedIn: jest.fn() },
 });
 

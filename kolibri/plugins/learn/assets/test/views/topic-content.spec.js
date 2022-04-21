@@ -18,6 +18,7 @@ const localVue = createLocalVue();
 const store = makeStore();
 store.state.core = {
   blockDoubleClicks: true,
+  loading: false,
   logging: {
     summary: {
       progress: 0,

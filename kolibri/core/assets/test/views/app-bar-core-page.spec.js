@@ -10,6 +10,10 @@ const store = new Vuex.Store({
   },
 });
 
+store.state.core = {
+  loading: false,
+};
+
 function createWrapper({ propsData = {}, slots = {} } = {}) {
   return mount(AppBarCorePage, {
     propsData,
