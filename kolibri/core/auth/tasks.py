@@ -85,7 +85,7 @@ def validate_importusersfromcsv(request, request_data):
     track_progress=True,
     permission_classes=[CanImportUsers],
 )
-def importusersfromcsv(job_args, facility, userid, locale):
+def importusersfromcsv(job_args=None, facility=None, userid=None, locale=None):
     """
     Import users, classes, roles and roles assignemnts from a csv file.
     :param: FILE: file dictionary with the file object
@@ -131,7 +131,7 @@ def validate_exportuserstocsv(request, request_data):
     track_progress=True,
     permission_classes=[CanImportUsers],
 )
-def exportuserstocsv(facility, locale):
+def exportuserstocsv(facility=None, locale=None):
     """
     Export users, classes, roles and roles assignemnts to a csv file.
 

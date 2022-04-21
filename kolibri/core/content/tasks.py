@@ -320,7 +320,7 @@ def validate_startremoteimport(request, request_data):
     validator=validate_startremoteimport,
     cancellable=True,
     track_progress=True,
-    permission_classes=CanManageContent,
+    permission_classes=[CanManageContent],
 )
 def startremoteimport(
     channel_id=None,

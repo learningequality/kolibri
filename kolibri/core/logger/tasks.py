@@ -19,14 +19,14 @@ def get_logs_dir_and_filepath(log_type, facility):
     return logs_dir, filepath
 
 
-def validate_startexportlogcsv(request):
-    facility_id = request.data.get("facility", None)
+def validate_startexportlogcsv(request, request_data):
+    facility_id = request_data.get("facility", None)
     if facility_id:
         facility = Facility.objects.get(pk=facility_id)
     else:
         facility = request.user.facility
 
-    log_type = request.data.get("logtype", "summary")
+    log_type = request_data.get("logtype", "summary")
 
     if log_type in CSV_EXPORT_FILENAMES.keys():
         logs_dir, filepath = get_logs_dir_and_filepath(log_type, facility)
@@ -57,7 +57,11 @@ def validate_startexportlogcsv(request):
     track_progress=True,
     permission_classes=[CanExportLogs],
 )
-def startexportlogcsv(**kwargs):
+def startexportlogcsv(
+    log_type=None,
+    filepath=None,
+    facility=None,
+):
     """
     Dumps in csv format the required logs.
     By default it will be dump contentsummarylog.
@@ -67,8 +71,8 @@ def startexportlogcsv(**kwargs):
     """
     call_command(
         "exportlogs",
-        log_type=kwargs["log_type"],
-        output_file=kwargs["filepath"],
-        facility=kwargs["facility"].id,
+        log_type=log_type,
+        output_file=filepath,
+        facility=facility.id,
         overwrite="true",
     )
