@@ -93,14 +93,3 @@ def validate_local_export_task(request, task_description):
     task = validate_content_task(request, task_description, require_channel=True)
     task = add_drive_info(task, task_description)
     return task
-
-
-def validate_deletion_task(request, task_description):
-    task = validate_content_task(request, task_description, require_channel=True)
-    task["force_delete"] = bool(task_description.get("force_delete"))
-    task.update({"type": "DELETECONTENT"})
-    if task["node_ids"] or task["exclude_node_ids"]:
-        task["file_size"] = None
-        task["total_resources"] = None
-    task["extra_metadata"] = task
-    return task
