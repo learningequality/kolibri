@@ -6,9 +6,9 @@
       :appBarTitle="appBarTitle"
       :route="route"
     />
-    <slot v-if="!loading"></slot>
+    <slot></slot>
     <KLinearLoader
-      v-else
+      v-if="loading"
       class="loader"
       type="indeterminate"
       :delay="false"

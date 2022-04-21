@@ -7,7 +7,7 @@
     <!-- appearanceOverrides overrides the default page styling -->
     <!-- by replacing it with an empty object -->
     <ImmersivePageRoot
-      v-else
+      v-else-if="!loading"
       :route="$store.getters.learnPageLinks.LibraryPage"
       :appBarTitle="topic.title || ''"
       :appearanceOverrides="{}"
@@ -358,6 +358,9 @@
     },
     computed: {
       ...mapState('topicsTree', ['channel', 'contents', 'isRoot', 'topic']),
+      ...mapState({
+        loading: state => state.core.loading,
+      }),
       childrenToDisplay() {
         return Math.max(this.numCols, 3);
       },
@@ -672,6 +675,7 @@
   .side-panel {
     position: absolute;
     top: $header-height;
+    height: calc(100% - #{$header-height});
     padding-top: 16px;
   }
 

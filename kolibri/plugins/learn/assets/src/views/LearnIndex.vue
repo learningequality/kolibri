@@ -15,6 +15,7 @@
 
   import { mapGetters } from 'vuex';
   import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
+  import { PageNames } from '../constants';
   import plugin_data from 'plugin_data';
 
   export default {

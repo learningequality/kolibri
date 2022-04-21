@@ -3,48 +3,51 @@
   <LearnAppBarPage
     :appBarTitle="learnString('learnLabel')"
   >
-    <YourClasses
-      v-if="displayClasses"
-      class="section"
-      :classes="classes"
-      data-test="classes"
-      short
-    />
-    <ContinueLearning
-      v-if="continueLearning"
-      class="section"
-      :fromClasses="continueLearningFromClasses"
-      :data-test="continueLearningFromClasses ?
-        'continueLearningFromClasses' :
-        'continueLearningOnYourOwn'"
-    />
-    <AssignedLessonsCards
-      v-if="hasActiveClassesLessons"
-      class="section"
-      :lessons="activeClassesLessons"
-      displayClassName
-      recent
-      data-test="recentLessons"
-    />
-    <AssignedQuizzesCards
-      v-if="hasActiveClassesQuizzes"
-      class="section"
-      :quizzes="activeClassesQuizzes"
-      displayClassName
-      recent
-      data-test="recentQuizzes"
-    />
-    <ExploreChannels
-      v-if="displayExploreChannels"
-      :channels="channels"
-      class="section"
-      data-test="exploreChannels"
-      :short="displayClasses ||
-        continueLearning ||
-        hasActiveClassesLessons ||
-        hasActiveClassesQuizzes
-      "
-    />
+    <div v-if="!loading">
+      <YourClasses
+        v-if="displayClasses"
+        class="section"
+        :classes="classes"
+        data-test="classes"
+        short
+      />
+      <ContinueLearning
+        v-if="continueLearning"
+        class="section"
+        :fromClasses="continueLearningFromClasses"
+        :data-test="continueLearningFromClasses ?
+          'continueLearningFromClasses' :
+          'continueLearningOnYourOwn'"
+      />
+      <AssignedLessonsCards
+        v-if="hasActiveClassesLessons"
+        class="section"
+        :lessons="activeClassesLessons"
+        displayClassName
+        recent
+        data-test="recentLessons"
+      />
+      <AssignedQuizzesCards
+        v-if="hasActiveClassesQuizzes"
+        class="section"
+        :quizzes="activeClassesQuizzes"
+        displayClassName
+        recent
+        data-test="recentQuizzes"
+      />
+      <ExploreChannels
+        v-if="displayExploreChannels"
+        :channels="channels"
+        class="section"
+        data-test="exploreChannels"
+        :short="displayClasses ||
+          continueLearning ||
+          hasActiveClassesLessons ||
+          hasActiveClassesQuizzes
+        "
+      />
+
+    </div>
   </LearnAppBarPage>
 
 </template>
@@ -53,6 +56,7 @@
 <script>
 
   import { computed } from 'kolibri.lib.vueCompositionApi';
+  import { mapState } from 'vuex';
   import { get } from '@vueuse/core';
   import useChannels from '../../composables/useChannels';
   import useDeviceSettings from '../../composables/useDeviceSettings';
@@ -150,6 +154,11 @@
         displayExploreChannels,
         displayClasses,
       };
+    },
+    computed: {
+      ...mapState({
+        loading: state => state.core.loading,
+      }),
     },
   };
 
