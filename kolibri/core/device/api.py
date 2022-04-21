@@ -6,8 +6,10 @@ from django.db.models import Max
 from django.db.models import OuterRef
 from django.db.models.expressions import Subquery
 from django.db.models.query import Q
+from django.http import Http404
 from django.http.response import HttpResponseBadRequest
 from django.utils import timezone
+from django.utils.translation import get_language
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
 from django_filters.rest_framework import ModelChoiceFilter
@@ -24,6 +26,7 @@ import kolibri
 from .models import DevicePermissions
 from .models import DeviceSettings
 from .models import UserSyncStatus
+from .permissions import IsSuperuser
 from .permissions import NotProvisionedCanPost
 from .permissions import UserHasAnyDevicePermissions
 from .serializers import DevicePermissionsSerializer
@@ -42,6 +45,9 @@ from kolibri.core.public.constants.user_sync_statuses import QUEUED
 from kolibri.core.public.constants.user_sync_statuses import RECENTLY_SYNCED
 from kolibri.core.public.constants.user_sync_statuses import SYNCING
 from kolibri.core.public.constants.user_sync_statuses import UNABLE_TO_SYNC
+from kolibri.plugins.utils import initialize_kolibri_plugin
+from kolibri.plugins.utils import iterate_plugins
+from kolibri.plugins.utils import PluginDoesNotExist
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.server import get_urls
 from kolibri.utils.server import installation_type
@@ -280,3 +286,49 @@ class UserSyncStatusViewSet(ReadOnlyValuesViewset):
         )
 
         return queryset
+
+
+class PluginsViewSet(viewsets.ViewSet):
+    permission_classes = (IsSuperuser,)
+
+    def _get_plugin(self, plugin_name):
+        return initialize_kolibri_plugin(plugin_name)
+
+    def _plugin_name_from_pk(self, pk):
+        return pk.replace("*", ".")
+
+    def _serialize(self, plugin):
+        return {
+            "name": plugin.name(get_language()),
+            "id": plugin.module_path.replace(".", "*"),
+            "enabled": plugin.enabled,
+        }
+
+    def list(self, request):
+        plugins = []
+        for plugin in iterate_plugins():
+            plugins.append(self._serialize(plugin))
+
+        return Response(plugins)
+
+    def _retrieve_plugin(self, pk):
+        if not pk:
+            raise Http404
+        try:
+            return self._get_plugin(pk.replace("*", "."))
+        except PluginDoesNotExist:
+            raise Http404
+
+    def retrieve(self, request, pk):
+        return Response(self._serialize(self._retrieve_plugin(pk)))
+
+    def partial_update(self, request, *args, **kwargs):
+        pk = kwargs.get("pk")
+        plugin = self._retrieve_plugin(pk)
+        enabled = request.data.get("enabled", None)
+        if enabled is not None:
+            if enabled and not plugin.enabled:
+                plugin.enable()
+            elif not enabled and plugin.enabled:
+                plugin.disable()
+        return Response(self._serialize(plugin))
