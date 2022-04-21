@@ -605,7 +605,7 @@
       // Takes effect only when the side panel is not displayed full-screen.
       stickyCalculation() {
         const header = this.$refs.header;
-        const topbar = document.querySelector('.scrolling-header');
+        const topbar = document.querySelector('.ui-toolbar');
         const headerBottom = header ? header.getBoundingClientRect().bottom : 0;
         const topbarBottom = topbar ? topbar.getBoundingClientRect().bottom : 0;
 
