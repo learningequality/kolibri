@@ -6,6 +6,7 @@ from rest_framework import serializers
 from kolibri.core.content.permissions import CanManageContent
 from kolibri.core.content.utils.paths import get_content_database_file_path
 from kolibri.core.content.utils.task_validators_utils import get_channel_name
+from kolibri.core.content.utils.task_validators_utils import validate_deletion_task
 from kolibri.core.content.utils.task_validators_utils import validate_local_export_task
 from kolibri.core.content.utils.task_validators_utils import validate_local_import_task
 from kolibri.core.content.utils.task_validators_utils import validate_remote_import_task
@@ -14,8 +15,8 @@ from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.core.tasks.utils import get_current_job
 
 
-def validate_startdiskcontentimport(request):
-    task = validate_local_import_task(request, request.data)
+def validate_startdiskcontentimport(request, request_data):
+    task = validate_local_import_task(request, request_data)
     task.update({"type": "DISKCONTENTIMPORT"})
     task["extra_metadata"] = task
     return task
@@ -39,14 +40,14 @@ def startdiskcontentimport(**kwargs):
     )
 
 
-def validate_startchannelupdate(request):
-    sourcetype = request.data.get("sourcetype", None)
-    new_version = request.data.get("new_version", None)
+def validate_startchannelupdate(request, request_data):
+    sourcetype = request_data.get("sourcetype", None)
+    new_version = request_data.get("new_version", None)
 
     if sourcetype == "remote":
-        task = validate_remote_import_task(request, request.data)
+        task = validate_remote_import_task(request, request_data)
     elif sourcetype == "local":
-        task = validate_local_import_task(request, request.data)
+        task = validate_local_import_task(request, request_data)
     else:
         raise serializers.ValidationError("sourcetype must be 'remote' or 'local'.")
 
@@ -150,8 +151,8 @@ def startchannelupdate(**kwargs):
             )
 
 
-def validate_startremotechannelimport(request):
-    task = validate_remote_import_task(request, request.data)
+def validate_startremotechannelimport(request, request_data):
+    task = validate_remote_import_task(request, request_data)
     task.update({"type": "REMOTECHANNELIMPORT"})
     task["extra_metadata"] = task
     return task
@@ -172,8 +173,8 @@ def startremotechannelimport(**kwargs):
     )
 
 
-def validate_startremotecontentimport(request):
-    task = validate_remote_import_task(request, request.data)
+def validate_startremotecontentimport(request, request_data):
+    task = validate_remote_import_task(request, request_data)
     task.update({"type": "REMOTECONTENTIMPORT"})
     task["extra_metadata"] = task
     return task
@@ -197,8 +198,8 @@ def startremotecontentimport(**kwargs):
     )
 
 
-def validate_startdiskexport(request):
-    task = validate_local_export_task(request, request.data)
+def validate_startdiskexport(request, request_data):
+    task = validate_local_export_task(request, request_data)
     task.update({"type": "DISKCONTENTEXPORT"})
     task["extra_metadata"] = task
     return task
@@ -245,3 +246,21 @@ def startdiskexport(**kwargs):
         except OSError:
             pass
         raise
+
+
+@register_task(
+    validator=validate_deletion_task,
+    track_progress=True,
+    permission_classes=[CanManageContent],
+)
+def startdeletechannel(**kwargs):
+    """
+    Delete a channel and all its associated content from the server.
+    """
+    call_command(
+        "deletecontent",
+        kwargs["channel_id"],
+        node_ids=kwargs["node_ids"],
+        exclude_node_ids=kwargs["exclude_node_ids"],
+        force_delete=kwargs["force_delete"],
+    )

@@ -34,7 +34,7 @@ def manage_fileobject(request, temp_dir):
     return filepath
 
 
-def validate_importusersfromcsv(request):
+def validate_importusersfromcsv(request, request_data):
     temp_dir = os.path.join(conf.KOLIBRI_HOME, "temp")
     if not os.path.isdir(temp_dir):
         os.mkdir(temp_dir)
@@ -45,7 +45,7 @@ def validate_importusersfromcsv(request):
     # Validation will provide the file object, while
     # Importing will provide the filename, previously validated
     if not request.FILES:
-        filename = request.data.get("csvfile", None)
+        filename = request_data.get("csvfile", None)
         if filename:
             filepath = os.path.join(temp_dir, filename)
         else:
@@ -56,7 +56,7 @@ def validate_importusersfromcsv(request):
         filepath = manage_fileobject(request, temp_dir)
 
     userid = request.user.pk
-    facility_id = request.data.get("facility_id", None)
+    facility_id = request_data.get("facility_id", None)
 
     job_metadata = {
         "type": "IMPORTUSERSFROMCSV",
@@ -65,9 +65,9 @@ def validate_importusersfromcsv(request):
     }
 
     job_args = []
-    if request.data.get("dryrun") is not None:
+    if request_data.get("dryrun") is not None:
         job_args.append("--dryrun")
-    if request.data.get("delete") is not None:
+    if request_data.get("delete") is not None:
         job_args.append("--delete")
     job_args.append(filepath)
 
@@ -100,8 +100,8 @@ def importusersfromcsv(job_args, facility, userid, locale):
     )
 
 
-def validate_exportuserstocsv(request):
-    facility_id = request.data.get("facility_id")
+def validate_exportuserstocsv(request, request_data):
+    facility_id = request_data.get("facility_id")
 
     try:
         if facility_id:
