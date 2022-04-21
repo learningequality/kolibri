@@ -102,6 +102,19 @@ kolibri.apk.unsigned: p4a_android_distro src/kolibri needs-version
 	mkdir -p dist
 	mv kolibri-debug-$(APK_VERSION)-.apk dist/kolibri__$(ARM_VER)-debug-$(APK_VERSION).apk
 
+.PHONY: kolibri.aab
+# Build the signed version of the aab
+# For some reason, p4a defauls to adding a final '-' to the filename, so we remove it in the final step.
+kolibri.aab: p4a_android_distro src/kolibri needs-version
+	$(MAKE) guard-P4A_RELEASE_KEYSTORE
+	$(MAKE) guard-P4A_RELEASE_KEYALIAS
+	$(MAKE) guard-P4A_RELEASE_KEYSTORE_PASSWD
+	$(MAKE) guard-P4A_RELEASE_KEYALIAS_PASSWD
+	@echo "--- :android: Build AAB"
+	$(P4A) aab --release --sign --arch=$(P4A_ARCH) --version=$(APK_VERSION) --numeric-version=$(BUILD_NUMBER)
+	mkdir -p dist
+	mv kolibri-release-$(APK_VERSION)-.aab dist/kolibri__$(ARM_VER)-$(APK_VERSION).aab
+
 # DOCKER BUILD
 
 # Build the docker image. Should only ever need to be rebuilt if project requirements change.
