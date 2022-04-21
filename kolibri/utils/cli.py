@@ -449,17 +449,26 @@ def apply(ctx, plugin_names):
 @plugin.command(help="List all available Kolibri plugins")
 def list():
     plugins = [plugin for plugin in iterate_plugins()]
-    max_len = max((len(plugin) for plugin in plugins))
+    lang = "en"
+    max_name_len = max((len(plugin.name(lang)) for plugin in plugins))
+    max_module_path_len = max((len(plugin.module_path) for plugin in plugins))
     available_plugins = "Available plugins"
+    plugin_id = "Plugin identifier"
     status = "Status"
     click.echo(
-        available_plugins + " " * (max_len - len(available_plugins) + 4) + status
+        available_plugins
+        + " " * (max_name_len - len(available_plugins) + 4)
+        + plugin_id
+        + " " * (max_module_path_len - len(plugin_id) + 4)
+        + status
     )
-    for plugin in sorted(plugins):
+    for plugin in sorted(plugins, key=lambda x: x.module_path):
         click.echo(
-            plugin
-            + " " * (max_len - len(plugin) + 4)
-            + ("ENABLED" if plugin in config.ACTIVE_PLUGINS else "DISABLED")
+            plugin.name(lang)
+            + " " * (max_name_len - len(plugin.name(lang)) + 4)
+            + plugin.module_path
+            + " " * (max_module_path_len - len(plugin.module_path) + 4)
+            + ("ENABLED" if plugin.enabled else "DISABLED")
         )
 
 

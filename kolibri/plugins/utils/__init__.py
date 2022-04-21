@@ -461,19 +461,15 @@ def check_plugin_config_file_location(version):
                 os.remove(old_conf_file)
 
 
-def _can_import_plugin(plugin):
-    try:
-        initialize_kolibri_plugin(plugin)
-        return True
-    except Exception:
-        pass
-
-
 def iterate_plugins():
     # Use to dedupe plugins
-    plugins = set()
+    plugin_ids = set()
     for entry_point in iter_entry_points("kolibri.plugins"):
         name = entry_point.module_name
-        if _can_import_plugin(name) and name not in plugins:
-            plugins.add(name)
-            yield name
+        if name not in plugin_ids:
+            plugin_ids.add(name)
+            try:
+                plugin = initialize_kolibri_plugin(name)
+                yield plugin
+            except Exception:
+                pass
