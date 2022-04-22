@@ -1,6 +1,6 @@
 import VueRouter from 'vue-router';
 import { mount, createLocalVue } from '@vue/test-utils';
-import LearnIndex from '../../src/views/LearnIndex';
+import LearnTopNav from '../../src/views/LearnTopNav';
 import makeStore from '../makeStore';
 // eslint-disable-next-line import/named
 import useCoreLearn, { useCoreLearnMock } from '../../src/composables/useCoreLearn';
@@ -33,21 +33,11 @@ const router = new VueRouter({
 });
 
 function makeWrapper(options) {
-  return mount(LearnIndex, {
+  return mount(LearnTopNav, {
     ...options,
     stubs: {
       breadcrumbs: true,
       contentUnavailablePage: true,
-      CoreBase: {
-        name: 'CoreBase',
-        props: ['showSubNav'],
-        template: `
-          <div>
-            <slot></slot>
-            <slot name="sub-nav"></slot>
-          </div>
-        `,
-      },
       topicsPage: true,
       TotalPoints: true,
     },
@@ -63,7 +53,6 @@ function getElements(wrapper) {
     bookmarksLink: () => wrapper.find('[href="#/bookmarks"]'),
     libraryLink: () => wrapper.find('[href="#/library"]'),
     tabLinks: () => wrapper.findAllComponents({ name: 'NavbarLink' }),
-    CoreBase: () => wrapper.findComponent({ name: 'CoreBase' }),
   };
 }
 
@@ -93,10 +82,9 @@ describe('learn plugin index page', () => {
   it('there are no tabs if showing content unavailable page', () => {
     setPageName('CONTENT_UNAVAILABLE');
     const wrapper = makeWrapper({ store });
-    const { CoreBase } = getElements(wrapper);
-    expect(CoreBase().props().showSubNav).toEqual(false);
+    const { tabLinks } = getElements(wrapper);
+    expect(tabLinks().length).toEqual(0);
   });
-
   describe('when allowed to access unassigned content', () => {
     beforeEach(() => {
       setCanAccessUnassignedContent(true);
@@ -106,7 +94,8 @@ describe('learn plugin index page', () => {
       setSessionUserKind('anonymous');
       setMemberships([]);
       const wrapper = makeWrapper({ store });
-      const { tabLinks, libraryLink } = getElements(wrapper);
+      const { tabLinks } = getElements(wrapper);
+      const { libraryLink } = getElements(wrapper);
       expect(tabLinks().length).toEqual(1);
       expect(libraryLink().element.tagName).toBe('A');
     });

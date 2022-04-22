@@ -1,4 +1,5 @@
 import VueRouter from 'vue-router';
+
 import { createLocalVue, shallowMount, mount } from '@vue/test-utils';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import makeStore from '../makeStore';
@@ -52,10 +53,16 @@ describe('TopicsPage', () => {
   let store;
 
   beforeEach(() => {
-    store = makeStore();
+    store = makeStore({
+      getters: { isUserLoggedIn: jest.fn() },
+    });
     store.state.topicsTree.topic = {
       ...store.state.topicsTree.topic,
       options: { modality: null },
+    };
+    store.state.core = {
+      ...store.state.core,
+      loading: false,
     };
   });
 
@@ -75,7 +82,7 @@ describe('TopicsPage', () => {
       };
 
       const wrapper = shallowMount(TopicsPage, {
-        store: makeStore(),
+        store: store,
         localVue,
         router,
       });
@@ -86,7 +93,7 @@ describe('TopicsPage', () => {
   describe('Displaying the header', () => {
     it('displays breadcrumbs when not on a small screen', () => {
       const wrapper = shallowMount(TopicsPage, {
-        store,
+        store: store,
         localVue,
         router,
         computed: { windowIsSmall: () => false },
@@ -98,7 +105,7 @@ describe('TopicsPage', () => {
 
   it('displays the header with tabs when on a large screen', () => {
     const wrapper = shallowMount(TopicsPage, {
-      store,
+      store: store,
       localVue,
       router,
       computed: { windowIsLarge: () => true },
@@ -110,8 +117,9 @@ describe('TopicsPage', () => {
   it('displays the topic title when page is medium - large', () => {
     store.state.topicsTree.topic.title = 'Test Title';
     const wrapper = mount(TopicsPage, {
-      store,
+      store: store,
       localVue,
+
       router,
     });
     expect(wrapper.find("[data-test='header-title']").element).toHaveTextContent('Test Title');
@@ -120,7 +128,7 @@ describe('TopicsPage', () => {
   it('displays the topic title when page is small', () => {
     store.state.topicsTree.topic.title = 'Test Title';
     const smallScreenWrapper = mount(TopicsPage, {
-      store,
+      store: store,
       localVue,
       router,
       computed: { windowIsSmall: () => true },
@@ -136,7 +144,7 @@ describe('TopicsPage', () => {
     beforeEach(() => {
       store.state.topicsTree.contents = [{ kind: ContentNodeKinds.TOPIC }];
       wrapper = shallowMount(TopicsPage, {
-        store,
+        store: store,
         localVue,
         router,
         computed: {
@@ -197,9 +205,10 @@ describe('TopicsPage', () => {
         }));
 
         wrapper = mount(TopicsPage, {
-          store,
+          store: store,
           localVue,
           router,
+
           computed: {
             windowIsLarge: () => false,
             windowIsSmall: () => true,
@@ -227,7 +236,7 @@ describe('TopicsPage', () => {
           setSearchWithinDescendant: jest.fn(),
         }));
         wrapper = mount(TopicsPage, {
-          store,
+          store: store,
           localVue,
           router,
           computed: {
