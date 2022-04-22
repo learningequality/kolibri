@@ -1,6 +1,6 @@
 <template>
 
-  <div v-if="resumableContentNodes.length">
+  <div v-if="(resumableContentNodes || []).length">
     <div
       v-if="!(windowIsSmall)"
       class="toggle-view-buttons"
@@ -37,7 +37,7 @@
       />
     </div>
     <KButton
-      v-if="moreResumableContentNodes.length"
+      v-if="(moreResumableContentNodes || []).length"
       data-test="more-resumable-nodes-button"
       appearance="basic-link"
       @click="fetchMoreResumableContentNodes"
