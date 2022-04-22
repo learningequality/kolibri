@@ -7,21 +7,9 @@ on:
       whl-url:
         description: 'URL for Kolibri whl file'
         required: true
-      arch:
-        description: 'Architecture of the build'
-        required: true
-        default: '32bit'
-        type: choice
-        options:
-          - 32bit
-          - 64bit
   workflow_call:
     inputs:
       whl-file-name:
-        required: true
-        type: string
-      arch:
-        description: 'Architecture of the build: 32bit or 64bit'
         required: true
         type: string
       ref:
@@ -57,9 +45,9 @@ jobs:
         # aggressive in clearing the cache whenever any file changes
         # in the repository.
         path: ~/.local
-        key: ${{ runner.os }}-local-${{ github.event.inputs.arch || inputs.arch }}-${{ hashFiles('*') }}
+        key: ${{ runner.os }}-local-${{ hashFiles('*') }}
         restore-keys: |
-          ${{ runner.os }}-local-${{ github.event.inputs.arch || inputs.arch }}-
+          ${{ runner.os }}-local-
     - uses: actions/cache@v2
       with:
         path: ~/.cache/pip
@@ -79,7 +67,6 @@ jobs:
       run: pip install -r requirements.txt
     - name: Build the app
       env:
-        ARCH: ${{ github.event.inputs.arch || inputs.arch }}
         # No need to set the ANDROID_HOME environment variable here that is used for
         # setting up the ANDROID SDK and ANDROID NDK, as the github actions images
         # have these SDKs and NDKs already installed.

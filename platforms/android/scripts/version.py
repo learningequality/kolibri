@@ -74,17 +74,14 @@ def build_number():
     build_base_number = 2008998000
 
     buildkite_build_number = os.getenv("BUILDKITE_BUILD_NUMBER")
-    increment_for_64bit = 1 if os.getenv("ARCH", "") == "64bit" else 0
 
     if buildkite_build_number is not None:
-        build_number = (
-            build_base_number + 2 * int(buildkite_build_number) + increment_for_64bit
-        )
+        build_number = build_base_number + 2 * int(buildkite_build_number)
         return str(build_number)
 
     alt_build_number = (
         int(datetime.now().strftime("%y%m%d%H%M")) - build_base_number
-    ) * 2 + increment_for_64bit
+    ) * 2
     return alt_build_number
 
 

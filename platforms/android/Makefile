@@ -1,12 +1,13 @@
-# run with envvar `ARCH=64bit` to build for v8a
+# Run with ARCHES="arch1 arch2" to build for a smaller set of
+# architectures.
+ARCHES ?= \
+	armeabi-v7a \
+	arm64-v8a \
+	x86 \
+	x86_64
+export ARCHES
 
-ifeq (${ARCH}, 64bit)
-  ARM_VER := v8a
-  P4A_ARCH := arm64-v8a
-else
-  ARM_VER := v7a
-  P4A_ARCH := armeabi-v7a
-endif
+ARCH_OPTIONS := $(foreach arch,$(ARCHES),--arch=$(arch))
 
 OSNAME := $(shell uname -s)
 
@@ -73,7 +74,7 @@ src/kolibri: clean
 
 .PHONY: p4a_android_distro
 p4a_android_distro: needs-android-dirs
-	$(P4A) create --arch=$(P4A_ARCH)
+	$(P4A) create $(ARCH_OPTIONS)
 
 .PHONY: needs-version
 needs-version:
@@ -89,18 +90,18 @@ kolibri.apk: p4a_android_distro src/kolibri needs-version
 	$(MAKE) guard-P4A_RELEASE_KEYSTORE_PASSWD
 	$(MAKE) guard-P4A_RELEASE_KEYALIAS_PASSWD
 	@echo "--- :android: Build APK"
-	$(P4A) apk --release --sign --arch=$(P4A_ARCH) --version=$(APK_VERSION) --numeric-version=$(BUILD_NUMBER)
+	$(P4A) apk --release --sign $(ARCH_OPTIONS) --version=$(APK_VERSION) --numeric-version=$(BUILD_NUMBER)
 	mkdir -p dist
-	mv kolibri-release-$(APK_VERSION)-.apk dist/kolibri__$(ARM_VER)-$(APK_VERSION).apk
+	mv kolibri-release-$(APK_VERSION)-.apk dist/kolibri-release-$(APK_VERSION).apk
 
 .PHONY: kolibri.apk.unsigned
 # Build the unsigned debug version of the apk
 # For some reason, p4a defauls to adding a final '-' to the filename, so we remove it in the final step.
 kolibri.apk.unsigned: p4a_android_distro src/kolibri needs-version
 	@echo "--- :android: Build APK (unsigned)"
-	$(P4A) apk --arch=$(P4A_ARCH) --version=$(APK_VERSION) --numeric-version=$(BUILD_NUMBER)
+	$(P4A) apk $(ARCH_OPTIONS) --version=$(APK_VERSION) --numeric-version=$(BUILD_NUMBER)
 	mkdir -p dist
-	mv kolibri-debug-$(APK_VERSION)-.apk dist/kolibri__$(ARM_VER)-debug-$(APK_VERSION).apk
+	mv kolibri-debug-$(APK_VERSION)-.apk dist/kolibri-debug-$(APK_VERSION).apk
 
 .PHONY: kolibri.aab
 # Build the signed version of the aab
@@ -111,9 +112,9 @@ kolibri.aab: p4a_android_distro src/kolibri needs-version
 	$(MAKE) guard-P4A_RELEASE_KEYSTORE_PASSWD
 	$(MAKE) guard-P4A_RELEASE_KEYALIAS_PASSWD
 	@echo "--- :android: Build AAB"
-	$(P4A) aab --release --sign --arch=$(P4A_ARCH) --version=$(APK_VERSION) --numeric-version=$(BUILD_NUMBER)
+	$(P4A) aab --release --sign $(ARCH_OPTIONS) --version=$(APK_VERSION) --numeric-version=$(BUILD_NUMBER)
 	mkdir -p dist
-	mv kolibri-release-$(APK_VERSION)-.aab dist/kolibri__$(ARM_VER)-$(APK_VERSION).aab
+	mv kolibri-release-$(APK_VERSION)-.aab dist/kolibri-release-$(APK_VERSION).aab
 
 # DOCKER BUILD
 
@@ -130,7 +131,7 @@ run_docker: build_docker
 
 install:
 	$(ADB) uninstall org.learningequality.Kolibri || true 2> /dev/null
-	$(ADB) install dist/*$(ARM_VER)-debug-*.apk
+	$(ADB) install dist/*-debug-*.apk
 
 logcat:
 	$(ADB) logcat | grep -i -E "python|kolibr| `$(ADB) shell ps | grep ' org.learningequality.Kolibri$$' | tr -s [:space:] ' ' | cut -d' ' -f2` " | grep -E -v "WifiTrafficPoller|localhost:5000|NetworkManagementSocketTagger|No jobs to start"

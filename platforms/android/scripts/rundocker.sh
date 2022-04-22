@@ -6,7 +6,7 @@ SCRIPTDIR=$(realpath "$(dirname "$0")")
 SRCDIR=$(dirname "$SCRIPTDIR")
 DOCKER=${DOCKER:-"docker"}
 
-BUILD_CACHE_VOLUME="kolibri-android-cache-$ARCH"
+BUILD_CACHE_VOLUME=kolibri-android-cache
 BUILD_CACHE_PATH=/cache
 BUILD_UID=$(id -u)
 BUILD_GID=$(id -g)
@@ -34,7 +34,7 @@ RUN_OPTS=(
   --env P4A_RELEASE_KEYALIAS
   --env P4A_RELEASE_KEYSTORE_PASSWD
   --env P4A_RELEASE_KEYALIAS_PASSWD
-  --env ARCH
+  --env ARCHES
 )
 
 # If the release signing key has been specified and exists, ensure the
