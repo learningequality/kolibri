@@ -36,7 +36,7 @@ def validate_startdiskcontentimport(request, request_data):
     permission_classes=[CanManageContent],
 )
 def startdiskcontentimport(**kwargs):
-    return call_command(
+    call_command(
         "importcontent",
         "disk",
         kwargs["channel_id"],
@@ -179,7 +179,7 @@ def validate_startremotechannelimport(request, request_data):
     permission_classes=[CanManageContent],
 )
 def startremotechannelimport(channel_id=None, baseurl=None, peer_id=None):
-    return call_command(
+    call_command(
         "importchannel",
         "network",
         channel_id,
@@ -208,7 +208,7 @@ def startremotecontentimport(
     node_ids=None,
     exclude_node_ids=None,
 ):
-    return call_command(
+    call_command(
         "importcontent",
         "network",
         channel_id,
@@ -299,7 +299,7 @@ def startdeletechannel(
     """
     Delete a channel and all its associated content from the server.
     """
-    return call_command(
+    call_command(
         "deletecontent",
         channel_id,
         node_ids=node_ids,
@@ -452,7 +452,7 @@ def startdiskchannelimport(
     datafolder=None,
     drive_id=None,
 ):
-    return call_command(
+    call_command(
         "importchannel",
         "disk",
         channel_id,
