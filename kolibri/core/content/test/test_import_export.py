@@ -1527,3 +1527,82 @@ class TestFilesToTransfer(TestCase):
             self.the_channel_id, [], [], False, renderable_only=False, peer_id="1"
         )
         self.assertEqual(len(files_to_transfer), 0)
+
+    def test_no_uncle_thumbnail_files(self):
+        """
+        Test that the thumbnail files for the 'uncle' node are not included in the import
+        """
+        root_node = ContentNode.objects.get(parent__isnull=True)
+        node = ContentNode.objects.filter(
+            parent=root_node, kind=content_kinds.TOPIC
+        ).first()
+        parent = ContentNode.objects.create(
+            title="test1",
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=root_node.channel_id,
+            parent=node,
+            kind=content_kinds.TOPIC,
+            available=False,
+        )
+        uncle = ContentNode.objects.create(
+            title="test2",
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=root_node.channel_id,
+            parent=node,
+            kind=content_kinds.TOPIC,
+            available=False,
+        )
+        child = ContentNode.objects.create(
+            title="test3",
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=root_node.channel_id,
+            parent=parent,
+            kind=content_kinds.VIDEO,
+            available=False,
+        )
+        parent_thumbnail = LocalFile.objects.create(
+            id=uuid.uuid4().hex, extension="png", available=False, file_size=10
+        )
+        uncle_thumbnail = LocalFile.objects.create(
+            id=uuid.uuid4().hex, extension="png", available=False, file_size=10
+        )
+        local_file = LocalFile.objects.create(
+            id=uuid.uuid4().hex, extension="mp4", available=False, file_size=10
+        )
+        File.objects.create(
+            id=uuid.uuid4().hex, local_file=local_file, contentnode=child
+        )
+        File.objects.create(
+            id=uuid.uuid4().hex,
+            local_file=parent_thumbnail,
+            contentnode=parent,
+            thumbnail=True,
+            supplementary=True,
+        )
+        File.objects.create(
+            id=uuid.uuid4().hex,
+            local_file=uncle_thumbnail,
+            contentnode=uncle,
+            thumbnail=True,
+            supplementary=True,
+        )
+        _, files_to_transfer, _ = get_import_export_data(
+            root_node.channel_id, [child.id], [], False, renderable_only=False
+        )
+        self.assertEqual(
+            len(
+                list(
+                    filter(lambda x: x["id"] == parent_thumbnail.id, files_to_transfer)
+                )
+            ),
+            1,
+        )
+        self.assertEqual(
+            len(
+                list(filter(lambda x: x["id"] == uncle_thumbnail.id, files_to_transfer))
+            ),
+            0,
+        )
