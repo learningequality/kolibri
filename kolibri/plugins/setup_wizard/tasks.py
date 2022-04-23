@@ -8,6 +8,7 @@ from requests.exceptions import HTTPError
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.exceptions import ValidationError
+from rest_framework.permissions import BasePermission
 from six.moves.urllib.parse import urljoin
 
 from kolibri.core.auth.backends import FACILITY_CREDENTIAL_KEY
@@ -23,6 +24,16 @@ from kolibri.core.tasks.api import prepare_soud_sync_job
 from kolibri.core.tasks.api import prepare_sync_task
 from kolibri.core.tasks.api import validate_and_create_sync_credentials
 from kolibri.core.tasks.decorators import register_task
+
+
+class IsListingJobs(BasePermission):
+    """
+    When a subset_of_users_device is provisioned, after the first user has been synced,
+    listing of COMPLETED jobs must be allowed for the anonymous user that's making the request
+    """
+
+    def has_permission(self, request, view):
+        return view.action == "list"
 
 
 def getusersinfo(request):
@@ -133,7 +144,7 @@ def validate_soud_credentials(request, task_description):
     track_progress=True,
     queue="soud",
     permission_classes=[
-        IsSuperuser | NotProvisionedCanPost | LODUserHasSyncPermissions
+        IsSuperuser | NotProvisionedCanPost | LODUserHasSyncPermissions | IsListingJobs
     ],
 )
 def startprovisionsoud(

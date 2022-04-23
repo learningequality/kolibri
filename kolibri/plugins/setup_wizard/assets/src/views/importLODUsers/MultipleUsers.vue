@@ -153,7 +153,6 @@
                 });
             }
           }
-          if (tasks.length == 0) this.isPolling = false;
         });
         if (this.isPolling) {
           setTimeout(() => {
