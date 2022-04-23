@@ -37,6 +37,7 @@
     <FullScreenSidePanel
       v-if="sidePanelContent"
       alignment="right"
+      closeButtonIconType="close"
       @closePanel="sidePanelContent = null"
       @shouldFocusFirstEl="findFirstEl()"
     >

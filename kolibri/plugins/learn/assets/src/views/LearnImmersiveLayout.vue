@@ -69,6 +69,7 @@
     <FullScreenSidePanel
       v-if="sidePanelContent"
       alignment="right"
+      closeButtonIconType="close"
       @closePanel="sidePanelContent = null"
     >
       <template #header>
@@ -101,6 +102,7 @@
       v-if="showViewResourcesSidePanel"
       class="also-in-this-side-panel"
       alignment="right"
+      closeButtonIconType="close"
       @closePanel="showViewResourcesSidePanel = false"
     >
       <template #header>

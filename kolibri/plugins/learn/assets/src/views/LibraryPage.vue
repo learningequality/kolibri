@@ -156,19 +156,11 @@
       class="full-screen-side-panel"
       data-test="filters-side-panel"
       alignment="left"
-      :fullScreenSidePanelCloseButton="displayCloseButton"
+      :closeButtonIconType="closeButtonIcon"
       :sidePanelOverrideWidth="`${sidePanelOverlayWidth}px`"
-      @closePanel="toggleSidePanelVisibility"
+      @closePanel="closeEventHandler()"
       @shouldFocusFirstEl="findFirstEl()"
     >
-      <KIconButton
-        v-if="(windowIsSmall || windowIsMedium) && currentCategory"
-        icon="back"
-        :ariaLabel="coreString('goBackAction')"
-        :color="$themeTokens.text"
-        :tooltip="coreString('goBackAction')"
-        @click="closeCategoryModal"
-      />
       <EmbeddedSidePanel
         v-if="!currentCategory"
         ref="embeddedPanel"
@@ -214,7 +206,7 @@
       v-if="sidePanelContent"
       data-test="content-side-panel"
       alignment="right"
-      :fullScreenSidePanelCloseButton="true"
+      :closeButtonIconType="closeButtonIcon"
       @closePanel="sidePanelContent = null"
       @shouldFocusFirstEl="findFirstEl()"
     >
@@ -355,11 +347,11 @@
         }
         return null;
       },
-      displayCloseButton() {
-        if (this.currentCategory) {
-          return false;
+      closeButtonIcon() {
+        if ((this.windowIsSmall || this.windowIsMedium) && this.currentCategory) {
+          return 'back';
         } else {
-          return true;
+          return 'close';
         }
       },
       numCols() {
@@ -420,8 +412,11 @@
       toggleInfoPanel(content) {
         this.sidePanelContent = content;
       },
-      closeCategoryModal() {
-        this.currentCategory = null;
+      closeEventHandler() {
+        this.sidePanelIsOpen = !this.sidePanelIsOpen;
+        if ((this.windowIsSmall || this.windowIsMedium) && this.currentCategory) {
+          this.currentCategory = null;
+        }
       },
       handleCategory(category) {
         this.setCategory(category);

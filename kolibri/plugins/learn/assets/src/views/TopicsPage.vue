@@ -291,19 +291,11 @@
         v-if="!windowIsLarge && sidePanelIsOpen"
         class="full-screen-side-panel"
         alignment="left"
-        :fullScreenSidePanelCloseButton="true"
+        :closeButtonIconType="closeButtonIcon"
         :sidePanelOverrideWidth="`${sidePanelOverlayWidth}px`"
-        @closePanel="toggleFolderSearchSidePanel"
+        @closePanel="closeEventHandler()"
         @shouldFocusFirstEl="findFirstEl()"
       >
-        <KIconButton
-          v-if="windowIsSmall && currentCategory"
-          icon="back"
-          :ariaLabel="coreString('back')"
-          :color="$themeTokens.text"
-          :tooltip="coreString('back')"
-          @click="closeCategoryModal"
-        />
         <EmbeddedSidePanel
           v-if="!currentCategory"
           ref="embeddedPanel"
@@ -348,6 +340,7 @@
     <FullScreenSidePanel
       v-if="sidePanelContent"
       alignment="right"
+      :closeButtonIconType="closeButtonIcon"
       @closePanel="sidePanelContent = null"
       @shouldFocusFirstEl="findFirstEl()"
     >
@@ -541,6 +534,13 @@
       channelTitle() {
         return this.channel.name;
       },
+      closeButtonIcon() {
+        if (this.windowIsSmall && this.currentCategory) {
+          return 'back';
+        } else {
+          return 'close';
+        }
+      },
       resources() {
         const resources = this.contents.filter(content => content.kind !== ContentNodeKinds.TOPIC);
         // If there are no topics, then just display all resources we have loaded.
@@ -708,9 +708,6 @@
         this.showSearchModal = true;
         !this.windowIsSmall ? (this.sidePanelIsOpen = false) : '';
       },
-      closeCategoryModal() {
-        this.currentCategory = null;
-      },
       handleCategory(category) {
         this.setCategory(category);
         this.currentCategory = null;
@@ -721,6 +718,12 @@
       toggleFolderSearchSidePanel(option) {
         option == 'search' ? (this.mobileSearchActive = true) : (this.mobileSearchActive = false);
         this.sidePanelIsOpen = !this.sidePanelIsOpen;
+      },
+      closeEventHandler() {
+        if (this.windowIsSmall && this.currentCategory) {
+          this.currentCategory = null;
+        }
+        this.toggleFolderSearchSidePanel();
       },
       // Stick the side panel to top. That can be on the very top of the viewport
       // or right under the 'Browse channel' toolbar, depending on whether the toolbar

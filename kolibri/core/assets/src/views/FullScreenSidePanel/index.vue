@@ -30,9 +30,9 @@
           </div>
 
           <KIconButton
-            v-if="fullScreenSidePanelCloseButton"
-            icon="close"
+            :icon="closeButtonIconType"
             class="close-button"
+            :style="closeButtonStyle"
             :ariaLabel="coreString('closeAction')"
             :tooltip="coreString('closeAction')"
             @click="closePanel"
@@ -72,9 +72,14 @@
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
     props: {
-      fullScreenSidePanelCloseButton: {
-        type: Boolean,
-        default: true,
+      /* CloseButtonIconType icon from parent component */
+      closeButtonIconType: {
+        type: String,
+        required: true,
+        default: 'close',
+        validator: value => {
+          return ['close', 'back'].includes(value);
+        },
       },
       /* Optionally override the default width of the side panel with valid CSS value */
       sidePanelWidth: {
@@ -148,9 +153,45 @@
           'z-index': 12,
         };
       },
+      /* Change of position with change of close button type, default is close */
+      closeButtonStyle() {
+        if (this.isRtl) {
+          if (this.closeButtonIconType === 'close') {
+            return {
+              position: 'absolute',
+              top: '16px',
+              left: '16px',
+              'z-index': '24',
+            };
+          } else {
+            return {
+              position: 'absolute',
+              top: '16px',
+              right: '24px',
+              'z-index': '24',
+            };
+          }
+        }
+        if (this.closeButtonIconType === 'back') {
+          return {
+            position: 'absolute',
+            top: '16px',
+            left: '16px',
+            'z-index': '24',
+          };
+        } else {
+          return {
+            position: 'absolute',
+            top: '16px',
+            right: '24px',
+            'z-index': '24',
+          };
+        }
+      },
       contentStyles() {
         return {
-          'margin-top': this.fixedHeaderHeight,
+          /* When the header margin is 0px from top, add 24 to accomodate close button */
+          'margin-top': this.fixedHeaderHeight === '0px' ? '24px' : this.fixedHeaderHeight,
           padding: '24px 32px 16px',
           'overflow-y': 'scroll',
           height: `calc(100vh - ${this.fixedHeaderHeight})`,
@@ -164,8 +205,8 @@
     mounted() {
       const htmlTag = window.document.getElementsByTagName('html')[0];
       htmlTag.style['overflow-y'] = 'hidden';
-      // Gets the height of the fixed header - adds 40 to account for padding
-      this.fixedHeaderHeight = this.$refs.fixedHeader.clientHeight + 'px';
+      // Gets the height of the fixed header - adds 40 to account for padding + 24 for closeButton
+      this.fixedHeaderHeight = `${this.$refs.fixedHeader.clientHeight}px`;
       this.$nextTick(() => {
         this.$emit('shouldFocusFirstEl');
       });
@@ -203,13 +244,6 @@
 
   .header-content {
     width: 100%;
-  }
-
-  .close-button {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    z-index: 24;
   }
 
   /** Need to be sure a KDropdownMenu shows up on the Side Panel */
