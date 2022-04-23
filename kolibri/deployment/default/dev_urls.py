@@ -17,13 +17,17 @@ def webpack_redirect_view(request):
     )
 
 
-schema_view = get_schema_view(
+api_info = (
     openapi.Info(
         title="Kolibri API",
         default_version="v0",
         description="Kolibri Swagger API",
         license=openapi.License(name="MIT"),
     ),
+)
+
+schema_view = get_schema_view(
+    api_info,
     public=True,
     permission_classes=(permissions.AllowAny,),
 )
