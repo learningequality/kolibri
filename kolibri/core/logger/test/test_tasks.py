@@ -33,11 +33,13 @@ class StartExportLogCSVTestCase(TestCase):
         self.dummy_request.data = {"logtype": "invalid"}
 
         with self.assertRaises(Http404):
-            validate_startexportlogcsv(self.dummy_request)
+            validate_startexportlogcsv(self.dummy_request, self.dummy_request.data)
 
     def test_validator_sets_right_metadata(self, mock_os_mkdir):
         self.dummy_request.data = {"logtype": "summary"}
-        validated_data = validate_startexportlogcsv(self.dummy_request)
+        validated_data = validate_startexportlogcsv(
+            self.dummy_request, self.dummy_request.data
+        )
         self.assertEqual(
             validated_data["extra_metadata"],
             {
@@ -48,7 +50,9 @@ class StartExportLogCSVTestCase(TestCase):
         )
 
         self.dummy_request.data = {"logtype": "session"}
-        validated_data = validate_startexportlogcsv(self.dummy_request)
+        validated_data = validate_startexportlogcsv(
+            self.dummy_request, self.dummy_request.data
+        )
         self.assertEqual(
             validated_data["extra_metadata"],
             {
@@ -60,7 +64,9 @@ class StartExportLogCSVTestCase(TestCase):
 
     def test_validator_returns_right_data_on_summary_logtype(self, mock_os_mkdir):
         self.dummy_request.data = {"logtype": "summary"}
-        validated_data = validate_startexportlogcsv(self.dummy_request)
+        validated_data = validate_startexportlogcsv(
+            self.dummy_request, self.dummy_request.data
+        )
         expected_extra_metadata = {
             "type": "EXPORTSUMMARYLOGCSV",
             "started_by": self.dummy_request.user.pk,
@@ -83,7 +89,9 @@ class StartExportLogCSVTestCase(TestCase):
 
     def test_validator_returns_right_data_on_session_logtype(self, mock_os_mkdir):
         self.dummy_request.data = {"logtype": "session"}
-        validated_data = validate_startexportlogcsv(self.dummy_request)
+        validated_data = validate_startexportlogcsv(
+            self.dummy_request, self.dummy_request.data
+        )
         expected_extra_metadata = {
             "type": "EXPORTSESSIONLOGCSV",
             "started_by": self.dummy_request.user.pk,
@@ -108,7 +116,10 @@ class StartExportLogCSVTestCase(TestCase):
     def test_startexportlogcsv(self, mock_call_command, mock_os_mkdir):
         self.dummy_request.data = {"logtype": "summary"}
 
-        validated_data = validate_startexportlogcsv(self.dummy_request)
+        validated_data = validate_startexportlogcsv(
+            self.dummy_request, self.dummy_request.data
+        )
+        validated_data.pop("extra_metadata")
         startexportlogcsv(**validated_data)
 
         mock_call_command.assert_called_once_with(
