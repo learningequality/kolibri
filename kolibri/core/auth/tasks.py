@@ -14,13 +14,13 @@ from rest_framework.permissions import BasePermission
 
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.permissions.general import _user_is_admin_for_own_facility
-from kolibri.core.auth.task_utils import prepare_peer_sync_job
-from kolibri.core.auth.task_utils import prepare_sync_job
-from kolibri.core.auth.task_utils import prepare_sync_task
-from kolibri.core.auth.task_utils import validate_and_create_sync_credentials
-from kolibri.core.auth.task_utils import validate_facility
-from kolibri.core.auth.task_utils import validate_peer_sync_job
-from kolibri.core.auth.task_utils import validate_sync_task
+from kolibri.core.auth.tasks_utils import prepare_peer_sync_job
+from kolibri.core.auth.tasks_utils import prepare_sync_job
+from kolibri.core.auth.tasks_utils import prepare_sync_task
+from kolibri.core.auth.tasks_utils import validate_and_create_sync_credentials
+from kolibri.core.auth.tasks_utils import validate_facility
+from kolibri.core.auth.tasks_utils import validate_peer_sync_job
+from kolibri.core.auth.tasks_utils import validate_sync_task
 from kolibri.core.content.permissions import CanImportUsers
 from kolibri.core.device.permissions import IsSuperuser
 from kolibri.core.device.permissions import NotProvisionedCanPost

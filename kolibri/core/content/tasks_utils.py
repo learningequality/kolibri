@@ -41,9 +41,12 @@ def validate_content_task(request, task_description, require_channel=False):
     except KeyError:
         raise serializers.ValidationError("The channel_id field is required.")
 
-    channel_name = task_description.get(
-        "channel_name", get_channel_name(channel_id, require_channel)
-    )
+    try:
+        channel_name = task_description["channel_name"]
+    except KeyError:
+        channel_name = get_channel_name(
+            channel_id=channel_id, require_channel=require_channel
+        )
 
     node_ids = task_description.get("node_ids", None)
     exclude_node_ids = task_description.get("exclude_node_ids", None)

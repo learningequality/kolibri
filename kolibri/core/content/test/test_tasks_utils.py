@@ -1,3 +1,5 @@
+import uuid
+
 import mock
 from django.test import TestCase
 from rest_framework import serializers
@@ -5,10 +7,11 @@ from rest_framework import serializers
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.models import ChannelMetadata
-from kolibri.core.content.utils.task_validators_utils import add_drive_info
-from kolibri.core.content.utils.task_validators_utils import get_channel_name
-from kolibri.core.content.utils.task_validators_utils import validate_content_task
-from kolibri.core.content.utils.task_validators_utils import validate_remote_import_task
+from kolibri.core.content.models import ContentNode
+from kolibri.core.content.tasks_utils import add_drive_info
+from kolibri.core.content.tasks_utils import get_channel_name
+from kolibri.core.content.tasks_utils import validate_content_task
+from kolibri.core.content.tasks_utils import validate_remote_import_task
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.utils import conf
 
@@ -29,7 +32,7 @@ class AddDriveInfoTestCase(TestCase):
             task_data = {"drive_id": "test", "datafolder": "test"}
             add_drive_info({}, task_data)
 
-    @mock.patch("kolibri.core.content.task_validators.get_mounted_drive_by_id")
+    @mock.patch("kolibri.core.content.tasks_utils.get_mounted_drive_by_id")
     def test_returns_updated_task(self, mock_get_mounted_drive_by_id):
         class drive(object):
             datafolder = "kolibri"
@@ -49,21 +52,30 @@ class AddDriveInfoTestCase(TestCase):
 class GetChannelNameTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
-        ChannelMetadata.objects.create(id="test", name="kolibri")
+        cls.channel_id = uuid.uuid4().hex
+        root = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            title="kolibri_le_root",
+            channel_id=cls.channel_id,
+            content_id=uuid.uuid4().hex,
+        )
+        cls.channel = ChannelMetadata.objects.create(
+            id=cls.channel_id, name="kolibri_le", root=root
+        )
 
     def test_missing_channel(self):
         with self.assertRaises(serializers.ValidationError):
-            get_channel_name("invalid", require_channel=True)
+            get_channel_name(uuid.uuid4().hex, require_channel=True)
 
-        channel_name = get_channel_name("invalid", require_channel=False)
+        channel_name = get_channel_name(uuid.uuid4().hex, require_channel=False)
         self.assertEqual(channel_name, "")
 
     def test_returns_channel_name_when_channel_found(self):
-        channel_name = get_channel_name("test", require_channel=True)
-        self.assertEqual(channel_name, "kolibri")
+        channel_name = get_channel_name(self.channel_id, require_channel=True)
+        self.assertEqual(channel_name, "kolibri_le")
 
-        channel_name = get_channel_name("test", require_channel=False)
-        self.assertEqual(channel_name, "kolibri")
+        channel_name = get_channel_name(self.channel_id, require_channel=False)
+        self.assertEqual(channel_name, "kolibri_le")
 
 
 class ValidateContentTaskTestCase(TestCase):
@@ -73,7 +85,15 @@ class ValidateContentTaskTestCase(TestCase):
         cls.facility_user = FacilityUser.objects.create(
             username="pytest_user", facility=cls.facility
         )
-        ChannelMetadata.objects.create(id="test", name="kolibri")
+
+        cls.channel_id = uuid.uuid4().hex
+        root = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            title="kolibri_le_root",
+            channel_id=cls.channel_id,
+            content_id=uuid.uuid4().hex,
+        )
+        ChannelMetadata.objects.create(id=cls.channel_id, name="kolibri_le", root=root)
 
     def setUp(self):
         self.dummy_request = DummyRequest()
@@ -85,11 +105,13 @@ class ValidateContentTaskTestCase(TestCase):
 
     def test_wrong_node_ids_type(self):
         with self.assertRaises(serializers.ValidationError):
-            validate_content_task(self.dummy_request, {"node_ids": "test"})
+            validate_content_task(self.dummy_request, {"node_ids": self.channel_id})
 
     def test_wrong_exclude_node_ids_type(self):
         with self.assertRaises(serializers.ValidationError):
-            validate_content_task(self.dummy_request, {"exclude_node_ids": "test"})
+            validate_content_task(
+                self.dummy_request, {"exclude_node_ids": self.channel_id}
+            )
 
     def test_returns_right_data(self):
         task_data = {
@@ -97,28 +119,34 @@ class ValidateContentTaskTestCase(TestCase):
             "channel_name": "test",
             "node_ids": ["test"],
             "exclude_node_ids": ["test"],
-            "started_by": self.dummy_request.user.pk,
-            "started_by_username": self.dummy_request.user.username,
         }
-        validated_task_data = validate_content_task(task_data)
+        validated_task_data = validate_content_task(self.dummy_request, task_data)
 
         # The `task_data` is already correct so no changes should've been made.
-        self.assertEqual(validated_task_data, task_data)
+        self.assertEqual(
+            validated_task_data,
+            {
+                "channel_id": "test",
+                "channel_name": "test",
+                "node_ids": ["test"],
+                "exclude_node_ids": ["test"],
+                "started_by": self.dummy_request.user.pk,
+                "started_by_username": self.dummy_request.user.username,
+            },
+        )
 
         task_data = {
-            "channel_id": "test",
+            "channel_id": self.channel_id,
             "node_ids": ["test"],
-            "started_by": self.dummy_request.user.pk,
-            "started_by_username": self.dummy_request.user.username,
         }
-        validated_task_data = validate_content_task(task_data)
+        validated_task_data = validate_content_task(self.dummy_request, task_data)
 
         # Do we return task content data as expected?
         self.assertEqual(
             validated_task_data,
             {
-                "channel_id": "test",
-                "channel_name": "kolibri",
+                "channel_id": self.channel_id,
+                "channel_name": "kolibri_le",
                 "node_ids": ["test"],
                 "exclude_node_ids": None,
                 "started_by": self.dummy_request.user.pk,
@@ -134,7 +162,11 @@ class ValidateRemoteImportTaskTestCase(TestCase):
         cls.facility_user = FacilityUser.objects.create(
             username="pytest_user", facility=cls.facility
         )
-        NetworkLocation.objects.create(id="test", base_url="http://test.org")
+
+        cls.network_location_id = uuid.uuid4().hex
+        NetworkLocation.objects.create(
+            id=cls.network_location_id, base_url="http://test.org"
+        )
 
     def setUp(self):
         self.dummy_request = DummyRequest()
@@ -142,16 +174,14 @@ class ValidateRemoteImportTaskTestCase(TestCase):
 
     def test_wrong_peer_id(self):
         with self.assertRaises(serializers.ValidationError):
-            validate_remote_import_task(
-                self.dummy_request,
-                {
-                    "channel_id": "test",
-                    "channel_name": "test",
-                    "node_ids": ["test"],
-                    "exclude_node_ids": ["test"],
-                    "peer_id": "invalid",
-                },
-            )
+            task_data = {
+                "channel_id": "test",
+                "channel_name": "test",
+                "node_ids": ["test"],
+                "exclude_node_ids": ["test"],
+                "peer_id": uuid.uuid4().hex,
+            }
+            validate_remote_import_task(self.dummy_request, task_data)
 
     def test_no_peer_id(self):
         validated_data = validate_remote_import_task(
@@ -171,7 +201,7 @@ class ValidateRemoteImportTaskTestCase(TestCase):
                 "channel_name": "test",
                 "node_ids": ["test"],
                 "exclude_node_ids": ["test"],
-                "base_url": conf.OPTIONS["Urls"]["CENTRAL_CONTENT_BASE_URL"],
+                "baseurl": conf.OPTIONS["Urls"]["CENTRAL_CONTENT_BASE_URL"],
                 "peer_id": None,
                 "started_by": self.dummy_request.user.pk,
                 "started_by_username": self.dummy_request.user.username,
@@ -186,7 +216,7 @@ class ValidateRemoteImportTaskTestCase(TestCase):
                 "channel_name": "test",
                 "node_ids": ["test"],
                 "exclude_node_ids": ["test"],
-                "peer_id": "test",
+                "peer_id": self.network_location_id,
             },
         )
 
@@ -197,8 +227,8 @@ class ValidateRemoteImportTaskTestCase(TestCase):
                 "channel_name": "test",
                 "node_ids": ["test"],
                 "exclude_node_ids": ["test"],
-                "base_url": "http://test.org",
-                "peer_id": "test",
+                "baseurl": "http://test.org",
+                "peer_id": self.network_location_id,
                 "started_by": self.dummy_request.user.pk,
                 "started_by_username": self.dummy_request.user.username,
             },

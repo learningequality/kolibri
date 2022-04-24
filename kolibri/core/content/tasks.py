@@ -6,16 +6,16 @@ from django.core.management import call_command
 from rest_framework import serializers
 
 from kolibri.core.content.permissions import CanManageContent
+from kolibri.core.content.tasks_utils import add_drive_info
+from kolibri.core.content.tasks_utils import get_channel_name
+from kolibri.core.content.tasks_utils import validate_content_task
+from kolibri.core.content.tasks_utils import validate_local_export_task
+from kolibri.core.content.tasks_utils import validate_local_import_task
+from kolibri.core.content.tasks_utils import validate_remote_import_task
 from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.channels import read_channel_metadata_from_db_file
 from kolibri.core.content.utils.paths import get_channel_lookup_url
 from kolibri.core.content.utils.paths import get_content_database_file_path
-from kolibri.core.content.utils.task_validators_utils import add_drive_info
-from kolibri.core.content.utils.task_validators_utils import get_channel_name
-from kolibri.core.content.utils.task_validators_utils import validate_content_task
-from kolibri.core.content.utils.task_validators_utils import validate_local_export_task
-from kolibri.core.content.utils.task_validators_utils import validate_local_import_task
-from kolibri.core.content.utils.task_validators_utils import validate_remote_import_task
 from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.core.tasks.utils import get_current_job
