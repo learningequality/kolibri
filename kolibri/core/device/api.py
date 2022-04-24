@@ -1,7 +1,5 @@
-import time
 from datetime import timedelta
 from sys import version_info
-from threading import Thread
 
 from django.conf import settings
 from django.db.models import Max
@@ -343,15 +341,6 @@ class PluginsViewSet(viewsets.ViewSet):
         return Response(self._serialize(plugin))
 
 
-def delayed_restart(delay):
-    """
-    Restart the server after a delay.
-    Do this to allow the request to complete before restarting.
-    """
-    time.sleep(delay)
-    restart()
-
-
 class DeviceRestartView(views.APIView):
 
     permission_classes = (IsSuperuser,)
@@ -363,6 +352,7 @@ class DeviceRestartView(views.APIView):
     def post(self, request):
         status = get_status_from_pid_file()
         if status == STATUS_RUNNING:
-            thread = Thread(target=delayed_restart, args=(0.5,))
-            thread.start()
-        return Response(status)
+            restarted = restart()
+        if restarted:
+            return Response(status)
+        return HttpResponseBadRequest(status)

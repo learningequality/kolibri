@@ -354,7 +354,7 @@ def restart():
     """
     Restarts the server if it is running
     """
-    if server.restart():
+    if server.restart_and_wait():
         logger.info("Kolibri has successfully restarted")
         sys.exit(0)
     logger.info("Kolibri has failed to restart - confirm that the server is running")

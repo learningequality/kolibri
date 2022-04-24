@@ -747,9 +747,35 @@ def start(port=0, zip_port=0, serve_http=True, background=False):
     bus.run()
 
 
+def signal_restart():
+    try:
+        with open(PROCESS_CONTROL_FLAG, "w") as f:
+            f.write(RESTART)
+    except (IOError, OSError):
+        return False
+    return True
+
+
 def restart():
-    with open(PROCESS_CONTROL_FLAG, "w") as f:
-        f.write(RESTART)
+    """
+    Restarts the server.
+    """
+    if not conf.OPTIONS["Deployment"]["RESTART_HOOKS"]:
+        logging.warn("No registered RESTART_HOOKS, restarting is not possible")
+        return False
+    result = True
+    for hook in conf.OPTIONS["Deployment"]["RESTART_HOOKS"]:
+        try:
+            result = result and hook()
+        except Exception as e:
+            logging.warn("Error running restart hook %s: %s" % (hook, e))
+            result = False
+    return result
+
+
+def restart_and_wait():
+    if not restart():
+        return False
     if not wait_for_status(STATUS_STOPPED):
         return False
     return wait_for_status(STATUS_RUNNING)
