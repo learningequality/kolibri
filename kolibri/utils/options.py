@@ -694,7 +694,7 @@ def _set_from_envvars(conf):
     for section, opts in option_spec.items():
         for optname, attrs in opts.items():
             for envvar in attrs.get("envvars", []):
-                if os.environ.get(envvar):
+                if envvar in os.environ:
                     deprecated_envvars = attrs.get("deprecated_envvars", ())
                     if envvar in deprecated_envvars:
                         logger.warn(
