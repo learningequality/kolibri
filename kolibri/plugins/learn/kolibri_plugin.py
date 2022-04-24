@@ -23,6 +23,7 @@ class Learn(KolibriPluginBase):
     untranslated_view_urls = "api_urls"
     translated_view_urls = "urls"
     kolibri_options = "options"
+    can_manage_while_running = True
 
 
 @register_hook

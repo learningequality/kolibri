@@ -11,6 +11,7 @@ from kolibri.plugins.hooks import register_hook
 
 class UserProfile(KolibriPluginBase):
     translated_view_urls = "urls"
+    can_manage_while_running = True
 
     @property
     def url_slug(self):

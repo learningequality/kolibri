@@ -13,6 +13,7 @@ from kolibri.plugins.hooks import register_hook
 
 class Coach(KolibriPluginBase):
     untranslated_view_urls = "api_urls"
+    can_manage_while_running = True
 
     @property
     def translated_view_urls(self):

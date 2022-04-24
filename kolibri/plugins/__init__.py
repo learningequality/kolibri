@@ -201,6 +201,14 @@ class KolibriPluginBase(with_metaclass(SingletonMeta)):
     # }
     kolibri_option_defaults = None
 
+    #: Comment
+    # Property that indicates whether it is safe to allow this plugin to be disabled via the GUI
+    # This is used to prevent plugins that are required by the system from being disabled except
+    # through the command line. This property is purely advisory, and does not affect the
+    # functionality of the plugin, or the ability to disable it via the command line or other
+    # configuration mechanisms.
+    can_manage_while_running = False
+
     def __init__(self):
         self.INSTALLED_APPS = []
 

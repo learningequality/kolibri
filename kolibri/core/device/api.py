@@ -307,7 +307,8 @@ class PluginsViewSet(viewsets.ViewSet):
     def list(self, request):
         plugins = []
         for plugin in iterate_plugins():
-            plugins.append(self._serialize(plugin))
+            if plugin.can_manage_while_running:
+                plugins.append(self._serialize(plugin))
 
         return Response(plugins)
 
@@ -315,7 +316,10 @@ class PluginsViewSet(viewsets.ViewSet):
         if not pk:
             raise Http404
         try:
-            return self._get_plugin(pk.replace("*", "."))
+            plugin = self._get_plugin(pk.replace("*", "."))
+            if not plugin.can_manage_while_running:
+                raise Http404
+            return plugin
         except PluginDoesNotExist:
             raise Http404
 
