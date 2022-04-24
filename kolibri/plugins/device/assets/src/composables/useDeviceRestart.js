@@ -5,9 +5,11 @@
 import { ref } from 'kolibri.lib.vueCompositionApi';
 import client from 'kolibri.client';
 import urls from 'kolibri.urls';
+import plugin_data from 'plugin_data';
 
 // The refs are defined in the outer scope so they can be used as a shared store
 const restarting = ref(false);
+const canRestart = plugin_data.canRestart;
 
 // POST to /api/device/devicerestart
 export function restartDevice() {
@@ -26,6 +28,9 @@ export function isDeviceRestarting() {
 }
 
 function restart() {
+  if (!canRestart) {
+    return Promise.reject('Device restart is not supported with current server configuration');
+  }
   restarting.value = true;
   let statusPromise = restartDevice();
   const checkStatus = expectedStatus => {
@@ -41,7 +46,7 @@ function restart() {
     });
   };
   // First wait for the device to be restarting
-  checkStatus(true).then(() => {
+  return checkStatus(true).then(() => {
     // Then wait for it to have finished restarting
     checkStatus(false).then(() => {
       restarting.value = false;
@@ -53,5 +58,6 @@ export default function useDeviceRestart() {
   return {
     restarting,
     restart,
+    canRestart,
   };
 }
