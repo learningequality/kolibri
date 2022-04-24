@@ -112,6 +112,27 @@ def _process_language_string(value):
     raise ValueError
 
 
+def _process_list(value, separator=","):
+    """
+    Used to validate list values.
+    The only valid argument in this case is that it is a list
+    so we first try to coerce it to a list, then do some checks
+    to see if it is any of our special values. Then if it is an
+    appropriate list value.
+    If no value is appropriate, raise a ValueError.
+    """
+
+    # Check the supplied value is a list
+    if not isinstance(value, list):
+        if not value:
+            value = []
+        elif isinstance(value, string_types):
+            value = value.split(separator)
+        else:
+            value = [value]
+    return value
+
+
 def language_list(value):
     """
     Check that the supplied value is a list of languages,
@@ -127,9 +148,7 @@ def language_list(value):
     or one of the special strings represented by ALL_LANGUAGES or SUPPORTED_LANGUAGES
     A list must be a list of these strings.
     """
-    # Check the supplied value is a list
-    if not isinstance(value, list):
-        value = [value]
+    value = _process_list(value)
 
     out = set()
     errors = []
