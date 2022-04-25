@@ -48,7 +48,6 @@
     <CopiesModal
       v-if="displayedCopies.length"
       :copies="displayedCopies"
-      :genContentLink="contentNode => getTopicContentNodeLink(contentNode.id)"
       @submit="displayedCopies = []"
     />
   </section>

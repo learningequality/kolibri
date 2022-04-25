@@ -35,7 +35,7 @@
         :key="`resource-${idx}`"
         :contentNode="content"
         :to="genContentLink(content)"
-        @openCopiesModal="openCopiesModal"
+        @openCopiesModal="copies => displayedCopies = copies"
       />
     </CardGrid>
 
@@ -50,14 +50,13 @@
       :link="genContentLink(content)"
       :footerIcons="footerIcons"
       :createdDate="content.bookmark ? content.bookmark.created : null"
-      @openCopiesModal="openCopiesModal"
+      @openCopiesModal="copies => displayedCopies = copies"
       @viewInformation="$emit('toggleInfoPanel', content)"
       @removeFromBookmarks="removeFromBookmarks(content, contents)"
     />
     <CopiesModal
       v-if="displayedCopies.length"
-      :copies="displayedCopies"
-      :genContentLink="genContentLink"
+      :displayedCopies="displayedCopies"
       @submit="displayedCopies = []"
     />
   </div>
@@ -118,9 +117,11 @@
         default: null,
       },
     },
-    data: () => ({
-      displayedCopies: [],
-    }),
+    data() {
+      return {
+        displayedCopies: [],
+      };
+    },
     computed: {
       ...mapState('lessonPlaylist', ['currentLesson']),
       pageName() {
@@ -168,9 +169,6 @@
           this.backRoute,
           this.context
         );
-      },
-      openCopiesModal(copies) {
-        this.displayedCopies = copies;
       },
       removeFromBookmarks(content, contents) {
         return this.$emit('removeFromBookmarks', content.bookmark, contents.indexOf(content));

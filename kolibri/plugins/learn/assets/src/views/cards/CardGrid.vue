@@ -113,8 +113,6 @@
     display: flex;
     flex-wrap: wrap;
     align-items: stretch;
-    // Negates the margin on the individual cards
-    margin: -$grid-margin;
   }
 
 </style>

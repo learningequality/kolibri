@@ -70,8 +70,7 @@
             :appearanceOverrides="isKeyActive(key)
               ? { ...categoryListItemStyles, ...categoryListItemActiveStyles }
               : categoryListItemStyles"
-            :disabled="availableRootCategories &&
-              !availableRootCategories[key] &&
+            :disabled="!availableRootCategories[key] &&
               !isKeyActive(key)"
             iconAfter="chevronRight"
             @click="$emit('currentCategory', category)"
@@ -294,7 +293,7 @@
           }
           return roots;
         }
-        return null;
+        return {};
       },
       availableNeeds() {
         if (this.availableLabels) {

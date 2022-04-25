@@ -53,6 +53,17 @@ const MOCK_DEFAULTS = {
   clearSearch: jest.fn(),
   setCategory: jest.fn(),
   setSearchWithinDescendant: jest.fn(),
+  currentRoute: jest.fn(() => {
+    // return a $route-flavored object to avoid undefined errors
+    return {
+      params: {},
+      query: {},
+      path: '',
+      fullPath: '',
+      name: '',
+      meta: {},
+    };
+  }),
 };
 
 export function useSearchMock(overrides = {}) {
