@@ -201,14 +201,13 @@ class KolibriPluginBase(with_metaclass(SingletonMeta)):
     # }
     kolibri_option_defaults = None
 
-    # : Suggested property, not yet in use
-    migrate_on_enable = False
-
-    # : Suggested property, not yet in use
-    collect_static_on_enable = False
-
-    # : Suggested property, not yet in use
-    collect_static_on_enable = False
+    #: Comment
+    # Property that indicates whether it is safe to allow this plugin to be disabled via the GUI
+    # This is used to prevent plugins that are required by the system from being disabled except
+    # through the command line. This property is purely advisory, and does not affect the
+    # functionality of the plugin, or the ability to disable it via the command line or other
+    # configuration mechanisms.
+    can_manage_while_running = False
 
     def __init__(self):
         self.INSTALLED_APPS = []
@@ -220,6 +219,13 @@ class KolibriPluginBase(with_metaclass(SingletonMeta)):
     @property
     def module_path(self):
         return self.class_module_path()
+
+    def name(self, lang):
+        """
+        A function to return a name for the plugin.
+        Accepts a lang argument to allow for internationalization of the name.
+        """
+        return self.__class__.__name__
 
     def _installed_apps_add(self):
         """Call this from your enable() method to have the plugin automatically
@@ -234,6 +240,10 @@ class KolibriPluginBase(with_metaclass(SingletonMeta)):
     def enable(self):
         """Modify the kolibri config dict to your plugin's needs"""
         self._installed_apps_add()
+
+    @property
+    def enabled(self):
+        return self.module_path in config.ACTIVE_PLUGINS
 
     def disable(self):
         """Modify the kolibri config dict to your plugin's needs"""

@@ -2,6 +2,9 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
+from django.utils import translation
+from django.utils.translation import ugettext_lazy as _
+
 from kolibri.core.auth.constants.user_kinds import COACH
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.hooks import NavigationHook
@@ -13,6 +16,7 @@ from kolibri.plugins.hooks import register_hook
 
 class Coach(KolibriPluginBase):
     untranslated_view_urls = "api_urls"
+    can_manage_while_running = True
 
     @property
     def translated_view_urls(self):
@@ -21,6 +25,10 @@ class Coach(KolibriPluginBase):
         if not get_device_setting("subset_of_users_device", False):
             return "urls"
         return None
+
+    def name(self, lang):
+        with translation.override(lang):
+            return _("Coach")
 
 
 @register_hook
