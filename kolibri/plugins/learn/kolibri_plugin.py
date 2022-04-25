@@ -3,6 +3,8 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 from django.urls import reverse
+from django.utils import translation
+from django.utils.translation import ugettext_lazy as _
 
 from kolibri.core.auth.constants.user_kinds import ANONYMOUS
 from kolibri.core.auth.constants.user_kinds import LEARNER
@@ -24,6 +26,10 @@ class Learn(KolibriPluginBase):
     translated_view_urls = "urls"
     kolibri_options = "options"
     can_manage_while_running = True
+
+    def name(self, lang):
+        with translation.override(lang):
+            return _("Learn")
 
 
 @register_hook
