@@ -71,8 +71,7 @@ def test_option_reading_and_precedence_rules():
 
     # when env vars are empty, values are drawn from ini file
     with mock.patch.dict(
-        os.environ,
-        {"KOLIBRI_CONTENT_DIR": "", "KOLIBRI_HTTP_PORT": "", "KOLIBRI_LISTEN_PORT": ""},
+        os.environ, {"KOLIBRI_HOME": os.environ["KOLIBRI_HOME"]}, clear=True
     ):
         OPTIONS = options.read_options_file(ini_filename=tmp_ini_path)
         assert OPTIONS["Paths"]["CONTENT_DIR"] == _CONTENT_DIR
@@ -81,7 +80,11 @@ def test_option_reading_and_precedence_rules():
     # when an env var is set, use those instead of ini file values
     with mock.patch.dict(
         os.environ,
-        {"KOLIBRI_HTTP_PORT": "", "KOLIBRI_LISTEN_PORT": str(_HTTP_PORT_ENV)},
+        {
+            "KOLIBRI_LISTEN_PORT": str(_HTTP_PORT_ENV),
+            "KOLIBRI_HOME": os.environ["KOLIBRI_HOME"],
+        },
+        clear=True,
     ):
         OPTIONS = options.read_options_file(ini_filename=tmp_ini_path)
         assert OPTIONS["Deployment"]["HTTP_PORT"] == _HTTP_PORT_ENV
@@ -128,7 +131,7 @@ def test_improper_settings_display_errors_and_exit(monkeypatch):
         with open(tmp_ini_path, "w") as f:
             f.write("\n".join(["[Deployment]", "HTTP_PORT = abba"]))
         with mock.patch.dict(
-            os.environ, {"KOLIBRI_HTTP_PORT": "", "KOLIBRI_LISTEN_PORT": ""}
+            os.environ, {"KOLIBRI_HOME": os.environ["KOLIBRI_HOME"]}, clear=True
         ):
             with pytest.raises(SystemExit):
                 options.read_options_file(ini_filename=tmp_ini_path)
@@ -138,7 +141,9 @@ def test_improper_settings_display_errors_and_exit(monkeypatch):
         with open(tmp_ini_path, "w") as f:
             f.write("\n".join(["[Deployment]", "HTTP_PORT = 1278"]))
         with mock.patch.dict(
-            os.environ, {"KOLIBRI_HTTP_PORT": "baba", "KOLIBRI_LISTEN_PORT": ""}
+            os.environ,
+            {"KOLIBRI_HTTP_PORT": "baba", "KOLIBRI_HOME": os.environ["KOLIBRI_HOME"]},
+            clear=True,
         ):
             with pytest.raises(SystemExit):
                 options.read_options_file(ini_filename=tmp_ini_path)
@@ -147,7 +152,9 @@ def test_improper_settings_display_errors_and_exit(monkeypatch):
         # invalid choice for "option" type causes it to bail
         with open(tmp_ini_path, "w") as f:
             f.write("\n".join(["[Database]", "DATABASE_ENGINE = penguin"]))
-        with mock.patch.dict(os.environ, {"KOLIBRI_DATABASE_ENGINE": ""}):
+        with mock.patch.dict(
+            os.environ, {"KOLIBRI_HOME": os.environ["KOLIBRI_HOME"]}, clear=True
+        ):
             with pytest.raises(SystemExit):
                 options.read_options_file(ini_filename=tmp_ini_path)
             assert 'value "penguin" is unacceptable' in LOG_LOGGER[-2][1]
@@ -180,7 +187,14 @@ def test_deprecated_values_envvars(monkeypatch):
         # deprecated options in the envvars log warnings
         with open(tmp_ini_path, "w") as f:
             f.write("\n")
-        with mock.patch.dict(os.environ, {"KOLIBRI_CHERRYPY_START": "false"}):
+        with mock.patch.dict(
+            os.environ,
+            {
+                "KOLIBRI_CHERRYPY_START": "false",
+                "KOLIBRI_HOME": os.environ["KOLIBRI_HOME"],
+            },
+            clear=True,
+        ):
             options.read_options_file(ini_filename=tmp_ini_path)
             assert any("deprecated" in msg[1] for msg in LOG_LOGGER)
 
@@ -197,7 +211,9 @@ def test_deprecated_envvars(monkeypatch):
         with open(tmp_ini_path, "w") as f:
             f.write("\n")
         with mock.patch.dict(
-            os.environ, {"KOLIBRI_LISTEN_PORT": "1234", "KOLIBRI_HTTP_PORT": ""}
+            os.environ,
+            {"KOLIBRI_LISTEN_PORT": "1234", "KOLIBRI_HOME": os.environ["KOLIBRI_HOME"]},
+            clear=True,
         ):
             options.read_options_file(ini_filename=tmp_ini_path)
             assert any("deprecated" in msg[1] for msg in LOG_LOGGER)
@@ -261,7 +277,7 @@ def test_option_writing():
         )
 
     with mock.patch.dict(
-        os.environ, {"KOLIBRI_HTTP_PORT": "", "KOLIBRI_LISTEN_PORT": ""}
+        os.environ, {"KOLIBRI_HOME": os.environ["KOLIBRI_HOME"]}, clear=True
     ):
 
         # check that values are set correctly to begin with
