@@ -64,8 +64,8 @@ jobs:
               ]
 
               artifactsToDisplay.sort((a, b) => {
-                const a_order = file_order.findIndex(a.name.split('.').pop()) || 100
-                const b_order = file_order.findIndex(b.name.split('.').pop()) || 100
+                const a_order = file_order.findIndex(ext => ext === a.name.split('.').pop()) || 100
+                const b_order = file_order.findIndex(ext => ext === b.name.split('.').pop()) || 100
                 if (a_order < b_order) {
                   return -1
                 }
