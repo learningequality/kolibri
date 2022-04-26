@@ -79,4 +79,3 @@ Feature: Facility settings
 		When I click *Remove PIN*
 		Then the modal is closed
 			And I see a toast message *PIN removed*
-
