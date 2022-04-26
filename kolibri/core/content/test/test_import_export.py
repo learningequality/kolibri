@@ -1220,7 +1220,7 @@ class ExportChannelTestCase(TestCase):
             local_src_path, local_dest_path, cancel_check=is_cancelled_mock
         )
         cancel_mock.assert_called_with()
-        self.assertFalse(os.path.exists(local_dest_path))
+        self.assertTrue(os.path.exists(local_dest_path))
 
 
 @override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())

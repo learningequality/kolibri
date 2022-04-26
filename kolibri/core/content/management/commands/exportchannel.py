@@ -39,8 +39,4 @@ class Command(AsyncCommand):
                     pass
 
                 if self.is_cancelled():
-                    try:
-                        os.remove(dest)
-                    except IOError:
-                        pass
                     self.cancel()
