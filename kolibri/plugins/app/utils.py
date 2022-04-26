@@ -21,7 +21,7 @@ class AppInterface(object):
         self._capabilities = {}
 
     def __contains__(self, capability):
-        return capability in self._capabilities
+        return self.enabled and (capability in self._capabilities)
 
     def register(self, **kwargs):
         for capability in CAPABILITES:
