@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 import base64
 import collections
 import sys
+import uuid
 from importlib import import_module
 
 import factory
@@ -963,6 +964,17 @@ class AnonSignUpTestCase(APITestCase):
             models.FacilityUser.objects.get(id=user_id).facility.id, other_facility.id
         )
         self.assertTrue(other_facility.get_members().filter(id=user_id).exists())
+
+    def test_create_user_for_nonexistent_facility(self):
+        response = self.post_to_sign_up(
+            {
+                "username": "bob",
+                "password": DUMMY_PASSWORD,
+                "facility": uuid.uuid4().hex,
+            }
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(models.FacilityUser.objects.all())
 
     def test_create_bad_username_fails(self):
         response = self.post_to_sign_up(
