@@ -900,16 +900,11 @@ class LoginLogoutTestCase(APITestCase):
         self.assertTrue(expire_date < new_expire_date)
 
 
-class AnonSignUpTestCase(APITestCase):
+class SignUpBase(object):
     @classmethod
     def setUpTestData(cls):
         cls.facility = FacilityFactory.create()
         provision_device()
-
-    def post_to_sign_up(self, data):
-        return self.client.post(
-            reverse("kolibri:core:signup-list"), data=data, format="json"
-        )
 
     def test_anon_sign_up_creates_user(self):
         response = self.post_to_sign_up(
@@ -983,11 +978,6 @@ class AnonSignUpTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertFalse(models.FacilityUser.objects.all())
 
-    def test_sign_up_also_logs_in_user(self):
-        session_key = self.client.session.session_key
-        self.post_to_sign_up({"username": "user", "password": DUMMY_PASSWORD})
-        self.assertNotEqual(session_key, self.client.session.session_key)
-
     def test_sign_up_able_no_guest_access(self):
         set_device_settings(allow_guest_access=False)
         response = self.post_to_sign_up(
@@ -1025,6 +1015,25 @@ class AnonSignUpTestCase(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertTrue(models.FacilityUser.objects.all())
+
+
+class AnonSignUpTestCase(SignUpBase, APITestCase):
+    def post_to_sign_up(self, data):
+        return self.client.post(
+            reverse("kolibri:core:signup-list"), data=data, format="json"
+        )
+
+    def test_sign_up_also_logs_in_user(self):
+        session_key = self.client.session.session_key
+        self.post_to_sign_up({"username": "user", "password": DUMMY_PASSWORD})
+        self.assertNotEqual(session_key, self.client.session.session_key)
+
+
+class PublicSignUpTestCase(SignUpBase, APITestCase):
+    def post_to_sign_up(self, data):
+        return self.client.post(
+            reverse("kolibri:core:publicsignup-list"), data=data, format="json"
+        )
 
 
 class FacilityDatasetAPITestCase(APITestCase):

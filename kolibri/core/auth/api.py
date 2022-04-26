@@ -25,6 +25,7 @@ from django.db.models.functions import Cast
 from django.http import Http404
 from django.utils.decorators import method_decorator
 from django.utils.timezone import now
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django_filters.rest_framework import CharFilter
 from django_filters.rest_framework import ChoiceFilter
@@ -643,6 +644,46 @@ class SignUpViewSet(viewsets.GenericViewSet, CreateModelMixin):
             facility=data["facility"],
         )
         login(self.request, authenticated_user)
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class PublicSignUpViewSet(SignUpViewSet):
+    """
+    Identical to the SignUpViewset except that it does not login the user.
+    This endpoint is intended to allow a FacilityUser in a different facility
+    on another device to be cloned into a facility on this device, to facilitate
+    moving a user from one facility to another.
+
+    It also allows for historic serializer classes in the case that we
+    make an update to our implementation, and we want to keep the API stable.
+    """
+
+    legacy_serializer_classes = []
+
+    def create(self, request, *args, **kwargs):
+        exception = None
+        serializer_kwargs = dict(data=request.data)
+        serializer_kwargs.setdefault("context", self.get_serializer_context())
+        for serializer_class in [
+            self.serializer_class
+        ] + self.legacy_serializer_classes:
+            serializer = serializer_class(**serializer_kwargs)
+            try:
+                serializer.is_valid(raise_exception=True)
+                break
+            except Exception as e:
+                exception = e
+        if exception:
+            raise exception
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(
+            serializer.data, status=status.HTTP_201_CREATED, headers=headers
+        )
+
+    def perform_create(self, serializer):
+        self.check_can_signup(serializer)
+        serializer.save()
 
 
 class SetNonSpecifiedPasswordView(views.APIView):
