@@ -295,3 +295,23 @@ class UserSyncStatus(models.Model):
         is_syncable=False,
     )
     permissions = own | role
+
+
+class OSUser(models.Model):
+    """
+    This class stores a lookup from os username to user id
+    """
+
+    user = models.OneToOneField(
+        FacilityUser,
+        on_delete=models.CASCADE,
+        related_name="os_user",
+        blank=False,
+        null=False,
+        primary_key=True,
+    )
+    # Apparently the max length on linux is 8, on Windows it's 30, and not sure on Mac,
+    # but hopefully 64 should be long enough for anybody!
+    os_username = models.CharField(
+        db_index=True, null=False, blank=False, max_length=64
+    )
