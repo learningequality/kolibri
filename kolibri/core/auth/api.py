@@ -60,7 +60,6 @@ from .serializers import FacilityUserSerializer
 from .serializers import LearnerGroupSerializer
 from .serializers import MembershipSerializer
 from .serializers import PublicFacilitySerializer
-from .serializers import PublicFacilityUserSerializer
 from .serializers import RoleSerializer
 from kolibri.core import error_constants
 from kolibri.core.api import ReadOnlyValuesViewset
@@ -247,7 +246,6 @@ class FacilityUserFilter(FilterSet):
 
 class PublicFacilityUserViewSet(ReadOnlyValuesViewset):
     queryset = FacilityUser.objects.all()
-    serializer_class = PublicFacilityUserSerializer
     authentication_classes = [BasicMultiArgumentAuthentication]
     permission_classes = [IsAuthenticated]
     values = (
