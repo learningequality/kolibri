@@ -6,7 +6,12 @@ from kolibri.plugins.registry import registered_plugins
 
 SHARE_FILE = "share_file"
 
-CAPABILITES = (SHARE_FILE,)
+GET_USERNAME = "get_username"
+
+CAPABILITES = (
+    SHARE_FILE,
+    GET_USERNAME,
+)
 
 
 class AppInterface(object):
@@ -50,6 +55,13 @@ class AppInterface(object):
         if SHARE_FILE not in self._capabilities:
             raise NotImplementedError("Sharing files is not supported on this platform")
         return self._capabilities[SHARE_FILE](filename=filename, message=message)
+
+    def get_username(self):
+        if GET_USERNAME not in self._capabilities:
+            raise NotImplementedError(
+                "Getting the username is not supported on this platform"
+            )
+        return self._capabilities[GET_USERNAME]()
 
 
 interface = AppInterface()
