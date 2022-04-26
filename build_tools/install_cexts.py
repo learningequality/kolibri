@@ -185,7 +185,7 @@ def parse_package_page(files, pk_version, index_url, cache_path):
             continue
         if "macosx" in platform:
             continue
-        if "win_amd64" in platform and python_version != "36":
+        if "win_amd64" in platform and python_version != "39":
             continue
 
         # Cryptography builds for Linux target Python 3.4+ but the only existing
