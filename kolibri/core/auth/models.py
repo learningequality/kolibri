@@ -658,11 +658,13 @@ class FacilityUserModelManager(SyncableModelManager, UserManager):
             user = None
             for i in range(0, 10):
                 try:
-                    user = self.create_user(
-                        "{}{}".format("_" * i, os_username),
-                        password=password,
-                        facility=facility,
-                    )
+                    with transaction.atomic():
+                        user = self.create_user(
+                            "{}{}".format("_" * i, os_username),
+                            password=password,
+                            facility=facility,
+                        )
+                        OSUser.objects.create(os_username=os_username, user=user)
                     break
                 except ValidationError:
                     pass
@@ -670,7 +672,6 @@ class FacilityUserModelManager(SyncableModelManager, UserManager):
                 raise ValidationError(
                     "Error creating FacilityUser for OS user: {}".format(os_username)
                 )
-            OSUser.objects.create(os_username=os_username, user=user)
             return user
 
 
