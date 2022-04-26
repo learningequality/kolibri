@@ -24,6 +24,7 @@ from __future__ import unicode_literals
 
 import logging
 from threading import local
+from uuid import uuid4
 
 import six
 from django.contrib.auth.models import AbstractBaseUser
@@ -75,6 +76,7 @@ from kolibri.core.device.utils import set_device_settings
 from kolibri.core.errors import KolibriValidationError
 from kolibri.core.fields import DateTimeTzField
 from kolibri.core.fields import JSONField
+from kolibri.plugins.app.utils import interface
 from kolibri.utils.time_utils import local_now
 
 logger = logging.getLogger(__name__)
@@ -587,7 +589,7 @@ class FacilityUserModelManager(SyncableModelManager, UserManager):
         """
         if not username:
             raise ValueError("The given username must be set")
-        if "facility" not in extra_fields:
+        if "facility" not in extra_fields or extra_fields["facility"] is None:
             extra_fields["facility"] = Facility.get_default_facility()
         if self.filter(
             username__iexact=username, facility=extra_fields["facility"]
@@ -634,6 +636,39 @@ class FacilityUserModelManager(SyncableModelManager, UserManager):
             user=superuser, is_superuser=True, can_manage_content=True
         )
         return superuser
+
+    def get_or_create_os_user(self, facility=None):
+        """
+        Returns a FacilityUser object for the current OS user.
+        If the user does not exist in the database, it is created.
+        """
+        os_username = interface.get_username()
+        if not os_username:
+            return None
+        from kolibri.core.device.models import OSUser
+
+        try:
+            os_user = OSUser.objects.get(os_username=os_username)
+            return os_user.user
+        except OSUser.DoesNotExist:
+            password = uuid4().hex
+            user = None
+            for i in range(0, 10):
+                try:
+                    user = self.create_user(
+                        "{}{}".format("_" * i, os_username),
+                        password=password,
+                        facility=facility,
+                    )
+                    break
+                except ValidationError:
+                    pass
+            if not user:
+                raise ValidationError(
+                    "Could not create user for OS user {}".format(os_username)
+                )
+            OSUser.objects.create(os_username=os_username, user=user)
+            return user
 
 
 def validate_birth_year(value):
