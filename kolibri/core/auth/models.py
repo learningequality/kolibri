@@ -642,7 +642,10 @@ class FacilityUserModelManager(SyncableModelManager, UserManager):
         Returns a FacilityUser object for the current OS user.
         If the user does not exist in the database, it is created.
         """
-        os_username = interface.get_username()
+        try:
+            os_username = interface.get_username()
+        except NotImplementedError:
+            return None
         if not os_username:
             return None
         from kolibri.core.device.models import OSUser
@@ -665,7 +668,7 @@ class FacilityUserModelManager(SyncableModelManager, UserManager):
                     pass
             if not user:
                 raise ValidationError(
-                    "Could not create user for OS user {}".format(os_username)
+                    "Error creating FacilityUser for OS user: {}".format(os_username)
                 )
             OSUser.objects.create(os_username=os_username, user=user)
             return user
