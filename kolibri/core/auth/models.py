@@ -238,7 +238,8 @@ class AbstractFacilityDataModel(FacilityDataSyncableModel):
 
     def clean_fields(self, *args, **kwargs):
         # ensure that we have, or can infer, a dataset for the model instance
-        self.ensure_dataset(validating=True)
+        if not self.dataset_id:
+            self.ensure_dataset(validating=True)
         super(AbstractFacilityDataModel, self).clean_fields(*args, **kwargs)
 
     def full_clean(self, *args, **kwargs):
