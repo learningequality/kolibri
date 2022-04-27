@@ -55,7 +55,7 @@
           />
         </template>
       </div>
-      <template v-if="!taskIsCompleted && !taskIsCanceled">
+      <template v-if="!taskIsCompleted">
         <p v-if="sizeText" class="details-size">
           {{ sizeText }}
         </p>
@@ -192,6 +192,10 @@
             numResources: total_resources,
             bytesText: bytesForHumans(file_size),
           });
+        } else if (file_size) {
+          return this.$tr('cancelSize', {
+            bytesText: bytesForHumans(file_size),
+          });
         }
         return '';
       },
@@ -261,6 +265,11 @@
           '{numResources} {numResources, plural, one {resource} other {resources}} ({bytesText})',
         context: 'Indicates the number of resources and their size.',
       },
+      cancelSize: {
+        message: 'Exported size: ({bytesText})',
+        context: 'Indicates the number of resources and their size.',
+      },
+
       statusInProgress: {
         message: 'In-progress',
         context: 'Label indicating that a task is in progress.',

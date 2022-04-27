@@ -170,7 +170,6 @@ def get_import_export_data(  # noqa: C901
             )
 
         count_content_ids = nodes_segment.count()
-
         # Only bother with this query if there were any resources returned above.
         if count_content_ids:
             number_of_resources = number_of_resources + count_content_ids
