@@ -9,7 +9,7 @@ from .base import *  # noqa isort:skip @UnusedWildImport
 DEBUG = True
 
 # Settings might be tuples, so switch to lists
-INSTALLED_APPS = list(INSTALLED_APPS) + ["drf_yasg"]  # noqa F405
+INSTALLED_APPS = list(INSTALLED_APPS) + ["drf_yasg", "django_extensions"]  # noqa F405
 webpack_middleware = "kolibri.core.webpack.middleware.WebpackErrorHandler"
 no_login_popup_middleware = (
     "kolibri.core.auth.middleware.XhrPreventLoginPromptMiddleware"
