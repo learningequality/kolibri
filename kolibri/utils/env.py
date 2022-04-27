@@ -99,7 +99,7 @@ def prepend_cext_path(dist_path):
         # add it + the matching noarch (OpenSSL) modules to sys.path
         sys.path = [str(dirname), str(noarch_dir)] + sys.path
     else:
-        logger.info("No C extensions are available for this platform")
+        logger.debug("No C extensions are available for this platform")
 
 
 def check_python_versions():
