@@ -32,7 +32,7 @@
     </CardGrid>
     <!-- large displays, list view -->
     <HybridLearningContentCardListView
-      v-for="content in contents"
+      v-for="(content, idx) in contents"
       v-else-if="!windowIsSmall && currentCardViewStyle === 'list'"
       :key="content.id"
       :content="content"

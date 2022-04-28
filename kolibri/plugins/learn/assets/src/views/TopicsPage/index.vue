@@ -96,6 +96,7 @@
             v-else-if="!searchLoading"
             data-test="search-results"
             :currentCardViewStyle="currentSearchCardViewStyle"
+            :hideCardViewToggle="true"
             :results="results"
             :removeFilterTag="removeFilterTag"
             :clearSearch="clearSearch"

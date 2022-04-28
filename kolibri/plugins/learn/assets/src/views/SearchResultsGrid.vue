@@ -15,7 +15,7 @@
       @clearSearch="clearSearch"
     />
     <div
-      v-if="!(windowIsSmall) && results.length"
+      v-if="!(windowIsSmall) && results.length && !hideCardViewToggle"
       class="toggle-view-buttons"
       data-test="toggle-view-buttons"
     >
@@ -98,6 +98,10 @@
       currentCardViewStyle: {
         type: String,
         default: 'card',
+      },
+      hideCardViewToggle: {
+        type: Boolean,
+        default: false,
       },
       clearSearch: {
         type: Function,
