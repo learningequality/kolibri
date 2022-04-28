@@ -519,7 +519,7 @@
       },
       subTopicId(newValue, oldValue) {
         if (newValue && newValue !== oldValue) {
-          this.handleLoadMoreinSubtopic(newValue);
+          this.handleLoadMoreInSubtopic(newValue);
         }
       },
       searchTerms(newVal, oldVal) {
@@ -555,7 +555,7 @@
       this.setSearchWithinDescendant(this.topic);
       this.search();
       if (this.subTopicId) {
-        this.handleLoadMoreinSubtopic(this.subTopicId);
+        this.handleLoadMoreInSubtopic(this.subTopicId);
       }
     },
     methods: {
@@ -653,7 +653,7 @@
 
   .page {
     position: relative;
-    width: 100vw;
+    width: 100%;
     min-height: calc(100vh - #{$toolbar-height});
   }
 
