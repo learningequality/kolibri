@@ -3,8 +3,6 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 from django.urls import reverse
-from django.utils import translation
-from django.utils.translation import ugettext_lazy as _
 
 from kolibri.core.auth.constants.user_kinds import ANONYMOUS
 from kolibri.core.auth.constants.user_kinds import LEARNER
@@ -19,6 +17,8 @@ from kolibri.core.webpack import hooks as webpack_hooks
 from kolibri.plugins import KolibriPluginBase
 from kolibri.plugins.hooks import register_hook
 from kolibri.utils import conf
+from kolibri.utils import translation
+from kolibri.utils.translation import ugettext as _
 
 
 class Learn(KolibriPluginBase):
