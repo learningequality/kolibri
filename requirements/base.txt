@@ -20,7 +20,7 @@ kolibri_exercise_perseus_plugin==1.3.5
 jsonfield==2.0.2
 requests-toolbelt==0.8.0
 clint==0.5.1
-morango==0.6.9
+morango==0.6.11
 tzlocal==2.1
 pytz==2020.5
 python-dateutil==2.7.5
