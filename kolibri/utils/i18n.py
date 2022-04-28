@@ -2,7 +2,10 @@
 import importlib
 import io
 import json
+import locale
 import os
+
+from django.utils.translation.trans_real import to_language
 
 import kolibri
 
@@ -41,7 +44,7 @@ def _get_language_info():
 KOLIBRI_LANGUAGE_INFO = _get_language_info()
 
 # List of intl codes that Kolibri officially supports
-KOLIBRI_SUPPORTED_LANGUAGES = [
+KOLIBRI_SUPPORTED_LANGUAGES = {
     "ar",
     "bg-bg",
     "bn-bd",
@@ -73,4 +76,16 @@ KOLIBRI_SUPPORTED_LANGUAGES = [
     "vi",
     "yo",
     "zh-hans",
-]
+}
+
+
+def get_system_default_language():
+    for loc in (locale.getlocale()[0], locale.getdefaultlocale()[0]):
+        if loc:
+            lang = to_language(loc)
+            for lang_code in (lang, lang.split("-")[0]):
+                if lang_code in KOLIBRI_SUPPORTED_LANGUAGES:
+                    return lang_code
+
+    # If all else fails we fall back to "en"
+    return "en"
