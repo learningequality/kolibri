@@ -2,6 +2,7 @@ import hashlib
 from math import ceil
 
 from django.db.models import Max
+from django.db.models import Min
 from django.db.models import Q
 from le_utils.constants import content_kinds
 from requests.exceptions import ChunkedEncodingError
@@ -183,11 +184,20 @@ def get_import_export_data(  # noqa: C901
 
             if topic_thumbnails:
                 # Do a query to get all the descendant and ancestor topics for this segment
+                segment_boundaries = nodes_segment.aggregate(
+                    min_boundary=Min("lft"), max_boundary=Max("rght")
+                )
                 segment_topics = ContentNode.objects.filter(
                     channel_id=channel_id, kind=content_kinds.TOPIC
                 ).filter(
-                    Q(rght__gte=min_boundary, rght__lte=max_boundary)
-                    | Q(lft__lte=max_boundary, rght__gte=min_boundary)
+                    Q(
+                        lft__lte=segment_boundaries["min_boundary"],
+                        rght__gte=segment_boundaries["max_boundary"],
+                    )
+                    | Q(
+                        lft__lte=segment_boundaries["max_boundary"],
+                        rght__gte=segment_boundaries["min_boundary"],
+                    )
                 )
 
                 file_objects = LocalFile.objects.filter(

@@ -25,6 +25,7 @@ from kolibri.core.content.utils.content_types_tools import (
     renderable_contentnodes_q_filter,
 )
 from kolibri.core.content.utils.import_export_content import get_import_export_data
+from kolibri.core.content.utils.transfer import Transfer
 from kolibri.core.content.utils.transfer import TransferCanceled
 from kolibri.utils.tests.helpers import override_option
 
@@ -332,7 +333,11 @@ class ImportContentTestCase(TestCase):
         is_cancelled_mock.assert_has_calls([call(), call()])
         # Should be set to the local path we mocked
         FileDownloadMock.assert_called_with(
-            "notest", local_path, session=Any(Session), cancel_check=is_cancelled_mock
+            "notest",
+            local_path,
+            session=Any(Session),
+            cancel_check=is_cancelled_mock,
+            timeout=Transfer.DEFAULT_TIMEOUT,
         )
         # Check that the command itself was also cancelled.
         cancel_mock.assert_called_with()
@@ -1178,6 +1183,51 @@ class ImportContentTestCase(TestCase):
             public=False,
         )
 
+    @patch(
+        "kolibri.core.content.management.commands.importcontent.paths.get_content_storage_remote_url"
+    )
+    @patch(
+        "kolibri.core.content.management.commands.importcontent.paths.get_content_storage_file_path"
+    )
+    @patch(
+        "kolibri.core.content.management.commands.importchannel.transfer.FileDownload"
+    )
+    @patch(
+        "kolibri.core.content.management.commands.importcontent.AsyncCommand.is_cancelled",
+        return_value=False,
+    )
+    def test_remote_import_timeout_option(
+        self,
+        is_cancelled_mock,
+        FileDownloadMock,
+        local_path_mock,
+        remote_path_mock,
+        annotation_mock,
+        get_import_export_mock,
+        channel_list_status_mock,
+    ):
+        fd, local_path = tempfile.mkstemp()
+        os.close(fd)
+        LocalFile.objects.update(file_size=1)
+        local_path_mock.side_effect = [local_path]
+        remote_path_mock.return_value = "notest"
+        FileDownloadMock.return_value.__iter__.return_value = ["one", "two", "three"]
+        FileDownloadMock.return_value.total_size = 1
+        FileDownloadMock.return_value.dest = local_path
+        get_import_export_mock.return_value = (
+            1,
+            [LocalFile.objects.values("id", "file_size", "extension").first()],
+            10,
+        )
+        call_command("importcontent", "network", self.the_channel_id, timeout=5)
+        FileDownloadMock.assert_called_with(
+            "notest",
+            local_path,
+            session=Any(Session),
+            cancel_check=is_cancelled_mock,
+            timeout=5,
+        )
+
 
 @override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())
 class ExportChannelTestCase(TestCase):
@@ -1477,3 +1527,82 @@ class TestFilesToTransfer(TestCase):
             self.the_channel_id, [], [], False, renderable_only=False, peer_id="1"
         )
         self.assertEqual(len(files_to_transfer), 0)
+
+    def test_no_uncle_thumbnail_files(self):
+        """
+        Test that the thumbnail files for the 'uncle' node are not included in the import
+        """
+        root_node = ContentNode.objects.get(parent__isnull=True)
+        node = ContentNode.objects.filter(
+            parent=root_node, kind=content_kinds.TOPIC
+        ).first()
+        parent = ContentNode.objects.create(
+            title="test1",
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=root_node.channel_id,
+            parent=node,
+            kind=content_kinds.TOPIC,
+            available=False,
+        )
+        uncle = ContentNode.objects.create(
+            title="test2",
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=root_node.channel_id,
+            parent=node,
+            kind=content_kinds.TOPIC,
+            available=False,
+        )
+        child = ContentNode.objects.create(
+            title="test3",
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=root_node.channel_id,
+            parent=parent,
+            kind=content_kinds.VIDEO,
+            available=False,
+        )
+        parent_thumbnail = LocalFile.objects.create(
+            id=uuid.uuid4().hex, extension="png", available=False, file_size=10
+        )
+        uncle_thumbnail = LocalFile.objects.create(
+            id=uuid.uuid4().hex, extension="png", available=False, file_size=10
+        )
+        local_file = LocalFile.objects.create(
+            id=uuid.uuid4().hex, extension="mp4", available=False, file_size=10
+        )
+        File.objects.create(
+            id=uuid.uuid4().hex, local_file=local_file, contentnode=child
+        )
+        File.objects.create(
+            id=uuid.uuid4().hex,
+            local_file=parent_thumbnail,
+            contentnode=parent,
+            thumbnail=True,
+            supplementary=True,
+        )
+        File.objects.create(
+            id=uuid.uuid4().hex,
+            local_file=uncle_thumbnail,
+            contentnode=uncle,
+            thumbnail=True,
+            supplementary=True,
+        )
+        _, files_to_transfer, _ = get_import_export_data(
+            root_node.channel_id, [child.id], [], False, renderable_only=False
+        )
+        self.assertEqual(
+            len(
+                list(
+                    filter(lambda x: x["id"] == parent_thumbnail.id, files_to_transfer)
+                )
+            ),
+            1,
+        )
+        self.assertEqual(
+            len(
+                list(filter(lambda x: x["id"] == uncle_thumbnail.id, files_to_transfer))
+            ),
+            0,
+        )
