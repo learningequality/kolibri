@@ -2,6 +2,31 @@
 
 List of the most important changes for each release.
 
+## 0.15.2
+
+### Internationalization and localization
+New language support for: Ukrainian
+
+#### Added
+* Additional gherkin scenarios https://github.com/learningequality/kolibri/pull/9130
+
+#### Changed
+* Bump morango to v0.6.10 https://github.com/learningequality/kolibri/pull/9168
+* Pin windows installer to 1.5.0 https://github.com/learningequality/kolibri/pull/9200
+* Pin django js asset https://github.com/learningequality/kolibri/pull/9163
+* Compress HTML files for serving https://github.com/learningequality/kolibri/pull/9197
+* Disable mac app pipeline by @rtibbles in https://github.com/learningequality/kolibri/pull/9257
+* `SECURE_CONTENT_TYPE_NOSNIFF` set to `True` https://github.com/learningequality/kolibri/pull/9195
+
+#### Fixed
+* Content import, deletion, and `remote_content` settings fixes (#9242, #9337, #9246, #8506)
+* Add check for `notification` to avoid il8n error in `CoreBase` https://github.com/learningequality/kolibri/pull/9138
+* Redirect for Bookmarks when user is not logged in https://github.com/learningequality/kolibri/pull/9142
+* Delete any annotated channelmetadata many to many fields to avoid integrity errors https://github.com/learningequality/kolibri/pull/9141
+* Ensure deprovisioning management command deletes DMC https://github.com/learningequality/kolibri/pull/9208
+* Fix Python requires to prevent install on incompatible Python versions https://github.com/learningequality/kolibri/pull/9296
+
+
 
 ## 0.15.1
 

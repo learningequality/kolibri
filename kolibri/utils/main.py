@@ -213,11 +213,14 @@ def _upgrades_before_django_setup(updated, version):
         # that we bundle in the Kolibri whl file.
         if not version:
             logger.info("Attempting to setup using pre-migrated databases")
+            # Only copy the default database if this is a fresh install
+            _copy_preseeded_db("db", target=OPTIONS["Database"]["DATABASE_NAME"])
 
-        _copy_preseeded_db("db", target=OPTIONS["Database"]["DATABASE_NAME"])
-
-        for db_name in ADDITIONAL_SQLITE_DATABASES:
-            _copy_preseeded_db(db_name)
+        if not version or updated:
+            # If this is an upgrade, it is possible we've added an additional
+            # database, so we can attempt to copy a preseeded database here.
+            for db_name in ADDITIONAL_SQLITE_DATABASES:
+                _copy_preseeded_db(db_name)
 
 
 def _post_django_initialization():
