@@ -5,4 +5,3 @@ Feature: My downloads list
 			And I am at *My downloads* page
 
 	Scenario: Manage preferred language in user profile
-

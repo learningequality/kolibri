@@ -10,6 +10,25 @@ Feature: My downloads list
 		Then I am at the *My downloads* page
 			And the side menu is no longer expanded
 
+	Scenario: *My downloads > Downloaded* - mobile view
+		Given I'm viewing Kolibri in a mobile browser
+		When I go to *My downloads*
+		Then I see all the resources displayed in a single column view
+			And I see the contents of the *Downloaded* tab by default
+			And I see *On your device now XX MB*, *Total size of My downloads YY MB*, and *Free disk space XXX MB* above the list with cards
+			And in each card I see the thumbnail, resource type, resource label, resource size, channel image and channel name
+			And I see the *View* button, the *i* icon and the *X* icon at the bottom right corner
+
+	Scenario: *My downloads > Download later* - mobile view
+		Given I'm viewing Kolibri in a mobile browser
+		When I go to *My downloads*
+			And I select the *Download later* tab
+		Then I see all the resources displayed in a single column view
+			And I see *These resources will automatically download when you connect to another device or network that has them*
+			And I see *On your device now XX MB*, *Total size of My downloads YY MB*, and *Free disk space XXX MB* above the list with cards
+			And in each card I see the thumbnail, resource type, resource label, resource size, channel image and channel name
+			And I see the *View* button, the *i* icon and the *X* icon at the bottom right corner
+
 	Scenario: Go to a resource in the *Downloaded* tab
 		Given I am at the *My downloads* page
 			And there are downloaded resources
@@ -45,3 +64,12 @@ Feature: My downloads list
 			And I have a number of resources pending to be downloaded later
 		When I click the *i* icon of a resource
 		Then I see the side information panel for the resource
+
+	Scenario: *My downloads* page when there are no resources
+		Given I am at the *My downloads* page
+			And there are no downloaded resources
+		When I look at *My downloads > Downloaded*
+		Then I see only the following text: *No resources*
+		When I go to *My downloads > Download later*
+		Then I see only the following text: *These resources will automatically download when you connect to another device or network that has them*
+			And on the next line I see the following text: *No resources*

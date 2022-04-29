@@ -40,8 +40,3 @@ Feature: Find new things in other libraries
 	# The '+' icon should turn into the bookmark icon after clicking it
 
 	Scenario: User becomes disconnected while browsing another library
-
-
-
-
-

@@ -70,7 +70,3 @@ Feature: Find new things in your library
 			And I see a *Remove* button next to it
 		When I click the *Remove* button
 		Then the resource is removed from *My downloads*
-
-
-
-
