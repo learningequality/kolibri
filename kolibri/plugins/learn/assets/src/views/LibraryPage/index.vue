@@ -129,9 +129,9 @@
   import ChannelCardGroupGrid from '../ChannelCardGroupGrid';
   import LearningActivityChip from '../LearningActivityChip';
   import SearchResultsGrid from '../SearchResultsGrid';
+  import LearnAppBarPage from '../LearnAppBarPage';
   import ResumableContentGrid from './ResumableContentGrid';
   import SidePanel from './SidePanel';
-  import LearnAppBarPage from './LearnAppBarPage';
 
   export default {
     name: 'LibraryPage',
@@ -278,7 +278,7 @@
 <style lang="scss" scoped>
 
   .main-grid {
-    margin-top: 40px;
+    margin-top: 140px;
     margin-right: 24px;
   }
 
