@@ -36,6 +36,11 @@ from kolibri.core.device.models import DeviceSettings
 from kolibri.core.device.models import UserSyncStatus
 from kolibri.core.public.constants import user_sync_statuses
 from kolibri.core.public.constants.user_sync_options import DELAYED_SYNC
+from kolibri.plugins.app.test.helpers import register_capabilities
+from kolibri.plugins.app.utils import GET_USERNAME
+from kolibri.plugins.app.utils import interface
+from kolibri.plugins.utils.test.helpers import plugin_disabled
+from kolibri.plugins.utils.test.helpers import plugin_enabled
 from kolibri.utils.tests.helpers import override_option
 
 
@@ -182,6 +187,28 @@ class DeviceProvisionTestCase(APITestCase):
         self.assertFalse(device_settings.allow_guest_access)
         self.assertFalse(device_settings.allow_peer_unlisted_channel_import)
         self.assertTrue(device_settings.allow_learner_unassigned_resource_access)
+
+    def test_osuser_superuser_error_no_app(self):
+        with plugin_disabled("kolibri.plugins.app"):
+            data = self._default_provision_data()
+            del data["superuser"]
+            response = self._post_deviceprovision(data)
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_osuser_superuser_created(self):
+        with plugin_enabled("kolibri.plugins.app"), register_capabilities(
+            **{GET_USERNAME: lambda: "test_user"}
+        ):
+            initialize_url = interface.get_initialize_url()
+            self.client.get(initialize_url)
+            data = self._default_provision_data()
+            del data["superuser"]
+            self._post_deviceprovision(data)
+            self.assertEqual(
+                DevicePermissions.objects.get(),
+                FacilityUser.objects.get().devicepermissions,
+            )
+            self.assertTrue(FacilityUser.objects.get().os_user)
 
 
 class DeviceSettingsTestCase(APITestCase):
