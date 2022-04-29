@@ -238,7 +238,7 @@
           :content="sidePanelContent"
           :showLocationsInChannel="true"
         />
-      </FullScreenSidePanel>
+      </SidePanelModal>
     </ImmersivePageRoot>
   </div>
 
