@@ -176,7 +176,7 @@ def _copy_preseeded_db(db_name, target=None):
                     "home/{}.sqlite3".format(db_name),
                 )
             )
-            shutil.copy(db_path, target)
+            shutil.copyfile(db_path, target)
             logger.info(
                 "Copied preseeded database from {} to {}".format(db_path, target)
             )

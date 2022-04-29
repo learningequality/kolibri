@@ -396,7 +396,6 @@ class PIDPlugin(SimplePlugin):
 
     def ZIP_SERVING(self, zip_port):
         self.bus.zip_port = zip_port or self.bus.zip_port
-        self.set_pid_file(STATUS_RUNNING)
 
     def EXIT(self):
         try:
