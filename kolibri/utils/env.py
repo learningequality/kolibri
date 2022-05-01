@@ -18,6 +18,7 @@ except ImportError:
     ColoredFormatter = None
 
 from .logger import LOG_COLORS
+from kolibri.utils.compat import monkey_patch_collections
 
 
 logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
@@ -123,6 +124,8 @@ def set_env():
     from kolibri import dist as kolibri_dist  # noqa
 
     check_python_versions()
+
+    monkey_patch_collections()
 
     sys.path = [os.path.realpath(os.path.dirname(kolibri_dist.__file__))] + sys.path
 
