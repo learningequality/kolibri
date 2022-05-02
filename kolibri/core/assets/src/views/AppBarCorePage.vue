@@ -2,7 +2,7 @@
 
   <!-- TODO useScrollPosition to set scrollPosition...
     here or in router, but somewhere -->
-  <div>
+  <div class="main">
     <ScrollingHeader :scrollPosition="0">
       <AppBar
         ref="appBar"
@@ -81,7 +81,8 @@
           ? this.appearanceOverrides
           : {
               width: '100%',
-              display: 'inline-block',
+              maxWidth: '1064px',
+              margin: 'auto',
               backgroundColor: this.$themePalette.grey.v_100,
               paddingLeft: '32px',
               paddingRight: '32px',
