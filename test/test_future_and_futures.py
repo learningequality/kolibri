@@ -2,9 +2,10 @@ import imp
 import os
 import sys
 
-from django.test import TestCase
+# Import from kolibri first to ensure Kolibri's monkey patches are applied.
+from kolibri import dist as kolibri_dist  # noreorder
 
-from kolibri import dist as kolibri_dist
+from django.test import TestCase  # noreorder
 
 dist_dir = os.path.realpath(os.path.dirname(kolibri_dist.__file__))
 
