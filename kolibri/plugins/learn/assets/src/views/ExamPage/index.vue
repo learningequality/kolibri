@@ -1,7 +1,7 @@
 <template>
 
   <ImmersivePageRoot
-    :route="$store.getters.learnPageLinks.HomePage"
+    :route="homePageLink"
     :appBarTitle="exam.title || ''"
   >
     <KGrid :gridStyle="gridStyle">
@@ -178,7 +178,7 @@
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useProgressTracking from '../../composables/useProgressTracking';
-  import { ClassesPageNames } from '../../constants';
+  import { PageNames, ClassesPageNames } from '../../constants';
   import { LearnerClassroomResource } from '../../apiResources';
   import ImmersivePageRoot from './../ImmersivePageRoot';
 
@@ -253,6 +253,11 @@
       backPageLink() {
         return {
           name: ClassesPageNames.CLASS_ASSIGNMENTS,
+        };
+      },
+      homePageLink() {
+        return {
+          name: PageNames.HOME,
         };
       },
       content() {

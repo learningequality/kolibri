@@ -1,7 +1,7 @@
 <template>
 
   <ImmersivePageRoot
-    :route="this.$store.getters.learnPageLinks.HomePage"
+    :route="homePageLink"
     :appBarTitle="exam.title || ''"
   >
     <KPageContainer :topMargin="50" class="container">
@@ -37,7 +37,7 @@
 
   import { mapState } from 'vuex';
   import ExamReport from 'kolibri.coreVue.components.ExamReport';
-  import { ClassesPageNames } from '../constants';
+  import { PageNames, ClassesPageNames } from '../constants';
   import ImmersivePageRoot from './ImmersivePageRoot';
 
   export default {
@@ -68,6 +68,11 @@
         userName: state => state.core.session.full_name,
         userId: state => state.core.session.user_id,
       }),
+      homePageLink() {
+        return {
+          name: PageNames.HOME,
+        };
+      },
     },
     methods: {
       navigateTo(tryIndex, questionNumber, interaction) {

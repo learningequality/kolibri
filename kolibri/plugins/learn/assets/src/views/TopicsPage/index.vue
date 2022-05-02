@@ -8,7 +8,7 @@
     <!-- by replacing it with an empty object -->
     <ImmersivePageRoot
       v-else-if="!loading"
-      :route="$store.getters.learnPageLinks.LibraryPage"
+      :route="libraryPageLink"
       :appBarTitle="topic.title || ''"
       :appearanceOverrides="{}"
       class="page"
@@ -392,6 +392,11 @@
           };
         }
         return {};
+      },
+      libraryPageLink() {
+        return {
+          name: PageNames.LIBRARY,
+        };
       },
       desktopSearchActive() {
         return this.$route.name === PageNames.TOPICS_TOPIC_SEARCH;
