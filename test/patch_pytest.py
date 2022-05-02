@@ -1,3 +1,7 @@
+"""
+This script backports this Python 3.10 compatibility fix https://github.com/pytest-dev/pytest/pull/8540
+in order to allow pytest to run in Python 3.10 without upgrading to version 6.2.5 which does not support 2.7
+"""
 import os
 import subprocess
 
