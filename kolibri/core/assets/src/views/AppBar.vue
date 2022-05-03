@@ -203,14 +203,6 @@
     font-weight: bold;
   }
 
-  .sync-status,
-  .notice-label {
-    margin-top: 16px;
-    margin-bottom: 8px;
-    font-size: small;
-    font-weight: bold;
-  }
-
   .total-points {
     display: inline-block;
     margin-left: 16px;

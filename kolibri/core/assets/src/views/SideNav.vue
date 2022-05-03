@@ -33,6 +33,36 @@
               :alt="themeConfig.sideNav.topLogo.alt"
               :style="themeConfig.sideNav.topLogo.style"
             >
+
+            <div class="user-information">
+              <!-- display user details -->
+              <b>{{ currentUser.full_name }}</b>
+              <TotalPoints class="points" />
+              <p
+                :style="{
+                  color: $themeTokens.annotation,
+                  fontSize: '12px',
+                  marginTop: '8px',
+                  marginBottom: 0
+                }"
+              >
+                {{ currentUser.username }}
+              </p>
+              <p :style="{ color: $themeTokens.annotation, fontSize: '12px', marginTop: 0 }">
+                {{ getUserKind }}
+              </p>
+              <!-- display sync status, when relevant -->
+              <div v-if="isSubsetOfUsersDevice && userIsLearner" data-test="syncStatusInDropdown">
+                <div class="sync-status">
+                  {{ $tr('deviceStatus') }}
+                </div>
+                <SyncStatusDisplay
+                  :syncStatus="mapSyncStatusOptionToLearner"
+                  displaySize="small"
+                />
+              </div>
+            </div>
+            <SideNavDivider :style="{ listStyleType: 'none' }" />
             <CoreMenu
               ref="coreMenu"
               role="navigation"
@@ -145,7 +175,7 @@
 
   import { mapGetters } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
+  import { UserKinds, SyncStatus, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
@@ -156,6 +186,9 @@
   import themeConfig from 'kolibri.themeConfig';
   import Backdrop from 'kolibri.coreVue.components.Backdrop';
   import navComponentsMixin from '../mixins/nav-components';
+  import useCurrentUser from '../../../../plugins/user_profile/assets/src/views/ProfilePage/useCurrentUser';
+  import TotalPoints from '../../../../plugins/learn/assets/src/views/TotalPoints.vue';
+  import SyncStatusDisplay from './SyncStatusDisplay';
   import logout from './LogoutSideNavEntry';
   import SideNavDivider from './SideNavDivider';
   import FocusTrap from './FocusTrap.vue';
@@ -178,13 +211,16 @@
       CoreMenu,
       CoreLogo,
       LearnOnlyDeviceNotice,
+      SyncStatusDisplay,
       SideNavDivider,
       PrivacyInfoModal,
       FocusTrap,
+      TotalPoints,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin, responsiveElementMixin, navComponentsMixin],
     setup() {
-      return { themeConfig };
+      const { currentUser } = useCurrentUser();
+      return { themeConfig, currentUser };
     },
     props: {
       navShown: {
@@ -198,10 +234,14 @@
         copyrightYear: __copyrightYear,
         privacyModalVisible: false,
         isSubsetOfUsersDevice: plugin_data.isSubsetOfUsersDevice,
+        userSyncStatus: null,
+        isPolling: false,
+        // poll every 10 seconds
+        pollingInterval: 10000,
       };
     },
     computed: {
-      ...mapGetters(['isAdmin', 'isCoach']),
+      ...mapGetters(['isAdmin', 'isCoach', 'getUserKind']),
       width() {
         return this.topBarHeight * 4;
       },
@@ -228,6 +268,15 @@
         }
         return this.coreString('kolibriLabel');
       },
+      userIsLearner() {
+        return this.getUserKind == UserKinds.LEARNER;
+      },
+      mapSyncStatusOptionToLearner() {
+        if (this.userSyncStatus) {
+          return this.userSyncStatus.status;
+        }
+        return SyncStatus.NOT_CONNECTED;
+      },
     },
     watch: {
       navShown(isShown) {
@@ -243,9 +292,38 @@
         this.$emit('shouldFocusFirstEl');
       });
     },
+    created() {
+      window.addEventListener('click', this.handleWindowClick);
+    },
+    beforeDestroy() {
+      window.removeEventListener('click', this.handleWindowClick);
+      this.isPolling = false;
+    },
     methods: {
       toggleNav() {
         this.$emit('toggleSideNav');
+      },
+      pollUserSyncStatusTask() {
+        this.fetchUserSyncStatus({ user: this.userId }).then(syncData => {
+          if (syncData && syncData[0]) {
+            this.userSyncStatus = syncData[0];
+            this.setPollingInterval(this.userSyncStatus.status);
+          }
+        });
+        if (this.isPolling && this.isSubsetOfUsersDevice) {
+          setTimeout(() => {
+            this.pollUserSyncStatusTask();
+          }, this.pollingInterval);
+        }
+      },
+      setPollingInterval(status) {
+        if (status === SyncStatus.QUEUED) {
+          // check more frequently for updates if the user is waiting to sync,
+          // so that the sync isn't missed
+          this.pollingInterval = 1000;
+        } else {
+          this.pollingInterval = 10000;
+        }
       },
       handleClickPrivacyLink() {
         this.privacyModalVisible = true;
@@ -269,6 +347,7 @@
         // There is no difference!
         return 0;
       },
+
       /**
        * @public
        * Focuses on correct first element for FocusTrap.
@@ -297,6 +376,11 @@
         message: 'Kolibri {version}',
         context:
           'Indicates the current version of Kolibri.\n\nFor languages with non-latin scripts, Kolibri should be transcribed phonetically into the target language, similar to a person\'s name. It should not be translated as "hummingbird".',
+      },
+      deviceStatus: {
+        message: 'Device status',
+        context:
+          "Label in the side navigation menu. Indicates the status of an individual learner's device.",
       },
     },
   };
@@ -387,6 +471,31 @@
   .side-nav-scrollable-area-footer-logo {
     max-width: 100%;
     height: 77px;
+  }
+
+  .user-information {
+    position: relative;
+    margin-top: 24px;
+    margin-left: 24px;
+    font-size: 14px;
+  }
+
+  .sync-status {
+    margin-bottom: 8px;
+    font-size: small;
+    font-weight: bold;
+  }
+
+  .points {
+    position: absolute;
+    top: -4px;
+    right: 16px;
+    margin-left: auto;
+
+    .description {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
   }
 
   .side-nav-scrollable-area-footer-info {
