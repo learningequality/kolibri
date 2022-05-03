@@ -22,23 +22,23 @@ const setSetupType = assign({
 
 export const wizardMachine = createMachine({
   id: 'wizard',
-  initial: 'defaultLanguage',
+  initial: 'gettingStarted',
   context: {
     quick: true,
     setupType: false,
   },
   states: {
-    defaultLanguage: {
-      meta: { route: 'DEFAULT_LANGUAGE', path: '/' },
-      on: {
-        CONTINUE: 'gettingStarted',
-      },
-    },
     gettingStarted: {
       meta: { route: 'GETTING_STARTED', path: '/' },
       on: {
         CONTINUE: { target: 'quickOrAdvanced', actions: setQuick },
-        BACK: 'defaultLanguage',
+      },
+    },
+    defaultLanguage: {
+      meta: { route: 'DEFAULT_LANGUAGE', path: '/' },
+      on: {
+        CONTINUE: { target: 'quickOrAdvanced', actions: setQuick },
+        BACK: 'gettingStarted',
       },
     },
     quickOrAdvanced: {
