@@ -183,9 +183,7 @@
         <CategorySearchModal
           v-if="currentCategory && windowIsSmall"
           :selectedCategory="currentCategory"
-          :numCols="numCols"
           :availableLabels="labels"
-          position="fullscreen"
           @cancel="currentCategory = null"
           @input="handleCategory"
         />
@@ -193,9 +191,7 @@
       <CategorySearchModal
         v-if="currentCategory"
         :selectedCategory="currentCategory"
-        :numCols="numCols"
         :availableLabels="labels"
-        position="windowIsSmall ? 'fullscreen' : 'modal'"
         @cancel="currentCategory = null"
         @input="handleCategory"
       />
