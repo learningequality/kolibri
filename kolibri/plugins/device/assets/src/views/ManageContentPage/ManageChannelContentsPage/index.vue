@@ -4,7 +4,6 @@
     <!-- Show this progress bar to match other import flows -->
     <TaskProgress
       :show="!channel"
-      type="DOWNLOADING_CHANNEL_CONTENTS"
       :showButtons="false"
       status="RUNNING"
     />
@@ -94,7 +93,7 @@
   import SelectTransferSourceModal from '../SelectTransferSourceModal';
   import taskNotificationMixin from '../../taskNotificationMixin';
   import TaskProgress from '../TaskProgress';
-  import { ContentSources, PageNames, TaskTypes, TransferTypes } from '../../../constants';
+  import { ContentSources, PageNames, TransferTypes } from '../../../constants';
 
   import { fetchPageData, fetchNodeWithAncestors, startExportTask, startDeleteTask } from './api';
 
@@ -297,9 +296,6 @@
       },
       // @public (used by taskNotificationMixin)
       onWatchedTaskFinished() {
-        // For exports, there are no side effects once task has finished.
-        if (this.watchedTaskType !== TaskTypes.DELETECONTENT) return;
-
         // clear out the nodeCache
         this.nodeCache = {};
         // clear out selections

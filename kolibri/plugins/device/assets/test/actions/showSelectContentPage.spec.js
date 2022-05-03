@@ -3,6 +3,7 @@ import { loadChannelMetadata } from '../../src/modules/wizard/actions/selectCont
 import ChannelResource from '../../src/apiResources/deviceChannel';
 import { defaultChannel } from '../utils/data';
 import { makeSelectContentPageStore } from '../utils/makeStore';
+import { TaskTypes } from '../../src/constants';
 
 jest.mock('kolibri.resources');
 jest.genMockFromModule('../../src/apiResources/deviceChannel');
@@ -30,8 +31,7 @@ describe('loadChannelMetadata action', () => {
     ]);
     hackStoreWatcher(store);
     const taskEntity = { data: { id: 'task_1' } };
-    TaskResource.startDiskChannelImport.mockResolvedValue(taskEntity);
-    TaskResource.startRemoteChannelImport.mockResolvedValue(taskEntity);
+    TaskResource.startTask.mockResolvedValue(taskEntity);
     ChannelResource.fetchModel.mockResolvedValue({
       name: 'Channel One',
       root: 'channel_1_root',
@@ -40,8 +40,7 @@ describe('loadChannelMetadata action', () => {
 
   afterEach(() => {
     ChannelResource.fetchModel.mockReset();
-    TaskResource.startDiskChannelImport.mockReset();
-    TaskResource.startRemoteChannelImport.mockReset();
+    TaskResource.startTask.mockReset();
   });
 
   function setUpStateForTransferType(transferType) {
@@ -64,8 +63,7 @@ describe('loadChannelMetadata action', () => {
   // Tests for common behavior
   function testNoChannelsAreImported(store, options) {
     return loadChannelMetadata(store, options).then(() => {
-      expect(TaskResource.startDiskChannelImport).not.toHaveBeenCalled();
-      expect(TaskResource.startRemoteChannelImport).not.toHaveBeenCalled();
+      expect(TaskResource.startTask).not.toHaveBeenCalled();
     });
   }
 
@@ -81,16 +79,16 @@ describe('loadChannelMetadata action', () => {
 
     it('if channel is *not* on device, then "startdiskchannelimport" is called', () => {
       return loadChannelMetadata(store).then(() => {
-        expect(TaskResource.startDiskChannelImport).toHaveBeenCalledWith({
+        expect(TaskResource.startTask).toHaveBeenCalledWith({
+          task: TaskTypes.DISKCHANNELIMPORT,
           channel_id: 'localimport_brand_new_channel',
           drive_id: 'localimport_specs_drive',
         });
-        expect(TaskResource.startRemoteChannelImport).not.toHaveBeenCalled();
       });
     });
 
-    it('errors from startDiskChannelImport are handled', () => {
-      TaskResource.startDiskChannelImport.mockRejectedValue();
+    it('errors from startTask are handled', () => {
+      TaskResource.startTask.mockRejectedValue();
       return loadChannelMetadata(store).then(() => {
         expect(store.state.manageContent.wizard.status).toEqual('CONTENT_DB_LOADING_ERROR');
       });
@@ -109,15 +107,15 @@ describe('loadChannelMetadata action', () => {
 
     it('if channel is *not* on device, then "startremotechannelimport" is called', () => {
       return loadChannelMetadata(store).then(() => {
-        expect(TaskResource.startRemoteChannelImport).toHaveBeenCalledWith({
+        expect(TaskResource.startTask).toHaveBeenCalledWith({
+          task: TaskTypes.REMOTECHANNELIMPORT,
           channel_id: 'remoteimport_brand_new_channel',
         });
-        expect(TaskResource.startDiskChannelImport).not.toHaveBeenCalled();
       });
     });
 
-    it('errors from startRemoteChannelImport are handled', () => {
-      TaskResource.startRemoteChannelImport.mockRejectedValue();
+    it('errors from startTask are handled', () => {
+      TaskResource.startTask.mockRejectedValue();
       return loadChannelMetadata(store).then(() => {
         expect(store.state.manageContent.wizard.status).toEqual('CONTENT_DB_LOADING_ERROR');
       });

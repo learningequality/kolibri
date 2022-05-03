@@ -1,25 +1,25 @@
 import find from 'lodash/find';
+import client from 'kolibri.client';
+import urls from 'kolibri.urls';
 import { TaskResource, ChannelResource, RemoteChannelResource } from 'kolibri.resources';
 import { TaskTypes } from '../../constants';
 import { NetworkLocationResource } from '../../apiResources';
 
 function getChannelOnDrive(driveId, channelId) {
-  const reject = () => Promise.reject('CHANNEL_NOT_ON_DRIVE');
-  return TaskResource.localDrives().then(response => {
-    const drives = response.data;
-    const driveMatch = find(drives, { id: driveId });
-    if (!driveMatch) {
-      return reject();
-    }
-    const channelMatch = find(driveMatch.metadata.channels, { id: channelId });
-    if (!channelMatch) {
-      return reject();
-    }
-    return {
-      ...channelMatch,
-      driveId,
-    };
-  });
+  return client({ url: urls['kolibri:core:driveinfo-detail'](driveId) })
+    .then(({ data }) => {
+      const channelMatch = find(data.metadata.channels, { id: channelId });
+      if (!channelMatch) {
+        throw ReferenceError('CHANNEL_NOT_ON_DRIVE');
+      }
+      return {
+        ...channelMatch,
+        driveId,
+      };
+    })
+    .catch(() => {
+      return Promise.reject('CHANNEL_NOT_ON_DRIVE');
+    });
 }
 
 function getChannelOnPeer(addressId, channelId) {

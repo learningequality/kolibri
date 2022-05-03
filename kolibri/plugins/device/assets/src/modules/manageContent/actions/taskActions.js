@@ -1,4 +1,6 @@
 import logger from 'kolibri.lib.logging';
+import client from 'kolibri.client';
+import urls from 'kolibri.urls';
 import coreStore from 'kolibri.coreVue.vuex.store';
 import { TaskResource } from 'kolibri.resources';
 import isEqual from 'lodash/isEqual';
@@ -48,7 +50,7 @@ export function refreshTaskList(store) {
 }
 
 export function refreshDriveList(store) {
-  return TaskResource.localDrives().then(({ data }) => {
+  return client({ url: urls['kolibri:core:driveinfo-list']() }).then(({ data }) => {
     store.commit('wizard/SET_DRIVE_LIST', data);
     return data;
   });

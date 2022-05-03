@@ -1,4 +1,5 @@
 import { TaskResource } from 'kolibri.resources';
+import { TaskTypes } from '../../constants';
 
 export function startImportTask(params) {
   const { importSource, channelId, included, excluded } = params;
@@ -13,11 +14,12 @@ export function startImportTask(params) {
     if (importSource.id) {
       taskParams.peer_id = importSource.id;
     }
-    return TaskResource.startRemoteContentImport(taskParams);
+    taskParams.task = TaskTypes.REMOTECONTENTIMPORT;
   } else if (importSource.type === 'drive') {
     taskParams.drive_id = importSource.driveId;
-    return TaskResource.startDiskContentImport(taskParams);
+    taskParams.task = TaskTypes.DISKCONTENTIMPORT;
   } else {
     return Promise.reject();
   }
+  return TaskResource.startTask(taskParams);
 }

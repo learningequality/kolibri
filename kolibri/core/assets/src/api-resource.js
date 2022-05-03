@@ -896,6 +896,14 @@ export class Resource {
     });
   }
 
+  getList(params = {}) {
+    return this.accessEndpoint('get', 'list', params);
+  }
+
+  postList(params = {}) {
+    return this.accessEndpoint('post', 'list', params);
+  }
+
   /**
    * Call a GET on a custom list endpoint
    * @param  {string} listName The name given to the list endpoint

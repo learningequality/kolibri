@@ -1,6 +1,6 @@
 import { RemoteChannelResource, TaskResource } from 'kolibri.resources';
 import coreStore from 'kolibri.coreVue.vuex.store';
-import { ErrorTypes } from '../../constants';
+import { ErrorTypes, TaskTypes } from '../../constants';
 import { waitForTaskToComplete } from '../manageContent/utils';
 import { getChannelWithContentSizes } from './apiChannelMetadata';
 
@@ -29,16 +29,19 @@ export function downloadChannelMetadata(store = coreStore) {
   const { transferredChannel, selectedDrive, selectedPeer } = store.state.manageContent.wizard;
   let promise;
   if (store.getters['manageContent/wizard/inLocalImportMode']) {
-    promise = TaskResource.startDiskChannelImport({
+    promise = TaskResource.startTask({
+      task: TaskTypes.DISKCHANNELIMPORT,
       channel_id: transferredChannel.id,
       drive_id: selectedDrive.id,
     });
   } else if (store.getters['manageContent/wizard/inRemoteImportMode']) {
-    promise = TaskResource.startRemoteChannelImport({
+    promise = TaskResource.startTask({
+      task: TaskTypes.REMOTECHANNELIMPORT,
       channel_id: transferredChannel.id,
     });
   } else if (store.getters['manageContent/wizard/inPeerImportMode']) {
-    promise = TaskResource.startRemoteChannelImport({
+    promise = TaskResource.startTask({
+      task: TaskTypes.REMOTECHANNELIMPORT,
       channel_id: transferredChannel.id,
       peer_id: selectedPeer.id,
     });

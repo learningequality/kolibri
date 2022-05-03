@@ -75,7 +75,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskResource } from 'kolibri.resources';
   import taskNotificationMixin from '../taskNotificationMixin';
-  import { PageNames, TaskStatuses } from '../../constants';
+  import { PageNames, TaskStatuses, TaskTypes } from '../../constants';
   import HeaderWithOptions from '../HeaderWithOptions';
   import SelectTransferSourceModal from './SelectTransferSourceModal';
   import ChannelPanel from './ChannelPanel/WithSizeAndOptions';
@@ -186,7 +186,7 @@
         if (this.deleteChannelId) {
           const channelId = this.deleteChannelId;
           this.deleteChannelId = null;
-          return TaskResource.deleteChannel({ channelId })
+          return TaskResource.startTask({ task: TaskTypes.DELETECHANNEL, channel_id: channelId })
             .then(task => {
               this.notifyAndWatchTask(task);
             })

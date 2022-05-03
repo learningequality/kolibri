@@ -51,6 +51,7 @@
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import { TaskResource } from 'kolibri.resources';
   import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
+  import { TaskTypes } from '../../constants';
   import DeviceChannelResource from '../../apiResources/deviceChannel';
   import taskNotificationMixin from '../taskNotificationMixin';
   import SelectionBottomBar from './SelectionBottomBar';
@@ -138,11 +139,11 @@
       deleteChannels() {
         const selectedCopy = [...this.selectedChannels];
         this.allChannels = this.allChannels.filter(c => !find(this.selectedChannels, { id: c.id }));
-        return TaskResource.deleteBulkChannels({
-          channelIds: this.selectedChannels.map(x => x.id),
-        })
-          .then(task => {
-            this.notifyAndWatchTask(task);
+        return TaskResource.startTasks(
+          this.selectedChannels.map(x => ({ task: TaskTypes.DELETECHANNEL, channel_id: x.id }))
+        )
+          .then(tasks => {
+            this.notifyAndWatchTask(tasks);
             this.selectedChannels = [];
           })
           .catch(() => {
@@ -153,14 +154,15 @@
           });
       },
       exportChannels(params) {
-        return TaskResource.startDiskBulkExport(
+        return TaskResource.startTasks(
           this.selectedChannels.map(({ id }) => ({
+            task: TaskTypes.DISKEXPORT,
             channel_id: id,
             drive_id: params.driveId,
           }))
         )
-          .then(task => {
-            this.notifyAndWatchTask(task);
+          .then(tasks => {
+            this.notifyAndWatchTask(tasks);
           })
           .catch(() => {
             this.createTaskFailedSnackbar();
