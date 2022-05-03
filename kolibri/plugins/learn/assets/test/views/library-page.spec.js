@@ -58,7 +58,7 @@ describe('LibraryPage', () => {
         localVue,
         router,
         store: mockStore,
-        stubs: ['FullScreenSidePanel', 'HybridLearningCardGrid'],
+        stubs: ['SidePanelModal', 'HybridLearningCardGrid'],
       });
       // not displayed by default
       expect(wrapper.findComponent({ name: 'SidePanel' }).vm.$children.length).toEqual(0);

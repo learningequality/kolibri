@@ -36,7 +36,7 @@ import PermissionsIcon from '../views/PermissionsIcon';
 import CoreBase from '../views/CoreBase';
 import AppBarCorePage from '../views/AppBarCorePage';
 import ScrollingHeader from '../views/CoreBase/ScrollingHeader';
-import FullScreenSidePanel from '../views/FullScreenSidePanel';
+import SidePanelModal from '../views/SidePanelModal';
 import SideNav from '../views/SideNav';
 import Navbar from '../views/Navbar';
 import NavbarLink from '../views/Navbar/NavbarLink';
@@ -157,7 +157,7 @@ export default {
       PermissionsIcon,
       AppBarCorePage,
       CoreBase,
-      FullScreenSidePanel,
+      SidePanelModal,
       SideNav,
       Navbar,
       NavbarLink,

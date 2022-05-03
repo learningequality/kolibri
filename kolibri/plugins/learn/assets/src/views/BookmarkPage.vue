@@ -34,7 +34,7 @@
     />
 
     <!-- Side panel for showing the information of selected content with a link to view it -->
-    <FullScreenSidePanel
+    <SidePanelModal
       v-if="sidePanelContent"
       alignment="right"
       closeButtonIconType="close"
@@ -66,7 +66,7 @@
         :content="sidePanelContent"
         :showLocationsInChannel="true"
       />
-    </FullScreenSidePanel>
+    </SidePanelModal>
   </div>
 
 </template>
@@ -76,7 +76,7 @@
 
   import { mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import FullScreenSidePanel from 'kolibri.coreVue.components.FullScreenSidePanel';
+  import SidePanelModal from 'kolibri.coreVue.components.SidePanelModal';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { ContentNodeResource } from 'kolibri.resources';
   import client from 'kolibri.client';
@@ -98,7 +98,7 @@
     },
     components: {
       BrowseResourceMetadata,
-      FullScreenSidePanel,
+      SidePanelModal,
       LearningActivityChip,
       HybridLearningContentCardListView,
     },

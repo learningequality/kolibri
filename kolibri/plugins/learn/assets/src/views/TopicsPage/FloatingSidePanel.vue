@@ -1,6 +1,6 @@
 <template>
 
-  <FullScreenSidePanel
+  <SidePanelModal
     class="full-screen-side-panel"
     alignment="left"
     :fullScreenSidePanelCloseButton="true"
@@ -36,20 +36,20 @@
       @currentCategory="$emit('currentCategory', $event)"
       @loadMoreTopics="$emit('loadMoreTopics')"
     />
-  </FullScreenSidePanel>
+  </SidePanelModal>
 
 </template>
 
 
 <script>
 
-  import FullScreenSidePanel from 'kolibri.coreVue.components.FullScreenSidePanel';
+  import SidePanelModal from 'kolibri.coreVue.components.SidePanelModal';
   import genContentLink from '../../utils/genContentLink';
   import EmbeddedSidePanel from '../EmbeddedSidePanel';
 
   export default {
     name: 'FloatingSidePanel',
-    components: { EmbeddedSidePanel, FullScreenSidePanel },
+    components: { EmbeddedSidePanel, SidePanelModal },
     props: {
       value: {
         type: Object,

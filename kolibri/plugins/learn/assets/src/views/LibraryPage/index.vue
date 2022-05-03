@@ -70,7 +70,7 @@
     />
 
     <!-- Side Panel for metadata -->
-    <FullScreenSidePanel
+    <SidePanelModal
       v-if="metadataSidePanelContent"
       data-test="content-side-panel"
       alignment="right"
@@ -103,7 +103,7 @@
         :content="metadataSidePanelContent"
         :showLocationsInChannel="true"
       />
-    </FullScreenSidePanel>
+    </SidePanelModal>
   </div>
 
 </template>
@@ -117,7 +117,7 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
-  import FullScreenSidePanel from 'kolibri.coreVue.components.FullScreenSidePanel';
+  import SidePanelModal from 'kolibri.coreVue.components.SidePanelModal';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import useSearch from '../../composables/useSearch';
   import useLearnerResources from '../../composables/useLearnerResources';
@@ -139,7 +139,7 @@
     components: {
       BrowseResourceMetadata,
       ChannelCardGroupGrid,
-      FullScreenSidePanel,
+      SidePanelModal,
       LearningActivityChip,
       ResumableContentGrid,
       SearchResultsGrid,

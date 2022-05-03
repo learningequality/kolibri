@@ -65,7 +65,7 @@
   import FocusTrap from 'kolibri.coreVue.components.FocusTrap';
 
   export default {
-    name: 'FullScreenSidePanel',
+    name: 'SidePanelModal',
     components: {
       Backdrop,
       FocusTrap,

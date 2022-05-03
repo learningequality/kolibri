@@ -153,7 +153,7 @@
       />
       <!-- The full screen side panel is used on smaller screens, and toggles as an overlay -->
       <!-- FullScreen is a container component, and then the EmbeddedSidePanel sits within -->
-      <FullScreenSidePanel
+      <SidePanelModal
         v-if="!windowIsLarge && sidePanelIsOpen"
         class="full-screen-side-panel"
         alignment="left"
@@ -189,7 +189,7 @@
           @cancel="currentCategory = null"
           @input="handleCategory"
         />
-      </FullScreenSidePanel>
+      </SidePanelModal>
       <CategorySearchModal
         v-if="currentCategory"
         :selectedCategory="currentCategory"
@@ -203,7 +203,7 @@
     </div>
 
     <!-- Side panel for showing the information of selected content with a link to view it -->
-    <FullScreenSidePanel
+    <SidePanelModal
       v-if="metadataSidePanelContent"
       alignment="right"
       :closeButtonIconType="closeButtonIcon"
@@ -235,7 +235,7 @@
         :content="metadataSidePanelContent"
         :showLocationsInChannel="true"
       />
-    </FullScreenSidePanel>
+    </SidePanelModal>
 
   </div>
 
@@ -252,7 +252,7 @@
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
-  import FullScreenSidePanel from 'kolibri.coreVue.components.FullScreenSidePanel';
+  import SidePanelModal from 'kolibri.coreVue.components.SidePanelModal';
   import { throttle } from 'frame-throttle';
   import { PageNames } from '../../constants';
   import { normalizeContentNode } from '../../modules/coreLearn/utils.js';
@@ -295,7 +295,7 @@
       CustomContentRenderer,
       CategorySearchModal,
       EmbeddedSidePanel,
-      FullScreenSidePanel,
+      SidePanelModal,
       LearningActivityChip,
       BrowseResourceMetadata,
       SearchResultsGrid,
