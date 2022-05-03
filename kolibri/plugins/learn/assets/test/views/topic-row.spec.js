@@ -1,6 +1,6 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import VueRouter from 'vue-router';
-import TopicRow from '../../src/views/TopicsPage/TopicRow';
+import TopicSubsection from '../../src/views/TopicsPage/TopicSubsection';
 
 const localVue = createLocalVue();
 localVue.use(VueRouter);
@@ -14,9 +14,9 @@ const router = new VueRouter({
   ],
 });
 
-describe('TopicRow', () => {
+describe('TopicSubsection', () => {
   it('displays a "more" button when the topic has more to show', () => {
-    const wrapper = shallowMount(TopicRow, {
+    const wrapper = shallowMount(TopicSubsection, {
       propsData: {
         topic: {
           id: 'topic-id',

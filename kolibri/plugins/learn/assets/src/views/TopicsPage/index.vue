@@ -54,7 +54,7 @@
           <div v-if="!displayingSearchResults" data-test="topics">
             <!-- Rows of cards and links / show more for each Topic -->
             <template v-for="t in topicsForDisplay">
-              <TopicRow
+              <TopicSubsection
                 :key="t.id"
                 :topic="t"
                 :subTopicLoading="subTopicLoading"
@@ -264,7 +264,7 @@
   import LibraryPage from '../LibraryPage';
   import TopicsHeader from './TopicsHeader';
   import TopicsMobileHeader from './TopicsMobileHeader';
-  import TopicRow from './TopicSubsection';
+  import TopicSubsection from './TopicSubsection';
   import SearchPanelModal from './SearchPanelModal';
   import plugin_data from 'plugin_data';
 
@@ -296,7 +296,7 @@
       BrowseResourceMetadata,
       SearchResultsGrid,
       TopicsMobileHeader,
-      TopicRow,
+      TopicSubsection,
       SearchPanelModal,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
