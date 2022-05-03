@@ -70,7 +70,12 @@
               :aria-label="$tr('navigationLabel')"
             >
               <template #options>
-                <component :is="component" v-for="component in menuOptions" :key="component.name" />
+                <component
+                  :is="component"
+                  v-for="component in menuOptions"
+                  :key="component.name"
+                  @openLanguageModal="handleShowLanguageModal()"
+                />
                 <SideNavDivider />
               </template>
             </CoreMenu>
@@ -166,6 +171,13 @@
       @submit="privacyModalVisible = false"
     />
 
+    <LanguageSwitcherModal
+      v-if="languageModalShown"
+      ref="languageSwitcherModal"
+      :style="{ color: $themeTokens.text }"
+      @cancel="languageModalShown = false"
+    />
+
   </div>
 
 </template>
@@ -185,11 +197,13 @@
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
   import themeConfig from 'kolibri.themeConfig';
   import Backdrop from 'kolibri.coreVue.components.Backdrop';
+  import LanguageSwitcherModal from 'kolibri.coreVue.components.LanguageSwitcherModal';
   import navComponentsMixin from '../mixins/nav-components';
   import useCurrentUser from '../../../../plugins/user_profile/assets/src/views/ProfilePage/useCurrentUser';
   import TotalPoints from '../../../../plugins/learn/assets/src/views/TotalPoints.vue';
   import SyncStatusDisplay from './SyncStatusDisplay';
   import logout from './LogoutSideNavEntry';
+  import changeLanguage from './ChangeLanguageSideNavEntry';
   import SideNavDivider from './SideNavDivider';
   import FocusTrap from './FocusTrap.vue';
   import plugin_data from 'plugin_data';
@@ -216,6 +230,7 @@
       PrivacyInfoModal,
       FocusTrap,
       TotalPoints,
+      LanguageSwitcherModal,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin, responsiveElementMixin, navComponentsMixin],
     setup() {
@@ -233,6 +248,7 @@
         // __copyrightYear is injected by Webpack DefinePlugin
         copyrightYear: __copyrightYear,
         privacyModalVisible: false,
+        languageModalShown: false,
         isSubsetOfUsersDevice: plugin_data.isSubsetOfUsersDevice,
         userSyncStatus: null,
         isPolling: false,
@@ -258,9 +274,13 @@
         const accountComponents = navComponents
           .filter(component => component.section === NavComponentSections.ACCOUNT)
           .sort(this.compareMenuComponents);
-        return [...topComponents, SideNavDivider, ...accountComponents, logout].filter(
-          this.filterByRole
-        );
+        return [
+          ...topComponents,
+          SideNavDivider,
+          ...accountComponents,
+          changeLanguage,
+          logout,
+        ].filter(this.filterByRole);
       },
       sideNavTitleText() {
         if (this.themeConfig.sideNav.title) {
@@ -302,6 +322,9 @@
     methods: {
       toggleNav() {
         this.$emit('toggleSideNav');
+      },
+      handleShowLanguageModal() {
+        this.languageModalShown = true;
       },
       pollUserSyncStatusTask() {
         this.fetchUserSyncStatus({ user: this.userId }).then(syncData => {
