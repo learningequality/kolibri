@@ -1520,8 +1520,9 @@ def _job_to_response(job):
         }
     output = {
         "status": job.state,
-        "exception": str(job.exception),
-        "traceback": str(job.traceback),
+        "task": job.func,
+        "exception": job.exception,
+        "traceback": job.traceback,
         "percentage": job.percentage_progress,
         "id": job.job_id,
         "cancellable": job.cancellable,
