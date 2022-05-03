@@ -17,6 +17,39 @@ LOG_COLORS = {
 }
 
 
+class EncodingStreamHandler(logging.StreamHandler):
+    """
+    A custom stream handler that encodes the log message to the specified encoding.
+    """
+
+    terminator = "\n"
+
+    def __init__(self, stream=None, encoding="utf-8"):
+        super(EncodingStreamHandler, self).__init__(stream)
+        self.encoding = encoding
+
+    def emit(self, record):
+        """
+        Vendored and modified from:
+        https://github.com/python/cpython/blob/main/Lib/logging/__init__.py#L1098
+        """
+        try:
+            msg = self.format(record)
+            stream = self.stream
+            # issue 35046: merged two stream.writes into one.
+            text = msg + self.terminator
+            if self.encoding and hasattr(stream, "buffer"):
+                bytes_to_write = text.encode(self.encoding)
+                stream.buffer.write(bytes_to_write)
+            else:
+                stream.write(text)
+            self.flush()
+        except RuntimeError:  # See issue 36272
+            raise
+        except Exception:
+            self.handleError(record)
+
+
 class KolibriTimedRotatingFileHandler(TimedRotatingFileHandler):
     """
     A custom TimedRotatingFileHandler that overrides two methods, getFilesToDelete
@@ -172,14 +205,14 @@ def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
         "handlers": {
             "console-error": {
                 "level": "ERROR",
-                "class": "logging.StreamHandler",
+                "class": "kolibri.utils.logger.EncodingStreamHandler",
                 "formatter": "color",
                 "stream": "ext://sys.stderr",
             },
             "console": {
                 "level": DEFAULT_LEVEL,
                 "filters": ["no_exceptions"],
-                "class": "logging.StreamHandler",
+                "class": "kolibri.utils.logger.EncodingStreamHandler",
                 "formatter": "color",
                 "stream": "ext://sys.stdout",
             },

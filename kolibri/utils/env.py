@@ -11,13 +11,12 @@ try:
     # TODO: Move version tools to build tools, so we don't have to do this
     from colorlog import ColoredFormatter
     from colorlog import getLogger
-    from colorlog import StreamHandler
 except ImportError:
-    StreamHandler = None
     getLogger = None
     ColoredFormatter = None
 
 from .logger import LOG_COLORS
+from .logger import EncodingStreamHandler as StreamHandler
 from kolibri.utils.compat import monkey_patch_collections
 
 
