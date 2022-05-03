@@ -48,7 +48,7 @@
   import SearchFiltersPanel from '../SearchFiltersPanel';
 
   export default {
-    name: 'FloatingSidePanel',
+    name: 'SearchPanelModal',
     components: { SearchFiltersPanel, SidePanelModal },
     props: {
       value: {

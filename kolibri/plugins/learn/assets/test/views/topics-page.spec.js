@@ -104,7 +104,7 @@ describe('TopicsPage', () => {
       computed: { windowIsLarge: () => true },
     });
 
-    expect(wrapper.findComponent({ name: 'Header' }).exists()).toBe(true);
+    expect(wrapper.findComponent({ name: 'TopicsHeader' }).exists()).toBe(true);
   });
 
   it('displays the topic title when page is medium - large', () => {

@@ -113,7 +113,7 @@
       </main>
 
       <!-- Side Panels for filtering and searching  -->
-      <FloatingSidePanel
+      <SearchPanelModal
         v-if="!windowIsLarge && sidePanelIsOpen"
         v-model="searchTerms"
         :activeCategories="activeCategories"
@@ -269,7 +269,7 @@
   import TopicsHeader from './TopicsHeader';
   import TopicsMobileHeader from './TopicsMobileHeader';
   import TopicRow from './TopicSubsection';
-  import FloatingSidePanel from './FloatingSidePanel';
+  import SearchPanelModal from './SearchPanelModal';
   import plugin_data from 'plugin_data';
 
   export default {
@@ -301,7 +301,7 @@
       SearchResultsGrid,
       TopicsMobileHeader,
       TopicRow,
-      FloatingSidePanel,
+      SearchPanelModal,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
     setup() {
