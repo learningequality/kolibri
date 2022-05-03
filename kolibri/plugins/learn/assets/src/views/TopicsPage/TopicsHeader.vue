@@ -62,19 +62,41 @@
         />
       </KGridItem>
     </KGrid>
+
     <!-- Nested tabs within the header, for toggling sidebar options -->
     <!-- large screens -->
-    <HeaderTabs v-if="!!windowIsLarge" data-test="header-tabs">
-      <HeaderTab
-        v-if="topics.length"
-        :text="coreString('folders')"
+    <div
+      v-show="enablePrint || !$isPrint"
+      class="tab-block"
+      :style="{ borderBottomColor: !$isPrint ? $themeTokens.fineLine : 'transparent' }"
+    >
+      <router-link
         :to="foldersLink"
-      />
-      <HeaderTab
-        :text="coreString('searchLabel')"
-        :to="topics.length ? searchTabLink : {} "
-      />
-    </HeaderTabs>
+        class="header-tab"
+        :activeClass="activeTabClasses"
+        :style="{ color: $themeTokens.annotation }"
+        :replace="true"
+        :class="defaultTabStyles"
+      >
+        <div class="inner" :style="{ borderColor: this.$themeTokens.primary }">
+          {{ coreString('folders') }}
+        </div>
+      </router-link>
+
+      <router-link
+        :to="topics.length ? searchTabLink : {}"
+        class="header-tab"
+        :activeClass="activeTabClasses"
+        :style="{ color: $themeTokens.annotation }"
+        :replace="true"
+        :class="defaultTabStyles"
+      >
+        <div class="inner" :style="{ borderColor: this.$themeTokens.primary }">
+          {{ coreString('searchLabel') }}
+        </div>
+      </router-link>
+    </div>
+
   </div>
 
 </template>
@@ -88,15 +110,11 @@
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import { PageNames } from '../../constants';
   import CardThumbnail from '../ContentCard/CardThumbnail';
-  import HeaderTabs from './HeaderTabs';
-  import HeaderTab from './HeaderTab';
 
   export default {
-    name: 'Header',
+    name: 'TopicsHeader',
     components: {
       CardThumbnail,
-      HeaderTab,
-      HeaderTabs,
       KBreadcrumbs,
       TextTruncator,
     },
@@ -116,6 +134,18 @@
       },
     },
     computed: {
+      activeTabClasses() {
+        // return both fixed and dynamic classes
+        return `router-link-active ${this.$computedClass({ color: this.$themeTokens.primary })}`;
+      },
+      defaultTabStyles() {
+        return this.$computedClass({
+          ':focus': this.$coreOutline,
+          ':hover': {
+            backgroundColor: this.$themePalette.grey.v_300,
+          },
+        });
+      },
       foldersLink() {
         if (this.topic) {
           return {
@@ -146,6 +176,8 @@
 
 <style lang="scss" scoped>
 
+  @import '~kolibri-design-system/lib/styles/definitions';
+
   $header-height: 324px;
 
   .header {
@@ -159,6 +191,72 @@
 
   .title {
     margin: 8px 0 16px;
+  }
+
+  // Stolen from Coach HeaderTab(s) components
+  .tab-block {
+    position: absolute;
+    bottom: 0;
+    margin-bottom: 0;
+  }
+
+  .header-tab {
+    position: relative;
+    top: 9px;
+    display: inline-table; // helps with vertical layout
+    min-width: 64px;
+    max-width: 100%;
+    min-height: 36px;
+    margin: 8px;
+    overflow: hidden;
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 36px;
+    text-align: center;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    border: 0;
+    border-style: solid;
+    border-width: 0;
+    border-top-left-radius: $radius;
+    border-top-right-radius: $radius;
+    outline: none;
+    transition: background-color $core-time ease;
+
+    @media print {
+      min-width: 0;
+      min-height: 0;
+      margin: 0;
+      font-size: inherit;
+      line-height: inherit;
+      text-align: left;
+      text-transform: none;
+
+      &:not(.router-link-active) {
+        display: none;
+      }
+    }
+  }
+
+  .inner {
+    padding: 16px;
+    margin-bottom: 2px;
+    border-style: solid;
+    border-width: 0;
+  }
+
+  .router-link-active .inner {
+    margin-bottom: 0;
+    border-bottom-width: 2px;
+
+    @media print {
+      padding: 0;
+      border-bottom-width: 0;
+    }
   }
 
 </style>

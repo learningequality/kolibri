@@ -33,7 +33,7 @@
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
 
   export default {
-    name: 'MobileHeader',
+    name: 'TopicsMobileHeader',
     components: { TextTruncator },
     props: {
       topic: {

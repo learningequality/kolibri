@@ -60,7 +60,7 @@
   import LibraryAndChannelBrowserMainContent from '../LibraryAndChannelBrowserMainContent';
 
   export default {
-    name: 'TopicRow',
+    name: 'TopicSubsection',
     components: { LibraryAndChannelBrowserMainContent },
     mixins: [commonCoreStrings],
     props: {

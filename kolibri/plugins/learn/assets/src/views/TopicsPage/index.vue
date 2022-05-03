@@ -7,15 +7,16 @@
 
     <div v-else class="page">
       <!-- Header with thumbail and tagline -->
-      <Header
+      <TopicsHeader
         v-if="!windowIsSmall"
         data-test="header-breadcrumbs"
         :topics="topics"
         :topic="topic"
         :breadcrumbs="breadcrumbs"
       />
+
       <!-- mobile tabs (different alignment and interactions) -->
-      <MobileHeader v-else :topic="topic" />
+      <TopicsMobileHeader v-else :topic="topic" />
 
       <main
         class="main-content-grid"
@@ -265,9 +266,9 @@
   import CategorySearchModal from '../CategorySearchModal';
   import SearchResultsGrid from '../SearchResultsGrid';
   import LibraryPage from '../LibraryPage';
-  import Header from './Header';
-  import MobileHeader from './MobileHeader';
-  import TopicRow from './TopicRow';
+  import TopicsHeader from './TopicsHeader';
+  import TopicsMobileHeader from './TopicsMobileHeader';
+  import TopicRow from './TopicSubsection';
   import FloatingSidePanel from './FloatingSidePanel';
   import plugin_data from 'plugin_data';
 
@@ -289,7 +290,7 @@
     },
     components: {
       KBreadcrumbs,
-      Header,
+      TopicsHeader,
       HybridLearningCardGrid,
       CustomContentRenderer,
       CategorySearchModal,
@@ -298,7 +299,7 @@
       LearningActivityChip,
       BrowseResourceMetadata,
       SearchResultsGrid,
-      MobileHeader,
+      TopicsMobileHeader,
       TopicRow,
       FloatingSidePanel,
     },
