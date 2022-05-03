@@ -16,7 +16,7 @@
       :tooltip="coreString('back')"
       @click="$emit('closeCategoryModal')"
     />
-    <EmbeddedSidePanel
+    <SearchFiltersPanel
       v-if="!currentCategory"
       ref="embeddedPanel"
       topicPage="True"
@@ -45,11 +45,11 @@
 
   import SidePanelModal from 'kolibri.coreVue.components.SidePanelModal';
   import genContentLink from '../../utils/genContentLink';
-  import EmbeddedSidePanel from '../EmbeddedSidePanel';
+  import SearchFiltersPanel from '../SearchFiltersPanel';
 
   export default {
     name: 'FloatingSidePanel',
-    components: { EmbeddedSidePanel, SidePanelModal },
+    components: { SearchFiltersPanel, SidePanelModal },
     props: {
       value: {
         type: Object,

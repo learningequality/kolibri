@@ -131,7 +131,7 @@
       />
 
       <!-- Embedded Side panel is on larger views, and exists next to content -->
-      <EmbeddedSidePanel
+      <SearchFiltersPanel
         v-if="!!windowIsLarge"
         v-model="searchTerms"
         :topicsListDisplayed="!desktopSearchActive"
@@ -152,7 +152,7 @@
         @loadMoreTopics="handleLoadMoreInTopic"
       />
       <!-- The full screen side panel is used on smaller screens, and toggles as an overlay -->
-      <!-- FullScreen is a container component, and then the EmbeddedSidePanel sits within -->
+      <!-- FullScreen is a container component, and then the SearchFiltersPanel sits within -->
       <SidePanelModal
         v-if="!windowIsLarge && sidePanelIsOpen"
         class="full-screen-side-panel"
@@ -162,7 +162,7 @@
         @closePanel="closeEventHandler()"
         @shouldFocusFirstEl="findFirstEl()"
       >
-        <EmbeddedSidePanel
+        <SearchFiltersPanel
           v-if="!currentCategory"
           ref="embeddedPanel"
           v-model="searchTerms"
@@ -259,7 +259,7 @@
   import useSearch from '../../composables/useSearch';
   import genContentLink from '../../utils/genContentLink';
   import HybridLearningCardGrid from '../HybridLearningCardGrid';
-  import EmbeddedSidePanel from '../EmbeddedSidePanel';
+  import SearchFiltersPanel from '../SearchFiltersPanel';
   import BrowseResourceMetadata from '../BrowseResourceMetadata';
   import LearningActivityChip from '../LearningActivityChip';
   import CustomContentRenderer from '../ChannelRenderer/CustomContentRenderer';
@@ -294,7 +294,7 @@
       HybridLearningCardGrid,
       CustomContentRenderer,
       CategorySearchModal,
-      EmbeddedSidePanel,
+      SearchFiltersPanel,
       SidePanelModal,
       LearningActivityChip,
       BrowseResourceMetadata,

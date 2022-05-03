@@ -5,7 +5,7 @@
   -->
   <div v-if="windowIsLarge || mobileSidePanelIsOpen">
     <!-- Embedded Side panel is on larger views, and exists next to content -->
-    <EmbeddedSidePanel
+    <SearchFiltersPanel
       v-if="windowIsLarge"
       :value="searchTerms"
       data-test="desktop-search-side-panel"
@@ -18,7 +18,7 @@
       @currentCategory="handleCategory"
     />
     <!-- The full screen side panel is used on smaller screens, and toggles as an overlay -->
-    <!-- FullScreen is a container component, and then the EmbeddedSidePanel sits within -->
+    <!-- FullScreen is a container component, and then the SearchFiltersPanel sits within -->
     <SidePanelModal
       v-else-if="mobileSidePanelIsOpen"
       class="full-screen-side-panel"
@@ -37,7 +37,7 @@
         :tooltip="coreString('goBackAction')"
         @click="closeCategoryModal"
       />
-      <EmbeddedSidePanel
+      <SearchFiltersPanel
         v-if="!currentCategory"
         ref="embeddedPanel"
         :value="searchTerms"
@@ -85,13 +85,13 @@
   import SidePanelModal from 'kolibri.coreVue.components.SidePanelModal';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import CategorySearchModal from '../CategorySearchModal';
-  import EmbeddedSidePanel from '../EmbeddedSidePanel';
+  import SearchFiltersPanel from '../SearchFiltersPanel';
 
   export default {
     name: 'SidePanel',
     components: {
       CategorySearchModal,
-      EmbeddedSidePanel,
+      SearchFiltersPanel,
       SidePanelModal,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
