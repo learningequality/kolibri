@@ -191,6 +191,7 @@ def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
                 "formatter": "simple_date",
                 "when": "midnight",
                 "backupCount": 30,
+                "encoding": "utf-8",
             },
             "file_debug": {
                 "level": "DEBUG",
@@ -198,6 +199,7 @@ def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
                 "class": "logging.FileHandler",
                 "filename": os.path.join(LOG_ROOT, "debug.txt"),
                 "formatter": "simple_date",
+                "encoding": "utf-8",
             },
         },
         "loggers": {
