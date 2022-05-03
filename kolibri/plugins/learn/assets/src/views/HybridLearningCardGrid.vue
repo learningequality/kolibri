@@ -66,7 +66,6 @@
 
 <script>
 
-  import { ref } from 'kolibri.lib.vueCompositionApi';
   import { mapState } from 'vuex';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { PageNames } from '../constants';
