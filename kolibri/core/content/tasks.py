@@ -22,20 +22,19 @@ from kolibri.core.tasks.utils import get_current_job
 from kolibri.utils import conf
 
 
-def validate_startdiskcontentimport(request, request_data):
+def validate_diskcontentimport(request, request_data):
     task = validate_local_import_task(request, request_data)
-    task.update({"type": "DISKCONTENTIMPORT"})
     task["extra_metadata"] = copy.deepcopy(task)
     return task
 
 
 @register_task(
-    validator=validate_startdiskcontentimport,
+    validator=validate_diskcontentimport,
     cancellable=True,
     track_progress=True,
     permission_classes=[CanManageContent],
 )
-def startdiskcontentimport(**kwargs):
+def diskcontentimport(**kwargs):
     call_command(
         "importcontent",
         "disk",
@@ -47,7 +46,7 @@ def startdiskcontentimport(**kwargs):
     )
 
 
-def validate_startchannelupdate(request, request_data):
+def validate_channelupdate(request, request_data):
     sourcetype = request_data.get("sourcetype", None)
     new_version = request_data.get("new_version", None)
 
@@ -71,12 +70,12 @@ def validate_startchannelupdate(request, request_data):
 
 
 @register_task(
-    validator=validate_startchannelupdate,
+    validator=validate_channelupdate,
     cancellable=True,
     track_progress=True,
     permission_classes=[CanManageContent],
 )
-def startchannelupdate(
+def channelupdate(
     channel_id=None,
     baseurl=None,
     peer_id=None,
@@ -166,19 +165,18 @@ def startchannelupdate(
             )
 
 
-def validate_startremotechannelimport(request, request_data):
+def validate_remotechannelimport(request, request_data):
     task = validate_remote_import_task(request, request_data)
-    task.update({"type": "REMOTECHANNELIMPORT"})
     task["extra_metadata"] = copy.deepcopy(task)
     return task
 
 
 @register_task(
-    validator=validate_startremotechannelimport,
+    validator=validate_remotechannelimport,
     cancellable=True,
     permission_classes=[CanManageContent],
 )
-def startremotechannelimport(channel_id=None, baseurl=None, peer_id=None):
+def remotechannelimport(channel_id=None, baseurl=None, peer_id=None):
     call_command(
         "importchannel",
         "network",
@@ -188,20 +186,19 @@ def startremotechannelimport(channel_id=None, baseurl=None, peer_id=None):
     )
 
 
-def validate_startremotecontentimport(request, request_data):
+def validate_remotecontentimport(request, request_data):
     task = validate_remote_import_task(request, request_data)
-    task.update({"type": "REMOTECONTENTIMPORT"})
     task["extra_metadata"] = copy.deepcopy(task)
     return task
 
 
 @register_task(
-    validator=validate_startremotecontentimport,
+    validator=validate_remotecontentimport,
     track_progress=True,
     cancellable=True,
     permission_classes=[CanManageContent],
 )
-def startremotecontentimport(
+def remotecontentimport(
     channel_id=None,
     baseurl=None,
     peer_id=None,
@@ -219,20 +216,19 @@ def startremotecontentimport(
     )
 
 
-def validate_startdiskexport(request, request_data):
+def validate_diskexport(request, request_data):
     task = validate_local_export_task(request, request_data)
-    task.update({"type": "DISKCONTENTEXPORT"})
     task["extra_metadata"] = copy.deepcopy(task)
     return task
 
 
 @register_task(
-    validator=validate_startdiskexport,
+    validator=validate_diskexport,
     track_progress=True,
     cancellable=True,
     permission_classes=[CanManageContent],
 )
-def startdiskexport(
+def diskexport(
     channel_id=None,
     update_progress=None,
     check_for_cancel=None,
@@ -274,10 +270,9 @@ def startdiskexport(
         raise
 
 
-def validate_startdeletechannel(request, request_data):
+def validate_deletechannel(request, request_data):
     task = validate_content_task(request, request_data, require_channel=True)
     task["force_delete"] = bool(request_data.get("force_delete"))
-    task.update({"type": "DELETECONTENT"})
     if task["node_ids"] or task["exclude_node_ids"]:
         task["file_size"] = None
         task["total_resources"] = None
@@ -286,11 +281,11 @@ def validate_startdeletechannel(request, request_data):
 
 
 @register_task(
-    validator=validate_startdeletechannel,
+    validator=validate_deletechannel,
     track_progress=True,
     permission_classes=[CanManageContent],
 )
-def startdeletechannel(
+def deletechannel(
     channel_id=None,
     node_ids=None,
     exclude_node_ids=None,
@@ -308,21 +303,21 @@ def startdeletechannel(
     )
 
 
-def validate_startremoteimport(request, request_data):
+def validate_remoteimport(request, request_data):
     task = validate_remote_import_task(request, request_data)
-    task.update({"type": "REMOTEIMPORT", "database_ready": False})
+    task.update({"database_ready": False})
     task["extra_metadata"] = copy.deepcopy(task)
 
     return task
 
 
 @register_task(
-    validator=validate_startremoteimport,
+    validator=validate_remoteimport,
     cancellable=True,
     track_progress=True,
     permission_classes=[CanManageContent],
 )
-def startremoteimport(
+def remoteimport(
     channel_id=None,
     baseurl=None,
     peer_id=None,
@@ -369,21 +364,21 @@ def startremoteimport(
     )
 
 
-def validate_startdiskimport(request, request_data):
-    task = validate_startdiskcontentimport(request, request_data)
-    task.update({"type": "DISKIMPORT", "database_ready": False})
+def validate_diskimport(request, request_data):
+    task = validate_diskcontentimport(request, request_data)
+    task.update({"database_ready": False})
     task["extra_metadata"] = copy.deepcopy(task)
 
     return task
 
 
 @register_task(
-    validator=validate_startdiskimport,
+    validator=validate_diskimport,
     track_progress=True,
     cancellable=True,
     permission_classes=[CanManageContent],
 )
-def startdiskimport(
+def diskimport(
     channel_id=None,
     directory=None,
     drive_id=None,
@@ -434,20 +429,19 @@ def startdiskimport(
         )
 
 
-def validate_startdiskchannelimport(request, request_data):
+def validate_diskchannelimport(request, request_data):
     task = validate_local_import_task(request, request_data)
-    task.update({"type": "DISKCHANNELIMPORT"})
     task["extra_metadata"] = copy.deepcopy(task)
 
     return task
 
 
 @register_task(
-    validator=validate_startdiskchannelimport,
+    validator=validate_diskchannelimport,
     cancellable=True,
     permission_classes=[CanManageContent],
 )
-def startdiskchannelimport(
+def diskchannelimport(
     channel_id=None,
     datafolder=None,
     drive_id=None,
