@@ -99,8 +99,83 @@ payload **must** have a ``"task"`` parameter as string and the user should have 
 
 Then, we check whether the ``"task"`` function has a validator associated with it or not. If it has a validator, it
 gets run. The return value of the validator must be a dictionary. The dictionary returned by the validator is passed to the task function as keyword
-arguments. We can add ``extra_metadata`` in the returning dictionary to set extra metadata for the job. If the validator raises
-any exception, our API endpoint method will re raise it.
+arguments.
+
+We can add ``extra_metadata`` in the returning dictionary of validator function to set extra metadata for the job. If the validator raises
+any exception, our API endpoint method will re raise it. Keep in mind that ``extra_metadata`` is **not** passed to the task function as an argument.
+
+For example, if the validator returns a dictionary like:
+
+.. code-block:: python
+
+    {
+      "a": req_data["a"],
+      "b": req_data["b"],
+      "extra_metadata": {
+        "user": "kolibri"
+      }
+    }
+
+The task function will receive ``a`` and ``b`` as function arguments.
 
 Once the validator is run and no exceptions are raised, we enqueue the ``"task"`` function. Depending on the
 ``priority`` of the task, the worker pool will run the task.
+
+We can also enqueue tasks in bulk. The frontend just have to send a list of tasks, like:
+
+
+.. code-block:: python
+
+    [
+      {
+        "task": "kolibri.core.content.tasks.add",
+        "a": 45,
+        "b": 59
+      },
+      {
+        "task": "kolibri.core.content.tasks.add",
+        "a": 60,
+        "b": 52
+      },
+      {
+        "task": "kolibri.core.content.tasks.subtract",
+        "a": 80,
+        "b": 59
+      }
+    ]
+
+The tasks backend will iterate over this list and it will perform the operations of a task on every ``"task"`` function -- checking permissions, running the validator and enqueuing the task function.
+
+The response will be a list of enqueued jobs like:
+
+.. code-block:: python
+
+    [
+      {
+        "status": "QUEUED",
+        "exception": "",
+        "traceback": "",
+        "percentage": 0,
+        "id": "e05ad2b3-eae8-4e29-9f00-b16accfee3e2",
+        "cancellable": False,
+        "clearable": False,
+      },
+      {
+        "status": "QUEUED",
+        "exception": "",
+        "traceback": "",
+        "percentage": 0,
+        "id": "329f0fe0-bfb0-47f8-9e33-0468ef9805e5",
+        "cancellable": False,
+        "clearable": False,
+      },
+      {
+        "status": "QUEUED",
+        "exception": "",
+        "traceback": "",
+        "percentage": 0,
+        "id": "895a881a-6825-4be0-8bd4-0e8db40ab324",
+        "cancellable": False,
+        "clearable": False,
+      }
+    ]
