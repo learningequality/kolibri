@@ -56,20 +56,20 @@
     computed: {
       isSyncTask() {
         return (
-          this.task.type === TaskTypes.SYNCDATAPORTAL ||
-          this.task.type === TaskTypes.SYNCPEERFULL ||
-          this.task.type === TaskTypes.SYNCLOD
+          this.task.task === TaskTypes.SYNCDATAPORTAL ||
+          this.task.task === TaskTypes.SYNCPEERFULL ||
+          this.task.task === TaskTypes.SYNCLOD
         );
       },
       isDeleteTask() {
-        return this.task.type === TaskTypes.DELETEFACILITY;
+        return this.task.task === TaskTypes.DELETEFACILITY;
       },
       isSetupImportTask() {
         // HACK infer that we're in the setup wizard because the started_by field is null
-        return !this.task.started_by && this.task.type === TaskTypes.SYNCPEERPULL;
+        return !this.task.started_by && this.task.task === TaskTypes.SYNCPEERPULL;
       },
       isImportTask() {
-        return this.task.type === TaskTypes.SYNCPEERPULL;
+        return this.task.task === TaskTypes.SYNCPEERPULL;
       },
       taskInfo() {
         if (this.isSetupImportTask) {
@@ -95,19 +95,19 @@
         return this.taskInfo.statusMsg;
       },
       headingMsg() {
-        if (this.task.type === TaskTypes.SYNCLOD) return '';
+        if (this.task.task === TaskTypes.SYNCLOD) return '';
         return this.taskInfo.headingMsg;
       },
       underHeadingMsg() {
-        if (this.task.type === TaskTypes.SYNCLOD) return '';
+        if (this.task.task === TaskTypes.SYNCLOD) return '';
         return this.taskInfo.deviceNameMsg;
       },
       underProgressMsg() {
-        if (this.task.type === TaskTypes.SYNCLOD) return '';
+        if (this.task.task === TaskTypes.SYNCLOD) return '';
         return this.taskInfo.bytesTransferredMsg;
       },
       buttonSet() {
-        if (this.task.type === TaskTypes.SYNCLOD) return '';
+        if (this.task.task === TaskTypes.SYNCLOD) return '';
         if (this.taskInfo.canCancel) {
           return 'cancel';
         } else if (this.taskInfo.canClear) {

@@ -51,7 +51,7 @@ function checkTaskStatus(store, newTasks, taskType, taskId, commitStart, commitF
   } else {
     const running = newTasks.filter(task => {
       return (
-        task.type === taskType &&
+        task.task === taskType &&
         task.status !== TaskStatuses.COMPLETED &&
         task.status !== TaskStatuses.FAILED
       );

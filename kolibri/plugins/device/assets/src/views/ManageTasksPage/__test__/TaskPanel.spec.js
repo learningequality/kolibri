@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils';
 import TaskPanel from '../TaskPanel';
+import { TaskTypes } from '../../../constants';
 
 function makeWrapper(propsData) {
   const wrapper = mount(TaskPanel, { propsData });
@@ -8,7 +9,7 @@ function makeWrapper(propsData) {
 
 describe('TaskPanel', () => {
   const exportTask = {
-    type: 'DISKCONTENTEXPORT',
+    task: TaskTypes.DISKCONTENTEXPORT,
     status: 'CANCELED',
     clearable: true,
     channel_name: 'Canceled disk export channel test',
@@ -24,7 +25,7 @@ describe('TaskPanel', () => {
   });
 
   it('renders correctly when it is a canceled DISKEXPORT task (bulk export)', () => {
-    const { wrapper } = makeWrapper({ task: { ...exportTask, type: 'DISKEXPORT' } });
+    const { wrapper } = makeWrapper({ task: { ...exportTask, task: TaskTypes.DISKEXPORT } });
     expect(wrapper.html()).toMatchSnapshot();
   });
 });

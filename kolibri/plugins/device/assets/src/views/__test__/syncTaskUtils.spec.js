@@ -38,14 +38,14 @@ describe('syncTaskUtils.syncFacilityTaskDisplayInfo', () => {
 
   it('displays the correct header for facility-sync tasks', () => {
     const task = makeTask('RUNNING');
-    task.type = 'SYNCPEER/FULL';
+    task.task = 'SYNCPEER/FULL';
     const displayInfo = syncFacilityTaskDisplayInfo(task);
     expect(displayInfo.headingMsg).toEqual("Sync 'generic facility' (fac1)");
   });
 
   it('displays the correct header for facility-import tasks', () => {
     const task = makeTask('RUNNING');
-    task.type = 'SYNCPEER/PULL';
+    task.task = 'SYNCPEER/PULL';
     const displayInfo = syncFacilityTaskDisplayInfo(task);
     expect(displayInfo.headingMsg).toEqual("Import 'generic facility' (fac1)");
   });

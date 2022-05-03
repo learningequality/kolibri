@@ -4,7 +4,7 @@ import { FacilityTaskResource } from 'kolibri.resources';
 import { TaskTypes } from '../../constants';
 
 function isSyncTask(task) {
-  return task.type === TaskTypes.SYNCDATAPORTAL || task.type === TaskTypes.SYNCPEERFULL;
+  return task.task === TaskTypes.SYNCDATAPORTAL || task.task === TaskTypes.SYNCPEERFULL;
 }
 
 function taskFacilityMatch(task, facility) {
@@ -58,9 +58,9 @@ export default {
       } else if (action === 'clear') {
         return FacilityTaskResource.cleartask(task.id);
       } else if (action === 'retry') {
-        if (task.type === TaskTypes.SYNCDATAPORTAL) {
+        if (task.task === TaskTypes.SYNCDATAPORTAL) {
           return retryKdpSync(task);
-        } else if (task.type === TaskTypes.SYNCPEERFULL) {
+        } else if (task.task === TaskTypes.SYNCPEERFULL) {
           return retryPeerSync(task);
         } else {
           return Promise.resolve();
@@ -91,7 +91,7 @@ export default {
         return Boolean(
           this.facilityTasks.find(
             task =>
-              task.type === TaskTypes.DELETEFACILITY &&
+              task.task === TaskTypes.DELETEFACILITY &&
               taskFacilityMatch(task, facility) &&
               !task.clearable
           )

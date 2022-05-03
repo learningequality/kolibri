@@ -215,7 +215,7 @@
           if (this.taskIdsToWatch.includes(task.id)) {
             if (task.status === TaskStatuses.COMPLETED) {
               this.fetchFacilites();
-              if (task.type === TaskTypes.DELETEFACILITY) {
+              if (task.task === TaskTypes.DELETEFACILITY) {
                 this.showFacilityRemovedSnackbar(task.facility_name);
               }
               this.taskIdsToWatch = this.taskIdsToWatch.filter(x => x !== task.id);

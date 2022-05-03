@@ -95,7 +95,7 @@
 
   import { TaskStatuses, TaskTypes } from '../../constants';
 
-  const typeToTrMap = {
+  const taskToTrMap = {
     [TaskTypes.REMOTECONTENTIMPORT]: 'importChannelPartial',
     [TaskTypes.DISKCONTENTIMPORT]: 'importChannelPartial',
     [TaskTypes.REMOTEIMPORT]: 'importChannelWhole',
@@ -103,11 +103,10 @@
     [TaskTypes.DISKEXPORT]: 'exportChannelWhole',
     [TaskTypes.DISKCONTENTEXPORT]: 'exportChannelPartial',
     [TaskTypes.DELETECHANNEL]: 'deleteChannelWhole',
-    [TaskTypes.DELETECONTENT]: 'deleteChannelPartial',
     [TaskTypes.UPDATECHANNEL]: 'updatingChannelVersion',
   };
 
-  const typeToTrPrefixMap = {
+  const taskToTrPrefixMap = {
     [TaskTypes.REMOTECONTENTIMPORT]: 'import',
     [TaskTypes.DISKCONTENTIMPORT]: 'import',
     [TaskTypes.UPDATECHANNEL]: 'import',
@@ -116,7 +115,6 @@
     [TaskTypes.DISKEXPORT]: 'export',
     [TaskTypes.DISKCONTENTEXPORT]: 'export',
     [TaskTypes.DELETECHANNEL]: 'delete',
-    [TaskTypes.DELETECONTENT]: 'delete',
   };
 
   const statusToTrMap = {
@@ -179,7 +177,14 @@
         return 'determinate';
       },
       descriptionText() {
-        const trName = typeToTrMap[this.task.type];
+        let trName = taskToTrMap[this.task.task];
+        if (
+          this.task.task === TaskTypes.DELETECHANNEL &&
+          ((this.task.node_ids && this.task.node_ids.length) ||
+            (this.task.exclude_node_ids && this.task.exclude_node_ids.length))
+        ) {
+          trName = 'deleteChannelPartial';
+        }
         return this.$tr(trName, {
           channelName: this.task.channel_name || this.$tr('unknownChannelName'),
           newVersion: this.task.new_version,
@@ -208,14 +213,14 @@
         } = this.task;
         // Special case for canceled exports
         if (
-          (this.task.type === TaskTypes.DISKEXPORT ||
-            this.task.type === TaskTypes.DISKCONTENTEXPORT) &&
+          (this.task.task === TaskTypes.DISKEXPORT ||
+            this.task.task === TaskTypes.DISKCONTENTEXPORT) &&
           this.task.status === TaskStatuses.CANCELED
         ) {
           return '';
         }
         if (file_size && total_resources) {
-          const trPrefix = typeToTrPrefixMap[this.task.type];
+          const trPrefix = taskToTrPrefixMap[this.task.task];
           if (
             transferred_file_size &&
             transferred_resources &&
@@ -317,10 +322,12 @@
         message: `Delete '{channelName}'`,
         context: 'Refers to deleting an entire channel.',
       },
+      /* eslint-disable kolibri/vue-no-unused-translations */
       deleteChannelPartial: {
         message: `Delete resources from '{channelName}'`,
         context: 'Indicates the channel from which resources will be deleted.',
       },
+      /* eslint-enable */
       updatingChannelVersion: {
         message: `Update {channelName} to version {newVersion}`,
         context: 'Refers to a task where a channel is updated to a new version.',

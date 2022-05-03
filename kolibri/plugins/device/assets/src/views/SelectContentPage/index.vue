@@ -9,7 +9,6 @@
     <template v-else>
       <TaskProgress
         :show="!onDeviceInfoIsReady"
-        type="DOWNLOADING_CHANNEL_CONTENTS"
         :showButtons="false"
         status="RUNNING"
       />
@@ -151,10 +150,10 @@
         return !isEmpty(this.currentTopicNode);
       },
       metadataDownloadTask() {
-        return find(this.taskList, ({ type, channel_id }) => {
+        return find(this.taskList, ({ task, channel_id }) => {
           return (
             channel_id === this.channelId &&
-            (type === TaskTypes.REMOTECHANNELIMPORT || type === TaskTypes.DISKCHANNELIMPORT)
+            (task === TaskTypes.REMOTECHANNELIMPORT || task === TaskTypes.DISKCHANNELIMPORT)
           );
         });
       },

@@ -253,7 +253,7 @@
       },
       onTaskSuccess(task) {
         this.bottomBarDisabled = false;
-        this.watchedTaskType = task.data.type;
+        this.watchedTaskType = task.data.task;
         this.notifyAndWatchTask(task);
       },
       onTaskFailure() {

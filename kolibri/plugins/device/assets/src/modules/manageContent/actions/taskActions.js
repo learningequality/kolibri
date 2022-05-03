@@ -24,7 +24,7 @@ export function cancelTask(store, taskId) {
 }
 
 function updateTasks(store, tasks) {
-  const contentTasks = tasks.filter(task => Object.values(TaskTypes).includes(task.type));
+  const contentTasks = tasks.filter(task => Object.values(TaskTypes).includes(task.task));
   store.commit('SET_TASK_LIST', contentTasks);
 }
 

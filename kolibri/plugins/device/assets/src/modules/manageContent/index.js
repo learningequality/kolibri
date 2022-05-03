@@ -51,7 +51,7 @@ export default {
         const taskIndex = findLastIndex(getters.managedTasks, task => {
           return (
             ![TaskTypes.DISKCONTENTEXPORT, TaskTypes.DISKEXPORT, TaskTypes.DELETECHANNEL].includes(
-              task.type
+              task.task
             ) &&
             task.channel_id === channel.id &&
             task.status === TaskStatuses.COMPLETED
@@ -107,7 +107,7 @@ export default {
             TaskTypes.DISKCHANNELIMPORT,
             TaskTypes.CHANNELDIFFSTATS,
             TaskTypes.SYNCLOD,
-          ].includes(task.type)
+          ].includes(task.task)
       );
     },
   },

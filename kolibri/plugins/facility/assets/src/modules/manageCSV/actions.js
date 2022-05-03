@@ -68,7 +68,7 @@ function checkTaskStatus(store, newTasks, taskType, taskId, commitStart, commitF
     const task = myNewTasks.find(task => task.id === taskId);
 
     if (task && task.status === TaskStatuses.COMPLETED) {
-      if (task.type === TaskTypes.EXPORTUSERSTOCSV) {
+      if (task.task === TaskTypes.EXPORTUSERSTOCSV) {
         store.commit(commitFinish, task.filename);
       } else {
         store.commit(commitFinish, new Date());
@@ -78,7 +78,7 @@ function checkTaskStatus(store, newTasks, taskType, taskId, commitStart, commitF
   } else {
     const running = myNewTasks.filter(task => {
       return (
-        task.type === taskType &&
+        task.task === taskType &&
         task.status !== TaskStatuses.COMPLETED &&
         task.status !== TaskStatuses.FAILED
       );

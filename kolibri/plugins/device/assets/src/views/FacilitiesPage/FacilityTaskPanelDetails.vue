@@ -171,7 +171,7 @@
           return '';
         }
 
-        if (this.task.type === TaskTypes.SYNCLOD)
+        if (this.task.task === TaskTypes.SYNCLOD)
           if (this.task.status === TaskStatuses.COMPLETED)
             return this.getTaskString('taskLODFinishedByLabel', {
               fullname: this.task.full_name,

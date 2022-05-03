@@ -67,13 +67,13 @@ export function syncFacilityTaskDisplayInfo(task) {
 
   const facilityName = formatNameWithId(task.facility_name, task.facility);
 
-  if (task.type === TaskTypes.SYNCPEERPULL) {
+  if (task.task === TaskTypes.SYNCPEERPULL) {
     headingMsg = getTaskString('importFacilityTaskLabel', { facilityName });
   } else {
     headingMsg = getTaskString('syncFacilityTaskLabel', { facilityName });
   }
   // Device info isn't shown on the Setup Wizard version of panel
-  if (task.type === TaskTypes.SYNCDATAPORTAL) {
+  if (task.task === TaskTypes.SYNCDATAPORTAL) {
     deviceNameMsg = 'Kolibri Data Portal';
   } else if (task.device_name) {
     deviceNameMsg = formatNameWithId(task.device_name, task.device_id);
@@ -89,11 +89,11 @@ export function syncFacilityTaskDisplayInfo(task) {
   } else if (syncStep) {
     statusMsg = getTaskString('syncStepAndDescription', {
       step: syncStep,
-      total: task.type === TaskTypes.SYNCPEERPULL ? PULLSTEPS : PUSHPULLSTEPS,
+      total: task.task === TaskTypes.SYNCPEERPULL ? PULLSTEPS : PUSHPULLSTEPS,
       description: statusDescription,
     });
   } else {
-    if (task.type === TaskTypes.SYNCLOD && task.status === TaskStatuses.FAILED)
+    if (task.task === TaskTypes.SYNCLOD && task.status === TaskStatuses.FAILED)
       statusMsg = `${statusDescription}: ${task.exception}`;
     else statusMsg = statusDescription;
   }
