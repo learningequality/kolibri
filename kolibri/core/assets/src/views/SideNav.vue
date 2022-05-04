@@ -36,8 +36,8 @@
 
             <div class="user-information">
               <!-- display user details -->
-              <b>{{ currentUser.full_name }}</b>
               <TotalPoints class="points" />
+              <b>{{ currentUser.full_name }}</b>
               <p
                 :style="{
                   color: $themeTokens.annotation,
@@ -510,9 +510,9 @@
   }
 
   .points {
-    position: absolute;
-    top: -4px;
-    right: 16px;
+    float: right;
+    margin-top: -5px;
+    margin-right: 16px;
     margin-left: auto;
 
     .description {
