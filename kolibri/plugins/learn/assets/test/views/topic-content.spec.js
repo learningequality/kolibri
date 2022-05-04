@@ -18,7 +18,6 @@ const localVue = createLocalVue();
 const store = makeStore();
 store.state.core = {
   blockDoubleClicks: true,
-  loading: false,
   logging: {
     summary: {
       progress: 0,
@@ -47,6 +46,7 @@ function makeWrapper({ propsData } = {}) {
         name: 'LearningActivityBar',
         propsData: {
           resourceTitle: 'Test Title',
+          loading: false,
         },
         template: '<div></div>',
       },
@@ -62,6 +62,7 @@ describe('TopicsContentPage', () => {
   const wrapper = makeWrapper({
     propsData: {
       content: { id: 'test' },
+      loading: false,
     },
   });
   it('smoke test', () => {
