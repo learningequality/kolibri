@@ -275,6 +275,9 @@
         // Don't store blank state for another item.
         this.blankState = null;
 
+        // Clear any currently displayed messages when we render an item.
+        this.dismissMessage();
+
         // Create react component with current item data.
         // If the component already existed, this will perform an update.
         this.$set(
