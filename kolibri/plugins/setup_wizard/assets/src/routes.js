@@ -5,7 +5,8 @@ import FullDeviceNewOrImportFacility from './views/onboarding-forms/FullDeviceNe
 import UngroupedSetupSteps from './views/UngroupedSetupSteps';
 import CreateFacilitySetup from './views/CreateFacilitySetup';
 import ImportFacilitySetup from './views/ImportFacilitySetup';
-import ImportLODUsersSetup from './views/ImportLODUsersSetup.vue';
+import ImportLODUsersSetup from './views/ImportLODUsersSetup';
+import Sandbox from './views/Sandbox';
 
 export default [
   {
@@ -58,5 +59,10 @@ export default [
     name: 'IMPORT_LOD',
     path: '/import_lod/:step',
     component: ImportLODUsersSetup,
+  },
+  {
+    name: 'SANDBOX',
+    path: '/sandbox',
+    component: Sandbox,
   },
 ];
