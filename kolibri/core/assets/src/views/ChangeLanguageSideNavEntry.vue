@@ -3,6 +3,7 @@
   <CoreMenuOption
     :label="$tr('languageSwitchMenuOption')"
     icon="language"
+    class="pointer"
     @select="handleShowLanguageModal()"
   />
 
@@ -36,3 +37,12 @@
   };
 
 </script>
+
+
+<style lang="scss" scoped>
+
+  .pointer {
+    cursor: pointer;
+  }
+
+</style>
