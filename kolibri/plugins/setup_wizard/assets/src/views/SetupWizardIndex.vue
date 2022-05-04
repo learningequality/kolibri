@@ -26,7 +26,7 @@
 <script>
 
   import { interpret } from 'xstate';
-  import { mapState } from 'vuex';
+  import { mapGetters, mapState } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { wizardMachine } from '../machines/wizardMachine';
@@ -47,7 +47,7 @@
     mixins: [commonCoreStrings, responsiveWindowMixin],
     data() {
       return {
-        service: interpret(wizardMachine),
+        service: interpret(wizardMachine.withContext({ isAppContext: this.isAppContext })),
       };
     },
     provide() {
@@ -56,6 +56,7 @@
       };
     },
     computed: {
+      ...mapGetters('isAppContext'),
       ...mapState(['loading', 'error']),
     },
     created() {
