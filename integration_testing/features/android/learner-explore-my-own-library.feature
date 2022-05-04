@@ -58,7 +58,7 @@ Feature: Find new things in your library
 		Given I am at the *Library > Explore channel* modal
 			And I switch off the *Show available resources only* toggle
 		When click the plus icon on a resource card
-		Then #needs clarification
+		Then #TO DO pending specification
 
 	Scenario: Add resource to My downloads from the information panel
 		Given I am at the *Library > Explore channel* modal

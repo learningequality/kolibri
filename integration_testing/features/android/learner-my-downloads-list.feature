@@ -10,13 +10,32 @@ Feature: My downloads list
 		Then I am at the *My downloads* page
 			And the side menu is no longer expanded
 
+	Scenario: *My downloads > Downloaded* - desktop view
+		Given I'm viewing Kolibri in a desktop browser
+		When I go to *My downloads*
+		Then I see all the resources displayed in a single column view
+			And I see the contents of the *Downloaded* tab by default
+			And I see *Total size of My downloads YY MB*, *Total size of Kolibri resources XX MB*, and *Free disk space XXX MB* above the list with cards
+			And in each card I see the thumbnail, resource type, resource label, number of resources, channel description, resource size, channel image and channel name
+			And I see the *View* button, the *i* icon and the *X* icon at the bottom right corner
+
 	Scenario: *My downloads > Downloaded* - mobile view
 		Given I'm viewing Kolibri in a mobile browser
 		When I go to *My downloads*
 		Then I see all the resources displayed in a single column view
 			And I see the contents of the *Downloaded* tab by default
-			And I see *On your device now XX MB*, *Total size of My downloads YY MB*, and *Free disk space XXX MB* above the list with cards
+			And I see *Total size of My downloads YY MB*, *Total size of Kolibri resources XX MB*, and *Free disk space XXX MB* above the list with cards
 			And in each card I see the thumbnail, resource type, resource label, resource size, channel image and channel name
+			And I see the *View* button, the *i* icon and the *X* icon at the bottom right corner
+
+	Scenario: *My downloads > Download later* - desktop view
+		Given I'm viewing Kolibri in a desktop browser
+		When I go to *My downloads*
+			And I select the *Download later* tab
+		Then I see all the resources displayed in a single column view
+			And I see *These resources will automatically download when you connect to another device or network that has them*
+			And I see *Total size of My downloads YY MB*, *Total size of Kolibri resources XX MB*, and *Free disk space XXX MB* above the list with cards
+			And in each card I see the thumbnail, resource type, resource label, number of resources, channel description, resource size, channel image and channel name
 			And I see the *View* button, the *i* icon and the *X* icon at the bottom right corner
 
 	Scenario: *My downloads > Download later* - mobile view
@@ -25,7 +44,7 @@ Feature: My downloads list
 			And I select the *Download later* tab
 		Then I see all the resources displayed in a single column view
 			And I see *These resources will automatically download when you connect to another device or network that has them*
-			And I see *On your device now XX MB*, *Total size of My downloads YY MB*, and *Free disk space XXX MB* above the list with cards
+			And I see *Total size of My downloads YY MB*, *Total size of Kolibri resources XX MB*, and *Free disk space XXX MB* above the list with cards
 			And in each card I see the thumbnail, resource type, resource label, resource size, channel image and channel name
 			And I see the *View* button, the *i* icon and the *X* icon at the bottom right corner
 
