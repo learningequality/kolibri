@@ -64,7 +64,7 @@
   import OnboardingForm from './OnboardingForm';
 
   export default {
-    name: 'SetupMethod',
+    name: 'FullDeviceNewOrImportFacility',
     components: {
       CoreInfoIcon,
       OnboardingForm,
