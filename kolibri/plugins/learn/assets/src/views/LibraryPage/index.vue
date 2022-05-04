@@ -3,6 +3,7 @@
   <LearnAppBarPage
     :appBarTitle="learnString('learnLabel')"
     :appearanceOverrides="{}"
+    :loading="loading"
   >
     <main
       class="main-grid"
@@ -197,6 +198,12 @@
         moreResumableContentNodes,
         fetchMoreResumableContentNodes,
       };
+    },
+    props: {
+      loading: {
+        type: Boolean,
+        default: null,
+      },
     },
     data: function() {
       return {

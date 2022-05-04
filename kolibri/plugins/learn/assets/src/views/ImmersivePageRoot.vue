@@ -3,7 +3,7 @@
   <div :style="wrapperStyles">
     <ImmersiveToolbar
       ref="appBar"
-      :appBarTitle="appBarTitle"
+      :appBarTitle="(!loading ? appBarTitle : '')"
       :route="route"
     />
     <slot></slot>
@@ -21,7 +21,6 @@
 <script>
 
   import ImmersiveToolbar from 'kolibri.coreVue.components.ImmersiveToolbar';
-  import { mapState } from 'vuex';
 
   export default {
     name: 'ImmersivePageRoot',
@@ -40,6 +39,10 @@
         required: false,
         default: null,
       },
+      loading: {
+        type: Boolean,
+        default: null,
+      },
     },
     data() {
       return {
@@ -47,9 +50,6 @@
       };
     },
     computed: {
-      ...mapState({
-        loading: state => state.core.loading,
-      }),
       wrapperStyles() {
         return this.appearanceOverrides
           ? this.appearanceOverrides

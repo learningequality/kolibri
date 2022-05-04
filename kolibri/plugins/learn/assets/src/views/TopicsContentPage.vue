@@ -207,6 +207,11 @@
       };
     },
     props: {
+      loading: {
+        type: Boolean,
+        required: false,
+        default: true,
+      },
       // AUTHORIZATION SPECIFIC
       authorized: {
         type: Boolean,
@@ -234,7 +239,6 @@
       ...mapGetters(['currentUserId', 'isUserLoggedIn']),
       ...mapState({
         error: state => state.core.error,
-        loading: state => state.core.loading,
         blockDoubleClicks: state => state.core.blockDoubleClicks,
       }),
       ...mapState('topicsTree', ['content']),

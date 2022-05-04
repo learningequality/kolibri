@@ -229,9 +229,6 @@
     },
     computed: {
       ...mapState('examViewer', ['exam', 'contentNodeMap', 'questions', 'questionNumber']),
-      ...mapState({
-        loading: state => state.core.loading,
-      }),
       gridStyle() {
         if (!this.windowIsSmall) {
           return {

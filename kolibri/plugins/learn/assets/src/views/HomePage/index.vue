@@ -2,6 +2,7 @@
 
   <LearnAppBarPage
     :appBarTitle="learnString('learnLabel')"
+    :loading="loading"
   >
     <div v-if="!loading">
       <YourClasses
@@ -56,7 +57,6 @@
 <script>
 
   import { computed } from 'kolibri.lib.vueCompositionApi';
-  import { mapState } from 'vuex';
   import { get } from '@vueuse/core';
   import useChannels from '../../composables/useChannels';
   import useDeviceSettings from '../../composables/useDeviceSettings';
@@ -155,10 +155,11 @@
         displayClasses,
       };
     },
-    computed: {
-      ...mapState({
-        loading: state => state.core.loading,
-      }),
+    props: {
+      loading: {
+        type: Boolean,
+        default: null,
+      },
     },
   };
 

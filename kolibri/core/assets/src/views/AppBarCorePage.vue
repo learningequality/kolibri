@@ -49,7 +49,6 @@
   import AppBar from 'kolibri.coreVue.components.AppBar';
   import ScrollingHeader from 'kolibri.coreVue.components.ScrollingHeader';
   import SideNav from 'kolibri.coreVue.components.SideNav';
-  import { mapState } from 'vuex';
 
   export default {
     name: 'AppBarCorePage',
@@ -64,6 +63,10 @@
         required: false,
         default: null,
       },
+      loading: {
+        type: Boolean,
+        default: null,
+      },
     },
     data() {
       return {
@@ -73,9 +76,6 @@
       };
     },
     computed: {
-      ...mapState({
-        loading: state => state.core.loading,
-      }),
       wrapperStyles() {
         return this.appearanceOverrides
           ? this.appearanceOverrides

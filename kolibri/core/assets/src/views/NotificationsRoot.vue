@@ -18,7 +18,7 @@
     </AppBarCorePage>
 
     <div v-else role="main" tabindex="-1" data-test="main">
-      <slot></slot>
+      <slot :loading="loading"></slot>
     </div>
 
     <GlobalSnackbar />
@@ -75,6 +75,10 @@
         type: String,
         default: null,
       },
+      loading: {
+        type: Boolean,
+        default: null,
+      },
     },
     data() {
       return {
@@ -85,7 +89,6 @@
       ...mapGetters(['isAdmin', 'isSuperuser']),
       ...mapState({
         error: state => state.core.error,
-        loading: state => state.core.loading,
         notifications: state => state.core.notifications,
       }),
       notAuthorized() {

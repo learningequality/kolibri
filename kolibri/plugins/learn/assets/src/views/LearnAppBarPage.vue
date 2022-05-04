@@ -1,6 +1,10 @@
 <template>
 
-  <AppBarCorePage :title="appBarTitle" :appearanceOverrides="appearanceOverrides">
+  <AppBarCorePage
+    :title="appBarTitle"
+    :appearanceOverrides="appearanceOverrides"
+    :loading="loading"
+  >
 
     <template #subNav>
       <LearnTopNav ref="topNav" />
@@ -31,6 +35,10 @@
       appearanceOverrides: {
         type: Object,
         required: false,
+        default: null,
+      },
+      loading: {
+        type: Boolean,
         default: null,
       },
     },

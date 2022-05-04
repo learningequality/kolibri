@@ -1,11 +1,10 @@
-<template>
+<template slot-scope="{ loading }">
 
   <NotificationsRoot
     :authorized="userIsAuthorized"
     authorizedRole="registeredUser"
   >
-    <router-view />
-
+    <router-view :loading="loading" />
   </NotificationsRoot>
 
 </template>
@@ -13,7 +12,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import { mapGetters, mapState } from 'vuex';
   import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
   import { PageNames } from '../constants';
   import plugin_data from 'plugin_data';
@@ -25,6 +24,9 @@
     },
     computed: {
       ...mapGetters(['isUserLoggedIn']),
+      ...mapState({
+        loading: state => state.core.loading,
+      }),
       userIsAuthorized() {
         if (this.pageName === PageNames.BOOKMARKS) {
           return this.isUserLoggedIn;

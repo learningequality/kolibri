@@ -8,6 +8,7 @@
     <!-- by replacing it with an empty object -->
     <ImmersivePageRoot
       v-else-if="!loading"
+      :loading="loading"
       :route="libraryPageLink"
       :appBarTitle="topic.title || ''"
       :appearanceOverrides="{}"
@@ -342,6 +343,12 @@
         setSearchWithinDescendant,
       };
     },
+    props: {
+      loading: {
+        type: Boolean,
+        default: null,
+      },
+    },
     data: function() {
       return {
         sidePanelStyleOverrides: {},
@@ -358,9 +365,6 @@
     },
     computed: {
       ...mapState('topicsTree', ['channel', 'contents', 'isRoot', 'topic']),
-      ...mapState({
-        loading: state => state.core.loading,
-      }),
       childrenToDisplay() {
         return Math.max(this.numCols, 3);
       },
