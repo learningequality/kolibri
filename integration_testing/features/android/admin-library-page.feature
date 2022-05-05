@@ -1,30 +1,19 @@
 Feature: My downloads - Library page
 
   Background:
-    Given I am signed in as an admin user
+    Given I am signed in as a super admin user
+    	And I am connected to the Internet
 			And I am at *Learn > Library*
 			And there are imported channels with resources on the device
 
-	Scenario: Super admin is connected to the internet
-	# Can see Studio library
+	Scenario: Super admin is able to see Kolibri Studio libraries
+		When I load the *Learn > Library* page
+			And I look at the *Other libraries* section of the page
+		Then I see the *Kolibri content library* section
+			And I see up to 5 chards on up to 2 rows
+			And I see *Explore this library* as the last card
 
-	Scenario: User is connected to 1-3 libraries
-	# Display channels from all libraries
-
-	Scenario: User is connected to at least 4 other libraries and at least 1 is pinned
-
-	Scenario: User is connected to at least 4 other libraries and none are pinned
-
-	Scenario: There are many channels in a pinned library
-	# Maximum of 2 rows of cards before showing "Explore this library" card
-
-	Scenario: User begins a search while connected to other sources
-	# Search is scoped to user's library only
-
-	Scenario: User only sees their library's resources in the Recent section
-
-	Scenario: Recent is limited to display 1 row of cards when there are other libraries to display
-	# but paginates normally
-
-	Scenario: See whether another library is an online server, desktop app, android app, or external storage
-	# Icon next to device name
+	Scenario: Super admin goes to Kolibri Studio
+		Given I see the *Kolibri content library* section
+		When I click *Explore this library*
+		Then I go to the main library page for Kolibri Studio
