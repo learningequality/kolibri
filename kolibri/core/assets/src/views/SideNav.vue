@@ -37,7 +37,7 @@
             <div v-if="userIsLearner" class="user-information">
               <!-- display user details -->
               <TotalPoints class="points" />
-              <b>{{ currentUser.full_name }}</b>
+              <b>{{ fullName }}</b>
               <p
                 :style="{
                   color: $themeTokens.annotation,
@@ -46,7 +46,7 @@
                   marginBottom: 0
                 }"
               >
-                {{ currentUser.username }}
+                {{ username }}
               </p>
               <p :style="{ color: $themeTokens.annotation, fontSize: '12px', marginTop: 0 }">
                 {{ getUserKind }}
@@ -185,7 +185,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import { mapGetters, mapState } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { UserKinds, SyncStatus, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
@@ -199,7 +199,6 @@
   import Backdrop from 'kolibri.coreVue.components.Backdrop';
   import LanguageSwitcherModal from 'kolibri.coreVue.components.LanguageSwitcherModal';
   import navComponentsMixin from '../mixins/nav-components';
-  import useCurrentUser from '../../../../plugins/user_profile/assets/src/views/ProfilePage/useCurrentUser';
   import TotalPoints from '../../../../plugins/learn/assets/src/views/TotalPoints.vue';
   import SyncStatusDisplay from './SyncStatusDisplay';
   import logout from './LogoutSideNavEntry';
@@ -234,8 +233,7 @@
     },
     mixins: [commonCoreStrings, responsiveWindowMixin, responsiveElementMixin, navComponentsMixin],
     setup() {
-      const { currentUser } = useCurrentUser();
-      return { themeConfig, currentUser };
+      return { themeConfig };
     },
     props: {
       navShown: {
@@ -258,6 +256,10 @@
     },
     computed: {
       ...mapGetters(['isAdmin', 'isCoach', 'getUserKind']),
+      ...mapState({
+        username: state => state.core.session.username,
+        fullName: state => state.core.session.full_name,
+      }),
       width() {
         return this.topBarHeight * 4;
       },
