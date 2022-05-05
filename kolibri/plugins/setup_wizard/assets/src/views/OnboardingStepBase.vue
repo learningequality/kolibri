@@ -51,7 +51,8 @@
           borderTop: `1px solid ${windowIsSmall ? $themeTokens.surface : $themeTokens.fineLine}`
         }"
       >
-        <!-- No room for slot on small screens -->
+        <!-- No room for slot on small screens.
+             On med+ screens, to be used to show short strings of text eg, "Step 1 / 4" -->
         <div v-if="!windowIsSmall" class="footer-section">
           <slot name="footer"></slot>
         </div>
@@ -229,6 +230,10 @@
 
   .mobile-continue-button {
     width: 100%;
+  }
+
+  .ta-l {
+    text-align: left;
   }
 
 </style>
