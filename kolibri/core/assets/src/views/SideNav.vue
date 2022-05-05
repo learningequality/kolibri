@@ -34,7 +34,7 @@
               :style="themeConfig.sideNav.topLogo.style"
             >
 
-            <div class="user-information">
+            <div v-if="userIsLearner" class="user-information">
               <!-- display user details -->
               <TotalPoints class="points" />
               <b>{{ currentUser.full_name }}</b>
@@ -52,7 +52,7 @@
                 {{ getUserKind }}
               </p>
               <!-- display sync status, when relevant -->
-              <div v-if="isSubsetOfUsersDevice && userIsLearner" data-test="syncStatusInDropdown">
+              <div v-if="isSubsetOfUsersDevice" data-test="syncStatusInDropdown">
                 <div class="sync-status">
                   {{ $tr('deviceStatus') }}
                 </div>
