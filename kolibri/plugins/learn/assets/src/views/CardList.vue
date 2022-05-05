@@ -92,7 +92,7 @@
   import CardThumbnail from './HybridLearningContentCard/CardThumbnail';
 
   export default {
-    name: 'HybridLearningContentCardListView',
+    name: 'CardList',
     components: {
       CardThumbnail,
       TextTruncatorCss,

@@ -8,7 +8,7 @@
       {{ $tr('noBookmarks') }}
     </p>
 
-    <HybridLearningContentCardListView
+    <CardList
       v-for="content in bookmarks"
       v-else
       :key="content.id"
@@ -85,7 +85,7 @@
   import { normalizeContentNode } from '../modules/coreLearn/utils.js';
   import useContentNodeProgress from '../composables/useContentNodeProgress';
   import LearningActivityChip from './LearningActivityChip';
-  import HybridLearningContentCardListView from './HybridLearningContentCardListView';
+  import CardList from './CardList';
 
   import BrowseResourceMetadata from './BrowseResourceMetadata';
 
@@ -100,7 +100,7 @@
       BrowseResourceMetadata,
       SidePanelModal,
       LearningActivityChip,
-      HybridLearningContentCardListView,
+      CardList,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
     setup() {
