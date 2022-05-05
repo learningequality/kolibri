@@ -57,7 +57,7 @@
               <TopicSubsection
                 :key="t.id"
                 :topic="t"
-                :subTopicLoading="subTopicLoading"
+                :subTopicLoading="t.id === subTopicLoading"
                 @showMore="handleShowMore"
                 @loadMoreInSubtopic="handleLoadMoreInSubtopic"
                 @toggleInfoPanel="toggleInfoPanel"

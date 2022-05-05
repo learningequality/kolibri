@@ -69,8 +69,8 @@
         required: true,
       },
       subTopicLoading: {
-        type: String,
-        default: null,
+        type: Boolean,
+        default: false,
         required: false,
       },
     },
