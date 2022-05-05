@@ -31,7 +31,10 @@ Follow the instructions from the command to set your environment variables.
 
 To download a Kolibri WHL file, you can use `make whl=<URL>` from the command line. It will download it and put it in the correct directory.
 
-5. If you need a 64bit build, set the `ARCH` environment variable to `64bit`.
+5. By default the APK will be built for most architectures supported by
+   Python for Android. To build for a smaller set of architectures, set
+   the `ARCHES` environment variable. Run `p4a archs` to see the
+   available targets.
 
 6. Run `make kolibri.apk.unsigned` to build the apk. Watch for success at the end, or errors, which might indicate missing build dependencies or build errors. If successful, there should be an APK in the `dist/` directory.
 
