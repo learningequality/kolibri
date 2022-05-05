@@ -133,11 +133,6 @@
 
   // Override KPageContainer styles
   /deep/ .page-container {
-    // A little narrower than the default, but wide enough to fit whole
-    // language-switcher
-    max-width: 700px;
-    padding: 32px;
-    margin: auto;
     overflow: visible;
 
     &.small {
