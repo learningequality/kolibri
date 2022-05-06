@@ -47,7 +47,7 @@
     mixins: [commonCoreStrings, responsiveWindowMixin],
     data() {
       return {
-        service: interpret(wizardMachine.withContext({ isAppContext: this.isAppContext })),
+        service: interpret(wizardMachine),
       };
     },
     provide() {
@@ -70,6 +70,7 @@
           else this.$router.push(newRoute);
         }
       });
+      this.service.send({ type: 'CONTINUE', value: this.isAppContext });
     },
     destroyed() {
       this.service.stop();

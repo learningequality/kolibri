@@ -36,13 +36,17 @@ const setSetupType = assign({
   setupType: (_, event) => event.value,
 });
 
+const setAppContext = assign({
+  isAppContext: (_, event) => event.value,
+});
+
 const setFacilityNewOrImport = assign({
   facilityNewOrImport: (_, event) => event.value,
 });
 
 export const wizardMachine = createMachine({
   id: 'wizard',
-  initial: 'howAreYouUsingKolibri',
+  initial: 'initializeContext',
   context: {
     individualOrGroup: null,
     isAppContext: false, // Must be set in the component where the machine is used
@@ -50,6 +54,12 @@ export const wizardMachine = createMachine({
     setupType: null,
   },
   states: {
+    // This state will be the start so the machine won't progress until the isAppContext is set
+    initializeContext: {
+      on: {
+        CONTINUE: { target: 'howAreYouUsingKolibri', actions: setAppContext },
+      },
+    },
     // Initial step where user selects between "On my own" (individual) or "Group learning" (group)
     howAreYouUsingKolibri: {
       meta: { route: 'HOW_ARE_YOU_USING_KOLIBRI', path: '/' },
