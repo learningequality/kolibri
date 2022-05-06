@@ -3,6 +3,7 @@
   <CoreSnackbar
     v-if="snackbarIsVisible"
     :key="key"
+    aria-live="polite"
     :text="snackbarOptions.text"
     :actionText="snackbarOptions.actionText"
     :backdrop="snackbarOptions.backdrop"
