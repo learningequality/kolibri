@@ -1,13 +1,12 @@
 import DeviceNameForm from './views/onboarding-forms/DeviceNameForm';
 import DefaultLanguageForm from './views/onboarding-forms/DefaultLanguageForm';
 import GettingStartedForm from './views/onboarding-forms/GettingStartedForm';
-import GettingStartedFormAlt from './views/onboarding-forms/GettingStartedFormAlt';
-import SetupMethod from './views/onboarding-forms/SetupMethod';
+import FullDeviceNewOrImportFacility from './views/onboarding-forms/FullDeviceNewOrImportFacility';
 import UngroupedSetupSteps from './views/UngroupedSetupSteps';
-import PersonalSetup from './views/PersonalSetup';
 import CreateFacilitySetup from './views/CreateFacilitySetup';
 import ImportFacilitySetup from './views/ImportFacilitySetup';
-import ImportLODUsersSetup from './views/ImportLODUsersSetup.vue';
+import ImportLODUsersSetup from './views/ImportLODUsersSetup';
+import Sandbox from './views/Sandbox';
 
 export default [
   {
@@ -16,35 +15,35 @@ export default [
     children: [
       {
         path: '',
+        name: 'HOW_ARE_YOU_USING_KOLIBRI',
+        component: GettingStartedForm,
+      },
+      {
+        path: 'default-language',
         name: 'DEFAULT_LANGUAGE',
         component: DefaultLanguageForm,
       },
       {
-        path: 'getting_started',
-        name: 'GETTING_STARTED',
-        component: GettingStartedForm,
+        path: 'create-account',
+        name: 'CREATE_INDIVIDUAL_ACCOUNT',
+        component: null, // FIXME: To be created in #9305
       },
       {
-        path: 'getting_started_alt',
-        name: 'GETTING_STARTED_ALT',
-        component: GettingStartedFormAlt,
-      },
-      {
-        path: 'public_setup_method',
-        name: 'PUBLIC_SETUP_METHOD',
-        component: SetupMethod,
-      },
-      {
-        path: 'device_name',
+        path: 'device-name',
         name: 'DEVICE_NAME',
         component: DeviceNameForm,
       },
+      {
+        path: 'device-type',
+        name: 'FULL_OR_LOD',
+        component: null, // FIXME: To be created in #9307
+      },
+      {
+        path: 'facility-new-or-import',
+        name: 'FULL_NEW_OR_IMPORT_FACILITY',
+        component: FullDeviceNewOrImportFacility,
+      },
     ],
-  },
-  {
-    name: 'PERSONAL_SETUP',
-    path: '/personal_setup',
-    component: PersonalSetup,
   },
   {
     name: 'CREATE_FACILITY',
@@ -60,5 +59,10 @@ export default [
     name: 'IMPORT_LOD',
     path: '/import_lod/:step',
     component: ImportLODUsersSetup,
+  },
+  {
+    name: 'SANDBOX',
+    path: '/sandbox',
+    component: Sandbox,
   },
 ];

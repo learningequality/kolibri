@@ -26,7 +26,7 @@
 <script>
 
   import { interpret } from 'xstate';
-  import { mapState } from 'vuex';
+  import { mapGetters, mapState } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { wizardMachine } from '../machines/wizardMachine';
@@ -56,6 +56,7 @@
       };
     },
     computed: {
+      ...mapGetters('isAppContext'),
       ...mapState(['loading', 'error']),
     },
     created() {
@@ -69,6 +70,7 @@
           else this.$router.push(newRoute);
         }
       });
+      this.service.send({ type: 'CONTINUE', value: this.isAppContext });
     },
     destroyed() {
       this.service.stop();
