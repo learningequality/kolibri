@@ -3,6 +3,7 @@
   <CoreSnackbar
     v-if="snackbarIsVisible"
     :key="key"
+    role="status"
     :text="snackbarOptions.text"
     :actionText="snackbarOptions.actionText"
     :backdrop="snackbarOptions.backdrop"
