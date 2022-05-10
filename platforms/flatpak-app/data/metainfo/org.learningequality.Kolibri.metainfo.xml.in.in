@@ -22,7 +22,16 @@
     </screenshot>
   </screenshots>
   <releases>
-    <release version="2.2~devel" date="2022-03-13" type="development">
+    <release version="2.1.2" date="2022-05-10" type="stable">
+      <p>Changes included in this release:</p>
+      <ul>
+        <li>
+          Kolibri is updated to 0.15.2.
+        </li>
+        <li>
+          The application runtime is updated to GNOME 42.
+        </li>
+      </ul>
     </release>
     <release version="2.1.1" date="2022-04-19" type="stable">
       <p>Changes included in this release:</p>
