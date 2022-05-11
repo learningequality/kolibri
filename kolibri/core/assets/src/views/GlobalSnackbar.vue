@@ -4,6 +4,7 @@
     v-if="snackbarIsVisible"
     :key="key"
     role="status"
+    aria-live="polite"
     :text="snackbarOptions.text"
     :actionText="snackbarOptions.actionText"
     :backdrop="snackbarOptions.backdrop"
