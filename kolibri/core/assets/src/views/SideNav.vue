@@ -76,6 +76,12 @@
                   :key="component.name"
                   @openLanguageModal="handleShowLanguageModal()"
                 />
+                <CoreMenuOption
+                  :label="$tr('languageSwitchMenuOption')"
+                  icon="language"
+                  class="pointer"
+                  @select="handleShowLanguageModal()"
+                />
                 <SideNavDivider />
               </template>
             </CoreMenu>
@@ -191,6 +197,7 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
+  import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
   import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
   import LearnOnlyDeviceNotice from 'kolibri.coreVue.components.LearnOnlyDeviceNotice';
   import navComponents from 'kolibri.utils.navComponents';
@@ -202,7 +209,6 @@
   import TotalPoints from '../../../../plugins/learn/assets/src/views/TotalPoints.vue';
   import SyncStatusDisplay from './SyncStatusDisplay';
   import logout from './LogoutSideNavEntry';
-  import changeLanguage from './ChangeLanguageSideNavEntry';
   import SideNavDivider from './SideNavDivider';
   import FocusTrap from './FocusTrap.vue';
   import plugin_data from 'plugin_data';
@@ -222,6 +228,7 @@
     components: {
       Backdrop,
       CoreMenu,
+      CoreMenuOption,
       CoreLogo,
       LearnOnlyDeviceNotice,
       SyncStatusDisplay,
@@ -276,13 +283,9 @@
         const accountComponents = navComponents
           .filter(component => component.section === NavComponentSections.ACCOUNT)
           .sort(this.compareMenuComponents);
-        return [
-          ...topComponents,
-          SideNavDivider,
-          ...accountComponents,
-          changeLanguage,
-          logout,
-        ].filter(this.filterByRole);
+        return [...topComponents, SideNavDivider, ...accountComponents, logout].filter(
+          this.filterByRole
+        );
       },
       sideNavTitleText() {
         if (this.themeConfig.sideNav.title) {
@@ -329,16 +332,18 @@
         this.languageModalShown = true;
       },
       pollUserSyncStatusTask() {
-        this.fetchUserSyncStatus({ user: this.userId }).then(syncData => {
-          if (syncData && syncData[0]) {
-            this.userSyncStatus = syncData[0];
-            this.setPollingInterval(this.userSyncStatus.status);
+        if (this.navShown) {
+          this.fetchUserSyncStatus({ user: this.userId }).then(syncData => {
+            if (syncData && syncData[0]) {
+              this.userSyncStatus = syncData[0];
+              this.setPollingInterval(this.userSyncStatus.status);
+            }
+          });
+          if (this.isPolling && this.isSubsetOfUsersDevice) {
+            setTimeout(() => {
+              this.pollUserSyncStatusTask();
+            }, this.pollingInterval);
           }
-        });
-        if (this.isPolling && this.isSubsetOfUsersDevice) {
-          setTimeout(() => {
-            this.pollUserSyncStatusTask();
-          }, this.pollingInterval);
         }
       },
       setPollingInterval(status) {
@@ -406,6 +411,11 @@
         message: 'Device status',
         context:
           "Label in the side navigation menu. Indicates the status of an individual learner's device.",
+      },
+      languageSwitchMenuOption: {
+        message: 'Change language',
+        context:
+          'General user setting where a user can choose the language they want to view the Kolibri interface in.',
       },
     },
   };
@@ -496,6 +506,10 @@
   .side-nav-scrollable-area-footer-logo {
     max-width: 100%;
     height: 77px;
+  }
+
+  .pointer {
+    cursor: pointer;
   }
 
   .user-information {
