@@ -3,6 +3,13 @@ Feature: Learners automatic syncing
   Background:
     Given I am signed in as a learner user
 
+	Scenario: Learner on a learn-only device can see the device status in the side menu
+		Given I am on a learn-only device
+		When I expand the side menu
+		Then I see a *Device status* label
+			And I see the sync status icon
+			And I see text informing me of the current sync status e.g. *Synced N minutes ago*
+
 	Scenario: Learner does not have enough storage on their device for new automatic downloads, and My downloads is empty
 		Given I don't have enough storage on my device
 			And *My downloads* is empty
