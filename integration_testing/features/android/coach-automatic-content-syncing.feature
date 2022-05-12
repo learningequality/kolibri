@@ -26,11 +26,11 @@ Feature: Coaches automatic syncing
 		Then I see the storage error alert above the table: *Some devices do not have enough storage for updates. Change the visibility of any active lessons and quizzes you aren't using right now to free up space.*
 			And I see a *Manage lessons and quizzes* link
 		When I click the *Manage lessons and quizzes* link
-		Then I am at the *<Coach > Plan>* tab
+		Then I am at the *Coach > Plan* tab
 
 	Scenario: Check file size of lessons in Reports tab
-		Given I am at the *<Coach > Reports>* tab
-		When I look at the *<Coach > Reports > Lessons* table
+		Given I am at the *Coach > Reports* tab
+		When I look at the *Coach > Reports > Lessons* table
 		Then I see the following text above the table: *Total size of lessons that are visible to learners: N MB*
 			And I see the *Size* column between the *Recipients* and *Visible to learners* columns
 			And I see the size of each lesson
@@ -39,8 +39,8 @@ Feature: Coaches automatic syncing
 			And I see the size of the lesson below the lesson description
 
 	Scenario: Check file size of quizzes in Reports tab
-		Given I am at the *<Coach > Reports>* tab
-		When I go to the *<Coach > Reports > Quizzes* tab
+		Given I am at the *Coach > Reports* tab
+		When I go to the *Coach > Reports > Quizzes* tab
 		Then I see the following text above the *Quizzes* table: *Total size of quizzes that are visible to learners: N MB*
 			And I see the *Size* column between the *Recipients* and *Status* columns
 			And I see the size of each lesson
@@ -49,8 +49,8 @@ Feature: Coaches automatic syncing
 			And I see the size of the quiz below the lesson description
 
 	Scenario: Check file size of lessons in Plan tab
-		Given I am at the *<Coach > Plan>* tab
-		When I look at the *<Coach > Plan > Lessons* table
+		Given I am at the *Coach > Plan>* tab
+		When I look at the *Coach > Plan > Lessons* table
 		Then I see the following text above the table: *Total size of lessons that are visible to learners: N MB*
 			And I see the *Size* column between the *Title* and *Recipients* columns
 			And I see the number of resources for each lesson
@@ -60,8 +60,8 @@ Feature: Coaches automatic syncing
 			And I see the size of the lesson below the lesson description
 
 	Scenario: Check file size of quizzes in Plan tab
-		Given I am at the *<Coach > Plan>* tab
-		When I go to *<Coach > Plan > Quizzes* tab
+		Given I am at the *Coach > Plan>* tab
+		When I go to *Coach > Plan > Quizzes* tab
 		Then I see the following text above the quizzes table: *Total size of quizzes that are visible to learners: N MB*
 			And I see the *Size* column between the *Recipients* and *Status* columns
 			And I see the size of each lesson

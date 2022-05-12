@@ -17,7 +17,7 @@ Feature: Learners automatic syncing
 		Then I see the following notification: *You do not have enough storage for new learning materials. Ask your coach or administrator for help.*
 			And I see a *Close* button
 
-	Scenario: Learner does not have enough storage on their device for new automatic downloads, and does have things in My downloads
+	Scenario: Learner does not have enough storage on their device for new automatic downloads, and does have resources in My downloads
 		Given I don't have enough storage on my device
 			And *My downloads* is not empty
 		When I go to *My downloads*
@@ -25,7 +25,7 @@ Feature: Learners automatic syncing
 			And I see a *Go to my downloads* button
 			And I see a *Close* button
 
-	Scenario: Learner on learn-only device does not have enough storage for new automatic downloads of assigned things, and My downloads is empty
+	Scenario: Learner on learn-only device does not have enough storage for new automatic downloads of assigned resources, and My downloads is empty
 		Given I'm a learner on a learn-only device
 			And I don't have enough storage on my device
 			And *My downloads* is empty
@@ -33,7 +33,7 @@ Feature: Learners automatic syncing
 		Then I see the following notification: *You do not have enough storage for new learning materials. Ask your coach or administrator for help.*
 			And I see a *Close* button
 
-	Scenario: Learner on learn-only device does not have enough storage for new automatic downloads of assigned things, and does have things in My downloads
+	Scenario: Learner on learn-only device does not have enough storage for new automatic downloads of assigned resources, and does have resources in My downloads
 		Given I'm a learner on a learn-only device
 			And I don't have enough storage on my device
 			And *My downloads* is not empty
@@ -92,4 +92,4 @@ Feature: Learners automatic syncing
 			And it's still running in the background
 			And the automatic syncing has failed
 		When I check my device notifications
-				Then I see the following notification: *Library updated failed*
+				Then I see the following notification: *Library update failed*
