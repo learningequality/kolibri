@@ -298,6 +298,8 @@ class FacilityUserViewSet(ValuesViewset):
         DjangoFilterBackend,
         filters.SearchFilter,
     )
+    order_by_field = "username"
+
     queryset = FacilityUser.objects.all()
     serializer_class = FacilityUserSerializer
     filter_class = FacilityUserFilter
@@ -338,6 +340,7 @@ class FacilityUserViewSet(ValuesViewset):
                     roles.append(role)
             item["roles"] = roles
             output.append(item)
+        output = sorted(output, key=lambda x: x[self.order_by_field])
         return output
 
     def set_password_if_needed(self, instance, serializer):

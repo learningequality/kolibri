@@ -1,3 +1,4 @@
+import pickBy from 'lodash/pickBy';
 import { FacilityUserResource } from 'kolibri.resources';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import { _userState } from '../mappers';
@@ -6,7 +7,13 @@ export function showUserPage(store, toRoute) {
   store.dispatch('preparePage');
   const facilityId = toRoute.params.facility_id || store.getters.activeFacilityId;
   return FacilityUserResource.fetchCollection({
-    getParams: { member_of: facilityId, page_size: 30 },
+    getParams: pickBy({
+      member_of: facilityId,
+      page: toRoute.query.page || 1,
+      page_size: toRoute.query.page_size || 30,
+      search: toRoute.query.search && toRoute.query.search.trim(),
+      user_type: toRoute.query.user_type,
+    }),
     force: true,
   }).only(
     samePageCheckGenerator(store),
