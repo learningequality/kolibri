@@ -15,6 +15,10 @@ from runnable import Runnable
 
 PythonActivity = autoclass("org.kivy.android.PythonActivity")
 
+FullScreen = autoclass("org.learningequality.FullScreen")
+configureWebview = Runnable(FullScreen.configureWebview)
+configureWebview(PythonActivity.mActivity)
+
 loadUrl = Runnable(PythonActivity.mWebView.loadUrl)
 
 logging.info("Initializing Kolibri and running any upgrade routines")

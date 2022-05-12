@@ -20,3 +20,4 @@
 --add-asset assets/_load.html:_load.html
 --whitelist ./allowlist.txt
 --blacklist ./blocklist.txt
+--add-source src/java/
