@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # Derived from http://scottlobdell.me/2015/04/gamifying-test-coverage-project/
 # Before running this script, first run tests with coverage using:
-#  tox -e py3.4
+#  tox -e py3.9
 from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals

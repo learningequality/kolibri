@@ -181,7 +181,7 @@ def parse_package_page(files, pk_version, index_url, cache_path):
 
         if package_version != pk_version:
             continue
-        if python_version == "26":
+        if python_version == "26" or python_version == "34" or python_version == "35":
             continue
         if "macosx" in platform:
             continue
@@ -191,7 +191,7 @@ def parse_package_page(files, pk_version, index_url, cache_path):
         # Cryptography builds for Linux target Python 3.4+ but the only existing
         # build is labeled 3.4 (the lowest version supported).
         # Expand the abi3 tag here. e.g. cp34 abi3 is expanded to cp34m, cp35m, cp36m, cp37m
-        # https://cryptography.io/en/latest/faq/#why-are-there-no-wheels-for-python-3-6-on-linux-or-macos
+        # https://cryptography.io/en/latest/faq/#why-are-there-no-wheels-for-my-python3-x-version
         if abi == "abi3":
             for actual_version in range(int(python_version), 38):
                 actual_version = str(actual_version)

@@ -1,6 +1,5 @@
 import copy
 import os
-import sys
 
 from kolibri.utils.conf import KOLIBRI_HOME
 from kolibri.utils.conf import OPTIONS
@@ -38,10 +37,6 @@ process_cache = {
 
 
 if cache_options["CACHE_BACKEND"] == "redis":
-    if sys.version_info.major == 3 and sys.version_info.minor < 5:
-        raise RuntimeError(
-            "Attempted to use redis cache backend with Python 3.4, please use Python 2.7 or 3.5+"
-        )
     base_cache = {
         "BACKEND": "redis_cache.RedisCache",
         "LOCATION": cache_options["CACHE_LOCATION"],
