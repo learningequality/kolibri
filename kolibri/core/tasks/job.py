@@ -75,6 +75,17 @@ class State(object):
     CANCELED = "CANCELED"
     COMPLETED = "COMPLETED"
 
+    States = {
+        PENDING,
+        SCHEDULED,
+        QUEUED,
+        RUNNING,
+        FAILED,
+        CANCELING,
+        CANCELED,
+        COMPLETED,
+    }
+
 
 class Priority(object):
     """
@@ -154,7 +165,7 @@ class Job(object):
 
         keys = [
             "job_id",
-            "job_facility_id",
+            "facility_id",
             "state",
             "exception",
             "traceback",
@@ -174,7 +185,8 @@ class Job(object):
         }
 
         try:
-            string_result = json.dumps(working_dictionary)
+            # Ensure a consistent and compact JSON representation across Python versions
+            string_result = json.dumps(working_dictionary, separators=(",", ":"))
         except TypeError as e:
             # A Job's arguments, results, or metadata are prime suspects for
             # what might cause this error.
@@ -189,55 +201,73 @@ class Job(object):
 
         # func is required for a Job so it will always be in working_dictionary
         func = working_dictionary.pop("func")
-        args = working_dictionary.pop("args", ())
-        kwargs = working_dictionary.pop("kwargs", {})
-        working_dictionary.update(kwargs)
 
-        return Job(func, *args, **working_dictionary)
+        return Job(func, **working_dictionary)
 
-    def __init__(self, func, *args, **kwargs):
+    @classmethod
+    def from_job(cls, job, **kwargs):
+        if not isinstance(job, cls):
+            raise TypeError("job must be an instance of {}".format(cls))
+        kwargs["args"] = copy.copy(job.args)
+        kwargs["kwargs"] = copy.copy(job.kwargs)
+        kwargs["track_progress"] = job.track_progress
+        kwargs["cancellable"] = job.cancellable
+        kwargs["extra_metadata"] = job.extra_metadata.copy()
+        kwargs["facility_id"] = job.facility_id
+        return cls(job.func, **kwargs)
+
+    def __init__(
+        self,
+        func,
+        args=(),
+        kwargs=None,
+        facility_id=None,
+        job_id=None,
+        state=State.PENDING,
+        exception=None,
+        traceback="",
+        track_progress=False,
+        cancellable=False,
+        extra_metadata=None,
+        progress=0,
+        total_progress=0,
+        result=None,
+    ):
         """
         Create a new Job that will run func given the arguments passed to Job(). If the track_progress keyword parameter
         is given, the worker will pass an update_progress function to update interested parties about the function's
-        progress. See Client.__doc__ for update_progress's function parameters.
+        progress.
 
         :param func: func can be a callable object, in which case it is turned into an importable string,
         or it can be an importable string already.
         """
-        if isinstance(func, Job):
-            args = copy.copy(func.args)
-            kwargs = copy.copy(func.kwargs)
-            kwargs["track_progress"] = func.track_progress
-            kwargs["cancellable"] = func.cancellable
-            kwargs["extra_metadata"] = func.extra_metadata.copy()
-            kwargs["job_facility_id"] = func.job_facility_id
-            func = func.func
-        elif not callable(func) and not isinstance(func, string_types):
+        if not callable(func) and not isinstance(func, string_types):
             raise TypeError(
                 "Cannot create Job for object of type {}".format(type(func))
             )
 
-        job_id = kwargs.pop("job_id", None)
-        if job_id is None:
-            job_id = uuid.uuid4().hex
+        if not isinstance(args, (list, tuple)):
+            raise TypeError("args must be a list or tuple")
 
-        exc = kwargs.pop("exception", None)
-        if isinstance(exc, Exception):
-            exc = type(exc).__name__
+        if kwargs is not None and not isinstance(kwargs, dict):
+            raise TypeError("kwargs must be a dict")
 
-        self.job_id = job_id
-        self.job_facility_id = kwargs.pop("job_facility_id", None)
-        self.state = kwargs.pop("state", State.PENDING)
-        self.exception = exc
-        self.traceback = kwargs.pop("traceback", "")
-        self.track_progress = kwargs.pop("track_progress", False)
-        self.cancellable = kwargs.pop("cancellable", False)
-        self.extra_metadata = kwargs.pop("extra_metadata", {})
-        self.progress = kwargs.pop("progress", 0)
-        self.total_progress = kwargs.pop("total_progress", 0)
-        self.result = kwargs.pop("result", None)
+        if isinstance(exception, Exception):
+            exception = type(exception).__name__
+
+        self.job_id = job_id or uuid.uuid4().hex
+        self.facility_id = facility_id
+        self.state = state
+        self.exception = exception
+        self.traceback = traceback
+        self.track_progress = track_progress
+        self.cancellable = cancellable
+        self.extra_metadata = extra_metadata or {}
+        self.progress = progress
+        self.total_progress = total_progress
+        self.result = result
         self.args = args
-        self.kwargs = kwargs
+        self.kwargs = kwargs or {}
         self.storage = None
         self.func = stringify_func(func)
 
