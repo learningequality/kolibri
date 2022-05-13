@@ -15,28 +15,6 @@ from kolibri.core.tasks.utils import stringify_func
 logger = logging.getLogger(__name__)
 
 
-DEFAULT_QUEUE = "ICEQUBE_DEFAULT_QUEUE"
-
-
-class JobRegistry(object):
-    """
-    All jobs that get registered via `register_task` decorator are placed
-    in below REGISTERED_JOBS dictionary.
-
-    REGISTERED_JOBS dictionary's key is the stringified form of decorated function and value
-    is an instance of `RegisteredJob`. For example,
-
-        {
-            ...
-            "kolibri.core.content.tasks.importchannel": <RegisteredJob>,
-            "kolibri.core.content.tasks.exportchannel": <RegisteredJob>,
-            ...
-        }
-    """
-
-    REGISTERED_JOBS = {}
-
-
 class State(object):
     """
     The State object enumerates a Job's possible valid states.
@@ -74,6 +52,17 @@ class State(object):
     CANCELING = "CANCELING"
     CANCELED = "CANCELED"
     COMPLETED = "COMPLETED"
+
+    States = {
+        PENDING,
+        SCHEDULED,
+        QUEUED,
+        RUNNING,
+        FAILED,
+        CANCELING,
+        CANCELED,
+        COMPLETED,
+    }
 
 
 class Priority(object):
@@ -154,7 +143,7 @@ class Job(object):
 
         keys = [
             "job_id",
-            "job_facility_id",
+            "facility_id",
             "state",
             "exception",
             "traceback",
@@ -174,7 +163,8 @@ class Job(object):
         }
 
         try:
-            string_result = json.dumps(working_dictionary)
+            # Ensure a consistent and compact JSON representation across Python versions
+            string_result = json.dumps(working_dictionary, separators=(",", ":"))
         except TypeError as e:
             # A Job's arguments, results, or metadata are prime suspects for
             # what might cause this error.
@@ -189,55 +179,73 @@ class Job(object):
 
         # func is required for a Job so it will always be in working_dictionary
         func = working_dictionary.pop("func")
-        args = working_dictionary.pop("args", ())
-        kwargs = working_dictionary.pop("kwargs", {})
-        working_dictionary.update(kwargs)
 
-        return Job(func, *args, **working_dictionary)
+        return Job(func, **working_dictionary)
 
-    def __init__(self, func, *args, **kwargs):
+    @classmethod
+    def from_job(cls, job, **kwargs):
+        if not isinstance(job, cls):
+            raise TypeError("job must be an instance of {}".format(cls))
+        kwargs["args"] = copy.copy(job.args)
+        kwargs["kwargs"] = copy.copy(job.kwargs)
+        kwargs["track_progress"] = job.track_progress
+        kwargs["cancellable"] = job.cancellable
+        kwargs["extra_metadata"] = job.extra_metadata.copy()
+        kwargs["facility_id"] = job.facility_id
+        return cls(job.func, **kwargs)
+
+    def __init__(
+        self,
+        func,
+        args=(),
+        kwargs=None,
+        facility_id=None,
+        job_id=None,
+        state=State.PENDING,
+        exception=None,
+        traceback="",
+        track_progress=False,
+        cancellable=False,
+        extra_metadata=None,
+        progress=0,
+        total_progress=0,
+        result=None,
+    ):
         """
         Create a new Job that will run func given the arguments passed to Job(). If the track_progress keyword parameter
         is given, the worker will pass an update_progress function to update interested parties about the function's
-        progress. See Client.__doc__ for update_progress's function parameters.
+        progress.
 
         :param func: func can be a callable object, in which case it is turned into an importable string,
         or it can be an importable string already.
         """
-        if isinstance(func, Job):
-            args = copy.copy(func.args)
-            kwargs = copy.copy(func.kwargs)
-            kwargs["track_progress"] = func.track_progress
-            kwargs["cancellable"] = func.cancellable
-            kwargs["extra_metadata"] = func.extra_metadata.copy()
-            kwargs["job_facility_id"] = func.job_facility_id
-            func = func.func
-        elif not callable(func) and not isinstance(func, string_types):
+        if not callable(func) and not isinstance(func, string_types):
             raise TypeError(
                 "Cannot create Job for object of type {}".format(type(func))
             )
 
-        job_id = kwargs.pop("job_id", None)
-        if job_id is None:
-            job_id = uuid.uuid4().hex
+        if not isinstance(args, (list, tuple)):
+            raise TypeError("args must be a list or tuple")
 
-        exc = kwargs.pop("exception", None)
-        if isinstance(exc, Exception):
-            exc = type(exc).__name__
+        if kwargs is not None and not isinstance(kwargs, dict):
+            raise TypeError("kwargs must be a dict")
 
-        self.job_id = job_id
-        self.job_facility_id = kwargs.pop("job_facility_id", None)
-        self.state = kwargs.pop("state", State.PENDING)
-        self.exception = exc
-        self.traceback = kwargs.pop("traceback", "")
-        self.track_progress = kwargs.pop("track_progress", False)
-        self.cancellable = kwargs.pop("cancellable", False)
-        self.extra_metadata = kwargs.pop("extra_metadata", {})
-        self.progress = kwargs.pop("progress", 0)
-        self.total_progress = kwargs.pop("total_progress", 0)
-        self.result = kwargs.pop("result", None)
+        if isinstance(exception, Exception):
+            exception = type(exception).__name__
+
+        self.job_id = job_id or uuid.uuid4().hex
+        self.facility_id = facility_id
+        self.state = state
+        self.exception = exception
+        self.traceback = traceback
+        self.track_progress = track_progress
+        self.cancellable = cancellable
+        self.extra_metadata = extra_metadata or {}
+        self.progress = progress
+        self.total_progress = total_progress
+        self.result = result
         self.args = args
-        self.kwargs = kwargs
+        self.kwargs = kwargs or {}
         self.storage = None
         self.func = stringify_func(func)
 
@@ -301,131 +309,3 @@ class Job(object):
                 total=self.total_progress,
             )
         )
-
-
-class RegisteredJob(object):
-    """
-    This class's instance methods: enqueue, enqueue_at and enqueue_in are binded
-    as attributes to functions registered via `register_task` decorator.
-
-    For example, if `add` is registered as:
-
-        @register_task(priority=Priority.HIGH, cancellable=True)
-        def add(x, y):
-            return x + y
-
-        Then, we can enqueue `add` by calling `add.enqueue(4, 2)`.
-
-        Also, we can schedule `add` by calling `add.enqueue_in(timedelta(1), args=(4, 2))`
-        or `add.enqueue_at(datetime.now(), args=(4, 2))`.
-
-        Look at each method's docstring for more info.
-    """
-
-    def __init__(
-        self,
-        func,
-        job_id=None,
-        queue=DEFAULT_QUEUE,
-        validator=None,
-        priority=Priority.REGULAR,
-        cancellable=False,
-        track_progress=False,
-        permission_classes=None,
-    ):
-        if permission_classes is None:
-            permission_classes = []
-        if validator is not None and not callable(validator):
-            raise TypeError("Can't assign validator of type {}".format(type(validator)))
-        if priority not in Priority.Priorities:
-            raise ValueError("priority must be one of '5' or '10' (integer).")
-        if not isinstance(permission_classes, list):
-            raise TypeError("permission_classes must be of list type.")
-        if not isinstance(queue, string_types):
-            raise TypeError("queue must be of string type.")
-
-        self.func = func
-        self.validator = validator
-        self.priority = priority
-        self.queue = queue
-
-        self.permissions = [perm() for perm in permission_classes]
-
-        self.job_id = job_id
-        self.cancellable = cancellable
-        self.track_progress = track_progress
-
-    def enqueue(self, *args, **kwargs):
-        """
-        Enqueue the function with arguments passed to this method.
-
-        :return: enqueued job's id.
-        """
-        from kolibri.core.tasks.main import job_storage
-
-        job_obj = self._ready_job(*args, **kwargs)
-        return job_storage.enqueue_job(
-            job_obj, queue=self.queue, priority=self.priority
-        )
-
-    def enqueue_in(self, delta_time, interval=0, repeat=0, args=(), kwargs=None):
-        """
-        Schedule the function to get enqueued in `delta_time` with args and
-        kwargs as its positional and keyword arguments.
-
-        Repeat of None with a specified interval means the job will repeat
-        forever at that interval.
-
-        :return: scheduled job's id.
-        """
-        if kwargs is None:
-            kwargs = {}
-        from kolibri.core.tasks.main import job_storage
-
-        job_obj = self._ready_job(*args, **kwargs)
-        return job_storage.enqueue_in(
-            delta_time,
-            job_obj,
-            queue=self.queue,
-            priority=self.priority,
-            interval=interval,
-            repeat=repeat,
-        )
-
-    def enqueue_at(self, datetime, interval=0, repeat=0, args=(), kwargs=None):
-        """
-        Schedule the function to get enqueued at a specific `datetime` with
-        args and kwargs as its positional and keyword arguments.
-
-        Repeat of None with a specified interval means the job will repeat
-        forever at that interval.
-
-        :return: scheduled job's id.
-        """
-        if kwargs is None:
-            kwargs = {}
-        from kolibri.core.tasks.main import job_storage
-
-        job_obj = self._ready_job(*args, **kwargs)
-        return job_storage.enqueue_at(
-            datetime,
-            job_obj,
-            queue=self.queue,
-            priority=self.priority,
-            interval=interval,
-            repeat=repeat,
-        )
-
-    def _ready_job(self, *args, **kwargs):
-        """
-        Returns a job object with args and kwargs as its positional and keyword arguments.
-        """
-        job_obj = Job(
-            self.func,
-            *args,
-            job_id=kwargs.pop("job_id", self.job_id),
-            cancellable=kwargs.pop("cancellable", self.cancellable),
-            track_progress=kwargs.pop("track_progress", self.track_progress),
-            **kwargs
-        )
-        return job_obj
