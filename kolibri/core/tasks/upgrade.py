@@ -3,6 +3,8 @@ A file to contain specific logic to handle version upgrades in Kolibri.
 """
 import logging
 
+from sqlalchemy.exc import OperationalError
+
 from kolibri.core.tasks.main import job_storage
 from kolibri.core.upgrade import version_upgrade
 
@@ -21,4 +23,9 @@ def drop_old_iceqube_tables():
     Rather than write a migration for the iceqube database, it is simpler to just drop the tables
     and let iceqube reinitialize the tables from scratch.
     """
-    job_storage.recreate_tables()
+    try:
+        job_storage.recreate_tables()
+    except OperationalError:
+        logger.warning(
+            "Could not recreate job storage table. This is probably because the database already exists and did not need to be recreated."
+        )
