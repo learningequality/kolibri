@@ -1,10 +1,10 @@
-import importlib
 import logging
 import time
 import uuid
 from threading import Thread
 
 from django.utils.functional import SimpleLazyObject
+from django.utils.module_loading import import_string
 from six import string_types
 
 from kolibri.core.tasks import compat
@@ -41,15 +41,10 @@ def import_stringified_func(funcstring):
     :param funcstring: String to try to import
     :return: callable
     """
-    if not isinstance(funcstring, string_types):
-        raise TypeError("Argument must be a string")
-
-    modulestring, funcname = funcstring.rsplit(".", 1)
-
-    mod = importlib.import_module(modulestring)
-
-    func = getattr(mod, funcname)
-    return func
+    try:
+        return import_string(funcstring)
+    except AttributeError:
+        raise ImportError("Invalid module path: {}".format(funcstring))
 
 
 class InfiniteLoopThread(Thread):
