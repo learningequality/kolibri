@@ -28,6 +28,7 @@ from ..models import Role
 from .helpers import DUMMY_PASSWORD
 from .sync_utils import multiple_kolibri_servers
 from kolibri.core.auth.management.utils import get_client_and_server_certs
+from kolibri.core.auth.utils.sync import find_soud_sync_session_for_resume
 from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import ExamAssignment
 from kolibri.core.lessons.models import Lesson
@@ -38,7 +39,6 @@ from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import ExamAttemptLog
 from kolibri.core.logger.models import ExamLog
 from kolibri.core.logger.models import MasteryLog
-from kolibri.core.public.utils import find_soud_sync_session_for_resume
 
 
 class FacilityDatasetCertificateTestCase(TestCase):

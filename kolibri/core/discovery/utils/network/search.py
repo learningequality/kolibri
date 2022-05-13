@@ -6,12 +6,12 @@ from django.db import connection
 from django.db.utils import OperationalError
 
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.tasks import begin_request_soud_sync
+from kolibri.core.auth.tasks import queue_soud_server_sync_cleanup
+from kolibri.core.auth.tasks import stop_request_soud_sync
 from kolibri.core.discovery.models import DynamicNetworkLocation
 from kolibri.core.discovery.utils.network.broadcast import KolibriInstanceListener
 from kolibri.core.discovery.utils.network.broadcast import NETWORK_EVENTS
-from kolibri.core.public.utils import begin_request_soud_sync
-from kolibri.core.public.utils import queue_soud_server_sync_cleanup
-from kolibri.core.public.utils import stop_request_soud_sync
 
 logger = logging.getLogger(__name__)
 

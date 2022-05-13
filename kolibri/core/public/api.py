@@ -21,8 +21,6 @@ from rest_framework.response import Response
 from .. import error_constants
 from .constants.user_sync_statuses import QUEUED
 from .constants.user_sync_statuses import SYNC
-from .utils import get_device_info
-from .utils import get_device_setting
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
@@ -32,6 +30,8 @@ from kolibri.core.content.utils.file_availability import generate_checksum_integ
 from kolibri.core.device.models import SyncQueue
 from kolibri.core.device.models import UserSyncStatus
 from kolibri.core.device.utils import allow_peer_unlisted_channel_import
+from kolibri.core.device.utils import get_device_info
+from kolibri.core.device.utils import get_device_setting
 from kolibri.core.public.constants.user_sync_options import DELAYED_SYNC
 from kolibri.core.public.constants.user_sync_options import HANDSHAKING_TIME
 from kolibri.core.public.constants.user_sync_options import MAX_CONCURRENT_SYNCS
