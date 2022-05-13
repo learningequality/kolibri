@@ -36,7 +36,7 @@ def worker():
 @pytest.mark.django_db
 class TestWorker:
     def test_enqueue_job_runs_job(self, worker):
-        job = Job(id, 9)
+        job = Job(id, args=(9,))
         worker.storage.enqueue_job(job, QUEUE)
 
         while job.state != State.COMPLETED:
@@ -72,7 +72,7 @@ class TestWorker:
 
     def test_enqueue_job_writes_to_storage_on_success(self, worker):
         # this job should never fail.
-        job = Job(id, 9)
+        job = Job(id, args=(9,))
         worker.storage.enqueue_job(job, QUEUE)
 
         while job.state == State.QUEUED:
@@ -95,7 +95,7 @@ class TestWorker:
         # We have one task running right now.
         worker.future_job_mapping = {"job_id": "future"}
 
-        job = Job(id, 10)
+        job = Job(id, args=(10,))
         worker.storage.enqueue_job(job, QUEUE, Priority.REGULAR)
 
         job = worker.get_next_job()
@@ -108,7 +108,7 @@ class TestWorker:
         # We have one task running right now.
         worker.future_job_mapping = {"job_id": "future"}
 
-        job = Job(id, 10)
+        job = Job(id, args=(10,))
         worker.storage.enqueue_job(job, QUEUE, Priority.HIGH)
 
         job = worker.get_next_job()

@@ -9,8 +9,6 @@ from sqlalchemy import exc
 
 from kolibri.core.sqlite.utils import check_sqlite_integrity
 from kolibri.core.sqlite.utils import repair_sqlite_db
-from kolibri.core.tasks.constants import DEFAULT_QUEUE
-from kolibri.core.tasks.queue import Queue
 from kolibri.core.tasks.storage import Storage
 from kolibri.core.tasks.worker import Worker
 from kolibri.utils import conf
@@ -97,31 +95,6 @@ def __initialize_connection():
 
 
 connection = SimpleLazyObject(__initialize_connection)
-
-priority_queue_name = "no_waiting"
-
-facility_queue_name = "facility"
-
-
-def __priority_queue():
-    return Queue(priority_queue_name, connection=connection)
-
-
-priority_queue = SimpleLazyObject(__priority_queue)
-
-
-def __facility_queue():
-    return Queue(facility_queue_name, connection=connection)
-
-
-facility_queue = SimpleLazyObject(__facility_queue)
-
-
-def __queue():
-    return Queue(DEFAULT_QUEUE, connection=connection)
-
-
-queue = SimpleLazyObject(__queue)
 
 
 def __job_storage():
