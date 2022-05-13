@@ -4,18 +4,13 @@ import os
 import re
 import sys
 from datetime import datetime
-from datetime import timedelta
 
 from django import db
-from django.apps import apps
 from django.conf import settings
 
 import kolibri
 from kolibri.core.deviceadmin.exceptions import IncompatibleDatabase
-from kolibri.core.tasks.decorators import register_task
-from kolibri.core.utils.lock import db_lock
 from kolibri.utils.conf import KOLIBRI_HOME
-from kolibri.utils.time_utils import local_now
 
 # Import db instead of db.connections because we want to use an instance of
 # connections that might be updated from outside.
@@ -27,9 +22,6 @@ logger = logging.getLogger(__name__)
 # Use encoded text for Python 3 (doesn't work in Python 2!)
 KWARGS_IO_READ = {"mode": "r", "encoding": "utf-8"}
 KWARGS_IO_WRITE = {"mode": "w", "encoding": "utf-8"}
-
-# Constant job_id for vacuum task
-SCH_VACUUM_JOB_ID = "1"
 
 # Use binary file mode for Python 2 (doesn't work in Python 3!)
 if sys.version_info < (3,):
@@ -198,55 +190,3 @@ def search_latest(search_root, fallback_version):
 
     if newest:
         return os.path.join(search_root, newest)
-
-
-@register_task(job_id=SCH_VACUUM_JOB_ID)
-def perform_vacuum(database=db.DEFAULT_DB_ALIAS, full=False):
-    connection = db.connections[database]
-    if connection.vendor == "sqlite":
-        try:
-            with db_lock():
-                db.close_old_connections()
-                db.connections.close_all()
-                cursor = connection.cursor()
-                cursor.execute("vacuum;")
-                connection.close()
-        except Exception as e:
-            logger.error(e)
-            new_msg = (
-                "Vacuum of database {db_name} couldn't be executed. Possible reasons:\n"
-                "  * There is an open transaction in the db.\n"
-                "  * There are one or more active SQL statements.\n"
-                "The full error: {error_msg}"
-            ).format(
-                db_name=db.connections[database].settings_dict["NAME"], error_msg=e
-            )
-            logger.error(new_msg)
-        else:
-            logger.info("Sqlite database Vacuum finished.")
-    elif connection.vendor == "postgresql":
-        if full:
-            morango_models = ("morango_recordmaxcounterbuffer", "morango_buffer")
-        else:
-            morango_models = [
-                m
-                for m in apps.get_models(include_auto_created=True)
-                if "morango.models" in str(m)
-            ]
-        cursor = connection.cursor()
-        for m in morango_models:
-            if full:
-                cursor.execute("vacuum full analyze {};".format(m))
-            else:
-                cursor.execute("vacuum analyze {};".format(m._meta.db_table))
-        connection.close()
-
-
-def schedule_vacuum():
-    current_dt = local_now()
-    vacuum_time = current_dt.replace(hour=3, minute=0, second=0, microsecond=0)
-    if vacuum_time < current_dt:
-        # If it is past 3AM, change the day to tomorrow.
-        vacuum_time = vacuum_time + timedelta(days=1)
-    # Repeat indefinitely
-    perform_vacuum.enqueue_at(vacuum_time, repeat=None, interval=24 * 60 * 60)

@@ -256,7 +256,7 @@ class ServicesPlugin(SimplePlugin):
         from kolibri.core.tasks.main import initialize_workers
         from kolibri.core.tasks.main import job_storage
         from kolibri.core.analytics.utils import DEFAULT_PING_JOB_ID
-        from kolibri.core.deviceadmin.utils import SCH_VACUUM_JOB_ID
+        from kolibri.core.deviceadmin.tasks import SCH_VACUUM_JOB_ID
 
         # schedule the pingback job if not already scheduled
         if DEFAULT_PING_JOB_ID not in job_storage:
@@ -266,7 +266,7 @@ class ServicesPlugin(SimplePlugin):
 
         # schedule the vacuum job if not already scheduled
         if SCH_VACUUM_JOB_ID not in job_storage:
-            from kolibri.core.deviceadmin.utils import schedule_vacuum
+            from kolibri.core.deviceadmin.tasks import schedule_vacuum
 
             schedule_vacuum()
 
