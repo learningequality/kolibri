@@ -21,7 +21,6 @@ from kolibri.core.device.utils import device_provisioned
 from kolibri.core.device.utils import provision_from_file
 from kolibri.core.deviceadmin.exceptions import IncompatibleDatabase
 from kolibri.core.deviceadmin.utils import get_backup_files
-from kolibri.core.tasks.main import import_tasks_module_from_django_apps
 from kolibri.core.upgrade import matches_version
 from kolibri.core.upgrade import run_upgrades
 from kolibri.core.utils.cache import process_cache
@@ -322,8 +321,6 @@ def initialize(
             raise
 
         _upgrades_after_django_setup(updated, version)
-
-    import_tasks_module_from_django_apps()
 
 
 def update(old_version, new_version):

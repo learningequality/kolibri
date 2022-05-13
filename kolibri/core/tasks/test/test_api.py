@@ -34,22 +34,22 @@ from kolibri.core.tasks.api import validate_sync_task
 from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.exceptions import JobNotFound
 from kolibri.core.tasks.job import Job
-from kolibri.core.tasks.job import JobRegistry
 from kolibri.core.tasks.job import State
+from kolibri.core.tasks.registry import TaskRegistry
 
 
 DUMMY_PASSWORD = "password"
 
 fake_job_defaults = dict(
     job_id=None,
-    job_facility_id=None,
+    facility_id=None,
     state=None,
     exception="",
     traceback="",
     percentage_progress=0,
     cancellable=False,
     extra_metadata={},
-    func=lambda: None,
+    func="",
 )
 
 
@@ -85,8 +85,7 @@ class BaseAPITestCase(APITestCase):
         )
 
 
-@patch("kolibri.core.tasks.api.priority_queue")
-@patch("kolibri.core.tasks.api.queue")
+@patch("kolibri.core.tasks.api.job_storage")
 class TaskAPITestCase(BaseAPITestCase):
     def setUp(self):
         self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
@@ -107,13 +106,13 @@ class TaskAPITestCase(BaseAPITestCase):
 
 
 @patch("kolibri.core.tasks.api.job_storage")
-@patch("kolibri.core.tasks.job.RegisteredJob.enqueue")
+@patch("kolibri.core.tasks.registry.RegisteredTask.enqueue")
 class CreateTaskAPITestCase(BaseAPITestCase):
     def setUp(self):
         self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
 
     def tearDown(self):
-        JobRegistry.REGISTERED_JOBS.clear()
+        TaskRegistry.clear()
 
     def test_api_validator_task_field_check(self, mock_enqueue, mock_job_storage):
         # When "task" is absent.
@@ -180,6 +179,7 @@ class CreateTaskAPITestCase(BaseAPITestCase):
         def add(**kwargs):
             return kwargs["x"] + kwargs["y"]
 
+        TaskRegistry["kolibri.core.tasks.test.test_api.add"] = add
         # Let us logout the superuser to send request anonymously.
         self.client.logout()
 
@@ -542,7 +542,7 @@ class TaskManagementAPITestCase(BaseAPITestCase):
         ]
 
     def tearDown(self):
-        JobRegistry.REGISTERED_JOBS.clear()
+        TaskRegistry.clear()
 
     def test_superuser_can_list_all_facility_jobs(self, mock_job_storage):
         mock_job_storage.get_all_jobs.return_value = self.jobs

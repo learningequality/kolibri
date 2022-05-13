@@ -6,7 +6,6 @@ from functools import partial
 from tempfile import mkstemp
 
 import requests
-from django.apps.registry import AppRegistryNotReady
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.files.uploadedfile import UploadedFile
 from django.core.management import call_command
@@ -60,23 +59,15 @@ from kolibri.core.logger.csv_export import CSV_EXPORT_FILENAMES
 from kolibri.core.tasks.exceptions import JobNotFound
 from kolibri.core.tasks.exceptions import JobNotRestartable
 from kolibri.core.tasks.exceptions import UserCancelledError
-from kolibri.core.tasks.job import JobRegistry
 from kolibri.core.tasks.job import State
 from kolibri.core.tasks.main import facility_queue
 from kolibri.core.tasks.main import job_storage
 from kolibri.core.tasks.main import priority_queue
 from kolibri.core.tasks.main import queue
+from kolibri.core.tasks.registry import TaskRegistry
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.utils import conf
 
-try:
-    from django.apps import apps
-
-    apps.check_apps_ready()
-except AppRegistryNotReady:
-    import django
-
-    django.setup()
 
 logger = logging.getLogger(__name__)
 
@@ -211,7 +202,7 @@ class BaseViewSet(viewsets.ViewSet):
         """
         job_facility_id = None
         if job:
-            job_facility_id = getattr(job, "job_facility_id", None)
+            job_facility_id = getattr(job, "facility_id", None)
 
         try:
             if not request.user.is_superuser and request.user.is_facility_user:
@@ -248,7 +239,7 @@ class BaseViewSet(viewsets.ViewSet):
 
             # Make sure the task is registered
             try:
-                registered_job = JobRegistry.REGISTERED_JOBS[funcstr]
+                registered_job = TaskRegistry.validate_task(funcstr)
             except KeyError:
                 raise serializers.ValidationError(
                     "'{funcstr}' is not registered.".format(funcstr=funcstr)
@@ -272,10 +263,10 @@ class BaseViewSet(viewsets.ViewSet):
         jobs_response = []
         for job in all_jobs:
             try:
-                registered_job = JobRegistry.REGISTERED_JOBS[job.func]
+                registered_job = TaskRegistry.validate_task(job.func)
                 self.check_registered_job_permissions(request, registered_job, job)
                 jobs_response.append(_job_to_response(job))
-            except KeyError:
+            except serializers.ValidationError:
                 # Note: Temporarily including unregistered tasks until we complete
                 # our transition to to the new tasks API.
                 # After completing transition to the new tasks API, we won't be
@@ -322,7 +313,7 @@ class BaseViewSet(viewsets.ViewSet):
         for request_data in request_data_list:
 
             funcstr = request_data.pop("task")
-            registered_job = JobRegistry.REGISTERED_JOBS[funcstr]
+            registered_job = TaskRegistry.validate_task(funcstr)
 
             # Run validator with `request` and `request_data` as its argument.
             if registered_job.validator is not None:
@@ -364,11 +355,11 @@ class BaseViewSet(viewsets.ViewSet):
         """
         try:
             job = job_storage.get_job(job_id=pk)
-            registered_job = JobRegistry.REGISTERED_JOBS[job.func]
+            registered_job = TaskRegistry.validate_task(job.func)
             self.check_registered_job_permissions(request, registered_job, job)
         except JobNotFound:
             raise Http404("Task with {pk} not found".format(pk=pk))
-        except KeyError:
+        except serializers.ValidationError:
             # Note: Temporarily allowing unregistered tasks until we complete our transition to
             # to the new tasks API.
             # After completing our transition this should raise a ValidationError saying
@@ -396,15 +387,8 @@ class BaseViewSet(viewsets.ViewSet):
         except JobNotFound:
             raise Http404("Task with {pk} not found.".format(pk=job_to_restart_id))
 
-        try:
-            registered_job = JobRegistry.REGISTERED_JOBS[job_to_restart.func]
-            self.check_registered_job_permissions(
-                request, registered_job, job_to_restart
-            )
-        except KeyError:
-            raise serializers.ValidationError(
-                "'{funcstr}' is not registered.".format(funcstr=job_to_restart.func)
-            )
+        registered_job = TaskRegistry.validate_task(job_to_restart.func)
+        self.check_registered_job_permissions(request, registered_job, job_to_restart)
 
         try:
             restarted_job_id = job_storage.restart_job(job_id=job_to_restart.job_id)

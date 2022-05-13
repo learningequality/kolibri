@@ -1,4 +1,5 @@
 from kolibri.core.tasks.constants import DEFAULT_QUEUE
+from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.storage import Storage
 
 
@@ -51,10 +52,30 @@ class Queue(object):
         :return: a string representing the job_id.
         """
 
-        job_id = self.storage.enqueue_job(
-            func, queue=self.name, args=args, kwargs=kwargs
-        )
-        return job_id
+        if isinstance(func, Job):
+            job = func
+        else:
+            job_kwargs = {}
+            pop_keys = {
+                "track_progress",
+                "cancellable",
+                "extra_metadata",
+                "state",
+                "job_id",
+                "traceback",
+                "progress",
+                "total_progress",
+                "result",
+            }
+            copy_keys = {"facility_id"}
+
+            for key, value in kwargs.items():
+                if key in pop_keys or key in copy_keys:
+                    job_kwargs[key] = value
+            for key in pop_keys:
+                kwargs.pop(key, None)
+            job = Job(func, args=args, kwargs=kwargs, **job_kwargs)
+        return self.storage.enqueue_job(job, queue=self.name)
 
     def cancel(self, job_id):
         """
