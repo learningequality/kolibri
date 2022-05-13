@@ -52,6 +52,8 @@ class NetworkLocation(models.Model):
         If this connection was checked recently, report that result,
         otherwise do a fresh check.
         """
+        if not self.base_url:
+            return False
         connection_info = check_connection_info(self.base_url)
         return bool(connection_info)
 
