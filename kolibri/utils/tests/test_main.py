@@ -17,11 +17,14 @@ from kolibri.utils import main
 
 
 @pytest.mark.django_db
+@patch("kolibri.plugins.registry.is_initialized", return_value=False)
 @patch("kolibri.utils.main._upgrades_after_django_setup")
 @patch("kolibri.utils.main.get_version", return_value="")
 @patch("kolibri.utils.main.update")
 @patch("kolibri.core.deviceadmin.utils.dbbackup")
-def test_first_run(dbbackup, update, get_version, upgrades_after_django_setup):
+def test_first_run(
+    dbbackup, update, get_version, upgrades_after_django_setup, is_initialized
+):
     """
     Tests that the first_run() function performs as expected
     """
@@ -37,10 +40,11 @@ def test_first_run(dbbackup, update, get_version, upgrades_after_django_setup):
 
 
 @pytest.mark.django_db
+@patch("kolibri.plugins.registry.is_initialized", return_value=False)
 @patch("kolibri.utils.main._upgrades_after_django_setup")
 @patch("kolibri.utils.main.get_version", return_value="0.0.1")
 @patch("kolibri.utils.main.update")
-def test_update(update, get_version, upgrades_after_django_setup):
+def test_update(update, get_version, upgrades_after_django_setup, is_initialized):
     """
     Tests that update() function performs as expected
     """
@@ -49,8 +53,9 @@ def test_update(update, get_version, upgrades_after_django_setup):
 
 
 @pytest.mark.django_db
+@patch("kolibri.plugins.registry.is_initialized", return_value=False)
 @patch("kolibri.utils.main.get_version", return_value="0.0.1")
-def test_update_exits_if_running(get_version):
+def test_update_exits_if_running(get_version, is_initialized):
     """
     Tests that update() function performs as expected
     """
@@ -121,12 +126,13 @@ def test_conditional_backup():
 
 
 @pytest.mark.django_db
+@patch("kolibri.plugins.registry.is_initialized", return_value=False)
 @patch("kolibri.utils.main._upgrades_after_django_setup")
 @patch("kolibri.utils.main.get_version", return_value=kolibri.__version__)
 @patch("kolibri.utils.main.update")
 @patch("kolibri.core.deviceadmin.utils.dbbackup")
 def test_update_no_version_change(
-    dbbackup, update, get_version, upgrades_after_django_setup
+    dbbackup, update, get_version, upgrades_after_django_setup, is_initialized
 ):
     """
     Tests that when the version doesn't change, we are not doing things we
@@ -137,11 +143,12 @@ def test_update_no_version_change(
     dbbackup.assert_not_called()
 
 
+@patch("kolibri.plugins.registry.is_initialized", return_value=False)
 @patch("kolibri.utils.main._upgrades_after_django_setup")
 @patch("kolibri.utils.main._migrate_databases")
 @patch("kolibri.utils.main.version_updated")
 def test_migrate_if_unmigrated(
-    version_updated, _migrate_databases, _upgrades_after_django_setup
+    version_updated, _migrate_databases, _upgrades_after_django_setup, is_initialized
 ):
     # No matter what, ensure that version_updated returns False
     version_updated.return_value = False

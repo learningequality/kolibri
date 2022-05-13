@@ -395,8 +395,7 @@ def autoremove_unavailable_plugins():
     from kolibri.plugins.registry import is_initialized
 
     if is_initialized():
-        # TODO: Turn this into a Runtime error
-        logger.warning("Attempted to updated plugins when registry is initialized")
+        raise RuntimeError("Attempted to update plugins when registry is initialized")
     changed = False
     # Iterate over a copy of the set so that it is not modified during the loop
     for module_path in config["INSTALLED_PLUGINS"].copy():
@@ -423,8 +422,7 @@ def enable_new_default_plugins():
     from kolibri.plugins.registry import is_initialized
 
     if is_initialized():
-        # TODO: Turn this into a Runtime error
-        logger.warning("Attempted to updated plugins when registry is initialized")
+        raise RuntimeError("Attempted to update plugins when registry is initialized")
     changed = False
     for module_path in DEFAULT_PLUGINS:
         if module_path not in config["INSTALLED_PLUGINS"]:
