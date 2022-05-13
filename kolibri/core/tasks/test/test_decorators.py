@@ -2,37 +2,31 @@ from django.test import TestCase
 from mock import patch
 
 from kolibri.core.tasks.decorators import register_task
-from kolibri.core.tasks.job import JobRegistry
 from kolibri.core.tasks.job import Priority
-from kolibri.core.tasks.job import RegisteredJob
-from kolibri.core.tasks.utils import stringify_func
+from kolibri.core.tasks.registry import RegisteredTask
+from kolibri.core.tasks.validation import JobValidator
 
 
 class TestTaskDecorators(TestCase):
-    def setUp(self):
-        self.registered_jobs = JobRegistry.REGISTERED_JOBS
+    @patch("kolibri.core.tasks.decorators.RegisteredTask")
+    def test_register_decorator_calls_registered_job(self, MockRegisteredTask):
+        def add(x, y):
+            return x + y
 
-    def tearDown(self):
-        JobRegistry.REGISTERED_JOBS.clear()
-
-    @patch("kolibri.core.tasks.decorators.RegisteredJob")
-    def test_register_decorator_calls_registered_job(self, MockRegisteredJob):
-        @register_task(
+        register_task(
             job_id="test",
-            validator=id,
+            validator=JobValidator,
             permission_classes=[int],
             priority=Priority.HIGH,
             queue="test",
             cancellable=True,
             track_progress=True,
-        )
-        def add(x, y):
-            return x + y
+        )(add)
 
-        MockRegisteredJob.assert_called_once_with(
+        MockRegisteredTask.assert_called_once_with(
             add,
             job_id="test",
-            validator=id,
+            validator=JobValidator,
             permission_classes=[int],
             priority=Priority.HIGH,
             queue="test",
@@ -49,17 +43,12 @@ class TestTaskDecorators(TestCase):
         def subtract(x, y):
             return x - y
 
-        add_funcstr = stringify_func(add)
-        subtract_funcstr = stringify_func(subtract)
-
-        self.assertIsInstance(self.registered_jobs[add_funcstr], RegisteredJob)
-        self.assertIsInstance(self.registered_jobs[subtract_funcstr], RegisteredJob)
+        self.assertIsInstance(add, RegisteredTask)
+        self.assertIsInstance(subtract, RegisteredTask)
 
     def test_register_decorator_assigns_api_methods(self):
         @register_task(
             job_id="test",
-            validator=id,
-            permission_classes=[int],
             priority=Priority.HIGH,
             queue="test",
             cancellable=True,
@@ -68,13 +57,11 @@ class TestTaskDecorators(TestCase):
         def add(x, y):
             return x + y
 
-        add_registered_job = self.registered_jobs[stringify_func(add)]
+        self.assertIsInstance(add, RegisteredTask)
 
-        self.assertIsInstance(add_registered_job, RegisteredJob)
-
-        self.assertEqual(add.enqueue, add_registered_job.enqueue)
-        self.assertEqual(add.enqueue_in, add_registered_job.enqueue_in)
-        self.assertEqual(add.enqueue_at, add_registered_job.enqueue_at)
+        self.assertTrue(add.enqueue)
+        self.assertTrue(add.enqueue_in)
+        self.assertTrue(add.enqueue_at)
 
     def test_register_decorator_preserves_functionality(self):
         @register_task

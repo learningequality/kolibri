@@ -7,9 +7,9 @@ from mock import patch
 from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.exceptions import JobNotRestartable
 from kolibri.core.tasks.job import Job
-from kolibri.core.tasks.job import JobRegistry
 from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.job import State
+from kolibri.core.tasks.registry import TaskRegistry
 from kolibri.core.tasks.storage import Storage
 from kolibri.core.tasks.test.base import connection
 from kolibri.core.tasks.utils import stringify_func
@@ -33,8 +33,10 @@ def func():
     def add(x, y):
         return x + y
 
+    TaskRegistry["kolibri.core.tasks.test.taskrunner.test_storage.add"] = add
+
     yield add
-    JobRegistry.REGISTERED_JOBS.clear()
+    TaskRegistry.clear()
 
 
 @pytest.fixture
