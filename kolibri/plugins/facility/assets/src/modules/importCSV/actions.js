@@ -5,19 +5,20 @@ import { TaskStatuses, TaskTypes } from '../../constants';
 const logging = logger.getLogger(__filename);
 
 function startImportUsers(store, file, deleting, validate, commitStart) {
+  if (store.getters.importingOrValidating) {
+    return;
+  }
   const params = {
     csvfile: file,
     facility_id: store.rootGetters.activeFacilityId,
+    task: TaskTypes.IMPORTUSERSFROMCSV,
+    delete: deleting,
+    dryrun: validate,
   };
-  if (deleting) params['delete'] = 'true';
-  if (validate) params['dryrun'] = 'true';
-  if (!store.getters.importingOrValidating) {
-    let promise = TaskResource.import_users_from_csv(params);
-    return promise.then(task => {
-      store.commit(commitStart, task.data);
-      return task.data.id;
-    });
-  }
+  return TaskResource.startTask(params, true).then(task => {
+    store.commit(commitStart, task.data);
+    return task.data.id;
+  });
 }
 
 function startValidating(store, payload) {
@@ -61,13 +62,11 @@ function checkTaskStatus(store, newTasks, taskType, taskId, commitStart, commitF
 }
 
 function refreshTaskList(store) {
-  return TaskResource.fetchCollection({
-    force: true,
-  })
-    .then(newTasks => {
+  return TaskResource.list()
+    .then(({ data }) => {
       checkTaskStatus(
         store,
-        newTasks,
+        data,
         TaskTypes.IMPORTUSERSFROMCSV,
         store.getters.taskId,
         'START_VALIDATE_USERS',

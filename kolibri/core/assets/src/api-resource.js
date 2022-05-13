@@ -896,12 +896,12 @@ export class Resource {
     });
   }
 
-  getList(params = {}) {
+  list(params = {}) {
     return this.accessEndpoint('get', 'list', params);
   }
 
-  postList(params = {}) {
-    return this.accessEndpoint('post', 'list', params);
+  create(params = {}, multipart = false) {
+    return this.accessEndpoint('post', 'list', params, multipart);
   }
 
   /**

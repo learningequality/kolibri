@@ -7,17 +7,18 @@ import { TaskStatuses, TaskTypes } from '../../constants';
 const logging = logger.getLogger(__filename);
 
 function startCSVExport(store, logtype, creating, commitStart) {
+  if (creating) {
+    return;
+  }
   const params = {
     logtype: logtype,
     facility: store.rootGetters.activeFacilityId,
+    task: TaskTypes.EXPORTLOGCSV,
   };
-  if (!creating) {
-    let promise = TaskResource.startexportlogcsv(params);
-    return promise.then(task => {
-      store.commit(commitStart, task.data);
-      return task.data.id;
-    });
-  }
+  return TaskResource.startTask(params).then(task => {
+    store.commit(commitStart, task.data);
+    return task.data.id;
+  });
 }
 
 function startSummaryCSVExport(store) {
@@ -88,15 +89,15 @@ function checkTaskStatus(store, newTasks, taskType, taskId, commitStart, commitF
 }
 
 function startExportUsers(store) {
-  if (!store.getters.exportingUsers) {
-    let promise = TaskResource.export_users_to_csv({
-      facility_id: store.rootGetters.activeFacilityId,
-    });
-    return promise.then(task => {
-      store.commit('START_EXPORT_USERS', task.data);
-      return task.data.id;
-    });
+  if (store.getters.exportingUsers) {
+    return;
   }
+  return TaskResource.startTask({
+    facility_id: store.rootGetters.activeFacilityId,
+  }).then(task => {
+    store.commit('START_EXPORT_USERS', task.data);
+    return task.data.id;
+  });
 }
 
 function refreshTaskList(store) {
