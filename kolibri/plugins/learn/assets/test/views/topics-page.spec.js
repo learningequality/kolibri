@@ -96,7 +96,7 @@ describe('TopicsPage', () => {
     });
   });
 
-  it('displays the tabs when on a large screen', () => {
+  it('displays the header with tabs when on a large screen', () => {
     const wrapper = shallowMount(TopicsPage, {
       store,
       localVue,
@@ -104,7 +104,7 @@ describe('TopicsPage', () => {
       computed: { windowIsLarge: () => true },
     });
 
-    expect(wrapper.find("[data-test='header-tabs']").exists()).toBe(true);
+    expect(wrapper.findComponent({ name: 'TopicsHeader' }).exists()).toBe(true);
   });
 
   it('displays the topic title when page is medium - large', () => {
@@ -160,7 +160,6 @@ describe('TopicsPage', () => {
     describe('when showing search results', () => {
       let results;
       let wrapper;
-      let resultsTitles;
       let searchResults;
 
       beforeAll(() => {
@@ -197,8 +196,6 @@ describe('TopicsPage', () => {
           setSearchWithinDescendant: jest.fn(),
         }));
 
-        resultsTitles = results.map(result => result.title);
-
         wrapper = mount(TopicsPage, {
           store,
           localVue,
@@ -212,41 +209,7 @@ describe('TopicsPage', () => {
 
       it('shows the search results', () => {
         searchResults = wrapper.find("[data-test='search-results']");
-
         expect(searchResults.exists()).toBe(true);
-
-        resultsTitles.forEach(title => {
-          expect(searchResults.text()).toContain(title);
-        });
-      });
-
-      it('shows a list of search chips for the searched values', () => {
-        expect(wrapper.find("[data-test='search-terms']").exists()).toBe(true);
-      });
-
-      it('displays a "more" button when there are more results than the limit', () => {
-        jest.clearAllMocks();
-
-        useSearch.mockImplementation(() => ({
-          displayingSearchResults: true, // true here
-          results, // those we just made above
-          more: [{}], // just needs to be something here
-          search: jest.fn(),
-          searchQuery: '',
-          searchLoading: false,
-          searchError: null,
-          setSearchWithinDescendant: jest.fn(),
-        }));
-        wrapper = mount(TopicsPage, {
-          store,
-          localVue,
-          router,
-          computed: {
-            windowIsLarge: () => false,
-            windowIsSmall: () => true,
-          },
-        });
-        expect(wrapper.find("[data-test='more-button']").exists()).toBe(true);
       });
     });
 

@@ -1,7 +1,7 @@
 import { mount, shallowMount } from '@vue/test-utils';
 import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 import { createTranslator } from 'kolibri.utils.i18n';
-import SearchResultsGrid from '../../src/views/LibraryPage/SearchResultsGrid.vue';
+import SearchResultsGrid from '../../src/views/SearchResultsGrid.vue';
 
 const SearchStrings = createTranslator('SearchResultsGrid', SearchResultsGrid.$trs);
 const coreStrings = commonCoreStrings.methods.coreString;

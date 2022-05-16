@@ -175,7 +175,7 @@
   );
 
   export default {
-    name: 'EmbeddedSidePanel',
+    name: 'SearchFiltersPanel',
     components: {
       SearchBox,
       ActivityButtonsGroup,
@@ -357,7 +357,7 @@
       /**
        * @public
        * Focuses on correct first element for FocusTrap depending on content
-       * rendered in EmbeddedSidePanel.
+       * rendered in SearchFiltersPanel.
        */
       focusFirstEl() {
         if (this.$refs.searchBox) {

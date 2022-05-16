@@ -87,7 +87,7 @@
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
   import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
-  import SidePanelResourcesList from '../../../../../../kolibri/core/assets/src/views/FullScreenSidePanel/SidePanelResourcesList';
+  import SidePanelResourcesList from '../../../../../../kolibri/core/assets/src/views/SidePanelModal/SidePanelResourcesList';
   import useContentNodeProgress from '../composables/useContentNodeProgress';
   import genContentLink from '../utils/genContentLink';
   import LearningActivityIcon from './LearningActivityIcon.vue';

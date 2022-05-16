@@ -66,7 +66,7 @@
     <GlobalSnackbar />
 
     <!-- Side Panel for content metadata -->
-    <FullScreenSidePanel
+    <SidePanelModal
       v-if="sidePanelContent"
       alignment="right"
       closeButtonIconType="close"
@@ -95,10 +95,10 @@
         :content="sidePanelContent"
         :canDownloadContent="canDownload"
       />
-    </FullScreenSidePanel>
+    </SidePanelModal>
 
     <!-- Side Panel for "view resources" or "lesson resources" -->
-    <FullScreenSidePanel
+    <SidePanelModal
       v-if="showViewResourcesSidePanel"
       class="also-in-this-side-panel"
       alignment="right"
@@ -117,7 +117,7 @@
         :isLesson="lessonContext"
         :loading="resourcesSidePanelLoading"
       />
-    </FullScreenSidePanel>
+    </SidePanelModal>
 
   </div>
 
@@ -133,7 +133,7 @@
   import Modalities from 'kolibri-constants/Modalities';
 
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
-  import FullScreenSidePanel from 'kolibri.coreVue.components.FullScreenSidePanel';
+  import SidePanelModal from 'kolibri.coreVue.components.SidePanelModal';
   import { ContentNodeResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import client from 'kolibri.client';
@@ -177,7 +177,7 @@
       AppError,
       AuthMessage,
       ContentPage,
-      FullScreenSidePanel,
+      SidePanelModal,
       GlobalSnackbar,
       LearningActivityBar,
       LearningActivityChip,

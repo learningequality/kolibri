@@ -65,7 +65,7 @@
   import FocusTrap from 'kolibri.coreVue.components.FocusTrap';
 
   export default {
-    name: 'FullScreenSidePanel',
+    name: 'SidePanelModal',
     components: {
       Backdrop,
       FocusTrap,
@@ -201,7 +201,9 @@
     beforeMount() {
       this.lastFocus = document.activeElement;
     },
-    /* this is the easiest way I could think to avoid having dual scroll bars */
+    /* this is the easiest way I could think to avoid having dual scroll bars and to avoid
+       strange screen-squeezing behavior noted here:
+       https://user-images.githubusercontent.com/79847249/164241012-b161bad7-8a46-4221-a391-a375899ed9a9.mp4 */
     mounted() {
       const htmlTag = window.document.getElementsByTagName('html')[0];
       htmlTag.style['overflow-y'] = 'hidden';

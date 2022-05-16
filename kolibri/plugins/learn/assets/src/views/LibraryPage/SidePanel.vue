@@ -5,7 +5,7 @@
   -->
   <div v-if="windowIsLarge || mobileSidePanelIsOpen">
     <!-- Embedded Side panel is on larger views, and exists next to content -->
-    <EmbeddedSidePanel
+    <SearchFiltersPanel
       v-if="windowIsLarge"
       :value="searchTerms"
       data-test="desktop-search-side-panel"
@@ -18,8 +18,8 @@
       @currentCategory="handleCategory"
     />
     <!-- The full screen side panel is used on smaller screens, and toggles as an overlay -->
-    <!-- FullScreen is a container component, and then the EmbeddedSidePanel sits within -->
-    <FullScreenSidePanel
+    <!-- FullScreen is a container component, and then the SearchFiltersPanel sits within -->
+    <SidePanelModal
       v-else-if="mobileSidePanelIsOpen"
       class="full-screen-side-panel"
       data-test="filters-side-panel"
@@ -37,7 +37,7 @@
         :tooltip="coreString('goBackAction')"
         @click="closeCategoryModal"
       />
-      <EmbeddedSidePanel
+      <SearchFiltersPanel
         v-if="!currentCategory"
         ref="embeddedPanel"
         :value="searchTerms"
@@ -59,7 +59,7 @@
         @cancel="currentCategory = null"
         @input="handleCategory"
       />
-    </FullScreenSidePanel>
+    </SidePanelModal>
 
     <!-- Category Search modal for large screens. On smaller screens, it is -->
     <!-- contained within the full screen search modal (different design) -->
@@ -82,17 +82,17 @@
 
   import { ref } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import FullScreenSidePanel from 'kolibri.coreVue.components.FullScreenSidePanel';
+  import SidePanelModal from 'kolibri.coreVue.components.SidePanelModal';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import CategorySearchModal from '../CategorySearchModal';
-  import EmbeddedSidePanel from '../EmbeddedSidePanel';
+  import SearchFiltersPanel from '../SearchFiltersPanel';
 
   export default {
     name: 'SidePanel',
     components: {
       CategorySearchModal,
-      EmbeddedSidePanel,
-      FullScreenSidePanel,
+      SearchFiltersPanel,
+      SidePanelModal,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
     /* eslint-disable-next-line no-unused-vars */

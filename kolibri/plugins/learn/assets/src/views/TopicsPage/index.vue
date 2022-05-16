@@ -7,109 +7,16 @@
 
     <div v-else class="page">
       <!-- Header with thumbail and tagline -->
-      <div
+      <TopicsHeader
         v-if="!windowIsSmall"
-        ref="header"
-        class="header"
-        :style="{
-          backgroundColor: $themeTokens.surface,
-          borderBottom: `1px solid ${$themeTokens.fineLine}`
-        }"
-      >
-        <KGrid>
-          <KGridItem
-            class="breadcrumbs"
-            data-test="header-breadcrumbs"
-            :layout4="{ span: 4 }"
-            :layout8="{ span: 8 }"
-            :layout12="{ span: 12 }"
-          >
-            <KBreadcrumbs v-if="breadcrumbs.length" :items="breadcrumbs" />
-          </KGridItem>
-          <KGridItem
-            :layout4="{ span: 4, alignment: 'auto' }"
-            :layout8="{ span: 8, alignment: 'auto' }"
-            :layout12="{ span: 12, alignment: 'auto' }"
-          >
-            <h1 class="title" data-test="header-title">
-              <TextTruncator
-                :text="topic.title"
-                :maxHeight="maxTitleHeight"
-              />
-            </h1>
-          </KGridItem>
+        data-test="header-breadcrumbs"
+        :topics="topics"
+        :topic="topic"
+        :breadcrumbs="breadcrumbs"
+      />
 
-          <KGridItem
-            v-if="topic.thumbnail"
-            class="thumbnail"
-            :layout4="{ span: 1 }"
-            :layout8="{ span: 2 }"
-            :layout12="{ span: 2 }"
-          >
-            <CardThumbnail
-              class="thumbnail"
-              :thumbnail="topic.thumbnail"
-              :isMobile="windowIsSmall"
-              :showTooltip="false"
-              kind="channel"
-              :showContentIcon="false"
-            />
-          </KGridItem>
-
-          <!-- tagline or description -->
-          <KGridItem
-            v-if="topic.description"
-            class="text"
-            :layout4="{ span: topic.thumbnail ? 3 : 4, alignment: 'auto' }"
-            :layout8="{ span: topic.thumbnail ? 6 : 8, alignment: 'auto' }"
-            :layout12="{ span: topic.thumbnail ? 10 : 12, alignment: 'auto' }"
-          >
-            <TextTruncator
-              :text="topic.description"
-              :maxHeight="maxDescriptionHeight"
-            />
-          </KGridItem>
-        </KGrid>
-        <!-- Nested tabs within the header, for toggling sidebar options -->
-        <!-- large screens -->
-        <HeaderTabs v-if="!!windowIsLarge" data-test="header-tabs">
-          <HeaderTab
-            v-if="topics.length"
-            :text="coreString('folders')"
-            :to="foldersLink"
-          />
-          <HeaderTab
-            :text="coreString('searchLabel')"
-            :to="topics.length ? searchTabLink : {} "
-          />
-        </HeaderTabs>
-      </div>
       <!-- mobile tabs (different alignment and interactions) -->
-      <KGrid
-        v-if="windowIsSmall"
-        class="mobile-header"
-        data-test="mobile-header"
-        :style="{ backgroundColor: $themeTokens.surface }"
-      >
-        <KGridItem
-          :layout4="{ span: 3 }"
-        >
-          <h1 class="mobile-title" data-test="mobile-title">
-            <TextTruncator
-              :text="topic.title"
-              :maxHeight="maxDescriptionHeight"
-            />
-          </h1>
-        </KGridItem>
-        <KGridItem
-          :layout4="{ span: 1 }"
-        >
-          <img
-            :src="topic.thumbnail"
-            class="channel-logo"
-          >
-        </KGridItem>
-      </KGrid>
+      <TopicsMobileHeader v-else :topic="topic" />
 
       <main
         class="main-content-grid"
@@ -120,9 +27,9 @@
           data-test="mobile-breadcrumbs"
           :items="breadcrumbs"
         />
-        <div
-          class="card-grid"
-        >
+
+        <div class="card-grid">
+          <!-- Filter buttons - shown when not sidebar not visible -->
           <div v-if="!windowIsLarge" data-test="tab-buttons">
             <KButton
               v-if="topics.length"
@@ -141,58 +48,23 @@
               :primary="false"
               @click="toggleFolderSearchSidePanel('search')"
             />
-
           </div>
+
           <!-- default/preview display of nested folder structure, not search -->
           <div v-if="!displayingSearchResults" data-test="topics">
-            <!-- display for each nested topic/folder  -->
-            <div v-for="t in topicsForDisplay" :key="t.id">
-              <!-- header link to folder -->
-              <h2>
-                <KRouterLink
-                  :text="t.title"
-                  :to="genContentLink(t.id)"
-                  class="folder-header-link"
-                  :appearanceOverrides="{ color: $themeTokens.text }"
-                >
-                  <template #iconAfter>
-                    <KIcon
-                      icon="chevronRight"
-                      :style="{ top: '4px' }"
-                    />
-                  </template>
-                </KRouterLink>
-              </h2>
-              <!-- card grid of items in folder -->
-              <LibraryAndChannelBrowserMainContent
-                v-if="t.children && t.children.length"
-                data-test="children-cards-grid"
-                :contents="t.children"
-                currentCardViewStyle="card"
-                :gridType="2"
+            <!-- Rows of cards and links / show more for each Topic -->
+            <template v-for="t in topicsForDisplay">
+              <TopicSubsection
+                :key="t.id"
+                :topic="t"
+                :subTopicLoading="t.id === subTopicLoading"
+                @showMore="handleShowMore"
+                @loadMoreInSubtopic="handleLoadMoreInSubtopic"
                 @toggleInfoPanel="toggleInfoPanel"
               />
-              <KButton
-                v-if="t.showMore"
-                class="more-after-grid"
-                appearance="basic-link"
-                @click="handleShowMore(t.id)"
-              >
-                {{ $tr('showMore') }}
-              </KButton>
-              <KRouterLink v-else-if="t.viewAll" class="more-after-grid" :to="t.viewAll">
-                {{ $tr('viewAll') }}
-              </KRouterLink>
-              <KButton
-                v-else-if="t.viewMore && t.id !== subTopicLoading"
-                class="more-after-grid"
-                appearance="basic-link"
-                @click="handleLoadMoreinSubtopic(t.id)"
-              >
-                {{ coreString('viewMoreAction') }}
-              </KButton>
-              <KCircularLoader v-if="t.id === subTopicLoading" />
-            </div>
+            </template>
+
+            <!-- display for each nested topic/folder  -->
             <!-- search results -->
             <!----
               TODO - is this necessary at all? how is this different than the search results below?
@@ -217,55 +89,49 @@
               <KCircularLoader v-else />
             </div>
           </div>
-          <div v-else-if="!searchLoading">
-            <h2 class="results-title">
-              {{ more ?
-                coreString('overCertainNumberOfSearchResults', { num: results.length }) :
-                translator.$tr('results', { results: results.length })
-              }}
-            </h2>
-            <SearchChips
-              data-test="search-terms"
-              :searchTerms="searchTerms"
-              @removeItem="removeFilterTag"
-              @clearSearch="clearSearch"
-            />
-            <!-- search results display -->
-            <HybridLearningCardGrid
-              v-if="results.length"
-              data-test="search-results"
-              :numCols="numCols"
-              :cardViewStyle="currentViewStyle"
-              :genContentLink="genContentLink"
-              :contents="results"
-              @toggleInfoPanel="toggleInfoPanel"
-            />
-            <div v-if="more" data-test="more-button" class="end-button-block">
-              <KButton
-                v-if="!moreLoading"
-                :text="coreString('viewMoreAction')"
-                appearance="basic-link"
-                :disabled="moreLoading"
-                class="filter-action-button"
-                @click="searchMore"
-              />
-              <KCircularLoader v-else />
-            </div>
-          </div>
-          <div v-else>
-            <KCircularLoader
-              v-if="searchLoading"
-              class="loader"
-              type="indeterminate"
-              :delay="false"
-            />
-          </div>
+
+          <!-- search results -->
+          <!-- TODO: Should card preference be permitted in Topics page as well? At least for
+              search results? -->
+          <SearchResultsGrid
+            v-else-if="!searchLoading"
+            data-test="search-results"
+            :currentCardViewStyle="currentSearchCardViewStyle"
+            :hideCardViewToggle="true"
+            :results="results"
+            :removeFilterTag="removeFilterTag"
+            :clearSearch="clearSearch"
+            :moreLoading="moreLoading"
+            :searchMore="searchMore"
+            :searchTerms="searchTerms"
+            :searchLoading="searchLoading"
+            :more="more"
+            @setCardStyle="style => currentSearchCardViewStyle = style"
+            @setSidePanelMetadataContent="content => metadataSidePanelContent = content"
+          />
         </div>
       </main>
+
       <!-- Side Panels for filtering and searching  -->
+      <SearchPanelModal
+        v-if="!windowIsLarge && sidePanelIsOpen"
+        v-model="searchTerms"
+        :activeCategories="activeCategories"
+        :activeActivityButtons="activeActivityButtons"
+        :availableLabels="labels"
+        :mobileSearchActive="mobileSearchActive"
+        :topicMore="topicMore"
+        :topics="topics"
+        :topicsLoading="topicMoreLoading"
+        @searchTerms="newTerms => searchTerms = newTerms"
+        @currentCategory="handleShowSearchModal"
+        @closeCategoryModal="closeCategoryModal"
+        @loadMoreTopics="handleLoadMoreInTopic"
+        @close="sidePanelIsOpen = false"
+      />
 
       <!-- Embedded Side panel is on larger views, and exists next to content -->
-      <EmbeddedSidePanel
+      <SearchFiltersPanel
         v-if="!!windowIsLarge"
         v-model="searchTerms"
         :topicsListDisplayed="!desktopSearchActive"
@@ -286,8 +152,8 @@
         @loadMoreTopics="handleLoadMoreInTopic"
       />
       <!-- The full screen side panel is used on smaller screens, and toggles as an overlay -->
-      <!-- FullScreen is a container component, and then the EmbeddedSidePanel sits within -->
-      <FullScreenSidePanel
+      <!-- FullScreen is a container component, and then the SearchFiltersPanel sits within -->
+      <SidePanelModal
         v-if="!windowIsLarge && sidePanelIsOpen"
         class="full-screen-side-panel"
         alignment="left"
@@ -296,7 +162,7 @@
         @closePanel="closeEventHandler()"
         @shouldFocusFirstEl="findFirstEl()"
       >
-        <EmbeddedSidePanel
+        <SearchFiltersPanel
           v-if="!currentCategory"
           ref="embeddedPanel"
           v-model="searchTerms"
@@ -317,19 +183,15 @@
         <CategorySearchModal
           v-if="currentCategory && windowIsSmall"
           :selectedCategory="currentCategory"
-          :numCols="numCols"
           :availableLabels="labels"
-          position="fullscreen"
           @cancel="currentCategory = null"
           @input="handleCategory"
         />
-      </FullScreenSidePanel>
+      </SidePanelModal>
       <CategorySearchModal
-        v-if="(windowIsMedium || windowIsLarge) && currentCategory"
+        v-if="currentCategory"
         :selectedCategory="currentCategory"
-        :numCols="numCols"
         :availableLabels="labels"
-        position="modal"
         @cancel="currentCategory = null"
         @input="handleCategory"
       />
@@ -337,18 +199,18 @@
     </div>
 
     <!-- Side panel for showing the information of selected content with a link to view it -->
-    <FullScreenSidePanel
-      v-if="sidePanelContent"
+    <SidePanelModal
+      v-if="metadataSidePanelContent"
       alignment="right"
       :closeButtonIconType="closeButtonIcon"
-      @closePanel="sidePanelContent = null"
+      @closePanel="metadataSidePanelContent = null"
       @shouldFocusFirstEl="findFirstEl()"
     >
       <template #header>
         <!-- Flex styles tested in ie11 and look good. Ensures good spacing between
             multiple chips - not a common thing but just in case -->
         <div
-          v-for="activity in sidePanelContent.learning_activities"
+          v-for="activity in metadataSidePanelContent.learning_activities"
           :key="activity"
           class="side-panel-chips"
           :class="$computedClass({ '::after': {
@@ -366,10 +228,11 @@
 
       <BrowseResourceMetadata
         ref="resourcePanel"
-        :content="sidePanelContent"
+        :content="metadataSidePanelContent"
         :showLocationsInChannel="true"
       />
-    </FullScreenSidePanel>
+    </SidePanelModal>
+
   </div>
 
 </template>
@@ -382,28 +245,27 @@
   import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
-  import FullScreenSidePanel from 'kolibri.coreVue.components.FullScreenSidePanel';
+  import SidePanelModal from 'kolibri.coreVue.components.SidePanelModal';
   import { throttle } from 'frame-throttle';
-  import { PageNames } from '../constants';
-  import { normalizeContentNode } from '../modules/coreLearn/utils.js';
-  import useSearch from '../composables/useSearch';
-  import genContentLink from '../utils/genContentLink';
-  import HeaderTabs from '../../../../coach/assets/src/views/common/HeaderTabs';
-  import HeaderTab from '../../../../coach/assets/src/views/common/HeaderTabs/HeaderTab';
-  import HybridLearningCardGrid from './HybridLearningCardGrid';
-  import EmbeddedSidePanel from './EmbeddedSidePanel';
-  import BrowseResourceMetadata from './BrowseResourceMetadata';
-  import LearningActivityChip from './LearningActivityChip';
-  import CustomContentRenderer from './ChannelRenderer/CustomContentRenderer';
-  import CardThumbnail from './ContentCard/CardThumbnail';
-  import CategorySearchModal from './CategorySearchModal';
-  import SearchChips from './SearchChips';
-  import LibraryPage from './LibraryPage';
-  import LibraryAndChannelBrowserMainContent from './LibraryAndChannelBrowserMainContent';
+  import { PageNames } from '../../constants';
+  import { normalizeContentNode } from '../../modules/coreLearn/utils.js';
+  import useSearch from '../../composables/useSearch';
+  import genContentLink from '../../utils/genContentLink';
+  import HybridLearningCardGrid from '../HybridLearningCardGrid';
+  import SearchFiltersPanel from '../SearchFiltersPanel';
+  import BrowseResourceMetadata from '../BrowseResourceMetadata';
+  import LearningActivityChip from '../LearningActivityChip';
+  import CustomContentRenderer from '../ChannelRenderer/CustomContentRenderer';
+  import CategorySearchModal from '../CategorySearchModal';
+  import SearchResultsGrid from '../SearchResultsGrid';
+  import LibraryPage from '../LibraryPage';
+  import TopicsHeader from './TopicsHeader';
+  import TopicsMobileHeader from './TopicsMobileHeader';
+  import TopicSubsection from './TopicSubsection';
+  import SearchPanelModal from './SearchPanelModal';
   import plugin_data from 'plugin_data';
 
   export default {
@@ -424,19 +286,18 @@
     },
     components: {
       KBreadcrumbs,
-      CardThumbnail,
+      TopicsHeader,
       HybridLearningCardGrid,
-      LibraryAndChannelBrowserMainContent,
       CustomContentRenderer,
       CategorySearchModal,
-      EmbeddedSidePanel,
-      FullScreenSidePanel,
+      SearchFiltersPanel,
+      SidePanelModal,
       LearningActivityChip,
       BrowseResourceMetadata,
-      SearchChips,
-      TextTruncator,
-      HeaderTab,
-      HeaderTabs,
+      SearchResultsGrid,
+      TopicsMobileHeader,
+      TopicSubsection,
+      SearchPanelModal,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
     setup() {
@@ -474,15 +335,15 @@
     data: function() {
       return {
         sidePanelStyleOverrides: {},
-        currentViewStyle: 'card',
         currentCategory: null,
         showSearchModal: false,
         sidePanelIsOpen: false,
-        sidePanelContent: null,
+        metadataSidePanelContent: null,
         expandedTopics: {},
         subTopicLoading: null,
         topicMoreLoading: false,
         mobileSearchActive: false,
+        currentSearchCardViewStyle: 'card',
       };
     },
     computed: {
@@ -505,15 +366,6 @@
           })),
           { text: this.topic.ancestors.length ? this.topic.title : this.channelTitle },
         ];
-      },
-      foldersLink() {
-        if (this.topic) {
-          return {
-            name: PageNames.TOPICS_TOPIC,
-            id: this.topic.id,
-          };
-        }
-        return {};
       },
       searchTabLink() {
         // navigates the main page to the search view
@@ -630,9 +482,6 @@
           ? { marginRight: `${this.sidePanelWidth + 24}px` }
           : { marginLeft: `${this.sidePanelWidth + 24}px` };
       },
-      sidePanelOverlayWidth() {
-        return 300;
-      },
       numCols() {
         if (this.windowBreakpoint > 1 && this.windowBreakpoint < 2) {
           return 2;
@@ -647,19 +496,19 @@
         return throttle(this.stickyCalculation);
       },
       activeActivityButtons() {
-        return this.searchTerms.learning_activities;
+        if (this.searchTerms) {
+          return this.searchTerms.learning_activities;
+        }
+        return [];
       },
       activeCategories() {
-        return this.searchTerms.categories;
+        if (this.searchTerms) {
+          return this.searchTerms.categories;
+        }
+        return [];
       },
       topicMore() {
         return this.topic.children && this.topic.children.more;
-      },
-      maxTitleHeight() {
-        return 60;
-      },
-      maxDescriptionHeight() {
-        return 110;
       },
     },
     watch: {
@@ -668,10 +517,17 @@
       },
       subTopicId(newValue, oldValue) {
         if (newValue && newValue !== oldValue) {
-          this.handleLoadMoreinSubtopic(newValue);
+          this.handleLoadMoreInSubtopic(newValue);
         }
       },
       searchTerms(newVal, oldVal) {
+        // When there are search terms and the Folders link is clicked,
+        // this ensures that we don't redirect to the search page when the
+        // user wanted to go to the Folders page.
+        if (this.$route.name === PageNames.TOPICS_TOPIC) {
+          this.sidePanelIsOpen = false;
+          return;
+        }
         if (!isEqual(newVal, oldVal)) {
           if (!isEqual(this.searchTabLink, this.$route)) {
             this.$router.push({ ...this.searchTabLink }).catch(() => {});
@@ -679,8 +535,8 @@
           this.sidePanelIsOpen = false;
         }
       },
-      sidePanelContent() {
-        if (this.sidePanelContent) {
+      metadataSidePanelContent() {
+        if (this.metadataSidePanelContent) {
           document.documentElement.style.position = 'fixed';
           return;
         }
@@ -697,7 +553,7 @@
       this.setSearchWithinDescendant(this.topic);
       this.search();
       if (this.subTopicId) {
-        this.handleLoadMoreinSubtopic(this.subTopicId);
+        this.handleLoadMoreInSubtopic(this.subTopicId);
       }
     },
     methods: {
@@ -713,7 +569,7 @@
         this.currentCategory = null;
       },
       toggleInfoPanel(content) {
-        this.sidePanelContent = content;
+        this.metadataSidePanelContent = content;
       },
       toggleFolderSearchSidePanel(option) {
         option == 'search' ? (this.mobileSearchActive = true) : (this.mobileSearchActive = false);
@@ -752,7 +608,7 @@
           [topicId]: true,
         };
       },
-      handleLoadMoreinSubtopic(topicId) {
+      handleLoadMoreInSubtopic(topicId) {
         this.subTopicLoading = topicId;
         this.loadMoreContents(topicId).then(() => {
           this.subTopicLoading = null;
@@ -782,14 +638,6 @@
         message: '{ topicTitle } - { channelTitle }',
         context: 'DO NOT TRANSLATE\nCopy the source string.',
       },
-      showMore: {
-        message: 'Show more',
-        context: 'Clickable link which allows to load more resources.',
-      },
-      viewAll: {
-        message: 'View all',
-        context: 'Clickable link which allows to display all resources in a topic.',
-      },
     },
   };
 
@@ -803,33 +651,8 @@
 
   .page {
     position: relative;
-    min-height: calc(100vh - #{$toolbar-height});
-    overflow-x: hidden;
-  }
-
-  .header {
-    position: relative;
     width: 100%;
-    height: $header-height;
-    padding-top: 32px;
-    padding-bottom: 48px;
-    padding-left: 32px;
-  }
-
-  .folder-header-link {
-    /deep/ .link-text {
-      text-decoration: none !important;
-    }
-  }
-
-  .title {
-    margin: 12px;
-  }
-
-  .tab-block {
-    position: absolute;
-    bottom: 0;
-    margin-bottom: 0;
+    min-height: calc(100vh - #{$toolbar-height});
   }
 
   .side-panel {
@@ -878,30 +701,6 @@
     bottom: 0;
     z-index: 12;
     width: 100vw;
-  }
-
-  .mobile-header {
-    position: relative;
-    height: 100%;
-  }
-
-  .mobile-title {
-    height: 100%;
-    padding-right: 16px;
-    padding-left: 16px;
-    margin-top: 16px;
-    font-size: 18px;
-  }
-
-  .channel-logo {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    max-height: 40px;
-  }
-
-  .more-after-grid {
-    margin-bottom: 16px;
   }
 
   .end-button-block {

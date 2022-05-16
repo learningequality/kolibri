@@ -12,7 +12,7 @@
           :isMobile="windowIsSmall"
           :content="content"
           :link="genContentLink(content)"
-          @openCopiesModal="openCopiesModal"
+          @openCopiesModal="copies => displayedCopies = copies"
           @toggleInfoPanel="$emit('toggleInfoPanel', content)"
         />
       </KFixedGridItem>
@@ -39,7 +39,7 @@
       />
     </CardGrid>
 
-    <HybridLearningContentCardListView
+    <CardList
       v-for="content in contents"
       v-else
       :key="content.id"
@@ -70,7 +70,7 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { PageNames } from '../constants';
   import genContentLink from '../utils/genContentLink';
-  import HybridLearningContentCardListView from './HybridLearningContentCardListView';
+  import CardList from './CardList';
   import HybridLearningContentCard from './HybridLearningContentCard';
   import HybridLearningLessonCard from './HybridLearningLessonCard';
   import ResourceCard from './cards/ResourceCard';
@@ -81,7 +81,7 @@
     name: 'HybridLearningCardGrid',
     components: {
       CopiesModal,
-      HybridLearningContentCardListView,
+      CardList,
       HybridLearningContentCard,
       HybridLearningLessonCard,
       ResourceCard,

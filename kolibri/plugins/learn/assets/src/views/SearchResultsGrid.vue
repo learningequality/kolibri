@@ -15,7 +15,7 @@
       @clearSearch="clearSearch"
     />
     <div
-      v-if="!(windowIsSmall) && results.length"
+      v-if="!(windowIsSmall) && results.length && !hideCardViewToggle"
       class="toggle-view-buttons"
       data-test="toggle-view-buttons"
     >
@@ -72,10 +72,10 @@
   import { ref } from 'kolibri.lib.vueCompositionApi';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import CopiesModal from '../CopiesModal';
-  import SearchChips from '../SearchChips';
-  import LibraryAndChannelBrowserMainContent from '../LibraryAndChannelBrowserMainContent';
-  import genContentLink from '../../utils/genContentLink';
+  import genContentLink from '../utils/genContentLink';
+  import CopiesModal from './CopiesModal';
+  import SearchChips from './SearchChips';
+  import LibraryAndChannelBrowserMainContent from './LibraryAndChannelBrowserMainContent';
 
   export default {
     name: 'SearchResultsGrid',
@@ -98,6 +98,10 @@
       currentCardViewStyle: {
         type: String,
         default: 'card',
+      },
+      hideCardViewToggle: {
+        type: Boolean,
+        default: false,
       },
       clearSearch: {
         type: Function,
