@@ -15,7 +15,7 @@ from zeroconf import ServiceStateChange
 from zeroconf import USE_IP_OF_OUTGOING_INTERFACE
 from zeroconf import Zeroconf
 
-from kolibri.core.public.utils import get_device_info
+from kolibri.core.device.utils import get_device_info
 
 
 SERVICE_TYPE = "Kolibri._sub._http._tcp.local."

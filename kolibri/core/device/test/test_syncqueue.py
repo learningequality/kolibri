@@ -86,7 +86,7 @@ class TestRequestSoUDSync(TestCase):
 
     @mock.patch("kolibri.core.public.utils.queue")
     @mock.patch(
-        "kolibri.core.public.utils.get_device_setting",
+        "kolibri.core.device.utils.get_device_setting",
         return_value=True,
     )
     def test_begin_request_soud_sync(self, mock_device_info, queue):
