@@ -71,6 +71,7 @@
       :style="{ borderBottomColor: !$isPrint ? $themeTokens.fineLine : 'transparent' }"
     >
       <router-link
+        v-if="topics.length"
         :to="foldersLink"
         class="header-tab"
         :activeClass="activeTabClasses"
