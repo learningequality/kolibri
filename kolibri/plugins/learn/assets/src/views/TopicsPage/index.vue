@@ -203,7 +203,7 @@
       v-if="metadataSidePanelContent"
       alignment="right"
       :closeButtonIconType="closeButtonIcon"
-      @closePanel="sidePanelContent = null"
+      @closePanel="metadataSidePanelContent = null"
       @shouldFocusFirstEl="findFirstEl()"
     >
       <template #header>
