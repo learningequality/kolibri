@@ -66,7 +66,7 @@
     <!-- Nested tabs within the header, for toggling sidebar options -->
     <!-- large screens -->
     <div
-      v-show="enablePrint || !$isPrint"
+      v-show="!$isPrint"
       class="tab-block"
       :style="{ borderBottomColor: !$isPrint ? $themeTokens.fineLine : 'transparent' }"
     >
