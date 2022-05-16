@@ -1,3 +1,6 @@
+from rest_framework import status
+from rest_framework.exceptions import APIException
+
 from .... import error_constants
 
 
@@ -31,3 +34,12 @@ class InvalidHostname(URLParseError):
 
 class InvalidPort(URLParseError):
     pass
+
+
+class ResourceGoneError(APIException):
+    """
+    API error for when a peer no longer is online
+    """
+
+    status_code = status.HTTP_410_GONE
+    default_detail = "Unable to connect"
