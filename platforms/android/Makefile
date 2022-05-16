@@ -137,20 +137,25 @@ logcat:
 	$(ADB) logcat | grep -i -E "python|kolibr| `$(ADB) shell ps | grep ' org.learningequality.Kolibri$$' | tr -s [:space:] ' ' | cut -d' ' -f2` " | grep -E -v "WifiTrafficPoller|localhost:5000|NetworkManagementSocketTagger|No jobs to start"
 
 $(SDK)/cmdline-tools:
-	@echo "Downloading Android SDK build tools"
+	@echo "Downloading Android SDK command line tools"
 	wget https://dl.google.com/android/repository/commandlinetools-$(PLATFORM)-7583922_latest.zip
-	unzip commandlinetools-$(PLATFORM)-7583922_latest.zip -d $(SDK)
+	rm -rf cmdline-tools
+	unzip commandlinetools-$(PLATFORM)-7583922_latest.zip
+# This is unfortunate since it will download the command line tools
+# again, but after this it will be properly installed and updatable.
+	yes y | ./cmdline-tools/bin/sdkmanager "cmdline-tools;latest" --sdk_root=$(SDK)
+	rm -rf cmdline-tools
 	rm commandlinetools-$(PLATFORM)-7583922_latest.zip
 
 sdk:
-	yes y | $(SDK)/cmdline-tools/bin/sdkmanager "platform-tools" --sdk_root=$(SDK)
-	yes y | $(SDK)/cmdline-tools/bin/sdkmanager "platforms;android-$(ANDROID_API)" --sdk_root=$(SDK)
-	yes y | $(SDK)/cmdline-tools/bin/sdkmanager "system-images;android-$(ANDROID_API);default;x86_64" --sdk_root=$(SDK)
-	yes y | $(SDK)/cmdline-tools/bin/sdkmanager "build-tools;30.0.3" --sdk_root=$(SDK)
-	yes y | $(SDK)/cmdline-tools/bin/sdkmanager "ndk;$(ANDROIDNDKVER)" --sdk_root=$(SDK)
+	yes y | $(SDK)/cmdline-tools/latest/bin/sdkmanager "platform-tools"
+	yes y | $(SDK)/cmdline-tools/latest/bin/sdkmanager "platforms;android-$(ANDROID_API)"
+	yes y | $(SDK)/cmdline-tools/latest/bin/sdkmanager "system-images;android-$(ANDROID_API);default;x86_64"
+	yes y | $(SDK)/cmdline-tools/latest/bin/sdkmanager "build-tools;30.0.3"
+	yes y | $(SDK)/cmdline-tools/latest/bin/sdkmanager "ndk;$(ANDROIDNDKVER)"
 	ln -sfT ndk/$(ANDROIDNDKVER) $(SDK)/ndk-bundle
 	@echo "Accepting all licenses"
-	yes | $(SDK)/cmdline-tools/bin/sdkmanager --licenses --sdk_root=$(SDK)
+	yes | $(SDK)/cmdline-tools/latest/bin/sdkmanager --licenses
 
 # All of these commands are non-destructive, so if the cmdline-tools are already installed, make will skip
 # based on the directory existing.
