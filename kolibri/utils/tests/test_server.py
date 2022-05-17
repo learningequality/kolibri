@@ -11,6 +11,7 @@ from unittest import TestCase
 import mock
 import pytest
 
+from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.storage import Storage
 from kolibri.core.tasks.test.base import connection
 from kolibri.utils import server
@@ -100,7 +101,7 @@ def job_storage():
 
 
 class TestServerServices(object):
-    @mock.patch("kolibri.core.deviceadmin.utils.schedule_vacuum")
+    @mock.patch("kolibri.core.deviceadmin.tasks.schedule_vacuum")
     @mock.patch("kolibri.core.analytics.utils.schedule_ping")
     @mock.patch("kolibri.core.tasks.main.initialize_workers")
     @mock.patch("kolibri.core.discovery.utils.network.broadcast.KolibriBroadcast")
@@ -135,8 +136,8 @@ class TestServerServices(object):
             from datetime import timedelta
 
             schedule_time = local_now() + timedelta(hours=1)
-            job_storage.schedule(schedule_time, id, kwargs=dict(job_id="test01"))
-            job_storage.schedule(schedule_time, id, kwargs=dict(job_id="test02"))
+            test1 = job_storage.schedule(schedule_time, Job(id))
+            test2 = job_storage.schedule(schedule_time, Job(id))
 
             # Now, start services plugin
             service_plugin = server.ServicesPlugin(mock.MagicMock(name="bus"))
@@ -145,11 +146,11 @@ class TestServerServices(object):
             # Currently, we must have exactly four scheduled jobs
             # two userdefined and two server defined (pingback and vacuum)
             from kolibri.core.analytics.utils import DEFAULT_PING_JOB_ID
-            from kolibri.core.deviceadmin.utils import SCH_VACUUM_JOB_ID
+            from kolibri.core.deviceadmin.tasks import SCH_VACUUM_JOB_ID
 
             assert len(job_storage) == 4
-            assert job_storage.get_job("test01") is not None
-            assert job_storage.get_job("test02") is not None
+            assert job_storage.get_job(test1) is not None
+            assert job_storage.get_job(test2) is not None
             assert job_storage.get_job(DEFAULT_PING_JOB_ID) is not None
             assert job_storage.get_job(SCH_VACUUM_JOB_ID) is not None
 
@@ -159,8 +160,8 @@ class TestServerServices(object):
 
             # Make sure all scheduled jobs persist after restart
             assert len(job_storage) == 4
-            assert job_storage.get_job("test01") is not None
-            assert job_storage.get_job("test02") is not None
+            assert job_storage.get_job(test1) is not None
+            assert job_storage.get_job(test2) is not None
             assert job_storage.get_job(DEFAULT_PING_JOB_ID) is not None
             assert job_storage.get_job(SCH_VACUUM_JOB_ID) is not None
 
