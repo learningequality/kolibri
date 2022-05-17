@@ -45,18 +45,3 @@ class UserHasAnyDevicePermissions(DenyAll):
 class IsSuperuser(DenyAll):
     def has_permission(self, request, view):
         return request.user.is_superuser
-
-
-class LODUserHasSyncPermissions(BasePermission):
-    """
-    When a subset_of_users_device is provisioned, after the first user has been synced,
-    this user must be able to sync more users
-    """
-
-    def has_permission(self, request, view):
-        from .utils import get_device_setting
-
-        subset_of_users_device = get_device_setting(
-            "subset_of_users_device", default=False
-        )
-        return (request.user.is_anonymous() is False) and subset_of_users_device

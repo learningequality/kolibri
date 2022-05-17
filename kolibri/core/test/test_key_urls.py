@@ -152,13 +152,9 @@ class AllUrlsTest(APITransactionTestCase):
                         pass
             self.assertFalse(failures, "\n".join(failures))
 
-        # Some API endpoints start iceqube tasks which can cause the task runner to hang
-        # Patch this so that no tasks get started.
         with patch(
             "kolibri.core.webpack.hooks.WebpackBundleHook.bundle", return_value=[]
-        ), patch("kolibri.core.tasks.api.queue"), patch(
-            "kolibri.core.webpack.hooks.WebpackBundleHook.get_by_unique_id"
-        ):
+        ), patch("kolibri.core.webpack.hooks.WebpackBundleHook.get_by_unique_id"):
             # A slight hack to accommodate the SoUD tests ensuring that Coach and Facility plugins are not
             # available to the frontend. If for any reason you decide to use get_device_setting in the
             # kolibri_plugin of either Coach or Facility.
@@ -170,6 +166,8 @@ class AllUrlsTest(APITransactionTestCase):
             ), patch(
                 "kolibri.plugins.facility.kolibri_plugin.get_device_setting",
                 return_value=False,
+            ), patch(
+                "kolibri.core.tasks.api.job_storage"
             ):
                 from kolibri.deployment.default.urls import urlpatterns
 

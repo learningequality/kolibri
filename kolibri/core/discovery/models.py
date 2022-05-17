@@ -13,6 +13,10 @@ def _filter_out_unsupported_fields(fields):
     return {k: v for (k, v) in fields.items() if NetworkLocation.has_field(k)}
 
 
+def _uuid_string():
+    return str(uuid.uuid4())
+
+
 class NetworkLocation(models.Model):
     """
     ``NetworkLocation`` stores information about a network address through which an instance of Kolibri can be accessed,
@@ -27,7 +31,7 @@ class NetworkLocation(models.Model):
     # for statically added network locations: `id` will be a random UUID
     # for dynamically discovered devices: `id` will be the device's `instance_id`
     id = models.CharField(
-        primary_key=True, max_length=36, default=uuid.uuid4, editable=False
+        primary_key=True, max_length=36, default=_uuid_string, editable=False
     )
     dynamic = models.BooleanField(default=False)
 

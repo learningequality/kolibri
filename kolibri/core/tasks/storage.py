@@ -18,7 +18,6 @@ from kolibri.core.tasks.constants import DEFAULT_QUEUE
 from kolibri.core.tasks.exceptions import JobNotFound
 from kolibri.core.tasks.exceptions import JobNotRestartable
 from kolibri.core.tasks.job import Job
-from kolibri.core.tasks.job import JobRegistry
 from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.job import State
 from kolibri.utils.time_utils import local_now
@@ -138,9 +137,7 @@ class Storage(object):
         job.storage = self
         return job
 
-    def enqueue_job(
-        self, func, queue=DEFAULT_QUEUE, priority=Priority.REGULAR, args=(), kwargs=None
-    ):
+    def enqueue_job(self, job, queue=DEFAULT_QUEUE, priority=Priority.REGULAR):
         """
         Add the job given by j to the job queue.
 
@@ -149,13 +146,11 @@ class Storage(object):
         dt = self._now()
         return self.schedule(
             dt,
-            func,
+            job,
             queue,
             priority=priority,
             interval=0,
             repeat=0,
-            args=args,
-            kwargs=kwargs,
         )
 
     def mark_job_as_canceled(self, job_id):
@@ -256,16 +251,18 @@ class Storage(object):
         Raises `JobNotRestartable` exception if the job with id = job_id state is
         not in CANCELED or FAILED.
         """
-        job_to_restart = self.get_job(job_id=job_id)
-        registered_job = JobRegistry.REGISTERED_JOBS[job_to_restart.func]
+        with self.session_scope() as session:
+            job_to_restart, orm_job = self._get_job_and_orm_job(job_id, session)
+            queue = orm_job.queue
+            priority = orm_job.priority
 
         if job_to_restart.state in [State.CANCELED, State.FAILED]:
             self.clear(job_id=job_to_restart.job_id, force=False)
-            return registered_job.enqueue(
-                *job_to_restart.args,
+            job = Job.from_job(
+                job_to_restart,
                 job_id=job_to_restart.job_id,
-                **job_to_restart.kwargs
             )
+            return self.enqueue_job(job, queue=queue, priority=priority)
         else:
             raise JobNotRestartable(
                 "Cannot restart job with state={}".format(job_to_restart.state)
@@ -423,38 +420,32 @@ class Storage(object):
     def enqueue_at(
         self,
         dt,
-        func,
+        job,
         queue=DEFAULT_QUEUE,
         priority=Priority.REGULAR,
         interval=0,
         repeat=0,
-        args=(),
-        kwargs=None,
     ):
         """
         Add the job for the specified time
         """
         return self.schedule(
             dt,
-            func,
+            job,
             queue,
             priority=priority,
             interval=interval,
             repeat=repeat,
-            args=args,
-            kwargs=kwargs,
         )
 
     def enqueue_in(
         self,
         delta_t,
-        func,
+        job,
         queue=DEFAULT_QUEUE,
         priority=Priority.REGULAR,
         interval=0,
         repeat=0,
-        args=(),
-        kwargs=None,
     ):
         """
         Add the job in the specified time delta
@@ -464,25 +455,21 @@ class Storage(object):
         dt = self._now() + delta_t
         return self.schedule(
             dt,
-            func,
+            job,
             queue=queue,
             priority=priority,
             interval=interval,
             repeat=repeat,
-            args=args,
-            kwargs=kwargs,
         )
 
     def schedule(
         self,
         dt,
-        func,
+        job,
         queue=DEFAULT_QUEUE,
         priority=Priority.REGULAR,
         interval=0,
         repeat=0,
-        args=(),
-        kwargs=None,
     ):
         """
         Add the job for the specified time, interval, and number of repeats.
@@ -497,13 +484,8 @@ class Storage(object):
             raise ValueError(
                 "Must use a timezone aware datetime object for scheduling tasks"
             )
-        if kwargs is None:
-            kwargs = {}
-        if isinstance(func, Job):
-            job = func
-        # else, turn it into a job first.
-        else:
-            job = Job(func, *args, **kwargs)
+        if not isinstance(job, Job):
+            raise ValueError("Job argument must be a Job object.")
 
         with self.session_scope() as session:
             orm_job = session.query(ORMJob).get(job.job_id)

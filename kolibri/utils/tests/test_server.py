@@ -129,7 +129,7 @@ class TestServerServices(object):
         initialize_workers,
         job_storage,
     ):
-        with mock.patch("kolibri.core.tasks.main.job_storage", wraps=job_storage):
+        with mock.patch("kolibri.core.tasks.registry.job_storage", wraps=job_storage):
 
             # Schedule two userdefined jobs
             from kolibri.utils.time_utils import local_now

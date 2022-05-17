@@ -1,12 +1,13 @@
 import os
 
 from django.core.management import call_command
-from django.http.response import Http404
+from rest_framework import serializers
 
 from kolibri.core.auth.models import Facility
-from kolibri.core.content.permissions import CanExportLogs
 from kolibri.core.logger.csv_export import CSV_EXPORT_FILENAMES
 from kolibri.core.tasks.decorators import register_task
+from kolibri.core.tasks.permissions import IsAdminForJob
+from kolibri.core.tasks.validation import JobValidator
 from kolibri.utils import conf
 
 
@@ -19,48 +20,39 @@ def get_logs_dir_and_filepath(log_type, facility):
     return logs_dir, filepath
 
 
-def validate_startexportlogcsv(request, request_data):
-    facility_id = request_data.get("facility", None)
-    if facility_id:
-        facility = Facility.objects.get(pk=facility_id)
-    else:
-        facility = request.user.facility
+class ExportLogCSVValidator(JobValidator):
+    facility = serializers.PrimaryKeyRelatedField(
+        queryset=Facility.objects.all(), required=False
+    )
+    log_type = serializers.ChoiceField(choices=list(CSV_EXPORT_FILENAMES.keys()))
 
-    log_type = request_data.get("logtype", "summary")
+    def validate(self, data):
+        facility = data.get("facility", None)
+        if facility is None and "user" in self.context:
+            facility = self.context["user"].facility
+        elif facility is None:
+            raise serializers.ValidationError(
+                "Facility must be specified when no user is available."
+            )
+        logs_dir, filepath = get_logs_dir_and_filepath(data["log_type"], facility)
+        if not os.path.isdir(logs_dir):
+            os.mkdir(logs_dir)
 
-    if log_type in CSV_EXPORT_FILENAMES.keys():
-        logs_dir, filepath = get_logs_dir_and_filepath(log_type, facility)
-    else:
-        raise Http404("Impossible to create a csv export file for {}".format(log_type))
-
-    if not os.path.isdir(logs_dir):
-        os.mkdir(logs_dir)
-
-    job_type = "EXPORTSUMMARYLOGCSV" if log_type == "summary" else "EXPORTSESSIONLOGCSV"
-
-    job_metadata = {
-        "type": job_type,
-        "started_by": request.user.pk,
-        "facility": facility.id,
-    }
-
-    return {
-        "log_type": log_type,
-        "filepath": filepath,
-        "facility": facility,
-        "extra_metadata": job_metadata,
-    }
+        return {
+            "facility_id": facility.id,
+            "args": [data["log_type"], filepath, facility.id],
+        }
 
 
 @register_task(
-    validator=validate_startexportlogcsv,
+    validator=ExportLogCSVValidator,
     track_progress=True,
-    permission_classes=[CanExportLogs],
+    permission_classes=[IsAdminForJob],
 )
-def startexportlogcsv(
-    log_type=None,
-    filepath=None,
-    facility=None,
+def exportlogcsv(
+    log_type,
+    filepath,
+    facility_id,
 ):
     """
     Dumps in csv format the required logs.
@@ -73,6 +65,6 @@ def startexportlogcsv(
         "exportlogs",
         log_type=log_type,
         output_file=filepath,
-        facility=facility.id,
-        overwrite="true",
+        facility=facility_id,
+        overwrite=True,
     )

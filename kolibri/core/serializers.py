@@ -12,6 +12,7 @@ from rest_framework.serializers import DateTimeField
 from rest_framework.serializers import get_error_detail
 from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import set_value
+from rest_framework.serializers import UUIDField as UUIDFieldBase
 from rest_framework.settings import api_settings
 
 from .fields import DateTimeTzField as DjangoDateTimeTzField
@@ -102,3 +103,12 @@ class KolibriModelSerializer(ModelSerializer):
             raise ValidationError(errors)
 
         return ret
+
+
+class HexOnlyUUIDField(UUIDFieldBase):
+    def __init__(self, **kwargs):
+        kwargs["format"] = "hex"
+        super(HexOnlyUUIDField, self).__init__(**kwargs)
+
+    def to_internal_value(self, data):
+        return super(HexOnlyUUIDField, self).to_internal_value(data).hex

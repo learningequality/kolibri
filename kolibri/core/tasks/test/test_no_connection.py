@@ -2,7 +2,7 @@ import pytest
 
 
 @pytest.mark.django_db
-def test_importing_queue_no_open_connection():
-    from kolibri.core.tasks.main import queue
+def test_importing_job_storage_no_open_connection():
+    from kolibri.core.tasks.main import job_storage
 
-    queue.empty()
+    job_storage.clear(force=True)
