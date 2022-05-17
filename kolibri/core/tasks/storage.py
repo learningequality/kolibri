@@ -210,6 +210,17 @@ class Storage(object):
 
             return [self._orm_to_job(job) for job in jobs]
 
+    def get_running_jobs(self, queues=None):
+        with self.session_scope() as s:
+            q = s.query(ORMJob).filter(ORMJob.state == State.RUNNING)
+
+            if queues:
+                q = q.filter(ORMJob.queue.in_(queues))
+
+            jobs = q.order_by(ORMJob.time_created).all()
+
+            return [self._orm_to_job(job) for job in jobs]
+
     def get_all_jobs(self, queue=None):
         with self.session_scope() as s:
             q = s.query(ORMJob)
@@ -336,6 +347,9 @@ class Storage(object):
 
     def mark_job_as_running(self, job_id):
         self._update_job(job_id, State.RUNNING)
+
+    def mark_job_as_queued(self, job_id):
+        self._update_job(job_id, State.QUEUED)
 
     def complete_job(self, job_id, result=None):
         self._update_job(job_id, State.COMPLETED, result=result)

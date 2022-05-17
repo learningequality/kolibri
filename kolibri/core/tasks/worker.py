@@ -25,6 +25,8 @@ class Worker(object):
 
         self.storage = Storage(connection)
 
+        self.requeue_stalled_jobs()
+
         # Regular workers run both 'high' and 'regular' priority jobs.
         # High workers run only 'high' priority jobs.
         self.regular_workers = regular_workers
@@ -32,6 +34,12 @@ class Worker(object):
 
         self.workers = self.start_workers()
         self.job_checker = self.start_job_checker()
+
+    def requeue_stalled_jobs(self):
+        logger.info("Requeuing stalled jobs.")
+        for job in self.storage.get_running_jobs():
+            logger.info("Requeuing job id {}.".format(job.job_id))
+            self.storage.mark_job_as_queued(job.job_id)
 
     def shutdown_workers(self, wait=True):
         # First cancel all running jobs
