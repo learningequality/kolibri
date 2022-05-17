@@ -166,6 +166,8 @@ class AllUrlsTest(APITransactionTestCase):
             ), patch(
                 "kolibri.plugins.facility.kolibri_plugin.get_device_setting",
                 return_value=False,
+            ), patch(
+                "kolibri.core.tasks.api.job_storage"
             ):
                 from kolibri.deployment.default.urls import urlpatterns
 
