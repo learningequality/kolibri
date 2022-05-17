@@ -136,7 +136,7 @@ install:
 logcat:
 	$(ADB) logcat | grep -i -E "python|kolibr| `$(ADB) shell ps | grep ' org.learningequality.Kolibri$$' | tr -s [:space:] ' ' | cut -d' ' -f2` " | grep -E -v "WifiTrafficPoller|localhost:5000|NetworkManagementSocketTagger|No jobs to start"
 
-$(SDK)/cmdline-tools:
+$(SDK)/cmdline-tools/latest/bin/sdkmanager:
 	@echo "Downloading Android SDK command line tools"
 	wget https://dl.google.com/android/repository/commandlinetools-$(PLATFORM)-7583922_latest.zip
 	rm -rf cmdline-tools
@@ -147,7 +147,7 @@ $(SDK)/cmdline-tools:
 	rm -rf cmdline-tools
 	rm commandlinetools-$(PLATFORM)-7583922_latest.zip
 
-sdk:
+sdk: $(SDK)/cmdline-tools/latest/bin/sdkmanager
 	yes y | $(SDK)/cmdline-tools/latest/bin/sdkmanager "platform-tools"
 	yes y | $(SDK)/cmdline-tools/latest/bin/sdkmanager "platforms;android-$(ANDROID_API)"
 	yes y | $(SDK)/cmdline-tools/latest/bin/sdkmanager "system-images;android-$(ANDROID_API);default;x86_64"
@@ -162,8 +162,6 @@ sdk:
 # The SDK installations will take a little time, but will not attempt to redownload if already installed.
 setup:
 	$(MAKE) guard-ANDROID_HOME
-	mkdir -p $(SDK)
-	$(MAKE) $(SDK)/cmdline-tools
 	$(MAKE) sdk
 	@echo "Make sure to set the necessary environment variables"
 	@echo "export ANDROIDSDK=$(SDK)"
