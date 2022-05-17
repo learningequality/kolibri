@@ -3,7 +3,6 @@ from functools import update_wrapper
 from importlib import import_module
 
 from django.apps import apps
-from django.utils.functional import SimpleLazyObject
 from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied
 from six import string_types
@@ -37,7 +36,57 @@ class _registry(dict):
         }
     """
 
-    def __init__(self):
+    __initialized = False
+
+    def __init_check(self):
+        if not self.__initialized:
+            self._initialize()
+            self.__initialized = True
+
+    def __getitem__(self, key):
+        self.__init_check()
+        return super(_registry, self).__getitem__(key)
+
+    def __contains__(self, key):
+        self.__init_check()
+        return super(_registry, self).__contains__(key)
+
+    def __iter__(self):
+        self.__init_check()
+        return super(_registry, self).__iter__()
+
+    def __len__(self):
+        self.__init_check()
+        return super(_registry, self).__len__()
+
+    def __repr__(self):
+        self.__init_check()
+        return super(_registry, self).__repr__()
+
+    def copy(self):
+        self.__init_check()
+        return super(_registry, self).copy()
+
+    def has_key(self, key):
+        return key in self
+
+    def keys(self):
+        self.__init_check()
+        return super(_registry, self).keys()
+
+    def values(self):
+        self.__init_check()
+        return super(_registry, self).values()
+
+    def items(self):
+        self.__init_check()
+        return super(_registry, self).items()
+
+    def __cmp__(self, other):
+        self.__init_check()
+        return super(_registry, self).__cmp__(other)
+
+    def _initialize(self):
         logger.debug("Importing 'tasks' module from django apps")
 
         for app_config in apps.get_app_configs():
@@ -77,7 +126,7 @@ class _registry(dict):
         return self[task]
 
 
-TaskRegistry = SimpleLazyObject(_registry)
+TaskRegistry = _registry()
 
 
 class RegisteredTask(object):
