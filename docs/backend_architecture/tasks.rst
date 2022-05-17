@@ -56,7 +56,7 @@ We will refer to below sample code in the later sections also.
             job_data["extra_metadata"].update({"user": "kolibri"})
             return job_data
 
-    @register_task(job_id="02", queue="maths", validator=add_validator, priority=Priority.HIGH, cancellable=False, track_progress=True, permission_classes=[IsSuperAdmin])
+    @register_task(job_id="02", queue="maths", validator=AddValidator, priority=Priority.HIGH, cancellable=False, track_progress=True, permission_classes=[IsSuperAdmin])
     def add(a, b):
         return a + b
 
