@@ -288,7 +288,7 @@
                 baseurl: task.baseurl,
                 driveId: task.drive_id,
               });
-              TaskResource.deleteFinishedTask(task.id);
+              TaskResource.clear(task.id);
             } else {
               this.readAndDeleteTask(task);
             }
@@ -303,7 +303,7 @@
         this.deletedResources = task.deleted_resources_count;
         this.updatedResources = task.updated_resources_count;
 
-        return TaskResource.deleteFinishedTask(task.id);
+        return TaskResource.clear(task.id);
       },
       onWatchedTaskFinished() {
         const task = find(this.$store.state.manageContent.taskList, { id: this.watchedTaskId });

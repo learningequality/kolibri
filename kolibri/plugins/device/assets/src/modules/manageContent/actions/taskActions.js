@@ -18,7 +18,7 @@ export function cancelTask(store, taskId) {
         TaskStatuses.CANCELED,
       () => {
         cancelWatch();
-        TaskResource.deleteFinishedTask(taskId).then(resolve);
+        TaskResource.clear(taskId).then(resolve);
       }
     );
     TaskResource.cancelTask(taskId);

@@ -119,7 +119,7 @@
   import ChannelPanel from '../ManageContentPage/ChannelPanel/WithImportDetails';
   import ContentWizardUiAlert from '../SelectContentPage/ContentWizardUiAlert';
   import { selectContentPageLink } from '../ManageContentPage/manageContentLinks';
-  import { TransferTypes, PageNames } from '../../constants';
+  import { TransferTypes, PageNames, TaskTypes } from '../../constants';
   import FilteredChannelListContainer from '../ManageContentPage/FilteredChannelListContainer';
   import SelectionBottomBar from '../ManageContentPage/SelectionBottomBar';
   import taskNotificationMixin from '../taskNotificationMixin';
@@ -371,38 +371,28 @@
         this.$router.push({ name: PageNames.MANAGE_TASKS });
       },
       startMultipleChannelImport() {
+        const baseParams = {
+          type: this.inLocalImportMode ? TaskTypes.DISKIMPORT : TaskTypes.REMOTEIMPORT,
+        };
         if (this.inLocalImportMode) {
-          const taskParams = this.selectedChannels.map(x => ({
-            channel_name: x.name,
-            channel_id: x.id,
-            drive_id: this.selectedDrive.id,
-          }));
-          return TaskResource.startDiskBulkImport(taskParams)
-            .then(tasks => {
-              this.notifyAndWatchTask(tasks);
-              this.goToManageTasksPage();
-            })
-            .catch(() => {
-              this.createTaskFailedSnackbar();
-              this.disableBottomBar = false;
-            });
-        } else {
-          const peer_id = this.inPeerImportMode ? this.selectedPeer.id : null;
-          const taskParams = this.selectedChannels.map(x => ({
-            channel_name: x.name,
-            channel_id: x.id,
-            peer_id,
-          }));
-          return TaskResource.startRemoteBulkImport(taskParams)
-            .then(tasks => {
-              this.notifyAndWatchTask(tasks);
-              this.goToManageTasksPage();
-            })
-            .catch(() => {
-              this.createTaskFailedSnackbar();
-              this.disableBottomBar = false;
-            });
+          baseParams.drive_id = this.selectedDrive.id;
+        } else if (this.inPeerImportMode) {
+          baseParams.peer_id = this.selectedPeer.id;
         }
+        const taskParams = this.selectedChannels.map(x => ({
+          ...baseParams,
+          channel_name: x.name,
+          channel_id: x.id,
+        }));
+        return TaskResource.startTasks(taskParams)
+          .then(tasks => {
+            this.notifyAndWatchTask(tasks);
+            this.goToManageTasksPage();
+          })
+          .catch(() => {
+            this.createTaskFailedSnackbar();
+            this.disableBottomBar = false;
+          });
       },
     },
     $trs: {

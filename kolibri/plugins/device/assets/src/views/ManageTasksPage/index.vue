@@ -112,7 +112,7 @@
     },
     methods: {
       handleClickClear(task) {
-        TaskResource.deleteFinishedTask(task.id).catch(() => {
+        TaskResource.clear(task.id).catch(() => {
           // error silently
         });
       },
@@ -120,7 +120,7 @@
         TaskResource.cancelTask(task.id);
       },
       handleClickClearAll() {
-        TaskResource.deleteFinishedTasks();
+        TaskResource.clearAll();
       },
       handleRedirectToImportPage() {
         this.$router.push(

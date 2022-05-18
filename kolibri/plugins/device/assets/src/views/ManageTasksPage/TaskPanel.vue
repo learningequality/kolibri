@@ -242,7 +242,7 @@
       },
       startedByText() {
         return this.$tr('startedByUser', {
-          user: this.task.started_by_username || this.$tr('unknownUsername'),
+          user: this.task.extra_metadata.started_by_username || this.$tr('unknownUsername'),
         });
       },
     },

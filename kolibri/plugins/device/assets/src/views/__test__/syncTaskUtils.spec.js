@@ -26,7 +26,9 @@ describe('syncTaskUtils.syncFacilityTaskDisplayInfo', () => {
       device_id: 'dev123',
       facility_name: 'generic facility',
       facility: 'fac123',
-      started_by_username: 'generic user',
+      extra_metadata: {
+        started_by_username: 'generic user',
+      },
       bytes_sent: 1000000,
       bytes_received: 500000000,
       cancellable: CANCELLABLE_STATUSES.indexOf(status) >= 0,
@@ -57,7 +59,9 @@ describe('syncTaskUtils.syncFacilityTaskDisplayInfo', () => {
       device_id: 'dev123',
       facility_name: 'invariant facility',
       facility: 'fac123',
-      started_by_username: 'invariant user',
+      extra_metadata: {
+        started_by_username: 'invariant user',
+      },
     };
 
     ALL_STATUSES.forEach(status => {
@@ -154,7 +158,9 @@ describe('syncTaskUtils.removeFacilityTaskDisplayInfo', () => {
       clearable: CLEARABLE_STATUSES.indexOf(status) >= 0,
       facility_name: 'removed facility',
       facility: 'fac123',
-      started_by_username: 'removing user',
+      extra_metadata: {
+        started_by_username: 'removing user',
+      },
     };
   }
 

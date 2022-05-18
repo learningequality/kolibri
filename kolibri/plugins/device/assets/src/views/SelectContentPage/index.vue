@@ -194,7 +194,7 @@
           if (val) {
             this.metadataDownloadTaskId = val.id;
             if (val.clearable) {
-              TaskResource.deleteFinishedTask(val.id);
+              TaskResource.clear(val.id);
             }
           } else {
             this.metadataDownloadTaskId = '';
@@ -286,6 +286,7 @@
         this.startImportTask({
           importSource,
           channelId: this.channelId,
+          channelName: this.transferredChannel.name,
           included: nodesForTransfer.included.map(x => x.id),
           excluded: nodesForTransfer.omitted.map(x => x.id),
           fileSize: this.transferFileSize,

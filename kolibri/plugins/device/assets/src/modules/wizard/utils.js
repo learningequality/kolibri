@@ -1,6 +1,6 @@
 import { RemoteChannelResource, TaskResource } from 'kolibri.resources';
 import coreStore from 'kolibri.coreVue.vuex.store';
-import { ErrorTypes } from '../../constants';
+import { ErrorTypes, TaskTypes } from '../../constants';
 import { waitForTaskToComplete } from '../manageContent/utils';
 import { getChannelWithContentSizes } from './apiChannelMetadata';
 
@@ -26,29 +26,30 @@ export function getRemoteChannelBundleByToken(token) {
  *
  */
 export function downloadChannelMetadata(store = coreStore) {
+  if (
+    !store.getters['manageContent/wizard/inLocalImportMode'] &&
+    !store.getters['manageContent/wizard/inRemoteImportMode'] &&
+    !store.getters['manageContent/wizard/inPeerImportMode']
+  ) {
+    throw Error('Channel Metadata is only downloaded when importing');
+  }
   const { transferredChannel, selectedDrive, selectedPeer } = store.state.manageContent.wizard;
-  let promise;
+  const taskParams = {
+    channel_id: transferredChannel.id,
+    channel_name: transferredChannel.name,
+    type: store.getters['manageContent/wizard/inLocalImportMode']
+      ? TaskTypes.DISKCHANNELIMPORT
+      : TaskTypes.REMOTECHANNELIMPORT,
+  };
   if (store.getters['manageContent/wizard/inLocalImportMode']) {
-    promise = TaskResource.startDiskChannelImport({
-      channel_id: transferredChannel.id,
-      drive_id: selectedDrive.id,
-    });
-  } else if (store.getters['manageContent/wizard/inRemoteImportMode']) {
-    promise = TaskResource.startRemoteChannelImport({
-      channel_id: transferredChannel.id,
-    });
+    taskParams.drive_id = selectedDrive.id;
   } else if (store.getters['manageContent/wizard/inPeerImportMode']) {
-    promise = TaskResource.startRemoteChannelImport({
-      channel_id: transferredChannel.id,
-      peer_id: selectedPeer.id,
-    });
-  } else {
-    return Error('Channel Metadata is only downloaded when importing');
+    taskParams.peer = selectedPeer.id;
   }
   store.commit('CORE_SET_PAGE_LOADING', false);
-  promise = promise.catch(() => Promise.reject({ errorType: ErrorTypes.CONTENT_DB_LOADING_ERROR }));
 
-  return promise
+  return TaskResource.startTask(taskParams)
+    .catch(() => Promise.reject({ errorType: ErrorTypes.CONTENT_DB_LOADING_ERROR }))
     .then(task => {
       // NOTE: store.watch is not available to dispatched actions
       return waitForTaskToComplete(task.data.id, store);
@@ -56,7 +57,7 @@ export function downloadChannelMetadata(store = coreStore) {
     .then(completedTask => {
       const { taskId, cancelled } = completedTask;
       if (taskId && !cancelled) {
-        return TaskResource.deleteFinishedTask(taskId)
+        return TaskResource.clear(taskId)
           .then(() => {
             return getChannelWithContentSizes(transferredChannel.id);
           })

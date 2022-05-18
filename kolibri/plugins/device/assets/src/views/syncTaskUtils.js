@@ -110,7 +110,9 @@ export function syncFacilityTaskDisplayInfo(task) {
   return {
     headingMsg,
     statusMsg,
-    startedByMsg: getTaskString('taskStartedByLabel', { username: task.started_by_username }),
+    startedByMsg: getTaskString('taskStartedByLabel', {
+      username: task.extra_metadata.started_by_username,
+    }),
     bytesTransferredMsg,
     deviceNameMsg,
     isRunning: Boolean(syncStep) && !canClear,
@@ -134,7 +136,9 @@ export function removeFacilityTaskDisplayInfo(task) {
   return {
     headingMsg: getTaskString('removeFacilityTaskLabel', { facilityName }),
     statusMsg: statusDescription,
-    startedByMsg: getTaskString('taskStartedByLabel', { username: task.started_by_username }),
+    startedByMsg: getTaskString('taskStartedByLabel', {
+      username: task.extra_metadata.started_by_username,
+    }),
     isRunning: task.status === TaskStatuses.RUNNING,
     canClear: task.clearable,
     canCancel: !task.clearable && task.status !== TaskStatuses.RUNNING,

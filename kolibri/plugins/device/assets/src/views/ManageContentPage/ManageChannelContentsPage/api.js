@@ -5,6 +5,7 @@ import {
 } from 'kolibri.resources';
 import { getChannelWithContentSizes } from '../../../modules/wizard/apiChannelMetadata';
 import { getDeviceInfo } from '../../../modules/deviceInfo/handlers';
+import { TaskTypes } from '../../../constants';
 
 export function fetchPageData(channelId) {
   const studioChannelPromise = RemoteChannelResource.fetchModel({ id: channelId, force: true })
@@ -40,9 +41,11 @@ export function fetchNodeWithAncestors(nodeId) {
 }
 
 export function startExportTask(params) {
-  const { channelId, driveId, included, omitted } = params;
-  return TaskResource.startDiskContentExport({
+  const { channelId, channelName, driveId, included, omitted } = params;
+  return TaskResource.startTask({
+    type: TaskTypes.DISKEXPORT,
     channel_id: channelId,
+    channel_name: channelName,
     drive_id: driveId,
     node_ids: included,
     exclude_node_ids: omitted,
@@ -50,11 +53,12 @@ export function startExportTask(params) {
 }
 
 export function startDeleteTask(params) {
-  const { channelId, included, excluded, deleteEverywhere } = params;
-  // NOTE: startdeletechannel with node_ids/exclude_node_ids only
-  // deletes sub-trees of channel
-  return TaskResource.postListEndpoint('startdeletechannel', {
+  const { channelId, channelName, included, excluded, deleteEverywhere } = params;
+  // NOTE: node_ids/exclude_node_ids only deletes sub-trees of channel
+  return TaskResource.startTask({
+    type: TaskTypes.DELETECHANNEL,
     channel_id: channelId,
+    channel_name: channelName,
     node_ids: included,
     exclude_node_ids: excluded,
     force_delete: deleteEverywhere,
