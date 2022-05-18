@@ -3,39 +3,22 @@
   <form>
 
     <PaginatedListContainerWithBackend
-      v-if="isBackendPaginated"
+      v-model="currentPage"
       :items="usersNotInClass"
-      :filterPlaceholder="$tr('searchForUser')"
-      :excludeMemberOf="excludeMemberOf"
+      :itemsPerPage="itemsPerPage"
       :totalPageNumber="totalPages"
-      :userAssignmentType="userAssignmentType"
-      :totalUsers="totalUsersCount"
+      :numFilteredItems="totalUsers"
     >
-      <template #default="{ items, filterInput }">
+      <template>
         <UserTable
           v-model="selectedUsers"
-          :users="items"
+          :users="usersNotInClass"
           :selectable="true"
-          :disabled="disabled"
-          :emptyMessage="emptyMessageForItems(items, filterInput)"
+          :emptyMessage="emptyMessageForItems(usersNotInClass)"
+          :showDemographicInfo="true"
         />
       </template>
     </PaginatedListContainerWithBackend>
-    <PaginatedListContainer
-      v-else
-      :items="usersNotInClass"
-      :filterPlaceholder="$tr('searchForUser')"
-    >
-      <template #default="{ items, filterInput }">
-        <UserTable
-          v-model="selectedUsers"
-          :users="items"
-          :selectable="true"
-          :disabled="disabled"
-          :emptyMessage="emptyMessageForItems(items, filterInput)"
-        />
-      </template>
-    </PaginatedListContainer>
     <SelectionBottomBar
       :count="selectedUsers.length"
       :disabled="disabled || selectedUsers.length === 0"
@@ -50,10 +33,10 @@
 
 <script>
 
+  import pickBy from 'lodash/pickBy';
   import differenceWith from 'lodash/differenceWith';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
   import PaginatedListContainerWithBackend from './PaginatedListContainerWithBackend';
   import SelectionBottomBar from './SelectionBottomBar';
   import UserTable from './UserTable';
@@ -62,9 +45,6 @@
     name: 'ClassEnrollForm',
     components: {
       SelectionBottomBar,
-      // conditionally render paginated list container based on whether there are
-      // more than one page of users
-      PaginatedListContainer,
       PaginatedListContainerWithBackend,
       UserTable,
     },
@@ -87,11 +67,6 @@
         type: Boolean,
         default: false,
       },
-      classId: {
-        type: String,
-        required: false,
-        default: '',
-      },
       totalPageNumber: {
         type: Number,
         required: false,
@@ -102,11 +77,6 @@
         required: false,
         default: 0,
       },
-      isBackendPaginated: {
-        type: Boolean,
-        required: false,
-        default: false,
-      },
     },
     data() {
       return {
@@ -115,49 +85,54 @@
     },
     computed: {
       usersNotInClass() {
-        return this.isBackendPaginated
-          ? this.facilityUsers
-          : differenceWith(this.facilityUsers, this.classUsers, (a, b) => a.id === b.id);
-      },
-      excludeMemberOf() {
-        return this.classId;
+        return differenceWith(this.facilityUsers, this.classUsers, (a, b) => a.id === b.id);
       },
       totalPages() {
         return this.totalPageNumber;
       },
-      userAssignmentType() {
-        return this.pageType;
+      currentPage: {
+        get() {
+          return Number(this.$route.query.page || 1);
+        },
+        set(value) {
+          this.$router.push({
+            ...this.$route,
+            query: pickBy({
+              ...this.$route.query,
+              page: value,
+            }),
+          });
+        },
       },
-      totalUsersCount() {
-        return this.totalUsers;
+      itemsPerPage: {
+        get() {
+          return this.$route.query.page_size || 30;
+        },
+        set(value) {
+          this.$router.push({
+            ...this.$route,
+            query: pickBy({
+              ...this.$route.query,
+              page_size: value,
+              page: null,
+            }),
+          });
+        },
       },
     },
     methods: {
-      emptyMessageForItems(items, filterInput) {
+      emptyMessageForItems() {
         if (this.facilityUsers.length === 0) {
           return this.coreString('noUsersExistLabel');
         }
         if (this.usersNotInClass.length === 0) {
           return this.$tr('allUsersAlready');
         }
-        if (items.length === 0 && filterInput !== '') {
-          return this.$tr('noUsersMatch', { filterText: filterInput });
-        }
-
         return '';
       },
     },
     $trs: {
-      searchForUser: {
-        message: 'Search for a user',
-        context: 'Descriptive text which appears in the search field on the Facility > Users page.',
-      },
       // TODO clarify empty state messages after string freeze
-      noUsersMatch: {
-        message: 'No users match the filter: "{filterText}"',
-        context:
-          'Message that displays on the Facility > Users page when a search for a user produces no results.',
-      },
       allUsersAlready: {
         message: 'All users are already enrolled in this class',
         context:
