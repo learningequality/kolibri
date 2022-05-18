@@ -52,6 +52,7 @@ def plugins():
     plugins.conf_file = old_config_file
 
 
+@patch("kolibri.plugins.registry.is_initialized", return_value=False)
 def test_bogus_plugin_autoremove(plugins):
     """
     Checks that a plugin is auto-removed when it cannot be imported
@@ -63,6 +64,7 @@ def test_bogus_plugin_autoremove(plugins):
     assert plugin_name not in plugins.config["INSTALLED_PLUGINS"]
 
 
+@patch("kolibri.plugins.registry.is_initialized", return_value=False)
 def test_bogus_plugin_autoremove_no_path(plugins):
     """
     Checks that a plugin without a dotted path is also auto-removed
