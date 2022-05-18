@@ -14,10 +14,10 @@
 
 <script>
 
-  import ImmersiveToolbar from 'kolibri.coreVue.components.ImmersiveToolbar';
+  import ImmersiveToolbar from '../ImmersiveToolbar';
 
   export default {
-    name: 'ImmersivePageRoot',
+    name: 'ImmersivePage',
     components: { ImmersiveToolbar },
     props: {
       appBarTitle: {

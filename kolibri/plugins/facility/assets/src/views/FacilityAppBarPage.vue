@@ -1,6 +1,6 @@
 <template>
 
-  <AppBarCorePage :title="title">
+  <AppBarPage :title="title">
 
     <template #subNav>
       <FacilityTopNav ref="topNav" />
@@ -10,7 +10,7 @@
       <slot></slot>
     </div>
 
-  </AppBarCorePage>
+  </AppBarPage>
 
 </template>
 
@@ -18,13 +18,13 @@
 <script>
 
   import { mapGetters } from 'vuex';
-  import AppBarCorePage from 'kolibri.coreVue.components.AppBarCorePage';
+  import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import FacilityTopNav from './FacilityTopNav';
 
   export default {
     name: 'FacilityAppBarPage',
-    components: { AppBarCorePage, FacilityTopNav },
+    components: { AppBarPage, FacilityTopNav },
     mixins: [commonCoreStrings],
     props: {
       appBarTitle: {
