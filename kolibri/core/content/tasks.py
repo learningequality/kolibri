@@ -169,6 +169,7 @@ def remotecontentimport(
     peer_id=None,
     node_ids=None,
     exclude_node_ids=None,
+    update=False,
 ):
     call_command(
         "importcontent",
@@ -178,6 +179,7 @@ def remotecontentimport(
         peer_id=peer_id,
         node_ids=node_ids,
         exclude_node_ids=exclude_node_ids,
+        import_updates=update,
     )
 
 
@@ -268,6 +270,7 @@ def remoteimport(
     peer_id=None,
     node_ids=None,
     exclude_node_ids=None,
+    update=False,
 ):
     call_command(
         "importchannel",
@@ -285,6 +288,7 @@ def remoteimport(
         peer_id=peer_id,
         node_ids=node_ids,
         exclude_node_ids=exclude_node_ids,
+        import_updates=update,
     )
 
 
