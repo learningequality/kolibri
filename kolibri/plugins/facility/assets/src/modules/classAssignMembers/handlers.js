@@ -1,4 +1,5 @@
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
+import pickBy from 'lodash/pickBy';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import { ClassroomResource, FacilityUserResource } from 'kolibri.resources';
 import { UserKinds } from 'kolibri.coreVue.vuex.constants';
@@ -9,12 +10,12 @@ export function showLearnerClassEnrollmentPage(store, toRoute) {
   store.dispatch('preparePage');
   // facility users that are not enrolled in this class
   const userPromise = FacilityUserResource.fetchCollection({
-    getParams: {
+    getParams: pickBy({
       member_of: facility_id || store.getters.activeFacilityId,
-      page_size: 30,
-      page: 1,
+      page: toRoute.query.page || 1,
+      page_size: toRoute.query.page_size || 30,
       exclude_member_of: id,
-    },
+    }),
     force: true,
   });
   // current class
@@ -23,8 +24,6 @@ export function showLearnerClassEnrollmentPage(store, toRoute) {
   const classUsersPromise = FacilityUserResource.fetchCollection({
     getParams: {
       member_of: id,
-      page_size: 30,
-      page: 1,
     },
     force: true,
   });
@@ -34,7 +33,7 @@ export function showLearnerClassEnrollmentPage(store, toRoute) {
     ([facilityUsers, classroom, classUsers]) => {
       store.commit('classAssignMembers/SET_STATE', {
         facilityUsers: facilityUsers.results.map(_userState),
-        classUsers: classUsers.results.map(_userState),
+        classUsers: classUsers.results,
         totalPageNumber: facilityUsers.total_pages,
         totalLearners: facilityUsers.count,
         class: classroom,
