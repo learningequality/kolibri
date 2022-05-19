@@ -5,9 +5,7 @@
     <p>{{ $tr('pageSubheader') }}</p>
     <ClassEnrollForm
       :facilityUsers="facilityUsers"
-      :classUsers="classLearners"
       :disabled="formIsDisabled"
-      :classId="classId"
       :totalPageNumber="totalPageNumber"
       :totalUsers="totalLearners"
       pageType="learners"
@@ -43,16 +41,12 @@
     computed: {
       ...mapState('classAssignMembers', [
         'class',
-        'classLearners',
         'facilityUsers',
         'totalLearners',
         'totalPageNumber',
       ]),
       className() {
         return this.class.name;
-      },
-      classId() {
-        return this.class.id;
       },
     },
     methods: {

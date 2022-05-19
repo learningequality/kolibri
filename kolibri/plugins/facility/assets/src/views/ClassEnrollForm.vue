@@ -34,7 +34,6 @@
 <script>
 
   import pickBy from 'lodash/pickBy';
-  import differenceWith from 'lodash/differenceWith';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import PaginatedListContainerWithBackend from './PaginatedListContainerWithBackend';
@@ -58,11 +57,6 @@
         type: String,
         required: true,
       },
-      classUsers: {
-        type: Array,
-        required: false,
-        default: () => [],
-      },
       disabled: {
         type: Boolean,
         default: false,
@@ -85,7 +79,7 @@
     },
     computed: {
       usersNotInClass() {
-        return differenceWith(this.facilityUsers, this.classUsers, (a, b) => a.id === b.id);
+        return this.facilityUsers;
       },
       totalPages() {
         return this.totalPageNumber;
