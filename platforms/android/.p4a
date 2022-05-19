@@ -11,7 +11,7 @@
 --permission WRITE_EXTERNAL_STORAGE
 --permission ACCESS_NETWORK_STATE
 --permission FOREGROUND_SERVICE
---service server:server.py
+--service workers:workers.py
 --service remoteshell:remoteshell.py
 --presplash assets/icon.png
 --presplash-color #FFFFFF
