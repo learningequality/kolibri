@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <AppBarDevicePage>
     <h1>{{ $tr('header') }}</h1>
     <table :class="windowIsSmall ? 'mobile-table' : ''">
       <tr>
@@ -66,7 +66,7 @@
       @submit="handleSubmitDeviceName"
       @cancel="showDeviceNameModal = false"
     />
-  </div>
+  </AppBarDevicePage>
 
 </template>
 
@@ -77,6 +77,7 @@
   import TechnicalTextBlock from 'kolibri.coreVue.components.TechnicalTextBlock';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import AppBarDevicePage from './PageWrappers/AppBarDevicePage';
   import DeviceNameModal from './DeviceNameModal';
 
   export default {
@@ -87,6 +88,7 @@
       };
     },
     components: {
+      AppBarDevicePage,
       DeviceNameModal,
       TechnicalTextBlock,
     },

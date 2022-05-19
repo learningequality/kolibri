@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <AppBarDevicePage>
 
     <div>
       <HeaderWithOptions :headerText="coreString('channelsLabel')">
@@ -61,7 +61,7 @@
     </div>
 
 
-  </div>
+  </AppBarDevicePage>
 
 </template>
 
@@ -69,6 +69,7 @@
 <script>
 
   import find from 'lodash/find';
+
   import get from 'lodash/get';
   import sortBy from 'lodash/sortBy';
   import { mapState, mapGetters, mapActions } from 'vuex';
@@ -78,6 +79,7 @@
   import useContentTasks from '../../composables/useContentTasks';
   import { PageNames, TaskStatuses, TaskTypes } from '../../constants';
   import HeaderWithOptions from '../HeaderWithOptions';
+  import AppBarDevicePage from '../PageWrappers/AppBarDevicePage';
   import SelectTransferSourceModal from './SelectTransferSourceModal';
   import ChannelPanel from './ChannelPanel/WithSizeAndOptions';
   import DeleteChannelModal from './DeleteChannelModal';
@@ -91,6 +93,7 @@
       };
     },
     components: {
+      AppBarDevicePage,
       ChannelPanel,
       DeleteChannelModal,
       HeaderWithOptions,

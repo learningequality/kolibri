@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <AppBarDevicePage>
 
     <div class="description">
       <h1>
@@ -47,7 +47,7 @@
       </template>
     </PaginatedListContainer>
 
-  </div>
+  </AppBarDevicePage>
 
 </template>
 
@@ -55,9 +55,11 @@
 <script>
 
   import { mapGetters, mapState } from 'vuex';
+
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
   import { PermissionTypes, UserKinds } from 'kolibri.coreVue.vuex.constants';
+  import AppBarDevicePage from '../PageWrappers/AppBarDevicePage';
   import UserGrid from './UserGrid';
 
   const ALL_FILTER = 'all';
@@ -70,6 +72,7 @@
       };
     },
     components: {
+      AppBarDevicePage,
       PaginatedListContainer,
       UserGrid,
     },

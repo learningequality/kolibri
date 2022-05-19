@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <AppBarDevicePage>
     <section>
       <h1>
         {{ $tr('pageHeader') }}
@@ -115,7 +115,7 @@
         </template>
       </ul>
     </section>
-  </div>
+  </AppBarDevicePage>
 
 </template>
 
@@ -129,6 +129,7 @@
   import { availableLanguages, currentLanguage } from 'kolibri.utils.i18n';
   import sortLanguages from 'kolibri.utils.sortLanguages';
   import { LandingPageChoices } from '../../constants';
+  import AppBarDevicePage from '../PageWrappers/AppBarDevicePage';
   import { getDeviceSettings, saveDeviceSettings } from './api';
 
   const SignInPageOptions = Object.freeze({
@@ -144,6 +145,7 @@
         title: this.$tr('pageHeader'),
       };
     },
+    components: { AppBarDevicePage },
     mixins: [commonCoreStrings],
     data() {
       return {

@@ -1,6 +1,7 @@
 <template>
 
-  <CoreBase
+  <!-- TODO Remove this stuff before making PR -->
+  <div
     :appBarTitle="currentPageAppBarTitle"
     :immersivePage="currentPageIsImmersive"
     :immersivePagePrimary="immersivePagePrimary"
@@ -9,10 +10,6 @@
     :toolbarTitle="currentPageAppBarTitle"
     :showSubNav="canManageContent && !currentPageIsImmersive"
   >
-    <template #sub-nav>
-      <DeviceTopNav />
-    </template>
-
     <transition name="delay-entry">
       <PostSetupModalGroup
         v-if="welcomeModalVisible"
@@ -20,10 +17,8 @@
       />
     </transition>
 
-    <KPageContainer :style="containerStyles">
-      <router-view />
-    </KPageContainer>
-  </CoreBase>
+    <router-view />
+  </div>
 
 </template>
 
@@ -32,9 +27,7 @@
 
   import omit from 'lodash/omit';
   import { mapState, mapGetters } from 'vuex';
-  import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import { ContentWizardPages, PageNames } from '../constants';
-  import DeviceTopNav from './DeviceTopNav';
   import PostSetupModalGroup from './PostSetupModalGroup';
 
   const welcomeDimissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
@@ -42,9 +35,7 @@
   export default {
     name: 'DeviceIndex',
     components: {
-      CoreBase,
       PostSetupModalGroup,
-      DeviceTopNav,
     },
     computed: {
       ...mapGetters(['canManageContent', 'isSuperuser']),
@@ -58,15 +49,6 @@
       },
       pageName() {
         return this.$route.name;
-      },
-      containerStyles() {
-        // Need to override overflow rule for setting page
-        if (this.$route.name === PageNames.DEVICE_SETTINGS_PAGE) {
-          return {
-            overflowX: 'inherit',
-          };
-        }
-        return {};
       },
       currentPageAppBarTitle() {
         if (this.pageName === PageNames.USER_PERMISSIONS_PAGE) {

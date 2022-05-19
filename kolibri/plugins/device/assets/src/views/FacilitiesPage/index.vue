@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <AppBarDevicePage>
     <HeaderWithOptions :headerText="coreString('facilitiesLabel')">
       <template #options>
         <!-- Margins to and bottom adds space when buttons are vertically stacked -->
@@ -143,7 +143,7 @@
       @close="facilityForSync = null"
       @success="handleStartSyncSuccess"
     />
-  </div>
+  </AppBarDevicePage>
 
 </template>
 
@@ -161,6 +161,7 @@
     ConfirmationRegisterModal,
     SyncFacilityModalGroup,
   } from 'kolibri.coreVue.componentSets.sync';
+  import AppBarDevicePage from '../PageWrappers/AppBarDevicePage';
   import TasksBar from '../ManageContentPage/TasksBar';
   import HeaderWithOptions from '../HeaderWithOptions';
   import { TaskStatuses, TaskTypes } from '../../constants';
@@ -182,6 +183,7 @@
       };
     },
     components: {
+      AppBarDevicePage,
       ConfirmationRegisterModal,
       CoreTable,
       HeaderWithOptions,
