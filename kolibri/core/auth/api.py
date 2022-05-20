@@ -238,11 +238,6 @@ class FacilityUserFilter(FilterSet):
     def filter_exclude_coach_for(self, queryset, name, value):
         return queryset.exclude(
             Q(roles__in=Role.objects.filter(kind=role_kinds.COACH, collection=value))
-            | Q(
-                roles__in=Role.objects.filter(
-                    kind=role_kinds.COACH, collection_id=value.parent_id
-                )
-            )
         )
 
     def filter_exclude_user_type(self, queryset, name, value):
