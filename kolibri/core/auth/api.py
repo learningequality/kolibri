@@ -214,6 +214,9 @@ class FacilityUserFilter(FilterSet):
     exclude_member_of = ModelChoiceFilter(
         method="filter_exclude_member_of", queryset=Collection.objects.all()
     )
+    exclude_coach_for = ModelChoiceFilter(
+        method="filter_exclude_coach_for", queryset=Collection.objects.all()
+    )
     exclude_user_type = ChoiceFilter(
         choices=USER_TYPE_CHOICES,
         method="filter_exclude_user_type",
@@ -231,6 +234,16 @@ class FacilityUserFilter(FilterSet):
 
     def filter_exclude_member_of(self, queryset, name, value):
         return queryset.exclude(Q(memberships__collection=value) | Q(facility=value))
+
+    def filter_exclude_coach_for(self, queryset, name, value):
+        return queryset.exclude(
+            Q(roles__in=Role.objects.filter(kind=role_kinds.COACH, collection=value))
+            | Q(
+                roles__in=Role.objects.filter(
+                    kind=role_kinds.COACH, collection_id=value.parent_id
+                )
+            )
+        )
 
     def filter_exclude_user_type(self, queryset, name, value):
         if value == "learner":

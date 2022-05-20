@@ -4,7 +4,6 @@ import { assignCoachesToClass, enrollLearnersInClass } from './actions';
 function defaultState() {
   return {
     class: {},
-    classUsers: [],
     facilityUsers: [],
     modalShown: false,
   };
