@@ -316,7 +316,7 @@ class PeerSyncJobValidator(SyncJobValidator):
 
 class PeerFacilitySyncJobValidator(PeerSyncJobValidator):
     username = serializers.CharField()
-    password = serializers.CharField()
+    password = serializers.CharField(required=False)
 
     def validate(self, data):
         job_data = super(PeerFacilitySyncJobValidator, self).validate(data)
@@ -324,7 +324,7 @@ class PeerFacilitySyncJobValidator(PeerSyncJobValidator):
             job_data["kwargs"]["baseurl"],
             job_data["facility_id"],
             data["username"],
-            data["password"],
+            data.get("password", "NOT_SPECIFIED"),
         )
         return job_data
 
@@ -730,17 +730,18 @@ def queue_soud_server_sync_cleanup(client_ip):
 
 class PeerImportSingleSyncJobValidator(PeerSyncJobValidator):
     username = serializers.CharField()
-    password = serializers.CharField()
+    password = serializers.CharField(required=False)
     user_id = HexOnlyUUIDField(required=False)
+    facility = HexOnlyUUIDField()
 
     def validate(self, data):
         job_data = super(PeerImportSingleSyncJobValidator, self).validate(data)
         user_id = data.get("user_id", None)
         # Use pre-validated base URL
         baseurl = job_data["kwargs"]["baseurl"]
-        facility_id = data["facility_id"]
+        facility_id = data["facility"]
         username = data["username"]
-        password = data["password"]
+        password = data.get("password", "NOT_SPECIFIED")
         facility_info = get_remote_users_info(baseurl, facility_id, username, password)
         user_info = facility_info["user"]
         full_name = user_info["full_name"]
@@ -762,9 +763,7 @@ class PeerImportSingleSyncJobValidator(PeerSyncJobValidator):
         validate_and_create_sync_credentials(
             baseurl, facility_id, username, password, user_id=user_id
         )
-
-        job_data["kwargs"]["user_id"] = user_id
-        job_data["kwargs"]["extra_metadata"]["full_name"] = full_name
+        job_data["kwargs"]["user"] = user_id
 
         return job_data
 
