@@ -34,6 +34,7 @@ import ProgressIcon from '../views/ProgressIcon';
 import PermissionsIcon from '../views/PermissionsIcon';
 import CoreBase from '../views/CoreBase';
 import AppBarPage from '../views/CorePage/AppBarPage';
+import AppBar from '../views/AppBar';
 import ImmersivePage from '../views/CorePage/ImmersivePage';
 import ScrollingHeader from '../views/CoreBase/ScrollingHeader';
 import SidePanelModal from '../views/SidePanelModal';
@@ -152,6 +153,7 @@ export default {
       ContentIcon,
       ProgressIcon,
       PermissionsIcon,
+      AppBar,
       AppBarPage,
       ImmersivePage,
       CoreBase,
