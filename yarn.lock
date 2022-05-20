@@ -8852,9 +8852,9 @@ kolibri-constants@0.1.36:
     purecss "^0.6.2"
     tippy.js "^4.2.1"
 
-"kolibri-design-system@https://github.com/marcellamaki/kolibri-design-system#65fe3a801a5d2421b57ac35fdb8b2ff907f78da7":
+"kolibri-design-system@https://github.com/marcellamaki/kolibri-design-system#8dc1b3dd4526ffb1bd0862df66f6893d39ff9912":
   version "1.3.0"
-  resolved "https://github.com/marcellamaki/kolibri-design-system#65fe3a801a5d2421b57ac35fdb8b2ff907f78da7"
+  resolved "https://github.com/marcellamaki/kolibri-design-system#8dc1b3dd4526ffb1bd0862df66f6893d39ff9912"
   dependencies:
     aphrodite "https://github.com/learningequality/aphrodite/"
     autosize "^3.0.21"
