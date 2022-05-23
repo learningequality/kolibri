@@ -111,11 +111,12 @@
   import pickBy from 'lodash/pickBy';
   import sortBy from 'lodash/sortBy';
   import map from 'lodash/map';
+  import { mapState } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskResource } from 'kolibri.resources';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
-  import { TaskStatuses, PageNames } from '../../constants';
+  import { TaskStatuses, PageNames, TaskTypes } from '../../constants';
   import { fetchOrTriggerChannelDiffStatsTask, fetchChannelAtSource } from './api';
 
   export default {
@@ -147,6 +148,7 @@
       };
     },
     computed: {
+      ...mapState('manageContent', ['tasks']),
       channelIsIncomplete() {
         return false;
       },
@@ -161,9 +163,10 @@
       },
       params() {
         return pickBy({
-          channelId: this.$route.params.channel_id,
-          driveId: this.$route.query.drive_id,
-          addressId: this.$route.query.address_id,
+          channel_id: this.$route.params.channel_id,
+          drive_id: this.$route.query.drive_id,
+          peer: this.$route.query.address_id,
+          channel_name: this.channelName,
         });
       },
       sortedFilteredVersionNotes() {
@@ -194,33 +197,20 @@
         this.setChannelData(installedChannel, sourceChannel);
 
         this.loadingChannel = false;
-
-        // Trigger Diff Stats task right after
-        // HACK params for import task are appended to sourceChannel to avoid more REST calls
-        this.startDiffStatsTask({
-          baseurl: sourceChannel.baseurl,
-          driveId: sourceChannel.driveId,
-        });
+        this.startDiffStatsTask();
       });
     },
     methods: {
       handleSubmit() {
         this.disableModal = true;
-        const updateParams = {
-          sourcetype: 'remote',
-          channel_id: this.params.channelId,
-          new_version: this.nextVersion,
-        };
-
-        if (this.params.driveId) {
-          updateParams.sourcetype = 'local';
-          updateParams.drive_id = this.params.driveId;
-        } else if (this.params.addressId) {
-          updateParams.peer_id = this.params.addressId;
-        }
+        console.log(this.params);
 
         // Create the import channel task
-        return TaskResource.postListEndpoint('startchannelupdate', updateParams)
+        return TaskResource.startTask({
+          type: this.params.drive_id ? TaskTypes.DISKIMPORT : TaskTypes.REMOTEIMPORT,
+          update: true,
+          ...this.params,
+        })
           .then(taskResponse => {
             // If there are new resources in the new version, wait until the new
             // metadata DB is loaded, then redirect to the "Import More from Studio" flow.
@@ -248,7 +238,7 @@
                 name: PageNames.MANAGE_TASKS,
                 query: {
                   last: PageNames.MANAGE_CHANNEL,
-                  channel_id: this.params.channelId,
+                  channel_id: this.params.channel_id,
                 },
               });
             }
@@ -272,22 +262,16 @@
           this.$store.dispatch('handleApiError', error);
         });
       },
-      startDiffStatsTask(sourceParams) {
-        // Finds or triggers a new CHANNELDIFFSTATS task.
+      startDiffStatsTask() {
+        // Finds or triggers a new job to calculate the diff stats for this channel.
         // If one is already found, it will immediately clear it after loading the data.
         // If a new Task is triggered, the component will watch the Task until it is completed,
         // then clear it after the data is loaded.
-        return fetchOrTriggerChannelDiffStatsTask({
-          channelId: this.params.channelId,
-          ...sourceParams,
-        }).then(task => {
+        return fetchOrTriggerChannelDiffStatsTask({ ...this.params }, this.tasks).then(task => {
           if (task.clearable) {
             // If the task actually just failed, re-start the task
             if (task.status === TaskStatuses.FAILED) {
-              this.startDiffStatsTask({
-                baseurl: task.baseurl,
-                driveId: task.drive_id,
-              });
+              this.startDiffStatsTask();
               TaskResource.clear(task.id);
             } else {
               this.readAndDeleteTask(task);
@@ -299,9 +283,9 @@
       },
       readAndDeleteTask(task) {
         this.loadingTask = false;
-        this.newResources = task.new_resources_count;
-        this.deletedResources = task.deleted_resources_count;
-        this.updatedResources = task.updated_resources_count;
+        this.newResources = task.extra_metadata.new_resources_count;
+        this.deletedResources = task.extra_metadata.deleted_resources_count;
+        this.updatedResources = task.extra_metadata.updated_resources_count;
 
         return TaskResource.clear(task.id);
       },
