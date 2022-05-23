@@ -8,6 +8,7 @@ import ast
 import logging.config
 import os
 import sys
+from functools import update_wrapper
 
 from configobj import ConfigObj
 from configobj import flatten_errors
@@ -269,23 +270,23 @@ def multiprocess_bool(value):
 
 class LazyImportFunction(object):
     """
-    A function that will import a module when called.
+    A function wrapper that will import a module when called.
+    We may be able to drop this when Python 2.7 support is dropped
+    and use Python LazyLoader module machinery instead.
     """
 
     def __init__(self, module_name):
         self.module_name = module_name
+        self._fn = None
 
     def __call__(self, *args, **kwargs):
-        fn = import_string(self.module_name)
-        if not callable(fn):
-            raise ImportError("Module {} is not callable".format(self.module_name))
-        return fn(*args, **kwargs)
-
-    def __str__(self):
-        return "Lazily imported function: {}".format(self.module_name)
-
-    def __repr__(self):
-        return self.__str__()
+        if self._fn is None:
+            fn = import_string(self.module_name)
+            if not callable(fn):
+                raise ImportError("Module {} is not callable".format(self.module_name))
+            self._fn = fn
+            update_wrapper(self, self._fn)
+        return self._fn(*args, **kwargs)
 
 
 def lazy_import_callback(value):

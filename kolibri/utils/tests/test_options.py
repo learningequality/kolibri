@@ -338,3 +338,23 @@ def test_path_expansion():
         with mock.patch.dict(os.environ, {"KOLIBRI_CONTENT_DIR": user_path}):
             OPTIONS = options.read_options_file(ini_filename=tmp_ini_path)
             assert OPTIONS["Paths"]["CONTENT_DIR"] == os.path.expanduser(user_path)
+
+
+def test_lazy_function_import():
+    """
+    Checks that a lazily loaded function is not imported until called
+    """
+
+    dummy_function = options.LazyImportFunction(
+        "kolibri.utils.tests.do_not_import.dummy_function"
+    )
+
+    assert "kolibri.utils.tests.do_not_import" not in sys.modules
+
+    try:
+        dummy_function()
+        assert False, "Correct function was not imported"
+    except RuntimeError:
+        pass
+
+    assert "kolibri.utils.tests.do_not_import" in sys.modules
