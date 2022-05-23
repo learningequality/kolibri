@@ -62,7 +62,7 @@
                 />
               </div>
             </div>
-            <SideNavDivider :style="{ listStyleType: 'none' }" />
+            <SideNavDivider v-if="userIsLearner" :style="{ listStyleType: 'none' }" />
             <CoreMenu
               ref="coreMenu"
               role="navigation"
@@ -74,7 +74,6 @@
                   :is="component"
                   v-for="component in menuOptions"
                   :key="component.name"
-                  @openLanguageModal="handleShowLanguageModal()"
                 />
                 <CoreMenuOption
                   :label="$tr('languageSwitchMenuOption')"
@@ -191,7 +190,7 @@
 
 <script>
 
-  import { mapGetters, mapState } from 'vuex';
+  import { mapGetters, mapState, mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { UserKinds, SyncStatus, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
@@ -305,9 +304,15 @@
     },
     watch: {
       navShown(isShown) {
+        console.log('is shown', isShown);
         this.$nextTick(() => {
           if (isShown) {
+            this.isPolling = true;
+            this.pollUserSyncStatusTask();
+            console.log(this.isPolling);
             this.focusFirstEl();
+          } else {
+            this.isPolling = false;
           }
         });
       },
@@ -325,6 +330,7 @@
       this.isPolling = false;
     },
     methods: {
+      ...mapActions(['fetchUserSyncStatus']),
       toggleNav() {
         this.$emit('toggleSideNav');
       },
@@ -332,6 +338,7 @@
         this.languageModalShown = true;
       },
       pollUserSyncStatusTask() {
+        console.log('is polling');
         if (this.navShown) {
           this.fetchUserSyncStatus({ user: this.userId }).then(syncData => {
             if (syncData && syncData[0]) {
