@@ -8,10 +8,7 @@
 
     <template v-else>
       <TaskProgress
-        :show="!onDeviceInfoIsReady"
-        type="DOWNLOADING_CHANNEL_CONTENTS"
-        :showButtons="false"
-        status="RUNNING"
+        v-if="!onDeviceInfoIsReady"
       />
 
       <template v-if="onDeviceInfoIsReady">
@@ -30,7 +27,6 @@
           :channel="transferredChannel"
           :channelOnDevice="channelOnDevice"
           :freeSpace="availableSpace"
-          :remoteContentEnabled="remoteContentEnabled"
         />
 
         <UiAlert
@@ -123,7 +119,6 @@
         // in beforeRouteLeave
         metadataDownloadTaskId: '',
         disableBottomBar: false,
-        remoteContentEnabled: plugin_data.isRemoteContent,
       };
     },
     computed: {
@@ -180,7 +175,7 @@
         return this.availableVersions.source > this.availableVersions.installed;
       },
       isFileSpaceEnough() {
-        if (this.remoteContentEnabled) {
+        if (plugin_data.isRemoteContent) {
           return false;
         } else return this.transferFileSize > this.availableSpace;
       },

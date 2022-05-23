@@ -3,9 +3,7 @@
   <div class="manage-channel-page">
     <!-- Show this progress bar to match other import flows -->
     <TaskProgress
-      :show="!channel"
-      :showButtons="false"
-      status="RUNNING"
+      v-if="!channel"
     />
 
     <template v-if="channel">
