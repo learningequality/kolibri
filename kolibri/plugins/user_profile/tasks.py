@@ -7,14 +7,13 @@ from kolibri.core.auth.utils.migrate import merge_users
 from kolibri.core.serializers import HexOnlyUUIDField
 from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.job import Priority
-from kolibri.core.tasks.permissions import IsAdmin
-from kolibri.core.tasks.permissions import NotProvisioned
+from kolibri.core.tasks.permissions import IsFacilityAdmin
+from kolibri.core.tasks.permissions import IsSelf
+from kolibri.core.tasks.permissions import IsSuperAdmin
+from kolibri.core.tasks.permissions import PermissionsFromAny
 
 
 class MergeUserValidator(PeerImportSingleSyncJobValidator):
-    local_user_id = serializers.PrimaryKeyRelatedField(
-        queryset=FacilityUser.objects.all()
-    )
     local_user_id = HexOnlyUUIDField()
 
     def validate(self, data):
@@ -34,7 +33,9 @@ class MergeUserValidator(PeerImportSingleSyncJobValidator):
     priority=Priority.HIGH,
     cancellable=False,
     track_progress=True,
-    permission_classes=[IsAdmin() | NotProvisioned()],
+    permission_classes=[
+        PermissionsFromAny(IsSelf(), IsSuperAdmin(), IsFacilityAdmin())
+    ],
 )
 def mergeuser(command, **kwargs):
     local_user_id = kwargs.pop("local_user_id")

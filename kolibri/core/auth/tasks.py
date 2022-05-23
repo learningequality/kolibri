@@ -40,6 +40,7 @@ from kolibri.core.error_constants import DEVICE_LIMITATIONS
 from kolibri.core.public.constants.user_sync_statuses import QUEUED
 from kolibri.core.public.constants.user_sync_statuses import SYNC
 from kolibri.core.serializers import HexOnlyUUIDField
+from kolibri.core.tasks.constants import NOT_SPECIFIED
 from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.job import State
 from kolibri.core.tasks.main import job_storage
@@ -279,7 +280,7 @@ class PeerSyncJobValidator(SyncJobValidator):
             raise serializers.ValidationError(
                 "Either baseurl or device_id must be specified"
             )
-        if "device_id" in data:
+        if data.get("device_id", None) is not None:
             if not data["device_id"].base_url:
                 raise serializers.ValidationError("Device has no base url")
             data["baseurl"] = data["device_id"].base_url
@@ -296,7 +297,7 @@ class PeerSyncJobValidator(SyncJobValidator):
         except NetworkLocationNotFound:
             raise ResourceGoneError()
 
-        if "device_id" in data:
+        if data.get("device_id", None) is not None:
             device_name = data["device_id"].nickname or data["device_id"].device_name
             device_id = data["device_id"].id
         else:
@@ -316,7 +317,7 @@ class PeerSyncJobValidator(SyncJobValidator):
 
 class PeerFacilitySyncJobValidator(PeerSyncJobValidator):
     username = serializers.CharField()
-    password = serializers.CharField(required=False)
+    password = serializers.CharField(default=NOT_SPECIFIED, required=False)
 
     def validate(self, data):
         job_data = super(PeerFacilitySyncJobValidator, self).validate(data)
@@ -324,7 +325,7 @@ class PeerFacilitySyncJobValidator(PeerSyncJobValidator):
             job_data["kwargs"]["baseurl"],
             job_data["facility_id"],
             data["username"],
-            data.get("password", "NOT_SPECIFIED"),
+            data["password"],
         )
         return job_data
 
@@ -730,7 +731,7 @@ def queue_soud_server_sync_cleanup(client_ip):
 
 class PeerImportSingleSyncJobValidator(PeerSyncJobValidator):
     username = serializers.CharField()
-    password = serializers.CharField(required=False)
+    password = serializers.CharField(default=NOT_SPECIFIED, required=False)
     user_id = HexOnlyUUIDField(required=False)
     facility = HexOnlyUUIDField()
 
@@ -741,7 +742,7 @@ class PeerImportSingleSyncJobValidator(PeerSyncJobValidator):
         baseurl = job_data["kwargs"]["baseurl"]
         facility_id = data["facility"]
         username = data["username"]
-        password = data.get("password", "NOT_SPECIFIED")
+        password = data["password"]
         facility_info = get_remote_users_info(baseurl, facility_id, username, password)
         user_info = facility_info["user"]
         full_name = user_info["full_name"]
