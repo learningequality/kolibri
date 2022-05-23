@@ -23,6 +23,9 @@ from kolibri.core.tasks.validation import JobValidator
 from kolibri.utils import conf
 
 
+QUEUE = "content"
+
+
 class ChannelValidator(JobValidator):
     channel_id = HexOnlyUUIDField()
     channel_name = serializers.CharField()
@@ -91,6 +94,7 @@ class LocalChannelResourcesValidator(LocalImportMixin, ChannelResourcesValidator
     cancellable=True,
     track_progress=True,
     permission_classes=[CanManageContent],
+    queue=QUEUE,
 )
 def diskcontentimport(
     channel_id, drive_id, update=False, node_ids=None, exclude_node_ids=None
@@ -142,6 +146,7 @@ class RemoteChannelImportValidator(RemoteImportMixin, ChannelValidator):
     cancellable=True,
     permission_classes=[CanManageContent],
     priority=Priority.HIGH,
+    queue=QUEUE,
 )
 def remotechannelimport(channel_id, baseurl=None, peer_id=None):
     call_command(
@@ -162,6 +167,7 @@ class RemoteChannelResourcesValidator(RemoteImportMixin, ChannelResourcesValidat
     track_progress=True,
     cancellable=True,
     permission_classes=[CanManageContent],
+    queue=QUEUE,
 )
 def remotecontentimport(
     channel_id,
@@ -188,6 +194,7 @@ def remotecontentimport(
     track_progress=True,
     cancellable=True,
     permission_classes=[CanManageContent],
+    queue=QUEUE,
 )
 def diskexport(
     channel_id=None,
@@ -239,6 +246,7 @@ class DeleteChannelValidator(ChannelResourcesValidator):
     validator=DeleteChannelValidator,
     track_progress=True,
     permission_classes=[CanManageContent],
+    queue=QUEUE,
 )
 def deletechannel(
     channel_id=None,
@@ -263,6 +271,7 @@ def deletechannel(
     cancellable=True,
     track_progress=True,
     permission_classes=[CanManageContent],
+    queue=QUEUE,
 )
 def remoteimport(
     channel_id,
@@ -297,6 +306,7 @@ def remoteimport(
     track_progress=True,
     cancellable=True,
     permission_classes=[CanManageContent],
+    queue=QUEUE,
 )
 def diskimport(
     channel_id=None,
@@ -336,6 +346,7 @@ class LocalChannelImportValidator(LocalImportMixin, ChannelValidator):
     cancellable=True,
     permission_classes=[CanManageContent],
     priority=Priority.HIGH,
+    queue=QUEUE,
 )
 def diskchannelimport(
     channel_id,
@@ -371,6 +382,7 @@ class RemoteChannelDiffStatsValidator(RemoteChannelImportValidator):
     track_progress=False,
     cancellable=True,
     permission_classes=[CanManageContent],
+    queue=QUEUE,
 )
 def remotechanneldiffstats(
     channel_id,
@@ -401,6 +413,7 @@ class LocalChannelDiffStatsValidator(LocalChannelImportValidator, LocalImportMix
     track_progress=False,
     cancellable=True,
     permission_classes=[CanManageContent],
+    queue=QUEUE,
 )
 def localchanneldiffstats(
     channel_id,
