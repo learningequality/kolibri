@@ -28,6 +28,7 @@ class DeviceManagementAsset(WebpackBundleHook):
                 "subset_of_users_device", False
             ),
             "isRemoteContent": OPTIONS["Deployment"]["REMOTE_CONTENT"],
+            "canRestart": bool(OPTIONS["Deployment"]["RESTART_HOOKS"]),
         }
 
 

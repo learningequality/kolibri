@@ -6,6 +6,7 @@ from .api import DeviceInfoView
 from .api import DeviceNameView
 from .api import DevicePermissionsViewSet
 from .api import DeviceProvisionView
+from .api import DeviceRestartView
 from .api import DeviceSettingsView
 from .api import FreeSpaceView
 from .api import UserSyncStatusViewSet
@@ -28,4 +29,5 @@ urlpatterns = [
     url(r"^deviceinfo/", DeviceInfoView.as_view(), name="deviceinfo"),
     url(r"^devicesettings/", DeviceSettingsView.as_view(), name="devicesettings"),
     url(r"^devicename/", DeviceNameView.as_view(), name="devicename"),
+    url(r"^devicerestart/", DeviceRestartView.as_view(), name="devicerestart"),
 ]
