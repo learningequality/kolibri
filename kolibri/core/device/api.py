@@ -36,6 +36,8 @@ from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.auth.models import Collection
 from kolibri.core.content.permissions import CanManageContent
+from kolibri.core.content.utils.channels import get_mounted_drive_by_id
+from kolibri.core.content.utils.channels import get_mounted_drives_with_channel_info
 from kolibri.core.device.permissions import IsSuperuser
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.discovery.models import DynamicNetworkLocation
@@ -356,3 +358,14 @@ class DeviceRestartView(views.APIView):
         if restarted:
             return Response(status)
         return HttpResponseBadRequest(status)
+
+
+class DriveInfoViewSet(viewsets.ViewSet):
+    permission_classes = (CanManageContent,)
+
+    def list(self, request):
+        drives = get_mounted_drives_with_channel_info()
+        return Response([mountdata._asdict() for mountdata in drives])
+
+    def retrieve(self, request, pk):
+        return Response(get_mounted_drive_by_id(pk)._asdict())

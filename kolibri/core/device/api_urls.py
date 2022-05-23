@@ -8,6 +8,7 @@ from .api import DevicePermissionsViewSet
 from .api import DeviceProvisionView
 from .api import DeviceRestartView
 from .api import DeviceSettingsView
+from .api import DriveInfoViewSet
 from .api import FreeSpaceView
 from .api import UserSyncStatusViewSet
 
@@ -16,6 +17,7 @@ router.register(
     r"devicepermissions", DevicePermissionsViewSet, base_name="devicepermissions"
 )
 router.register(r"usersyncstatus", UserSyncStatusViewSet, base_name="usersyncstatus")
+router.register(r"driveinfo", DriveInfoViewSet, base_name="driveinfo")
 
 
 urlpatterns = [
