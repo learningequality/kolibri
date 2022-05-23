@@ -209,7 +209,7 @@ class TasksViewSet(viewsets.GenericViewSet):
                 "Cannot cancel job for task: {}".format(job_to_cancel.func)
             )
 
-        job_storage.cancel_job(job_id=job_to_cancel.job_id)
+        job_storage.cancel(job_id=job_to_cancel.job_id)
 
         return Response({})
 
