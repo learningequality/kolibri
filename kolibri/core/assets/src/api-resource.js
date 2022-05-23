@@ -928,11 +928,13 @@ export class Resource {
   }
 
   list(params = {}) {
-    return this.accessListEndpoint('get', 'list', params);
+    return this.accessListEndpoint('get', 'list', params).then(response => response.data);
   }
 
   create(params = {}, multipart = false) {
-    return this.accessListEndpoint('post', 'list', params, multipart);
+    return this.accessListEndpoint('post', 'list', params, multipart).then(
+      response => response.data
+    );
   }
 
   /**
