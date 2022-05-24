@@ -38,7 +38,7 @@ function _taskListShouldUpdate(state, newTasks) {
 }
 
 export function refreshTaskList(store) {
-  return TaskResource.fetchCollection({ force: true })
+  return TaskResource.list({ queue: 'content' })
     .then(newTasks => {
       if (_taskListShouldUpdate(store.state, newTasks)) {
         updateTasks(store, newTasks);
