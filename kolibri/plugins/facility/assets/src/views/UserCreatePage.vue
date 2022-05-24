@@ -224,7 +224,7 @@
         let password = this.password;
 
         if (!this.showPasswordInput) {
-          password = 'NOT_SPECIFIED';
+          password = NOT_SPECIFIED;
           this.passwordValid = true;
         }
 
