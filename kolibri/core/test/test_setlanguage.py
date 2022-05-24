@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.http import HttpResponseNotAllowed
+from django.test import override_settings
 from django.test import TestCase
 from django.urls import reverse
 from django.urls import translate_url
@@ -7,6 +8,7 @@ from django.utils.translation import get_language
 from django.utils.translation import LANGUAGE_SESSION_KEY
 
 
+@override_settings(LANGUAGE_CODE="en")
 class I18NTests(TestCase):
     """
     Tests set_language view in kolibri/core/views.py
