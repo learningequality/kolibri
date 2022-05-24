@@ -156,10 +156,6 @@ export default new Resource({
     );
   },
 
-  localDrives() {
-    return this.getListEndpoint('localdrive');
-  },
-
   // TODO: switch to Model.delete()
   cancelTask(taskId) {
     return this.postListEndpoint('canceltask', {

@@ -142,7 +142,7 @@ def get_channels_for_data_folder(datafolder):
 MOUNTED_DRIVES_CACHE_KEY = "mounted_drives_cache_key"
 
 
-def get_mounted_drives_with_channel_info():
+def _read_mounted_drives_with_channel_info():
     drives = enumerate_mounted_disk_partitions()
     for drive in drives.values():
         drive.metadata["channels"] = (
@@ -152,8 +152,12 @@ def get_mounted_drives_with_channel_info():
     return drives
 
 
+def get_mounted_drives_with_channel_info():
+    return _read_mounted_drives_with_channel_info().values()
+
+
 def get_mounted_drive_by_id(drive_id):
     drives = cache.get(MOUNTED_DRIVES_CACHE_KEY)
     if drives is None or drives.get(drive_id, None) is None:
-        drives = get_mounted_drives_with_channel_info()
+        drives = _read_mounted_drives_with_channel_info()
     return drives[drive_id]
