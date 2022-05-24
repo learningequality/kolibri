@@ -5,7 +5,10 @@ from django.core.management.base import CommandError
 
 from ...utils import paths
 from kolibri.core.content.errors import InvalidStorageFilenameError
-from kolibri.core.content.utils.import_export_content import get_import_export_data
+from kolibri.core.content.utils.import_export_content import get_content_nodes_data
+from kolibri.core.content.utils.import_export_content import get_content_nodes_selectors
+from kolibri.core.content.utils.import_export_content import get_import_export_nodes
+from kolibri.core.content.utils.import_export_content import update_content_manifest
 from kolibri.core.content.utils.paths import get_content_file_name
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.core.tasks.utils import get_current_job
@@ -76,11 +79,13 @@ class Command(AsyncCommand):
             "Exporting content for channel id {} to {}".format(channel_id, data_dir)
         )
 
-        (
-            total_resource_count,
-            files,
-            total_bytes_to_transfer,
-        ) = get_import_export_data(channel_id, node_ids, exclude_node_ids, True)
+        nodes_queries_list = get_import_export_nodes(
+            channel_id, node_ids, exclude_node_ids, available=True
+        )
+
+        (total_resource_count, files, total_bytes_to_transfer) = get_content_nodes_data(
+            channel_id, nodes_queries_list, available=True
+        )
 
         self.update_job_metadata(total_bytes_to_transfer, total_resource_count)
 
@@ -100,6 +105,14 @@ class Command(AsyncCommand):
 
             if self.is_cancelled():
                 self.cancel()
+
+        logger.info(
+            "Exporting manifest for channel id {} to {}".format(channel_id, data_dir)
+        )
+
+        nodes_selectors = get_content_nodes_selectors(channel_id, nodes_queries_list)
+        manifest_file = os.path.join(data_dir, "content", "manifest.json")
+        update_content_manifest(manifest_file, nodes_selectors)
 
     def export_file(self, f, data_dir, overall_progress_update):
         filename = get_content_file_name(f)

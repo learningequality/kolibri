@@ -1275,7 +1275,9 @@ class ExportChannelTestCase(TestCase):
 
 
 @override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())
-@patch("kolibri.core.content.management.commands.exportcontent.get_import_export_data")
+@patch("kolibri.core.content.management.commands.exportcontent.get_import_export_nodes")
+@patch("kolibri.core.content.management.commands.exportcontent.get_content_nodes_data")
+@patch("kolibri.core.content.management.commands.exportcontent.update_content_manifest")
 class ExportContentTestCase(TestCase):
     """
     Test case for the exportcontent management command.
@@ -1295,11 +1297,13 @@ class ExportContentTestCase(TestCase):
         is_cancelled_mock,
         cancel_mock,
         FileCopyMock,
-        get_import_export_mock,
+        update_content_manifest_mock,
+        get_content_nodes_data_mock,
+        get_import_export_nodes_mock,
     ):
         # If cancel comes in before we do anything, make sure nothing happens!
         FileCopyMock.return_value.__iter__.side_effect = TransferCanceled()
-        get_import_export_mock.return_value = (
+        get_content_nodes_data_mock.return_value = (
             1,
             [LocalFile.objects.values("id", "file_size", "extension").first()],
             10,
@@ -1328,7 +1332,9 @@ class ExportContentTestCase(TestCase):
         FileCopyMock,
         local_path_mock,
         start_progress_mock,
-        get_import_export_mock,
+        update_content_manifest_mock,
+        get_content_nodes_data_mock,
+        get_import_export_nodes_mock,
     ):
         # Make sure we cancel during transfer
         fd1, local_dest_path = tempfile.mkstemp()
@@ -1337,7 +1343,7 @@ class ExportContentTestCase(TestCase):
         os.close(fd2)
         local_path_mock.side_effect = [local_src_path, local_dest_path]
         FileCopyMock.return_value.__iter__.side_effect = TransferCanceled()
-        get_import_export_mock.return_value = (
+        get_content_nodes_data_mock.return_value = (
             1,
             [LocalFile.objects.values("id", "file_size", "extension").first()],
             10,
