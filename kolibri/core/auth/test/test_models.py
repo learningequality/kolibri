@@ -25,6 +25,7 @@ from ..models import LearnerGroup
 from ..models import Membership
 from ..models import Role
 from .helpers import create_superuser
+from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 from kolibri.core.device.models import DeviceSettings
 
 
@@ -677,7 +678,7 @@ class FacilityUserTestCase(TestCase):
 
         user = FacilityUser.deserialize(dict(username="bob", password=""))
         self.assertEqual("bob", user.username)
-        self.assertEqual("NOT_SPECIFIED", user.password)
+        self.assertEqual(NOT_SPECIFIED, user.password)
 
 
 class CollectionHierarchyTestCase(TestCase):

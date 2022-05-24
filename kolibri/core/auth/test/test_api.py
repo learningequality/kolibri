@@ -22,6 +22,7 @@ from .helpers import DUMMY_PASSWORD
 from .helpers import provision_device
 from kolibri.core import error_constants
 from kolibri.core.auth.backends import FACILITY_CREDENTIAL_KEY
+from kolibri.core.auth.constants import demographics
 from kolibri.core.device.utils import set_device_settings
 
 # A weird hack because of http://bugs.python.org/issue17866
@@ -1001,7 +1002,7 @@ class SignUpBase(object):
         self.facility.dataset.learner_can_login_with_no_password = False
         self.facility.dataset.save()
         response = self.post_to_sign_up(
-            {"username": "user", "password": "NOT_SPECIFIED"}
+            {"username": "user", "password": demographics.NOT_SPECIFIED}
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertFalse(models.FacilityUser.objects.all())
@@ -1011,7 +1012,7 @@ class SignUpBase(object):
         self.facility.dataset.learner_can_edit_password = False
         self.facility.dataset.save()
         response = self.post_to_sign_up(
-            {"username": "user", "password": "NOT_SPECIFIED"}
+            {"username": "user", "password": demographics.NOT_SPECIFIED}
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertTrue(models.FacilityUser.objects.all())

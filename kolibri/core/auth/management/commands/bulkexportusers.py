@@ -19,6 +19,7 @@ from .bulkimportusers import MESSAGES
 from .bulkimportusers import NO_FACILITY
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.constants.demographics import DEFERRED
+from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
@@ -92,7 +93,7 @@ roles_map = {
 
 def not_specified(field, obj):
     val = obj[field]
-    return None if (val == "NOT_SPECIFIED" or val == DEFERRED) else val
+    return None if (val == NOT_SPECIFIED or val == DEFERRED) else val
 
 
 def kind_of_roles(field, obj):

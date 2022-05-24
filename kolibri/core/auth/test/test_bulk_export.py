@@ -7,6 +7,7 @@ from django.test import TestCase
 from ..management.commands import bulkexportusers as b
 from .helpers import create_dummy_facility_data
 from kolibri.core.auth.constants import role_kinds
+from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 
 CLASSROOMS = 2
 
@@ -16,7 +17,7 @@ def test_not_specified():
         "username": "Bob",
         "password": None,
         "birth_year": "1969",
-        "gender": "NOT_SPECIFIED",
+        "gender": NOT_SPECIFIED,
     }
     assert b.not_specified("gender", row) is None
     assert b.not_specified("username", row) == "Bob"

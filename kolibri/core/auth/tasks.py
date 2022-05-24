@@ -17,6 +17,7 @@ from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from six.moves.urllib.parse import urljoin
 
+from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 from kolibri.core.auth.constants.morango_sync import State as FacilitySyncState
 from kolibri.core.auth.constants.user_kinds import ADMIN
 from kolibri.core.auth.constants.user_kinds import ASSIGNABLE_COACH
@@ -40,7 +41,6 @@ from kolibri.core.error_constants import DEVICE_LIMITATIONS
 from kolibri.core.public.constants.user_sync_statuses import QUEUED
 from kolibri.core.public.constants.user_sync_statuses import SYNC
 from kolibri.core.serializers import HexOnlyUUIDField
-from kolibri.core.tasks.constants import NOT_SPECIFIED
 from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.job import State
 from kolibri.core.tasks.main import job_storage
