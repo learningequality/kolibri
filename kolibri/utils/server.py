@@ -719,6 +719,10 @@ class KolibriProcessBus(KolibriServicesProcessBus):
         kolibri_server.subscribe()
         alt_port_server.subscribe()
 
+    def run(self):
+        self.graceful()
+        self.block()
+
 
 def start(port=0, zip_port=0, serve_http=True, background=False):
     """
