@@ -53,8 +53,9 @@
 <script>
 
   import some from 'lodash/some';
-  import { FacilityTaskResource } from 'kolibri.resources';
+  import { TaskResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { TaskTypes } from '../../constants';
 
   export default {
     name: 'SyncAllFacilitiesModal',
@@ -83,7 +84,9 @@
         }
       },
       startSyncAllTask() {
-        return FacilityTaskResource.dataportalbulksync()
+        return TaskResource.startTasks(
+          this.facilities.map(f => ({ type: TaskTypes.SYNCDATAPORTAL, facility: f.id }))
+        )
           .then(() => {
             this.$emit('success');
           })

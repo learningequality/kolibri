@@ -41,9 +41,10 @@
 
 <script>
 
-  import { FacilityTaskResource } from 'kolibri.resources';
+  import { TaskResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
+  import { TaskTypes } from '../../constants';
 
   export default {
     name: 'RemoveFacilityModal',
@@ -84,7 +85,7 @@
     methods: {
       handleSubmit() {
         if (this.canRemove) {
-          FacilityTaskResource.deleteFacility(this.facility.id)
+          TaskResource.startTask({ type: TaskTypes.DELETEFACILITY, facility: this.facility.id })
             .then(data => {
               this.$emit('success', data.id);
             })

@@ -19,7 +19,15 @@ export default new Resource({
     return this.postDetailEndpoint('clear', jobId);
   },
 
-  clearAll() {
-    return this.postListEndpoint('clearall');
+  restart(jobId) {
+    return this.postDetailEndpoint('restart', jobId);
+  },
+
+  clearAll(queue) {
+    const params = {};
+    if (queue) {
+      params.queue = queue;
+    }
+    return this.postListEndpoint('clearall', params);
   },
 });

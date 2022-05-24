@@ -255,11 +255,15 @@ class SyncJobValidator(JobValidator):
         }
 
 
+facility_task_queue = "facility_task"
+
+
 @register_task(
     validator=SyncJobValidator,
     permission_classes=[IsAdminForJob],
     track_progress=True,
     cancellable=False,
+    queue=facility_task_queue,
 )
 def dataportalsync(command, **kwargs):
     """
@@ -335,6 +339,7 @@ class PeerFacilitySyncJobValidator(PeerSyncJobValidator):
     permission_classes=[IsAdminForJob],
     track_progress=True,
     cancellable=False,
+    queue=facility_task_queue,
 )
 def peerfacilitysync(command, **kwargs):
     """
@@ -362,6 +367,7 @@ class PeerFacilityImportJobValidator(PeerFacilitySyncJobValidator):
     permission_classes=[IsSuperAdmin() | NotProvisioned()],
     track_progress=True,
     cancellable=False,
+    queue=facility_task_queue,
 )
 def peerfacilityimport(command, **kwargs):
     """
@@ -410,8 +416,12 @@ class PeerRepeatingSingleSyncJobValidator(PeerSyncJobValidator):
         return job_data
 
 
+soud_sync_queue = "soud_sync"
+
+
 @register_task(
     validator=PeerRepeatingSingleSyncJobValidator,
+    queue=soud_sync_queue,
 )
 def peerusersync(command, **kwargs):
     cleanup = False
@@ -569,7 +579,9 @@ def stop_request_soud_sync(server, user):
     stoppeerusersync(server, user)
 
 
-@register_task
+@register_task(
+    queue=soud_sync_queue,
+)
 def request_soud_sync(server, user, queue_id=None, ttl=4):
     """
     Make a request to the serverurl endpoint to sync this SoUD (Subset of Users Device)
@@ -696,7 +708,9 @@ def schedule_new_sync(server, user, interval=OPTIONS["Deployment"]["SYNC_INTERVA
     request_soud_sync.enqueue_in(dt, args=(server, user), kwargs=dict(job_id=JOB_ID))
 
 
-@register_task
+@register_task(
+    queue=soud_sync_queue,
+)
 def soud_sync_cleanup(**filters):
     """
     Targeted cleanup of active SoUD sessions
@@ -773,7 +787,7 @@ class PeerImportSingleSyncJobValidator(PeerSyncJobValidator):
     validator=PeerImportSingleSyncJobValidator,
     cancellable=True,
     track_progress=True,
-    queue="soud",
+    queue=soud_sync_queue,
     permission_classes=[IsSuperAdmin() | NotProvisioned()],
 )
 def peeruserimport(**kwargs):
@@ -785,6 +799,7 @@ def peeruserimport(**kwargs):
     permission_classes=[IsSuperAdmin],
     track_progress=True,
     cancellable=False,
+    queue=facility_task_queue,
 )
 def deletefacility(facility):
     """

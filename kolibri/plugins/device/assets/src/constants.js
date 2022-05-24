@@ -36,11 +36,10 @@ export const TaskTypes = {
   UPDATECHANNEL: 'kolibri.core.content.tasks.updatechannel',
   REMOTECHANNELDIFFSTATS: 'kolibri.core.content.tasks.remotechanneldiffstats',
   LOCALCHANNELDIFFSTATS: 'kolibri.core.content.tasks.localchanneldiffstats',
-  SYNCDATAPORTAL: 'SYNCDATAPORTAL',
-  SYNCPEERFULL: 'SYNCPEER/FULL',
-  SYNCPEERPULL: 'SYNCPEER/PULL',
-  SYNCLOD: 'SYNCPEER/SINGLE',
-  DELETEFACILITY: 'DELETEFACILITY',
+  SYNCDATAPORTAL: 'kolibri.core.auth.tasks.dataportalsync',
+  SYNCPEERFULL: 'kolibri.core.auth.tasks.peerfacilitysync',
+  SYNCPEERPULL: 'kolibri.core.auth.tasks.peerfacilityimport',
+  DELETEFACILITY: 'kolibri.core.auth.tasks.deletefacility',
 };
 
 // identical to facility constants.js
