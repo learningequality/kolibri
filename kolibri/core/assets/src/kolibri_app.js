@@ -53,7 +53,7 @@ export default class KolibriApp extends KolibriModule {
     return {};
   }
 
-  ready() {
+  setupVue() {
     // VueRouter instance needs to be defined to use vuex-router-sync
     if (!router._vueRouter) {
       router.initRouter();
@@ -81,23 +81,30 @@ export default class KolibriApp extends KolibriModule {
     forEach(this.pluginModule.modules, (module, name) => {
       store.registerModule(name, module);
     });
+  }
 
+  startRootVue() {
+    this.rootvue = new Vue(
+      Object.assign(
+        {
+          el: 'rootvue',
+          store: store,
+          router: router.initRoutes(this.routes),
+        },
+        this.RootVue
+      )
+    );
+  }
+
+  ready() {
+    this.setupVue();
     return heartbeat.startPolling().then(() => {
       this.store.dispatch('getNotifications');
       return Promise.all([
         // Invoke each of the state setters before initializing the app.
         ...this.stateSetters.map(setter => setter(this.store)),
       ]).then(() => {
-        this.rootvue = new Vue(
-          Object.assign(
-            {
-              el: 'rootvue',
-              store: store,
-              router: router.initRoutes(this.routes),
-            },
-            this.RootVue
-          )
-        );
+        this.startRootVue();
       });
     });
   }
