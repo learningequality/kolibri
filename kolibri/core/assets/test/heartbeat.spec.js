@@ -140,6 +140,11 @@ describe('HeartBeat', function() {
       heartBeat.pollSessionEndPoint();
       expect(_checkSessionStub).toHaveBeenCalledTimes(0);
     });
+    it('should not call _checkSession if it is not enabled', function() {
+      heartBeat._enabled = false;
+      heartBeat.pollSessionEndPoint();
+      expect(_checkSessionStub).toHaveBeenCalledTimes(0);
+    });
     describe('and activity is detected', function() {
       beforeEach(function() {
         heartBeat._active = true;
