@@ -23,7 +23,7 @@
       data-test="children-cards-grid"
       :contents="topic.children"
       currentCardViewStyle="card"
-      :gridType="1"
+      :gridType="2"
       @toggleInfoPanel="$emit('toggleInfoPanel', $event)"
     />
     <KButton

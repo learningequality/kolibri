@@ -17,6 +17,7 @@
       <!-- Header with thumbail and tagline -->
       <TopicsHeader
         v-if="!windowIsSmall"
+        ref="header"
         data-test="header-breadcrumbs"
         :topics="topics"
         :topic="topic"
@@ -186,6 +187,7 @@
           :activeCategories="activeCategories"
           :showChannels="false"
           position="overlay"
+          :style="sidePanelStyleOverrides"
           @currentCategory="handleShowSearchModal"
           @loadMoreTopics="handleLoadMoreInTopic"
         />
@@ -206,16 +208,16 @@
       />
 
 
-    <!-- Side panel for showing the information of selected content with a link to view it -->
-    <SidePanelModal
-      v-if="metadataSidePanelContent"
-      alignment="right"
-      :closeButtonIconType="closeButtonIcon"
-      @closePanel="metadataSidePanelContent = null"
-      @shouldFocusFirstEl="findFirstEl()"
-    >
-      <template #header>
-        <!-- Flex styles tested in ie11 and look good. Ensures good spacing between
+      <!-- Side panel for showing the information of selected content with a link to view it -->
+      <SidePanelModal
+        v-if="metadataSidePanelContent"
+        alignment="right"
+        :closeButtonIconType="closeButtonIcon"
+        @closePanel="metadataSidePanelContent = null"
+        @shouldFocusFirstEl="findFirstEl()"
+      >
+        <template #header>
+          <!-- Flex styles tested in ie11 and look good. Ensures good spacing between
             multiple chips - not a common thing but just in case -->
           <div
             v-for="activity in sidePanelContent.learning_activities"
@@ -264,7 +266,6 @@
   import { normalizeContentNode } from '../../modules/coreLearn/utils.js';
   import useSearch from '../../composables/useSearch';
   import genContentLink from '../../utils/genContentLink';
-  import HybridLearningCardGrid from '../HybridLearningCardGrid';
   import SearchFiltersPanel from '../SearchFiltersPanel';
   import BrowseResourceMetadata from '../BrowseResourceMetadata';
   import LearningActivityChip from '../LearningActivityChip';
@@ -272,6 +273,7 @@
   import CategorySearchModal from '../CategorySearchModal';
   import SearchResultsGrid from '../SearchResultsGrid';
   import LibraryPage from '../LibraryPage';
+  import ImmersivePageRoot from '../ImmersivePageRoot';
   import TopicsHeader from './TopicsHeader';
   import TopicsMobileHeader from './TopicsMobileHeader';
   import TopicSubsection from './TopicSubsection';
@@ -297,7 +299,6 @@
     components: {
       KBreadcrumbs,
       TopicsHeader,
-      HybridLearningCardGrid,
       CustomContentRenderer,
       CategorySearchModal,
       SearchFiltersPanel,
@@ -613,20 +614,17 @@
       // down and appears again when scrolling up).
       // Takes effect only when the side panel is not displayed full-screen.
       stickyCalculation() {
-        const header = this.$refs.header;
+        const header = this.$refs.header.$el;
+        console.log(header);
         const topbar = document.querySelector('.ui-toolbar');
         const headerBottom = header ? header.getBoundingClientRect().bottom : 0;
         const topbarBottom = topbar ? topbar.getBoundingClientRect().bottom : 0;
 
-        if (headerBottom < Math.max(topbarBottom, 0)) {
-          this.sidePanelStyleOverrides = {
-            position: 'fixed',
-            top: `${Math.max(0, headerBottom, topbarBottom)}px`,
-            height: '100%',
-          };
-        } else {
-          this.sidePanelStyleOverrides = {};
-        }
+        this.sidePanelStyleOverrides = {
+          position: 'fixed',
+          top: `${Math.max(0, headerBottom, topbarBottom)}px`,
+          height: '100%',
+        };
       },
       handleShowMore(topicId) {
         this.expandedTopics = {
@@ -681,13 +679,6 @@
     min-height: calc(100vh - #{$toolbar-height});
   }
 
-  .side-panel {
-    position: absolute;
-    top: $header-height;
-    height: calc(100% - #{$header-height});
-    padding-top: 16px;
-  }
-
   .main-content-grid {
     position: relative;
     margin: 24px;
@@ -733,6 +724,10 @@
     width: 100%;
     margin-top: 16px;
     text-align: center;
+  }
+
+  .side-panel {
+    top: $header-height;
   }
 
   .side-panel-chips {
