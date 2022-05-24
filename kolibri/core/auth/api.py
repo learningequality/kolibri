@@ -65,6 +65,7 @@ from .serializers import RoleSerializer
 from kolibri.core import error_constants
 from kolibri.core.api import ReadOnlyValuesViewset
 from kolibri.core.api import ValuesViewset
+from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 from kolibri.core.auth.permissions.general import _user_is_admin_for_own_facility
 from kolibri.core.device.utils import allow_guest_access
 from kolibri.core.device.utils import allow_other_browsers_to_connect
@@ -705,7 +706,7 @@ class SetNonSpecifiedPasswordView(views.APIView):
         except ObjectDoesNotExist:
             raise Http404(error_message)
 
-        if user.password != "NOT_SPECIFIED":
+        if user.password != NOT_SPECIFIED:
             raise Http404(error_message)
 
         user.set_password(password)
@@ -748,7 +749,7 @@ class SessionViewSet(viewsets.ViewSet):
             return self.get_session_response(request)
         if (
             unauthenticated_user is not None
-            and unauthenticated_user.password == "NOT_SPECIFIED"
+            and unauthenticated_user.password == NOT_SPECIFIED
         ):
             # Here - we have a Learner whose password is "NOT_SPECIFIED" because they were created
             # while the "Require learners to log in with password" setting was disabled - but now

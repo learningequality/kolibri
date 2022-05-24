@@ -69,6 +69,7 @@ from .permissions.general import IsOwn
 from .permissions.general import IsSelf
 from kolibri.core.auth.constants.demographics import choices as GENDER_CHOICES
 from kolibri.core.auth.constants.demographics import DEFERRED
+from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
 from kolibri.core.device.utils import DeviceNotProvisioned
 from kolibri.core.device.utils import get_device_setting
@@ -638,7 +639,7 @@ class FacilityUserModelManager(SyncableModelManager, UserManager):
 def validate_birth_year(value):
     error = ""
 
-    if value == "NOT_SPECIFIED" or value == "DEFERRED":
+    if value == NOT_SPECIFIED or value == DEFERRED:
         return
 
     try:
@@ -727,7 +728,7 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
         # be defensive against blank passwords, set to `NOT_SPECIFIED` if blank
         password = dict_model.get("password", "") or ""
         if len(password) == 0:
-            dict_model.update(password="NOT_SPECIFIED")
+            dict_model.update(password=NOT_SPECIFIED)
 
         return super(FacilityUser, cls).deserialize(dict_model)
 

@@ -220,20 +220,20 @@ class UserImportCommandTestCase(TestCase):
         )
         self.importFromRows(
             ["username", "birth_year", "gender"],
-            ["alice", "", "NOT_SPECIFIED"],
+            ["alice", "", NOT_SPECIFIED],
             ["bob", "1970", "MALE"],
         )
         alice = FacilityUser.objects.get(username="alice")
         bob = FacilityUser.objects.get(username="bob")
         self.assertEqual(alice.birth_year, "")
-        self.assertEqual(alice.gender, "NOT_SPECIFIED")
+        self.assertEqual(alice.gender, NOT_SPECIFIED)
         self.assertEqual(bob.birth_year, "1970")
         self.assertEqual(bob.gender, "MALE")
 
     def test_update_with_invalid_demographic_info_fails(self):
         FacilityUser.objects.create(
             username="alice",
-            birth_year="NOT_SPECIFIED",
+            birth_year=NOT_SPECIFIED,
             password="password",
             facility=self.facility,
         )
@@ -246,7 +246,7 @@ class UserImportCommandTestCase(TestCase):
         # Alice and Bob's demographic data aren't updated
         alice = FacilityUser.objects.get(username="alice")
         bob = FacilityUser.objects.get(username="bob")
-        self.assertEqual(alice.birth_year, "NOT_SPECIFIED")
+        self.assertEqual(alice.birth_year, NOT_SPECIFIED)
         self.assertEqual(alice.gender, "")
         self.assertEqual(bob.birth_year, "")
         self.assertEqual(bob.gender, "")
