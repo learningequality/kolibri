@@ -39,6 +39,9 @@ except ImportError:
     pass
 
 
+if not os.path.exists(conf.KOLIBRI_HOME):
+    raise RuntimeError("The KOLIBRI_HOME dir does not exist")
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 # import kolibri, so we can get the path to the module.
 # we load other utilities related to i18n
@@ -333,6 +336,16 @@ STATIC_ROOT = os.path.join(conf.KOLIBRI_HOME, "static")
 MEDIA_URL = urljoin(path_prefix, "media/")
 MEDIA_ROOT = os.path.join(conf.KOLIBRI_HOME, "media")
 
+FILE_UPLOAD_TEMP_DIR = os.path.join(conf.KOLIBRI_HOME, "tmp")
+
+if not os.path.exists(FILE_UPLOAD_TEMP_DIR):
+    os.mkdir(FILE_UPLOAD_TEMP_DIR)
+
+
+FILE_UPLOAD_HANDLERS = [
+    "django.core.files.uploadhandler.TemporaryFileUploadHandler",
+]
+
 # https://docs.djangoproject.com/en/1.11/ref/settings/#csrf-cookie-path
 # Ensure that our CSRF cookie does not collide with other CSRF cookies
 # set by other Django apps served from the same domain.
@@ -398,8 +411,6 @@ SESSION_FILE_PATH = os.path.join(conf.KOLIBRI_HOME, "sessions")
 SECURE_CONTENT_TYPE_NOSNIFF = True
 
 if not os.path.exists(SESSION_FILE_PATH):
-    if not os.path.exists(conf.KOLIBRI_HOME):
-        raise RuntimeError("The KOLIBRI_HOME dir does not exist")
     os.mkdir(SESSION_FILE_PATH)
 
 SESSION_COOKIE_NAME = "kolibri"
