@@ -15,7 +15,6 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied
-from django.db import transaction
 from django.db.models import Func
 from django.db.models import OuterRef
 from django.db.models import Q
@@ -24,9 +23,9 @@ from django.db.models import TextField
 from django.db.models import Value
 from django.db.models.functions import Cast
 from django.http import Http404
-from django.http import HttpResponseForbidden
 from django.utils.decorators import method_decorator
 from django.utils.timezone import now
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django_filters.rest_framework import CharFilter
 from django_filters.rest_framework import ChoiceFilter
@@ -41,9 +40,9 @@ from rest_framework import permissions
 from rest_framework import status
 from rest_framework import views
 from rest_framework import viewsets
+from rest_framework.mixins import CreateModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.serializers import ValidationError
 
 from .constants import collection_kinds
 from .constants import role_kinds
@@ -62,7 +61,6 @@ from .serializers import FacilityUserSerializer
 from .serializers import LearnerGroupSerializer
 from .serializers import MembershipSerializer
 from .serializers import PublicFacilitySerializer
-from .serializers import PublicFacilityUserSerializer
 from .serializers import RoleSerializer
 from kolibri.core import error_constants
 from kolibri.core.api import ReadOnlyValuesViewset
@@ -249,7 +247,6 @@ class FacilityUserFilter(FilterSet):
 
 class PublicFacilityUserViewSet(ReadOnlyValuesViewset):
     queryset = FacilityUser.objects.all()
-    serializer_class = PublicFacilityUserSerializer
     authentication_classes = [BasicMultiArgumentAuthentication]
     permission_classes = [IsAuthenticated]
     values = (
@@ -343,24 +340,11 @@ class FacilityUserViewSet(ValuesViewset):
             output.append(item)
         return output
 
-    def set_password_if_needed(self, instance, serializer):
-        with transaction.atomic():
-            if serializer.validated_data.get("password", ""):
-                if serializer.validated_data.get("password", "") != "NOT_SPECIFIED":
-                    instance.set_password(serializer.validated_data["password"])
-                instance.save()
-        return instance
-
     def perform_update(self, serializer):
         instance = serializer.save()
-        self.set_password_if_needed(instance, serializer)
         # if the user is updating their own password, ensure they don't get logged out
         if self.request.user == instance:
             update_session_auth_hash(self.request, instance)
-
-    def perform_create(self, serializer):
-        instance = serializer.save()
-        self.set_password_if_needed(instance, serializer)
 
 
 class ExistingUsernameView(views.APIView):
@@ -642,64 +626,64 @@ class LearnerGroupViewSet(ValuesViewset):
         return annotate_array_aggregate(queryset, user_ids="membership__user__id")
 
 
-class SignUpViewSet(viewsets.ViewSet):
+class SignUpViewSet(viewsets.GenericViewSet, CreateModelMixin):
 
     serializer_class = FacilityUserSerializer
 
-    def extract_request_data(self, request):
-        return {
-            "username": request.data.get("username", ""),
-            "full_name": request.data.get("full_name", ""),
-            "password": request.data.get("password", ""),
-            "facility": request.data.get("facility"),
-            "gender": request.data.get("gender", ""),
-            "birth_year": request.data.get("birth_year", ""),
-        }
+    def check_can_signup(self, serializer):
+        if not serializer.validated_data["facility"].dataset.learner_can_sign_up:
+            raise PermissionDenied("Cannot sign up to this facility")
 
-    def create(self, request):
+    def perform_create(self, serializer):
+        self.check_can_signup(serializer)
+        serializer.save()
+        data = serializer.validated_data
+        authenticated_user = authenticate(
+            username=data["username"],
+            password=data["password"],
+            facility=data["facility"],
+        )
+        login(self.request, authenticated_user)
 
-        data = self.extract_request_data(request)
-        facility_id = data["facility"]
 
-        if facility_id is None:
-            facility = Facility.get_default_facility()
-            data["facility"] = facility.id
-        else:
+@method_decorator(csrf_exempt, name="dispatch")
+class PublicSignUpViewSet(SignUpViewSet):
+    """
+    Identical to the SignUpViewset except that it does not login the user.
+    This endpoint is intended to allow a FacilityUser in a different facility
+    on another device to be cloned into a facility on this device, to facilitate
+    moving a user from one facility to another.
+
+    It also allows for historic serializer classes in the case that we
+    make an update to our implementation, and we want to keep the API stable.
+    """
+
+    legacy_serializer_classes = []
+
+    def create(self, request, *args, **kwargs):
+        exception = None
+        serializer_kwargs = dict(data=request.data)
+        serializer_kwargs.setdefault("context", self.get_serializer_context())
+        for serializer_class in [
+            self.serializer_class
+        ] + self.legacy_serializer_classes:
+            serializer = serializer_class(**serializer_kwargs)
             try:
-                facility = Facility.objects.select_related("dataset").get(
-                    id=facility_id
-                )
-            except Facility.DoesNotExist:
-                raise ValidationError(
-                    "Facility does not exist.",
-                    code=error_constants.FACILITY_DOES_NOT_EXIST,
-                )
+                serializer.is_valid(raise_exception=True)
+                break
+            except Exception as e:
+                exception = e
+        if exception:
+            raise exception
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(
+            serializer.data, status=status.HTTP_201_CREATED, headers=headers
+        )
 
-        if not facility.dataset.learner_can_sign_up:
-            return HttpResponseForbidden("Cannot sign up to this facility")
-
-        # we validate the user's input, and if valid, login as user
-        serialized_user = self.serializer_class(data=data)
-        if serialized_user.is_valid(raise_exception=True):
-            if (
-                data["password"] == "NOT_SPECIFIED"
-                and not facility.dataset.learner_can_login_with_no_password
-            ):
-                raise ValidationError(
-                    "No password specified and it is required",
-                    code=error_constants.PASSWORD_NOT_SPECIFIED,
-                )
-            serialized_user.save()
-            if data["password"] != "NOT_SPECIFIED":
-                serialized_user.instance.set_password(data["password"])
-                serialized_user.instance.save()
-            authenticated_user = authenticate(
-                username=data["username"],
-                password=data["password"],
-                facility=data["facility"],
-            )
-            login(request, authenticated_user)
-            return Response(serialized_user.data, status=status.HTTP_201_CREATED)
+    def perform_create(self, serializer):
+        self.check_can_signup(serializer)
+        serializer.save()
 
 
 class SetNonSpecifiedPasswordView(views.APIView):
