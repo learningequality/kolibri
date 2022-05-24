@@ -58,6 +58,23 @@ class MergeUserValidator(PeerImportSingleSyncJobValidator):
     ],
 )
 def mergeuser(command, **kwargs):
+    """
+    This is an example of the POST payload to create this task:
+    {
+        "type": "kolibri.plugins.user_profile.tasks.mergeuser",
+        "baseurl": "http://192.168.0.201:80/",
+        "facility": "41d0e8bb1600347f17ab3d9172fff87a",
+        "username": "uno",
+        "local_user_id": "05685392311d1d259fe01c65c7a6c28e"
+    }
+    being baseurl, facility and username all parameters of the remote server.
+    If the remote server requires password to authenticate user,
+    a "password" parameter must be added, otherwise it's not needed.
+
+    If the username/password does not exist in the remote server,
+    this task will try to create the user.
+    """
+
     local_user_id = kwargs.pop("local_user_id")
     local_user = FacilityUser.objects.get(id=local_user_id)
     call_command(command, **kwargs)
