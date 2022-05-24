@@ -49,12 +49,14 @@
 
 <script>
 
+  import { TaskResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import FacilityTaskPanel from '../../../../../device/assets/src/views/FacilitiesPage/FacilityTaskPanel.vue';
   import { TaskStatuses } from '../../../../../device/assets/src/constants.js';
   import OnboardingForm from '../onboarding-forms/OnboardingForm';
-  import { FinishSoUDSyncingResource, SetupSoUDTasksResource } from '../../api';
+  import { FinishSoUDSyncingResource } from '../../api';
+  import { SoudQueue } from '../../constants';
 
   export default {
     name: 'LoadingTaskPage',
@@ -93,15 +95,15 @@
         return this.state.value.users.filter(u => u.task == this.loadingTaskID)[0];
       },
       pollTask() {
-        SetupSoUDTasksResource.fetchCollection({ force: true }).then(tasks => {
+        TaskResource.list({ queue: SoudQueue }).then(tasks => {
           const soudTasks = tasks.filter(t => t.id == this.loadingTaskID);
           if (soudTasks.length > 0) {
             if (this.user === null) this.user = this.userForTask();
             this.loadingTask = {
               ...soudTasks[0],
-              facility_name: this.loadingTask.facility_name,
-              full_name: this.loadingTask.full_name,
-              device_id: this.loadingTask.device_id,
+              facility_name: this.loadingTask.extra_metadata.facility_name,
+              full_name: this.loadingTask.extra_metadata.full_name,
+              device_id: this.loadingTask.extra_metadata.device_id,
             };
             if (this.loadingTask.status === TaskStatuses.COMPLETED) this.finishedTask();
             if (this.loadingTask.status === TaskStatuses.FAILED) {
@@ -117,7 +119,7 @@
         }
       },
       cancelTask() {
-        return SetupSoUDTasksResource.canceltask(this.loadingTask.id);
+        return TaskResource.cancel(this.loadingTask.id);
       },
       retryImport() {
         this.isPolling = false;
@@ -130,7 +132,7 @@
         this.state.value.users.forEach(function(u) {
           if (u.task == task_id) u.task = null;
         });
-        return SetupSoUDTasksResource.cleartasks();
+        return TaskResource.clearall(SoudQueue);
       },
       finishedTask() {
         this.isPolling = false;
