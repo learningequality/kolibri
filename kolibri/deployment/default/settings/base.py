@@ -336,12 +336,6 @@ STATIC_ROOT = os.path.join(conf.KOLIBRI_HOME, "static")
 MEDIA_URL = urljoin(path_prefix, "media/")
 MEDIA_ROOT = os.path.join(conf.KOLIBRI_HOME, "media")
 
-FILE_UPLOAD_TEMP_DIR = os.path.join(conf.KOLIBRI_HOME, "tmp")
-
-if not os.path.exists(FILE_UPLOAD_TEMP_DIR):
-    os.mkdir(FILE_UPLOAD_TEMP_DIR)
-
-
 FILE_UPLOAD_HANDLERS = [
     "django.core.files.uploadhandler.TemporaryFileUploadHandler",
 ]
