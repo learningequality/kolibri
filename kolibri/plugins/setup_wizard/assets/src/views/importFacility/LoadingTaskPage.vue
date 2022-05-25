@@ -94,7 +94,7 @@
         });
       },
       cancelTask() {
-        return TaskResource.canceltask(this.loadingTask.id);
+        return TaskResource.cancel(this.loadingTask.id);
       },
       startOver() {
         this.isPolling = false;

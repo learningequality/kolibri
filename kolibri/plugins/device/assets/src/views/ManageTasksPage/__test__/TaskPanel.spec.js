@@ -12,12 +12,12 @@ describe('TaskPanel', () => {
     type: TaskTypes.DISKCONTENTEXPORT,
     status: 'CANCELED',
     clearable: true,
-    channel_name: 'Canceled disk export channel test',
     extra_metadata: {
+      channel_name: 'Canceled disk export channel test',
       started_by_username: 'Tester',
+      file_size: 5000,
+      total_resources: 500,
     },
-    file_size: 5000,
-    total_resources: 500,
   };
 
   it('renders correctly when it is a canceled DISKCONTENTEXPORT task', () => {

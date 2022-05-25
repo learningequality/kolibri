@@ -13,7 +13,7 @@ jest.mock('kolibri.resources', () => ({
 
 const cancelTaskMock = TaskResource.cancel;
 const clearTasksMock = TaskResource.clearall;
-const restartMock = TaskResource.clearall;
+const restartMock = TaskResource.restart;
 const listMock = TaskResource.list;
 
 function makeWrapper() {
@@ -42,7 +42,7 @@ describe('LoadingTaskPage', () => {
     cancelTaskMock.mockReset();
     clearTasksMock.mockReset();
     listMock.mockReset();
-    restartMock.mockRest();
+    restartMock.mockReset();
   });
 
   it('loads the first task in the queue and starts polling', async () => {
@@ -85,7 +85,6 @@ describe('LoadingTaskPage', () => {
     await global.flushPromises();
 
     expect(retrySpy).toBeCalledTimes(1);
-    expect(clearTasksMock).toBeCalledTimes(1);
     expect(restartMock).toBeCalledTimes(1);
   });
 

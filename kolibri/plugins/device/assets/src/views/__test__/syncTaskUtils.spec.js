@@ -5,33 +5,41 @@ import {
   removeFacilityTaskDisplayInfo,
   SyncTaskStatuses,
 } from '../syncTaskUtils';
+import { TaskStatuses, TaskTypes } from '../../constants';
 
 const CLEARABLE_STATUSES = ['COMPLETED', 'CANCELED', 'FAILED'];
 
 describe('syncTaskUtils.syncFacilityTaskDisplayInfo', () => {
-  const CANCELLABLE_STATUSES = [
+  const CANCELLABLE_SYNC_STATES = [
     SyncTaskStatuses.SESSION_CREATION,
     SyncTaskStatuses.PULLING,
     SyncTaskStatuses.PUSHING,
     SyncTaskStatuses.REMOTE_QUEUING,
   ];
 
-  function makeTask(status) {
+  function makeTask(sync_state) {
+    let status;
+    if (!TaskStatuses[sync_state]) {
+      status = TaskStatuses.RUNNING;
+    } else {
+      status = sync_state;
+      sync_state = undefined;
+    }
     return {
-      type: 'SYNC_FACILITY',
-      // HACK: dumping sync_state enums into 'status' field, which isn't realistic
+      type: TaskTypes.SYNCPEERFULL,
       status,
-      sync_state: status,
-      device_name: 'generic device',
-      device_id: 'dev123',
-      facility_name: 'generic facility',
-      facility: 'fac123',
+      facility_id: 'fac123',
       extra_metadata: {
+        sync_state,
+        device_name: 'generic device',
+        device_id: 'dev123',
+        facility_name: 'generic facility',
+        facility: 'fac123',
         started_by_username: 'generic user',
+        bytes_sent: 1000000,
+        bytes_received: 500000000,
       },
-      bytes_sent: 1000000,
-      bytes_received: 500000000,
-      cancellable: CANCELLABLE_STATUSES.indexOf(status) >= 0,
+      cancellable: CANCELLABLE_SYNC_STATES.indexOf(sync_state) >= 0,
       clearable: CLEARABLE_STATUSES.indexOf(status) >= 0,
     };
   }
@@ -40,14 +48,13 @@ describe('syncTaskUtils.syncFacilityTaskDisplayInfo', () => {
 
   it('displays the correct header for facility-sync tasks', () => {
     const task = makeTask('RUNNING');
-    task.type = 'SYNCPEER/FULL';
     const displayInfo = syncFacilityTaskDisplayInfo(task);
     expect(displayInfo.headingMsg).toEqual("Sync 'generic facility' (fac1)");
   });
 
   it('displays the correct header for facility-import tasks', () => {
     const task = makeTask('RUNNING');
-    task.type = 'SYNCPEER/PULL';
+    task.type = TaskTypes.SYNCPEERPULL;
     const displayInfo = syncFacilityTaskDisplayInfo(task);
     expect(displayInfo.headingMsg).toEqual("Import 'generic facility' (fac1)");
   });
@@ -55,11 +62,12 @@ describe('syncTaskUtils.syncFacilityTaskDisplayInfo', () => {
   it('display title, started by username, and device name are invariant wrt status', () => {
     const task = {
       status: null,
-      device_name: 'invariant device',
-      device_id: 'dev123',
-      facility_name: 'invariant facility',
-      facility: 'fac123',
+      facility_id: 'fac123',
       extra_metadata: {
+        device_name: 'invariant device',
+        device_id: 'dev123',
+        facility: 'fac123',
+        facility_name: 'invariant facility',
         started_by_username: 'invariant user',
       },
     };
@@ -153,12 +161,13 @@ describe('syncTaskUtils.syncFacilityTaskDisplayInfo', () => {
 describe('syncTaskUtils.removeFacilityTaskDisplayInfo', () => {
   function makeTask(status) {
     return {
-      type: 'DELETEFACILITY',
+      type: TaskTypes.DELETEFACILITY,
       status,
       clearable: CLEARABLE_STATUSES.indexOf(status) >= 0,
-      facility_name: 'removed facility',
-      facility: 'fac123',
+      facility_id: 'fac123',
       extra_metadata: {
+        facility: 'fac123',
+        facility_name: 'removed facility',
         started_by_username: 'removing user',
       },
     };

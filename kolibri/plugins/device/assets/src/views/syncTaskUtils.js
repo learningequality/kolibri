@@ -83,8 +83,8 @@ export function syncFacilityTaskDisplayInfo(task) {
   }
   const syncStep = syncTaskStatusToStepMap[task.extra_metadata.sync_state];
   const statusDescription =
-    syncStatusToDescriptionMap[task.status] ||
     syncStatusToDescriptionMap[task.extra_metadata.sync_state] ||
+    syncStatusToDescriptionMap[task.status] ||
     getTaskString('taskUnknownStatus');
 
   if (task.status === TaskStatuses.COMPLETED) {
