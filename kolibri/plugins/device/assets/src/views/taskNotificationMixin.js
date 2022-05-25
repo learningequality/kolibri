@@ -54,8 +54,8 @@ export default {
     },
   },
   methods: {
-    notifyAndWatchTask(taskResponse) {
-      this.startWatchingTask(taskResponse);
+    notifyAndWatchTask(taskData) {
+      this.startWatchingTask(taskData);
       this.createTaskStartedSnackbar();
       this.$router.push({ name: PageNames.MANAGE_TASKS });
     },
@@ -74,11 +74,11 @@ export default {
         autoDismiss: true,
       });
     },
-    startWatchingTask(taskResponse) {
-      if (Array.isArray(taskResponse.data)) {
-        this.$store.commit('manageContent/SET_WATCHED_TASK_ID', taskResponse.data[0].id);
+    startWatchingTask(taskData) {
+      if (Array.isArray(taskData)) {
+        this.$store.commit('manageContent/SET_WATCHED_TASK_ID', taskData[0].id);
       } else {
-        this.$store.commit('manageContent/SET_WATCHED_TASK_ID', taskResponse.data.id);
+        this.$store.commit('manageContent/SET_WATCHED_TASK_ID', taskData.id);
       }
     },
   },

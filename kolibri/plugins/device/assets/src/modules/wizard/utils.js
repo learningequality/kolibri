@@ -52,7 +52,7 @@ export function downloadChannelMetadata(store = coreStore) {
     .catch(() => Promise.reject({ errorType: ErrorTypes.CONTENT_DB_LOADING_ERROR }))
     .then(task => {
       // NOTE: store.watch is not available to dispatched actions
-      return waitForTaskToComplete(task.data.id, store);
+      return waitForTaskToComplete(task.id, store);
     })
     .then(completedTask => {
       const { taskId, cancelled } = completedTask;

@@ -256,7 +256,7 @@
       },
       onTaskSuccess(task) {
         this.bottomBarDisabled = false;
-        this.watchedTaskType = task.data.type;
+        this.watchedTaskType = task.type;
         this.notifyAndWatchTask(task);
       },
       onTaskFailure() {
