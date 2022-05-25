@@ -187,7 +187,6 @@
           :activeCategories="activeCategories"
           :showChannels="false"
           position="overlay"
-          :style="sidePanelStyleOverrides"
           @currentCategory="handleShowSearchModal"
           @loadMoreTopics="handleLoadMoreInTopic"
         />
@@ -220,7 +219,7 @@
           <!-- Flex styles tested in ie11 and look good. Ensures good spacing between
             multiple chips - not a common thing but just in case -->
           <div
-            v-for="activity in sidePanelContent.learning_activities"
+            v-for="activity in metadataSidePanelContent.learning_activities"
             :key="activity"
             class="side-panel-chips"
             :class="$computedClass({ '::after': {
@@ -238,14 +237,13 @@
 
         <BrowseResourceMetadata
           ref="resourcePanel"
-          :content="sidePanelContent"
+          :content="metadataSidePanelContent"
           :showLocationsInChannel="true"
         />
       </SidePanelModal>
+
     </ImmersivePageRoot>
   </div>
-
-  <!-- Side panel for showing the information of selected content with a link to view it -->
 
 </template>
 
@@ -266,6 +264,7 @@
   import { normalizeContentNode } from '../../modules/coreLearn/utils.js';
   import useSearch from '../../composables/useSearch';
   import genContentLink from '../../utils/genContentLink';
+  import LibraryAndChannelBrowserMainContent from '../LibraryAndChannelBrowserMainContent';
   import SearchFiltersPanel from '../SearchFiltersPanel';
   import BrowseResourceMetadata from '../BrowseResourceMetadata';
   import LearningActivityChip from '../LearningActivityChip';
@@ -299,6 +298,7 @@
     components: {
       KBreadcrumbs,
       TopicsHeader,
+      LibraryAndChannelBrowserMainContent,
       CustomContentRenderer,
       CategorySearchModal,
       SearchFiltersPanel,
@@ -614,17 +614,20 @@
       // down and appears again when scrolling up).
       // Takes effect only when the side panel is not displayed full-screen.
       stickyCalculation() {
-        const header = this.$refs.header.$el;
-        console.log(header);
-        const topbar = document.querySelector('.ui-toolbar');
+        const header = this.$refs.header;
+        const topbar = document.querySelector('.scrolling-header');
         const headerBottom = header ? header.getBoundingClientRect().bottom : 0;
         const topbarBottom = topbar ? topbar.getBoundingClientRect().bottom : 0;
 
-        this.sidePanelStyleOverrides = {
-          position: 'fixed',
-          top: `${Math.max(0, headerBottom, topbarBottom)}px`,
-          height: '100%',
-        };
+        if (headerBottom < Math.max(topbarBottom, 0)) {
+          this.sidePanelStyleOverrides = {
+            position: 'fixed',
+            top: `${Math.max(0, headerBottom, topbarBottom)}px`,
+            height: '100%',
+          };
+        } else {
+          this.sidePanelStyleOverrides = {};
+        }
       },
       handleShowMore(topicId) {
         this.expandedTopics = {
@@ -672,6 +675,7 @@
 
   $header-height: 324px;
   $toolbar-height: 70px;
+  $total-height: 394px;
 
   .page {
     position: relative;
@@ -679,8 +683,15 @@
     min-height: calc(100vh - #{$toolbar-height});
   }
 
+  .side-panel {
+    position: absolute;
+    top: $total-height;
+    padding-top: 16px;
+  }
+
   .main-content-grid {
     position: relative;
+    top: $toolbar-height;
     margin: 24px;
   }
 
@@ -724,10 +735,6 @@
     width: 100%;
     margin-top: 16px;
     text-align: center;
-  }
-
-  .side-panel {
-    top: $header-height;
   }
 
   .side-panel-chips {
