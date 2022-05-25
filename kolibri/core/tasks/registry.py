@@ -215,7 +215,8 @@ class RegisteredTask(object):
 
     def validate_job_data(self, user, data):
         # Run validator with `user` and `data` as its argument.
-        data["type"] = stringify_func(self)
+        if "type" not in data:
+            data["type"] = stringify_func(self)
         validator = self.validator(data=data, context={"user": user})
         validator.is_valid(raise_exception=True)
 
