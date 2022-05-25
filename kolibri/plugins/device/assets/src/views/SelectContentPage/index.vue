@@ -82,6 +82,7 @@
   import { TaskResource } from 'kolibri.resources';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import TaskProgress from '../ManageContentPage/TaskProgress';
+  import useContentTasks from '../../composables/useContentTasks';
   import { ContentWizardErrors, TaskTypes, PageNames } from '../../constants';
   import SelectionBottomBar from '../ManageContentPage/SelectionBottomBar';
   import taskNotificationMixin from '../taskNotificationMixin';
@@ -112,6 +113,9 @@
       UiAlert,
     },
     mixins: [responsiveWindowMixin, taskNotificationMixin],
+    setup() {
+      useContentTasks();
+    },
     data() {
       return {
         contentTransferError: false,

@@ -119,6 +119,7 @@
   import ChannelPanel from '../ManageContentPage/ChannelPanel/WithImportDetails';
   import ContentWizardUiAlert from '../SelectContentPage/ContentWizardUiAlert';
   import { selectContentPageLink } from '../ManageContentPage/manageContentLinks';
+  import useContentTasks from '../../composables/useContentTasks';
   import { TransferTypes, PageNames, TaskTypes } from '../../constants';
   import FilteredChannelListContainer from '../ManageContentPage/FilteredChannelListContainer';
   import SelectionBottomBar from '../ManageContentPage/SelectionBottomBar';
@@ -145,6 +146,9 @@
       UiAlert,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin, taskNotificationMixin],
+    setup() {
+      useContentTasks();
+    },
     data() {
       return {
         showTokenModal: false,

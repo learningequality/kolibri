@@ -82,6 +82,7 @@
   import get from 'lodash/get';
   import last from 'lodash/last';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import useContentTasks from '../../../composables/useContentTasks';
   import ChannelContentsSummary from '../../SelectContentPage/ChannelContentsSummary';
   import ContentTreeViewer from '../../SelectContentPage/ContentTreeViewer';
   import DeleteResourcesModal from '../../SelectContentPage/DeleteResourcesModal';
@@ -116,6 +117,9 @@
       TaskProgress,
     },
     mixins: [commonCoreStrings, taskNotificationMixin],
+    setup() {
+      useContentTasks();
+    },
     data() {
       return {
         channel: null,

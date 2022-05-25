@@ -72,11 +72,10 @@
   import get from 'lodash/get';
   import sortBy from 'lodash/sortBy';
   import { mapState, mapGetters, mapActions } from 'vuex';
-  import { useIntervalFn } from '@vueuse/core';
-  import { getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskResource } from 'kolibri.resources';
   import taskNotificationMixin from '../taskNotificationMixin';
+  import useContentTasks from '../../composables/useContentTasks';
   import { PageNames, TaskStatuses, TaskTypes } from '../../constants';
   import HeaderWithOptions from '../HeaderWithOptions';
   import SelectTransferSourceModal from './SelectTransferSourceModal';
@@ -100,23 +99,7 @@
     },
     mixins: [commonCoreStrings, taskNotificationMixin],
     setup() {
-      const polling = useIntervalFn(() => {
-        $store.dispatch('manageContent/refreshTaskList');
-      }, 1000);
-      const $store = getCurrentInstance().proxy.$store;
-      function startTaskPolling() {
-        if ($store.getters.canManageContent) {
-          polling.resume();
-        }
-      }
-      function stopTaskPolling() {
-        polling.pause();
-      }
-
-      return {
-        stopTaskPolling,
-        startTaskPolling,
-      };
+      useContentTasks();
     },
     data() {
       return {
@@ -188,12 +171,6 @@
       if (!this.channelsAreInstalled) {
         this.$store.commit('SET_WELCOME_MODAL_VISIBLE', true);
       }
-    },
-    mounted() {
-      this.startTaskPolling();
-    },
-    destroyed() {
-      this.stopTaskPolling();
     },
     methods: {
       ...mapActions('manageContent', ['refreshChannelList', 'startImportWorkflow']),

@@ -117,6 +117,7 @@
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import { TaskStatuses, PageNames, TaskTypes } from '../../constants';
+  import useContentTasks from '../../composables/useContentTasks';
   import { fetchOrTriggerChannelDiffStatsTask, fetchChannelAtSource } from './api';
 
   export default {
@@ -131,6 +132,9 @@
       BottomAppBar,
     },
     mixins: [commonCoreStrings],
+    setup() {
+      useContentTasks();
+    },
     data() {
       return {
         channelName: '',

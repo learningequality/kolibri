@@ -52,6 +52,7 @@
   import client from 'kolibri.client';
   import urls from 'kolibri.urls';
   import DeviceChannelResource from '../apiResources/deviceChannel';
+  import useContentTasks from '../composables/useContentTasks';
 
   export default {
     name: 'RearrangeChannelsPage',
@@ -65,6 +66,9 @@
       DragContainer,
       DragHandle,
       Draggable,
+    },
+    setup() {
+      useContentTasks();
     },
     data() {
       return {

@@ -53,6 +53,7 @@
   import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
   import { TaskTypes } from '../../constants';
   import DeviceChannelResource from '../../apiResources/deviceChannel';
+  import useContentTasks from '../../composables/useContentTasks';
   import taskNotificationMixin from '../taskNotificationMixin';
   import SelectionBottomBar from './SelectionBottomBar';
   import DeleteChannelModal from './DeleteChannelModal';
@@ -76,6 +77,9 @@
       SelectDriveModal,
     },
     mixins: [KResponsiveWindowMixin, taskNotificationMixin],
+    setup() {
+      useContentTasks();
+    },
     props: {
       actionType: {
         type: String,
