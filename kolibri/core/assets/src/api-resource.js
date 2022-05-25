@@ -927,6 +927,10 @@ export class Resource {
     });
   }
 
+  get(id) {
+    return this.accessDetailEndpoint('get', 'detail', id).then(response => response.data);
+  }
+
   list(params = {}) {
     return this.accessListEndpoint('get', 'list', params).then(response => response.data);
   }
