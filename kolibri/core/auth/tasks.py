@@ -327,16 +327,13 @@ class PeerSyncJobValidator(SyncJobValidator):
 
 
 class PeerFacilitySyncJobValidator(PeerSyncJobValidator):
-    username = serializers.CharField()
-    password = serializers.CharField(default=NOT_SPECIFIED, required=False)
-
     def validate(self, data):
         job_data = super(PeerFacilitySyncJobValidator, self).validate(data)
         validate_and_create_sync_credentials(
             job_data["kwargs"]["baseurl"],
             job_data["facility_id"],
-            data["username"],
-            data["password"],
+            data.get("username"),
+            data.get("password"),
         )
         return job_data
 
@@ -357,6 +354,8 @@ def peerfacilitysync(command, **kwargs):
 
 class PeerFacilityImportJobValidator(PeerFacilitySyncJobValidator):
     facility = HexOnlyUUIDField()
+    username = serializers.CharField()
+    password = serializers.CharField(default=NOT_SPECIFIED, required=False)
 
     def validate(self, data):
         job_data = super(PeerFacilityImportJobValidator, self).validate(data)
