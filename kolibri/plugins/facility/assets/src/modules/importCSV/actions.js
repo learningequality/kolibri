@@ -1,32 +1,47 @@
 import logger from 'kolibri.lib.logging';
 import { TaskResource } from 'kolibri.resources';
+import { currentLanguage } from 'kolibri.utils.i18n';
 import { TaskStatuses, TaskTypes } from '../../constants';
 
 const logging = logger.getLogger(__filename);
 
-function startImportUsers(store, file, deleting, validate, commitStart) {
-  const params = {
-    csvfile: file,
-    facility_id: store.rootGetters.activeFacilityId,
-  };
-  if (deleting) params['delete'] = 'true';
-  if (validate) params['dryrun'] = 'true';
-  if (!store.getters.importingOrValidating) {
-    let promise = TaskResource.import_users_from_csv(params);
-    return promise.then(task => {
-      store.commit(commitStart, task.data);
-      return task.data.id;
-    });
+function startImportUsers(store, file, filename, deleting, validate, commitStart) {
+  if (store.getters.importingOrValidating) {
+    return;
   }
+  const params = {
+    facility: store.rootGetters.activeFacilityId,
+    type: TaskTypes.IMPORTUSERSFROMCSV,
+    delete: deleting,
+    dryrun: validate,
+    locale: currentLanguage,
+  };
+  if (file) {
+    params.csvfile = file;
+  } else if (filename) {
+    params.csvfilename = filename;
+  }
+  return TaskResource.startTask(params, true).then(task => {
+    store.commit(commitStart, task);
+    return task.id;
+  });
 }
 
 function startValidating(store, payload) {
   store.commit('SET_DELETE_USERS', payload.deleteUsers);
-  return startImportUsers(store, payload.file, payload.deleteUsers, true, 'START_VALIDATE_USERS');
+  return startImportUsers(
+    store,
+    payload.file,
+    null,
+    payload.deleteUsers,
+    true,
+    'START_VALIDATE_USERS'
+  );
 }
 function startSavingUsers(store) {
   return startImportUsers(
     store,
+    null,
     store.getters.filename,
     store.getters.deleteUsers,
     false,
@@ -42,7 +57,7 @@ function checkTaskStatus(store, newTasks, taskType, taskId, commitStart, commitF
     if (task && task.status === TaskStatuses.COMPLETED) {
       store.commit(commitFinish, task);
     } else if (task && task.status === TaskStatuses.FAILED) {
-      if (typeof task.overall_error === 'undefined') {
+      if (typeof task.extra_metadata.overall_error === 'undefined') {
         store.dispatch('handleApiError', task.traceback, { root: true });
       }
 
@@ -61,13 +76,11 @@ function checkTaskStatus(store, newTasks, taskType, taskId, commitStart, commitF
 }
 
 function refreshTaskList(store) {
-  return TaskResource.fetchCollection({
-    force: true,
-  })
-    .then(newTasks => {
+  return TaskResource.list()
+    .then(data => {
       checkTaskStatus(
         store,
-        newTasks,
+        data,
         TaskTypes.IMPORTUSERSFROMCSV,
         store.getters.taskId,
         'START_VALIDATE_USERS',
