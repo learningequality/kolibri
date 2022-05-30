@@ -145,7 +145,7 @@
         this.allChannels = this.allChannels.filter(c => !find(this.selectedChannels, { id: c.id }));
         return TaskResource.startTasks(
           this.selectedChannels.map(x => ({
-            task: TaskTypes.DELETECHANNEL,
+            type: TaskTypes.DELETECHANNEL,
             channel_id: x.id,
             channel_name: x.name,
           }))
@@ -164,7 +164,7 @@
       exportChannels(params) {
         return TaskResource.startTasks(
           this.selectedChannels.map(({ id, name }) => ({
-            task: TaskTypes.DISKEXPORT,
+            type: TaskTypes.DISKEXPORT,
             channel_id: id,
             channel_name: name,
             drive_id: params.driveId,
