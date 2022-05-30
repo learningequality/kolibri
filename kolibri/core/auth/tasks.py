@@ -419,6 +419,7 @@ class PeerRepeatingSingleSyncJobValidator(PeerSyncJobValidator):
         job_data["kwargs"]["resync_interval"] = (
             data["resync_interval"] or OPTIONS["Deployment"]["SYNC_INTERVAL"]
         )
+        job_data["kwargs"]["user"] = data["user_id"]
         return job_data
 
 
