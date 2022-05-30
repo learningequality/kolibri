@@ -308,20 +308,16 @@ def remoteimport(
     queue=QUEUE,
 )
 def diskimport(
-    channel_id=None,
-    directory=None,
-    drive_id=None,
-    node_ids=None,
-    exclude_node_ids=None,
-    update=False,
+    channel_id, drive_id, update=False, node_ids=None, exclude_node_ids=None
 ):
+    drive = get_mounted_drive_by_id(drive_id)
+    directory = drive.datafolder
 
     call_command(
         "importchannel",
         "disk",
         channel_id,
         directory,
-        update_progress=None,
     )
 
     call_command(
