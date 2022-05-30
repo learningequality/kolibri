@@ -8,6 +8,7 @@ from mock import patch
 from requests.exceptions import ConnectionError
 from rest_framework import serializers
 from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.test import APITestCase
 
 from kolibri.core.auth.constants.morango_sync import PROFILE_FACILITY_DATA
@@ -16,6 +17,7 @@ from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityDataset
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.tasks import begin_request_soud_sync
+from kolibri.core.auth.tasks import PeerFacilityImportJobValidator
 from kolibri.core.auth.tasks import PeerFacilitySyncJobValidator
 from kolibri.core.auth.tasks import request_soud_sync
 from kolibri.core.auth.tasks import SyncJobValidator
@@ -508,8 +510,8 @@ class FacilityTaskHelperTestCase(TestCase):
         )
 
         get_client_and_server_certs.assert_called_with(
-            "tester",
-            "mypassword",
+            None,
+            None,
             dataset_id,
             network_connection,
             user_id=None,
@@ -584,7 +586,7 @@ class FacilityTaskHelperTestCase(TestCase):
 
         get_facility_dataset_id.side_effect = CommandError()
         with self.assertRaises(AuthenticationFailed):
-            PeerFacilitySyncJobValidator(data=data).is_valid(raise_exception=True)
+            PeerFacilityImportJobValidator(data=data).is_valid(raise_exception=True)
 
     def test_validate_and_create_sync_credentials__not_authenticated(
         self,
@@ -598,7 +600,7 @@ class FacilityTaskHelperTestCase(TestCase):
         )
 
         with self.assertRaises(serializers.ValidationError):
-            PeerFacilitySyncJobValidator(data=data).is_valid(raise_exception=True)
+            PeerFacilityImportJobValidator(data=data).is_valid(raise_exception=True)
 
     @patch("kolibri.core.auth.utils.sync.MorangoProfileController")
     @patch("kolibri.core.auth.tasks.NetworkClient")
@@ -632,6 +634,38 @@ class FacilityTaskHelperTestCase(TestCase):
         get_client_and_server_certs.side_effect = CommandError()
 
         with self.assertRaises(AuthenticationFailed):
+            PeerFacilityImportJobValidator(data=data).is_valid(raise_exception=True)
+
+    @patch("kolibri.core.auth.utils.sync.MorangoProfileController")
+    @patch("kolibri.core.auth.tasks.NetworkClient")
+    @patch("kolibri.core.auth.utils.sync.get_client_and_server_certs")
+    @patch("kolibri.core.auth.utils.sync.get_facility_dataset_id")
+    def test_validate_and_create_sync_credentials_no_credentials(
+        self,
+        get_facility_dataset_id,
+        get_client_and_server_certs,
+        NetworkClient,
+        MorangoProfileController,
+    ):
+        facility_id = self.facility.id
+        data = dict(
+            type="kolibri.core.auth.tasks.peerfacilitysync",
+            facility=facility_id,
+            device_id=self.device.id,
+            baseurl="https://some.server.test/extra/stuff",
+        )
+
+        client = NetworkClient.return_value
+        client.base_url = "https://some.server.test/"
+
+        network_connection = Mock()
+        controller = MorangoProfileController.return_value
+        controller.create_network_connection.return_value = network_connection
+
+        get_facility_dataset_id.return_value = (facility_id, 456)
+        get_client_and_server_certs.side_effect = CommandError()
+
+        with self.assertRaises(PermissionDenied):
             PeerFacilitySyncJobValidator(data=data).is_valid(raise_exception=True)
 
 
