@@ -9,13 +9,13 @@
     <KRadioButton
       v-model="selected"
       style="margin-bottom: 1em"
-      :value="Options.PERSONAL"
+      :value="Options.INDIVIDUAL"
       :label="$tr('onMyOwnLabel')"
       :description="$tr('onMyOwnDescription')"
     />
     <KRadioButton
       v-model="selected"
-      :value="Options.PUBLIC"
+      :value="Options.GROUP"
       :label="$tr('groupLearningLabel')"
       :description="$tr('groupLearningDescription')"
     />
@@ -26,43 +26,37 @@
 
 <script>
 
-  import { Presets } from '../../constants';
   import OnboardingStepBase from '../OnboardingStepBase';
 
   const Options = Object.freeze({
-    PUBLIC: 'PUBLIC',
-    PERSONAL: 'PERSONAL',
+    INDIVIDUAL: 'individual',
+    GROUP: 'group',
   });
 
   export default {
     name: 'HowAreYouUsingKolibri',
     components: { OnboardingStepBase },
+    inject: ['wizardService'],
     data() {
-      let selected;
-      const { preset } = this.$store.state.onboardingData;
-      if (preset === null || preset === Presets.PERSONAL) {
-        selected = Options.PERSONAL;
-      } else {
-        selected = Options.PUBLIC;
-      }
       return {
-        selected,
-        Options,
+        selected: Options.INDIVIDUAL,
       };
     },
-    inject: ['wizardService'],
     computed: {
-      isPersonal() {
-        return this.selected === Options.PERSONAL;
+      isIndividualSetup() {
+        return this.selected === Options.INDIVIDUAL;
+      },
+      Options() {
+        return Options;
       },
     },
     methods: {
       handleContinue() {
-        this.$store.commit('SET_FACILITY_PRESET', this.isPersonal ? Presets.PERSONAL : '');
+        this.$store.commit('SET_FACILITY_PRESET', this.isIndividualSetup ? Options.INDIVIDUAL : '');
         this.goToNextStep();
       },
       goToNextStep() {
-        this.wizardService.send({ type: 'CONTINUE', value: this.isPersonal });
+        this.wizardService.send({ type: 'CONTINUE', value: this.selected });
       },
     },
     $trs: {

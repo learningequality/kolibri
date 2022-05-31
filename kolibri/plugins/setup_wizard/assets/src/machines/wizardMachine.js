@@ -83,7 +83,7 @@ export const wizardMachine = createMachine({
 
     // The Individual path
     defaultLanguage: {
-      meta: { route: 'DEFAULT_LANGUAGE' },
+      meta: { route: 'DEFAULT_LANGUAGE', path: 'default-language' },
       on: {
         CONTINUE: 'createAccountOrFinalizeSetup',
         BACK: 'howAreYouUsingKolibri',
@@ -104,7 +104,7 @@ export const wizardMachine = createMachine({
       ],
     },
     createIndividualAccount: {
-      meta: { route: 'CREATE_INDIVIDUAL_ACCOUNT' },
+      meta: { route: 'CREATE_INDIVIDUAL_ACCOUNT', path: 'create-account' },
       on: {
         CONTINUE: 'finalizeSetup',
         BACK: 'defaultLanguage',
@@ -113,14 +113,14 @@ export const wizardMachine = createMachine({
 
     // The Group path
     deviceName: {
-      meta: { route: 'DEVICE_NAME', path: '/' },
+      meta: { route: 'DEVICE_NAME', path: 'device-name' },
       on: {
         CONTINUE: { target: 'fullOrLearnOnlyDevice', actions: setIndividualOrGroup },
         BACK: 'howAreYouUsingKolibri',
       },
     },
     fullOrLearnOnlyDevice: {
-      meta: { route: 'FULL_OR_LOD' },
+      meta: { route: 'FULL_OR_LOD', path: 'facility-new-or-import' },
       on: {
         CONTINUE: { target: 'fullOrLodSetup', actions: setSetupType },
         BACK: 'deviceName',

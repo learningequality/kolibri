@@ -1,7 +1,8 @@
 import DeviceNameForm from './views/onboarding-forms/DeviceNameForm';
 import DefaultLanguageForm from './views/onboarding-forms/DefaultLanguageForm';
-import GettingStartedForm from './views/onboarding-forms/GettingStartedForm';
 import FullOrLearnOnlyDeviceForm from './views/onboarding-forms/FullOrLearnOnlyDeviceForm';
+import HowAreYouUsingKolibri from './views/onboarding-forms/HowAreYouUsingKolibri';
+import SuperuserCredentialsForm from './views/onboarding-forms/SuperuserCredentialsForm';
 import UngroupedSetupSteps from './views/UngroupedSetupSteps';
 import CreateFacilitySetup from './views/CreateFacilitySetup';
 import ImportFacilitySetup from './views/ImportFacilitySetup';
@@ -16,7 +17,7 @@ export default [
       {
         path: '',
         name: 'HOW_ARE_YOU_USING_KOLIBRI',
-        component: GettingStartedForm,
+        component: HowAreYouUsingKolibri,
       },
       {
         path: 'default-language',
@@ -26,7 +27,7 @@ export default [
       {
         path: 'create-account',
         name: 'CREATE_INDIVIDUAL_ACCOUNT',
-        component: null, // FIXME: To be created in #9305
+        component: SuperuserCredentialsForm,
       },
       {
         path: 'device-name',

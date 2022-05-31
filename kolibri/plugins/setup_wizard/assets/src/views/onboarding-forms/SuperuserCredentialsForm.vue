@@ -4,7 +4,7 @@
     dir="auto"
     :title="$attrs.header || $tr('adminAccountCreationHeader')"
     :description="$attrs.description || $tr('adminAccountCreationDescription')"
-    @continue="handleSubmit"
+    @continue="handleContinue"
   >
     <slot name="aboveform"></slot>
 
@@ -67,6 +67,7 @@
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
   import PrivacyLinkAndModal from 'kolibri.coreVue.components.PrivacyLinkAndModal';
   import OnboardingStepBase from '../OnboardingStepBase';
+  import { FacilityImportResource } from '../../api';
 
   export default {
     name: 'SuperuserCredentialsForm',
@@ -77,6 +78,7 @@
       PasswordTextbox,
       PrivacyLinkAndModal,
     },
+    inject: ['wizardService'],
     props: {
       uniqueUsernameValidator: {
         type: Function,
@@ -105,6 +107,29 @@
       },
     },
     methods: {
+      handleContinue() {
+        const data = {
+          fullName: this.fullName,
+          username: this.username,
+          password: this.password,
+        };
+        if (this.formIsValid) {
+          return FacilityImportResource.createsuperuser(data)
+            .then(() => {
+              //this.updateSuperuserAndClickNext(data.username, data.password);
+            })
+            .catch(e => {
+              throw new Error(`Error creating superuser: ${e}`);
+            });
+        } else {
+          this.focusOnInvalidField();
+        }
+      },
+      // FIXME this breaks because the facility isn't created yet, this bit of the logic
+      // is TBD -- the old method kept as some functionality may be preserved
+      // Note that the process is currently gathering deferring the actual provisioning of
+      // everything to the end, hence why no facility here yet. Not sure how we'll proceed here yet
+      /*
       handleSubmit() {
         if (!this.$refs.fullNameTextbox) {
           return this.$emit('click_next');
@@ -128,6 +153,7 @@
           }
         });
       },
+      */
       focusOnInvalidField() {
         this.$nextTick().then(() => {
           if (!this.fullNameValid) {

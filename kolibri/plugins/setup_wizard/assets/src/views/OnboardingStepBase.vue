@@ -20,7 +20,7 @@
         v-else-if="!noBackAction"
         class="back-icon-button"
         icon="back"
-        @click="$emit('back')"
+        @click="wizardService.send('BACK')"
       />
 
       <!-- Language switcher visible regardless of screen size -->
@@ -113,6 +113,7 @@
   export default {
     name: 'OnboardingStepBase',
     components: { CoreLogo, LanguageSwitcherModal },
+    inject: ['wizardService'],
     mixins: [commonCoreStrings, responsiveWindowMixin],
     props: {
       noBackAction: {

@@ -1,42 +1,16 @@
 <template>
 
-  <div>
-    <ProgressToolbar
-      :removeNavIcon="removeNavIcon"
-      @click_back="goToLastStep"
-    />
-    <div class="main">
-      <KPageContainer>
-        <router-view />
-      </KPageContainer>
-    </div>
-  </div>
+  <router-view />
 
 </template>
 
 
 <script>
 
-  import ProgressToolbar from './ProgressToolbar';
-
-  // Template that places simplified UIBar at the top
-  // and manages the non-linear flow of steps for these forms
+  /* TODO Probably going to just remove this... */
   export default {
     name: 'UngroupedSetupSteps',
-    components: {
-      ProgressToolbar,
-    },
     inject: ['wizardService'],
-    computed: {
-      removeNavIcon() {
-        return this.$route.name === 'DEFAULT_LANGUAGE';
-      },
-    },
-    methods: {
-      goToLastStep() {
-        this.wizardService.send('BACK');
-      },
-    },
   };
 
 </script>
