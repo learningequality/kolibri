@@ -79,7 +79,11 @@ from kolibri.core.utils.pagination import ValuesViewsetPageNumberPagination
 logger = logging.getLogger(__name__)
 
 
-def cache_forever(some_func):
+def get_cache_key(*args, **kwargs):
+    return str(ContentCacheKey.get_cache_key())
+
+
+def metadata_cache(some_func):
     """
     Decorator for patch_response_headers function
     """
@@ -87,24 +91,28 @@ def cache_forever(some_func):
     # Source: https://stackoverflow.com/a/3001556/405682
     cache_timeout = 31556926
 
+    @etag(get_cache_key)
     def wrapper_func(*args, **kwargs):
         response = some_func(*args, **kwargs)
-        # This caching has the unfortunate effect of also caching the dynamically
-        # generated filters for recommendation, this quick hack checks if
-        # the request is any of those filters, and then applies less long running
-        # caching on it.
-        timeout = cache_timeout
         try:
             request = args[0]
             request = kwargs.get("request", request)
         except IndexError:
             request = kwargs.get("request", None)
-        if isinstance(request, HttpRequest):
-            if any(map(lambda x: x in request.path, ["next_steps", "resume"])):
-                timeout = 0
-            elif "popular" in request.path:
-                timeout = 600
-        patch_response_headers(response, cache_timeout=timeout)
+        if "contentCacheKey" in request.GET:
+            # This caching has the unfortunate effect of also caching the dynamically
+            # generated filters for recommendation, this quick hack checks if
+            # the request is any of those filters, and then applies less long running
+            # caching on it.
+            timeout = cache_timeout
+
+            if isinstance(request, HttpRequest):
+                if any(map(lambda x: x in request.path, ["next_steps", "resume"])):
+                    timeout = 0
+                elif "popular" in request.path:
+                    timeout = 600
+            patch_response_headers(response, cache_timeout=timeout)
+
         return response
 
     return session_exempt(wrapper_func)
@@ -135,7 +143,7 @@ class ChannelMetadataFilter(FilterSet):
         return queryset.filter(root__available=value)
 
 
-@method_decorator(cache_forever, name="dispatch")
+@method_decorator(metadata_cache, name="dispatch")
 class ChannelMetadataViewSet(ReadOnlyValuesViewset):
     filter_backends = (DjangoFilterBackend,)
     filter_class = ChannelMetadataFilter
@@ -613,7 +621,7 @@ def get_resume_queryset(request, queryset):
     return queryset.filter(content_id__in=content_ids)
 
 
-@method_decorator(cache_forever, name="dispatch")
+@method_decorator(metadata_cache, name="dispatch")
 class ContentNodeViewset(BaseContentNodeMixin, ReadOnlyValuesViewset):
     pagination_class = OptionalContentNodePagination
 
@@ -991,7 +999,7 @@ class TreeQueryMixin(object):
         )
 
 
-@method_decorator(cache_forever, name="dispatch")
+@method_decorator(metadata_cache, name="dispatch")
 class ContentNodeTreeViewset(BaseContentNodeMixin, TreeQueryMixin, BaseValuesViewset):
     def retrieve(self, request, pk=None):
         """
@@ -1287,10 +1295,6 @@ class ContentNodeBookmarksViewset(
                     item["bookmark"] = bookmark
                     sorted_items.append(item)
         return sorted_items
-
-
-def get_cache_key(*args, **kwargs):
-    return str(ContentCacheKey.get_cache_key())
 
 
 @method_decorator(etag(get_cache_key), name="retrieve")
