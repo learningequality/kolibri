@@ -1,7 +1,7 @@
 import DeviceNameForm from './views/onboarding-forms/DeviceNameForm';
 import DefaultLanguageForm from './views/onboarding-forms/DefaultLanguageForm';
 import GettingStartedForm from './views/onboarding-forms/GettingStartedForm';
-import FullDeviceNewOrImportFacility from './views/onboarding-forms/FullDeviceNewOrImportFacility';
+import FullOrLearnOnlyDeviceForm from './views/onboarding-forms/FullOrLearnOnlyDeviceForm';
 import UngroupedSetupSteps from './views/UngroupedSetupSteps';
 import CreateFacilitySetup from './views/CreateFacilitySetup';
 import ImportFacilitySetup from './views/ImportFacilitySetup';
@@ -41,7 +41,7 @@ export default [
       {
         path: 'facility-new-or-import',
         name: 'FULL_NEW_OR_IMPORT_FACILITY',
-        component: FullDeviceNewOrImportFacility,
+        component: FullOrLearnOnlyDeviceForm,
       },
     ],
   },
