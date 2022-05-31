@@ -1,6 +1,7 @@
 import hashlib
 import itertools
 import json
+import operator
 from math import ceil
 
 from django.db.models import Max
@@ -352,6 +353,36 @@ def update_content_manifest(manifest_file, nodes_selectors):
 
     with open(manifest_file, "w") as fp:
         manifest_data = json.dump(manifest_data, fp, indent=4)
+
+
+def read_content_manifest(fp, channel_id, channel_version=None):
+    try:
+        manifest_data = json.load(fp)
+    except (ValueError):
+        # Use ValueError rather than JSONDecodeError for Py2 compatibility
+        manifest_data = None
+
+    if channel_version is not None:
+        channel_key = (channel_id, channel_version)
+        channel_key_fn = operator.itemgetter("id", "version")
+    else:
+        channel_key = channel_id
+        channel_key_fn = operator.itemgetter("id")
+
+    all_channels = dict(
+        (k, list(v))
+        for (k, v) in itertools.groupby(
+            sorted(manifest_data.get("channels", []), key=channel_key_fn),
+            key=channel_key_fn,
+        )
+    )
+
+    for channel_data in all_channels.get(channel_key, []):
+        yield (
+            channel_data.get("version"),
+            channel_data.get("include_node_ids", []),
+            channel_data.get("exclude_node_ids", []),
+        )
 
 
 def _get_leaf_node_ids(node):
