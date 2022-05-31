@@ -132,7 +132,7 @@
         this.state.value.users.forEach(function(u) {
           if (u.task == task_id) u.task = null;
         });
-        return TaskResource.clearall(SoudQueue);
+        return TaskResource.clearAll(SoudQueue);
       },
       finishedTask() {
         this.isPolling = false;

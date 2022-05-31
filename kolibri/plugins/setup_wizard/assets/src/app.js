@@ -25,7 +25,7 @@ class SetupWizardModule extends KolibriApp {
     // while the device provisioning is in progress
     this.setupVue();
     logging.info('Clearing facility tasks created in previous sessions...');
-    TaskResource.clearall('facility_task');
+    TaskResource.clearAll('facility_task');
     this.startRootVue();
   }
 }

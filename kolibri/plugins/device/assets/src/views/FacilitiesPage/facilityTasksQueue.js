@@ -42,7 +42,7 @@ export default {
       }
     },
     clearCompletedFacilityTasks() {
-      return TaskResource.clearall('facility_task');
+      return TaskResource.clearAll('facility_task');
     },
   },
   beforeMount() {

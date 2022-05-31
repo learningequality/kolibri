@@ -149,7 +149,7 @@
                 .then(() => {
                   this.isPolling = false;
                   this.lodService.send('CONTINUE');
-                  TaskResource.clearall(SoudQueue);
+                  TaskResource.clearAll(SoudQueue);
                 });
             }
           }

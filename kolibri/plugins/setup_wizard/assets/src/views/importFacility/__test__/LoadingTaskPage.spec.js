@@ -5,14 +5,14 @@ import LoadingTaskPage from '../LoadingTaskPage';
 jest.mock('kolibri.resources', () => ({
   TaskResource: {
     cancel: jest.fn(),
-    clearall: jest.fn(),
+    clearAll: jest.fn(),
     restart: jest.fn(),
     list: jest.fn(),
   },
 }));
 
 const cancelTaskMock = TaskResource.cancel;
-const clearTasksMock = TaskResource.clearall;
+const clearTasksMock = TaskResource.clearAll;
 const restartMock = TaskResource.restart;
 const listMock = TaskResource.list;
 

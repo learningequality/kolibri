@@ -106,7 +106,7 @@
         this.$router.replace('/');
       },
       clearTasks() {
-        return TaskResource.clearall();
+        return TaskResource.clearAll();
       },
       handleClickContinue() {
         this.isPolling = false;
