@@ -53,29 +53,29 @@ def test_dynamic_whitenoise():
     )
     assert (
         dynamic_whitenoise.find_and_cache_dynamic_file(
-            prefix1 + "/" + tempdir11tempfilename
+            prefix1 + "/" + tempdir11tempfilename, None
         )
         is not None
     )
     assert (
         dynamic_whitenoise.find_and_cache_dynamic_file(
-            prefix1 + "/" + tempdir12tempfilename
+            prefix1 + "/" + tempdir12tempfilename, None
         )
         is not None
     )
     assert (
         dynamic_whitenoise.find_and_cache_dynamic_file(
-            prefix2 + "/" + tempdir21tempfilename
+            prefix2 + "/" + tempdir21tempfilename, None
         )
         is not None
     )
     assert (
         dynamic_whitenoise.find_and_cache_dynamic_file(
-            prefix2 + "/" + tempdir22tempfilename
+            prefix2 + "/" + tempdir22tempfilename, None
         )
         is not None
     )
-    assert dynamic_whitenoise.find_and_cache_dynamic_file("notafile") is None
+    assert dynamic_whitenoise.find_and_cache_dynamic_file("notafile", None) is None
     os.close(tempdir11tempfile)
     os.remove(tempdir11tempfilepath)
     os.close(tempdir12tempfile)
