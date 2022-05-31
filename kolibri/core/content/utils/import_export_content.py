@@ -188,7 +188,7 @@ def get_import_export_nodes(  # noqa: C901
         nodes_query = nodes_to_include
 
         # if requested, filter down to only include particular topics/nodes
-        if node_ids:
+        if node_ids is not None:
             nodes_query = nodes_query.filter_by_uuids(
                 _mptt_descendant_ids(
                     channel_id, node_ids, min_boundary, min_boundary + dynamic_chunksize
@@ -200,7 +200,7 @@ def get_import_export_nodes(  # noqa: C901
             nodes_query = nodes_query.filter(renderable_contentnodes_q_filter)
 
         # filter down the query to remove files associated with nodes we've specifically been asked to exclude
-        if exclude_node_ids:
+        if exclude_node_ids is not None:
             nodes_query = nodes_query.order_by().exclude_by_uuids(
                 _mptt_descendant_ids(
                     channel_id,
