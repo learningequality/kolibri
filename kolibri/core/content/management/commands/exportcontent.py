@@ -4,12 +4,12 @@ import os
 from django.core.management.base import CommandError
 
 from ...utils import paths
-from ...utils import transfer
 from kolibri.core.content.errors import InvalidStorageFilenameError
 from kolibri.core.content.utils.import_export_content import get_import_export_data
 from kolibri.core.content.utils.paths import get_content_file_name
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.core.tasks.utils import get_current_job
+from kolibri.utils import file_transfer as transfer
 
 logger = logging.getLogger(__name__)
 

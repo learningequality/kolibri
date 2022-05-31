@@ -8,7 +8,6 @@ from le_utils.constants import content_kinds
 
 from ...utils import annotation
 from ...utils import paths
-from ...utils import transfer
 from kolibri.core.content.errors import InsufficientStorageSpaceError
 from kolibri.core.content.errors import InvalidStorageFilenameError
 from kolibri.core.content.models import ChannelMetadata
@@ -22,6 +21,7 @@ from kolibri.core.content.utils.upgrade import get_import_data_for_update
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.utils import conf
+from kolibri.utils import file_transfer as transfer
 from kolibri.utils.options import FD_PER_THREAD
 from kolibri.utils.system import get_fd_limit
 from kolibri.utils.system import get_free_space

@@ -4,8 +4,21 @@ import shutil
 from time import sleep
 
 import requests
+from requests.exceptions import ChunkedEncodingError
+from requests.exceptions import ConnectionError
+from requests.exceptions import HTTPError
+from requests.exceptions import Timeout
 
-from kolibri.core.content.utils.import_export_content import retry_import
+
+try:
+    import OpenSSL
+
+    SSLERROR = OpenSSL.SSL.Error
+except ImportError:
+    SSLERROR = requests.exceptions.SSLError
+
+RETRY_STATUS_CODE = [502, 503, 504, 521, 522, 523, 524]
+
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +39,29 @@ class TransferNotYetClosed(Exception):
     pass
 
 
+def retry_import(e):
+    """
+    When an exception occurs during channel/content import, if
+        * there is an Internet connection error or timeout error,
+          or HTTPError where the error code is one of the RETRY_STATUS_CODE,
+          return return True to retry the file transfer
+    return value:
+        * True - needs retry.
+        * False - Does not need retry.
+    """
+
+    if (
+        isinstance(e, ConnectionError)
+        or isinstance(e, Timeout)
+        or isinstance(e, ChunkedEncodingError)
+        or (isinstance(e, HTTPError) and e.response.status_code in RETRY_STATUS_CODE)
+        or (isinstance(e, SSLERROR) and "decryption failed or bad record mac" in str(e))
+    ):
+        return True
+
+    return False
+
+
 class Transfer(object):
     DEFAULT_TIMEOUT = 60
 
@@ -36,7 +72,7 @@ class Transfer(object):
         block_size=2097152,
         remove_existing_temp_file=True,
         timeout=DEFAULT_TIMEOUT,
-        cancel_check=None,
+        cancel_check=lambda: False,
     ):
         self.source = source
         self.dest = dest
@@ -92,8 +128,22 @@ class Transfer(object):
         # open the destination file for writing
         self.dest_file_obj = open(self.dest_tmp, "wb")
 
+    def _set_iterator(self):
+        if not hasattr(self, "_content_iterator"):
+            self._content_iterator = self._get_content_iterator()
+
     def __next__(self):  # proxy this method to fully support Python 3
+        self._set_iterator()
         return self.next()
+
+    def __iter__(self):
+        self._set_iterator()
+        return self
+
+    def _get_content_iterator(self):
+        raise NotImplementedError(
+            "Transfer subclass must implement a _get_content_iterator method"
+        )
 
     def next(self):
         try:
@@ -107,7 +157,11 @@ class Transfer(object):
         return chunk
 
     def _move_tmp_to_dest(self):
-        shutil.move(self.dest_tmp, self.dest)
+        try:
+            shutil.move(self.dest_tmp, self.dest)
+        except (IOError, OSError) as e:
+            if not os.path.exists(self.dest):
+                raise e
 
     def __enter__(self):
         self.start()
@@ -199,13 +253,12 @@ class FileDownload(Transfer):
 
         self.started = True
 
-    def __iter__(self):
+    def _get_content_iterator(self):
         if not self.started:
             raise AssertionError(
                 "File download must be started before it can be iterated."
             )
-        self._content_iterator = self.response.iter_content(self.block_size)
-        return self
+        return self.response.iter_content(self.block_size)
 
     def next(self):
         if self.cancel_check():
@@ -293,7 +346,7 @@ class FileCopy(Transfer):
         self.source_file_obj = open(self.source, "rb")
         self.started = True
 
-    def _read_block_iterator(self):
+    def _get_content_iterator(self):
         while True:
             if self.cancel_check():
                 self._kill_gracefully()
@@ -301,10 +354,6 @@ class FileCopy(Transfer):
             if not block:
                 break
             yield block
-
-    def __iter__(self):
-        self._content_iterator = self._read_block_iterator()
-        return self
 
     def close(self):
         self.source_file_obj.close()

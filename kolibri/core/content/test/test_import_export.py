@@ -25,8 +25,8 @@ from kolibri.core.content.utils.content_types_tools import (
     renderable_contentnodes_q_filter,
 )
 from kolibri.core.content.utils.import_export_content import get_import_export_data
-from kolibri.core.content.utils.transfer import Transfer
-from kolibri.core.content.utils.transfer import TransferCanceled
+from kolibri.utils.file_transfer import Transfer
+from kolibri.utils.file_transfer import TransferCanceled
 from kolibri.utils.tests.helpers import override_option
 
 # helper class for mocking that is equal to anything
@@ -171,15 +171,13 @@ class ImportChannelTestCase(TestCase):
                     "decryption failed or bad record mac",
                 ]
             )
-        with patch(
-            "kolibri.core.content.utils.transfer.Transfer.next", side_effect=SSLERROR
-        ):
+        with patch("kolibri.utils.file_transfer.Transfer.next", side_effect=SSLERROR):
             call_command("importchannel", "network", "197934f144305350b5820c7c4dd8e194")
             cancel_mock.assert_called_with()
             import_channel_mock.assert_not_called()
 
     @patch(
-        "kolibri.core.content.utils.transfer.Transfer.next",
+        "kolibri.utils.file_transfer.Transfer.next",
         side_effect=ReadTimeout("Read timed out."),
     )
     @patch("kolibri.core.content.management.commands.importchannel.AsyncCommand.cancel")
@@ -471,7 +469,7 @@ class ImportContentTestCase(TestCase):
         annotation_mock.set_content_visibility.assert_called()
 
     @patch(
-        "kolibri.core.content.utils.transfer.Transfer.next",
+        "kolibri.utils.file_transfer.Transfer.next",
         side_effect=ConnectionError("connection error"),
     )
     @patch("kolibri.core.content.management.commands.importcontent.AsyncCommand.cancel")
@@ -610,7 +608,7 @@ class ImportContentTestCase(TestCase):
         sleep_mock.assert_called()
         annotation_mock.set_content_visibility.assert_called()
 
-    @patch("kolibri.core.content.utils.transfer.requests.Session.get")
+    @patch("kolibri.utils.file_transfer.requests.Session.get")
     @patch(
         "kolibri.core.content.management.commands.importcontent.paths.get_content_storage_file_path",
         return_value="test/test",
@@ -740,9 +738,9 @@ class ImportContentTestCase(TestCase):
             self.the_channel_id, [], exclude_node_ids=None, node_ids=None, public=False
         )
 
-    @patch("kolibri.core.content.utils.transfer.sleep")
+    @patch("kolibri.utils.file_transfer.sleep")
     @patch(
-        "kolibri.core.content.utils.transfer.Transfer.next",
+        "kolibri.utils.file_transfer.Transfer.next",
         side_effect=ChunkedEncodingError("Chunked Encoding Error"),
     )
     @patch("kolibri.core.content.management.commands.importcontent.AsyncCommand.cancel")
@@ -822,7 +820,7 @@ class ImportContentTestCase(TestCase):
         annotation_mock.set_content_visibility.assert_called()
 
     @patch("kolibri.core.content.management.commands.importcontent.logger.error")
-    @patch("kolibri.core.content.utils.transfer.os.path.getsize")
+    @patch("kolibri.utils.file_transfer.os.path.getsize")
     @patch(
         "kolibri.core.content.management.commands.importcontent.paths.get_content_storage_file_path"
     )
@@ -1109,7 +1107,7 @@ class ImportContentTestCase(TestCase):
         )
 
         m = mock_open()
-        with patch("kolibri.core.content.utils.transfer.open", m) as open_mock:
+        with patch("kolibri.utils.file_transfer.open", m) as open_mock:
             try:
                 call_command("importcontent", "network", self.the_channel_id)
             except Exception:
