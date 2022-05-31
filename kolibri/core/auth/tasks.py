@@ -456,8 +456,8 @@ def peerusersync(command, **kwargs):
     finally:
         # cleanup session on error if we tried to resume it
         if cleanup and command == "resumesync":
-            # for resume we should have id kwarg
-            queue_soud_sync_cleanup(kwargs["id"])
+            # for resume we should have sync_session_id kwarg
+            queue_soud_sync_cleanup(kwargs["sync_session_id"])
         if resync_interval:
             # schedule a new sync
             schedule_new_sync(
