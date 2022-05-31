@@ -1,3 +1,4 @@
+import argparse
 import concurrent.futures
 import logging
 import os
@@ -12,6 +13,7 @@ from kolibri.core.content.errors import InsufficientStorageSpaceError
 from kolibri.core.content.errors import InvalidStorageFilenameError
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
+from kolibri.core.content.utils.content_manifest import ContentManifest
 from kolibri.core.content.utils.file_availability import LocationError
 from kolibri.core.content.utils.import_export_content import compare_checksums
 from kolibri.core.content.utils.import_export_content import get_import_export_data
@@ -61,6 +63,24 @@ class Command(AsyncCommand):
         # command to be given, where we'll expect a channel.
 
         # However, some optional arguments apply to both groups. Add them here!
+
+        manifest_help_text = """
+        Specify a path to a manifest file. Content specified in this manifest file will be imported.
+
+        e.g.
+
+        kolibri manage importcontent --manifest /path/to/KOLIBRI_DATA/content/all.json disk
+        """
+        parser.add_argument(
+            "--manifest",
+            # Split the comma separated string we get, into a list of strings
+            type=argparse.FileType("r"),
+            default=None,
+            required=False,
+            dest="manifest",
+            help=manifest_help_text,
+        )
+
         node_ids_help_text = """
         Specify one or more node IDs to import. Only the files associated to those node IDs will be imported.
 
@@ -170,7 +190,7 @@ class Command(AsyncCommand):
             name="disk", cmd=self, help="Copy the content from the given folder."
         )
         disk_subparser.add_argument("channel_id", type=str)
-        disk_subparser.add_argument("directory", type=str)
+        disk_subparser.add_argument("directory", type=str, nargs="?")
         disk_subparser.add_argument("--drive_id", type=str, dest="drive_id", default="")
         disk_subparser.add_argument(
             "--content_dir",
@@ -182,6 +202,7 @@ class Command(AsyncCommand):
     def download_content(
         self,
         channel_id,
+        manifest_file=None,
         node_ids=None,
         exclude_node_ids=None,
         baseurl=None,
@@ -195,6 +216,7 @@ class Command(AsyncCommand):
         self._transfer(
             DOWNLOAD_METHOD,
             channel_id,
+            manifest_file=manifest_file,
             node_ids=node_ids,
             exclude_node_ids=exclude_node_ids,
             baseurl=baseurl,
@@ -210,6 +232,7 @@ class Command(AsyncCommand):
         self,
         channel_id,
         path,
+        manifest_file=None,
         drive_id=None,
         node_ids=None,
         exclude_node_ids=None,
@@ -222,6 +245,7 @@ class Command(AsyncCommand):
             COPY_METHOD,
             channel_id,
             path=path,
+            manifest_file=manifest_file,
             drive_id=drive_id,
             node_ids=node_ids,
             exclude_node_ids=exclude_node_ids,
@@ -235,6 +259,7 @@ class Command(AsyncCommand):
         self,
         method,
         channel_id,
+        manifest_file=None,
         path=None,
         drive_id=None,
         node_ids=None,
@@ -247,6 +272,23 @@ class Command(AsyncCommand):
         timeout=transfer.Transfer.DEFAULT_TIMEOUT,
         content_dir=None,
     ):
+        if manifest_file and not path:
+            # If manifest_file is stdin, its name will be "<stdin>" and path
+            # will become "". This feels clumsy, but the resulting behaviour
+            # is reasonable.
+            manifest_dir = os.path.dirname(manifest_file.name)
+            path = os.path.dirname(manifest_dir)
+
+        if manifest_file:
+            content_manifest = ContentManifest()
+            content_manifest.read_file(manifest_file)
+        else:
+            content_manifest = None
+
+        if content_manifest:
+            node_ids = _node_ids_from_content_manifest(content_manifest, channel_id)
+            exclude_node_ids = None
+
         try:
             if not import_updates:
                 (
@@ -570,6 +612,11 @@ class Command(AsyncCommand):
         return FILE_TRANSFERRED, data_transferred
 
     def handle_async(self, *args, **options):
+        if options["manifest"] and (options["node_ids"] or options["exclude_node_ids"]):
+            raise CommandError(
+                "The --manifest option must not be combined with --node_ids or --exclude_node_ids."
+            )
+
         try:
             ChannelMetadata.objects.get(id=options["channel_id"])
         except ValueError:
@@ -580,9 +627,11 @@ class Command(AsyncCommand):
             raise CommandError(
                 "Must import a channel with importchannel before importing content."
             )
+
         if options["command"] == "network":
             self.download_content(
                 options["channel_id"],
+                manifest_file=options["manifest"],
                 node_ids=options["node_ids"],
                 exclude_node_ids=options["exclude_node_ids"],
                 baseurl=options["baseurl"],
@@ -594,9 +643,15 @@ class Command(AsyncCommand):
                 content_dir=options["content_dir"],
             )
         elif options["command"] == "disk":
+            if not options["directory"] and not options["manifest"]:
+                raise CommandError(
+                    "Either a directory or a manifest file must be provided."
+                )
+
             self.copy_content(
                 options["channel_id"],
                 options["directory"],
+                manifest_file=options["manifest"],
                 drive_id=options["drive_id"],
                 node_ids=options["node_ids"],
                 exclude_node_ids=options["exclude_node_ids"],
@@ -612,3 +667,24 @@ class Command(AsyncCommand):
                     options["command"]
                 )
             )
+
+
+def _node_ids_from_content_manifest(content_manifest, channel_id):
+    node_ids = []
+
+    channel_metadata = ChannelMetadata.objects.get(id=channel_id)
+
+    for channel_version in content_manifest.get_channel_versions(channel_id):
+        if channel_version != channel_metadata.version:
+            logger.warning(
+                "Manifest entry for {channel_id} has a different version ({manifest_version}) than the installed channel ({local_version})".format(
+                    channel_id=channel_id,
+                    manifest_version=channel_version,
+                    local_version=channel_metadata.version,
+                )
+            )
+        node_ids.extend(
+            content_manifest.get_include_node_ids(channel_id, channel_version)
+        )
+
+    return node_ids
