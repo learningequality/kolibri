@@ -14,7 +14,6 @@ from django.db.models import Subquery
 from django.db.models import Sum
 from django.db.models.aggregates import Count
 from django.http import Http404
-from django.http.request import HttpRequest
 from django.utils.cache import patch_response_headers
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext as _
@@ -100,18 +99,9 @@ def metadata_cache(some_func):
         except IndexError:
             request = kwargs.get("request", None)
         if "contentCacheKey" in request.GET:
-            # This caching has the unfortunate effect of also caching the dynamically
-            # generated filters for recommendation, this quick hack checks if
-            # the request is any of those filters, and then applies less long running
-            # caching on it.
-            timeout = cache_timeout
-
-            if isinstance(request, HttpRequest):
-                if any(map(lambda x: x in request.path, ["next_steps", "resume"])):
-                    timeout = 0
-                elif "popular" in request.path:
-                    timeout = 600
-            patch_response_headers(response, cache_timeout=timeout)
+            # Only do long running caching if the contentCacheKey is explicitly
+            # set in the URL, otherwise rely on the Etag to do a quick 304.
+            patch_response_headers(response, cache_timeout=cache_timeout)
 
         return response
 
@@ -606,21 +596,6 @@ class OptionalContentNodePagination(OptionalPagination):
         }
 
 
-def get_resume_queryset(request, queryset):
-    user = request.user
-    # if user is anonymous, don't return any nodes
-    # if person requesting is not the data they are requesting for, also return no nodes
-    if not user.is_facility_user:
-        return queryset.none()
-    # get the most recently viewed, but not finished, content nodes
-    content_ids = (
-        ContentSummaryLog.objects.filter(user=user, progress__gt=0)
-        .exclude(progress=1)
-        .values_list("content_id", flat=True)
-    )
-    return queryset.filter(content_id__in=content_ids)
-
-
 @method_decorator(metadata_cache, name="dispatch")
 class ContentNodeViewset(BaseContentNodeMixin, ReadOnlyValuesViewset):
     pagination_class = OptionalContentNodePagination
@@ -793,126 +768,6 @@ class ContentNodeViewset(BaseContentNodeMixin, ReadOnlyValuesViewset):
         queryset = queryset & node.get_siblings(include_self=False).exclude(
             kind=content_kinds.TOPIC
         )
-        return Response(self.serialize(queryset))
-
-    @list_route(methods=["get"])
-    def next_steps(self, request, **kwargs):
-        """
-        Recommend content that has user completed content as a prerequisite, or leftward sibling.
-
-        :param request: request object
-        :return: uncompleted content nodes, or empty queryset if user is anonymous
-        """
-        user = request.user
-        queryset = self.get_queryset()
-        # if user is anonymous, don't return any nodes
-        # if person requesting is not the data they are requesting for, also return no nodes
-        if not user.is_facility_user:
-            queryset = queryset.none()
-        else:
-            completed_content_ids = ContentSummaryLog.objects.filter(
-                user=user, progress=1
-            ).values_list("content_id", flat=True)
-
-            # If no logs, don't bother doing the other queries
-            if not completed_content_ids.exists():
-                queryset = queryset.none()
-            else:
-                completed_content_nodes = queryset.filter_by_content_ids(
-                    completed_content_ids
-                ).order_by()
-
-                # Filter to only show content that the user has not engaged in, so as not to be redundant with resume
-                queryset = (
-                    queryset.exclude_by_content_ids(
-                        ContentSummaryLog.objects.filter(user=user).values_list(
-                            "content_id", flat=True
-                        ),
-                        validate=False,
-                    )
-                    .filter(
-                        Q(has_prerequisite__in=completed_content_nodes)
-                        | Q(
-                            lft__in=[
-                                rght + 1
-                                for rght in completed_content_nodes.values_list(
-                                    "rght", flat=True
-                                )
-                            ]
-                        )
-                    )
-                    .order_by()
-                )
-                if not (
-                    user.roles.exists() or user.is_superuser
-                ):  # must have coach role or higher
-                    queryset = queryset.exclude(coach_content=True)
-
-        return Response(self.serialize(queryset))
-
-    @list_route(methods=["get"])
-    def popular(self, request, **kwargs):
-        """
-        Recommend content that is popular with all users.
-
-        :param request: request object
-        :return: 10 most popular content nodes
-        """
-        cache_key = "popular_content"
-
-        if cache.get(cache_key) is not None:
-            return Response(cache.get(cache_key))
-
-        queryset = self.filter_queryset(self.get_queryset())
-
-        if ContentSessionLog.objects.count() < 50:
-            # return 25 random content nodes if not enough session logs
-            pks = queryset.values_list("pk", flat=True).exclude(
-                kind=content_kinds.TOPIC
-            )
-            # .count scales with table size, so can get slow on larger channels
-            count_cache_key = "content_count_for_popular"
-            count = cache.get(count_cache_key) or min(pks.count(), 25)
-            queryset = queryset.filter_by_uuids(
-                sample(list(pks), count), validate=False
-            )
-        else:
-            # get the most accessed content nodes
-            # search for content nodes that currently exist in the database
-            content_nodes = models.ContentNode.objects.filter(available=True)
-            content_counts_sorted = (
-                ContentSessionLog.objects.filter(
-                    content_id__in=content_nodes.values_list(
-                        "content_id", flat=True
-                    ).distinct()
-                )
-                .values_list("content_id", flat=True)
-                .annotate(Count("content_id"))
-                .order_by("-content_id__count")
-            )
-
-            most_popular = queryset.filter_by_content_ids(
-                list(content_counts_sorted[:20]), validate=False
-            )
-            queryset = most_popular.dedupe_by_content_id(use_distinct=False)
-
-        data = self.serialize(queryset)
-
-        # cache the popular results queryset for 10 minutes, for efficiency
-        cache.set(cache_key, data, 60 * 10)
-
-        return Response(data)
-
-    @list_route(methods=["get"])
-    def resume(self, request, **kwargs):
-        """
-        Recommend content that the user has recently engaged with, but not finished.
-
-        :param request: request object
-        :return: 10 most recently viewed content nodes
-        """
-        queryset = get_resume_queryset(request, self.get_queryset())
-
         return Response(self.serialize(queryset))
 
 
@@ -1360,6 +1215,8 @@ class ContentNodeGranularViewset(mixins.RetrieveModelMixin, viewsets.GenericView
 class UserContentNodeFilter(ContentNodeFilter):
     lesson = UUIDFilter(method="filter_by_lesson")
     resume = BooleanFilter(method="filter_by_resume")
+    next_steps = BooleanFilter(method="filter_by_next_steps")
+    popular = BooleanFilter(method="filter_by_popular")
 
     def filter_by_lesson(self, queryset, name, value):
         try:
@@ -1370,7 +1227,111 @@ class UserContentNodeFilter(ContentNodeFilter):
             return queryset.none()
 
     def filter_by_resume(self, queryset, name, value):
-        return get_resume_queryset(self.request, queryset)
+        user = self.request.user
+        # if user is anonymous, don't return any nodes
+        if not user.is_facility_user:
+            return queryset.none()
+        # get the most recently viewed, but not finished, content nodes
+        content_ids = (
+            ContentSummaryLog.objects.filter(user=user, progress__gt=0)
+            .exclude(progress=1)
+            .values_list("content_id", flat=True)
+        )
+        return queryset.filter(content_id__in=content_ids)
+
+    def filter_by_next_steps(self, queryset, name, value):
+        """
+        Recommend content that has user completed content as a prerequisite, or leftward sibling.
+
+        :param request: request object
+        :return: uncompleted content nodes, or empty queryset if user is anonymous
+        """
+        user = self.request.user
+        # if user is anonymous, don't return any nodes
+        # if person requesting is not the data they are requesting for, also return no nodes
+        if not user.is_facility_user:
+            return queryset.none()
+        completed_content_ids = ContentSummaryLog.objects.filter(
+            user=user, progress=1
+        ).values_list("content_id", flat=True)
+
+        # If no logs, don't bother doing the other queries
+        if not completed_content_ids.exists():
+            return queryset.none()
+        completed_content_nodes = queryset.filter_by_content_ids(
+            completed_content_ids
+        ).order_by()
+
+        # Filter to only show content that the user has not engaged in, so as not to be redundant with resume
+        queryset = (
+            queryset.exclude_by_content_ids(
+                ContentSummaryLog.objects.filter(user=user).values_list(
+                    "content_id", flat=True
+                ),
+                validate=False,
+            )
+            .filter(
+                Q(has_prerequisite__in=completed_content_nodes)
+                | Q(
+                    lft__in=[
+                        rght + 1
+                        for rght in completed_content_nodes.values_list(
+                            "rght", flat=True
+                        )
+                    ]
+                )
+            )
+            .order_by()
+        )
+        if not (
+            user.roles.exists() or user.is_superuser
+        ):  # must have coach role or higher
+            queryset = queryset.exclude(coach_content=True)
+
+        return queryset
+
+    def filter_by_popular(self, queryset, name, value):
+        """
+        Recommend content that is popular with all users.
+
+        :param request: request object
+        :return: 10 most popular content nodes
+        """
+        cache_key = "popular_content"
+
+        content_ids = cache.get(cache_key)
+
+        if content_ids is None:
+            if len(ContentSessionLog.objects.values_list("pk")[:50]) < 50:
+                # return 25 random content nodes if not enough session logs
+                pks = queryset.values_list("pk", flat=True).exclude(
+                    kind=content_kinds.TOPIC
+                )
+                # .count scales with table size, so can get slow on larger channels
+                count_cache_key = "content_count_for_popular"
+                count = cache.get(count_cache_key) or min(pks.count(), 25)
+                return queryset.filter_by_uuids(
+                    sample(list(pks), count), validate=False
+                )
+            # get the most accessed content nodes
+            # search for content nodes that currently exist in the database
+            content_nodes = models.ContentNode.objects.filter(available=True)
+            content_counts_sorted = (
+                ContentSessionLog.objects.filter(
+                    content_id__in=content_nodes.values_list(
+                        "content_id", flat=True
+                    ).distinct()
+                )
+                .values_list("content_id", flat=True)
+                .annotate(Count("content_id"))
+                .order_by("-content_id__count")
+            )
+
+            content_ids = list(content_counts_sorted[:20])
+            # cache the popular results content_ids for 10 minutes, for efficiency
+            cache.set(cache_key, content_ids, 60 * 10)
+
+        return queryset.filter_by_content_ids(content_ids, validate=False)
 
     class Meta:
         model = models.ContentNode

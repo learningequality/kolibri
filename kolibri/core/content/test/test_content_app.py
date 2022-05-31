@@ -1361,7 +1361,9 @@ class ContentNodeAPITestCase(APITestCase):
 
     def test_popular(self):
         expected_content_ids = self._create_session_logs()
-        response = self.client.get(reverse("kolibri:core:contentnode-popular"))
+        response = self.client.get(
+            reverse("kolibri:core:usercontentnode-list"), data={"popular": True}
+        )
         response_content_ids = {node["content_id"] for node in response.json()}
         self.assertSetEqual(set(expected_content_ids), response_content_ids)
 
@@ -1372,8 +1374,8 @@ class ContentNodeAPITestCase(APITestCase):
         node.save()
         expected_content_ids = expected_content_ids[1:]
         response = self.client.get(
-            reverse("kolibri:core:contentnode-popular"),
-            data={"include_coach_content": False},
+            reverse("kolibri:core:usercontentnode-list"),
+            data={"popular": True, "include_coach_content": False},
         )
         response_content_ids = {node["content_id"] for node in response.json()}
         self.assertSetEqual(set(expected_content_ids), response_content_ids)
@@ -1389,16 +1391,11 @@ class ContentNodeAPITestCase(APITestCase):
         node.save()
         self.client.login(username="coach", password=DUMMY_PASSWORD)
         response = self.client.get(
-            reverse("kolibri:core:contentnode-popular"),
-            data={"include_coach_content": True},
+            reverse("kolibri:core:usercontentnode-list"),
+            data={"popular": True, "include_coach_content": True},
         )
         response_content_ids = {node["content_id"] for node in response.json()}
         self.assertSetEqual(set(expected_content_ids), response_content_ids)
-
-    def test_popular_ten_minute_cache(self):
-        self._create_session_logs()
-        response = self.client.get(reverse("kolibri:core:contentnode-popular"))
-        self.assertEqual(response["Cache-Control"], "max-age=600")
 
     def _create_summary_logs(self):
         facility = Facility.objects.create(name="MyFac")
@@ -1441,14 +1438,18 @@ class ContentNodeAPITestCase(APITestCase):
     def test_resume(self):
         user, expected_content_ids = self._create_summary_logs()
         self.client.login(username=user.username, password=DUMMY_PASSWORD)
-        response = self.client.get(reverse("kolibri:core:contentnode-resume"))
+        response = self.client.get(
+            reverse("kolibri:core:usercontentnode-list"), data={"resume": True}
+        )
         response_content_ids = {node["content_id"] for node in response.json()}
         self.assertSetEqual(set(expected_content_ids), response_content_ids)
 
     def test_resume_zero_cache(self):
         user, expected_content_ids = self._create_summary_logs()
         self.client.login(username=user.username, password=DUMMY_PASSWORD)
-        response = self.client.get(reverse("kolibri:core:contentnode-resume"))
+        response = self.client.get(
+            reverse("kolibri:core:usercontentnode-list"), data={"resume": True}
+        )
         self.assertEqual(response["Cache-Control"], "max-age=0")
 
     def test_next_steps_prereq(self):
@@ -1468,7 +1469,9 @@ class ContentNodeAPITestCase(APITestCase):
         self.client.login(username=user.username, password=DUMMY_PASSWORD)
         post_req = root.prerequisite_for.first()
         expected_content_ids = (post_req.content_id,)
-        response = self.client.get(reverse("kolibri:core:contentnode-next-steps"))
+        response = self.client.get(
+            reverse("kolibri:core:usercontentnode-list"), data={"next_steps": True}
+        )
         response_content_ids = {node["content_id"] for node in response.json()}
         self.assertSetEqual(set(expected_content_ids), response_content_ids)
 
@@ -1487,7 +1490,9 @@ class ContentNodeAPITestCase(APITestCase):
         user.set_password(DUMMY_PASSWORD)
         user.save()
         self.client.login(username=user.username, password=DUMMY_PASSWORD)
-        response = self.client.get(reverse("kolibri:core:contentnode-next-steps"))
+        response = self.client.get(
+            reverse("kolibri:core:usercontentnode-list"), data={"next_steps": True}
+        )
         self.assertEqual(response["Cache-Control"], "max-age=0")
 
     def test_next_steps_prereq_in_progress(self):
@@ -1515,7 +1520,9 @@ class ContentNodeAPITestCase(APITestCase):
             kind="audio",
         )
         expected_content_ids = []
-        response = self.client.get(reverse("kolibri:core:contentnode-next-steps"))
+        response = self.client.get(
+            reverse("kolibri:core:usercontentnode-list"), data={"next_steps": True}
+        )
         response_content_ids = {node["content_id"] for node in response.json()}
         self.assertSetEqual(set(expected_content_ids), response_content_ids)
 
@@ -1537,7 +1544,9 @@ class ContentNodeAPITestCase(APITestCase):
         post_req = root.prerequisite_for.first()
         post_req.coach_content = True
         post_req.save()
-        response = self.client.get(reverse("kolibri:core:contentnode-next-steps"))
+        response = self.client.get(
+            reverse("kolibri:core:usercontentnode-list"), data={"next_steps": True}
+        )
         response_content_ids = {node["content_id"] for node in response.json()}
         self.assertSetEqual(set(), response_content_ids)
 
@@ -1561,7 +1570,9 @@ class ContentNodeAPITestCase(APITestCase):
         post_req.coach_content = True
         post_req.save()
         expected_content_ids = (post_req.content_id,)
-        response = self.client.get(reverse("kolibri:core:contentnode-next-steps"))
+        response = self.client.get(
+            reverse("kolibri:core:usercontentnode-list"), data={"next_steps": True}
+        )
         response_content_ids = {node["content_id"] for node in response.json()}
         self.assertSetEqual(set(expected_content_ids), response_content_ids)
 
@@ -1584,7 +1595,9 @@ class ContentNodeAPITestCase(APITestCase):
         self.client.login(username=user.username, password=DUMMY_PASSWORD)
         sibling = node.get_next_sibling()
         expected_content_ids = (sibling.content_id,)
-        response = self.client.get(reverse("kolibri:core:contentnode-next-steps"))
+        response = self.client.get(
+            reverse("kolibri:core:usercontentnode-list"), data={"next_steps": True}
+        )
         response_content_ids = {node["content_id"] for node in response.json()}
         self.assertSetEqual(set(expected_content_ids), response_content_ids)
 
@@ -1615,7 +1628,9 @@ class ContentNodeAPITestCase(APITestCase):
             kind="audio",
         )
         expected_content_ids = []
-        response = self.client.get(reverse("kolibri:core:contentnode-next-steps"))
+        response = self.client.get(
+            reverse("kolibri:core:usercontentnode-list"), data={"next_steps": True}
+        )
         response_content_ids = {node["content_id"] for node in response.json()}
         self.assertSetEqual(set(expected_content_ids), response_content_ids)
 
@@ -1639,7 +1654,9 @@ class ContentNodeAPITestCase(APITestCase):
         sibling = node.get_next_sibling()
         sibling.coach_content = True
         sibling.save()
-        response = self.client.get(reverse("kolibri:core:contentnode-next-steps"))
+        response = self.client.get(
+            reverse("kolibri:core:usercontentnode-list"), data={"next_steps": True}
+        )
         response_content_ids = {node["content_id"] for node in response.json()}
         self.assertSetEqual(set(), response_content_ids)
 
@@ -1665,7 +1682,9 @@ class ContentNodeAPITestCase(APITestCase):
         sibling.coach_content = True
         sibling.save()
         expected_content_ids = (sibling.content_id,)
-        response = self.client.get(reverse("kolibri:core:contentnode-next-steps"))
+        response = self.client.get(
+            reverse("kolibri:core:usercontentnode-list"), data={"next_steps": True}
+        )
         response_content_ids = {node["content_id"] for node in response.json()}
         self.assertSetEqual(set(expected_content_ids), response_content_ids)
 

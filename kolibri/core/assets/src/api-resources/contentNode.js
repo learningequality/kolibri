@@ -115,11 +115,23 @@ export default new Resource({
     });
     return promise;
   },
-  fetchPopular(getParams) {
-    return this.fetchListCollection('popular', getParams);
+  fetchPopular(params = { popular: true }) {
+    const promise = new ConditionalPromise();
+    const url = urls['kolibri:core:usercontentnode_list']();
+    promise._promise = this.client({ url, params }).then(response => {
+      this.cacheData(response.data);
+      return response.data;
+    });
+    return promise;
   },
-  fetchNextSteps(getParams) {
-    return this.fetchListCollection('next_steps', getParams);
+  fetchNextSteps(params = { next_steps: true }) {
+    const promise = new ConditionalPromise();
+    const url = urls['kolibri:core:usercontentnode_list']();
+    promise._promise = this.client({ url, params }).then(response => {
+      this.cacheData(response.data);
+      return response.data;
+    });
+    return promise;
   },
   cache: {},
   fetchModel({ id }) {
