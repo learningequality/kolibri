@@ -41,6 +41,12 @@
       :noPadding="true"
     >
       <div class="content">
+        <h1 class="title">
+          {{ title }}
+        </h1>
+        <p class="description">
+          {{ description }}
+        </p>
         <slot></slot>
       </div>
 
@@ -113,6 +119,14 @@
         type: Boolean,
         default: false,
       },
+      title: {
+        type: String,
+        default: null,
+      },
+      description: {
+        type: String,
+        default: null,
+      },
     },
     data() {
       return {
@@ -146,6 +160,15 @@
     position: relative;
     width: 100%;
     height: 32px;
+  }
+
+  .title {
+    font-size: 1.5em;
+  }
+
+  .description {
+    padding-bottom: 8px;
+    font-size: 0.875em;
   }
 
   .windowIsSmall .logo-lang-container {
