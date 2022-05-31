@@ -1,10 +1,10 @@
 <template>
 
-  <OnboardingForm
-    :header="$attrs.header || $tr('adminAccountCreationHeader')"
+  <OnboardingStepBase
+    dir="auto"
+    :title="$attrs.header || $tr('adminAccountCreationHeader')"
     :description="$attrs.description || $tr('adminAccountCreationDescription')"
-    :submitText="submitText"
-    @submit="handleSubmit"
+    @continue="handleSubmit"
   >
     <slot name="aboveform"></slot>
 
@@ -54,7 +54,7 @@
         </p>
       </div>
     </slot>
-  </OnboardingForm>
+  </OnboardingStepBase>
 
 </template>
 
@@ -66,24 +66,18 @@
   import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
   import PrivacyLinkAndModal from 'kolibri.coreVue.components.PrivacyLinkAndModal';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import OnboardingForm from './OnboardingForm';
+  import OnboardingStepBase from '../OnboardingStepBase';
 
   export default {
     name: 'SuperuserCredentialsForm',
     components: {
-      OnboardingForm,
+      OnboardingStepBase,
       FullNameTextbox,
       UsernameTextbox,
       PasswordTextbox,
       PrivacyLinkAndModal,
     },
-    mixins: [commonCoreStrings],
     props: {
-      isFinalStep: {
-        type: Boolean,
-        default: false,
-      },
       uniqueUsernameValidator: {
         type: Function,
         default: null,
@@ -108,11 +102,6 @@
     computed: {
       formIsValid() {
         return every([this.usernameValid, this.fullNameValid, this.passwordValid]);
-      },
-      submitText() {
-        return this.isFinalStep
-          ? this.coreString('finishAction')
-          : this.coreString('continueAction');
       },
     },
     methods: {

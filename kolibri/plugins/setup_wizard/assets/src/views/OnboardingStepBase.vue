@@ -147,7 +147,8 @@
 
   .base-container {
     max-width: 700px;
-    margin: 10% auto 0;
+    padding-bottom: 5em;
+    margin: 5em auto 0;
 
     &.windowIsSmall {
       width: 100vw;
