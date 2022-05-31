@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 from kolibri.core.device.hooks import SetupHook
 from kolibri.core.webpack import hooks as webpack_hooks
 from kolibri.plugins import KolibriPluginBase
-from kolibri.plugins.app.utils import GET_USERNAME
+from kolibri.plugins.app.utils import GET_OS_USER
 from kolibri.plugins.app.utils import interface
 from kolibri.plugins.hooks import register_hook
 from kolibri.utils import translation
@@ -27,7 +27,7 @@ class SetupWizardPlugin(KolibriPluginBase):
 
     @property
     def plugin_data(self):
-        return {"canUseOSUser": GET_USERNAME in interface}
+        return {"canUseOSUser": GET_OS_USER in interface}
 
 
 @register_hook

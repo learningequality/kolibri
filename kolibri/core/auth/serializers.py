@@ -16,6 +16,7 @@ from .models import LearnerGroup
 from .models import Membership
 from .models import Role
 from kolibri.core import error_constants
+from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 
 
 class RoleSerializer(serializers.ModelSerializer):
@@ -54,7 +55,7 @@ class FacilityUserSerializer(serializers.ModelSerializer):
         instance = super(FacilityUserSerializer, self).save(**kwargs)
         validated_data = dict(list(self.validated_data.items()) + list(kwargs.items()))
         password = validated_data.get("password")
-        if password and password != "NOT_SPECIFIED":
+        if password and password != NOT_SPECIFIED:
             instance.set_password(password)
             instance.save()
         return instance
@@ -65,7 +66,7 @@ class FacilityUserSerializer(serializers.ModelSerializer):
         facility = attrs.get("facility") or getattr(self.instance, "facility")
         if (
             "password" in attrs
-            and attrs["password"] == "NOT_SPECIFIED"
+            and attrs["password"] == NOT_SPECIFIED
             and not facility.dataset.learner_can_login_with_no_password
         ):
             raise serializers.ValidationError(

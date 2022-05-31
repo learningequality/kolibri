@@ -11,7 +11,7 @@ from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
 from kolibri.core.device.utils import provision_device
 from kolibri.core.device.utils import valid_app_key_on_request
-from kolibri.plugins.app.utils import GET_USERNAME
+from kolibri.plugins.app.utils import GET_OS_USER
 from kolibri.plugins.app.utils import interface
 
 
@@ -62,7 +62,7 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
     def validate(self, data):
         if (
             "superuser" not in data
-            and GET_USERNAME in interface
+            and GET_OS_USER in interface
             and "request" in self.context
             and valid_app_key_on_request(self.context["request"])
         ):
@@ -92,21 +92,19 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
                     setattr(facility.dataset, key, value)
             facility.dataset.save()
 
-            # Create superuser
-            if "os_user" in validated_data and validated_data["os_user"]:
-                superuser = FacilityUser.objects.get_or_create_os_user(
-                    facility=facility
-                )
-                DevicePermissions.objects.create(
-                    user=superuser, is_superuser=True, can_manage_content=True
-                )
-            else:
+            # Create superuser only if the details are present and
+            # we are in an app that is equipped to handle this.
+            # Note that this requires the app to redirect back to the initialization URL
+            # after initial provisioning.
+            if not validated_data.get("os_user"):
                 superuser = FacilityUser.objects.create_superuser(
                     validated_data["superuser"]["username"],
                     validated_data["superuser"]["password"],
                     facility=facility,
                     full_name=validated_data["superuser"].get("full_name"),
                 )
+            else:
+                superuser = None
 
             # Create device settings
             language_id = validated_data.pop("language_id")

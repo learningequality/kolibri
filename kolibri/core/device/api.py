@@ -81,7 +81,8 @@ class DeviceProvisionView(viewsets.GenericViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.save()
-        login(request, data["superuser"])
+        if data["superuser"]:
+            login(request, data["superuser"])
         output_serializer = self.get_serializer(data)
         return Response(output_serializer.data, status=status.HTTP_201_CREATED)
 

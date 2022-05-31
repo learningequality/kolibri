@@ -37,7 +37,7 @@ from kolibri.core.device.models import UserSyncStatus
 from kolibri.core.public.constants import user_sync_statuses
 from kolibri.core.public.constants.user_sync_options import DELAYED_SYNC
 from kolibri.plugins.app.test.helpers import register_capabilities
-from kolibri.plugins.app.utils import GET_USERNAME
+from kolibri.plugins.app.utils import GET_OS_USER
 from kolibri.plugins.app.utils import interface
 from kolibri.plugins.utils.test.helpers import plugin_disabled
 from kolibri.plugins.utils.test.helpers import plugin_enabled
@@ -197,13 +197,14 @@ class DeviceProvisionTestCase(APITestCase):
 
     def test_osuser_superuser_created(self):
         with plugin_enabled("kolibri.plugins.app"), register_capabilities(
-            **{GET_USERNAME: lambda: "test_user"}
+            **{GET_OS_USER: lambda x: ("test_user", True)}
         ):
-            initialize_url = interface.get_initialize_url()
+            initialize_url = interface.get_initialize_url(auth_token="test")
             self.client.get(initialize_url)
             data = self._default_provision_data()
             del data["superuser"]
             self._post_deviceprovision(data)
+            self.client.get(initialize_url)
             self.assertEqual(
                 DevicePermissions.objects.get(),
                 FacilityUser.objects.get().devicepermissions,
