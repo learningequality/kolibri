@@ -28,6 +28,11 @@ from kolibri.utils.options import FD_PER_THREAD
 from kolibri.utils.system import get_fd_limit
 from kolibri.utils.system import get_free_space
 
+try:
+    FileNotFoundError
+except NameError:
+    FileNotFoundError = IOError
+
 # constants to specify the transfer method to be used
 DOWNLOAD_METHOD = "download"
 COPY_METHOD = "copy"
@@ -69,7 +74,7 @@ class Command(AsyncCommand):
 
         e.g.
 
-        kolibri manage importcontent --manifest /path/to/KOLIBRI_DATA/content/all.json disk
+        kolibri manage importcontent --manifest /path/to/KOLIBRI_DATA/content/manifest.json disk
         """
         parser.add_argument(
             "--manifest",
@@ -198,6 +203,12 @@ class Command(AsyncCommand):
             default=paths.get_content_dir_path(),
             help="Copy the content to the given content dir.",
         )
+        disk_subparser.add_argument(
+            "--no_detect_manifest",
+            dest="detect_manifest",
+            action="store_false",
+            default=True,
+        )
 
     def download_content(
         self,
@@ -234,6 +245,7 @@ class Command(AsyncCommand):
         path,
         manifest_file=None,
         drive_id=None,
+        detect_manifest=True,
         node_ids=None,
         exclude_node_ids=None,
         renderable_only=True,
@@ -246,6 +258,7 @@ class Command(AsyncCommand):
             channel_id,
             path=path,
             manifest_file=manifest_file,
+            detect_manifest=detect_manifest,
             drive_id=drive_id,
             node_ids=node_ids,
             exclude_node_ids=exclude_node_ids,
@@ -260,6 +273,7 @@ class Command(AsyncCommand):
         method,
         channel_id,
         manifest_file=None,
+        detect_manifest=None,
         path=None,
         drive_id=None,
         node_ids=None,
@@ -282,6 +296,21 @@ class Command(AsyncCommand):
             node_ids, exclude_node_ids = _node_ids_from_content_manifest(
                 manifest_file, channel_id
             )
+        elif path and detect_manifest and not (node_ids or exclude_node_ids):
+            manifest_path = os.path.join(path, "content", "manifest.json")
+            try:
+                with open(manifest_path, "r") as fp:
+                    node_ids, exclude_node_ids = _node_ids_from_content_manifest(
+                        fp, channel_id
+                    )
+            except FileNotFoundError:
+                pass
+            else:
+                logging.info(
+                    "Reading node_ids and exclude_node_ids from {}".format(
+                        manifest_path
+                    )
+                )
 
         try:
             if not import_updates:
@@ -641,6 +670,7 @@ class Command(AsyncCommand):
                 options["channel_id"],
                 options["directory"],
                 manifest_file=options["manifest"],
+                detect_manifest=options["detect_manifest"],
                 drive_id=options["drive_id"],
                 node_ids=options["node_ids"],
                 exclude_node_ids=options["exclude_node_ids"],
