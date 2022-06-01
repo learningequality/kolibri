@@ -70,7 +70,7 @@
             :text="coreString('goBackAction')"
             appearance="flat-button"
             :primary="false"
-            @click="$emit('back')"
+            @click="wizardService.send('BACK')"
           />
           <KButton
             :text="coreString('continueAction')"

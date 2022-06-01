@@ -62,7 +62,7 @@ export const wizardMachine = createMachine({
     },
     // Initial step where user selects between "On my own" (individual) or "Group learning" (group)
     howAreYouUsingKolibri: {
-      meta: { route: 'HOW_ARE_YOU_USING_KOLIBRI', path: '/' },
+      meta: { route: { name: 'HOW_ARE_YOU_USING_KOLIBRI', path: '/' } },
       on: {
         CONTINUE: { target: 'individualOrGroupSetup', actions: setIndividualOrGroup },
       },
@@ -83,7 +83,7 @@ export const wizardMachine = createMachine({
 
     // The Individual path
     defaultLanguage: {
-      meta: { route: 'DEFAULT_LANGUAGE', path: 'default-language' },
+      meta: { route: { name: 'DEFAULT_LANGUAGE', path: 'default-language' } },
       on: {
         CONTINUE: 'createAccountOrFinalizeSetup',
         BACK: 'howAreYouUsingKolibri',
@@ -104,7 +104,7 @@ export const wizardMachine = createMachine({
       ],
     },
     createIndividualAccount: {
-      meta: { route: 'CREATE_INDIVIDUAL_ACCOUNT', path: 'create-account' },
+      meta: { route: { name: 'CREATE_INDIVIDUAL_ACCOUNT', path: 'create-account' } },
       on: {
         CONTINUE: 'finalizeSetup',
         BACK: 'defaultLanguage',
@@ -113,7 +113,7 @@ export const wizardMachine = createMachine({
 
     // The Group path
     deviceName: {
-      meta: { route: 'DEVICE_NAME', path: 'device-name' },
+      meta: { route: { name: 'DEVICE_NAME', path: 'device-name' } },
       on: {
         CONTINUE: { target: 'fullOrLearnOnlyDevice', actions: setIndividualOrGroup },
         BACK: 'howAreYouUsingKolibri',
@@ -144,7 +144,7 @@ export const wizardMachine = createMachine({
 
     // Full Device Path
     fullDeviceNewOrImportFacility: {
-      meta: { route: 'FULL_NEW_OR_IMPORT_FACILITY' },
+      meta: { route: { name: 'FULL_NEW_OR_IMPORT_FACILITY' } },
       on: {
         // FIXME: The component for this step needs to send a value to the machine when making
         // this transition that is 'new' or 'import'
@@ -167,14 +167,14 @@ export const wizardMachine = createMachine({
       ],
     },
     createFacility: {
-      meta: { route: 'CREATE_FACILITY/1' },
+      meta: { route: { name: 'CREATE_FACILITY/1' } },
       CONTINUE: 'quickOrAdvanced',
       on: {
         BACK: 'fullDeviceNewOrImportFacility',
       },
     },
     importFacility: {
-      meta: { route: 'IMPORT_FACILITY' },
+      meta: { route: { name: 'IMPORT_FACILITY' } },
       on: {
         BACK: 'fullDeviceNewOrImportFacility',
       },
@@ -183,7 +183,7 @@ export const wizardMachine = createMachine({
     // Lod Path - the lodMachine is imported, interpreted and managed in the Lod Setup component
     // This means that
     importLodUsers: {
-      meta: { route: 'IMPORT_LOD' },
+      meta: { route: { name: 'IMPORT_LOD' } },
       on: {
         BACK: 'fullOrLearnOnlyDevice',
       },
@@ -191,7 +191,7 @@ export const wizardMachine = createMachine({
 
     // This is a dead-end where the router will send the user where they need to go
     finalizeSetup: {
-      meta: { route: 'FINALIZE_SETUP' },
+      meta: { route: { name: 'FINALIZE_SETUP' } },
     },
   },
 });
