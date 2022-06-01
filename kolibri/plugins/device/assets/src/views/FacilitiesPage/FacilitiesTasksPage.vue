@@ -1,13 +1,9 @@
 <template>
 
-  <div>
-    <p>
-      <BackLink
-        :to="{ name: 'FACILITIES_PAGE' }"
-        :text="$tr('backToFacilitiesLabel')"
-      />
-    </p>
-
+  <ImmersiveDevicePage
+    :appBarTitle="$tr('facilitiesTaskManagerTitle')"
+    :route="backRoute"
+  >
     <HeaderWithOptions :headerText="coreString('tasksLabel')">
       <template #options>
         <KButton
@@ -31,8 +27,7 @@
         @click="handlePanelClick($event, task)"
       />
     </div>
-
-  </div>
+  </ImmersiveDevicePage>
 
 </template>
 
@@ -42,9 +37,10 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonTaskStrings from 'kolibri.coreVue.mixins.commonTaskStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
+  import ImmersiveDevicePage from '../PageWrappers/ImmersiveDevicePage';
   import HeaderWithOptions from '../HeaderWithOptions';
-  import BackLink from '../ManageTasksPage/BackLink';
   import commonDeviceStrings from '../commonDeviceStrings';
+  import { PageNames } from '../../constants';
   import FacilityTaskPanel from './FacilityTaskPanel';
   import facilityTasksQueue from './facilityTasksQueue';
 
@@ -58,7 +54,7 @@
     components: {
       FacilityTaskPanel,
       HeaderWithOptions,
-      BackLink,
+      ImmersiveDevicePage,
     },
     mixins: [
       commonCoreStrings,
@@ -73,6 +69,9 @@
       };
     },
     computed: {
+      backRoute() {
+        return { name: PageNames.FACILITIES_PAGE };
+      },
       someClearableTasks() {
         return Boolean(this.facilityTasks.find(task => task.clearable));
       },
@@ -88,10 +87,9 @@
       },
     },
     $trs: {
-      backToFacilitiesLabel: {
-        message: 'Back to facilities',
-        context:
-          'Link to take user back to the Device > Facilities page where they can see the list of facilities.',
+      facilitiesTaskManagerTitle: {
+        message: 'Facilities - Task manager',
+        context: 'Title of the page that displays all the tasks in the task manager. ',
       },
     },
   };
