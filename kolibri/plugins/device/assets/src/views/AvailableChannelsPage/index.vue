@@ -1,6 +1,9 @@
 <template>
 
-  <div>
+  <ImmersiveDevicePage
+    :appBarTitle="toolbarTitle()"
+    :route="backRoute"
+  >
     <ContentWizardUiAlert
       v-if="status"
       :errorType="status"
@@ -99,7 +102,7 @@
       @clickconfirm="handleClickConfirm"
     />
 
-  </div>
+  </ImmersiveDevicePage>
 
 </template>
 
@@ -116,6 +119,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskResource } from 'kolibri.resources';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
+  import ImmersiveDevicePage from '../PageWrappers/ImmersiveDevicePage';
   import ChannelPanel from '../ManageContentPage/ChannelPanel/WithImportDetails';
   import ContentWizardUiAlert from '../SelectContentPage/ContentWizardUiAlert';
   import { selectContentPageLink } from '../ManageContentPage/manageContentLinks';
@@ -142,6 +146,7 @@
       ChannelUpdateModal,
       ContentWizardUiAlert,
       FilteredChannelListContainer,
+      ImmersiveDevicePage,
       SelectionBottomBar,
       UiAlert,
     },
@@ -207,6 +212,9 @@
           [...this.newUnlistedChannels, ...installedChannels, ...notInstalledChannels],
           'id'
         );
+      },
+      backRoute() {
+        return { name: PageNames.MANAGE_CONTENT_PAGE };
       },
       multipleMode() {
         const { multiple } = this.$route.query;
