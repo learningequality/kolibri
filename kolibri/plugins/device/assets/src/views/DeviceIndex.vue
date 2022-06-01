@@ -30,8 +30,6 @@
 
 <script>
 
-  import { getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
-  import { useIntervalFn } from '@vueuse/core';
   import omit from 'lodash/omit';
   import { mapState, mapGetters } from 'vuex';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
@@ -47,25 +45,6 @@
       CoreBase,
       PostSetupModalGroup,
       DeviceTopNav,
-    },
-    setup() {
-      const polling = useIntervalFn(() => {
-        $store.dispatch('manageContent/refreshTaskList');
-      }, 1000);
-      const $store = getCurrentInstance().proxy.$store;
-      function startTaskPolling() {
-        if ($store.getters.canManageContent) {
-          polling.start();
-        }
-      }
-      function stopTaskPolling() {
-        polling.stop();
-      }
-
-      return {
-        stopTaskPolling,
-        startTaskPolling,
-      };
     },
     computed: {
       ...mapGetters(['canManageContent', 'isSuperuser']),
@@ -189,21 +168,12 @@
       },
     },
     watch: {
-      inContentManagementPage(val) {
-        return val ? this.startTaskPolling() : this.stopTaskPolling();
-      },
       currentPageIsImmersive(val) {
         // If going to a non-immersive page, reset the state to show normal Toolbar
         if (!val) {
           this.$store.commit('coreBase/SET_APP_BAR_TITLE', '');
         }
       },
-    },
-    mounted() {
-      this.inContentManagementPage && this.startTaskPolling();
-    },
-    destroyed() {
-      this.stopTaskPolling();
     },
     methods: {
       hideWelcomeModal() {

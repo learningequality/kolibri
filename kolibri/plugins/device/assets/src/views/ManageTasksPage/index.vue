@@ -62,6 +62,7 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import commonDeviceStrings from '../commonDeviceStrings';
+  import useContentTasks from '../../composables/useContentTasks';
 
   import TaskPanel from './TaskPanel';
 
@@ -78,6 +79,9 @@
       BottomAppBar,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings, commonDeviceStrings],
+    setup() {
+      useContentTasks();
+    },
     data() {
       return {
         loading: true,
@@ -112,7 +116,7 @@
     },
     methods: {
       handleClickClear(task) {
-        TaskResource.deleteFinishedTask(task.id).catch(() => {
+        TaskResource.clear(task.id).catch(() => {
           // error silently
         });
       },
@@ -120,7 +124,7 @@
         TaskResource.cancelTask(task.id);
       },
       handleClickClearAll() {
-        TaskResource.deleteFinishedTasks();
+        TaskResource.clearAll();
       },
       handleRedirectToImportPage() {
         this.$router.push(

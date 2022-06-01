@@ -101,7 +101,6 @@ class ValidateContentTaskTestCase(TestCase):
                 "kwargs": {
                     "exclude_node_ids": [exclude_id],
                     "node_ids": [include_id],
-                    "update": False,
                 },
                 "extra_metadata": {
                     "channel_id": self.channel_id,

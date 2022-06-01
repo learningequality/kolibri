@@ -35,11 +35,11 @@ export const pageNameToModuleMap = {
 };
 
 export const TaskTypes = {
-  EXPORTSESSIONLOGCSV: 'EXPORTSESSIONLOGCSV',
-  EXPORTSUMMARYLOGCSV: 'EXPORTSUMMARYLOGCSV',
-  SYNCDATAPORTAL: 'SYNCDATAPORTAL',
-  IMPORTUSERSFROMCSV: 'IMPORTUSERSFROMCSV',
-  EXPORTUSERSTOCSV: 'EXPORTUSERSTOCSV',
+  EXPORTSESSIONLOGCSV: 'kolibri.core.logger.tasks.exportsessionlogcsv',
+  EXPORTSUMMARYLOGCSV: 'kolibri.core.logger.tasks.exportsummarylogcsv',
+  SYNCDATAPORTAL: 'kolibri.core.auth.tasks.dataportalsync',
+  IMPORTUSERSFROMCSV: 'kolibri.core.auth.tasks.importusersfromcsv',
+  EXPORTUSERSTOCSV: 'kolibri.core.auth.tasks.exportuserstocsv',
 };
 
 // Identical to device constants.js

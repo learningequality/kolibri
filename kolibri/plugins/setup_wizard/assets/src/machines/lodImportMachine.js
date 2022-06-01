@@ -1,9 +1,9 @@
 import { createMachine, assign } from 'xstate';
+import { TaskResource } from 'kolibri.resources';
 import SelectFacilityForm from '../views/importLODUsers/SelectFacilityForm.vue';
 import ImportIndividualUserForm from '../views/importLODUsers/ImportIndividualUserForm.vue';
 import LoadingTaskPage from '../views/importLODUsers/LoadingTaskPage';
 import MultipleUsers from '../views/importLODUsers/MultipleUsers';
-import { SetupSoUDTasksResource } from '../api';
 
 const getDevice = data => ({
   name: data.device_name,
@@ -57,14 +57,14 @@ const registerUsersAndSyncAdmin = assign((context, event) => {
   context.facility['adminId'] = event.value.adminId;
   const task_name = 'kolibri.plugins.setup_wizard.tasks.startprovisionsoud';
   const params = {
-    baseurl: context.device.baseurl,
+    type: task_name,
     username: context.facility.adminUser,
     password: context.facility.adminPassword,
     user_id: context.facility.adminId,
     facility_id: context.facility.id,
-    device_name: context.device.name,
+    device_id: context.device.id,
   };
-  SetupSoUDTasksResource.createTask(task_name, params);
+  TaskResource.startTask(params);
   return {
     remoteStudents: event.value.users,
   };

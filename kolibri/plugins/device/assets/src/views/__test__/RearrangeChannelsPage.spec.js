@@ -2,6 +2,8 @@ import { mount } from '@vue/test-utils';
 import makeStore from '../../../test/utils/makeStore';
 import RearrangeChannelsPage from '../RearrangeChannelsPage';
 
+jest.mock('../../composables/useContentTasks');
+
 RearrangeChannelsPage.methods.postNewOrder = () => Promise.resolve();
 RearrangeChannelsPage.methods.fetchChannels = () => {
   return Promise.resolve([

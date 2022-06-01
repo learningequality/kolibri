@@ -80,10 +80,7 @@
       },
       startKdpSync() {
         this.syncSubmitDisabled = true;
-        this.startKdpSyncTask({
-          id: this.facilityForSync.id,
-          name: this.facilityForSync.name,
-        })
+        this.startKdpSyncTask(this.facilityForSync.id)
           .then(task => {
             this.$emit('success', task.id);
           })
@@ -95,10 +92,7 @@
         this.syncSubmitDisabled = true;
         this.startPeerSyncTask({
           facility: this.facilityForSync.id,
-          facility_name: this.facilityForSync.name,
-          device_name: peerData.device_name,
           device_id: peerData.id,
-          baseurl: peerData.base_url,
         })
           .then(task => {
             this.$emit('success', task.id);

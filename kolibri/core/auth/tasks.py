@@ -1,13 +1,15 @@
 import datetime
 import hashlib
 import logging
+import ntpath
+import os
 import random
+import shutil
 
 import requests
 from django.conf import settings
 from django.core.management import call_command
 from django.core.urlresolvers import reverse
-from django.forms import FilePathField
 from django.utils import timezone
 from morango.errors import MorangoResumeSyncError
 from morango.models import InstanceIDModel
@@ -48,6 +50,7 @@ from kolibri.core.tasks.permissions import IsAdminForJob
 from kolibri.core.tasks.permissions import IsSuperAdmin
 from kolibri.core.tasks.permissions import NotProvisioned
 from kolibri.core.tasks.validation import JobValidator
+from kolibri.utils.conf import KOLIBRI_HOME
 from kolibri.utils.conf import OPTIONS
 
 
@@ -75,53 +78,28 @@ class LocaleChoiceField(serializers.ChoiceField):
     def default(self, value):
         self._default = value
 
-    @property
-    def choices(self):
+    def _set_choices(self):
         if not self._choices_set:
             self._choices_set = True
             # Use the internal Choice field _set_choices setter method here
-            self._set_choices(settings.LANGUAGES)
+            super(LocaleChoiceField, self)._set_choices(settings.LANGUAGES)
+
+    def to_internal_value(self, data):
+        self._set_choices()
+        return super(LocaleChoiceField, self).to_internal_value(data)
+
+    def to_representation(self, value):
+        self._set_choices()
+        return super(LocaleChoiceField, self).to_representation(value)
+
+    @property
+    def choices(self):
+        self._set_choices()
         return self._choices
 
     @choices.setter
     def choices(self, value):
         # Make this a no op, as we are only setting his in the getter above.
-        pass
-
-
-class TempUploadPathField(serializers.ChoiceField):
-    def __init__(
-        self,
-        match=None,
-        recursive=False,
-        allow_files=True,
-        allow_folders=False,
-        required=None,
-        **kwargs
-    ):
-        self.match = match
-        self.recursive = recursive
-        self.allow_files = allow_files
-        self.allow_folders = allow_folders
-        self.required = required
-        super(TempUploadPathField, self).__init__([], **kwargs)
-
-    @property
-    def choices(self):
-        if not hasattr(self, "_choices"):
-            field = FilePathField(
-                settings.FILE_UPLOAD_TEMP_DIR,
-                match=self.match,
-                recursive=self.recursive,
-                allow_files=self.allow_files,
-                allow_folders=self.allow_folders,
-                required=self.required,
-            )
-            self._choices = field.choices
-        return self._choices
-
-    @choices.setter
-    def choices(self, value):
         pass
 
 
@@ -131,7 +109,7 @@ class ImportUsersFromCSVValidator(JobValidator):
     dryrun = serializers.BooleanField(default=False)
     delete = serializers.BooleanField(default=False)
     locale = LocaleChoiceField()
-    facility_id = serializers.PrimaryKeyRelatedField(
+    facility = serializers.PrimaryKeyRelatedField(
         queryset=Facility.objects.all(), allow_null=True, default=None
     )
 
@@ -144,19 +122,38 @@ class ImportUsersFromCSVValidator(JobValidator):
             raise serializers.ValidationError(
                 "One of csvfile or csvfilename must be specified"
             )
-        filepath = data.get("csvfile") or data.get("csvfilename")
+        facility = data.get("facility")
+        if facility:
+            facility_id = facility.id
+        elif not facility and "user" in self.context:
+            facility_id = self.context["user"].facility_id
+        else:
+            raise serializers.ValidationError("Facility must be specified")
+        temp_dir = os.path.join(KOLIBRI_HOME, "temp")
+        os.makedirs(temp_dir, exist_ok=True)
+        if "csvfile" in data:
+            tmpfile = data["csvfile"].temporary_file_path()
+            filename = ntpath.basename(tmpfile)
+            filepath = os.path.join(temp_dir, filename)
+            shutil.copyfile(tmpfile, filepath)
+        else:
+            filepath = os.path.join(temp_dir, data["csvfilename"])
+            if not os.path.exists(filepath):
+                raise serializers.ValidationError("Supplied csvfilename does not exist")
         args = [filepath]
-        if data.get("dryrun"):
-            args.append("--dryrun")
-        if data.get("delete"):
-            args.append("--delete")
-        kwargs = {"locale": data.get("locale"), "facility": data.get("facility_id")}
+        kwargs = {
+            "locale": data.get("locale"),
+            "facility": facility_id,
+            "dryrun": data.get("dryrun", False),
+            "delete": data.get("delete", False),
+        }
+
         if "user" in self.context:
             kwargs["userid"] = self.context["user"].id
         return {
             "args": args,
             "kwargs": kwargs,
-            "facility_id": data.get("facility_id"),
+            "facility_id": facility_id,
         }
 
 
@@ -165,7 +162,9 @@ class ImportUsersFromCSVValidator(JobValidator):
     track_progress=True,
     permission_classes=[IsAdminForJob],
 )
-def importusersfromcsv(job_args=None, facility=None, userid=None, locale=None):
+def importusersfromcsv(
+    filepath, facility=None, userid=None, locale=None, dryrun=False, delete=False
+):
     """
     Import users, classes, roles and roles assignemnts from a csv file.
     :param: FILE: file dictionary with the file object
@@ -176,25 +175,33 @@ def importusersfromcsv(job_args=None, facility=None, userid=None, locale=None):
     """
 
     call_command(
-        "bulkimportusers", *job_args, facility=facility, userid=userid, locale=locale
+        "bulkimportusers",
+        filepath,
+        facility=facility,
+        userid=userid,
+        locale=locale,
+        dryrun=dryrun,
+        delete=delete,
     )
 
 
 class ExportUsersToCSVValidator(JobValidator):
     locale = LocaleChoiceField()
-    facility_id = serializers.PrimaryKeyRelatedField(
+    facility = serializers.PrimaryKeyRelatedField(
         queryset=Facility.objects.all(), allow_null=True, default=None
     )
 
     def validate(self, data):
-        facility = data.get("facility_id")
-        if not facility and "user" in self.context:
-            facility = self.context["user"].facility_id
+        facility = data.get("facility")
+        if facility:
+            facility_id = facility.id
+        elif not facility and "user" in self.context:
+            facility_id = self.context["user"].facility_id
         else:
             raise serializers.ValidationError("Facility must be specified")
         return {
-            "kwargs": {"locale": data.get("locale"), "facility": facility},
-            "facility_id": facility,
+            "kwargs": {"locale": data.get("locale"), "facility": facility_id},
+            "facility_id": facility_id,
         }
 
 
@@ -255,11 +262,15 @@ class SyncJobValidator(JobValidator):
         }
 
 
+facility_task_queue = "facility_task"
+
+
 @register_task(
     validator=SyncJobValidator,
     permission_classes=[IsAdminForJob],
     track_progress=True,
     cancellable=False,
+    queue=facility_task_queue,
 )
 def dataportalsync(command, **kwargs):
     """
@@ -316,16 +327,13 @@ class PeerSyncJobValidator(SyncJobValidator):
 
 
 class PeerFacilitySyncJobValidator(PeerSyncJobValidator):
-    username = serializers.CharField()
-    password = serializers.CharField(default=NOT_SPECIFIED, required=False)
-
     def validate(self, data):
         job_data = super(PeerFacilitySyncJobValidator, self).validate(data)
         validate_and_create_sync_credentials(
             job_data["kwargs"]["baseurl"],
             job_data["facility_id"],
-            data["username"],
-            data["password"],
+            data.get("username"),
+            data.get("password"),
         )
         return job_data
 
@@ -335,6 +343,7 @@ class PeerFacilitySyncJobValidator(PeerSyncJobValidator):
     permission_classes=[IsAdminForJob],
     track_progress=True,
     cancellable=False,
+    queue=facility_task_queue,
 )
 def peerfacilitysync(command, **kwargs):
     """
@@ -345,6 +354,8 @@ def peerfacilitysync(command, **kwargs):
 
 class PeerFacilityImportJobValidator(PeerFacilitySyncJobValidator):
     facility = HexOnlyUUIDField()
+    username = serializers.CharField()
+    password = serializers.CharField(default=NOT_SPECIFIED, required=False)
 
     def validate(self, data):
         job_data = super(PeerFacilityImportJobValidator, self).validate(data)
@@ -362,6 +373,7 @@ class PeerFacilityImportJobValidator(PeerFacilitySyncJobValidator):
     permission_classes=[IsSuperAdmin() | NotProvisioned()],
     track_progress=True,
     cancellable=False,
+    queue=facility_task_queue,
 )
 def peerfacilityimport(command, **kwargs):
     """
@@ -407,11 +419,16 @@ class PeerRepeatingSingleSyncJobValidator(PeerSyncJobValidator):
         job_data["kwargs"]["resync_interval"] = (
             data["resync_interval"] or OPTIONS["Deployment"]["SYNC_INTERVAL"]
         )
+        job_data["kwargs"]["user"] = data["user_id"]
         return job_data
+
+
+soud_sync_queue = "soud_sync"
 
 
 @register_task(
     validator=PeerRepeatingSingleSyncJobValidator,
+    queue=soud_sync_queue,
 )
 def peerusersync(command, **kwargs):
     cleanup = False
@@ -439,8 +456,8 @@ def peerusersync(command, **kwargs):
     finally:
         # cleanup session on error if we tried to resume it
         if cleanup and command == "resumesync":
-            # for resume we should have id kwarg
-            queue_soud_sync_cleanup(kwargs["id"])
+            # for resume we should have sync_session_id kwarg
+            queue_soud_sync_cleanup(kwargs["sync_session_id"])
         if resync_interval:
             # schedule a new sync
             schedule_new_sync(
@@ -569,7 +586,9 @@ def stop_request_soud_sync(server, user):
     stoppeerusersync(server, user)
 
 
-@register_task
+@register_task(
+    queue=soud_sync_queue,
+)
 def request_soud_sync(server, user, queue_id=None, ttl=4):
     """
     Make a request to the serverurl endpoint to sync this SoUD (Subset of Users Device)
@@ -675,7 +694,7 @@ def handle_server_sync_response(response, server, user):
         time_alive = server_response["keep_alive"]
         dt = datetime.timedelta(seconds=int(time_alive))
         request_soud_sync.enqueue_in(
-            dt, args=(server, user, pk, time_alive), kwargs=dict(job_id=JOB_ID)
+            dt, args=(server, user, pk, time_alive), job_id=JOB_ID
         )
         logger.info(
             "Server {} busy for user {}, will try again in {} seconds with pk={}".format(
@@ -693,10 +712,12 @@ def schedule_new_sync(server, user, interval=OPTIONS["Deployment"]["SYNC_INTERVA
     )
     dt = datetime.timedelta(seconds=interval)
     JOB_ID = hashlib.md5("{}:{}".format(server, user).encode()).hexdigest()
-    request_soud_sync.enqueue_in(dt, args=(server, user), kwargs=dict(job_id=JOB_ID))
+    request_soud_sync.enqueue_in(dt, args=(server, user), job_id=JOB_ID)
 
 
-@register_task
+@register_task(
+    queue=soud_sync_queue,
+)
 def soud_sync_cleanup(**filters):
     """
     Targeted cleanup of active SoUD sessions
@@ -773,7 +794,7 @@ class PeerImportSingleSyncJobValidator(PeerSyncJobValidator):
     validator=PeerImportSingleSyncJobValidator,
     cancellable=True,
     track_progress=True,
-    queue="soud",
+    queue=soud_sync_queue,
     permission_classes=[IsSuperAdmin() | NotProvisioned()],
 )
 def peeruserimport(**kwargs):
@@ -785,6 +806,7 @@ def peeruserimport(**kwargs):
     permission_classes=[IsSuperAdmin],
     track_progress=True,
     cancellable=False,
+    queue=facility_task_queue,
 )
 def deletefacility(facility):
     """

@@ -70,30 +70,30 @@ export default {
       state.filename = payload;
     },
     UPDATE_TASK_REPORT(state, task) {
-      Vue.set(state, 'per_line_errors', task.per_line_errors);
-      Vue.set(state, 'overall_error', task.overall_error);
-      state.filename = task.filename;
-      state.users_report = task.users;
-      state.classes_report = task.classes;
+      Vue.set(state, 'per_line_errors', task.extra_metdata.per_line_errors);
+      Vue.set(state, 'overall_error', task.extra_metdata.overall_error);
+      state.filename = task.extra_metdata.filename;
+      state.users_report = task.extra_metdata.users;
+      state.classes_report = task.extra_metdata.classes;
       state.taskId = '';
     },
     SET_FINISHED_IMPORT_USERS(state, task) {
       if (state.status == CSVImportStatuses.VALIDATING) state.status = CSVImportStatuses.VALIDATED;
       else if (state.status == CSVImportStatuses.SAVING) state.status = CSVImportStatuses.FINISHED;
 
-      Vue.set(state, 'per_line_errors', task.per_line_errors);
-      Vue.set(state, 'overall_error', task.overall_error);
-      state.filename = task.filename;
-      state.users_report = task.users;
-      state.classes_report = task.classes;
-      TaskResource.deleteFinishedTask(state.taskId);
+      Vue.set(state, 'per_line_errors', task.extra_metadata.per_line_errors);
+      Vue.set(state, 'overall_error', task.extra_metadata.overall_error);
+      state.filename = task.extra_metadata.filename;
+      state.users_report = task.extra_metadata.users;
+      state.classes_report = task.extra_metadata.classes;
+      TaskResource.clear(state.taskId);
       state.taskId = '';
     },
     SET_FAILED(state, task) {
       state.status = CSVImportStatuses.ERRORS;
-      Vue.set(state, 'overall_error', task.overall_error);
+      Vue.set(state, 'overall_error', task.extra_metadata.overall_error);
       Vue.set(state, 'per_line_errors', []);
-      TaskResource.deleteFinishedTask(state.taskId);
+      TaskResource.clear(state.taskId);
       state.taskId = '';
     },
   },

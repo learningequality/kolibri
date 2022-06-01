@@ -88,13 +88,10 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import { DemographicConstants, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
+  import { TaskResource } from 'kolibri.resources';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import OnboardingForm from '../onboarding-forms/OnboardingForm';
-  import {
-    FacilityImportResource,
-    FinishSoUDSyncingResource,
-    SetupSoUDTasksResource,
-  } from '../../api';
+  import { FacilityImportResource, FinishSoUDSyncingResource } from '../../api';
 
   export default {
     name: 'ImportIndividualUserForm',
@@ -169,13 +166,13 @@
         const task_name = 'kolibri.plugins.setup_wizard.tasks.startprovisionsoud';
         const password = this.password === '' ? DemographicConstants.NOT_SPECIFIED : this.password;
         const params = {
-          baseurl: this.device.baseurl,
+          type: task_name,
+          device_id: this.device.id,
           username: this.username,
           password: password,
           facility_id: this.facility.id,
-          device_name: this.device.name,
         };
-        SetupSoUDTasksResource.createTask(task_name, params)
+        TaskResource.startTask(params)
           .then(task => {
             task['device_id'] = this.device.id;
             task['facility_name'] = this.facility.name;
@@ -184,8 +181,8 @@
               value: {
                 username: this.username,
                 password: password,
-                full_name: task.full_name,
-                task: task,
+                full_name: task.extra_metadata.full_name,
+                type: task,
               },
             });
           })

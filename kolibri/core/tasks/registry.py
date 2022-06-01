@@ -116,7 +116,7 @@ class _registry(dict):
 
     def validate_task(self, task):
         if not isinstance(task, string_types):
-            raise serializers.ValidationError("The 'task' value must be a string.")
+            raise serializers.ValidationError("The task type must be a string.")
         if task not in self:
             raise serializers.ValidationError(
                 "{} is not a registered task - is it in a tasks module of an installed app?".format(
@@ -215,7 +215,8 @@ class RegisteredTask(object):
 
     def validate_job_data(self, user, data):
         # Run validator with `user` and `data` as its argument.
-        data["type"] = stringify_func(self)
+        if "type" not in data:
+            data["type"] = stringify_func(self)
         validator = self.validator(data=data, context={"user": user})
         validator.is_valid(raise_exception=True)
 

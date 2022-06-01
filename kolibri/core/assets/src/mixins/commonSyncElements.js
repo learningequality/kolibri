@@ -1,6 +1,6 @@
 import client from 'kolibri.client';
 import urls from 'kolibri.urls';
-import { StaticNetworkLocationResource, FacilityTaskResource } from 'kolibri.resources';
+import { StaticNetworkLocationResource, TaskResource } from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
 
 // Strings that might be shared among syncing-related UIs across plugins.
@@ -77,28 +77,23 @@ export default {
           return [];
         });
     },
-    startKdpSyncTask({ id, name }) {
-      return FacilityTaskResource.dataportalsync({ id, name }).then(response => {
-        return response.data;
+    startKdpSyncTask(facility) {
+      return TaskResource.startTask({ type: 'kolibri.core.auth.tasks.dataportalsync', facility });
+    },
+    startPeerSyncTask({ facility, device_id }) {
+      return TaskResource.startTask({
+        type: 'kolibri.core.auth.tasks.peerfacilitysync',
+        facility,
+        device_id,
       });
     },
-    startPeerSyncTask(data) {
-      return FacilityTaskResource.startpeerfacilitysync(data).then(response => {
-        return response.data;
-      });
-    },
-    startPeerImportTask(data) {
-      const { facility, facility_name, baseurl, username, password, device_name, device_id } = data;
-      return FacilityTaskResource.startpeerfacilityimport({
-        device_name,
+    startPeerImportTask({ facility, username, password, device_id }) {
+      return TaskResource.startTask({
+        type: 'kolibri.core.auth.tasks.peerfacilityimport',
         device_id,
         facility,
-        facility_name,
-        baseurl,
         username,
         password,
-      }).then(response => {
-        return response.data;
       });
     },
   },

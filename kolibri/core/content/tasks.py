@@ -1,5 +1,3 @@
-import os
-
 import requests
 from django.core.management import call_command
 from rest_framework import serializers
@@ -16,11 +14,13 @@ from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
 from kolibri.core.discovery.utils.network.errors import ResourceGoneError
 from kolibri.core.serializers import HexOnlyUUIDField
 from kolibri.core.tasks.decorators import register_task
-from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.permissions import CanManageContent
 from kolibri.core.tasks.validation import JobValidator
 from kolibri.utils import conf
+
+
+QUEUE = "content"
 
 
 class ChannelValidator(JobValidator):
@@ -44,8 +44,6 @@ class ChannelValidator(JobValidator):
 class ChannelResourcesValidator(ChannelValidator):
     node_ids = serializers.ListField(child=HexOnlyUUIDField(), required=False)
     exclude_node_ids = serializers.ListField(child=HexOnlyUUIDField(), required=False)
-    update = serializers.BooleanField(default=False)
-    new_version = serializers.IntegerField(required=False)
 
     def validate(self, data):
         job_data = super(ChannelResourcesValidator, self).validate(data)
@@ -53,6 +51,19 @@ class ChannelResourcesValidator(ChannelValidator):
             {
                 "node_ids": data.get("node_ids"),
                 "exclude_node_ids": data.get("exclude_node_ids"),
+            }
+        )
+        return job_data
+
+
+class ChannelResourcesImportValidator(ChannelValidator):
+    update = serializers.BooleanField(default=False)
+    new_version = serializers.IntegerField(required=False)
+
+    def validate(self, data):
+        job_data = super(ChannelResourcesImportValidator, self).validate(data)
+        job_data["kwargs"].update(
+            {
                 "update": data.get("update"),
             }
         )
@@ -72,25 +83,26 @@ class DriveIdField(serializers.CharField):
         return drive_id
 
 
-class LocalImportMixin(with_metaclass(serializers.SerializerMetaclass)):
+class LocalMixin(with_metaclass(serializers.SerializerMetaclass)):
     drive_id = DriveIdField()
 
     def validate(self, data):
-        job_data = super(LocalImportMixin, self).validate(data)
+        job_data = super(LocalMixin, self).validate(data)
         job_data["extra_metadata"].update(dict(drive_id=data["drive_id"]))
         job_data["args"] += [data["drive_id"]]
         return job_data
 
 
-class LocalChannelResourcesValidator(LocalImportMixin, ChannelResourcesValidator):
+class LocalChannelImportResourcesValidator(LocalMixin, ChannelResourcesImportValidator):
     pass
 
 
 @register_task(
-    validator=LocalChannelResourcesValidator,
+    validator=LocalChannelImportResourcesValidator,
     cancellable=True,
     track_progress=True,
     permission_classes=[CanManageContent],
+    queue=QUEUE,
 )
 def diskcontentimport(
     channel_id, drive_id, update=False, node_ids=None, exclude_node_ids=None
@@ -142,6 +154,7 @@ class RemoteChannelImportValidator(RemoteImportMixin, ChannelValidator):
     cancellable=True,
     permission_classes=[CanManageContent],
     priority=Priority.HIGH,
+    queue=QUEUE,
 )
 def remotechannelimport(channel_id, baseurl=None, peer_id=None):
     call_command(
@@ -153,15 +166,18 @@ def remotechannelimport(channel_id, baseurl=None, peer_id=None):
     )
 
 
-class RemoteChannelResourcesValidator(RemoteImportMixin, ChannelResourcesValidator):
+class RemoteChannelResourcesImportValidator(
+    RemoteImportMixin, ChannelResourcesImportValidator
+):
     pass
 
 
 @register_task(
-    validator=RemoteChannelResourcesValidator,
+    validator=RemoteChannelResourcesImportValidator,
     track_progress=True,
     cancellable=True,
     permission_classes=[CanManageContent],
+    queue=QUEUE,
 )
 def remotecontentimport(
     channel_id,
@@ -169,6 +185,7 @@ def remotecontentimport(
     peer_id=None,
     node_ids=None,
     exclude_node_ids=None,
+    update=False,
 ):
     call_command(
         "importcontent",
@@ -178,20 +195,24 @@ def remotecontentimport(
         peer_id=peer_id,
         node_ids=node_ids,
         exclude_node_ids=exclude_node_ids,
+        import_updates=update,
     )
 
 
+class ExportChannelResourcesValidator(LocalMixin, ChannelResourcesValidator):
+    pass
+
+
 @register_task(
-    validator=LocalChannelResourcesValidator,
+    validator=ExportChannelResourcesValidator,
     track_progress=True,
     cancellable=True,
     permission_classes=[CanManageContent],
+    queue=QUEUE,
 )
 def diskexport(
-    channel_id=None,
-    update_progress=None,
-    check_for_cancel=None,
-    drive_id=None,
+    channel_id,
+    drive_id,
     node_ids=None,
     exclude_node_ids=None,
 ):
@@ -206,27 +227,14 @@ def diskexport(
         "exportchannel",
         channel_id,
         drive.datafolder,
-        update_progress=update_progress,
-        check_for_cancel=check_for_cancel,
     )
-    try:
-        call_command(
-            "exportcontent",
-            channel_id,
-            drive.datafolder,
-            node_ids=node_ids,
-            exclude_node_ids=exclude_node_ids,
-            update_progress=update_progress,
-            check_for_cancel=check_for_cancel,
-        )
-    except UserCancelledError:
-        try:
-            os.remove(
-                get_content_database_file_path(channel_id, datafolder=drive.datafolder)
-            )
-        except OSError:
-            pass
-        raise
+    call_command(
+        "exportcontent",
+        channel_id,
+        drive.datafolder,
+        node_ids=node_ids,
+        exclude_node_ids=exclude_node_ids,
+    )
 
 
 class DeleteChannelValidator(ChannelResourcesValidator):
@@ -237,6 +245,7 @@ class DeleteChannelValidator(ChannelResourcesValidator):
     validator=DeleteChannelValidator,
     track_progress=True,
     permission_classes=[CanManageContent],
+    queue=QUEUE,
 )
 def deletechannel(
     channel_id=None,
@@ -257,10 +266,11 @@ def deletechannel(
 
 
 @register_task(
-    validator=RemoteChannelResourcesValidator,
+    validator=RemoteChannelResourcesImportValidator,
     cancellable=True,
     track_progress=True,
     permission_classes=[CanManageContent],
+    queue=QUEUE,
 )
 def remoteimport(
     channel_id,
@@ -268,6 +278,7 @@ def remoteimport(
     peer_id=None,
     node_ids=None,
     exclude_node_ids=None,
+    update=False,
 ):
     call_command(
         "importchannel",
@@ -285,30 +296,28 @@ def remoteimport(
         peer_id=peer_id,
         node_ids=node_ids,
         exclude_node_ids=exclude_node_ids,
+        import_updates=update,
     )
 
 
 @register_task(
-    validator=LocalChannelResourcesValidator,
+    validator=LocalChannelImportResourcesValidator,
     track_progress=True,
     cancellable=True,
     permission_classes=[CanManageContent],
+    queue=QUEUE,
 )
 def diskimport(
-    channel_id=None,
-    directory=None,
-    drive_id=None,
-    node_ids=None,
-    exclude_node_ids=None,
-    update=False,
+    channel_id, drive_id, update=False, node_ids=None, exclude_node_ids=None
 ):
+    drive = get_mounted_drive_by_id(drive_id)
+    directory = drive.datafolder
 
     call_command(
         "importchannel",
         "disk",
         channel_id,
         directory,
-        update_progress=None,
     )
 
     call_command(
@@ -323,7 +332,7 @@ def diskimport(
     )
 
 
-class LocalChannelImportValidator(LocalImportMixin, ChannelValidator):
+class LocalChannelImportValidator(LocalMixin, ChannelValidator):
     pass
 
 
@@ -332,6 +341,7 @@ class LocalChannelImportValidator(LocalImportMixin, ChannelValidator):
     cancellable=True,
     permission_classes=[CanManageContent],
     priority=Priority.HIGH,
+    queue=QUEUE,
 )
 def diskchannelimport(
     channel_id,
@@ -367,6 +377,7 @@ class RemoteChannelDiffStatsValidator(RemoteChannelImportValidator):
     track_progress=False,
     cancellable=True,
     permission_classes=[CanManageContent],
+    queue=QUEUE,
 )
 def remotechanneldiffstats(
     channel_id,
@@ -380,7 +391,7 @@ def remotechanneldiffstats(
     )
 
 
-class LocalChannelDiffStatsValidator(LocalChannelImportValidator, LocalImportMixin):
+class LocalChannelDiffStatsValidator(LocalChannelImportValidator, LocalMixin):
     def validate(self, data):
         job_data = super(LocalChannelDiffStatsValidator, self).validate(data)
         # get channel version metadata
@@ -397,6 +408,7 @@ class LocalChannelDiffStatsValidator(LocalChannelImportValidator, LocalImportMix
     track_progress=False,
     cancellable=True,
     permission_classes=[CanManageContent],
+    queue=QUEUE,
 )
 def localchanneldiffstats(
     channel_id,

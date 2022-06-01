@@ -1,10 +1,10 @@
 <template>
 
   <FacilityTaskPanelDetails
-    :statusMsg="statusMsg"
-    :headingMsg="headingMsg"
-    :underHeadingMsg="underHeadingMsg"
-    :underProgressMsg="underProgressMsg"
+    :statusMsg="taskInfo.statusMsg"
+    :headingMsg="taskInfo.headingMsg"
+    :underHeadingMsg="taskInfo.deviceNameMsg"
+    :underProgressMsg="taskInfo.bytesTransferredMsg"
     :task="task"
     :loaderType="loaderType"
     :showCircularLoader="taskInfo.isRunning"
@@ -56,9 +56,7 @@
     computed: {
       isSyncTask() {
         return (
-          this.task.type === TaskTypes.SYNCDATAPORTAL ||
-          this.task.type === TaskTypes.SYNCPEERFULL ||
-          this.task.type === TaskTypes.SYNCLOD
+          this.task.type === TaskTypes.SYNCDATAPORTAL || this.task.type === TaskTypes.SYNCPEERFULL
         );
       },
       isDeleteTask() {
@@ -66,7 +64,7 @@
       },
       isSetupImportTask() {
         // HACK infer that we're in the setup wizard because the started_by field is null
-        return !this.task.started_by && this.task.type === TaskTypes.SYNCPEERPULL;
+        return !this.task.extra_metadata.started_by && this.task.type === TaskTypes.SYNCPEERPULL;
       },
       isImportTask() {
         return this.task.type === TaskTypes.SYNCPEERPULL;
@@ -91,32 +89,11 @@
 
         return 'determinate';
       },
-      statusMsg() {
-        return this.taskInfo.statusMsg;
-      },
-      headingMsg() {
-        if (this.task.type === TaskTypes.SYNCLOD) return '';
-        return this.taskInfo.headingMsg;
-      },
-      underHeadingMsg() {
-        if (this.task.type === TaskTypes.SYNCLOD) return '';
-        return this.taskInfo.deviceNameMsg;
-      },
-      underProgressMsg() {
-        if (this.task.type === TaskTypes.SYNCLOD) return '';
-        return this.taskInfo.bytesTransferredMsg;
-      },
       buttonSet() {
-        if (this.task.type === TaskTypes.SYNCLOD) return '';
         if (this.taskInfo.canCancel) {
           return 'cancel';
         } else if (this.taskInfo.canClear) {
-          // Import tasks can't be retried since we don't save the username/password
-          if (this.isImportTask) {
-            return 'clear';
-          } else {
-            return this.taskInfo.canRetry ? 'retry' : 'clear';
-          }
+          return this.taskInfo.canRetry ? 'retry' : 'clear';
         } else {
           return '';
         }

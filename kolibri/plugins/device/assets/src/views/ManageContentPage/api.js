@@ -22,8 +22,8 @@ function getChannelOnDrive(driveId, channelId) {
     });
 }
 
-function getChannelOnPeer(addressId, channelId) {
-  return NetworkLocationResource.fetchModel({ id: addressId })
+function getChannelOnPeer(peerId, channelId) {
+  return NetworkLocationResource.fetchModel({ id: peerId })
     .then(location => {
       return RemoteChannelResource.fetchModel({
         id: channelId,
@@ -60,37 +60,26 @@ function getInstalledChannel(channelId) {
 // Based on URL parameters from NewChannelVersionPage, fetches the channel
 // to be installed. Returns errors if params are invalid.
 export function fetchChannelAtSource(params) {
-  const { channelId, driveId, addressId } = params;
+  const { channel_id, drive_id, peer } = params;
   let sourcePromise;
-  if (driveId) {
-    sourcePromise = getChannelOnDrive(driveId, channelId);
-  } else if (addressId) {
-    sourcePromise = getChannelOnPeer(addressId, channelId);
+  if (drive_id) {
+    sourcePromise = getChannelOnDrive(drive_id, channel_id);
+  } else if (peer) {
+    sourcePromise = getChannelOnPeer(peer, channel_id);
   } else {
-    sourcePromise = getChannelOnStudio(channelId);
+    sourcePromise = getChannelOnStudio(channel_id);
   }
-  return Promise.all([getInstalledChannel(channelId), sourcePromise]);
+  return Promise.all([getInstalledChannel(channel_id), sourcePromise]);
 }
 
-export function fetchOrTriggerChannelDiffStatsTask(params) {
-  const { channelId, driveId, baseurl } = params;
+export function fetchOrTriggerChannelDiffStatsTask(taskParams, tasks) {
   // Re-use the same object for lodash/find and making POST request.
-  // Separate 'method' since it isn't part of Task metadata.
-  const method = driveId ? 'disk' : 'network';
-  const taskAttrs = {
-    channel_id: channelId,
-    drive_id: driveId,
-    baseurl,
-  };
-
-  return TaskResource.fetchCollection({ force: true }).then(tasks => {
-    const match = find(tasks, { ...taskAttrs, type: TaskTypes.CHANNELDIFFSTATS });
-    if (match) {
-      return match;
-    } else {
-      return TaskResource.postListEndpoint('channeldiffstats', { ...taskAttrs, method }).then(
-        taskResponse => taskResponse.data
-      );
-    }
-  });
+  taskParams.type = taskParams.drive_id
+    ? TaskTypes.LOCALCHANNELDIFFSTATS
+    : TaskTypes.REMOTECHANNELDIFFSTATS;
+  const match = find(tasks, taskParams);
+  if (match) {
+    return Promise.resolve(match);
+  }
+  return TaskResource.startTask(taskParams);
 }

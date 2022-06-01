@@ -1,179 +1,33 @@
-import pickBy from 'lodash/pickBy';
 import { Resource } from 'kolibri.lib.apiResource';
 
 export default new Resource({
   name: 'task',
 
-  /**
-   * Initiates a Task that imports a Channel Metadata DB from a remote source
-   *
-   * @param {string} params.channel_id -
-   * @param {string} [params.baseurl]
-   *
-   */
-  startRemoteChannelImport(params) {
-    return this.postListEndpoint('startremotechannelimport', pickBy(params));
+  startTask(task, multipart = false) {
+    return this.create(task, multipart);
   },
 
-  /**
-   * Initiates a Task that imports a Channel Metadata DB from a local drive
-   *
-   * @param {string} params.channel_id -
-   * @param {string} params.drive_id -
-   *
-   */
-  startDiskChannelImport({ channel_id, drive_id }) {
-    return this.postListEndpoint('startdiskchannelimport', {
-      channel_id,
-      drive_id,
-    });
+  startTasks(tasks, multipart = false) {
+    return this.create(tasks, multipart);
   },
 
-  /**
-   * Initiates a Task that imports Channel Content from a remote source
-   *
-   * @param {string} [params.channel_id] -
-   * @param {string} [params.baseurl] - URL of remote source (defaults to Kolibri Studio)
-   * @param {Array<string>} [params.node_ids] -
-   * @param {Array<string>} [params.exclude_node_ids] -
-   * @returns {Promise}
-   *
-   */
-  startRemoteContentImport(params) {
-    return this.postListEndpoint('startremotecontentimport', pickBy(params));
+  cancelTask(jobId) {
+    return this.postDetailEndpoint('cancel', jobId);
   },
 
-  /**
-   * Initiates a Task that imports multiple channels and their contents from a remote source
-   * Takes an array of params of the same signature as startRemoteContentImport as input
-   *
-   */
-  startRemoteBulkImport(paramsArray) {
-    return this.postListEndpoint(
-      'startremotebulkimport',
-      paramsArray.map(params => pickBy(params))
-    );
+  clear(jobId) {
+    return this.postDetailEndpoint('clear', jobId);
   },
 
-  /**
-   * Initiates a Task that imports Channel Content from a local drive
-   *
-   * @param {string} params.channel_id -
-   * @param {string} params.drive_id -
-   * @param {Array<string>} [params.node_ids] -
-   * @param {Array<string>} [params.exclude_node_ids] -
-   * @returns {Promise}
-   *
-   */
-  startDiskContentImport(params) {
-    return this.postListEndpoint('startdiskcontentimport', pickBy(params));
+  restart(jobId) {
+    return this.postDetailEndpoint('restart', jobId);
   },
 
-  /**
-   * Initiates a Task that imports multiple channels and their contents from a local drive
-   * Takes an array of params of the same signature as startDiskContentImport as input
-   */
-  startDiskBulkImport(paramsArray) {
-    return this.postListEndpoint(
-      'startdiskbulkimport',
-      paramsArray.map(params => pickBy(params))
-    );
-  },
-
-  /**
-   * Initiates a Task that exports Channel Content to a local drive
-   *
-   * @param {string} params.channel_id -
-   * @param {string} params.drive_id -
-   * @param {Array<string>} [params.node_ids] -
-   * @param {Array<string>} [params.exclude_node_ids] -
-   * @returns {Promise}
-   *
-   */
-  startDiskContentExport(params) {
-    // Not naming it after URL to keep internal consistency
-    return this.postListEndpoint('startdiskexport', pickBy(params));
-  },
-
-  /**
-   * Initiates a Task that exports Multiple Channel Contents to a local drive
-   * Takes an array of params of the same signature as startDiskContentExport as input
-   */
-  startDiskBulkExport(paramsArray) {
-    // Not naming it after URL to keep internal consistency
-    return this.postListEndpoint(
-      'startdiskbulkexport',
-      paramsArray.map(params => pickBy(params))
-    );
-  },
-
-  /**
-   * Initiates a Task that creates a csv file with the log data of the logger
-   *
-   * @param {string} params.logtype - session or summary
-   * @returns {Promise}
-   *
-   */
-  startexportlogcsv(params) {
-    return this.postListEndpoint('startexportlogcsv', pickBy(params));
-  },
-  /**
-   * Initiates a Task that import users, classes and assign roles from a csv file
-   *
-   * @param {object} params.csvfile - File object or filename (stored in kolibri temp dir)
-   * @param {string} params.dryrun - validate objects but don't write in the db
-   * @param {string} params.delete - delete users not included in the csv
-   *                                 and clear not included classrooms
-   * @returns {Promise}
-   *
-   */
-  import_users_from_csv(params) {
-    return this.postListEndpointMultipart('importusersfromcsv', pickBy(params));
-  },
-  /**
-   * Initiates a Task that export users, classes and assign roles to a csv file
-   * @returns {Promise}
-   *
-   */
-  export_users_to_csv(params) {
-    return this.postListEndpoint('exportuserstocsv', pickBy(params));
-  },
-
-  deleteChannel({ channelId }) {
-    return this.postListEndpoint('startdeletechannel', {
-      channel_id: channelId,
-    });
-  },
-  /**
-   * @param {Array<Object>} params.channelIds
-   */
-  deleteBulkChannels({ channelIds }) {
-    return this.postListEndpoint(
-      'startbulkdelete',
-      channelIds.map(x => ({
-        channel_id: x,
-      }))
-    );
-  },
-
-  // TODO: switch to Model.delete()
-  cancelTask(taskId) {
-    return this.postListEndpoint('canceltask', {
-      task_id: taskId,
-    });
-  },
-  clearTask(taskId) {
-    return this.postListEndpoint('cleartask', { task_id: taskId });
-  },
-  clearTasks() {
-    return this.postListEndpoint('cleartasks');
-  },
-
-  deleteFinishedTasks() {
-    return this.postListEndpoint('deletefinishedtasks');
-  },
-
-  deleteFinishedTask(taskId) {
-    return this.postListEndpoint('deletefinishedtasks', { task_id: taskId });
+  clearAll(queue) {
+    const params = {};
+    if (queue) {
+      params.queue = queue;
+    }
+    return this.postListEndpoint('clearall', params);
   },
 });

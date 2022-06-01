@@ -8,10 +8,7 @@
 
     <template v-else>
       <TaskProgress
-        :show="!onDeviceInfoIsReady"
-        type="DOWNLOADING_CHANNEL_CONTENTS"
-        :showButtons="false"
-        status="RUNNING"
+        v-if="!onDeviceInfoIsReady"
       />
 
       <template v-if="onDeviceInfoIsReady">
@@ -30,7 +27,6 @@
           :channel="transferredChannel"
           :channelOnDevice="channelOnDevice"
           :freeSpace="availableSpace"
-          :remoteContentEnabled="remoteContentEnabled"
         />
 
         <UiAlert
@@ -86,6 +82,7 @@
   import { TaskResource } from 'kolibri.resources';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import TaskProgress from '../ManageContentPage/TaskProgress';
+  import useContentTasks from '../../composables/useContentTasks';
   import { ContentWizardErrors, TaskTypes, PageNames } from '../../constants';
   import SelectionBottomBar from '../ManageContentPage/SelectionBottomBar';
   import taskNotificationMixin from '../taskNotificationMixin';
@@ -116,6 +113,9 @@
       UiAlert,
     },
     mixins: [responsiveWindowMixin, taskNotificationMixin],
+    setup() {
+      useContentTasks();
+    },
     data() {
       return {
         contentTransferError: false,
@@ -123,7 +123,6 @@
         // in beforeRouteLeave
         metadataDownloadTaskId: '',
         disableBottomBar: false,
-        remoteContentEnabled: plugin_data.isRemoteContent,
       };
     },
     computed: {
@@ -180,7 +179,7 @@
         return this.availableVersions.source > this.availableVersions.installed;
       },
       isFileSpaceEnough() {
-        if (this.remoteContentEnabled) {
+        if (plugin_data.isRemoteContent) {
           return false;
         } else return this.transferFileSize > this.availableSpace;
       },
@@ -194,7 +193,7 @@
           if (val) {
             this.metadataDownloadTaskId = val.id;
             if (val.clearable) {
-              TaskResource.deleteFinishedTask(val.id);
+              TaskResource.clear(val.id);
             }
           } else {
             this.metadataDownloadTaskId = '';
@@ -286,6 +285,7 @@
         this.startImportTask({
           importSource,
           channelId: this.channelId,
+          channelName: this.transferredChannel.name,
           included: nodesForTransfer.included.map(x => x.id),
           excluded: nodesForTransfer.omitted.map(x => x.id),
           fileSize: this.transferFileSize,

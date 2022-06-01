@@ -39,10 +39,9 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
+  import { TaskResource } from 'kolibri.resources';
   import FacilityTaskPanel from '../../../../../device/assets/src/views/FacilitiesPage/FacilityTaskPanel.vue';
   import OnboardingForm from '../onboarding-forms/OnboardingForm';
-  import { SetupTasksResource } from '../../api';
 
   export default {
     name: 'LoadingTaskPage',
@@ -50,13 +49,9 @@
       FacilityTaskPanel,
       OnboardingForm,
     },
-    mixins: [commonCoreStrings, commonSyncElements],
+    mixins: [commonCoreStrings],
     props: {
       facility: {
-        type: Object,
-        required: true,
-      },
-      device: {
         type: Object,
         required: true,
       },
@@ -81,7 +76,7 @@
     },
     methods: {
       pollTask() {
-        SetupTasksResource.fetchCollection({ force: true }).then(tasks => {
+        TaskResource.list({ queue: 'facility_task' }).then(tasks => {
           this.loadingTask = {
             ...tasks[0],
             facility_name: this.facilityName,
@@ -94,22 +89,12 @@
         }
       },
       retryImport() {
-        this.clearTasks()
-          .then(() => {
-            return this.startPeerImportTask({
-              facility_name: this.facilityName,
-              facility: this.facility.id,
-              baseurl: this.device.baseurl,
-              username: this.facility.username,
-              password: this.facility.password,
-            });
-          })
-          .catch(error => {
-            this.$store.dispatch('handleApiError', error);
-          });
+        TaskResource.restart(this.loadingTask.id).catch(error => {
+          this.$store.dispatch('handleApiError', error);
+        });
       },
       cancelTask() {
-        return SetupTasksResource.canceltask(this.loadingTask.id);
+        return TaskResource.cancel(this.loadingTask.id);
       },
       startOver() {
         this.isPolling = false;
@@ -121,7 +106,7 @@
         this.$router.replace('/');
       },
       clearTasks() {
-        return SetupTasksResource.cleartasks();
+        return TaskResource.clearAll();
       },
       handleClickContinue() {
         this.isPolling = false;
