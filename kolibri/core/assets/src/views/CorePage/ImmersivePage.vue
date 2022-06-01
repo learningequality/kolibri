@@ -5,6 +5,7 @@
       ref="appBar"
       :appBarTitle="appBarTitle"
       :route="route"
+      :icon="icon"
     />
     <slot></slot>
   </div>
@@ -27,6 +28,10 @@
       route: {
         type: Object,
         default: null,
+      },
+      icon: {
+        type: String,
+        default: 'close',
       },
     },
     data() {
