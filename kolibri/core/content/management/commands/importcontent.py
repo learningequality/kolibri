@@ -69,7 +69,7 @@ class Command(AsyncCommand):
 
         e.g.
 
-        kolibri manage importcontent --manifest /path/to/KOLIBRI_DATA/content/all.json disk
+        kolibri manage importcontent --manifest /path/to/KOLIBRI_DATA/content/manifest.json disk
         """
         parser.add_argument(
             "--manifest",
@@ -198,6 +198,12 @@ class Command(AsyncCommand):
             default=paths.get_content_dir_path(),
             help="Copy the content to the given content dir.",
         )
+        disk_subparser.add_argument(
+            "--no_detect_manifest",
+            dest="detect_manifest",
+            action="store_false",
+            default=True,
+        )
 
     def download_content(
         self,
@@ -234,6 +240,7 @@ class Command(AsyncCommand):
         path,
         manifest_file=None,
         drive_id=None,
+        detect_manifest=True,
         node_ids=None,
         exclude_node_ids=None,
         renderable_only=True,
@@ -246,6 +253,7 @@ class Command(AsyncCommand):
             channel_id,
             path=path,
             manifest_file=manifest_file,
+            detect_manifest=detect_manifest,
             drive_id=drive_id,
             node_ids=node_ids,
             exclude_node_ids=exclude_node_ids,
@@ -260,6 +268,7 @@ class Command(AsyncCommand):
         method,
         channel_id,
         manifest_file=None,
+        detect_manifest=None,
         path=None,
         drive_id=None,
         node_ids=None,
@@ -279,13 +288,19 @@ class Command(AsyncCommand):
             manifest_dir = os.path.dirname(manifest_file.name)
             path = os.path.dirname(manifest_dir)
 
-        if manifest_file:
-            content_manifest = ContentManifest()
-            content_manifest.read_file(manifest_file)
-        else:
-            content_manifest = None
+        content_manifest = ContentManifest()
+        use_content_manifest = False
 
-        if content_manifest:
+        if manifest_file:
+            content_manifest.read_file(manifest_file)
+            use_content_manifest = True
+        elif path and detect_manifest and not (node_ids or exclude_node_ids):
+            manifest_path = os.path.join(path, "content", "manifest.json")
+            if content_manifest.read(manifest_path):
+                use_content_manifest = True
+                logging.info("Using node_ids from {}".format(manifest_path))
+
+        if use_content_manifest:
             node_ids = _node_ids_from_content_manifest(content_manifest, channel_id)
             exclude_node_ids = None
 
@@ -652,6 +667,7 @@ class Command(AsyncCommand):
                 options["channel_id"],
                 options["directory"],
                 manifest_file=options["manifest"],
+                detect_manifest=options["detect_manifest"],
                 drive_id=options["drive_id"],
                 node_ids=options["node_ids"],
                 exclude_node_ids=options["exclude_node_ids"],
