@@ -1,6 +1,10 @@
 <template>
 
-  <div>
+  <ImmersiveDevicePage
+    icon="back"
+    :appBarTitle="$tr('selectContent', { channelName: transferredChannel.name })"
+    :route="backRoute"
+  >
     <ContentWizardUiAlert
       v-if="wholePageError"
       :errorType="wholePageError"
@@ -17,7 +21,6 @@
           class="updates"
         >
           <NewChannelVersionBanner
-            v-if="newVersionAvailable"
             class="banner"
             :version="availableVersions.source"
             @click="handleClickViewNewVersion"
@@ -67,7 +70,7 @@
       :disabled="disableBottomBar || newVersionAvailable || isFileSpaceEnough"
       @clickconfirm="handleClickConfirm"
     />
-  </div>
+  </ImmersiveDevicePage>
 
 </template>
 
@@ -81,9 +84,10 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { TaskResource } from 'kolibri.resources';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
+  import ImmersiveDevicePage from '../PageWrappers/ImmersiveDevicePage';
   import TaskProgress from '../ManageContentPage/TaskProgress';
   import useContentTasks from '../../composables/useContentTasks';
-  import { ContentWizardErrors, TaskTypes, PageNames } from '../../constants';
+  import { ContentWizardPages, ContentWizardErrors, TaskTypes, PageNames } from '../../constants';
   import SelectionBottomBar from '../ManageContentPage/SelectionBottomBar';
   import taskNotificationMixin from '../taskNotificationMixin';
   import { updateTreeViewTopic } from '../../modules/wizard/handlers';
@@ -108,6 +112,7 @@
       ContentTreeViewer,
       ContentWizardUiAlert,
       NewChannelVersionBanner,
+      ImmersiveDevicePage,
       SelectionBottomBar,
       TaskProgress,
       UiAlert,
@@ -143,6 +148,9 @@
         'transferResourceCount',
         'availableSpace',
       ]),
+      backRoute() {
+        return { name: ContentWizardPages.AVAILABLE_CHANNELS };
+      },
       channelId() {
         return this.$route.params.channel_id;
       },
