@@ -1,6 +1,9 @@
 <template>
 
-  <div>
+  <ImmersiveDevicePage
+    :appBarTitle="$tr('permissionsTitle')"
+    :route="backRoute"
+  >
     <h1 v-if="user === null">
       {{ $tr('userDoesNotExist') }}
     </h1>
@@ -100,8 +103,7 @@
         {{ $tr('saveFailureNotification') }}
       </div>
     </template>
-
-  </div>
+  </ImmersiveDevicePage>
 
 </template>
 
@@ -113,6 +115,8 @@
   import UserType from 'kolibri.utils.UserType';
   import PermissionsIcon from 'kolibri.coreVue.components.PermissionsIcon';
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
+  import ImmersiveDevicePage from '../PageWrappers/ImmersiveDevicePage';
+  import { PageNames } from '../../constants';
 
   export default {
     name: 'UserPermissionsPage',
@@ -122,6 +126,7 @@
       };
     },
     components: {
+      ImmersiveDevicePage,
       PermissionsIcon,
       UserTypeDisplay,
     },
@@ -137,6 +142,9 @@
     computed: {
       ...mapGetters(['facilities', 'currentUserId']),
       ...mapState('userPermissions', ['user', 'permissions']),
+      backRoute() {
+        return { name: PageNames.MANAGE_PERMISSIONS_PAGE };
+      },
       // IDEA Make this a core getter? Need audit
       facilityName() {
         return this.facilities.find(facility => facility.id === this.user.facility).name;
@@ -218,6 +226,11 @@
         message: 'Make super admin',
         context:
           'Label for the checkbox to confirm giving the user super admin permissions on the device.',
+      },
+      permissionsTitle: {
+        message: 'Permissions',
+        context:
+          'Indicates the Device > Permissions tab. Permissions refer to what users can manage on the device.',
       },
       saveButton: {
         message: 'Save Changes',
