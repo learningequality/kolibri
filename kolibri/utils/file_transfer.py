@@ -17,6 +17,13 @@ try:
 except ImportError:
     SSLERROR = requests.exceptions.SSLError
 
+
+try:
+    FileNotFoundError
+except NameError:
+    FileNotFoundError = IOError
+
+
 RETRY_STATUS_CODE = [502, 503, 504, 521, 522, 523, 524]
 
 
@@ -72,7 +79,7 @@ class Transfer(object):
         block_size=2097152,
         remove_existing_temp_file=True,
         timeout=DEFAULT_TIMEOUT,
-        cancel_check=lambda: False,
+        cancel_check=None,
     ):
         self.source = source
         self.dest = dest
@@ -83,7 +90,9 @@ class Transfer(object):
         self.completed = False
         self.finalized = False
         self.closed = False
-        self.cancel_check = cancel_check
+        if cancel_check and not callable(cancel_check):
+            raise AssertionError("cancel_check must be callable")
+        self._cancel_check = cancel_check
 
         # TODO (aron): Instead of using signals, have bbq/iceqube add
         # hooks that the app calls every so often to determine whether it
@@ -128,6 +137,9 @@ class Transfer(object):
         # open the destination file for writing
         self.dest_file_obj = open(self.dest_tmp, "wb")
 
+    def cancel_check(self):
+        return self._cancel_check and self._cancel_check()
+
     def _set_iterator(self):
         if not hasattr(self, "_content_iterator"):
             self._content_iterator = self._get_content_iterator()
@@ -159,7 +171,7 @@ class Transfer(object):
     def _move_tmp_to_dest(self):
         try:
             shutil.move(self.dest_tmp, self.dest)
-        except (IOError, OSError) as e:
+        except FileNotFoundError as e:
             if not os.path.exists(self.dest):
                 raise e
 
