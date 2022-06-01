@@ -694,7 +694,7 @@ def handle_server_sync_response(response, server, user):
         time_alive = server_response["keep_alive"]
         dt = datetime.timedelta(seconds=int(time_alive))
         request_soud_sync.enqueue_in(
-            dt, args=(server, user, pk, time_alive), kwargs=dict(job_id=JOB_ID)
+            dt, args=(server, user, pk, time_alive), job_id=JOB_ID
         )
         logger.info(
             "Server {} busy for user {}, will try again in {} seconds with pk={}".format(
@@ -712,7 +712,7 @@ def schedule_new_sync(server, user, interval=OPTIONS["Deployment"]["SYNC_INTERVA
     )
     dt = datetime.timedelta(seconds=interval)
     JOB_ID = hashlib.md5("{}:{}".format(server, user).encode()).hexdigest()
-    request_soud_sync.enqueue_in(dt, args=(server, user), kwargs=dict(job_id=JOB_ID))
+    request_soud_sync.enqueue_in(dt, args=(server, user), job_id=JOB_ID)
 
 
 @register_task(
