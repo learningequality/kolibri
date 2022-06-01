@@ -1,4 +1,5 @@
 wheel
+pkginfo
 PyInstaller==4.5.1
 sqlalchemy==1.3.17
 dmgbuild==1.5.2; sys_platform == 'darwin'
