@@ -1,19 +1,19 @@
 <template>
 
   <div>
-    <OnboardingForm
-      :header="$tr('header')"
-      :description="$tr('description')"
-      :submitText="coreString('finishAction')"
-      @submit="handleSubmit"
-    >
-      <KButton
-        ref="modalButton"
-        :text="coreString('usageAndPrivacyLabel')"
-        appearance="basic-link"
-        @click="showModal = true"
-      />
-    </OnboardingForm>
+    <h1 class="title">
+      {{ $tr('header') }}
+    </h1>
+    <p class="description">
+      {{ $tr('description') }}
+    </p>
+
+    <KButton
+      ref="modalButton"
+      :text="coreString('usageAndPrivacyLabel')"
+      appearance="basic-link"
+      @click="showModal = true"
+    />
 
     <PrivacyInfoModal
       v-if="showModal"
@@ -30,13 +30,11 @@
 
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import OnboardingForm from './OnboardingForm';
 
   export default {
     name: 'PersonalDataConsentForm',
     components: {
       PrivacyInfoModal,
-      OnboardingForm,
     },
     mixins: [commonCoreStrings],
     data() {
@@ -65,9 +63,6 @@
           }
         });
       },
-      handleSubmit() {
-        this.$emit('click_next');
-      },
     },
     $trs: {
       description: {
@@ -86,4 +81,15 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  .title {
+    font-size: 1.5em;
+  }
+
+  .description {
+    padding-bottom: 8px;
+    font-size: 0.875em;
+  }
+
+</style>

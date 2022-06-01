@@ -1,45 +1,60 @@
 <template>
 
-  <YesNoForm
-    :noOptionLabel="$tr('noOptionLabel')"
-    :settingIsEnabled="settingIsEnabled"
-    :headerText="$tr('header')"
-    @submit="handleSubmit"
-  />
+  <div class="form">
+    <h1 class="title">
+      {{ $tr('header') }}
+    </h1>
+    <KRadioButton
+      ref="yesRadio"
+      v-model="setting"
+      class="radio-button"
+      :label="$tr('yesOptionLabel')"
+      :value="true"
+    />
+    <KRadioButton
+      ref="noRadio"
+      v-model="setting"
+      class="radio-button"
+      :label="$tr('noOptionLabel')"
+      :value="false"
+    />
+    <p class="description">
+      {{ $tr('changeLater') }}
+    </p>
+  </div>
 
 </template>
 
 
 <script>
 
-  import YesNoForm from './YesNoForm';
-
   export default {
     name: 'CreateLearnerAccountForm',
-    components: {
-      YesNoForm,
-    },
+
     data() {
       return {
-        settingIsEnabled: this.$store.state.onboardingData.settings.learner_can_sign_up,
+        setting: '',
       };
-    },
-    methods: {
-      handleSubmit(setting) {
-        this.$store.commit('SET_LEARNER_CAN_SIGN_UP', setting);
-        this.$emit('click_next');
-      },
     },
     $trs: {
       header: {
-        message: 'Allow anyone to create their own learner account?',
+        message: 'Allow learners to join this facility?',
         context:
           'Admins have the option to allow either anyone to create a user account for themselves, or for accounts to be created only by Kolibri admins.\n\n',
+      },
+      yesOptionLabel: {
+        message: 'Yes',
+        context:
+          "Possible answer to the 'Allow anyone to create their own learner account?' question.",
       },
       noOptionLabel: {
         message: 'No. Admins must create all accounts',
         context:
           "Possible answer to the 'Allow anyone to create their own learner account?' question.",
+      },
+      changeLater: {
+        message: 'You can change this in your learning facility settings later',
+        context: '',
       },
     },
   };
@@ -47,4 +62,20 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  .title {
+    font-size: 1.5em;
+  }
+
+  .description {
+    padding-bottom: 8px;
+    font-size: 0.875em;
+  }
+
+  .radio-button {
+    padding-bottom: 8px;
+    font-size: 0.875em;
+  }
+
+</style>

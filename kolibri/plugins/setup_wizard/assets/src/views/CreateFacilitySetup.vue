@@ -1,16 +1,18 @@
 <template>
 
   <div>
-    <ProgressToolbar
-      :removeNavIcon="false"
-      :title="currentTitle"
-      @click_back="goToLastStep"
-    />
-    <div class="main">
-      <KPageContainer>
-        <component :is="currentComponent" @click_next="goToNextStep" />
-      </KPageContainer>
-    </div>
+    <OnboardingStepBase
+      @back="goToLastStep"
+      @continue="goToNextStep"
+    >
+
+      <div class="main">
+        <component :is="currentComponent" />
+      </div>
+      <template #footer class="footer">
+        {{ currentFooter }}
+      </template>
+    </OnboardingStepBase>
   </div>
 
 </template>
@@ -18,31 +20,29 @@
 
 <script>
 
+  import OnboardingStepBase from './OnboardingStepBase';
   import FacilityPermissionsForm from './onboarding-forms/FacilityPermissionsForm';
   import GuestAccessForm from './onboarding-forms/GuestAccessForm';
   import CreateLearnerAccountForm from './onboarding-forms/CreateLearnerAccountForm';
   import RequirePasswordForLearnersForm from './onboarding-forms/RequirePasswordForLearnersForm';
   import PersonalDataConsentForm from './onboarding-forms/PersonalDataConsentForm';
-  import SuperuserCredentialsForm from './onboarding-forms/SuperuserCredentialsForm';
-  import ProgressToolbar from './ProgressToolbar';
 
   const stepToComponentMap = {
     1: FacilityPermissionsForm,
     2: GuestAccessForm,
     3: CreateLearnerAccountForm,
     4: RequirePasswordForLearnersForm,
-    5: SuperuserCredentialsForm,
-    6: PersonalDataConsentForm,
+    5: PersonalDataConsentForm,
   };
 
-  const TOTAL_STEPS = 6;
+  const TOTAL_STEPS = 5;
 
   // Template for the 'New Facility' workflow, which manages the title
   // and back/forth flow for this group of steps
   export default {
     name: 'CreateFacilitySetup',
     components: {
-      ProgressToolbar,
+      OnboardingStepBase,
     },
     inject: ['wizardService'],
     computed: {
@@ -53,7 +53,7 @@
       currentStep() {
         return Number(this.$route.params.step);
       },
-      currentTitle() {
+      currentFooter() {
         return this.$tr('newFacilityStepTitle', {
           step: this.currentStep,
           total: TOTAL_STEPS,
@@ -103,6 +103,10 @@
 
   .main {
     margin: 16px;
+  }
+
+  .footer {
+    margin-top: 16px;
   }
 
 </style>
