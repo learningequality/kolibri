@@ -153,6 +153,8 @@ class ChannelMetadataViewSet(ReadOnlyValuesViewset):
         "root__available",
         "root__num_coach_contents",
         "public",
+        "total_resource_count",
+        "published_size",
     )
 
     field_map = {
@@ -164,6 +166,24 @@ class ChannelMetadataViewSet(ReadOnlyValuesViewset):
 
     def get_queryset(self):
         return models.ChannelMetadata.objects.all()
+
+    def consolidate(self, items, queryset):
+        included_languages = {}
+        for (
+            channel_id,
+            language_id,
+        ) in models.ChannelMetadata.included_languages.through.objects.filter(
+            channelmetadata__in=queryset
+        ).values_list(
+            "channelmetadata_id", "language_id"
+        ):
+            if channel_id not in included_languages:
+                included_languages[channel_id] = []
+            included_languages[channel_id].append(language_id)
+        for item in items:
+            item["included_languages"] = included_languages.get(item["id"], [])
+            item["last_published"] = item["last_updated"]
+        return items
 
     @list_route(methods=["get"])
     def filter_options(self, request, **kwargs):
