@@ -1,132 +1,132 @@
 <template>
 
-  <CoreBase
-    :immersivePage="false"
-    :appBarTitle="coreString('profileLabel')"
-    :immersivePagePrimary="true"
-  >
-    <KPageContainer>
+  <NotificationsRoot>
+    <AppBarCorePage :title="coreString('profileLabel')">
 
-      <KGrid>
-        <KGridItem sizes="100, 75, 75" percentage>
-          <h1>{{ $tr('detailsHeader') }}</h1>
-        </KGridItem>
-        <!-- Users cannot edit their profile if on a SoUD -->
-        <KGridItem v-if="!isSubsetOfUsersDevice" sizes="100, 25, 25" percentage alignment="right">
-          <KRouterLink
-            :text="$tr('editAction')"
-            appearance="raised-button"
-            :primary="true"
-            :to="profileEditRoute"
-          />
-        </KGridItem>
-      </KGrid>
+      <KPageContainer>
 
-      <table>
-        <tr>
-          <th>{{ $tr('points') }}</th>
-          <td class="points-cell">
-            <PointsIcon class="points-icon" />
-            <span :style="{ color: $themeTokens.correct }">
-              {{ $formatNumber(totalPoints) }}
-            </span>
-          </td>
-        </tr>
-
-        <tr>
-          <th>{{ coreString('userTypeLabel') }}</th>
-
-          <td>
-            <UserTypeDisplay
-              :distinguishCoachTypes="false"
-              :userType="getUserKind"
+        <KGrid>
+          <KGridItem sizes="100, 75, 75" percentage>
+            <h1>{{ $tr('detailsHeader') }}</h1>
+          </KGridItem>
+          <!-- Users cannot edit their profile if on a SoUD -->
+          <KGridItem v-if="!isSubsetOfUsersDevice" sizes="100, 25, 25" percentage alignment="right">
+            <KRouterLink
+              :text="$tr('editAction')"
+              appearance="raised-button"
+              :primary="true"
+              :to="profileEditRoute"
             />
-          </td>
-        </tr>
+          </KGridItem>
+        </KGrid>
 
-        <tr v-if="facilityName">
-          <th>{{ coreString('facilityLabel') }}</th>
-          <td>{{ facilityName }}</td>
-        </tr>
+        <table>
+          <tr>
+            <th>{{ $tr('points') }}</th>
+            <td class="points-cell">
+              <PointsIcon class="points-icon" />
+              <span :style="{ color: $themeTokens.correct }">
+                {{ $formatNumber(totalPoints) }}
+              </span>
+            </td>
+          </tr>
 
-        <tr v-if="userHasPermissions">
-          <th style="vertical-align: top">
-            {{ coreString('devicePermissionsLabel') }}
-          </th>
-          <td>
-            <KLabeledIcon>
-              <template #icon>
-                <PermissionsIcon
-                  :permissionType="permissionType"
-                  class="permissions-icon"
-                />
-              </template>
-              {{ permissionTypeText }}
-            </KLabeledIcon>
-            <p>
-              {{ $tr('youCan') }}
-              <ul class="permissions-list">
-                <li v-if="isSuperuser">
-                  {{ $tr('manageDevicePermissions') }}
-                </li>
-                <li v-for="(value, key) in userPermissions" :key="key">
-                  {{ getPermissionString(key) }}
-                </li>
-              </ul>
-            </p>
-          </td>
-        </tr>
+          <tr>
+            <th>{{ coreString('userTypeLabel') }}</th>
 
-        <tr>
-          <th>{{ coreString('fullNameLabel') }}</th>
-          <td>{{ currentUser.full_name }}</td>
-        </tr>
+            <td>
+              <UserTypeDisplay
+                :distinguishCoachTypes="false"
+                :userType="getUserKind"
+              />
+            </td>
+          </tr>
 
-        <tr>
-          <th>{{ coreString('usernameLabel') }}</th>
-          <td>{{ currentUser.username }}</td>
-        </tr>
+          <tr v-if="facilityName">
+            <th>{{ coreString('facilityLabel') }}</th>
+            <td>{{ facilityName }}</td>
+          </tr>
 
-        <tr>
-          <th>{{ coreString('genderLabel') }}</th>
-          <td>
-            <GenderDisplayText :gender="currentUser.gender" />
-          </td>
-        </tr>
+          <tr v-if="userHasPermissions">
+            <th style="vertical-align: top">
+              {{ coreString('devicePermissionsLabel') }}
+            </th>
+            <td>
+              <KLabeledIcon>
+                <template #icon>
+                  <PermissionsIcon
+                    :permissionType="permissionType"
+                    class="permissions-icon"
+                  />
+                </template>
+                {{ permissionTypeText }}
+              </KLabeledIcon>
+              <p>
+                {{ $tr('youCan') }}
+                <ul class="permissions-list">
+                  <li v-if="isSuperuser">
+                    {{ $tr('manageDevicePermissions') }}
+                  </li>
+                  <li v-for="(value, key) in userPermissions" :key="key">
+                    {{ getPermissionString(key) }}
+                  </li>
+                </ul>
+              </p>
+            </td>
+          </tr>
 
-        <tr>
-          <th>{{ coreString('birthYearLabel') }}</th>
-          <td>
-            <BirthYearDisplayText :birthYear="currentUser.birth_year" />
-          </td>
-        </tr>
+          <tr>
+            <th>{{ coreString('fullNameLabel') }}</th>
+            <td>{{ currentUser.full_name }}</td>
+          </tr>
 
-        <tr v-if="canEditPassword">
-          <th>{{ coreString('passwordLabel') }}</th>
-          <td>
-            <KButton
-              appearance="basic-link"
-              :text="$tr('changePasswordPrompt')"
-              class="change-password"
-              @click="showPasswordModal = true"
-            />
-          </td>
-        </tr>
-      </table>
+          <tr>
+            <th>{{ coreString('usernameLabel') }}</th>
+            <td>{{ currentUser.username }}</td>
+          </tr>
 
-      <ChangeUserPasswordModal
-        v-if="showPasswordModal"
-        @cancel="showPasswordModal = false"
-      />
-    </KPageContainer>
-  </CoreBase>
+          <tr>
+            <th>{{ coreString('genderLabel') }}</th>
+            <td>
+              <GenderDisplayText :gender="currentUser.gender" />
+            </td>
+          </tr>
+
+          <tr>
+            <th>{{ coreString('birthYearLabel') }}</th>
+            <td>
+              <BirthYearDisplayText :birthYear="currentUser.birth_year" />
+            </td>
+          </tr>
+
+          <tr v-if="canEditPassword">
+            <th>{{ coreString('passwordLabel') }}</th>
+            <td>
+              <KButton
+                appearance="basic-link"
+                :text="$tr('changePasswordPrompt')"
+                class="change-password"
+                @click="showPasswordModal = true"
+              />
+            </td>
+          </tr>
+        </table>
+
+        <ChangeUserPasswordModal
+          v-if="showPasswordModal"
+          @cancel="showPasswordModal = false"
+        />
+      </KPageContainer>
+    </AppBarCorePage>
+  </NotificationsRoot>
 
 </template>
 
 
 <script>
 
-  import CoreBase from 'kolibri.coreVue.components.CoreBase';
+  import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
+  import AppBarCorePage from 'kolibri.coreVue.components.AppBarCorePage';
   import { mapGetters } from 'vuex';
   import { ref } from 'kolibri.lib.vueCompositionApi';
   import find from 'lodash/find';
@@ -152,9 +152,10 @@
       };
     },
     components: {
+      AppBarCorePage,
       BirthYearDisplayText,
       ChangeUserPasswordModal,
-      CoreBase,
+      NotificationsRoot,
       GenderDisplayText,
       PermissionsIcon,
       PointsIcon,
