@@ -28,6 +28,7 @@ from django_filters.rest_framework import NumberFilter
 from django_filters.rest_framework import UUIDFilter
 from le_utils.constants import content_kinds
 from le_utils.constants import languages
+from requests.exceptions import RequestException
 from rest_framework import mixins
 from rest_framework import status
 from rest_framework import viewsets
@@ -35,6 +36,7 @@ from rest_framework.decorators import detail_route
 from rest_framework.decorators import list_route
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
+from six.moves.urllib.parse import urljoin
 
 from kolibri.core.api import BaseValuesViewset
 from kolibri.core.api import ListModelMixin
@@ -66,6 +68,7 @@ from kolibri.core.content.utils.search import get_available_metadata_labels
 from kolibri.core.content.utils.stopwords import stopwords_set
 from kolibri.core.decorators import query_params_required
 from kolibri.core.device.models import ContentCacheKey
+from kolibri.core.discovery.utils.network.errors import ResourceGoneError
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
@@ -73,6 +76,7 @@ from kolibri.core.query import SQSum
 from kolibri.core.utils.pagination import ValuesViewsetCursorPagination
 from kolibri.core.utils.pagination import ValuesViewsetLimitOffsetPagination
 from kolibri.core.utils.pagination import ValuesViewsetPageNumberPagination
+from kolibri.utils.conf import OPTIONS
 
 
 logger = logging.getLogger(__name__)
@@ -108,6 +112,74 @@ def metadata_cache(some_func):
     return session_exempt(wrapper_func)
 
 
+class RemoteMixin(object):
+    remote_url_param = "baseurl"
+
+    def _should_proxy_request(self, request):
+        return self.remote_url_param in request.GET
+
+    def _get_request_headers(self, request):
+        return {
+            "Accept": request.META.get("HTTP_ACCEPT"),
+            "Accept-Encoding": request.META.get("HTTP_ACCEPT_ENCODING"),
+            "Accept-Language": request.META.get("HTTP_ACCEPT_LANGUAGE"),
+            "Content-Type": request.META.get("CONTENT_TYPE"),
+            "If-None-Match": request.META.get("HTTP_IF_NONE_MATCH", ""),
+        }
+
+    def _get_response_headers(self, response):
+        return {
+            "Cache-Control": response.headers.get("cache-control"),
+            "Content-Type": response.headers.get("content-type"),
+            "Etag": response.headers.get("etag"),
+        }
+
+    def update_data(self, response_data, baseurl):
+        return response_data
+
+    def _hande_proxied_request(self, request):
+        full_path = request.get_full_path().split("?")[0]
+        remote_path = full_path.replace(
+            "{}api/content/".format(OPTIONS["Deployment"]["URL_PATH_PREFIX"]),
+            "/api/public/v2/",
+        )
+        baseurl = request.GET[self.remote_url_param]
+        qs = request.GET.copy()
+        del qs[self.remote_url_param]
+        qs.pop("contentCacheKey", None)
+        remote_url = urljoin(baseurl, remote_path)
+        try:
+            response = requests.get(
+                remote_url, params=qs, headers=self._get_request_headers(request)
+            )
+            # If Etag is set on the response we have returned here, any further Etag will not be modified
+            # by the django etag decorator, so this should allow us to transparently proxy the remote etag.
+            try:
+                content = self.update_data(response.json(), baseurl)
+            except ValueError:
+                content = response.content
+            return Response(
+                content,
+                status=response.status_code,
+                headers=self._get_response_headers(response),
+            )
+        except RequestException:
+            # If any sort of error due to connection or timeout, raise a resource gone error
+            raise ResourceGoneError
+
+
+class RemoteViewSet(ReadOnlyValuesViewset, RemoteMixin):
+    def retrieve(self, request, *args, **kwargs):
+        if self._should_proxy_request(request):
+            return self._hande_proxied_request(request)
+        return super(RemoteViewSet, self).retrieve(request, *args, **kwargs)
+
+    def list(self, request, *args, **kwargs):
+        if self._should_proxy_request(request):
+            return self._hande_proxied_request(request)
+        return super(RemoteViewSet, self).list(request, *args, **kwargs)
+
+
 class ChannelMetadataFilter(FilterSet):
     available = BooleanFilter(method="filter_available", label="Available")
     has_exercise = BooleanFilter(method="filter_has_exercise", label="Has exercises")
@@ -134,7 +206,7 @@ class ChannelMetadataFilter(FilterSet):
 
 
 @method_decorator(metadata_cache, name="dispatch")
-class ChannelMetadataViewSet(ReadOnlyValuesViewset):
+class ChannelMetadataViewSet(RemoteViewSet):
     filter_backends = (DjangoFilterBackend,)
     filter_class = ChannelMetadataFilter
 
@@ -571,6 +643,36 @@ class BaseContentNodeMixin(object):
                 output.append(item)
         return output
 
+    def update_data(self, response_data, baseurl):
+        if type(response_data) is dict:
+            if "more" in response_data and "results" in response_data:
+                # This is a paginated object
+                if response_data["more"] is not None:
+                    response_data["more"][self.remote_url_param] = baseurl
+                response_data["results"] = self.update_data(
+                    response_data["results"], baseurl
+                )
+            else:
+                response_data = self.add_base_url_to_node(response_data, baseurl)
+                if "children" in response_data:
+                    response_data["children"] = self.update_data(
+                        response_data["children"], baseurl
+                    )
+        elif type(response_data) is list:
+            data = []
+            for node in response_data:
+                data.append(self.update_data(node, baseurl))
+            response_data = data
+        return response_data
+
+    def add_base_url_to_node(self, node, baseurl):
+        baseurl_querystring = "?{}={}".format(self.remote_url_param, baseurl)
+        if node["thumbnail"]:
+            node["thumbnail"] += baseurl_querystring
+        for file in node["files"]:
+            file["storage_url"] += baseurl_querystring
+        return node
+
 
 class OptionalPagination(ValuesViewsetCursorPagination):
     ordering = ("lft", "id")
@@ -617,7 +719,7 @@ class OptionalContentNodePagination(OptionalPagination):
 
 
 @method_decorator(metadata_cache, name="dispatch")
-class ContentNodeViewset(BaseContentNodeMixin, ReadOnlyValuesViewset):
+class ContentNodeViewset(BaseContentNodeMixin, RemoteViewSet):
     pagination_class = OptionalContentNodePagination
 
     @list_route(methods=["get"])
@@ -875,7 +977,9 @@ class TreeQueryMixin(object):
 
 
 @method_decorator(metadata_cache, name="dispatch")
-class ContentNodeTreeViewset(BaseContentNodeMixin, TreeQueryMixin, BaseValuesViewset):
+class ContentNodeTreeViewset(
+    BaseContentNodeMixin, TreeQueryMixin, BaseValuesViewset, RemoteMixin
+):
     def retrieve(self, request, pk=None):
         """
         A nested, paginated representation of the children and grandchildren of a specific node
@@ -899,6 +1003,8 @@ class ContentNodeTreeViewset(BaseContentNodeMixin, TreeQueryMixin, BaseValuesVie
         :param pk: id parent node
         :return: an object representing the parent with a pagination object as "children"
         """
+        if self._should_proxy_request(request):
+            return self._hande_proxied_request(request)
 
         queryset = self.get_tree_queryset(request, pk)
 
