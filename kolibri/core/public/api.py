@@ -22,6 +22,7 @@ from .. import error_constants
 from .constants.user_sync_statuses import QUEUED
 from .constants.user_sync_statuses import SYNC
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.content.api import ChannelMetadataViewSet
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import LocalFile
@@ -95,6 +96,15 @@ def _get_channel_list_v1(params, identifier=None):
         channels = channels.exclude(public=False)
 
     return channels.filter(root__available=True).distinct()
+
+
+class PublicChannelMetadataViewSet(ChannelMetadataViewSet):
+    def get_queryset(self):
+        return (
+            ChannelMetadata.objects.all()
+            if allow_peer_unlisted_channel_import()
+            else ChannelMetadata.objects.filter(public=True)
+        )
 
 
 @api_view(["GET"])
