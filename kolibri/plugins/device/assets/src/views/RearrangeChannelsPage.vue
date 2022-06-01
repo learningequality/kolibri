@@ -1,6 +1,9 @@
 <template>
 
-  <div>
+  <ImmersiveDevicePage
+    :appBarTitle="$tr('editChannelOrderTitle')"
+    :route="backRoute"
+  >
     <p class="instructions">
       {{ $tr('instructions') }}
     </p>
@@ -38,7 +41,7 @@
       </DragContainer>
     </template>
 
-  </div>
+  </ImmersiveDevicePage>
 
 </template>
 
@@ -53,12 +56,14 @@
   import urls from 'kolibri.urls';
   import DeviceChannelResource from '../apiResources/deviceChannel';
   import useContentTasks from '../composables/useContentTasks';
+  import { PageNames } from '../constants';
+  import ImmersiveDevicePage from './PageWrappers/ImmersiveDevicePage';
 
   export default {
     name: 'RearrangeChannelsPage',
     metaInfo() {
       return {
-        title: this.$tr('title'),
+        title: this.$tr('editChannelOrderTitle'),
       };
     },
     components: {
@@ -66,6 +71,7 @@
       DragContainer,
       DragHandle,
       Draggable,
+      ImmersiveDevicePage,
     },
     setup() {
       useContentTasks();
@@ -77,6 +83,9 @@
       };
     },
     computed: {
+      backRoute() {
+        return { name: PageNames.MANAGE_CONTENT_PAGE };
+      },
       itemClass() {
         return {
           ':hover': {
@@ -98,7 +107,7 @@
           this.$store.disptch('CORE_SET_ERROR', error);
         });
 
-      this.$store.commit('coreBase/SET_APP_BAR_TITLE', this.$tr('title'));
+      this.$store.commit('coreBase/SET_APP_BAR_TITLE', this.$tr('editChannelOrderTitle'));
     },
     methods: {
       postNewOrder(channelIds) {
@@ -170,7 +179,7 @@
         message: 'Move {name} down one',
         context: 'Label to rearrange channel order. Not seen on UI.',
       },
-      title: {
+      editChannelOrderTitle: {
         message: 'Edit channel order',
         context:
           "Title of the 'Edit channel order' page where users can rearrange the order in which channels will be displayed to learners and coaches.",
