@@ -6,13 +6,13 @@ from le_utils.constants import content_kinds
 
 from ...utils import channel_import
 from ...utils import paths
-from ...utils import transfer
 from ...utils.annotation import update_content_metadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.utils.importability_annotation import clear_channel_stats
 from kolibri.core.errors import KolibriUpgradeError
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.utils import conf
+from kolibri.utils import file_transfer as transfer
 
 logger = logging.getLogger(__name__)
 

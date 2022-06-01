@@ -5,10 +5,6 @@ from django.db.models import Max
 from django.db.models import Min
 from django.db.models import Q
 from le_utils.constants import content_kinds
-from requests.exceptions import ChunkedEncodingError
-from requests.exceptions import ConnectionError
-from requests.exceptions import HTTPError
-from requests.exceptions import Timeout
 
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import LocalFile
@@ -21,17 +17,6 @@ from kolibri.core.content.utils.importability_annotation import (
 from kolibri.core.content.utils.importability_annotation import (
     get_channel_stats_from_peer,
 )
-
-try:
-    import OpenSSL
-
-    SSLERROR = OpenSSL.SSL.Error
-except ImportError:
-    import requests
-
-    SSLERROR = requests.exceptions.SSLError
-
-RETRY_STATUS_CODE = [502, 503, 504, 521, 522, 523, 524]
 
 
 CHUNKSIZE = 10000
@@ -214,29 +199,6 @@ def get_import_export_data(  # noqa: C901
 
     total_bytes_to_transfer = sum(map(lambda x: x["file_size"] or 0, files_to_download))
     return number_of_resources, files_to_download, total_bytes_to_transfer
-
-
-def retry_import(e):
-    """
-    When an exception occurs during channel/content import, if
-        * there is an Internet connection error or timeout error,
-          or HTTPError where the error code is one of the RETRY_STATUS_CODE,
-          return return True to retry the file transfer
-    return value:
-        * True - needs retry.
-        * False - Does not need retry.
-    """
-
-    if (
-        isinstance(e, ConnectionError)
-        or isinstance(e, Timeout)
-        or isinstance(e, ChunkedEncodingError)
-        or (isinstance(e, HTTPError) and e.response.status_code in RETRY_STATUS_CODE)
-        or (isinstance(e, SSLERROR) and "decryption failed or bad record mac" in str(e))
-    ):
-        return True
-
-    return False
 
 
 def compare_checksums(file_name, file_id):

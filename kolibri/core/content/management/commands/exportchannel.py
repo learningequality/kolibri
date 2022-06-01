@@ -2,8 +2,8 @@ import logging
 import os
 
 from ...utils import paths
-from ...utils import transfer
 from kolibri.core.tasks.management.commands.base import AsyncCommand
+from kolibri.utils import file_transfer as transfer
 
 logger = logging.getLogger(__name__)
 
