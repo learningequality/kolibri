@@ -155,7 +155,6 @@ export default {
       PermissionsIcon,
       AppBar,
       AppBarPage,
-      AppBar,
       ImmersivePage,
       CoreBase,
       SidePanelModal,
