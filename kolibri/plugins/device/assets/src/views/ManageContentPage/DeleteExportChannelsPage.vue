@@ -1,6 +1,9 @@
 <template>
 
-  <div v-if="!loading">
+  <ImmersiveDevicePage
+    :appBarTitle="appBarTitle"
+    :route="backRoute"
+  >
     <FilteredChannelListContainer
       :channels="allChannels"
       :selectedChannels.sync="selectedChannels"
@@ -39,7 +42,7 @@
       :fileSize.sync="fileSize"
       @clickconfirm="handleClickConfirm"
     />
-  </div>
+  </ImmersiveDevicePage>
 
 </template>
 
@@ -51,7 +54,8 @@
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import { TaskResource } from 'kolibri.resources';
   import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
-  import { TaskTypes } from '../../constants';
+  import ImmersiveDevicePage from '../PageWrappers/ImmersiveDevicePage';
+  import { PageNames, TaskTypes } from '../../constants';
   import DeviceChannelResource from '../../apiResources/deviceChannel';
   import useContentTasks from '../../composables/useContentTasks';
   import taskNotificationMixin from '../taskNotificationMixin';
@@ -72,6 +76,7 @@
     components: {
       ChannelPanel,
       FilteredChannelListContainer,
+      ImmersiveDevicePage,
       SelectionBottomBar,
       DeleteChannelModal,
       SelectDriveModal,
@@ -100,6 +105,12 @@
     },
     computed: {
       ...mapGetters('manageContent', ['channelIsBeingDeleted']),
+      appBarTitle() {
+        return this.exportMode ? this.$tr('exportAppBarTitle') : this.$tr('deleteAppBarTitle');
+      },
+      backRoute() {
+        return { name: PageNames.MANAGE_CONTENT_PAGE };
+      },
       exportMode() {
         return this.actionType === 'export';
       },

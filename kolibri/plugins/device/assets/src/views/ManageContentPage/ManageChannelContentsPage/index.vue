@@ -1,6 +1,10 @@
 <template>
 
-  <div class="manage-channel-page">
+  <ImmersiveDevicePage
+    class="manage-channel-page"
+    :appBarTitle="appBarTitle"
+    :route="backRoute"
+  >
     <!-- Show this progress bar to match other import flows -->
     <TaskProgress
       v-if="!channel"
@@ -10,7 +14,6 @@
 
       <ChannelContentsSummary :channel="channel">
         <NewChannelVersionBanner
-          v-if="availableVersions.studioLatest > availableVersions.installed"
           class="banner"
           :version="availableVersions.studioLatest"
           @click="handleClickViewNewVersion"
@@ -65,8 +68,7 @@
       :disabled="!Boolean(currentNode) || bottomBarDisabled"
       @selectoption="shownModal = $event"
     />
-
-  </div>
+  </ImmersiveDevicePage>
 
 </template>
 
@@ -82,6 +84,7 @@
   import get from 'lodash/get';
   import last from 'lodash/last';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import ImmersiveDevicePage from '../../PageWrappers/ImmersiveDevicePage';
   import useContentTasks from '../../../composables/useContentTasks';
   import ChannelContentsSummary from '../../SelectContentPage/ChannelContentsSummary';
   import ContentTreeViewer from '../../SelectContentPage/ContentTreeViewer';
@@ -101,7 +104,7 @@
     metaInfo() {
       if (this.channel) {
         return {
-          title: this.title,
+          title: this.appBarTitle,
         };
       }
       return {};
@@ -111,6 +114,7 @@
       ContentTreeViewer,
       DeleteResourcesModal,
       NewChannelVersionBanner,
+      ImmersiveDevicePage,
       SelectDriveModal,
       SelectionBottomBar,
       SelectTransferSourceModal,
@@ -134,6 +138,9 @@
       };
     },
     computed: {
+      backRoute() {
+        return { name: PageNames.MANAGE_CONTENT_PAGE };
+      },
       channelId() {
         return this.$route.params.channel_id;
       },
@@ -145,8 +152,12 @@
           excluded: nodes.omitted.map(x => x.id),
         };
       },
-      title() {
-        return this.$tr('title', { channelName: this.channel.name });
+      appBarTitle() {
+        if (this.channel) {
+          return this.$tr('appBarTitle', { channelName: this.channel.name });
+        } else {
+          return '';
+        }
       },
       availableVersions() {
         // If offline, we shouldn't see an upgrade notification
@@ -201,7 +212,7 @@
         this.$store.commit('manageContent/wizard/SET_TRANSFERRED_CHANNEL', this.channel);
         this.$store.commit('manageContent/wizard/SET_TRANSFER_TYPE', TransferTypes.LOCALEXPORT);
 
-        this.$store.commit('coreBase/SET_APP_BAR_TITLE', this.title);
+        this.$store.commit('coreBase/SET_APP_BAR_TITLE', this.appBarTitle);
         return this.updateNode(this.$route.query.node || channel.root);
       },
       updateNode(newNodeId) {
@@ -323,7 +334,7 @@
       startDeleteTask,
     },
     $trs: {
-      title: {
+      appBarTitle: {
         message: `Manage '{channelName}'`,
         context: 'Refers to the title of the page where a user manages a specific channel.',
       },
