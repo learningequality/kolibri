@@ -4,7 +4,6 @@ import matches from 'lodash/matches';
 import isEqual from 'lodash/isEqual';
 import urls from 'kolibri.urls';
 import cloneDeep from './cloneDeep';
-import ConditionalPromise from './conditionalPromise';
 import plugin_data from 'plugin_data';
 
 export const logging = logger.getLogger(__filename);
@@ -64,7 +63,7 @@ export class Model {
    * returns, otherwise reject is called with the response object.
    */
   fetch(force = false) {
-    const promise = new ConditionalPromise((resolve, reject) => {
+    const promise = new Promise((resolve, reject) => {
       Promise.all(this.promises).then(
         () => {
           if (!force && this.synced) {
@@ -111,7 +110,7 @@ export class Model {
    * returns, otherwise reject is called with the response object.
    */
   save(attrs, exists = false) {
-    const promise = new ConditionalPromise((resolve, reject) => {
+    const promise = new Promise((resolve, reject) => {
       Promise.all(this.promises).then(
         () => {
           let payload = {};
@@ -188,7 +187,7 @@ export class Model {
    * returns, otherwise reject is called with the response object.
    */
   delete() {
-    const promise = new ConditionalPromise((resolve, reject) => {
+    const promise = new Promise((resolve, reject) => {
       Promise.all(this.promises).then(
         () => {
           if (!this.id) {
@@ -295,7 +294,7 @@ export class Collection {
    * successfully returns, otherwise reject is called with the response object.
    */
   fetch(force = false) {
-    const promise = new ConditionalPromise((resolve, reject) => {
+    const promise = new Promise((resolve, reject) => {
       Promise.all(this.promises).then(
         () => {
           if (!force && this.synced) {
@@ -364,7 +363,7 @@ export class Collection {
    * successfully returns, otherwise reject is called with the response object.
    */
   save(data = []) {
-    const promise = new ConditionalPromise((resolve, reject) => {
+    const promise = new Promise((resolve, reject) => {
       Promise.all(this.promises).then(
         () => {
           if (!data.length && !this.new) {
@@ -421,7 +420,7 @@ export class Collection {
    * returns, otherwise reject is called with the response object.
    */
   delete() {
-    const promise = new ConditionalPromise((resolve, reject) => {
+    const promise = new Promise((resolve, reject) => {
       Promise.all(this.promises).then(
         () => {
           if (!Object.keys(this.getParams).length) {

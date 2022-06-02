@@ -1,4 +1,3 @@
-import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import { ClassroomResource, FacilityUserResource } from 'kolibri.resources';
 import { UserKinds } from 'kolibri.coreVue.vuex.constants';
@@ -28,22 +27,23 @@ export function showLearnerClassEnrollmentPage(store, toRoute) {
     },
     force: true,
   });
-
-  return ConditionalPromise.all([userPromise, classPromise, classUsersPromise]).only(
-    samePageCheckGenerator(store),
+  const shouldResolve = samePageCheckGenerator(store);
+  return Promise.all([userPromise, classPromise, classUsersPromise]).then(
     ([facilityUsers, classroom, classUsers]) => {
-      store.commit('classAssignMembers/SET_STATE', {
-        facilityUsers: facilityUsers.results.map(_userState),
-        classUsers: classUsers.results.map(_userState),
-        totalPageNumber: facilityUsers.total_pages,
-        totalLearners: facilityUsers.count,
-        class: classroom,
-        modalShown: false,
-      });
-      store.commit('CORE_SET_PAGE_LOADING', false);
+      if (shouldResolve()) {
+        store.commit('classAssignMembers/SET_STATE', {
+          facilityUsers: facilityUsers.results.map(_userState),
+          classUsers: classUsers.results.map(_userState),
+          totalPageNumber: facilityUsers.total_pages,
+          totalLearners: facilityUsers.count,
+          class: classroom,
+          modalShown: false,
+        });
+        store.commit('CORE_SET_PAGE_LOADING', false);
+      }
     },
     error => {
-      store.dispatch('handleApiError', error);
+      shouldResolve() ? store.dispatch('handleError', error) : null;
     }
   );
 }
@@ -69,28 +69,29 @@ export function showCoachClassAssignmentPage(store, toRoute) {
   });
   // current class
   const classPromise = ClassroomResource.fetchModel({ id, force: true });
-
-  return ConditionalPromise.all([userPromise, classPromise]).only(
-    samePageCheckGenerator(store),
+  const shouldResolve = samePageCheckGenerator(store);
+  return Promise.all([userPromise, classPromise]).then(
     ([facilityUsers, classroom]) => {
-      let filteredFacilityUsers = facilityUsers
-        .filter(user => {
-          // filter out users who are not eligible to be coaches
-          return user.roles.some(({ kind }) => eligibleRoles.includes(kind));
-        })
-        .map(_userState);
-      store.commit('classAssignMembers/SET_STATE', {
-        // facilityUsers now only contains users that are eligible for coachdom
-        // TODO rename
-        facilityUsers: filteredFacilityUsers,
-        classUsers: classroom.coaches.map(_userState),
-        class: classroom,
-        modalShown: false,
-      });
-      store.commit('CORE_SET_PAGE_LOADING', false);
+      if (shouldResolve()) {
+        let filteredFacilityUsers = facilityUsers
+          .filter(user => {
+            // filter out users who are not eligible to be coaches
+            return user.roles.some(({ kind }) => eligibleRoles.includes(kind));
+          })
+          .map(_userState);
+        store.commit('classAssignMembers/SET_STATE', {
+          // facilityUsers now only contains users that are eligible for coachdom
+          // TODO rename
+          facilityUsers: filteredFacilityUsers,
+          classUsers: classroom.coaches.map(_userState),
+          class: classroom,
+          modalShown: false,
+        });
+        store.commit('CORE_SET_PAGE_LOADING', false);
+      }
     },
     error => {
-      store.dispatch('handleApiError', error);
+      shouldResolve() ? store.dispatch('handleError', error) : null;
     }
   );
 }

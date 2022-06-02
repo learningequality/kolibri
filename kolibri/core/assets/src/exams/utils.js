@@ -2,7 +2,6 @@ import every from 'lodash/every';
 import uniq from 'lodash/uniq';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { ExamResource, ContentNodeResource } from 'kolibri.resources';
-import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 
 /*
  * Converts from v0 exam structures to v1
@@ -164,7 +163,7 @@ export function getExamReport(examId, tryIndex = 0, questionNumber = 0, interact
             },
           });
         } else {
-          contentPromise = ConditionalPromise.resolve([]);
+          contentPromise = Promise.resolve([]);
         }
 
         contentPromise.then(

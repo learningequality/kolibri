@@ -1,7 +1,6 @@
 import client from 'kolibri.client';
 import urls from 'kolibri.urls';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
-import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import bytesForHumans from 'kolibri.utils.bytesForHumans';
 import { isEmbeddedWebView } from 'kolibri.utils.browserInfo';
 
@@ -42,15 +41,18 @@ export function getDeviceInfo() {
  */
 export function showDeviceInfoPage(store) {
   if (store.getters.canManageContent) {
-    const promises = ConditionalPromise.all([getDeviceInfo()]).only(samePageCheckGenerator(store));
+    const shouldResolve = samePageCheckGenerator(store);
+    const promises = Promise.all([getDeviceInfo()]);
     return promises
       .then(function onSuccess([deviceInfo]) {
-        store.commit('deviceInfo/SET_STATE', {
-          deviceInfo,
-        });
+        if (shouldResolve()) {
+          store.commit('deviceInfo/SET_STATE', {
+            deviceInfo,
+          });
+        }
       })
       .catch(function onFailure(error) {
-        store.dispatch('handleApiError', error);
+        shouldResolve() ? store.dispatch('handleError', error) : null;
       });
   }
   return Promise.resolve();

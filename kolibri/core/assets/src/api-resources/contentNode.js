@@ -2,7 +2,6 @@ import isPlainObject from 'lodash/isPlainObject';
 import { Resource } from 'kolibri.lib.apiResource';
 import urls from 'kolibri.urls';
 import cloneDeep from '../cloneDeep';
-import ConditionalPromise from '../conditionalPromise';
 
 /**
  * Type definition for Language metadata
@@ -107,43 +106,35 @@ export default new Resource({
     return this.fetchDetailCollection('recommendations_for', id, getParams);
   },
   fetchResume(params = { resume: true }) {
-    const promise = new ConditionalPromise();
     const url = urls['kolibri:core:usercontentnode_list']();
-    promise._promise = this.client({ url, params }).then(response => {
+    return this.client({ url, params }).then(response => {
       this.cacheData(response.data);
       return response.data;
     });
-    return promise;
   },
   fetchPopular(params = { popular: true }) {
-    const promise = new ConditionalPromise();
     const url = urls['kolibri:core:usercontentnode_list']();
-    promise._promise = this.client({ url, params }).then(response => {
+    return this.client({ url, params }).then(response => {
       this.cacheData(response.data);
       return response.data;
     });
-    return promise;
   },
   fetchNextSteps(params = { next_steps: true }) {
-    const promise = new ConditionalPromise();
     const url = urls['kolibri:core:usercontentnode_list']();
-    promise._promise = this.client({ url, params }).then(response => {
+    return this.client({ url, params }).then(response => {
       this.cacheData(response.data);
       return response.data;
     });
-    return promise;
   },
   cache: {},
   fetchModel({ id }) {
     if (this.cache[id]) {
-      return ConditionalPromise.resolve(cloneDeep(this.cache[id]));
+      return Promise.resolve(cloneDeep(this.cache[id]));
     }
-    const promise = new ConditionalPromise();
-    promise._promise = this.client({ url: this.modelUrl(id) }).then(response => {
+    return this.client({ url: this.modelUrl(id) }).then(response => {
       this.cacheData(response.data);
       return response.data;
     });
-    return promise;
   },
   cacheData(data) {
     if (Array.isArray(data)) {
@@ -167,12 +158,10 @@ export default new Resource({
     }
   },
   fetchCollection({ getParams: params }) {
-    const promise = new ConditionalPromise();
-    promise._promise = this.client({ url: this.collectionUrl(), params }).then(response => {
+    return this.client({ url: this.collectionUrl(), params }).then(response => {
       this.cacheData(response.data);
       return response.data;
     });
-    return promise;
   },
   /**
    * A method to request paginated tree data from the backend
@@ -182,21 +171,17 @@ export default new Resource({
    * @return {Promise<ContentNode>} Promise that resolves with the model data
    */
   fetchTree({ id, params }) {
-    const promise = new ConditionalPromise();
     const url = urls['kolibri:core:contentnode_tree_detail'](id);
-    promise._promise = this.client({ url, params }).then(response => {
+    return this.client({ url, params }).then(response => {
       this.cacheData(response.data);
       return response.data;
     });
-    return promise;
   },
   fetchBookmarks({ params }) {
-    const promise = new ConditionalPromise();
     const url = urls['kolibri:core:contentnode_bookmarks_list']();
-    promise._promise = this.client({ url, params }).then(response => {
+    return this.client({ url, params }).then(response => {
       this.cacheData(response.data);
       return response.data;
     });
-    return promise;
   },
 });

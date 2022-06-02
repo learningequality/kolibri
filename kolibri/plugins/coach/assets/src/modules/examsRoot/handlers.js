@@ -1,5 +1,4 @@
 import { ExamResource } from 'kolibri.resources';
-import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import { PageNames } from '../../constants';
 import { examsState } from '../examShared/exams';
@@ -17,17 +16,20 @@ export function showExamsPage(store, classId) {
     store.dispatch('setClassList'),
   ];
 
-  return ConditionalPromise.all(promises).only(
-    samePageCheckGenerator(store),
+  const shouldResolve = samePageCheckGenerator(store);
+
+  return Promise.all(promises).then(
     ([exams]) => {
-      store.commit('examsRoot/SET_STATE', {
-        exams: examsState(exams),
-        examsModalSet: false,
-        busy: false,
-      });
-      store.dispatch('clearError');
-      store.dispatch('notLoading');
+      if (shouldResolve()) {
+        store.commit('examsRoot/SET_STATE', {
+          exams: examsState(exams),
+          examsModalSet: false,
+          busy: false,
+        });
+        store.dispatch('clearError');
+        store.dispatch('notLoading');
+      }
     },
-    error => store.dispatch('handleError', error)
+    error => (shouldResolve() ? store.dispatch('handleError', error) : null)
   );
 }

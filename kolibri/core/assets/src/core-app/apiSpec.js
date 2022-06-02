@@ -21,7 +21,6 @@ import scriptLoader from 'kolibri-design-system/lib/utils/scriptLoader';
 import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton'; // temp hack
 import * as vueCompositionApi from '@vue/composition-api';
 import logging from '../logging';
-import conditionalPromise from '../conditionalPromise';
 import * as apiResource from '../api-resource';
 import * as constants from '../constants';
 import * as getters from '../state/modules/core/getters';
@@ -135,7 +134,6 @@ export default {
     vue,
     vuex,
     vueCompositionApi,
-    conditionalPromise,
     apiResource,
   },
   coreVue: {
