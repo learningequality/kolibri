@@ -9,6 +9,7 @@ from django.http import HttpResponse
 from django.http import HttpResponseBadRequest
 from django.http import HttpResponseNotFound
 from django.utils import timezone
+from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.gzip import gzip_page
 from morango.constants import transfer_statuses
@@ -21,7 +22,13 @@ from rest_framework.response import Response
 from .. import error_constants
 from .constants.user_sync_statuses import QUEUED
 from .constants.user_sync_statuses import SYNC
+from kolibri.core.api import ReadOnlyValuesViewset
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.content.api import BaseChannelMetadataMixin
+from kolibri.core.content.api import BaseContentNodeMixin
+from kolibri.core.content.api import BaseContentNodeTreeViewset
+from kolibri.core.content.api import metadata_cache
+from kolibri.core.content.api import OptionalContentNodePagination
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import LocalFile
@@ -95,6 +102,26 @@ def _get_channel_list_v1(params, identifier=None):
         channels = channels.exclude(public=False)
 
     return channels.filter(root__available=True).distinct()
+
+
+@method_decorator(metadata_cache, name="dispatch")
+class PublicChannelMetadataViewSet(BaseChannelMetadataMixin, ReadOnlyValuesViewset):
+    def get_queryset(self):
+        return (
+            ChannelMetadata.objects.all()
+            if allow_peer_unlisted_channel_import()
+            else ChannelMetadata.objects.filter(public=True)
+        )
+
+
+@method_decorator(metadata_cache, name="dispatch")
+class PublicContentNodeViewSet(BaseContentNodeMixin, ReadOnlyValuesViewset):
+    pagination_class = OptionalContentNodePagination
+
+
+@method_decorator(metadata_cache, name="dispatch")
+class PublicContentNodeTreeViewSet(BaseContentNodeTreeViewset):
+    pass
 
 
 @api_view(["GET"])

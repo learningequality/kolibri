@@ -26,7 +26,11 @@ from .api import get_public_channel_list
 from .api import get_public_channel_lookup
 from .api import get_public_file_checksums
 from .api import InfoViewSet
+from .api import PublicChannelMetadataViewSet
+from .api import PublicContentNodeTreeViewSet
+from .api import PublicContentNodeViewSet
 from .api import SyncQueueViewSet
+
 
 router = routers.SimpleRouter()
 
@@ -36,9 +40,23 @@ router.register(r"signup", PublicSignUpViewSet, base_name="publicsignup")
 router.register(r"info", InfoViewSet, base_name="info")
 router.register(r"syncqueue", SyncQueueViewSet, base_name="syncqueue")
 
+public_content_v2_router = routers.SimpleRouter()
+public_content_v2_router.register(
+    r"channel", PublicChannelMetadataViewSet, base_name="publicchannel"
+)
+public_content_v2_router.register(
+    r"contentnode", PublicContentNodeViewSet, base_name="publiccontentnode"
+)
+public_content_v2_router.register(
+    r"contentnode_tree",
+    PublicContentNodeTreeViewSet,
+    base_name="publiccontentnode_tree",
+)
+
 # Add public api endpoints
 urlpatterns = [
     url(r"^", include(router.urls)),
+    url(r"v2/", include(public_content_v2_router.urls)),
     url(
         r"(?P<version>[^/]+)/channels/lookup/(?P<identifier>[^/]+)",
         get_public_channel_lookup,
