@@ -84,15 +84,15 @@ class Priority(object):
     Priorities = {HIGH, REGULAR}
 
 
-def execute_job(job_id, db_type, db_url):
+def execute_job(job_id):
     """
     Call the function stored in the job.func.
     :return: Any
     """
-    from kolibri.core.tasks.main import make_connection
     from kolibri.core.tasks.storage import Storage
+    from kolibri.core.tasks.utils import db_connection
 
-    connection = make_connection(db_type, db_url)
+    connection = db_connection()
 
     storage = Storage(connection)
 

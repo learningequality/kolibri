@@ -142,18 +142,9 @@ class Worker(object):
         """
         self.storage.mark_job_as_running(job.job_id)
 
-        db_type_lookup = {
-            "sqlite": "sqlite",
-            "postgresql": "postgres",
-        }
-
-        db_type = db_type_lookup[self.storage.engine.dialect.name]
-
         future = self.workers.submit(
             execute_job,
             job_id=job.job_id,
-            db_type=db_type,
-            db_url=self.storage.engine.url,
         )
 
         # assign the futures to a dict, mapping them to a job
