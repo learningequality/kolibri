@@ -1,3 +1,4 @@
+import pytest
 from django.test import override_settings
 from django.test import TestCase
 from mock import call
@@ -200,6 +201,7 @@ class SQLAlchemyBridgeSetDefaultsTestCase(TestCase):
 
 
 class SQLAlchemyBridgeDefaultDBStringTestCase(TestCase):
+    @pytest.mark.filterwarnings("ignore:Overriding setting DATABASES")
     @override_settings(
         DATABASES={
             "default": {"ENGINE": "django.db.backends.sqlite3", "NAME": "test.sqlite3"}
@@ -208,6 +210,7 @@ class SQLAlchemyBridgeDefaultDBStringTestCase(TestCase):
     def test_sqlite(self):
         self.assertEqual(get_default_db_string(), "sqlite:///test.sqlite3")
 
+    @pytest.mark.filterwarnings("ignore:Overriding setting DATABASES")
     @override_settings(
         DATABASES={
             "default": {
@@ -223,6 +226,7 @@ class SQLAlchemyBridgeDefaultDBStringTestCase(TestCase):
             get_default_db_string(), "postgresql://postgres:password@localhost/test"
         )
 
+    @pytest.mark.filterwarnings("ignore:Overriding setting DATABASES")
     @override_settings(
         DATABASES={
             "default": {
@@ -239,6 +243,7 @@ class SQLAlchemyBridgeDefaultDBStringTestCase(TestCase):
             get_default_db_string(), "postgresql://postgres:password@localhost/test"
         )
 
+    @pytest.mark.filterwarnings("ignore:Overriding setting DATABASES")
     @override_settings(
         DATABASES={
             "default": {
@@ -257,6 +262,7 @@ class SQLAlchemyBridgeDefaultDBStringTestCase(TestCase):
             "postgresql://postgres:password@localhost:1234/test",
         )
 
+    @pytest.mark.filterwarnings("ignore:Overriding setting DATABASES")
     @override_settings(
         DATABASES={
             "default": {
@@ -274,6 +280,7 @@ class SQLAlchemyBridgeDefaultDBStringTestCase(TestCase):
             get_default_db_string(), "mysql://mysql:password@localhost:1234/test"
         )
 
+    @pytest.mark.filterwarnings("ignore:Overriding setting DATABASES")
     @override_settings(
         DATABASES={
             "default": {
