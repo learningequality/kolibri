@@ -140,7 +140,9 @@ class RemoteMixin(object):
     def _hande_proxied_request(self, request):
         full_path = request.get_full_path().split("?")[0]
         remote_path = full_path.replace(
-            "{}api/content/".format(OPTIONS["Deployment"]["URL_PATH_PREFIX"]),
+            "/{}api/content/".format(
+                OPTIONS["Deployment"]["URL_PATH_PREFIX"].lstrip("/")
+            ),
             "/api/public/v2/",
         )
         baseurl = request.GET[self.remote_url_param]
