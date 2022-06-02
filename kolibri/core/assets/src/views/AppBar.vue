@@ -39,7 +39,7 @@
             <slot name="totalPointsMenuItem"></slot>
           </div>
 
-          <span v-if="isUserLoggedIn" class="username" tabindex="-1">{{ dropdownName }}</span>
+          <span v-if="isUserLoggedIn" class="username" tabindex="-1">{{ usernameForDisplay }}</span>
 
         </div>
       </template>
@@ -100,7 +100,7 @@
         userId: state => state.core.session.user_id,
       }),
       // temp hack for the VF plugin
-      dropdownName() {
+      usernameForDisplay() {
         return !hashedValuePattern.test(this.username) ? this.username : this.fullName;
       },
     },

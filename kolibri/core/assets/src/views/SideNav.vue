@@ -304,12 +304,10 @@
     },
     watch: {
       navShown(isShown) {
-        console.log('is shown', isShown);
         this.$nextTick(() => {
           if (isShown) {
             this.isPolling = true;
             this.pollUserSyncStatusTask();
-            console.log(this.isPolling);
             this.focusFirstEl();
           } else {
             this.isPolling = false;
@@ -338,7 +336,6 @@
         this.languageModalShown = true;
       },
       pollUserSyncStatusTask() {
-        console.log('is polling');
         if (this.navShown) {
           this.fetchUserSyncStatus({ user: this.userId }).then(syncData => {
             if (syncData && syncData[0]) {
