@@ -56,7 +56,7 @@ class CollectionSpecificRoleBasedPermissions(RoleBasedPermissions):
         ).user_can_update_object(user, obj.parent)
 
     def readable_by_user_filter(self, user):
-        if user.is_anonymous():
+        if user.is_anonymous:
             return q_none
 
         # By default can read all collections in facility
@@ -212,7 +212,7 @@ class MembersCanReadMembershipsOfTheirCollections(BasePermissions):
         return False
 
     def readable_by_user_filter(self, user):
-        if user.is_anonymous():
+        if user.is_anonymous:
             return q_none
         # Add a special case where users with memberships in the same collection
         # can also read memberships for other members

@@ -1517,7 +1517,7 @@ class ContentNodeProgressViewset(
         return models.ContentNode.objects.filter(available=True)
 
     def generate_response(self, request, queryset):
-        if request.user.is_anonymous():
+        if request.user.is_anonymous:
             return Response([])
         logs = list(
             ContentSummaryLog.objects.filter(

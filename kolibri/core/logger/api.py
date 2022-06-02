@@ -191,7 +191,7 @@ class LogContext(object):
 
 class ProgressTrackingViewSet(viewsets.GenericViewSet):
     def _precache_dataset_id(self, user):
-        if user is None or user.is_anonymous():
+        if user is None or user.is_anonymous:
             return
         key = ContentSessionLog.get_related_dataset_cache_key(
             user.id, user._meta.db_table
@@ -199,7 +199,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
         dataset_cache.set(key, user.dataset_id)
 
     def _check_quiz_permissions(self, user, quiz_id):
-        if user.is_anonymous():
+        if user.is_anonymous:
             raise PermissionDenied("Cannot access a quiz if not logged in")
         if not Exam.objects.filter(
             active=True,
@@ -211,7 +211,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             raise PermissionDenied("User does not have access to this quiz_id")
 
     def _check_lesson_permissions(self, user, lesson_id):
-        if user.is_anonymous():
+        if user.is_anonymous:
             raise PermissionDenied("Cannot access a lesson if not logged in")
         if not Lesson.objects.filter(
             lesson_assignments__collection_id__in=user.memberships.all().values(
@@ -376,7 +376,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
 
         with transaction.atomic(), dataset_cache:
 
-            user = None if request.user.is_anonymous() else request.user
+            user = None if request.user.is_anonymous else request.user
 
             self._precache_dataset_id(user)
 
@@ -572,7 +572,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
     def _update_and_return_mastery_log_id(
         self, user, complete, time_spent_delta, summarylog_id, end_timestamp, context
     ):
-        if not user.is_anonymous() and context["mastery_level"] is not None:
+        if not user.is_anonymous and context["mastery_level"] is not None:
             try:
                 masterylog = MasteryLog.objects.get(
                     user=user,
@@ -662,7 +662,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
     def _update_or_create_attempts(
         self, session_id, masterylog_id, user, interactions, end_timestamp, context
     ):
-        user = None if user.is_anonymous() else user
+        user = None if user.is_anonymous else user
 
         output = []
 
@@ -725,7 +725,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
 
     def _get_session_log(self, session_id, user):
         try:
-            if user.is_anonymous():
+            if user.is_anonymous:
                 return ContentSessionLog.objects.get(id=session_id, user__isnull=True)
             else:
                 return ContentSessionLog.objects.get(id=session_id, user=user)
@@ -757,7 +757,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
     def _update_summary_log(
         self, user, sessionlog, end_timestamp, validated_data, context
     ):
-        if user.is_anonymous():
+        if user.is_anonymous:
             return
         summarylog = ContentSummaryLog.objects.get(
             content_id=sessionlog.content_id, user=user
@@ -872,7 +872,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
 
 class TotalContentProgressViewSet(viewsets.GenericViewSet):
     def retrieve(self, request, pk=None):
-        if request.user.is_anonymous() or pk != request.user.id:
+        if request.user.is_anonymous or pk != request.user.id:
             raise PermissionDenied("Can only access progress data for self")
         progress = (
             request.user.contentsummarylog_set.filter(progress=1)
