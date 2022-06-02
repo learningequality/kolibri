@@ -28,7 +28,7 @@ class override_option(TestContextDecorator):
         self.old_envvars = {}
         for envvar in envvars:
             self.old_envvars[envvar] = os.environ.get(envvar, None)
-            os.environ[envvar] = self.temp_value
+            os.environ[envvar] = str(self.temp_value)
         conf.OPTIONS[self.section][self.key] = self.temp_value
 
     def disable(self):
