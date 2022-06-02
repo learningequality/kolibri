@@ -27,9 +27,10 @@ from .api import get_public_channel_lookup
 from .api import get_public_file_checksums
 from .api import InfoViewSet
 from .api import PublicChannelMetadataViewSet
+from .api import PublicContentNodeTreeViewSet
+from .api import PublicContentNodeViewSet
 from .api import SyncQueueViewSet
-from kolibri.core.content.api import ContentNodeTreeViewset
-from kolibri.core.content.api import ContentNodeViewset
+
 
 router = routers.SimpleRouter()
 
@@ -44,10 +45,12 @@ public_content_v2_router.register(
     r"channel", PublicChannelMetadataViewSet, base_name="publicchannel"
 )
 public_content_v2_router.register(
-    r"contentnode", ContentNodeViewset, base_name="publiccontentnode"
+    r"contentnode", PublicContentNodeViewSet, base_name="publiccontentnode"
 )
 public_content_v2_router.register(
-    r"contentnode_tree", ContentNodeTreeViewset, base_name="publiccontentnode_tree"
+    r"contentnode_tree",
+    PublicContentNodeTreeViewSet,
+    base_name="publiccontentnode_tree",
 )
 
 # Add public api endpoints

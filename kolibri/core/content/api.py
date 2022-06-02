@@ -205,8 +205,7 @@ class ChannelMetadataFilter(FilterSet):
         return queryset.filter(root__available=value)
 
 
-@method_decorator(metadata_cache, name="dispatch")
-class ChannelMetadataViewSet(RemoteViewSet):
+class BaseChannelMetadataMixin(object):
     filter_backends = (DjangoFilterBackend,)
     filter_class = ChannelMetadataFilter
 
@@ -286,6 +285,11 @@ class ChannelMetadataViewSet(RemoteViewSet):
         }
 
         return Response(data)
+
+
+@method_decorator(metadata_cache, name="dispatch")
+class ChannelMetadataViewSet(BaseChannelMetadataMixin, RemoteViewSet):
+    pass
 
 
 class IdFilter(FilterSet):
@@ -976,9 +980,8 @@ class TreeQueryMixin(object):
         )
 
 
-@method_decorator(metadata_cache, name="dispatch")
-class ContentNodeTreeViewset(
-    BaseContentNodeMixin, TreeQueryMixin, BaseValuesViewset, RemoteMixin
+class BaseContentNodeTreeViewset(
+    BaseContentNodeMixin, TreeQueryMixin, BaseValuesViewset
 ):
     def retrieve(self, request, pk=None):
         """
@@ -1003,8 +1006,6 @@ class ContentNodeTreeViewset(
         :param pk: id parent node
         :return: an object representing the parent with a pagination object as "children"
         """
-        if self._should_proxy_request(request):
-            return self._hande_proxied_request(request)
 
         queryset = self.get_tree_queryset(request, pk)
 
@@ -1076,6 +1077,14 @@ class ContentNodeTreeViewset(
                         "params": params,
                     }
         return Response(parent)
+
+
+@method_decorator(metadata_cache, name="dispatch")
+class ContentNodeTreeViewset(BaseContentNodeTreeViewset, RemoteMixin):
+    def retrieve(self, request, *args, **kwargs):
+        if self._should_proxy_request(request):
+            return self._hande_proxied_request(request)
+        return super(ContentNodeTreeViewset, self).retrieve(request, *args, **kwargs)
 
 
 # return the result of and-ing a list of queries
