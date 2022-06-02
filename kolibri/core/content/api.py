@@ -654,7 +654,10 @@ class BaseContentNodeMixin(object):
             if "more" in response_data and "results" in response_data:
                 # This is a paginated object
                 if response_data["more"] is not None:
-                    response_data["more"][self.remote_url_param] = baseurl
+                    if type(response_data["more"].get("params", None)) is dict:
+                        response_data["more"]["params"][self.remote_url_param] = baseurl
+                    else:
+                        response_data["more"][self.remote_url_param] = baseurl
                 response_data["results"] = self.update_data(
                     response_data["results"], baseurl
                 )
@@ -676,7 +679,8 @@ class BaseContentNodeMixin(object):
         if node["thumbnail"]:
             node["thumbnail"] += baseurl_querystring
         for file in node["files"]:
-            file["storage_url"] += baseurl_querystring
+            if file["storage_url"]:
+                file["storage_url"] += baseurl_querystring
         return node
 
 

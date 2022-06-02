@@ -10,6 +10,7 @@ import requests
 from django.conf import settings
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
+from django.test import LiveServerTestCase
 from django.test import TestCase
 from django.utils import timezone
 from le_utils.constants import content_kinds
@@ -25,6 +26,7 @@ from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
+from kolibri.utils.tests.helpers import override_option
 
 DUMMY_PASSWORD = "password"
 
@@ -214,13 +216,11 @@ def infer_learning_activity(kind):
     return []
 
 
-class ContentNodeAPITestCase(APITestCase):
-    """
-    Testcase for content API methods
-    """
+class ContentNodeAPIBase(object):
 
     fixtures = ["content_test.json"]
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
+    baseurl = None
 
     @classmethod
     def setUpTestData(cls):
@@ -231,26 +231,8 @@ class ContentNodeAPITestCase(APITestCase):
         cls.admin.save()
         cls.facility.add_admin(cls.admin)
 
-    def test_prerequisite_for_filter(self):
-        c1_id = content.ContentNode.objects.get(title="c1").id
-        response = self.client.get(
-            reverse("kolibri:core:contentnode-list"), data={"prerequisite_for": c1_id}
-        )
-        self.assertEqual(response.data[0]["title"], "root")
-
-    def test_has_prerequisite_filter(self):
-        root_id = content.ContentNode.objects.get(title="root").id
-        response = self.client.get(
-            reverse("kolibri:core:contentnode-list"), data={"has_prerequisite": root_id}
-        )
-        self.assertEqual(response.data[0]["title"], "c1")
-
-    def test_related_filter(self):
-        c1_id = content.ContentNode.objects.get(title="c1").id
-        response = self.client.get(
-            reverse("kolibri:core:contentnode-list"), data={"related": c1_id}
-        )
-        self.assertEqual(response.data[0]["title"], "c2")
+    def _get(self, *args, **kwargs):
+        return self.client.get(*args, **kwargs)
 
     def map_language(self, lang):
         if lang:
@@ -304,9 +286,13 @@ class ContentNodeAPITestCase(APITestCase):
                 file[field] = getattr(f.local_file, field)
             file["lang"] = self.map_language(f.lang)
             file["storage_url"] = f.get_storage_url()
+            if self.baseurl and file["storage_url"]:
+                file["storage_url"] += "?baseurl={}".format(self.baseurl)
             files.append(file)
             if f.thumbnail:
                 thumbnail = f.get_storage_url()
+                if self.baseurl and thumbnail:
+                    thumbnail += "?baseurl={}".format(self.baseurl)
         self.assertEqual(
             actual,
             {
@@ -369,7 +355,7 @@ class ContentNodeAPITestCase(APITestCase):
         root = content.ContentNode.objects.get(title="root")
         nodes = root.get_descendants(include_self=True).filter(available=True)
         expected_output = len(nodes)
-        response = self.client.get(reverse("kolibri:core:contentnode-list"))
+        response = self._get(reverse("kolibri:core:contentnode-list"))
         self.assertEqual(len(response.data), expected_output)
         self._assert_nodes(response.data, nodes)
 
@@ -386,7 +372,7 @@ class ContentNodeAPITestCase(APITestCase):
         nodes = content.ContentNode.objects.filter(available=True)
         expected_output = len(nodes)
         self.assertGreater(expected_output, 1000)
-        response = self.client.get(reverse("kolibri:core:contentnode-list"))
+        response = self._get(reverse("kolibri:core:contentnode-list"))
         self.assertEqual(len(response.data), expected_output)
         self._assert_nodes(response.data, nodes)
 
@@ -409,6 +395,10 @@ class ContentNodeAPITestCase(APITestCase):
                     self.assertEqual(
                         children["more"]["params"]["depth"], 2 - recursion_depth
                     )
+                    if self.baseurl:
+                        self.assertEqual(
+                            children["more"]["params"]["baseurl"], self.baseurl
+                        )
                 self._recurse_and_assert(
                     children["results"],
                     child_nodes,
@@ -417,7 +407,7 @@ class ContentNodeAPITestCase(APITestCase):
 
     def test_contentnode_tree(self):
         root = content.ContentNode.objects.get(title="root")
-        response = self.client.get(
+        response = self._get(
             reverse("kolibri:core:contentnode_tree-detail", kwargs={"pk": root.id})
         )
         self._recurse_and_assert([response.data], [root])
@@ -432,14 +422,14 @@ class ContentNodeAPITestCase(APITestCase):
         builder.insert_into_default_db()
         content.ContentNode.objects.all().update(available=True)
         root = content.ContentNode.objects.get(id=builder.root_node["id"])
-        response = self.client.get(
+        response = self._get(
             reverse("kolibri:core:contentnode_tree-detail", kwargs={"pk": root.id})
         )
         self._recurse_and_assert([response.data], [root])
 
     def test_contentnode_tree_depth_1(self):
         root = content.ContentNode.objects.get(title="root")
-        response = self.client.get(
+        response = self._get(
             reverse("kolibri:core:contentnode_tree-detail", kwargs={"pk": root.id}),
             data={"depth": 1},
         )
@@ -456,7 +446,7 @@ class ContentNodeAPITestCase(APITestCase):
         content.ContentNode.objects.all().update(available=True)
         root = content.ContentNode.objects.get(id=builder.root_node["id"])
         next__gt = content.ContentNode.objects.filter(parent=root)[11].rght
-        response = self.client.get(
+        response = self._get(
             reverse("kolibri:core:contentnode_tree-detail", kwargs={"pk": root.id}),
             data={"next__gt": next__gt},
         )
@@ -477,12 +467,12 @@ class ContentNodeAPITestCase(APITestCase):
         builder.insert_into_default_db()
         content.ContentNode.objects.all().update(available=True)
         root = content.ContentNode.objects.get(id=builder.root_node["id"])
-        response = self.client.get(
+        response = self._get(
             reverse("kolibri:core:contentnode_tree-detail", kwargs={"pk": root.id})
         )
         first_child = response.data["children"]["results"][0]
         self.assertEqual(first_child["children"]["more"]["params"]["depth"], 1)
-        nested_page_response = self.client.get(
+        nested_page_response = self._get(
             reverse(
                 "kolibri:core:contentnode_tree-detail",
                 kwargs={"pk": first_child["children"]["more"]["id"]},
@@ -491,6 +481,33 @@ class ContentNodeAPITestCase(APITestCase):
         )
         self.assertEqual(len(nested_page_response.data["children"]["results"]), 5)
         self.assertIsNone(nested_page_response.data["children"]["more"])
+
+
+class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
+    """
+    Testcase for content API methods
+    """
+
+    def test_prerequisite_for_filter(self):
+        c1_id = content.ContentNode.objects.get(title="c1").id
+        response = self.client.get(
+            reverse("kolibri:core:contentnode-list"), data={"prerequisite_for": c1_id}
+        )
+        self.assertEqual(response.data[0]["title"], "root")
+
+    def test_has_prerequisite_filter(self):
+        root_id = content.ContentNode.objects.get(title="root").id
+        response = self.client.get(
+            reverse("kolibri:core:contentnode-list"), data={"has_prerequisite": root_id}
+        )
+        self.assertEqual(response.data[0]["title"], "c1")
+
+    def test_related_filter(self):
+        c1_id = content.ContentNode.objects.get(title="c1").id
+        response = self.client.get(
+            reverse("kolibri:core:contentnode-list"), data={"related": c1_id}
+        )
+        self.assertEqual(response.data[0]["title"], "c2")
 
     @mock.patch("kolibri.core.content.api.get_channel_stats_from_studio")
     def test_contentnode_granular_network_import(self, stats_mock):
@@ -1787,3 +1804,22 @@ class KolibriStudioAPITestCase(APITestCase):
 
     def tearDown(self):
         cache.clear()
+
+
+class ProxyContentMetadataTestCase(ContentNodeAPIBase, LiveServerTestCase):
+    @property
+    def baseurl(self):
+        return self.live_server_url
+
+    def _get(self, *args, **kwargs):
+        if "data" not in kwargs:
+            kwargs["data"] = {}
+        kwargs["data"]["baseurl"] = self.baseurl
+        return self.client.get(*args, **kwargs)
+
+
+@override_option("Deployment", "URL_PATH_PREFIX", "test")
+class PrefixedProxyContentMetadataTestCase(ProxyContentMetadataTestCase):
+    @property
+    def baseurl(self):
+        return self.live_server_url + "/test/"
