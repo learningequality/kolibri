@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 import json
 from datetime import timedelta
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.timezone import now
 from le_utils.constants import content_kinds
 from rest_framework.test import APITestCase

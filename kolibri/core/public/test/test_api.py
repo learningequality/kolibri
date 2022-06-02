@@ -5,7 +5,7 @@ from datetime import timedelta
 
 import factory
 import mock
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils import timezone
 from le_utils.constants import content_kinds
 from morango.constants import transfer_statuses

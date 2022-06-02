@@ -3,10 +3,10 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 from django.conf import settings
-from django.core.urlresolvers import get_resolver
-from django.core.urlresolvers import reverse
 from django.template.loader import render_to_string
 from django.templatetags.static import static
+from django.urls import get_resolver
+from django.urls import reverse
 from django.utils.html import mark_safe
 from django.utils.translation import get_language
 from django.utils.translation import get_language_bidi

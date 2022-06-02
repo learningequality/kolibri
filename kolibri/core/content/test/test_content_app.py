@@ -9,9 +9,9 @@ import mock
 import requests
 from django.conf import settings
 from django.core.cache import cache
-from django.core.urlresolvers import reverse
 from django.test import LiveServerTestCase
 from django.test import TestCase
+from django.urls import reverse
 from django.utils import timezone
 from le_utils.constants import content_kinds
 from rest_framework import status

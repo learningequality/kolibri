@@ -1,4 +1,4 @@
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from kolibri.plugins.app.kolibri_plugin import App
 from kolibri.plugins.registry import registered_plugins

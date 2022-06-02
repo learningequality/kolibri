@@ -9,7 +9,7 @@ import tempfile
 import uuid
 
 from django.core.management import call_command
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from rest_framework.test import APITestCase
 
 from ..models import ContentSessionLog

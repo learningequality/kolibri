@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 import uuid
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.timezone import now
 from le_utils.constants import content_kinds
 from rest_framework import status

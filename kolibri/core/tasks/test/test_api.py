@@ -1,4 +1,4 @@
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from mock import call
 from mock import Mock
 from mock import patch

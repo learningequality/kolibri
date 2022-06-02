@@ -5,8 +5,8 @@ from __future__ import unicode_literals
 import uuid
 
 import mock
-from django.core.urlresolvers import reverse
 from django.db.models import Q
+from django.urls import reverse
 from rest_framework.test import APITestCase
 
 import kolibri.plugins.device.api

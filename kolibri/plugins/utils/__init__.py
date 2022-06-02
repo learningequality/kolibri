@@ -8,7 +8,7 @@ from django.apps import apps
 from django.conf import settings as django_settings
 from django.core.exceptions import AppRegistryNotReady
 from django.core.management import call_command
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from pkg_resources import DistributionNotFound
 from pkg_resources import get_distribution
 from pkg_resources import iter_entry_points
