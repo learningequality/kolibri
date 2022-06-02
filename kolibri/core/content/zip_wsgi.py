@@ -107,7 +107,7 @@ def parse_html(content):
                 # toxml uses single quotes by default, replace with ""
                 doctype = doctype_node.toxml().replace("'", '"')
         except Exception as e:
-            logger.warn("Error in HTML5 parsing to determine doctype {}".format(e))
+            logger.warning("Error in HTML5 parsing to determine doctype {}".format(e))
 
         html = html5lib.serialize(
             document,

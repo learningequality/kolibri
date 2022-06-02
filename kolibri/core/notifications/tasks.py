@@ -69,7 +69,7 @@ class AsyncNotificationQueue:
                     except Exception as e:
                         # Catch all exceptions and log, otherwise the background process will end
                         # and no more logs will be saved!
-                        logging.warn(
+                        logging.warning(
                             "Exception raised during background notification calculation: %s",
                             e,
                         )

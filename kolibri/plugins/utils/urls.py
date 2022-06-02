@@ -57,7 +57,7 @@ def get_urls():
                     lambda x: x != plugin_instance.module_path, duplicate_slugs[slug]
                 )
             )
-            logger.warn(
+            logger.warning(
                 "Plugin {} defines a top level URL slug that clashes with other plugins: {}".format(
                     plugin_instance.module_path, other_modules
                 )

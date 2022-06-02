@@ -47,7 +47,7 @@ export function validateChannelTheme(theme) {
   // check contrast and log a warning if it's not WCAG Level AA-compliant
   if (updatedTheme.textColor && updatedTheme.appBarColor) {
     if (!tinycolor.isReadable(updatedTheme.textColor, updatedTheme.appBarColor)) {
-      logger.warn(
+      logger.warning(
         `'textColor' and 'appBarColor' do not provide enough contrast and do not pass WCAG Level AA guidelines`
       );
     }

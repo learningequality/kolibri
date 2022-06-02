@@ -741,7 +741,7 @@ class ChannelImport(object):
                     self.delete_old_channel_tree_data(root_node["tree_id"])
             else:
                 # We have previously loaded this channel, with the same or newer version, so our work here is done
-                logger.warn(
+                logger.warning(
                     (
                         "Version {channel_version} of channel {channel_id} already exists in database; cancelling import of "
                         + "version {new_channel_version}"

@@ -327,7 +327,7 @@ def delete_facility(facility):
             "Deleted {} database records for facility {}".format(count, facility.name)
         )
     else:
-        logger.warn(
+        logger.warning(
             "Deleted {} database records but expected to delete {} records for facility {}".format(
                 count, total_to_delete, facility.name
             )

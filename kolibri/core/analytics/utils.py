@@ -497,19 +497,19 @@ def _ping(started, server, checkrate):
         connection.close()
         return
     except ConnectionError:
-        logger.warn(
+        logger.warning(
             "Ping failed (could not connect). Trying again in {} minutes.".format(
                 checkrate
             )
         )
     except Timeout:
-        logger.warn(
+        logger.warning(
             "Ping failed (connection timed out). Trying again in {} minutes.".format(
                 checkrate
             )
         )
     except RequestException as e:
-        logger.warn(
+        logger.warning(
             "Ping failed ({})! Trying again in {} minutes.".format(e, checkrate)
         )
     connection.close()
