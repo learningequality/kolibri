@@ -21,6 +21,7 @@
           class="updates"
         >
           <NewChannelVersionBanner
+            v-if="newVersionAvailable"
             class="banner"
             :version="availableVersions.source"
             @click="handleClickViewNewVersion"

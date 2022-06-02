@@ -14,6 +14,7 @@
 
       <ChannelContentsSummary :channel="channel">
         <NewChannelVersionBanner
+          v-if="availableVersions.studioLatest > availableVersions.installed"
           class="banner"
           :version="availableVersions.studioLatest"
           @click="handleClickViewNewVersion"
