@@ -16,7 +16,7 @@ function makeWrapper() {
   return { store, wrapper, actions };
 }
 
-describe('SuperuserCredentialsForm', () => {
+describe.skip('SuperuserCredentialsForm', () => {
   it('clicking submit updates vuex with correct data', async () => {
     const { store, wrapper, actions } = makeWrapper();
     wrapper.setData({
