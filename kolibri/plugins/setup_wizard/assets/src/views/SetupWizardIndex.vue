@@ -100,12 +100,13 @@
 
       this.service.onTransition(state => {
         const stateID = Object.keys(state.meta)[0];
-        let newRoute = state.meta[stateID].route;
-
-        if (newRoute != this.$router.currentRoute.name) {
-          if ('path' in state.meta[stateID])
-            this.$router.push({ name: newRoute, path: state.meta[stateID].path });
-          else this.$router.push(newRoute);
+        if (state.meta[stateID] !== undefined) {
+          let newRoute = state.meta[stateID].route;
+          if (newRoute != this.$router.currentRoute.name) {
+            if ('path' in state.meta[stateID])
+              this.$router.push({ name: newRoute, path: state.meta[stateID].path });
+            else this.$router.push(newRoute);
+          }
         }
 
         Lockr.set('savedState', this.service._state);
