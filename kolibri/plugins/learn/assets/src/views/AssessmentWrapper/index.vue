@@ -544,6 +544,7 @@ oriented data synchronization.
 
   .overall-status {
     margin-bottom: 8px;
+    margin-left: 12px;
   }
 
   .overall-status-text {
@@ -557,6 +558,7 @@ oriented data synchronization.
 
   .table {
     display: table;
+    padding-left: 12px;
   }
 
   .row {
