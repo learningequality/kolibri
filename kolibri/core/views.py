@@ -142,7 +142,7 @@ class RootURLRedirectView(View):
         if not is_provisioned() and SetupHook.provision_url:
             return redirect(SetupHook.provision_url())
 
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             url = None
             if request.user.is_superuser:
                 url = url or get_url_by_role(user_kinds.SUPERUSER)
