@@ -677,6 +677,13 @@ base_option_spec = {
                 The number of workers to spin up for high priority asynchronous tasks.
             """,
         },
+        "JOB_STORAGE_FILEPATH": {
+            "type": "path",
+            "default": "job_storage.sqlite3",
+            "description": """
+                The file to use for the job storage database. This is only used in the case that the database backend being used is SQLite.
+            """,
+        },
     },
 }
 
