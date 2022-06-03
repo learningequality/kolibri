@@ -1,6 +1,5 @@
 import { Resource } from 'kolibri.lib.apiResource';
 import urls from 'kolibri.urls';
-import ConditionalPromise from '../conditionalPromise';
 
 export default new Resource({
   name: 'contentnodeprogress',
@@ -12,11 +11,9 @@ export default new Resource({
    * @return {Promise<ContentNode>} Promise that resolves with the model data
    */
   fetchTree({ id, params }) {
-    const promise = new ConditionalPromise();
     const url = urls['kolibri:core:contentnodeprogress_tree'](id);
-    promise._promise = this.client({ url, params }).then(response => {
+    return this.client({ url, params }).then(response => {
       return response.data;
     });
-    return promise;
   },
 });
