@@ -24,5 +24,5 @@ class RegisterFacilityTestCase(TestCase):
         cert = Certificate.objects.first()
         cert.private_key = None
         cert.save()
-        with self.assertRaisesRegexp(CommandError, "not own a certificate"):
+        with self.assertRaisesRegex(CommandError, "not own a certificate"):
             call_command("registerfacility", "token")

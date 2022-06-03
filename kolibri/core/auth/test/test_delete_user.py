@@ -45,10 +45,10 @@ class UserDeleteTestCase(TestCase):
         self.assertFalse(FacilityUser.objects.exists())
 
     def test_user_delete_does_not_exist(self):
-        with self.assertRaisesRegexp(CommandError, "User with username"):
+        with self.assertRaisesRegex(CommandError, "User with username"):
             call_command("deleteuser", "kolibri")
 
     def test_user_delete_multiple_users(self):
-        with self.assertRaisesRegexp(CommandError, "There is more than one user"):
+        with self.assertRaisesRegex(CommandError, "There is more than one user"):
             FacilityUser.objects.create(username="user", facility=self.facility_2)
             call_command("deleteuser", "user")
