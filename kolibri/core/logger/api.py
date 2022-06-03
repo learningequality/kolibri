@@ -907,7 +907,7 @@ class BaseLogFilter(FilterSet):
 
 
 class MasteryFilter(BaseLogFilter):
-    content = UUIDFilter(name="summarylog__content_id")
+    content = UUIDFilter(field_name="summarylog__content_id")
     quiz = BooleanFilter(method="filter_by_quiz")
 
     def filter_by_quiz(self, queryset, name, value):
@@ -1019,7 +1019,7 @@ class MasteryLogViewSet(ReadOnlyValuesViewset):
 
 class AttemptFilter(BaseLogFilter):
     content = CharFilter(method="filter_content")
-    mastery_level = NumberFilter(name="masterylog__mastery_level")
+    mastery_level = NumberFilter(field_name="masterylog__mastery_level")
 
     def filter_content(self, queryset, name, value):
         return queryset.filter(masterylog__summarylog__content_id=value)
