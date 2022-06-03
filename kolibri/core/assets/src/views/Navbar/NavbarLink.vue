@@ -108,11 +108,12 @@
   //     https://github.com/vuejs/rfcs/pull/34
   //  3. Somehow refactor the tab styling to not require nested active classes
   .router-link-active {
-    padding-bottom: 2px;
+    font-weight: bold;
+    // padding-bottom: 2px;
     color: white;
     border-bottom-color: white;
     border-bottom-style: solid;
-    border-bottom-width: 2px;
+    border-bottom-width: 4px;
 
     .dimmable {
       opacity: 1;
@@ -131,9 +132,7 @@
 
   .tab-title {
     display: inline-block;
-    font-weight: bold;
     text-overflow: ellipsis;
-    text-transform: uppercase;
     vertical-align: middle;
   }
 
