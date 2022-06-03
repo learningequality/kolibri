@@ -9,7 +9,7 @@ from .api import DeviceChannelOrderView
 router = routers.SimpleRouter()
 
 router.register(
-    "device_channel", DeviceChannelMetadataViewSet, base_name="device_channel"
+    "device_channel", DeviceChannelMetadataViewSet, basename="device_channel"
 )
 
 urlpatterns = [

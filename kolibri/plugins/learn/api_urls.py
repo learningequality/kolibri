@@ -9,9 +9,9 @@ from .viewsets import LearnStateView
 
 router = routers.SimpleRouter()
 router.register(
-    r"learnerclassroom", LearnerClassroomViewset, base_name="learnerclassroom"
+    r"learnerclassroom", LearnerClassroomViewset, basename="learnerclassroom"
 )
-router.register(r"learnerlesson", LearnerLessonViewset, base_name="learnerlesson")
+router.register(r"learnerlesson", LearnerLessonViewset, basename="learnerlesson")
 
 
 urlpatterns = [

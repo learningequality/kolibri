@@ -14,30 +14,30 @@ from .api import RemoteChannelViewSet
 from .api import UserContentNodeViewset
 
 router = routers.SimpleRouter()
-router.register("channel", ChannelMetadataViewSet, base_name="channel")
+router.register("channel", ChannelMetadataViewSet, basename="channel")
 
-router.register(r"contentnode", ContentNodeViewset, base_name="contentnode")
-router.register(r"usercontentnode", UserContentNodeViewset, base_name="usercontentnode")
+router.register(r"contentnode", ContentNodeViewset, basename="contentnode")
+router.register(r"usercontentnode", UserContentNodeViewset, basename="usercontentnode")
 router.register(
-    r"contentnode_tree", ContentNodeTreeViewset, base_name="contentnode_tree"
+    r"contentnode_tree", ContentNodeTreeViewset, basename="contentnode_tree"
 )
 router.register(
-    r"contentnode_search", ContentNodeSearchViewset, base_name="contentnode_search"
+    r"contentnode_search", ContentNodeSearchViewset, basename="contentnode_search"
 )
 router.register(
     r"contentnode_bookmarks",
     ContentNodeBookmarksViewset,
-    base_name="contentnode_bookmarks",
+    basename="contentnode_bookmarks",
 )
-router.register(r"file", FileViewset, base_name="file")
+router.register(r"file", FileViewset, basename="file")
 router.register(
-    r"contentnodeprogress", ContentNodeProgressViewset, base_name="contentnodeprogress"
+    r"contentnodeprogress", ContentNodeProgressViewset, basename="contentnodeprogress"
 )
 router.register(
     r"contentnode_granular",
     ContentNodeGranularViewset,
-    base_name="contentnode_granular",
+    basename="contentnode_granular",
 )
-router.register(r"remotechannel", RemoteChannelViewSet, base_name="remotechannel")
+router.register(r"remotechannel", RemoteChannelViewSet, basename="remotechannel")
 
 urlpatterns = [url(r"^", include(router.urls))]

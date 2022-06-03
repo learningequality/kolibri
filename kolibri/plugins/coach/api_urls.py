@@ -11,23 +11,23 @@ from .class_summary_api import ClassSummaryViewSet
 
 router = routers.DefaultRouter()
 
-router.register(r"lessonreport", LessonReportViewset, base_name="lessonreport")
-router.register(r"classsummary", ClassSummaryViewSet, base_name="classsummary")
+router.register(r"lessonreport", LessonReportViewset, basename="lessonreport")
+router.register(r"classsummary", ClassSummaryViewSet, basename="classsummary")
 router.register(
-    r"notifications", ClassroomNotificationsViewset, base_name="notifications"
+    r"notifications", ClassroomNotificationsViewset, basename="notifications"
 )
 router.register(
     r"exercisedifficulties",
     ExerciseDifficultQuestionsViewset,
-    base_name="exercisedifficulties",
+    basename="exercisedifficulties",
 )
 router.register(
-    r"quizdifficulties", QuizDifficultQuestionsViewset, base_name="quizdifficulties"
+    r"quizdifficulties", QuizDifficultQuestionsViewset, basename="quizdifficulties"
 )
 router.register(
     r"practicequizdifficulties",
     PracticeQuizDifficultQuestionsViewset,
-    base_name="practicequizdifficulties",
+    basename="practicequizdifficulties",
 )
 
 urlpatterns = [url(r"^", include(router.urls))]

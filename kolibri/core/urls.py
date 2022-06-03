@@ -52,7 +52,7 @@ app_name = "kolibri"
 
 router = routers.SimpleRouter()
 
-router.register(r"plugins", PluginsViewSet, base_name="plugins")
+router.register(r"plugins", PluginsViewSet, basename="plugins")
 
 # Patterns that we want to prefix because they need access to the current language
 lang_prefixed_patterns = [

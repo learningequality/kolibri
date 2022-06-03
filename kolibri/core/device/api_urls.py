@@ -14,10 +14,10 @@ from .api import UserSyncStatusViewSet
 
 router = routers.SimpleRouter()
 router.register(
-    r"devicepermissions", DevicePermissionsViewSet, base_name="devicepermissions"
+    r"devicepermissions", DevicePermissionsViewSet, basename="devicepermissions"
 )
-router.register(r"usersyncstatus", UserSyncStatusViewSet, base_name="usersyncstatus")
-router.register(r"driveinfo", DriveInfoViewSet, base_name="driveinfo")
+router.register(r"usersyncstatus", UserSyncStatusViewSet, basename="usersyncstatus")
+router.register(r"driveinfo", DriveInfoViewSet, basename="driveinfo")
 
 
 urlpatterns = [
