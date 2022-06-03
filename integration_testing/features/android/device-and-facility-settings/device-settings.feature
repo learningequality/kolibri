@@ -66,7 +66,7 @@ Feature: Device settings
 	Scenario: Allow download on metered connection
 		When I select the *Allow download on a metered connection* option
 			And I click the *Save changes* button
-		Then I see a *Settings have been updated* message #next steps to be further discussed
+		Then I see a *Settings have been updated* message
 
 	Scenario: Change the storage location
 		When I click the *Change* link
@@ -121,15 +121,38 @@ Feature: Device settings
 			And I go to *Device > Channels* page
 		Then I see that the *My downloads* option is not available
 
-	Scenario: Enable auto-download
+	Scenario: Enable auto-download - default selection
 		Given the *Enable auto-download* option is not checked
 		When I check the *Enable auto-download* checkbox
 		Then I see both *Allow learners to download resources* and *Set storage limit for auto-download and learners who download resources* options enabled and checked
-		When I go to *Device > Channels* page
-			And I mark a resource for Kolibri to automatically download it #needs further clarification how exactly
-		Then I can see that the resource is auto-downloaded when the resource is available in the network
+		When I go to *My downloads* page
+		Then I can see that any resources which are available in the network are being auto-downloaded
 		When I've specified a storage limit value
 		Then I can see that resources are no longer auto-downloaded once the storage limit is reached
+
+	Scenario: Enable auto-download - learners can download resources
+		Given the *Enable auto-download* option is checked
+			And the *Allow learners to download resources* option is also checked
+			And I am connected to the Internet and a local network
+		When I sign in as a learner
+			And I go to a resource
+		Then I can see an option to download the resource
+		When I select the download option
+			And I go to *My downloads*
+		Then I can see that the resource is downloaded
+
+	Scenario: Enable auto-download - slider state
+		Given the *Enable auto-download* option is checked
+			And the option *Set storage limit for auto-download and learners who download resources* is also checked
+		Then I see that the default storage amount is set to 25MB
+		When the available storage gets less than the default setting
+		Then the max value of the setting is set to equal to the max value as it fluctuates
+		When additional space is freed up
+		Then the slider continues to show the previously visible max value
+			And it is possible to slide it to the currently available max value
+		When the device storage is full
+		Then I see 0MB in red
+			And I see *No available storage remaining* in red
 
 	Scenario: Enabled pages
 		Given all pages are enabled by default

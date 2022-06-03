@@ -57,8 +57,10 @@ Feature: Find new things in your library
 	Scenario: Add resource to My downloads from folder/resource browsing page
 		Given I am at the *Library > Explore channel* modal
 			And I switch off the *Show available resources only* toggle
-		When click the plus icon on a resource card
-		Then #TO DO pending specification
+		When I click the download icon on a resource card
+		Then I see the following snackbar: *Started download Go to downloads*
+		When I go to *My downloads*
+		Then I can see that the resource is downloaded
 
 	Scenario: Add resource to My downloads from the information panel
 		Given I am at the *Library > Explore channel* modal

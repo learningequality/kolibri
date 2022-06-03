@@ -16,9 +16,8 @@ Feature: Change facility after device setup
 			And I see *You are about to move your account and progress data to ‘<facility>’. Your data will still be available to you and will also be accessible to any administrators of this facility. Your user type will change from ‘[non-learner-role] to ‘learner’. You will need an admin to make you a(n) ‘[non-learner-role]’ again. You can also search for an account to merge with in ‘<facility>’. Progress data from both accounts will be combined into one account.*
 			And I see a *Merge accounts* option
 		When I click *Continue*
-		Then I see a *Confirm account* label
-			And I see text that I’m about to join ‘<facility>’ as ‘<username>’
-			And I see text that I can continue using this username or change my account information
+		Then I see a *Confirm account username* label
+			And I see: *Yoa are about to join ‘<facility>’ as ‘<username>’. You can continue using this username or create a new account username for <facility>*
 			And I see a *Create new account* option
 		When I click *Continue*
 		Then I see a *Choose a new admin* label #shown only if the user is the only super admin

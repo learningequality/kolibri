@@ -121,11 +121,11 @@ Feature: Learner explores other libraries
 	Scenario: Learner becomes disconnected while browsing another library because of a stopped server
 		Given I am exploring a library with folders and resources available for download
 			And the owner of the library stopped their server while I am exploring it from the device
-		Then I see a connection error notification #TO DO Where exactly?
+		Then I see a snackbar connection error notification
 			And I see a *Disconnected* status and an icon at top right
 
 	Scenario: Learner becomes disconnected while browsing another library because of a dropped local connection
 		Given I am exploring a library with folders and resources available for download
 			And my local connection drops
-		Then I see a connection error notification #TO DO Where exactly?
+		Then I see a snackbar connection error notification
 			And I see a *Disconnected* status and an icon at top right

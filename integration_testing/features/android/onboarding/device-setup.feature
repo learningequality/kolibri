@@ -134,6 +134,10 @@ Feature: Device setup
 		Then I see the *Select network address* modal
 			And I can select a network address
 		When I click *Continue*
+		Then I am at *Select learning facility* #this page is shown only if there's more than 1 facility on the selected device
+			And I see all of the available facilities
+		When I select a facility
+			And I click *Continue*
 		Then I am at the *Import facility - 1 of 4* page
 			And I see *Import facility*
     	And I see the name of the device from which I am importing
@@ -171,6 +175,10 @@ Feature: Device setup
 		Then I see the *Select network address* modal
 			And I can select a network address
 		When I click *Continue*
+		Then I am at *Select learning facility* #this page is shown only if there's more than 1 facility on the selected device
+			And I see all of the available facilities
+		When I select a facility
+			And I click *Continue*
 		Then I am at the *Import individual user accounts - 1 of 2* page
 			And I see *Import individual user accounts*
 			And I see the name of the device from which I am importing
@@ -199,7 +207,7 @@ Feature: Device setup
 			And I am at the *Select a facility setup for this device* page
 		When I select *Create a new user account for an existing facility*
 			And I click *Continue*
-		Then I am at the  *Select facility* page
+		Then I am at the  *Select facility* page #this page is shown only if there's more than 1 facility on the selected device
 			And I see a list of facilities in my network
 			And I see *Don't see your facility?*
 			And I see *Add new address*
