@@ -1057,6 +1057,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Completion requirement',
     context: 'Denotes whether a specific exercise needs to be completed by the learner.',
   },
+  changeLearningFacility: {
+    message: 'Change learning facility',
+    context: 'Menu or screen used for the user to move to a different learning facility',
+  },
 });
 
 // We forgot a string, so we are using one from the PerseusInternalMessages namespace

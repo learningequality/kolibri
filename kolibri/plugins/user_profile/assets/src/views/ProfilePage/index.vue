@@ -4,20 +4,28 @@
     <AppBarCorePage :title="coreString('profileLabel')">
 
       <KPageContainer>
-
         <KGrid>
-          <KGridItem sizes="100, 75, 75" percentage>
-            <h1>{{ $tr('detailsHeader') }}</h1>
+          <KGridItem
+            :layout8="{ span: 4 }"
+            :layout12="{ span: 6 }"
+          >
+            <h1>{{ coreString('profileLabel') }}</h1>
           </KGridItem>
-          <!-- Users cannot edit their profile if on a SoUD -->
-          <KGridItem v-if="!isSubsetOfUsersDevice" sizes="100, 25, 25" percentage alignment="right">
-            <KRouterLink
-              :text="$tr('editAction')"
-              appearance="raised-button"
-              :primary="true"
-              :to="profileEditRoute"
-            />
+          <KGridItem
+            v-if="!isSubsetOfUsersDevice"
+            :layout8="{ span: 4, alignment: 'right' }"
+            :layout12="{ span: 6, alignment: 'right' }"
+          >
+            <h1>
+              <KRouterLink
+                :text="$tr('editAction')"
+                appearance="raised-button"
+                :primary="true"
+                :to="profileEditRoute"
+              />
+            </h1>
           </KGridItem>
+
         </KGrid>
 
         <table>
@@ -112,10 +120,61 @@
           </tr>
         </table>
 
+        <KGrid
+          v-if="isIndividual"
+          :style="{ marginTop: '34px',
+                    paddingTop: '10px',
+                    borderTop: `1px solid ${$themePalette.grey.v_300}` }"
+        >
+          <KGridItem
+            :layout8="{ span: 4 }"
+            :layout12="{ span: 6 }"
+          >
+            <h2>{{ coreString('changeLearningFacility') }}</h2>
+          </KGridItem>
+          <KGridItem
+            :layout8="{ span: 4, alignment: 'right' }"
+            :layout12="{ span: 6, alignment: 'right' }"
+          >
+            <h2>
+              <KRouterLink
+                :text="$tr('changeAction')"
+                appearance="raised-button"
+                :primary="false"
+                :to="$router.getRoute('SELECT_FACILITY')"
+              />
+            </h2>
+          </KGridItem>
+          <KGridItem>
+            <span>{{ $tr('changeLearningFacilityDescription') }}</span>
+            <span><KButton
+              appearance="basic-link"
+              :text="$tr('learn')"
+              class="learn"
+              @click="showLearnModal = true"
+            /></span>
+          </KGridItem>
+        </KGrid>
+
+
         <ChangeUserPasswordModal
           v-if="showPasswordModal"
           @cancel="showPasswordModal = false"
         />
+
+        <KModal
+          v-if="showLearnModal"
+          :title="coreString('changeLearningFacility')"
+          size="medium"
+          :cancelText="coreString('closeAction')"
+          @cancel="showLearnModal = false"
+        >
+          <p>{{ $tr('learnModalLine1') }}</p>
+          <p>{{ $tr('learnModalLine2') }}</p>
+        </KModal>
+
+
+
       </KPageContainer>
     </AppBarCorePage>
   </NotificationsRoot>
@@ -140,8 +199,9 @@
   import GenderDisplayText from 'kolibri.coreVue.components.GenderDisplayText';
   import BirthYearDisplayText from 'kolibri.coreVue.components.BirthYearDisplayText';
   import { ComponentMap } from '../../constants';
+  import useCurrentUser from '../../composables/useCurrentUser';
+  import useIndividualDevice from '../../composables/useIndividualDevice';
   import ChangeUserPasswordModal from './ChangeUserPasswordModal';
-  import useCurrentUser from './useCurrentUser';
   import plugin_data from 'plugin_data';
 
   export default {
@@ -164,11 +224,15 @@
     mixins: [responsiveWindowMixin, commonCoreStrings],
     setup() {
       const showPasswordModal = ref(false);
+      const showLearnModal = ref(false);
       const { currentUser } = useCurrentUser();
       const { isSubsetOfUsersDevice } = plugin_data;
+      const { isIndividual } = useIndividualDevice();
       return {
         currentUser,
+        isIndividual,
         isSubsetOfUsersDevice,
+        showLearnModal,
         showPasswordModal,
       };
     },
@@ -229,10 +293,18 @@
       },
     },
     $trs: {
-      detailsHeader: {
-        message: 'Details',
+      changeAction: {
+        message: 'Change',
+        context: 'Button which allows the user to change to a different facility.',
+      },
+      changeLearningFacilityDescription: {
+        message: 'Move your account and progress data to another learning facility.',
+        context: 'Explanation of what change a learning facility means',
+      },
+      learn: {
+        message: 'Learn',
         context:
-          'Title for the page which indicates further information about the user such as the number of points they have, or their user type, for example.',
+          'Link to open a modal window explaining what changing to another learning facility represents.',
       },
       editAction: {
         message: 'Edit',
@@ -273,6 +345,18 @@
       documentTitle: {
         message: 'User Profile',
         context: 'Title of the user profile page.',
+      },
+      learnModalLine1: {
+        message:
+          'Learning facility represents the location where you are using Kolibri, such as a school, training center, or a home.',
+        context:
+          'First line of text in the modal explaining what changing to another learning facility means.',
+      },
+      learnModalLine2: {
+        message:
+          'Moving your account to another learning facility means your data will be accessible to other administrators of that facility.',
+        context:
+          'Second line of text in the modal explaining what changing to another learning facility means.',
       },
     },
   };
@@ -328,6 +412,10 @@
 
   .change-password {
     margin-top: 8px;
+  }
+
+  .learn {
+    margin-left: 8px;
   }
 
   .points-cell {
