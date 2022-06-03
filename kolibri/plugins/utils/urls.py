@@ -71,7 +71,7 @@ def get_urls():
             urlpatterns.append(
                 url(
                     "",
-                    include(instance_patterns, namespace=plugin_instance.module_path),
+                    include((instance_patterns, plugin_instance.module_path)),
                 )
             )
 
