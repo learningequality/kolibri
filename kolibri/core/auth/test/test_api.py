@@ -361,7 +361,7 @@ class FacilityAPITestCase(APITestCase):
         )
         self.assertEqual(
             dict(response.data),
-            {**dict(response.data), "name": self.facility1.name},
+            {**dict(response.data), **{"name": self.facility1.name}},
         )
 
     def test_device_admin_can_create_facility(self):
