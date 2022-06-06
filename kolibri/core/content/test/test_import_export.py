@@ -21,6 +21,7 @@ from kolibri.core.content.errors import InsufficientStorageSpaceError
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import LocalFile
+from kolibri.core.content.utils import paths
 from kolibri.core.content.utils.content_types_tools import (
     renderable_contentnodes_q_filter,
 )
@@ -209,7 +210,9 @@ class ImportChannelTestCase(TestCase):
         call_command("importchannel", "network", "197934f144305350b5820c7c4dd8e194")
         is_cancelled_mock.assert_called()
         import_channel_mock.assert_called_with(
-            "197934f144305350b5820c7c4dd8e194", cancel_check=is_cancelled_mock
+            "197934f144305350b5820c7c4dd8e194",
+            cancel_check=is_cancelled_mock,
+            contentfolder=paths.get_content_dir_path(),
         )
 
     @patch(
