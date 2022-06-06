@@ -361,7 +361,10 @@ class FacilityAPITestCase(APITestCase):
         )
         self.assertEqual(
             dict(response.data),
-            {**dict(response.data), **{"name": self.facility1.name}},
+            # Merge smaller dict into larger dict, if the smaller dict is a subset of the larger one, the result should be equal to the larger one
+            # Generalized dict unpacking can be used in Python 3.5+: assertEqual(larger_dict, {**larger_dict, **smaller_dict})
+            # The dict union operator can be used in Python 3.9+: assertEqual(larger_dict, larger_dict | smaller_dict)
+            dict(response.data, **{"name": self.facility1.name}),
         )
 
     def test_device_admin_can_create_facility(self):
@@ -1136,9 +1139,7 @@ class FacilityDatasetAPITestCase(APITestCase):
         for setting in ["formal", "nonformal", "informal"]:
             set_all_false_and_preset(facility, setting)
             response = post_resetsettings()
-            # Merge smaller dict into larger dict, if the smaller dict is a subset of the larger one, the result should be equal to the larger one
-            # The dict union operator can be used in Python +3.9: assertEqual(larger_dict, larger_dict | smaller_dict)
-            self.assertEqual(response.data, {**response.data, **mappings[setting]})
+            self.assertEqual(response.data, dict(response.data, **mappings[setting]))
 
     def test_for_incompatible_settings_together(self):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
