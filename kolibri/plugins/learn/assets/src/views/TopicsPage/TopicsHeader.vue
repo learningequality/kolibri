@@ -8,7 +8,7 @@
       borderBottom: `1px solid ${$themeTokens.fineLine}`
     }"
   >
-    <KGrid>
+    <KGrid gutter="0">
       <KGridItem
         class="breadcrumbs"
         data-test="header-breadcrumbs"
