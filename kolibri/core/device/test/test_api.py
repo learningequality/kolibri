@@ -8,7 +8,7 @@ from datetime import timedelta
 import mock
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils import timezone
 from mock import patch
 from morango.constants import transfer_statuses

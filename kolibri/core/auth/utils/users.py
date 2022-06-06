@@ -1,6 +1,6 @@
 import requests
 from django.core.management.base import CommandError
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from requests.exceptions import ConnectionError
 from requests.exceptions import HTTPError
 from rest_framework.exceptions import AuthenticationFailed

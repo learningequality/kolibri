@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 import mock
 import requests
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 

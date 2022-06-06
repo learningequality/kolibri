@@ -26,7 +26,7 @@ class JobValidator(serializers.Serializer):
         extra_metadata = value.get("extra_metadata", {})
         if extra_metadata is not None and not isinstance(extra_metadata, dict):
             raise TypeError("'extra_metadata' must be a dict.")
-        if "user" in self.context and self.context["user"].is_authenticated():
+        if "user" in self.context and self.context["user"].is_authenticated:
             user = self.context["user"]
             extra_metadata.update(
                 {

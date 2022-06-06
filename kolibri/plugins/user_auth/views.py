@@ -14,6 +14,6 @@ class UserAuthView(TemplateView):
         """
         When authenticated, redirect to the appropriate view
         """
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             return RootURLRedirectView.as_view()(request)
         return super(UserAuthView, self).get(request)

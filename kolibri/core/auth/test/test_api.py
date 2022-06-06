@@ -10,7 +10,7 @@ from importlib import import_module
 
 import factory
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase as BaseTestCase
 
@@ -359,9 +359,12 @@ class FacilityAPITestCase(APITestCase):
             reverse("kolibri:core:facility-detail", kwargs={"pk": self.facility1.pk}),
             format="json",
         )
-        # .assertDictContainsSubset checks that the first argument is a subset of the second argument
-        self.assertDictContainsSubset(
-            {"name": self.facility1.name}, dict(response.data)
+        self.assertEqual(
+            dict(response.data),
+            # Merge smaller dict into larger dict, if the smaller dict is a subset of the larger one, the result should be equal to the larger one
+            # Generalized dict unpacking can be used in Python 3.5+: assertEqual(larger_dict, {**larger_dict, **smaller_dict})
+            # The dict union operator can be used in Python 3.9+: assertEqual(larger_dict, larger_dict | smaller_dict)
+            dict(response.data, **{"name": self.facility1.name}),
         )
 
     def test_device_admin_can_create_facility(self):
@@ -1136,7 +1139,7 @@ class FacilityDatasetAPITestCase(APITestCase):
         for setting in ["formal", "nonformal", "informal"]:
             set_all_false_and_preset(facility, setting)
             response = post_resetsettings()
-            self.assertDictContainsSubset(mappings[setting], response.data)
+            self.assertEqual(response.data, dict(response.data, **mappings[setting]))
 
     def test_for_incompatible_settings_together(self):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)

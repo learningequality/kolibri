@@ -43,7 +43,7 @@ class GetFacilityTestCase(TestCase):
         )
 
     def test_get_facility_with_non_existent_id(self):
-        with self.assertRaisesRegexp(CommandError, "does not exist"):
+        with self.assertRaisesRegex(CommandError, "does not exist"):
             utils.get_facility(facility_id=uuid.uuid4().hex)
 
     def test_get_facility_with_no_id(self):
@@ -51,7 +51,7 @@ class GetFacilityTestCase(TestCase):
 
     def test_get_facility_multiple_facilities_noninteractive(self):
         Facility.objects.create(name="facility2")
-        with self.assertRaisesRegexp(CommandError, "multiple facilities"):
+        with self.assertRaisesRegex(CommandError, "multiple facilities"):
             utils.get_facility(noninteractive=True)
 
     @mock.patch("kolibri.core.auth.management.utils.input", return_value="3")
@@ -64,7 +64,7 @@ class GetFacilityTestCase(TestCase):
 
 class GetFacilityFailureTestCase(TestCase):
     def test_get_facility_no_facilities(self):
-        with self.assertRaisesRegexp(CommandError, "no facilities"):
+        with self.assertRaisesRegex(CommandError, "no facilities"):
             utils.get_facility()
 
 

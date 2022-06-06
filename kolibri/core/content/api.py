@@ -32,8 +32,7 @@ from requests.exceptions import RequestException
 from rest_framework import mixins
 from rest_framework import status
 from rest_framework import viewsets
-from rest_framework.decorators import detail_route
-from rest_framework.decorators import list_route
+from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from six.moves.urllib.parse import urljoin
@@ -258,7 +257,7 @@ class BaseChannelMetadataMixin(object):
             item["last_published"] = item["last_updated"]
         return items
 
-    @list_route(methods=["get"])
+    @action(detail=False)
     def filter_options(self, request, **kwargs):
         channel_id = self.request.query_params.get("id")
 
@@ -732,7 +731,7 @@ class OptionalContentNodePagination(OptionalPagination):
 class ContentNodeViewset(BaseContentNodeMixin, RemoteViewSet):
     pagination_class = OptionalContentNodePagination
 
-    @list_route(methods=["get"])
+    @action(detail=False)
     def random(self, request, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         max_results = int(self.request.query_params.get("max_results", 10))
@@ -740,7 +739,7 @@ class ContentNodeViewset(BaseContentNodeMixin, RemoteViewSet):
         queryset = models.ContentNode.objects.filter(id__in=ids)
         return Response(self.serialize(queryset))
 
-    @list_route(methods=["get"])
+    @action(detail=False)
     def descendants(self, request):
         """
         Returns a slim view all the descendants of a set of content nodes (as designated by the passed in ids).
@@ -771,7 +770,7 @@ class ContentNodeViewset(BaseContentNodeMixin, RemoteViewSet):
             )
         return Response(data)
 
-    @list_route(methods=["get"])
+    @action(detail=False)
     def descendants_assessments(self, request):
         ids = self.request.query_params.get("ids", None)
         if not ids:
@@ -798,7 +797,7 @@ class ContentNodeViewset(BaseContentNodeMixin, RemoteViewSet):
         )
         return Response(data)
 
-    @list_route(methods=["get"])
+    @action(detail=False)
     def node_assessments(self, request):
         ids = self.request.query_params.get("ids", "").split(",")
         data = 0
@@ -816,7 +815,7 @@ class ContentNodeViewset(BaseContentNodeMixin, RemoteViewSet):
             )
         return Response(data)
 
-    @detail_route(methods=["get"])
+    @action(detail=True)
     def copies(self, request, pk=None):
         """
         Returns each nodes that has this content id, along with their ancestors.
@@ -835,7 +834,7 @@ class ContentNodeViewset(BaseContentNodeMixin, RemoteViewSet):
         cache.set(cache_key, copies, 60 * 10)
         return Response(copies)
 
-    @list_route(methods=["get"])
+    @action(detail=False)
     def copies_count(self, request, **kwargs):
         """
         Returns the number of node copies for each content id.
@@ -854,7 +853,7 @@ class ContentNodeViewset(BaseContentNodeMixin, RemoteViewSet):
             counts = 0
         return Response(counts)
 
-    @detail_route(methods=["get"])
+    @action(detail=True)
     def next_content(self, request, **kwargs):
         # retrieve the "next" content node, according to depth-first tree traversal.
         # topicOnly flag set to true will find the next topic node after the parent
@@ -888,7 +887,7 @@ class ContentNodeViewset(BaseContentNodeMixin, RemoteViewSet):
             }
         )
 
-    @detail_route(methods=["get"])
+    @action(detail=True)
     def recommendations_for(self, request, **kwargs):
         """
         Recommend items that are similar to this piece of content.
@@ -1517,7 +1516,7 @@ class ContentNodeProgressViewset(
         return models.ContentNode.objects.filter(available=True)
 
     def generate_response(self, request, queryset):
-        if request.user.is_anonymous():
+        if request.user.is_anonymous:
             return Response([])
         logs = list(
             ContentSummaryLog.objects.filter(
@@ -1536,7 +1535,7 @@ class ContentNodeProgressViewset(
             queryset = page_queryset
         return self.generate_response(request, queryset)
 
-    @detail_route(methods=["get"])
+    @action(detail=True)
     def tree(self, request, pk=None):
         queryset = self.get_tree_queryset(request, pk)
         return self.generate_response(request, queryset)
@@ -1661,7 +1660,7 @@ class RemoteChannelViewSet(viewsets.ViewSet):
             raise Http404
         return Response(channels[0])
 
-    @list_route(methods=["get"])
+    @action(detail=False)
     def kolibri_studio_status(self, request, **kwargs):
         try:
             resp = requests.get(get_info_url())
@@ -1672,7 +1671,7 @@ class RemoteChannelViewSet(viewsets.ViewSet):
         except requests.ConnectionError:
             return Response({"status": "offline"})
 
-    @detail_route(methods=["get"])
+    @action(detail=True)
     def retrieve_list(self, request, pk=None):
         baseurl = request.GET.get("baseurl", None)
         keyword = request.GET.get("keyword", None)

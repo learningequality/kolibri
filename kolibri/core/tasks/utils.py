@@ -202,7 +202,7 @@ def db_connection():
     try:
         check_sqlite_integrity(connection)
     except (exc.DatabaseError, sqlite3.DatabaseError):
-        logger.warn("Job storage database has been corrupted, regenerating")
+        logger.warning("Job storage database has been corrupted, regenerating")
         repair_sqlite_db(connection)
 
     return connection

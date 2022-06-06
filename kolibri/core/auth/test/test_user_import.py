@@ -142,7 +142,7 @@ users = [
 class DeviceNotSetup(TestCase):
     def test_device_not_setup(self):
         csvfile, csvpath = tempfile.mkstemp(suffix="csv")
-        with self.assertRaisesRegexp(CommandError, "No default facility exists"):
+        with self.assertRaisesRegex(CommandError, "No default facility exists"):
             call_command("importusers", csvpath)
         os.close(csvfile)
         os.remove(csvpath)
@@ -175,12 +175,12 @@ class UserImportCommandTestCase(TestCase):
         call_command("importusers", self.csvpath)
 
     def test_setup_headers_no_username(self):
-        with self.assertRaisesRegexp(CommandError, "No usernames specified"):
+        with self.assertRaisesRegex(CommandError, "No usernames specified"):
             self.importFromRows(["class", "facility"])
             call_command("importusers", self.csvpath)
 
     def test_setup_headers_invalid_header(self):
-        with self.assertRaisesRegexp(CommandError, "Mix of valid and invalid header"):
+        with self.assertRaisesRegex(CommandError, "Mix of valid and invalid header"):
             self.importFromRows(["class", "facility", "dogfood"])
             call_command("importusers", self.csvpath)
 

@@ -764,14 +764,14 @@ def restart():
     Restarts the server.
     """
     if not conf.OPTIONS["Deployment"]["RESTART_HOOKS"]:
-        logging.warn("No registered RESTART_HOOKS, restarting is not possible")
+        logging.warning("No registered RESTART_HOOKS, restarting is not possible")
         return False
     result = True
     for hook in conf.OPTIONS["Deployment"]["RESTART_HOOKS"]:
         try:
             result = result and hook()
         except Exception as e:
-            logging.warn("Error running restart hook %s: %s" % (hook, e))
+            logging.warning("Error running restart hook %s: %s" % (hook, e))
             result = False
     return result
 

@@ -3,7 +3,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
 from mock import patch
 from rest_framework.test import APITestCase

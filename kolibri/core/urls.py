@@ -52,7 +52,7 @@ app_name = "kolibri"
 
 router = routers.SimpleRouter()
 
-router.register(r"plugins", PluginsViewSet, base_name="plugins")
+router.register(r"plugins", PluginsViewSet, basename="plugins")
 
 # Patterns that we want to prefix because they need access to the current language
 lang_prefixed_patterns = [
@@ -65,14 +65,17 @@ lang_prefixed_patterns = [
     url(r"^", include(router.urls)),
 ]
 
-core_urlpatterns = [
-    url(r"^api/", include("kolibri.core.api_urls")),
-    url(r"", include(i18n_patterns(lang_prefixed_patterns))),
-    url(r"", include("kolibri.core.content.urls")),
-    url(r"^status/", StatusCheckView.as_view(), name="status_check"),
-]
+core_urlpatterns = (
+    [
+        url(r"^api/", include("kolibri.core.api_urls")),
+        url(r"", include(i18n_patterns(lang_prefixed_patterns))),
+        url(r"", include("kolibri.core.content.urls")),
+        url(r"^status/", StatusCheckView.as_view(), name="status_check"),
+    ],
+    "core",
+)
 
 
-urlpatterns = [url(r"", include(core_urlpatterns, namespace="core"))]
+urlpatterns = [url(r"", include(core_urlpatterns))]
 
 urlpatterns += plugin_urls()

@@ -18,10 +18,18 @@ class Classroom(models.Model):
 
 class Membership(models.Model):
     user = models.ForeignKey(
-        "User", related_name="memberships", blank=False, null=False
+        "User",
+        related_name="memberships",
+        blank=False,
+        null=False,
+        on_delete=models.CASCADE,
     )
     classroom = models.ForeignKey(
-        "Classroom", related_name="memberships", blank=False, null=False
+        "Classroom",
+        related_name="memberships",
+        blank=False,
+        null=False,
+        on_delete=models.CASCADE,
     )
 
 

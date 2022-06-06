@@ -7,7 +7,7 @@ from .api import InitializeAppView
 
 router = routers.DefaultRouter()
 
-router.register(r"appcommands", AppCommandsViewset, base_name="appcommands")
+router.register(r"appcommands", AppCommandsViewset, basename="appcommands")
 
 urlpatterns = [
     url(r"^", include(router.urls)),

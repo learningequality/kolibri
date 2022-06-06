@@ -1,8 +1,8 @@
 from uuid import uuid4
 
 from django.core.management.base import CommandError
-from django.core.urlresolvers import reverse
 from django.test import TestCase
+from django.urls import reverse
 from mock import Mock
 from mock import patch
 from requests.exceptions import ConnectionError

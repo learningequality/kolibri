@@ -56,7 +56,7 @@ def _get_user(request):
                 cache.set(USER_CACHE_KEY, user)
         except KeyError:
             user = get_user(request)
-        if user.is_anonymous():
+        if user.is_anonymous:
             AnonymousUser = get_anonymous_user_model()
             user = AnonymousUser()
         request._cached_user = user

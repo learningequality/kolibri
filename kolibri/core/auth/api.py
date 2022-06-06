@@ -516,7 +516,7 @@ class ClassroomFilter(FilterSet):
         if requesting_user.is_superuser:
             return queryset
 
-        if requesting_user.is_anonymous():
+        if requesting_user.is_anonymous:
             return queryset.none()
 
         # filter queryset by admin role and coach role

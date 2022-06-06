@@ -10,10 +10,10 @@ from .csv_export import exported_logs_info
 
 router = routers.SimpleRouter()
 
-router.register(r"masterylog", MasteryLogViewSet, base_name="masterylog")
-router.register(r"attemptlog", AttemptLogViewSet, base_name="attemptlog")
-router.register(r"userprogress", TotalContentProgressViewSet, base_name="userprogress")
-router.register(r"trackprogress", ProgressTrackingViewSet, base_name="trackprogress")
+router.register(r"masterylog", MasteryLogViewSet, basename="masterylog")
+router.register(r"attemptlog", AttemptLogViewSet, basename="attemptlog")
+router.register(r"userprogress", TotalContentProgressViewSet, basename="userprogress")
+router.register(r"trackprogress", ProgressTrackingViewSet, basename="trackprogress")
 
 router.urls.append(
     url(

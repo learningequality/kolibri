@@ -13,31 +13,31 @@ In the ``api.py`` files, Django REST framework ViewSets are defined which descri
 
 The default DRF use of Serializers for serialization to JSON tends to encourage the adoption of non-performant patterns of code, particularly ones that use DRF Serializer Method Fields, which then do further queries on a per model basis inside the method. This can easily result in the N + 1 query problem, whereby the number of queries required scales with the number of entities requested in the query. To make this and other performance issues less of a concern, we have created a special ValuesViewset class defined at :code:`kolibri/core/api.py`, which relies on queryset annotation and post query processing in order to serialize all the relevant data. In addition, to prevent the inflation of full Django models into memory, all queries are done with a `values` call resulting in lower memory overhead.
 
-Finally, in the ``api_urls.py`` file, the ViewSets are given a name (through the :code:`base_name` keyword argument), which sets a particular URL namespace, which is then registered and exposed when the Django server runs. Sometimes, a more complex URL scheme is used, as in the content core app, where every query is required to be prefixed by a channel id (hence the :code:`<channel_id>` placeholder in that route's regex pattern)
+Finally, in the ``api_urls.py`` file, the ViewSets are given a name (through the :code:`basename` keyword argument), which sets a particular URL namespace, which is then registered and exposed when the Django server runs. Sometimes, a more complex URL scheme is used, as in the content core app, where every query is required to be prefixed by a channel id (hence the :code:`<channel_id>` placeholder in that route's regex pattern)
 
 .. code-block:: python
   :caption: api_urls.py
 
   router = routers.SimpleRouter()
-  router.register("channel", ChannelMetadataViewSet, base_name="channel")
+  router.register("channel", ChannelMetadataViewSet, basename="channel")
 
-  router.register(r"contentnode", ContentNodeViewset, base_name="contentnode")
+  router.register(r"contentnode", ContentNodeViewset, basename="contentnode")
   router.register(
-      r"contentnode_tree", ContentNodeTreeViewset, base_name="contentnode_tree"
+      r"contentnode_tree", ContentNodeTreeViewset, basename="contentnode_tree"
   )
   router.register(
-      r"contentnode_search", ContentNodeSearchViewset, base_name="contentnode_search"
+      r"contentnode_search", ContentNodeSearchViewset, basename="contentnode_search"
   )
-  router.register(r"file", FileViewset, base_name="file")
+  router.register(r"file", FileViewset, basename="file")
   router.register(
-      r"contentnodeprogress", ContentNodeProgressViewset, base_name="contentnodeprogress"
+      r"contentnodeprogress", ContentNodeProgressViewset, basename="contentnodeprogress"
   )
   router.register(
       r"contentnode_granular",
       ContentNodeGranularViewset,
-      base_name="contentnode_granular",
+      basename="contentnode_granular",
   )
-  router.register(r"remotechannel", RemoteChannelViewSet, base_name="remotechannel")
+  router.register(r"remotechannel", RemoteChannelViewSet, basename="remotechannel")
 
   urlpatterns = [url(r"^", include(router.urls))]
 
@@ -65,7 +65,7 @@ In order to access a particular REST API endpoint, a Javascript Resource has to 
   });
 
 
-Here, the :code:`name` property is set to :code:`'channel'` in order to match the :code:`base_name` assigned to the :code:`/channel` endpoint in `api_urls.py`.
+Here, the :code:`name` property is set to :code:`'channel'` in order to match the :code:`basename` assigned to the :code:`/channel` endpoint in `api_urls.py`.
 
 If this resource is part of the core app, it can be added to a global registry of resources inside :code:`kolibri/core/assets/src/api-resources/index.js`. Otherwise, it can be imported as needed, such as in the coach reports module.
 

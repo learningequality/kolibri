@@ -1,10 +1,10 @@
 from django.contrib.auth import logout
-from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import is_valid_path
+from django.urls import reverse
 from django.urls import translate_url
 from django.utils.decorators import method_decorator
 from django.utils.six.moves.urllib.parse import urlsplit
@@ -142,7 +142,7 @@ class RootURLRedirectView(View):
         if not is_provisioned() and SetupHook.provision_url:
             return redirect(SetupHook.provision_url())
 
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             url = None
             if request.user.is_superuser:
                 url = url or get_url_by_role(user_kinds.SUPERUSER)

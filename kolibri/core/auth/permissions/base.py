@@ -168,7 +168,7 @@ class RoleBasedPermissions(BasePermissions):
     def readable_by_user_filter(self, user):
         from kolibri.core.auth.models import Role
 
-        if user.is_anonymous():
+        if user.is_anonymous:
             return q_none
 
         roles = list(

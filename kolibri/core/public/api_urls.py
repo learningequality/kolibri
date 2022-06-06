@@ -34,23 +34,23 @@ from .api import SyncQueueViewSet
 
 router = routers.SimpleRouter()
 
-router.register(r"v1/facility", PublicFacilityViewSet, base_name="publicfacility")
-router.register(r"facilityuser", PublicFacilityUserViewSet, base_name="publicuser")
-router.register(r"signup", PublicSignUpViewSet, base_name="publicsignup")
-router.register(r"info", InfoViewSet, base_name="info")
-router.register(r"syncqueue", SyncQueueViewSet, base_name="syncqueue")
+router.register(r"v1/facility", PublicFacilityViewSet, basename="publicfacility")
+router.register(r"facilityuser", PublicFacilityUserViewSet, basename="publicuser")
+router.register(r"signup", PublicSignUpViewSet, basename="publicsignup")
+router.register(r"info", InfoViewSet, basename="info")
+router.register(r"syncqueue", SyncQueueViewSet, basename="syncqueue")
 
 public_content_v2_router = routers.SimpleRouter()
 public_content_v2_router.register(
-    r"channel", PublicChannelMetadataViewSet, base_name="publicchannel"
+    r"channel", PublicChannelMetadataViewSet, basename="publicchannel"
 )
 public_content_v2_router.register(
-    r"contentnode", PublicContentNodeViewSet, base_name="publiccontentnode"
+    r"contentnode", PublicContentNodeViewSet, basename="publiccontentnode"
 )
 public_content_v2_router.register(
     r"contentnode_tree",
     PublicContentNodeTreeViewSet,
-    base_name="publiccontentnode_tree",
+    basename="publiccontentnode_tree",
 )
 
 # Add public api endpoints

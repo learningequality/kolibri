@@ -35,7 +35,7 @@ if path_prefix == "/":
     path_prefix = ""
 
 url_patterns_prefixed = [
-    url(r"^admin/", include(admin.site.urls)),
+    url(r"^admin/", admin.site.urls),
     url(r"", include(morango_urls)),
     url(r"", include("kolibri.core.urls")),
     url(r"", include(get_root_urls())),

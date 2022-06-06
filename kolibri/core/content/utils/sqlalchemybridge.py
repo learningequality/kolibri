@@ -387,7 +387,7 @@ def _by_uuids(field, ids, validate, include, vendor=None):
     empty_query = "IS NULL" if include else "IS NOT NULL"
     if ids:
         if len(ids) > 10000:
-            logger.warn(
+            logger.warning(
                 """
                 More than 10000 UUIDs passed to filter by uuids method,
                 these should be batched into separate querysets to avoid SQL Query too large errors in SQLite
@@ -421,7 +421,7 @@ def filter_by_checksums(field, checksums):
     empty_query = "IS NULL"
     if checksums:
         if len(checksums) > 10000:
-            logger.warn(
+            logger.warning(
                 """
                 More than 10000 UUIDs passed to filter by checksums method,
                 these should be batched into separate querysets to avoid SQL Query too large errors in SQLite

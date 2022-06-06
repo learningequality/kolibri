@@ -34,12 +34,12 @@ class AuthMiddlewareTestCase(TestCase):
 
     @override_settings(AUTH_ANONYMOUS_USER_MODEL=None)
     def test_custom_anonymous_user_customization_invalid_setting(self):
-        with self.assertRaisesRegexp(ImproperlyConfigured, "not a string"):
+        with self.assertRaisesRegex(ImproperlyConfigured, "not a string"):
             get_anonymous_user_model()
 
     @override_settings(AUTH_ANONYMOUS_USER_MODEL="kolibriauth")
     def test_custom_anonymous_user_customization_only_app_name(self):
-        with self.assertRaisesRegexp(
+        with self.assertRaisesRegex(
             ImproperlyConfigured,
             "AUTH_ANONYMOUS_USER_MODEL must be of the form 'app_label.model_name'",
         ):
@@ -49,14 +49,14 @@ class AuthMiddlewareTestCase(TestCase):
         AUTH_ANONYMOUS_USER_MODEL="not_a_real_app_name.KolibriAnonymousUser"
     )
     def test_custom_anonymous_user_customization_invalid_app_name(self):
-        with self.assertRaisesRegexp(ImproperlyConfigured, "has not been installed"):
+        with self.assertRaisesRegex(ImproperlyConfigured, "has not been installed"):
             get_anonymous_user_model()
 
     @override_settings(
         AUTH_ANONYMOUS_USER_MODEL="kolibriauth.NotTheKolibriAnonymousUser"
     )
     def test_custom_anonymous_user_customization_invalid_model_name(self):
-        with self.assertRaisesRegexp(
+        with self.assertRaisesRegex(
             ImproperlyConfigured, "that does not exist in the app"
         ):
             get_anonymous_user_model()

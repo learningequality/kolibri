@@ -45,7 +45,7 @@ In order to implement these upgrades, a decorator is available in ``kolibri.core
 
   @version_upgrade(old_version="<0.6.4", new_version=">=1.0.0")
   def big_leap_upgrade():
-      logger.warn("You've just upgraded from a very old version to a very new version!")
+      logger.warning("You've just upgraded from a very old version to a very new version!")
 
 If placed into a file named ``upgrade.py`` either in a core app that is part of the ``INSTALLED_APPS``
 Django setting, or is in an activated Kolibri plugin, this upgrade will be picked up and run any time

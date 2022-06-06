@@ -8,12 +8,12 @@ router = routers.SimpleRouter()
 router.register(
     r"pingbacknotification",
     PingbackNotificationViewSet,
-    base_name="pingbacknotification",
+    basename="pingbacknotification",
 )
 router.register(
     r"pingbacknotificationdismissed",
     PingbackNotificationDismissedViewSet,
-    base_name="pingbacknotificationdismissed",
+    basename="pingbacknotificationdismissed",
 )
 
 urlpatterns = router.urls

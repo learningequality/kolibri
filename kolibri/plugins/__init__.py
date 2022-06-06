@@ -39,7 +39,7 @@ class ConfigDict(dict):
                     self.update(json.load(kolibri_conf_file))
                 return
             except ValueError:
-                logger.warn(
+                logger.warning(
                     "Attempted to load plugins.json but encountered a file that could not be decoded as valid JSON."
                 )
         self.save()
@@ -255,7 +255,7 @@ class KolibriPluginBase(with_metaclass(SingletonMeta)):
             try:
                 return import_module(models_module_name)
             except Exception as e:
-                logging.warn(
+                logging.warning(
                     "Tried to import module {module_name} from {plugin} but an error was raised".format(
                         plugin=self.module_path, module_name=module_name
                     )
@@ -284,7 +284,7 @@ class KolibriPluginBase(with_metaclass(SingletonMeta)):
         if self.translated_view_urls:
             module = self._return_module(self.translated_view_urls)
             if module is None:
-                logging.warn(
+                logging.warning(
                     "{plugin} defined {urls} translated view urls but the module was not found".format(
                         plugin=self.module_path, urls=self.translated_view_urls
                     )
@@ -314,7 +314,7 @@ class KolibriPluginBase(with_metaclass(SingletonMeta)):
         if self.untranslated_view_urls:
             module = self._return_module(self.untranslated_view_urls)
             if module is None:
-                logging.warn(
+                logging.warning(
                     "{plugin} defined {urls} untranslated view urls but the module was not found".format(
                         plugin=self.module_path, urls=self.untranslated_view_urls
                     )
@@ -340,7 +340,7 @@ class KolibriPluginBase(with_metaclass(SingletonMeta)):
         if self.root_view_urls:
             module = self._return_module(self.root_view_urls)
             if module is None:
-                logging.warn(
+                logging.warning(
                     "{plugin} defined {urls} root view urls but the module was not found".format(
                         plugin=self.module_path, urls=self.root_view_urls
                     )
@@ -362,7 +362,7 @@ class KolibriPluginBase(with_metaclass(SingletonMeta)):
         if self.django_settings:
             module = self._return_module(self.django_settings)
             if module is None:
-                logging.warn(
+                logging.warning(
                     "{plugin} defined {module} django settings but the module was not found".format(
                         plugin=self.module_path, module=self.django_settings
                     )
@@ -382,7 +382,7 @@ class KolibriPluginBase(with_metaclass(SingletonMeta)):
         if self.kolibri_options:
             module = self._return_module(self.kolibri_options)
             if module is None:
-                logging.warn(
+                logging.warning(
                     "{plugin} defined {module} kolibri options but the module was not found".format(
                         plugin=self.module_path, module=self.kolibri_options
                     )
@@ -400,7 +400,7 @@ class KolibriPluginBase(with_metaclass(SingletonMeta)):
         if self.kolibri_option_defaults:
             module = self._return_module(self.kolibri_option_defaults)
             if module is None:
-                logging.warn(
+                logging.warning(
                     "{plugin} defined {module} kolibri option defaults but the module was not found".format(
                         plugin=self.module_path, module=self.kolibri_option_defaults
                     )
