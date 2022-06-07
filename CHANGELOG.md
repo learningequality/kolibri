@@ -2,6 +2,31 @@
 
 List of the most important changes for each release.
 
+## 0.15.3
+The goal of this release was to make improvements to the accessibility of Kolibri and to content display. Fixes include improvements to the focus outline that appears for keyboard navigation and fixes to notifications used in screen readers, as well as small improvements to content layout.
+
+#### Additions and Fixes: Accessibility
+- Update firefox bookmarks cards focus outline https://github.com/learningequality/kolibri/pull/9409
+- Update side panel focus trapping https://github.com/learningequality/kolibri/pull/9408
+- Adds aria labels to immersive toolbar buttons for back and close https://github.com/learningequality/kolibri/pull/9411
+- Adds aria-live=polite to the global snackbar component https://github.com/learningequality/kolibri/pull/9410
+- Adjust padding for visible focus outline on bottom bar buttons in https://github.com/learningequality/kolibri/pull/9478
+
+#### Additions and Fixes: Content Display
+- Fix pagination issues for facility user page https://github.com/learningequality/kolibri/pull/9422
+- Push PDF pages rendering below full screen bar https://github.com/learningequality/kolibri/pull/9439
+- Fix X-Axis display for perseus graphs https://github.com/learningequality/kolibri/pull/9446
+- Remove shrink ray from TopicsPage content side panel https://github.com/learningequality/kolibri/pull/9449
+- Improve icon size in Cagetgory selection modal https://github.com/learningequality/kolibri/pull/8938
+- Fix pagination user tables https://github.com/learningequality/kolibri/pull/9450
+- Restrict exclude coach for to assigned coaches only https://github.com/learningequality/kolibri/pull/453
+
+#### Changes
+- Ensure all file handlers use utf-8 encoding https://github.com/learningequality/kolibri/pull/9401
+- Upgrade morango to v0.6.13 https://github.com/learningequality/kolibri/pull/9445
+- 0.14 into 0.15 https://github.com/learningequality/kolibri/pull/9447
+- Upgrade KDS to v1.3.1-beta0 https://github.com/learningequality/kolibri/pull/9459
+
 ## 0.15.2
 
 ### Internationalization and localization
