@@ -3,6 +3,8 @@
 List of the most important changes for each release.
 
 ## 0.15.3
+
+### Overview of new features
 The goal of this release was to make improvements to the accessibility of Kolibri and to content display. Fixes include improvements to the focus outline that appears for keyboard navigation and fixes to notifications used in screen readers, as well as small improvements to content layout.
 
 #### Additions and Fixes: Accessibility
@@ -26,6 +28,7 @@ The goal of this release was to make improvements to the accessibility of Kolibr
 - Upgrade morango to v0.6.13 https://github.com/learningequality/kolibri/pull/9445
 - 0.14 into 0.15 https://github.com/learningequality/kolibri/pull/9447
 - Upgrade KDS to v1.3.1-beta0 https://github.com/learningequality/kolibri/pull/9459
+
 
 ## 0.15.2
 
