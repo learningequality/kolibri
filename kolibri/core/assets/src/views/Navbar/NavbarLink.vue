@@ -85,8 +85,8 @@
     display: inline-block;
     min-width: 72px;
     max-width: 264px;
-    padding: 0 18px;
-    padding-bottom: 3px;
+    padding: 0 16px;
+    padding-bottom: 4px;
     margin: 0;
     font-size: 14px;
     text-decoration: none;
@@ -121,7 +121,12 @@
   }
 
   .icon {
-    font-size: 24px;
+    top: 0;
+  }
+
+  svg {
+    width: 14px;
+    height: 14px;
   }
 
   .tab-icon {
@@ -133,7 +138,33 @@
   .tab-title {
     display: inline-block;
     text-overflow: ellipsis;
-    vertical-align: middle;
+  }
+
+  /deep/ .ui-icon {
+    width: 22px !important;
+    height: 22px !important;
+  }
+
+  /deep/ svg {
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  @media (max-width: 600px) {
+    .tab {
+      padding: 0 8px;
+      font-size: 12px;
+    }
+
+    .tab-icon {
+      display: inline-block;
+      padding: 10px 0;
+      margin-right: 0;
+    }
+
+    .router-link-active {
+      border-bottom-width: 2px;
+    }
   }
 
 </style>
