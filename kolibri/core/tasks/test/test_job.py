@@ -53,10 +53,15 @@ class JobTest(TestCase):
             self.job.save_as_cancellable(cancellable=cancellable)
 
 
+class TestingJobValidator(JobValidator):
+    pass
+
+
 class TestRegisteredTask(TestCase):
     def setUp(self):
         self.registered_task = RegisteredTask(
             int,
+            validator=TestingJobValidator,
             priority=Priority.HIGH,
             queue="test",
             permission_classes=[IsSuperAdmin],
@@ -67,7 +72,7 @@ class TestRegisteredTask(TestCase):
 
     def test_constructor_sets_required_params(self):
         self.assertEqual(self.registered_task.func, int)
-        self.assertEqual(self.registered_task.validator, JobValidator)
+        self.assertEqual(self.registered_task.validator, TestingJobValidator)
         self.assertEqual(self.registered_task.priority, Priority.HIGH)
         self.assertTrue(isinstance(self.registered_task.permissions[0], IsSuperAdmin))
         self.assertEqual(self.registered_task.job_id, "test")
@@ -153,3 +158,20 @@ class TestRegisteredTask(TestCase):
             queue=self.registered_task.queue,
             priority=self.registered_task.priority,
         )
+
+    @mock.patch("kolibri.core.tasks.registry.RegisteredTask._ready_job")
+    def test_validate_job_restart(self, _ready_job_mock):
+        mock_user = mock.MagicMock(spec="kolibri.core.auth.models.FacilityUser")
+        mock_job = mock.MagicMock(spec="kolibri.core.tasks.registry.Job")
+
+        _ready_job_mock.return_value = "job"
+
+        with mock.patch.object(
+            TestingJobValidator, "validate_for_restart"
+        ) as mock_validate_for_restart:
+            mock_validate_for_restart.return_value = {"test": True}
+            result = self.registered_task.validate_job_restart(mock_user, mock_job)
+            mock_validate_for_restart.assert_called_once_with(mock_job)
+
+        self.assertEqual(result, "job")
+        _ready_job_mock.assert_called_once_with(test=True)

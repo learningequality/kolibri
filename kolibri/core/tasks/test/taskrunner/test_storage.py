@@ -2,10 +2,8 @@
 import time
 
 import pytest
-from mock import patch
 
 from kolibri.core.tasks.decorators import register_task
-from kolibri.core.tasks.exceptions import JobNotRestartable
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.job import State
@@ -142,27 +140,3 @@ class TestBackend:
         defaultbackend.enqueue_job(simplejob, QUEUE, Priority.HIGH)
 
         assert defaultbackend.get_next_queued_job().job_id == job_id
-
-    def test_restart_job(self, defaultbackend, simplejob):
-        with patch("kolibri.core.tasks.main.job_storage", wraps=defaultbackend):
-            job_id = defaultbackend.enqueue_job(simplejob, QUEUE)
-
-            for state in [
-                State.COMPLETED,
-                State.RUNNING,
-                State.QUEUED,
-                State.SCHEDULED,
-                State.CANCELING,
-            ]:
-                defaultbackend._update_job(job_id, state)
-                with pytest.raises(JobNotRestartable):
-                    defaultbackend.restart_job(job_id)
-
-            for state in [State.CANCELED, State.FAILED]:
-                defaultbackend._update_job(job_id, state)
-
-                restarted_job_id = defaultbackend.restart_job(job_id)
-                restarted_job = defaultbackend.get_job(restarted_job_id)
-
-                assert restarted_job_id == job_id
-                assert restarted_job.state == State.QUEUED
