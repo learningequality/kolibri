@@ -165,6 +165,16 @@
     .router-link-active {
       border-bottom-width: 2px;
     }
+
+    /deep/ .ui-icon {
+      width: 20px !important;
+      height: 20px !important;
+    }
+
+    /deep/ svg {
+      width: 16px !important;
+      height: 16px !important;
+    }
   }
 
 </style>
