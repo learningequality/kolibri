@@ -220,7 +220,7 @@ For a complete reference of the commands that can be run and what they do, inspe
 Production server
 ~~~~~~~~~~~~~~~~~
 
-In production, content is served through CherryPy. Frontend static assets are pre-built:
+In production, content is served through `CherryPy <https://docs.cherrypy.dev/en/latest/>`__. Frontend static assets are pre-built:
 
 .. code-block:: bash
 
