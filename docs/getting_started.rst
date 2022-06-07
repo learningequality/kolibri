@@ -499,7 +499,7 @@ Building a pex file
 ~~~~~~~~~~~~~~~~~~~
 
 .. note::
-  The easiest way to obtain a pex file is to submit a Github PR and download the built assets from buildkite.
+  The easiest way to obtain a `pex <https://pex.readthedocs.io/en/latest/whatispex.html>`__ file is to submit a Github PR and download the built assets from buildkite.
 
 If you want to build and run a pex from the Kolibri code in your current local source files without relying on the github and the buildkite integration, you can run the following commands to build a pex file:
 
