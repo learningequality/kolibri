@@ -4,7 +4,6 @@ import logging
 import traceback
 import uuid
 
-from django.db import connection as django_connection
 from six import string_types
 
 from kolibri.core.tasks.exceptions import UserCancelledError
@@ -82,48 +81,6 @@ class Priority(object):
 
     # A set of all valid priorities
     Priorities = {HIGH, REGULAR}
-
-
-def execute_job(job_id):
-    """
-    Call the function stored in the job.func.
-    :return: Any
-    """
-    from kolibri.core.tasks.storage import Storage
-    from kolibri.core.tasks.utils import db_connection
-
-    connection = db_connection()
-
-    storage = Storage(connection)
-
-    job = storage.get_job(job_id)
-
-    setattr(current_state_tracker, "job", job)
-
-    func = import_stringified_func(job.func)
-
-    args, kwargs = copy.copy(job.args), copy.copy(job.kwargs)
-
-    try:
-        # First check whether the job has been cancelled
-        job.check_for_cancel()
-        result = func(*args, **kwargs)
-        storage.complete_job(job_id, result=result)
-    except UserCancelledError:
-        storage.mark_job_as_canceled(job_id)
-    except Exception as e:
-        # If any error occurs, mark the job as failed and save the exception
-        traceback_str = traceback.format_exc()
-        e.traceback = traceback_str
-        logger.error("Job {} raised an exception: {}".format(job_id, traceback_str))
-        storage.mark_job_as_failed(job_id, e, traceback_str)
-
-    setattr(current_state_tracker, "job", None)
-
-    connection.dispose()
-
-    # Close any django connections opened here
-    django_connection.close()
 
 
 class Job(object):
@@ -246,32 +203,35 @@ class Job(object):
         self.result = result
         self.args = args
         self.kwargs = kwargs or {}
-        self.storage = None
+        self._storage = None
         self.func = stringify_func(func)
 
-    def save_meta(self):
-        if self.storage is None:
+    def _check_storage_attached(self):
+        if self._storage is None:
             raise ReferenceError(
-                "storage is not defined on this job, cannot save metadata"
+                "storage is not defined on this job, cannot update status or execute job"
             )
+
+    @property
+    def storage(self):
+        self._check_storage_attached()
+        return self._storage
+
+    @storage.setter
+    def storage(self, value):
+        self._storage = value
+
+    def save_meta(self):
         self.storage.save_job_meta(self)
 
     def update_progress(self, progress, total_progress):
         if self.track_progress:
-            if self.storage is None:
-                raise ReferenceError(
-                    "storage is not defined on this job, cannot update progress"
-                )
             self.progress = progress
             self.total_progress = total_progress
             self.storage.update_job_progress(self.job_id, progress, total_progress)
 
     def check_for_cancel(self):
         if self.cancellable:
-            if self.storage is None:
-                raise ReferenceError(
-                    "storage is not defined on this job, cannot check for cancellation"
-                )
             if self.storage.check_job_canceled(self.job_id):
                 raise UserCancelledError()
 
@@ -279,12 +239,35 @@ class Job(object):
         # if we're not changing cancellability then ignore
         if self.cancellable == cancellable:
             return
-        if self.storage is None:
-            raise ReferenceError(
-                "storage is not defined on this job, cannot save as cancellable"
-            )
         self.cancellable = cancellable
         self.storage.save_job_as_cancellable(self.job_id, cancellable=cancellable)
+
+    def execute(self):
+        self._check_storage_attached()
+
+        setattr(current_state_tracker, "job", self)
+
+        func = import_stringified_func(self.func)
+
+        args, kwargs = copy.copy(self.args), copy.copy(self.kwargs)
+
+        try:
+            # First check whether the job has been cancelled
+            self.check_for_cancel()
+            result = func(*args, **kwargs)
+            self.storage.complete_job(self.job_id, result=result)
+        except UserCancelledError:
+            self.storage.mark_job_as_canceled(self.job_id)
+        except Exception as e:
+            # If any error occurs, mark the job as failed and save the exception
+            traceback_str = traceback.format_exc()
+            e.traceback = traceback_str
+            logger.error(
+                "Job {} raised an exception: {}".format(self.job_id, traceback_str)
+            )
+            self.storage.mark_job_as_failed(self.job_id, e, traceback_str)
+
+        setattr(current_state_tracker, "job", None)
 
     @property
     def percentage_progress(self):
