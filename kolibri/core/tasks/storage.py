@@ -66,15 +66,24 @@ class ORMJob(Base):
     __table_args__ = (Index("queue__scheduled_time", "queue", "scheduled_time"),)
 
 
+def _validate_hooks(hooks):
+    if hooks is None:
+        return []
+    if not isinstance(hooks, list) or any(not callable(h) for h in hooks):
+        raise RuntimeError("hooks must be a list of callables")
+    return hooks
+
+
 class Storage(object):
-    def __init__(self, connection, Base=Base, schedule_hooks=None):
+    def __init__(self, connection, Base=Base, schedule_hooks=None, update_hooks=None):
         self.engine = connection
         if self.engine.name == "sqlite":
             self.set_sqlite_pragmas()
         self.Base = Base
         self.Base.metadata.create_all(self.engine)
         self.sessionmaker = sessionmaker(bind=self.engine)
-        self.schedule_hooks = schedule_hooks or []
+        self.schedule_hooks = _validate_hooks(schedule_hooks)
+        self.update_hooks = _validate_hooks(update_hooks)
 
     @contextmanager
     def session_scope(self):
@@ -379,6 +388,9 @@ class Storage(object):
                     setattr(job, kwarg, kwargs[kwarg])
                 orm_job.saved_job = job.to_json()
                 session.add(orm_job)
+                for update_hook in self.update_hooks:
+                    update_hook(job_id, state=state, **kwargs)
+
                 return job, orm_job
             except JobNotFound:
                 if state:
@@ -516,14 +528,13 @@ class Storage(object):
                 logger.error("Got an error running session.commit(): {}".format(e))
 
             for schedule_hook in self.schedule_hooks:
-                if callable(schedule_hook):
-                    schedule_hook(
-                        id=job.job_id,
-                        priority=priority,
-                        interval=interval,
-                        repeat=repeat,
-                        scheduled_time=naive_utc_datetime(dt),
-                    )
+                schedule_hook(
+                    id=job.job_id,
+                    priority=priority,
+                    interval=interval,
+                    repeat=repeat,
+                    scheduled_time=naive_utc_datetime(dt),
+                )
 
             return job.job_id
 
