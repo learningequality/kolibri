@@ -5,6 +5,7 @@ from django.test import TestCase
 from django.urls import reverse
 from mock import Mock
 from mock import patch
+from morango.models.core import SyncSession
 from requests.exceptions import ConnectionError
 from rest_framework import serializers
 from rest_framework.exceptions import AuthenticationFailed
@@ -29,6 +30,7 @@ from kolibri.core.discovery.utils.network.errors import ResourceGoneError
 from kolibri.core.public.constants.user_sync_statuses import QUEUED
 from kolibri.core.public.constants.user_sync_statuses import SYNC
 from kolibri.core.tasks.job import Job
+from kolibri.core.tasks.job import State
 
 
 DUMMY_PASSWORD = "password"
@@ -41,6 +43,7 @@ fake_job_defaults = dict(
     traceback="",
     percentage_progress=0,
     cancellable=False,
+    track_progress=True,
     extra_metadata={},
     func="",
 )
@@ -667,6 +670,46 @@ class FacilityTaskHelperTestCase(TestCase):
 
         with self.assertRaises(PermissionDenied):
             PeerFacilitySyncJobValidator(data=data).is_valid(raise_exception=True)
+
+    def test_validate_for_restart__not_restartable(self):
+        job = fake_job(state=State.RUNNING)
+        with self.assertRaises(serializers.ValidationError):
+            PeerFacilitySyncJobValidator(instance=job).data
+
+    def test_validate_for_restart__missing_sync_session(self):
+        job = fake_job(state=State.FAILED, args=("sync",), kwargs={"test": True})
+        new_job_data = PeerFacilitySyncJobValidator(instance=job).data
+        self.assertEqual(new_job_data["args"], ("sync",))
+        self.assertEqual(new_job_data["kwargs"], {"test": True})
+
+    @patch("kolibri.core.auth.tasks.SyncSession.objects.get")
+    def test_validate_for_restart__inactive_sync_session(self, mock_get):
+        job = fake_job(
+            state=State.FAILED,
+            args=("sync",),
+            kwargs={"test": True},
+            extra_metadata={"sync_session_id": "abc123"},
+        )
+        mock_get.side_effect = SyncSession.DoesNotExist
+        new_job_data = PeerFacilitySyncJobValidator(instance=job).data
+        mock_get.assert_called_once_with(pk="abc123", active=True)
+        self.assertEqual(new_job_data["args"], ("sync",))
+        self.assertEqual(new_job_data["kwargs"], {"test": True})
+
+    @patch("kolibri.core.auth.tasks.SyncSession.objects.get")
+    def test_validate_for_restart__resume(self, mock_get):
+        job = fake_job(
+            state=State.FAILED,
+            args=("sync",),
+            kwargs={"test": True},
+            extra_metadata={"sync_session_id": "abc123"},
+        )
+        new_job_data = PeerFacilitySyncJobValidator(instance=job).data
+        mock_get.assert_called_once_with(pk="abc123", active=True)
+        self.assertEqual(new_job_data["args"], ("resumesync",))
+        self.assertEqual(
+            new_job_data["kwargs"], {"test": True, "sync_session_id": "abc123"}
+        )
 
 
 class TestRequestSoUDSync(TestCase):

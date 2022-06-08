@@ -8,7 +8,9 @@ class Command(MorangoSyncCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "--id", type=str, help="ID of an incomplete session to resume sync"
+            "--sync-session-id",
+            type=str,
+            help="ID of an incomplete session to resume sync",
         )
         parser.add_argument(
             "--baseurl", type=str, default=DATA_PORTAL_SYNCING_BASE_URL, dest="baseurl"
@@ -45,7 +47,7 @@ class Command(MorangoSyncCommand):
     def handle_async(self, *args, **options):
         (baseurl, sync_session_id, chunk_size,) = (
             options["baseurl"],
-            options["id"],
+            options["sync_session_id"],
             options["chunk_size"],
         )
 

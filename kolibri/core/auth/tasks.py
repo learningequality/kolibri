@@ -263,6 +263,9 @@ class SyncJobValidator(JobValidator):
         }
 
     def validate_for_restart(self, job):
+        data = super(SyncJobValidator, self).validate_for_restart(job)
+
+        # find the sync_session_id the command added to the job metadata when it ran
         sync_session_id = job.extra_metadata.get("sync_session_id")
         if sync_session_id:
             try:
@@ -270,14 +273,11 @@ class SyncJobValidator(JobValidator):
             except SyncSession.DoesNotExist:
                 sync_session_id = None
 
-        data = super(SyncJobValidator, self).validate_for_restart(job)
-
         # if we didn't get an existing active sync_session_id,
         # we'll fall back to default functionality
         if sync_session_id:
             kwargs = data.get("kwargs")
-            kwargs.pop("facility")
-            kwargs.update(id=sync_session_id)
+            kwargs.update(sync_session_id=sync_session_id)
             data.update(args=("resumesync",), kwargs=kwargs)
 
         return data
