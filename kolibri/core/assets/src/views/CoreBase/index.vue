@@ -101,7 +101,10 @@
       </div>
     </div>
 
-    <GlobalSnackbar />
+
+    <div aria-live="polite">
+      <GlobalSnackbar />
+    </div>
     <UpdateNotification
       v-if="!loading && showNotification && mostRecentNotification"
       :id="mostRecentNotification.id"

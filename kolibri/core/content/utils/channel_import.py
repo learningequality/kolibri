@@ -215,13 +215,16 @@ class ChannelImport(object):
         cancel_check=None,
         source=None,
         destination=None,
+        contentfolder=None,
     ):
         self.channel_id = channel_id
         self.channel_version = channel_version
 
         self.cancel_check = cancel_check
 
-        self.source_db_path = source or get_content_database_file_path(self.channel_id)
+        self.source_db_path = source or get_content_database_file_path(
+            self.channel_id, contentfolder=contentfolder
+        )
 
         self.source = Bridge(sqlite_file_path=self.source_db_path)
 
@@ -1079,10 +1082,11 @@ class InvalidSchemaVersionError(Exception):
 
 
 def initialize_import_manager(
-    channel_id, cancel_check=None, source=None, destination=None
+    channel_id, cancel_check=None, source=None, destination=None, contentfolder=None
 ):
     channel_metadata = read_channel_metadata_from_db_file(
-        source or get_content_database_file_path(channel_id)
+        source
+        or get_content_database_file_path(channel_id, contentfolder=contentfolder)
     )
     # For old versions of content databases, we can only infer the schema version
     min_version = channel_metadata.get(
@@ -1121,11 +1125,14 @@ def initialize_import_manager(
         cancel_check=cancel_check,
         source=source,
         destination=destination,
+        contentfolder=contentfolder,
     )
 
 
-def import_channel_from_local_db(channel_id, cancel_check=None):
-    import_manager = initialize_import_manager(channel_id, cancel_check=cancel_check)
+def import_channel_from_local_db(channel_id, cancel_check=None, contentfolder=None):
+    import_manager = initialize_import_manager(
+        channel_id, cancel_check=cancel_check, contentfolder=contentfolder
+    )
 
     import_ran = import_manager.import_channel_data()
 

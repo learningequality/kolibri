@@ -25,6 +25,7 @@
         <!-- TODO add aria label? -->
         <KIconButton
           v-if="icon === 'close'"
+          :ariaLabel="coreString('closeAction')"
           icon="close"
           :color="$themeTokens.textInverted"
           tabindex="-1"
@@ -32,6 +33,7 @@
         <KIconButton
           v-else
           icon="back"
+          :ariaLabel="coreString('goBackAction')"
           :color="$themeTokens.textInverted"
         />
       </router-link>
@@ -39,6 +41,7 @@
       <span v-else>
         <KIconButton
           v-if="icon === 'close'"
+          :ariaLabel="coreString('closeAction')"
           icon="close"
           :color="$themeTokens.textInverted"
           tabindex="-1"
@@ -47,6 +50,7 @@
         <KIconButton
           v-else
           icon="back"
+          :ariaLabel="coreString('goBackAction')"
           :color="$themeTokens.textInverted"
           @click="$emit('navIconClick')"
         />
@@ -61,6 +65,7 @@
 
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
   import { validateLinkObject } from 'kolibri.utils.validators';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import navComponentsMixin from '../mixins/nav-components';
 
   export default {
@@ -68,7 +73,7 @@
     components: {
       UiToolbar,
     },
-    mixins: [navComponentsMixin],
+    mixins: [commonCoreStrings, navComponentsMixin],
     props: {
       appBarTitle: {
         type: String,

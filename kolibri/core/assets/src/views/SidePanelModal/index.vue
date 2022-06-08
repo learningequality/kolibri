@@ -227,6 +227,13 @@
       focusLastEl() {
         this.$el.querySelector('.close-button').focus();
       },
+      /**
+       * @public
+       * Reset the next focus to the first focus element
+       */
+      focusFirstEl() {
+        this.$el.querySelector('.close-button').focus();
+      },
     },
     $trs: {
       /* eslint-disable kolibri/vue-no-unused-translations */
