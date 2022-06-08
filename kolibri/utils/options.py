@@ -767,6 +767,8 @@ def get_configspec():
         lines.append("[{section}]".format(section=section))
         for name, attrs in opts.items():
             default = attrs.get("default", "")
+            if isinstance(default, list) and not default:
+                raise RuntimeError("For an empty list don't specify a default")
             the_type = attrs["type"]
             args = ["%r" % op for op in attrs.get("options", [])] + [
                 "default=list('{default_list}')".format(
