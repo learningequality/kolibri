@@ -15,6 +15,7 @@ def register_task(
     cancellable=False,
     track_progress=False,
     permission_classes=None,
+    long_running=False,
 ):
     """
     Registers the decorated function as task.
@@ -32,6 +33,7 @@ def register_task(
             cancellable=cancellable,
             track_progress=track_progress,
             permission_classes=permission_classes,
+            long_running=long_running,
         )
 
     return RegisteredTask(
@@ -43,4 +45,5 @@ def register_task(
         cancellable=cancellable,
         track_progress=track_progress,
         permission_classes=permission_classes,
+        long_running=long_running,
     )
