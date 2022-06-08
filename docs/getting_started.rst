@@ -154,7 +154,7 @@ Note that the ``--upgrade`` flags above can usually be omitted to speed up the p
 Install Node.js, Yarn and other dependencies
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#. Install Node.js (version 16.x is required)
+#. Install `Node.js <https://nodejs.org/en/download/>`__ (version 16.x is required)
 #. Install `Yarn <https://yarnpkg.com/>`__
 #. Install non-python project-specific dependencies
 
@@ -220,7 +220,7 @@ For a complete reference of the commands that can be run and what they do, inspe
 Production server
 ~~~~~~~~~~~~~~~~~
 
-In production, content is served through CherryPy. Frontend static assets are pre-built:
+In production, content is served through `CherryPy <https://docs.cherrypy.dev/en/latest/>`__. Frontend static assets are pre-built:
 
 .. code-block:: bash
 
@@ -499,7 +499,7 @@ Building a pex file
 ~~~~~~~~~~~~~~~~~~~
 
 .. note::
-  The easiest way to obtain a pex file is to submit a Github PR and download the built assets from buildkite.
+  The easiest way to obtain a `pex <https://pex.readthedocs.io/en/latest/whatispex.html>`__ file is to submit a Github PR and download the built assets from buildkite.
 
 If you want to build and run a pex from the Kolibri code in your current local source files without relying on the github and the buildkite integration, you can run the following commands to build a pex file:
 
