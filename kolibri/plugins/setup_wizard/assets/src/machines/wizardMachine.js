@@ -13,27 +13,31 @@ const isAppContext = context => {
 };
 
 const isNewFacility = context => {
-  return context.facilityNewOrImport === 'new';
+  return context.facilityNewOrImport === 'NEW';
 };
 
 const isImportFacility = context => {
-  return context.facilityNewOrImport === 'import';
+  return context.facilityNewOrImport === 'IMPORT';
 };
 
 const isLodSetup = context => {
-  return context.setupType === 'lod';
+  return context.fullOrLOD === 'LOD';
 };
 
 const isFullSetup = context => {
-  return context.setupType === 'full';
+  return context.fullOrLOD === 'FULL';
 };
 
 const setIndividualOrGroup = assign({
   individualOrGroup: (_, event) => event.value,
 });
 
-const setSetupType = assign({
-  setupType: (_, event) => event.value,
+const setDeviceName = assign({
+  deviceName: (_, event) => event.value,
+});
+
+const setFullOrLOD = assign({
+  fullOrLOD: (_, event) => event.value,
 });
 
 const setAppContext = assign({
@@ -44,6 +48,22 @@ const setFacilityNewOrImport = assign({
   facilityNewOrImport: (_, event) => event.value,
 });
 
+const setFormalOrInformal = assign({
+  formalOrNonformal: (_, event) => event.value,
+});
+
+const setGuestAccess = assign({
+  guestAccess: (_, event) => event.value,
+});
+
+const setCreateLearnerAccount = assign({
+  createLearnerAccount: (_, event) => event.value,
+});
+
+const setRequirePassword = assign({
+  requirePassword: (_, event) => event.value,
+});
+
 export const wizardMachine = createMachine({
   id: 'wizard',
   initial: 'initializeContext',
@@ -51,7 +71,12 @@ export const wizardMachine = createMachine({
     individualOrGroup: null,
     isAppContext: false, // Must be set in the component where the machine is used
     facilityNewOrImport: null,
-    setupType: null,
+    fullOrLOD: null,
+    deviceName: null,
+    formalOrNonformal: null,
+    guestAccess: null,
+    createLearnerAccount: null,
+    requirePassword: null,
   },
   states: {
     // This state will be the start so the machine won't progress until the isAppContext is set
@@ -115,19 +140,19 @@ export const wizardMachine = createMachine({
     deviceName: {
       meta: { route: { name: 'DEVICE_NAME', path: 'device-name' } },
       on: {
-        CONTINUE: { target: 'fullOrLearnOnlyDevice', actions: setIndividualOrGroup },
+        CONTINUE: { target: 'fullOrLearnOnlyDevice', actions: setDeviceName },
         BACK: 'howAreYouUsingKolibri',
       },
     },
     fullOrLearnOnlyDevice: {
-      meta: { route: 'FULL_OR_LOD', path: 'facility-new-or-import' },
+      meta: { route: { name: 'FULL_OR_LOD', path: 'full-or-lod' } },
       on: {
-        CONTINUE: { target: 'fullOrLodSetup', actions: setSetupType },
+        CONTINUE: { target: 'fullOrLodSetup', actions: setFullOrLOD },
         BACK: 'deviceName',
       },
     },
 
-    // A passthrough step depending on the value of context.setupType
+    // A passthrough step depending on the value of context.fullOrLOD
     // that either continues along with full device setup, or into the Lod setup
     fullOrLodSetup: {
       always: [
@@ -158,7 +183,7 @@ export const wizardMachine = createMachine({
       always: [
         {
           cond: isNewFacility,
-          target: 'createFacility',
+          target: 'setFacilityPermissions',
         },
         {
           cond: isImportFacility,
@@ -166,13 +191,44 @@ export const wizardMachine = createMachine({
         },
       ],
     },
-    createFacility: {
-      meta: { route: { name: 'CREATE_FACILITY/1' } },
-      CONTINUE: 'quickOrAdvanced',
+
+    // Facility Creation Path
+    setFacilityPermissions: {
+      meta: { route: { name: 'FACILITY_PERMISSIONS' } },
       on: {
+        CONTINUE: { target: 'guestAccess', actions: setFormalOrInformal },
         BACK: 'fullDeviceNewOrImportFacility',
       },
     },
+    guestAccess: {
+      meta: { route: { name: 'GUEST_ACCESS' } },
+      on: {
+        CONTINUE: { target: 'createLearnerAccount', actions: setGuestAccess },
+        BACK: 'setFacilityPermissions',
+      },
+    },
+    createLearnerAccount: {
+      meta: { route: { name: 'CREATE_LEARNER_ACCOUNT' } },
+      on: {
+        CONTINUE: { target: 'requirePassword', action: setCreateLearnerAccount },
+        BACK: 'guestAccess',
+      },
+    },
+    requirePassword: {
+      meta: { route: { name: 'REQUIRE_PASSWORD' } },
+      on: {
+        CONTINUE: { target: 'personalDataConsent', action: setRequirePassword },
+        BACK: 'createLearnerAccount',
+      },
+    },
+    personalDataConsent: {
+      meta: { route: { name: 'PERSONAL_DATA_CONSENT' } },
+      on: {
+        CONTINUE: 'finalizeSetup',
+        BACK: 'requirePassword',
+      },
+    },
+
     importFacility: {
       meta: { route: { name: 'IMPORT_FACILITY' } },
       on: {
