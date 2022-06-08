@@ -67,13 +67,14 @@ class ORMJob(Base):
 
 
 class Storage(object):
-    def __init__(self, connection, Base=Base):
+    def __init__(self, connection, Base=Base, schedule_hooks=None):
         self.engine = connection
         if self.engine.name == "sqlite":
             self.set_sqlite_pragmas()
         self.Base = Base
         self.Base.metadata.create_all(self.engine)
         self.sessionmaker = sessionmaker(bind=self.engine)
+        self.schedule_hooks = schedule_hooks or []
 
     @contextmanager
     def session_scope(self):
@@ -513,6 +514,16 @@ class Storage(object):
                 session.commit()
             except Exception as e:
                 logger.error("Got an error running session.commit(): {}".format(e))
+
+            for schedule_hook in self.schedule_hooks:
+                if callable(schedule_hook):
+                    schedule_hook(
+                        id=job.job_id,
+                        priority=priority,
+                        interval=interval,
+                        repeat=repeat,
+                        scheduled_time=naive_utc_datetime(dt),
+                    )
 
             return job.job_id
 

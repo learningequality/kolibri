@@ -15,7 +15,9 @@ connection = SimpleLazyObject(db_connection)
 
 
 def __job_storage():
-    return Storage(connection=connection)
+    return Storage(
+        connection=connection, schedule_hooks=conf.OPTIONS["Tasks"]["SCHEDULE_HOOKS"]
+    )
 
 
 # This storage instance should be used to access job_storage db.
