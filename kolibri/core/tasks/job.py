@@ -113,6 +113,7 @@ class Job(object):
             "kwargs",
             "func",
             "result",
+            "long_running",
         ]
 
         working_dictionary = {
@@ -147,6 +148,7 @@ class Job(object):
         kwargs["kwargs"] = copy.copy(job.kwargs)
         kwargs["track_progress"] = job.track_progress
         kwargs["cancellable"] = job.cancellable
+        kwargs["long_running"] = job.long_running
         kwargs["extra_metadata"] = job.extra_metadata.copy()
         kwargs["facility_id"] = job.facility_id
         return cls(job.func, **kwargs)
@@ -167,6 +169,7 @@ class Job(object):
         progress=0,
         total_progress=0,
         result=None,
+        long_running=False,
     ):
         """
         Create a new Job that will run func given the arguments passed to Job(). If the track_progress keyword parameter
@@ -197,6 +200,7 @@ class Job(object):
         self.traceback = traceback
         self.track_progress = track_progress
         self.cancellable = cancellable
+        self.long_running = long_running
         self.extra_metadata = extra_metadata or {}
         self.progress = progress
         self.total_progress = total_progress

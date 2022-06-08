@@ -318,6 +318,7 @@ class RegisteredTask(object):
             job_id=job_kwargs.pop("job_id", self.job_id),
             cancellable=job_kwargs.pop("cancellable", self.cancellable),
             track_progress=job_kwargs.pop("track_progress", self.track_progress),
+            long_running=job_kwargs.pop("long_running", self.long_running),
             **job_kwargs
         )
         return job_obj

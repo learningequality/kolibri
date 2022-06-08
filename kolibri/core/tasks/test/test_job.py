@@ -63,6 +63,7 @@ class TestRegisteredTask(TestCase):
             job_id="test",
             cancellable=True,
             track_progress=True,
+            long_running=True,
         )
 
     def test_constructor_sets_required_params(self):
@@ -74,6 +75,7 @@ class TestRegisteredTask(TestCase):
         self.assertEqual(self.registered_task.queue, "test")
         self.assertEqual(self.registered_task.cancellable, True)
         self.assertEqual(self.registered_task.track_progress, True)
+        self.assertEqual(self.registered_task.long_running, True)
 
     @mock.patch("kolibri.core.tasks.registry.Job", spec=True)
     def test__ready_job(self, MockJob):
@@ -85,6 +87,7 @@ class TestRegisteredTask(TestCase):
             job_id="test",
             cancellable=True,
             track_progress=True,
+            long_running=True,
             kwargs=dict(base=10),  # kwarg that was passed to _ready_job()
         )
 
