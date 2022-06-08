@@ -108,8 +108,8 @@ def test_conditional_backup():
 
     # set the version to the current version + 1
     version = truncate_version(kolibri.__version__)
-    higher_version = [str(int(x) + 1 for x in version.split("."))]
-    higher_version = "".join(higher_version)
+    higher_version = [str(int(x) + 1) for x in version.split(".")]
+    higher_version = ".".join(higher_version)
     # calling function for conditional backup
     main.conditional_backup("0.11.1", higher_version)
 
