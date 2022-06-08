@@ -1,9 +1,6 @@
 <template>
 
-  <div>
-    <h1 class="title">
-      {{ $tr('learningEnvironmentHeader') }}
-    </h1>
+  <OnboardingStepBase :title="$tr('learningEnvironmentHeader')" @continue="handleContinue">
     <KRadioButton
       ref="first-button"
       v-model="selected"
@@ -29,7 +26,8 @@
       ref="facility-name"
       class="textbox"
     />
-  </div>
+
+  </OnboardingStepBase>
 
 </template>
 
@@ -37,12 +35,14 @@
 <script>
 
   import { Presets } from '../../constants';
+  import OnboardingStepBase from '../OnboardingStepBase';
   import FacilityNameTextbox from './FacilityNameTextbox';
 
   export default {
     name: 'FacilityPermissionsForm',
     components: {
       FacilityNameTextbox,
+      OnboardingStepBase,
     },
     data() {
       return {
@@ -53,7 +53,11 @@
     mounted() {
       this.focusOnTextbox();
     },
+    inject: ['wizardService'],
     methods: {
+      handleContinue() {
+        this.wizardService.send({ type: 'CONTINUE', value: this.selected });
+      },
       focusOnTextbox() {
         return this.$refs['facility-name'].focus();
       },

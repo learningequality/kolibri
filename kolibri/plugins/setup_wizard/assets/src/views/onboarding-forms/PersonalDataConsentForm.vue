@@ -1,13 +1,10 @@
 <template>
 
-  <div>
-    <h1 class="title">
-      {{ $tr('header') }}
-    </h1>
-    <p class="description">
-      {{ $tr('description') }}
-    </p>
-
+  <OnboardingStepBase
+    :title="$tr('header')"
+    :description="$tr('description')"
+    @continue="handleContinue"
+  >
     <KButton
       ref="modalButton"
       :text="coreString('usageAndPrivacyLabel')"
@@ -21,7 +18,7 @@
       @cancel="closeModal"
       @submit="closeModal"
     />
-  </div>
+  </OnboardingStepBase>
 
 </template>
 
@@ -30,11 +27,13 @@
 
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import OnboardingStepBase from '../OnboardingStepBase';
 
   export default {
     name: 'PersonalDataConsentForm',
     components: {
       PrivacyInfoModal,
+      OnboardingStepBase,
     },
     mixins: [commonCoreStrings],
     data() {
@@ -45,7 +44,11 @@
     mounted() {
       this.focusOnModalButton();
     },
+    inject: ['wizardService'],
     methods: {
+      handleContinue() {
+        this.wizardService.send({ type: 'CONTINUE', value: this.setting });
+      },
       closeModal() {
         this.focusOnModalButton();
         this.showModal = false;

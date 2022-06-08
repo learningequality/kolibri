@@ -1,42 +1,52 @@
 <template>
 
-  <div>
-    <h1 class="title">
-      {{ $tr('header') }}
-    </h1>
-    <p class="form">
-      {{ $tr('description') }}
-    </p>
+  <OnboardingStepBase
+    :title="$tr('header')"
+    :description="$tr('description')"
+    @continue="handleContinue"
+  >
+
     <KRadioButton
       ref="yesRadio"
       v-model="setting"
-      class="form"
       :label="$tr('yesOptionLabel')"
       :value="true"
     />
     <KRadioButton
       ref="noRadio"
       v-model="setting"
-      class="form"
       :label="$tr('noOptionLabel')"
       :value="false"
     />
-    <p>
+    <p class="form">
       {{ $tr('changeLater') }}
     </p>
-  </div>
+
+
+  </OnboardingStepBase>
 
 </template>
 
 
 <script>
 
+  import OnboardingStepBase from '../OnboardingStepBase';
+
   export default {
     name: 'GuestAccessForm',
+    components: {
+      OnboardingStepBase,
+    },
     data() {
       return {
         setting: false,
       };
+    },
+    inject: ['wizardService'],
+    methods: {
+      handleContinue() {
+        this.wizardService.send({ type: 'CONTINUE', value: this.setting });
+      },
     },
     $trs: {
       yesOptionLabel: {
@@ -76,10 +86,6 @@
 
   .form {
     font-size: 0.875em;
-  }
-
-  .title {
-    font-size: 1.5em;
   }
 
 </style>

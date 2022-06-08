@@ -1,9 +1,9 @@
 <template>
 
-  <div class="form">
-    <h1 class="title">
-      {{ $tr('header') }}
-    </h1>
+  <OnboardingStepBase
+    :title="$tr('header')"
+    @continue="handleContinue"
+  >
     <KRadioButton
       ref="yesRadio"
       v-model="setting"
@@ -21,19 +21,30 @@
     <p class="description">
       {{ $tr('changeLater') }}
     </p>
-  </div>
+  </OnboardingStepBase>
 
 </template>
 
 
 <script>
 
+  import OnboardingStepBase from '../OnboardingStepBase';
+
   export default {
     name: 'RequirePasswordForLearnersForm',
+    components: {
+      OnboardingStepBase,
+    },
     data() {
       return {
         setting: '',
       };
+    },
+    inject: ['wizardService'],
+    methods: {
+      handleContinue() {
+        this.wizardService.send({ type: 'CONTINUE', value: this.setting });
+      },
     },
     $trs: {
       header: {
