@@ -8109,7 +8109,6 @@ kolibri-constants@0.1.41:
     aphrodite "https://github.com/learningequality/aphrodite/"
     autosize "^3.0.21"
     css-element-queries "^1.2.0"
-    frame-throttle "^3.0.0"
     fuzzysearch "^1.0.3"
     keen-ui "^1.3.0"
     lodash "^4.17.15"
