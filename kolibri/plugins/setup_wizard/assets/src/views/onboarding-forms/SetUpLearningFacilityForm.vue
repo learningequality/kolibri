@@ -3,18 +3,18 @@
   <OnboardingStepBase
     :title="$tr('setUpFacilityTitle')"
     :description="$tr('setUpFacilityDescription')"
-    @submit="handleSubmit"
+    @continue="handleContinue"
   >
     <KRadioButton
       v-model="selected"
       :label="$tr('createFacilityLabel')"
-      value="CREATE"
+      :value="Options.NEW"
       class="radio-button"
     />
     <KRadioButton
       v-model="selected"
       :label="$tr('importFacilityLabel')"
-      value="IMPORT"
+      :value="Options.IMPORT"
       class="radio-button"
     />
   </OnboardingStepBase>
@@ -26,16 +26,28 @@
 
   import OnboardingStepBase from '../OnboardingStepBase';
 
+  const Options = Object.freeze({
+    IMPORT: 'IMPORT',
+    NEW: 'NEW',
+  });
+
   export default {
     name: 'SetUpLearningFacilityForm',
     components: {
       OnboardingStepBase,
     },
-
+    inject: ['wizardService'],
     data() {
       return {
-        selected: '',
+        Options,
+        selected: Options.NEW,
       };
+    },
+    methods: {
+      handleContinue() {
+        console.log('handle continue:', this.selected);
+        this.wizardService.send({ type: 'CONTINUE', value: this.selected });
+      },
     },
     $trs: {
       setUpFacilityTitle: {

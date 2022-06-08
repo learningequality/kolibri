@@ -3,7 +3,7 @@
   <OnboardingStepBase
     :title="$tr('deviceNameTitle')"
     :description="$tr('deviceNameDescription')"
-    @submit="handleSubmit"
+    @continue="handleContinue"
   >
     <KTextbox
       ref="textbox"
@@ -50,14 +50,17 @@
       },
     },
     methods: {
-      handleSubmit() {
+      handleContinue() {
         this.shouldValidate = true;
         if (this.invalidText) {
           this.$refs.textbox.focus();
         } else {
           this.$store.commit('SET_DEVICE_NAME', this.value);
-          this.wizardService.send('CONTINUE');
+          this.goToNextStep();
         }
+      },
+      goToNextStep() {
+        this.wizardService.send({ type: 'CONTINUE', value: this.value });
       },
     },
     $trs: {
