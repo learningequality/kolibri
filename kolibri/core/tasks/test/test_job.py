@@ -114,7 +114,13 @@ class TestRegisteredTask(TestCase):
 
         _ready_job_mock.assert_called_once_with(args=args, kwargs=kwargs)
         mock_job_storage.enqueue_in.assert_called_once_with(
-            delta, "job", queue="test", interval=10, priority=5, repeat=10
+            delta,
+            "job",
+            queue="test",
+            interval=10,
+            priority=5,
+            repeat=10,
+            retry_interval=None,
         )
 
     @mock.patch("kolibri.core.tasks.registry.RegisteredTask._ready_job")
@@ -137,7 +143,13 @@ class TestRegisteredTask(TestCase):
 
         _ready_job_mock.assert_called_once_with(args=args, kwargs=kwargs)
         mock_job_storage.enqueue_at.assert_called_once_with(
-            now, "job", queue="test", interval=10, priority=5, repeat=10
+            now,
+            "job",
+            queue="test",
+            interval=10,
+            priority=5,
+            repeat=10,
+            retry_interval=None,
         )
 
     @mock.patch("kolibri.core.tasks.registry.RegisteredTask._ready_job")
@@ -155,4 +167,5 @@ class TestRegisteredTask(TestCase):
             "job",
             queue=self.registered_task.queue,
             priority=self.registered_task.priority,
+            retry_interval=None,
         )

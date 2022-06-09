@@ -259,7 +259,7 @@ class RegisteredTask(object):
 
         return job
 
-    def enqueue(self, job=None, **job_kwargs):
+    def enqueue(self, job=None, retry_interval=None, **job_kwargs):
         """
         Enqueue the function with arguments passed to this method.
 
@@ -269,9 +269,18 @@ class RegisteredTask(object):
             job or self._ready_job(**job_kwargs),
             queue=self.queue,
             priority=self.priority,
+            retry_interval=retry_interval,
         )
 
-    def enqueue_in(self, delta_time, interval=0, repeat=0, job=None, **job_kwargs):
+    def enqueue_in(
+        self,
+        delta_time,
+        interval=0,
+        repeat=0,
+        retry_interval=None,
+        job=None,
+        **job_kwargs
+    ):
         """
         Schedule the function to get enqueued in `delta_time` with args and
         kwargs as its positional and keyword arguments.
@@ -288,9 +297,18 @@ class RegisteredTask(object):
             priority=self.priority,
             interval=interval,
             repeat=repeat,
+            retry_interval=retry_interval,
         )
 
-    def enqueue_at(self, datetime, interval=0, repeat=0, job=None, **job_kwargs):
+    def enqueue_at(
+        self,
+        datetime,
+        interval=0,
+        repeat=0,
+        retry_interval=None,
+        job=None,
+        **job_kwargs
+    ):
         """
         Schedule the function to get enqueued at a specific `datetime` with
         args and kwargs as its positional and keyword arguments.
@@ -307,6 +325,7 @@ class RegisteredTask(object):
             priority=self.priority,
             interval=interval,
             repeat=repeat,
+            retry_interval=retry_interval,
         )
 
     def _ready_job(self, **job_kwargs):

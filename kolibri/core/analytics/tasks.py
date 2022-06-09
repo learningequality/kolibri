@@ -1,4 +1,3 @@
-import datetime
 import logging
 
 from django.db import connection
@@ -10,7 +9,6 @@ from kolibri.core.analytics.utils import DEFAULT_SERVER_URL
 from kolibri.core.analytics.utils import ping_once
 from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.main import job_storage
-from kolibri.core.tasks.utils import get_current_job
 from kolibri.utils import conf
 from kolibri.utils.time_utils import local_now
 
@@ -26,30 +24,27 @@ DEFAULT_PING_INTERVAL = 24 * 60
 def _ping(started, server, checkrate):
     try:
         ping_once(started, server=server)
-        connection.close()
-        return
     except ConnectionError:
         logger.warning(
             "Ping failed (could not connect). Trying again in {} minutes.".format(
                 checkrate
             )
         )
+        raise
     except Timeout:
         logger.warning(
             "Ping failed (connection timed out). Trying again in {} minutes.".format(
                 checkrate
             )
         )
+        raise
     except RequestException as e:
         logger.warning(
             "Ping failed ({})! Trying again in {} minutes.".format(e, checkrate)
         )
-    connection.close()
-    job = get_current_job()
-    if job and job in job_storage:
-        job_storage.change_execution_time(
-            job, local_now() + datetime.timedelta(seconds=checkrate * 60)
-        )
+        raise
+    finally:
+        connection.close()
 
 
 def schedule_ping(
@@ -65,6 +60,7 @@ def schedule_ping(
         _ping.enqueue_at(
             now,
             interval=interval * 60,
+            retry_interval=checkrate * 60,
             repeat=None,
             kwargs=dict(started=started, server=server, checkrate=checkrate),
         )
