@@ -430,6 +430,11 @@
     overflow-y: hidden;
   }
 
+  .pdf-container {
+    position: relative;
+    top: $controls-height;
+  }
+
   .controls {
     position: relative;
     z-index: 0; // Hide icons with transition

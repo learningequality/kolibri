@@ -216,6 +216,9 @@ class FacilityUserFilter(FilterSet):
     exclude_member_of = ModelChoiceFilter(
         method="filter_exclude_member_of", queryset=Collection.objects.all()
     )
+    exclude_coach_for = ModelChoiceFilter(
+        method="filter_exclude_coach_for", queryset=Collection.objects.all()
+    )
     exclude_user_type = ChoiceFilter(
         choices=USER_TYPE_CHOICES,
         method="filter_exclude_user_type",
@@ -233,6 +236,11 @@ class FacilityUserFilter(FilterSet):
 
     def filter_exclude_member_of(self, queryset, name, value):
         return queryset.exclude(Q(memberships__collection=value) | Q(facility=value))
+
+    def filter_exclude_coach_for(self, queryset, name, value):
+        return queryset.exclude(
+            Q(roles__in=Role.objects.filter(kind=role_kinds.COACH, collection=value))
+        )
 
     def filter_exclude_user_type(self, queryset, name, value):
         if value == "learner":
@@ -299,6 +307,8 @@ class FacilityUserViewSet(ValuesViewset):
         DjangoFilterBackend,
         filters.SearchFilter,
     )
+    order_by_field = "username"
+
     queryset = FacilityUser.objects.all()
     serializer_class = FacilityUserSerializer
     filter_class = FacilityUserFilter
@@ -339,6 +349,7 @@ class FacilityUserViewSet(ValuesViewset):
                     roles.append(role)
             item["roles"] = roles
             output.append(item)
+        output = sorted(output, key=lambda x: x[self.order_by_field])
         return output
 
     def perform_update(self, serializer):

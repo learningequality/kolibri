@@ -68,9 +68,11 @@
     <!-- Side Panel for content metadata -->
     <SidePanelModal
       v-if="sidePanelContent"
+      ref="resourcePanel"
       alignment="right"
       closeButtonIconType="close"
       @closePanel="sidePanelContent = null"
+      @shouldFocusFirstEl="findFirstEl()"
     >
       <template #header>
         <!-- Flex styles tested in ie11 and look good. Ensures good spacing between
@@ -100,10 +102,12 @@
     <!-- Side Panel for "view resources" or "lesson resources" -->
     <SidePanelModal
       v-if="showViewResourcesSidePanel"
+      ref="resourcePanel"
       class="also-in-this-side-panel"
       alignment="right"
       closeButtonIconType="close"
       @closePanel="showViewResourcesSidePanel = false"
+      @shouldFocusFirstEl="findFirstEl()"
     >
       <template #header>
         <h2 style="margin: 0;">
@@ -424,6 +428,13 @@
       },
       toggleResourceList() {
         this.showViewResourcesSidePanel = true;
+      },
+      findFirstEl() {
+        if (this.$refs.embeddedPanel) {
+          this.$refs.embeddedPanel.focusFirstEl();
+        } else {
+          this.$refs.resourcePanel.focusFirstEl();
+        }
       },
     },
     $trs: {

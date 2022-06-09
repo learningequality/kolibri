@@ -25,11 +25,12 @@
       </KGrid>
 
       <PaginatedListContainerWithBackend
+        v-model="currentPage"
         :items="facilityUsers"
-        :filterPlaceholder="$tr('searchText')"
+        :itemsPerPage="itemsPerPage"
         :totalPageNumber="totalPages"
         :roleFilter="roleFilter"
-        :totalUsers="usersCount"
+        :numFilteredItems="usersCount"
       >
         <template #otherFilter>
           <KSelect
@@ -41,11 +42,15 @@
           />
         </template>
 
-        <template #default="{ items, filterInput }">
+        <template #filter>
+          <FilterTextbox v-model="search" :placeholder="$tr('searchText')" />
+        </template>
+
+        <template>
           <UserTable
             class="move-down user-roster"
-            :users="items"
-            :emptyMessage="emptyMessageForItems(items, filterInput)"
+            :users="facilityUsers"
+            :emptyMessage="emptyMessageForItems(facilityUsers, search)"
             :showDemographicInfo="true"
           >
             <template #action="userRow">
@@ -85,8 +90,11 @@
 <script>
 
   import { mapState, mapGetters } from 'vuex';
+  import debounce from 'lodash/debounce';
+  import pickBy from 'lodash/pickBy';
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
   import cloneDeep from 'lodash/cloneDeep';
   import PaginatedListContainerWithBackend from '../PaginatedListContainerWithBackend';
   import UserTable from '../UserTable';
@@ -106,6 +114,7 @@
     },
     components: {
       FacilityAppBarPage,
+      FilterTextbox,
       ResetUserPasswordModal,
       DeleteUserModal,
       UserTable,
@@ -114,7 +123,6 @@
     mixins: [commonCoreStrings],
     data() {
       return {
-        roleFilter: null,
         selectedUser: null,
         modalShown: null,
       };
@@ -132,9 +140,67 @@
           { label: this.$tr('superAdmins'), value: UserKinds.SUPERUSER },
         ];
       },
+      roleFilter: {
+        get() {
+          return (
+            this.userKinds.find(k => k.value === this.$route.query.user_type) || this.userKinds[0]
+          );
+        },
+        set(value) {
+          value = value.value;
+          if (value === ALL_FILTER) {
+            value = null;
+          }
+          this.$router.push({
+            ...this.$route,
+            query: pickBy({
+              ...this.$route.query,
+              user_type: value,
+              page: null,
+            }),
+          });
+        },
+      },
+      search: {
+        get() {
+          return this.$route.query.search || '';
+        },
+        set(value) {
+          this.debouncedSearchTerm(value);
+        },
+      },
+      currentPage: {
+        get() {
+          return Number(this.$route.query.page || 1);
+        },
+        set(value) {
+          this.$router.push({
+            ...this.$route,
+            query: pickBy({
+              ...this.$route.query,
+              page: value,
+            }),
+          });
+        },
+      },
+      itemsPerPage: {
+        get() {
+          return this.$route.query.page_size || 30;
+        },
+        set(value) {
+          this.$router.push({
+            ...this.$route,
+            query: pickBy({
+              ...this.$route.query,
+              page_size: value,
+              page: null,
+            }),
+          });
+        },
+      },
     },
-    beforeMount() {
-      this.roleFilter = this.userKinds[0];
+    created() {
+      this.debouncedSearchTerm = debounce(this.emitSearchTerm, 500);
     },
     methods: {
       emptyMessageForItems(items, filterText) {
@@ -186,6 +252,19 @@
         // If logged-in user is a superuser, then they can edit anybody (including other SUs).
         // Otherwise, only non-SUs can be edited.
         return this.isSuperuser || !user.is_superuser;
+      },
+      emitSearchTerm(value) {
+        if (value === '') {
+          value = null;
+        }
+        this.$router.push({
+          ...this.$route,
+          query: pickBy({
+            ...this.$route.query,
+            search: value,
+            page: null,
+          }),
+        });
       },
     },
     $trs: {

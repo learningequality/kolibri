@@ -181,7 +181,7 @@
 
 <style lang="scss" scoped>
 
-  $gutters: 16px;
+  $gutters: 32px;
 
   .card-grid-item {
     margin-bottom: $gutters;

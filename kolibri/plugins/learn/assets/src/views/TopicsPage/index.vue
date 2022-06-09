@@ -537,6 +537,7 @@
       },
       metadataSidePanelContent() {
         if (this.metadataSidePanelContent) {
+          // Ensure the content underneath isn't scrolled - unset this when destroyed
           document.documentElement.style.position = 'fixed';
           return;
         }
@@ -545,6 +546,9 @@
     },
     beforeDestroy() {
       window.removeEventListener('scroll', this.throttledHandleScroll);
+      // Unsetting possible change in metadataSidePanelContent watcher
+      // to avoid leaving `fixed` position
+      document.documentElement.style.position = '';
     },
     created() {
       this.translator = crossComponentTranslator(LibraryPage);

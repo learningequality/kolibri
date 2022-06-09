@@ -159,6 +159,12 @@ class Command(AsyncCommand):
             dest="timeout",
             help="Specify network timeout in seconds (default: %(default)d)",
         )
+        network_subparser.add_argument(
+            "--content_dir",
+            type=str,
+            default=paths.get_content_dir_path(),
+            help="Download the content to the given content dir.",
+        )
 
         disk_subparser = subparsers.add_parser(
             name="disk", cmd=self, help="Copy the content from the given folder."
@@ -166,6 +172,12 @@ class Command(AsyncCommand):
         disk_subparser.add_argument("channel_id", type=str)
         disk_subparser.add_argument("directory", type=str)
         disk_subparser.add_argument("--drive_id", type=str, dest="drive_id", default="")
+        disk_subparser.add_argument(
+            "--content_dir",
+            type=str,
+            default=paths.get_content_dir_path(),
+            help="Copy the content to the given content dir.",
+        )
 
     def download_content(
         self,
@@ -178,6 +190,7 @@ class Command(AsyncCommand):
         import_updates=False,
         fail_on_error=False,
         timeout=transfer.Transfer.DEFAULT_TIMEOUT,
+        content_dir=None,
     ):
         self._transfer(
             DOWNLOAD_METHOD,
@@ -190,6 +203,7 @@ class Command(AsyncCommand):
             import_updates=import_updates,
             fail_on_error=fail_on_error,
             timeout=timeout,
+            content_dir=content_dir,
         )
 
     def copy_content(
@@ -202,6 +216,7 @@ class Command(AsyncCommand):
         renderable_only=True,
         import_updates=False,
         fail_on_error=False,
+        content_dir=None,
     ):
         self._transfer(
             COPY_METHOD,
@@ -213,6 +228,7 @@ class Command(AsyncCommand):
             renderable_only=renderable_only,
             import_updates=import_updates,
             fail_on_error=fail_on_error,
+            content_dir=content_dir,
         )
 
     def _transfer(  # noqa: max-complexity=16
@@ -229,6 +245,7 @@ class Command(AsyncCommand):
         import_updates=False,
         fail_on_error=False,
         timeout=transfer.Transfer.DEFAULT_TIMEOUT,
+        content_dir=None,
     ):
         try:
             if not import_updates:
@@ -274,8 +291,11 @@ class Command(AsyncCommand):
                 )
             raise
 
+        if not content_dir:
+            content_dir = conf.OPTIONS["Paths"]["CONTENT_DIR"]
+
         if not paths.using_remote_storage():
-            free_space = get_free_space(conf.OPTIONS["Paths"]["CONTENT_DIR"])
+            free_space = get_free_space(content_dir)
 
             if free_space <= total_bytes_to_transfer:
                 raise InsufficientStorageSpaceError(
@@ -377,7 +397,9 @@ class Command(AsyncCommand):
                             f = files_to_download.pop()
                             filename = get_content_file_name(f)
                             try:
-                                dest = paths.get_content_storage_file_path(filename)
+                                dest = paths.get_content_storage_file_path(
+                                    filename, contentfolder=content_dir
+                                )
                             except InvalidStorageFilenameError:
                                 # If the destination file name is malformed, just stop now.
                                 overall_progress_update(f["file_size"])
@@ -438,9 +460,7 @@ class Command(AsyncCommand):
                                 file_checksums_to_annotate.append(f["id"])
                                 transferred_file_size += f["file_size"]
                             remaining_bytes_to_transfer -= f["file_size"]
-                            remaining_free_space = get_free_space(
-                                conf.OPTIONS["Paths"]["CONTENT_DIR"]
-                            )
+                            remaining_free_space = get_free_space(content_dir)
                             if remaining_free_space <= remaining_bytes_to_transfer:
                                 raise InsufficientStorageSpaceError(
                                     "Kolibri ran out of storage space while importing content"
@@ -566,6 +586,7 @@ class Command(AsyncCommand):
                 import_updates=options["import_updates"],
                 fail_on_error=options["fail_on_error"],
                 timeout=options["timeout"],
+                content_dir=options["content_dir"],
             )
         elif options["command"] == "disk":
             self.copy_content(
@@ -577,6 +598,7 @@ class Command(AsyncCommand):
                 renderable_only=options["renderable_only"],
                 import_updates=options["import_updates"],
                 fail_on_error=options["fail_on_error"],
+                content_dir=options["content_dir"],
             )
         else:
             self._parser.print_help()

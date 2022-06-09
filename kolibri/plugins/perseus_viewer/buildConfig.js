@@ -20,6 +20,7 @@ module.exports = {
         // 'window.icu': 'KAGlobals/icu',
         Exercises: 'KAGlobals/Exercises',
         Khan: 'KAGlobals/Khan',
+        KhanUtil: 'KAGlobals/KhanUtil',
         i18n: 'KAGlobals/i18n',
         $_: 'KAGlobals/$_',
       }),

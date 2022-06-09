@@ -12,6 +12,7 @@ from mock import patch
 
 import kolibri
 from kolibri.utils import main
+from kolibri.utils.version import truncate_version
 
 # from django.conf import settings
 
@@ -116,13 +117,19 @@ def test_conditional_backup():
     dbbackup("0.13.4")
     dbbackup("0.13.5")
 
+    # set the version to the current version + 1
+    version = truncate_version(kolibri.__version__)
+    higher_version = [str(int(x) + 1) for x in version.split(".")]
+    higher_version = ".".join(higher_version)
     # calling function for conditional backup
-    main.conditional_backup("0.11.1", "0.15.3")
+    main.conditional_backup("0.11.1", higher_version)
 
     backups_after = get_backup_files()
     # checking if delete is working properly in the conditional_backup
     assert len(backups_after) == 2
-    assert "db-v0.15.3" in backups_after[0]
+    # ensure the db reference is also referring to a higher number
+    higher_db_version = "db-v" + higher_version
+    assert higher_db_version in backups_after[0]
 
 
 @pytest.mark.django_db
