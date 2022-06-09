@@ -16,7 +16,6 @@ from sqlalchemy.orm import sessionmaker
 
 from kolibri.core.tasks.constants import DEFAULT_QUEUE
 from kolibri.core.tasks.exceptions import JobNotFound
-from kolibri.core.tasks.exceptions import JobNotRestartable
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.job import State
@@ -240,33 +239,6 @@ class Storage(object):
         with self.session_scope() as session:
             job, _ = self._get_job_and_orm_job(job_id, session)
             return job
-
-    def restart_job(self, job_id):
-        """
-        First deletes the job with id = job_id then enqueues a new job with the same
-        job_id as the one we deleted, with same args and kwargs.
-
-        Returns the job_id of enqueued job.
-
-        Raises `JobNotRestartable` exception if the job with id = job_id state is
-        not in CANCELED or FAILED.
-        """
-        with self.session_scope() as session:
-            job_to_restart, orm_job = self._get_job_and_orm_job(job_id, session)
-            queue = orm_job.queue
-            priority = orm_job.priority
-
-        if job_to_restart.state in [State.CANCELED, State.FAILED]:
-            self.clear(job_id=job_to_restart.job_id, force=False)
-            job = Job.from_job(
-                job_to_restart,
-                job_id=job_to_restart.job_id,
-            )
-            return self.enqueue_job(job, queue=queue, priority=priority)
-        else:
-            raise JobNotRestartable(
-                "Cannot restart job with state={}".format(job_to_restart.state)
-            )
 
     def check_job_canceled(self, job_id):
         job = self.get_job(job_id)

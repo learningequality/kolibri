@@ -418,6 +418,13 @@ class MorangoSyncCommand(AsyncCommand):
         dataset_cache.clear()
         dataset_cache.activate()
 
+        # add the sync session ID to the job (task) if it exists for retrying it
+        if self.job:
+            self.job.extra_metadata.update(
+                sync_session_id=sync_session_client.sync_session.id
+            )
+            self.job.save_meta()
+
         if not noninteractive:
             # output session ID for CLI user
             logger.info("Session ID: {}".format(sync_session_client.sync_session.id))
@@ -435,7 +442,7 @@ class MorangoSyncCommand(AsyncCommand):
                     noninteractive,
                     pull_filter,
                 )
-                # and push our own data to server
+            # and push our own data to server
             if not no_push:
                 self._push(
                     sync_session_client,

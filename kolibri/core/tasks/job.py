@@ -182,18 +182,6 @@ class Job(object):
 
         return Job(func, **working_dictionary)
 
-    @classmethod
-    def from_job(cls, job, **kwargs):
-        if not isinstance(job, cls):
-            raise TypeError("job must be an instance of {}".format(cls))
-        kwargs["args"] = copy.copy(job.args)
-        kwargs["kwargs"] = copy.copy(job.kwargs)
-        kwargs["track_progress"] = job.track_progress
-        kwargs["cancellable"] = job.cancellable
-        kwargs["extra_metadata"] = job.extra_metadata.copy()
-        kwargs["facility_id"] = job.facility_id
-        return cls(job.func, **kwargs)
-
     def __init__(
         self,
         func,

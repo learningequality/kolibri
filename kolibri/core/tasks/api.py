@@ -9,7 +9,6 @@ from rest_framework.response import Response
 from six import string_types
 
 from kolibri.core.tasks.exceptions import JobNotFound
-from kolibri.core.tasks.exceptions import JobNotRestartable
 from kolibri.core.tasks.job import State
 from kolibri.core.tasks.main import job_storage
 from kolibri.core.tasks.registry import TaskRegistry
@@ -185,13 +184,15 @@ class TasksViewSet(viewsets.GenericViewSet):
 
         job_to_restart = self._get_job_for_pk(request, pk)
 
-        try:
-            restarted_job_id = job_storage.restart_job(job_id=job_to_restart.job_id)
-        except JobNotRestartable:
-            raise serializers.ValidationError(
-                "Cannot restart job with state: {}".format(job_to_restart.state)
-            )
+        registered_task = TaskRegistry[job_to_restart.func]
+        job = registered_task.validate_job_restart(request.user, job_to_restart)
 
+        # delete existing task after validation
+        job_storage.clear(job_id=job_to_restart.job_id, force=False)
+
+        restarted_job_id = job_storage.enqueue_job(
+            job, queue=registered_task.queue, priority=registered_task.priority
+        )
         job_response = self._job_to_response(
             job_storage.get_job(job_id=restarted_job_id)
         )

@@ -1,4 +1,8 @@
+import copy
+
 from rest_framework import serializers
+
+from kolibri.core.tasks.job import State
 
 
 class JobValidator(serializers.Serializer):
@@ -18,6 +22,31 @@ class JobValidator(serializers.Serializer):
             "kwargs": kwargs,
             "extra_metadata": {},
         }
+
+    def validate_for_restart(self, job):
+        """
+        :param job: The job for which to restart
+        :type job: kolibri.core.tasks.job.Job
+        :return: A dictionary of data for instantiating a new job
+        """
+        if job.state not in [State.CANCELED, State.FAILED]:
+            raise serializers.ValidationError(
+                "Cannot restart job with state={}".format(job.state)
+            )
+
+        return {
+            # default behavior is to retain the same job ID, so the existing job requires deletion
+            "job_id": job.job_id,
+            "args": copy.copy(job.args),
+            "kwargs": copy.copy(job.kwargs),
+            "track_progress": job.track_progress,
+            "cancellable": job.cancellable,
+            "extra_metadata": job.extra_metadata.copy(),
+            "facility_id": job.facility_id,
+        }
+
+    def to_representation(self, instance):
+        return self.validate_for_restart(instance or self.instance)
 
     def run_validation(self, data):
         value = super(JobValidator, self).run_validation(data)

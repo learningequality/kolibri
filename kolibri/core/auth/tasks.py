@@ -13,6 +13,7 @@ from django.urls import reverse
 from django.utils import timezone
 from morango.errors import MorangoResumeSyncError
 from morango.models import InstanceIDModel
+from morango.models.core import SyncSession
 from requests.exceptions import ConnectionError
 from rest_framework import serializers
 from rest_framework import status
@@ -260,6 +261,26 @@ class SyncJobValidator(JobValidator):
             ),
             "args": [data["command"]],
         }
+
+    def validate_for_restart(self, job):
+        data = super(SyncJobValidator, self).validate_for_restart(job)
+
+        # find the sync_session_id the command added to the job metadata when it ran
+        sync_session_id = job.extra_metadata.get("sync_session_id")
+        if sync_session_id:
+            try:
+                SyncSession.objects.get(pk=sync_session_id, active=True)
+            except SyncSession.DoesNotExist:
+                sync_session_id = None
+
+        # if we didn't get an existing active sync_session_id,
+        # we'll fall back to default functionality
+        if sync_session_id:
+            kwargs = data.get("kwargs")
+            kwargs.update(sync_session_id=sync_session_id)
+            data.update(args=("resumesync",), kwargs=kwargs)
+
+        return data
 
 
 facility_task_queue = "facility_task"

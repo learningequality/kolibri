@@ -229,6 +229,24 @@ class RegisteredTask(object):
 
         return job
 
+    def validate_job_restart(self, user, job):
+        """
+        :type user: kolibri.core.auth.models.FacilityUser
+        :type job: kolibri.core.tasks.job.Job
+        :return: A new job object for restarting
+        :rtype: kolibri.core.tasks.job.Job
+        """
+        validator = self.validator(instance=job, context={"user": user})
+
+        try:
+            job = self._ready_job(**validator.data)
+        except TypeError:
+            raise serializers.ValidationError(
+                "Invalid job data returned from validator."
+            )
+
+        return job
+
     def enqueue(self, job=None, **job_kwargs):
         """
         Enqueue the function with arguments passed to this method.

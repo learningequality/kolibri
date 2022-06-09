@@ -726,15 +726,33 @@ class TaskManagementAPITestCase(BaseAPITestCase):
     def test_restart_task(self, mock_job_storage):
         self.client.login(username=self.facility2user.username, password=DUMMY_PASSWORD)
 
-        mock_job_storage.restart_job.return_value = self.jobs[2].job_id
+        self.jobs[2].state = State.FAILED
         mock_job_storage.get_job.return_value = self.jobs[2]
+
+        def _clear(**kwargs):
+            self.jobs[2].state = State.QUEUED
+
+        mock_job_storage.clear.side_effect = _clear
 
         response = self.client.post(
             reverse("kolibri:core:task-restart", kwargs={"pk": "2"}), format="json"
         )
 
         self.assertEqual(response.data, self.jobs_response[2])
-        mock_job_storage.restart_job.assert_called_once_with(job_id="2")
+        mock_job_storage.clear.assert_called_once_with(job_id="2", force=False)
+
+    def test_restart_task__not_restartable(self, mock_job_storage):
+        self.client.login(username=self.facility2user.username, password=DUMMY_PASSWORD)
+
+        mock_job_storage.get_job.return_value = self.jobs[2]
+
+        response = self.client.post(
+            reverse("kolibri:core:task-restart", kwargs={"pk": "2"}), format="json"
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(str(response.data[0]), "Cannot restart job with state=QUEUED")
+        mock_job_storage.clear.assert_not_called()
 
     def test_restart_task_respect_permissions(self, mock_job_storage):
         self.client.login(username=self.facility2user.username, password=DUMMY_PASSWORD)
