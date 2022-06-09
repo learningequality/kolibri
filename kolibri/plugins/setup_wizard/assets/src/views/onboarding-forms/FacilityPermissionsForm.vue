@@ -1,6 +1,9 @@
 <template>
 
-  <OnboardingStepBase :title="$tr('learningEnvironmentHeader')" @continue="handleContinue">
+  <OnboardingStepBase
+    :title="$tr('learningEnvironmentHeader')"
+    @continue="handleContinue"
+  >
     <KRadioButton
       ref="first-button"
       v-model="selected"
@@ -45,8 +48,15 @@
       OnboardingStepBase,
     },
     data() {
+      let selected;
+      const { preset } = this.$store.state.onboardingData;
+      if (preset === null || preset === Presets.NONFORMAL) {
+        selected = Presets.NONFORMAL;
+      } else {
+        selected = Presets.FORMAL;
+      }
       return {
-        selected: this.$store.state.onboardingData.preset || Presets.NONFORMAL,
+        selected,
         Presets,
       };
     },
@@ -59,7 +69,9 @@
         this.wizardService.send({ type: 'CONTINUE', value: this.selected });
       },
       focusOnTextbox() {
-        return this.$refs['facility-name'].focus();
+        if (this.$refs && this.$refs['facility-name']) {
+          return this.$refs['facility-name'].focus();
+        }
       },
     },
     $trs: {

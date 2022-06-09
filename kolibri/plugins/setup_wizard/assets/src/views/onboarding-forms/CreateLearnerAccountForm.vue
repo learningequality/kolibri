@@ -27,6 +27,7 @@
 <script>
 
   import OnboardingStepBase from '../OnboardingStepBase';
+  import { Presets } from '../../constants';
 
   export default {
     name: 'CreateLearnerAccountForm',
@@ -34,8 +35,15 @@
       OnboardingStepBase,
     },
     data() {
+      let setting;
+      const { preset } = this.$store.state.onboardingData;
+      if (preset === Presets.NONFORMAL) {
+        setting = true;
+      } else {
+        setting = false;
+      }
       return {
-        setting: '',
+        setting,
       };
     },
     inject: ['wizardService'],

@@ -28,6 +28,7 @@
 
 <script>
 
+  import { Presets } from '../../constants';
   import OnboardingStepBase from '../OnboardingStepBase';
 
   export default {
@@ -36,8 +37,15 @@
       OnboardingStepBase,
     },
     data() {
+      let setting;
+      const { preset } = this.$store.state.onboardingData;
+      if (preset === null || preset === Presets.NONFORMAL) {
+        setting = true;
+      } else {
+        setting = false;
+      }
       return {
-        setting: '',
+        setting,
       };
     },
     inject: ['wizardService'],
