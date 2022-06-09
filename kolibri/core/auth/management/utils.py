@@ -442,7 +442,7 @@ class MorangoSyncCommand(AsyncCommand):
                     noninteractive,
                     pull_filter,
                 )
-                # and push our own data to server
+            # and push our own data to server
             if not no_push:
                 self._push(
                     sync_session_client,
