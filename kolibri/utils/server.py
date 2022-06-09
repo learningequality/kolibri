@@ -254,21 +254,14 @@ class ServicesPlugin(SimplePlugin):
 
     def START(self):
         from kolibri.core.tasks.main import initialize_workers
-        from kolibri.core.tasks.main import job_storage
-        from kolibri.core.analytics.utils import DEFAULT_PING_JOB_ID
-        from kolibri.core.deviceadmin.tasks import SCH_VACUUM_JOB_ID
+        from kolibri.core.analytics.tasks import schedule_ping
+        from kolibri.core.deviceadmin.tasks import schedule_vacuum
 
         # schedule the pingback job if not already scheduled
-        if DEFAULT_PING_JOB_ID not in job_storage:
-            from kolibri.core.analytics.utils import schedule_ping
-
-            schedule_ping()
+        schedule_ping()
 
         # schedule the vacuum job if not already scheduled
-        if SCH_VACUUM_JOB_ID not in job_storage:
-            from kolibri.core.deviceadmin.tasks import schedule_vacuum
-
-            schedule_vacuum()
+        schedule_vacuum()
 
         # Initialize the iceqube engine to handle queued tasks
         self.worker = initialize_workers()
