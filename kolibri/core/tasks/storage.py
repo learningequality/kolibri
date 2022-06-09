@@ -377,6 +377,8 @@ class Storage(object):
         with self.session_scope() as session:
             try:
                 job, orm_job = self._get_job_and_orm_job(job_id, session)
+                for update_hook in self.update_hooks:
+                    update_hook(job, orm_job, state=state, **kwargs)
                 if state is not None:
                     orm_job.state = job.state = state
                     if state == State.FAILED and orm_job.retry_interval is not None:
@@ -399,9 +401,6 @@ class Storage(object):
                     setattr(job, kwarg, kwargs[kwarg])
                 orm_job.saved_job = job.to_json()
                 session.add(orm_job)
-                for update_hook in self.update_hooks:
-                    update_hook(job_id, state=state, **kwargs)
-
                 return job, orm_job
             except JobNotFound:
                 if state:
