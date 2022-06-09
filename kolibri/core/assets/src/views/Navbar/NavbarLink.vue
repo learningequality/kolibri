@@ -7,13 +7,7 @@
       :to="link"
     >
       <div class="dimmable tab-icon">
-        <UiIcon
-          class="icon"
-          tabindex="-1"
-        >
-          <!--The icon svg-->
-          <slot></slot>
-        </UiIcon>
+        <slot></slot>
       </div>
 
       <div class="dimmable tab-title" tabindex="-1">
@@ -28,14 +22,13 @@
 <script>
 
   import { validateLinkObject } from 'kolibri.utils.validators';
-  import UiIcon from 'kolibri-design-system/lib/keen/UiIcon';
+  // import UiIcon from 'kolibri-design-system/lib/keen/UiIcon';
 
   /**
    Links for use inside the Navbar
    */
   export default {
     name: 'NavbarLink',
-    components: { UiIcon },
     props: {
       /**
        * The text
@@ -86,7 +79,7 @@
     min-width: 72px;
     max-width: 264px;
     padding: 0 16px;
-    padding-bottom: 4px;
+    padding-bottom: 6px;
     margin: 0;
     font-size: 14px;
     text-decoration: none;
@@ -140,15 +133,7 @@
     text-overflow: ellipsis;
   }
 
-  /deep/ .ui-icon {
-    width: 22px !important;
-    height: 22px !important;
-  }
-
-  /deep/ svg {
-    width: 20px !important;
-    height: 20px !important;
-  }
+  // for small screens
 
   @media (max-width: 600px) {
     .tab {
@@ -156,24 +141,8 @@
       font-size: 12px;
     }
 
-    .tab-icon {
-      display: inline-block;
-      padding: 10px 0;
-      margin-right: 0;
-    }
-
     .router-link-active {
       border-bottom-width: 2px;
-    }
-
-    /deep/ .ui-icon {
-      width: 20px !important;
-      height: 20px !important;
-    }
-
-    /deep/ svg {
-      width: 16px !important;
-      height: 16px !important;
     }
   }
 

@@ -8,7 +8,6 @@
     >
       <KIcon
         icon="dashboard"
-        style="top: 0; width: 24px; height: 24px;"
         :color="$themeTokens.textInverted"
       />
     </NavbarLink>
@@ -20,7 +19,6 @@
       <!-- todo update icon -->
       <KIcon
         icon="library"
-        style="top: 0; width: 24px; height: 24px;"
         :color="$themeTokens.textInverted"
       />
     </NavbarLink>
@@ -31,7 +29,6 @@
     >
       <KIcon
         icon="bookmark"
-        style="top: 0; width: 24px; height: 24px;"
         :color="$themeTokens.textInverted"
       />
     </NavbarLink>

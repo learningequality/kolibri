@@ -8,7 +8,6 @@
       <KIcon
         icon="dashboard"
         :color="$themeTokens.textInverted"
-        style="top: 0; width: 24px; height: 24px;"
       />
     </NavbarLink>
     <NavbarLink
@@ -18,7 +17,6 @@
       <KIcon
         icon="reports"
         :color="$themeTokens.textInverted"
-        style="top: 0; width: 24px; height: 24px;"
       />
     </NavbarLink>
     <NavbarLink
@@ -28,7 +26,6 @@
       <KIcon
         icon="edit"
         :color="$themeTokens.textInverted"
-        style="top: 0; width: 24px; height: 24px;"
       />
     </NavbarLink>
   </Navbar>
