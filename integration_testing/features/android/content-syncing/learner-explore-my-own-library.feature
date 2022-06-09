@@ -45,18 +45,24 @@ Feature: Find new things in your library
 			And I see the topic title of the first available folder
 			And I see the available folders and resources cards in a single column view
 
-	Scenario: Show available resources only is toggled on by default
+	Scenario: All resources are displayed by default
 		Given I am at the *Library > Explore channel* modal
-		When I look at the *Show available resources only* toggle
-		Then I see that it is switched on by default
-			And I can see that indeed only the available resources are displayed
-		When I switch off the *Show available resources only* toggle
-		Then I see all non-downloaded resources for which the device has metadata
-			And I can see an option to mark the resources for download later
+			And I have previously downloaded resources
+		When I look at the *Show* dropdown
+		Then I see that *All resources* is selected by default
+			And I can see that all resources are displayed in that case
+		When I select the option *My downloads only*
+		Then I see only the downloaded resources
+
+	Scenario: The *Show* dropdown is hidden if there are no resources downloaded by the user
+		When I go to the *Library > Explore channel* modal
+			And there are available resources
+			And I have previously not downloaded any of the resources
+		Then the the *Show* dropdown is not being displayed
 
 	Scenario: Add resource to My downloads from folder/resource browsing page
 		Given I am at the *Library > Explore channel* modal
-			And I switch off the *Show available resources only* toggle
+			And there are downloadable resources
 		When I click the download icon on a resource card
 		Then I see the following snackbar: *Started download Go to downloads*
 		When I go to *My downloads*

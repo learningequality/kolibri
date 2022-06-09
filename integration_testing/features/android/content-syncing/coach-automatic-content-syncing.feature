@@ -46,7 +46,7 @@ Feature: Coaches automatic syncing
 			And I see the size of each lesson
 		When I click on the title of a quiz
 		Then I am at the quiz details page
-			And I see the size of the quiz below the lesson description
+			And I see the size of the quiz below the question order
 
 	Scenario: Check file size of lessons in Plan tab
 		Given I am at the *Coach > Plan>* tab
@@ -64,7 +64,7 @@ Feature: Coaches automatic syncing
 		When I go to *Coach > Plan > Quizzes* tab
 		Then I see the following text above the quizzes table: *Total size of quizzes that are visible to learners: N MB*
 			And I see the *Size* column between the *Recipients* and *Status* columns
-			And I see the size of each lesson
-		When I click on the title of a lesson
-		Then I am at the lesson details page
-			And I see the size of the lesson below the lesson description
+			And I see the size of each quiz
+		When I click on the title of a quiz
+		Then I am at the quiz details page
+			And I see the size of the quiz below the question order

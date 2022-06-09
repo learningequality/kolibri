@@ -13,14 +13,14 @@ Feature: Learners automatic syncing
 	Scenario: Learner does not have enough storage on their device for new automatic downloads, and My downloads is empty
 		Given I don't have enough storage on my device
 			And *My downloads* is empty
-		When I go to *My downloads*
+		When I go anywhere within the *Learn* plugin
 		Then I see the following notification: *You do not have enough storage for new learning materials. Ask your coach or administrator for help.*
 			And I see a *Close* button
 
 	Scenario: Learner does not have enough storage on their device for new automatic downloads, and does have resources in My downloads
 		Given I don't have enough storage on my device
 			And *My downloads* is not empty
-		When I go to *My downloads*
+		When I go anywhere within the *Learn* plugin
 		Then I see the following notification: *You do not have enough storage for updates. Try removing resources from My downloads.*
 			And I see a *Go to my downloads* button
 			And I see a *Close* button
@@ -29,7 +29,7 @@ Feature: Learners automatic syncing
 		Given I'm a learner on a learn-only device
 			And I don't have enough storage on my device
 			And *My downloads* is empty
-		When I go to *My downloads*
+		When I go anywhere within the *Learn* plugin
 		Then I see the following notification: *You do not have enough storage for new learning materials. Ask your coach or administrator for help.*
 			And I see a *Close* button
 
@@ -37,7 +37,7 @@ Feature: Learners automatic syncing
 		Given I'm a learner on a learn-only device
 			And I don't have enough storage on my device
 			And *My downloads* is not empty
-		When I go to *My downloads*
+		When I go anywhere within the *Learn* plugin
 		Then I see the following notification: *You do not have enough storage for updates. Try removing resources from My downloads.*
 			And I see a *Go to my downloads* button
 			And I see a *Close* button
@@ -47,7 +47,7 @@ Feature: Learners automatic syncing
 			And I don't have enough storage on my device
 			And *My downloads* is not empty
 			And some resources have been removed to make room for new class materials
-		When I go to *My downloads*
+		When I go anywhere within the *Learn* plugin
 		Then I see the following notification: *Some resources have been removed to make room for new class materials.*
 			And I see a *Close* button
 
@@ -72,7 +72,7 @@ Feature: Learners automatic syncing
 			And I see the other option *Yes, use metered data*
 			And I see a *Continue* button
 		When I click *Continue*
-		Then I see that I am not able to use the metered data #TO DO - what happens when I try to download something
+		Then I see that I am not able to use the metered data #the *Other libraries* section would appear empty
 
 	Scenario: Learner can see automatic syncing updates while not using the Android app
 		Given I've closed Kolibri

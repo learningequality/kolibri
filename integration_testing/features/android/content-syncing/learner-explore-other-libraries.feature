@@ -30,7 +30,7 @@ Feature: Learner explores other libraries
 		Then I see the *All libraries* page
 			And I see a *All libraries* label
 			And I see *Showing the libraries on other devices and networks around you* below the *All libraries* label
-			And I see the available unpinned full devices #TO DO needs clarification whether we see the pinned devices too
+			And I see the available full devices
 			And I see the *External storage* section
 			Ans I see a pin icon next to each device name
 			And I see an *Explore* button next to each section
@@ -79,31 +79,21 @@ Feature: Learner explores other libraries
 		Then I am at the *Browse channel* modal
 			And I can see all of the available resources
 
-	Scenario: See whether resources are available in a folder
-		Given I am exploring a library with folders and resources
-		When I look at a folder card
-			And there is a wifi icon on the folder card
-		Then this is an indication that there are resources available for download
-			And I can click on the folder and view the available resources
-		When I look at another folder card
-			And there is no wifi icon on the folder card
-		Then this is an indication that there are no resources available for download
-			And I can click on the folder and see that all of the resources are already downloaded
-
 	Scenario: See whether an individual resource is available
 		Given I am exploring a library with resources
 		When I look at a resource card
-			And there is a *+* icon on the resource card
+			And there is a download icon on the resource card
 		Then that resource is available
-			And I can click the *+* icon to download the resource
-			And I can see a confirmation *Started download Go to downloads*
+		When I click the download icon to download the resource
+		Then I see a confirmation *Started download Go to downloads*
 		When I look at another resource card
-			And there is no *+* icon
+			And there is no download icon
+			And there is an elipsis button to the right of the info icon
 		Then the resource has already been downloaded
 
 	Scenario: Add resource to My downloads from folder/resource browsing page
 		Given I am exploring a library with folders and resources available for download
-		When I click the *+* icon of the resource
+		When I click the download icon of the resource
 		Then I see a confirmation *Started download Go to downloads*
 		When the download has finished
 			And I go to *My downloads*

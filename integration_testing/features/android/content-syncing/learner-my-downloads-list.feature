@@ -22,7 +22,7 @@ Feature: My downloads list
 			And in each row I see the resource type icon, resource label, resource size and date added
 			And I see the *View* and *Remove* buttons to the right
 			And I see a *Select all* checkbox and checkboxes for each resource
-			And I see *1-25 out of XXX* pager with left and right arrows
+			And I see *XX-YY* pager with left and right arrows
 			And I see a disabled *Remove selected* button
 
 	Scenario: *My downloads* - mobile view #TODO as the design was changed

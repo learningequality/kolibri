@@ -43,3 +43,9 @@ Feature: Sorting user tables
 		When I look at a column with numeric-only data fields
 		Then I see that the column is right-aligned
 			And I see that the icon is to the left of the column label
+
+	Scenario: Empty Gender, Identifier or Birth year fields
+		Given I am at *Facility > Users*
+		When I look at any of the following columns: *Gender*, *Identifier* or *Birth year*
+			And there are no values specified
+		Then I see a *-* representing the not specified value
