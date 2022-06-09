@@ -112,7 +112,20 @@
         if (this.isSetupImportTask) {
           return false;
         }
-        return !(this.isCompleted || this.isFailed) && this.task.cancellable;
+        if (
+          [
+            TaskStatuses.CANCELING,
+            TaskStatuses.CANCELED,
+            TaskStatuses.COMPLETED,
+            TaskStatuses.FAILED,
+          ].includes(this.task.status)
+        ) {
+          return false;
+        }
+        if (this.isDeleteTask && this.isRunning) {
+          return false;
+        }
+        return this.task.cancellable;
       },
       canClear() {
         if (this.isSetupImportTask) {
@@ -209,7 +222,7 @@
               });
             }
           }
-        } else if (this.isDeleteTask) {
+        } else if (this.isDeleteTask && this.isRunning) {
           statusMsg = this.getTaskString('removingFacilityStatus');
         }
 
