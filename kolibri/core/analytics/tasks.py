@@ -68,3 +68,5 @@ def schedule_ping(
             repeat=None,
             kwargs=dict(started=started, server=server, checkrate=checkrate),
         )
+    elif conf.OPTIONS["Deployment"]["DISABLE_PING"]:
+        job_storage.clear(job_id=DEFAULT_PING_JOB_ID)
