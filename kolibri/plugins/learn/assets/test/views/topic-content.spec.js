@@ -1,6 +1,6 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import makeStore from '../makeStore';
-import LearnImmersiveLayout from '../../src/views/LearnImmersiveLayout';
+import TopicsContentPage from '../../src/views/TopicsContentPage';
 
 jest.mock('kolibri.urls');
 
@@ -37,7 +37,7 @@ store.getters = {
 };
 
 function makeWrapper({ propsData } = {}) {
-  return shallowMount(LearnImmersiveLayout, {
+  return shallowMount(TopicsContentPage, {
     propsData,
     store,
     localVue,
@@ -46,6 +46,7 @@ function makeWrapper({ propsData } = {}) {
         name: 'LearningActivityBar',
         propsData: {
           resourceTitle: 'Test Title',
+          loading: false,
         },
         template: '<div></div>',
       },
@@ -57,10 +58,11 @@ function makeWrapper({ propsData } = {}) {
   });
 }
 
-describe('LearnImmersiveLayout', () => {
+describe('TopicsContentPage', () => {
   const wrapper = makeWrapper({
     propsData: {
       content: { id: 'test' },
+      loading: false,
     },
   });
   it('smoke test', () => {

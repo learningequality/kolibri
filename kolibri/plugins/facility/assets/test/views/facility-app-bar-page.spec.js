@@ -8,6 +8,10 @@ function makeWrapper({ propsData = {}, vuexData = {} }) {
     facilityPageLinks: () => {},
     ...store.getters,
   };
+  store.state.core = {
+    loading: false,
+    ...store.state.core,
+  };
   return mount(FacilityAppBarPage, {
     propsData,
     store,

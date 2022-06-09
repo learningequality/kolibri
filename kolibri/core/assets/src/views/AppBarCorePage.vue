@@ -2,10 +2,11 @@
 
   <!-- TODO useScrollPosition to set scrollPosition...
     here or in router, but somewhere -->
-  <div>
+  <div class="main">
     <ScrollingHeader :scrollPosition="0">
       <AppBar
         ref="appBar"
+        class="app-bar"
         :title="title"
         @toggleSideNav="navShown = !navShown"
         @showLanguageModal="languageModalShown = true"
@@ -14,6 +15,11 @@
           <slot name="subNav"></slot>
         </template>
       </AppBar>
+      <KLinearLoader
+        v-if="loading"
+        type="indeterminate"
+        :delay="false"
+      />
     </ScrollingHeader>
 
     <div class="main-wrapper" :style="wrapperStyles">
@@ -52,6 +58,15 @@
         type: String,
         default: null,
       },
+      appearanceOverrides: {
+        type: Object,
+        required: false,
+        default: null,
+      },
+      loading: {
+        type: Boolean,
+        default: null,
+      },
     },
     data() {
       return {
@@ -62,16 +77,19 @@
     },
     computed: {
       wrapperStyles() {
-        return {
-          width: '100%',
-          display: 'inline-block',
-          backgroundColor: this.$themePalette.grey.v_100,
-          paddingLeft: '32px',
-          paddingRight: '32px',
-          paddingTop: this.appBarHeight + 32 + 'px',
-          paddingBottom: '72px',
-          marginTop: 0,
-        };
+        return this.appearanceOverrides
+          ? this.appearanceOverrides
+          : {
+              width: '100%',
+              maxWidth: '1064px',
+              margin: 'auto',
+              backgroundColor: this.$themePalette.grey.v_100,
+              paddingLeft: '32px',
+              paddingRight: '32px',
+              paddingTop: this.appBarHeight + 32 + 'px',
+              paddingBottom: '72px',
+              marginTop: 0,
+            };
       },
     },
     mounted() {
@@ -82,3 +100,16 @@
   };
 
 </script>
+
+
+<style lang="scss" scoped>
+
+  @import '~kolibri-design-system/lib/styles/definitions';
+
+  .app-bar {
+    @extend %dropshadow-4dp;
+
+    width: 100%;
+  }
+
+</style>

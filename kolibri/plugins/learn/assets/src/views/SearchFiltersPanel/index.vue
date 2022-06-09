@@ -394,7 +394,6 @@
     left: 0;
     height: 100%;
     padding: 24px;
-    padding-top: 140px;
     overflow-y: scroll;
     font-size: 14px;
     box-shadow: 0 3px 3px 0 #00000040;

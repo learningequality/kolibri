@@ -182,7 +182,6 @@
   .card {
     position: relative;
     display: inline-block;
-    width: 100%;
     vertical-align: top;
     border-radius: 8px;
     transition: box-shadow $core-time ease;
@@ -194,6 +193,7 @@
   }
 
   .card-link {
+    width: 100%;
     text-decoration: none;
   }
 

@@ -59,6 +59,7 @@ describe('learn page breadcrumbs', () => {
   describe('when in Topic Browsing mode', () => {
     it('shows no breadcrumbs on topics root (i.e. Channels)', () => {
       const store = makeStore({ pageName: PageNames.LIBRARY });
+      store.state.core.loading = false;
       const wrapper = makeWrapper({ store });
       const { breadcrumbs } = getElements(wrapper);
       expect(breadcrumbs().exists()).toEqual(false);
@@ -66,6 +67,7 @@ describe('learn page breadcrumbs', () => {
 
     it('shows correct breadcrumbs at a Channel', () => {
       const store = makeStore({ pageName: PageNames.TOPICS_TOPIC });
+      store.state.core.loading = false;
       store.state.topicsTree.channel = {
         id: 'channel-1',
         root: 'root-1',
@@ -87,6 +89,7 @@ describe('learn page breadcrumbs', () => {
 
     it('shows correct breadcrumbs at a non-Channel Topic', () => {
       const store = makeStore({ pageName: PageNames.TOPICS_TOPIC });
+      store.state.core.loading = false;
       store.state.topicsTree.channel = {
         id: 'channel-1',
         root: 'root-1',

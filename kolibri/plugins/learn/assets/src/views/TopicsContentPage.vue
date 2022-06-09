@@ -148,6 +148,7 @@
   import useCoreLearn from '../composables/useCoreLearn';
   import useContentNodeProgress from '../composables/useContentNodeProgress';
   import useLearnerResources from '../composables/useLearnerResources';
+  import { PageNames } from '../constants';
   import LearningActivityChip from './LearningActivityChip';
   import LessonResourceViewer from './classes/LessonResourceViewer';
   import CurrentlyViewedResourceMetadata from './CurrentlyViewedResourceMetadata';
@@ -158,7 +159,7 @@
   const lessonStrings = crossComponentTranslator(LessonResourceViewer);
 
   export default {
-    name: 'LearnImmersiveLayout',
+    name: 'TopicsContentPage',
     metaInfo() {
       return {
         // Use arrow function to bind $tr to this component
@@ -206,10 +207,10 @@
       };
     },
     props: {
-      content: {
-        type: Object,
+      loading: {
+        type: Boolean,
         required: false,
-        default: null,
+        default: true,
       },
       // AUTHORIZATION SPECIFIC
       authorized: {
@@ -219,12 +220,6 @@
       },
       authorizedRole: {
         type: String,
-        default: null,
-      },
-      // link to where the 'back' button should go
-      back: {
-        type: Object,
-        required: true,
         default: null,
       },
     },
@@ -244,9 +239,9 @@
       ...mapGetters(['currentUserId', 'isUserLoggedIn']),
       ...mapState({
         error: state => state.core.error,
-        loading: state => state.core.loading,
         blockDoubleClicks: state => state.core.blockDoubleClicks,
       }),
+      ...mapState('topicsTree', ['content']),
       ...mapState('topicsTree', {
         isCoachContent: state => (state.content.coach_content ? 1 : 0),
       }),
@@ -289,6 +284,35 @@
       },
       timeSpent() {
         return this.contentPageMounted ? this.$refs.contentPage.time_spent : 0;
+      },
+      back() {
+        if (!this.$route) {
+          return null;
+        }
+        const query = { ...this.$route.query };
+        const lastPage = (this.$route.query || {}).last;
+        delete query.last;
+        delete query.topicId;
+        // returning to a topic page requires an id
+        if (lastPage === PageNames.TOPICS_TOPIC_SEARCH || lastPage === PageNames.TOPICS_TOPIC) {
+          const lastId = this.$route.query.topicId
+            ? this.$route.query.topicId
+            : this.content.parent;
+          // Need to guard for parent being non-empty to avoid console errors
+          return this.$router.getRoute(
+            lastPage,
+            {
+              id: lastId,
+            },
+            query
+          );
+        } else if (lastPage === PageNames.LIBRARY) {
+          return this.$router.getRoute(lastPage, {}, query);
+        } else if (lastPage) {
+          return this.$router.getRoute(lastPage, query);
+        } else {
+          return this.$router.getRoute(PageNames.HOME);
+        }
       },
     },
     watch: {

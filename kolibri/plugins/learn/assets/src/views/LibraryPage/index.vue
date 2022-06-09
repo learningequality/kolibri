@@ -1,6 +1,10 @@
 <template>
 
-  <div>
+  <LearnAppBarPage
+    :appBarTitle="learnString('learnLabel')"
+    :appearanceOverrides="{}"
+    :loading="loading"
+  >
     <main
       class="main-grid"
       :style="gridOffset"
@@ -104,7 +108,7 @@
         :showLocationsInChannel="true"
       />
     </SidePanelModal>
-  </div>
+  </LearnAppBarPage>
 
 </template>
 
@@ -126,6 +130,7 @@
   import ChannelCardGroupGrid from '../ChannelCardGroupGrid';
   import LearningActivityChip from '../LearningActivityChip';
   import SearchResultsGrid from '../SearchResultsGrid';
+  import LearnAppBarPage from '../LearnAppBarPage';
   import ResumableContentGrid from './ResumableContentGrid';
   import SidePanel from './SidePanel';
 
@@ -144,6 +149,7 @@
       ResumableContentGrid,
       SearchResultsGrid,
       SidePanel,
+      LearnAppBarPage,
     },
     mixins: [commonLearnStrings, commonCoreStrings, responsiveWindowMixin],
     setup() {
@@ -192,6 +198,12 @@
         moreResumableContentNodes,
         fetchMoreResumableContentNodes,
       };
+    },
+    props: {
+      loading: {
+        type: Boolean,
+        default: null,
+      },
     },
     data: function() {
       return {
@@ -273,7 +285,7 @@
 <style lang="scss" scoped>
 
   .main-grid {
-    margin-top: 40px;
+    margin-top: 140px;
     margin-right: 24px;
   }
 

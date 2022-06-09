@@ -8,7 +8,7 @@
       borderBottom: `1px solid ${$themeTokens.fineLine}`
     }"
   >
-    <KGrid>
+    <KGrid gutter="0">
       <KGridItem
         class="breadcrumbs"
         data-test="header-breadcrumbs"
@@ -71,7 +71,7 @@
       :style="{ borderBottomColor: !$isPrint ? $themeTokens.fineLine : 'transparent' }"
     >
       <router-link
-        v-if="topics.length"
+        v-if="topics.length && windowIsLarge"
         :to="foldersLink"
         class="header-tab"
         :activeClass="activeTabClasses"
@@ -85,6 +85,7 @@
       </router-link>
 
       <router-link
+        v-if="windowIsLarge"
         :to="topics.length ? searchTabLink : {}"
         class="header-tab"
         :activeClass="activeTabClasses"
@@ -180,9 +181,11 @@
   @import '~kolibri-design-system/lib/styles/definitions';
 
   $header-height: 324px;
+  $toolbar-height: 70px;
 
   .header {
     position: relative;
+    top: $toolbar-height;
     width: 100%;
     height: $header-height;
     padding-top: 16px;

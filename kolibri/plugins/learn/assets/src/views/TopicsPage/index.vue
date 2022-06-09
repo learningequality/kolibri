@@ -4,11 +4,20 @@
     <div v-if="currentChannelIsCustom">
       <CustomContentRenderer :topic="topic" />
     </div>
-
-    <div v-else class="page">
+    <!-- appearanceOverrides overrides the default page styling -->
+    <!-- by replacing it with an empty object -->
+    <ImmersivePageRoot
+      v-else-if="!loading"
+      :loading="loading"
+      :route="libraryPageLink"
+      :appBarTitle="topic.title || ''"
+      :appearanceOverrides="{}"
+      class="page"
+    >
       <!-- Header with thumbail and tagline -->
       <TopicsHeader
         v-if="!windowIsSmall"
+        ref="header"
         data-test="header-breadcrumbs"
         :topics="topics"
         :topic="topic"
@@ -69,13 +78,14 @@
             <!----
               TODO - is this necessary at all? how is this different than the search results below?
             -->
-            <HybridLearningCardGrid
+            <LibraryAndChannelBrowserMainContent
               v-if="resources.length"
+              :gridType="2"
               data-test="search-results"
               :contents="resources"
               :numCols="numCols"
               :genContentLink="genContentLink"
-              cardViewStyle="card"
+              currentCardViewStyle="card"
               @toggleInfoPanel="toggleInfoPanel"
             />
             <div v-if="topicMore" class="end-button-block">
@@ -196,43 +206,43 @@
         @input="handleCategory"
       />
 
-    </div>
 
-    <!-- Side panel for showing the information of selected content with a link to view it -->
-    <SidePanelModal
-      v-if="metadataSidePanelContent"
-      alignment="right"
-      :closeButtonIconType="closeButtonIcon"
-      @closePanel="metadataSidePanelContent = null"
-      @shouldFocusFirstEl="findFirstEl()"
-    >
-      <template #header>
-        <!-- Flex styles tested in ie11 and look good. Ensures good spacing between
+      <!-- Side panel for showing the information of selected content with a link to view it -->
+      <SidePanelModal
+        v-if="metadataSidePanelContent"
+        alignment="right"
+        :closeButtonIconType="closeButtonIcon"
+        @closePanel="metadataSidePanelContent = null"
+        @shouldFocusFirstEl="findFirstEl()"
+      >
+        <template #header>
+          <!-- Flex styles tested in ie11 and look good. Ensures good spacing between
             multiple chips - not a common thing but just in case -->
-        <div
-          v-for="activity in metadataSidePanelContent.learning_activities"
-          :key="activity"
-          class="side-panel-chips"
-          :class="$computedClass({ '::after': {
-            content: '',
-            flex: 'auto'
-          } })"
-        >
-          <LearningActivityChip
-            class="chip"
-            style="margin-left: 8px; margin-bottom: 8px;"
-            :kind="activity"
-          />
-        </div>
-      </template>
+          <div
+            v-for="activity in metadataSidePanelContent.learning_activities"
+            :key="activity"
+            class="side-panel-chips"
+            :class="$computedClass({ '::after': {
+              content: '',
+              flex: 'auto'
+            } })"
+          >
+            <LearningActivityChip
+              class="chip"
+              style="margin-left: 8px; margin-bottom: 8px;"
+              :kind="activity"
+            />
+          </div>
+        </template>
 
-      <BrowseResourceMetadata
-        ref="resourcePanel"
-        :content="metadataSidePanelContent"
-        :showLocationsInChannel="true"
-      />
-    </SidePanelModal>
+        <BrowseResourceMetadata
+          ref="resourcePanel"
+          :content="metadataSidePanelContent"
+          :showLocationsInChannel="true"
+        />
+      </SidePanelModal>
 
+    </ImmersivePageRoot>
   </div>
 
 </template>
@@ -254,7 +264,7 @@
   import { normalizeContentNode } from '../../modules/coreLearn/utils.js';
   import useSearch from '../../composables/useSearch';
   import genContentLink from '../../utils/genContentLink';
-  import HybridLearningCardGrid from '../HybridLearningCardGrid';
+  import LibraryAndChannelBrowserMainContent from '../LibraryAndChannelBrowserMainContent';
   import SearchFiltersPanel from '../SearchFiltersPanel';
   import BrowseResourceMetadata from '../BrowseResourceMetadata';
   import LearningActivityChip from '../LearningActivityChip';
@@ -262,6 +272,7 @@
   import CategorySearchModal from '../CategorySearchModal';
   import SearchResultsGrid from '../SearchResultsGrid';
   import LibraryPage from '../LibraryPage';
+  import ImmersivePageRoot from '../ImmersivePageRoot';
   import TopicsHeader from './TopicsHeader';
   import TopicsMobileHeader from './TopicsMobileHeader';
   import TopicSubsection from './TopicSubsection';
@@ -287,7 +298,7 @@
     components: {
       KBreadcrumbs,
       TopicsHeader,
-      HybridLearningCardGrid,
+      LibraryAndChannelBrowserMainContent,
       CustomContentRenderer,
       CategorySearchModal,
       SearchFiltersPanel,
@@ -298,6 +309,7 @@
       TopicsMobileHeader,
       TopicSubsection,
       SearchPanelModal,
+      ImmersivePageRoot,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
     setup() {
@@ -331,6 +343,12 @@
         setCategory,
         setSearchWithinDescendant,
       };
+    },
+    props: {
+      loading: {
+        type: Boolean,
+        default: null,
+      },
     },
     data: function() {
       return {
@@ -379,6 +397,11 @@
           };
         }
         return {};
+      },
+      libraryPageLink() {
+        return {
+          name: PageNames.LIBRARY,
+        };
       },
       desktopSearchActive() {
         return this.$route.name === PageNames.TOPICS_TOPIC_SEARCH;
@@ -652,6 +675,7 @@
 
   $header-height: 324px;
   $toolbar-height: 70px;
+  $total-height: 394px;
 
   .page {
     position: relative;
@@ -661,13 +685,13 @@
 
   .side-panel {
     position: absolute;
-    top: $header-height;
-    height: calc(100% - #{$header-height});
+    top: $total-height;
     padding-top: 16px;
   }
 
   .main-content-grid {
     position: relative;
+    top: $toolbar-height;
     margin: 24px;
   }
 

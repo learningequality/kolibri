@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <LearnAppBarPage :appBarTitle="learnString('learnLabel')">
     <h1>
       {{ $tr('bookmarksHeader') }}
     </h1>
@@ -67,7 +67,7 @@
         :showLocationsInChannel="true"
       />
     </SidePanelModal>
-  </div>
+  </LearnAppBarPage>
 
 </template>
 
@@ -84,6 +84,8 @@
   import genContentLink from '../utils/genContentLink';
   import { normalizeContentNode } from '../modules/coreLearn/utils.js';
   import useContentNodeProgress from '../composables/useContentNodeProgress';
+  import commonLearnStrings from './commonLearnStrings';
+  import LearnAppBarPage from './LearnAppBarPage';
   import LearningActivityChip from './LearningActivityChip';
   import CardList from './CardList';
 
@@ -101,8 +103,9 @@
       SidePanelModal,
       LearningActivityChip,
       CardList,
+      LearnAppBarPage,
     },
-    mixins: [commonCoreStrings, responsiveWindowMixin],
+    mixins: [commonCoreStrings, commonLearnStrings, responsiveWindowMixin],
     setup() {
       const { fetchContentNodeProgress } = useContentNodeProgress();
       return { fetchContentNodeProgress };

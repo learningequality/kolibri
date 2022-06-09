@@ -8,6 +8,7 @@
     :style="{
       height: topBarHeight + 'px',
       position: 'fixed',
+      zIndex: 4,
       top: 0,
       right: 0,
       left: 0,

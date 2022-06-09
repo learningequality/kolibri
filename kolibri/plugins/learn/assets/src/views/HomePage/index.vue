@@ -1,49 +1,55 @@
 <template>
 
-  <div>
-    <YourClasses
-      v-if="displayClasses"
-      class="section"
-      :classes="classes"
-      data-test="classes"
-      short
-    />
-    <ContinueLearning
-      v-if="continueLearning"
-      class="section"
-      :fromClasses="continueLearningFromClasses"
-      :data-test="continueLearningFromClasses ?
-        'continueLearningFromClasses' :
-        'continueLearningOnYourOwn'"
-    />
-    <AssignedLessonsCards
-      v-if="hasActiveClassesLessons"
-      class="section"
-      :lessons="activeClassesLessons"
-      displayClassName
-      recent
-      data-test="recentLessons"
-    />
-    <AssignedQuizzesCards
-      v-if="hasActiveClassesQuizzes"
-      class="section"
-      :quizzes="activeClassesQuizzes"
-      displayClassName
-      recent
-      data-test="recentQuizzes"
-    />
-    <ExploreChannels
-      v-if="displayExploreChannels"
-      :channels="channels"
-      class="section"
-      data-test="exploreChannels"
-      :short="displayClasses ||
-        continueLearning ||
-        hasActiveClassesLessons ||
-        hasActiveClassesQuizzes
-      "
-    />
-  </div>
+  <LearnAppBarPage
+    :appBarTitle="learnString('learnLabel')"
+    :loading="loading"
+  >
+    <div v-if="!loading">
+      <YourClasses
+        v-if="displayClasses"
+        class="section"
+        :classes="classes"
+        data-test="classes"
+        short
+      />
+      <ContinueLearning
+        v-if="continueLearning"
+        class="section"
+        :fromClasses="continueLearningFromClasses"
+        :data-test="continueLearningFromClasses ?
+          'continueLearningFromClasses' :
+          'continueLearningOnYourOwn'"
+      />
+      <AssignedLessonsCards
+        v-if="hasActiveClassesLessons"
+        class="section"
+        :lessons="activeClassesLessons"
+        displayClassName
+        recent
+        data-test="recentLessons"
+      />
+      <AssignedQuizzesCards
+        v-if="hasActiveClassesQuizzes"
+        class="section"
+        :quizzes="activeClassesQuizzes"
+        displayClassName
+        recent
+        data-test="recentQuizzes"
+      />
+      <ExploreChannels
+        v-if="displayExploreChannels"
+        :channels="channels"
+        class="section"
+        data-test="exploreChannels"
+        :short="displayClasses ||
+          continueLearning ||
+          hasActiveClassesLessons ||
+          hasActiveClassesQuizzes
+        "
+      />
+
+    </div>
+  </LearnAppBarPage>
 
 </template>
 
@@ -59,6 +65,8 @@
   import AssignedLessonsCards from '../classes/AssignedLessonsCards';
   import AssignedQuizzesCards from '../classes/AssignedQuizzesCards';
   import YourClasses from '../YourClasses';
+  import LearnAppBarPage from '../LearnAppBarPage';
+  import commonLearnStrings from './../commonLearnStrings';
   import ContinueLearning from './ContinueLearning';
   import ExploreChannels from './ExploreChannels';
 
@@ -76,7 +84,9 @@
       YourClasses,
       ContinueLearning,
       ExploreChannels,
+      LearnAppBarPage,
     },
+    mixins: [commonLearnStrings],
     setup() {
       const { isUserLoggedIn } = useUser();
       const { canAccessUnassignedContent } = useDeviceSettings();
@@ -144,6 +154,12 @@
         displayExploreChannels,
         displayClasses,
       };
+    },
+    props: {
+      loading: {
+        type: Boolean,
+        default: null,
+      },
     },
   };
 
