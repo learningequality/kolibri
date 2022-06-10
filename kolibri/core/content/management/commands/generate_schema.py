@@ -90,9 +90,7 @@ class Command(BaseCommand):
 
         call_command("migrate", app_name)
 
-        engine = create_engine(
-            get_default_db_string(), poolclass=SharingPool, convert_unicode=True
-        )
+        engine = create_engine(get_default_db_string(), poolclass=SharingPool)
 
         metadata = MetaData()
 
