@@ -1,5 +1,9 @@
+import requests
+from django.core.urlresolvers import reverse
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from six.moves.urllib.parse import urljoin
 
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.device.utils import get_device_setting
@@ -22,3 +26,43 @@ class UserIndividualViewset(APIView):
         return Response(
             {"individual": users_device == 1, "lod": subset_of_users_device}
         )
+
+
+class RemoteFacilitiesViewset(APIView):
+    def get(self, request):
+        baseurl = request.query_params.get(
+            "baseurl", request.build_absolute_uri("/")[:-1]
+        )
+        path = reverse("kolibri:core:publicfacility-list")
+        url = urljoin(baseurl, path)
+        try:
+            response = requests.get(url)
+            if response.status_code == 200:
+                return Response(response.json())
+            else:
+                return Response({})
+        except Exception as e:
+            raise ValidationError(detail=str(e))
+
+
+class RemoteFacilityUserViewset(APIView):
+    def get(self, request):
+        baseurl = request.query_params.get(
+            "baseurl", request.build_absolute_uri("/")[:-1]
+        )
+        username = request.query_params.get("username", None)
+        facility = request.query_params.get("facility", None)
+        if username is None or facility is None:
+            raise ValidationError(detail="Both username and facility are required")
+        path = reverse("kolibri:core:publicsearchuser-list")
+        url = urljoin(baseurl, path)
+        try:
+            response = requests.get(
+                url, params={"facility": facility, "search": username}
+            )
+            if response.status_code == 200:
+                return Response(response.json())
+            else:
+                return Response({})
+        except Exception as e:
+            raise ValidationError(detail=str(e))
