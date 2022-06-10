@@ -79,8 +79,7 @@ def _import_python_module(plugin_name):
     try:
         importlib.import_module(plugin_name)
     except ImportError as e:
-        # Python 2: message, Python 3: msg
-        exc_message = getattr(e, "message", getattr(e, "msg", None))
+        exc_message = str(e)
         if exc_message.startswith("No module named"):
             msg = (
                 "Plugin '{}' does not seem to exist. Is it on the PYTHONPATH?"

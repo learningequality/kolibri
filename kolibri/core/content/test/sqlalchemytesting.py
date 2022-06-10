@@ -6,9 +6,5 @@ from kolibri.core.content.utils.sqlalchemybridge import SharingPool
 
 def django_connection_engine():
     if get_default_db_string().startswith("sqlite"):
-        return create_engine(
-            get_default_db_string(), poolclass=SharingPool, convert_unicode=True
-        )
-    return create_engine(
-        get_default_db_string(), convert_unicode=True, pool_pre_ping=True
-    )
+        return create_engine(get_default_db_string(), poolclass=SharingPool)
+    return create_engine(get_default_db_string(), pool_pre_ping=True)
