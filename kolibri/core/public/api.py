@@ -12,8 +12,10 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.gzip import gzip_page
+from django_filters.rest_framework import DjangoFilterBackend
 from morango.constants import transfer_statuses
 from morango.models.core import TransferSession
+from rest_framework import filters
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.decorators import api_view
@@ -324,3 +326,16 @@ class SyncQueueViewSet(viewsets.ViewSet):
 
     def update(self, request, pk=None):
         return self.check_queue(request, pk=pk)
+
+
+class FacilitySearchUsernameViewSet(ReadOnlyValuesViewset):
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
+    filter_fields = ("facility",)
+    search_fields = ("^username",)
+
+    values = ("id", "username")
+
+    def get_queryset(self):
+        return FacilityUser.objects.filter(roles=None).filter(
+            Q(devicepermissions__is_superuser=False) | Q(devicepermissions__isnull=True)
+        )
