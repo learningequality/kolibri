@@ -2,7 +2,7 @@ from urllib.parse import urljoin
 
 import requests
 from django.core.management import call_command
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from rest_framework import serializers
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.status import HTTP_201_CREATED

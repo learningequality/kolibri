@@ -11,7 +11,7 @@ class UserIndividualViewset(APIView):
     """
 
     def get(self, request, format=None):
-        if request.user.is_anonymous():
+        if request.user.is_anonymous:
             self.permission_denied(request)
 
         subset_of_users_device = get_device_setting(
