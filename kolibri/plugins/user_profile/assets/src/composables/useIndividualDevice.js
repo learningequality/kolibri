@@ -9,6 +9,7 @@ export default function useIndividualDevice() {
     client({ url: urls['kolibri:kolibri.plugins.user_profile:userindividual']() }).then(
       response => {
         isIndividual.value = response.data.individual && !response.data.lod;
+        // isIndividual.value = true;
       }
     );
   });

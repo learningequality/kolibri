@@ -1,62 +1,30 @@
 <template>
 
-  <CoreBase
-    :immersivePage="false"
-    :appBarTitle="coreString('profileLabel')"
-    :immersivePagePrimary="true"
-  >
-    <KPageContainer>
+  <NotificationsRoot>
+    <div class="main-wrapper" :style="wrapperStyles">
+      <ImmersiveToolbar
+        ref="appBar"
+        :appBarTitle="coreString('changeLearningFacility')"
+        :route="$router.getRoute('PROFILE')"
+      />
+      <KPageContainer>
 
-      <KGrid>
-        <KGridItem sizes="100, 75, 75" percentage>
-          <h1>Change Facility</h1>
-        </KGridItem>
-        <!-- Users cannot edit their profile if on a SoUD -->
-        <KGridItem v-if="!isSubsetOfUsersDevice" sizes="100, 25, 25" percentage alignment="right">
-          Route name: {{ currentRoute }}
-        </KGridItem>
-        <KGridItem v-if="!isSubsetOfUsersDevice" sizes="100, 25, 25" percentage alignment="right">
-          Machine state: {{ state.value }}
-        </KGridItem>
-        <KGridItem v-if="!isSubsetOfUsersDevice" sizes="100, 25, 25" percentage alignment="right">
-          Machine context: {{ state.context }}
-        </KGridItem>
-      </KGrid>
+        <router-view />
 
-      <slot name="buttons">
-        <KButtonGroup>
-          <KButton
-            :primary="true"
-            :text="coreString('continueAction')"
-            @click="to_continue"
-          />
-
-          <KButton
-            :primary="true"
-            :text="coreString('goBackAction')"
-            @click="goBack"
-          />
-          <KButton
-            :primary="true"
-            text="select Facility"
-            @click="selectFacility"
-          />
-        </KButtonGroup>
-      </slot>
-
-
-    </KPageContainer>
-  </CoreBase>
+      </KPageContainer>
+    </div>
+  </NotificationsRoot>
 
 </template>
 
 
 <script>
 
-  import CoreBase from 'kolibri.coreVue.components.CoreBase';
-  import { computed } from 'kolibri.lib.vueCompositionApi';
+  import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
+  import ImmersiveToolbar from 'kolibri.coreVue.components.ImmersiveToolbar';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { computed } from 'kolibri.lib.vueCompositionApi';
   import { interpret } from 'xstate';
   import { mapGetters } from 'vuex';
   import { changeFacilityMachine } from '../../machines/changeFacilityMachine';
@@ -69,9 +37,7 @@
         title: this.$tr('documentTitle'),
       };
     },
-    components: {
-      CoreBase,
-    },
+    components: { NotificationsRoot, ImmersiveToolbar },
 
     mixins: [responsiveWindowMixin, commonCoreStrings],
     setup() {
@@ -80,11 +46,13 @@
         isSubsetOfUsersDevice,
       };
     },
+
     data() {
       return {
         service: interpret(changeFacilityMachine),
         state: changeFacilityMachine.initialState,
         currentRoute: this.$router.currentRoute.name,
+        appBarHeight: 0,
       };
     },
     provide() {
@@ -93,13 +61,27 @@
         state: computed(() => this.state.context),
       };
     },
+
     computed: {
       ...mapGetters(['session', 'getUserKind']),
+      wrapperStyles() {
+        return {
+          width: '100%',
+          display: 'inline-block',
+          backgroundColor: this.$themePalette.grey.v_100,
+          paddingLeft: '32px',
+          paddingRight: '32px',
+          paddingBottom: '72px',
+          paddingTop: this.appBarHeight + 16 + 'px',
+        };
+      },
     },
+
     created() {
       this.service.start();
       this.service.onTransition(state => {
         const stateID = Object.keys(state.meta)[0];
+        console.log(state);
         if (state.meta[stateID] !== undefined) {
           let newRoute = state.meta[stateID].route;
           if (newRoute != this.$router.currentRoute.name) {
@@ -117,6 +99,8 @@
       this.service.stop();
     },
     mounted() {
+      this.appBarHeight = this.$refs.appBar.$el.clientHeight;
+
       const ctx = this.service.state.context;
       if (ctx.username === '') {
         // machine initialized with its default context
@@ -129,26 +113,6 @@
           },
         });
       }
-    },
-    methods: {
-      selectFacility() {
-        this.service.send({
-          type: 'SELECTFACILITY',
-          value: {
-            name: 'fac2',
-            url: 'http...',
-            id: 'ca88..',
-          },
-        });
-      },
-      goBack() {
-        this.service.send({ type: 'BACK' });
-      },
-      to_continue() {
-        this.service.send({
-          type: 'CONTINUE',
-        });
-      },
     },
     $trs: {
       documentTitle: {
