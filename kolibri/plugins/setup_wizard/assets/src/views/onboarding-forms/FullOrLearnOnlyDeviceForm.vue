@@ -2,18 +2,18 @@
 
   <OnboardingStepBase
     :title="$tr('whatKindOfDeviceTitle')"
-    @submit="handleSubmit"
+    @continue="handleContinue"
   >
     <KRadioButton
       v-model="selected"
       :label="$tr('fullDeviceLabel')"
-      :value="$tr('fullDeviceLabel')"
+      :value="Options.FULL"
       :description="$tr('fullDeviceDescription')"
     />
     <KRadioButton
       v-model="selected"
       :label="$tr('learnOnlyDeviceLabel')"
-      :value="$tr('learnOnlyDeviceLabel')"
+      :value="Options.LOD"
       :description="$tr('learnOnlyDeviceDescription')"
     />
   </OnboardingStepBase>
@@ -23,12 +23,12 @@
 
 <script>
 
-  import { Presets } from '../../constants';
+  import get from 'lodash/get';
   import OnboardingStepBase from '../OnboardingStepBase';
 
   const Options = Object.freeze({
-    PUBLIC: 'PUBLIC',
-    PERSONAL: 'PERSONAL',
+    FULL: 'FULL',
+    LOD: 'LOD',
   });
 
   export default {
@@ -36,17 +36,18 @@
     components: {
       OnboardingStepBase,
     },
+    inject: ['wizardService'],
     data() {
-      let selected;
-      const { preset } = this.$store.state.onboardingData;
-      if (preset === null || preset === Presets.PERSONAL) {
-        selected = Options.PERSONAL;
-      } else {
-        selected = Options.PUBLIC;
-      }
+      let selected = get(this, 'wizardService.context.setupType', Options.FULL);
       return {
+        Options,
         selected,
       };
+    },
+    methods: {
+      handleContinue() {
+        this.wizardService.send({ type: 'CONTINUE', value: this.selected });
+      },
     },
     $trs: {
       whatKindOfDeviceTitle: {

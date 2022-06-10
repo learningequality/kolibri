@@ -78,12 +78,19 @@
        * using Lockr and redirecting to '/' should do the trick.
        */
 
-      function synchronizeRouteAndMachine(state) {
+      const synchronizeRouteAndMachine = state => {
         const { meta } = state;
-        if (meta && meta.route) {
-          this.$router.replace(meta.route);
+        console.log(meta);
+        const route = meta[Object.keys(meta)[0]].route;
+        if (route) {
+          // Avoid redundant navigation
+          if (this.$route.name !== route.name) {
+            this.$router.push(route);
+          }
+        } else {
+          this.router.push('/');
         }
-      }
+      };
 
       const savedState = Lockr.get('savedState', 'initializeContext');
 
@@ -99,15 +106,7 @@
       }
 
       this.service.onTransition(state => {
-        const stateID = Object.keys(state.meta)[0];
-        let newRoute = state.meta[stateID].route;
-
-        if (newRoute != this.$router.currentRoute.name) {
-          if ('path' in state.meta[stateID])
-            this.$router.push({ name: newRoute, path: state.meta[stateID].path });
-          else this.$router.push(newRoute);
-        }
-
+        synchronizeRouteAndMachine(state);
         Lockr.set('savedState', this.service._state);
       });
     },
