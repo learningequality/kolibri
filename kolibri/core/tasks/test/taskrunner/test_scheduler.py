@@ -136,3 +136,17 @@ class TestScheduler(object):
         assert scheduled_time == naive_utc_datetime(now) + datetime.timedelta(
             seconds=1000
         )
+
+    def test_scheduled_repeating_function_failure_sets_new_job_at_retry_interval(
+        self, job_storage
+    ):
+        now = local_now()
+        job_id = job_storage.schedule(
+            now, Job(id), interval=1000, repeat=1, retry_interval=5
+        )
+        job_storage._now = lambda: now
+        job_storage.mark_job_as_failed(job_id, "Exception", "Traceback")
+        with job_storage.session_scope() as session:
+            _, scheduled_job = job_storage._get_job_and_orm_job(job_id, session)
+            scheduled_time = scheduled_job.scheduled_time
+        assert scheduled_time == naive_utc_datetime(now) + datetime.timedelta(seconds=5)

@@ -32,6 +32,7 @@ class TestTaskDecorators(TestCase):
             queue="test",
             cancellable=True,
             track_progress=True,
+            long_running=False,
         )
 
     def test_register_decorator_registers_without_args(self):

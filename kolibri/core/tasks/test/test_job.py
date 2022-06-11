@@ -63,6 +63,7 @@ class TestRegisteredTask(TestCase):
             job_id="test",
             cancellable=True,
             track_progress=True,
+            long_running=True,
         )
 
     def test_constructor_sets_required_params(self):
@@ -74,6 +75,7 @@ class TestRegisteredTask(TestCase):
         self.assertEqual(self.registered_task.queue, "test")
         self.assertEqual(self.registered_task.cancellable, True)
         self.assertEqual(self.registered_task.track_progress, True)
+        self.assertEqual(self.registered_task.long_running, True)
 
     @mock.patch("kolibri.core.tasks.registry.Job", spec=True)
     def test__ready_job(self, MockJob):
@@ -85,6 +87,7 @@ class TestRegisteredTask(TestCase):
             job_id="test",
             cancellable=True,
             track_progress=True,
+            long_running=True,
             kwargs=dict(base=10),  # kwarg that was passed to _ready_job()
         )
 
@@ -111,7 +114,13 @@ class TestRegisteredTask(TestCase):
 
         _ready_job_mock.assert_called_once_with(args=args, kwargs=kwargs)
         mock_job_storage.enqueue_in.assert_called_once_with(
-            delta, "job", queue="test", interval=10, priority=5, repeat=10
+            delta,
+            "job",
+            queue="test",
+            interval=10,
+            priority=5,
+            repeat=10,
+            retry_interval=None,
         )
 
     @mock.patch("kolibri.core.tasks.registry.RegisteredTask._ready_job")
@@ -134,7 +143,13 @@ class TestRegisteredTask(TestCase):
 
         _ready_job_mock.assert_called_once_with(args=args, kwargs=kwargs)
         mock_job_storage.enqueue_at.assert_called_once_with(
-            now, "job", queue="test", interval=10, priority=5, repeat=10
+            now,
+            "job",
+            queue="test",
+            interval=10,
+            priority=5,
+            repeat=10,
+            retry_interval=None,
         )
 
     @mock.patch("kolibri.core.tasks.registry.RegisteredTask._ready_job")
@@ -152,4 +167,5 @@ class TestRegisteredTask(TestCase):
             "job",
             queue=self.registered_task.queue,
             priority=self.registered_task.priority,
+            retry_interval=None,
         )

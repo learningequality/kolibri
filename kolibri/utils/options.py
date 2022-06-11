@@ -684,6 +684,14 @@ base_option_spec = {
                 The file to use for the job storage database. This is only used in the case that the database backend being used is SQLite.
             """,
         },
+        "SCHEDULE_HOOKS": {
+            "type": "lazy_import_callback_list",
+            "description": """
+                A lsit of module paths for function callbacks that will be called when a job is scheduled in the storage class.
+                This is intended to allow an external task runner to be used to execute Kolibri tasks. The default is empty,
+                as the internal handling is sufficient for Kolibri's task running.
+            """,
+        },
     },
 }
 
@@ -767,6 +775,8 @@ def get_configspec():
         lines.append("[{section}]".format(section=section))
         for name, attrs in opts.items():
             default = attrs.get("default", "")
+            if isinstance(default, list) and not default:
+                raise RuntimeError("For an empty list don't specify a default")
             the_type = attrs["type"]
             args = ["%r" % op for op in attrs.get("options", [])] + [
                 "default=list('{default_list}')".format(

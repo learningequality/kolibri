@@ -58,6 +58,9 @@ class ORMJob(Base):
     # Repeat interval in seconds.
     interval = Column(Integer, default=0)
 
+    # Retry interval in seconds.
+    retry_interval = Column(Integer, nullable=True)
+
     # Number of times to repeat - None means repeat forever.
     repeat = Column(Integer, nullable=True)
 
@@ -66,14 +69,24 @@ class ORMJob(Base):
     __table_args__ = (Index("queue__scheduled_time", "queue", "scheduled_time"),)
 
 
+def _validate_hooks(hooks):
+    if hooks is None:
+        return []
+    if not isinstance(hooks, list) or any(not callable(h) for h in hooks):
+        raise RuntimeError("hooks must be a list of callables")
+    return hooks
+
+
 class Storage(object):
-    def __init__(self, connection, Base=Base):
+    def __init__(self, connection, Base=Base, schedule_hooks=None, update_hooks=None):
         self.engine = connection
         if self.engine.name == "sqlite":
             self.set_sqlite_pragmas()
         self.Base = Base
         self.Base.metadata.create_all(self.engine)
         self.sessionmaker = sessionmaker(bind=self.engine)
+        self.schedule_hooks = _validate_hooks(schedule_hooks)
+        self.update_hooks = _validate_hooks(update_hooks)
 
     @contextmanager
     def session_scope(self):
@@ -137,7 +150,9 @@ class Storage(object):
         job.storage = self
         return job
 
-    def enqueue_job(self, job, queue=DEFAULT_QUEUE, priority=Priority.REGULAR):
+    def enqueue_job(
+        self, job, queue=DEFAULT_QUEUE, priority=Priority.REGULAR, retry_interval=None
+    ):
         """
         Add the job given by j to the job queue.
 
@@ -151,6 +166,7 @@ class Storage(object):
             priority=priority,
             interval=0,
             repeat=0,
+            retry_interval=retry_interval,
         )
 
     def mark_job_as_canceled(self, job_id):
@@ -361,9 +377,16 @@ class Storage(object):
         with self.session_scope() as session:
             try:
                 job, orm_job = self._get_job_and_orm_job(job_id, session)
+                for update_hook in self.update_hooks:
+                    update_hook(job, orm_job, state=state, **kwargs)
                 if state is not None:
                     orm_job.state = job.state = state
-                    if state in {State.COMPLETED, State.FAILED, State.CANCELED}:
+                    if state == State.FAILED and orm_job.retry_interval is not None:
+                        orm_job.state = State.QUEUED
+                        orm_job.scheduled_time = naive_utc_datetime(
+                            self._now() + timedelta(seconds=orm_job.retry_interval)
+                        )
+                    elif state in {State.COMPLETED, State.FAILED, State.CANCELED}:
                         if orm_job.repeat is None or orm_job.repeat > 0:
                             orm_job.repeat = (
                                 orm_job.repeat - 1
@@ -400,23 +423,6 @@ class Storage(object):
         job = self._orm_to_job(orm_job)
         return job, orm_job
 
-    def change_execution_time(self, job, date_time):
-        """
-        Change a job's execution time.
-        """
-        if date_time.tzinfo is None:
-            raise ValueError(
-                "Must use a timezone aware datetime object for scheduling tasks"
-            )
-
-        with self.session_scope() as session:
-            scheduled_job = session.query(ORMJob).filter_by(id=job.job_id).one_or_none()
-            if scheduled_job:
-                scheduled_job.scheduled_time = naive_utc_datetime(date_time)
-                session.merge(scheduled_job)
-            else:
-                raise ValueError("Job not in jobs queue")
-
     def enqueue_at(
         self,
         dt,
@@ -425,6 +431,7 @@ class Storage(object):
         priority=Priority.REGULAR,
         interval=0,
         repeat=0,
+        retry_interval=None,
     ):
         """
         Add the job for the specified time
@@ -436,6 +443,7 @@ class Storage(object):
             priority=priority,
             interval=interval,
             repeat=repeat,
+            retry_interval=retry_interval,
         )
 
     def enqueue_in(
@@ -446,6 +454,7 @@ class Storage(object):
         priority=Priority.REGULAR,
         interval=0,
         repeat=0,
+        retry_interval=None,
     ):
         """
         Add the job in the specified time delta
@@ -460,6 +469,7 @@ class Storage(object):
             priority=priority,
             interval=interval,
             repeat=repeat,
+            retry_interval=retry_interval,
         )
 
     def schedule(
@@ -470,6 +480,7 @@ class Storage(object):
         priority=Priority.REGULAR,
         interval=0,
         repeat=0,
+        retry_interval=None,
     ):
         """
         Add the job for the specified time, interval, and number of repeats.
@@ -495,6 +506,9 @@ class Storage(object):
                 State.CANCELED,
             }:
                 # If this job is already queued or running, don't try to replace it.
+                # Call our schedule hooks anyway to ensure that job storage
+                # is synchronized with any other task runner.
+                self._run_scheduled_hooks(orm_job)
                 return job.job_id
 
             job.state = State.QUEUED
@@ -505,6 +519,7 @@ class Storage(object):
                 queue=queue,
                 interval=interval,
                 repeat=repeat,
+                retry_interval=retry_interval,
                 scheduled_time=naive_utc_datetime(dt),
                 saved_job=job.to_json(),
             )
@@ -514,7 +529,20 @@ class Storage(object):
             except Exception as e:
                 logger.error("Got an error running session.commit(): {}".format(e))
 
+            self._run_scheduled_hooks(orm_job)
+
             return job.job_id
+
+    def _run_scheduled_hooks(self, orm_job):
+        for schedule_hook in self.schedule_hooks:
+            schedule_hook(
+                id=orm_job.id,
+                priority=orm_job.priority,
+                interval=orm_job.interval,
+                repeat=orm_job.repeat,
+                retry_interval=orm_job.retry_interval,
+                scheduled_time=orm_job.scheduled_time,
+            )
 
     def _now(self):
         return local_now()

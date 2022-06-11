@@ -102,7 +102,7 @@ def job_storage():
 
 class TestServerServices(object):
     @mock.patch("kolibri.core.deviceadmin.tasks.schedule_vacuum")
-    @mock.patch("kolibri.core.analytics.utils.schedule_ping")
+    @mock.patch("kolibri.core.analytics.tasks.schedule_ping")
     @mock.patch("kolibri.core.tasks.main.initialize_workers")
     @mock.patch("kolibri.core.discovery.utils.network.broadcast.KolibriBroadcast")
     def test_required_services_initiate_on_start(
@@ -145,7 +145,7 @@ class TestServerServices(object):
 
             # Currently, we must have exactly four scheduled jobs
             # two userdefined and two server defined (pingback and vacuum)
-            from kolibri.core.analytics.utils import DEFAULT_PING_JOB_ID
+            from kolibri.core.analytics.tasks import DEFAULT_PING_JOB_ID
             from kolibri.core.deviceadmin.tasks import SCH_VACUUM_JOB_ID
 
             assert len(job_storage) == 4

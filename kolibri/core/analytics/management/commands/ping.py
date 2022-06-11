@@ -3,11 +3,11 @@ import logging
 from django.core.management.base import BaseCommand
 from django.core.management.base import CommandError
 
-from kolibri.core.analytics.utils import DEFAULT_PING_CHECKRATE
-from kolibri.core.analytics.utils import DEFAULT_PING_INTERVAL
+from kolibri.core.analytics.tasks import DEFAULT_PING_CHECKRATE
+from kolibri.core.analytics.tasks import DEFAULT_PING_INTERVAL
+from kolibri.core.analytics.tasks import schedule_ping
 from kolibri.core.analytics.utils import DEFAULT_SERVER_URL
 from kolibri.core.analytics.utils import ping_once
-from kolibri.core.analytics.utils import schedule_ping
 from kolibri.utils.time_utils import local_now
 
 logger = logging.getLogger(__name__)

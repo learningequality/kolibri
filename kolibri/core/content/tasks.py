@@ -103,6 +103,7 @@ class LocalChannelImportResourcesValidator(LocalMixin, ChannelResourcesImportVal
     track_progress=True,
     permission_classes=[CanManageContent],
     queue=QUEUE,
+    long_running=True,
 )
 def diskcontentimport(
     channel_id, drive_id, update=False, node_ids=None, exclude_node_ids=None
@@ -178,6 +179,7 @@ class RemoteChannelResourcesImportValidator(
     cancellable=True,
     permission_classes=[CanManageContent],
     queue=QUEUE,
+    long_running=True,
 )
 def remotecontentimport(
     channel_id,
@@ -209,6 +211,7 @@ class ExportChannelResourcesValidator(LocalMixin, ChannelResourcesValidator):
     cancellable=True,
     permission_classes=[CanManageContent],
     queue=QUEUE,
+    long_running=True,
 )
 def diskexport(
     channel_id,
@@ -246,6 +249,7 @@ class DeleteChannelValidator(ChannelResourcesValidator):
     track_progress=True,
     permission_classes=[CanManageContent],
     queue=QUEUE,
+    long_running=True,
 )
 def deletechannel(
     channel_id=None,
@@ -271,6 +275,7 @@ def deletechannel(
     track_progress=True,
     permission_classes=[CanManageContent],
     queue=QUEUE,
+    long_running=True,
 )
 def remoteimport(
     channel_id,
@@ -306,6 +311,7 @@ def remoteimport(
     cancellable=True,
     permission_classes=[CanManageContent],
     queue=QUEUE,
+    long_running=True,
 )
 def diskimport(
     channel_id, drive_id, update=False, node_ids=None, exclude_node_ids=None

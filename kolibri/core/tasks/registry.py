@@ -157,7 +157,34 @@ class RegisteredTask(object):
         cancellable=False,
         track_progress=False,
         permission_classes=None,
+        long_running=False,
     ):
+        """
+        :param func: Function to be wrapped as a Registered task
+        :type func: function
+        :param job_id: Fixed job_id to use for any job run from this task, defaults to None
+        :type job_id: str
+        :param queue: The queue to run this task in by default, defaults to DEFAULT_QUEUE
+        :type queue: str
+        :param validator: The job validator, used to validate and serialize JSON into
+        the args, kwargs, and job arguments for running a job of this task,
+        defaults to JobValidator
+        :type validator: JobValidator
+        :param priority: The priority for this task, can be either HIGH or REGULAR,
+        defaults to Priority.REGULAR
+        :type priority: int
+        :param cancellable: Can this task be cancelled while running, defaults to False
+        :type cancellable: bool
+        :param track_progress: Does this task track progress while it's executing, defaults to False
+        :type track_progress: bool
+        :param permission_classes: Classes that determine if a user has read and write access to
+        jobs of this task, defaults to None
+        :type permission_classes: list of BasePermission derived classes or
+        instantiated BasePermission derived classes.
+        :param long_running: In regular operation should this task finish in under ten minutes,
+        defaults to False
+        :type long_running: bool
+        """
         if permission_classes is None:
             permission_classes = []
         if not issubclass(validator, JobValidator):
@@ -172,6 +199,8 @@ class RegisteredTask(object):
             raise TypeError("cancellable must be of bool type.")
         if not isinstance(track_progress, bool):
             raise TypeError("track_progress must be of bool type.")
+        if not isinstance(long_running, bool):
+            raise TypeError("long_running must be of bool type.")
 
         self.func = func
         self.validator = validator
@@ -183,6 +212,7 @@ class RegisteredTask(object):
         self.job_id = job_id
         self.cancellable = cancellable
         self.track_progress = track_progress
+        self.long_running = long_running
 
         # Make this wrapper object look seamlessly like the wrapped function
         update_wrapper(self, func)
@@ -229,7 +259,7 @@ class RegisteredTask(object):
 
         return job
 
-    def enqueue(self, job=None, **job_kwargs):
+    def enqueue(self, job=None, retry_interval=None, **job_kwargs):
         """
         Enqueue the function with arguments passed to this method.
 
@@ -239,9 +269,18 @@ class RegisteredTask(object):
             job or self._ready_job(**job_kwargs),
             queue=self.queue,
             priority=self.priority,
+            retry_interval=retry_interval,
         )
 
-    def enqueue_in(self, delta_time, interval=0, repeat=0, job=None, **job_kwargs):
+    def enqueue_in(
+        self,
+        delta_time,
+        interval=0,
+        repeat=0,
+        retry_interval=None,
+        job=None,
+        **job_kwargs
+    ):
         """
         Schedule the function to get enqueued in `delta_time` with args and
         kwargs as its positional and keyword arguments.
@@ -258,9 +297,18 @@ class RegisteredTask(object):
             priority=self.priority,
             interval=interval,
             repeat=repeat,
+            retry_interval=retry_interval,
         )
 
-    def enqueue_at(self, datetime, interval=0, repeat=0, job=None, **job_kwargs):
+    def enqueue_at(
+        self,
+        datetime,
+        interval=0,
+        repeat=0,
+        retry_interval=None,
+        job=None,
+        **job_kwargs
+    ):
         """
         Schedule the function to get enqueued at a specific `datetime` with
         args and kwargs as its positional and keyword arguments.
@@ -277,6 +325,7 @@ class RegisteredTask(object):
             priority=self.priority,
             interval=interval,
             repeat=repeat,
+            retry_interval=retry_interval,
         )
 
     def _ready_job(self, **job_kwargs):
@@ -288,6 +337,7 @@ class RegisteredTask(object):
             job_id=job_kwargs.pop("job_id", self.job_id),
             cancellable=job_kwargs.pop("cancellable", self.cancellable),
             track_progress=job_kwargs.pop("track_progress", self.track_progress),
+            long_running=job_kwargs.pop("long_running", self.long_running),
             **job_kwargs
         )
         return job_obj
