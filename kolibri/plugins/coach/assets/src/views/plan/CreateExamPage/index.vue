@@ -170,6 +170,7 @@
           <KButton
             :text="coreString('continueAction')"
             primary
+            :disabled="!exercisesHaveBeenSelected"
             @click="continueProcess"
           />
         </KButtonGroup>
@@ -333,6 +334,9 @@
       },
       addableExercises() {
         return this.allExercises.filter(exercise => !this.selectedExercises[exercise.id]);
+      },
+      exercisesHaveBeenSelected() {
+        return Object.keys(this.selectedExercises).length > 0;
       },
       selectAllChecked() {
         return this.addableExercises.length === 0;
