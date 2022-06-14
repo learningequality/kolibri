@@ -4,13 +4,45 @@ Feature: Device setup
     Given that the Kolibri installation was successful
 
 	Scenario: Load the Kolibri app for the first time during device setup
-	# Need to decide alternative to carousels
 		When I open the app for the first time
 		Then I see a static image of the Kolibri logo
+			And I see messages under the logo
+		When I click an arrow
+		Then I can cycle through the messages
 		When the loading completes
 		Then I see a *Get started* button
 
-	Scenario: Select *On my own* setup
+	Scenario: Select *On my own* setup in a desktop browser
+		Given I using a desktop browser
+			And Kolibri has finished loading after opening it for the first time
+		When I click *Get started*
+		Then I see *How are you using Kolibri?*
+			And I see the checkbox for *On my own* is selected by default
+		When I click *Continue*
+		Then I see *What language do you want to learn in?*
+			And I see an option to change the language
+		When I click the *Change* button
+		Then I see the *Change language* modal
+		When I select a language
+			And I press the *Confirm* button
+		Then I see the the *Selected: <language>*
+		When I click *Continue*
+		Then I see the *Create your account* page
+			And I see the Kolibri logo to the left, the language selector to the right and a label *Create your account*
+			And I see the text *This is a super admin account that will let you manage educational resources and user accounts on this device.*
+			And I see the *Full name*, *Username*, *Password* and *Re-enter password* fields*
+			And I see the *Usage and privacy* link and the text *Important: please remember this account information. Write it down if needed.*
+		When I fill in the *Full name*, *Username*, *Password* and *Re-enter password* fields
+			And I click *Continue*
+		Then I see the Kolibri loading icon
+			And I see *Setting up Kolibri*
+			And I see *This may take several minutes*
+		When Kolibri finishes loading
+		Then I see a modal *Add materials*
+		When I click *Continue*
+		Then I am at *Learn > Library* page
+
+	Scenario: Select *On my own* setup in app mode
 		Given Kolibri has finished loading after opening it for the first time
 		When I click *Get started*
 		Then I see *How are you using Kolibri?*
@@ -102,6 +134,10 @@ Feature: Device setup
 		Then I see the *Select network address* modal
 			And I can select a network address
 		When I click *Continue*
+		Then I am at *Select learning facility* #this page is shown only if there's more than 1 facility on the selected device
+			And I see all of the available facilities
+		When I select a facility
+			And I click *Continue*
 		Then I am at the *Import facility - 1 of 4* page
 			And I see *Import facility*
     	And I see the name of the device from which I am importing
@@ -139,6 +175,10 @@ Feature: Device setup
 		Then I see the *Select network address* modal
 			And I can select a network address
 		When I click *Continue*
+		Then I am at *Select learning facility* #this page is shown only if there's more than 1 facility on the selected device
+			And I see all of the available facilities
+		When I select a facility
+			And I click *Continue*
 		Then I am at the *Import individual user accounts - 1 of 2* page
 			And I see *Import individual user accounts*
 			And I see the name of the device from which I am importing
@@ -167,7 +207,7 @@ Feature: Device setup
 			And I am at the *Select a facility setup for this device* page
 		When I select *Create a new user account for an existing facility*
 			And I click *Continue*
-		Then I am at the  *Select facility* page
+		Then I am at the  *Select facility* page #this page is shown only if there's more than 1 facility on the selected device
 			And I see a list of facilities in my network
 			And I see *Don't see your facility?*
 			And I see *Add new address*
@@ -200,18 +240,6 @@ Feature: Device setup
 		When I try to select the facility <facility>
 		Then I see that the facility <facility> is disabled in the list
 			And I see *You don't have permission to join this facility*
-
-	Scenario: Finish device setup, user does not have content imported on the device yet
-		# For quick start, create new facility, and sometimes other setup paths
-		Given
-
-	Scenario: Finish device setup, user has content imported on the device as part of the setup wizard
-		# For when the user imports user accounts and the content associated with it
-		Given
-
-	Scenario: Change the platform language during device setup
-		# Instead of a page dedicated to setting the language, a language button will be accessible throughout the setup wizard
-		Given
 
 	Scenario: Use the device setup wizard on the smallest breakpoint
 		Given Kolibri has finished loading after opening it for the first time in a mobile device
