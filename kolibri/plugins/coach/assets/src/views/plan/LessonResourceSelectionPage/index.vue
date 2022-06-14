@@ -98,7 +98,7 @@
 
     <BottomAppBar>
       <KRouterLink
-        :text="inSearchMode ? $tr('exitSearchButtonLabel') : coreString('closeAction')"
+        :text="bottomBarButtonText"
         :primary="true"
         appearance="raised-button"
         :to="exitButtonRoute"
@@ -179,6 +179,15 @@
           return this.$router.getRoute(this.$route.query.last);
         }
         return this.$store.state.toolbarRoute;
+      },
+      bottomBarButtonText() {
+        if (this.inSearchMode) {
+          return this.$tr('exitSearchButtonLabel');
+        } else if (this.resourcesChanged) {
+          return this.coreString('saveAction');
+        } else {
+          return this.coreString('closeAction');
+        }
       },
       pageTitle() {
         return this.$tr('documentTitle', { lessonName: this.currentLesson.title });
