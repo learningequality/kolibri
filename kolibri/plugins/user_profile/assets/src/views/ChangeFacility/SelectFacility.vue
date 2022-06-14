@@ -9,7 +9,7 @@
         <div v-if="discoveringPeers">
           <KLabeledIcon>
             <template #icon>
-              <KCircularLoader :size="16" :stroke="6" class="loader" />
+              <KCircularLoader :size="16" :stroke="6" />
             </template>
           </KLabeledIcon>
         </div>
@@ -24,7 +24,6 @@
         <KRadioButton
           :key="f.id"
           v-model="selectedFacilityId"
-          class="radio-button"
           :value="f.id"
           :label="formatNameAndId(f.name, f.id)"
           :disabled="discoveryFailed || !isAddressAvailable(f.address_id)"
@@ -44,7 +43,6 @@
       <KGridItem>{{ $tr('doNotSeeYourFacility') }}</KGridItem>
       <KGridItem>
         <KButton
-          class="new-address-button"
           :text="$tr('newAddressButtonLabel')"
           appearance="basic-link"
           @click="showAddAddressModal = true"

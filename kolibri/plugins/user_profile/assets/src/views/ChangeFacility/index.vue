@@ -1,7 +1,7 @@
 <template>
 
   <NotificationsRoot>
-    <div class="main-wrapper" :style="wrapperStyles">
+    <div :style="wrapperStyles">
       <ImmersiveToolbar
         ref="appBar"
         :appBarTitle="coreString('changeLearningFacility')"
@@ -81,7 +81,6 @@
       this.service.start();
       this.service.onTransition(state => {
         const stateID = Object.keys(state.meta)[0];
-        console.log(state);
         if (state.meta[stateID] !== undefined) {
           let newRoute = state.meta[stateID].route;
           if (newRoute != this.$router.currentRoute.name) {

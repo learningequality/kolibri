@@ -60,7 +60,7 @@ export default [
         component: SelectFacility,
       },
       {
-        path: 'change',
+        path: 'confirm_change',
         name: 'CONFIRM_CHANGE_FACILITY',
         component: ConfirmChangeFacility,
       },

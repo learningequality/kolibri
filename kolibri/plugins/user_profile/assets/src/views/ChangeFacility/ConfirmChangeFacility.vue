@@ -89,7 +89,7 @@
       },
       mergeAccounts: {
         message: 'Merge Accounts',
-        context: 'Button for the merge accounts between facilities button.',
+        context: 'Button for the merge accounts between facilities.',
       },
       changeFacilityInfoLine1: {
         message:
