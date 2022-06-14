@@ -186,9 +186,9 @@ def get_channel_annotation_stats(channel_id, checksums=None):  # noqa
             .where(exists(available_nodes))
             .values(
                 available=exists(available_nodes),
-                coach_content=coach_content_nodes,
-                num_coach_contents=coach_content_num,
-                on_device_resources=on_device_num,
+                coach_content=coach_content_nodes.scalar_subquery(),
+                num_coach_contents=coach_content_num.scalar_subquery(),
+                on_device_resources=on_device_num.scalar_subquery(),
             )
         )
 

@@ -637,9 +637,9 @@ def recurse_annotation_up_tree(channel_id):
             .where(exists(available_nodes))
             .values(
                 available=exists(available_nodes),
-                coach_content=coach_content_nodes,
-                num_coach_contents=coach_content_num,
-                on_device_resources=on_device_num,
+                coach_content=coach_content_nodes.scalar_subquery(),
+                num_coach_contents=coach_content_num.scalar_subquery(),
+                on_device_resources=on_device_num.scalar_subquery(),
             )
         )
 
@@ -876,7 +876,7 @@ def set_channel_ancestors(channel_id):
                 )
             )
             .values(
-                ancestors=ancestors,
+                ancestors=ancestors.scalar_subquery(),
             )
         )
 

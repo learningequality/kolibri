@@ -1,5 +1,4 @@
 from sqlalchemy import inspect
-from sqlalchemy.ext.declarative.clsregistry import _ModuleMarker
 from sqlalchemy.orm import RelationshipProperty
 
 # Modified from https://gist.github.com/miohtama/278fd4eeb9e5272d061c
@@ -23,13 +22,8 @@ def db_matches_schema(Base, engine):
     tables = iengine.get_table_names()
 
     # Go through all SQLAlchemy models
-    for name, klass in Base._decl_class_registry.items():
+    for table, klass in Base.classes.items():
 
-        if isinstance(klass, _ModuleMarker):
-            # Not a model
-            continue
-
-        table = klass.__table__.name
         if table in tables:
 
             columns = [c["name"] for c in iengine.get_columns(table)]

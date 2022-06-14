@@ -287,7 +287,10 @@ class BaseChannelImportClassOtherMethodsTestCase(TestCase):
         channel_import.end()
         channel_import.destination.end.assert_has_calls([call(), call()])
 
-    def test_destination_tree_ids(self, apps_mock, tree_id_mock, BridgeMock):
+    @patch("kolibri.core.content.utils.channel_import.select")
+    def test_destination_tree_ids(
+        self, select_mock, apps_mock, tree_id_mock, BridgeMock
+    ):
         channel_import = ChannelImport("test", "")
         class_mock = Mock()
         channel_import.destination.get_class.return_value = class_mock
@@ -302,7 +305,8 @@ class BaseChannelImportClassOtherMethodsTestCase(TestCase):
 class MaliciousDatabaseTestCase(TestCase):
     @patch("kolibri.core.content.utils.channel_import.set_channel_ancestors")
     @patch("kolibri.core.content.utils.channel_import.Bridge")
-    def test_non_existent_root_node(self, bridge_mock, ancestor_mock):
+    @patch("kolibri.core.content.utils.channel_import.select")
+    def test_non_existent_root_node(self, select_mock, bridge_mock, ancestor_mock):
         channel_id = "6199dde695db4ee4ab392222d5af1e5c"
         import_manager = ChannelImport(channel_id, "source")
 

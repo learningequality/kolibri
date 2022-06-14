@@ -199,7 +199,7 @@ def update_num_coach_contents():
                 # Because we have set availability to False on all topics as a starting point
                 # we only need to make updates to topics with available children.
                 .where(exists(available_nodes))
-                .values(num_coach_contents=coach_content_num)
+                .values(num_coach_contents=coach_content_num.scalar_subquery())
             )
 
     # commit the transaction
