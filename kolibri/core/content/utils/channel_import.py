@@ -308,7 +308,7 @@ class ChannelImport(object):
             map(
                 lambda x: x[0],
                 self.destination.execute(
-                    select([ContentNodeTable.c.tree_id]).distinct()
+                    select(ContentNodeTable.c.tree_id).distinct()
                 ).fetchall(),
             )
         )
@@ -391,7 +391,7 @@ class ChannelImport(object):
         if SourceTable is not None:
             if self.source_data is not None:
                 return self.source_data.get(SourceTable.name, [])
-            return self.source.execute(select([SourceTable])).fetchall()
+            return self.source.execute(select(SourceTable)).fetchall()
         return []
 
     def base_row_mapper(self, record, column):
@@ -694,7 +694,7 @@ class ChannelImport(object):
     def check_and_delete_existing_channel(self):
         ChannelMetadataTable = self.destination.get_table(ChannelMetadata)
         existing_channel = self.destination.execute(
-            select([ChannelMetadataTable]).where(
+            select(ChannelMetadataTable).where(
                 ChannelMetadataTable.c.id == self.channel_id
             )
         ).fetchone()
@@ -717,7 +717,7 @@ class ChannelImport(object):
                 ContentNodeTable = self.destination.get_table(ContentNode)
 
                 root_node = self.destination.execute(
-                    select([ContentNodeTable]).where(
+                    select(ContentNodeTable).where(
                         ContentNodeTable.c.id == existing_channel["root_id"]
                     )
                 ).fetchone()
@@ -788,7 +788,7 @@ class ChannelImport(object):
                 # run a query for each field this model has that foreignkeys onto ContentNode
                 or_queries = [
                     getattr(table.c, column).in_(
-                        select([ContentNodeTable.c.id]).where(
+                        select(ContentNodeTable.c.id).where(
                             ContentNodeTable.c.tree_id == old_tree_id
                         )
                     )
@@ -1047,7 +1047,7 @@ class NoVersionChannelImport(NoLearningActivitiesChannelImport):
         # LocalFile objects are unique per checksum
         # Note, this would fail for a data import but for now we will not be supporting
         # data imports from schema versions this old.
-        for record in self.source.execute(select([SourceTable])).fetchall():
+        for record in self.source.execute(select(SourceTable)).fetchall():
             if record.checksum not in checksum_record:
                 checksum_record.add(record.checksum)
                 yield record
@@ -1066,7 +1066,7 @@ class NoVersionChannelImport(NoLearningActivitiesChannelImport):
             # Note, this would fail for a data import but for now we will not be supporting
             # data imports from schema versions this old.
             license = self.source.execute(
-                select([LicenseTable]).where(LicenseTable.c.id == license_id)
+                select(LicenseTable).where(LicenseTable.c.id == license_id)
             ).fetchone()
             self.licenses[license_id] = license
         return self.licenses[license_id]

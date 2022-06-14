@@ -163,7 +163,7 @@ def update_num_coach_contents():
     )
 
     # Expression to capture all available child nodes of a contentnode
-    available_nodes = select([child.c.available]).where(
+    available_nodes = select(child.c.available).where(
         and_(
             child.c.available == True,  # noqa
             ContentNodeTable.c.id == child.c.parent_id,
@@ -172,7 +172,7 @@ def update_num_coach_contents():
 
     # Expression that sums the total number of coach contents for each child node
     # of a contentnode
-    coach_content_num = select([func.sum(child.c.num_coach_contents)]).where(
+    coach_content_num = select(func.sum(child.c.num_coach_contents)).where(
         and_(
             child.c.available == True,  # noqa
             ContentNodeTable.c.id == child.c.parent_id,
@@ -242,7 +242,7 @@ def update_on_device_resources():
     )
 
     # Expression to capture all available child nodes of a contentnode
-    available_nodes = select([child.c.available]).where(
+    available_nodes = select(child.c.available).where(
         and_(
             child.c.available == True,  # noqa
             ContentNodeTable.c.id == child.c.parent_id,
@@ -251,7 +251,7 @@ def update_on_device_resources():
 
     # Expression that sums the total number of coach contents for each child node
     # of a contentnode
-    on_device_num = select([func.sum(child.c.on_device_resources)]).where(
+    on_device_num = select(func.sum(child.c.on_device_resources)).where(
         and_(
             child.c.available == True,  # noqa
             ContentNodeTable.c.id == child.c.parent_id,
