@@ -53,6 +53,7 @@
         state: changeFacilityMachine.initialState,
         currentRoute: this.$router.currentRoute.name,
         appBarHeight: 0,
+        internalNavigation: false,
       };
     },
     provide() {
@@ -77,6 +78,10 @@
       },
     },
 
+    beforeRouteUpdate(to, from, next) {
+      if (!this.internalNavigation) this.service.send('BACK');
+      next();
+    },
     created() {
       this.service.start();
       this.service.onTransition(state => {
@@ -85,8 +90,13 @@
           let newRoute = state.meta[stateID].route;
           if (newRoute != this.$router.currentRoute.name) {
             if ('path' in state.meta[stateID]) {
-              this.backRoute = this.currentRoute;
-              this.$router.push({ name: newRoute, path: state.meta[stateID].path });
+              this.internalNavigation = true;
+              this.$router.push(
+                { name: newRoute, path: state.meta[stateID].path },
+                function() {
+                  this.internalNavigation = false;
+                }.bind(this)
+              );
             } else this.$router.push(newRoute);
           }
           this.currentRoute = newRoute;

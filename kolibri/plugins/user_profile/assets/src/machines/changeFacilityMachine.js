@@ -160,6 +160,7 @@ export const changeFacilityMachine = createMachine({
       on: {
         NEW: 'createAccount',
         CONTINUE: 'isAdmin',
+        BACK: 'changeFacility',
       },
     },
     isAdmin: {
