@@ -710,14 +710,12 @@ class UserRetrieveTestCase(APITestCase):
         cls.facility.add_admin(cls.superuser)
         cls.user = FacilityUserFactory.create(facility=cls.facility)
 
-    def setUp(self):
+    def test_user_list(self):
         self.client.login(
             username=self.superuser.username,
             password=DUMMY_PASSWORD,
             facility=self.facility,
         )
-
-    def test_user_list(self):
         response = self.client.get(reverse("kolibri:core:facilityuser-list"))
         self.assertEqual(response.status_code, 200)
         self.assertItemsEqual(
@@ -753,6 +751,66 @@ class UserRetrieveTestCase(APITestCase):
                 },
             ],
         )
+
+    def test_user_list_self(self):
+        self.client.login(
+            username=self.user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self.client.get(reverse("kolibri:core:facilityuser-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertItemsEqual(
+            response.data,
+            [
+                {
+                    "id": self.user.id,
+                    "username": self.user.username,
+                    "full_name": self.user.full_name,
+                    "facility": self.user.facility_id,
+                    "id_number": self.user.id_number,
+                    "gender": self.user.gender,
+                    "birth_year": self.user.birth_year,
+                    "is_superuser": False,
+                    "roles": [],
+                },
+            ],
+        )
+
+    def test_anonymous_user_list(self):
+        response = self.client.get(reverse("kolibri:core:facilityuser-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertItemsEqual(
+            response.data,
+            [],
+        )
+
+    def test_user_no_retrieve_admin(self):
+        self.client.login(
+            username=self.user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self.client.get(
+            reverse(
+                "kolibri:core:facilityuser-detail", kwargs={"pk": self.superuser.id}
+            )
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_anonymous_no_retrieve_admin(self):
+        response = self.client.get(
+            reverse(
+                "kolibri:core:facilityuser-detail", kwargs={"pk": self.superuser.id}
+            )
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_anonymous_no_retrieve_user(self):
+        response = self.client.get(
+            reverse("kolibri:core:facilityuser-detail", kwargs={"pk": self.user.id})
+        )
+        self.assertEqual(response.status_code, 404)
 
 
 class FacilityUserFilterTestCase(APITestCase):
