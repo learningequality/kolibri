@@ -81,8 +81,9 @@ class LearnerGroupAPITestCase(APITestCase):
             cls.learner_groups += [
                 LearnerGroupFactory.create(parent=classroom) for _ in range(5)
             ]
+        cls.user = FacilityUserFactory.create(facility=cls.facility)
 
-    def setUp(self):
+    def login_superuser(self):
         self.client.login(
             username=self.superuser.username,
             password=DUMMY_PASSWORD,
@@ -90,6 +91,7 @@ class LearnerGroupAPITestCase(APITestCase):
         )
 
     def test_learnergroup_list(self):
+        self.login_superuser()
         response = self.client.get(
             reverse("kolibri:core:learnergroup-list"), format="json"
         )
@@ -110,7 +112,35 @@ class LearnerGroupAPITestCase(APITestCase):
             self.assertItemsEqual(group.pop("user_ids"), expected[i].pop("user_ids"))
         self.assertItemsEqual(response.data, expected)
 
+    def test_learnergroup_list_user(self):
+        self.client.login(
+            username=self.user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self.client.get(
+            reverse("kolibri:core:learnergroup-list"), format="json"
+        )
+        expected = []
+        self.assertItemsEqual(response.data, expected)
+
+    def test_learnergroup_list_user_parent_filter(self):
+        self.client.login(
+            username=self.user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self.client.get(
+            reverse("kolibri:core:learnergroup-list")
+            + "?parent="
+            + self.classrooms[0].id,
+            format="json",
+        )
+        expected = []
+        self.assertItemsEqual(response.data, expected)
+
     def test_learnergroup_detail(self):
+        self.login_superuser()
         response = self.client.get(
             reverse(
                 "kolibri:core:learnergroup-detail",
@@ -126,7 +156,23 @@ class LearnerGroupAPITestCase(APITestCase):
         }
         self.assertItemsEqual(response.data, expected)
 
+    def test_learnergroup_detail_user(self):
+        self.client.login(
+            username=self.user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self.client.get(
+            reverse(
+                "kolibri:core:learnergroup-detail",
+                kwargs={"pk": self.learner_groups[0].id},
+            ),
+            format="json",
+        )
+        self.assertEqual(response.status_code, 404)
+
     def test_parent_in_queryparam_with_one_id(self):
+        self.login_superuser()
         classroom_id = self.classrooms[0].id
         response = self.client.get(
             reverse("kolibri:core:learnergroup-list"),
@@ -152,6 +198,7 @@ class LearnerGroupAPITestCase(APITestCase):
         self.assertItemsEqual(response.data, expected)
 
     def test_cannot_create_learnergroup_same_name(self):
+        self.login_superuser()
         classroom_id = self.classrooms[0].id
         learner_group_name = (
             models.LearnerGroup.objects.filter(parent_id=classroom_id).first().name
@@ -165,6 +212,7 @@ class LearnerGroupAPITestCase(APITestCase):
         self.assertEqual(response.data[0]["id"], error_constants.UNIQUE)
 
     def test_cannot_create_learnergroup_no_classroom_parent(self):
+        self.login_superuser()
         classroom_id = self.classrooms[0].id
         learner_group_id = (
             models.LearnerGroup.objects.filter(parent_id=classroom_id).first().id
@@ -187,8 +235,9 @@ class ClassroomAPITestCase(APITestCase):
             ClassroomFactory.create(parent=cls.facility) for _ in range(10)
         ]
         cls.learner_group = LearnerGroupFactory.create(parent=cls.classrooms[0])
+        cls.user = FacilityUserFactory.create(facility=cls.facility)
 
-    def setUp(self):
+    def login_superuser(self):
         self.client.login(
             username=self.superuser.username,
             password=DUMMY_PASSWORD,
@@ -196,6 +245,7 @@ class ClassroomAPITestCase(APITestCase):
         )
 
     def test_classroom_list(self):
+        self.login_superuser()
         response = self.client.get(
             reverse("kolibri:core:classroom-list"), format="json"
         )
@@ -213,7 +263,31 @@ class ClassroomAPITestCase(APITestCase):
         ]
         self.assertItemsEqual(response.data, expected)
 
+    def test_classroom_list_user(self):
+        self.client.login(
+            username=self.user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self.client.get(
+            reverse("kolibri:core:classroom-list"), format="json"
+        )
+        self.assertItemsEqual(response.data, [])
+
+    def test_classroom_list_user_parent_filter(self):
+        self.client.login(
+            username=self.user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self.client.get(
+            reverse("kolibri:core:classroom-list") + "?parent=" + self.facility.id,
+            format="json",
+        )
+        self.assertItemsEqual(response.data, [])
+
     def test_classroom_detail(self):
+        self.login_superuser()
         response = self.client.get(
             reverse(
                 "kolibri:core:classroom-detail", kwargs={"pk": self.classrooms[0].id}
@@ -229,7 +303,22 @@ class ClassroomAPITestCase(APITestCase):
         }
         self.assertDictEqual(response.data, expected)
 
+    def test_classroom_detail_user(self):
+        self.client.login(
+            username=self.user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self.client.get(
+            reverse(
+                "kolibri:core:classroom-detail", kwargs={"pk": self.classrooms[0].id}
+            ),
+            format="json",
+        )
+        self.assertEqual(response.status_code, 404)
+
     def test_classroom_detail_assigned_coach_super_user(self):
+        self.login_superuser()
         self.classrooms[0].add_coach(self.superuser)
         response = self.client.get(
             reverse(
@@ -264,6 +353,7 @@ class ClassroomAPITestCase(APITestCase):
         self.assertDictEqual(response.data, expected)
 
     def test_classroom_detail_assigned_coach_admin(self):
+        self.login_superuser()
         admin = FacilityUserFactory.create(facility=self.facility)
         self.facility.add_admin(admin)
         self.classrooms[0].add_coach(admin)
@@ -298,6 +388,7 @@ class ClassroomAPITestCase(APITestCase):
         self.assertDictEqual(response.data, expected)
 
     def test_classroom_facility_coach_role_for_filter(self):
+        self.login_superuser()
         coach = FacilityUserFactory.create(facility=self.facility)
         self.facility.add_coach(coach)
         response = self.client.get(
@@ -309,6 +400,7 @@ class ClassroomAPITestCase(APITestCase):
         self.assertEqual(len(response.data), len(self.classrooms))
 
     def test_cannot_create_classroom_same_name(self):
+        self.login_superuser()
         classroom_name = self.classrooms[0].name
         response = self.client.post(
             reverse("kolibri:core:classroom-list"),
@@ -319,6 +411,7 @@ class ClassroomAPITestCase(APITestCase):
         self.assertEqual(response.data[0]["id"], error_constants.UNIQUE)
 
     def test_cannot_create_classroom_no_facility_parent(self):
+        self.login_superuser()
         classroom_id = self.classrooms[0].id
         response = self.client.post(
             reverse("kolibri:core:classroom-list"),

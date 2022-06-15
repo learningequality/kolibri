@@ -55,17 +55,10 @@ class CollectionSpecificRoleBasedPermissions(RoleBasedPermissions):
             CollectionSpecificRoleBasedPermissions, self
         ).user_can_update_object(user, obj.parent)
 
-    def readable_by_user_filter(self, user):
-        if user.is_anonymous():
-            return q_none
 
-        # By default can read all collections in facility
-        return Q(dataset_id=user.dataset_id)
-
-
-class AnonUserCanReadFacilities(DenyAll):
+class AnyUserCanReadFacilities(DenyAll):
     """
-    Permissions class that allows reading the object if user is anonymous.
+    Permissions class that allows reading the object for any user.
     """
 
     def user_can_read_object(self, user, obj):
@@ -74,9 +67,7 @@ class AnonUserCanReadFacilities(DenyAll):
         return False
 
     def readable_by_user_filter(self, user):
-        if isinstance(user, AnonymousUser):
-            return Q(kind=FACILITY)
-        return q_none
+        return Q(kind=FACILITY)
 
 
 class FacilityAdminCanEditForOwnFacilityDataset(BasePermissions):
