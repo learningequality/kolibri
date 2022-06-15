@@ -196,24 +196,3 @@ class CoachesCanManageMembershipsForTheirGroups(BasePermissions):
 
     def readable_by_user_filter(self, user):
         return q_none
-
-
-class MembersCanReadMembershipsOfTheirCollections(BasePermissions):
-    def user_can_create_object(self, user, obj):
-        return False
-
-    def user_can_read_object(self, user, obj):
-        return user.is_member_of(obj.collection)
-
-    def user_can_update_object(self, user, obj):
-        return False
-
-    def user_can_delete_object(self, user, obj):
-        return False
-
-    def readable_by_user_filter(self, user):
-        if user.is_anonymous():
-            return q_none
-        # Add a special case where users with memberships in the same collection
-        # can also read memberships for other members
-        return Q(collection_id__in=user.memberships.all().values("collection_id"))

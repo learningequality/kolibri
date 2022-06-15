@@ -60,7 +60,6 @@ from .permissions.auth import CoachesCanManageGroupsForTheirClasses
 from .permissions.auth import CoachesCanManageMembershipsForTheirGroups
 from .permissions.auth import CollectionSpecificRoleBasedPermissions
 from .permissions.auth import FacilityAdminCanEditForOwnFacilityDataset
-from .permissions.auth import MembersCanReadMembershipsOfTheirCollections
 from .permissions.base import BasePermissions
 from .permissions.base import RoleBasedPermissions
 from .permissions.general import IsAdminForOwnFacility
@@ -1130,9 +1129,7 @@ class Membership(AbstractFacilityDataModel):
     )
     # Membership can be written by coaches under the coaches' group
     membership = CoachesCanManageMembershipsForTheirGroups()
-    # Members can read memberships of collections they are members of
-    own_collections = MembersCanReadMembershipsOfTheirCollections()
-    permissions = own | role | membership | own_collections
+    permissions = own | role | membership
 
     user = models.ForeignKey(
         "FacilityUser", related_name="memberships", blank=False, null=False

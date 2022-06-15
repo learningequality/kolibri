@@ -1233,7 +1233,7 @@ class FacilityDatasetAPITestCase(APITestCase):
         self.assertEqual(response.status_code, 400)
 
 
-class MembershipCascadeDeletion(APITestCase):
+class MembershipAPITestCase(APITestCase):
     @classmethod
     def setUpTestData(cls):
         provision_device()
@@ -1251,14 +1251,83 @@ class MembershipCascadeDeletion(APITestCase):
         models.Membership.objects.create(collection=cls.classroom, user=cls.other_user)
         models.Membership.objects.create(collection=cls.lg, user=cls.other_user)
 
-    def setUp(self):
+    def login_superuser(self):
         self.client.login(
             username=self.superuser.username,
             password=DUMMY_PASSWORD,
             facility=self.facility,
         )
 
+    def test_user_list_own(self):
+        self.client.login(
+            username=self.user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self.client.get(reverse("kolibri:core:membership-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 2)
+        for membership in response.data:
+            self.assertEqual(membership["user"], self.user.id)
+
+    def test_other_user_list_own(self):
+        self.client.login(
+            username=self.other_user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self.client.get(reverse("kolibri:core:membership-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 2)
+        for membership in response.data:
+            self.assertEqual(membership["user"], self.other_user.id)
+
+    def test_superuser_list_all(self):
+        self.login_superuser()
+        response = self.client.get(reverse("kolibri:core:membership-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 4)
+
+    def test_user_retrieve_own(self):
+        self.client.login(
+            username=self.user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self.client.get(
+            reverse(
+                "kolibri:core:membership-detail",
+                kwargs={"pk": self.classroom_membership.id},
+            )
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_user_retrieve_other(self):
+        self.client.login(
+            username=self.other_user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self.client.get(
+            reverse(
+                "kolibri:core:membership-detail",
+                kwargs={"pk": self.classroom_membership.id},
+            )
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_superuser_retrieve_other(self):
+        self.login_superuser()
+        response = self.client.get(
+            reverse(
+                "kolibri:core:membership-detail",
+                kwargs={"pk": self.classroom_membership.id},
+            )
+        )
+        self.assertEqual(response.status_code, 200)
+
     def test_delete_classroom_membership(self):
+        self.login_superuser()
         url = reverse("kolibri:core:membership-list") + "?user={}&collection={}".format(
             self.user.id, self.classroom.id
         )
@@ -1267,6 +1336,7 @@ class MembershipCascadeDeletion(APITestCase):
         self.assertFalse(models.Membership.objects.filter(user=self.user).exists())
 
     def test_delete_detail(self):
+        self.login_superuser()
         response = self.client.delete(
             reverse(
                 "kolibri:core:membership-detail",
@@ -1277,6 +1347,7 @@ class MembershipCascadeDeletion(APITestCase):
         self.assertFalse(models.Membership.objects.filter(user=self.user).exists())
 
     def test_delete_does_not_affect_other_user_memberships(self):
+        self.login_superuser()
         expected_count = models.Membership.objects.filter(user=self.other_user).count()
         self.client.delete(
             reverse(
