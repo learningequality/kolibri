@@ -99,9 +99,7 @@ class KolibriAuthPermissionsFilter(filters.BaseFilterBackend):
     """
 
     def filter_queryset(self, request, queryset, view):
-        if request.method == "GET" and request.resolver_match.url_name.endswith(
-            "-list"
-        ):
+        if request.method == "GET":
             # only filter down the queryset in the case of the list view being requested
             return request.user.filter_readable(queryset)
         # otherwise, return the full queryset, as permission checks will happen object-by-object
