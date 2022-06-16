@@ -58,7 +58,7 @@
             <KTextbox
               id="username"
               ref="username"
-              v-model="username"
+              v-model.trim="username"
               autocomplete="username"
               :autofocus="true"
               :label="coreString('usernameLabel')"
