@@ -183,8 +183,8 @@
       bottomBarButtonText() {
         if (this.inSearchMode) {
           return this.$tr('exitSearchButtonLabel');
-        } else if (this.resourcesChanged) {
-          return this.coreString('saveAction');
+        } else if (this.resourcesChanged && this.workingResources.length > 0) {
+          return this.coreString('saveChangesAction');
         } else {
           return this.coreString('closeAction');
         }
