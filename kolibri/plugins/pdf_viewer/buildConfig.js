@@ -3,7 +3,7 @@ module.exports = {
   webpack_config: {
     entry: {
       main: './assets/src/module.js',
-      pdfJSWorker: 'pdfjs-dist/build/pdf.worker.entry',
+      pdfJSWorker: 'pdfjs-dist/legacy/build/pdf.worker.entry',
     },
     resolve: {
       fallback: {
