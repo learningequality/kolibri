@@ -1,6 +1,7 @@
 <template>
 
   <ImmersiveDevicePage
+    v-if="!$store.state.core.loading"
     :appBarTitle="$tr('permissionsTitle')"
     :route="backRoute"
   >
