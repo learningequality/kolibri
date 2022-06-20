@@ -74,7 +74,7 @@
 
 <script>
 
-  import PDFJSLib from 'pdfjs-dist';
+  import * as PDFJSLib from 'pdfjs-dist/legacy/build/pdf';
   import Hammer from 'hammerjs';
   import throttle from 'lodash/throttle';
   import debounce from 'lodash/debounce';
@@ -85,12 +85,15 @@
   import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
-  import urls from 'kolibri.urls';
   import PdfPage from './PdfPage';
   // Source from which PDFJS loads its service worker, this is based on the __publicPath
   // global that is defined in the Kolibri webpack pipeline, and the additional entry in the PDF
   // renderer's own webpack config
-  PDFJSLib.PDFJS.workerSrc = urls.static(`${__kolibriModuleName}/pdfJSWorker-${__version}.js`);
+
+  /* eslint-disable no-undef */
+  PDFJSLib.GlobalWorkerOptions.workerSrc = __webpack_public_path__ + `pdfJSWorker-${__version}.js`;
+  /* eslint-enable */
+
   // How often should we respond to changes in scrolling to render new pages?
   const renderDebounceTime = 300;
   const scaleIncrement = 0.25;
@@ -216,12 +219,12 @@
 
       this.currentLocation = this.savedLocation;
       this.showControls = true; // Ensures it shows on load even if we're scrolled
-      const loadPdfPromise = PDFJSLib.getDocument(this.defaultFile.storage_url);
+      const loadingPdf = PDFJSLib.getDocument(this.defaultFile.storage_url);
       // pass callback to update loading bar
-      loadPdfPromise.onProgress = loadingProgress => {
+      loadingPdf.onProgress = loadingProgress => {
         this.progress = loadingProgress.loaded / loadingProgress.total;
       };
-      this.prepComponentData = loadPdfPromise.then(pdfDocument => {
+      this.prepComponentData = loadingPdf.promise.then(pdfDocument => {
         // Get initial info from the loaded pdf document
         this.pdfDocument = pdfDocument;
         this.totalPages = this.pdfDocument.numPages;

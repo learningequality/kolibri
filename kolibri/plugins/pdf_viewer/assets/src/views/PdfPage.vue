@@ -103,7 +103,7 @@
     methods: {
       getViewport() {
         // Get viewport, which contains directions to be passed into render function
-        return this.pdfPage.getViewport(this.pageScale);
+        return this.pdfPage.getViewport({ scale: this.pageScale });
       },
       renderPage(newVal, oldVal) {
         if (typeof newVal === 'number' && typeof oldVal === 'number' && newVal !== oldVal) {
@@ -118,7 +118,7 @@
             canvasContext,
             viewport,
           });
-          this.renderTask.then(
+          this.renderTask.promise.then(
             () => {
               delete this.renderTask;
               this.rendered = true;
