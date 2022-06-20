@@ -1,7 +1,6 @@
 """
 The permissions classes in this module define the specific permissions that govern access to the models in the auth app.
 """
-from django.contrib.auth.models import AnonymousUser
 from django.db.models import Q
 
 from ..constants.collection_kinds import ADHOCLEARNERSGROUP
@@ -28,6 +27,7 @@ class CollectionSpecificRoleBasedPermissions(RoleBasedPermissions):
             can_be_read_by=(ADMIN, COACH),
             can_be_updated_by=(ADMIN,),
             can_be_deleted_by=None,
+            collection_field="self",
         )
 
     def user_can_create_object(self, user, obj):
@@ -63,7 +63,7 @@ class AnyUserCanReadFacilities(DenyAll):
 
     def user_can_read_object(self, user, obj):
         if obj.kind == FACILITY:
-            return isinstance(user, AnonymousUser)
+            return True
         return False
 
     def readable_by_user_filter(self, user):

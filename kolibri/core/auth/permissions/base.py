@@ -108,7 +108,12 @@ class RoleBasedPermissions(BasePermissions):
         self.can_be_updated_by = can_be_updated_by
         self.can_be_deleted_by = can_be_deleted_by
         self.target_field = target_field
-        self.collection_field = collection_field
+        if collection_field == "self":
+            self.collection_field = "id"
+            self.parent_collection_field = "parent"
+        else:
+            self.collection_field = collection_field
+            self.parent_collection_field = "{}__parent".format(self.collection_field)
         self.is_syncable = is_syncable
 
     def _get_target_object(self, obj):
@@ -207,7 +212,7 @@ class RoleBasedPermissions(BasePermissions):
             # which collection an object is associated with.
             q_filter = Q(
                 Q(**{"{}__in".format(self.collection_field): collection_ids})
-                | Q(**{"{}__parent__in".format(self.collection_field): collection_ids})
+                | Q(**{"{}__in".format(self.parent_collection_field): collection_ids})
             )
             # Also filter by the parents of collections, so that objects associated with LearnerGroup
             # or AdHocGroups will also be readable by those with coach permissions on the parent Classroom

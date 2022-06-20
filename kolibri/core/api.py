@@ -213,9 +213,6 @@ class BaseValuesViewset(viewsets.GenericViewSet):
 
         return {self.lookup_field: self.kwargs[lookup_url_kwarg]}
 
-    def get_object(self):
-        return self._get_object_from_queryset(self.get_queryset())
-
     def annotate_queryset(self, queryset):
         return queryset
 

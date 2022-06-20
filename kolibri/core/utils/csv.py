@@ -33,3 +33,15 @@ def sanitize(value):
         value = value.replace("|", "\\|")
         value = "'" + value
     return value
+
+
+def output_mapper(obj, labels=None, output_mappings=None):
+    mapped_obj = {}
+    labels = labels or {}
+    output_mappings = output_mappings or {}
+    for header, label in labels.items():
+        if header in output_mappings and header in obj:
+            mapped_obj[label] = sanitize(output_mappings[header](obj))
+        elif header in obj:
+            mapped_obj[label] = sanitize(obj[header])
+    return mapped_obj

@@ -7,6 +7,7 @@ import logging
 import math
 import os
 from collections import OrderedDict
+from functools import partial
 
 from django.core.cache import cache
 from django.http import Http404
@@ -24,7 +25,7 @@ from kolibri.core.auth.models import Facility
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.utils.csv import open_csv_for_writing
-from kolibri.core.utils.csv import sanitize
+from kolibri.core.utils.csv import output_mapper
 from kolibri.utils import conf
 
 
@@ -87,16 +88,7 @@ labels = OrderedDict(
     )
 )
 
-
-def map_object(obj):
-    mapped_obj = {}
-    for header, label in labels.items():
-        if header in mappings:
-            mapped_obj[label] = mappings[header](obj)
-        elif header in obj:
-            mapped_obj[label] = obj[header]
-        mapped_obj[label] = sanitize(mapped_obj[label])
-    return mapped_obj
+map_object = partial(output_mapper, labels=labels, output_mappings=mappings)
 
 
 classes_info = {

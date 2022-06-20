@@ -17,7 +17,7 @@ from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.query import SQCount
 from kolibri.core.utils.csv import open_csv_for_writing
-from kolibri.core.utils.csv import sanitize
+from kolibri.core.utils.csv import output_mapper
 
 
 logger = logging.getLogger(__name__)
@@ -97,15 +97,7 @@ labels = OrderedDict(
 )
 
 
-def map_output(obj):
-    mapped_obj = {}
-    for header, label in labels.items():
-        if header in output_mappings and header in obj:
-            mapped_obj[label] = output_mappings[header](obj)
-        elif header in obj:
-            mapped_obj[label] = obj[header]
-        mapped_obj[label] = sanitize(mapped_obj[label])
-    return mapped_obj
+map_output = partial(output_mapper, labels=labels, output_mappings=output_mappings)
 
 
 input_fields = (
