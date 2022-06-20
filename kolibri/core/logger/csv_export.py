@@ -24,6 +24,7 @@ from kolibri.core.auth.models import Facility
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.utils.csv import open_csv_for_writing
+from kolibri.core.utils.csv import sanitize
 from kolibri.utils import conf
 
 
@@ -94,6 +95,7 @@ def map_object(obj):
             mapped_obj[label] = mappings[header](obj)
         elif header in obj:
             mapped_obj[label] = obj[header]
+        mapped_obj[label] = sanitize(mapped_obj[label])
     return mapped_obj
 
 

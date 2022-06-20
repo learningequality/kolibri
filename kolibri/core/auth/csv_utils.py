@@ -17,6 +17,7 @@ from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.query import SQCount
 from kolibri.core.utils.csv import open_csv_for_writing
+from kolibri.core.utils.csv import sanitize
 
 
 logger = logging.getLogger(__name__)
@@ -103,6 +104,7 @@ def map_output(obj):
             mapped_obj[label] = output_mappings[header](obj)
         elif header in obj:
             mapped_obj[label] = obj[header]
+        mapped_obj[label] = sanitize(mapped_obj[label])
     return mapped_obj
 
 

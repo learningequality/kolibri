@@ -27,6 +27,7 @@ from kolibri.core.query import GroupConcatSubquery
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.utils.csv import open_csv_for_writing
+from kolibri.core.utils.csv import sanitize
 from kolibri.utils import conf
 
 try:
@@ -114,6 +115,7 @@ def map_output(obj):
             mapped_obj[label] = output_mappings[header](obj)
         elif header in obj:
             mapped_obj[label] = obj[header]
+        mapped_obj[label] = sanitize(mapped_obj[label])
     return mapped_obj
 
 
