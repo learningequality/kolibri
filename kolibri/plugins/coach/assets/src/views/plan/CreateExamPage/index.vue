@@ -16,11 +16,7 @@
 
       <h1>{{ $tr('createNewExamLabel') }}</h1>
 
-      <UiAlert
-        v-if="showError && !inSearchMode"
-        type="error"
-        :dismissible="false"
-      >
+      <UiAlert v-if="showError && !inSearchMode" type="error" :dismissible="false">
         {{ selectionIsInvalidText }}
       </UiAlert>
 
@@ -38,11 +34,7 @@
         </KGridItem>
         <KGridItem :layout12="{ span: 6 }">
           <KGrid>
-            <KGridItem
-              :layout4="{ span: 2 }"
-              :layout8="{ span: 5 }"
-              :layout12="{ span: 8 }"
-            >
+            <KGridItem :layout4="{ span: 2 }" :layout8="{ span: 5 }" :layout12="{ span: 8 }">
               <KTextbox
                 ref="questionsInput"
                 v-model.trim.number="numQuestions"
@@ -83,10 +75,7 @@
       <h2>{{ $tr('chooseExercises') }}</h2>
       <div v-if="bookmarksRoute">
         <strong>
-          <KRouterLink
-            :text="coreString('channelsLabel')"
-            :to="channelsLink"
-          />
+          <KRouterLink :text="coreString('channelsLabel')" :to="channelsLink" />
         </strong>
         <ContentCardList
           :contentList="bookmarks"
@@ -105,12 +94,10 @@
         />
       </div>
       <div v-if="examCreationRoute">
-        <p>{{ coreString('selectFromBookmarks') }}</p>
-        <KRouterLink
-          v-if="bookmarksCount"
-          :style="{ width: '100%' }"
-          :to="getBookmarksLink()"
-        >
+        <p v-if="bookmarksCount">
+          {{ coreString('selectFromBookmarks') }}
+        </p>
+        <KRouterLink v-if="bookmarksCount" :style="{ width: '100%' }" :to="getBookmarksLink()">
           <div class="bookmark-container">
             <BookmarkIcon />
             <div class="text">
@@ -121,11 +108,8 @@
         </KRouterLink>
       </div>
 
-      <div v-if="examCreationRoute || examTopicRoute">
-        <LessonsSearchBox
-          class="search-box"
-          @searchterm="handleSearchTerm"
-        />
+      <div v-if="examCreationRoute || examTopicRoute || inSearchMode">
+        <LessonsSearchBox class="search-box" @searchterm="handleSearchTerm" />
 
         <LessonsSearchFilters
           v-if="inSearchMode"
@@ -601,6 +585,7 @@
         }
       },
       handleSearchTerm(searchTerm) {
+        console.log('handle search');
         const lastId = this.$route.query.last_id || this.$route.params.topicId;
         this.$router.push({
           name: PageNames.EXAM_CREATION_SEARCH,
