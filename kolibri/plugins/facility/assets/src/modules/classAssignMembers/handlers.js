@@ -13,6 +13,7 @@ export function showLearnerClassEnrollmentPage(store, toRoute) {
       member_of: facility_id || store.getters.activeFacilityId,
       page: toRoute.query.page || 1,
       page_size: toRoute.query.page_size || 30,
+      search: toRoute.query.search && toRoute.query.search.trim(),
       exclude_member_of: id,
       exclude_coach_for: id,
     }),
@@ -52,6 +53,7 @@ export function showCoachClassAssignmentPage(store, toRoute) {
       exclude_coach_for: id,
       page: toRoute.query.page || 1,
       page_size: toRoute.query.page_size || 30,
+      search: toRoute.query.search && toRoute.query.search.trim(),
     },
     force: true,
   });
