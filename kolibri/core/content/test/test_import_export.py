@@ -1,9 +1,11 @@
+import itertools
 import os
 import sys
 import tempfile
 import uuid
 
 from django.core.management import call_command
+from django.db.models import Q
 from django.test import TestCase
 from le_utils.constants import content_kinds
 from mock import call
@@ -25,7 +27,10 @@ from kolibri.core.content.utils import paths
 from kolibri.core.content.utils.content_types_tools import (
     renderable_contentnodes_q_filter,
 )
+from kolibri.core.content.utils.import_export_content import get_content_nodes_data
+from kolibri.core.content.utils.import_export_content import get_content_nodes_selectors
 from kolibri.core.content.utils.import_export_content import get_import_export_data
+from kolibri.core.content.utils.import_export_content import get_import_export_nodes
 from kolibri.utils.file_transfer import Transfer
 from kolibri.utils.file_transfer import TransferCanceled
 from kolibri.utils.tests.helpers import override_option
@@ -51,6 +56,293 @@ class FalseThenTrue(object):
         if self.count > self.times:
             return True
         return False
+
+
+@override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())
+class GetImportExportDataTestCase(TestCase):
+    """
+    Test case for utils.import_export_content.get_import_export_data
+    """
+
+    the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
+
+    @patch("kolibri.core.content.utils.import_export_content.get_import_export_nodes")
+    @patch("kolibri.core.content.utils.import_export_content.get_content_nodes_data")
+    def test_default_arguments(
+        self,
+        get_content_nodes_data_mock,
+        get_import_export_nodes_mock,
+    ):
+        get_import_export_data(self.the_channel_id)
+        get_content_nodes_data_mock.assert_called_with(
+            self.the_channel_id,
+            get_import_export_nodes_mock.return_value,
+            available=None,
+            topic_thumbnails=True,
+        )
+
+
+@override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())
+class GetImportExportNodesTestCase(TestCase):
+    """
+    Test case for utils.import_export_content.get_import_export_nodes
+    """
+
+    fixtures = ["content_test.json"]
+    the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
+
+    c1_node_id = "32a941fb77c2576e8f6b294cde4c3b0c"
+    c2_node_id = "2e8bac07947855369fe2d77642dfc870"
+    c2c1_node_id = "2b6926ed22025518a8b9da91745b51d3"
+    c2c2_node_id = "4d0c890de9b65d6880ccfa527800e0f4"
+    c2c3_node_id = "b391bfeec8a458f89f013cf1ca9cf33a"
+
+    def test_default_arguments(self):
+        expected_content_nodes = list(
+            ContentNode.objects.filter(channel_id=self.the_channel_id)
+            .filter(renderable_contentnodes_q_filter)
+            .exclude(kind=content_kinds.TOPIC)
+        )
+
+        matched_nodes_queries_list = get_import_export_nodes(self.the_channel_id)
+
+        self.assertCountEqual(
+            itertools.chain.from_iterable(matched_nodes_queries_list),
+            expected_content_nodes,
+        )
+
+    def test_available_only(self):
+        expected_content_nodes = list(
+            ContentNode.objects.filter(
+                channel_id=self.the_channel_id, available=True
+            ).exclude(kind=content_kinds.TOPIC)
+        )
+
+        matched_nodes_queries_list = get_import_export_nodes(
+            self.the_channel_id, renderable_only=False, available=True
+        )
+
+        self.assertCountEqual(
+            itertools.chain.from_iterable(matched_nodes_queries_list),
+            expected_content_nodes,
+        )
+
+    def test_with_node_ids(self):
+        expected_content_nodes = list(
+            ContentNode.objects.filter(
+                channel_id=self.the_channel_id,
+                available=True,
+            )
+            .filter(Q(parent=self.c2_node_id) | Q(pk=self.c1_node_id))
+            .exclude(Q(pk=self.c2c3_node_id))
+            .exclude(kind=content_kinds.TOPIC)
+        )
+
+        matched_nodes_queries_list = get_import_export_nodes(
+            self.the_channel_id,
+            renderable_only=False,
+            node_ids=[
+                self.c2_node_id,
+                self.c1_node_id,
+            ],
+            exclude_node_ids=[self.c2c3_node_id],
+        )
+
+        self.assertCountEqual(
+            itertools.chain.from_iterable(matched_nodes_queries_list),
+            expected_content_nodes,
+        )
+
+    @patch(
+        "kolibri.core.content.utils.import_export_content.get_channel_stats_from_disk"
+    )
+    def test_with_drive_id(self, get_channel_stats_from_disk_mock):
+        content_nodes_on_drive_1 = [
+            self.c2c1_node_id,
+            self.c2c2_node_id,
+        ]
+
+        # get_import_export_nodes calls filter_by_file_availability, which
+        # uses get_channel_stats_from_disk to get a list of content nodes
+        # present on a device.
+        get_channel_stats_from_disk_mock.return_value = {
+            key: {} for key in content_nodes_on_drive_1
+        }
+
+        expected_content_nodes = list(
+            ContentNode.objects.filter(
+                channel_id=self.the_channel_id,
+                available=True,
+                pk__in=content_nodes_on_drive_1,
+            ).exclude(kind=content_kinds.TOPIC)
+        )
+
+        matched_nodes_queries_list = get_import_export_nodes(
+            self.the_channel_id, renderable_only=False, drive_id="1"
+        )
+
+        get_channel_stats_from_disk_mock.assert_called_with(self.the_channel_id, "1")
+
+        self.assertCountEqual(
+            itertools.chain.from_iterable(matched_nodes_queries_list),
+            expected_content_nodes,
+        )
+
+
+@override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())
+class GetContentNodesDataTestCase(TestCase):
+    """
+    Test case for utils.import_export_content.get_content_nodes_data
+    """
+
+    fixtures = ["content_test.json"]
+    the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
+
+    c1_node_id = "32a941fb77c2576e8f6b294cde4c3b0c"
+    c2c1_node_id = "2b6926ed22025518a8b9da91745b51d3"
+
+    def test_default_arguments(self):
+        (total_resource_count, files, total_bytes_to_transfer) = get_content_nodes_data(
+            self.the_channel_id, [], available=True
+        )
+
+        self.assertEqual(total_resource_count, 0)
+        self.assertCountEqual(files, [])
+        self.assertEqual(total_bytes_to_transfer, 0)
+
+    def test_with_content_nodes_selected(self):
+        include_node_ids = [
+            self.c1_node_id,
+            self.c2c1_node_id,
+        ]
+
+        expected_files_list = [
+            {
+                "id": "4c30dc7619f74f97ae2ccd4fffd09bf2",
+                "file_size": None,
+                "extension": "mp3",
+            },
+            {
+                "id": "8ad3fffedf144cba9492e16daec1e39a",
+                "file_size": None,
+                "extension": "vtt",
+            },
+            {
+                "id": "6bdfea4a01830fdd4a585181c0b8068c",
+                "file_size": None,
+                "extension": "mp4",
+            },
+            {
+                "id": "211523265f53825b82f70ba19218a02e",
+                "file_size": None,
+                "extension": "mp4",
+            },
+        ]
+
+        selected_content_nodes = ContentNode.objects.filter(
+            channel_id=self.the_channel_id, pk__in=include_node_ids
+        ).exclude(kind=content_kinds.TOPIC)
+
+        (total_resource_count, files, total_bytes_to_transfer) = get_content_nodes_data(
+            self.the_channel_id, [selected_content_nodes], available=True
+        )
+
+        self.assertEqual(total_resource_count, 2)
+        self.assertCountEqual(files, expected_files_list)
+        self.assertEqual(total_bytes_to_transfer, 0)
+
+
+@override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())
+class GetContentNodesSelectorsTestCase(TestCase):
+    """
+    Test case for utils.import_export_content.get_content_nodes_selectors
+    """
+
+    fixtures = ["content_test.json"]
+    the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
+
+    root_node_id = "da7ecc42e62553eebc8121242746e88a"
+    c2_node_id = "2e8bac07947855369fe2d77642dfc870"
+    c2c1_node_id = "2b6926ed22025518a8b9da91745b51d3"
+    c2c2_node_id = "4d0c890de9b65d6880ccfa527800e0f4"
+    c2c3_node_id = "b391bfeec8a458f89f013cf1ca9cf33a"
+    c3_node_id = "c391bfeec8a458f89f013cf1ca9cf33b"
+    c3copy_node_id = "c391bfeec8a458f89f013cf1ca9cf33b"
+
+    def test_with_empty_selection(self):
+        selectors = get_content_nodes_selectors(self.the_channel_id, [])
+
+        self.assertEqual(
+            selectors,
+            {
+                "id": self.the_channel_id,
+                "version": 0,
+                "include_node_ids": [],
+                "exclude_node_ids": [],
+            },
+        )
+
+    def test_with_complete_selection(self):
+        selected_content_nodes = ContentNode.objects.filter(
+            channel_id=self.the_channel_id
+        ).exclude(kind=content_kinds.TOPIC)
+
+        selectors = get_content_nodes_selectors(
+            self.the_channel_id, [selected_content_nodes]
+        )
+
+        self.assertEqual(
+            selectors,
+            {
+                "id": self.the_channel_id,
+                "version": 0,
+                "include_node_ids": [self.root_node_id],
+                "exclude_node_ids": [],
+            },
+        )
+
+    def test_with_specific_leaf_nodes(self):
+        selected_pks_list = [self.c2c1_node_id, self.c2c2_node_id]
+
+        selected_content_nodes = ContentNode.objects.filter(
+            channel_id=self.the_channel_id, pk__in=selected_pks_list
+        ).exclude(kind=content_kinds.TOPIC)
+
+        selectors = get_content_nodes_selectors(
+            self.the_channel_id, [selected_content_nodes]
+        )
+
+        self.assertEqual(
+            selectors,
+            {
+                "id": self.the_channel_id,
+                "version": 0,
+                "include_node_ids": [self.c2c1_node_id, self.c2c2_node_id],
+                "exclude_node_ids": [],
+            },
+        )
+
+    def test_with_entire_topic_1(self):
+        # Select all non-topic nodes that are descendents of "c2"
+        selected_pks_list = [self.c2c1_node_id, self.c2c2_node_id, self.c2c3_node_id]
+
+        selected_content_nodes = ContentNode.objects.filter(
+            channel_id=self.the_channel_id, pk__in=selected_pks_list
+        ).exclude(kind=content_kinds.TOPIC)
+
+        selectors = get_content_nodes_selectors(
+            self.the_channel_id, [selected_content_nodes]
+        )
+
+        self.assertEqual(
+            selectors,
+            {
+                "id": self.the_channel_id,
+                "version": 0,
+                "include_node_ids": [self.c2_node_id],
+                "exclude_node_ids": [],
+            },
+        )
 
 
 @patch(
