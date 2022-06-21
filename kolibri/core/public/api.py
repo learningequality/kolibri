@@ -25,6 +25,7 @@ from .. import error_constants
 from .constants.user_sync_statuses import QUEUED
 from .constants.user_sync_statuses import SYNC
 from kolibri.core.api import ReadOnlyValuesViewset
+from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.api import BaseChannelMetadataMixin
 from kolibri.core.content.api import BaseContentNodeMixin
@@ -334,6 +335,25 @@ class FacilitySearchUsernameViewSet(ReadOnlyValuesViewset):
     search_fields = ("^username",)
 
     values = ("id", "username")
+
+    def list(self, request, *args, **kwargs):
+        facility_id = request.query_params.get("facility", None)
+        try:
+            facility = Facility.objects.get(id=facility_id)
+        except AttributeError:
+            # non existing facility
+            return Response({})
+
+        if facility.dataset.learner_can_login_with_no_password:
+            queryset = self.filter_queryset(self.get_queryset())
+            return Response(self.serialize(queryset))
+        else:
+            username = request.query_params.get("search", None)
+            queryset = self.get_queryset().filter(
+                facility=facility_id, username=username
+            )
+            response = {"username": username, "id": None} if queryset else {}
+            return Response(response)
 
     def get_queryset(self):
         return FacilityUser.objects.filter(roles=None).filter(
