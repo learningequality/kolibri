@@ -162,7 +162,7 @@
       },
       searchForUser: {
         message: 'Search for a user',
-        context: 'Text in the search field.',
+        context: 'Descriptive text which appears in the search field on the Facility > Users page.',
       },
     },
   };
