@@ -105,7 +105,9 @@
         />
       </div>
       <div v-if="examCreationRoute">
-        <p>{{ coreString('selectFromBookmarks') }}</p>
+        <p v-if="bookmarksCount">
+          {{ coreString('selectFromBookmarks') }}
+        </p>
         <KRouterLink
           v-if="bookmarksCount"
           :style="{ width: '100%' }"
@@ -121,7 +123,7 @@
         </KRouterLink>
       </div>
 
-      <div v-if="examCreationRoute || examTopicRoute">
+      <div v-if="examCreationRoute || examTopicRoute || inSearchMode">
         <LessonsSearchBox
           class="search-box"
           @searchterm="handleSearchTerm"
