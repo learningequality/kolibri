@@ -7,7 +7,7 @@
       :items="facilityUsers"
       :itemsPerPage="itemsPerPage"
       :totalPageNumber="totalPages"
-      :numFilteredItems="totalUsers"
+      :numFilteredItems="totalLearners"
     >
       <template #filter>
         <FilterTextbox v-model="search" :placeholder="$tr('searchForUser')" />
@@ -69,11 +69,6 @@
         required: false,
         default: 1,
       },
-      totalUsers: {
-        type: Number,
-        required: false,
-        default: 0,
-      },
     },
     data() {
       return {
@@ -81,7 +76,7 @@
       };
     },
     computed: {
-      ...mapState('classAssignMembers', ['facilityUsers']),
+      ...mapState('classAssignMembers', ['facilityUsers', 'totalLearners']),
       usersNotInClass() {
         return this.facilityUsers;
       },
