@@ -14,7 +14,7 @@
       </template>
       <template>
         <UserTable
-          v-model="facilityUsers"
+          v-model="selectedUsers"
           :users="usersNotInClass"
           :selectable="true"
           :emptyMessage="emptyMessageForItems(usersNotInClass)"
@@ -23,10 +23,10 @@
       </template>
     </PaginatedListContainerWithBackend>
     <SelectionBottomBar
-      :count="facilityUsers.length"
+      :count="selectedUsers.length"
       :disabled="disabled || selectedUsers.length === 0"
       :type="pageType"
-      @click-confirm="$emit('submit', facilityUers)"
+      @click-confirm="$emit('submit', selectedUsers)"
     />
 
   </form>
