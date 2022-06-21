@@ -27,7 +27,7 @@ class CollectionSpecificRoleBasedPermissions(RoleBasedPermissions):
             can_be_read_by=(ADMIN, COACH),
             can_be_updated_by=(ADMIN,),
             can_be_deleted_by=None,
-            collection_field="self",
+            collection_field=".",
         )
 
     def user_can_create_object(self, user, obj):

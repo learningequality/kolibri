@@ -100,6 +100,7 @@ class RoleBasedPermissions(BasePermissions):
         :param tuple can_be_updated_by: a tuple of role kinds that should give a user permission to update the object
         :param tuple can_be_deleted_by: a tuple of role kinds that should give a user permission to delete the object
         :param str collection_field: the name of the field through which collections can be identified for the object.
+        (or "." if the object itself is the collection)
         :param is_syncable: Boolean indicating whether the model is a syncable model, if it is, we can use dataset_id
         to do quick filtering in some cases, if not, then we need to use the target_field as the source of the dataset_id.
         """
@@ -108,10 +109,15 @@ class RoleBasedPermissions(BasePermissions):
         self.can_be_updated_by = can_be_updated_by
         self.can_be_deleted_by = can_be_deleted_by
         self.target_field = target_field
-        if collection_field == "self":
+        if collection_field == ".":
+            # Process special keyword '.' to allow this class to be used with Collection objects, particularly the
+            # readably by user filter, where the collection is the object itself, so we point at the id,
+            # and for parent collections to its parent.
             self.collection_field = "id"
             self.parent_collection_field = "parent"
         else:
+            # Otherwise, we just set the collection field to the value passed in (which defaults to "collection")
+            # and set the parent field as "<collection_field>__parent" to point to the parent of the FKed collection.
             self.collection_field = collection_field
             self.parent_collection_field = "{}__parent".format(self.collection_field)
         self.is_syncable = is_syncable
