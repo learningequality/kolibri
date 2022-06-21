@@ -1,13 +1,18 @@
 <template>
 
-  <div class="main-wrapper" :style="wrapperStyles">
+  <div :style="wrapperStyles">
     <ImmersiveToolbar
       ref="appBar"
-      :appBarTitle="appBarTitle"
+      :appBarTitle="(!loading ? appBarTitle : '')"
       :route="route"
-      :icon="icon"
     />
     <slot></slot>
+    <KLinearLoader
+      v-if="loading"
+      class="loader"
+      type="indeterminate"
+      :delay="false"
+    />
   </div>
 
 </template>
@@ -29,9 +34,14 @@
         type: Object,
         default: null,
       },
-      icon: {
-        type: String,
-        default: 'close',
+      appearanceOverrides: {
+        type: Object,
+        required: false,
+        default: null,
+      },
+      loading: {
+        type: Boolean,
+        default: null,
       },
     },
     data() {
@@ -41,20 +51,36 @@
     },
     computed: {
       wrapperStyles() {
-        return {
-          width: '100%',
-          display: 'inline-block',
-          backgroundColor: this.$themePalette.grey.v_100,
-          paddingLeft: '32px',
-          paddingRight: '32px',
-          paddingBottom: '72px',
-          paddingTop: this.appBarHeight + 16 + 'px',
-        };
+        return this.appearanceOverrides
+          ? this.appearanceOverrides
+          : {
+              width: '100%',
+              display: 'inline-block',
+              backgroundColor: this.$themePalette.grey.v_100,
+              paddingLeft: '32px',
+              paddingRight: '32px',
+              paddingBottom: '72px',
+              paddingTop: this.appBarHeight + 16 + 'px',
+            };
       },
     },
     mounted() {
-      this.appBarHeight = this.$refs.appBar.$el.clientHeight;
+      if (this.$refs.appBar) {
+        this.appBarHeight = this.$refs.appBar.$el.clientHeight;
+      }
     },
   };
 
 </script>
+
+
+<style lang="scss" scoped>
+
+  .loader {
+    position: fixed;
+    top: 64px;
+    right: 0;
+    left: 0;
+  }
+
+</style>

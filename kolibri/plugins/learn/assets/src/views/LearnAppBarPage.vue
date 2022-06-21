@@ -1,6 +1,6 @@
 <template>
 
-  <AppBarCorePage
+  <AppBarPage
     :title="appBarTitle"
     :appearanceOverrides="appearanceOverrides"
     :loading="loading"
@@ -12,20 +12,20 @@
 
     <slot></slot>
 
-  </AppBarCorePage>
+  </AppBarPage>
 
 </template>
 
 
 <script>
 
-  import AppBarCorePage from 'kolibri.coreVue.components.AppBarCorePage';
+  import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import LearnTopNav from './LearnTopNav';
 
   export default {
     name: 'LearnAppBarPage',
-    components: { AppBarCorePage, LearnTopNav },
+    components: { AppBarPage, LearnTopNav },
     mixins: [commonCoreStrings],
     props: {
       appBarTitle: {
