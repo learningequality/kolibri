@@ -4,11 +4,14 @@
 
     <PaginatedListContainerWithBackend
       v-model="currentPage"
-      :items="usersNotInClass"
+      :items="facilityUsers"
       :itemsPerPage="itemsPerPage"
       :totalPageNumber="totalPages"
-      :numFilteredItems="totalUsers"
+      :numFilteredItems="totalLearners"
     >
+      <template #filter>
+        <FilterTextbox v-model="search" :placeholder="$tr('searchForUser')" />
+      </template>
       <template>
         <UserTable
           v-model="selectedUsers"
@@ -33,9 +36,12 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   import pickBy from 'lodash/pickBy';
+  import debounce from 'lodash/debounce';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
   import PaginatedListContainerWithBackend from './PaginatedListContainerWithBackend';
   import SelectionBottomBar from './SelectionBottomBar';
   import UserTable from './UserTable';
@@ -46,13 +52,10 @@
       SelectionBottomBar,
       PaginatedListContainerWithBackend,
       UserTable,
+      FilterTextbox,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
     props: {
-      facilityUsers: {
-        type: Array,
-        required: true,
-      },
       pageType: {
         type: String,
         required: true,
@@ -66,11 +69,6 @@
         required: false,
         default: 1,
       },
-      totalUsers: {
-        type: Number,
-        required: false,
-        default: 0,
-      },
     },
     data() {
       return {
@@ -78,11 +76,20 @@
       };
     },
     computed: {
+      ...mapState('classAssignMembers', ['facilityUsers', 'totalLearners']),
       usersNotInClass() {
         return this.facilityUsers;
       },
       totalPages() {
         return this.totalPageNumber;
+      },
+      search: {
+        get() {
+          return this.$route.query.search || '';
+        },
+        set(value) {
+          this.debouncedSearchTerm(value);
+        },
       },
       currentPage: {
         get() {
@@ -114,6 +121,9 @@
         },
       },
     },
+    created() {
+      this.debouncedSearchTerm = debounce(this.emitSearchTerm, 500);
+    },
     methods: {
       emptyMessageForItems() {
         if (this.facilityUsers.length === 0) {
@@ -124,6 +134,19 @@
         }
         return '';
       },
+      emitSearchTerm(value) {
+        if (value === '') {
+          value = null;
+        }
+        this.$router.push({
+          ...this.$route,
+          query: pickBy({
+            ...this.$route.query,
+            search: value,
+            page: null,
+          }),
+        });
+      },
     },
     $trs: {
       // TODO clarify empty state messages after string freeze
@@ -131,6 +154,10 @@
         message: 'All users are already enrolled in this class',
         context:
           'If all the users in a facility are already enrolled in a class, no more can be added.',
+      },
+      searchForUser: {
+        message: 'Search for a user',
+        context: 'Descriptive text which appears in the search field on the Facility > Users page.',
       },
     },
   };
