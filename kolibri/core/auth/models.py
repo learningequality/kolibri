@@ -55,16 +55,14 @@ from .errors import UserDoesNotHaveRoleError
 from .errors import UserIsNotFacilityUser
 from .errors import UserIsNotMemberError
 from .permissions.auth import AllCanReadFacilityDataset
-from .permissions.auth import AnonUserCanReadFacilities
+from .permissions.auth import AnyUserCanReadFacilities
 from .permissions.auth import CoachesCanManageGroupsForTheirClasses
 from .permissions.auth import CoachesCanManageMembershipsForTheirGroups
 from .permissions.auth import CollectionSpecificRoleBasedPermissions
 from .permissions.auth import FacilityAdminCanEditForOwnFacilityDataset
-from .permissions.auth import MembersCanReadMembershipsOfTheirCollections
 from .permissions.base import BasePermissions
 from .permissions.base import RoleBasedPermissions
 from .permissions.general import IsAdminForOwnFacility
-from .permissions.general import IsFromSameFacility
 from .permissions.general import IsOwn
 from .permissions.general import IsSelf
 from kolibri.core.auth.constants.demographics import choices as GENDER_CHOICES
@@ -933,9 +931,8 @@ class Collection(AbstractFacilityDataModel):
     # Furthermore, no FacilityUser can create or delete a Facility. Permission to create a collection is governed
     # by roles in relation to the new collection's parent collection (see CollectionSpecificRoleBasedPermissions).
     permissions = (
-        IsFromSameFacility(read_only=True)
-        | CollectionSpecificRoleBasedPermissions()
-        | AnonUserCanReadFacilities()
+        CollectionSpecificRoleBasedPermissions()
+        | AnyUserCanReadFacilities()
         | CoachesCanManageGroupsForTheirClasses()
     )
 
@@ -1131,9 +1128,7 @@ class Membership(AbstractFacilityDataModel):
     )
     # Membership can be written by coaches under the coaches' group
     membership = CoachesCanManageMembershipsForTheirGroups()
-    # Members can read memberships of collections they are members of
-    own_collections = MembersCanReadMembershipsOfTheirCollections()
-    permissions = own | role | membership | own_collections
+    permissions = own | role | membership
 
     user = models.ForeignKey(
         "FacilityUser", related_name="memberships", blank=False, null=False

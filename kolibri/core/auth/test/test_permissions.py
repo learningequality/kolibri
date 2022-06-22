@@ -207,7 +207,7 @@ class FacilityPermissionsTestCase(TestCase):
             self.assertTrue(user.can_read(own_facility))
             self.assertIn(own_facility, user.filter_readable(Facility.objects.all()))
 
-    def test_facility_users_cannot_read_other_facility(self):
+    def test_facility_users_can_read_other_facility(self):
         """ FacilityUsers cannot read other Facilities, regardless of their roles """
         other_facility = self.data2["facility"]
         for user in [
@@ -216,10 +216,8 @@ class FacilityPermissionsTestCase(TestCase):
             self.data1["learners_one_group"][0][0],
             self.data1["unattached_users"][0],
         ]:
-            self.assertFalse(user.can_read(other_facility))
-            self.assertNotIn(
-                other_facility, user.filter_readable(Facility.objects.all())
-            )
+            self.assertTrue(user.can_read(other_facility))
+            self.assertIn(other_facility, user.filter_readable(Facility.objects.all()))
 
     def test_anon_users_can_read_facility(self):
         """ KolibriAnonymousUser can now read Facility objects """
@@ -319,28 +317,43 @@ class ClassroomPermissionsTestCase(TestCase):
         self.assertFalse(self.anon_user.can_create(Classroom, new_classroom_data))
 
     def test_members_can_read_own_classroom(self):
-        """ Members of a Classroom can read that Classroom, as can coaches and admins for the Classroom """
+        """ Coaches and admins for the Classroom can read the classroom """
         for user in [
             self.data["facility_admin"],
             self.data["facility_coach"],
             self.own_classroom_coach,
-            self.member,
         ]:
             self.assertTrue(user.can_read(self.own_classroom))
             self.assertIn(
                 self.own_classroom, user.filter_readable(Classroom.objects.all())
             )
 
-    def test_members_and_admins_and_coaches_can_read_other_classroom(self):
+    def test_members_cannot_read_own_classroom(self):
+        """ Members of a Classroom cannot read that Classroom"""
+        self.assertFalse(self.member.can_read(self.own_classroom))
+        self.assertNotIn(
+            self.own_classroom, self.member.filter_readable(Classroom.objects.all())
+        )
+
+    def test_admins_and_facility_coaches_can_read_other_classroom(self):
         """ Members and admins/coaches for a Classroom can read another Classroom """
         for user in [
             self.data["facility_admin"],
             self.data["facility_coach"],
-            self.own_classroom_coach,
-            self.member,
         ]:
             self.assertTrue(user.can_read(self.other_classroom))
             self.assertIn(
+                self.other_classroom, user.filter_readable(Classroom.objects.all())
+            )
+
+    def test_members_and_class_coaches_cannot_read_other_classroom(self):
+        """ Members and admins/coaches for a Classroom can read another Classroom """
+        for user in [
+            self.own_classroom_coach,
+            self.member,
+        ]:
+            self.assertFalse(user.can_read(self.other_classroom))
+            self.assertNotIn(
                 self.other_classroom, user.filter_readable(Classroom.objects.all())
             )
 
@@ -429,17 +442,24 @@ class LearnerGroupPermissionsTestCase(TestCase):
         self.assertFalse(self.anon_user.can_create(LearnerGroup, new_learnergroup_data))
 
     def test_members_can_read_own_learnergroup(self):
-        """ Members of a LearnerGroup can read that LearnerGroup, as can coaches and admins for the LearnerGroup """
+        """ Coaches and admins for the LearnerGroup can read the learner group"""
         for user in [
             self.data["facility_admin"],
             self.data["facility_coach"],
             self.own_classroom_coach,
-            self.member,
         ]:
             self.assertTrue(user.can_read(self.own_learnergroup))
             self.assertIn(
                 self.own_learnergroup, user.filter_readable(LearnerGroup.objects.all())
             )
+
+    def test_members_cannot_read_own_learnergroup(self):
+        """ Members of a LearnerGroup cannot read that LearnerGroup"""
+        self.assertFalse(self.member.can_read(self.own_learnergroup))
+        self.assertNotIn(
+            self.own_learnergroup,
+            self.member.filter_readable(LearnerGroup.objects.all()),
+        )
 
     def test_admins_or_coach_can_update_own_learnergroup(self):
         """ The only FacilityUsers who can update a LearnerGroup are admins for that LearnerGroup """

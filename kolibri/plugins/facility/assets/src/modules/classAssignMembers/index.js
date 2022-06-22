@@ -5,6 +5,8 @@ function defaultState() {
   return {
     class: {},
     facilityUsers: [],
+    totalPageNumber: 0,
+    totalLearners: 0,
     modalShown: false,
   };
 }
