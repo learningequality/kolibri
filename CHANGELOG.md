@@ -2,6 +2,29 @@
 
 List of the most important changes for each release.
 
+## 0.15.4
+
+### Overview
+
+This release of Kolibri includes security fixes to reduce the vulnerability of online Kolibri instances to discovery of user credentials and to sanitize exported CSV files.
+
+Additional changes include small improvements to coach workflows in quiz and lesson workflows and fixing a regression with searching for users during class assignment.
+
+### Added
+* Restrict exclude coach for to assigned coaches only in https://github.com/learningequality/kolibri/pull/9453
+* Content dir argument in https://github.com/learningequality/kolibri/pull/9463
+
+### Changed
+* Enable "continue" in quiz creation only once exercises selected in https://github.com/learningequality/kolibri/pull/9515
+* Update bottom bar text in lesson resources to say save on changes in https://github.com/learningequality/kolibri/pull/9516
+
+### Fixed
+* add .trim to v-model for username in https://github.com/learningequality/kolibri/pull/9514
+* API and CSV fixes in https://github.com/learningequality/kolibri/pull/9523
+* Fix missing search results in coach quiz creation in https://github.com/learningequality/kolibri/pull/9522
+* Fixed regression: search functionality for assigning coaches and enrolling learners in https://github.com/learningequality/kolibri/pull/#9525
+
+
 ## 0.15.3
 
 ### Overview of new features
