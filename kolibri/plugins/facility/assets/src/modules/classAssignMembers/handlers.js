@@ -3,15 +3,19 @@ import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import { ClassroomResource, FacilityUserResource } from 'kolibri.resources';
 import { _userState } from '../mappers';
 
-export function showLearnerClassEnrollmentPage(store, toRoute) {
+export function showLearnerClassEnrollmentPage(store, toRoute, fromRoute) {
   const { id, facility_id } = toRoute.params;
-  store.dispatch('preparePage');
+  if (toRoute.name !== fromRoute.name) {
+    store.dispatch('preparePage');
+  }
+
   // facility users that are not enrolled in this class
   const userPromise = FacilityUserResource.fetchCollection({
     getParams: pickBy({
       member_of: facility_id || store.getters.activeFacilityId,
       page: toRoute.query.page || 1,
       page_size: toRoute.query.page_size || 30,
+      search: toRoute.query.search && toRoute.query.search.trim(),
       exclude_member_of: id,
       exclude_coach_for: id,
     }),
@@ -39,9 +43,11 @@ export function showLearnerClassEnrollmentPage(store, toRoute) {
   );
 }
 
-export function showCoachClassAssignmentPage(store, toRoute) {
+export function showCoachClassAssignmentPage(store, toRoute, fromRoute) {
   const { id, facility_id } = toRoute.params;
-  store.commit('CORE_SET_PAGE_LOADING', true);
+  if (toRoute.name !== fromRoute.name) {
+    store.commit('CORE_SET_PAGE_LOADING', true);
+  }
   const facilityId = facility_id || store.getters.activeFacilityId;
   // all users in facility eligible to be a coach that is not already a coach
   const userPromise = FacilityUserResource.fetchCollection({
@@ -52,6 +58,7 @@ export function showCoachClassAssignmentPage(store, toRoute) {
       exclude_coach_for: id,
       page: toRoute.query.page || 1,
       page_size: toRoute.query.page_size || 30,
+      search: toRoute.query.search && toRoute.query.search.trim(),
     },
     force: true,
   });
