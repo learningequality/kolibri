@@ -4,14 +4,13 @@
     "build-commands": [
         "pip3 install --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} kolibri",
         "patch -d ${KOLIBRI_MODULE_PATH} -p2 < 0001-Allow-superuser-to-be-null-in-device-provision-API.patch",
-        "patch -d ${KOLIBRI_MODULE_PATH} -p2 < 0002-Fix-Kolibri-blocking-after-starting-with-port-0.patch",
         "patch -d ${KOLIBRI_MODULE_PATH}/dist/ifcfg -p3 < dist_ifcfg/0001-Remove-needless-ifcfg-warning.patch"
     ],
     "sources": [
         {
             "type": "file",
-            "url": "https://files.pythonhosted.org/packages/62/6b/d90b08e95cc0f88c8de07817f00a59a780f2798471edba966d452da93c5b/kolibri-0.15.2-py2.py3-none-any.whl",
-            "sha256": "fd5b50c324724ee4f8dec5a20d2f808f51ad8d3d1593da4ca23aabbf65b82958"
+            "url": "https://files.pythonhosted.org/packages/89/12/f96c1d0d3cc30f46023ff662d19f59d3d73bf181cac3e077586c1f1f2951/kolibri-0.15.3-py2.py3-none-any.whl",
+            "sha256": "b7e38a867df56a732fd25d36b4b4270a5069e404bb54515618708b0bd51b2915"
         },
         {
             "type": "dir",
