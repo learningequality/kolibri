@@ -340,7 +340,7 @@ class FacilitySearchUsernameViewSet(ReadOnlyValuesViewset):
         facility_id = request.query_params.get("facility", None)
         try:
             facility = Facility.objects.get(id=facility_id)
-        except AttributeError:
+        except (AttributeError, Facility.DoesNotExist):
             # non existing facility
             return Response({})
 

@@ -1,7 +1,9 @@
 from datetime import timedelta
 from sys import version_info
 
+import requests
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.db.models import Max
 from django.db.models import OuterRef
 from django.db.models.expressions import Subquery
@@ -20,7 +22,9 @@ from rest_framework import mixins
 from rest_framework import status
 from rest_framework import views
 from rest_framework import viewsets
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
+from six.moves.urllib.parse import urljoin
 
 import kolibri
 from .models import DevicePermissions
@@ -38,6 +42,7 @@ from kolibri.core.auth.models import Collection
 from kolibri.core.content.permissions import CanManageContent
 from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.channels import get_mounted_drives_with_channel_info
+from kolibri.core.device.permissions import IsNotAnonymous
 from kolibri.core.device.permissions import IsSuperuser
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.discovery.models import DynamicNetworkLocation
@@ -369,3 +374,28 @@ class DriveInfoViewSet(viewsets.ViewSet):
 
     def retrieve(self, request, pk):
         return Response(get_mounted_drive_by_id(pk)._asdict())
+
+
+class RemoteFacilitiesViewset(views.APIView):
+    """
+    Api to retrieve facilities information from a remote device
+    :param str baseurl: url of the server, including port to connect
+    :return : json object containing the list of facilities of the device, with their id, name, learner_can_sign_up and learner_can_login_with_no_password info
+    """
+
+    permission_classes = (IsNotAnonymous,)
+
+    def get(self, request):
+        baseurl = request.query_params.get(
+            "baseurl", request.build_absolute_uri("/")[:-1]
+        )
+        path = reverse("kolibri:core:publicfacility-list")
+        url = urljoin(baseurl, path)
+        try:
+            response = requests.get(url)
+            if response.status_code == 200:
+                return Response(response.json())
+            else:
+                return Response({})
+        except Exception as e:
+            raise ValidationError(detail=str(e))

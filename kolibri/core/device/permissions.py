@@ -33,3 +33,8 @@ class UserHasAnyDevicePermissions(DenyAll):
 class IsSuperuser(DenyAll):
     def has_permission(self, request, view):
         return request.user.is_superuser
+
+
+class IsNotAnonymous(DenyAll):
+    def has_permission(self, request, view):
+        return request.user.is_authenticated

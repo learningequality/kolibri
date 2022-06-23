@@ -179,7 +179,7 @@
         );
         newDevices.forEach(address => {
           client({
-            url: urls['kolibri:kolibri.plugins.user_profile:remotefacilities'](),
+            url: urls['kolibri:core:remotefacilities'](),
             params: { baseurl: address.base_url },
           }).then(response => {
             response.data.forEach(facility => {

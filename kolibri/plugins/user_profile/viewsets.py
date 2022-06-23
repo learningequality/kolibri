@@ -28,23 +28,6 @@ class UserIndividualViewset(APIView):
         )
 
 
-class RemoteFacilitiesViewset(APIView):
-    def get(self, request):
-        baseurl = request.query_params.get(
-            "baseurl", request.build_absolute_uri("/")[:-1]
-        )
-        path = reverse("kolibri:core:publicfacility-list")
-        url = urljoin(baseurl, path)
-        try:
-            response = requests.get(url)
-            if response.status_code == 200:
-                return Response(response.json())
-            else:
-                return Response({})
-        except Exception as e:
-            raise ValidationError(detail=str(e))
-
-
 class RemoteFacilityUserViewset(APIView):
     def get(self, request):
         baseurl = request.query_params.get(
