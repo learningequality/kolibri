@@ -44,7 +44,7 @@
         <h1 class="title">
           {{ title }}
         </h1>
-        <p class="description">
+        <p v-if="description" class="description">
           {{ description }}
         </p>
         <slot></slot>
