@@ -1,7 +1,8 @@
 <template>
 
-  <OnboardingForm
-    :header="header"
+  <OnboardingStepBase
+    :title="header"
+    @continue="$emit('click_next')"
   >
     <FacilityTaskPanel
       v-if="loadingTask.status"
@@ -31,23 +32,23 @@
       </template>
       <span v-else></span>
     </template>
-  </OnboardingForm>
+  </OnboardingStepBase>
 
 </template>
 
 
 <script>
 
+  import { FacilityTaskPanel } from 'kolibri.coreVue.componentSets.sync';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskResource } from 'kolibri.resources';
-  import FacilityTaskPanel from '../../../../../device/assets/src/views/FacilitiesPage/FacilityTaskPanel.vue';
-  import OnboardingForm from '../onboarding-forms/OnboardingForm';
+  import OnboardingStepBase from '../OnboardingStepBase';
 
   export default {
     name: 'LoadingTaskPage',
     components: {
       FacilityTaskPanel,
-      OnboardingForm,
+      OnboardingStepBase,
     },
     mixins: [commonCoreStrings],
     props: {
@@ -64,7 +65,7 @@
     },
     computed: {
       header() {
-        return this.$tr('loadingFacilityTitle', { facility: this.facilityName });
+        return this.$tr('importFacilityTitle');
       },
       facilityName() {
         return this.facility.name;
@@ -115,9 +116,10 @@
       },
     },
     $trs: {
-      loadingFacilityTitle: {
-        message: "Loading '{facility}'",
-        context: 'Page title indicating that the facility is loading.',
+      importFacilityTitle: {
+        message: 'Import learning facility',
+        context:
+          'Title of a page where user will sign in to a remote facility to begin the syncing process',
       },
     },
   };
