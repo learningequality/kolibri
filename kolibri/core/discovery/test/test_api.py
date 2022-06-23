@@ -52,7 +52,7 @@ class NetworkLocationAPITestCase(APITestCase):
             format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data["base_url"], "https://kolibrihappyurl.qqq")
+        self.assertEqual(response.data["base_url"], "https://kolibrihappyurl.qqq/")
 
     def test_creating_good_address_with_one_url_timing_out(self):
         self.login(self.superuser)
@@ -63,7 +63,7 @@ class NetworkLocationAPITestCase(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(
-            response.data["base_url"], "http://timeoutonport80url.qqq:8080"
+            response.data["base_url"], "http://timeoutonport80url.qqq:8080/"
         )
 
     def test_creating_bad_address(self):
