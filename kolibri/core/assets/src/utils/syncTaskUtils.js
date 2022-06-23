@@ -1,7 +1,45 @@
-import coreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-import taskStrings from 'kolibri.coreVue.mixins.commonTaskStrings';
-import bytesForHumans from 'kolibri.utils.bytesForHumans';
-import { TaskStatuses, TaskTypes } from '../constants';
+import commonCoreStrings from '../mixins/commonCoreStrings';
+import taskStrings from '../mixins/taskStrings';
+import bytesForHumans from '../utils/bytesForHumans';
+
+export const TaskTypes = {
+  REMOTECHANNELIMPORT: 'kolibri.core.content.tasks.remotechannelimport',
+  REMOTECONTENTIMPORT: 'kolibri.core.content.tasks.remotecontentimport',
+  REMOTEIMPORT: 'kolibri.core.content.tasks.remoteimport',
+  DISKCHANNELIMPORT: 'kolibri.core.content.tasks.diskchannelimport',
+  DISKCONTENTIMPORT: 'kolibri.core.content.tasks.diskcontentimport',
+  DISKIMPORT: 'kolibri.core.content.tasks.diskimport',
+  DISKCONTENTEXPORT: 'kolibri.core.content.tasks.diskcontentexport',
+  DISKEXPORT: 'kolibri.core.content.tasks.diskexport',
+  DELETECHANNEL: 'kolibri.core.content.tasks.deletechannel',
+  UPDATECHANNEL: 'kolibri.core.content.tasks.updatechannel',
+  REMOTECHANNELDIFFSTATS: 'kolibri.core.content.tasks.remotechanneldiffstats',
+  LOCALCHANNELDIFFSTATS: 'kolibri.core.content.tasks.localchanneldiffstats',
+  SYNCDATAPORTAL: 'kolibri.core.auth.tasks.dataportalsync',
+  SYNCPEERFULL: 'kolibri.core.auth.tasks.peerfacilitysync',
+  SYNCPEERPULL: 'kolibri.core.auth.tasks.peerfacilityimport',
+  DELETEFACILITY: 'kolibri.core.auth.tasks.deletefacility',
+};
+
+// identical to facility constants.js
+export const TaskStatuses = Object.freeze({
+  IN_PROGRESS: 'INPROGRESS',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED',
+  PENDING: 'PENDING',
+  RUNNING: 'RUNNING',
+  QUEUED: 'QUEUED',
+  SCHEDULED: 'SCHEDULED',
+  CANCELED: 'CANCELED',
+  CANCELING: 'CANCELING',
+});
+
+export const TransferTypes = {
+  LOCALEXPORT: 'localexport',
+  LOCALIMPORT: 'localimport',
+  PEERIMPORT: 'peerimport',
+  REMOTEIMPORT: 'remoteimport',
+};
 
 export const SyncTaskStatuses = {
   SESSION_CREATION: 'SESSION_CREATION',
@@ -19,7 +57,7 @@ export const SyncTaskStatuses = {
 };
 
 const { getTaskString } = taskStrings.methods;
-const { coreString } = coreStrings.methods;
+const { coreString } = commonCoreStrings.methods;
 
 const syncTaskStatusToStepMap = {
   [SyncTaskStatuses.SESSION_CREATION]: 1,
@@ -31,24 +69,28 @@ const syncTaskStatusToStepMap = {
   [SyncTaskStatuses.REMOTE_DEQUEUING]: 7,
 };
 
+// These functions are partially applied with bind() so that they are not evaluated before i18n
+// is ready. If you key into this map you'll need to call the value as a fn with no args a la
+// syncStatusToDescriptionMap[SyncTaskStatuses.SESSION_CREATION]();
+// Note that when getTaskString or coreString is called within a function, this is unnecessary.
 const genericStatusToDescriptionMap = {
-  [TaskStatuses.PENDING]: getTaskString('taskWaitingStatus'),
-  [TaskStatuses.QUEUED]: getTaskString('taskWaitingStatus'),
-  [TaskStatuses.COMPLETED]: getTaskString('taskFinishedStatus'),
-  [TaskStatuses.CANCELED]: getTaskString('taskCanceledStatus'),
-  [TaskStatuses.CANCELING]: getTaskString('taskCancelingStatus'),
-  [TaskStatuses.FAILED]: getTaskString('taskFailedStatus'),
+  [TaskStatuses.PENDING]: getTaskString.bind(null, 'taskWaitingStatus'),
+  [TaskStatuses.QUEUED]: getTaskString.bind(null, 'taskWaitingStatus'),
+  [TaskStatuses.COMPLETED]: getTaskString.bind(null, 'taskFinishedStatus'),
+  [TaskStatuses.CANCELED]: getTaskString.bind(null, 'taskCanceledStatus'),
+  [TaskStatuses.CANCELING]: getTaskString.bind(null, 'taskCancelingStatus'),
+  [TaskStatuses.FAILED]: getTaskString.bind(null, 'taskFailedStatus'),
 };
 
 export const syncStatusToDescriptionMap = {
   ...genericStatusToDescriptionMap,
-  [SyncTaskStatuses.SESSION_CREATION]: getTaskString('establishingConnectionStatus'),
-  [SyncTaskStatuses.REMOTE_QUEUING]: getTaskString('remotelyPreparingDataStatus'),
-  [SyncTaskStatuses.PULLING]: getTaskString('receivingDataStatus'),
-  [SyncTaskStatuses.LOCAL_DEQUEUING]: getTaskString('locallyIntegratingDataStatus'),
-  [SyncTaskStatuses.LOCAL_QUEUING]: getTaskString('locallyPreparingDataStatus'),
-  [SyncTaskStatuses.PUSHING]: getTaskString('sendingDataStatus'),
-  [SyncTaskStatuses.REMOTE_DEQUEUING]: getTaskString('remotelyIntegratingDataStatus'),
+  [SyncTaskStatuses.SESSION_CREATION]: getTaskString.bind(null, 'establishingConnectionStatus'),
+  [SyncTaskStatuses.REMOTE_QUEUING]: getTaskString.bind(null, 'remotelyPreparingDataStatus'),
+  [SyncTaskStatuses.PULLING]: getTaskString.bind(null, 'receivingDataStatus'),
+  [SyncTaskStatuses.LOCAL_DEQUEUING]: getTaskString.bind(null, 'locallyIntegratingDataStatus'),
+  [SyncTaskStatuses.LOCAL_QUEUING]: getTaskString.bind(null, 'locallyPreparingDataStatus'),
+  [SyncTaskStatuses.PUSHING]: getTaskString.bind(null, 'sendingDataStatus'),
+  [SyncTaskStatuses.REMOTE_DEQUEUING]: getTaskString.bind(null, 'remotelyIntegratingDataStatus'),
 };
 
 function formatNameWithId(name, id) {
@@ -85,7 +127,8 @@ export function syncFacilityTaskDisplayInfo(task) {
   const statusDescription =
     syncStatusToDescriptionMap[task.extra_metadata.sync_state] ||
     syncStatusToDescriptionMap[task.status] ||
-    getTaskString('taskUnknownStatus');
+    // bind this to give type parity with what the map would return (a bound fn)
+    getTaskString.bind(null, 'taskUnknownStatus');
 
   if (task.status === TaskStatuses.COMPLETED) {
     statusMsg = getTaskString('taskFinishedStatus');
@@ -93,12 +136,12 @@ export function syncFacilityTaskDisplayInfo(task) {
     statusMsg = getTaskString('syncStepAndDescription', {
       step: syncStep,
       total: task.type === TaskTypes.SYNCPEERPULL ? PULLSTEPS : PUSHPULLSTEPS,
-      description: statusDescription,
+      description: statusDescription(),
     });
   } else {
     if (task.type === TaskTypes.SYNCLOD && task.status === TaskStatuses.FAILED)
-      statusMsg = `${statusDescription}: ${task.exception}`;
-    else statusMsg = statusDescription;
+      statusMsg = `${statusDescription()}: ${task.exception}`;
+    else statusMsg = statusDescription();
   }
 
   if (task.status === TaskStatuses.COMPLETED) {
@@ -127,7 +170,7 @@ export function syncFacilityTaskDisplayInfo(task) {
 
 export const removeStatusToDescriptionMap = {
   ...genericStatusToDescriptionMap,
-  [TaskStatuses.RUNNING]: getTaskString('removingFacilityStatus'),
+  [TaskStatuses.RUNNING]: getTaskString.bind(null, 'removingFacilityStatus'),
 };
 
 // Consolidates logic on how Remove-Facility Tasks should be displayed
@@ -137,7 +180,7 @@ export function removeFacilityTaskDisplayInfo(task) {
     task.extra_metadata.facility
   );
   const statusDescription =
-    removeStatusToDescriptionMap[task.status] || getTaskString('taskUnknownStatus');
+    removeStatusToDescriptionMap[task.status]() || getTaskString('taskUnknownStatus');
 
   return {
     headingMsg: getTaskString('removeFacilityTaskLabel', { facilityName }),
