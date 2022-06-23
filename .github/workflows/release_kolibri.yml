@@ -41,7 +41,11 @@ jobs:
     uses: learningequality/kolibri-installer-windows/.github/workflows/build_exe.yml@develop
     with:
       whl-file-name: ${{ needs.whl.outputs.whl-file-name }}
+      release: true
       ref: develop
+    secrets:
+      KOLIBRI_WINDOWS_INSTALLER_CERTIFICATE: ${{ secrets.KOLIBRI_WINDOWS_INSTALLER_CERTIFICATE }}
+      KOLIBRI_WINDOWS_INSTALLER_CERTIFICATE_PASSWORD: ${{ secrets.KOLIBRI_WINDOWS_INSTALLER_CERTIFICATE_PASSWORD }}
   zip:
     name: Build Raspberry Pi Image
     needs: deb
