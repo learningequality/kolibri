@@ -38,6 +38,7 @@
 
 <script>
 
+  import { FacilityTaskPanel } from 'kolibri.coreVue.componentSets.sync';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonTaskStrings from 'kolibri.coreVue.mixins.commonTaskStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
