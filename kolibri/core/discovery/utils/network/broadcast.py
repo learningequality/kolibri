@@ -209,6 +209,10 @@ def build_broadcast_instance(port):
 class KolibriBroadcastEvents(Bus):
     """Event bus for handling events from Zeroconf"""
 
+    # The base magicbus Bus requires this to exist in error handling
+    # but does not set a default value.
+    throws = tuple()
+
     event_map = {
         ServiceStateChange.Added: EVENT_ADD_SERVICE,
         ServiceStateChange.Removed: EVENT_REMOVE_SERVICE,
