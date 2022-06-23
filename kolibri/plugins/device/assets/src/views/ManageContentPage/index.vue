@@ -83,7 +83,6 @@
   import { mapState, mapGetters, mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskResource } from 'kolibri.resources';
-  import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
   import { TaskStatuses, TaskTypes } from 'kolibri.utils.syncTaskUtils';
   import taskNotificationMixin from '../taskNotificationMixin';
   import useContentTasks from '../../composables/useContentTasks';

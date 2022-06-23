@@ -123,7 +123,6 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskResource } from 'kolibri.resources';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
-  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import { TransferTypes, TaskTypes } from 'kolibri.utils.syncTaskUtils';
   import ChannelPanel from '../ManageContentPage/ChannelPanel/WithImportDetails';
   import ContentWizardUiAlert from '../SelectContentPage/ContentWizardUiAlert';
