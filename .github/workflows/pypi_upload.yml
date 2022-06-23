@@ -13,6 +13,15 @@ on:
         description: 'Should this be uploaded to testpypi?'
         required: true
         type: boolean
+    secrets:
+      GPG_SIGNING_KEY:
+        required: true
+      GPG_PASSPHRASE:
+        required: true
+      TESTPYPI_API_TOKEN:
+        required: true
+      PYPI_API_TOKEN:
+        required: true
 
 jobs:
   deploy:

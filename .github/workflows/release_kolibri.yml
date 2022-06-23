@@ -62,6 +62,11 @@ jobs:
       whl-file-name: ${{ needs.whl.outputs.whl-file-name }}
       tar-file-name: ${{ needs.whl.outputs.tar-file-name }}
       test: true
+    secrets:
+      GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
+      GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+      TESTPYPI_API_TOKEN: ${{ secrets.TESTPYPI_API_TOKEN }}
+      PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
   block_release_step:
   # This step ties to the release environment which requires manual approval
   # before it can execute. Once manual approval has been granted, the release is
@@ -80,6 +85,11 @@ jobs:
       whl-file-name: ${{ needs.whl.outputs.whl-file-name }}
       tar-file-name: ${{ needs.whl.outputs.tar-file-name }}
       test: false
+    secrets:
+      GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
+      GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+      TESTPYPI_API_TOKEN: ${{ secrets.TESTPYPI_API_TOKEN }}
+      PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
   github_upload:
     name: Upload to Github release
     runs-on: ubuntu-latest
