@@ -126,4 +126,4 @@ jobs:
         project_id: ${{ secrets.GCS_PROJECT }}
         export_default_credentials: true
     - name: Upload files to Google Cloud Storage
-      run: gsutil cp dist/*.* gs://${{ secrets.GCS_BUCKET }}/downloads/kolibri/${{ github.event.release.release_id }}
+      run: gsutil cp dist/*.* gs://${{ secrets.GCS_BUCKET }}/downloads/kolibri/${{ github.event.release.name }}
