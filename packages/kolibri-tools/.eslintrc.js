@@ -49,6 +49,7 @@ module.exports = {
     __filename: true,
     __copyrightYear: true,
     __kolibriModuleName: true,
+    __webpack_public_path__: true,
   },
   extends: [
     'eslint:recommended',
