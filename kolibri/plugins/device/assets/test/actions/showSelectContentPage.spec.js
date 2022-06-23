@@ -1,9 +1,9 @@
 import { TaskResource } from 'kolibri.resources';
+import { TaskTypes } from 'kolibri.utils.syncTaskUtils';
 import { loadChannelMetadata } from '../../src/modules/wizard/actions/selectContentActions';
 import ChannelResource from '../../src/apiResources/deviceChannel';
 import { defaultChannel } from '../utils/data';
 import { makeSelectContentPageStore } from '../utils/makeStore';
-import { TaskTypes } from '../../src/constants';
 
 jest.mock('kolibri.resources');
 jest.genMockFromModule('../../src/apiResources/deviceChannel');

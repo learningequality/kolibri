@@ -62,7 +62,7 @@
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import every from 'lodash/every';
   import omit from 'lodash/omit';
-  import { TransferTypes } from '../../constants';
+  import { TransferTypes } from 'kolibri.utils.syncTaskUtils';
   import { selectContentTopicLink } from '../ManageContentPage/manageContentLinks';
   import { annotateNode, CheckboxTypes, transformBreadrumb } from './treeViewUtils';
   import ContentNodeRow from './ContentNodeRow';

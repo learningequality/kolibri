@@ -91,6 +91,10 @@
   import TaskProgress from '../ManageContentPage/TaskProgress';
   import useContentTasks from '../../composables/useContentTasks';
   import { ContentWizardPages, ContentWizardErrors, TaskTypes, PageNames } from '../../constants';
+  import { TaskTypes, PageNames } from 'kolibri.utils.syncTaskUtils';
+  import { ContentWizardErrors } from '../../constants';
+  import TaskProgress from '../ManageContentPage/TaskProgress';
+  import useContentTasks from '../../composables/useContentTasks';
   import SelectionBottomBar from '../ManageContentPage/SelectionBottomBar';
   import taskNotificationMixin from '../taskNotificationMixin';
   import { updateTreeViewTopic } from '../../modules/wizard/handlers';

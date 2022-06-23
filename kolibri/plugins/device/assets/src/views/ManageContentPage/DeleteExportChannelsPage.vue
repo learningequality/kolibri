@@ -58,6 +58,7 @@
   import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import { PageNames, TaskTypes } from '../../constants';
+  import { TaskTypes } from 'kolibri.utils.syncTaskUtils';
   import DeviceChannelResource from '../../apiResources/deviceChannel';
   import useContentTasks from '../../composables/useContentTasks';
   import taskNotificationMixin from '../taskNotificationMixin';

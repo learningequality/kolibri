@@ -174,6 +174,9 @@
   import { TaskStatuses, TaskTypes } from '../../constants';
   import DeviceTopNav from '../DeviceTopNav';
   import { deviceString } from '../commonDeviceStrings';
+  import { TaskStatuses, TaskTypes } from 'kolibri.utils.syncTaskUtils';
+  import TasksBar from '../ManageContentPage/TasksBar';
+  import HeaderWithOptions from '../HeaderWithOptions';
   import RemoveFacilityModal from './RemoveFacilityModal';
   import SyncAllFacilitiesModal from './SyncAllFacilitiesModal';
   import ImportFacilityModalGroup from './ImportFacilityModalGroup';

@@ -93,7 +93,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
 
-  import { TaskStatuses, TaskTypes } from '../../constants';
+  import { TaskStatuses, TaskTypes } from 'kolibri.utils.syncTaskUtils';
 
   const typeToTrMap = {
     [TaskTypes.REMOTECONTENTIMPORT]: 'importChannelPartial',

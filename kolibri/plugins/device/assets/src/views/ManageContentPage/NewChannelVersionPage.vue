@@ -127,6 +127,8 @@
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import { TaskStatuses, PageNames, TaskTypes } from '../../constants';
+  import { TaskStatuses, TaskTypes } from 'kolibri.utils.syncTaskUtils';
+  import { PageNames } from '../../constants';
   import useContentTasks from '../../composables/useContentTasks';
   import { fetchOrTriggerChannelDiffStatsTask, fetchChannelAtSource } from './api';
 

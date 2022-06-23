@@ -1,6 +1,7 @@
 import find from 'lodash/find';
 import isEmpty from 'lodash/isEmpty';
-import { ApplicationTypes, TransferTypes } from '../../constants';
+import { TransferTypes } from 'kolibri.utils.syncTaskUtils';
+import { ApplicationTypes } from '../../constants';
 
 export function cachedTopicPath(state) {
   return function getPath(id) {

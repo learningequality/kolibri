@@ -25,45 +25,6 @@ export const ContentWizardPages = {
   SELECT_NETWORK_ADDRESS: 'SELECT_NETWORK_ADDRESS',
 };
 
-export const TaskTypes = {
-  REMOTECHANNELIMPORT: 'kolibri.core.content.tasks.remotechannelimport',
-  REMOTECONTENTIMPORT: 'kolibri.core.content.tasks.remotecontentimport',
-  REMOTEIMPORT: 'kolibri.core.content.tasks.remoteimport',
-  DISKCHANNELIMPORT: 'kolibri.core.content.tasks.diskchannelimport',
-  DISKCONTENTIMPORT: 'kolibri.core.content.tasks.diskcontentimport',
-  DISKIMPORT: 'kolibri.core.content.tasks.diskimport',
-  DISKCONTENTEXPORT: 'kolibri.core.content.tasks.diskcontentexport',
-  DISKEXPORT: 'kolibri.core.content.tasks.diskexport',
-  DELETECHANNEL: 'kolibri.core.content.tasks.deletechannel',
-  UPDATECHANNEL: 'kolibri.core.content.tasks.updatechannel',
-  REMOTECHANNELDIFFSTATS: 'kolibri.core.content.tasks.remotechanneldiffstats',
-  LOCALCHANNELDIFFSTATS: 'kolibri.core.content.tasks.localchanneldiffstats',
-  SYNCDATAPORTAL: 'kolibri.core.auth.tasks.dataportalsync',
-  SYNCPEERFULL: 'kolibri.core.auth.tasks.peerfacilitysync',
-  SYNCPEERPULL: 'kolibri.core.auth.tasks.peerfacilityimport',
-  DELETEFACILITY: 'kolibri.core.auth.tasks.deletefacility',
-};
-
-// identical to facility constants.js
-export const TaskStatuses = Object.freeze({
-  IN_PROGRESS: 'INPROGRESS',
-  COMPLETED: 'COMPLETED',
-  FAILED: 'FAILED',
-  PENDING: 'PENDING',
-  RUNNING: 'RUNNING',
-  QUEUED: 'QUEUED',
-  SCHEDULED: 'SCHEDULED',
-  CANCELED: 'CANCELED',
-  CANCELING: 'CANCELING',
-});
-
-export const TransferTypes = {
-  LOCALEXPORT: 'localexport',
-  LOCALIMPORT: 'localimport',
-  PEERIMPORT: 'peerimport',
-  REMOTEIMPORT: 'remoteimport',
-};
-
 // maps to possible network applications that we import/export content from
 export const ApplicationTypes = {
   KOLIBRI: 'kolibri',

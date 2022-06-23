@@ -55,7 +55,7 @@
   import some from 'lodash/some';
   import { TaskResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { TaskTypes } from '../../constants';
+  import { TaskTypes } from 'kolibri.utils.syncTaskUtils';
 
   export default {
     name: 'SyncAllFacilitiesModal',
