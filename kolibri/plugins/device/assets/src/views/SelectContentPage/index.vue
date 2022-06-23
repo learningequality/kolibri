@@ -89,6 +89,15 @@
   import find from 'lodash/find';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { TaskResource } from 'kolibri.resources';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
+  import { TaskTypes, PageNames } from 'kolibri.utils.syncTaskUtils';
+  import { ContentWizardErrors } from '../../constants';
+  import TaskProgress from '../ManageContentPage/TaskProgress';
+  import useContentTasks from '../../composables/useContentTasks';
+  import SelectionBottomBar from '../ManageContentPage/SelectionBottomBar';
+  import taskNotificationMixin from '../taskNotificationMixin';
+  import { updateTreeViewTopic } from '../../modules/wizard/handlers';
+  import { getChannelWithContentSizes } from '../../modules/wizard/apiChannelMetadata';
   import NewChannelVersionBanner from '../ManageContentPage/NewChannelVersionBanner';
   import { getChannelWithContentSizes } from '../../modules/wizard/apiChannelMetadata';
   import { updateTreeViewTopic } from '../../modules/wizard/handlers';
