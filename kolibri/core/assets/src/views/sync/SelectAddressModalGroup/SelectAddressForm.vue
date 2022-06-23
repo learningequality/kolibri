@@ -231,12 +231,12 @@
         };
       },
       submitDisabled() {
-        return (
+        return Boolean(
           this.selectedAddressId === '' ||
-          this.fetchingAddresses & !this.filterLODAvailable ||
-          this.deletingAddress ||
-          this.discoveryFailed ||
-          this.availableAddressIds.length === 0
+            this.fetchingAddresses & !this.filterLODAvailable ||
+            this.deletingAddress ||
+            this.discoveryFailed ||
+            this.availableAddressIds.length === 0
         );
       },
       newAddressButtonDisabled() {
