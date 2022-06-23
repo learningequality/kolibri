@@ -17,6 +17,11 @@
       :value="Options.IMPORT"
       class="radio-button"
     />
+    <SelectAddressModalGroup
+      v-show="showSelectAddressModal"
+      @cancel="showSelectAddressModal = false"
+      @submit="handleAddressSubmit"
+    />
   </OnboardingStepBase>
 
 </template>
@@ -24,6 +29,7 @@
 
 <script>
 
+  import { SelectAddressModalGroup } from 'kolibri.coreVue.componentSets.sync';
   import OnboardingStepBase from '../OnboardingStepBase';
 
   const Options = Object.freeze({
@@ -35,18 +41,31 @@
     name: 'SetUpLearningFacilityForm',
     components: {
       OnboardingStepBase,
+      SelectAddressModalGroup,
     },
     inject: ['wizardService'],
     data() {
       return {
         Options,
         selected: Options.NEW,
+        showSelectAddressModal: false,
       };
     },
     methods: {
+      handleAddressSubmit(address) {
+        this.$router.push({
+          path: '/import_facility/1',
+          query: {
+            deviceId: address.id,
+          },
+        });
+      },
       handleContinue() {
-        console.log('handle continue:', this.selected);
-        this.wizardService.send({ type: 'CONTINUE', value: this.selected });
+        if (this.selected === Options.IMPORT) {
+          this.showSelectAddressModal = true;
+        } else {
+          this.wizardService.send({ type: 'CONTINUE', value: this.selected });
+        }
       },
     },
     $trs: {
