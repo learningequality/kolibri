@@ -125,7 +125,9 @@ def get_facility(facility_id=None, noninteractive=False):
 
 def get_facility_dataset_id(baseurl, identifier=None, noninteractive=False):
     # get list of facilities and if more than 1, display all choices to user
-    facility_url = urljoin(baseurl, reverse("kolibri:core:publicfacility-list"))
+    facility_url = urljoin(
+        baseurl, reverse("kolibri:core:publicfacility-list").lstrip("/")
+    )
     response = requests.get(facility_url)
     response.raise_for_status()
     facilities = response.json()
