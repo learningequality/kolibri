@@ -62,12 +62,12 @@
       };
     },
     computed: {
-      // Assume that if first facility has non-null 'last_synced'
+      // Assume that if first facility has non-null 'last_successful_sync'
       // field, then it was imported in Setup Wizard.
       // This used to determine Select Source workflow to enter into
       importedFacility() {
         const [facility] = this.$store.state.core.facilities;
-        if (facility && facility.last_synced !== null) {
+        if (facility && facility.last_successful_sync !== null) {
           return facility;
         }
         return null;
