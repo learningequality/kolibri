@@ -71,11 +71,13 @@
             :text="coreString('goBackAction')"
             appearance="flat-button"
             :primary="false"
+            :disabled="navDisabled"
             @click="wizardService.send('BACK')"
           />
           <KButton
             :text="coreString('continueAction')"
             :primary="true"
+            :disabled="navDisabled"
             @click="$emit('continue')"
           />
         </KButtonGroup>
@@ -86,6 +88,7 @@
             class="mobile-continue-button"
             :text="coreString('continueAction')"
             :primary="true"
+            :disabled="navDisabled"
             @click="$emit('continue')"
           />
         </div>
@@ -118,6 +121,10 @@
     mixins: [commonCoreStrings, responsiveWindowMixin],
     props: {
       noBackAction: {
+        type: Boolean,
+        default: false,
+      },
+      navDisabled: {
         type: Boolean,
         default: false,
       },
