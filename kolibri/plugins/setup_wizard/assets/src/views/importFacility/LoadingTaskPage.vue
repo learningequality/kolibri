@@ -2,6 +2,7 @@
 
   <OnboardingStepBase
     :title="header"
+    :navDisabled="!['COMPLETED', 'FAILED'].includes(loadingTask.status)"
     @continue="$emit('click_next')"
   >
     <FacilityTaskPanel
