@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div v-if="facility">
     <div>
       <h2 class="name">
         <KLabeledIcon icon="facility">
