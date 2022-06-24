@@ -4,6 +4,7 @@
   <div
     :class="{ 'base-container': true, 'windowIsSmall': windowIsSmall }"
     :style="{ 'background-color': windowIsSmall ? $themeTokens.surface : '' }"
+    @keyup.enter="handleEnterKey"
   >
 
     <div class="logo-lang-container">
@@ -137,6 +138,15 @@
     computed: {
       selectedLanguage() {
         return availableLanguages[currentLanguage];
+      },
+    },
+    methods: {
+      /* If the user is focused on a form element and hits enter, continue */
+      handleEnterKey(e) {
+        e.preventDefault();
+        if (!this.navDisabled & (e.target.tagName === 'INPUT')) {
+          this.$emit('continue');
+        }
       },
     },
   };
