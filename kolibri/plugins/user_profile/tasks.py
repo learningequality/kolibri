@@ -41,7 +41,9 @@ class MergeUserValidator(PeerImportSingleSyncJobValidator):
             "password": data["password"],
             "facility": facility,
         }
-        public_signup_url = urljoin(baseurl, reverse("kolibri:core:publicsignup-list"))
+        public_signup_url = urljoin(
+            baseurl, reverse("kolibri:core:publicsignup-list").lstrip("/")
+        )
         response = requests.post(public_signup_url, data=user_data)
         if response.status_code != HTTP_201_CREATED:
             raise serializers.ValidationError(response.json()[0]["id"])

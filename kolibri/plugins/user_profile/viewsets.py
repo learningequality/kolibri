@@ -30,14 +30,12 @@ class UserIndividualViewset(APIView):
 
 class RemoteFacilityUserViewset(APIView):
     def get(self, request):
-        baseurl = request.query_params.get(
-            "baseurl", request.build_absolute_uri("/")[:-1]
-        )
+        baseurl = request.query_params.get("baseurl", request.build_absolute_uri("/"))
         username = request.query_params.get("username", None)
         facility = request.query_params.get("facility", None)
         if username is None or facility is None:
             raise ValidationError(detail="Both username and facility are required")
-        path = reverse("kolibri:core:publicsearchuser-list")
+        path = reverse("kolibri:core:publicsearchuser-list").lstrip("/")
         url = urljoin(baseurl, path)
         try:
             response = requests.get(

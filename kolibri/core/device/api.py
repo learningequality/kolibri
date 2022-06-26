@@ -386,10 +386,8 @@ class RemoteFacilitiesViewset(views.APIView):
     permission_classes = (IsNotAnonymous,)
 
     def get(self, request):
-        baseurl = request.query_params.get(
-            "baseurl", request.build_absolute_uri("/")[:-1]
-        )
-        path = reverse("kolibri:core:publicfacility-list")
+        baseurl = request.query_params.get("baseurl", request.build_absolute_uri("/"))
+        path = reverse("kolibri:core:publicfacility-list").lstrip("/")
         url = urljoin(baseurl, path)
         try:
             response = requests.get(url)

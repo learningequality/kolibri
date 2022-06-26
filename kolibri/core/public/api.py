@@ -24,6 +24,7 @@ from rest_framework.response import Response
 from .. import error_constants
 from .constants.user_sync_statuses import QUEUED
 from .constants.user_sync_statuses import SYNC
+from kolibri.core.api import BaseValuesViewset
 from kolibri.core.api import ReadOnlyValuesViewset
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
@@ -329,7 +330,7 @@ class SyncQueueViewSet(viewsets.ViewSet):
         return self.check_queue(request, pk=pk)
 
 
-class FacilitySearchUsernameViewSet(ReadOnlyValuesViewset):
+class FacilitySearchUsernameViewSet(BaseValuesViewset):
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     filter_fields = ("facility",)
     search_fields = ("^username",)
@@ -338,11 +339,14 @@ class FacilitySearchUsernameViewSet(ReadOnlyValuesViewset):
 
     def list(self, request, *args, **kwargs):
         facility_id = request.query_params.get("facility", None)
+        if facility_id is None:
+            content = "Missing parameter: facility is required"
+            return Response(content, status=status.HTTP_412_PRECONDITION_FAILED)
         try:
             facility = Facility.objects.get(id=facility_id)
         except (AttributeError, Facility.DoesNotExist):
-            # non existing facility
-            return Response({})
+            content = "The facility does not exist in this device"
+            return Response(content, status=status.HTTP_404_NOT_FOUND)
 
         if facility.dataset.learner_can_login_with_no_password:
             queryset = self.filter_queryset(self.get_queryset())
@@ -352,7 +356,13 @@ class FacilitySearchUsernameViewSet(ReadOnlyValuesViewset):
             queryset = self.get_queryset().filter(
                 facility=facility_id, username=username
             )
-            response = {"username": username, "id": None} if queryset else {}
+            response = (
+                [
+                    {"username": username, "id": None},
+                ]
+                if queryset
+                else []
+            )
             return Response(response)
 
     def get_queryset(self):
