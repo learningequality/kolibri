@@ -422,6 +422,14 @@ class ContentNodeAPITestCase(APITestCase):
         )
         self._recurse_and_assert([response.data], [root])
 
+    def test_contentnode_tree_filtered_queryset_node(self):
+        root = content.ContentNode.objects.get(title="root")
+        response = self.client.get(
+            reverse("kolibri:core:contentnode_tree-detail", kwargs={"pk": root.id})
+            + "?parent={}".format(uuid.uuid4().hex)
+        )
+        self.assertEqual(response.status_code, 404)
+
     @unittest.skipIf(
         getattr(settings, "DATABASES")["default"]["ENGINE"]
         == "django.db.backends.postgresql",
