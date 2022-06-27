@@ -18,12 +18,23 @@
       :width="scaledWidth"
     >
     </canvas>
+    <div
+      ref="textLayer"
+      class="text-layer"
+      :style="{
+        height: `${scaledHeight}px`,
+        width: `${scaledWidth}px`
+      }"
+    >
+    </div>
   </section>
 
 </template>
 
 
 <script>
+
+  import TextLayerBuilder from '../utils/text_layer_builder';
 
   export default {
     name: 'PdfPage',
@@ -111,6 +122,7 @@
           this.cancelRender();
         }
         if (this.pdfPage && this.pageReady && !this.renderTask && !this.rendered) {
+          this.createTextLayer();
           const canvasContext = this.$refs.canvas.getContext('2d');
           const viewport = this.getViewport();
 
@@ -121,6 +133,13 @@
           this.renderTask.promise.then(
             () => {
               delete this.renderTask;
+              if (this.textLayer) {
+                const readableStream = this.pdfPage.streamTextContent({
+                  includeMarkedContent: true,
+                });
+                this.textLayer.setTextContentStream(readableStream);
+                this.textLayer.render();
+              }
               this.rendered = true;
             },
             () => {
@@ -136,6 +155,10 @@
         }
       },
       cancelRender() {
+        if (this.textLayer) {
+          this.textLayer.cancel();
+          this.textLayer = null;
+        }
         if (this.renderTask) {
           this.renderTask.cancel();
         }
@@ -148,6 +171,14 @@
         canvasContext.clearRect(0, 0, this.scaledHeight, this.scaledWidth);
         this.rendered = false;
       },
+      createTextLayer() {
+        this.textLayer = new TextLayerBuilder({
+          textLayerDiv: this.$refs.textLayer,
+          viewport: this.getViewport(),
+          pageIndex: this.pageNum - 1,
+          enhanceTextSelection: true,
+        });
+      },
     },
   };
 
@@ -158,6 +189,8 @@
 
   // Also defined in index.vue
   $page-margin: 8px;
+
+  @import url('../utils/text_layer_builder.scss');
 
   .pdf-page {
     position: relative;
