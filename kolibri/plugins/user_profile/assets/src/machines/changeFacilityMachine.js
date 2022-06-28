@@ -1,3 +1,5 @@
+import client from 'kolibri.client';
+import urls from 'kolibri.urls';
 import { createMachine, assign } from 'xstate';
 // This machine can be visualized and tested at https://stately.ai/viz/c1316a38-033d-4c57-8d9f-e282310e341d
 /* SETCONTEXT event example:
@@ -27,30 +29,31 @@ const setInitialContext = assign((_, event) => {
   };
 });
 
-const connectToTargetKolibri = event => {
+const connectToTargetKolibri = (context, event) => {
   const facility = event.value;
-  return new Promise(function(resolve) {
-    setTimeout(
-      () => {
-        return resolve({
-          facility: facility,
-          users: [
-            { id: 1, username: 'username1' },
-            { id: 2, username: 'username2' },
-          ],
-        });
-      },
-      1000,
-      facility
-    );
+  const params = {
+    baseurl: facility.url,
+    facility: facility.id,
+    username: context.username,
+  };
+  return client({
+    url: urls['kolibri:kolibri.plugins.user_profile:remotefacilityuser'](),
+    params: params,
+  }).then(response => {
+    let users = response.data;
+    if (Object.keys(response.data).length === 0) users = [];
+    return { facility: facility, users: users };
   });
 };
 
 const checkExists = assign((context, event) => {
   const filtered = event.data.users.filter(user => user.username === context.username);
   const exists = filtered.length > 0;
+  if (!exists) {
+    return { accountExists: false };
+  }
   return {
-    accountExists: exists,
+    accountExists: true,
     targetFacility: event.data.facility,
     targetAccount: filtered[0],
   };
@@ -108,8 +111,8 @@ export const changeFacilityMachine = createMachine({
         SETCONTEXT: { actions: setInitialContext },
         SELECTFACILITY: {
           actions: assign({
-            targetFacility: () => {
-              return {};
+            targetFacility: (_, event) => {
+              return event.value;
             },
           }),
           target: 'getFacilityUsernames',
@@ -119,7 +122,7 @@ export const changeFacilityMachine = createMachine({
     getFacilityUsernames: {
       invoke: {
         id: 'getUserNames',
-        src: (context, event) => connectToTargetKolibri(event),
+        src: (context, event) => connectToTargetKolibri(context, event),
         onDone: {
           target: 'selectFacility',
           actions: checkExists,
@@ -130,7 +133,7 @@ export const changeFacilityMachine = createMachine({
       },
     },
     changeFacility: {
-      meta: { route: 'CHANGE_FACILITY', path: '/change_facility' },
+      meta: { route: 'CONFIRM_CHANGE_FACILITY', path: '/change_facility' },
       on: {
         MERGE: {
           target: 'mergeAccounts',
@@ -163,7 +166,7 @@ export const changeFacilityMachine = createMachine({
     isAdmin: {
       always: [
         {
-          cond: context => context.role === 'superadmin',
+          cond: context => context.role === 'superuser',
           target: 'chooseAdmin',
         },
         {

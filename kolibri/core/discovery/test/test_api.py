@@ -84,21 +84,7 @@ class NetworkLocationAPITestCase(APITestCase):
         response = self.client.get(reverse("kolibri:core:staticnetworklocation-list"))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_cannot_read_network_location_list_as_learner(self):
-        self.login(self.learner)
-        response = self.client.get(reverse("kolibri:core:staticnetworklocation-list"))
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
     def test_cannot_create_location_as_anon_user(self):
-        response = self.client.post(
-            reverse("kolibri:core:staticnetworklocation-list"),
-            data={"base_url": "kolibrihappyurl.qqq"},
-            format="json",
-        )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_cannot_create_location_as_learner(self):
-        self.login(self.learner)
         response = self.client.post(
             reverse("kolibri:core:staticnetworklocation-list"),
             data={"base_url": "kolibrihappyurl.qqq"},

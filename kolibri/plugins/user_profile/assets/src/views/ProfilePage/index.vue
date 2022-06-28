@@ -141,7 +141,7 @@
                 :text="$tr('changeAction')"
                 appearance="raised-button"
                 :primary="false"
-                :to="$router.getRoute('SELECT_FACILITY')"
+                :to="$router.getRoute('CHANGE_FACILITY')"
               />
             </h2>
           </KGridItem>
