@@ -69,8 +69,8 @@ export default [
     name: PageNames.USER_MGMT_PAGE,
     component: UserPage,
     path: '/:facility_id?/users',
-    handler: toRoute => {
-      showUserPage(store, toRoute);
+    handler: (toRoute, fromRoute) => {
+      showUserPage(store, toRoute, fromRoute);
     },
   },
   {
