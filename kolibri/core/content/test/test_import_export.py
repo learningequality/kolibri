@@ -134,7 +134,31 @@ class GetImportExportNodesTestCase(TestCase):
                 available=True,
             )
             .filter(Q(parent=self.c2_node_id) | Q(pk=self.c1_node_id))
-            .exclude(Q(pk=self.c2c3_node_id))
+            .exclude(kind=content_kinds.TOPIC)
+        )
+
+        matched_nodes_queries_list = get_import_export_nodes(
+            self.the_channel_id,
+            renderable_only=False,
+            node_ids=[
+                self.c2_node_id,
+                self.c1_node_id,
+            ],
+        )
+
+        self.assertCountEqual(
+            itertools.chain.from_iterable(matched_nodes_queries_list),
+            expected_content_nodes,
+        )
+
+    def test_with_node_ids_and_exclude_node_ids(self):
+        expected_content_nodes = list(
+            ContentNode.objects.filter(
+                channel_id=self.the_channel_id,
+                available=True,
+            )
+            .filter(Q(parent=self.c2_node_id) | Q(pk=self.c1_node_id))
+            .exclude(pk=self.c2c3_node_id)
             .exclude(kind=content_kinds.TOPIC)
         )
 
@@ -146,6 +170,56 @@ class GetImportExportNodesTestCase(TestCase):
                 self.c1_node_id,
             ],
             exclude_node_ids=[self.c2c3_node_id],
+        )
+
+        self.assertCountEqual(
+            itertools.chain.from_iterable(matched_nodes_queries_list),
+            expected_content_nodes,
+        )
+
+    def test_with_node_ids_equals_exclude_node_ids(self):
+        expected_content_nodes = list()
+
+        matched_nodes_queries_list = get_import_export_nodes(
+            self.the_channel_id,
+            renderable_only=False,
+            node_ids=[self.c1_node_id],
+            exclude_node_ids=[self.c1_node_id],
+        )
+
+        self.assertCountEqual(
+            itertools.chain.from_iterable(matched_nodes_queries_list),
+            expected_content_nodes,
+        )
+
+    def test_with_node_ids_none(self):
+        expected_content_nodes = list(
+            ContentNode.objects.filter(
+                channel_id=self.the_channel_id,
+                available=True,
+            ).exclude(kind=content_kinds.TOPIC)
+        )
+
+        matched_nodes_queries_list = get_import_export_nodes(
+            self.the_channel_id,
+            renderable_only=False,
+            node_ids=None,
+            exclude_node_ids=None,
+        )
+
+        self.assertCountEqual(
+            itertools.chain.from_iterable(matched_nodes_queries_list),
+            expected_content_nodes,
+        )
+
+    def test_with_node_ids_empty(self):
+        expected_content_nodes = list()
+
+        matched_nodes_queries_list = get_import_export_nodes(
+            self.the_channel_id,
+            renderable_only=False,
+            node_ids=[],
+            exclude_node_ids=None,
         )
 
         self.assertCountEqual(
@@ -1707,7 +1781,7 @@ class TestFilesToTransfer(TestCase):
         }
         channel_stats_mock.return_value = stats
         _, files_to_transfer, _ = get_import_export_data(
-            self.the_channel_id, [], [], False, renderable_only=True, drive_id="1"
+            self.the_channel_id, None, None, False, renderable_only=True, drive_id="1"
         )
         self.assertEqual(
             len(files_to_transfer),
@@ -1730,7 +1804,7 @@ class TestFilesToTransfer(TestCase):
         }
         channel_stats_mock.return_value = stats
         _, files_to_transfer, _ = get_import_export_data(
-            self.the_channel_id, [], [], False, renderable_only=False, drive_id="1"
+            self.the_channel_id, None, None, False, renderable_only=False, drive_id="1"
         )
         self.assertEqual(
             len(files_to_transfer), LocalFile.objects.filter(available=False).count()
@@ -1746,7 +1820,7 @@ class TestFilesToTransfer(TestCase):
         stats = {obj.id: {}}
         channel_stats_mock.return_value = stats
         _, files_to_transfer, _ = get_import_export_data(
-            self.the_channel_id, [], [], False, renderable_only=False, drive_id="1"
+            self.the_channel_id, None, None, False, renderable_only=False, drive_id="1"
         )
         self.assertEqual(len(files_to_transfer), obj.files.count())
 
@@ -1763,7 +1837,7 @@ class TestFilesToTransfer(TestCase):
         _, files_to_transfer, _ = get_import_export_data(
             self.the_channel_id,
             [parent.id],
-            [],
+            None,
             False,
             renderable_only=False,
             drive_id="1",
@@ -1779,7 +1853,7 @@ class TestFilesToTransfer(TestCase):
         stats = {}
         channel_stats_mock.return_value = stats
         _, files_to_transfer, _ = get_import_export_data(
-            self.the_channel_id, [], [], False, renderable_only=False, drive_id="1"
+            self.the_channel_id, None, None, False, renderable_only=False, drive_id="1"
         )
         self.assertEqual(len(files_to_transfer), 0)
 
@@ -1794,7 +1868,7 @@ class TestFilesToTransfer(TestCase):
         }
         channel_stats_mock.return_value = stats
         _, files_to_transfer, _ = get_import_export_data(
-            self.the_channel_id, [], [], False, renderable_only=False, peer_id="1"
+            self.the_channel_id, None, None, False, renderable_only=False, peer_id="1"
         )
         self.assertEqual(
             len(files_to_transfer), LocalFile.objects.filter(available=False).count()
@@ -1810,7 +1884,7 @@ class TestFilesToTransfer(TestCase):
         stats = {obj.id: {}}
         channel_stats_mock.return_value = stats
         _, files_to_transfer, _ = get_import_export_data(
-            self.the_channel_id, [], [], False, renderable_only=False, peer_id="1"
+            self.the_channel_id, None, None, False, renderable_only=False, peer_id="1"
         )
         self.assertEqual(len(files_to_transfer), obj.files.count())
 
@@ -1823,7 +1897,7 @@ class TestFilesToTransfer(TestCase):
         stats = {}
         channel_stats_mock.return_value = stats
         _, files_to_transfer, _ = get_import_export_data(
-            self.the_channel_id, [], [], False, renderable_only=False, peer_id="1"
+            self.the_channel_id, None, None, False, renderable_only=False, peer_id="1"
         )
         self.assertEqual(len(files_to_transfer), 0)
 
