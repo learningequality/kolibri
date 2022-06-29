@@ -228,6 +228,7 @@ class ChannelImport(object):
         channel_version=None,
         cancel_check=None,
         destination=None,
+        partial=False,
     ):
         self.channel_id = channel_id
         self.channel_version = channel_version
@@ -236,7 +237,13 @@ class ChannelImport(object):
 
         self._source = None
 
+        self.partial = partial
+
         if isinstance(source, string_types):
+            if self.partial:
+                raise ValueError(
+                    "partial init argument to channel import class can only be used with dict imports"
+                )
             # Source is assumed to be a filepath to a SQLite database file
             self.source_db_path = source
 
@@ -292,8 +299,13 @@ class ChannelImport(object):
 
         self.content_models = topological_sort(self.content_models)
 
-        # Get the next available tree_id in our database
-        self.available_tree_id = self.find_unique_tree_id()
+        if self.partial:
+            self.available_tree_id = (
+                self.get_destination_channel_tree_id() or self.find_unique_tree_id()
+            )
+        else:
+            # Get the next available tree_id in our database
+            self.available_tree_id = self.find_unique_tree_id()
 
         self.default_to_not_available = False
 
@@ -301,6 +313,14 @@ class ChannelImport(object):
 
     def get_none(self, source_object):
         return None
+
+    def get_destination_channel_tree_id(self):
+        ContentNodeTable = self.destination.get_table(ContentNode)
+        return self.destination.execute(
+            select(ContentNodeTable.c.tree_id).where(
+                ContentNodeTable.c.channel_id == self.channel_id
+            )
+        ).scalar()
 
     def get_all_destination_tree_ids(self):
         ContentNodeTable = self.destination.get_table(ContentNode)
@@ -700,8 +720,22 @@ class ChannelImport(object):
         ).fetchone()
 
         if existing_channel:
-
-            if existing_channel["version"] < self.channel_version:
+            if self.partial:
+                if existing_channel["version"] != self.channel_version:
+                    # We have previously loaded this channel, with a different version to the metadata we are trying to insert
+                    logger.warning(
+                        (
+                            "Version {channel_version} of channel {channel_id} already exists in database; cancelling partial import of "
+                            + "version {new_channel_version}"
+                        ).format(
+                            channel_version=existing_channel["version"],
+                            channel_id=self.channel_id,
+                            new_channel_version=self.channel_version,
+                        )
+                    )
+                    return False
+                return True
+            elif existing_channel["version"] < self.channel_version:
                 # We have an older version of this channel, so let's clean out the old stuff first
                 logger.info(
                     (
@@ -919,28 +953,34 @@ class ChannelImport(object):
 
         self.end()
 
-        channel = ChannelMetadata.objects.get(id=self.channel_id)
-        channel.last_updated = local_now()
-        try:
-            if not channel.root:
-                raise AssertionError
-        except ContentNode.DoesNotExist:
-            node_id = channel.root_id
-            ContentNode.objects.create(
-                id=node_id,
-                title=channel.name,
-                content_id=node_id,
-                channel_id=self.channel_id,
+        if import_ran:
+            channel = ChannelMetadata.objects.get(id=self.channel_id)
+            channel.last_updated = local_now()
+            channel.partial = self.partial
+            try:
+                if not channel.root:
+                    raise AssertionError
+            except ContentNode.DoesNotExist:
+                node_id = channel.root_id
+                ContentNode.objects.create(
+                    id=node_id,
+                    title=channel.name,
+                    content_id=node_id,
+                    channel_id=self.channel_id,
+                )
+
+            annotate_label_bitmasks(
+                ContentNode.objects.filter(channel_id=self.channel_id)
             )
+            set_channel_ancestors(self.channel_id)
 
-        annotate_label_bitmasks(ContentNode.objects.filter(channel_id=self.channel_id))
-        set_channel_ancestors(self.channel_id)
+            channel.save()
 
-        channel.save()
-
-        logger.info(
-            "Channel {} successfully imported into the database".format(self.channel_id)
-        )
+            logger.info(
+                "Channel {} successfully imported into the database".format(
+                    self.channel_id
+                )
+            )
         return import_ran
 
     def end(self):
@@ -1109,7 +1149,7 @@ class InvalidSchemaVersionError(Exception):
 
 
 def initialize_import_manager(
-    channel_metadata, source, cancel_check=None, destination=None
+    channel_metadata, source, cancel_check=None, destination=None, partial=False
 ):
     # For old versions of content databases, we can only infer the schema version
     min_version = channel_metadata.get(
@@ -1148,6 +1188,7 @@ def initialize_import_manager(
         channel_version=channel_metadata["version"],
         cancel_check=cancel_check,
         destination=destination,
+        partial=partial,
     )
 
 
@@ -1163,11 +1204,11 @@ def import_channel_from_local_db(channel_id, cancel_check=None, contentfolder=No
     return import_manager.run_and_annotate()
 
 
-def import_channel_from_data(source_data, cancel_check=None):
+def import_channel_from_data(source_data, cancel_check=None, partial=False):
     channel_metadata = source_data.get(ChannelMetadata._meta.db_table)[0]
 
     import_manager = initialize_import_manager(
-        channel_metadata, source_data, cancel_check=cancel_check
+        channel_metadata, source_data, cancel_check=cancel_check, partial=partial
     )
 
     return import_manager.run_and_annotate()

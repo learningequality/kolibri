@@ -498,6 +498,94 @@ class ContentImportDataTestBase(ContentImportTestBase):
             update_content_metadata("6199dde695db4ee4ab392222d5af1e5c")
 
 
+class ContentImportPartialChannelDataTestBase(ContentImportTestBase):
+    def set_content_fixture(self):
+        data_path = DATA_PATH_TEMPLATE.format(name=self.data_name)
+        with io.open(data_path, mode="r", encoding="utf-8") as fp:
+            data = json.load(fp)
+        self.content_engine = create_engine("sqlite:///:memory:")
+
+        partial_data = {key: [] for key in data}
+
+        target_node = data["content_contentnode"][-1]
+
+        node = target_node
+        while node:
+            partial_data["content_contentnode"].append(node)
+            partial_data["content_file"].extend(
+                [f for f in data["content_file"] if f["contentnode_id"] == node["id"]]
+            )
+            partial_data["content_contentnode_tags"].extend(
+                [
+                    ct
+                    for ct in data["content_contentnode_tags"]
+                    if ct["contentnode_id"] == node["id"]
+                ]
+            )
+            partial_data["content_assessmentmetadata"].extend(
+                [
+                    am
+                    for am in data["content_assessmentmetadata"]
+                    if am["contentnode_id"] == node["id"]
+                ]
+            )
+            filtered_nodes = [
+                n for n in data["content_contentnode"] if n["id"] == node["parent_id"]
+            ]
+            if filtered_nodes:
+                node = filtered_nodes[0]
+            else:
+                break
+
+        contenttag_ids = {
+            ct["contenttag_id"] for ct in partial_data["content_contentnode_tags"]
+        }
+        contentnode_ids = {n["id"] for n in partial_data["content_contentnode"]}
+        localfile_ids = {f["localfile_id"] for f in partial_data["content_file"]}
+        lang_ids = {
+            n["lang_id"] for n in partial_data["content_contentnode"] if n["lang_id"]
+        } | {f["lang_id"] for f in partial_data["content_file"] if f["lang_id"]}
+
+        partial_data["content_localfile"] = [
+            lf for lf in data["content_localfile"] if lf["id"] in localfile_ids
+        ]
+        partial_data["content_contenttag"] = [
+            t for t in data["content_contenttag"] if t["id"] in contenttag_ids
+        ]
+        partial_data["content_language"] = [
+            lang for lang in data["content_language"] if lang["id"] in lang_ids
+        ]
+        partial_data["content_contentnode_has_prerequisite"] = [
+            preq
+            for preq in data["content_contentnode_has_prerequisite"]
+            if preq["from_contentnode_id"] in contentnode_ids
+            and preq["to_contentnode_id"] in contentnode_ids
+        ]
+        partial_data["content_contentnode_related"] = [
+            preq
+            for preq in data["content_contentnode_related"]
+            if preq["from_contentnode_id"] in contentnode_ids
+            and preq["to_contentnode_id"] in contentnode_ids
+        ]
+        partial_data["content_channelmetadata"] = data["content_channelmetadata"]
+        partial_data["schema_version"] = self.name
+
+        remainder_data = {}
+        for key in data:
+            remainder_data[key] = [v for v in data[key] if v not in partial_data[key]]
+        remainder_data["content_channelmetadata"] = data["content_channelmetadata"]
+        remainder_data["schema_version"] = self.name
+
+        with patch(
+            "kolibri.core.content.utils.sqlalchemybridge.get_engine",
+            new=self.get_engine,
+        ):
+            import_channel_from_data(partial_data, partial=True)
+            update_content_metadata("6199dde695db4ee4ab392222d5af1e5c")
+            import_channel_from_data(remainder_data, partial=True)
+            update_content_metadata("6199dde695db4ee4ab392222d5af1e5c")
+
+
 class NaiveImportTestBase(ContentNodeTestBase):
     """
     Integration test for naive import
@@ -665,6 +753,14 @@ class NaiveImportTestCase(NaiveImportTestBase, ContentImportTestBase):
 
 class NaiveImportDataTestCase(NaiveImportTestBase, ContentImportDataTestBase):
     pass
+
+
+class NaiveImportPartialChannelDataTestCase(
+    ContentNodeTestBase, ContentImportPartialChannelDataTestBase
+):
+    name = CONTENT_SCHEMA_VERSION
+
+    legacy_schema = None
 
 
 class ImportLongDescriptionsTestCase(ContentImportTestBase, TransactionTestCase):

@@ -46,16 +46,16 @@ class ContentContentnode(Base):
     __tablename__ = "content_contentnode"
     __table_args__ = (
         Index(
-            "content_contentnode_level_channel_id_kind_fd732cc4_idx",
-            "level",
-            "channel_id",
-            "kind",
-        ),
-        Index(
             "content_contentnode_level_channel_id_available_29f0bb18_idx",
             "level",
             "channel_id",
             "available",
+        ),
+        Index(
+            "content_contentnode_level_channel_id_kind_fd732cc4_idx",
+            "level",
+            "channel_id",
+            "kind",
         ),
     )
 
@@ -132,6 +132,7 @@ class ContentChannelmetadata(Base):
     order = Column(Integer)
     public = Column(Boolean)
     tagline = Column(String(150))
+    partial = Column(Boolean)
 
     root = relationship("ContentContentnode")
 

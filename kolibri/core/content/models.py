@@ -353,6 +353,9 @@ class ChannelMetadata(base_models.ChannelMetadata):
     )
     order = models.PositiveIntegerField(default=0, null=True, blank=True)
     public = models.NullBooleanField()
+    # Has only a subset of this channel's metadata been imported?
+    # Use a null boolean field to avoid issues during metadata import
+    partial = models.NullBooleanField(default=False)
 
     objects = ChannelMetadataQueryset.as_manager()
 

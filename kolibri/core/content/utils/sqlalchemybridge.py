@@ -82,7 +82,9 @@ class SharingPool(NullPool):
 
 def sqlite_connection_string(db_path):
     # Call normpath to ensure that Windows paths are properly formatted
-    return "sqlite:///{db_path}".format(db_path=os.path.normpath(db_path))
+    return "sqlite:///{db_path}".format(
+        db_path=db_path if db_path == ":memory:" else os.path.normpath(db_path)
+    )
 
 
 def get_engine(connection_string):
