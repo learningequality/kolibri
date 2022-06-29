@@ -236,6 +236,10 @@ def _post_django_initialization():
                 settings.CACHES["process_cache"]["TIMEOUT"],
                 **settings.CACHES["process_cache"]["OPTIONS"]
             )
+        except AttributeError:
+            # DatabaseCache, no actions needed supposing
+            # kolibri manage createcachetable has been executed previously
+            pass
 
 
 def _upgrades_after_django_setup(updated, version):
