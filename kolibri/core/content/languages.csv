@@ -1,0 +1,41 @@
+id,lang_code,lang_subcode,lang_name,lang_direction
+en,en,None,English,ltr
+es,es,None,Español,ltr
+fr,fr,None,Français, langue française,ltr
+ne,ne,None,नेपाली,ltr
+vi,vi,None,Tiếng Việt,ltr
+cs,cs,None,česky, čeština,ltr
+ja,ja,None,日本語 (にほんご／にっぽんご),ltr
+ca,ca,None,Català,ltr
+ar,ar,None,العربية,rtl
+hy,hy,None,Հայերեն,ltr
+bg,bg,None,български език,ltr
+zh-TW,zh,TW,漢語 (臺灣),ltr
+hr,hr,None,hrvatski,ltr
+my,my,None,ဗမာစာ,ltr
+pl,pl,None,Polski,ltr
+it,it,None,Italiano,ltr
+ta,ta,None,தமிழ்,ltr
+sv,sv,None,svenska,ltr
+de,de,None,Deutsch,ltr
+sr,sr,None,српски језик,ltr
+sw,sw,None,Kiswahili,ltr
+lt,lt,None,lietuvių kalba,ltr
+no,no,None,Norsk,ltr
+hi,hi,None,हिन्दी, हिंदी,ltr
+ro,ro,None,română,ltr
+uk,uk,None,українська,ltr
+tr,tr,None,Türkçe,ltr
+pt,pt,None,Português,ltr
+ko,ko,None,한국어 (韓國語), 조선말 (朝鮮語),ltr
+id,id,None,Bahasa Indonesia,ltr
+ru,ru,None,русский язык,ltr
+nl,nl,None,Nederlands, Vlaams,ltr
+ka,ka,None,ქართული,ltr
+ur,ur,None,اردو,rtl
+zh-CN,zh,CN,中国大陆,ltr
+th,th,None,ไทย,ltr
+ab,ab,None,аҧсуа,ltr
+zul,zul,None,isiZulu,ltr
+mr,mr,None,मराठी,ltr
+und,und,None,Undetermined,ltr
