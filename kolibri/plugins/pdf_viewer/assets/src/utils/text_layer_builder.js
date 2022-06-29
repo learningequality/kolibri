@@ -13,6 +13,10 @@
  * limitations under the License.
  */
 
+/*
+ * This file has been modified to adapt the component to the needs of Kolibri
+ */
+
 import { renderTextLayer } from 'pdfjs-dist/legacy/build/pdf';
 
 const EXPAND_DIVS_TIMEOUT = 300; // ms

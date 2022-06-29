@@ -49,7 +49,7 @@
   padding: 1px;
   margin: -1px;
 
-  /* TODO Change with colibri standards */
+  /* TODO Manage with colibri standards */
   background-color: rgba(180, 0, 170, 1);
   border-radius: 4px;
 }
@@ -71,12 +71,13 @@
 }
 
 .text-layer .highlight.selected {
-  /* TODO Change with colibri standards */
+  /* TODO Manage with colibri standards */
   background-color: rgba(0, 100, 0, 1);
 }
 
 .text-layer ::selection {
-  background: rgb(2, 128, 95);
+  /* TODO Manage with colibri standards */
+  background: rgb(0, 168, 255);
 }
 
 /* Avoids https://github.com/mozilla/pdf.js/issues/13840 in Chrome */
