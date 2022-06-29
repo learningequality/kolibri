@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("morango", "0016_store_deserialization_error"),
-        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+        migrations.swappable_dependency("kolibriauth.FacilityUser"),
         ("device", "0012_syncqueue"),
     ]
 
@@ -43,7 +43,7 @@ class Migration(migrations.Migration):
                     "user",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        to=settings.AUTH_USER_MODEL,
+                        to="kolibriauth.FacilityUser",
                     ),
                 ),
             ],
