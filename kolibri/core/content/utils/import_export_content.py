@@ -301,9 +301,6 @@ def get_content_nodes_selectors(channel_id, nodes_queries_list):
             assert node.id not in include_node_ids
             include_node_ids.append(node.id)
 
-    if len(exclude_node_ids) == 0 and include_node_ids == [channel_id]:
-        include_node_ids = []
-
     return {
         "id": channel_id,
         "version": channel_metadata.version,
