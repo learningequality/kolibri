@@ -150,16 +150,16 @@ class WebpackBundleHook(hooks.KolibriHook):
         """
         for f in self._stats_file_content["files"]:
             filename = f["name"]
-            if not getattr(settings, "DEVELOPER_MODE", False):
+
+            if getattr(settings, "DEVELOPER_MODE", True):
+                # Skip IGNORE_PATTERNS matches in DEVELOPER_MODE
                 if any(list(regex.match(filename) for regex in IGNORE_PATTERNS)):
+                    print("Skipping bundle for {}".format(filename))
                     continue
-            relpath = "{0}/{1}".format(self.unique_id, filename)
-            if getattr(settings, "DEVELOPER_MODE", False):
-                try:
-                    f["url"] = f["publicPath"]
-                except KeyError:
-                    f["url"] = staticfiles_storage.url(relpath)
-            else:
+            try:
+                f["url"] = f["publicPath"]
+            except KeyError:
+                relpath = "{0}/{1}".format(self.unique_id, filename)
                 f["url"] = staticfiles_storage.url(relpath)
             yield f
 
