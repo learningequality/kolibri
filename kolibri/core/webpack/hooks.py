@@ -23,7 +23,6 @@ from django.conf import settings
 from django.contrib.staticfiles.finders import find as find_staticfiles
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.core.cache import caches
-from django.utils.functional import cached_property
 from django.utils.safestring import mark_safe
 from django.utils.six.moves.urllib.request import url2pathname
 from django.utils.translation import get_language
@@ -94,51 +93,42 @@ class WebpackBundleHook(hooks.KolibriHook):
             return hook
         raise WebpackError("No bundle with that name is loaded: '{}'".format(unique_id))
 
-    @cached_property
+    @property
     def _stats_file_content(self):
         """
         :returns: A dict of the data contained in the JSON files which are
           written by Webpack.
         """
-        cache_key = "json_stats_file_cache_{unique_id}".format(unique_id=self.unique_id)
-        stats_file_content = caches[CACHE_NAMESPACE].get(cache_key)
+        STATS_ERR = "Error accessing stats file '{}': {}"
 
-        if not stats_file_content or getattr(settings, "DEVELOPER_MODE", False):
+        try:
+            with io.open(self._stats_file, mode="r", encoding="utf-8") as f:
+                stats = json.load(f)
+        except IOError as e:
+            raise WebpackError(STATS_ERR.format(self._stats_file, e))
 
-            STATS_ERR = "Error accessing stats file '{}': {}"
+        if getattr(settings, "DEVELOPER_MODE", False):
+            timeout = 0
 
-            try:
-                with io.open(self._stats_file, mode="r", encoding="utf-8") as f:
-                    stats = json.load(f)
-            except IOError as e:
-                raise WebpackError(STATS_ERR.format(self._stats_file, e))
+            while stats["status"] == "compile":
+                time.sleep(0.1)
+                timeout += 0.1
 
-            if getattr(settings, "DEVELOPER_MODE", False):
-                timeout = 0
+                try:
+                    with io.open(self._stats_file, mode="r", encoding="utf-8") as f:
+                        stats = json.load(f)
+                except IOError as e:
+                    raise WebpackError(STATS_ERR.format(self._stats_file, e))
 
-                while stats["status"] == "compiling":
-                    time.sleep(0.1)
-                    timeout += 0.1
+                if timeout >= 5:
+                    raise WebpackError("Compilation still in progress")
 
-                    try:
-                        with io.open(self._stats_file, mode="r", encoding="utf-8") as f:
-                            stats = json.load(f)
-                    except IOError as e:
-                        raise WebpackError(STATS_ERR.format(self._stats_file, e))
+            if stats["status"] == "error":
+                raise WebpackError("Compilation has errored", stats)
 
-                    if timeout >= 5:
-                        raise WebpackError("Compilation still in progress")
-
-                if stats["status"] == "error":
-                    raise WebpackError("Compilation has errored", stats)
-
-            stats_file_content = {
-                "files": stats.get("chunks", {}).get(self.unique_id, []),
-                "hasMessages": stats.get("messages", False),
-            }
-            # Don't invalidate during runtime.
-            # Might need to change this if we move to a different cache backend.
-            caches[CACHE_NAMESPACE].set(cache_key, stats_file_content, None)
+        stats_file_content = {
+            "files": stats.get("chunks", {}).get(self.unique_id, []),
+        }
 
         return stats_file_content
 
@@ -161,6 +151,7 @@ class WebpackBundleHook(hooks.KolibriHook):
             except KeyError:
                 relpath = "{0}/{1}".format(self.unique_id, filename)
                 f["url"] = staticfiles_storage.url(relpath)
+
             yield f
 
     @property
