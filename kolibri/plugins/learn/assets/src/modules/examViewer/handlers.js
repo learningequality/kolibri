@@ -1,9 +1,10 @@
-import { ContentNodeResource, ClassroomResource, ExamResource } from 'kolibri.resources';
+import { ContentNodeResource, ExamResource } from 'kolibri.resources';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import { convertExamQuestionSources } from 'kolibri.utils.exams';
 import ConditionalPromise from 'kolibri.lib.conditionalPromise';
 import shuffled from 'kolibri.utils.shuffled';
 import { ClassesPageNames } from '../../constants';
+import { LearnerClassroomResource } from '../../apiResources';
 import { contentState } from '../coreLearn/utils';
 
 export function showExam(store, params, alreadyOnQuiz) {
@@ -21,7 +22,7 @@ export function showExam(store, params, alreadyOnQuiz) {
     store.commit('CORE_SET_PAGE_LOADING', false);
   } else {
     const promises = [
-      ClassroomResource.fetchModel({ id: classId }),
+      LearnerClassroomResource.fetchModel({ id: classId }),
       ExamResource.fetchModel({ id: examId }),
       store.dispatch('setAndCheckChannels'),
     ];
