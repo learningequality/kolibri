@@ -1,6 +1,6 @@
 <template>
 
-  <li class="list-item">
+  <li class="list-item-navigation">
     <router-link
       class="tab"
       :class="$computedClass(tabStyles)"
@@ -68,7 +68,7 @@
 
   @import '~kolibri-design-system/lib/styles/definitions';
 
-  .list-item {
+  .list-item-navigation {
     display: inline-block;
     text-align: center;
   }

@@ -1,6 +1,6 @@
 <template>
 
-  <Navbar :ariaLabel="$tr('learnPageMenuLabel')">
+  <Navbar ref="navigation" :ariaLabel="$tr('learnPageMenuLabel')">
     <NavbarLink
       v-if="isUserLoggedIn"
       :title="coreString('homeLabel')"
