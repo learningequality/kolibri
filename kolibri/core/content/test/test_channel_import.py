@@ -486,7 +486,7 @@ class ContentImportDataTestBase(ContentImportTestBase):
         data_path = DATA_PATH_TEMPLATE.format(name=self.data_name)
         with io.open(data_path, mode="r", encoding="utf-8") as f:
             data = json.load(f)
-        self.content_engine = create_engine("sqlite:///:memory:")
+        self.content_engine = create_engine("sqlite://")
 
         data["schema_version"] = self.name
 
@@ -503,7 +503,7 @@ class ContentImportPartialChannelDataTestBase(ContentImportTestBase):
         data_path = DATA_PATH_TEMPLATE.format(name=self.data_name)
         with io.open(data_path, mode="r", encoding="utf-8") as fp:
             data = json.load(fp)
-        self.content_engine = create_engine("sqlite:///:memory:")
+        self.content_engine = create_engine("sqlite://")
 
         partial_data = {key: [] for key in data}
 
@@ -584,6 +584,7 @@ class ContentImportPartialChannelDataTestBase(ContentImportTestBase):
             update_content_metadata("6199dde695db4ee4ab392222d5af1e5c")
             import_channel_from_data(remainder_data, partial=True)
             update_content_metadata("6199dde695db4ee4ab392222d5af1e5c")
+        self.content_engine.dispose()
 
 
 class NaiveImportTestBase(ContentNodeTestBase):

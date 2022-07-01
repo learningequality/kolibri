@@ -235,8 +235,6 @@ class ChannelImport(object):
 
         self.cancel_check = cancel_check
 
-        self._source = None
-
         self.partial = partial
 
         if isinstance(source, string_types):
@@ -863,7 +861,7 @@ class ChannelImport(object):
 
     def try_attaching_sqlite_database(self):
         # attach the external content database to our primary database so we can directly transfer records en masse
-        if self.destination.engine.name == "sqlite":
+        if self.destination.engine.name == "sqlite" and self.source_data is None:
             try:
                 self.destination.execute(
                     text(
@@ -879,7 +877,7 @@ class ChannelImport(object):
 
     def try_detaching_sqlite_database(self):
         # detach the content database from the primary database so we don't get errors trying to attach it again later
-        if self.destination.engine.name == "sqlite":
+        if self.destination.engine.name == "sqlite" and self.source_data is None:
             try:
                 self.destination.execute(
                     text("DETACH '{alias}'".format(alias=SOURCE_DB_ALIAS))
