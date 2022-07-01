@@ -2,6 +2,17 @@
 
 List of the most important changes for each release.
 
+## 0.15.5
+
+### Overview
+
+This release fixes a regression with quiz display for non-admins.
+
+### Fixed
+* Clean up state management for user management page in https://github.com/learningequality/kolibri/pull/9535
+* Fix quiz display for non-admins in https://github.com/learningequality/kolibri/pull/9545
+
+
 ## 0.15.4
 
 ### Overview
