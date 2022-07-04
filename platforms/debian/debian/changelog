@@ -1,8 +1,14 @@
+kolibri-source (0.15.5-0ubuntu1) bionic; urgency=medium
+
+  * New upstream release
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Mon, 04 Jul 2022 11:26:59 +0200
+
 kolibri-source (0.15.4-0ubuntu1) bionic; urgency=medium
 
   * New upstream release
 
- -- José L. Redrejo Rodriguez <jredrejo@debian.org>  Thu, 23 Jun 2022 09:58:47 +0200
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Thu, 23 Jun 2022 09:58:47 +0200
 
 kolibri-source (0.15.3-0ubuntu1) bionic; urgency=medium
 
