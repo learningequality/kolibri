@@ -194,7 +194,7 @@ class LazyBases(object):
 
     def __getitem__(self, name):
         if name not in self._valid_bases:
-            raise AttributeError
+            raise AttributeError("Unknown content schema {} requested".format(name))
         if name not in self._loaded_bases:
             try:
                 metadata = load_metadata(name)
@@ -207,26 +207,13 @@ class LazyBases(object):
                 )
                 self._loaded_bases[name] = None
         if self._loaded_bases[name] is None:
-            raise AttributeError
+            raise AttributeError(
+                "Known content schema requested, but the schema failed to import"
+            )
         return self._loaded_bases[name]
 
 
 BASES = LazyBases()
-
-
-def get_model_from_cls(cls):
-    return next(
-        (
-            m
-            for m in apps.get_models(include_auto_created=True)
-            if m._meta.db_table == cls.__table__.name
-        ),
-        None,
-    )
-
-
-def get_field_from_model_by_column(model, column):
-    return next((f for f in model._meta.fields if f.column == column), None)
 
 
 def prepare_base(metadata, name=None):
