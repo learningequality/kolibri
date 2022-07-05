@@ -25,6 +25,7 @@ from kolibri.core.tasks.main import import_tasks_module_from_django_apps
 from kolibri.core.upgrade import matches_version
 from kolibri.core.upgrade import run_upgrades
 from kolibri.core.utils.cache import process_cache
+from kolibri.deployment.default.cache import CACHES
 from kolibri.deployment.default.sqlite_db_names import ADDITIONAL_SQLITE_DATABASES
 from kolibri.plugins.utils import autoremove_unavailable_plugins
 from kolibri.plugins.utils import check_plugin_config_file_location
@@ -224,22 +225,19 @@ def _upgrades_before_django_setup(updated, version):
 
 
 def _post_django_initialization():
-    if OPTIONS["Cache"]["CACHE_BACKEND"] != "redis":
-        try:
-            process_cache.cull()
-        except SQLite3DatabaseError:
-            shutil.rmtree(process_cache.directory, ignore_errors=True)
-            os.mkdir(process_cache.directory)
-            process_cache._cache = FanoutCache(
-                process_cache.directory,
-                settings.CACHES["process_cache"]["SHARDS"],
-                settings.CACHES["process_cache"]["TIMEOUT"],
-                **settings.CACHES["process_cache"]["OPTIONS"]
-            )
-        except AttributeError:
-            # DatabaseCache, no actions needed supposing
-            # kolibri manage createcachetable has been executed previously
-            pass
+    if "process_cache" in CACHES:  # usually it means not using redis
+        if "DatabaseCache" not in CACHES["process_cache"]["BACKEND"]:
+            try:
+                process_cache.cull()
+            except SQLite3DatabaseError:
+                shutil.rmtree(process_cache.directory, ignore_errors=True)
+                os.mkdir(process_cache.directory)
+                process_cache._cache = FanoutCache(
+                    process_cache.directory,
+                    settings.CACHES["process_cache"]["SHARDS"],
+                    settings.CACHES["process_cache"]["TIMEOUT"],
+                    **settings.CACHES["process_cache"]["OPTIONS"]
+                )
 
 
 def _upgrades_after_django_setup(updated, version):
