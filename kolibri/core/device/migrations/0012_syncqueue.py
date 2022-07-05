@@ -15,7 +15,7 @@ from django.db import models
 class Migration(migrations.Migration):
 
     dependencies = [
-        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+        migrations.swappable_dependency("kolibriauth.FacilityUser"),
         ("device", "0011_devicesettings_subset_of_users_device"),
     ]
 
@@ -36,7 +36,7 @@ class Migration(migrations.Migration):
                     "user",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        to=settings.AUTH_USER_MODEL,
+                        to="kolibriauth.FacilityUser",
                     ),
                 ),
             ],
