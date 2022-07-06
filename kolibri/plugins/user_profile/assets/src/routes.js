@@ -10,7 +10,7 @@ import ConfirmChangeFacility from './views/ChangeFacility/ConfirmChangeFacility'
 import MergeAccountDialog from './views/ChangeFacility/MergeAccountDialog';
 import ConfirmAccountDetails from './views/ChangeFacility/MergeAccountDialog/ConfirmAccountDetails';
 import CreateAccount from './views/ChangeFacility/CreateAccount';
-
+import ChooseAdmin from './views/ChangeFacility/ChooseAdmin';
 import ToBeDone from './views/ChangeFacility/ToBeDone';
 import UsernameExists from './views/ChangeFacility/UsernameExists';
 import MergeUsernameExists from './views/ChangeFacility/MergeUsernameExists';
@@ -80,7 +80,7 @@ export default [
       {
         path: 'choose_admin',
         name: 'CHOOSE_ADMIN',
-        component: ToBeDone,
+        component: ChooseAdmin,
       },
       {
         path: 'confirm_merge',
