@@ -12,7 +12,8 @@ def reverse_remote(
         viewname, urlconf=urlconf, args=args, kwargs=kwargs, current_app=current_app
     )
     # Remove any configured URL prefix from the URL that is specific to this deployment
-    reversed_url = reversed_url.replace(OPTIONS["Deployment"]["URL_PATH_PREFIX"], "")
+    prefix_length = len(OPTIONS["Deployment"]["URL_PATH_PREFIX"])
+    reversed_url = reversed_url[prefix_length:]
     # Join the URL to baseurl, but remove any leading "/" to ensure that if there is a path prefix on baseurl
     # it doesn't get ignored by the urljoin (which it would if the reversed_url had a leading '/',
     # as it would be read as an absolute path)
