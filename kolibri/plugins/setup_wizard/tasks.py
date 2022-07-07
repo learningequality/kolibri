@@ -1,14 +1,12 @@
 import requests
 from django.core.management import call_command
 from django.core.management.base import CommandError
-from django.urls import reverse
 from morango.models import InstanceIDModel
 from requests.exceptions import ConnectionError
 from requests.exceptions import HTTPError
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.exceptions import ValidationError
-from six.moves.urllib.parse import urljoin
 
 from kolibri.core.auth.backends import FACILITY_CREDENTIAL_KEY
 from kolibri.core.auth.constants.user_kinds import ADMIN
@@ -23,6 +21,7 @@ from kolibri.core.tasks.api import prepare_soud_sync_job
 from kolibri.core.tasks.api import prepare_sync_task
 from kolibri.core.tasks.api import validate_and_create_sync_credentials
 from kolibri.core.tasks.decorators import register_task
+from kolibri.core.utils.urls import reverse_remote
 
 
 def getusersinfo(request):
@@ -44,7 +43,7 @@ def getusersinfo(request):
     username = request.data.get("username", None)
     password = request.data.get("password", None)
 
-    user_info_url = urljoin(baseurl, reverse("kolibri:core:publicuser-list"))
+    user_info_url = reverse_remote(baseurl, "kolibri:core:publicuser-list")
     params = {
         "facility_id": facility_id,
     }

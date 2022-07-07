@@ -7,14 +7,12 @@ import random
 
 import requests
 from django.core.management import call_command
-from django.core.urlresolvers import reverse
 from django.utils import timezone
 from morango.errors import MorangoResumeSyncError
 from morango.models import InstanceIDModel
 from morango.models import SyncSession
 from requests.exceptions import ConnectionError
 from rest_framework import status
-from six.moves.urllib.parse import urljoin
 
 import kolibri
 from kolibri.core.auth.constants.morango_sync import PROFILE_FACILITY_DATA
@@ -33,6 +31,7 @@ from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import State
 from kolibri.core.tasks.main import queue
 from kolibri.core.tasks.main import scheduler
+from kolibri.core.utils.urls import reverse_remote
 from kolibri.utils.conf import OPTIONS
 
 
@@ -323,11 +322,11 @@ def request_soud_sync(server, user, queue_id=None, ttl=4):
     """
 
     if queue_id is None:
-        endpoint = reverse("kolibri:core:syncqueue-list")
+        server_url = reverse_remote(server, "kolibri:core:syncqueue-list")
     else:
-        endpoint = reverse("kolibri:core:syncqueue-detail", kwargs={"pk": queue_id})
-
-    server_url = urljoin(server, endpoint)
+        server_url = reverse_remote(
+            server, "kolibri:core:syncqueue-detail", kwargs={"pk": queue_id}
+        )
 
     instance_model = InstanceIDModel.get_or_create_current_instance()[0]
 
