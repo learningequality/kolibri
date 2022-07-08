@@ -7,6 +7,7 @@ import unittest
 import uuid
 
 from django.test import TestCase
+from django.test import TransactionTestCase
 from morango.models import InstanceIDModel
 from morango.models import Store
 from morango.models import syncable_models
@@ -44,7 +45,7 @@ class FacilityDatasetCertificateTestCase(TestCase):
             self.assertTrue(partition.startswith(dataset_id))
 
 
-class DateTimeTZFieldTestCase(TestCase):
+class DateTimeTZFieldTestCase(TransactionTestCase):
     def setUp(self):
         self.controller = MorangoProfileController(PROFILE_FACILITY_DATA)
         InstanceIDModel.get_or_create_current_instance()

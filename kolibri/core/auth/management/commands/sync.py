@@ -23,7 +23,7 @@ from kolibri.core.auth.models import dataset_cache
 from kolibri.core.logger.utils.data import bytes_for_humans
 from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.core.tasks.management.commands.base import AsyncCommand
-from kolibri.core.utils.lock import db_lock
+from kolibri.core.utils.lock import db_lock_sqlite_only
 from kolibri.utils import conf
 
 DATA_PORTAL_SYNCING_BASE_URL = conf.OPTIONS["Urls"]["DATA_PORTAL_SYNCING_BASE_URL"]
@@ -216,7 +216,12 @@ class Command(AsyncCommand):
             cancellable = self.job.cancellable
             self.job.save_as_cancellable(cancellable=False)
 
-        with db_lock():
+        # Morango v0.6.13+ uses read repeatable isolation for postgres, and handles database
+        # transactions in a special manner that would be problematic if we began a transaction here.
+        # If data has changed during morango's transactions, postgres may throw a serialization
+        # rollback error, which will cause morango to retry it. So it's safe to avoid locking here
+        # when using postgres
+        with db_lock_sqlite_only():
             yield
 
         if self.job:
