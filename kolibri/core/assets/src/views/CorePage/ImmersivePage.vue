@@ -5,6 +5,7 @@
       ref="appBar"
       :appBarTitle="(!loading ? appBarTitle : '')"
       :route="route"
+      :icon="icon"
     />
     <slot></slot>
     <KLinearLoader
@@ -38,6 +39,10 @@
         type: Object,
         required: false,
         default: null,
+      },
+      icon: {
+        type: String,
+        default: 'close',
       },
       loading: {
         type: Boolean,
