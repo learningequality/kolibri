@@ -202,6 +202,16 @@
             >
               {{ $tr('showMore') }}
             </KButton>
+            <div v-else-if="topicMore" class="end-button-block">
+              <KButton
+                v-if="!topicMoreLoading"
+                :text="coreString('viewMoreAction')"
+                appearance="raised-button"
+                :disabled="topicMoreLoading"
+                @click="handleLoadMoreInTopic"
+              />
+              <KCircularLoader v-else />
+            </div>
           </div>
           <div v-else-if="!searchLoading">
             <h2 class="results-title">
@@ -529,17 +539,15 @@
         return this.contents.filter(content => content.kind !== ContentNodeKinds.TOPIC);
       },
       resourcesDisplayed() {
+        let displayed;
         // if no folders are shown at this level, show more resources to fill the space
-        if (this.topics.length == 0 && !this.showMoreResources) {
-          return this.resources.slice(0, this.childrenToDisplay * 2);
-          // if there are topics, and the user has not clicked show more
-          // default to just the preview number
-        } else if (this.topics.length > 0 && !this.showMoreResources) {
-          return this.resources.slice(0, this.childrenToDisplay);
+        if (!this.showMoreResources) {
+          displayed = this.resources.slice(0, this.childrenToDisplay);
           // otherwise display all resources
         } else {
-          return this.resources;
+          displayed = this.resources;
         }
+        return displayed;
       },
       moreResources() {
         return this.resourcesDisplayed.length < this.resources.length;
