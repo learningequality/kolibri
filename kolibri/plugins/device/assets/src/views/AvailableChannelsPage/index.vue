@@ -10,7 +10,7 @@
     />
 
     <FilteredChannelListContainer
-      v-if="status === ''"
+      v-if="status === '' && !$store.state.core.loading"
       :channels="allChannels"
       :selectedChannels.sync="selectedChannels"
       :selectAllCheckbox="multipleMode"
@@ -71,6 +71,8 @@
         </p>
       </template>
     </FilteredChannelListContainer>
+
+    <KCircularLoader v-else style="margin: 2em auto;" />
 
     <ChannelTokenModal
       v-if="showTokenModal"
