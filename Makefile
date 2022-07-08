@@ -31,9 +31,11 @@ help:
 	@echo "lint: check Python style with flake8"
 	@echo "test: run tests quickly with the default Python"
 	@echo "test-all: run tests on every Python version with Tox"
+	@echo "test-with-postgres: run tests quickly with a temporary postgresql backend"
 	@echo "test-namespaced-packages: verify that we haven't fetched anything namespaced into kolibri/dist"
 	@echo "coverage: run tests, recording and printing out Python code coverage"
 	@echo "docs: generate developer documentation"
+	@echo "start-foreground-with-postgres: run Kolibri in foreground mode with a temporary postgresql backend"
 	@echo ""
 	@echo "Internationalization"
 	@echo "--------------------"
@@ -92,20 +94,9 @@ test:
 test-all:
 	tox
 
-test-with-postgres:
-	export DJANGO_SETTINGS_MODULE=kolibri.deployment.default.settings.postgres_test; \
-	set -ex; \
-	function _on_interrupt() { docker-compose down; }; \
-	trap _on_interrupt SIGINT SIGTERM SIGKILL ERR; \
-	docker-compose up --detach; \
-	until docker-compose logs --tail=1 postgres | grep -q "database system is ready to accept connections"; do \
-		echo "$(date) - waiting for postgres..."; \
-		sleep 1; \
-	done; \
-	$(MAKE) -e test; \
-	docker-compose down -v
-
-run-with-postgres:
+%-with-postgres:
+	@echo -e "\e[33mWARNING: for testing purposes only; postgresql database backend is ephemeral\e[0m"
+	@echo -e "\e[36mINFO: run 'docker-compose -v' to remove the database volume\e[0m"
 	export KOLIBRI_DATABASE_ENGINE=postgres; \
 	export KOLIBRI_DATABASE_NAME=default; \
 	export KOLIBRI_DATABASE_USER=postgres; \
@@ -120,8 +111,11 @@ run-with-postgres:
 		echo "$(date) - waiting for postgres..."; \
 		sleep 1; \
 	done; \
-	kolibri start --foreground; \
-	docker-compose down
+	$(MAKE) -e $(subst -with-postgres,,$@); \
+	docker-compose down -v
+
+start-foreground:
+	kolibri start --foreground
 
 assets:
 	yarn install
