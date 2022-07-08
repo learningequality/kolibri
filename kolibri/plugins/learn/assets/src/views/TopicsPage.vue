@@ -185,25 +185,23 @@
               </KButton>
               <KCircularLoader v-if="t.id === subTopicLoading" />
             </div>
-            <!-- search results -->
+            <!-- resources that are not in a folder -->
             <HybridLearningCardGrid
               v-if="resources.length"
-              :contents="resources"
+              :contents="resourcesDisplayed"
               :numCols="numCols"
               :genContentLink="genContentLink"
               cardViewStyle="card"
               @toggleInfoPanel="toggleInfoPanel"
             />
-            <div v-if="topicMore" class="end-button-block">
-              <KButton
-                v-if="!topicMoreLoading"
-                :text="coreString('viewMoreAction')"
-                appearance="raised-button"
-                :disabled="topicMoreLoading"
-                @click="handleLoadMoreInTopic"
-              />
-              <KCircularLoader v-else />
-            </div>
+            <KButton
+              v-if="moreResources"
+              class="more-after-grid"
+              appearance="basic-link"
+              @click="handleShowMoreResources"
+            >
+              {{ $tr('showMore') }}
+            </KButton>
           </div>
           <div v-else-if="!searchLoading">
             <h2 class="results-title">
@@ -469,6 +467,7 @@
         currentViewStyle: 'card',
         currentCategory: null,
         showSearchModal: false,
+        showMoreResources: false,
         sidePanelIsOpen: false,
         sidePanelContent: null,
         expandedTopics: {},
@@ -527,12 +526,26 @@
         return this.channel.name;
       },
       resources() {
-        const resources = this.contents.filter(content => content.kind !== ContentNodeKinds.TOPIC);
-        // If there are no topics, then just display all resources we have loaded.
-        if (!this.topics.length) {
-          return resources;
+        return this.contents.filter(content => content.kind !== ContentNodeKinds.TOPIC);
+      },
+      resourcesDisplayed() {
+        // if no folders are shown at this level, show more resources to fill the space
+        if (!this.topics) {
+          return this.resources.slice(0, 8);
+          // if there are topics, and the user has not clicked show more
+          // default to just the preview number
+        } else if (this.topics && !this.showMoreResources) {
+          return this.resources.slice(0, this.childrenToDisplay);
+          // otherwise display all resources
+        } else {
+          return this.resources;
         }
-        return resources.slice(0, this.childrenToDisplay);
+      },
+      moreResources() {
+        return (
+          this.resources.length > this.childrenToDisplay &&
+          this.resourcesDisplayed.length < this.resources.length
+        );
       },
       topics() {
         return this.contents.filter(content => content.kind === ContentNodeKinds.TOPIC);
@@ -736,6 +749,9 @@
           ...this.expandedTopics,
           [topicId]: true,
         };
+      },
+      handleShowMoreResources() {
+        this.showMoreResources = true;
       },
       handleLoadMoreinSubtopic(topicId) {
         this.subTopicLoading = topicId;
