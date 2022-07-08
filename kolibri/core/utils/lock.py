@@ -30,8 +30,7 @@ class PostgresLock(object):
 
 
 @contextmanager
-def db_lock():
-    lock_id = 1
+def db_lock_sqlite_only():
     if connection.vendor == "sqlite":
         while True:
             try:
@@ -44,10 +43,29 @@ def db_lock():
             except OperationalError as e:
                 if "database is locked" not in str(e):
                     raise e
-    elif connection.vendor == "postgresql":
+    else:
+        yield
+
+
+@contextmanager
+def db_lock_postgresql_only():
+    lock_id = 1
+    if connection.vendor == "postgresql":
         with transaction.atomic():
             operation = PostgresLock(key=lock_id)
             operation.execute()
+            yield
+    else:
+        yield
+
+
+@contextmanager
+def db_lock():
+    if connection.vendor == "sqlite":
+        with db_lock_sqlite_only():
+            yield
+    elif connection.vendor == "postgresql":
+        with db_lock_postgresql_only():
             yield
     else:
         raise NotImplementedError(
