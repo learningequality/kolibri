@@ -530,11 +530,11 @@
       },
       resourcesDisplayed() {
         // if no folders are shown at this level, show more resources to fill the space
-        if (!this.topics) {
-          return this.resources.slice(0, 8);
+        if (this.topics.length == 0 && !this.showMoreResources) {
+          return this.resources.slice(0, this.childrenToDisplay * 2);
           // if there are topics, and the user has not clicked show more
           // default to just the preview number
-        } else if (this.topics && !this.showMoreResources) {
+        } else if (this.topics.length > 0 && !this.showMoreResources) {
           return this.resources.slice(0, this.childrenToDisplay);
           // otherwise display all resources
         } else {
@@ -542,10 +542,7 @@
         }
       },
       moreResources() {
-        return (
-          this.resources.length > this.childrenToDisplay &&
-          this.resourcesDisplayed.length < this.resources.length
-        );
+        return this.resourcesDisplayed.length < this.resources.length;
       },
       topics() {
         return this.contents.filter(content => content.kind === ContentNodeKinds.TOPIC);
