@@ -1,3 +1,5 @@
+SHELL := /bin/bash
+
 # List most target names as 'PHONY' to prevent Make from thinking it will be creating a file of the same name
 .PHONY: help clean clean-assets clean-build clean-pyc clean-docs lint test test-all assets coverage docs release test-namespaced-packages staticdeps staticdeps-cext writeversion setrequirements buildconfig pex i18n-extract-frontend i18n-extract-backend i18n-transfer-context i18n-extract i18n-django-compilemessages i18n-upload i18n-pretranslate i18n-pretranslate-approve-all i18n-download i18n-regenerate-fonts i18n-stats i18n-install-font i18n-download-translations i18n-download-glossary i18n-upload-glossary docker-whl docker-demoserver docker-devserver docker-envlist
 
@@ -89,6 +91,37 @@ test:
 
 test-all:
 	tox
+
+test-with-postgres:
+	export DJANGO_SETTINGS_MODULE=kolibri.deployment.default.settings.postgres_test; \
+	set -ex; \
+	function _on_interrupt() { docker-compose down; }; \
+	trap _on_interrupt SIGINT SIGTERM SIGKILL ERR; \
+	docker-compose up --detach; \
+	until docker-compose logs --tail=1 postgres | grep -q "database system is ready to accept connections"; do \
+		echo "$(date) - waiting for postgres..."; \
+		sleep 1; \
+	done; \
+	$(MAKE) -e test; \
+	docker-compose down -v
+
+run-with-postgres:
+	export KOLIBRI_DATABASE_ENGINE=postgres; \
+	export KOLIBRI_DATABASE_NAME=default; \
+	export KOLIBRI_DATABASE_USER=postgres; \
+	export KOLIBRI_DATABASE_PASSWORD=postgres; \
+	export KOLIBRI_DATABASE_HOST=127.0.0.1; \
+	export KOLIBRI_DATABASE_PORT=5432; \
+	set -ex; \
+	function _on_interrupt() { docker-compose down; }; \
+	trap _on_interrupt SIGINT SIGTERM SIGKILL ERR; \
+	docker-compose up --detach; \
+	until docker-compose logs --tail=1 postgres | grep -q "database system is ready to accept connections"; do \
+		echo "$(date) - waiting for postgres..."; \
+		sleep 1; \
+	done; \
+	kolibri start --foreground; \
+	docker-compose down
 
 assets:
 	yarn install
