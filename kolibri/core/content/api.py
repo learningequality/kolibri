@@ -969,8 +969,12 @@ class TreeQueryMixin(object):
 
     def get_tree_queryset(self, request, pk):
         # Get the model for the parent node here - we do this so that we trigger a 404 immediately if the node
-        # does not exist (or exists but is not available).
-        parent_id = pk if pk and self.get_queryset().filter(id=pk).exists() else None
+        # does not exist (or exists but is not available, or is filtered).
+        parent_id = (
+            pk
+            if pk and self.filter_queryset(self.get_queryset()).filter(id=pk).exists()
+            else None
+        )
 
         if parent_id is None:
             raise Http404
