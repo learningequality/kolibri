@@ -208,8 +208,8 @@ export const changeFacilityMachine = createMachine({
       type: 'final',
     },
     createAccount: {
+      meta: { route: 'CREATE_ACCOUNT', path: '/change_facility' },
       on: {
-        meta: { route: 'CREATE_ACCOUNT', path: '/change_facility' },
         CONTINUE: {
           // event.value must be an object {id:, usename:}
           target: 'isAdmin',
