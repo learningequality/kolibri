@@ -6,6 +6,7 @@ import ChangeFacility from './views/ChangeFacility';
 import SelectFacility from './views/ChangeFacility/SelectFacility';
 import ConfirmAccount from './views/ChangeFacility/ConfirmAccount';
 import ConfirmChangeFacility from './views/ChangeFacility/ConfirmChangeFacility';
+import CreateAccount from './views/ChangeFacility/CreateAccount';
 import ToBeDone from './views/ChangeFacility/ToBeDone';
 
 function preload(next) {
@@ -88,7 +89,7 @@ export default [
       {
         path: 'create_account',
         name: 'CREATE_ACCOUNT',
-        component: ToBeDone,
+        component: CreateAccount,
       },
       {
         path: 'username_exists',
