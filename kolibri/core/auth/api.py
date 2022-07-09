@@ -34,6 +34,8 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
 from django_filters.rest_framework import ModelChoiceFilter
 from morango.api.permissions import BasicMultiArgumentAuthentication
+from morango.constants import transfer_stages
+from morango.constants import transfer_statuses
 from morango.models import TransferSession
 from rest_framework import decorators
 from rest_framework import filters
@@ -486,13 +488,28 @@ class FacilityViewSet(ValuesViewset):
     queryset = Facility.objects.all()
     serializer_class = FacilitySerializer
 
-    facility_values = ["id", "name", "num_classrooms", "num_users", "last_synced"]
+    facility_values = [
+        "id",
+        "name",
+        "num_classrooms",
+        "num_users",
+        "last_successful_sync",
+        "last_failed_sync",
+    ]
 
     values = tuple(facility_values + dataset_keys)
 
     field_map = {"dataset": _map_dataset}
 
     def annotate_queryset(self, queryset):
+        transfer_session_dataset_filter = Func(
+            Cast(OuterRef("dataset"), TextField()),
+            Value("-"),
+            Value(""),
+            function="replace",
+            output_field=TextField(),
+        )
+
         return (
             queryset.annotate(
                 num_users=SQCount(
@@ -505,15 +522,27 @@ class FacilityViewSet(ValuesViewset):
                 )
             )
             .annotate(
-                last_synced=Subquery(
+                last_successful_sync=Subquery(
+                    # the sync command does a pull, then a push, so if the push succeeded,
+                    # the pull likely did too, which means this should represent when the
+                    # facility was last fully and successfully synced
                     TransferSession.objects.filter(
-                        filter=Func(
-                            Cast(OuterRef("dataset"), TextField()),
-                            Value("-"),
-                            Value(""),
-                            function="replace",
-                            output_field=TextField(),
-                        )
+                        push=True,
+                        active=False,
+                        transfer_stage=transfer_stages.CLEANUP,
+                        transfer_stage_status=transfer_statuses.COMPLETED,
+                        filter=transfer_session_dataset_filter,
+                    )
+                    .order_by("-last_activity_timestamp")
+                    .values("last_activity_timestamp")[:1]
+                )
+            )
+            .annotate(
+                last_failed_sync=Subquery(
+                    # Here we simply look for if any transfer session has errored
+                    TransferSession.objects.filter(
+                        transfer_stage_status=transfer_statuses.ERRORED,
+                        filter=transfer_session_dataset_filter,
                     )
                     .order_by("-last_activity_timestamp")
                     .values("last_activity_timestamp")[:1]
