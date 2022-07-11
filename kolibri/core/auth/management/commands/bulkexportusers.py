@@ -108,11 +108,12 @@ output_mappings = {
 }
 
 
-map_output = partial(output_mapper, labels=labels, output_mappings=output_mappings)
+map_output = None  # to be assigned after labels are translated
 
 
 def translate_labels():
     global labels
+    global map_output
     labels = OrderedDict(
         (
             ("id", _("Database ID ({})").format("UUID")),
@@ -145,6 +146,7 @@ def translate_labels():
             ),
         )
     )
+    map_output = partial(output_mapper, labels=labels, output_mappings=output_mappings)
 
 
 def csv_file_generator(facility, filepath, overwrite=True):
