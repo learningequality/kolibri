@@ -1,3 +1,5 @@
+SHELL := /bin/bash
+
 # List most target names as 'PHONY' to prevent Make from thinking it will be creating a file of the same name
 .PHONY: help clean clean-assets clean-build clean-pyc clean-docs lint test test-all assets coverage docs release test-namespaced-packages staticdeps staticdeps-cext writeversion setrequirements buildconfig pex i18n-extract-frontend i18n-extract-backend i18n-transfer-context i18n-extract i18n-django-compilemessages i18n-upload i18n-pretranslate i18n-pretranslate-approve-all i18n-download i18n-regenerate-fonts i18n-stats i18n-install-font i18n-download-translations i18n-download-glossary i18n-upload-glossary docker-whl docker-demoserver docker-devserver docker-envlist
 
@@ -30,9 +32,11 @@ help:
 	@echo "lint: check Python style with flake8"
 	@echo "test: run tests quickly with the default Python"
 	@echo "test-all: run tests on every Python version with Tox"
+	@echo "test-with-postgres: run tests quickly with a temporary postgresql backend"
 	@echo "test-namespaced-packages: verify that we haven't fetched anything namespaced into kolibri/dist"
 	@echo "coverage: run tests, recording and printing out Python code coverage"
 	@echo "docs: generate developer documentation"
+	@echo "start-foreground-with-postgres: run Kolibri in foreground mode with a temporary postgresql backend"
 	@echo ""
 	@echo "Internationalization"
 	@echo "--------------------"
@@ -91,6 +95,29 @@ test:
 
 test-all:
 	tox
+
+%-with-postgres:
+	@echo -e "\e[33mWARNING: for testing purposes only; postgresql database backend is ephemeral\e[0m"
+	@echo -e "\e[36mINFO: run 'docker-compose -v' to remove the database volume\e[0m"
+	export KOLIBRI_DATABASE_ENGINE=postgres; \
+	export KOLIBRI_DATABASE_NAME=default; \
+	export KOLIBRI_DATABASE_USER=postgres; \
+	export KOLIBRI_DATABASE_PASSWORD=postgres; \
+	export KOLIBRI_DATABASE_HOST=127.0.0.1; \
+	export KOLIBRI_DATABASE_PORT=5432; \
+	set -ex; \
+	function _on_interrupt() { docker-compose down; }; \
+	trap _on_interrupt SIGINT SIGTERM SIGKILL ERR; \
+	docker-compose up --detach; \
+	until docker-compose logs --tail=1 postgres | grep -q "database system is ready to accept connections"; do \
+		echo "$(date) - waiting for postgres..."; \
+		sleep 1; \
+	done; \
+	$(MAKE) -e $(subst -with-postgres,,$@); \
+	docker-compose down -v
+
+start-foreground:
+	kolibri start --foreground
 
 assets:
 	yarn install

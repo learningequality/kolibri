@@ -37,7 +37,7 @@ from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
 from kolibri.core.discovery.utils.network.errors import URLParseError
 from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.core.tasks.management.commands.base import AsyncCommand
-from kolibri.core.utils.lock import db_lock
+from kolibri.core.utils.lock import db_lock_sqlite_only
 from kolibri.utils.data import bytes_for_humans
 
 
@@ -486,7 +486,7 @@ class MorangoSyncCommand(AsyncCommand):
             cancellable = self.job.cancellable
             self.job.save_as_cancellable(cancellable=False)
 
-        with db_lock():
+        with db_lock_sqlite_only():
             yield
 
         if self.job:
