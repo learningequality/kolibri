@@ -25,6 +25,7 @@
     name: 'FullNameTextbox',
     mixins: [commonCoreStrings],
     // NOTE: 'value' and 'isValid' must be .sync'd with parent
+    // You can also pass 'disabled', 'autofocus', and 'autocomplete'
     props: {
       value: {
         type: String,

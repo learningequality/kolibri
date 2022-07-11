@@ -27,6 +27,7 @@
     mixins: [commonCoreStrings],
     props: {
       // NOTE: 'value', 'errors', and 'isValid' must be .sync'ed with parent
+      // You can also pass 'disabled' and 'autofocus'
       value: {
         type: String,
         default: '',

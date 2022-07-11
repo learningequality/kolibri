@@ -41,6 +41,7 @@
     mixins: [commonCoreStrings],
     props: {
       // NOTE: 'value', and 'isValid' must be .sync'd with parent
+      // Fallthrough attributes are passed down to the first textbox
       value: {
         type: String,
         default: '',
