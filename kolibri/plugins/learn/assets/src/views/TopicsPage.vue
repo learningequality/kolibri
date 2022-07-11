@@ -539,15 +539,12 @@
         return this.contents.filter(content => content.kind !== ContentNodeKinds.TOPIC);
       },
       resourcesDisplayed() {
-        let displayed;
         // if no folders are shown at this level, show more resources to fill the space
-        if (!this.showMoreResources) {
-          displayed = this.resources.slice(0, this.childrenToDisplay);
-          // otherwise display all resources
-        } else {
-          displayed = this.resources;
+        // or if the user has explicitly requested to show more resources
+        if (!this.topics.length || this.showMoreResources) {
+          return this.resources;
         }
-        return displayed;
+        return this.resources.slice(0, this.childrenToDisplay);
       },
       moreResources() {
         return this.resourcesDisplayed.length < this.resources.length;
