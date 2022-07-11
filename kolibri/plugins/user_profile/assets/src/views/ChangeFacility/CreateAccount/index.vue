@@ -4,6 +4,23 @@
     <h1>{{ $tr('documentTitle') }}</h1>
     <p>{{ description }}</p>
 
+    <FullNameTextbox
+      ref="fullNameTextbox"
+      data-test="fullNameTextbox"
+      :value.sync="formData.fullName"
+      :isValid.sync="isFullNameValid"
+      :shouldValidate="isFormSubmitted"
+      :autofocus="true"
+      autocomplete="name"
+    />
+    <UsernameTextbox
+      ref="usernameTextbox"
+      data-test="usernameTextbox"
+      :value.sync="formData.username"
+      :isValid.sync="isUsernameValid"
+      :shouldValidate="isFormSubmitted"
+    />
+
     <BottomAppBar>
       <slot name="buttons">
         <KButtonGroup>
@@ -17,7 +34,7 @@
             :primary="true"
             :text="coreString('continueAction')"
             data-test="continueButton"
-            @click="sendContinue"
+            @click="handleContinue"
           />
         </KButtonGroup>
       </slot>
@@ -32,6 +49,8 @@
   import get from 'lodash/get';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
+  import FullNameTextbox from 'kolibri.coreVue.components.FullNameTextbox';
+  import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
 
   export default {
     name: 'CreateAccount',
@@ -40,17 +59,50 @@
         title: this.$tr('documentTitle'),
       };
     },
-    components: { BottomAppBar },
+    components: {
+      BottomAppBar,
+      FullNameTextbox,
+      UsernameTextbox,
+    },
     mixins: [commonCoreStrings],
     inject: ['changeFacilityService', 'state'],
+    data() {
+      return {
+        formData: {
+          fullName: '',
+          username: '',
+        },
+        isFullNameValid: false,
+        isUsernameValid: false,
+        isFormSubmitted: false,
+      };
+    },
     computed: {
       description() {
         return this.$tr('description', {
           targetFacility: get(this.state, 'value.targetFacility.name', ''),
         });
       },
+      isFormValid() {
+        return [this.isFullNameValid, this.isUsernameValid].every(Boolean);
+      },
     },
     methods: {
+      handleContinue() {
+        this.isFormSubmitted = true;
+        if (this.isFormValid) {
+          this.sendContinue();
+        } else {
+          this.focusOnInvalidField();
+        }
+      },
+      focusOnInvalidField() {
+        if (!this.isFullNameValid) {
+          this.$refs.fullNameTextbox.focus();
+        } else if (!this.isUsernameValid) {
+          this.$refs.usernameTextbox.focus();
+        }
+      },
       sendContinue() {
         this.changeFacilityService.send({
           type: 'CONTINUE',
