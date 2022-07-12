@@ -41,8 +41,11 @@
       };
     },
     computed: {
+      isFullNameValid() {
+        return this.value && this.value.trim() !== '';
+      },
       invalidText() {
-        if (this.value === '') {
+        if (!this.isFullNameValid) {
           return this.coreString('requiredFieldError');
         }
         return '';
@@ -53,12 +56,9 @@
         }
         return '';
       },
-      valid() {
-        return this.invalidText === '';
-      },
     },
     watch: {
-      valid: {
+      isFullNameValid: {
         handler(value) {
           this.$emit('update:isValid', value);
         },
