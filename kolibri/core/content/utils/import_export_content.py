@@ -1,7 +1,4 @@
 import hashlib
-import itertools
-import json
-import os
 from math import ceil
 
 from django.db.models import Max
@@ -9,7 +6,6 @@ from django.db.models import Min
 from django.db.models import Q
 from le_utils.constants import content_kinds
 
-from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.content_types_tools import (
@@ -22,11 +18,6 @@ from kolibri.core.content.utils.importability_annotation import (
     get_channel_stats_from_peer,
 )
 
-
-try:
-    FileNotFoundError
-except NameError:
-    FileNotFoundError = IOError
 
 CHUNKSIZE = 10000
 
@@ -262,93 +253,6 @@ def get_content_nodes_data(
 
     total_bytes_to_transfer = sum(map(lambda x: x["file_size"] or 0, files_to_download))
     return number_of_resources, files_to_download, total_bytes_to_transfer
-
-
-def get_content_nodes_selectors(channel_id, nodes_queries_list):
-    """
-    Returns a dictionary with a set of include_node_ids and exclude_node_ids
-    that can be used with the given channel_id to import the nodes contained
-    in nodes_queries_list.
-    """
-
-    include_node_ids = list()
-    exclude_node_ids = list()
-
-    channel_metadata = ChannelMetadata.objects.get(id=channel_id)
-
-    available_node_ids = set(
-        itertools.chain.from_iterable(
-            nodes_query.values_list("id", flat=True)
-            for nodes_query in nodes_queries_list
-        )
-    )
-
-    available_nodes_queue = [channel_metadata.root]
-
-    while len(available_nodes_queue) > 0:
-        node = available_nodes_queue.pop(0)
-
-        # We could add nodes to exclude_node_ids when less than half of the
-        # sibling nodes are missing. However, it is unclear if this would
-        # be useful.
-
-        if node.kind == "topic":
-            leaf_node_ids = _get_leaf_node_ids(node)
-            matching_leaf_nodes = leaf_node_ids.intersection(available_node_ids)
-            missing_leaf_nodes = leaf_node_ids.difference(available_node_ids)
-            if len(missing_leaf_nodes) == 0:
-                assert node.id not in include_node_ids
-                include_node_ids.append(node.id)
-            elif len(matching_leaf_nodes) > 0:
-                available_nodes_queue.extend(node.children.all())
-        elif node.id in available_node_ids:
-            assert node.id not in include_node_ids
-            include_node_ids.append(node.id)
-
-    return {
-        "id": channel_id,
-        "version": channel_metadata.version,
-        "include_node_ids": include_node_ids,
-        "exclude_node_ids": exclude_node_ids,
-    }
-
-
-def update_content_manifest(manifest_file, nodes_selectors):
-    try:
-        with open(manifest_file, "r") as fp:
-            manifest_data = json.load(fp)
-    except (FileNotFoundError, ValueError):
-        # Use ValueError rather than JSONDecodeError for Py2 compatibility
-        manifest_data = None
-
-    if not isinstance(manifest_data, dict):
-        manifest_data = {}
-
-    channels = manifest_data.setdefault("channels", [])
-
-    # TODO: If the channel is already listed, it would be nice to merge the
-    #       new selectors instead of adding another entry for the same channel.
-
-    if nodes_selectors not in channels:
-        channels.append(nodes_selectors)
-
-    manifest_data["channel_list_hash"] = hashlib.md5(
-        json.dumps(channels).encode()
-    ).hexdigest()
-
-    os.makedirs(os.path.dirname(manifest_file), exist_ok=True)
-    with open(manifest_file, "w") as fp:
-        manifest_data = json.dump(manifest_data, fp, indent=4)
-
-
-def _get_leaf_node_ids(node):
-    return set(
-        ContentNode.objects.filter(
-            lft__gte=node.lft, lft__lte=node.rght, channel_id=node.channel_id
-        )
-        .exclude(kind="topic")
-        .values_list("id", flat=True)
-    )
 
 
 def compare_checksums(file_name, file_id):

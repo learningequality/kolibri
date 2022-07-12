@@ -28,7 +28,6 @@ from kolibri.core.content.utils.content_types_tools import (
     renderable_contentnodes_q_filter,
 )
 from kolibri.core.content.utils.import_export_content import get_content_nodes_data
-from kolibri.core.content.utils.import_export_content import get_content_nodes_selectors
 from kolibri.core.content.utils.import_export_content import get_import_export_data
 from kolibri.core.content.utils.import_export_content import get_import_export_nodes
 from kolibri.utils.file_transfer import Transfer
@@ -178,7 +177,7 @@ class GetImportExportNodesTestCase(TestCase):
         )
 
     def test_with_node_ids_equals_exclude_node_ids(self):
-        expected_content_nodes = list()
+        expected_content_nodes = []
 
         matched_nodes_queries_list = get_import_export_nodes(
             self.the_channel_id,
@@ -213,7 +212,7 @@ class GetImportExportNodesTestCase(TestCase):
         )
 
     def test_with_node_ids_empty(self):
-        expected_content_nodes = list()
+        expected_content_nodes = []
 
         matched_nodes_queries_list = get_import_export_nodes(
             self.the_channel_id,
@@ -324,99 +323,6 @@ class GetContentNodesDataTestCase(TestCase):
         self.assertEqual(total_resource_count, 2)
         self.assertCountEqual(files, expected_files_list)
         self.assertEqual(total_bytes_to_transfer, 0)
-
-
-@override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())
-class GetContentNodesSelectorsTestCase(TestCase):
-    """
-    Test case for utils.import_export_content.get_content_nodes_selectors
-    """
-
-    fixtures = ["content_test.json"]
-    the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
-
-    root_node_id = "da7ecc42e62553eebc8121242746e88a"
-    c2_node_id = "2e8bac07947855369fe2d77642dfc870"
-    c2c1_node_id = "2b6926ed22025518a8b9da91745b51d3"
-    c2c2_node_id = "4d0c890de9b65d6880ccfa527800e0f4"
-    c2c3_node_id = "b391bfeec8a458f89f013cf1ca9cf33a"
-    c3_node_id = "c391bfeec8a458f89f013cf1ca9cf33b"
-    c3copy_node_id = "c391bfeec8a458f89f013cf1ca9cf33b"
-
-    def test_with_empty_selection(self):
-        selectors = get_content_nodes_selectors(self.the_channel_id, [])
-
-        self.assertEqual(
-            selectors,
-            {
-                "id": self.the_channel_id,
-                "version": 0,
-                "include_node_ids": [],
-                "exclude_node_ids": [],
-            },
-        )
-
-    def test_with_complete_selection(self):
-        selected_content_nodes = ContentNode.objects.filter(
-            channel_id=self.the_channel_id
-        ).exclude(kind=content_kinds.TOPIC)
-
-        selectors = get_content_nodes_selectors(
-            self.the_channel_id, [selected_content_nodes]
-        )
-
-        self.assertEqual(
-            selectors,
-            {
-                "id": self.the_channel_id,
-                "version": 0,
-                "include_node_ids": [self.root_node_id],
-                "exclude_node_ids": [],
-            },
-        )
-
-    def test_with_specific_leaf_nodes(self):
-        selected_pks_list = [self.c2c1_node_id, self.c2c2_node_id]
-
-        selected_content_nodes = ContentNode.objects.filter(
-            channel_id=self.the_channel_id, pk__in=selected_pks_list
-        ).exclude(kind=content_kinds.TOPIC)
-
-        selectors = get_content_nodes_selectors(
-            self.the_channel_id, [selected_content_nodes]
-        )
-
-        self.assertEqual(
-            selectors,
-            {
-                "id": self.the_channel_id,
-                "version": 0,
-                "include_node_ids": [self.c2c1_node_id, self.c2c2_node_id],
-                "exclude_node_ids": [],
-            },
-        )
-
-    def test_with_entire_topic_1(self):
-        # Select all non-topic nodes that are descendents of "c2"
-        selected_pks_list = [self.c2c1_node_id, self.c2c2_node_id, self.c2c3_node_id]
-
-        selected_content_nodes = ContentNode.objects.filter(
-            channel_id=self.the_channel_id, pk__in=selected_pks_list
-        ).exclude(kind=content_kinds.TOPIC)
-
-        selectors = get_content_nodes_selectors(
-            self.the_channel_id, [selected_content_nodes]
-        )
-
-        self.assertEqual(
-            selectors,
-            {
-                "id": self.the_channel_id,
-                "version": 0,
-                "include_node_ids": [self.c2_node_id],
-                "exclude_node_ids": [],
-            },
-        )
 
 
 @patch(
@@ -1643,7 +1549,7 @@ class ExportChannelTestCase(TestCase):
 @override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())
 @patch("kolibri.core.content.management.commands.exportcontent.get_import_export_nodes")
 @patch("kolibri.core.content.management.commands.exportcontent.get_content_nodes_data")
-@patch("kolibri.core.content.management.commands.exportcontent.update_content_manifest")
+@patch("kolibri.core.content.management.commands.exportcontent.ContentManifest")
 class ExportContentTestCase(TestCase):
     """
     Test case for the exportcontent management command.
@@ -1663,7 +1569,7 @@ class ExportContentTestCase(TestCase):
         is_cancelled_mock,
         cancel_mock,
         FileCopyMock,
-        update_content_manifest_mock,
+        ContentManifestMock,
         get_content_nodes_data_mock,
         get_import_export_nodes_mock,
     ):
@@ -1698,7 +1604,7 @@ class ExportContentTestCase(TestCase):
         FileCopyMock,
         local_path_mock,
         start_progress_mock,
-        update_content_manifest_mock,
+        ContentManifestMock,
         get_content_nodes_data_mock,
         get_import_export_nodes_mock,
     ):

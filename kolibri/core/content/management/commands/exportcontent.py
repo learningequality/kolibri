@@ -5,10 +5,10 @@ from django.core.management.base import CommandError
 
 from ...utils import paths
 from kolibri.core.content.errors import InvalidStorageFilenameError
+from kolibri.core.content.models import ChannelMetadata
+from kolibri.core.content.utils.content_manifest import ContentManifest
 from kolibri.core.content.utils.import_export_content import get_content_nodes_data
-from kolibri.core.content.utils.import_export_content import get_content_nodes_selectors
 from kolibri.core.content.utils.import_export_content import get_import_export_nodes
-from kolibri.core.content.utils.import_export_content import update_content_manifest
 from kolibri.core.content.utils.paths import get_content_file_name
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.core.tasks.utils import get_current_job
@@ -79,6 +79,8 @@ class Command(AsyncCommand):
             "Exporting content for channel id {} to {}".format(channel_id, data_dir)
         )
 
+        channel_metadata = ChannelMetadata.objects.get(id=channel_id)
+
         nodes_queries_list = get_import_export_nodes(
             channel_id, node_ids, exclude_node_ids, available=True
         )
@@ -110,9 +112,13 @@ class Command(AsyncCommand):
             "Exporting manifest for channel id {} to {}".format(channel_id, data_dir)
         )
 
-        nodes_selectors = get_content_nodes_selectors(channel_id, nodes_queries_list)
-        manifest_file = os.path.join(data_dir, "content", "manifest.json")
-        update_content_manifest(manifest_file, nodes_selectors)
+        manifest_path = os.path.join(data_dir, "content", "manifest.json")
+        content_manifest = ContentManifest()
+        content_manifest.read(manifest_path)
+        content_manifest.add_content_nodes(
+            channel_id, channel_metadata.version, nodes_queries_list
+        )
+        content_manifest.write(manifest_path)
 
     def export_file(self, f, data_dir, overall_progress_update):
         filename = get_content_file_name(f)
