@@ -1,0 +1,16 @@
+version: '3.4'
+
+services:
+  postgres:
+    image: postgres:12
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: default
+    volumes:
+      - kolibri-pg:/var/lib/postgresql/data
+#    command: "postgres -c log_statement=all -c log_line_prefix='%t %d '"
+volumes:
+  kolibri-pg:
