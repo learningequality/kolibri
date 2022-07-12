@@ -83,7 +83,10 @@ export const changeFacilityMachine = createMachine({
     username: '',
     targetAccount: { username: '', id: '' },
     sourceFacility: '',
-    targetFacility: {}, //should be an object with the facility name, id & url
+    // should be an object with the target facility
+    // `name`, `id`, `url`, `learner_can_sign_up` &
+    // `learner_can_login_with_no_password` fields
+    targetFacility: {},
     newSuperAdmin: '',
     taskPolling: false,
     accountExists: false,
