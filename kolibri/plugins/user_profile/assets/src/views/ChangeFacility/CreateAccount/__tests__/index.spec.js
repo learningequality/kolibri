@@ -2,7 +2,7 @@ import { shallowMount, mount } from '@vue/test-utils';
 import CreateAccount from '../index.vue';
 
 const sendMachineEvent = jest.fn();
-function makeWrapper() {
+function makeWrapper({ targetFacility } = {}) {
   return mount(CreateAccount, {
     provide: {
       changeFacilityService: {
@@ -10,9 +10,7 @@ function makeWrapper() {
       },
       state: {
         value: {
-          targetFacility: {
-            name: 'Test Facility',
-          },
+          targetFacility,
         },
       },
     },
@@ -21,10 +19,11 @@ function makeWrapper() {
 
 const getBackButton = wrapper => wrapper.find('[data-test="backButton"]');
 const getContinueButton = wrapper => wrapper.find('[data-test="continueButton"]');
-const clickBackButton = wrapper => getBackButton(wrapper).trigger('click');
-const clickContinueButton = wrapper => getContinueButton(wrapper).trigger('click');
 const getFullNameTextbox = wrapper => wrapper.find('[data-test="fullNameTextbox"]');
 const getUsernameTextbox = wrapper => wrapper.find('[data-test="usernameTextbox"]');
+const getPasswordTextbox = wrapper => wrapper.find('[data-test="passwordTextbox"]');
+const clickBackButton = wrapper => getBackButton(wrapper).trigger('click');
+const clickContinueButton = wrapper => getContinueButton(wrapper).trigger('click');
 const setFullNameTextboxValue = (wrapper, value) => {
   getFullNameTextbox(wrapper)
     .find('input')
@@ -32,6 +31,16 @@ const setFullNameTextboxValue = (wrapper, value) => {
 };
 const setUsernameTextboxValue = (wrapper, value) => {
   getUsernameTextbox(wrapper)
+    .find('input')
+    .setValue(value);
+};
+const setPasswordTextboxValue = (wrapper, value) => {
+  getPasswordTextbox(wrapper)
+    .findComponent({ ref: 'password' })
+    .find('input')
+    .setValue(value);
+  getPasswordTextbox(wrapper)
+    .findComponent({ ref: 'confirm' })
     .find('input')
     .setValue(value);
 };
@@ -47,7 +56,7 @@ describe(`ChangeFacility/CreateAccount`, () => {
   });
 
   it(`shows the message about creating a new account in the target facility`, () => {
-    const wrapper = makeWrapper();
+    const wrapper = makeWrapper({ targetFacility: { name: 'Test Facility' } });
     expect(wrapper.text()).toContain('New account for ‘Test Facility’ learning facility');
   });
 
@@ -71,6 +80,22 @@ describe(`ChangeFacility/CreateAccount`, () => {
     expect(getUsernameTextbox(wrapper).exists()).toBeTruthy();
   });
 
+  describe(`when the target facility doesn't require password on learner accounts`, () => {
+    it(`doesn't show the password textbox`, () => {
+      const wrapper = makeWrapper({ targetFacility: { learner_can_login_with_no_password: true } });
+      expect(getPasswordTextbox(wrapper).exists()).toBeFalsy();
+    });
+  });
+
+  describe(`when the target facility requires password on learner accounts`, () => {
+    it(`shows the password textbox`, () => {
+      const wrapper = makeWrapper({
+        targetFacility: { learner_can_login_with_no_password: false },
+      });
+      expect(getPasswordTextbox(wrapper).exists()).toBeTruthy();
+    });
+  });
+
   it(`clicking the back button sends the back event to the state machine`, () => {
     const wrapper = makeWrapper();
     clickBackButton(wrapper);
@@ -84,6 +109,7 @@ describe(`ChangeFacility/CreateAccount`, () => {
       const wrapper = makeWrapper();
       setFullNameTextboxValue(wrapper, 'Test Fullname');
       setUsernameTextboxValue(wrapper, 'testusername');
+      setPasswordTextboxValue(wrapper, 'testpassword');
       // wait for validation
       await wrapper.vm.$nextTick();
       clickContinueButton(wrapper);

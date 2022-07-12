@@ -20,6 +20,14 @@
       :isValid.sync="isUsernameValid"
       :shouldValidate="isFormSubmitted"
     />
+    <PasswordTextbox
+      v-if="showPasswordTextbox"
+      ref="passwordTextbox"
+      data-test="passwordTextbox"
+      :value.sync="formData.password"
+      :isValid.sync="isPasswordValid"
+      :shouldValidate="isFormSubmitted"
+    />
 
     <BottomAppBar>
       <slot name="buttons">
@@ -51,6 +59,7 @@
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import FullNameTextbox from 'kolibri.coreVue.components.FullNameTextbox';
   import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
+  import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
 
   export default {
     name: 'CreateAccount',
@@ -63,6 +72,7 @@
       BottomAppBar,
       FullNameTextbox,
       UsernameTextbox,
+      PasswordTextbox,
     },
     mixins: [commonCoreStrings],
     inject: ['changeFacilityService', 'state'],
@@ -71,9 +81,11 @@
         formData: {
           fullName: '',
           username: '',
+          password: '',
         },
         isFullNameValid: false,
         isUsernameValid: false,
+        isPasswordValid: false,
         isFormSubmitted: false,
       };
     },
@@ -83,8 +95,15 @@
           targetFacility: get(this.state, 'value.targetFacility.name', ''),
         });
       },
+      showPasswordTextbox() {
+        return !get(this.state, 'value.targetFacility.learner_can_login_with_no_password', false);
+      },
       isFormValid() {
-        return [this.isFullNameValid, this.isUsernameValid].every(Boolean);
+        return (
+          this.isFullNameValid &&
+          this.isUsernameValid &&
+          (!this.showPasswordTextbox || this.isPasswordValid)
+        );
       },
     },
     methods: {
@@ -101,6 +120,8 @@
           this.$refs.fullNameTextbox.focus();
         } else if (!this.isUsernameValid) {
           this.$refs.usernameTextbox.focus();
+        } else if (this.showPasswordTextbox && !this.isPasswordValid) {
+          this.$refs.passwordTextbox.focus();
         }
       },
       sendContinue() {
