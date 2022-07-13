@@ -105,7 +105,7 @@ describe(`ChangeFacility/CreateAccount`, () => {
   });
 
   describe(`when the new user account form is valid`, () => {
-    it(`clicking the continue button sends the continue event to the state machine`, async () => {
+    it(`clicking the continue button sends the continue event with the form data as its value to the state machine`, async () => {
       const wrapper = makeWrapper();
       setFullNameTextboxValue(wrapper, 'Test Fullname');
       setUsernameTextboxValue(wrapper, 'testusername');
@@ -115,6 +115,11 @@ describe(`ChangeFacility/CreateAccount`, () => {
       clickContinueButton(wrapper);
       expect(sendMachineEvent).toHaveBeenCalledWith({
         type: 'CONTINUE',
+        value: {
+          fullName: 'Test Fullname',
+          username: 'testusername',
+          password: 'testpassword',
+        },
       });
     });
   });

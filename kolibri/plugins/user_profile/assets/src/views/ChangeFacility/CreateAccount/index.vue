@@ -127,6 +127,7 @@
       sendContinue() {
         this.changeFacilityService.send({
           type: 'CONTINUE',
+          value: this.formData,
         });
       },
       sendBack() {

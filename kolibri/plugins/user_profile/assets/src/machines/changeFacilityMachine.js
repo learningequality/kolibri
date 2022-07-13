@@ -81,7 +81,11 @@ export const changeFacilityMachine = createMachine({
   context: {
     role: 'learner',
     username: '',
-    targetAccount: { username: '', id: '' },
+    targetAccount: {
+      fullName: '',
+      username: '',
+      password: '',
+    },
     sourceFacility: '',
     // should be an object with the target facility
     // `name`, `id`, `url`, `learner_can_sign_up` &
@@ -214,7 +218,6 @@ export const changeFacilityMachine = createMachine({
       meta: { route: 'CREATE_ACCOUNT', path: '/change_facility' },
       on: {
         CONTINUE: {
-          // event.value must be an object {id:, usename:}
           target: 'isAdmin',
           actions: setTargetAccount,
         },
