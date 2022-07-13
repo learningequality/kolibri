@@ -24,7 +24,7 @@ async function makeWrapper() {
     wrapper,
     store,
     router: new VueRouter(),
-    stubs: ['AppBarDevicePage'],
+    stubs: ['AppBarPage', 'DeviceTopNav'],
   });
   // Need to wait for beforeMount to finish
   await global.flushPromises();

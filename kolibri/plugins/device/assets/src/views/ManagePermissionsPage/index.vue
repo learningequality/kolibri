@@ -1,53 +1,59 @@
 <template>
 
-  <AppBarDevicePage>
+  <AppBarPage :title="pageTitle">
 
-    <div class="description">
-      <h1>
-        {{ coreString('devicePermissionsLabel') }}
-      </h1>
-      <p>{{ $tr('devicePermissionsDescription') }}</p>
-    </div>
+    <template #subNav>
+      <DeviceTopNav v-if="!hideSubNav" />
+    </template>
 
-    <PaginatedListContainer
-      :items="usersFilteredByDropdown"
-      :filterPlaceholder="$tr('searchPlaceholder')"
-    >
-      <template #otherFilter>
-        <KSelect
-          v-model="permissionsFilter"
-          :label="$tr('permissionsLabel')"
-          :options="permissionsOptions"
-          :inline="true"
-          class="type-filter"
-        />
-        <KSelect
-          v-model="userTypeFilter"
-          :label="coreString('userTypeLabel')"
-          :options="userTypeOptions"
-          :inline="true"
-          class="type-filter"
-        />
-        <KSelect
-          v-if="hasMultipleFacilities"
-          v-model="facilityFilter"
-          :label="coreString('facilityLabel')"
-          :options="facilityOptions"
-          :inline="true"
-          class="type-filter"
-        />
-      </template>
-      <template #default="{ items, filterInput }">
-        <UserGrid
-          :searchFilter="searchFilterText"
-          :facilityUsers="items"
-          :userPermissions="userPermissions"
-          :filterText="filterInput"
-        />
-      </template>
-    </PaginatedListContainer>
+    <KPageContainer class="device-container">
+      <div class="description">
+        <h1>
+          {{ coreString('devicePermissionsLabel') }}
+        </h1>
+        <p>{{ $tr('devicePermissionsDescription') }}</p>
+      </div>
 
-  </AppBarDevicePage>
+      <PaginatedListContainer
+        :items="usersFilteredByDropdown"
+        :filterPlaceholder="$tr('searchPlaceholder')"
+      >
+        <template #otherFilter>
+          <KSelect
+            v-model="permissionsFilter"
+            :label="$tr('permissionsLabel')"
+            :options="permissionsOptions"
+            :inline="true"
+            class="type-filter"
+          />
+          <KSelect
+            v-model="userTypeFilter"
+            :label="coreString('userTypeLabel')"
+            :options="userTypeOptions"
+            :inline="true"
+            class="type-filter"
+          />
+          <KSelect
+            v-if="hasMultipleFacilities"
+            v-model="facilityFilter"
+            :label="coreString('facilityLabel')"
+            :options="facilityOptions"
+            :inline="true"
+            class="type-filter"
+          />
+        </template>
+        <template #default="{ items, filterInput }">
+          <UserGrid
+            :searchFilter="searchFilterText"
+            :facilityUsers="items"
+            :userPermissions="userPermissions"
+            :filterText="filterInput"
+          />
+        </template>
+      </PaginatedListContainer>
+
+    </KPageContainer>
+  </AppBarPage>
 
 </template>
 
@@ -59,7 +65,9 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
   import { PermissionTypes, UserKinds } from 'kolibri.coreVue.vuex.constants';
-  import AppBarDevicePage from '../PageWrappers/AppBarDevicePage';
+  import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
+  import DeviceTopNav from '../DeviceTopNav';
+  import { deviceString } from '../commonDeviceStrings';
   import UserGrid from './UserGrid';
 
   const ALL_FILTER = 'all';
@@ -72,7 +80,8 @@
       };
     },
     components: {
-      AppBarDevicePage,
+      AppBarPage,
+      DeviceTopNav,
       PaginatedListContainer,
       UserGrid,
     },
@@ -109,6 +118,9 @@
         });
 
         return [{ label: this.$tr('allFacilityFilter'), value: ALL_FILTER }, ...facilityChoices];
+      },
+      pageTitle() {
+        return deviceString('deviceManagementTitle');
       },
       userTypeOptions() {
         return [
