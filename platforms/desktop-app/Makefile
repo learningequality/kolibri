@@ -14,7 +14,7 @@ guard-%:
 
 needs-version:
 	$(eval KOLIBRI_VERSION ?= $(shell python3 -c "import os; import sys; sys.path = [os.path.abspath('kolibri')] + sys.path; from pkginfo import Installed; print(Installed('kolibri').version)"))
-	$(eval APP_VERSION ?= $(shell python3 -c "import os; import sys; sys.path = [os.path.abspath('kolibri')] + sys.path; from pkginfo import Installed; print(Installed('kolibri_app').version)"))
+	$(eval APP_VERSION ?= $(shell python3 read_version.py))
 
 clean:
 	rm -rf build dist
