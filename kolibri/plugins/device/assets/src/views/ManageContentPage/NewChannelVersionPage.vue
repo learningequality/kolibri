@@ -1,112 +1,114 @@
 <template>
 
-  <ImmersiveDevicePage
+  <ImmersivePage
     icon="back"
     :appBarTitle="channelName"
     :route="backRoute"
   >
-    <div v-if="!loadingChannel">
+    <KPageContainer class="device-container">
+      <div v-if="!loadingChannel">
 
-      <section>
-        <h1>
-          {{ versionAvailableText }}
-        </h1>
-        <p> {{ $tr('youAreCurrentlyOnVersion', { currentVersion }) }}</p>
-        <p v-if="channelIsIncomplete">
-          {{ $tr('channelIsIncomplete', { available, total }) }}
-        </p>
-      </section>
+        <section>
+          <h1>
+            {{ versionAvailableText }}
+          </h1>
+          <p> {{ $tr('youAreCurrentlyOnVersion', { currentVersion }) }}</p>
+          <p v-if="channelIsIncomplete">
+            {{ $tr('channelIsIncomplete', { available, total }) }}
+          </p>
+        </section>
 
-      <section>
-        <p>
-          <strong>
-            {{ $tr('versionChangesHeader', {
-              oldVersion: currentVersion,
-              newVersion: nextVersion
-            }) }}
-          </strong>
-        </p>
-        <table v-if="!loadingChannel && !loadingTask">
-          <tr>
-            <th>{{ $tr('resourcesAvailableForImport') }}</th>
-            <td class="col-2">
-              <span
-                :class="{ 'count-added': newResources }"
-                :style="{ color: $themeTokens.success }"
-              >
-                {{ newResources }}
-              </span>
-            </td>
-          </tr>
-          <tr>
-            <th>{{ $tr('resourcesToBeDeleted') }}</th>
-            <td>
-              <span
-                :class="{ 'count-deleted': deletedResources > 0 }"
-                :style="{ color: $themeTokens.error }"
-              >
-                {{ deletedResources }}
-              </span>
-            </td>
-            <td>
-              <CoreInfoIcon
-                v-if="deletedResources"
-                class="info-icon"
-                :tooltipText="$tr('resourcesToBeDeletedTooltip')"
-                :iconAriaLabel="$tr('resourcesToBeDeletedTooltip')"
-                tooltipPlacement="right"
-              />
-            </td>
-          </tr>
-          <tr>
-            <th>{{ $tr('resourcesToBeUpdated') }}</th>
-            <td>
-              {{ updatedResources }}
-            </td>
-          </tr>
-        </table>
-        <KLinearLoader
-          v-else
-          :indeterminate="true"
-          :delay="false"
-        />
+        <section>
+          <p>
+            <strong>
+              {{ $tr('versionChangesHeader', {
+                oldVersion: currentVersion,
+                newVersion: nextVersion
+              }) }}
+            </strong>
+          </p>
+          <table v-if="!loadingChannel && !loadingTask">
+            <tr>
+              <th>{{ $tr('resourcesAvailableForImport') }}</th>
+              <td class="col-2">
+                <span
+                  :class="{ 'count-added': newResources }"
+                  :style="{ color: $themeTokens.success }"
+                >
+                  {{ newResources }}
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <th>{{ $tr('resourcesToBeDeleted') }}</th>
+              <td>
+                <span
+                  :class="{ 'count-deleted': deletedResources > 0 }"
+                  :style="{ color: $themeTokens.error }"
+                >
+                  {{ deletedResources }}
+                </span>
+              </td>
+              <td>
+                <CoreInfoIcon
+                  v-if="deletedResources"
+                  class="info-icon"
+                  :tooltipText="$tr('resourcesToBeDeletedTooltip')"
+                  :iconAriaLabel="$tr('resourcesToBeDeletedTooltip')"
+                  tooltipPlacement="right"
+                />
+              </td>
+            </tr>
+            <tr>
+              <th>{{ $tr('resourcesToBeUpdated') }}</th>
+              <td>
+                {{ updatedResources }}
+              </td>
+            </tr>
+          </table>
+          <KLinearLoader
+            v-else
+            :indeterminate="true"
+            :delay="false"
+          />
 
-      </section>
+        </section>
 
-      <dl>
-        <template v-for="(note, idx) in sortedFilteredVersionNotes">
-          <dt :key="`dt-${idx}`">
-            {{ $tr('versionNumberHeader', { version: note.version }) }}
-          </dt>
-          <dd :key="`dd-${idx}`" dir="auto">
-            {{ note.notes }}
-          </dd>
-        </template>
-      </dl>
+        <dl>
+          <template v-for="(note, idx) in sortedFilteredVersionNotes">
+            <dt :key="`dt-${idx}`">
+              {{ $tr('versionNumberHeader', { version: note.version }) }}
+            </dt>
+            <dd :key="`dd-${idx}`" dir="auto">
+              {{ note.notes }}
+            </dd>
+          </template>
+        </dl>
 
-      <KModal
-        v-if="showModal"
-        :title="$tr('updateChannelAction')"
-        :submitText="coreString('continueAction')"
-        :cancelText="coreString('cancelAction')"
-        :disabled="disableModal"
-        @submit="handleSubmit"
-        @cancel="showModal = false"
-      >
-        <p>{{ $tr('updateConfirmationQuestion', { channelName, version: nextVersion }) }}</p>
-      </KModal>
+        <KModal
+          v-if="showModal"
+          :title="$tr('updateChannelAction')"
+          :submitText="coreString('continueAction')"
+          :cancelText="coreString('cancelAction')"
+          :disabled="disableModal"
+          @submit="handleSubmit"
+          @cancel="showModal = false"
+        >
+          <p>{{ $tr('updateConfirmationQuestion', { channelName, version: nextVersion }) }}</p>
+        </KModal>
 
-      <BottomAppBar>
-        <KButton
-          :text="$tr('updateChannelAction')"
-          appearance="raised-button"
-          :primary="true"
-          :disabled="loadingChannel || loadingTask"
-          @click="showModal = true"
-        />
-      </BottomAppBar>
-    </div>
-  </ImmersiveDevicePage>
+        <BottomAppBar>
+          <KButton
+            :text="$tr('updateChannelAction')"
+            appearance="raised-button"
+            :primary="true"
+            :disabled="loadingChannel || loadingTask"
+            @click="showModal = true"
+          />
+        </BottomAppBar>
+      </div>
+    </KPageContainer>
+  </ImmersivePage>
 
 </template>
 
@@ -123,7 +125,7 @@
   import { TaskResource } from 'kolibri.resources';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
-  import ImmersiveDevicePage from '../PageWrappers/ImmersiveDevicePage';
+  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import { TaskStatuses, PageNames, TaskTypes } from '../../constants';
   import useContentTasks from '../../composables/useContentTasks';
   import { fetchOrTriggerChannelDiffStatsTask, fetchChannelAtSource } from './api';
@@ -138,7 +140,7 @@
     components: {
       CoreInfoIcon,
       BottomAppBar,
-      ImmersiveDevicePage,
+      ImmersivePage,
     },
     mixins: [commonCoreStrings],
     setup() {

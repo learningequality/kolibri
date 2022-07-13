@@ -1,75 +1,77 @@
 <template>
 
-  <ImmersiveDevicePage
+  <ImmersivePage
     class="manage-channel-page"
     :appBarTitle="appBarTitle"
     :route="backRoute"
   >
-    <!-- Show this progress bar to match other import flows -->
-    <TaskProgress
-      v-if="!channel"
-    />
+    <KPageContainer class="device-container">
+      <!-- Show this progress bar to match other import flows -->
+      <TaskProgress
+        v-if="!channel"
+      />
 
-    <template v-if="channel">
+      <template v-if="channel">
 
-      <ChannelContentsSummary :channel="channel">
-        <NewChannelVersionBanner
-          v-if="availableVersions.studioLatest > availableVersions.installed"
-          class="banner"
-          :version="availableVersions.studioLatest"
-          @click="handleClickViewNewVersion"
-        />
-      </ChannelContentsSummary>
+        <ChannelContentsSummary :channel="channel">
+          <NewChannelVersionBanner
+            v-if="availableVersions.studioLatest > availableVersions.installed"
+            class="banner"
+            :version="availableVersions.studioLatest"
+            @click="handleClickViewNewVersion"
+          />
+        </ChannelContentsSummary>
 
-      <div style="text-align: right">
-        <KButton
-          :text="$tr('importMoreAction')"
-          @click="shownModal = 'IMPORT_MORE'"
-        />
-      </div>
+        <div style="text-align: right">
+          <KButton
+            :text="$tr('importMoreAction')"
+            @click="shownModal = 'IMPORT_MORE'"
+          />
+        </div>
 
-      <transition mode="out-in">
-        <KLinearLoader v-if="!currentNode" :delay="false" />
-        <ContentTreeViewer
-          v-else
-          :node="currentNode"
-          :manageMode="true"
-          :style="{ borderBottomColor: $themeTokens.fineLine }"
-        />
-      </transition>
-    </template>
+        <transition mode="out-in">
+          <KLinearLoader v-if="!currentNode" :delay="false" />
+          <ContentTreeViewer
+            v-else
+            :node="currentNode"
+            :manageMode="true"
+            :style="{ borderBottomColor: $themeTokens.fineLine }"
+          />
+        </transition>
+      </template>
 
-    <DeleteResourcesModal
-      v-if="shownModal === 'DELETE'"
-      :numberOfResources="resourceCounts.count"
-      @cancel="closeModal"
-      @submit="handleDeleteSubmit"
-    />
+      <DeleteResourcesModal
+        v-if="shownModal === 'DELETE'"
+        :numberOfResources="resourceCounts.count"
+        @cancel="closeModal"
+        @submit="handleDeleteSubmit"
+      />
 
-    <SelectDriveModal
-      v-if="shownModal === 'EXPORT'"
-      :manageMode="true"
-      :exportFileSize="resourceCounts.fileSize"
-      @cancel="closeModal"
-      @submit="handleExportSubmit"
-    />
+      <SelectDriveModal
+        v-if="shownModal === 'EXPORT'"
+        :manageMode="true"
+        :exportFileSize="resourceCounts.fileSize"
+        @cancel="closeModal"
+        @submit="handleExportSubmit"
+      />
 
-    <SelectTransferSourceModal
-      v-if="shownModal === 'IMPORT_MORE'"
-      :manageMode="true"
-      :pageName.sync="selectSourcePageName"
-      @cancel="closeModal"
-      @submit="handleSelectImportMoreSource"
-    />
+      <SelectTransferSourceModal
+        v-if="shownModal === 'IMPORT_MORE'"
+        :manageMode="true"
+        :pageName.sync="selectSourcePageName"
+        @cancel="closeModal"
+        @submit="handleSelectImportMoreSource"
+      />
 
-    <SelectionBottomBar
-      objectType="resource"
-      actionType="manage"
-      :resourceCounts="resourceCounts"
-      :disabled="!Boolean(currentNode) || bottomBarDisabled"
-      @selectoption="shownModal = $event"
-    />
-  </ImmersiveDevicePage>
+      <SelectionBottomBar
+        objectType="resource"
+        actionType="manage"
+        :resourceCounts="resourceCounts"
+        :disabled="!Boolean(currentNode) || bottomBarDisabled"
+        @selectoption="shownModal = $event"
+      />
+    </KPageContainer>
+  </ImmersivePage>
 
 </template>
 
@@ -85,7 +87,7 @@
   import get from 'lodash/get';
   import last from 'lodash/last';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import ImmersiveDevicePage from '../../PageWrappers/ImmersiveDevicePage';
+  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import useContentTasks from '../../../composables/useContentTasks';
   import ChannelContentsSummary from '../../SelectContentPage/ChannelContentsSummary';
   import ContentTreeViewer from '../../SelectContentPage/ContentTreeViewer';
@@ -115,7 +117,7 @@
       ContentTreeViewer,
       DeleteResourcesModal,
       NewChannelVersionBanner,
-      ImmersiveDevicePage,
+      ImmersivePage,
       SelectDriveModal,
       SelectionBottomBar,
       SelectTransferSourceModal,

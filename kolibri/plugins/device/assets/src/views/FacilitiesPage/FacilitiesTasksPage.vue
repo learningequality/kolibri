@@ -1,33 +1,37 @@
 <template>
 
-  <ImmersiveDevicePage
+  <ImmersivePage
     :appBarTitle="$tr('facilitiesTaskManagerTitle')"
     :route="backRoute"
   >
-    <HeaderWithOptions :headerText="coreString('tasksLabel')">
-      <template #options>
-        <KButton
-          v-if="someClearableTasks"
-          :text="getTaskString('clearCompletedTasksAction')"
-          @click="handleClickClearAll"
-        />
-      </template>
-    </HeaderWithOptions>
+    <KPageContainer class="device-container">
+      <HeaderWithOptions
+        :headerText="coreString('tasksLabel')"
+      >
+        <template #options>
+          <KButton
+            v-if="someClearableTasks"
+            :text="getTaskString('clearCompletedTasksAction')"
+            @click="handleClickClearAll"
+          />
+        </template>
+      </HeaderWithOptions>
 
-    <p v-if="facilityTasks.length === 0">
-      {{ deviceString('emptyTasksMessage') }}
-    </p>
-    <div>
-      <FacilityTaskPanel
-        v-for="(task, idx) in facilityTasks"
-        :key="idx"
-        class="task-panel"
-        :style="{ borderBottomColor: $themePalette.grey.v_200 }"
-        :task="task"
-        @click="handlePanelClick($event, task)"
-      />
-    </div>
-  </ImmersiveDevicePage>
+      <p v-if="facilityTasks.length === 0">
+        {{ deviceString('emptyTasksMessage') }}
+      </p>
+      <div>
+        <FacilityTaskPanel
+          v-for="(task, idx) in facilityTasks"
+          :key="idx"
+          class="task-panel"
+          :style="{ borderBottomColor: $themePalette.grey.v_200 }"
+          :task="task"
+          @click="handlePanelClick($event, task)"
+        />
+      </div>
+    </KPageContainer>
+  </ImmersivePage>
 
 </template>
 
@@ -37,7 +41,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonTaskStrings from 'kolibri.coreVue.mixins.commonTaskStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import ImmersiveDevicePage from '../PageWrappers/ImmersiveDevicePage';
+  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import HeaderWithOptions from '../HeaderWithOptions';
   import commonDeviceStrings from '../commonDeviceStrings';
   import { PageNames } from '../../constants';
@@ -54,7 +58,7 @@
     components: {
       FacilityTaskPanel,
       HeaderWithOptions,
-      ImmersiveDevicePage,
+      ImmersivePage,
     },
     mixins: [
       commonCoreStrings,

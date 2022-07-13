@@ -1,47 +1,49 @@
 <template>
 
-  <ImmersiveDevicePage
+  <ImmersivePage
     :appBarTitle="$tr('editChannelOrderTitle')"
     :route="backRoute"
   >
-    <p class="instructions">
-      {{ $tr('instructions') }}
-    </p>
+    <KPageContainer class="device-container">
+      <p class="instructions">
+        {{ $tr('instructions') }}
+      </p>
 
-    <p v-if="!loading && channels.length === 0">
-      {{ $tr('noChannels') }}
-    </p>
+      <p v-if="!loading && channels.length === 0">
+        {{ $tr('noChannels') }}
+      </p>
 
-    <template v-else>
-      <DragContainer class="container" :items="channels" @sort="handleOrderChange">
-        <transition-group tag="div" name="list" class="wrapper">
-          <Draggable v-for="(channel, index) in channels" :key="channel.id">
-            <DragHandle>
-              <div
-                :class="$computedClass(itemClass)"
-                class="item"
-                :style="{ backgroundColor: $themeTokens.surface }"
-              >
-                <DragSortWidget
-                  class="sort-widget"
-                  :moveUpText="$tr('upLabel', { name: channel.name })"
-                  :moveDownText="$tr('downLabel', { name: channel.name })"
-                  :isFirst="index === 0"
-                  :isLast="index === channels.length - 1"
-                  @moveUp="shiftOne(index, -1)"
-                  @moveDown="shiftOne(index, +1)"
-                />
-                <div class="title">
-                  {{ channel.name }}
+      <template v-else>
+        <DragContainer class="container" :items="channels" @sort="handleOrderChange">
+          <transition-group tag="div" name="list" class="wrapper">
+            <Draggable v-for="(channel, index) in channels" :key="channel.id">
+              <DragHandle>
+                <div
+                  :class="$computedClass(itemClass)"
+                  class="item"
+                  :style="{ backgroundColor: $themeTokens.surface }"
+                >
+                  <DragSortWidget
+                    class="sort-widget"
+                    :moveUpText="$tr('upLabel', { name: channel.name })"
+                    :moveDownText="$tr('downLabel', { name: channel.name })"
+                    :isFirst="index === 0"
+                    :isLast="index === channels.length - 1"
+                    @moveUp="shiftOne(index, -1)"
+                    @moveDown="shiftOne(index, +1)"
+                  />
+                  <div class="title">
+                    {{ channel.name }}
+                  </div>
                 </div>
-              </div>
-            </DragHandle>
-          </Draggable>
-        </transition-group>
-      </DragContainer>
-    </template>
+              </DragHandle>
+            </Draggable>
+          </transition-group>
+        </DragContainer>
+      </template>
 
-  </ImmersiveDevicePage>
+    </KPageContainer>
+  </ImmersivePage>
 
 </template>
 
@@ -54,10 +56,10 @@
   import Draggable from 'kolibri.coreVue.components.Draggable';
   import client from 'kolibri.client';
   import urls from 'kolibri.urls';
+  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import DeviceChannelResource from '../apiResources/deviceChannel';
   import useContentTasks from '../composables/useContentTasks';
   import { PageNames } from '../constants';
-  import ImmersiveDevicePage from './PageWrappers/ImmersiveDevicePage';
 
   export default {
     name: 'RearrangeChannelsPage',
@@ -71,7 +73,7 @@
       DragContainer,
       DragHandle,
       Draggable,
-      ImmersiveDevicePage,
+      ImmersivePage,
     },
     setup() {
       useContentTasks();

@@ -1,110 +1,112 @@
 <template>
 
-  <ImmersiveDevicePage
+  <ImmersivePage
     :appBarTitle="toolbarTitle()"
     :route="backRoute"
   >
-    <ContentWizardUiAlert
-      v-if="status"
-      :errorType="status"
-    />
+    <KPageContainer class="device-container">
+      <ContentWizardUiAlert
+        v-if="status"
+        :errorType="status"
+      />
 
-    <FilteredChannelListContainer
-      v-if="status === '' && !$store.state.core.loading"
-      :channels="allChannels"
-      :selectedChannels.sync="selectedChannels"
-      :selectAllCheckbox="multipleMode"
-    >
-      <template #header>
-        <h1 v-if="status === ''" data-test="title">
-          {{ multipleMode ? $tr('importChannelsHeader') : $tr('importResourcesHeader') }}
-        </h1>
-      </template>
+      <FilteredChannelListContainer
+        v-if="status === '' && !$store.state.core.loading"
+        :channels="allChannels"
+        :selectedChannels.sync="selectedChannels"
+        :selectAllCheckbox="multipleMode"
+      >
+        <template #header>
+          <h1 v-if="status === ''" data-test="title">
+            {{ multipleMode ? $tr('importChannelsHeader') : $tr('importResourcesHeader') }}
+          </h1>
+        </template>
 
-      <template #abovechannels>
-        <p>
-          <KButton
-            v-if="channelsAreAvailable"
-            appearance="basic-link"
-            :text="multipleMode ? $tr('selectTopicsAndResources') : $tr('selectEntireChannels')"
-            @click="toggleMultipleMode"
-          />
-        </p>
-        <p v-if="showUnlistedChannels">
-          <KButton
-            data-test="token-button"
-            :text="$tr('channelTokenButtonLabel')"
-            appearance="raised-button"
-            name="showtokenmodal"
-            @click="showTokenModal = true"
-          />
-        </p>
-        <p>
-          <UiAlert
-            v-show="notEnoughFreeSpace"
-            :dismissible="false"
-            type="error"
-          >
-            {{ $tr('notEnoughSpaceForChannelsWarning') }}
-          </UiAlert>
-        </p>
+        <template #abovechannels>
+          <p>
+            <KButton
+              v-if="channelsAreAvailable"
+              appearance="basic-link"
+              :text="multipleMode ? $tr('selectTopicsAndResources') : $tr('selectEntireChannels')"
+              @click="toggleMultipleMode"
+            />
+          </p>
+          <p v-if="showUnlistedChannels">
+            <KButton
+              data-test="token-button"
+              :text="$tr('channelTokenButtonLabel')"
+              appearance="raised-button"
+              name="showtokenmodal"
+              @click="showTokenModal = true"
+            />
+          </p>
+          <p>
+            <UiAlert
+              v-show="notEnoughFreeSpace"
+              :dismissible="false"
+              type="error"
+            >
+              {{ $tr('notEnoughSpaceForChannelsWarning') }}
+            </UiAlert>
+          </p>
 
-      </template>
+        </template>
 
-      <template #default="{ showItem, handleChange, itemIsSelected }">
-        <p v-if="!channelsAreAvailable && !status">
-          {{ $tr('noChannelsAvailable') }}
-        </p>
+        <template #default="{ showItem, handleChange, itemIsSelected }">
+          <p v-if="!channelsAreAvailable && !status">
+            {{ $tr('noChannelsAvailable') }}
+          </p>
 
-        <p v-else>
-          <ChannelPanel
-            v-for="channel in allChannels"
-            v-show="showItem(channel) && !channelIsBeingDeleted(channel.id)"
-            :key="channel.id"
-            :channel="channel"
-            :onDevice="channelIsOnDevice(channel)"
-            :multipleMode="multipleMode"
-            :checked="itemIsSelected(channel)"
-            @clickselect="goToSelectContentPageForChannel(channel)"
-            @checkboxchange="handleChange"
-          />
-        </p>
-      </template>
-    </FilteredChannelListContainer>
+          <p v-else>
+            <ChannelPanel
+              v-for="channel in allChannels"
+              v-show="showItem(channel) && !channelIsBeingDeleted(channel.id)"
+              :key="channel.id"
+              :channel="channel"
+              :onDevice="channelIsOnDevice(channel)"
+              :multipleMode="multipleMode"
+              :checked="itemIsSelected(channel)"
+              @clickselect="goToSelectContentPageForChannel(channel)"
+              @checkboxchange="handleChange"
+            />
+          </p>
+        </template>
+      </FilteredChannelListContainer>
 
-    <KCircularLoader v-else style="margin: 2em auto;" />
+      <KCircularLoader v-else style="margin: 2em auto;" />
 
-    <ChannelTokenModal
-      v-if="showTokenModal"
-      :disabled="disableModal"
-      @cancel="showTokenModal = false"
-      @submit="handleSubmitToken"
-    />
+      <ChannelTokenModal
+        v-if="showTokenModal"
+        :disabled="disableModal"
+        @cancel="showTokenModal = false"
+        @submit="handleSubmitToken"
+      />
 
-    <ChannelUpdateModal
-      v-if="showUpdateModal"
-      :disabled="disableModal"
-      @cancel="showUpdateModal = false"
-      @submit="handleConfirmUpgrade"
-    />
+      <ChannelUpdateModal
+        v-if="showUpdateModal"
+        :disabled="disableModal"
+        @cancel="showUpdateModal = false"
+        @submit="handleConfirmUpgrade"
+      />
 
-    <KLinearLoader
-      v-if="channelsAreLoading"
-      type="indeterminate"
-      :delay="false"
-    />
+      <KLinearLoader
+        v-if="channelsAreLoading"
+        type="indeterminate"
+        :delay="false"
+      />
 
-    <SelectionBottomBar
-      v-if="multipleMode"
-      objectType="channel"
-      actionType="import"
-      :disabled="disableBottomBar || selectedChannels.length === 0 || notEnoughFreeSpace"
-      :selectedObjects="selectedChannels"
-      :fileSize.sync="fileSize"
-      @clickconfirm="handleClickConfirm"
-    />
+      <SelectionBottomBar
+        v-if="multipleMode"
+        objectType="channel"
+        actionType="import"
+        :disabled="disableBottomBar || selectedChannels.length === 0 || notEnoughFreeSpace"
+        :selectedObjects="selectedChannels"
+        :fileSize.sync="fileSize"
+        @clickconfirm="handleClickConfirm"
+      />
 
-  </ImmersiveDevicePage>
+    </KPageContainer>
+  </ImmersivePage>
 
 </template>
 
@@ -121,7 +123,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskResource } from 'kolibri.resources';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
-  import ImmersiveDevicePage from '../PageWrappers/ImmersiveDevicePage';
+  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import ChannelPanel from '../ManageContentPage/ChannelPanel/WithImportDetails';
   import ContentWizardUiAlert from '../SelectContentPage/ContentWizardUiAlert';
   import { selectContentPageLink } from '../ManageContentPage/manageContentLinks';
@@ -148,7 +150,7 @@
       ChannelUpdateModal,
       ContentWizardUiAlert,
       FilteredChannelListContainer,
-      ImmersiveDevicePage,
+      ImmersivePage,
       SelectionBottomBar,
       UiAlert,
     },
