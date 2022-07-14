@@ -7,7 +7,7 @@
         :appBarTitle="coreString('changeLearningFacility')"
         :route="$router.getRoute('PROFILE')"
       />
-      <KPageContainer>
+      <KPageContainer class="container">
 
         <router-view />
 
@@ -132,3 +132,16 @@
   };
 
 </script>
+
+
+<style lang="scss" scoped>
+
+  @import '../../../../../../core/assets/src/styles/definitions';
+
+  .container {
+    max-width: $page-container-max-width;
+    margin-right: auto;
+    margin-left: auto;
+  }
+
+</style>
