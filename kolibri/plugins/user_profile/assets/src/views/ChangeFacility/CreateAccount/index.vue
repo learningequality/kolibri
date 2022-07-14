@@ -41,6 +41,7 @@
           <KButton
             :primary="false"
             :text="coreString('backAction')"
+            appearance="flat-button"
             data-test="backButton"
             @click="sendBack"
           />

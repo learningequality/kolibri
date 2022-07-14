@@ -10,6 +10,7 @@
           <KButton
             :primary="false"
             :text="$tr('createAccount')"
+            appearance="flat-button"
             @click="to_create"
           />
           <KButton
