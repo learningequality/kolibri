@@ -60,6 +60,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       "Indicates going back to a previous step.\n\nFor example, when a user creates a quiz in Kolibri using the quiz builder they can either 'CONTINUE' to the next phase of the builder or 'GO BACK'.\n\nIf you go back you exit the quiz builder and loose the resource selection.",
   },
+  backAction: {
+    message: 'Back',
+    context:
+      'Indicates going back to a previous step in multi-step workflows. It can be used as a label of the back button that is displayed next to the continue button.',
+  },
   importAction: {
     message: 'Import',
     context:

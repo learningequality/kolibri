@@ -40,7 +40,7 @@
         <KButtonGroup>
           <KButton
             :primary="false"
-            :text="coreString('goBackAction')"
+            :text="coreString('backAction')"
             data-test="backButton"
             @click="sendBack"
           />
