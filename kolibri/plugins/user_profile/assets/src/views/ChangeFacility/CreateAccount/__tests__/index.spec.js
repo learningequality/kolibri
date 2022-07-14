@@ -80,6 +80,11 @@ describe(`ChangeFacility/CreateAccount`, () => {
     expect(getUsernameTextbox(wrapper).exists()).toBeTruthy();
   });
 
+  it(`shows the privacy modal link`, () => {
+    const wrapper = makeWrapper();
+    expect(wrapper.findAll('a').filter(link => link.text() === 'Usage and privacy').length).toBe(1);
+  });
+
   describe(`when the target facility doesn't require password on learner accounts`, () => {
     it(`doesn't show the password textbox`, () => {
       const wrapper = makeWrapper({ targetFacility: { learner_can_login_with_no_password: true } });

@@ -29,6 +29,8 @@
       :shouldValidate="isFormSubmitted"
     />
 
+    <PrivacyLinkAndModal />
+
     <BottomAppBar>
       <slot name="buttons">
         <KButtonGroup>
@@ -60,6 +62,7 @@
   import FullNameTextbox from 'kolibri.coreVue.components.FullNameTextbox';
   import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
+  import PrivacyLinkAndModal from 'kolibri.coreVue.components.PrivacyLinkAndModal';
 
   export default {
     name: 'CreateAccount',
@@ -73,6 +76,7 @@
       FullNameTextbox,
       UsernameTextbox,
       PasswordTextbox,
+      PrivacyLinkAndModal,
     },
     mixins: [commonCoreStrings],
     inject: ['changeFacilityService', 'state'],
