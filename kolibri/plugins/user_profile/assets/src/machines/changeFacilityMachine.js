@@ -221,8 +221,7 @@ export const changeFacilityMachine = createMachine({
           target: 'isAdmin',
           actions: setTargetAccount,
         },
-        BACK: 'changeFacility',
-        BACKMERGING: 'confirmMerge',
+        BACK: 'confirmAccount',
       },
     },
     usernameExists: {
