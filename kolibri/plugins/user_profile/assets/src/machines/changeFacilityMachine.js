@@ -165,7 +165,10 @@ export const changeFacilityMachine = createMachine({
     confirmAccount: {
       meta: { route: 'CONFIRM_ACCOUNT', path: '/change_facility' },
       on: {
-        NEW: 'createAccount',
+        NEW: {
+          cond: context => context.targetFacility && context.targetFacility.learner_can_sign_up,
+          target: 'createAccount',
+        },
         CONTINUE: 'isAdmin',
         BACK: 'changeFacility',
       },

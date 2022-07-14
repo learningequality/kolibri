@@ -10,6 +10,8 @@
           <KButton
             :primary="false"
             :text="$tr('createAccount')"
+            :disabled="isCreateAccountButtonDisabled"
+            data-test="createNewAccountButton"
             appearance="flat-button"
             @click="to_create"
           />
@@ -55,6 +57,9 @@
       },
       usernameExists() {
         return get(this.state, 'value.accountExists');
+      },
+      isCreateAccountButtonDisabled() {
+        return !get(this.targetFacility, 'learner_can_sign_up');
       },
       firstLine() {
         return this.$tr('confirmAccountLine1', {
