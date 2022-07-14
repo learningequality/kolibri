@@ -445,6 +445,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       'Refers to the option to present the captions (subtitles) of the video in the form of the interactive transcript.',
   },
+  rememberThisAccountInformation: {
+    message: 'Important: please remember this account information. Write it down if needed.',
+    context: 'Helper/information text to remind user to take note of their account information.',
+  },
 
   // Learning Activities
   all: {

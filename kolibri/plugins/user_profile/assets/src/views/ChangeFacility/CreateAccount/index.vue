@@ -31,6 +31,10 @@
 
     <PrivacyLinkAndModal />
 
+    <p :style=" { color: $themeTokens.annotation }">
+      {{ coreString('rememberThisAccountInformation') }}
+    </p>
+
     <BottomAppBar>
       <slot name="buttons">
         <KButtonGroup>

@@ -101,6 +101,13 @@ describe(`ChangeFacility/CreateAccount`, () => {
     });
   });
 
+  it(`shows the message for users to remember their account information`, () => {
+    const wrapper = makeWrapper();
+    expect(wrapper.text()).toContain(
+      'Important: please remember this account information. Write it down if needed.'
+    );
+  });
+
   it(`clicking the back button sends the back event to the state machine`, () => {
     const wrapper = makeWrapper();
     clickBackButton(wrapper);
