@@ -13,6 +13,12 @@
  * limitations under the License.
  */
 
+/*
+ * This file has been modified to adapt the component to the needs of Kolibri
+ * The original file is available at:
+ * https://github.com/mozilla/pdf.js/blob/v2.14.305/web/text_layer_builder.css
+ */
+
 .text-layer {
   position: absolute;
   top: 0;
@@ -22,6 +28,10 @@
   overflow: hidden;
   line-height: 1;
   text-align: initial;
+
+  /* Modified: specifiying letter-spacing as normal to avoid kolibri's default letter-spacing
+   * misaligning text-layer with the canvas.
+   * Original line: 28 */
   letter-spacing: normal;
   opacity: 0.2;
   text-size-adjust: none;
@@ -49,7 +59,7 @@
   padding: 1px;
   margin: -1px;
 
-  /* TODO Manage with colibri standards */
+  /* TODO Manage with Kolibri standards */
   background-color: rgba(180, 0, 170, 1);
   border-radius: 4px;
 }
@@ -71,12 +81,15 @@
 }
 
 .text-layer .highlight.selected {
-  /* TODO Manage with colibri standards */
+  /* TODO Manage with Kolibri standards */
   background-color: rgba(0, 100, 0, 1);
 }
 
 .text-layer ::selection {
-  /* TODO Manage with colibri standards */
+  /* Modified: selection color.
+   * Original line: 74 */
+
+  /* TODO Manage with Kolibri standards */
   background: rgb(0, 168, 255);
 }
 

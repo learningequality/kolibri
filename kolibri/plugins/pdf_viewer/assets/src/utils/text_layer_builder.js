@@ -15,7 +15,12 @@
 
 /*
  * This file has been modified to adapt the component to the needs of Kolibri
+ * The original file is available at:
+ * https://github.com/mozilla/pdf.js/blob/v2.14.305/web/text_layer_builder.js
  */
+
+// Modified: typedef imports deleted
+// Original line: 17
 
 import { renderTextLayer } from 'pdfjs-dist/legacy/build/pdf';
 
@@ -40,12 +45,14 @@ const EXPAND_DIVS_TIMEOUT = 300; // ms
 class TextLayerBuilder {
   constructor({
     textLayerDiv,
+    eventBus,
     pageIndex,
     viewport,
     highlighter = null,
     enhanceTextSelection = false,
   }) {
     this.textLayerDiv = textLayerDiv;
+    this.eventBus = eventBus;
     this.textContent = null;
     this.textContentItemsStr = [];
     this.textContentStream = null;
@@ -71,6 +78,16 @@ class TextLayerBuilder {
       endOfContent.className = 'endOfContent';
       this.textLayerDiv.append(endOfContent);
     }
+
+    // Modified: Validate eventBus is defined
+    // Original line: 79
+    if (this.eventBus) {
+      this.eventBus.dispatch('textlayerrendered', {
+        source: this,
+        pageNumber: this.pageNumber,
+        numTextDivs: this.textDivs.length,
+      });
+    }
   }
 
   /**
@@ -86,6 +103,9 @@ class TextLayerBuilder {
     this.cancel();
 
     this.textDivs.length = 0;
+
+    // Modified: Validate highlighter is defined instead of using optional chain operator
+    // Original line: 99
     if (this.highlighter) {
       this.highlighter.setTextMapping(this.textDivs, this.textContentItemsStr);
     }
@@ -105,10 +125,14 @@ class TextLayerBuilder {
       () => {
         this.textLayerDiv.append(textLayerFrag);
         this._finishRendering();
+        // Modified: Validate highlighter is defined instead of using optional chain operator
+        // Original line: 116
         if (this.highlighter) {
           this.highlighter.enable();
         }
       },
+      // Modified: Logging errors
+      // Original line: 118
       err => {
         console.error('Error rendering text layer: ', err);
       }
@@ -122,8 +146,12 @@ class TextLayerBuilder {
     if (this.textLayerRenderTask) {
       this.textLayerRenderTask.cancel();
       this.textLayerRenderTask = null;
+      // Modified: Removing content from text layer to avoid multiple layers rendering on zoom
+      // Original line: 131
       this.textLayerDiv.textContent = '';
     }
+    // Modified: Validate highlighter is defined instead of using optional chain operator
+    // Original line: 132
     if (this.highlighter) {
       this.highlighter.disable();
     }
@@ -153,6 +181,8 @@ class TextLayerBuilder {
     div.addEventListener('mousedown', evt => {
       if (this.enhanceTextSelection && this.textLayerRenderTask) {
         this.textLayerRenderTask.expandTextDivs(true);
+        // Modified: Delete PDFJS Dev global variables references
+        // Original line: 159
         if (expandDivsTimer) {
           clearTimeout(expandDivsTimer);
           expandDivsTimer = null;
@@ -164,10 +194,16 @@ class TextLayerBuilder {
       if (!end) {
         return;
       }
+      // Modified: Delete PDFJS Dev global variables references
+      // Original line: 173
+
       // On non-Firefox browsers, the selection will feel better if the height
       // of the `endOfContent` div is adjusted to start at mouse click
       // location. This avoids flickering when the selection moves up.
       // However it does not work when selection is started on empty space.
+
+      // Modified: Refactor simplified code for deleting PDFJS Dev global variables references
+      // Original line: 178
       let adjustTop =
         evt.target !== div &&
         window.getComputedStyle(end).getPropertyValue('-moz-user-select') !== 'none';
@@ -181,6 +217,8 @@ class TextLayerBuilder {
 
     div.addEventListener('mouseup', () => {
       if (this.enhanceTextSelection && this.textLayerRenderTask) {
+        // Modified: Delete PDFJS Dev global variables references
+        // Original line: 197
         expandDivsTimer = setTimeout(() => {
           if (this.textLayerRenderTask) {
             this.textLayerRenderTask.expandTextDivs(false);
@@ -194,10 +232,14 @@ class TextLayerBuilder {
       if (!end) {
         return;
       }
+      // Modified: Delete PDFJS Dev global variables references
+      // Original line: 214
       end.style.top = '';
       end.classList.remove('active');
     });
   }
 }
 
+// Modified: Exporting TextLayerBuilder as a default export
+// Original line: 222
 export default TextLayerBuilder;
