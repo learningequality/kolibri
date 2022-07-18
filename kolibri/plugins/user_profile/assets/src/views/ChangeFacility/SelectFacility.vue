@@ -124,33 +124,6 @@
       const selectedFacilityId = ref('');
       const showAddAddressModal = ref(false);
 
-      // methods:
-      function createSnackbar(args) {
-        this.$store.dispatch('createSnackbar', args);
-      }
-
-      function handleAddedAddress() {
-        refreshSavedAddressList();
-        createSnackbar(this.$tr('addAddressSnackbarText'));
-      }
-
-      function resetSelectedAddress() {
-        if (availableFacilities.value.length !== 0) {
-          const selectedId = this.selectedId || this.storageFacilityId || this.selectedFacilityId;
-          selectedFacilityId.value =
-            availableFacilities.value.map(f => f.id).find(f => f.id === selectedId) ||
-            availableFacilities.value[0].id;
-        } else {
-          selectedFacilityId.value = '';
-        }
-      }
-
-      function to_continue() {
-        this.changeFacilityService.send({
-          type: 'CONTINUE',
-        });
-      }
-
       // computed properties (functions):
       const { isMinimumKolibriVersion } = useMinimumKolibriVersion();
       const facilityDisabled = computed(() => {
@@ -163,6 +136,36 @@
         };
       });
 
+      // methods:
+      function createSnackbar(args) {
+        this.$store.dispatch('createSnackbar', args);
+      }
+
+      function handleAddedAddress() {
+        refreshSavedAddressList();
+        createSnackbar(this.$tr('addAddressSnackbarText'));
+      }
+
+      function resetSelectedAddress() {
+        const enabledFacilities = availableFacilities.value
+          .map(f => f.id)
+          .find(f => isMinimumKolibriVersion.value(f.kolibri_version, 0, 16, 0));
+        if (enabledFacilities.length !== 0) {
+          const selectedId = storageFacilityId.value || selectedFacilityId.value;
+          selectedFacilityId.value =
+            enabledFacilities.map(f => f.id).find(f => f.id === selectedId) ||
+            enabledFacilities[0].id;
+        } else {
+          selectedFacilityId.value = '';
+        }
+      }
+
+      function to_continue() {
+        this.changeFacilityService.send({
+          type: 'CONTINUE',
+        });
+      }
+
       return {
         combinedAddresses,
         initialFetchingComplete,
@@ -174,10 +177,10 @@
         availableFacilities,
         selectedFacilityId,
         showAddAddressModal,
+        facilityDisabled,
         handleAddedAddress,
         resetSelectedAddress,
         to_continue,
-        facilityDisabled,
       };
     },
     inject: ['changeFacilityService'],
