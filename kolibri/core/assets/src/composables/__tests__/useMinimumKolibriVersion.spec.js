@@ -23,5 +23,16 @@ describe(`useMinimumKolibriVersion`, () => {
     it(`higher version is detected, without default`, () => {
       expect(isMinimumKolibriVersion.value('0.16.1', 0, 16, 0)).toBe(true);
     });
+
+    it(`check beta versions work fine with equal values`, () => {
+      expect(isMinimumKolibriVersion.value('0.16.1-b4', 0, 16, 1)).toBe(false);
+    });
+    it(`check beta versions work when betas are included`, () => {
+      expect(isMinimumKolibriVersion.value('0.16.1-b4', 0, 16)).toBe(true);
+    });
+
+    it(`check beta versions work fine with upper values`, () => {
+      expect(isMinimumKolibriVersion.value('0.16.1-b4', 0, 16, 0)).toBe(true);
+    });
   });
 });

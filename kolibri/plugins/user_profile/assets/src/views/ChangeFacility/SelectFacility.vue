@@ -149,7 +149,7 @@
       function resetSelectedAddress() {
         const enabledFacilities = availableFacilities.value
           .map(f => f.id)
-          .find(f => isMinimumKolibriVersion.value(f.kolibri_version, 0, 16, 0));
+          .find(f => isMinimumKolibriVersion.value(f.kolibri_version, 0, 16));
         if (enabledFacilities.length !== 0) {
           const selectedId = storageFacilityId.value || selectedFacilityId.value;
           selectedFacilityId.value =
