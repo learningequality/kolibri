@@ -44,8 +44,33 @@
       <p>{{ $tr('kolibriAboutP2') }}</p>
       <p>{{ $tr('kolibriAboutP3') }}</p>
       <p>{{ $tr('kolibriAboutP4') }}</p>
-      <p>{{ $tr('kolibriAboutP5') }}</p>
     </section>
+    <section v-if="!hideTelemetrySection">
+      <h2>{{ $tr('kolibriTelemetryTitle') }}</h2>
+      <p>{{ $tr('kolibriTelemetryP1') }}</p>
+      <ul>
+        <li>{{ $tr('kolibriTelemetryP1L1') }}</li>
+        <li>{{ $tr('kolibriTelemetryP1L2') }}</li>
+        <li>{{ $tr('kolibriTelemetryP1L3') }}</li>
+        <li>{{ $tr('kolibriTelemetryP1L4') }}</li>
+        <li>{{ $tr('kolibriTelemetryP1L5') }}</li>
+        <li>{{ $tr('kolibriTelemetryP1L6') }}</li>
+        <li>{{ $tr('kolibriTelemetryP1L7') }}</li>
+      </ul>
+      <p>{{ $tr('kolibriTelemetryP2') }}</p>
+      <p>{{ $tr('kolibriTelemetryP3') }}</p>
+      <ul>
+        <li>{{ $tr('kolibriTelemetryP3L1') }}</li>
+        <li>{{ $tr('kolibriTelemetryP3L2') }}</li>
+      </ul>
+      <p>{{ $tr('kolibriTelemetryP4') }}</p>
+      <ul>
+        <li>{{ $tr('kolibriTelemetryP4L1') }}</li>
+        <li>{{ $tr('kolibriTelemetryP4L2') }}</li>
+      </ul>
+      <p>{{ $tr('kolibriTelemetryP5') }}</p>
+    </section>
+
     <template #actions>
       <!--
         Need to inject a button without type="submit" attribute
@@ -80,6 +105,10 @@
         default: false,
       },
       hideAboutSection: {
+        type: Boolean,
+        default: false,
+      },
+      hideTelemetrySection: {
         type: Boolean,
         default: false,
       },
@@ -206,9 +235,104 @@
         context:
           'This text forms part of the \'Usage and privacy\' information panel in Kolibri. You can access the full text via the "Usage and privacy" link in the left navigation bar.',
       },
-      kolibriAboutP5: {
+      kolibriTelemetryTitle: {
+        message: 'Telemetry Analytics',
+        context:
+          "Title of a section in the 'Usage and privacy' information panel. The section contains information about Kolibri.\n\nYou can access the full text via the 'Usage and privacy' link in the left navigation bar.\n",
+      },
+      kolibriTelemetryP1: {
         message:
-          'In order to improve the quality of Kolibri and the resources on it, Learning Equality collects anonymized usage information when Kolibri has access to the internet. This includes IP addresses associated with the server, and device details such as the operating system and time zone. We also collect aggregate statistics including: number of users and facilities, birth year and gender distribution, and resource popularity. We make every effort to avoid collecting personally identifying information about Kolibri users.',
+          'In order to improve the quality of Kolibri and the resources on it, Learning Equality collects the following usage information when Kolibri has access to the internet:',
+        context:
+          'This text forms part of the \'Usage and privacy\' information panel in Kolibri. You can access the full text via the "Usage and privacy" link in the left navigation bar.',
+      },
+      kolibriTelemetryP1L1: {
+        message:
+          'The content resources which have been made available on this server, and their popularity',
+        context:
+          'This text forms part of the \'Usage and privacy\' information panel in Kolibri. You can access the full text via the "Usage and privacy" link in the left navigation bar.',
+      },
+      kolibriTelemetryP1L2: {
+        message:
+          'Aggregate demographics statistics including number of users and facilities, plus aggregate statistics regarding user accounts’ birth years and genders',
+        context:
+          'This text forms part of the \'Usage and privacy\' information panel in Kolibri. You can access the full text via the "Usage and privacy" link in the left navigation bar.',
+      },
+      kolibriTelemetryP1L3: {
+        message:
+          'Pseudo-anonymized identifiers corresponding to the application instance and the device where it is running',
+        context:
+          'This text forms part of the \'Usage and privacy\' information panel in Kolibri. You can access the full text via the "Usage and privacy" link in the left navigation bar.',
+      },
+      kolibriTelemetryP1L4: {
+        message:
+          'The IP address of the Kolibri server',
+        context:
+          'This text forms part of the \'Usage and privacy\' information panel in Kolibri. You can access the full text via the "Usage and privacy" link in the left navigation bar.',
+      },
+      kolibriTelemetryP1L5: {
+        message:
+          'Version information corresponding to running Kolibri application and the software technologies it is built upon',
+        context:
+          'This text forms part of the \'Usage and privacy\' information panel in Kolibri. You can access the full text via the "Usage and privacy" link in the left navigation bar.',
+      },
+      kolibriTelemetryP1L6: {
+        message:
+          'High level information about the device type and operating system where the Kolibri server is running',
+        context:
+          'This text forms part of the \'Usage and privacy\' information panel in Kolibri. You can access the full text via the "Usage and privacy" link in the left navigation bar.',
+      },
+      kolibriTelemetryP1L7: {
+        message:
+          'The Kolibri server’s language, timezone, system time, and the time since the Kolibri service was started',
+        context:
+          'This text forms part of the \'Usage and privacy\' information panel in Kolibri. You can access the full text via the "Usage and privacy" link in the left navigation bar.',
+      },
+      kolibriTelemetryP2: {
+        message:
+          'We make every effort to avoid collecting information closely associated with your personal identity.',
+        context:
+          'This text forms part of the \'Usage and privacy\' information panel in Kolibri. You can access the full text via the "Usage and privacy" link in the left navigation bar.',
+      },
+      kolibriTelemetryP3: {
+        message:
+          'This data is collected and processed for two reasons:',
+        context:
+          'This text forms part of the \'Usage and privacy\' information panel in Kolibri. You can access the full text via the "Usage and privacy" link in the left navigation bar.',
+      },
+      kolibriTelemetryP3L1: {
+        message:
+          'Supporting Learning Equality’s internal operations. This includes understanding and analyzing the usage trends and preferences of our users with the aim of increasing the educational value of the software and content, and monitoring our performance in order to issue enhancements to the user experience and functionality.',
+        context:
+          'This text forms part of the \'Usage and privacy\' information panel in Kolibri. You can access the full text via the "Usage and privacy" link in the left navigation bar.',
+      },
+      kolibriTelemetryP3L2: {
+        message:
+          'We may use the data to derive certain highly aggregated statistics and make them available to third parties or to the general public, for various purposes, including to demonstrate the impact of our software, as well as to convey our users’ general interests, habits, and usage patterns of the software.',
+        context:
+          'This text forms part of the \'Usage and privacy\' information panel in Kolibri. You can access the full text via the "Usage and privacy" link in the left navigation bar.',
+      },
+      kolibriTelemetryP4: {
+        message:
+          'Data collected will be disclosed under the following conditions:',
+        context:
+          'This text forms part of the \'Usage and privacy\' information panel in Kolibri. You can access the full text via the "Usage and privacy" link in the left navigation bar.',
+      },
+      kolibriTelemetryP4L1: {
+        message:
+          'When Kolibri serves as the underlying technology for a program operated by one of our partners, we will share data with that partner as long as their program holds a privacy policy that is equally or more constrained than Learning Equality’s data collection and processing practices detailed here.',
+        context:
+          'This text forms part of the \'Usage and privacy\' information panel in Kolibri. You can access the full text via the "Usage and privacy" link in the left navigation bar.',
+      },
+      kolibriTelemetryP4L2: {
+        message:
+          'We will disclose your information if required by law.',
+        context:
+          'This text forms part of the \'Usage and privacy\' information panel in Kolibri. You can access the full text via the "Usage and privacy" link in the left navigation bar.',
+      },
+      kolibriTelemetryP5: {
+        message:
+          'We will not use or share your data in any way beyond the approaches detailed above.',
         context:
           'This text forms part of the \'Usage and privacy\' information panel in Kolibri. You can access the full text via the "Usage and privacy" link in the left navigation bar.',
       },
