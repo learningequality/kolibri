@@ -91,7 +91,7 @@ lint:
 	flake8 kolibri
 
 test:
-	pytest
+	python -O -m pytest
 
 test-all:
 	tox
