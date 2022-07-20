@@ -147,14 +147,13 @@
       }
 
       function resetSelectedAddress() {
-        const enabledFacilities = availableFacilities.value
-          .map(f => f.id)
-          .find(f => isMinimumKolibriVersion.value(f.kolibri_version, 0, 16));
+        const enabledFacilities = availableFacilities.value.filter(f =>
+          isMinimumKolibriVersion.value(f.kolibri_version, 0, 16)
+        );
         if (enabledFacilities.length !== 0) {
           const selectedId = storageFacilityId.value || selectedFacilityId.value;
           selectedFacilityId.value =
-            enabledFacilities.map(f => f.id).find(f => f.id === selectedId) ||
-            enabledFacilities[0].id;
+            enabledFacilities.map(f => f.id).find(f => f === selectedId) || enabledFacilities[0].id;
         } else {
           selectedFacilityId.value = '';
         }

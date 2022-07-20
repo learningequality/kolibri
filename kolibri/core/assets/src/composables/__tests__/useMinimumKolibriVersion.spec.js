@@ -28,7 +28,7 @@ describe(`useMinimumKolibriVersion`, () => {
       expect(isMinimumKolibriVersion.value('0.16.1-b4', 0, 16, 1)).toBe(false);
     });
     it(`check beta versions work when betas are included`, () => {
-      expect(isMinimumKolibriVersion.value('0.16.1-b4', 0, 16)).toBe(true);
+      expect(isMinimumKolibriVersion.value('0.16.0-b4', 0, 16)).toBe(true);
     });
 
     it(`check beta versions work fine with upper values`, () => {

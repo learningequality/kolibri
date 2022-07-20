@@ -12,7 +12,9 @@ export default function useMinimumKolibriVersion() {
       greater than or equal to 0.15 (including any alphas or betas)
       */
       const v = version.split('.');
-      if (v.length < 2) return false;
+      if (v.length < 3) {
+        throw new Error('The full version format (e.g. 0.15.0) is required');
+      }
       const major = parseInt(v[0]);
       const minor = parseInt(v[1]);
       let revision = parseInt(v[2]);
