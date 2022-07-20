@@ -69,28 +69,25 @@ const syncTaskStatusToStepMap = {
   [SyncTaskStatuses.REMOTE_DEQUEUING]: 7,
 };
 
-// These functions are partially applied with bind() so that they are not evaluated before i18n
-// is ready. If you key into this map you'll need to call the value as a fn with no args a la
-// syncStatusToDescriptionMap[SyncTaskStatuses.SESSION_CREATION]();
-// Note that when getTaskString or coreString is called within a function, this is unnecessary.
+// getTaskString is wrapped in an arrow func to avoid evaluation before i18n is ready
 const genericStatusToDescriptionMap = {
-  [TaskStatuses.PENDING]: getTaskString.bind(null, 'taskWaitingStatus'),
-  [TaskStatuses.QUEUED]: getTaskString.bind(null, 'taskWaitingStatus'),
-  [TaskStatuses.COMPLETED]: getTaskString.bind(null, 'taskFinishedStatus'),
-  [TaskStatuses.CANCELED]: getTaskString.bind(null, 'taskCanceledStatus'),
-  [TaskStatuses.CANCELING]: getTaskString.bind(null, 'taskCancelingStatus'),
-  [TaskStatuses.FAILED]: getTaskString.bind(null, 'taskFailedStatus'),
+  [TaskStatuses.PENDING]: () => getTaskString('taskWaitingStatus'),
+  [TaskStatuses.QUEUED]: () => getTaskString('taskWaitingStatus'),
+  [TaskStatuses.COMPLETED]: () => getTaskString('taskFinishedStatus'),
+  [TaskStatuses.CANCELED]: () => getTaskString('taskCanceledStatus'),
+  [TaskStatuses.CANCELING]: () => getTaskString('taskCancelingStatus'),
+  [TaskStatuses.FAILED]: () => getTaskString('taskFailedStatus'),
 };
 
 export const syncStatusToDescriptionMap = {
   ...genericStatusToDescriptionMap,
-  [SyncTaskStatuses.SESSION_CREATION]: getTaskString.bind(null, 'establishingConnectionStatus'),
-  [SyncTaskStatuses.REMOTE_QUEUING]: getTaskString.bind(null, 'remotelyPreparingDataStatus'),
-  [SyncTaskStatuses.PULLING]: getTaskString.bind(null, 'receivingDataStatus'),
-  [SyncTaskStatuses.LOCAL_DEQUEUING]: getTaskString.bind(null, 'locallyIntegratingDataStatus'),
-  [SyncTaskStatuses.LOCAL_QUEUING]: getTaskString.bind(null, 'locallyPreparingDataStatus'),
-  [SyncTaskStatuses.PUSHING]: getTaskString.bind(null, 'sendingDataStatus'),
-  [SyncTaskStatuses.REMOTE_DEQUEUING]: getTaskString.bind(null, 'remotelyIntegratingDataStatus'),
+  [SyncTaskStatuses.SESSION_CREATION]: () => getTaskString('establishingConnectionStatus'),
+  [SyncTaskStatuses.REMOTE_QUEUING]: () => getTaskString('remotelyPreparingDataStatus'),
+  [SyncTaskStatuses.PULLING]: () => getTaskString('receivingDataStatus'),
+  [SyncTaskStatuses.LOCAL_DEQUEUING]: () => getTaskString('locallyIntegratingDataStatus'),
+  [SyncTaskStatuses.LOCAL_QUEUING]: () => getTaskString('locallyPreparingDataStatus'),
+  [SyncTaskStatuses.PUSHING]: () => getTaskString('sendingDataStatus'),
+  [SyncTaskStatuses.REMOTE_DEQUEUING]: () => getTaskString('remotelyIntegratingDataStatus'),
 };
 
 function formatNameWithId(name, id) {
@@ -125,10 +122,9 @@ export function syncFacilityTaskDisplayInfo(task) {
   }
   const syncStep = syncTaskStatusToStepMap[task.extra_metadata.sync_state];
   const statusDescription =
-    syncStatusToDescriptionMap[task.extra_metadata.sync_state] ||
-    syncStatusToDescriptionMap[task.status] ||
-    // bind this to give type parity with what the map would return (a bound fn)
-    getTaskString.bind(null, 'taskUnknownStatus');
+    syncStatusToDescriptionMap[task.extra_metadata.sync_state]() ||
+    syncStatusToDescriptionMap[task.status]() ||
+    getTaskString('taskUnknownStatus');
 
   if (task.status === TaskStatuses.COMPLETED) {
     statusMsg = getTaskString('taskFinishedStatus');
@@ -170,7 +166,7 @@ export function syncFacilityTaskDisplayInfo(task) {
 
 export const removeStatusToDescriptionMap = {
   ...genericStatusToDescriptionMap,
-  [TaskStatuses.RUNNING]: getTaskString.bind(null, 'removingFacilityStatus'),
+  [TaskStatuses.RUNNING]: () => getTaskString('removingFacilityStatus'),
 };
 
 // Consolidates logic on how Remove-Facility Tasks should be displayed
