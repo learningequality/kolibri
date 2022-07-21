@@ -126,7 +126,7 @@ class ContentNode(MPTTModel):
     license_owner = models.CharField(max_length=200, blank=True)
     author = models.CharField(max_length=200, blank=True)
     kind = models.CharField(
-        max_length=content_kinds.MAX_CHOICE_LENGTH,
+        max_length=max([len(choice[0]) for choice in content_kinds.choices]),
         choices=content_kinds.choices,
         blank=True,
     )
@@ -176,7 +176,7 @@ class File(models.Model):
     local_file = models.ForeignKey("LocalFile", related_name="files")
     contentnode = models.ForeignKey("ContentNode", related_name="files")
     preset = models.CharField(
-        max_length=format_presets.MAX_CHOICE_LENGTH,
+        max_length=max([len(choice[0]) for choice in format_presets.choices]),
         choices=format_presets.choices,
         blank=True,
     )
@@ -197,7 +197,7 @@ class LocalFile(models.Model):
     # ID should be the checksum of the file
     id = models.CharField(max_length=32, primary_key=True)
     extension = models.CharField(
-        max_length=file_formats.MAX_CHOICE_LENGTH,
+        max_length=max([len(choice[0]) for choice in file_formats.choices]),
         choices=file_formats.choices,
         blank=True,
     )
