@@ -224,8 +224,9 @@
                 learner_can_login_with_no_password: facility.learner_can_login_with_no_password,
                 kolibri_version: address.kolibri_version,
               };
-              if (!this.availableFacilities.find(f => f.id === facility.id))
+              if (!this.availableFacilities.find(f => f.id === facility.id)) {
                 this.availableFacilities.push(newFacility);
+              }
             });
           });
           this.availableAddressIds = availableDevices.map(address => address.id);
