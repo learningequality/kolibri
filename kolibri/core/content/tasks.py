@@ -168,7 +168,7 @@ def remotechannelimport(channel_id, baseurl=None, peer_id=None):
 
 
 class RemoteChannelResourcesImportValidator(
-    RemoteImportMixin, ChannelResourcesValidator
+    RemoteImportMixin, ChannelResourcesImportValidator
 ):
     pass
 
@@ -269,12 +269,8 @@ def deletechannel(
     )
 
 
-class RemoteUpdatedChannelValidator(RemoteImportMixin, ChannelResourcesImportValidator):
-    pass
-
-
 @register_task(
-    validator=RemoteUpdatedChannelValidator,
+    validator=RemoteChannelResourcesImportValidator,
     cancellable=True,
     track_progress=True,
     permission_classes=[CanManageContent],
