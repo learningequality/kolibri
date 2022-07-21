@@ -26,7 +26,7 @@
           v-model="selectedFacilityId"
           :value="f.id"
           :label="formatNameAndId(f.name, f.id)"
-          :disabled="discoveryFailed || !isAddressAvailable(f.address_id)"
+          :disabled="facilityDisabled(f)"
         />
       </div>
 
@@ -76,7 +76,7 @@
 <script>
 
   import { useLocalStorage } from '@vueuse/core';
-  import { computed } from 'kolibri.lib.vueCompositionApi';
+  import { computed, ref } from 'kolibri.lib.vueCompositionApi';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
@@ -86,6 +86,7 @@
   import useSavedAddresses from '../../../../../../core/assets/src/views/sync/SelectAddressModalGroup/useSavedAddresses.js';
   import useDynamicAddresses from '../../../../../../core/assets/src/views/sync/SelectAddressModalGroup/useDynamicAddresses.js';
   import AddAddressForm from '../../../../../../core/assets/src/views/sync/SelectAddressModalGroup/AddAddressForm';
+  import useMinimumKolibriVersion from '../../../../../../core/assets/src/composables/useMinimumKolibriVersion';
 
   export default {
     name: 'SelectFacility',
@@ -106,12 +107,8 @@
       } = useDynamicAddresses(props);
       const {
         addresses: savedAddresses,
-        removeSavedAddress,
         refreshSavedAddressList,
         savedAddressesInitiallyFetched,
-        requestsFailed,
-        deletingAddress,
-        fetchingAddresses,
       } = useSavedAddresses(props, context);
       const combinedAddresses = computed(() => {
         return [...savedAddresses.value, ...discoveredAddresses.value];
@@ -120,39 +117,73 @@
         return savedAddressesInitiallyFetched.value && discoveredAddressesInitiallyFetched.value;
       });
       const storageFacilityId = useLocalStorage('kolibri-lastSelectedFacilityId', '');
+
+      // data:
+      const availableAddressIds = ref([]);
+      const availableFacilities = ref([]);
+      const selectedFacilityId = ref('');
+      const showAddAddressModal = ref(false);
+
+      // computed properties (functions):
+      const { isMinimumKolibriVersion } = useMinimumKolibriVersion();
+      const facilityDisabled = computed(() => {
+        return function(facility) {
+          return (
+            discoveryFailed.value ||
+            availableAddressIds.value.find(id => id == facility.address_id) === undefined ||
+            !isMinimumKolibriVersion.value(facility.kolibri_version, 0, 16, 0)
+          );
+        };
+      });
+
+      // methods:
+      function createSnackbar(args) {
+        this.$store.dispatch('createSnackbar', args);
+      }
+
+      function handleAddedAddress() {
+        refreshSavedAddressList();
+        createSnackbar(this.$tr('addAddressSnackbarText'));
+      }
+
+      function resetSelectedAddress() {
+        const enabledFacilities = availableFacilities.value.filter(f =>
+          isMinimumKolibriVersion.value(f.kolibri_version, 0, 16)
+        );
+        if (enabledFacilities.length !== 0) {
+          const selectedId = storageFacilityId.value || selectedFacilityId.value;
+          selectedFacilityId.value =
+            enabledFacilities.map(f => f.id).find(f => f === selectedId) || enabledFacilities[0].id;
+        } else {
+          selectedFacilityId.value = '';
+        }
+      }
+
+      function to_continue() {
+        this.changeFacilityService.send({
+          type: 'CONTINUE',
+        });
+      }
+
       return {
         combinedAddresses,
         initialFetchingComplete,
         discoveredAddresses,
-        discoveryFailed,
         discoveringPeers,
-        discoveredAddressesInitiallyFetched,
         savedAddresses,
-        savedAddressesInitiallyFetched,
-        removeSavedAddress,
-        refreshSavedAddressList,
-        requestsFailed,
-        deletingAddress,
-        fetchingAddresses,
         storageFacilityId,
-      };
-    },
-    data() {
-      return {
-        availableAddressIds: [],
-        availableFacilities: [],
-        selectedFacilityId: '',
-        showAddAddressModal: false,
+        availableAddressIds,
+        availableFacilities,
+        selectedFacilityId,
+        showAddAddressModal,
+        facilityDisabled,
+        handleAddedAddress,
+        resetSelectedAddress,
+        to_continue,
       };
     },
     inject: ['changeFacilityService'],
-    computed: {
-      isAddressAvailable() {
-        return function(addressId) {
-          return Boolean(this.availableAddressIds.find(id => id === addressId));
-        };
-      },
-    },
+
     watch: {
       selectedFacilityId(newVal) {
         this.storageFacilityId = newVal;
@@ -191,6 +222,7 @@
                 address_id: address.id,
                 learner_can_sign_up: facility.learner_can_sign_up,
                 learner_can_login_with_no_password: facility.learner_can_login_with_no_password,
+                kolibri_version: address.kolibri_version,
               };
               if (!this.availableFacilities.find(f => f.id === facility.id))
                 this.availableFacilities.push(newFacility);
@@ -212,30 +244,6 @@
         if (!this.selectedFacilityId) {
           this.resetSelectedAddress();
         }
-      },
-    },
-    methods: {
-      createSnackbar(args) {
-        this.$store.dispatch('createSnackbar', args);
-      },
-      handleAddedAddress() {
-        this.refreshSavedAddressList();
-        this.createSnackbar(this.$tr('addAddressSnackbarText'));
-      },
-      resetSelectedAddress() {
-        if (this.availableFacilities.length !== 0) {
-          const selectedId = this.selectedId || this.storageFacilityId || this.selectedFacilityId;
-          this.selectedFacilityId =
-            this.availableFacilities.map(f => f.id).find(f => f.id === selectedId) ||
-            this.availableFacilities[0].id;
-        } else {
-          this.selectedFacilityId = '';
-        }
-      },
-      to_continue() {
-        this.changeFacilityService.send({
-          type: 'CONTINUE',
-        });
       },
     },
     $trs: {
