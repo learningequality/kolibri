@@ -1,11 +1,11 @@
 <template>
 
-  <OnboardingForm
-    :header="$tr('languageFormHeader')"
-    @submit="handleSubmit"
+  <OnboardingStepBase
+    :title="$tr('languageFormHeader')"
+    @continue="handleSubmit"
   >
     <LanguageSwitcherList />
-  </OnboardingForm>
+  </OnboardingStepBase>
 
 </template>
 
@@ -13,12 +13,12 @@
 <script>
 
   import LanguageSwitcherList from 'kolibri.coreVue.components.LanguageSwitcherList';
-  import OnboardingForm from './OnboardingForm';
+  import OnboardingStepBase from '../OnboardingStepBase';
 
   export default {
     name: 'DefaultLanguageForm',
     components: {
-      OnboardingForm,
+      OnboardingStepBase,
       LanguageSwitcherList,
     },
     inject: ['wizardService'],

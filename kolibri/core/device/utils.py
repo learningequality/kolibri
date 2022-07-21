@@ -6,12 +6,14 @@ circular imports.
 import json
 import logging
 import os
+import platform
 
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.utils import OperationalError
 from django.db.utils import ProgrammingError
 
+import kolibri
 from kolibri.core.auth.constants.facility_presets import mappings
 
 logger = logging.getLogger(__name__)
@@ -246,7 +248,7 @@ def setup_device_and_facility(
                     )
                 )
             except ValidationError:
-                logger.warn(
+                logger.warning(
                     "An account with username '{username}' already exists in facility '{facility}', not creating user account.".format(
                         username=username, facility=facility
                     )
@@ -263,7 +265,7 @@ def get_facility_by_name(facility_name):
 
         if facility_query.exists():
             facility = facility_query.get()
-            logger.warn(
+            logger.warning(
                 "Facility with name '{name}' already exists, not modifying preset.".format(
                     name=facility.name
                 )
@@ -283,7 +285,7 @@ def remove_provisioning_file(file_path):
             )
         )
     except (IOError, OSError):
-        logger.warn(
+        logger.warning(
             "Unable to remove provisioning file {} after successful provisioning".format(
                 file_path
             ),
@@ -370,3 +372,64 @@ def provision_from_file(file_path):
     )
 
     remove_provisioning_file(file_path)
+
+
+device_info_keys = {
+    "1": [
+        "application",
+        "kolibri_version",
+        "instance_id",
+        "device_name",
+        "operating_system",
+    ],
+    "2": [
+        "application",
+        "kolibri_version",
+        "instance_id",
+        "device_name",
+        "operating_system",
+        "subset_of_users_device",
+    ],
+}
+
+DEVICE_INFO_VERSION = "2"
+
+
+def get_device_info(version=DEVICE_INFO_VERSION):
+    """
+    Returns metadata information about the device
+    The default kwarg version should always be the latest
+    version of device info that this function supports.
+    We maintain historic versions for backwards compatibility
+    """
+
+    if version not in device_info_keys:
+        version = DEVICE_INFO_VERSION
+
+    from morango.models import InstanceIDModel
+
+    instance_model = InstanceIDModel.get_or_create_current_instance()[0]
+    try:
+        device_name = get_device_setting("name")
+        subset_of_users_device = get_device_setting("subset_of_users_device")
+    # When Koliri starts at the first time, and device hasn't been created
+    except DeviceNotProvisioned:
+        device_name = instance_model.hostname
+        subset_of_users_device = False
+
+    all_info = {
+        "application": "kolibri",
+        "kolibri_version": kolibri.__version__,
+        "instance_id": instance_model.id,
+        "device_name": device_name,
+        "operating_system": platform.system(),
+        "subset_of_users_device": subset_of_users_device,
+    }
+
+    info = {}
+
+    # By this point, we have validated that the version is in device_info_keys
+    for key in device_info_keys.get(version, []):
+        info[key] = all_info[key]
+
+    return info

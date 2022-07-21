@@ -7,16 +7,16 @@ from .api import StaticNetworkLocationViewSet
 
 router = routers.SimpleRouter()
 
-router.register(r"networklocation", NetworkLocationViewSet, base_name="networklocation")
+router.register(r"networklocation", NetworkLocationViewSet, basename="networklocation")
 router.register(
     r"staticnetworklocation",
     StaticNetworkLocationViewSet,
-    base_name="staticnetworklocation",
+    basename="staticnetworklocation",
 )
 router.register(
     r"dynamicnetworklocation",
     DynamicNetworkLocationViewSet,
-    base_name="dynamicnetworklocation",
+    basename="dynamicnetworklocation",
 )
 
 router.register(

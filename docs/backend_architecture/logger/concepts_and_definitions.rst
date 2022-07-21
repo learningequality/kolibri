@@ -7,7 +7,7 @@ All logs use MorangoDB to synchronize their data across devices.
 Content session logs
 --------------------
 
-These models provide a high-level record that a user interacted with with a content item
+These models provide a high-level record that a user interacted with a content item
 for some contiguous period of time. This generally corresponds to the time between when
 a user navigates to the content and when they navigate away from it.
 

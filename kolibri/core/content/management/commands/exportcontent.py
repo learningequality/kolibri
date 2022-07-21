@@ -4,17 +4,20 @@ import os
 from django.core.management.base import CommandError
 
 from ...utils import paths
-from ...utils import transfer
 from kolibri.core.content.errors import InvalidStorageFilenameError
 from kolibri.core.content.utils.import_export_content import get_import_export_data
 from kolibri.core.content.utils.paths import get_content_file_name
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.core.tasks.utils import get_current_job
+from kolibri.utils import file_transfer as transfer
 
 logger = logging.getLogger(__name__)
 
 
 class Command(AsyncCommand):
+    exported_size = 0
+    total_resources = 0
+
     def add_arguments(self, parser):
         node_ids_help_text = """
         Specify one or more node IDs to import. Only the files associated to those node IDs will be imported.
@@ -86,7 +89,6 @@ class Command(AsyncCommand):
         with self.start_progress(
             total=total_bytes_to_transfer
         ) as overall_progress_update:
-
             for f in files:
 
                 if self.is_cancelled():
@@ -97,14 +99,10 @@ class Command(AsyncCommand):
                     exported_files.append(dest)
 
             if self.is_cancelled():
-                # Cancelled, clean up any already downloading files.
-                for dest in exported_files:
-                    os.remove(dest)
                 self.cancel()
 
     def export_file(self, f, data_dir, overall_progress_update):
         filename = get_content_file_name(f)
-
         try:
             srcpath = paths.get_content_storage_file_path(filename)
             dest = paths.get_content_storage_file_path(filename, datafolder=data_dir)
@@ -117,17 +115,21 @@ class Command(AsyncCommand):
         if os.path.isfile(dest) and os.path.getsize(dest) == f["file_size"]:
             overall_progress_update(f["file_size"])
             return
-
         copy = transfer.FileCopy(srcpath, dest, cancel_check=self.is_cancelled)
-
         with copy, self.start_progress(
             total=copy.total_size
         ) as file_cp_progress_update:
             try:
                 for chunk in copy:
                     length = len(chunk)
+                    self.exported_size = self.exported_size + length
                     overall_progress_update(length)
                     file_cp_progress_update(length)
             except transfer.TransferCanceled:
+                job = get_current_job()
+                if job:
+                    job.extra_metadata["file_size"] = self.exported_size
+                    job.extra_metadata["total_resources"] = 0
+                    job.save_meta()
                 return
         return dest

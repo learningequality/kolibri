@@ -55,7 +55,7 @@
           />
         </template>
       </div>
-      <template v-if="!taskIsCompleted && !taskIsCanceled">
+      <template v-if="!taskIsCompleted">
         <p v-if="sizeText" class="details-size">
           {{ sizeText }}
         </p>
@@ -166,9 +166,6 @@
         return this.task.clearable;
       },
       taskPercentage() {
-        if (this.task.database_ready === false) {
-          return null;
-        }
         return this.task.percentage;
       },
       loaderType() {
@@ -181,15 +178,19 @@
       descriptionText() {
         const trName = typeToTrMap[this.task.type];
         return this.$tr(trName, {
-          channelName: this.task.channel_name || this.$tr('unknownChannelName'),
-          newVersion: this.task.new_version,
+          channelName: this.task.extra_metadata.channel_name || this.$tr('unknownChannelName'),
+          newVersion: this.task.extra_metadata.new_version,
         });
       },
       sizeText() {
-        const { file_size, total_resources } = this.task;
+        const { file_size, total_resources } = this.task.extra_metadata;
         if (file_size && total_resources) {
           return this.$tr('numResourcesAndSize', {
             numResources: total_resources,
+            bytesText: bytesForHumans(file_size),
+          });
+        } else if (file_size) {
+          return this.$tr('cancelSize', {
             bytesText: bytesForHumans(file_size),
           });
         }
@@ -201,7 +202,7 @@
           transferred_resources,
           file_size,
           total_resources,
-        } = this.task;
+        } = this.task.extra_metadata;
         // Special case for canceled exports
         if (
           (this.task.type === TaskTypes.DISKEXPORT ||
@@ -238,7 +239,7 @@
       },
       startedByText() {
         return this.$tr('startedByUser', {
-          user: this.task.started_by_username || this.$tr('unknownUsername'),
+          user: this.task.extra_metadata.started_by_username || this.$tr('unknownUsername'),
         });
       },
     },
@@ -261,6 +262,11 @@
           '{numResources} {numResources, plural, one {resource} other {resources}} ({bytesText})',
         context: 'Indicates the number of resources and their size.',
       },
+      cancelSize: {
+        message: 'Exported size: ({bytesText})',
+        context: 'Indicates the number of resources and their size.',
+      },
+
       statusInProgress: {
         message: 'In-progress',
         context: 'Label indicating that a task is in progress.',

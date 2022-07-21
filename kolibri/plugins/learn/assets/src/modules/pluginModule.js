@@ -1,3 +1,4 @@
+// import { LastPages } from './../constants/lastPagesConstants';
 import mutations from './coreLearn/mutations';
 import * as getters from './coreLearn/getters';
 import * as actions from './coreLearn/actions';

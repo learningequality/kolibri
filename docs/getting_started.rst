@@ -25,7 +25,7 @@ Git and GitHub
 #. Install and set up `Git <https://help.github.com/articles/set-up-git/>`__ on your computer. Try this `tutorial <http://learngitbranching.js.org/>`__ if you need more practice with Git!
 #. `Sign up and configure your GitHub account <https://github.com/join>`__ if you don't have one already.
 #. `Fork the main Kolibri repository <https://github.com/learningequality/kolibri>`__. This will make it easier to `submit pull requests <https://help.github.com/articles/using-pull-requests/>`__. Read more details `about forking <https://help.github.com/articles/fork-a-repo/>`__ from GitHub.
-#. **Important**: Install and set up the `Git LFS extension <https://git-lfs.github.com/>`__.
+#. **Important**: Install and set up the `Git LFS extension <https://docs.github.com/en/repositories/working-with-files/managing-large-files/installing-git-large-file-storage>`__.
 
 
 .. tip::
@@ -63,7 +63,7 @@ Python and Pip
 
 To develop on Kolibri, you'll need:
 
-* Python 3.4+ or Python 2.7+
+* Python 3.4+ or Python 2.7+ (Kolibri doesn't currently support Python 3.10.0 or higher)
 * `pip <https://pypi.python.org/pypi/pip>`__
 
 Managing Python installations can be quite tricky. We *highly* recommend using package managers like `Homebrew <http://brew.sh/>`__ on Mac or ``apt`` on Debian for this.
@@ -154,7 +154,7 @@ Note that the ``--upgrade`` flags above can usually be omitted to speed up the p
 Install Node.js, Yarn and other dependencies
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#. Install Node.js (version 16.x is required)
+#. Install `Node.js <https://nodejs.org/en/download/>`__ (version 16.x is required)
 #. Install `Yarn <https://yarnpkg.com/>`__
 #. Install non-python project-specific dependencies
 
@@ -220,7 +220,7 @@ For a complete reference of the commands that can be run and what they do, inspe
 Production server
 ~~~~~~~~~~~~~~~~~
 
-In production, content is served through CherryPy. Frontend static assets are pre-built:
+In production, content is served through `CherryPy <https://docs.cherrypy.dev/en/latest/>`__. Frontend static assets are pre-built:
 
 .. code-block:: bash
 
@@ -499,7 +499,7 @@ Building a pex file
 ~~~~~~~~~~~~~~~~~~~
 
 .. note::
-  The easiest way to obtain a pex file is to submit a Github PR and download the built assets from buildkite.
+  The easiest way to obtain a `pex <https://pex.readthedocs.io/en/latest/whatispex.html>`__ file is to submit a Github PR and download the built assets from buildkite.
 
 If you want to build and run a pex from the Kolibri code in your current local source files without relying on the github and the buildkite integration, you can run the following commands to build a pex file:
 

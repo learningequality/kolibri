@@ -30,8 +30,6 @@
 
 <script>
 
-  import { getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
-  import { useIntervalFn } from '@vueuse/core';
   import omit from 'lodash/omit';
   import { mapState, mapGetters } from 'vuex';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
@@ -47,25 +45,6 @@
       CoreBase,
       PostSetupModalGroup,
       DeviceTopNav,
-    },
-    setup() {
-      const polling = useIntervalFn(() => {
-        $store.dispatch('manageContent/refreshTaskList');
-      }, 1000);
-      const $store = getCurrentInstance().proxy.$store;
-      function startTaskPolling() {
-        if ($store.getters.canManageContent) {
-          polling.start();
-        }
-      }
-      function stopTaskPolling() {
-        polling.stop();
-      }
-
-      return {
-        stopTaskPolling,
-        startTaskPolling,
-      };
     },
     computed: {
       ...mapGetters(['canManageContent', 'isSuperuser']),
@@ -100,6 +79,16 @@
         return this.pageName === 'AVAILABLE_CHANNELS' && this.$route.query.multiple;
       },
       immersivePageRoute() {
+        if (this.pageName === PageNames.MANAGE_TASKS) {
+          if (this.$route.query.last) {
+            const route = this.$router.getRoute(this.$route.query.last, {
+              channel_id: this.$route.query.channel_id,
+            });
+            return route;
+          } else {
+            return { name: PageNames.MANAGE_CONTENT_PAGE };
+          }
+        }
         if (this.$route.query.last) {
           return {
             name: this.$route.query.last,
@@ -107,9 +96,6 @@
             // to handle longer breadcrumb trails
             query: omit(this.$route.query, ['last']),
           };
-        }
-        if (this.pageName === PageNames.MANAGE_TASKS) {
-          return this.$route.params.lastRoute || { name: PageNames.MANAGE_CONTENT_PAGE };
         }
         if (this.pageName === PageNames.MANAGE_CHANNEL) {
           return { name: PageNames.MANAGE_CONTENT_PAGE };
@@ -144,7 +130,16 @@
         }
       },
       immersivePagePrimary() {
-        if (this.pageName === PageNames.MANAGE_TASKS) {
+        if (
+          this.pageName === PageNames.MANAGE_TASKS &&
+          this.$route.query &&
+          this.$route.query.last
+        ) {
+          return true;
+        } else if (
+          this.pageName === PageNames.MANAGE_TASKS &&
+          (!this.$route.query || !this.$route.query.last)
+        ) {
           return false;
         }
         return this.inContentManagementPage;
@@ -161,10 +156,7 @@
         return 'close';
       },
       currentPageIsImmersive() {
-        if (
-          this.pageName == PageNames.MANAGE_CONTENT_PAGE ||
-          this.pageName === PageNames.MANAGE_TASKS
-        ) {
+        if (this.pageName == PageNames.MANAGE_CONTENT_PAGE) {
           return false;
         }
         return (
@@ -176,21 +168,12 @@
       },
     },
     watch: {
-      inContentManagementPage(val) {
-        return val ? this.startTaskPolling() : this.stopTaskPolling();
-      },
       currentPageIsImmersive(val) {
         // If going to a non-immersive page, reset the state to show normal Toolbar
         if (!val) {
           this.$store.commit('coreBase/SET_APP_BAR_TITLE', '');
         }
       },
-    },
-    mounted() {
-      this.inContentManagementPage && this.startTaskPolling();
-    },
-    destroyed() {
-      this.stopTaskPolling();
     },
     methods: {
       hideWelcomeModal() {

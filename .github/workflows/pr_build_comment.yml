@@ -35,22 +35,9 @@ jobs:
               fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/pr_number.zip`, Buffer.from(download.data));
 
               let text = `### [**Build Artifacts**](${context.payload.workflow_run.html_url})`
-              artifacts.sort((a, b) => {
-                if (a.name < b.name) {
-                  return -1
-                }
-                if (b.name < a.name) {
-                  return 1
-                }
-                return 0
-              })
 
               const checkSuiteNumber = context.payload.workflow_run.check_suite_id
               const repoHtmlUrl = context.payload.repository.html_url
-
-              const artifactsToDisplay = artifacts.filter((artifact) => {
-                return !artifact.expired && artifact.name != "pr_number"
-              })
 
               const file_manifest = {
                 "deb": "Debian Package",
@@ -61,6 +48,32 @@ jobs:
                 "gz": "Source Tarball",
                 "zip": "Raspberry Pi Image",
               }
+
+              const artifactsToDisplay = artifacts.filter((artifact) => {
+                return !artifact.expired && file_manifest[artifact.name.split('.').pop()]
+              })
+
+              const file_order = [
+                "whl",
+                "pex",
+                "exe",
+                "deb",
+                "dmg",
+                "zip",
+                "gz",
+              ]
+
+              artifactsToDisplay.sort((a, b) => {
+                const a_order = file_order.findIndex(ext => ext === a.name.split('.').pop()) || 100
+                const b_order = file_order.findIndex(ext => ext === b.name.split('.').pop()) || 100
+                if (a_order < b_order) {
+                  return -1
+                }
+                if (b_order < a_order) {
+                  return 1
+                }
+                return 0
+              })
 
               if (artifactsToDisplay.length) {
                 text += '\n| Asset type | Download link |\n|-|-|'

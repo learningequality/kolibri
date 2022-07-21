@@ -29,6 +29,7 @@ from kolibri.core.content.models import AssessmentMetaData
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
+from kolibri.core.content.models import Language
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.annotation import recurse_annotation_up_tree
 from kolibri.core.content.utils.annotation import (
@@ -358,9 +359,7 @@ class ContentImportTestBase(TransactionTestCase):
     def set_content_fixture(self, db_path_mock):
         _, self.content_db_path = tempfile.mkstemp(suffix=".sqlite3")
         db_path_mock.return_value = self.content_db_path
-        self.content_engine = create_engine(
-            "sqlite:///" + self.content_db_path, convert_unicode=True
-        )
+        self.content_engine = create_engine("sqlite:///" + self.content_db_path)
 
         metadata = load_metadata(self.schema_name)
 
@@ -475,6 +474,17 @@ class NaiveImportTestCase(ContentNodeTestBase, ContentImportTestBase):
         self.set_content_fixture()
         with self.assertRaises(ContentNode.DoesNotExist):
             assert ContentNode.objects.get(pk=obj_id)
+
+    def test_residual_included_languages_deleted_after_reimport(self):
+        lang = Language.objects.create(id="en")
+        channel = ChannelMetadata.objects.first()
+        # Decrement current channel version to ensure reimport
+        channel.version -= 1
+        channel.included_languages.add(lang)
+        channel.save()
+        self.set_content_fixture()
+        channel = ChannelMetadata.objects.first()
+        self.assertEqual(channel.included_languages.count(), 0)
 
     def test_prerequisites_not_duplicated(self):
         prereqs = ContentNode.has_prerequisite.through.objects.all().count()

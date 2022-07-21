@@ -184,11 +184,17 @@ export default function useSearch(store, router) {
 
   watch(searchTerms, search);
 
+  // Helper to get the route information in a setup() function
+  function currentRoute() {
+    return get(route);
+  }
+
   const results = computed(() => {
     return deduplicateResources(get(_results));
   });
 
   return {
+    currentRoute,
     searchTerms,
     displayingSearchResults,
     searchLoading,

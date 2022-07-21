@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 import uuid
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from le_utils.constants import content_kinds
 from rest_framework.test import APITestCase
 
@@ -192,11 +192,11 @@ class ClassSummaryTestCase(EvaluationMixin, APITestCase):
                 for d in content_status
                 if d["learner_id"] == user.id and d["content_id"] == content_id
             )
-            self.assertEquals(
+            self.assertEqual(
                 data["num_correct"],
                 sum(current_try.attemptlogs.values_list("correct", flat=True)),
             )
-            self.assertEquals(
+            self.assertEqual(
                 data["previous_num_correct"],
                 sum(previous_try.attemptlogs.values_list("correct", flat=True))
                 if previous_try
@@ -258,11 +258,11 @@ class ClassSummaryDiffTestCase(EvaluationMixin, APITestCase):
                 for d in content_status
                 if d["learner_id"] == user.id and d["content_id"] == content_id
             )
-            self.assertEquals(
+            self.assertEqual(
                 data["num_correct"],
                 sum(current_try.attemptlogs.values_list("correct", flat=True)),
             )
-            self.assertEquals(
+            self.assertEqual(
                 data["previous_num_correct"],
                 sum(previous_try.attemptlogs.values_list("correct", flat=True))
                 if previous_try

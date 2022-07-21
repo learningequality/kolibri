@@ -11,7 +11,8 @@ from unittest import TestCase
 import mock
 import pytest
 
-from kolibri.core.tasks.scheduler import Scheduler
+from kolibri.core.tasks.job import Job
+from kolibri.core.tasks.storage import Storage
 from kolibri.core.tasks.test.base import connection
 from kolibri.utils import server
 from kolibri.utils.constants import installation_types
@@ -91,17 +92,17 @@ class TestServerInstallation(object):
 
 
 @pytest.fixture
-def scheduler():
+def job_storage():
     with connection() as c:
-        s = Scheduler(connection=c)
-        s.clear_scheduler()
+        s = Storage(connection=c)
+        s.clear()
         yield s
-        s.clear_scheduler()
+        s.clear()
 
 
 class TestServerServices(object):
-    @mock.patch("kolibri.core.deviceadmin.utils.schedule_vacuum")
-    @mock.patch("kolibri.core.analytics.utils.schedule_ping")
+    @mock.patch("kolibri.core.deviceadmin.tasks.schedule_vacuum")
+    @mock.patch("kolibri.core.analytics.tasks.schedule_ping")
     @mock.patch("kolibri.core.tasks.main.initialize_workers")
     @mock.patch("kolibri.core.discovery.utils.network.broadcast.KolibriBroadcast")
     def test_required_services_initiate_on_start(
@@ -111,19 +112,14 @@ class TestServerServices(object):
         schedule_ping,
         schedule_vacuum,
     ):
-        with mock.patch("kolibri.core.tasks.main.scheduler") as scheduler:
+        # Start server services
+        services_plugin = server.ServicesPlugin(mock.MagicMock(name="bus"))
+        services_plugin.START()
 
-            # Start server services
-            services_plugin = server.ServicesPlugin(mock.MagicMock(name="bus"))
-            services_plugin.START()
+        # Do we initialize workers when services start?
+        initialize_workers.assert_called_once()
 
-            # Do we initialize workers when services start?
-            initialize_workers.assert_called_once()
-
-            # Do we start scheduler when services start?
-            scheduler.start_scheduler.assert_called_once()
-
-            mock_kolibri_broadcast.assert_not_called()
+        mock_kolibri_broadcast.assert_not_called()
 
     @mock.patch("kolibri.core.tasks.main.initialize_workers")
     @mock.patch("kolibri.core.discovery.utils.network.broadcast.KolibriBroadcast")
@@ -131,20 +127,17 @@ class TestServerServices(object):
         self,
         mock_kolibri_broadcast,
         initialize_workers,
-        scheduler,
+        job_storage,
     ):
-        with mock.patch("kolibri.core.tasks.main.scheduler", wraps=scheduler):
-
-            # Don't start scheduler in real, otherwise we may end up in infinite thread loop
-            scheduler.start_scheduler = mock.MagicMock(name="start_scheduler")
+        with mock.patch("kolibri.core.tasks.registry.job_storage", wraps=job_storage):
 
             # Schedule two userdefined jobs
             from kolibri.utils.time_utils import local_now
             from datetime import timedelta
 
             schedule_time = local_now() + timedelta(hours=1)
-            scheduler.schedule(schedule_time, id, job_id="test01")
-            scheduler.schedule(schedule_time, id, job_id="test02")
+            test1 = job_storage.schedule(schedule_time, Job(id))
+            test2 = job_storage.schedule(schedule_time, Job(id))
 
             # Now, start services plugin
             service_plugin = server.ServicesPlugin(mock.MagicMock(name="bus"))
@@ -152,52 +145,43 @@ class TestServerServices(object):
 
             # Currently, we must have exactly four scheduled jobs
             # two userdefined and two server defined (pingback and vacuum)
-            from kolibri.core.analytics.utils import DEFAULT_PING_JOB_ID
-            from kolibri.core.deviceadmin.utils import SCH_VACUUM_JOB_ID
+            from kolibri.core.analytics.tasks import DEFAULT_PING_JOB_ID
+            from kolibri.core.deviceadmin.tasks import SCH_VACUUM_JOB_ID
 
-            assert scheduler.count() == 4
-            assert scheduler.get_job("test01") is not None
-            assert scheduler.get_job("test02") is not None
-            assert scheduler.get_job(DEFAULT_PING_JOB_ID) is not None
-            assert scheduler.get_job(SCH_VACUUM_JOB_ID) is not None
+            assert len(job_storage) == 4
+            assert job_storage.get_job(test1) is not None
+            assert job_storage.get_job(test2) is not None
+            assert job_storage.get_job(DEFAULT_PING_JOB_ID) is not None
+            assert job_storage.get_job(SCH_VACUUM_JOB_ID) is not None
 
             # Restart services
             service_plugin.STOP()
             service_plugin.START()
 
             # Make sure all scheduled jobs persist after restart
-            assert scheduler.count() == 4
-            assert scheduler.get_job("test01") is not None
-            assert scheduler.get_job("test02") is not None
-            assert scheduler.get_job(DEFAULT_PING_JOB_ID) is not None
-            assert scheduler.get_job(SCH_VACUUM_JOB_ID) is not None
+            assert len(job_storage) == 4
+            assert job_storage.get_job(test1) is not None
+            assert job_storage.get_job(test2) is not None
+            assert job_storage.get_job(DEFAULT_PING_JOB_ID) is not None
+            assert job_storage.get_job(SCH_VACUUM_JOB_ID) is not None
 
     def test_services_shutdown_on_stop(self):
-        with mock.patch("kolibri.core.tasks.main.scheduler") as scheduler:
 
-            # Initialize and ready services plugin for testing
-            services_plugin = server.ServicesPlugin(mock.MagicMock(name="bus"))
+        # Initialize and ready services plugin for testing
+        services_plugin = server.ServicesPlugin(mock.MagicMock(name="bus"))
 
-            from kolibri.core.tasks.worker import Worker
+        from kolibri.core.tasks.worker import Worker
 
-            services_plugin.workers = [
-                mock.MagicMock(name="worker", spec_set=Worker),
-                mock.MagicMock(name="worker", spec_set=Worker),
-                mock.MagicMock(name="worker", spec_set=Worker),
-            ]
+        services_plugin.worker = mock.MagicMock(name="worker", spec_set=Worker)
 
-            # Now, let us stop services plugin
-            services_plugin.STOP()
+        # Now, let us stop services plugin
+        services_plugin.STOP()
 
-            # Do we shutdown scheduler?
-            scheduler.shutdown_scheduler.assert_called_once()
-
-            # Do we shutdown workers correctly?
-            for mock_worker in services_plugin.workers:
-                assert mock_worker.shutdown.call_count == 1
-                assert mock_worker.mock_calls == [
-                    mock.call.shutdown(wait=True),
-                ]
+        # Do we shutdown workers correctly?
+        assert services_plugin.worker.shutdown.call_count == 1
+        assert services_plugin.worker.mock_calls == [
+            mock.call.shutdown(wait=True),
+        ]
 
 
 class TestZeroConfPlugin(object):
@@ -245,17 +229,15 @@ class TestZeroConfPlugin(object):
     "kolibri.utils.server._read_pid_file", return_value=((None, None, None, None))
 )
 class ServerInitializationTestCase(TestCase):
-    @mock.patch("kolibri.utils.server.logging.error")
+    @mock.patch("kolibri.utils.server.logger.error")
     @mock.patch("kolibri.utils.server.wait_for_free_port")
     def test_port_occupied(self, wait_for_port_mock, logging_mock, read_pid_file_mock):
         wait_for_port_mock.side_effect = OSError
-        with self.assertRaises(SystemExit):
-            process = server.KolibriProcessBus("8080", "8081")
-            process.background = True
-            process.background_port_check()
-            logging_mock.assert_called()
+        with self.assertRaises(server.PortOccupied):
+            server._port_check("8080")
+        logging_mock.assert_called()
 
-    @mock.patch("kolibri.utils.server.logging.error")
+    @mock.patch("kolibri.utils.server.logger.error")
     @mock.patch("kolibri.utils.server.wait_for_free_port")
     def test_port_occupied_socket_activation(
         self, wait_for_port_mock, logging_mock, read_pid_file_mock
@@ -263,20 +245,16 @@ class ServerInitializationTestCase(TestCase):
         wait_for_port_mock.side_effect = OSError
         # LISTEN_PID environment variable would be set if using socket activation
         with mock.patch.dict(os.environ, {"LISTEN_PID": "1234"}):
-            process = server.KolibriProcessBus("8080", "8081")
-            process.background = True
-            process.background_port_check()
+            server._port_check("8080")
             logging_mock.assert_not_called()
 
-    @mock.patch("kolibri.utils.server.logging.error")
+    @mock.patch("kolibri.utils.server.logger.error")
     @mock.patch("kolibri.utils.server.wait_for_free_port")
     def test_port_zero_zip_port_zero(
         self, wait_for_port_mock, logging_mock, read_pid_file_mock
     ):
         wait_for_port_mock.side_effect = OSError
-        process = server.KolibriProcessBus(0, 0)
-        process.background = True
-        process.background_port_check()
+        server._port_check(0)
         logging_mock.assert_not_called()
 
     @mock.patch("kolibri.utils.server.pid_exists")
@@ -295,7 +273,7 @@ class ServerInitializationTestCase(TestCase):
         wait_for_port_mock.side_effect = OSError
         pid_exists_mock.return_value = True
         read_pid_file_mock.return_value = (1000, 8000, 8001, server.STATUS_RUNNING)
-        with self.assertRaises(SystemExit):
+        with self.assertRaises(server.PortOccupied):
             server.start(port=8000)
 
 

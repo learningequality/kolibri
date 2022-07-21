@@ -5,6 +5,8 @@ import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants'
 import SideNav from '../../src/views/SideNav';
 import logoutSideNavEntry from '../../src/views/LogoutSideNavEntry';
 import LearnOnlyDeviceNotice from '../../src/views/LearnOnlyDeviceNotice';
+import SyncStatusDisplay from '../../src/views/SyncStatusDisplay';
+
 import { coreStoreFactory as makeStore } from '../../src/state/store';
 
 jest.mock('kolibri.urls');
@@ -190,7 +192,27 @@ describe('side nav component', () => {
   });
 
   describe('when on an SoUD or NOT', () => {
-    describe('on an SoUD', () => {
+    describe('on an SoUD with learn-only device indicators', () => {
+      let wrapper;
+      beforeAll(() => {
+        wrapper = createWrapper(undefined, { isSubsetOfUsersDevice: true });
+      });
+      describe('showing the SyncStatusDisplay', () => {
+        it('shows the SyncStatusDisplay to Learners', async () => {
+          setUserKind(wrapper.vm.$store, UserKinds.LEARNER);
+          await wrapper.vm.$nextTick();
+          expect(wrapper.findComponent(SyncStatusDisplay).exists()).toBe(true);
+        });
+
+        it.each([UserKinds.COACH, UserKinds.ADMIN, UserKinds.ANONYMOUS])(
+          'does not show the SyncStatusDisplay to %s',
+          async kind => {
+            setUserKind(wrapper.vm.$store, kind);
+            await wrapper.vm.$nextTick();
+            expect(wrapper.findComponent(SyncStatusDisplay).exists()).toBe(false);
+          }
+        );
+      });
       /* Note that Facilty & Coach plugins are hackily disabled in their kolibri_plugin
        * definitions - hence no tests to ensure they're hidden here when on SoUD */
       it('shows the Learn-only notice to non-Learners', async () => {

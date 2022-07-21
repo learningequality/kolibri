@@ -339,7 +339,7 @@ describe('showPage actions for coach exams section', () => {
 
       // Using the weird naming from fakeItems
       const classId = 'item_1';
-      await showExamsPage(store, classId)._promise;
+      await showExamsPage(store, classId);
       expect(ExamResource.fetchCollection).toHaveBeenCalledWith({
         getParams: { collection: classId },
         force: true,
@@ -355,7 +355,7 @@ describe('showPage actions for coach exams section', () => {
       ClassroomResource.fetchCollection.mockResolvedValue(fakeItems);
       ExamResource.fetchCollection.mockRejectedValue('channel error');
       try {
-        await showExamsPage(store, 'class_1')._promise;
+        await showExamsPage(store, 'class_1');
       } catch (error) {
         expect(store.state.core.error).toEqual('channel error');
       }

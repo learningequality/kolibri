@@ -1,6 +1,9 @@
 import { mount } from '@vue/test-utils';
+import { DemographicConstants } from 'kolibri.coreVue.vuex.constants';
 import makeStore from '../makeStore';
 import SetupWizardIndex from '../../src/views/SetupWizardIndex';
+
+const { NOT_SPECIFIED } = DemographicConstants;
 
 function makeWrapper() {
   const store = makeStore();
@@ -83,8 +86,8 @@ xdescribe('SetupWizardIndex', () => {
         full_name: 'Fred Rogers',
         username: 'mr_rogers',
         password: 'password',
-        gender: 'NOT_SPECIFIED',
-        birth_year: 'NOT_SPECIFIED',
+        gender: NOT_SPECIFIED,
+        birth_year: NOT_SPECIFIED,
       },
       settings: {
         learner_can_sign_up: false,

@@ -1,13 +1,15 @@
 <template>
 
-  <div>
+  <LearnAppBarPage
+    :appBarTitle="learnString('learnLabel')"
+  >
     <KBreadcrumbs :items="breadcrumbs" />
     <YourClasses
       v-if="isUserLoggedIn"
       :classes="classrooms"
     />
     <AuthMessage v-else authorizedRole="learner" />
-  </div>
+  </LearnAppBarPage>
 
 </template>
 
@@ -20,6 +22,8 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import YourClasses from '../YourClasses';
   import { PageNames } from '../../constants';
+  import commonLearnStrings from './../commonLearnStrings';
+  import LearnAppBarPage from './../LearnAppBarPage';
 
   export default {
     name: 'AllClassesPage',
@@ -32,8 +36,9 @@
       KBreadcrumbs,
       AuthMessage,
       YourClasses,
+      LearnAppBarPage,
     },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, commonLearnStrings],
     computed: {
       ...mapGetters(['isUserLoggedIn']),
       ...mapState('classes', ['classrooms']),

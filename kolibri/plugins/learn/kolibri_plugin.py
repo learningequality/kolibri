@@ -17,12 +17,19 @@ from kolibri.core.webpack import hooks as webpack_hooks
 from kolibri.plugins import KolibriPluginBase
 from kolibri.plugins.hooks import register_hook
 from kolibri.utils import conf
+from kolibri.utils import translation
+from kolibri.utils.translation import ugettext as _
 
 
 class Learn(KolibriPluginBase):
     untranslated_view_urls = "api_urls"
     translated_view_urls = "urls"
     kolibri_options = "options"
+    can_manage_while_running = True
+
+    def name(self, lang):
+        with translation.override(lang):
+            return _("Learn")
 
 
 @register_hook

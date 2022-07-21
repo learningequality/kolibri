@@ -36,7 +36,7 @@
   import { AllCategories } from 'kolibri.coreVue.vuex.constants';
   import useChannels from '../composables/useChannels';
   import useLanguages from '../composables/useLanguages';
-  import EmbeddedSidePanel from './EmbeddedSidePanel';
+  import SearchFiltersPanel from './SearchFiltersPanel';
 
   export default {
     name: 'SearchChips',
@@ -77,7 +77,7 @@
     created() {
       const LibraryPageComponent = require('./LibraryPage').default;
       this.translator = crossComponentTranslator(LibraryPageComponent);
-      this.allCategoriesTranslator = crossComponentTranslator(EmbeddedSidePanel);
+      this.allCategoriesTranslator = crossComponentTranslator(SearchFiltersPanel);
     },
     methods: {
       clearAllString() {

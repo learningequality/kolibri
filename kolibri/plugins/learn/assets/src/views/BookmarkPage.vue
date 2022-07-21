@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <LearnAppBarPage :appBarTitle="learnString('learnLabel')">
     <h1>
       {{ $tr('bookmarksHeader') }}
     </h1>
@@ -8,7 +8,7 @@
       {{ $tr('noBookmarks') }}
     </p>
 
-    <HybridLearningContentCardListView
+    <CardList
       v-for="content in bookmarks"
       v-else
       :key="content.id"
@@ -34,9 +34,10 @@
     />
 
     <!-- Side panel for showing the information of selected content with a link to view it -->
-    <FullScreenSidePanel
+    <SidePanelModal
       v-if="sidePanelContent"
       alignment="right"
+      closeButtonIconType="close"
       @closePanel="sidePanelContent = null"
       @shouldFocusFirstEl="findFirstEl()"
     >
@@ -65,8 +66,8 @@
         :content="sidePanelContent"
         :showLocationsInChannel="true"
       />
-    </FullScreenSidePanel>
-  </div>
+    </SidePanelModal>
+  </LearnAppBarPage>
 
 </template>
 
@@ -75,7 +76,7 @@
 
   import { mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import FullScreenSidePanel from 'kolibri.coreVue.components.FullScreenSidePanel';
+  import SidePanelModal from 'kolibri.coreVue.components.SidePanelModal';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { ContentNodeResource } from 'kolibri.resources';
   import client from 'kolibri.client';
@@ -83,8 +84,10 @@
   import genContentLink from '../utils/genContentLink';
   import { normalizeContentNode } from '../modules/coreLearn/utils.js';
   import useContentNodeProgress from '../composables/useContentNodeProgress';
+  import commonLearnStrings from './commonLearnStrings';
+  import LearnAppBarPage from './LearnAppBarPage';
   import LearningActivityChip from './LearningActivityChip';
-  import HybridLearningContentCardListView from './HybridLearningContentCardListView';
+  import CardList from './CardList';
 
   import BrowseResourceMetadata from './BrowseResourceMetadata';
 
@@ -97,11 +100,12 @@
     },
     components: {
       BrowseResourceMetadata,
-      FullScreenSidePanel,
+      SidePanelModal,
       LearningActivityChip,
-      HybridLearningContentCardListView,
+      CardList,
+      LearnAppBarPage,
     },
-    mixins: [commonCoreStrings, responsiveWindowMixin],
+    mixins: [commonCoreStrings, commonLearnStrings, responsiveWindowMixin],
     setup() {
       const { fetchContentNodeProgress } = useContentNodeProgress();
       return { fetchContentNodeProgress };

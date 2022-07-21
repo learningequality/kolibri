@@ -1,10 +1,10 @@
 <template>
 
-  <OnboardingForm
-    :header="$attrs.header || $tr('adminAccountCreationHeader')"
+  <OnboardingStepBase
+    dir="auto"
+    :title="$attrs.header || $tr('adminAccountCreationHeader')"
     :description="$attrs.description || $tr('adminAccountCreationDescription')"
-    :submitText="submitText"
-    @submit="handleSubmit"
+    @continue="handleContinue"
   >
     <slot name="aboveform"></slot>
 
@@ -54,7 +54,7 @@
         </p>
       </div>
     </slot>
-  </OnboardingForm>
+  </OnboardingStepBase>
 
 </template>
 
@@ -66,24 +66,20 @@
   import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
   import PrivacyLinkAndModal from 'kolibri.coreVue.components.PrivacyLinkAndModal';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import OnboardingForm from './OnboardingForm';
+  import OnboardingStepBase from '../OnboardingStepBase';
+  import { FacilityImportResource } from '../../api';
 
   export default {
     name: 'SuperuserCredentialsForm',
     components: {
-      OnboardingForm,
+      OnboardingStepBase,
       FullNameTextbox,
       UsernameTextbox,
       PasswordTextbox,
       PrivacyLinkAndModal,
     },
-    mixins: [commonCoreStrings],
+    inject: ['wizardService'],
     props: {
-      isFinalStep: {
-        type: Boolean,
-        default: false,
-      },
       uniqueUsernameValidator: {
         type: Function,
         default: null,
@@ -109,13 +105,31 @@
       formIsValid() {
         return every([this.usernameValid, this.fullNameValid, this.passwordValid]);
       },
-      submitText() {
-        return this.isFinalStep
-          ? this.coreString('finishAction')
-          : this.coreString('continueAction');
-      },
     },
     methods: {
+      handleContinue() {
+        const data = {
+          fullName: this.fullName,
+          username: this.username,
+          password: this.password,
+        };
+        if (this.formIsValid) {
+          return FacilityImportResource.createsuperuser(data)
+            .then(() => {
+              //this.updateSuperuserAndClickNext(data.username, data.password);
+            })
+            .catch(e => {
+              throw new Error(`Error creating superuser: ${e}`);
+            });
+        } else {
+          this.focusOnInvalidField();
+        }
+      },
+      // FIXME this breaks because the facility isn't created yet, this bit of the logic
+      // is TBD -- the old method kept as some functionality may be preserved
+      // Note that the process is currently gathering deferring the actual provisioning of
+      // everything to the end, hence why no facility here yet. Not sure how we'll proceed here yet
+      /*
       handleSubmit() {
         if (!this.$refs.fullNameTextbox) {
           return this.$emit('click_next');
@@ -139,6 +153,7 @@
           }
         });
       },
+      */
       focusOnInvalidField() {
         this.$nextTick().then(() => {
           if (!this.fullNameValid) {

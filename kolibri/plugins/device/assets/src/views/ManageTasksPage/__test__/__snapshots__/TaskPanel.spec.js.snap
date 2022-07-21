@@ -15,7 +15,9 @@ exports[`TaskPanel renders correctly when it is a canceled DISKCONTENTEXPORT tas
       Export resources from 'Canceled disk export channel test'
     </h2>
     <!---->
-    <!---->
+    <p class="details-size">
+      500 resources (5 KB)
+    </p>
     <p class="details-startedby" style="color: rgb(97, 97, 97);">
       Started by 'Tester'
     </p>
@@ -42,7 +44,9 @@ exports[`TaskPanel renders correctly when it is a canceled DISKEXPORT task (bulk
       Export 'Canceled disk export channel test'
     </h2>
     <!---->
-    <!---->
+    <p class="details-size">
+      500 resources (5 KB)
+    </p>
     <p class="details-startedby" style="color: rgb(97, 97, 97);">
       Started by 'Tester'
     </p>

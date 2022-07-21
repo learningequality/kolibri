@@ -1,40 +1,61 @@
 <template>
 
-  <YesNoForm
-    :noOptionLabel="$tr('noOptionLabel')"
-    :settingIsEnabled="settingIsEnabled"
+  <OnboardingStepBase
+    :title="$tr('header')"
     :description="$tr('description')"
-    :headerText="$tr('header')"
-    @submit="handleSubmit"
-  />
+    @continue="handleContinue"
+  >
+
+    <KRadioButton
+      ref="yesRadio"
+      v-model="setting"
+      :label="$tr('yesOptionLabel')"
+      :value="true"
+    />
+    <KRadioButton
+      ref="noRadio"
+      v-model="setting"
+      :label="$tr('noOptionLabel')"
+      :value="false"
+    />
+    <p class="form">
+      {{ $tr('changeLater') }}
+    </p>
+
+
+  </OnboardingStepBase>
 
 </template>
 
 
 <script>
 
-  import YesNoForm from './YesNoForm';
+  import OnboardingStepBase from '../OnboardingStepBase';
 
   export default {
     name: 'GuestAccessForm',
     components: {
-      YesNoForm,
+      OnboardingStepBase,
     },
     data() {
       return {
-        settingIsEnabled: this.$store.state.onboardingData.allow_guest_access,
+        setting: false,
       };
     },
+    inject: ['wizardService'],
     methods: {
-      handleSubmit(setting) {
-        this.$store.commit('SET_ALLOW_GUEST_ACCESS', setting);
-        this.$emit('click_next');
+      handleContinue() {
+        this.wizardService.send({ type: 'CONTINUE', value: this.setting });
       },
     },
     $trs: {
+      yesOptionLabel: {
+        message: 'Yes',
+        context: 'Option label.',
+      },
       description: {
         message:
-          'This allows anyone to view resources on Kolibri without needing to make an account',
+          'This option allows anyone to view educational materials on Kolibri without needing to make an account',
         context:
           "Description of the 'Enable guest access?' option that an admin can configure in the set up process. It means that anyone can access Kolibri without having to create an account.",
       },
@@ -47,10 +68,24 @@
         message: 'No. Users must have an account to view resources on Kolibri',
         context: "Possible answer to the 'Enable guest access?' question.",
       },
+      changeLater: {
+        message: 'You can change this in your learning facility settings later',
+        context: '',
+      },
     },
   };
 
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  .info-icon {
+    vertical-align: middle;
+  }
+
+  .form {
+    font-size: 0.875em;
+  }
+
+</style>

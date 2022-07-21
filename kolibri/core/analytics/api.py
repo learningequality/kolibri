@@ -19,7 +19,7 @@ class PingbackNotificationViewSet(viewsets.ReadOnlyModelViewSet):
             "-timestamp"
         )
         # filter out notifications already dismissed by the user
-        if user.is_authenticated():
+        if user.is_authenticated:
             notification_ids = PingbackNotificationDismissed.objects.filter(
                 user=user
             ).values_list("notification", flat=True)

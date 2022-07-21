@@ -5,6 +5,8 @@ from time import time
 
 import requests
 
+from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
+
 logger = logging.getLogger(__name__)
 
 url = "http://localhost:8082/api/device/deviceprovision/"
@@ -24,8 +26,8 @@ data = {
         "full_name": "Billy",
         "username": "Joel",
         "password": "123",
-        "gender": "NOT_SPECIFIED",
-        "birth_year": "NOT_SPECIFIED",
+        "gender": NOT_SPECIFIED,
+        "birth_year": NOT_SPECIFIED,
     },
 }
 

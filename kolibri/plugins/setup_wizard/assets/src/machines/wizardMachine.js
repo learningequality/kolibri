@@ -1,110 +1,266 @@
-import { createMachine, assign } from 'xstate';
+import { assign, createMachine, interpret } from 'xstate';
 
-const isQuick = context => {
-  return context.quick;
+const isIndividualSetup = context => {
+  return context.individualOrGroup === 'individual';
+};
+
+const isGroupSetup = context => {
+  return context.individualOrGroup === 'group';
+};
+
+const isAppContext = context => {
+  return context.appContext;
 };
 
 const isNewFacility = context => {
-  return context.setupType === 'new';
+  return context.facilityNewOrImport === 'NEW';
 };
 
-const isLODSetup = context => {
-  return context.setupType === 'lod';
+const isImportFacility = context => {
+  return context.facilityNewOrImport === 'IMPORT';
 };
 
-const setQuick = assign({
-  quick: (_, event) => event.value,
+const isLodSetup = context => {
+  return context.fullOrLOD === 'LOD';
+};
+
+const isFullSetup = context => {
+  return context.fullOrLOD === 'FULL';
+};
+
+const setIndividualOrGroup = assign({
+  individualOrGroup: (_, event) => event.value,
 });
 
-const setSetupType = assign({
-  setupType: (_, event) => event.value,
+const setDeviceName = assign({
+  deviceName: (_, event) => event.value,
+});
+
+const setFullOrLOD = assign({
+  fullOrLOD: (_, event) => event.value,
+});
+
+const setAppContext = assign({
+  isAppContext: (_, event) => event.value,
+});
+
+const setFacilityNewOrImport = assign({
+  facilityNewOrImport: (_, event) => event.value,
+});
+
+const setFormalOrInformal = assign({
+  formalOrNonformal: (_, event) => event.value,
+});
+
+const setGuestAccess = assign({
+  guestAccess: (_, event) => event.value,
+});
+
+const setCreateLearnerAccount = assign({
+  createLearnerAccount: (_, event) => event.value,
+});
+
+const setRequirePassword = assign({
+  requirePassword: (_, event) => event.value,
 });
 
 export const wizardMachine = createMachine({
   id: 'wizard',
-  initial: 'defaultLanguage',
+  initial: 'initializeContext',
   context: {
-    quick: true,
-    setupType: false,
+    individualOrGroup: null,
+    isAppContext: false, // Must be set in the component where the machine is used
+    facilityNewOrImport: null,
+    fullOrLOD: null,
+    deviceName: null,
+    formalOrNonformal: null,
+    guestAccess: null,
+    createLearnerAccount: null,
+    requirePassword: null,
   },
   states: {
-    defaultLanguage: {
-      meta: { route: 'DEFAULT_LANGUAGE', path: '/' },
+    // This state will be the start so the machine won't progress until the isAppContext is set
+    initializeContext: {
       on: {
-        CONTINUE: 'gettingStarted',
+        CONTINUE: { target: 'howAreYouUsingKolibri', actions: setAppContext },
       },
     },
-    gettingStarted: {
-      meta: { route: 'GETTING_STARTED', path: '/' },
+    // Initial step where user selects between "On my own" (individual) or "Group learning" (group)
+    howAreYouUsingKolibri: {
+      meta: { route: { name: 'HOW_ARE_YOU_USING_KOLIBRI', path: '/' } },
       on: {
-        CONTINUE: { target: 'quickOrAdvanced', actions: setQuick },
-        BACK: 'defaultLanguage',
+        CONTINUE: { target: 'individualOrGroupSetup', actions: setIndividualOrGroup },
       },
     },
-    quickOrAdvanced: {
+    // A passthrough step depending on the value of context.individualOrGroup
+    individualOrGroupSetup: {
       always: [
         {
-          cond: isQuick,
-          target: 'personalSetup',
+          cond: isIndividualSetup,
+          target: 'defaultLanguage',
         },
         {
+          cond: isGroupSetup,
           target: 'deviceName',
         },
       ],
     },
-    personalSetup: {
-      meta: { route: 'PERSONAL_SETUP' },
+
+    // The Individual path
+    defaultLanguage: {
+      meta: { route: { name: 'DEFAULT_LANGUAGE', path: 'default-language' } },
       on: {
-        BACK: 'gettingStarted',
+        CONTINUE: 'createAccountOrFinalizeSetup',
+        BACK: 'howAreYouUsingKolibri',
       },
     },
+    // A passthrough step depending on the value of context.isAppContext
+    createAccountOrFinalizeSetup: {
+      always: [
+        {
+          // FIXME: The app needs to create a user account from the OS user in this case - to be
+          // handled on the backend most likely, but just bear this in mind for now to be sure
+          cond: isAppContext,
+          target: 'finalizeSetup',
+        },
+        {
+          target: 'createIndividualAccount',
+        },
+      ],
+    },
+    createIndividualAccount: {
+      meta: { route: { name: 'CREATE_INDIVIDUAL_ACCOUNT', path: 'create-account' } },
+      on: {
+        CONTINUE: 'finalizeSetup',
+        BACK: 'defaultLanguage',
+      },
+    },
+
+    // The Group path
     deviceName: {
-      meta: { route: 'DEVICE_NAME', path: '/' },
+      meta: { route: { name: 'DEVICE_NAME', path: 'device-name' } },
       on: {
-        CONTINUE: 'publicSetup',
-        BACK: 'gettingStarted',
+        CONTINUE: { target: 'fullOrLearnOnlyDevice', actions: setDeviceName },
+        BACK: 'howAreYouUsingKolibri',
       },
     },
-    publicSetup: {
-      meta: { route: 'PUBLIC_SETUP_METHOD', path: '/' },
+    fullOrLearnOnlyDevice: {
+      meta: { route: { name: 'FULL_OR_LOD', path: 'full-or-lod' } },
       on: {
-        CONTINUE: { target: 'importOrNew', actions: setSetupType },
+        CONTINUE: { target: 'fullOrLodSetup', actions: setFullOrLOD },
         BACK: 'deviceName',
       },
     },
-    importOrNew: {
+
+    // A passthrough step depending on the value of context.fullOrLOD
+    // that either continues along with full device setup, or into the Lod setup
+    fullOrLodSetup: {
+      always: [
+        {
+          cond: isLodSetup,
+          target: 'importLodUsers',
+        },
+        {
+          cond: isFullSetup,
+          target: 'fullDeviceNewOrImportFacility',
+        },
+      ],
+    },
+
+    // Full Device Path
+    fullDeviceNewOrImportFacility: {
+      meta: { route: { name: 'FULL_NEW_OR_IMPORT_FACILITY' } },
+      on: {
+        // FIXME: The component for this step needs to send a value to the machine when making
+        // this transition that is 'new' or 'import'
+        CONTINUE: { target: 'facilitySetupType', actions: setFacilityNewOrImport },
+        BACK: 'fullOrLearnOnlyDevice',
+      },
+    },
+
+    // A passthrough step depending on whether the user is creating a new facility or importing
+    facilitySetupType: {
       always: [
         {
           cond: isNewFacility,
-          target: 'createFacility',
+          target: 'setFacilityPermissions',
         },
         {
-          cond: isLODSetup,
-          target: 'importLODUsers',
-        },
-        {
+          cond: isImportFacility,
           target: 'importFacility',
         },
       ],
     },
-    createFacility: {
-      meta: { route: 'CREATE_FACILITY/1' },
-      CONTINUE: 'quickOrAdvanced',
+
+    // Facility Creation Path
+    setFacilityPermissions: {
+      meta: { route: { name: 'FACILITY_PERMISSIONS' } },
       on: {
-        BACK: 'publicSetup',
+        CONTINUE: { target: 'guestAccess', actions: setFormalOrInformal },
+        BACK: 'fullDeviceNewOrImportFacility',
       },
     },
+    guestAccess: {
+      meta: { route: { name: 'GUEST_ACCESS' } },
+      on: {
+        CONTINUE: { target: 'createLearnerAccount', actions: setGuestAccess },
+        BACK: 'setFacilityPermissions',
+      },
+    },
+    createLearnerAccount: {
+      meta: { route: { name: 'CREATE_LEARNER_ACCOUNT' } },
+      on: {
+        CONTINUE: { target: 'requirePassword', action: setCreateLearnerAccount },
+        BACK: 'guestAccess',
+      },
+    },
+    requirePassword: {
+      meta: { route: { name: 'REQUIRE_PASSWORD' } },
+      on: {
+        CONTINUE: { target: 'personalDataConsent', action: setRequirePassword },
+        BACK: 'createLearnerAccount',
+      },
+    },
+    personalDataConsent: {
+      meta: { route: { name: 'PERSONAL_DATA_CONSENT' } },
+      on: {
+        CONTINUE: 'finalizeSetup',
+        BACK: 'requirePassword',
+      },
+    },
+
     importFacility: {
-      meta: { route: 'IMPORT_FACILITY' },
+      meta: { route: { name: 'IMPORT_FACILITY' } },
       on: {
-        BACK: 'publicSetup',
+        BACK: 'fullDeviceNewOrImportFacility',
       },
     },
-    importLODUsers: {
-      meta: { route: 'IMPORT_LOD' },
+
+    // Lod Path - the lodMachine is imported, interpreted and managed in the Lod Setup component
+    // This means that
+    importLodUsers: {
+      meta: { route: { name: 'IMPORT_LOD' } },
       on: {
-        BACK: 'publicSetup',
+        BACK: 'fullOrLearnOnlyDevice',
       },
+    },
+
+    // This is a dead-end where the router will send the user where they need to go
+    finalizeSetup: {
+      meta: { route: { name: 'FINALIZE_SETUP' } },
     },
   },
 });
+
+// Dump the machine to console in dev mode (for now anyway)
+if (process.env.NODE_ENV === 'development') {
+  console.log('=== wizardMachine ===');
+  console.log(
+    'Save the following function as an object, call it and pass an object with initial context ala',
+    ' { isAppContext: Boolean } - the rest of the context should be set through events.\n',
+    'Usage (assuming you saved to `temp1`):\n',
+    'let machine = temp1({ isAppContext: true });\n',
+    "machine.send({ type: 'CONTINUE', value: 'individual'});\n"
+  );
+  console.log((context = {}) => interpret(wizardMachine.withContext(context)).start());
+}

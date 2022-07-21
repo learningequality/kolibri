@@ -7,4 +7,6 @@ const Presets = Object.freeze({
   NONFORMAL: 'nonformal',
 });
 
-export { permissionPresets, Presets };
+const SoudQueue = 'soud_sync';
+
+export { permissionPresets, Presets, SoudQueue };

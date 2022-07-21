@@ -1,6 +1,8 @@
 import logger from 'kolibri.lib.logging';
 import coreStore from 'kolibri.coreVue.vuex.store';
 import { TaskResource } from 'kolibri.resources';
+import client from 'kolibri.client';
+import urls from 'kolibri.urls';
 import isEqual from 'lodash/isEqual';
 import pick from 'lodash/fp/pick';
 import { TaskStatuses, TaskTypes } from '../../../constants';
@@ -16,7 +18,7 @@ export function cancelTask(store, taskId) {
         TaskStatuses.CANCELED,
       () => {
         cancelWatch();
-        TaskResource.deleteFinishedTask(taskId).then(resolve);
+        TaskResource.clear(taskId).then(resolve);
       }
     );
     TaskResource.cancelTask(taskId);
@@ -36,7 +38,7 @@ function _taskListShouldUpdate(state, newTasks) {
 }
 
 export function refreshTaskList(store) {
-  return TaskResource.fetchCollection({ force: true })
+  return TaskResource.list({ queue: 'content' })
     .then(newTasks => {
       if (_taskListShouldUpdate(store.state, newTasks)) {
         updateTasks(store, newTasks);
@@ -48,7 +50,7 @@ export function refreshTaskList(store) {
 }
 
 export function refreshDriveList(store) {
-  return TaskResource.localDrives().then(({ data }) => {
+  return client({ url: urls['kolibri:core:driveinfo-list']() }).then(({ data }) => {
     store.commit('wizard/SET_DRIVE_LIST', data);
     return data;
   });

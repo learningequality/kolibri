@@ -44,13 +44,14 @@
 
 <script>
 
+  import { TaskResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
   import UserTable from '../../../../../facility/assets/src/views/UserTable.vue';
   import OnboardingForm from '../onboarding-forms/OnboardingForm';
-  import { SetupSoUDTasksResource } from '../../api';
-  import { TaskStatuses, TaskTypes } from '../../../../../device/assets/src/constants.js';
+  import { SoudQueue } from '../../constants';
+  import { TaskStatuses } from '../../../../../device/assets/src/constants.js';
 
   export default {
     name: 'MultipleUsers',
@@ -101,14 +102,14 @@
       confirmImport(learner) {
         const task_name = 'kolibri.plugins.setup_wizard.tasks.startprovisionsoud';
         const params = {
-          baseurl: this.device.baseurl,
+          type: task_name,
           username: this.facility.adminUser,
           password: this.facility.adminPassword,
           user_id: learner.id,
           facility_id: this.facility.id,
-          device_name: this.device.name,
+          device_id: this.device.id,
         };
-        SetupSoUDTasksResource.createTask(task_name, params)
+        TaskResource.startTask(params)
           .then(task => {
             task['device_id'] = this.device.id;
             task['facility_name'] = this.facility.name;
@@ -118,7 +119,7 @@
                 username: learner.username,
                 full_name: learner.full_name,
                 id: learner.id,
-                task: task,
+                type: task,
               },
             });
           })
@@ -132,8 +133,7 @@
       },
 
       pollAdminSyncTask() {
-        SetupSoUDTasksResource.fetchCollection({ force: true }).then(tasks => {
-          const soudTasks = tasks.filter(t => t.type === TaskTypes.SYNCLOD);
+        TaskResource.list({ queue: SoudQueue }).then(soudTasks => {
           if (soudTasks.length > 0) {
             this.loadingTask = {
               ...soudTasks[0],
@@ -149,11 +149,10 @@
                 .then(() => {
                   this.isPolling = false;
                   this.lodService.send('CONTINUE');
-                  SetupSoUDTasksResource.cleartasks();
+                  TaskResource.clearAll(SoudQueue);
                 });
             }
           }
-          if (tasks.length == 0) this.isPolling = false;
         });
         if (this.isPolling) {
           setTimeout(() => {

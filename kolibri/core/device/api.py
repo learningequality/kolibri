@@ -1,13 +1,17 @@
 from datetime import timedelta
 from sys import version_info
 
+import requests
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.db.models import Max
 from django.db.models import OuterRef
 from django.db.models.expressions import Subquery
 from django.db.models.query import Q
+from django.http import Http404
 from django.http.response import HttpResponseBadRequest
 from django.utils import timezone
+from django.utils.translation import get_language
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
 from django_filters.rest_framework import ModelChoiceFilter
@@ -18,7 +22,9 @@ from rest_framework import mixins
 from rest_framework import status
 from rest_framework import views
 from rest_framework import viewsets
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
+from six.moves.urllib.parse import urljoin
 
 import kolibri
 from .models import DevicePermissions
@@ -34,6 +40,10 @@ from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.auth.models import Collection
 from kolibri.core.content.permissions import CanManageContent
+from kolibri.core.content.utils.channels import get_mounted_drive_by_id
+from kolibri.core.content.utils.channels import get_mounted_drives_with_channel_info
+from kolibri.core.device.permissions import IsNotAnonymous
+from kolibri.core.device.permissions import IsSuperuser
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.discovery.models import DynamicNetworkLocation
 from kolibri.core.public.constants.user_sync_options import DELAYED_SYNC
@@ -42,9 +52,15 @@ from kolibri.core.public.constants.user_sync_statuses import QUEUED
 from kolibri.core.public.constants.user_sync_statuses import RECENTLY_SYNCED
 from kolibri.core.public.constants.user_sync_statuses import SYNCING
 from kolibri.core.public.constants.user_sync_statuses import UNABLE_TO_SYNC
+from kolibri.plugins.utils import initialize_kolibri_plugin
+from kolibri.plugins.utils import iterate_plugins
+from kolibri.plugins.utils import PluginDoesNotExist
 from kolibri.utils.conf import OPTIONS
+from kolibri.utils.server import get_status_from_pid_file
 from kolibri.utils.server import get_urls
 from kolibri.utils.server import installation_type
+from kolibri.utils.server import restart
+from kolibri.utils.server import STATUS_RUNNING
 from kolibri.utils.system import get_free_space
 from kolibri.utils.time_utils import local_now
 
@@ -280,3 +296,104 @@ class UserSyncStatusViewSet(ReadOnlyValuesViewset):
         )
 
         return queryset
+
+
+class PluginsViewSet(viewsets.ViewSet):
+    permission_classes = (IsSuperuser,)
+
+    def _get_plugin(self, plugin_name):
+        return initialize_kolibri_plugin(plugin_name)
+
+    def _plugin_name_from_pk(self, pk):
+        return pk.replace("*", ".")
+
+    def _serialize(self, plugin):
+        return {
+            "name": plugin.name(get_language()),
+            "id": plugin.module_path.replace(".", "*"),
+            "enabled": plugin.enabled,
+        }
+
+    def list(self, request):
+        plugins = []
+        for plugin in iterate_plugins():
+            if plugin.can_manage_while_running:
+                plugins.append(self._serialize(plugin))
+
+        return Response(plugins)
+
+    def _retrieve_plugin(self, pk):
+        if not pk:
+            raise Http404
+        try:
+            plugin = self._get_plugin(pk.replace("*", "."))
+            if not plugin.can_manage_while_running:
+                raise Http404
+            return plugin
+        except PluginDoesNotExist:
+            raise Http404
+
+    def retrieve(self, request, pk):
+        return Response(self._serialize(self._retrieve_plugin(pk)))
+
+    def partial_update(self, request, *args, **kwargs):
+        pk = kwargs.get("pk")
+        plugin = self._retrieve_plugin(pk)
+        enabled = request.data.get("enabled", None)
+        if enabled is not None:
+            if enabled and not plugin.enabled:
+                plugin.enable()
+            elif not enabled and plugin.enabled:
+                plugin.disable()
+        return Response(self._serialize(plugin))
+
+
+class DeviceRestartView(views.APIView):
+
+    permission_classes = (IsSuperuser,)
+
+    def get(self, request):
+        status = get_status_from_pid_file()
+        return Response(status)
+
+    def post(self, request):
+        status = get_status_from_pid_file()
+        if status == STATUS_RUNNING:
+            restarted = restart()
+        if restarted:
+            return Response(status)
+        return HttpResponseBadRequest(status)
+
+
+class DriveInfoViewSet(viewsets.ViewSet):
+    permission_classes = (CanManageContent,)
+
+    def list(self, request):
+        drives = get_mounted_drives_with_channel_info()
+        return Response([mountdata._asdict() for mountdata in drives])
+
+    def retrieve(self, request, pk):
+        return Response(get_mounted_drive_by_id(pk)._asdict())
+
+
+class RemoteFacilitiesViewset(views.APIView):
+    """
+    Api to retrieve facilities information from a remote device
+    :param str baseurl: url of the server, including port to connect
+    :return : json object containing the list of facilities of the device, with their id, name, learner_can_sign_up and learner_can_login_with_no_password info
+    """
+
+    permission_classes = (IsNotAnonymous,)
+
+    def get(self, request):
+        baseurl = request.query_params.get("baseurl", request.build_absolute_uri("/"))
+        path = reverse("kolibri:core:publicfacility-list").lstrip("/")
+        url = urljoin(baseurl, path)
+        try:
+            response = requests.get(url)
+            if response.status_code == 200:
+                return Response(response.json())
+            else:
+                return Response({})
+        except Exception as e:
+            raise ValidationError(detail=str(e))

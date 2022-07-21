@@ -4,7 +4,6 @@ import matches from 'lodash/matches';
 import isEqual from 'lodash/isEqual';
 import urls from 'kolibri.urls';
 import cloneDeep from './cloneDeep';
-import ConditionalPromise from './conditionalPromise';
 import plugin_data from 'plugin_data';
 
 export const logging = logger.getLogger(__filename);
@@ -64,7 +63,7 @@ export class Model {
    * returns, otherwise reject is called with the response object.
    */
   fetch(force = false) {
-    const promise = new ConditionalPromise((resolve, reject) => {
+    const promise = new Promise((resolve, reject) => {
       Promise.all(this.promises).then(
         () => {
           if (!force && this.synced) {
@@ -111,7 +110,7 @@ export class Model {
    * returns, otherwise reject is called with the response object.
    */
   save(attrs, exists = false) {
-    const promise = new ConditionalPromise((resolve, reject) => {
+    const promise = new Promise((resolve, reject) => {
       Promise.all(this.promises).then(
         () => {
           let payload = {};
@@ -188,7 +187,7 @@ export class Model {
    * returns, otherwise reject is called with the response object.
    */
   delete() {
-    const promise = new ConditionalPromise((resolve, reject) => {
+    const promise = new Promise((resolve, reject) => {
       Promise.all(this.promises).then(
         () => {
           if (!this.id) {
@@ -295,7 +294,7 @@ export class Collection {
    * successfully returns, otherwise reject is called with the response object.
    */
   fetch(force = false) {
-    const promise = new ConditionalPromise((resolve, reject) => {
+    const promise = new Promise((resolve, reject) => {
       Promise.all(this.promises).then(
         () => {
           if (!force && this.synced) {
@@ -364,7 +363,7 @@ export class Collection {
    * successfully returns, otherwise reject is called with the response object.
    */
   save(data = []) {
-    const promise = new ConditionalPromise((resolve, reject) => {
+    const promise = new Promise((resolve, reject) => {
       Promise.all(this.promises).then(
         () => {
           if (!data.length && !this.new) {
@@ -421,7 +420,7 @@ export class Collection {
    * returns, otherwise reject is called with the response object.
    */
   delete() {
-    const promise = new ConditionalPromise((resolve, reject) => {
+    const promise = new Promise((resolve, reject) => {
       Promise.all(this.promises).then(
         () => {
           if (!Object.keys(this.getParams).length) {
@@ -869,15 +868,14 @@ export class Resource {
 
   /**
    * This method is a convenience method for access to a resource endpoint unmediated by the
-   * model/collection framework that facilitates caching. This only currently supports list
-   * endpoints.
+   * model/collection framework that facilitates caching. This method is for list endpoints.
    * @param  {string} method   A valid HTTP method name, in all caps.
    * @param  {string} listName The name given to the list endpoint
    * @param  {Object} args     The getParams or data to be passed to the endpoint,
    * depending on method
    * @return {Promise}         Promise that resolves with the request
    */
-  accessEndpoint(method, listName, args = {}, multipart = false) {
+  accessListEndpoint(method, listName, args = {}, multipart = false) {
     if (!listName) {
       throw TypeError('A listName must be specified');
     }
@@ -897,23 +895,69 @@ export class Resource {
   }
 
   /**
+   * This method is a convenience method for access to a resource endpoint unmediated by the
+   * model/collection framework that facilitates caching. This method is for detail endpoints.
+   * @param  {string} method   A valid HTTP method name, in all caps.
+   * @param  {string} detailName The name given to the detail endpoint
+   * @param  {string} id       The primary key or id for the detail endpoint.
+   * @param  {Object} args     The getParams or data to be passed to the endpoint,
+   * depending on method
+   * @return {Promise}         Promise that resolves with the request
+   */
+  accessDetailEndpoint(method, detailName, id, args = {}, multipart = false) {
+    if (!detailName) {
+      throw TypeError('A detailName must be specified');
+    }
+    if (!id) {
+      throw TypeError('An id must be specificied');
+    }
+    let data, params;
+    if (method.toLowerCase() === 'get') {
+      params = args;
+    } else {
+      data = args;
+    }
+    return this.client({
+      url: this.getUrlFunction(detailName)(id),
+      method,
+      data,
+      params,
+      multipart,
+    });
+  }
+
+  get(id) {
+    return this.accessDetailEndpoint('get', 'detail', id).then(response => response.data);
+  }
+
+  list(params = {}) {
+    return this.accessListEndpoint('get', 'list', params).then(response => response.data);
+  }
+
+  create(params = {}, multipart = false) {
+    return this.accessListEndpoint('post', 'list', params, multipart).then(
+      response => response.data
+    );
+  }
+
+  /**
    * Call a GET on a custom list endpoint
    * @param  {string} listName The name given to the list endpoint
-   * @param  {Object} args     The getParams to be passed to the endpoint
+   * @param  {Object} params     The getParams to be passed to the endpoint
    * @return {Promise}         Promise that resolves with the request
    */
   getListEndpoint(listName, params = {}) {
-    return this.accessEndpoint('get', listName, params);
+    return this.accessListEndpoint('get', listName, params);
   }
 
   /**
    * Call a POST on a custom list endpoint
    * @param  {string} listName The name given to the list endpoint
-   * @param  {Object} args     The body of the request
+   * @param  {Object} params     The body of the request
    * @return {Promise}         Promise that resolves with the request
    */
   postListEndpoint(listName, params = {}) {
-    return this.accessEndpoint('post', listName, params);
+    return this.accessListEndpoint('post', listName, params);
   }
 
   /**
@@ -921,11 +965,22 @@ export class Resource {
    * 'multipart/form-data' as Mimetype instead of 'application/json'.
    *
    * @param  {string} listName The name given to the list endpoint
-   * @param  {Object} args     The body of the request
+   * @param  {Object} params     The body of the request
    * @return {Promise}         Promise that resolves with the request
    */
   postListEndpointMultipart(listName, params = {}) {
-    return this.accessEndpoint('post', listName, params, true);
+    return this.accessListEndpoint('post', listName, params, true);
+  }
+
+  /**
+   * Call a POST on a custom detail endpoint
+   * @param  {string} detailName The name given to the detail endpoint
+   * @param  {string} id         The id for the detail endpoint
+   * @param  {Object} params     The body of the request
+   * @return {Promise}         Promise that resolves with the request
+   */
+  postDetailEndpoint(detailName, id, params = {}) {
+    return this.accessDetailEndpoint('post', detailName, id, params);
   }
 
   /**

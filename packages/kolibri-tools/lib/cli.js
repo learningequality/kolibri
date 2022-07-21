@@ -57,6 +57,7 @@ program
   .option('-p, --port <port>', 'Set a port number to start devserver on', Number, 3000)
   .option('--host <host>', 'Set a host to serve devserver', String, '0.0.0.0')
   .option('--json', 'Output webpack stats in JSON format - only works in prod mode', false)
+  .option('--cache', 'Use cache in webpack', false)
   .action(function(mode, options) {
     const buildLogging = logger.getLogger('Kolibri Build');
     const modes = {
@@ -116,7 +117,12 @@ program
       [modes.STATS]: 'production',
     }[mode];
 
-    const buildOptions = { hot: options.hot, port: options.port, mode: webpackMode };
+    const buildOptions = {
+      hot: options.hot,
+      port: options.port,
+      mode: webpackMode,
+      cache: options.cache,
+    };
 
     const webpackConfig = require('./webpack.config.plugin');
 

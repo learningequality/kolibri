@@ -21,7 +21,6 @@ import scriptLoader from 'kolibri-design-system/lib/utils/scriptLoader';
 import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton'; // temp hack
 import * as vueCompositionApi from '@vue/composition-api';
 import logging from '../logging';
-import conditionalPromise from '../conditionalPromise';
 import * as apiResource from '../api-resource';
 import * as constants from '../constants';
 import * as getters from '../state/modules/core/getters';
@@ -34,12 +33,15 @@ import ContentIcon from '../views/ContentIcon';
 import ProgressIcon from '../views/ProgressIcon';
 import PermissionsIcon from '../views/PermissionsIcon';
 import CoreBase from '../views/CoreBase';
-import FullScreenSidePanel from '../views/FullScreenSidePanel';
+import AppBarCorePage from '../views/AppBarCorePage';
+import ScrollingHeader from '../views/CoreBase/ScrollingHeader';
+import SidePanelModal from '../views/SidePanelModal';
 import SideNav from '../views/SideNav';
 import Navbar from '../views/Navbar';
 import NavbarLink from '../views/Navbar/NavbarLink';
 import CoreLogo from '../views/CoreLogo';
 import LanguageSwitcherList from '../views/language-switcher/LanguageSwitcherList';
+import LanguageSwitcherModal from '../views/language-switcher/LanguageSwitcherModal';
 import ElapsedTime from '../views/ElapsedTime';
 import PointsIcon from '../views/PointsIcon';
 import AuthMessage from '../views/AuthMessage';
@@ -52,6 +54,7 @@ import commonSyncElements from '../mixins/commonSyncElements';
 import CoreFullscreen from '../views/CoreFullscreen';
 import * as exams from '../exams/utils';
 import * as validators from '../validators';
+import * as objectSpecs from '../objectSpecs';
 import * as serverClock from '../serverClock';
 import * as resources from '../api-resources';
 import * as i18n from '../utils/i18n';
@@ -62,6 +65,7 @@ import bytesForHumans from '../utils/bytesForHumans';
 import UserType from '../utils/UserType';
 import samePageCheckGenerator from '../utils/samePageCheckGenerator';
 import AppBar from '../views/AppBar';
+import ImmersiveToolbar from '../views/ImmersiveToolbar';
 import Backdrop from '../views/Backdrop';
 import CoreSnackbar from '../views/CoreSnackbar';
 import CoreMenu from '../views/CoreMenu';
@@ -130,7 +134,6 @@ export default {
     vue,
     vuex,
     vueCompositionApi,
-    conditionalPromise,
     apiResource,
   },
   coreVue: {
@@ -142,6 +145,7 @@ export default {
       mappers,
     },
     components: {
+      ScrollingHeader,
       Backdrop,
       CoachContentLabel,
       DownloadButton,
@@ -149,17 +153,20 @@ export default {
       ContentIcon,
       ProgressIcon,
       PermissionsIcon,
+      AppBarCorePage,
       CoreBase,
-      FullScreenSidePanel,
+      SidePanelModal,
       SideNav,
       Navbar,
       NavbarLink,
+      LanguageSwitcherModal,
       LanguageSwitcherList,
       ElapsedTime,
       PointsIcon,
       AuthMessage,
       FilterTextbox,
       AppBar,
+      ImmersiveToolbar,
       CoreSnackbar,
       CoreMenu,
       CoreMenuDivider,
@@ -241,5 +248,6 @@ export default {
     UserType,
     validators,
     coreStrings,
+    objectSpecs,
   },
 };

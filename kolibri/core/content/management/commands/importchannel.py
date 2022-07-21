@@ -6,13 +6,13 @@ from le_utils.constants import content_kinds
 
 from ...utils import channel_import
 from ...utils import paths
-from ...utils import transfer
 from ...utils.annotation import update_content_metadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.utils.importability_annotation import clear_channel_stats
 from kolibri.core.errors import KolibriUpgradeError
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.utils import conf
+from kolibri.utils import file_transfer as transfer
 
 logger = logging.getLogger(__name__)
 
@@ -21,10 +21,10 @@ DOWNLOAD_METHOD = "download"
 COPY_METHOD = "copy"
 
 
-def import_channel_by_id(channel_id, cancel_check):
+def import_channel_by_id(channel_id, cancel_check, contentfolder=None):
     try:
         return channel_import.import_channel_from_local_db(
-            channel_id, cancel_check=cancel_check
+            channel_id, cancel_check=cancel_check, contentfolder=contentfolder
         )
     except channel_import.InvalidSchemaVersionError:
         raise CommandError(
@@ -71,6 +71,12 @@ class Command(AsyncCommand):
             action="store_true",
             help="Only download database to an upgrade file path.",
         )
+        network_subparser.add_argument(
+            "--content_dir",
+            type=str,
+            default=paths.get_content_dir_path(),
+            help="Download the database to the given content dir.",
+        )
 
         local_subparser = subparsers.add_parser(
             name="disk", cmd=self, help="Copy the content from the given folder."
@@ -88,22 +94,52 @@ class Command(AsyncCommand):
             action="store_true",
             help="Only download database to an upgrade file path.",
         )
+        local_subparser.add_argument(
+            "--content_dir",
+            type=str,
+            default=paths.get_content_dir_path(),
+            help="Download the database to the given content dir.",
+        )
 
-    def download_channel(self, channel_id, baseurl, no_upgrade):
+    def download_channel(self, channel_id, baseurl, no_upgrade, content_dir):
         logger.info("Downloading data for channel id {}".format(channel_id))
-        self._transfer(DOWNLOAD_METHOD, channel_id, baseurl, no_upgrade=no_upgrade)
+        self._transfer(
+            DOWNLOAD_METHOD,
+            channel_id,
+            baseurl,
+            no_upgrade=no_upgrade,
+            content_dir=content_dir,
+        )
 
-    def copy_channel(self, channel_id, path, no_upgrade):
+    def copy_channel(self, channel_id, path, no_upgrade, content_dir):
         logger.info("Copying in data for channel id {}".format(channel_id))
-        self._transfer(COPY_METHOD, channel_id, path=path, no_upgrade=no_upgrade)
+        self._transfer(
+            COPY_METHOD,
+            channel_id,
+            path=path,
+            no_upgrade=no_upgrade,
+            content_dir=content_dir,
+        )
 
-    def _transfer(self, method, channel_id, baseurl=None, path=None, no_upgrade=False):
+    def _transfer(
+        self,
+        method,
+        channel_id,
+        baseurl=None,
+        path=None,
+        no_upgrade=False,
+        content_dir=None,
+    ):
 
-        new_channel_dest = paths.get_upgrade_content_database_file_path(channel_id)
+        new_channel_dest = paths.get_upgrade_content_database_file_path(
+            channel_id, contentfolder=content_dir
+        )
         dest = (
             new_channel_dest
             if no_upgrade
-            else paths.get_content_database_file_path(channel_id)
+            else paths.get_content_database_file_path(
+                channel_id, contentfolder=content_dir
+            )
         )
 
         # if new channel version db has previously been downloaded, just copy it over
@@ -131,7 +167,11 @@ class Command(AsyncCommand):
 
         try:
             self._start_file_transfer(
-                filetransfer, channel_id, dest, no_upgrade=no_upgrade
+                filetransfer,
+                channel_id,
+                dest,
+                no_upgrade=no_upgrade,
+                contentfolder=content_dir,
             )
         except transfer.TransferCanceled:
             pass
@@ -149,7 +189,9 @@ class Command(AsyncCommand):
         if os.path.exists(new_channel_dest) and not no_upgrade:
             os.remove(new_channel_dest)
 
-    def _start_file_transfer(self, filetransfer, channel_id, dest, no_upgrade=False):
+    def _start_file_transfer(
+        self, filetransfer, channel_id, dest, no_upgrade=False, contentfolder=None
+    ):
         progress_extra_data = {"channel_id": channel_id}
 
         with filetransfer, self.start_progress(
@@ -168,7 +210,9 @@ class Command(AsyncCommand):
                         .exclude(kind=content_kinds.TOPIC)
                         .values_list("id", flat=True)
                     )
-                    import_ran = import_channel_by_id(channel_id, self.is_cancelled)
+                    import_ran = import_channel_by_id(
+                        channel_id, self.is_cancelled, contentfolder
+                    )
                     if node_ids and import_ran:
                         # annotate default channel db based on previously annotated leaf nodes
                         update_content_metadata(channel_id, node_ids=node_ids)
@@ -182,11 +226,17 @@ class Command(AsyncCommand):
     def handle_async(self, *args, **options):
         if options["command"] == "network":
             self.download_channel(
-                options["channel_id"], options["baseurl"], options["no_upgrade"]
+                options["channel_id"],
+                options["baseurl"],
+                options["no_upgrade"],
+                options["content_dir"],
             )
         elif options["command"] == "disk":
             self.copy_channel(
-                options["channel_id"], options["directory"], options["no_upgrade"]
+                options["channel_id"],
+                options["directory"],
+                options["no_upgrade"],
+                options["content_dir"],
             )
         else:
             self._parser.print_help()

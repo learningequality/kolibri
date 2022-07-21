@@ -1,19 +1,17 @@
 <template>
 
-  <div>
-    <OnboardingForm
-      :header="$tr('header')"
-      :description="$tr('description')"
-      :submitText="coreString('finishAction')"
-      @submit="handleSubmit"
-    >
-      <KButton
-        ref="modalButton"
-        :text="coreString('usageAndPrivacyLabel')"
-        appearance="basic-link"
-        @click="showModal = true"
-      />
-    </OnboardingForm>
+  <OnboardingStepBase
+    :title="$tr('header')"
+    :description="$tr('description')"
+    @continue="handleContinue"
+  >
+    <KButton
+      ref="modalButton"
+      data-test="modal-open-button"
+      :text="coreString('usageAndPrivacyLabel')"
+      appearance="basic-link"
+      @click="showModal = true"
+    />
 
     <PrivacyInfoModal
       v-if="showModal"
@@ -21,7 +19,7 @@
       @cancel="closeModal"
       @submit="closeModal"
     />
-  </div>
+  </OnboardingStepBase>
 
 </template>
 
@@ -30,13 +28,13 @@
 
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import OnboardingForm from './OnboardingForm';
+  import OnboardingStepBase from '../OnboardingStepBase';
 
   export default {
     name: 'PersonalDataConsentForm',
     components: {
       PrivacyInfoModal,
-      OnboardingForm,
+      OnboardingStepBase,
     },
     mixins: [commonCoreStrings],
     data() {
@@ -47,7 +45,11 @@
     mounted() {
       this.focusOnModalButton();
     },
+    inject: ['wizardService'],
     methods: {
+      handleContinue() {
+        this.wizardService.send({ type: 'CONTINUE', value: this.setting });
+      },
       closeModal() {
         this.focusOnModalButton();
         this.showModal = false;
@@ -64,9 +66,6 @@
             }, 200);
           }
         });
-      },
-      handleSubmit() {
-        this.$emit('click_next');
       },
     },
     $trs: {
@@ -86,4 +85,15 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  .title {
+    font-size: 1.5em;
+  }
+
+  .description {
+    padding-bottom: 8px;
+    font-size: 0.875em;
+  }
+
+</style>

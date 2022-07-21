@@ -109,38 +109,9 @@ class IsOwn(BasePermissions):
         return self._user_can_write_object(user, obj)
 
     def readable_by_user_filter(self, user):
-        if user.is_anonymous():
+        if user.is_anonymous:
             return q_none
         return Q(**{self.field_name: user.id})
-
-
-class IsFromSameFacility(BasePermissions):
-    """
-    Permissions class that only allows access to object if user is associated with the same facility as the object.
-    """
-
-    def __init__(self, field_name=".", read_only=False):
-        self.read_only = read_only
-
-    def _facility_dataset_is_same(self, user, obj):
-        return hasattr(user, "dataset") and user.dataset == obj.dataset
-
-    def user_can_create_object(self, user, obj):
-        return (not self.read_only) and self._facility_dataset_is_same(user, obj)
-
-    def user_can_read_object(self, user, obj):
-        return self._facility_dataset_is_same(user, obj)
-
-    def user_can_update_object(self, user, obj):
-        return (not self.read_only) and self._facility_dataset_is_same(user, obj)
-
-    def user_can_delete_object(self, user, obj):
-        return (not self.read_only) and self._facility_dataset_is_same(user, obj)
-
-    def readable_by_user_filter(self, user):
-        if hasattr(user, "dataset"):
-            return Q(dataset=user.dataset)
-        return q_none
 
 
 def _user_is_admin_for_own_facility(user, obj=None):

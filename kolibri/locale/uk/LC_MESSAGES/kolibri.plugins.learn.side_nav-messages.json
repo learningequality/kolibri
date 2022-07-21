@@ -1,0 +1,17 @@
+{
+  "CommonLearnStrings.dontShowThisAgainLabel": "Більше не показувати",
+  "CommonLearnStrings.exploreResources": "Перегляд матеріалів",
+  "CommonLearnStrings.learnLabel": "Навчання",
+  "CommonLearnStrings.libraryLabel": "Бібліотека",
+  "CommonLearnStrings.logo": "З каналу {channelTitle}",
+  "CommonLearnStrings.markResourceAsCompleteLabel": "Позначити матеріал як засвоєний",
+  "CommonLearnStrings.mostPopularLabel": "Найпопулярніше",
+  "CommonLearnStrings.multipleLearningActivities": "Серії навчальних вправ",
+  "CommonLearnStrings.multipleLearningActivitiesLabel": "",
+  "CommonLearnStrings.nextStepsLabel": "Наступні кроки",
+  "CommonLearnStrings.popularLabel": "Популярне",
+  "CommonLearnStrings.resourceCompletedLabel": "Матеріал засвоєно",
+  "CommonLearnStrings.resourceHidden": "Матеріал приховано",
+  "CommonLearnStrings.resumeLabel": "Відновити",
+  "CommonLearnStrings.suggestedTimeToComplete": "Пропонований час для завершення"
+}

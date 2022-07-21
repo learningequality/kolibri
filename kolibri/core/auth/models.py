@@ -55,20 +55,19 @@ from .errors import UserDoesNotHaveRoleError
 from .errors import UserIsNotFacilityUser
 from .errors import UserIsNotMemberError
 from .permissions.auth import AllCanReadFacilityDataset
-from .permissions.auth import AnonUserCanReadFacilities
+from .permissions.auth import AnyUserCanReadFacilities
 from .permissions.auth import CoachesCanManageGroupsForTheirClasses
 from .permissions.auth import CoachesCanManageMembershipsForTheirGroups
 from .permissions.auth import CollectionSpecificRoleBasedPermissions
 from .permissions.auth import FacilityAdminCanEditForOwnFacilityDataset
-from .permissions.auth import MembersCanReadMembershipsOfTheirCollections
 from .permissions.base import BasePermissions
 from .permissions.base import RoleBasedPermissions
 from .permissions.general import IsAdminForOwnFacility
-from .permissions.general import IsFromSameFacility
 from .permissions.general import IsOwn
 from .permissions.general import IsSelf
 from kolibri.core.auth.constants.demographics import choices as GENDER_CHOICES
 from kolibri.core.auth.constants.demographics import DEFERRED
+from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
 from kolibri.core.device.utils import DeviceNotProvisioned
 from kolibri.core.device.utils import get_device_setting
@@ -262,7 +261,8 @@ class AbstractFacilityDataModel(FacilityDataSyncableModel):
 
     def clean_fields(self, *args, **kwargs):
         # ensure that we have, or can infer, a dataset for the model instance
-        self.ensure_dataset(validating=True)
+        if not self.dataset_id:
+            self.ensure_dataset(validating=True)
         super(AbstractFacilityDataModel, self).clean_fields(*args, **kwargs)
 
     def full_clean(self, *args, **kwargs):
@@ -637,7 +637,7 @@ class FacilityUserModelManager(SyncableModelManager, UserManager):
 def validate_birth_year(value):
     error = ""
 
-    if value == "NOT_SPECIFIED" or value == "DEFERRED":
+    if value == NOT_SPECIFIED or value == DEFERRED:
         return
 
     try:
@@ -726,7 +726,7 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
         # be defensive against blank passwords, set to `NOT_SPECIFIED` if blank
         password = dict_model.get("password", "") or ""
         if len(password) == 0:
-            dict_model.update(password="NOT_SPECIFIED")
+            dict_model.update(password=NOT_SPECIFIED)
 
         return super(FacilityUser, cls).deserialize(dict_model)
 
@@ -931,9 +931,8 @@ class Collection(AbstractFacilityDataModel):
     # Furthermore, no FacilityUser can create or delete a Facility. Permission to create a collection is governed
     # by roles in relation to the new collection's parent collection (see CollectionSpecificRoleBasedPermissions).
     permissions = (
-        IsFromSameFacility(read_only=True)
-        | CollectionSpecificRoleBasedPermissions()
-        | AnonUserCanReadFacilities()
+        CollectionSpecificRoleBasedPermissions()
+        | AnyUserCanReadFacilities()
         | CoachesCanManageGroupsForTheirClasses()
     )
 
@@ -1129,9 +1128,7 @@ class Membership(AbstractFacilityDataModel):
     )
     # Membership can be written by coaches under the coaches' group
     membership = CoachesCanManageMembershipsForTheirGroups()
-    # Members can read memberships of collections they are members of
-    own_collections = MembersCanReadMembershipsOfTheirCollections()
-    permissions = own | role | membership | own_collections
+    permissions = own | role | membership
 
     user = models.ForeignKey(
         "FacilityUser", related_name="memberships", blank=False, null=False

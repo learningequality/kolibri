@@ -1,78 +1,88 @@
 <template>
 
-  <KPageContainer>
-    <KGrid>
-      <KGridItem
-        :layout8="{ span: 4 }"
-        :layout12="{ span: 6 }"
-      >
-        <h1>{{ coreString('usersLabel') }}</h1>
-      </KGridItem>
-      <KGridItem
-        :layout="{ alignment: 'right' }"
-        :layout8="{ span: 4 }"
-        :layout12="{ span: 6 }"
-      >
-        <KRouterLink
-          :text="$tr('newUserButtonLabel')"
-          :primary="true"
-          appearance="raised-button"
-          class="move-down"
-          :to="$store.getters.facilityPageLinks.UserCreatePage"
-        />
-      </KGridItem>
-    </KGrid>
-
-    <PaginatedListContainer
-      :items="usersFilteredByRow"
-      :filterPlaceholder="$tr('searchText')"
-    >
-      <template #otherFilter>
-        <KSelect
-          v-model="roleFilter"
-          :label="coreString('userTypeLabel')"
-          :options="userKinds"
-          :inline="true"
-          class="type-filter"
-        />
-      </template>
-
-      <template #default="{ items, filterInput }">
-        <UserTable
-          class="move-down user-roster"
-          :users="items"
-          :emptyMessage="emptyMessageForItems(items, filterInput)"
-          :showDemographicInfo="true"
+  <FacilityAppBarPage>
+    <KPageContainer>
+      <KGrid>
+        <KGridItem
+          :layout8="{ span: 4 }"
+          :layout12="{ span: 6 }"
         >
-          <template #action="userRow">
-            <KDropdownMenu
-              :text="$tr('optionsButtonLabel')"
-              :options="manageUserOptions(userRow.user.id)"
-              :disabled="!userCanBeEdited(userRow.user)"
-              appearance="flat-button"
-              @select="handleManageUserSelection($event, userRow.user)"
-            />
-          </template>
-        </UserTable>
-      </template>
-    </PaginatedListContainer>
+          <h1>{{ coreString('usersLabel') }}</h1>
+        </KGridItem>
+        <KGridItem
+          :layout="{ alignment: 'right' }"
+          :layout8="{ span: 4 }"
+          :layout12="{ span: 6 }"
+        >
+          <KRouterLink
+            :text="$tr('newUserButtonLabel')"
+            :primary="true"
+            appearance="raised-button"
+            class="move-down"
+            :to="$store.getters.facilityPageLinks.UserCreatePage"
+          />
+        </KGridItem>
+      </KGrid>
 
-    <!-- Modals -->
+      <PaginatedListContainerWithBackend
+        v-model="currentPage"
+        :items="facilityUsers"
+        :itemsPerPage="itemsPerPage"
+        :totalPageNumber="totalPages"
+        :roleFilter="roleFilter"
+        :numFilteredItems="usersCount"
+      >
+        <template #otherFilter>
+          <KSelect
+            v-model="roleFilter"
+            :label="coreString('userTypeLabel')"
+            :options="userKinds"
+            :inline="true"
+            class="type-filter"
+          />
+        </template>
 
-    <ResetUserPasswordModal
-      v-if="modalShown === Modals.RESET_USER_PASSWORD"
-      :id="selectedUser.id"
-      :username="selectedUser.username"
-      @cancel="closeModal"
-    />
+        <template #filter>
+          <FilterTextbox v-model="search" :placeholder="$tr('searchText')" />
+        </template>
 
-    <DeleteUserModal
-      v-if="modalShown === Modals.DELETE_USER"
-      :id="selectedUser.id"
-      :username="selectedUser.username"
-      @cancel="closeModal"
-    />
-  </KPageContainer>
+        <template>
+          <UserTable
+            class="move-down user-roster"
+            :users="facilityUsers"
+            :emptyMessage="emptyMessageForItems(facilityUsers, search)"
+            :showDemographicInfo="true"
+          >
+            <template #action="userRow">
+              <KDropdownMenu
+                :text="$tr('optionsButtonLabel')"
+                :options="manageUserOptions(userRow.user.id)"
+                :disabled="!userCanBeEdited(userRow.user)"
+                appearance="flat-button"
+                @select="handleManageUserSelection($event, userRow.user)"
+              />
+            </template>
+          </UserTable>
+        </template>
+      </PaginatedListContainerWithBackend>
+
+      <!-- Modals -->
+
+      <ResetUserPasswordModal
+        v-if="modalShown === Modals.RESET_USER_PASSWORD"
+        :id="selectedUser.id"
+        :username="selectedUser.username"
+        @cancel="closeModal"
+      />
+
+      <DeleteUserModal
+        v-if="modalShown === Modals.DELETE_USER"
+        :id="selectedUser.id"
+        :username="selectedUser.username"
+        @cancel="closeModal"
+      />
+    </KPageContainer>
+  </FacilityAppBarPage>
 
 </template>
 
@@ -80,12 +90,16 @@
 <script>
 
   import { mapState, mapGetters } from 'vuex';
+  import debounce from 'lodash/debounce';
+  import pickBy from 'lodash/pickBy';
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
   import cloneDeep from 'lodash/cloneDeep';
-  import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
+  import PaginatedListContainerWithBackend from '../PaginatedListContainerWithBackend';
   import UserTable from '../UserTable';
   import { Modals } from '../../constants';
+  import FacilityAppBarPage from '../FacilityAppBarPage';
   import ResetUserPasswordModal from './ResetUserPasswordModal';
   import DeleteUserModal from './DeleteUserModal';
 
@@ -99,22 +113,23 @@
       };
     },
     components: {
+      FacilityAppBarPage,
+      FilterTextbox,
       ResetUserPasswordModal,
       DeleteUserModal,
       UserTable,
-      PaginatedListContainer,
+      PaginatedListContainerWithBackend,
     },
     mixins: [commonCoreStrings],
     data() {
       return {
-        roleFilter: null,
         selectedUser: null,
         modalShown: null,
       };
     },
     computed: {
       ...mapGetters(['currentUserId', 'isSuperuser']),
-      ...mapState('userManagement', ['facilityUsers']),
+      ...mapState('userManagement', ['facilityUsers', 'totalPages', 'usersCount']),
       Modals: () => Modals,
       userKinds() {
         return [
@@ -125,12 +140,67 @@
           { label: this.$tr('superAdmins'), value: UserKinds.SUPERUSER },
         ];
       },
-      usersFilteredByRow() {
-        return this.facilityUsers.filter(user => this.userMatchesRole(user, this.roleFilter));
+      roleFilter: {
+        get() {
+          return (
+            this.userKinds.find(k => k.value === this.$route.query.user_type) || this.userKinds[0]
+          );
+        },
+        set(value) {
+          value = value.value;
+          if (value === ALL_FILTER) {
+            value = null;
+          }
+          this.$router.push({
+            ...this.$route,
+            query: pickBy({
+              ...this.$route.query,
+              user_type: value,
+              page: null,
+            }),
+          });
+        },
+      },
+      search: {
+        get() {
+          return this.$route.query.search || '';
+        },
+        set(value) {
+          this.debouncedSearchTerm(value);
+        },
+      },
+      currentPage: {
+        get() {
+          return Number(this.$route.query.page || 1);
+        },
+        set(value) {
+          this.$router.push({
+            ...this.$route,
+            query: pickBy({
+              ...this.$route.query,
+              page: value,
+            }),
+          });
+        },
+      },
+      itemsPerPage: {
+        get() {
+          return this.$route.query.page_size || 30;
+        },
+        set(value) {
+          this.$router.push({
+            ...this.$route,
+            query: pickBy({
+              ...this.$route.query,
+              page_size: value,
+              page: null,
+            }),
+          });
+        },
       },
     },
-    beforeMount() {
-      this.roleFilter = this.userKinds[0];
+    created() {
+      this.debouncedSearchTerm = debounce(this.emitSearchTerm, 500);
     },
     methods: {
       emptyMessageForItems(items, filterText) {
@@ -157,22 +227,6 @@
       closeModal() {
         this.modalShown = '';
       },
-      userMatchesRole(user, roleFilter) {
-        const { value: filterKind } = roleFilter;
-        if (filterKind === ALL_FILTER) {
-          return true;
-        }
-        if (user.kind === UserKinds.ASSIGNABLE_COACH) {
-          return filterKind === UserKinds.COACH;
-        }
-        if (filterKind === UserKinds.ADMIN) {
-          return user.kind === UserKinds.ADMIN || user.kind === UserKinds.SUPERUSER;
-        }
-        if (filterKind === UserKinds.SUPERUSER) {
-          return user.kind === UserKinds.SUPERUSER;
-        }
-        return filterKind === user.kind;
-      },
       manageUserOptions(userId) {
         return [
           { label: this.coreString('editDetailsAction'), value: Modals.EDIT_USER },
@@ -198,6 +252,19 @@
         // If logged-in user is a superuser, then they can edit anybody (including other SUs).
         // Otherwise, only non-SUs can be edited.
         return this.isSuperuser || !user.is_superuser;
+      },
+      emitSearchTerm(value) {
+        if (value === '') {
+          value = null;
+        }
+        this.$router.push({
+          ...this.$route,
+          query: pickBy({
+            ...this.$route.query,
+            search: value,
+            page: null,
+          }),
+        });
       },
     },
     $trs: {

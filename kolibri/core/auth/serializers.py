@@ -26,6 +26,12 @@ class RoleSerializer(serializers.ModelSerializer):
 
 class FacilityUserSerializer(serializers.ModelSerializer):
     roles = RoleSerializer(many=True, read_only=True)
+    facility = serializers.PrimaryKeyRelatedField(
+        queryset=Facility.objects.all(),
+        default=Facility.get_default_facility,
+        required=False,
+        error_messages={"does_not_exist": "Facility does not exist."},
+    )
 
     class Meta:
         model = FacilityUser
@@ -44,10 +50,28 @@ class FacilityUserSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ("is_superuser",)
 
+    def save(self, **kwargs):
+        instance = super(FacilityUserSerializer, self).save(**kwargs)
+        validated_data = dict(list(self.validated_data.items()) + list(kwargs.items()))
+        password = validated_data.get("password")
+        if password and password != "NOT_SPECIFIED":
+            instance.set_password(password)
+            instance.save()
+        return instance
+
     def validate(self, attrs):
         username = attrs.get("username")
         # first condition is for creating object, second is for updating
         facility = attrs.get("facility") or getattr(self.instance, "facility")
+        if (
+            "password" in attrs
+            and attrs["password"] == "NOT_SPECIFIED"
+            and not facility.dataset.learner_can_login_with_no_password
+        ):
+            raise serializers.ValidationError(
+                "No password specified and it is required",
+                code=error_constants.PASSWORD_NOT_SPECIFIED,
+            )
         # if obj doesn't exist, return data
         try:
             obj = FacilityUser.objects.get(username__iexact=username, facility=facility)
@@ -109,25 +133,22 @@ class FacilitySerializer(serializers.ModelSerializer):
 
 class PublicFacilitySerializer(serializers.ModelSerializer):
     learner_can_login_with_no_password = serializers.SerializerMethodField()
+    learner_can_sign_up = serializers.SerializerMethodField()
 
     def get_learner_can_login_with_no_password(self, instance):
         return instance.dataset.learner_can_login_with_no_password
 
+    def get_learner_can_sign_up(self, instance):
+        return instance.dataset.learner_can_sign_up
+
     class Meta:
         model = Facility
-        fields = ("id", "dataset", "name", "learner_can_login_with_no_password")
-
-
-class PublicFacilityUserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = FacilityUser
         fields = (
             "id",
-            "username",
-            "full_name",
-            "facility",
-            "roles",
-            "is_superuser",
+            "dataset",
+            "name",
+            "learner_can_login_with_no_password",
+            "learner_can_sign_up",
         )
 
 

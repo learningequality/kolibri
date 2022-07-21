@@ -43,6 +43,12 @@ users = [
         "gender": DEFERRED,
         "password": "password",
     },
+    {
+        "username": "=2+5+cmd|' /C calc'!A0",
+        "birth_year": "2000",
+        "gender": DEFERRED,
+        "password": "password",
+    },
 ]
 
 
@@ -73,6 +79,8 @@ class UserCSVExportTestCase(TestCase):
                 self.assertEqual(row[labels["facility__id"]], facility.id)
                 self.assertEqual(row[labels["memberships__collection__name"]], "")
                 self.assertEqual(row[labels["memberships__collection__id"]], "")
+            elif "2+5+cmd" in row[labels["username"]]:
+                self.assertEqual(row[labels["username"]], "'=2+5+cmd\\|' /C calc'!A0")
 
         self.assertEqual(len(results), expected_count)
         for demo_field in DEMO_FIELDS:

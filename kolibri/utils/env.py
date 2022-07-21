@@ -2,7 +2,6 @@ import logging
 import os
 import platform
 import sys
-from warnings import warn
 
 try:
     # Do this to allow this to be accessed
@@ -11,27 +10,29 @@ try:
     # TODO: Move version tools to build tools, so we don't have to do this
     from colorlog import ColoredFormatter
     from colorlog import getLogger
-    from colorlog import StreamHandler
 except ImportError:
-    StreamHandler = None
     getLogger = None
     ColoredFormatter = None
 
 from .logger import LOG_COLORS
+from .logger import EncodingStreamHandler as StreamHandler
+from kolibri.utils.compat import monkey_patch_collections
 
 
 logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
 logging.StreamHandler(sys.stdout)
 
 if StreamHandler and getLogger and ColoredFormatter:
-    handler = StreamHandler()
+    handler = StreamHandler(stream=sys.stdout)
     handler.setFormatter(
         ColoredFormatter(
             fmt="%(log_color)s%(levelname)-8s %(message)s", log_colors=LOG_COLORS
         )
     )
+    handler.setLevel(logging.INFO)
     logger = getLogger("env")
     logger.addHandler(handler)
+    logger.propagate = False
 else:
     logger = logging.getLogger("env")
 
@@ -97,16 +98,7 @@ def prepend_cext_path(dist_path):
         # add it + the matching noarch (OpenSSL) modules to sys.path
         sys.path = [str(dirname), str(noarch_dir)] + sys.path
     else:
-        logger.info("No C extensions are available for this platform")
-
-
-def check_python_versions():
-    if sys.version_info.major == 3 and (
-        sys.version_info.minor == 4 or sys.version_info.minor == 5
-    ):
-        warning_text = "Python 3.4 and 3.5 support will be dropped in Kolibri 0.16, please upgrade your Python version"
-        logger.warn(warning_text)
-        warn(warning_text, DeprecationWarning)
+        logger.debug("No C extensions are available for this platform")
 
 
 def set_env():
@@ -120,7 +112,7 @@ def set_env():
     """
     from kolibri import dist as kolibri_dist  # noqa
 
-    check_python_versions()
+    monkey_patch_collections()
 
     sys.path = [os.path.realpath(os.path.dirname(kolibri_dist.__file__))] + sys.path
 

@@ -54,3 +54,5 @@ REST_FRAMEWORK = {
     ),
     "EXCEPTION_HANDLER": "kolibri.core.utils.exception_handler.custom_exception_handler",
 }
+
+SWAGGER_SETTINGS = {"DEFAULT_INFO": "kolibri.deployment.default.dev_urls.api_info"}

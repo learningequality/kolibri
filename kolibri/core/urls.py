@@ -36,6 +36,7 @@ from __future__ import unicode_literals
 
 from django.conf.urls import include
 from django.conf.urls import url
+from rest_framework import routers
 
 from .views import GuestRedirectView
 from .views import logout_view
@@ -43,10 +44,15 @@ from .views import RootURLRedirectView
 from .views import set_language
 from .views import StatusCheckView
 from .views import UnsupportedBrowserView
+from kolibri.core.device.api import PluginsViewSet
 from kolibri.core.device.translation import i18n_patterns
 from kolibri.plugins.utils.urls import get_urls as plugin_urls
 
 app_name = "kolibri"
+
+router = routers.SimpleRouter()
+
+router.register(r"plugins", PluginsViewSet, basename="plugins")
 
 # Patterns that we want to prefix because they need access to the current language
 lang_prefixed_patterns = [
@@ -56,16 +62,20 @@ lang_prefixed_patterns = [
     url(r"^guestaccess/$", GuestRedirectView.as_view(), name="guest"),
     url(r"^unsupported/$", UnsupportedBrowserView.as_view(), name="unsupported"),
     url(r"^$", RootURLRedirectView.as_view(), name="root_redirect"),
+    url(r"^", include(router.urls)),
 ]
 
-core_urlpatterns = [
-    url(r"^api/", include("kolibri.core.api_urls")),
-    url(r"", include(i18n_patterns(lang_prefixed_patterns))),
-    url(r"", include("kolibri.core.content.urls")),
-    url(r"^status/", StatusCheckView.as_view(), name="status_check"),
-]
+core_urlpatterns = (
+    [
+        url(r"^api/", include("kolibri.core.api_urls")),
+        url(r"", include(i18n_patterns(lang_prefixed_patterns))),
+        url(r"", include("kolibri.core.content.urls")),
+        url(r"^status/", StatusCheckView.as_view(), name="status_check"),
+    ],
+    "core",
+)
 
 
-urlpatterns = [url(r"", include(core_urlpatterns, namespace="core"))]
+urlpatterns = [url(r"", include(core_urlpatterns))]
 
 urlpatterns += plugin_urls()

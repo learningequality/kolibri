@@ -15,7 +15,6 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied
-from django.db import transaction
 from django.db.models import Func
 from django.db.models import OuterRef
 from django.db.models import Q
@@ -24,11 +23,12 @@ from django.db.models import TextField
 from django.db.models import Value
 from django.db.models.functions import Cast
 from django.http import Http404
-from django.http import HttpResponseForbidden
 from django.utils.decorators import method_decorator
 from django.utils.timezone import now
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django_filters.rest_framework import CharFilter
+from django_filters.rest_framework import ChoiceFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
 from django_filters.rest_framework import ModelChoiceFilter
@@ -40,9 +40,9 @@ from rest_framework import permissions
 from rest_framework import status
 from rest_framework import views
 from rest_framework import viewsets
+from rest_framework.mixins import CreateModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.serializers import ValidationError
 
 from .constants import collection_kinds
 from .constants import role_kinds
@@ -61,11 +61,11 @@ from .serializers import FacilityUserSerializer
 from .serializers import LearnerGroupSerializer
 from .serializers import MembershipSerializer
 from .serializers import PublicFacilitySerializer
-from .serializers import PublicFacilityUserSerializer
 from .serializers import RoleSerializer
 from kolibri.core import error_constants
 from kolibri.core.api import ReadOnlyValuesViewset
 from kolibri.core.api import ValuesViewset
+from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 from kolibri.core.auth.permissions.general import _user_is_admin_for_own_facility
 from kolibri.core.device.utils import allow_guest_access
 from kolibri.core.device.utils import allow_other_browsers_to_connect
@@ -75,7 +75,19 @@ from kolibri.core.mixins import BulkCreateMixin
 from kolibri.core.mixins import BulkDeleteMixin
 from kolibri.core.query import annotate_array_aggregate
 from kolibri.core.query import SQCount
+from kolibri.core.utils.pagination import ValuesViewsetPageNumberPagination
 from kolibri.plugins.app.utils import interface
+
+
+class OptionalPageNumberPagination(ValuesViewsetPageNumberPagination):
+    """
+    Pagination class that allows for page number-style pagination, when requested.
+    To activate, the `page_size` argument must be set. For example, to request the first 20 records:
+    `?page_size=20&page=1`
+    """
+
+    page_size = None
+    page_size_query_param = "page_size"
 
 
 class KolibriAuthPermissionsFilter(filters.BaseFilterBackend):
@@ -86,13 +98,8 @@ class KolibriAuthPermissionsFilter(filters.BaseFilterBackend):
     """
 
     def filter_queryset(self, request, queryset, view):
-        # if the url name ends with "-list" or the endpoint is explicitly declared a list endpoint
-        # with .detail=False
-        is_list = request.resolver_match.url_name.endswith("-list") or not getattr(
-            request.resolver_match.func, "detail", True
-        )
-        if request.method == "GET" and is_list:
-            # only filter down the queryset in the case of the list view being requested
+        if request.method == "GET":
+            # If a 'GET' method only return readable items to filter down the queryset.
             return request.user.filter_readable(queryset)
         # otherwise, return the full queryset, as permission checks will happen object-by-object
         # (and filtering here then leads to 404's instead of the more correct 403's)
@@ -189,21 +196,61 @@ class FacilityDatasetViewSet(ValuesViewset):
 
 class FacilityUserFilter(FilterSet):
 
+    USER_TYPE_CHOICES = (
+        ("learner", "learner"),
+        ("superuser", "superuser"),
+    ) + role_kinds.choices
+
     member_of = ModelChoiceFilter(
         method="filter_member_of", queryset=Collection.objects.all()
+    )
+    user_type = ChoiceFilter(
+        choices=USER_TYPE_CHOICES,
+        method="filter_user_type",
+    )
+    exclude_member_of = ModelChoiceFilter(
+        method="filter_exclude_member_of", queryset=Collection.objects.all()
+    )
+    exclude_coach_for = ModelChoiceFilter(
+        method="filter_exclude_coach_for", queryset=Collection.objects.all()
+    )
+    exclude_user_type = ChoiceFilter(
+        choices=USER_TYPE_CHOICES,
+        method="filter_exclude_user_type",
     )
 
     def filter_member_of(self, queryset, name, value):
         return queryset.filter(Q(memberships__collection=value) | Q(facility=value))
 
+    def filter_user_type(self, queryset, name, value):
+        if value == "learner":
+            return queryset.filter(roles__isnull=True)
+        if value == "superuser":
+            return queryset.filter(devicepermissions__is_superuser=True)
+        return queryset.filter(roles__kind=value)
+
+    def filter_exclude_member_of(self, queryset, name, value):
+        return queryset.exclude(Q(memberships__collection=value) | Q(facility=value))
+
+    def filter_exclude_coach_for(self, queryset, name, value):
+        return queryset.exclude(
+            Q(roles__in=Role.objects.filter(kind=role_kinds.COACH, collection=value))
+        )
+
+    def filter_exclude_user_type(self, queryset, name, value):
+        if value == "learner":
+            return queryset.exclude(roles__isnull=True)
+        if value == "superuser":
+            return queryset.exclude(devicepermissions__is_superuser=True)
+        return queryset.exclude(roles__kind=value)
+
     class Meta:
         model = FacilityUser
-        fields = ["member_of"]
+        fields = ["member_of", "user_type", "exclude_member_of", "exclude_user_type"]
 
 
 class PublicFacilityUserViewSet(ReadOnlyValuesViewset):
     queryset = FacilityUser.objects.all()
-    serializer_class = PublicFacilityUserSerializer
     authentication_classes = [BasicMultiArgumentAuthentication]
     permission_classes = [IsAuthenticated]
     values = (
@@ -249,10 +296,18 @@ class PublicFacilityUserViewSet(ReadOnlyValuesViewset):
 
 class FacilityUserViewSet(ValuesViewset):
     permission_classes = (KolibriAuthPermissions,)
-    filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
+    pagination_class = OptionalPageNumberPagination
+    filter_backends = (
+        KolibriAuthPermissionsFilter,
+        DjangoFilterBackend,
+        filters.SearchFilter,
+    )
+    order_by_field = "username"
+
     queryset = FacilityUser.objects.all()
     serializer_class = FacilityUserSerializer
     filter_class = FacilityUserFilter
+    search_fields = ("username", "full_name")
 
     values = (
         "id",
@@ -289,26 +344,14 @@ class FacilityUserViewSet(ValuesViewset):
                     roles.append(role)
             item["roles"] = roles
             output.append(item)
+        output = sorted(output, key=lambda x: x[self.order_by_field])
         return output
-
-    def set_password_if_needed(self, instance, serializer):
-        with transaction.atomic():
-            if serializer.validated_data.get("password", ""):
-                if serializer.validated_data.get("password", "") != "NOT_SPECIFIED":
-                    instance.set_password(serializer.validated_data["password"])
-                instance.save()
-        return instance
 
     def perform_update(self, serializer):
         instance = serializer.save()
-        self.set_password_if_needed(instance, serializer)
         # if the user is updating their own password, ensure they don't get logged out
         if self.request.user == instance:
             update_session_auth_hash(self.request, instance)
-
-    def perform_create(self, serializer):
-        instance = serializer.save()
-        self.set_password_if_needed(instance, serializer)
 
 
 class ExistingUsernameView(views.APIView):
@@ -479,7 +522,7 @@ class ClassroomFilter(FilterSet):
         if requesting_user.is_superuser:
             return queryset
 
-        if requesting_user.is_anonymous():
+        if requesting_user.is_anonymous:
             return queryset.none()
 
         # filter queryset by admin role and coach role
@@ -590,64 +633,64 @@ class LearnerGroupViewSet(ValuesViewset):
         return annotate_array_aggregate(queryset, user_ids="membership__user__id")
 
 
-class SignUpViewSet(viewsets.ViewSet):
+class SignUpViewSet(viewsets.GenericViewSet, CreateModelMixin):
 
     serializer_class = FacilityUserSerializer
 
-    def extract_request_data(self, request):
-        return {
-            "username": request.data.get("username", ""),
-            "full_name": request.data.get("full_name", ""),
-            "password": request.data.get("password", ""),
-            "facility": request.data.get("facility"),
-            "gender": request.data.get("gender", ""),
-            "birth_year": request.data.get("birth_year", ""),
-        }
+    def check_can_signup(self, serializer):
+        if not serializer.validated_data["facility"].dataset.learner_can_sign_up:
+            raise PermissionDenied("Cannot sign up to this facility")
 
-    def create(self, request):
+    def perform_create(self, serializer):
+        self.check_can_signup(serializer)
+        serializer.save()
+        data = serializer.validated_data
+        authenticated_user = authenticate(
+            username=data["username"],
+            password=data["password"],
+            facility=data["facility"],
+        )
+        login(self.request, authenticated_user)
 
-        data = self.extract_request_data(request)
-        facility_id = data["facility"]
 
-        if facility_id is None:
-            facility = Facility.get_default_facility()
-            data["facility"] = facility.id
-        else:
+@method_decorator(csrf_exempt, name="dispatch")
+class PublicSignUpViewSet(SignUpViewSet):
+    """
+    Identical to the SignUpViewset except that it does not login the user.
+    This endpoint is intended to allow a FacilityUser in a different facility
+    on another device to be cloned into a facility on this device, to facilitate
+    moving a user from one facility to another.
+
+    It also allows for historic serializer classes in the case that we
+    make an update to our implementation, and we want to keep the API stable.
+    """
+
+    legacy_serializer_classes = []
+
+    def create(self, request, *args, **kwargs):
+        exception = None
+        serializer_kwargs = dict(data=request.data)
+        serializer_kwargs.setdefault("context", self.get_serializer_context())
+        for serializer_class in [
+            self.serializer_class
+        ] + self.legacy_serializer_classes:
+            serializer = serializer_class(**serializer_kwargs)
             try:
-                facility = Facility.objects.select_related("dataset").get(
-                    id=facility_id
-                )
-            except Facility.DoesNotExist:
-                raise ValidationError(
-                    "Facility does not exist.",
-                    code=error_constants.FACILITY_DOES_NOT_EXIST,
-                )
+                serializer.is_valid(raise_exception=True)
+                break
+            except Exception as e:
+                exception = e
+        if exception:
+            raise exception
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(
+            serializer.data, status=status.HTTP_201_CREATED, headers=headers
+        )
 
-        if not facility.dataset.learner_can_sign_up:
-            return HttpResponseForbidden("Cannot sign up to this facility")
-
-        # we validate the user's input, and if valid, login as user
-        serialized_user = self.serializer_class(data=data)
-        if serialized_user.is_valid(raise_exception=True):
-            if (
-                data["password"] == "NOT_SPECIFIED"
-                and not facility.dataset.learner_can_login_with_no_password
-            ):
-                raise ValidationError(
-                    "No password specified and it is required",
-                    code=error_constants.PASSWORD_NOT_SPECIFIED,
-                )
-            serialized_user.save()
-            if data["password"] != "NOT_SPECIFIED":
-                serialized_user.instance.set_password(data["password"])
-                serialized_user.instance.save()
-            authenticated_user = authenticate(
-                username=data["username"],
-                password=data["password"],
-                facility=data["facility"],
-            )
-            login(request, authenticated_user)
-            return Response(serialized_user.data, status=status.HTTP_201_CREATED)
+    def perform_create(self, serializer):
+        self.check_can_signup(serializer)
+        serializer.save()
 
 
 class SetNonSpecifiedPasswordView(views.APIView):
@@ -669,7 +712,7 @@ class SetNonSpecifiedPasswordView(views.APIView):
         except ObjectDoesNotExist:
             raise Http404(error_message)
 
-        if user.password != "NOT_SPECIFIED":
+        if user.password != NOT_SPECIFIED:
             raise Http404(error_message)
 
         user.set_password(password)
@@ -712,7 +755,7 @@ class SessionViewSet(viewsets.ViewSet):
             return self.get_session_response(request)
         if (
             unauthenticated_user is not None
-            and unauthenticated_user.password == "NOT_SPECIFIED"
+            and unauthenticated_user.password == NOT_SPECIFIED
         ):
             # Here - we have a Learner whose password is "NOT_SPECIFIED" because they were created
             # while the "Require learners to log in with password" setting was disabled - but now

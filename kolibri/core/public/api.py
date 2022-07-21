@@ -9,10 +9,13 @@ from django.http import HttpResponse
 from django.http import HttpResponseBadRequest
 from django.http import HttpResponseNotFound
 from django.utils import timezone
+from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.gzip import gzip_page
+from django_filters.rest_framework import DjangoFilterBackend
 from morango.constants import transfer_statuses
 from morango.models.core import TransferSession
+from rest_framework import filters
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.decorators import api_view
@@ -21,9 +24,15 @@ from rest_framework.response import Response
 from .. import error_constants
 from .constants.user_sync_statuses import QUEUED
 from .constants.user_sync_statuses import SYNC
-from .utils import get_device_info
-from .utils import get_device_setting
+from kolibri.core.api import BaseValuesViewset
+from kolibri.core.api import ReadOnlyValuesViewset
+from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.content.api import BaseChannelMetadataMixin
+from kolibri.core.content.api import BaseContentNodeMixin
+from kolibri.core.content.api import BaseContentNodeTreeViewset
+from kolibri.core.content.api import metadata_cache
+from kolibri.core.content.api import OptionalContentNodePagination
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import LocalFile
@@ -32,6 +41,8 @@ from kolibri.core.content.utils.file_availability import generate_checksum_integ
 from kolibri.core.device.models import SyncQueue
 from kolibri.core.device.models import UserSyncStatus
 from kolibri.core.device.utils import allow_peer_unlisted_channel_import
+from kolibri.core.device.utils import get_device_info
+from kolibri.core.device.utils import get_device_setting
 from kolibri.core.public.constants.user_sync_options import DELAYED_SYNC
 from kolibri.core.public.constants.user_sync_options import HANDSHAKING_TIME
 from kolibri.core.public.constants.user_sync_options import MAX_CONCURRENT_SYNCS
@@ -95,6 +106,26 @@ def _get_channel_list_v1(params, identifier=None):
         channels = channels.exclude(public=False)
 
     return channels.filter(root__available=True).distinct()
+
+
+@method_decorator(metadata_cache, name="dispatch")
+class PublicChannelMetadataViewSet(BaseChannelMetadataMixin, ReadOnlyValuesViewset):
+    def get_queryset(self):
+        return (
+            ChannelMetadata.objects.all()
+            if allow_peer_unlisted_channel_import()
+            else ChannelMetadata.objects.filter(public=True)
+        )
+
+
+@method_decorator(metadata_cache, name="dispatch")
+class PublicContentNodeViewSet(BaseContentNodeMixin, ReadOnlyValuesViewset):
+    pagination_class = OptionalContentNodePagination
+
+
+@method_decorator(metadata_cache, name="dispatch")
+class PublicContentNodeTreeViewSet(BaseContentNodeTreeViewset):
+    pass
 
 
 @api_view(["GET"])
@@ -297,3 +328,44 @@ class SyncQueueViewSet(viewsets.ViewSet):
 
     def update(self, request, pk=None):
         return self.check_queue(request, pk=pk)
+
+
+class FacilitySearchUsernameViewSet(BaseValuesViewset):
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
+    filter_fields = ("facility",)
+    search_fields = ("^username",)
+
+    values = ("id", "username")
+
+    def list(self, request, *args, **kwargs):
+        facility_id = request.query_params.get("facility", None)
+        if facility_id is None:
+            content = "Missing parameter: facility is required"
+            return Response(content, status=status.HTTP_412_PRECONDITION_FAILED)
+        try:
+            facility = Facility.objects.get(id=facility_id)
+        except (AttributeError, Facility.DoesNotExist):
+            content = "The facility does not exist in this device"
+            return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+        if facility.dataset.learner_can_login_with_no_password:
+            queryset = self.filter_queryset(self.get_queryset())
+            return Response(self.serialize(queryset))
+        else:
+            username = request.query_params.get("search", None)
+            queryset = self.get_queryset().filter(
+                facility=facility_id, username=username
+            )
+            response = (
+                [
+                    {"username": username, "id": None},
+                ]
+                if queryset
+                else []
+            )
+            return Response(response)
+
+    def get_queryset(self):
+        return FacilityUser.objects.filter(roles=None).filter(
+            Q(devicepermissions__is_superuser=False) | Q(devicepermissions__isnull=True)
+        )

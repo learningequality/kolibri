@@ -456,9 +456,7 @@ class ChannelUpdateTestBase(TestCase):
     def set_content_fixture(cls):
         _, cls.content_db_path = tempfile.mkstemp(suffix=".sqlite3")
 
-        cls.content_engine = create_engine(
-            "sqlite:///" + cls.content_db_path, convert_unicode=True
-        )
+        cls.content_engine = create_engine("sqlite:///" + cls.content_db_path)
 
         metadata = load_metadata(CURRENT_SCHEMA_VERSION)
 

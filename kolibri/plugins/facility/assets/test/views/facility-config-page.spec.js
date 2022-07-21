@@ -9,7 +9,7 @@ function makeWrapper(propsData = {}) {
       learner_can_edit_username: false,
     },
   });
-  return mount(ConfigPage, { propsData, store });
+  return mount(ConfigPage, { propsData, store, stubs: ['FacilityAppBarPage'] });
 }
 
 function getElements(wrapper) {

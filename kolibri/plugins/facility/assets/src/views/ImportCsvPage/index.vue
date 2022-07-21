@@ -1,25 +1,31 @@
 <template>
 
-  <KPageContainer>
+  <ImmersivePageRoot
+    :route="this.$store.getters.facilityPageLinks.DataPage"
+    :appBarTitle="$tr('toolbarHeader')"
+  >
 
-    <h1>{{ $tr('pageHeader') }}</h1>
+    <KPageContainer>
 
-    <Init
-      v-if="status === CSVImportStatuses.NOT_STARTED"
-      @cancel="done"
-      @next="preview"
-    />
-    <Preview
-      v-else-if="showPreviewState"
-      @done="done"
-    />
-    <template v-else-if="showLoaderState">
-      <div class="loader-wrapper">
-        <KCircularLoader class="loader" /> {{ $tr('loading') }}
-      </div>
-    </template>
+      <h1>{{ $tr('pageHeader') }}</h1>
 
-  </KPageContainer>
+      <Init
+        v-if="status === CSVImportStatuses.NOT_STARTED"
+        @cancel="done"
+        @next="preview"
+      />
+      <Preview
+        v-else-if="showPreviewState"
+        @done="done"
+      />
+      <template v-else-if="showLoaderState">
+        <div class="loader-wrapper">
+          <KCircularLoader class="loader" /> {{ $tr('loading') }}
+        </div>
+      </template>
+
+    </KPageContainer>
+  </ImmersivePageRoot>
 
 </template>
 
@@ -28,6 +34,7 @@
 
   import { mapState, mapActions } from 'vuex';
   import { CSVImportStatuses } from '../../constants';
+  import ImmersivePageRoot from '../ImmersivePageRoot';
   import Init from './Init';
   import Preview from './Preview';
 
@@ -39,6 +46,7 @@
       };
     },
     components: {
+      ImmersivePageRoot,
       Init,
       Preview,
     },
@@ -89,6 +97,10 @@
       },
     },
     $trs: {
+      toolbarHeader: {
+        message: 'Import users from spreadsheet',
+        context: "Heading for 'Import users' page.",
+      },
       pageHeader: {
         message: 'Import users',
         context: "Title of the 'Import users' page where spreadsheets can be imported.",

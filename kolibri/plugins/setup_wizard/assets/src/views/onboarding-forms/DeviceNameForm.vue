@@ -1,9 +1,9 @@
 <template>
 
-  <OnboardingForm
-    :header="coreString('deviceNameLabel')"
-    :description="$tr('deviceNameExplanation')"
-    @submit="handleSubmit"
+  <OnboardingStepBase
+    :title="$tr('deviceNameTitle')"
+    :description="$tr('deviceNameDescription')"
+    @continue="handleContinue"
   >
     <KTextbox
       ref="textbox"
@@ -15,7 +15,7 @@
       :invalidText="invalidText"
       @blur="shouldValidate = true"
     />
-  </OnboardingForm>
+  </OnboardingStepBase>
 
 </template>
 
@@ -23,12 +23,12 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import OnboardingForm from './OnboardingForm';
+  import OnboardingStepBase from '../OnboardingStepBase';
 
   export default {
     name: 'DeviceNameForm',
     components: {
-      OnboardingForm,
+      OnboardingStepBase,
     },
     mixins: [commonCoreStrings],
     data() {
@@ -50,27 +50,30 @@
       },
     },
     methods: {
-      handleSubmit() {
+      handleContinue() {
         this.shouldValidate = true;
         if (this.invalidText) {
           this.$refs.textbox.focus();
         } else {
           this.$store.commit('SET_DEVICE_NAME', this.value);
-          this.wizardService.send('CONTINUE');
+          this.goToNextStep();
         }
+      },
+      goToNextStep() {
+        this.wizardService.send({ type: 'CONTINUE', value: this.value });
       },
     },
     $trs: {
-      deviceNameExplanation: {
+      deviceNameTitle: {
+        message: 'Device name',
+        context: '',
+      },
+      deviceNameDescription: {
         message:
-          'Giving this device a meaningful name can help you and others you connect with to recognize it',
-
-        context: 'Device naming description which is displayed when a user creates a new device.',
+          'Give this device a meaningful name that can help you and others you connect with to recognize it',
+        context: '',
       },
     },
   };
 
 </script>
-
-
-<style lang="scss" scoped></style>

@@ -38,7 +38,9 @@ class ContentNode(object):
     A mixin for previously deleted field of the File Model
     """
 
-    license = models.ForeignKey("License", null=True, blank=True)
+    license = models.ForeignKey(
+        "License", null=True, blank=True, on_delete=models.CASCADE
+    )
     stemmed_metaphone = models.CharField(
         max_length=1800, blank=True
     )  # for fuzzy search in title and description

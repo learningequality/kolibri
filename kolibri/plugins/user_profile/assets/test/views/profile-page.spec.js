@@ -3,8 +3,13 @@ import { mount, RouterLinkStub, createLocalVue } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import ProfilePage from '../../src/views/ProfilePage';
 import makeStore from '../makeStore';
+import useIndividualDevice, {
+  // eslint-disable-next-line import/named
+  useIndividualDeviceMock,
+} from '../../src/composables/useIndividualDevice';
 
 jest.mock('kolibri.resources');
+jest.mock('../../src/composables/useIndividualDevice');
 
 FacilityUserResource.fetchModel = jest.fn().mockResolvedValue({});
 
@@ -31,6 +36,10 @@ function makeWrapper() {
 }
 
 describe('profilePage component', () => {
+  beforeAll(() => {
+    useIndividualDevice.mockImplementation(() => useIndividualDeviceMock({ isIndividual: true }));
+  });
+
   it('smoke test', () => {
     const wrapper = makeWrapper();
     expect(wrapper.exists()).toEqual(true);

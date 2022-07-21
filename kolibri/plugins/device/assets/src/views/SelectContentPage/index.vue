@@ -8,10 +8,7 @@
 
     <template v-else>
       <TaskProgress
-        :show="!onDeviceInfoIsReady"
-        type="DOWNLOADING_CHANNEL_CONTENTS"
-        :showButtons="false"
-        status="RUNNING"
+        v-if="!onDeviceInfoIsReady"
       />
 
       <template v-if="onDeviceInfoIsReady">
@@ -48,7 +45,7 @@
           {{ $tr('problemTransferringContents') }}
         </UiAlert>
         <UiAlert
-          v-show="transferFileSize > availableSpace"
+          v-show="isFileSpaceEnough"
           :dismissible="false"
           type="error"
         >
@@ -67,7 +64,7 @@
       objectType="resource"
       actionType="import"
       :resourceCounts="{ count: transferResourceCount, fileSize: transferFileSize }"
-      :disabled="disableBottomBar || newVersionAvailable || transferFileSize > availableSpace"
+      :disabled="disableBottomBar || newVersionAvailable || isFileSpaceEnough"
       @clickconfirm="handleClickConfirm"
     />
   </div>
@@ -85,6 +82,7 @@
   import { TaskResource } from 'kolibri.resources';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import TaskProgress from '../ManageContentPage/TaskProgress';
+  import useContentTasks from '../../composables/useContentTasks';
   import { ContentWizardErrors, TaskTypes, PageNames } from '../../constants';
   import SelectionBottomBar from '../ManageContentPage/SelectionBottomBar';
   import taskNotificationMixin from '../taskNotificationMixin';
@@ -96,6 +94,7 @@
   import ContentTreeViewer from './ContentTreeViewer';
   import ContentWizardUiAlert from './ContentWizardUiAlert';
   import { startImportTask } from './api';
+  import plugin_data from 'plugin_data';
 
   export default {
     name: 'SelectContentPage',
@@ -114,6 +113,9 @@
       UiAlert,
     },
     mixins: [responsiveWindowMixin, taskNotificationMixin],
+    setup() {
+      useContentTasks();
+    },
     data() {
       return {
         contentTransferError: false,
@@ -176,6 +178,11 @@
       newVersionAvailable() {
         return this.availableVersions.source > this.availableVersions.installed;
       },
+      isFileSpaceEnough() {
+        if (plugin_data.isRemoteContent) {
+          return false;
+        } else return this.transferFileSize > this.availableSpace;
+      },
     },
     watch: {
       // A REMOTE/DISKCHANNELIMPORT Task should be created inside the showAvailableChannels via
@@ -186,7 +193,7 @@
           if (val) {
             this.metadataDownloadTaskId = val.id;
             if (val.clearable) {
-              TaskResource.deleteFinishedTask(val.id);
+              TaskResource.clear(val.id);
             }
           } else {
             this.metadataDownloadTaskId = '';
@@ -278,6 +285,7 @@
         this.startImportTask({
           importSource,
           channelId: this.channelId,
+          channelName: this.transferredChannel.name,
           included: nodesForTransfer.included.map(x => x.id),
           excluded: nodesForTransfer.omitted.map(x => x.id),
           fileSize: this.transferFileSize,

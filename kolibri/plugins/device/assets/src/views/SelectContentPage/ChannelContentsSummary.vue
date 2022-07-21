@@ -68,7 +68,7 @@
         <td>{{ $tr('resourceCount', { count: channel.new_resource_count || 0 }) }}</td>
         <td>{{ bytesForHumans(channel.new_resource_total_size || 0) }}</td>
       </tr>
-      <tr>
+      <tr v-if="!remoteContentEnabled && freeSpace !== null">
         <th>{{ deviceInfo.$tr('freeDisk') }}</th>
         <td></td>
         <td>{{ bytesForHumans(freeSpace || 0) }}</td>
@@ -87,6 +87,7 @@
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
   import DeviceInfoPage from '../DeviceInfoPage.vue';
+  import plugin_data from 'plugin_data';
 
   export default {
     name: 'ChannelContentsSummary',
@@ -107,7 +108,7 @@
       },
       freeSpace: {
         type: Number,
-        required: true,
+        default: null,
       },
     },
     computed: {
@@ -116,6 +117,9 @@
           return this.channel.version;
         }
         return this.channelOnDevice.version;
+      },
+      remoteContentEnabled() {
+        return plugin_data.isRemoteContent;
       },
     },
     created() {

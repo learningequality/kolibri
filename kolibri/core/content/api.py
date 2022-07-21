@@ -14,7 +14,6 @@ from django.db.models import Subquery
 from django.db.models import Sum
 from django.db.models.aggregates import Count
 from django.http import Http404
-from django.http.request import HttpRequest
 from django.utils.cache import patch_response_headers
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext as _
@@ -29,13 +28,14 @@ from django_filters.rest_framework import NumberFilter
 from django_filters.rest_framework import UUIDFilter
 from le_utils.constants import content_kinds
 from le_utils.constants import languages
+from requests.exceptions import RequestException
 from rest_framework import mixins
 from rest_framework import status
 from rest_framework import viewsets
-from rest_framework.decorators import detail_route
-from rest_framework.decorators import list_route
+from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
+from six.moves.urllib.parse import urljoin
 
 from kolibri.core.api import BaseValuesViewset
 from kolibri.core.api import ListModelMixin
@@ -67,6 +67,7 @@ from kolibri.core.content.utils.search import get_available_metadata_labels
 from kolibri.core.content.utils.stopwords import stopwords_set
 from kolibri.core.decorators import query_params_required
 from kolibri.core.device.models import ContentCacheKey
+from kolibri.core.discovery.utils.network.errors import ResourceGoneError
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
@@ -74,12 +75,17 @@ from kolibri.core.query import SQSum
 from kolibri.core.utils.pagination import ValuesViewsetCursorPagination
 from kolibri.core.utils.pagination import ValuesViewsetLimitOffsetPagination
 from kolibri.core.utils.pagination import ValuesViewsetPageNumberPagination
+from kolibri.utils.conf import OPTIONS
 
 
 logger = logging.getLogger(__name__)
 
 
-def cache_forever(some_func):
+def get_cache_key(*args, **kwargs):
+    return str(ContentCacheKey.get_cache_key())
+
+
+def metadata_cache(some_func):
     """
     Decorator for patch_response_headers function
     """
@@ -87,27 +93,92 @@ def cache_forever(some_func):
     # Source: https://stackoverflow.com/a/3001556/405682
     cache_timeout = 31556926
 
+    @etag(get_cache_key)
     def wrapper_func(*args, **kwargs):
         response = some_func(*args, **kwargs)
-        # This caching has the unfortunate effect of also caching the dynamically
-        # generated filters for recommendation, this quick hack checks if
-        # the request is any of those filters, and then applies less long running
-        # caching on it.
-        timeout = cache_timeout
         try:
             request = args[0]
             request = kwargs.get("request", request)
         except IndexError:
             request = kwargs.get("request", None)
-        if isinstance(request, HttpRequest):
-            if any(map(lambda x: x in request.path, ["next_steps", "resume"])):
-                timeout = 0
-            elif "popular" in request.path:
-                timeout = 600
-        patch_response_headers(response, cache_timeout=timeout)
+        if "contentCacheKey" in request.GET:
+            # Only do long running caching if the contentCacheKey is explicitly
+            # set in the URL, otherwise rely on the Etag to do a quick 304.
+            patch_response_headers(response, cache_timeout=cache_timeout)
+
         return response
 
     return session_exempt(wrapper_func)
+
+
+class RemoteMixin(object):
+    remote_url_param = "baseurl"
+
+    def _should_proxy_request(self, request):
+        return self.remote_url_param in request.GET
+
+    def _get_request_headers(self, request):
+        return {
+            "Accept": request.META.get("HTTP_ACCEPT"),
+            "Accept-Encoding": request.META.get("HTTP_ACCEPT_ENCODING"),
+            "Accept-Language": request.META.get("HTTP_ACCEPT_LANGUAGE"),
+            "Content-Type": request.META.get("CONTENT_TYPE"),
+            "If-None-Match": request.META.get("HTTP_IF_NONE_MATCH", ""),
+        }
+
+    def _get_response_headers(self, response):
+        return {
+            "Cache-Control": response.headers.get("cache-control"),
+            "Content-Type": response.headers.get("content-type"),
+            "Etag": response.headers.get("etag"),
+        }
+
+    def update_data(self, response_data, baseurl):
+        return response_data
+
+    def _hande_proxied_request(self, request):
+        full_path = request.get_full_path().split("?")[0]
+        remote_path = full_path.replace(
+            "/{}api/content/".format(
+                OPTIONS["Deployment"]["URL_PATH_PREFIX"].lstrip("/")
+            ),
+            "/api/public/v2/",
+        )
+        baseurl = request.GET[self.remote_url_param]
+        qs = request.GET.copy()
+        del qs[self.remote_url_param]
+        qs.pop("contentCacheKey", None)
+        remote_url = urljoin(baseurl, remote_path)
+        try:
+            response = requests.get(
+                remote_url, params=qs, headers=self._get_request_headers(request)
+            )
+            # If Etag is set on the response we have returned here, any further Etag will not be modified
+            # by the django etag decorator, so this should allow us to transparently proxy the remote etag.
+            try:
+                content = self.update_data(response.json(), baseurl)
+            except ValueError:
+                content = response.content
+            return Response(
+                content,
+                status=response.status_code,
+                headers=self._get_response_headers(response),
+            )
+        except RequestException:
+            # If any sort of error due to connection or timeout, raise a resource gone error
+            raise ResourceGoneError
+
+
+class RemoteViewSet(ReadOnlyValuesViewset, RemoteMixin):
+    def retrieve(self, request, *args, **kwargs):
+        if self._should_proxy_request(request):
+            return self._hande_proxied_request(request)
+        return super(RemoteViewSet, self).retrieve(request, *args, **kwargs)
+
+    def list(self, request, *args, **kwargs):
+        if self._should_proxy_request(request):
+            return self._hande_proxied_request(request)
+        return super(RemoteViewSet, self).list(request, *args, **kwargs)
 
 
 class ChannelMetadataFilter(FilterSet):
@@ -135,8 +206,7 @@ class ChannelMetadataFilter(FilterSet):
         return queryset.filter(root__available=value)
 
 
-@method_decorator(cache_forever, name="dispatch")
-class ChannelMetadataViewSet(ReadOnlyValuesViewset):
+class BaseChannelMetadataMixin(object):
     filter_backends = (DjangoFilterBackend,)
     filter_class = ChannelMetadataFilter
 
@@ -155,6 +225,8 @@ class ChannelMetadataViewSet(ReadOnlyValuesViewset):
         "root__available",
         "root__num_coach_contents",
         "public",
+        "total_resource_count",
+        "published_size",
     )
 
     field_map = {
@@ -167,7 +239,25 @@ class ChannelMetadataViewSet(ReadOnlyValuesViewset):
     def get_queryset(self):
         return models.ChannelMetadata.objects.all()
 
-    @list_route(methods=["get"])
+    def consolidate(self, items, queryset):
+        included_languages = {}
+        for (
+            channel_id,
+            language_id,
+        ) in models.ChannelMetadata.included_languages.through.objects.filter(
+            channelmetadata__in=queryset
+        ).values_list(
+            "channelmetadata_id", "language_id"
+        ):
+            if channel_id not in included_languages:
+                included_languages[channel_id] = []
+            included_languages[channel_id].append(language_id)
+        for item in items:
+            item["included_languages"] = included_languages.get(item["id"], [])
+            item["last_published"] = item["last_updated"]
+        return items
+
+    @action(detail=False)
     def filter_options(self, request, **kwargs):
         channel_id = self.request.query_params.get("id")
 
@@ -196,6 +286,11 @@ class ChannelMetadataViewSet(ReadOnlyValuesViewset):
         }
 
         return Response(data)
+
+
+@method_decorator(metadata_cache, name="dispatch")
+class ChannelMetadataViewSet(BaseChannelMetadataMixin, RemoteViewSet):
+    pass
 
 
 class IdFilter(FilterSet):
@@ -266,8 +361,8 @@ class ContentNodeFilter(IdFilter):
     categories = CharFilter(method="bitmask_contains_and")
     learner_needs = CharFilter(method="bitmask_contains_and")
     keywords = CharFilter(method="filter_keywords")
-    channels = UUIDInFilter(name="channel_id")
-    languages = CharInFilter(name="lang_id")
+    channels = UUIDInFilter(field_name="channel_id")
+    languages = CharInFilter(field_name="lang_id")
     categories__isnull = BooleanFilter(field_name="categories", lookup_expr="isnull")
     lft__gt = NumberFilter(field_name="lft", lookup_expr="gt")
     rght__lt = NumberFilter(field_name="rght", lookup_expr="lt")
@@ -553,6 +648,40 @@ class BaseContentNodeMixin(object):
                 output.append(item)
         return output
 
+    def update_data(self, response_data, baseurl):
+        if type(response_data) is dict:
+            if "more" in response_data and "results" in response_data:
+                # This is a paginated object
+                if response_data["more"] is not None:
+                    if type(response_data["more"].get("params", None)) is dict:
+                        response_data["more"]["params"][self.remote_url_param] = baseurl
+                    else:
+                        response_data["more"][self.remote_url_param] = baseurl
+                response_data["results"] = self.update_data(
+                    response_data["results"], baseurl
+                )
+            else:
+                response_data = self.add_base_url_to_node(response_data, baseurl)
+                if "children" in response_data:
+                    response_data["children"] = self.update_data(
+                        response_data["children"], baseurl
+                    )
+        elif type(response_data) is list:
+            data = []
+            for node in response_data:
+                data.append(self.update_data(node, baseurl))
+            response_data = data
+        return response_data
+
+    def add_base_url_to_node(self, node, baseurl):
+        baseurl_querystring = "?{}={}".format(self.remote_url_param, baseurl)
+        if node["thumbnail"]:
+            node["thumbnail"] += baseurl_querystring
+        for file in node["files"]:
+            if file["storage_url"]:
+                file["storage_url"] += baseurl_querystring
+        return node
+
 
 class OptionalPagination(ValuesViewsetCursorPagination):
     ordering = ("lft", "id")
@@ -598,26 +727,11 @@ class OptionalContentNodePagination(OptionalPagination):
         }
 
 
-def get_resume_queryset(request, queryset):
-    user = request.user
-    # if user is anonymous, don't return any nodes
-    # if person requesting is not the data they are requesting for, also return no nodes
-    if not user.is_facility_user:
-        return queryset.none()
-    # get the most recently viewed, but not finished, content nodes
-    content_ids = (
-        ContentSummaryLog.objects.filter(user=user, progress__gt=0)
-        .exclude(progress=1)
-        .values_list("content_id", flat=True)
-    )
-    return queryset.filter(content_id__in=content_ids)
-
-
-@method_decorator(cache_forever, name="dispatch")
-class ContentNodeViewset(BaseContentNodeMixin, ReadOnlyValuesViewset):
+@method_decorator(metadata_cache, name="dispatch")
+class ContentNodeViewset(BaseContentNodeMixin, RemoteViewSet):
     pagination_class = OptionalContentNodePagination
 
-    @list_route(methods=["get"])
+    @action(detail=False)
     def random(self, request, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         max_results = int(self.request.query_params.get("max_results", 10))
@@ -625,7 +739,7 @@ class ContentNodeViewset(BaseContentNodeMixin, ReadOnlyValuesViewset):
         queryset = models.ContentNode.objects.filter(id__in=ids)
         return Response(self.serialize(queryset))
 
-    @list_route(methods=["get"])
+    @action(detail=False)
     def descendants(self, request):
         """
         Returns a slim view all the descendants of a set of content nodes (as designated by the passed in ids).
@@ -656,7 +770,7 @@ class ContentNodeViewset(BaseContentNodeMixin, ReadOnlyValuesViewset):
             )
         return Response(data)
 
-    @list_route(methods=["get"])
+    @action(detail=False)
     def descendants_assessments(self, request):
         ids = self.request.query_params.get("ids", None)
         if not ids:
@@ -683,7 +797,7 @@ class ContentNodeViewset(BaseContentNodeMixin, ReadOnlyValuesViewset):
         )
         return Response(data)
 
-    @list_route(methods=["get"])
+    @action(detail=False)
     def node_assessments(self, request):
         ids = self.request.query_params.get("ids", "").split(",")
         data = 0
@@ -701,7 +815,7 @@ class ContentNodeViewset(BaseContentNodeMixin, ReadOnlyValuesViewset):
             )
         return Response(data)
 
-    @detail_route(methods=["get"])
+    @action(detail=True)
     def copies(self, request, pk=None):
         """
         Returns each nodes that has this content id, along with their ancestors.
@@ -720,7 +834,7 @@ class ContentNodeViewset(BaseContentNodeMixin, ReadOnlyValuesViewset):
         cache.set(cache_key, copies, 60 * 10)
         return Response(copies)
 
-    @list_route(methods=["get"])
+    @action(detail=False)
     def copies_count(self, request, **kwargs):
         """
         Returns the number of node copies for each content id.
@@ -739,7 +853,7 @@ class ContentNodeViewset(BaseContentNodeMixin, ReadOnlyValuesViewset):
             counts = 0
         return Response(counts)
 
-    @detail_route(methods=["get"])
+    @action(detail=True)
     def next_content(self, request, **kwargs):
         # retrieve the "next" content node, according to depth-first tree traversal.
         # topicOnly flag set to true will find the next topic node after the parent
@@ -773,7 +887,7 @@ class ContentNodeViewset(BaseContentNodeMixin, ReadOnlyValuesViewset):
             }
         )
 
-    @detail_route(methods=["get"])
+    @action(detail=True)
     def recommendations_for(self, request, **kwargs):
         """
         Recommend items that are similar to this piece of content.
@@ -785,126 +899,6 @@ class ContentNodeViewset(BaseContentNodeMixin, ReadOnlyValuesViewset):
         queryset = queryset & node.get_siblings(include_self=False).exclude(
             kind=content_kinds.TOPIC
         )
-        return Response(self.serialize(queryset))
-
-    @list_route(methods=["get"])
-    def next_steps(self, request, **kwargs):
-        """
-        Recommend content that has user completed content as a prerequisite, or leftward sibling.
-
-        :param request: request object
-        :return: uncompleted content nodes, or empty queryset if user is anonymous
-        """
-        user = request.user
-        queryset = self.get_queryset()
-        # if user is anonymous, don't return any nodes
-        # if person requesting is not the data they are requesting for, also return no nodes
-        if not user.is_facility_user:
-            queryset = queryset.none()
-        else:
-            completed_content_ids = ContentSummaryLog.objects.filter(
-                user=user, progress=1
-            ).values_list("content_id", flat=True)
-
-            # If no logs, don't bother doing the other queries
-            if not completed_content_ids.exists():
-                queryset = queryset.none()
-            else:
-                completed_content_nodes = queryset.filter_by_content_ids(
-                    completed_content_ids
-                ).order_by()
-
-                # Filter to only show content that the user has not engaged in, so as not to be redundant with resume
-                queryset = (
-                    queryset.exclude_by_content_ids(
-                        ContentSummaryLog.objects.filter(user=user).values_list(
-                            "content_id", flat=True
-                        ),
-                        validate=False,
-                    )
-                    .filter(
-                        Q(has_prerequisite__in=completed_content_nodes)
-                        | Q(
-                            lft__in=[
-                                rght + 1
-                                for rght in completed_content_nodes.values_list(
-                                    "rght", flat=True
-                                )
-                            ]
-                        )
-                    )
-                    .order_by()
-                )
-                if not (
-                    user.roles.exists() or user.is_superuser
-                ):  # must have coach role or higher
-                    queryset = queryset.exclude(coach_content=True)
-
-        return Response(self.serialize(queryset))
-
-    @list_route(methods=["get"])
-    def popular(self, request, **kwargs):
-        """
-        Recommend content that is popular with all users.
-
-        :param request: request object
-        :return: 10 most popular content nodes
-        """
-        cache_key = "popular_content"
-
-        if cache.get(cache_key) is not None:
-            return Response(cache.get(cache_key))
-
-        queryset = self.filter_queryset(self.get_queryset())
-
-        if ContentSessionLog.objects.count() < 50:
-            # return 25 random content nodes if not enough session logs
-            pks = queryset.values_list("pk", flat=True).exclude(
-                kind=content_kinds.TOPIC
-            )
-            # .count scales with table size, so can get slow on larger channels
-            count_cache_key = "content_count_for_popular"
-            count = cache.get(count_cache_key) or min(pks.count(), 25)
-            queryset = queryset.filter_by_uuids(
-                sample(list(pks), count), validate=False
-            )
-        else:
-            # get the most accessed content nodes
-            # search for content nodes that currently exist in the database
-            content_nodes = models.ContentNode.objects.filter(available=True)
-            content_counts_sorted = (
-                ContentSessionLog.objects.filter(
-                    content_id__in=content_nodes.values_list(
-                        "content_id", flat=True
-                    ).distinct()
-                )
-                .values_list("content_id", flat=True)
-                .annotate(Count("content_id"))
-                .order_by("-content_id__count")
-            )
-
-            most_popular = queryset.filter_by_content_ids(
-                list(content_counts_sorted[:20]), validate=False
-            )
-            queryset = most_popular.dedupe_by_content_id(use_distinct=False)
-
-        data = self.serialize(queryset)
-
-        # cache the popular results queryset for 10 minutes, for efficiency
-        cache.set(cache_key, data, 60 * 10)
-
-        return Response(data)
-
-    @list_route(methods=["get"])
-    def resume(self, request, **kwargs):
-        """
-        Recommend content that the user has recently engaged with, but not finished.
-
-        :param request: request object
-        :return: 10 most recently viewed content nodes
-        """
-        queryset = get_resume_queryset(request, self.get_queryset())
-
         return Response(self.serialize(queryset))
 
 
@@ -991,8 +985,9 @@ class TreeQueryMixin(object):
         )
 
 
-@method_decorator(cache_forever, name="dispatch")
-class ContentNodeTreeViewset(BaseContentNodeMixin, TreeQueryMixin, BaseValuesViewset):
+class BaseContentNodeTreeViewset(
+    BaseContentNodeMixin, TreeQueryMixin, BaseValuesViewset
+):
     def retrieve(self, request, pk=None):
         """
         A nested, paginated representation of the children and grandchildren of a specific node
@@ -1087,6 +1082,14 @@ class ContentNodeTreeViewset(BaseContentNodeMixin, TreeQueryMixin, BaseValuesVie
                         "params": params,
                     }
         return Response(parent)
+
+
+@method_decorator(metadata_cache, name="dispatch")
+class ContentNodeTreeViewset(BaseContentNodeTreeViewset, RemoteMixin):
+    def retrieve(self, request, *args, **kwargs):
+        if self._should_proxy_request(request):
+            return self._hande_proxied_request(request)
+        return super(ContentNodeTreeViewset, self).retrieve(request, *args, **kwargs)
 
 
 # return the result of and-ing a list of queries
@@ -1289,10 +1292,6 @@ class ContentNodeBookmarksViewset(
         return sorted_items
 
 
-def get_cache_key(*args, **kwargs):
-    return str(ContentCacheKey.get_cache_key())
-
-
 @method_decorator(etag(get_cache_key), name="retrieve")
 class ContentNodeGranularViewset(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     serializer_class = serializers.ContentNodeGranularSerializer
@@ -1356,6 +1355,8 @@ class ContentNodeGranularViewset(mixins.RetrieveModelMixin, viewsets.GenericView
 class UserContentNodeFilter(ContentNodeFilter):
     lesson = UUIDFilter(method="filter_by_lesson")
     resume = BooleanFilter(method="filter_by_resume")
+    next_steps = BooleanFilter(method="filter_by_next_steps")
+    popular = BooleanFilter(method="filter_by_popular")
 
     def filter_by_lesson(self, queryset, name, value):
         try:
@@ -1366,7 +1367,111 @@ class UserContentNodeFilter(ContentNodeFilter):
             return queryset.none()
 
     def filter_by_resume(self, queryset, name, value):
-        return get_resume_queryset(self.request, queryset)
+        user = self.request.user
+        # if user is anonymous, don't return any nodes
+        if not user.is_facility_user:
+            return queryset.none()
+        # get the most recently viewed, but not finished, content nodes
+        content_ids = (
+            ContentSummaryLog.objects.filter(user=user, progress__gt=0)
+            .exclude(progress=1)
+            .values_list("content_id", flat=True)
+        )
+        return queryset.filter(content_id__in=content_ids)
+
+    def filter_by_next_steps(self, queryset, name, value):
+        """
+        Recommend content that has user completed content as a prerequisite, or leftward sibling.
+
+        :param request: request object
+        :return: uncompleted content nodes, or empty queryset if user is anonymous
+        """
+        user = self.request.user
+        # if user is anonymous, don't return any nodes
+        # if person requesting is not the data they are requesting for, also return no nodes
+        if not user.is_facility_user:
+            return queryset.none()
+        completed_content_ids = ContentSummaryLog.objects.filter(
+            user=user, progress=1
+        ).values_list("content_id", flat=True)
+
+        # If no logs, don't bother doing the other queries
+        if not completed_content_ids.exists():
+            return queryset.none()
+        completed_content_nodes = queryset.filter_by_content_ids(
+            completed_content_ids
+        ).order_by()
+
+        # Filter to only show content that the user has not engaged in, so as not to be redundant with resume
+        queryset = (
+            queryset.exclude_by_content_ids(
+                ContentSummaryLog.objects.filter(user=user).values_list(
+                    "content_id", flat=True
+                ),
+                validate=False,
+            )
+            .filter(
+                Q(has_prerequisite__in=completed_content_nodes)
+                | Q(
+                    lft__in=[
+                        rght + 1
+                        for rght in completed_content_nodes.values_list(
+                            "rght", flat=True
+                        )
+                    ]
+                )
+            )
+            .order_by()
+        )
+        if not (
+            user.roles.exists() or user.is_superuser
+        ):  # must have coach role or higher
+            queryset = queryset.exclude(coach_content=True)
+
+        return queryset
+
+    def filter_by_popular(self, queryset, name, value):
+        """
+        Recommend content that is popular with all users.
+
+        :param request: request object
+        :return: 10 most popular content nodes
+        """
+        cache_key = "popular_content"
+
+        content_ids = cache.get(cache_key)
+
+        if content_ids is None:
+            if len(ContentSessionLog.objects.values_list("pk")[:50]) < 50:
+                # return 25 random content nodes if not enough session logs
+                pks = queryset.values_list("pk", flat=True).exclude(
+                    kind=content_kinds.TOPIC
+                )
+                # .count scales with table size, so can get slow on larger channels
+                count_cache_key = "content_count_for_popular"
+                count = cache.get(count_cache_key) or min(pks.count(), 25)
+                return queryset.filter_by_uuids(
+                    sample(list(pks), count), validate=False
+                )
+            # get the most accessed content nodes
+            # search for content nodes that currently exist in the database
+            content_nodes = models.ContentNode.objects.filter(available=True)
+            content_counts_sorted = (
+                ContentSessionLog.objects.filter(
+                    content_id__in=content_nodes.values_list(
+                        "content_id", flat=True
+                    ).distinct()
+                )
+                .values_list("content_id", flat=True)
+                .annotate(Count("content_id"))
+                .order_by("-content_id__count")
+            )
+
+            content_ids = list(content_counts_sorted[:20])
+            # cache the popular results content_ids for 10 minutes, for efficiency
+            cache.set(cache_key, content_ids, 60 * 10)
+
+        return queryset.filter_by_content_ids(content_ids, validate=False)
 
     class Meta:
         model = models.ContentNode
@@ -1411,7 +1516,7 @@ class ContentNodeProgressViewset(
         return models.ContentNode.objects.filter(available=True)
 
     def generate_response(self, request, queryset):
-        if request.user.is_anonymous():
+        if request.user.is_anonymous:
             return Response([])
         logs = list(
             ContentSummaryLog.objects.filter(
@@ -1430,7 +1535,7 @@ class ContentNodeProgressViewset(
             queryset = page_queryset
         return self.generate_response(request, queryset)
 
-    @detail_route(methods=["get"])
+    @action(detail=True)
     def tree(self, request, pk=None):
         queryset = self.get_tree_queryset(request, pk)
         return self.generate_response(request, queryset)
@@ -1555,7 +1660,7 @@ class RemoteChannelViewSet(viewsets.ViewSet):
             raise Http404
         return Response(channels[0])
 
-    @list_route(methods=["get"])
+    @action(detail=False)
     def kolibri_studio_status(self, request, **kwargs):
         try:
             resp = requests.get(get_info_url())
@@ -1566,7 +1671,7 @@ class RemoteChannelViewSet(viewsets.ViewSet):
         except requests.ConnectionError:
             return Response({"status": "offline"})
 
-    @detail_route(methods=["get"])
+    @action(detail=True)
     def retrieve_list(self, request, pk=None):
         baseurl = request.GET.get("baseurl", None)
         keyword = request.GET.get("keyword", None)

@@ -101,7 +101,7 @@ class WebpackBundleHook(hooks.KolibriHook):
         if getattr(settings, "DEVELOPER_MODE", False):
             timeout = 0
 
-            while stats["status"] == "compiling":
+            while stats["status"] == "compile":
                 time.sleep(0.1)
                 timeout += 0.1
 

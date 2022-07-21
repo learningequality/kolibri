@@ -9,7 +9,6 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from kolibri.core.api import ReadOnlyValuesViewset
-from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.content.api import ContentNodeProgressViewset
@@ -28,7 +27,7 @@ user_contentnode_viewset = UserContentNodeViewset()
 
 class LearnStateView(APIView):
     def get(self, request, format=None):
-        if request.user.is_anonymous():
+        if request.user.is_anonymous:
             default_facility = Facility.get_default_facility()
             can_download_content = (
                 default_facility.dataset.show_download_button_in_learn
@@ -98,13 +97,12 @@ class LearnerClassroomViewset(ReadOnlyValuesViewset):
     along with all associated assignments.
     """
 
-    filter_backends = (KolibriAuthPermissionsFilter,)
     permission_classes = (IsAuthenticated,)
 
     values = ("id", "name")
 
     def get_queryset(self):
-        if self.request.user.is_anonymous():
+        if self.request.user.is_anonymous:
             return Classroom.objects.none()
         return Classroom.objects.filter(membership__user=self.request.user)
 
@@ -224,7 +222,7 @@ class LearnHomePageHydrationView(APIView):
         classrooms = []
         resumable_resources = []
         resumable_resources_progress = []
-        if not request.user.is_anonymous():
+        if not request.user.is_anonymous:
             classrooms = learner_classroom_viewset.serialize_list(request)
             if not classrooms or not any(_resumable_resources(classrooms)):
                 resumable_resources = user_contentnode_viewset.serialize_list(
@@ -276,7 +274,7 @@ class LearnerLessonViewset(ReadOnlyValuesViewset):
     field_map = {"classroom": _map_lesson_classroom}
 
     def get_queryset(self):
-        if self.request.user.is_anonymous():
+        if self.request.user.is_anonymous:
             return Lesson.objects.none()
         return Lesson.objects.filter(
             lesson_assignments__collection__membership__user=self.request.user,

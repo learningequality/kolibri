@@ -19,6 +19,7 @@ from .bulkimportusers import MESSAGES
 from .bulkimportusers import NO_FACILITY
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.constants.demographics import DEFERRED
+from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
@@ -27,6 +28,7 @@ from kolibri.core.query import GroupConcatSubquery
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.utils.csv import open_csv_for_writing
+from kolibri.core.utils.csv import output_mapper
 from kolibri.utils import conf
 
 try:
@@ -92,7 +94,7 @@ roles_map = {
 
 def not_specified(field, obj):
     val = obj[field]
-    return None if (val == "NOT_SPECIFIED" or val == DEFERRED) else val
+    return None if (val == NOT_SPECIFIED or val == DEFERRED) else val
 
 
 def kind_of_roles(field, obj):
@@ -107,14 +109,7 @@ output_mappings = {
 }
 
 
-def map_output(obj):
-    mapped_obj = {}
-    for header, label in labels.items():
-        if header in output_mappings and header in obj:
-            mapped_obj[label] = output_mappings[header](obj)
-        elif header in obj:
-            mapped_obj[label] = obj[header]
-    return mapped_obj
+map_output = partial(output_mapper, labels=labels, output_mappings=output_mappings)
 
 
 def translate_labels():

@@ -49,6 +49,7 @@ If you have contributed to Kolibri, feel free to add your name and Github accoun
 | Jessica Aceret | jtamiace |
 | Julián Duque | julianduque |
 | Karla Avila | k2avila |
+| Maxime Brunet | maxbrunet |
 | Mrinal Kumar | kmrinal19 |
 | Kevin Ollivier | kollivier |
 | Paul Luna | luna215 |

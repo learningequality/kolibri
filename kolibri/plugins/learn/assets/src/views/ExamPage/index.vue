@@ -1,6 +1,9 @@
 <template>
 
-  <div>
+  <ImmersivePageRoot
+    :route="homePageLink"
+    :appBarTitle="exam.title || ''"
+  >
     <KGrid :gridStyle="gridStyle">
       <!-- this.$refs.questionListWrapper is referenced inside AnswerHistory for scrolling -->
       <KGridItem
@@ -16,10 +19,14 @@
               <div :style="{ paddingBottom: '8px' }">
                 <TimeDuration class="timer" :seconds="time_spent" />
               </div>
-              <p v-if="duration">
+              <p v-if="content && content.duration">
                 {{ learnString('suggestedTime') }}
               </p>
-              <SuggestedTime v-if="content.duration" class="timer" :seconds="content.duration" />
+              <SuggestedTime
+                v-if="content && content.duration"
+                class="timer"
+                :seconds="content.duration"
+              />
             </div>
             <span
               class="divider"
@@ -38,7 +45,7 @@
       </KGridItem>
       <KGridItem :layout12="{ span: 8 }" class="column-pane">
         <div :class="{ 'column-contents-wrapper': !windowIsSmall }">
-          <KPageContainer>
+          <KPageContainer v-if="!loading">
             <h1>
               {{ $tr('question', { num: questionNumber + 1, total: exam.question_count }) }}
             </h1>
@@ -153,7 +160,7 @@
         {{ $tr('unanswered', { numLeft: questionsUnanswered } ) }}
       </p>
     </KModal>
-  </div>
+  </ImmersivePageRoot>
 
 </template>
 
@@ -171,8 +178,10 @@
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useProgressTracking from '../../composables/useProgressTracking';
-  import { ClassesPageNames } from '../../constants';
+  import { PageNames, ClassesPageNames } from '../../constants';
   import { LearnerClassroomResource } from '../../apiResources';
+  import ImmersivePageRoot from './../ImmersivePageRoot';
+
   import AnswerHistory from './AnswerHistory';
 
   export default {
@@ -189,6 +198,7 @@
       BottomAppBar,
       TimeDuration,
       SuggestedTime,
+      ImmersivePageRoot,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
     setup() {
@@ -242,6 +252,11 @@
           name: ClassesPageNames.CLASS_ASSIGNMENTS,
         };
       },
+      homePageLink() {
+        return {
+          name: PageNames.HOME,
+        };
+      },
       content() {
         return this.contentNodeMap[this.nodeId];
       },
@@ -262,10 +277,10 @@
         return this.questions[this.questionNumber];
       },
       nodeId() {
-        return this.currentQuestion.exercise_id;
+        return this.currentQuestion ? this.currentQuestion.exercise_id : null;
       },
       itemId() {
-        return this.currentQuestion.question_id;
+        return this.currentQuestion ? this.currentQuestion.question_id : null;
       },
       // We generate a special item value to save to the backend that encodes
       // both the itemId and the nodeId
@@ -324,7 +339,7 @@
       attemptLogItemValue(newVal, oldVal) {
         // HACK: manually dismiss the perseus renderer message when moving
         // to a different item (fixes #3853)
-        if (newVal !== oldVal) {
+        if (newVal !== oldVal && this.$refs.contentRenderer) {
           this.$refs.contentRenderer.$refs.contentView.dismissMessage &&
             this.$refs.contentRenderer.$refs.contentView.dismissMessage();
           this.startTime = Date.now();
@@ -332,7 +347,7 @@
       },
     },
     created() {
-      this.initContentSession({ quizId: this.exam.id })
+      this.initContentSession({ quizId: this.$route.params.examId })
         .then(this.startTrackingProgress)
         .catch(err => {
           if (err.response && err.response.status === 403) {

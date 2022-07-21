@@ -1,118 +1,124 @@
 <template>
 
-  <KPageContainer class="narrow-container">
-    <form v-if="!loading" class="form" @submit.prevent="submitForm">
-      <h1>
-        {{ $tr('editUserDetailsHeader') }}
-      </h1>
+  <ImmersivePageRoot
+    :route="this.$store.getters.facilityPageLinks.UserPage"
+    :appBarTitle="coreString('usersLabel')"
+  >
+    <KPageContainer class="narrow-container">
+      <form v-if="!loading" class="form" @submit.prevent="submitForm">
+        <h1>
+          {{ $tr('editUserDetailsHeader') }}
+        </h1>
 
-      <section>
-        <FullNameTextbox
-          ref="fullNameTextbox"
-          :autofocus="true"
-          :disabled="formDisabled"
-          :value.sync="fullName"
-          :isValid.sync="fullNameValid"
-          :shouldValidate="formSubmitted"
-        />
-
-        <UsernameTextbox
-          ref="usernameTextbox"
-          :disabled="formDisabled"
-          :value.sync="username"
-          :isValid.sync="usernameValid"
-          :shouldValidate="formSubmitted"
-          :isUniqueValidator="usernameIsUnique"
-          :errors.sync="caughtErrors"
-        />
-
-        <template v-if="editingSuperAdmin">
-          <h2 class="header user-type">
-            {{ coreString('userTypeLabel') }}
-          </h2>
-
-          <UserTypeDisplay
-            :userType="kind"
-            class="user-type"
+        <section>
+          <FullNameTextbox
+            ref="fullNameTextbox"
+            :autofocus="true"
+            :disabled="formDisabled"
+            :value.sync="fullName"
+            :isValid.sync="fullNameValid"
+            :shouldValidate="formSubmitted"
           />
 
-          <KExternalLink
-            v-if="devicePermissionsPageLink"
-            class="super-admin-description"
-            :text="editingSelf ? $tr('viewInDeviceTabPrompt') : $tr('changeInDeviceTabPrompt')"
-            :href="devicePermissionsPageLink"
+          <UsernameTextbox
+            ref="usernameTextbox"
+            :disabled="formDisabled"
+            :value.sync="username"
+            :isValid.sync="usernameValid"
+            :shouldValidate="formSubmitted"
+            :isUniqueValidator="usernameIsUnique"
+            :errors.sync="caughtErrors"
           />
 
-        </template>
+          <template v-if="editingSuperAdmin">
+            <h2 class="header user-type">
+              {{ coreString('userTypeLabel') }}
+            </h2>
 
-        <template v-else>
-          <KSelect
-            v-model="typeSelected"
+            <UserTypeDisplay
+              :userType="kind"
+              class="user-type"
+            />
+
+            <KExternalLink
+              v-if="devicePermissionsPageLink"
+              class="super-admin-description"
+              :text="editingSelf ? $tr('viewInDeviceTabPrompt') : $tr('changeInDeviceTabPrompt')"
+              :href="devicePermissionsPageLink"
+            />
+
+          </template>
+
+          <template v-else>
+            <KSelect
+              v-model="typeSelected"
+              class="select"
+              :disabled="formDisabled"
+              :label="coreString('userTypeLabel')"
+              :options="userTypeOptions"
+            />
+
+            <fieldset v-if="coachIsSelected" class="coach-selector">
+              <KRadioButton
+                v-model="classCoachIsSelected"
+                :disabled="formDisabled"
+                :label="coreString('classCoachLabel')"
+                :description="coreString('classCoachDescription')"
+                :value="true"
+              />
+              <KRadioButton
+                v-model="classCoachIsSelected"
+                :disabled="formDisabled"
+                :label="coreString('facilityCoachLabel')"
+                :description="coreString('facilityCoachDescription')"
+                :value="false"
+              />
+            </fieldset>
+          </template>
+
+          <IdentifierTextbox
+            :value.sync="idNumber"
+            :disabled="formDisabled"
+          />
+
+          <BirthYearSelect
+            :value.sync="birthYear"
+            :disabled="formDisabled"
             class="select"
-            :disabled="formDisabled"
-            :label="coreString('userTypeLabel')"
-            :options="userTypeOptions"
           />
 
-          <fieldset v-if="coachIsSelected" class="coach-selector">
-            <KRadioButton
-              v-model="classCoachIsSelected"
+          <GenderSelect
+            :value.sync="gender"
+            :disabled="formDisabled"
+            class="select"
+          />
+        </section>
+
+        <p v-if="willBeLoggedOut">
+          {{ $tr('forceLogoutWarning') }}
+        </p>
+        <div class="buttons">
+          <KButtonGroup style="margin-top: 8px;">
+            <KButton
+              type="submit"
+              :text="coreString('saveAction')"
               :disabled="formDisabled"
-              :label="coreString('classCoachLabel')"
-              :description="coreString('classCoachDescription')"
-              :value="true"
+
+              :primary="true"
             />
-            <KRadioButton
-              v-model="classCoachIsSelected"
+            <KButton
+              :text="cancelButtonText"
               :disabled="formDisabled"
-              :label="coreString('facilityCoachLabel')"
-              :description="coreString('facilityCoachDescription')"
-              :value="false"
+
+              @click="goToUserManagementPage()"
             />
-          </fieldset>
-        </template>
+          </KButtonGroup>
+        </div>
 
-        <IdentifierTextbox
-          :value.sync="idNumber"
-          :disabled="formDisabled"
-        />
+      </form>
+    </KPageContainer>
 
-        <BirthYearSelect
-          :value.sync="birthYear"
-          :disabled="formDisabled"
-          class="select"
-        />
-
-        <GenderSelect
-          :value.sync="gender"
-          :disabled="formDisabled"
-          class="select"
-        />
-      </section>
-
-      <p v-if="willBeLoggedOut">
-        {{ $tr('forceLogoutWarning') }}
-      </p>
-      <div class="buttons">
-        <KButtonGroup style="margin-top: 8px;">
-          <KButton
-            type="submit"
-            :text="coreString('saveAction')"
-            :disabled="formDisabled"
-
-            :primary="true"
-          />
-          <KButton
-            :text="cancelButtonText"
-            :disabled="formDisabled"
-
-            @click="goToUserManagementPage()"
-          />
-        </KButtonGroup>
-      </div>
-
-    </form>
-  </KPageContainer>
+  </ImmersivePageRoot>
 
 </template>
 
@@ -133,6 +139,7 @@
   import FullNameTextbox from 'kolibri.coreVue.components.FullNameTextbox';
   import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import ImmersivePageRoot from './ImmersivePageRoot';
   import IdentifierTextbox from './IdentifierTextbox';
 
   export default {
@@ -143,12 +150,13 @@
       };
     },
     components: {
-      UserTypeDisplay,
-      GenderSelect,
       BirthYearSelect,
-      UsernameTextbox,
+      ImmersivePageRoot,
       FullNameTextbox,
+      GenderSelect,
       IdentifierTextbox,
+      UsernameTextbox,
+      UserTypeDisplay,
     },
     mixins: [commonCoreStrings],
     data() {

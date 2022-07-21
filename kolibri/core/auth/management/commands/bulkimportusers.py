@@ -220,9 +220,9 @@ def valid_name(username=True, allow_null=False):
             return checker
         if v is None:
             raise ValueError(v)
-        has_punc = "[\s`~!@#$%^&*()\-+={}\[\]\|\\\/:;\"'<>,\.\?]"  # noqa
+        has_punc = r"[\s`~!@#$%^&*()\-+={}\[\]\|\\\/:;\"'<>,\.\?]"
         if not username:
-            has_punc = "[`~!@#$%^&*()\+={}\[\]\|\\\/:;\"'<>\.\?]"  # noqa
+            has_punc = r"[`~!@#$%^&*()\+={}\[\]\|\\\/:;\"'<>\.\?]"
         if re.search(has_punc, v):
             raise ValueError(v)
 

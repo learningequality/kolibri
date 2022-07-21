@@ -7,14 +7,22 @@ from kolibri.core.hooks import NavigationHook
 from kolibri.core.webpack import hooks as webpack_hooks
 from kolibri.plugins import KolibriPluginBase
 from kolibri.plugins.hooks import register_hook
+from kolibri.utils import translation
+from kolibri.utils.translation import ugettext as _
 
 
 class UserProfile(KolibriPluginBase):
+    untranslated_view_urls = "api_urls"
     translated_view_urls = "urls"
+    can_manage_while_running = True
 
     @property
     def url_slug(self):
         return "profile"
+
+    def name(self, lang):
+        with translation.override(lang):
+            return _("User Profile")
 
 
 @register_hook

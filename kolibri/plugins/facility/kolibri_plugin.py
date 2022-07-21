@@ -9,10 +9,13 @@ from kolibri.core.hooks import RoleBasedRedirectHook
 from kolibri.core.webpack.hooks import WebpackBundleHook
 from kolibri.plugins import KolibriPluginBase
 from kolibri.plugins.hooks import register_hook
+from kolibri.utils import translation
+from kolibri.utils.translation import ugettext as _
 
 
 class FacilityManagementPlugin(KolibriPluginBase):
     untranslated_view_urls = "api_urls"
+    can_manage_while_running = True
 
     @property
     def translated_view_urls(self):
@@ -21,6 +24,10 @@ class FacilityManagementPlugin(KolibriPluginBase):
         if not get_device_setting("subset_of_users_device", False):
             return "urls"
         return None
+
+    def name(self, lang):
+        with translation.override(lang):
+            return _("Facility")
 
 
 @register_hook

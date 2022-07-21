@@ -1,6 +1,9 @@
+import os
+
 from django.test.utils import TestContextDecorator
 
 from kolibri.utils import conf
+from kolibri.utils.options import option_spec
 
 
 class override_option(TestContextDecorator):
@@ -21,7 +24,17 @@ class override_option(TestContextDecorator):
 
     def enable(self):
         self.old_value = conf.OPTIONS[self.section][self.key]
+        envvars = option_spec[self.section][self.key]["envvars"]
+        self.old_envvars = {}
+        for envvar in envvars:
+            self.old_envvars[envvar] = os.environ.get(envvar, None)
+            os.environ[envvar] = str(self.temp_value)
         conf.OPTIONS[self.section][self.key] = self.temp_value
 
     def disable(self):
         conf.OPTIONS[self.section][self.key] = self.old_value
+        for envvar, value in self.old_envvars.items():
+            if value is None:
+                del os.environ[envvar]
+            else:
+                os.environ[envvar] = value

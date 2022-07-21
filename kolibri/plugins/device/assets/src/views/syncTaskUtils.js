@@ -65,7 +65,7 @@ export function syncFacilityTaskDisplayInfo(task) {
   let deviceNameMsg = '';
   let headingMsg = '';
 
-  const facilityName = formatNameWithId(task.facility_name, task.facility);
+  const facilityName = formatNameWithId(task.extra_metadata.facility_name, task.facility_id);
 
   if (task.type === TaskTypes.SYNCPEERPULL) {
     headingMsg = getTaskString('importFacilityTaskLabel', { facilityName });
@@ -75,13 +75,16 @@ export function syncFacilityTaskDisplayInfo(task) {
   // Device info isn't shown on the Setup Wizard version of panel
   if (task.type === TaskTypes.SYNCDATAPORTAL) {
     deviceNameMsg = 'Kolibri Data Portal';
-  } else if (task.device_name) {
-    deviceNameMsg = formatNameWithId(task.device_name, task.device_id);
+  } else if (task.extra_metadata.device_name) {
+    deviceNameMsg = formatNameWithId(
+      task.extra_metadata.device_name,
+      task.extra_metadata.device_id
+    );
   }
-  const syncStep = syncTaskStatusToStepMap[task.sync_state];
+  const syncStep = syncTaskStatusToStepMap[task.extra_metadata.sync_state];
   const statusDescription =
+    syncStatusToDescriptionMap[task.extra_metadata.sync_state] ||
     syncStatusToDescriptionMap[task.status] ||
-    syncStatusToDescriptionMap[task.sync_state] ||
     getTaskString('taskUnknownStatus');
 
   if (task.status === TaskStatuses.COMPLETED) {
@@ -100,8 +103,8 @@ export function syncFacilityTaskDisplayInfo(task) {
 
   if (task.status === TaskStatuses.COMPLETED) {
     bytesTransferredMsg = getTaskString('syncBytesSentAndReceived', {
-      bytesReceived: bytesForHumans(task.bytes_received),
-      bytesSent: bytesForHumans(task.bytes_sent),
+      bytesReceived: bytesForHumans(task.extra_metadata.bytes_received),
+      bytesSent: bytesForHumans(task.extra_metadata.bytes_sent),
     });
   }
 
@@ -110,7 +113,9 @@ export function syncFacilityTaskDisplayInfo(task) {
   return {
     headingMsg,
     statusMsg,
-    startedByMsg: getTaskString('taskStartedByLabel', { username: task.started_by_username }),
+    startedByMsg: getTaskString('taskStartedByLabel', {
+      username: task.extra_metadata.started_by_username,
+    }),
     bytesTransferredMsg,
     deviceNameMsg,
     isRunning: Boolean(syncStep) && !canClear,
@@ -127,14 +132,19 @@ export const removeStatusToDescriptionMap = {
 
 // Consolidates logic on how Remove-Facility Tasks should be displayed
 export function removeFacilityTaskDisplayInfo(task) {
-  const facilityName = formatNameWithId(task.facility_name, task.facility);
+  const facilityName = formatNameWithId(
+    task.extra_metadata.facility_name,
+    task.extra_metadata.facility
+  );
   const statusDescription =
     removeStatusToDescriptionMap[task.status] || getTaskString('taskUnknownStatus');
 
   return {
     headingMsg: getTaskString('removeFacilityTaskLabel', { facilityName }),
     statusMsg: statusDescription,
-    startedByMsg: getTaskString('taskStartedByLabel', { username: task.started_by_username }),
+    startedByMsg: getTaskString('taskStartedByLabel', {
+      username: task.extra_metadata.started_by_username,
+    }),
     isRunning: task.status === TaskStatuses.RUNNING,
     canClear: task.clearable,
     canCancel: !task.clearable && task.status !== TaskStatuses.RUNNING,
@@ -150,11 +160,15 @@ export function importFacilityTaskDisplayInfo(task) {
   info.headingMsg = '';
 
   if (task.status === TaskStatuses.FAILED) {
-    info.deviceNameMsg = getTaskString('importFailedStatus', { facilityName: task.facility_name });
+    info.deviceNameMsg = getTaskString('importFailedStatus', {
+      facilityName: task.extra_metadata.facility_name,
+    });
     info.statusMsg = getTaskString('taskFailedStatus');
     info.isRunning = false;
   } else if (task.status === TaskStatuses.COMPLETED) {
-    info.deviceNameMsg = getTaskString('importSuccessStatus', { facilityName: task.facility_name });
+    info.deviceNameMsg = getTaskString('importSuccessStatus', {
+      facilityName: task.extra_metadata.facility_name,
+    });
     info.statusMsg = getTaskString('taskFinishedStatus');
     info.isRunning = false;
   } else {

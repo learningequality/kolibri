@@ -8,7 +8,7 @@ from django.apps import apps
 from django.conf import settings as django_settings
 from django.core.exceptions import AppRegistryNotReady
 from django.core.management import call_command
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from pkg_resources import DistributionNotFound
 from pkg_resources import get_distribution
 from pkg_resources import iter_entry_points
@@ -79,8 +79,7 @@ def _import_python_module(plugin_name):
     try:
         importlib.import_module(plugin_name)
     except ImportError as e:
-        # Python 2: message, Python 3: msg
-        exc_message = getattr(e, "message", getattr(e, "msg", None))
+        exc_message = str(e)
         if exc_message.startswith("No module named"):
             msg = (
                 "Plugin '{}' does not seem to exist. Is it on the PYTHONPATH?"
@@ -395,8 +394,7 @@ def autoremove_unavailable_plugins():
     from kolibri.plugins.registry import is_initialized
 
     if is_initialized():
-        # TODO: Turn this into a Runtime error
-        logger.warning("Attempted to updated plugins when registry is initialized")
+        raise RuntimeError("Attempted to update plugins when registry is initialized")
     changed = False
     # Iterate over a copy of the set so that it is not modified during the loop
     for module_path in config["INSTALLED_PLUGINS"].copy():
@@ -423,8 +421,7 @@ def enable_new_default_plugins():
     from kolibri.plugins.registry import is_initialized
 
     if is_initialized():
-        # TODO: Turn this into a Runtime error
-        logger.warning("Attempted to updated plugins when registry is initialized")
+        raise RuntimeError("Attempted to update plugins when registry is initialized")
     changed = False
     for module_path in DEFAULT_PLUGINS:
         if module_path not in config["INSTALLED_PLUGINS"]:
@@ -461,19 +458,15 @@ def check_plugin_config_file_location(version):
                 os.remove(old_conf_file)
 
 
-def _can_import_plugin(plugin):
-    try:
-        initialize_kolibri_plugin(plugin)
-        return True
-    except Exception:
-        pass
-
-
 def iterate_plugins():
     # Use to dedupe plugins
-    plugins = set()
+    plugin_ids = set()
     for entry_point in iter_entry_points("kolibri.plugins"):
         name = entry_point.module_name
-        if _can_import_plugin(name) and name not in plugins:
-            plugins.add(name)
-            yield name
+        if name not in plugin_ids:
+            plugin_ids.add(name)
+            try:
+                plugin = initialize_kolibri_plugin(name)
+                yield plugin
+            except Exception:
+                pass

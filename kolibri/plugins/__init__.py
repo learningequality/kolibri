@@ -39,7 +39,7 @@ class ConfigDict(dict):
                     self.update(json.load(kolibri_conf_file))
                 return
             except ValueError:
-                logger.warn(
+                logger.warning(
                     "Attempted to load plugins.json but encountered a file that could not be decoded as valid JSON."
                 )
         self.save()
@@ -201,14 +201,13 @@ class KolibriPluginBase(with_metaclass(SingletonMeta)):
     # }
     kolibri_option_defaults = None
 
-    # : Suggested property, not yet in use
-    migrate_on_enable = False
-
-    # : Suggested property, not yet in use
-    collect_static_on_enable = False
-
-    # : Suggested property, not yet in use
-    collect_static_on_enable = False
+    #: Comment
+    # Property that indicates whether it is safe to allow this plugin to be disabled via the GUI
+    # This is used to prevent plugins that are required by the system from being disabled except
+    # through the command line. This property is purely advisory, and does not affect the
+    # functionality of the plugin, or the ability to disable it via the command line or other
+    # configuration mechanisms.
+    can_manage_while_running = False
 
     def __init__(self):
         self.INSTALLED_APPS = []
@@ -220,6 +219,13 @@ class KolibriPluginBase(with_metaclass(SingletonMeta)):
     @property
     def module_path(self):
         return self.class_module_path()
+
+    def name(self, lang):
+        """
+        A function to return a name for the plugin.
+        Accepts a lang argument to allow for internationalization of the name.
+        """
+        return self.__class__.__name__
 
     def _installed_apps_add(self):
         """Call this from your enable() method to have the plugin automatically
@@ -235,6 +241,10 @@ class KolibriPluginBase(with_metaclass(SingletonMeta)):
         """Modify the kolibri config dict to your plugin's needs"""
         self._installed_apps_add()
 
+    @property
+    def enabled(self):
+        return self.module_path in config.ACTIVE_PLUGINS
+
     def disable(self):
         """Modify the kolibri config dict to your plugin's needs"""
         self._installed_apps_remove()
@@ -245,7 +255,7 @@ class KolibriPluginBase(with_metaclass(SingletonMeta)):
             try:
                 return import_module(models_module_name)
             except Exception as e:
-                logging.warn(
+                logging.warning(
                     "Tried to import module {module_name} from {plugin} but an error was raised".format(
                         plugin=self.module_path, module_name=module_name
                     )
@@ -274,7 +284,7 @@ class KolibriPluginBase(with_metaclass(SingletonMeta)):
         if self.translated_view_urls:
             module = self._return_module(self.translated_view_urls)
             if module is None:
-                logging.warn(
+                logging.warning(
                     "{plugin} defined {urls} translated view urls but the module was not found".format(
                         plugin=self.module_path, urls=self.translated_view_urls
                     )
@@ -304,7 +314,7 @@ class KolibriPluginBase(with_metaclass(SingletonMeta)):
         if self.untranslated_view_urls:
             module = self._return_module(self.untranslated_view_urls)
             if module is None:
-                logging.warn(
+                logging.warning(
                     "{plugin} defined {urls} untranslated view urls but the module was not found".format(
                         plugin=self.module_path, urls=self.untranslated_view_urls
                     )
@@ -330,7 +340,7 @@ class KolibriPluginBase(with_metaclass(SingletonMeta)):
         if self.root_view_urls:
             module = self._return_module(self.root_view_urls)
             if module is None:
-                logging.warn(
+                logging.warning(
                     "{plugin} defined {urls} root view urls but the module was not found".format(
                         plugin=self.module_path, urls=self.root_view_urls
                     )
@@ -352,7 +362,7 @@ class KolibriPluginBase(with_metaclass(SingletonMeta)):
         if self.django_settings:
             module = self._return_module(self.django_settings)
             if module is None:
-                logging.warn(
+                logging.warning(
                     "{plugin} defined {module} django settings but the module was not found".format(
                         plugin=self.module_path, module=self.django_settings
                     )
@@ -372,7 +382,7 @@ class KolibriPluginBase(with_metaclass(SingletonMeta)):
         if self.kolibri_options:
             module = self._return_module(self.kolibri_options)
             if module is None:
-                logging.warn(
+                logging.warning(
                     "{plugin} defined {module} kolibri options but the module was not found".format(
                         plugin=self.module_path, module=self.kolibri_options
                     )
@@ -390,7 +400,7 @@ class KolibriPluginBase(with_metaclass(SingletonMeta)):
         if self.kolibri_option_defaults:
             module = self._return_module(self.kolibri_option_defaults)
             if module is None:
-                logging.warn(
+                logging.warning(
                     "{plugin} defined {module} kolibri option defaults but the module was not found".format(
                         plugin=self.module_path, module=self.kolibri_option_defaults
                     )

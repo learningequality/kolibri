@@ -90,8 +90,7 @@ def get_engine(connection_string):
     Get a SQLAlchemy engine that allows us to connect to a database.
     """
     # Set echo to False, as otherwise we get full SQL Query outputted, which can overwhelm the terminal
-    # Set convert_unicode to True, to properly handle unicode in the DB
-    engine_kwargs = {"echo": False, "convert_unicode": True}
+    engine_kwargs = {"echo": False}
 
     if connection_string.startswith("sqlite"):
         # Set timeout to 300s, as with most of our content import write operations
@@ -337,6 +336,12 @@ class Bridge(object):
         """
         return self.get_class(DjangoModel).__table__
 
+    def get_current_table(self, DjangoModel):
+        """
+        Convenience method to get a table for the Django database schema
+        """
+        return get_class(DjangoModel, BASES[CURRENT_SCHEMA_VERSION]).__table__
+
     def get_raw_connection(self):
         conn = self.get_connection()
         return conn.connection
@@ -381,7 +386,7 @@ def _by_uuids(field, ids, validate, include, vendor=None):
     empty_query = "IS NULL" if include else "IS NOT NULL"
     if ids:
         if len(ids) > 10000:
-            logger.warn(
+            logger.warning(
                 """
                 More than 10000 UUIDs passed to filter by uuids method,
                 these should be batched into separate querysets to avoid SQL Query too large errors in SQLite
@@ -415,7 +420,7 @@ def filter_by_checksums(field, checksums):
     empty_query = "IS NULL"
     if checksums:
         if len(checksums) > 10000:
-            logger.warn(
+            logger.warning(
                 """
                 More than 10000 UUIDs passed to filter by checksums method,
                 these should be batched into separate querysets to avoid SQL Query too large errors in SQLite

@@ -8,7 +8,6 @@ from le_utils.constants import content_kinds
 
 from ...utils import annotation
 from ...utils import paths
-from ...utils import transfer
 from kolibri.core.content.errors import InsufficientStorageSpaceError
 from kolibri.core.content.errors import InvalidStorageFilenameError
 from kolibri.core.content.models import ChannelMetadata
@@ -22,6 +21,9 @@ from kolibri.core.content.utils.upgrade import get_import_data_for_update
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.utils import conf
+from kolibri.utils import file_transfer as transfer
+from kolibri.utils.options import FD_PER_THREAD
+from kolibri.utils.system import get_fd_limit
 from kolibri.utils.system import get_free_space
 
 # constants to specify the transfer method to be used
@@ -110,6 +112,14 @@ class Command(AsyncCommand):
             help="Import all updated content after a channel version upgrade",
         )
 
+        parser.add_argument(
+            "--fail-on-error",
+            action="store_true",
+            default=False,
+            dest="fail_on_error",
+            help="Raise an error when a file has failed to be imported",
+        )
+
         # to implement these two groups of commands and their corresponding
         # arguments, we'll need argparse.subparsers.
         subparsers = parser.add_subparsers(
@@ -142,12 +152,32 @@ class Command(AsyncCommand):
             "--peer_id", type=str, default="", dest="peer_id"
         )
 
+        network_subparser.add_argument(
+            "--timeout",
+            type=int,
+            default=transfer.Transfer.DEFAULT_TIMEOUT,
+            dest="timeout",
+            help="Specify network timeout in seconds (default: %(default)d)",
+        )
+        network_subparser.add_argument(
+            "--content_dir",
+            type=str,
+            default=paths.get_content_dir_path(),
+            help="Download the content to the given content dir.",
+        )
+
         disk_subparser = subparsers.add_parser(
             name="disk", cmd=self, help="Copy the content from the given folder."
         )
         disk_subparser.add_argument("channel_id", type=str)
         disk_subparser.add_argument("directory", type=str)
         disk_subparser.add_argument("--drive_id", type=str, dest="drive_id", default="")
+        disk_subparser.add_argument(
+            "--content_dir",
+            type=str,
+            default=paths.get_content_dir_path(),
+            help="Copy the content to the given content dir.",
+        )
 
     def download_content(
         self,
@@ -158,6 +188,9 @@ class Command(AsyncCommand):
         peer_id=None,
         renderable_only=True,
         import_updates=False,
+        fail_on_error=False,
+        timeout=transfer.Transfer.DEFAULT_TIMEOUT,
+        content_dir=None,
     ):
         self._transfer(
             DOWNLOAD_METHOD,
@@ -168,6 +201,9 @@ class Command(AsyncCommand):
             peer_id=peer_id,
             renderable_only=renderable_only,
             import_updates=import_updates,
+            fail_on_error=fail_on_error,
+            timeout=timeout,
+            content_dir=content_dir,
         )
 
     def copy_content(
@@ -179,6 +215,8 @@ class Command(AsyncCommand):
         exclude_node_ids=None,
         renderable_only=True,
         import_updates=False,
+        fail_on_error=False,
+        content_dir=None,
     ):
         self._transfer(
             COPY_METHOD,
@@ -189,6 +227,8 @@ class Command(AsyncCommand):
             exclude_node_ids=exclude_node_ids,
             renderable_only=renderable_only,
             import_updates=import_updates,
+            fail_on_error=fail_on_error,
+            content_dir=content_dir,
         )
 
     def _transfer(  # noqa: max-complexity=16
@@ -203,6 +243,9 @@ class Command(AsyncCommand):
         peer_id=None,
         renderable_only=True,
         import_updates=False,
+        fail_on_error=False,
+        timeout=transfer.Transfer.DEFAULT_TIMEOUT,
+        content_dir=None,
     ):
         try:
             if not import_updates:
@@ -248,8 +291,11 @@ class Command(AsyncCommand):
                 )
             raise
 
+        if not content_dir:
+            content_dir = conf.OPTIONS["Paths"]["CONTENT_DIR"]
+
         if not paths.using_remote_storage():
-            free_space = get_free_space(conf.OPTIONS["Paths"]["CONTENT_DIR"])
+            free_space = get_free_space(content_dir)
 
             if free_space <= total_bytes_to_transfer:
                 raise InsufficientStorageSpaceError(
@@ -300,61 +346,99 @@ class Command(AsyncCommand):
             if method == DOWNLOAD_METHOD:
                 session = requests.Session()
 
-            file_transfers = []
-            for f in files_to_download:
+            executor = (
+                concurrent.futures.ProcessPoolExecutor
+                if conf.OPTIONS["Tasks"]["USE_WORKER_MULTIPROCESSING"]
+                else concurrent.futures.ThreadPoolExecutor
+            )
 
-                if self.is_cancelled():
-                    break
+            max_workers = 10
 
-                filename = get_content_file_name(f)
-                try:
-                    dest = paths.get_content_storage_file_path(filename)
-                except InvalidStorageFilenameError:
-                    # If the destination file name is malformed, just stop now.
-                    overall_progress_update(f["file_size"])
-                    continue
+            if not conf.OPTIONS["Tasks"]["USE_WORKER_MULTIPROCESSING"]:
+                # If we're not using multiprocessing for workers, we may need
+                # to limit the number of workers depending on the number of allowed
+                # file descriptors.
+                # This is a heuristic method, where we know there can be issues if
+                # the max number of file descriptors for a process is 256, and we use 10
+                # workers, with potentially 4 concurrent tasks downloading files.
+                # The number of concurrent tasks that might be downloading files is determined
+                # by the number of regular workers running in the task runner
+                # (although the high priority task queue could also be running a channel database download).
+                server_reserved_fd_count = (
+                    FD_PER_THREAD * conf.OPTIONS["Server"]["CHERRYPY_THREAD_POOL"]
+                )
+                max_descriptors_per_download_task = (
+                    get_fd_limit() - server_reserved_fd_count
+                ) / conf.OPTIONS["Tasks"]["REGULAR_PRIORITY_WORKERS"]
+                # Each download task only needs to have a maximum of two open file descriptors at once:
+                # The temporary download file that the file is streamed to initially, and then
+                # the actual destination file that it is moved to. To add tolerance, we divide
+                # the number of file descriptors that could be allocated to this task by four,
+                # which should give us leeway in case of unforeseen descriptor use during the process.
+                max_workers = min(
+                    max_workers, min(1, max_descriptors_per_download_task // 4)
+                )
 
-                # if the file already exists add its size to our overall progress, and skip
-                if os.path.isfile(dest) and os.path.getsize(dest) == f["file_size"]:
-                    overall_progress_update(f["file_size"])
-                    file_checksums_to_annotate.append(f["id"])
-                    transferred_file_size += f["file_size"]
-                    continue
-
-                # determine where we're downloading/copying from, and create appropriate transfer object
-                if method == DOWNLOAD_METHOD:
-                    url = paths.get_content_storage_remote_url(
-                        filename, baseurl=baseurl
-                    )
-                    filetransfer = transfer.FileDownload(
-                        url, dest, session=session, cancel_check=self.is_cancelled
-                    )
-                    file_transfers.append((f, filetransfer))
-                elif method == COPY_METHOD:
-                    try:
-                        srcpath = paths.get_content_storage_file_path(
-                            filename, datafolder=path
-                        )
-                    except InvalidStorageFilenameError:
-                        # If the source file name is malformed, just stop now.
-                        overall_progress_update(f["file_size"])
-                        continue
-                    filetransfer = transfer.FileCopy(
-                        srcpath, dest, cancel_check=self.is_cancelled
-                    )
-                    file_transfers.append((f, filetransfer))
-            with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+            with executor(max_workers=max_workers) as executor:
                 batch_size = 100
                 # ThreadPoolExecutor allows us to download files concurrently,
                 # greatly reducing download time in most cases. However, loading
                 # all the downloads into the pool requires considerable memory,
                 # so we divide the downloads into batches to keep memory usage down.
                 # In batches of 100, total RAM usage doesn't exceed 250MB in testing.
-                while file_transfers:
+                while files_to_download:
+                    if self.is_cancelled():
+                        break
                     future_file_transfers = {}
                     for i in range(batch_size):
-                        if file_transfers:
-                            f, filetransfer = file_transfers.pop()
+                        if self.is_cancelled():
+                            break
+                        if files_to_download:
+                            f = files_to_download.pop()
+                            filename = get_content_file_name(f)
+                            try:
+                                dest = paths.get_content_storage_file_path(
+                                    filename, contentfolder=content_dir
+                                )
+                            except InvalidStorageFilenameError:
+                                # If the destination file name is malformed, just stop now.
+                                overall_progress_update(f["file_size"])
+                                continue
+
+                            # if the file already exists add its size to our overall progress, and skip
+                            if (
+                                os.path.isfile(dest)
+                                and os.path.getsize(dest) == f["file_size"]
+                            ):
+                                overall_progress_update(f["file_size"])
+                                file_checksums_to_annotate.append(f["id"])
+                                transferred_file_size += f["file_size"]
+                                continue
+
+                            # determine where we're downloading/copying from, and create appropriate transfer object
+                            if method == DOWNLOAD_METHOD:
+                                url = paths.get_content_storage_remote_url(
+                                    filename, baseurl=baseurl
+                                )
+                                filetransfer = transfer.FileDownload(
+                                    url,
+                                    dest,
+                                    session=session,
+                                    cancel_check=self.is_cancelled,
+                                    timeout=timeout,
+                                )
+                            elif method == COPY_METHOD:
+                                try:
+                                    srcpath = paths.get_content_storage_file_path(
+                                        filename, datafolder=path
+                                    )
+                                except InvalidStorageFilenameError:
+                                    # If the source file name is malformed, just stop now.
+                                    overall_progress_update(f["file_size"])
+                                    continue
+                                filetransfer = transfer.FileCopy(
+                                    srcpath, dest, cancel_check=self.is_cancelled
+                                )
                             future = executor.submit(
                                 self._start_file_transfer, f, filetransfer
                             )
@@ -376,9 +460,7 @@ class Command(AsyncCommand):
                                 file_checksums_to_annotate.append(f["id"])
                                 transferred_file_size += f["file_size"]
                             remaining_bytes_to_transfer -= f["file_size"]
-                            remaining_free_space = get_free_space(
-                                conf.OPTIONS["Paths"]["CONTENT_DIR"]
-                            )
+                            remaining_free_space = get_free_space(content_dir)
                             if remaining_free_space <= remaining_bytes_to_transfer:
                                 raise InsufficientStorageSpaceError(
                                     "Kolibri ran out of storage space while importing content"
@@ -389,8 +471,10 @@ class Command(AsyncCommand):
                             logger.error(
                                 "An error occurred during content import: {}".format(e)
                             )
+
                             if (
-                                isinstance(e, requests.exceptions.HTTPError)
+                                not fail_on_error
+                                and isinstance(e, requests.exceptions.HTTPError)
                                 and e.response.status_code == 404
                             ) or (isinstance(e, OSError) and e.errno == 2):
                                 # Continue file import when the current file is not found from the source and is skipped.
@@ -400,6 +484,9 @@ class Command(AsyncCommand):
                             else:
                                 self.exception = e
                                 break
+                    if self.is_cancelled():
+                        for future in future_file_transfers:
+                            future.cancel()
 
         annotation.set_content_visibility(
             channel_id,
@@ -413,7 +500,6 @@ class Command(AsyncCommand):
             ContentNode.objects.filter(channel_id=channel_id, available=True)
             .exclude(kind=content_kinds.TOPIC)
             .values("content_id")
-            .distinct()
             .count()
         )
 
@@ -463,11 +549,17 @@ class Command(AsyncCommand):
             # id indicated in the database, it means that the destination file
             # is corrupted, either from origin or during import. Skip importing
             # this file.
-            checksum_correctness = compare_checksums(filetransfer.dest, f["id"])
+            try:
+                checksum_correctness = compare_checksums(filetransfer.dest, f["id"])
+            except (IOError, OSError):
+                checksum_correctness = False
             if not checksum_correctness:
                 e = "File {} is corrupted.".format(filetransfer.source)
                 logger.error("An error occurred during content import: {}".format(e))
-                os.remove(filetransfer.dest)
+                try:
+                    os.remove(filetransfer.dest)
+                except OSError:
+                    pass
                 return FILE_SKIPPED, data_transferred
 
         return FILE_TRANSFERRED, data_transferred
@@ -492,6 +584,9 @@ class Command(AsyncCommand):
                 peer_id=options["peer_id"],
                 renderable_only=options["renderable_only"],
                 import_updates=options["import_updates"],
+                fail_on_error=options["fail_on_error"],
+                timeout=options["timeout"],
+                content_dir=options["content_dir"],
             )
         elif options["command"] == "disk":
             self.copy_content(
@@ -502,6 +597,8 @@ class Command(AsyncCommand):
                 exclude_node_ids=options["exclude_node_ids"],
                 renderable_only=options["renderable_only"],
                 import_updates=options["import_updates"],
+                fail_on_error=options["fail_on_error"],
+                content_dir=options["content_dir"],
             )
         else:
             self._parser.print_help()

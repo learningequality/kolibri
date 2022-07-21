@@ -5,8 +5,8 @@ Also tests whether the users with permissions can create logs.
 """
 import uuid
 
-from django.core.urlresolvers import reverse
 from django.http.cookie import SimpleCookie
+from django.urls import reverse
 from le_utils.constants import content_kinds
 from le_utils.constants import exercises
 from le_utils.constants import modalities

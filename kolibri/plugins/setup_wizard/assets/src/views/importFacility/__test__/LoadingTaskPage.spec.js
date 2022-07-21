@@ -1,18 +1,20 @@
 import { mount } from '@vue/test-utils';
+import { TaskResource } from 'kolibri.resources';
 import LoadingTaskPage from '../LoadingTaskPage';
-import { SetupTasksResource } from '../../../api';
 
-jest.mock('../../../api', () => ({
-  SetupTasksResource: {
-    canceltask: jest.fn(),
-    cleartasks: jest.fn(),
-    fetchCollection: jest.fn(),
+jest.mock('kolibri.resources', () => ({
+  TaskResource: {
+    cancel: jest.fn(),
+    clearAll: jest.fn(),
+    restart: jest.fn(),
+    list: jest.fn(),
   },
 }));
 
-const cancelTaskMock = SetupTasksResource.canceltask;
-const clearTasksMock = SetupTasksResource.cleartasks;
-const fetchCollectionMock = SetupTasksResource.fetchCollection;
+const cancelTaskMock = TaskResource.cancel;
+const clearTasksMock = TaskResource.clearAll;
+const restartMock = TaskResource.restart;
+const listMock = TaskResource.list;
 
 function makeWrapper() {
   const wrapper = mount(LoadingTaskPage, {
@@ -39,11 +41,12 @@ describe('LoadingTaskPage', () => {
   afterEach(() => {
     cancelTaskMock.mockReset();
     clearTasksMock.mockReset();
-    fetchCollectionMock.mockReset();
+    listMock.mockReset();
+    restartMock.mockReset();
   });
 
   it('loads the first task in the queue and starts polling', async () => {
-    fetchCollectionMock.mockResolvedValue([{ status: 'RUNNING' }]);
+    listMock.mockResolvedValue([{ status: 'RUNNING' }]);
     const { wrapper } = makeWrapper();
     await global.flushPromises();
     const taskPanel = wrapper.findComponent({ name: 'FacilityTaskPanel' });
@@ -53,7 +56,7 @@ describe('LoadingTaskPage', () => {
   });
 
   it('when tasks succeeds, the "continue" button is available', async () => {
-    fetchCollectionMock.mockResolvedValue([{ status: 'COMPLETED' }]);
+    listMock.mockResolvedValue([{ status: 'COMPLETED' }]);
     const { wrapper } = makeWrapper();
     const continueSpy = jest.spyOn(wrapper.vm, 'handleClickContinue');
     await global.flushPromises();
@@ -68,12 +71,9 @@ describe('LoadingTaskPage', () => {
   });
 
   it('when task fails, the "retry" button is available', async () => {
-    fetchCollectionMock.mockResolvedValue([{ status: 'FAILED' }]);
+    listMock.mockResolvedValue([{ status: 'FAILED' }]);
     const { wrapper } = makeWrapper();
     const retrySpy = jest.spyOn(wrapper.vm, 'retryImport');
-
-    // Mocking the proxied method instead of the whole mixin module
-    const startImportSpy = jest.spyOn(wrapper.vm, 'startPeerImportTask').mockResolvedValue();
 
     await global.flushPromises();
     const buttons = wrapper.findAllComponents({ name: 'KButton' });
@@ -85,19 +85,11 @@ describe('LoadingTaskPage', () => {
     await global.flushPromises();
 
     expect(retrySpy).toBeCalledTimes(1);
-    expect(clearTasksMock).toBeCalledTimes(1);
-    expect(startImportSpy).toBeCalledTimes(1);
-    expect(startImportSpy).toBeCalledWith({
-      facility: '4494060ae9b746af80200faa848eb23d',
-      facility_name: 'Kolibri School',
-      username: 'username',
-      password: 'password',
-      baseurl: 'http://localhost:8000',
-    });
+    expect(restartMock).toBeCalledTimes(1);
   });
 
   it('when task fails, the "start over" button is available', async () => {
-    fetchCollectionMock.mockResolvedValue([{ status: 'FAILED' }]);
+    listMock.mockResolvedValue([{ status: 'FAILED' }]);
     const { wrapper } = makeWrapper();
     const startOverSpy = jest.spyOn(wrapper.vm, 'startOver');
 
@@ -120,7 +112,7 @@ describe('LoadingTaskPage', () => {
   });
 
   it('a cancel request is made when "cancel" is clicked', async () => {
-    fetchCollectionMock.mockResolvedValue([{ status: 'RUNNING' }]);
+    listMock.mockResolvedValue([{ status: 'RUNNING' }]);
     const { wrapper } = makeWrapper();
     await global.flushPromises();
     const taskPanel = wrapper.findComponent({ name: 'FacilityTaskPanel' });

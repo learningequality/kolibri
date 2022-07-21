@@ -88,6 +88,10 @@ def repair_sqlite_db(connection):
         conn_name = connection.alias
         original_path = connection.get_connection_params()["database"]
 
+    if original_path == ":memory:":
+        # If it's an in memory database we can't do anything
+        return
+
     fname = "{con}_{dtm}.dump".format(
         con=conn_name, dtm=datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     )

@@ -1,9 +1,10 @@
 <template>
 
   <KModal
+    v-if="displayedCopies.length"
     :title="$tr('copies')"
     :submitText="coreString('closeAction')"
-    @submit="$emit('submit')"
+    @submit="$emit('closeModal')"
   >
     <transition mode="out-in">
       <ul>
@@ -15,7 +16,7 @@
           <div class="title">
             <KRouterLink
               :text="copy.title"
-              :to="genContentLink(copy)"
+              :to="contentLink(copy)"
             />
           </div>
           <ol>
@@ -39,18 +40,20 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import genContentLink from '../utils/genContentLink';
 
   export default {
     name: 'CopiesModal',
     mixins: [commonCoreStrings],
     props: {
-      copies: {
-        type: Array,
+      displayedCopies: {
+        type: Object,
         required: true,
       },
-      genContentLink: {
-        type: Function,
-        required: true,
+    },
+    methods: {
+      contentLink(copy) {
+        return genContentLink(copy);
       },
     },
     $trs: {

@@ -162,7 +162,7 @@ class FilterByUUIDQuerysetMixin(object):
             lookup = "in"
         else:
             if len(ids) > 10000:
-                logger.warn(
+                logger.warning(
                     """
                     More than 10000 UUIDs passed to filter by uuids method,
                     these should be batched into separate querysets to avoid SQL Query too large errors in SQLite

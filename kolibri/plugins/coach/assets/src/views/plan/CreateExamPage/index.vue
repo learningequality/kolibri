@@ -105,7 +105,9 @@
         />
       </div>
       <div v-if="examCreationRoute">
-        <p>{{ coreString('selectFromBookmarks') }}</p>
+        <p v-if="bookmarksCount">
+          {{ coreString('selectFromBookmarks') }}
+        </p>
         <KRouterLink
           v-if="bookmarksCount"
           :style="{ width: '100%' }"
@@ -121,7 +123,7 @@
         </KRouterLink>
       </div>
 
-      <div v-if="examCreationRoute || examTopicRoute">
+      <div v-if="examCreationRoute || examTopicRoute || inSearchMode">
         <LessonsSearchBox
           class="search-box"
           @searchterm="handleSearchTerm"
@@ -170,6 +172,7 @@
           <KButton
             :text="coreString('continueAction')"
             primary
+            :disabled="!exercisesHaveBeenSelected"
             @click="continueProcess"
           />
         </KButtonGroup>
@@ -333,6 +336,9 @@
       },
       addableExercises() {
         return this.allExercises.filter(exercise => !this.selectedExercises[exercise.id]);
+      },
+      exercisesHaveBeenSelected() {
+        return Object.keys(this.selectedExercises).length > 0;
       },
       selectAllChecked() {
         return this.addableExercises.length === 0;

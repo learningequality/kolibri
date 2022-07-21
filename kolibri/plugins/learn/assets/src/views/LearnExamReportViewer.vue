@@ -1,28 +1,34 @@
 <template>
 
-  <KPageContainer :topMargin="0">
-    <div v-if="exerciseContentNodes && exerciseContentNodes.length">
-      <ExamReport
-        :contentId="exam.id"
-        :title="exam.title"
-        :userName="userName"
-        :userId="userId"
-        :selectedInteractionIndex="selectedInteractionIndex"
-        :questionNumber="questionNumber"
-        :tryIndex="tryIndex"
-        :exercise="exercise"
-        :exerciseContentNodes="exerciseContentNodes"
-        :navigateTo="navigateTo"
-        :questions="questions"
-        @noCompleteTries="noCompleteTries"
-      />
-    </div>
-    <div v-else>
-      <p class="no-exercise">
-        {{ $tr('missingContent') }}
-      </p>
-    </div>
-  </KPageContainer>
+  <ImmersivePageRoot
+    :route="homePageLink"
+    :appBarTitle="exam.title || ''"
+  >
+    <KPageContainer :topMargin="50" class="container">
+      <div v-if="exerciseContentNodes && exerciseContentNodes.length">
+        <ExamReport
+          :contentId="exam.id"
+          :title="exam.title"
+          :userName="userName"
+          :userId="userId"
+          :selectedInteractionIndex="selectedInteractionIndex"
+          :questionNumber="questionNumber"
+          :tryIndex="tryIndex"
+          :exercise="exercise"
+          :exerciseContentNodes="exerciseContentNodes"
+          :navigateTo="navigateTo"
+          :questions="questions"
+          @noCompleteTries="noCompleteTries"
+        />
+      </div>
+      <div v-else>
+        <p class="no-exercise">
+          {{ $tr('missingContent') }}
+        </p>
+      </div>
+    </KPageContainer>
+
+  </ImmersivePageRoot>
 
 </template>
 
@@ -31,7 +37,8 @@
 
   import { mapState } from 'vuex';
   import ExamReport from 'kolibri.coreVue.components.ExamReport';
-  import { ClassesPageNames } from '../constants';
+  import { PageNames, ClassesPageNames } from '../constants';
+  import ImmersivePageRoot from './ImmersivePageRoot';
 
   export default {
     name: 'LearnExamReportViewer',
@@ -42,6 +49,7 @@
     },
     components: {
       ExamReport,
+      ImmersivePageRoot,
     },
     computed: {
       ...mapState('examReportViewer', [
@@ -60,6 +68,11 @@
         userName: state => state.core.session.full_name,
         userId: state => state.core.session.user_id,
       }),
+      homePageLink() {
+        return {
+          name: PageNames.HOME,
+        };
+      },
     },
     methods: {
       navigateTo(tryIndex, questionNumber, interaction) {
@@ -102,6 +115,11 @@
 
   .no-exercise {
     text-align: center;
+  }
+
+  .container {
+    max-width: 1000px;
+    margin: auto;
   }
 
 </style>

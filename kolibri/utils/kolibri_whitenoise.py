@@ -8,12 +8,17 @@ from wsgiref.headers import Headers
 from django.contrib.staticfiles import finders
 from django.core.files.storage import FileSystemStorage
 from django.utils._os import safe_join
+from six.moves.urllib.parse import parse_qs
+from six.moves.urllib.parse import urljoin
 from whitenoise import WhiteNoise
 from whitenoise.httpstatus_backport import HTTPStatus
 from whitenoise.responders import MissingFileError
+from whitenoise.responders import NOT_ALLOWED_RESPONSE
 from whitenoise.responders import Response
 from whitenoise.responders import StaticFile
 from whitenoise.string_utils import decode_path_info
+
+from kolibri.utils.file_transfer import FileDownload
 
 
 compressed_file_extensions = ("gz",)
@@ -32,6 +37,15 @@ class NotFoundStaticFile(object):
 
 
 NOT_FOUND = NotFoundStaticFile()
+
+
+def _get_file_path(root, path, prefix=None):
+    if prefix:
+        prefix = prefix + "/"
+        if not path.startswith(prefix):
+            return None
+        path = path[len(prefix) :]
+    return safe_join(root, path)
 
 
 class FileFinder(finders.FileSystemFinder):
@@ -70,14 +84,46 @@ class FileFinder(finders.FileSystemFinder):
         absolute path (or ``None`` if no match).
         Vendored from Django to handle being passed a URL path instead of a file path.
         """
-        if prefix:
-            prefix = prefix + "/"
-            if not path.startswith(prefix):
-                return None
-            path = path[len(prefix) :]
-        path = safe_join(root, path)
-        if os.path.exists(path):
+        path = _get_file_path(root, path, prefix)
+        if path and os.path.exists(path):
             return path
+
+
+class RemoteFile(BufferedIOBase):
+    """
+    A file like wrapper to handle downloading a file from a remote location.
+    """
+
+    def __init__(self, filepath, remote_url, callback=None):
+        self.transfer = FileDownload(
+            remote_url, filepath, remove_existing_temp_file=True
+        )
+        self.callback = callback
+        self.transfer.start()
+        self._previously_read = b""
+
+    def read(self, size=-1):
+        data = self._previously_read
+        while size == -1 or len(data) < size:
+            try:
+                data += next(self.transfer)
+            except StopIteration:
+                if self.callback:
+                    self.callback()
+                break
+        if size != -1:
+            self._previously_read = data[size:]
+            data = data[:size]
+        return data
+
+    def close(self):
+        # Finish the download and close the file
+        self.read()
+        self.transfer.close()
+
+    def seek(self, offset, whence=0):
+        # Just read from the response until the offset is reached
+        self.read(size=offset)
 
 
 class SlicedFile(BufferedIOBase):
@@ -127,11 +173,63 @@ class EndRangeStaticFile(StaticFile):
         return Response(HTTPStatus.PARTIAL_CONTENT, headers, file_handle)
 
 
+class StreamingStaticFile(EndRangeStaticFile):
+    def __init__(self, path, headers, remote_url):
+        self.path = path
+        self.remote_url = remote_url
+        self.headers = headers
+
+    def complete_transfer(self):
+        super(StreamingStaticFile, self).__init__(self.path, self.headers.items())
+
+    def get_response(self, method, request_headers):
+        """
+        Returns a streaming response for a request.
+        Vendored and modified from Whitenoise.
+        """
+        if os.path.exists(self.path):
+            return super(StreamingStaticFile, self).get_response(
+                method, request_headers
+            )
+        if method not in ("GET", "HEAD"):
+            return NOT_ALLOWED_RESPONSE
+        if method != "HEAD":
+            try:
+                file_handle = RemoteFile(
+                    self.path, self.remote_url, callback=self.complete_transfer
+                )
+                if file_handle.transfer.total_size:
+                    self.headers["Content-Length"] = str(
+                        file_handle.transfer.total_size
+                    )
+            except Exception:
+                return NOT_FOUND.get_response(method, request_headers)
+        else:
+            file_handle = None
+        range_header = request_headers.get("HTTP_RANGE")
+        if range_header:
+            try:
+                return self.get_range_response(
+                    range_header, self.headers.items(), file_handle
+                )
+            except ValueError:
+                # If we can't interpret the Range request for any reason then
+                # just ignore it and return the standard response (this
+                # behaviour is allowed by the spec)
+                pass
+        return Response(HTTPStatus.OK, self.headers.items(), file_handle)
+
+
 class DynamicWhiteNoise(WhiteNoise):
     index_file = "index.html"
 
     def __init__(
-        self, application, dynamic_locations=None, static_prefix=None, **kwargs
+        self,
+        application,
+        dynamic_locations=None,
+        static_prefix=None,
+        writable_locations=(0,),
+        **kwargs
     ):
         whitenoise_settings = {
             # Use 120 seconds as the default cache time for static assets
@@ -152,23 +250,39 @@ class DynamicWhiteNoise(WhiteNoise):
             if self.dynamic_finder.prefixes
             else None
         )
+        self.writable_locations = {}
+        if dynamic_locations:
+            for index in writable_locations:
+                try:
+                    prefix, root = self.dynamic_finder.locations[index]
+                    self.writable_locations[prefix] = root
+                except IndexError:
+                    pass
+        self.writable_check = (
+            re.compile("^({})".format("|".join(self.writable_locations.keys())))
+            if self.writable_locations
+            else None
+        )
         if static_prefix is not None and not static_prefix.endswith("/"):
             raise ValueError("Static prefix must end in '/'")
         self.static_prefix = static_prefix
 
     def __call__(self, environ, start_response):
         path = decode_path_info(environ.get("PATH_INFO", ""))
+        remote_baseurl = parse_qs(environ.get("QUERY_STRING", "")).get(
+            "baseurl", [None]
+        )[0]
         if self.autorefresh:
             static_file = self.find_file(path)
         else:
             static_file = self.files.get(path)
         if static_file is None:
-            static_file = self.find_and_cache_dynamic_file(path)
+            static_file = self.find_and_cache_dynamic_file(path, remote_baseurl)
         if static_file is None:
             return self.application(environ, start_response)
         return self.serve(static_file, environ, start_response)
 
-    def find_and_cache_dynamic_file(self, url):
+    def find_and_cache_dynamic_file(self, url, remote_baseurl):
         path = self.get_dynamic_path(url)
         if path:
             file_stat = os.stat(path)
@@ -182,6 +296,12 @@ class DynamicWhiteNoise(WhiteNoise):
                     except (IOError, OSError):
                         pass
                 self.add_file_to_dictionary(url, path, stat_cache=stat_cache)
+        elif (
+            remote_baseurl is not None
+            and self.writable_check is not None
+            and self.writable_check.match(url)
+        ):
+            self.files[url] = self.get_streaming_static_file(url, remote_baseurl)
         elif (
             path is None
             and self.static_prefix is not None
@@ -224,4 +344,27 @@ class DynamicWhiteNoise(WhiteNoise):
             headers.items(),
             stat_cache=stat_cache,
             encodings={"gzip": path + ".gz", "br": path + ".br"},
+        )
+
+    def get_streaming_static_file(self, url, remote_baseurl):
+        """
+        Vendor this function from source to substitute in our
+        own StaticFile class that can properly handle ranges.
+        """
+        headers = Headers([])
+        prefix, local_dir = next(
+            (key, self.writable_locations[key])
+            for key in self.writable_locations
+            if key == url[: len(key)]
+        )
+        path = _get_file_path(local_dir, url, prefix)
+        self.add_mime_headers(headers, path, url)
+        self.add_cache_headers(headers, path, url)
+        if self.allow_all_origins:
+            headers["Access-Control-Allow-Origin"] = "*"
+        if self.add_headers_function:
+            self.add_headers_function(headers, path, url)
+        headers["Content-Encoding"] = ""
+        return StreamingStaticFile(
+            os.path.join(local_dir, path), headers, urljoin(remote_baseurl, url)
         )

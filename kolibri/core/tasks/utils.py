@@ -1,14 +1,24 @@
-import importlib
 import logging
+import os
+import sqlite3
 import time
 import uuid
 from threading import Thread
 
 from django.utils.functional import SimpleLazyObject
+from django.utils.module_loading import import_string
 from six import string_types
+from sqlalchemy import create_engine
+from sqlalchemy import event
+from sqlalchemy import exc
 
+from kolibri.core.sqlite.utils import check_sqlite_integrity
+from kolibri.core.sqlite.utils import repair_sqlite_db
 from kolibri.core.tasks import compat
+from kolibri.utils import conf
 
+
+logger = logging.getLogger(__name__)
 
 # An object on which to store data about the current job
 # So far the only use is to track the job, but other metadata
@@ -41,15 +51,10 @@ def import_stringified_func(funcstring):
     :param funcstring: String to try to import
     :return: callable
     """
-    if not isinstance(funcstring, string_types):
-        raise TypeError("Argument must be a string")
-
-    modulestring, funcname = funcstring.rsplit(".", 1)
-
-    mod = importlib.import_module(modulestring)
-
-    func = getattr(mod, funcname)
-    return func
+    try:
+        return import_string(funcstring)
+    except AttributeError:
+        raise ImportError("Invalid module path: {}".format(funcstring))
 
 
 class InfiniteLoopThread(Thread):
@@ -124,3 +129,80 @@ class InfiniteLoopThread(Thread):
 
     def shutdown(self):
         self.stop()
+
+
+def create_db_url(
+    db_type, path=None, name=None, password=None, user=None, host=None, port=None
+):
+    if db_type == "sqlite":
+        return "sqlite:///{path}".format(path=path)
+    elif db_type == "postgres":
+        return "postgresql://{user}:{password}@{host}{port}/{name}".format(
+            name=name,
+            password=password,
+            user=user,
+            host=host,
+            port=":" + port if port else "",
+        )
+
+
+def make_connection(db_type, url):
+    if db_type == "sqlite":
+        kwargs = dict(
+            connect_args={"check_same_thread": False},
+        )
+
+    elif db_type == "postgres":
+        kwargs = dict(
+            pool_pre_ping=True,
+            client_encoding="utf8",
+        )
+    else:
+        raise Exception("Unknown database engine option: {}".format(db_type))
+
+    connection = create_engine(url, **kwargs)
+
+    # Add multiprocessing safeguards as recommended by:
+    # https://docs.sqlalchemy.org/en/13/core/pooling.html#pooling-multiprocessing
+    # Don't make a connection before we've added the multiprocessing guards
+    # as otherwise we will have a connection that doesn't have the 'pid' attribute set.
+    @event.listens_for(connection, "connect")
+    def connect(dbapi_connection, connection_record):
+        connection_record.info["pid"] = os.getpid()
+
+    @event.listens_for(connection, "checkout")
+    def checkout(dbapi_connection, connection_record, connection_proxy):
+        pid = os.getpid()
+        if connection_record.info["pid"] != pid:
+            connection_record.connection = connection_proxy.connection = None
+            raise exc.DisconnectionError(
+                "Connection record belongs to pid %s, attempting to check out in pid %s"
+                % (connection_record.info["pid"], pid)
+            )
+
+    return connection
+
+
+def db_connection():
+    db_url = create_db_url(
+        conf.OPTIONS["Database"]["DATABASE_ENGINE"],
+        path=conf.OPTIONS["Tasks"]["JOB_STORAGE_FILEPATH"],
+        name=conf.OPTIONS["Database"]["DATABASE_NAME"],
+        password=conf.OPTIONS["Database"]["DATABASE_PASSWORD"],
+        user=conf.OPTIONS["Database"]["DATABASE_USER"],
+        host=conf.OPTIONS["Database"]["DATABASE_HOST"],
+        port=conf.OPTIONS["Database"]["DATABASE_PORT"],
+    )
+    connection = make_connection(
+        conf.OPTIONS["Database"]["DATABASE_ENGINE"],
+        db_url,
+    )
+
+    # Check if the database is corrupted
+    try:
+        check_sqlite_integrity(connection)
+    except (exc.DatabaseError, sqlite3.DatabaseError):
+        logger.warning("Job storage database has been corrupted, regenerating")
+        repair_sqlite_db(connection)
+
+    return connection

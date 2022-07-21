@@ -273,6 +273,10 @@ export class HeartBeat {
    * session endpoint poll.
    */
   pollSessionEndPoint() {
+    // If not enabled, do nothing.
+    if (!this._enabled) {
+      return Promise.resolve();
+    }
     if (!this._activePromise) {
       if (this._active) {
         this._setActivityListeners();

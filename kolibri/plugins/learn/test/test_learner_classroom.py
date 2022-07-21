@@ -2,7 +2,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.timezone import now
 from le_utils.constants import content_kinds
 from rest_framework.test import APITestCase

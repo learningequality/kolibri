@@ -5,7 +5,7 @@ const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const webpack = require('webpack');
 
-module.exports = ({ mode = 'development', hot = false } = {}) => {
+module.exports = ({ mode = 'development', hot = false, cache = false } = {}) => {
   const production = mode === 'production';
 
   // Have to pass this option to prevent complaints about empty exports:
@@ -37,9 +37,12 @@ module.exports = ({ mode = 'development', hot = false } = {}) => {
   return {
     target: 'browserslist',
     mode,
-    cache: !production && {
+    cache: cache && {
       type: 'filesystem',
       version: '1.0.0',
+      buildDependencies: {
+        config: [__filename],
+      },
     },
     module: {
       rules: [
@@ -56,7 +59,11 @@ module.exports = ({ mode = 'development', hot = false } = {}) => {
         {
           test: /\.js$/,
           loader: 'babel-loader',
-          exclude: [/(node_modules\/vue|dist|core-js)/, { not: [/\.(esm\.js|mjs)$/] }],
+          exclude: { and: [/(node_modules\/vue|dist|core-js)/, { not: [/\.(esm\.js|mjs)$/] }] },
+          options: {
+            cacheDirectory: cache,
+            cacheCompression: false,
+          },
         },
         {
           test: /\.css$/,

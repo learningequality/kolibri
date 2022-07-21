@@ -5,6 +5,7 @@ from uuid import uuid4
 
 import pytest
 from django.core.management import call_command
+from django.test import override_settings
 from django.test import TestCase
 
 from ..management.commands import bulkimportusers as b
@@ -14,6 +15,7 @@ from kolibri.core.auth.constants import demographics
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.utils.csv import open_csv_for_reading
 from kolibri.core.utils.csv import open_csv_for_writing
 
 if sys.version_info[0] < 3:
@@ -97,6 +99,7 @@ def test_not_empty():
         check("")
 
 
+@override_settings(LANGUAGE_CODE="en")
 class ImportTestCase(TestCase):
     def setUp(self):
         self.data = create_dummy_facility_data(
@@ -133,7 +136,7 @@ class ImportTestCase(TestCase):
         # Remove UUID so new users are created
         _, new_filepath = tempfile.mkstemp(suffix=".csv")
         rows = []
-        with open(self.filepath) as source:
+        with open_csv_for_reading(self.filepath) as source:
             reader = csv.reader(source, strict=True)
             for row in reader:
                 row[0] = None
@@ -150,14 +153,14 @@ class ImportTestCase(TestCase):
             assert len(classroom.get_coaches()) == 1
 
     def test_dryrun_from_export_csv(self):
-        with open(self.filepath, "r") as source:
+        with open_csv_for_reading(self.filepath) as source:
             header = next(csv.reader(source, strict=True))
         header_translation = {
             lbl.partition("(")[2].partition(")")[0]: lbl for lbl in header
         }
         cmd = b.Command()
 
-        with open(self.filepath) as source:
+        with open_csv_for_reading(self.filepath) as source:
             reader = csv.DictReader(source, strict=True)
             per_line_errors, classes, users, roles = cmd.csv_values_validation(
                 reader, header_translation
@@ -220,14 +223,14 @@ class ImportTestCase(TestCase):
         ]
         self.create_csv(new_filepath, rows)
 
-        with open(new_filepath, "r") as source:
+        with open_csv_for_reading(new_filepath) as source:
             header = next(csv.reader(source, strict=True))
         header_translation = {
             lbl.partition("(")[2].partition(")")[0]: lbl for lbl in header
         }
         cmd = b.Command()
 
-        with open(new_filepath, "r") as source:
+        with open_csv_for_reading(new_filepath) as source:
             reader = csv.DictReader(source, strict=True)
             per_line_errors, classes, users, roles = cmd.csv_values_validation(
                 reader, header_translation
@@ -494,7 +497,7 @@ class ImportTestCase(TestCase):
         self.import_exported_csv()
         _, new_filepath = tempfile.mkstemp(suffix=".csv")
         rows = []
-        with open(self.filepath) as source:
+        with open_csv_for_reading(self.filepath) as source:
             reader = csv.reader(source, strict=True)
             for row in reader:
                 row[0] = uuid4()

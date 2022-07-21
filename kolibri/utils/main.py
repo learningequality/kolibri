@@ -21,7 +21,6 @@ from kolibri.core.device.utils import device_provisioned
 from kolibri.core.device.utils import provision_from_file
 from kolibri.core.deviceadmin.exceptions import IncompatibleDatabase
 from kolibri.core.deviceadmin.utils import get_backup_files
-from kolibri.core.tasks.main import import_tasks_module_from_django_apps
 from kolibri.core.upgrade import matches_version
 from kolibri.core.upgrade import run_upgrades
 from kolibri.core.utils.cache import process_cache
@@ -176,7 +175,7 @@ def _copy_preseeded_db(db_name, target=None):
                     "home/{}.sqlite3".format(db_name),
                 )
             )
-            shutil.copy(db_path, target)
+            shutil.copyfile(db_path, target)
             logger.info(
                 "Copied preseeded database from {} to {}".format(db_path, target)
             )
@@ -213,11 +212,14 @@ def _upgrades_before_django_setup(updated, version):
         # that we bundle in the Kolibri whl file.
         if not version:
             logger.info("Attempting to setup using pre-migrated databases")
+            # Only copy the default database if this is a fresh install
+            _copy_preseeded_db("db", target=OPTIONS["Database"]["DATABASE_NAME"])
 
-        _copy_preseeded_db("db", target=OPTIONS["Database"]["DATABASE_NAME"])
-
-        for db_name in ADDITIONAL_SQLITE_DATABASES:
-            _copy_preseeded_db(db_name)
+        if not version or updated:
+            # If this is an upgrade, it is possible we've added an additional
+            # database, so we can attempt to copy a preseeded database here.
+            for db_name in ADDITIONAL_SQLITE_DATABASES:
+                _copy_preseeded_db(db_name)
 
 
 def _post_django_initialization():
@@ -319,8 +321,6 @@ def initialize(
             raise
 
         _upgrades_after_django_setup(updated, version)
-
-    import_tasks_module_from_django_apps()
 
 
 def update(old_version, new_version):

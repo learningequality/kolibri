@@ -19,6 +19,7 @@ module.exports = {
     __kolibriModuleName: 'testmodule',
     __version: 'testversion',
     __copyrightYear: '2018',
+    __webpack_public_path__: 'webpack_public_path',
     'vue-jest': {
       babelConfig,
     },

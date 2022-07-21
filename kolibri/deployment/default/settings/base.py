@@ -39,6 +39,9 @@ except ImportError:
     pass
 
 
+if not os.path.exists(conf.KOLIBRI_HOME):
+    raise RuntimeError("The KOLIBRI_HOME dir does not exist")
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 # import kolibri, so we can get the path to the module.
 # we load other utilities related to i18n
@@ -276,6 +279,12 @@ EXTRA_LANG_INFO = {
         "name": "Portuguese (Mozambique)",
         "name_local": "Português (Moçambique)",
     },
+    "uk": {
+        "bidi": False,
+        "code": "uk",
+        "name": "Ukrainian",
+        "name_local": "Украї́нська мо́ва",
+    },
     "zh": {
         "bidi": False,
         "code": "zh-hans",
@@ -287,9 +296,11 @@ EXTRA_LANG_INFO = {
 }
 locale.LANG_INFO.update(EXTRA_LANG_INFO)
 
+default_language = i18n.get_system_default_language()
+
 LANGUAGE_CODE = (
-    "en"
-    if "en" in conf.OPTIONS["Deployment"]["LANGUAGES"]
+    default_language
+    if default_language in conf.OPTIONS["Deployment"]["LANGUAGES"]
     else conf.OPTIONS["Deployment"]["LANGUAGES"][0]
 )
 
@@ -324,6 +335,10 @@ STATIC_URL = urljoin(path_prefix, "static/")
 STATIC_ROOT = os.path.join(conf.KOLIBRI_HOME, "static")
 MEDIA_URL = urljoin(path_prefix, "media/")
 MEDIA_ROOT = os.path.join(conf.KOLIBRI_HOME, "media")
+
+FILE_UPLOAD_HANDLERS = [
+    "django.core.files.uploadhandler.TemporaryFileUploadHandler",
+]
 
 # https://docs.djangoproject.com/en/1.11/ref/settings/#csrf-cookie-path
 # Ensure that our CSRF cookie does not collide with other CSRF cookies
@@ -387,9 +402,9 @@ SESSION_ENGINE = "django.contrib.sessions.backends.file"
 
 SESSION_FILE_PATH = os.path.join(conf.KOLIBRI_HOME, "sessions")
 
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
 if not os.path.exists(SESSION_FILE_PATH):
-    if not os.path.exists(conf.KOLIBRI_HOME):
-        raise RuntimeError("The KOLIBRI_HOME dir does not exist")
     os.mkdir(SESSION_FILE_PATH)
 
 SESSION_COOKIE_NAME = "kolibri"

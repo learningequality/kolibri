@@ -4,17 +4,21 @@ options.ini file.
 The settings can be changed through environment variables or sections and keys
 in the options.ini file.
 """
+import ast
 import logging.config
 import os
 import sys
+from functools import update_wrapper
 
 from configobj import ConfigObj
 from configobj import flatten_errors
 from configobj import get_extra_values
 from django.utils.functional import SimpleLazyObject
+from django.utils.module_loading import import_string
 from django.utils.six import string_types
 from six.moves.urllib.parse import urlparse
 from six.moves.urllib.parse import urlunparse
+from validate import is_boolean
 from validate import Validator
 from validate import VdtTypeError
 from validate import VdtValueError
@@ -46,6 +50,10 @@ FD_PER_THREAD = sum(
         CACHE_SHARDS,  # assuming diskcache
     )
 )
+
+# Reserve some file descriptors for file operations happening in asynchronous tasks
+# when the server is running with threaded task runners.
+MIN_RESERVED_FD = 64
 
 
 def calculate_thread_pool():
@@ -79,8 +87,9 @@ def calculate_thread_pool():
         pool_size = MAX_POOL
 
     # ensure (number of threads) x (open file descriptors) < (fd limit)
-    max_threads = get_fd_limit() // FD_PER_THREAD
-    return min(pool_size, max_threads)
+    max_threads = (get_fd_limit() - MIN_RESERVED_FD) // FD_PER_THREAD
+    # Ensure that the number of threads never goes below 1
+    return max(1, min(pool_size, max_threads))
 
 
 ALL_LANGUAGES = "kolibri-all"
@@ -106,6 +115,27 @@ def _process_language_string(value):
     raise ValueError
 
 
+def _process_list(value, separator=","):
+    """
+    Used to validate list values.
+    The only valid argument in this case is that it is a list
+    so we first try to coerce it to a list, then do some checks
+    to see if it is any of our special values. Then if it is an
+    appropriate list value.
+    If no value is appropriate, raise a ValueError.
+    """
+
+    # Check the supplied value is a list
+    if not isinstance(value, list):
+        if not value:
+            value = []
+        elif isinstance(value, string_types):
+            value = value.split(separator)
+        else:
+            value = [value]
+    return value
+
+
 def language_list(value):
     """
     Check that the supplied value is a list of languages,
@@ -121,9 +151,7 @@ def language_list(value):
     or one of the special strings represented by ALL_LANGUAGES or SUPPORTED_LANGUAGES
     A list must be a list of these strings.
     """
-    # Check the supplied value is a list
-    if not isinstance(value, list):
-        value = [value]
+    value = _process_list(value)
 
     out = set()
     errors = []
@@ -220,6 +248,89 @@ def url_prefix(value):
     if not isinstance(value, string_types):
         raise VdtValueError(value)
     return value.lstrip("/").rstrip("/") + "/"
+
+
+def multiprocess_bool(value):
+    """
+    Validate the boolean value of a multiprocessing option.
+    Do this by checking it's a boolean, and also that multiprocessing
+    can be imported properly on this platform.
+    """
+    value = is_boolean(value)
+    try:
+        if not value:
+            raise ImportError()
+        # Import in order to check if multiprocessing is supported on this platform
+        from multiprocessing import synchronize  # noqa
+
+        return True
+    except ImportError:
+        return False
+
+
+class LazyImportFunction(object):
+    """
+    A function wrapper that will import a module when called.
+    We may be able to drop this when Python 2.7 support is dropped
+    and use Python LazyLoader module machinery instead.
+    """
+
+    def __init__(self, module_name):
+        self.module_name = module_name
+        self._fn = None
+
+    def __call__(self, *args, **kwargs):
+        if self._fn is None:
+            fn = import_string(self.module_name)
+            if not callable(fn):
+                raise ImportError("Module {} is not callable".format(self.module_name))
+            self._fn = fn
+            update_wrapper(self, self._fn)
+        return self._fn(*args, **kwargs)
+
+
+def lazy_import_callback(value):
+    """
+    Validate that the value is a string that is a valid import name.
+    Does not validate that the module exists or can be imported,
+    so as to avoid premature evaluation of the module.
+    This is necessary to prevent circular dependencies if the module path
+    is internal to Kolibri, and also because the module may not be available
+    in some contexts.
+    """
+    if not isinstance(value, string_types):
+        raise VdtValueError(value)
+    try:
+        # Check that the string is at least parseable as a module name
+        ast.parse(value)
+    except SyntaxError:
+        raise VdtValueError(value)
+    # We seem to have something that is somewhat valid, so return a function
+    # that does the import and tries to invoke the returned function.
+
+    return LazyImportFunction(value)
+
+
+def lazy_import_callback_list(value):
+    """
+    Check that the supplied value is a list of import paths.
+
+    :param list[str] value: A list of strings that are valid import paths
+    """
+    value = _process_list(value)
+
+    out = []
+    errors = []
+    for entry in value:
+        try:
+            entry_list = lazy_import_callback(entry)
+            out.append(entry_list)
+        except ValueError:
+            errors.append(entry)
+    if errors:
+        raise VdtValueError(errors)
+
+    return out
 
 
 base_option_spec = {
@@ -516,6 +627,22 @@ base_option_spec = {
                 Value can either be a number suffixed with a unit (e.g. MB, GB, TB) or an integer number of bytes.
             """,
         },
+        "LISTEN_ADDRESS": {
+            "type": "ip_addr",
+            "default": "0.0.0.0",
+            "description": """
+                The address that the server should listen on. This can be used to restrict access to the server
+                to a specific network interface.
+            """,
+        },
+        "RESTART_HOOKS": {
+            "type": "lazy_import_callback_list",
+            "default": ["kolibri.utils.server.signal_restart"],
+            "description": """
+                A list of module paths for function callbacks that will be called when server restart is called.
+                The default is to disallow server restarts, so callbacks need to be added to enable restarting.
+            """,
+        },
     },
     "Python": {
         "PICKLE_PROTOCOL": {
@@ -529,13 +656,42 @@ base_option_spec = {
     },
     "Tasks": {
         "USE_WORKER_MULTIPROCESSING": {
-            "type": "boolean",
+            "type": "multiprocess_bool",
             "default": False,
             "description": """
                 Whether to use Python multiprocessing for worker pools. If False, then it will use threading. This may be useful,
                 if running on a dedicated device with multiple cores, and a lot of asynchronous tasks get run.
             """,
-        }
+        },
+        "REGULAR_PRIORITY_WORKERS": {
+            "type": "integer",
+            "default": 4,
+            "description": """
+                The number of workers to spin up for regular priority asynchronous tasks.
+            """,
+        },
+        "HIGH_PRIORITY_WORKERS": {
+            "type": "integer",
+            "default": 2,
+            "description": """
+                The number of workers to spin up for high priority asynchronous tasks.
+            """,
+        },
+        "JOB_STORAGE_FILEPATH": {
+            "type": "path",
+            "default": "job_storage.sqlite3",
+            "description": """
+                The file to use for the job storage database. This is only used in the case that the database backend being used is SQLite.
+            """,
+        },
+        "SCHEDULE_HOOKS": {
+            "type": "lazy_import_callback_list",
+            "description": """
+                A lsit of module paths for function callbacks that will be called when a job is scheduled in the storage class.
+                This is intended to allow an external task runner to be used to execute Kolibri tasks. The default is empty,
+                as the internal handling is sufficient for Kolibri's task running.
+            """,
+        },
     },
 }
 
@@ -550,6 +706,8 @@ def _get_validator():
             "port": port,
             "url_prefix": url_prefix,
             "bytes": validate_bytes,
+            "multiprocess_bool": multiprocess_bool,
+            "lazy_import_callback_list": lazy_import_callback_list,
         }
     )
 
@@ -589,7 +747,7 @@ def _get_option_spec():
             if default_envvar not in envvars:
                 envvars.add(default_envvar)
             else:
-                logging.warn(
+                logging.warning(
                     "Duplicate environment variable for options {}".format(
                         default_envvar
                     )
@@ -617,6 +775,8 @@ def get_configspec():
         lines.append("[{section}]".format(section=section))
         for name, attrs in opts.items():
             default = attrs.get("default", "")
+            if isinstance(default, list) and not default:
+                raise RuntimeError("For an empty list don't specify a default")
             the_type = attrs["type"]
             args = ["%r" % op for op in attrs.get("options", [])] + [
                 "default=list('{default_list}')".format(
@@ -647,10 +807,10 @@ def _set_from_envvars(conf):
     for section, opts in option_spec.items():
         for optname, attrs in opts.items():
             for envvar in attrs.get("envvars", []):
-                if os.environ.get(envvar):
+                if envvar in os.environ:
                     deprecated_envvars = attrs.get("deprecated_envvars", ())
                     if envvar in deprecated_envvars:
-                        logger.warn(
+                        logger.warning(
                             deprecation_warning.format(
                                 optname=optname,
                                 section=section,
@@ -669,7 +829,7 @@ def _set_from_envvars(conf):
                             )
                         )
                     if attrs.get("deprecated", False):
-                        logger.warn(
+                        logger.warning(
                             "Option {optname} in section [{section}] is deprecated, please remove it from your options.ini file".format(
                                 optname=optname, section=section
                             )
@@ -695,7 +855,7 @@ def _set_from_deprecated_aliases(conf):
         for optname, attrs in opts.items():
             for alias in attrs.get("deprecated_aliases", ()):
                 if alias in conf[section]:
-                    logger.warn(
+                    logger.warning(
                         deprecation_warning.format(
                             optname=optname,
                             section=section,
@@ -727,7 +887,7 @@ def read_options_file(ini_filename="options.ini"):
                 and section in conf
                 and optname in conf[section]
             ):
-                logger.warn(
+                logger.warning(
                     "Option {optname} in section [{section}] is deprecated, please remove it from your options.ini file".format(
                         optname=optname, section=section
                     )
@@ -786,7 +946,7 @@ def read_options_file(ini_filename="options.ini"):
         # determine whether the extra item is a section (dict) or value
         kind = "section" if isinstance(the_value, dict) else "option"
 
-        logger.warn(
+        logger.warning(
             "Ignoring unknown {kind} in options file {file} under {section}: {name}.".format(
                 kind=kind,
                 file=ini_path,

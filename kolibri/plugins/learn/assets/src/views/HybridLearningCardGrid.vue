@@ -12,7 +12,7 @@
           :isMobile="windowIsSmall"
           :content="content"
           :link="genContentLink(content)"
-          @openCopiesModal="openCopiesModal"
+          @openCopiesModal="copies => displayedCopies = copies"
           @toggleInfoPanel="$emit('toggleInfoPanel', content)"
         />
       </KFixedGridItem>
@@ -35,11 +35,11 @@
         :key="`resource-${idx}`"
         :contentNode="content"
         :to="genContentLink(content)"
-        @openCopiesModal="openCopiesModal"
+        @openCopiesModal="copies => displayedCopies = copies"
       />
     </CardGrid>
 
-    <HybridLearningContentCardListView
+    <CardList
       v-for="content in contents"
       v-else
       :key="content.id"
@@ -50,14 +50,13 @@
       :link="genContentLink(content)"
       :footerIcons="footerIcons"
       :createdDate="content.bookmark ? content.bookmark.created : null"
-      @openCopiesModal="openCopiesModal"
+      @openCopiesModal="copies => displayedCopies = copies"
       @viewInformation="$emit('toggleInfoPanel', content)"
       @removeFromBookmarks="removeFromBookmarks(content, contents)"
     />
     <CopiesModal
       v-if="displayedCopies.length"
-      :copies="displayedCopies"
-      :genContentLink="genContentLink"
+      :displayedCopies="displayedCopies"
       @submit="displayedCopies = []"
     />
   </div>
@@ -71,7 +70,7 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { PageNames } from '../constants';
   import genContentLink from '../utils/genContentLink';
-  import HybridLearningContentCardListView from './HybridLearningContentCardListView';
+  import CardList from './CardList';
   import HybridLearningContentCard from './HybridLearningContentCard';
   import HybridLearningLessonCard from './HybridLearningLessonCard';
   import ResourceCard from './cards/ResourceCard';
@@ -82,7 +81,7 @@
     name: 'HybridLearningCardGrid',
     components: {
       CopiesModal,
-      HybridLearningContentCardListView,
+      CardList,
       HybridLearningContentCard,
       HybridLearningLessonCard,
       ResourceCard,
@@ -118,9 +117,11 @@
         default: null,
       },
     },
-    data: () => ({
-      displayedCopies: [],
-    }),
+    data() {
+      return {
+        displayedCopies: [],
+      };
+    },
     computed: {
       ...mapState('lessonPlaylist', ['currentLesson']),
       pageName() {
@@ -169,9 +170,6 @@
           this.context
         );
       },
-      openCopiesModal(copies) {
-        this.displayedCopies = copies;
-      },
       removeFromBookmarks(content, contents) {
         return this.$emit('removeFromBookmarks', content.bookmark, contents.indexOf(content));
       },
@@ -183,7 +181,7 @@
 
 <style lang="scss" scoped>
 
-  $gutters: 16px;
+  $gutters: 32px;
 
   .card-grid-item {
     margin-bottom: $gutters;

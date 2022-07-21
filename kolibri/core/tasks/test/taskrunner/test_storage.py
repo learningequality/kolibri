@@ -2,9 +2,14 @@
 import time
 
 import pytest
+from mock import patch
 
+from kolibri.core.tasks.decorators import register_task
+from kolibri.core.tasks.exceptions import JobNotRestartable
 from kolibri.core.tasks.job import Job
+from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.job import State
+from kolibri.core.tasks.registry import TaskRegistry
 from kolibri.core.tasks.storage import Storage
 from kolibri.core.tasks.test.base import connection
 from kolibri.core.tasks.utils import stringify_func
@@ -23,19 +28,31 @@ def defaultbackend():
 
 
 @pytest.fixture
-def simplejob():
-    return Job(id)
+def func():
+    @register_task
+    def add(x, y):
+        return x + y
+
+    TaskRegistry["kolibri.core.tasks.test.taskrunner.test_storage.add"] = add
+
+    yield add
+    TaskRegistry.clear()
+
+
+@pytest.fixture
+def simplejob(func):
+    return Job(func)
 
 
 @pytest.mark.django_db
 class TestBackend:
-    def test_can_enqueue_single_job(self, defaultbackend, simplejob):
+    def test_can_enqueue_single_job(self, defaultbackend, simplejob, func):
         job_id = defaultbackend.enqueue_job(simplejob, QUEUE)
 
         new_job = defaultbackend.get_job(job_id)
 
         # Does the returned job record the function we set to run?
-        assert str(new_job.func) == stringify_func(id)
+        assert str(new_job.func) == stringify_func(func)
 
         # Does the job have the right state (QUEUED)?
         assert new_job.state == State.QUEUED
@@ -110,18 +127,42 @@ class TestBackend:
         assert job.cancellable, "Job is not cancellable default"
 
     def test_can_get_high_priority_job_first(self, defaultbackend, simplejob):
-        job_id = defaultbackend.enqueue_job(simplejob, QUEUE, "HIGH")
+        job_id = defaultbackend.enqueue_job(simplejob, QUEUE, Priority.HIGH)
 
-        defaultbackend.enqueue_job(simplejob, QUEUE, "REGULAR")
-        defaultbackend.enqueue_job(simplejob, QUEUE, "REGULAR")
+        defaultbackend.enqueue_job(simplejob, QUEUE, Priority.REGULAR)
+        defaultbackend.enqueue_job(simplejob, QUEUE, Priority.REGULAR)
 
         assert defaultbackend.get_next_queued_job().job_id == job_id
 
     def test_gets_oldest_high_priority_job_first(self, defaultbackend, simplejob):
-        job_id = defaultbackend.enqueue_job(simplejob, QUEUE, "HIGH")
+        job_id = defaultbackend.enqueue_job(simplejob, QUEUE, Priority.HIGH)
 
         # Sleep to prevent same time_created timestamp.
         time.sleep(2)
-        defaultbackend.enqueue_job(simplejob, QUEUE, "HIGH")
+        defaultbackend.enqueue_job(simplejob, QUEUE, Priority.HIGH)
 
         assert defaultbackend.get_next_queued_job().job_id == job_id
+
+    def test_restart_job(self, defaultbackend, simplejob):
+        with patch("kolibri.core.tasks.main.job_storage", wraps=defaultbackend):
+            job_id = defaultbackend.enqueue_job(simplejob, QUEUE)
+
+            for state in [
+                State.COMPLETED,
+                State.RUNNING,
+                State.QUEUED,
+                State.SCHEDULED,
+                State.CANCELING,
+            ]:
+                defaultbackend._update_job(job_id, state)
+                with pytest.raises(JobNotRestartable):
+                    defaultbackend.restart_job(job_id)
+
+            for state in [State.CANCELED, State.FAILED]:
+                defaultbackend._update_job(job_id, state)
+
+                restarted_job_id = defaultbackend.restart_job(job_id)
+                restarted_job = defaultbackend.get_job(restarted_job_id)
+
+                assert restarted_job_id == job_id
+                assert restarted_job.state == State.QUEUED

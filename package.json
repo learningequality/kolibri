@@ -16,7 +16,7 @@
     "makemessages": "kolibri-tools i18n-extract-messages --pluginFile ./build_tools/build_plugins.txt",
     "createprofiles": "kolibri-tools i18n-profile --pluginFile ./build_tools/build_plugins.txt --output-file ./kolibri/locale/en/LC_MESSAGES/profiles/strings.csv",
     "transfercontext": "kolibri-tools i18n-transfer-context --pluginFile ./build_tools/build_plugins.txt",
-    "watch": "kolibri-tools build dev --file ./build_tools/build_plugins.txt",
+    "watch": "kolibri-tools build dev --file ./build_tools/build_plugins.txt --cache",
     "watch-hot": "yarn run watch --hot",
     "python-devserver": "kolibri start --debug --foreground --port=8000 --settings=kolibri.deployment.default.settings.dev",
     "python-devserver-no-update": "kolibri start --debug --skip-update --foreground --port=8000 --settings=kolibri.deployment.default.settings.dev",
@@ -36,7 +36,7 @@
     "publish-packages": "node ./packages/publish.js",
     "hashi-dev": "yarn workspace hashi run dev",
     "hashi-build": "yarn workspace hashi run build",
-    "compress": "kolibri-tools compress 'kolibri/*/**/static/**/*.{js,css,ico,svg,map,eot,woff,ttf,woff2}'"
+    "compress": "kolibri-tools compress 'kolibri/*/**/static/**/*.{html,js,css,ico,svg,map,eot,woff,ttf,woff2}'"
   },
   "repository": {
     "type": "git",

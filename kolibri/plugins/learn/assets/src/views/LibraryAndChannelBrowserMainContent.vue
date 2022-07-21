@@ -31,8 +31,8 @@
       />
     </CardGrid>
     <!-- large displays, list view -->
-    <HybridLearningContentCardListView
-      v-for="content in contents"
+    <CardList
+      v-for="(content, idx) in contents"
       v-else-if="!windowIsSmall && currentCardViewStyle === 'list'"
       :key="content.id"
       :content="content"
@@ -58,7 +58,7 @@
   import ResourceCard from './cards/ResourceCard';
 
   import HybridLearningContentCard from './HybridLearningContentCard';
-  import HybridLearningContentCardListView from './HybridLearningContentCardListView';
+  import CardList from './CardList';
 
   export default {
     name: 'LibraryAndChannelBrowserMainContent',
@@ -66,7 +66,7 @@
     components: {
       CardGrid,
       HybridLearningContentCard,
-      HybridLearningContentCardListView,
+      CardList,
       ResourceCard,
     },
 

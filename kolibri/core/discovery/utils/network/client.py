@@ -37,8 +37,8 @@ class NetworkClient(object):
             )
 
     def _attempt_connections(self, urls):
-        from kolibri.core.public.utils import DEVICE_INFO_VERSION
-        from kolibri.core.public.utils import device_info_keys
+        from kolibri.core.device.utils import DEVICE_INFO_VERSION
+        from kolibri.core.device.utils import device_info_keys
 
         # try each of the URLs in turn, returning the first one that succeeds
         for url in urls:

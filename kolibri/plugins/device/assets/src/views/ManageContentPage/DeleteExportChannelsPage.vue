@@ -51,7 +51,9 @@
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import { TaskResource } from 'kolibri.resources';
   import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
+  import { TaskTypes } from '../../constants';
   import DeviceChannelResource from '../../apiResources/deviceChannel';
+  import useContentTasks from '../../composables/useContentTasks';
   import taskNotificationMixin from '../taskNotificationMixin';
   import SelectionBottomBar from './SelectionBottomBar';
   import DeleteChannelModal from './DeleteChannelModal';
@@ -75,6 +77,9 @@
       SelectDriveModal,
     },
     mixins: [KResponsiveWindowMixin, taskNotificationMixin],
+    setup() {
+      useContentTasks();
+    },
     props: {
       actionType: {
         type: String,
@@ -138,11 +143,15 @@
       deleteChannels() {
         const selectedCopy = [...this.selectedChannels];
         this.allChannels = this.allChannels.filter(c => !find(this.selectedChannels, { id: c.id }));
-        return TaskResource.deleteBulkChannels({
-          channelIds: this.selectedChannels.map(x => x.id),
-        })
-          .then(task => {
-            this.notifyAndWatchTask(task);
+        return TaskResource.startTasks(
+          this.selectedChannels.map(x => ({
+            type: TaskTypes.DELETECHANNEL,
+            channel_id: x.id,
+            channel_name: x.name,
+          }))
+        )
+          .then(tasks => {
+            this.notifyAndWatchTask(tasks);
             this.selectedChannels = [];
           })
           .catch(() => {
@@ -153,14 +162,16 @@
           });
       },
       exportChannels(params) {
-        return TaskResource.startDiskBulkExport(
-          this.selectedChannels.map(({ id }) => ({
+        return TaskResource.startTasks(
+          this.selectedChannels.map(({ id, name }) => ({
+            type: TaskTypes.DISKEXPORT,
             channel_id: id,
+            channel_name: name,
             drive_id: params.driveId,
           }))
         )
-          .then(task => {
-            this.notifyAndWatchTask(task);
+          .then(tasks => {
+            this.notifyAndWatchTask(tasks);
           })
           .catch(() => {
             this.createTaskFailedSnackbar();

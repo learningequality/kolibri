@@ -28,7 +28,7 @@ describe('Library and Channel Browser Main Content', () => {
         expect(wrapper.find('[data-test="mobile-card-grid"]').element).toBeFalsy();
         expect(wrapper.find('[data-test="resource-card"]').element).toBeFalsy();
       });
-      it('does not display a `HybridLearningContentCardListView` for each content node', () => {
+      it('does not display a `CardList` for each content node', () => {
         expect(wrapper.find('[data-test="card-list-view"]').element).toBeFalsy();
       });
     });
@@ -39,7 +39,7 @@ describe('Library and Channel Browser Main Content', () => {
           propsData: { contents: [{ node: 1 }], currentCardViewStyle: 'list' },
         });
       });
-      it('displays a `HybridLearningContentCardListView` for each content node, in a single, full-width column', () => {
+      it('displays a `CardList` for each content node, in a single, full-width column', () => {
         it.each([{ node: 1 }, { node: 2 }, { node: 3 }], 'displays a card for each node n', n => {
           expect(wrapper.find(`[data-test="card-list-view-"${n}]`).element).toBeTruthy();
         });
@@ -75,7 +75,7 @@ describe('Library and Channel Browser Main Content', () => {
       expect(wrapper.find('[data-test="non-mobile-card-grid"]').element).toBeFalsy();
       expect(wrapper.find('[data-test="content-card"]').element).toBeFalsy();
     });
-    it('does not display a `HybridLearningContentCardListView` for each content node', () => {
+    it('does not display a `CardList` for each content node', () => {
       expect(wrapper.find('[data-test="card-list-view"]').element).toBeFalsy();
     });
   });

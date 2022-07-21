@@ -1,7 +1,7 @@
 import uuid
 
-from django.core.urlresolvers import reverse
 from django.test import TestCase
+from django.urls import reverse
 from mock import patch
 from six.moves.urllib.parse import urlencode
 

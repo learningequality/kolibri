@@ -27,7 +27,6 @@ export { default as MembershipResource } from './membership';
 export { default as RoleResource } from './role';
 export { default as FacilityResource } from './facility';
 export { default as TaskResource } from './task';
-export { default as FacilityTaskResource } from './facilityTask';
 export { default as ChannelResource } from './channel';
 export { default as MasteryLogResource } from './masteryLog';
 export { default as ExamResource } from './exam';

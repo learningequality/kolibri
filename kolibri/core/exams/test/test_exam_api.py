@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 import uuid
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.timezone import now
 from le_utils.constants import content_kinds
 from rest_framework import status
@@ -232,7 +232,7 @@ class ExamAPITestCase(APITestCase):
             summarylog__content_id=self.exam.id, complete=False
         )
         # Make sure that the open exams in the DB match that which we counted above.
-        self.assertEquals(MASTERY_LOGS, len(open_mastery_logs))
+        self.assertEqual(MASTERY_LOGS, len(open_mastery_logs))
 
         # Finally - make the request.
         self.put_updated_exam(self.exam.id, {"archive": True})
@@ -241,8 +241,8 @@ class ExamAPITestCase(APITestCase):
             summarylog__content_id=self.exam.id, complete=True
         )
         # No new MasteryLogs made - but all that were made previously are complete.
-        self.assertEquals(len(closed_mastery_logs), len(mastery_logs))
-        self.assertEquals(MASTERY_LOGS, len(closed_mastery_logs))
+        self.assertEqual(len(closed_mastery_logs), len(mastery_logs))
+        self.assertEqual(MASTERY_LOGS, len(closed_mastery_logs))
 
     def test_logged_in_user_exam_no_update(self):
         self.login_as_learner()

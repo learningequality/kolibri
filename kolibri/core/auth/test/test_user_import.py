@@ -142,7 +142,7 @@ users = [
 class DeviceNotSetup(TestCase):
     def test_device_not_setup(self):
         csvfile, csvpath = tempfile.mkstemp(suffix="csv")
-        with self.assertRaisesRegexp(CommandError, "No default facility exists"):
+        with self.assertRaisesRegex(CommandError, "No default facility exists"):
             call_command("importusers", csvpath)
         os.close(csvfile)
         os.remove(csvpath)
@@ -175,12 +175,12 @@ class UserImportCommandTestCase(TestCase):
         call_command("importusers", self.csvpath)
 
     def test_setup_headers_no_username(self):
-        with self.assertRaisesRegexp(CommandError, "No usernames specified"):
+        with self.assertRaisesRegex(CommandError, "No usernames specified"):
             self.importFromRows(["class", "facility"])
             call_command("importusers", self.csvpath)
 
     def test_setup_headers_invalid_header(self):
-        with self.assertRaisesRegexp(CommandError, "Mix of valid and invalid header"):
+        with self.assertRaisesRegex(CommandError, "Mix of valid and invalid header"):
             self.importFromRows(["class", "facility", "dogfood"])
             call_command("importusers", self.csvpath)
 
@@ -220,20 +220,20 @@ class UserImportCommandTestCase(TestCase):
         )
         self.importFromRows(
             ["username", "birth_year", "gender"],
-            ["alice", "", "NOT_SPECIFIED"],
+            ["alice", "", NOT_SPECIFIED],
             ["bob", "1970", "MALE"],
         )
         alice = FacilityUser.objects.get(username="alice")
         bob = FacilityUser.objects.get(username="bob")
         self.assertEqual(alice.birth_year, "")
-        self.assertEqual(alice.gender, "NOT_SPECIFIED")
+        self.assertEqual(alice.gender, NOT_SPECIFIED)
         self.assertEqual(bob.birth_year, "1970")
         self.assertEqual(bob.gender, "MALE")
 
     def test_update_with_invalid_demographic_info_fails(self):
         FacilityUser.objects.create(
             username="alice",
-            birth_year="NOT_SPECIFIED",
+            birth_year=NOT_SPECIFIED,
             password="password",
             facility=self.facility,
         )
@@ -246,7 +246,7 @@ class UserImportCommandTestCase(TestCase):
         # Alice and Bob's demographic data aren't updated
         alice = FacilityUser.objects.get(username="alice")
         bob = FacilityUser.objects.get(username="bob")
-        self.assertEqual(alice.birth_year, "NOT_SPECIFIED")
+        self.assertEqual(alice.birth_year, NOT_SPECIFIED)
         self.assertEqual(alice.gender, "")
         self.assertEqual(bob.birth_year, "")
         self.assertEqual(bob.gender, "")
