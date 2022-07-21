@@ -125,7 +125,11 @@ class ContentNode(MPTTModel):
     sort_order = models.FloatField(blank=True, null=True)
     license_owner = models.CharField(max_length=200, blank=True)
     author = models.CharField(max_length=200, blank=True)
-    kind = models.CharField(max_length=content_kinds.MAX_CHOICE_LENGTH, choices=content_kinds.choices, blank=True)
+    kind = models.CharField(
+        max_length=content_kinds.MAX_CHOICE_LENGTH,
+        choices=content_kinds.choices,
+        blank=True,
+    )
     available = models.BooleanField(default=False)
     lang = models.ForeignKey("Language", blank=True, null=True)
 
@@ -172,7 +176,9 @@ class File(models.Model):
     local_file = models.ForeignKey("LocalFile", related_name="files")
     contentnode = models.ForeignKey("ContentNode", related_name="files")
     preset = models.CharField(
-        max_length=format_presets.MAX_CHOICE_LENGTH , choices=format_presets.choices, blank=True
+        max_length=format_presets.MAX_CHOICE_LENGTH,
+        choices=format_presets.choices,
+        blank=True,
     )
     lang = models.ForeignKey("Language", blank=True, null=True)
     supplementary = models.BooleanField(default=False)
@@ -191,7 +197,9 @@ class LocalFile(models.Model):
     # ID should be the checksum of the file
     id = models.CharField(max_length=32, primary_key=True)
     extension = models.CharField(
-        max_length=40, choices=file_formats.choices, blank=True
+        max_length=file_formats.MAX_CHOICE_LENGTH,
+        choices=file_formats.choices,
+        blank=True,
     )
     available = models.BooleanField(default=False)
     file_size = models.IntegerField(blank=True, null=True)
