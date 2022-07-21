@@ -224,7 +224,15 @@ export const changeFacilityMachine = createMachine({
           target: 'isAdmin',
           actions: setTargetAccount,
         },
-        BACK: 'confirmAccount',
+        BACK: [
+          {
+            cond: context => context.accountExists,
+            target: 'changeFacility',
+          },
+          {
+            target: 'confirmAccount',
+          },
+        ],
       },
     },
     usernameExists: {
