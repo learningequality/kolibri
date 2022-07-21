@@ -16,7 +16,6 @@ from kolibri.core.serializers import HexOnlyUUIDField
 from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.permissions import CanManageContent
-from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.tasks.validation import JobValidator
 from kolibri.utils import conf
 
@@ -57,7 +56,7 @@ class ChannelResourcesValidator(ChannelValidator):
         return job_data
 
 
-class ChannelResourcesImportValidator(ChannelValidator):
+class ChannelResourcesImportValidator(ChannelResourcesValidator):
     update = serializers.BooleanField(default=False)
     new_version = serializers.IntegerField(required=False)
 
@@ -169,7 +168,7 @@ def remotechannelimport(channel_id, baseurl=None, peer_id=None):
 
 
 class RemoteChannelResourcesImportValidator(
-    RemoteImportMixin, ChannelResourcesValidator, ChannelValidator
+    RemoteImportMixin, ChannelResourcesValidator
 ):
     pass
 
@@ -270,9 +269,7 @@ def deletechannel(
     )
 
 
-class RemoteUpdatedChannelValidator(
-    RemoteImportMixin, ChannelResourcesImportValidator, ChannelResourcesValidator
-):
+class RemoteUpdatedChannelValidator(RemoteImportMixin, ChannelResourcesImportValidator):
     pass
 
 
@@ -299,15 +296,6 @@ def remoteimport(
         baseurl=baseurl,
         update_progress=None,
     )
-
-    # Make some real-time updates to the metadata
-    job = get_current_job()
-
-    # Signal to UI that the DB-downloading step is done so it knows to display
-    # progress correctly
-    job.update_progress(0, 1.0)
-    job.extra_metadata["database_ready"] = True
-    job.save_meta()
 
     call_command(
         "importcontent",
