@@ -146,8 +146,10 @@
 
 <style lang="scss" scoped>
 
+  @import '../../../../../core/assets/src/styles/definitions';
+
   .base-container {
-    max-width: 700px;
+    max-width: $page-container-max-width;
     padding-bottom: 5em;
     margin: 5em auto 0;
 

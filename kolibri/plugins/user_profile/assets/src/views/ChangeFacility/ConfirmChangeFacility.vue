@@ -11,6 +11,7 @@
           <KButton
             :primary="false"
             :text="$tr('mergeAccounts')"
+            appearance="flat-button"
             @click="to_merge"
           />
           <KButton

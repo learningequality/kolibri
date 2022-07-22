@@ -81,9 +81,16 @@ export const changeFacilityMachine = createMachine({
   context: {
     role: 'learner',
     username: '',
-    targetAccount: { username: '', id: '' },
+    targetAccount: {
+      fullName: '',
+      username: '',
+      password: '',
+    },
     sourceFacility: '',
-    targetFacility: {}, //should be an object with the facility name, id & url
+    // should be an object with the target facility
+    // `name`, `id`, `url`, `learner_can_sign_up` &
+    // `learner_can_login_with_no_password` fields
+    targetFacility: {},
     newSuperAdmin: '',
     taskPolling: false,
     accountExists: false,
@@ -158,7 +165,10 @@ export const changeFacilityMachine = createMachine({
     confirmAccount: {
       meta: { route: 'CONFIRM_ACCOUNT', path: '/change_facility' },
       on: {
-        NEW: 'createAccount',
+        NEW: {
+          cond: context => context.targetFacility && context.targetFacility.learner_can_sign_up,
+          target: 'createAccount',
+        },
         CONTINUE: 'isAdmin',
         BACK: 'changeFacility',
       },
@@ -208,15 +218,21 @@ export const changeFacilityMachine = createMachine({
       type: 'final',
     },
     createAccount: {
+      meta: { route: 'CREATE_ACCOUNT', path: '/change_facility' },
       on: {
-        meta: { route: 'CREATE_ACCOUNT', path: '/change_facility' },
         CONTINUE: {
-          // event.value must be an object {id:, usename:}
           target: 'isAdmin',
           actions: setTargetAccount,
         },
-        BACK: 'changeFacility',
-        BACKMERGING: 'confirmMerge',
+        BACK: [
+          {
+            cond: context => context.accountExists,
+            target: 'changeFacility',
+          },
+          {
+            target: 'confirmAccount',
+          },
+        ],
       },
     },
     usernameExists: {

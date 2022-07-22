@@ -50,7 +50,7 @@
           <KIcon icon="warning" />
         </div>
         <p class="text">
-          {{ $tr('rememberThisAccountInformation') }}
+          {{ coreString('rememberThisAccountInformation') }}
         </p>
       </div>
     </slot>
@@ -62,6 +62,7 @@
 <script>
 
   import every from 'lodash/every';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import FullNameTextbox from 'kolibri.coreVue.components.FullNameTextbox';
   import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
@@ -78,6 +79,7 @@
       PasswordTextbox,
       PrivacyLinkAndModal,
     },
+    mixins: [commonCoreStrings],
     inject: ['wizardService'],
     props: {
       uniqueUsernameValidator: {
@@ -176,11 +178,6 @@
         message:
           'This account allows you to manage the facility, resources, and user accounts on this device',
         context: "Description of the 'Create super admin account' page.",
-      },
-      rememberThisAccountInformation: {
-        message: 'Important: please remember this account information. Write it down if needed',
-        context:
-          'Helper/information text to remind admin to take note of their account information.',
       },
     },
   };

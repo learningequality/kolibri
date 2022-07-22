@@ -10,6 +10,9 @@
           <KButton
             :primary="false"
             :text="$tr('createAccount')"
+            :disabled="isCreateAccountButtonDisabled"
+            data-test="createNewAccountButton"
+            appearance="flat-button"
             @click="to_create"
           />
           <KButton
@@ -29,6 +32,7 @@
 
 <script>
 
+  import get from 'lodash/get';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
 
@@ -46,23 +50,26 @@
     inject: ['changeFacilityService', 'state'],
     computed: {
       targetFacility() {
-        return this.state.value.targetFacility;
+        return get(this.state, 'value.targetFacility');
       },
       username() {
-        return this.state.value.username;
+        return get(this.state, 'value.username');
       },
       usernameExists() {
-        return this.state.value.accountExists;
+        return get(this.state, 'value.accountExists');
+      },
+      isCreateAccountButtonDisabled() {
+        return !get(this.targetFacility, 'learner_can_sign_up');
       },
       firstLine() {
         return this.$tr('confirmAccountLine1', {
-          target_facility: this.targetFacility.name,
+          target_facility: get(this.targetFacility, 'name', ''),
           username: this.username,
         });
       },
       secondLine() {
         return this.$tr('confirmAccountLine2', {
-          target_facility: this.targetFacility.name,
+          target_facility: get(this.targetFacility, 'name', ''),
         });
       },
     },

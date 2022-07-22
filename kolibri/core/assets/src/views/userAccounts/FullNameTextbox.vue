@@ -25,6 +25,7 @@
     name: 'FullNameTextbox',
     mixins: [commonCoreStrings],
     // NOTE: 'value' and 'isValid' must be .sync'd with parent
+    // You can also pass 'disabled', 'autofocus', and 'autocomplete'
     props: {
       value: {
         type: String,
@@ -40,8 +41,11 @@
       };
     },
     computed: {
+      isFullNameValid() {
+        return this.value && this.value.trim() !== '';
+      },
       invalidText() {
-        if (this.value === '') {
+        if (!this.isFullNameValid) {
           return this.coreString('requiredFieldError');
         }
         return '';
@@ -52,12 +56,9 @@
         }
         return '';
       },
-      valid() {
-        return this.invalidText === '';
-      },
     },
     watch: {
-      valid: {
+      isFullNameValid: {
         handler(value) {
           this.$emit('update:isValid', value);
         },

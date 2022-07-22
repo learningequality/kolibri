@@ -195,6 +195,7 @@
             url: facility.base_url,
             id: facility.id,
             learner_can_sign_up: facility.learner_can_sign_up,
+            learner_can_login_with_no_password: facility.learner_can_login_with_no_password,
           },
         });
       },
@@ -219,7 +220,8 @@
                 name: facility.name,
                 base_url: address.base_url,
                 address_id: address.id,
-                learner_can_sign_up: facility.learner_can_sign_up || true,
+                learner_can_sign_up: facility.learner_can_sign_up,
+                learner_can_login_with_no_password: facility.learner_can_login_with_no_password,
                 kolibri_version: address.kolibri_version,
               };
               if (!this.availableFacilities.find(f => f.id === facility.id))
