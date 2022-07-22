@@ -2,7 +2,7 @@ import { shallowMount, mount } from '@vue/test-utils';
 import CreateAccount from '../index.vue';
 
 const sendMachineEvent = jest.fn();
-function makeWrapper({ targetFacility } = {}) {
+function makeWrapper({ targetFacility, fullName } = {}) {
   return mount(CreateAccount, {
     provide: {
       changeFacilityService: {
@@ -11,6 +11,7 @@ function makeWrapper({ targetFacility } = {}) {
       state: {
         value: {
           targetFacility,
+          fullName,
         },
       },
     },
@@ -49,9 +50,15 @@ describe(`ChangeFacility/CreateAccount`, () => {
     expect(wrapper.exists()).toBeTruthy();
   });
 
-  it(`shows the message about creating a new account in the target facility`, () => {
-    const wrapper = makeWrapper({ targetFacility: { name: 'Test Facility' } });
-    expect(wrapper.text()).toContain('New account for ‘Test Facility’ learning facility');
+  it(`shows the message about creating a new account in the target facility
+    that contains user's full name and the target facility name`, () => {
+    const wrapper = makeWrapper({
+      targetFacility: { name: 'Test Facility' },
+      fullName: 'Test User',
+    });
+    expect(wrapper.text()).toContain(
+      'New account for ‘Test User’ in ‘Test Facility’ learning facility'
+    );
   });
 
   it(`shows the back button`, () => {

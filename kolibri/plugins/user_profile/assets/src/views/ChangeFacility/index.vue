@@ -118,6 +118,7 @@
           value: {
             facility: this.session.facility_id,
             username: this.session.username,
+            fullName: this.session.full_name,
             role: this.getUserKind,
           },
         });

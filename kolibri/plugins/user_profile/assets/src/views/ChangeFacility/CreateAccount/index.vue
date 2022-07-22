@@ -88,6 +88,7 @@
     computed: {
       description() {
         return this.$tr('description', {
+          fullName: get(this.state, 'value.fullName'),
           targetFacility: get(this.state, 'value.targetFacility.name', ''),
         });
       },
@@ -133,7 +134,7 @@
           'Title of the step for creating a new account in a target facility when changing facility.',
       },
       description: {
-        message: 'New account for ‘{targetFacility}’ learning facility',
+        message: 'New account for ‘{fullName}’ in ‘{targetFacility}’ learning facility',
         context:
           'Shows above a new user form where a user can create a new account in a target facility when changing facility.',
       },
