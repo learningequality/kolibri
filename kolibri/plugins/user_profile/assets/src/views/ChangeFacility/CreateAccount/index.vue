@@ -7,6 +7,7 @@
     <UsernameTextbox
       ref="usernameTextbox"
       data-test="usernameTextbox"
+      :autofocus="true"
       :value.sync="formData.username"
       :isValid.sync="isUsernameValid"
       :shouldValidate="isFormSubmitted"
