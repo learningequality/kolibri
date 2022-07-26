@@ -1,6 +1,6 @@
 <template>
 
-  <li class="list-item-navigation">
+  <li class="list-item-navigation visible">
     <router-link
       class="tab"
       :class="$computedClass(tabStyles)"
@@ -71,6 +71,11 @@
   .list-item-navigation {
     display: inline-block;
     text-align: center;
+    visibility: hidden;
+  }
+
+  .visible {
+    visibility: visible;
   }
 
   .tab {
