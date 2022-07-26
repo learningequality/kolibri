@@ -14,33 +14,14 @@
       </NavbarLink>
     </div>
     <span v-if="menuLinks.length > 0">
-      <KIconButton
-        icon="optionsVertical"
+      <KDropdownMenu
+        icon="optionsHorizontal"
+        appearance="flat-button"
         :color="color"
         class="menu-icon"
-        @click="menuDisplayed = !menuDisplayed"
+        :options="menuLinks"
+        @select="handleSelect"
       />
-      <div
-        v-if="menuDisplayed"
-        class="menu-overflow"
-        :style="{
-          color: $themeTokens.text,
-          padding: '8px',
-        }"
-      >
-        <div v-for="(link, index) in menuLinks" :key="index">
-          <NavbarLink
-            :vIf="link.condition"
-            :title="link.title"
-            :link="link.link"
-          >
-            <KIcon
-              :icon="link.icon"
-              :color="link.color"
-            />
-          </NavbarLink>
-        </div>
-      </div>
     </span>
   </Navbar>
 
@@ -69,7 +50,6 @@
     },
     data() {
       return {
-        menuDisplayed: false,
         links: [
           {
             condition: this.canManageContent,
@@ -112,14 +92,23 @@
     computed: {
       ...mapGetters(['canManageContent', 'isSuperuser']),
       menuLinks() {
-        console.log(
-          'menuLinks',
-          this.links.slice(this.numberOfNavigationTabsToDisplay, this.links.length)
+        const limitedList = this.links.slice(
+          this.numberOfNavigationTabsToDisplay,
+          this.links.length
         );
-        return this.links.slice(this.numberOfNavigationTabsToDisplay, this.links.length);
+        let options = [];
+        limitedList.forEach(o => options.push({ label: o.title, value: o.link }));
+        return options;
+        // return this.links.slice(this.numberOfNavigationTabsToDisplay, this.links.length);
       },
       color() {
         return this.$themeTokens.textInverted;
+      },
+    },
+    methods: {
+      handleSelect(option) {
+        console.log('route', this.$router.getRoute(option.value.name));
+        this.$router.push(this.$router.getRoute(option.value.name));
       },
     },
     $trs: {
@@ -155,7 +144,8 @@
     @extend %dropshadow-4dp;
 
     position: absolute;
-    right: 50px;
+    right: 4px;
+    bottom: 50px;
     z-index: 24;
     font-size: 12px;
     background-color: white;
