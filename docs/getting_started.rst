@@ -203,6 +203,23 @@ Alternatively, you can run the devserver with `hot reload <https://vue-loader.vu
 
   yarn run devserver-hot
 
+.. tip::
+
+  Running the development server to compile all client-side dependencies can take up a lot of system resources. To limit the specific frontend bundles that are built and watched, you can pass keywords to either of the above commands to only watch those.
+
+  .. code-block:: bash
+
+    yarn run devserver-hot learn
+
+  Would build all assets that are not currently built, and run a devserver only watching the Learn plugin.
+
+  .. code-block:: bash
+
+    yarn run devserver core,learn
+
+  Would run the devserver not in hot mode, and rebuild the core Kolibri assets and the Learn plugin.
+
+
 For a complete reference of the commands that can be run and what they do, inspect the ``scripts`` section of the root *./package.json* file.
 
 .. warning::
