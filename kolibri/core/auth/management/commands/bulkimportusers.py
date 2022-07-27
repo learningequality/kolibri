@@ -465,6 +465,11 @@ class Command(AsyncCommand):
             validator.roles,
         )
 
+    def append_error(self, msg):
+        # force translation to str type, to be serialized into json:
+        translation.activate(self.locale)
+        self.overall_error.append(str(msg))
+
     def csv_headers_validation(self, filepath):
         csv_file = open_csv_for_reading(filepath)
         with csv_file as f:
@@ -482,10 +487,10 @@ class Command(AsyncCommand):
                 # If any col is missing from the header, it's an error
                 for col in fieldnames:
                     if col not in neutral_header:
-                        self.overall_error.append(MESSAGES[REQUIRED_COLUMN].format(col))
+                        self.append_error(MESSAGES[REQUIRED_COLUMN].format(col))
 
             elif any(col in fieldnames for col in neutral_header):
-                self.overall_error.append(MESSAGES[INVALID_HEADER])
+                self.append_error(MESSAGES[INVALID_HEADER])
 
         return has_header
 
@@ -676,7 +681,7 @@ class Command(AsyncCommand):
         else:
             default_facility = Facility.get_default_facility()
         if not default_facility:
-            self.overall_error.append(MESSAGES[NO_FACILITY])
+            self.append_error(MESSAGES[NO_FACILITY])
             raise CommandError(self.overall_error[-1])
 
         return default_facility
@@ -687,7 +692,7 @@ class Command(AsyncCommand):
                 number_lines = len(f.readlines())
         except (ValueError, FileNotFoundError, csv.Error) as e:
             number_lines = None
-            self.overall_error.append(MESSAGES[FILE_READ_ERROR].format(e))
+            self.append_error(MESSAGES[FILE_READ_ERROR].format(e))
         return number_lines
 
     def get_delete(self, options, keeping_users, update_classes):
@@ -761,16 +766,14 @@ class Command(AsyncCommand):
         if self.overall_error:
             classes_report = {"created": 0, "updated": 0, "cleared": 0}
             users_report = {"created": 0, "updated": 0, "deleted": 0}
-            # force translation to str type, to be serialized into json:
-            overall_error = [str(msg) for msg in self.overall_error]
             if self.job:
-                self.job.extra_metadata["overall_error"] = overall_error
+                self.job.extra_metadata["overall_error"] = self.overall_error
                 self.job.extra_metadata["per_line_errors"] = 0
                 self.job.extra_metadata["classes"] = classes_report
                 self.job.extra_metadata["users"] = users_report
                 self.job.extra_metadata["filename"] = ""
                 self.job.save_meta()
-            raise CommandError("File errors: {}".format(overall_error))
+            raise CommandError("File errors: {}".format(self.overall_error))
         return
 
     def remove_memberships(self, users, enrolled, assigned):
@@ -807,7 +810,6 @@ class Command(AsyncCommand):
         # freeze message translations:
         for line in per_line_errors:
             line["message"] = str(line["message"])
-        self.overall_error = [str(msg) for msg in self.overall_error]
 
         if self.job:
             self.job.extra_metadata["overall_error"] = self.overall_error
@@ -838,8 +840,10 @@ class Command(AsyncCommand):
         per_line_errors = []
 
         # set language for the translation of the messages
-        locale = settings.LANGUAGE_CODE if not options["locale"] else options["locale"]
-        translation.activate(locale)
+        self.locale = (
+            settings.LANGUAGE_CODE if not options["locale"] else options["locale"]
+        )
+        translation.activate(self.locale)
 
         self.job = get_current_job()
         filepath = options["filepath"]
@@ -851,7 +855,7 @@ class Command(AsyncCommand):
             # validate csv headers:
             has_header = self.csv_headers_validation(filepath)
             if not has_header:
-                self.overall_error.append(MESSAGES[INVALID_HEADER])
+                self.append_error(MESSAGES[INVALID_HEADER])
             self.exit_if_error()
             self.progress_update(1)  # state=csv_headers
             try:
@@ -862,7 +866,7 @@ class Command(AsyncCommand):
                         reader, self.header_translation
                     )
             except (ValueError, FileNotFoundError, csv.Error) as e:
-                self.overall_error.append(MESSAGES[FILE_READ_ERROR].format(e))
+                self.append_error(MESSAGES[FILE_READ_ERROR].format(e))
                 self.exit_if_error()
             (
                 db_new_users,

@@ -1,15 +1,14 @@
 import requests
 from django.core.management.base import CommandError
-from django.urls import reverse
 from requests.exceptions import ConnectionError
 from requests.exceptions import HTTPError
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.exceptions import PermissionDenied
-from six.moves.urllib.parse import urljoin
 
 from kolibri.core.auth.backends import FACILITY_CREDENTIAL_KEY
 from kolibri.core.auth.models import AdHocGroup
 from kolibri.core.auth.models import Membership
+from kolibri.core.utils.urls import reverse_remote
 
 
 def create_adhoc_group_for_learners(classroom, learners):
@@ -33,7 +32,7 @@ def get_remote_users_info(baseurl, facility_id, username, password):
     :return: Dict with two keys: 'user' containing info of the user that authenticated and
              'users' containing the list of users of the facility if the user had rights.
     """
-    user_info_url = urljoin(baseurl, reverse("kolibri:core:publicuser-list"))
+    user_info_url = reverse_remote(baseurl, "kolibri:core:publicuser-list")
     params = {
         "facility_id": facility_id,
     }

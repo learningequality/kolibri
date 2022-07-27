@@ -3,6 +3,8 @@ import * as userManagementActions from './actions';
 function defaultState() {
   return {
     facilityUsers: [],
+    totalPages: 0,
+    usersCount: 0,
   };
 }
 

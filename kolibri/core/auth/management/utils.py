@@ -11,13 +11,11 @@ from functools import wraps
 
 import requests
 from django.core.management.base import CommandError
-from django.urls import reverse
 from django.utils.six.moves import input
 from morango.models import Certificate
 from morango.models import InstanceIDModel
 from morango.models import ScopeDefinition
 from morango.sync.controller import MorangoProfileController
-from six.moves.urllib.parse import urljoin
 
 from kolibri.core.auth.backends import FACILITY_CREDENTIAL_KEY
 from kolibri.core.auth.constants.morango_sync import DATA_PORTAL_SYNCING_BASE_URL
@@ -37,7 +35,8 @@ from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
 from kolibri.core.discovery.utils.network.errors import URLParseError
 from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.core.tasks.management.commands.base import AsyncCommand
-from kolibri.core.utils.lock import db_lock
+from kolibri.core.utils.lock import db_lock_sqlite_only
+from kolibri.core.utils.urls import reverse_remote
 from kolibri.utils.data import bytes_for_humans
 
 
@@ -125,7 +124,7 @@ def get_facility(facility_id=None, noninteractive=False):
 
 def get_facility_dataset_id(baseurl, identifier=None, noninteractive=False):
     # get list of facilities and if more than 1, display all choices to user
-    facility_url = urljoin(baseurl, reverse("kolibri:core:publicfacility-list"))
+    facility_url = reverse_remote(baseurl, "kolibri:core:publicfacility-list")
     response = requests.get(facility_url)
     response.raise_for_status()
     facilities = response.json()
@@ -486,7 +485,7 @@ class MorangoSyncCommand(AsyncCommand):
             cancellable = self.job.cancellable
             self.job.save_as_cancellable(cancellable=False)
 
-        with db_lock():
+        with db_lock_sqlite_only():
             yield
 
         if self.job:

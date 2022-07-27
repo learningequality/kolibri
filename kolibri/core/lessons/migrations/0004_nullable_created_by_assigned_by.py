@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="lessons_created",
-                to=settings.AUTH_USER_MODEL,
+                to="kolibriauth.FacilityUser",
             ),
         ),
         migrations.AlterField(
@@ -32,7 +32,7 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="assigned_lessons",
-                to=settings.AUTH_USER_MODEL,
+                to="kolibriauth.FacilityUser",
             ),
         ),
     ]
