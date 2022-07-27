@@ -203,10 +203,6 @@ Alternatively, you can run the devserver with `hot reload <https://vue-loader.vu
 
   yarn run devserver-hot
 
-Note that the default devserver commands above will automatically watch your source files for changes as you edit them, and do formatting and linting fixes on them.
-
-For more information, including instructions on disabling auto-formatting, see the :ref:`linting` section below.
-
 For a complete reference of the commands that can be run and what they do, inspect the ``scripts`` section of the root *./package.json* file.
 
 .. warning::
@@ -297,19 +293,7 @@ Linting and auto-formatting
 Manual linting and formatting
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Linting and code auto-formatting provided by Prettier and Black are run in the background automatically by ``yarn run devserver`` (see :ref:`devserver`). You can monitor for linting errors and warnings in the terminal outputs of the dev server while it is running.
-
-If you would prefer to do these on demand (such as with IDE linting tools or using a tool like pre-commit) then you can run the development server in "warning only" mode. For example:
-
-.. code-block:: bash
-
-  yarn run devserver-warn
-
-or with hot reload:
-
-.. code-block:: bash
-
-  yarn run devserver-hot-warn
+Linting and code auto-formatting are done by Prettier and Black.
 
 You can manually run the auto-formatters using:
 
