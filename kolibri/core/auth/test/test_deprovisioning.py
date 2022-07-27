@@ -28,7 +28,7 @@ def count_instances(models):
 
 
 @override_settings(MORANGO_TEST_POSTGRESQL=True)
-class UserImportCommandTestCase(TestCase):
+class DeprovisionCommandTestCase(TestCase):
     """
     Tests for the deprovision command.
     """
