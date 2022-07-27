@@ -36,7 +36,14 @@ const WebpackMessages = require('./webpackMessages');
  */
 module.exports = (
   data,
-  { mode = 'development', hot = false, port = 3000, address = 'localhost', cache = false } = {}
+  {
+    mode = 'development',
+    hot = false,
+    port = 3000,
+    address = 'localhost',
+    cache = false,
+    transpile = false,
+  } = {}
 ) => {
   if (
     typeof data.name === 'undefined' ||
@@ -164,7 +171,7 @@ module.exports = (
     );
   }
 
-  bundle = merge(bundle, baseConfig({ mode, hot, cache }), webpackConfig);
+  bundle = merge(bundle, baseConfig({ mode, hot, cache, transpile }), webpackConfig);
 
   if (mode === 'development') {
     const publicPath = `http://${address}:${port}/${data.name}/`;

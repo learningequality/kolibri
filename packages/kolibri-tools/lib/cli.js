@@ -58,6 +58,7 @@ program
   .option('--host <host>', 'Set a host to serve devserver', String, '0.0.0.0')
   .option('--json', 'Output webpack stats in JSON format - only works in prod mode', false)
   .option('--cache', 'Use cache in webpack', false)
+  .option('--transpile', 'Transpile code using Babel', false)
   .action(function(mode, options) {
     const buildLogging = logger.getLogger('Kolibri Build');
     const modes = {
@@ -122,6 +123,7 @@ program
       port: options.port,
       mode: webpackMode,
       cache: options.cache,
+      transpile: options.transpile,
     };
 
     const webpackConfig = require('./webpack.config.plugin');
@@ -136,8 +138,19 @@ program
 
     const compiler = webpack(webpackArray);
 
+    let start;
+
+    compiler.hooks.run.tap('Kolibri', () => {
+      start = new Date();
+    });
+
+    compiler.hooks.watchRun.tap('Kolibri', () => {
+      start = new Date();
+    });
+
     compiler.hooks.done.tap('Kolibri', () => {
-      buildLogging.info('Build complete');
+      const time = new Date() - start;
+      buildLogging.info(`Build complete in ${time / 1000} seconds`);
     });
 
     if (mode === modes.DEV) {
