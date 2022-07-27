@@ -25,7 +25,6 @@ const setInitialContext = assign((_, event) => {
   return {
     sourceFacility: event.value.facility,
     username: event.value.username,
-    fullName: event.value.fullName,
     role: event.value.role,
   };
 });
@@ -82,7 +81,6 @@ export const changeFacilityMachine = createMachine({
   context: {
     role: 'learner',
     username: '',
-    fullName: '',
     targetAccount: {
       username: '',
       password: '',

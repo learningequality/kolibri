@@ -1,8 +1,19 @@
-import { shallowMount, mount } from '@vue/test-utils';
+import { mount, createLocalVue } from '@vue/test-utils';
+import Vuex from 'vuex';
 import CreateAccount from '../index.vue';
+
+const localVue = createLocalVue();
+localVue.use(Vuex);
 
 const sendMachineEvent = jest.fn();
 function makeWrapper({ targetFacility, fullName } = {}) {
+  const store = new Vuex.Store({
+    getters: {
+      session: () => {
+        return { full_name: fullName };
+      },
+    },
+  });
   return mount(CreateAccount, {
     provide: {
       changeFacilityService: {
@@ -11,10 +22,11 @@ function makeWrapper({ targetFacility, fullName } = {}) {
       state: {
         value: {
           targetFacility,
-          fullName,
         },
       },
     },
+    localVue,
+    store,
   });
 }
 
@@ -46,7 +58,7 @@ describe(`ChangeFacility/CreateAccount`, () => {
   });
 
   it(`smoke test`, () => {
-    const wrapper = shallowMount(CreateAccount);
+    const wrapper = makeWrapper();
     expect(wrapper.exists()).toBeTruthy();
   });
 
