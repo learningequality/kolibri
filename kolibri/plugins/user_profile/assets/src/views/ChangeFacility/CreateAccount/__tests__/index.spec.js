@@ -1,8 +1,19 @@
-import { shallowMount, mount } from '@vue/test-utils';
+import { mount, createLocalVue } from '@vue/test-utils';
+import Vuex from 'vuex';
 import CreateAccount from '../index.vue';
 
+const localVue = createLocalVue();
+localVue.use(Vuex);
+
 const sendMachineEvent = jest.fn();
-function makeWrapper({ targetFacility } = {}) {
+function makeWrapper({ targetFacility, fullName } = {}) {
+  const store = new Vuex.Store({
+    getters: {
+      session: () => {
+        return { full_name: fullName };
+      },
+    },
+  });
   return mount(CreateAccount, {
     provide: {
       changeFacilityService: {
@@ -14,21 +25,17 @@ function makeWrapper({ targetFacility } = {}) {
         },
       },
     },
+    localVue,
+    store,
   });
 }
 
 const getBackButton = wrapper => wrapper.find('[data-test="backButton"]');
 const getContinueButton = wrapper => wrapper.find('[data-test="continueButton"]');
-const getFullNameTextbox = wrapper => wrapper.find('[data-test="fullNameTextbox"]');
 const getUsernameTextbox = wrapper => wrapper.find('[data-test="usernameTextbox"]');
 const getPasswordTextbox = wrapper => wrapper.find('[data-test="passwordTextbox"]');
 const clickBackButton = wrapper => getBackButton(wrapper).trigger('click');
 const clickContinueButton = wrapper => getContinueButton(wrapper).trigger('click');
-const setFullNameTextboxValue = (wrapper, value) => {
-  getFullNameTextbox(wrapper)
-    .find('input')
-    .setValue(value);
-};
 const setUsernameTextboxValue = (wrapper, value) => {
   getUsernameTextbox(wrapper)
     .find('input')
@@ -51,13 +58,19 @@ describe(`ChangeFacility/CreateAccount`, () => {
   });
 
   it(`smoke test`, () => {
-    const wrapper = shallowMount(CreateAccount);
+    const wrapper = makeWrapper();
     expect(wrapper.exists()).toBeTruthy();
   });
 
-  it(`shows the message about creating a new account in the target facility`, () => {
-    const wrapper = makeWrapper({ targetFacility: { name: 'Test Facility' } });
-    expect(wrapper.text()).toContain('New account for ‘Test Facility’ learning facility');
+  it(`shows the message about creating a new account in the target facility
+    that contains user's full name and the target facility name`, () => {
+    const wrapper = makeWrapper({
+      targetFacility: { name: 'Test Facility' },
+      fullName: 'Test User',
+    });
+    expect(wrapper.text()).toContain(
+      'New account for ‘Test User’ in ‘Test Facility’ learning facility'
+    );
   });
 
   it(`shows the back button`, () => {
@@ -68,11 +81,6 @@ describe(`ChangeFacility/CreateAccount`, () => {
   it(`shows the continue button`, () => {
     const wrapper = makeWrapper();
     expect(getContinueButton(wrapper).exists()).toBeTruthy();
-  });
-
-  it(`shows the full name textbox`, () => {
-    const wrapper = makeWrapper();
-    expect(getFullNameTextbox(wrapper).exists()).toBeTruthy();
   });
 
   it(`shows the username textbox`, () => {
@@ -119,7 +127,6 @@ describe(`ChangeFacility/CreateAccount`, () => {
   describe(`when the new user account form is valid`, () => {
     it(`clicking the continue button sends the continue event with the form data as its value to the state machine`, async () => {
       const wrapper = makeWrapper();
-      setFullNameTextboxValue(wrapper, 'Test Fullname');
       setUsernameTextboxValue(wrapper, 'testusername');
       setPasswordTextboxValue(wrapper, 'testpassword');
       // wait for validation
@@ -128,7 +135,6 @@ describe(`ChangeFacility/CreateAccount`, () => {
       expect(sendMachineEvent).toHaveBeenCalledWith({
         type: 'CONTINUE',
         value: {
-          fullName: 'Test Fullname',
           username: 'testusername',
           password: 'testpassword',
         },

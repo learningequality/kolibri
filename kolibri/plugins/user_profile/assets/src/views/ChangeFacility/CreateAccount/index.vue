@@ -4,18 +4,10 @@
     <h1>{{ $tr('documentTitle') }}</h1>
     <p>{{ description }}</p>
 
-    <FullNameTextbox
-      ref="fullNameTextbox"
-      data-test="fullNameTextbox"
-      :value.sync="formData.fullName"
-      :isValid.sync="isFullNameValid"
-      :shouldValidate="isFormSubmitted"
-      :autofocus="true"
-      autocomplete="name"
-    />
     <UsernameTextbox
       ref="usernameTextbox"
       data-test="usernameTextbox"
+      :autofocus="true"
       :value.sync="formData.username"
       :isValid.sync="isUsernameValid"
       :shouldValidate="isFormSubmitted"
@@ -62,9 +54,9 @@
 <script>
 
   import get from 'lodash/get';
+  import { mapGetters } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
-  import FullNameTextbox from 'kolibri.coreVue.components.FullNameTextbox';
   import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
   import PrivacyLinkAndModal from 'kolibri.coreVue.components.PrivacyLinkAndModal';
@@ -78,7 +70,6 @@
     },
     components: {
       BottomAppBar,
-      FullNameTextbox,
       UsernameTextbox,
       PasswordTextbox,
       PrivacyLinkAndModal,
@@ -88,19 +79,19 @@
     data() {
       return {
         formData: {
-          fullName: '',
           username: '',
           password: '',
         },
-        isFullNameValid: false,
         isUsernameValid: false,
         isPasswordValid: false,
         isFormSubmitted: false,
       };
     },
     computed: {
+      ...mapGetters(['session']),
       description() {
         return this.$tr('description', {
+          fullName: get(this.session, 'full_name', ''),
           targetFacility: get(this.state, 'value.targetFacility.name', ''),
         });
       },
@@ -108,11 +99,7 @@
         return !get(this.state, 'value.targetFacility.learner_can_login_with_no_password', false);
       },
       isFormValid() {
-        return (
-          this.isFullNameValid &&
-          this.isUsernameValid &&
-          (!this.showPasswordTextbox || this.isPasswordValid)
-        );
+        return this.isUsernameValid && (!this.showPasswordTextbox || this.isPasswordValid);
       },
     },
     methods: {
@@ -125,9 +112,7 @@
         }
       },
       focusOnInvalidField() {
-        if (!this.isFullNameValid) {
-          this.$refs.fullNameTextbox.focus();
-        } else if (!this.isUsernameValid) {
+        if (!this.isUsernameValid) {
           this.$refs.usernameTextbox.focus();
         } else if (this.showPasswordTextbox && !this.isPasswordValid) {
           this.$refs.passwordTextbox.focus();
@@ -152,7 +137,7 @@
           'Title of the step for creating a new account in a target facility when changing facility.',
       },
       description: {
-        message: 'New account for ‘{targetFacility}’ learning facility',
+        message: 'New account for ‘{fullName}’ in ‘{targetFacility}’ learning facility',
         context:
           'Shows above a new user form where a user can create a new account in a target facility when changing facility.',
       },

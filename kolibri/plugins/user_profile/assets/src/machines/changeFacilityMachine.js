@@ -82,7 +82,6 @@ export const changeFacilityMachine = createMachine({
     role: 'learner',
     username: '',
     targetAccount: {
-      fullName: '',
       username: '',
       password: '',
     },
