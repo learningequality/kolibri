@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div v-if="facility">
     <div>
       <h2 class="name">
         <KLabeledIcon icon="facility">
@@ -33,14 +33,15 @@
           {{ getTaskString('removingFacilityStatus') }}
         </template>
         <template v-else>
-          <span v-if="syncHasFailed" class="sync-message">
+          <span v-if="syncFailed" class="sync-message">
             {{ $tr('syncFailed') }}
           </span>
-          <span v-if="facility.last_synced === null" class="sync-message">
+          <span v-else-if="neverSynced" class="sync-message">
             {{ $tr('neverSynced') }}
           </span>
-          <span v-else class="sync-message">
-            {{ $tr('lastSync', { relativeTime: formattedTime(facility.last_synced) }) }}
+          <!-- Always show the last successful sync time when available -->
+          <span v-if="facility.last_successful_sync" class="sync-message">
+            {{ $tr('lastSync', { relativeTime: formattedTime(facility.last_successful_sync) }) }}
           </span>
         </template>
       </span>
@@ -67,7 +68,7 @@
         type: Boolean,
         default: false,
       },
-      syncHasFailed: {
+      syncTaskHasFailed: {
         type: Boolean,
         default: false,
       },
@@ -80,6 +81,22 @@
       return {
         now: now(),
       };
+    },
+    computed: {
+      syncFailed() {
+        const lastSyncFailed =
+          this.facility &&
+          this.facility.last_successful_sync &&
+          this.facility.last_failed_sync &&
+          new Date(this.facility.last_successful_sync).getTime() <
+            new Date(this.facility.last_failed_sync).getTime();
+        return this.syncTaskHasFailed || lastSyncFailed;
+      },
+      neverSynced() {
+        return (
+          this.facility && !this.facility.last_successful_sync && !this.facility.last_failed_sync
+        );
+      },
     },
     methods: {
       formattedTime(datetime) {

@@ -88,7 +88,15 @@
               currentCardViewStyle="card"
               @toggleInfoPanel="toggleInfoPanel"
             />
-            <div v-if="topicMore" class="end-button-block">
+            <KButton
+              v-if="moreResources"
+              class="more-after-grid"
+              appearance="basic-link"
+              @click="handleShowMoreResources"
+            >
+              {{ $tr('showMore') }}
+            </KButton>
+            <div v-else-if="topicMore" class="end-button-block">
               <KButton
                 v-if="!topicMoreLoading"
                 :text="coreString('viewMoreAction')"
@@ -355,6 +363,7 @@
         sidePanelStyleOverrides: {},
         currentCategory: null,
         showSearchModal: false,
+        showMoreResources: false,
         sidePanelIsOpen: false,
         metadataSidePanelContent: null,
         expandedTopics: {},
@@ -417,12 +426,18 @@
         }
       },
       resources() {
-        const resources = this.contents.filter(content => content.kind !== ContentNodeKinds.TOPIC);
-        // If there are no topics, then just display all resources we have loaded.
-        if (!this.topics.length) {
-          return resources;
+        return this.contents.filter(content => content.kind !== ContentNodeKinds.TOPIC);
+      },
+      resourcesDisplayed() {
+        // if no folders are shown at this level, show more resources to fill the space
+        // or if the user has explicitly requested to show more resources
+        if (!this.topics.length || this.showMoreResources) {
+          return this.resources;
         }
-        return resources.slice(0, this.childrenToDisplay);
+        return this.resources.slice(0, this.childrenToDisplay);
+      },
+      moreResources() {
+        return this.resourcesDisplayed.length < this.resources.length;
       },
       topics() {
         return this.contents.filter(content => content.kind === ContentNodeKinds.TOPIC);
@@ -664,6 +679,10 @@
       documentTitleForTopic: {
         message: '{ topicTitle } - { channelTitle }',
         context: 'DO NOT TRANSLATE\nCopy the source string.',
+      },
+      showMore: {
+        message: 'Show more',
+        context: 'Clickable link which allows to load more resources.',
       },
     },
   };

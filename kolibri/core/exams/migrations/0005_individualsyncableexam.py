@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("kolibriauth", "0019_collection_no_mptt"),
-        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+        migrations.swappable_dependency("kolibriauth.FacilityUser"),
         ("exams", "0004_exam_add_dates_opened_created_and_archived"),
     ]
 
@@ -58,7 +58,7 @@ class Migration(migrations.Migration):
                     "user",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        to=settings.AUTH_USER_MODEL,
+                        to="kolibriauth.FacilityUser",
                     ),
                 ),
             ],

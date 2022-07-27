@@ -6,11 +6,17 @@ import base64
 import collections
 import sys
 import uuid
+from datetime import datetime
 from importlib import import_module
 
 import factory
 from django.conf import settings
 from django.urls import reverse
+from django.utils import timezone
+from morango.constants import transfer_stages
+from morango.constants import transfer_statuses
+from morango.models import SyncSession
+from morango.models import TransferSession
 from rest_framework import status
 from rest_framework.test import APITestCase as BaseTestCase
 
@@ -432,6 +438,31 @@ class FacilityAPITestCase(APITestCase):
         cls.facility2 = FacilityFactory.create()
         cls.user1 = FacilityUserFactory.create(facility=cls.facility1)
         cls.user2 = FacilityUserFactory.create(facility=cls.facility2)
+        cls.date_completed_transfer_session = datetime(2022, 6, 30, tzinfo=timezone.utc)
+        cls.date_failed_transfer_session = datetime(2022, 6, 14, tzinfo=timezone.utc)
+        cls.sync_session = SyncSession.objects.create(
+            id=uuid.uuid4().hex,
+            profile="facilitydata",
+            last_activity_timestamp=cls.date_completed_transfer_session,
+        )
+        cls.completed_push_transfer_session = TransferSession.objects.create(
+            id=uuid.uuid4().hex,
+            sync_session_id=cls.sync_session.id,
+            filter=cls.facility1.dataset_id,
+            push=True,
+            active=False,
+            transfer_stage=transfer_stages.CLEANUP,
+            transfer_stage_status=transfer_statuses.COMPLETED,
+            last_activity_timestamp=cls.date_completed_transfer_session,
+        )
+        cls.failed_transfer_session = TransferSession.objects.create(
+            id=uuid.uuid4().hex,
+            sync_session_id=cls.sync_session.id,
+            filter=cls.facility1.dataset_id,
+            push=True,
+            transfer_stage_status=transfer_statuses.ERRORED,
+            last_activity_timestamp=cls.date_failed_transfer_session,
+        )
 
     def test_sanity(self):
         self.assertTrue(
@@ -458,6 +489,35 @@ class FacilityAPITestCase(APITestCase):
             # Generalized dict unpacking can be used in Python 3.5+: assertEqual(larger_dict, {**larger_dict, **smaller_dict})
             # The dict union operator can be used in Python 3.9+: assertEqual(larger_dict, larger_dict | smaller_dict)
             dict(response.data, **{"name": self.facility1.name}),
+        )
+
+    def test_facility_user_can_get_last_successful_sync(self):
+        self.client.login(
+            username=self.user1.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility1,
+        )
+        response = self.client.get(
+            reverse("kolibri:core:facility-detail", kwargs={"pk": self.facility1.pk}),
+            format="json",
+        )
+        self.assertEqual(
+            response.data["last_successful_sync"],
+            self.date_completed_transfer_session,
+        )
+
+    def test_facility_user_can_get_last_failed_sync(self):
+        self.client.login(
+            username=self.user1.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility1,
+        )
+        response = self.client.get(
+            reverse("kolibri:core:facility-detail", kwargs={"pk": self.facility1.pk}),
+            format="json",
+        )
+        self.assertEqual(
+            response.data["last_failed_sync"], self.date_failed_transfer_session
         )
 
     def test_device_admin_can_create_facility(self):

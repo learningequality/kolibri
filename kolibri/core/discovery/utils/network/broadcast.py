@@ -16,6 +16,7 @@ from zeroconf import USE_IP_OF_OUTGOING_INTERFACE
 from zeroconf import Zeroconf
 
 from kolibri.core.device.utils import get_device_info
+from kolibri.utils.conf import OPTIONS
 
 
 SERVICE_TYPE = "Kolibri._sub._http._tcp.local."
@@ -77,9 +78,12 @@ class KolibriInstance(object):
         "is_self",
         "device_info",
         "service_info",
+        "prefix",
     )
 
-    def __init__(self, instance_id, ip=None, port=None, host=None, device_info=None):
+    def __init__(
+        self, instance_id, ip=None, port=None, host=None, device_info=None, prefix="/"
+    ):
         self.id = instance_id
         self.zeroconf_id = instance_id
         self.ip = ip
@@ -88,6 +92,7 @@ class KolibriInstance(object):
         self.device_info = device_info or {}
         self.is_self = False
         self.service_info = None
+        self.prefix = prefix
 
     @property
     def name(self):
@@ -103,7 +108,9 @@ class KolibriInstance(object):
 
     @property
     def base_url(self):
-        return "http://{ip}:{port}/".format(ip=self.ip, port=self.port)
+        return "http://{ip}:{port}/{prefix}".format(
+            ip=self.ip, port=self.port, prefix=self.prefix.lstrip("/")
+        )
 
     @property
     def is_broadcasting(self):
@@ -146,6 +153,7 @@ class KolibriInstance(object):
                 # info backwards incompatible with older versions of Kolibri
                 val = TRUE if val else FALSE
             properties[key] = json.dumps(val)
+        properties["prefix"] = json.dumps(self.prefix)
 
         return ServiceInfo(
             SERVICE_TYPE,
@@ -171,20 +179,27 @@ class KolibriInstance(object):
 
         # parse out device info
         device_info = {}
+        prefix = "/"
         for key, val in service_info.properties.items():
             if isinstance(val, bytes):
                 val = val.decode("utf-8")
-            device_info[bytes.decode(key)] = json.loads(val)
-            if device_info[bytes.decode(key)] == TRUE:
-                device_info[bytes.decode(key)] = True
-            if device_info[bytes.decode(key)] == FALSE:
-                device_info[bytes.decode(key)] = False
+            key = bytes.decode(key)
+            val = json.loads(val)
+            if key == "prefix":
+                prefix = val
+                continue
+            device_info[key] = val
+            if device_info[key] == TRUE:
+                device_info[key] = True
+            if device_info[key] == FALSE:
+                device_info[key] = False
 
         kwargs.update(
             ip=socket.inet_ntoa(service_info.address),
             port=service_info.port,
             host=service_info.server.strip("."),
             device_info=device_info,
+            prefix=prefix,
         )
 
         instance_id = device_info.get("instance_id")
@@ -203,11 +218,16 @@ def build_broadcast_instance(port):
         port=port,
         device_info=device_info,
         ip=USE_IP_OF_OUTGOING_INTERFACE,
+        prefix=OPTIONS["Deployment"]["URL_PATH_PREFIX"],
     )
 
 
 class KolibriBroadcastEvents(Bus):
     """Event bus for handling events from Zeroconf"""
+
+    # The base magicbus Bus requires this to exist in error handling
+    # but does not set a default value.
+    throws = tuple()
 
     event_map = {
         ServiceStateChange.Added: EVENT_ADD_SERVICE,

@@ -80,21 +80,6 @@ export default {
       state.sessionDateCreated = payload;
     },
     /*State for sync tasks*/
-    START_FACILITY_SYNC(state, payload) {
-      const match = state.facilities.find(f => f.id === payload.facility);
-      if (match) {
-        Vue.set(match, 'syncing', true);
-      }
-      state.facilityTaskId = payload.id;
-    },
-    SET_FINISH_FACILITY_SYNC(state, payload) {
-      state.facilityTaskId = '';
-      const match = state.facilities.find(f => f.syncing === true);
-      if (match) {
-        Vue.set(match, 'last_synced', payload);
-        Vue.set(match, 'syncing', false);
-      }
-    },
     SET_REGISTERED(state, facility) {
       const match = state.facilities.find(f => f.id === facility.id);
       if (match) {

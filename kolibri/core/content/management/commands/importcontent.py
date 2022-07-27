@@ -346,15 +346,20 @@ class Command(AsyncCommand):
             if method == DOWNLOAD_METHOD:
                 session = requests.Session()
 
+            # We should be deferring to conf.OPTIONS["Tasks"]["USE_WORKER_MULTIPROCESSING"]
+            # for this value, but unfortunately, the current way that the import logic
+            # is setup relies on shared memory that can only be used with threads.
+            use_multiprocessing = False
+
             executor = (
                 concurrent.futures.ProcessPoolExecutor
-                if conf.OPTIONS["Tasks"]["USE_WORKER_MULTIPROCESSING"]
+                if use_multiprocessing
                 else concurrent.futures.ThreadPoolExecutor
             )
 
             max_workers = 10
 
-            if not conf.OPTIONS["Tasks"]["USE_WORKER_MULTIPROCESSING"]:
+            if not use_multiprocessing:
                 # If we're not using multiprocessing for workers, we may need
                 # to limit the number of workers depending on the number of allowed
                 # file descriptors.

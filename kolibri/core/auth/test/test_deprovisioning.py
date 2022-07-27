@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 import uuid
 
 from django.core.management import call_command
+from django.test import override_settings
 from django.test import TestCase
 from mock import patch
 from morango.sync.controller import MorangoProfileController
@@ -26,7 +27,8 @@ def count_instances(models):
     return sum([model.objects.count() for model in models])
 
 
-class UserImportCommandTestCase(TestCase):
+@override_settings(MORANGO_TEST_POSTGRESQL=True)
+class DeprovisionCommandTestCase(TestCase):
     """
     Tests for the deprovision command.
     """

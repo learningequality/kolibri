@@ -91,7 +91,20 @@ export default {
       topLogo: {
         type: Object,
         default: null,
-        spec: _imageSpec,
+        spec: {
+          src: {
+            type: String,
+            default: null,
+          },
+          style: {
+            type: String,
+            default: null,
+          },
+          alt: {
+            type: String,
+            default: null,
+          },
+        },
       },
       poweredByStyle: {
         type: String,
@@ -111,7 +124,7 @@ export default {
       },
       showPoweredBy: {
         type: Boolean,
-        default: true,
+        default: false,
       },
     },
   },
@@ -129,10 +142,6 @@ export default {
         spec: _imageSpec,
       },
       showKolibriFooterLogo: {
-        type: Boolean,
-        default: true,
-      },
-      showPoweredBy: {
         type: Boolean,
         default: true,
       },

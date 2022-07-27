@@ -109,12 +109,14 @@ output_mappings = {
 }
 
 
-map_output = partial(output_mapper, labels=labels, output_mappings=output_mappings)
+def map_output(item):
+    return partial(
+        output_mapper, labels=translate_labels(), output_mappings=output_mappings
+    )(item)
 
 
 def translate_labels():
-    global labels
-    labels = OrderedDict(
+    return OrderedDict(
         (
             ("id", _("Database ID ({})").format("UUID")),
             ("username", _("Username ({})").format("USERNAME")),
@@ -153,7 +155,7 @@ def csv_file_generator(facility, filepath, overwrite=True):
         raise ValueError("{} already exists".format(filepath))
     queryset = FacilityUser.objects.filter(facility=facility)
 
-    header_labels = labels.values()
+    header_labels = translate_labels().values()
 
     csv_file = open_csv_for_writing(filepath)
 
@@ -258,7 +260,6 @@ class Command(AsyncCommand):
         # set language for the translation of the messages
         locale = settings.LANGUAGE_CODE if not options["locale"] else options["locale"]
         translation.activate(locale)
-        translate_labels()
 
         self.overall_error = []
         filepath = self.get_filepath(options)

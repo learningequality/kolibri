@@ -10,6 +10,7 @@ import time
 import uuid
 
 import requests
+from django.conf import settings
 from django.db import connection
 from django.db import connections
 from django.utils.functional import wraps
@@ -44,7 +45,7 @@ class KolibriServer(object):
         self.env = os.environ.copy()
         self.env["KOLIBRI_HOME"] = kolibri_home or tempfile.mkdtemp()
         self.env["DJANGO_SETTINGS_MODULE"] = settings
-        self.env["POSTGRES_DB"] = db_name
+        self.env["KOLIBRI_DATABASE_NAME"] = db_name
         self.env["KOLIBRI_RUN_MODE"] = self.env.get("KOLIBRI_RUN_MODE", "") + "-testing"
         self.env["KOLIBRI_ZIP_CONTENT_PORT"] = str(get_free_tcp_port())
         if env is not None:
@@ -193,10 +194,8 @@ class multiple_kolibri_servers(object):
         ]
 
     def __enter__(self):
-
         # spin up the servers
         if "sqlite" in connection.vendor:
-
             tempserver = KolibriServer(
                 autostart=False,
                 kolibri_home=os.environ.get("KOLIBRI_TEST_PRESEEDED_HOME"),
@@ -214,46 +213,48 @@ class multiple_kolibri_servers(object):
             ]
 
             # calculate the DATABASE settings
-            connections.databases = {
-                server.db_alias: {
+            for server in self.servers:
+                settings.DATABASES[server.db_alias] = connections.databases[
+                    server.db_alias
+                ] = {
                     "ENGINE": "django.db.backends.sqlite3",
                     "NAME": server.db_path,
                     "OPTIONS": {"timeout": 100},
                 }
-                for server in self.servers
-            }
 
         if "postgresql" in connection.vendor:
-
-            if self.server_count == 3:
-                self.servers = [
-                    KolibriServer(
-                        settings="kolibri.deployment.default.settings.postgres_test",
-                        db_name="eco_test" + str(i + 1),
-                        **self.server_kwargs[i]
-                    )
-                    for i in range(self.server_count)
-                ]
-
-            if self.server_count == 5:
-                self.servers = [
-                    KolibriServer(
-                        settings="kolibri.deployment.default.settings.postgres_test",
-                        db_name="eco2_test" + str(i + 1),
-                        **self.server_kwargs[i]
-                    )
-                    for i in range(self.server_count)
-                ]
+            self.servers = [
+                KolibriServer(
+                    autostart=False,
+                    db_name="eco_test" + str(i + 1),
+                    **self.server_kwargs[i]
+                )
+                for i in range(self.server_count)
+            ]
 
             # calculate the DATABASE settings
-            connections.databases = {
-                server.db_alias: {
+            for server in self.servers:
+                settings.DATABASES[server.db_alias] = connections.databases[
+                    server.db_alias
+                ] = {
                     "ENGINE": "django.db.backends.postgresql",
                     "USER": "postgres",
-                    "NAME": server.env["POSTGRES_DB"],
+                    "PASSWORD": "postgres",
+                    "NAME": server.env["KOLIBRI_DATABASE_NAME"],
+                    "HOST": "localhost",
+                    "PORT": "5432",
+                    "TEST": {"NAME": server.env["KOLIBRI_DATABASE_NAME"]},
                 }
-                for server in self.servers
-            }
+
+            for server in self.servers:
+                server_conn = connections[server.db_alias]
+                # We don't use `create_test_db` here but instead the internal method which does the
+                # magic we want, since `create_test_db` also attempts to sync and migrate the
+                # database and that raises errors. When the Kolibri server starts it will run
+                # migrations automatically
+                server_conn.creation._create_test_db(verbosity=2, autoclobber=True)
+                server_conn.close()
+                server.start()
 
         return self.servers
 
@@ -262,6 +263,10 @@ class multiple_kolibri_servers(object):
         # make sure all the servers are shut down
         for server in self.servers:
             server.kill()
+            # destroy the test databases
+            server_conn = connections[server.db_alias]
+            server_conn.creation.destroy_test_db()
+            server_conn.close()
 
     def __call__(self, f):
         @wraps(f)

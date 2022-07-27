@@ -5,7 +5,6 @@ from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.core.validators import URLValidator
-from django.urls import reverse
 from django.utils.six.moves import input
 from morango.models import Certificate
 from morango.models import Filter
@@ -13,7 +12,6 @@ from morango.models import InstanceIDModel
 from morango.models import ScopeDefinition
 from morango.sync.controller import MorangoProfileController
 from requests.exceptions import ConnectionError
-from six.moves.urllib.parse import urljoin
 
 from kolibri.core.auth.constants.morango_sync import PROFILE_FACILITY_DATA
 from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
@@ -22,6 +20,7 @@ from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.utils import device_provisioned
 from kolibri.core.device.utils import provision_device
 from kolibri.core.tasks.management.commands.base import AsyncCommand
+from kolibri.core.utils.urls import reverse_remote
 
 
 class Command(AsyncCommand):
@@ -36,7 +35,7 @@ class Command(AsyncCommand):
 
     def get_dataset_id(self, base_url, dataset_id):
         # get list of facilities and if more than 1, display all choices to user
-        facility_url = urljoin(base_url, reverse("kolibri:core:publicfacility-list"))
+        facility_url = reverse_remote(base_url, "kolibri:core:publicfacility-list")
         facility_resp = requests.get(facility_url)
         facility_resp.raise_for_status()
         facilities = facility_resp.json()

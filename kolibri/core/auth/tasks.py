@@ -9,7 +9,6 @@ import shutil
 import requests
 from django.conf import settings
 from django.core.management import call_command
-from django.urls import reverse
 from django.utils import timezone
 from morango.errors import MorangoResumeSyncError
 from morango.models import InstanceIDModel
@@ -17,7 +16,6 @@ from requests.exceptions import ConnectionError
 from rest_framework import serializers
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
-from six.moves.urllib.parse import urljoin
 
 from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 from kolibri.core.auth.constants.morango_sync import State as FacilitySyncState
@@ -50,6 +48,7 @@ from kolibri.core.tasks.permissions import IsAdminForJob
 from kolibri.core.tasks.permissions import IsSuperAdmin
 from kolibri.core.tasks.permissions import NotProvisioned
 from kolibri.core.tasks.validation import JobValidator
+from kolibri.core.utils.urls import reverse_remote
 from kolibri.utils.conf import KOLIBRI_HOME
 from kolibri.utils.conf import OPTIONS
 
@@ -598,11 +597,11 @@ def request_soud_sync(server, user, queue_id=None, ttl=4):
     """
 
     if queue_id is None:
-        endpoint = reverse("kolibri:core:syncqueue-list")
+        server_url = reverse_remote(server, "kolibri:core:syncqueue-list")
     else:
-        endpoint = reverse("kolibri:core:syncqueue-detail", kwargs={"pk": queue_id})
-
-    server_url = urljoin(server, endpoint)
+        server_url = reverse_remote(
+            server, "kolibri:core:syncqueue-detail", kwargs={"pk": queue_id}
+        )
 
     instance_model = InstanceIDModel.get_or_create_current_instance()[0]
 

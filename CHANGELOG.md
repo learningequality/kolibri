@@ -2,6 +2,36 @@
 
 List of the most important changes for each release.
 
+## 0.15.6
+
+### Added
+* Check node being available on filtered queryset to prevent index error. by @rtibbles in https://github.com/learningequality/kolibri/pull/9539
+* Force translations in bulk export/import of user data by @jredrejo in https://github.com/learningequality/kolibri/pull/9557
+* Ensure peer import and sync tasks for data and content work with servers using a prefix path by @rtibbles in https://github.com/learningequality/kolibri/pull/9533
+
+### Changed
+* Changes in 0.15.x to use kolibri with external plugins by @jredrejo in https://github.com/learningequality/kolibri/pull/9543
+* Don't use multiprocessing for downloads. by @rtibbles in https://github.com/learningequality/kolibri/pull/9560
+
+### Fixed
+* Update morango and stop locking sync when db backend is postgres by @bjester in https://github.com/learningequality/kolibri/pull/9556
+* Improve facility sync status reporting to users by @MisRob in https://github.com/learningequality/kolibri/pull/9541
+* Fix show more of top level resources by @marcellamaki in https://github.com/learningequality/kolibri/pull/9555
+* Clean up theme regressions by @rtibbles in https://github.com/learningequality/kolibri/pull/9558
+* Move CACHES import into function scope to prevent side effects. by @rtibbles in https://github.com/learningequality/kolibri/pull/9561
+
+
+## 0.15.5
+
+### Overview
+
+This release fixes a regression with quiz display for non-admins.
+
+### Fixed
+* Clean up state management for user management page in https://github.com/learningequality/kolibri/pull/9535
+* Fix quiz display for non-admins in https://github.com/learningequality/kolibri/pull/9545
+
+
 ## 0.15.4
 
 ### Overview
