@@ -43,6 +43,7 @@ module.exports = (
     address = 'localhost',
     cache = false,
     transpile = false,
+    devServer = false,
   } = {}
 ) => {
   if (
@@ -174,7 +175,7 @@ module.exports = (
 
   bundle = merge(bundle, baseConfig({ mode, hot, cache, transpile }), webpackConfig);
 
-  if (mode === 'development') {
+  if (devServer) {
     const publicPath = `http://${address}:${port}/${data.name}/`;
     bundle.output.publicPath = publicPath;
     bundle.watch = true;

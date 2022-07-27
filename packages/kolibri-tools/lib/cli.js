@@ -64,6 +64,7 @@ function runWebpackBuild(mode, bundleData, devServer, options, cb = null) {
     mode: webpackMode,
     cache: options.cache,
     transpile: options.transpile,
+    devServer,
   };
 
   const webpackConfig = require('./webpack.config.plugin');
@@ -244,16 +245,38 @@ program
     }
     if (options.watchonly.length) {
       const unwatchedBundles = [];
-      for (let modulePath of options.watchonly) {
-        const findModuleName = bundleDatum => {
-          return bundleDatum.module_path !== modulePath;
-        };
-        let foundIndex = bundleData.findIndex(findModuleName);
-        while (foundIndex > -1) {
-          // Remove the found bundle data entry from bundleData and it to unwatched bundles
-          unwatchedBundles.push(...bundleData.splice(foundIndex, 1));
-          foundIndex = bundleData.findIndex(findModuleName);
+      const findModuleName = bundleDatum => {
+        return !options.watchonly.some(m => bundleDatum.module_path.includes(m));
+      };
+      let foundIndex = bundleData.findIndex(findModuleName);
+      while (foundIndex > -1) {
+        // Remove the found bundle data entry from bundleData
+        const unwatchedBundle = bundleData.splice(foundIndex, 1)[0];
+        // Read the stats file for the bundle and see if we need to build it
+        try {
+          const statsFile = fs.readFileSync(unwatchedBundle.stats_file);
+          const stats = JSON.parse(statsFile);
+          // If the compilation has not completed, or it has completed
+          // and it has a publicPath (i.e. it was built from a devserver)
+          // then we need to rebuild the asset.
+          if (stats.status !== 'done' || stats.publicPath) {
+            // If we do, add it to our stats bundles.
+            unwatchedBundles.push(unwatchedBundle);
+          }
+        } catch (e) {
+          // If we got an error the file probably doesn't exist
+          // or there was a problem with the stats file.
+          // Rebuild!
+          unwatchedBundles.push(unwatchedBundle);
         }
+        foundIndex = bundleData.findIndex(findModuleName);
+      }
+      if (unwatchedBundles.length) {
+        runWebpackBuild(mode, unwatchedBundles, false, {
+          ...options,
+          cache: false,
+          hot: false,
+        });
       }
     }
     runWebpackBuild(mode, bundleData, mode === modes.DEV, options);
