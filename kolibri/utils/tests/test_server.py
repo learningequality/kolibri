@@ -25,15 +25,7 @@ class TestServerInstallation(object):
         assert install_type == installation_types.PEX
 
     def test_dev(self):
-        sys_args = [
-            "kolibri",
-            "--debug",
-            "manage",
-            "runserver",
-            "--settings=kolibri.deployment.default.settings.dev",
-            '"0.0.0.0:8000"',
-        ]
-        with mock.patch("sys.argv", sys_args):
+        with mock.patch("os.environ", {"KOLIBRI_DEVELOPER_MODE": "True"}):
             install_type = server.installation_type()
             assert install_type == "devserver"
 
