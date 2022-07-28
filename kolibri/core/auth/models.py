@@ -74,6 +74,7 @@ from kolibri.core.device.utils import get_device_setting
 from kolibri.core.device.utils import set_device_settings
 from kolibri.core.errors import KolibriValidationError
 from kolibri.core.fields import DateTimeTzField
+from kolibri.core.fields import JSONField
 from kolibri.utils.time_utils import local_now
 
 logger = logging.getLogger(__name__)
@@ -158,6 +159,7 @@ class FacilityDataset(FacilityDataSyncableModel):
     learner_can_delete_account = models.BooleanField(default=True)
     learner_can_login_with_no_password = models.BooleanField(default=False)
     show_download_button_in_learn = models.BooleanField(default=True)
+    extra_fields = JSONField(null=True, blank=True)
     registered = models.BooleanField(default=False)
 
     def __str__(self):
@@ -1383,6 +1385,20 @@ class Facility(Collection):
 
     def remove_coach(self, user):
         self.remove_role(user, role_kinds.COACH)
+
+    @property
+    def on_my_own_setup(self):
+        if self.dataset.extra_fields is not None:
+            return self.dataset.extra_fields.get("on_my_own_setup", False)
+        else:
+            return False
+
+    @on_my_own_setup.setter
+    def on_my_own_setup(self, value):
+        if self.dataset.extra_fields is None:
+            self.dataset.extra_fields = {}
+        self.dataset.extra_fields["on_my_own_setup"] = value
+        self.dataset.save()
 
     def __str__(self):
         return self.name
