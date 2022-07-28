@@ -10,6 +10,9 @@ from kolibri.core.auth.serializers import FacilitySerializer
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
 from kolibri.core.device.utils import provision_device
+from kolibri.core.device.utils import valid_app_key_on_request
+from kolibri.plugins.app.utils import GET_OS_USER
+from kolibri.plugins.app.utils import interface
 
 
 class DevicePermissionsSerializer(serializers.ModelSerializer):
@@ -40,7 +43,7 @@ class DeviceSerializerMixin(object):
 class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
     facility = FacilitySerializer()
     preset = serializers.ChoiceField(choices=choices)
-    superuser = NoFacilityFacilityUserSerializer()
+    superuser = NoFacilityFacilityUserSerializer(required=False)
     language_id = serializers.CharField(max_length=15)
     device_name = serializers.CharField(max_length=50, allow_null=True)
     settings = serializers.JSONField()
@@ -55,6 +58,18 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
             "device_name",
             "allow_guest_access",
         )
+
+    def validate(self, data):
+        if (
+            "superuser" not in data
+            and GET_OS_USER in interface
+            and "request" in self.context
+            and valid_app_key_on_request(self.context["request"])
+        ):
+            data["os_user"] = True
+        elif "superuser" not in data:
+            raise serializers.ValidationError("Superuser is required for provisioning")
+        return data
 
     def create(self, validated_data):
         """
@@ -77,13 +92,19 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
                     setattr(facility.dataset, key, value)
             facility.dataset.save()
 
-            # Create superuser
-            superuser = FacilityUser.objects.create_superuser(
-                validated_data["superuser"]["username"],
-                validated_data["superuser"]["password"],
-                facility=facility,
-                full_name=validated_data["superuser"].get("full_name"),
-            )
+            # Create superuser only if the details are present and
+            # we are in an app that is equipped to handle this.
+            # Note that this requires the app to redirect back to the initialization URL
+            # after initial provisioning.
+            if not validated_data.get("os_user"):
+                superuser = FacilityUser.objects.create_superuser(
+                    validated_data["superuser"]["username"],
+                    validated_data["superuser"]["password"],
+                    facility=facility,
+                    full_name=validated_data["superuser"].get("full_name"),
+                )
+            else:
+                superuser = None
 
             # Create device settings
             language_id = validated_data.pop("language_id")

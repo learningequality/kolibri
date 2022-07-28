@@ -3,13 +3,14 @@ from sys import version_info
 
 import requests
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.contrib.auth import login
 from django.db.models import Max
 from django.db.models import OuterRef
 from django.db.models.expressions import Subquery
 from django.db.models.query import Q
 from django.http import Http404
 from django.http.response import HttpResponseBadRequest
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import get_language
 from django_filters.rest_framework import DjangoFilterBackend
@@ -80,6 +81,8 @@ class DeviceProvisionView(viewsets.GenericViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.save()
+        if data["superuser"]:
+            login(request, data["superuser"])
         output_serializer = self.get_serializer(data)
         return Response(output_serializer.data, status=status.HTTP_201_CREATED)
 
