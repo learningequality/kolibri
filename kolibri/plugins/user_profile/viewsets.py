@@ -1,11 +1,10 @@
 import requests
-from django.urls import reverse
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from six.moves.urllib.parse import urljoin
 
 from kolibri.core.device.utils import get_device_setting
+from kolibri.core.utils.urls import reverse_remote
 
 
 class UserIndividualViewset(APIView):
@@ -32,8 +31,7 @@ class RemoteFacilityUserViewset(APIView):
         facility = request.query_params.get("facility", None)
         if username is None or facility is None:
             raise ValidationError(detail="Both username and facility are required")
-        path = reverse("kolibri:core:publicsearchuser-list").lstrip("/")
-        url = urljoin(baseurl, path)
+        url = reverse_remote(baseurl, "kolibri:core:publicsearchuser-list")
         try:
             response = requests.get(
                 url, params={"facility": facility, "search": username}

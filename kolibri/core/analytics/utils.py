@@ -15,7 +15,6 @@ from django.db.models import Max
 from django.db.models import Min
 from django.db.models import Q
 from django.db.models import Sum
-from django.utils.six.moves.urllib.parse import urljoin
 from django.utils.timezone import get_current_timezone
 from django.utils.timezone import localtime
 from le_utils.constants import content_kinds
@@ -42,6 +41,7 @@ from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import MasteryLog
 from kolibri.core.logger.models import UserSessionLog
 from kolibri.core.utils.lock import db_lock
+from kolibri.core.utils.urls import join_url
 from kolibri.utils import conf
 from kolibri.utils.server import installation_type
 from kolibri.utils.time_utils import local_now
@@ -423,7 +423,7 @@ def create_and_update_notifications(data, source):
 
 def perform_ping(started, server=DEFAULT_SERVER_URL):
 
-    url = urljoin(server, "/api/v1/pingback")
+    url = join_url(server, "/api/v1/pingback")
 
     instance, _ = InstanceIDModel.get_or_create_current_instance()
 
@@ -461,7 +461,7 @@ def perform_ping(started, server=DEFAULT_SERVER_URL):
 
 
 def perform_statistics(server, pingback_id):
-    url = urljoin(server, "/api/v1/statistics")
+    url = join_url(server, "/api/v1/statistics")
     channels = [extract_channel_statistics(c) for c in ChannelMetadata.objects.all()]
     facilities = [extract_facility_statistics(f) for f in Facility.objects.all()]
     data = {"pi": pingback_id, "c": channels, "f": facilities}
