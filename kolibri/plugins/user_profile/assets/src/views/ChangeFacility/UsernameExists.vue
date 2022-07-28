@@ -33,7 +33,7 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
-  import { computed } from 'kolibri.lib.vueCompositionApi';
+  import { computed, inject } from 'kolibri.lib.vueCompositionApi';
   import get from 'lodash/get';
 
   export default {
@@ -47,11 +47,14 @@
 
     mixins: [commonCoreStrings],
     setup() {
+      const changeFacilityService = inject('changeFacilityService');
+      const state = inject('state');
+
       const firstLine = computed({
         get() {
           return this.$tr('changeFacilityInfoLine1', {
-            target_facility: get(this.state, 'value.targetFacility.name', ''),
-            username: get(this.state, 'value.username', ''),
+            target_facility: get(state, 'value.targetFacility.name', ''),
+            username: get(state, 'value.username', ''),
           });
         },
       });
@@ -59,27 +62,25 @@
       const secondLine = computed({
         get() {
           return this.$tr('changeFacilityInfoLine2', {
-            target_facility: get(this.state, 'value.targetFacility.name', ''),
+            target_facility: get(state, 'value.targetFacility.name', ''),
           });
         },
       });
 
       function to_create() {
-        this.changeFacilityService.send({
+        changeFacilityService.send({
           type: 'NEW',
         });
       }
 
       function to_merge() {
-        this.changeFacilityService.send({
+        changeFacilityService.send({
           type: 'MERGE',
         });
       }
 
       return { firstLine, secondLine, to_create, to_merge };
     },
-
-    inject: ['changeFacilityService', 'state'],
 
     $trs: {
       documentTitle: {
