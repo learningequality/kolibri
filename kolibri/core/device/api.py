@@ -3,7 +3,6 @@ from sys import version_info
 
 import requests
 from django.conf import settings
-from django.core.urlresolvers import reverse
 from django.contrib.auth import login
 from django.db.models import Max
 from django.db.models import OuterRef
@@ -11,6 +10,7 @@ from django.db.models.expressions import Subquery
 from django.db.models.query import Q
 from django.http import Http404
 from django.http.response import HttpResponseBadRequest
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import get_language
 from django_filters.rest_framework import DjangoFilterBackend
