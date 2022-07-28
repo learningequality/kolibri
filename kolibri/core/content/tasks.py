@@ -56,7 +56,7 @@ class ChannelResourcesValidator(ChannelValidator):
         return job_data
 
 
-class ChannelResourcesImportValidator(ChannelValidator):
+class ChannelResourcesImportValidator(ChannelResourcesValidator):
     update = serializers.BooleanField(default=False)
     new_version = serializers.IntegerField(required=False)
 
