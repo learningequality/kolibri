@@ -1,11 +1,11 @@
 import logging
 
 import requests
-from six.moves.urllib.parse import urljoin
 from six.moves.urllib.parse import urlparse
 
 from . import errors
 from .urls import get_normalized_url_variations
+from kolibri.core.utils.urls import join_url
 
 logger = logging.getLogger(__name__)
 
@@ -90,7 +90,7 @@ class NetworkClient(object):
 
     def request(self, method, path, base_url=None, **kwargs):
         base_url = base_url or self.base_url
-        url = urljoin(base_url, path)
+        url = join_url(base_url, path)
         response = getattr(self.session, method)(url, **kwargs)
         response.raise_for_status()
         return response

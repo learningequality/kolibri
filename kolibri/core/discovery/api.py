@@ -3,7 +3,6 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
 from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
-from six.moves.urllib.parse import urljoin
 
 from .models import DynamicNetworkLocation
 from .models import NetworkLocation
@@ -11,6 +10,7 @@ from .models import StaticNetworkLocation
 from .permissions import NetworkLocationPermissions
 from .serializers import NetworkLocationSerializer
 from kolibri.core.device.permissions import NotProvisionedHasPermission
+from kolibri.core.utils.urls import join_url
 
 
 class NetworkLocationViewSet(viewsets.ModelViewSet):
@@ -46,7 +46,7 @@ class NetworkLocationFacilitiesView(viewsets.GenericViewSet):
             base_url = peer_device.base_url
 
             # Step 2: Make request to the /facility endpoint
-            response = requests.get(urljoin(base_url, "api/public/v1/facility"))
+            response = requests.get(join_url(base_url, "api/public/v1/facility"))
             response.raise_for_status()
         except (requests.RequestException, NetworkLocation.DoesNotExist):
             raise NotFound()

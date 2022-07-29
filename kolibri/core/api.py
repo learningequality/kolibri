@@ -17,10 +17,10 @@ from rest_framework.serializers import UUIDField
 from rest_framework.serializers import ValidationError
 from rest_framework.status import HTTP_201_CREATED
 from rest_framework.status import HTTP_503_SERVICE_UNAVAILABLE
-from six.moves.urllib.parse import urljoin
 
 from .utils.portal import registerfacility
 from kolibri.core.auth.models import Facility
+from kolibri.core.utils.urls import join_url
 from kolibri.utils import conf
 
 
@@ -40,7 +40,7 @@ class KolibriDataPortalViewSet(viewsets.ViewSet):
         try:
             # token is in query params
             response = requests.get(
-                urljoin(
+                join_url(
                     PORTAL_URL, "portal/api/public/v1/registerfacility/validate_token"
                 ),
                 params=request.query_params,

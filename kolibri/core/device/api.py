@@ -10,7 +10,6 @@ from django.db.models.expressions import Subquery
 from django.db.models.query import Q
 from django.http import Http404
 from django.http.response import HttpResponseBadRequest
-from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import get_language
 from django_filters.rest_framework import DjangoFilterBackend
@@ -25,7 +24,6 @@ from rest_framework import views
 from rest_framework import viewsets
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
-from six.moves.urllib.parse import urljoin
 
 import kolibri
 from .models import DevicePermissions
@@ -53,6 +51,7 @@ from kolibri.core.public.constants.user_sync_statuses import QUEUED
 from kolibri.core.public.constants.user_sync_statuses import RECENTLY_SYNCED
 from kolibri.core.public.constants.user_sync_statuses import SYNCING
 from kolibri.core.public.constants.user_sync_statuses import UNABLE_TO_SYNC
+from kolibri.core.utils.urls import reverse_remote
 from kolibri.plugins.utils import initialize_kolibri_plugin
 from kolibri.plugins.utils import iterate_plugins
 from kolibri.plugins.utils import PluginDoesNotExist
@@ -390,8 +389,7 @@ class RemoteFacilitiesViewset(views.APIView):
 
     def get(self, request):
         baseurl = request.query_params.get("baseurl", request.build_absolute_uri("/"))
-        path = reverse("kolibri:core:publicfacility-list").lstrip("/")
-        url = urljoin(baseurl, path)
+        url = reverse_remote(baseurl, "kolibri:core:publicfacility-list")
         try:
             response = requests.get(url)
             if response.status_code == 200:

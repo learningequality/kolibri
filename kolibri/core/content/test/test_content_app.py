@@ -1826,7 +1826,7 @@ class ProxyContentMetadataTestCase(ContentNodeAPIBase, LiveServerTestCase):
         return self.client.get(*args, **kwargs)
 
 
-@override_option("Deployment", "URL_PATH_PREFIX", "test")
+@override_option("Deployment", "URL_PATH_PREFIX", "test/")
 class PrefixedProxyContentMetadataTestCase(ProxyContentMetadataTestCase):
     @property
     def baseurl(self):

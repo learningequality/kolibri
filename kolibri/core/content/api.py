@@ -35,7 +35,6 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
-from six.moves.urllib.parse import urljoin
 
 from kolibri.core.api import BaseValuesViewset
 from kolibri.core.api import ListModelMixin
@@ -75,6 +74,7 @@ from kolibri.core.query import SQSum
 from kolibri.core.utils.pagination import ValuesViewsetCursorPagination
 from kolibri.core.utils.pagination import ValuesViewsetLimitOffsetPagination
 from kolibri.core.utils.pagination import ValuesViewsetPageNumberPagination
+from kolibri.core.utils.urls import join_url
 from kolibri.utils.conf import OPTIONS
 
 
@@ -148,7 +148,7 @@ class RemoteMixin(object):
         qs = request.GET.copy()
         del qs[self.remote_url_param]
         qs.pop("contentCacheKey", None)
-        remote_url = urljoin(baseurl, remote_path)
+        remote_url = join_url(baseurl, remote_path)
         try:
             response = requests.get(
                 remote_url, params=qs, headers=self._get_request_headers(request)
