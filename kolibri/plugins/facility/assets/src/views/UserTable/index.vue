@@ -12,22 +12,25 @@
             :showLabel="true"
             :checked="allAreSelected"
             class="overflow-label"
-            :disabled="disabled || users.length === 0"
+            :disabled="disabled || !users || users.length === 0"
+            data-test="selectAllCheckbox"
             @change="selectAll($event)"
           />
         </th>
         <th>
           <!-- "Full name" header visually hidden if checkbox is on -->
-          <span :class="{ visuallyhidden: selectable }">
+          <span :class="{ visuallyhidden: selectable }" data-test="fullNameHeader">
             {{ coreString('fullNameLabel') }}
           </span>
         </th>
         <th>
-          <span class="visuallyhidden">
+          <span class="visuallyhidden" data-test="roleHeader">
             {{ $tr('role') }}
           </span>
         </th>
-        <th>{{ coreString('usernameLabel') }}</th>
+        <th data-test="usernameHeader">
+          {{ coreString('usernameLabel') }}
+        </th>
         <th v-if="$scopedSlots.info">
           {{ infoDescriptor }}
         </th>
@@ -67,6 +70,7 @@
                 :showLabel="false"
                 :disabled="disabled"
                 :checked="userIsSelected(user.id)"
+                data-test="userCheckbox"
                 @change="selectUser(user.id, $event)"
               />
             </td>
@@ -74,22 +78,24 @@
               <KLabeledIcon
                 :icon="isCoach ? 'coach' : 'person'"
                 :label="user.full_name"
+                data-test="fullName"
               />
               <UserTypeDisplay
                 aria-hidden="true"
                 :userType="user.kind"
                 :omitLearner="true"
                 class="role-badge"
+                data-test="userRoleBadge"
                 :style="{
                   color: $themeTokens.textInverted,
                   backgroundColor: $themeTokens.annotation,
                 }"
               />
             </td>
-            <td class="visuallyhidden">
+            <td class="visuallyhidden" data-test="userRoleLabel">
               {{ user.kind }}
             </td>
-            <td>
+            <td data-test="username">
               <span dir="auto">
                 {{ user.username }}
               </span>
@@ -120,7 +126,7 @@
     </CoreTable>
 
     <p
-      v-if="!users.length"
+      v-if="!users || !users.length"
       class="empty-message"
     >
       {{ emptyMessage }}
@@ -164,6 +170,7 @@
         type: Boolean,
         default: false,
       },
+      // required when 'selectable' is truthy
       // used for optional checkboxes
       value: {
         type: Array,
@@ -193,7 +200,10 @@
     },
     computed: {
       allAreSelected() {
-        return Boolean(this.users.length) && this.users.every(user => this.value.includes(user.id));
+        return (
+          Boolean(this.users && this.users.length) &&
+          this.users.every(user => this.value.includes(user.id))
+        );
       },
     },
     methods: {
