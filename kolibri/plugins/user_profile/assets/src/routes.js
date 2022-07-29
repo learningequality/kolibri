@@ -8,6 +8,7 @@ import ConfirmAccount from './views/ChangeFacility/ConfirmAccount';
 import ConfirmChangeFacility from './views/ChangeFacility/ConfirmChangeFacility';
 import CreateAccount from './views/ChangeFacility/CreateAccount';
 import ToBeDone from './views/ChangeFacility/ToBeDone';
+import UsernameExists from './views/ChangeFacility/UsernameExists';
 
 function preload(next) {
   store.commit('CORE_SET_PAGE_LOADING', true);
@@ -94,7 +95,7 @@ export default [
       {
         path: 'username_exists',
         name: 'USERNAME_EXISTS',
-        component: ToBeDone,
+        component: UsernameExists,
       },
       {
         path: 'require_account_credentials',

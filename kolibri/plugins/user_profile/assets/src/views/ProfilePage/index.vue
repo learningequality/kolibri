@@ -121,7 +121,7 @@
         </table>
 
         <KGrid
-          v-if="isIndividual"
+          v-if="onMyOwnSetup"
           :style="{ marginTop: '34px',
                     paddingTop: '10px',
                     borderTop: `1px solid ${$themePalette.grey.v_300}` }"
@@ -200,7 +200,7 @@
   import BirthYearDisplayText from 'kolibri.coreVue.components.BirthYearDisplayText';
   import { ComponentMap } from '../../constants';
   import useCurrentUser from '../../composables/useCurrentUser';
-  import useIndividualDevice from '../../composables/useIndividualDevice';
+  import useOnMyOwnSetup from '../../composables/useOnMyOwnSetup';
   import ChangeUserPasswordModal from './ChangeUserPasswordModal';
   import plugin_data from 'plugin_data';
 
@@ -227,10 +227,10 @@
       const showLearnModal = ref(false);
       const { currentUser } = useCurrentUser();
       const { isSubsetOfUsersDevice } = plugin_data;
-      const { isIndividual } = useIndividualDevice();
+      const { onMyOwnSetup } = useOnMyOwnSetup();
       return {
         currentUser,
-        isIndividual,
+        onMyOwnSetup,
         isSubsetOfUsersDevice,
         showLearnModal,
         showPasswordModal,

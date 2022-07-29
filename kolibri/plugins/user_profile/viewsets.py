@@ -8,9 +8,9 @@ from six.moves.urllib.parse import urljoin
 from kolibri.core.device.utils import get_device_setting
 
 
-class UserIndividualViewset(APIView):
+class OnMyOwnSetupViewset(APIView):
     """
-    Viewset to determine if the device has a single user or not.
+    Viewset to determine if the facility has been setup as an "On my own setup" facoñotu.
     """
 
     def get(self, request, format=None):
@@ -21,7 +21,10 @@ class UserIndividualViewset(APIView):
         )
         user_facility = self.request.user.facility
         return Response(
-            {"individual": user_facility.on_my_own_setup, "lod": subset_of_users_device}
+            {
+                "on_my_own_setup": user_facility.on_my_own_setup,
+                "lod": subset_of_users_device,
+            }
         )
 
 
