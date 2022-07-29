@@ -13,15 +13,24 @@
         />
       </NavbarLink>
     </div>
-    <span v-if="menuLinks.length > 0">
-      <KDropdownMenu
+    <span v-if="menuLinks.length > 0 && !windowIsLarge">
+      <KIconButton
+        class="menu-icon"
+        :tooltip="coreString('moreOptions')"
         icon="optionsHorizontal"
         appearance="flat-button"
         :color="color"
-        class="menu-icon"
-        :options="menuLinks"
-        @select="handleSelect"
-      />
+        :primary="false"
+      >
+        <template #menu>
+          <KDropdownMenu
+            :primary="false"
+            :hasIcons="true"
+            :options="menuLinks"
+            @select="handleSelect"
+          />
+        </template>
+      </KIconButton>
     </span>
   </Navbar>
 
@@ -34,6 +43,7 @@
   import Navbar from 'kolibri.coreVue.components.Navbar';
   import NavbarLink from 'kolibri.coreVue.components.NavbarLink';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
 
   export default {
     name: 'DeviceTopNav',
@@ -41,7 +51,7 @@
       Navbar,
       NavbarLink,
     },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, responsiveWindowMixin],
     props: {
       numberOfNavigationTabsToDisplay: {
         type: Number,
@@ -91,13 +101,15 @@
     },
     computed: {
       ...mapGetters(['canManageContent', 'isSuperuser']),
+
       menuLinks() {
         const limitedList = this.links.slice(
           this.numberOfNavigationTabsToDisplay,
           this.links.length
         );
         let options = [];
-        limitedList.forEach(o => options.push({ label: o.title, value: o.link }));
+        limitedList.forEach(o => options.push({ label: o.title, value: o.link, icon: o.icon }));
+        console.log(limitedList);
         return options;
         // return this.links.slice(this.numberOfNavigationTabsToDisplay, this.links.length);
       },
@@ -137,7 +149,6 @@
   .menu-icon {
     position: absolute;
     right: 4px;
-    opacity: 0.6;
   }
 
   .menu-popover {
