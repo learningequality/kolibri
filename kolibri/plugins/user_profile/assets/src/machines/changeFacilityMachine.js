@@ -245,7 +245,7 @@ export const changeFacilityMachine = createMachine({
     requireAccountCreds: {
       meta: { route: 'REQUIRE_ACCOUNT_CREDENTIALS', path: '/change_facility' },
       on: {
-        CONTINUE: 'showAccounts',
+        CONTINUE: { actions: setTargetAccount, target: 'showAccounts' },
         USEADMIN: 'useAdminPassword',
         BACK: 'confirmMerge',
       },
@@ -253,7 +253,7 @@ export const changeFacilityMachine = createMachine({
     useAdminPassword: {
       meta: { route: 'ADMIN_PASSWORD', path: '/change_facility' },
       on: {
-        CONTINUE: 'showAccounts',
+        CONTINUE: { actions: setTargetAccount, target: 'showAccounts' },
         BACK: 'requireAccountCreds',
       },
     },
