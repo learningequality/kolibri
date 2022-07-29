@@ -1,15 +1,10 @@
 import { mount, createLocalVue } from '@vue/test-utils';
-import VueRouter from 'vue-router';
-import makeStore from '../../makeStore';
 import UsernameExists from '../../../src/views/ChangeFacility/UsernameExists';
 
 const localVue = createLocalVue();
-localVue.use(VueRouter);
 const sendMachineEvent = jest.fn();
 
 function makeWrapper({ targetFacility, username } = {}) {
-  const store = makeStore();
-
   return mount(UsernameExists, {
     provide: {
       changeFacilityService: {
@@ -23,7 +18,6 @@ function makeWrapper({ targetFacility, username } = {}) {
       },
     },
     localVue,
-    store,
   });
 }
 
