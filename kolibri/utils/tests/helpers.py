@@ -1,9 +1,30 @@
 import os
 
+try:
+    from importlib import reload
+except ImportError:
+    # This will happen on Python 2.7
+    # use built in reload.
+    reload = reload
+
+import sys
+
+from django.conf import settings
+from django.urls import clear_url_caches
 from django.test.utils import TestContextDecorator
 
 from kolibri.utils import conf
 from kolibri.utils.options import option_spec
+
+
+def _reload_module(module):
+    if module in sys.modules:
+        reload(sys.modules[module])
+
+
+def _reset_options_dependent_modules():
+    clear_url_caches()
+    _reload_module(settings.ROOT_URLCONF)
 
 
 class override_option(TestContextDecorator):
@@ -30,6 +51,7 @@ class override_option(TestContextDecorator):
             self.old_envvars[envvar] = os.environ.get(envvar, None)
             os.environ[envvar] = str(self.temp_value)
         conf.OPTIONS[self.section][self.key] = self.temp_value
+        _reset_options_dependent_modules()
 
     def disable(self):
         conf.OPTIONS[self.section][self.key] = self.old_value
