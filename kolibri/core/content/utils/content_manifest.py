@@ -12,6 +12,11 @@ try:
 except NameError:
     FileNotFoundError = IOError
 
+try:
+    from json import JSONDecodeError
+except ImportError:
+    JSONDecodeError = ValueError
+
 
 ContentManifestChannelData = namedtuple(
     "ContentManifestChannelData", ["channel_id", "channel_version", "include_node_ids"]
@@ -57,11 +62,11 @@ class ContentManifest(object):
         return files_read
 
     def read_file(self, fp):
-        json_str = fp.read()
-        if not json_str:
-            return
-        # Raises JSONDecodeError if the file is invalid
-        manifest_data = json.loads(json_str)
+        try:
+            manifest_data = json.load(fp)
+        except JSONDecodeError as error:
+            raise ContentManifestParseError("Error decoding JSON: {}".format(error))
+
         self.read_dict(manifest_data)
 
     def read_dict(self, manifest_data):
