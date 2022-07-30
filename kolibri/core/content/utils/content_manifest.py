@@ -39,12 +39,23 @@ class ContentManifest(object):
     of every included node. When nodes are added to a channel ID and version
     that is already in the content manifest, those nodes will be added to the
     existing list.
+
+    For consistency with other code, this class uses a naming convention
+    similar to ConfigParser.
     """
 
     def __init__(self):
         self._channels_dict = {}
 
     def read(self, filenames):
+        """
+        Read content manifest data from a file path, or a list of file paths.
+        Returns the number of files which have been read successfully. Note
+        that if a path does not exist, it will be silently skipped, but if
+        there is an issue with a file's contents, this function will raise
+        `ContentManifestParseError` as with `read_file`.
+        """
+
         if not isinstance(filenames, list):
             filenames = [filenames]
 
@@ -62,6 +73,12 @@ class ContentManifest(object):
         return files_read
 
     def read_file(self, fp):
+        """
+        Read content manifest data from a file-like object.
+        Raises `ContentManifestParseError` if a file is invalid JSON, or has
+        an incorrecct schema.
+        """
+
         try:
             manifest_data = json.load(fp)
         except JSONDecodeError as error:
@@ -70,6 +87,11 @@ class ContentManifest(object):
         self.read_dict(manifest_data)
 
     def read_dict(self, manifest_data):
+        """
+        Read content manifest data from a dict object.
+        Raises `ContentManifestParseError` the dict has an incorrect schema.
+        """
+
         for channel_data in manifest_data.get("channels", []):
             channel_id = channel_data.get("id", None)
             channel_version = channel_data.get("version", None)
@@ -79,11 +101,20 @@ class ContentManifest(object):
             self._update_channel_data(channel_id, channel_version, include_node_ids)
 
     def write(self, path):
+        """
+        Writes content manifest data in JSON format to a file at `path`.
+        """
+
         os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, "w") as fp:
             self.write_file(fp)
 
     def write_file(self, fp):
+        """
+        Write content manifest data in JSON format to the given file-like
+        object.
+        """
+
         json.dump(self.to_dict(), fp, indent=4)
 
     def to_dict(self):
@@ -106,27 +137,40 @@ class ContentManifest(object):
     def _iter_channel_data(self):
         for channel_id in self.get_channel_ids():
             for channel_version in self.get_channel_versions(channel_id):
-                yield self.get_channel_data(channel_id, channel_version)
+                yield self._get_channel_data(channel_id, channel_version)
 
     def get_channel_ids(self):
+        """
+        Returns the list of channel IDs in the content manifest.
+        """
+
         return self._channels_dict.keys()
 
     def get_channel_versions(self, channel_id):
+        """
+        Returns the list of versions for a particular channel in the content
+        manifest.
+        """
+
         return self._channels_dict.get(channel_id, {}).keys()
 
-    def get_channel_data(self, channel_id, channel_version):
-        channel_data = self._channels_dict.get(channel_id, {}).get(
-            channel_version, None
-        )
-        if channel_data is None:
-            channel_data = ContentManifestChannelData(None, None, set())
-        return channel_data
-
     def get_include_node_ids(self, channel_id, channel_version):
-        channel_data = self.get_channel_data(channel_id, channel_version)
+        """
+        Returns a list of node IDs for the provided channel ID and version.
+        """
+
+        channel_data = self._get_channel_data(channel_id, channel_version)
         return channel_data.include_node_ids
 
     def add_content_nodes(self, channel_id, channel_version, nodes_queries_list):
+        """
+        Update the content manifest to include a new set of nodes for the
+        provided channel ID and version. The `nodes_queries_list` is a list
+        of database queries as produced by `get_import_export_nodes`. This
+        function will optimize the exhaustive list of content nodes to include
+        the smallest possible set of parent nodes.
+        """
+
         include_node_ids = get_content_nodes_selectors(
             channel_id, channel_version, nodes_queries_list
         )
@@ -140,6 +184,14 @@ class ContentManifest(object):
             set(old_include_node_ids) | set(include_node_ids),
         )
         self._set_channel_data(channel_data)
+
+    def _get_channel_data(self, channel_id, channel_version):
+        channel_data = self._channels_dict.get(channel_id, {}).get(
+            channel_version, None
+        )
+        if channel_data is None:
+            channel_data = ContentManifestChannelData(None, None, set())
+        return channel_data
 
     def _set_channel_data(self, channel_data):
         assert isinstance(channel_data, ContentManifestChannelData)

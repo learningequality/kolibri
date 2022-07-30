@@ -139,7 +139,7 @@ def get_import_export_nodes(  # noqa: C901
     """
     Returns a list of queries for ContentNode objects matching the given
     constraints. This can be used with get_content_nodes_data and with
-    get_content_nodes_selectors.
+    ContentManifest.add_content_nodes.
 
     There is a distinction between calling this function with node_ids=[] and
     with node_ids=None. With an empty list, no nodes will be selected. With a
