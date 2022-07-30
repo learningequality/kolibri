@@ -95,7 +95,7 @@ def filter_by_file_availability(nodes_to_include, channel_id, drive_id, peer_id)
     return nodes_to_include
 
 
-def get_import_export_data(  # noqa: C901
+def get_import_export_data(
     channel_id,
     node_ids=None,
     exclude_node_ids=None,
