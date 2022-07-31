@@ -63,6 +63,7 @@
             :firstPageHeight="firstPageHeight || 0"
             :firstPageWidth="firstPageWidth || 0"
             :scale="scale || 1"
+            :eventBus="eventBus"
           />
         </template>
       </RecycleList>
@@ -85,7 +86,9 @@
   import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
+  import { EventBus } from '../utils/event_utils';
   import PdfPage from './PdfPage';
+
   // Source from which PDFJS loads its service worker, this is based on the __publicPath
   // global that is defined in the Kolibri webpack pipeline, and the additional entry in the PDF
   // renderer's own webpack config
@@ -116,6 +119,7 @@
       updateContentStateInterval: null,
       showControls: true,
       visitedPages: {},
+      eventBus: null,
     }),
     computed: {
       // Returns whether or not the current device is iOS.
@@ -220,6 +224,7 @@
       loadingPdf.onProgress = loadingProgress => {
         this.progress = loadingProgress.loaded / loadingProgress.total;
       };
+      this.eventBus = new EventBus();
       this.prepComponentData = loadingPdf.promise.then(pdfDocument => {
         // Get initial info from the loaded pdf document
         this.pdfDocument = pdfDocument;
