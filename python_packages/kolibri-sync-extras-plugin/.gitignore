@@ -1,3 +1,6 @@
+.kolibri/*
+!.kolibri/options.ini
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -76,6 +79,7 @@ target/
 
 # dotenv
 .env
+.envrc
 
 # virtualenv
 venv/
