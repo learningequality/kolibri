@@ -16,7 +16,7 @@ jobs:
           github_token: ${{ github.token }}
           paths: '["**.py", "requirements*.txt", ".github/workflows/python.yml"]'
   unit_test:
-    name: Python postgres unit tests
+    name: Python unit tests
     needs: pre_job
     runs-on: ubuntu-18.04
     steps:
@@ -30,8 +30,8 @@ jobs:
       if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
       run: |
           pip install -r requirements.txt
-          pip install -r requirements/dev.txt
-          pip install -r requirements/test.txt
+          pip install -r requirements-dev.txt
+          pip install -r requirements-test.txt
     - name: cache Python env
       if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
       uses: actions/cache@v2
