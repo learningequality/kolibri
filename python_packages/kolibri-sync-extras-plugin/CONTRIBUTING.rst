@@ -13,7 +13,7 @@ Types of Contributions
 Report Bugs
 ~~~~~~~~~~~
 
-Report bugs at https://github.com/learningequality/kolibri-oidc-client-plugin/issues.
+Report bugs at https://github.com/learningequality/kolibri-sync-extras-plugin/issues.
 
 If you are reporting a bug, please include:
 
@@ -65,7 +65,3 @@ Copy-paste the following to your Pull Request description on Github::
     ## Documentation
 
     If the PR has documentation, link the file here (either .rst in your repo or if built on Read The Docs)
-
-    ## Screenshots (if appropriate)
-
-    They're nice. :)

@@ -4,8 +4,7 @@
 
 Kolibri is a Learning Management System / Learning App designed to run on low-power devices, targeting the needs of learners and teachers in contexts with limited infrastructure. See [learningequality.org/kolibri](https://learningequality.org/kolibri/) for more info.
 
-Kolibri supports syncing facility data between two instances. This plugin provides additional sync related features that
-can be turned on to customize the behavior of those syncs.
+Kolibri supports syncing facility data between two instances. This plugin provides additional sync related features that can be turned on to customize the behavior of those syncs. In particular, these features can enhance Kolibri's syncing mechanism when dealing with a large database or dataset.
 
 
 ## How can I install this plugin?
@@ -35,4 +34,24 @@ BACKGROUND_INITIALIZATION = True
 BACKGROUND_INITIALIZATION_STAGES = "serializing"
 BACKGROUND_FINALIZATION = True
 BACKGROUND_FINALIZATION_STAGES = "deserializing,cleanup"
+```
+
+## Development
+### Getting started
+```bash
+$ pip install -r requirements-dev.txt
+$ pre-commit install
+$ KOLIBRI_HOME="$(pwd)/.kolibri" kolibri plugin enable kolibri_sync_extras_plugin
+```
+
+## Testing
+### Getting started
+```bash
+$ pip install -r requirements.txt -r requirements-test.txt
+$ KOLIBRI_HOME="$(pwd)/.kolibri" kolibri plugin enable kolibri_sync_extras_plugin
+```
+
+### Running them
+```bash
+$ pytest test/
 ```

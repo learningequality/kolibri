@@ -1,17 +1,17 @@
 import logging
 
 from django.core.management import call_command
-from kolibri.core.tasks.main import queue
 from kolibri.core.tasks.job import State
+from kolibri.core.tasks.main import queue
 from kolibri.utils.conf import OPTIONS
-from morango.constants.capabilities import ASYNC_OPERATIONS
 from morango.constants import transfer_stages
 from morango.constants import transfer_statuses
+from morango.constants.capabilities import ASYNC_OPERATIONS
 from morango.sync.operations import LocalOperation
 
+from kolibri_sync_extras_plugin.sync.context import BackgroundSessionContext
 from kolibri_sync_extras_plugin.tasks import get_job_id
 from kolibri_sync_extras_plugin.tasks import set_job_id
-from kolibri_sync_extras_plugin.sync.context import BackgroundSessionContext
 
 
 logger = logging.getLogger(__name__)
@@ -19,6 +19,18 @@ logger = logging.getLogger(__name__)
 
 class SyncExtrasLocalOperation(LocalOperation):
     option_condition = None
+
+    @property
+    def option_stages(self):
+        """
+        :return: A list of transfer stages that the operation should handle
+        :rtype: str[]
+        """
+        sync_options = OPTIONS.get("Sync", None)
+        option_key = "{}_STAGES".format(self.option_condition)
+        if not sync_options or not sync_options.get(option_key, None):
+            return []
+        return sync_options.get(option_key).split(",")
 
     def should_handle(self, context):
         """
@@ -29,14 +41,14 @@ class SyncExtrasLocalOperation(LocalOperation):
         self._assert(context.filter is not None)
 
         if self.option_condition is not None:
-            self._assert(OPTIONS["Sync"].get(self.option_condition))
-            self._assert(context.stage in OPTIONS["Sync"].get("{}_STAGES".format(self.option_condition), []))
+            self._assert(context.stage in self.option_stages)
 
 
 class BackgroundJobOperation(SyncExtrasLocalOperation):
     """
     Queues a task to perform sync stages in the background outside the request thread
     """
+
     def should_handle(self, context):
         """
         :type context: morango.sync.context.LocalSessionContext
@@ -81,6 +93,7 @@ class BackgroundInitializeJobOperation(BackgroundJobOperation):
     Queues a task to perform serialization or queuing stage in the background outside the request
     thread, but only if the client supports async operations (Kolibri 0.15+)
     """
+
     option_condition = "BACKGROUND_INITIALIZATION"
 
     def handle(self, context):
@@ -118,6 +131,7 @@ class BackgroundFinalizeJobOperation(BackgroundJobOperation):
     Queues a task to perform finalize operations (dequeuing, deserialization or cleanup) in the
     background outside the request thread
     """
+
     option_condition = "BACKGROUND_FINALIZATION"
 
     def handle(self, context):

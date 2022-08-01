@@ -1,4 +1,4 @@
-.PHONY: help clean assets clean-pyc release dist
+.PHONY: help clean clean-pyc release dist
 
 help:
 	@echo "clean-build - remove build artifacts"
@@ -23,12 +23,7 @@ clean-pyc:
 	find . -name '*.pyo' -exec rm -f {} +
 	find . -name '*~' -exec rm -f {} +
 
-assets:
-	rm -rf kolibri_oidc_client_plugin/static
-	mkdir kolibri_oidc_client_plugin/static
-	cd kolibri_oidc_client_plugin && yarn install && yarn run clean && yarn run build
-
-dist: clean assets
+dist: clean
 	python setup.py sdist
 	python setup.py bdist_wheel --universal
 

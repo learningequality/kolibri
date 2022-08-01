@@ -1,0 +1,4 @@
+pytest
+pytest-django
+pytest-env
+mock
