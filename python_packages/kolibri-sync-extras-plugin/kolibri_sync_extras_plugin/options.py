@@ -19,7 +19,13 @@ option_spec = {
         },
         "BACKGROUND_FINALIZATION_STAGES": {
             "type": "string",
-            "default": ",".join([transfer_stages.DEQUEUING, transfer_stages.DESERIALIZING, transfer_stages.CLEANUP]),
+            "default": ",".join(
+                [
+                    transfer_stages.DEQUEUING,
+                    transfer_stages.DESERIALIZING,
+                    transfer_stages.CLEANUP,
+                ]
+            ),
             "envvars": ("KOLIBRI_SYNC_BACKGROUND_FINALIZATION_STAGES",),
         },
     }

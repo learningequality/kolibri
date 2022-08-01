@@ -41,7 +41,7 @@ jobs:
     - name: Install and enable kolibri_sync_extras plugin
       if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
       env:
-        KOLIBRI_HOME=.kolibri
+        KOLIBRI_HOME: .kolibri
       run: |
         pip install .
         kolibri plugin enable kolibri_sync_extras_plugin
