@@ -1,63 +1,53 @@
 <template>
 
-  <Navbar>
-    <NavbarLink
-      :title="coreString('classesLabel')"
-      :link="facilityPageLinks.ManageClassPage"
-    >
-      <KIcon
-        icon="classes"
-        :color="$themeTokens.textInverted"
-      />
-    </NavbarLink>
-    <NavbarLink
-      :title="coreString('usersLabel')"
-      :link="facilityPageLinks.UserPage"
-    >
-      <KIcon
-        icon="people"
-        :color="$themeTokens.textInverted"
-      />
-    </NavbarLink>
-    <NavbarLink
-      :title="$tr('settings')"
-      :link="facilityPageLinks.FacilitiesConfigPage"
-    >
-      <KIcon
-        icon="settings"
-        :color="$themeTokens.textInverted"
-      />
-    </NavbarLink>
-    <NavbarLink
-      :title="$tr('data')"
-      :link="facilityPageLinks.DataPage"
-    >
-      <KIcon
-        icon="save"
-        :color="$themeTokens.textInverted"
-      />
-    </NavbarLink>
-  </Navbar>
+  <HorizontalNavBarWithOverflowMenu
+    :navigationLinks="links"
+  />
 
 </template>
 
 
 <script>
 
-  import { mapGetters } from 'vuex';
-  import Navbar from 'kolibri.coreVue.components.Navbar';
-  import NavbarLink from 'kolibri.coreVue.components.NavbarLink';
+  import HorizontalNavBarWithOverflowMenu from 'kolibri.coreVue.components.HorizontalNavBarWithOverflowMenu';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { PageNames } from '../constants';
 
   export default {
     name: 'FacilityTopNav',
     components: {
-      Navbar,
-      NavbarLink,
+      HorizontalNavBarWithOverflowMenu,
     },
     mixins: [commonCoreStrings],
-    computed: {
-      ...mapGetters(['facilityPageLinks']),
+    data() {
+      return {
+        links: [
+          {
+            title: this.coreString('classesLabel'),
+            link: this.$router.getRoute(PageNames.CLASS_MGMT_PAGE),
+            icon: 'classes',
+            color: this.$themeTokens.textInverted,
+          },
+          {
+            title: this.coreString('usersLabel'),
+            link: this.$router.getRoute(PageNames.USER_MGMT_PAGE),
+            icon: 'people',
+            color: this.$themeTokens.textInverted,
+          },
+          {
+            title: this.$tr('settings'),
+            link: this.$router.getRoute(PageNames.FACILITY_CONFIG_PAGE),
+            icon: 'settings',
+            color: this.$themeTokens.textInverted,
+          },
+          {
+            title: this.$tr('data'),
+            link: this.$router.getRoute(PageNames.DATA_EXPORT_PAGE),
+            icon: 'save',
+            color: this.$themeTokens.textInverted,
+          },
+        ],
+      };
     },
     $trs: {
       data: {

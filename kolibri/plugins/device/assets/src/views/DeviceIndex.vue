@@ -5,7 +5,7 @@
     authorizedRole="registeredUser"
   >
     <template #sub-nav>
-      <DeviceTopNav :numberOfNavigationTabsToDisplay="numberOfNavigationTabsToDisplay()" />
+      <DeviceTopNav />
     </template>
 
     <transition name="delay-entry">
@@ -105,26 +105,26 @@
         window.sessionStorage.setItem(welcomeDimissalKey, true);
         this.$store.commit('SET_WELCOME_MODAL_VISIBLE', false);
       },
-      numberOfNavigationTabsToDisplay() {
-        let navItems = document.getElementsByClassName('list-item-navigation');
-        navItems = [].slice.call(navItems);
-        let index = 0;
-        let viewportWidthTakenUp = 0;
-        let numberOfItemsToDisplayAsTabs;
-        if (navItems && navItems.length > 0) {
-          while (index < navItems.length) {
-            viewportWidthTakenUp = viewportWidthTakenUp + navItems[index].offsetWidth;
-            if (viewportWidthTakenUp < window.innerWidth - 40) {
-              navItems[index].classList.add('visible');
-              numberOfItemsToDisplayAsTabs = index + 1;
-            } else {
-              navItems[index].classList.remove('visible');
-            }
-            index = index + 1;
-          }
-        }
-        return numberOfItemsToDisplayAsTabs;
-      },
+      // numberOfNavigationTabsToDisplay() {
+      //   let navItems = document.getElementsByClassName('list-item-navigation');
+      //   navItems = [].slice.call(navItems);
+      //   let index = 0;
+      //   let viewportWidthTakenUp = 0;
+      //   let numberOfItemsToDisplayAsTabs;
+      //   if (navItems && navItems.length > 0) {
+      //     while (index < navItems.length) {
+      //       viewportWidthTakenUp = viewportWidthTakenUp + navItems[index].offsetWidth;
+      //       if (viewportWidthTakenUp < window.innerWidth - 40) {
+      //         navItems[index].classList.add('visible');
+      //         numberOfItemsToDisplayAsTabs = index + 1;
+      //       } else {
+      //         navItems[index].classList.remove('visible');
+      //       }
+      //       index = index + 1;
+      //     }
+      //   }
+      //   return numberOfItemsToDisplayAsTabs;
+      // },
     },
     $trs: {
       deviceManagementTitle: {

@@ -116,8 +116,6 @@
     data() {
       return {
         pointsDisplayed: false,
-        width: window.innerWidth,
-        appBarItems: [],
         userSyncStatus: null,
         isPolling: false,
         // poll every 10 seconds
@@ -139,14 +137,9 @@
     },
     created() {
       window.addEventListener('click', this.handleWindowClick);
-      window.addEventListener('resize', this.onResize);
-    },
-    mounted() {
-      this.updateAppBarItems();
     },
     beforeDestroy() {
       window.removeEventListener('click', this.handleWindowClick);
-      window.removeEventListener('resize', this.onResize);
       this.isPolling = false;
     },
     methods: {
@@ -172,33 +165,6 @@
         } else {
           this.pollingInterval = 10000;
         }
-      },
-      onResize() {
-        this.width = window.innerWidth;
-        this.updateAppBarItems();
-      },
-      updateAppBarItems() {
-        console.log('updating');
-        const navItems = document.getElementsByClassName('list-item-navigation');
-        // console.log(navItems);
-        let index = 0;
-        let spaceTakenUp = 0;
-        this.appBarItems = [];
-        if (navItems && navItems.length > 0) {
-          while (index < navItems.length) {
-            spaceTakenUp = spaceTakenUp + navItems.item(index).offsetWidth;
-            if (spaceTakenUp < this.width - 40) {
-              this.appBarItems.push(navItems[index]);
-              index = index + 1;
-              console.log(index, navItems.length);
-              console.log(this.appBarItems);
-            } else {
-              return this.appBarItems;
-            }
-          }
-          return this.appBarItems;
-        }
-        return null;
       },
     },
     $trs: {

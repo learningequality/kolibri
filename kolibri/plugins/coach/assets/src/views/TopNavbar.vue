@@ -1,34 +1,9 @@
 <template>
 
-  <Navbar v-if="classId">
-    <NavbarLink
-      :title="coreString('classHome')"
-      :link="navRoute('HomePage')"
-    >
-      <KIcon
-        icon="dashboard"
-        :color="$themeTokens.textInverted"
-      />
-    </NavbarLink>
-    <NavbarLink
-      :title="coachString('reportsLabel')"
-      :link="navRoute(PageNames.REPORTS_PAGE)"
-    >
-      <KIcon
-        icon="reports"
-        :color="$themeTokens.textInverted"
-      />
-    </NavbarLink>
-    <NavbarLink
-      :title="$tr('plan')"
-      :link="navRoute(PageNames.PLAN_PAGE)"
-    >
-      <KIcon
-        icon="edit"
-        :color="$themeTokens.textInverted"
-      />
-    </NavbarLink>
-  </Navbar>
+  <HorizontalNavBarWithOverflowMenu
+    v-if="classId"
+    :navigationLinks="links"
+  />
 
 </template>
 
@@ -36,8 +11,7 @@
 <script>
 
   import { mapState } from 'vuex';
-  import Navbar from 'kolibri.coreVue.components.Navbar';
-  import NavbarLink from 'kolibri.coreVue.components.NavbarLink';
+  import HorizontalNavBarWithOverflowMenu from 'kolibri.coreVue.components.HorizontalNavBarWithOverflowMenu';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../constants';
   import { coachStringsMixin } from './common/commonCoachStrings';
@@ -45,15 +19,35 @@
   export default {
     name: 'TopNavbar',
     components: {
-      Navbar,
-      NavbarLink,
+      HorizontalNavBarWithOverflowMenu,
     },
     mixins: [coachStringsMixin, commonCoreStrings],
+    data() {
+      return {
+        links: [
+          {
+            title: this.coreString('classHome'),
+            link: this.navRoute('HomePage'),
+            icon: 'dashboard',
+            color: this.$themeTokens.textInverted,
+          },
+          {
+            title: this.coachString('reportsLabel'),
+            link: this.navRoute(PageNames.REPORTS_PAGE),
+            icon: 'reports',
+            color: this.$themeTokens.textInverted,
+          },
+          {
+            title: this.$tr('plan'),
+            link: this.navRoute(PageNames.PLAN_PAGE),
+            icon: 'edit',
+            color: this.$themeTokens.textInverted,
+          },
+        ],
+      };
+    },
     computed: {
       ...mapState('classSummary', { classId: 'id' }),
-      PageNames() {
-        return PageNames;
-      },
     },
     methods: {
       navRoute(name) {

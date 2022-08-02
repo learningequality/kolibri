@@ -1,38 +1,8 @@
 <template>
 
-  <Navbar>
-    <div v-for="(link, index) in links" :key="index">
-      <NavbarLink
-        :vIf="link.condition"
-        :title="link.title"
-        :link="link.link"
-      >
-        <KIcon
-          :icon="link.icon"
-          :color="link.color"
-        />
-      </NavbarLink>
-    </div>
-    <span v-if="menuLinks.length > 0 && !windowIsLarge">
-      <KIconButton
-        class="menu-icon"
-        :tooltip="coreString('moreOptions')"
-        icon="optionsHorizontal"
-        appearance="flat-button"
-        :color="color"
-        :primary="false"
-      >
-        <template #menu>
-          <KDropdownMenu
-            :primary="false"
-            :hasIcons="true"
-            :options="menuLinks"
-            @select="handleSelect"
-          />
-        </template>
-      </KIconButton>
-    </span>
-  </Navbar>
+  <HorizontalNavBarWithOverflowMenu
+    :navigationLinks="links"
+  />
 
 </template>
 
@@ -40,24 +10,16 @@
 <script>
 
   import { mapGetters } from 'vuex';
-  import Navbar from 'kolibri.coreVue.components.Navbar';
-  import NavbarLink from 'kolibri.coreVue.components.NavbarLink';
+  import HorizontalNavBarWithOverflowMenu from 'kolibri.coreVue.components.HorizontalNavBarWithOverflowMenu';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
 
   export default {
     name: 'DeviceTopNav',
     components: {
-      Navbar,
-      NavbarLink,
+      HorizontalNavBarWithOverflowMenu,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
-    props: {
-      numberOfNavigationTabsToDisplay: {
-        type: Number,
-        default: 0,
-      },
-    },
     data() {
       return {
         links: [
@@ -101,27 +63,6 @@
     },
     computed: {
       ...mapGetters(['canManageContent', 'isSuperuser']),
-
-      menuLinks() {
-        const limitedList = this.links.slice(
-          this.numberOfNavigationTabsToDisplay,
-          this.links.length
-        );
-        let options = [];
-        limitedList.forEach(o => options.push({ label: o.title, value: o.link, icon: o.icon }));
-        console.log(limitedList);
-        return options;
-        // return this.links.slice(this.numberOfNavigationTabsToDisplay, this.links.length);
-      },
-      color() {
-        return this.$themeTokens.textInverted;
-      },
-    },
-    methods: {
-      handleSelect(option) {
-        console.log('route', this.$router.getRoute(option.value.name));
-        this.$router.push(this.$router.getRoute(option.value.name));
-      },
     },
     $trs: {
       permissionsLabel: {
