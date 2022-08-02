@@ -19,49 +19,50 @@
     components: {
       HorizontalNavBarWithOverflowMenu,
     },
-    mixins: [commonCoreStrings],
-    computed: {
-      ...mapGetters(['canManageContent', 'isSuperuser']),
-      links() {
-        let list = [];
-        if (this.canManageContent) {
-          list.push({
+    mixins: [commonCoreStrings, responsiveWindowMixin],
+    data() {
+      return {
+        links: [
+          {
+            condition: this.canManageContent,
             title: this.coreString('channelsLabel'),
             link: this.$router.getRoute('MANAGE_CONTENT_PAGE'),
             icon: 'channel',
             color: this.$themeTokens.textInverted,
-          });
-        }
-        if (this.isSuperuser) {
-          list.push([
-            {
-              title: this.$tr('permissionsLabel'),
-              link: this.$router.getRoute('MANAGE_PERMISSIONS_PAGE'),
-              icon: 'permissions',
-              color: this.$themeTokens.textInverted,
-            },
-            {
-              title: this.coreString('facilitiesLabel'),
-              link: this.$router.getRoute('FACILITIES_PAGE'),
-              icon: 'facility',
-              color: this.$themeTokens.textInverted,
-            },
-            {
-              title: this.$tr('infoLabel'),
-              link: this.$router.getRoute('DEVICE_INFO_PAGE'),
-              icon: 'deviceInfo',
-              color: this.$themeTokens.textInverted,
-            },
-            {
-              title: this.$tr('settingsLabel'),
-              link: this.$router.getRoute('DEVICE_SETTINGS_PAGE'),
-              icon: 'settings',
-              color: this.$themeTokens.textInverted,
-            },
-          ]);
-        }
-        return list.flat();
-      },
+          },
+          {
+            condition: this.isSuperuser,
+            title: this.$tr('permissionsLabel'),
+            link: this.$router.getRoute('MANAGE_PERMISSIONS_PAGE'),
+            icon: 'permissions',
+            color: this.$themeTokens.textInverted,
+          },
+          {
+            condition: this.isSuperuser,
+            title: this.coreString('facilitiesLabel'),
+            link: this.$router.getRoute('FACILITIES_PAGE'),
+            icon: 'facility',
+            color: this.$themeTokens.textInverted,
+          },
+          {
+            condition: this.isSuperuser,
+            title: this.$tr('infoLabel'),
+            link: this.$router.getRoute('DEVICE_INFO_PAGE'),
+            icon: 'deviceInfo',
+            color: this.$themeTokens.textInverted,
+          },
+          {
+            condition: this.isSuperuser,
+            title: this.$tr('settingsLabel'),
+            link: this.$router.getRoute('DEVICE_SETTINGS_PAGE'),
+            icon: 'settings',
+            color: this.$themeTokens.textInverted,
+          },
+        ],
+      };
+    },
+    computed: {
+      ...mapGetters(['canManageContent', 'isSuperuser']),
     },
 
     $trs: {
