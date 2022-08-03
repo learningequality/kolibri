@@ -19,9 +19,12 @@ class ContentManifestTestCase(TestCase):
     fixtures = ["content_test.json"]
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
     the_channel_version = 0
+    the_channel_version_2 = 99
 
     c1_node_id = "32a941fb77c2576e8f6b294cde4c3b0c"
     c2_node_id = "2e8bac07947855369fe2d77642dfc870"
+    c2c1_node_id = "2b6926ed22025518a8b9da91745b51d3"
+    c2c2_node_id = "4d0c890de9b65d6880ccfa527800e0f4"
 
     def setUp(self):
         self.content_manifest = ContentManifest()
@@ -41,7 +44,7 @@ class ContentManifestTestCase(TestCase):
         )
 
     @patch("kolibri.core.content.utils.content_manifest.get_content_nodes_selectors")
-    def test_add_content_nodes_1(self, get_content_nodes_selectors_mock):
+    def test_add_content_nodes(self, get_content_nodes_selectors_mock):
         get_content_nodes_selectors_mock.return_value = [self.c1_node_id]
         self.content_manifest.add_content_nodes(
             self.the_channel_id, self.the_channel_version, []
@@ -64,6 +67,73 @@ class ContentManifestTestCase(TestCase):
         )
 
     @patch("kolibri.core.content.utils.content_manifest.get_content_nodes_selectors")
+    def test_add_content_nodes_multiple_times(self, get_content_nodes_selectors_mock):
+        get_content_nodes_selectors_mock.return_value = [
+            self.c2c1_node_id,
+            self.c2c2_node_id,
+        ]
+        self.content_manifest.add_content_nodes(
+            self.the_channel_id, self.the_channel_version, []
+        )
+
+        self.assertCountEqual(
+            self.content_manifest.get_include_node_ids(
+                self.the_channel_id, self.the_channel_version
+            ),
+            [self.c2c1_node_id, self.c2c2_node_id],
+        )
+
+        get_content_nodes_selectors_mock.return_value = [self.c2_node_id]
+        self.content_manifest.add_content_nodes(
+            self.the_channel_id, self.the_channel_version, []
+        )
+
+        self.assertCountEqual(
+            self.content_manifest.get_include_node_ids(
+                self.the_channel_id, self.the_channel_version
+            ),
+            [self.c2_node_id, self.c2c1_node_id, self.c2c2_node_id],
+        )
+
+    @patch("kolibri.core.content.utils.content_manifest.get_content_nodes_selectors")
+    def test_add_content_nodes_with_different_versions(
+        self, get_content_nodes_selectors_mock
+    ):
+        get_content_nodes_selectors_mock.return_value = [
+            self.c2c1_node_id,
+            self.c2c2_node_id,
+        ]
+        self.content_manifest.add_content_nodes(
+            self.the_channel_id, self.the_channel_version, []
+        )
+
+        self.assertCountEqual(
+            self.content_manifest.get_include_node_ids(
+                self.the_channel_id, self.the_channel_version
+            ),
+            [self.c2c1_node_id, self.c2c2_node_id],
+        )
+
+        get_content_nodes_selectors_mock.return_value = [self.c2_node_id]
+        self.content_manifest.add_content_nodes(
+            self.the_channel_id, self.the_channel_version_2, []
+        )
+
+        self.assertCountEqual(
+            self.content_manifest.get_include_node_ids(
+                self.the_channel_id, self.the_channel_version
+            ),
+            [self.c2c1_node_id, self.c2c2_node_id],
+        )
+
+        self.assertCountEqual(
+            self.content_manifest.get_include_node_ids(
+                self.the_channel_id, self.the_channel_version_2
+            ),
+            [self.c2_node_id],
+        )
+
+    @patch("kolibri.core.content.utils.content_manifest.get_content_nodes_selectors")
     def test_add_content_nodes_with_duplicates(self, get_content_nodes_selectors_mock):
         get_content_nodes_selectors_mock.return_value = [self.c1_node_id]
         self.content_manifest.add_content_nodes(
@@ -80,6 +150,114 @@ class ContentManifestTestCase(TestCase):
                 self.the_channel_id, self.the_channel_version
             ),
             [self.c1_node_id],
+        )
+
+    @patch("kolibri.core.content.utils.content_manifest.get_content_nodes_selectors")
+    def test_add_content_nodes_from_existing_manifest(
+        self, get_content_nodes_selectors_mock
+    ):
+        self.content_manifest.read_dict(
+            {
+                "channels": [
+                    {
+                        "id": self.the_channel_id,
+                        "version": self.the_channel_version,
+                        "include_node_ids": [self.c1_node_id],
+                    }
+                ],
+                "channel_list_hash": "dcba190e9d79f20e4fbcc3890fe9b4fd",
+            }
+        )
+
+        get_content_nodes_selectors_mock.return_value = [self.c2_node_id]
+        self.content_manifest.add_content_nodes(
+            self.the_channel_id, self.the_channel_version, []
+        )
+
+        self.assertEqual(
+            self.content_manifest.to_dict(),
+            {
+                "channels": [
+                    {
+                        "id": self.the_channel_id,
+                        "version": self.the_channel_version,
+                        "include_node_ids": [self.c2_node_id, self.c1_node_id],
+                    }
+                ],
+                "channel_list_hash": "8adc9c51281efc80cfa02cc65a5d5417",
+            },
+        )
+
+    def test_get_channel_ids_with_no_content_nodes(self):
+        self.assertCountEqual(self.content_manifest.get_channel_ids(), [])
+
+    @patch("kolibri.core.content.utils.content_manifest.get_content_nodes_selectors")
+    def test_get_channel_ids_with_one_content_node(
+        self, get_content_nodes_selectors_mock
+    ):
+        get_content_nodes_selectors_mock.return_value = [self.c1_node_id]
+        self.content_manifest.add_content_nodes(
+            self.the_channel_id, self.the_channel_version, []
+        )
+
+        self.assertCountEqual(
+            self.content_manifest.get_channel_ids(), [self.the_channel_id]
+        )
+
+    @patch("kolibri.core.content.utils.content_manifest.get_content_nodes_selectors")
+    def test_get_channel_ids_with_two_content_nodes(
+        self, get_content_nodes_selectors_mock
+    ):
+        get_content_nodes_selectors_mock.return_value = [self.c1_node_id]
+        self.content_manifest.add_content_nodes(
+            self.the_channel_id, self.the_channel_version, []
+        )
+
+        get_content_nodes_selectors_mock.return_value = [self.c1_node_id]
+        self.content_manifest.add_content_nodes(
+            self.the_channel_id, self.the_channel_version_2, []
+        )
+
+        self.assertCountEqual(
+            self.content_manifest.get_channel_ids(), [self.the_channel_id]
+        )
+
+    def test_get_channel_versions_with_no_content_nodes(self):
+        self.assertCountEqual(
+            self.content_manifest.get_channel_versions(self.the_channel_id), []
+        )
+
+    @patch("kolibri.core.content.utils.content_manifest.get_content_nodes_selectors")
+    def test_get_channel_versions_with_one_content_node(
+        self, get_content_nodes_selectors_mock
+    ):
+        get_content_nodes_selectors_mock.return_value = [self.c1_node_id]
+        self.content_manifest.add_content_nodes(
+            self.the_channel_id, self.the_channel_version, []
+        )
+
+        self.assertCountEqual(
+            self.content_manifest.get_channel_versions(self.the_channel_id),
+            [self.the_channel_version],
+        )
+
+    @patch("kolibri.core.content.utils.content_manifest.get_content_nodes_selectors")
+    def test_get_channel_versions_with_two_content_nodes(
+        self, get_content_nodes_selectors_mock
+    ):
+        get_content_nodes_selectors_mock.return_value = [self.c1_node_id]
+        self.content_manifest.add_content_nodes(
+            self.the_channel_id, self.the_channel_version, []
+        )
+
+        get_content_nodes_selectors_mock.return_value = [self.c1_node_id]
+        self.content_manifest.add_content_nodes(
+            self.the_channel_id, self.the_channel_version_2, []
+        )
+
+        self.assertCountEqual(
+            self.content_manifest.get_channel_versions(self.the_channel_id),
+            [self.the_channel_version, self.the_channel_version_2],
         )
 
     def test_read_dict(self):
@@ -101,6 +279,15 @@ class ContentManifestTestCase(TestCase):
                 self.the_channel_id, self.the_channel_version
             ),
             [self.c1_node_id],
+        )
+
+        self.assertCountEqual(
+            self.content_manifest.get_channel_ids(), [self.the_channel_id]
+        )
+
+        self.assertCountEqual(
+            self.content_manifest.get_channel_versions(self.the_channel_id),
+            [self.the_channel_version],
         )
 
     def test_to_dict_with_no_content_nodes(self):
@@ -131,23 +318,15 @@ class ContentManifestTestCase(TestCase):
         )
 
     @patch("kolibri.core.content.utils.content_manifest.get_content_nodes_selectors")
-    def test_update_existing_manifest(self, get_content_nodes_selectors_mock):
-        self.content_manifest.read_dict(
-            {
-                "channels": [
-                    {
-                        "id": self.the_channel_id,
-                        "version": self.the_channel_version,
-                        "include_node_ids": [self.c1_node_id],
-                    }
-                ],
-                "channel_list_hash": "dcba190e9d79f20e4fbcc3890fe9b4fd",
-            }
-        )
-
-        get_content_nodes_selectors_mock.return_value = [self.c2_node_id]
+    def test_to_dict_with_two_channel_versions(self, get_content_nodes_selectors_mock):
+        get_content_nodes_selectors_mock.return_value = [self.c1_node_id]
         self.content_manifest.add_content_nodes(
             self.the_channel_id, self.the_channel_version, []
+        )
+
+        get_content_nodes_selectors_mock.return_value = [self.c1_node_id]
+        self.content_manifest.add_content_nodes(
+            self.the_channel_id, self.the_channel_version_2, []
         )
 
         self.assertEqual(
@@ -157,10 +336,15 @@ class ContentManifestTestCase(TestCase):
                     {
                         "id": self.the_channel_id,
                         "version": self.the_channel_version,
-                        "include_node_ids": [self.c2_node_id, self.c1_node_id],
-                    }
+                        "include_node_ids": [self.c1_node_id],
+                    },
+                    {
+                        "id": self.the_channel_id,
+                        "version": self.the_channel_version_2,
+                        "include_node_ids": [self.c1_node_id],
+                    },
                 ],
-                "channel_list_hash": "8adc9c51281efc80cfa02cc65a5d5417",
+                "channel_list_hash": "483fd506a3c55dbbcd7d2beb77833fce",
             },
         )
 
