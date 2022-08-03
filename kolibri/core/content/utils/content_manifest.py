@@ -235,7 +235,7 @@ def get_content_nodes_selectors(channel_id, channel_version, nodes_queries_list)
             if len(missing_leaf_nodes) == 0:
                 include_node_ids.add(node.id)
             elif len(matching_leaf_nodes) > 0:
-                available_nodes_queue.extend(node.children.all())
+                available_nodes_queue.extend(node.children.filter(available=True))
         elif node.id in available_node_ids:
             include_node_ids.add(node.id)
 
