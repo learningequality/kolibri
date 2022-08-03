@@ -3,7 +3,7 @@
   <AppBarPage :title="pageTitle">
 
     <template #subNav>
-      <DeviceTopNav v-if="!hideSubNav" />
+      <DeviceTopNav />
     </template>
     <KPageContainer class="device-container">
 
