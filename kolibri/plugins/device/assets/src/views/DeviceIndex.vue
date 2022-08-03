@@ -71,10 +71,10 @@
 
 <style lang="scss" scoped>
 
-  /* Default styles for KPageContainer in Device */
-  /deep/ .device-container {
-    width: 1000px;
-    margin: 2em auto;
+  @import '../styles/definitions';
+
+  .device-container {
+    @include device-kpagecontainer;
   }
 
   .delay-entry-enter {

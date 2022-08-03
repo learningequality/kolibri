@@ -1,0 +1,8 @@
+$page-container-max-width: 1000px;
+$page-container-margin: 2em auto 0;
+
+@mixin device-kpagecontainer() {
+  width: 100%;
+  max-width: $page-container-max-width;
+  margin: $page-container-margin;
+}

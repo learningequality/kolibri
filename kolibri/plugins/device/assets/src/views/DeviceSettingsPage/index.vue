@@ -398,6 +398,12 @@
 
 <style lang="scss" scoped>
 
+  @import '../../styles/definitions';
+
+  .device-container {
+    @include device-kpagecontainer;
+  }
+
   .save-button {
     margin-left: 0;
   }

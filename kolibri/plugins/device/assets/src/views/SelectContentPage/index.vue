@@ -371,6 +371,12 @@
 
 <style lang="scss" scoped>
 
+  @import '../../styles/definitions';
+
+  .device-container {
+    @include device-kpagecontainer;
+  }
+
   .notifications {
     margin-top: 8px;
   }

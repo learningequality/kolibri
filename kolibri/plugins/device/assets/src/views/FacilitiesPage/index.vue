@@ -343,6 +343,12 @@
 
 <style lang="scss" scoped>
 
+  @import '../../styles/definitions';
+
+  .device-container {
+    @include device-kpagecontainer;
+  }
+
   .buttons {
     margin: auto;
   }

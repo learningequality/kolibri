@@ -353,6 +353,12 @@
 
 <style lang="scss" scoped>
 
+  @import '../../../styles/definitions';
+
+  .device-container {
+    @include device-kpagecontainer;
+  }
+
   .manage-channel-page {
     min-height: 80vh;
   }

@@ -268,6 +268,12 @@
 
 <style lang="scss" scoped>
 
+  @import '../../styles/definitions';
+
+  .device-container {
+    @include device-kpagecontainer;
+  }
+
   table {
     line-height: 1.5em;
     text-align: left;

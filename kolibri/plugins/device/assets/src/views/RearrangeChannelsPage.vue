@@ -195,6 +195,11 @@
 <style lang="scss" scoped>
 
   @import '~kolibri-design-system/lib/styles/definitions';
+  @import '../styles/definitions';
+
+  .device-container {
+    @include device-kpagecontainer;
+  }
 
   .instructions {
     margin-bottom: 32px;

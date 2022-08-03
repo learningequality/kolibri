@@ -376,6 +376,12 @@
 
 <style lang="scss" scoped>
 
+  @import '../../styles/definitions';
+
+  .device-container {
+    @include device-kpagecontainer;
+  }
+
   h1 {
     font-size: 24px;
   }

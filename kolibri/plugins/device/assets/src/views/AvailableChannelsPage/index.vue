@@ -481,6 +481,12 @@
 
 <style lang="scss" scoped>
 
+  @import '../../styles/definitions';
+
+  .device-container {
+    @include device-kpagecontainer;
+  }
+
   .channel-list-header {
     padding: 16px 0;
     font-size: 14px;

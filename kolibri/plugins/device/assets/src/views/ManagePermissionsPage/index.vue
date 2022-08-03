@@ -299,6 +299,12 @@
 
 <style lang="scss" scoped>
 
+  @import '../../styles/definitions';
+
+  .device-container {
+    @include device-kpagecontainer;
+  }
+
   .description {
     margin-bottom: 2em;
   }

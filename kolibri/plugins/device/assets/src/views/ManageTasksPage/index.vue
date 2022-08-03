@@ -164,6 +164,12 @@
 
 <style lang="scss" scoped>
 
+  @import '../../styles/definitions';
+
+  .device-container {
+    @include device-kpagecontainer;
+  }
+
   .button-offset {
     margin-top: 24px;
   }

@@ -197,6 +197,12 @@
 
 <style lang="scss" scoped>
 
+  @import '../styles/definitions';
+
+  .device-container {
+    @include device-kpagecontainer;
+  }
+
   table {
     margin-top: 16px;
   }
