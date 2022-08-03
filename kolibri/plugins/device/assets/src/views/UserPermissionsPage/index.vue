@@ -183,12 +183,12 @@
           this.devicePermissionsChecked = newVal;
         }
       },
-    },
-    beforeMount() {
-      this.superuserChecked = this.permissions.is_superuser;
-      // ORed with is_superuser since first admin user has `can_manage_content` set to false.
-      this.devicePermissionsChecked =
-        this.permissions.can_manage_content || this.permissions.is_superuser;
+      user() {
+        /* user will be set asynchronously and when it is, we need to intiialize these */
+        this.superuserChecked = this.permissions.is_superuser;
+        this.devicePermissionsChecked =
+          this.permissions.can_manage_content || this.permissions.is_superuser;
+      },
     },
     methods: {
       ...mapActions('userPermissions', ['addOrUpdateUserPermissions']),
