@@ -209,7 +209,6 @@
       },
     },
     mounted() {
-      console.log(this.$router);
       this.$store.commit('coreBase/SET_APP_BAR_TITLE', this.coreString('loadingLabel'));
       this.loadChannelInfo().then(([installedChannel, sourceChannel]) => {
         // Show the channel info ASAP
@@ -222,7 +221,6 @@
     methods: {
       handleSubmit() {
         this.disableModal = true;
-        console.log(this.params);
 
         // Create the import channel task
         return TaskResource.startTask({
