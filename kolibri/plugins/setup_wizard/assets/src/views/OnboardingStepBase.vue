@@ -280,4 +280,11 @@
     text-align: left;
   }
 
+  /deep/ .truncate-text {
+    /* Override KRadioButton default behavior of eliding text with ellipsis to ensure word wrap */
+
+    /* This will effect the entire onboarding experience */
+    white-space: normal;
+  }
+
 </style>
