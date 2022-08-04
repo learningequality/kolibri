@@ -84,6 +84,21 @@ Then messages are available from the ``$tr`` method on the translator object:
 
   console.log(translator.$tr('helloWorld'));
 
+
+common*String modules
+~~~~~~~~~~~~~~~~~~~~~
+
+A pattern we use in order to avoid having to define the same string across multiple Vue or JS files is to define "common" strings translator. These common translators are typically used within plugins for strings common to that plugin alone. However, there is also a "core" set of common strings available to be used throughout the application.
+
+In order to avoid bloating the common modules, we typically will not add a string we are duplicating to a common module unless it is being used across three or more files.
+
+Common strings modules should typically have the following components:
+
+- A translator created using the ``createTranslator`` function in which strings are defined.
+- An exported function that accepts a ``string`` and an ``object`` - which it then passes to the ``$tr()`` function to get a string from the translator in the module.
+- An exported Vue mixin that exposes the exported function as a ``method``. This allows Vue components to use the mixin and have the exported function to get a translated string readily at hand easily.
+
+
 ICU message syntax
 ~~~~~~~~~~~~~~~~~~
 
