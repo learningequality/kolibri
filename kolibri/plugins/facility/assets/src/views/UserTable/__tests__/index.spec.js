@@ -79,8 +79,9 @@ describe(`UserTable`, () => {
       expect(usernames.at(1).text()).toBe('username-coach');
     });
 
-    it(`doesn't show checkboxes to select users by default`, () => {
+    it(`doesn't show checkboxes or radio buttons to select users by default`, () => {
       expect(wrapper.find('[data-test="userCheckbox"]').exists()).toBeFalsy();
+      expect(wrapper.find('[data-test="userRadioButton"]').exists()).toBeFalsy();
     });
 
     it(`shows the user role badge for users who are not learners`, () => {
@@ -101,7 +102,7 @@ describe(`UserTable`, () => {
     });
   });
 
-  describe('when selectable', () => {
+  describe('when users are selectable and multiple selection is allowed', () => {
     it(`shows the select all checkbox`, () => {
       const wrapper = makeWrapper({ propsData: { selectable: true, value: [] } });
       expect(wrapper.find('[data-test="selectAllCheckbox"]').exists()).toBeTruthy();
@@ -265,6 +266,76 @@ describe(`UserTable`, () => {
           .trigger('click');
         expect(wrapper.emitted().input.length).toBe(2);
         expect(wrapper.emitted().input[1][0]).toEqual(['id-to-be-preserved']);
+      });
+    });
+  });
+
+  describe(`when users are selectable and multiple selection is not allowed`, () => {
+    it(`doesn't show the select all checkbox`, () => {
+      const wrapper = makeWrapper({
+        propsData: { selectable: true, enableMultipleSelection: false, value: [] },
+      });
+      expect(wrapper.find('[data-test="selectAllCheckbox"]').exists()).toBeFalsy();
+    });
+
+    it(`shows radio buttons to select users`, () => {
+      const wrapper = makeWrapper({
+        propsData: {
+          users: TEST_USERS,
+          selectable: true,
+          enableMultipleSelection: false,
+          value: [],
+        },
+      });
+      const radioButtons = wrapper.findAll('[data-test="userRadioButton"]');
+      expect(radioButtons.length).toBe(2);
+    });
+
+    it(`radio buttons to select users are enabled by default`, () => {
+      const wrapper = makeWrapper({
+        propsData: {
+          users: TEST_USERS,
+          selectable: true,
+          enableMultipleSelection: false,
+          value: [],
+        },
+      });
+      const radioButtons = wrapper.findAll('[data-test="userRadioButton"]');
+      expect(radioButtons.at(0).find('input').element.disabled).toBeFalsy();
+      expect(radioButtons.at(1).find('input').element.disabled).toBeFalsy();
+    });
+
+    it(`radio buttons to select users are disabled when 'disabled' is truthy`, () => {
+      const wrapper = makeWrapper({
+        propsData: {
+          users: TEST_USERS,
+          selectable: true,
+          enableMultipleSelection: false,
+          value: [],
+          disabled: true,
+        },
+      });
+      const radioButtons = wrapper.findAll('[data-test="userRadioButton"]');
+      expect(radioButtons.at(0).find('input').element.disabled).toBeTruthy();
+      expect(radioButtons.at(1).find('input').element.disabled).toBeTruthy();
+    });
+
+    describe(`checking a radio button`, () => {
+      it(`emits the 'input' event with the user in the payload`, () => {
+        const wrapper = makeWrapper({
+          propsData: {
+            users: TEST_USERS,
+            selectable: true,
+            enableMultipleSelection: false,
+            value: [],
+          },
+        });
+        wrapper
+          .findAll('[data-test="userRadioButton"]')
+          .at(1)
+          .trigger('click');
+        expect(wrapper.emitted().input.length).toBe(1);
+        expect(wrapper.emitted().input[0][0]).toEqual(['id-coach']);
       });
     });
   });

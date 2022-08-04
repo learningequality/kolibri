@@ -5,9 +5,9 @@
   visually the same top margin no matter if `selectable` or no
   (important for consistency, e.g. when it is rendered below other
   components like user search box) -->
-  <div :style="[selectable ? { marginTop: '-44px' } : {} ]">
+  <div :style="[showSelectAllCheckbox ? { marginTop: '-44px' } : {} ]">
     <KCheckbox
-      v-if="selectable"
+      v-if="showSelectAllCheckbox"
       :label="$tr('selectAllLabel')"
       :showLabel="true"
       :checked="allAreSelected"
@@ -19,12 +19,11 @@
     />
     <CoreTable>
       <template #headers>
-        <th v-if="selectable" :style="{ minWidth: '32px' }">
-          <span class="visuallyhidden">{{ $tr('selectionColumnHeader') }}</span>
-        </th>
-        <th>
-          <!-- "Full name" header visually hidden if checkbox is on -->
-          <span :class="{ visuallyhidden: selectable }" data-test="fullNameHeader">
+        <th data-test="fullNameHeader" :style="{ minWidth: '32px' }">
+          <span v-if="selectable" class="visuallyhidden">
+            {{ $tr('selectUserBy') }}
+          </span>
+          <span :class="{ visuallyhidden: showSelectAllCheckbox }">
             {{ coreString('fullNameLabel') }}
           </span>
         </th>
@@ -69,33 +68,89 @@
             :key="user.id"
             :style="isSelectedStyle(user.id)"
           >
-            <td v-if="selectable" class="core-table-checkbox-col">
+            <td>
               <KCheckbox
-                :label="$tr('userCheckboxLabel')"
-                :showLabel="false"
+                v-if="selectable && enableMultipleSelection"
                 :disabled="disabled"
                 :checked="userIsSelected(user.id)"
+                class="user-checkbox"
                 data-test="userCheckbox"
                 @change="selectUser(user.id, $event)"
-              />
-            </td>
-            <td>
-              <KLabeledIcon
-                :icon="isCoach ? 'coach' : 'person'"
-                :label="user.full_name"
-                data-test="fullName"
-              />
-              <UserTypeDisplay
-                aria-hidden="true"
-                :userType="user.kind"
-                :omitLearner="true"
-                class="role-badge"
-                data-test="userRoleBadge"
-                :style="{
-                  color: $themeTokens.textInverted,
-                  backgroundColor: $themeTokens.annotation,
-                }"
-              />
+              >
+                <KLabeledIcon
+                  :icon="isCoach ? 'coach' : 'person'"
+                  :label="user.full_name"
+                  data-test="fullName"
+                />
+                <UserTypeDisplay
+                  aria-hidden="true"
+                  :userType="user.kind"
+                  :omitLearner="true"
+                  class="role-badge"
+                  data-test="userRoleBadge"
+                  :style="{
+                    color: $themeTokens.textInverted,
+                    backgroundColor: $themeTokens.annotation,
+                  }"
+                />
+              </KCheckbox>
+              <!--
+                `label` prop needs to be set to the empty string,
+                otherwise `KRadioButton` shows required property warning,
+                even though `<label>` content is properly rendered via
+                the default slot.
+                TODO: Open and link KDS issue
+              -->
+              <KRadioButton
+                v-else-if="selectable && !enableMultipleSelection"
+                :disabled="disabled"
+                :value="user.id"
+                :currentValue="firstSelectedUser"
+                :label="''"
+                data-test="userRadioButton"
+                @change="selectSingleUser(user.id)"
+              >
+                <!--
+                  override muted color in the disabled state with
+                  the normal text color in `style` (using `color`
+                  prop won't work for this purpose)
+                -->
+                <KLabeledIcon
+                  :icon="isCoach ? 'coach' : 'person'"
+                  :label="user.full_name"
+                  data-test="fullName"
+                  :style="{ color: $themeTokens.text }"
+                />
+                <UserTypeDisplay
+                  aria-hidden="true"
+                  :userType="user.kind"
+                  :omitLearner="true"
+                  class="role-badge"
+                  data-test="userRoleBadge"
+                  :style="{
+                    color: $themeTokens.textInverted,
+                    backgroundColor: $themeTokens.annotation,
+                  }"
+                />
+              </KRadioButton>
+              <template v-else>
+                <KLabeledIcon
+                  :icon="isCoach ? 'coach' : 'person'"
+                  :label="user.full_name"
+                  data-test="fullName"
+                />
+                <UserTypeDisplay
+                  aria-hidden="true"
+                  :userType="user.kind"
+                  :omitLearner="true"
+                  class="role-badge"
+                  data-test="userRoleBadge"
+                  :style="{
+                    color: $themeTokens.textInverted,
+                    backgroundColor: $themeTokens.annotation,
+                  }"
+                />
+              </template>
             </td>
             <td class="visuallyhidden" data-test="userRoleLabel">
               {{ user.kind }}
@@ -175,6 +230,15 @@
         type: Boolean,
         default: false,
       },
+      // This will only work when `selectable` prop is truthy.
+      // If true, multiple users can be selected via checkboxes
+      // and the select all checkbox is rendered.
+      // Otherwise only a single user can be selected
+      // and the select all checkbox is not rendered.
+      enableMultipleSelection: {
+        type: Boolean,
+        default: true,
+      },
       // required when 'selectable' is truthy
       // used for optional checkboxes
       value: {
@@ -204,11 +268,17 @@
       },
     },
     computed: {
+      showSelectAllCheckbox() {
+        return this.selectable && this.enableMultipleSelection;
+      },
       allAreSelected() {
         return (
           Boolean(this.users && this.users.length) &&
           this.users.every(user => this.value.includes(user.id))
         );
+      },
+      firstSelectedUser() {
+        return this.value && this.value.length ? this.value[0] : '';
       },
     },
     methods: {
@@ -226,6 +296,9 @@
           return this.$emit('input', [...this.value, ...currentUsers]);
         }
         return this.$emit('input', difference(this.value, currentUsers));
+      },
+      selectSingleUser(id) {
+        this.$emit('input', [id]);
       },
       selectUser(id, checked) {
         const selected = Array.from(this.value);
@@ -248,14 +321,10 @@
         message: 'Select all',
         context: 'Generic checkbox label used to select all elements in a list.',
       },
-      selectionColumnHeader: {
-        message: 'Select user',
+      selectUserBy: {
+        message: 'Select user by:',
         context:
-          'Header label of a table column that can be used for selecting users from the table.',
-      },
-      userCheckboxLabel: {
-        message: 'Select user',
-        context: 'Checkbox used to select a specific user from a list.\n',
+          "Visually hidden part of the header of a column in a table of facility users to provide more context for people using screenreaders (it prepends 'Full name' string that can be rendered as a visible header). It is rendered when users can be selected from a table by checking associated checkboxes or a radio button displayed next to facility users' full names.",
       },
     },
   };
@@ -281,6 +350,13 @@
     left: 8px; // 3
     font-size: 12px;
     font-weight: bold;
+  }
+
+  // consistent vertical alignment of checkboxes
+  // and text in a row
+  .user-checkbox {
+    margin-top: 0;
+    margin-bottom: 0;
   }
 
   .empty-message {
