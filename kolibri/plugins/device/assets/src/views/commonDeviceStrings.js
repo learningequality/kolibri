@@ -20,10 +20,10 @@ const deviceStrings = createTranslator('CommonDeviceStrings', {
   },
 });
 
+export function deviceString(key, args) {
+  return deviceStrings.$tr(key, args);
+}
+
 export default {
-  methods: {
-    deviceString(key, args) {
-      return deviceStrings.$tr(key, args);
-    },
-  },
+  methods: { deviceString },
 };
