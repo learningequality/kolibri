@@ -18,7 +18,7 @@
       class="radio-button"
     />
     <SelectAddressModalGroup
-      v-show="showSelectAddressModal"
+      v-if="showSelectAddressModal"
       @cancel="showSelectAddressModal = false"
       @submit="handleAddressSubmit"
     />
