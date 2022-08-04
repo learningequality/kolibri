@@ -1,21 +1,26 @@
 <template>
 
-  <div>
+  <!-- Negative margin removes empty space left by relatively
+  positioning the select all checkbox to make sure the table has
+  visually the same top margin no matter if `selectable` or no
+  (important for consistency, e.g. when it is rendered below other
+  components like user search box) -->
+  <div :style="[selectable ? { marginTop: '-44px' } : {} ]">
+    <KCheckbox
+      v-if="selectable"
+      :label="$tr('selectAllLabel')"
+      :showLabel="true"
+      :checked="allAreSelected"
+      :disabled="disabled || !users || users.length === 0"
+      class="select-all"
+      :style="{ color: this.$themeTokens.annotation }"
+      data-test="selectAllCheckbox"
+      @change="selectAll($event)"
+    />
     <CoreTable>
       <template #headers>
-        <th
-          v-if="selectable"
-          class="core-table-checkbox-col select-all"
-        >
-          <KCheckbox
-            :label="$tr('selectAllLabel')"
-            :showLabel="true"
-            :checked="allAreSelected"
-            class="overflow-label"
-            :disabled="disabled || !users || users.length === 0"
-            data-test="selectAllCheckbox"
-            @change="selectAll($event)"
-          />
+        <th v-if="selectable" :style="{ minWidth: '32px' }">
+          <span class="visuallyhidden">{{ $tr('selectionColumnHeader') }}</span>
         </th>
         <th>
           <!-- "Full name" header visually hidden if checkbox is on -->
@@ -243,6 +248,11 @@
         message: 'Select all',
         context: 'Generic checkbox label used to select all elements in a list.',
       },
+      selectionColumnHeader: {
+        message: 'Select user',
+        context:
+          'Header label of a table column that can be used for selecting users from the table.',
+      },
       userCheckboxLabel: {
         message: 'Select user',
         context: 'Checkbox used to select a specific user from a list.\n',
@@ -263,18 +273,14 @@
   }
 
   .select-all {
-    position: relative;
-    // Overrides overflow-x: hidden rule for CoreTable th's
-    overflow-x: visible;
-
-    .k-checkbox-container {
-      margin-right: -70px;
-    }
-
-    .k-checkbox-label {
-      // Add extra padding to align label with table headers
-      padding-top: 4px;
-    }
+    // 1-3: move the select all checkbox on the place
+    // of the visually hidden full name table header that
+    // is hidden when the select all checkbox is visible
+    position: relative; // 1
+    top: 46px; // 2
+    left: 8px; // 3
+    font-size: 12px;
+    font-weight: bold;
   }
 
   .empty-message {
@@ -290,12 +296,6 @@
     font-size: small;
     white-space: nowrap;
     border-radius: 4px;
-  }
-
-  .overflow-label {
-    position: absolute;
-    top: 8px;
-    white-space: nowrap;
   }
 
   .tooltip {
