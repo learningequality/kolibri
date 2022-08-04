@@ -1,5 +1,5 @@
 import commonCoreStrings from '../mixins/commonCoreStrings';
-import taskStrings from '../mixins/taskStrings';
+import { getTaskString } from '../mixins/taskStrings';
 import bytesForHumans from '../utils/bytesForHumans';
 
 export const TaskTypes = {
@@ -56,7 +56,6 @@ export const SyncTaskStatuses = {
   FAILED: 'FAILED',
 };
 
-const { getTaskString } = taskStrings.methods;
 const { coreString } = commonCoreStrings.methods;
 
 const syncTaskStatusToStepMap = {
