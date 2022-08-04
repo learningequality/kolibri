@@ -6,6 +6,7 @@ from mock import patch
 
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.utils.content_manifest import ContentManifest
+from kolibri.core.content.utils.content_manifest import ContentManifestParseError
 from kolibri.core.content.utils.content_manifest import get_content_nodes_selectors
 from kolibri.utils.tests.helpers import override_option
 
@@ -279,6 +280,72 @@ class ContentManifestTestCase(TestCase):
                 self.the_channel_id, self.the_channel_version
             ),
             [self.c1_node_id],
+        )
+
+        self.assertCountEqual(
+            self.content_manifest.get_channel_ids(), [self.the_channel_id]
+        )
+
+        self.assertCountEqual(
+            self.content_manifest.get_channel_versions(self.the_channel_id),
+            [self.the_channel_version],
+        )
+
+    def test_read_dict_with_validation_valid(self):
+        self.content_manifest.read_dict(
+            {
+                "channels": [
+                    {
+                        "id": self.the_channel_id,
+                        "version": self.the_channel_version,
+                        "include_node_ids": [self.c1_node_id],
+                    }
+                ],
+                "channel_list_hash": "dcba190e9d79f20e4fbcc3890fe9b4fd",
+            },
+            validate=True,
+        )
+
+    def test_read_dict_with_validation_invalid(self):
+        with self.assertRaises(ContentManifestParseError):
+            self.content_manifest.read_dict(
+                {
+                    "channels": [
+                        {
+                            "id": self.the_channel_id,
+                            "version": self.the_channel_version,
+                            "include_node_ids": [self.c1_node_id],
+                        }
+                    ],
+                    "channel_list_hash": "ffffffffffffffffffffffffffffffff",
+                },
+                validate=True,
+            )
+
+    def test_read_dict_with_duplicate(self):
+        self.content_manifest.read_dict(
+            {
+                "channels": [
+                    {
+                        "id": self.the_channel_id,
+                        "version": self.the_channel_version,
+                        "include_node_ids": [self.c1_node_id],
+                    },
+                    {
+                        "id": self.the_channel_id,
+                        "version": self.the_channel_version,
+                        "include_node_ids": [self.c2_node_id],
+                    },
+                ],
+                "channel_list_hash": "be61f9920be4dd28e4793a55e670c471",
+            }
+        )
+
+        self.assertCountEqual(
+            self.content_manifest.get_include_node_ids(
+                self.the_channel_id, self.the_channel_version
+            ),
+            [self.c1_node_id, self.c2_node_id],
         )
 
         self.assertCountEqual(

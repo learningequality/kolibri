@@ -47,7 +47,7 @@ class ContentManifest(object):
     def __init__(self):
         self._channels_dict = {}
 
-    def read(self, filenames):
+    def read(self, filenames, validate=False):
         """
         Read content manifest data from a file path, or a list of file paths.
         Returns the number of files which have been read successfully. Note
@@ -64,7 +64,7 @@ class ContentManifest(object):
         for filename in filenames:
             try:
                 with open(filename, "r") as fp:
-                    self.read_file(fp)
+                    self.read_file(fp, validate=validate)
             except FileNotFoundError:
                 pass
             else:
@@ -72,7 +72,7 @@ class ContentManifest(object):
 
         return files_read
 
-    def read_file(self, fp):
+    def read_file(self, fp, validate=False):
         """
         Read content manifest data from a file-like object.
         Raises `ContentManifestParseError` if a file is invalid JSON, or has
@@ -84,21 +84,38 @@ class ContentManifest(object):
         except JSONDecodeError as error:
             raise ContentManifestParseError("Error decoding JSON: {}".format(error))
 
-        self.read_dict(manifest_data)
+        self.read_dict(manifest_data, validate=validate)
 
-    def read_dict(self, manifest_data):
+    def read_dict(self, manifest_data, validate=False):
         """
         Read content manifest data from a dict object.
-        Raises `ContentManifestParseError` the dict has an incorrect schema.
+        Raises `ContentManifestParseError` if the dict has an incorrect schema.
         """
 
-        for channel_data in manifest_data.get("channels", []):
+        if validate:
+            self._validate_manifest_data(manifest_data)
+
+        channels_list = manifest_data.get("channels", [])
+
+        for channel_data in channels_list:
             channel_id = channel_data.get("id", None)
             channel_version = channel_data.get("version", None)
             include_node_ids = channel_data.get("include_node_ids", [])
             if channel_id is None or channel_version is None:
                 raise ContentManifestParseError("id and version are required fields")
             self._update_channel_data(channel_id, channel_version, include_node_ids)
+
+    def _validate_manifest_data(self, manifest_data):
+        channels_list = manifest_data.get("channels", [])
+        expected_channels_list_hash = manifest_data.get("channel_list_hash", None)
+        actual_channels_list_hash = _get_channels_list_hash(channels_list)
+
+        if expected_channels_list_hash != actual_channels_list_hash:
+            raise ContentManifestParseError(
+                "channel list hash '{}' is invalid (expected '{}')".format(
+                    actual_channels_list_hash, expected_channels_list_hash
+                )
+            )
 
     def write(self, path):
         """
@@ -121,9 +138,7 @@ class ContentManifest(object):
         channels_list = list(self._iter_channel_dicts())
         return {
             "channels": channels_list,
-            "channel_list_hash": hashlib.md5(
-                json.dumps(channels_list, sort_keys=True).encode()
-            ).hexdigest(),
+            "channel_list_hash": _get_channels_list_hash(channels_list),
         }
 
     def _iter_channel_dicts(self):
@@ -250,3 +265,7 @@ def _get_leaf_node_ids(node):
         .exclude(kind="topic")
         .values_list("id", flat=True)
     )
+
+
+def _get_channels_list_hash(channels_list):
+    return hashlib.md5(json.dumps(channels_list, sort_keys=True).encode()).hexdigest()
