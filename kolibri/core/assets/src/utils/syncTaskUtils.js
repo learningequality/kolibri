@@ -121,9 +121,9 @@ export function syncFacilityTaskDisplayInfo(task) {
   }
   const syncStep = syncTaskStatusToStepMap[task.extra_metadata.sync_state];
   const statusDescription =
-    syncStatusToDescriptionMap[task.extra_metadata.sync_state]() ||
-    syncStatusToDescriptionMap[task.status]() ||
-    getTaskString('taskUnknownStatus');
+    syncStatusToDescriptionMap[task.extra_metadata.sync_state] ||
+    syncStatusToDescriptionMap[task.status] ||
+    (() => getTaskString('taskUnknownStatus'));
 
   if (task.status === TaskStatuses.COMPLETED) {
     statusMsg = getTaskString('taskFinishedStatus');
