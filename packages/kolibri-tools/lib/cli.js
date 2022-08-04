@@ -34,6 +34,143 @@ const config = ini.parse(configFile || '');
 
 program.version(version).description('Tools for Kolibri frontend plugins');
 
+const modes = {
+  DEV: 'dev',
+  PROD: 'prod',
+  CLEAN: 'clean',
+};
+const modeMaps = {
+  c: modes.CLEAN,
+  clean: modes.CLEAN,
+  d: modes.DEV,
+  dev: modes.DEV,
+  development: modes.DEV,
+  p: modes.PROD,
+  prod: modes.PROD,
+  production: modes.PROD,
+};
+
+function runWebpackBuild(mode, bundleData, devServer, options, cb = null) {
+  const buildLogging = logger.getLogger('Kolibri Build');
+  const webpackMode = {
+    [modes.PROD]: 'production',
+    [modes.DEV]: 'development',
+    [modes.STATS]: 'production',
+  }[mode];
+
+  const buildOptions = {
+    hot: options.hot && devServer,
+    port: devServer && options.port,
+    mode: webpackMode,
+    cache: options.cache,
+    transpile: options.transpile,
+    devServer,
+  };
+
+  const webpackConfig = require('./webpack.config.plugin');
+
+  const webpackArray = bundleData.map(bundle => webpackConfig(bundle, buildOptions));
+
+  if (options.parallel) {
+    webpackArray.parallelism = options.parallel;
+  }
+
+  const webpack = require('webpack');
+
+  const compiler = webpack(webpackArray);
+
+  let start;
+
+  compiler.hooks.run.tap('Kolibri', () => {
+    start = new Date();
+  });
+
+  compiler.hooks.watchRun.tap('Kolibri', () => {
+    start = new Date();
+  });
+
+  compiler.hooks.done.tap('Kolibri', () => {
+    const time = new Date() - start;
+    buildLogging.info(`Build complete in ${time / 1000} seconds`);
+  });
+
+  if (devServer) {
+    const devServerOptions = {
+      hot: options.hot,
+      liveReload: !options.hot,
+      host: options.host,
+      port: options.port,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+      },
+      setupMiddlewares: (middlewares, devServer) => {
+        if (!devServer) {
+          throw new Error('webpack-dev-server is not defined');
+        }
+        const openInEditor = require('launch-editor-middleware');
+
+        middlewares.unshift({
+          name: 'open-in-editor',
+          path: '/__open-in-editor',
+          middleware: openInEditor(),
+        });
+
+        return middlewares;
+      },
+    };
+
+    const WebpackDevServer = require('webpack-dev-server');
+    const server = new WebpackDevServer(devServerOptions, compiler);
+    server.start();
+  } else {
+    compiler.run((err, stats) => {
+      if (err || stats.hasErrors()) {
+        buildLogging.error(err || stats.toString('errors-only'));
+        process.exit(1);
+      }
+      if (options.json) {
+        // Recommended output stats taken from:
+        // https://github.com/statoscope/statoscope/tree/master/packages/webpack-plugin#which-stats-flags-statoscope-use
+        // Can use in conjunction with statoscope.
+        const statsJson = stats.toJson({
+          all: false, // disable all the stats
+          hash: true, // compilation hash
+          entrypoints: true, // entrypoints
+          chunks: true, // chunks
+          chunkModules: true, // modules
+          reasons: true, // modules reasons
+          ids: true, // IDs of modules and chunks (webpack 5)
+          dependentModules: true, // dependent modules of chunks (webpack 5)
+          chunkRelations: true, // chunk parents, children and siblings (webpack 5)
+          cachedAssets: true, // information about the cached assets (webpack 5)
+
+          nestedModules: true, // concatenated modules
+          usedExports: true, // used exports
+          providedExports: true, // provided imports
+          assets: true, // assets
+          chunkOrigins: true, // chunks origins stats (to find out which modules require a chunk)
+          version: true, // webpack version
+          builtAt: true, // build at time
+          timings: true, // modules timing information
+          performance: true, // info about oversized assets
+        });
+        mkdirp.sync('./.stats');
+        for (let stat of statsJson.children) {
+          fs.writeFileSync(`.stats/${stat.name}.json`, JSON.stringify(stat, null, 2), {
+            encoding: 'utf-8',
+          });
+        }
+        compiler.close(closeErr => {
+          if (closeErr) {
+            buildLogging.error(closeErr);
+            cb ? cb() : null;
+          }
+        });
+      }
+    });
+  }
+}
+
 // Build
 program
   .command('build')
@@ -58,23 +195,14 @@ program
   .option('--host <host>', 'Set a host to serve devserver', String, '0.0.0.0')
   .option('--json', 'Output webpack stats in JSON format - only works in prod mode', false)
   .option('--cache', 'Use cache in webpack', false)
+  .option('--transpile', 'Transpile code using Babel', false)
+  .option(
+    '--watchonly [plugins...]',
+    'An explicit comma separated list of plugins that should be watched - all others will be built once only',
+    list,
+    []
+  )
   .action(function(mode, options) {
-    const buildLogging = logger.getLogger('Kolibri Build');
-    const modes = {
-      DEV: 'dev',
-      PROD: 'prod',
-      CLEAN: 'clean',
-    };
-    const modeMaps = {
-      c: modes.CLEAN,
-      clean: modes.CLEAN,
-      d: modes.DEV,
-      dev: modes.DEV,
-      development: modes.DEV,
-      p: modes.PROD,
-      prod: modes.PROD,
-      production: modes.PROD,
-    };
     if (typeof mode !== 'string') {
       cliLogging.error('Build mode must be specified');
       process.exit(1);
@@ -111,104 +239,47 @@ program
       return;
     }
 
-    const webpackMode = {
-      [modes.PROD]: 'production',
-      [modes.DEV]: 'development',
-      [modes.STATS]: 'production',
-    }[mode];
-
-    const buildOptions = {
-      hot: options.hot,
-      port: options.port,
-      mode: webpackMode,
-      cache: options.cache,
-    };
-
-    const webpackConfig = require('./webpack.config.plugin');
-
-    const webpackArray = bundleData.map(bundle => webpackConfig(bundle, buildOptions));
-
-    if (options.parallel) {
-      webpackArray.parallelism = options.parallel;
+    if (options.watchonly.length && mode !== modes.DEV) {
+      cliLogging.error('Can only specify watchonly for dev builds');
+      process.exit(1);
     }
-
-    const webpack = require('webpack');
-
-    const compiler = webpack(webpackArray);
-
-    compiler.hooks.done.tap('Kolibri', () => {
-      buildLogging.info('Build complete');
-    });
-
-    if (mode === modes.DEV) {
-      const devServerOptions = {
-        hot: options.hot,
-        liveReload: !options.hot,
-        host: options.host,
-        port: options.port,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-        },
-        setupMiddlewares: (middlewares, devServer) => {
-          if (!devServer) {
-            throw new Error('webpack-dev-server is not defined');
-          }
-          const openInEditor = require('launch-editor-middleware');
-
-          middlewares.unshift({
-            name: 'open-in-editor',
-            path: '/__open-in-editor',
-            middleware: openInEditor(),
-          });
-
-          return middlewares;
-        },
+    if (options.watchonly.length) {
+      const unwatchedBundles = [];
+      const findModuleName = bundleDatum => {
+        return !options.watchonly.some(m => bundleDatum.module_path.includes(m));
       };
-
-      const WebpackDevServer = require('webpack-dev-server');
-      const server = new WebpackDevServer(devServerOptions, compiler);
-      server.start();
-    } else {
-      compiler.run((err, stats) => {
-        if (err || stats.hasErrors()) {
-          buildLogging.error(err || stats.toString('errors-only'));
-          process.exit(1);
-        }
-        if (options.json) {
-          // Recommended output stats taken from:
-          // https://github.com/statoscope/statoscope/tree/master/packages/webpack-plugin#which-stats-flags-statoscope-use
-          // Can use in conjunction with statoscope.
-          const statsJson = stats.toJson({
-            all: false, // disable all the stats
-            hash: true, // compilation hash
-            entrypoints: true, // entrypoints
-            chunks: true, // chunks
-            chunkModules: true, // modules
-            reasons: true, // modules reasons
-            ids: true, // IDs of modules and chunks (webpack 5)
-            dependentModules: true, // dependent modules of chunks (webpack 5)
-            chunkRelations: true, // chunk parents, children and siblings (webpack 5)
-            cachedAssets: true, // information about the cached assets (webpack 5)
-
-            nestedModules: true, // concatenated modules
-            usedExports: true, // used exports
-            providedExports: true, // provided imports
-            assets: true, // assets
-            chunkOrigins: true, // chunks origins stats (to find out which modules require a chunk)
-            version: true, // webpack version
-            builtAt: true, // build at time
-            timings: true, // modules timing information
-            performance: true, // info about oversized assets
-          });
-          mkdirp.sync('./.stats');
-          for (let stat of statsJson.children) {
-            fs.writeFileSync(`.stats/${stat.name}.json`, JSON.stringify(stat, null, 2), {
-              encoding: 'utf-8',
-            });
+      let foundIndex = bundleData.findIndex(findModuleName);
+      while (foundIndex > -1) {
+        // Remove the found bundle data entry from bundleData
+        const unwatchedBundle = bundleData.splice(foundIndex, 1)[0];
+        // Read the stats file for the bundle and see if we need to build it
+        try {
+          const statsFile = fs.readFileSync(unwatchedBundle.stats_file);
+          const stats = JSON.parse(statsFile);
+          // If the compilation has not completed, or it has completed
+          // and it has a publicPath (i.e. it was built from a devserver)
+          // then we need to rebuild the asset.
+          if (stats.status !== 'done' || stats.publicPath) {
+            // If we do, add it to our stats bundles.
+            unwatchedBundles.push(unwatchedBundle);
           }
+        } catch (e) {
+          // If we got an error the file probably doesn't exist
+          // or there was a problem with the stats file.
+          // Rebuild!
+          unwatchedBundles.push(unwatchedBundle);
         }
-      });
+        foundIndex = bundleData.findIndex(findModuleName);
+      }
+      if (unwatchedBundles.length) {
+        runWebpackBuild(mode, unwatchedBundles, false, {
+          ...options,
+          cache: false,
+          hot: false,
+        });
+      }
     }
+    runWebpackBuild(mode, bundleData, mode === modes.DEV, options);
   });
 
 const ignoreDefaults = ['**/node_modules/**', '**/static/**'];
