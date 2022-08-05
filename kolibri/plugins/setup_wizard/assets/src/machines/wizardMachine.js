@@ -1,4 +1,5 @@
 import { assign, createMachine, interpret } from 'xstate';
+import reduce from 'lodash/reduce';
 
 const isIndividualSetup = context => {
   return context.individualOrGroup === 'individual';
@@ -64,19 +65,46 @@ const setRequirePassword = assign({
   requirePassword: (_, event) => event.value,
 });
 
+const initialContext = {
+  individualOrGroup: null,
+  isAppContext: false, // Must be set in the component where the machine is used
+  facilityNewOrImport: null,
+  fullOrLOD: null,
+  deviceName: null,
+  formalOrNonformal: null,
+  guestAccess: null,
+  createLearnerAccount: null,
+  requirePassword: null,
+};
+
+/**
+ * Assigns the machine to have the initial context again while maintaining the value of
+ * isAppContext.
+ *
+ * This effectively resets the machine's state
+ */
+const resetContext = assign({
+  ...reduce(
+    initialContext,
+    (result, value, key) => {
+      if (key === 'isAppContext') {
+        // This won't change because of starting over
+        result[key] = context => context.isAppContext;
+      } else {
+        result[key] = () => value;
+      }
+      return result;
+    },
+    {}
+  ),
+});
+
 export const wizardMachine = createMachine({
   id: 'wizard',
   initial: 'initializeContext',
-  context: {
-    individualOrGroup: null,
-    isAppContext: false, // Must be set in the component where the machine is used
-    facilityNewOrImport: null,
-    fullOrLOD: null,
-    deviceName: null,
-    formalOrNonformal: null,
-    guestAccess: null,
-    createLearnerAccount: null,
-    requirePassword: null,
+  context: initialContext,
+  on: {
+    START_OVER: { target: 'howAreYouUsingKolibri', action: resetContext },
   },
   states: {
     // This state will be the start so the machine won't progress until the isAppContext is set
