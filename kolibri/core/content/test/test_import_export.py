@@ -1133,6 +1133,41 @@ class ImportContentTestCase(TestCase):
     @patch(
         "kolibri.core.content.management.commands.importcontent.paths.get_content_storage_file_path"
     )
+    def test_local_import_fail_on_error(
+        self,
+        path_mock,
+        logger_mock,
+        annotation_mock,
+        get_import_export_mock,
+        channel_list_status_mock,
+    ):
+        fd, dest_path = tempfile.mkstemp()
+        os.close(fd)
+        path_mock.side_effect = [dest_path, "/test/dne"]
+        LocalFile.objects.filter(
+            files__contentnode__channel_id=self.the_channel_id
+        ).update(file_size=1)
+        get_import_export_mock.return_value = (
+            1,
+            [LocalFile.objects.values("id", "file_size", "extension").first()],
+            10,
+        )
+
+        with self.assertRaises(OSError) as err:
+            call_command(
+                "importcontent",
+                "disk",
+                self.the_channel_id,
+                "destination",
+                fail_on_error=True,
+            )
+        self.assertEqual(err.exception.errno, 2)
+        annotation_mock.set_content_visibility.assert_called()
+
+    @patch("kolibri.core.content.management.commands.importcontent.logger.warning")
+    @patch(
+        "kolibri.core.content.management.commands.importcontent.paths.get_content_storage_file_path"
+    )
     def test_remote_import_fail_on_error(
         self,
         path_mock,

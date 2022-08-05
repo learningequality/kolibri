@@ -477,11 +477,12 @@ class Command(AsyncCommand):
                                 "An error occurred during content import: {}".format(e)
                             )
 
-                            if (
-                                not fail_on_error
-                                and isinstance(e, requests.exceptions.HTTPError)
+                            is_file_missing_error = (
+                                isinstance(e, requests.exceptions.HTTPError)
                                 and e.response.status_code == 404
-                            ) or (isinstance(e, OSError) and e.errno == 2):
+                            ) or (isinstance(e, OSError) and e.errno == 2)
+
+                            if is_file_missing_error and not fail_on_error:
                                 # Continue file import when the current file is not found from the source and is skipped.
                                 overall_progress_update(f["file_size"])
                                 number_of_skipped_files += 1
