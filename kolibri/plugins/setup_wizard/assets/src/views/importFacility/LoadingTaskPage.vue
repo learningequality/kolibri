@@ -18,18 +18,16 @@
         @click="handleClickContinue"
       />
       <template v-else-if="loadingTask.status === 'FAILED'">
-        <KButtonGroup>
-          <KButton
-            primary
-            :text="coreString('retryAction')"
-            @click="retryImport"
-          />
-          <KButton
-            :text="coreString('startOverAction')"
-            appearance="flat-button"
-            @click="startOver"
-          />
-        </KButtonGroup>
+        <KButton
+          :text="coreString('startOverAction')"
+          appearance="flat-button"
+          @click="startOver"
+        />
+        <KButton
+          primary
+          :text="coreString('retryAction')"
+          @click="retryImport"
+        />
       </template>
       <span v-else></span>
     </template>
