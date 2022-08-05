@@ -82,10 +82,10 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
   },
 });
 
+export function learnString(key, args) {
+  return learnStrings.$tr(key, args);
+}
+
 export default {
-  methods: {
-    learnString(key, args) {
-      return learnStrings.$tr(key, args);
-    },
-  },
+  methods: { learnString },
 };
