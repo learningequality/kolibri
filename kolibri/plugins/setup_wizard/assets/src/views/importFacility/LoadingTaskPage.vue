@@ -103,11 +103,8 @@
       startOver() {
         this.isPolling = false;
         this.clearTasks().then(() => {
-          this.goToRootUrl();
+          this.$emit('start_over');
         });
-      },
-      goToRootUrl() {
-        this.$router.replace('/');
       },
       clearTasks() {
         return TaskResource.clearAll();

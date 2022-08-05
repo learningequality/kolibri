@@ -8,6 +8,7 @@
     :stepMessage.sync="currentStepMessage"
     @click_back="goToLastStep"
     @click_next="goToNextStep"
+    @start_over="startOver"
   />
 
 </template>
@@ -94,6 +95,9 @@
       }
     },
     methods: {
+      startOver() {
+        this.wizardService.send('START_OVER');
+      },
       goToNextStep({ device, facility } = {}) {
         this.device = device || this.device;
         this.facility = facility || this.facility;
