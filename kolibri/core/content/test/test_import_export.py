@@ -18,6 +18,7 @@ from requests.exceptions import ReadTimeout
 from requests.exceptions import SSLError
 
 from kolibri.core.content.errors import InsufficientStorageSpaceError
+from kolibri.core.content.management.commands.importcontent import FileCorrupted
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import LocalFile
@@ -1133,7 +1134,7 @@ class ImportContentTestCase(TestCase):
     @patch(
         "kolibri.core.content.management.commands.importcontent.paths.get_content_storage_file_path"
     )
-    def test_local_import_fail_on_error(
+    def test_local_import_fail_on_error_missing(
         self,
         path_mock,
         logger_mock,
@@ -1168,7 +1169,7 @@ class ImportContentTestCase(TestCase):
     @patch(
         "kolibri.core.content.management.commands.importcontent.paths.get_content_storage_file_path"
     )
-    def test_remote_import_fail_on_error(
+    def test_remote_import_fail_on_error_missing(
         self,
         path_mock,
         logger_mock,
@@ -1220,6 +1221,79 @@ class ImportContentTestCase(TestCase):
             exclude_node_ids=None,
             public=False,
         )
+
+    @patch("kolibri.core.content.management.commands.importcontent.logger.warning")
+    @patch(
+        "kolibri.core.content.management.commands.importcontent.paths.get_content_storage_file_path"
+    )
+    def test_local_import_fail_on_error_corrupted(
+        self,
+        path_mock,
+        logger_mock,
+        annotation_mock,
+        get_import_export_mock,
+        channel_list_status_mock,
+    ):
+        fd1, dest_path = tempfile.mkstemp()
+        fd2, src_path = tempfile.mkstemp()
+        os.close(fd1)
+        os.close(fd2)
+        path_mock.side_effect = [dest_path, src_path]
+        LocalFile.objects.filter(
+            files__contentnode__channel_id=self.the_channel_id
+        ).update(file_size=1)
+        get_import_export_mock.return_value = (
+            1,
+            [LocalFile.objects.values("id", "file_size", "extension").first()],
+            10,
+        )
+
+        with self.assertRaises(FileCorrupted):
+            call_command(
+                "importcontent",
+                "disk",
+                self.the_channel_id,
+                "destination",
+                fail_on_error=True,
+            )
+        annotation_mock.set_content_visibility.assert_called()
+
+    @patch("kolibri.core.content.management.commands.importcontent.logger.warning")
+    @patch(
+        "kolibri.core.content.management.commands.importcontent.transfer.FileDownload.finalize"
+    )
+    @patch(
+        "kolibri.core.content.management.commands.importcontent.paths.get_content_storage_file_path"
+    )
+    def test_remote_import_fail_on_error_corrupted(
+        self,
+        path_mock,
+        finalize_dest_mock,
+        logger_mock,
+        annotation_mock,
+        get_import_export_mock,
+        channel_list_status_mock,
+    ):
+        fd, dest_path = tempfile.mkstemp()
+        os.close(fd)
+        path_mock.side_effect = [dest_path]
+        LocalFile.objects.filter(
+            files__contentnode__channel_id=self.the_channel_id
+        ).update(file_size=1)
+        get_import_export_mock.return_value = (
+            1,
+            [LocalFile.objects.values("id", "file_size", "extension").first()],
+            10,
+        )
+
+        with self.assertRaises(FileCorrupted):
+            call_command(
+                "importcontent",
+                "network",
+                self.the_channel_id,
+                fail_on_error=True,
+            )
+        annotation_mock.set_content_visibility.assert_called()
 
     @patch(
         "kolibri.core.content.management.commands.importcontent.paths.get_content_storage_remote_url"
