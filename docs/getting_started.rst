@@ -63,10 +63,12 @@ Python and Pip
 
 To develop on Kolibri, you'll need:
 
-* Python 3.4+ or Python 2.7+ (Kolibri doesn't currently support Python 3.10.0 or higher)
+* Python 3.4+ or Python 2.7+ (Kolibri doesn't currently support Python 3.11.0 or higher)
 * `pip <https://pypi.python.org/pypi/pip>`__
 
-Managing Python installations can be quite tricky. We *highly* recommend using package managers like `Homebrew <http://brew.sh/>`__ on Mac or ``apt`` on Debian for this.
+Managing Python installations can be quite tricky. We *highly* recommend using `pyenv <https://github.com/pyenv/pyenv>`__ or if you are more comfortable using a package manager, then package managers like `Homebrew <http://brew.sh/>`__ on Mac or ``apt`` on Debian for this.
+
+To install pyenv see the detailed instructions here :doc:`/howtos/installing_pyenv`.
 
 .. warning::
   Never modify your system's built-in version of Python
@@ -76,18 +78,20 @@ Python virtual environment
 
 You should use a Python virtual environment to isolate the dependencies of your Python projects from each other and to avoid corrupting your system's Python installation.
 
-There are many ways to set up Python virtual environments: You can use `Pipenv <https://pipenv.readthedocs.io/en/latest/>`__ as shown in the instructions below; you can also use `Virtualenv <https://virtualenv.pypa.io/en/latest/>`__, `Python 3 venv <https://docs.python.org/3/library/venv.html>`__, `Poetry <https://poetry.eustace.io>`__ etc.
+There are many ways to set up Python virtual environments: You can use `pyenv-virtualenv <https://github.com/pyenv/pyenv-virtualenv>`__ as shown in the instructions below; you can also use `Virtualenv <https://virtualenv.pypa.io/en/latest/>`__, `Virtualenvwrapper <https://virtualenvwrapper.readthedocs.io/en/latest/>`__ `Pipenv <https://pipenv.readthedocs.io/en/latest/>`__, `Python 3 venv <https://docs.python.org/3/library/venv.html>`__, `Poetry <https://poetry.eustace.io>`__ etc.
 
 .. note::
   Most virtual environments will require special setup for non-Bash shells such as Fish and ZSH.
 
-Once Pipenv is installed, you can use the following commands to set up and use a virtual environment from within the Kolibri repo:
+To setup and start using pyenv-virtualenv, follow the instructions here :doc:`/howtos/pyenv_virtualenv`.
+
+Once pyenv-virtualenv is installed, you can use the following commands to set up and use a virtual environment from within the Kolibri repo:
 
 
 .. code-block:: bash
 
-  pipenv --python 3  # can also make a python 2 environment
-  pipenv shell  # activates the virtual environment
+  pyenv virtualenv 3.9.9 kolibri-py3.9  # can also make a python 2 environment
+  pyenv activate kolibri-py3.9  # activates the virtual environment
 
 Now, any commands you run will target your virtual environment rather than the global Python installation. To deactivate the virtualenv, simply run:
 
@@ -160,11 +164,13 @@ Install Node.js, Yarn and other dependencies
 
 The Python project-specific dependencies installed above will install ``nodeenv``, which is a useful tool for using specific versions of Node.js and other Node.js tools in Python environments. To setup Node.js and Yarn within the Kolibri project environment, ensure your Python virtual environment is active, then run:
 
+For a more detailed guide to using nodeenv see :doc:`/howtos/nodeenv`.
+
 .. code-block:: bash
 
   # node.js, npm, and yarn
   nodeenv -p --node=16.13.2
-  npm install -g yarn
+  npm install --location=global yarn
 
   # other required project dependencies
   yarn install
@@ -233,7 +239,7 @@ For a complete reference of the commands that can be run and what they do, inspe
 Production server
 ~~~~~~~~~~~~~~~~~
 
-In production, content is served through `CherryPy <https://docs.cherrypy.dev/en/latest/>`__. Frontend static assets are pre-built:
+In production, content is served through `Whitenoise <http://whitenoise.evans.io/en/stable/>`__. Frontend static assets are pre-built:
 
 .. code-block:: bash
 
@@ -381,6 +387,8 @@ You can also run the auto-build for faster editing from the ``docs`` directory:
 
   cd docs
   sphinx-autobuild --port 8888 . _build
+
+Now you should be able to preview the docs at ``http://127.0.0.1:8888/``.
 
 
 Automated testing

@@ -24,6 +24,7 @@ Table of contents
   contributing/index
   getting_started
   stack
+  howtos/index
   frontend_architecture/index
   backend_architecture/index
   dataflow/index
