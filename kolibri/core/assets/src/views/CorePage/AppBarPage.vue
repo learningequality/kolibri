@@ -38,8 +38,6 @@
       :style="{ color: $themeTokens.text }"
       @cancel="languageModalShown = false"
     />
-
-    <GlobalSnackbar />
   </div>
 
 </template>
@@ -50,12 +48,11 @@
   import LanguageSwitcherModal from 'kolibri.coreVue.components.LanguageSwitcherModal';
   import ScrollingHeader from 'kolibri.coreVue.components.ScrollingHeader';
   import SideNav from 'kolibri.coreVue.components.SideNav';
-  import GlobalSnackbar from '../GlobalSnackbar';
   import AppBar from '../AppBar';
 
   export default {
     name: 'AppBarPage',
-    components: { AppBar, GlobalSnackbar, LanguageSwitcherModal, ScrollingHeader, SideNav },
+    components: { AppBar, LanguageSwitcherModal, ScrollingHeader, SideNav },
     props: {
       title: {
         type: String,

@@ -14,7 +14,6 @@
       type="indeterminate"
       :delay="false"
     />
-    <GlobalSnackbar />
   </div>
 
 </template>
@@ -23,11 +22,10 @@
 <script>
 
   import ImmersiveToolbar from '../ImmersiveToolbar';
-  import GlobalSnackbar from '../GlobalSnackbar';
 
   export default {
     name: 'ImmersivePage',
-    components: { GlobalSnackbar, ImmersiveToolbar },
+    components: { ImmersiveToolbar },
     props: {
       appBarTitle: {
         type: String,

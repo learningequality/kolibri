@@ -1,6 +1,9 @@
 <template>
 
-  <div>
+  <NotificationsRoot
+    :authorized="userIsAuthorized"
+    authorizedRole="registeredUser"
+  >
     <transition name="delay-entry">
       <PostSetupModalGroup
         v-if="welcomeModalVisible"
@@ -9,26 +12,38 @@
     </transition>
 
     <router-view />
-  </div>
+  </NotificationsRoot>
 
 </template>
 
 
 <script>
 
-  import { mapState } from 'vuex';
+  import { mapGetters, mapState } from 'vuex';
+  import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
   import { PageNames } from '../constants';
   import PostSetupModalGroup from './PostSetupModalGroup';
+  import plugin_data from 'plugin_data';
 
   const welcomeDimissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
 
   export default {
     name: 'DeviceIndex',
     components: {
+      NotificationsRoot,
       PostSetupModalGroup,
     },
     computed: {
+      ...mapGetters(['isUserLoggedIn']),
       ...mapState({ welcomeModalVisibleState: 'welcomeModalVisible' }),
+      userIsAuthorized() {
+        if (this.pageName === PageNames.BOOKMARKS) {
+          return this.isUserLoggedIn;
+        }
+        return (
+          (plugin_data.allowGuestAccess && this.$store.getters.allowAccess) || this.isUserLoggedIn
+        );
+      },
       welcomeModalVisible() {
         return (
           this.welcomeModalVisibleState &&
