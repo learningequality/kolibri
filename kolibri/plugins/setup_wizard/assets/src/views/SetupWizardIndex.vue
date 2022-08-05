@@ -80,7 +80,13 @@
 
       const synchronizeRouteAndMachine = state => {
         const { meta } = state;
-        console.log(meta);
+
+        // Dump out of here if there is nothing to resume from
+        if (!Object.keys(meta).length) {
+          this.$router.push('/');
+          return;
+        }
+
         const route = meta[Object.keys(meta)[0]].route;
         if (route) {
           // Avoid redundant navigation
@@ -88,7 +94,7 @@
             this.$router.push(route);
           }
         } else {
-          this.router.push('/');
+          this.$router.push('/');
         }
       };
 
