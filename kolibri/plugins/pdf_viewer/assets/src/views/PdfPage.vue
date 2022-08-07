@@ -153,7 +153,7 @@
               this.rendered = false;
             }
           );
-          this.eventBus.on('textlayerrendered', this.onTextLayerRendered);
+          this.eventBus.once('textlayerrendered', this.onTextLayerRendered);
         } else if (!this.pdfPage) {
           // No pdfPage, either we are not being asked to render a page yet,
           // or it has been removed so we should tear down any existing page
@@ -195,7 +195,6 @@
         if (event.pageNumber !== this.pageNum) {
           return;
         }
-        this.eventBus.off('textlayerrendered', this.onTextLayerRendered);
 
         if (!this.$refs.canvas) {
           return; // The canvas was removed, prevent errors below.

@@ -71,7 +71,7 @@ const PDF_ROLE_TO_HTML_ROLE = {
   // Standard structure type Caption
   Caption: null,
   // Standard structure type Figure
-  Figure: 'figure',
+  Figure: 'img',
   // Standard structure type Formula
   Formula: null,
   // standard structure type Artifact
