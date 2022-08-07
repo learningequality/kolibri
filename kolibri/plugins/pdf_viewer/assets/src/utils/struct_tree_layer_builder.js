@@ -81,10 +81,24 @@ const PDF_ROLE_TO_HTML_ROLE = {
 const HEADING_PATTERN = /^H(\d+)$/;
 
 // Modified: unused "options" props deleted and constructor definition deleted
+//           Making use of the textLayer ref for taking into account just non-blank text
 // Original line: 85
 
 class StructTreeLayerBuilder {
+  constructor(textLayer) {
+    this.textLayer = textLayer;
+  }
   render(structTree) {
+    // Modified: Extracting ids of available nodes in textLayer
+    // Original line: 90
+    const availableNodes = [];
+    for (let i = 0; i < this.textLayer.children.length; i++) {
+      const node = this.textLayer.children[i];
+      if (node.id !== undefined) {
+        availableNodes.push(node.id);
+      }
+    }
+    this.availableNodes = availableNodes;
     return this._walk(structTree);
   }
 
@@ -100,11 +114,18 @@ class StructTreeLayerBuilder {
     }
   }
 
+  _isNodeNotAvailable(node) {
+    return (
+      node.id !== undefined && node.id.startsWith('page') && !this.availableNodes.includes(node.id)
+    );
+  }
+
   _walk(node) {
-    if (!node) {
+    // Modified: Just take into account non-blank text
+    // Original line: 106
+    if (!node || this._isNodeNotAvailable(node)) {
       return null;
     }
-
     const element = document.createElement('span');
     if ('role' in node) {
       const { role } = node;
@@ -123,12 +144,28 @@ class StructTreeLayerBuilder {
       if (node.children.length === 1 && 'id' in node.children[0]) {
         // Often there is only one content node so just set the values on the
         // parent node to avoid creating an extra span.
-        this._setAttributes(node.children[0], element);
+        if (!this._isNodeNotAvailable(node.children[0])) {
+          this._setAttributes(node.children[0], element);
+        }
       } else {
         for (const kid of node.children) {
-          element.appendChild(this._walk(kid));
+          const node = this._walk(kid);
+          // Modified: Validate that the node is not null
+          // Original line: 131
+          if (node) {
+            element.appendChild(node);
+          }
         }
       }
+    }
+    // Modified: Just take into account non-blank elements
+    // Original line: 135
+    if (
+      element.innerHTML === '' &&
+      element.getAttribute('aria-owns') == undefined &&
+      element.getAttribute('role') == undefined
+    ) {
+      return null;
     }
     return element;
   }

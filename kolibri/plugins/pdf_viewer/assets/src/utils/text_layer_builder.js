@@ -123,6 +123,22 @@ class TextLayerBuilder {
     });
     this.textLayerRenderTask.promise.then(
       () => {
+        // Modified: Removing blank lines
+        // Original line: 114
+        const childsToRemove = [];
+        for (let i = 0; i < textLayerFrag.children.length; i++) {
+          const child = textLayerFrag.children[i];
+          if (
+            child.className.includes('markedContent') &&
+            child.id !== undefined &&
+            child.innerHTML === ''
+          ) {
+            childsToRemove.push(child);
+          }
+        }
+        for (let i = 0; i < childsToRemove.length; i++) {
+          textLayerFrag.removeChild(childsToRemove[i]);
+        }
         this.textLayerDiv.append(textLayerFrag);
         this._finishRendering();
         // Modified: Validate highlighter is defined instead of using optional chain operator
