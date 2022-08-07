@@ -153,7 +153,7 @@
               this.rendered = false;
             }
           );
-          this.eventBus.once('textlayerrendered', this.onTextLayerRendered);
+          this.eventBus.on('textlayerrendered', this.onTextLayerRendered);
         } else if (!this.pdfPage) {
           // No pdfPage, either we are not being asked to render a page yet,
           // or it has been removed so we should tear down any existing page
@@ -189,13 +189,13 @@
         });
       },
       createStructTreeLayer() {
-        this.structTreeLayer = new StrucTreeLayerBuilder();
+        this.structTreeLayer = new StrucTreeLayerBuilder(this.$refs.textLayer);
       },
       onTextLayerRendered(event) {
         if (event.pageNumber !== this.pageNum) {
           return;
         }
-
+        this.eventBus.off('textlayerrendered', this.onTextLayerRendered);
         if (!this.$refs.canvas) {
           return; // The canvas was removed, prevent errors below.
         }
