@@ -82,7 +82,7 @@ class TextLayerBuilder {
     // Modified: Validate eventBus is defined
     // Original line: 79
     if (this.eventBus) {
-      this.eventBus.dispatch('textlayerrendered', {
+      this.eventBus.emit('textlayerrendered', {
         source: this,
         pageNumber: this.pageNumber,
         numTextDivs: this.textDivs.length,
