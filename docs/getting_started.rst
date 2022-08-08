@@ -108,7 +108,7 @@ Now, any commands you run will target your virtual environment rather than the g
 
 .. code-block:: bash
 
-  exit
+  pyenv deactivate
 
 (Note that you'll want to leave it activated for the remainder of the setup process)
 
