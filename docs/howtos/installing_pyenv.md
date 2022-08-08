@@ -22,8 +22,8 @@ The output of the command tells you to add certain lines to your startup files f
 
   - For **bash**:
 
-    Stock Bash startup files vary widely between distributions in which of them source
-    which, under what circumstances, in what order and what additional configuration they perform.
+    Stock Bash startup files vary widely between distributions/operating systems in terms of which of them source
+    which startup files, under what circumstances, in what order and what additional configuration they perform.
     As such, the most reliable way to get Pyenv in all environments is to append Pyenv
     configuration commands to both `.bashrc` (for interactive shells)
     and the profile file that Bash would use (for login shells).
@@ -91,18 +91,19 @@ The output of the command tells you to add certain lines to your startup files f
 
 ### Restart your shell
 
-  for the `PATH` changes to take effect.
+for the `PATH` changes to take effect.
 
-  ```sh
-  exec "$SHELL"
-  ```
+```sh
+exec "$SHELL"
+```
+
+This will give no visual indicator, but the `pyenv` command should now work in the terminal.
 
 ### Install Python build dependencies
 
-  [**Install Python build dependencies**](https://github.com/pyenv/pyenv/wiki#suggested-build-environment)
-  before attempting to install a new Python version.
+[**Install Python build dependencies**](https://github.com/pyenv/pyenv/wiki#suggested-build-environment) before attempting to install a new Python version.
 
-  You can now begin using Pyenv.
+You can now begin using Pyenv.
 
 
 ### Installing a Python Version with PyEnv

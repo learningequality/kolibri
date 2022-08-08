@@ -10,7 +10,7 @@ To create a virtualenv for the Python version used with pyenv, run `pyenv virtua
 $ pyenv virtualenv 3.9.9 kolibri-py3.9
 ```
 
-*If you get 'command not found' or a similar error, and pyenv virtualenv is not installed, [please follow the installation instructions](https://github.com/pyenv/pyenv-virtualenv#installation).*
+If you get 'command not found' or a similar error, and pyenv virtualenv is not installed, [please follow the installation instructions](https://github.com/pyenv/pyenv-virtualenv#installation).
 
 will create a virtualenv based on Python 3.9.9 under `$(pyenv root)/versions` in a
 folder called `kolibri-py3.9`.

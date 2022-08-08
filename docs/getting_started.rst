@@ -54,8 +54,18 @@ Finally, add the Learning Equality repo as a remote called `upstream`. That way 
 
   git remote add upstream git@github.com:learningequality/kolibri.git
   git fetch --all  # Check if there are changes upstream
-  git checkout develop # Checkout the development branch
+  git checkout -t upstream/develop # Checkout the development branch
 
+
+Checkout release-v0.15.x
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+We are currently updating our “setting up Kolibri” (user workflow) for our upcoming 0.16 release, and the code is only partially merged in develop. Therefore, you may run into some challenges if you try to setup on develop.
+When setting up Kolibri for the first time, even if you will be working off of develop for your feature or bug, please complete your initial Kolibri set up up on the release-0.15.x branch. This will allow you to go through the existing user workflow for setting up a facility in the UI. Once you facility is created, you can git checkout develop (or any other branch) and continue to use the facility that you have set up.
+
+.. code-block:: bash
+
+  git checkout -t upstream/release-v0.15.x
 
 
 Python and Pip
@@ -162,13 +172,16 @@ Install Node.js, Yarn and other dependencies
 #. Install `Yarn <https://yarnpkg.com/>`__
 #. Install non-python project-specific dependencies
 
-The Python project-specific dependencies installed above will install ``nodeenv``, which is a useful tool for using specific versions of Node.js and other Node.js tools in Python environments. To setup Node.js and Yarn within the Kolibri project environment, ensure your Python virtual environment is active, then run:
-
 For a more detailed guide to using nodeenv see :doc:`/howtos/nodeenv`.
+
+The Python project-specific dependencies installed above will install ``nodeenv``, which is a useful tool for using specific versions of Node.js and other Node.js tools in Python environments. To setup Node.js and Yarn within the Kolibri project environment, ensure your Python virtual environment is active, then run:
 
 .. code-block:: bash
 
   # node.js, npm, and yarn
+  # If you are setting up the release-v0.15.x branch or earlier:
+  nodeenv -p --node=10.13.0
+  # If you are setting up the develop branch:
   nodeenv -p --node=16.13.2
   npm install --location=global yarn
 
@@ -235,6 +248,12 @@ For a complete reference of the commands that can be run and what they do, inspe
 .. tip::
 
   If you get an error similar to "Node Sass could not find a binding for your current environment", try running ``npm rebuild node-sass``
+
+Kolibri setup
+~~~~~~~~~~~~~
+
+Most development on Kolibri requires a configured facility - this is done during the setup wizard. Complete the setup wizard on release-v0.15.x. If you are then intending to contribute to the develop branch, once this is completed, check out the develop branch, reinstall Python dependencies, and install NodeJS 16 as per instructions above.
+
 
 Production server
 ~~~~~~~~~~~~~~~~~
