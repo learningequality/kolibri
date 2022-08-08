@@ -32,7 +32,7 @@ $ nodeenv --python-virtualenv --node 16.16.0
 
 You'll notice in the output above, the installation modifies the virtual environment activation scripts. Reloading the virtual environment will ensure everything works correctly.
 ```bash
-$ source deactivate
+$ pyenv deactivate
 $ pyenv activate kolibri-py3.9
 $ npm install -g yarn # success
 ```
