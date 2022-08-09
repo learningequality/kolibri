@@ -14,7 +14,8 @@
       "extra_permissions": ["FOREGROUND_SERVICE"],
       "sdk": 30,
       "minsdk": 21,
-      "fileprovider_paths_filename": "fileprovider_paths.xml"
+      "fileprovider_paths_filename": "fileprovider_paths.xml",
+      "add-source": "src/java/"
     }
   }
 }
