@@ -6,7 +6,7 @@
     </div>
     <!-- appearanceOverrides overrides the default page styling -->
     <!-- by replacing it with an empty object -->
-    <ImmersivePageRoot
+    <ImmersivePage
       v-else-if="!loading"
       :loading="loading"
       :route="libraryPageLink"
@@ -250,7 +250,7 @@
         />
       </SidePanelModal>
 
-    </ImmersivePageRoot>
+    </ImmersivePage>
   </div>
 
 </template>
@@ -268,6 +268,7 @@
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import SidePanelModal from 'kolibri.coreVue.components.SidePanelModal';
   import { throttle } from 'frame-throttle';
+  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import { PageNames } from '../../constants';
   import { normalizeContentNode } from '../../modules/coreLearn/utils.js';
   import useSearch from '../../composables/useSearch';
@@ -280,7 +281,6 @@
   import CategorySearchModal from '../CategorySearchModal';
   import SearchResultsGrid from '../SearchResultsGrid';
   import LibraryPage from '../LibraryPage';
-  import ImmersivePageRoot from '../ImmersivePageRoot';
   import TopicsHeader from './TopicsHeader';
   import TopicsMobileHeader from './TopicsMobileHeader';
   import TopicSubsection from './TopicSubsection';
@@ -317,7 +317,7 @@
       TopicsMobileHeader,
       TopicSubsection,
       SearchPanelModal,
-      ImmersivePageRoot,
+      ImmersivePage,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
     setup() {

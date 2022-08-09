@@ -1,6 +1,6 @@
 <template>
 
-  <AppBarCorePage :title="coreString('facilityLabel')">
+  <AppBarPage :title="coreString('facilityLabel')">
     <KPageContainer style="max-width: 1000px; margin: 32px auto 0;">
       <h1>{{ coreString('facilitiesLabel') }} </h1>
       <CoreTable>
@@ -26,7 +26,7 @@
         </template>
       </CoreTable>
     </KPageContainer>
-  </AppBarCorePage>
+  </AppBarPage>
 
 </template>
 
@@ -34,7 +34,7 @@
 <script>
 
   import { mapGetters } from 'vuex';
-  import AppBarCorePage from 'kolibri.coreVue.components.AppBarCorePage';
+  import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import cloneDeep from 'lodash/cloneDeep';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -47,7 +47,7 @@
       };
     },
     components: {
-      AppBarCorePage,
+      AppBarPage,
       CoreTable,
     },
     mixins: [commonCoreStrings],

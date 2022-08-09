@@ -1,7 +1,7 @@
 <template>
 
   <NotificationsRoot>
-    <AppBarCorePage :title="coreString('profileLabel')">
+    <AppBarPage :title="coreString('profileLabel')">
 
       <KPageContainer>
         <KGrid>
@@ -176,7 +176,7 @@
 
 
       </KPageContainer>
-    </AppBarCorePage>
+    </AppBarPage>
   </NotificationsRoot>
 
 </template>
@@ -185,7 +185,7 @@
 <script>
 
   import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
-  import AppBarCorePage from 'kolibri.coreVue.components.AppBarCorePage';
+  import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
   import { mapGetters } from 'vuex';
   import { ref } from 'kolibri.lib.vueCompositionApi';
   import find from 'lodash/find';
@@ -212,7 +212,7 @@
       };
     },
     components: {
-      AppBarCorePage,
+      AppBarPage,
       BirthYearDisplayText,
       ChangeUserPasswordModal,
       NotificationsRoot,

@@ -1,41 +1,81 @@
 <template>
 
-  <div>
-    <HeaderWithOptions :headerText="coreString('facilitiesLabel')">
-      <template #options>
-        <!-- Margins to and bottom adds space when buttons are vertically stacked -->
-        <KButtonGroup>
-          <KButton
-            :text="$tr('syncAllAction')"
-            style="margin-top: 16px; margin-bottom: -16px;"
-            @click="showSyncAllModal = true"
-          />
-          <KButton
-            :text="$tr('importFacilityAction')"
-            primary
-            style="margin-top: 16px; margin-bottom: -16px;"
-            @click="showImportModal = true"
-          />
-        </KButtonGroup>
-      </template>
-    </HeaderWithOptions>
+  <AppBarPage :title="pageTitle">
 
-    <TasksBar
-      v-if="facilityTasks.length > 0"
-      :tasks="facilityTasks"
-      :taskManagerLink="{ name: 'FACILITIES_TASKS_PAGE' }"
-      @clearall="handleClickClearAll"
-    />
+    <template #subNav>
+      <DeviceTopNav />
+    </template>
 
-    <CoreTable>
-      <template #headers>
-        <th>{{ coreString('facilityLabel') }}</th>
-      </template>
-      <template #tbody>
-        <!-- On mobile, put buttons on a row of their own -->
-        <tbody v-if="windowIsSmall">
-          <template v-for="(facility, idx) in facilities">
-            <tr :key="idx" style="border: none!important">
+    <KPageContainer class="device-container">
+      <HeaderWithOptions :headerText="coreString('facilitiesLabel')">
+        <template #options>
+          <!-- Margins to and bottom adds space when buttons are vertically stacked -->
+          <KButtonGroup>
+            <KButton
+              :text="$tr('syncAllAction')"
+              style="margin-top: 16px; margin-bottom: -16px;"
+              @click="showSyncAllModal = true"
+            />
+            <KButton
+              :text="$tr('importFacilityAction')"
+              primary
+              style="margin-top: 16px; margin-bottom: -16px;"
+              @click="showImportModal = true"
+            />
+          </KButtonGroup>
+        </template>
+      </HeaderWithOptions>
+
+      <TasksBar
+        v-if="facilityTasks.length > 0"
+        :tasks="facilityTasks"
+        :taskManagerLink="{ name: 'FACILITIES_TASKS_PAGE' }"
+        @clearall="handleClickClearAll"
+      />
+
+      <CoreTable>
+        <template #headers>
+          <th>{{ coreString('facilityLabel') }}</th>
+        </template>
+        <template #tbody>
+          <!-- On mobile, put buttons on a row of their own -->
+          <tbody v-if="windowIsSmall">
+            <template v-for="(facility, idx) in facilities">
+              <tr :key="idx" style="border: none!important">
+                <td>
+                  <FacilityNameAndSyncStatus
+                    :facility="facility"
+                    :isSyncing="facilityIsSyncing(facility)"
+                    :isDeleting="facilityIsDeleting(facility)"
+                    :syncHasFailed="facility.syncHasFailed"
+                  />
+                </td>
+              </tr>
+              <!-- May cause error on device with > 10000 facilities... -->
+              <tr :key="idx + 10000">
+                <td style="padding: 0 0 16px 0;">
+                  <!-- Gives most space possible to buttons and aligns them with text -->
+                  <KButtonGroup style="margin-left: -16px; margin-right: -16px; max-width: 100%">
+                    <KButton
+                      :text="coreString('syncAction')"
+                      appearance="flat-button"
+                      @click="facilityForSync = facility"
+                    />
+                    <KDropdownMenu
+                      :text="coreString('optionsLabel')"
+                      :options="facilityOptions(facility)"
+                      appearance="flat-button"
+                      @select="handleOptionSelect($event.value, facility)"
+                    />
+                  </KButtonGroup>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+
+          <!-- Non-mobile -->
+          <tbody v-else>
+            <tr v-for="(facility, idx) in facilities" :key="idx">
               <td>
                 <FacilityNameAndSyncStatus
                   :facility="facility"
@@ -44,12 +84,8 @@
                   :syncHasFailed="facility.syncHasFailed"
                 />
               </td>
-            </tr>
-            <!-- May cause error on device with > 10000 facilities... -->
-            <tr :key="idx + 10000">
-              <td style="padding: 0 0 16px 0;">
-                <!-- Gives most space possible to buttons and aligns them with text -->
-                <KButtonGroup style="margin-left: -16px; margin-right: -16px; max-width: 100%">
+              <td class="button-col">
+                <KButtonGroup>
                   <KButton
                     :text="coreString('syncAction')"
                     appearance="flat-button"
@@ -64,86 +100,57 @@
                 </KButtonGroup>
               </td>
             </tr>
-          </template>
-        </tbody>
+          </tbody>
+        </template>
+      </CoreTable>
 
-        <!-- Non-mobile -->
-        <tbody v-else>
-          <tr v-for="(facility, idx) in facilities" :key="idx">
-            <td>
-              <FacilityNameAndSyncStatus
-                :facility="facility"
-                :isSyncing="facilityIsSyncing(facility)"
-                :isDeleting="facilityIsDeleting(facility)"
-                :syncHasFailed="facility.syncHasFailed"
-              />
-            </td>
-            <td class="button-col">
-              <KButtonGroup>
-                <KButton
-                  :text="coreString('syncAction')"
-                  appearance="flat-button"
-                  @click="facilityForSync = facility"
-                />
-                <KDropdownMenu
-                  :text="coreString('optionsLabel')"
-                  :options="facilityOptions(facility)"
-                  appearance="flat-button"
-                  @select="handleOptionSelect($event.value, facility)"
-                />
-              </KButtonGroup>
-            </td>
-          </tr>
-        </tbody>
+      <RemoveFacilityModal
+        v-if="Boolean(facilityForRemoval)"
+        :facility="facilityForRemoval"
+        @success="handleRemoveSuccess"
+        @cancel="facilityForRemoval = null"
+      />
+
+      <SyncAllFacilitiesModal
+        v-if="showSyncAllModal"
+        :facilities="facilities"
+        @success="handleSyncAllSuccess"
+        @cancel="showSyncAllModal = false"
+      />
+
+      <ImportFacilityModalGroup
+        v-if="showImportModal"
+        @success="handleStartImportSuccess"
+        @cancel="showImportModal = false"
+      />
+
+      <!-- NOTE similar code for KDP Registration in SyncInterface -->
+      <template v-if="Boolean(facilityForRegister)">
+        <RegisterFacilityModal
+          v-if="!kdpProject"
+          :facility="facilityForRegister"
+          @success="handleValidateSuccess"
+          @cancel="clearRegistrationState"
+        />
+
+        <ConfirmationRegisterModal
+          v-else
+          :targetFacility="facilityForRegister"
+          :projectName="kdpProject.name"
+          :token="kdpProject.token"
+          @success="handleConfirmationSuccess"
+          @cancel="clearRegistrationState"
+        />
       </template>
-    </CoreTable>
 
-    <RemoveFacilityModal
-      v-if="Boolean(facilityForRemoval)"
-      :facility="facilityForRemoval"
-      @success="handleRemoveSuccess"
-      @cancel="facilityForRemoval = null"
-    />
-
-    <SyncAllFacilitiesModal
-      v-if="showSyncAllModal"
-      :facilities="facilities"
-      @success="handleSyncAllSuccess"
-      @cancel="showSyncAllModal = false"
-    />
-
-    <ImportFacilityModalGroup
-      v-if="showImportModal"
-      @success="handleStartImportSuccess"
-      @cancel="showImportModal = false"
-    />
-
-    <!-- NOTE similar code for KDP Registration in SyncInterface -->
-    <template v-if="Boolean(facilityForRegister)">
-      <RegisterFacilityModal
-        v-if="!kdpProject"
-        :facility="facilityForRegister"
-        @success="handleValidateSuccess"
-        @cancel="clearRegistrationState"
+      <SyncFacilityModalGroup
+        v-if="Boolean(facilityForSync)"
+        :facilityForSync="facilityForSync"
+        @close="facilityForSync = null"
+        @success="handleStartSyncSuccess"
       />
-
-      <ConfirmationRegisterModal
-        v-else
-        :targetFacility="facilityForRegister"
-        :projectName="kdpProject.name"
-        :token="kdpProject.token"
-        @success="handleConfirmationSuccess"
-        @cancel="clearRegistrationState"
-      />
-    </template>
-
-    <SyncFacilityModalGroup
-      v-if="Boolean(facilityForSync)"
-      :facilityForSync="facilityForSync"
-      @close="facilityForSync = null"
-      @success="handleStartSyncSuccess"
-    />
-  </div>
+    </KPageContainer>
+  </AppBarPage>
 
 </template>
 
@@ -161,9 +168,12 @@
     ConfirmationRegisterModal,
     SyncFacilityModalGroup,
   } from 'kolibri.coreVue.componentSets.sync';
+  import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
   import TasksBar from '../ManageContentPage/TasksBar';
   import HeaderWithOptions from '../HeaderWithOptions';
   import { TaskStatuses, TaskTypes } from '../../constants';
+  import DeviceTopNav from '../DeviceTopNav';
+  import { deviceString } from '../commonDeviceStrings';
   import RemoveFacilityModal from './RemoveFacilityModal';
   import SyncAllFacilitiesModal from './SyncAllFacilitiesModal';
   import ImportFacilityModalGroup from './ImportFacilityModalGroup';
@@ -182,8 +192,10 @@
       };
     },
     components: {
+      AppBarPage,
       ConfirmationRegisterModal,
       CoreTable,
+      DeviceTopNav,
       HeaderWithOptions,
       FacilityNameAndSyncStatus,
       ImportFacilityModalGroup,
@@ -206,6 +218,11 @@
         taskIdsToWatch: [],
         // (facilityTaskQueue) facilityTasks
       };
+    },
+    computed: {
+      pageTitle() {
+        return deviceString('deviceManagementTitle');
+      },
     },
     watch: {
       // Update facilities whenever a watched task completes
@@ -325,6 +342,12 @@
 
 
 <style lang="scss" scoped>
+
+  @import '../../styles/definitions';
+
+  .device-container {
+    @include device-kpagecontainer;
+  }
 
   .buttons {
     margin: auto;

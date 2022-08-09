@@ -72,8 +72,11 @@
       </p>
     </div>
 
-    <KButtonGroup class="nowrap" :class="{ 'button-lift': Boolean(loaderType) }">
-
+    <KButtonGroup
+      v-if="buttonSet"
+      class="nowrap"
+      :class="{ 'button-lift': Boolean(loaderType) }"
+    >
       <KButton
         v-if="buttonSet === 'cancel'"
         :disabled="taskIsCanceling"

@@ -1,8 +1,10 @@
 <template>
 
-  <div>
-
-    <div>
+  <ImmersivePage
+    :appBarTitle="$tr('appBarTitle')"
+    :route="backRoute"
+  >
+    <KPageContainer class="device-container">
       <KGrid>
         <KGridItem :layout8="{ span: 5 }" :layout12="{ span: 8 }">
           <h1>
@@ -38,16 +40,16 @@
           @clickcancel="handleClickCancel(task)"
         />
       </transition-group>
-    </div>
-    <BottomAppBar v-if="immersivePage">
-      <KButton
-        :text="coreString('continueAction')"
-        appearance="raised-button"
-        :primary="true"
-        @click="handleRedirectToImportPage()"
-      />
-    </BottomAppBar>
-  </div>
+      <BottomAppBar v-if="immersivePage">
+        <KButton
+          :text="coreString('continueAction')"
+          appearance="raised-button"
+          :primary="true"
+          @click="handleRedirectToImportPage()"
+        />
+      </BottomAppBar>
+    </KPageContainer>
+  </ImmersivePage>
 
 </template>
 
@@ -61,8 +63,10 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
+  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import commonDeviceStrings from '../commonDeviceStrings';
   import useContentTasks from '../../composables/useContentTasks';
+  import { PageNames } from '../../constants';
 
   import TaskPanel from './TaskPanel';
 
@@ -77,6 +81,7 @@
     components: {
       TaskPanel,
       BottomAppBar,
+      ImmersivePage,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings, commonDeviceStrings],
     setup() {
@@ -89,6 +94,9 @@
     },
     computed: {
       ...mapGetters('manageContent', ['managedTasks']),
+      backRoute() {
+        return { name: PageNames.MANAGE_CONTENT_PAGE };
+      },
       sortedTaskList() {
         return reverse(this.managedTasks);
       },
@@ -155,6 +163,12 @@
 
 
 <style lang="scss" scoped>
+
+  @import '../../styles/definitions';
+
+  .device-container {
+    @include device-kpagecontainer;
+  }
 
   .button-offset {
     margin-top: 24px;

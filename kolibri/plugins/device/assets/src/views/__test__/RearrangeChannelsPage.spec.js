@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import makeStore from '../../../test/utils/makeStore';
 import RearrangeChannelsPage from '../RearrangeChannelsPage';
 
@@ -14,7 +14,7 @@ RearrangeChannelsPage.methods.fetchChannels = () => {
 async function makeWrapper() {
   const store = makeStore();
   store.state.core.session.can_manage_content = true;
-  const wrapper = mount(RearrangeChannelsPage, {
+  const wrapper = shallowMount(RearrangeChannelsPage, {
     store,
   });
   // Have to wait to let the channels data load

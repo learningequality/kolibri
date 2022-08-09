@@ -60,7 +60,7 @@ const routes = [
     },
   },
   {
-    name: 'FACILITIES_PAGE',
+    name: PageNames.FACILITIES_PAGE,
     component: withAuthMessage(FacilitiesPage, 'superuser'),
     path: '/facilities',
     handler: ({ name }) => {
@@ -68,7 +68,7 @@ const routes = [
     },
   },
   {
-    name: 'FACILITIES_TASKS_PAGE',
+    name: PageNames.FACILITIES_TASKS_PAGE,
     component: withAuthMessage(FacilitiesTasksPage, 'superuser'),
     path: '/facilities/tasks',
     handler: ({ name }) => {

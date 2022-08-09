@@ -1,6 +1,6 @@
 <template>
 
-  <ImmersivePageRoot
+  <ImmersivePage
     :route="homePageLink"
     :appBarTitle="exam.title || ''"
   >
@@ -28,7 +28,7 @@
       </div>
     </KPageContainer>
 
-  </ImmersivePageRoot>
+  </ImmersivePage>
 
 </template>
 
@@ -37,8 +37,8 @@
 
   import { mapState } from 'vuex';
   import ExamReport from 'kolibri.coreVue.components.ExamReport';
+  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import { PageNames, ClassesPageNames } from '../constants';
-  import ImmersivePageRoot from './ImmersivePageRoot';
 
   export default {
     name: 'LearnExamReportViewer',
@@ -49,7 +49,7 @@
     },
     components: {
       ExamReport,
-      ImmersivePageRoot,
+      ImmersivePage,
     },
     computed: {
       ...mapState('examReportViewer', [
