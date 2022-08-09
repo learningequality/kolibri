@@ -11,6 +11,41 @@ from kolibri_sync_extras_plugin.sync.operations import BackgroundFinalizeJobOper
 from kolibri_sync_extras_plugin.sync.operations import BackgroundInitializeJobOperation
 from kolibri_sync_extras_plugin.sync.operations import BackgroundJobOperation
 from kolibri_sync_extras_plugin.sync.operations import BackgroundSessionContext
+from kolibri_sync_extras_plugin.sync.operations import SyncExtrasLocalOperation
+
+
+class SyncExtrasLocalOperationTestCase(BaseTestCase):
+    def setUp(self):
+        super(SyncExtrasLocalOperationTestCase, self).setUp()
+        self.operation = SyncExtrasLocalOperation()
+
+    @mock.patch("kolibri_sync_extras_plugin.sync.operations.OPTIONS")
+    def test_option_stages__no_options(self, mock_options):
+        mock_options.get.return_value = None
+        self.assertEqual([], self.operation.option_stages)
+
+    @mock.patch("kolibri_sync_extras_plugin.sync.operations.OPTIONS")
+    def test_option_stages__not_enabled(self, mock_options):
+        self.operation.option_condition = "BACKGROUND_FINALIZATION"
+        mock_options.get.return_value = {}
+        self.assertEqual([], self.operation.option_stages)
+        mock_options.get.return_value = {"BACKGROUND_FINALIZATION": False}
+        self.assertEqual([], self.operation.option_stages)
+
+    @mock.patch("kolibri_sync_extras_plugin.sync.operations.OPTIONS")
+    def test_option_stages__enabled__no_stages(self, mock_options):
+        self.operation.option_condition = "BACKGROUND_FINALIZATION"
+        mock_options.get.return_value = {"BACKGROUND_FINALIZATION": True}
+        self.assertEqual([], self.operation.option_stages)
+
+    @mock.patch("kolibri_sync_extras_plugin.sync.operations.OPTIONS")
+    def test_option_stages__enabled(self, mock_options):
+        self.operation.option_condition = "BACKGROUND_FINALIZATION"
+        mock_options.get.return_value = {
+            "BACKGROUND_FINALIZATION": True,
+            "BACKGROUND_FINALIZATION_STAGES": "test1,test2",
+        }
+        self.assertEqual(["test1", "test2"], self.operation.option_stages)
 
 
 class BackgroundJobOperationTestCase(BaseTestCase):
@@ -33,7 +68,7 @@ class BackgroundJobOperationTestCase(BaseTestCase):
             "sync_proceed_to",
             id="def456",
             target_stage="other",
-            capabilities=self.context.capabilities,
+            capabilities=list(self.context.capabilities),
             start_stage=self.context.stage,
             extra_metadata={"type": "SYNCPROCEEDTO", "dataset_id": "123abc"},
         )
