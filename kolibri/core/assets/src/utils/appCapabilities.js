@@ -11,7 +11,7 @@ const appCapabilities = plugin_data.appCapabilities || {};
 // Check that we are in an appcontext, if not disable all capabilities
 // this means that consumers of this API can rely solely on the existence
 // check of methods in this API to know if they can call these or not.
-const checkCapability = key => store.getters.isAppContext && appCapabilities[key];
+export const checkCapability = key => store.getters.isAppContext && appCapabilities[key];
 
 // Use a janky getter to return a method here to only expose functions
 // that are available so that we have a single API for both existence
