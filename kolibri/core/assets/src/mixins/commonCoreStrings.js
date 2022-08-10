@@ -138,6 +138,14 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Save to bookmarks',
     context: "An action that adds a resource or topic to a user's bookmarks",
   },
+  zoomIn: {
+    message: 'Zoom in',
+    context: 'Label for a button used to zoom in the document view (make it larger)',
+  },
+  zoomOut: {
+    message: 'Zoom out',
+    context: 'Label for a button used to zoom out the document view (make it smaller)',
+  },
 
   // labels, phrases, titles, headers...
   adminLabel: {
