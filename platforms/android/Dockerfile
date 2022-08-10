@@ -65,6 +65,9 @@ RUN pip install cython virtualenv pbxproj && \
   # get custom packages
   pip install -e git+https://github.com/learningequality/pyeverywhere@$PEW_BRANCH#egg=pyeverywhere && \
   pip install -e git+https://github.com/learningequality/python-for-android@$P4A_BRANCH#egg=python-for-android && \
+  # Pin sh to this version as p4a relies on a bug whereby sh.which returns None
+  # instead of raising exit code 1 when no executable can be found.
+  pip install sh==1.14.2 && \
   useradd -lm kivy
 
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
