@@ -46,7 +46,6 @@
   import HeaderWithOptions from '../HeaderWithOptions';
   import commonDeviceStrings from '../commonDeviceStrings';
   import { PageNames } from '../../constants';
-  import FacilityTaskPanel from './FacilityTaskPanel';
   import facilityTasksQueue from './facilityTasksQueue';
 
   export default {

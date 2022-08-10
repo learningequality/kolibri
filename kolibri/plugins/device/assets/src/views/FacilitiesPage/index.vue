@@ -169,14 +169,11 @@
     SyncFacilityModalGroup,
   } from 'kolibri.coreVue.componentSets.sync';
   import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
-  import TasksBar from '../ManageContentPage/TasksBar';
-  import HeaderWithOptions from '../HeaderWithOptions';
-  import { TaskStatuses, TaskTypes } from '../../constants';
-  import DeviceTopNav from '../DeviceTopNav';
-  import { deviceString } from '../commonDeviceStrings';
   import { TaskStatuses, TaskTypes } from 'kolibri.utils.syncTaskUtils';
   import TasksBar from '../ManageContentPage/TasksBar';
   import HeaderWithOptions from '../HeaderWithOptions';
+  import DeviceTopNav from '../DeviceTopNav';
+  import { deviceString } from '../commonDeviceStrings';
   import RemoveFacilityModal from './RemoveFacilityModal';
   import SyncAllFacilitiesModal from './SyncAllFacilitiesModal';
   import ImportFacilityModalGroup from './ImportFacilityModalGroup';
