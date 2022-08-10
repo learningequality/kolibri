@@ -81,7 +81,9 @@
         TaskResource.list({ queue: 'facility_task' }).then(tasks => {
           this.loadingTask = {
             ...tasks[0],
-            facility_name: this.facilityName,
+            extra_metadata: {
+              facility_name: this.facilityName,
+            },
           };
         });
         if (this.isPolling) {
