@@ -90,13 +90,13 @@ def set_device_settings(**kwargs):
         raise DeviceNotProvisioned
 
 
-def provision_device(device_name=None, **kwargs):
+def provision_device(device_name=None, is_provisioned=True, **kwargs):
     from .models import DeviceSettings
 
     device_settings, _ = DeviceSettings.objects.get_or_create(defaults=kwargs)
     if device_name is not None:
         device_settings.name = device_name
-    device_settings.is_provisioned = True
+    device_settings.is_provisioned = is_provisioned
     device_settings.save()
 
 
