@@ -9,8 +9,8 @@ const isGroupSetup = context => {
   return context.individualOrGroup === 'group';
 };
 
-const isAppContext = context => {
-  return context.appContext;
+const canGetOsUser = context => {
+  return context.canGetOsUser;
 };
 
 const isNewFacility = context => {
@@ -41,8 +41,8 @@ const setFullOrLOD = assign({
   fullOrLOD: (_, event) => event.value,
 });
 
-const setAppContext = assign({
-  isAppContext: (_, event) => event.value,
+const setCanGetOsUser = assign({
+  canGetOsUser: (_, event) => event.value,
 });
 
 const setFacilityNewOrImport = assign({
@@ -67,7 +67,7 @@ const setRequirePassword = assign({
 
 const initialContext = {
   individualOrGroup: null,
-  isAppContext: false, // Must be set in the component where the machine is used
+  canGetOsUser: false, // Must be set in the component where the machine is used
   facilityNewOrImport: null,
   fullOrLOD: null,
   deviceName: null,
@@ -79,7 +79,7 @@ const initialContext = {
 
 /**
  * Assigns the machine to have the initial context again while maintaining the value of
- * isAppContext.
+ * canGetOsUser.
  *
  * This effectively resets the machine's state
  */
@@ -87,9 +87,9 @@ const resetContext = assign({
   ...reduce(
     initialContext,
     (result, value, key) => {
-      if (key === 'isAppContext') {
+      if (key === 'canGetOsUser') {
         // This won't change because of starting over
-        result[key] = context => context.isAppContext;
+        result[key] = context => context.canGetOsUser;
       } else {
         result[key] = () => value;
       }
@@ -107,10 +107,10 @@ export const wizardMachine = createMachine({
     START_OVER: { target: 'howAreYouUsingKolibri', action: resetContext },
   },
   states: {
-    // This state will be the start so the machine won't progress until the isAppContext is set
+    // This state will be the start so the machine won't progress until the canGetOsUser is set
     initializeContext: {
       on: {
-        CONTINUE: { target: 'howAreYouUsingKolibri', actions: setAppContext },
+        CONTINUE: { target: 'howAreYouUsingKolibri', actions: setCanGetOsUser },
       },
     },
     // Initial step where user selects between "On my own" (individual) or "Group learning" (group)
@@ -142,13 +142,13 @@ export const wizardMachine = createMachine({
         BACK: 'howAreYouUsingKolibri',
       },
     },
-    // A passthrough step depending on the value of context.isAppContext
+    // A passthrough step depending on the value of context.canGetOsUser
     createAccountOrFinalizeSetup: {
       always: [
         {
           // FIXME: The app needs to create a user account from the OS user in this case - to be
           // handled on the backend most likely, but just bear this in mind for now to be sure
-          cond: isAppContext,
+          cond: canGetOsUser,
           target: 'finalizeSetup',
         },
         {
@@ -285,9 +285,9 @@ if (process.env.NODE_ENV === 'development') {
   console.log('=== wizardMachine ===');
   console.log(
     'Save the following function as an object, call it and pass an object with initial context ala',
-    ' { isAppContext: Boolean } - the rest of the context should be set through events.\n',
+    ' { canGetOsUser: Boolean } - the rest of the context should be set through events.\n',
     'Usage (assuming you saved to `temp1`):\n',
-    'let machine = temp1({ isAppContext: true });\n',
+    'let machine = temp1({ canGetOsUser: true });\n',
     "machine.send({ type: 'CONTINUE', value: 'individual'});\n"
   );
   console.log((context = {}) => interpret(wizardMachine.withContext(context)).start());
