@@ -26,9 +26,10 @@
 <script>
 
   import { interpret } from 'xstate';
-  import { mapGetters, mapState } from 'vuex';
+  import { mapState } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import { checkCapability } from 'kolibri.utils.appCapabilities';
   import Lockr from 'lockr';
   import { wizardMachine } from '../machines/wizardMachine';
   import LoadingPage from './submission-states/LoadingPage';
@@ -57,7 +58,6 @@
       };
     },
     computed: {
-      ...mapGetters(['isAppContext']),
       ...mapState(['loading', 'error']),
     },
     created() {
@@ -98,9 +98,10 @@
         }
       };
 
+      // Note the second arg to Lockr.get is a fallback if the first arg is not found
       const savedState = Lockr.get('savedState', 'initializeContext');
 
-      // Either the string 'initializeContext' or a valid state object
+      // Either the string 'initializeContext' or a valid state object returned from Lockr
       this.service.start(savedState);
 
       if (savedState !== 'initializeContext') {
@@ -108,7 +109,7 @@
         synchronizeRouteAndMachine(savedState);
       } else {
         // Or set the app context state on the machine and proceed to the first state
-        this.service.send({ type: 'CONTINUE', value: this.isAppContext });
+        this.service.send({ type: 'CONTINUE', value: checkCapability('get_os_user') });
       }
 
       this.service.onTransition(state => {
