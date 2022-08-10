@@ -68,29 +68,6 @@
       inContentManagementPage() {
         return this.$route.path.includes('/content');
       },
-      // numberOfNavigationTabsToDisplay() {
-      //   let navItems = document.getElementsByClassName('list-item-navigation');
-      //   console.log(navItems);
-      //   navItems = [].slice.call(navItems);
-      //   let index = 0;
-      //   let viewportWidthTakenUp = 0;
-      //   let numberOfItemsToDisplayAsTabs;
-      //   if (navItems && navItems.length > 0) {
-      //     while (index < navItems.length) {
-      //       viewportWidthTakenUp = viewportWidthTakenUp + navItems[index].offsetWidth;
-      //       console.log(viewportWidthTakenUp);
-      //       if (viewportWidthTakenUp < this.width - 40) {
-      //         navItems[index].classList.add('visible');
-      //         numberOfItemsToDisplayAsTabs = index;
-      //       } else {
-      //         navItems[index].classList.remove('visible');
-      //       }
-      //       index = index + 1;
-      //     }
-      //     console.log('numberOfItemsToDisplayAsTabs', numberOfItemsToDisplayAsTabs);
-      //   }
-      //   return numberOfItemsToDisplayAsTabs;
-      // },
     },
     watch: {
       currentPageIsImmersive(val) {
@@ -104,38 +81,6 @@
       hideWelcomeModal() {
         window.sessionStorage.setItem(welcomeDimissalKey, true);
         this.$store.commit('SET_WELCOME_MODAL_VISIBLE', false);
-      },
-      // numberOfNavigationTabsToDisplay() {
-      //   let navItems = document.getElementsByClassName('list-item-navigation');
-      //   navItems = [].slice.call(navItems);
-      //   let index = 0;
-      //   let viewportWidthTakenUp = 0;
-      //   let numberOfItemsToDisplayAsTabs;
-      //   if (navItems && navItems.length > 0) {
-      //     while (index < navItems.length) {
-      //       viewportWidthTakenUp = viewportWidthTakenUp + navItems[index].offsetWidth;
-      //       if (viewportWidthTakenUp < window.innerWidth - 40) {
-      //         navItems[index].classList.add('visible');
-      //         numberOfItemsToDisplayAsTabs = index + 1;
-      //       } else {
-      //         navItems[index].classList.remove('visible');
-      //       }
-      //       index = index + 1;
-      //     }
-      //   }
-      //   return numberOfItemsToDisplayAsTabs;
-      // },
-    },
-    $trs: {
-      deviceManagementTitle: {
-        message: 'Device',
-        context:
-          'The device is the physical or virtual machine that has the Kolibri server installed on it.',
-      },
-      permissionsLabel: {
-        message: 'Permissions',
-        context:
-          'Indicates the Device > Permissions tab. Permissions refer to what users can manage on the device.',
       },
     },
   };
