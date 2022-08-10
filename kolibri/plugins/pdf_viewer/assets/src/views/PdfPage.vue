@@ -1,7 +1,9 @@
 <template>
 
-  <section
+  <div
     class="pdf-page"
+    role="region"
+    :aria-label="$tr('numPage', { number: pageNum, total: totalPages })"
     :style="{
       height: `${scaledHeight}px`,
       width: `${scaledWidth}px`,
@@ -27,7 +29,7 @@
       }"
     >
     </div>
-  </section>
+  </div>
 
 </template>
 
@@ -41,6 +43,10 @@
     name: 'PdfPage',
     props: {
       pageNum: {
+        type: Number,
+        required: true,
+      },
+      totalPages: {
         type: Number,
         required: true,
       },
@@ -213,6 +219,9 @@
           this.$refs.canvas.appendChild(treeDom);
         });
       },
+    },
+    $trs: {
+      numPage: 'Page {number} of {total}',
     },
   };
 

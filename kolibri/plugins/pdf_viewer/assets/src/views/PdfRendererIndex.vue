@@ -63,6 +63,7 @@
             :firstPageHeight="firstPageHeight || 0"
             :firstPageWidth="firstPageWidth || 0"
             :scale="scale || 1"
+            :totalPages="pdfPages.length"
             :eventBus="eventBus"
           />
         </template>
