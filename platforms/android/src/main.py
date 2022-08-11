@@ -9,8 +9,11 @@ import urllib.request
 # initialize logging before loading any third-party modules, as they may cause logging to get configured.
 logging.basicConfig(level=logging.DEBUG)
 
+from jnius import autoclass
+
 import pew
 import pew.ui
+from pew.kivy_pew.runnable import Runnable
 
 from config import KOLIBRI_PORT
 
@@ -66,6 +69,10 @@ class Application(pew.ui.PEWApp):
         """
         Start your UI and app run loop here.
         """
+        PythonActivity = autoclass("org.kivy.android.PythonActivity")
+        FullScreen = autoclass("org.learningequality.FullScreen")
+        configureWebview = Runnable(FullScreen.configureWebview)
+        configureWebview(PythonActivity.mActivity)
 
         # Set loading screen
         self.loader_url = "file:///android_asset/_load.html"
