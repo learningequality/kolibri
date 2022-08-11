@@ -8,6 +8,17 @@ function makeWrapper({ propsData } = {}) {
   });
 }
 
+const getSelectAllCheckbox = wrapper => wrapper.find('[data-test="selectAllCheckbox"]');
+const getFullNameHeader = wrapper => wrapper.find('[data-test="fullNameHeader"]');
+const getUsernameHeader = wrapper => wrapper.find('[data-test="usernameHeader"]');
+const getRoleHeader = wrapper => wrapper.find('[data-test="roleHeader"]');
+const getFullNames = wrapper => wrapper.findAll('[data-test="fullName"]');
+const getUserRoleBadges = wrapper => wrapper.findAll('[data-test="userRoleBadge"]');
+const getUserRoleLabels = wrapper => wrapper.findAll('[data-test="userRoleLabel"]');
+const getUsernames = wrapper => wrapper.findAll('[data-test="username"]');
+const getUserCheckboxes = wrapper => wrapper.findAll('[data-test="userCheckbox"]');
+const getUserRadioButtons = wrapper => wrapper.findAll('[data-test="userRadioButton"]');
+
 const TEST_USERS = [
   {
     id: 'id-learner',
@@ -31,25 +42,25 @@ describe(`UserTable`, () => {
 
   it(`doesn't show the select all checkbox by default`, () => {
     const wrapper = makeWrapper();
-    expect(wrapper.find('[data-test="selectAllCheckbox"]').exists()).toBeFalsy();
+    expect(getSelectAllCheckbox(wrapper).exists()).toBeFalsy();
   });
 
   it(`shows full name header`, () => {
     const wrapper = makeWrapper();
-    expect(wrapper.find('[data-test="fullNameHeader"]').text()).toBe('Full name');
-    expect(wrapper.find('[data-test="fullNameHeader"]').classes()).not.toContain('visuallyhidden');
+    expect(getFullNameHeader(wrapper).text()).toBe('Full name');
+    expect(getFullNameHeader(wrapper).classes()).not.toContain('visuallyhidden');
   });
 
   it(`shows username header`, () => {
     const wrapper = makeWrapper();
-    expect(wrapper.find('[data-test="usernameHeader"]').text()).toBe('Username');
-    expect(wrapper.find('[data-test="usernameHeader"]').classes()).not.toContain('visuallyhidden');
+    expect(getUsernameHeader(wrapper).text()).toBe('Username');
+    expect(getUsernameHeader(wrapper).classes()).not.toContain('visuallyhidden');
   });
 
   it(`renders role header but it is visually hidden`, () => {
     const wrapper = makeWrapper();
-    expect(wrapper.find('[data-test="roleHeader"]').text()).toBe('Role');
-    expect(wrapper.find('[data-test="roleHeader"]').classes()).toContain('visuallyhidden');
+    expect(getRoleHeader(wrapper).text()).toBe('Role');
+    expect(getRoleHeader(wrapper).classes()).toContain('visuallyhidden');
   });
 
   describe(`when there are no users`, () => {
@@ -66,35 +77,33 @@ describe(`UserTable`, () => {
     });
 
     it(`shows full names`, () => {
-      const fullNames = wrapper.findAll('[data-test="fullName"]');
+      const fullNames = getFullNames(wrapper);
       expect(fullNames.length).toBe(2);
       expect(fullNames.at(0).text()).toBe('Learner Full Name');
       expect(fullNames.at(1).text()).toBe('Coach Full Name');
     });
 
     it(`shows usernames`, () => {
-      const usernames = wrapper.findAll('[data-test="username"]');
+      const usernames = getUsernames(wrapper);
       expect(usernames.length).toBe(2);
       expect(usernames.at(0).text()).toBe('username-learner');
       expect(usernames.at(1).text()).toBe('username-coach');
     });
 
     it(`doesn't show checkboxes or radio buttons to select users by default`, () => {
-      expect(wrapper.find('[data-test="userCheckbox"]').exists()).toBeFalsy();
-      expect(wrapper.find('[data-test="userRadioButton"]').exists()).toBeFalsy();
+      expect(getUserCheckboxes(wrapper).length).toBeFalsy();
+      expect(getUserRadioButtons(wrapper).length).toBeFalsy();
     });
 
     it(`shows the user role badge for users who are not learners`, () => {
-      const userRoleBadges = wrapper.findAll('[data-test="userRoleBadge"]');
+      const userRoleBadges = getUserRoleBadges(wrapper);
       expect(userRoleBadges.length).toBe(1);
       expect(userRoleBadges.at(0).text()).toBe('Facility coach');
     });
 
     it(`renders user role labels but they are visually hidden`, () => {
-      const userRoleLabels = wrapper.findAll('[data-test="userRoleLabel"]');
+      const userRoleLabels = getUserRoleLabels(wrapper);
       expect(userRoleLabels.length).toBe(2);
-      // TODO: Shouldn't we use the translation rather than
-      // the constant value similarly to what we show in role badges?
       expect(userRoleLabels.at(0).text()).toBe('learner');
       expect(userRoleLabels.at(0).classes()).toContain('visuallyhidden');
       expect(userRoleLabels.at(1).text()).toBe('coach');
@@ -105,32 +114,26 @@ describe(`UserTable`, () => {
   describe('when users are selectable and multiple selection is allowed', () => {
     it(`shows the select all checkbox`, () => {
       const wrapper = makeWrapper({ propsData: { selectable: true, value: [] } });
-      expect(wrapper.find('[data-test="selectAllCheckbox"]').exists()).toBeTruthy();
+      expect(getSelectAllCheckbox(wrapper).exists()).toBeTruthy();
     });
 
     it(`the select all checkbox is disabled when there are no users`, () => {
       const wrapper = makeWrapper({ propsData: { selectable: true, value: [] } });
-      expect(
-        wrapper.find('[data-test="selectAllCheckbox"]').find('input').element.disabled
-      ).toBeTruthy();
+      expect(getSelectAllCheckbox(wrapper).find('input').element.disabled).toBeTruthy();
     });
 
     it(`the select all checkbox is enabled by default when there are some users`, () => {
       const wrapper = makeWrapper({
         propsData: { users: TEST_USERS, selectable: true, value: [] },
       });
-      expect(
-        wrapper.find('[data-test="selectAllCheckbox"]').find('input').element.disabled
-      ).toBeFalsy();
+      expect(getSelectAllCheckbox(wrapper).find('input').element.disabled).toBeFalsy();
     });
 
     it(`the select all checkbox is disabled when 'disabled' is truthy`, () => {
       const wrapper = makeWrapper({
         propsData: { users: TEST_USERS, selectable: true, value: [], disabled: true },
       });
-      expect(
-        wrapper.find('[data-test="selectAllCheckbox"]').find('input').element.disabled
-      ).toBeTruthy();
+      expect(getSelectAllCheckbox(wrapper).find('input').element.disabled).toBeTruthy();
     });
 
     describe(`checking the select all checkbox`, () => {
@@ -138,7 +141,7 @@ describe(`UserTable`, () => {
         const wrapper = makeWrapper({
           propsData: { users: TEST_USERS, selectable: true, value: [] },
         });
-        wrapper.find('[data-test="selectAllCheckbox"]').trigger('click');
+        getSelectAllCheckbox(wrapper).trigger('click');
         expect(wrapper.emitted().input.length).toBe(1);
         expect(wrapper.emitted().input[0][0]).toEqual(['id-learner', 'id-coach']);
       });
@@ -148,7 +151,7 @@ describe(`UserTable`, () => {
         const wrapper = makeWrapper({
           propsData: { users: TEST_USERS, selectable: true, value: ['id-to-be-preserved'] },
         });
-        wrapper.find('[data-test="selectAllCheckbox"]').trigger('click');
+        getSelectAllCheckbox(wrapper).trigger('click');
         expect(wrapper.emitted().input.length).toBe(1);
         expect(wrapper.emitted().input[0][0]).toEqual([
           'id-to-be-preserved',
@@ -163,8 +166,8 @@ describe(`UserTable`, () => {
         const wrapper = makeWrapper({
           propsData: { users: TEST_USERS, selectable: true, value: [] },
         });
-        wrapper.find('[data-test="selectAllCheckbox"]').trigger('click');
-        wrapper.find('[data-test="selectAllCheckbox"]').trigger('click');
+        getSelectAllCheckbox(wrapper).trigger('click');
+        getSelectAllCheckbox(wrapper).trigger('click');
         expect(wrapper.emitted().input.length).toBe(2);
         expect(wrapper.emitted().input[1][0]).toEqual([]);
       });
@@ -174,8 +177,8 @@ describe(`UserTable`, () => {
         const wrapper = makeWrapper({
           propsData: { users: TEST_USERS, selectable: true, value: ['id-to-be-preserved'] },
         });
-        wrapper.find('[data-test="selectAllCheckbox"]').trigger('click');
-        wrapper.find('[data-test="selectAllCheckbox"]').trigger('click');
+        getSelectAllCheckbox(wrapper).trigger('click');
+        getSelectAllCheckbox(wrapper).trigger('click');
         expect(wrapper.emitted().input.length).toBe(2);
         expect(wrapper.emitted().input[1][0]).toEqual(['id-to-be-preserved']);
       });
@@ -185,7 +188,7 @@ describe(`UserTable`, () => {
       const wrapper = makeWrapper({
         propsData: { users: TEST_USERS, selectable: true, value: [] },
       });
-      const userCheckboxes = wrapper.findAll('[data-test="userCheckbox"]');
+      const userCheckboxes = getUserCheckboxes(wrapper);
       expect(userCheckboxes.length).toBe(2);
     });
 
@@ -193,7 +196,7 @@ describe(`UserTable`, () => {
       const wrapper = makeWrapper({
         propsData: { users: TEST_USERS, selectable: true, value: [] },
       });
-      const userCheckboxes = wrapper.findAll('[data-test="userCheckbox"]');
+      const userCheckboxes = getUserCheckboxes(wrapper);
       expect(userCheckboxes.at(0).find('input').element.disabled).toBeFalsy();
       expect(userCheckboxes.at(1).find('input').element.disabled).toBeFalsy();
     });
@@ -202,7 +205,7 @@ describe(`UserTable`, () => {
       const wrapper = makeWrapper({
         propsData: { users: TEST_USERS, selectable: true, value: [], disabled: true },
       });
-      const userCheckboxes = wrapper.findAll('[data-test="userCheckbox"]');
+      const userCheckboxes = getUserCheckboxes(wrapper);
       expect(userCheckboxes.at(0).find('input').element.disabled).toBeTruthy();
       expect(userCheckboxes.at(1).find('input').element.disabled).toBeTruthy();
     });
@@ -212,8 +215,7 @@ describe(`UserTable`, () => {
         const wrapper = makeWrapper({
           propsData: { users: TEST_USERS, selectable: true, value: [] },
         });
-        wrapper
-          .findAll('[data-test="userCheckbox"]')
+        getUserCheckboxes(wrapper)
           .at(1)
           .trigger('click');
         expect(wrapper.emitted().input.length).toBe(1);
@@ -225,8 +227,7 @@ describe(`UserTable`, () => {
         const wrapper = makeWrapper({
           propsData: { users: TEST_USERS, selectable: true, value: ['id-to-be-preserved'] },
         });
-        wrapper
-          .findAll('[data-test="userCheckbox"]')
+        getUserCheckboxes(wrapper)
           .at(1)
           .trigger('click');
         expect(wrapper.emitted().input.length).toBe(1);
@@ -239,12 +240,10 @@ describe(`UserTable`, () => {
         const wrapper = makeWrapper({
           propsData: { users: TEST_USERS, selectable: true, value: [] },
         });
-        wrapper
-          .findAll('[data-test="userCheckbox"]')
+        getUserCheckboxes(wrapper)
           .at(1)
           .trigger('click');
-        wrapper
-          .findAll('[data-test="userCheckbox"]')
+        getUserCheckboxes(wrapper)
           .at(1)
           .trigger('click');
         expect(wrapper.emitted().input.length).toBe(2);
@@ -256,12 +255,10 @@ describe(`UserTable`, () => {
         const wrapper = makeWrapper({
           propsData: { users: TEST_USERS, selectable: true, value: ['id-to-be-preserved'] },
         });
-        wrapper
-          .findAll('[data-test="userCheckbox"]')
+        getUserCheckboxes(wrapper)
           .at(1)
           .trigger('click');
-        wrapper
-          .findAll('[data-test="userCheckbox"]')
+        getUserCheckboxes(wrapper)
           .at(1)
           .trigger('click');
         expect(wrapper.emitted().input.length).toBe(2);
@@ -275,7 +272,7 @@ describe(`UserTable`, () => {
       const wrapper = makeWrapper({
         propsData: { selectable: true, enableMultipleSelection: false, value: [] },
       });
-      expect(wrapper.find('[data-test="selectAllCheckbox"]').exists()).toBeFalsy();
+      expect(getSelectAllCheckbox(wrapper).exists()).toBeFalsy();
     });
 
     it(`shows radio buttons to select users`, () => {
@@ -287,7 +284,7 @@ describe(`UserTable`, () => {
           value: [],
         },
       });
-      const radioButtons = wrapper.findAll('[data-test="userRadioButton"]');
+      const radioButtons = getUserRadioButtons(wrapper);
       expect(radioButtons.length).toBe(2);
     });
 
@@ -300,7 +297,7 @@ describe(`UserTable`, () => {
           value: [],
         },
       });
-      const radioButtons = wrapper.findAll('[data-test="userRadioButton"]');
+      const radioButtons = getUserRadioButtons(wrapper);
       expect(radioButtons.at(0).find('input').element.disabled).toBeFalsy();
       expect(radioButtons.at(1).find('input').element.disabled).toBeFalsy();
     });
@@ -315,7 +312,7 @@ describe(`UserTable`, () => {
           disabled: true,
         },
       });
-      const radioButtons = wrapper.findAll('[data-test="userRadioButton"]');
+      const radioButtons = getUserRadioButtons(wrapper);
       expect(radioButtons.at(0).find('input').element.disabled).toBeTruthy();
       expect(radioButtons.at(1).find('input').element.disabled).toBeTruthy();
     });
@@ -330,8 +327,7 @@ describe(`UserTable`, () => {
             value: [],
           },
         });
-        wrapper
-          .findAll('[data-test="userRadioButton"]')
+        getUserRadioButtons(wrapper)
           .at(1)
           .trigger('click');
         expect(wrapper.emitted().input.length).toBe(1);
