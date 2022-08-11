@@ -1,3 +1,8 @@
 cython
 virtualenv
 git+https://github.com/learningequality/python-for-android@f94ca9392c27eb30f46dab8a9583fb93d3ccafed#egg=python-for-android
+# Pin sh to this version as p4a relies on a bug whereby sh.which returns None
+# instead of raising exit code 1 when no executable can be found.
+# Newer versions of Python for Android do not rely on this behaviour
+# so this constraint can be removed when we upgrade.
+sh==1.14.2
