@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 import base64
 import collections
 import sys
+import time
 import uuid
 from datetime import datetime
 from importlib import import_module
@@ -1104,6 +1105,7 @@ class LoginLogoutTestCase(APITestCase):
             format="json",
         )
         expire_date = self.client.session.get_expiry_date()
+        time.sleep(0.01)
         self.client.get(
             reverse("kolibri:core:session-detail", kwargs={"pk": "current"})
         )
