@@ -15,7 +15,7 @@
       "sdk": 30,
       "minsdk": 21,
       "fileprovider_paths_filename": "fileprovider_paths.xml",
-      "add-source": "src/java/"
+      "add-source": "java"
     }
   }
 }
