@@ -42,7 +42,7 @@ def output_mapper(obj, labels=None, output_mappings=None):
     labels = labels or {}
     output_mappings = output_mappings or {}
     for header, label in labels.items():
-        if header in output_mappings and header in obj:
+        if header in output_mappings:
             mapped_obj[label] = sanitize(output_mappings[header](obj))
         elif header in obj:
             mapped_obj[label] = sanitize(obj[header])
