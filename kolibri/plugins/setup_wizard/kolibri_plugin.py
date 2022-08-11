@@ -27,7 +27,11 @@ class SetupWizardPlugin(KolibriPluginBase):
 
     @property
     def plugin_data(self):
-        return {"canUseOSUser": GET_OS_USER in interface}
+        return {
+            "appCapabilities": {
+                "canGetOsUser": GET_OS_USER in interface,
+            }
+        }
 
 
 @register_hook

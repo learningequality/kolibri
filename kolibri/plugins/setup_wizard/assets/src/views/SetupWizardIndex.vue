@@ -64,8 +64,8 @@
       /*
        * The interpreted wizardMachine is an object that lets you move between states.
        * It's current state value has no side effects or dependencies - so we can store it
-       * as data - then when we initialize the machine each time, we can pass it the previous
-       * state.
+       * as data - then when we initialize the machine each time, we can pass it that data
+       * to resume the machine as we had saved it.
        *
        * A key part of this is that we synchronize our router with the machine on every
        * transition as each state entry has a `meta` property with a route name that maps
