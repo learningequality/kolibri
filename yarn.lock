@@ -12525,10 +12525,10 @@ vue-hot-reload-api@^2.3.0:
   resolved "https://registry.yarnpkg.com/vue-hot-reload-api/-/vue-hot-reload-api-2.3.4.tgz#532955cc1eb208a3d990b3a9f9a70574657e08f2"
   integrity sha512-BXq3jwIagosjgNVae6tkHzzIk6a8MHFtzAdwhnV5VlvPTFxDCvIttgSiHWjdGoTJvXtmRu5HacExfdarRcFhog==
 
-vue-intl@3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/vue-intl/-/vue-intl-3.0.0.tgz#821cca8d97d7d9451cc2644eb72bf396741c6231"
-  integrity sha512-RdajLjcbTKXgxttQwAiBu7nr8DMJnhjYKqCzhauoY1IxY9vTJT3GbS4lGSzDS8HQdKdIaWNfLnI4dHuj0H0Seg==
+vue-intl@3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/vue-intl/-/vue-intl-3.1.0.tgz#707f1f7406595c9b4afc6049254b333093be37be"
+  integrity sha512-0v3S5gspuYnt6j1G+KLfPUsNnjRdbMOcYrWYoSd1gYk6rX8VuOyh7NLztPrSIJt+NLs/qzLOZXxI1LORukEiqA==
   dependencies:
     babel-runtime "^6.26.0"
     intl-format-cache "^2.0.5"
