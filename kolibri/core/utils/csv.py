@@ -37,7 +37,9 @@ def sanitize(value):
     return value
 
 
-def output_mapper(obj, labels=None, output_mappings=None):
+def output_mapper(obj, labels=None, output_mappings=None, exclude_fields=None):
+    if exclude_fields is None:
+        exclude_fields = set()
     mapped_obj = {}
     labels = labels or {}
     output_mappings = output_mappings or {}
