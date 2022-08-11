@@ -66,14 +66,14 @@ jobs:
     - name: Install dependencies
       run: pip install -r requirements.txt
     - name: Build the app
-      env:
+      run: |
         # No need to set the ANDROID_HOME environment variable here that is used for
         # setting up the ANDROID SDK and ANDROID NDK, as the github actions images
         # have these SDKs and NDKs already installed.
         # https://github.com/actions/virtual-environments/blob/main/images/linux/Ubuntu2004-Readme.md#environment-variables-3
-        ANDROIDSDK: ${{ env.ANDROID_SDK_ROOT }}
-        ANDROIDNDK: ${{ env.ANDROID_NDK_ROOT }}
-      run: make kolibri.apk.unsigned
+        export ANDROIDSDK="$ANDROID_SDK_ROOT"
+        export ANDROIDNDK="$ANDROID_NDK_ROOT"
+        make kolibri.apk.unsigned
     - name: Get APK filename
       id: get-apk-filename
       run: echo "::set-output name=apk-file-name::$(ls dist | grep .apk | cat)"
