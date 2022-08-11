@@ -5,7 +5,10 @@ from django.core.management.base import CommandError
 
 from ...utils import paths
 from kolibri.core.content.errors import InvalidStorageFilenameError
-from kolibri.core.content.utils.import_export_content import get_import_export_data
+from kolibri.core.content.models import ChannelMetadata
+from kolibri.core.content.utils.content_manifest import ContentManifest
+from kolibri.core.content.utils.import_export_content import get_content_nodes_data
+from kolibri.core.content.utils.import_export_content import get_import_export_nodes
 from kolibri.core.content.utils.paths import get_content_file_name
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.core.tasks.utils import get_current_job
@@ -31,8 +34,8 @@ class Command(AsyncCommand):
             "--node_ids",
             "-n",
             # Split the comma separated string we get, into a list of strings
-            type=lambda x: x.split(","),
-            default=[],
+            type=lambda x: x.split(",") if x else [],
+            default=None,
             required=False,
             dest="node_ids",
             help=node_ids_help_text,
@@ -48,8 +51,8 @@ class Command(AsyncCommand):
         """
         parser.add_argument(
             "--exclude_node_ids",
-            type=lambda x: x.split(","),
-            default=[],
+            type=lambda x: x.split(",") if x else [],
+            default=None,
             required=False,
             dest="exclude_node_ids",
             help=exclude_node_ids_help_text,
@@ -76,11 +79,15 @@ class Command(AsyncCommand):
             "Exporting content for channel id {} to {}".format(channel_id, data_dir)
         )
 
-        (
-            total_resource_count,
-            files,
-            total_bytes_to_transfer,
-        ) = get_import_export_data(channel_id, node_ids, exclude_node_ids, True)
+        channel_metadata = ChannelMetadata.objects.get(id=channel_id)
+
+        nodes_queries_list = get_import_export_nodes(
+            channel_id, node_ids, exclude_node_ids, available=True
+        )
+
+        (total_resource_count, files, total_bytes_to_transfer) = get_content_nodes_data(
+            channel_id, nodes_queries_list, available=True
+        )
 
         self.update_job_metadata(total_bytes_to_transfer, total_resource_count)
 
@@ -100,6 +107,18 @@ class Command(AsyncCommand):
 
             if self.is_cancelled():
                 self.cancel()
+
+        logger.info(
+            "Exporting manifest for channel id {} to {}".format(channel_id, data_dir)
+        )
+
+        manifest_path = os.path.join(data_dir, "content", "manifest.json")
+        content_manifest = ContentManifest()
+        content_manifest.read(manifest_path)
+        content_manifest.add_content_nodes(
+            channel_id, channel_metadata.version, nodes_queries_list
+        )
+        content_manifest.write(manifest_path)
 
     def export_file(self, f, data_dir, overall_progress_update):
         filename = get_content_file_name(f)
