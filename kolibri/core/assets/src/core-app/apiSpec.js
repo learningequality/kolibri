@@ -74,6 +74,7 @@ import CoreMenuDivider from '../views/CoreMenu/CoreMenuDivider';
 import CoreMenuOption from '../views/CoreMenu/CoreMenuOption';
 import heartbeat from '../heartbeat';
 import CoreTable from '../views/CoreTable';
+import UserTable from '../views/UserTable';
 import CoachContentLabel from '../views/CoachContentLabel';
 import PrivacyInfoModal from '../views/PrivacyInfoModal';
 import UserTypeDisplay from '../views/UserTypeDisplay';
@@ -173,6 +174,7 @@ export default {
       CoreMenuDivider,
       CoreMenuOption,
       CoreTable,
+      UserTable,
       CoreInfoIcon,
       InteractionList,
       ExamReport,
