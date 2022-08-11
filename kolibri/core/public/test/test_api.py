@@ -771,6 +771,7 @@ class SyncQueueViewSetTestCase(APITestCase):
             user_id=self.learner.id, instance_id=self.instance_id, keep_alive=10
         )
         old_updated = queue.updated
+        time.sleep(0.01)
         response = self.client.put(
             reverse("kolibri:core:syncqueue-detail", kwargs={"pk": queue.id}),
             data={"user": self.learner.id, "instance": self.instance_id},
