@@ -26,7 +26,7 @@
     "loglevel": "^1.4.1",
     "markdown-it": "12.3.2",
     "screenfull": "^4.0.0",
-    "shave": "^2.1.3",
+    "shave": "^5.0.0",
     "tinycolor2": "^1.4.2",
     "ua-parser-js": "^0.7.28",
     "vue": "^2.6.14",
