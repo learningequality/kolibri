@@ -95,11 +95,14 @@
                 />
               </KCheckbox>
               <!--
-                `label` prop needs to be set to the empty string,
-                otherwise `KRadioButton` shows required property warning,
-                even though `<label>` content is properly rendered via
-                the default slot.
-                TODO: Open and link KDS issue
+                @MisRob: It's possible to pass `<label>` content to `KRadioButton`
+                via the default slot, however it's not what this slot has been
+                made for so doing so is hackish, even though resulting
+                markup seems fine. To be able to do this, I also needed to pass
+                the empty label to required `label` prop to avoid Vue warnings.
+                I still find this to be better solution in regards to a11y than
+                not providing label content. Reported related KDS issue
+                https://github.com/learningequality/kolibri-design-system/issues/348
               -->
               <KRadioButton
                 v-else-if="selectable && !enableMultipleSelection"
