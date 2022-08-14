@@ -12,7 +12,7 @@
     "test-jest": "kolibri-tools test --config ./jest.conf.js",
     "test-jest-cov": "yarn run test-jest --coverage",
     "coverage": "yarn run test-jest-cov",
-    "build": "yarn run hashi-build && kolibri-tools build prod --file ./build_tools/build_plugins.txt",
+    "build": "yarn run hashi-build && kolibri-tools build prod --file ./build_tools/build_plugins.txt --transpile",
     "makemessages": "kolibri-tools i18n-extract-messages --pluginFile ./build_tools/build_plugins.txt",
     "createprofiles": "kolibri-tools i18n-profile --pluginFile ./build_tools/build_plugins.txt --output-file ./kolibri/locale/en/LC_MESSAGES/profiles/strings.csv",
     "transfercontext": "kolibri-tools i18n-transfer-context --pluginFile ./build_tools/build_plugins.txt",
@@ -20,12 +20,10 @@
     "watch-hot": "yarn run watch --hot",
     "python-devserver": "kolibri start --debug --foreground --port=8000 --settings=kolibri.deployment.default.settings.dev",
     "python-devserver-no-update": "kolibri start --debug --skip-update --foreground --port=8000 --settings=kolibri.deployment.default.settings.dev",
-    "frontend-devserver": "run-p lint-frontend:watch:format hashi-dev watch",
-    "devserver": "run-p python-devserver lint-frontend:watch:format hashi-dev watch ",
-    "devserver-warn": "run-p python-devserver lint-frontend:watch hashi-dev watch",
-    "devserver-hot": "run-p python-devserver lint-frontend:watch:format hashi-dev watch-hot",
-    "devserver-hot-warn": "run-p python-devserver lint-frontend:watch hashi-dev watch-hot",
-    "bundle-stats": "kolibri-tools build stats --file ./build_tools/build_plugins.txt",
+    "frontend-devserver": "concurrently --passthrough-arguments --kill-others \"yarn:watch --watchonly {1}\" yarn:hashi-dev",
+    "devserver": "concurrently --passthrough-arguments --kill-others \"yarn:watch --watchonly {1}\" yarn:python-devserver yarn:hashi-dev",
+    "devserver-hot": "concurrently --passthrough-arguments --kill-others \"yarn:watch-hot --watchonly {1}\" yarn:python-devserver yarn:hashi-dev --",
+    "bundle-stats": "kolibri-tools build stats --file ./build_tools/build_plugins.txt --transpile",
     "clean": "kolibri-tools build clean --file ./build_tools/build_plugins.txt",
     "preinstall": "node ./packages/kolibri-tools/lib/npm_deprecation_warning.js",
     "lint-frontend": "kolibri-tools lint --pattern '{kolibri*/**/assets,packages,build_tools}/**/*.{js,vue,scss,less,css}' --ignore '**/dist/**,**/node_modules/**,**/static/**,**/kolibri-core-for-export/**'",
@@ -51,7 +49,7 @@
   "devDependencies": {
     "@types/jest": "^24.0.12",
     "xhr-mock": "^2.5.1",
-    "yarn-run-all": "^3.1.1"
+    "concurrently": "^7.3.0"
   },
   "optionalDependencies": {
     "fsevents": "*"

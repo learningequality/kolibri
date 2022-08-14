@@ -97,9 +97,6 @@ labels = OrderedDict(
 )
 
 
-map_output = partial(output_mapper, labels=labels, output_mappings=output_mappings)
-
-
 input_fields = (
     "full_name",
     "username",
@@ -180,6 +177,14 @@ def csv_file_generator(facility, filepath, overwrite=True, demographic=False):
     )
 
     csv_file = open_csv_for_writing(filepath)
+
+    mappings = {}
+
+    for key in output_mappings:
+        if demographic or key not in DEMO_FIELDS:
+            mappings[key] = output_mappings[key]
+
+    map_output = partial(output_mapper, labels=labels, output_mappings=mappings)
 
     with csv_file as f:
         writer = csv.DictWriter(f, header_labels)

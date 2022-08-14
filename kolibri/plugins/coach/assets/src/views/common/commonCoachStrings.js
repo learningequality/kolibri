@@ -536,15 +536,17 @@ const MissingContentStrings = createTranslator('MissingContentStrings', {
   },
 });
 
+function coachString(key, args) {
+  return coachStrings.$tr(key, args);
+}
+
 const coachStringsMixin = {
   methods: {
-    coachString(key, args) {
-      return coachStrings.$tr(key, args);
-    },
+    coachString,
     getMissingContentString(key, args) {
       return MissingContentStrings.$tr(key, args);
     },
   },
 };
 
-export { coachStrings, coachStringsMixin };
+export { coachString, coachStrings, coachStringsMixin };

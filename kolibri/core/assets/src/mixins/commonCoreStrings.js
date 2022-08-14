@@ -138,6 +138,14 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Save to bookmarks',
     context: "An action that adds a resource or topic to a user's bookmarks",
   },
+  zoomIn: {
+    message: 'Zoom in',
+    context: 'Label for a button used to zoom in the document view (make it larger)',
+  },
+  zoomOut: {
+    message: 'Zoom out',
+    context: 'Label for a button used to zoom out the document view (make it smaller)',
+  },
 
   // labels, phrases, titles, headers...
   adminLabel: {
@@ -1128,41 +1136,42 @@ const MetadataLookup = invert(
     METADATA.ResourcesNeededTypes
   )
 );
+/**
+ * Return translated string for key defined in the coreStrings translator. Will map
+ * ID keys generated in the kolibri-constants library to their appropriate translations
+ * if available.
+ *
+ * @param {string} key - A key as defined in the coreStrings translator; also accepts keys
+ * for the object MetadataLookup.
+ * @param {object} args - An object with keys matching ICU syntax arguments for the translation
+ * string mapping to the values to be passed for those arguments.
+ */
+export function coreString(key, args) {
+  if (key === 'None of the above' || key === METADATA.NoCategories) {
+    return noneOfTheAboveTranslator.$tr('None of the above', args);
+  }
+
+  if (key === 'overCertainNumberOfSearchResults') {
+    return overResultsTranslator.$tr(key, args);
+  }
+
+  const metadataKey = get(MetadataLookup, key, null);
+  key = metadataKey ? camelCase(metadataKey) : key;
+
+  if (nonconformingKeys[key]) {
+    return coreStrings.$tr(nonconformingKeys[key], args);
+  }
+
+  if (nonconformingKeys[metadataKey]) {
+    return coreStrings.$tr(nonconformingKeys[metadataKey], args);
+  }
+
+  return coreStrings.$tr(key, args);
+}
 
 export default {
   methods: {
-    /**
-     * Return translated string for key defined in the coreStrings translator. Will map
-     * ID keys generated in the kolibri-constants library to their appropriate translations
-     * if available.
-     *
-     * @param {string} key - A key as defined in the coreStrings translator; also accepts keys
-     * for the object MetadataLookup.
-     * @param {object} args - An object with keys matching ICU syntax arguments for the translation
-     * string mapping to the values to be passed for those arguments.
-     */
-    coreString(key, args) {
-      if (key === 'None of the above' || key === METADATA.NoCategories) {
-        return noneOfTheAboveTranslator.$tr('None of the above', args);
-      }
-
-      if (key === 'overCertainNumberOfSearchResults') {
-        return overResultsTranslator.$tr(key, args);
-      }
-
-      const metadataKey = get(MetadataLookup, key, null);
-      key = metadataKey ? camelCase(metadataKey) : key;
-
-      if (nonconformingKeys[key]) {
-        return coreStrings.$tr(nonconformingKeys[key], args);
-      }
-
-      if (nonconformingKeys[metadataKey]) {
-        return coreStrings.$tr(nonconformingKeys[metadataKey], args);
-      }
-
-      return coreStrings.$tr(key, args);
-    },
+    coreString,
     /**
      * Shows a specific snackbar notification from our notificationStrings translator.
      *

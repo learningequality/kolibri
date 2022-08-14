@@ -1,4 +1,5 @@
 import { mount, createLocalVue } from '@vue/test-utils';
+import VueRouter from 'vue-router';
 import Vuex from 'vuex';
 import client from 'kolibri.client';
 import DeviceSettingsPage from '../index.vue';
@@ -22,6 +23,8 @@ async function makeWrapper() {
   const wrapper = mount(DeviceSettingsPage, {
     wrapper,
     store,
+    router: new VueRouter(),
+    stubs: ['AppBarPage', 'DeviceTopNav'],
   });
   // Need to wait for beforeMount to finish
   await global.flushPromises();

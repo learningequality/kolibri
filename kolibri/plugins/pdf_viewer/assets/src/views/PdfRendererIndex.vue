@@ -23,12 +23,14 @@
         >
           <KIconButton
             class="button-zoom-in controls"
+            :ariaLabel="coreString('zoomIn')"
             aria-controls="pdf-container"
             icon="add"
             @click="zoomIn"
           />
           <KIconButton
             class="button-zoom-out controls"
+            :ariaLabel="coreString('zoomOut')"
             aria-controls="pdf-container"
             icon="remove"
             @click="zoomOut"
@@ -82,6 +84,7 @@
   import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
   // polyfill necessary for recycle list
   import 'intersection-observer';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
@@ -101,7 +104,7 @@
       RecycleList,
       CoreFullscreen,
     },
-    mixins: [responsiveWindowMixin, responsiveElementMixin],
+    mixins: [responsiveWindowMixin, responsiveElementMixin, commonCoreStrings],
     data: () => ({
       progress: null,
       scale: null,

@@ -1,107 +1,112 @@
 <template>
 
-  <div>
-    <h1 v-if="user === null">
-      {{ $tr('userDoesNotExist') }}
-    </h1>
+  <ImmersivePage
+    v-if="!$store.state.core.loading"
+    :appBarTitle="$tr('permissionsTitle')"
+    :route="backRoute"
+  >
+    <KPageContainer class="device-container">
+      <h1 v-if="user === null">
+        {{ $tr('userDoesNotExist') }}
+      </h1>
 
-    <template v-else>
-      <div class="section user-info">
-        <h1 dir="auto">
-          <KLabeledIcon icon="person" :label="isCurrentUser ? $tr('you') : user.full_name" />
-        </h1>
+      <template v-else>
+        <div class="section user-info">
+          <h1 dir="auto">
+            <KLabeledIcon icon="person" :label="isCurrentUser ? $tr('you') : user.full_name" />
+          </h1>
 
-        <table>
-          <tr>
-            <th>
-              {{ coreString('usernameLabel') }}
-            </th>
-            <td>{{ user.username }}</td>
-          </tr>
+          <table>
+            <tr>
+              <th>
+                {{ coreString('usernameLabel') }}
+              </th>
+              <td>{{ user.username }}</td>
+            </tr>
 
-          <tr>
-            <th>
-              {{ coreString('userTypeLabel') }}
-            </th>
-            <td>
-              <UserTypeDisplay :userType="UserType(user)" />
-            </td>
-          </tr>
+            <tr>
+              <th>
+                {{ coreString('userTypeLabel') }}
+              </th>
+              <td>
+                <UserTypeDisplay :userType="UserType(user)" />
+              </td>
+            </tr>
 
-          <tr>
-            <th>
-              {{ coreString('facilityLabel') }}
-            </th>
-            <td dir="auto">
-              {{ facilityName }}
-            </td>
-          </tr>
-        </table>
+            <tr>
+              <th>
+                {{ coreString('facilityLabel') }}
+              </th>
+              <td dir="auto">
+                {{ facilityName }}
+              </td>
+            </tr>
+          </table>
 
-      </div>
+        </div>
 
-      <div class="section superuser">
-        <KCheckbox
-          class="super-admin-checkbox"
-          :disabled="superuserDisabled"
-          :checked="superuserChecked"
-          @change="superuserChecked = $event"
-        >
-          <label :style="superuserLabelStyle">
-            <span>{{ $tr('makeSuperAdmin') }}</span>
-            <PermissionsIcon
-              permissionType="SUPERUSER"
-              class="permissions-icon"
-              :lightIcon="superuserDisabled"
+        <div class="section superuser">
+          <KCheckbox
+            class="super-admin-checkbox"
+            :disabled="superuserDisabled"
+            :checked="superuserChecked"
+            @change="superuserChecked = $event"
+          >
+            <label :style="superuserLabelStyle">
+              <span>{{ $tr('makeSuperAdmin') }}</span>
+              <PermissionsIcon
+                permissionType="SUPERUSER"
+                class="permissions-icon"
+                :lightIcon="superuserDisabled"
+              />
+            </label>
+          </KCheckbox>
+
+          <ul
+            class="checkbox-description"
+            :style="{
+              color: superuserDisabled ? $themeTokens.textDisabled : $themeTokens.annotation
+            }"
+          >
+            <li>{{ $tr('superAdminExplanation1') }}</li>
+            <li>{{ $tr('superAdminExplanation2', { facilityName }) }}</li>
+          </ul>
+        </div>
+
+        <div class="section">
+          <h2>{{ coreString('devicePermissionsLabel') }}</h2>
+          <KCheckbox
+            :disabled="devicePermissionsDisabled"
+            :label="$tr('devicePermissionsDetails')"
+            :checked="devicePermissionsChecked"
+            @change="devicePermissionsChecked = $event"
+          />
+        </div>
+
+        <div class="buttons">
+          <KButtonGroup>
+            <KButton
+              :disabled="saveDisabled"
+              :text="$tr('saveButton')"
+              :primary="true"
+              appearance="raised-button"
+              @click="save()"
             />
-          </label>
-        </KCheckbox>
-
-        <ul
-          class="checkbox-description"
-          :style="{
-            color: superuserDisabled ? $themeTokens.textDisabled : $themeTokens.annotation
-          }"
-        >
-          <li>{{ $tr('superAdminExplanation1') }}</li>
-          <li>{{ $tr('superAdminExplanation2', { facilityName }) }}</li>
-        </ul>
-      </div>
-
-      <div class="section">
-        <h2>{{ coreString('devicePermissionsLabel') }}</h2>
-        <KCheckbox
-          :disabled="devicePermissionsDisabled"
-          :label="$tr('devicePermissionsDetails')"
-          :checked="devicePermissionsChecked"
-          @change="devicePermissionsChecked = $event"
-        />
-      </div>
-
-      <div class="buttons">
-        <KButtonGroup>
-          <KButton
-            :disabled="saveDisabled"
-            :text="$tr('saveButton')"
-            :primary="true"
-            appearance="raised-button"
-            @click="save()"
-          />
-          <KButton
-            :disabled="uiBlocked"
-            :text="coreString('cancelAction')"
-            :primary="false"
-            appearance="flat-button"
-            @click="goBack()"
-          />
-        </KButtonGroup>
-      </div>
-      <div v-if="saveFailed">
-        {{ $tr('saveFailureNotification') }}
-      </div>
-    </template>
-
-  </div>
+            <KButton
+              :disabled="uiBlocked"
+              :text="coreString('cancelAction')"
+              :primary="false"
+              appearance="flat-button"
+              @click="goBack()"
+            />
+          </KButtonGroup>
+        </div>
+        <div v-if="saveFailed">
+          {{ $tr('saveFailureNotification') }}
+        </div>
+      </template>
+    </KPageContainer>
+  </ImmersivePage>
 
 </template>
 
@@ -113,6 +118,8 @@
   import UserType from 'kolibri.utils.UserType';
   import PermissionsIcon from 'kolibri.coreVue.components.PermissionsIcon';
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
+  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
+  import { PageNames } from '../../constants';
 
   export default {
     name: 'UserPermissionsPage',
@@ -122,6 +129,7 @@
       };
     },
     components: {
+      ImmersivePage,
       PermissionsIcon,
       UserTypeDisplay,
     },
@@ -137,6 +145,9 @@
     computed: {
       ...mapGetters(['facilities', 'currentUserId']),
       ...mapState('userPermissions', ['user', 'permissions']),
+      backRoute() {
+        return { name: PageNames.MANAGE_PERMISSIONS_PAGE };
+      },
       // IDEA Make this a core getter? Need audit
       facilityName() {
         return this.facilities.find(facility => facility.id === this.user.facility).name;
@@ -172,12 +183,12 @@
           this.devicePermissionsChecked = newVal;
         }
       },
-    },
-    beforeMount() {
-      this.superuserChecked = this.permissions.is_superuser;
-      // ORed with is_superuser since first admin user has `can_manage_content` set to false.
-      this.devicePermissionsChecked =
-        this.permissions.can_manage_content || this.permissions.is_superuser;
+      user() {
+        /* user will be set asynchronously and when it is, we need to intiialize these */
+        this.superuserChecked = this.permissions.is_superuser;
+        this.devicePermissionsChecked =
+          this.permissions.can_manage_content || this.permissions.is_superuser;
+      },
     },
     methods: {
       ...mapActions('userPermissions', ['addOrUpdateUserPermissions']),
@@ -219,6 +230,11 @@
         context:
           'Label for the checkbox to confirm giving the user super admin permissions on the device.',
       },
+      permissionsTitle: {
+        message: 'Permissions',
+        context:
+          'Indicates the Device > Permissions tab. Permissions refer to what users can manage on the device.',
+      },
       saveButton: {
         message: 'Save Changes',
         context: 'Button on user permission page.',
@@ -251,6 +267,12 @@
 
 
 <style lang="scss" scoped>
+
+  @import '../../styles/definitions';
+
+  .device-container {
+    @include device-kpagecontainer;
+  }
 
   table {
     line-height: 1.5em;

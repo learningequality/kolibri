@@ -1,53 +1,59 @@
 <template>
 
-  <div>
+  <AppBarPage :title="pageTitle">
 
-    <div class="description">
-      <h1>
-        {{ coreString('devicePermissionsLabel') }}
-      </h1>
-      <p>{{ $tr('devicePermissionsDescription') }}</p>
-    </div>
+    <template #subNav>
+      <DeviceTopNav />
+    </template>
 
-    <PaginatedListContainer
-      :items="usersFilteredByDropdown"
-      :filterPlaceholder="$tr('searchPlaceholder')"
-    >
-      <template #otherFilter>
-        <KSelect
-          v-model="permissionsFilter"
-          :label="$tr('permissionsLabel')"
-          :options="permissionsOptions"
-          :inline="true"
-          class="type-filter"
-        />
-        <KSelect
-          v-model="userTypeFilter"
-          :label="coreString('userTypeLabel')"
-          :options="userTypeOptions"
-          :inline="true"
-          class="type-filter"
-        />
-        <KSelect
-          v-if="hasMultipleFacilities"
-          v-model="facilityFilter"
-          :label="coreString('facilityLabel')"
-          :options="facilityOptions"
-          :inline="true"
-          class="type-filter"
-        />
-      </template>
-      <template #default="{ items, filterInput }">
-        <UserGrid
-          :searchFilter="searchFilterText"
-          :facilityUsers="items"
-          :userPermissions="userPermissions"
-          :filterText="filterInput"
-        />
-      </template>
-    </PaginatedListContainer>
+    <KPageContainer class="device-container">
+      <div class="description">
+        <h1>
+          {{ coreString('devicePermissionsLabel') }}
+        </h1>
+        <p>{{ $tr('devicePermissionsDescription') }}</p>
+      </div>
 
-  </div>
+      <PaginatedListContainer
+        :items="usersFilteredByDropdown"
+        :filterPlaceholder="$tr('searchPlaceholder')"
+      >
+        <template #otherFilter>
+          <KSelect
+            v-model="permissionsFilter"
+            :label="$tr('permissionsLabel')"
+            :options="permissionsOptions"
+            :inline="true"
+            class="type-filter"
+          />
+          <KSelect
+            v-model="userTypeFilter"
+            :label="coreString('userTypeLabel')"
+            :options="userTypeOptions"
+            :inline="true"
+            class="type-filter"
+          />
+          <KSelect
+            v-if="hasMultipleFacilities"
+            v-model="facilityFilter"
+            :label="coreString('facilityLabel')"
+            :options="facilityOptions"
+            :inline="true"
+            class="type-filter"
+          />
+        </template>
+        <template #default="{ items, filterInput }">
+          <UserGrid
+            :searchFilter="searchFilterText"
+            :facilityUsers="items"
+            :userPermissions="userPermissions"
+            :filterText="filterInput"
+          />
+        </template>
+      </PaginatedListContainer>
+
+    </KPageContainer>
+  </AppBarPage>
 
 </template>
 
@@ -55,9 +61,13 @@
 <script>
 
   import { mapGetters, mapState } from 'vuex';
+
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
   import { PermissionTypes, UserKinds } from 'kolibri.coreVue.vuex.constants';
+  import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
+  import DeviceTopNav from '../DeviceTopNav';
+  import { deviceString } from '../commonDeviceStrings';
   import UserGrid from './UserGrid';
 
   const ALL_FILTER = 'all';
@@ -70,6 +80,8 @@
       };
     },
     components: {
+      AppBarPage,
+      DeviceTopNav,
       PaginatedListContainer,
       UserGrid,
     },
@@ -106,6 +118,9 @@
         });
 
         return [{ label: this.$tr('allFacilityFilter'), value: ALL_FILTER }, ...facilityChoices];
+      },
+      pageTitle() {
+        return deviceString('deviceManagementTitle');
       },
       userTypeOptions() {
         return [
@@ -283,6 +298,12 @@
 
 
 <style lang="scss" scoped>
+
+  @import '../../styles/definitions';
+
+  .device-container {
+    @include device-kpagecontainer;
+  }
 
   .description {
     margin-bottom: 2em;

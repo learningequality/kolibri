@@ -1,6 +1,6 @@
 <template>
 
-  <ImmersivePageRoot
+  <ImmersivePage
     :route="this.$store.getters.facilityPageLinks.DataPage"
     :appBarTitle="$tr('toolbarHeader')"
   >
@@ -25,7 +25,7 @@
       </template>
 
     </KPageContainer>
-  </ImmersivePageRoot>
+  </ImmersivePage>
 
 </template>
 
@@ -33,8 +33,8 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
+  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import { CSVImportStatuses } from '../../constants';
-  import ImmersivePageRoot from '../ImmersivePageRoot';
   import Init from './Init';
   import Preview from './Preview';
 
@@ -46,7 +46,7 @@
       };
     },
     components: {
-      ImmersivePageRoot,
+      ImmersivePage,
       Init,
       Preview,
     },

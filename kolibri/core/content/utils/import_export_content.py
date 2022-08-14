@@ -95,17 +95,58 @@ def filter_by_file_availability(nodes_to_include, channel_id, drive_id, peer_id)
     return nodes_to_include
 
 
-def get_import_export_data(  # noqa: C901
+def get_import_export_data(
     channel_id,
-    node_ids,
-    exclude_node_ids,
-    available,
+    node_ids=None,
+    exclude_node_ids=None,
+    available=None,
     drive_id=None,
     peer_id=None,
     renderable_only=True,
     topic_thumbnails=True,
 ):
+    """
+    Helper function that calls get_import_export_nodes followed by
+    get_content_nodes_data.
+    """
 
+    nodes_queries_list = get_import_export_nodes(
+        channel_id,
+        node_ids,
+        exclude_node_ids,
+        available=available,
+        drive_id=drive_id,
+        peer_id=peer_id,
+        renderable_only=renderable_only,
+    )
+    return get_content_nodes_data(
+        channel_id,
+        nodes_queries_list,
+        available=available,
+        topic_thumbnails=topic_thumbnails,
+    )
+
+
+def get_import_export_nodes(  # noqa: C901
+    channel_id,
+    node_ids=None,
+    exclude_node_ids=None,
+    available=None,
+    drive_id=None,
+    peer_id=None,
+    renderable_only=True,
+):
+    """
+    Returns a list of queries for ContentNode objects matching the given
+    constraints. This can be used with get_content_nodes_data and with
+    ContentManifest.add_content_nodes.
+
+    There is a distinction between calling this function with node_ids=[] and
+    with node_ids=None. With an empty list, no nodes will be selected. With a
+    value of None, all nodes will be selected.
+    """
+
+    nodes_queries_list = []
     min_boundary = 1
 
     max_rght, dynamic_chunksize = _calculate_batch_params(
@@ -123,18 +164,13 @@ def get_import_export_data(  # noqa: C901
         nodes_to_include, channel_id, drive_id, peer_id
     )
 
-    queried_file_objects = {}
-    number_of_resources = 0
-
     while min_boundary < max_rght:
-
         max_boundary = min_boundary + dynamic_chunksize
-
-        nodes_segment = nodes_to_include
+        nodes_query = nodes_to_include
 
         # if requested, filter down to only include particular topics/nodes
-        if node_ids:
-            nodes_segment = nodes_segment.filter_by_uuids(
+        if node_ids is not None:
+            nodes_query = nodes_query.filter_by_uuids(
                 _mptt_descendant_ids(
                     channel_id, node_ids, min_boundary, min_boundary + dynamic_chunksize
                 )
@@ -142,11 +178,11 @@ def get_import_export_data(  # noqa: C901
 
         # if requested, filter out nodes we're not able to render
         if renderable_only:
-            nodes_segment = nodes_segment.filter(renderable_contentnodes_q_filter)
+            nodes_query = nodes_query.filter(renderable_contentnodes_q_filter)
 
         # filter down the query to remove files associated with nodes we've specifically been asked to exclude
-        if exclude_node_ids:
-            nodes_segment = nodes_segment.order_by().exclude_by_uuids(
+        if exclude_node_ids is not None:
+            nodes_query = nodes_query.order_by().exclude_by_uuids(
                 _mptt_descendant_ids(
                     channel_id,
                     exclude_node_ids,
@@ -155,45 +191,63 @@ def get_import_export_data(  # noqa: C901
                 )
             )
 
-        count_content_ids = nodes_segment.count()
+        min_boundary += dynamic_chunksize
+
         # Only bother with this query if there were any resources returned above.
-        if count_content_ids:
-            number_of_resources = number_of_resources + count_content_ids
+
+        if nodes_query.count() > 0:
+            nodes_queries_list.append(nodes_query)
+
+    return nodes_queries_list
+
+
+def get_content_nodes_data(
+    channel_id, nodes_queries_list, available=None, topic_thumbnails=True
+):
+    """
+    Returns a set of resources, file names, and a total size in bytes for all
+    data files associated with the content nodes in nodes_queries_list.
+    """
+
+    queried_file_objects = {}
+    number_of_resources = 0
+
+    for nodes_query in nodes_queries_list:
+        number_of_resources = number_of_resources + nodes_query.count()
+
+        file_objects = LocalFile.objects.filter(
+            files__contentnode__in=nodes_query
+        ).values("id", "file_size", "extension")
+        if available is not None:
+            file_objects = file_objects.filter(available=available)
+        for f in file_objects:
+            queried_file_objects[f["id"]] = f
+
+        if topic_thumbnails:
+            # Do a query to get all the descendant and ancestor topics for this segment
+            segment_boundaries = nodes_query.aggregate(
+                min_boundary=Min("lft"), max_boundary=Max("rght")
+            )
+            segment_topics = ContentNode.objects.filter(
+                channel_id=channel_id, kind=content_kinds.TOPIC
+            ).filter(
+                Q(
+                    lft__lte=segment_boundaries["min_boundary"],
+                    rght__gte=segment_boundaries["max_boundary"],
+                )
+                | Q(
+                    lft__lte=segment_boundaries["max_boundary"],
+                    rght__gte=segment_boundaries["min_boundary"],
+                )
+            )
+
             file_objects = LocalFile.objects.filter(
-                files__contentnode__in=nodes_segment
+                files__contentnode__in=segment_topics,
             ).values("id", "file_size", "extension")
             if available is not None:
                 file_objects = file_objects.filter(available=available)
             for f in file_objects:
                 queried_file_objects[f["id"]] = f
-
-            if topic_thumbnails:
-                # Do a query to get all the descendant and ancestor topics for this segment
-                segment_boundaries = nodes_segment.aggregate(
-                    min_boundary=Min("lft"), max_boundary=Max("rght")
-                )
-                segment_topics = ContentNode.objects.filter(
-                    channel_id=channel_id, kind=content_kinds.TOPIC
-                ).filter(
-                    Q(
-                        lft__lte=segment_boundaries["min_boundary"],
-                        rght__gte=segment_boundaries["max_boundary"],
-                    )
-                    | Q(
-                        lft__lte=segment_boundaries["max_boundary"],
-                        rght__gte=segment_boundaries["min_boundary"],
-                    )
-                )
-
-                file_objects = LocalFile.objects.filter(
-                    files__contentnode__in=segment_topics,
-                ).values("id", "file_size", "extension")
-                if available is not None:
-                    file_objects = file_objects.filter(available=available)
-                for f in file_objects:
-                    queried_file_objects[f["id"]] = f
-
-        min_boundary += dynamic_chunksize
 
     files_to_download = list(queried_file_objects.values())
 

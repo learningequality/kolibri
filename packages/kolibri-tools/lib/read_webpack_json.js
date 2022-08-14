@@ -19,6 +19,7 @@ function parseConfig(buildConfig, pythonData, configPath, index = null) {
     plugin_path: pluginPath,
     version: pythonData.version,
     config_path: configPath,
+    module_path: pythonData.module_path,
     index,
   };
 }

@@ -1,72 +1,81 @@
 <template>
 
-  <div>
-    <h1>{{ $tr('header') }}</h1>
-    <table :class="windowIsSmall ? 'mobile-table' : ''">
-      <tr>
-        <th>
-          {{ $tr('url', { count: deviceInfo.urls.length }) }}
-        </th>
-        <td :class="windowIsSmall ? 'mobile' : ''">
-          <KExternalLink
-            v-for="(url, index) in deviceInfo.urls"
-            :key="index"
-            :text="url"
-            :href="url"
-            :primary="true"
-            :openInNewTab="true"
-            appearance="basic-link"
-          />
-        </td>
-      </tr>
-      <tr>
-        <th>{{ $tr('freeDisk') }}</th>
-        <td>{{ deviceInfo.content_storage_free_space }}</td>
-      </tr>
-      <tr>
-        <th>
-          {{ $tr('kolibriVersion') }}
-        </th>
-        <td :class="windowIsSmall ? 'mobile' : ''">
-          {{ deviceInfo.version }}
-        </td>
-      </tr>
-      <tr>
-        <th>{{ coreString('deviceNameLabel') }}</th>
-        <td>
-          {{ deviceNameWithId }}
-          <KButton
-            class="edit-button"
-            :text="coreString('editAction')"
-            appearance="basic-link"
-            @click="showDeviceNameModal = true"
-          />
-        </td>
-      </tr>
-    </table>
+  <AppBarPage :title="pageTitle">
 
-    <h1>{{ $tr('advanced') }}</h1>
-    <p>{{ $tr('advancedDescription') }}</p>
-    <div>
-      <KButton
-        :text="buttonText"
-        appearance="basic-link"
-        @click="advancedShown = !advancedShown"
-      />
-    </div>
-    <TechnicalTextBlock
-      v-if="advancedShown"
-      dir="auto"
-      :text="infoText"
-      class="bottom-section"
-    />
-    <DeviceNameModal
-      v-if="showDeviceNameModal"
-      :deviceName="deviceName"
-      @submit="handleSubmitDeviceName"
-      @cancel="showDeviceNameModal = false"
-    />
-  </div>
+    <template #subNav>
+      <DeviceTopNav />
+    </template>
+
+    <KPageContainer class="device-container">
+      <div v-if="!$store.state.core.loading">
+        <h1>{{ $tr('header') }}</h1>
+        <table :class="windowIsSmall ? 'mobile-table' : ''">
+          <tr>
+            <th>
+              {{ $tr('url', { count: deviceInfo.urls.length }) }}
+            </th>
+            <td :class="windowIsSmall ? 'mobile' : ''">
+              <KExternalLink
+                v-for="(url, index) in deviceInfo.urls"
+                :key="index"
+                :text="url"
+                :href="url"
+                :primary="true"
+                :openInNewTab="true"
+                appearance="basic-link"
+              />
+            </td>
+          </tr>
+          <tr>
+            <th>{{ $tr('freeDisk') }}</th>
+            <td>{{ deviceInfo.content_storage_free_space }}</td>
+          </tr>
+          <tr>
+            <th>
+              {{ $tr('kolibriVersion') }}
+            </th>
+            <td :class="windowIsSmall ? 'mobile' : ''">
+              {{ deviceInfo.version }}
+            </td>
+          </tr>
+          <tr>
+            <th>{{ coreString('deviceNameLabel') }}</th>
+            <td>
+              {{ deviceNameWithId }}
+              <KButton
+                class="edit-button"
+                :text="coreString('editAction')"
+                appearance="basic-link"
+                @click="showDeviceNameModal = true"
+              />
+            </td>
+          </tr>
+        </table>
+
+        <h1>{{ $tr('advanced') }}</h1>
+        <p>{{ $tr('advancedDescription') }}</p>
+        <div>
+          <KButton
+            :text="buttonText"
+            appearance="basic-link"
+            @click="advancedShown = !advancedShown"
+          />
+        </div>
+        <TechnicalTextBlock
+          v-if="advancedShown"
+          dir="auto"
+          :text="infoText"
+          class="bottom-section"
+        />
+        <DeviceNameModal
+          v-if="showDeviceNameModal"
+          :deviceName="deviceName"
+          @submit="handleSubmitDeviceName"
+          @cancel="showDeviceNameModal = false"
+        />
+      </div>
+    </KPageContainer>
+  </AppBarPage>
 
 </template>
 
@@ -77,6 +86,9 @@
   import TechnicalTextBlock from 'kolibri.coreVue.components.TechnicalTextBlock';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
+  import { deviceString } from './commonDeviceStrings';
+  import DeviceTopNav from './DeviceTopNav';
   import DeviceNameModal from './DeviceNameModal';
 
   export default {
@@ -87,7 +99,9 @@
       };
     },
     components: {
+      AppBarPage,
       DeviceNameModal,
+      DeviceTopNav,
       TechnicalTextBlock,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
@@ -121,6 +135,9 @@
           deviceName: this.deviceName,
           deviceId: this.deviceInfo.device_id.slice(0, 4),
         });
+      },
+      pageTitle() {
+        return deviceString('deviceManagementTitle');
       },
     },
     methods: {
@@ -179,6 +196,12 @@
 
 
 <style lang="scss" scoped>
+
+  @import '../styles/definitions';
+
+  .device-container {
+    @include device-kpagecontainer;
+  }
 
   table {
     margin-top: 16px;

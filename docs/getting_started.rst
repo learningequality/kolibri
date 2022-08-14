@@ -48,14 +48,24 @@ Next, initialize Git LFS:
   cd kolibri  # Enter the Kolibri directory
   git lfs install
 
-Finally, add the Learning Equality repo as a remote. That way you can keep your local checkout updated with the most recent changes:
+Finally, add the Learning Equality repo as a remote called `upstream`. That way you can keep your local checkout updated with the most recent changes:
 
 .. code-block:: bash
 
   git remote add upstream git@github.com:learningequality/kolibri.git
   git fetch --all  # Check if there are changes upstream
-  git checkout develop # Checkout the development branch
+  git checkout -t upstream/develop # Checkout the development branch
 
+
+Checkout release-v0.15.x
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+We are currently updating our “setting up Kolibri” (user workflow) for our upcoming 0.16 release, and the code is only partially merged in develop. Therefore, you may run into some challenges if you try to setup on develop.
+When setting up Kolibri for the first time, even if you will be working off of develop for your feature or bug, please complete your initial Kolibri set up up on the release-0.15.x branch. This will allow you to go through the existing user workflow for setting up a facility in the UI. Once you facility is created, you can git checkout develop (or any other branch) and continue to use the facility that you have set up.
+
+.. code-block:: bash
+
+  git checkout -t upstream/release-v0.15.x
 
 
 Python and Pip
@@ -63,10 +73,12 @@ Python and Pip
 
 To develop on Kolibri, you'll need:
 
-* Python 3.4+ or Python 2.7+ (Kolibri doesn't currently support Python 3.10.0 or higher)
+* Python 3.4+ or Python 2.7+ (Kolibri doesn't currently support Python 3.11.0 or higher)
 * `pip <https://pypi.python.org/pypi/pip>`__
 
-Managing Python installations can be quite tricky. We *highly* recommend using package managers like `Homebrew <http://brew.sh/>`__ on Mac or ``apt`` on Debian for this.
+Managing Python installations can be quite tricky. We *highly* recommend using `pyenv <https://github.com/pyenv/pyenv>`__ or if you are more comfortable using a package manager, then package managers like `Homebrew <http://brew.sh/>`__ on Mac or ``apt`` on Debian for this.
+
+To install pyenv see the detailed instructions here :doc:`/howtos/installing_pyenv`.
 
 .. warning::
   Never modify your system's built-in version of Python
@@ -76,25 +88,27 @@ Python virtual environment
 
 You should use a Python virtual environment to isolate the dependencies of your Python projects from each other and to avoid corrupting your system's Python installation.
 
-There are many ways to set up Python virtual environments: You can use `Pipenv <https://pipenv.readthedocs.io/en/latest/>`__ as shown in the instructions below; you can also use `Virtualenv <https://virtualenv.pypa.io/en/latest/>`__, `Python 3 venv <https://docs.python.org/3/library/venv.html>`__, `Poetry <https://poetry.eustace.io>`__ etc.
+There are many ways to set up Python virtual environments: You can use `pyenv-virtualenv <https://github.com/pyenv/pyenv-virtualenv>`__ as shown in the instructions below; you can also use `Virtualenv <https://virtualenv.pypa.io/en/latest/>`__, `Virtualenvwrapper <https://virtualenvwrapper.readthedocs.io/en/latest/>`__ `Pipenv <https://pipenv.readthedocs.io/en/latest/>`__, `Python 3 venv <https://docs.python.org/3/library/venv.html>`__, `Poetry <https://poetry.eustace.io>`__ etc.
 
 .. note::
   Most virtual environments will require special setup for non-Bash shells such as Fish and ZSH.
 
-Once Pipenv is installed, you can use the following commands to set up and use a virtual environment from within the Kolibri repo:
+To setup and start using pyenv-virtualenv, follow the instructions here :doc:`/howtos/pyenv_virtualenv`.
+
+Once pyenv-virtualenv is installed, you can use the following commands to set up and use a virtual environment from within the Kolibri repo:
 
 
 .. code-block:: bash
 
-  pipenv --python 3  # can also make a python 2 environment
-  pipenv shell  # activates the virtual environment
+  pyenv virtualenv 3.9.9 kolibri-py3.9  # can also make a python 2 environment
+  pyenv activate kolibri-py3.9  # activates the virtual environment
 
 Now, any commands you run will target your virtual environment rather than the global Python installation. To deactivate the virtualenv, simply run:
 
 
 .. code-block:: bash
 
-  exit
+  pyenv deactivate
 
 (Note that you'll want to leave it activated for the remainder of the setup process)
 
@@ -158,11 +172,16 @@ Install Node.js, Yarn and other dependencies
 #. Install `Yarn <https://yarnpkg.com/>`__
 #. Install non-python project-specific dependencies
 
+For a more detailed guide to using nodeenv see :doc:`/howtos/nodeenv`.
+
 The Python project-specific dependencies installed above will install ``nodeenv``, which is a useful tool for using specific versions of Node.js and other Node.js tools in Python environments. To setup Node.js and Yarn within the Kolibri project environment, ensure your Python virtual environment is active, then run:
 
 .. code-block:: bash
 
   # node.js, npm, and yarn
+  # If you are setting up the release-v0.15.x branch or earlier:
+  nodeenv -p --node=10.17.0
+  # If you are setting up the develop branch:
   nodeenv -p --node=16.13.2
   npm install -g yarn
 
@@ -203,9 +222,22 @@ Alternatively, you can run the devserver with `hot reload <https://vue-loader.vu
 
   yarn run devserver-hot
 
-Note that the default devserver commands above will automatically watch your source files for changes as you edit them, and do formatting and linting fixes on them.
+.. tip::
 
-For more information, including instructions on disabling auto-formatting, see the :ref:`linting` section below.
+  Running the development server to compile all client-side dependencies can take up a lot of system resources. To limit the specific frontend bundles that are built and watched, you can pass keywords to either of the above commands to only watch those.
+
+  .. code-block:: bash
+
+    yarn run devserver-hot learn
+
+  Would build all assets that are not currently built, and run a devserver only watching the Learn plugin.
+
+  .. code-block:: bash
+
+    yarn run devserver core,learn
+
+  Would run the devserver not in hot mode, and rebuild the core Kolibri assets and the Learn plugin.
+
 
 For a complete reference of the commands that can be run and what they do, inspect the ``scripts`` section of the root *./package.json* file.
 
@@ -217,10 +249,16 @@ For a complete reference of the commands that can be run and what they do, inspe
 
   If you get an error similar to "Node Sass could not find a binding for your current environment", try running ``npm rebuild node-sass``
 
+Kolibri setup
+~~~~~~~~~~~~~
+
+Most development on Kolibri requires a configured facility - this is done during the setup wizard. Complete the setup wizard on release-v0.15.x. If you are then intending to contribute to the develop branch, once this is completed, check out the develop branch, reinstall Python dependencies, and install NodeJS 16 as per instructions above.
+
+
 Production server
 ~~~~~~~~~~~~~~~~~
 
-In production, content is served through `CherryPy <https://docs.cherrypy.dev/en/latest/>`__. Frontend static assets are pre-built:
+In production, content is served through `Whitenoise <http://whitenoise.evans.io/en/stable/>`__. Frontend static assets are pre-built:
 
 .. code-block:: bash
 
@@ -297,19 +335,7 @@ Linting and auto-formatting
 Manual linting and formatting
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Linting and code auto-formatting provided by Prettier and Black are run in the background automatically by ``yarn run devserver`` (see :ref:`devserver`). You can monitor for linting errors and warnings in the terminal outputs of the dev server while it is running.
-
-If you would prefer to do these on demand (such as with IDE linting tools or using a tool like pre-commit) then you can run the development server in "warning only" mode. For example:
-
-.. code-block:: bash
-
-  yarn run devserver-warn
-
-or with hot reload:
-
-.. code-block:: bash
-
-  yarn run devserver-hot-warn
+Linting and code auto-formatting are done by Prettier and Black.
 
 You can manually run the auto-formatters using:
 
@@ -380,6 +406,8 @@ You can also run the auto-build for faster editing from the ``docs`` directory:
 
   cd docs
   sphinx-autobuild --port 8888 . _build
+
+Now you should be able to preview the docs at ``http://127.0.0.1:8888/``.
 
 
 Automated testing
