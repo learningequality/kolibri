@@ -1,5 +1,5 @@
 export const ComponentMap = {
-  PROFILE: 'ProfilePage',
-  PROFILE_EDIT: 'ProfileEditPage',
+  PROFILE: 'PROFILE',
+  PROFILE_EDIT: 'PROFILE_EDIT',
   NEW_PASSWORD: 'NewPasswordPage',
 };
