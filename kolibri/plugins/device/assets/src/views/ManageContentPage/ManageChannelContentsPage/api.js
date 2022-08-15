@@ -3,9 +3,9 @@ import {
   RemoteChannelResource,
   TaskResource,
 } from 'kolibri.resources';
+import { TaskTypes } from 'kolibri.utils.syncTaskUtils';
 import { getChannelWithContentSizes } from '../../../modules/wizard/apiChannelMetadata';
 import { getDeviceInfo } from '../../../modules/deviceInfo/handlers';
-import { TaskTypes } from '../../../constants';
 
 export function fetchPageData(channelId) {
   const studioChannelPromise = RemoteChannelResource.fetchModel({ id: channelId, force: true })

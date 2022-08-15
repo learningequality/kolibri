@@ -5,7 +5,7 @@ import client from 'kolibri.client';
 import urls from 'kolibri.urls';
 import isEqual from 'lodash/isEqual';
 import pick from 'lodash/fp/pick';
-import { TaskStatuses, TaskTypes } from '../../../constants';
+import { TaskStatuses, TaskTypes } from 'kolibri.utils.syncTaskUtils';
 
 const logging = logger.getLogger(__filename);
 

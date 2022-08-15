@@ -1,6 +1,7 @@
 import router from 'kolibri.coreVue.router';
 import { createTranslator } from 'kolibri.utils.i18n';
-import { ContentSources, ContentWizardPages, TransferTypes } from '../../../constants';
+import { TransferTypes } from 'kolibri.utils.syncTaskUtils';
+import { ContentSources, ContentWizardPages } from '../../../constants';
 import {
   availableChannelsPageLink,
   selectContentPageLink,

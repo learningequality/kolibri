@@ -53,7 +53,7 @@
   import find from 'lodash/find';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { TransferTypes } from '../../../constants';
+  import { TransferTypes } from 'kolibri.utils.syncTaskUtils';
   import DriveList from './DriveList';
 
   export default {

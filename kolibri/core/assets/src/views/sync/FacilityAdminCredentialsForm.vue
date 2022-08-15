@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <form>
     <p v-if="singleFacility && facility.name" class="facility-name">
       {{ formatNameAndId(facility.name, facility.id) }}
     </p>
@@ -31,7 +31,7 @@
       :showConfirmationInput="false"
       :disabled="$attrs.disabled"
     />
-  </div>
+  </form>
 
 </template>
 

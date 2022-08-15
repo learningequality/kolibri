@@ -124,11 +124,12 @@
   import { TaskResource } from 'kolibri.resources';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
+  import { TransferTypes, TaskTypes } from 'kolibri.utils.syncTaskUtils';
   import ChannelPanel from '../ManageContentPage/ChannelPanel/WithImportDetails';
   import ContentWizardUiAlert from '../SelectContentPage/ContentWizardUiAlert';
   import { selectContentPageLink } from '../ManageContentPage/manageContentLinks';
   import useContentTasks from '../../composables/useContentTasks';
-  import { TransferTypes, PageNames, TaskTypes } from '../../constants';
+  import { PageNames } from '../../constants';
   import FilteredChannelListContainer from '../ManageContentPage/FilteredChannelListContainer';
   import SelectionBottomBar from '../ManageContentPage/SelectionBottomBar';
   import taskNotificationMixin from '../taskNotificationMixin';

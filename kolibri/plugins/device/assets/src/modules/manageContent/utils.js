@@ -1,5 +1,5 @@
 import coreStore from 'kolibri.coreVue.vuex.store';
-import { TaskStatuses } from '../../constants';
+import { TaskStatuses } from 'kolibri.utils.syncTaskUtils';
 
 /**
  * Watches the state.taskList and resolves when the tracked Task is COMPLETED.

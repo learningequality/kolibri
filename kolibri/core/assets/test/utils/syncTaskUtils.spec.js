@@ -4,8 +4,9 @@ import {
   removeStatusToDescriptionMap,
   removeFacilityTaskDisplayInfo,
   SyncTaskStatuses,
-} from '../syncTaskUtils';
-import { TaskStatuses, TaskTypes } from '../../constants';
+  TaskStatuses,
+  TaskTypes,
+} from '../../src/utils/syncTaskUtils';
 
 const CLEARABLE_STATUSES = ['COMPLETED', 'CANCELED', 'FAILED'];
 

@@ -44,7 +44,7 @@
   import { TaskResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import { TaskTypes } from '../../constants';
+  import { TaskTypes } from 'kolibri.utils.syncTaskUtils';
 
   export default {
     name: 'RemoveFacilityModal',

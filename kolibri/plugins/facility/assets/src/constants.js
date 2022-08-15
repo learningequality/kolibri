@@ -34,27 +34,6 @@ export const pageNameToModuleMap = {
   [PageNames.FACILITY_CONFIG_PAGE]: 'facilityConfig',
 };
 
-export const TaskTypes = {
-  EXPORTSESSIONLOGCSV: 'kolibri.core.logger.tasks.exportsessionlogcsv',
-  EXPORTSUMMARYLOGCSV: 'kolibri.core.logger.tasks.exportsummarylogcsv',
-  SYNCDATAPORTAL: 'kolibri.core.auth.tasks.dataportalsync',
-  IMPORTUSERSFROMCSV: 'kolibri.core.auth.tasks.importusersfromcsv',
-  EXPORTUSERSTOCSV: 'kolibri.core.auth.tasks.exportuserstocsv',
-};
-
-// Identical to device constants.js
-export const TaskStatuses = Object.freeze({
-  IN_PROGRESS: 'INPROGRESS',
-  COMPLETED: 'COMPLETED',
-  FAILED: 'FAILED',
-  PENDING: 'PENDING',
-  RUNNING: 'RUNNING',
-  QUEUED: 'QUEUED',
-  SCHEDULED: 'SCHEDULED',
-  CANCELED: 'CANCELED',
-  CANCELING: 'CANCELING',
-});
-
 export const CSVGenerationStatuses = {
   NO_LOGS_CREATED: 'NOLOGSCREATED',
   GENERATING: 'GENERATING',

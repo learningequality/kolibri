@@ -169,9 +169,9 @@
     SyncFacilityModalGroup,
   } from 'kolibri.coreVue.componentSets.sync';
   import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
+  import { TaskStatuses, TaskTypes } from 'kolibri.utils.syncTaskUtils';
   import TasksBar from '../ManageContentPage/TasksBar';
   import HeaderWithOptions from '../HeaderWithOptions';
-  import { TaskStatuses, TaskTypes } from '../../constants';
   import DeviceTopNav from '../DeviceTopNav';
   import { deviceString } from '../commonDeviceStrings';
   import RemoveFacilityModal from './RemoveFacilityModal';

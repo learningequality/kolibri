@@ -1,23 +1,14 @@
 <template>
 
-  <div>
-    <ProgressToolbar
-      :removeNavIcon="removeNavIcon"
-      :title="currentTitle"
-      @click_back="goToLastStep"
-    />
-    <div class="main">
-      <KPageContainer>
-        <component
-          :is="currentComponent"
-          :device.sync="device"
-          :facility.sync="facility"
-          :superuser.sync="superuser"
-          @click_next="goToNextStep"
-        />
-      </KPageContainer>
-    </div>
-  </div>
+  <component
+    :is="currentComponent"
+    :device.sync="device"
+    :facility.sync="facility"
+    :superuser.sync="superuser"
+    :stepMessage.sync="currentStepMessage"
+    @click_back="goToLastStep"
+    @click_next="goToNextStep"
+  />
 
 </template>
 
@@ -26,17 +17,19 @@
 
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import ProgressToolbar from './ProgressToolbar';
-  import OnboardingForm from './onboarding-forms/OnboardingForm';
+  import OnboardingStepBase from './OnboardingStepBase';
   import PersonalDataConsentForm from './onboarding-forms/PersonalDataConsentForm';
+  import ImportAuthentication from './importFacility/ImportAuthentication';
   import SelectFacilityForm from './importFacility/SelectFacilityForm';
   import SelectSuperAdminAccountForm from './importFacility/SelectSuperAdminAccountForm';
   import LoadingTaskPage from './importFacility/LoadingTaskPage';
 
   const stepToComponentMap = {
     1: SelectFacilityForm,
-    2: LoadingTaskPage,
-    3: SelectSuperAdminAccountForm,
-    4: PersonalDataConsentForm,
+    2: ImportAuthentication,
+    3: LoadingTaskPage,
+    4: SelectSuperAdminAccountForm,
+    5: PersonalDataConsentForm,
   };
 
   const TOTAL_STEPS = 4;
@@ -46,7 +39,7 @@
   export default {
     name: 'ImportFacilitySetup',
     components: {
-      OnboardingForm,
+      OnboardingStepBase,
       PersonalDataConsentForm,
       ProgressToolbar,
     },
@@ -83,15 +76,11 @@
       currentStep() {
         return Number(this.$route.params.step);
       },
-      currentTitle() {
+      currentStepMessage() {
         return this.$tr('stepTitle', {
           step: this.currentStep,
           total: TOTAL_STEPS,
         });
-      },
-      removeNavIcon() {
-        // TODO disable backwards navigation at the router level
-        return this.currentStep > 1;
       },
     },
     beforeRouteUpdate(to, from, next) {
@@ -105,7 +94,10 @@
       }
     },
     methods: {
-      goToNextStep() {
+      goToNextStep({ device, facility } = {}) {
+        this.device = device || this.device;
+        this.facility = facility || this.facility;
+
         if (this.currentStep < TOTAL_STEPS) {
           this.$router.push({
             params: {
@@ -147,10 +139,4 @@
 </script>
 
 
-<style lang="scss" scoped>
-
-  .main {
-    margin: 16px;
-  }
-
-</style>
+<style lang="scss" scoped></style>

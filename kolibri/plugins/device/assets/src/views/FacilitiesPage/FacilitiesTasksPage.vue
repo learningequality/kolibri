@@ -38,6 +38,7 @@
 
 <script>
 
+  import { FacilityTaskPanel } from 'kolibri.coreVue.componentSets.sync';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonTaskStrings from 'kolibri.coreVue.mixins.commonTaskStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
@@ -45,7 +46,6 @@
   import HeaderWithOptions from '../HeaderWithOptions';
   import commonDeviceStrings from '../commonDeviceStrings';
   import { PageNames } from '../../constants';
-  import FacilityTaskPanel from './FacilityTaskPanel';
   import facilityTasksQueue from './facilityTasksQueue';
 
   export default {
