@@ -52,7 +52,7 @@
     "ini": "^2.0.0",
     "jest": "^24.5.0",
     "jest-serializer-vue": "^2.0.2",
-    "launch-editor-middleware": "^2.2.1",
+    "launch-editor-middleware": "^2.5.0",
     "lodash": "^4.17.21",
     "mini-css-extract-plugin": "^1.4.1",
     "mkdirp": "^1.0.4",
