@@ -13,7 +13,7 @@
         />
       </NavbarLink>
     </div>
-    <span v-if="overflowMenuLinks && overflowMenuLinks.length > 0 && !windowIsLarge">
+    <span v-if="overflowMenuLinks && overflowMenuLinks.length > 0">
       <KIconButton
         class="menu-icon"
         :tooltip="coreString('moreOptions')"
@@ -120,20 +120,6 @@
         this.generateOverflowMenu();
       },
     },
-    // $trs: {
-    //   permissionsLabel: {
-    //     message: 'Permissions',
-    //     context: 'Refers to the Device > Permissions tab.',
-    //   },
-    //   infoLabel: {
-    //     message: 'Info',
-    //     context: 'Refers to the Device > Info tab.',
-    //   },
-    //   settingsLabel: {
-    //     message: 'Settings',
-    //     context: 'Refers to the Device > Settings tab.\n',
-    //   },
-    // },
   };
 
 </script>

@@ -34,6 +34,10 @@ localVue.use(Vuex);
 localVue.use(VueRouter);
 const mockStore = new Vuex.Store({
   state: { core: { loading: false } },
+  getters: {
+    isUserLoggedIn: jest.fn(),
+    isLearner: jest.fn(),
+  },
 });
 
 function makeWrapper() {
@@ -54,7 +58,7 @@ function makeWrapper() {
   return mount(HomePage, {
     localVue,
     router,
-    stubs: ['SideNav'],
+    stubs: ['SideNav', 'LearnTopNav'],
     store: mockStore,
   });
 }

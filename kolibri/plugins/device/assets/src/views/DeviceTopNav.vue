@@ -64,6 +64,7 @@
     computed: {
       ...mapGetters(['canManageContent', 'isSuperuser']),
     },
+
     $trs: {
       permissionsLabel: {
         message: 'Permissions',

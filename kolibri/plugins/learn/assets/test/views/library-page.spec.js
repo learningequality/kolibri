@@ -23,7 +23,7 @@ const router = new VueRouter({
 // rootNodes used when showing default view, should always have length
 const mockStore = new Vuex.Store({
   state: { rootNodes: ['length'], core: { loading: false } },
-  getters: { isUserLoggedIn: jest.fn() },
+  getters: { isUserLoggedIn: jest.fn(), isLearner: jest.fn() },
 });
 
 jest.mock('../../src/composables/useSearch');
@@ -58,7 +58,7 @@ describe('LibraryPage', () => {
         localVue,
         router,
         store: mockStore,
-        stubs: ['SidePanelModal', 'HybridLearningCardGrid'],
+        stubs: ['SidePanelModal', 'HybridLearningCardGrid', 'LearnTopNav'],
       });
       // not displayed by default
       expect(wrapper.findComponent({ name: 'SidePanel' }).vm.$children.length).toEqual(0);

@@ -1,5 +1,5 @@
 import mock from 'xhr-mock';
-import { mount, RouterLinkStub } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import makeStore from '../../../../test/makeStore';
 import UserPage from '../index';
@@ -24,9 +24,7 @@ function makeWrapper() {
   const wrapper = mount(UserPage, {
     store,
     router,
-    stubs: {
-      RouterLink: RouterLinkStub,
-    },
+    stubs: ['RouterLinkStub', 'FacilityTopNav'],
   });
   return { wrapper, store };
 }

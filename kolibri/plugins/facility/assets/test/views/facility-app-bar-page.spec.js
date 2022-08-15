@@ -6,7 +6,7 @@ function makeWrapper({ propsData = {}, vuexData = {} }) {
   const store = new Vuex.Store(vuexData);
   store.getters = {
     facilityPageLinks: () => {},
-    ...store.getters,
+    getUserKind: jest.fn(),
   };
   store.state.core = {
     loading: false,
@@ -15,7 +15,7 @@ function makeWrapper({ propsData = {}, vuexData = {} }) {
   return mount(FacilityAppBarPage, {
     propsData,
     store,
-    stubs: ['Navbar', 'NavbarLink'],
+    stubs: ['FacilityTopNav'],
   });
 }
 
@@ -33,10 +33,11 @@ describe('FacilityAppBarPage', function() {
     describe('the user is an admin of multiple facilities, and a current facility name is defined', () => {
       it("should return the string 'Facility – ' with the current facility name", () => {
         const wrapper = makeWrapper({
+          propsData: { appBarTitle: null },
           vuexData: {
             getters: {
               userIsMultiFacilityAdmin: jest.fn(() => true),
-              currentFacilityName: () => 'currentFacilityName',
+              currentFacilityName: jest.fn(() => 'currentFacilityName'),
             },
           },
         });
@@ -51,7 +52,7 @@ describe('FacilityAppBarPage', function() {
         vuexData: {
           getters: {
             userIsMultiFacilityAdmin: jest.fn(() => false),
-            currentFacilityName: () => 'currentFacilityName',
+            currentFacilityName: jest.fn(() => 'currentFacilityName'),
           },
         },
       });
