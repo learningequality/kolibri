@@ -7,6 +7,7 @@ from sqlalchemy import DateTime
 from sqlalchemy import Index
 from sqlalchemy import Integer
 from sqlalchemy import String
+from sqlalchemy.exc import ProgrammingError
 from sqlalchemy.ext.declarative import declarative_base
 
 from kolibri.core.tasks.exceptions import JobNotFound
@@ -173,7 +174,15 @@ class Scheduler(StorageMixin):
                 scheduled_time=naive_utc_datetime(dt),
                 saved_job=job.to_json(),
             )
-            session.merge(scheduled_job)
+            try:
+                session.merge(scheduled_job)
+            except ProgrammingError:
+                # needs to create job storage tables if they don't exist
+                from kolibri.core.tasks.main import job_storage
+
+                self.recreate_tables()
+                job_storage.recreate_tables()
+                session.merge(scheduled_job)
 
             return job.job_id
 
