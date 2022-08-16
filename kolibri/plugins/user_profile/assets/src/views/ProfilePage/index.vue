@@ -198,7 +198,7 @@
   import { PermissionTypes } from 'kolibri.coreVue.vuex.constants';
   import GenderDisplayText from 'kolibri.coreVue.components.GenderDisplayText';
   import BirthYearDisplayText from 'kolibri.coreVue.components.BirthYearDisplayText';
-  import { ComponentMap } from '../../constants';
+  import { RoutesMap } from '../../constants';
   import useCurrentUser from '../../composables/useCurrentUser';
   import useOnMyOwnSetup from '../../composables/useOnMyOwnSetup';
   import ChangeUserPasswordModal from './ChangeUserPasswordModal';
@@ -247,7 +247,7 @@
         'userHasPermissions',
       ]),
       profileEditRoute() {
-        return this.$router.getRoute(ComponentMap.PROFILE_EDIT);
+        return this.$router.getRoute(RoutesMap.PROFILE_EDIT);
       },
       userPermissions() {
         return pickBy(this.getUserPermissions);

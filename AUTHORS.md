@@ -86,3 +86,4 @@ If you have contributed to Kolibri, feel free to add your name and Github accoun
 | Carol Willing | willingc |
 | Yash Jipkate | YashJipkate |
 | Yixuan Liu | yil039 |
+| Jaideep Sharma | camperjett |

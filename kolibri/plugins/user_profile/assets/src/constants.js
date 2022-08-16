@@ -1,5 +1,4 @@
-export const ComponentMap = {
-  PROFILE: 'ProfilePage',
-  PROFILE_EDIT: 'ProfileEditPage',
-  NEW_PASSWORD: 'NewPasswordPage',
+export const RoutesMap = {
+  PROFILE: 'PROFILE',
+  PROFILE_EDIT: 'PROFILE_EDIT',
 };
