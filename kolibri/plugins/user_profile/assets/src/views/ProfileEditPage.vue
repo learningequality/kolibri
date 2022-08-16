@@ -82,7 +82,7 @@
   import { FacilityUserResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import CoreBase from 'kolibri.coreVue.components.CoreBase';
-  import { ComponentMap } from '../constants';
+  import { RoutesMap } from '../constants';
   import plugin_data from 'plugin_data';
 
   export default {
@@ -139,7 +139,7 @@
         return every([this.fullNameValid, this.usernameValid]);
       },
       profileRoute() {
-        return this.$router.getRoute(ComponentMap.PROFILE);
+        return this.$router.getRoute(RoutesMap.PROFILE);
       },
     },
     mounted() {
