@@ -28,6 +28,21 @@ export default function videojsMenuVueMixin(vueComponent) {
     }
 
     /**
+     * `contentEl` is used when `addItem` is called, so this allows the addition of the text track
+     * options (the languages) in the right spot
+     *
+     * @override
+     * @return {*|Element}
+     */
+    get contentEl_() {
+      return this.contentEl();
+    }
+
+    set contentEl_(value) {
+      // No op - this gets called by VideoJS but we don't want it to mess with our DOM in this way.
+    }
+
+    /**
      * Override parent's method, which adds event handlers we don't want
      *
      * @override
