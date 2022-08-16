@@ -41,7 +41,11 @@
         <div aria-live="polite">
           <slot name="app-bar-actions"></slot>
           <span v-if="isLearner">
-            <KIconButton icon="pointsActive" @click="pointsDisplayed = !pointsDisplayed" />
+            <KIconButton
+              icon="pointsActive"
+              :ariaLabel="$tr('pointsAriaLabel')"
+              @click="pointsDisplayed = !pointsDisplayed"
+            />
             <div
               v-if="pointsDisplayed"
               class="points-popover"
@@ -176,6 +180,11 @@
       pointsMessage: {
         message: 'You earned { points, number } points',
         context: 'Notification indicating how many points a leaner has earned.',
+      },
+      pointsAriaLabel: {
+        message: 'Points earned',
+        context:
+          'Information for screen reader users about what information they will get by clicking a button',
       },
     },
   };
