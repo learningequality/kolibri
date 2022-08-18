@@ -97,6 +97,6 @@
   },
   "devDependencies": {
     "recast": "^0.20.4",
-    "rewire": "^2.5.2"
+    "rewire": "^6.0.0"
   }
 }
