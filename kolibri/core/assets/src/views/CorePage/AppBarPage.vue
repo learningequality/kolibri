@@ -38,6 +38,9 @@
       :style="{ color: $themeTokens.text }"
       @cancel="languageModalShown = false"
     />
+
+    <AppBottomBar class="bottom-bar" :navigationLinks="links" />
+
   </div>
 
 </template>
@@ -48,11 +51,16 @@
   import LanguageSwitcherModal from 'kolibri.coreVue.components.LanguageSwitcherModal';
   import ScrollingHeader from 'kolibri.coreVue.components.ScrollingHeader';
   import SideNav from 'kolibri.coreVue.components.SideNav';
+  import AppBottomBar from 'kolibri.coreVue.components.AppBottomBar';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import AppBar from '../AppBar';
+  import { PageNames } from './../../../../../plugins/learn/assets/src/constants';
+  import commonLearnStrings from './../../../../../plugins/learn/assets/src/views/commonLearnStrings';
 
   export default {
     name: 'AppBarPage',
-    components: { AppBar, LanguageSwitcherModal, ScrollingHeader, SideNav },
+    components: { AppBar, AppBottomBar, LanguageSwitcherModal, ScrollingHeader, SideNav },
+    mixins: [commonCoreStrings, commonLearnStrings],
     props: {
       title: {
         type: String,
@@ -91,6 +99,32 @@
               marginTop: 0,
             };
       },
+      links() {
+        const links = [
+          {
+            condition: this.isUserLoggedIn,
+            title: this.coreString('homeLabel'),
+            link: this.$router.getRoute(PageNames.HOME),
+            icon: 'dashboard',
+            color: this.$themeTokens.annotation,
+          },
+          {
+            condition: this.canAccessUnassignedContent,
+            title: this.learnString('libraryLabel'),
+            link: this.$router.getRoute(PageNames.LIBRARY),
+            icon: 'library',
+            color: this.$themeTokens.annotation,
+          },
+          {
+            condition: this.isUserLoggedIn && this.canAccessUnassignedContent,
+            title: this.coreString('bookmarksLabel'),
+            link: this.$router.getRoute(PageNames.BOOKMARKS),
+            icon: 'bookmark',
+            color: this.$themeTokens.annotation,
+          },
+        ];
+        return links;
+      },
     },
     mounted() {
       this.$nextTick(() => {
@@ -107,7 +141,7 @@
   @import '~kolibri-design-system/lib/styles/definitions';
 
   .app-bar {
-    @extend %dropshadow-4dp;
+    @extend %dropshadow-8dp;
 
     width: 100%;
   }
