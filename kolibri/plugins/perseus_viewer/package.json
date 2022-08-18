@@ -8,7 +8,7 @@
   "version": "0.0.1",
   "dependencies": {
     "aphrodite": "https://github.com/learningequality/aphrodite/",
-    "btoa": "1.1.2",
+    "btoa": "1.2.1",
     "classnames": "^2.2.5",
     "draft-js": "^0.10.1",
     "fractional": "^1.0.0",
