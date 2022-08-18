@@ -2,7 +2,7 @@ Feature: Filter panel default behaviors
 
 # Users should only see filters and filter options for available resources on the device
 
-  Background: 
+  Background:
     Given there are channels imported on the device
     When I go to the *Library* tab
       And I see the filter panel on the left
@@ -26,4 +26,3 @@ Feature: Filter panel default behaviors
   Scenario: Hide entire filter fields that are not available on the device
     Given there are no resources tagged for any filter option in <filter>
     Then I do not see <filter> in the filter panel
-    

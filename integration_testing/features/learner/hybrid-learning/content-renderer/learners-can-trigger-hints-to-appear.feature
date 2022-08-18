@@ -9,4 +9,3 @@ Feature: Learners can trigger hints to appear
       And my screen pans automatically to the hint that was revealed
     When the hint count is at zero
     Then the *Use Hint* button link should be disabled
-

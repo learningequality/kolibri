@@ -33,7 +33,3 @@ Feature: Signed-in user not enrolled in classes
       And I see the *Explore channels* section
       And I can click on an a available resource or a channel and navigate to the corresponding page
       And I don't see the sections *Continue learning from your classes*, *Recent lessons*, *Recent quizzes*
-
-
-
-

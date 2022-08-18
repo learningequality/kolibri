@@ -1,6 +1,6 @@
 Feature: Guest Home Page
 
-  Background:  
+  Background:
 
   Scenario: View the home page on a device with no channels
     Given there are no imported resources
@@ -13,4 +13,3 @@ Feature: Guest Home Page
     When I click the *Explore without account* link on the sign-in page
     Then I see the section *Explore channels*
       And I can click on a chanel to explore the available resources
-

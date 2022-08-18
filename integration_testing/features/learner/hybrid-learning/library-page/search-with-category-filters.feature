@@ -1,6 +1,6 @@
 Feature: Search with category filters
 
-  Background: 
+  Background:
     Given there are channels loaded to the device
     When I go to the *Library* tab
       And I see the filter panel on the left
@@ -49,7 +49,7 @@ Feature: Search with category filters
     When I click <category>
     Then I see *Choose a category* modal
       And I see a list of sub-categories that are tagged on my device
-      And I do not see sub-categories 
+      And I do not see sub-categories
     When I click <sub-category>
     Then I see the modal close
       And I see search results for resources in <sub-category>
@@ -78,7 +78,7 @@ Feature: Search with category filters
       And I see all resources that have not been tagged with any category
 
   Scenario: Select activity
-    When I select <activity> 
+    When I select <activity>
     Then I see <activity> is selected in the filter panel
       And I see search results for <activity>
       And I see a chip for <activity> above the search results
@@ -114,4 +114,3 @@ Feature: Search with category filters
     Then I see <checkbox option> is selected in the filter panel
       And I see search results with resources tagged with <checkbox option>
       And I see a chip for <checkbox option> above the search results
-      

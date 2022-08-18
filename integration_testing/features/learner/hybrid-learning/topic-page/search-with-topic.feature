@@ -1,6 +1,6 @@
 Feature: Search with topic
 
-  Background: 
+  Background:
     Given there is at least one channel loaded to the device
     When I go to the *Library* tab
       And I click one of the channel cards displayed at the top of the default page
@@ -48,13 +48,13 @@ Feature: Search with topic
     When I click <category>
     Then I see *Choose a category* modal
       And I see a list of sub-categories that are tagged on my device
-      And I do not see sub-categories 
+      And I do not see sub-categories
     When I click <sub-category>
     Then I see the modal close
       And I see search results for resources in <sub-category>
       And I see <category> is selected in the panel
       And I see a chip for <sub-category> above the search results
- 
+
   # I think this can be removed? I'm not sure where this fits in (MM)
   Scenario: Select "All categories" in a category modal
     When I click <category> in *Categories*
@@ -77,7 +77,7 @@ Feature: Search with topic
       And I see all resources that have not been tagged with any category
 
   Scenario: Select activity
-    When I select <activity> 
+    When I select <activity>
     Then I see <activity> is selected in the filter panel
       And I see search results for <activity>
       And I see a chip for <activity> above the search results

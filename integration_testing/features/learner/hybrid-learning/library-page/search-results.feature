@@ -51,4 +51,3 @@ Feature: Search results
   Scenario: No folders in search results
     Given the search results include folders
     Then I do not see folders in my search results
-

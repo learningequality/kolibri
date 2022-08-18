@@ -43,8 +43,8 @@ Feature: Signed-in user enrolled in classes
 
   Scenario: *Recent quizzes* section when the learner is enrolled in some classes but there are no active quizzes in any of their classes
     Given I am enrolled in some classes but there are no active quizzes in any of my classes
-    When I am at the *Home* page 
-    Then the *Recent quizzes* section is not displayed 
+    When I am at the *Home* page
+    Then the *Recent quizzes* section is not displayed
 
   Scenario: *Recent quizzes* section when the learner is enrolled in some classes for which there are some active quizzes
     Given I am enrolled in some classes for which there are some active quizzes
@@ -87,16 +87,3 @@ Feature: Signed-in user enrolled in classes
       And I can see the channels available on the device
       And if I click on a channel I can go to the channel page
       And if there are more than three channels I can see only the first three channels and a *View all* link to the *Library* page
-
-
-
-
-
-
-
-
-
-
-
-
-
