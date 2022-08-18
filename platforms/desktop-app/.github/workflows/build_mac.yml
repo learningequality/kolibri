@@ -55,10 +55,21 @@ jobs:
       with:
         repository: learningequality/kolibri-app
         ref: ${{ inputs.ref }}
-    - name: Set up Python 3.9
-      uses: actions/setup-python@v2
+    - uses: actions/cache@v2
+      id: pythoncache
       with:
-        python-version: 3.9
+        path: python-binary
+        key: ${{ runner.os }}-python-binary-${{ hashFiles('.github/workflows/build_mac.yml') }}
+        restore-keys: |
+          ${{ runner.os }}-python-binary-
+    - name: Download Python 3.9
+      if: steps.cache.pythoncache.cache-hit != 'true'
+      run: |
+        mkdir -p python-binary
+        wget https://www.python.org/ftp/python/3.9.13/python-3.9.13-macos11.pkg
+        mv python-3.9.13-macos11.pkg python-binary
+    - name: Install Python 3.9
+      run: sudo installer -pkg python-binary/python-3.9.13-macos11.pkg -target /
     - uses: actions/cache@v2
       with:
         path: ~/.cache/pip
