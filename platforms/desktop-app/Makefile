@@ -37,7 +37,7 @@ get-whl: clean-whl
 	$(MAKE) install-whl whl="${WHLFILE}"
 
 dependencies:
-	pip3 install -r build_requires.txt
+	PYINSTALLER_COMPILE_BOOTLOADER=1 pip3 install -r build_requires.txt --no-binary pyinstaller
 	python3 -c "import PyInstaller; import os; os.truncate(os.path.join(PyInstaller.__path__[0], 'hooks', 'rthooks', 'pyi_rth_django.py'), 0)"
 
 build-mac-app:
