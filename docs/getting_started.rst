@@ -308,7 +308,7 @@ We have a project-level *.editorconfig* file to help you configure your text edi
 Vue development tools
 ---------------------
 
-`Vue.js devtools <https://github.com/vuejs/vue-devtools>`__ is a browser plugin that is very helpful when working with Vue.js components and Vuex.
+`Vue.js devtools (Legacy) <https://devtools.vuejs.org/guide/installation.html>`__ is a browser plugin that is very helpful when working with Vue.js components and Vuex. Kolibri is using Vue 2, so be sure to find the "Legacy" plugin as the latest version of the extension is for Vue 3.
 
 To ensure a more efficient workflow, install appropriate editor plugins for Vue.js, ESLint, and stylelint.
 
