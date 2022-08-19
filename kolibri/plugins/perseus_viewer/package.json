@@ -46,7 +46,7 @@
     "pofile": "^1.0.8",
     "progress": "^2.0.0",
     "rimraf": "^3.0.2",
-    "string-replace-loader": "^3.0.3",
+    "string-replace-loader": "^3.1.0",
     "temp": "^0.8.3",
     "walk": "^2.3.9"
   }
