@@ -30,6 +30,6 @@ setup(
     include_package_data=True,
     zip_safe=True,
     license="MIT",
-    install_requires=["wxPython==4.1.1"],
+    install_requires=["wxPython==4.2.0"],
     extras_require={"dev": ["pre-commit"]},
 )
