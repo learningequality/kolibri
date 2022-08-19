@@ -18,7 +18,7 @@
       <transition name="slide">
         <div
           v-if="showControls"
-          class="fullscreen-header"
+          class="fullscreen-header pdf-controls-container"
           :style="{ backgroundColor: this.$themePalette.grey.v_100 }"
         >
           <KIconButton
