@@ -276,6 +276,12 @@ EXTRA_LANG_INFO = {
         "name": "Portuguese (Mozambique)",
         "name_local": "Português (Moçambique)",
     },
+    "uk": {
+        "bidi": False,
+        "code": "uk",
+        "name": "Ukrainian",
+        "name_local": "Украї́нська мо́ва",
+    },
     "zh": {
         "bidi": False,
         "code": "zh-hans",
@@ -386,6 +392,8 @@ ENABLE_DATA_BOOTSTRAPPING = True
 SESSION_ENGINE = "django.contrib.sessions.backends.file"
 
 SESSION_FILE_PATH = os.path.join(conf.KOLIBRI_HOME, "sessions")
+
+SECURE_CONTENT_TYPE_NOSNIFF = True
 
 if not os.path.exists(SESSION_FILE_PATH):
     if not os.path.exists(conf.KOLIBRI_HOME):

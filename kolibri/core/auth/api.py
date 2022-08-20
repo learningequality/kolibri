@@ -29,10 +29,13 @@ from django.utils.decorators import method_decorator
 from django.utils.timezone import now
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django_filters.rest_framework import CharFilter
+from django_filters.rest_framework import ChoiceFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
 from django_filters.rest_framework import ModelChoiceFilter
 from morango.api.permissions import BasicMultiArgumentAuthentication
+from morango.constants import transfer_stages
+from morango.constants import transfer_statuses
 from morango.models import TransferSession
 from rest_framework import decorators
 from rest_framework import filters
@@ -75,7 +78,19 @@ from kolibri.core.mixins import BulkCreateMixin
 from kolibri.core.mixins import BulkDeleteMixin
 from kolibri.core.query import annotate_array_aggregate
 from kolibri.core.query import SQCount
+from kolibri.core.utils.pagination import ValuesViewsetPageNumberPagination
 from kolibri.plugins.app.utils import interface
+
+
+class OptionalPageNumberPagination(ValuesViewsetPageNumberPagination):
+    """
+    Pagination class that allows for page number-style pagination, when requested.
+    To activate, the `page_size` argument must be set. For example, to request the first 20 records:
+    `?page_size=20&page=1`
+    """
+
+    page_size = None
+    page_size_query_param = "page_size"
 
 
 class KolibriAuthPermissionsFilter(filters.BaseFilterBackend):
@@ -86,13 +101,8 @@ class KolibriAuthPermissionsFilter(filters.BaseFilterBackend):
     """
 
     def filter_queryset(self, request, queryset, view):
-        # if the url name ends with "-list" or the endpoint is explicitly declared a list endpoint
-        # with .detail=False
-        is_list = request.resolver_match.url_name.endswith("-list") or not getattr(
-            request.resolver_match.func, "detail", True
-        )
-        if request.method == "GET" and is_list:
-            # only filter down the queryset in the case of the list view being requested
+        if request.method == "GET":
+            # If a 'GET' method only return readable items to filter down the queryset.
             return request.user.filter_readable(queryset)
         # otherwise, return the full queryset, as permission checks will happen object-by-object
         # (and filtering here then leads to 404's instead of the more correct 403's)
@@ -189,16 +199,57 @@ class FacilityDatasetViewSet(ValuesViewset):
 
 class FacilityUserFilter(FilterSet):
 
+    USER_TYPE_CHOICES = (
+        ("learner", "learner"),
+        ("superuser", "superuser"),
+    ) + role_kinds.choices
+
     member_of = ModelChoiceFilter(
         method="filter_member_of", queryset=Collection.objects.all()
+    )
+    user_type = ChoiceFilter(
+        choices=USER_TYPE_CHOICES,
+        method="filter_user_type",
+    )
+    exclude_member_of = ModelChoiceFilter(
+        method="filter_exclude_member_of", queryset=Collection.objects.all()
+    )
+    exclude_coach_for = ModelChoiceFilter(
+        method="filter_exclude_coach_for", queryset=Collection.objects.all()
+    )
+    exclude_user_type = ChoiceFilter(
+        choices=USER_TYPE_CHOICES,
+        method="filter_exclude_user_type",
     )
 
     def filter_member_of(self, queryset, name, value):
         return queryset.filter(Q(memberships__collection=value) | Q(facility=value))
 
+    def filter_user_type(self, queryset, name, value):
+        if value == "learner":
+            return queryset.filter(roles__isnull=True)
+        if value == "superuser":
+            return queryset.filter(devicepermissions__is_superuser=True)
+        return queryset.filter(roles__kind=value)
+
+    def filter_exclude_member_of(self, queryset, name, value):
+        return queryset.exclude(Q(memberships__collection=value) | Q(facility=value))
+
+    def filter_exclude_coach_for(self, queryset, name, value):
+        return queryset.exclude(
+            Q(roles__in=Role.objects.filter(kind=role_kinds.COACH, collection=value))
+        )
+
+    def filter_exclude_user_type(self, queryset, name, value):
+        if value == "learner":
+            return queryset.exclude(roles__isnull=True)
+        if value == "superuser":
+            return queryset.exclude(devicepermissions__is_superuser=True)
+        return queryset.exclude(roles__kind=value)
+
     class Meta:
         model = FacilityUser
-        fields = ["member_of"]
+        fields = ["member_of", "user_type", "exclude_member_of", "exclude_user_type"]
 
 
 class PublicFacilityUserViewSet(ReadOnlyValuesViewset):
@@ -249,10 +300,18 @@ class PublicFacilityUserViewSet(ReadOnlyValuesViewset):
 
 class FacilityUserViewSet(ValuesViewset):
     permission_classes = (KolibriAuthPermissions,)
-    filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
+    pagination_class = OptionalPageNumberPagination
+    filter_backends = (
+        KolibriAuthPermissionsFilter,
+        DjangoFilterBackend,
+        filters.SearchFilter,
+    )
+    order_by_field = "username"
+
     queryset = FacilityUser.objects.all()
     serializer_class = FacilityUserSerializer
     filter_class = FacilityUserFilter
+    search_fields = ("username", "full_name")
 
     values = (
         "id",
@@ -289,6 +348,7 @@ class FacilityUserViewSet(ValuesViewset):
                     roles.append(role)
             item["roles"] = roles
             output.append(item)
+        output = sorted(output, key=lambda x: x[self.order_by_field])
         return output
 
     def set_password_if_needed(self, instance, serializer):
@@ -428,13 +488,28 @@ class FacilityViewSet(ValuesViewset):
     queryset = Facility.objects.all()
     serializer_class = FacilitySerializer
 
-    facility_values = ["id", "name", "num_classrooms", "num_users", "last_synced"]
+    facility_values = [
+        "id",
+        "name",
+        "num_classrooms",
+        "num_users",
+        "last_successful_sync",
+        "last_failed_sync",
+    ]
 
     values = tuple(facility_values + dataset_keys)
 
     field_map = {"dataset": _map_dataset}
 
     def annotate_queryset(self, queryset):
+        transfer_session_dataset_filter = Func(
+            Cast(OuterRef("dataset"), TextField()),
+            Value("-"),
+            Value(""),
+            function="replace",
+            output_field=TextField(),
+        )
+
         return (
             queryset.annotate(
                 num_users=SQCount(
@@ -447,15 +522,27 @@ class FacilityViewSet(ValuesViewset):
                 )
             )
             .annotate(
-                last_synced=Subquery(
+                last_successful_sync=Subquery(
+                    # the sync command does a pull, then a push, so if the push succeeded,
+                    # the pull likely did too, which means this should represent when the
+                    # facility was last fully and successfully synced
                     TransferSession.objects.filter(
-                        filter=Func(
-                            Cast(OuterRef("dataset"), TextField()),
-                            Value("-"),
-                            Value(""),
-                            function="replace",
-                            output_field=TextField(),
-                        )
+                        push=True,
+                        active=False,
+                        transfer_stage=transfer_stages.CLEANUP,
+                        transfer_stage_status=transfer_statuses.COMPLETED,
+                        filter=transfer_session_dataset_filter,
+                    )
+                    .order_by("-last_activity_timestamp")
+                    .values("last_activity_timestamp")[:1]
+                )
+            )
+            .annotate(
+                last_failed_sync=Subquery(
+                    # Here we simply look for if any transfer session has errored
+                    TransferSession.objects.filter(
+                        transfer_stage_status=transfer_statuses.ERRORED,
+                        filter=transfer_session_dataset_filter,
                     )
                     .order_by("-last_activity_timestamp")
                     .values("last_activity_timestamp")[:1]

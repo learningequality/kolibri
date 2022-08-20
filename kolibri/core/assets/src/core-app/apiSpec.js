@@ -52,6 +52,7 @@ import commonSyncElements from '../mixins/commonSyncElements';
 import CoreFullscreen from '../views/CoreFullscreen';
 import * as exams from '../exams/utils';
 import * as validators from '../validators';
+import * as objectSpecs from '../objectSpecs';
 import * as serverClock from '../serverClock';
 import * as resources from '../api-resources';
 import * as i18n from '../utils/i18n';
@@ -239,5 +240,6 @@ export default {
     UserType,
     validators,
     coreStrings,
+    objectSpecs,
   },
 };

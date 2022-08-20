@@ -53,24 +53,24 @@ export default [
     name: PageNames.CLASS_ENROLL_LEARNER,
     component: LearnerClassEnrollmentPage,
     path: '/:facility_id?/classes/:id/learner-enrollment/',
-    handler: toRoute => {
-      showLearnerClassEnrollmentPage(store, toRoute);
+    handler: (toRoute, fromRoute) => {
+      showLearnerClassEnrollmentPage(store, toRoute, fromRoute);
     },
   },
   {
     name: PageNames.CLASS_ASSIGN_COACH,
     component: CoachClassAssignmentPage,
     path: '/:facility_id?/classes/:id/coach-assignment/',
-    handler: toRoute => {
-      showCoachClassAssignmentPage(store, toRoute);
+    handler: (toRoute, fromRoute) => {
+      showCoachClassAssignmentPage(store, toRoute, fromRoute);
     },
   },
   {
     name: PageNames.USER_MGMT_PAGE,
     component: UserPage,
     path: '/:facility_id?/users',
-    handler: toRoute => {
-      showUserPage(store, toRoute);
+    handler: (toRoute, fromRoute) => {
+      showUserPage(store, toRoute, fromRoute);
     },
   },
   {

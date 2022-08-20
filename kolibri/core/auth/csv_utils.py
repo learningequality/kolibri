@@ -17,6 +17,7 @@ from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.query import SQCount
 from kolibri.core.utils.csv import open_csv_for_writing
+from kolibri.core.utils.csv import output_mapper
 
 
 logger = logging.getLogger(__name__)
@@ -94,16 +95,6 @@ labels = OrderedDict(
         ("id_number", "ID number"),
     )
 )
-
-
-def map_output(obj):
-    mapped_obj = {}
-    for header, label in labels.items():
-        if header in output_mappings and header in obj:
-            mapped_obj[label] = output_mappings[header](obj)
-        elif header in obj:
-            mapped_obj[label] = obj[header]
-    return mapped_obj
 
 
 input_fields = (
@@ -186,6 +177,14 @@ def csv_file_generator(facility, filepath, overwrite=True, demographic=False):
     )
 
     csv_file = open_csv_for_writing(filepath)
+
+    mappings = {}
+
+    for key in output_mappings:
+        if demographic or key not in DEMO_FIELDS:
+            mappings[key] = output_mappings[key]
+
+    map_output = partial(output_mapper, labels=labels, output_mappings=mappings)
 
     with csv_file as f:
         writer = csv.DictWriter(f, header_labels)

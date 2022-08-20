@@ -144,7 +144,7 @@ class TestURLParsing(TestCase):
 class TestNetworkClientConnections(TestCase):
     def test_successful_connection_to_kolibri_address(self):
         nc = NetworkClient(address="kolibrihappyurl.qqq")
-        self.assertEqual(nc.base_url, "https://kolibrihappyurl.qqq")
+        self.assertEqual(nc.base_url, "https://kolibrihappyurl.qqq/")
 
     def test_unsuccessful_connection_to_unavailable_address(self):
         with self.assertRaises(errors.NetworkLocationNotFound):
@@ -156,11 +156,11 @@ class TestNetworkClientConnections(TestCase):
 
     def test_successful_connection_to_address_with_port80_timeout(self):
         nc = NetworkClient(address="timeoutonport80url.qqq")
-        self.assertEqual(nc.base_url, "http://timeoutonport80url.qqq:8080")
+        self.assertEqual(nc.base_url, "http://timeoutonport80url.qqq:8080/")
 
     def test_successful_connection_to_kolibri_base_url(self):
         nc = NetworkClient(base_url="https://kolibrihappyurl.qqq/")
-        self.assertEqual(nc.base_url, "https://kolibrihappyurl.qqq")
+        self.assertEqual(nc.base_url, "https://kolibrihappyurl.qqq/")
 
     def test_unsuccessful_connection_to_unavailable_base_url(self):
         with self.assertRaises(errors.NetworkLocationNotFound):

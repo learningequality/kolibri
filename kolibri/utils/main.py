@@ -176,7 +176,7 @@ def _copy_preseeded_db(db_name, target=None):
                     "home/{}.sqlite3".format(db_name),
                 )
             )
-            shutil.copy(db_path, target)
+            shutil.copyfile(db_path, target)
             logger.info(
                 "Copied preseeded database from {} to {}".format(db_path, target)
             )
@@ -213,26 +213,34 @@ def _upgrades_before_django_setup(updated, version):
         # that we bundle in the Kolibri whl file.
         if not version:
             logger.info("Attempting to setup using pre-migrated databases")
+            # Only copy the default database if this is a fresh install
+            _copy_preseeded_db("db", target=OPTIONS["Database"]["DATABASE_NAME"])
 
-        _copy_preseeded_db("db", target=OPTIONS["Database"]["DATABASE_NAME"])
-
-        for db_name in ADDITIONAL_SQLITE_DATABASES:
-            _copy_preseeded_db(db_name)
+        if not version or updated:
+            # If this is an upgrade, it is possible we've added an additional
+            # database, so we can attempt to copy a preseeded database here.
+            for db_name in ADDITIONAL_SQLITE_DATABASES:
+                _copy_preseeded_db(db_name)
 
 
 def _post_django_initialization():
-    if OPTIONS["Cache"]["CACHE_BACKEND"] != "redis":
-        try:
-            process_cache.cull()
-        except SQLite3DatabaseError:
-            shutil.rmtree(process_cache.directory, ignore_errors=True)
-            os.mkdir(process_cache.directory)
-            process_cache._cache = FanoutCache(
-                process_cache.directory,
-                settings.CACHES["process_cache"]["SHARDS"],
-                settings.CACHES["process_cache"]["TIMEOUT"],
-                **settings.CACHES["process_cache"]["OPTIONS"]
-            )
+    # Import here to prevent the module level access to Kolibri options
+    # which causes premature registration of Kolibri plugins.
+    from kolibri.deployment.default.cache import CACHES
+
+    if "process_cache" in CACHES:  # usually it means not using redis
+        if "DatabaseCache" not in CACHES["process_cache"]["BACKEND"]:
+            try:
+                process_cache.cull()
+            except SQLite3DatabaseError:
+                shutil.rmtree(process_cache.directory, ignore_errors=True)
+                os.mkdir(process_cache.directory)
+                process_cache._cache = FanoutCache(
+                    process_cache.directory,
+                    settings.CACHES["process_cache"]["SHARDS"],
+                    settings.CACHES["process_cache"]["TIMEOUT"],
+                    **settings.CACHES["process_cache"]["OPTIONS"]
+                )
 
 
 def _upgrades_after_django_setup(updated, version):

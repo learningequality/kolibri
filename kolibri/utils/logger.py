@@ -17,6 +17,39 @@ LOG_COLORS = {
 }
 
 
+class EncodingStreamHandler(logging.StreamHandler):
+    """
+    A custom stream handler that encodes the log message to the specified encoding.
+    """
+
+    terminator = "\n"
+
+    def __init__(self, stream=None, encoding="utf-8"):
+        super(EncodingStreamHandler, self).__init__(stream)
+        self.encoding = encoding
+
+    def emit(self, record):
+        """
+        Vendored and modified from:
+        https://github.com/python/cpython/blob/main/Lib/logging/__init__.py#L1098
+        """
+        try:
+            msg = self.format(record)
+            stream = self.stream
+            # issue 35046: merged two stream.writes into one.
+            text = msg + self.terminator
+            if self.encoding and hasattr(stream, "buffer"):
+                bytes_to_write = text.encode(self.encoding)
+                stream.buffer.write(bytes_to_write)
+            else:
+                stream.write(text)
+            self.flush()
+        except RuntimeError:  # See issue 36272
+            raise
+        except Exception:
+            self.handleError(record)
+
+
 class KolibriTimedRotatingFileHandler(TimedRotatingFileHandler):
     """
     A custom TimedRotatingFileHandler that overrides two methods, getFilesToDelete
@@ -121,6 +154,16 @@ def get_require_debug_true(debug):
     return RequireDebugTrue
 
 
+class NoExceptionsFilter(logging.Filter):
+    """
+    A filter that ignores errors and critical messages, used to suppress
+    error messages to stdout that are also being piped to stderr.
+    """
+
+    def filter(self, record):
+        return record.levelno < logging.ERROR
+
+
 def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
     """
     A minimal logging config for just kolibri without any Django
@@ -131,7 +174,9 @@ def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
     """
 
     DEFAULT_HANDLERS = (
-        ["console"] if NO_FILE_BASED_LOGGING else ["file", "console", "file_debug"]
+        ["console", "console-error"]
+        if NO_FILE_BASED_LOGGING
+        else ["file", "console", "console-error", "file_debug"]
     )
 
     # This is the general level
@@ -141,7 +186,10 @@ def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
     return {
         "version": 1,
         "disable_existing_loggers": False,
-        "filters": {"require_debug_true": {"()": FalseFilter}},  # Replaced later
+        "filters": {
+            "require_debug_true": {"()": FalseFilter},  # Replaced later
+            "no_exceptions": {"()": NoExceptionsFilter},
+        },
         "formatters": {
             "verbose": {
                 "format": "%(levelname)s %(asctime)s %(name)s %(process)d %(thread)d %(message)s"
@@ -155,10 +203,18 @@ def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
             },
         },
         "handlers": {
+            "console-error": {
+                "level": "ERROR",
+                "class": "kolibri.utils.logger.EncodingStreamHandler",
+                "formatter": "color",
+                "stream": "ext://sys.stderr",
+            },
             "console": {
                 "level": DEFAULT_LEVEL,
-                "class": "logging.StreamHandler",
+                "filters": ["no_exceptions"],
+                "class": "kolibri.utils.logger.EncodingStreamHandler",
                 "formatter": "color",
+                "stream": "ext://sys.stdout",
             },
             "file": {
                 "level": "INFO",
@@ -168,6 +224,7 @@ def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
                 "formatter": "simple_date",
                 "when": "midnight",
                 "backupCount": 30,
+                "encoding": "utf-8",
             },
             "file_debug": {
                 "level": "DEBUG",
@@ -175,9 +232,14 @@ def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
                 "class": "logging.FileHandler",
                 "filename": os.path.join(LOG_ROOT, "debug.txt"),
                 "formatter": "simple_date",
+                "encoding": "utf-8",
             },
         },
         "loggers": {
+            "": {
+                "handlers": DEFAULT_HANDLERS,
+                "level": DEFAULT_LEVEL,
+            },
             "kolibri": {
                 "handlers": DEFAULT_HANDLERS,
                 "level": DEFAULT_LEVEL,

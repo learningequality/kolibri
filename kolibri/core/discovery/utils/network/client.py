@@ -45,7 +45,7 @@ class NetworkClient(object):
             try:
                 logger.info("Attempting connection to: {}".format(url))
                 response = self.get(
-                    "/api/public/info/",
+                    "api/public/info/",
                     base_url=url,
                     timeout=self.timeout,
                     allow_redirects=True,
@@ -67,7 +67,11 @@ class NetworkClient(object):
                         )
                     logger.info("Success! We connected to: {}".format(response.url))
 
-                    return "{}://{}".format(parsed_url.scheme, parsed_url.netloc)
+                    return "{}://{}{}".format(
+                        parsed_url.scheme,
+                        parsed_url.netloc,
+                        parsed_url.path.rstrip("/").replace("api/public/info", ""),
+                    )
             except (requests.RequestException) as e:
                 logger.info("Unable to connect: {}".format(e))
             except ValueError:

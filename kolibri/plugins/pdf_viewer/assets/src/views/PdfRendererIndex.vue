@@ -429,6 +429,11 @@
     height: calc(100vh - #{$top-bar-height} - #{$controls-height} + 16px);
     overflow-y: hidden;
   }
+
+  .pdf-container {
+    position: relative;
+    top: $controls-height;
+  }
   .controls {
     position: relative;
     z-index: 0; // Hide icons with transition

@@ -2,47 +2,51 @@
 
   <div>
 
-    <p>
-      <BackLink
-        :to="$router.getRoute(homeRoute)"
-        :text="$tr('backToChannelsAction')"
-      />
-    </p>
-    <KGrid>
-      <KGridItem :layout8="{ span: 5 }" :layout12="{ span: 8 }">
-        <h1>
-          {{ $tr('tasksHeader') }}
-        </h1>
-      </KGridItem>
-      <KGridItem
-        :layout8="{ span: 3, alignment: 'right' }"
-        :layout12="{ span: 4, alignment: 'right' }"
-      >
-        <KButton
-          v-if="showClearCompletedButton"
-          :text="$tr('clearCompletedAction')"
-          :class="{ 'button-offset': windowIsLarge }"
-          @click="handleClickClearAll"
+    <div>
+      <KGrid>
+        <KGridItem :layout8="{ span: 5 }" :layout12="{ span: 8 }">
+          <h1>
+            {{ $tr('tasksHeader') }}
+          </h1>
+        </KGridItem>
+        <KGridItem
+          :layout8="{ span: 3, alignment: 'right' }"
+          :layout12="{ span: 4, alignment: 'right' }"
+        >
+          <KButton
+            v-if="showClearCompletedButton"
+            :text="$tr('clearCompletedAction')"
+            :class="{ 'button-offset': windowIsLarge }"
+            @click="handleClickClearAll"
+          />
+        </KGridItem>
+      </KGrid>
+
+      <KLinearLoader v-if="loading" :delay="false" type="indeterminate" />
+
+      <p v-if="!loading && managedTasks.length === 0" class="empty-tasks-message">
+        {{ deviceString('emptyTasksMessage') }}
+      </p>
+      <transition-group name="fade" class="task-panels">
+        <TaskPanel
+          v-for="task in sortedTaskList"
+          :key="task.id"
+          :task="task"
+          class="task-panel"
+          :style="{ borderBottomColor: $themePalette.grey.v_200 }"
+          @clickclear="handleClickClear(task)"
+          @clickcancel="handleClickCancel(task)"
         />
-      </KGridItem>
-    </KGrid>
-
-    <KLinearLoader v-if="loading" :delay="false" type="indeterminate" />
-
-    <p v-if="!loading && managedTasks.length === 0" class="empty-tasks-message">
-      {{ deviceString('emptyTasksMessage') }}
-    </p>
-    <transition-group name="fade" class="task-panels">
-      <TaskPanel
-        v-for="task in sortedTaskList"
-        :key="task.id"
-        :task="task"
-        class="task-panel"
-        :style="{ borderBottomColor: $themePalette.grey.v_200 }"
-        @clickclear="handleClickClear(task)"
-        @clickcancel="handleClickCancel(task)"
+      </transition-group>
+    </div>
+    <BottomAppBar v-if="immersivePage">
+      <KButton
+        :text="coreString('continueAction')"
+        appearance="raised-button"
+        :primary="true"
+        @click="handleRedirectToImportPage()"
       />
-    </transition-group>
+    </BottomAppBar>
   </div>
 
 </template>
@@ -56,11 +60,10 @@
   import { TaskResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import commonDeviceStrings from '../commonDeviceStrings';
-  import { PageNames } from '../../constants';
 
   import TaskPanel from './TaskPanel';
-  import BackLink from './BackLink';
 
   // A page to view content import/export/deletion tasks
   export default {
@@ -72,7 +75,7 @@
     },
     components: {
       TaskPanel,
-      BackLink,
+      BottomAppBar,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings, commonDeviceStrings],
     data() {
@@ -88,8 +91,8 @@
       showClearCompletedButton() {
         return some(this.managedTasks, task => task.clearable);
       },
-      homeRoute() {
-        return PageNames.MANAGE_CONTENT_PAGE;
+      immersivePage() {
+        return this.$route.query && this.$route.query.last;
       },
     },
     watch: {
@@ -119,25 +122,27 @@
       handleClickClearAll() {
         TaskResource.deleteFinishedTasks();
       },
+      handleRedirectToImportPage() {
+        this.$router.push(
+          this.$router.getRoute(this.$route.query.last, {
+            channel_id: this.$route.query.channel_id,
+          })
+        );
+      },
     },
     $trs: {
-      backToChannelsAction: {
-        message: 'Back to channels',
-        context:
-          'Link that takes user back to the list of channels in the Device > Channels section.',
-      },
       tasksHeader: {
         message: 'Tasks',
         context: 'Heading in the task manager section.',
-      },
-      appBarTitle: {
-        message: 'Task manager',
-        context: 'Title of the page that displays all the tasks in the task manager. ',
       },
       clearCompletedAction: {
         message: 'Clear completed',
         context:
           'Button on the task manager page. When pressed it will clear all the completed tasks from the list.',
+      },
+      appBarTitle: {
+        message: 'Task manager',
+        context: 'Title of the page that displays all the tasks in the task manager. ',
       },
     },
   };

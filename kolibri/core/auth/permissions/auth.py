@@ -1,7 +1,6 @@
 """
 The permissions classes in this module define the specific permissions that govern access to the models in the auth app.
 """
-from django.contrib.auth.models import AnonymousUser
 from django.db.models import Q
 
 from ..constants.collection_kinds import ADHOCLEARNERSGROUP
@@ -28,6 +27,7 @@ class CollectionSpecificRoleBasedPermissions(RoleBasedPermissions):
             can_be_read_by=(ADMIN, COACH),
             can_be_updated_by=(ADMIN,),
             can_be_deleted_by=None,
+            collection_field=".",
         )
 
     def user_can_create_object(self, user, obj):
@@ -55,28 +55,19 @@ class CollectionSpecificRoleBasedPermissions(RoleBasedPermissions):
             CollectionSpecificRoleBasedPermissions, self
         ).user_can_update_object(user, obj.parent)
 
-    def readable_by_user_filter(self, user):
-        if user.is_anonymous():
-            return q_none
 
-        # By default can read all collections in facility
-        return Q(dataset_id=user.dataset_id)
-
-
-class AnonUserCanReadFacilities(DenyAll):
+class AnyUserCanReadFacilities(DenyAll):
     """
-    Permissions class that allows reading the object if user is anonymous.
+    Permissions class that allows reading the object for any user.
     """
 
     def user_can_read_object(self, user, obj):
         if obj.kind == FACILITY:
-            return isinstance(user, AnonymousUser)
+            return True
         return False
 
     def readable_by_user_filter(self, user):
-        if isinstance(user, AnonymousUser):
-            return Q(kind=FACILITY)
-        return q_none
+        return Q(kind=FACILITY)
 
 
 class FacilityAdminCanEditForOwnFacilityDataset(BasePermissions):
@@ -196,24 +187,3 @@ class CoachesCanManageMembershipsForTheirGroups(BasePermissions):
 
     def readable_by_user_filter(self, user):
         return q_none
-
-
-class MembersCanReadMembershipsOfTheirCollections(BasePermissions):
-    def user_can_create_object(self, user, obj):
-        return False
-
-    def user_can_read_object(self, user, obj):
-        return user.is_member_of(obj.collection)
-
-    def user_can_update_object(self, user, obj):
-        return False
-
-    def user_can_delete_object(self, user, obj):
-        return False
-
-    def readable_by_user_filter(self, user):
-        if user.is_anonymous():
-            return q_none
-        # Add a special case where users with memberships in the same collection
-        # can also read memberships for other members
-        return Q(collection_id__in=user.memberships.all().values("collection_id"))

@@ -1,0 +1,15 @@
+{
+  "ChangeUserPasswordModal.passwordChangeFormHeader": "Змінити пароль",
+  "ChangeUserPasswordModal.passwordChangedNotification": "Ваш пароль змінено.",
+  "ProfileEditPage.editProfileHeader": "Редагувати профіль",
+  "ProfilePage.changePasswordPrompt": "Змінити пароль",
+  "ProfilePage.detailsHeader": "Детальніше",
+  "ProfilePage.documentTitle": "Профіль користувача",
+  "ProfilePage.editAction": "Редагувати",
+  "ProfilePage.isSuperuser": "Дозволи суперадміністратора ",
+  "ProfilePage.limitedPermissions": "Обмежені дозволи",
+  "ProfilePage.manageContent": "Управління каналами та матеріалами",
+  "ProfilePage.manageDevicePermissions": "Керувати дозволами пристрою",
+  "ProfilePage.points": "Бали",
+  "ProfilePage.youCan": "Ви можете:"
+}

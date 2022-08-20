@@ -244,7 +244,13 @@
                 }
               });
             } else {
-              this.$router.push(this.$router.getRoute(PageNames.MANAGE_TASKS));
+              this.$router.push({
+                name: PageNames.MANAGE_TASKS,
+                query: {
+                  last: PageNames.MANAGE_CHANNEL,
+                  channel_id: this.params.channelId,
+                },
+              });
             }
           })
           .catch(error => {

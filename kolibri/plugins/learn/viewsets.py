@@ -9,7 +9,6 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from kolibri.core.api import ReadOnlyValuesViewset
-from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.content.api import ContentNodeProgressViewset
@@ -98,7 +97,6 @@ class LearnerClassroomViewset(ReadOnlyValuesViewset):
     along with all associated assignments.
     """
 
-    filter_backends = (KolibriAuthPermissionsFilter,)
     permission_classes = (IsAuthenticated,)
 
     values = ("id", "name")

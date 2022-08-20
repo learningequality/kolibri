@@ -27,6 +27,7 @@ from kolibri.core.query import GroupConcatSubquery
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.utils.csv import open_csv_for_writing
+from kolibri.core.utils.csv import output_mapper
 from kolibri.utils import conf
 
 try:
@@ -107,19 +108,14 @@ output_mappings = {
 }
 
 
-def map_output(obj):
-    mapped_obj = {}
-    for header, label in labels.items():
-        if header in output_mappings and header in obj:
-            mapped_obj[label] = output_mappings[header](obj)
-        elif header in obj:
-            mapped_obj[label] = obj[header]
-    return mapped_obj
+def map_output(item):
+    return partial(
+        output_mapper, labels=translate_labels(), output_mappings=output_mappings
+    )(item)
 
 
 def translate_labels():
-    global labels
-    labels = OrderedDict(
+    return OrderedDict(
         (
             ("id", _("Database ID ({})").format("UUID")),
             ("username", _("Username ({})").format("USERNAME")),
@@ -158,7 +154,7 @@ def csv_file_generator(facility, filepath, overwrite=True):
         raise ValueError("{} already exists".format(filepath))
     queryset = FacilityUser.objects.filter(facility=facility)
 
-    header_labels = labels.values()
+    header_labels = translate_labels().values()
 
     csv_file = open_csv_for_writing(filepath)
 
@@ -263,7 +259,6 @@ class Command(AsyncCommand):
         # set language for the translation of the messages
         locale = settings.LANGUAGE_CODE if not options["locale"] else options["locale"]
         translation.activate(locale)
-        translate_labels()
 
         self.overall_error = []
         filepath = self.get_filepath(options)

@@ -9,6 +9,7 @@ import uuid
 import requests
 from django.core.management import call_command
 from django.test import TestCase
+from django.test import TransactionTestCase
 from django.utils import timezone
 from le_utils.constants import content_kinds
 from morango.models import InstanceIDModel
@@ -61,7 +62,7 @@ class FacilityDatasetCertificateTestCase(TestCase):
             self.assertTrue(partition.startswith(dataset_id))
 
 
-class DateTimeTZFieldTestCase(TestCase):
+class DateTimeTZFieldTestCase(TransactionTestCase):
     def setUp(self):
         self.controller = MorangoProfileController(PROFILE_FACILITY_DATA)
         InstanceIDModel.get_or_create_current_instance()

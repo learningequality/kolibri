@@ -27,13 +27,15 @@ class TransferNotYetClosed(Exception):
 
 
 class Transfer(object):
+    DEFAULT_TIMEOUT = 60
+
     def __init__(
         self,
         source,
         dest,
         block_size=2097152,
         remove_existing_temp_file=True,
-        timeout=20,
+        timeout=DEFAULT_TIMEOUT,
         cancel_check=None,
     ):
         self.source = source
@@ -72,7 +74,10 @@ class Transfer(object):
 
         if os.path.isfile(self.dest_tmp):
             if remove_existing_temp_file:
-                os.remove(self.dest_tmp)
+                try:
+                    os.remove(self.dest_tmp)
+                except OSError:
+                    pass
             else:
                 raise ExistingTransferInProgress(
                     "Temporary transfer destination '{}' already exists!".format(

@@ -185,16 +185,24 @@
               </KButton>
               <KCircularLoader v-if="t.id === subTopicLoading" />
             </div>
-            <!-- search results -->
+            <!-- resources that are not in a folder -->
             <HybridLearningCardGrid
               v-if="resources.length"
-              :contents="resources"
+              :contents="resourcesDisplayed"
               :numCols="numCols"
               :genContentLink="genContentLink"
               cardViewStyle="card"
               @toggleInfoPanel="toggleInfoPanel"
             />
-            <div v-if="topicMore" class="end-button-block">
+            <KButton
+              v-if="moreResources"
+              class="more-after-grid"
+              appearance="basic-link"
+              @click="handleShowMoreResources"
+            >
+              {{ $tr('showMore') }}
+            </KButton>
+            <div v-else-if="topicMore" class="end-button-block">
               <KButton
                 v-if="!topicMoreLoading"
                 :text="coreString('viewMoreAction')"
@@ -469,6 +477,7 @@
         currentViewStyle: 'card',
         currentCategory: null,
         showSearchModal: false,
+        showMoreResources: false,
         sidePanelIsOpen: false,
         sidePanelContent: null,
         expandedTopics: {},
@@ -527,12 +536,18 @@
         return this.channel.name;
       },
       resources() {
-        const resources = this.contents.filter(content => content.kind !== ContentNodeKinds.TOPIC);
-        // If there are no topics, then just display all resources we have loaded.
-        if (!this.topics.length) {
-          return resources;
+        return this.contents.filter(content => content.kind !== ContentNodeKinds.TOPIC);
+      },
+      resourcesDisplayed() {
+        // if no folders are shown at this level, show more resources to fill the space
+        // or if the user has explicitly requested to show more resources
+        if (!this.topics.length || this.showMoreResources) {
+          return this.resources;
         }
-        return resources.slice(0, this.childrenToDisplay);
+        return this.resources.slice(0, this.childrenToDisplay);
+      },
+      moreResources() {
+        return this.resourcesDisplayed.length < this.resources.length;
       },
       topics() {
         return this.contents.filter(content => content.kind === ContentNodeKinds.TOPIC);
@@ -666,6 +681,7 @@
       },
       sidePanelContent() {
         if (this.sidePanelContent) {
+          // Ensure the content underneath isn't scrolled - unset this when destroyed
           document.documentElement.style.position = 'fixed';
           return;
         }
@@ -674,6 +690,8 @@
     },
     beforeDestroy() {
       window.removeEventListener('scroll', this.throttledHandleScroll);
+      // Unsetting possible change in sidePanelContent watcher to avoid leaving `fixed` position
+      document.documentElement.style.position = '';
     },
     created() {
       this.translator = crossComponentTranslator(LibraryPage);
@@ -733,6 +751,9 @@
           ...this.expandedTopics,
           [topicId]: true,
         };
+      },
+      handleShowMoreResources() {
+        this.showMoreResources = true;
       },
       handleLoadMoreinSubtopic(topicId) {
         this.subTopicLoading = topicId;

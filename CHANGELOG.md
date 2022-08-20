@@ -2,6 +2,112 @@
 
 List of the most important changes for each release.
 
+## 0.15.6
+
+### Added
+* Check node being available on filtered queryset to prevent index error. by @rtibbles in https://github.com/learningequality/kolibri/pull/9539
+* Force translations in bulk export/import of user data by @jredrejo in https://github.com/learningequality/kolibri/pull/9557
+* Ensure peer import and sync tasks for data and content work with servers using a prefix path by @rtibbles in https://github.com/learningequality/kolibri/pull/9533
+
+### Changed
+* Changes in 0.15.x to use kolibri with external plugins by @jredrejo in https://github.com/learningequality/kolibri/pull/9543
+* Don't use multiprocessing for downloads. by @rtibbles in https://github.com/learningequality/kolibri/pull/9560
+
+### Fixed
+* Update morango and stop locking sync when db backend is postgres by @bjester in https://github.com/learningequality/kolibri/pull/9556
+* Improve facility sync status reporting to users by @MisRob in https://github.com/learningequality/kolibri/pull/9541
+* Fix show more of top level resources by @marcellamaki in https://github.com/learningequality/kolibri/pull/9555
+* Clean up theme regressions by @rtibbles in https://github.com/learningequality/kolibri/pull/9558
+* Move CACHES import into function scope to prevent side effects. by @rtibbles in https://github.com/learningequality/kolibri/pull/9561
+
+
+## 0.15.5
+
+### Overview
+
+This release fixes a regression with quiz display for non-admins.
+
+### Fixed
+* Clean up state management for user management page in https://github.com/learningequality/kolibri/pull/9535
+* Fix quiz display for non-admins in https://github.com/learningequality/kolibri/pull/9545
+
+
+## 0.15.4
+
+### Overview
+
+This release of Kolibri includes security fixes to reduce the vulnerability of online Kolibri instances to discovery of user credentials and to sanitize exported CSV files.
+
+Additional changes include small improvements to coach workflows in quiz and lesson workflows and fixing a regression with searching for users during class assignment.
+
+### Added
+* Restrict exclude coach for to assigned coaches only in https://github.com/learningequality/kolibri/pull/9453
+* Content dir argument in https://github.com/learningequality/kolibri/pull/9463
+
+### Changed
+* Enable "continue" in quiz creation only once exercises selected in https://github.com/learningequality/kolibri/pull/9515
+* Update bottom bar text in lesson resources to say save on changes in https://github.com/learningequality/kolibri/pull/9516
+
+### Fixed
+* add .trim to v-model for username in https://github.com/learningequality/kolibri/pull/9514
+* API and CSV fixes in https://github.com/learningequality/kolibri/pull/9523
+* Fix missing search results in coach quiz creation in https://github.com/learningequality/kolibri/pull/9522
+* Fixed regression: search functionality for assigning coaches and enrolling learners in https://github.com/learningequality/kolibri/pull/#9525
+
+
+## 0.15.3
+
+### Overview of new features
+The goal of this release was to make improvements to the accessibility of Kolibri and to content display. Fixes include improvements to the focus outline that appears for keyboard navigation and fixes to notifications used in screen readers, as well as small improvements to content layout.
+
+#### Additions and Fixes: Accessibility
+- Update firefox bookmarks cards focus outline https://github.com/learningequality/kolibri/pull/9409
+- Update side panel focus trapping https://github.com/learningequality/kolibri/pull/9408
+- Adds aria labels to immersive toolbar buttons for back and close https://github.com/learningequality/kolibri/pull/9411
+- Adds aria-live=polite to the global snackbar component https://github.com/learningequality/kolibri/pull/9410
+- Adjust padding for visible focus outline on bottom bar buttons in https://github.com/learningequality/kolibri/pull/9478
+
+#### Additions and Fixes: Content Display
+- Fix pagination issues for facility user page https://github.com/learningequality/kolibri/pull/9422
+- Push PDF pages rendering below full screen bar https://github.com/learningequality/kolibri/pull/9439
+- Fix X-Axis display for perseus graphs https://github.com/learningequality/kolibri/pull/9446
+- Remove shrink ray from TopicsPage content side panel https://github.com/learningequality/kolibri/pull/9449
+- Improve icon size in Cagetgory selection modal https://github.com/learningequality/kolibri/pull/8938
+- Fix pagination user tables https://github.com/learningequality/kolibri/pull/9450
+- Restrict exclude coach for to assigned coaches only https://github.com/learningequality/kolibri/pull/453
+
+#### Changes
+- Ensure all file handlers use utf-8 encoding https://github.com/learningequality/kolibri/pull/9401
+- Upgrade morango to v0.6.13 https://github.com/learningequality/kolibri/pull/9445
+- 0.14 into 0.15 https://github.com/learningequality/kolibri/pull/9447
+- Upgrade KDS to v1.3.1-beta0 https://github.com/learningequality/kolibri/pull/9459
+
+
+## 0.15.2
+
+### Internationalization and localization
+New language support for: Ukrainian
+
+#### Added
+* Additional gherkin scenarios https://github.com/learningequality/kolibri/pull/9130
+
+#### Changed
+* Bump morango to v0.6.10 https://github.com/learningequality/kolibri/pull/9168
+* Pin windows installer to 1.5.0 https://github.com/learningequality/kolibri/pull/9200
+* Pin django js asset https://github.com/learningequality/kolibri/pull/9163
+* Compress HTML files for serving https://github.com/learningequality/kolibri/pull/9197
+* Disable mac app pipeline by @rtibbles in https://github.com/learningequality/kolibri/pull/9257
+* `SECURE_CONTENT_TYPE_NOSNIFF` set to `True` https://github.com/learningequality/kolibri/pull/9195
+
+#### Fixed
+* Content import, deletion, and `remote_content` settings fixes (#9242, #9337, #9246, #8506)
+* Add check for `notification` to avoid il8n error in `CoreBase` https://github.com/learningequality/kolibri/pull/9138
+* Redirect for Bookmarks when user is not logged in https://github.com/learningequality/kolibri/pull/9142
+* Delete any annotated channelmetadata many to many fields to avoid integrity errors https://github.com/learningequality/kolibri/pull/9141
+* Ensure deprovisioning management command deletes DMC https://github.com/learningequality/kolibri/pull/9208
+* Fix Python requires to prevent install on incompatible Python versions https://github.com/learningequality/kolibri/pull/9296
+
+
 
 ## 0.15.1
 

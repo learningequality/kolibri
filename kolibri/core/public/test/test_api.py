@@ -204,7 +204,7 @@ class PublicAPITestCase(APITransactionTestCase):
             "name": "science",
             "language": "es",  # root node language
             "description": "",
-            "total_resource_count": 2,  # should account for nodes with duplicate content_ids
+            "total_resource_count": 3,  # should account for nodes with duplicate content_ids
             "version": 0,
             "published_size": 20,
             "last_published": None,
@@ -771,6 +771,7 @@ class SyncQueueViewSetTestCase(APITestCase):
             user_id=self.learner.id, instance_id=self.instance_id, keep_alive=10
         )
         old_updated = queue.updated
+        time.sleep(0.01)
         response = self.client.put(
             reverse("kolibri:core:syncqueue-detail", kwargs={"pk": queue.id}),
             data={"user": self.learner.id, "instance": self.instance_id},
