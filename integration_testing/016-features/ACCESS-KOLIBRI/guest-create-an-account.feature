@@ -1,0 +1,33 @@
+Feature: Guest creates an account
+  Guest should be able to create an account, if permitted by respective facility setting
+
+  Background:
+    Given that *Allow learners to create accounts* setting is activated in *Facility > Settings*
+      And I am on the Kolibri sign-in page
+
+  Scenario: Create an account
+    When I click the *Create an account* button
+    Then I am on *Step 1 of 2 > Create an account* page
+    When I fill in my full name <full_name>
+     And I fill in my username <username>
+     And I fill in my password <password>
+     And I select my facility <facility>
+     And I click the *Continue* button
+    Then I am on *Step 2 of 2 > Create an account* page
+    When I select my gender and birth year if I so chose
+      And I click the *Finish* button
+    Then I am signed in and I can see the *Learn > Home* page
+
+  Scenario: Accounts created on *Create an account* page do not see a notification to update profile
+    Given I completed the account creation workflow
+    When I am redirected to the *Learn > Home* page
+    Then I don't see the *Update your profile* modal
+
+  Scenario: Username is already taken
+    Given A user already exists with some username
+      When I try to sign up for a new account with that same username
+      Then I get a validation message shown next to the username field that the name is already taken
+
+  Examples:
+  | full_name | password | username | password | facility |
+  | juan .p   | learner  | juan     | pass     | school   |
