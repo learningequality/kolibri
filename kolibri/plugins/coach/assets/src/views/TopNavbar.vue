@@ -51,7 +51,7 @@
     },
     methods: {
       navRoute(name) {
-        return { name, params: { classId: this.classId } };
+        return this.classId ? { name, params: { classId: this.classId } } : { name };
       },
     },
     $trs: {
