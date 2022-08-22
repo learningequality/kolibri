@@ -1,3 +1,15 @@
+kolibri-source (0.15.6-0ubuntu2) bionic; urgency=medium
+
+  * Added conflict with python3-markdown>=3.4 due to DRF restrictions
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Thu, 18 Aug 2022 20:15:26 +0200
+
+kolibri-source (0.15.6-0ubuntu1) bionic; urgency=medium
+
+  * New upstream release
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Tue, 19 Jul 2022 11:42:21 +0200
+
 kolibri-source (0.15.5-0ubuntu1) bionic; urgency=medium
 
   * New upstream release
