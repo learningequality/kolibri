@@ -48,7 +48,7 @@
     "esquery": "^1.4.0",
     "express": "^4.16.4",
     "glob": "^7.1.2",
-    "htmlhint": "^0.9.13",
+    "htmlhint": "^1.1.4",
     "ini": "^2.0.0",
     "jest": "^24.5.0",
     "jest-serializer-vue": "^2.0.2",
