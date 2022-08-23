@@ -4,13 +4,11 @@ Tests that ensure the correct items are returned from api calls.
 Also tests whether the users with permissions can create logs.
 """
 import csv
-import os
 import sys
 import tempfile
 import uuid
 
 from django.core.management import call_command
-from django.urls import reverse
 from rest_framework.test import APITestCase
 
 from ..models import ContentSessionLog
@@ -18,23 +16,10 @@ from ..models import ContentSummaryLog
 from .factory_logger import ContentSessionLogFactory
 from .factory_logger import ContentSummaryLogFactory
 from .factory_logger import FacilityUserFactory
-from kolibri.core.auth.test.helpers import DUMMY_PASSWORD
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.auth.test.test_api import FacilityFactory
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
-from kolibri.core.logger.csv_export import CSV_EXPORT_FILENAMES
-from kolibri.utils import conf
-
-
-def output_filename(log_type, facility):
-    logs_dir = os.path.join(conf.KOLIBRI_HOME, "log_export")
-    if not os.path.isdir(logs_dir):
-        os.mkdir(logs_dir)
-    return os.path.join(
-        logs_dir,
-        CSV_EXPORT_FILENAMES[log_type].format(facility.name, facility.id[:4]),
-    )
 
 
 class ContentSummaryLogCSVExportTestCase(APITestCase):
@@ -118,61 +103,6 @@ class ContentSummaryLogCSVExportTestCase(APITestCase):
             self.assertEqual(len(results[0]), len(row))
         self.assertEqual(len(results[1:]), expected_count)
 
-    def test_csv_download_anonymous_permissions(self):
-        call_command(
-            "exportlogs",
-            log_type="summary",
-            output_file=output_filename("summary", self.facility),
-            overwrite=True,
-        )
-        response = self.client.get(
-            reverse(
-                "kolibri:core:download_csv_file",
-                kwargs={"log_type": "summary", "facility_id": self.facility.id},
-            )
-        )
-        self.assertEqual(response.status_code, 403)
-
-    def test_csv_download_non_admin_permissions(self):
-        call_command(
-            "exportlogs",
-            log_type="summary",
-            output_file=output_filename("summary", self.facility),
-            overwrite=True,
-        )
-        self.client.login(
-            username=self.user1.username,
-            password=DUMMY_PASSWORD,
-            facility=self.facility,
-        )
-        response = self.client.get(
-            reverse(
-                "kolibri:core:download_csv_file",
-                kwargs={"log_type": "summary", "facility_id": self.facility.id},
-            )
-        )
-        self.assertEqual(response.status_code, 403)
-
-    def test_csv_download_admin_permissions(self):
-        call_command(
-            "exportlogs",
-            log_type="summary",
-            output_file=output_filename("summary", self.facility),
-            overwrite=True,
-        )
-        self.client.login(
-            username=self.admin.username,
-            password=DUMMY_PASSWORD,
-            facility=self.facility,
-        )
-        response = self.client.get(
-            reverse(
-                "kolibri:core:download_csv_file",
-                kwargs={"log_type": "summary", "facility_id": self.facility.id},
-            )
-        )
-        self.assertEqual(response.status_code, 200)
-
 
 class ContentSessionLogCSVExportTestCase(APITestCase):
 
@@ -254,58 +184,3 @@ class ContentSessionLogCSVExportTestCase(APITestCase):
         for row in results[1:]:
             self.assertEqual(len(results[0]), len(row))
         self.assertEqual(len(results[1:]), expected_count)
-
-    def test_csv_download_anonymous_permissions(self):
-        call_command(
-            "exportlogs",
-            log_type="summary",
-            output_file=output_filename("session", self.facility),
-            overwrite=True,
-        )
-        response = self.client.get(
-            reverse(
-                "kolibri:core:download_csv_file",
-                kwargs={"log_type": "session", "facility_id": self.facility.id},
-            )
-        )
-        self.assertEqual(response.status_code, 403)
-
-    def test_csv_download_non_admin_permissions(self):
-        call_command(
-            "exportlogs",
-            log_type="session",
-            output_file=output_filename("session", self.facility),
-            overwrite=True,
-        )
-        self.client.login(
-            username=self.user1.username,
-            password=DUMMY_PASSWORD,
-            facility=self.facility,
-        )
-        response = self.client.get(
-            reverse(
-                "kolibri:core:download_csv_file",
-                kwargs={"log_type": "session", "facility_id": self.facility.id},
-            )
-        )
-        self.assertEqual(response.status_code, 403)
-
-    def test_csv_download_admin_permissions(self):
-        call_command(
-            "exportlogs",
-            log_type="session",
-            output_file=output_filename("session", self.facility),
-            overwrite=True,
-        )
-        self.client.login(
-            username=self.admin.username,
-            password=DUMMY_PASSWORD,
-            facility=self.facility,
-        )
-        response = self.client.get(
-            reverse(
-                "kolibri:core:download_csv_file",
-                kwargs={"log_type": "session", "facility_id": self.facility.id},
-            )
-        )
-        self.assertEqual(response.status_code, 200)
