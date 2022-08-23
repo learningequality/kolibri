@@ -17,6 +17,7 @@
       <KIconButton
         class="menu-icon"
         :tooltip="coreString('moreOptions')"
+        tooltipPosition="top"
         :ariaLabel="coreString('moreOptions')"
         icon="optionsHorizontal"
         appearance="flat-button"
