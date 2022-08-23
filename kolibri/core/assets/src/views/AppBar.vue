@@ -42,9 +42,9 @@
           <slot name="app-bar-actions"></slot>
           <span v-if="isLearner">
             <KIconButton
+              ref="pointsButton"
               icon="pointsActive"
               :ariaLabel="$tr('pointsAriaLabel')"
-              @click="pointsDisplayed = !pointsDisplayed"
             />
             <div
               v-if="pointsDisplayed"
@@ -141,9 +141,11 @@
     },
     created() {
       window.addEventListener('click', this.handleWindowClick);
+      window.addEventListener('keydown', this.handlePopoverByKeyboard, true);
     },
     beforeDestroy() {
       window.removeEventListener('click', this.handleWindowClick);
+      window.removeEventListener('keydown', this.handlePopoverByKeyboard, true);
       this.isPolling = false;
     },
     methods: {
@@ -159,6 +161,25 @@
           setTimeout(() => {
             this.pollUserSyncStatusTask();
           }, this.pollingInterval);
+        }
+      },
+      handleWindowClick(event) {
+        if (this.$refs.pointsButton && this.$refs.pointsButton.$el) {
+          if (!this.$refs.pointsButton.$el.contains(event.target) && this.pointsDisplayed) {
+            this.pointsDisplayed = false;
+          } else if (
+            this.$refs.pointsButton &&
+            this.$refs.pointsButton.$el &&
+            this.$refs.pointsButton.$el.contains(event.target)
+          ) {
+            this.pointsDisplayed = !this.pointsDisplayed;
+          }
+        }
+        return event;
+      },
+      handlePopoverByKeyboard(event) {
+        if ((event.key == 'Tab' || event.keyCode == 27) && this.pointsDisplayed) {
+          this.pointsDisplayed = false;
         }
       },
       setPollingInterval(status) {
