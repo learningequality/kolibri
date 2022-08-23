@@ -1,5 +1,6 @@
 import { shallowMount } from '@vue/test-utils';
 import PdfPage from '../src/views/PdfPage';
+import { EventBus } from '../src/utils/event_utils';
 import * as mockPDFJS from './mocks/pdfjsMock';
 
 jest.mock('pdfjs-dist/legacy/build/pdf', () => require('./mocks/pdfjsMock'));
@@ -15,6 +16,7 @@ function makeWrapper(options = {}) {
       firstPageHeight: 600,
       firstPageWidth: 800,
       ...options.propsData,
+      eventBus: new EventBus(),
     },
   });
 }
