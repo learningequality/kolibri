@@ -160,7 +160,7 @@
         'startSummaryCSVExport',
         'startSessionCSVExport',
         'refreshTaskList',
-        'getExportedLogsInfo',
+        'getExportedCSVsInfo',
       ]),
       generateSessionLog() {
         this.startSessionCSVExport();
@@ -169,7 +169,7 @@
         this.startSummaryCSVExport();
       },
       startTaskPolling() {
-        this.getExportedLogsInfo();
+        this.getExportedCSVsInfo();
         if (!this.intervalId) {
           this.intervalId = setInterval(this.refreshTaskList, 1000);
         }
@@ -181,13 +181,19 @@
       },
       downloadSessionLog() {
         window.open(
-          urls['kolibri:core:download_csv_file']('session', this.activeFacilityId),
+          urls['kolibri:kolibri.plugins.facility:download_csv_file'](
+            'session',
+            this.activeFacilityId
+          ),
           '_blank'
         );
       },
       downloadSummaryLog() {
         window.open(
-          urls['kolibri:core:download_csv_file']('summary', this.activeFacilityId),
+          urls['kolibri:kolibri.plugins.facility:download_csv_file'](
+            'summary',
+            this.activeFacilityId
+          ),
           '_blank'
         );
       },

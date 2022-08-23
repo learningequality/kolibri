@@ -13,8 +13,8 @@ function defaultState() {
     facilities: [],
     facilityTaskId: '',
     exportUsersTaskId: '',
-    exportUsersStatus: '',
-    exportUsersFilename: '',
+    exportUsersStatus: CSVGenerationStatuses.NO_LOGS_CREATED,
+    exportUsersDateCreated: null,
   };
 }
 
@@ -47,10 +47,10 @@ export default {
       return state.summaryLogStatus === CSVGenerationStatuses.AVAILABLE;
     },
     exportingUsers(state) {
-      return state.status === UsersExportStatuses.EXPORTING;
+      return state.exportUsersStatus === UsersExportStatuses.EXPORTING;
     },
     exported(state) {
-      return state.exportUsersStatus === UsersExportStatuses.FINISHED;
+      return state.exportUsersStatus !== CSVGenerationStatuses.NO_LOGS_CREATED;
     },
   },
   mutations: {
@@ -92,8 +92,9 @@ export default {
       state.exportUsersTaskId = payload.id;
     },
     SET_FINISH_EXPORT_USERS(state, payload) {
-      state.exportUsersFilename = payload;
+      state.exportUsersDateCreated = payload;
       state.exportUsersStatus = UsersExportStatuses.FINISHED;
+      state.exportUsersTaskId = '';
     },
   },
   actions,

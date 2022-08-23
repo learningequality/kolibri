@@ -38,23 +38,24 @@ function startSessionCSVExport(store) {
   );
 }
 
-function getExportedLogsInfo(store) {
+function getExportedCSVsInfo(store) {
   return client({
-    url: urls['kolibri:core:exportedlogsinfo'](
-      store.rootGetters.activeFacilityId,
-      store.rootGetters.currentFacilityName
+    url: urls['kolibri:kolibri.plugins.facility:exportedcsvinfo'](
+      store.rootGetters.activeFacilityId
     ),
   }).then(response => {
     const data = response.data;
-    let sessionTimeStamp = null;
     if (data.session != null) {
-      sessionTimeStamp = new Date(data.session * 1000);
+      const sessionTimeStamp = new Date(data.session * 1000);
       store.commit('SET_FINISHED_SESSION_CSV_CREATION', sessionTimeStamp);
     }
-    let summaryTimeStamp = null;
     if (data.summary != null) {
-      summaryTimeStamp = new Date(data.summary * 1000);
+      const summaryTimeStamp = new Date(data.summary * 1000);
       store.commit('SET_FINISHED_SUMMARY_CSV_CREATION', summaryTimeStamp);
+    }
+    if (data.user != null) {
+      const userTimeStamp = new Date(data.user * 1000);
+      store.commit('SET_FINISH_EXPORT_USERS', userTimeStamp);
     }
   });
 }
@@ -140,6 +141,6 @@ export default {
   refreshTaskList,
   startSummaryCSVExport,
   startSessionCSVExport,
-  getExportedLogsInfo,
+  getExportedCSVsInfo,
   startExportUsers,
 };
