@@ -48,7 +48,7 @@
     computed: {
       tabStyles() {
         return {
-          color: this.$themePalette.grey.v_100,
+          color: this.$themePalette.grey.v_50,
           ':hover': {
             'background-color': this.$themeTokens.appBarDark,
           },
@@ -94,7 +94,7 @@
     transition: background-color $core-time ease;
 
     .dimmable {
-      opacity: 0.6;
+      opacity: 1;
     }
   }
 
@@ -141,7 +141,7 @@
   @media (max-width: 600px) {
     .tab {
       padding: 0 8px;
-      font-size: 12px;
+      font-size: 14px;
     }
 
     .router-link-active {
