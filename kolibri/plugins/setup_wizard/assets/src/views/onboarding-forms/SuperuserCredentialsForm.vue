@@ -170,7 +170,7 @@
     },
     $trs: {
       adminAccountCreationHeader: {
-        message: 'Create super admin account',
+        message: 'Create super admin',
         context:
           "The title of the 'Create a super admin account' section. A super admin can manage all the content and all other Kolibri users on the device.",
       },

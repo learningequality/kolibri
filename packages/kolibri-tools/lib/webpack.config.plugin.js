@@ -36,7 +36,15 @@ const WebpackMessages = require('./webpackMessages');
  */
 module.exports = (
   data,
-  { mode = 'development', hot = false, port = 3000, address = 'localhost', cache = false } = {}
+  {
+    mode = 'development',
+    hot = false,
+    port = 3000,
+    address = 'localhost',
+    cache = false,
+    transpile = false,
+    devServer = false,
+  } = {}
 ) => {
   if (
     typeof data.name === 'undefined' ||
@@ -110,6 +118,7 @@ module.exports = (
       // webpack properly handles that or not.
       chunkLoadingGlobal: 'webpackChunkwebpack__' + data.name.replace('.', ''),
       scriptType: 'text/javascript',
+      pathinfo: mode === 'production',
     },
     resolve: {
       alias: coreAliases,
@@ -164,9 +173,9 @@ module.exports = (
     );
   }
 
-  bundle = merge(bundle, baseConfig({ mode, hot, cache }), webpackConfig);
+  bundle = merge(bundle, baseConfig({ mode, hot, cache, transpile }), webpackConfig);
 
-  if (mode === 'development') {
+  if (devServer) {
     const publicPath = `http://${address}:${port}/${data.name}/`;
     bundle.output.publicPath = publicPath;
     bundle.watch = true;

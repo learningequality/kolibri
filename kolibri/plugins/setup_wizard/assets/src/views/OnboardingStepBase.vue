@@ -4,6 +4,7 @@
   <div
     :class="{ 'base-container': true, 'windowIsSmall': windowIsSmall }"
     :style="{ 'background-color': windowIsSmall ? $themeTokens.surface : '' }"
+    @keyup.enter="handleEnterKey"
   >
 
     <div class="logo-lang-container">
@@ -44,7 +45,7 @@
         <h1 class="title">
           {{ title }}
         </h1>
-        <p class="description">
+        <p v-if="description" class="description">
           {{ description }}
         </p>
         <slot></slot>
@@ -70,11 +71,13 @@
             :text="coreString('goBackAction')"
             appearance="flat-button"
             :primary="false"
+            :disabled="navDisabled"
             @click="wizardService.send('BACK')"
           />
           <KButton
             :text="coreString('continueAction')"
             :primary="true"
+            :disabled="navDisabled"
             @click="$emit('continue')"
           />
         </KButtonGroup>
@@ -85,6 +88,7 @@
             class="mobile-continue-button"
             :text="coreString('continueAction')"
             :primary="true"
+            :disabled="navDisabled"
             @click="$emit('continue')"
           />
         </div>
@@ -120,6 +124,10 @@
         type: Boolean,
         default: false,
       },
+      navDisabled: {
+        type: Boolean,
+        default: false,
+      },
       title: {
         type: String,
         default: null,
@@ -137,6 +145,15 @@
     computed: {
       selectedLanguage() {
         return availableLanguages[currentLanguage];
+      },
+    },
+    methods: {
+      /* If the user is focused on a form element and hits enter, continue */
+      handleEnterKey(e) {
+        e.preventDefault();
+        if (!this.navDisabled & (e.target.tagName === 'INPUT')) {
+          this.$emit('continue');
+        }
       },
     },
   };

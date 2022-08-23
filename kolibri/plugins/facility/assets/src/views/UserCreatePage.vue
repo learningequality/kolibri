@@ -1,6 +1,6 @@
 <template>
 
-  <ImmersivePageRoot
+  <ImmersivePage
     :route="this.$store.getters.facilityPageLinks.UserPage"
     :appBarTitle="coreString('usersLabel')"
   >
@@ -103,7 +103,7 @@
 
       </form>
     </KPageContainer>
-  </ImmersivePageRoot>
+  </ImmersivePage>
 
 </template>
 
@@ -117,11 +117,11 @@
   import GenderSelect from 'kolibri.coreVue.components.GenderSelect';
   import BirthYearSelect from 'kolibri.coreVue.components.BirthYearSelect';
   import FullNameTextbox from 'kolibri.coreVue.components.FullNameTextbox';
+  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import IdentifierTextbox from './IdentifierTextbox';
-  import ImmersivePageRoot from './ImmersivePageRoot';
 
   const { NOT_SPECIFIED } = DemographicConstants;
 
@@ -139,7 +139,7 @@
       FullNameTextbox,
       PasswordTextbox,
       IdentifierTextbox,
-      ImmersivePageRoot,
+      ImmersivePage,
     },
     mixins: [commonCoreStrings],
     data() {

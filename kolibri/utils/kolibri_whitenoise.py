@@ -366,5 +366,7 @@ class DynamicWhiteNoise(WhiteNoise):
             self.add_headers_function(headers, path, url)
         headers["Content-Encoding"] = ""
         return StreamingStaticFile(
-            os.path.join(local_dir, path), headers, urljoin(remote_baseurl, url)
+            os.path.join(local_dir, path),
+            headers,
+            urljoin(remote_baseurl, url.lstrip("/")),
         )

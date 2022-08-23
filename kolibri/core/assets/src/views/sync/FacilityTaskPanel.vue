@@ -25,8 +25,8 @@
     syncFacilityTaskDisplayInfo,
     removeFacilityTaskDisplayInfo,
     importFacilityTaskDisplayInfo,
-  } from '../syncTaskUtils';
-  import { TaskTypes } from '../../constants';
+    TaskTypes,
+  } from '../../utils/syncTaskUtils';
   import FacilityTaskPanelDetails from './FacilityTaskPanelDetails';
 
   const indeterminateSyncStatuses = [

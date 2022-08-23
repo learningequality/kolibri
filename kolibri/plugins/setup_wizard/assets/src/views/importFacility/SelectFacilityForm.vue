@@ -1,45 +1,36 @@
 <template>
 
-  <OnboardingForm
-    :header="header"
-    :description="formDescription"
-    :disabled="selectedFacilityId === '' || formDisabled"
-    @submit="handleCredentialsSubmit"
+  <OnboardingStepBase
+    :title="header"
+    @continue="$emit('click_next', { facility: selectedFacility, device: device })"
   >
-    <!-- Only one Facility -->
-    <template v-if="singleFacility">
-      <FacilityAdminCredentialsForm
-        ref="credentialsForm"
-        :facility="facilities[0]"
-        :device="device"
-        :singleFacility="true"
-        :shouldValidate="shouldValidate"
-      />
-    </template>
+    <!-- TODO: Show "you cannot import from this facility" message -->
+    <RadioButtonGroup
+      v-if="!loadingNewAddress"
+      class="radio-group"
+      :items="facilities"
+      :currentValue.sync="selectedFacilityId"
+      :itemLabel="x => formatNameAndId(x.name, x.id)"
+      :itemValue="x => x.id"
+      :disabled="formDisabled"
+    />
 
-    <!-- Multiple Facilities -->
-    <template v-else>
+    <label class="select-button-label" for="select-address-button">
+      {{ $tr('selectDifferentAddressLabel') }}
+    </label>
+    <KButton
+      id="select-address-button"
+      appearance="basic-link"
+      :text="$tr('addNewAddressAction')"
+      @click="showSelectAddressModal = true"
+    />
 
-      <RadioButtonGroup
-        :items="facilities"
-        :currentValue.sync="selectedFacilityId"
-        :itemLabel="x => formatNameAndId(x.name, x.id)"
-        :itemValue="x => x.id"
-        :disabled="formDisabled"
-      >
-        <template #underbutton="{ selected }">
-          <FacilityAdminCredentialsForm
-            v-if="selectedFacilityId === selected.id"
-            ref="credentialsForm"
-            :facility="selected"
-            :device="device"
-            :shouldValidate="shouldValidate"
-            :disabled="formDisabled"
-          />
-        </template>
-      </RadioButtonGroup>
-    </template>
-  </OnboardingForm>
+    <SelectAddressModalGroup
+      v-if="showSelectAddressModal"
+      @cancel="showSelectAddressModal = false"
+      @submit="handleAddressSubmit"
+    />
+  </OnboardingStepBase>
 
 </template>
 
@@ -49,18 +40,16 @@
   import isString from 'lodash/isString';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import {
-    FacilityAdminCredentialsForm,
-    RadioButtonGroup,
-  } from 'kolibri.coreVue.componentSets.sync';
-  import OnboardingForm from '../onboarding-forms/OnboardingForm';
+  import { SelectAddressModalGroup, RadioButtonGroup } from 'kolibri.coreVue.componentSets.sync';
+
+  import OnboardingStepBase from '../OnboardingStepBase';
 
   export default {
     name: 'SelectFacilityForm',
     components: {
-      FacilityAdminCredentialsForm,
+      OnboardingStepBase,
       RadioButtonGroup,
-      OnboardingForm,
+      SelectAddressModalGroup,
     },
     mixins: [commonCoreStrings, commonSyncElements],
     props: {
@@ -77,92 +66,55 @@
         // Need to initialize to non-empty string to fix #7595
         selectedFacilityId: 'selectedFacilityId',
         facilities: [],
-        shouldValidate: false,
         formDisabled: false,
+        loadingNewAddress: false,
+        showSelectAddressModal: false,
       };
     },
     computed: {
-      singleFacility() {
-        return this.facilities.length === 1;
-      },
       header() {
-        if (this.singleFacility) {
-          return this.getCommonSyncString('importFacilityAction');
-        } else {
-          return this.getCommonSyncString('selectFacilityTitle');
-        }
-      },
-      formDescription() {
-        if (this.device.name) {
-          return this.$tr('commaSeparatedPair', {
-            first: this.formatNameAndId(this.device.name, this.device.id),
-            second: this.device.baseurl,
-          });
-        }
-        return '';
+        return this.getCommonSyncString('selectFacilityTitle');
       },
       selectedFacility() {
         return this.facilities.find(f => f.id === this.selectedFacilityId);
       },
     },
     beforeMount() {
-      this.fetchNetworkLocationFacilities(this.$route.query.device_id)
-        .then(data => {
-          this.facilities = [...data.facilities];
-          this.$emit('update:device', {
-            name: data.device_name,
-            id: data.device_id,
-            baseurl: data.device_address,
-          });
-          if (this.singleFacility) {
-            this.selectedFacilityId = this.facilities[0].id;
-          }
-        })
-        .catch(error => {
-          // TODO handle disconnected peers error more gracefully
-          this.$store.dispatch('showError', error);
-        });
+      this.fetchNetworkLocation(this.$route.query.deviceId);
     },
     methods: {
-      handleCredentialsSubmit() {
-        this.formDisabled = true;
-        this.callSubmitCredentials().then(data => {
-          if (data) {
-            this.$emit('update:facility', {
-              name: this.selectedFacility.name,
-              id: this.selectedFacility.id,
-              username: data.username,
-              password: data.password,
+      fetchNetworkLocation(deviceId) {
+        this.loadingNewAddress = true;
+        return this.fetchNetworkLocationFacilities(deviceId)
+          .then(data => {
+            this.facilities = [...data.facilities];
+            this.$emit('update:device', {
+              name: data.device_name,
+              id: data.device_id,
+              baseurl: data.device_address,
             });
-            this.$emit('click_next');
-          } else {
-            this.formDisabled = false;
-          }
-        });
-      },
-      callSubmitCredentials() {
-        const $credentialsForm = this.$refs.credentialsForm;
-        if ($credentialsForm) {
-          // The form makes the call to the startpeerfacilityimport endpoint
-          return $credentialsForm.startImport().then(importStarted => {
-            if (importStarted) {
-              return {
-                username: $credentialsForm.username,
-                password: $credentialsForm.password,
-              };
-            } else {
-              return false;
-            }
+            this.selectedFacilityId = this.facilities[0].id;
+            this.loadingNewAddress = false;
+          })
+          .catch(error => {
+            // TODO handle disconnected peers error more gracefully
+            this.$store.dispatch('showError', error);
           });
-        } else {
-          return Promise.resolve(false);
-        }
+      },
+      handleAddressSubmit(address) {
+        this.fetchNetworkLocation(address.id).then(() => (this.showSelectAddressModal = false));
       },
     },
     $trs: {
-      commaSeparatedPair: {
-        message: '{first}, {second}',
-        context: 'DO NOT TRANSLATE\nCopy the source string.',
+      selectDifferentAddressLabel: {
+        message: "Don't see your learning facility?",
+        context:
+          'A label shown above a link that will open a modal to select a different network location from which to select a facility',
+      },
+      addNewAddressAction: {
+        message: 'Add new address',
+        context:
+          'The text for a link that will open a modal that allows the user to add or select a new address from which to import a facility',
       },
     },
   };
@@ -172,8 +124,13 @@
 
 <style lang="scss" scoped>
 
-  .radio-button {
-    margin: 16px 0;
+  .radio-group {
+    margin: 1.5em 0;
+  }
+
+  .select-button-label {
+    display: block;
+    margin: 0 0 1em;
   }
 
 </style>

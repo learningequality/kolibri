@@ -1,18 +1,14 @@
 <template>
 
   <NotificationsRoot>
-    <div :style="wrapperStyles">
-      <ImmersiveToolbar
-        ref="appBar"
-        :appBarTitle="coreString('changeLearningFacility')"
-        :route="$router.getRoute('PROFILE')"
-      />
-      <KPageContainer class="container">
-
+    <ImmersivePage
+      :appBarTitle="coreString('changeLearningFacility')"
+      :route="$router.getRoute('PROFILE')"
+    >
+      <KPageContainer style="width: 1000px; margin: 32px auto 0;">
         <router-view />
-
       </KPageContainer>
-    </div>
+    </ImmersivePage>
   </NotificationsRoot>
 
 </template>
@@ -21,7 +17,7 @@
 <script>
 
   import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
-  import ImmersiveToolbar from 'kolibri.coreVue.components.ImmersiveToolbar';
+  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { computed } from 'kolibri.lib.vueCompositionApi';
@@ -37,8 +33,7 @@
         title: this.$tr('documentTitle'),
       };
     },
-    components: { NotificationsRoot, ImmersiveToolbar },
-
+    components: { NotificationsRoot, ImmersivePage },
     mixins: [responsiveWindowMixin, commonCoreStrings],
     setup() {
       const { isSubsetOfUsersDevice } = plugin_data;
@@ -65,17 +60,6 @@
 
     computed: {
       ...mapGetters(['session', 'getUserKind']),
-      wrapperStyles() {
-        return {
-          width: '100%',
-          display: 'inline-block',
-          backgroundColor: this.$themePalette.grey.v_100,
-          paddingLeft: '32px',
-          paddingRight: '32px',
-          paddingBottom: '72px',
-          paddingTop: this.appBarHeight + 16 + 'px',
-        };
-      },
     },
 
     beforeRouteUpdate(to, from, next) {

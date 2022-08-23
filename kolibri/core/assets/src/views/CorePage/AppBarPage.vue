@@ -46,12 +46,12 @@
 <script>
 
   import LanguageSwitcherModal from 'kolibri.coreVue.components.LanguageSwitcherModal';
-  import AppBar from 'kolibri.coreVue.components.AppBar';
   import ScrollingHeader from 'kolibri.coreVue.components.ScrollingHeader';
   import SideNav from 'kolibri.coreVue.components.SideNav';
+  import AppBar from '../AppBar';
 
   export default {
-    name: 'AppBarCorePage',
+    name: 'AppBarPage',
     components: { AppBar, LanguageSwitcherModal, ScrollingHeader, SideNav },
     props: {
       title: {

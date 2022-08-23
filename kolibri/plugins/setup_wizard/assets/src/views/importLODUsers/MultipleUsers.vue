@@ -48,10 +48,10 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
+  import { TaskStatuses } from 'kolibri.utils.syncTaskUtils';
   import UserTable from '../../../../../facility/assets/src/views/UserTable.vue';
   import OnboardingForm from '../onboarding-forms/OnboardingForm';
   import { SoudQueue } from '../../constants';
-  import { TaskStatuses } from '../../../../../device/assets/src/constants.js';
 
   export default {
     name: 'MultipleUsers',

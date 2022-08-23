@@ -28,10 +28,10 @@ const commonUserStrings = createTranslator('CommonUserPageStrings', {
   },
 });
 
+export function userString(key, args) {
+  return commonUserStrings.$tr(key, args);
+}
+
 export default {
-  methods: {
-    userString(key, args) {
-      return commonUserStrings.$tr(key, args);
-    },
-  },
+  methods: { userString },
 };

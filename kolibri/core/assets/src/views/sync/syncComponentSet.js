@@ -1,5 +1,6 @@
 export { default as SelectAddressForm } from './SelectAddressModalGroup/SelectAddressForm';
 export { default as SelectAddressModalGroup } from './SelectAddressModalGroup';
+export { default as FacilityTaskPanel } from './FacilityTaskPanel';
 export { default as ConfirmationRegisterModal } from './ConfirmationRegisterModal';
 export { default as FacilityAdminCredentialsForm } from './FacilityAdminCredentialsForm';
 export { default as FacilityNameAndSyncStatus } from './FacilityNameAndSyncStatus/index';

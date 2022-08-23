@@ -1,73 +1,79 @@
 <template>
 
-  <div>
-    <ContentWizardUiAlert
-      v-if="wholePageError"
-      :errorType="wholePageError"
-    />
-
-    <template v-else>
-      <TaskProgress
-        v-if="!onDeviceInfoIsReady"
+  <ImmersivePage
+    icon="back"
+    :appBarTitle="$tr('selectContent', { channelName: transferredChannel.name })"
+    :route="backRoute"
+  >
+    <KPageContainer class="device-container">
+      <ContentWizardUiAlert
+        v-if="wholePageError"
+        :errorType="wholePageError"
       />
 
-      <template v-if="onDeviceInfoIsReady">
-        <section
-          v-if="transferredChannel && onDeviceInfoIsReady"
-          class="updates"
-        >
-          <NewChannelVersionBanner
-            v-if="newVersionAvailable"
-            class="banner"
-            :version="availableVersions.source"
-            @click="handleClickViewNewVersion"
+      <template v-else>
+        <TaskProgress
+          v-if="!onDeviceInfoIsReady"
+        />
+
+        <template v-if="onDeviceInfoIsReady">
+          <section
+            v-if="transferredChannel && onDeviceInfoIsReady"
+            class="updates"
+          >
+            <NewChannelVersionBanner
+              v-if="newVersionAvailable"
+              class="banner"
+              :version="availableVersions.source"
+              @click="handleClickViewNewVersion"
+            />
+          </section>
+          <ChannelContentsSummary
+            :channel="transferredChannel"
+            :channelOnDevice="channelOnDevice"
+            :freeSpace="availableSpace"
           />
-        </section>
-        <ChannelContentsSummary
-          :channel="transferredChannel"
-          :channelOnDevice="channelOnDevice"
-          :freeSpace="availableSpace"
-        />
 
-        <UiAlert
-          v-if="status !== ''"
-          type="error"
-          :dismissible="false"
-        >
-          {{ $tr('problemFetchingChannel') }}
-        </UiAlert>
+          <UiAlert
+            v-if="status !== ''"
+            type="error"
+            :dismissible="false"
+          >
+            {{ $tr('problemFetchingChannel') }}
+          </UiAlert>
 
-        <UiAlert
-          v-if="contentTransferError"
-          type="error"
-          :dismissible="false"
-        >
-          {{ $tr('problemTransferringContents') }}
-        </UiAlert>
-        <UiAlert
-          v-show="isFileSpaceEnough"
-          :dismissible="false"
-          type="error"
-        >
-          {{ spaceTranslator.$tr('notEnoughSpaceForChannelsWarning') }}
-        </UiAlert>
-        <ContentTreeViewer
-          v-if="!newVersionAvailable"
-          class="block-item"
-          :class="{ small: windowIsSmall }"
-          :style="{ borderBottomColor: $themeTokens.fineLine }"
-        />
+          <UiAlert
+            v-if="contentTransferError"
+            type="error"
+            :dismissible="false"
+          >
+            {{ $tr('problemTransferringContents') }}
+          </UiAlert>
+          <UiAlert
+            v-show="isFileSpaceEnough"
+            :dismissible="false"
+            type="error"
+          >
+            {{ spaceTranslator.$tr('notEnoughSpaceForChannelsWarning') }}
+          </UiAlert>
+          <ContentTreeViewer
+            v-if="!newVersionAvailable"
+            class="block-item"
+            :class="{ small: windowIsSmall }"
+            :style="{ borderBottomColor: $themeTokens.fineLine }"
+          />
+        </template>
       </template>
-    </template>
-    <SelectionBottomBar
-      v-if="!newVersionAvailable"
-      objectType="resource"
-      actionType="import"
-      :resourceCounts="{ count: transferResourceCount, fileSize: transferFileSize }"
-      :disabled="disableBottomBar || newVersionAvailable || isFileSpaceEnough"
-      @clickconfirm="handleClickConfirm"
-    />
-  </div>
+      <SelectionBottomBar
+        v-if="!newVersionAvailable"
+        objectType="resource"
+        actionType="import"
+        :resourceCounts="{ count: transferResourceCount, fileSize: transferFileSize }"
+        :disabled="disableBottomBar || newVersionAvailable || isFileSpaceEnough"
+        @clickconfirm="handleClickConfirm"
+      />
+    </KPageContainer>
+  </ImmersivePage>
 
 </template>
 
@@ -77,18 +83,20 @@
   import { mapState, mapActions, mapMutations, mapGetters } from 'vuex';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import isEmpty from 'lodash/isEmpty';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
+  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
+  import { TaskTypes, PageNames } from 'kolibri.utils.syncTaskUtils';
   import find from 'lodash/find';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { TaskResource } from 'kolibri.resources';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
-  import TaskProgress from '../ManageContentPage/TaskProgress';
-  import useContentTasks from '../../composables/useContentTasks';
-  import { ContentWizardErrors, TaskTypes, PageNames } from '../../constants';
-  import SelectionBottomBar from '../ManageContentPage/SelectionBottomBar';
-  import taskNotificationMixin from '../taskNotificationMixin';
-  import { updateTreeViewTopic } from '../../modules/wizard/handlers';
-  import { getChannelWithContentSizes } from '../../modules/wizard/apiChannelMetadata';
   import NewChannelVersionBanner from '../ManageContentPage/NewChannelVersionBanner';
+  import { getChannelWithContentSizes } from '../../modules/wizard/apiChannelMetadata';
+  import { updateTreeViewTopic } from '../../modules/wizard/handlers';
+  import taskNotificationMixin from '../taskNotificationMixin';
+  import SelectionBottomBar from '../ManageContentPage/SelectionBottomBar';
+  import { ContentWizardPages, ContentWizardErrors } from '../../constants';
+  import useContentTasks from '../../composables/useContentTasks';
+  import TaskProgress from '../ManageContentPage/TaskProgress';
   import AvailableChannelsPage from '../AvailableChannelsPage';
   import ChannelContentsSummary from './ChannelContentsSummary';
   import ContentTreeViewer from './ContentTreeViewer';
@@ -108,6 +116,7 @@
       ContentTreeViewer,
       ContentWizardUiAlert,
       NewChannelVersionBanner,
+      ImmersivePage,
       SelectionBottomBar,
       TaskProgress,
       UiAlert,
@@ -143,6 +152,9 @@
         'transferResourceCount',
         'availableSpace',
       ]),
+      backRoute() {
+        return { name: ContentWizardPages.AVAILABLE_CHANNELS };
+      },
       channelId() {
         return this.$route.params.channel_id;
       },
@@ -359,6 +371,12 @@
 
 
 <style lang="scss" scoped>
+
+  @import '../../styles/definitions';
+
+  .device-container {
+    @include device-kpagecontainer;
+  }
 
   .notifications {
     margin-top: 8px;

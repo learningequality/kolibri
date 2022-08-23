@@ -1,121 +1,129 @@
 <template>
 
-  <div>
-    <section>
-      <h1>
-        {{ $tr('pageHeader') }}
-      </h1>
-      <p>
-        {{ $tr('pageDescription') }}
-        <KExternalLink
-          v-if="!isMultiFacilitySuperuser && getFacilitySettingsPath()"
-          :text="$tr('facilitySettings')"
-          :href="getFacilitySettingsPath()"
-        />
-      </p>
-    </section>
+  <AppBarPage :title="pageTitle">
 
-    <section>
-      <div class="fieldset">
-        <KSelect
-          v-model="language"
-          :label="$tr('selectedLanguageLabel')"
-          :options="languageOptions"
-          :disabled="language.value === undefined"
-          :floatingLabel="false"
-          style="max-width: 300px"
-        />
-      </div>
+    <template #subNav>
+      <DeviceTopNav />
+    </template>
+    <KPageContainer class="device-container">
 
-      <div class="fieldset">
-        <label class="fieldset-label">{{ $tr('externalDeviceSettings') }}</label>
-        <KCheckbox
-          :label="$tr('unlistedChannels')"
-          :checked="allowPeerUnlistedChannelImport"
-          @change="allowPeerUnlistedChannelImport = $event"
-        />
-        <KCheckbox
-          v-if="isAppContext"
-          :checked="allowOtherBrowsersToConnect"
-          @change="allowOtherBrowsersToConnect = $event"
-        >
-          <span> {{ $tr('allowExternalConnectionsApp') }}
-            <p
-              v-if="allowOtherBrowsersToConnect"
-              class="description"
-              :style="{ color: $themeTokens.annotation }"
-            >
-              {{ $tr('allowExternalConnectionsAppDescription') }}
-            </p>
-          </span>
-        </KCheckbox>
-      </div>
-
-      <div class="fieldset">
-        <label class="fieldset-label">{{ $tr('landingPageLabel') }}</label>
-        <KRadioButton
-          :label="$tr('learnerAppPageChoice')"
-          :value="landingPageChoices.LEARN"
-          :currentValue="landingPage"
-          @input="handleLandingPageChange"
-        />
-        <KRadioButton
-          :label="$tr('signInPageChoice')"
-          :value="landingPageChoices.SIGN_IN"
-          :currentValue="landingPage"
-          @input="handleLandingPageChange"
-        />
-        <div class="fieldset" style="margin-left: 32px">
-          <KRadioButton
-            :label="$tr('allowGuestAccess')"
-            :value="SignInPageOptions.ALLOW_GUEST_ACCESS"
-            :currentValue="signInPageOption"
-            :disabled="disableSignInPageOptions"
-            @input="handleSignInPageChange"
+      <section>
+        <h1>
+          {{ $tr('pageHeader') }}
+        </h1>
+        <p>
+          {{ $tr('pageDescription') }}
+          <KExternalLink
+            v-if="!isMultiFacilitySuperuser && getFacilitySettingsPath()"
+            :text="$tr('facilitySettings')"
+            :href="getFacilitySettingsPath()"
           />
-          <KRadioButton
-            :label="$tr('disallowGuestAccess')"
-            :value="SignInPageOptions.DISALLOW_GUEST_ACCESS"
-            :currentValue="signInPageOption"
-            :disabled="disableSignInPageOptions"
-            @input="handleSignInPageChange"
-          />
-          <KRadioButton
-            :label="$tr('lockedContent')"
-            :value="SignInPageOptions.LOCKED_CONTENT"
-            :currentValue="signInPageOption"
-            :disabled="disableSignInPageOptions"
-            @input="handleSignInPageChange"
+        </p>
+      </section>
+
+      <section>
+        <div class="fieldset">
+          <KSelect
+            v-model="language"
+            :label="$tr('selectedLanguageLabel')"
+            :options="languageOptions"
+            :disabled="language.value === undefined"
+            :floatingLabel="false"
+            style="max-width: 300px"
           />
         </div>
-      </div>
-    </section>
 
-    <section>
-      <KButton
-        :text="coreString('saveAction')"
-        appearance="raised-button"
-        primary
-        @click="handleClickSave"
-      />
-    </section>
+        <div class="fieldset">
+          <label class="fieldset-label">{{ $tr('externalDeviceSettings') }}</label>
+          <KCheckbox
+            :label="$tr('unlistedChannels')"
+            :checked="allowPeerUnlistedChannelImport"
+            @change="allowPeerUnlistedChannelImport = $event"
+          />
+          <KCheckbox
+            v-if="isAppContext"
+            :checked="allowOtherBrowsersToConnect"
+            @change="allowOtherBrowsersToConnect = $event"
+          >
+            <span> {{ $tr('allowExternalConnectionsApp') }}
+              <p
+                v-if="allowOtherBrowsersToConnect"
+                class="description"
+                :style="{ color: $themeTokens.annotation }"
+              >
+                {{ $tr('allowExternalConnectionsAppDescription') }}
+              </p>
+            </span>
+          </KCheckbox>
+        </div>
 
-    <!-- List of separate links to Facility Settings pages -->
-    <section v-if="isMultiFacilitySuperuser">
-      <h2>{{ $tr('configureFacilitySettingsHeader') }}</h2>
-      <ul class="ul-reset">
-        <template v-for="(facility, idx) in facilities">
-          <li :key="idx">
-            <KExternalLink
-              :text="facility.name"
-              :href="getFacilitySettingsPath(facility.id)"
-              icon="facility"
+        <div class="fieldset">
+          <label class="fieldset-label">{{ $tr('landingPageLabel') }}</label>
+          <KRadioButton
+            :label="$tr('learnerAppPageChoice')"
+            :value="landingPageChoices.LEARN"
+            :currentValue="landingPage"
+            @input="handleLandingPageChange"
+          />
+          <KRadioButton
+            :label="$tr('signInPageChoice')"
+            :value="landingPageChoices.SIGN_IN"
+            :currentValue="landingPage"
+            @input="handleLandingPageChange"
+          />
+          <div class="fieldset" style="margin-left: 32px">
+            <KRadioButton
+              :label="$tr('allowGuestAccess')"
+              :value="SignInPageOptions.ALLOW_GUEST_ACCESS"
+              :currentValue="signInPageOption"
+              :disabled="disableSignInPageOptions"
+              @input="handleSignInPageChange"
             />
-          </li>
-        </template>
-      </ul>
-    </section>
-  </div>
+            <KRadioButton
+              :label="$tr('disallowGuestAccess')"
+              :value="SignInPageOptions.DISALLOW_GUEST_ACCESS"
+              :currentValue="signInPageOption"
+              :disabled="disableSignInPageOptions"
+              @input="handleSignInPageChange"
+            />
+            <KRadioButton
+              :label="$tr('lockedContent')"
+              :value="SignInPageOptions.LOCKED_CONTENT"
+              :currentValue="signInPageOption"
+              :disabled="disableSignInPageOptions"
+              @input="handleSignInPageChange"
+            />
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <KButton
+          :text="coreString('saveAction')"
+          appearance="raised-button"
+          primary
+          @click="handleClickSave"
+        />
+      </section>
+
+      <!-- List of separate links to Facility Settings pages -->
+      <section v-if="isMultiFacilitySuperuser">
+        <h2>{{ $tr('configureFacilitySettingsHeader') }}</h2>
+        <ul class="ul-reset">
+          <template v-for="(facility, idx) in facilities">
+            <li :key="idx">
+              <KExternalLink
+                :text="facility.name"
+                :href="getFacilitySettingsPath(facility.id)"
+                icon="facility"
+              />
+            </li>
+          </template>
+        </ul>
+      </section>
+
+    </KPageContainer>
+  </AppBarPage>
 
 </template>
 
@@ -128,7 +136,10 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { availableLanguages, currentLanguage } from 'kolibri.utils.i18n';
   import sortLanguages from 'kolibri.utils.sortLanguages';
+  import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
   import { LandingPageChoices } from '../../constants';
+  import DeviceTopNav from '../DeviceTopNav';
+  import { deviceString } from '../commonDeviceStrings';
   import { getDeviceSettings, saveDeviceSettings } from './api';
 
   const SignInPageOptions = Object.freeze({
@@ -144,6 +155,7 @@
         title: this.$tr('pageHeader'),
       };
     },
+    components: { AppBarPage, DeviceTopNav },
     mixins: [commonCoreStrings],
     data() {
       return {
@@ -162,6 +174,9 @@
     },
     computed: {
       ...mapGetters(['isAppContext']),
+      pageTitle() {
+        return deviceString('deviceManagementTitle');
+      },
       facilities() {
         return this.$store.getters.facilities;
       },
@@ -382,6 +397,12 @@
 
 
 <style lang="scss" scoped>
+
+  @import '../../styles/definitions';
+
+  .device-container {
+    @include device-kpagecontainer;
+  }
 
   .save-button {
     margin-left: 0;

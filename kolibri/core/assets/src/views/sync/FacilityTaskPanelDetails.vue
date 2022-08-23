@@ -72,8 +72,11 @@
       </p>
     </div>
 
-    <KButtonGroup class="nowrap" :class="{ 'button-lift': Boolean(loaderType) }">
-
+    <KButtonGroup
+      v-if="buttonSet"
+      class="nowrap"
+      :class="{ 'button-lift': Boolean(loaderType) }"
+    >
       <KButton
         v-if="buttonSet === 'cancel'"
         :disabled="taskIsCanceling"
@@ -105,7 +108,7 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonTaskStrings from 'kolibri.coreVue.mixins.commonTaskStrings';
-  import { TaskStatuses, TaskTypes } from '../../constants';
+  import { TaskStatuses, TaskTypes } from '../../utils/syncTaskUtils';
 
   export default {
     name: 'FacilityTaskPanelDetails',

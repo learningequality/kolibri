@@ -1,45 +1,50 @@
 <template>
 
-  <div v-if="!loading">
-    <FilteredChannelListContainer
-      :channels="allChannels"
-      :selectedChannels.sync="selectedChannels"
-      :selectAllCheckbox="true"
-    >
-      <template #header>
-        <h1>{{ $tr('channelsOnDevice') }}</h1>
-      </template>
+  <ImmersivePage
+    :appBarTitle="appBarTitle"
+    :route="backRoute"
+  >
+    <KPageContainer class="device-container">
+      <FilteredChannelListContainer
+        :channels="allChannels"
+        :selectedChannels.sync="selectedChannels"
+        :selectAllCheckbox="true"
+      >
+        <template #header>
+          <h1>{{ $tr('channelsOnDevice') }}</h1>
+        </template>
 
-      <template #default="{ showItem, handleChange, itemIsSelected }">
-        <ChannelPanel
-          v-for="channel in allChannels"
-          v-show="showItem(channel)"
-          :key="channel.id"
-          :channel="channel"
-          :selectedMessage="channelSelectedMessage(channel)"
-          :checked="itemIsSelected(channel)"
-          @checkboxchange="handleChange"
-        />
-      </template>
-    </FilteredChannelListContainer>
+        <template #default="{ showItem, handleChange, itemIsSelected }">
+          <ChannelPanel
+            v-for="channel in allChannels"
+            v-show="showItem(channel)"
+            :key="channel.id"
+            :channel="channel"
+            :selectedMessage="channelSelectedMessage(channel)"
+            :checked="itemIsSelected(channel)"
+            @checkboxchange="handleChange"
+          />
+        </template>
+      </FilteredChannelListContainer>
 
-    <component
-      :is="exportMode ? 'SelectDriveModal' : 'DeleteChannelModal'"
-      v-if="showModal"
-      v-bind="modalProps"
-      @cancel="showModal = false"
-      @submit="handleClickModalSubmit"
-    />
+      <component
+        :is="exportMode ? 'SelectDriveModal' : 'DeleteChannelModal'"
+        v-if="showModal"
+        v-bind="modalProps"
+        @cancel="showModal = false"
+        @submit="handleClickModalSubmit"
+      />
 
-    <SelectionBottomBar
-      objectType="channel"
-      :disabled="selectedChannels.length === 0"
-      :actionType="actionType"
-      :selectedObjects="selectedChannels"
-      :fileSize.sync="fileSize"
-      @clickconfirm="handleClickConfirm"
-    />
-  </div>
+      <SelectionBottomBar
+        objectType="channel"
+        :disabled="selectedChannels.length === 0"
+        :actionType="actionType"
+        :selectedObjects="selectedChannels"
+        :fileSize.sync="fileSize"
+        @clickconfirm="handleClickConfirm"
+      />
+    </KPageContainer>
+  </ImmersivePage>
 
 </template>
 
@@ -51,7 +56,9 @@
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import { TaskResource } from 'kolibri.resources';
   import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
-  import { TaskTypes } from '../../constants';
+  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
+  import { TaskTypes } from 'kolibri.utils.syncTaskUtils';
+  import { PageNames } from '../../constants';
   import DeviceChannelResource from '../../apiResources/deviceChannel';
   import useContentTasks from '../../composables/useContentTasks';
   import taskNotificationMixin from '../taskNotificationMixin';
@@ -72,6 +79,7 @@
     components: {
       ChannelPanel,
       FilteredChannelListContainer,
+      ImmersivePage,
       SelectionBottomBar,
       DeleteChannelModal,
       SelectDriveModal,
@@ -100,6 +108,12 @@
     },
     computed: {
       ...mapGetters('manageContent', ['channelIsBeingDeleted']),
+      appBarTitle() {
+        return this.exportMode ? this.$tr('exportAppBarTitle') : this.$tr('deleteAppBarTitle');
+      },
+      backRoute() {
+        return { name: PageNames.MANAGE_CONTENT_PAGE };
+      },
       exportMode() {
         return this.actionType === 'export';
       },
@@ -225,4 +239,12 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  @import '../../styles/definitions';
+
+  .device-container {
+    @include device-kpagecontainer;
+  }
+
+</style>

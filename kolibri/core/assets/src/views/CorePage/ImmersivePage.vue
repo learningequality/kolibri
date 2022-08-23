@@ -5,6 +5,7 @@
       ref="appBar"
       :appBarTitle="(!loading ? appBarTitle : '')"
       :route="route"
+      :icon="icon"
     />
     <slot></slot>
     <KLinearLoader
@@ -20,10 +21,10 @@
 
 <script>
 
-  import ImmersiveToolbar from 'kolibri.coreVue.components.ImmersiveToolbar';
+  import ImmersiveToolbar from '../ImmersiveToolbar';
 
   export default {
-    name: 'ImmersivePageRoot',
+    name: 'ImmersivePage',
     components: { ImmersiveToolbar },
     props: {
       appBarTitle: {
@@ -38,6 +39,10 @@
         type: Object,
         required: false,
         default: null,
+      },
+      icon: {
+        type: String,
+        default: 'close',
       },
       loading: {
         type: Boolean,

@@ -1,3 +1,4 @@
+from django.http.request import QueryDict
 from django.urls import reverse
 
 from kolibri.plugins.app.kolibri_plugin import App
@@ -6,7 +7,12 @@ from kolibri.plugins.registry import registered_plugins
 
 SHARE_FILE = "share_file"
 
-CAPABILITES = (SHARE_FILE,)
+GET_OS_USER = "get_os_user"
+
+CAPABILITES = (
+    SHARE_FILE,
+    GET_OS_USER,
+)
 
 
 class AppInterface(object):
@@ -16,25 +22,32 @@ class AppInterface(object):
         self._capabilities = {}
 
     def __contains__(self, capability):
-        return capability in self._capabilities
+        return self.enabled and (capability in self._capabilities)
 
     def register(self, **kwargs):
         for capability in CAPABILITES:
             if capability in kwargs:
                 self._capabilities[capability] = kwargs[capability]
 
-    def get_initialize_url(self, next_url=None):
+    def get_initialize_url(self, next_url=None, auth_token=None):
         if not self.enabled:
             raise RuntimeError("App plugin is not enabled")
         # Import here to prevent a circular import
         from kolibri.core.device.models import DeviceAppKey
 
         url = reverse(
-            "kolibri:kolibri.plugins.app:initialize", args=(DeviceAppKey.get_app_key(),)
+            "kolibri:kolibri.plugins.app:initialize",
+            args=(DeviceAppKey.get_app_key(),),
         )
-        if next_url is None:
-            return url
-        return url + "?next={}".format(next_url)
+        query_dict = QueryDict(mutable=True)
+
+        if auth_token is not None:
+            query_dict["auth_token"] = auth_token
+
+        if next_url is not None:
+            query_dict["next"] = next_url
+        query_string = query_dict.urlencode()
+        return url + "?" + query_string if query_string else ""
 
     @property
     def enabled(self):
@@ -50,6 +63,14 @@ class AppInterface(object):
         if SHARE_FILE not in self._capabilities:
             raise NotImplementedError("Sharing files is not supported on this platform")
         return self._capabilities[SHARE_FILE](filename=filename, message=message)
+
+    def get_os_user(self, auth_token):
+        if GET_OS_USER not in self._capabilities:
+            raise NotImplementedError(
+                "Getting the OS user is not supported on this platform"
+            )
+        os_user, is_superuser = self._capabilities[GET_OS_USER](auth_token)
+        return os_user, is_superuser
 
 
 interface = AppInterface()

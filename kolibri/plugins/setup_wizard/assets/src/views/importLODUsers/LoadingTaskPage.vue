@@ -50,10 +50,10 @@
 <script>
 
   import { TaskResource } from 'kolibri.resources';
+  import { FacilityTaskPanel } from 'kolibri.coreVue.componentSets.sync';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import FacilityTaskPanel from '../../../../../device/assets/src/views/FacilitiesPage/FacilityTaskPanel.vue';
-  import { TaskStatuses } from '../../../../../device/assets/src/constants.js';
+  import { TaskStatuses } from 'kolibri.utils.syncTaskUtils';
   import OnboardingForm from '../onboarding-forms/OnboardingForm';
   import { FinishSoUDSyncingResource } from '../../api';
   import { SoudQueue } from '../../constants';

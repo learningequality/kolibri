@@ -1,10 +1,10 @@
 from django.conf.urls import url
 
+from .viewsets import OnMyOwnSetupViewset
 from .viewsets import RemoteFacilityUserViewset
-from .viewsets import UserIndividualViewset
 
 urlpatterns = [
-    url(r"userindividual", UserIndividualViewset.as_view(), name="userindividual"),
+    url(r"onmyownsetup", OnMyOwnSetupViewset.as_view(), name="onmyownsetup"),
     url(
         r"remotefacilityuser",
         RemoteFacilityUserViewset.as_view(),

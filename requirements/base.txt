@@ -9,7 +9,7 @@ colorlog==3.2.0 # pyup: <4.0.0
 configobj==5.0.6
 django-mptt==0.9.1
 requests==2.27.1
-cheroot==8.5.2
+cheroot==8.6.0
 magicbus==4.1.2
 futures==3.1.1  # Temporarily pinning this until we can do a Python 2/3 compatible solution of newer versions # pyup: <=3.1.1
 more-itertools==5.0.0  # Last Python 2.7 friendly release # pyup: <6.0

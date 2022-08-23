@@ -5,7 +5,7 @@ const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const webpack = require('webpack');
 
-module.exports = ({ mode = 'development', hot = false, cache = false } = {}) => {
+module.exports = ({ mode = 'development', hot = false, cache = false, transpile = false } = {}) => {
   const production = mode === 'production';
 
   // Have to pass this option to prevent complaints about empty exports:
@@ -34,6 +34,51 @@ module.exports = ({ mode = 'development', hot = false, cache = false } = {}) => 
   // for scss blocks
   const sassLoaders = [cssInsertionLoader, cssLoader, postCSSLoader, 'sass-loader'];
 
+  const rules = [
+    // Transpilation and code loading rules
+    {
+      test: /\.vue$/,
+      loader: 'vue-loader',
+      options: {
+        compilerOptions: {
+          preserveWhitespace: false,
+        },
+      },
+    },
+    {
+      test: /\.css$/,
+      use: [cssInsertionLoader, cssLoader, postCSSLoader],
+    },
+    {
+      test: /\.s[a|c]ss$/,
+      use: sassLoaders,
+    },
+    {
+      test: /\.(png|jpe?g|gif|svg|eot|woff|ttf|woff2)$/,
+      type: 'asset',
+      generator: {
+        filename: '[name]-[contenthash][ext]',
+      },
+      parser: {
+        dataUrlCondition: {
+          maxSize: 10000,
+        },
+      },
+    },
+  ];
+
+  if (transpile) {
+    rules.push({
+      test: /\.js$/,
+      loader: 'babel-loader',
+      exclude: { and: [/(node_modules\/vue|dist|core-js)/, { not: [/\.(esm\.js|mjs)$/] }] },
+      options: {
+        cacheDirectory: cache,
+        cacheCompression: false,
+      },
+    });
+  }
+
   return {
     target: 'browserslist',
     mode,
@@ -45,47 +90,7 @@ module.exports = ({ mode = 'development', hot = false, cache = false } = {}) => 
       },
     },
     module: {
-      rules: [
-        // Transpilation and code loading rules
-        {
-          test: /\.vue$/,
-          loader: 'vue-loader',
-          options: {
-            compilerOptions: {
-              preserveWhitespace: false,
-            },
-          },
-        },
-        {
-          test: /\.js$/,
-          loader: 'babel-loader',
-          exclude: { and: [/(node_modules\/vue|dist|core-js)/, { not: [/\.(esm\.js|mjs)$/] }] },
-          options: {
-            cacheDirectory: cache,
-            cacheCompression: false,
-          },
-        },
-        {
-          test: /\.css$/,
-          use: [cssInsertionLoader, cssLoader, postCSSLoader],
-        },
-        {
-          test: /\.s[a|c]ss$/,
-          use: sassLoaders,
-        },
-        {
-          test: /\.(png|jpe?g|gif|svg|eot|woff|ttf|woff2)$/,
-          type: 'asset',
-          generator: {
-            filename: '[name]-[contenthash][ext]',
-          },
-          parser: {
-            dataUrlCondition: {
-              maxSize: 10000,
-            },
-          },
-        },
-      ],
+      rules,
     },
     node: {
       __filename: true,

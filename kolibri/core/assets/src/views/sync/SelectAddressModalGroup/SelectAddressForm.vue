@@ -30,14 +30,6 @@
         />
       </UiAlert>
 
-      <KButton
-        v-show="!newAddressButtonDisabled && !formDisabled"
-        class="new-address-button"
-        :text="$tr('newAddressButtonLabel')"
-        appearance="basic-link"
-        @click="$emit('click_add_address')"
-      />
-
       <!-- Static Addresses -->
       <template v-for="(a, idx) in savedAddresses">
         <div :key="`div-${idx}`">
@@ -114,6 +106,15 @@
         </KFixedGridItem>
       </KFixedGrid>
     </template>
+
+    <KButton
+      v-show="!newAddressButtonDisabled && !formDisabled"
+      class="new-address-button"
+      :text="$tr('newAddressButtonLabel')"
+      appearance="basic-link"
+      @click="$emit('click_add_address')"
+    />
+
 
   </KModal>
 
@@ -231,12 +232,12 @@
         };
       },
       submitDisabled() {
-        return (
+        return Boolean(
           this.selectedAddressId === '' ||
-          this.fetchingAddresses & !this.filterLODAvailable ||
-          this.deletingAddress ||
-          this.discoveryFailed ||
-          this.availableAddressIds.length === 0
+            this.fetchingAddresses & !this.filterLODAvailable ||
+            this.deletingAddress ||
+            this.discoveryFailed ||
+            this.availableAddressIds.length === 0
         );
       },
       newAddressButtonDisabled() {
@@ -361,7 +362,7 @@
 <style lang="scss" scoped>
 
   .new-address-button {
-    margin-bottom: 16px;
+    margin: 0 0 1em;
   }
 
   .radio-button {

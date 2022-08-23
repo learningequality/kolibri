@@ -1,7 +1,7 @@
 <template>
 
   <NotificationsRoot>
-    <AppBarCorePage :title="coreString('profileLabel')">
+    <AppBarPage :title="coreString('profileLabel')">
 
       <KPageContainer>
         <KGrid>
@@ -121,7 +121,7 @@
         </table>
 
         <KGrid
-          v-if="isIndividual"
+          v-if="onMyOwnSetup"
           :style="{ marginTop: '34px',
                     paddingTop: '10px',
                     borderTop: `1px solid ${$themePalette.grey.v_300}` }"
@@ -176,7 +176,7 @@
 
 
       </KPageContainer>
-    </AppBarCorePage>
+    </AppBarPage>
   </NotificationsRoot>
 
 </template>
@@ -185,7 +185,7 @@
 <script>
 
   import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
-  import AppBarCorePage from 'kolibri.coreVue.components.AppBarCorePage';
+  import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
   import { mapGetters } from 'vuex';
   import { ref } from 'kolibri.lib.vueCompositionApi';
   import find from 'lodash/find';
@@ -198,9 +198,9 @@
   import { PermissionTypes } from 'kolibri.coreVue.vuex.constants';
   import GenderDisplayText from 'kolibri.coreVue.components.GenderDisplayText';
   import BirthYearDisplayText from 'kolibri.coreVue.components.BirthYearDisplayText';
-  import { ComponentMap } from '../../constants';
+  import { RoutesMap } from '../../constants';
   import useCurrentUser from '../../composables/useCurrentUser';
-  import useIndividualDevice from '../../composables/useIndividualDevice';
+  import useOnMyOwnSetup from '../../composables/useOnMyOwnSetup';
   import ChangeUserPasswordModal from './ChangeUserPasswordModal';
   import plugin_data from 'plugin_data';
 
@@ -212,7 +212,7 @@
       };
     },
     components: {
-      AppBarCorePage,
+      AppBarPage,
       BirthYearDisplayText,
       ChangeUserPasswordModal,
       NotificationsRoot,
@@ -227,10 +227,10 @@
       const showLearnModal = ref(false);
       const { currentUser } = useCurrentUser();
       const { isSubsetOfUsersDevice } = plugin_data;
-      const { isIndividual } = useIndividualDevice();
+      const { onMyOwnSetup } = useOnMyOwnSetup();
       return {
         currentUser,
-        isIndividual,
+        onMyOwnSetup,
         isSubsetOfUsersDevice,
         showLearnModal,
         showPasswordModal,
@@ -247,7 +247,7 @@
         'userHasPermissions',
       ]),
       profileEditRoute() {
-        return this.$router.getRoute(ComponentMap.PROFILE_EDIT);
+        return this.$router.getRoute(RoutesMap.PROFILE_EDIT);
       },
       userPermissions() {
         return pickBy(this.getUserPermissions);

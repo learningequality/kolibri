@@ -2,8 +2,9 @@ import find from 'lodash/find';
 import router from 'kolibri.coreVue.router';
 import { createTranslator } from 'kolibri.utils.i18n';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
+import { TransferTypes } from 'kolibri.utils.syncTaskUtils';
 import { ContentNodeGranularResource, RemoteChannelResource } from 'kolibri.resources';
-import { ContentWizardPages, ContentWizardErrors, TransferTypes } from '../../constants';
+import { ContentWizardPages, ContentWizardErrors } from '../../constants';
 import { manageContentPageLink } from '../../views/ManageContentPage/manageContentLinks';
 import { getAvailableSpaceOnDrive, loadChannelMetadata } from './actions/selectContentActions';
 import {

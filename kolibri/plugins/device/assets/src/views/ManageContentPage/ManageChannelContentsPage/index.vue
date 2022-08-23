@@ -1,72 +1,77 @@
 <template>
 
-  <div class="manage-channel-page">
-    <!-- Show this progress bar to match other import flows -->
-    <TaskProgress
-      v-if="!channel"
-    />
+  <ImmersivePage
+    class="manage-channel-page"
+    :appBarTitle="appBarTitle"
+    :route="backRoute"
+  >
+    <KPageContainer class="device-container">
+      <!-- Show this progress bar to match other import flows -->
+      <TaskProgress
+        v-if="!channel"
+      />
 
-    <template v-if="channel">
+      <template v-if="channel">
 
-      <ChannelContentsSummary :channel="channel">
-        <NewChannelVersionBanner
-          v-if="availableVersions.studioLatest > availableVersions.installed"
-          class="banner"
-          :version="availableVersions.studioLatest"
-          @click="handleClickViewNewVersion"
-        />
-      </ChannelContentsSummary>
+        <ChannelContentsSummary :channel="channel">
+          <NewChannelVersionBanner
+            v-if="availableVersions.studioLatest > availableVersions.installed"
+            class="banner"
+            :version="availableVersions.studioLatest"
+            @click="handleClickViewNewVersion"
+          />
+        </ChannelContentsSummary>
 
-      <div style="text-align: right">
-        <KButton
-          :text="$tr('importMoreAction')"
-          @click="shownModal = 'IMPORT_MORE'"
-        />
-      </div>
+        <div style="text-align: right">
+          <KButton
+            :text="$tr('importMoreAction')"
+            @click="shownModal = 'IMPORT_MORE'"
+          />
+        </div>
 
-      <transition mode="out-in">
-        <KLinearLoader v-if="!currentNode" :delay="false" />
-        <ContentTreeViewer
-          v-else
-          :node="currentNode"
-          :manageMode="true"
-          :style="{ borderBottomColor: $themeTokens.fineLine }"
-        />
-      </transition>
-    </template>
+        <transition mode="out-in">
+          <KLinearLoader v-if="!currentNode" :delay="false" />
+          <ContentTreeViewer
+            v-else
+            :node="currentNode"
+            :manageMode="true"
+            :style="{ borderBottomColor: $themeTokens.fineLine }"
+          />
+        </transition>
+      </template>
 
-    <DeleteResourcesModal
-      v-if="shownModal === 'DELETE'"
-      :numberOfResources="resourceCounts.count"
-      @cancel="closeModal"
-      @submit="handleDeleteSubmit"
-    />
+      <DeleteResourcesModal
+        v-if="shownModal === 'DELETE'"
+        :numberOfResources="resourceCounts.count"
+        @cancel="closeModal"
+        @submit="handleDeleteSubmit"
+      />
 
-    <SelectDriveModal
-      v-if="shownModal === 'EXPORT'"
-      :manageMode="true"
-      :exportFileSize="resourceCounts.fileSize"
-      @cancel="closeModal"
-      @submit="handleExportSubmit"
-    />
+      <SelectDriveModal
+        v-if="shownModal === 'EXPORT'"
+        :manageMode="true"
+        :exportFileSize="resourceCounts.fileSize"
+        @cancel="closeModal"
+        @submit="handleExportSubmit"
+      />
 
-    <SelectTransferSourceModal
-      v-if="shownModal === 'IMPORT_MORE'"
-      :manageMode="true"
-      :pageName.sync="selectSourcePageName"
-      @cancel="closeModal"
-      @submit="handleSelectImportMoreSource"
-    />
+      <SelectTransferSourceModal
+        v-if="shownModal === 'IMPORT_MORE'"
+        :manageMode="true"
+        :pageName.sync="selectSourcePageName"
+        @cancel="closeModal"
+        @submit="handleSelectImportMoreSource"
+      />
 
-    <SelectionBottomBar
-      objectType="resource"
-      actionType="manage"
-      :resourceCounts="resourceCounts"
-      :disabled="!Boolean(currentNode) || bottomBarDisabled"
-      @selectoption="shownModal = $event"
-    />
-
-  </div>
+      <SelectionBottomBar
+        objectType="resource"
+        actionType="manage"
+        :resourceCounts="resourceCounts"
+        :disabled="!Boolean(currentNode) || bottomBarDisabled"
+        @selectoption="shownModal = $event"
+      />
+    </KPageContainer>
+  </ImmersivePage>
 
 </template>
 
@@ -82,6 +87,8 @@
   import get from 'lodash/get';
   import last from 'lodash/last';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
+  import { TransferTypes } from 'kolibri.utils.syncTaskUtils';
   import useContentTasks from '../../../composables/useContentTasks';
   import ChannelContentsSummary from '../../SelectContentPage/ChannelContentsSummary';
   import ContentTreeViewer from '../../SelectContentPage/ContentTreeViewer';
@@ -92,7 +99,7 @@
   import SelectTransferSourceModal from '../SelectTransferSourceModal';
   import taskNotificationMixin from '../../taskNotificationMixin';
   import TaskProgress from '../TaskProgress';
-  import { ContentSources, PageNames, TransferTypes } from '../../../constants';
+  import { ContentSources, PageNames } from '../../../constants';
 
   import { fetchPageData, fetchNodeWithAncestors, startExportTask, startDeleteTask } from './api';
 
@@ -101,7 +108,7 @@
     metaInfo() {
       if (this.channel) {
         return {
-          title: this.title,
+          title: this.appBarTitle,
         };
       }
       return {};
@@ -111,6 +118,7 @@
       ContentTreeViewer,
       DeleteResourcesModal,
       NewChannelVersionBanner,
+      ImmersivePage,
       SelectDriveModal,
       SelectionBottomBar,
       SelectTransferSourceModal,
@@ -134,6 +142,9 @@
       };
     },
     computed: {
+      backRoute() {
+        return { name: PageNames.MANAGE_CONTENT_PAGE };
+      },
       channelId() {
         return this.$route.params.channel_id;
       },
@@ -145,8 +156,12 @@
           excluded: nodes.omitted.map(x => x.id),
         };
       },
-      title() {
-        return this.$tr('title', { channelName: this.channel.name });
+      appBarTitle() {
+        if (this.channel) {
+          return this.$tr('appBarTitle', { channelName: this.channel.name });
+        } else {
+          return '';
+        }
       },
       availableVersions() {
         // If offline, we shouldn't see an upgrade notification
@@ -201,7 +216,7 @@
         this.$store.commit('manageContent/wizard/SET_TRANSFERRED_CHANNEL', this.channel);
         this.$store.commit('manageContent/wizard/SET_TRANSFER_TYPE', TransferTypes.LOCALEXPORT);
 
-        this.$store.commit('coreBase/SET_APP_BAR_TITLE', this.title);
+        this.$store.commit('coreBase/SET_APP_BAR_TITLE', this.appBarTitle);
         return this.updateNode(this.$route.query.node || channel.root);
       },
       updateNode(newNodeId) {
@@ -323,7 +338,7 @@
       startDeleteTask,
     },
     $trs: {
-      title: {
+      appBarTitle: {
         message: `Manage '{channelName}'`,
         context: 'Refers to the title of the page where a user manages a specific channel.',
       },
@@ -338,6 +353,12 @@
 
 
 <style lang="scss" scoped>
+
+  @import '../../../styles/definitions';
+
+  .device-container {
+    @include device-kpagecontainer;
+  }
 
   .manage-channel-page {
     min-height: 80vh;

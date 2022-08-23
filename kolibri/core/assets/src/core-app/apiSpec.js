@@ -33,7 +33,9 @@ import ContentIcon from '../views/ContentIcon';
 import ProgressIcon from '../views/ProgressIcon';
 import PermissionsIcon from '../views/PermissionsIcon';
 import CoreBase from '../views/CoreBase';
-import AppBarCorePage from '../views/AppBarCorePage';
+import AppBarPage from '../views/CorePage/AppBarPage';
+import AppBar from '../views/AppBar';
+import ImmersivePage from '../views/CorePage/ImmersivePage';
 import ScrollingHeader from '../views/CoreBase/ScrollingHeader';
 import SidePanelModal from '../views/SidePanelModal';
 import SideNav from '../views/SideNav';
@@ -63,9 +65,8 @@ import redirectBrowser from '../utils/redirectBrowser';
 import * as licenseTranslations from '../utils/licenseTranslations';
 import bytesForHumans from '../utils/bytesForHumans';
 import UserType from '../utils/UserType';
+import * as syncTaskUtils from '../utils/syncTaskUtils';
 import samePageCheckGenerator from '../utils/samePageCheckGenerator';
-import AppBar from '../views/AppBar';
-import ImmersiveToolbar from '../views/ImmersiveToolbar';
 import Backdrop from '../views/Backdrop';
 import CoreSnackbar from '../views/CoreSnackbar';
 import CoreMenu from '../views/CoreMenu';
@@ -153,7 +154,9 @@ export default {
       ContentIcon,
       ProgressIcon,
       PermissionsIcon,
-      AppBarCorePage,
+      AppBar,
+      AppBarPage,
+      ImmersivePage,
       CoreBase,
       SidePanelModal,
       SideNav,
@@ -165,8 +168,6 @@ export default {
       PointsIcon,
       AuthMessage,
       FilterTextbox,
-      AppBar,
-      ImmersiveToolbar,
       CoreSnackbar,
       CoreMenu,
       CoreMenuDivider,
@@ -245,6 +246,7 @@ export default {
     serverClock,
     shuffled,
     sortLanguages,
+    syncTaskUtils,
     UserType,
     validators,
     coreStrings,

@@ -25,7 +25,7 @@ const syncStrings = createTranslator('CommonSyncStrings', {
     context: 'Label for a button that opens a menu to save a new network address.',
   },
   selectFacilityTitle: {
-    message: 'Select facility',
+    message: 'Select learning facility',
     context:
       'Title of the modal window where the user selects a facility to import from the source device, if there are multiple facilities available to import.',
   },

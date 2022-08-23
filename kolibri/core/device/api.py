@@ -3,7 +3,7 @@ from sys import version_info
 
 import requests
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.contrib.auth import login
 from django.db.models import Max
 from django.db.models import OuterRef
 from django.db.models.expressions import Subquery
@@ -24,7 +24,6 @@ from rest_framework import views
 from rest_framework import viewsets
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
-from six.moves.urllib.parse import urljoin
 
 import kolibri
 from .models import DevicePermissions
@@ -52,6 +51,7 @@ from kolibri.core.public.constants.user_sync_statuses import QUEUED
 from kolibri.core.public.constants.user_sync_statuses import RECENTLY_SYNCED
 from kolibri.core.public.constants.user_sync_statuses import SYNCING
 from kolibri.core.public.constants.user_sync_statuses import UNABLE_TO_SYNC
+from kolibri.core.utils.urls import reverse_remote
 from kolibri.plugins.utils import initialize_kolibri_plugin
 from kolibri.plugins.utils import iterate_plugins
 from kolibri.plugins.utils import PluginDoesNotExist
@@ -80,6 +80,8 @@ class DeviceProvisionView(viewsets.GenericViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.save()
+        if data["superuser"]:
+            login(request, data["superuser"])
         output_serializer = self.get_serializer(data)
         return Response(output_serializer.data, status=status.HTTP_201_CREATED)
 
@@ -387,8 +389,7 @@ class RemoteFacilitiesViewset(views.APIView):
 
     def get(self, request):
         baseurl = request.query_params.get("baseurl", request.build_absolute_uri("/"))
-        path = reverse("kolibri:core:publicfacility-list").lstrip("/")
-        url = urljoin(baseurl, path)
+        url = reverse_remote(baseurl, "kolibri:core:publicfacility-list")
         try:
             response = requests.get(url)
             if response.status_code == 200:

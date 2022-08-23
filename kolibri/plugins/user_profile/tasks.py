@@ -1,8 +1,5 @@
-from urllib.parse import urljoin
-
 import requests
 from django.core.management import call_command
-from django.urls import reverse
 from rest_framework import serializers
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.status import HTTP_201_CREATED
@@ -16,6 +13,7 @@ from kolibri.core.tasks.permissions import IsFacilityAdmin
 from kolibri.core.tasks.permissions import IsSelf
 from kolibri.core.tasks.permissions import IsSuperAdmin
 from kolibri.core.tasks.permissions import PermissionsFromAny
+from kolibri.core.utils.urls import reverse_remote
 
 
 class MergeUserValidator(PeerImportSingleSyncJobValidator):
@@ -41,9 +39,7 @@ class MergeUserValidator(PeerImportSingleSyncJobValidator):
             "password": data["password"],
             "facility": facility,
         }
-        public_signup_url = urljoin(
-            baseurl, reverse("kolibri:core:publicsignup-list").lstrip("/")
-        )
+        public_signup_url = reverse_remote(baseurl, "kolibri:core:publicsignup-list")
         response = requests.post(public_signup_url, data=user_data)
         if response.status_code != HTTP_201_CREATED:
             raise serializers.ValidationError(response.json()[0]["id"])

@@ -1,7 +1,7 @@
 import logger from 'kolibri.lib.logging';
 import { TaskResource } from 'kolibri.resources';
 import { currentLanguage } from 'kolibri.utils.i18n';
-import { TaskStatuses, TaskTypes } from '../../constants';
+import { TaskStatuses, TaskTypes } from 'kolibri.utils.syncTaskUtils';
 
 const logging = logger.getLogger(__filename);
 

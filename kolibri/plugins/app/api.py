@@ -1,3 +1,7 @@
+import logging
+
+from django.contrib.auth import login
+from django.core.exceptions import ValidationError
 from django.http import HttpResponseRedirect
 from django.utils.http import is_safe_url
 from django.utils.http import urlunquote
@@ -9,11 +13,16 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ViewSet
 
+from kolibri.core.auth.models import FacilityUser
+from kolibri.core.device.utils import device_provisioned
 from kolibri.core.device.utils import set_app_key_on_response
 from kolibri.core.device.utils import valid_app_key
 from kolibri.core.device.utils import valid_app_key_on_request
 from kolibri.plugins.app.utils import interface
 from kolibri.plugins.app.utils import SHARE_FILE
+
+
+logger = logging.getLogger(__name__)
 
 
 class FromAppContextPermission(BasePermission):
@@ -43,6 +52,15 @@ class InitializeAppView(APIView):
     def get(self, request, token):
         if not valid_app_key(token):
             raise PermissionDenied("You have provided an invalid token")
+        auth_token = request.GET.get("auth_token")
+        if request.user.is_anonymous() and device_provisioned() and auth_token:
+            # If we are in app context, then login as the automatically created OS User
+            try:
+                user = FacilityUser.objects.get_or_create_os_user(auth_token)
+                if user is not None:
+                    login(request, user)
+            except ValidationError as e:
+                logger.error(e)
         redirect_url = request.GET.get("next", "/")
         # Copied and modified from https://github.com/django/django/blob/stable/1.11.x/django/views/i18n.py#L40
         if (redirect_url or not request.is_ajax()) and not is_safe_url(

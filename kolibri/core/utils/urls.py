@@ -4,6 +4,13 @@ from six.moves.urllib.parse import urljoin
 from kolibri.utils.conf import OPTIONS
 
 
+def join_url(baseurl, url):
+    # Join the URL to baseurl, but remove any leading "/" to ensure that if there is a path prefix on baseurl
+    # it doesn't get ignored by the urljoin (which it would if the reversed_url had a leading '/',
+    # as it would be read as an absolute path)
+    return urljoin(baseurl, url.lstrip("/"))
+
+
 def reverse_remote(
     baseurl, viewname, urlconf=None, args=None, kwargs=None, current_app=None
 ):
@@ -17,4 +24,4 @@ def reverse_remote(
     # Join the URL to baseurl, but remove any leading "/" to ensure that if there is a path prefix on baseurl
     # it doesn't get ignored by the urljoin (which it would if the reversed_url had a leading '/',
     # as it would be read as an absolute path)
-    return urljoin(baseurl, reversed_url.lstrip("/"))
+    return join_url(baseurl, reversed_url)

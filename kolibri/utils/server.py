@@ -1030,12 +1030,12 @@ def installation_type(cmd_line=None):  # noqa:C901
     if install_type == "Unknown":
         if on_android():
             install_type = installation_types.APK
+        elif os.environ.get("KOLIBRI_DEVELOPER_MODE", False):
+            install_type = "devserver"
         elif len(cmd_line) > 1 or "uwsgi" in cmd_line:
             launcher = cmd_line[0]
             if launcher.endswith(".pex"):
                 install_type = installation_types.PEX
-            elif "runserver" in cmd_line:
-                install_type = "devserver"
             elif launcher == "/usr/bin/kolibri":
                 install_type = is_debian_package()
             elif launcher == "uwsgi":
