@@ -18,15 +18,15 @@ Feature: Guest creates an account
       And I click the *Finish* button
     Then I am signed in and I can see the *Learn > Home* page
 
-  Scenario: Accounts created on *Create an account* page do not see a notification to update profile
-    Given I completed the account creation workflow
-    When I am redirected to the *Learn > Home* page
-    Then I don't see the *Update your profile* modal
-
-  Scenario: Username is already taken
-    Given A user already exists with some username
+  Scenario: Username already exists
+    Given a user already exists with some username
       When I try to sign up for a new account with that same username
-      Then I get a validation message shown next to the username field that the name is already taken
+      Then I see a *Username already exists* validation message shown under the username field
+
+  Scenario: Sign in if you have an existing account
+  	Given I am either on *Step 1 of 1 > Create an account* page or on *Step 1 of 2 > Create an account* page
+  	When I click the *Sign in if you have an existing account* link
+  	Then I am back at the sign-in page
 
   Examples:
   | full_name | password | username | password | facility |

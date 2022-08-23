@@ -1,8 +1,9 @@
-Feature: Super admin signs-out
-    Super admin needs to be able to sign out when finished using Kolibri
+Feature: User sign-out
+    Users need to be able to sign out when finished using Kolibri
+    Also important for correct progress tracking of individual learners
 
   Background:
-    Given I am already signed in as a super admin
+    Given I am already signed in as a super admin, admin, coach or a learner
 
   Scenario: Sign out
     When I click the top left sidebar icon
