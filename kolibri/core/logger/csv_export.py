@@ -12,6 +12,7 @@ from functools import partial
 from django.core.cache import cache
 from django.http import Http404
 from django.http import HttpResponse
+from django.http import HttpResponseForbidden
 from django.http.response import FileResponse
 from django.template.defaultfilters import slugify
 from django.utils import translation
@@ -21,6 +22,7 @@ from le_utils.constants import content_kinds
 
 from .models import ContentSessionLog
 from .models import ContentSummaryLog
+from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.models import Facility
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
@@ -181,11 +183,21 @@ def exported_logs_info(request, facility_id, facility):
 
 
 def download_csv_file(request, log_type, facility_id):
+    if request.user.is_anonymous:
+        return HttpResponseForbidden("You must be logged in to download this file")
+
     if facility_id:
-        facility_name = Facility.objects.get(pk=facility_id).name
+        facility = Facility.objects.get(pk=facility_id)
     else:
-        facility_name = request.user.facility.name
+        facility = request.user.facility
         facility_id = request.user.facility.id
+
+    if not request.user.has_role_for_collection(role_kinds.ADMIN, facility):
+        return HttpResponseForbidden(
+            "You must be logged in as an admin for this facility or a superadmin to download this file"
+        )
+
+    facility_name = facility.name
 
     locale = get_language_from_request(request)
     translation.activate(locale)
