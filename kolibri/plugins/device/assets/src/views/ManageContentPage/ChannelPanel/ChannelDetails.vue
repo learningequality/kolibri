@@ -118,6 +118,7 @@
   .col-1 {
     display: flex;
     flex-grow: 0;
+    width: $thumbside;
     height: $thumbside;
     margin-right: 16px;
 
