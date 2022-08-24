@@ -17,7 +17,7 @@
       </KPageContainer>
     </AppBarPage>
 
-    <div v-else role="main" tabindex="-1" data-test="main">
+    <div v-else tabindex="-1" data-test="base-page">
       <slot :loading="loading"></slot>
     </div>
 

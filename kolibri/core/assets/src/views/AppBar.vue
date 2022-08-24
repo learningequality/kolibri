@@ -2,35 +2,36 @@
 
   <div v-show="!$isPrint" :style="{ backgroundColor: $themeTokens.appBar }">
 
-    <SkipNavigationLink />
+    <header>
+      <SkipNavigationLink />
 
-    <UiToolbar
-      :title="title"
-      type="clear"
-      textColor="white"
-      class="app-bar"
-      :style="{ height: topBarHeight + 'px' }"
-      :raised="false"
-      :removeBrandDivider="true"
-    >
-      <template #icon>
-        <KIconButton
-          icon="menu"
-          :color="$themeTokens.textInverted"
-          :ariaLabel="$tr('openNav')"
-          @click="$emit('toggleSideNav')"
-        />
-      </template>
+      <UiToolbar
+        :title="title"
+        type="clear"
+        textColor="white"
+        class="app-bar"
+        :style="{ height: topBarHeight + 'px' }"
+        :raised="false"
+        :removeBrandDivider="true"
+      >
+        <template #icon>
+          <KIconButton
+            icon="menu"
+            :color="$themeTokens.textInverted"
+            :ariaLabel="$tr('openNav')"
+            @click="$emit('toggleSideNav')"
+          />
+        </template>
 
-      <template #brand>
-        <img
-          v-if="themeConfig.appBar.topLogo"
-          :src="themeConfig.appBar.topLogo.src"
-          :alt="themeConfig.appBar.topLogo.alt"
-          :style="themeConfig.appBar.topLogo.style"
-          class="brand-logo"
-        >
-      </template>
+        <template #brand>
+          <img
+            v-if="themeConfig.appBar.topLogo"
+            :src="themeConfig.appBar.topLogo.src"
+            :alt="themeConfig.appBar.topLogo.alt"
+            :style="themeConfig.appBar.topLogo.style"
+            class="brand-logo"
+          >
+        </template>
 
       <template v-if="windowIsLarge" #navigation>
         <slot name="sub-nav"></slot>
@@ -54,10 +55,11 @@
             <span class="username">{{ usernameForDisplay }}</span>
           </span>
 
-        </div>
-      </template>
-    </UiToolbar>
-    <div v-if="!windowIsLarge" class="subpage-nav">
+          </div>
+        </template>
+      </UiToolbar>
+    </header>
+    <div class="subpage-nav">
       <slot name="sub-nav"></slot>
     </div>
   </div>

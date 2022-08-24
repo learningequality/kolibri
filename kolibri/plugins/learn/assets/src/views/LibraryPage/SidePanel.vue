@@ -3,7 +3,7 @@
   <!-- This v-if ensures we don't render an unnecessary empty div
     something will always be showing if one of these is true
   -->
-  <div v-if="windowIsLarge || mobileSidePanelIsOpen">
+  <aside v-if="windowIsLarge || mobileSidePanelIsOpen">
     <!-- Embedded Side panel is on larger views, and exists next to content -->
     <SearchFiltersPanel
       v-if="windowIsLarge"
@@ -73,7 +73,7 @@
       @cancel="currentCategory = null"
       @input="handleCategory"
     />
-  </div>
+  </aside>
 
 </template>
 
