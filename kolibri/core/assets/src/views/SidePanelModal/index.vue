@@ -11,7 +11,7 @@
         @shouldFocusFirstEl="$emit('shouldFocusFirstEl')"
         @shouldFocusLastEl="focusLastEl"
       >
-        <div
+        <aside
           class="side-panel"
           :style="sidePanelStyles"
         >
@@ -43,7 +43,7 @@
             <slot></slot>
           </div>
 
-        </div>
+        </aside>
       </FocusTrap>
     </transition>
 

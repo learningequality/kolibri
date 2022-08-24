@@ -18,6 +18,7 @@
       <TopicsHeader
         v-if="!windowIsSmall"
         ref="header"
+        role="complementary"
         data-test="header-breadcrumbs"
         :topics="topics"
         :topic="topic"

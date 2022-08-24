@@ -1,6 +1,6 @@
 <template>
 
-  <div
+  <aside
     :style="{
       color: $themeTokens.text,
       backgroundColor: $themeTokens.surface,
@@ -126,7 +126,7 @@
         </div>
       </div>
     </div>
-  </div>
+  </aside>
 
 </template>
 
