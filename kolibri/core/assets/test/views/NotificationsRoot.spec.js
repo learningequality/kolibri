@@ -31,17 +31,17 @@ describe('NotificationsRoot', function() {
   });
 
   describe('when loaded', function() {
-    it('if user is authorized and there is no error, main div for displaying <slot> should be displayed', async () => {
+    it('if user is authorized and there is no error, base div for displaying <slot> should be displayed', async () => {
       const { wrapper, store } = makeWrapper();
       store.state.core.loading = false;
       await wrapper.vm.$nextTick();
 
-      expect(wrapper.find('[data-test="main"]').exists()).toBeTruthy();
+      expect(wrapper.find('[data-test="base-page"]').exists()).toBeTruthy();
       expect(wrapper.findComponent({ name: 'AuthMessage' }).exists()).toBeFalsy();
       expect(wrapper.findComponent({ name: 'AppError' }).exists()).toBeFalsy();
     });
 
-    it('if user is not authorized, authorization component in the main page should be rendered', async () => {
+    it('if user is not authorized, authorization component in the base page page should be rendered', async () => {
       const { wrapper, store } = makeWrapper();
       store.state.core.loading = false;
       store.state.core.error = { response: { status: 403 } };
@@ -52,7 +52,7 @@ describe('NotificationsRoot', function() {
       expect(wrapper.find('[data-test="main"]').exists()).toBeFalsy();
     });
 
-    it('if there is an error, the error component in the main page should be rendered', async () => {
+    it('if there is an error, the error component in the base page should be rendered', async () => {
       const { wrapper, store } = makeWrapper();
       store.state.core.loading = false;
       store.state.core.error = 'some error here';
@@ -60,7 +60,7 @@ describe('NotificationsRoot', function() {
 
       expect(wrapper.findComponent({ name: 'AppError' }).exists()).toBeTruthy();
       expect(wrapper.findComponent({ name: 'AuthMessage' }).exists()).toBeFalsy();
-      expect(wrapper.find('[data-test="main"]').exists()).toBeFalsy();
+      expect(wrapper.find('[data-test="base-page"]').exists()).toBeFalsy();
     });
 
     it('notification modal should be rendered if the user is an admin/superuser, a notification exists, and there is a recent notification', async () => {
