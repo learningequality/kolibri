@@ -1,6 +1,5 @@
 import random
 
-from django.apps import apps
 from django.conf import settings
 from django.core.management import call_command
 from django.core.management.base import BaseCommand
@@ -46,6 +45,7 @@ MIN_SCHEMA_VERSION = 1
 DEVELOPER_NAME = "bedo khaled"
 
 
+# takes much time to migrate, alternatives ?
 def switch_to_memory():
     print("\n initializing the testing environment in memory....\n")
     for db in settings.DATABASES:
@@ -60,26 +60,6 @@ def switch_to_memory():
         call_command("migrate", interactive=False, database=db)
 
 
-# get app/s models names that will be dumped
-def get_app_models(*apps_names):
-    models_names = []
-
-    # first way, extracts only the base (main) models
-    for app_name in apps_names:
-        for model in list(apps.get_app_config(app_name).get_models()):
-            models_names.append(f"{app_name}.{model.__name__}")
-
-    return models_names
-
-    # another way of getting app models (which gets more models but are in lowercase)
-
-    # for app_name in apps_names:
-    #     for model in dict(apps.all_models[app_name]):
-    #         models_names.append(f"{app_name}.{model}")
-
-    # which one should we use ? (i.e which models will be dumped ? the ones extraced through the first or the second way)
-
-
 def generate_random_id():
     import uuid
 
@@ -87,14 +67,11 @@ def generate_random_id():
 
 
 # for returning random choices
-
-
 def choices(sequence, k):
     return [random.choice(sequence) for _ in range(0, k)]
 
 
 # puprpose: if we have a content node of certain kind what type of file (file_preset) should maps to this node  ?
-
 content_kind_to_file_preset = {}
 
 # format_presets.PRESETLIST to a dictionary for convenient access
@@ -303,12 +280,20 @@ def generate_one_contentNode(
     kind_to_learninactivity = {
         "topic": "",
         "slideshow": "",
-        "document": f"{learning_activities.READ},{learning_activities.REFLECT}",
-        "video": f"{learning_activities.WATCH},{learning_activities.REFLECT}",
-        "html5": f"{learning_activities.EXPLORE},{learning_activities.REFLECT}",
-        "audio": f"{learning_activities.LISTEN},{learning_activities.REFLECT}",
-        "exercise": f"{learning_activities.PRACTICE},{learning_activities.REFLECT}",
-        "h5p": f"{learning_activities.EXPLORE}.{learning_activities.REFLECT}",
+        "document": "{},{}".format(
+            learning_activities.READ, learning_activities.REFLECT
+        ),
+        "video": "{},{}".format(learning_activities.WATCH, learning_activities.REFLECT),
+        "html5": "{},{}".format(
+            learning_activities.EXPLORE, learning_activities.REFLECT
+        ),
+        "audio": "{},{}".format(
+            learning_activities.LISTEN, learning_activities.REFLECT
+        ),
+        "exercise": "{},{}".format(
+            learning_activities.PRACTICE, learning_activities.REFLECT
+        ),
+        "h5p": "{}.{}".format(learning_activities.EXPLORE, learning_activities.REFLECT),
     }
 
     new_node = ContentNode.objects.create(
@@ -387,17 +372,19 @@ def recurse_and_generate(
         current_resource_kind = ALL_RESOURCES_KINDS[kind_iterator % RESOURCES_COUNT]
         if levels == 0:
             current_node = generate_leaf(
-                title=f"{current_resource_kind}_{i+1}",
+                title="{}_{}".format(current_resource_kind, i + 1),
                 resource_kind=current_resource_kind,
                 channel_id=channel_id,
                 parent=parent,
             )
 
         else:
-            topic_title = f"level {levels}, topic_{i+1}"
+            topic_title = "level {}, topic_{}".format(levels, i + 1)
             # last parent nodes (parent of the actual resources)
             if levels == 1:
-                topic_title = f"level {levels}, {current_resource_kind}_resources"
+                topic_title = "level {}, {}_resources".format(
+                    levels, current_resource_kind
+                )
 
             current_node = generate_topic(
                 title=topic_title,
@@ -441,7 +428,7 @@ def generate_channels(n_channels, levels):
         )
 
         channel = generate_channel(
-            name=f"Testing channel _{c+1} of {levels} levels",
+            name="Testing channel _{} of {} levels".format(c + 1, levels),
             root_node=root_node,
             channel_id=channel_id,
         )
@@ -508,7 +495,6 @@ class Command(BaseCommand):
 
         if generating_mode == "fixtures":
 
-            # takes much time for switching, alternatives ??
             switch_to_memory()
 
             channels_generated = generate_channels(
@@ -520,7 +506,7 @@ class Command(BaseCommand):
 
             call_command(
                 "dumpdata",
-                *get_app_models("content"),
+                "content",
                 indent=4,
                 # for json file creation to work correctly your pwd (in terminal) have to be ../kolibri/core/content
                 # we want to fix that (i.e. creating the file correctly regardless of our current terminal path), how ?

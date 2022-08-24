@@ -1,6 +1,5 @@
 import csv
 import datetime
-import io
 import os
 import random
 
@@ -21,9 +20,6 @@ from kolibri.core.content.management.commands.generate_content_data import (
     generate_channels,
 )
 from kolibri.core.content.management.commands.generate_content_data import (
-    get_app_models,
-)
-from kolibri.core.content.management.commands.generate_content_data import (
     switch_to_memory,
 )
 from kolibri.core.content.models import ChannelMetadata
@@ -32,6 +28,7 @@ from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import ExamAssignment
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.lessons.models import LessonAssignment
+from kolibri.core.utils.csv import open_csv_for_reading
 from kolibri.utils.time_utils import local_now
 
 users_data_iterator = 0
@@ -44,24 +41,28 @@ def generate_random_id():
     return uuid.uuid4().hex
 
 
-def read_user_data_file():
-    # not the best way of reading the csv file i know, how to better read the file?
-    data_path = os.path.abspath(
-        os.path.join(
-            os.path.dirname(__file__),
-            "..",
-            "..",
-            "..",
-            "logger/management/commands/user_data.csv",
+def read_user_data_file(file_path):
+
+    if not file_path:
+        file_path = os.path.abspath(
+            os.path.join(
+                os.path.dirname(__file__),
+                "..",
+                "..",
+                "..",
+                "logger",
+                "management",
+                "commands",
+                "user_data.csv",
+            )
         )
-    )
 
-    with io.open(data_path, mode="r", encoding="utf-8") as f:
-        all_users_base_data = [data for data in csv.DictReader(f)]
-    return all_users_base_data
+    global all_users_base_data
+    file_reader = open_csv_for_reading(file_path)
+    all_users_base_data = [data for data in csv.DictReader(file_reader)]
 
 
-# ever time called it gets the next (different) user data from user_data.csv
+# ever time gets called it gets the next (different) user data from user_data.csv
 def get_user_base_data(n_facility_users):
     global users_data_iterator
     users_data_iterator += 1
@@ -97,7 +98,7 @@ def generate_facility_user(facility, n_facility_users):
 def generate_superadmin(n_facility_users):
     user_data = get_user_base_data(n_facility_users)
     username = user_data["Username"] + "_superuser"
-    full_name = f"{username} is the device superuser"
+    full_name = "{} is the device superuser".format(username)
     FacilityUser.objects.create_superuser(
         username,
         "password",
@@ -111,7 +112,7 @@ def generate_facility_dataset(facility_name, device_name):
     facility_settings = facility_presets.mappings[preset_to_use]
 
     dataset = FacilityDataset(
-        description=f"{facility_name} DataSet",
+        description="{} DataSet".format(facility_name),
         location=device_name,
         preset=preset_to_use,
         registered=random.choice([True, False]),
@@ -203,7 +204,7 @@ def get_or_generate_lesson_resources():
 
     channels = ChannelMetadata.objects.all()
 
-    # generate a new channel if there are no local channels
+    # generate new channel/s if there are no local channels
     if not channels:
         channels = generate_channels(n_channels=1, levels=2)
 
@@ -239,17 +240,17 @@ def get_question_sources(v):
             0: {
                 "exercise_id": generate_random_id(),
                 "number_of_questions": 6,
-                "title": f"question_{q+1}",
+                "title": "question_{}".format(q + 1),
             },
             1: {
                 "exercise_id": generate_random_id(),
                 "question_id": generate_random_id(),
-                "title": f"question_{q+1}",
+                "title": "question_{}".format(q + 1),
             },
             2: {
                 "exercise_id": generate_random_id(),
                 "question_id": generate_random_id(),
-                "title": f"question_{q+1}",
+                "title": "question_{}".format(q + 1),
                 "counter_in_exercise": "",
             },
         }
@@ -276,15 +277,17 @@ def start_generating(
     n_adhoc_lesson_learners,
     n_adhoc_exams,
     n_adhoc_exam_learners,
+    data_path,
 ):
 
-    global all_users_base_data
-    all_users_base_data = read_user_data_file()
+    read_user_data_file(data_path)
 
     facilities = []
 
     for f in range(n_facilities):
-        new_facility = generate_facility(f"Test Facility_{f+1}", "testing device")
+        new_facility = generate_facility(
+            facility_name="Facility_{}".format(f + 1), device_name="testing device"
+        )
 
         # authorized users in the facility
         facility_coaches_and_admins = []
@@ -303,7 +306,7 @@ def start_generating(
 
         # generating class/s
         for c in range(n_classes):
-            class_name = f"class_{c+1}" + random.choice("ABCDEF")
+            class_name = "class_{}".format(c + 1) + random.choice("ABCDEF")
             new_class = generate_classroom(class_name, new_facility)
 
             # generate and assign assignable_coache/s to the class
@@ -334,7 +337,7 @@ def start_generating(
             # generating learner_group/s for the above class
             for g in range(n_groups):
                 learner_group = generate_group(
-                    name=f"learner_group_{g}", parent_classroom=new_class
+                    name="learner_group_{}".format(g), parent_classroom=new_class
                 )
                 # randomly assign class learners to each learner_group
                 for class_learner in random.sample(
@@ -345,8 +348,8 @@ def start_generating(
             # generate and assign lesson/s to the whole class
             for l in range(n_class_lessons):
                 lesson = generate_lesson(
-                    title=f"Lesson_{l+1}",
-                    description=f"Lesson_{l+1} for {class_name}",
+                    title="Lesson_{}".format(l + 1),
+                    description="Lesson_{} for {}".format(l + 1, class_name),
                     collection=new_class,
                     creator=random.choice(creators_and_assigners_users),
                 )
@@ -360,7 +363,7 @@ def start_generating(
             # generate and assign exam/s to the class
             for e in range(n_classs_exams):
                 exam = generate_exam(
-                    title=f"exam_{e+1} for the whole {class_name}",
+                    title="exam_{} for the whole {}".format(e + 1, class_name),
                     collection=new_class,
                     creator=random.choice(creators_and_assigners_users),
                 )
@@ -374,15 +377,15 @@ def start_generating(
             # generate lesson/s for specific learners
             for l in range(n_adhoc_lessons):
                 lesson = generate_lesson(
-                    title=f"Lesson_{l+1}",
-                    description=f"Lesson_{l+1} for {class_name}",
+                    title="Lesson_{}".format(l + 1),
+                    description="Lesson_{} for {}".format(l + 1, class_name),
                     collection=new_class,
                     creator=random.choice(creators_and_assigners_users),
                 )
                 generate_lesson_assignment(
                     lesson=lesson,
                     collection=generate_adhoc_group(
-                        name=f"adhoc group_{l+1} for {lesson.title} in {class_name}",
+                        name="adhoc_{} in {}".format(lesson.title, class_name),
                         parent_classroom=new_class,
                         learners=random.sample(
                             all_class_learners, n_adhoc_lesson_learners
@@ -395,7 +398,7 @@ def start_generating(
             for e in range(n_adhoc_exams):
 
                 exam = generate_exam(
-                    title=f"exam_{e+1} for specific learners",
+                    title="exam_{} for specific learners".format(e + 1),
                     collection=new_class,
                     creator=random.choice(creators_and_assigners_users),
                 )
@@ -403,7 +406,7 @@ def start_generating(
                 generate_exam_assignment(
                     exam=exam,
                     collection=generate_adhoc_group(
-                        name=f"adhoc group_{l+1} for {exam.title} in {class_name}",
+                        name="adhoc_{} in {}".format(exam.title, class_name),
                         parent_classroom=new_class,
                         learners=random.sample(
                             all_class_learners, n_adhoc_exam_learners
@@ -558,10 +561,20 @@ class Command(BaseCommand):
             help="number of learners for the adhoc_exam",
         )
 
+        parser.add_argument(
+            "--data_path",
+            type=str,
+            default="",
+            help="path to the csv file which containts users base data",
+        )
+
     def handle(self, *args, **options):
 
         # Generated Data destination
         mode = options["mode"]
+
+        # Csv data file_path
+        data_path = options["data_path"]
 
         # Facilities
         n_facilities = options["facilities"]
@@ -591,21 +604,22 @@ class Command(BaseCommand):
             switch_to_memory()
 
             facilities = start_generating(
-                n_facilities,
-                n_facility_users,
-                n_facility_admins,
-                n_facility_coaches,
-                n_classes,
-                n_class_coaches,
-                n_class_learners,
-                n_groups,
-                n_group_learners,
-                n_class_lessons,
-                n_classs_exams,
-                n_adhoc_lessons,
-                n_adhoc_lesson_learners,
-                n_adhoc_exams,
-                n_adhoc_exam_learners,
+                n_facilities=n_facilities,
+                n_facility_users=n_facility_users,
+                n_facility_admins=n_facility_admins,
+                n_facility_coaches=n_facility_coaches,
+                n_classes=n_classes,
+                n_class_coaches=n_class_coaches,
+                n_class_learners=n_class_learners,
+                n_groups=n_groups,
+                n_group_learners=n_group_learners,
+                n_class_lessons=n_class_lessons,
+                n_classs_exams=n_classs_exams,
+                n_adhoc_lessons=n_adhoc_lessons,
+                n_adhoc_lesson_learners=n_adhoc_lesson_learners,
+                n_adhoc_exams=n_adhoc_exams,
+                n_adhoc_exam_learners=n_adhoc_exam_learners,
+                data_path=data_path,
             )
 
             print(
@@ -615,10 +629,12 @@ class Command(BaseCommand):
             # dumping after generation is done
             call_command(
                 "dumpdata",
-                *get_app_models("kolibriauth", "lessons", "exams"),
+                "kolibriauth",
+                "lessons",
+                "exams",
                 indent=4,
                 # for json file creation to work correctly your pwd (in terminal) have to be ../kolibri/core/auth
-                # we want to fix that (i.e. creating the file correctly regardless of our current terminal path), how ?
+                # we want to fix that (i.e. creating the file correctly regardless of our current pwd ), how ?
                 output="fixtures/all_facility_data.json",
                 interactive=False,
             )
@@ -627,4 +643,21 @@ class Command(BaseCommand):
             [facility.delete() for facility in facilities]
 
         else:
-            start_generating()
+            start_generating(
+                n_facilities=n_facilities,
+                n_facility_users=n_facility_users,
+                n_facility_admins=n_facility_admins,
+                n_facility_coaches=n_facility_coaches,
+                n_classes=n_classes,
+                n_class_coaches=n_class_coaches,
+                n_class_learners=n_class_learners,
+                n_groups=n_groups,
+                n_group_learners=n_group_learners,
+                n_class_lessons=n_class_lessons,
+                n_classs_exams=n_classs_exams,
+                n_adhoc_lessons=n_adhoc_lessons,
+                n_adhoc_lesson_learners=n_adhoc_lesson_learners,
+                n_adhoc_exams=n_adhoc_exams,
+                n_adhoc_exam_learners=n_adhoc_exam_learners,
+                data_path=data_path,
+            )
