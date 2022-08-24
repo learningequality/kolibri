@@ -397,7 +397,7 @@
     },
     $trs: {
       navigationLabel: {
-        message: 'Main user navigation',
+        message: 'Main user menu',
         context:
           'Refers to the main side navigation bar. The message is providing additional context to the screen-reader users, but is not visible in the Kolibri UI.',
       },
