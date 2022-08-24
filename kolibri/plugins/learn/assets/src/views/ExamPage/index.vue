@@ -12,7 +12,7 @@
         :layout12="{ span: 4 }"
         class="column-pane"
       >
-        <div class="column-contents-wrapper">
+        <aside class="column-contents-wrapper" :ariaLabel="$tr('information')">
           <KPageContainer>
             <div>
               <p>{{ coreString('timeSpentLabel') }}</p>
@@ -34,6 +34,7 @@
             >
             </span>
             <AnswerHistory
+              :ariaLabel="$tr('jumpToQuestion')"
               :pastattempts="pastattempts"
               :questions="questions"
               :questionNumber="questionNumber"
@@ -41,10 +42,10 @@
               @goToQuestion="goToQuestion"
             />
           </KPageContainer>
-        </div>
+        </aside>
       </KGridItem>
       <KGridItem :layout12="{ span: 8 }" class="column-pane">
-        <div :class="{ 'column-contents-wrapper': !windowIsSmall }">
+        <main :class="{ 'column-contents-wrapper': !windowIsSmall }">
           <KPageContainer v-if="!loading">
             <h1>
               {{ $tr('question', { num: questionNumber + 1, total: exam.question_count }) }}
@@ -142,7 +143,7 @@
               />
             </div>
           </KPageContainer>
-        </div>
+        </main>
       </KGridItem>
     </KGrid>
 
@@ -455,6 +456,16 @@
         message: 'Submit quiz',
         context:
           'Action that learner takes to submit their quiz answers so that the coach can review them.',
+      },
+      jumpToQuestion: {
+        message: 'Jump to question',
+        context:
+          'A label for the section of the page that contains all questions as clickable links',
+      },
+      information: {
+        message: 'Information',
+        context:
+          'A label for the section of the page that contains details about the currently in progress quiz',
       },
       questionsAnswered: {
         message:

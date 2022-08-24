@@ -3,7 +3,7 @@
   <LearnAppBarPage
     :appBarTitle="learnString('learnLabel')"
   >
-    <KBreadcrumbs :items="breadcrumbs" />
+    <KBreadcrumbs :items="breadcrumbs" :ariaLabel="learnString('classesAndAssignmentsLabel')" />
     <YourClasses
       v-if="isUserLoggedIn"
       :classes="classrooms"

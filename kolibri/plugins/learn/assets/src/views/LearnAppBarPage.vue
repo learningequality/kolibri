@@ -7,7 +7,7 @@
   >
 
     <template #subNav>
-      <LearnTopNav ref="topNav" />
+      <LearnTopNav ref="topNav" :ariaLabel="$tr('learnPageMenuLabel')" />
     </template>
 
     <slot></slot>
@@ -40,6 +40,12 @@
       loading: {
         type: Boolean,
         default: null,
+      },
+    },
+    $trs: {
+      learnPageMenuLabel: {
+        message: 'Learn page menu',
+        context: 'Indicates the purpose of a navigation bar at the top of the page',
       },
     },
   };

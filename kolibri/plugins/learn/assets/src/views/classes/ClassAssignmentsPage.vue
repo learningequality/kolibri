@@ -3,7 +3,7 @@
   <LearnAppBarPage
     :appBarTitle="learnString('learnLabel')"
   >
-    <KBreadcrumbs :items="breadcrumbs" />
+    <KBreadcrumbs :items="breadcrumbs" :ariaLabel="learnString('classesAndAssignmentsLabel')" />
     <h1 class="classroom-name">
       <KLabeledIcon icon="classes" :label="className" />
     </h1>
