@@ -20,6 +20,7 @@ from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.auth.test.test_api import FacilityFactory
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
+from kolibri.core.logger.csv_export import labels
 
 
 class ContentSummaryLogCSVExportTestCase(APITestCase):
@@ -184,3 +185,17 @@ class ContentSessionLogCSVExportTestCase(APITestCase):
         for row in results[1:]:
             self.assertEqual(len(results[0]), len(row))
         self.assertEqual(len(results[1:]), expected_count)
+
+    def test_csv_download_no_completion_timestamp(self):
+        _, filepath = tempfile.mkstemp(suffix=".csv")
+        call_command(
+            "exportlogs", log_type="session", output_file=filepath, overwrite=True
+        )
+        if sys.version_info[0] < 3:
+            csv_file = open(filepath, "rb")
+        else:
+            csv_file = open(filepath, "r", newline="")
+        with csv_file as f:
+            results = list(csv.reader(f))
+        for column_label in results[0]:
+            self.assertNotEqual(column_label, labels["completion_timestamp"])

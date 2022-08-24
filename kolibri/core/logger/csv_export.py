@@ -132,7 +132,7 @@ def csv_file_generator(facility, log_type, filepath, overwrite=False):
     header_labels = tuple(
         label
         for label in labels.values()
-        if log_type == "summary" or label != "completion_timestamp"
+        if log_type == "summary" or label != labels["completion_timestamp"]
     )
 
     csv_file = open_csv_for_writing(filepath)
