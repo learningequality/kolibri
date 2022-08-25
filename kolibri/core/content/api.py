@@ -29,6 +29,7 @@ from django_filters.rest_framework import NumberFilter
 from django_filters.rest_framework import UUIDFilter
 from le_utils.constants import content_kinds
 from le_utils.constants import languages
+from rest_framework import filters
 from rest_framework import mixins
 from rest_framework import status
 from rest_framework import viewsets
@@ -74,7 +75,6 @@ from kolibri.core.query import SQSum
 from kolibri.core.utils.pagination import ValuesViewsetCursorPagination
 from kolibri.core.utils.pagination import ValuesViewsetLimitOffsetPagination
 from kolibri.core.utils.pagination import ValuesViewsetPageNumberPagination
-
 
 logger = logging.getLogger(__name__)
 
@@ -610,7 +610,21 @@ def get_resume_queryset(request, queryset):
         .exclude(progress=1)
         .values_list("content_id", flat=True)
     )
-    return queryset.filter(content_id__in=content_ids)
+    queryset = queryset.filter(content_id__in=content_ids)
+    queryset = queryset.annotate(
+        last_interacted=Subquery(
+            ContentSummaryLog.objects.filter(
+                user=request.user, progress__gt=0, content_id=OuterRef("content_id")
+            )
+            .exclude(progress=1)
+            .values_list("end_timestamp")[:1]
+        )
+    )
+    queryset = queryset.order_by("-last_interacted")
+    return queryset
+
+
+# return queryset.filter(content_id__in=content_ids)
 
 
 @method_decorator(cache_forever, name="dispatch")
@@ -1382,7 +1396,9 @@ class UserContentNodeViewset(BaseContentNodeMixin, BaseValuesViewset, ListModelM
     A content node viewset for filtering on user specific fields.
     """
 
-    filter_backends = (DjangoFilterBackend,)
+    filter_backends = (DjangoFilterBackend, filters.OrderingFilter)
+    ordering_fields = ["last_interacted"]
+    ordering = ("lft", "id")
     filter_class = UserContentNodeFilter
     pagination_class = OptionalPagination
 
@@ -1401,7 +1417,10 @@ def mean(data):
 class ContentNodeProgressViewset(
     TreeQueryMixin, viewsets.GenericViewSet, ListModelMixin
 ):
-    filter_backends = (DjangoFilterBackend,)
+
+    filter_backends = (DjangoFilterBackend, filters.OrderingFilter)
+    ordering_fields = ["last_interacted"]
+    ordering = ("lft", "id")
     filter_class = UserContentNodeFilter
     # Use same pagination class as ContentNodeViewset so we can
     # return identically paginated responses.
