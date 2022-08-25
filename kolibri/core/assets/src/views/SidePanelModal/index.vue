@@ -11,9 +11,10 @@
         @shouldFocusFirstEl="$emit('shouldFocusFirstEl')"
         @shouldFocusLastEl="focusLastEl"
       >
-        <aside
+        <section
           class="side-panel"
           :style="sidePanelStyles"
+          :ariaLabel="learnString('filterAndSearchLabel')"
         >
 
           <!-- Fixed header -->
@@ -43,7 +44,7 @@
             <slot></slot>
           </div>
 
-        </aside>
+        </section>
       </FocusTrap>
     </transition>
 
@@ -63,6 +64,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import FocusTrap from 'kolibri.coreVue.components.FocusTrap';
+  import commonLearnStrings from '../../../../../plugins/learn/assets/src/views/commonLearnStrings.js';
 
   export default {
     name: 'SidePanelModal',
@@ -70,7 +72,7 @@
       Backdrop,
       FocusTrap,
     },
-    mixins: [responsiveWindowMixin, commonCoreStrings],
+    mixins: [responsiveWindowMixin, commonCoreStrings, commonLearnStrings],
     props: {
       /* CloseButtonIconType icon from parent component */
       closeButtonIconType: {

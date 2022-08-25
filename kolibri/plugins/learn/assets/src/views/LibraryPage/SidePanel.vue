@@ -3,7 +3,10 @@
   <!-- This v-if ensures we don't render an unnecessary empty div
     something will always be showing if one of these is true
   -->
-  <aside v-if="windowIsLarge || mobileSidePanelIsOpen">
+  <section
+    v-if="windowIsLarge || mobileSidePanelIsOpen"
+    :ariaLabel="learnString('filterAndSearchLabel')"
+  >
     <!-- Embedded Side panel is on larger views, and exists next to content -->
     <SearchFiltersPanel
       v-if="windowIsLarge"
@@ -73,7 +76,7 @@
       @cancel="currentCategory = null"
       @input="handleCategory"
     />
-  </aside>
+  </section>
 
 </template>
 
@@ -86,6 +89,7 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import CategorySearchModal from '../CategorySearchModal';
   import SearchFiltersPanel from '../SearchFiltersPanel';
+  import commonLearnStrings from './../commonLearnStrings';
 
   export default {
     name: 'SidePanel',
@@ -94,7 +98,7 @@
       SearchFiltersPanel,
       SidePanelModal,
     },
-    mixins: [commonCoreStrings, responsiveWindowMixin],
+    mixins: [commonCoreStrings, commonLearnStrings, responsiveWindowMixin],
     /* eslint-disable-next-line no-unused-vars */
     setup(props, context) {
       var currentCategory = ref(null);

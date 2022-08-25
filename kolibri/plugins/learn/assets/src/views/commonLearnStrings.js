@@ -24,6 +24,11 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
     message: 'Channel and folders',
     context: 'Label for links that go to the main channel or its subfolders',
   },
+  filterAndSearchLabel: {
+    message: 'Filter and search',
+    context:
+      'Label for a section of the page that contains options for searching and filtering content',
+  },
   mostPopularLabel: {
     message: 'Most popular',
     context: 'Label for links that go to the most popular content',

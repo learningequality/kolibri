@@ -12,7 +12,7 @@
         :layout12="{ span: 4 }"
         class="column-pane"
       >
-        <aside class="column-contents-wrapper" :ariaLabel="$tr('information')">
+        <section class="column-contents-wrapper" :ariaLabel="$tr('information')">
           <KPageContainer>
             <div>
               <p>{{ coreString('timeSpentLabel') }}</p>
@@ -42,7 +42,7 @@
               @goToQuestion="goToQuestion"
             />
           </KPageContainer>
-        </aside>
+        </section>
       </KGridItem>
       <KGridItem :layout12="{ span: 8 }" class="column-pane">
         <main :class="{ 'column-contents-wrapper': !windowIsSmall }">
