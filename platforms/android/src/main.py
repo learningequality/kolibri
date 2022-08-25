@@ -51,23 +51,23 @@ interface.register(share_file=share_by_intent)
 # start kolibri server
 logging.info("Starting kolibri server.")
 
-kolibri_server = BaseKolibriProcessBus()
+kolibri_bus = BaseKolibriProcessBus()
 # Setup zeroconf plugin
-zeroconf_plugin = ZeroConfPlugin(kolibri_server, kolibri_server.port)
+zeroconf_plugin = ZeroConfPlugin(kolibri_bus, kolibri_bus.port)
 zeroconf_plugin.subscribe()
 kolibri_server = KolibriServerPlugin(
-    kolibri_server,
-    kolibri_server.port,
+    kolibri_bus,
+    kolibri_bus.port,
 )
 
 alt_port_server = ZipContentServerPlugin(
-    kolibri_server,
-    kolibri_server.zip_port,
+    kolibri_bus,
+    kolibri_bus.zip_port,
 )
 # Subscribe these servers
 kolibri_server.subscribe()
 alt_port_server.subscribe()
-app_plugin = AppPlugin(kolibri_server)
+app_plugin = AppPlugin(kolibri_bus)
 app_plugin.subscribe()
 start_service("workers")
-kolibri_server.run()
+kolibri_bus.run()
