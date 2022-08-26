@@ -1,6 +1,9 @@
-import client from 'kolibri.client';
-import urls from 'kolibri.urls';
 import { createMachine, assign } from 'xstate';
+import {
+  default as remoteFacilityLoginUser,
+  remoteFacilityUsers,
+} from '../composables/useRemoteFacility';
+
 // This machine can be visualized and tested at https://stately.ai/viz/c1316a38-033d-4c57-8d9f-e282310e341d
 /* SETCONTEXT event example:
 {
@@ -31,19 +34,16 @@ const setInitialContext = assign((_, event) => {
 
 const connectToTargetKolibri = (context, event) => {
   const facility = event.value;
-  const params = {
-    baseurl: facility.url,
-    facility: facility.id,
-    username: context.username,
-  };
-  return client({
-    url: urls['kolibri:kolibri.plugins.user_profile:remotefacilityuser'](),
-    params: params,
-  }).then(response => {
-    let users = response.data;
-    if (Object.keys(response.data).length === 0) users = [];
-    return { facility: facility, users: users };
+  return remoteFacilityUsers(facility.url, facility.id, context.username).then(users => {
+    return { facility: facility, ...users };
   });
+};
+
+const getUserWPasswordInfo = context => {
+  const facility = context.targetFacility;
+  return remoteFacilityLoginUser(facility.url, facility.id, context.username, null).then(
+    user => user
+  );
 };
 
 const checkExists = assign((context, event) => {
@@ -70,10 +70,6 @@ const setTargetAccount = assign({
 const setMerging = assign({
   isMerging: () => true,
 });
-
-const saveAccountDetails = () => {
-  // to be done
-};
 
 export const changeFacilityMachine = createMachine({
   id: 'machine',
@@ -245,7 +241,7 @@ export const changeFacilityMachine = createMachine({
     requireAccountCreds: {
       meta: { route: 'REQUIRE_ACCOUNT_CREDENTIALS', path: '/change_facility' },
       on: {
-        CONTINUE: { actions: setTargetAccount, target: 'showAccounts' },
+        CONTINUE: { actions: setTargetAccount, target: 'confirmAccountDetails' },
         USEADMIN: 'useAdminPassword',
         BACK: 'confirmMerge',
       },
@@ -253,37 +249,64 @@ export const changeFacilityMachine = createMachine({
     useAdminPassword: {
       meta: { route: 'ADMIN_PASSWORD', path: '/change_facility' },
       on: {
-        CONTINUE: { actions: setTargetAccount, target: 'showAccounts' },
+        CONTINUE: { actions: setTargetAccount, target: 'confirmAccountDetails' },
         BACK: 'requireAccountCreds',
       },
     },
-    showAccounts: {
-      meta: { route: 'SHOW_ACCOUNTS', path: '/change_facility' },
-      on: {
-        CONTINUE: 'confirmAccountDetails',
-        BACK: 'requireAccountCreds',
-      },
-    },
+    // showAccounts: {
+    //   meta: { route: 'SHOW_ACCOUNTS', path: '/change_facility' },
+    //   on: {
+    //     CONTINUE: 'confirmAccountDetails',
+    //     BACK: 'requireAccountCreds',
+    //   },
+    // },
     confirmAccountDetails: {
       meta: { route: 'CONFIRM_DETAILS', path: '/change_facility' },
       on: {
         CONTINUE: 'isAdmin',
-        EDITDETAILS: 'editAccountDetails',
-        BACK: 'showAccounts',
+        BACK: 'mergeAccounts',
       },
     },
-    editAccountDetails: {
-      meta: { route: 'EDIT_DETAILS', path: '/change_facility' },
-      on: {
-        SAVE: { actions: saveAccountDetails },
-        BACK: 'confirmAccountDetails',
-      },
-    },
+    // editAccountDetails: {
+    //   meta: { route: 'EDIT_DETAILS', path: '/change_facility' },
+    //   on: {
+    //     SAVE: { actions: saveAccountDetails },
+    //     BACK: 'confirmAccountDetails',
+    //   },
+    // },
     mergeAccounts: {
       meta: { route: 'MERGE_ACCOUNTS', path: '/change_facility' },
       on: {
-        CONTINUE: 'requireAccountCreds',
+        CONTINUE: [
+          {
+            cond: context =>
+              context.accountExists && !context.targetFacility.learner_can_login_with_no_password,
+            target: 'requireAccountCreds',
+          },
+          {
+            cond: context =>
+              context.accountExists && context.targetFacility.learner_can_login_with_no_password,
+            target: 'getUserWithoutPasswordInfo',
+          },
+        ],
         BACK: 'selectFacility',
+      },
+    },
+    getUserWithoutPasswordInfo: {
+      invoke: {
+        id: 'getPasswordlessUserInfo',
+        src: (context, event) => getUserWPasswordInfo(context, event),
+        onDone: {
+          target: 'confirmAccountDetails',
+          actions: assign({
+            targetAccount: (_, event) => {
+              return event.data;
+            },
+          }),
+        },
+        onError: {
+          target: 'mergeAccounts',
+        },
       },
     },
   },

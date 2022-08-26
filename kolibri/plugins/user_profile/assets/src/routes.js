@@ -7,6 +7,7 @@ import SelectFacility from './views/ChangeFacility/SelectFacility';
 import ConfirmAccount from './views/ChangeFacility/ConfirmAccount';
 import ConfirmChangeFacility from './views/ChangeFacility/ConfirmChangeFacility';
 import MergeAccountDialog from './views/ChangeFacility/MergeAccountDialog';
+import ConfirmAccountDetails from './views/ChangeFacility/MergeAccountDialog/ConfirmAccountDetails';
 import CreateAccount from './views/ChangeFacility/CreateAccount';
 
 import ToBeDone from './views/ChangeFacility/ToBeDone';
@@ -109,21 +110,21 @@ export default [
         name: 'ADMIN_PASSWORD',
         component: MergeAccountDialog,
       },
-      {
-        path: 'show_accounts',
-        name: 'SHOW_ACCOUNTS',
-        component: ToBeDone,
-      },
+      // {
+      //   path: 'show_accounts',
+      //   name: 'SHOW_ACCOUNTS',
+      //   component: ConfirmAccountDetails,
+      // },
       {
         path: 'show_accounts',
         name: 'CONFIRM_DETAILS',
-        component: ToBeDone,
+        component: ConfirmAccountDetails,
       },
-      {
-        path: 'show_accounts',
-        name: 'EDIT_DETAILS',
-        component: ToBeDone,
-      },
+      // {
+      //   path: 'show_accounts',
+      //   name: 'EDIT_DETAILS',
+      //   component: ToBeDone,
+      // },
       {
         path: 'merge_accounts',
         name: 'MERGE_ACCOUNTS',
