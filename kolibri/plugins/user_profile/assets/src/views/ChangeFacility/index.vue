@@ -69,7 +69,6 @@
     created() {
       this.service.start();
       this.service.onTransition(state => {
-        console.log(state.value);
         const stateID = Object.keys(state.meta)[0];
         if (state.meta[stateID] !== undefined) {
           let newRoute = state.meta[stateID].route;

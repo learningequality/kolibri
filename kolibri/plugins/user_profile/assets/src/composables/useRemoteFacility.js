@@ -1,11 +1,11 @@
 import client from 'kolibri.client';
 import urls from 'kolibri.urls';
 
-function remoteFacilityLoginUser(baseurl, facility_id, username, password) {
+function remoteFacilityLoginUser(baseurl, facility_id, username, password, userAdmin = null) {
   const params = {
     baseurl: baseurl,
     facility: facility_id,
-    username: username,
+    username: userAdmin === null ? username : userAdmin,
     password: password,
   };
 

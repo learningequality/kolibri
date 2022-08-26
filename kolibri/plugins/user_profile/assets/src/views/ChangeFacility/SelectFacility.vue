@@ -128,7 +128,7 @@
           return (
             discoveryFailed.value ||
             availableAddressIds.value.find(id => id == facility.address_id) === undefined ||
-            !isMinimumKolibriVersion.value(facility.kolibri_version, 0, 15, 0)
+            !isMinimumKolibriVersion.value(facility.kolibri_version, 0, 16, 0)
           );
         };
       });
@@ -145,7 +145,7 @@
 
       function resetSelectedAddress() {
         const enabledFacilities = availableFacilities.value.filter(f =>
-          isMinimumKolibriVersion.value(f.kolibri_version, 0, 15)
+          isMinimumKolibriVersion.value(f.kolibri_version, 0, 16)
         );
         if (enabledFacilities.length !== 0) {
           const selectedId = storageFacilityId.value || selectedFacilityId.value;

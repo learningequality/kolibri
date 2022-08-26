@@ -132,6 +132,8 @@
 
       function sendContinue(data) {
         if (usingAdminPasswordState.value) {
+          data['username'] = username.value;
+          data['password'] = null;
           data['AdminUsername'] = formData.value.username;
           data['AdminPassword'] = formData.value.password;
         } else data['password'] = formData.value.password;
@@ -147,8 +149,9 @@
         remoteFacilityLoginUser(
           facility.url,
           facility.id,
-          formData.value.username,
-          formData.value.password
+          usingAdminPasswordState.value ? username.value : formData.value.username,
+          formData.value.password,
+          usingAdminPasswordState.value ? formData.value.username : null
         ).then(user_info => {
           if (user_info === 'error') {
             isPasswordInvalid.value = true;
