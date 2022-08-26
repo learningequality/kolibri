@@ -34,6 +34,7 @@ class AppPlugin(SimplePlugin):
             "http://127.0.0.1:{port}".format(port=port) + interface.get_initialize_url()
         )
         loadUrl(start_url)
+        start_service("workers")
 
 
 logging.info("Initializing Kolibri and running any upgrade routines")
@@ -67,5 +68,4 @@ kolibri_server.subscribe()
 alt_port_server.subscribe()
 app_plugin = AppPlugin(kolibri_bus)
 app_plugin.subscribe()
-start_service("workers")
 kolibri_bus.run()
