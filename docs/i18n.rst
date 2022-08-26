@@ -242,8 +242,7 @@ You'll need to have GNU ``gettext`` available on your path. You may be able to i
 
 .. note:: If you install ``gettext`` on Mac with Homebrew, you may need to add the binary to your path manually
 
-Finally, ensure you have an environment variable ``CROWDIN_API_KEY`` set to the Learning Equality organization `account API key <https://support.crowdin.com/api/api-integration-setup/>`__.
-
+Finally, ensure you have an environment variable ``CROWDIN_API_KEY``. You can generate your Crowdin API key by navigating to `your Crowdin account settings page <https://crowdin.com/settings#account>`__.
 
 .. _crowdin_upload:
 
