@@ -6,31 +6,9 @@ from django.db import models
 from django.test import TestCase
 
 from kolibri.core.query import GroupConcatSubquery
-
-
-class User(models.Model):
-    name = models.CharField(max_length=128, default="", blank=True)
-
-
-class Classroom(models.Model):
-    name = models.CharField(max_length=128, default="", blank=True)
-
-
-class Membership(models.Model):
-    user = models.ForeignKey(
-        "User",
-        related_name="memberships",
-        blank=False,
-        null=False,
-        on_delete=models.CASCADE,
-    )
-    classroom = models.ForeignKey(
-        "Classroom",
-        related_name="memberships",
-        blank=False,
-        null=False,
-        on_delete=models.CASCADE,
-    )
+from kolibri.core.test.test_app.models import Classroom
+from kolibri.core.test.test_app.models import Membership
+from kolibri.core.test.test_app.models import User
 
 
 class GroupConcatSubqueryTestCase(TestCase):
