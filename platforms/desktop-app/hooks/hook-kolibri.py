@@ -158,8 +158,12 @@ template_tag_modules = [
     module + ".templatetags" for module in settings["installed_apps"]
 ]
 
-# Copy migration files.
-for mod in migration_modules + template_tag_modules:
+management_command_modules = [
+    module + ".management" for module in settings["installed_apps"]
+] + [module + ".management.commands" for module in settings["installed_apps"]]
+
+# Copy files that Django uses file system discovery for.
+for mod in migration_modules + template_tag_modules + management_command_modules:
     mod_name, bundle_name = mod.split(".", 1)
     mod_dir = os.path.dirname(get_module_file_attribute(mod_name))
     bundle_dir = bundle_name.replace(".", os.sep)
