@@ -38,8 +38,6 @@ class AppPlugin(SimplePlugin):
 
 logging.info("Initializing Kolibri and running any upgrade routines")
 
-loadUrl("file:///android_asset/_load.html")
-
 # activate app mode
 enable_plugin("kolibri.plugins.app")
 
