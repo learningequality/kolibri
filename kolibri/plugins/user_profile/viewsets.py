@@ -58,6 +58,9 @@ class RemoteFacilityUserLoginViewset(APIView):
         url = reverse_remote(baseurl, "kolibri:core:publicuser-list")
         params = {"facility": facility, "search": username}
 
+        # adding facility so auth works when learners can login without password:
+        username = "username={}&facility={}".format(username, facility)
+
         auth = requests.auth.HTTPBasicAuth(username, password)
         try:
             response = requests.get(url, params=params, verify=False, auth=auth)
