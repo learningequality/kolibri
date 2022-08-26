@@ -9,9 +9,6 @@ from django.conf import settings as django_settings
 from django.core.exceptions import AppRegistryNotReady
 from django.core.management import call_command
 from django.urls import reverse
-from pkg_resources import DistributionNotFound
-from pkg_resources import get_distribution
-from pkg_resources import iter_entry_points
 from semver import VersionInfo
 
 import kolibri
@@ -218,6 +215,9 @@ def disable_plugin(plugin_name):
 def _get_plugin_version(plugin_name):
     if is_external_plugin(plugin_name):
         top_level_module = plugin_name.split(".")[0]
+        from pkg_resources import DistributionNotFound
+        from pkg_resources import get_distribution
+
         try:
             return get_distribution(top_level_module).version
         except (DistributionNotFound, AttributeError):
@@ -459,6 +459,8 @@ def check_plugin_config_file_location(version):
 
 
 def iterate_plugins():
+    from pkg_resources import iter_entry_points
+
     # Use to dedupe plugins
     plugin_ids = set()
     for entry_point in iter_entry_points("kolibri.plugins"):

@@ -29,7 +29,7 @@ from django.utils.six.moves.urllib.request import url2pathname
 from django.utils.translation import get_language
 from django.utils.translation import get_language_info
 from django.utils.translation import to_locale
-from pkg_resources import resource_filename
+from importlib_resources import files
 from six import text_type
 
 from kolibri.plugins import hooks
@@ -90,13 +90,7 @@ class WebpackBundleHook(hooks.KolibriHook):
         :returns: A dict of the data contained in the JSON files which are
           written by Webpack.
         """
-        STATS_ERR = "Error accessing stats file '{}': {}"
-
-        try:
-            with io.open(self._stats_file, mode="r", encoding="utf-8") as f:
-                stats = json.load(f)
-        except IOError as e:
-            raise WebpackError(STATS_ERR.format(self._stats_file, e))
+        stats = self.get_stats()
 
         if getattr(settings, "DEVELOPER_MODE", False):
             timeout = 0
@@ -105,11 +99,7 @@ class WebpackBundleHook(hooks.KolibriHook):
                 time.sleep(0.1)
                 timeout += 0.1
 
-                try:
-                    with io.open(self._stats_file, mode="r", encoding="utf-8") as f:
-                        stats = json.load(f)
-                except IOError as e:
-                    raise WebpackError(STATS_ERR.format(self._stats_file, e))
+                stats = self.get_stats()
 
                 if timeout >= 5:
                     raise WebpackError("Compilation still in progress")
@@ -154,25 +144,22 @@ class WebpackBundleHook(hooks.KolibriHook):
         """
         return "{}.{}".format(self._module_path, self.bundle_id)
 
-    @property
-    def _build_path(self):
+    def get_stats(self):
         """
         An auto-generated path to where the build-time files are stored,
         containing information about the built bundles.
         """
-        return resource_filename(self._module_path, "build")
-
-    @property
-    def _stats_file(self):
-        """
-        An auto-generated path to where the build-time files are stored,
-        containing information about the built bundles.
-        """
-        return os.path.abspath(
-            os.path.join(
-                self._build_path, "{plugin}_stats.json".format(plugin=self.unique_id)
+        try:
+            return json.loads(
+                files(self._module_path)
+                .joinpath("build")
+                .joinpath("{plugin}_stats.json".format(plugin=self.unique_id))
+                .read_text()
             )
-        )
+        except IOError as e:
+            raise WebpackError(
+                "Error accessing stats file '{}': {}".format(self.unique_id, e)
+            )
 
     def frontend_message_file(self, lang_code):
         message_file_name = "{name}-messages.json".format(name=self.unique_id)
