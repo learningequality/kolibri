@@ -1,4 +1,3 @@
-import logging
 import os
 import re
 import sys
@@ -9,9 +8,6 @@ from android_utils import get_signature_key_issuing_organization
 from android_utils import get_timezone_name
 from android_utils import get_version_name
 from jnius import autoclass
-
-# initialize logging before loading any third-party modules, as they may cause logging to get configured.
-logging.basicConfig(level=logging.DEBUG)
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(script_dir)
