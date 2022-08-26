@@ -253,13 +253,6 @@ export const changeFacilityMachine = createMachine({
         BACK: 'requireAccountCreds',
       },
     },
-    // showAccounts: {
-    //   meta: { route: 'SHOW_ACCOUNTS', path: '/change_facility' },
-    //   on: {
-    //     CONTINUE: 'confirmAccountDetails',
-    //     BACK: 'requireAccountCreds',
-    //   },
-    // },
     confirmAccountDetails: {
       meta: { route: 'CONFIRM_DETAILS', path: '/change_facility' },
       on: {
@@ -267,13 +260,6 @@ export const changeFacilityMachine = createMachine({
         BACK: 'mergeAccounts',
       },
     },
-    // editAccountDetails: {
-    //   meta: { route: 'EDIT_DETAILS', path: '/change_facility' },
-    //   on: {
-    //     SAVE: { actions: saveAccountDetails },
-    //     BACK: 'confirmAccountDetails',
-    //   },
-    // },
     mergeAccounts: {
       meta: { route: 'MERGE_ACCOUNTS', path: '/change_facility' },
       on: {

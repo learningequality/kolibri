@@ -31,6 +31,7 @@
       :invalid="isPasswordInvalid"
       :invalidText="$tr('incorrectPasswordError')"
       :floatingLabel="false"
+      @keydown.enter="handleContinue"
     />
     <div v-if="!usingAdminPasswordState">
       {{ $tr('doNotKnowPassword') }}
@@ -71,8 +72,7 @@
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import { computed, inject, ref, watch } from 'kolibri.lib.vueCompositionApi';
   import get from 'lodash/get';
-  import client from 'kolibri.client';
-  import urls from 'kolibri.urls';
+  import remoteFacilityLoginUser from '../../../composables/useRemoteFacility';
 
   export default {
     name: 'MergeAccountDialog',
@@ -143,6 +143,24 @@
 
       function handleContinue() {
         const facility = get(state, 'value.targetFacility', {});
+        const component = this;
+        remoteFacilityLoginUser(
+          facility.url,
+          facility.id,
+          formData.value.username,
+          formData.value.password
+        ).then(user_info => {
+          if (user_info === 'error') {
+            isPasswordInvalid.value = true;
+            focusOnInvalidField(component);
+          } else {
+            isPasswordInvalid.value = false;
+            isFormSubmitted.value = true;
+            sendContinue(user_info);
+          }
+        });
+
+        /*
         const params = {
           baseurl: facility.url,
           facility: facility.id,
@@ -167,6 +185,8 @@
             sendContinue(user_info);
           }
         });
+
+        */
       }
 
       function useAdminAccount() {
