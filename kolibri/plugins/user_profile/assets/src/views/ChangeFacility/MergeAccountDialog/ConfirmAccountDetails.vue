@@ -9,14 +9,16 @@
         <th>
           {{ coreString('fullNameLabel') }}
         </th>
-        <td>{{ targetAccount.full_name }}</td>
+        <td data-test="fullname">
+          {{ targetAccount.full_name }}
+        </td>
       </tr>
 
       <tr>
         <th>
           {{ coreString('usernameLabel') }}
         </th>
-        <td>
+        <td data-test="username">
           {{ targetAccount.username }}
         </td>
       </tr>
@@ -25,7 +27,7 @@
         <th>
           {{ coreString('identifierLabel') }}
         </th>
-        <td dir="auto">
+        <td dir="auto" data-test="idnumber">
           {{ cleanValue(targetAccount.id_number) }}
         </td>
       </tr>
@@ -33,7 +35,7 @@
         <th>
           {{ coreString('genderLabel') }}
         </th>
-        <td dir="auto">
+        <td dir="auto" data-test="gender">
           {{ cleanValue(targetAccount.gender) }}
         </td>
       </tr>
@@ -41,7 +43,7 @@
         <th>
           {{ coreString('birthYearLabel') }}
         </th>
-        <td dir="auto">
+        <td dir="auto" data-test="birthyear">
           {{ cleanValue(targetAccount.birth_year) }}
         </td>
       </tr>
@@ -93,7 +95,7 @@
     setup() {
       const changeFacilityService = inject('changeFacilityService');
       const state = inject('state');
-      const targetAccount = computed(() => state.value.targetAccount);
+      const targetAccount = computed(() => get(state, 'value.targetAccount', {}));
 
       const confirmAccountUserInfo = computed({
         get() {

@@ -2,13 +2,16 @@
 
   <div>
     <h1>{{ $tr('documentTitle') }}</h1>
-    <h2>{{ fullName }}</h2>
-    <h3>{{ username }}</h3>
+    <h2 data-test="fullName">
+      {{ fullName }}
+    </h2>
+    <h3 data-test="username">
+      {{ username }}
+    </h3>
     <span v-if="usingAdminPasswordState">
       <p>{{ mergeAccountUsingAdminAccount }}</p>
 
       <KTextbox
-        ref="usernameTextbox"
         v-model="formData.username"
         data-test="usernameTextbox"
         :autofocus="true"
@@ -36,6 +39,7 @@
     <div v-if="!usingAdminPasswordState">
       {{ $tr('doNotKnowPassword') }}
       <KButton
+        data-test="useAdminAccount"
         :text="$tr('useAdminAccount')"
         appearance="basic-link"
         @click="useAdminAccount"
@@ -91,7 +95,9 @@
       const isFormSubmitted = ref(false);
       const isPasswordInvalid = ref(false);
       const usingAdminPasswordState = ref(false);
-      const store = context.root.$store;
+      // hack to get the $store in vue tests with composition api:
+      const store =
+        context.root.$store !== undefined ? context.root.$store : context.root.$children[0].$store;
       const session = store.getters['session'];
       const fullName = computed(() => session.full_name);
       const username = computed(() => session.username);
@@ -149,7 +155,7 @@
         remoteFacilityLoginUser(
           facility.url,
           facility.id,
-          usingAdminPasswordState.value ? username.value : formData.value.username,
+          username.value,
           formData.value.password,
           usingAdminPasswordState.value ? formData.value.username : null
         ).then(user_info => {
@@ -162,34 +168,6 @@
             sendContinue(user_info);
           }
         });
-
-        /*
-        const params = {
-          baseurl: facility.url,
-          facility: facility.id,
-          username: formData.value.username,
-          password: formData.value.password,
-        };
-        const component = this;
-
-        return client({
-          url: urls['kolibri:kolibri.plugins.user_profile:remotefacilityloginuser'](),
-          params: params,
-        }).then(response => {
-          if (response.data.error) {
-            isPasswordInvalid.value = true;
-            focusOnInvalidField(component);
-          } else {
-            isPasswordInvalid.value = false;
-            isFormSubmitted.value = true;
-            const user_info = response.data.find(
-              element => element.username === formData.value.username
-            );
-            sendContinue(user_info);
-          }
-        });
-
-        */
       }
 
       function useAdminAccount() {
