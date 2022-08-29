@@ -33,6 +33,10 @@
     },
     $trs: {
       /* eslint-disable kolibri/vue-no-unused-translations */
+      /*
+        Translation should not be removed as it's being used
+        by the crossComponentTranslator in the userKinds mixin
+      */
       superUserLabel: {
         message: 'Super admin',
         context:
