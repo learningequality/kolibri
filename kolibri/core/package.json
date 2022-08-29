@@ -39,7 +39,7 @@
     "xstate": "^4.33.2"
   },
   "devDependencies": {
-    "eslint-plugin-import": "^2.20.0",
+    "eslint-plugin-import": "^2.26.0",
     "responselike": "^1.0.2"
   }
 }

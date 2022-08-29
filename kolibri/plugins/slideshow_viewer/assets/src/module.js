@@ -1,5 +1,5 @@
-import SlideshowRendererComponent from './views/SlideshowRendererComponent';
 import ContentRendererModule from 'content_renderer_module';
+import SlideshowRendererComponent from './views/SlideshowRendererComponent';
 
 class SlideshowModule extends ContentRendererModule {
   get rendererComponent() {

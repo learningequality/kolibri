@@ -1,9 +1,9 @@
 import { setChannelInfo } from 'kolibri.coreVue.vuex.actions';
 import router from 'kolibri.coreVue.router';
 import PageRoot from 'kolibri.coreVue.components.PageRoot';
+import KolibriApp from 'kolibri_app';
 import routes from './routes';
 import pluginModule from './modules/pluginModule';
-import KolibriApp from 'kolibri_app';
 
 class CoachToolsModule extends KolibriApp {
   get stateSetters() {
