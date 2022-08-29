@@ -52,14 +52,12 @@
             :checked="superuserChecked"
             @change="superuserChecked = $event"
           >
-            <label :style="superuserLabelStyle">
-              <span>{{ $tr('makeSuperAdmin') }}</span>
-              <PermissionsIcon
-                permissionType="SUPERUSER"
-                class="permissions-icon"
-                :lightIcon="superuserDisabled"
-              />
-            </label>
+            <span :style="superuserLabelStyle">{{ $tr('makeSuperAdmin') }}</span>
+            <PermissionsIcon
+              permissionType="SUPERUSER"
+              class="permissions-icon"
+              :lightIcon="superuserDisabled"
+            />
           </KCheckbox>
 
           <ul
