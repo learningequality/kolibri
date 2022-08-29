@@ -1,7 +1,7 @@
 import store from 'kolibri.coreVue.vuex.store';
+import ContentRendererModule from 'content_renderer_module';
 import MediaPlayerComponent from './views/MediaPlayerIndex';
 import storeModule from './modules';
-import ContentRendererModule from 'content_renderer_module';
 
 class MediaPlayerModule extends ContentRendererModule {
   get rendererComponent() {
