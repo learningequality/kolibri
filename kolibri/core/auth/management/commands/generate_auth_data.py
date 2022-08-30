@@ -1,7 +1,9 @@
 import csv
 import datetime
+import logging
 import os
 import random
+import uuid
 
 from django.core.management import call_command
 from django.core.management.base import BaseCommand
@@ -31,14 +33,7 @@ from kolibri.core.lessons.models import LessonAssignment
 from kolibri.core.utils.csv import open_csv_for_reading
 from kolibri.utils.time_utils import local_now
 
-users_data_iterator = 0
-all_users_base_data = []
-
-
-def generate_random_id():
-    import uuid
-
-    return uuid.uuid4().hex
+logger = logging.getLogger(__name__)
 
 
 def read_user_data_file(file_path):
@@ -57,34 +52,33 @@ def read_user_data_file(file_path):
             )
         )
 
-    global all_users_base_data
     file_reader = open_csv_for_reading(file_path)
-    all_users_base_data = [data for data in csv.DictReader(file_reader)]
+    return [data for data in csv.DictReader(file_reader)]
 
 
-# ever time gets called it gets the next (different) user data from user_data.csv
-def get_user_base_data(n_facility_users):
-    global users_data_iterator
-    users_data_iterator += 1
-    # making sure we aren't generating more users than the specefied number of total facility users
-    if users_data_iterator > n_facility_users:
-        exit()
-    return all_users_base_data[users_data_iterator - 1]
+def generator():
+    for i in range(500):
+        yield i
+        i += 1
 
 
-def generate_facility_user(facility, n_facility_users):
+users_data_iterator = generator()
+
+
+def generate_facility_user(facility, all_users_base_data):
     def get_birth_year(user_age):
         current_year = datetime.datetime.now().year
         return str(current_year - int(user_age))
 
-    user_data = get_user_base_data(n_facility_users)
+    i = next(users_data_iterator)
+    user_data = all_users_base_data[i]
 
     user = FacilityUser(
         username=user_data["Username"],
         full_name=user_data["GivenName"] + " " + user_data["Surname"],
         birth_year=get_birth_year(user_data["Age"]),
         gender=random.choice(demographics.choices)[0],
-        id_number=str(users_data_iterator),
+        id_number=str(i),
         facility=facility,
     )
     # dummy password
@@ -95,8 +89,10 @@ def generate_facility_user(facility, n_facility_users):
 
 # the following function doesn't work, it generates nothing (not throwing errors though)
 # and when called it stops the execution of the script! don't know why
-def generate_superadmin(n_facility_users):
-    user_data = get_user_base_data(n_facility_users)
+def generate_superadmin(all_users_base_data):
+    i = next(users_data_iterator)
+    user_data = all_users_base_data[i]
+
     username = user_data["Username"] + "_superuser"
     full_name = "{} is the device superuser".format(username)
     FacilityUser.objects.create_superuser(
@@ -206,7 +202,7 @@ def get_or_generate_lesson_resources():
 
     # generate new channel/s if there are no local channels
     if not channels:
-        channels = generate_channels(n_channels=1, levels=2)
+        channels = generate_channels(n_channels=1, levels=2, n_children=3)
 
     channel = random.choice(channels)
 
@@ -238,18 +234,18 @@ def get_question_sources(v):
         # model_version_to_question_sources_mapper
         mapper = {
             0: {
-                "exercise_id": generate_random_id(),
+                "exercise_id": uuid.uuid4().hex,
                 "number_of_questions": 6,
                 "title": "question_{}".format(q + 1),
             },
             1: {
-                "exercise_id": generate_random_id(),
-                "question_id": generate_random_id(),
+                "exercise_id": uuid.uuid4().hex,
+                "question_id": uuid.uuid4().hex,
                 "title": "question_{}".format(q + 1),
             },
             2: {
-                "exercise_id": generate_random_id(),
-                "question_id": generate_random_id(),
+                "exercise_id": uuid.uuid4().hex,
+                "question_id": uuid.uuid4().hex,
                 "title": "question_{}".format(q + 1),
                 "counter_in_exercise": "",
             },
@@ -263,9 +259,9 @@ def get_question_sources(v):
 # flake8: noqa: C901
 def start_generating(
     n_facilities,
-    n_facility_users,
     n_facility_admins,
     n_facility_coaches,
+    n_not_assigned_users,
     n_classes,
     n_class_coaches,
     n_class_learners,
@@ -277,12 +273,12 @@ def start_generating(
     n_adhoc_lesson_learners,
     n_adhoc_exams,
     n_adhoc_exam_learners,
-    data_path,
+    file_path,
 ):
 
-    read_user_data_file(data_path)
-
     facilities = []
+
+    all_users_base_data = read_user_data_file(file_path)
 
     for f in range(n_facilities):
         new_facility = generate_facility(
@@ -294,13 +290,13 @@ def start_generating(
 
         # generating admin/s for the whole facility
         for _ in range(n_facility_admins):
-            new_admin = generate_facility_user(new_facility, n_facility_users)
+            new_admin = generate_facility_user(new_facility, all_users_base_data)
             new_facility.add_admin(new_admin)
             facility_coaches_and_admins.append(new_admin)
 
         # generating coach/s for the whole facility
         for _ in range(n_facility_coaches):
-            facility_coach = generate_facility_user(new_facility, n_facility_users)
+            facility_coach = generate_facility_user(new_facility, all_users_base_data)
             new_facility.add_coach(facility_coach)
             facility_coaches_and_admins.append(facility_coach)
 
@@ -312,7 +308,7 @@ def start_generating(
             # generate and assign assignable_coache/s to the class
             for _ in range(n_class_coaches):
                 assignable_coach = generate_facility_user(
-                    new_facility, n_facility_users
+                    new_facility, all_users_base_data
                 )
                 # ASSIGNABLE_COACH with respect to the facility
                 new_facility.add_role(assignable_coach, role_kinds.ASSIGNABLE_COACH)
@@ -322,16 +318,22 @@ def start_generating(
             # generate and assign learner/s to the class
             all_class_learners = []
             for _ in range(n_class_learners):
-                class_learner = generate_facility_user(new_facility, n_facility_users)
+                class_learner = generate_facility_user(
+                    new_facility, all_users_base_data
+                )
                 all_class_learners.append(class_learner)
                 new_class.add_member(class_learner)
 
             # 'facility_coaches_and_admins' is constant for all facility classes
             #  but for each new_class coaches/admins are differnt that's why we construct this for every class
             creators_and_assigners_users = [
-                *facility_coaches_and_admins,
                 *new_class.get_coaches(),
                 *new_class.get_admins(),
+            ]
+
+            [
+                creators_and_assigners_users.append(authorized_facility_user)
+                for authorized_facility_user in facility_coaches_and_admins
             ]
 
             # generating learner_group/s for the above class
@@ -416,14 +418,8 @@ def start_generating(
                 )
 
         # generating left users (not assigned to any collection, just the facility)
-        n_not_assigned_users = n_facility_users - (
-            n_facility_admins
-            + n_facility_coaches
-            + ((n_class_coaches + n_class_learners) * n_classes)
-        )
-
         for _ in range(n_not_assigned_users):
-            generate_facility_user(new_facility, n_facility_users)
+            generate_facility_user(new_facility, all_users_base_data)
 
         facilities.append(new_facility)
 
@@ -437,8 +433,20 @@ class Command(BaseCommand):
             "--mode",
             type=str,
             choices=["fixtures", "default_db"],
-            default="fixtures",
-            help="where should the data be after generation? dumped into fixtures and deleted, or saved in default db",
+            default="default_db",
+            help="data destination after generation, dumped into fixtures and deleted, or saved in default db",
+        )
+
+        parser.add_argument(
+            "--fixtures_path",
+            type=str,
+        )
+
+        parser.add_argument(
+            "--file_path",
+            type=str,
+            default="",
+            help="path to the csv file which containts users base data",
         )
 
         parser.add_argument(
@@ -450,11 +458,11 @@ class Command(BaseCommand):
         )
 
         parser.add_argument(
-            "--users",
+            "--not_assigned_users",
             type=int,
-            choices=range(20, 500),
-            default=35,
-            help="number of total users (learners and coaches and admins) in each facility",
+            choices=range(5, 20),
+            default=5,
+            help="number of facility users that aren't assigned to any collection",
         )
 
         parser.add_argument(
@@ -477,7 +485,7 @@ class Command(BaseCommand):
             "--classes",
             type=int,
             choices=range(1, 30),
-            default=1,
+            default=2,
             help="number of classes to generate",
         )
 
@@ -500,8 +508,8 @@ class Command(BaseCommand):
         parser.add_argument(
             "--class_lessons",
             type=int,
-            choices=range(1, 20),
-            default=1,
+            choices=range(5, 20),
+            default=5,
             help="total number of lessons per class",
         )
 
@@ -561,26 +569,22 @@ class Command(BaseCommand):
             help="number of learners for the adhoc_exam",
         )
 
-        parser.add_argument(
-            "--data_path",
-            type=str,
-            default="",
-            help="path to the csv file which containts users base data",
-        )
-
     def handle(self, *args, **options):
 
         # Generated Data destination
         mode = options["mode"]
 
-        # Csv data file_path
-        data_path = options["data_path"]
+        # Fixtures File destination
+        fixtures_path = options["fixtures_path"]
+
+        # users_base_data file path
+        file_path = options["file_path"]
 
         # Facilities
         n_facilities = options["facilities"]
-        n_facility_users = options["users"]
         n_facility_admins = options["admins"]
         n_facility_coaches = options["coaches"]
+        n_not_assigned_users = options["not_assigned_users"]
 
         # Classrooms
         n_classes = options["classes"]
@@ -599,15 +603,21 @@ class Command(BaseCommand):
         n_adhoc_exams = options["adhoc_exams"]
         n_adhoc_exam_learners = options["adhoc_exam_learners"]
 
+        logger.info("\n start generating facility/s...\n")
+
         if mode == "fixtures":
 
+            if not fixtures_path:
+                raise ValueError(
+                    "\n--fixtures_path is missing : please provide a fixtures file path"
+                )
             switch_to_memory()
 
             facilities = start_generating(
                 n_facilities=n_facilities,
-                n_facility_users=n_facility_users,
                 n_facility_admins=n_facility_admins,
                 n_facility_coaches=n_facility_coaches,
+                n_not_assigned_users=n_not_assigned_users,
                 n_classes=n_classes,
                 n_class_coaches=n_class_coaches,
                 n_class_learners=n_class_learners,
@@ -619,12 +629,10 @@ class Command(BaseCommand):
                 n_adhoc_lesson_learners=n_adhoc_lesson_learners,
                 n_adhoc_exams=n_adhoc_exams,
                 n_adhoc_exam_learners=n_adhoc_exam_learners,
-                data_path=data_path,
+                file_path=file_path,
             )
 
-            print(
-                "\n start dumping fixtures for facilities and all its related data \n"
-            )
+            logger.info("\n dumping and creating fixtures for generated channels... \n")
 
             # dumping after generation is done
             call_command(
@@ -633,9 +641,7 @@ class Command(BaseCommand):
                 "lessons",
                 "exams",
                 indent=4,
-                # for json file creation to work correctly your pwd (in terminal) have to be ../kolibri/core/auth
-                # we want to fix that (i.e. creating the file correctly regardless of our current pwd ), how ?
-                output="fixtures/all_facility_data.json",
+                output=fixtures_path,
                 interactive=False,
             )
 
@@ -645,9 +651,9 @@ class Command(BaseCommand):
         else:
             start_generating(
                 n_facilities=n_facilities,
-                n_facility_users=n_facility_users,
                 n_facility_admins=n_facility_admins,
                 n_facility_coaches=n_facility_coaches,
+                n_not_assigned_users=n_not_assigned_users,
                 n_classes=n_classes,
                 n_class_coaches=n_class_coaches,
                 n_class_learners=n_class_learners,
@@ -659,5 +665,6 @@ class Command(BaseCommand):
                 n_adhoc_lesson_learners=n_adhoc_lesson_learners,
                 n_adhoc_exams=n_adhoc_exams,
                 n_adhoc_exam_learners=n_adhoc_exam_learners,
-                data_path=data_path,
+                file_path=file_path,
             )
+        logger.info("\n done\n")
