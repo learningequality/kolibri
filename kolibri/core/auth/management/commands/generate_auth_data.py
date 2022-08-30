@@ -324,11 +324,18 @@ def start_generating(
                 all_class_learners.append(class_learner)
                 new_class.add_member(class_learner)
 
-            # 'facility_coaches_and_admins' is constant for all facility classes
-            #  but for each new_class coaches/admins are differnt that's why we construct this for every class
-            creators_and_assigners_users = [
-                *new_class.get_coaches(),
-                *new_class.get_admins(),
+            # 'facility_coaches_and_admins' is the same across all facility classes
+            #  but for each new_class class_coaches/class_admins are differnt that's why we construct this for every class
+            creators_and_assigners_users = []
+
+            [
+                creators_and_assigners_users.append(class_coach)
+                for class_coach in new_class.get_coaches()
+            ]
+
+            [
+                creators_and_assigners_users.append(class_admin)
+                for class_admin in new_class.get_admins()
             ]
 
             [
