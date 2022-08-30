@@ -2,6 +2,20 @@
 
 List of the most important changes for each release.
 
+## 0.15.7
+
+### Added
+* Integration test gherkin story for automatic device provisioning in https://github.com/learningequality/kolibri/pull/9587
+
+### Fixed
+* Add content check guard to library page  in https://github.com/learningequality/kolibri/pull/9635
+* Resolve issues with running morango integration tests on postgres in https://github.com/learningequality/kolibri/pull/9571
+* Fix headers in content summary logs by forcing unicode literals in https://github.com/learningequality/kolibri/pull/9602
+
+### Changed
+* Improve the `importcontent` `--fail-on-error` option in https://github.com/learningequality/kolibri/pull/9591
+
+
 ## 0.15.6
 
 ### Added
