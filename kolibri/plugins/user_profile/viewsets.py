@@ -47,12 +47,12 @@ class RemoteFacilityUserViewset(APIView):
             raise ValidationError(detail=str(e))
 
 
-class RemoteFacilityUserLoginViewset(APIView):
-    def get(self, request):
-        baseurl = request.query_params.get("baseurl", request.build_absolute_uri("/"))
-        username = request.query_params.get("username", None)
-        facility = request.query_params.get("facility", None)
-        password = request.query_params.get("password", None)
+class RemoteFacilityUserAuthenticatedViewset(APIView):
+    def post(self, request, *args, **kwargs):
+        baseurl = request.data.get("baseurl", request.build_absolute_uri("/"))
+        username = request.data.get("username", None)
+        facility = request.data.get("facility", None)
+        password = request.data.get("password", None)
         if username is None or facility is None:
             raise ValidationError(detail="Both username and facility are required")
         url = reverse_remote(baseurl, "kolibri:core:publicuser-list")

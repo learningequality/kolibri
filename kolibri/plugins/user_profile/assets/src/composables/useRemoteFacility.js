@@ -1,17 +1,17 @@
 import client from 'kolibri.client';
 import urls from 'kolibri.urls';
 
-function remoteFacilityLoginUser(baseurl, facility_id, username, password, userAdmin = null) {
+function remoteFacilityUserData(baseurl, facility_id, username, password, userAdmin = null) {
   const params = {
     baseurl: baseurl,
     facility: facility_id,
     username: userAdmin === null ? username : userAdmin,
     password: password,
   };
-
   return client({
-    url: urls['kolibri:kolibri.plugins.user_profile:remotefacilityloginuser'](),
-    params: params,
+    url: urls['kolibri:kolibri.plugins.user_profile:remotefacilityauthenticateduserinfo'](),
+    method: 'POST',
+    data: params,
   }).then(response => {
     if (response.data.error) {
       return 'error';
@@ -37,5 +37,5 @@ const remoteFacilityUsers = function(baseurl, facility_id, username) {
     return { users: users };
   });
 };
-export default remoteFacilityLoginUser;
+export default remoteFacilityUserData;
 export { remoteFacilityUsers };

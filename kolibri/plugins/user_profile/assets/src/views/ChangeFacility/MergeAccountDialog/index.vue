@@ -76,7 +76,7 @@
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import { computed, inject, ref, watch } from 'kolibri.lib.vueCompositionApi';
   import get from 'lodash/get';
-  import remoteFacilityLoginUser from '../../../composables/useRemoteFacility';
+  import remoteFacilityUserData from '../../../composables/useRemoteFacility';
 
   export default {
     name: 'MergeAccountDialog',
@@ -152,7 +152,7 @@
       function handleContinue() {
         const facility = get(state, 'value.targetFacility', {});
         const component = this;
-        remoteFacilityLoginUser(
+        remoteFacilityUserData(
           facility.url,
           facility.id,
           username.value,

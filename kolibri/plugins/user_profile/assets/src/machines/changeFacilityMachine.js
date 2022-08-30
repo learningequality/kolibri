@@ -1,6 +1,6 @@
 import { createMachine, assign } from 'xstate';
 import {
-  default as remoteFacilityLoginUser,
+  default as remoteFacilityUserData,
   remoteFacilityUsers,
 } from '../composables/useRemoteFacility';
 
@@ -41,7 +41,7 @@ const connectToTargetKolibri = (context, event) => {
 
 const getUserWPasswordInfo = context => {
   const facility = context.targetFacility;
-  return remoteFacilityLoginUser(facility.url, facility.id, context.username, null).then(
+  return remoteFacilityUserData(facility.url, facility.id, context.username, null).then(
     user => user
   );
 };

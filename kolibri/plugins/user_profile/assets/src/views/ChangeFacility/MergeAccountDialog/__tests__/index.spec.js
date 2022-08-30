@@ -3,7 +3,7 @@ import Vuex from 'vuex';
 import MergeAccountDialog from '../index.vue';
 
 import * as useRemoteFacility from '../../../../composables/useRemoteFacility';
-import remoteFacilityLoginUser from '../../../../composables/useRemoteFacility';
+import remoteFacilityUserData from '../../../../composables/useRemoteFacility';
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
@@ -98,7 +98,7 @@ describe(`ChangeFacility/MergeAccountDialog`, () => {
     expect(wrapper.find('[data-test="usernameTextbox"]').exists()).toBe(true);
   });
 
-  it('Check remoteFacilityLoginUser is called with the user credentials', async () => {
+  it('Check remoteFacilityUserData is called with the user credentials', async () => {
     const wrapper = makeWrapper({
       targetFacility: { id: 'id_facility', url: 'http://localhost/test' },
       fullName: 'Test User 1',
@@ -111,7 +111,7 @@ describe(`ChangeFacility/MergeAccountDialog`, () => {
     continueButton.trigger('click');
     await wrapper.vm.$nextTick();
 
-    expect(remoteFacilityLoginUser).toHaveBeenCalledWith(
+    expect(remoteFacilityUserData).toHaveBeenCalledWith(
       'http://localhost/test',
       'id_facility',
       'test1',
@@ -120,7 +120,7 @@ describe(`ChangeFacility/MergeAccountDialog`, () => {
     );
   });
 
-  it('Check remoteFacilityLoginUser is called with the admin credentials', async () => {
+  it('Check remoteFacilityUserData is called with the admin credentials', async () => {
     const wrapper = makeWrapper({
       targetFacility: { id: 'id_facility', url: 'http://localhost/test' },
       fullName: 'Test User 1',
@@ -136,7 +136,7 @@ describe(`ChangeFacility/MergeAccountDialog`, () => {
     const continueButton = wrapper.find('[data-test="continueButton"]');
     continueButton.trigger('click');
     await wrapper.vm.$nextTick();
-    expect(remoteFacilityLoginUser).toHaveBeenCalledWith(
+    expect(remoteFacilityUserData).toHaveBeenCalledWith(
       'http://localhost/test',
       'id_facility',
       'test1',
