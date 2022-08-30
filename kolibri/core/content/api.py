@@ -610,21 +610,8 @@ def get_resume_queryset(request, queryset):
         .exclude(progress=1)
         .values_list("content_id", flat=True)
     )
-    queryset = queryset.filter(content_id__in=content_ids)
-    queryset = queryset.annotate(
-        last_interacted=Subquery(
-            ContentSummaryLog.objects.filter(
-                user=request.user, progress__gt=0, content_id=OuterRef("content_id")
-            )
-            .exclude(progress=1)
-            .values_list("end_timestamp")[:1]
-        )
-    )
-    queryset = queryset.order_by("-last_interacted")
-    return queryset
 
-
-# return queryset.filter(content_id__in=content_ids)
+    return queryset.filter(content_id__in=content_ids)
 
 
 @method_decorator(cache_forever, name="dispatch")
@@ -1402,6 +1389,23 @@ class UserContentNodeViewset(BaseContentNodeMixin, BaseValuesViewset, ListModelM
     filter_class = UserContentNodeFilter
     pagination_class = OptionalPagination
 
+    def get_queryset(self):
+        user = self.request.user
+        # if user is anonymous, don't return any nodes
+        # if person requesting is not the data they are requesting for, also return no nodes
+        queryset = models.ContentNode.objects.filter(available=True)
+        if not user.is_facility_user:
+            user = None
+
+        queryset = queryset.annotate(
+            last_interacted=Subquery(
+                ContentSummaryLog.objects.filter(
+                    content_id=OuterRef("content_id"), user=user
+                ).values_list("end_timestamp")[:1]
+            )
+        )
+        return queryset
+
 
 def mean(data):
     n = 0
@@ -1417,7 +1421,6 @@ def mean(data):
 class ContentNodeProgressViewset(
     TreeQueryMixin, viewsets.GenericViewSet, ListModelMixin
 ):
-
     filter_backends = (DjangoFilterBackend, filters.OrderingFilter)
     ordering_fields = ["last_interacted"]
     ordering = ("lft", "id")
@@ -1431,7 +1434,20 @@ class ContentNodeProgressViewset(
     pagination_class = OptionalPagination
 
     def get_queryset(self):
-        return models.ContentNode.objects.filter(available=True)
+        user = self.request.user
+
+        queryset = models.ContentNode.objects.filter(available=True)
+        if not user.is_facility_user:
+            user = None
+
+        queryset = queryset.annotate(
+            last_interacted=Subquery(
+                ContentSummaryLog.objects.filter(
+                    content_id=OuterRef("content_id"), user=user
+                ).values_list("end_timestamp")[:1]
+            )
+        )
+        return queryset
 
     def generate_response(self, request, queryset):
         if request.user.is_anonymous():
