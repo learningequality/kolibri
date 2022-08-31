@@ -259,7 +259,7 @@ def initialize(
     settings=None,
     debug=False,
     debug_database=False,
-    no_input=False,
+    no_input=True,
     pythonpath=None,
 ):  # noqa: max-complexity=12
     """
