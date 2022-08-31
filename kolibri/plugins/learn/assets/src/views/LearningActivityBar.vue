@@ -1,6 +1,6 @@
 <template>
 
-  <nav :ariaLabel="$tr('contentMenuLabel')">
+  <nav :aria-label="$tr('optionsLabel')">
     <UiToolbar style="z-index: 8;" :style="contentSpecificStyles" class="toolbar">
       <CoachContentLabel
         :value="isCoachContent"
@@ -455,9 +455,9 @@
         message: 'View folder resources',
         context: 'Tooltip text.',
       },
-      contentMenuLabel: {
-        message: 'Content page menu label',
-        context: 'A label for the section of the page containing menu links',
+      optionsLabel: {
+        message: 'Options',
+        context: 'A label for the section of the page containing toolbar buttons',
       },
     },
   };

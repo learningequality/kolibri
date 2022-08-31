@@ -1,6 +1,6 @@
 <template>
 
-  <nav>
+  <nav :aria-label="ariaLabel">
     <ul
       ref="navbarUl"
       class="items"

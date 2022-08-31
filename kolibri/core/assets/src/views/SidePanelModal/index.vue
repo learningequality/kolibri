@@ -13,8 +13,9 @@
       >
         <section
           class="side-panel"
+          role="region"
           :style="sidePanelStyles"
-          :ariaLabel="learnString('filterAndSearchLabel')"
+          :aria-label="learnString('filterAndSearchLabel')"
         >
 
           <!-- Fixed header -->

@@ -3,9 +3,8 @@
   <!-- This v-if ensures we don't render an unnecessary empty div
     something will always be showing if one of these is true
   -->
-  <section
+  <div
     v-if="windowIsLarge || mobileSidePanelIsOpen"
-    :ariaLabel="learnString('filterAndSearchLabel')"
   >
     <!-- Embedded Side panel is on larger views, and exists next to content -->
     <SearchFiltersPanel
@@ -76,7 +75,7 @@
       @cancel="currentCategory = null"
       @input="handleCategory"
     />
-  </section>
+  </div>
 
 </template>
 

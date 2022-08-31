@@ -1,29 +1,31 @@
 <template>
 
-  <ul class="history-list">
-    <li
-      v-for="(question, index) in questions"
-      :key="index"
-      :ref="`item-${index}`"
-      class="list-item"
-    >
-      <button
-        :class="buttonClass(index)"
-        :disabled="questionNumber === index"
-        class="clickable"
-        @click="$emit('goToQuestion', index)"
+  <div :aria-label="$tr('jumpToQuestion')" role="navigation">
+    <ul class="history-list">
+      <li
+        v-for="(question, index) in questions"
+        :key="index"
+        :ref="`item-${index}`"
+        class="list-item"
       >
-        <KIcon
-          class="dot"
-          icon="notStarted"
-          :color="isAnswered(question) ? $themeTokens.progress : $themeTokens.textDisabled"
-        />
-        <div class="text">
-          {{ questionText(index + 1) }}
-        </div>
-      </button>
-    </li>
-  </ul>
+        <button
+          :class="buttonClass(index)"
+          :disabled="questionNumber === index"
+          class="clickable"
+          @click="$emit('goToQuestion', index)"
+        >
+          <KIcon
+            class="dot"
+            icon="notStarted"
+            :color="isAnswered(question) ? $themeTokens.progress : $themeTokens.textDisabled"
+          />
+          <div class="text">
+            {{ questionText(index + 1) }}
+          </div>
+        </button>
+      </li>
+    </ul>
+  </div>
 
 </template>
 
@@ -98,6 +100,11 @@
         message: 'Question { num, number, integer}',
         context:
           "In the report section, the 'Answer history' shows the learner if they have answered questions correctly or incorrectly.\n\nOnly translate 'Question'.",
+      },
+      jumpToQuestion: {
+        message: 'Jump to question',
+        context:
+          'A label for the section of the page that contains all questions as clickable links',
       },
     },
   };

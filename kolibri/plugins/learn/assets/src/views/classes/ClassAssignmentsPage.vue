@@ -3,14 +3,15 @@
   <LearnAppBarPage
     :appBarTitle="learnString('learnLabel')"
   >
-    <KBreadcrumbs :items="breadcrumbs" :ariaLabel="learnString('classesAndAssignmentsLabel')" />
-    <h1 class="classroom-name">
-      <KLabeledIcon icon="classes" :label="className" />
-    </h1>
+    <div id="main" role="main">
+      <KBreadcrumbs :items="breadcrumbs" :ariaLabel="learnString('classesAndAssignmentsLabel')" />
+      <h1 class="classroom-name">
+        <KLabeledIcon icon="classes" :label="className" />
+      </h1>
 
-    <AssignedLessonsCards :lessons="activeLessons" />
-    <AssignedQuizzesCards :quizzes="activeQuizzes" :style="{ marginTop: '44px' }" />
-
+      <AssignedLessonsCards :lessons="activeLessons" />
+      <AssignedQuizzesCards :quizzes="activeQuizzes" :style="{ marginTop: '44px' }" />
+    </div>
   </LearnAppBarPage>
 
 </template>

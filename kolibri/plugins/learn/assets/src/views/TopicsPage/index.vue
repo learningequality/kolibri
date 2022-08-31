@@ -151,37 +151,33 @@
       />
 
       <!-- Embedded Side panel is on larger views, and exists next to content -->
-      <section
-        :ariaLabel="learnString('filterAndSearchLabel')"
-      >
-        <ToggleHeaderTabs
-          v-if="!!windowIsLarge"
-          :topic="topic"
-          :topics="topics"
-          :style="tabPosition"
-        />
-        <SearchFiltersPanel
-          v-if="!!windowIsLarge"
-          ref="sidePanel"
-          v-model="searchTerms"
-          :topicsListDisplayed="!desktopSearchActive"
-          class="side-panel"
-          topicPage="True"
-          :topics="topics"
-          :activeActivityButtons="activeActivityButtons"
-          :activeCategories="activeCategories"
-          :topicsLoading="topicMoreLoading"
-          :more="topicMore"
-          :genContentLink="genContentLink"
-          :width="`${sidePanelWidth}px`"
-          :availableLabels="labels"
-          :showChannels="false"
-          position="embedded"
-          :style="sidePanelStyleOverrides"
-          @currentCategory="handleShowSearchModal"
-          @loadMoreTopics="handleLoadMoreInTopic"
-        />
-      </section>
+      <ToggleHeaderTabs
+        v-if="!!windowIsLarge"
+        :topic="topic"
+        :topics="topics"
+        :style="tabPosition"
+      />
+      <SearchFiltersPanel
+        v-if="!!windowIsLarge"
+        ref="sidePanel"
+        v-model="searchTerms"
+        :topicsListDisplayed="!desktopSearchActive"
+        class="side-panel"
+        topicPage="True"
+        :topics="topics"
+        :activeActivityButtons="activeActivityButtons"
+        :activeCategories="activeCategories"
+        :topicsLoading="topicMoreLoading"
+        :more="topicMore"
+        :genContentLink="genContentLink"
+        :width="`${sidePanelWidth}px`"
+        :availableLabels="labels"
+        :showChannels="false"
+        position="embedded"
+        :style="sidePanelStyleOverrides"
+        @currentCategory="handleShowSearchModal"
+        @loadMoreTopics="handleLoadMoreInTopic"
+      />
       <!-- The full screen side panel is used on smaller screens, and toggles as an overlay -->
       <!-- FullScreen is a container component, and then the SearchFiltersPanel sits within -->
       <SidePanelModal

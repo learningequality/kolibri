@@ -1,6 +1,8 @@
 <template>
 
-  <div
+  <section
+    role="region"
+    :aria-label="learnString('filterAndSearchLabel')"
     :style="{
       color: $themeTokens.text,
       backgroundColor: $themeTokens.surface,
@@ -126,7 +128,7 @@
         </div>
       </div>
     </div>
-  </div>
+  </section>
 
 </template>
 
