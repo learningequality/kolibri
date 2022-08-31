@@ -197,6 +197,7 @@ class TestZeroConfPlugin(object):
         mock_kolibri_broadcast.assert_not_called()
 
         zeroconf_plugin.SERVING(1234)
+        zeroconf_plugin.RUN()
 
         # Do we register ourselves on zeroconf?
         mock_kolibri_broadcast.assert_called()
