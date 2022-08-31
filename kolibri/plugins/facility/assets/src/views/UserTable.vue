@@ -87,7 +87,7 @@
               />
             </td>
             <td class="visuallyhidden">
-              {{ user.kind }}
+              {{ typeDisplayMap[user.kind] }}
             </td>
             <td>
               <span dir="auto">
@@ -140,6 +140,7 @@
   import GenderDisplayText from 'kolibri.coreVue.components.GenderDisplayText';
   import BirthYearDisplayText from 'kolibri.coreVue.components.BirthYearDisplayText';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import translatedUserKinds from 'kolibri.coreVue.mixins.translatedUserKinds';
 
   export default {
     name: 'UserTable',
@@ -150,7 +151,7 @@
       GenderDisplayText,
       BirthYearDisplayText,
     },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, translatedUserKinds],
     props: {
       users: {
         type: Array,
