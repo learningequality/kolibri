@@ -52,6 +52,7 @@
               :style="{
                 color: $themeTokens.text,
                 padding: '8px',
+                backgroundColor: $themeTokens.surface,
               }"
             >
               {{ $tr('pointsMessage', { points: totalPoints }) }}
@@ -178,7 +179,7 @@
         return event;
       },
       handlePopoverByKeyboard(event) {
-        if ((event.key == 'Tab' || event.keyCode == 27) && this.pointsDisplayed) {
+        if ((event.key == 'Tab' || event.key == 'Escape') && this.pointsDisplayed) {
           this.pointsDisplayed = false;
         }
       },
@@ -314,7 +315,6 @@
     right: 50px;
     z-index: 24;
     font-size: 12px;
-    background-color: white;
     border-radius: 8px;
   }
 

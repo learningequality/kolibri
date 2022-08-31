@@ -34,21 +34,21 @@
       return {
         links: [
           {
-            condition: this.isUserLoggedIn,
+            isVisible: this.isUserLoggedIn,
             title: this.coreString('homeLabel'),
             link: this.$router.getRoute(PageNames.HOME),
             icon: 'dashboard',
             color: this.$themeTokens.textInverted,
           },
           {
-            condition: this.canAccessUnassignedContent,
+            isVisible: this.canAccessUnassignedContent,
             title: this.learnString('libraryLabel'),
             link: this.$router.getRoute(PageNames.LIBRARY),
             icon: 'library',
             color: this.$themeTokens.textInverted,
           },
           {
-            condition: this.isUserLoggedIn && this.canAccessUnassignedContent,
+            isVisible: this.isUserLoggedIn && this.canAccessUnassignedContent,
             title: this.coreString('bookmarksLabel'),
             link: this.$router.getRoute(PageNames.BOOKMARKS),
             icon: 'bookmark',

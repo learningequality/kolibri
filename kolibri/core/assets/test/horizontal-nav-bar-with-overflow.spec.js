@@ -7,35 +7,35 @@ function makeWrapper({ propsData } = {}) {
 
 const longerNavigationList = [
   {
-    condition: true,
+    isVisible: true,
     title: 'Title',
     link: 'url',
     icon: 'dashboard',
     color: 'white',
   },
   {
-    condition: true,
+    isVisible: true,
     title: 'Title 2',
     link: 'url',
     icon: 'dashboard',
     color: 'white',
   },
   {
-    condition: true,
+    isVisible: true,
     title: 'Title 3',
     link: 'url',
     icon: 'dashboard',
     color: 'white',
   },
   {
-    condition: true,
+    isVisible: true,
     title: 'Title 4',
     link: 'url',
     icon: 'dashboard',
     color: 'white',
   },
   {
-    condition: true,
+    isVisible: true,
     title: 'Title 5',
     link: 'url',
     icon: 'dashboard',
@@ -53,7 +53,7 @@ describe('HorizontalNavBarWithOverflowMenu', () => {
       propsData: {
         navigationLinks: [
           {
-            condition: true,
+            isVisible: true,
             title: 'Title',
             link: 'url',
             icon: 'dashboard',
@@ -77,21 +77,21 @@ describe('HorizontalNavBarWithOverflowMenu', () => {
           numberOfNavigationTabsToDisplay: 2,
           overflowMenuLinks: [
             {
-              condition: true,
+              isVisible: true,
               title: 'Title 3',
               link: 'url',
               icon: 'dashboard',
               color: 'white',
             },
             {
-              condition: true,
+              isVisible: true,
               title: 'Title 4',
               link: 'url',
               icon: 'dashboard',
               color: 'white',
             },
             {
-              condition: true,
+              isVisible: true,
               title: 'Title 5',
               link: 'url',
               icon: 'dashboard',

@@ -3,7 +3,7 @@
   <Navbar>
     <div v-for="(link, index) in navigationLinks" :key="index">
       <NavbarLink
-        :vIf="link.condition"
+        :vIf="link.isVisible"
         :title="link.title"
         :link="link.link"
       >
@@ -63,6 +63,9 @@
         type: Array,
         default: () => [],
         required: true,
+        validator(values) {
+          return values.every(value => value.link.name);
+        },
       },
     },
     data() {
@@ -79,7 +82,6 @@
     mounted() {
       this.updateNavigationTabDisplay();
       window.addEventListener('resize', this.updateNavigationTabDisplay);
-      // document.addEventListener('resize', console.log('hello world'));
     },
     beforeDestroy() {
       document.removeEventListener('resize', this.debouncedUpdateNavigation);
@@ -134,18 +136,6 @@
   .menu-icon {
     position: absolute;
     right: 4px;
-  }
-
-  .menu-popover {
-    @extend %dropshadow-4dp;
-
-    position: absolute;
-    right: 4px;
-    bottom: 50px;
-    z-index: 24;
-    font-size: 12px;
-    background-color: white;
-    border-radius: 8px;
   }
 
 </style>

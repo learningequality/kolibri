@@ -4,6 +4,7 @@
     <router-link
       class="tab"
       :class="$computedClass(tabStyles)"
+      :style="windowIsSmall ? smallScreenOverrides : {}"
       :to="link"
     >
       <div class="dimmable tab-icon">
@@ -22,12 +23,14 @@
 <script>
 
   import { validateLinkObject } from 'kolibri.utils.validators';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
 
   /**
    Links for use inside the Navbar
    */
   export default {
     name: 'NavbarLink',
+    mixins: [responsiveWindowMixin],
     props: {
       /**
        * The text
@@ -56,6 +59,13 @@
             ...this.$coreOutline,
             outlineOffset: '-6px',
           },
+        };
+      },
+      smallScreenOverrides() {
+        return {
+          padding: '0 8px',
+          fontSize: '14px',
+          borderBottomWidth: '2px',
         };
       },
     },
@@ -134,19 +144,6 @@
   .tab-title {
     display: inline-block;
     text-overflow: ellipsis;
-  }
-
-  // for small screens
-
-  @media (max-width: 600px) {
-    .tab {
-      padding: 0 8px;
-      font-size: 14px;
-    }
-
-    .router-link-active {
-      border-bottom-width: 2px;
-    }
   }
 
 </style>
