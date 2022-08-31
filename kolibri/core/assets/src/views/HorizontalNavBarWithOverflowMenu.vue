@@ -1,7 +1,7 @@
 <template>
 
   <Navbar>
-    <div v-for="(link, index) in navigationLinks" :key="index">
+    <div v-for="(link, index) in navigationLinks" :key="index" ref="navLinks">
       <NavbarLink
         :vIf="link.isVisible"
         :title="link.title"
@@ -103,8 +103,8 @@
         this.overflowMenuLinks = options;
       },
       updateNavigationTabDisplay() {
-        // turn HTML collection into an array
-        const navItems = [].slice.call(document.getElementsByClassName('list-item-navigation'));
+        // to get the list item, rather than the wrapping <div>
+        const navItems = this.$refs.navLinks.map(item => item.firstElementChild);
         let index = 0;
         let viewportWidthTakenUp = 0;
         let numberOfTabLinks = 0;
