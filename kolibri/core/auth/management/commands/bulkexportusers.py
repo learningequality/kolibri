@@ -4,7 +4,6 @@ import ntpath
 import os
 from collections import OrderedDict
 from functools import partial
-from tempfile import mkstemp
 
 from django.conf import settings
 from django.core.management.base import CommandError
@@ -36,6 +35,9 @@ except NameError:
     FileNotFoundError = IOError
 
 logger = logging.getLogger(__name__)
+
+CSV_EXPORT_FILENAMES = {"user": "{}_{}_users.csv"}
+
 
 # TODO: decide whether these should be internationalized
 labels = OrderedDict(
@@ -245,12 +247,15 @@ class Command(AsyncCommand):
 
         return default_facility
 
-    def get_filepath(self, options):
+    def get_filepath(self, options, facility):
         if options["output_file"] is None:
-            temp_dir = os.path.join(conf.KOLIBRI_HOME, "temp")
-            if not os.path.isdir(temp_dir):
-                os.mkdir(temp_dir)
-            filepath = mkstemp(suffix=".download", dir=temp_dir)[1]
+            export_dir = os.path.join(conf.KOLIBRI_HOME, "log_export")
+            if not os.path.isdir(export_dir):
+                os.mkdir(export_dir)
+            filepath = os.path.join(
+                export_dir,
+                CSV_EXPORT_FILENAMES["user"].format(facility.name, facility.id[:4]),
+            )
         else:
             filepath = os.path.join(os.getcwd(), options["output_file"])
         return filepath
@@ -261,8 +266,8 @@ class Command(AsyncCommand):
         translation.activate(locale)
 
         self.overall_error = []
-        filepath = self.get_filepath(options)
         facility = self.get_facility(options)
+        filepath = self.get_filepath(options, facility)
         job = get_current_job()
         total_rows = FacilityUser.objects.filter(facility=facility).count()
 

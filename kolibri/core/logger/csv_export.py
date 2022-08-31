@@ -1,8 +1,6 @@
 from __future__ import unicode_literals
 
 import csv
-import io
-import json
 import logging
 import math
 import os
@@ -10,23 +8,14 @@ from collections import OrderedDict
 from functools import partial
 
 from django.core.cache import cache
-from django.http import Http404
-from django.http import HttpResponse
-from django.http.response import FileResponse
-from django.template.defaultfilters import slugify
-from django.utils import translation
-from django.utils.translation import get_language_from_request
-from django.utils.translation import pgettext
 from le_utils.constants import content_kinds
 
 from .models import ContentSessionLog
 from .models import ContentSummaryLog
-from kolibri.core.auth.models import Facility
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.utils.csv import open_csv_for_writing
 from kolibri.core.utils.csv import output_mapper
-from kolibri.utils import conf
 
 
 logger = logging.getLogger(__name__)
@@ -143,7 +132,7 @@ def csv_file_generator(facility, log_type, filepath, overwrite=False):
     header_labels = tuple(
         label
         for label in labels.values()
-        if log_type == "summary" or label != "completion_timestamp"
+        if log_type == "summary" or label != labels["completion_timestamp"]
     )
 
     csv_file = open_csv_for_writing(filepath)
@@ -157,87 +146,3 @@ def csv_file_generator(facility, log_type, filepath, overwrite=False):
         ):
             writer.writerow(map_object(item))
             yield
-
-
-def exported_logs_info(request, facility_id, facility):
-    """
-    Get the last modification timestamp of the summary logs exported
-
-    :returns: An object with the files informatin
-    """
-    logs_dir = os.path.join(conf.KOLIBRI_HOME, "log_export")
-    csv_statuses = {}
-
-    for log_type in CSV_EXPORT_FILENAMES:
-        log_path = os.path.join(
-            logs_dir, CSV_EXPORT_FILENAMES[log_type].format(facility, facility_id[:4])
-        )
-        if os.path.exists(log_path):
-            csv_statuses[log_type] = os.path.getmtime(log_path)
-        else:
-            csv_statuses[log_type] = None
-
-    return HttpResponse(json.dumps(csv_statuses), content_type="application/json")
-
-
-def download_csv_file(request, log_type, facility_id):
-    if facility_id:
-        facility_name = Facility.objects.get(pk=facility_id).name
-    else:
-        facility_name = request.user.facility.name
-        facility_id = request.user.facility.id
-
-    locale = get_language_from_request(request)
-    translation.activate(locale)
-
-    csv_translated_filenames = {
-        "session": (
-            "{}_{}_"
-            + slugify(
-                pgettext(
-                    "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation",
-                    "content_session_logs",
-                )
-            )
-            + ".csv"
-        ).replace("-", "_"),
-        "summary": (
-            "{}_{}_"
-            + slugify(
-                pgettext(
-                    "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation",
-                    "content_summary_logs",
-                )
-            )
-            + ".csv"
-        ).replace("-", "_"),
-    }
-
-    if log_type in CSV_EXPORT_FILENAMES.keys():
-        filepath = os.path.join(
-            conf.KOLIBRI_HOME,
-            "log_export",
-            CSV_EXPORT_FILENAMES[log_type].format(facility_name, facility_id[:4]),
-        )
-    else:
-        filepath = None
-
-    # if the file does not exist on disk, return a 404
-    if filepath is None or not os.path.exists(filepath):
-        raise Http404("There is no csv export file for {} available".format(log_type))
-
-    # generate a file response
-    response = FileResponse(io.open(filepath, "rb"))
-    # set the content-type by guessing from the filename
-    response["Content-Type"] = "text/csv"
-
-    # set the content-disposition as attachment to force download
-    response["Content-Disposition"] = "attachment; filename={}".format(
-        str(csv_translated_filenames[log_type]).format(facility_name, facility_id[:4])
-    )
-    translation.deactivate()
-
-    # set the content-length to the file size
-    response["Content-Length"] = os.path.getsize(filepath)
-
-    return response
