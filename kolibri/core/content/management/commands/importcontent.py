@@ -294,7 +294,7 @@ class Command(AsyncCommand):
         if manifest_file:
             content_manifest.read_file(manifest_file)
             use_content_manifest = True
-        elif path and detect_manifest and not (node_ids or exclude_node_ids):
+        elif path and detect_manifest and node_ids is None and exclude_node_ids is None:
             manifest_path = os.path.join(path, "content", "manifest.json")
             if content_manifest.read(manifest_path):
                 use_content_manifest = True
@@ -627,7 +627,9 @@ class Command(AsyncCommand):
         return FILE_TRANSFERRED, data_transferred
 
     def handle_async(self, *args, **options):
-        if options["manifest"] and (options["node_ids"] or options["exclude_node_ids"]):
+        if options["manifest"] and (
+            options["node_ids"] is not None or options["exclude_node_ids"] is not None
+        ):
             raise CommandError(
                 "The --manifest option must not be combined with --node_ids or --exclude_node_ids."
             )
