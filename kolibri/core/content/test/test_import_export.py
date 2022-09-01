@@ -529,6 +529,9 @@ class ImportContentTestCase(TestCase):
     fixtures = ["content_test.json"]
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
 
+    c2c1_node_id = "2b6926ed22025518a8b9da91745b51d3"
+    c2c2_node_id = "4d0c890de9b65d6880ccfa527800e0f4"
+
     def setUp(self):
         LocalFile.objects.update(available=False)
 
@@ -811,23 +814,21 @@ class ImportContentTestCase(TestCase):
             local_dest_path_2,
             local_dest_path_3,
         ]
-        ContentNode.objects.filter(pk="2b6926ed22025518a8b9da91745b51d3").update(
-            available=False
+        ContentNode.objects.filter(pk=self.c2c1_node_id).update(available=False)
+        LocalFile.objects.filter(files__contentnode__pk=self.c2c1_node_id).update(
+            file_size=1, available=False
         )
-        LocalFile.objects.filter(
-            files__contentnode__pk="2b6926ed22025518a8b9da91745b51d3"
-        ).update(file_size=1, available=False)
         get_import_export_mock.return_value = (
             1,
             list(
                 LocalFile.objects.filter(
-                    files__contentnode__pk="2b6926ed22025518a8b9da91745b51d3"
+                    files__contentnode__pk=self.c2c1_node_id
                 ).values("id", "file_size", "extension")
             ),
             10,
         )
 
-        node_id = ["2b6926ed22025518a8b9da91745b51d3"]
+        node_id = [self.c2c1_node_id]
         call_command(
             "importcontent",
             "network",
@@ -1422,23 +1423,21 @@ class ImportContentTestCase(TestCase):
             local_dest_path_2,
             local_dest_path_3,
         ]
-        ContentNode.objects.filter(pk="2b6926ed22025518a8b9da91745b51d3").update(
-            available=False
+        ContentNode.objects.filter(pk=self.c2c1_node_id).update(available=False)
+        LocalFile.objects.filter(files__contentnode__pk=self.c2c1_node_id).update(
+            file_size=1, available=False
         )
-        LocalFile.objects.filter(
-            files__contentnode__pk="2b6926ed22025518a8b9da91745b51d3"
-        ).update(file_size=1, available=False)
         get_import_export_mock.return_value = (
             1,
             list(
                 LocalFile.objects.filter(
-                    files__contentnode__pk="2b6926ed22025518a8b9da91745b51d3"
+                    files__contentnode__pk=self.c2c1_node_id
                 ).values("id", "file_size", "extension")
             ),
             10,
         )
 
-        node_id = ["2b6926ed22025518a8b9da91745b51d3"]
+        node_id = [self.c2c1_node_id]
         with self.assertRaises(HTTPError):
             call_command(
                 "importcontent",
