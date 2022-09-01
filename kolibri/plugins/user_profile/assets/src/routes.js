@@ -110,21 +110,11 @@ export default [
         name: 'ADMIN_PASSWORD',
         component: MergeAccountDialog,
       },
-      // {
-      //   path: 'show_accounts',
-      //   name: 'SHOW_ACCOUNTS',
-      //   component: ConfirmAccountDetails,
-      // },
       {
         path: 'show_accounts',
         name: 'CONFIRM_DETAILS',
         component: ConfirmAccountDetails,
       },
-      // {
-      //   path: 'show_accounts',
-      //   name: 'EDIT_DETAILS',
-      //   component: ToBeDone,
-      // },
       {
         path: 'merge_accounts',
         name: 'MERGE_ACCOUNTS',

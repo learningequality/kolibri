@@ -74,6 +74,7 @@ const setMerging = assign({
 export const changeFacilityMachine = createMachine({
   id: 'machine',
   initial: 'selectFacility',
+  predictableActionArguments: true,
   context: {
     role: 'learner',
     username: '',

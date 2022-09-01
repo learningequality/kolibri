@@ -2,12 +2,12 @@
 
   <div>
     <h1>{{ $tr('documentTitle') }}</h1>
-    <h2 data-test="fullName">
+    <p class="fullname" data-test="fullName">
       {{ fullName }}
-    </h2>
-    <h3 data-test="username">
+    </p>
+    <p class="username" data-test="username">
       {{ username }}
-    </h3>
+    </p>
     <span v-if="usingAdminPasswordState">
       <p>{{ mergeAccountUsingAdminAccount }}</p>
 
@@ -236,8 +236,15 @@
 
 <style lang="scss" scoped>
 
-  h3 {
+  .fullname {
+    font-size: 1.17em;
+    font-weight: bold;
+  }
+
+  .username {
     margin-bottom: 40px;
+    font-size: 1em;
+    font-weight: bold;
   }
 
 </style>

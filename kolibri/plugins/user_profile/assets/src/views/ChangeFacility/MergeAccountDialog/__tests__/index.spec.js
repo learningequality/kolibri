@@ -1,22 +1,13 @@
 import { mount, createLocalVue } from '@vue/test-utils';
-import Vuex from 'vuex';
 import MergeAccountDialog from '../index.vue';
 
 import * as useRemoteFacility from '../../../../composables/useRemoteFacility';
 import remoteFacilityUserData from '../../../../composables/useRemoteFacility';
 
 const localVue = createLocalVue();
-localVue.use(Vuex);
 const sendMachineEvent = jest.fn();
 
 function makeWrapper({ targetFacility, targetAccount, fullName, username } = {}) {
-  const store = new Vuex.Store({
-    getters: {
-      session: () => {
-        return { full_name: fullName };
-      },
-    },
-  });
   return mount(MergeAccountDialog, {
     provide: {
       changeFacilityService: {
@@ -38,7 +29,6 @@ function makeWrapper({ targetFacility, targetAccount, fullName, username } = {})
       },
     },
     localVue,
-    store,
   });
 }
 
@@ -71,10 +61,10 @@ describe(`ChangeFacility/MergeAccountDialog`, () => {
       fullName: 'Test User 1',
       username: 'test1',
     });
-    const h2_fullname = wrapper.find('[data-test="fullName"]');
-    expect(h2_fullname.text()).toEqual('Test User 1');
-    const h3_username = wrapper.find('[data-test="username"]');
-    expect(h3_username.text()).toEqual('test1');
+    const fullname_paragraph = wrapper.find('[data-test="fullName"]');
+    expect(fullname_paragraph.text()).toEqual('Test User 1');
+    const username_paragraph = wrapper.find('[data-test="username"]');
+    expect(username_paragraph.text()).toEqual('test1');
     expect(wrapper.find('[data-test="usernameTextbox"]').exists()).toBe(false);
     expect(wrapper.find('[data-test="passwordTextbox"]').exists()).toBe(true);
     expect(wrapper.text()).toContain(

@@ -92,9 +92,12 @@
       this.service.stop();
     },
     mounted() {
-      if (this.$refs.appBar) {
-        this.appBarHeight = this.$refs.appBar.$el.clientHeight;
-      }
+      this.$nextTick(() => {
+        if (this.$refs.appBar) {
+          this.appBarHeight = this.$refs.appBar.$el.clientHeight;
+        }
+      });
+
       const ctx = this.service.state.context;
       if (ctx.username === '') {
         // machine initialized with its default context

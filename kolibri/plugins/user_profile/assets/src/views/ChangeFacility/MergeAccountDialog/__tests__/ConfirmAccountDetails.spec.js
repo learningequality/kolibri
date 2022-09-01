@@ -67,7 +67,7 @@ describe(`ChangeFacility/MergeAccountDialog/ConfirmAccountDetails`, () => {
     });
   });
 
-  it(`clicking the back button sends the continue event to the state machine`, () => {
+  it(`clicking the back button sends the back event to the state machine`, () => {
     const wrapper = makeWrapper();
     clickBackButton(wrapper);
     expect(sendMachineEvent).toHaveBeenCalledWith({
