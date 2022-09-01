@@ -1,10 +1,13 @@
+import io
 import itertools
+import json
 import os
 import sys
 import tempfile
 import uuid
 
 from django.core.management import call_command
+from django.core.management import CommandError
 from django.db.models import Q
 from django.test import TestCase
 from le_utils.constants import content_kinds
@@ -1341,6 +1344,110 @@ class ImportContentTestCase(TestCase):
         annotation_mock.set_content_visibility.assert_called_with(
             self.the_channel_id, [], exclude_node_ids=None, node_ids=None, public=False
         )
+
+    @patch(
+        "kolibri.core.content.management.commands.importcontent.transfer.FileDownload"
+    )
+    @patch(
+        "kolibri.core.content.management.commands.importcontent.compare_checksums",
+        return_value=True,
+    )
+    @patch(
+        "kolibri.core.content.management.commands.importcontent.AsyncCommand.is_cancelled",
+        return_value=False,
+    )
+    def test_remote_import_with_manifest_file(
+        self,
+        is_cancelled_mock,
+        compare_checksums_mock,
+        file_download_mock,
+        annotation_mock,
+        get_import_export_mock,
+        channel_list_status_mock,
+    ):
+        manifest_node_ids = [self.c2c1_node_id]
+
+        get_import_export_mock.return_value = (0, [], 0)
+
+        manifest_config = {
+            "channels": [
+                {
+                    "id": self.the_channel_id,
+                    "version": 0,
+                    "include_node_ids": manifest_node_ids,
+                }
+            ]
+        }
+
+        call_command(
+            "importcontent",
+            "network",
+            self.the_channel_id,
+            manifest=io.StringIO(json.dumps(manifest_config)),
+        )
+
+        get_import_export_mock.assert_called_with(
+            self.the_channel_id,
+            manifest_node_ids,
+            None,
+            False,
+            renderable_only=True,
+            drive_id=None,
+            peer_id="",
+        )
+
+    @patch(
+        "kolibri.core.content.management.commands.importcontent.transfer.FileDownload"
+    )
+    @patch(
+        "kolibri.core.content.management.commands.importcontent.compare_checksums",
+        return_value=True,
+    )
+    @patch(
+        "kolibri.core.content.management.commands.importcontent.AsyncCommand.is_cancelled",
+        return_value=False,
+    )
+    def test_remote_import_with_manifest_file_and_node_ids(
+        self,
+        is_cancelled_mock,
+        compare_checksums_mock,
+        file_download_mock,
+        annotation_mock,
+        get_import_export_mock,
+        channel_list_status_mock,
+    ):
+        manifest_node_ids = [self.c2c1_node_id]
+        extra_node_ids = [self.c2c2_node_id]
+
+        get_import_export_mock.return_value = (0, [], 0)
+
+        manifest_config = {
+            "channels": [
+                {
+                    "id": self.the_channel_id,
+                    "version": 0,
+                    "include_node_ids": manifest_node_ids,
+                }
+            ]
+        }
+
+        with self.assertRaises(CommandError):
+            call_command(
+                "importcontent",
+                "network",
+                self.the_channel_id,
+                node_ids=extra_node_ids,
+                manifest=io.StringIO(json.dumps(manifest_config)),
+            )
+
+        with self.assertRaises(CommandError):
+            call_command(
+                "importcontent",
+                "network",
+                self.the_channel_id,
+                exclude_node_ids=extra_node_ids,
+                manifest=io.StringIO(json.dumps(manifest_config)),
+            )
 
     @patch("kolibri.core.content.management.commands.importcontent.transfer.sleep")
     @patch(
