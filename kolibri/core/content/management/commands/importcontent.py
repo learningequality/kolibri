@@ -73,7 +73,6 @@ class Command(AsyncCommand):
         """
         parser.add_argument(
             "--manifest",
-            # Split the comma separated string we get, into a list of strings
             type=argparse.FileType("r"),
             default=None,
             required=False,
@@ -108,7 +107,7 @@ class Command(AsyncCommand):
         """
         parser.add_argument(
             "--exclude_node_ids",
-            # Split the comma separated string we get, into a list of string
+            # Split the comma separated string we get, into a list of strings
             type=lambda x: x.split(",") if x else [],
             default=None,
             required=False,
@@ -285,7 +284,8 @@ class Command(AsyncCommand):
             # If manifest_file is stdin, its name will be "<stdin>" and path
             # will become "". This feels clumsy, but the resulting behaviour
             # is reasonable.
-            manifest_dir = os.path.dirname(manifest_file.name)
+            manifest_file_name = getattr(manifest_file, "name", "")
+            manifest_dir = os.path.dirname(manifest_file_name)
             path = os.path.dirname(manifest_dir)
 
         content_manifest = ContentManifest()
