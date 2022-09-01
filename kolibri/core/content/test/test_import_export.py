@@ -531,6 +531,7 @@ class ImportContentTestCase(TestCase):
 
     fixtures = ["content_test.json"]
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
+    the_channel_version = 0
 
     c2c1_node_id = "2b6926ed22025518a8b9da91745b51d3"
     c2c2_node_id = "4d0c890de9b65d6880ccfa527800e0f4"
@@ -1345,6 +1346,367 @@ class ImportContentTestCase(TestCase):
             self.the_channel_id, [], exclude_node_ids=None, node_ids=None, public=False
         )
 
+    def test_local_import_with_detected_manifest_file(
+        self,
+        annotation_mock,
+        get_import_export_mock,
+        channel_list_status_mock,
+    ):
+        import_source_dir = tempfile.mkdtemp()
+        os.mkdir(os.path.join(import_source_dir, "content"))
+
+        manifest_node_ids = [self.c2c1_node_id]
+
+        get_import_export_mock.return_value = (0, [], 0)
+
+        with open(
+            os.path.join(import_source_dir, "content", "manifest.json"), "w"
+        ) as manifest_file:
+            json.dump(
+                {
+                    "channels": [
+                        {
+                            "id": self.the_channel_id,
+                            "version": self.the_channel_version,
+                            "include_node_ids": manifest_node_ids,
+                        }
+                    ]
+                },
+                manifest_file,
+            )
+
+        call_command(
+            "importcontent",
+            "disk",
+            self.the_channel_id,
+            import_source_dir,
+        )
+
+        get_import_export_mock.assert_called_with(
+            self.the_channel_id,
+            manifest_node_ids,
+            None,
+            False,
+            renderable_only=True,
+            drive_id="",
+            peer_id=None,
+        )
+
+    def test_local_import_with_detected_manifest_file_and_unlisted_channel(
+        self,
+        annotation_mock,
+        get_import_export_mock,
+        channel_list_status_mock,
+    ):
+        import_source_dir = tempfile.mkdtemp()
+        os.mkdir(os.path.join(import_source_dir, "content"))
+
+        get_import_export_mock.return_value = (0, [], 0)
+
+        with open(
+            os.path.join(import_source_dir, "content", "manifest.json"), "w"
+        ) as manifest_file:
+            json.dump({"channels": []}, manifest_file)
+
+        call_command(
+            "importcontent",
+            "disk",
+            self.the_channel_id,
+            import_source_dir,
+        )
+
+        get_import_export_mock.assert_called_with(
+            self.the_channel_id,
+            [],
+            None,
+            False,
+            renderable_only=True,
+            drive_id="",
+            peer_id=None,
+        )
+
+    def test_local_import_with_manifest_file_and_node_ids(
+        self,
+        annotation_mock,
+        get_import_export_mock,
+        channel_list_status_mock,
+    ):
+        import_source_dir = tempfile.mkdtemp()
+
+        manifest_node_ids = [self.c2c1_node_id]
+        extra_node_ids = [self.c2c2_node_id]
+
+        get_import_export_mock.return_value = (0, [], 0)
+
+        manifest_file = io.StringIO(
+            json.dumps(
+                {
+                    "channels": [
+                        {
+                            "id": self.the_channel_id,
+                            "version": self.the_channel_version,
+                            "include_node_ids": manifest_node_ids,
+                        }
+                    ]
+                }
+            )
+        )
+
+        with self.assertRaises(CommandError):
+            call_command(
+                "importcontent",
+                "disk",
+                self.the_channel_id,
+                import_source_dir,
+                node_ids=extra_node_ids,
+                manifest=manifest_file,
+            )
+
+        with self.assertRaises(CommandError):
+            call_command(
+                "importcontent",
+                "disk",
+                self.the_channel_id,
+                import_source_dir,
+                node_ids=[],
+                manifest=manifest_file,
+            )
+
+        with self.assertRaises(CommandError):
+            call_command(
+                "importcontent",
+                "disk",
+                self.the_channel_id,
+                import_source_dir,
+                exclude_node_ids=extra_node_ids,
+                manifest=manifest_file,
+            )
+
+    @patch("kolibri.core.content.management.commands.importcontent.logger.warning")
+    def test_local_import_with_manifest_file_with_multiple_versions(
+        self,
+        warning_logger_mock,
+        annotation_mock,
+        get_import_export_mock,
+        channel_list_status_mock,
+    ):
+        import_source_dir = tempfile.mkdtemp()
+
+        get_import_export_mock.return_value = (0, [], 0)
+
+        call_command(
+            "importcontent",
+            "disk",
+            self.the_channel_id,
+            import_source_dir,
+            manifest=io.StringIO(
+                json.dumps(
+                    {
+                        "channels": [
+                            {
+                                "id": self.the_channel_id,
+                                "version": self.the_channel_version - 1,
+                                "include_node_ids": [self.c2c1_node_id],
+                            },
+                            {
+                                "id": self.the_channel_id,
+                                "version": self.the_channel_version,
+                                "include_node_ids": [self.c2c2_node_id],
+                            },
+                        ]
+                    }
+                )
+            ),
+        )
+
+        warning_logger_mock.assert_called_once()
+        warning_logger_mock.assert_called_with(
+            "Manifest entry for {channel_id} has a different version ({manifest_version}) than the installed channel ({local_version})".format(
+                channel_id=self.the_channel_id,
+                manifest_version=self.the_channel_version - 1,
+                local_version=self.the_channel_version,
+            )
+        )
+
+        get_import_export_mock.assert_called_with(
+            self.the_channel_id,
+            [self.c2c1_node_id, self.c2c2_node_id],
+            None,
+            False,
+            renderable_only=True,
+            drive_id="",
+            peer_id=None,
+        )
+
+    def test_local_import_with_detected_manifest_file_and_node_ids(
+        self,
+        annotation_mock,
+        get_import_export_mock,
+        channel_list_status_mock,
+    ):
+        import_source_dir = tempfile.mkdtemp()
+        os.mkdir(os.path.join(import_source_dir, "content"))
+
+        manifest_node_ids = [self.c2c1_node_id]
+        input_node_ids = [self.c2c2_node_id]
+
+        get_import_export_mock.return_value = (0, [], 0)
+
+        with open(
+            os.path.join(import_source_dir, "content", "manifest.json"), "w"
+        ) as manifest_file:
+            json.dump(
+                {
+                    "channels": [
+                        {
+                            "id": self.the_channel_id,
+                            "version": self.the_channel_version,
+                            "include_node_ids": manifest_node_ids,
+                        }
+                    ]
+                },
+                manifest_file,
+            )
+
+        call_command(
+            "importcontent",
+            "disk",
+            self.the_channel_id,
+            import_source_dir,
+            node_ids=input_node_ids,
+        )
+
+        get_import_export_mock.assert_called_with(
+            self.the_channel_id,
+            input_node_ids,
+            None,
+            False,
+            renderable_only=True,
+            drive_id="",
+            peer_id=None,
+        )
+
+        call_command(
+            "importcontent", "disk", self.the_channel_id, import_source_dir, node_ids=[]
+        )
+
+        get_import_export_mock.assert_called_with(
+            self.the_channel_id,
+            [],
+            None,
+            False,
+            renderable_only=True,
+            drive_id="",
+            peer_id=None,
+        )
+
+    def test_local_import_with_detected_manifest_file_and_manifest_file(
+        self,
+        annotation_mock,
+        get_import_export_mock,
+        channel_list_status_mock,
+    ):
+        import_source_dir = tempfile.mkdtemp()
+        os.mkdir(os.path.join(import_source_dir, "content"))
+
+        manifest_node_ids = [self.c2c1_node_id]
+        input_node_ids = [self.c2c2_node_id]
+
+        get_import_export_mock.return_value = (0, [], 0)
+
+        with open(
+            os.path.join(import_source_dir, "content", "manifest.json"), "w"
+        ) as manifest_file:
+            json.dump(
+                {
+                    "channels": [
+                        {
+                            "id": self.the_channel_id,
+                            "version": self.the_channel_version,
+                            "include_node_ids": manifest_node_ids,
+                        }
+                    ]
+                },
+                manifest_file,
+            )
+
+        call_command(
+            "importcontent",
+            "disk",
+            self.the_channel_id,
+            import_source_dir,
+            manifest=io.StringIO(
+                json.dumps(
+                    {
+                        "channels": [
+                            {
+                                "id": self.the_channel_id,
+                                "version": self.the_channel_version,
+                                "include_node_ids": input_node_ids,
+                            }
+                        ]
+                    }
+                )
+            ),
+        )
+
+        get_import_export_mock.assert_called_with(
+            self.the_channel_id,
+            input_node_ids,
+            None,
+            False,
+            renderable_only=True,
+            drive_id="",
+            peer_id=None,
+        )
+
+    def test_local_import_with_no_detect_manifest(
+        self,
+        annotation_mock,
+        get_import_export_mock,
+        channel_list_status_mock,
+    ):
+        import_source_dir = tempfile.mkdtemp()
+        os.mkdir(os.path.join(import_source_dir, "content"))
+
+        manifest_node_ids = [self.c2c1_node_id]
+
+        get_import_export_mock.return_value = (0, [], 0)
+
+        with open(
+            os.path.join(import_source_dir, "content", "manifest.json"), "w"
+        ) as manifest_file:
+            json.dump(
+                {
+                    "channels": [
+                        {
+                            "id": self.the_channel_id,
+                            "version": self.the_channel_version,
+                            "include_node_ids": manifest_node_ids,
+                        }
+                    ]
+                },
+                manifest_file,
+            )
+
+        call_command(
+            "importcontent",
+            "disk",
+            self.the_channel_id,
+            import_source_dir,
+            detect_manifest=False,
+        )
+
+        get_import_export_mock.assert_called_with(
+            self.the_channel_id,
+            None,
+            None,
+            False,
+            renderable_only=True,
+            drive_id="",
+            peer_id=None,
+        )
+
     @patch(
         "kolibri.core.content.management.commands.importcontent.transfer.FileDownload"
     )
@@ -1369,21 +1731,23 @@ class ImportContentTestCase(TestCase):
 
         get_import_export_mock.return_value = (0, [], 0)
 
-        manifest_config = {
-            "channels": [
-                {
-                    "id": self.the_channel_id,
-                    "version": 0,
-                    "include_node_ids": manifest_node_ids,
-                }
-            ]
-        }
-
         call_command(
             "importcontent",
             "network",
             self.the_channel_id,
-            manifest=io.StringIO(json.dumps(manifest_config)),
+            manifest=io.StringIO(
+                json.dumps(
+                    {
+                        "channels": [
+                            {
+                                "id": self.the_channel_id,
+                                "version": self.the_channel_version,
+                                "include_node_ids": manifest_node_ids,
+                            }
+                        ]
+                    }
+                )
+            ),
         )
 
         get_import_export_mock.assert_called_with(
@@ -1395,59 +1759,6 @@ class ImportContentTestCase(TestCase):
             drive_id=None,
             peer_id="",
         )
-
-    @patch(
-        "kolibri.core.content.management.commands.importcontent.transfer.FileDownload"
-    )
-    @patch(
-        "kolibri.core.content.management.commands.importcontent.compare_checksums",
-        return_value=True,
-    )
-    @patch(
-        "kolibri.core.content.management.commands.importcontent.AsyncCommand.is_cancelled",
-        return_value=False,
-    )
-    def test_remote_import_with_manifest_file_and_node_ids(
-        self,
-        is_cancelled_mock,
-        compare_checksums_mock,
-        file_download_mock,
-        annotation_mock,
-        get_import_export_mock,
-        channel_list_status_mock,
-    ):
-        manifest_node_ids = [self.c2c1_node_id]
-        extra_node_ids = [self.c2c2_node_id]
-
-        get_import_export_mock.return_value = (0, [], 0)
-
-        manifest_config = {
-            "channels": [
-                {
-                    "id": self.the_channel_id,
-                    "version": 0,
-                    "include_node_ids": manifest_node_ids,
-                }
-            ]
-        }
-
-        with self.assertRaises(CommandError):
-            call_command(
-                "importcontent",
-                "network",
-                self.the_channel_id,
-                node_ids=extra_node_ids,
-                manifest=io.StringIO(json.dumps(manifest_config)),
-            )
-
-        with self.assertRaises(CommandError):
-            call_command(
-                "importcontent",
-                "network",
-                self.the_channel_id,
-                exclude_node_ids=extra_node_ids,
-                manifest=io.StringIO(json.dumps(manifest_config)),
-            )
 
     @patch("kolibri.core.content.management.commands.importcontent.transfer.sleep")
     @patch(
