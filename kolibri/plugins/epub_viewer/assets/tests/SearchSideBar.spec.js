@@ -4,11 +4,14 @@ import SearchSideBar from '../src/views/SearchSideBar';
 import SampleSearchResults from './SampleSearchResults';
 
 function createWrapper() {
+  const node = document.createElement('app');
+  document.body.appendChild(node);
   return mount(SearchSideBar, {
     propsData: {
       book: {},
     },
     store,
+    attachTo: node,
   });
 }
 

@@ -3,12 +3,15 @@ import store from 'kolibri.coreVue.vuex.store';
 import TopBar from '../src/views/TopBar';
 
 function createWrapper({ title, isInFullscreen = false } = {}) {
+  const node = document.createElement('app');
+  document.body.appendChild(node);
   return mount(TopBar, {
     propsData: {
       title,
       isInFullscreen,
     },
     store,
+    attachTo: node,
   });
 }
 

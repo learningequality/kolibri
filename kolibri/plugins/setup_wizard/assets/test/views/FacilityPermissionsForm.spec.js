@@ -3,8 +3,11 @@ import makeStore from '../makeStore';
 import FacilityPermissionsForm from '../../src/views/onboarding-forms/FacilityPermissionsForm';
 
 function makeWrapper() {
+  const node = document.createElement('app');
+  document.body.appendChild(node);
   const store = makeStore();
   const wrapper = mount(FacilityPermissionsForm, {
+    attachTo: node,
     store,
   });
   // prettier-ignore
