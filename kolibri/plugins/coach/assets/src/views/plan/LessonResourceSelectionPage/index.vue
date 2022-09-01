@@ -114,6 +114,7 @@
 
   import { mapState, mapActions, mapGetters, mapMutations } from 'vuex';
   import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
+  import { BookmarksResource } from 'kolibri.resources';
   import debounce from 'lodash/debounce';
   import every from 'lodash/every';
   import pickBy from 'lodash/pickBy';
@@ -122,7 +123,6 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoach from '../../common';
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
-  import { BookmarksResource } from '../../../../../../../../kolibri/core/assets/src/api-resources/index.js';
   import LessonsSearchBox from './SearchTools/LessonsSearchBox';
   import LessonsSearchFilters from './SearchTools/LessonsSearchFilters';
   import ResourceSelectionBreadcrumbs from './SearchTools/ResourceSelectionBreadcrumbs';

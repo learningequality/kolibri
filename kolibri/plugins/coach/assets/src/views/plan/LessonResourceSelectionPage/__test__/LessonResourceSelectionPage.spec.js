@@ -1,7 +1,12 @@
 import { mount } from '@vue/test-utils';
 import VueRouter from 'vue-router';
+import { BookmarksResource } from 'kolibri.resources';
 import LessonResourceSelectionPage from '../index.vue';
 import makeStore from '../../../../../test/makeStore';
+
+jest.mock('kolibri.client');
+jest.mock('kolibri.urls');
+jest.mock('kolibri.resources');
 
 const router = new VueRouter({
   routes: [
@@ -52,6 +57,7 @@ describe('LessonResourceSelectionPage', () => {
         params: { searchTerm: 'painting' },
         query: { last_id: 'last_topic_id', ...filterValues },
       });
+      BookmarksResource.fetchCollection.mockResolvedValue([]);
       wrapper = makeWrapper().wrapper;
     });
 

@@ -2,7 +2,9 @@ import client from 'kolibri.client';
 import { ContentNodeResource } from 'kolibri.resources';
 import { shallowMount } from '@vue/test-utils';
 import BookmarkPage from '../src/views/BookmarkPage';
+import makeStore from './makeStore';
 
+jest.mock('../src/composables/useContentNodeProgress');
 jest.mock('kolibri.client');
 jest.mock('kolibri.urls');
 jest.mock('kolibri.resources');
@@ -18,32 +20,27 @@ jest.mock('plugin_data', () => {
 
 describe('Bookmark Page', () => {
   let wrapper;
-  let createdSpy;
-  let removeFromBookmarksSpy;
 
-  const fakeBookmarks = [{ id: 1 }, { id: 2 }, { id: 3 }];
+  const fakeBookmarks = [{ bookmark: { id: 1 } }, { bookmark: { id: 2 } }, { bookmark: { id: 3 } }];
 
   beforeEach(() => {
-    createdSpy = jest.spyOn(BookmarkPage, 'created').mockImplementation(() => Promise.resolve());
-    removeFromBookmarksSpy = jest.spyOn(BookmarkPage.methods, 'removeFromBookmarks');
-
-    wrapper = shallowMount(BookmarkPage);
+    ContentNodeResource.fetchBookmarks.mockResolvedValue({ results: fakeBookmarks });
+    wrapper = shallowMount(BookmarkPage, { store: makeStore() });
     wrapper.setData({
       loading: false,
-      more: true,
+      more: { available: true, limit: 25 },
     });
   });
 
   it('smoke test', () => {
     const wrapper = shallowMount(BookmarkPage);
-    expect(createdSpy).toHaveBeenCalled();
     expect(wrapper.exists()).toBe(true);
   });
   describe('When the user clicks the remove from bookmarks icon', () => {
     it('will make a call to remove the bookmark from the list of bookmarks', async () => {
       const bookmarkId = '1';
       const index = 0;
-      await removeFromBookmarksSpy(bookmarkId, index);
+      await wrapper.vm.removeFromBookmarks(bookmarkId, index);
       expect(client).toHaveBeenCalledWith({
         method: 'delete',
         url: 'test',
@@ -56,10 +53,12 @@ describe('Bookmark Page', () => {
       expect(wrapper.find("[data-test='load-more-button']")).toBeTruthy();
     });
     it('clicking the load more button calls the load more function', async () => {
-      let mockFetchBookmarks = ContentNodeResource.fetchBookmarks.mockResolvedValue(fakeBookmarks);
+      let mockFetchBookmarks = ContentNodeResource.fetchBookmarks.mockResolvedValue({
+        results: fakeBookmarks,
+      });
       await wrapper.find("[data-test='load-more-button']").vm.$emit('click');
       expect(mockFetchBookmarks).toHaveBeenCalledWith({
-        params: true,
+        params: { available: true, limit: 25 },
       });
     });
   });
