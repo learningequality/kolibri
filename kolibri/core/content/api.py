@@ -1391,12 +1391,7 @@ class UserContentNodeViewset(BaseContentNodeMixin, BaseValuesViewset, ListModelM
 
     def get_queryset(self):
         user = self.request.user
-        # if user is anonymous, don't return any nodes
-        # if person requesting is not the data they are requesting for, also return no nodes
         queryset = models.ContentNode.objects.filter(available=True)
-        if not user.is_facility_user:
-            user = None
-
         queryset = queryset.annotate(
             last_interacted=Subquery(
                 ContentSummaryLog.objects.filter(
@@ -1435,11 +1430,7 @@ class ContentNodeProgressViewset(
 
     def get_queryset(self):
         user = self.request.user
-
         queryset = models.ContentNode.objects.filter(available=True)
-        if not user.is_facility_user:
-            user = None
-
         queryset = queryset.annotate(
             last_interacted=Subquery(
                 ContentSummaryLog.objects.filter(
