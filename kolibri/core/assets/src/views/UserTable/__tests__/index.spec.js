@@ -329,7 +329,8 @@ describe(`UserTable`, () => {
         });
         getUserRadioButtons(wrapper)
           .at(1)
-          .trigger('click');
+          .find('input')
+          .trigger('change');
         expect(wrapper.emitted().input.length).toBe(1);
         expect(wrapper.emitted().input[0][0]).toEqual(['id-coach']);
       });
