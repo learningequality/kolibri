@@ -1355,8 +1355,6 @@ class ImportContentTestCase(TestCase):
         import_source_dir = tempfile.mkdtemp()
         os.mkdir(os.path.join(import_source_dir, "content"))
 
-        manifest_node_ids = [self.c2c1_node_id]
-
         get_import_export_mock.return_value = (0, [], 0)
 
         with open(
@@ -1368,7 +1366,7 @@ class ImportContentTestCase(TestCase):
                         {
                             "id": self.the_channel_id,
                             "version": self.the_channel_version,
-                            "include_node_ids": manifest_node_ids,
+                            "include_node_ids": [self.c2c1_node_id],
                         }
                     ]
                 },
@@ -1384,7 +1382,7 @@ class ImportContentTestCase(TestCase):
 
         get_import_export_mock.assert_called_with(
             self.the_channel_id,
-            manifest_node_ids,
+            [six.text_type(self.c2c1_node_id)],
             None,
             False,
             renderable_only=True,
@@ -1433,9 +1431,6 @@ class ImportContentTestCase(TestCase):
     ):
         import_source_dir = tempfile.mkdtemp()
 
-        manifest_node_ids = [self.c2c1_node_id]
-        extra_node_ids = [self.c2c2_node_id]
-
         get_import_export_mock.return_value = (0, [], 0)
 
         manifest_file = six.StringIO(
@@ -1445,7 +1440,7 @@ class ImportContentTestCase(TestCase):
                         {
                             "id": self.the_channel_id,
                             "version": self.the_channel_version,
-                            "include_node_ids": manifest_node_ids,
+                            "include_node_ids": [self.c2c1_node_id, self.c2c2_node_id],
                         }
                     ]
                 }
@@ -1458,7 +1453,17 @@ class ImportContentTestCase(TestCase):
                 "disk",
                 self.the_channel_id,
                 import_source_dir,
-                node_ids=extra_node_ids,
+                node_ids=[self.c2c2_node_id],
+                manifest=manifest_file,
+            )
+
+        with self.assertRaises(CommandError):
+            call_command(
+                "importcontent",
+                "disk",
+                self.the_channel_id,
+                import_source_dir,
+                exclude_node_ids=[self.c2c2_node_id],
                 manifest=manifest_file,
             )
 
@@ -1469,16 +1474,6 @@ class ImportContentTestCase(TestCase):
                 self.the_channel_id,
                 import_source_dir,
                 node_ids=[],
-                manifest=manifest_file,
-            )
-
-        with self.assertRaises(CommandError):
-            call_command(
-                "importcontent",
-                "disk",
-                self.the_channel_id,
-                import_source_dir,
-                exclude_node_ids=extra_node_ids,
                 manifest=manifest_file,
             )
 
@@ -1530,7 +1525,7 @@ class ImportContentTestCase(TestCase):
 
         get_import_export_mock.assert_called_with(
             self.the_channel_id,
-            [self.c2c1_node_id, self.c2c2_node_id],
+            [six.text_type(self.c2c1_node_id), six.text_type(self.c2c2_node_id)],
             None,
             False,
             renderable_only=True,
@@ -1547,9 +1542,6 @@ class ImportContentTestCase(TestCase):
         import_source_dir = tempfile.mkdtemp()
         os.mkdir(os.path.join(import_source_dir, "content"))
 
-        manifest_node_ids = [self.c2c1_node_id]
-        input_node_ids = [self.c2c2_node_id]
-
         get_import_export_mock.return_value = (0, [], 0)
 
         with open(
@@ -1561,7 +1553,7 @@ class ImportContentTestCase(TestCase):
                         {
                             "id": self.the_channel_id,
                             "version": self.the_channel_version,
-                            "include_node_ids": manifest_node_ids,
+                            "include_node_ids": [self.c2c1_node_id],
                         }
                     ]
                 },
@@ -1573,12 +1565,12 @@ class ImportContentTestCase(TestCase):
             "disk",
             self.the_channel_id,
             import_source_dir,
-            node_ids=input_node_ids,
+            node_ids=[self.c2c2_node_id],
         )
 
         get_import_export_mock.assert_called_with(
             self.the_channel_id,
-            input_node_ids,
+            [six.text_type(self.c2c2_node_id)],
             None,
             False,
             renderable_only=True,
@@ -1609,9 +1601,6 @@ class ImportContentTestCase(TestCase):
         import_source_dir = tempfile.mkdtemp()
         os.mkdir(os.path.join(import_source_dir, "content"))
 
-        manifest_node_ids = [self.c2c1_node_id]
-        input_node_ids = [self.c2c2_node_id]
-
         get_import_export_mock.return_value = (0, [], 0)
 
         with open(
@@ -1623,7 +1612,7 @@ class ImportContentTestCase(TestCase):
                         {
                             "id": self.the_channel_id,
                             "version": self.the_channel_version,
-                            "include_node_ids": manifest_node_ids,
+                            "include_node_ids": [self.c2c1_node_id],
                         }
                     ]
                 },
@@ -1642,7 +1631,7 @@ class ImportContentTestCase(TestCase):
                             {
                                 "id": self.the_channel_id,
                                 "version": self.the_channel_version,
-                                "include_node_ids": input_node_ids,
+                                "include_node_ids": [self.c2c2_node_id],
                             }
                         ]
                     }
@@ -1652,7 +1641,7 @@ class ImportContentTestCase(TestCase):
 
         get_import_export_mock.assert_called_with(
             self.the_channel_id,
-            input_node_ids,
+            [six.text_type(self.c2c2_node_id)],
             None,
             False,
             renderable_only=True,
@@ -1669,8 +1658,6 @@ class ImportContentTestCase(TestCase):
         import_source_dir = tempfile.mkdtemp()
         os.mkdir(os.path.join(import_source_dir, "content"))
 
-        manifest_node_ids = [self.c2c1_node_id]
-
         get_import_export_mock.return_value = (0, [], 0)
 
         with open(
@@ -1682,7 +1669,7 @@ class ImportContentTestCase(TestCase):
                         {
                             "id": self.the_channel_id,
                             "version": self.the_channel_version,
-                            "include_node_ids": manifest_node_ids,
+                            "include_node_ids": [self.c2c1_node_id],
                         }
                     ]
                 },
@@ -1727,8 +1714,6 @@ class ImportContentTestCase(TestCase):
         get_import_export_mock,
         channel_list_status_mock,
     ):
-        manifest_node_ids = [self.c2c1_node_id]
-
         get_import_export_mock.return_value = (0, [], 0)
 
         call_command(
@@ -1742,7 +1727,7 @@ class ImportContentTestCase(TestCase):
                             {
                                 "id": self.the_channel_id,
                                 "version": self.the_channel_version,
-                                "include_node_ids": manifest_node_ids,
+                                "include_node_ids": [self.c2c1_node_id],
                             }
                         ]
                     }
@@ -1752,7 +1737,7 @@ class ImportContentTestCase(TestCase):
 
         get_import_export_mock.assert_called_with(
             self.the_channel_id,
-            manifest_node_ids,
+            [six.text_type(self.c2c1_node_id)],
             None,
             False,
             renderable_only=True,
