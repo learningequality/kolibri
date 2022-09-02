@@ -1380,7 +1380,10 @@ class ImportContentTestCase(TestCase):
             import_source_dir,
         )
 
-        get_import_export_mock.assert_called_with(
+        # If a manifest file is present in the source directory and no node_ids are
+        # provided, importcontent should call get_import_export using node_ids
+        # according to channel_id in the detected manifest file.
+        get_import_export_mock.assert_called_once_with(
             self.the_channel_id,
             [six.text_type(self.c2c1_node_id)],
             None,
@@ -1413,7 +1416,11 @@ class ImportContentTestCase(TestCase):
             import_source_dir,
         )
 
-        get_import_export_mock.assert_called_with(
+        # If a manifest file is present in the source directory and no node_ids are
+        # provided, but the user specifies a channel_id which is not present in the
+        # manifest file, importcontent should call get_import_export with an empty list
+        # of node_ids.
+        get_import_export_mock.assert_called_once_with(
             self.the_channel_id,
             [],
             None,
@@ -1423,7 +1430,7 @@ class ImportContentTestCase(TestCase):
             peer_id=None,
         )
 
-    def test_local_import_with_manifest_file_and_node_ids(
+    def test_local_import_with_local_manifest_file_and_node_ids(
         self,
         annotation_mock,
         get_import_export_mock,
@@ -1448,6 +1455,8 @@ class ImportContentTestCase(TestCase):
         )
 
         with self.assertRaises(CommandError):
+            # If the user provides a manifest file as well as node_ids, the
+            # importcontent command should exit with an error.
             call_command(
                 "importcontent",
                 "disk",
@@ -1458,6 +1467,8 @@ class ImportContentTestCase(TestCase):
             )
 
         with self.assertRaises(CommandError):
+            # If the user provides a manifest file as well as exclude_node_ids, the
+            # importcontent command should exit with an error.
             call_command(
                 "importcontent",
                 "disk",
@@ -1468,6 +1479,8 @@ class ImportContentTestCase(TestCase):
             )
 
         with self.assertRaises(CommandError):
+            # If the user provides a manifest file as well as an empty (falsey) list of
+            # node_ids, the importcontent command should exit with an error.
             call_command(
                 "importcontent",
                 "disk",
@@ -1478,7 +1491,7 @@ class ImportContentTestCase(TestCase):
             )
 
     @patch("kolibri.core.content.management.commands.importcontent.logger.warning")
-    def test_local_import_with_manifest_file_with_multiple_versions(
+    def test_local_import_with_local_manifest_file_with_multiple_versions(
         self,
         warning_logger_mock,
         annotation_mock,
@@ -1515,6 +1528,9 @@ class ImportContentTestCase(TestCase):
         )
 
         warning_logger_mock.assert_called_once()
+        # If a provided manifest file specifies versions of a channel which do not
+        # match the channel version in the local database, importcontent should log a
+        # warning message explaining the mismatch.
         warning_logger_mock.assert_called_with(
             "Manifest entry for {channel_id} has a different version ({manifest_version}) than the installed channel ({local_version})".format(
                 channel_id=self.the_channel_id,
@@ -1523,7 +1539,9 @@ class ImportContentTestCase(TestCase):
             )
         )
 
-        get_import_export_mock.assert_called_with(
+        # Regardless, importcontent should continue to call get_import_export with a
+        # list of node_ids built from all versions of the channel_id channel.
+        get_import_export_mock.assert_called_once_with(
             self.the_channel_id,
             [six.text_type(self.c2c1_node_id), six.text_type(self.c2c2_node_id)],
             None,
@@ -1568,7 +1586,10 @@ class ImportContentTestCase(TestCase):
             node_ids=[self.c2c2_node_id],
         )
 
-        get_import_export_mock.assert_called_with(
+        # If a manifest file is present in the source directory but node_ids are
+        # provided, importcontent should call get_import_export with the provided list
+        # of node_ids, ignoring the detected manifest file.
+        get_import_export_mock.assert_called_once_with(
             self.the_channel_id,
             [six.text_type(self.c2c2_node_id)],
             None,
@@ -1578,11 +1599,16 @@ class ImportContentTestCase(TestCase):
             peer_id=None,
         )
 
+        get_import_export_mock.reset_mock()
+
         call_command(
             "importcontent", "disk", self.the_channel_id, import_source_dir, node_ids=[]
         )
 
-        get_import_export_mock.assert_called_with(
+        # If a manifest file is present in the source directory but node_ids is set to
+        # an empty (falsey) list, importcontent should call get_import_export with that
+        # empty list of node_ids, ignoring the detected manifest file.
+        get_import_export_mock.assert_called_once_with(
             self.the_channel_id,
             [],
             None,
@@ -1639,7 +1665,11 @@ class ImportContentTestCase(TestCase):
             ),
         )
 
-        get_import_export_mock.assert_called_with(
+        # If a manifest file is present in the source directory but another manifest
+        # has been provided via the manifest argument, importcontent should ignore the
+        # detected manifest file and instead call get_import_export with the list of
+        # node_ids according to channel_id in the provided manifest file.
+        get_import_export_mock.assert_called_once_with(
             self.the_channel_id,
             [six.text_type(self.c2c2_node_id)],
             None,
@@ -1684,7 +1714,11 @@ class ImportContentTestCase(TestCase):
             detect_manifest=False,
         )
 
-        get_import_export_mock.assert_called_with(
+        # If a manifest file is present in the source directory but the detect_manifest
+        # argument is set to False, importcontent should ignore the detected manifest
+        # file. If no node_ids are provided, it should call get_import_export with
+        # node_ids set to None.
+        get_import_export_mock.assert_called_once_with(
             self.the_channel_id,
             None,
             None,
@@ -1705,7 +1739,7 @@ class ImportContentTestCase(TestCase):
         "kolibri.core.content.management.commands.importcontent.AsyncCommand.is_cancelled",
         return_value=False,
     )
-    def test_remote_import_with_manifest_file(
+    def test_remote_import_with_local_manifest_file(
         self,
         is_cancelled_mock,
         compare_checksums_mock,
@@ -1735,7 +1769,10 @@ class ImportContentTestCase(TestCase):
             ),
         )
 
-        get_import_export_mock.assert_called_with(
+        # If a manifest file is provided when importing from a remote source,
+        # importcontent should call get_import_export with node_ids set according to
+        # channel_id in the provided manifest file.
+        get_import_export_mock.assert_called_once_with(
             self.the_channel_id,
             [six.text_type(self.c2c1_node_id)],
             None,
