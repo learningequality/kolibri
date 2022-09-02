@@ -1,9 +1,9 @@
 import { mount } from '@vue/test-utils';
 import ScrollingHeader from '../../../src/views/CoreBase/ScrollingHeader';
 
-jest.useFakeTimers();
-
 function makeWrapper(params = {}) {
+  const node = document.createElement('app');
+  document.body.appendChild(node);
   const { scrollPosition = 0, isHidden } = params;
   return mount(ScrollingHeader, {
     propsData: {
@@ -11,6 +11,7 @@ function makeWrapper(params = {}) {
       scrollPosition,
       isHidden,
     },
+    attachTo: node,
   });
 }
 

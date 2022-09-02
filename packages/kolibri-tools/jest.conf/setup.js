@@ -60,9 +60,11 @@ process.on('unhandledRejection', (reason, p) => {
   console.log(reason.stack);
 });
 
+const scheduler = typeof setImmediate === 'function' ? setImmediate : setTimeout;
+
 // Copied from https://github.com/kentor/flush-promises/blob/f33ac564190c784019f1f689dd544187f4b77eb2/index.js
 global.flushPromises = function flushPromises() {
   return new Promise(function(resolve) {
-    setImmediate(resolve);
+    scheduler(resolve);
   });
 };

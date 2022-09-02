@@ -396,7 +396,7 @@ program
     process.argv.splice(2, 1);
     process.argv.push('--config');
     process.argv.push(config);
-    require('jest-cli/build/cli').run();
+    require('jest-cli/bin/jest');
   });
 
 // Compress

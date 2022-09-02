@@ -185,7 +185,7 @@
     },
     beforeMount() {
       // If no user input is in memory, reset the wizard
-      if (!this.username) {
+      if (!this.atFirstStep && !this.username) {
         this.goToFirstStep();
       }
     },
