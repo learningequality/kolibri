@@ -3,43 +3,45 @@
   <LearnAppBarPage
     :appBarTitle="learnString('learnLabel')"
   >
-    <KBreadcrumbs :items="breadcrumbs" :ariaLabel="learnString('classesAndAssignmentsLabel')" />
-    <section class="lesson-details">
-      <div>
-        <ContentIcon
-          kind="lesson"
-          class="lesson-icon"
-        />
-        <h1 dir="auto" class="title">
-          {{ currentLesson.title }}
-          <ProgressIcon
-            v-if="lessonHasResources"
-            class="progress-icon"
-            :progress="lessonProgress"
+    <div id="main" role="main">
+      <KBreadcrumbs :items="breadcrumbs" :ariaLabel="learnString('classesAndAssignmentsLabel')" />
+      <section class="lesson-details">
+        <div>
+          <ContentIcon
+            kind="lesson"
+            class="lesson-icon"
           />
-        </h1>
-      </div>
-      <div v-if="currentLesson.description !== ''">
-        <h3>{{ $tr('teacherNote') }}</h3>
-        <p dir="auto">
-          {{ currentLesson.description }}
-        </p>
-      </div>
-    </section>
+          <h1 dir="auto" class="title">
+            {{ currentLesson.title }}
+            <ProgressIcon
+              v-if="lessonHasResources"
+              class="progress-icon"
+              :progress="lessonProgress"
+            />
+          </h1>
+        </div>
+        <div v-if="currentLesson.description !== ''">
+          <h3>{{ $tr('teacherNote') }}</h3>
+          <p dir="auto">
+            {{ currentLesson.description }}
+          </p>
+        </div>
+      </section>
 
-    <section v-if="contentNodes && contentNodes.length" class="content-cards">
-      <HybridLearningLessonCard
-        v-for="content in contentNodes"
-        :key="content.id"
-        :content="content"
-        class="content-card"
-        :isMobile="windowIsSmall"
-        :link="genContentLink(content)"
-      />
-      <p v-if="!lessonHasResources" class="no-resources-message">
-        {{ $tr('noResourcesInLesson') }}
-      </p>
-    </section>
+      <section v-if="contentNodes && contentNodes.length" class="content-cards">
+        <HybridLearningLessonCard
+          v-for="content in contentNodes"
+          :key="content.id"
+          :content="content"
+          class="content-card"
+          :isMobile="windowIsSmall"
+          :link="genContentLink(content)"
+        />
+        <p v-if="!lessonHasResources" class="no-resources-message">
+          {{ $tr('noResourcesInLesson') }}
+        </p>
+      </section>
+    </div>
   </LearnAppBarPage>
 
 </template>
