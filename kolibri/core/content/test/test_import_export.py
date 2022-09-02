@@ -1,4 +1,3 @@
-import io
 import itertools
 import json
 import os
@@ -10,6 +9,7 @@ from django.core.management import call_command
 from django.core.management import CommandError
 from django.db.models import Q
 from django.test import TestCase
+from django.utils import six
 from le_utils.constants import content_kinds
 from mock import call
 from mock import MagicMock
@@ -1438,7 +1438,7 @@ class ImportContentTestCase(TestCase):
 
         get_import_export_mock.return_value = (0, [], 0)
 
-        manifest_file = io.StringIO(
+        manifest_file = six.StringIO(
             json.dumps(
                 {
                     "channels": [
@@ -1499,7 +1499,7 @@ class ImportContentTestCase(TestCase):
             "disk",
             self.the_channel_id,
             import_source_dir,
-            manifest=io.StringIO(
+            manifest=six.StringIO(
                 json.dumps(
                     {
                         "channels": [
@@ -1635,7 +1635,7 @@ class ImportContentTestCase(TestCase):
             "disk",
             self.the_channel_id,
             import_source_dir,
-            manifest=io.StringIO(
+            manifest=six.StringIO(
                 json.dumps(
                     {
                         "channels": [
@@ -1735,7 +1735,7 @@ class ImportContentTestCase(TestCase):
             "importcontent",
             "network",
             self.the_channel_id,
-            manifest=io.StringIO(
+            manifest=six.StringIO(
                 json.dumps(
                     {
                         "channels": [
