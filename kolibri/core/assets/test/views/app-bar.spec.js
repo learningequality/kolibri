@@ -4,7 +4,9 @@ import AppBar from '../../src/views/AppBar';
 jest.mock('kolibri.urls');
 
 function createWrapper({ propsData } = {}) {
-  return shallowMount(AppBar, { propsData });
+  const node = document.createElement('div');
+  document.body.appendChild(node);
+  return shallowMount(AppBar, { propsData, attachTo: node });
 }
 
 describe('app bar component', () => {
