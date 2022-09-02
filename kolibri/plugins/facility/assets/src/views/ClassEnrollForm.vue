@@ -42,9 +42,9 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
+  import UserTable from 'kolibri.coreVue.components.UserTable';
   import PaginatedListContainerWithBackend from './PaginatedListContainerWithBackend';
   import SelectionBottomBar from './SelectionBottomBar';
-  import UserTable from './UserTable';
 
   export default {
     name: 'ClassEnrollForm',

@@ -90,8 +90,8 @@
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import filterUsersByNames from 'kolibri.utils.filterUsersByNames';
+  import UserTable from 'kolibri.coreVue.components.UserTable';
   import commonCoach from '../../common';
-  import UserTable from '../../../../../../facility/assets/src/views/UserTable';
 
   export default {
     name: 'GroupEnrollPage',
