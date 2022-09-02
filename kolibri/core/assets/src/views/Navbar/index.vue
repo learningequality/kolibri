@@ -5,6 +5,7 @@
       ref="navbarUl"
       class="items"
       tabindex="-1"
+      :style="mediumAndSmallStyleOverrides"
     >
       <!-- Contains NavbarLink components -->
       <slot></slot>
@@ -16,11 +17,18 @@
 
 <script>
 
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   /**
    * Used for navigation between sub-pages of a top-level Kolibri section
    */
   export default {
     name: 'Navbar',
+    mixins: [responsiveWindowMixin],
+    computed: {
+      mediumAndSmallStyleOverrides() {
+        return !this.windowIsLarge ? { marginTop: 0 } : {};
+      },
+    },
   };
 
 </script>
@@ -38,12 +46,6 @@
     overflow-x: hidden;
     overflow-y: hidden;
     white-space: nowrap;
-  }
-
-  @media (max-width: 840px) {
-    .items {
-      margin-top: 0;
-    }
   }
 
 </style>
