@@ -120,7 +120,7 @@
 
   import { mapState, mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import UserTable from '../UserTable';
+  import UserTable from 'kolibri.coreVue.components.UserTable';
   import { Modals } from '../../constants';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import ClassRenameModal from './ClassRenameModal';

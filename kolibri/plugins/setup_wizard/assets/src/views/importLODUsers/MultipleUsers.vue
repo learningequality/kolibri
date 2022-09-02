@@ -49,7 +49,7 @@
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
   import { TaskStatuses } from 'kolibri.utils.syncTaskUtils';
-  import UserTable from '../../../../../facility/assets/src/views/UserTable.vue';
+  import UserTable from 'kolibri.coreVue.components.UserTable';
   import OnboardingForm from '../onboarding-forms/OnboardingForm';
   import { SoudQueue } from '../../constants';
 

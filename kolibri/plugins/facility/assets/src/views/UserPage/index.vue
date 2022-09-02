@@ -95,9 +95,9 @@
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
+  import UserTable from 'kolibri.coreVue.components.UserTable';
   import cloneDeep from 'lodash/cloneDeep';
   import PaginatedListContainerWithBackend from '../PaginatedListContainerWithBackend';
-  import UserTable from '../UserTable';
   import { Modals } from '../../constants';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import ResetUserPasswordModal from './ResetUserPasswordModal';
