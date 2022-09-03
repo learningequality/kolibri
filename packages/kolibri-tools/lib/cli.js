@@ -346,6 +346,9 @@ program
                 if (!patternCheck || patternCheck.match(globbedFile)) {
                   return runLinting(globbedFile)
                     .then(formatted => {
+                      if (formatted.code) {
+                        logging.error(`Formatting issue in file: ${globbedFile}`);
+                      }
                       return formatted.code;
                     })
                     .catch(error => {
