@@ -9,8 +9,8 @@
     "sources": [
         {
             "type": "file",
-            "url": "https://files.pythonhosted.org/packages/89/12/f96c1d0d3cc30f46023ff662d19f59d3d73bf181cac3e077586c1f1f2951/kolibri-0.15.3-py2.py3-none-any.whl",
-            "sha256": "b7e38a867df56a732fd25d36b4b4270a5069e404bb54515618708b0bd51b2915"
+            "url": "https://files.pythonhosted.org/packages/ec/ff/402890b344c01c195044c6de46bfc1499dcaa7b2c7f098ec995b31a08fa7/kolibri-0.15.7-py2.py3-none-any.whl",
+            "sha256": "8afb26d25c04f2c150efb38b84e1dfbf6912143f0e3f66709507ce1111b03bc4"
         },
         {
             "type": "dir",
