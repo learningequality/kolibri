@@ -281,6 +281,7 @@ def start_generating(
     all_users_base_data = read_user_data_file(file_path)
 
     for f in range(n_facilities):
+
         new_facility = generate_facility(
             facility_name="Facility_{}".format(f + 1), device_name="testing device"
         )
@@ -449,6 +450,8 @@ class Command(BaseCommand):
             type=str,
         )
 
+        parser.add_argument("--seed", type=int, default=1, help="Random seed")
+
         parser.add_argument(
             "--file_path",
             type=str,
@@ -578,6 +581,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
+        seed_n = options["seed"]
+
         # Generated Data destination
         mode = options["mode"]
 
@@ -610,13 +615,16 @@ class Command(BaseCommand):
         n_adhoc_exams = options["adhoc_exams"]
         n_adhoc_exam_learners = options["adhoc_exam_learners"]
 
-        logger.info("\n start generating facility/s...\n")
+        # Set the random seed so that all operations will be randomized predictably
+        random.seed(seed_n)
+
+        logger.info("\nstart generating facility/s...\n")
 
         if mode == "fixtures":
 
             if not fixtures_path:
                 raise ValueError(
-                    "\n--fixtures_path is missing : please provide a fixtures file path"
+                    "\n--fixtures_path is missing : please provide a fixtures file path\n"
                 )
             switch_to_memory()
 
@@ -639,7 +647,7 @@ class Command(BaseCommand):
                 file_path=file_path,
             )
 
-            logger.info("\n dumping and creating fixtures for generated channels... \n")
+            logger.info("\ndumping and creating fixtures for generated facilites... \n")
 
             # dumping after generation is done
             call_command(
