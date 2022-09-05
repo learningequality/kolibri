@@ -5,7 +5,7 @@
     <p class="fullname" data-test="fullName">
       {{ fullName }}
     </p>
-    <p class="username" data-test="username">
+    <p class="username" data-test="username" :style="{ color: $themeTokens.annotation }">
       {{ username }}
     </p>
     <span v-if="usingAdminPasswordState">
@@ -237,14 +237,14 @@
 <style lang="scss" scoped>
 
   .fullname {
-    font-size: 1.17em;
-    font-weight: bold;
+    margin-bottom: 0;
+    font-size: 1em;
   }
 
   .username {
+    margin-top: 0;
     margin-bottom: 40px;
-    font-size: 1em;
-    font-weight: bold;
+    font-size: 0.95em;
   }
 
 </style>
