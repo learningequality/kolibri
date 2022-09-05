@@ -163,7 +163,7 @@ def get_or_generate_language(lang_id):
         return new_lang
 
 
-def generate_assessmentmetadata(node=None, randomize=False, is_manipulable=False):
+def generate_assessmentmetadata(node):
     number_of_assessments = random.randint(1, 30)
     assessment_item_ids = [str(uuid.uuid4().hex) for _ in range(number_of_assessments)]
 
@@ -208,8 +208,8 @@ def generate_assessmentmetadata(node=None, randomize=False, is_manipulable=False
         assessment_item_ids=assessment_item_ids,
         number_of_assessments=number_of_assessments,
         mastery_model=mapper[random_criteria],
-        randomize=randomize,
-        is_manipulable=is_manipulable,
+        randomize=random.choice([True, False]),
+        is_manipulable=random.choice([True, False]),
     )
     generated_objects.add(meta_data)
     return meta_data
@@ -430,14 +430,11 @@ def generate_channels(n_channels, levels, n_children, resources_kind=None):
 
     generated_channels = []
 
-    if resources_kind:
-
-        logger.info(
-            "\n generating Channel/s of {} resources ...\n".format(resources_kind)
+    logger.info(
+        "\n generating Channel/s of {} resources ...\n".format(
+            resources_kind if resources_kind else "random"
         )
-    else:
-
-        logger.info("\n generating Channel/s of random resources kinds...\n")
+    )
 
     generate_some_tags()
 
