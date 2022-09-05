@@ -5,7 +5,7 @@
       :appBarTitle="coreString('changeLearningFacility')"
       :route="$router.getRoute('PROFILE')"
     >
-      <KPageContainer style="width: 1000px; margin: 32px auto 0;">
+      <KPageContainer style="maxWidth: 1000px; margin: 32px auto 0;">
         <router-view />
       </KPageContainer>
     </ImmersivePage>
