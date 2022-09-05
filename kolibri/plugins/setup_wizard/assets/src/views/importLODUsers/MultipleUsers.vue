@@ -9,7 +9,7 @@
     </p>
     <PaginatedListContainer
       :items="learners"
-      :filterPlaceholder="$tr('searchForUser')"
+      :filterPlaceholder="coreString('searchForUser')"
     >
       <template #default="{ items }">
         <UserTable
@@ -169,10 +169,6 @@
       imported: {
         message: 'Imported',
         context: 'Label indicating that a learner user account has already been imported.',
-      },
-      searchForUser: {
-        message: 'Search for a user',
-        context: 'Descriptive text which appears in the search field on the Facility > Users page.',
       },
       selectAUser: {
         message: 'Select a user',

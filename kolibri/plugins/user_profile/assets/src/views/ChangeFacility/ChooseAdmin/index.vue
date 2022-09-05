@@ -6,7 +6,7 @@
 
     <PaginatedListContainer
       :items="usersWithoutCurrentUser"
-      :filterPlaceholder="$tr('searchForUser')"
+      :filterPlaceholder="coreString('searchForUser')"
     >
       <template #default="{ items }">
         <UserTable
@@ -109,11 +109,6 @@
         message: 'Choose an account to manage channels and accounts.',
         context:
           'Description of the step for choosing a new super admin in a source facility when a user changing facilities is the only super admin of the source facility.',
-      },
-      // TODO: Move to common strings (copied from `MultipleUsers`)
-      searchForUser: {
-        message: 'Search for a user',
-        context: 'Descriptive text which appears in the search field on the Facility > Users page.',
       },
     },
   };

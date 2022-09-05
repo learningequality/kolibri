@@ -18,7 +18,7 @@
         <div class="actions-header">
           <FilterTextbox
             v-model.trim="filterInput"
-            :placeholder="$tr('searchForUser')"
+            :placeholder="coreString('searchForUser')"
             @input="pageNum = 1"
           />
         </div>
@@ -193,10 +193,6 @@
       pageHeader: {
         message: "Enroll learners into '{className}'",
         context: 'Describes title of page where the coach enrolls learners in a new group.',
-      },
-      searchForUser: {
-        message: 'Search for a user',
-        context: 'Text in the search field.',
       },
       userTableLabel: {
         message: 'User List',
