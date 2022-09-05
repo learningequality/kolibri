@@ -7,6 +7,7 @@ from django.core.management import call_command
 from django.core.management.base import BaseCommand
 from django.db import connections
 from le_utils.constants import content_kinds
+from le_utils.constants import file_formats
 from le_utils.constants import format_presets
 from le_utils.constants import languages
 from le_utils.constants import mastery_criteria
@@ -94,7 +95,7 @@ content_kind_to_main_file_preset = {
 
 # purpose : generates thumbnail preset along with the main file preset (both map to the same node)
 main_file_preset_to_thumbnail_preset = {
-    # just two exceptions as these file_preset are very common together
+    # two exceptions as these file_preset are very common together
     format_presets.SLIDESHOW_IMAGE: [
         format_presets.SLIDESHOW_THUMBNAIL,
         format_presets.SLIDESHOW_MANIFEST,
@@ -230,27 +231,26 @@ def generate_channel(name, root_node, channel_id):
 
 def generate_localfile(file_preset):
 
-    # this was calculated by taking the average of file_size of localfiles of each extension in QA channel
-    # so it has to be manully written here as this information doesn't exist, it was calculcated by me, why?
-    # well instead of just generating random numbers i wanted the file_size values to be more relevant to their corresponding extension
+    # precalculated by taking the average file_size of actual existing localfiles
+    # instead of just random generated sizes, these are more relvant to the corresponding extension
     extension_to_file_size = {
-        "mp4": 16293436.885714285,
-        "webm": None,
-        "vtt": 3227.507692307692,
-        "pdf": 6655360.057142857,
-        "epub": 13291472.210526315,
-        "mp3": 2102685.625,
-        "jpg": 20291943.133333333,
-        "jpeg": 30457141.25,
-        "png": 2833124.8260869565,
-        "gif": None,
-        "json": 3529.0,
-        "svg": None,
-        "graphie": None,
-        "perseus": 357012.67441860464,
-        "h5p": 10699889.2,
-        "zim": None,
-        "zip": 5285446.041666667,
+        file_formats.MP4: 5933249,
+        file_formats.WEBM: None,
+        file_formats.VTT: 1242,
+        file_formats.PDF: 6655360,
+        file_formats.EPUB: 13291472,
+        file_formats.MP3: 2102685,
+        file_formats.JPG: 5604683,
+        file_formats.JPEG: 30433803,
+        file_formats.PNG: 609113,
+        file_formats.GIF: None,
+        file_formats.JSON: 3529,
+        file_formats.SVG: None,
+        file_formats.GRAPHIE: None,
+        file_formats.PERSEUS: 131841,
+        file_formats.H5P: 10699889,
+        file_formats.ZIM: None,
+        file_formats.HTML5: 1315774,
     }
 
     extensions_choices = format_prestets_data[file_preset].allowed_formats
@@ -314,22 +314,26 @@ def generate_one_contentNode(
 ):
 
     kind_to_learninactivity = {
-        "topic": "",
-        "slideshow": "",
-        "document": "{},{}".format(
+        content_kinds.TOPIC: "",
+        content_kinds.SLIDESHOW: "",
+        content_kinds.DOCUMENT: "{},{}".format(
             learning_activities.READ, learning_activities.REFLECT
         ),
-        "video": "{},{}".format(learning_activities.WATCH, learning_activities.REFLECT),
-        "html5": "{},{}".format(
+        content_kinds.VIDEO: "{},{}".format(
+            learning_activities.WATCH, learning_activities.REFLECT
+        ),
+        content_kinds.HTML5: "{},{}".format(
             learning_activities.EXPLORE, learning_activities.REFLECT
         ),
-        "audio": "{},{}".format(
+        content_kinds.AUDIO: "{},{}".format(
             learning_activities.LISTEN, learning_activities.REFLECT
         ),
-        "exercise": "{},{}".format(
+        content_kinds.EXERCISE: "{},{}".format(
             learning_activities.PRACTICE, learning_activities.REFLECT
         ),
-        "h5p": "{}.{}".format(learning_activities.EXPLORE, learning_activities.REFLECT),
+        content_kinds.H5P: "{}.{}".format(
+            learning_activities.EXPLORE, learning_activities.REFLECT
+        ),
     }
 
     new_node = ContentNode.objects.create(
