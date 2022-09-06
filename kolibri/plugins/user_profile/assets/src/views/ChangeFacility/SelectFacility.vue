@@ -19,18 +19,15 @@
     <p v-if="initialFetchingComplete && !availableFacilities.length">
       {{ $tr('noFacilitiesText') }}
     </p>
-    <template v-for="f in availableFacilities">
-      <div :key="`div-${f.id}`">
-        <KRadioButton
-          :key="f.id"
-          v-model="selectedFacilityId"
-          :value="f.id"
-          :label="formatNameAndId(f.name, f.id)"
-          :disabled="facilityDisabled(f)"
-        />
-      </div>
-
-    </template>
+    <div v-for="f in availableFacilities" :key="`div-${f.id}`">
+      <KRadioButton
+        :key="f.id"
+        v-model="selectedFacilityId"
+        :value="f.id"
+        :label="formatNameAndId(f.name, f.id)"
+        :disabled="facilityDisabled(f)"
+      />
+    </div>
 
     <KGrid
       :style="{

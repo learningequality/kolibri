@@ -1,6 +1,7 @@
 from django.conf.urls import url
 
 from .viewsets import OnMyOwnSetupViewset
+from .viewsets import RemoteFacilityUserAuthenticatedViewset
 from .viewsets import RemoteFacilityUserViewset
 
 urlpatterns = [
@@ -9,5 +10,10 @@ urlpatterns = [
         r"remotefacilityuser",
         RemoteFacilityUserViewset.as_view(),
         name="remotefacilityuser",
+    ),
+    url(
+        r"remotefacilityauthenticateduserinfo",
+        RemoteFacilityUserAuthenticatedViewset.as_view(),
+        name="remotefacilityauthenticateduserinfo",
     ),
 ]

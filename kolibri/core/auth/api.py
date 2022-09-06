@@ -262,6 +262,9 @@ class PublicFacilityUserViewSet(ReadOnlyValuesViewset):
         "facility",
         "roles__kind",
         "devicepermissions__is_superuser",
+        "id_number",
+        "gender",
+        "birth_year",
     )
     field_map = {
         "is_superuser": lambda x: bool(x.pop("devicepermissions__is_superuser")),

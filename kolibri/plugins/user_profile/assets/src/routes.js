@@ -6,7 +6,10 @@ import ChangeFacility from './views/ChangeFacility';
 import SelectFacility from './views/ChangeFacility/SelectFacility';
 import ConfirmAccount from './views/ChangeFacility/ConfirmAccount';
 import ConfirmChangeFacility from './views/ChangeFacility/ConfirmChangeFacility';
+import MergeAccountDialog from './views/ChangeFacility/MergeAccountDialog';
+import ConfirmAccountDetails from './views/ChangeFacility/MergeAccountDialog/ConfirmAccountDetails';
 import CreateAccount from './views/ChangeFacility/CreateAccount';
+
 import ToBeDone from './views/ChangeFacility/ToBeDone';
 import UsernameExists from './views/ChangeFacility/UsernameExists';
 
@@ -100,27 +103,17 @@ export default [
       {
         path: 'require_account_credentials',
         name: 'REQUIRE_ACCOUNT_CREDENTIALS',
-        component: ToBeDone,
+        component: MergeAccountDialog,
       },
       {
         path: 'admin_password',
         name: 'ADMIN_PASSWORD',
-        component: ToBeDone,
-      },
-      {
-        path: 'show_accounts',
-        name: 'SHOW_ACCOUNTS',
-        component: ToBeDone,
+        component: MergeAccountDialog,
       },
       {
         path: 'show_accounts',
         name: 'CONFIRM_DETAILS',
-        component: ToBeDone,
-      },
-      {
-        path: 'show_accounts',
-        name: 'EDIT_DETAILS',
-        component: ToBeDone,
+        component: ConfirmAccountDetails,
       },
       {
         path: 'merge_accounts',
