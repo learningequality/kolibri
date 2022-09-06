@@ -226,11 +226,17 @@ class LearnHomePageHydrationView(APIView):
             classrooms = learner_classroom_viewset.serialize_list(request)
             if not classrooms or not any(_resumable_resources(classrooms)):
                 resumable_resources = user_contentnode_viewset.serialize_list(
-                    request, {"resume": True, "max_results": 12}
+                    request,
+                    {"resume": True, "max_results": 12, "ordering": "-last_interacted"},
                 )
                 resumable_resources_progress = (
                     contentnode_progress_viewset.serialize_list(
-                        request, {"resume": True, "max_results": 12}
+                        request,
+                        {
+                            "resume": True,
+                            "max_results": 12,
+                            "ordering": "-last_interacted",
+                        },
                     )
                 )
 

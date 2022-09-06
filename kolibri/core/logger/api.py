@@ -114,7 +114,6 @@ class UpdateSessionSerializer(serializers.Serializer):
 # in a Django IntegerField across all backends
 MIN_INTEGER = -2147483648
 
-
 attemptlog_fields = [
     "id",
     "correct",
@@ -359,7 +358,6 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
         )
 
         with transaction.atomic(), dataset_cache:
-
             user = None if request.user.is_anonymous() else request.user
 
             self._precache_dataset_id(user)
