@@ -61,10 +61,11 @@
       const isConfirmed = ref(false);
 
       function handleContinue() {
-        if (isConfirmed.value)
+        if (isConfirmed.value) {
           changeFacilityService.send({
             type: 'CONTINUE',
           });
+        }
       }
       function sendBack() {
         changeFacilityService.send({

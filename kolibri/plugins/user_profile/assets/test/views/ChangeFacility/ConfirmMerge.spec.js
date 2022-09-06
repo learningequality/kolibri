@@ -38,6 +38,16 @@ describe(`ChangeFacility/ConfirmMerge`, () => {
     checkbox.trigger('click');
     await wrapper.vm.$nextTick();
     expect(continueButton.vm.disabled).toBeFalsy();
+  });
+
+  it(`clicking continue button sends the continue event to the state machine`, async () => {
+    const wrapper = makeWrapper();
+    clickContinueButton(wrapper);
+    expect(sendMachineEvent).not.toHaveBeenCalled();
+
+    const checkbox = wrapper.find('input[class="k-checkbox-input"]');
+    checkbox.trigger('click');
+    await wrapper.vm.$nextTick();
     clickContinueButton(wrapper);
     expect(sendMachineEvent).toHaveBeenCalledWith({
       type: 'CONTINUE',
