@@ -310,10 +310,12 @@
           } else if (this.content && this.content.id) {
             promise = this.fetchSiblings();
           }
-          promise.then(() => {
-            this.resourcesSidePanelLoading = false;
-            this.resourcesSidePanelFetched = true;
-          });
+          if (promise) {
+            promise.then(() => {
+              this.resourcesSidePanelLoading = false;
+              this.resourcesSidePanelFetched = true;
+            });
+          }
         }
       },
       /**
@@ -332,7 +334,7 @@
         this.fetchLesson({ lessonId: this.lessonId }).then(lesson => {
           // Filter out this.content
           this.viewResourcesContents = lesson.resources
-            .filter(n => n.contentnode_id !== this.content.id)
+            .filter(n => n.contentnode && n.contentnode_id !== this.content.id)
             .map(n => n.contentnode);
         });
       },
