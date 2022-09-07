@@ -142,10 +142,10 @@ class GetImportExportNodesTestCase(TestCase):
         matched_nodes_queries_list = get_import_export_nodes(
             self.the_channel_id,
             renderable_only=False,
-            node_ids=[
+            node_ids={
                 self.c2_node_id,
                 self.c1_node_id,
-            ],
+            },
         )
 
         self.assertCountEqual(
@@ -167,11 +167,11 @@ class GetImportExportNodesTestCase(TestCase):
         matched_nodes_queries_list = get_import_export_nodes(
             self.the_channel_id,
             renderable_only=False,
-            node_ids=[
+            node_ids={
                 self.c2_node_id,
                 self.c1_node_id,
-            ],
-            exclude_node_ids=[self.c2c3_node_id],
+            },
+            exclude_node_ids={self.c2c3_node_id},
         )
 
         self.assertCountEqual(
@@ -185,8 +185,8 @@ class GetImportExportNodesTestCase(TestCase):
         matched_nodes_queries_list = get_import_export_nodes(
             self.the_channel_id,
             renderable_only=False,
-            node_ids=[self.c1_node_id],
-            exclude_node_ids=[self.c1_node_id],
+            node_ids={self.c1_node_id},
+            exclude_node_ids={self.c1_node_id},
         )
 
         self.assertCountEqual(
@@ -220,7 +220,7 @@ class GetImportExportNodesTestCase(TestCase):
         matched_nodes_queries_list = get_import_export_nodes(
             self.the_channel_id,
             renderable_only=False,
-            node_ids=[],
+            node_ids=set(),
             exclude_node_ids=None,
         )
 
@@ -533,6 +533,7 @@ class ImportContentTestCase(TestCase):
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
     the_channel_version = 0
 
+    c1_node_id = "32a941fb77c2576e8f6b294cde4c3b0c"
     c2c1_node_id = "2b6926ed22025518a8b9da91745b51d3"
     c2c2_node_id = "4d0c890de9b65d6880ccfa527800e0f4"
 
@@ -790,7 +791,7 @@ class ImportContentTestCase(TestCase):
             "importcontent",
             "network",
             self.the_channel_id,
-            node_ids=["32a941fb77c2576e8f6b294cde4c3b0c"],
+            node_ids=[self.c1_node_id],
         )
         cancel_mock.assert_called_with()
         annotation_mock.set_content_visibility.assert_called()
@@ -832,12 +833,11 @@ class ImportContentTestCase(TestCase):
             10,
         )
 
-        node_id = [self.c2c1_node_id]
         call_command(
             "importcontent",
             "network",
             self.the_channel_id,
-            node_ids=node_id,
+            node_ids=[self.c2c1_node_id],
             renderable_only=False,
         )
         logger_mock.assert_called_once()
@@ -845,7 +845,7 @@ class ImportContentTestCase(TestCase):
         annotation_mock.set_content_visibility.assert_called_with(
             self.the_channel_id,
             [],
-            node_ids=node_id,
+            node_ids={self.c2c1_node_id},
             exclude_node_ids=None,
             public=False,
         )
@@ -1060,7 +1060,7 @@ class ImportContentTestCase(TestCase):
             "importcontent",
             "network",
             self.the_channel_id,
-            node_ids=["32a941fb77c2576e8f6b294cde4c3b0c"],
+            node_ids=[self.c1_node_id],
         )
         cancel_mock.assert_called_with()
         annotation_mock.set_content_visibility.assert_called()
@@ -1148,16 +1148,12 @@ class ImportContentTestCase(TestCase):
         fd2, local_src_path = tempfile.mkstemp()
         os.close(fd1)
         os.close(fd2)
-        LocalFile.objects.filter(
-            files__contentnode="32a941fb77c2576e8f6b294cde4c3b0c"
-        ).update(file_size=1)
+        LocalFile.objects.filter(files__contentnode=self.c1_node_id).update(file_size=1)
         path_mock.side_effect = [local_dest_path, local_src_path]
         get_import_export_mock.return_value = (
             1,
             [
-                LocalFile.objects.filter(
-                    files__contentnode="32a941fb77c2576e8f6b294cde4c3b0c"
-                )
+                LocalFile.objects.filter(files__contentnode=self.c1_node_id)
                 .values("id", "file_size", "extension")
                 .first()
             ],
@@ -1168,7 +1164,7 @@ class ImportContentTestCase(TestCase):
             "disk",
             self.the_channel_id,
             "destination",
-            node_ids=["32a941fb77c2576e8f6b294cde4c3b0c"],
+            node_ids=[self.c1_node_id],
         )
         remove_mock.assert_any_call(local_dest_path)
 
@@ -1210,20 +1206,18 @@ class ImportContentTestCase(TestCase):
         os.close(fd)
         os.remove(local_dest_path)
         # Delete all but one file associated with ContentNode to reduce need for mocking
-        files = ContentNode.objects.get(
-            id="32a941fb77c2576e8f6b294cde4c3b0c"
-        ).files.all()
+        files = ContentNode.objects.get(id=self.c1_node_id).files.all()
         first_file = files.first()
         files.exclude(id=first_file.id).delete()
-        LocalFile.objects.filter(
-            files__contentnode="32a941fb77c2576e8f6b294cde4c3b0c"
-        ).update(file_size=expected_file_size)
+        LocalFile.objects.filter(files__contentnode=self.c1_node_id).update(
+            file_size=expected_file_size
+        )
         get_import_export_mock.return_value = (
             1,
             list(
-                LocalFile.objects.filter(
-                    files__contentnode="32a941fb77c2576e8f6b294cde4c3b0c"
-                ).values("id", "file_size", "extension")
+                LocalFile.objects.filter(files__contentnode=self.c1_node_id).values(
+                    "id", "file_size", "extension"
+                )
             ),
             10,
         )
@@ -1238,7 +1232,7 @@ class ImportContentTestCase(TestCase):
                 "disk",
                 self.the_channel_id,
                 "destination",
-                node_ids=["32a941fb77c2576e8f6b294cde4c3b0c"],
+                node_ids=[self.c1_node_id],
             )
 
             mock_overall_progress.assert_any_call(expected_file_size)
@@ -1289,13 +1283,13 @@ class ImportContentTestCase(TestCase):
             "importcontent",
             "network",
             self.the_channel_id,
-            node_ids=["32a941fb77c2576e8f6b294cde4c3b0c"],
+            node_ids=[self.c1_node_id],
         )
         annotation_mock.set_content_visibility.assert_called_with(
             self.the_channel_id,
             [],
             exclude_node_ids=None,
-            node_ids=["32a941fb77c2576e8f6b294cde4c3b0c"],
+            node_ids={self.c1_node_id},
             public=False,
         )
 
@@ -1385,7 +1379,7 @@ class ImportContentTestCase(TestCase):
         # according to channel_id in the detected manifest file.
         get_import_export_mock.assert_called_once_with(
             self.the_channel_id,
-            [six.text_type(self.c2c1_node_id)],
+            {six.text_type(self.c2c1_node_id)},
             None,
             False,
             renderable_only=True,
@@ -1422,7 +1416,7 @@ class ImportContentTestCase(TestCase):
         # of node_ids.
         get_import_export_mock.assert_called_once_with(
             self.the_channel_id,
-            [],
+            set(),
             None,
             False,
             renderable_only=True,
@@ -1543,7 +1537,7 @@ class ImportContentTestCase(TestCase):
         # list of node_ids built from all versions of the channel_id channel.
         get_import_export_mock.assert_called_once_with(
             self.the_channel_id,
-            [six.text_type(self.c2c1_node_id), six.text_type(self.c2c2_node_id)],
+            {six.text_type(self.c2c1_node_id), six.text_type(self.c2c2_node_id)},
             None,
             False,
             renderable_only=True,
@@ -1591,7 +1585,7 @@ class ImportContentTestCase(TestCase):
         # of node_ids, ignoring the detected manifest file.
         get_import_export_mock.assert_called_once_with(
             self.the_channel_id,
-            [six.text_type(self.c2c2_node_id)],
+            {six.text_type(self.c2c2_node_id)},
             None,
             False,
             renderable_only=True,
@@ -1602,7 +1596,11 @@ class ImportContentTestCase(TestCase):
         get_import_export_mock.reset_mock()
 
         call_command(
-            "importcontent", "disk", self.the_channel_id, import_source_dir, node_ids=[]
+            "importcontent",
+            "disk",
+            self.the_channel_id,
+            import_source_dir,
+            node_ids=[],
         )
 
         # If a manifest file is present in the source directory but node_ids is set to
@@ -1610,7 +1608,7 @@ class ImportContentTestCase(TestCase):
         # empty list of node_ids, ignoring the detected manifest file.
         get_import_export_mock.assert_called_once_with(
             self.the_channel_id,
-            [],
+            set(),
             None,
             False,
             renderable_only=True,
@@ -1671,7 +1669,7 @@ class ImportContentTestCase(TestCase):
         # node_ids according to channel_id in the provided manifest file.
         get_import_export_mock.assert_called_once_with(
             self.the_channel_id,
-            [six.text_type(self.c2c2_node_id)],
+            {six.text_type(self.c2c2_node_id)},
             None,
             False,
             renderable_only=True,
@@ -1774,7 +1772,7 @@ class ImportContentTestCase(TestCase):
         # channel_id in the provided manifest file.
         get_import_export_mock.assert_called_once_with(
             self.the_channel_id,
-            [six.text_type(self.c2c1_node_id)],
+            {six.text_type(self.c2c1_node_id)},
             None,
             False,
             renderable_only=True,
@@ -1877,20 +1875,19 @@ class ImportContentTestCase(TestCase):
             10,
         )
 
-        node_id = [self.c2c1_node_id]
         with self.assertRaises(HTTPError):
             call_command(
                 "importcontent",
                 "network",
                 self.the_channel_id,
-                node_ids=node_id,
+                node_ids=[self.c2c1_node_id],
                 renderable_only=False,
                 fail_on_error=True,
             )
         annotation_mock.set_content_visibility.assert_called_with(
             self.the_channel_id,
             [],
-            node_ids=node_id,
+            node_ids={self.c2c1_node_id},
             exclude_node_ids=None,
             public=False,
         )

@@ -280,6 +280,12 @@ class Command(AsyncCommand):
         timeout=transfer.Transfer.DEFAULT_TIMEOUT,
         content_dir=None,
     ):
+        if node_ids is not None:
+            node_ids = set(node_ids)
+
+        if exclude_node_ids is not None:
+            exclude_node_ids = set(exclude_node_ids)
+
         if manifest_file and not path:
             # If manifest_file is stdin, its name will be "<stdin>" and path
             # will become "". This feels clumsy, but the resulting behaviour
@@ -688,7 +694,7 @@ class Command(AsyncCommand):
 
 
 def _node_ids_from_content_manifest(content_manifest, channel_id):
-    node_ids = []
+    node_ids = set()
 
     channel_metadata = ChannelMetadata.objects.get(id=channel_id)
 
@@ -701,7 +707,7 @@ def _node_ids_from_content_manifest(content_manifest, channel_id):
                     local_version=channel_metadata.version,
                 )
             )
-        node_ids.extend(
+        node_ids.update(
             content_manifest.get_include_node_ids(channel_id, channel_version)
         )
 
