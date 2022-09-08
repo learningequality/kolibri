@@ -482,7 +482,7 @@ def normalize_version_to_semver(version):
     # split up the alpha/beta letters from the numbers, to sort numerically not alphabetically
     after_pieces = re.match(r"([a-z])(\d+)", after)
     if after_pieces:
-        after = ".".join([piece for piece in after_pieces.groups() if piece])
+        after = ".".join([piece for piece in after_pieces.group() if piece])
 
     # position final releases between alphas, betas, and further dev
     if not dev:
