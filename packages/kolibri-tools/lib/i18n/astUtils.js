@@ -573,20 +573,28 @@ function getFilesFromEntryFiles(entryFiles, moduleFilePath, ignore) {
 
 function getMessagesFromFile(filePath) {
   const messages = {};
-  const ast = getAstFromFile(filePath);
+  if (process.argv.includes('--verbose')) {
+    logging.info('Extracted messages from  :: ', filePath);
+  }
+  let ast = null;
+  try {
+    ast = getAstFromFile(filePath);
 
-  // At this point - if we basically don't have any JS to parse,
-  // so we should let the user know and leave
-  if (!ast) {
+    // At this point - if we basically don't have any JS to parse,
+    // so we should let the user know and leave
+    if (!ast) {
+      throw 'No AST created';
+    }
+
+    Object.assign(messages, extract$trs(ast, filePath));
+    Object.assign(messages, extractCreateTranslator(ast, filePath));
+    return messages;
+  } catch (_) {
     logging.error(
       `Tried to find parsable Javascript in ${filePath} but could not. Will skip the file for now. This is a problem if you are expecting to translate any messages in that file - otherwise - you may ignore this message.`
     );
     return;
   }
-
-  Object.assign(messages, extract$trs(ast, filePath));
-  Object.assign(messages, extractCreateTranslator(ast, filePath));
-  return messages;
 }
 
 module.exports = {

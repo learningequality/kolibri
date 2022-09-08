@@ -481,6 +481,7 @@ program
     '--searchPath <searchPath>',
     'Set path to search for files containing strings to be extracted'
   )
+  .option('--verbose', 'Verbose debug messages. Only errors are printed unless this flag is set.')
   .action(function(options) {
     const bundleData = readWebpackJson.readPythonPlugins({
       pluginFile: options.pluginFile,
@@ -504,7 +505,7 @@ program
       ];
     } else {
       cliLogging.error(
-        'Must specify either Kolibri plugins or search path, locale path, and namespace.'
+        'If you pass --searchPath, you must also include --localeDataFolder and --namespace'
       );
       program.command('i18n-extract-messages').help();
     }
