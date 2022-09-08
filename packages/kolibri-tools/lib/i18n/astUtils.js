@@ -110,7 +110,7 @@ function stringFromAnyLiteral(node) {
     logging.error(
       'Tried to get string value from a node that is not a TemplateLiteral or a StringLiteral',
       '\n\n',
-      node
+      JSON.stringify(node)
     );
   }
 }
@@ -126,15 +126,15 @@ function getObjectifiedValue(nodePropertyValue) {
   // includes `context` key and value and some will have a string)
   let message, context;
   if (nodePropertyValue.type !== 'ObjectExpression') {
-    message = nodePropertyValue.value;
+    message = stringFromAnyLiteral(nodePropertyValue);
     context = '';
   } else {
     const contextNode = nodePropertyValue.properties.find(n => n.key.name === 'context');
     const messageNode = nodePropertyValue.properties.find(n => n.key.name === 'message');
 
-    message = stringFromAnyLiteral(messageNode.value);
+    message = stringFromAnyLiteral(messageNode);
     try {
-      context = stringFromAnyLiteral(contextNode.value);
+      context = stringFromAnyLiteral(contextNode);
     } catch (e) {
       context = '';
     }
@@ -238,8 +238,8 @@ function getPropertyKey(node, ast, filePath) {
         ) {
           try {
             foundValue = stringFromAnyLiteral(
-              get(astNode, 'init.properties').find(p => get(p, 'key.name') === prop)
-            ).value;
+              get(astNode, 'init.properties', []).find(p => get(p, 'key.name') === prop)
+            );
           } catch (e) {
             logging.error(
               `Tried to get the value of ${obj}.${prop} from ${filePath} but failed.\n`,
@@ -288,7 +288,7 @@ function getPropertyKey(node, ast, filePath) {
               ) {
                 try {
                   foundValue = stringFromAnyLiteral(
-                    get(node, 'init.properties').find(p => get(p, 'key.name') === prop).value
+                    get(node, 'init.properties').find(p => get(p, 'key.name') === prop)
                   );
                 } catch (e) {
                   logging.error(
@@ -573,9 +573,6 @@ function getFilesFromEntryFiles(entryFiles, moduleFilePath, ignore) {
 
 function getMessagesFromFile(filePath) {
   const messages = {};
-  if (process.argv.includes('--verbose')) {
-    logging.info('Extracted messages from  :: ', filePath);
-  }
   let ast = null;
   try {
     ast = getAstFromFile(filePath);
@@ -588,6 +585,10 @@ function getMessagesFromFile(filePath) {
 
     Object.assign(messages, extract$trs(ast, filePath));
     Object.assign(messages, extractCreateTranslator(ast, filePath));
+    if (process.argv.includes('--verbose')) {
+      logging.info(`Extracted ${Object.keys(messages).length} messages from  :: ${filePath}`);
+      logging.info(JSON.stringify(messages));
+    }
     return messages;
   } catch (_) {
     logging.error(
