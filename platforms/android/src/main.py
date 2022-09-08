@@ -47,9 +47,6 @@ initialize()
 
 interface.register(share_file=share_by_intent)
 
-# start kolibri server
-logging.info("Starting kolibri server.")
-
 kolibri_bus = BaseKolibriProcessBus()
 # Setup zeroconf plugin
 zeroconf_plugin = ZeroConfPlugin(kolibri_bus, kolibri_bus.port)
