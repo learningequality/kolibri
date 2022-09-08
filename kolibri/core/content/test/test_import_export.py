@@ -1,12 +1,15 @@
 import itertools
+import json
 import os
 import sys
 import tempfile
 import uuid
 
 from django.core.management import call_command
+from django.core.management import CommandError
 from django.db.models import Q
 from django.test import TestCase
+from django.utils import six
 from le_utils.constants import content_kinds
 from mock import call
 from mock import MagicMock
@@ -139,10 +142,10 @@ class GetImportExportNodesTestCase(TestCase):
         matched_nodes_queries_list = get_import_export_nodes(
             self.the_channel_id,
             renderable_only=False,
-            node_ids=[
+            node_ids={
                 self.c2_node_id,
                 self.c1_node_id,
-            ],
+            },
         )
 
         self.assertCountEqual(
@@ -164,11 +167,11 @@ class GetImportExportNodesTestCase(TestCase):
         matched_nodes_queries_list = get_import_export_nodes(
             self.the_channel_id,
             renderable_only=False,
-            node_ids=[
+            node_ids={
                 self.c2_node_id,
                 self.c1_node_id,
-            ],
-            exclude_node_ids=[self.c2c3_node_id],
+            },
+            exclude_node_ids={self.c2c3_node_id},
         )
 
         self.assertCountEqual(
@@ -182,8 +185,8 @@ class GetImportExportNodesTestCase(TestCase):
         matched_nodes_queries_list = get_import_export_nodes(
             self.the_channel_id,
             renderable_only=False,
-            node_ids=[self.c1_node_id],
-            exclude_node_ids=[self.c1_node_id],
+            node_ids={self.c1_node_id},
+            exclude_node_ids={self.c1_node_id},
         )
 
         self.assertCountEqual(
@@ -217,7 +220,7 @@ class GetImportExportNodesTestCase(TestCase):
         matched_nodes_queries_list = get_import_export_nodes(
             self.the_channel_id,
             renderable_only=False,
-            node_ids=[],
+            node_ids=set(),
             exclude_node_ids=None,
         )
 
@@ -528,6 +531,11 @@ class ImportContentTestCase(TestCase):
 
     fixtures = ["content_test.json"]
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
+    the_channel_version = 0
+
+    c1_node_id = "32a941fb77c2576e8f6b294cde4c3b0c"
+    c2c1_node_id = "2b6926ed22025518a8b9da91745b51d3"
+    c2c2_node_id = "4d0c890de9b65d6880ccfa527800e0f4"
 
     def setUp(self):
         LocalFile.objects.update(available=False)
@@ -783,7 +791,7 @@ class ImportContentTestCase(TestCase):
             "importcontent",
             "network",
             self.the_channel_id,
-            node_ids=["32a941fb77c2576e8f6b294cde4c3b0c"],
+            node_ids=[self.c1_node_id],
         )
         cancel_mock.assert_called_with()
         annotation_mock.set_content_visibility.assert_called()
@@ -811,28 +819,25 @@ class ImportContentTestCase(TestCase):
             local_dest_path_2,
             local_dest_path_3,
         ]
-        ContentNode.objects.filter(pk="2b6926ed22025518a8b9da91745b51d3").update(
-            available=False
+        ContentNode.objects.filter(pk=self.c2c1_node_id).update(available=False)
+        LocalFile.objects.filter(files__contentnode__pk=self.c2c1_node_id).update(
+            file_size=1, available=False
         )
-        LocalFile.objects.filter(
-            files__contentnode__pk="2b6926ed22025518a8b9da91745b51d3"
-        ).update(file_size=1, available=False)
         get_import_export_mock.return_value = (
             1,
             list(
                 LocalFile.objects.filter(
-                    files__contentnode__pk="2b6926ed22025518a8b9da91745b51d3"
+                    files__contentnode__pk=self.c2c1_node_id
                 ).values("id", "file_size", "extension")
             ),
             10,
         )
 
-        node_id = ["2b6926ed22025518a8b9da91745b51d3"]
         call_command(
             "importcontent",
             "network",
             self.the_channel_id,
-            node_ids=node_id,
+            node_ids=[self.c2c1_node_id],
             renderable_only=False,
         )
         logger_mock.assert_called_once()
@@ -840,7 +845,7 @@ class ImportContentTestCase(TestCase):
         annotation_mock.set_content_visibility.assert_called_with(
             self.the_channel_id,
             [],
-            node_ids=node_id,
+            node_ids={self.c2c1_node_id},
             exclude_node_ids=None,
             public=False,
         )
@@ -1055,7 +1060,7 @@ class ImportContentTestCase(TestCase):
             "importcontent",
             "network",
             self.the_channel_id,
-            node_ids=["32a941fb77c2576e8f6b294cde4c3b0c"],
+            node_ids=[self.c1_node_id],
         )
         cancel_mock.assert_called_with()
         annotation_mock.set_content_visibility.assert_called()
@@ -1143,16 +1148,12 @@ class ImportContentTestCase(TestCase):
         fd2, local_src_path = tempfile.mkstemp()
         os.close(fd1)
         os.close(fd2)
-        LocalFile.objects.filter(
-            files__contentnode="32a941fb77c2576e8f6b294cde4c3b0c"
-        ).update(file_size=1)
+        LocalFile.objects.filter(files__contentnode=self.c1_node_id).update(file_size=1)
         path_mock.side_effect = [local_dest_path, local_src_path]
         get_import_export_mock.return_value = (
             1,
             [
-                LocalFile.objects.filter(
-                    files__contentnode="32a941fb77c2576e8f6b294cde4c3b0c"
-                )
+                LocalFile.objects.filter(files__contentnode=self.c1_node_id)
                 .values("id", "file_size", "extension")
                 .first()
             ],
@@ -1163,7 +1164,7 @@ class ImportContentTestCase(TestCase):
             "disk",
             self.the_channel_id,
             "destination",
-            node_ids=["32a941fb77c2576e8f6b294cde4c3b0c"],
+            node_ids=[self.c1_node_id],
         )
         remove_mock.assert_any_call(local_dest_path)
 
@@ -1205,20 +1206,18 @@ class ImportContentTestCase(TestCase):
         os.close(fd)
         os.remove(local_dest_path)
         # Delete all but one file associated with ContentNode to reduce need for mocking
-        files = ContentNode.objects.get(
-            id="32a941fb77c2576e8f6b294cde4c3b0c"
-        ).files.all()
+        files = ContentNode.objects.get(id=self.c1_node_id).files.all()
         first_file = files.first()
         files.exclude(id=first_file.id).delete()
-        LocalFile.objects.filter(
-            files__contentnode="32a941fb77c2576e8f6b294cde4c3b0c"
-        ).update(file_size=expected_file_size)
+        LocalFile.objects.filter(files__contentnode=self.c1_node_id).update(
+            file_size=expected_file_size
+        )
         get_import_export_mock.return_value = (
             1,
             list(
-                LocalFile.objects.filter(
-                    files__contentnode="32a941fb77c2576e8f6b294cde4c3b0c"
-                ).values("id", "file_size", "extension")
+                LocalFile.objects.filter(files__contentnode=self.c1_node_id).values(
+                    "id", "file_size", "extension"
+                )
             ),
             10,
         )
@@ -1233,7 +1232,7 @@ class ImportContentTestCase(TestCase):
                 "disk",
                 self.the_channel_id,
                 "destination",
-                node_ids=["32a941fb77c2576e8f6b294cde4c3b0c"],
+                node_ids=[self.c1_node_id],
             )
 
             mock_overall_progress.assert_any_call(expected_file_size)
@@ -1284,13 +1283,13 @@ class ImportContentTestCase(TestCase):
             "importcontent",
             "network",
             self.the_channel_id,
-            node_ids=["32a941fb77c2576e8f6b294cde4c3b0c"],
+            node_ids=[self.c1_node_id],
         )
         annotation_mock.set_content_visibility.assert_called_with(
             self.the_channel_id,
             [],
             exclude_node_ids=None,
-            node_ids=["32a941fb77c2576e8f6b294cde4c3b0c"],
+            node_ids={self.c1_node_id},
             public=False,
         )
 
@@ -1339,6 +1338,446 @@ class ImportContentTestCase(TestCase):
         call_command("importcontent", "network", self.the_channel_id)
         annotation_mock.set_content_visibility.assert_called_with(
             self.the_channel_id, [], exclude_node_ids=None, node_ids=None, public=False
+        )
+
+    def test_local_import_with_detected_manifest_file(
+        self,
+        annotation_mock,
+        get_import_export_mock,
+        channel_list_status_mock,
+    ):
+        import_source_dir = tempfile.mkdtemp()
+        os.mkdir(os.path.join(import_source_dir, "content"))
+
+        get_import_export_mock.return_value = (0, [], 0)
+
+        with open(
+            os.path.join(import_source_dir, "content", "manifest.json"), "w"
+        ) as manifest_file:
+            json.dump(
+                {
+                    "channels": [
+                        {
+                            "id": self.the_channel_id,
+                            "version": self.the_channel_version,
+                            "include_node_ids": [self.c2c1_node_id],
+                        }
+                    ]
+                },
+                manifest_file,
+            )
+
+        call_command(
+            "importcontent",
+            "disk",
+            self.the_channel_id,
+            import_source_dir,
+        )
+
+        # If a manifest file is present in the source directory and no node_ids are
+        # provided, importcontent should call get_import_export using node_ids
+        # according to channel_id in the detected manifest file.
+        get_import_export_mock.assert_called_once_with(
+            self.the_channel_id,
+            {six.text_type(self.c2c1_node_id)},
+            None,
+            False,
+            renderable_only=True,
+            drive_id="",
+            peer_id=None,
+        )
+
+    def test_local_import_with_detected_manifest_file_and_unlisted_channel(
+        self,
+        annotation_mock,
+        get_import_export_mock,
+        channel_list_status_mock,
+    ):
+        import_source_dir = tempfile.mkdtemp()
+        os.mkdir(os.path.join(import_source_dir, "content"))
+
+        get_import_export_mock.return_value = (0, [], 0)
+
+        with open(
+            os.path.join(import_source_dir, "content", "manifest.json"), "w"
+        ) as manifest_file:
+            json.dump({"channels": []}, manifest_file)
+
+        call_command(
+            "importcontent",
+            "disk",
+            self.the_channel_id,
+            import_source_dir,
+        )
+
+        # If a manifest file is present in the source directory and no node_ids are
+        # provided, but the user specifies a channel_id which is not present in the
+        # manifest file, importcontent should call get_import_export with an empty list
+        # of node_ids.
+        get_import_export_mock.assert_called_once_with(
+            self.the_channel_id,
+            set(),
+            None,
+            False,
+            renderable_only=True,
+            drive_id="",
+            peer_id=None,
+        )
+
+    def test_local_import_with_local_manifest_file_and_node_ids(
+        self,
+        annotation_mock,
+        get_import_export_mock,
+        channel_list_status_mock,
+    ):
+        import_source_dir = tempfile.mkdtemp()
+
+        get_import_export_mock.return_value = (0, [], 0)
+
+        manifest_file = six.StringIO(
+            json.dumps(
+                {
+                    "channels": [
+                        {
+                            "id": self.the_channel_id,
+                            "version": self.the_channel_version,
+                            "include_node_ids": [self.c2c1_node_id, self.c2c2_node_id],
+                        }
+                    ]
+                }
+            )
+        )
+
+        with self.assertRaises(CommandError):
+            # If the user provides a manifest file as well as node_ids, the
+            # importcontent command should exit with an error.
+            call_command(
+                "importcontent",
+                "disk",
+                self.the_channel_id,
+                import_source_dir,
+                node_ids=[self.c2c2_node_id],
+                manifest=manifest_file,
+            )
+
+        with self.assertRaises(CommandError):
+            # If the user provides a manifest file as well as exclude_node_ids, the
+            # importcontent command should exit with an error.
+            call_command(
+                "importcontent",
+                "disk",
+                self.the_channel_id,
+                import_source_dir,
+                exclude_node_ids=[self.c2c2_node_id],
+                manifest=manifest_file,
+            )
+
+        with self.assertRaises(CommandError):
+            # If the user provides a manifest file as well as an empty (falsey) list of
+            # node_ids, the importcontent command should exit with an error.
+            call_command(
+                "importcontent",
+                "disk",
+                self.the_channel_id,
+                import_source_dir,
+                node_ids=[],
+                manifest=manifest_file,
+            )
+
+    @patch("kolibri.core.content.management.commands.importcontent.logger.warning")
+    def test_local_import_with_local_manifest_file_with_multiple_versions(
+        self,
+        warning_logger_mock,
+        annotation_mock,
+        get_import_export_mock,
+        channel_list_status_mock,
+    ):
+        import_source_dir = tempfile.mkdtemp()
+
+        get_import_export_mock.return_value = (0, [], 0)
+
+        call_command(
+            "importcontent",
+            "disk",
+            self.the_channel_id,
+            import_source_dir,
+            manifest=six.StringIO(
+                json.dumps(
+                    {
+                        "channels": [
+                            {
+                                "id": self.the_channel_id,
+                                "version": self.the_channel_version - 1,
+                                "include_node_ids": [self.c2c1_node_id],
+                            },
+                            {
+                                "id": self.the_channel_id,
+                                "version": self.the_channel_version,
+                                "include_node_ids": [self.c2c2_node_id],
+                            },
+                        ]
+                    }
+                )
+            ),
+        )
+
+        warning_logger_mock.assert_called_once()
+        # If a provided manifest file specifies versions of a channel which do not
+        # match the channel version in the local database, importcontent should log a
+        # warning message explaining the mismatch.
+        warning_logger_mock.assert_called_with(
+            "Manifest entry for {channel_id} has a different version ({manifest_version}) than the installed channel ({local_version})".format(
+                channel_id=self.the_channel_id,
+                manifest_version=self.the_channel_version - 1,
+                local_version=self.the_channel_version,
+            )
+        )
+
+        # Regardless, importcontent should continue to call get_import_export with a
+        # list of node_ids built from all versions of the channel_id channel.
+        get_import_export_mock.assert_called_once_with(
+            self.the_channel_id,
+            {six.text_type(self.c2c1_node_id), six.text_type(self.c2c2_node_id)},
+            None,
+            False,
+            renderable_only=True,
+            drive_id="",
+            peer_id=None,
+        )
+
+    def test_local_import_with_detected_manifest_file_and_node_ids(
+        self,
+        annotation_mock,
+        get_import_export_mock,
+        channel_list_status_mock,
+    ):
+        import_source_dir = tempfile.mkdtemp()
+        os.mkdir(os.path.join(import_source_dir, "content"))
+
+        get_import_export_mock.return_value = (0, [], 0)
+
+        with open(
+            os.path.join(import_source_dir, "content", "manifest.json"), "w"
+        ) as manifest_file:
+            json.dump(
+                {
+                    "channels": [
+                        {
+                            "id": self.the_channel_id,
+                            "version": self.the_channel_version,
+                            "include_node_ids": [self.c2c1_node_id],
+                        }
+                    ]
+                },
+                manifest_file,
+            )
+
+        call_command(
+            "importcontent",
+            "disk",
+            self.the_channel_id,
+            import_source_dir,
+            node_ids=[self.c2c2_node_id],
+        )
+
+        # If a manifest file is present in the source directory but node_ids are
+        # provided, importcontent should call get_import_export with the provided list
+        # of node_ids, ignoring the detected manifest file.
+        get_import_export_mock.assert_called_once_with(
+            self.the_channel_id,
+            {six.text_type(self.c2c2_node_id)},
+            None,
+            False,
+            renderable_only=True,
+            drive_id="",
+            peer_id=None,
+        )
+
+        get_import_export_mock.reset_mock()
+
+        call_command(
+            "importcontent",
+            "disk",
+            self.the_channel_id,
+            import_source_dir,
+            node_ids=[],
+        )
+
+        # If a manifest file is present in the source directory but node_ids is set to
+        # an empty (falsey) list, importcontent should call get_import_export with that
+        # empty list of node_ids, ignoring the detected manifest file.
+        get_import_export_mock.assert_called_once_with(
+            self.the_channel_id,
+            set(),
+            None,
+            False,
+            renderable_only=True,
+            drive_id="",
+            peer_id=None,
+        )
+
+    def test_local_import_with_detected_manifest_file_and_manifest_file(
+        self,
+        annotation_mock,
+        get_import_export_mock,
+        channel_list_status_mock,
+    ):
+        import_source_dir = tempfile.mkdtemp()
+        os.mkdir(os.path.join(import_source_dir, "content"))
+
+        get_import_export_mock.return_value = (0, [], 0)
+
+        with open(
+            os.path.join(import_source_dir, "content", "manifest.json"), "w"
+        ) as manifest_file:
+            json.dump(
+                {
+                    "channels": [
+                        {
+                            "id": self.the_channel_id,
+                            "version": self.the_channel_version,
+                            "include_node_ids": [self.c2c1_node_id],
+                        }
+                    ]
+                },
+                manifest_file,
+            )
+
+        call_command(
+            "importcontent",
+            "disk",
+            self.the_channel_id,
+            import_source_dir,
+            manifest=six.StringIO(
+                json.dumps(
+                    {
+                        "channels": [
+                            {
+                                "id": self.the_channel_id,
+                                "version": self.the_channel_version,
+                                "include_node_ids": [self.c2c2_node_id],
+                            }
+                        ]
+                    }
+                )
+            ),
+        )
+
+        # If a manifest file is present in the source directory but another manifest
+        # has been provided via the manifest argument, importcontent should ignore the
+        # detected manifest file and instead call get_import_export with the list of
+        # node_ids according to channel_id in the provided manifest file.
+        get_import_export_mock.assert_called_once_with(
+            self.the_channel_id,
+            {six.text_type(self.c2c2_node_id)},
+            None,
+            False,
+            renderable_only=True,
+            drive_id="",
+            peer_id=None,
+        )
+
+    def test_local_import_with_no_detect_manifest(
+        self,
+        annotation_mock,
+        get_import_export_mock,
+        channel_list_status_mock,
+    ):
+        import_source_dir = tempfile.mkdtemp()
+        os.mkdir(os.path.join(import_source_dir, "content"))
+
+        get_import_export_mock.return_value = (0, [], 0)
+
+        with open(
+            os.path.join(import_source_dir, "content", "manifest.json"), "w"
+        ) as manifest_file:
+            json.dump(
+                {
+                    "channels": [
+                        {
+                            "id": self.the_channel_id,
+                            "version": self.the_channel_version,
+                            "include_node_ids": [self.c2c1_node_id],
+                        }
+                    ]
+                },
+                manifest_file,
+            )
+
+        call_command(
+            "importcontent",
+            "disk",
+            self.the_channel_id,
+            import_source_dir,
+            detect_manifest=False,
+        )
+
+        # If a manifest file is present in the source directory but the detect_manifest
+        # argument is set to False, importcontent should ignore the detected manifest
+        # file. If no node_ids are provided, it should call get_import_export with
+        # node_ids set to None.
+        get_import_export_mock.assert_called_once_with(
+            self.the_channel_id,
+            None,
+            None,
+            False,
+            renderable_only=True,
+            drive_id="",
+            peer_id=None,
+        )
+
+    @patch(
+        "kolibri.core.content.management.commands.importcontent.transfer.FileDownload"
+    )
+    @patch(
+        "kolibri.core.content.management.commands.importcontent.compare_checksums",
+        return_value=True,
+    )
+    @patch(
+        "kolibri.core.content.management.commands.importcontent.AsyncCommand.is_cancelled",
+        return_value=False,
+    )
+    def test_remote_import_with_local_manifest_file(
+        self,
+        is_cancelled_mock,
+        compare_checksums_mock,
+        file_download_mock,
+        annotation_mock,
+        get_import_export_mock,
+        channel_list_status_mock,
+    ):
+        get_import_export_mock.return_value = (0, [], 0)
+
+        call_command(
+            "importcontent",
+            "network",
+            self.the_channel_id,
+            manifest=six.StringIO(
+                json.dumps(
+                    {
+                        "channels": [
+                            {
+                                "id": self.the_channel_id,
+                                "version": self.the_channel_version,
+                                "include_node_ids": [self.c2c1_node_id],
+                            }
+                        ]
+                    }
+                )
+            ),
+        )
+
+        # If a manifest file is provided when importing from a remote source,
+        # importcontent should call get_import_export with node_ids set according to
+        # channel_id in the provided manifest file.
+        get_import_export_mock.assert_called_once_with(
+            self.the_channel_id,
+            {six.text_type(self.c2c1_node_id)},
+            None,
+            False,
+            renderable_only=True,
+            drive_id=None,
+            peer_id="",
         )
 
     @patch("kolibri.core.content.management.commands.importcontent.transfer.sleep")
@@ -1422,36 +1861,33 @@ class ImportContentTestCase(TestCase):
             local_dest_path_2,
             local_dest_path_3,
         ]
-        ContentNode.objects.filter(pk="2b6926ed22025518a8b9da91745b51d3").update(
-            available=False
+        ContentNode.objects.filter(pk=self.c2c1_node_id).update(available=False)
+        LocalFile.objects.filter(files__contentnode__pk=self.c2c1_node_id).update(
+            file_size=1, available=False
         )
-        LocalFile.objects.filter(
-            files__contentnode__pk="2b6926ed22025518a8b9da91745b51d3"
-        ).update(file_size=1, available=False)
         get_import_export_mock.return_value = (
             1,
             list(
                 LocalFile.objects.filter(
-                    files__contentnode__pk="2b6926ed22025518a8b9da91745b51d3"
+                    files__contentnode__pk=self.c2c1_node_id
                 ).values("id", "file_size", "extension")
             ),
             10,
         )
 
-        node_id = ["2b6926ed22025518a8b9da91745b51d3"]
         with self.assertRaises(HTTPError):
             call_command(
                 "importcontent",
                 "network",
                 self.the_channel_id,
-                node_ids=node_id,
+                node_ids=[self.c2c1_node_id],
                 renderable_only=False,
                 fail_on_error=True,
             )
         annotation_mock.set_content_visibility.assert_called_with(
             self.the_channel_id,
             [],
-            node_ids=node_id,
+            node_ids={self.c2c1_node_id},
             exclude_node_ids=None,
             public=False,
         )
