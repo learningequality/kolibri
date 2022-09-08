@@ -209,7 +209,7 @@
   @import '~kolibri-design-system/lib/styles/definitions';
 
   .header-content {
-    width: 90%;
+    width: calc(100% - 20px);
   }
 
   .close-button {
