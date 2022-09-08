@@ -6,25 +6,6 @@ from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from jnius import autoclass
 from jnius import cast
-from jnius import jnius
-
-
-AndroidString = autoclass("java.lang.String")
-Context = autoclass("android.content.Context")
-Environment = autoclass("android.os.Environment")
-File = autoclass("java.io.File")
-FileProvider = autoclass("android.support.v4.content.FileProvider")
-Intent = autoclass("android.content.Intent")
-NotificationBuilder = autoclass("android.app.Notification$Builder")
-NotificationManager = autoclass("android.app.NotificationManager")
-PackageManager = autoclass("android.content.pm.PackageManager")
-PendingIntent = autoclass("android.app.PendingIntent")
-PythonActivity = autoclass("org.kivy.android.PythonActivity")
-Timezone = autoclass("java.util.TimeZone")
-Uri = autoclass("android.net.Uri")
-
-ANDROID_VERSION = autoclass("android.os.Build$VERSION")
-SDK_INT = ANDROID_VERSION.SDK_INT
 
 
 def is_service_context():
@@ -40,10 +21,12 @@ def get_service():
 
 
 def get_timezone_name():
+    Timezone = autoclass("java.util.TimeZone")
     return Timezone.getDefault().getDisplayName()
 
 
 def start_service(service_name, service_args=None):
+    PythonActivity = autoclass("org.kivy.android.PythonActivity")
     service_args = service_args or {}
     service = autoclass(
         "org.learningequality.Kolibri.Service{}".format(service_name.title())
@@ -70,19 +53,8 @@ def get_activity():
     if is_service_context():
         return cast("android.app.Service", get_service())
     else:
+        PythonActivity = autoclass("org.kivy.android.PythonActivity")
         return PythonActivity.mActivity
-
-
-def is_app_installed(app_id):
-
-    manager = get_activity().getPackageManager()
-
-    try:
-        manager.getPackageInfo(app_id, PackageManager.GET_ACTIVITIES)
-    except jnius.JavaException:
-        return False
-
-    return True
 
 
 # TODO: check for storage availability, allow user to chose sd card or internal
@@ -100,6 +72,11 @@ def share_by_intent(path=None, filename=None, message=None, app=None, mimetype=N
     assert (
         path or message or filename
     ), "Must provide either a path, a filename, or a msg to share"
+    AndroidString = autoclass("java.lang.String")
+    Context = autoclass("android.content.Context")
+    File = autoclass("java.io.File")
+    FileProvider = autoclass("android.support.v4.content.FileProvider")
+    Intent = autoclass("android.content.Intent")
 
     sendIntent = Intent()
     sendIntent.setAction(Intent.ACTION_SEND)
@@ -127,6 +104,16 @@ def make_service_foreground(title, message):
     service = get_service()
     Drawable = autoclass("{}.R$drawable".format(service.getPackageName()))
     app_context = service.getApplication().getApplicationContext()
+
+    ANDROID_VERSION = autoclass("android.os.Build$VERSION")
+    SDK_INT = ANDROID_VERSION.SDK_INT
+    AndroidString = autoclass("java.lang.String")
+    Context = autoclass("android.content.Context")
+    Intent = autoclass("android.content.Intent")
+    NotificationBuilder = autoclass("android.app.Notification$Builder")
+    NotificationManager = autoclass("android.app.NotificationManager")
+    PendingIntent = autoclass("android.app.PendingIntent")
+    PythonActivity = autoclass("org.kivy.android.PythonActivity")
 
     if SDK_INT >= 26:
         NotificationChannel = autoclass("android.app.NotificationChannel")
@@ -164,6 +151,7 @@ def make_service_foreground(title, message):
 
 
 def get_signature_key_issuer():
+    PackageManager = autoclass("android.content.pm.PackageManager")
     signature = get_package_info(flags=PackageManager.GET_SIGNATURES).signatures[0]
     cert = x509.load_der_x509_certificate(
         signature.toByteArray().tostring(), default_backend()
