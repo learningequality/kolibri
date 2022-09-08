@@ -458,9 +458,9 @@ class TestKolibriVersion(unittest.TestCase):
     def test_normalize_version_to_semver_alpa(self):
         self.assertEqual(
             version.normalize_version_to_semver(
-                "0.14",
+                "0.14a1",
             ),
-            "0.14-c",
+            "0.14-a.1.c",
         )
 
     def test_normalize_version_to_semver_beta(self):
