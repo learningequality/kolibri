@@ -85,3 +85,4 @@ If you have contributed to Kolibri, feel free to add your name and Github accoun
 | Yash Jipkate | YashJipkate |
 | Yixuan Liu | yil039 |
 | Allan Otodi | AllanOXDi |
+| Liana Harris | LianaHarris360 |
