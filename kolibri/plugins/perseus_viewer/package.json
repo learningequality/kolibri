@@ -26,7 +26,7 @@
     "react-dom": "15.3.2",
     "react-redux": "^5.0.5",
     "redux": "^3.7.2",
-    "simple-markdown": "^0.2.1",
+    "simple-markdown": "^0.7.3",
     "underscore": "1.4.4",
     "webfontloader": "^1.6.24"
   },
