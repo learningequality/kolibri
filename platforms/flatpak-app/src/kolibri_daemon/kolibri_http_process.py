@@ -61,7 +61,6 @@ class KolibriHttpProcess(KolibriServiceProcess):
         self.__kolibri_bus = KolibriProcessBus(
             port=OPTIONS["Deployment"]["HTTP_PORT"],
             zip_port=OPTIONS["Deployment"]["ZIP_CONTENT_PORT"],
-            background=False,
         )
 
         kolibri_daemon_plugin = _KolibriDaemonPlugin(self.__kolibri_bus, self.context)

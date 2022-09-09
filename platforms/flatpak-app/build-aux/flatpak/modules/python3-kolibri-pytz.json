@@ -2,13 +2,13 @@
     "name": "python3-pytz",
     "buildsystem": "simple",
     "build-commands": [
-        "pip3 install --exists-action=i --no-index --find-links=\"file://${PWD}\" pytz==2022.7.1 --upgrade --target=\"${KOLIBRI_MODULE_PATH}/dist/\""
+        "pip3 install --exists-action=i --no-index --find-links=\"file://${PWD}\" pytz==2024.1 --upgrade --target=\"${KOLIBRI_MODULE_PATH}/dist/\""
     ],
     "sources": [
         {
             "type": "file",
-            "url": "https://files.pythonhosted.org/packages/2e/09/fbd3c46dce130958ee8e0090f910f1fe39e502cc5ba0aadca1e8a2b932e5/pytz-2022.7.1-py2.py3-none-any.whl",
-            "sha256": "78f4f37d8198e0627c5f1143240bb0206b8691d8d7ac6d78fee88b78733f8c4a"
+            "url": "https://files.pythonhosted.org/packages/9c/3d/a121f284241f08268b21359bd425f7d4825cffc5ac5cd0e1b3d82ffd2b10/pytz-2024.1-py2.py3-none-any.whl",
+            "sha256": "328171f4e3623139da4983451950b28e95ac706e13f3f2630a879749e7a8b319"
         }
     ]
 }
