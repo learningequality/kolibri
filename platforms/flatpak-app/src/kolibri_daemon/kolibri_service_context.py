@@ -43,6 +43,9 @@ class KolibriServiceContext(object):
     __kolibri_home_value: multiprocessing.sharedctypes.SynchronizedArray[c_char]
     __kolibri_home_set_event: multiprocessing.synchronize.Event
 
+    __kolibri_version_value: multiprocessing.sharedctypes.SynchronizedArray[c_char]
+    __kolibri_version_set_event: multiprocessing.synchronize.Event
+
     class Status(Enum):
         NONE = auto()
         STARTING = auto()
@@ -86,6 +89,11 @@ class KolibriServiceContext(object):
             c_char, self.KOLIBRI_HOME_LENGTH
         )
         self.__kolibri_home_set_event = multiprocessing.Event()
+
+        self.__kolibri_version_value = multiprocessing.Array(
+            c_char, self.KOLIBRI_HOME_LENGTH
+        )
+        self.__kolibri_version_set_event = multiprocessing.Event()
 
     def push_has_changes(self):
         self.__changed_event.set()
@@ -270,6 +278,27 @@ class KolibriServiceContext(object):
     def await_kolibri_home(self, timeout: int = None) -> typing.Optional[str]:
         self.__kolibri_home_set_event.wait(timeout)
         return self.kolibri_home
+
+    @property
+    def kolibri_version(self) -> typing.Optional[str]:
+        if self.__kolibri_version_set_event.is_set():
+            return self.__kolibri_version_value.value.decode("ascii")  # type: ignore[attr-defined]
+        else:
+            return None
+
+    @kolibri_version.setter
+    def kolibri_version(self, kolibri_version: typing.Optional[str]):
+        if kolibri_version is None:
+            self.__kolibri_version_set_event.clear()
+            self.__kolibri_version_value.value = None  # type: ignore[attr-defined]
+        else:
+            self.__kolibri_version_value.value = bytes(kolibri_version, encoding="ascii")  # type: ignore[attr-defined]
+            self.__kolibri_version_set_event.set()
+        self.push_has_changes()
+
+    def await_kolibri_version(self, timeout: int = None) -> typing.Optional[str]:
+        self.__kolibri_version_set_event.wait(timeout)
+        return self.kolibri_version
 
     @property
     def status(self) -> KolibriServiceContext.Status:

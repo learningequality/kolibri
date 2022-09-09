@@ -71,6 +71,10 @@ class KolibriDaemonManager(GObject.GObject):
     def do_automatic_login(self) -> bool:
         return self.__do_automatic_login
 
+    @property
+    def kolibri_version(self) -> str:
+        return self.__dbus_proxy.props.kolibri_version
+
     def init(self):
         if self.__did_init:
             return

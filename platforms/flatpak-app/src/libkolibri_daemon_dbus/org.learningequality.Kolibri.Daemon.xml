@@ -22,6 +22,7 @@
     <property name="BaseURL" type="s" access="read" />
     <property name="ExtraURL" type="s" access="read" />
     <property name="KolibriHome" type="s" access="read" />
+    <property name="KolibriVersion" type="s" access="read" />
     <property name="Status" type="s" access="read" />
     <property name="Version" type="u" access="read" />
   </interface>

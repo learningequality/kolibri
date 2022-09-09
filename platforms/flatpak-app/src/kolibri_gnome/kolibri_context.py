@@ -90,6 +90,10 @@ class KolibriContext(GObject.GObject):
         )
 
     @property
+    def kolibri_version(self) -> str:
+        return self.__kolibri_daemon.kolibri_version
+
+    @property
     def default_url(self) -> str:
         return "x-kolibri-app:/"
 

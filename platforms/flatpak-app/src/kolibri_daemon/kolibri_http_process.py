@@ -56,8 +56,7 @@ class KolibriHttpProcess(KolibriServiceProcess):
         from kolibri.utils.conf import OPTIONS
         from kolibri.utils.server import KolibriProcessBus
 
-        self.__update_app_key()
-        self.__update_kolibri_home()
+        self.__update_kolibri_context()
 
         self.__kolibri_bus = KolibriProcessBus(
             port=OPTIONS["Deployment"]["HTTP_PORT"],
@@ -128,13 +127,13 @@ class KolibriHttpProcess(KolibriServiceProcess):
     def stop(self):
         pass
 
-    def __update_app_key(self):
+    def __update_kolibri_context(self):
+        from kolibri.utils.version import get_version
         from kolibri.core.device.models import DeviceAppKey
 
         self.context.app_key = DeviceAppKey.get_app_key()
-
-    def __update_kolibri_home(self):
         self.context.kolibri_home = KOLIBRI_HOME_PATH.as_posix()
+        self.context.kolibri_version = get_version()
 
 
 class _KolibriDaemonPlugin(SimplePlugin):
