@@ -72,7 +72,7 @@
     "scss-parser": "^1.0.0",
     "semver": "^5.6.0",
     "strip-ansi": "6.0.1",
-    "style-loader": "^2.0.0",
+    "style-loader": "^3.3.1",
     "stylelint": "14.10.0",
     "stylelint-config-prettier": "9.0.3",
     "stylelint-config-recess-order": "3.0.0",
