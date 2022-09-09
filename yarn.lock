@@ -5966,10 +5966,10 @@ fbjs@^0.8.15, fbjs@^0.8.4:
     setimmediate "^1.0.5"
     ua-parser-js "^0.7.18"
 
-fflate@^0.7.1:
-  version "0.7.1"
-  resolved "https://registry.yarnpkg.com/fflate/-/fflate-0.7.1.tgz#56e87e87c3f2fe01b025fbb1c4ea835990c02fa2"
-  integrity sha512-VYM2Xy1gSA5MerKzCnmmuV2XljkpKwgJBKezW+495TTnTCh1x5HcYa1aH8wRU/MfTGhW4ziXqgwprgQUVl3Ohw==
+fflate@^0.7.3:
+  version "0.7.3"
+  resolved "https://registry.yarnpkg.com/fflate/-/fflate-0.7.3.tgz#288b034ff0e9c380eaa2feff48c787b8371b7fa5"
+  integrity sha512-0Zz1jOzJWERhyhsimS54VTqOteCNwRtIlh8isdL0AXLo0g7xNTfTL7oWrkmCnPhZGocKIkWHBistBrrpoNH3aw==
 
 figures@^2.0.0:
   version "2.0.0"
