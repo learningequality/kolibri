@@ -430,3 +430,43 @@ class TestKolibriVersion(unittest.TestCase):
             "1.0.0",
             version.truncate_version("1.15.1", truncation_level=version.MAJOR_VERSION),
         )
+
+    def test_normalize_version_to_semver_dev(self):
+        self.assertEqual(
+            version.normalize_version_to_semver(
+                "0.15.0a5.dev0+git.682.g0be46de2",
+            ),
+            "0.15.0-a.5.dev0.git.682.g0be46de2",
+        )
+
+    def test_normalize_version_to_semver_tripartite(self):
+        self.assertEqual(
+            version.normalize_version_to_semver(
+                "0.15.0",
+            ),
+            "0.15.0-c",
+        )
+
+    def test_normalize_version_to_semver_bipartite(self):
+        self.assertEqual(
+            version.normalize_version_to_semver(
+                "1.10",
+            ),
+            "1.10-c",
+        )
+
+    def test_normalize_version_to_semver_alpa(self):
+        self.assertEqual(
+            version.normalize_version_to_semver(
+                "0.14a1",
+            ),
+            "0.14-a.1.c",
+        )
+
+    def test_normalize_version_to_semver_beta(self):
+        self.assertEqual(
+            version.normalize_version_to_semver(
+                "0.16b1",
+            ),
+            "0.16-b.1.c",
+        )

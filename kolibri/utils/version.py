@@ -466,11 +466,15 @@ def version_matches_range(version, version_range):
 
 
 def normalize_version_to_semver(version):
+    # dev = re.match(r"(.*?)(\.dev.*)?$", version).group()
+    dev_match = re.match(r"(.*?)(\.dev.*)?$", version)
 
-    _, dev = re.match(r"(.*?)(\.dev.*)?$", version).groups()
+    dev = dev_match.group(2)
 
     # extract the numeric semver component and the stuff that comes after
-    numeric, after = re.match(r"(\d+\.\d+\.\d+)([^\d].*)?", version).groups()
+    numeric, after = re.match(
+        r"(^\d+\.\d+[0-9]*\.?[0-9]*)([a-z0-9.+]*)", version
+    ).groups()
 
     # clean up the different variations of the post-numeric component to ease checking
     after = (after or "").strip("-").strip("+").strip(".").split("+")[0]
@@ -478,7 +482,7 @@ def normalize_version_to_semver(version):
     # split up the alpha/beta letters from the numbers, to sort numerically not alphabetically
     after_pieces = re.match(r"([a-z])(\d+)", after)
     if after_pieces:
-        after = ".".join([piece for piece in after_pieces.groups() if piece])
+        after = ".".join([piece for piece in after_pieces.group() if piece])
 
     # position final releases between alphas, betas, and further dev
     if not dev:
