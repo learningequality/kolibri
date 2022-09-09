@@ -453,10 +453,7 @@ class Application(Gio.Application):
         self.__search_handler = search_handler
 
         self.__public_interface = PublicDBusInterface(self, kolibri_service)
-        self.__public_interface.init()
-
         self.__private_interface = PrivateDBusInterface(self)
-        self.__private_interface.init()
 
         self.__login_token_manager = LoginTokenManager()
 
@@ -488,8 +485,6 @@ class Application(Gio.Application):
             "Timeout in seconds before stopping Kolibri",
             None,
         )
-
-        self.__begin_await_kolibri_bus_ready_timeout()
 
     @property
     def use_session_bus(self) -> bool:
@@ -566,8 +561,16 @@ class Application(Gio.Application):
         return -1
 
     def do_startup(self):
+        self.__kolibri_service.init()
+        self.__search_handler.init()
+        self.__private_interface.init()
+        self.__public_interface.init()
+
+        self.__begin_await_kolibri_bus_ready_timeout()
+
         if self.use_system_bus:
             Gio.bus_get(Gio.BusType.SYSTEM, None, self.__system_bus_on_get)
+
         Gio.Application.do_startup(self)
 
     def do_shutdown(self):
