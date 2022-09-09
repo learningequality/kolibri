@@ -6,6 +6,7 @@ from sqlalchemy import DateTime
 from sqlalchemy import func
 from sqlalchemy import or_
 from sqlalchemy import String
+from sqlalchemy import update
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -148,6 +149,50 @@ class Storage(StorageMixin):
         """
         self._update_job(job_id, State.CANCELING)
 
+    def _postgres_next_queued_job(self, session, priority):
+        """
+        For postgres we are doing our best to ensure that the selected job
+        is not then also selected by another potentially concurrent worker controller
+        process. We do this by doing a select for update within a subquery.
+        This should work as long as our connection uses the default isolation level
+        of READ_COMMITTED.
+        More details here: https://dba.stackexchange.com/a/69497
+        For SQLAlchemy details here: https://stackoverflow.com/a/25943713
+        """
+        subquery = (
+            session.query(ORMJob.id)
+            .filter(ORMJob.state == State.QUEUED)
+            .filter(ORMJob.priority == priority)
+            .order_by(ORMJob.time_created)
+            .limit(1)
+            .with_for_update(skip_locked=True)
+        )
+        return self.engine.execute(
+            update(ORMJob)
+            .values(state=State.SELECTED)
+            .where(ORMJob.id == subquery.as_scalar())
+            .returning(ORMJob.saved_job)
+        ).fetchone()
+
+    def _sqlite_next_queued_job(self, session, priority):
+        """
+        Due to the difficulty in appropriately locking the task row
+        we do not support multiple task runners potentially duelling
+        to lock tasks for SQLite, so here we just do a minimal
+        best effort to mark the job as selected for running.
+        """
+        orm_job = (
+            session.query(ORMJob)
+            .filter(ORMJob.state == State.QUEUED)
+            .filter(ORMJob.priority == priority)
+            .order_by(ORMJob.time_created)
+            .first()
+        )
+        if orm_job:
+            orm_job.state = State.SELECTED
+            session.add(orm_job)
+        return orm_job
+
     def get_next_queued_job(self, priority_order=Priority.PriorityOrder):
         """
         Looks for the oldest queued job with priorities provided in `priority_order`. It
@@ -161,15 +206,14 @@ class Storage(StorageMixin):
         :return: job if found else None.
         """
         with self.session_scope() as s:
-            q = s.query(ORMJob).filter(ORMJob.state == State.QUEUED)
-
             orm_job = None
+            method = (
+                self._sqlite_next_queued_job
+                if self.engine.dialect.name == "sqlite"
+                else self._postgres_next_queued_job
+            )
             for priority in priority_order:
-                orm_job = (
-                    q.filter(ORMJob.priority == priority)
-                    .order_by(ORMJob.time_created)
-                    .first()
-                )
+                orm_job = method(s, priority)
                 if orm_job:
                     break
 
