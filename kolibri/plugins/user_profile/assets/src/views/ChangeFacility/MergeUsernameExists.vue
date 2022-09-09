@@ -62,7 +62,7 @@
       const mergeAccountInfoLine1 = computed({
         get() {
           return this.$tr('confirmMergeInfoLine1', {
-            target_facility: get(state, 'value.targetFacility.name', ''),
+            targetFacility: get(state, 'value.targetFacility.name', ''),
             username: username.value,
           });
         },
@@ -70,7 +70,7 @@
       const mergeAccountInfoLine2 = computed({
         get() {
           return this.$tr('confirmMergeInfoLine2', {
-            target_facility: get(state, 'value.targetFacility.name', ''),
+            targetFacility: get(state, 'value.targetFacility.name', ''),
           });
         },
       });
@@ -100,12 +100,12 @@
       },
       confirmMergeInfoLine1: {
         message:
-          'An account with the username ‘{username}’ already exists in the ‘{target_facility}’ learning facility.',
+          'An account with the username ‘{username}’ already exists in the ‘{targetFacility}’ learning facility.',
         context: 'Text explaining the consequences merging will have.',
       },
       confirmMergeInfoLine2: {
         message:
-          'You can merge all of your account and progress data with this account in ‘{target_facility}’ learning facility, or you can create a new account. All of your progress data will be moved to this new account.',
+          'You can merge all of your account and progress data with this account in ‘{targetFacility}’ learning facility, or you can create a new account. All of your progress data will be moved to this new account.',
         context: 'Text explaining the consequences merging will have.',
       },
     },

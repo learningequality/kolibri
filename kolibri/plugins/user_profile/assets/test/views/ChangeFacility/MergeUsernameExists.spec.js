@@ -47,12 +47,12 @@ describe(`ChangeFacility/MergeUsernameExists`, () => {
       targetFacility: { name: 'Test Facility' },
       username: 'test1',
     });
-    const line1_paragraph = wrapper.find('[data-test="line1"]');
-    expect(line1_paragraph.text()).toEqual(
+    const line1Paragraph = wrapper.find('[data-test="line1"]');
+    expect(line1Paragraph.text()).toEqual(
       'An account with the username ‘test1’ already exists in the ‘Test Facility’ learning facility.'
     );
-    const line2_paragraph = wrapper.find('[data-test="line2"]');
-    expect(line2_paragraph.text()).toEqual(
+    const line2Paragraph = wrapper.find('[data-test="line2"]');
+    expect(line2Paragraph.text()).toEqual(
       'You can merge all of your account and progress data with this account in ‘Test Facility’ learning facility, or you can create a new account. All of your progress data will be moved to this new account.'
     );
   });
