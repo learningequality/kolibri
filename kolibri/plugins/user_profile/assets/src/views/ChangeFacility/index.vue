@@ -106,6 +106,7 @@
           value: {
             facility: this.session.facility_id,
             username: this.session.username,
+            userId: this.session.user_id,
             role: this.getUserKind,
           },
         });

@@ -1,4 +1,5 @@
 import { createMachine, assign } from 'xstate';
+import { FacilityUserResource } from 'kolibri.resources';
 import {
   default as remoteFacilityUserData,
   remoteFacilityUsers,
@@ -28,6 +29,7 @@ const setInitialContext = assign((_, event) => {
   return {
     sourceFacility: event.value.facility,
     username: event.value.username,
+    userId: event.value.userId,
     role: event.value.role,
   };
 });
@@ -71,6 +73,10 @@ const setMerging = assign({
   isMerging: () => true,
 });
 
+const setSourceFacilityUsers = assign({
+  sourceFacilityUsers: (_, event) => event.data,
+});
+
 export const changeFacilityMachine = createMachine({
   id: 'machine',
   initial: 'selectFacility',
@@ -78,11 +84,13 @@ export const changeFacilityMachine = createMachine({
   context: {
     role: 'learner',
     username: '',
+    userId: '',
     targetAccount: {
       username: '',
       password: '',
     },
     sourceFacility: '',
+    sourceFacilityUsers: [],
     // should be an object with the target facility
     // `name`, `id`, `url`, `learner_can_sign_up` &
     // `learner_can_login_with_no_password` fields
@@ -173,6 +181,35 @@ export const changeFacilityMachine = createMachine({
       always: [
         {
           cond: context => context.role === 'superuser',
+          target: 'fetchSourceFacilityUsers',
+        },
+        {
+          target: 'checkIsMerging',
+        },
+      ],
+    },
+    fetchSourceFacilityUsers: {
+      invoke: {
+        src: () => {
+          return FacilityUserResource.fetchCollection().then(users => {
+            return users;
+          });
+        },
+        onDone: {
+          target: 'checkNeedsNewSuperAdmin',
+          actions: [setSourceFacilityUsers],
+        },
+      },
+    },
+    checkNeedsNewSuperAdmin: {
+      always: [
+        {
+          cond: context => {
+            const facilityHasAnotherSuperUser =
+              context.sourceFacilityUsers.length > 0 &&
+              context.sourceFacilityUsers.find(u => u.id !== context.userId && u.is_superuser);
+            return context.role === 'superuser' && !facilityHasAnotherSuperUser;
+          },
           target: 'chooseAdmin',
         },
         {
