@@ -77,11 +77,12 @@ const setSourceFacilityUsers = assign({
   sourceFacilityUsers: (_, event) => event.data,
 });
 
-export const changeFacilityMachine = createMachine({
-  id: 'machine',
-  initial: 'selectFacility',
-  predictableActionArguments: true,
-  context: {
+const resetMachineContext = assign(() => {
+  return generateMachineContext();
+});
+
+const generateMachineContext = () => {
+  return {
     role: 'learner',
     username: '',
     userId: '',
@@ -99,8 +100,23 @@ export const changeFacilityMachine = createMachine({
     taskPolling: false,
     accountExists: false,
     isMerging: false,
-  },
+  };
+};
+
+export const changeFacilityMachine = createMachine({
+  id: 'machine',
+  initial: 'selectFacility',
+  predictableActionArguments: true,
+  context: generateMachineContext(),
   states: {
+    error: {
+      on: {
+        RESET: {
+          target: 'selectFacility',
+          actions: [resetMachineContext],
+        },
+      },
+    },
     profile: {
       meta: { route: 'PROFILE', path: '/' },
       on: {
@@ -198,6 +214,9 @@ export const changeFacilityMachine = createMachine({
         onDone: {
           target: 'checkNeedsNewSuperAdmin',
           actions: [setSourceFacilityUsers],
+        },
+        onError: {
+          target: 'error',
         },
       },
     },
