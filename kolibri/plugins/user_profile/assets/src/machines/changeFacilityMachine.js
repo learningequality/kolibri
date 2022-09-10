@@ -178,12 +178,12 @@ export const changeFacilityMachine = createMachine({
           actions: setMerging,
         },
         {
-          target: 'confirmAccount',
+          target: 'confirmAccountUsername',
         },
       ],
     },
-    confirmAccount: {
-      meta: { route: 'CONFIRM_ACCOUNT', path: '/change_facility' },
+    confirmAccountUsername: {
+      meta: { route: 'CONFIRM_ACCOUNT_USERNAME', path: '/change_facility' },
       on: {
         NEW: {
           cond: context => context.targetFacility && context.targetFacility.learner_can_sign_up,
@@ -244,7 +244,7 @@ export const changeFacilityMachine = createMachine({
           cond: context => !!context.newSuperAdmin,
         },
         SELECTNEWSUPERADMIN: { actions: setNewSuperAdmin },
-        BACK: 'confirmAccount',
+        BACK: 'confirmAccountUsername',
       },
     },
     checkIsMerging: {
@@ -290,7 +290,7 @@ export const changeFacilityMachine = createMachine({
             target: 'changeFacility',
           },
           {
-            target: 'confirmAccount',
+            target: 'confirmAccountUsername',
           },
         ],
       },

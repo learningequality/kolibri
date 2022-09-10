@@ -37,7 +37,7 @@
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
 
   export default {
-    name: 'ConfirmAccount',
+    name: 'ConfirmAccountUsername',
     metaInfo() {
       return {
         title: this.$tr('documentTitle'),

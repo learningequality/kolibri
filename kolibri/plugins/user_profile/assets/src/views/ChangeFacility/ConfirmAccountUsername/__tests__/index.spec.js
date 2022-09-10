@@ -1,9 +1,9 @@
 import { shallowMount, mount } from '@vue/test-utils';
-import ConfirmAccount from '../index.vue';
+import ConfirmAccountUsername from '../index.vue';
 
 const sendMachineEvent = jest.fn();
 function makeWrapper({ targetFacility } = {}) {
-  return mount(ConfirmAccount, {
+  return mount(ConfirmAccountUsername, {
     provide: {
       changeFacilityService: {
         send: sendMachineEvent,
@@ -20,13 +20,13 @@ function makeWrapper({ targetFacility } = {}) {
 const getCreateNewAccountButton = wrapper => wrapper.find('[data-test="createNewAccountButton"]');
 const clickCreateNewAccountButton = wrapper => getCreateNewAccountButton(wrapper).trigger('click');
 
-describe(`ChangeFacility/ConfirmAccount`, () => {
+describe(`ChangeFacility/ConfirmAccountUsername`, () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   it(`smoke test`, () => {
-    const wrapper = shallowMount(ConfirmAccount);
+    const wrapper = shallowMount(ConfirmAccountUsername);
     expect(wrapper.exists()).toBeTruthy();
   });
 
