@@ -9,6 +9,7 @@ from django.core.management import call_command
 from django.core.management.base import BaseCommand
 from le_utils.constants import content_kinds
 
+from kolibri.core.auth.apps import KolibriAuthConfig
 from kolibri.core.auth.constants import demographics
 from kolibri.core.auth.constants import facility_presets
 from kolibri.core.auth.constants import role_kinds
@@ -32,6 +33,7 @@ from kolibri.core.lessons.models import Lesson
 from kolibri.core.lessons.models import LessonAssignment
 from kolibri.core.utils.csv import open_csv_for_reading
 from kolibri.utils.time_utils import local_now
+
 
 logger = logging.getLogger(__name__)
 
@@ -202,7 +204,7 @@ def get_or_generate_lesson_resources():
 
     # generate new channel/s if there are no local channels
     if not channels:
-        channels = generate_channels(n_channels=1, levels=2, n_children=3)
+        channels = generate_channels(n_channels=2)
 
     channel = random.choice(channels)
 
@@ -652,7 +654,7 @@ class Command(BaseCommand):
             # dumping after generation is done
             call_command(
                 "dumpdata",
-                "kolibriauth",
+                KolibriAuthConfig.label,
                 "lessons",
                 "exams",
                 indent=4,

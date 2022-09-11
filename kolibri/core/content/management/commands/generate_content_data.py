@@ -16,6 +16,7 @@ from le_utils.constants.labels.levels import LEVELSLIST
 from le_utils.constants.labels.needs import NEEDSLIST
 from le_utils.constants.labels.subjects import SUBJECTSLIST
 
+from kolibri.core.content.apps import KolibriContentConfig
 from kolibri.core.content.models import AssessmentMetaData
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
@@ -164,7 +165,7 @@ def get_or_generate_language(lang_id):
 
 
 def generate_assessmentmetadata(node):
-    number_of_assessments = random.randint(1, 30)
+    number_of_assessments = random.randint(10, 35)
     assessment_item_ids = [str(uuid.uuid4().hex) for _ in range(number_of_assessments)]
 
     random_criteria = random.choice(mastery_criteria.MASTERYCRITERIALIST)
@@ -426,7 +427,7 @@ def recurse_and_generate(channel_id, parent, levels, n_children, resources_kind)
     return children
 
 
-def generate_channels(n_channels, levels, n_children, resources_kind=None):
+def generate_channels(n_channels=1, levels=2, n_children=3, resources_kind=None):
 
     generated_channels = []
 
@@ -561,7 +562,7 @@ class Command(BaseCommand):
 
             call_command(
                 "dumpdata",
-                "content",
+                KolibriContentConfig.label,
                 indent=4,
                 output=fixtures_path,
                 interactive=False,
