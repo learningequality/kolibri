@@ -3,6 +3,7 @@ import redirectBrowser from 'kolibri.utils.redirectBrowser';
 import ProfilePage from './views/ProfilePage';
 import ProfileEditPage from './views/ProfileEditPage';
 import ChangeFacility from './views/ChangeFacility';
+import ConfirmMerge from './views/ChangeFacility/ConfirmMerge';
 import SelectFacility from './views/ChangeFacility/SelectFacility';
 import ConfirmAccount from './views/ChangeFacility/ConfirmAccount';
 import ConfirmChangeFacility from './views/ChangeFacility/ConfirmChangeFacility';
@@ -83,7 +84,7 @@ export default [
       {
         path: 'confirm_merge',
         name: 'CONFIRM_MERGE',
-        component: ToBeDone,
+        component: ConfirmMerge,
       },
       {
         path: 'syncing_change_facility',

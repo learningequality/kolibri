@@ -206,7 +206,15 @@ export const changeFacilityMachine = createMachine({
       meta: { route: 'CONFIRM_MERGE', path: '/change_facility' },
       on: {
         CONTINUE: 'syncChangeFacility',
-        BACK: 'changeFacility',
+        BACK: [
+          {
+            cond: context => context.role === 'superuser',
+            target: 'chooseAdmin',
+          },
+          {
+            target: 'confirmAccountDetails',
+          },
+        ],
       },
     },
     syncChangeFacility: {
