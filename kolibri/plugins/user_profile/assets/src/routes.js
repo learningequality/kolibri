@@ -13,6 +13,7 @@ import CreateAccount from './views/ChangeFacility/CreateAccount';
 
 import ToBeDone from './views/ChangeFacility/ToBeDone';
 import UsernameExists from './views/ChangeFacility/UsernameExists';
+import MergeUsernameExists from './views/ChangeFacility/MergeUsernameExists';
 
 function preload(next) {
   store.commit('CORE_SET_PAGE_LOADING', true);
@@ -119,7 +120,7 @@ export default [
       {
         path: 'merge_accounts',
         name: 'MERGE_ACCOUNTS',
-        component: ToBeDone,
+        component: MergeUsernameExists,
       },
     ],
   },
