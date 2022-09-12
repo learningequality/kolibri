@@ -175,7 +175,6 @@ export const changeFacilityMachine = createMachine({
         {
           cond: context => !!context.accountExists,
           target: 'usernameExists',
-          actions: setMerging,
         },
         {
           target: 'confirmAccountUsername',
