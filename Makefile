@@ -104,7 +104,7 @@ test-all:
 	export KOLIBRI_DATABASE_USER=postgres; \
 	export KOLIBRI_DATABASE_PASSWORD=postgres; \
 	export KOLIBRI_DATABASE_HOST=127.0.0.1; \
-	export KOLIBRI_DATABASE_PORT=5432; \
+	export KOLIBRI_DATABASE_PORT=15432; \
 	set -ex; \
 	function _on_interrupt() { docker-compose down; }; \
 	trap _on_interrupt SIGINT SIGTERM SIGKILL ERR; \
