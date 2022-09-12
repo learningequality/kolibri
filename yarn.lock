@@ -11931,10 +11931,10 @@ videojs-vtt.js@^0.15.3:
   dependencies:
     global "^4.3.1"
 
-vue-demi@*:
-  version "0.9.0"
-  resolved "https://registry.yarnpkg.com/vue-demi/-/vue-demi-0.9.0.tgz#b30da61450079d60a132d7aaf9e86d1949e8445e"
-  integrity sha512-f8vVUpC726YXv99fF/3zHaw5CUYbP5H/DVWBN+pncXM8P2Uz88kkffwj9yD7MukuVzPICDHNrgS3VC2ursaP7g==
+vue-demi@*, vue-demi@^0.12.1:
+  version "0.12.5"
+  resolved "https://registry.yarnpkg.com/vue-demi/-/vue-demi-0.12.5.tgz#8eeed566a7d86eb090209a11723f887d28aeb2d1"
+  integrity sha512-BREuTgTYlUr0zw0EZn3hnhC3I6gPWv+Kwh4MCih6QcAeaTlaIX0DwOVN0wHej7hSvDPecz4jygy/idsgKfW58Q==
 
 vue-eslint-parser@^7.3.0:
   version "7.3.0"
@@ -11948,12 +11948,13 @@ vue-eslint-parser@^7.3.0:
     esquery "^1.0.1"
     lodash "^4.17.15"
 
-vue-focus-lock@^1.2.0:
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/vue-focus-lock/-/vue-focus-lock-1.4.0.tgz#315f8ce6305b1f99236fbc61179751ce4012b572"
-  integrity sha512-oEIvojC3okNOlnPYJUSzqAK6M+m1VoBSieUfTUqXiaUqa8t6xXTmn3UEhVqUnk6cUgLum+p2z04Btqr6gWNn2Q==
+vue-focus-lock@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/vue-focus-lock/-/vue-focus-lock-2.0.0.tgz#fbd7c379b18e8b8489b591678374104c69a6c685"
+  integrity sha512-tjsU6vVI2JqBHwCWKYJxiyHFIO42PTuqxzkXQNJgbphFOJLztOeXH24fAIq9k6qSs29U4yMUdRW0DLJCZo9ptg==
   dependencies:
     focus-lock "^0.5.4"
+    vue-demi "^0.12.1"
 
 vue-hot-reload-api@^2.3.0:
   version "2.3.4"
