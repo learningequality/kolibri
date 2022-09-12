@@ -241,8 +241,8 @@ class multiple_kolibri_servers(object):
                     "USER": "postgres",
                     "PASSWORD": "postgres",
                     "NAME": server.env["KOLIBRI_DATABASE_NAME"],
-                    "HOST": "localhost",
-                    "PORT": "5432",
+                    "HOST": server.env["KOLIBRI_DATABASE_HOST"],
+                    "PORT": server.env["KOLIBRI_DATABASE_PORT"],
                     "TEST": {"NAME": server.env["KOLIBRI_DATABASE_NAME"]},
                 }
 
