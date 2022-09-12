@@ -4,6 +4,21 @@
     <h1>{{ $tr('documentTitle') }}</h1>
     <p>{{ $tr('description') }}</p>
 
+    <PaginatedListContainer
+      :items="usersWithoutCurrentUser"
+      :filterPlaceholder="$tr('searchForUser')"
+    >
+      <template #default="{ items }">
+        <UserTable
+          v-model="selectedUsers"
+          data-test="userTable"
+          :users="items"
+          selectable
+          :enableMultipleSelection="false"
+        />
+      </template>
+    </PaginatedListContainer>
+
     <BottomAppBar>
       <slot name="buttons">
         <KButtonGroup>
@@ -17,6 +32,7 @@
           <KButton
             :primary="true"
             :text="coreString('continueAction')"
+            :disabled="isContinueDisabled"
             data-test="continueButton"
             @click="sendContinue"
           />
@@ -30,9 +46,12 @@
 
 <script>
 
-  import { inject } from 'kolibri.lib.vueCompositionApi';
+  import get from 'lodash/get';
+  import { inject, computed, ref } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
+  import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
+  import UserTable from 'kolibri.coreVue.components.UserTable';
 
   export default {
     name: 'ChooseAdmin',
@@ -41,19 +60,37 @@
         title: this.$tr('documentTitle'),
       };
     },
-    components: { BottomAppBar },
+    components: {
+      BottomAppBar,
+      PaginatedListContainer,
+      UserTable,
+    },
     mixins: [commonCoreStrings],
     setup() {
       const changeFacilityService = inject('changeFacilityService');
+      const changeFacilityContext = inject('state');
+
+      const usersWithoutCurrentUser = computed(() => {
+        const currentUserId = get(changeFacilityContext, 'value.userId');
+        const users = get(changeFacilityContext, 'value.sourceFacilityUsers', []);
+        return users.filter(user => user.id !== currentUserId);
+      });
+      const selectedUsers = ref([]);
+      const isContinueDisabled = computed(() => selectedUsers.value.length === 0);
 
       function sendContinue() {
-        changeFacilityService.send({ type: 'CONTINUE' });
+        if (!isContinueDisabled.value) {
+          changeFacilityService.send({ type: 'CONTINUE' });
+        }
       }
       function sendBack() {
         changeFacilityService.send({ type: 'BACK' });
       }
 
       return {
+        usersWithoutCurrentUser,
+        isContinueDisabled,
+        selectedUsers,
         sendContinue,
         sendBack,
       };
@@ -68,6 +105,11 @@
         message: 'Choose an account to manage channels and accounts.',
         context:
           'Description of the step for choosing a new super admin in a source facility when a user changing facilities is the only super admin of the source facility.',
+      },
+      // TODO: Move to common strings (copied from `MultipleUsers`)
+      searchForUser: {
+        message: 'Search for a user',
+        context: 'Descriptive text which appears in the search field on the Facility > Users page.',
       },
     },
   };
