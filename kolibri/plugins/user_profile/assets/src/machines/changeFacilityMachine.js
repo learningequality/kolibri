@@ -61,8 +61,8 @@ const checkExists = assign((context, event) => {
   };
 });
 
-const setNewSuperAdmin = assign({
-  newSuperAdmin: (_, event) => event.value,
+const setNewSuperAdminId = assign({
+  newSuperAdminId: (_, event) => event.value,
 });
 
 const setTargetAccount = assign({
@@ -96,7 +96,7 @@ const generateMachineContext = () => {
     // `name`, `id`, `url`, `learner_can_sign_up` &
     // `learner_can_login_with_no_password` fields
     targetFacility: {},
-    newSuperAdmin: '',
+    newSuperAdminId: '',
     taskPolling: false,
     accountExists: false,
     isMerging: false,
@@ -241,10 +241,9 @@ export const changeFacilityMachine = createMachine({
       on: {
         CONTINUE: {
           target: 'checkIsMerging',
-          cond: context => !!context.newSuperAdmin,
+          cond: context => !!context.newSuperAdminId,
         },
-        SELECTNEWSUPERADMIN: { actions: setNewSuperAdmin },
-        BACK: 'confirmAccountUsername',
+        SELECTNEWSUPERADMIN: { actions: setNewSuperAdminId },
       },
     },
     checkIsMerging: {

@@ -114,8 +114,12 @@ describe(`ChangeFacility/ChooseAdmin`, () => {
       expect(getContinueButton(wrapper).element.disabled).toBeFalsy();
     });
 
-    it(`clicking the continue button sends the continue event to the state machine`, () => {
+    it(`clicking the continue button sends the select new super admin and continue events to the state machine`, () => {
       expect(getContinueButton(wrapper).trigger('click'));
+      expect(sendMachineEvent).toHaveBeenCalledWith({
+        type: 'SELECTNEWSUPERADMIN',
+        value: 'learner-2',
+      });
       expect(sendMachineEvent).toHaveBeenCalledWith({
         type: 'CONTINUE',
       });

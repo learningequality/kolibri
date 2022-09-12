@@ -80,6 +80,10 @@
 
       function sendContinue() {
         if (!isContinueDisabled.value) {
+          changeFacilityService.send({
+            type: 'SELECTNEWSUPERADMIN',
+            value: selectedUsers.value[0],
+          });
           changeFacilityService.send({ type: 'CONTINUE' });
         }
       }
