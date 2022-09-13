@@ -1,4 +1,4 @@
-import { createMachine, assign } from 'xstate';
+import { createMachine, assign, send } from 'xstate';
 import { FacilityUserResource } from 'kolibri.resources';
 import {
   default as remoteFacilityUserData,
@@ -81,6 +81,20 @@ const resetMachineContext = assign(() => {
   return generateMachineContext();
 });
 
+const pushHistoryItem = assign({
+  history: (context, event) => [...context.history, event.value],
+});
+
+const removeLastHistoryItem = assign({
+  history: context => {
+    if (context.history.length) {
+      return context.history.slice(0, -1);
+    } else {
+      return [];
+    }
+  },
+});
+
 const generateMachineContext = () => {
   return {
     role: 'learner',
@@ -100,6 +114,15 @@ const generateMachineContext = () => {
     taskPolling: false,
     accountExists: false,
     isMerging: false,
+    // Contains machine states history, its items are states names.
+    // Doesn't necessarily capture all transitions as it is used
+    // for user-facing back navigation, therefore we don't want to
+    // save  rather internal transitions here.
+    // Each state can save itself explicitly to history by calling
+    // `send({ type: 'PUSH_HISTORY', value: <stateName> })` action,
+    // typically this would happen when moving forward to another
+    // state, e.g. in `CONTINUE` transition or similar.
+    history: [],
   };
 };
 
@@ -118,6 +141,7 @@ const states = {
       CONTINUE: {
         target: 'selectFacility',
         cond: context => !!context.sourceFacility && !!context.username,
+        actions: [send({ type: 'PUSH_HISTORY', value: 'profile' })],
       },
       SETCONTEXT: { actions: setInitialContext },
     },
@@ -128,8 +152,8 @@ const states = {
       CONTINUE: {
         target: 'changeFacility',
         cond: context => Object.keys(context.targetFacility).length > 0,
+        actions: [send({ type: 'PUSH_HISTORY', value: 'selectFacility' })],
       },
-      BACK: 'profile',
       SETCONTEXT: { actions: setInitialContext },
       SELECTFACILITY: {
         actions: assign({
@@ -159,10 +183,12 @@ const states = {
     on: {
       MERGE: {
         target: 'mergeAccounts',
-        actions: setMerging,
+        actions: [setMerging, send({ type: 'PUSH_HISTORY', value: 'changeFacility' })],
       },
-      CONTINUE: 'checkUsernameExists',
-      BACK: 'selectFacility',
+      CONTINUE: {
+        target: 'checkUsernameExists',
+        actions: [send({ type: 'PUSH_HISTORY', value: 'changeFacility' })],
+      },
     },
   },
   checkUsernameExists: {
@@ -182,9 +208,12 @@ const states = {
       NEW: {
         cond: context => context.targetFacility && context.targetFacility.learner_can_sign_up,
         target: 'createAccount',
+        actions: [send({ type: 'PUSH_HISTORY', value: 'confirmAccountUsername' })],
       },
-      CONTINUE: 'isAdmin',
-      BACK: 'changeFacility',
+      CONTINUE: {
+        target: 'isAdmin',
+        actions: [send({ type: 'PUSH_HISTORY', value: 'confirmAccountUsername' })],
+      },
     },
   },
   isAdmin: {
@@ -236,6 +265,7 @@ const states = {
       CONTINUE: {
         target: 'checkIsMerging',
         cond: context => !!context.newSuperAdminId,
+        actions: [send({ type: 'PUSH_HISTORY', value: 'chooseAdmin' })],
       },
       SELECTNEWSUPERADMIN: { actions: setNewSuperAdminId },
     },
@@ -254,16 +284,10 @@ const states = {
   confirmMerge: {
     meta: { route: 'CONFIRM_MERGE', path: '/change_facility' },
     on: {
-      CONTINUE: 'syncChangeFacility',
-      BACK: [
-        {
-          cond: context => context.role === 'superuser',
-          target: 'chooseAdmin',
-        },
-        {
-          target: 'confirmAccountDetails',
-        },
-      ],
+      CONTINUE: {
+        target: 'syncChangeFacility',
+        actions: [send({ type: 'PUSH_HISTORY', value: 'confirmMerge' })],
+      },
     },
   },
   syncChangeFacility: {
@@ -275,47 +299,52 @@ const states = {
     on: {
       CONTINUE: {
         target: 'isAdmin',
-        actions: setTargetAccount,
+        actions: [setTargetAccount, send({ type: 'PUSH_HISTORY', value: 'createAccount' })],
       },
-      BACK: [
-        {
-          cond: context => context.accountExists,
-          target: 'changeFacility',
-        },
-        {
-          target: 'confirmAccountUsername',
-        },
-      ],
     },
   },
   usernameExists: {
     meta: { route: 'USERNAME_EXISTS', path: '/change_facility' },
     on: {
-      MERGE: 'requireAccountCreds',
-      NEW: 'createAccount',
-      BACK: 'selectFacility',
+      MERGE: {
+        target: 'requireAccountCreds',
+        actions: [send({ type: 'PUSH_HISTORY', value: 'usernameExists' })],
+      },
+      NEW: {
+        target: 'createAccount',
+        actions: [send({ type: 'PUSH_HISTORY', value: 'usernameExists' })],
+      },
     },
   },
   requireAccountCreds: {
     meta: { route: 'REQUIRE_ACCOUNT_CREDENTIALS', path: '/change_facility' },
     on: {
-      CONTINUE: { actions: setTargetAccount, target: 'confirmAccountDetails' },
-      USEADMIN: 'useAdminPassword',
-      BACK: 'confirmMerge',
+      CONTINUE: {
+        target: 'confirmAccountDetails',
+        actions: [setTargetAccount, send({ type: 'PUSH_HISTORY', value: 'requireAccountCreds' })],
+      },
+      USEADMIN: {
+        target: 'useAdminPassword',
+        actions: [send({ type: 'PUSH_HISTORY', value: 'requireAccountCreds' })],
+      },
     },
   },
   useAdminPassword: {
     meta: { route: 'ADMIN_PASSWORD', path: '/change_facility' },
     on: {
-      CONTINUE: { actions: setTargetAccount, target: 'confirmAccountDetails' },
-      BACK: 'requireAccountCreds',
+      CONTINUE: {
+        target: 'confirmAccountDetails',
+        actions: [setTargetAccount, send({ type: 'PUSH_HISTORY', value: 'useAdminPassword' })],
+      },
     },
   },
   confirmAccountDetails: {
     meta: { route: 'CONFIRM_DETAILS', path: '/change_facility' },
     on: {
-      CONTINUE: 'isAdmin',
-      BACK: 'mergeAccounts',
+      CONTINUE: {
+        target: 'isAdmin',
+        actions: [send({ type: 'PUSH_HISTORY', value: 'confirmAccountDetails' })],
+      },
     },
   },
   mergeAccounts: {
@@ -326,14 +355,15 @@ const states = {
           cond: context =>
             context.accountExists && !context.targetFacility.learner_can_login_with_no_password,
           target: 'requireAccountCreds',
+          actions: [send({ type: 'PUSH_HISTORY', value: 'mergeAccounts' })],
         },
         {
           cond: context =>
             context.accountExists && context.targetFacility.learner_can_login_with_no_password,
           target: 'getUserWithoutPasswordInfo',
+          actions: [send({ type: 'PUSH_HISTORY', value: 'mergeAccounts' })],
         },
       ],
-      BACK: 'selectFacility',
     },
   },
   getUserWithoutPasswordInfo: {
@@ -360,5 +390,19 @@ export const changeFacilityMachine = createMachine({
   initial: 'selectFacility',
   predictableActionArguments: true,
   context: generateMachineContext(),
+  on: {
+    PUSH_HISTORY: {
+      actions: [pushHistoryItem],
+    },
+    // inspired by https://github.com/statelyai/xstate/discussions/1939
+    BACK: Object.keys(states).map(state => {
+      return {
+        target: state,
+        cond: context =>
+          context.history.length && context.history[context.history.length - 1] === state,
+        actions: [removeLastHistoryItem],
+      };
+    }),
+  },
   states,
 });
