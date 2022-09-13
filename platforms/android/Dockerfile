@@ -23,7 +23,7 @@ RUN dpkg --add-architecture i386 && \
     libtool \
     locales \
     lsb-release \
-    openjdk-8-jdk \
+    openjdk-11-jdk \
     python-dev \
     unzip \
     vim \

@@ -72,7 +72,7 @@ jobs:
         # have these SDKs and NDKs already installed.
         # https://github.com/actions/virtual-environments/blob/main/images/linux/Ubuntu2004-Readme.md#environment-variables-3
         export ANDROIDSDK="$ANDROID_SDK_ROOT"
-        export ANDROIDNDK="$ANDROID_NDK_ROOT"
+        export ANDROIDNDK=/usr/local/lib/android/sdk/ndk/23.2.8568313
         make kolibri.apk.unsigned
     - name: Get APK filename
       id: get-apk-filename

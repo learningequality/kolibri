@@ -5,9 +5,10 @@
 --dist_name "kolibri"
 --private "src"
 --orientation sensor
---requirements python3==3.9.12,hostpython3==3.9.12,android,pyjnius,genericndkbuild,sqlite3,cryptography,twisted,attrs,bcrypt,service_identity,pyasn1,pyasn1_modules,pyopenssl,openssl,six
---android-api 30
---minsdk 21
+--requirements python3==3.9.13,hostpython3==3.9.13,android,pyjnius,genericndkbuild,sqlite3,cryptography,twisted,attrs,bcrypt,service_identity,pyasn1,pyasn1_modules,pyopenssl,openssl,six
+--android-api 31
+--minsdk 23
+--ndk-api 23
 --permission WRITE_EXTERNAL_STORAGE
 --permission ACCESS_NETWORK_STATE
 --permission FOREGROUND_SERVICE
