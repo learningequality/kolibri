@@ -45,7 +45,22 @@
           </KButton>
         </div>
       </transition>
-      <RecycleList
+      <KGrid gutter="0">
+        <KGridItem
+          :layout8="{ span: 2 }"
+          :layout12="{ span: 3 }"
+        >
+          <Bookmarks
+            :outline="outline || []"
+            :pdfDocument="{}"
+            :goToDestination="goToDestination"
+          />
+        </KGridItem>
+        <KGridItem
+          :layout8="{ span: 6 }"
+          :layout12="{ span: 9 }"
+        >
+        <RecycleList
         ref="recycleList"
         :items="pdfPages"
         :itemHeight="itemHeight"
@@ -69,6 +84,8 @@
           />
         </template>
       </RecycleList>
+        </KGridItem>
+      </KGrid>
     </template>
   </CoreFullscreen>
 
@@ -91,6 +108,7 @@
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import { EventBus } from '../utils/event_utils';
   import PdfPage from './PdfPage';
+  import Bookmarks from './Bookmarks';
 
   // Source from which PDFJS loads its service worker, this is based on the __publicPath
   // global that is defined in the Kolibri webpack pipeline, and the additional entry in the PDF
@@ -104,6 +122,7 @@
     name: 'PdfRendererIndex',
     components: {
       PdfPage,
+      Bookmarks,
       RecycleList,
       CoreFullscreen,
     },
@@ -122,6 +141,7 @@
       updateContentStateInterval: null,
       visitedPages: {},
       eventBus: null,
+      outline: null,
     }),
     computed: {
       // Returns whether or not the current device is iOS.
@@ -255,6 +275,9 @@
             ...this.pdfPages[firstPageToRender],
             page: firstPage,
             resolved: true,
+          });
+          pdfDocument.getOutline().then(async outline => {
+            this.outline = outline;
           });
         });
       });
@@ -421,6 +444,59 @@
         }
         this.$emit('updateContentState', contentState);
       },
+      // Handle bookmark items click
+      async goToDestination(dest) {
+        if (!this.pdfDocument) {
+          return;
+        }
+        let namedDest, explicitDest;
+        if (typeof dest === "string") {
+          namedDest = dest;
+          explicitDest = await this.pdfDocument.getDestination(dest);
+        } else {
+          namedDest = null;
+          explicitDest = await dest;
+        }
+        if (!Array.isArray(explicitDest)) {
+          console.error('Error getting destination');
+          return;
+        }
+
+        const destRef = explicitDest[0];
+        let pageNumber;
+        if (typeof destRef === "object" && destRef !== null) {
+          pageNumber = await this.getDestinationPageNumber(destRef);
+        } else if (Number.isInteger(destRef)) {
+          pageNumber = destRef + 1;
+        } else {
+          console.error('Invalid destination reference');
+          return;
+        }
+
+        if (!pageNumber || pageNumber < 1 || pageNumber > this.pagesCount) {
+          console.error('Invalid destination page');
+          return;
+        }
+
+        let position = (pageNumber -1) / this.totalPages;
+        if (explicitDest[1].name === "XYZ") { // XYZ is a dest name value from pdfjs
+          const y = this.firstPageHeight - explicitDest[3];
+          const relativeYPage = y / this.firstPageHeight;
+          // This isnt taking into account the padding between pages
+          // but it gives it a good little space
+          position += relativeYPage * (1 / this.totalPages);
+        }
+        this.scrollTo(position);
+      },
+      async getDestinationPageNumber(destRef) {
+        try {
+          const pageIndex = await this.pdfDocument.getPageIndex(destRef);
+          return pageIndex + 1;
+        } catch (e) {
+          console.error('Error getting destination page number', e);
+          return null;
+        }
+      }
     },
     $trs: {
       exitFullscreen: {
