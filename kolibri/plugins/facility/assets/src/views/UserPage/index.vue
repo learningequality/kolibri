@@ -54,13 +54,19 @@
             :showDemographicInfo="true"
           >
             <template #action="userRow">
-              <KDropdownMenu
-                :text="$tr('optionsButtonLabel')"
-                :options="manageUserOptions(userRow.user.id)"
-                :disabled="!userCanBeEdited(userRow.user)"
+              <KButton
                 appearance="flat-button"
-                @select="handleManageUserSelection($event, userRow.user)"
-              />
+                hasDropdown
+                :text="$tr('optionsButtonLabel')"
+                :disabled="!userCanBeEdited(userRow.user)"
+              >
+                <template #menu>
+                  <KDropdownMenu
+                    :options="manageUserOptions(userRow.user.id)"
+                    @select="handleManageUserSelection($event, userRow.user)"
+                  />
+                </template>
+              </KButton>
             </template>
           </UserTable>
         </template>

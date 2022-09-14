@@ -1,10 +1,18 @@
 <template>
 
-  <KDropdownMenu
-    :text="$tr('downloadContent')"
-    :options="fileOptions"
-    @select="download"
-  />
+  <KButton
+    ref="button"
+    hasDropdown
+    :primary="$attrs.primary"
+  >
+    <span>{{ $tr('downloadContent') }}</span>
+    <template #menu>
+      <KDropdownMenu
+        :options="fileOptions"
+        @select="download"
+      />
+    </template>
+  </KButton>
 
 </template>
 

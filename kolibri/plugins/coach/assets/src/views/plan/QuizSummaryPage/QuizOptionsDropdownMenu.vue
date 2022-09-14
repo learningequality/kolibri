@@ -1,12 +1,17 @@
 <template>
 
-  <KDropdownMenu
-    :text="coreString('optionsLabel')"
-    :options="options"
+  <KButton
+    hasDropdown
     appearance="flat-button"
-    :primary="false"
-    @select="$emit('select', $event.value)"
-  />
+    :text="coreString('optionsLabel')"
+  >
+    <template #menu>
+      <KDropdownMenu
+        :options="options"
+        @select="$emit('select', $event.value)"
+      />
+    </template>
+  </KButton>
 
 </template>
 
