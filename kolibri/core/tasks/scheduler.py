@@ -182,6 +182,13 @@ class Scheduler(StorageMixin):
             scheduled_jobs = self._ns_query(s).all()
             return [Job.from_json(o.saved_job) for o in scheduled_jobs]
 
+    def test_table_readable(self):
+        """
+        Do a quick query to raise errors if the database is unusable.
+        """
+        with self.session_scope() as s:
+            self._ns_query(s).first()
+
     def count(self):
         with self.session_scope() as s:
             return self._ns_query(s).count()

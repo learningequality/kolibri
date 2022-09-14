@@ -4,6 +4,8 @@ import tempfile
 from django.db.utils import OperationalError
 from django.test import TestCase
 from mock import patch
+from sqlalchemy.exc import OperationalError as SQLAlchemyOperationalError
+from sqlalchemy.exc import ProgrammingError as SQLAlchemyProgrammingError
 
 from kolibri.utils import sanity_checks
 from kolibri.utils.sanity_checks import DatabaseNotMigrated
@@ -52,3 +54,31 @@ class SanityCheckTestCase(TestCase):
             get_or_create_current_instance.side_effect = OperationalError("Test")
             with self.assertRaises(DatabaseNotMigrated):
                 sanity_checks.check_database_is_migrated()
+
+    def test_ensure_job_tables_created_operational_error(self):
+        with patch("kolibri.core.tasks.main.job_storage") as job_storage, patch(
+            "kolibri.core.tasks.main.scheduler"
+        ) as scheduler:
+            job_storage.test_table_readable.side_effect = SQLAlchemyOperationalError(
+                "Test", "", ""
+            )
+            scheduler.test_table_readable.side_effect = SQLAlchemyOperationalError(
+                "Test", "", ""
+            )
+            sanity_checks.ensure_job_tables_created()
+            job_storage.recreate_tables.assert_called_once()
+            scheduler.recreate_tables.assert_called_once()
+
+    def test_ensure_job_tables_created_programming_error(self):
+        with patch("kolibri.core.tasks.main.job_storage") as job_storage, patch(
+            "kolibri.core.tasks.main.scheduler"
+        ) as scheduler:
+            job_storage.test_table_readable.side_effect = SQLAlchemyProgrammingError(
+                "Test", "", ""
+            )
+            scheduler.test_table_readable.side_effect = SQLAlchemyProgrammingError(
+                "Test", "", ""
+            )
+            sanity_checks.ensure_job_tables_created()
+            job_storage.recreate_tables.assert_called_once()
+            scheduler.recreate_tables.assert_called_once()
