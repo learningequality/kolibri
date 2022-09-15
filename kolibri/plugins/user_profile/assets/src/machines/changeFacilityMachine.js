@@ -118,10 +118,19 @@ const generateMachineContext = () => {
     // Doesn't necessarily capture all transitions as it is used
     // for user-facing back navigation, therefore we don't want to
     // save  rather internal transitions here.
+    //
     // Each state can save itself explicitly to history by calling
     // `send({ type: 'PUSH_HISTORY', value: <stateName> })` action,
     // typically this would happen when moving forward to another
-    // state, e.g. in `CONTINUE` transition or similar.
+    // state, e.g. in `CONTINUE` transition or similar. This explicitness
+    // is intentional to give us more control; for example, we don’t want
+    // to push each state name to history as some of them are not-user facing.
+    //
+    // XState's history node didn't seem to suitable after some
+    // first experiments since it requires nested states that we currently
+    // don't use and it seems that it's made for a bit different use case
+    // (moving to/out nested states and remembering the last children state)
+    // than our history.
     history: [],
   };
 };
@@ -394,7 +403,21 @@ export const changeFacilityMachine = createMachine({
     PUSH_HISTORY: {
       actions: [pushHistoryItem],
     },
-    // inspired by https://github.com/statelyai/xstate/discussions/1939
+    // Inspired by https://github.com/statelyai/xstate/discussions/1939
+    // Generates
+    // BACK: [
+    //  { target: 'state-1',
+    //    cond: context.history[context.history.length - 1] === 'state-1',
+    //    actions: [removeLastHistoryItem]
+    //  },
+    //  { target: 'state-2',
+    //    cond: context.history[context.history.length - 1] === 'state-2',
+    //    actions: [removeLastHistoryItem]
+    //  },
+    //  ...
+    // ]
+    // to keep things DRY, however when compared to defining transitions explicitly,
+    // has some disadvantages, e.g. worse state visualization.
     BACK: Object.keys(states).map(state => {
       return {
         target: state,
