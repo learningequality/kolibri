@@ -42,18 +42,16 @@
           <div class="total-points">
             <slot name="totalPointsMenuItem"></slot>
           </div>
-          <span v-if="isUserLoggedIn" class="username" tabindex="-1">
+          <span v-if="isUserLoggedIn" tabindex="-1">
             <KIcon
               icon="person"
               :style="{
                 fill: $themeTokens.textInverted,
-                height: '24px',
-                width: '24px',
-                margin: '4px',
-                top: '8px',
+                height: '20px',
+                width: '20px',
               }"
             />
-            {{ usernameForDisplay }}
+            <span class="username">{{ usernameForDisplay }}</span>
           </span>
 
         </div>
