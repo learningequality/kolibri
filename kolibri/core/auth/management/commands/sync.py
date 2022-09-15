@@ -29,7 +29,7 @@ class Command(MorangoSyncCommand):
         parser.add_argument(
             "--chunk-size",
             type=int,
-            default=500,
+            default=200,
             help="Chunk size of records to send/retrieve per request",
         )
         parser.add_argument(
