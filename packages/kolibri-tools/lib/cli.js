@@ -504,8 +504,10 @@ program
         },
       ];
     } else {
+      cliLogging.error('This command requires one of the following configurations of arguments:');
+      cliLogging.error('1) The --pluginFile, --plugins, or --pluginPath argument.');
       cliLogging.error(
-        'If you pass --searchPath, you must also include --localeDataFolder and --namespace'
+        '2) The --searchPath argument along with the --localeDataFolder and --namespace arguments.'
       );
       program.command('i18n-extract-messages').help();
     }
