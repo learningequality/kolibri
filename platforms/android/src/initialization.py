@@ -14,6 +14,9 @@ sys.path.append(script_dir)
 sys.path.append(os.path.join(script_dir, "kolibri", "dist"))
 sys.path.append(os.path.join(script_dir, "extra-packages"))
 
+os.environ["KOLIBRI_HOME"] = get_home_folder()
+os.environ["KOLIBRI_APK_VERSION_NAME"] = get_version_name()
+os.environ["DJANGO_SETTINGS_MODULE"] = "kolibri_app_settings"
 signing_org = get_signature_key_issuing_organization()
 if signing_org == "Learning Equality":
     runmode = "android-testing"
@@ -28,9 +31,6 @@ os.environ["KOLIBRI_RUN_MODE"] = runmode
 os.environ["TZ"] = get_timezone_name()
 os.environ["LC_ALL"] = "en_US.UTF-8"
 
-os.environ["KOLIBRI_HOME"] = get_home_folder()
-os.environ["KOLIBRI_APK_VERSION_NAME"] = get_version_name()
-os.environ["DJANGO_SETTINGS_MODULE"] = "kolibri_app_settings"
 
 os.environ["KOLIBRI_CHERRYPY_THREAD_POOL"] = "2"
 
