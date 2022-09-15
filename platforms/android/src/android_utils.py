@@ -49,18 +49,78 @@ def get_version_name():
     return get_package_info().versionName
 
 
+ACTIVITY = None
+
+
 def get_activity():
-    if is_service_context():
-        return cast("android.app.Service", get_service())
-    else:
-        PythonActivity = autoclass("org.kivy.android.PythonActivity")
-        return PythonActivity.mActivity
+    global ACTIVITY
+    if ACTIVITY is None:
+        if is_service_context():
+            ACTIVITY = cast("android.app.Service", get_service())
+        else:
+            PythonActivity = autoclass("org.kivy.android.PythonActivity")
+            ACTIVITY = PythonActivity.mActivity
+    return ACTIVITY
+
+
+HOME_FILE = None
+
+
+def get_external_files_dir():
+    global HOME_FILE
+    if HOME_FILE is None:
+        HOME_FILE = get_activity().getExternalFilesDir(None).toString()
+    return HOME_FILE
 
 
 # TODO: check for storage availability, allow user to chose sd card or internal
 def get_home_folder():
-    kolibri_home_file = get_activity().getExternalFilesDir(None)
-    return os.path.join(kolibri_home_file.toString(), "KOLIBRI_DATA")
+    return os.path.join(get_external_files_dir(), "KOLIBRI_DATA")
+
+
+class AndroidValueCache:
+    """
+    A helper class to cache values to disk that might otherwise be expensive to
+    query from Android APIs, and that we are pretty sure will be static.
+    """
+
+    __slots__ = "_storage_path", "_dict"
+
+    def __init__(self):
+        self._dict = {}
+        self._storage_path = None
+
+    def _load(self, key):
+        try:
+            with open(os.path.join(self._storage_path, key)) as f:
+                self._dict[key] = f.read().strip()
+        except FileNotFoundError:
+            pass
+
+    def _ensure_storage(self):
+        if self._storage_path is None:
+            # Store this in the parent of the Kolibri home dir to prevent collisions.
+            self._storage_path = os.path.join(get_external_files_dir(), ".value_cache")
+            if not os.path.exists(self._storage_path):
+                os.mkdir(self._storage_path)
+
+    def get(self, key):
+        self._ensure_storage()
+        if key not in self._dict:
+            self._load(key)
+        return self._dict.get(key)
+
+    def set(self, key, value):
+        self._ensure_storage()
+        self._dict[key] = value
+        self._save(key)
+
+    def _save(self, key):
+        with open(os.path.join(self._storage_path, key), "w") as f:
+            f.write(self._dict[key])
+
+
+value_cache = AndroidValueCache()
 
 
 def send_whatsapp_message(msg):
@@ -161,6 +221,13 @@ def get_signature_key_issuer():
 
 
 def get_signature_key_issuing_organization():
-    signer = get_signature_key_issuer()
-    orgs = re.findall(r"\bO=([^,]+)", signer)
-    return orgs[0] if orgs else ""
+    cache_key = "SIGNATURE_KEY_ORG"
+    value = value_cache.get(cache_key)
+    if value is None:
+        signer = get_signature_key_issuer()
+        orgs = re.findall(r"\bO=([^,]+)", signer)
+        value = orgs[0] if orgs else ""
+        value_cache.set(cache_key, value)
+    else:
+        print("Using cached value for issuing org")
+    return value
