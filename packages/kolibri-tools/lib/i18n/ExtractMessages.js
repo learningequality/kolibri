@@ -12,7 +12,7 @@ function clearCsvPath(csvPath) {
   logging.info(`Removing existing messages files from ${csvPath}`);
 
   try {
-    const removedFiles = del.sync(path.join(csvPath, '*.csv'));
+    const removedFiles = del.sync(path.join(csvPath, '*.csv'), { force: true });
     logging.info(`Successfully cleared path for CSVs by removing: ${removedFiles.join('\n')}`);
   } catch (e) {
     logging.error('Failed to clear CSV path. Error message to follow...');
