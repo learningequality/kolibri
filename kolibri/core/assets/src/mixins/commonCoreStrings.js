@@ -368,7 +368,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   searchForUser: {
     message: 'Search for a user...',
     context:
-      'Text which appears in the search field above the table with users from whose to choose from (e.g. when enrolling learners to a class, selecting users to sync, etc.)',
+      'Text which appears in the search field above the table with users from whom to choose from (e.g. when enrolling learners to a class, selecting users to sync, etc.)',
   },
   findSomethingToLearn: {
     message: 'Find something to learn',
