@@ -322,7 +322,7 @@ export default function useLearnerResources() {
    * @public
    */
   function fetchResumableContentNodes() {
-    const params = { resume: true, max_results: 12 };
+    const params = { resume: true, max_results: 12, ordering: '-last_interacted' };
     fetchContentNodeProgress(params);
     return ContentNodeResource.fetchResume(params).then(({ results, more }) => {
       if (!results || !results.length) {

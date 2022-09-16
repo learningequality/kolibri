@@ -166,7 +166,7 @@ def test_kolibri_listen_port_env(monkeypatch):
 
         test_port = 1234
 
-        test_zip_port = 5432
+        test_zip_port = 1432
 
         os.environ["KOLIBRI_HTTP_PORT"] = str(test_port)
 

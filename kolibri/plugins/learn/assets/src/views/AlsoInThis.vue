@@ -320,7 +320,7 @@
 
     .forward-icon {
       position: absolute;
-      top: 34px;
+      top: 15px;
       right: $parent-padding;
       width: $icon-size;
       height: $icon-size;

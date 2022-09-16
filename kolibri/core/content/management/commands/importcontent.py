@@ -34,8 +34,13 @@ COPY_METHOD = "copy"
 
 logger = logging.getLogger(__name__)
 
-FILE_TRANSFERRED = 0
-FILE_SKIPPED = 1
+
+class FileCorrupted(Exception):
+    """
+    Transferred file does not match the expected checksum
+    """
+
+    pass
 
 
 def lookup_channel_listing_status(channel_id, baseurl=None):
@@ -517,12 +522,19 @@ class Command(AsyncCommand):
                     ):
                         f, filetransfer = future_file_transfers[future]
                         try:
-                            status, data_transferred = future.result()
+                            error, data_transferred = future.result()
                             overall_progress_update(data_transferred)
                             if self.is_cancelled():
                                 break
 
-                            if status == FILE_SKIPPED:
+                            if error:
+                                if fail_on_error:
+                                    raise error
+                                logger.error(
+                                    "An error occurred during content import: {}".format(
+                                        error
+                                    )
+                                )
                                 number_of_skipped_files += 1
                             else:
                                 file_checksums_to_annotate.append(f["id"])
@@ -540,11 +552,12 @@ class Command(AsyncCommand):
                                 "An error occurred during content import: {}".format(e)
                             )
 
-                            if (
-                                not fail_on_error
-                                and isinstance(e, requests.exceptions.HTTPError)
+                            is_file_missing_error = (
+                                isinstance(e, requests.exceptions.HTTPError)
                                 and e.response.status_code == 404
-                            ) or (isinstance(e, OSError) and e.errno == 2):
+                            ) or (isinstance(e, OSError) and e.errno == 2)
+
+                            if is_file_missing_error and not fail_on_error:
                                 # Continue file import when the current file is not found from the source and is skipped.
                                 overall_progress_update(f["file_size"])
                                 number_of_skipped_files += 1
@@ -596,9 +609,10 @@ class Command(AsyncCommand):
     def _start_file_transfer(self, f, filetransfer):
         """
         Start to transfer the file from network/disk to the destination.
-        Return value:
-            * FILE_TRANSFERRED - successfully transfer the file.
-            * FILE_SKIPPED - the file does not exist so it is skipped.
+
+        Returns a tuple containing an error that occurred and the amount
+        of data transferred. The error value will be None if no error
+        occurred.
         """
         data_transferred = 0
 
@@ -622,15 +636,14 @@ class Command(AsyncCommand):
             except (IOError, OSError):
                 checksum_correctness = False
             if not checksum_correctness:
-                e = "File {} is corrupted.".format(filetransfer.source)
-                logger.error("An error occurred during content import: {}".format(e))
+                e = FileCorrupted("File {} is corrupted.".format(filetransfer.source))
                 try:
                     os.remove(filetransfer.dest)
                 except OSError:
                     pass
-                return FILE_SKIPPED, data_transferred
+                return e, data_transferred
 
-        return FILE_TRANSFERRED, data_transferred
+        return None, data_transferred
 
     def handle_async(self, *args, **options):
         if options["manifest"] and (
