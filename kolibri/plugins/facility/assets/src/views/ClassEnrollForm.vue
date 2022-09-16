@@ -10,7 +10,7 @@
       :numFilteredItems="totalLearners"
     >
       <template #filter>
-        <FilterTextbox v-model="search" :placeholder="$tr('searchForUser')" />
+        <FilterTextbox v-model="search" :placeholder="coreString('searchForUser')" />
       </template>
       <template>
         <UserTable
@@ -154,10 +154,6 @@
         message: 'All users are already enrolled in this class',
         context:
           'If all the users in a facility are already enrolled in a class, no more can be added.',
-      },
-      searchForUser: {
-        message: 'Search for a user',
-        context: 'Descriptive text which appears in the search field on the Facility > Users page.',
       },
     },
   };

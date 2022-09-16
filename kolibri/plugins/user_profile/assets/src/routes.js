@@ -5,12 +5,12 @@ import ProfileEditPage from './views/ProfileEditPage';
 import ChangeFacility from './views/ChangeFacility';
 import ConfirmMerge from './views/ChangeFacility/ConfirmMerge';
 import SelectFacility from './views/ChangeFacility/SelectFacility';
-import ConfirmAccount from './views/ChangeFacility/ConfirmAccount';
+import ConfirmAccountUsername from './views/ChangeFacility/ConfirmAccountUsername';
 import ConfirmChangeFacility from './views/ChangeFacility/ConfirmChangeFacility';
 import MergeAccountDialog from './views/ChangeFacility/MergeAccountDialog';
 import ConfirmAccountDetails from './views/ChangeFacility/MergeAccountDialog/ConfirmAccountDetails';
 import CreateAccount from './views/ChangeFacility/CreateAccount';
-
+import ChooseAdmin from './views/ChangeFacility/ChooseAdmin';
 import ToBeDone from './views/ChangeFacility/ToBeDone';
 import UsernameExists from './views/ChangeFacility/UsernameExists';
 import MergeUsernameExists from './views/ChangeFacility/MergeUsernameExists';
@@ -74,13 +74,13 @@ export default [
 
       {
         path: 'confirm_account',
-        name: 'CONFIRM_ACCOUNT',
-        component: ConfirmAccount,
+        name: 'CONFIRM_ACCOUNT_USERNAME',
+        component: ConfirmAccountUsername,
       },
       {
         path: 'choose_admin',
         name: 'CHOOSE_ADMIN',
-        component: ToBeDone,
+        component: ChooseAdmin,
       },
       {
         path: 'confirm_merge',

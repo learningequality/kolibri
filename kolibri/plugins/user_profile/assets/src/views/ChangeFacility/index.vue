@@ -5,7 +5,7 @@
       :appBarTitle="coreString('changeLearningFacility')"
       :route="$router.getRoute('PROFILE')"
     >
-      <KPageContainer style="width: 1000px; margin: 32px auto 0;">
+      <KPageContainer style="maxWidth: 1000px; margin: 32px auto 0;">
         <router-view />
       </KPageContainer>
     </ImmersivePage>
@@ -45,6 +45,7 @@
     data() {
       return {
         service: interpret(changeFacilityMachine),
+        previousMachineStateName: '',
         state: changeFacilityMachine.initialState,
         currentRoute: this.$router.currentRoute.name,
         appBarHeight: 0,
@@ -69,6 +70,10 @@
     created() {
       this.service.start();
       this.service.onTransition(state => {
+        if (state.value === 'error') {
+          this.onMachineError(state);
+          return;
+        }
         const stateID = Object.keys(state.meta)[0];
         if (state.meta[stateID] !== undefined) {
           let newRoute = state.meta[stateID].route;
@@ -106,10 +111,21 @@
           value: {
             facility: this.session.facility_id,
             username: this.session.username,
+            userId: this.session.user_id,
             role: this.getUserKind,
           },
         });
       }
+    },
+    methods: {
+      onMachineError(machineState) {
+        this.$store.commit(
+          'CORE_SET_ERROR',
+          `An error occured in the '${this.previousMachineStateName}' state of the change facility machine`
+        );
+        this.service.send('RESET');
+        this.previousMachineStateName = machineState.value;
+      },
     },
     $trs: {
       documentTitle: {

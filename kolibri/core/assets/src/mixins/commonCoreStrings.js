@@ -365,6 +365,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Search',
     context: 'Test used to indicate the Kolibri search field.',
   },
+  searchForUser: {
+    message: 'Search for a user...',
+    context:
+      'Text which appears in the search field above the table with users from whom to choose from (e.g. when enrolling learners to a class, selecting users to sync, etc.)',
+  },
   findSomethingToLearn: {
     message: 'Find something to learn',
     context: 'Suggestion located inside the the keyword search field.',
