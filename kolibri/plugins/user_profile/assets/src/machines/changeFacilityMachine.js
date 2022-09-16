@@ -77,6 +77,10 @@ const setSourceFacilityUsers = assign({
   sourceFacilityUsers: (_, event) => event.data,
 });
 
+const clearSourceFacilityUsers = assign({
+  sourceFacilityUsers: [],
+});
+
 const resetMachineContext = assign(() => {
   return generateMachineContext();
 });
@@ -274,7 +278,10 @@ const states = {
       CONTINUE: {
         target: 'checkIsMerging',
         cond: context => !!context.newSuperAdminId,
-        actions: [send({ type: 'PUSH_HISTORY', value: 'chooseAdmin' })],
+        // clear source facility users data as soon as it's not needed
+        // anymore to prevent high memory consumption as there could
+        // be many users
+        actions: [clearSourceFacilityUsers, send({ type: 'PUSH_HISTORY', value: 'chooseAdmin' })],
       },
       SELECTNEWSUPERADMIN: { actions: setNewSuperAdminId },
     },
