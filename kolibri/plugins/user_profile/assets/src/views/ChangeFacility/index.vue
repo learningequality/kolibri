@@ -71,30 +71,25 @@
       this.service.start();
       this.service.onTransition(state => {
         if (state.value === 'error') {
-          this.$store.commit(
-            'CORE_SET_ERROR',
-            `An error occured in the '${this.previousMachineStateName}' state of the change facility machine`
-          );
-          this.service.send('RESET');
-        } else {
-          const stateID = Object.keys(state.meta)[0];
-          if (state.meta[stateID] !== undefined) {
-            let newRoute = state.meta[stateID].route;
-            if (newRoute != this.$router.currentRoute.name) {
-              if ('path' in state.meta[stateID]) {
-                this.internalNavigation = true;
-                this.$router.push(
-                  { name: newRoute, path: state.meta[stateID].path },
-                  function() {
-                    this.internalNavigation = false;
-                  }.bind(this)
-                );
-              } else this.$router.push(newRoute);
-            }
-            this.currentRoute = newRoute;
-          }
+          this.onMachineError(state);
+          return;
         }
-        this.previousMachineStateName = state.value;
+        const stateID = Object.keys(state.meta)[0];
+        if (state.meta[stateID] !== undefined) {
+          let newRoute = state.meta[stateID].route;
+          if (newRoute != this.$router.currentRoute.name) {
+            if ('path' in state.meta[stateID]) {
+              this.internalNavigation = true;
+              this.$router.push(
+                { name: newRoute, path: state.meta[stateID].path },
+                function() {
+                  this.internalNavigation = false;
+                }.bind(this)
+              );
+            } else this.$router.push(newRoute);
+          }
+          this.currentRoute = newRoute;
+        }
         this.state = state;
       });
     },
@@ -121,6 +116,16 @@
           },
         });
       }
+    },
+    methods: {
+      onMachineError(machineState) {
+        this.$store.commit(
+          'CORE_SET_ERROR',
+          `An error occured in the '${this.previousMachineStateName}' state of the change facility machine`
+        );
+        this.service.send('RESET');
+        this.previousMachineStateName = machineState.value;
+      },
     },
     $trs: {
       documentTitle: {
