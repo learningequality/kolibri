@@ -16,7 +16,7 @@ export function getRemoteChannelByToken(token) {
 }
 
 export function getRemoteChannelBundleByToken(token) {
-  return RemoteChannelResource.fetchChannelList(token);
+  return RemoteChannelResource.fetchCollection({ getParams: { token } });
 }
 
 /**
