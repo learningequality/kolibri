@@ -325,14 +325,18 @@
       },
       handleSubmitToken({ token, channels }) {
         if (channels.length > 1) {
-          this.disableModal = true;
-          this.$router.push({
-            ...this.$route,
-            query: {
-              ...this.$route.query,
-              token,
-            },
-          });
+          if (this.$route.query.token !== token) {
+            this.disableModal = true;
+            this.$router.push({
+              ...this.$route,
+              query: {
+                ...this.$route.query,
+                token,
+              },
+            });
+          } else {
+            this.showTokenModal = false;
+          }
         } else {
           this.goToSelectContentPageForChannel(channels[0]);
         }
