@@ -22,7 +22,6 @@
 <script>
 
   import { validateLinkObject } from 'kolibri.utils.validators';
-  // import UiIcon from 'kolibri-design-system/lib/keen/UiIcon';
 
   /**
    Links for use inside the Navbar
@@ -102,7 +101,6 @@
   //  3. Somehow refactor the tab styling to not require nested active classes
   .router-link-active {
     font-weight: bold;
-    // padding-bottom: 2px;
     color: white;
     border-bottom-color: white;
     border-bottom-style: solid;
