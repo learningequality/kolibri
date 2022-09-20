@@ -9,7 +9,6 @@
       <KIcon
         icon="channel"
         :color="$themeTokens.textInverted"
-        style="top: 0; width: 24px; height: 24px;"
       />
     </NavbarLink>
     <NavbarLink
@@ -20,7 +19,6 @@
       <KIcon
         icon="permissions"
         :color="$themeTokens.textInverted"
-        style="top: 0; width: 24px; height: 24px;"
       />
     </NavbarLink>
     <NavbarLink
@@ -31,7 +29,6 @@
       <KIcon
         icon="facility"
         :color="$themeTokens.textInverted"
-        style="top: 0; width: 24px; height: 24px;"
       />
     </NavbarLink>
     <NavbarLink
@@ -42,7 +39,6 @@
       <KIcon
         icon="deviceInfo"
         :color="$themeTokens.textInverted"
-        style="top: 0; width: 24px; height: 24px;"
       />
     </NavbarLink>
     <NavbarLink
@@ -53,7 +49,6 @@
       <KIcon
         icon="settings"
         :color="$themeTokens.textInverted"
-        style="top: 0; width: 24px; height: 24px;"
       />
     </NavbarLink>
   </Navbar>

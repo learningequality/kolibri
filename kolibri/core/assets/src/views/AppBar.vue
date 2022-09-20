@@ -32,30 +32,32 @@
         >
       </template>
 
+      <template v-if="windowIsLarge" #navigation>
+        <slot name="sub-nav"></slot>
+      </template>
+
       <template #actions>
         <div>
           <slot name="app-bar-actions"></slot>
           <div class="total-points">
             <slot name="totalPointsMenuItem"></slot>
           </div>
-          <span v-if="isUserLoggedIn" class="username" tabindex="-1">
+          <span v-if="isUserLoggedIn" tabindex="-1">
             <KIcon
               icon="person"
               :style="{
                 fill: $themeTokens.textInverted,
-                height: '24px',
-                width: '24px',
-                margin: '4px',
-                top: '8px',
+                height: '20px',
+                width: '20px',
               }"
             />
-            {{ usernameForDisplay }}
+            <span class="username">{{ usernameForDisplay }}</span>
           </span>
 
         </div>
       </template>
     </UiToolbar>
-    <div class="subpage-nav">
+    <div v-if="!windowIsLarge" class="subpage-nav">
       <slot name="sub-nav"></slot>
     </div>
   </div>
@@ -71,6 +73,7 @@
   import KIconButton from 'kolibri-design-system/lib/buttons-and-links/KIconButton';
   import { SyncStatus } from 'kolibri.coreVue.vuex.constants';
   import themeConfig from 'kolibri.themeConfig';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import navComponentsMixin from '../mixins/nav-components';
   import SkipNavigationLink from './SkipNavigationLink';
   import plugin_data from 'plugin_data';
@@ -84,7 +87,7 @@
       KIconButton,
       SkipNavigationLink,
     },
-    mixins: [commonCoreStrings, navComponentsMixin],
+    mixins: [commonCoreStrings, navComponentsMixin, responsiveWindowMixin],
     setup() {
       return { themeConfig };
     },
@@ -219,12 +222,19 @@
     margin-left: 16px;
   }
 
-  /deep/ .ui-toolbar__brand {
-    min-width: inherit;
+  /deep/ .ui-toolbar__body {
+    display: inline-block;
+    margin-bottom: 12px;
   }
 
   /deep/ .ui-toolbar__title {
-    margin-right: 10px;
+    display: flex;
+    align-items: center;
+  }
+
+  /deep/ .ui-toolbar__nav-icon {
+    display: flex;
+    align-items: center;
   }
 
   .brand-logo {

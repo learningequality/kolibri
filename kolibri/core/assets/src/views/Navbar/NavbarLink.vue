@@ -7,13 +7,7 @@
       :to="link"
     >
       <div class="dimmable tab-icon">
-        <UiIcon
-          class="icon"
-          tabindex="-1"
-        >
-          <!--The icon svg-->
-          <slot></slot>
-        </UiIcon>
+        <slot></slot>
       </div>
 
       <div class="dimmable tab-title" tabindex="-1">
@@ -28,14 +22,12 @@
 <script>
 
   import { validateLinkObject } from 'kolibri.utils.validators';
-  import UiIcon from 'kolibri-design-system/lib/keen/UiIcon';
 
   /**
    Links for use inside the Navbar
    */
   export default {
     name: 'NavbarLink',
-    components: { UiIcon },
     props: {
       /**
        * The text
@@ -85,8 +77,8 @@
     display: inline-block;
     min-width: 72px;
     max-width: 264px;
-    padding: 0 18px;
-    padding-bottom: 3px;
+    padding: 0 16px;
+    padding-bottom: 6px;
     margin: 0;
     font-size: 14px;
     text-decoration: none;
@@ -108,11 +100,11 @@
   //     https://github.com/vuejs/rfcs/pull/34
   //  3. Somehow refactor the tab styling to not require nested active classes
   .router-link-active {
-    padding-bottom: 2px;
+    font-weight: bold;
     color: white;
     border-bottom-color: white;
     border-bottom-style: solid;
-    border-bottom-width: 2px;
+    border-bottom-width: 4px;
 
     .dimmable {
       opacity: 1;
@@ -120,7 +112,12 @@
   }
 
   .icon {
-    font-size: 24px;
+    top: 0;
+  }
+
+  svg {
+    width: 14px;
+    height: 14px;
   }
 
   .tab-icon {
@@ -131,10 +128,20 @@
 
   .tab-title {
     display: inline-block;
-    font-weight: bold;
     text-overflow: ellipsis;
-    text-transform: uppercase;
-    vertical-align: middle;
+  }
+
+  // for small screens
+
+  @media (max-width: 600px) {
+    .tab {
+      padding: 0 8px;
+      font-size: 12px;
+    }
+
+    .router-link-active {
+      border-bottom-width: 2px;
+    }
   }
 
 </style>

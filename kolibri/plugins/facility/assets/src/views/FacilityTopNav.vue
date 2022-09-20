@@ -8,7 +8,6 @@
       <KIcon
         icon="classes"
         :color="$themeTokens.textInverted"
-        style="top: 0; width: 24px; height: 24px;"
       />
     </NavbarLink>
     <NavbarLink
@@ -18,7 +17,6 @@
       <KIcon
         icon="people"
         :color="$themeTokens.textInverted"
-        style="top: 0; width: 24px; height: 24px;"
       />
     </NavbarLink>
     <NavbarLink
@@ -28,7 +26,6 @@
       <KIcon
         icon="settings"
         :color="$themeTokens.textInverted"
-        style="top: 0; width: 24px; height: 24px;"
       />
     </NavbarLink>
     <NavbarLink
@@ -38,7 +35,6 @@
       <KIcon
         icon="save"
         :color="$themeTokens.textInverted"
-        style="top: 0; width: 24px; height: 24px;"
       />
     </NavbarLink>
   </Navbar>
