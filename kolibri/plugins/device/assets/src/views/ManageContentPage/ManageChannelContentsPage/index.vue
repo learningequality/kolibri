@@ -87,6 +87,7 @@
   import get from 'lodash/get';
   import last from 'lodash/last';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import { TransferTypes } from 'kolibri.utils.syncTaskUtils';
   import useContentTasks from '../../../composables/useContentTasks';
   import ChannelContentsSummary from '../../SelectContentPage/ChannelContentsSummary';

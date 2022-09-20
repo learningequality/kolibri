@@ -121,6 +121,7 @@
   import map from 'lodash/map';
   import get from 'lodash/get';
   import { mapState } from 'vuex';
+  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskResource } from 'kolibri.resources';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';

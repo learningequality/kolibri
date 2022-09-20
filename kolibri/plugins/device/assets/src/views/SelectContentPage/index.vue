@@ -89,9 +89,6 @@
   import find from 'lodash/find';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { TaskResource } from 'kolibri.resources';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
-  import { TaskTypes } from 'kolibri.utils.syncTaskUtils';
-  import { ContentWizardErrors, PageNames } from '../../constants';
   import TaskProgress from '../ManageContentPage/TaskProgress';
   import useContentTasks from '../../composables/useContentTasks';
   import SelectionBottomBar from '../ManageContentPage/SelectionBottomBar';
@@ -99,13 +96,7 @@
   import { updateTreeViewTopic } from '../../modules/wizard/handlers';
   import { getChannelWithContentSizes } from '../../modules/wizard/apiChannelMetadata';
   import NewChannelVersionBanner from '../ManageContentPage/NewChannelVersionBanner';
-  import { getChannelWithContentSizes } from '../../modules/wizard/apiChannelMetadata';
-  import { updateTreeViewTopic } from '../../modules/wizard/handlers';
-  import taskNotificationMixin from '../taskNotificationMixin';
-  import SelectionBottomBar from '../ManageContentPage/SelectionBottomBar';
   import { ContentWizardPages, ContentWizardErrors } from '../../constants';
-  import useContentTasks from '../../composables/useContentTasks';
-  import TaskProgress from '../ManageContentPage/TaskProgress';
   import AvailableChannelsPage from '../AvailableChannelsPage';
   import ChannelContentsSummary from './ChannelContentsSummary';
   import ContentTreeViewer from './ContentTreeViewer';

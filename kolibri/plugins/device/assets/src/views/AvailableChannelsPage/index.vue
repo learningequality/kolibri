@@ -120,6 +120,7 @@
   import some from 'lodash/some';
   import uniqBy from 'lodash/uniqBy';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskResource } from 'kolibri.resources';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
