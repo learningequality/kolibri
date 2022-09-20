@@ -2,8 +2,11 @@
 
   <Navbar>
     <div v-for="(link, index) in navigationLinks" :key="index" ref="navLinks">
+      <!-- seeting navbarlink to "not hidden" is a bit counter intutive,  -->
+      <!-- but it allows us to only sent the "hidden" value when needed -->
+      <!-- rather than for every link -->
       <NavbarLink
-        :vIf="link.isVisible"
+        v-if="!link.isHidden"
         :title="link.title"
         :link="link.link"
       >
@@ -103,25 +106,27 @@
         this.overflowMenuLinks = options;
       },
       updateNavigationTabDisplay() {
-        // to get the list item, rather than the wrapping <div>
-        const navItems = this.$refs.navLinks.map(item => item.firstElementChild);
-        let index = 0;
-        let viewportWidthTakenUp = 0;
-        let numberOfTabLinks = 0;
-        if (navItems && navItems.length > 0) {
-          while (index < navItems.length) {
-            viewportWidthTakenUp = viewportWidthTakenUp + navItems[index].offsetWidth;
-            if (viewportWidthTakenUp < window.innerWidth - 60) {
-              navItems[index].classList.add('visible');
-              numberOfTabLinks = index + 1;
-            } else {
-              navItems[index].classList.remove('visible');
+        if (this.$refs.navLinks) {
+          // to get the list item, rather than the wrapping <div>
+          const navItems = this.$refs.navLinks.map(item => item.firstElementChild);
+          let index = 0;
+          let viewportWidthTakenUp = 0;
+          let numberOfTabLinks = 0;
+          if (navItems && navItems.length > 0) {
+            while (index < navItems.length) {
+              viewportWidthTakenUp = viewportWidthTakenUp + navItems[index].offsetWidth;
+              if (viewportWidthTakenUp < window.innerWidth - 60) {
+                navItems[index].classList.add('visible');
+                numberOfTabLinks = index + 1;
+              } else {
+                navItems[index].classList.remove('visible');
+              }
+              index = index + 1;
             }
-            index = index + 1;
           }
+          this.numberOfNavigationTabsToDisplay = numberOfTabLinks;
+          this.generateOverflowMenu();
         }
-        this.numberOfNavigationTabsToDisplay = numberOfTabLinks;
-        this.generateOverflowMenu();
       },
     },
   };

@@ -1,6 +1,7 @@
 <template>
 
   <HorizontalNavBarWithOverflowMenu
+    v-if="links.length > 0"
     :navigationLinks="links"
   />
 
@@ -19,49 +20,48 @@
       HorizontalNavBarWithOverflowMenu,
     },
     mixins: [commonCoreStrings],
-    data() {
-      return {
-        links: [
-          {
-            isVisible: this.canManageContent,
+    computed: {
+      ...mapGetters(['canManageContent', 'isSuperuser']),
+      links() {
+        let list = [];
+        if (this.canManageContent) {
+          list.push({
             title: this.coreString('channelsLabel'),
             link: this.$router.getRoute('MANAGE_CONTENT_PAGE'),
             icon: 'channel',
             color: this.$themeTokens.textInverted,
-          },
-          {
-            isVisible: this.isSuperuser,
-            title: this.$tr('permissionsLabel'),
-            link: this.$router.getRoute('MANAGE_PERMISSIONS_PAGE'),
-            icon: 'permissions',
-            color: this.$themeTokens.textInverted,
-          },
-          {
-            isVisible: this.isSuperuser,
-            title: this.coreString('facilitiesLabel'),
-            link: this.$router.getRoute('FACILITIES_PAGE'),
-            icon: 'facility',
-            color: this.$themeTokens.textInverted,
-          },
-          {
-            isVisible: this.isSuperuser,
-            title: this.$tr('infoLabel'),
-            link: this.$router.getRoute('DEVICE_INFO_PAGE'),
-            icon: 'deviceInfo',
-            color: this.$themeTokens.textInverted,
-          },
-          {
-            isVisible: this.isSuperuser,
-            title: this.$tr('settingsLabel'),
-            link: this.$router.getRoute('DEVICE_SETTINGS_PAGE'),
-            icon: 'settings',
-            color: this.$themeTokens.textInverted,
-          },
-        ],
-      };
-    },
-    computed: {
-      ...mapGetters(['canManageContent', 'isSuperuser']),
+          });
+        }
+        if (this.isSuperuser) {
+          list.push([
+            {
+              title: this.$tr('permissionsLabel'),
+              link: this.$router.getRoute('MANAGE_PERMISSIONS_PAGE'),
+              icon: 'permissions',
+              color: this.$themeTokens.textInverted,
+            },
+            {
+              title: this.coreString('facilitiesLabel'),
+              link: this.$router.getRoute('FACILITIES_PAGE'),
+              icon: 'facility',
+              color: this.$themeTokens.textInverted,
+            },
+            {
+              title: this.$tr('infoLabel'),
+              link: this.$router.getRoute('DEVICE_INFO_PAGE'),
+              icon: 'deviceInfo',
+              color: this.$themeTokens.textInverted,
+            },
+            {
+              title: this.$tr('settingsLabel'),
+              link: this.$router.getRoute('DEVICE_SETTINGS_PAGE'),
+              icon: 'settings',
+              color: this.$themeTokens.textInverted,
+            },
+          ]);
+        }
+        return list.flat();
+      },
     },
 
     $trs: {
