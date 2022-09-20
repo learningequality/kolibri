@@ -23,6 +23,7 @@ exports[`TaskPanel renders correctly when it is a canceled DISKCONTENTEXPORT tas
     </p>
   </div>
   <div class="buttons"><button dir="auto" type="button" tabindex="0" class="button KButton-noKey-0_37nh0f">
+      <!---->
       <!----> <span class="link-text">Clear</span>
       <!---->
       <!----></button></div>
@@ -52,6 +53,7 @@ exports[`TaskPanel renders correctly when it is a canceled DISKEXPORT task (bulk
     </p>
   </div>
   <div class="buttons"><button dir="auto" type="button" tabindex="0" class="button KButton-noKey-0_37nh0f">
+      <!---->
       <!----> <span class="link-text">Clear</span>
       <!---->
       <!----></button></div>
