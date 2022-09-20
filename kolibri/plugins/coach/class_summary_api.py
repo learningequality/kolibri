@@ -2,10 +2,7 @@ from django.db import connections
 from django.db.models import Count
 from django.db.models import F
 from django.db.models import Max
-from django.db.models import OuterRef
 from django.db.models import Q
-from django.db.models import Subquery
-from django.db.models import Sum
 from django.db.utils import OperationalError
 from django.shortcuts import get_object_or_404
 from le_utils.constants import content_kinds
@@ -22,6 +19,7 @@ from kolibri.core.content.models import ContentNode
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger import models as logger_models
+from kolibri.core.logger.utils.quiz import annotate_response_summary
 from kolibri.core.notifications.models import LearnerProgressNotification
 from kolibri.core.notifications.models import NotificationEventType
 from kolibri.core.query import annotate_array_aggregate
@@ -157,27 +155,8 @@ def serialize_exam_status(queryset):
     return list(
         map(
             _map_exam_status,
-            queryset.annotate(
-                last_activity=Max("attemptlogs__end_timestamp"),
-                num_correct=Subquery(
-                    logger_models.AttemptLog.objects.filter(masterylog=OuterRef("id"))
-                    .order_by()
-                    .values_list("item")
-                    .distinct()
-                    .values("masterylog")
-                    .annotate(total_correct=Sum("correct"))
-                    .values("total_correct")
-                ),
-                num_answered=Subquery(
-                    logger_models.AttemptLog.objects.filter(masterylog=OuterRef("id"))
-                    .order_by()
-                    .values_list("item")
-                    .distinct()
-                    .values("masterylog")
-                    .annotate(total_complete=Count("id"))
-                    .values("total_complete")
-                ),
-            )
+            annotate_response_summary(queryset)
+            .annotate(last_activity=Max("attemptlogs__end_timestamp"))
             .values(
                 "summarylog__content_id",
                 "complete",

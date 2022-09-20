@@ -250,7 +250,10 @@ class NotificationsAPITestCase(APITestCase):
             user=self.user1,
             mastery_level=-1,
         )
-
+        # Make sure we test with greater than 2 attempts
+        # as otherwise a regression is possible where
+        # the unique values of correct are counted
+        # rather than the unique attempt items.
         AttemptLog.objects.create(
             masterylog=masterylog_quiz,
             sessionlog=sessionlog_quiz,
@@ -259,6 +262,24 @@ class NotificationsAPITestCase(APITestCase):
             end_timestamp=local_now(),
             user=self.user1,
             correct=0,
+        )
+        AttemptLog.objects.create(
+            masterylog=masterylog_quiz,
+            sessionlog=sessionlog_quiz,
+            item="test1",
+            start_timestamp=local_now(),
+            end_timestamp=local_now(),
+            user=self.user1,
+            correct=1,
+        )
+        AttemptLog.objects.create(
+            masterylog=masterylog_quiz,
+            sessionlog=sessionlog_quiz,
+            item="test2",
+            start_timestamp=local_now(),
+            end_timestamp=local_now(),
+            user=self.user1,
+            correct=1,
         )
         quiz_completed_notification(masterylog_quiz, self.exam.id)
         assert save_notifications.called is False
@@ -269,8 +290,8 @@ class NotificationsAPITestCase(APITestCase):
         notification = save_notifications.call_args[0][0][0]
         assert notification.notification_object == NotificationObjectType.Quiz
         assert notification.notification_event == NotificationEventType.Completed
-        assert notification.quiz_num_answered == 1
-        assert notification.quiz_num_correct == 0
+        assert notification.quiz_num_answered == 3
+        assert notification.quiz_num_correct == 2
 
     @patch("kolibri.core.notifications.api.save_notifications")
     def test_quiz_started_notification(self, save_notifications):
