@@ -103,7 +103,7 @@ export default {
         // If exam.groups is empty, getLearnersForGroups returns the whole class
         // so only concat it if we're getting learners from specified groups
         return exam.groups.length
-          ? individuallyAssignedLearners.concat(this.getLearnersForGroups(exam.groups))
+          ? uniq(individuallyAssignedLearners.concat(this.getLearnersForGroups(exam.groups)))
           : individuallyAssignedLearners;
       } else {
         if (exam.assignments.length) {
@@ -127,7 +127,7 @@ export default {
         // If lesson.groups is empty, getLearnersForGroups returns the whole class
         // so only concat it if we're getting learners from specified groups
         return lesson.groups.length
-          ? individuallyAssignedLearners.concat(this.getLearnersForGroups(lesson.groups))
+          ? uniq(individuallyAssignedLearners.concat(this.getLearnersForGroups(lesson.groups)))
           : individuallyAssignedLearners;
       } else {
         if (lesson.assignments.length) {
