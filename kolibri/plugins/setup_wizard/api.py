@@ -84,10 +84,14 @@ class FacilityImportViewSet(ViewSet):
     def createsuperuser(self, request):
         """
         Given a username, full name and password, create a superuser attached
-        to the facility that was imported
+        to the facility that was imported (or create a facility with given facility_name)
         """
         # Get the imported facility (assuming its the only one at this point)
-        the_facility = Facility.objects.get()
+        try:
+            the_facility = Facility.objects.get()
+        except Facility.DoesNotExist:
+            name = request.data.get("facility_name", "")
+            the_facility = Facility.objects.create(name=name)
 
         try:
             superuser = FacilityUser.objects.create_superuser(
@@ -104,13 +108,14 @@ class FacilityImportViewSet(ViewSet):
     @decorators.action(methods=["post"], detail=False)
     def provisiondevice(self, request):
         """
-        After importing a Facility and designating/creating a super admins,
+        After creating/importing a Facility and designating/creating a super admins,
         provision the device using that facility
         """
 
         # TODO validate the data
         device_name = request.data.get("device_name", "")
         language_id = request.data.get("language_id", "")
+        is_provisioned = request.data.get("is_provisioned", False)
 
         # Get the imported facility (assuming its the only one at this point)
         the_facility = Facility.objects.get()
@@ -124,9 +129,10 @@ class FacilityImportViewSet(ViewSet):
             language_id=language_id,
             default_facility=the_facility,
             allow_guest_access=allow_guest_access,
+            is_provisioned=is_provisioned,
         )
 
-        return Response({})
+        return Response({"is_provisioned": is_provisioned})
 
     @decorators.action(methods=["post"], detail=False)
     def listfacilitylearners(self, request):

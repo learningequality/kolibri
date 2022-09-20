@@ -11,8 +11,8 @@ export const FacilityImportResource = new Resource({
   createsuperuser({ username, full_name, password }) {
     return this.postListEndpoint('createsuperuser', { username, full_name, password });
   },
-  provisiondevice({ device_name, language_id }) {
-    return this.postListEndpoint('provisiondevice', { device_name, language_id });
+  provisiondevice({ device_name, language_id, is_provisioned }) {
+    return this.postListEndpoint('provisiondevice', { device_name, language_id, is_provisioned });
   },
   facilityadmins() {
     return this.getListEndpoint('facilityadmins').then(response => {
