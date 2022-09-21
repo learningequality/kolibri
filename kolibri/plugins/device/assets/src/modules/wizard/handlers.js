@@ -103,11 +103,14 @@ export function showAvailableChannelsPage(store, params) {
     selectedDrivePromise = Promise.resolve({});
     availableChannelsPromise = new Promise((resolve, reject) => {
       getInstalledChannelsPromise(store).then(() => {
-        return RemoteChannelResource.fetchCollection()
+        return RemoteChannelResource.fetchCollection({ getParams: { token: params.token } })
           .then(remoteChannels => {
-            return store
-              .dispatch('manageContent/wizard/getAllRemoteChannels', remoteChannels)
-              .then(allChannels => resolve(allChannels));
+            if (!params.token) {
+              return store
+                .dispatch('manageContent/wizard/getAllRemoteChannels', remoteChannels)
+                .then(allChannels => resolve(allChannels));
+            }
+            resolve(remoteChannels);
           })
           .catch(() => reject({ error: ContentWizardErrors.KOLIBRI_STUDIO_UNAVAILABLE }));
       });

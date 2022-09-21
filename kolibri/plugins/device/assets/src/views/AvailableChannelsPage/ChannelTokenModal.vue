@@ -72,13 +72,7 @@
           this.formIsDisabled = true;
           return this.lookupToken(this.token)
             .then(channels => {
-              // tokens can return one or more channels
-              if (channels.length > 1) {
-                this.$store.commit('manageContent/wizard/SET_AVAILABLE_CHANNELS', channels);
-                this.$emit('cancel');
-              } else {
-                this.$emit('submit', channels[0]);
-              }
+              this.$emit('submit', { token: this.token, channels });
             })
             .catch(error => {
               if (error.response.status === 404) {

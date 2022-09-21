@@ -27,15 +27,29 @@
             @click="toggleMultipleMode"
           />
         </p>
-        <p v-if="showUnlistedChannels">
-          <KButton
-            data-test="token-button"
-            :text="$tr('channelTokenButtonLabel')"
-            appearance="raised-button"
-            name="showtokenmodal"
-            @click="showTokenModal = true"
-          />
-        </p>
+        <KButton
+          v-if="showUnlistedChannels"
+          data-test="token-button"
+          :text="$tr('channelTokenButtonLabel')"
+          appearance="raised-button"
+          name="showtokenmodal"
+          @click="showTokenModal = true"
+        />
+        <div
+          v-if="$route.query.token"
+          class="token-chip"
+          :style="{ backgroundColor: $themePalette.grey.v_300 }"
+        >
+          <span>
+            <p class="token-chip-text">{{ $route.query.token }}</p>
+            <KIconButton
+              icon="delete"
+              size="mini"
+              class="token-chip-button"
+              @click="clearToken"
+            />
+          </span>
+        </div>
         <p>
           <UiAlert
             v-show="notEnoughFreeSpace"
@@ -309,26 +323,34 @@
         }
         return this.$router.push({ query: newQuery });
       },
-      handleSubmitToken(channel) {
-        if (this.multipleMode) {
-          this.disableModal = true;
-          this.$store
-            .dispatch('manageContent/wizard/fetchUnlistedChannelInfo', channel.id)
-            .then(channels => {
-              const newChannels = channels.map(x => Object.assign(x, { newUnlistedChannel: true }));
-              // Need to de-duplicate channels in case user enters same token twice, etc.
-              this.newUnlistedChannels = uniqBy(
-                [...newChannels, ...this.newUnlistedChannels],
-                'id'
-              );
-              this.showTokenModal = false;
-              this.disableModal = false;
-            })
-            .catch(error => {
-              this.$store.dispatch('handleApiError', error);
+      handleSubmitToken({ token, channels }) {
+        if (channels.length > 1) {
+          if (this.$route.query.token !== token) {
+            this.disableModal = true;
+            this.$router.push({
+              ...this.$route,
+              query: {
+                ...this.$route.query,
+                token,
+              },
             });
+          } else {
+            this.showTokenModal = false;
+          }
         } else {
-          this.goToSelectContentPageForChannel(channel);
+          this.goToSelectContentPageForChannel(channels[0]);
+        }
+      },
+      clearToken() {
+        if (this.$route.query.token) {
+          const query = {
+            ...this.$route.query,
+          };
+          delete query.token;
+          this.$router.push({
+            ...this.$route,
+            query,
+          });
         }
       },
       goToSelectContentPageForChannel(channel) {
@@ -478,6 +500,26 @@
   .channel-list-header {
     padding: 16px 0;
     font-size: 14px;
+  }
+
+  .token-chip {
+    display: inline-block;
+    margin-left: 8px;
+    font-size: 14px;
+    vertical-align: middle;
+    border-radius: 34px;
+  }
+
+  .token-chip-text {
+    display: inline-block;
+    margin: 4px 0 4px 8px;
+    font-size: 14px;
+  }
+
+  .token-chip-button {
+    min-width: 24px !important;
+    margin: 2px;
+    vertical-align: middle;
   }
 
 </style>

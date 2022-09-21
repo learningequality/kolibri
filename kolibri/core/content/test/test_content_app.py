@@ -1719,14 +1719,6 @@ class KolibriStudioAPITestCase(APITestCase):
         self.assertEqual(response.data[0]["id"], 1)
 
     @mock_patch_decorator
-    def test_channel_retrieve_list(self):
-        response = self.client.get(
-            reverse("kolibri:core:remotechannel-retrieve-list", kwargs={"pk": 1}),
-            format="json",
-        )
-        self.assertEqual(response.data[0]["id"], 1)
-
-    @mock_patch_decorator
     def test_no_permission_non_superuser_channel_list(self):
         user = FacilityUser.objects.create(username="user", facility=self.facility)
         user.set_password(DUMMY_PASSWORD)
