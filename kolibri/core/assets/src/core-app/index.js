@@ -15,7 +15,6 @@ import KThemePlugin from 'kolibri-design-system/lib/KThemePlugin';
 import heartbeat from 'kolibri.heartbeat';
 import KContentPlugin from 'kolibri-design-system/lib/content/KContentPlugin';
 import initializeTheme from '../styles/initializeTheme';
-import KSelect from '../views/KSelect';
 import { i18nSetup, languageDirection } from '../utils/i18n';
 import ContentRendererErrorComponent from '../views/ContentRenderer/ContentRendererError';
 import apiSpec from './apiSpec';
@@ -69,8 +68,6 @@ Vue.use(KContentPlugin, {
   coreApp,
   registerContentActivity: heartbeat.setActive,
 });
-
-Vue.component('KSelect', KSelect);
 
 // Start the heartbeat polling here, as any URL needs should be set by now
 heartbeat.startPolling();
