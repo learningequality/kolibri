@@ -19,6 +19,9 @@ export const PdfDocument = {
   getPage: jest.fn(() => Promise.resolve(PdfPage)),
   cleanup: jest.fn(),
   destroy: jest.fn(),
+  getOutline: jest.fn(() => Promise.resolve([])),
+  getPageIndex: jest.fn(() => Promise.resolve(1)),
+  getDestination: jest.fn(() => Promise.resolve([])),
 };
 
 export const loadingDocument = {

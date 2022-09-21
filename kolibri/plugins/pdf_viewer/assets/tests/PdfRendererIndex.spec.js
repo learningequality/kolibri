@@ -88,6 +88,11 @@ describe('PdfRendererIndex', () => {
       expect(mockPDFJS.getDocument).toHaveBeenCalledWith(DUMMY_PDF_URL);
     });
 
+    it('should get the pdf Document Outline', async () => {
+      const wrapper = await loadPdfContainer();
+      expect(wrapper.vm.outline).toBeDefined();
+    });
+
     describe('Document loading progress', () => {
       it('should update the loading progress when pdf Document is loading', () => {
         const wrapper = makeWrapper();
