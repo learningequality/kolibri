@@ -276,7 +276,7 @@
             page: firstPage,
             resolved: true,
           });
-          pdfDocument.getOutline().then(async outline => {
+          pdfDocument.getOutline().then(outline => {
             this.outline = outline;
           });
         });
@@ -444,17 +444,21 @@
         }
         this.$emit('updateContentState', contentState);
       },
-      // Handle bookmark items click
+      /**
+       * Handle bookmark items click.
+       * Adaptation of the original functions from pdf.js:
+       * - https://github.com/mozilla/pdf.js/blob/v2.14.305/web/pdf_link_service.js#L237
+       * - https://github.com/mozilla/pdf.js/blob/v2.14.305/web/pdf_link_service.js#L176
+       * - https://github.com/mozilla/pdf.js/blob/v2.14.305/web/base_viewer.js#L1175
+       */
       async goToDestination(dest) {
         if (!this.pdfDocument) {
           return;
         }
-        let namedDest, explicitDest;
+        let explicitDest;
         if (typeof dest === "string") {
-          namedDest = dest;
           explicitDest = await this.pdfDocument.getDestination(dest);
         } else {
-          namedDest = null;
           explicitDest = await dest;
         }
         if (!Array.isArray(explicitDest)) {
@@ -462,23 +466,15 @@
           return;
         }
 
-        const destRef = explicitDest[0];
-        let pageNumber;
-        if (typeof destRef === "object" && destRef !== null) {
-          pageNumber = await this.getDestinationPageNumber(destRef);
-        } else if (Number.isInteger(destRef)) {
-          pageNumber = destRef + 1;
-        } else {
-          console.error('Invalid destination reference');
-          return;
-        }
-
+        const pageNumber = await this.getDestinationPageNumber(explicitDest);
         if (!pageNumber || pageNumber < 1 || pageNumber > this.pagesCount) {
           console.error('Invalid destination page');
           return;
         }
 
-        let position = (pageNumber -1) / this.totalPages;
+        let position = (pageNumber -1) / this.totalPages; // relative page position
+
+        // add relative y offset of the destination on the page
         if (explicitDest[1].name === "XYZ") { // XYZ is a dest name value from pdfjs
           const y = this.firstPageHeight - explicitDest[3];
           const relativeYPage = y / this.firstPageHeight;
@@ -486,12 +482,26 @@
           // but it gives it a good little space
           position += relativeYPage * (1 / this.totalPages);
         }
+
         this.scrollTo(position);
       },
-      async getDestinationPageNumber(destRef) {
+      /**
+       * Get the page number from the explicit destination array.
+       * Adaptation of the original function from pdf.js:
+       * - https://github.com/mozilla/pdf.js/blob/v2.14.305/web/pdf_link_service.js#L181
+       */
+      async getDestinationPageNumber(explicitDest) {
         try {
-          const pageIndex = await this.pdfDocument.getPageIndex(destRef);
-          return pageIndex + 1;
+          const destRef = explicitDest[0];
+          if (typeof destRef === "object" && destRef !== null) {
+            const pageIndex = await this.pdfDocument.getPageIndex(destRef);
+            return pageIndex + 1;
+          }
+          if (Number.isInteger(destRef)) {
+            return destRef + 1;
+          }
+          console.error('Invalid destination reference');
+          return null;
         } catch (e) {
           console.error('Error getting destination page number', e);
           return null;
