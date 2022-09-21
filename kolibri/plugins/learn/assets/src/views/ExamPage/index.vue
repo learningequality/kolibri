@@ -38,7 +38,7 @@
               :assessment="true"
               :allowHints="false"
               :answerState="currentAttempt.answer"
-              @interaction="saveAnswer"
+              @interaction="debouncedSaveAnswer"
             />
             <UiAlert v-else :dismissible="false" type="error">
               {{ $tr('noItemId') }}
@@ -297,6 +297,15 @@
         return this.displayNavigationButtonLabel
           ? { position: 'relative', top: '3px', left: '-4px' }
           : {};
+      },
+      debouncedSaveAnswer() {
+        // So as not to share debounced functions between instances of the same component
+        // and also to allow access to the cancel method of the debounced function
+        // best practice seems to be to do it as a computed property and not a method:
+        // https://github.com/vuejs/vue/issues/2870#issuecomment-219096773
+        // 750ms chosen through trial and error designed to allow users to input relatively
+        // slowly while producing one single answer
+        return debounce(this.saveAnswer, 750);
       },
     },
     watch: {
