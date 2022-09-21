@@ -1,6 +1,6 @@
 <template>
 
-  <Navbar>
+  <Navbar :ariaLabel="$tr('learnPageMenuLabel')">
     <NavbarLink
       v-if="isUserLoggedIn"
       :title="coreString('homeLabel')"
@@ -75,6 +75,12 @@
     },
     computed: {
       ...mapGetters(['isUserLoggedIn', 'canAccessUnassignedContent']),
+    },
+    $trs: {
+      learnPageMenuLabel: {
+        message: 'Learn page menu',
+        context: 'Indicates the purpose of a navigation bar at the top of the page',
+      },
     },
   };
 

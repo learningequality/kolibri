@@ -2,61 +2,63 @@
 
   <div v-show="!$isPrint" :style="{ backgroundColor: $themeTokens.appBar }">
 
-    <SkipNavigationLink />
+    <header>
+      <SkipNavigationLink />
 
-    <UiToolbar
-      :title="title"
-      type="clear"
-      textColor="white"
-      class="app-bar"
-      :style="{ height: topBarHeight + 'px' }"
-      :raised="false"
-      :removeBrandDivider="true"
-    >
-      <template #icon>
-        <KIconButton
-          icon="menu"
-          :color="$themeTokens.textInverted"
-          :ariaLabel="$tr('openNav')"
-          @click="$emit('toggleSideNav')"
-        />
-      </template>
+      <UiToolbar
+        :title="title"
+        type="clear"
+        textColor="white"
+        class="app-bar"
+        :style="{ height: topBarHeight + 'px' }"
+        :raised="false"
+        :removeBrandDivider="true"
+      >
+        <template #icon>
+          <KIconButton
+            icon="menu"
+            :color="$themeTokens.textInverted"
+            :ariaLabel="$tr('openNav')"
+            @click="$emit('toggleSideNav')"
+          />
+        </template>
 
-      <template #brand>
-        <img
-          v-if="themeConfig.appBar.topLogo"
-          :src="themeConfig.appBar.topLogo.src"
-          :alt="themeConfig.appBar.topLogo.alt"
-          :style="themeConfig.appBar.topLogo.style"
-          class="brand-logo"
-        >
-      </template>
+        <template #brand>
+          <img
+            v-if="themeConfig.appBar.topLogo"
+            :src="themeConfig.appBar.topLogo.src"
+            :alt="themeConfig.appBar.topLogo.alt"
+            :style="themeConfig.appBar.topLogo.style"
+            class="brand-logo"
+          >
+        </template>
 
-      <template v-if="windowIsLarge" #navigation>
-        <slot name="sub-nav"></slot>
-      </template>
+        <template v-if="windowIsLarge" #navigation>
+          <slot name="sub-nav"></slot>
+        </template>
 
-      <template #actions>
-        <div>
-          <slot name="app-bar-actions"></slot>
-          <div class="total-points">
-            <slot name="totalPointsMenuItem"></slot>
+        <template #actions>
+          <div>
+            <slot name="app-bar-actions"></slot>
+            <div class="total-points">
+              <slot name="totalPointsMenuItem"></slot>
+            </div>
+            <span v-if="isUserLoggedIn" tabindex="-1">
+              <KIcon
+                icon="person"
+                :style="{
+                  fill: $themeTokens.textInverted,
+                  height: '20px',
+                  width: '20px',
+                }"
+              />
+              <span class="username">{{ usernameForDisplay }}</span>
+            </span>
+
           </div>
-          <span v-if="isUserLoggedIn" tabindex="-1">
-            <KIcon
-              icon="person"
-              :style="{
-                fill: $themeTokens.textInverted,
-                height: '20px',
-                width: '20px',
-              }"
-            />
-            <span class="username">{{ usernameForDisplay }}</span>
-          </span>
-
-        </div>
-      </template>
-    </UiToolbar>
+        </template>
+      </UiToolbar>
+    </header>
     <div v-if="!windowIsLarge" class="subpage-nav">
       <slot name="sub-nav"></slot>
     </div>

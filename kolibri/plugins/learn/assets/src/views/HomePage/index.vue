@@ -4,7 +4,7 @@
     :appBarTitle="learnString('learnLabel')"
     :loading="loading"
   >
-    <div v-if="!loading">
+    <div v-if="!loading" id="main" role="main">
       <YourClasses
         v-if="displayClasses"
         class="section"
