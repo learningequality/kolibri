@@ -33,33 +33,33 @@
           >
         </template>
 
-      <template v-if="windowIsLarge" #navigation>
-        <slot name="sub-nav"></slot>
-      </template>
+        <template v-if="windowIsLarge" #navigation>
+          <slot name="sub-nav"></slot>
+        </template>
 
-      <template #actions>
-        <div>
-          <slot name="app-bar-actions"></slot>
-          <div class="total-points">
-            <slot name="totalPointsMenuItem"></slot>
-          </div>
-          <span v-if="isUserLoggedIn" tabindex="-1">
-            <KIcon
-              icon="person"
-              :style="{
-                fill: $themeTokens.textInverted,
-                height: '20px',
-                width: '20px',
-              }"
-            />
-            <span class="username">{{ usernameForDisplay }}</span>
-          </span>
+        <template #actions>
+          <div>
+            <slot name="app-bar-actions"></slot>
+            <div class="total-points">
+              <slot name="totalPointsMenuItem"></slot>
+            </div>
+            <span v-if="isUserLoggedIn" tabindex="-1">
+              <KIcon
+                icon="person"
+                :style="{
+                  fill: $themeTokens.textInverted,
+                  height: '20px',
+                  width: '20px',
+                }"
+              />
+              <span class="username">{{ usernameForDisplay }}</span>
+            </span>
 
           </div>
         </template>
       </UiToolbar>
     </header>
-    <div class="subpage-nav">
+    <div v-if="!windowIsLarge" class="subpage-nav">
       <slot name="sub-nav"></slot>
     </div>
   </div>
