@@ -573,7 +573,10 @@ class ChannelImport(object):
 
         columns = self.get_dest_columns(DestinationTable)
         column_names = [column.name for col_name, column in columns]
-        merge = model in merge_models
+        # For partial updates we don't delete pre-existing data
+        # so as a precaution we treat all models as merge models
+        # which will allow us to merge into any existing data.
+        merge = model in merge_models or self.partial
         do_not_overwrite = model in models_not_to_overwrite
         self.check_cancelled()
 
