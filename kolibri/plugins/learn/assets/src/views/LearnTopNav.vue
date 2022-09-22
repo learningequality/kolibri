@@ -1,7 +1,7 @@
 <template>
 
   <HorizontalNavBarWithOverflowMenu
-    ref="navigation" 
+    ref="navigation"
     :ariaLabel="$tr('learnPageMenuLabel')"
     :navigationLinks="links"
   />
@@ -38,11 +38,6 @@
     computed: {
       ...mapGetters(['isUserLoggedIn', 'canAccessUnassignedContent']),
     },
-    $trs: {
-      learnPageMenuLabel: {
-        message: 'Learn page menu',
-        context: 'Indicates the purpose of a navigation bar at the top of the page',
-      },
     mounted() {
       this.links = [
         {
@@ -67,6 +62,12 @@
           color: this.$themeTokens.textInverted,
         },
       ];
+    },
+    $trs: {
+      learnPageMenuLabel: {
+        message: 'Learn page menu',
+        context: 'Indicates the purpose of a navigation bar at the top of the page',
+      },
     },
   };
 

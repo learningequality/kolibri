@@ -37,42 +37,42 @@
           <slot name="sub-nav"></slot>
         </template>
 
-      <template #actions>
-        <div aria-live="polite">
-          <slot name="app-bar-actions"></slot>
-          <span v-if="isLearner">
-            <KIconButton
-              ref="pointsButton"
-              icon="pointsActive"
-              :ariaLabel="$tr('pointsAriaLabel')"
-            />
-            <div
-              v-if="pointsDisplayed"
-              class="points-popover"
-              :style="{
-                color: $themeTokens.text,
-                padding: '8px',
-                backgroundColor: $themeTokens.surface,
-              }"
-            >
-              {{ $tr('pointsMessage', { points: totalPoints }) }}
-            </div>
-          </span>
-          <span v-if="isUserLoggedIn" tabindex="-1">
-            <KIcon
-              icon="person"
-              :style="{
-                fill: $themeTokens.textInverted,
-                height: '24px',
-                width: '24px',
-                margin: '4px',
-                top: '8px',
-              }"
-            />
-            <span class="username">
-              {{ usernameForDisplay }}
+        <template #actions>
+          <div aria-live="polite">
+            <slot name="app-bar-actions"></slot>
+            <span v-if="isLearner">
+              <KIconButton
+                ref="pointsButton"
+                icon="pointsActive"
+                :ariaLabel="$tr('pointsAriaLabel')"
+              />
+              <div
+                v-if="pointsDisplayed"
+                class="points-popover"
+                :style="{
+                  color: $themeTokens.text,
+                  padding: '8px',
+                  backgroundColor: $themeTokens.surface,
+                }"
+              >
+                {{ $tr('pointsMessage', { points: totalPoints }) }}
+              </div>
             </span>
-          </span>
+            <span v-if="isUserLoggedIn" tabindex="-1">
+              <KIcon
+                icon="person"
+                :style="{
+                  fill: $themeTokens.textInverted,
+                  height: '24px',
+                  width: '24px',
+                  margin: '4px',
+                  top: '8px',
+                }"
+              />
+              <span class="username">
+                {{ usernameForDisplay }}
+              </span>
+            </span>
 
           </div>
         </template>
