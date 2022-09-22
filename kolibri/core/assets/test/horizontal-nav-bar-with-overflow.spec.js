@@ -7,35 +7,30 @@ function makeWrapper({ propsData } = {}) {
 
 const longerNavigationList = [
   {
-    isVisible: true,
     title: 'Title',
     link: 'url',
     icon: 'dashboard',
     color: 'white',
   },
   {
-    isVisible: true,
     title: 'Title 2',
     link: 'url',
     icon: 'dashboard',
     color: 'white',
   },
   {
-    isVisible: true,
     title: 'Title 3',
     link: 'url',
     icon: 'dashboard',
     color: 'white',
   },
   {
-    isVisible: true,
     title: 'Title 4',
     link: 'url',
     icon: 'dashboard',
     color: 'white',
   },
   {
-    isVisible: true,
     title: 'Title 5',
     link: 'url',
     icon: 'dashboard',
@@ -53,7 +48,6 @@ describe('HorizontalNavBarWithOverflowMenu', () => {
       propsData: {
         navigationLinks: [
           {
-            isVisible: true,
             title: 'Title',
             link: 'url',
             icon: 'dashboard',
@@ -62,7 +56,7 @@ describe('HorizontalNavBarWithOverflowMenu', () => {
         ],
       },
     });
-    expect(wrapper.findComponent({ name: 'Navbar' }).element).toBeVisible();
+    expect(wrapper.findComponent({ name: 'Navbar' }).element).toBeTruthy();
   });
   describe('the overflow menu', () => {
     describe('overflow needed', () => {
@@ -77,21 +71,18 @@ describe('HorizontalNavBarWithOverflowMenu', () => {
           numberOfNavigationTabsToDisplay: 2,
           overflowMenuLinks: [
             {
-              isVisible: true,
               title: 'Title 3',
               link: 'url',
               icon: 'dashboard',
               color: 'white',
             },
             {
-              isVisible: true,
               title: 'Title 4',
               link: 'url',
               icon: 'dashboard',
               color: 'white',
             },
             {
-              isVisible: true,
               title: 'Title 5',
               link: 'url',
               icon: 'dashboard',
