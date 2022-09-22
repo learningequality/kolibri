@@ -246,6 +246,15 @@ class Storage(StorageMixin):
 
             return [self._orm_to_job(o) for o in orm_jobs]
 
+    def test_table_readable(self):
+        """
+        Do a quick query to raise errors if the database is unusable.
+        """
+        with self.session_scope() as s:
+            q = s.query(ORMJob)
+
+            q.first()
+
     def count_all_jobs(self, queue=None):
         with self.session_scope() as s:
             q = s.query(ORMJob)
