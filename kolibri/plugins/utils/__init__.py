@@ -131,7 +131,7 @@ def initialize_kolibri_plugin(plugin_name, initialize_hooks=True):
     In so doing, it will instantiate the KolibriPlugin object if it
     exists, and also register any hooks found in the module.
 
-    Use the initialize_hooks argument to just retrieve the kolibri plugin without registering
+    Set the initialize_hooks argument to False to just retrieve the kolibri plugin without registering
     its hooks.
 
     :returns: the KolibriPlugin object for the module
