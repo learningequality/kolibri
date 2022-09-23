@@ -70,7 +70,7 @@
         {{ metadataStrings.$tr('level') }}:
       </span>
       <span>
-        {{ content.grade_levels.join(", ") }}
+        {{ levels(content.grade_levels) }}
       </span>
     </div>
 
@@ -139,7 +139,9 @@
 
 <script>
 
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import { ContentNodeKinds, ContentLevels } from 'kolibri.coreVue.vuex.constants';
+  import camelCase from 'lodash/camelCase';
+
   import { isEmbeddedWebView } from 'kolibri.utils.browserInfo';
   import LearnerNeeds from 'kolibri-constants/labels/Needs';
   import DownloadButton from 'kolibri.coreVue.components.DownloadButton';
@@ -234,6 +236,38 @@
       calculateDescriptionOverflow() {
         if (this.$refs.description && this.$refs.description.scrollHeight > 175) {
           this.descriptionOverflow = true;
+        }
+      },
+      metadataListText(ids) {
+        const list = ids.map(i => this.coreString(i));
+        const formatter = new Intl.ListFormat(window.languageCode, {
+          style: 'narrow',
+          type: 'conjunction',
+        });
+        return formatter.format(list);
+      },
+      levels(levels) {
+        const matches = Object.keys(ContentLevels)
+          .sort()
+          .filter(k => levels.includes(ContentLevels[k]));
+        if (matches && matches.length > 0) {
+          let adjustedMatches = [];
+          matches.map(key => {
+            let translationKey;
+            if (key === 'PROFESSIONAL') {
+              translationKey = 'specializedProfessionalTraining';
+            } else if (key === 'WORK_SKILLS') {
+              translationKey = 'allLevelsWorkSkills';
+            } else if (key === 'BASIC_SKILLS') {
+              translationKey = 'allLevelsBasicSkills';
+            } else {
+              translationKey = camelCase(key);
+            }
+            adjustedMatches.push(translationKey);
+          });
+          return this.metadataListText(adjustedMatches);
+        } else {
+          return '-';
         }
       },
     },
