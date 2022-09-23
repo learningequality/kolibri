@@ -334,9 +334,6 @@
           this.descriptionOverflow = true;
         }
       },
-      metadataListText(ids) {
-        return ids.map(i => this.coreString(i)).join(', ');
-      },
       levels(levels) {
         const matches = Object.keys(ContentLevels)
           .sort()
@@ -356,7 +353,8 @@
             }
             adjustedMatches.push(translationKey);
           });
-          return this.metadataListText(adjustedMatches);
+          adjustedMatches = adjustedMatches.map(m => this.coreString(m)).join(', ');
+          return adjustedMatches;
         } else {
           return '-';
         }
