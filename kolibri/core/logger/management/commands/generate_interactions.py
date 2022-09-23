@@ -468,7 +468,7 @@ class Command(BaseCommand):
         )
 
         parser.add_argument(
-            "--visitors", type=int, default=3, help="number of anonymous users"
+            "--visitors", type=int, default=5, help="number of anonymous users"
         )
 
         parser.add_argument("--affected_channels", type=int, default=1)

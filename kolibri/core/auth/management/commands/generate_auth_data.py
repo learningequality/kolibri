@@ -27,13 +27,14 @@ from kolibri.core.content.management.commands.generate_content_data import (
 )
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
+from kolibri.core.device.utils import device_provisioned
+from kolibri.core.device.utils import provision_device
 from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import ExamAssignment
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.lessons.models import LessonAssignment
 from kolibri.core.utils.csv import open_csv_for_reading
 from kolibri.utils.time_utils import local_now
-
 
 logger = logging.getLogger(__name__)
 
@@ -433,6 +434,11 @@ def start_generating(
 
         facilities.append(new_facility)
 
+    # if device has not been provisioned, set it up
+
+    if not device_provisioned():
+        provision_device()
+
     return facilities
 
 
@@ -521,7 +527,7 @@ class Command(BaseCommand):
             "--class_lessons",
             type=int,
             choices=range(5, 20),
-            default=5,
+            default=3,
             help="total number of lessons per class",
         )
 
@@ -529,7 +535,7 @@ class Command(BaseCommand):
             "--class_exams",
             type=int,
             choices=range(1, 20),
-            default=0,
+            default=3,
             help="total number of lessons per class",
         )
 
@@ -537,7 +543,7 @@ class Command(BaseCommand):
             "--groups",
             type=int,
             choices=range(1, 20),
-            default=0,
+            default=1,
             help="number of learnergroups to generate per class",
         )
 
@@ -561,7 +567,7 @@ class Command(BaseCommand):
             "--adhoc_lesson_learners",
             type=int,
             choices=range(1, 20),
-            default=5,
+            default=0,
             help="number of learners for the adhoc_lesson",
         )
 
@@ -577,7 +583,7 @@ class Command(BaseCommand):
             "--adhoc_exam_learners",
             type=int,
             choices=range(1, 20),
-            default=5,
+            default=0,
             help="number of learners for the adhoc_exam",
         )
 
