@@ -19,9 +19,9 @@
       HorizontalNavBarWithOverflowMenu,
     },
     mixins: [commonCoreStrings],
-    data() {
-      return {
-        links: [
+    computed: {
+      links() {
+        return [
           {
             title: this.coreString('classesLabel'),
             link: this.$router.getRoute(PageNames.CLASS_MGMT_PAGE),
@@ -46,8 +46,8 @@
             icon: 'save',
             color: this.$themeTokens.textInverted,
           },
-        ],
-      };
+        ];
+      },
     },
     $trs: {
       data: {

@@ -22,9 +22,11 @@
       HorizontalNavBarWithOverflowMenu,
     },
     mixins: [coachStringsMixin, commonCoreStrings],
-    data() {
-      return {
-        links: [
+
+    computed: {
+      ...mapState('classSummary', { classId: 'id' }),
+      links() {
+        return [
           {
             title: this.coreString('classHome'),
             link: this.navRoute('HomePage'),
@@ -43,11 +45,8 @@
             icon: 'edit',
             color: this.$themeTokens.textInverted,
           },
-        ],
-      };
-    },
-    computed: {
-      ...mapState('classSummary', { classId: 'id' }),
+        ];
+      },
     },
     methods: {
       navRoute(name) {
