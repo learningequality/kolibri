@@ -1,9 +1,10 @@
 <template>
 
-  <li class="list-item">
+  <li class="list-item-navigation visible">
     <router-link
       class="tab"
       :class="$computedClass(tabStyles)"
+      :style="windowIsSmall ? smallScreenOverrides : {}"
       :to="link"
     >
       <div class="dimmable tab-icon">
@@ -22,12 +23,14 @@
 <script>
 
   import { validateLinkObject } from 'kolibri.utils.validators';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
 
   /**
    Links for use inside the Navbar
    */
   export default {
     name: 'NavbarLink',
+    mixins: [responsiveWindowMixin],
     props: {
       /**
        * The text
@@ -48,7 +51,7 @@
     computed: {
       tabStyles() {
         return {
-          color: this.$themePalette.grey.v_100,
+          color: this.$themePalette.grey.v_50,
           ':hover': {
             'background-color': this.$themeTokens.appBarDark,
           },
@@ -56,6 +59,13 @@
             ...this.$coreOutline,
             outlineOffset: '-6px',
           },
+        };
+      },
+      smallScreenOverrides() {
+        return {
+          padding: '0 8px',
+          fontSize: '14px',
+          borderBottomWidth: '2px',
         };
       },
     },
@@ -68,9 +78,14 @@
 
   @import '~kolibri-design-system/lib/styles/definitions';
 
-  .list-item {
+  .list-item-navigation {
     display: inline-block;
     text-align: center;
+    visibility: hidden;
+  }
+
+  .visible {
+    visibility: visible;
   }
 
   .tab {
@@ -89,7 +104,7 @@
     transition: background-color $core-time ease;
 
     .dimmable {
-      opacity: 0.6;
+      opacity: 1;
     }
   }
 
@@ -129,19 +144,6 @@
   .tab-title {
     display: inline-block;
     text-overflow: ellipsis;
-  }
-
-  // for small screens
-
-  @media (max-width: 600px) {
-    .tab {
-      padding: 0 8px;
-      font-size: 12px;
-    }
-
-    .router-link-active {
-      border-bottom-width: 2px;
-    }
   }
 
 </style>

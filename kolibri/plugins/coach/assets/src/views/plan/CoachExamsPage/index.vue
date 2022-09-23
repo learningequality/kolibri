@@ -27,14 +27,20 @@
         -->
         <div>&nbsp;</div>
         <KButtonGroup v-if="practiceQuizzesExist">
-          <KDropdownMenu
+          <KButton
+            primary
+            hasDropdown
             appearance="raised-button"
-            :primary="true"
             :text="coachString('newQuizAction')"
-            :options="dropdownOptions"
-            class="options-btn"
-            @select="handleSelect"
-          />
+          >
+            <template #menu>
+              <KDropdownMenu
+                :options="dropdownOptions"
+                class="options-btn"
+                @select="handleSelect"
+              />
+            </template>
+          </KButton>
         </KButtonGroup>
         <KRouterLink
           v-else
