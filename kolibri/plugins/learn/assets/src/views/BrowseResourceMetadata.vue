@@ -335,12 +335,7 @@
         }
       },
       metadataListText(ids) {
-        const list = ids.map(i => this.coreString(i));
-        const formatter = new Intl.ListFormat(window.languageCode, {
-          style: 'narrow',
-          type: 'conjunction',
-        });
-        return formatter.format(list);
+        return ids.map(i => this.coreString(i)).join(', ');
       },
       levels(levels) {
         const matches = Object.keys(ContentLevels)

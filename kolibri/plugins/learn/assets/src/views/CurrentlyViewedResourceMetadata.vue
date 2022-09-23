@@ -43,15 +43,6 @@
       @click="toggleShowMoreOrLess"
     />
 
-    <div v-if="content.level" class="section">
-      <span class="label">
-        {{ metadataStrings.$tr('level') }}:
-      </span>
-      <span>
-        {{ content.level }}
-      </span>
-    </div>
-
     <div v-if="content.duration" class="section" data-test="estimated-time">
       <span class="label">
         {{ metadataStrings.$tr('estimatedTime') }}:
@@ -239,12 +230,7 @@
         }
       },
       metadataListText(ids) {
-        const list = ids.map(i => this.coreString(i));
-        const formatter = new Intl.ListFormat(window.languageCode, {
-          style: 'narrow',
-          type: 'conjunction',
-        });
-        return formatter.format(list);
+        return ids.map(i => this.coreString(i)).join(', ');
       },
       levels(levels) {
         const matches = Object.keys(ContentLevels)
