@@ -1,6 +1,8 @@
 <template>
 
-  <div
+  <section
+    role="region"
+    :aria-label="learnString('filterAndSearchLabel')"
     :style="{
       color: $themeTokens.text,
       backgroundColor: $themeTokens.surface,
@@ -126,7 +128,7 @@
         </div>
       </div>
     </div>
-  </div>
+  </section>
 
 </template>
 
@@ -390,7 +392,7 @@
 
   .side-panel {
     position: fixed;
-    top: 0;
+    top: 60px;
     left: 0;
     height: 100%;
     padding: 24px;

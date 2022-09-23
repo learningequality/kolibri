@@ -1,62 +1,9 @@
 <template>
 
-  <Navbar>
-    <NavbarLink
-      v-if="canManageContent"
-      :title="coreString('channelsLabel')"
-      :link="$router.getRoute('MANAGE_CONTENT_PAGE')"
-    >
-      <KIcon
-        icon="channel"
-        :color="$themeTokens.textInverted"
-        style="top: 0; width: 24px; height: 24px;"
-      />
-    </NavbarLink>
-    <NavbarLink
-      v-if="isSuperuser"
-      :title="$tr('permissionsLabel')"
-      :link="$router.getRoute('MANAGE_PERMISSIONS_PAGE')"
-    >
-      <KIcon
-        icon="permissions"
-        :color="$themeTokens.textInverted"
-        style="top: 0; width: 24px; height: 24px;"
-      />
-    </NavbarLink>
-    <NavbarLink
-      v-if="isSuperuser"
-      :title="coreString('facilitiesLabel')"
-      :link="$router.getRoute('FACILITIES_PAGE')"
-    >
-      <KIcon
-        icon="facility"
-        :color="$themeTokens.textInverted"
-        style="top: 0; width: 24px; height: 24px;"
-      />
-    </NavbarLink>
-    <NavbarLink
-      v-if="isSuperuser"
-      :title="$tr('infoLabel')"
-      :link="$router.getRoute('DEVICE_INFO_PAGE')"
-    >
-      <KIcon
-        icon="deviceInfo"
-        :color="$themeTokens.textInverted"
-        style="top: 0; width: 24px; height: 24px;"
-      />
-    </NavbarLink>
-    <NavbarLink
-      v-if="isSuperuser"
-      :title="$tr('settingsLabel')"
-      :link="$router.getRoute('DEVICE_SETTINGS_PAGE')"
-    >
-      <KIcon
-        icon="settings"
-        :color="$themeTokens.textInverted"
-        style="top: 0; width: 24px; height: 24px;"
-      />
-    </NavbarLink>
-  </Navbar>
+  <HorizontalNavBarWithOverflowMenu
+    v-if="links.length > 0"
+    :navigationLinks="links"
+  />
 
 </template>
 
@@ -64,20 +11,59 @@
 <script>
 
   import { mapGetters } from 'vuex';
-  import Navbar from 'kolibri.coreVue.components.Navbar';
-  import NavbarLink from 'kolibri.coreVue.components.NavbarLink';
+  import HorizontalNavBarWithOverflowMenu from 'kolibri.coreVue.components.HorizontalNavBarWithOverflowMenu';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'DeviceTopNav',
     components: {
-      Navbar,
-      NavbarLink,
+      HorizontalNavBarWithOverflowMenu,
     },
     mixins: [commonCoreStrings],
     computed: {
       ...mapGetters(['canManageContent', 'isSuperuser']),
+      links() {
+        let list = [];
+        if (this.canManageContent) {
+          list.push({
+            title: this.coreString('channelsLabel'),
+            link: this.$router.getRoute('MANAGE_CONTENT_PAGE'),
+            icon: 'channel',
+            color: this.$themeTokens.textInverted,
+          });
+        }
+        if (this.isSuperuser) {
+          list.push([
+            {
+              title: this.$tr('permissionsLabel'),
+              link: this.$router.getRoute('MANAGE_PERMISSIONS_PAGE'),
+              icon: 'permissions',
+              color: this.$themeTokens.textInverted,
+            },
+            {
+              title: this.coreString('facilitiesLabel'),
+              link: this.$router.getRoute('FACILITIES_PAGE'),
+              icon: 'facility',
+              color: this.$themeTokens.textInverted,
+            },
+            {
+              title: this.$tr('infoLabel'),
+              link: this.$router.getRoute('DEVICE_INFO_PAGE'),
+              icon: 'deviceInfo',
+              color: this.$themeTokens.textInverted,
+            },
+            {
+              title: this.$tr('settingsLabel'),
+              link: this.$router.getRoute('DEVICE_SETTINGS_PAGE'),
+              icon: 'settings',
+              color: this.$themeTokens.textInverted,
+            },
+          ]);
+        }
+        return list.flat();
+      },
     },
+
     $trs: {
       permissionsLabel: {
         message: 'Permissions',
@@ -95,6 +81,3 @@
   };
 
 </script>
-
-
-<style lang="scss" scoped></style>

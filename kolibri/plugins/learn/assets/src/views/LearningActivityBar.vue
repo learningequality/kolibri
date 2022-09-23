@@ -1,131 +1,133 @@
 <template>
 
-  <UiToolbar style="z-index: 8;" :style="contentSpecificStyles" class="toolbar">
-    <CoachContentLabel
-      :value="isCoachContent"
-      style="margin-top: 8px; width: auto;"
-    />
-    <KLabeledIcon :style="{ 'margin-top': '8px' }">
+  <nav :aria-label="$tr('optionsLabel')">
+    <UiToolbar style="z-index: 8;" :style="contentSpecificStyles" class="toolbar">
+      <CoachContentLabel
+        :value="isCoachContent"
+        style="margin-top: 8px; width: auto;"
+      />
+      <KLabeledIcon :style="{ 'margin-top': '8px' }">
+        <template #icon>
+          <LearningActivityIcon
+            data-test="learningActivityIcon"
+            :kind="learningActivities"
+            :shaded="true"
+          />
+        </template>
+        <TextTruncatorCss
+          :text="resourceTitle"
+          :maxLines="1"
+        />
+      </KLabeledIcon>
+      <ProgressIcon :progress="contentProgress" class="progress-icon" />
+
       <template #icon>
-        <LearningActivityIcon
-          data-test="learningActivityIcon"
-          :kind="learningActivities"
-          :shaded="true"
+        <KIconButton
+          icon="back"
+          data-test="backButton"
+          :tooltip="$tr('goBack')"
+          :ariaLabel="$tr('goBack')"
+          @click="onBackButtonClick"
         />
       </template>
-      <TextTruncatorCss
-        :text="resourceTitle"
-        :maxLines="1"
-      />
-    </KLabeledIcon>
-    <ProgressIcon :progress="contentProgress" class="progress-icon" />
 
-    <template #icon>
-      <KIconButton
-        icon="back"
-        data-test="backButton"
-        :tooltip="$tr('goBack')"
-        :ariaLabel="$tr('goBack')"
-        @click="onBackButtonClick"
-      />
-    </template>
-
-    <template #actions>
-      <KIconButton
-        v-if="isQuiz && !showingReportState"
-        ref="timerButton"
-        data-test="timerButton"
-        icon="timer"
-        :tooltip="coreString('timeSpentLabel')"
-        :ariaLabel="coreString('timeSpentLabel')"
-        @click="toggleTimer"
-      />
-      <CoreMenu
-        v-show="isTimerOpen"
-        ref="timer"
-        class="menu"
-        :style="{ left: isRtl ? '16px' : 'auto', right: isRtl ? 'auto' : '16px' }"
-        :raised="true"
-        :isOpen="isTimerOpen"
-        :containFocus="true"
-        @close="closeTimer"
-      >
-        <template #options>
-          <div class="timer-display">
-            <div>
-              <strong>{{ coreString('timeSpentLabel') }}</strong>
-            </div>
-            <div :style="{ paddingBottom: '8px' }">
-              <TimeDuration :seconds="timeSpent" />
-            </div>
-            <div v-if="duration">
-              <strong>{{ learnString('suggestedTime') }}</strong>
-            </div>
-            <SuggestedTime v-if="duration" :seconds="duration" />
-          </div>
-        </template>
-      </CoreMenu>
-      <KIconButton
-        v-for="action in barActions"
-        :key="action.id"
-        :data-test="`bar_${action.dataTest}`"
-        :icon="action.icon"
-        :color="action.iconColor"
-        :tooltip="action.label"
-        :ariaLabel="action.label"
-        :disabled="action.disabled"
-        @click="onActionClick(action.event)"
-      />
-
-      <span class="menu-wrapper">
+      <template #actions>
         <KIconButton
-          v-if="menuActions.length"
-          ref="moreOptionsButton"
-          data-test="moreOptionsButton"
-          icon="optionsHorizontal"
-          :tooltip="$tr('moreOptions')"
-          :ariaLabel="$tr('moreOptions')"
-          @click="toggleMenu"
+          v-if="isQuiz && !showingReportState"
+          ref="timerButton"
+          data-test="timerButton"
+          icon="timer"
+          :tooltip="coreString('timeSpentLabel')"
+          :ariaLabel="coreString('timeSpentLabel')"
+          @click="toggleTimer"
         />
         <CoreMenu
-          v-show="isMenuOpen"
-          ref="menu"
+          v-show="isTimerOpen"
+          ref="timer"
           class="menu"
           :style="{ left: isRtl ? '16px' : 'auto', right: isRtl ? 'auto' : '16px' }"
           :raised="true"
-          :isOpen="isMenuOpen"
+          :isOpen="isTimerOpen"
           :containFocus="true"
-          @close="closeMenu"
-          @shouldFocusFirstEl="findFirstEl()"
+          @close="closeTimer"
         >
           <template #options>
-            <CoreMenuOption
-              v-for="action in menuActions"
-              :key="action.id"
-              :data-test="`menu_${action.dataTest}`"
-              :style="{ 'cursor': 'pointer' }"
-              @select="onActionClick(action.event)"
-            >
-              <KLabeledIcon>
-                <template #icon>
-                  <KIcon
-                    :icon="action.icon"
-                    :color="action.iconColor"
-                  />
-                </template>
-                <div>{{ action.label }}</div>
-              </KLabeledIcon>
-            </CoreMenuOption>
+            <div class="timer-display">
+              <div>
+                <strong>{{ coreString('timeSpentLabel') }}</strong>
+              </div>
+              <div :style="{ paddingBottom: '8px' }">
+                <TimeDuration :seconds="timeSpent" />
+              </div>
+              <div v-if="duration">
+                <strong>{{ learnString('suggestedTime') }}</strong>
+              </div>
+              <SuggestedTime v-if="duration" :seconds="duration" />
+            </div>
           </template>
         </CoreMenu>
-      </span>
-    </template>
-    <MarkAsCompleteModal
-      v-if="showMarkAsCompleteModal && allowMarkComplete"
-      @complete="showMarkAsCompleteModal = false"
-      @cancel="showMarkAsCompleteModal = false"
-    />
-  </UiToolbar>
+        <KIconButton
+          v-for="action in barActions"
+          :key="action.id"
+          :data-test="`bar_${action.dataTest}`"
+          :icon="action.icon"
+          :color="action.iconColor"
+          :tooltip="action.label"
+          :ariaLabel="action.label"
+          :disabled="action.disabled"
+          @click="onActionClick(action.event)"
+        />
+
+        <span class="menu-wrapper">
+          <KIconButton
+            v-if="menuActions.length"
+            ref="moreOptionsButton"
+            data-test="moreOptionsButton"
+            icon="optionsHorizontal"
+            :tooltip="$tr('moreOptions')"
+            :ariaLabel="$tr('moreOptions')"
+            @click="toggleMenu"
+          />
+          <CoreMenu
+            v-show="isMenuOpen"
+            ref="menu"
+            class="menu"
+            :style="{ left: isRtl ? '16px' : 'auto', right: isRtl ? 'auto' : '16px' }"
+            :raised="true"
+            :isOpen="isMenuOpen"
+            :containFocus="true"
+            @close="closeMenu"
+            @shouldFocusFirstEl="findFirstEl()"
+          >
+            <template #options>
+              <CoreMenuOption
+                v-for="action in menuActions"
+                :key="action.id"
+                :data-test="`menu_${action.dataTest}`"
+                :style="{ 'cursor': 'pointer' }"
+                @select="onActionClick(action.event)"
+              >
+                <KLabeledIcon>
+                  <template #icon>
+                    <KIcon
+                      :icon="action.icon"
+                      :color="action.iconColor"
+                    />
+                  </template>
+                  <div>{{ action.label }}</div>
+                </KLabeledIcon>
+              </CoreMenuOption>
+            </template>
+          </CoreMenu>
+        </span>
+      </template>
+      <MarkAsCompleteModal
+        v-if="showMarkAsCompleteModal && allowMarkComplete"
+        @complete="showMarkAsCompleteModal = false"
+        @cancel="showMarkAsCompleteModal = false"
+      />
+    </UiToolbar>
+  </nav>
 
 </template>
 
@@ -452,6 +454,10 @@
       viewTopicResources: {
         message: 'View folder resources',
         context: 'Tooltip text.',
+      },
+      optionsLabel: {
+        message: 'Options',
+        context: 'A label for the section of the page containing toolbar buttons',
       },
     },
   };

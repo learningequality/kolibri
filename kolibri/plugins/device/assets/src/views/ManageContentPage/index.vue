@@ -13,16 +13,21 @@
           <template #options>
             <KButtonGroup>
               <!-- Margins to and bottom adds space when buttons are vertically stacked -->
-              <KDropdownMenu
+              <KButton
                 v-if="channelsAreInstalled"
+                hasDropdown
                 appearance="raised-button"
                 :text="coreString('optionsLabel')"
-                position="bottom left"
-                :options="dropdownOptions"
-                style="margin-top: 16px; margin-bottom: -16px;"
-                class="options-btn"
-                @select="handleSelect"
-              />
+                :style="{ margin: '16px 8px -16px 0' }"
+              >
+                <template #menu>
+                  <KDropdownMenu
+                    position="bottom left"
+                    :options="dropdownOptions"
+                    @select="handleSelect"
+                  />
+                </template>
+              </KButton>
               <KButton
                 :text="$tr('import')"
                 style="margin-top: 16px; margin-bottom: -16px;"
@@ -280,11 +285,6 @@
 
   .buttons {
     margin: auto;
-  }
-
-  .options-btn {
-    margin: 0;
-    margin-right: 8px;
   }
 
 </style>

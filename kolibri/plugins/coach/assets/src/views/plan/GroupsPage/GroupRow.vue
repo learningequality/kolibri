@@ -12,12 +12,18 @@
       {{ this.$formatNumber(group.users.length) }}
     </td>
     <td class="core-table-button-col">
-      <KDropdownMenu
+      <KButton
+        hasDropdown
         appearance="flat-button"
         :text="coreString('optionsLabel')"
-        :options="menuOptions"
-        @select="handleSelection"
-      />
+      >
+        <template #menu>
+          <KDropdownMenu
+            :options="menuOptions"
+            @select="handleSelection"
+          />
+        </template>
+      </KButton>
     </td>
   </tr>
 

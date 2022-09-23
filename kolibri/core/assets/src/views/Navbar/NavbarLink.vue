@@ -1,19 +1,14 @@
 <template>
 
-  <li class="list-item">
+  <li class="list-item-navigation visible">
     <router-link
       class="tab"
       :class="$computedClass(tabStyles)"
+      :style="windowIsSmall ? smallScreenOverrides : {}"
       :to="link"
     >
       <div class="dimmable tab-icon">
-        <UiIcon
-          class="icon"
-          tabindex="-1"
-        >
-          <!--The icon svg-->
-          <slot></slot>
-        </UiIcon>
+        <slot></slot>
       </div>
 
       <div class="dimmable tab-title" tabindex="-1">
@@ -28,14 +23,14 @@
 <script>
 
   import { validateLinkObject } from 'kolibri.utils.validators';
-  import UiIcon from 'kolibri-design-system/lib/keen/UiIcon';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
 
   /**
    Links for use inside the Navbar
    */
   export default {
     name: 'NavbarLink',
-    components: { UiIcon },
+    mixins: [responsiveWindowMixin],
     props: {
       /**
        * The text
@@ -56,7 +51,7 @@
     computed: {
       tabStyles() {
         return {
-          color: this.$themePalette.grey.v_100,
+          color: this.$themePalette.grey.v_50,
           ':hover': {
             'background-color': this.$themeTokens.appBarDark,
           },
@@ -64,6 +59,13 @@
             ...this.$coreOutline,
             outlineOffset: '-6px',
           },
+        };
+      },
+      smallScreenOverrides() {
+        return {
+          padding: '0 8px',
+          fontSize: '14px',
+          borderBottomWidth: '2px',
         };
       },
     },
@@ -76,17 +78,22 @@
 
   @import '~kolibri-design-system/lib/styles/definitions';
 
-  .list-item {
+  .list-item-navigation {
     display: inline-block;
     text-align: center;
+    visibility: hidden;
+  }
+
+  .visible {
+    visibility: visible;
   }
 
   .tab {
     display: inline-block;
     min-width: 72px;
     max-width: 264px;
-    padding: 0 18px;
-    padding-bottom: 3px;
+    padding: 0 16px;
+    padding-bottom: 6px;
     margin: 0;
     font-size: 14px;
     text-decoration: none;
@@ -97,7 +104,7 @@
     transition: background-color $core-time ease;
 
     .dimmable {
-      opacity: 0.6;
+      opacity: 1;
     }
   }
 
@@ -108,11 +115,11 @@
   //     https://github.com/vuejs/rfcs/pull/34
   //  3. Somehow refactor the tab styling to not require nested active classes
   .router-link-active {
-    padding-bottom: 2px;
+    font-weight: bold;
     color: white;
     border-bottom-color: white;
     border-bottom-style: solid;
-    border-bottom-width: 2px;
+    border-bottom-width: 4px;
 
     .dimmable {
       opacity: 1;
@@ -120,7 +127,12 @@
   }
 
   .icon {
-    font-size: 24px;
+    top: 0;
+  }
+
+  svg {
+    width: 14px;
+    height: 14px;
   }
 
   .tab-icon {
@@ -131,10 +143,7 @@
 
   .tab-title {
     display: inline-block;
-    font-weight: bold;
     text-overflow: ellipsis;
-    text-transform: uppercase;
-    vertical-align: middle;
   }
 
 </style>

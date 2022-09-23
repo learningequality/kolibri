@@ -18,6 +18,7 @@
       <TopicsHeader
         v-if="!windowIsSmall"
         ref="header"
+        role="complementary"
         data-test="header-breadcrumbs"
         :topics="topics"
         :topic="topic"
@@ -35,6 +36,7 @@
           v-if="breadcrumbs.length && windowIsSmall"
           data-test="mobile-breadcrumbs"
           :items="breadcrumbs"
+          :ariaLabel="learnString('channelAndFoldersLabel')"
         />
 
         <div class="card-grid">
@@ -149,8 +151,15 @@
       />
 
       <!-- Embedded Side panel is on larger views, and exists next to content -->
+      <ToggleHeaderTabs
+        v-if="!!windowIsLarge"
+        :topic="topic"
+        :topics="topics"
+        :style="tabPosition"
+      />
       <SearchFiltersPanel
         v-if="!!windowIsLarge"
+        ref="sidePanel"
         v-model="searchTerms"
         :topicsListDisplayed="!desktopSearchActive"
         class="side-panel"
@@ -282,9 +291,11 @@
   import SearchResultsGrid from '../SearchResultsGrid';
   import LibraryPage from '../LibraryPage';
   import TopicsHeader from './TopicsHeader';
+  import ToggleHeaderTabs from './ToggleHeaderTabs';
   import TopicsMobileHeader from './TopicsMobileHeader';
   import TopicSubsection from './TopicSubsection';
   import SearchPanelModal from './SearchPanelModal';
+  import commonLearnStrings from './../commonLearnStrings';
   import plugin_data from 'plugin_data';
 
   export default {
@@ -306,6 +317,7 @@
     components: {
       KBreadcrumbs,
       TopicsHeader,
+      ToggleHeaderTabs,
       LibraryAndChannelBrowserMainContent,
       CustomContentRenderer,
       CategorySearchModal,
@@ -319,7 +331,7 @@
       SearchPanelModal,
       ImmersivePage,
     },
-    mixins: [responsiveWindowMixin, commonCoreStrings],
+    mixins: [responsiveWindowMixin, commonCoreStrings, commonLearnStrings],
     setup() {
       const {
         searchTerms,
@@ -361,6 +373,7 @@
     data: function() {
       return {
         sidePanelStyleOverrides: {},
+        tabPosition: {},
         currentCategory: null,
         showSearchModal: false,
         showMoreResources: false,
@@ -531,7 +544,8 @@
       },
       // calls handleScroll no more than every 17ms
       throttledHandleScroll() {
-        return throttle(this.stickyCalculation);
+        throttle(this.stickyCalculation);
+        return throttle(this.tabPositionCalculation);
       },
       activeActivityButtons() {
         if (this.searchTerms) {
@@ -622,6 +636,19 @@
           this.currentCategory = null;
         }
         this.toggleFolderSearchSidePanel();
+      },
+      tabPositionCalculation() {
+        const tabBottom = this.$refs.sidePanel
+          ? this.$refs.sidePanel.$el.getBoundingClientRect().top
+          : 0;
+        if (tabBottom > 0) {
+          this.tabPosition = {
+            position: 'fixed',
+            top: `${tabBottom - 70}px`,
+          };
+        } else {
+          this.tabPosition = {};
+        }
       },
       // Stick the side panel to top. That can be on the very top of the viewport
       // or right under the 'Browse channel' toolbar, depending on whether the toolbar

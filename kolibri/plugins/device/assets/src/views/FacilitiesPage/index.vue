@@ -61,12 +61,18 @@
                       appearance="flat-button"
                       @click="facilityForSync = facility"
                     />
-                    <KDropdownMenu
-                      :text="coreString('optionsLabel')"
-                      :options="facilityOptions(facility)"
+                    <KButton
+                      hasDropdown
                       appearance="flat-button"
-                      @select="handleOptionSelect($event.value, facility)"
-                    />
+                      :text="coreString('optionsLabel')"
+                    >
+                      <template #menu>
+                        <KDropdownMenu
+                          :options="facilityOptions(facility)"
+                          @select="handleOptionSelect($event.value, facility)"
+                        />
+                      </template>
+                    </KButton>
                   </KButtonGroup>
                 </td>
               </tr>
@@ -91,12 +97,18 @@
                     appearance="flat-button"
                     @click="facilityForSync = facility"
                   />
-                  <KDropdownMenu
-                    :text="coreString('optionsLabel')"
-                    :options="facilityOptions(facility)"
+                  <KButton
+                    hasDropdown
                     appearance="flat-button"
-                    @select="handleOptionSelect($event.value, facility)"
-                  />
+                    :text="coreString('optionsLabel')"
+                  >
+                    <template #menu>
+                      <KDropdownMenu
+                        :options="facilityOptions(facility)"
+                        @select="handleOptionSelect($event.value, facility)"
+                      />
+                    </template>
+                  </KButton>
                 </KButtonGroup>
               </td>
             </tr>

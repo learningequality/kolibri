@@ -1,6 +1,6 @@
 <template>
 
-  <aside
+  <section
     :dir="languageDir"
     :class="['media-player-transcript', { showing }]"
     :style="{ background: $themeTokens.surface }"
@@ -41,7 +41,7 @@
     >
       {{ $tr('transcriptEnd') }}
     </div>
-  </aside>
+  </section>
 
 </template>
 

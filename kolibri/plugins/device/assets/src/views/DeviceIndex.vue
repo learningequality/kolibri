@@ -4,6 +4,10 @@
     :authorized="userIsAuthorized"
     authorizedRole="registeredUser"
   >
+    <template #sub-nav>
+      <DeviceTopNav />
+    </template>
+
     <transition name="delay-entry">
       <PostSetupModalGroup
         v-if="welcomeModalVisible"

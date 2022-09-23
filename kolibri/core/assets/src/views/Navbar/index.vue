@@ -1,108 +1,32 @@
 <template>
 
-  <div
-    class="wrapper"
-    :class="wrapperClass"
-    :style="{ backgroundColor: $themeTokens.appBar }"
-  >
-    <nav>
-      <button
-        v-show="!enoughSpace"
-        class="scroll-button"
-        aria-hidden="true"
-        @click="handleClickPrevious"
-      >
-        <KIcon
-          icon="chevronLeft"
-          :style="{ fill: $themeTokens.textInverted, top: 0, width: '24px', height: '24px', }"
-        />
-      </button>
-
-      <ul
-        ref="navbarUl"
-        class="items"
-        tabindex="-1"
-        :style="{ maxWidth: `${ maxWidth }px` }"
-      >
-        <!-- Contains NavbarLink components -->
-        <slot></slot>
-      </ul>
-
-      <button
-        v-show="!enoughSpace"
-        class="scroll-button"
-        aria-hidden="true"
-        @click="handleClickNext"
-      >
-        <KIcon
-          icon="chevronRight"
-          :style="{ fill: $themeTokens.textInverted, top: 0, width: '24px', height: '24px', }"
-        />
-      </button>
-    </nav>
-  </div>
+  <nav>
+    <ul
+      ref="navbarUl"
+      class="items"
+      tabindex="-1"
+      :style="mediumAndSmallStyleOverrides"
+    >
+      <!-- Contains NavbarLink components -->
+      <slot></slot>
+    </ul>
+  </nav>
 
 </template>
 
 
 <script>
 
-  import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
-  import throttle from 'lodash/throttle';
-
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   /**
    * Used for navigation between sub-pages of a top-level Kolibri section
    */
   export default {
     name: 'Navbar',
-    mixins: [responsiveElementMixin],
-    data() {
-      return {
-        enoughSpace: true,
-      };
-    },
+    mixins: [responsiveWindowMixin],
     computed: {
-      maxWidth() {
-        return this.enoughSpace ? this.elementWidth : this.elementWidth - 38 * 2;
-      },
-      wrapperClass() {
-        if (!this.enoughSpace) {
-          return ['wrapper-narrow'];
-        }
-
-        return [];
-      },
-    },
-    mounted() {
-      this.checkSpace();
-      this.$watch('elementWidth', this.throttleCheckSpace);
-    },
-    methods: {
-      checkSpace() {
-        const availableWidth = this.elementWidth;
-        const items = this.$children;
-        let widthOfItems = 0;
-        items.forEach(item => {
-          const itemWidth = Math.ceil(item.$el.getBoundingClientRect().width);
-          widthOfItems += itemWidth;
-        });
-        // Subtract 16px to account for padding-left
-        this.enoughSpace = widthOfItems <= availableWidth - 16;
-      },
-      throttleCheckSpace: throttle(function() {
-        this.checkSpace();
-      }, 100),
-      handleClickPrevious() {
-        this.isRtl ? this.scrollRight() : this.scrollLeft();
-      },
-      handleClickNext() {
-        this.isRtl ? this.scrollLeft() : this.scrollRight();
-      },
-      scrollLeft() {
-        this.$refs.navbarUl.scrollLeft -= this.maxWidth;
-      },
-      scrollRight() {
-        this.$refs.navbarUl.scrollLeft += this.maxWidth;
+      mediumAndSmallStyleOverrides() {
+        return !this.windowIsLarge ? { marginTop: 0 } : {};
       },
     },
   };
@@ -114,33 +38,14 @@
 
   @import '~kolibri-design-system/lib/styles/definitions';
 
-  .wrapper {
-    padding-left: 16px;
-  }
-
-  .wrapper-narrow {
-    @extend %momentum-scroll;
-
-    padding-left: 0;
-  }
-
   .items {
-    display: inline-block;
+    display: flex;
     padding: 0;
-    margin: 0;
-    overflow-x: auto;
+    margin-bottom: 4px;
+    margin-left: 16px;
+    overflow-x: hidden;
     overflow-y: hidden;
     white-space: nowrap;
-    vertical-align: middle;
-  }
-
-  .scroll-button {
-    width: 36px;
-    height: 36px;
-    vertical-align: middle;
-    background-color: inherit;
-    border-style: none;
-    appearance: none;
   }
 
 </style>
