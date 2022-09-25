@@ -5,7 +5,7 @@
       :appBarTitle="coreString('changeLearningFacility')"
       :route="$router.getRoute('PROFILE')"
     >
-      <KPageContainer style="maxWidth: 1000px; margin: 32px auto 0;">
+      <KPageContainer>
         <router-view />
       </KPageContainer>
     </ImmersivePage>
@@ -146,6 +146,12 @@
     max-width: $page-container-max-width;
     margin-right: auto;
     margin-left: auto;
+  }
+
+  .narrow-container {
+    max-width: 500px;
+    margin: auto;
+    overflow: visible;
   }
 
 </style>

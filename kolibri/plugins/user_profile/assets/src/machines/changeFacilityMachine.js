@@ -195,7 +195,7 @@ const states = {
     meta: { route: 'CONFIRM_CHANGE_FACILITY', path: '/change_facility' },
     on: {
       MERGE: {
-        target: 'mergeAccounts',
+        target: 'checkUsernameExists',
         actions: [setMerging, send({ type: 'PUSH_HISTORY', value: 'changeFacility' })],
       },
       CONTINUE: {
@@ -209,6 +209,10 @@ const states = {
       {
         cond: context => !!context.accountExists,
         target: 'usernameExists',
+      },
+      {
+        cond: context => context.isMerging,
+        target: 'mergeAccounts',
       },
       {
         target: 'confirmAccountUsername',
@@ -322,10 +326,20 @@ const states = {
   usernameExists: {
     meta: { route: 'USERNAME_EXISTS', path: '/change_facility' },
     on: {
-      MERGE: {
-        target: 'requireAccountCreds',
-        actions: [send({ type: 'PUSH_HISTORY', value: 'usernameExists' })],
-      },
+      MERGE: [
+        {
+          cond: context =>
+            context.accountExists && !context.targetFacility.learner_can_login_with_no_password,
+          target: 'requireAccountCreds',
+          actions: [send({ type: 'PUSH_HISTORY', value: 'usernameExists' })],
+        },
+        {
+          cond: context =>
+            context.accountExists && context.targetFacility.learner_can_login_with_no_password,
+          target: 'getUserWithoutPasswordInfo',
+          actions: [send({ type: 'PUSH_HISTORY', value: 'usernameExists' })],
+        },
+      ],
       NEW: {
         target: 'createAccount',
         actions: [send({ type: 'PUSH_HISTORY', value: 'usernameExists' })],
@@ -366,22 +380,13 @@ const states = {
   mergeAccounts: {
     meta: { route: 'MERGE_ACCOUNTS', path: '/change_facility' },
     on: {
-      CONTINUE: [
-        {
-          cond: context =>
-            context.accountExists && !context.targetFacility.learner_can_login_with_no_password,
-          target: 'requireAccountCreds',
-          actions: [send({ type: 'PUSH_HISTORY', value: 'mergeAccounts' })],
-        },
-        {
-          cond: context =>
-            context.accountExists && context.targetFacility.learner_can_login_with_no_password,
-          target: 'getUserWithoutPasswordInfo',
-          actions: [send({ type: 'PUSH_HISTORY', value: 'mergeAccounts' })],
-        },
-      ],
+      CONTINUE: {
+        target: 'requireAccountCreds',
+        actions: [send({ type: 'PUSH_HISTORY', value: 'confirmAccountDetails' })],
+      },
     },
   },
+
   getUserWithoutPasswordInfo: {
     invoke: {
       id: 'getPasswordlessUserInfo',
