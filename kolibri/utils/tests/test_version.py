@@ -470,3 +470,19 @@ class TestKolibriVersion(unittest.TestCase):
             ),
             "0.16-b.1.c",
         )
+
+    @mock.patch("kolibri.utils.version.get_git_describe", return_value="v0.15.8")
+    def test_get_version(self, describe_mock):
+        self.assertEqual(
+            version.get_version((0, 15, 8)),
+            "0.15.8",
+        )
+        assert describe_mock.call_count == 1
+
+    @mock.patch("kolibri.utils.version.get_version_file", return_value="0.15.8")
+    def test_get_version_from_file(self, describe_mock):
+        self.assertEqual(
+            version.get_version((0, 15, 8)),
+            "0.15.8",
+        )
+        assert describe_mock.call_count == 1

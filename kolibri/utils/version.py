@@ -104,7 +104,6 @@ import re
 import subprocess
 import sys
 
-from .compat import parse_version
 from .lru_cache import lru_cache
 
 logger = logging.getLogger(__name__)
@@ -134,9 +133,7 @@ def get_complete_version(version=None):
     if version is None:
         from kolibri import VERSION as version
     else:
-        if len(version) != 5:
-            raise AssertionError
-        if version[3] not in ORDERED_VERSIONS:
+        if len(version) != 3:
             raise AssertionError
 
     return version
@@ -262,14 +259,12 @@ def get_version_from_git(get_git_describe_string):
     suffix = ".dev0+git" + suffix if suffix else ""
 
     return (
-        get_complete_version(
-            (
-                int(major),
-                int(minor),
-                int(patch),
-                m.group("release") or "final",
-                int(m.group("release_number") or 0),
-            )
+        (
+            int(major),
+            int(minor),
+            int(patch),
+            m.group("release") or "final",
+            int(m.group("release_number") or 0),
         ),
         suffix,
     )
@@ -295,10 +290,7 @@ def get_prerelease_version(version):
     \\*, \\*, \\*, "alpha", >0: Uses latest git tag, asserting that there is such.
     """
 
-    mapping = {"alpha": "a", "beta": "b", "rc": "rc"}
-
     major = get_major_version(version)
-    major_and_release = major + mapping[version[3]] + str(version[4])
 
     # Calculate suffix...
     tag_describe = get_git_describe(version)
@@ -308,126 +300,60 @@ def get_prerelease_version(version):
     if tag_describe:
 
         git_version, suffix = get_version_from_git(tag_describe)
+        if not suffix:
+            if not git_version[:3] == version[:3]:
+                # If it's the 0th alpha, load suffix info from git changeset
+                if version[4] == 0 and version[3] == "alpha":
+                    # Throw away the description from git
+                    suffix = get_git_changeset()
 
-        if not git_version[:3] == version[:3]:
-            # If it's the 0th alpha, load suffix info from git changeset
-            if version[4] == 0 and version[3] == "alpha":
-                # Throw away the description from git
-                suffix = get_git_changeset()
-                # Replace 'alpha' with .dev
-                return major + ".dev0" + suffix
+                    # Replace 'alpha' with .dev
+                    return major + ".dev0" + suffix
 
-            # If the tag was not of a final version, we will fail.
-            elif not git_version[4] == "final" and git_version[:3] > version[:3]:
-                raise AssertionError(
-                    (
-                        "Version detected from git describe --tags, but it's "
-                        "inconsistent with kolibri.__version__."
-                        "__version__ is: {}, tag says: {}."
-                    ).format(str(version), git_version)
-                )
+                # If the tag was not of a final version, we will fail.
+                elif not git_version[4] == "final" and git_version[:3] > version[:3]:
+                    raise AssertionError(
+                        (
+                            "Version detected from git describe --tags, but it's "
+                            "inconsistent with kolibri.__version__."
+                            "__version__ is: {}, tag says: {}."
+                        ).format(str(version), git_version)
+                    )
 
-        if git_version[3] == "final" and version[3] != "final":
-            raise AssertionError(
-                "You have added a final tag without bumping kolibri.VERSION, "
-                + "OR you need to make a new alpha0 tag. Current tag: {}".format(
-                    git_version
-                )
-                + "\n\n"
-                "Often, this is because of missing tag information, try "
-                "running:\n"
-                "\n"
-                "   git fetch <upstream>"
-            )
+    # In all circumstances, return the initial findings
+    return major
 
-        return (
-            get_major_version(git_version)
-            + mapping[git_version[3]]
-            + str(git_version[4])
-            + suffix
-        )
 
+def get_version_from_file(version):
     # No git data, will look for a VERSION file
     version_file = get_version_file()
 
     # Check that the version file is consistent
     if version_file:
-
         # Because \n may have been appended
         version_file = version_file.strip()
 
         # If there is a '.dev', we can remove it, otherwise we check it
         # for consistency and fail if inconsistent
-        version_file_base = parse_version(version_file).base_version
 
         # If a final release is specified in the VERSION file, then it
         # has to be a final release in the VERSION tuple as well.
         # A final release specified in a VERSION file (pep 440) is
         # something that doesn't end like a1, b1, post1, and rc1
-        pep440_is_final = re.compile(r"^\d+(\.\d)+(\.post\d+)?$")
-        version_file_is_final = pep440_is_final.match(version_file)
 
-        if version_file_is_final and version_file != major_and_release:
-            raise AssertionError(
-                (
-                    "kolibri/VERSION file specified as final release but "
-                    "kolibri.__version__. is not a final release."
-                    "__version__ is: {}, file says: {}."
-                ).format(str(version), version_file)
-            )
-
-        if not major_and_release.startswith(version_file_base):
-            raise AssertionError(
-                (
-                    "kolibri/VERSION file inconsistent with "
-                    "kolibri.__version__.\n"
-                    "__version__ is: {}, file says: {}\n\n{} should start "
-                    "with {}"
-                ).format(
-                    str(version), version_file, major_and_release, version_file_base
-                )
-            )
         return version_file
-
-    # Finally, if there was no git data or VERSION file, map the alpha-0 to
-    # .dev
-    if version[4] == 0 and version[3] == "alpha":
-        mapping["alpha"] = ".dev"
-        major_and_release = major + mapping[version[3]] + str(version[4])
-
-    # In all circumstances, return the initial findings
-    return major_and_release
 
 
 @lru_cache()
 def get_version(version=None):
-    """
-    Returns a PEP 440-compliant version number from VERSION.
-    Derives additional information from git repository if code is contained
-    in such.
+    if version is None:
+        from kolibri import VERSION as version
 
-    This is important to read from PEP-404 (which this function is compliant
-    with):
+    version_str = get_version_from_file(version)
+    if version_str:
+        return version_str
 
-    Within a numeric release ( 1.0.0 , 2.7.3 ), the following suffixes are
-    permitted and MUST be ordered as shown:
-
-    .devN, aN, bN, rcN, <no suffix>, .postN
-    """
-    version = get_complete_version(version)
-
-    # Prerelease versions are special, we parse git data and look for special
-    # VERSION files in package data to fetch auto-generated data.
-    if version[3] != "final":
-        return get_prerelease_version(version)
-
-    major = get_major_version(version)
-
-    sub = ""
-    if version[4] > 0:
-        sub = ".post{}".format(version[4])
-
-    return str(major + sub)
+    return get_prerelease_version(version)
 
 
 def get_version_and_operator_from_range(version_range):
@@ -472,6 +398,7 @@ def normalize_version_to_semver(version):
     dev = dev_match.group(2)
 
     # extract the numeric semver component and the stuff that comes after
+
     numeric, after = re.match(
         r"(^\d+\.\d+[0-9]*\.?[0-9]*)([a-z0-9.+]*)", version
     ).groups()
