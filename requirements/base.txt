@@ -31,3 +31,4 @@ Click==7.0
 whitenoise==4.1.4
 idna==2.8
 ifaddr==0.1.7  # Pin as version 0.2.0 only supports Python 3.7 and above
+importlib_resources==3.3.1

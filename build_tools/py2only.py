@@ -4,6 +4,8 @@ import sys
 
 dest = "py2only"
 futures_dirname = "concurrent"
+scandir_module_name = "scandir.py"
+typing_module_name = "typing.py"
 DIST_DIR = os.path.join(
     os.path.dirname(os.path.realpath(os.path.dirname(__file__))), "kolibri", "dist"
 )
@@ -17,6 +19,8 @@ def hide_py2_modules():
 
     # Move the directory of 'futures' inside the directory 'py2only'
     _move_modules_to_py2only(futures_dirname)
+    _move_modules_to_py2only(scandir_module_name)
+    _move_modules_to_py2only(typing_module_name)
 
     # Future's submodules are not downloaded in Python 3 but only in Python 2
     if sys.version_info[0] == 2:

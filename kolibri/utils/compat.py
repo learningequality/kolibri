@@ -7,8 +7,6 @@ from __future__ import unicode_literals
 
 import sys
 
-from pkg_resources import parse_version as _parse_version
-
 
 def module_exists(module_path):
     """
@@ -79,6 +77,11 @@ def parse_version(v):
     In old versions of Python (for instance on Ubuntu 14.04),
     pkg_resources.parse_version returns a tuple and not a version object.
     """
+    # pkg_resources is very slow to import, so we defer
+    # its import until needed to avoid imports at module scope
+    # c.f. https://github.com/pypa/setuptools/issues/926
+    from pkg_resources import parse_version as _parse_version
+
     parsed = _parse_version(v)
 
     return VersionCompat(parsed)

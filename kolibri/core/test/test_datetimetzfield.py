@@ -2,28 +2,15 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import datetime
-
 import pytz
-from django.db import models
 from django.test import override_settings
 from django.test import TestCase
 from django.utils import timezone
 
-from kolibri.core.fields import DateTimeTzField
 from kolibri.core.fields import parse_timezonestamp
 from kolibri.core.serializers import DateTimeTzField as DateTimeTzSerializerField
-
-
-def aware_datetime():
-    return timezone.get_current_timezone().localize(
-        datetime.datetime(2000, 12, 11, 10, 9, 8)
-    )
-
-
-class DateTimeTzModel(models.Model):
-    timestamp = DateTimeTzField(null=True)
-    default_timestamp = DateTimeTzField(default=aware_datetime)
+from kolibri.core.test.test_app.models import aware_datetime
+from kolibri.core.test.test_app.models import DateTimeTzModel
 
 
 @override_settings(USE_TZ=True)

@@ -4,7 +4,9 @@ import logging
 import os
 
 from django.apps import AppConfig
+from django.conf import settings
 from django.db.backends.signals import connection_created
+from django.db.models.query import F
 from django.db.utils import DatabaseError
 
 from kolibri.core.sqlite.pragmas import CONNECTION_PRAGMAS
@@ -13,6 +15,7 @@ from kolibri.core.sqlite.utils import repair_sqlite_db
 from kolibri.core.utils.cache import process_cache
 from kolibri.core.utils.cache import RedisSettingsHelper
 from kolibri.deployment.default.sqlite_db_names import NOTIFICATIONS
+from kolibri.plugins.registry import registered_plugins
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.data import bytes_for_humans
 
@@ -37,6 +40,13 @@ class KolibriCoreConfig(AppConfig):
             )
         )
         self.check_redis_settings()
+        # Register any django apps that may have kolibri plugin
+        # modules inside them
+        registered_plugins.register_non_plugins(settings.INSTALLED_APPS)
+        # Fixes issue using OuterRef within Cast() that is patched in later Django version
+        # Patch from https://github.com/django/django/commit/c412926a2e359afb40738d8177c9f3bef80ee04e
+        # https://code.djangoproject.com/ticket/29142
+        F.relabeled_clone = lambda self, relabels: self
 
     @staticmethod
     def activate_pragmas_per_connection(sender, connection, **kwargs):

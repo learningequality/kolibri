@@ -291,6 +291,9 @@ class ZeroConfPlugin(Monitor):
         )
 
     def SERVING(self, port):
+        self.port = port or self.port
+
+    def RUN(self):
         # Register the Kolibri zeroconf service so it will be discoverable on the network
         from kolibri.core.discovery.utils.network.broadcast import (
             build_broadcast_instance,
@@ -302,8 +305,7 @@ class ZeroConfPlugin(Monitor):
             SoUDServerListener,
         )
 
-        self.port = port or self.port
-        instance = build_broadcast_instance(port)
+        instance = build_broadcast_instance(self.port)
 
         if self.broadcast is None:
             self.broadcast = KolibriBroadcast(instance, interfaces=self.interfaces)
@@ -317,7 +319,7 @@ class ZeroConfPlugin(Monitor):
             )
 
     def UPDATE_ZEROCONF(self):
-        self.SERVING(self.port)
+        self.RUN()
 
     def STOP(self):
         super(ZeroConfPlugin, self).STOP()
