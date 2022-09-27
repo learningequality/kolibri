@@ -18,10 +18,6 @@ from kolibri.utils import version
 get_version = version.get_version.__wrapped__  # @UndefinedVariable
 
 
-def dont_call_me_maybe(msg):
-    raise AssertionError(msg)
-
-
 class TestKolibriVersion(unittest.TestCase):
     def test_version(self):
         """
@@ -32,15 +28,17 @@ class TestKolibriVersion(unittest.TestCase):
 
     @mock.patch("kolibri.utils.version.get_git_describe", return_value=None)
     @mock.patch("kolibri.utils.version.get_version_file", return_value=None)
-    def test_alpha_0_version(self, file_mock, describe_mock):
+    def test_no_tag_no_file_version(self, file_mock, describe_mock):
         """
         Test that when doing something with a 0th alpha doesn't provoke any
         hickups with ``git describe --tag``.
+        If the version file returns nothing, and get_git_describe returns nothing,
+        then get_prerelease_version should return 0.15.8.dev0
         """
-        v = get_version((0, 1, 0, "alpha", 0))
+        v = get_version((0, 1, 0))
         self.assertIn("0.1.0.dev0", v)
 
-    @mock.patch("kolibri.utils.version.get_git_describe", return_value=None)
+    @mock.patch("kolibri.utils.version.get_git_describe", return_value="v0.1.0-alpha1")
     @mock.patch("kolibri.utils.version.get_version_file", return_value=None)
     def test_alpha_1_version(self, file_mock, describe_mock):
         """
@@ -48,30 +46,18 @@ class TestKolibriVersion(unittest.TestCase):
         ``git describe --tag`` is consistent (it will change in future test
         runs)
         """
-        v = get_version((0, 1, 0, "alpha", 1))
+        v = get_version((0, 1, 0))
         self.assertIn("0.1.0a1", v)
-
-    @mock.patch("kolibri.utils.version.get_git_describe", return_value=None)
-    def test_alpha_1_version_no_git(self, describe_mock):
-        """
-        Not running from git and no VERSION file.
-        """
-        # Simple mocking
-        get_version_file = version.get_version_file
-        version.get_version_file = lambda: None
-        try:
-            v = get_version((0, 1, 0, "alpha", 1))
-            self.assertIn("0.1.0a1", v)
-        finally:
-            version.get_version_file = get_version_file
 
     @mock.patch("kolibri.utils.version.get_version_file", return_value="0.1.0a1")
     @mock.patch("kolibri.utils.version.get_git_describe", return_value=None)
     def test_alpha_1_version_file(self, describe_mock, file_mock):
         """
         Test that a simple 0.1a1 works when loaded from a VERSION file
+        If the version file returns a version that matches the
+        major, minor, patch of the version tuple, return that version string
         """
-        v = get_version((0, 1, 0, "alpha", 1))
+        v = get_version((0, 1, 0))
         self.assertIn("0.1.0a1", v)
 
     @mock.patch("kolibri.utils.version.get_version_file", return_value="0.1.0a1\n")
@@ -82,7 +68,7 @@ class TestKolibriVersion(unittest.TestCase):
 
         See: https://github.com/learningequality/kolibri/issues/2464
         """
-        v = get_version((0, 1, 0, "alpha", 1))
+        v = get_version((0, 1, 0))
         self.assertIn("0.1.0a1", v)
 
     @mock.patch(
@@ -94,44 +80,24 @@ class TestKolibriVersion(unittest.TestCase):
         """
         Test that a version file with git describe output is correctly parsed
         """
-        v = get_version((0, 7, 1, "beta", 1))
+        v = get_version((0, 7, 1))
         self.assertIn("0.7.1b1.dev0+git.2.gfd48a7a", v)
 
+    @mock.patch("kolibri.utils.version.get_version_file", return_value="0.1.0a1\n")
     @mock.patch("kolibri.utils.version.get_git_describe", return_value=None)
     @mock.patch("kolibri.utils.version.get_git_changeset", return_value=None)
     def test_alpha_0_inconsistent_version_file(
-        self, get_git_changeset_mock, describe_mock
+        self, get_git_changeset_mock, describe_mock, version_file_mock
     ):
         """
-        Test that inconsistent file data also just fails
+        Test that inconsistent version file data also just fails
+        If the version file returns a version that doesn't match the
+        major, minor, patch of the version tuple, throw an assertion error
         """
-        # Simple mocking
-        get_version_file = version.get_version_file
-        inconsistent_versions = ("0.2.0a1", "0.1.1a1", "0.1.0")
+        inconsistent_versions = ("0.2.0a1", "0.1.1a1")
         for v in inconsistent_versions:
-            version.get_version_file = lambda: v
-            try:
-                self.assertRaises(AssertionError, get_version, (0, 1, 0, "alpha", 0))
-            finally:
-                version.get_version_file = get_version_file
-
-    @mock.patch("kolibri.utils.version.get_git_describe", return_value=None)
-    @mock.patch("kolibri.utils.version.get_git_changeset", return_value=None)
-    def test_alpha_1_inconsistent_version_file(
-        self, get_git_changeset_mock, describe_mock
-    ):
-        """
-        Test that inconsistent file data also just fails
-        """
-        # Simple mocking
-        get_version_file = version.get_version_file
-        inconsistent_versions = ("0.2.0a1", "0.1.1a1", "0.1.0")
-        for v in inconsistent_versions:
-            version.get_version_file = lambda: v
-            try:
-                self.assertRaises(AssertionError, get_version, (0, 1, 0, "alpha", 1))
-            finally:
-                version.get_version_file = get_version_file
+            version_file_mock.return_value = v
+            self.assertRaises(AssertionError, get_version, (0, 1, 0))
 
     @mock.patch("kolibri.utils.version.get_version_file", return_value="0.1.0b1")
     @mock.patch("kolibri.utils.version.get_git_describe", return_value=None)
@@ -143,19 +109,7 @@ class TestKolibriVersion(unittest.TestCase):
         Test that a VERSION file can overwrite an alpha-0 (dev) state.
         Because a prerelease can be made with a version file.
         """
-        assert get_version((0, 1, 0, "alpha", 0)) == "0.1.0b1"
-
-    @mock.patch("kolibri.utils.version.get_version_file", return_value=None)
-    @mock.patch(
-        "kolibri.utils.version.get_git_describe",
-        return_value="v0.1.0-alpha1-123-abcdfe12",
-    )
-    def test_alpha_0_consistent_git(self, describe_mock, file_mock):
-        """
-        Tests that git describe data for an alpha-1 tag generates an a1 version
-        string.
-        """
-        assert get_version((0, 1, 0, "alpha", 0)) == "0.1.0a1.dev0+git.123.abcdfe12"
+        assert get_version((0, 1, 0)) == "0.1.0b1"
 
     @mock.patch("kolibri.utils.version.get_version_file", return_value=None)
     @mock.patch(
@@ -167,45 +121,33 @@ class TestKolibriVersion(unittest.TestCase):
         Tests that git describe data for an alpha-1 tag generates an a1 version
         string.
         """
-        assert get_version((0, 1, 0, "alpha", 1)) == "0.1.0a1.dev0+git.123.abcdfe12"
+        assert get_version((0, 1, 0)) == "0.1.0a1.dev0+git.123.abcdfe12"
 
-    @mock.patch("kolibri.utils.version.get_version_file", return_value="0.1.0b2")
-    @mock.patch("kolibri.utils.version.get_git_describe", return_value=None)
-    @mock.patch("kolibri.utils.version.get_git_changeset", return_value=None)
-    def test_beta_1_consistent_version_file(
-        self, get_git_changeset_mock, describe_mock, file_mock
-    ):
-        """
-        Test that a VERSION file can overwrite an beta-1 state in case the
-        version was bumped in ``kolibri.VERSION``.
-        """
-        assert get_version((0, 1, 0, "beta", 1)) == "0.1.0b2"
-
+    @mock.patch("kolibri.utils.version.get_version_file", return_value=None)
     @mock.patch(
-        "kolibri.utils.version.get_version_file",
-        return_value="0.7.1b1.dev0+git.12.g2a8fe31",
+        "kolibri.utils.version.get_git_describe",
+        return_value="v0.1.0-alpha1",
     )
-    @mock.patch("kolibri.utils.version.get_git_describe", return_value=None)
-    @mock.patch("kolibri.utils.version.get_git_changeset", return_value=None)
-    def test_beta_1_consistent_dev_release_version_file(
-        self, get_git_changeset_mock, describe_mock, file_mock
-    ):
+    def test_alpha_1_consistent_git_tag(self, describe_mock, file_mock):
         """
-        Test that a VERSION file can overwrite an beta-1 state in case the
-        version was bumped in ``kolibri.VERSION``.
+        Tests that git describe data for an alpha-1 tag generates an a1 version
+        string.
+        If the version file returns nothing, and get_git_describe returns a version
+        tag like v0.1.0-alpha1 and it matches the major, minor, patch of the version tuple,
+        return the version (without the v) (because that means we are on a tagged commit)
         """
-        assert get_version((0, 7, 1, "alpha", 0)) == "0.7.1b1.dev0+git.12.g2a8fe31"
+        assert get_version((0, 1, 0)) == "0.1.0a1"
 
     @mock.patch("kolibri.utils.version.get_version_file", return_value="0.1.0b1")
     @mock.patch("kolibri.utils.version.get_git_describe", return_value="v0.0.1")
     @mock.patch("kolibri.utils.version.get_git_changeset", return_value="+git123")
-    def test_version_file_ignored(
+    def test_version_file_overrides(
         self, get_git_changeset_mock, describe_mock, file_mock
     ):
         """
-        Test that the VERSION file is NOT used where git data is available
+        Test that the VERSION file is used when git data is available
         """
-        assert get_version((0, 1, 0, "alpha", 0)) == "0.1.0.dev0+git123"
+        assert get_version((0, 1, 0)) == "0.1.0b1"
 
     @mock.patch("kolibri.utils.version.get_version_file", return_value="0.1.0")
     @mock.patch("kolibri.utils.version.get_git_describe", return_value=None)
@@ -215,37 +157,39 @@ class TestKolibriVersion(unittest.TestCase):
         Test that a VERSION specifying a final version will work when the
         kolibri.VERSION tuple is consistent.
         """
-        assert get_version((0, 1, 0, "final", 0)) == "0.1.0"
+        assert get_version((0, 1, 0)) == "0.1.0"
 
-    def test_alpha_1_inconsistent_git(self):
+    @mock.patch("kolibri.utils.version.get_git_describe")
+    def test_alpha_1_inconsistent_git_tag(self, describe_mock):
         """
         Test that we fail when git returns inconsistent data
+        Only when the returned tag is a greater major, minor, patch
+        version than what we have encoded in the version tuple.
+        This should ensure that we notice if we apply a tag on the wrong
+        repository branch.
         """
-        # Simple mocking
-        git_describe = version.get_git_describe
-        try:
-            version.get_git_describe = lambda *x: "v0.2.0-beta1"
-            self.assertRaises(AssertionError, get_version, (0, 1, 0, "alpha", 1))
-            version.get_git_describe = lambda *x: "v0.2.0-beta2"
-            self.assertRaises(AssertionError, get_version, (0, 1, 0, "beta", 0))
-            version.get_git_describe = lambda *x: "v0.1.0"
-            self.assertRaises(AssertionError, get_version, (0, 1, 0, "alpha", 0))
-        finally:
-            version.get_git_describe = git_describe
+        describe_mock.return_value = "v0.2.0-beta1"
+        self.assertRaises(AssertionError, get_version, (0, 1, 0))
+        describe_mock.return_value = "v0.2.0"
+        self.assertRaises(AssertionError, get_version, (0, 1, 0))
 
+    @mock.patch("kolibri.utils.version.get_version_file", return_value=None)
     @mock.patch(
         "kolibri.utils.version.get_git_describe",
-        return_value="v0.1.0-beta1-123-abcdfe12",
     )
-    def test_alpha_1_beta_1_consistent_git(self, describe_mock):
+    def test_alpha_1_inconsistent_git(self, describe_mock, file_mock):
         """
-        Test that a beta1 git tag can override kolibri.__version__ reading
-        alpha0.
+        Tests that git describe data for an alpha-1 tag generates an a1 version
+        string.
+        Only when the returned version is a greater major, minor, patch
+        version than what we have encoded in the version tuple.
         """
-        assert get_version((0, 1, 0, "alpha", 1)) == "0.1.0b1.dev0+git.123.abcdfe12"
+        describe_mock.return_value = "v0.2.0-alpha1-123-abcdfe12"
+        self.assertRaises(AssertionError, get_version, (0, 1, 0))
 
     @mock.patch("subprocess.Popen")
-    def test_git_describe_parser(self, popen_mock):
+    @mock.patch("kolibri.utils.version.get_version_file", return_value=None)
+    def test_git_describe_parser(self, file_mock, popen_mock):
         """
         Test that we get the git describe data when it's there
         """
@@ -253,19 +197,20 @@ class TestKolibriVersion(unittest.TestCase):
         attrs = {"communicate.return_value": ("v0.1.0-beta1-123-abcdfe12", "")}
         process_mock.configure_mock(**attrs)
         popen_mock.return_value = process_mock
-        assert get_version((0, 1, 0, "alpha", 1)) == "0.1.0b1.dev0+git.123.abcdfe12"
+        assert get_version((0, 1, 0)) == "0.1.0b1.dev0+git.123.abcdfe12"
 
     @mock.patch("subprocess.Popen")
     @mock.patch("kolibri.utils.version.get_version_file", return_value=None)
     def test_git_random_tag(self, file_mock, popen_mock):
         """
         Test that we don't fail if some random tag appears
+        Always fallback to .dev0 if the tag data is unparseable.
         """
         process_mock = mock.Mock()
         attrs = {"communicate.return_value": ("foobar", "")}
         process_mock.configure_mock(**attrs)
         popen_mock.return_value = process_mock
-        assert get_version((0, 1, 0, "alpha", 1)) == "0.1.0a1"
+        assert get_version((0, 1, 0)) == "0.1.0.dev0"
 
     @mock.patch("subprocess.Popen", side_effect=EnvironmentError())
     @mock.patch("kolibri.utils.version.get_version_file", return_value="0.1.0a2")
@@ -273,44 +218,16 @@ class TestKolibriVersion(unittest.TestCase):
         """
         Test that we don't fail and that the version file is used
         """
-        assert get_version((0, 1, 0, "alpha", 1)) == "0.1.0a2"
-
-    @mock.patch(
-        "kolibri.utils.version.get_complete_version",
-        side_effect=lambda x: x if x else (0, 2, 0, "alpha", 2),
-    )
-    @mock.patch("kolibri.utils.version.get_git_describe", return_value="v0.2.0-beta1")
-    def test_beta_1_git(self, describe_mock, complete_mock):
-        """
-        Test that we use git tag data when our version is alpha
-        """
-        self.assertEqual(get_version(), "0.2.0b1")
-
-    @mock.patch("kolibri.utils.version.get_git_describe", return_value=None)
-    def test_final(self, describe_mock):
-        """
-        Test that the major version is set as expected on a final release
-        """
-        v = get_version((0, 1, 0, "final", 0))
-        self.assertEqual(v, "0.1.0")
-        assert describe_mock.call_count == 0
+        assert get_version((0, 1, 0)) == "0.1.0a2"
 
     @mock.patch("kolibri.utils.version.get_git_describe")
-    def test_final_patch(self, describe_mock):
+    @mock.patch("kolibri.utils.version.get_version_file", return_value="0.1.1")
+    def test_final_patch(self, file_mock, describe_mock):
         """
         Test that the major version is set as expected on a final release
         """
-        v = get_version((0, 1, 1, "final", 0))
+        v = get_version((0, 1, 1))
         self.assertEqual(v, "0.1.1")
-        assert describe_mock.call_count == 0
-
-    @mock.patch("kolibri.utils.version.get_git_describe")
-    def test_final_post(self, describe_mock):
-        """
-        Test that the major version is set as expected on a final release
-        """
-        v = get_version((0, 1, 1, "final", 1))
-        self.assertEqual(v, "0.1.1.post1")
         assert describe_mock.call_count == 0
 
     def test_version_compat(self):
@@ -472,7 +389,8 @@ class TestKolibriVersion(unittest.TestCase):
         )
 
     @mock.patch("kolibri.utils.version.get_git_describe", return_value="v0.15.8")
-    def test_get_version(self, describe_mock):
+    @mock.patch("kolibri.utils.version.get_version_file", return_value=None)
+    def test_get_version(self, file_mock, describe_mock):
         self.assertEqual(
             version.get_version((0, 15, 8)),
             "0.15.8",
@@ -485,4 +403,4 @@ class TestKolibriVersion(unittest.TestCase):
             version.get_version((0, 15, 8)),
             "0.15.8",
         )
-        assert describe_mock.call_count == 1
+        assert describe_mock.call_count == 0
