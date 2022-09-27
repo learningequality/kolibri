@@ -66,19 +66,6 @@
     font-size: 12px;
     list-style: none;
     position: relative;
-    // &:hover {
-    //   .bookmark-item-title::before {
-    //     content: '';
-    //     position: absolute;
-    //     top: 0;
-    //     left: 0;
-    //     width: 100%;
-    //     height: 100%;
-    //     border-radius: 4px;
-    //     background-color: rgba(0, 0, 0, 0.1);
-    //     user-select: none;
-    //   }
-    // }
     .bookmark-item-title-container {
       cursor: pointer;
     }

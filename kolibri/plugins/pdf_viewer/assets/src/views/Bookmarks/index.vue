@@ -27,10 +27,6 @@
         type: Array,
         required: true,
       },
-      pdfDocument: {
-        type: Object,
-        required: true,
-      },
       goToDestination: {
         type: Function,
         required: true,
