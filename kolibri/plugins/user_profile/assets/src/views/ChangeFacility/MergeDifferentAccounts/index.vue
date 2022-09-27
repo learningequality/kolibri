@@ -87,7 +87,6 @@
               // there are not users matching that username
               userDoesNotExist.value = true;
             } else {
-              console.log(user_info);
               isFormSubmitted.value = false;
               changeFacilityService.send({
                 type: 'CONTINUE',
