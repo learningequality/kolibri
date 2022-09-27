@@ -39,7 +39,7 @@
     "babel-preset-stage-1": "6.24.1",
     "babel-preset-stage-2": "6.24.1",
     "babel-register": "6.8.0",
-    "espree": "^4.1.0",
+    "espree": "^9.4.0",
     "exports-loader": "^0.7.0",
     "imports-loader": "^4.0.1",
     "mkdirp": "^0.5.1",
