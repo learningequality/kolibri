@@ -29,6 +29,7 @@ const setInitialContext = assign((_, event) => {
   return {
     sourceFacility: event.value.facility,
     username: event.value.username,
+    fullname: event.value.fullname,
     userId: event.value.userId,
     role: event.value.role,
   };
@@ -382,7 +383,7 @@ const states = {
     on: {
       CONTINUE: {
         target: 'requireAccountCreds',
-        actions: [send({ type: 'PUSH_HISTORY', value: 'confirmAccountDetails' })],
+        actions: [setTargetAccount, send({ type: 'PUSH_HISTORY', value: 'mergeAccounts' })],
       },
     },
   },
