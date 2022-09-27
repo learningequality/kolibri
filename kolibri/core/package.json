@@ -24,7 +24,7 @@
     "lockr": "0.8.4",
     "lodash": "^4.17.21",
     "loglevel": "^1.4.1",
-    "markdown-it": "12.3.2",
+    "markdown-it": "13.0.1",
     "screenfull": "^4.0.0",
     "shave": "^5.0.0",
     "tinycolor2": "^1.4.2",
