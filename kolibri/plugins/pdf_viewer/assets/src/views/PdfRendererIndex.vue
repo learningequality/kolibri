@@ -52,7 +52,6 @@
         >
           <Bookmarks
             :outline="outline || []"
-            :pdfDocument="{}"
             :goToDestination="goToDestination"
           />
         </KGridItem>
