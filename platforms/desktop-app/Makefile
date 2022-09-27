@@ -27,6 +27,8 @@ install-whl:
 	rm -rf kolibri
 	pip3 install ${whl} -t kolibri/
 	rm -rf kolibri/kolibri/dist/sqlalchemy
+	# This doesn't exist in 0.15, so don't error if it doesn't exist.
+	echo "3.3.1" > kolibri/kolibri/dist/importlib_resources/version.txt || true
 
 get-whl: clean-whl
 # The eval and shell commands here are evaluated when the recipe is parsed, so we put the cleanup
