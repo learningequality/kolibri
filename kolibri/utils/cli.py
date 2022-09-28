@@ -394,7 +394,7 @@ def enable(plugin_names, default_plugins):
     for name in plugin_names:
         try:
             logger.info("Enabling plugin '{}'".format(name))
-            error = error or not enable_plugin(name)
+            error = error or not enable_plugin(name, initialize_hooks=True)
         except Exception as e:
             error = True
             logger.error("Error enabling plugin '{}', error was: {}".format(name, e))

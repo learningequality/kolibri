@@ -86,7 +86,7 @@ def _import_python_module(plugin_name):
             raise
 
 
-def initialize_plugins_and_hooks(all_classes, plugin_name):
+def initialize_plugins_and_hooks(all_classes, plugin_name, initialize_hooks=True):
     was_configured = django_settings.configured
     plugin_objects = []
     for class_definition in all_classes:
@@ -99,7 +99,7 @@ def initialize_plugins_and_hooks(all_classes, plugin_name):
                         class_definition.__name__, plugin_name
                     )
                 )
-        elif issubclass(class_definition, KolibriHook):
+        elif issubclass(class_definition, KolibriHook) and initialize_hooks:
             class_definition.add_hook_to_registries()
             if not was_configured and django_settings.configured:
                 raise PluginLoadsApp(
@@ -122,11 +122,14 @@ def initialize_plugins_and_hooks(all_classes, plugin_name):
         raise MultiplePlugins("More than one plugin defined in kolibri_plugin module")
 
 
-def initialize_kolibri_plugin(plugin_name):
+def initialize_kolibri_plugin(plugin_name, initialize_hooks=True):
     """
     Try to load kolibri_plugin from given plugin module identifier
     In so doing, it will instantiate the KolibriPlugin object if it
     exists, and also register any hooks found in the module.
+
+    Set the initialize_hooks argument to False to just retrieve the kolibri plugin without registering
+    its hooks.
 
     :returns: the KolibriPlugin object for the module
     """
@@ -167,7 +170,9 @@ def initialize_kolibri_plugin(plugin_name):
             for cls in plugin_module.__dict__.values()
             if is_plugin_module(cls) and isinstance(cls, type)
         ]
-        return initialize_plugins_and_hooks(all_classes, plugin_name)
+        return initialize_plugins_and_hooks(
+            all_classes, plugin_name, initialize_hooks=initialize_hooks
+        )
 
     except ImportError as e:
         # Python 2: message, Python 3: msg
@@ -187,9 +192,9 @@ def initialize_kolibri_plugin(plugin_name):
         raise PluginLoadsApp(msg)
 
 
-def enable_plugin(plugin_name):
+def enable_plugin(plugin_name, initialize_hooks=False):
     try:
-        obj = initialize_kolibri_plugin(plugin_name)
+        obj = initialize_kolibri_plugin(plugin_name, initialize_hooks=initialize_hooks)
         if obj:
             obj.enable()
             return True
@@ -197,9 +202,9 @@ def enable_plugin(plugin_name):
         logger.error(str(e))
 
 
-def disable_plugin(plugin_name):
+def disable_plugin(plugin_name, initialize_hooks=False):
     try:
-        obj = initialize_kolibri_plugin(plugin_name)
+        obj = initialize_kolibri_plugin(plugin_name, initialize_hooks=initialize_hooks)
         if obj:
             obj.disable()
             return True
