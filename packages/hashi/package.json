@@ -30,7 +30,7 @@
     "is-language-code": "^3.0.12",
     "iso8601-duration": "^2.1.1",
     "toposort-class": "^1.0.1",
-    "uuid": "^8.3.2"
+    "uuid": "^9.0.0"
   },
   "browserslist": [
     "extends browserslist-config-kolibri"
