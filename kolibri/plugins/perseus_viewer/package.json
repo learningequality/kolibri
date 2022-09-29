@@ -31,7 +31,7 @@
     "webfontloader": "^1.6.24"
   },
   "devDependencies": {
-    "babel-plugin-flow-react-proptypes": "0.17.2",
+    "babel-plugin-flow-react-proptypes": "26.0.0",
     "babel-plugin-syntax-trailing-function-commas": "6.22.0",
     "babel-plugin-transform-es2015-modules-commonjs": "6.26.0",
     "babel-preset-es2015": "6.24.1",
