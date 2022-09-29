@@ -104,15 +104,18 @@ function extractContext(context) {
 
 // Get the value we care about from a node that is type TemplateLiteral or StringLiteral
 function stringFromAnyLiteral(node) {
+  if (node.type === 'ObjectProperty') {
+    return stringFromAnyLiteral(node.value);
+  }
   if (['TemplateLiteral', 'StringLiteral', 'Literal'].includes(get(node, 'type'))) {
     return node.type === 'TemplateLiteral'
       ? get(node, 'quasis[0].value.raw')
       : get(node, 'value', null);
   } else {
     logging.error(
-      'Tried to get string value from a node that is not a TemplateLiteral or a StringLiteral',
+      'Tried to get string value from a node that is not a Literal, TemplateLiteral or a StringLiteral',
       '\n\n',
-      node.init.properties[0].key.name
+      get(node, 'init.properties[0].key.name', '')
     );
   }
 }
@@ -131,8 +134,12 @@ function getObjectifiedValue(nodePropertyValue) {
     message = stringFromAnyLiteral(nodePropertyValue);
     context = '';
   } else {
-    const contextNode = nodePropertyValue.properties.find(n => n.key.name === 'context');
-    const messageNode = nodePropertyValue.properties.find(n => n.key.name === 'message');
+    const contextNode = get(nodePropertyValue, 'properties', []).find(
+      n => n.key.name === 'context'
+    );
+    const messageNode = get(nodePropertyValue, 'properties', []).find(
+      n => n.key.name === 'message'
+    );
 
     message = stringFromAnyLiteral(messageNode);
     try {
@@ -146,9 +153,9 @@ function getObjectifiedValue(nodePropertyValue) {
       // we should let the user know and just bail for now until it gets worked out
       logging.error(
         'Trying to get the message from an object in $trs but did not find a `message` key.\n\n',
-        'The above error is unrecoverable (✖╭╮✖). This indicates a bug that needs fixing. Sorry. Here is the node:\n\n',
-        messageNode.value
+        'The above error is unrecoverable (✖╭╮✖). This indicates a bug that needs fixing. Sorry.'
       );
+      logging.error(nodePropertyValue.properties[0].value.value);
       process.exit(1);
     }
   }
@@ -316,11 +323,6 @@ function getPropertyKey(node, ast, filePath) {
                 // (so we're sure this is the right object)
               ) {
                 try {
-                  logging.error(
-                    Object.keys(importedNode.init.properties).map(
-                      i => importedNode.init.properties[i].key.name
-                    )
-                  );
                   foundValue = stringFromAnyLiteral(
                     // get the matching property's `value` (a node) to give to stringFromAnyLiteral
                     get(importedNode, 'init.properties', []).find(p => get(p, 'key.name') === prop)
@@ -537,7 +539,8 @@ function getAstFromFile(filePath) {
   }
 
   // Finally! Do the extraction
-  return parseAST(scriptContent);
+  let x = parseAST(scriptContent);
+  return x;
 }
 
 const GLOB = '/**/*.@(vue|js)';
