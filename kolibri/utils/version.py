@@ -104,6 +104,7 @@ import re
 import subprocess
 import sys
 
+from .compat import parse_version
 from .lru_cache import lru_cache
 
 logger = logging.getLogger(__name__)
@@ -116,11 +117,11 @@ PRERELEASE_VERSION = "prerelease"
 BUILD_VERSION = "build"
 
 
-def get_major_version(version=None):
+def get_major_version(version):
     """
     :returns: String w/ first digit part of version tuple x.y.z
     """
-    version = get_complete_version(version)
+
     major = ".".join(str(x) for x in version[:3])
     return major
 
@@ -289,7 +290,7 @@ def get_prerelease_version(version):
     \\*, \\*, \\*, "alpha", 0: Maps to latest commit timestamp
     \\*, \\*, \\*, "alpha", >0: Uses latest git tag, asserting that there is such.
     """
-
+    mapping = {"alpha": "a", "beta": "b", "rc": "rc", "final": ""}
     major = get_major_version(version)
 
     # Calculate suffix...
@@ -303,25 +304,37 @@ def get_prerelease_version(version):
         if not suffix:
             if not git_version[:3] == version[:3]:
                 # If it's the 0th alpha, load suffix info from git changeset
-                if version[4] == 0 and version[3] == "alpha":
-                    # Throw away the description from git
-                    suffix = get_git_changeset()
+                # if version[4] == 0 and version[3] == "alpha":
+                # Throw away the description from git
+                suffix = get_git_changeset()
 
-                    # Replace 'alpha' with .dev
-                    return major + ".dev0" + suffix
+                # Replace 'alpha' with .dev
+                return major + ".dev0" + suffix
 
-                # If the tag was not of a final version, we will fail.
-                elif not git_version[4] == "final" and git_version[:3] > version[:3]:
-                    raise AssertionError(
-                        (
-                            "Version detected from git describe --tags, but it's "
-                            "inconsistent with kolibri.__version__."
-                            "__version__ is: {}, tag says: {}."
-                        ).format(str(version), git_version)
-                    )
+                # # If the tag was not of a final version, we will fail.
+        if git_version[:3] > version[:3]:
+            # If the tag was of a final version, we will use it.
+            raise AssertionError(
+                (
+                    "Version detected from git describe --tags, but it's "
+                    "inconsistent with kolibri.__version__."
+                    "__version__ is: {}, tag says: {}."
+                ).format(str(version), git_version)
+            )
+        if git_version[:3] == version[:3]:
+            if git_version[3] == "final":
+                return major
+        # If the tag was of a final version, we will use it.
 
-    # In all circumstances, return the initial findings
-    return major
+        return (
+            get_major_version(git_version)
+            + mapping[git_version[3]]
+            + str(git_version[4])
+            + suffix
+        )
+
+    # In all cirrcumstances, return the initial findings
+    return major + ".dev0"
 
 
 def get_version_from_file(version):
@@ -332,6 +345,19 @@ def get_version_from_file(version):
     if version_file:
         # Because \n may have been appended
         version_file = version_file.strip()
+        version_major_minor_patch = parse_version(version_file).base_version
+        split_version = version_major_minor_patch.split(".")
+        major = int(split_version[0])
+        minor = int(split_version[1])
+        patch = int(split_version[2])
+        if (major, minor, patch) != version[:3]:
+            raise AssertionError(
+                (
+                    "Version detected from VERSION file, but it's "
+                    "inconsistent with kolibri.__version__."
+                    "__version__ is: {}, VERSION file says: {}."
+                ).format(str(version), version_file)
+            )
 
         # If there is a '.dev', we can remove it, otherwise we check it
         # for consistency and fail if inconsistent
