@@ -7,7 +7,7 @@ import remoteFacilityUserData from '../../../../composables/useRemoteFacility';
 const localVue = createLocalVue();
 const sendMachineEvent = jest.fn();
 
-function makeWrapper({ targetFacility, targetAccount, fullName, username } = {}) {
+function makeWrapper({ targetFacility, targetAccount, fullname, username } = {}) {
   return mount(MergeAccountDialog, {
     provide: {
       changeFacilityService: {
@@ -18,13 +18,8 @@ function makeWrapper({ targetFacility, targetAccount, fullName, username } = {})
         value: {
           targetFacility,
           targetAccount,
-        },
-      },
-    },
-    mocks: {
-      $store: {
-        getters: {
-          session: { full_name: fullName, username: username },
+          fullname,
+          username,
         },
       },
     },
@@ -58,8 +53,9 @@ describe(`ChangeFacility/MergeAccountDialog`, () => {
   it(`Show correct info`, () => {
     const wrapper = makeWrapper({
       targetFacility: { name: 'Test Facility' },
-      fullName: 'Test User 1',
+      fullname: 'Test User 1',
       username: 'test1',
+      targetAccount: { username: 'test2' },
     });
     const fullname_paragraph = wrapper.find('[data-test="fullName"]');
     expect(fullname_paragraph.text()).toEqual('Test User 1');
@@ -68,7 +64,7 @@ describe(`ChangeFacility/MergeAccountDialog`, () => {
     expect(wrapper.find('[data-test="usernameTextbox"]').exists()).toBe(false);
     expect(wrapper.find('[data-test="passwordTextbox"]').exists()).toBe(true);
     expect(wrapper.text()).toContain(
-      'Enter the password of the account in ‘Test Facility’ learning facility that you want to merge your account with'
+      'Enter the password of the account ‘test2’ in ‘Test Facility’ learning facility that you want to merge your account with'
     );
   });
 
@@ -91,8 +87,9 @@ describe(`ChangeFacility/MergeAccountDialog`, () => {
   it('Check remoteFacilityUserData is called with the user credentials', async () => {
     const wrapper = makeWrapper({
       targetFacility: { id: 'id_facility', url: 'http://localhost/test' },
-      fullName: 'Test User 1',
+      fullname: 'Test User 1',
       username: 'test1',
+      targetAccount: { username: 'test1' },
     });
     jest.spyOn(useRemoteFacility, 'default').mockReturnValue(Promise.resolve({}));
     setPasswordTextboxValue(wrapper, 'my password');
@@ -113,8 +110,9 @@ describe(`ChangeFacility/MergeAccountDialog`, () => {
   it('Check remoteFacilityUserData is called with the admin credentials', async () => {
     const wrapper = makeWrapper({
       targetFacility: { id: 'id_facility', url: 'http://localhost/test' },
-      fullName: 'Test User 1',
+      fullname: 'Test User 1',
       username: 'test1',
+      targetAccount: { username: 'test1' },
     });
     jest.spyOn(useRemoteFacility, 'default').mockReturnValue(Promise.resolve({}));
     wrapper.setData({ usingAdminPasswordState: true });

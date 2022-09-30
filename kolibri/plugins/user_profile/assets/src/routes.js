@@ -13,7 +13,7 @@ import CreateAccount from './views/ChangeFacility/CreateAccount';
 import ChooseAdmin from './views/ChangeFacility/ChooseAdmin';
 import ToBeDone from './views/ChangeFacility/ToBeDone';
 import UsernameExists from './views/ChangeFacility/UsernameExists';
-import MergeUsernameExists from './views/ChangeFacility/MergeUsernameExists';
+import MergeDifferentAccounts from './views/ChangeFacility/MergeDifferentAccounts';
 
 function preload(next) {
   store.commit('CORE_SET_PAGE_LOADING', true);
@@ -120,7 +120,7 @@ export default [
       {
         path: 'merge_accounts',
         name: 'MERGE_ACCOUNTS',
-        component: MergeUsernameExists,
+        component: MergeDifferentAccounts,
       },
     ],
   },

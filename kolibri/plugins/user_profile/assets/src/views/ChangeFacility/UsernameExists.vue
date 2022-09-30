@@ -2,8 +2,12 @@
 
   <div>
     <h1>{{ $tr('documentTitle') }}</h1>
-    <p>{{ firstLine }}</p>
-    <p>{{ secondLine }}</p>
+    <p data-test="line1">
+      {{ mergeAccountInfoLine1 }}
+    </p>
+    <p data-test="line2">
+      {{ mergeAccountInfoLine2 }}
+    </p>
     <BottomAppBar>
       <slot name="buttons">
         <KButtonGroup>
@@ -50,7 +54,7 @@
       const changeFacilityService = inject('changeFacilityService');
       const state = inject('state');
 
-      const firstLine = computed({
+      const mergeAccountInfoLine1 = computed({
         get() {
           return this.$tr('changeFacilityInfoLine1', {
             target_facility: get(state, 'value.targetFacility.name', ''),
@@ -59,7 +63,7 @@
         },
       });
 
-      const secondLine = computed({
+      const mergeAccountInfoLine2 = computed({
         get() {
           return this.$tr('changeFacilityInfoLine2', {
             target_facility: get(state, 'value.targetFacility.name', ''),
@@ -79,7 +83,7 @@
         });
       }
 
-      return { firstLine, secondLine, to_create, to_merge };
+      return { mergeAccountInfoLine1, mergeAccountInfoLine2, to_create, to_merge };
     },
 
     $trs: {

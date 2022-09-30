@@ -88,22 +88,17 @@
     components: { BottomAppBar },
 
     mixins: [commonCoreStrings],
-    setup(_, context) {
+    setup() {
       const changeFacilityService = inject('changeFacilityService');
       const state = inject('state');
 
       const isFormSubmitted = ref(false);
       const isPasswordInvalid = ref(false);
       const usingAdminPasswordState = ref(false);
-      // hack to get the $store in vue tests with composition api:
-      const store =
-        context.root.$store !== undefined ? context.root.$store : context.root.$children[0].$store;
-      const session = store.getters['session'];
-      const fullName = computed(() => session.full_name);
-      const username = computed(() => session.username);
-      const stateName = computed(() => changeFacilityService.state.value);
+      const fullName = computed(() => get(state, 'value.fullname', ''));
+      const username = computed(() => get(state, 'value.username', ''));
       const formData = ref({
-        username: session.username,
+        username: get(state, 'value.username', ''),
         password: '',
       });
 
@@ -115,6 +110,7 @@
         get() {
           return this.$tr('mergeAccountUserInfo', {
             target_facility: get(state, 'value.targetFacility.name', ''),
+            username: get(state, 'value.targetAccount.username', ''),
           });
         },
       });
@@ -138,7 +134,7 @@
 
       function sendContinue(data) {
         if (usingAdminPasswordState.value) {
-          data['username'] = username.value;
+          data['username'] = get(state, 'value.targetAccount.username', '');
           data['password'] = null;
           data['AdminUsername'] = formData.value.username;
           data['AdminPassword'] = formData.value.password;
@@ -155,7 +151,7 @@
         remoteFacilityUserData(
           facility.url,
           facility.id,
-          username.value,
+          get(state, 'value.targetAccount.username', ''),
           formData.value.password,
           usingAdminPasswordState.value ? formData.value.username : null
         ).then(user_info => {
@@ -195,7 +191,6 @@
         useAdminAccount,
         sendBack,
         handleContinue,
-        stateName,
       };
     },
     $trs: {
@@ -205,7 +200,7 @@
       },
       mergeAccountUserInfo: {
         message:
-          'Enter the password of the account in ‘{target_facility}’ learning facility that you want to merge your account with.',
+          'Enter the password of the account ‘{username}’ in ‘{target_facility}’ learning facility that you want to merge your account with.',
         context:
           'Line of text asking for the password of the user to be merged in the target facility.',
       },
