@@ -324,14 +324,14 @@ def get_prerelease_version(version):
         if git_version[:3] == version[:3]:
             if git_version[3] == "final":
                 return major
-        # If the tag was of a final version, we will use it.
+            # If the tag was of a final version, we will use it.
 
-        return (
-            get_major_version(git_version)
-            + mapping[git_version[3]]
-            + str(git_version[4])
-            + suffix
-        )
+            return (
+                get_major_version(git_version)
+                + mapping[git_version[3]]
+                + str(git_version[4])
+                + suffix
+            )
 
     # In all cirrcumstances, return the initial findings
     return major + ".dev0"
