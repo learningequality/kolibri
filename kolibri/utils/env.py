@@ -67,6 +67,12 @@ ENVIRONMENT_VARIABLES = {
             used to detect whether running under socket activation under Debian.
         """,
     },
+    "KOLIBRI_DISABLE_REQUEST_LOGGING": {
+        "description": """
+            Disable request logging. Set the variable to True/False to turn off/on
+            cherrypy.access logs.
+        """,
+    },
 }
 
 
