@@ -179,11 +179,7 @@ def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
         if NO_FILE_BASED_LOGGING
         else ["file", "console", "console-error", "file_debug"]
     )
-    REQUEST_HANDLERS = (
-        []
-        if DISABLE_REQUEST_LOGGING
-        else ["requests"]
-    )
+    REQUEST_HANDLERS = [] if DISABLE_REQUEST_LOGGING else ["requests"]
 
     # This is the general level
     DEFAULT_LEVEL = "INFO" if not debug else "DEBUG"
