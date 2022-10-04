@@ -297,23 +297,25 @@ def get_prerelease_version(version):
     tag_describe = get_git_describe(version)
 
     # If the detected git describe data is not valid, then either respect
-    # that we are in alpha-0 mode or raise an error
+
     if tag_describe:
 
         git_version, suffix = get_version_from_git(tag_describe)
+        # We will check  if the git_tag and version strings are the same length,
+        # and compare it  the first three characters of each string to see if they matches.
+        # if not, we then  raise an AssertionError.
         if not suffix:
             if not git_version[:3] == version[:3]:
-                # If it's the 0th alpha, load suffix info from git changeset
-                # if version[4] == 0 and version[3] == "alpha":
-                # Throw away the description from git
-                suffix = get_git_changeset()
-
-                # Replace 'alpha' with .dev
-                return major + ".dev0" + suffix
-
-                # # If the tag was not of a final version, we will fail.
+                raise AssertionError(
+                    (
+                        "Version detected from git describe --tags, but it's "
+                        "inconsistent with kolibri.__version__."
+                        "__version__ is: {}, tag says: {}."
+                    ).format(str(version), git_version)
+                )
+        # checks if the version number in git_version is greater than the version number in version.
+        # If it is, the code raises an AssertionError
         if git_version[:3] > version[:3]:
-            # If the tag was of a final version, we will use it.
             raise AssertionError(
                 (
                     "Version detected from git describe --tags, but it's "
@@ -321,10 +323,13 @@ def get_prerelease_version(version):
                     "__version__ is: {}, tag says: {}."
                 ).format(str(version), git_version)
             )
+        # checks if the tag in git_version is the same to the final version number in version.
+        # If it is, we return the major version number.
+        # And If the tag was of a final version, we will use it.
+
         if git_version[:3] == version[:3]:
             if git_version[3] == "final":
                 return major
-            # If the tag was of a final version, we will use it.
 
             return (
                 get_major_version(git_version)
@@ -333,7 +338,6 @@ def get_prerelease_version(version):
                 + suffix
             )
 
-    # In all cirrcumstances, return the initial findings
     return major + ".dev0"
 
 
@@ -350,6 +354,8 @@ def get_version_from_file(version):
         major = int(split_version[0])
         minor = int(split_version[1])
         patch = int(split_version[2])
+        # If the major, minor, and patch of the parsed version number
+        # We will raise an error
         if (major, minor, patch) != version[:3]:
             raise AssertionError(
                 (
@@ -358,14 +364,6 @@ def get_version_from_file(version):
                     "__version__ is: {}, VERSION file says: {}."
                 ).format(str(version), version_file)
             )
-
-        # If there is a '.dev', we can remove it, otherwise we check it
-        # for consistency and fail if inconsistent
-
-        # If a final release is specified in the VERSION file, then it
-        # has to be a final release in the VERSION tuple as well.
-        # A final release specified in a VERSION file (pep 440) is
-        # something that doesn't end like a1, b1, post1, and rc1
 
         return version_file
 

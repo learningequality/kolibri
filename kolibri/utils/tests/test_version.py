@@ -159,8 +159,12 @@ class TestKolibriVersion(unittest.TestCase):
         """
         assert get_version((0, 1, 0)) == "0.1.0"
 
+    @mock.patch(
+        "kolibri.utils.version.get_version_file",
+        return_value=None,
+    )
     @mock.patch("kolibri.utils.version.get_git_describe")
-    def test_alpha_1_inconsistent_git_tag(self, describe_mock):
+    def test_alpha_1_inconsistent_git_tag(self, describe_mock, file_mock):
         """
         Test that we fail when git returns inconsistent data
         Only when the returned tag is a greater major, minor, patch
