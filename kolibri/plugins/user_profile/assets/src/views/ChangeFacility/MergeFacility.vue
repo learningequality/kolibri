@@ -1,0 +1,260 @@
+<template>
+
+  <div>
+    <h1>{{ $tr('documentTitle') }}</h1>
+    <div class="task-panel" :class="{ 'task-panel-sm': windowIsSmall }">
+      <div class="icon">
+        <transition mode="out-in">
+          <KIcon
+            v-if="taskCompleted"
+            icon="check"
+            :style="{ fill: $themePalette.green.v_500 }"
+            data-test="syncStatusIcon"
+          />
+          <KCircularLoader
+            v-else
+            :size="24"
+            :stroke="5"
+          />
+
+
+        </transition>
+      </div>
+
+      <div v-if="taskId !== null" class="details">
+        <p class="details-status" :style="{ color: $themeTokens.annotation }">
+          {{ taskInfo() }}
+        </p>
+
+        <div v-if="taskCompleted">
+          {{ successfullyJoined }}
+        </div>
+        <div v-else class="details-progress-bar">
+          <KLinearLoader
+            class="k-linear-loader"
+            type="determinate"
+            :delay="false"
+            :progress="task.percentage * 100"
+            :style="{ backgroundColor: $themeTokens.fineLine }"
+          />
+          <span class="details-percentage">
+            {{ $formatNumber(task.percentage, { style: 'percent' }) }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <BottomAppBar v-show="taskCompleted">
+      <slot name="buttons">
+        <KButtonGroup>
+          <KButton
+            :primary="true"
+            :text="coreString('finishAction')"
+            @click="to_finish"
+          />
+        </KButtonGroup>
+      </slot>
+    </BottomAppBar>
+
+  </div>
+
+</template>
+
+
+<script>
+
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
+  import { computed, inject, onMounted, ref } from 'kolibri.lib.vueCompositionApi';
+  import { TaskResource } from 'kolibri.resources';
+  import get from 'lodash/get';
+  import { syncFacilityTaskDisplayInfo, TaskStatuses } from 'kolibri.utils.syncTaskUtils';
+  import redirectBrowser from 'kolibri.utils.redirectBrowser';
+  import urls from 'kolibri.urls';
+
+  export default {
+    name: 'MergeFacility',
+    metaInfo() {
+      return {
+        title: this.$tr('documentTitle'),
+      };
+    },
+    components: { BottomAppBar },
+    mixins: [commonCoreStrings],
+    setup() {
+      const changeFacilityService = inject('changeFacilityService');
+      const state = inject('state');
+      const taskId = computed(() => get(state, 'value.taskId', null));
+      const task = ref(null);
+      let isPolling = true;
+      const taskCompleted = computed(() =>
+        task.value === null ? false : task.value.status === TaskStatuses.COMPLETED
+      );
+
+      onMounted(() => {
+        pollTask();
+      });
+
+      function updateMachineContext(updatedTask) {
+        task.value = updatedTask;
+        changeFacilityService.send({
+          type: 'SETTASKID',
+          value: { task_id: updatedTask.id },
+        });
+      }
+      function pollTask() {
+        if (taskId.value === null) {
+          // first, try to see if there's already one running
+          TaskResource.fetchCollection().then(allTasks => {
+            const tasks = allTasks.filter(
+              t => t.type === 'kolibri.plugins.user_profile.tasks.mergeuser'
+            );
+            if (tasks.length > 0) {
+              updateMachineContext(tasks[0]);
+            } else {
+              // if not, start a new one
+              const params = {
+                type: 'kolibri.plugins.user_profile.tasks.mergeuser',
+                baseurl: state.value.targetFacility.url,
+                facility: state.value.targetFacility.id,
+                username: state.value.targetAccount.username,
+                local_user_id: state.value.userId,
+              };
+              TaskResource.startTask(params).then(startedTask => {
+                updateMachineContext(startedTask);
+              });
+            }
+          });
+        } else {
+          TaskResource.fetchModel({ id: taskId.value, force: true }).then(startedTask => {
+            task.value = startedTask;
+            if (startedTask.status == TaskStatuses.COMPLETED) {
+              isPolling = false;
+            } else if (startedTask.status === TaskStatuses.FAILED) {
+              TaskResource.clear(taskId.value); // start a new one
+            }
+          });
+        }
+
+        if (isPolling) {
+          setTimeout(() => {
+            pollTask();
+          }, 2000);
+        }
+      }
+
+      function to_finish() {
+        TaskResource.clear(taskId.value);
+        changeFacilityService.send({ type: 'FINISH' });
+        redirectBrowser(urls['kolibri:core:logout']());
+      }
+
+      function taskInfo() {
+        return syncFacilityTaskDisplayInfo(task.value).statusMsg;
+      }
+
+      const successfullyJoined = computed({
+        get() {
+          return this.$tr('success', {
+            target_facility: get(state, 'value.targetFacility.name', ''),
+          });
+        },
+      });
+
+      return {
+        taskId,
+        task,
+        taskCompleted,
+        taskInfo,
+        to_finish,
+        successfullyJoined,
+      };
+    },
+
+    $trs: {
+      documentTitle: {
+        message: 'Changing learning facility',
+        context: 'Title of this step for the change facility page.',
+      },
+      success: {
+        message: 'Successfully joined ‘{target_facility}’ learning facility.',
+        context: 'Status message for a successful task.',
+      },
+    },
+  };
+
+</script>
+
+
+<style lang="scss" scoped>
+
+  $fs0: 12px;
+  $fs1: 14px;
+
+  p,
+  h2 {
+    margin: 8px 0;
+  }
+
+  .icon {
+    padding: 0 16px;
+
+    .task-panel-sm & {
+      align-self: flex-start;
+    }
+  }
+
+  .icon svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .task-panel {
+    display: flex;
+    align-items: center;
+  }
+
+  .task-panel-sm {
+    flex-direction: column;
+    padding-top: 16px;
+    padding-bottom: 16px;
+  }
+
+  .details {
+    flex-grow: 1;
+    width: 100%;
+    padding: 16px;
+
+    .task-panel-sm & {
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+  }
+
+  .details-progress-bar {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  // CSS overrides for linear loader
+  .k-linear-loader {
+    height: 10px !important;
+
+    /deep/ .ui-progress-linear-progress-bar {
+      height: 100%;
+    }
+  }
+
+  .details-percentage {
+    // min-width ensures num % stay on same line
+    min-width: 48px;
+    margin-left: 16px;
+    font-size: $fs1;
+  }
+
+  .details-status {
+    font-size: $fs0;
+  }
+
+</style>

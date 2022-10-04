@@ -11,7 +11,7 @@ import MergeAccountDialog from './views/ChangeFacility/MergeAccountDialog';
 import ConfirmAccountDetails from './views/ChangeFacility/MergeAccountDialog/ConfirmAccountDetails';
 import CreateAccount from './views/ChangeFacility/CreateAccount';
 import ChooseAdmin from './views/ChangeFacility/ChooseAdmin';
-import ToBeDone from './views/ChangeFacility/ToBeDone';
+import MergeFacility from './views/ChangeFacility/MergeFacility';
 import UsernameExists from './views/ChangeFacility/UsernameExists';
 import MergeDifferentAccounts from './views/ChangeFacility/MergeDifferentAccounts';
 
@@ -90,7 +90,7 @@ export default [
       {
         path: 'syncing_change_facility',
         name: 'SYNCING_CHANGE_FACILITY',
-        component: ToBeDone,
+        component: MergeFacility,
       },
       {
         path: 'create_account',

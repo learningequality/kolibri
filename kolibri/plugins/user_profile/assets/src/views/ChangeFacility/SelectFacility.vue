@@ -74,7 +74,6 @@
 
   import { useLocalStorage } from '@vueuse/core';
   import { computed, ref } from 'kolibri.lib.vueCompositionApi';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import client from 'kolibri.client';
@@ -94,7 +93,7 @@
     },
     components: { AddAddressForm, BottomAppBar },
 
-    mixins: [responsiveWindowMixin, commonCoreStrings, commonSyncElements],
+    mixins: [commonCoreStrings, commonSyncElements],
     setup(props, context) {
       const {
         addresses: discoveredAddresses,

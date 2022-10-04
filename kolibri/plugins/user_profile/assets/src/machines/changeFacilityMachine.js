@@ -82,6 +82,10 @@ const clearSourceFacilityUsers = assign({
   sourceFacilityUsers: [],
 });
 
+const setTaskId = assign({
+  taskId: (_, event) => event.value.task_id,
+});
+
 const resetMachineContext = assign(() => {
   return generateMachineContext();
 });
@@ -119,6 +123,8 @@ const generateMachineContext = () => {
     taskPolling: false,
     accountExists: false,
     isMerging: false,
+    // id of the backend task executing the merging
+    taskId: null,
     // Contains machine states history, its items are states names.
     // Doesn't necessarily capture all transitions as it is used
     // for user-facing back navigation, therefore we don't want to
@@ -313,6 +319,12 @@ const states = {
   },
   syncChangeFacility: {
     meta: { route: 'SYNCING_CHANGE_FACILITY', path: '/change_facility' },
+    on: {
+      SETTASKID: { actions: setTaskId },
+      FINISH: 'syncFinished',
+    },
+  },
+  syncFinished: {
     type: 'final',
   },
   createAccount: {
