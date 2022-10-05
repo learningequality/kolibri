@@ -247,7 +247,7 @@ def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
                 "propagate": False,
             },
             "cherrypy.access": {
-                "handlers": [] if DISABLE_REQUEST_LOGGING else [DEFAULT_HANDLERS],
+                "handlers": [] if DISABLE_REQUEST_LOGGING else DEFAULT_HANDLERS,
                 "level": DEFAULT_LEVEL,
                 "propagate": False,
             },
