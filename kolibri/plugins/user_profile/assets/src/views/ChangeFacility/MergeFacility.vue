@@ -120,6 +120,12 @@
                 username: state.value.targetAccount.username,
                 local_user_id: state.value.userId,
               };
+              if (state.value.targetAccount.password !== '') {
+                params['password'] = state.value.targetAccount.password;
+              }
+              if (state.value.newSuperAdminId !== '') {
+                params['new_superuser_id'] = state.value.newSuperAdminId;
+              }
               TaskResource.startTask(params).then(startedTask => {
                 updateMachineContext(startedTask);
               });

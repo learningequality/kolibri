@@ -4,9 +4,11 @@ from rest_framework import serializers
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.status import HTTP_201_CREATED
 
+from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.tasks import PeerImportSingleSyncJobValidator
 from kolibri.core.auth.utils.migrate import merge_users
+from kolibri.core.device.models import DevicePermissions
 from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.permissions import IsFacilityAdmin
@@ -20,6 +22,9 @@ class MergeUserValidator(PeerImportSingleSyncJobValidator):
     local_user_id = serializers.PrimaryKeyRelatedField(
         queryset=FacilityUser.objects.all()
     )
+    new_superuser_id = serializers.PrimaryKeyRelatedField(
+        queryset=FacilityUser.objects.all(), required=False
+    )
 
     def validate(self, data):
         try:
@@ -29,6 +34,8 @@ class MergeUserValidator(PeerImportSingleSyncJobValidator):
             job_data = super(MergeUserValidator, self).validate(data)
 
         job_data["kwargs"]["local_user_id"] = data["local_user_id"].id
+        if data.get("new_superuser_id"):
+            job_data["kwargs"]["new_superuser_id"] = data["new_superuser_id"].id
         return job_data
 
     def create_remote_user(self, data):
@@ -82,5 +89,13 @@ def mergeuser(command, **kwargs):
 
     # Resync with the server to update the merged records
     call_command("sync", **kwargs)
+    new_superuser_id = kwargs.get("new_superuser_id")
+    if new_superuser_id:
+        new_superuser = FacilityUser.objects.get(id=new_superuser_id)
+        # make the user a new super user for this device:
+        new_superuser.facility.add_role(new_superuser, role_kinds.ADMIN)
+        DevicePermissions.objects.create(
+            user=new_superuser, is_superuser=True, can_manage_content=True
+        )
 
     local_user.delete()

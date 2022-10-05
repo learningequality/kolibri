@@ -32,6 +32,10 @@ const setInitialContext = assign((_, event) => {
     fullname: event.value.fullname,
     userId: event.value.userId,
     role: event.value.role,
+    targetAccount: {
+      username: event.value.username,
+      password: '',
+    },
   };
 });
 
