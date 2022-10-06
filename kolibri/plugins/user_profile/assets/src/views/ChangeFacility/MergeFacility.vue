@@ -26,7 +26,7 @@
           {{ taskInfo() }}
         </p>
 
-        <div v-if="taskCompleted">
+        <div v-if="taskCompleted" data-test="completedMessage">
           {{ successfullyJoined }}
         </div>
         <div v-else class="details-progress-bar">
@@ -34,22 +34,23 @@
             class="k-linear-loader"
             type="determinate"
             :delay="false"
-            :progress="task.percentage * 100"
+            :progress="percentage * 100"
             :style="{ backgroundColor: $themeTokens.fineLine }"
           />
           <span class="details-percentage">
-            {{ $formatNumber(task.percentage, { style: 'percent' }) }}
+            {{ $formatNumber(percentage, { style: 'percent' }) }}
           </span>
         </div>
       </div>
     </div>
 
-    <BottomAppBar v-show="taskCompleted">
+    <BottomAppBar v-if="taskCompleted">
       <slot name="buttons">
         <KButtonGroup>
           <KButton
             :primary="true"
             :text="coreString('finishAction')"
+            data-test="finishButton"
             @click="to_finish"
           />
         </KButtonGroup>
@@ -90,7 +91,7 @@
       const taskCompleted = computed(() =>
         task.value === null ? false : task.value.status === TaskStatuses.COMPLETED
       );
-
+      const percentage = computed(() => (task.value ? task.value.percentage : 0));
       onMounted(() => {
         pollTask();
       });
@@ -156,6 +157,9 @@
       }
 
       function taskInfo() {
+        if (task.value === null) {
+          return '';
+        }
         return syncFacilityTaskDisplayInfo(task.value).statusMsg;
       }
 
@@ -168,6 +172,7 @@
       });
 
       return {
+        percentage,
         taskId,
         task,
         taskCompleted,
