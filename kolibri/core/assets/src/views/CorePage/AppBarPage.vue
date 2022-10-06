@@ -106,21 +106,21 @@
             title: this.coreString('homeLabel'),
             link: this.$router.getRoute(PageNames.HOME),
             icon: 'dashboard',
-            color: this.$themeTokens.annotation,
+            color: this.$themeTokens.primary,
           },
           {
             condition: this.canAccessUnassignedContent,
             title: this.learnString('libraryLabel'),
             link: this.$router.getRoute(PageNames.LIBRARY),
             icon: 'library',
-            color: this.$themeTokens.annotation,
+            color: this.$themeTokens.primary,
           },
           {
             condition: this.isUserLoggedIn && this.canAccessUnassignedContent,
             title: this.coreString('bookmarksLabel'),
             link: this.$router.getRoute(PageNames.BOOKMARKS),
             icon: 'bookmark',
-            color: this.$themeTokens.annotation,
+            color: this.$themeTokens.primary,
           },
         ];
         return links;

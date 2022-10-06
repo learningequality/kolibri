@@ -227,6 +227,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       "A topic is marked as 'Completed' when a learner finishes that specific topic within an educational resource. A topic could be a video, audio, document file or interactive app.",
   },
+  deviceManagementTitle: {
+    message: 'Device',
+    context:
+      'The device is the physical or virtual machine that has the Kolibri server installed on it.',
+  },
   deviceNameLabel: {
     message: 'Device name',
     context:
@@ -278,6 +283,16 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Home',
     context:
       "Home page is a place for learners containing summary of their activities and suggestions for what to do next. For example, they can see a list of classess they're enrolled in, their recent lessons and quizess, and they can directly navigate to resources to continue learning from.",
+  },
+  learnLabel: {
+    message: 'Learn',
+    context:
+      "Each time a learner signs in to Kolibri, the first thing they see is the  'Learn' page with the list of all the classes they are enrolled to.",
+  },
+  libraryLabel: {
+    message: 'Library',
+    context:
+      "The 'Library' section displays channels available on Kolibri server, and allows learners to browse, explore and filter topics and resources on their own.",
   },
   identifierLabel: {
     message: 'Identifier',
@@ -355,6 +370,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Quizzes',
     context:
       'A quiz is a summative assessment made up of questions taken from exercises. Quizzes are created by coaches and then assigned to learners in a class.\n\nWe intentionally renamed "exam" to "quiz" in order to encourage use as an informal diagnostic tool for teachers.',
+  },
+  reportsLabel: {
+    message: 'Reports',
+    context:
+      'Reports are representations of learner progress and performance data shown to coaches in a class.',
   },
   resourcesLabel: {
     message: 'Resources',
@@ -766,6 +786,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Lesson plans',
     context:
       'Category label in the Kolibri resources library; refers to lesson planning materials for teachers.',
+  },
+  plan: {
+    message: 'Plan',
+    context:
+      "Translate as a VERB. Refers to the 'Plan' tab where coaches manage lessons, quizzes, and groups.",
   },
 
   // Resources Needed Categories = {
