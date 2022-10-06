@@ -7,6 +7,7 @@ GET_FILES_TO_DELETE = "getFilesToDelete"
 DO_ROLLOVER = "doRollover"
 
 NO_FILE_BASED_LOGGING = os.environ.get("KOLIBRI_NO_FILE_BASED_LOGGING", False)
+DISABLE_REQUEST_LOGGING = os.environ.get("KOLIBRI_DISABLE_REQUEST_LOGGING", False)
 
 LOG_COLORS = {
     "DEBUG": "blue",
@@ -242,6 +243,11 @@ def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
             },
             "kolibri": {
                 "handlers": DEFAULT_HANDLERS,
+                "level": DEFAULT_LEVEL,
+                "propagate": False,
+            },
+            "cherrypy.access": {
+                "handlers": [] if DISABLE_REQUEST_LOGGING else DEFAULT_HANDLERS,
                 "level": DEFAULT_LEVEL,
                 "propagate": False,
             },
