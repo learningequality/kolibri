@@ -118,9 +118,7 @@
   .col-1 {
     display: flex;
     flex-grow: 0;
-    width: $thumbside;
     height: $thumbside;
-    margin-right: 16px;
 
     .checkbox {
       align-self: center;
@@ -128,16 +126,18 @@
     }
 
     .thumbnail {
-      width: auto;
+      width: $thumbside;
       max-width: $thumbside;
       height: auto;
       max-height: $thumbside;
       object-fit: contain;
+      margin-right: 16px;
     }
 
     .thumbnail-svg {
       width: $thumbside;
       height: $thumbside;
+      margin-right: 16px;
     }
   }
 
