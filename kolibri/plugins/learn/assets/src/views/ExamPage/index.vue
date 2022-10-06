@@ -390,7 +390,10 @@
         return Promise.resolve();
       },
       goToQuestion(questionNumber) {
-        const promise = this.debouncedSetAndSaveCurrentExamAttemptLog.flush() || Promise.resolve();
+        const saveAnswerPromise = this.debouncedSaveAnswer.flush() || Promise.resolve();
+        const promise = saveAnswerPromise.then(
+          () => this.debouncedSetAndSaveCurrentExamAttemptLog.flush() || Promise.resolve()
+        );
         promise.then(() => {
           this.$router.push({
             name: ClassesPageNames.EXAM_VIEWER,
