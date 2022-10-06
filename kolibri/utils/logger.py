@@ -195,11 +195,10 @@ def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
             "verbose": {
                 "format": "%(levelname)s %(asctime)s %(name)s %(process)d %(thread)d %(message)s"
             },
-            "simple": {"format": "%(levelname)s %(message)s"},
             "simple_date": {"format": "%(levelname)s %(asctime)s %(name)s %(message)s"},
             "color": {
                 "()": "colorlog.ColoredFormatter",
-                "format": "%(log_color)s%(levelname)-8s %(message)s",
+                "format": "%(log_color)s%(levelname)-8s %(asctime)s %(message)s",
                 "log_colors": LOG_COLORS,
             },
         },

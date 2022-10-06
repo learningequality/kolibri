@@ -255,7 +255,7 @@
   @import '~kolibri-design-system/lib/styles/definitions';
 
   .header-content {
-    width: 100%;
+    width: calc(100% - 20px);
   }
 
   /** Need to be sure a KDropdownMenu shows up on the Side Panel */

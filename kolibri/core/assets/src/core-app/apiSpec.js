@@ -54,6 +54,7 @@ import commonCoreStrings from '../mixins/commonCoreStrings'; // eslint-disable-l
 import { coreStrings } from '../mixins/commonCoreStrings'; // eslint-disable-line import/no-duplicates
 import commonTaskStrings from '../mixins/taskStrings';
 import commonSyncElements from '../mixins/commonSyncElements';
+import translatedUserKinds from '../mixins/userKinds';
 import CoreFullscreen from '../views/CoreFullscreen';
 import * as exams from '../exams/utils';
 import * as validators from '../validators';
@@ -225,6 +226,7 @@ export default {
       commonCoreStrings,
       commonTaskStrings,
       commonSyncElements,
+      translatedUserKinds,
     },
   },
   resources,

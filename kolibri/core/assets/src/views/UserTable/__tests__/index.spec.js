@@ -104,9 +104,9 @@ describe(`UserTable`, () => {
     it(`renders user role labels but they are visually hidden`, () => {
       const userRoleLabels = getUserRoleLabels(wrapper);
       expect(userRoleLabels.length).toBe(2);
-      expect(userRoleLabels.at(0).text()).toBe('learner');
+      expect(userRoleLabels.at(0).text()).toBe('Learner');
       expect(userRoleLabels.at(0).classes()).toContain('visuallyhidden');
-      expect(userRoleLabels.at(1).text()).toBe('coach');
+      expect(userRoleLabels.at(1).text()).toBe('Facility coach');
       expect(userRoleLabels.at(1).classes()).toContain('visuallyhidden');
     });
   });

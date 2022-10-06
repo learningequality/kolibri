@@ -34,13 +34,16 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: '16.x'
+    - name: Get yarn cache directory path
+      id: yarn-cache-dir-path
+      run: echo "::set-output name=dir::$(yarn cache dir)"
     - name: Cache Node.js modules
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
-        path: '**/node_modules'
-        key: ${{ runner.OS }}-node-${{ hashFiles('**/yarn.lock') }}
+        path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+        key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
         restore-keys: |
-          ${{ runner.OS }}-node-
+          ${{ runner.os }}-yarn-
     - name: Install dependencies
       run: |
         yarn --frozen-lockfile

@@ -27,6 +27,9 @@ class State(object):
     QUEUED means the Job has been sent to the workers for running, but has not
     been run yet (to our knowledge).
 
+    SELECTED means the Job has been picked up by the worker controller as a next
+    job to pass to its workers, but that it has not actually started running yet.
+
     RUNNING means that one of the workers has started running the job, but is not
     complete yet. If the job has been set to track progress, then the job's progress
     and total_progress fields should be continuously updated.
@@ -46,6 +49,7 @@ class State(object):
     PENDING = "PENDING"
     SCHEDULED = "SCHEDULED"
     QUEUED = "QUEUED"
+    SELECTED = "SELECTED"
     RUNNING = "RUNNING"
     FAILED = "FAILED"
     CANCELING = "CANCELING"

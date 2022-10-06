@@ -123,7 +123,6 @@ class UpdateSessionSerializer(serializers.Serializer):
 # in a Django IntegerField across all backends
 MIN_INTEGER = -2147483648
 
-
 attemptlog_fields = [
     "id",
     "correct",

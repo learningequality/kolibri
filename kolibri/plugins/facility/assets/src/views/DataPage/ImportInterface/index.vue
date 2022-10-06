@@ -75,7 +75,7 @@
     },
     computed: {
       ...mapGetters('manageCSV', ['exported']),
-      ...mapState('manageCSV', ['exportUsersStatus', 'exportUsersFilename']),
+      ...mapState('manageCSV', ['exportUsersStatus']),
       isExporting() {
         return this.exportUsersStatus === UsersExportStatuses.EXPORTING;
       },
@@ -88,7 +88,7 @@
       downloadCsv() {
         window.open(
           urls['kolibri:kolibri.plugins.facility:download_csv_file'](
-            this.exportUsersFilename,
+            'user',
             this.$store.getters.activeFacilityId
           ),
           '_blank'

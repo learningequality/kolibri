@@ -7,6 +7,7 @@ from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.job import State
 from kolibri.core.tasks.test.base import connection
+from kolibri.core.tasks.test.taskrunner.test_job_running import EventProxy
 from kolibri.core.tasks.worker import Worker
 
 QUEUE = "pytest"
@@ -21,6 +22,21 @@ def error_func():
     Made this a module function due to the need to have a module path to pass to the Job constructor.
     """
     raise TypeError(error_text)
+
+
+@pytest.fixture
+def flag():
+    e = EventProxy()
+    yield e
+    e.clear()
+
+
+def toggle_flag(flag_id):
+    evt = EventProxy(event_id=flag_id)
+    if evt.is_set():
+        evt.clear()
+    else:
+        evt.set()
 
 
 @pytest.fixture
@@ -42,15 +58,21 @@ class TestWorker:
         while job.state != State.COMPLETED:
             job = worker.storage.get_job(job.job_id)
             time.sleep(0.5)
-        try:
-            # Get the future, or pass if it has already been cleaned up.
-            future = worker.future_job_mapping[job.job_id]
-
-            future.result()
-        except KeyError:
-            pass
 
         assert job.state == State.COMPLETED
+
+    def test_enqueue_job_runs_job_once(self, worker, flag):
+        b = Worker(worker.storage.engine, regular_workers=1, high_workers=1)
+        job = Job(toggle_flag, args=(flag.event_id,))
+        worker.storage.enqueue_job(job, QUEUE)
+
+        while job.state != State.COMPLETED:
+            job = worker.storage.get_job(job.job_id)
+            time.sleep(0.5)
+
+        assert job.state == State.COMPLETED
+        assert flag.is_set()
+        b.shutdown()
 
     def test_can_handle_unicode_exceptions(self, worker):
         # Make sure task exception info is not an object, but is either a string or None.

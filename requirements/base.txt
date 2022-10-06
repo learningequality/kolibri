@@ -16,7 +16,7 @@ more-itertools==5.0.0  # Last Python 2.7 friendly release # pyup: <6.0
 le-utils==0.1.38
 jsonfield==2.0.2
 requests-toolbelt==0.9.1
-morango==0.6.14
+morango==0.6.15
 tzlocal==2.1
 pytz==2022.1
 python-dateutil==2.8.2
