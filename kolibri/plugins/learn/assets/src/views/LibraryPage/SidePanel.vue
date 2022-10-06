@@ -85,7 +85,7 @@
   import { ref } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import SidePanelModal from 'kolibri.coreVue.components.SidePanelModal';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import CategorySearchModal from '../CategorySearchModal';
   import SearchFiltersPanel from '../SearchFiltersPanel';
   import commonLearnStrings from './../commonLearnStrings';
@@ -97,7 +97,7 @@
       SearchFiltersPanel,
       SidePanelModal,
     },
-    mixins: [commonCoreStrings, commonLearnStrings, responsiveWindowMixin],
+    mixins: [commonCoreStrings, commonLearnStrings],
     /* eslint-disable-next-line no-unused-vars */
     setup(props, context) {
       var currentCategory = ref(null);
@@ -119,6 +119,13 @@
         }
       };
 
+      const {
+        windowBreakpoint,
+        windowIsLarge,
+        windowIsMedium,
+        windowIsSmall,
+      } = useKResponsiveWindow();
+
       return {
         closeCategoryModal,
         currentCategory,
@@ -126,6 +133,10 @@
         searchModal,
         findFirstEl,
         handleCategory,
+        windowBreakpoint,
+        windowIsLarge,
+        windowIsMedium,
+        windowIsSmall,
       };
     },
     props: {

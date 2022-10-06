@@ -2,6 +2,7 @@ import { mount, shallowMount, createLocalVue } from '@vue/test-utils';
 import Vuex from 'vuex';
 import VueRouter from 'vue-router';
 import KCircularLoader from 'kolibri-design-system/lib/loaders/KCircularLoader';
+import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
 import { PageNames } from '../../src/constants';
 import LibraryPage from '../../src/views/LibraryPage';
 /* eslint-disable import/named */
@@ -23,26 +24,38 @@ const router = new VueRouter({
 // rootNodes used when showing default view, should always have length
 const mockStore = new Vuex.Store({
   state: { rootNodes: ['length'], core: { loading: false } },
-  getters: { isUserLoggedIn: jest.fn(), isLearner: jest.fn() },
+  getters: {
+    isUserLoggedIn: jest.fn(),
+    isLearner: jest.fn(),
+    isSuperuser: jest.fn(),
+    isAdmin: jest.fn(),
+    isCoach: jest.fn(),
+    getUserKind: jest.fn(),
+  },
 });
 
 jest.mock('../../src/composables/useSearch');
 jest.mock('../../src/composables/useLearnerResources');
 jest.mock('../../src/composables/useLearningActivities');
+jest.mock('kolibri-design-system/lib/useKResponsiveWindow');
 
 describe('LibraryPage', () => {
   describe('filters button', () => {
     it('is visible when the page is not large', () => {
+      useKResponsiveWindow.mockImplementation(() => ({
+        windowIsLarge: false,
+      }));
       const wrapper = shallowMount(LibraryPage, {
-        computed: { windowIsLarge: () => false },
         localVue,
         store: mockStore,
       });
       expect(wrapper.find('[data-test="filter-button"').element).toBeTruthy();
     });
     it('is hidden when the page is large', () => {
+      useKResponsiveWindow.mockImplementation(() => ({
+        windowIsLarge: true,
+      }));
       const wrapper = shallowMount(LibraryPage, {
-        computed: { windowIsLarge: () => true },
         localVue,
         store: mockStore,
       });
@@ -52,9 +65,11 @@ describe('LibraryPage', () => {
 
   describe('when user clicks the filters button', () => {
     it('displays the filters side panel, which is not displayed by default', async () => {
+      useKResponsiveWindow.mockImplementation(() => ({
+        windowIsLarge: false,
+      }));
       // mount to ensure we can click the button
       const wrapper = mount(LibraryPage, {
-        computed: { windowIsLarge: () => false }, // ensure filters button shown
         localVue,
         router,
         store: mockStore,
