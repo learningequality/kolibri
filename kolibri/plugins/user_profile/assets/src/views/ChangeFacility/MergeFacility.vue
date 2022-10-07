@@ -88,6 +88,7 @@
       const taskId = computed(() => get(state, 'value.taskId', null));
       const task = ref(null);
       let isPolling = true;
+      let isTaskRequested = false;
       const taskCompleted = computed(() =>
         task.value === null ? false : task.value.status === TaskStatuses.COMPLETED
       );
@@ -113,23 +114,27 @@
             if (tasks.length > 0) {
               updateMachineContext(tasks[0]);
             } else {
-              // if not, start a new one
-              const params = {
-                type: 'kolibri.plugins.user_profile.tasks.mergeuser',
-                baseurl: state.value.targetFacility.url,
-                facility: state.value.targetFacility.id,
-                username: state.value.targetAccount.username,
-                local_user_id: state.value.userId,
-              };
-              if (state.value.targetAccount.password !== '') {
-                params['password'] = state.value.targetAccount.password;
+              // if not, start a new one or wait for the previous request to finish
+              if (!isTaskRequested) {
+                isTaskRequested = true;
+                const params = {
+                  type: 'kolibri.plugins.user_profile.tasks.mergeuser',
+                  baseurl: state.value.targetFacility.url,
+                  facility: state.value.targetFacility.id,
+                  username: state.value.targetAccount.username,
+                  local_user_id: state.value.userId,
+                };
+                if (state.value.targetAccount.password !== '') {
+                  params['password'] = state.value.targetAccount.password;
+                }
+                if (state.value.newSuperAdminId !== '') {
+                  params['new_superuser_id'] = state.value.newSuperAdminId;
+                }
+                TaskResource.startTask(params).then(startedTask => {
+                  updateMachineContext(startedTask);
+                  isTaskRequested = false;
+                });
               }
-              if (state.value.newSuperAdminId !== '') {
-                params['new_superuser_id'] = state.value.newSuperAdminId;
-              }
-              TaskResource.startTask(params).then(startedTask => {
-                updateMachineContext(startedTask);
-              });
             }
           });
         } else {
