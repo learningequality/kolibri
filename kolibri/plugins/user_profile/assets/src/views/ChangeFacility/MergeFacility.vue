@@ -21,7 +21,7 @@
         </transition>
       </div>
 
-      <div v-if="taskId !== null" class="details">
+      <div class="details">
         <p class="details-status" :style="{ color: $themeTokens.annotation }">
           {{ taskInfo() }}
         </p>
@@ -72,6 +72,7 @@
   import { syncFacilityTaskDisplayInfo, TaskStatuses } from 'kolibri.utils.syncTaskUtils';
   import redirectBrowser from 'kolibri.utils.redirectBrowser';
   import urls from 'kolibri.urls';
+  import client from 'kolibri.client';
 
   export default {
     name: 'MergeFacility',
@@ -144,6 +145,7 @@
               isPolling = false;
             } else if (startedTask.status === TaskStatuses.FAILED) {
               TaskResource.clear(taskId.value); // start a new one
+              isTaskRequested = false;
             }
           });
         }
@@ -158,7 +160,19 @@
       function to_finish() {
         TaskResource.clear(taskId.value);
         changeFacilityService.send({ type: 'FINISH' });
-        redirectBrowser(urls['kolibri:core:logout']());
+        const token = task.value.extra_metadata.token;
+        // use the token to login in the device using the new user in the target facility
+        const params = {
+          facility: state.value.targetFacility.id,
+          username: state.value.targetAccount.username,
+          token,
+        };
+        client({
+          url: urls['kolibri:kolibri.plugins.user_profile:loginmergeduser'](),
+          method: 'POST',
+          data: params,
+        });
+        redirectBrowser(urls['kolibri:kolibri.plugins.learn:learn']());
       }
 
       function taskInfo() {

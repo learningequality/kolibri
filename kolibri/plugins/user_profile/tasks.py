@@ -4,6 +4,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.status import HTTP_201_CREATED
 
+from .utils import TokenGenerator
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.tasks import PeerImportSingleSyncJobValidator
@@ -36,6 +37,11 @@ class MergeUserValidator(PeerImportSingleSyncJobValidator):
         job_data["kwargs"]["local_user_id"] = data["local_user_id"].id
         if data.get("new_superuser_id"):
             job_data["kwargs"]["new_superuser_id"] = data["new_superuser_id"].id
+
+        # create token to validate user in the new facility
+        # after it's deleted in the current facility:
+        token = TokenGenerator().make_token(data["username"])
+        job_data["extra_metadata"]["token"] = token
         return job_data
 
     def create_remote_user(self, data):
