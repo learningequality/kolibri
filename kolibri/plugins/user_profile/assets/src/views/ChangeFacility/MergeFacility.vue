@@ -69,10 +69,11 @@
   import { computed, inject, onMounted, ref } from 'kolibri.lib.vueCompositionApi';
   import { TaskResource } from 'kolibri.resources';
   import get from 'lodash/get';
-  import { syncFacilityTaskDisplayInfo, TaskStatuses } from 'kolibri.utils.syncTaskUtils';
+  import { syncStatusToDescriptionMap, TaskStatuses } from 'kolibri.utils.syncTaskUtils';
   import redirectBrowser from 'kolibri.utils.redirectBrowser';
   import urls from 'kolibri.urls';
   import client from 'kolibri.client';
+  import { getTaskString } from '../../../../../../core/assets/src/mixins/taskStrings';
 
   export default {
     name: 'MergeFacility',
@@ -105,6 +106,29 @@
           value: { task_id: updatedTask.id },
         });
       }
+
+      function syncFacilityTaskDisplayInfo(task) {
+        // overrides the syncFacilityTaskDisplayInfo function in kolibri.utils.syncTaskUtils
+        // to provide a custom message without the step numbers
+
+        let statusMsg;
+
+        const statusDescription =
+          syncStatusToDescriptionMap[task.extra_metadata.sync_state] ||
+          syncStatusToDescriptionMap[task.status] ||
+          (() => getTaskString('taskUnknownStatus'));
+
+        if (task.status === TaskStatuses.COMPLETED) {
+          statusMsg = getTaskString('taskFinishedStatus');
+        } else {
+          if (task.status === TaskStatuses.FAILED) {
+            statusMsg = `${statusDescription()}: ${task.exception}`;
+          } else statusMsg = statusDescription();
+        }
+
+        return statusMsg;
+      }
+
       function pollTask() {
         if (taskId.value === null) {
           // first, try to see if there's already one running
@@ -158,9 +182,9 @@
       }
 
       function to_finish() {
+        const token = task.value.extra_metadata.token;
         TaskResource.clear(taskId.value);
         changeFacilityService.send({ type: 'FINISH' });
-        const token = task.value.extra_metadata.token;
         // use the token to login in the device using the new user in the target facility
         const params = {
           facility: state.value.targetFacility.id,
@@ -171,15 +195,16 @@
           url: urls['kolibri:kolibri.plugins.user_profile:loginmergeduser'](),
           method: 'POST',
           data: params,
+        }).then(() => {
+          redirectBrowser(urls['kolibri:kolibri.plugins.learn:learn']());
         });
-        redirectBrowser(urls['kolibri:kolibri.plugins.learn:learn']());
       }
 
       function taskInfo() {
         if (task.value === null) {
           return '';
         }
-        return syncFacilityTaskDisplayInfo(task.value).statusMsg;
+        return syncFacilityTaskDisplayInfo(task.value);
       }
 
       const successfullyJoined = computed({
