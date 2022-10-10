@@ -27,6 +27,13 @@ Feature: Search results
       And I see the chips for <filter options> are removed from the header
       And I see <filter option> is no longer selected in the filter panel
 
+  Scenario: Clear filter from *Categories*
+		When I click the *Clear* button next to the *Categories* label in the filter panel
+		Then I see that the selected <filter option> is no longer selected in the filter panel
+			And I see the search results matching the <filter option> are no longer included
+			And I see the chips for the <filter option> are removed from the header
+			And I see the <filter option> is no longer selected in the filter panel
+
   Scenario: Toggle list and grid view (MM)
     When I click the *List Icon* in the right corner of the main content grid
       And I see the "View as list" tooltip on hover over the icon
