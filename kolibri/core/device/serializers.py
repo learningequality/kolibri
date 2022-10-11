@@ -48,7 +48,7 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
     device_name = serializers.CharField(max_length=50, allow_null=True)
     settings = serializers.JSONField()
     allow_guest_access = serializers.BooleanField(allow_null=True)
-    is_provisioned = serializers.BooleanField(allow_null=True)
+    is_provisioned = serializers.BooleanField(default=True)
 
     class Meta:
         fields = (
