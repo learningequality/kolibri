@@ -2,10 +2,12 @@ import { mount, createLocalVue } from '@vue/test-utils';
 import { TaskResource } from 'kolibri.resources';
 import { TaskStatuses } from 'kolibri.utils.syncTaskUtils';
 import redirectBrowser from 'kolibri.utils.redirectBrowser';
+import client from 'kolibri.client';
 import MergeFacility from '../../../src/views/ChangeFacility/MergeFacility';
 
 const localVue = createLocalVue();
 const sendMachineEvent = jest.fn();
+jest.mock('kolibri.client');
 jest.mock('kolibri.urls');
 jest.mock('kolibri.utils.redirectBrowser');
 jest.mock('kolibri.resources', () => ({
@@ -87,7 +89,7 @@ describe(`ChangeFacility/ConfirmMerge`, () => {
 
   it(`clicking finish button sends the finish event to the state machine`, async () => {
     TaskResource.fetchModel.mockResolvedValue(completedTask);
-
+    client.mockResolvedValue({});
     const wrapper = makeWrapper();
     await global.flushPromises();
     await wrapper.vm.$nextTick();
@@ -97,6 +99,7 @@ describe(`ChangeFacility/ConfirmMerge`, () => {
     expect(sendMachineEvent).toHaveBeenCalledWith({
       type: 'FINISH',
     });
+    expect(client).toHaveBeenCalled();
     expect(redirectBrowser).toHaveBeenCalledTimes(1);
   });
 });
