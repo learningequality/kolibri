@@ -1,0 +1,12 @@
+# Packages
+*.egg-info
+
+# Virtual environments
+.venv
+Pipfile
+
+# Node
+node_modules
+
+# Mac Finder files
+.DS_Store

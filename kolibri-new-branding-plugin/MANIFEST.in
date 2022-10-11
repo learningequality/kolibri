@@ -1,0 +1,4 @@
+recursive-exclude kolibri_new_branding_plugin/* *pyc
+recursive-include kolibri_new_branding_plugin/static *.*
+recursive-include kolibri_new_branding_plugin/build *.*
+recursive-include kolibri_new_branding_plugin *.py
