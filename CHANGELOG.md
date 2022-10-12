@@ -2,6 +2,31 @@
 
 List of the most important changes for each release.
 
+## 0.15.8
+
+### Added
+* Add regression test and fix for multiple worker processes duplicating jobs.
+* Adds job storage sanity check
+
+### Changed
+* Logging: remove unused simple formatter, add asctime to color formatter
+* Resume content by last interaction
+* Upgrade morango and lower default sync chunk size through CLI
+* Make learner ids unique when assigned from groups and adhoc groups.
+* Improve import workflow for collections
+
+### Fixed
+* CSV Endpoint permissions and error handling
+* Adds translated string for user kind in the user table
+* Check for an array's length to avoid breaking errors
+* Fixes Version logic not handling non-tripartite version strings
+* Filters out empty nodes, add safety to breaking code
+* Controls overlapping content
+* Fix quiz completion notification regression
+* height = width in import cards on thumbnail, fix misaligned text
+* Update levels to display translated strings, not constant ids
+
+
 ## 0.15.7
 
 ### Added
