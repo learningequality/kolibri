@@ -4,7 +4,7 @@
     <h1>{{ $tr('documentTitle') }}</h1>
     <div class="task-panel" :class="{ 'task-panel-sm': windowIsSmall }">
       <div class="icon">
-        <transition mode="out-in">
+        <transition v-if="!taskError" mode="out-in">
           <KIcon
             v-if="taskCompleted"
             icon="check"
@@ -29,6 +29,9 @@
         <div v-if="taskCompleted" data-test="completedMessage">
           {{ successfullyJoined }}
         </div>
+        <div v-if="taskError" data-test="errorMessage">
+          {{ $tr('userExistsError') }}
+        </div>
         <div v-else class="details-progress-bar">
           <KLinearLoader
             class="k-linear-loader"
@@ -44,14 +47,22 @@
       </div>
     </div>
 
-    <BottomAppBar v-if="taskCompleted">
+    <BottomAppBar v-if="taskCompleted || taskError">
       <slot name="buttons">
         <KButtonGroup>
           <KButton
+            v-if="taskCompleted"
             :primary="true"
             :text="coreString('finishAction')"
             data-test="finishButton"
             @click="to_finish"
+          />
+          <KButton
+            v-if="taskError"
+            :primary="true"
+            :text="coreString('retryAction')"
+            data-test="retryButton"
+            @click="to_retry"
           />
         </KButtonGroup>
       </slot>
@@ -89,6 +100,7 @@
       const state = inject('state');
       const taskId = computed(() => get(state, 'value.taskId', null));
       const task = ref(null);
+      const taskError = ref(false);
       let isPolling = true;
       let isTaskRequested = false;
       const taskCompleted = computed(() =>
@@ -155,10 +167,23 @@
                 if (state.value.newSuperAdminId !== '') {
                   params['new_superuser_id'] = state.value.newSuperAdminId;
                 }
-                TaskResource.startTask(params).then(startedTask => {
-                  updateMachineContext(startedTask);
-                  isTaskRequested = false;
-                });
+
+                TaskResource.startTask(params)
+                  .then(startedTask => {
+                    updateMachineContext(startedTask);
+                    isTaskRequested = false;
+                  })
+                  .catch(error => {
+                    if (error.response.status === 400) {
+                      const message = get(error.response, 'data[0].metadata.message', '');
+                      if (message === 'USERNAME_ALREADY_EXISTS') {
+                        taskError.value = true;
+                      } else {
+                        // if the request is bad, we can't do anything
+                        changeFacilityService.send('TASKERROR');
+                      }
+                    }
+                  });
               }
             }
           });
@@ -200,6 +225,13 @@
         });
       }
 
+      function to_retry() {
+        if (taskId.value !== null) {
+          TaskResource.clear(taskId.value);
+        }
+        changeFacilityService.send('TASKERROR');
+      }
+
       function taskInfo() {
         if (task.value === null) {
           return '';
@@ -217,11 +249,13 @@
 
       return {
         percentage,
+        taskError,
         taskId,
         task,
         taskCompleted,
         taskInfo,
         to_finish,
+        to_retry,
         successfullyJoined,
       };
     },
@@ -234,6 +268,10 @@
       success: {
         message: 'Successfully joined ‘{target_facility}’ learning facility.',
         context: 'Status message for a successful task.',
+      },
+      userExistsError: {
+        message: 'User already exists and is not a learner. Please choose a different username.',
+        context: 'Error message for a user already exists in the target facility.',
       },
     },
   };

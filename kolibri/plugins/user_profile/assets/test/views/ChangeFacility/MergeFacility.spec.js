@@ -13,11 +13,13 @@ jest.mock('kolibri.utils.redirectBrowser');
 jest.mock('kolibri.resources', () => ({
   TaskResource: {
     fetchModel: jest.fn(),
+    fetchCollection: jest.fn(),
+    startTask: jest.fn(),
     clear: jest.fn(),
   },
 }));
 
-function makeWrapper() {
+function makeWrapper({ taskId = 'task_1' } = {}) {
   return mount(MergeFacility, {
     provide: {
       changeFacilityService: {
@@ -30,7 +32,7 @@ function makeWrapper() {
           fullname: 'Test User 1',
           username: 'test1',
           targetAccount: { username: 'test2' },
-          taskId: 'task_1',
+          taskId,
         },
       },
     },
@@ -50,8 +52,9 @@ const incompleteTask = { ...task, status: TaskStatuses.PENDING };
 const completedTask = { ...task, status: TaskStatuses.COMPLETED };
 
 const getFinishButton = wrapper => wrapper.find('[data-test="finishButton"]');
-
 const clickFinishButton = wrapper => getFinishButton(wrapper).trigger('click');
+const getRetryButton = wrapper => wrapper.find('[data-test="retryButton"]');
+const clickRetryButton = wrapper => getRetryButton(wrapper).trigger('click');
 
 describe(`ChangeFacility/ConfirmMerge`, () => {
   beforeEach(() => {
@@ -101,5 +104,20 @@ describe(`ChangeFacility/ConfirmMerge`, () => {
     });
     expect(client).toHaveBeenCalled();
     expect(redirectBrowser).toHaveBeenCalledTimes(1);
+  });
+
+  it(`clicking retry button sends the task error event to the state machine`, async () => {
+    TaskResource.fetchCollection.mockResolvedValue([]);
+    TaskResource.startTask.mockRejectedValue({
+      response: { status: 400, data: [{ metadata: { message: 'USERNAME_ALREADY_EXISTS' } }] },
+    });
+    client.mockResolvedValue({});
+    const wrapper = makeWrapper({ taskId: null });
+    await global.flushPromises();
+    await wrapper.vm.$nextTick();
+    clickRetryButton(wrapper);
+
+    await wrapper.vm.$nextTick();
+    expect(sendMachineEvent).toHaveBeenCalledWith('TASKERROR');
   });
 });

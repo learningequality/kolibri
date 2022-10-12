@@ -326,6 +326,7 @@ const states = {
     on: {
       SETTASKID: { actions: setTaskId },
       FINISH: 'syncFinished',
+      TASKERROR: 'changeFacility',
     },
   },
   syncFinished: {
