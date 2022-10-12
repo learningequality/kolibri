@@ -338,7 +338,7 @@ def get_prerelease_version(version):
                 + suffix
             )
 
-    return major + ".dev0"
+    return major + ".dev0" + (get_git_changeset() or "")
 
 
 def get_version_from_file(version):

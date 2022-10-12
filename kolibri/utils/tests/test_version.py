@@ -28,7 +28,10 @@ class TestKolibriVersion(unittest.TestCase):
 
     @mock.patch("kolibri.utils.version.get_git_describe", return_value=None)
     @mock.patch("kolibri.utils.version.get_version_file", return_value=None)
-    def test_no_tag_no_file_version(self, file_mock, describe_mock):
+    @mock.patch("kolibri.utils.version.get_git_changeset", return_value=None)
+    def test_no_tag_no_file_version_no_git_changeset(
+        self, get_git_changeset_mock, file_mock, describe_mock
+    ):
         """
         Test that when doing something with a 0th alpha doesn't provoke any
         hickups with ``git describe --tag``.
@@ -36,7 +39,24 @@ class TestKolibriVersion(unittest.TestCase):
         then get_prerelease_version should return 0.15.8.dev0
         """
         v = get_version((0, 1, 0))
-        self.assertIn("0.1.0.dev0", v)
+        self.assertEqual("0.1.0.dev0", v)
+
+    @mock.patch("kolibri.utils.version.get_git_describe", return_value=None)
+    @mock.patch("kolibri.utils.version.get_version_file", return_value=None)
+    @mock.patch(
+        "kolibri.utils.version.get_git_changeset", return_value="+git.1234567890"
+    )
+    def test_no_tag_no_file_version_git_changeset(
+        self, get_git_changeset_mock, file_mock, describe_mock
+    ):
+        """
+        Test that when doing something with a 0th alpha doesn't provoke any
+        hickups with ``git describe --tag``.
+        If the version file returns nothing, and get_git_describe returns nothing,
+        then get_prerelease_version should return 0.15.8.dev0
+        """
+        v = get_version((0, 1, 0))
+        self.assertEqual("0.1.0.dev0+git.1234567890", v)
 
     @mock.patch("kolibri.utils.version.get_git_describe", return_value="v0.1.0-alpha1")
     @mock.patch("kolibri.utils.version.get_version_file", return_value=None)
