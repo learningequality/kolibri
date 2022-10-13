@@ -254,6 +254,28 @@ class TestKolibriVersion(unittest.TestCase):
         self.assertEqual(v, "0.1.1")
         assert describe_mock.call_count == 0
 
+    @mock.patch("kolibri.utils.version.get_git_describe", return_value="v0.1.1")
+    @mock.patch("kolibri.utils.version.get_version_file", return_value=None)
+    def test_final_tag(self, file_mock, describe_mock):
+        """
+        Test that the major version is set as expected on a final release tag
+        """
+        v = get_version((0, 1, 1))
+        self.assertEqual(v, "0.1.1")
+        assert describe_mock.call_count == 1
+
+    @mock.patch(
+        "kolibri.utils.version.get_git_describe", return_value="v0.1.1-6-gdef09150"
+    )
+    @mock.patch("kolibri.utils.version.get_version_file", return_value=None)
+    def test_after_final_tag(self, file_mock, describe_mock):
+        """
+        Test that the version is set as the next patch alpha when we are beyond the final release tag
+        """
+        v = get_version((0, 1, 1))
+        self.assertEqual(v, "0.1.1a0.dev0+git.6.gdef09150")
+        assert describe_mock.call_count == 1
+
     def test_version_compat(self):
         """
         Test that our version glue works for some really old releases of

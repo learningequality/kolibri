@@ -290,7 +290,7 @@ def get_prerelease_version(version):
     \\*, \\*, \\*, "alpha", 0: Maps to latest commit timestamp
     \\*, \\*, \\*, "alpha", >0: Uses latest git tag, asserting that there is such.
     """
-    mapping = {"alpha": "a", "beta": "b", "rc": "rc", "final": ""}
+    mapping = {"alpha": "a", "beta": "b", "rc": "rc"}
     major = get_major_version(version)
 
     # Calculate suffix...
@@ -329,7 +329,19 @@ def get_prerelease_version(version):
 
         if git_version[:3] == version[:3]:
             if git_version[3] == "final":
-                return major
+                if not suffix:
+                    return major
+                else:
+                    # If there's a suffix, we're post the final tag for the release
+                    # so set it to an alpha to give a more meaningful version number
+                    # although it is slighly incorrect as we have already released.
+                    git_version = (
+                        git_version[0],
+                        git_version[1],
+                        git_version[2],
+                        "alpha",
+                        git_version[4],
+                    )
 
             return (
                 get_major_version(git_version)
