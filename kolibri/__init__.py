@@ -15,12 +15,15 @@ env.set_env()
 
 #: This may not be the exact version as it's subject to modification with
 #: get_version() - use ``kolibri.__version__`` for the exact version string.
-VERSION = (0, 15, 8, "final", 0)
+VERSION = (
+    0,
+    15,
+    8,
+)
 
 __author__ = "Learning Equality"
 __email__ = "info@learningequality.org"
 __version__ = str(get_version(VERSION))
-
 
 #: A list of all available plugins defined within the Kolibri repo
 #: Define it here to avoid introspection malarkey, and to allow for
