@@ -49,7 +49,7 @@ const setFacilityNewOrImport = assign({
   facilityNewOrImport: (_, event) => event.value,
 });
 
-const setFormalOrInformal = assign({
+const setFormalOrNonformal = assign({
   formalOrNonformal: (_, event) => event.value,
 });
 
@@ -146,8 +146,6 @@ export const wizardMachine = createMachine({
     createAccountOrFinalizeSetup: {
       always: [
         {
-          // FIXME: The app needs to create a user account from the OS user in this case - to be
-          // handled on the backend most likely, but just bear this in mind for now to be sure
           cond: canGetOsUser,
           target: 'finalizeSetup',
         },
@@ -156,8 +154,9 @@ export const wizardMachine = createMachine({
         },
       ],
     },
+
     createIndividualAccount: {
-      meta: { route: { name: 'CREATE_INDIVIDUAL_ACCOUNT', path: 'create-account' } },
+      meta: { route: { name: 'CREATE_SUPERUSER_AND_FACILITY', path: 'create-account' } },
       on: {
         CONTINUE: 'finalizeSetup',
         BACK: 'defaultLanguage',
@@ -224,7 +223,7 @@ export const wizardMachine = createMachine({
     setFacilityPermissions: {
       meta: { route: { name: 'FACILITY_PERMISSIONS' } },
       on: {
-        CONTINUE: { target: 'guestAccess', actions: setFormalOrInformal },
+        CONTINUE: { target: 'guestAccess', actions: setFormalOrNonformal },
         BACK: 'fullDeviceNewOrImportFacility',
       },
     },
@@ -252,8 +251,30 @@ export const wizardMachine = createMachine({
     personalDataConsent: {
       meta: { route: { name: 'PERSONAL_DATA_CONSENT' } },
       on: {
-        CONTINUE: 'finalizeSetup',
+        CONTINUE: 'createSuperuserAndFacility',
         BACK: 'requirePassword',
+      },
+    },
+    // A passthrough step depending on the value of context.canGetOsUser -- the finalizeSetup state
+    // will provision the device with the OS user and create the default facility
+    createSuperuserAndFacility: {
+      always: [
+        {
+          cond: canGetOsUser,
+          target: 'finalizeSetup',
+        },
+        {
+          target: 'createSuperuserAndFacilityForm',
+        },
+      ],
+    },
+
+    // If we're not able to get an OS user, the user creates their account
+    createSuperuserAndFacilityForm: {
+      meta: { route: { name: 'CREATE_SUPERUSER_AND_FACILITY', path: 'create-account' } },
+      on: {
+        CONTINUE: 'finalizeSetup',
+        BACK: 'personalDataConsent',
       },
     },
 

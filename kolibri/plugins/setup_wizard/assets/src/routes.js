@@ -27,7 +27,7 @@ export default [
   },
   {
     path: '/create-account',
-    name: 'CREATE_INDIVIDUAL_ACCOUNT',
+    name: 'CREATE_SUPERUSER_AND_FACILITY',
     component: SuperuserCredentialsForm,
   },
   {
