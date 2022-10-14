@@ -84,7 +84,7 @@
               v-if="resources.length"
               :gridType="2"
               data-test="search-results"
-              :contents="resources"
+              :contents="resourcesDisplayed"
               :numCols="numCols"
               :genContentLink="genContentLink"
               currentCardViewStyle="card"
@@ -688,6 +688,9 @@
         this.loadMoreTopics().then(() => {
           this.topicMoreLoading = false;
         });
+      },
+      handleShowMoreResources() {
+        this.showMoreResources = true;
       },
       findFirstEl() {
         if (this.$refs.embeddedPanel) {
