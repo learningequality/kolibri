@@ -350,8 +350,9 @@ export default function useProgressTracking(store) {
       progress = _zeroToOne(progress);
       progress = threeDecimalPlaceRoundup(progress);
       if (get(progress_state) < progress) {
-        const newProgressDelta =
-          get(progress_delta) + threeDecimalPlaceRoundup(progress - get(progress_state));
+        const newProgressDelta = _zeroToOne(
+          get(progress_delta) + threeDecimalPlaceRoundup(progress - get(progress_state))
+        );
         set(progress_delta, newProgressDelta);
         set(progress_state, progress);
       }
