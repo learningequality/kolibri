@@ -2,7 +2,11 @@
 
   <div>
     <div v-if="navigationIsOpen" class="menu">
-      <AndroidNavigationNestedMenu />
+      <AndroidNavigationNestedMenu
+        ref="menu"
+        @shouldFocusFirstEl="focusFirstEl"
+        @shouldFocusLastEl="focusLastEl"
+      />
     </div>
     <div class="bottom-bar">
       <div class="icons">
@@ -12,19 +16,13 @@
           class="icon-box"
           :activeClasses="activeClasses"
         >
-          <router-link
-            ref="btn"
-            :to="link.link"
-          >
-            <KIconButton
-              :icon="link.icon"
-              :color="link.color"
-              :ariaLabel="link.title"
-            />
-
-          </router-link>
+          <KIconButton
+            :icon="link.icon"
+            :color="link.color"
+            :ariaLabel="link.title"
+            @click="navigateToRoute(link.link)"
+          />
           <p class="label" :style="{ color: $themeTokens.primary }">{{ link.title }}</p>
-
         </span>
         <KIconButton
           v-if="isAdmin || isCoach"
@@ -72,9 +70,36 @@
         })}`;
       },
     },
+    watch: {
+      navigationIsOpen(navigationIsOpen) {
+        this.$nextTick(() => {
+          if (navigationIsOpen) {
+            this.focusFirstEl();
+          }
+        });
+      },
+    },
     methods: {
       toggleBottomNav() {
         this.navigationIsOpen = !this.navigationIsOpen;
+      },
+      navigateToRoute(link) {
+        console.log(link);
+        this.$router.redirectTo(link);
+      },
+      /**
+       * @public
+       * Focuses on correct first element for FocusTrap.
+       */
+      focusFirstEl() {
+        this.$nextTick(() => {
+          if (this.$refs && this.$refs.menu && this.$refs.menu.$refs) {
+            this.$refs.menu.$refs.menuItem[0].$el.focus();
+          }
+        });
+      },
+      focusLastEl() {
+        this.$refs.menu.$refs.menuItem[this.$refs.menu.$refs.menuItem.length - 1].focus();
       },
     },
     $trs: {

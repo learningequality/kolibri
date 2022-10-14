@@ -53,6 +53,7 @@
   import SideNav from 'kolibri.coreVue.components.SideNav';
   import AppBottomBar from 'kolibri.coreVue.components.AppBottomBar';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import urls from 'kolibri.urls';
   import AppBar from '../AppBar';
   import { PageNames } from './../../../../../plugins/learn/assets/src/constants';
   import commonLearnStrings from './../../../../../plugins/learn/assets/src/views/commonLearnStrings';
@@ -104,21 +105,21 @@
           {
             condition: this.isUserLoggedIn,
             title: this.coreString('homeLabel'),
-            link: this.$router.getRoute(PageNames.HOME),
+            link: this.baseLink(PageNames.HOME),
             icon: 'dashboard',
             color: this.$themeTokens.primary,
           },
           {
             condition: this.canAccessUnassignedContent,
             title: this.learnString('libraryLabel'),
-            link: this.$router.getRoute(PageNames.LIBRARY),
+            link: this.baseLink(PageNames.LIBRARY),
             icon: 'library',
             color: this.$themeTokens.primary,
           },
           {
             condition: this.isUserLoggedIn && this.canAccessUnassignedContent,
             title: this.coreString('bookmarksLabel'),
-            link: this.$router.getRoute(PageNames.BOOKMARKS),
+            link: this.baseLink(PageNames.BOOKMARKS),
             icon: 'bookmark',
             color: this.$themeTokens.primary,
           },
@@ -130,6 +131,13 @@
       this.$nextTick(() => {
         this.appBarHeight = this.$refs.appBar.$el.scrollHeight || 0;
       });
+    },
+    methods: {
+      baseLink(link) {
+        const url = urls['kolibri:kolibri.plugins.learn:learn']();
+        const path = this.$router.getRoute(link).name.toLowerCase();
+        return `${url}#/${path}`;
+      },
     },
   };
 
