@@ -109,6 +109,9 @@
       },
     },
     methods: {
+      isOnMyOwnSetup() {
+        return this.wizardService.state.context.individualOrGroup == 'individual';
+      },
       handleContinue() {
         /**
          * Partially provision the device
@@ -121,9 +124,9 @@
           fullName: this.fullName,
           username: this.username,
           password: this.password,
-          facility_name: 'Facility',
+          facility_name: this.$store.state.onboardingData.facility.name,
           extra_fields: {
-            on_my_own_setup: this.wizardService.state.context.individualOrGroup == 'individual',
+            on_my_own_setup: this.isOnMyOwnSetup(),
           },
         };
         if (this.formIsValid) {

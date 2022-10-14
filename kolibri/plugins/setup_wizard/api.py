@@ -86,13 +86,19 @@ class FacilityImportViewSet(ViewSet):
         Given a username, full name and password, create a superuser attached
         to the facility that was imported (or create a facility with given facility_name)
         """
+        facility_name = request.data.get("facility_name", None)
+
         # Get the imported facility (assuming its the only one at this point)
         if Facility.objects.count() == 0:
-            name = request.data.get("facility_name", "")
-            the_facility = Facility.objects.create(name=name)
+            the_facility = Facility.objects.create(name=facility_name)
         else:
             the_facility = Facility.objects.get()
+            if facility_name:
+                the_facility.name = facility_name
+                the_facility.save()
 
+        # Here we only expect and accept the on_my_own_setup extra_field and set it directly
+        # using the setter method for `on_my_own_setup` on Facility
         extra_fields = request.data.get("extra_fields", None)
         if extra_fields and extra_fields.get("on_my_own_setup"):
             the_facility.on_my_own_setup = extra_fields.get("on_my_own_setup")

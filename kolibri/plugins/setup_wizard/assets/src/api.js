@@ -8,12 +8,13 @@ export const FacilityImportResource = new Resource({
   grantsuperuserpermissions({ user_id, password }) {
     return this.postListEndpoint('grantsuperuserpermissions', { user_id, password });
   },
-  createsuperuser({ username, full_name, password, extra_fields }) {
+  createsuperuser({ username, full_name, password, extra_fields, facility_name }) {
     return this.postListEndpoint('createsuperuser', {
       username,
       full_name,
       password,
       extra_fields,
+      facility_name,
     });
   },
   provisiondevice({ device_name, language_id, is_provisioned }) {
