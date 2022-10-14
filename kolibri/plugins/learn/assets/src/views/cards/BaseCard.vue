@@ -130,6 +130,7 @@
   }
 
   .title {
+    height: 44px;
     margin-top: 2px;
     font-size: $font-size-normal;
   }
