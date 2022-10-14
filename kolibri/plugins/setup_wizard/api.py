@@ -87,11 +87,15 @@ class FacilityImportViewSet(ViewSet):
         to the facility that was imported (or create a facility with given facility_name)
         """
         # Get the imported facility (assuming its the only one at this point)
-        try:
-            the_facility = Facility.objects.get()
-        except Facility.DoesNotExist:
+        if Facility.objects.count() == 0:
             name = request.data.get("facility_name", "")
             the_facility = Facility.objects.create(name=name)
+        else:
+            the_facility = Facility.objects.get()
+
+        extra_fields = request.data.get("extra_fields", None)
+        if extra_fields and extra_fields.get("on_my_own_setup"):
+            the_facility.on_my_own_setup = extra_fields.get("on_my_own_setup")
 
         try:
             superuser = FacilityUser.objects.create_superuser(

@@ -122,6 +122,9 @@
           username: this.username,
           password: this.password,
           facility_name: 'Facility',
+          extra_fields: {
+            on_my_own_setup: this.wizardService.state.context.individualOrGroup == 'individual',
+          },
         };
         if (this.formIsValid) {
           return FacilityImportResource.createsuperuser(facilityUserData)
