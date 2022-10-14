@@ -118,6 +118,7 @@
     width: 100%;
     height: $header-height;
     padding-top: 16px;
+    padding-right: 32px;
     padding-bottom: 0;
     padding-left: 32px;
   }
