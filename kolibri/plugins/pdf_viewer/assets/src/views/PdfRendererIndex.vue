@@ -17,7 +17,6 @@
     <template v-else>
       <transition name="slide">
         <div
-          v-if="showControls"
           class="fullscreen-header"
           :style="{ backgroundColor: this.$themePalette.grey.v_100 }"
         >
@@ -115,7 +114,6 @@
       isInFullscreen: false,
       currentLocation: 0,
       updateContentStateInterval: null,
-      showControls: true,
       visitedPages: {},
     }),
     computed: {
@@ -203,14 +201,6 @@
           this.debounceForceUpdateRecycleList();
         }
       },
-      // Listen to change in scroll position to determine whether we show top control bar or not
-      currentLocation(newPos, oldPos) {
-        if (newPos > oldPos) {
-          this.showControls = false;
-        } else {
-          this.showControls = true;
-        }
-      },
     },
     destroyed() {
       // Reset the overflow on the HTML tag that we set to hidden in created()
@@ -222,7 +212,6 @@
       window.document.getElementsByTagName('html')[0].style.overflow = 'hidden';
 
       this.currentLocation = this.savedLocation;
-      this.showControls = true; // Ensures it shows on load even if we're scrolled
       const loadPdfPromise = PDFJSLib.getDocument(this.defaultFile.storage_url);
       // pass callback to update loading bar
       loadPdfPromise.onProgress = loadingProgress => {
