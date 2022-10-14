@@ -14,6 +14,7 @@ The following diagram explains how a task travels from the frontend client to th
 You should download the following image to be able to zoom it in your image viewer. You can download by right clicking on following image and select "save image as" option.
 
 .. image:: ./kolibri_task_system.png
+.. Source: https://excalidraw.com/#json=9BxddPx20iBU_h-ObWkIM,h7ak9SCcy1fHn-4Pw6M0tg
 
 
 Defining tasks via ``@register_task`` decorator
