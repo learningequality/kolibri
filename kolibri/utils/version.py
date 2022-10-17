@@ -13,73 +13,64 @@ Here's how version numbers are generated:
    to decide the version of Kolibri as a string. This is especially something
    that PyPi and setuptools use.
 
- * ``kolibri.VERSION`` is a tuple containing version information, it's set in
-   ``kolibri/__init__.py`` is automatically suffixed in pre-releases by a
-   number of rules defined below. For a final release (not a pre-release),
-   it will be used exactly as it appears.
+ * ``kolibri.VERSION`` is a tuple containing major, minor, and patch version information,
+   it's set in ``kolibri/__init__.py``
 
  * ``kolibri/VERSION`` is a file containing the exact version of Kolibri for a
-   distributed environment (pre-releases only!)
+   distributed environment - when it exists, as long as its major, minor, and patch
+   versions are compatible with ``kolibri.VERSION`` then it is used as the version.
+   If these versions do not match, an AssertionError will be thrown.
 
  * ``git describe --tags`` is a command run to fetch tag information from a git
    checkout with the Kolibri code. The information is used to validate the
-   major components of ``kolibri.VERSION`` and to suffix the final version of
-   prereleases. This information is stored permanently in ``kolibri/VERSION``
-   before shipping a pre-release by calling ``make writeversion`` during
-   ``make dist`` etc.
+   major components of ``kolibri.VERSION`` and to add a suffix (if needed).
+   This information is stored permanently in ``kolibri/VERSION`` before shipping
+   any built asset by calling ``make writeversion`` during ``make dist`` etc.
 
 
-Confused? Here's a table:
+This table shows examples of kolibri.VERSION and git data used to generate a specific version:
 
 
-+--------------+---------------------+---------------------+---------------------------+-------------------------------------+
-| Release type | ``kolibri.VERSION`` | ``kolibri/VERSION`` | Git data                  | Examples                            |
-+==============+=====================+=====================+===========================+=====================================+
-| Final        | Canonical, only     | N/A                 | N/A                       | 0.1.0, 0.2.2,                       |
-|              | information used    |                     |                           | 0.2.post1                           |
-+--------------+---------------------+---------------------+---------------------------+-------------------------------------+
-| dev release  | (1, 2, 3, 'alpha',  | Fallback            | timestamp of latest       | 1.2.3.dev0+git.123.f1234567         |
-| (alpha0)     | 0), 0th alpha = a   |                     | commit + hash             |                                     |
-|              | dev release! Never  |                     |                           |                                     |
-|              | used as a canonical |                     |                           |                                     |
-|              |                     |                     |                           |                                     |
-+--------------+---------------------+---------------------+---------------------------+-------------------------------------+
-| alpha1+      | (1, 2, 3, 'alpha',  | Fallback            | ``git describe --tags``   | Clean head:                         |
-|              | 1)                  |                     |                           | 1.2.3a1,                            |
-|              |                     |                     |                           | 4 changes                           |
-|              |                     |                     |                           | since tag:                          |
-|              |                     |                     |                           | 1.2.3a1.dev0+git.4.f1234567         |
-+--------------+---------------------+---------------------+---------------------------+-------------------------------------+
-| beta1+       | (1, 2, 3, 'alpha',  | Fallback            | ``git describe --tags``   | Clean head:                         |
-|              | 1)                  |                     |                           | 1.2.3b1,                            |
-|              |                     |                     |                           | 5 changes                           |
-|              |                     |                     |                           | since tag:                          |
-|              |                     |                     |                           | 1.2.3b1.dev0+git.5.f1234567         |
-+--------------+---------------------+---------------------+---------------------------+-------------------------------------+
-| rc1+         | (1, 2, 3, 'alpha',  | Fallback            | ``git describe --tags``   | Clean head:                         |
-| (release     | 1)                  |                     |                           | 1.2.3rc1,                           |
-| candidate)   |                     |                     |                           | Changes                             |
-|              |                     |                     |                           | since tag:                          |
-|              |                     |                     |                           | 1.2.3rc1.dev0+git.f1234567          |
-+--------------+---------------------+---------------------+---------------------------+-------------------------------------+
-| beta0, rc0,  | DO NOT USE          | Fallback            | timestamp of latest       | 1.2.3b0.dev0+git.123.f1234567       |
-| post0, x.y.0 |                     |                     | commit + hash             |                                     |
-|              |                     |                     |                           |                                     |
-+--------------+---------------------+---------------------+---------------------------+-------------------------------------+
++--------------+---------------------+---------------------------+-------------------------------------+
+| Release type | ``kolibri.VERSION`` | Git data                  | Examples                            |
++==============+=====================+===========================+=====================================+
+| Final        | (1, 2, 3)           | Final tag: e.g. v1.2.3    | 1.2.3                               |
++--------------+---------------------+---------------------------+-------------------------------------+
+| dev release  | (1, 2, 3)           | timestamp of latest       | 1.2.3.dev0+git.123.f1234567         |
+| (alpha0)     |                     | commit + hash             |                                     |
++--------------+---------------------+---------------------------+-------------------------------------+
+| alpha1+      | (1, 2, 3)           | Alpha tag: e.g. v1.2.3a1  | Clean head:                         |
+|              |                     |                           | 1.2.3a1,                            |
+|              |                     |                           | 4 changes                           |
+|              |                     |                           | since tag:                          |
+|              |                     |                           | 1.2.3a1.dev0+git.4.f1234567         |
++--------------+---------------------+---------------------------+-------------------------------------+
+| beta1+       | (1, 2, 3)           | Beta tag: e.g. v1.2.3b1   | Clean head:                         |
+|              |                     |                           | 1.2.3b1,                            |
+|              |                     |                           | 5 changes                           |
+|              |                     |                           | since tag:                          |
+|              |                     |                           | 1.2.3b1.dev0+git.5.f1234567         |
++--------------+---------------------+---------------------------+-------------------------------------+
+| rc1+         | (1, 2, 3)           | RC tag: e.g. v1.2.3rc1    | Clean head:                         |
+| (release     |                     |                           | 1.2.3rc1,                           |
+| candidate)   |                     |                           | Changes                             |
+|              |                     |                           | since tag:                          |
+|              |                     |                           | 1.2.3rc1.dev0+git.f1234567          |
++--------------+---------------------+---------------------------+-------------------------------------+
 
 
-**Fallback**: ``kolibri/VERSION`` is auto-generated with ``make writeversion``
-during the build process. The file is read as a fallback when there's no git
-data available in a pre-release (which is the case in an installed
-environment).
+**Built assets**: ``kolibri/VERSION`` is auto-generated with ``make writeversion``
+during the build process. The file is read in preference to git
+data in order to prioritize swift version resolution in an installed
+environment.
 
 
 Release order example 1.2.3 release:
 
- * ``VERSION = (1, 2, 3, 'alpha', 0)`` throughout the development phase, this
+ * ``VERSION = (1, 2, 3)`` throughout the development phase, this
    results in a lot of ``1.2.3.dev0+git1234abcd`` with no need for
    git tags.
- * ``VERSION = (1, 2, 3, 'alpha', 1)`` for the first alpha release.
+ * ``VERSION = (1, 2, 3)`` for the first alpha release, a git tag v1.2.3a0 is made.
 
 .. warning::
     Do not import anything from the rest of Kolibri in this module, it's

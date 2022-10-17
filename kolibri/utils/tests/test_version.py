@@ -34,9 +34,12 @@ class TestKolibriVersion(unittest.TestCase):
     ):
         """
         Test that when doing something with a 0th alpha doesn't provoke any
-        hickups with ``git describe --tag``.
+        hiccups with ``git describe --tag``.
         If the version file returns nothing, and get_git_describe returns nothing,
-        then get_prerelease_version should return 0.15.8.dev0
+        and get_git_changeset returns nothing,
+        then get_prerelease_version should return x.y.z.dev0
+        as we are not on a final release, but we can't determine any more information
+        beyond that, so we can only say this is a dev0 release and nothing more.
         """
         v = get_version((0, 1, 0))
         self.assertEqual("0.1.0.dev0", v)
@@ -51,9 +54,11 @@ class TestKolibriVersion(unittest.TestCase):
     ):
         """
         Test that when doing something with a 0th alpha doesn't provoke any
-        hickups with ``git describe --tag``.
+        hiccups with ``git describe --tag``.
         If the version file returns nothing, and get_git_describe returns nothing,
-        then get_prerelease_version should return 0.15.8.dev0
+        then get_prerelease_version should return x.y.z.dev0 and the output of
+        get_git_changeset to give an incrementing version number in absence of any
+        other relevant tag information.
         """
         v = get_version((0, 1, 0))
         self.assertEqual("0.1.0.dev0+git.1234567890", v)
@@ -228,7 +233,10 @@ class TestKolibriVersion(unittest.TestCase):
     def test_git_random_tag(self, file_mock, popen_mock):
         """
         Test that we don't fail if some random tag appears
-        Always fallback to .dev0 if the tag data is unparseable.
+        Always fallback to .dev0 to give some indication that
+        this is not a final release, even if we can discern nothing else.
+        Noting that the subprocess.Popen mock also causes get_git_changeset
+        to return nothing meaningful either, so we don't even get that additional information.
         """
         process_mock = mock.Mock()
         attrs = {"communicate.return_value": ("foobar", "")}
