@@ -18,6 +18,8 @@
   }
 
   /deep/ .ui-toolbar__left {
+    display: flex;
+    align-items: center;
     margin-left: 16px;
   }
 

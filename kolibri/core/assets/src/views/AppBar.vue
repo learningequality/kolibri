@@ -296,6 +296,11 @@
     align-items: center;
   }
 
+  /deep/ .ui-toolbar__left {
+    display: flex;
+    align-items: center;
+  }
+
   .brand-logo {
     max-width: 48px;
     max-height: 48px;

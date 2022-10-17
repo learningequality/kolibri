@@ -499,7 +499,7 @@
   }
 
   /deep/ .progress-icon .ui-icon {
-    margin-top: -2px;
+    margin-top: -1px;
     margin-left: 16px;
 
     svg {
