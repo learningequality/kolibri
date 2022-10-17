@@ -117,30 +117,6 @@ def get_major_version(version):
     return major
 
 
-def get_complete_version(version=None):
-    """
-    :returns: A tuple of the version. If version argument is non-empty, then
-              checks for correctness of the tuple provided.
-    """
-    if version is None:
-        from kolibri import VERSION as version
-    else:
-        if len(version) != 3:
-            raise AssertionError
-
-    return version
-
-
-def get_docs_version(version=None):
-    """
-    :returns: Version string for use in Sphinx docs
-    """
-    version = get_complete_version(version)
-    if version[3] != "final":
-        return "dev"
-    return "%d.%d" % version[:2]
-
-
 def get_git_changeset():
     """
     Returns a numeric identifier of the latest git changeset.
@@ -292,9 +268,9 @@ def get_prerelease_version(version):
     if tag_describe:
 
         git_version, suffix = get_version_from_git(tag_describe)
-        # We will check  if the git_tag and version strings are the same length,
-        # and compare it  the first three characters of each string to see if they matches.
-        # if not, we then  raise an AssertionError.
+        # We will check if the git_tag and version strings are the same length,
+        # and compare it the first three characters of each string to see if they matches.
+        # if not, we then raise an AssertionError.
         if not suffix:
             if not git_version[:3] == version[:3]:
                 raise AssertionError(
@@ -372,10 +348,7 @@ def get_version_from_file(version):
 
 
 @lru_cache()
-def get_version(version=None):
-    if version is None:
-        from kolibri import VERSION as version
-
+def get_version(version):
     version_str = get_version_from_file(version)
     if version_str:
         return version_str
