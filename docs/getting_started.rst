@@ -264,7 +264,7 @@ In production, content is served through CherryPy. Static assets must be pre-bui
   # first build the assets
   yarn run build
   # now, run the Django production server
-  kolibri start
+  kolibri start | stop
 
 Now you should be able to access the server at ``http://127.0.0.1:8080/``.
 
