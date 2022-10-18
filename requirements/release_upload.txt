@@ -1,2 +1,0 @@
-requests==2.21.0
-github3.py==1.1.0

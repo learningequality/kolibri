@@ -51,9 +51,3 @@ steps:
         LE_KOLIBRI_RELEASE: "${BUILDKITE_TAG:-false}"
     depends_on:
       - deb-build
-
-  - wait
-
-  - label: Upload Release Artifacts
-    command: .buildkite/setup_and_upload_artifact.sh
-    if: build.tag != null
