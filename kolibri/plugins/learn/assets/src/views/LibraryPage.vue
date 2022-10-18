@@ -470,6 +470,8 @@
 <style lang="scss" scoped>
 
   .main-grid {
+    // after 1700px, just left align, per design spec
+    max-width: 1700px;
     margin-top: 40px;
     margin-right: 24px;
   }
