@@ -17,6 +17,7 @@ import vuex from 'vuex';
 import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
 import responsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
 import responsiveElementMixin from 'kolibri-design-system/lib/KResponsiveElementMixin';
+import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
 import scriptLoader from 'kolibri-design-system/lib/utils/scriptLoader';
 import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton'; // temp hack
 import * as vueCompositionApi from '@vue/composition-api';
@@ -227,6 +228,9 @@ export default {
       commonTaskStrings,
       commonSyncElements,
       translatedUserKinds,
+    },
+    composables: {
+      useKResponsiveWindow,
     },
   },
   resources,
