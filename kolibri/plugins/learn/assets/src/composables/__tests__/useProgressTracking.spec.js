@@ -1,4 +1,4 @@
-import { get } from '@vueuse/core';
+import { get, set } from '@vueuse/core';
 import client from 'kolibri.client';
 import { coreStoreFactory as makeStore } from 'kolibri.coreVue.vuex.store';
 import useProgressTracking from '../useProgressTracking';
@@ -372,6 +372,15 @@ describe('useProgressTracking composable', () => {
       await updateContentSession({ progress: 2 });
       expect(get(progress)).toEqual(1);
       expect(client.mock.calls[0][0].data.progress_delta).toEqual(0.5);
+    });
+    it('should max progress and store progress_delta if progress is updated over threshold and over max value and progress_delta is greater than 0', async () => {
+      const { updateContentSession, progress, progress_delta } = await initStore({
+        progress: 0.167,
+      });
+      set(progress_delta, 0.5);
+      await updateContentSession({ progress: 1 });
+      expect(get(progress)).toEqual(1);
+      expect(client.mock.calls[0][0].data.progress_delta).toEqual(1);
     });
     it('should not update progress and store progress_delta if progress is updated under current value', async () => {
       const { updateContentSession, progress, progress_delta } = await initStore();
