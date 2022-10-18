@@ -141,6 +141,7 @@
       function handleAddedAddress() {
         refreshSavedAddressList();
         createSnackbar(this.$tr('addAddressSnackbarText'));
+        this.showAddAddressModal = false;
       }
 
       function resetSelectedAddress() {

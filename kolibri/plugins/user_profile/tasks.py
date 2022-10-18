@@ -16,6 +16,7 @@ from kolibri.core.tasks.permissions import IsFacilityAdmin
 from kolibri.core.tasks.permissions import IsSelf
 from kolibri.core.tasks.permissions import IsSuperAdmin
 from kolibri.core.tasks.permissions import PermissionsFromAny
+from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.utils.urls import reverse_remote
 
 
@@ -104,4 +105,6 @@ def mergeuser(command, **kwargs):
             user=new_superuser, is_superuser=True, can_manage_content=True
         )
 
+    job = get_current_job()
+    job.update_progress(1.0, 1.0)
     local_user.delete()
