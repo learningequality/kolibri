@@ -6,6 +6,16 @@ Kolibri plugins and Django apps can use the backend tasks system to run time con
 
 The kolibri task system is implemented as a core Django app on ``kolibri.core.tasks``.
 
+Kolibri backend tasks system flow diagram
+-------------------------------------------
+
+The following diagram explains how a task travels from the frontend client to the different parts of the backend task system. It aims to give a high level understanding of the backend tasks system.
+
+You should download the following image to be able to zoom it in your image viewer. You can download by right clicking on following image and select "save image as" option.
+
+.. image:: ./kolibri_task_system.png
+.. Source: https://excalidraw.com/#json=9BxddPx20iBU_h-ObWkIM,h7ak9SCcy1fHn-4Pw6M0tg
+
 
 Defining tasks via ``@register_task`` decorator
 ------------------------------------------------
