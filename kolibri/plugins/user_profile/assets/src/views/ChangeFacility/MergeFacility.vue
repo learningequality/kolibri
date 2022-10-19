@@ -160,12 +160,18 @@
                   facility: state.value.targetFacility.id,
                   username: state.value.targetAccount.username,
                   local_user_id: state.value.userId,
+                  user_id: state.value.targetAccount.id,
                 };
                 if (state.value.targetAccount.password !== '') {
                   params['password'] = state.value.targetAccount.password;
                 }
                 if (state.value.newSuperAdminId !== '') {
                   params['new_superuser_id'] = state.value.newSuperAdminId;
+                }
+                if (state.value.targetAccount.AdminUsername !== undefined) {
+                  params['using_admin'] = true;
+                  params['username'] = state.value.targetAccount.AdminUsername;
+                  params['password'] = state.value.targetAccount.AdminPassword;
                 }
 
                 TaskResource.startTask(params)
@@ -174,6 +180,7 @@
                     isTaskRequested = false;
                   })
                   .catch(error => {
+                    console.log('-- error starting task', error);
                     if (error.response.status === 400) {
                       const message = get(error.response, 'data[0].metadata.message', '');
                       if (message === 'USERNAME_ALREADY_EXISTS') {
@@ -212,8 +219,7 @@
         changeFacilityService.send({ type: 'FINISH' });
         // use the token to login in the device using the new user in the target facility
         const params = {
-          facility: state.value.targetFacility.id,
-          username: state.value.targetAccount.username,
+          pk: state.value.targetAccount.id,
           token,
         };
         client({

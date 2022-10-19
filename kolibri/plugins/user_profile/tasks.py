@@ -39,10 +39,6 @@ class MergeUserValidator(PeerImportSingleSyncJobValidator):
         if data.get("new_superuser_id"):
             job_data["kwargs"]["new_superuser_id"] = data["new_superuser_id"].id
 
-        # create token to validate user in the new facility
-        # after it's deleted in the current facility:
-        token = TokenGenerator().make_token(data["username"])
-        job_data["extra_metadata"]["token"] = token
         return job_data
 
     def create_remote_user(self, data):
@@ -106,5 +102,12 @@ def mergeuser(command, **kwargs):
         )
 
     job = get_current_job()
+    # create token to validate user in the new facility
+    # after it's deleted in the current facility:
+    remote_user_pk = job.kwargs["user"]
+    remote_user = FacilityUser.objects.get(pk=remote_user_pk)
+    token = TokenGenerator().make_token(remote_user)
+    job.extra_metadata["token"] = token
+    job.save_meta()
     job.update_progress(1.0, 1.0)
     local_user.delete()
