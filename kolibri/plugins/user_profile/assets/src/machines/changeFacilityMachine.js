@@ -257,8 +257,11 @@ const states = {
   },
   fetchSourceFacilityUsers: {
     invoke: {
-      src: () => {
-        return FacilityUserResource.fetchCollection().then(users => {
+      src: context => {
+        return FacilityUserResource.fetchCollection({
+          getParams: { member_of: context.sourceFacility },
+          force: true,
+        }).then(users => {
           return users;
         });
       },
