@@ -1,11 +1,5 @@
 <template>
-  <ul
-    class="bookmarks-wrapper"
-    :style="{
-      backgroundColor: this.$themePalette.grey.v_100,
-      borderRight: `solid 1px ${this.$themeTokens.fineLine}`,
-    }"
-  >
+  <ul class="bookmarks-wrapper">
     <BookmarkItem
       v-for="(item, index) in outline"
       :item="item"
@@ -31,16 +25,15 @@
         type: Function,
         required: true,
       },
-    }
+    },
+    created() {
+      console.log("Bookmarks created!");
+    },
   }
 </script>
 <style scoped lang="scss">
   .bookmarks-wrapper {
-    height: 100%;
-    z-index: 2;
-    position: relative;
-    top: 40px;
-    padding: 16px;
+    padding: 32px 16px;
     margin: 0;
   }
 </style>

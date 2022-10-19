@@ -21,67 +21,85 @@
           class="fullscreen-header pdf-controls-container"
           :style="{ backgroundColor: this.$themePalette.grey.v_100 }"
         >
-          <KIconButton
-            class="button-zoom-in controls"
-            aria-controls="pdf-container"
-            icon="add"
-            @click="zoomIn"
-          />
-          <KIconButton
-            class="button-zoom-out controls"
-            aria-controls="pdf-container"
-            icon="remove"
-            @click="zoomOut"
-          />
-          <KButton
-            class="fullscreen-button"
-            :primary="false"
-            appearance="flat-button"
-            :icon="isInFullscreen ? 'fullscreen_exit' : 'fullscreen'"
-            @click="$refs.pdfRenderer.toggleFullscreen()"
-          >
-            {{ fullscreenText }}
-          </KButton>
+          <div>
+            <KIconButton
+              class="controls"
+              :ariaLabel="coreString('zoomIn')"
+              aria-controls="sidebar-container"
+              icon="menu"
+              @click="toggleSideBar"
+            />
+          </div>
+          <div>
+            <KIconButton
+              class="button-zoom-in controls"
+              :ariaLabel="coreString('zoomIn')"
+              aria-controls="pdf-container"
+              icon="add"
+              @click="zoomIn"
+            />
+            <KIconButton
+              class="button-zoom-out controls"
+              :ariaLabel="coreString('zoomOut')"
+              aria-controls="pdf-container"
+              icon="remove"
+              @click="zoomOut"
+            />
+            <KButton
+              class="fullscreen-button"
+              :primary="false"
+              appearance="flat-button"
+              :icon="isInFullscreen ? 'fullscreen_exit' : 'fullscreen'"
+              @click="$refs.pdfRenderer.toggleFullscreen()"
+            >
+              {{ fullscreenText }}
+            </KButton>
+          </div>
         </div>
       </transition>
       <KGrid gutter="0">
+        <transition name="slide">
         <KGridItem
           :layout8="{ span: 2 }"
           :layout12="{ span: 3 }"
+          class="sidebar-container"
+          :class="{ 'mt-40': showControls }"
+          v-if="showSideBar"
         >
-          <Bookmarks
+          <SideBar
             :outline="outline || []"
             :goToDestination="goToDestination"
           />
         </KGridItem>
+      </transition>
         <KGridItem
-          :layout8="{ span: 6 }"
-          :layout12="{ span: 9 }"
+          :layout8="{ span: showSideBar ? 6 : 8 }"
+          :layout12="{ span: showSideBar ? 9 : 12 }"
         >
-        <RecycleList
-        ref="recycleList"
-        :items="pdfPages"
-        :itemHeight="itemHeight"
-        :emitUpdate="true"
-        :style="{ height: `${elementHeight}px` }"
-        class="pdf-container"
-        keyField="index"
-        @update="handleUpdate"
-      >
-        <template #default="{ item }">
-          <PdfPage
-            :key="item.index"
-            :pageNum="item.index + 1"
-            :pdfPage="pdfPages[item.index].page"
-            :pageReady="pdfPages[item.index].resolved"
-            :firstPageHeight="firstPageHeight || 0"
-            :firstPageWidth="firstPageWidth || 0"
-            :scale="scale || 1"
-            :totalPages="pdfPages.length"
-            :eventBus="eventBus"
-          />
-        </template>
-      </RecycleList>
+          <RecycleList
+            ref="recycleList"
+            :items="pdfPages"
+            :itemHeight="itemHeight"
+            :emitUpdate="true"
+            :style="{ height: `${elementHeight}px` }"
+            class="pdf-container"
+            keyField="index"
+            @update="handleUpdate"
+          >
+            <template #default="{ item }">
+              <PdfPage
+                :key="item.index"
+                :pageNum="item.index + 1"
+                :pdfPage="pdfPages[item.index].page"
+                :pageReady="pdfPages[item.index].resolved"
+                :firstPageHeight="firstPageHeight || 0"
+                :firstPageWidth="firstPageWidth || 0"
+                :scale="scale || 1"
+                :totalPages="pdfPages.length"
+                :eventBus="eventBus"
+              />
+            </template>
+          </RecycleList>
         </KGridItem>
       </KGrid>
     </template>
@@ -105,7 +123,7 @@
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import { EventBus } from '../utils/event_utils';
   import PdfPage from './PdfPage';
-  import Bookmarks from './Bookmarks';
+  import SideBar from './SideBar';
 
   // Source from which PDFJS loads its service worker, this is based on the __publicPath
   // global that is defined in the Kolibri webpack pipeline, and the additional entry in the PDF
@@ -118,8 +136,8 @@
   export default {
     name: 'PdfRendererIndex',
     components: {
+      SideBar,
       PdfPage,
-      Bookmarks,
       RecycleList,
       CoreFullscreen,
     },
@@ -137,6 +155,7 @@
       currentLocation: 0,
       updateContentStateInterval: null,
       showControls: true,
+      showSideBar: true,
       visitedPages: {},
       eventBus: null,
       outline: null,
@@ -374,6 +393,9 @@
       setScale: throttle(function(scaleValue) {
         this.scale = scaleValue;
       }, 500),
+      toggleSideBar() {
+        this.showSideBar = !this.showSideBar;
+      },
       calculatePosition() {
         return this.$refs.recycleList.$el.scrollTop / this.$refs.recycleList.$el.scrollHeight;
       },
@@ -531,6 +553,13 @@
     margin: 0 4px;
   }
 
+  .pdf-controls-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 8px;
+  }
+
   .progress-bar {
     top: 50%;
     max-width: 200px;
@@ -559,7 +588,6 @@
     left: 0;
     z-index: 7;
     display: flex;
-    justify-content: flex-end;
     height: $controls-height;
   }
 
@@ -575,9 +603,20 @@
     transition: all 0.3s;
   }
 
-  .slide-enter,
-  .slide-leave-to {
+  .pdf-controls-container.slide-enter,
+  .pdf-controls-container.slide-leave-to {
     transform: translateY(-40px);
   }
 
+  .sidebar-container.slide-enter,
+  .sidebar-container.slide-leave-to {
+    transform: translateX(-25%);
+  }
+
+  .mt-40 {
+    margin-top: 40px;
+  }
+  /deep/ .sidebar-container>div {
+    height: 100%;
+  }
 </style>
