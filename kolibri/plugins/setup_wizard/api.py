@@ -103,6 +103,12 @@ class FacilityImportViewSet(ViewSet):
         if extra_fields and extra_fields.get("on_my_own_setup"):
             the_facility.on_my_own_setup = extra_fields.get("on_my_own_setup")
 
+        if extra_fields and extra_fields.get("os_user"):
+            osuser = FacilityUser.objects.get_or_create_os_user(
+                facility=the_facility, auth_token=request.data.get("auth_token")
+            )
+            return Response({"username": osuser.username})
+
         try:
             superuser = FacilityUser.objects.create_superuser(
                 request.data.get("username"),
@@ -114,6 +120,17 @@ class FacilityImportViewSet(ViewSet):
 
         except ValidationError:
             raise ValidationError(detail="duplicate", code="duplicate_username")
+
+    @decorators.action(methods=["post"], detail=False)
+    def provisionosuserdevice(self, request):
+        """
+        When we can get the OS user, this is what we'll call to provision the device
+        TODO FIXME
+        """
+
+        device_name = request.data.get("device_name", "")  # noqa
+        language_id = request.data.get("language_id", "")  # noqa
+        is_provisioned = request.data.get("is_provisioned", False)  # noqa
 
     @decorators.action(methods=["post"], detail=False)
     def provisiondevice(self, request):

@@ -1,12 +1,14 @@
-import { assign, createMachine, interpret } from 'xstate';
+import { assign, createMachine } from 'xstate';
 import reduce from 'lodash/reduce';
+import { checkCapability } from 'kolibri.utils.appCapabilities';
+import { UsePresets } from '../constants';
 
-const isIndividualSetup = context => {
-  return context.individualOrGroup === 'individual';
+const isOnMyOwnOrGroup = context => {
+  return context.onMyOwnOrGroup === UsePresets.ON_MY_OWN;
 };
 
 const isGroupSetup = context => {
-  return context.individualOrGroup === 'group';
+  return context.onMyOwnOrGroup === UsePresets.GROUP;
 };
 
 const canGetOsUser = context => {
@@ -29,8 +31,8 @@ const isFullSetup = context => {
   return context.fullOrLOD === 'FULL';
 };
 
-const setIndividualOrGroup = assign({
-  individualOrGroup: (_, event) => event.value,
+const setOnMyOwnOrGroup = assign({
+  onMyOwnOrGroup: (_, event) => event.value,
 });
 
 const setDeviceName = assign({
@@ -66,11 +68,11 @@ const setRequirePassword = assign({
 });
 
 const initialContext = {
-  individualOrGroup: null,
-  canGetOsUser: false, // Must be set in the component where the machine is used
+  onMyOwnOrGroup: null,
+  canGetOsUser: checkCapability('get_os_user'),
   facilityNewOrImport: null,
   fullOrLOD: null,
-  deviceName: null,
+  deviceName: 'default-device-name',
   formalOrNonformal: null,
   guestAccess: null,
   createLearnerAccount: null,
@@ -113,18 +115,18 @@ export const wizardMachine = createMachine({
         CONTINUE: { target: 'howAreYouUsingKolibri', actions: setCanGetOsUser },
       },
     },
-    // Initial step where user selects between "On my own" (individual) or "Group learning" (group)
+    // Initial step where user selects between "On my own" or "Group learning"
     howAreYouUsingKolibri: {
       meta: { route: { name: 'HOW_ARE_YOU_USING_KOLIBRI', path: '/' } },
       on: {
-        CONTINUE: { target: 'individualOrGroupSetup', actions: setIndividualOrGroup },
+        CONTINUE: { target: 'onMyOwnOrGroupSetup', actions: setOnMyOwnOrGroup },
       },
     },
-    // A passthrough step depending on the value of context.individualOrGroup
-    individualOrGroupSetup: {
+    // A passthrough step depending on the value of context.onMyOwnOrGroup
+    onMyOwnOrGroupSetup: {
       always: [
         {
-          cond: isIndividualSetup,
+          cond: isOnMyOwnOrGroup,
           target: 'defaultLanguage',
         },
         {
@@ -134,7 +136,7 @@ export const wizardMachine = createMachine({
       ],
     },
 
-    // The Individual path
+    // The On My Own path
     defaultLanguage: {
       meta: { route: { name: 'DEFAULT_LANGUAGE', path: 'default-language' } },
       on: {
@@ -150,12 +152,12 @@ export const wizardMachine = createMachine({
           target: 'finalizeSetup',
         },
         {
-          target: 'createIndividualAccount',
+          target: 'createOnMyOwnAccount',
         },
       ],
     },
 
-    createIndividualAccount: {
+    createOnMyOwnAccount: {
       meta: { route: { name: 'CREATE_SUPERUSER_AND_FACILITY', path: 'create-account' } },
       on: {
         CONTINUE: 'finalizeSetup',
@@ -300,16 +302,3 @@ export const wizardMachine = createMachine({
     },
   },
 });
-
-// Dump the machine to console in dev mode (for now anyway)
-if (process.env.NODE_ENV === 'development') {
-  console.log('=== wizardMachine ===');
-  console.log(
-    'Save the following function as an object, call it and pass an object with initial context ala',
-    ' { canGetOsUser: Boolean } - the rest of the context should be set through events.\n',
-    'Usage (assuming you saved to `temp1`):\n',
-    'let machine = temp1({ canGetOsUser: true });\n',
-    "machine.send({ type: 'CONTINUE', value: 'individual'});\n"
-  );
-  console.log((context = {}) => interpret(wizardMachine.withContext(context)).start());
-}

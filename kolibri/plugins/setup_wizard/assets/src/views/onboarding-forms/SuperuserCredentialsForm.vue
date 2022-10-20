@@ -68,6 +68,7 @@
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
   import PrivacyLinkAndModal from 'kolibri.coreVue.components.PrivacyLinkAndModal';
   import OnboardingStepBase from '../OnboardingStepBase';
+  import { UsePresets } from '../../constants';
   import { FacilityImportResource } from '../../api';
 
   export default {
@@ -110,7 +111,7 @@
     },
     methods: {
       isOnMyOwnSetup() {
-        return this.wizardService.state.context.individualOrGroup == 'individual';
+        return this.wizardService.state.context.onMyOwnOrGroup == UsePresets.ON_MY_OWN;
       },
       handleContinue() {
         /**
@@ -133,7 +134,7 @@
           return FacilityImportResource.createsuperuser(facilityUserData)
             .then(() => {
               const deviceProvisioningData = {
-                device_name: 'Device',
+                device_name: this.wizardService.state.context.deviceName,
                 language_id: this.$store.state.onboardingData.language_id,
                 is_provisioned: true,
               };

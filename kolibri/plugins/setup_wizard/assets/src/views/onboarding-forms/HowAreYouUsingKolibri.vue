@@ -9,13 +9,13 @@
     <KRadioButton
       v-model="selected"
       style="margin-bottom: 1em"
-      :value="Options.INDIVIDUAL"
+      :value="UsePresets.ON_MY_OWN"
       :label="$tr('onMyOwnLabel')"
       :description="$tr('onMyOwnDescription')"
     />
     <KRadioButton
       v-model="selected"
-      :value="Options.GROUP"
+      :value="UsePresets.GROUP"
       :label="$tr('groupLearningLabel')"
       :description="$tr('groupLearningDescription')"
     />
@@ -27,11 +27,7 @@
 <script>
 
   import OnboardingStepBase from '../OnboardingStepBase';
-
-  const Options = Object.freeze({
-    INDIVIDUAL: 'individual',
-    GROUP: 'group',
-  });
+  import { Presets, UsePresets } from '../../constants';
 
   export default {
     name: 'HowAreYouUsingKolibri',
@@ -39,20 +35,24 @@
     inject: ['wizardService'],
     data() {
       return {
-        selected: Options.INDIVIDUAL,
+        selected: UsePresets.ON_MY_OWN,
       };
     },
     computed: {
-      isIndividualSetup() {
-        return this.selected === Options.INDIVIDUAL;
+      isOnMyOwnSetup() {
+        return this.selected === UsePresets.ON_MY_OWN;
       },
-      Options() {
-        return Options;
+      UsePresets() {
+        return UsePresets;
       },
     },
     methods: {
       handleContinue() {
-        this.$store.commit('SET_FACILITY_PRESET', this.isIndividualSetup ? Options.INDIVIDUAL : '');
+        if (this.isOnMyOwnSetup) {
+          // If the user is on their own, set the preset to personal here
+          // If not then the user will set it using a form later on
+          this.$store.commit('SET_FACILITY_PRESET', Presets.PERSONAL);
+        }
         this.goToNextStep();
       },
       goToNextStep() {

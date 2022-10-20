@@ -102,7 +102,6 @@
       const savedState = Lockr.get('savedState', 'initializeContext');
 
       // Either the string 'initializeContext' or a valid state object returned from Lockr
-      this.service.start(savedState);
 
       if (savedState !== 'initializeContext') {
         // Update the route if there is a saved state
@@ -111,6 +110,8 @@
         // Or set the app context state on the machine and proceed to the first state
         this.service.send({ type: 'CONTINUE', value: checkCapability('get_os_user') });
       }
+
+      this.service.start(savedState);
 
       this.service.onTransition(state => {
         synchronizeRouteAndMachine(state);

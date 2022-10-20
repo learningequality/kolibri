@@ -15,6 +15,14 @@ export const FacilityImportResource = new Resource({
       password,
       extra_fields,
       facility_name,
+      auth_token: 'ca6830b018e647fc9723561c99b6b3f0',
+    });
+  },
+  provisionosuser({ device_name, language_id, is_provisioned }) {
+    return this.postListEndpoint('provisionosuserdevice', {
+      device_name,
+      language_id,
+      is_provisioned,
     });
   },
   provisiondevice({ device_name, language_id, is_provisioned }) {

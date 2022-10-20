@@ -7,6 +7,14 @@ const Presets = Object.freeze({
   NONFORMAL: 'nonformal',
 });
 
+/**
+ * enum identifying whether the user has gone to the on my own flow or not
+ */
+const UsePresets = Object.freeze({
+  ON_MY_OWN: 'on my own',
+  GROUP: 'group',
+});
+
 const SoudQueue = 'soud_sync';
 
-export { permissionPresets, Presets, SoudQueue };
+export { permissionPresets, Presets, UsePresets, SoudQueue };
