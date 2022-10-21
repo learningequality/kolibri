@@ -30,7 +30,7 @@
           {{ successfullyJoined }}
         </div>
         <div v-if="taskError" data-test="errorMessage">
-          {{ userErrorMessage }}
+          {{ errorMessage }}
         </div>
         <div v-else class="details-progress-bar">
           <KLinearLoader
@@ -202,6 +202,7 @@
             } else if (startedTask.status === TaskStatuses.FAILED) {
               TaskResource.clear(taskId.value); // start a new one
               isTaskRequested = false;
+              taskError.value = true;
             }
           });
         }
@@ -253,12 +254,14 @@
         },
       });
 
-      const userErrorMessage = computed({
+      const errorMessage = computed({
         get() {
           const targetUsername = get(state, 'value.targetAccount.username', '');
           const currentUsername = get(state, 'value.username', '');
-          const errorString =
-            targetUsername !== currentUsername ? 'userExistsError' : 'userAdminError';
+          let errorString = 'failedTaskError';
+          if (task.value.status !== TaskStatuses.FAILED) {
+            errorString = targetUsername !== currentUsername ? 'userExistsError' : 'userAdminError';
+          }
           return this.$tr(errorString, {
             username: targetUsername,
             target_facility: get(state, 'value.targetFacility.name', ''),
@@ -276,7 +279,7 @@
         to_finish,
         to_retry,
         successfullyJoined,
-        userErrorMessage,
+        errorMessage,
       };
     },
 
@@ -293,13 +296,19 @@
       userExistsError: {
         message:
           'User ‘{username}’ already exists in ‘{target_facility}’. Please choose a different username.',
-        context: 'Error message for a user already exists in the target facility.',
+        context: 'Error message for a user already existing in the target facility.',
       },
       // eslint-disable-next-line kolibri/vue-no-unused-translations
       userAdminError: {
         message:
           'User ‘{username}’ already exists in ‘{target_facility}’ is not a learner. Please choose a different username.',
-        context: 'Error message for a user already exists in the target facility.',
+        context: 'Error message for a user being other than a learner in the target facility.',
+      },
+      // eslint-disable-next-line kolibri/vue-no-unused-translations
+      failedTaskError: {
+        message:
+          'Merging task for ‘{username}’ has failed due to some problem connecting to the ‘{target_facility}’. Please, check your network connection and try again.',
+        context: 'Error message for a connection error when merging the user',
       },
     },
   };
