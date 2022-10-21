@@ -30,7 +30,7 @@
           {{ successfullyJoined }}
         </div>
         <div v-if="taskError" data-test="errorMessage">
-          {{ $tr('userExistsError') }}
+          {{ userErrorMessage }}
         </div>
         <div v-else class="details-progress-bar">
           <KLinearLoader
@@ -253,6 +253,19 @@
         },
       });
 
+      const userErrorMessage = computed({
+        get() {
+          const targetUsername = get(state, 'value.targetAccount.username', '');
+          const currentUsername = get(state, 'value.username', '');
+          const errorString =
+            targetUsername !== currentUsername ? 'userExistsError' : 'userAdminError';
+          return this.$tr(errorString, {
+            username: targetUsername,
+            target_facility: get(state, 'value.targetFacility.name', ''),
+          });
+        },
+      });
+
       return {
         percentage,
         taskError,
@@ -263,6 +276,7 @@
         to_finish,
         to_retry,
         successfullyJoined,
+        userErrorMessage,
       };
     },
 
@@ -275,8 +289,16 @@
         message: 'Successfully joined ‘{target_facility}’ learning facility.',
         context: 'Status message for a successful task.',
       },
+      // eslint-disable-next-line kolibri/vue-no-unused-translations
       userExistsError: {
-        message: 'User already exists and is not a learner. Please choose a different username.',
+        message:
+          'User ‘{username}’ already exists in ‘{target_facility}’. Please choose a different username.',
+        context: 'Error message for a user already exists in the target facility.',
+      },
+      // eslint-disable-next-line kolibri/vue-no-unused-translations
+      userAdminError: {
+        message:
+          'User ‘{username}’ already exists in ‘{target_facility}’ is not a learner. Please choose a different username.',
         context: 'Error message for a user already exists in the target facility.',
       },
     },
