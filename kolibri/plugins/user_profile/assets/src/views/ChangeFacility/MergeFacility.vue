@@ -183,8 +183,12 @@
                     console.log('-- error starting task', error);
                     if (error.response.status === 400) {
                       const message = get(error.response, 'data[0].metadata.message', '');
-                      if (message === 'USERNAME_ALREADY_EXISTS') {
+                      if (
+                        message === 'USERNAME_ALREADY_EXISTS' ||
+                        message === 'PASSWORD_NOT_SPECIFIED'
+                      ) {
                         taskError.value = true;
+                        isPolling = false;
                       } else {
                         // if the request is bad, we can't do anything
                         changeFacilityService.send('TASKERROR');
@@ -259,7 +263,7 @@
           const targetUsername = get(state, 'value.targetAccount.username', '');
           const currentUsername = get(state, 'value.username', '');
           let errorString = 'failedTaskError';
-          if (task.value.status !== TaskStatuses.FAILED) {
+          if (get(task, 'value.status', '') !== TaskStatuses.FAILED) {
             errorString = targetUsername !== currentUsername ? 'userExistsError' : 'userAdminError';
           }
           return this.$tr(errorString, {
