@@ -1,15 +1,20 @@
 <template>
+
   <ul class="bookmarks-wrapper">
     <BookmarkItem
       v-for="(item, index) in outline"
-      :item="item"
       :key="index"
+      :item="item"
       :goToDestination="goToDestination"
     />
   </ul>
+
 </template>
+
+
 <script>
-  import BookmarkItem from './item';
+
+  import BookmarkItem from './BookmarkItem';
 
   export default {
     name: 'Bookmarks',
@@ -26,14 +31,16 @@
         required: true,
       },
     },
-    created() {
-      console.log("Bookmarks created!");
-    },
-  }
+  };
+
 </script>
+
+
 <style scoped lang="scss">
+
   .bookmarks-wrapper {
     padding: 32px 16px;
     margin: 0;
   }
+
 </style>

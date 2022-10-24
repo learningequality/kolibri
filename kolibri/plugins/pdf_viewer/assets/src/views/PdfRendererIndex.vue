@@ -3,6 +3,7 @@
   <CoreFullscreen
     ref="pdfRenderer"
     class="pdf-renderer"
+    :class="{ 'pdf-controls-open': showControls }"
     :style="{ backgroundColor: $themeTokens.text }"
     @changeFullscreen="isInFullscreen = $event"
   >
@@ -22,6 +23,7 @@
         >
           <div>
             <KIconButton
+              v-if="outline && outline.length > 0"
               class="controls"
               :ariaLabel="coreString('zoomIn')"
               aria-controls="sidebar-container"
@@ -57,20 +59,18 @@
         </div>
       </transition>
       <KGrid gutter="0">
-        <transition name="slide">
         <KGridItem
+          v-if="showSideBar"
           :layout8="{ span: 2 }"
           :layout12="{ span: 3 }"
           class="sidebar-container"
           :class="{ 'mt-40': showControls }"
-          v-if="showSideBar"
         >
           <SideBar
             :outline="outline || []"
             :goToDestination="goToDestination"
           />
         </KGridItem>
-      </transition>
         <KGridItem
           :layout8="{ span: showSideBar ? 6 : 8 }"
           :layout12="{ span: showSideBar ? 9 : 12 }"
@@ -155,7 +155,7 @@
       currentLocation: 0,
       updateContentStateInterval: null,
       showControls: true,
-      showSideBar: true,
+      showSideBar: false,
       visitedPages: {},
       eventBus: null,
       outline: null,
@@ -295,6 +295,7 @@
           });
           pdfDocument.getOutline().then(outline => {
             this.outline = outline;
+            this.showSideBar = outline && outline.length > 0; // Remove if other tabs are already implemented
           });
         });
       });
@@ -476,7 +477,7 @@
           return;
         }
         let explicitDest;
-        if (typeof dest === "string") {
+        if (typeof dest === 'string') {
           explicitDest = await this.pdfDocument.getDestination(dest);
         } else {
           explicitDest = await dest;
@@ -492,10 +493,11 @@
           return;
         }
 
-        let position = (pageNumber -1) / this.totalPages; // relative page position
+        let position = (pageNumber - 1) / this.totalPages; // relative page position
 
         // add relative y offset of the destination on the page
-        if (explicitDest[1].name === "XYZ") { // XYZ is a dest name value from pdfjs
+        if (explicitDest[1].name === 'XYZ') {
+          // XYZ is a dest name value from pdfjs
           const y = this.firstPageHeight - explicitDest[3];
           const relativeYPage = y / this.firstPageHeight;
           // This isnt taking into account the padding between pages
@@ -513,7 +515,7 @@
       async getDestinationPageNumber(explicitDest) {
         try {
           const destRef = explicitDest[0];
-          if (typeof destRef === "object" && destRef !== null) {
+          if (typeof destRef === 'object' && destRef !== null) {
             const pageIndex = await this.pdfDocument.getPageIndex(destRef);
             return pageIndex + 1;
           }
@@ -526,7 +528,7 @@
           console.error('Error getting destination page number', e);
           return null;
         }
-      }
+      },
     },
     $trs: {
       exitFullscreen: {
@@ -573,8 +575,8 @@
 
   .pdf-controls-container {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
     padding: 0 8px;
   }
 
@@ -626,15 +628,20 @@
     transform: translateY(-40px);
   }
 
-  .sidebar-container.slide-enter,
-  .sidebar-container.slide-leave-to {
-    transform: translateX(-25%);
-  }
-
   .mt-40 {
     margin-top: 40px;
   }
-  /deep/ .sidebar-container>div {
+
+  .sidebar-container {
+    height: calc(100vh - #{$top-bar-height});
+  }
+
+  .pdf-renderer.pdf-controls-open .sidebar-container {
+    height: calc(100vh - #{$top-bar-height} - #{$controls-height});
+  }
+
+  /deep/ .sidebar-container > div {
     height: 100%;
   }
+
 </style>

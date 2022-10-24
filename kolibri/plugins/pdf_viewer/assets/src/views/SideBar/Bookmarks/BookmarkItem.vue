@@ -1,4 +1,5 @@
 <template>
+
   <li class="bookmark-item">
     <div class="bookmark-item-title-container">
       <span
@@ -30,14 +31,18 @@
     <ul v-if="expanded" class="bookmark-children">
       <BookmarkItem
         v-for="(child, index) in item.items"
-        :item="child"
         :key="index"
+        :item="child"
         :goToDestination="goToDestination"
       />
     </ul>
   </li>
+
 </template>
+
+
 <script>
+
   export default {
     name: 'BookmarkItem',
     props: {
@@ -60,39 +65,50 @@
         this.expanded = !this.expanded;
       },
     },
-  }
+  };
+
 </script>
+
+
 <style scoped lang="scss">
+
   .bookmark-item {
+    position: relative;
     font-size: 12px;
     list-style: none;
-    position: relative;
+
     .bookmark-item-title-container {
       display: flex;
-      cursor: pointer;
-      font-size: 14px;
       margin-bottom: 16px;
+      font-size: 14px;
+      cursor: pointer;
     }
+
     .bookmark-item-title:focus-visible,
     .dropdown-icon-container:focus-visible {
       outline-width: medium;
       outline-style: solid;
     }
+
     .dropdown-icon-container {
-      padding-right: 16px;
       position: relative;
       top: 2px;
+      padding-right: 16px;
       font-size: 16px;
+
       .dropdown-icon {
         transition: transform 0.2s ease-in-out;
         transform: rotate(0deg);
+
         &.expanded {
           transform: rotate(90deg);
         }
       }
     }
+
     .bookmark-children {
       padding-left: 48px;
     }
   }
+
 </style>
