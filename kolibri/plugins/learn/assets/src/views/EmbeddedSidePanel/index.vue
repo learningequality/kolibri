@@ -45,20 +45,6 @@
         </h2>
         <!-- list of category metadata - clicking prompts a filter modal -->
         <div
-          span="4"
-          class="category-list-item"
-        >
-          <KButton
-            :text="$tr('allCategories')"
-            appearance="flat-button"
-            :appearanceOverrides="isKeyActive('all_categories')
-              ? { ...categoryListItemStyles, ...categoryListItemActiveStyles }
-              : categoryListItemStyles"
-            @click="allCategories"
-          />
-        </div>
-
-        <div
           v-for="(category, key) in libraryCategoriesList"
           :key="category"
           span="4"
@@ -137,7 +123,6 @@
   import pick from 'lodash/pick';
   import uniq from 'lodash/uniq';
   import {
-    AllCategories,
     CategoriesLookup,
     NoCategories,
     ResourcesNeededTypes,
@@ -317,17 +302,11 @@
       isKeyActive(key) {
         return !!this.activeKeys.filter(k => k.includes(key)).length;
       },
-      allCategories() {
-        this.$emit('input', { ...this.value, categories: { [AllCategories]: true } });
-      },
       noCategories() {
         this.$emit('input', { ...this.value, categories: { [NoCategories]: true } });
       },
       handleActivity(activity) {
-        if (activity === null) {
-          const learning_activities = {};
-          this.$emit('input', { ...this.value, learning_activities });
-        } else if (activity && !this.value.learning_activities[activity]) {
+        if (activity && !this.value.learning_activities[activity]) {
           const learning_activities = {
             [activity]: true,
             ...this.value.learning_activities,
@@ -376,10 +355,6 @@
       categories: {
         message: 'Categories',
         context: 'Section header label in the Library page sidebar.',
-      },
-      allCategories: {
-        message: 'All categories',
-        context: 'Option in the Library page sidebar.',
       },
     },
   };
