@@ -56,20 +56,6 @@ Feature: Search with category filters
       And I see <category> is selected in the panel
       And I see a chip for <sub-category> above the search results
 
-  # I think this can be removed? I'm not sure where this fits in
-  Scenario: Select "All categories" in a category modal
-    When I click <category> in *Categories*
-    When I click *All categories* in the *Choose a category* modal for <category>
-    Then I see search results for "<category> - All categories"
-      And I see a chip that says "<category> - All categories" above the search results
-
-  Scenario: Select "All categories" from the Category filter
-    When I click *All categories* under *Categories*
-    Then I see *All categories* is selected
-      And I see search results for *All categories*
-      And I see a chip that says *All categories* above the search results
-      And I see all resources that have been tagged with some category
-
   Scenario: Select "None of the above" from the Category filter
     When I click *None of the above* under *Categories*
     Then I see *None of the above* is selected
