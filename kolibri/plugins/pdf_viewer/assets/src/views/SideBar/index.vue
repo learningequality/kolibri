@@ -1,4 +1,5 @@
 <template>
+
   <aside
     class="pdf-sidebar"
     :style="{
@@ -16,13 +17,16 @@
             background: selectedTab === tab.name ?
               $themeTokens.annotation :
               $themeTokens.transparent,
-            padding: '8px 0',
             cursor: 'pointer',
             borderRadius: '2px',
             opacity: tab.disabled ? 0.5 : 1,
             pointerEvents: tab.disabled ? 'none' : 'auto',
+            height: '48px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
           }"
-        > 
+        >
           <div
             class="tab"
             :tabindex="tab.disabled ? -1 : 0"
@@ -49,7 +53,7 @@
             </KTooltip>
           </div>
         </KGridItem>
-      </KGrid> 
+      </KGrid>
     </nav>
     <div class="sidebar-content">
       <template v-if="selectedTab === 'bookmarks'">
@@ -66,12 +70,16 @@
       </template>
     </div>
   </aside>
+
 </template>
+
+
 <script>
+
   import Bookmarks from './Bookmarks';
 
   export default {
-    name: 'BookmarkItem',
+    name: 'SideBar',
     components: {
       Bookmarks,
     },
@@ -110,26 +118,39 @@
         ],
       };
     },
-    methods: {
-      selectTab(tabName) {
-        this.selectedTab = tabName;
-      },
-    },
     watch: {
       outline() {
         this.tabs[0].disabled = !this.outline || !this.outline.length;
         this.selectedTab = this.outline && this.outline.length ? 'bookmarks' : 'preview';
       },
     },
-  }
+    methods: {
+      selectTab(tabName) {
+        this.selectedTab = tabName;
+      },
+    },
+  };
+
 </script>
+
+
 <style scoped lang="scss">
-  .pdf-sidebar{
+
+  $sidebar-nav-height: 48px;
+
+  .pdf-sidebar {
     height: 100%;
     box-shadow: inset -1px 2px 8px rgba(0, 0, 0, 0.16);
   }
+
   .tab:focus-visible {
     outline-width: medium;
     outline-style: solid;
   }
+
+  .sidebar-content {
+    height: calc(100% - #{$sidebar-nav-height});
+    overflow-y: auto;
+  }
+
 </style>
