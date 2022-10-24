@@ -623,8 +623,8 @@
     transition: all 0.3s;
   }
 
-  .pdf-controls-container.slide-enter,
-  .pdf-controls-container.slide-leave-to {
+  .slide-enter,
+  .slide-leave-to {
     transform: translateY(-40px);
   }
 
