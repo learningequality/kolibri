@@ -8,14 +8,19 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
-    "intl": "^1.2.4",
-    "kolibri": "^0.13.0-dev.8",
-    "kolibri-components": "0.13.0-dev.8",
-    "vue": "^2.6.8",
+    "intl": "^1.2.5",
+    "kolibri": "^0.15.4",
+    "kolibri-design-system": "https://github.com/learningequality/kolibri-design-system#v1.3.1-beta0",
+    "vue": "^2.6.14",
     "vue-intl": "3.0.0"
   },
   "devDependencies": {
-    "kolibri-tools": "^0.13.0-dev.8",
-    "webpack": "4.6.0"
+    "kolibri-tools": "^0.15.0-dev.4",
+    "webpack": "4.43.0"
+  },
+  "engineStrict": true,
+  "engines": {
+    "node": "10.x",
+    "yarn": ">= 1.12.3"
   }
 }
