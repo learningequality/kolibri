@@ -4,17 +4,6 @@
     <h2 class="title">
       {{ $tr('activities') }}
     </h2>
-    <KButton
-      appearance="flat-button"
-      :appearanceOverrides="activityStyles"
-      :disabled="activeKeys.length === 0"
-      @click="$emit('input', null)"
-    >
-      <KIcon icon="allActivities" class="activity-icon" />
-      <p class="activity-button-text">
-        {{ coreString('all') }}
-      </p>
-    </KButton>
     <span
       v-for="(key, activity) in learningActivitiesList"
       :key="key"
