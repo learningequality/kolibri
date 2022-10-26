@@ -36,7 +36,7 @@ initialize()
 # start kolibri server
 logging.info("Starting kolibri server.")
 
-kolibri_bus = KolibriProcessBus()
+kolibri_bus = KolibriProcessBus(port=8000)
 app_plugin = AppPlugin(kolibri_bus)
 app_plugin.subscribe()
 kolibri_bus.run()
