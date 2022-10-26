@@ -66,10 +66,30 @@
                     />
                     <CoreMenuOption
                       v-else
+<<<<<<< HEAD
                       :style="{ 'cursor': 'pointer', textAlign: 'left' }"
                       :label="$tr('sync')"
                       @select="displayModal(Modals.SYNC_FACILITY)"
                     />
+=======
+                      @close:
+                    >
+                      <CoreMenuOption
+                        :style="{ 'cursor': 'pointer', textAlign: 'left' }"
+                        :label="$tr('manage_sync')"
+                        @select="managesync()"
+                      />
+
+                      <CoreMenuOption
+                        :style="{ 'cursor': 'pointer', textAlign: 'left' }"
+                        :label="$tr('register')"
+                        @select="displayModal(Modals.REGISTER_FACILITY)"
+                      />
+
+                    </CoreMenuOption>
+
+
+>>>>>>> 276d3b663a ( added sync schedule page)
                   </template>
                 </CoreMenu>
               </KButtonGroup>
@@ -78,7 +98,6 @@
         </tbody>
       </template>
     </CoreTable>
-
     <PrivacyModal
       v-if="modalShown === Modals.PRIVACY"
       @cancel="closeModal"
@@ -167,6 +186,9 @@
       this.syncTaskId = '';
     },
     methods: {
+      managesync() {
+        this.$router.push('/managesync');
+      },
       fetchFacility() {
         FacilityResource.fetchModel({ id: this.$store.getters.activeFacilityId, force: true }).then(
           facility => {

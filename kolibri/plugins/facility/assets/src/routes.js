@@ -14,6 +14,7 @@ import { showClassesPage } from './modules/classManagement/handlers';
 import { showClassEditPage } from './modules/classEditManagement/handlers';
 import { showUserPage } from './modules/userManagement/handlers';
 import { showFacilityConfigPage } from './modules/facilityConfig/handlers';
+import ManageSyncSchedule from './views/DataPage/SyncInterface/ManageSyncSchedule';
 import {
   showLearnerClassEnrollmentPage,
   showCoachClassAssignmentPage,
@@ -123,5 +124,10 @@ export default [
         next(store.getters.facilityPageLinks.ManageClassPage);
       }
     },
+  },
+  {
+    path: '/:facility_id?/managesync',
+    component: ManageSyncSchedule,
+    name: 'ManageSyncSchedule',
   },
 ];
