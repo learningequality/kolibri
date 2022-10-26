@@ -80,8 +80,10 @@ describe('DeviceSettingsPage', () => {
   }
 
   function assertIsSelected(button, expected) {
-    // HACK(kds-test) The only way to tell it's checked in the DOM is to look for "svg.checked";
-    expect(button.find('svg.checked').exists()).toBe(expected);
+    // HACK(kds-test) The only way to tell it's checked in the DOM is to check if "value" and "currentValue" props have the same value
+    const buttonProps = button.props();
+    const checked = buttonProps.value === buttonProps.currentValue;
+    expect(checked).toBe(expected);
   }
 
   function setMockedData(allowGuestAccess, allowAllAccess) {
@@ -101,6 +103,7 @@ describe('DeviceSettingsPage', () => {
       const { wrapper } = await makeWrapper();
       // The "Allow users to explore..." radio button should be checked
       const { allowGuestAccess } = getButtons(wrapper);
+      console.log('ssde', allowGuestAccess.props());
       assertIsSelected(allowGuestAccess, true);
     });
 
