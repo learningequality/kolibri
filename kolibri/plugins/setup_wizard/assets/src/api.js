@@ -8,11 +8,25 @@ export const FacilityImportResource = new Resource({
   grantsuperuserpermissions({ user_id, password }) {
     return this.postListEndpoint('grantsuperuserpermissions', { user_id, password });
   },
-  createsuperuser({ username, full_name, password }) {
-    return this.postListEndpoint('createsuperuser', { username, full_name, password });
+  createsuperuser({ username, full_name, password, extra_fields, facility_name }) {
+    return this.postListEndpoint('createsuperuser', {
+      username,
+      full_name,
+      password,
+      extra_fields,
+      facility_name,
+      auth_token: 'ca6830b018e647fc9723561c99b6b3f0',
+    });
   },
-  provisiondevice({ device_name, language_id }) {
-    return this.postListEndpoint('provisiondevice', { device_name, language_id });
+  provisionosuser({ device_name, language_id, is_provisioned }) {
+    return this.postListEndpoint('provisionosuserdevice', {
+      device_name,
+      language_id,
+      is_provisioned,
+    });
+  },
+  provisiondevice({ device_name, language_id, is_provisioned }) {
+    return this.postListEndpoint('provisiondevice', { device_name, language_id, is_provisioned });
   },
   facilityadmins() {
     return this.getListEndpoint('facilityadmins').then(response => {

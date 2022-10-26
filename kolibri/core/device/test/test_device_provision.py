@@ -55,6 +55,13 @@ class DeviceProvisionTestCase(TestCase):
         provision_device(language_id="en", default_facility=facility)
         self.assertTrue(DeviceSettings.objects.get().is_provisioned)
 
+    def test_create_device_settings_incomplete_provisioning(self):
+        facility = Facility.objects.create(name="Test")
+        provision_device(
+            language_id="en", default_facility=facility, is_provisioned=False
+        )
+        self.assertFalse(DeviceSettings.objects.get().is_provisioned)
+
     def test_create_device_settings_language(self):
         facility = Facility.objects.create(name="Test")
         provision_device(language_id="en", default_facility=facility)

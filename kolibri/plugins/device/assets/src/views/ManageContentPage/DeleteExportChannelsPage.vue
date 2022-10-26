@@ -53,10 +53,10 @@
 
   import { mapGetters } from 'vuex';
   import find from 'lodash/find';
-  import bytesForHumans from 'kolibri.utils.bytesForHumans';
-  import { TaskResource } from 'kolibri.resources';
   import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
+  import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
+  import { TaskResource } from 'kolibri.resources';
   import { TaskTypes } from 'kolibri.utils.syncTaskUtils';
   import { PageNames } from '../../constants';
   import DeviceChannelResource from '../../apiResources/deviceChannel';

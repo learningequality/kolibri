@@ -26,9 +26,10 @@
 <script>
 
   import { interpret } from 'xstate';
-  import { mapGetters, mapState } from 'vuex';
+  import { mapState } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import { checkCapability } from 'kolibri.utils.appCapabilities';
   import Lockr from 'lockr';
   import { wizardMachine } from '../machines/wizardMachine';
   import LoadingPage from './submission-states/LoadingPage';
@@ -57,15 +58,14 @@
       };
     },
     computed: {
-      ...mapGetters(['isAppContext']),
       ...mapState(['loading', 'error']),
     },
     created() {
       /*
        * The interpreted wizardMachine is an object that lets you move between states.
        * It's current state value has no side effects or dependencies - so we can store it
-       * as data - then when we initialize the machine each time, we can pass it the previous
-       * state.
+       * as data - then when we initialize the machine each time, we can pass it that data
+       * to resume the machine as we had saved it.
        *
        * A key part of this is that we synchronize our router with the machine on every
        * transition as each state entry has a `meta` property with a route name that maps
@@ -80,7 +80,13 @@
 
       const synchronizeRouteAndMachine = state => {
         const { meta } = state;
-        console.log(meta);
+
+        // Dump out of here if there is nothing to resume from
+        if (!Object.keys(meta).length) {
+          this.$router.push('/');
+          return;
+        }
+
         const route = meta[Object.keys(meta)[0]].route;
         if (route) {
           // Avoid redundant navigation
@@ -88,22 +94,24 @@
             this.$router.push(route);
           }
         } else {
-          this.router.push('/');
+          this.$router.push('/');
         }
       };
 
+      // Note the second arg to Lockr.get is a fallback if the first arg is not found
       const savedState = Lockr.get('savedState', 'initializeContext');
 
-      // Either the string 'initializeContext' or a valid state object
-      this.service.start(savedState);
+      // Either the string 'initializeContext' or a valid state object returned from Lockr
 
       if (savedState !== 'initializeContext') {
         // Update the route if there is a saved state
         synchronizeRouteAndMachine(savedState);
       } else {
         // Or set the app context state on the machine and proceed to the first state
-        this.service.send({ type: 'CONTINUE', value: this.isAppContext });
+        this.service.send({ type: 'CONTINUE', value: checkCapability('get_os_user') });
       }
+
+      this.service.start(savedState);
 
       this.service.onTransition(state => {
         synchronizeRouteAndMachine(state);

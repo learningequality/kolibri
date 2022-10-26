@@ -125,7 +125,7 @@ import coreBannerContent from '../utils/coreBannerContent';
 import CatchErrors from '../utils/CatchErrors';
 import UiToolbar from '../views/KeenUiToolbar.vue';
 import shuffled from '../utils/shuffled';
-import appCapabilities from '../utils/appCapabilities';
+import * as appCapabilities from '../utils/appCapabilities';
 import * as client from './client';
 import clientFactory from './baseClient';
 

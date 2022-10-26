@@ -48,6 +48,7 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
     device_name = serializers.CharField(max_length=50, allow_null=True)
     settings = serializers.JSONField()
     allow_guest_access = serializers.BooleanField(allow_null=True)
+    is_provisioned = serializers.BooleanField(default=True)
 
     class Meta:
         fields = (
@@ -57,6 +58,7 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
             "settings",
             "device_name",
             "allow_guest_access",
+            "is_provisioned",
         )
 
     def validate(self, data):
@@ -109,10 +111,13 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
             # Create device settings
             language_id = validated_data.pop("language_id")
             allow_guest_access = validated_data.pop("allow_guest_access")
+
             if allow_guest_access is None:
                 allow_guest_access = preset != "formal"
+
             provision_device(
                 device_name=validated_data["device_name"],
+                is_provisioned=validated_data["is_provisioned"],
                 language_id=language_id,
                 default_facility=facility,
                 allow_guest_access=allow_guest_access,

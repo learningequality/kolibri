@@ -172,6 +172,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
+  import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import { FacilityResource } from 'kolibri.resources';
   import {
@@ -180,12 +181,11 @@
     ConfirmationRegisterModal,
     SyncFacilityModalGroup,
   } from 'kolibri.coreVue.componentSets.sync';
-  import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
   import { TaskStatuses, TaskTypes } from 'kolibri.utils.syncTaskUtils';
-  import TasksBar from '../ManageContentPage/TasksBar';
-  import HeaderWithOptions from '../HeaderWithOptions';
-  import DeviceTopNav from '../DeviceTopNav';
   import { deviceString } from '../commonDeviceStrings';
+  import TasksBar from '../ManageContentPage/TasksBar';
+  import DeviceTopNav from '../DeviceTopNav';
+  import HeaderWithOptions from '../HeaderWithOptions';
   import RemoveFacilityModal from './RemoveFacilityModal';
   import SyncAllFacilitiesModal from './SyncAllFacilitiesModal';
   import ImportFacilityModalGroup from './ImportFacilityModalGroup';

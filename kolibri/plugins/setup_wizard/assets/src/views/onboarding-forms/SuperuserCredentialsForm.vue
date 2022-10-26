@@ -68,6 +68,7 @@
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
   import PrivacyLinkAndModal from 'kolibri.coreVue.components.PrivacyLinkAndModal';
   import OnboardingStepBase from '../OnboardingStepBase';
+  import { UsePresets } from '../../constants';
   import { FacilityImportResource } from '../../api';
 
   export default {
@@ -109,16 +110,37 @@
       },
     },
     methods: {
+      isOnMyOwnSetup() {
+        return this.wizardService.state.context.onMyOwnOrGroup == UsePresets.ON_MY_OWN;
+      },
       handleContinue() {
-        const data = {
+        /**
+         * Partially provision the device
+         * Create SuperUser
+         * Continue
+         * TODO: Not sure "Facility" and "Device" are the best default names here -- will need to
+         * get the OS user's info I think.
+         */
+        const facilityUserData = {
           fullName: this.fullName,
           username: this.username,
           password: this.password,
+          facility_name: this.$store.state.onboardingData.facility.name,
+          extra_fields: {
+            on_my_own_setup: this.isOnMyOwnSetup(),
+          },
         };
         if (this.formIsValid) {
-          return FacilityImportResource.createsuperuser(data)
+          return FacilityImportResource.createsuperuser(facilityUserData)
             .then(() => {
-              //this.updateSuperuserAndClickNext(data.username, data.password);
+              const deviceProvisioningData = {
+                device_name: this.wizardService.state.context.deviceName,
+                language_id: this.$store.state.onboardingData.language_id,
+                is_provisioned: true,
+              };
+              FacilityImportResource.provisiondevice(deviceProvisioningData).then(() =>
+                this.wizardService.send('CONTINUE')
+              );
             })
             .catch(e => {
               throw new Error(`Error creating superuser: ${e}`);
@@ -127,35 +149,6 @@
           this.focusOnInvalidField();
         }
       },
-      // FIXME this breaks because the facility isn't created yet, this bit of the logic
-      // is TBD -- the old method kept as some functionality may be preserved
-      // Note that the process is currently gathering deferring the actual provisioning of
-      // everything to the end, hence why no facility here yet. Not sure how we'll proceed here yet
-      /*
-      handleSubmit() {
-        if (!this.$refs.fullNameTextbox) {
-          return this.$emit('click_next');
-        }
-        this.formSubmitted = true;
-        // Have to wait a tick to let inputs react to this.formSubmitted
-        this.$nextTick().then(() => {
-          if (this.formIsValid) {
-            this.$store.commit('SET_SUPERUSER_CREDENTIALS', {
-              full_name: this.fullName,
-              username: this.username,
-              password: this.password,
-            });
-            this.$emit('click_next', {
-              full_name: this.fullName,
-              username: this.username,
-              password: this.password,
-            });
-          } else {
-            this.focusOnInvalidField();
-          }
-        });
-      },
-      */
       focusOnInvalidField() {
         this.$nextTick().then(() => {
           if (!this.fullNameValid) {

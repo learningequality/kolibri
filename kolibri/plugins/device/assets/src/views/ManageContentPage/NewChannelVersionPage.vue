@@ -121,11 +121,11 @@
   import map from 'lodash/map';
   import get from 'lodash/get';
   import { mapState } from 'vuex';
+  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskResource } from 'kolibri.resources';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
-  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import { TaskStatuses, TaskTypes } from 'kolibri.utils.syncTaskUtils';
   import { PageNames } from '../../constants';
   import useContentTasks from '../../composables/useContentTasks';

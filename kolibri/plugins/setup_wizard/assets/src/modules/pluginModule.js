@@ -14,6 +14,7 @@ const SetupStrings = createTranslator('SetupStrings', {
 });
 
 export default {
+  namespace: 'SetupWizard',
   state() {
     return {
       started: false,

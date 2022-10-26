@@ -64,10 +64,14 @@
           <slot name="footer"></slot>
         </div>
 
+
         <!-- Footer for medium+ screens -->
         <KButtonGroup v-if="!windowIsSmall" class="footer-actions footer-section">
+          <!-- Allow direct override of the buttons in the footer -->
+          <slot name="buttons"></slot>
+          <!-- Default buttons, hidden when the slot is used -->
           <KButton
-            v-if="!noBackAction"
+            v-if="!noBackAction && !$slots.buttons"
             :text="coreString('goBackAction')"
             appearance="flat-button"
             :primary="false"
@@ -75,6 +79,7 @@
             @click="wizardService.send('BACK')"
           />
           <KButton
+            v-if="!$slots.buttons"
             :text="coreString('continueAction')"
             :primary="true"
             :disabled="navDisabled"
@@ -84,7 +89,10 @@
 
         <!-- Simpler to do a big button for the small screen separately -->
         <div v-if="windowIsSmall" class="mobile-footer">
+          <!-- Allow direct override of the buttons in the footer -->
+          <slot name="buttons"></slot>
           <KButton
+            v-if="!$slots.buttons"
             class="mobile-continue-button"
             :text="coreString('continueAction')"
             :primary="true"
@@ -278,6 +286,13 @@
 
   .ta-l {
     text-align: left;
+  }
+
+  /deep/ .truncate-text {
+    /* Override KRadioButton default behavior of eliding text with ellipsis to ensure word wrap */
+
+    /* This will effect the entire onboarding experience */
+    white-space: normal;
   }
 
 </style>
