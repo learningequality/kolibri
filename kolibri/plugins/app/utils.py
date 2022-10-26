@@ -47,7 +47,7 @@ class AppInterface(object):
         if next_url is not None:
             query_dict["next"] = next_url
         query_string = query_dict.urlencode()
-        return url + "?" + query_string if query_string else ""
+        return url + ("?" + query_string if query_string else "")
 
     @property
     def enabled(self):
