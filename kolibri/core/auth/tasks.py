@@ -754,10 +754,16 @@ class PeerImportSingleSyncJobValidator(PeerSyncJobValidator):
     password = serializers.CharField(default=NOT_SPECIFIED, required=False)
     user_id = HexOnlyUUIDField(required=False)
     facility = HexOnlyUUIDField()
+    using_admin = serializers.BooleanField(default=False, required=False)
 
     def validate(self, data):
+        """
+        In case an admin account credentials are provided, to sync a non-admin user,
+        the user_id of this non-admin user must be provided.
+        """
         job_data = super(PeerImportSingleSyncJobValidator, self).validate(data)
         user_id = data.get("user_id", None)
+        using_admin = data.get("using_admin", False)
         # Use pre-validated base URL
         baseurl = job_data["kwargs"]["baseurl"]
         facility_id = data["facility"]
@@ -765,21 +771,27 @@ class PeerImportSingleSyncJobValidator(PeerSyncJobValidator):
         password = data["password"]
         facility_info = get_remote_users_info(baseurl, facility_id, username, password)
         user_info = facility_info["user"]
+
+        # syncing using an admin account (username & password belong to the admin):
+        if using_admin:
+            user_info = next(
+                user for user in facility_info["users"] if user["id"] == user_id
+            )
+
         full_name = user_info["full_name"]
         roles = user_info["roles"]
 
-        # syncing as a normal user, not using an admin account:
-        if user_id is None:
-            not_syncable = (SUPERUSER, COACH, ASSIGNABLE_COACH, ADMIN)
-            if any(role in roles for role in not_syncable):
-                raise ValidationError(
-                    detail={
-                        "id": DEVICE_LIMITATIONS,
-                        "full_name": full_name,
-                        "roles": ", ".join(roles),
-                    }
-                )
-            user_id = user_info["id"]
+        # only learners can by synced:
+        not_syncable = (SUPERUSER, COACH, ASSIGNABLE_COACH, ADMIN)
+        if any(role in roles for role in not_syncable):
+            raise ValidationError(
+                detail={
+                    "id": DEVICE_LIMITATIONS,
+                    "full_name": full_name,
+                    "roles": ", ".join(roles),
+                }
+            )
+        user_id = user_info["id"]
 
         validate_and_create_sync_credentials(
             baseurl, facility_id, username, password, user_id=user_id

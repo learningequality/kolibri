@@ -73,8 +73,7 @@
 <script>
 
   import { useLocalStorage } from '@vueuse/core';
-  import { computed, ref } from 'kolibri.lib.vueCompositionApi';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import { computed, getCurrentInstance, ref } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import client from 'kolibri.client';
@@ -94,7 +93,7 @@
     },
     components: { AddAddressForm, BottomAppBar },
 
-    mixins: [responsiveWindowMixin, commonCoreStrings, commonSyncElements],
+    mixins: [commonCoreStrings, commonSyncElements],
     setup(props, context) {
       const {
         addresses: discoveredAddresses,
@@ -120,6 +119,7 @@
       const availableFacilities = ref([]);
       const selectedFacilityId = ref('');
       const showAddAddressModal = ref(false);
+      const $store = getCurrentInstance().proxy.$store;
 
       // computed properties (functions):
       const { isMinimumKolibriVersion } = useMinimumKolibriVersion();
@@ -135,12 +135,13 @@
 
       // methods:
       function createSnackbar(args) {
-        this.$store.dispatch('createSnackbar', args);
+        $store.dispatch('createSnackbar', args);
       }
 
       function handleAddedAddress() {
         refreshSavedAddressList();
         createSnackbar(this.$tr('addAddressSnackbarText'));
+        this.showAddAddressModal = false;
       }
 
       function resetSelectedAddress() {

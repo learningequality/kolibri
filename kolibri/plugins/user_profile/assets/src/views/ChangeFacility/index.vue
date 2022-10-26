@@ -18,7 +18,6 @@
 
   import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { computed } from 'kolibri.lib.vueCompositionApi';
   import { interpret } from 'xstate';
@@ -34,7 +33,7 @@
       };
     },
     components: { NotificationsRoot, ImmersivePage },
-    mixins: [responsiveWindowMixin, commonCoreStrings],
+    mixins: [commonCoreStrings],
     setup() {
       const { isSubsetOfUsersDevice } = plugin_data;
       return {

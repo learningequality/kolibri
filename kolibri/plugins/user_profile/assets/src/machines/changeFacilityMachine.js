@@ -32,6 +32,10 @@ const setInitialContext = assign((_, event) => {
     fullname: event.value.fullname,
     userId: event.value.userId,
     role: event.value.role,
+    targetAccount: {
+      username: event.value.username,
+      password: '',
+    },
   };
 });
 
@@ -82,6 +86,10 @@ const clearSourceFacilityUsers = assign({
   sourceFacilityUsers: [],
 });
 
+const setTaskId = assign({
+  taskId: (_, event) => event.value.task_id,
+});
+
 const resetMachineContext = assign(() => {
   return generateMachineContext();
 });
@@ -119,6 +127,8 @@ const generateMachineContext = () => {
     taskPolling: false,
     accountExists: false,
     isMerging: false,
+    // id of the backend task executing the merging
+    taskId: null,
     // Contains machine states history, its items are states names.
     // Doesn't necessarily capture all transitions as it is used
     // for user-facing back navigation, therefore we don't want to
@@ -247,8 +257,11 @@ const states = {
   },
   fetchSourceFacilityUsers: {
     invoke: {
-      src: () => {
-        return FacilityUserResource.fetchCollection().then(users => {
+      src: context => {
+        return FacilityUserResource.fetchCollection({
+          getParams: { member_of: context.sourceFacility },
+          force: true,
+        }).then(users => {
           return users;
         });
       },
@@ -313,6 +326,13 @@ const states = {
   },
   syncChangeFacility: {
     meta: { route: 'SYNCING_CHANGE_FACILITY', path: '/change_facility' },
+    on: {
+      SETTASKID: { actions: setTaskId },
+      FINISH: 'syncFinished',
+      TASKERROR: 'changeFacility',
+    },
+  },
+  syncFinished: {
     type: 'final',
   },
   createAccount: {

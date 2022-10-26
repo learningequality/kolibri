@@ -1,5 +1,6 @@
 from django.conf.urls import url
 
+from .viewsets import LoginMergedUserViewset
 from .viewsets import OnMyOwnSetupViewset
 from .viewsets import RemoteFacilityUserAuthenticatedViewset
 from .viewsets import RemoteFacilityUserViewset
@@ -15,5 +16,10 @@ urlpatterns = [
         r"remotefacilityauthenticateduserinfo",
         RemoteFacilityUserAuthenticatedViewset.as_view(),
         name="remotefacilityauthenticateduserinfo",
+    ),
+    url(
+        r"loginmergeduser",
+        LoginMergedUserViewset.as_view(),
+        name="loginmergeduser",
     ),
 ]
