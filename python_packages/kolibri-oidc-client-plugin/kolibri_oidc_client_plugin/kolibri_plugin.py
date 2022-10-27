@@ -8,7 +8,7 @@ from kolibri.core.webpack import hooks as webpack_hooks
 from kolibri.plugins import KolibriPluginBase
 from kolibri.plugins.hooks import register_hook
 from kolibri.core.hooks import LogoutRedirectHook
-from kolibri.plugins.user import hooks
+from kolibri.plugins.user_auth import hooks
 
 
 class OpenIDConnect(KolibriPluginBase):
@@ -23,7 +23,7 @@ class LoginItem(webpack_hooks.WebpackBundleHook):
 
 
 @register_hook
-class LoginItemInclusionHook(hooks.UserSyncHook):
+class LoginItemInclusionHook(hooks.UserAuthSyncHook):
     bundle_class = LoginItem
 
 
