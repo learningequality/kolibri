@@ -90,7 +90,6 @@ Pipfile
 .ropeproject
 
 # lock files
-*.lock
 
 # node
 node_modules
