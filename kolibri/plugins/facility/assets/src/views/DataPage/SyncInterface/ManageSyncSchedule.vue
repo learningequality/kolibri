@@ -21,7 +21,11 @@
           :layout8="{ span: 4 }"
           :layout12="{ span: 6 }"
         >
-          <KButton>{{ $tr('addDevice') }}</KButton>
+          <KButton
+            @click="deviceModal = true"
+          >
+            {{ $tr('addDevice') }}
+          </KButton>
         </KGridItem>
       </KGrid>
 
@@ -76,7 +80,57 @@
         </template>
 
       </CoreTable>
+      <KModal
+        v-if="deviceModal"
+        :title="$tr('selectDevices')"
+        size="medium"
+        submitText="CONTINUE"
+        cancelText="CANCEL"
+        @cancel="closeModal"
+        @submit="submitModal"
+      >
+        <KGrid>
+          <KGridItem
+            :layout8="{ span: 4 }"
+            :layout12="{ span: 6 }"
+          >
+            <KButton
+              appearance="basic-link"
+              @click="newAddress"
+            >
+              Add new Address
+            </KButton>
+          </KGridItem>
+        </KGrid>
 
+        <KGrid gutter="48">
+          <KGridItem
+            :layout8="{ span: 4 }"
+            :layout12="{ span: 6 }"
+          >
+
+            <KRadioButton
+              v-model="deviceModal"
+              label="LINUX"
+              value="linux"
+            >
+              <span>localhost:8040</span>
+            </KRadioButton>
+          </KGridItem>
+
+          <KGridItem
+            :layout="{ alignment: 'right' }"
+            :layout8="{ span: 4 }"
+            :layout12="{ span: 6 }"
+          >
+            <KButton
+              appearance="basic-link"
+            >
+              Forget
+            </KButton>
+          </KGridItem>
+        </KGrid>
+      </KModal>
     </KPageContainer>
   </ImmersivePage>
 
@@ -94,8 +148,22 @@
       ImmersivePage,
       CoreTable,
     },
-
     extends: ImmersivePage,
+
+    data() {
+      return { deviceModal: false };
+    },
+    methods: {
+      closeModal() {
+        this.deviceModal = false;
+      },
+      submitModal() {
+        this.deviceModal = false;
+      },
+      newAddress() {
+        this.$router.push('/newAddress');
+      },
+    },
 
     $trs: {
       toolbarHeader: {
@@ -131,7 +199,24 @@
         message: 'Status',
         context: 'Status label',
       },
+      selectDevices: {
+        message: 'Select device',
+        context: 'select devices label',
+      },
     },
   };
 
 </script>
+
+
+<style scoped>
+ span{
+   font-size:10px;
+ }
+ KRadioButton{
+   font-size:14px;
+   font-weight:bolder;
+ }
+
+
+</style>
