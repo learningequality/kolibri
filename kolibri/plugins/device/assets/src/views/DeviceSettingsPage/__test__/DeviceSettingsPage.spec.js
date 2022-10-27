@@ -106,7 +106,6 @@ describe('DeviceSettingsPage', () => {
       const { wrapper } = await makeWrapper();
       // The "Allow users to explore..." radio button should be checked
       const { allowGuestAccess } = getButtons(wrapper);
-      console.log('ssde', allowGuestAccess.props());
       assertIsSelected(allowGuestAccess, true);
     });
 
@@ -235,7 +234,6 @@ describe('DeviceSettingsPage', () => {
       await clickRadioButton(lockedContent);
       saveButton.trigger('click');
       await global.flushPromises();
-      console.log(wrapper.vm.signInPageOption);
       // Implications: Cannot see "explore without account" AND cannot see "channels" tab
       expect(saveSpy).toHaveBeenCalledWith(
         expect.objectContaining({
