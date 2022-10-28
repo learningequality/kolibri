@@ -52,7 +52,9 @@
                 Not connected
               </td>
               <td>
-                <KButton>
+                <KButton
+                  @click="editButton"
+                >
                   edit
                 </KButton>
               </td>
@@ -71,7 +73,9 @@
                 Connected
               </td>
               <td>
-                <KButton>
+                <KButton
+                  @click="editButton"
+                >
                   edit
                 </KButton>
               </td>
@@ -159,9 +163,13 @@
       },
       submitModal() {
         this.deviceModal = false;
+        this.$router.push('/editsyncschedule');
       },
       newAddress() {
         this.$router.push('/newAddress');
+      },
+      editButton() {
+        this.$router.push('/editdevice');
       },
     },
 

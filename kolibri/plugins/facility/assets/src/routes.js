@@ -15,6 +15,8 @@ import { showClassEditPage } from './modules/classEditManagement/handlers';
 import { showUserPage } from './modules/userManagement/handlers';
 import { showFacilityConfigPage } from './modules/facilityConfig/handlers';
 import ManageSyncSchedule from './views/DataPage/SyncInterface/ManageSyncSchedule';
+import editSyncSchedule from './views/DataPage/SyncInterface/SyncSchedule/EditSyncSchedule';
+import SyncSchedule from './views/DataPage/SyncInterface/SyncSchedule/SyncSchedule';
 import {
   showLearnerClassEnrollmentPage,
   showCoachClassAssignmentPage,
@@ -129,5 +131,15 @@ export default [
     path: '/:facility_id?/managesync',
     component: ManageSyncSchedule,
     name: 'ManageSyncSchedule',
+  },
+  {
+    path: '/:facility_id?/editsyncschedule',
+    component: editSyncSchedule,
+    name: 'EditSyncSchedule',
+  },
+  {
+    path: '/:facility_id?/editdevice',
+    component: SyncSchedule,
+    name: 'SyncSchedule',
   },
 ];
