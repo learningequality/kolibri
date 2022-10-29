@@ -1,6 +1,6 @@
 <template>
 
-  <SuperuserCredentialsForm
+  <UserCredentialsForm
     v-if="!loading"
     :header="$tr('header')"
     :description="$tr('description')"
@@ -58,7 +58,7 @@
         autocomplete="password"
       />
     </template>
-  </SuperuserCredentialsForm>
+  </UserCredentialsForm>
 
 </template>
 
@@ -67,7 +67,7 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
-  import SuperuserCredentialsForm from '../onboarding-forms/SuperuserCredentialsForm';
+  import UserCredentialsForm from '../onboarding-forms/UserCredentialsForm';
   import { FacilityImportResource } from '../../api';
 
   const CREATE_NEW_SUPER_ADMIN = 'CREATE_NEW_SUPER_ADMIN';
@@ -76,7 +76,7 @@
     name: 'SelectSuperAdminAccountForm',
     components: {
       PasswordTextbox,
-      SuperuserCredentialsForm,
+      UserCredentialsForm,
     },
     mixins: [commonCoreStrings],
     props: {

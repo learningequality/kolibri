@@ -72,7 +72,7 @@
   import { FacilityImportResource } from '../../api';
 
   export default {
-    name: 'SuperuserCredentialsForm',
+    name: 'UserCredentialsForm',
     components: {
       OnboardingStepBase,
       FullNameTextbox,
@@ -93,13 +93,13 @@
       },
     },
     data() {
-      const { superuser } = this.$store.state.onboardingData;
+      const { user } = this.$store.state.onboardingData;
       return {
-        fullName: superuser.full_name,
+        fullName: user.full_name,
         fullNameValid: false,
-        username: superuser.username,
+        username: user.username,
         usernameValid: false,
-        password: superuser.password,
+        password: user.password,
         passwordValid: false,
         formSubmitted: false,
       };
@@ -113,7 +113,18 @@
       isOnMyOwnSetup() {
         return this.wizardService.state.context.onMyOwnOrGroup == UsePresets.ON_MY_OWN;
       },
+      syncOnboardingData() {
+        const payload = {
+          password: this.password,
+          username: this.username,
+          full_name: this.fullName,
+        };
+        this.$store.commit('SET_USER_CREDENTIALS', payload);
+      },
       handleContinue() {
+        this.syncOnboardingData();
+        this.wizardService.send('CONTINUE');
+        return;
         /**
          * Partially provision the device
          * Create SuperUser
@@ -176,7 +187,6 @@
   };
 
 </script>
-
 
 <style lang="scss" scoped>
 

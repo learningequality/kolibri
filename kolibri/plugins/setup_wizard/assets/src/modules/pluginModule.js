@@ -42,7 +42,7 @@ export default {
           learner_can_edit_password: null,
         },
         // Set in SuperuserCredentialsForm
-        superuser: {
+        user: {
           full_name: '',
           username: '',
           password: '',
@@ -78,7 +78,7 @@ export default {
         onboardingData.settings = {};
         onboardingData.device_name = null;
         onboardingData.facility.name = SetupStrings.$tr('personalFacilityName', {
-          name: store.state.onboardingData.superuser.full_name,
+          name: store.state.onboardingData.user.full_name,
         }).slice(0, 49);
       }
 
@@ -134,7 +134,7 @@ export default {
       state.onboardingData.device_name = value;
     },
     CLEAR_PASSWORD(state) {
-      state.onboardingData.superuser.password = '';
+      state.onboardingData.user.password = '';
     },
     SET_LANGUAGE(state, language_id) {
       state.onboardingData.language_id = language_id;
@@ -142,9 +142,9 @@ export default {
     SET_FACILITY_NAME(state, name) {
       state.onboardingData.facility.name = name;
     },
-    SET_SUPERUSER_CREDENTIALS(state, payload) {
-      state.onboardingData.superuser = {
-        ...state.onboardingData.superuser,
+    SET_USER_CREDENTIALS(state, payload) {
+      state.onboardingData.user = {
+        ...state.onboardingData.user,
         ...payload,
       };
     },

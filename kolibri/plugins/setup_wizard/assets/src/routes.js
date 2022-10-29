@@ -3,7 +3,7 @@ import DefaultLanguageForm from './views/onboarding-forms/DefaultLanguageForm';
 import FullOrLearnOnlyDeviceForm from './views/onboarding-forms/FullOrLearnOnlyDeviceForm';
 import SetUpLearningFacilityForm from './views/onboarding-forms/SetUpLearningFacilityForm';
 import HowAreYouUsingKolibri from './views/onboarding-forms/HowAreYouUsingKolibri';
-import SuperuserCredentialsForm from './views/onboarding-forms/SuperuserCredentialsForm';
+import UserCredentialsForm from './views/onboarding-forms/UserCredentialsForm';
 import FacilityPermissionsForm from './views/onboarding-forms/FacilityPermissionsForm';
 import GuestAccessForm from './views/onboarding-forms/GuestAccessForm';
 import CreateLearnerAccountForm from './views/onboarding-forms/CreateLearnerAccountForm';
@@ -28,7 +28,7 @@ export default [
   {
     path: '/create-account',
     name: 'CREATE_SUPERUSER_AND_FACILITY',
-    component: SuperuserCredentialsForm,
+    component: UserCredentialsForm,
   },
   {
     path: '/device-name',
