@@ -15,6 +15,16 @@ const UsePresets = Object.freeze({
   GROUP: 'group',
 });
 
+const FacilityTypePresets = Object.freeze({
+  NEW: 'NEW',
+  IMPORT: 'IMPORT',
+})
+
+const DeviceTypePresets = Object.freeze({
+  FULL: 'FULL',
+  LOD: 'LOD',
+})
+
 const SoudQueue = 'soud_sync';
 
-export { permissionPresets, Presets, UsePresets, SoudQueue };
+export { permissionPresets, DeviceTypePresets, FacilityTypePresets, Presets, UsePresets, SoudQueue };

@@ -114,6 +114,7 @@
         return this.wizardService.state.context.onMyOwnOrGroup == UsePresets.ON_MY_OWN;
       },
       syncOnboardingData() {
+        // Set vuex state w/ the form data
         const payload = {
           password: this.password,
           username: this.username,

@@ -1,7 +1,7 @@
 import { assign, createMachine } from 'xstate';
 import reduce from 'lodash/reduce';
 import { checkCapability } from 'kolibri.utils.appCapabilities';
-import { UsePresets } from '../constants';
+import { DeviceTypePresets, FacilityTypePresets, UsePresets } from '../constants';
 
 const isOnMyOwnOrGroup = context => {
   return context.onMyOwnOrGroup === UsePresets.ON_MY_OWN;
@@ -16,19 +16,19 @@ const canGetOsUser = context => {
 };
 
 const isNewFacility = context => {
-  return context.facilityNewOrImport === 'NEW';
+  return context.facilityNewOrImport === FacilityTypePresets.NEW;
 };
 
 const isImportFacility = context => {
-  return context.facilityNewOrImport === 'IMPORT';
+  return context.facilityNewOrImport === FacilityTypePresets.IMPORT;
 };
 
 const isLodSetup = context => {
-  return context.fullOrLOD === 'LOD';
+  return context.fullOrLOD === DeviceTypePresets.LOD;
 };
 
 const isFullSetup = context => {
-  return context.fullOrLOD === 'FULL';
+  return context.fullOrLOD === DeviceTypePresets.FULL;
 };
 
 const setOnMyOwnOrGroup = assign({
