@@ -216,13 +216,13 @@ class LogoutLanguagePersistenceTest(APITestCase):
         for lang_code in [lang[0] for lang in settings.LANGUAGES]:
             self.client.login(**self.credentials)
             response = self.client.post("/{}/logout".format(lang_code))
-            self.assertTrue(lang_code in response.url)
+            self.assertIn(lang_code, response.url)
 
     def test_default_language_without_namespaced_logout(self):
         # Test /logout without any in-path language code. Expect default language setting.
         self.client.login(**self.credentials)
         response = self.client.get("/logout")
-        self.assertTrue(get_settings_language() in response.url)
+        self.assertIn(get_settings_language(), response.url)
 
     def test_persistent_session_language_setting_on_logout(self):
         # Test when set on a session.
@@ -234,4 +234,4 @@ class LogoutLanguagePersistenceTest(APITestCase):
         session[LANGUAGE_SESSION_KEY] = test_lang
         session.save()
         response = self.client.post("/logout")
-        self.assertTrue(test_lang in response.url)
+        self.assertIn(test_lang, response.url)

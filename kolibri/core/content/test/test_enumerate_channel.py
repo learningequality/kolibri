@@ -27,7 +27,7 @@ class EnumerateChannelTestCase(TestCase):
         os.symlink(src_db_file, dst_db_file)
 
         channel_ids = get_channel_ids_for_content_database_dir(dst_dir)
-        self.assertTrue("6199dde695db4ee4ab392222d5af1e5c" not in channel_ids)
+        self.assertNotIn("6199dde695db4ee4ab392222d5af1e5c", channel_ids)
 
     # Helper function
     def create_corrupted_database_file(self, db_dir):
@@ -45,7 +45,7 @@ class EnumerateChannelTestCase(TestCase):
         import_external_content_dbs()
         message_list = [message[0][0] for message in logger_mock.call_args_list]
         error_message = "Tried to import channel 6199dde695db4ee4ab392222d5af1e5c, but database file was corrupted."
-        self.assertTrue(error_message in message_list)
+        self.assertIn(error_message, message_list)
         os.remove(db_file)  # Remove database file for future tests
 
     def test_corrupted_database_file_local_import(self):
@@ -56,5 +56,5 @@ class EnumerateChannelTestCase(TestCase):
         channels = get_channels_for_data_folder(datafolder)
 
         # Make sure that the corrupted database file is not going to be listed
-        self.assertTrue("6199dde695db4ee4ab392222d5af1e5c" not in channels)
+        self.assertNotIn("6199dde695db4ee4ab392222d5af1e5c", channels)
         os.remove(db_file)  # Remove database file for future tests

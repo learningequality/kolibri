@@ -369,7 +369,7 @@ class DeviceInfoTestCase(APITestCase):
 
     def test_urls(self):
         response = self.client.get(reverse("kolibri:core:deviceinfo"), format="json")
-        self.assertFalse(len(response.data["urls"]) == 0)
+        self.assertNotEqual(len(response.data["urls"]), 0)
         for url in response.data["urls"]:
             # Make sure each url is a valid link
             self.assertTrue(url.startswith("http://"))

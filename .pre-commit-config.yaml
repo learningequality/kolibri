@@ -65,6 +65,12 @@ repos:
         kolibri/core/logger/migrations/0003_auto_20170531_1140\.py|
         kolibri/core/logger/migrations/0005_auto_20180514_1419\.py|
       )$
+-   repo: https://github.com/isidentical/teyit
+    rev: 0.4.3
+    hooks:
+    -   id: teyit
+        language_version: '3.9'
+# Always keep black as the final hook so it reformats any other reformatting.
 -   repo: https://github.com/python/black
     rev: 20.8b1
     hooks:

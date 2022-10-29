@@ -85,7 +85,7 @@ class UserCSVExportTestCase(TestCase):
         self.assertEqual(len(results), expected_count)
         for demo_field in DEMO_FIELDS:
             label = labels[demo_field]
-            self.assertTrue(label in results[0])
+            self.assertIn(label, results[0])
 
     def test_csv_export_no_demographics(self):
         facility, superuser = setup_device()
@@ -103,7 +103,7 @@ class UserCSVExportTestCase(TestCase):
         self.assertEqual(len(results), expected_count)
         for demo_field in DEMO_FIELDS:
             label = labels[demo_field]
-            self.assertFalse(label in results[0])
+            self.assertNotIn(label, results[0])
 
     def test_csv_export_user_in_multiple_classes(self):
         facility, superuser = setup_device()

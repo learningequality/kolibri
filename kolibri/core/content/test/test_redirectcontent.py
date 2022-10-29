@@ -32,7 +32,7 @@ class RedirectContentTestCase(TestCase):
         response = self.client.get(self._get_url(node_id=node_id))
         self.assertEqual(response.status_code, 302)
         # This is true for our default learn urls for now.
-        self.assertTrue(node_id in response.url)
+        self.assertIn(node_id, response.url)
 
     def test_node_id_only_invalid(self):
         response = self.client.get(self._get_url(node_id="rubbish"))
@@ -45,7 +45,7 @@ class RedirectContentTestCase(TestCase):
         )
         self.assertEqual(response.status_code, 302)
         # This is true for our default learn urls for now.
-        self.assertTrue(node.id in response.url)
+        self.assertIn(node.id, response.url)
 
     def test_node_id_and_content_id_and_channel_id_valid(self):
         node = ContentNode.objects.first()
@@ -56,7 +56,7 @@ class RedirectContentTestCase(TestCase):
         )
         self.assertEqual(response.status_code, 302)
         # This is true for our default learn urls for now.
-        self.assertTrue(node.id in response.url)
+        self.assertIn(node.id, response.url)
 
     def test_node_id_missing_and_content_id_and_channel_id_valid(self):
         node = ContentNode.objects.first()
@@ -70,7 +70,7 @@ class RedirectContentTestCase(TestCase):
         self.assertEqual(response.status_code, 302)
         # This is true for our default learn urls for now.
         # Can make this assertion because this node is unique
-        self.assertTrue(node.id in response.url)
+        self.assertIn(node.id, response.url)
 
     def test_node_id_missing_and_content_id_valid_and_channel_id_missing(self):
         node = ContentNode.objects.first()
@@ -84,7 +84,7 @@ class RedirectContentTestCase(TestCase):
         self.assertEqual(response.status_code, 302)
         # This is true for our default learn urls for now.
         # Can make this assertion because this node is unique
-        self.assertTrue(node.id in response.url)
+        self.assertIn(node.id, response.url)
 
     def test_node_id_missing_and_content_id_missing_and_channel_id_missing(self):
         response = self.client.get(
@@ -108,7 +108,7 @@ class RedirectContentTestCase(TestCase):
         self.assertEqual(response.status_code, 302)
         # This is true for our default learn urls for now.
         # Can make this assertion because this node is unique
-        self.assertTrue(node.id in response.url)
+        self.assertIn(node.id, response.url)
 
     def test_node_id_invalid_and_content_id_valid_and_channel_id_invalid(self):
         node = ContentNode.objects.first()
@@ -120,7 +120,7 @@ class RedirectContentTestCase(TestCase):
         self.assertEqual(response.status_code, 302)
         # This is true for our default learn urls for now.
         # Can make this assertion because this node is unique
-        self.assertTrue(node.id in response.url)
+        self.assertIn(node.id, response.url)
 
     def test_node_id_invalid_and_content_id_invalid_and_channel_id_invalid(self):
         response = self.client.get(

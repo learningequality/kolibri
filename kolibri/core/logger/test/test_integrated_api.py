@@ -157,8 +157,8 @@ class ProgressTrackingViewSetStartSessionFreshTestCase(APITestCase):
             )
             save_queue_mock.assert_called()
             self.assertEqual(save_queue_mock.mock_calls[0][1][0], create_summarylog)
-            self.assertTrue(
-                isinstance(save_queue_mock.mock_calls[0][1][1], ContentSummaryLog)
+            self.assertIsInstance(
+                save_queue_mock.mock_calls[0][1][1], ContentSummaryLog
             )
 
         self.assertEqual(response.status_code, 200)
@@ -304,10 +304,8 @@ class ProgressTrackingViewSetStartSessionFreshTestCase(APITestCase):
             self.assertEqual(
                 save_queue_mock.mock_calls[0][1][0], quiz_started_notification
             )
-            self.assertTrue(isinstance(save_queue_mock.mock_calls[0][1][1], MasteryLog))
-            self.assertTrue(
-                isinstance(save_queue_mock.mock_calls[0][1][2], string_types)
-            )
+            self.assertIsInstance(save_queue_mock.mock_calls[0][1][1], MasteryLog)
+            self.assertIsInstance(save_queue_mock.mock_calls[0][1][2], string_types)
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
@@ -1248,8 +1246,8 @@ class ProgressTrackingViewSetLoggedInUpdateSessionTestCase(
             )
             save_queue_mock.assert_called()
             self.assertEqual(save_queue_mock.mock_calls[0][1][0], parse_summarylog)
-            self.assertTrue(
-                isinstance(save_queue_mock.mock_calls[0][1][1], ContentSummaryLog)
+            self.assertIsInstance(
+                save_queue_mock.mock_calls[0][1][1], ContentSummaryLog
             )
 
         self.assertEqual(response.status_code, 200)
@@ -2120,7 +2118,7 @@ class ProgressTrackingViewSetLoggedInUpdateSessionAssessmentTestCase(
             )
             save_queue_mock.assert_called()
             self.assertEqual(save_queue_mock.mock_calls[0][1][0], parse_attemptslog)
-            self.assertTrue(isinstance(save_queue_mock.mock_calls[0][1][1], AttemptLog))
+            self.assertIsInstance(save_queue_mock.mock_calls[0][1][1], AttemptLog)
 
         self.assertEqual(response.status_code, 200)
         attempt_id = response.json().get("attempts", [{}])[0].get("id")
@@ -2177,7 +2175,7 @@ class ProgressTrackingViewSetLoggedInUpdateSessionAssessmentTestCase(
             )
             save_queue_mock.assert_called()
             self.assertEqual(save_queue_mock.mock_calls[0][1][0], parse_attemptslog)
-            self.assertTrue(isinstance(save_queue_mock.mock_calls[0][1][1], AttemptLog))
+            self.assertIsInstance(save_queue_mock.mock_calls[0][1][1], AttemptLog)
 
         self.assertEqual(response.status_code, 200)
         attempt_id = response.json().get("attempts", [{}])[0].get("id")
@@ -2283,10 +2281,8 @@ class ProgressTrackingViewSetLoggedInUpdateSessionCoachQuizTestCase(
             self.assertEqual(
                 save_queue_mock.mock_calls[0][1][0], quiz_answered_notification
             )
-            self.assertTrue(isinstance(save_queue_mock.mock_calls[0][1][1], AttemptLog))
-            self.assertTrue(
-                isinstance(save_queue_mock.mock_calls[0][1][2], string_types)
-            )
+            self.assertIsInstance(save_queue_mock.mock_calls[0][1][1], AttemptLog)
+            self.assertIsInstance(save_queue_mock.mock_calls[0][1][2], string_types)
 
     def test_update_assessment_session_create_errored_attempt_succeeds(self):
         with patch("kolibri.core.logger.api.wrap_to_save_queue") as save_queue_mock:
@@ -2297,10 +2293,8 @@ class ProgressTrackingViewSetLoggedInUpdateSessionCoachQuizTestCase(
             self.assertEqual(
                 save_queue_mock.mock_calls[0][1][0], quiz_answered_notification
             )
-            self.assertTrue(isinstance(save_queue_mock.mock_calls[0][1][1], AttemptLog))
-            self.assertTrue(
-                isinstance(save_queue_mock.mock_calls[0][1][2], string_types)
-            )
+            self.assertIsInstance(save_queue_mock.mock_calls[0][1][1], AttemptLog)
+            self.assertIsInstance(save_queue_mock.mock_calls[0][1][2], string_types)
 
     def test_update_assessment_session_create_hinted_attempt_succeeds(self):
         with patch("kolibri.core.logger.api.wrap_to_save_queue") as save_queue_mock:
@@ -2311,10 +2305,8 @@ class ProgressTrackingViewSetLoggedInUpdateSessionCoachQuizTestCase(
             self.assertEqual(
                 save_queue_mock.mock_calls[0][1][0], quiz_answered_notification
             )
-            self.assertTrue(isinstance(save_queue_mock.mock_calls[0][1][1], AttemptLog))
-            self.assertTrue(
-                isinstance(save_queue_mock.mock_calls[0][1][2], string_types)
-            )
+            self.assertIsInstance(save_queue_mock.mock_calls[0][1][1], AttemptLog)
+            self.assertIsInstance(save_queue_mock.mock_calls[0][1][2], string_types)
 
     def test_update_session_absolute_progress_triggers_completion(self):
         with patch("kolibri.core.logger.api.wrap_to_save_queue") as save_queue_mock:
@@ -2339,10 +2331,8 @@ class ProgressTrackingViewSetLoggedInUpdateSessionCoachQuizTestCase(
             self.assertEqual(
                 save_queue_mock.mock_calls[0][1][0], quiz_completed_notification
             )
-            self.assertTrue(isinstance(save_queue_mock.mock_calls[0][1][1], MasteryLog))
-            self.assertTrue(
-                isinstance(save_queue_mock.mock_calls[0][1][2], string_types)
-            )
+            self.assertIsInstance(save_queue_mock.mock_calls[0][1][1], MasteryLog)
+            self.assertIsInstance(save_queue_mock.mock_calls[0][1][2], string_types)
 
     def test_update_assessment_session_update_attempt_submitted_quiz_fails(self):
         timestamp = local_now()
@@ -2525,7 +2515,7 @@ class ProgressTrackingViewSetLoggedInUpdateSessionAssessmentPracticeQuizTestCase
             )
             save_queue_mock.assert_called()
             self.assertEqual(save_queue_mock.mock_calls[0][1][0], parse_attemptslog)
-            self.assertTrue(isinstance(save_queue_mock.mock_calls[0][1][1], AttemptLog))
+            self.assertIsInstance(save_queue_mock.mock_calls[0][1][1], AttemptLog)
 
         self.assertEqual(response.status_code, 200)
         attempt_id = response.json().get("attempts", [{}])[0].get("id")
@@ -2582,7 +2572,7 @@ class ProgressTrackingViewSetLoggedInUpdateSessionAssessmentPracticeQuizTestCase
             )
             save_queue_mock.assert_called()
             self.assertEqual(save_queue_mock.mock_calls[0][1][0], parse_attemptslog)
-            self.assertTrue(isinstance(save_queue_mock.mock_calls[0][1][1], AttemptLog))
+            self.assertIsInstance(save_queue_mock.mock_calls[0][1][1], AttemptLog)
 
         self.assertEqual(response.status_code, 200)
         attempt_id = response.json().get("attempts", [{}])[0].get("id")
