@@ -2,6 +2,35 @@ import { Resource } from 'kolibri.lib.apiResource';
 import urls from 'kolibri.urls';
 import redirectBrowser from 'kolibri.utils.redirectBrowser';
 
+/**
+ * The <Module>Resource classes here map directly to the <Module>ViewSet of the same
+ * name in the kolibri.plugins.setup_wizard.api module (note how the definitions of)
+ * the Resource instances below have 'kolibri.plugins.setup_wizard' for their 'namespace'
+ **/
+
+export const SetupWizardResource = new Resource({
+  name: 'setupwizard',
+  namespace: 'kolibri.plugins.setup_wizard',
+
+  provisiondevice({ device_name, language_id, is_provisioned }) {
+    return this.postListEndpoint('provisiondevice', { device_name, language_id, is_provisioned });
+  },
+});
+
+export const OnMyOwnResource = new Resource({
+  name: 'onmyown',
+  namespace: 'kolibri.plugins.setup_wizard',
+  createonmyownuser({ username, full_name, password, facility, extra_fields }) {
+    return this.postListEndpoint('createonmyownuser', {
+      username,
+      full_name,
+      password,
+      facility,
+      extra_fields,
+    });
+  },
+});
+
 export const FacilityImportResource = new Resource({
   name: 'facilityimport',
   namespace: 'kolibri.plugins.setup_wizard',
@@ -15,7 +44,6 @@ export const FacilityImportResource = new Resource({
       password,
       extra_fields,
       facility_name,
-      auth_token: 'ca6830b018e647fc9723561c99b6b3f0',
     });
   },
   provisionosuser({ device_name, language_id, is_provisioned }) {

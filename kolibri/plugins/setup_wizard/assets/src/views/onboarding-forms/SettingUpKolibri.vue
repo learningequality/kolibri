@@ -19,7 +19,7 @@
 
   import KolibriLoadingSnippet from 'kolibri.coreVue.components.KolibriLoadingSnippet';
   import urls from 'kolibri.urls';
-  import { FacilityImportResource, OnMyOwnResource, SetupWizardResource } from '../../api';
+  import { OnMyOwnResource, SetupWizardResource } from '../../api';
   import { UsePresets } from '../../constants';
 
   export default {
@@ -33,7 +33,8 @@
     },
     mounted() {
       this.user = this.$store.state.onboardingData.user;
-      // TODO figure out w/ richard how to properly get the auth_token passed so we can get_or_create_os_user
+      // TODO figure out w/ richard how to properly get the auth_token passed
+      // so we can get_or_create_os_user
       let { full_name, username, password } = this.user;
       const facilityUserData = {
         full_name,
@@ -54,7 +55,8 @@
           };
           SetupWizardResource.provisiondevice(deviceProvisioningData)
             .then(() => {
-              // FIXME In dev mode, we'll wait 5 seconds before moving along so we can see the page... maybe we keep this?
+              // FIXME In dev mode, we'll wait 5 seconds before moving along so we can see the page
+              // ... maybe we keep this?
               const timeout = process.NODE_ENV === 'production' ? 1 : 5000;
               setTimeout(
                 () =>
