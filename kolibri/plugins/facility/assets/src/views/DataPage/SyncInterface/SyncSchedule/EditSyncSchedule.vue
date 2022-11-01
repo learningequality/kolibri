@@ -2,6 +2,7 @@
 
   <ImmersivePage
     :appBarTitle="$tr('toolbarHeader')"
+    :route="backRoute"
   >
     <KPageContainer>
       <KGrid gutter="48">
@@ -12,14 +13,15 @@
           <p>{{ $tr('deviceName') }}</p><br>
         </KGridItem>
 
-        <KGridItem>
-          <KDropdownMenu
-            text="Every After 5 minutes"
-            appearance="raised-button"
-            position="relative"
+        <KGridItem
+          :layout8="{ span: 3 }"
+          :layout12="{ span: 4 }"
+        >
+          <KSelect
+            value="Devices"
+            :options="['LINUX','WINODWS','MACOS','ANDROID','IOS']"
           />
         </KGridItem>
-        <br>
 
         <KGridItem>
           <p>{{ $tr('serverTime') }} </p>
@@ -41,7 +43,19 @@
 
       </KGrid>
     </KPageContainer>
-    <KPageContainer />
+
+    <BottomAppBar>
+      <KButtonGroup>
+        <KButton
+          :text="$tr('cancelBtn')"
+          appearance="flat-button"
+        />
+        <KButton
+          :text="$tr('saveBtn')"
+          primary="raised-button"
+        />
+      </KButtonGroup>
+    </BottomAppBar>
 
     <KModal
       v-if="removeDeviceModal"
@@ -67,7 +81,6 @@
           <p>{{ $tr('removeDeviceWarning') }}</p>
           <p>{{ $tr('deviceNotConnected') }}</p>
         </KGridItem>
-
       </KGrid>
     </KModal>
   </ImmersivePage>
@@ -78,14 +91,25 @@
 <script>
 
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
+  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
+  import { PageNames } from '../../../../constants';
 
   export default {
     name: 'EditSyncSchedule',
     components: {
       ImmersivePage,
+      BottomAppBar,
     },
     data() {
       return { removeDeviceModal: false };
+    },
+    computed: {
+      backRoute() {
+        return { name: PageNames.MANAGE_SYNC };
+      },
+      msg() {
+        return this.$tr('removeDevice');
+      },
     },
     methods: {
       removeDevice() {
@@ -131,6 +155,14 @@
       deviceNotConnected: {
         message: 'This device is not currently connected to your network.',
         context: 'Message showing that the device is no longer on the network',
+      },
+      saveBtn: {
+        message: 'Save',
+        context: 'Save button on bottomAppBar',
+      },
+      cancelBtn: {
+        message: 'Cancel',
+        context: 'Cancel buttton on the bottomAppBar',
       },
     },
   };
