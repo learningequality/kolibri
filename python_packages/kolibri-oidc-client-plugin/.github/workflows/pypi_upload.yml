@@ -46,7 +46,7 @@ jobs:
         path: dist
     - name: Configure GPG Key
       run: |
-        echo -n "${{ secrets.GPG_SIGNING_KEY }}" | base64 --decode | gpg --import
+        echo -n "${{ secrets.GPG_SIGNING_KEY }}" | base64 --decode | gpg --import --no-tty --batch --yes
     - name: Sign wheel
       run: gpg --batch --pinentry loopback --passphrase ${{ secrets.GPG_PASSPHRASE }} --detach-sign --armor dist/${{ inputs.whl-file-name }}
     - name: Sign tarball
