@@ -1,0 +1,75 @@
+name: Build WHL file
+
+on:
+  workflow_call:
+    outputs:
+      whl-file-name:
+        description: "WHL file name"
+        value: ${{ jobs.build_whl.outputs.whl-file-name }}
+      tar-file-name:
+        description: "TAR file name"
+        value: ${{ jobs.build_whl.outputs.tar-file-name }}
+
+jobs:
+  build_whl:
+    name: Build WHL
+    runs-on: ubuntu-latest
+    outputs:
+      whl-file-name: ${{ steps.get-whl-filename.outputs.whl-file-name }}
+      tar-file-name: ${{ steps.get-tar-filename.outputs.tar-file-name }}
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+        lfs: true
+    - name: Install Ubuntu dependencies
+      run: |
+        sudo apt-get -y -qq update
+        sudo apt-get install -y gettext
+    - name: Set up Python 2.7
+      uses: actions/setup-python@v2
+      with:
+        python-version: 2.7
+    - name: Use Node.js
+      uses: actions/setup-node@v1
+      with:
+        node-version: '10.x'
+    - name: Get yarn cache directory path
+      id: yarn-cache-dir-path
+      run: echo "::set-output name=dir::$(yarn cache dir)"
+    - name: Cache Node.js modules
+      uses: actions/cache@v3
+      with:
+        path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+        key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-yarn-
+    - name: Install Javascript dependencies
+      run: |
+        yarn --frozen-lockfile
+        npm rebuild node-sass
+    - name: Cache Python dependencies
+      uses: actions/cache@v2
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('setup.py') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    - name: Install Python build dependencies
+      run: pip install -e .[dev]
+    - name: Build Plugin
+      run: make dist
+    - name: Get WHL filename
+      id: get-whl-filename
+      run: echo "::set-output name=whl-file-name::$(ls dist | grep .whl | cat)"
+    - uses: actions/upload-artifact@v2
+      with:
+        name: ${{ steps.get-whl-filename.outputs.whl-file-name }}
+        path: dist/${{ steps.get-whl-filename.outputs.whl-file-name }}
+    - name: Get TAR filename
+      id: get-tar-filename
+      run: echo "::set-output name=tar-file-name::$(ls dist | grep .tar | cat)"
+    - uses: actions/upload-artifact@v2
+      with:
+        name: ${{ steps.get-tar-filename.outputs.tar-file-name }}
+        path: dist/${{ steps.get-tar-filename.outputs.tar-file-name }}

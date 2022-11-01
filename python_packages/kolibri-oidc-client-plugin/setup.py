@@ -55,11 +55,11 @@ setup(
     package_dir={'kolibri_oidc_client_plugin': 'kolibri_oidc_client_plugin'},
     include_package_data=True,
     license='MIT',
-    install_requires=['mozilla-django-oidc'],
+    install_requires=['mozilla-django-oidc==1.2.2', 'kolibri>=0.15'],
     extras_require={
         'dev': [
             'setuptools',
-            'wheel',
+            'wheel>=0.34.1',
             'twine',
         ]
     },

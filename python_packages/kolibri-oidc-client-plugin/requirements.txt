@@ -1,3 +1,0 @@
-kolibri>=0.15
-mozilla-django-oidc==1.2.2
-wheel>=0.34.1
