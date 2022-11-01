@@ -47,7 +47,7 @@ jobs:
     - name: Configure GPG Key
       run: |
         echo -n "${{ secrets.GPG_SIGNING_KEY }}" | base64 --decode | gpg --import --no-tty --batch --yes
-        echo "{GPG_KEY_ID}={$(gpg --list-secret-keys|grep '^  ' | tr -d ' ')}" >> $GITHUB_ENV
+        echo "GPG_KEY_ID=$(gpg --list-secret-keys|grep '^  ' | tr -d ' ')" >> $GITHUB_ENV
     - name: Sign wheel
       run: gpg -u $GPG_KEY_ID --batch --pinentry loopback --passphrase ${{ secrets.GPG_PASSPHRASE }} --detach-sign --armor dist/${{ inputs.whl-file-name }}
     - name: Sign tarball
