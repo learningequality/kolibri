@@ -57,13 +57,11 @@ jobs:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ secrets.TESTPYPI_API_TOKEN }}
       run: |
-        twine upload -s -r testpypi dist/${{ inputs.whl-file-name }} dist/${{ inputs.whl-file-name }}.asc
-        twine upload -s -r testpypi dist/${{ inputs.tar-file-name }} dist/${{ inputs.tar-file-name }}.asc
+        twine upload -s -r testpypi dist/*
     - name: Publish to PyPi
       if: ${{ !inputs.test }}
       env:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
       run: |
-        twine upload -s dist/${{ inputs.whl-file-name }} dist/${{ inputs.whl-file-name }}.asc
-        twine upload -s dist/${{ inputs.tar-file-name }} dist/${{ inputs.tar-file-name }}.asc
+        twine upload -s dist/*
