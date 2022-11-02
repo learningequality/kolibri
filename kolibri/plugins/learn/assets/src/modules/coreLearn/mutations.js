@@ -5,4 +5,7 @@ export default {
   SET_ROOT_NODES(state, rootNodes) {
     state.rootNodes = rootNodes;
   },
+  SET_SHOW_COMPLETE_CONTENT_MODAL(state, valToSet) {
+    state.showCompleteContentModal = valToSet;
+  },
 };
