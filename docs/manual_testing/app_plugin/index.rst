@@ -1,8 +1,8 @@
 Testing Kolibri with app plugin enabled
-=============
+=======================================
 
 The Kolibri app plugin
-----------------------------
+----------------------
 
 The Kolibri app plugin is designed to provide features and behavior with the mobile app user in mind. In order to test or develop Kolibri in this mode, there are commands that can be used to initialize Kolibri as needed.
 
