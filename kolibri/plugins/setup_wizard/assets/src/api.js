@@ -15,11 +15,8 @@ export const SetupWizardResource = new Resource({
   provisiondevice({ device_name, language_id, is_provisioned }) {
     return this.postListEndpoint('provisiondevice', { device_name, language_id, is_provisioned });
   },
-});
 
-export const OnMyOwnResource = new Resource({
-  name: 'onmyown',
-  namespace: 'kolibri.plugins.setup_wizard',
+  // Also creates the facility w/ given name if one doesn't exist already
   createonmyownuser({ username, full_name, password, facility, extra_fields }) {
     return this.postListEndpoint('createonmyownuser', {
       username,
@@ -27,6 +24,17 @@ export const OnMyOwnResource = new Resource({
       password,
       facility,
       extra_fields,
+    });
+  },
+
+  // Also creates the facility w/ given name if one doesn't exist already
+  createsuperuser({ username, full_name, password, extra_fields, facility_name }) {
+    return this.postListEndpoint('createsuperuser', {
+      username,
+      full_name,
+      password,
+      extra_fields,
+      facility_name,
     });
   },
 });

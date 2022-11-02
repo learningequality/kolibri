@@ -19,8 +19,8 @@
 
   import KolibriLoadingSnippet from 'kolibri.coreVue.components.KolibriLoadingSnippet';
   import urls from 'kolibri.urls';
-  import { OnMyOwnResource, SetupWizardResource } from '../../api';
-  import { FacilityTypePresets, UsePresets } from '../../constants';
+  import { SetupWizardResource } from '../../api';
+  import { DeviceTypePresets, FacilityTypePresets, UsePresets } from '../../constants';
 
   export default {
     name: 'SettingUpKolibri',
@@ -31,36 +31,13 @@
         user: {},
       };
     },
-    mounted() {
-      // Data from user credentials form
-      this.user = this.$store.state.onboardingData.user;
-
-      if(this.isOnMyOwnSetup) {
-        // 1) If user is doing "on my own" setup, there is only one path from here
-        this.createAndProvisionOnMyOwnUserDevice();
-      }
-
-      // From here, all are going to be "group learning" flows
-      if(!this.isLearnOnlyDevice) {
-        // 2) Group learning, Full device setup
-        if(this.isNewFacility) {
-          // 2.1) New Facility
-          // TODO Create superuser and device with given settings
-
-        } else {
-          // 2.2) Import Facility
-
-        }
-      } else {
-        // 3) Group learning, learn only device
-      }
-    },
     computed: {
       deviceProvisioningData() {
         return {
-            device_name: this.wizardService.state.context.deviceName,
-            language_id: this.$store.state.onboardingData.language_id,
-            is_provisioned: true,
+          device_name: this.wizardService.state.context.deviceName,
+          allow_guest_access: this.wizardService.state.context.guestAccess,
+          language_id: this.$store.state.onboardingData.language_id,
+          is_provisioned: true,
         };
       },
       facilityUserData() {
@@ -69,12 +46,17 @@
           full_name,
           username,
           password,
-          facility_name: this.$store.state.onboardingData.facility.name,
+          facility: {
+            name: this.$store.state.onboardingData.facility.name,
+          },
+          facility_dataset: {
+            learner_can_login_with_no_password: this.wizardService.state.context.requirePassword,
+          },
           extra_fields: {
             on_my_own_setup: this.isOnMyOwnSetup,
             os_user: this.canGetOsUser,
           },
-          auth_token: null,  // TODO Get this somehow
+          auth_token: null, // TODO Get this somehow
         };
       },
       isOnMyOwnSetup() {
@@ -88,29 +70,55 @@
       },
       isLearnOnlyDevice() {
         return this.wizardService.state.context.fullOrLOD === DeviceTypePresets.LOD;
+      },
+    },
+    mounted() {
+      // Data from user credentials form
+      this.user = this.$store.state.onboardingData.user;
+
+      if (this.isOnMyOwnSetup) {
+        // 1) If user is doing "on my own" setup, there is only one path from here
+        this.createAndProvisionOnMyOwnUserDevice();
+      }
+
+      // From here, all are going to be "group learning" flows
+      if (!this.isLearnOnlyDevice) {
+        // 2) Group learning, Full device setup
+        if (this.isNewFacility) {
+          // 2.1) New Facility
+          this.createAndProvisionNewFullFacilityDevice();
+        } else {
+          // 2.2) Import Facility
+        }
+      } else {
+        // 3) Group learning, learn only device
       }
     },
     methods: {
       createAndProvisionOnMyOwnUserDevice() {
-        OnMyOwnResource.createonmyownuser(this.facilityUserData)
+        SetupWizardResource.createonmyownuser(this.facilityUserData).then(() =>
+          this.provisionDevice()
+        );
+      },
+      createAndProvisionNewFullFacilityDevice() {
+        SetupWizardResource.createsuperuser(this.facilityUserData).then(() =>
+          this.provisionDevice()
+        );
+      },
+      provisionDevice() {
+        SetupWizardResource.provisiondevice(this.deviceProvisioningData)
           .then(() => {
-            SetupWizardResource.provisiondevice(this.deviceProvisioningData)
-              .then(() => {
-                // FIXME In dev mode, we'll wait 5 seconds before moving along so we can see the page
-                // ... maybe we keep this?
-                const timeout = process.NODE_ENV === 'production' ? 1 : 5000;
-                setTimeout(
-                  () =>
-                    (window.location.pathname = urls[
-                      'kolibri:kolibri.plugins.user_auth:user_auth'
-                    ]()),
-                  timeout
-                );
-              })
-              .catch(err => console.log(err));
+            // FIXME In dev mode, we'll wait 5 seconds before moving along so we can see the page
+            // ... maybe we keep this?
+            const timeout = process.NODE_ENV === 'production' ? 1 : 5000;
+            setTimeout(
+              () =>
+                (window.location.pathname = urls['kolibri:kolibri.plugins.user_auth:user_auth']()),
+              timeout
+            );
           })
           .catch(err => console.log(err));
-      }
+      },
     },
     $trs: {
       pageTitle: {

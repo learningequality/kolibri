@@ -40,43 +40,6 @@ class SetupWizardResource(ViewSet):
     permission_classes = (HasPermissionDuringSetup,)
 
     @decorators.action(methods=["post"], detail=False)
-    def provisiondevice(self, request):
-        """
-        After creating/importing a Facility and designating/creating a super admins,
-        provision the device using that facility
-        """
-
-        # TODO validate the data
-        device_name = request.data.get("device_name", "")
-        language_id = request.data.get("language_id", "")
-        is_provisioned = request.data.get("is_provisioned", False)
-
-        # Get the imported facility (assuming its the only one at this point)
-        the_facility = Facility.objects.get()
-
-        # Use the facility's preset to determine whether to allow guest access
-        allow_guest_access = the_facility.dataset.preset != "formal"
-
-        # Finally: Call provision_device
-        provision_device(
-            device_name=device_name,
-            language_id=language_id,
-            default_facility=the_facility,
-            allow_guest_access=allow_guest_access,
-            is_provisioned=is_provisioned,
-        )
-
-        return Response({"is_provisioned": is_provisioned})
-
-
-class OnMyOwnViewSet(ViewSet):
-    """
-    Endpoints for use when provisioning a device for the "On my own" onboarding flow
-    """
-
-    permission_classes = (HasPermissionDuringSetup,)
-
-    @decorators.action(methods=["post"], detail=False)
     def createonmyownuser(self, request):
         """
         Creates a user. When the request data's extra_fields['on_my_own_setup'] is truthy, we
@@ -123,6 +86,64 @@ class OnMyOwnViewSet(ViewSet):
             username=username, password=password, facility=facility, full_name=full_name
         )
         return Response(status=201)
+
+    @decorators.action(methods=["post"], detail=False)
+    def createsuperuser(self, request):
+        """
+        Given a username, full name and password, create a superuser attached
+        to the facility that was imported (or create a facility with given facility_name)
+        """
+        facility_name = request.data.get("facility_name", None)
+
+        # Get the imported facility (assuming its the only one at this point)
+        if Facility.objects.count() == 0:
+            the_facility = Facility.objects.create(name=facility_name)
+        else:
+            the_facility = Facility.objects.get()
+            if facility_name:
+                the_facility.name = facility_name
+                the_facility.save()
+
+        try:
+            superuser = FacilityUser.objects.create_superuser(
+                request.data.get("username"),
+                request.data.get("password"),
+                facility=the_facility,
+                full_name=request.data.get("full_name"),
+            )
+            return Response({"username": superuser.username})
+
+        except ValidationError:
+            raise ValidationError(detail="duplicate", code="duplicate_username")
+
+    @decorators.action(methods=["post"], detail=False)
+    def provisiondevice(self, request):
+        """
+        After creating/importing a Facility and designating/creating a super admins,
+        provision the device using that facility
+        """
+
+        # TODO validate the data
+        device_name = request.data.get("device_name", "")
+        language_id = request.data.get("language_id", "")
+        is_provisioned = request.data.get("is_provisioned", False)
+
+        # Get the imported facility (assuming its the only one at this point)
+        the_facility = Facility.objects.get()
+
+        # Use the facility's preset to determine whether to allow guest access
+        allow_guest_access = the_facility.dataset.preset != "formal"
+
+        # Finally: Call provision_device
+        provision_device(
+            device_name=device_name,
+            language_id=language_id,
+            default_facility=the_facility,
+            allow_guest_access=allow_guest_access,
+            is_provisioned=is_provisioned,
+        )
+
+        return Response({"is_provisioned": is_provisioned})
 
 
 class FacilityImportViewSet(ViewSet):
