@@ -41,8 +41,10 @@
       },
     },
     created() {
-      // Check for redirect param and store it in vuex
-      // otherwise it'll be lost when the route changes.
+      /*
+       * Check for redirect param and store it in vuex
+       * otherwise it'll be lost when the route changes.
+       */
       if (this.$route.query.redirect) {
         this.redirect = this.$route.query.redirect;
       }
