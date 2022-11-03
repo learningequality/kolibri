@@ -14,9 +14,9 @@
     >
       <CoreBanner v-if="coreBannerComponent && showDemoBanner">
         <template #default="props">
-          <component 
-            :is="coreBannerComponent" 
-            :bannerClosed="props.bannerClosed" 
+          <component
+            :is="coreBannerComponent"
+            :bannerClosed="props.bannerClosed"
           />
         </template>
       </CoreBanner>
@@ -184,4 +184,3 @@
   }
 
 </style>
-  
