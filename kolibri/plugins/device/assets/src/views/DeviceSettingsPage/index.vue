@@ -95,11 +95,112 @@
             />
           </div>
         </div>
+        &nbsp;
+
+        <div class="fieldset">
+          <h2>
+            <label>{{ $tr('allowDownloadOnMeteredConnection') }}</label>
+          </h2>
+          <p class="info-description">
+            {{ $tr('DownloadOnMeteredConnectionDescription') }}
+          </p>
+          <KRadioButton
+            :label="$tr('doNotAllowDownload')"
+            :value="meteredConnectionDownloadOptions.DISALLOW_DOWNLOAD_ON_METERED_CONNECTION"
+            :currentValue="meteredConnectionDownloadOption"
+            @input="handleMeteredConnectionDownloadChange"
+          />
+          <KRadioButton
+            :label="$tr('allowDownload')"
+            :value="meteredConnectionDownloadOptions.ALLOW_DOWNLOAD_ON_METERED_CONNECTION"
+            :currentValue="meteredConnectionDownloadOption"
+            @input="handleMeteredConnectionDownloadChange"
+          />
+        </div>
+        &nbsp;
+
+        <div>
+          <h2>
+            {{ $tr('primaryStorage') }}
+          </h2>
+          <p class="info-description">
+            {{ $tr('primaryStorageDescription') }}
+          </p>
+          <p>
+            {{ primaryStorageLocation }}
+            <KExternalLink text="Change" href="#0" />
+          </p>
+          <KButton
+            :text="$tr('addLocation')"
+            appearance="raised-button"
+            secondary
+            @click="handleClick"
+          />
+        </div>
+
+        <div>
+          <h2>
+            {{ $tr('secondaryStorage') }}
+          </h2>
+          <p class="info-description">
+            {{ $tr('secondaryStorageDescription') }}
+          </p>
+          <p v-for="(index, item) in secondaryStorageConnections" :key="item">
+            {{ item.key }}
+          </p>
+          <KButton
+            hasDropdown
+            secondary
+            appearance="raised-button"
+            :text="coreString('optionsLabel')"
+          >
+            <template #menu>
+              <KDropdownMenu :options="storageLocationOptions" @select="handleClick" />
+            </template>
+          </KButton>
+        </div>
+      &nbsp;
+
+        <div class="fieldset">
+          <h2>
+            <label style="padding-bottom: 0">{{ $tr('autoDownload') }}</label>
+          </h2>
+          <KCheckbox
+            :label="$tr('enableAutoDownload')"
+            :checked="enableAutomaticDownload ||
+              allowLearnerDownloadResources ||
+              setLimitForAutodownload"
+            :description="$tr('enableAutoDownloadDescription')"
+            @change="enableAutomaticDownload = $event"
+          />
+          <div class="fieldset" style="margin-left: 32px">
+            <KCheckbox
+              :label="$tr('allowLearnersDownloadResources')"
+              :checked="allowLearnerDownloadResources"
+              :description="$tr('allowLearnersDownloadDescription')"
+              @change="allowLearnerDownloadResources = $event"
+            />
+            <KCheckbox
+              :label="$tr('setStorageLimit')"
+              :checked="setLimitForAutodownload"
+              :description="$tr('setStorageLimitDescription')"
+              @change="setLimitForAutodownload = $event"
+            />
+            <!-- <KTextBox
+                ref="textbox"
+                v-if="setLimitForAutodownload"
+                :value="limitForAutodownload"
+                type="number"
+                label="GB"
+              /> -->
+          </div>
+        </div>
       </section>
+      &nbsp;
 
       <section>
         <KButton
-          :text="coreString('saveAction')"
+          :text="coreString('saveChangesAction')"
           appearance="raised-button"
           primary
           @click="handleClickSave"
@@ -148,6 +249,11 @@
     ALLOW_GUEST_ACCESS: 'ALLOW_GUEST_ACCESS',
   });
 
+  const meteredConnectionDownloadOptions = Object.freeze({
+    DISALLOW_DOWNLOAD_ON_METERED_CONNECTION: 'DISALLOW_DOWNLOAD_ON_METERED_CONNECTION',
+    ALLOW_DOWNLOAD_ON_METERED_CONNECTION: 'ALLOW_DOWNLOAD_ON_METERED_CONNECTION',
+  });
+
   export default {
     name: 'DeviceSettingsPage',
     metaInfo() {
@@ -166,6 +272,15 @@
         landingPageChoices: LandingPageChoices,
         signInPageOption: '',
         SignInPageOptions,
+        extraSettings: {},
+        meteredConnectionDownloadOption: '',
+        meteredConnectionDownloadOptions,
+        primaryStorageLocation: null,
+        secondaryStorageConnections: null,
+        enableAutomaticDownload: null,
+        allowLearnerDownloadResources: null,
+        setLimitForAutodownload: null,
+        limitForAutodownload: null,
         browserDefaultOption: {
           value: null,
           label: this.$tr('browserDefaultLanguage'),
@@ -199,6 +314,9 @@
       disableSignInPageOptions() {
         return this.landingPage !== LandingPageChoices.SIGN_IN;
       },
+      storageLocationOptions() {
+        return [this.$tr('addStorageLocation'), this.$tr('removeStorageLocation')];
+      },
     },
     beforeMount() {
       this.getDeviceSettings().then(settings => {
@@ -209,6 +327,7 @@
           allowLearnerUnassignedResourceAccess,
           allowPeerUnlistedChannelImport,
           allowOtherBrowsersToConnect,
+          extraSettings,
         } = settings;
 
         const match = find(this.languageOptions, { value: languageId });
@@ -222,12 +341,15 @@
           this.setSignInPageOption(settings);
         }
 
+        this.setExtraSettings(settings);
+
         Object.assign(this, {
           landingPage,
           allowGuestAccess,
           allowLearnerUnassignedResourceAccess,
           allowPeerUnlistedChannelImport,
           allowOtherBrowsersToConnect,
+          extraSettings,
         });
       });
     },
@@ -240,6 +362,28 @@
         } else if (settings.allowGuestAccess === false) {
           this.signInPageOption = SignInPageOptions.DISALLOW_GUEST_ACCESS;
         }
+      },
+      setExtraSettings(settings) {
+        if (settings.extraSettings['allow_download_on_mettered_connection'] === false) {
+          this.meteredConnectionDownloadOption =
+            meteredConnectionDownloadOptions.DISALLOW_DOWNLOAD_ON_METERED_CONNECTION;
+        } else {
+          this.meteredConnectionDownloadOption =
+            meteredConnectionDownloadOptions.ALLOW_DOWNLOAD_ON_METERED_CONNECTION;
+        }
+        if (settings.extraSettings['enable_automatic_download'] === false) {
+          this.enableAutomaticDownload = false;
+          this.allowLearnerDownloadResources = false;
+          this.setLimitForAutodownload = false;
+        } else {
+          this.enableAutomaticDownload = true;
+          this.allowLearnerDownloadResources =
+            settings.extraSettings['allow_learner_download_resources'];
+          this.setLimitForAutodownload = settings.extraSettings['set_limit_for_autodownload'];
+          this.limitForAutodownload = settings.extraSettings['limit_for_autodownload'];
+        }
+        this.primaryStorageLocation = settings.extraSettings['primary_storage_connection'];
+        this.secondaryStorageConnections = settings.extraSettings['secondary_storage_connections'];
       },
       getContentSettings() {
         // This is the inverse of 'setSignInPageOption'
@@ -264,6 +408,31 @@
           };
         }
       },
+      getExtraSettings() {
+        if (
+          this.meteredConnectionDownloadOption ===
+          meteredConnectionDownloadOptions.DISALLOW_DOWNLOAD_ON_METERED_CONNECTION
+        ) {
+          this.extraSettings['allow_download_on_mettered_connection'] = false;
+        } else {
+          this.extraSettings['allow_download_on_mettered_connection'] = true;
+        }
+        if (this.enableAutomaticDownload === false) {
+          this.extraSettings['enable_automatic_download'] = false;
+          this.extraSettings['allow_learner_download_resources'] = false;
+          this.extraSettings['set_limit_for_autodownload'] = false;
+          this.extraSettings['limit_for_autodownload'] = 0;
+        } else {
+          this.extraSettings['enable_automatic_download'] = true;
+          this.extraSettings[
+            'allow_learner_download_resources'
+          ] = this.allowLearnerDownloadResources;
+          this.extraSettings['set_limit_for_autodownload'] = this.setLimitForAutodownload;
+          this.extraSettings['limit_for_autodownload'] = 0;
+        }
+        this.extraSettings['primary_storage_connection'] = this.primaryStorageLocation;
+        this.extraSettings['secondary_storage_connections'] = this.secondaryStorageConnections;
+      },
       handleLandingPageChange(option) {
         this.landingPage = option;
         if (option === LandingPageChoices.LEARN) {
@@ -274,6 +443,9 @@
       },
       handleSignInPageChange(option) {
         this.signInPageOption = option;
+      },
+      handleMeteredConnectionDownloadChange(option) {
+        this.meteredConnectionDownloadOption = option;
       },
       getFacilitySettingsPath(facilityId = '') {
         const getUrl = urls['kolibri:kolibri.plugins.facility:facility_management'];
@@ -291,6 +463,8 @@
           allowLearnerUnassignedResourceAccess,
         } = this.getContentSettings();
 
+        this.getExtraSettings();
+
         this.saveDeviceSettings({
           languageId: this.language.value,
           landingPage: this.landingPage,
@@ -298,6 +472,7 @@
           allowLearnerUnassignedResourceAccess,
           allowPeerUnlistedChannelImport: this.allowPeerUnlistedChannelImport,
           allowOtherBrowsersToConnect: this.allowOtherBrowsersToConnect,
+          extraSettings: this.extraSettings,
         })
           .then(() => {
             this.$store.dispatch('createSnackbar', this.$tr('saveSuccessNotification'));
@@ -308,6 +483,9 @@
       },
       getDeviceSettings,
       saveDeviceSettings,
+      handleClick(e) {
+        e.preventDefault();
+      },
     },
     $trs: {
       browserDefaultLanguage: {
@@ -390,6 +568,86 @@
         message: 'External devices',
         context: 'Label for device settings controlling how Kolibri interacts with other devices.',
       },
+      allowDownloadOnMeteredConnection: {
+        message: 'Download on metered connection',
+        context:
+          'Label for device setting that allows user to determine whether or not to download data on metered connections',
+      },
+      DownloadOnMeteredConnectionDescription: {
+        message:
+          'If users on this device are using Kolibri with a limited data plan, they may have to pay extra charges on a metered connection.',
+        context:
+          'Warns the user of potential extra charges if using Kolibri with a limited data plan.',
+      },
+      doNotAllowDownload: {
+        message: 'Do not allow download on a metered connection',
+        context: 'Option to not allow downloads on metered connections.',
+      },
+      allowDownload: {
+        message: 'Allow download on a metered connection',
+        context: 'Option to allow downloads on metered connections.',
+      },
+      primaryStorage: {
+        message: 'Primary storage location',
+        context: 'Option to allow downloads on metered connections.',
+      },
+      primaryStorageDescription: {
+        message:
+          'Kolibri channels are stored here. Newly downloaded resources will be added to this location.',
+        context: 'Informs user of storage location for Kolibri channels and new resources',
+      },
+      secondaryStorage: {
+        message: 'Other storage locations',
+        context: 'Secondary storage paths for users to store downloaded resources',
+      },
+      secondaryStorageDescription: {
+        message: 'Read-only locations cannot be the primary storage location.',
+        context: 'Informs user of limits for read-only locations',
+      },
+      autoDownload: {
+        message: 'Auto-download',
+        context: 'Label for Auto-download section',
+      },
+      enableAutoDownload: {
+        message: 'Enable auto-download',
+        context: "Option on 'Device settings' page.",
+      },
+      enableAutoDownloadDescription: {
+        message:
+          "Kolibri will automatically download assigned lessons, quizzes, and other resources on the 'My downloads' list.",
+        context: 'Enable auto download description.',
+      },
+      allowLearnersDownloadResources: {
+        message: 'Allow learners to download resources',
+        context: "Option on 'Device settings' page.",
+      },
+      allowLearnersDownloadDescription: {
+        message:
+          "Allow users to explore resources they don't have and mark it for Kolibri to automatically download when it's available in their network.",
+        context:
+          "Description for 'Allow learners to download resources' option under 'Auto-download' section.",
+      },
+      setStorageLimit: {
+        message: 'Set storage limit for auto-download and learner-initiated downloads',
+        context: "Option on 'Device settings' page.",
+      },
+      setStorageLimitDescription: {
+        message:
+          'Kolibri will not auto-download more than a set amount of remaining storage on the device',
+        context: "Description for 'Set storage limit' option under 'Auto-download' section.",
+      },
+      addStorageLocation: {
+        message: 'Add storage location ',
+        context: 'Menu option for storage paths',
+      },
+      removeStorageLocation: {
+        message: 'Remove storage location',
+        context: 'Menu option for storage paths',
+      },
+      addLocation: {
+        message: 'Add Location',
+        context: 'Label for a button used to add storage location',
+      },
     },
   };
 
@@ -433,6 +691,10 @@
     font-size: 15px;
     // to match label in KSelect
     color: rgba(0, 0, 0, 0.54);
+  }
+
+  .info-description {
+    color: #616161;
   }
 
 </style>

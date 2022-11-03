@@ -12,6 +12,7 @@ export function getDeviceSettings() {
       allowLearnerUnassignedResourceAccess: data.allow_learner_unassigned_resource_access,
       allowPeerUnlistedChannelImport: data.allow_peer_unlisted_channel_import,
       allowOtherBrowsersToConnect: data.allow_other_browsers_to_connect,
+      extraSettings: data.extra_settings,
     };
   });
 }
@@ -28,6 +29,7 @@ export function saveDeviceSettings(settings) {
       allow_learner_unassigned_resource_access: settings.allowLearnerUnassignedResourceAccess,
       allow_peer_unlisted_channel_import: settings.allowPeerUnlistedChannelImport,
       allow_other_browsers_to_connect: settings.allowOtherBrowsersToConnect,
+      extra_settings: settings.extraSettings,
     },
   });
 }
