@@ -7,7 +7,7 @@ import { computed } from 'kolibri.lib.vueCompositionApi';
 import { get } from '@vueuse/core';
 import CompletionCriteria from 'kolibri-constants/CompletionCriteria';
 import lodashGet from 'lodash/get';
-import { LearningActivities } from 'kolibri.coreVue.vuex.constants';
+import { LearningActivities, ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import coreStrings from 'kolibri.utils.coreStrings';
 
 const DURATION_THRESHOLD = 60 * 30; // 30 minutes in seconds
@@ -78,6 +78,7 @@ export default function useLearningActivities(contentNode) {
     return (
       contentNode &&
       contentNode.duration &&
+      (contentNode.kind == ContentNodeKinds.AUDIO || contentNode.kind == ContentNodeKinds.VIDEO) &&
       lodashGet(contentNode, ['options', 'completion_criteria', 'model']) ===
         CompletionCriteria.TIME
     );
@@ -93,8 +94,11 @@ export default function useLearningActivities(contentNode) {
     return (
       contentNode &&
       contentNode.duration &&
-      lodashGet(contentNode, ['options', 'completion_criteria', 'model']) ===
-        CompletionCriteria.APPROX_TIME
+      !(contentNode.kind == ContentNodeKinds.AUDIO || contentNode.kind == ContentNodeKinds.VIDEO) &&
+      (lodashGet(contentNode, ['options', 'completion_criteria', 'model']) ===
+        CompletionCriteria.APPROX_TIME ||
+        lodashGet(contentNode, ['options', 'completion_criteria', 'model']) ===
+          CompletionCriteria.TIME)
     );
   });
 
