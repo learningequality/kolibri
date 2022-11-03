@@ -2,6 +2,7 @@
 
   <ImmersivePage
     :appBarTitle="$tr('toolbarHeader')"
+    :route="goBack"
   >
     <KPageContainer>
       <KGrid gutter="48">
@@ -61,9 +62,10 @@
             </tr>
             <tr>
               <td>
-                <span>MacOS<br>
-                  localhost:8000</span>
-
+                <span>
+                  MacOS<br>
+                  localhost:8000
+                </span>
               </td>
               <td>Every Monday at 14:30</td>
               <td>
@@ -74,10 +76,9 @@
               </td>
               <td>
                 <KButton
+                  :text="$tr('editBtn')"
                   @click="editButton"
-                >
-                  edit
-                </KButton>
+                />
               </td>
             </tr>
           </tbody>
@@ -88,8 +89,8 @@
         v-if="deviceModal"
         :title="$tr('selectDevices')"
         size="medium"
-        submitText="CONTINUE"
-        cancelText="CANCEL"
+        :submitText="$tr('continueText')"
+        :cancelText="$tr('cancelText')"
         @cancel="closeModal"
         @submit="submitModal"
       >
@@ -100,10 +101,9 @@
           >
             <KButton
               appearance="basic-link"
+              :text=" $tr('addAddress')"
               @click="newAddress"
-            >
-              Add new Address
-            </KButton>
+            />
           </KGridItem>
         </KGrid>
 
@@ -129,9 +129,8 @@
           >
             <KButton
               appearance="basic-link"
-            >
-              Forget
-            </KButton>
+              :text="$tr('forgetText')"
+            />
           </KGridItem>
         </KGrid>
       </KModal>
@@ -145,6 +144,7 @@
 
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import { PageNames } from '../../../constants';
 
   export default {
     name: 'ManageSyncSchedule',
@@ -156,6 +156,11 @@
 
     data() {
       return { deviceModal: false };
+    },
+    computed: {
+      goBack() {
+        return { name: PageNames.DATA_EXPORT_PAGE };
+      },
     },
     methods: {
       closeModal() {
@@ -192,7 +197,7 @@
         context: 'My home facility',
       },
       addDevice: {
-        message: 'ADD DEVICE',
+        message: 'Add device',
         context: 'Add device button',
       },
       deviceName: {
@@ -211,20 +216,27 @@
         message: 'Select device',
         context: 'select devices label',
       },
+      continueText: {
+        message: 'continue',
+        context: 'Continue button',
+      },
+      cancelText: {
+        message: 'cancel',
+        context: 'Cancel button',
+      },
+      addAddress: {
+        message: 'Add address',
+        context: 'Add address button',
+      },
+      forgetText: {
+        message: 'Forget',
+        context: 'Forget device button',
+      },
+      editBtn: {
+        message: 'edit',
+        context: 'Edit device button',
+      },
     },
   };
 
 </script>
-
-
-<style scoped>
- span{
-   font-size:10px;
- }
- KRadioButton{
-   font-size:14px;
-   font-weight:bolder;
- }
-
-
-</style>

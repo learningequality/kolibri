@@ -10,6 +10,7 @@ export const PageNames = {
   DATA_EXPORT_PAGE: 'DATA_EXPORT_PAGE',
   FACILITY_CONFIG_PAGE: 'FACILITY_CONFIG_PAGE',
   ALL_FACILITIES_PAGE: 'ALL_FACILITIES_PAGE',
+  ManageSyncSchedule: 'ManageSyncSchedule',
 };
 
 // modal names
@@ -32,6 +33,8 @@ export const pageNameToModuleMap = {
   [PageNames.CLASS_ENROLL_LEARNER]: 'classAssignMembers',
   [PageNames.USER_MGMT_PAGE]: 'userManagement',
   [PageNames.FACILITY_CONFIG_PAGE]: 'facilityConfig',
+  [PageNames.DATA_EXPORT_PAGE]: 'dataExport',
+  [PageNames.ManageSyncSchedule]: 'manageSyncSchedule',
 };
 
 export const CSVGenerationStatuses = {

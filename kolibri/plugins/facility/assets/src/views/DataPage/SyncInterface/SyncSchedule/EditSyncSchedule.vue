@@ -3,6 +3,7 @@
   <ImmersivePage
     :appBarTitle="$tr('toolbarHeader')"
     :route="backRoute"
+    :icon="icon"
   >
     <KPageContainer>
       <KGrid gutter="48">
@@ -19,7 +20,7 @@
         >
           <KSelect
             value="Devices"
-            :options="['LINUX','WINODWS','MACOS','ANDROID','IOS']"
+            :options="selectArray"
           />
         </KGridItem>
 
@@ -34,6 +35,7 @@
         </KGridItem>
         <KGridItem>
           <KButton
+            :vIf="msg"
             appearance="basic-link"
             @click="removeDevice"
           >
@@ -49,6 +51,7 @@
         <KButton
           :text="$tr('cancelBtn')"
           appearance="flat-button"
+          @click="cancelBtn"
         />
         <KButton
           :text="$tr('saveBtn')"
@@ -61,8 +64,8 @@
       v-if="removeDeviceModal"
       :title="$tr('removeDevice')"
       size="medium"
-      submitText="REMOVE"
-      cancelText="CANCEL"
+      submitText="$tr('removetext')"
+      cancelText="$tr('canceltext')"
       @cancel="closeModal"
       @submit="ConfirmRemoveDevice"
     >
@@ -100,15 +103,32 @@
       ImmersivePage,
       BottomAppBar,
     },
+    props: {
+      icon: {
+        type: String,
+        default: 'back',
+      },
+      msg: {
+        type: String,
+        default: '',
+      },
+    },
     data() {
       return { removeDeviceModal: false };
     },
     computed: {
       backRoute() {
-        return { name: PageNames.MANAGE_SYNC };
+        return { name: PageNames.ManageSyncSchedule };
       },
-      msg() {
-        return this.$tr('removeDevice');
+      selectArray() {
+        return [
+          { label: this.$tr('every5Minutes'), value: 300 },
+          { label: this.$tr('everyHour'), value: 3600 },
+          { label: this.$tr('everyDay'), value: 86400 },
+          { label: this.$tr('everyWeek'), value: 604800 },
+          { label: this.$tr('everyTwoWeeks'), value: 604800 },
+          { label: this.$tr('everyMonth'), value: 2592000 },
+        ];
       },
     },
     methods: {
@@ -120,6 +140,9 @@
       },
       ConfirmRemoveDevice() {
         this.removeDeviceModal = false;
+      },
+      cancelBtn() {
+        this.$router.push({ name: PageNames.ManageSyncSchedule });
       },
     },
     $trs: {
@@ -163,6 +186,30 @@
       cancelBtn: {
         message: 'Cancel',
         context: 'Cancel buttton on the bottomAppBar',
+      },
+      every5Minutes: {
+        message: 'Every 5 minutes',
+        context: 'Label for every 5 minutes',
+      },
+      everyHour: {
+        message: 'Every hour',
+        context: 'Label for every hour',
+      },
+      everyDay: {
+        message: 'Every day',
+        context: 'Label for every day',
+      },
+      everyWeek: {
+        message: 'Every week',
+        context: 'Label for every week',
+      },
+      everyMonth: {
+        message: 'Every month',
+        context: 'Label for every month',
+      },
+      everyTwoWeeks: {
+        message: 'Every two weeks',
+        context: 'Label for every two weeks',
       },
     },
   };
