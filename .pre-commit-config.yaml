@@ -30,6 +30,7 @@ repos:
     entry: We do not allow _auto_ in migration names. Please give the migration a telling name.
     language: fail
     files: .*/migrations/.*_auto_.*\.py$
+    language_version: python3.10
     exclude: ^
       (?x)^(
         kolibri/core/auth/migrations/0002_auto_20170608_2125\.py|
