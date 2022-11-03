@@ -36,6 +36,7 @@ import PermissionsIcon from '../views/PermissionsIcon';
 import CoreBase from '../views/CoreBase';
 import AppBarPage from '../views/CorePage/AppBarPage';
 import AppBar from '../views/AppBar';
+import AppError from '../views/AppError';
 import ImmersivePage from '../views/CorePage/ImmersivePage';
 import ScrollingHeader from '../views/CoreBase/ScrollingHeader';
 import SidePanelModal from '../views/SidePanelModal';
@@ -71,10 +72,12 @@ import UserType from '../utils/UserType';
 import * as syncTaskUtils from '../utils/syncTaskUtils';
 import samePageCheckGenerator from '../utils/samePageCheckGenerator';
 import Backdrop from '../views/Backdrop';
+import CoreBanner from '../views/CoreBanner';
 import CoreSnackbar from '../views/CoreSnackbar';
 import CoreMenu from '../views/CoreMenu';
 import CoreMenuDivider from '../views/CoreMenu/CoreMenuDivider';
 import CoreMenuOption from '../views/CoreMenu/CoreMenuOption';
+import GlobalSnackbar from '../views/GlobalSnackbar';
 import heartbeat from '../heartbeat';
 import CoreTable from '../views/CoreTable';
 import UserTable from '../views/UserTable';
@@ -160,6 +163,7 @@ export default {
       PermissionsIcon,
       AppBar,
       AppBarPage,
+      AppError,
       ImmersivePage,
       CoreBase,
       SidePanelModal,
@@ -173,11 +177,13 @@ export default {
       PointsIcon,
       AuthMessage,
       FilterTextbox,
+      CoreBanner,
       CoreSnackbar,
       CoreMenu,
       CoreMenuDivider,
       CoreMenuOption,
       CoreTable,
+      GlobalSnackbar,
       UserTable,
       CoreInfoIcon,
       InteractionList,

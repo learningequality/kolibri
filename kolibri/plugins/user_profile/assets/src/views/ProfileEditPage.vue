@@ -1,16 +1,13 @@
 <template>
 
   <!-- The v-if ensures the page isn't visible briefly before redirection -->
-  <CoreBase
+  <ImmersivePage
     v-if="!isSubsetOfUsersDevice"
-    :immersivePage="true"
-    immersivePageIcon="close"
+    icon="close"
     :appBarTitle="$tr('editProfileHeader')"
-    :pageTitle="$tr('editProfileHeader')"
-    :showSubNav="false"
-    :immersivePageRoute="profileRoute"
+    :route="profileRoute"
   >
-    <KPageContainer class="narrow-container">
+    <KPageContainer class="narrow-container" :topMargin="100">
       <form class="form" @submit.prevent="handleSubmit">
         <h1>{{ $tr('editProfileHeader') }}</h1>
 
@@ -62,7 +59,8 @@
         </KButtonGroup>
       </form>
     </KPageContainer>
-  </CoreBase>
+
+  </immersivepage>
 
 </template>
 
@@ -78,10 +76,10 @@
   import GenderSelect from 'kolibri.coreVue.components.GenderSelect';
   import BirthYearSelect from 'kolibri.coreVue.components.BirthYearSelect';
   import FullNameTextbox from 'kolibri.coreVue.components.FullNameTextbox';
+  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
   import { FacilityUserResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import { RoutesMap } from '../constants';
   import plugin_data from 'plugin_data';
 
@@ -97,7 +95,7 @@
       BirthYearSelect,
       FullNameTextbox,
       UsernameTextbox,
-      CoreBase,
+      ImmersivePage,
     },
     mixins: [commonCoreStrings],
     data() {
