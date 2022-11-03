@@ -31,8 +31,7 @@ repos:
     language: fail
     language_version: python3.10
     files: .*/migrations/.*_auto_.*\.py$
-    exclude: ^
-      (?x)^(
+    exclude: ^(
         kolibri/core/auth/migrations/0002_auto_20170608_2125\.py|
         kolibri/core/auth/migrations/0003_auto_20170621_0958\.py|
         kolibri/core/auth/migrations/0004_auto_20170816_1607\.py|
