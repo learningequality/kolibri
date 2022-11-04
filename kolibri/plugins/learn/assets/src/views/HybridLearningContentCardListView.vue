@@ -47,10 +47,10 @@
                 :style="{ color: $themePalette.grey.v_700, marginTop: 0 }"
               />
               <p
-                v-if="categoryAndLevelString(content)"
+                v-if="categoryAndLevelString"
                 class="metadata-info"
                 :style="{ color: $themePalette.grey.v_700, marginTop: 0 }"
-              >{{ categoryAndLevelString(content) }}</p>
+              >{{ categoryAndLevelString }}</p>
               <div>
                 <img
                   :src="
@@ -174,23 +174,24 @@
         const time = this.$formatRelative(this.ceilingDate, { now: this.now });
         return this.coreString('bookmarkedTimeAgoLabel', { time });
       },
-    },
-    methods: {
-      categoryAndLevelString(content) {
-        if (this.levels(content.grade_levels) && this.category(content.categories)) {
-          return this.category(content.categories) + ' | ' + this.levels(content.grade_levels);
-        } else if (this.category(content.categories)) {
-          return this.category(content.categories);
-        } else if (this.levels(content.grade_levels)) {
-          return this.levels(content.grade_levels);
+      categoryAndLevelString() {
+        if (this.levels(this.content.grade_levels) && this.category(this.content.categories)) {
+          return (
+            this.category(this.content.categories) + ' | ' + this.levels(this.content.grade_levels)
+          );
+        } else if (this.category(this.content.categories)) {
+          return this.category(this.content.categories);
+        } else if (this.levels(this.content.grade_levels)) {
+          return this.levels(this.content.grade_levels);
         }
         return null;
       },
+    },
+    methods: {
       levels(levels) {
-        const levelsNonReactive = JSON.parse(JSON.stringify(levels));
         const matches = Object.keys(ContentLevels)
           .sort()
-          .filter(k => levelsNonReactive.includes(ContentLevels[k]));
+          .filter(k => levels.includes(ContentLevels[k]));
         if (matches && matches.length > 0) {
           let adjustedMatches = [];
           matches.map(key => {
@@ -211,10 +212,9 @@
         }
       },
       category(options) {
-        const optionsNonReactive = JSON.parse(JSON.stringify(options));
         const matches = Object.keys(Categories)
           .sort()
-          .filter(k => optionsNonReactive.includes(Categories[k]));
+          .filter(k => options.includes(Categories[k]));
         if (matches && matches.length > 0) {
           return matches.map(m => this.coreString(camelCase(m))).join(', ');
         }

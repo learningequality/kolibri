@@ -92,7 +92,8 @@ export default function useLearningActivities(contentNode) {
     return (
       contentNode &&
       contentNode.duration &&
-      !(contentNode.kind == ContentNodeKinds.AUDIO || contentNode.kind == ContentNodeKinds.VIDEO) &&
+      contentNode.kind !== ContentNodeKinds.AUDIO &&
+      contentNode.kind !== ContentNodeKinds.VIDEO &&
       (lodashGet(contentNode, ['options', 'completion_criteria', 'model']) ===
         CompletionCriteria.APPROX_TIME ||
         lodashGet(contentNode, ['options', 'completion_criteria', 'model']) ===
