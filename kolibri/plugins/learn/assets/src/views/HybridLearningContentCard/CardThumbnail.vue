@@ -5,7 +5,7 @@
   >
     <template #labels>
       <LearningActivityDuration
-        v-if="!isMobile"
+        v-if="displayDurationChip"
         :contentNode="contentNode"
         appearance="chip"
         class="duration"
@@ -37,6 +37,22 @@
       contentNode: {
         type: Object,
         required: true,
+      },
+      // Override to hide the tag used based on thumbnail proportions
+      // should be TRUE when medium sized screen and list view of cards
+      hideDuration: {
+        type: Boolean,
+        default: false,
+      },
+    },
+    computed: {
+      displayDurationChip() {
+        if (this.hideDuration) {
+          return false;
+        } else if (this.isMobile) {
+          return false;
+        }
+        return true;
       },
     },
   };
