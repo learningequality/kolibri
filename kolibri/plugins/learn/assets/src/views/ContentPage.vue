@@ -62,6 +62,12 @@
       @close="markAsComplete"
       @shouldFocusFirstEl="findFirstEl()"
     />
+
+    <MarkAsCompleteModal
+      v-if="showCompleteContentModal && allowMarkComplete"
+      @complete="handleMarkAsComplete"
+      @cancel="hideMarkAsCompleteModal"
+    />
   </div>
 
 </template>
@@ -77,6 +83,7 @@
   import AssessmentWrapper from './AssessmentWrapper';
   import commonLearnStrings from './commonLearnStrings';
   import CompletionModal from './CompletionModal';
+  import MarkAsCompleteModal from './MarkAsCompleteModal';
 
   export default {
     name: 'ContentPage',
@@ -91,6 +98,7 @@
     components: {
       AssessmentWrapper,
       CompletionModal,
+      MarkAsCompleteModal,
     },
     mixins: [commonLearnStrings],
     setup() {
@@ -133,6 +141,15 @@
         required: false,
         default: null,
       },
+      /**
+       * Does a resource have the option to be
+       * manually marked as complete?
+       */
+      allowMarkComplete: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
     },
     data() {
       return {
@@ -145,8 +162,11 @@
       ...mapState({
         fullName: state => state.core.session.full_name,
       }),
+      ...mapState(['showCompleteContentModal']),
     },
     created() {
+      /* Always be sure that this is hidden before the component renders */
+      this.hideMarkAsCompleteModal();
       return this.initContentSession({
         nodeId: this.content.id,
         lessonId: this.lessonId,
@@ -180,6 +200,19 @@
       },
       updateContentState(contentState) {
         this.updateContentSession({ contentState });
+      },
+      hideMarkAsCompleteModal() {
+        this.$store.commit('SET_SHOW_COMPLETE_CONTENT_MODAL', false);
+      },
+      handleMarkAsComplete() {
+        this.hideMarkAsCompleteModal();
+        return this.updateContentSession({ progress: 1 })
+          .then(() => {
+            this.$store.dispatch('createSnackbar', this.learnString('resourceCompletedLabel'));
+          })
+          .catch(error => {
+            this.$store.dispatch('handleApiError', error);
+          });
       },
       navigateTo(message) {
         let id = message.nodeId;

@@ -86,11 +86,6 @@
         </CoreMenu>
       </span>
     </template>
-    <MarkAsCompleteModal
-      v-if="showMarkAsCompleteModal && allowMarkComplete"
-      @complete="showMarkAsCompleteModal = false"
-      @cancel="showMarkAsCompleteModal = false"
-    />
   </UiToolbar>
 
 </template>
@@ -110,7 +105,6 @@
   import { validateLearningActivity } from 'kolibri.utils.validators';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import LearningActivityIcon from './LearningActivityIcon.vue';
-  import MarkAsCompleteModal from './MarkAsCompleteModal';
   import commonLearnStrings from './commonLearnStrings';
 
   export default {
@@ -121,7 +115,6 @@
       CoreMenuOption,
       TextTruncatorCss,
       LearningActivityIcon,
-      MarkAsCompleteModal,
       ProgressIcon,
       UiToolbar,
     },
@@ -213,7 +206,6 @@
     data() {
       return {
         isMenuOpen: false,
-        showMarkAsCompleteModal: false,
       };
     },
     computed: {
@@ -241,7 +233,7 @@
             dataTest: this.isBookmarked ? 'removeBookmarkButton' : 'addBookmarkButton',
           });
         }
-        if (this.allowMarkComplete) {
+        if (this.allowMarkComplete && this.contentProgress < 1) {
           actions.push({
             id: 'mark-complete',
             icon: 'star',
@@ -292,7 +284,7 @@
     },
     created() {
       window.addEventListener('click', this.onWindowClick);
-      this.$on('markComplete', () => (this.showMarkAsCompleteModal = true));
+      this.$on('markComplete', () => this.$store.commit('SET_SHOW_COMPLETE_CONTENT_MODAL', true));
     },
     beforeDestroy() {
       window.removeEventListener('click', this.onWindowClick);

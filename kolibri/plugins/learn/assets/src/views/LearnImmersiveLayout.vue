@@ -53,6 +53,7 @@
         data-test="contentPage"
         :content="content"
         :lessonId="lessonId"
+        :allowMarkComplete="allowMarkComplete"
       />
     </div>
 
