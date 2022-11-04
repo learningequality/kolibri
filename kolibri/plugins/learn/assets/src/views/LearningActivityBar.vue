@@ -233,7 +233,7 @@
             dataTest: this.isBookmarked ? 'removeBookmarkButton' : 'addBookmarkButton',
           });
         }
-        if (this.allowMarkComplete) {
+        if (this.allowMarkComplete && this.contentProgress < 1) {
           actions.push({
             id: 'mark-complete',
             icon: 'star',
