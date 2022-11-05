@@ -1,6 +1,7 @@
 <template>
 
   <div
+    :id="`pdf-page-${pageNum}`"
     class="pdf-page"
     role="region"
     :aria-label="$tr('numPage', { number: pageNum, total: totalPages })"
@@ -10,7 +11,7 @@
       background: $themeTokens.surface,
     }"
   >
-    <span class="loading">{{ $formatNumber(pageNum) }}</span>
+    <span class="loading" aria-hidden="true">{{ $formatNumber(pageNum) }}</span>
     <canvas
       v-show="rendered"
       ref="canvas"
@@ -153,6 +154,9 @@
                 this.textLayer.render();
               }
               this.rendered = true;
+              this.eventBus.emit('pageRendered', {
+                pageNumber: this.pageNum,
+              });
             },
             () => {
               delete this.renderTask;

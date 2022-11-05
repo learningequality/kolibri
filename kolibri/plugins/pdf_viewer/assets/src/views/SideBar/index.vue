@@ -31,6 +31,7 @@
             class="tab"
             :tabindex="tab.disabled ? -1 : 0"
             :aria-label="tab.name"
+            role="button"
             @click="selectTab(tab.name)"
             @keydown.enter="selectTab(tab.name)"
             @keydown.space="selectTab(tab.name)"
@@ -60,6 +61,7 @@
         <Bookmarks
           :outline="outline"
           :goToDestination="goToDestination"
+          :focusDestPage="focusDestPage"
         />
       </template>
       <template v-if="selectedTab === 'preview'">
@@ -89,6 +91,10 @@
         required: true,
       },
       goToDestination: {
+        type: Function,
+        required: true,
+      },
+      focusDestPage: {
         type: Function,
         required: true,
       },
@@ -144,8 +150,10 @@
   }
 
   .tab:focus-visible {
-    outline-width: medium;
+    outline-width: 3px;
     outline-style: solid;
+    outline-color: #8dc5b6;
+    outline-offset: 4px;
   }
 
   .sidebar-content {

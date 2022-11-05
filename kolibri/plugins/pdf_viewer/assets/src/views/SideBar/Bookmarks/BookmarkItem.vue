@@ -4,14 +4,16 @@
     <div class="bookmark-item-title-container">
       <span
         v-if="item.items && item.items.length > 0"
-        tabindex="0"
         class="dropdown-icon-container"
+        tabindex="0"
+        role="button"
+        :aria-label="$tr('expand')"
+        aria-controls="pdf-container"
         @click="toggleExpanded"
         @keydown.enter="toggleExpanded"
         @keydown.space="toggleExpanded"
       >
         <KIcon
-          aria-controls="pdf-container"
           icon="chevronRight"
           class="dropdown-icon"
           :class="{ 'expanded': expanded }"
@@ -22,7 +24,8 @@
         class="bookmark-item-title"
         role="button"
         @click="goToDestination(item.dest)"
-        @keydown.enter="goToDestination(item.dest)"
+        @keydown.shift.enter="focusDestPage(item.dest, $event)"
+        @keydown.enter.exact="goToDestination(item.dest)"
         @keydown.space="goToDestination(item.dest)"
       >
         {{ item.title }}
@@ -34,6 +37,7 @@
         :key="index"
         :item="child"
         :goToDestination="goToDestination"
+        :focusDestPage="focusDestPage"
       />
     </ul>
   </li>
@@ -54,6 +58,10 @@
         type: Function,
         required: true,
       },
+      focusDestPage: {
+        type: Function,
+        required: true,
+      },
     },
     data() {
       return {
@@ -64,6 +72,9 @@
       toggleExpanded() {
         this.expanded = !this.expanded;
       },
+    },
+    $trs: {
+      expand: 'Expand bookmark',
     },
   };
 
@@ -86,8 +97,10 @@
 
     .bookmark-item-title:focus-visible,
     .dropdown-icon-container:focus-visible {
-      outline-width: medium;
+      outline-width: 3px;
       outline-style: solid;
+      outline-color: #8dc5b6;
+      outline-offset: 4px;
     }
 
     .dropdown-icon-container {
