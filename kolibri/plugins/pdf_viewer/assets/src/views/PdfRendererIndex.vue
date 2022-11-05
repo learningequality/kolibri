@@ -25,7 +25,7 @@
             <KIconButton
               v-if="outline && outline.length > 0"
               class="controls"
-              :ariaLabel="coreString('zoomIn')"
+              :ariaLabel="coreString('menu')"
               aria-controls="sidebar-container"
               icon="menu"
               @click="toggleSideBar"
@@ -69,6 +69,7 @@
           <SideBar
             :outline="outline || []"
             :goToDestination="goToDestination"
+            :focusDestPage="focusDestPage"
           />
         </KGridItem>
         <KGridItem
@@ -507,6 +508,61 @@
 
         this.scrollTo(position);
       },
+      async focusDestPage(dest, event) {
+        if (!this.pdfDocument) {
+          return;
+        }
+        let explicitDest;
+        if (typeof dest === 'string') {
+          explicitDest = await this.pdfDocument.getDestination(dest);
+        } else {
+          explicitDest = await dest;
+        }
+        if (!Array.isArray(explicitDest)) {
+          console.error('Error getting destination');
+          return;
+        }
+
+        const pageNumber = await this.getDestinationPageNumber(explicitDest);
+        if (!pageNumber || pageNumber < 1 || pageNumber > this.pagesCount) {
+          console.error('Invalid destination page');
+          return;
+        }
+        const isFocused = this.focusPage(pageNumber, event.target);
+        if (!isFocused) {
+          let position = (pageNumber - 1) / this.totalPages;
+          this.scrollTo(position); // scroll to page so the virtual list can render it
+          const onPageRendered = e => {
+            if (e.pageNumber === pageNumber) {
+              this.focusPage(pageNumber, event.target);
+              this.eventBus.off('pageRendered', onPageRendered);
+            }
+          };
+          this.eventBus.on('pageRendered', onPageRendered);
+        }
+      },
+      /**
+       * Focus a given pdf page and return true if the page was already rendered
+       */
+      focusPage(pageNumber, bookmark) {
+        const page = document.querySelector('#pdf-page-' + pageNumber);
+        if (page) {
+          page.setAttribute('tabindex', 0);
+          page.focus({
+            preventScroll: true,
+          });
+          const backToBookmark = e => {
+            if (e.key === 'Enter' && e.shiftKey) {
+              page.removeAttribute('tabindex');
+              window.removeEventListener('keydown', backToBookmark);
+              bookmark.focus();
+            }
+          };
+          window.addEventListener('keydown', backToBookmark);
+          return true;
+        }
+        return false;
+      },
       /**
        * Get the page number from the explicit destination array.
        * Adaptation of the original function from pdf.js:
@@ -633,11 +689,11 @@
   }
 
   .sidebar-container {
-    height: calc(100vh - #{$top-bar-height});
+    height: 100%;
   }
 
   .pdf-renderer.pdf-controls-open .sidebar-container {
-    height: calc(100vh - #{$top-bar-height} - #{$controls-height});
+    height: calc(100% - $controls-height);
   }
 
   /deep/ .sidebar-container > div {

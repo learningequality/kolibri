@@ -1,11 +1,15 @@
 <template>
 
-  <ul class="bookmarks-wrapper">
+  <ul
+    class="bookmarks-wrapper"
+    :aria-label="$tr('bookmarksSection')"
+  >
     <BookmarkItem
       v-for="(item, index) in outline"
       :key="index"
       :item="item"
       :goToDestination="goToDestination"
+      :focusDestPage="focusDestPage"
     />
   </ul>
 
@@ -30,6 +34,14 @@
         type: Function,
         required: true,
       },
+      focusDestPage: {
+        type: Function,
+        required: true,
+      },
+    },
+    $trs: {
+      bookmarksSection:
+        'Bookmarks section. You can switch between the pdf document and bookmarks section pressing shift + enter.',
     },
   };
 
