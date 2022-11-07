@@ -232,6 +232,9 @@
         this.storeVisitedSlide(this.currentSlideIndex);
         this.updateProgress();
         this.updateContentState();
+        if (this.currentSlideIndex >= this.slides.length - 1) {
+          this.$emit('finished');
+        }
       },
       slideTextId(id) {
         return 'descriptive-text-' + id;

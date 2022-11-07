@@ -331,6 +331,9 @@
           this.storeVisitedPage(currentPage);
           this.updateProgress();
           this.updateContentState();
+          if (this.scrolledToEnd()) {
+            this.$emit('finished');
+          }
         }
         this.debouncedShowVisiblePages(start, end);
       },

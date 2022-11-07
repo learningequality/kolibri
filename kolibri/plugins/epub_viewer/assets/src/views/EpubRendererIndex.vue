@@ -742,6 +742,9 @@
         ) {
           this.storeVisitedPage(this.locations[locationIndex]);
         }
+        if (location.end.percentage >= 1) {
+          this.finish();
+        }
         this.updateProgress();
         this.updateContentState();
       },
@@ -767,6 +770,9 @@
           };
         }
         this.$emit('updateContentState', contentState);
+      },
+      finish() {
+        this.$emit('finished');
       },
     },
   };

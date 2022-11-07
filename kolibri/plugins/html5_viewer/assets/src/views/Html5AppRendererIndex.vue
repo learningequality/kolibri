@@ -182,14 +182,16 @@
     },
     methods: {
       recordProgress() {
+        let progress;
         if (this.forceDurationBasedProgress) {
-          this.$emit('updateProgress', this.durationBasedProgress);
+          progress = this.durationBasedProgress;
         } else {
           const hashiProgress = this.hashi ? this.hashi.getProgress() : null;
-          this.$emit(
-            'updateProgress',
-            hashiProgress === null ? this.durationBasedProgress : hashiProgress
-          );
+          progress = hashiProgress === null ? this.durationBasedProgress : hashiProgress;
+        }
+        this.$emit('updateProgress', progress);
+        if (progress >= 1) {
+          this.$emit('finished');
         }
         this.pollProgress();
       },
