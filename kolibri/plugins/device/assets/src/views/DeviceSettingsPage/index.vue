@@ -95,7 +95,6 @@
             />
           </div>
         </div>
-        &nbsp;
 
         <div class="fieldset">
           <h2>
@@ -117,7 +116,6 @@
             @input="handleMeteredConnectionDownloadChange"
           />
         </div>
-        &nbsp;
 
         <div>
           <h2>
@@ -161,7 +159,6 @@
             </template>
           </KButton>
         </div>
-      &nbsp;
 
         <div class="fieldset">
           <h2>
@@ -204,7 +201,6 @@
           </div>
         </div>
       </section>
-      &nbsp;
 
       <section>
         <KButton
