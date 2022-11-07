@@ -42,7 +42,7 @@
               <LearningActivityDuration
                 v-if="!windowIsLarge"
                 :contentNode="content"
-                class="duration"
+                :class="categoryAndLevelString ? 'duration prepends' : 'duration'"
                 condensed
                 :style="{ color: $themePalette.grey.v_700, marginTop: 0 }"
               />
@@ -283,7 +283,9 @@
     display: inline-block;
     margin-top: 4px;
     font-size: 13px;
+  }
 
+  .prepends {
     &::after {
       content: ' | ';
     }
