@@ -57,6 +57,7 @@
                     content.channel_thumbnail"
                   :alt="learnString('logo', { channelTitle: content.channel_title })"
                   class="channel-logo"
+                  :style="{ color: $themePalette.grey.v_700 }"
                 >
                 <KButton
                   v-if="isLibraryPage && content.copies"
@@ -269,6 +270,7 @@
     display: inline-block;
     height: 24px;
     margin-right: 8px;
+    font-size: 13px;
   }
 
   .copies {
