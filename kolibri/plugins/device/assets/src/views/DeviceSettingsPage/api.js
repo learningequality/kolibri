@@ -33,3 +33,11 @@ export function saveDeviceSettings(settings) {
     },
   });
 }
+
+export function getDeviceURLs() {
+  return client({ url: urls['kolibri:core:deviceinfo']() }).then(response => {
+    return {
+      deviceUrls: response.data.urls,
+    };
+  });
+}

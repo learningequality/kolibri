@@ -128,9 +128,10 @@
           </p>
           <p>
             {{ primaryStorageLocation }}
-            <KExternalLink text="Change" href="#0" />
+            <KExternalLink v-if="browserLocationMatchesServerURL" text="Change" href="#0" />
           </p>
           <KButton
+            v-if="browserLocationMatchesServerURL" 
             :text="$tr('addLocation')"
             appearance="raised-button"
             secondary
@@ -145,10 +146,11 @@
           <p class="info-description">
             {{ $tr('secondaryStorageDescription') }}
           </p>
-          <p v-for="(index, item) in secondaryStorageConnections" :key="item">
-            {{ item.key }}
+          <p v-for="path in secondaryStorageConnections" :key="path.index">
+            {{ path }}
           </p>
           <KButton
+            v-if="browserLocationMatchesServerURL" 
             hasDropdown
             secondary
             appearance="raised-button"
@@ -168,8 +170,8 @@
           <KCheckbox
             :label="$tr('enableAutoDownload')"
             :checked="enableAutomaticDownload ||
-              allowLearnerDownloadResources ||
-              setLimitForAutodownload"
+            allowLearnerDownloadResources ||
+            setLimitForAutodownload"
             :description="$tr('enableAutoDownloadDescription')"
             @change="enableAutomaticDownload = $event"
           />
@@ -186,13 +188,19 @@
               :description="$tr('setStorageLimitDescription')"
               @change="setLimitForAutodownload = $event"
             />
-            <!-- <KTextBox
-                ref="textbox"
+            <div style="margin-left: 32px">
+              <KTextbox
                 v-if="setLimitForAutodownload"
-                :value="limitForAutodownload"
+                class="downloadLimitTextbox"
+                ref="autoDownloadLimit"
+                v-model="limitForAutodownload"
                 type="number"
                 label="GB"
-              /> -->
+                :readonly="true"
+              />
+              <input class="downloadLimitSlider" id="slider" type="range" min="0" max="100" step="1" v-model="limitForAutodownload"
+                @change="sliderChange($event.target.value)">
+            </div>
           </div>
         </div>
       </section>
@@ -241,7 +249,7 @@
   import { LandingPageChoices } from '../../constants';
   import DeviceTopNav from '../DeviceTopNav';
   import { deviceString } from '../commonDeviceStrings';
-  import { getDeviceSettings, saveDeviceSettings } from './api';
+  import { getDeviceSettings, saveDeviceSettings, getDeviceURLs } from './api';  
 
   const SignInPageOptions = Object.freeze({
     LOCKED_CONTENT: 'LOCKED_CONTENT',
@@ -280,7 +288,8 @@
         enableAutomaticDownload: null,
         allowLearnerDownloadResources: null,
         setLimitForAutodownload: null,
-        limitForAutodownload: null,
+        limitForAutodownload: 0,
+        deviceUrls: [],
         browserDefaultOption: {
           value: null,
           label: this.$tr('browserDefaultLanguage'),
@@ -317,6 +326,12 @@
       storageLocationOptions() {
         return [this.$tr('addStorageLocation'), this.$tr('removeStorageLocation')];
       },
+      browserLocationMatchesServerURL(){
+        return (window.location.hostname.includes('127.0.0.1')) || this.deviceUrls.includes(window.location.origin + "/");
+      },
+    },
+    created() {
+      this.setDeviceURLs();
     },
     beforeMount() {
       this.getDeviceSettings().then(settings => {
@@ -381,6 +396,7 @@
             settings.extraSettings['allow_learner_download_resources'];
           this.setLimitForAutodownload = settings.extraSettings['set_limit_for_autodownload'];
           this.limitForAutodownload = settings.extraSettings['limit_for_autodownload'];
+          this.setSlider();
         }
         this.primaryStorageLocation = settings.extraSettings['primary_storage_connection'];
         this.secondaryStorageConnections = settings.extraSettings['secondary_storage_connections'];
@@ -428,10 +444,15 @@
             'allow_learner_download_resources'
           ] = this.allowLearnerDownloadResources;
           this.extraSettings['set_limit_for_autodownload'] = this.setLimitForAutodownload;
-          this.extraSettings['limit_for_autodownload'] = 0;
+          this.extraSettings['limit_for_autodownload'] = this.setLimitForAutodownload;
         }
         this.extraSettings['primary_storage_connection'] = this.primaryStorageLocation;
         this.extraSettings['secondary_storage_connections'] = this.secondaryStorageConnections;
+      },
+      setDeviceURLs() {
+        return getDeviceURLs().then(({ deviceUrls }) => {
+          this.deviceUrls = deviceUrls;
+        });
       },
       handleLandingPageChange(option) {
         this.landingPage = option;
@@ -485,6 +506,14 @@
       saveDeviceSettings,
       handleClick(e) {
         e.preventDefault();
+      },
+      setSlider(){
+        const slider = document.getElementById("slider");
+        slider.style.background = `linear-gradient(to right, #996189 0%, #996189 ${(this.limitForAutodownload - 0) / (100 - 0) * 100}%, #DEE2E6 ${(this.limitForAutodownload - 0) / (100 - 0) * 100}%, #DEE2E6 100%)`;
+      },
+      sliderChange(newValue) {
+        this.limitForAutodownload = newValue;
+        slider.style.background = `linear-gradient(to right, #996189 0%, #996189 ${(newValue - 0) / (100 - 0) * 100}%, #DEE2E6 ${(newValue - 0) / (100 - 0) * 100}%, #DEE2E6 100%)`;
       },
     },
     $trs: {
@@ -655,8 +684,7 @@
 
 
 <style lang="scss" scoped>
-
-  @import '../../styles/definitions';
+@import '../../styles/definitions';
 
   .device-container {
     @include device-kpagecontainer;
@@ -697,4 +725,29 @@
     color: #616161;
   }
 
+  #slider {
+    margin-left: 10px;
+    height: 2px;
+    width: 264px;
+    outline: none;
+    appearance: none;
+  }
+  #slider::-webkit-slider-thumb {
+    width: 12px;
+    height: 12px;
+    -webkit-appearance: none;
+    height: 12px;
+    background: #996189;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+
+  .downloadLimitTextbox{
+    display: inline-block;
+    width: 70px;
+  }
+
+  .downloadLimitSlider {
+    display: inline-block;
+  }
 </style>
