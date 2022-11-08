@@ -24,6 +24,7 @@
         @updateContentState="updateContentState"
         @navigateTo="navigateTo"
         @error="onError"
+        @finished="onFinished"
       />
 
       <AssessmentWrapper
@@ -49,17 +50,18 @@
         @updateInteraction="updateInteraction"
         @updateProgress="updateProgress"
         @updateContentState="updateContentState"
+        @finished="onFinished"
       />
     </template>
     <KCircularLoader v-else />
 
     <CompletionModal
-      v-if="progress >= 1 && wasIncomplete"
+      v-if="showCompletionModal"
       ref="completionModal"
       :isUserLoggedIn="isUserLoggedIn"
       :contentNodeId="content.id"
       :lessonId="lessonId"
-      @close="markAsComplete"
+      @close="showCompletionModal = false"
       @shouldFocusFirstEl="findFirstEl()"
     />
 
@@ -153,7 +155,7 @@
     },
     data() {
       return {
-        wasIncomplete: false,
+        showCompletionModal: false,
         sessionReady: false,
       };
     },
@@ -172,15 +174,11 @@
         lessonId: this.lessonId,
       }).then(() => {
         this.sessionReady = true;
-        this.setWasIncomplete();
         // Set progress into the content node progress store in case it was not already loaded
         this.cacheProgress();
       });
     },
     methods: {
-      setWasIncomplete() {
-        this.wasIncomplete = this.progress < 1;
-      },
       /*
        * Update the progress of the content node in the shared progress store
        * in the useContentNodeProgress composable. Do this to have a single
@@ -224,8 +222,8 @@
             this.$store.dispatch('handleApiError', error);
           });
       },
-      markAsComplete() {
-        this.wasIncomplete = false;
+      onFinished() {
+        this.showCompletionModal = this.progress >= 1;
       },
       onError(error) {
         this.$store.dispatch('handleApiError', error);

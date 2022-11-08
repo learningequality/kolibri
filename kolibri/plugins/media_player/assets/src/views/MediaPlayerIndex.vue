@@ -338,7 +338,10 @@
         this.player.on('seeking', this.handleSeek);
         this.player.on('volumechange', this.throttledUpdateVolume);
         this.player.on('ratechange', this.updateRate);
-        this.player.on('ended', () => this.setPlayState(false));
+        this.player.on('ended', () => {
+          this.setPlayState(false);
+          this.$emit('finished');
+        });
         this.$watch('elementWidth', this.updatePlayerSizeClass);
         this.updatePlayerSizeClass();
         this.resizePlayer();
