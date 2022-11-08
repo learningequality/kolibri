@@ -129,7 +129,7 @@
             <KExternalLink v-if="browserLocationMatchesServerURL" text="Change" href="#0" />
           </p>
           <KButton
-            v-if="browserLocationMatchesServerURL" 
+            v-if="browserLocationMatchesServerURL"
             :text="$tr('addLocation')"
             appearance="raised-button"
             secondary
@@ -137,7 +137,7 @@
           />
         </div>
 
-        <div>
+        <div v-if="browserLocationMatchesServerURL">
           <h2>
             {{ $tr('secondaryStorage') }}
           </h2>
@@ -148,7 +148,6 @@
             {{ path }}
           </p>
           <KButton
-            v-if="browserLocationMatchesServerURL" 
             hasDropdown
             secondary
             appearance="raised-button"
@@ -167,8 +166,8 @@
           <KCheckbox
             :label="$tr('enableAutoDownload')"
             :checked="enableAutomaticDownload ||
-            allowLearnerDownloadResources ||
-            setLimitForAutodownload"
+              allowLearnerDownloadResources ||
+              setLimitForAutodownload"
             :description="$tr('enableAutoDownloadDescription')"
             @change="enableAutomaticDownload = $event"
           />
@@ -185,18 +184,37 @@
               :description="$tr('setStorageLimitDescription')"
               @change="setLimitForAutodownload = $event"
             />
-            <div style="margin-left: 32px">
+            <div v-show="setLimitForAutodownload" style="margin-left: 32px">
               <KTextbox
-                v-if="setLimitForAutodownload"
-                class="downloadLimitTextbox"
                 ref="autoDownloadLimit"
                 v-model="limitForAutodownload"
+                class="download-limit-textbox"
+                :disabled="notEnoughFreeSpace"
                 type="number"
                 label="GB"
-                :readonly="true"
+                :invalid="notEnoughFreeSpace"
+                :invalidText="$tr('notEnoughFreeSpace')"
               />
-              <input class="downloadLimitSlider" id="slider" type="range" min="0" max="100" step="1" v-model="limitForAutodownload"
-                @change="sliderChange($event.target.value)">
+              <div class="slider-section">
+                <input
+                  id="slider"
+                  v-model="limitForAutodownload"
+                  :disabled="notEnoughFreeSpace"
+                  type="range"
+                  min="0"
+                  :max="freeSpace"
+                  step="1"
+                  @change="sliderChange($event.target.value)"
+                >
+                <div class="slider-constraints">
+                  <p class="slider-min-max">
+                    0
+                  </p>
+                  <p class="slider-min-max">
+                    {{ freeSpace }}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -242,10 +260,12 @@
   import { availableLanguages, currentLanguage } from 'kolibri.utils.i18n';
   import sortLanguages from 'kolibri.utils.sortLanguages';
   import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
+  import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import { LandingPageChoices } from '../../constants';
   import DeviceTopNav from '../DeviceTopNav';
   import { deviceString } from '../commonDeviceStrings';
-  import { getDeviceSettings, saveDeviceSettings, getDeviceURLs } from './api';  
+  import { getFreeSpaceOnServer } from '../AvailableChannelsPage/api';
+  import { getDeviceSettings, saveDeviceSettings, getDeviceURLs } from './api';
 
   const SignInPageOptions = Object.freeze({
     LOCKED_CONTENT: 'LOCKED_CONTENT',
@@ -285,6 +305,7 @@
         allowLearnerDownloadResources: null,
         setLimitForAutodownload: null,
         limitForAutodownload: 0,
+        freeSpace: 0,
         deviceUrls: [],
         browserDefaultOption: {
           value: null,
@@ -322,12 +343,24 @@
       storageLocationOptions() {
         return [this.$tr('addStorageLocation'), this.$tr('removeStorageLocation')];
       },
-      browserLocationMatchesServerURL(){
-        return (window.location.hostname.includes('127.0.0.1')) || this.deviceUrls.includes(window.location.origin + "/");
+      browserLocationMatchesServerURL() {
+        return (
+          window.location.hostname.includes('127.0.0.1') ||
+          window.location.hostname.includes('localhost')
+        );
+      },
+      notEnoughFreeSpace() {
+        return this.freeSpace === 0;
+      },
+    },
+    watch: {
+      freeSpace() {
+        this.setSlider();
       },
     },
     created() {
       this.setDeviceURLs();
+      this.setFreeSpace();
     },
     beforeMount() {
       this.getDeviceSettings().then(settings => {
@@ -439,8 +472,13 @@
           this.extraSettings[
             'allow_learner_download_resources'
           ] = this.allowLearnerDownloadResources;
-          this.extraSettings['set_limit_for_autodownload'] = this.setLimitForAutodownload;
-          this.extraSettings['limit_for_autodownload'] = this.setLimitForAutodownload;
+          if (this.notEnoughFreeSpace) {
+            this.extraSettings['set_limit_for_autodownload'] = false;
+            this.extraSettings['limit_for_autodownload'] = 0;
+          } else {
+            this.extraSettings['set_limit_for_autodownload'] = this.setLimitForAutodownload;
+            this.extraSettings['limit_for_autodownload'] = parseInt(this.limitForAutodownload);
+          }
         }
         this.extraSettings['primary_storage_connection'] = this.primaryStorageLocation;
         this.extraSettings['secondary_storage_connections'] = this.secondaryStorageConnections;
@@ -448,6 +486,11 @@
       setDeviceURLs() {
         return getDeviceURLs().then(({ deviceUrls }) => {
           this.deviceUrls = deviceUrls;
+        });
+      },
+      setFreeSpace() {
+        return getFreeSpaceOnServer().then(({ freeSpace }) => {
+          this.freeSpace = parseInt(bytesForHumans(freeSpace).substring(0, 3));
         });
       },
       handleLandingPageChange(option) {
@@ -503,13 +546,27 @@
       handleClick(e) {
         e.preventDefault();
       },
-      setSlider(){
-        const slider = document.getElementById("slider");
-        slider.style.background = `linear-gradient(to right, #996189 0%, #996189 ${(this.limitForAutodownload - 0) / (100 - 0) * 100}%, #DEE2E6 ${(this.limitForAutodownload - 0) / (100 - 0) * 100}%, #DEE2E6 100%)`;
+      setSlider() {
+        const slider = document.getElementById('slider');
+        if (this.notEnoughFreeSpace) {
+          slider.style.background = `linear-gradient(to right, #996189 0%, #996189 ${((0 - 0) /
+            (100 - 0)) *
+            100}%, #DEE2E6 ${((0 - 0) / (100 - 0)) * 100}%, #DEE2E6 100%)`;
+        } else {
+          slider.style.background = `linear-gradient(to right, #996189 0%, #996189 ${((this
+            .limitForAutodownload -
+            0) /
+            (this.freeSpace - 0)) *
+            100}%, #DEE2E6 ${((this.limitForAutodownload - 0) / (this.freeSpace - 0)) *
+            100}%, #DEE2E6 100%)`;
+        }
       },
       sliderChange(newValue) {
+        const slider = document.getElementById('slider');
         this.limitForAutodownload = newValue;
-        slider.style.background = `linear-gradient(to right, #996189 0%, #996189 ${(newValue - 0) / (100 - 0) * 100}%, #DEE2E6 ${(newValue - 0) / (100 - 0) * 100}%, #DEE2E6 100%)`;
+        slider.style.background = `linear-gradient(to right, #996189 0%, #996189 ${((newValue - 0) /
+          (this.freeSpace - 0)) *
+          100}%, #DEE2E6 ${((newValue - 0) / (this.freeSpace - 0)) * 100}%, #DEE2E6 100%)`;
       },
     },
     $trs: {
@@ -673,6 +730,10 @@
         message: 'Add Location',
         context: 'Label for a button used to add storage location',
       },
+      notEnoughFreeSpace: {
+        message: 'No available storage',
+        context: 'Error text that is provided if there is not enough free storage on device',
+      },
     },
   };
 
@@ -680,7 +741,8 @@
 
 
 <style lang="scss" scoped>
-@import '../../styles/definitions';
+
+  @import '../../styles/definitions';
 
   .device-container {
     @include device-kpagecontainer;
@@ -721,29 +783,46 @@
     color: #616161;
   }
 
-  #slider {
-    margin-left: 10px;
-    height: 2px;
+  input[type='range'] {
     width: 264px;
+    height: 2px;
+    margin-left: 10px;
     outline: none;
     appearance: none;
   }
-  #slider::-webkit-slider-thumb {
+
+  input[type='range']::-webkit-slider-thumb {
     width: 12px;
     height: 12px;
-    -webkit-appearance: none;
-    height: 12px;
+    cursor: pointer;
     background: #996189;
     border-radius: 10px;
-    cursor: pointer;
+    appearance: none;
   }
 
-  .downloadLimitTextbox{
+  .download-limit-textbox {
     display: inline-block;
     width: 70px;
   }
 
-  .downloadLimitSlider {
+  .slider-section {
+    position: absolute;
     display: inline-block;
+    padding-top: 5px;
   }
+
+  .slider-constraints {
+    display: flex;
+    justify-content: space-between;
+    margin-left: 10px;
+  }
+
+  .slider-min-max {
+    display: inline-block;
+    margin-top: 5px;
+    font-size: 14px;
+    font-weight: 400;
+    color: #686868;
+  }
+
 </style>
