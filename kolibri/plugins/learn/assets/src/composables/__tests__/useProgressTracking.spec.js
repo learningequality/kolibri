@@ -382,6 +382,16 @@ describe('useProgressTracking composable', () => {
       expect(get(progress)).toEqual(1);
       expect(client.mock.calls[0][0].data.progress_delta).toEqual(1);
     });
+    it('should max progress and store progress_delta if progress is asymptotically updated to 1', async () => {
+      const progress_delta_value = 0.5 / 999;
+      const { updateContentSession, progress } = await initStore();
+      for (let i = 999; i > 0; i--) {
+        updateContentSession({ progress: 1 - progress_delta_value * i });
+      }
+      await updateContentSession({ progress: 1 });
+      expect(get(progress)).toEqual(1);
+      expect(client.mock.calls[0][0].data.progress_delta).toBeGreaterThanOrEqual(0.5);
+    });
     it('should not update progress and store progress_delta if progress is updated under current value', async () => {
       const { updateContentSession, progress, progress_delta } = await initStore();
       await updateContentSession({ progress: 0.4 });
