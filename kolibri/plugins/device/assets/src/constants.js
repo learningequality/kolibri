@@ -70,3 +70,8 @@ export const LandingPageChoices = {
   SIGN_IN: 'sign-in',
   LEARN: 'learn',
 };
+
+export const MeteredConnectionDownloadOptions = {
+  DISALLOW_DOWNLOAD_ON_METERED_CONNECTION: 'DISALLOW_DOWNLOAD_ON_METERED_CONNECTION',
+  ALLOW_DOWNLOAD_ON_METERED_CONNECTION: 'ALLOW_DOWNLOAD_ON_METERED_CONNECTION',
+};

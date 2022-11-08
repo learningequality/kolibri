@@ -161,7 +161,7 @@
 
         <div class="fieldset">
           <h2>
-            <label style="padding-bottom: 0">{{ $tr('autoDownload') }}</label>
+            <label>{{ $tr('autoDownload') }}</label>
           </h2>
           <KCheckbox
             :label="$tr('enableAutoDownload')"
@@ -171,20 +171,20 @@
             :description="$tr('enableAutoDownloadDescription')"
             @change="enableAutomaticDownload = $event"
           />
-          <div class="fieldset" style="margin-left: 32px">
+          <div class="fieldset left-margin">
             <KCheckbox
               :label="$tr('allowLearnersDownloadResources')"
-              :checked="allowLearnerDownloadResources"
+              :checked="enableAutomaticDownload === false ? false : allowLearnerDownloadResources"
               :description="$tr('allowLearnersDownloadDescription')"
               @change="allowLearnerDownloadResources = $event"
             />
             <KCheckbox
               :label="$tr('setStorageLimit')"
-              :checked="setLimitForAutodownload"
+              :checked="enableAutomaticDownload === false ? false : setLimitForAutodownload"
               :description="$tr('setStorageLimitDescription')"
               @change="setLimitForAutodownload = $event"
             />
-            <div v-show="setLimitForAutodownload" style="margin-left: 32px">
+            <div v-show="setLimitForAutodownload" class="left-margin">
               <KTextbox
                 ref="autoDownloadLimit"
                 v-model="limitForAutodownload"
@@ -199,12 +199,12 @@
                 <input
                   id="slider"
                   v-model="limitForAutodownload"
+                  :class="$computedClass(sliderStyle)"
                   :disabled="notEnoughFreeSpace"
                   type="range"
                   min="0"
                   :max="freeSpace"
                   step="1"
-                  @change="sliderChange($event.target.value)"
                 >
                 <div class="slider-constraints">
                   <p class="slider-min-max">
@@ -261,7 +261,7 @@
   import sortLanguages from 'kolibri.utils.sortLanguages';
   import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
-  import { LandingPageChoices } from '../../constants';
+  import { LandingPageChoices, MeteredConnectionDownloadOptions } from '../../constants';
   import DeviceTopNav from '../DeviceTopNav';
   import { deviceString } from '../commonDeviceStrings';
   import { getFreeSpaceOnServer } from '../AvailableChannelsPage/api';
@@ -271,11 +271,6 @@
     LOCKED_CONTENT: 'LOCKED_CONTENT',
     DISALLOW_GUEST_ACCESS: 'DISALLOW_GUEST_ACCESS',
     ALLOW_GUEST_ACCESS: 'ALLOW_GUEST_ACCESS',
-  });
-
-  const meteredConnectionDownloadOptions = Object.freeze({
-    DISALLOW_DOWNLOAD_ON_METERED_CONNECTION: 'DISALLOW_DOWNLOAD_ON_METERED_CONNECTION',
-    ALLOW_DOWNLOAD_ON_METERED_CONNECTION: 'ALLOW_DOWNLOAD_ON_METERED_CONNECTION',
   });
 
   export default {
@@ -298,7 +293,7 @@
         SignInPageOptions,
         extraSettings: {},
         meteredConnectionDownloadOption: '',
-        meteredConnectionDownloadOptions,
+        meteredConnectionDownloadOptions: MeteredConnectionDownloadOptions,
         primaryStorageLocation: null,
         secondaryStorageConnections: null,
         enableAutomaticDownload: null,
@@ -352,10 +347,32 @@
       notEnoughFreeSpace() {
         return this.freeSpace === 0;
       },
-    },
-    watch: {
-      freeSpace() {
-        this.setSlider();
+      sliderStyle() {
+        if (this.notEnoughFreeSpace) {
+          return {
+            background: `linear-gradient(to right, ${this.$themeTokens.primary} 0%, ${
+              this.$themeTokens.primary
+            }
+            ${((0 - 0) / (100 - 0)) * 100}%, ${this.$themeTokens.fineLine} ${((0 - 0) / (100 - 0)) *
+              100}%, ${this.$themeTokens.fineLine} 100%)`,
+            '::-webkit-slider-thumb': {
+              background: this.$themeTokens.fineLine,
+            },
+          };
+        } else {
+          return {
+            background: `linear-gradient(to right, ${this.$themeTokens.primary} 0%, ${
+              this.$themeTokens.primary
+            }
+            ${((this.limitForAutodownload - 0) / (this.freeSpace - 0)) * 100}%,
+            ${this.$themeTokens.fineLine} ${((this.limitForAutodownload - 0) /
+              (this.freeSpace - 0)) *
+              100}%, ${this.$themeTokens.fineLine} 100%)`,
+            '::-webkit-slider-thumb': {
+              background: this.$themeTokens.primary,
+            },
+          };
+        }
       },
     },
     created() {
@@ -408,27 +425,30 @@
         }
       },
       setExtraSettings(settings) {
-        if (settings.extraSettings['allow_download_on_mettered_connection'] === false) {
+        // Destructuring the object
+        const {
+          allow_download_on_mettered_connection,
+          allow_learner_download_resources,
+          enable_automatic_download,
+          limit_for_autodownload,
+          primary_storage_connection,
+          secondary_storage_connections,
+          set_limit_for_autodownload,
+        } = settings.extraSettings;
+
+        if (allow_download_on_mettered_connection === false) {
           this.meteredConnectionDownloadOption =
-            meteredConnectionDownloadOptions.DISALLOW_DOWNLOAD_ON_METERED_CONNECTION;
+            MeteredConnectionDownloadOptions.DISALLOW_DOWNLOAD_ON_METERED_CONNECTION;
         } else {
           this.meteredConnectionDownloadOption =
-            meteredConnectionDownloadOptions.ALLOW_DOWNLOAD_ON_METERED_CONNECTION;
+            MeteredConnectionDownloadOptions.ALLOW_DOWNLOAD_ON_METERED_CONNECTION;
         }
-        if (settings.extraSettings['enable_automatic_download'] === false) {
-          this.enableAutomaticDownload = false;
-          this.allowLearnerDownloadResources = false;
-          this.setLimitForAutodownload = false;
-        } else {
-          this.enableAutomaticDownload = true;
-          this.allowLearnerDownloadResources =
-            settings.extraSettings['allow_learner_download_resources'];
-          this.setLimitForAutodownload = settings.extraSettings['set_limit_for_autodownload'];
-          this.limitForAutodownload = settings.extraSettings['limit_for_autodownload'];
-          this.setSlider();
-        }
-        this.primaryStorageLocation = settings.extraSettings['primary_storage_connection'];
-        this.secondaryStorageConnections = settings.extraSettings['secondary_storage_connections'];
+        this.allowLearnerDownloadResources = allow_learner_download_resources;
+        this.enableAutomaticDownload = enable_automatic_download;
+        this.limitForAutodownload = limit_for_autodownload;
+        this.primaryStorageLocation = primary_storage_connection;
+        this.secondaryStorageConnections = secondary_storage_connections;
+        this.setLimitForAutodownload = set_limit_for_autodownload;
       },
       getContentSettings() {
         // This is the inverse of 'setSignInPageOption'
@@ -454,34 +474,27 @@
         }
       },
       getExtraSettings() {
-        if (
-          this.meteredConnectionDownloadOption ===
-          meteredConnectionDownloadOptions.DISALLOW_DOWNLOAD_ON_METERED_CONNECTION
-        ) {
-          this.extraSettings['allow_download_on_mettered_connection'] = false;
-        } else {
-          this.extraSettings['allow_download_on_mettered_connection'] = true;
-        }
-        if (this.enableAutomaticDownload === false) {
-          this.extraSettings['enable_automatic_download'] = false;
-          this.extraSettings['allow_learner_download_resources'] = false;
-          this.extraSettings['set_limit_for_autodownload'] = false;
-          this.extraSettings['limit_for_autodownload'] = 0;
-        } else {
-          this.extraSettings['enable_automatic_download'] = true;
-          this.extraSettings[
-            'allow_learner_download_resources'
-          ] = this.allowLearnerDownloadResources;
-          if (this.notEnoughFreeSpace) {
-            this.extraSettings['set_limit_for_autodownload'] = false;
-            this.extraSettings['limit_for_autodownload'] = 0;
-          } else {
-            this.extraSettings['set_limit_for_autodownload'] = this.setLimitForAutodownload;
-            this.extraSettings['limit_for_autodownload'] = parseInt(this.limitForAutodownload);
-          }
-        }
-        this.extraSettings['primary_storage_connection'] = this.primaryStorageLocation;
-        this.extraSettings['secondary_storage_connections'] = this.secondaryStorageConnections;
+        const newExtraSettings = {
+          allow_download_on_mettered_connection:
+            this.meteredConnectionDownloadOption ===
+            MeteredConnectionDownloadOptions.DISALLOW_DOWNLOAD_ON_METERED_CONNECTION
+              ? false
+              : true,
+          allow_learner_download_resources:
+            this.enableAutomaticDownload === false ? false : this.allowLearnerDownloadResources,
+          enable_automatic_download: this.enableAutomaticDownload,
+          limit_for_autodownload:
+            this.notEnoughFreeSpace || this.setLimitForAutodownload === false
+              ? 0
+              : parseInt(this.limitForAutodownload),
+          primary_storage_connection: this.primaryStorageLocation,
+          secondary_storage_connections: this.secondaryStorageConnections,
+          set_limit_for_autodownload:
+            this.enableAutomaticDownload === false || this.notEnoughFreeSpace
+              ? false
+              : this.setLimitForAutodownload,
+        };
+        Object.assign(this.extraSettings, newExtraSettings);
       },
       setDeviceURLs() {
         return getDeviceURLs().then(({ deviceUrls }) => {
@@ -545,28 +558,6 @@
       saveDeviceSettings,
       handleClick(e) {
         e.preventDefault();
-      },
-      setSlider() {
-        const slider = document.getElementById('slider');
-        if (this.notEnoughFreeSpace) {
-          slider.style.background = `linear-gradient(to right, #996189 0%, #996189 ${((0 - 0) /
-            (100 - 0)) *
-            100}%, #DEE2E6 ${((0 - 0) / (100 - 0)) * 100}%, #DEE2E6 100%)`;
-        } else {
-          slider.style.background = `linear-gradient(to right, #996189 0%, #996189 ${((this
-            .limitForAutodownload -
-            0) /
-            (this.freeSpace - 0)) *
-            100}%, #DEE2E6 ${((this.limitForAutodownload - 0) / (this.freeSpace - 0)) *
-            100}%, #DEE2E6 100%)`;
-        }
-      },
-      sliderChange(newValue) {
-        const slider = document.getElementById('slider');
-        this.limitForAutodownload = newValue;
-        slider.style.background = `linear-gradient(to right, #996189 0%, #996189 ${((newValue - 0) /
-          (this.freeSpace - 0)) *
-          100}%, #DEE2E6 ${((newValue - 0) / (this.freeSpace - 0)) * 100}%, #DEE2E6 100%)`;
       },
     },
     $trs: {
@@ -779,6 +770,10 @@
     color: rgba(0, 0, 0, 0.54);
   }
 
+  .left-margin {
+    margin-left: 32px;
+  }
+
   .info-description {
     color: #616161;
   }
@@ -795,7 +790,6 @@
     width: 12px;
     height: 12px;
     cursor: pointer;
-    background: #996189;
     border-radius: 10px;
     appearance: none;
   }
@@ -808,7 +802,7 @@
   .slider-section {
     position: absolute;
     display: inline-block;
-    padding-top: 5px;
+    padding-top: 10px;
   }
 
   .slider-constraints {
