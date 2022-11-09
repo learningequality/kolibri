@@ -207,7 +207,6 @@ export default function useProgressTracking(store) {
         );
         Object.assign(nowSavedInteraction, interaction);
         pastattemptMap[nowSavedInteraction.id] = nowSavedInteraction;
-        set(totalattempts, get(totalattempts) + 1);
       } else {
         for (let key in interaction) {
           if (!blocklist[key]) {
