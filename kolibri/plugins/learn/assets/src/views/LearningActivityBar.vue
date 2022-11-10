@@ -93,7 +93,6 @@
 
 <script>
 
-  import difference from 'lodash/difference';
   import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
@@ -209,6 +208,9 @@
       };
     },
     computed: {
+      showMarkComplete() {
+        return this.allowMarkComplete && this.contentProgress < 1;
+      },
       allActions() {
         const actions = [
           {
@@ -233,14 +235,22 @@
             dataTest: this.isBookmarked ? 'removeBookmarkButton' : 'addBookmarkButton',
           });
         }
-        if (this.allowMarkComplete && this.contentProgress < 1) {
+        if (this.showMarkComplete) {
           actions.push({
             id: 'mark-complete',
             icon: 'star',
-            iconColor: this.$themePalette.yellow.v_700,
+            iconColor: this.$themeTokens.mastered,
             label: this.learnString('markResourceAsCompleteLabel'),
             event: 'markComplete',
             dataTest: 'markCompleteButton',
+          });
+        }
+        if (this.contentProgress >= 1) {
+          actions.unshift({
+            id: 'next-steps',
+            icon: 'forwardRounded',
+            label: this.learnString('nextStepsLabel'),
+            event: 'completionModal',
           });
         }
         actions.push({
@@ -253,24 +263,24 @@
 
         return actions;
       },
+      numBarActions() {
+        let maxSize = 1;
+        if (this.windowBreakpoint === 1) {
+          maxSize = 2;
+        } else if (this.windowBreakpoint > 1) {
+          // Ensure to hide the mark complete button in the dropdown
+          // to prevent instinctive points grabbing!
+          maxSize = this.showMarkComplete ? 3 : 4;
+        }
+        // If maxSize doesn't handle all of the items, we need to
+        // reserve a space for show options button.
+        return this.allActions.length > maxSize ? maxSize - 1 : maxSize;
+      },
       barActions() {
-        const actions = [];
-        if (this.windowBreakpoint >= 1) {
-          actions.push(this.allActions.find(action => action.id === 'view-resource-list'));
-        }
-        if (this.windowBreakpoint >= 2) {
-          if (this.showBookmark)
-            actions.push(this.allActions.find(action => action.id === 'bookmark'));
-          // if a resource doesn’t have the option for learners to manually mark as complete,
-          // the 'More options' bar icon button changes to the 'View information' bar icon button
-          if (!this.allowMarkComplete) {
-            actions.push(this.allActions.find(action => action.id === 'view-info'));
-          }
-        }
-        return actions;
+        return this.allActions.slice(0, this.numBarActions);
       },
       menuActions() {
-        return difference(this.allActions, this.barActions);
+        return this.allActions.slice(this.numBarActions);
       },
       contentSpecificStyles() {
         // The prime difference is that Exercises won't have shadows under the UiToolbar

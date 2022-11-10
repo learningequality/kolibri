@@ -223,6 +223,9 @@
           });
       },
       onFinished() {
+        this.displayCompletionModal();
+      },
+      displayCompletionModal() {
         this.showCompletionModal = this.progress >= 1;
       },
       onError(error) {

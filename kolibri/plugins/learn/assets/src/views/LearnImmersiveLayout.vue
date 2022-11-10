@@ -23,6 +23,7 @@
       @toggleBookmark="toggleBookmark"
       @viewResourceList="toggleResourceList"
       @viewInfo="openSidePanel"
+      @completionModal="openCompletionModal"
     />
     <KLinearLoader
       v-if="loading"
@@ -49,6 +50,7 @@
       class="main"
     >
       <ContentPage
+        ref="contentPage"
         class="content"
         data-test="contentPage"
         :content="content"
@@ -420,6 +422,11 @@
           this.$refs.embeddedPanel.focusFirstEl();
         } else {
           this.$refs.resourcePanel.focusFirstEl();
+        }
+      },
+      openCompletionModal() {
+        if (this.$refs.contentPage) {
+          this.$refs.contentPage.displayCompletionModal();
         }
       },
     },
