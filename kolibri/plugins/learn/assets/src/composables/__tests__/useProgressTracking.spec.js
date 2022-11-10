@@ -460,8 +460,13 @@ describe('useProgressTracking composable', () => {
       });
       expect(client).not.toHaveBeenCalled();
     });
-    it('should update pastattempts and store if interaction is passed without an id', async () => {
-      const { updateContentSession, pastattempts, pastattemptMap } = await initStore();
+    it('should update totalattempts, pastattempts and store if interaction is passed without an id', async () => {
+      const {
+        updateContentSession,
+        pastattempts,
+        pastattemptMap,
+        totalattempts,
+      } = await initStore();
       await updateContentSession({
         interaction: {
           item: 'testitem',
@@ -476,6 +481,7 @@ describe('useProgressTracking composable', () => {
         correct: 1,
         complete: true,
       });
+      expect(get(totalattempts)).toEqual(1);
       // No attempt is returned from the backend, so should not update the past attempts map,
       // as no id for map.
       expect(get(pastattemptMap)).toEqual({});
@@ -484,8 +490,13 @@ describe('useProgressTracking composable', () => {
         { item: 'testitem', answer: { response: 'answer' }, correct: 1, complete: true },
       ]);
     });
-    it('should update pastattempts and map if passed without an id and backend returns id', async () => {
-      const { updateContentSession, pastattempts, pastattemptMap } = await initStore();
+    it('should update totalattempts, pastattempts and map if passed without an id and backend returns id', async () => {
+      const {
+        updateContentSession,
+        pastattempts,
+        pastattemptMap,
+        totalattempts,
+      } = await initStore();
       client.__setPayload({
         attempts: [
           {
@@ -521,6 +532,7 @@ describe('useProgressTracking composable', () => {
           complete: true,
         },
       });
+      expect(get(totalattempts)).toEqual(1);
       expect(client).toHaveBeenCalled();
       expect(client.mock.calls[0][0].data.interactions).toEqual([
         {
@@ -531,8 +543,13 @@ describe('useProgressTracking composable', () => {
         },
       ]);
     });
-    it('should update pastattempts and map if passed without an id and backend returns id and additional interactions happen', async () => {
-      const { updateContentSession, pastattempts, pastattemptMap } = await initStore();
+    it('should update totalattempts, pastattempts and map if passed without an id and backend returns id and additional interactions happen', async () => {
+      const {
+        updateContentSession,
+        pastattempts,
+        pastattemptMap,
+        totalattempts,
+      } = await initStore();
       client.__setPayload({
         attempts: [
           {
@@ -579,6 +596,7 @@ describe('useProgressTracking composable', () => {
           hinted: true,
         },
       });
+      expect(get(totalattempts)).toEqual(1);
       expect(client).not.toHaveBeenCalled();
       const interaction3 = { id: 'testid', item: 'testitem', error: true };
       await updateContentSession({
@@ -695,8 +713,13 @@ describe('useProgressTracking composable', () => {
       });
       expect(get(unsaved_interactions)).toHaveLength(0);
     });
-    it('should multiple unrelated interactions without overwriting', async () => {
-      const { updateContentSession, pastattempts, pastattemptMap } = await initStore();
+    it('should save multiple unrelated interactions without overwriting', async () => {
+      const {
+        updateContentSession,
+        pastattempts,
+        pastattemptMap,
+        totalattempts,
+      } = await initStore();
       client.__setPayload({
         attempts: [
           {
@@ -781,6 +804,7 @@ describe('useProgressTracking composable', () => {
         complete: true,
         error: true,
       });
+      expect(get(totalattempts)).toEqual(3);
       expect(Object.keys(get(pastattemptMap))).toHaveLength(3);
       await updateContentSession({
         interaction: {
