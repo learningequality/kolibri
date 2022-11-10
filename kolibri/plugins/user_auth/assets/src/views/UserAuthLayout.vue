@@ -55,7 +55,8 @@
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import coreBannerContent from 'kolibri.utils.coreBannerContent';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { AppError, GlobalSnackbar } from 'kolibri-common';
+  import AppError from 'kolibri-common/components/AppError';
+  import GlobalSnackbar from 'kolibri-common/components/GlobalSnackbar';
   import CoreBanner from '../../../../../core/assets/src/views/CoreBanner';
   import { ComponentMap } from '../constants';
 

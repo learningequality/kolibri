@@ -83,7 +83,7 @@
 <script>
 
   import { mapState } from 'vuex';
-  import TechnicalTextBlock from 'kolibri.coreVue.components.TechnicalTextBlock';
+  import TechnicalTextBlock from 'kolibri-common/components/AppError/TechnicalTextBlock';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import AppBarPage from 'kolibri.coreVue.components.AppBarPage';

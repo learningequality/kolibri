@@ -142,9 +142,9 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import client from 'kolibri.client';
   import urls from 'kolibri.urls';
-  import GlobalSnackbar from '../../../../../../kolibri/core/assets/src/views/GlobalSnackbar';
+  import AppError from 'kolibri-common/components/AppError';
+  import GlobalSnackbar from 'kolibri-common/components/GlobalSnackbar';
   import SkipNavigationLink from '../../../../../../kolibri/core/assets/src/views/SkipNavigationLink';
-  import AppError from '../../../../../../kolibri/core/assets/src/views/AppError';
   import useCoreLearn from '../composables/useCoreLearn';
   import useContentNodeProgress from '../composables/useContentNodeProgress';
   import useLearnerResources from '../composables/useLearnerResources';
