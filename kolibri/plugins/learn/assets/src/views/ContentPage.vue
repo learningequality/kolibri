@@ -207,6 +207,7 @@
         return this.updateContentSession({ progress: 1 })
           .then(() => {
             this.$store.dispatch('createSnackbar', this.learnString('resourceCompletedLabel'));
+            this.onFinished();
           })
           .catch(error => {
             this.$store.dispatch('handleApiError', error);
