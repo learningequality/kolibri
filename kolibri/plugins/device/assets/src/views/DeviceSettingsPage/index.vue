@@ -126,14 +126,20 @@
           </p>
           <p>
             {{ primaryStorageLocation }}
-            <KExternalLink v-if="browserLocationMatchesServerURL" text="Change" href="#0" />
+            <span
+              v-if="browserLocationMatchesServerURL &&
+                (secondaryStorageConnections.length > 0)"
+              @click="showChangePrimaryLocationModal = true"
+            >
+              <KExternalLink :text="$tr('changeLocation')" />
+            </span>
           </p>
           <KButton
-            v-if="browserLocationMatchesServerURL"
+            v-if="browserLocationMatchesServerURL && (secondaryStorageConnections.length === 0)"
             :text="$tr('addLocation')"
             appearance="raised-button"
             secondary
-            @click="handleClick"
+            @click="showAddStorageLocationModal = true"
           />
         </div>
 
@@ -154,7 +160,7 @@
             :text="coreString('optionsLabel')"
           >
             <template #menu>
-              <KDropdownMenu :options="storageLocationOptions" @select="handleClick" />
+              <KDropdownMenu :options="storageLocationOptions" @select="handleSelect($event)" />
             </template>
           </KButton>
         </div>
@@ -245,6 +251,44 @@
         </ul>
       </section>
 
+      <PrimaryStorageLocationModal
+        v-if="showChangePrimaryLocationModal"
+        @cancel="showChangePrimaryLocationModal = false"
+        @submit="handleSubmit"
+      />
+
+      <AddStorageLocationModal
+        v-if="showAddStorageLocationModal"
+        @cancel="showAddStorageLocationModal = false"
+        @submit="handleSubmit"
+      />
+
+      <RemoveStorageLocationModal
+        v-if="showRemoveStorageLocationModal"
+        @cancel="showRemoveStorageLocationModal = false"
+        @submit="handleSubmit"
+      />
+
+      <AddStorageServerRestartModal
+        v-if="showAddStorageServerRestartModal"
+        @cancel="showAddStorageServerRestartModal = false"
+        @submit="handleServerRestart"
+      />
+
+      <ServerRestartModal
+        v-if="showRemoveStorageServerRestartModal"
+        changedSetting="Removing a storage location"
+        @cancel="showRemoveStorageServerRestartModal = false"
+        @submit="handleServerRestart"
+      />
+
+      <ServerRestartModal
+        v-if="showChangePrimaryServerRestartModal"
+        changedSetting="Changing the primary storage location"
+        @cancel="showChangePrimaryServerRestartModal = false"
+        @submit="handleServerRestart"
+      />
+
     </KPageContainer>
   </AppBarPage>
 
@@ -266,6 +310,11 @@
   import { deviceString } from '../commonDeviceStrings';
   import { getFreeSpaceOnServer } from '../AvailableChannelsPage/api';
   import { getDeviceSettings, saveDeviceSettings, getDeviceURLs } from './api';
+  import PrimaryStorageLocationModal from './PrimaryStorageLocationModal';
+  import AddStorageLocationModal from './AddStorageLocationModal';
+  import RemoveStorageLocationModal from './RemoveStorageLocationModal';
+  import AddStorageServerRestartModal from './AddStorageServerRestartModal';
+  import ServerRestartModal from './ServerRestartModal';
 
   const SignInPageOptions = Object.freeze({
     LOCKED_CONTENT: 'LOCKED_CONTENT',
@@ -280,7 +329,15 @@
         title: this.$tr('pageHeader'),
       };
     },
-    components: { AppBarPage, DeviceTopNav },
+    components: {
+      AppBarPage,
+      DeviceTopNav,
+      PrimaryStorageLocationModal,
+      AddStorageLocationModal,
+      RemoveStorageLocationModal,
+      AddStorageServerRestartModal,
+      ServerRestartModal,
+    },
     mixins: [commonCoreStrings],
     data() {
       return {
@@ -302,6 +359,9 @@
         limitForAutodownload: 0,
         freeSpace: 0,
         deviceUrls: [],
+        showChangePrimaryLocationModal: false,
+        showAddStorageLocationModal: false,
+        showRemoveStorageLocationModal: false,
         browserDefaultOption: {
           value: null,
           label: this.$tr('browserDefaultLanguage'),
@@ -556,7 +616,16 @@
       },
       getDeviceSettings,
       saveDeviceSettings,
-      handleClick(e) {
+      handleSelect(selectedOption) {
+        if (selectedOption === this.$tr('addStorageLocation')) {
+          this.showAddStorageLocationModal = true;
+          this.showRemoveStorageLocationModal = false;
+        } else if (selectedOption === this.$tr('removeStorageLocation')) {
+          this.showRemoveStorageLocationModal = true;
+          this.showAddStorageLocationModal = false;
+        }
+      },
+      handleSubmit(e) {
         e.preventDefault();
       },
     },
@@ -720,6 +789,10 @@
       addLocation: {
         message: 'Add Location',
         context: 'Label for a button used to add storage location',
+      },
+      changeLocation: {
+        message: 'Change',
+        context: 'Label to change primary storage location',
       },
       notEnoughFreeSpace: {
         message: 'No available storage',
