@@ -39,6 +39,7 @@
       </div>
     </div>
 
+    <!-- Monitor snackbar changes so they can be announced by assistive technologies -->
     <div aria-live="polite">
       <GlobalSnackbar />
     </div>
@@ -54,9 +55,8 @@
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import coreBannerContent from 'kolibri.utils.coreBannerContent';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import GlobalSnackbar from 'kolibri.coreVue.components.GlobalSnackbar';
-  import CoreBanner from 'kolibri.coreVue.components.CoreBanner';
-  import AppError from 'kolibri.coreVue.components.AppError';
+  import { AppError, GlobalSnackbar } from 'kolibri-common';
+  import CoreBanner from '../../../../../core/assets/src/views/CoreBanner';
   import { ComponentMap } from '../constants';
 
   export default {

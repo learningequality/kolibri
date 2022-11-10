@@ -1,0 +1,9 @@
+{
+  "name": "kolibri-common",
+  "version": "1.0.0",
+  "description": "Common component references in Kolibri",
+  "main": "index.js",
+  "author": "Learning Equality",
+  "license": "MIT",
+  "private": "true"
+}

@@ -60,7 +60,7 @@
       </form>
     </KPageContainer>
 
-  </immersivepage>
+  </Immersivepage>
 
 </template>
 
