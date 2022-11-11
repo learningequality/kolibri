@@ -1,3 +1,4 @@
+import hashlib
 import logging
 import os
 import shutil
@@ -46,6 +47,10 @@ class TransferNotYetClosed(Exception):
     pass
 
 
+class TransferFailed(Exception):
+    pass
+
+
 def retry_import(e):
     """
     When an exception occurs during channel/content import, if
@@ -76,6 +81,7 @@ class Transfer(object):
         self,
         source,
         dest,
+        checksum=None,
         block_size=2097152,
         remove_existing_temp_file=True,
         timeout=DEFAULT_TIMEOUT,
@@ -84,6 +90,7 @@ class Transfer(object):
         self.source = source
         self.dest = dest
         self.dest_tmp = dest + ".transfer"
+        self.checksum = checksum
         self.block_size = block_size
         self.timeout = timeout
         self.started = False
@@ -133,6 +140,8 @@ class Transfer(object):
         # record whether the destination file already exists, so it can be checked, but don't error out
         self.dest_exists = os.path.isfile(dest)
 
+        self.hasher = hashlib.md5()
+
     def start(self):
         # open the destination file for writing
         self.dest_file_obj = open(self.dest_tmp, "wb")
@@ -166,6 +175,7 @@ class Transfer(object):
             self.finalize()
             raise
         self.dest_file_obj.write(chunk)
+        self.hasher.update(chunk)
         return chunk
 
     def _move_tmp_to_dest(self):
@@ -197,6 +207,25 @@ class Transfer(object):
             pass
         self.canceled = True
 
+    def _checksum_correct(self):
+        return self.hasher.hexdigest() == self.checksum
+
+    def _verify_checksum(self):
+        # If checksum of the destination file is different from the localfile
+        # id indicated in the database, it means that the destination file
+        # is corrupted, either from origin or during import. Skip importing
+        # this file.
+        if self.checksum and not self._checksum_correct():
+            e = "File {} is corrupted.".format(self.source)
+            logger.error("An error occurred during content import: {}".format(e))
+            try:
+                os.remove(self.dest_tmp)
+            except OSError:
+                pass
+            raise TransferFailed(
+                "Transferred file checksums did not match for {}".format(self.source)
+            )
+
     def finalize(self):
         if not self.completed:
             raise TransferNotYetCompleted(
@@ -208,6 +237,7 @@ class Transfer(object):
             )
         if self.finalized:
             return
+        self._verify_checksum()
         self._move_tmp_to_dest()
         self.finalized = True
 
@@ -278,13 +308,14 @@ class FileDownload(Transfer):
 
         try:
             chunk = super(FileDownload, self).next()
-            self.transferred_size = self.transferred_size + self.block_size
+            self.transferred_size = self.transferred_size + len(chunk)
             return chunk
+        except StopIteration:
+            raise
         except Exception as e:
             retry = retry_import(e)
             if not retry:
                 raise
-
             logger.error("Error reading download stream: {}".format(e))
             self.resume()
             return self.next()
@@ -338,6 +369,8 @@ class FileDownload(Transfer):
             if byte_range_resume is None:
                 self.dest_file_obj.seek(0)
                 self.dest_file_obj.truncate()
+                # Reset our ongoing file hash
+                self.hasher = hashlib.md5()
         except Exception as e:
             logger.error("Error reading download stream: {}".format(e))
             retry = retry_import(e)

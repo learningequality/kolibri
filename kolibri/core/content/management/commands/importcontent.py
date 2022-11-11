@@ -15,7 +15,6 @@ from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.utils.content_manifest import ContentManifest
 from kolibri.core.content.utils.file_availability import LocationError
-from kolibri.core.content.utils.import_export_content import compare_checksums
 from kolibri.core.content.utils.import_export_content import get_import_export_data
 from kolibri.core.content.utils.paths import get_channel_lookup_url
 from kolibri.core.content.utils.paths import get_content_file_name
@@ -33,14 +32,6 @@ DOWNLOAD_METHOD = "download"
 COPY_METHOD = "copy"
 
 logger = logging.getLogger(__name__)
-
-
-class FileCorrupted(Exception):
-    """
-    Transferred file does not match the expected checksum
-    """
-
-    pass
 
 
 def lookup_channel_listing_status(channel_id, baseurl=None):
@@ -496,6 +487,7 @@ class Command(AsyncCommand):
                                 filetransfer = transfer.FileDownload(
                                     url,
                                     dest,
+                                    f["id"],
                                     session=session,
                                     cancel_check=self.is_cancelled,
                                     timeout=timeout,
@@ -510,7 +502,10 @@ class Command(AsyncCommand):
                                     overall_progress_update(f["file_size"])
                                     continue
                                 filetransfer = transfer.FileCopy(
-                                    srcpath, dest, cancel_check=self.is_cancelled
+                                    srcpath,
+                                    dest,
+                                    f["id"],
+                                    cancel_check=self.is_cancelled,
                                 )
                             future = executor.submit(
                                 self._start_file_transfer, f, filetransfer
@@ -617,31 +612,17 @@ class Command(AsyncCommand):
         data_transferred = 0
 
         with filetransfer:
-            for chunk in filetransfer:
-                data_transferred += len(chunk)
-
+            try:
+                for chunk in filetransfer:
+                    data_transferred += len(chunk)
+            except transfer.TransferFailed as e:
+                return e, data_transferred
             # Ensure that if for some reason the total file size for the transfer
             # is less than what we have marked in the database that we make up
             # the difference so that the overall progress is never incorrect.
             # This could happen, for example for a local transfer if a file
             # has been replaced or corrupted (which we catch below)
             data_transferred += f["file_size"] - filetransfer.total_size
-
-            # If checksum of the destination file is different from the localfile
-            # id indicated in the database, it means that the destination file
-            # is corrupted, either from origin or during import. Skip importing
-            # this file.
-            try:
-                checksum_correctness = compare_checksums(filetransfer.dest, f["id"])
-            except (IOError, OSError):
-                checksum_correctness = False
-            if not checksum_correctness:
-                e = FileCorrupted("File {} is corrupted.".format(filetransfer.source))
-                try:
-                    os.remove(filetransfer.dest)
-                except OSError:
-                    pass
-                return e, data_transferred
 
         return None, data_transferred
 
