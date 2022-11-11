@@ -40,6 +40,7 @@
         :tooltip="action.label"
         :ariaLabel="action.label"
         :disabled="action.disabled"
+        :class="action.id === 'next-steps' && nextStepsAnimate ? 'bounce' : ''"
         @click="onActionClick(action.event)"
       />
 
@@ -205,6 +206,7 @@
     data() {
       return {
         isMenuOpen: false,
+        nextStepsAnimate: false,
       };
     },
     computed: {
@@ -341,6 +343,15 @@
           this.$refs.menu.focusFirstEl();
         });
       },
+      /*
+       * @public
+       */
+      animateNextSteps() {
+        this.nextStepsAnimate = true;
+        setTimeout(() => {
+          this.nextStepsAnimate = false;
+        }, 1500);
+      },
     },
     $trs: {
       goBack: {
@@ -406,6 +417,49 @@
       width: 18px;
       height: 18px;
     }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bounce {
+      transition-delay: 0s;
+      transition-duration: 0s;
+      animation-duration: 1ms;
+      animation-delay: -1ms;
+      animation-iteration-count: 1;
+    }
+  }
+
+  @keyframes bounce {
+    0% {
+      transform: scale(1, 1) translateY(0);
+    }
+    10% {
+      transform: scale(1.1, 0.9) translateY(0);
+    }
+    30% {
+      transform: scale(0.9, 1.1) translateY(-0.5em);
+    }
+    50% {
+      transform: scale(1.05, 0.95) translateY(0);
+    }
+    57% {
+      transform: scale(1, 1) translateY(-0.125em);
+    }
+    64% {
+      transform: scale(1, 1) translateY(0);
+    }
+    100% {
+      transform: scale(1, 1) translateY(0);
+    }
+  }
+
+  .bounce {
+    animation-name: bounce;
+    animation-duration: 1s;
+    animation-timing-function: cubic-bezier(0.28, 0.84, 0.42, 1);
+    animation-delay: 0s;
+    animation-iteration-count: infinite;
+    animation-direction: normal;
   }
 
 </style>

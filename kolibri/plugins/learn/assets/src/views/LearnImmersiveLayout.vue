@@ -9,6 +9,7 @@
     <div v-if="blockDoubleClicks" class="click-mask"></div>
     <SkipNavigationLink />
     <LearningActivityBar
+      ref="activityBar"
       :resourceTitle="resourceTitle"
       :learningActivities="content.learning_activities"
       :isLessonContext="lessonContext"
@@ -56,6 +57,7 @@
         :content="content"
         :lessonId="lessonId"
         :allowMarkComplete="allowMarkComplete"
+        @finished="$refs.activityBar && $refs.activityBar.animateNextSteps()"
       />
     </div>
 

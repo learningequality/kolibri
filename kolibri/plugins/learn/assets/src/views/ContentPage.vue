@@ -156,6 +156,7 @@
     data() {
       return {
         showCompletionModal: false,
+        wasComplete: false,
         sessionReady: false,
       };
     },
@@ -174,6 +175,7 @@
         lessonId: this.lessonId,
       }).then(() => {
         this.sessionReady = true;
+        this.wasComplete = this.progress >= 1;
         // Set progress into the content node progress store in case it was not already loaded
         this.cacheProgress();
       });
@@ -223,7 +225,12 @@
           });
       },
       onFinished() {
-        this.displayCompletionModal();
+        if (this.wasComplete) {
+          this.$emit('finished');
+        } else {
+          this.wasComplete = true;
+          this.displayCompletionModal();
+        }
       },
       displayCompletionModal() {
         this.showCompletionModal = this.progress >= 1;
