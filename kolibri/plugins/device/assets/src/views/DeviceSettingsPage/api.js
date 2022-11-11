@@ -13,6 +13,8 @@ export function getDeviceSettings() {
       allowPeerUnlistedChannelImport: data.allow_peer_unlisted_channel_import,
       allowOtherBrowsersToConnect: data.allow_other_browsers_to_connect,
       extraSettings: data.extra_settings,
+      primaryStorageLocation: data.primary_storage_location,
+      secondaryStorageLocations: data.secondary_storage_locations,
     };
   });
 }
@@ -30,6 +32,8 @@ export function saveDeviceSettings(settings) {
       allow_peer_unlisted_channel_import: settings.allowPeerUnlistedChannelImport,
       allow_other_browsers_to_connect: settings.allowOtherBrowsersToConnect,
       extra_settings: settings.extraSettings,
+      primary_storage_location: settings.primaryStorageLocation,
+      secondary_storage_locations: settings.secondaryStorageLocations,
     },
   });
 }

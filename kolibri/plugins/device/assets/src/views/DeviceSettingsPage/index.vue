@@ -128,14 +128,14 @@
             {{ primaryStorageLocation }}
             <span
               v-if="browserLocationMatchesServerURL &&
-                (secondaryStorageConnections.length > 0)"
+                (secondaryStorageLocations.length > 0)"
               @click="showChangePrimaryLocationModal = true"
             >
               <KExternalLink :text="$tr('changeLocation')" />
             </span>
           </p>
           <KButton
-            v-if="browserLocationMatchesServerURL && (secondaryStorageConnections.length === 0)"
+            v-if="browserLocationMatchesServerURL && (secondaryStorageLocations.length === 0)"
             :text="$tr('addLocation')"
             appearance="raised-button"
             secondary
@@ -150,7 +150,7 @@
           <p class="info-description">
             {{ $tr('secondaryStorageDescription') }}
           </p>
-          <p v-for="path in secondaryStorageConnections" :key="path.index">
+          <p v-for="path in secondaryStorageLocations" :key="path.index">
             {{ path }}
           </p>
           <KButton
@@ -352,7 +352,7 @@
         meteredConnectionDownloadOption: '',
         meteredConnectionDownloadOptions: MeteredConnectionDownloadOptions,
         primaryStorageLocation: null,
-        secondaryStorageConnections: null,
+        secondaryStorageLocations: [],
         enableAutomaticDownload: null,
         allowLearnerDownloadResources: null,
         setLimitForAutodownload: null,
@@ -448,9 +448,10 @@
           allowLearnerUnassignedResourceAccess,
           allowPeerUnlistedChannelImport,
           allowOtherBrowsersToConnect,
+          primaryStorageLocation,
+          secondaryStorageLocations,
           extraSettings,
         } = settings;
-
         const match = find(this.languageOptions, { value: languageId });
         if (match) {
           this.language = { ...match };
@@ -470,6 +471,8 @@
           allowLearnerUnassignedResourceAccess,
           allowPeerUnlistedChannelImport,
           allowOtherBrowsersToConnect,
+          primaryStorageLocation,
+          secondaryStorageLocations,
           extraSettings,
         });
       });
@@ -491,8 +494,6 @@
           allow_learner_download_resources,
           enable_automatic_download,
           limit_for_autodownload,
-          primary_storage_connection,
-          secondary_storage_connections,
           set_limit_for_autodownload,
         } = settings.extraSettings;
 
@@ -506,8 +507,6 @@
         this.allowLearnerDownloadResources = allow_learner_download_resources;
         this.enableAutomaticDownload = enable_automatic_download;
         this.limitForAutodownload = limit_for_autodownload;
-        this.primaryStorageLocation = primary_storage_connection;
-        this.secondaryStorageConnections = secondary_storage_connections;
         this.setLimitForAutodownload = set_limit_for_autodownload;
       },
       getContentSettings() {
@@ -547,8 +546,6 @@
             this.notEnoughFreeSpace || this.setLimitForAutodownload === false
               ? 0
               : parseInt(this.limitForAutodownload),
-          primary_storage_connection: this.primaryStorageLocation,
-          secondary_storage_connections: this.secondaryStorageConnections,
           set_limit_for_autodownload:
             this.enableAutomaticDownload === false || this.notEnoughFreeSpace
               ? false
