@@ -200,6 +200,7 @@ class RemoteChannelImportValidator(RemoteImportMixin, ChannelValidator):
 
 @register_task(
     validator=RemoteChannelImportValidator,
+    track_progress=True,
     cancellable=True,
     permission_classes=[CanManageContent],
     priority=Priority.HIGH,
@@ -548,6 +549,7 @@ class LocalChannelImportValidator(LocalMixin, ChannelValidator):
 
 @register_task(
     validator=LocalChannelImportValidator,
+    track_progress=True,
     cancellable=True,
     permission_classes=[CanManageContent],
     priority=Priority.HIGH,
