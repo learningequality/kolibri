@@ -5,7 +5,7 @@
     :submitText="coreString('continueAction')"
     :cancelText="coreString('cancelAction')"
     :submitDisabled="submitDisabled"
-    @submit="$emit('submit')"
+    @submit="handleSubmit"
     @cancel="$emit('cancel')"
   >
     <p>{{ $tr('newStorageLocationDescription') }}</p>
@@ -16,6 +16,8 @@
       :label="$tr('filePath')"
       :invalid="invalidPath"
       :invalidText="$tr('error')"
+      showInvalidText="true"
+      @input="invalidPath = false"
     />
   </KModal>
 
@@ -25,6 +27,7 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { getPathPermissions } from './api';
 
   export default {
     name: 'AddStorageLocationModal',
@@ -32,7 +35,19 @@
     data() {
       return {
         path: null,
+        invalidPath: false,
       };
+    },
+    methods: {
+      handleSubmit() {
+        getPathPermissions(this.path).then(permissions => {
+          const writable = permissions.data.writable;
+          this.invalidPath = !permissions.data.directory;
+          if (permissions.data.directory) {
+            this.$emit('submit', this.path, writable);
+          }
+        });
+      },
     },
     $trs: {
       newStorageLocation: {

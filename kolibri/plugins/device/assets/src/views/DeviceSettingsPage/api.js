@@ -45,3 +45,10 @@ export function getDeviceURLs() {
     };
   });
 }
+
+export function getPathPermissions(path) {
+  return client({
+    url: `${urls['kolibri:core:pathpermission']()}`,
+    params: { path },
+  });
+}

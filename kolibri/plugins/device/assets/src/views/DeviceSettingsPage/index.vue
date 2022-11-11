@@ -260,7 +260,7 @@
       <AddStorageLocationModal
         v-if="showAddStorageLocationModal"
         @cancel="showAddStorageLocationModal = false"
-        @submit="handleSubmit"
+        @submit="addStorageLocation"
       />
 
       <RemoveStorageLocationModal
@@ -624,6 +624,11 @@
       },
       handleSubmit(e) {
         e.preventDefault();
+      },
+      addStorageLocation(path, readable) {
+        this.showAddStorageLocationModal = false;
+        console.log(path);
+        console.log(readable);
       },
     },
     $trs: {
