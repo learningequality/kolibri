@@ -4,7 +4,6 @@
     :title="$tr('newStorageLocation')"
     :submitText="coreString('continueAction')"
     :cancelText="coreString('cancelAction')"
-    :submitDisabled="submitDisabled"
     @submit="handleSubmit"
     @cancel="$emit('cancel')"
   >
@@ -15,8 +14,8 @@
       type="text"
       :label="$tr('filePath')"
       :invalid="invalidPath"
-      :invalidText="$tr('error')"
-      showInvalidText="true"
+      :invalidText="showError"
+      :showInvalidText="true"
       @input="invalidPath = false"
     />
   </KModal>
@@ -32,19 +31,43 @@
   export default {
     name: 'AddStorageLocationModal',
     mixins: [commonCoreStrings],
+    props: {
+      paths: {
+        type: Array,
+        required: true,
+      },
+    },
     data() {
       return {
         path: null,
         invalidPath: false,
+        errorType: null,
       };
+    },
+    computed: {
+      showError() {
+        if (this.errorType === 'directory') {
+          return this.$tr('errorInvalidFolder');
+        } else {
+          return this.$tr('errorExistingFolder');
+        }
+      },
     },
     methods: {
       handleSubmit() {
         getPathPermissions(this.path).then(permissions => {
           const writable = permissions.data.writable;
+          const exists = this.paths.filter(el => el.path === this.path);
+          if (exists.length > 0) {
+            this.invalidPath = true;
+            this.errorType = 'exists';
+            return;
+          }
           this.invalidPath = !permissions.data.directory;
           if (permissions.data.directory) {
             this.$emit('submit', this.path, writable);
+          } else {
+            this.errorType = 'directory';
           }
         });
       },
@@ -63,8 +86,12 @@
         message: 'File path',
         context: 'Label for new storage location input',
       },
-      error: {
-        message: 'Invalid path',
+      errorInvalidFolder: {
+        message: 'This is not a valid folder in the server',
+        context: 'Error text for new storage location input',
+      },
+      errorExistingFolder: {
+        message: 'This folder is already in the list of storage locations',
         context: 'Error text for new storage location input',
       },
     },

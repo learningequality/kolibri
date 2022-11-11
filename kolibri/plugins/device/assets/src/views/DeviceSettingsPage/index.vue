@@ -151,7 +151,7 @@
             {{ $tr('secondaryStorageDescription') }}
           </p>
           <p v-for="path in secondaryStorageLocations" :key="path.index">
-            {{ path }}
+            {{ path }} {{ isWritablePath(path) }}
           </p>
           <KButton
             hasDropdown
@@ -239,8 +239,8 @@
       <section v-if="isMultiFacilitySuperuser">
         <h2>{{ $tr('configureFacilitySettingsHeader') }}</h2>
         <ul class="ul-reset">
-          <template v-for="(facility, idx) in facilities">
-            <li :key="idx">
+          <template>
+            <li v-for="(facility, idx) in facilities" :key="idx">
               <KExternalLink
                 :text="facility.name"
                 :href="getFacilitySettingsPath(facility.id)"
@@ -259,6 +259,7 @@
 
       <AddStorageLocationModal
         v-if="showAddStorageLocationModal"
+        :paths="storageLocations"
         @cancel="showAddStorageLocationModal = false"
         @submit="addStorageLocation"
       />
@@ -269,23 +270,11 @@
         @submit="handleSubmit"
       />
 
-      <AddStorageServerRestartModal
-        v-if="showAddStorageServerRestartModal"
-        @cancel="showAddStorageServerRestartModal = false"
-        @submit="handleServerRestart"
-      />
-
       <ServerRestartModal
-        v-if="showRemoveStorageServerRestartModal"
-        changedSetting="Removing a storage location"
-        @cancel="showRemoveStorageServerRestartModal = false"
-        @submit="handleServerRestart"
-      />
-
-      <ServerRestartModal
-        v-if="showChangePrimaryServerRestartModal"
-        changedSetting="Changing the primary storage location"
-        @cancel="showChangePrimaryServerRestartModal = false"
+        v-if="showRestartModal"
+        :path="restartPath"
+        :changedSetting="restartSetting"
+        @cancel="showRestartModal = false"
         @submit="handleServerRestart"
       />
 
@@ -309,11 +298,10 @@
   import DeviceTopNav from '../DeviceTopNav';
   import { deviceString } from '../commonDeviceStrings';
   import { getFreeSpaceOnServer } from '../AvailableChannelsPage/api';
-  import { getDeviceSettings, saveDeviceSettings, getDeviceURLs } from './api';
+  import { getDeviceSettings, getPathsPermissions, saveDeviceSettings, getDeviceURLs } from './api';
   import PrimaryStorageLocationModal from './PrimaryStorageLocationModal';
   import AddStorageLocationModal from './AddStorageLocationModal';
   import RemoveStorageLocationModal from './RemoveStorageLocationModal';
-  import AddStorageServerRestartModal from './AddStorageServerRestartModal';
   import ServerRestartModal from './ServerRestartModal';
 
   const SignInPageOptions = Object.freeze({
@@ -335,7 +323,6 @@
       PrimaryStorageLocationModal,
       AddStorageLocationModal,
       RemoveStorageLocationModal,
-      AddStorageServerRestartModal,
       ServerRestartModal,
     },
     mixins: [commonCoreStrings],
@@ -353,6 +340,7 @@
         meteredConnectionDownloadOptions: MeteredConnectionDownloadOptions,
         primaryStorageLocation: null,
         secondaryStorageLocations: [],
+        storageLocations: {},
         enableAutomaticDownload: null,
         allowLearnerDownloadResources: null,
         setLimitForAutodownload: null,
@@ -366,6 +354,9 @@
           value: null,
           label: this.$tr('browserDefaultLanguage'),
         },
+        restartPath: {},
+        restartSetting: null,
+        showRestartModal: false,
       };
     },
     computed: {
@@ -475,6 +466,10 @@
           secondaryStorageLocations,
           extraSettings,
         });
+        this.storageLocations = getPathsPermissions([
+          ...this.secondaryStorageLocations,
+          this.primaryStorageLocation,
+        ]);
       });
     },
     methods: {
@@ -603,6 +598,8 @@
           allowPeerUnlistedChannelImport: this.allowPeerUnlistedChannelImport,
           allowOtherBrowsersToConnect: this.allowOtherBrowsersToConnect,
           extraSettings: this.extraSettings,
+          secondaryStorageLocations: this.secondaryStorageLocations,
+          primaryStorageLocation: this.primaryStorageLocation,
         })
           .then(() => {
             this.$store.dispatch('createSnackbar', this.$tr('saveSuccessNotification'));
@@ -625,10 +622,39 @@
       handleSubmit(e) {
         e.preventDefault();
       },
-      addStorageLocation(path, readable) {
+      addStorageLocation(path, writable) {
+        this.restartPath = {
+          path,
+          writable,
+        };
+
+        this.restartSetting = 'add';
+        this.showRestartModal = true;
         this.showAddStorageLocationModal = false;
-        console.log(path);
-        console.log(readable);
+        this.showAddStorageServerRestartModal = true;
+      },
+
+      handleServerRestart() {
+        this.showRestartModal = false;
+        if (this.restartSetting === 'add') {
+          this.storageLocations.push(this.restartPath);
+          this.secondaryStorageLocations.push(this.restartPath.path);
+          this.handleClickSave();
+        } else if (this.restartSetting === 'remove') {
+          this.storageLocations = this.storageLocations.filter(
+            el => el.path !== this.restartPath.path
+          );
+          // TODO: remove location
+        } else if (this.restartSetting === 'primary') {
+          // TODO: set primary location
+        }
+      },
+      isWritablePath(path) {
+        const found = this.storageLocations.find(el => el.path === path);
+        if (found !== undefined && !found.writable) {
+          return this.$tr('readOnly');
+        }
+        return '';
       },
     },
     $trs: {
@@ -799,6 +825,10 @@
       notEnoughFreeSpace: {
         message: 'No available storage',
         context: 'Error text that is provided if there is not enough free storage on device',
+      },
+      readOnly: {
+        message: '(read-only)',
+        context: 'Label for read-only storage locations',
       },
     },
   };

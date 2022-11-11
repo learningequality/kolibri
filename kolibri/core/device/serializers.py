@@ -137,9 +137,9 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
 class DeviceSettingsSerializer(DeviceSerializerMixin, serializers.ModelSerializer):
 
     extra_settings = serializers.JSONField(required=False)
-    primary_storage_location = serializers.CharField(required=True)
+    primary_storage_location = serializers.CharField(required=False)
     secondary_storage_locations = serializers.ListField(
-        child=serializers.CharField(), required=False
+        child=serializers.CharField(required=False), required=False
     )
 
     class Meta:
@@ -182,7 +182,7 @@ class DeviceSettingsSerializer(DeviceSerializerMixin, serializers.ModelSerialize
                 if not check_is_directory(path):
                     raise serializers.ValidationError(
                         {
-                            "secondary_storage_locations": "Primary storage location must be a directory"
+                            "secondary_storage_locations": "Secondary storage location must be a directory"
                         }
                     )
         return data
