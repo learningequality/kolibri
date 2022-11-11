@@ -238,6 +238,11 @@ class Job(object):
             self.total_progress = total_progress
             self.storage.update_job_progress(self.job_id, progress, total_progress)
 
+    def update_metadata(self, **kwargs):
+        for key, value in kwargs.items():
+            self.extra_metadata[key] = value
+        self.save_meta()
+
     def check_for_cancel(self):
         if self.cancellable:
             if self.storage.check_job_canceled(self.job_id):

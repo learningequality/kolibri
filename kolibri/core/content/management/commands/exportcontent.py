@@ -105,8 +105,8 @@ class Command(AsyncCommand):
                 if dest:
                     exported_files.append(dest)
 
-            if self.is_cancelled():
-                self.cancel()
+        # Reraise any cancellation
+        self.check_for_cancel()
 
         logger.info(
             "Exporting manifest for channel id {} to {}".format(channel_id, data_dir)

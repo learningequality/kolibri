@@ -331,8 +331,8 @@ class ResourceImportManagerBase(with_metaclass(ABCMeta, JobProgressMixin)):
         if self.exception:
             raise self.exception
 
-        if self.is_cancelled():
-            self.cancel()
+        # Reraise any cancellation
+        self.check_for_cancel()
 
         return (
             self.transferred_file_size,

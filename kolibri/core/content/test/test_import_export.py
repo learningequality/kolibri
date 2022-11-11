@@ -357,7 +357,7 @@ class ImportChannelTestCase(TestCase):
         "kolibri.core.content.management.commands.importchannel.transfer.FileDownload"
     )
     @patch(
-        "kolibri.core.content.management.commands.importchannel.AsyncCommand.cancel",
+        "kolibri.core.content.management.commands.importchannel.AsyncCommand.check_for_cancel",
         return_value=True,
     )
     @patch(
@@ -396,7 +396,7 @@ class ImportChannelTestCase(TestCase):
     )
     @patch("kolibri.core.content.management.commands.importchannel.transfer.FileCopy")
     @patch(
-        "kolibri.core.content.management.commands.importchannel.AsyncCommand.cancel",
+        "kolibri.core.content.management.commands.importchannel.AsyncCommand.check_for_cancel",
         return_value=True,
     )
     @patch(
@@ -430,7 +430,9 @@ class ImportChannelTestCase(TestCase):
         # Test that import channel cleans up database file if cancelled
         self.assertFalse(os.path.exists(local_dest_path))
 
-    @patch("kolibri.core.content.management.commands.importchannel.AsyncCommand.cancel")
+    @patch(
+        "kolibri.core.content.management.commands.importchannel.AsyncCommand.check_for_cancel"
+    )
     @patch(
         "kolibri.core.content.management.commands.importchannel.AsyncCommand.is_cancelled",
         return_value=True,
@@ -461,7 +463,9 @@ class ImportChannelTestCase(TestCase):
         "kolibri.utils.file_transfer.Transfer.next",
         side_effect=ReadTimeout("Read timed out."),
     )
-    @patch("kolibri.core.content.management.commands.importchannel.AsyncCommand.cancel")
+    @patch(
+        "kolibri.core.content.management.commands.importchannel.AsyncCommand.check_for_cancel"
+    )
     @patch(
         "kolibri.core.content.management.commands.importchannel.AsyncCommand.is_cancelled",
         return_value=True,
@@ -546,7 +550,9 @@ class ImportContentTestCase(TestCase):
         LocalFile.objects.update(available=False)
 
     @patch("kolibri.core.content.utils.resource_import.transfer.FileDownload")
-    @patch("kolibri.core.content.utils.resource_import.JobProgressMixin.cancel")
+    @patch(
+        "kolibri.core.content.utils.resource_import.JobProgressMixin.check_for_cancel"
+    )
     @patch(
         "kolibri.core.content.utils.resource_import.JobProgressMixin.is_cancelled",
         return_value=True,
@@ -571,7 +577,7 @@ class ImportContentTestCase(TestCase):
             self.the_channel_id,
         )
         manager.run()
-        is_cancelled_mock.assert_has_calls([call(), call()])
+        is_cancelled_mock.assert_has_calls([call()])
         FileDownloadMock.assert_not_called()
         cancel_mock.assert_called_with()
         annotation_mock.mark_local_files_as_available.assert_not_called()
@@ -585,7 +591,9 @@ class ImportContentTestCase(TestCase):
         "kolibri.core.content.utils.resource_import.paths.get_content_storage_file_path"
     )
     @patch("kolibri.core.content.utils.resource_import.transfer.FileDownload")
-    @patch("kolibri.core.content.utils.resource_import.JobProgressMixin.cancel")
+    @patch(
+        "kolibri.core.content.utils.resource_import.JobProgressMixin.check_for_cancel"
+    )
     @patch(
         "kolibri.core.content.utils.resource_import.JobProgressMixin.is_cancelled",
         side_effect=FalseThenTrue(times=3),
@@ -647,7 +655,9 @@ class ImportContentTestCase(TestCase):
         "kolibri.core.content.utils.resource_import.paths.get_content_storage_file_path"
     )
     @patch("kolibri.core.content.utils.resource_import.transfer.FileDownload")
-    @patch("kolibri.core.content.utils.resource_import.JobProgressMixin.cancel")
+    @patch(
+        "kolibri.core.content.utils.resource_import.JobProgressMixin.check_for_cancel"
+    )
     @patch(
         "kolibri.core.content.utils.resource_import.JobProgressMixin.is_cancelled",
         side_effect=FalseThenTrue(times=3),
@@ -694,7 +704,9 @@ class ImportContentTestCase(TestCase):
         annotation_mock.set_content_visibility.assert_called()
 
     @patch("kolibri.core.content.utils.resource_import.transfer.FileCopy")
-    @patch("kolibri.core.content.utils.resource_import.JobProgressMixin.cancel")
+    @patch(
+        "kolibri.core.content.utils.resource_import.JobProgressMixin.check_for_cancel"
+    )
     @patch(
         "kolibri.core.content.utils.resource_import.JobProgressMixin.is_cancelled",
         return_value=True,
@@ -720,7 +732,7 @@ class ImportContentTestCase(TestCase):
             path=tempfile.mkdtemp(),
         )
         manager.run()
-        is_cancelled_mock.assert_has_calls([call(), call()])
+        is_cancelled_mock.assert_has_calls([call()])
         FileCopyMock.assert_not_called()
         cancel_mock.assert_called_with()
         annotation_mock.mark_local_files_as_available.assert_not_called()
@@ -731,7 +743,9 @@ class ImportContentTestCase(TestCase):
         "kolibri.core.content.utils.resource_import.paths.get_content_storage_file_path"
     )
     @patch("kolibri.core.content.utils.resource_import.transfer.FileCopy")
-    @patch("kolibri.core.content.utils.resource_import.JobProgressMixin.cancel")
+    @patch(
+        "kolibri.core.content.utils.resource_import.JobProgressMixin.check_for_cancel"
+    )
     @patch(
         "kolibri.core.content.utils.resource_import.JobProgressMixin.is_cancelled",
         side_effect=FalseThenTrue(times=3),
@@ -763,7 +777,7 @@ class ImportContentTestCase(TestCase):
             path=tempfile.mkdtemp(),
         )
         manager.run()
-        is_cancelled_mock.assert_has_calls([call(), call()])
+        is_cancelled_mock.assert_has_calls([call()])
         FileCopyMock.assert_called_with(
             local_src_path,
             local_dest_path,
@@ -779,7 +793,9 @@ class ImportContentTestCase(TestCase):
         "kolibri.utils.file_transfer.Transfer.next",
         side_effect=ConnectionError("connection error"),
     )
-    @patch("kolibri.core.content.utils.resource_import.JobProgressMixin.cancel")
+    @patch(
+        "kolibri.core.content.utils.resource_import.JobProgressMixin.check_for_cancel"
+    )
     @patch(
         "kolibri.core.content.utils.resource_import.JobProgressMixin.is_cancelled",
         side_effect=FalseThenTrue(times=3),
@@ -1051,7 +1067,9 @@ class ImportContentTestCase(TestCase):
         "kolibri.utils.file_transfer.Transfer.next",
         side_effect=ChunkedEncodingError("Chunked Encoding Error"),
     )
-    @patch("kolibri.core.content.utils.resource_import.JobProgressMixin.cancel")
+    @patch(
+        "kolibri.core.content.utils.resource_import.JobProgressMixin.check_for_cancel"
+    )
     @patch(
         "kolibri.core.content.utils.resource_import.JobProgressMixin.is_cancelled",
         side_effect=FalseThenTrue(times=6),
@@ -1095,7 +1113,9 @@ class ImportContentTestCase(TestCase):
     @patch(
         "kolibri.core.content.utils.resource_import.paths.get_content_storage_file_path"
     )
-    @patch("kolibri.core.content.utils.resource_import.JobProgressMixin.cancel")
+    @patch(
+        "kolibri.core.content.utils.resource_import.JobProgressMixin.check_for_cancel"
+    )
     @patch(
         "kolibri.core.content.utils.resource_import.JobProgressMixin.is_cancelled",
         side_effect=FalseThenTrue(times=3),
@@ -1204,7 +1224,9 @@ class ImportContentTestCase(TestCase):
     @patch(
         "kolibri.core.content.utils.resource_import.paths.get_content_storage_file_path"
     )
-    @patch("kolibri.core.content.utils.resource_import.JobProgressMixin.cancel")
+    @patch(
+        "kolibri.core.content.utils.resource_import.JobProgressMixin.check_for_cancel"
+    )
     @patch(
         "kolibri.core.content.utils.resource_import.JobProgressMixin.is_cancelled",
         return_value=False,
@@ -2089,7 +2111,9 @@ class ExportChannelTestCase(TestCase):
         "kolibri.core.content.management.commands.exportchannel.paths.get_content_database_file_path"
     )
     @patch("kolibri.core.content.management.commands.exportchannel.transfer.FileCopy")
-    @patch("kolibri.core.content.management.commands.exportchannel.AsyncCommand.cancel")
+    @patch(
+        "kolibri.core.content.management.commands.exportchannel.AsyncCommand.check_for_cancel"
+    )
     @patch(
         "kolibri.core.content.management.commands.exportchannel.AsyncCommand.is_cancelled",
         return_value=True,
@@ -2110,7 +2134,6 @@ class ExportChannelTestCase(TestCase):
         local_path_mock.side_effect = [local_src_path, local_dest_path]
         FileCopyMock.return_value.__iter__.side_effect = TransferCanceled()
         call_command("exportchannel", self.the_channel_id, local_dest_path)
-        is_cancelled_mock.assert_called_with()
         FileCopyMock.assert_called_with(
             local_src_path, local_dest_path, cancel_check=is_cancelled_mock
         )
@@ -2131,7 +2154,9 @@ class ExportContentTestCase(TestCase):
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
 
     @patch("kolibri.core.content.management.commands.exportcontent.transfer.FileCopy")
-    @patch("kolibri.core.content.management.commands.exportcontent.AsyncCommand.cancel")
+    @patch(
+        "kolibri.core.content.management.commands.exportcontent.AsyncCommand.check_for_cancel"
+    )
     @patch(
         "kolibri.core.content.management.commands.exportcontent.AsyncCommand.is_cancelled",
         return_value=True,
@@ -2164,7 +2189,9 @@ class ExportContentTestCase(TestCase):
         "kolibri.core.content.management.commands.exportcontent.paths.get_content_storage_file_path"
     )
     @patch("kolibri.core.content.management.commands.exportcontent.transfer.FileCopy")
-    @patch("kolibri.core.content.management.commands.exportcontent.AsyncCommand.cancel")
+    @patch(
+        "kolibri.core.content.management.commands.exportcontent.AsyncCommand.check_for_cancel"
+    )
     @patch(
         "kolibri.core.content.management.commands.exportcontent.AsyncCommand.is_cancelled",
         side_effect=[False, True, True],
@@ -2193,7 +2220,7 @@ class ExportContentTestCase(TestCase):
             10,
         )
         call_command("exportcontent", self.the_channel_id, tempfile.mkdtemp())
-        is_cancelled_mock.assert_has_calls([call(), call()])
+        is_cancelled_mock.assert_has_calls([call()])
         FileCopyMock.assert_called_with(
             local_src_path, local_dest_path, cancel_check=is_cancelled_mock
         )

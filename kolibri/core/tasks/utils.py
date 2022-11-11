@@ -275,13 +275,11 @@ class JobProgressMixin(object):
                 self.job.progress + increment, self.job.total_progress
             )
             if extra_data and isinstance(extra_data, dict):
-                self.job.update_job_metadata(**extra_data)
+                self.job.update_metadata(**extra_data)
 
     def update_job_metadata(self, **kwargs):
         if self.job:
-            for key, value in kwargs.items():
-                self.job.extra_metadata[key] = value
-            self.job.save_meta()
+            self.job.update_metadata(**kwargs)
 
     def check_for_cancel(self):
         if self.job:
@@ -303,9 +301,6 @@ class JobProgressMixin(object):
             return False
         except (UserCancelledError, KeyError):
             return True
-
-    def cancel(self):
-        return self.check_for_cancel()
 
 
 def fd_safe_executor(fds_per_task=2):
