@@ -17,6 +17,7 @@ from kolibri.core.content.utils import channel_import
 from kolibri.core.content.utils.annotation import CONTENT_APP_NAME
 from kolibri.core.content.utils.channels import CHANNEL_UPDATE_STATS_CACHE_KEY
 from kolibri.core.content.utils.channels import get_mounted_drive_by_id
+from kolibri.core.content.utils.channels import read_channel_metadata_from_db_file
 from kolibri.core.content.utils.content_types_tools import (
     renderable_contentnodes_q_filter,
 )
@@ -72,10 +73,11 @@ def diff_stats(channel_id, method, drive_id=None, baseurl=None):
         bridge.Base.metadata.create_all(bridge.engine)
 
         # initialize import manager based on annotated destination path, pulling from source db path
+        channel_metadata = read_channel_metadata_from_db_file(source_path)
         import_manager = channel_import.initialize_import_manager(
-            channel_id,
+            channel_metadata,
+            source_path,
             cancel_check=False,
-            source=source_path,
             destination=destination_path,
         )
 
