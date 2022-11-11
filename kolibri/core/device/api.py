@@ -51,11 +51,14 @@ from kolibri.core.public.constants.user_sync_statuses import QUEUED
 from kolibri.core.public.constants.user_sync_statuses import RECENTLY_SYNCED
 from kolibri.core.public.constants.user_sync_statuses import SYNCING
 from kolibri.core.public.constants.user_sync_statuses import UNABLE_TO_SYNC
+from kolibri.core.utils.drf_utils import swagger_auto_schema_available
 from kolibri.core.utils.urls import reverse_remote
 from kolibri.plugins.utils import initialize_kolibri_plugin
 from kolibri.plugins.utils import iterate_plugins
 from kolibri.plugins.utils import PluginDoesNotExist
 from kolibri.utils.conf import OPTIONS
+from kolibri.utils.filesystem import check_is_directory
+from kolibri.utils.filesystem import get_path_permission
 from kolibri.utils.server import get_status_from_pid_file
 from kolibri.utils.server import get_urls
 from kolibri.utils.server import installation_type
@@ -398,3 +401,20 @@ class RemoteFacilitiesViewset(views.APIView):
                 return Response({})
         except Exception as e:
             raise ValidationError(detail=str(e))
+
+
+class PathPermissionView(views.APIView):
+
+    permission_classes = (UserHasAnyDevicePermissions,)
+
+    @swagger_auto_schema_available(
+        [("path", "path to check permissions for", "string")]
+    )
+    def get(self, request):
+        pathname = request.query_params.get("path", OPTIONS["Paths"]["CONTENT_DIR"])
+        return Response(
+            {
+                "writable": get_path_permission(pathname),
+                "directory": check_is_directory(pathname),
+            }
+        )
