@@ -16,9 +16,13 @@ from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.permissions.base import RoleBasedPermissions
 from kolibri.core.auth.permissions.general import IsOwn
+from kolibri.core.fields import JSONField
 from kolibri.core.utils.cache import process_cache as cache
+from kolibri.core.utils.validators import JSON_Schema_Validator
 from kolibri.deployment.default.sqlite_db_names import SYNC_QUEUE
 from kolibri.plugins.app.utils import interface
+from kolibri.utils.conf import OPTIONS
+from kolibri.utils.options import update_options_file
 
 device_permissions_fields = ["is_superuser", "can_manage_content"]
 
@@ -72,6 +76,31 @@ def app_is_enabled():
     return interface.enabled
 
 
+extra_settings_schema = {
+    "type": "object",
+    "additionalProperties": False,
+    "properties": {
+        "allow_download_on_mettered_connection": {"type": "boolean"},
+        "enable_automatic_download": {"type": "boolean"},
+        "allow_learner_download_resources": {"type": "boolean"},
+        "set_limit_for_autodownload": {"type": "boolean"},
+        "limit_for_autodownload": {"type": "integer"},
+    },
+    "required": [
+        "allow_download_on_mettered_connection",
+        "enable_automatic_download",
+    ],
+}
+
+extra_settings_default_values = {
+    "allow_download_on_mettered_connection": False,
+    "enable_automatic_download": True,
+    "allow_learner_download_resources": False,
+    "set_limit_for_autodownload": False,
+    "limit_for_autodownload": 0,
+}
+
+
 class DeviceSettings(models.Model):
     """
     This class stores data about settings particular to this device
@@ -111,6 +140,12 @@ class DeviceSettings(models.Model):
     # Is this a device that only synchronizes data about a subset of users?
     subset_of_users_device = models.BooleanField(default=False)
 
+    extra_settings = JSONField(
+        null=False,
+        validators=[JSON_Schema_Validator(extra_settings_schema)],
+        default=extra_settings_default_values,
+    )
+
     def save(self, *args, **kwargs):
         self.pk = 1
         self.full_clean()
@@ -122,6 +157,22 @@ class DeviceSettings(models.Model):
         out = super(DeviceSettings, self).delete(*args, **kwargs)
         cache.delete(DEVICE_SETTINGS_CACHE_KEY)
         return out
+
+    @property
+    def primary_storage_location(self):
+        return OPTIONS["Paths"]["CONTENT_DIR"]
+
+    @primary_storage_location.setter
+    def primary_storage_location(self, value):
+        update_options_file("Paths", "CONTENT_DIR", value)
+
+    @property
+    def secondary_storage_locations(self):
+        return OPTIONS["Paths"]["CONTENT_FALLBACK_DIRS"]
+
+    @secondary_storage_locations.setter
+    def secondary_storage_locations(self, value):
+        update_options_file("Paths", "CONTENT_FALLBACK_DIRS", value)
 
 
 CONTENT_CACHE_KEY_CACHE_KEY = "content_cache_key"
