@@ -287,6 +287,8 @@ class JobProgressMixin(object):
 
     def start_progress(self, total=100):
         self.progresstracker = ProgressTracker(total=total)
+        if self.job:
+            self.job.update_progress(0, total)
         return self
 
     def __enter__(self):
