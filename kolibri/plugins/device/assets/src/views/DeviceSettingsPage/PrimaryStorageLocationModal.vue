@@ -4,10 +4,19 @@
     :title="$tr('changePrimaryLocation')"
     :submitText="coreString('continueAction')"
     :cancelText="coreString('cancelAction')"
-    @submit="$emit('submit')"
+    @submit="handleSubmit"
     @cancel="$emit('cancel')"
   >
-    <p>{{ $tr('primaryLocationChangeDescription') }}</p>
+    <p class="description">
+      {{ $tr('primaryLocationChangeDescription') }}
+    </p>
+    <KRadioButton
+      v-for="path in storageLocations"
+      :key="path.index"
+      v-model="selectedPath"
+      :value="path.path"
+      :label="path.path"
+    />
   </KModal>
 
 </template>
@@ -20,6 +29,30 @@
   export default {
     name: 'PrimaryStorageLocationModal',
     mixins: [commonCoreStrings],
+    props: {
+      storageLocations: {
+        type: Array,
+        required: true,
+      },
+      primaryPath: {
+        type: String,
+        required: true,
+      },
+    },
+    data() {
+      return {
+        selectedPath: this.primaryPath,
+      };
+    },
+    methods: {
+      handleSubmit() {
+        if (this.selectedPath === this.primaryPath) {
+          this.$emit('cancel');
+          return;
+        }
+        this.$emit('submit', this.selectedPath);
+      },
+    },
     $trs: {
       changePrimaryLocation: {
         message: 'Change primary storage location',
@@ -33,3 +66,12 @@
   };
 
 </script>
+
+
+<style lang="scss" scoped>
+
+  .description {
+    margin-top: 0;
+  }
+
+</style>

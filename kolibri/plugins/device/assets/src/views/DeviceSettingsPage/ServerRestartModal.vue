@@ -7,18 +7,18 @@
     @submit="handleSubmit"
     @cancel="$emit('cancel')"
   >
-    <p v-if="changedSetting === 'primary'">
-      {{ $tr('selectedPath', { path: path.name }) }}
+    <p v-if="changedSetting === 'add'" class="description">
+      {{ $tr('selectedPath', { path: path.path }) }}
     </p>
-    <p>{{ getMessage() }}</p>
-    <div v-if="changedSetting === 'primary'">
+    <p class="description">
+      {{ getMessage() }}
+    </p>
+    <div v-if="changedSetting === 'add' && path.writable === true">
       <KCheckbox
         :checked="confirmationChecked"
         :label="$tr('makePrimary')"
+        :description="$tr('labelPrimary')"
       />
-      <p :style="{ color: $themeTokens.textDisabled }">
-        {{ $tr('labelPrimary') }}
-      </p>
     </div>
   </KModal>
 
@@ -62,7 +62,7 @@
         return message + this.$tr('serverRestartDecription');
       },
       handleSubmit() {
-        if (this.changedSetting === 'primary') {
+        if (this.changedSetting === 'add') {
           this.$emit('submit', this.confirmationChecked);
         } else {
           this.$emit('submit');
@@ -107,3 +107,12 @@
   };
 
 </script>
+
+
+<style lang="scss" scoped>
+
+  .description {
+    margin-top: 0;
+  }
+
+</style>

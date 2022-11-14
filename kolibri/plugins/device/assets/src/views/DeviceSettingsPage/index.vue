@@ -143,11 +143,11 @@
           />
         </div>
 
-        <div v-if="browserLocationMatchesServerURL">
+        <div v-show="browserLocationMatchesServerURL && (secondaryStorageLocations.length > 0)">
           <h2>
             {{ $tr('secondaryStorage') }}
           </h2>
-          <p class="info-description">
+          <p v-show="!multipleReadOnlyPaths" class="info-description">
             {{ $tr('secondaryStorageDescription') }}
           </p>
           <p v-for="path in secondaryStorageLocations" :key="path.index">
@@ -253,8 +253,10 @@
 
       <PrimaryStorageLocationModal
         v-if="showChangePrimaryLocationModal"
+        :primaryPath="primaryStorageLocation"
+        :storageLocations="storageLocations.filter(el => el.writable)"
         @cancel="showChangePrimaryLocationModal = false"
-        @submit="handleSubmit"
+        @submit="changePrimaryLocation"
       />
 
       <AddStorageLocationModal
@@ -266,8 +268,9 @@
 
       <RemoveStorageLocationModal
         v-if="showRemoveStorageLocationModal"
+        :storageLocations="secondaryStorageLocations"
         @cancel="showRemoveStorageLocationModal = false"
-        @submit="handleSubmit"
+        @submit="removeStorageLocation"
       />
 
       <ServerRestartModal
@@ -619,8 +622,15 @@
           this.showAddStorageLocationModal = false;
         }
       },
-      handleSubmit(e) {
-        e.preventDefault();
+      changePrimaryLocation(path) {
+        const writable = true;
+        this.restartPath = {
+          path,
+          writable,
+        };
+        this.restartSetting = 'primary';
+        this.showRestartModal = true;
+        this.showChangePrimaryLocationModal = false;
       },
       addStorageLocation(path, writable) {
         this.restartPath = {
@@ -631,22 +641,43 @@
         this.restartSetting = 'add';
         this.showRestartModal = true;
         this.showAddStorageLocationModal = false;
-        this.showAddStorageServerRestartModal = true;
       },
+      removeStorageLocation(path, writable) {
+        this.restartPath = {
+          path,
+          writable,
+        };
 
-      handleServerRestart() {
+        this.restartSetting = 'remove';
+        this.showRestartModal = true;
+        this.showRemoveStorageLocationModal = false;
+      },
+      handleServerRestart(confirmationChecked) {
         this.showRestartModal = false;
         if (this.restartSetting === 'add') {
           this.storageLocations.push(this.restartPath);
           this.secondaryStorageLocations.push(this.restartPath.path);
+          if (confirmationChecked === true) {
+            this.primaryStorageLocation = this.restartPath.path;
+          }
           this.handleClickSave();
         } else if (this.restartSetting === 'remove') {
           this.storageLocations = this.storageLocations.filter(
             el => el.path !== this.restartPath.path
           );
           // TODO: remove location
+          this.secondaryStorageLocations = this.secondaryStorageLocations.filter(
+            el => el !== this.restartPath.path
+          );
+          this.handleClickSave();
         } else if (this.restartSetting === 'primary') {
           // TODO: set primary location
+          this.secondaryStorageLocations.push(this.primaryStorageLocation);
+          this.secondaryStorageLocations = this.secondaryStorageLocations.filter(
+            el => el !== this.restartPath.path
+          );
+          this.primaryStorageLocation = this.restartPath.path;
+          this.handleClickSave();
         }
       },
       isWritablePath(path) {
@@ -655,6 +686,13 @@
           return this.$tr('readOnly');
         }
         return '';
+      },
+      multipleReadOnlyPaths() {
+        if (this.storageLocations.filter(el => el.writeable).length === 0) {
+          return true;
+        } else {
+          return false;
+        }
       },
     },
     $trs: {

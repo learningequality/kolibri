@@ -7,7 +7,9 @@
     @submit="handleSubmit"
     @cancel="$emit('cancel')"
   >
-    <p>{{ $tr('newStorageLocationDescription') }}</p>
+    <p class="description">
+      {{ $tr('newStorageLocationDescription') }}
+    </p>
     <KTextbox
       ref="autoDownloadLimit"
       v-model="path"
@@ -98,3 +100,12 @@
   };
 
 </script>
+
+
+<style lang="scss" scoped>
+
+  .description {
+    margin-top: 0;
+  }
+
+</style>

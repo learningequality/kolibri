@@ -4,11 +4,20 @@
     :title="$tr('removeStorageLocation')"
     :submitText="coreString('continueAction')"
     :cancelText="coreString('cancelAction')"
-    @submit="$emit('submit')"
+    @submit="handleSubmit"
     @cancel="$emit('cancel')"
   >
-    <p>{{ $tr('removeStorageLocationDescription') }}</p>
+    <p class="description">
+      {{ $tr('removeStorageLocationDescription') }}
+    </p>
     <p>{{ $tr('deleteFilesDescription') }}</p>
+    <KRadioButton
+      v-for="path in storageLocations"
+      :key="path.index"
+      v-model="selectedPath"
+      :value="path"
+      :label="path"
+    />
   </KModal>
 
 </template>
@@ -17,10 +26,32 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { getPathPermissions } from './api';
 
   export default {
     name: 'RemoveStorageLocationModal',
     mixins: [commonCoreStrings],
+    props: {
+      storageLocations: {
+        type: Array,
+        required: true,
+      },
+    },
+    data() {
+      return {
+        selectedPath: this.storageLocations[0],
+      };
+    },
+    methods: {
+      handleSubmit() {
+        getPathPermissions(this.selectedPath).then(permissions => {
+          const writable = permissions.data.writable;
+          if (permissions.data.directory) {
+            this.$emit('submit', this.selectedPath, writable);
+          }
+        });
+      },
+    },
     $trs: {
       removeStorageLocation: {
         message: 'Remove storage location',
@@ -40,3 +71,12 @@
   };
 
 </script>
+
+
+<style lang="scss" scoped>
+
+  .description {
+    margin-top: 0;
+  }
+
+</style>
