@@ -236,7 +236,7 @@
         }
       },
       displayCompletionModal() {
-        this.showCompletionModal = this.progress >= 1;
+        this.showCompletionModal = true;
       },
       onError(error) {
         this.$store.dispatch('handleApiError', error);
