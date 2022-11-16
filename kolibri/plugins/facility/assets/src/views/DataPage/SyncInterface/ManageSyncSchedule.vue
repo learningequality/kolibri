@@ -14,13 +14,15 @@
           <p>{{ $tr('introduction') }}</p>
         </KGridItem>
 
-        <KGridItem :layout8="{ span: 4 }" :layout12="{ span: 6 }">
-          <p>{{ $tr('homeFacility') }}</p>
+
+        <KGridItem :layout8="{ span: 4 }" :layout12="{ span: 6 }" class="separate">
+          <b>{{ facility.name }}</b>
         </KGridItem>
         <KGridItem
           :layout="{ alignment: 'right' }"
           :layout8="{ span: 4 }"
           :layout12="{ span: 6 }"
+          class="separate"
         >
           <KButton
             @click="deviceModal = true"
@@ -28,57 +30,51 @@
             {{ $tr('addDevice') }}
           </KButton>
         </KGridItem>
+
+
+
       </KGrid>
+
+      <!--      creating the table-->
 
       <CoreTable>
         <template #tbody>
-          <tbody class="table">
+          <tbody>
             <tr>
               <th>{{ $tr('deviceName') }}</th>
               <th>{{ $tr('Schedule') }}</th>
               <th>{{ $tr('Status') }}</th>
               <th></th>
             </tr>
-            <tr>
+
+            <tr v-for="device in data" :key="device.id">
               <td>
-                <span>Kolibri Data Portal<br>
-                  http://dataportal.link
+                <span>{{ device.device_name }}<br>
+                  {{ device.base_url }}
                 </span>
               </td>
+
               <td>Never</td>
-              <td>
-                <KIcon
-                  icon="disconnected"
-                />
-                Not connected
-              </td>
-              <td>
-                <KButton
-                  @click="editButton"
-                >
-                  edit
-                </KButton>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <span>
-                  MacOS<br>
-                  localhost:8000
-                </span>
-              </td>
-              <td>Every Monday at 14:30</td>
-              <td>
+
+              <td v-if="device.available">
                 <KIcon
                   icon="onDevice"
                 />
-                Connected
+                <span>{{ $tr('connected') }}</span>
+              </td>
+              <td v-else>
+                <KIcon
+                  icon="disconnected"
+                />
+                <span>{{ $tr('disconnected') }}</span>
               </td>
               <td>
                 <KButton
-                  :text="$tr('editBtn')"
-                  @click="editButton"
-                />
+                  class="right"
+                  @click="editButton(device.id,device.device_name,device.available)"
+                >
+                  {{ $tr('editBtn') }}
+                </KButton>
               </td>
             </tr>
           </tbody>
@@ -107,7 +103,7 @@
           </KGridItem>
         </KGrid>
 
-        <KGrid gutter="48">
+        <KGrid v-for="info in data" :key="info.id" gutter="48">
           <KGridItem
             :layout8="{ span: 4 }"
             :layout12="{ span: 6 }"
@@ -115,10 +111,10 @@
 
             <KRadioButton
               v-model="deviceModal"
-              label="LINUX"
-              value="linux"
+              :label="info.device_name"
+              :value="info.device_name"
             >
-              <span>localhost:8040</span>
+              <span>{{ info.base_url }}</span>
             </KRadioButton>
           </KGridItem>
 
@@ -144,6 +140,8 @@
 
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import { TaskResource, FacilityResource, NetworkLocationResource } from 'kolibri.resources';
+
   import { PageNames } from '../../../constants';
 
   export default {
@@ -153,28 +151,59 @@
       CoreTable,
     },
     extends: ImmersivePage,
-
     data() {
-      return { deviceModal: false };
+      return { deviceModal: false, facility: null, data: null };
     },
     computed: {
       goBack() {
         return { name: PageNames.DATA_EXPORT_PAGE };
       },
     },
+    beforeMount() {
+      // console.log(this.$store.core.Facility);
+      this.fetchFacility();
+      this.fetchAddressesForLOD();
+    },
+
     methods: {
+      fetchFacility() {
+        FacilityResource.fetchModel({ id: this.$store.getters.activeFacilityId, force: true }).then(
+          facility => {
+            this.facility = { ...facility };
+          }
+        );
+      },
+      fetchAddressesForLOD(LocationResource = NetworkLocationResource) {
+        return LocationResource.fetchCollection({ force: true }).then(locations => {
+          this.data = locations;
+        });
+      },
+      pollFacilityTasks() {
+        TaskResource.list({ queue: 'facility_task' }).then(tasks => {
+          this.myFacility = tasks;
+          console.log(this.myFacility);
+          if (this.isPolling) {
+            setTimeout(() => {
+              console.log(this.pollFacilityTasks);
+              return this.pollFacilityTasks();
+            }, 2000);
+          }
+        });
+      },
       closeModal() {
         this.deviceModal = false;
       },
       submitModal() {
         this.deviceModal = false;
-        this.$router.push('/editsyncschedule');
+        this.$router.push({ path: '/editdevice/' });
       },
       newAddress() {
         this.$router.push('/newAddress');
       },
-      editButton() {
-        this.$router.push('/editdevice');
+      editButton(value, name, available) {
+        this.$router.push({
+          path: '/editdevice/?id=' + value + '&name=' + name + '&present=' + available,
+        });
       },
     },
 
@@ -191,10 +220,6 @@
         message:
           'Set a schedule for Kolibri to automatically try syncing with other Kolibri devices that share this facility. Devices must be connected to the same network at the scheduled sync time.',
         context: 'Introduction on the manage sync schedule',
-      },
-      homeFacility: {
-        message: 'Home Facility Otodi Allan',
-        context: 'My home facility',
       },
       addDevice: {
         message: 'Add device',
@@ -236,7 +261,27 @@
         message: 'edit',
         context: 'Edit device button',
       },
+      connected: {
+        message: 'Connected',
+        context: 'Connected device',
+      },
+      disconnected: {
+        message: 'Disconnected',
+        context: 'Disconnected device',
+      },
     },
   };
 
 </script>
+
+
+<style scoped>
+.separate{
+  margin-bottom:35px;
+  margin-top:35px;
+}
+.right {
+  position: absolute;
+  right: 50px;
+}
+</style>

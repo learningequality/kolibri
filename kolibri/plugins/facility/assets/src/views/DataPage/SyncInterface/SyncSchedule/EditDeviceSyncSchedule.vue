@@ -11,7 +11,7 @@
           <h1>{{ $tr('editSyncScheduleSubTitle') }}</h1>
         </KGridItem>
         <KGridItem>
-          <p>{{ $tr('deviceName') }}</p><br>
+          <p>{{ deviceName }}</p><br>
         </KGridItem>
 
         <KGridItem
@@ -25,7 +25,7 @@
         </KGridItem>
 
         <KGridItem>
-          <p>{{ $tr('serverTime') }} </p>
+          <p>{{ $tr('serverTime') }} {{ currentTime }} </p>
         </KGridItem>
 
         <KGridItem>
@@ -55,7 +55,7 @@
         />
         <KButton
           :text="$tr('saveBtn')"
-          primary="raised-button"
+          primary="true"
         />
       </KButtonGroup>
     </BottomAppBar>
@@ -64,17 +64,17 @@
       v-if="removeDeviceModal"
       :title="$tr('removeDevice')"
       size="medium"
-      submitText="$tr('removetext')"
-      cancelText="$tr('canceltext')"
+      :submitText="$tr('removeText')"
+      :cancelText="$tr('cancelText')"
       @cancel="closeModal"
       @submit="ConfirmRemoveDevice"
     >
       <KGrid>
         <KGridItem
-          :layout8="{ span: 4 }"
-          :layout12="{ span: 6 }"
+          :layout8="{ span: 6 }"
+          :layout12="{ span: 10 }"
         >
-          <p>{{ $tr('deviceName') }}</p>
+          <p>{{ deviceName }}</p>
         </KGridItem>
 
         <KGridItem
@@ -82,7 +82,12 @@
           :layout12="{ span: 12 }"
         >
           <p>{{ $tr('removeDeviceWarning') }}</p>
-          <p>{{ $tr('deviceNotConnected') }}</p>
+          <p v-if="available === true">
+
+          </p>
+          <p v-else>
+            {{ $tr('deviceNotConnected') }}
+          </p>
         </KGridItem>
       </KGrid>
     </KModal>
@@ -98,7 +103,7 @@
   import { PageNames } from '../../../../constants';
 
   export default {
-    name: 'EditSyncSchedule',
+    name: 'EditDeviceSyncSchedule',
     components: {
       ImmersivePage,
       BottomAppBar,
@@ -114,7 +119,7 @@
       },
     },
     data() {
-      return { removeDeviceModal: false };
+      return { removeDeviceModal: false, deviceName: null, available: null, currentTime: null };
     },
     computed: {
       backRoute() {
@@ -130,6 +135,13 @@
           { label: this.$tr('everyMonth'), value: 2592000 },
         ];
       },
+    },
+    beforeMount() {
+      this.deviceName = this.$route.query.name;
+      this.available = this.$route.query.present;
+      this.currentTime = new Date();
+      console.log(this.$route.query.id);
+      console.log(this.$route.query.name);
     },
     methods: {
       removeDevice() {
@@ -147,24 +159,19 @@
     },
     $trs: {
       toolbarHeader: {
-        message: 'Edit sync schedule',
+        message: 'Edit device sync schedule',
         context: 'Heading for edit schedule page.',
       },
       editSyncScheduleSubTitle: {
-        message: 'Edit sync schedule',
+        message: 'Edit device sync schedule',
         context: 'Subtitle for the edit sync schedule page',
       },
-      deviceName: {
-        message: 'LINUX 5 (9C24)',
-        context: 'Edit device name',
-      },
       serverTime: {
-        message: 'Server time: Mon Jan 27 2020 15:52:05 GMT-0800 (Pacific Standard Time)',
+        message: 'Server time:',
         context: 'Server time label',
       },
       checboxlabel: {
-        message:
-          'If scheduled sync fails, retry until the next scheduled syncIf scheduled sync fails, retry until the next scheduled sync',
+        message: 'If scheduled sync fails, retry until the next scheduled sync',
         context: 'Label for checkbox',
       },
       removeDevice: {
@@ -210,6 +217,14 @@
       everyTwoWeeks: {
         message: 'Every two weeks',
         context: 'Label for every two weeks',
+      },
+      removeText: {
+        message: 'Remove',
+        context: 'Label for remove button on the remove device modal',
+      },
+      cancelText: {
+        message: 'Cancel',
+        context: 'Label for cancel button on the remove device modal',
       },
     },
   };

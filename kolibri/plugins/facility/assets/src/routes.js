@@ -15,13 +15,13 @@ import { showClassEditPage } from './modules/classEditManagement/handlers';
 import { showUserPage } from './modules/userManagement/handlers';
 import { showFacilityConfigPage } from './modules/facilityConfig/handlers';
 import ManageSyncSchedule from './views/DataPage/SyncInterface/ManageSyncSchedule';
-import editSyncSchedule from './views/DataPage/SyncInterface/SyncSchedule/EditSyncSchedule';
 import SyncSchedule from './views/DataPage/SyncInterface/SyncSchedule/SyncSchedule';
 import {
   showLearnerClassEnrollmentPage,
   showCoachClassAssignmentPage,
 } from './modules/classAssignMembers/handlers';
 import { PageNames } from './constants';
+import editDeviceSyncSchedule from './views/DataPage/SyncInterface/SyncSchedule/EditDeviceSyncSchedule';
 
 export default [
   // Routes for multi-facility case
@@ -133,8 +133,8 @@ export default [
     name: 'ManageSyncSchedule',
   },
   {
-    path: '/:facility_id?/editsyncschedule',
-    component: editSyncSchedule,
+    path: '/:facility_id?/editsyncschedule/?',
+    component: editDeviceSyncSchedule,
     name: 'EditSyncSchedule',
   },
   {

@@ -7,7 +7,7 @@
 
 <script>
 
-  import EditSyncSchedule from './EditSyncSchedule';
+  import EditSyncSchedule from './EditDeviceSyncSchedule';
 
   export default {
     name: 'SyncSchedule',

@@ -35,6 +35,7 @@ export const pageNameToModuleMap = {
   [PageNames.FACILITY_CONFIG_PAGE]: 'facilityConfig',
   [PageNames.DATA_EXPORT_PAGE]: 'dataExport',
   [PageNames.ManageSyncSchedule]: 'manageSyncSchedule',
+  [PageNames.EditSyncSchedule]: 'editsyncshedule',
 };
 
 export const CSVGenerationStatuses = {
