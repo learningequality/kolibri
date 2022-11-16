@@ -193,7 +193,7 @@
         this.updateContentSession({ progress, interaction }).then(this.cacheProgress);
       },
       updateProgress(progress) {
-        this.updateContentSession({ progress }).then(this.cacheProgress);
+        return this.updateContentSession({ progress }).then(this.cacheProgress);
       },
       addProgress(progressDelta) {
         this.updateContentSession({ progressDelta }).then(this.cacheProgress);
@@ -206,7 +206,7 @@
       },
       handleMarkAsComplete() {
         this.hideMarkAsCompleteModal();
-        return this.updateContentSession({ progress: 1 })
+        return this.updateProgress(1.0)
           .then(() => {
             this.$store.dispatch('createSnackbar', this.learnString('resourceCompletedLabel'));
           })
