@@ -436,15 +436,15 @@
     beforeMount() {
       this.getDeviceSettings().then(settings => {
         const {
-          languageId,
-          landingPage,
-          allowGuestAccess,
-          allowLearnerUnassignedResourceAccess,
-          allowPeerUnlistedChannelImport,
-          allowOtherBrowsersToConnect,
-          primaryStorageLocation,
-          secondaryStorageLocations,
-          extraSettings,
+          languageId = null,
+          landingPage = '',
+          allowGuestAccess = false,
+          allowLearnerUnassignedResourceAccess = false,
+          allowPeerUnlistedChannelImport = null,
+          allowOtherBrowsersToConnect = null,
+          primaryStorageLocation = null,
+          secondaryStorageLocations = [],
+          extraSettings = {},
         } = settings;
         const match = find(this.languageOptions, { value: languageId });
         if (match) {
@@ -457,7 +457,7 @@
           this.setSignInPageOption(settings);
         }
 
-        this.setExtraSettings(settings);
+        this.setExtraSettings(extraSettings);
 
         Object.assign(this, {
           landingPage,
@@ -485,15 +485,15 @@
           this.signInPageOption = SignInPageOptions.DISALLOW_GUEST_ACCESS;
         }
       },
-      setExtraSettings(settings) {
+      setExtraSettings(extraSettings) {
         // Destructuring the object
         const {
-          allow_download_on_mettered_connection,
-          allow_learner_download_resources,
-          enable_automatic_download,
-          limit_for_autodownload,
-          set_limit_for_autodownload,
-        } = settings.extraSettings;
+          allow_download_on_mettered_connection = false,
+          allow_learner_download_resources = false,
+          enable_automatic_download = true,
+          limit_for_autodownload = 0,
+          set_limit_for_autodownload = false,
+        } = extraSettings;
 
         if (allow_download_on_mettered_connection === false) {
           this.meteredConnectionDownloadOption =
