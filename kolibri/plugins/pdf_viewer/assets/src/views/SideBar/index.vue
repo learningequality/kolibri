@@ -55,22 +55,22 @@
           </div>
         </KGridItem>
       </KGrid>
+      <div class="sidebar-content">
+        <template v-if="selectedTab === 'bookmarks'">
+          <Bookmarks
+            :outline="outline"
+            :goToDestination="goToDestination"
+            :focusDestPage="focusDestPage"
+          />
+        </template>
+        <template v-if="selectedTab === 'preview'">
+          <span> Preview </span>
+        </template>
+        <template v-if="selectedTab === 'annotations'">
+          <span> Annotations </span>
+        </template>
+      </div>
     </nav>
-    <div class="sidebar-content">
-      <template v-if="selectedTab === 'bookmarks'">
-        <Bookmarks
-          :outline="outline"
-          :goToDestination="goToDestination"
-          :focusDestPage="focusDestPage"
-        />
-      </template>
-      <template v-if="selectedTab === 'preview'">
-        <span> Preview </span>
-      </template>
-      <template v-if="selectedTab === 'annotations'">
-        <span> Annotations </span>
-      </template>
-    </div>
   </aside>
 
 </template>

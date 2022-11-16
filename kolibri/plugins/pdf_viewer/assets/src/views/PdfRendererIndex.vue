@@ -689,11 +689,11 @@
   }
 
   .sidebar-container {
-    height: 100%;
+    height: calc(100vh - 56px);
   }
 
   .pdf-renderer.pdf-controls-open .sidebar-container {
-    height: calc(100% - $controls-height);
+    height: calc(100vh - 96px);
   }
 
   /deep/ .sidebar-container > div {
