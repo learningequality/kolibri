@@ -420,6 +420,14 @@ describe('useProgressTracking composable', () => {
       // even though current progress can only increase by 0.5
       expect(client.mock.calls[0][0].data.progress_delta).toEqual(1);
     });
+    it('should max progress and max progress_delta if progressDelta is updated twice to be over max value', async () => {
+      const { updateContentSession, progress } = await initStore({ progress: 0 });
+      await updateContentSession({ progressDelta: 0.023 });
+      await updateContentSession({ progressDelta: 1 });
+      expect(get(progress)).toEqual(1);
+      // Will store the maximum possible value for progress_delta which is 1,
+      expect(client.mock.calls[0][0].data.progress_delta).toEqual(1);
+    });
     it('should update extra_fields and store if contentState is updated', async () => {
       const { updateContentSession, extra_fields } = await initStore();
       await updateContentSession({ contentState: { newState: 0.2 } });

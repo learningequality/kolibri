@@ -362,7 +362,10 @@ export default function useProgressTracking(store) {
       }
       progressDelta = _zeroToOne(progressDelta);
       progressDelta = threeDecimalPlaceRoundup(progressDelta);
-      set(progress_delta, threeDecimalPlaceRoundup(get(progress_delta) + progressDelta));
+      set(
+        progress_delta,
+        _zeroToOne(threeDecimalPlaceRoundup(get(progress_delta) + progressDelta))
+      );
       set(
         progress_state,
         Math.min(threeDecimalPlaceRoundup(get(progress_state) + progressDelta), 1)
