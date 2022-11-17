@@ -55,7 +55,7 @@
               {{ $tr('signIn') }}
             </UiAlert>
             <div
-              v-else
+              v-else-if="!wasComplete"
               class="stats"
             >
               <div class="points">
@@ -201,6 +201,10 @@
       lessonId: {
         type: String,
         default: null,
+      },
+      wasComplete: {
+        type: Boolean,
+        default: false,
       },
     },
     data() {

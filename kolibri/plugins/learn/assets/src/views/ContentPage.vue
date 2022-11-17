@@ -61,7 +61,8 @@
       :isUserLoggedIn="isUserLoggedIn"
       :contentNodeId="content.id"
       :lessonId="lessonId"
-      @close="showCompletionModal = false"
+      :wasComplete="wasComplete"
+      @close="hideCompletionModal"
       @shouldFocusFirstEl="findFirstEl()"
     />
 
@@ -231,12 +232,15 @@
         if (this.wasComplete) {
           this.$emit('finished');
         } else {
-          this.wasComplete = true;
           this.displayCompletionModal();
         }
       },
       displayCompletionModal() {
         this.showCompletionModal = true;
+      },
+      hideCompletionModal() {
+        this.showCompletionModal = false;
+        this.wasComplete = true;
       },
       onError(error) {
         this.$store.dispatch('handleApiError', error);
