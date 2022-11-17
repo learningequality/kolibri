@@ -206,6 +206,9 @@
       },
       handleMarkAsComplete() {
         this.hideMarkAsCompleteModal();
+        // Do this immediately to remove any delay
+        // before the completion modal displays if appropriate.
+        this.onFinished();
         return this.updateProgress(1.0)
           .then(() => {
             this.$store.dispatch('createSnackbar', this.learnString('resourceCompletedLabel'));
