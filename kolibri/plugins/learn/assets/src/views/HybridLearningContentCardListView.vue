@@ -53,12 +53,18 @@
               >{{ categoryAndLevelString }}</p>
               <div>
                 <img
+                  v-if="content.channel_thumbnail"
                   :src="
                     content.channel_thumbnail"
                   :alt="learnString('logo', { channelTitle: content.channel_title })"
                   class="channel-logo"
                   :style="{ color: $themePalette.grey.v_700 }"
                 >
+                <p
+                  v-else
+                  class="metadata-info"
+                  :style="{ color: $themePalette.grey.v_700, marginTop: 0 }"
+                >{{ learnString('logo', { channelTitle: content.channel_title }) }}</p>
                 <KButton
                   v-if="isLibraryPage && content.copies"
                   appearance="basic-link"
