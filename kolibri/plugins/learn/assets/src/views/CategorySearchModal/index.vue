@@ -42,19 +42,14 @@
 
   const availablePaths = {};
 
-  if (process.env.NODE_ENV !== 'production') {
-    // TODO rtibbles: remove this condition
-    Object.assign(availablePaths, CategoriesLookup);
-  } else {
-    plugin_data.categories.map(key => {
-      const paths = key.split('.');
-      let path = '';
-      for (let path_segment of paths) {
-        path = path === '' ? path_segment : path + '.' + path_segment;
-        availablePaths[path] = true;
-      }
-    });
-  }
+  plugin_data.categories.map(key => {
+    const paths = key.split('.');
+    let path = '';
+    for (let path_segment of paths) {
+      path = path === '' ? path_segment : path + '.' + path_segment;
+      availablePaths[path] = true;
+    }
+  });
 
   const libraryCategories = {};
 

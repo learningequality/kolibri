@@ -140,7 +140,6 @@
   const resourcesNeeded = {};
   resourcesNeededShown.map(key => {
     const value = ResourcesNeededTypes[key];
-    // TODO rtibbles: remove this condition
     if (plugin_data.learnerNeeds.includes(value) || process.env.NODE_ENV !== 'production') {
       resourcesNeeded[key] = value;
     }
@@ -148,12 +147,7 @@
 
   let availableIds;
 
-  if (process.env.NODE_ENV !== 'production') {
-    // TODO rtibbles: remove this condition
-    availableIds = Object.keys(CategoriesLookup);
-  } else {
-    availableIds = plugin_data.categories;
-  }
+  availableIds = plugin_data.categories;
 
   const libraryCategories = pick(
     CategoriesLookup,
