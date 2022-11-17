@@ -56,14 +56,18 @@ async function makeWrapper() {
 }
 
 function getButtons(wrapper) {
-  const radioButtons = wrapper.findAllComponents({ name: 'KRadioButton' });
-  const saveButton = wrapper.findComponent({ name: 'KButton' });
+  const saveButton = wrapper.findComponent('[data-test="saveButton"]');
+  const learnPage = wrapper.findComponent('[data-test="landingPageButton"]');
+  const signInPage = wrapper.findComponent('[data-test="signInPageButton"]');
+  const allowGuestAccess = wrapper.findComponent('[data-test="allowGuestAccessButton"]');
+  const disallowGuestAccess = wrapper.findComponent('[data-test="disallowGuestAccessButton"]');
+  const lockedContent = wrapper.findComponent('[data-test="lockedContentButton"]');
   return {
-    learnPage: radioButtons.at(0),
-    signInPage: radioButtons.at(1),
-    allowGuestAccess: radioButtons.at(2),
-    disallowGuestAccess: radioButtons.at(3),
-    lockedContent: radioButtons.at(4),
+    learnPage,
+    signInPage,
+    allowGuestAccess,
+    disallowGuestAccess,
+    lockedContent,
     saveButton,
   };
 }

@@ -60,12 +60,14 @@
         <div class="fieldset">
           <label class="fieldset-label">{{ $tr('landingPageLabel') }}</label>
           <KRadioButton
+            data-test="landingPageButton"
             :label="$tr('learnerAppPageChoice')"
             :value="landingPageChoices.LEARN"
             :currentValue="landingPage"
             @input="handleLandingPageChange"
           />
           <KRadioButton
+            data-test="signInPageButton"
             :label="$tr('signInPageChoice')"
             :value="landingPageChoices.SIGN_IN"
             :currentValue="landingPage"
@@ -73,6 +75,7 @@
           />
           <div class="fieldset" style="margin-left: 32px">
             <KRadioButton
+              data-test="allowGuestAccessButton"
               :label="$tr('allowGuestAccess')"
               :value="SignInPageOptions.ALLOW_GUEST_ACCESS"
               :currentValue="signInPageOption"
@@ -80,6 +83,7 @@
               @input="handleSignInPageChange"
             />
             <KRadioButton
+              data-test="disallowGuestAccessButton"
               :label="$tr('disallowGuestAccess')"
               :value="SignInPageOptions.DISALLOW_GUEST_ACCESS"
               :currentValue="signInPageOption"
@@ -87,6 +91,7 @@
               @input="handleSignInPageChange"
             />
             <KRadioButton
+              data-test="lockedContentButton"
               :label="$tr('lockedContent')"
               :value="SignInPageOptions.LOCKED_CONTENT"
               :currentValue="signInPageOption"
@@ -231,6 +236,7 @@
           :text="coreString('saveChangesAction')"
           appearance="raised-button"
           primary
+          data-test="saveButton"
           @click="handleClickSave"
         />
       </section>

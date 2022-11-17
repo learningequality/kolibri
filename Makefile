@@ -156,7 +156,7 @@ test-namespaced-packages:
 	# This expression checks that everything in kolibri/dist has an __init__.py
 	# To prevent namespaced packages from suddenly showing up
 	# https://github.com/learningequality/kolibri/pull/2972
-	! find kolibri/dist -mindepth 1 -maxdepth 1 -type d -not -name __pycache__ -not -name cext -not -name py2only -exec ls {}/__init__.py \; 2>&1 | grep  "No such file"
+	! find kolibri/dist -mindepth 1 -maxdepth 1 -type d -not -name __pycache__ -not -name cext -not -name py2only -not -name *dist-info -exec ls {}/__init__.py \; 2>&1 | grep  "No such file"
 
 clean-staticdeps:
 	rm -rf kolibri/dist/* || true # remove everything
@@ -165,7 +165,6 @@ clean-staticdeps:
 staticdeps: clean-staticdeps
 	test "${SKIP_PY_CHECK}" = "1" || python2 --version 2>&1 | grep -q 2.7 || ( echo "Only intended to run on Python 2.7" && exit 1 )
 	pip2 install -t kolibri/dist -r "requirements.txt"
-	rm -rf kolibri/dist/*.dist-info  # pip installs from PyPI will complain if we have more than one dist-info directory.
 	rm -rf kolibri/dist/*.egg-info
 	rm -r kolibri/dist/man kolibri/dist/bin || true # remove the two folders introduced by pip 10
 	python2 build_tools/py2only.py # move `future` and `futures` packages to `kolibri/dist/py2only`
@@ -175,8 +174,6 @@ staticdeps-cext:
 	rm -rf kolibri/dist/cext || true # remove everything
 	python build_tools/install_cexts.py --file "requirements/cext.txt" # pip install c extensions
 	pip install -t kolibri/dist/cext -r "requirements/cext_noarch.txt" --no-deps
-	rm -rf kolibri/dist/*.dist-info  # pip installs from PyPI will complain if we have more than one dist-info directory.
-	rm -rf kolibri/dist/cext/*.dist-info  # pip installs from PyPI will complain if we have more than one dist-info directory.
 	rm -rf kolibri/dist/*.egg-info
 	make test-namespaced-packages
 
