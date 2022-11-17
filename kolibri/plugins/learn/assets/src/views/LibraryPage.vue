@@ -244,6 +244,7 @@
   import FullScreenSidePanel from 'kolibri.coreVue.components.FullScreenSidePanel';
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
+  import { Categories, CategoriesLookup } from 'kolibri.coreVue.vuex.constants';
   import genContentLink from '../utils/genContentLink';
   import { PageNames } from '../constants';
   import useSearch from '../composables/useSearch';
@@ -256,9 +257,47 @@
   import EmbeddedSidePanel from './EmbeddedSidePanel';
   import CategorySearchModal from './CategorySearchModal';
   import SearchChips from './SearchChips';
+  import plugin_data from 'plugin_data';
 
   const mobileCarouselLimit = 3;
   const desktopCarouselLimit = 15;
+
+  const availablePaths = {};
+
+  plugin_data.categories.map(key => {
+    const paths = key.split('.');
+    let path = '';
+    for (let path_segment of paths) {
+      path = path === '' ? path_segment : path + '.' + path_segment;
+      availablePaths[path] = true;
+    }
+  });
+
+  const libraryCategories = {};
+
+  for (let subjectKey of Object.entries(Categories)
+    .sort((a, b) => a[0].length - b[0].length)
+    .map(a => a[0])) {
+    const ids = Categories[subjectKey].split('.');
+    let path = '';
+    let nested = libraryCategories;
+    for (let fragment of ids) {
+      path += fragment;
+      if (availablePaths[path]) {
+        const nestedKey = CategoriesLookup[path];
+        if (!nested[nestedKey]) {
+          nested[nestedKey] = {
+            value: path,
+            nested: {},
+          };
+        }
+        nested = nested[nestedKey].nested;
+        path += '.';
+      } else {
+        break;
+      }
+    }
+  }
 
   export default {
     name: 'LibraryPage',
@@ -403,9 +442,20 @@
     methods: {
       genContentLink,
       handleShowSearchModal(value) {
-        this.currentCategory = value;
-        this.showSearchModal = true;
-        !(this.windowIsSmall || this.windowIsMedium) ? (this.sidePanelIsOpen = false) : '';
+        // for categories with sub-categories, open the modal
+        if (
+          libraryCategories[value] &&
+          libraryCategories[value].nested &&
+          Object.keys(libraryCategories[value].nested).length > 0
+        ) {
+          this.currentCategory = value;
+          this.showSearchModal = true;
+          !(this.windowIsSmall || this.windowIsMedium) ? (this.sidePanelIsOpen = false) : '';
+        }
+        // for valid categories with no subcategories, search directly
+        else if (libraryCategories[value]) {
+          this.setCategory(libraryCategories[value].value);
+        }
       },
       toggleCardView(value) {
         this.currentViewStyle = value;
