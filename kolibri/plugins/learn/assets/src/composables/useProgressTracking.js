@@ -336,6 +336,7 @@ export default function useProgressTracking(store) {
     // Used to ensure state is always saved when a session closes.
     force = false,
   } = {}) {
+    const wasComplete = get(progress_state) >= 1;
     if (get(session_id) === null) {
       throw ReferenceError(noSessionErrorText);
     }
@@ -411,7 +412,8 @@ export default function useProgressTracking(store) {
       set(time_spent_delta, threeDecimalPlaceRoundup(get(time_spent_delta) + elapsedTime));
     }
 
-    immediate = (!isUndefined(interaction) && !interaction.id) || immediate;
+    const completed = !wasComplete && get(progress_state) >= 1;
+    immediate = (!isUndefined(interaction) && !interaction.id) || completed || immediate;
     forceSessionUpdate = forceSessionUpdate || force;
     // Logic for promise returning debounce vendored and modified from:
     // https://github.com/sindresorhus/p-debounce/blob/main/index.js
