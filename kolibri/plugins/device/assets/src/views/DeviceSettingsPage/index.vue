@@ -307,6 +307,7 @@
   import DeviceTopNav from '../DeviceTopNav';
   import { deviceString } from '../commonDeviceStrings';
   import { getFreeSpaceOnServer } from '../AvailableChannelsPage/api';
+  import useDeviceRestart from '../../composables/useDeviceRestart';
   import { getDeviceSettings, getPathsPermissions, saveDeviceSettings, getDeviceURLs } from './api';
   import PrimaryStorageLocationModal from './PrimaryStorageLocationModal';
   import AddStorageLocationModal from './AddStorageLocationModal';
@@ -335,6 +336,10 @@
       ServerRestartModal,
     },
     mixins: [commonCoreStrings],
+    setup() {
+      const { restart } = useDeviceRestart();
+      return { restart };
+    },
     data() {
       return {
         language: {},
@@ -612,6 +617,9 @@
         })
           .then(() => {
             this.$store.dispatch('createSnackbar', this.$tr('saveSuccessNotification'));
+            if (this.restartSetting !== null) {
+              this.restart();
+            }
           })
           .catch(() => {
             this.$store.dispatch('createSnackbar', this.$tr('saveFailureNotification'));
