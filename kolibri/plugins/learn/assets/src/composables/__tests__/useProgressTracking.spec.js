@@ -870,13 +870,15 @@ describe('useProgressTracking composable', () => {
     });
     it('should debounce requests', async () => {
       const { updateContentSession } = await initStore();
-      updateContentSession({ progress: 1 });
-      updateContentSession({ contentState: { yes: 'no' } });
-      updateContentSession({ progressDelta: 1 });
-      updateContentSession({ progress: 1 });
-      updateContentSession({ contentState: { yes: 'no' } });
-      updateContentSession({ progressDelta: 1 });
+      const promises = [];
+      promises.push(updateContentSession({ progress: 0.6 }));
+      promises.push(updateContentSession({ contentState: { yes: 'no' } }));
+      promises.push(updateContentSession({ progressDelta: 0.1 }));
+      promises.push(updateContentSession({ progress: 0.8 }));
+      promises.push(updateContentSession({ contentState: { yes: 'no' } }));
+      promises.push(updateContentSession({ progressDelta: 0.9 }));
       await updateContentSession({ progress: 1 });
+      await Promise.all(promises);
       expect(client).toHaveBeenCalledTimes(1);
     });
     it('should retry 5 times if it receives a 503', async () => {
