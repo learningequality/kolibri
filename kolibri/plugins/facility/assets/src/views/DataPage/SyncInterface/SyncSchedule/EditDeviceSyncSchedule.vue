@@ -34,7 +34,7 @@
           <p> </p>
           <span>
             {{ $tr('serverTime') }}
-            {{ $formatRelative(ceilingDate, { now: now }) }}
+            {{ serverTime }}
           </span>
         </KGridItem>
 
@@ -125,10 +125,6 @@
         type: String,
         default: 'back',
       },
-      date: {
-        type: Date,
-        default: null,
-      },
       msg: {
         type: String,
         default: '',
@@ -139,7 +135,6 @@
         removeDeviceModal: false,
         deviceName: null,
         available: null,
-        currentTime: null,
         device: null,
         now: now(),
         timer: null,
@@ -149,12 +144,6 @@
     computed: {
       backRoute() {
         return { name: PageNames.ManageSyncSchedule };
-      },
-      ceilingDate() {
-        if (this.date > this.now) {
-          return this.now;
-        }
-        return this.date;
       },
       selectorStyle() {
         return {
@@ -179,10 +168,8 @@
       this.fetchFacility();
       this.deviceName = this.$route.query.name;
       this.available = this.$route.query.present;
-      this.currentTime = new Date();
       this.myvalue = this.selectArray[0];
-      console.log(this.$route.query.id);
-      console.log(this.$route.query.name);
+      this.serverTime = this.now;
     },
     mounted() {
       this.timer = setInterval(() => {

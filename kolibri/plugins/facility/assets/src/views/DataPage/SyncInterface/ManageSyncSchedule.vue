@@ -6,6 +6,7 @@
   >
     <KPageContainer>
       <KGrid gutter="48">
+
         <KGridItem>
           <h1>{{ $tr('manageSyncTitle') }}</h1>
         </KGridItem>
