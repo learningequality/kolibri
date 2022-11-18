@@ -3,6 +3,7 @@ import VueRouter from 'vue-router';
 import Vuex from 'vuex';
 import DeviceSettingsPage from '../index.vue';
 import { getPathPermissions, getDeviceURLs, getDeviceSettings, getPathsPermissions } from '../api';
+import { getFreeSpaceOnServer } from '../../AvailableChannelsPage/api';
 
 jest.mock('kolibri.urls');
 
@@ -11,6 +12,10 @@ jest.mock('../api.js', () => ({
   getPathsPermissions: jest.fn(),
   getDeviceURLs: jest.fn(),
   getDeviceSettings: jest.fn(),
+}));
+
+jest.mock('../../AvailableChannelsPage/api.js', () => ({
+  getFreeSpaceOnServer: jest.fn(),
 }));
 
 const DeviceSettingsData = {
@@ -56,12 +61,12 @@ async function makeWrapper() {
 }
 
 function getButtons(wrapper) {
-  const saveButton = wrapper.findComponent('[data-test="saveButton"]');
-  const learnPage = wrapper.findComponent('[data-test="landingPageButton"]');
-  const signInPage = wrapper.findComponent('[data-test="signInPageButton"]');
-  const allowGuestAccess = wrapper.findComponent('[data-test="allowGuestAccessButton"]');
-  const disallowGuestAccess = wrapper.findComponent('[data-test="disallowGuestAccessButton"]');
-  const lockedContent = wrapper.findComponent('[data-test="lockedContentButton"]');
+  const saveButton = wrapper.find('[data-test="saveButton"]');
+  const learnPage = wrapper.find('[data-test="landingPageButton"]');
+  const signInPage = wrapper.find('[data-test="signInPageButton"]');
+  const allowGuestAccess = wrapper.find('[data-test="allowGuestAccessButton"]');
+  const disallowGuestAccess = wrapper.find('[data-test="disallowGuestAccessButton"]');
+  const lockedContent = wrapper.find('[data-test="lockedContentButton"]');
   return {
     learnPage,
     signInPage,
@@ -79,6 +84,7 @@ describe('DeviceSettingsPage', () => {
     getPathsPermissions.mockResolvedValue({});
     getDeviceURLs.mockResolvedValue({});
     getDeviceSettings.mockResolvedValue(DeviceSettingsData);
+    getFreeSpaceOnServer.mockResolvedValue({ freeSpace: 0 });
   });
 
   it('loads the data from getDeviceSettings', async () => {
@@ -116,10 +122,6 @@ describe('DeviceSettingsPage', () => {
   }
 
   describe('landing page section', () => {
-    beforeEach(() => {
-      jest.clearAllMocks();
-    });
-
     // These should be the inverse of the "submitting settings" tests below
     it('hydrates with the correct state when guest access is allowed', async () => {
       setMockedData(true, true);
