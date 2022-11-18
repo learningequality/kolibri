@@ -103,19 +103,26 @@
           </KGridItem>
         </KGrid>
 
-        <KGrid v-for="info in data" :key="info.id" gutter="48">
+        <KGrid gutter="48">
           <KGridItem
             :layout8="{ span: 4 }"
             :layout12="{ span: 6 }"
           >
 
-            <KRadioButton
-              v-model="deviceModal"
-              :label="info.device_name"
-              :value="info.device_name"
-            >
-              <span>{{ info.base_url }}</span>
-            </KRadioButton>
+            <div v-for="btn in data" :key="btn.id">
+              <div>
+                <KRadioButton
+                  v-model="radioBtnValue"
+                  class="radio-button"
+                  :value="btn.id"
+                  :label="btn.device_name"
+                />
+                <span>{{ btn.base_url }}</span>
+              </div>
+
+            </div>
+
+
           </KGridItem>
 
           <KGridItem
@@ -141,7 +148,6 @@
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import { TaskResource, FacilityResource, NetworkLocationResource } from 'kolibri.resources';
-
   import { PageNames } from '../../../constants';
 
   export default {
@@ -152,7 +158,7 @@
     },
     extends: ImmersivePage,
     data() {
-      return { deviceModal: false, facility: null, data: null };
+      return { deviceModal: false, facility: null, data: null, radioBtnValue: ' ' };
     },
     computed: {
       goBack() {
@@ -200,9 +206,9 @@
       newAddress() {
         this.$router.push('/newAddress');
       },
-      editButton(value, name, available) {
+      editButton(value) {
         this.$router.push({
-          path: '/editdevice/?id=' + value + '&name=' + name + '&present=' + available,
+          path: '/editdevice/?id=' + value,
         });
       },
     },

@@ -270,7 +270,7 @@
       facilityOptions(facility) {
         return [
           {
-            label: this.coreString('registerAction'),
+            label: 'Manage sync Schedule',
             value: Options.REGISTER,
             disabled: facility.dataset.registered,
           },
@@ -284,7 +284,8 @@
         if (option === Options.REMOVE) {
           this.facilityForRemoval = facility;
         } else if (option === Options.REGISTER) {
-          this.facilityForRegister = facility;
+          this.$router.push({ path: '../../facilities' });
+          // this.facilityForRegister = facility;
         }
       },
       fetchFacilites() {

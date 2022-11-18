@@ -5,27 +5,37 @@
     :route="backRoute"
     :icon="icon"
   >
-    <KPageContainer>
+    <KPageContainer v-if="device">
       <KGrid gutter="48">
         <KGridItem>
           <h1>{{ $tr('editSyncScheduleSubTitle') }}</h1>
         </KGridItem>
         <KGridItem>
-          <p>{{ deviceName }}</p><br>
+          <p>{{ device.device_name }}</p><br>
         </KGridItem>
 
         <KGridItem
           :layout8="{ span: 3 }"
           :layout12="{ span: 4 }"
         >
-          <KSelect
-            value="Devices"
-            :options="selectArray"
-          />
+          <div>
+            <KSelect
+              :value="myvalue"
+              class="selector"
+              :style="selectorStyle"
+              :options="selectArray"
+              label="Repeat"
+            />
+          </div>
+
         </KGridItem>
 
         <KGridItem>
-          <p>{{ $tr('serverTime') }} {{ currentTime }} </p>
+          <p> </p>
+          <span>
+            {{ $tr('serverTime') }}
+            {{ $formatRelative(ceilingDate, { now: now }) }}
+          </span>
         </KGridItem>
 
         <KGridItem>
@@ -55,7 +65,7 @@
         />
         <KButton
           :text="$tr('saveBtn')"
-          primary="true"
+          :primary="true"
         />
       </KButtonGroup>
     </BottomAppBar>
@@ -82,7 +92,7 @@
           :layout12="{ span: 12 }"
         >
           <p>{{ $tr('removeDeviceWarning') }}</p>
-          <p v-if="available === true">
+          <p v-if="device.available">
 
           </p>
           <p v-else>
@@ -100,6 +110,8 @@
 
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
+  import { NetworkLocationResource } from 'kolibri.resources';
+  import { now } from 'kolibri.utils.serverClock';
   import { PageNames } from '../../../../constants';
 
   export default {
@@ -113,21 +125,48 @@
         type: String,
         default: 'back',
       },
+      date: {
+        type: Date,
+        default: null,
+      },
       msg: {
         type: String,
         default: '',
       },
     },
     data() {
-      return { removeDeviceModal: false, deviceName: null, available: null, currentTime: null };
+      return {
+        removeDeviceModal: false,
+        deviceName: null,
+        available: null,
+        currentTime: null,
+        device: null,
+        now: now(),
+        timer: null,
+        myvalue: null,
+      };
     },
     computed: {
       backRoute() {
         return { name: PageNames.ManageSyncSchedule };
       },
+      ceilingDate() {
+        if (this.date > this.now) {
+          return this.now;
+        }
+        return this.date;
+      },
+      selectorStyle() {
+        return {
+          color: this.$themeTokens.text,
+          backgroundColor: this.$themePalette.grey.v_200,
+          borderRadius: '5px 5px 0px 0px',
+          paddingTop: '5px',
+          paddingLeft: '5px',
+        };
+      },
       selectArray() {
         return [
-          { label: this.$tr('every5Minutes'), value: 300 },
           { label: this.$tr('everyHour'), value: 3600 },
           { label: this.$tr('everyDay'), value: 86400 },
           { label: this.$tr('everyWeek'), value: 604800 },
@@ -137,11 +176,21 @@
       },
     },
     beforeMount() {
+      this.fetchFacility();
       this.deviceName = this.$route.query.name;
       this.available = this.$route.query.present;
       this.currentTime = new Date();
+      this.myvalue = this.selectArray[0];
       console.log(this.$route.query.id);
       console.log(this.$route.query.name);
+    },
+    mounted() {
+      this.timer = setInterval(() => {
+        this.now = now();
+      }, 10000);
+    },
+    beforeDestroy() {
+      clearInterval(this.timer);
     },
     methods: {
       removeDevice() {
@@ -155,6 +204,11 @@
       },
       cancelBtn() {
         this.$router.push({ name: PageNames.ManageSyncSchedule });
+      },
+      fetchFacility() {
+        NetworkLocationResource.fetchModel({ id: this.$route.query.id }).then(device => {
+          this.device = device;
+        });
       },
     },
     $trs: {
@@ -193,10 +247,6 @@
       cancelBtn: {
         message: 'Cancel',
         context: 'Cancel buttton on the bottomAppBar',
-      },
-      every5Minutes: {
-        message: 'Every 5 minutes',
-        context: 'Label for every 5 minutes',
       },
       everyHour: {
         message: 'Every hour',
