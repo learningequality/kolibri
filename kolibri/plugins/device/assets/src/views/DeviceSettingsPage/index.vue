@@ -131,13 +131,15 @@
           </p>
           <p>
             {{ primaryStorageLocation }}
-            <span
-              v-if="browserLocationMatchesServerURL &&
-                (secondaryStorageLocations.length > 0)"
+            <KButton
+              v-show="(secondaryStorageLocations.length >= 1)"
+              :text="$tr('changeLocation')"
+              :primary="true"
+              appearance="basic-link"
+              :disabled="!multipleWritablePaths"
+              :class="{ 'disabled': !multipleWritablePaths }"
               @click="showChangePrimaryLocationModal = true"
-            >
-              <KExternalLink :text="$tr('changeLocation')" />
-            </span>
+            />
           </p>
           <KButton
             v-if="browserLocationMatchesServerURL && (secondaryStorageLocations.length === 0)"
@@ -152,7 +154,7 @@
           <h2>
             {{ $tr('secondaryStorage') }}
           </h2>
-          <p v-show="!multipleReadOnlyPaths" class="info-description">
+          <p v-show="multipleReadOnlyPaths" class="info-description">
             {{ $tr('secondaryStorageDescription') }}
           </p>
           <p v-for="path in secondaryStorageLocations" :key="path.index">
@@ -195,7 +197,10 @@
               :description="$tr('setStorageLimitDescription')"
               @change="setLimitForAutodownload = $event"
             />
-            <div v-show="setLimitForAutodownload" class="left-margin">
+            <div
+              v-show="enableAutomaticDownload === false ? false : setLimitForAutodownload"
+              class="left-margin"
+            >
               <KTextbox
                 ref="autoDownloadLimit"
                 v-model="limitForAutodownload"
@@ -203,6 +208,8 @@
                 :disabled="notEnoughFreeSpace"
                 type="number"
                 label="GB"
+                :min="0"
+                :max="freeSpace"
                 :invalid="notEnoughFreeSpace"
                 :invalidText="$tr('notEnoughFreeSpace')"
               />
@@ -358,7 +365,7 @@
         enableAutomaticDownload: null,
         allowLearnerDownloadResources: null,
         setLimitForAutodownload: null,
-        limitForAutodownload: 0,
+        limitForAutodownload: '0',
         freeSpace: 0,
         deviceUrls: [],
         showChangePrimaryLocationModal: false,
@@ -371,6 +378,8 @@
         restartPath: {},
         restartSetting: null,
         showRestartModal: false,
+        writablePaths: 0,
+        readOnlyPaths: 0,
       };
     },
     computed: {
@@ -411,6 +420,18 @@
       },
       notEnoughFreeSpace() {
         return this.freeSpace === 0;
+      },
+      multipleWritablePaths() {
+        Object.values(this.storageLocations).forEach(el => {
+          if (el.writable === true) this.writablePaths += 1;
+        });
+        return this.writablePaths >= 2;
+      },
+      multipleReadOnlyPaths() {
+        Object.values(this.storageLocations).forEach(el => {
+          if (el.writable === false) this.readOnlyPaths += 1;
+        });
+        return this.readOnlyPaths >= 1;
       },
       sliderStyle() {
         if (this.notEnoughFreeSpace) {
@@ -515,7 +536,7 @@
         }
         this.allowLearnerDownloadResources = allow_learner_download_resources;
         this.enableAutomaticDownload = enable_automatic_download;
-        this.limitForAutodownload = limit_for_autodownload;
+        this.limitForAutodownload = limit_for_autodownload.toString();
         this.setLimitForAutodownload = set_limit_for_autodownload;
       },
       getContentSettings() {
@@ -700,13 +721,6 @@
           return this.$tr('readOnly');
         }
         return '';
-      },
-      multipleReadOnlyPaths() {
-        if (this.storageLocations.filter(el => el.writeable).length === 0) {
-          return true;
-        } else {
-          return false;
-        }
       },
     },
     $trs: {
@@ -974,6 +988,11 @@
     font-size: 14px;
     font-weight: 400;
     color: #686868;
+  }
+
+  .disabled {
+    color: #e0e0e0 !important;
+    pointer-events: none;
   }
 
 </style>
