@@ -148,7 +148,7 @@
 
   let availableIds;
 
-  availableIds = plugin_data.categories;
+  availableIds = plugin_data.categories || [];
 
   const libraryCategoriesSelection = pick(
     CategoriesLookup,
