@@ -48,7 +48,7 @@ export const libraryCategories = {};
 
 const availablePaths = {};
 
-plugin_data.categories.map(key => {
+(plugin_data.categories || []).map(key => {
   const paths = key.split('.');
   let path = '';
   for (let path_segment of paths) {
