@@ -1,14 +1,9 @@
 <template>
 
   <div>
-    <CoreBase
-      :showDemoBanner="demoBannerRoute"
-      :immersivePage="false"
-      :immersivePagePrimary="false"
-      :fullScreen="true"
-    >
+    <UserAuthLayout>
       <router-view />
-    </CoreBase>
+    </UserAuthLayout>
   </div>
 
 </template>
@@ -16,35 +11,15 @@
 
 <script>
 
-  import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { createTranslator } from 'kolibri.utils.i18n';
   import { ComponentMap } from '../constants';
-
-  const tempTranslator = createTranslator('UserIndex', {
-    signUpStep1Title: {
-      message: 'Step 1 of 2',
-      context: 'Indicates at which stage of the sign up process the user is at.',
-    },
-    signUpStep2Title: {
-      message: 'Step 2 of 2',
-      context: 'Indicates at which stage of the sign up process the user is at.',
-    },
-  });
+  import UserAuthLayout from './UserAuthLayout';
 
   export default {
     name: 'UserAuthIndex',
-    components: { CoreBase },
+    components: { UserAuthLayout },
     mixins: [commonCoreStrings],
     computed: {
-      demoBannerRoute() {
-        return [
-          ComponentMap.SIGN_IN,
-          ComponentMap.FACILITY_SELECT,
-          ComponentMap.AUTH_SELECT,
-          ComponentMap.NEW_PASSWORD,
-        ].includes(this.$route.name);
-      },
       redirect: {
         get() {
           return this.$store.state.signIn.redirect;
@@ -66,8 +41,10 @@
       },
     },
     created() {
-      // Check for redirect param and store it in vuex
-      // otherwise it'll be lost when the route changes.
+      /*
+       * Check for redirect param and store it in vuex
+       * otherwise it'll be lost when the route changes.
+       */
       if (this.$route.query.redirect) {
         this.redirect = this.$route.query.redirect;
       }
@@ -78,17 +55,23 @@
         // remove 'disable' after switching back to `this.$tr`
         if (route.name === ComponentMap.SIGN_UP) {
           if (route.query.step) {
-            return tempTranslator.$tr('signUpStep1Title');
+            return this.$tr('signUpStep1Title');
           }
-          return tempTranslator.$tr('signUpStep2Title');
+          return this.$tr('signUpStep2Title');
         }
         /* eslint-enable kolibri/vue-no-undefined-string-uses */
-
         return this.coreString('signInLabel');
       },
     },
     $trs: {
-      // TODO: move strings from tempTranslator back to this.$tr
+      signUpStep1Title: {
+        message: 'Step 1 of 2',
+        context: 'Indicates at which stage of the sign up process the user is at.',
+      },
+      signUpStep2Title: {
+        message: 'Step 2 of 2',
+        context: 'Indicates at which stage of the sign up process the user is at.',
+      },
     },
   };
 

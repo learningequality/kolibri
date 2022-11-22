@@ -44,9 +44,9 @@
   import { currentLanguage, defaultLanguage } from 'kolibri.utils.i18n';
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
-  import GlobalSnackbar from './GlobalSnackbar.vue';
+  import AppError from 'kolibri-common/components/AppError';
+  import GlobalSnackbar from 'kolibri-common/components/GlobalSnackbar';
   import UpdateNotification from './UpdateNotification.vue';
-  import AppError from './AppError';
 
   export default {
     name: 'NotificationsRoot',

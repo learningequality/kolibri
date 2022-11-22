@@ -138,9 +138,9 @@
   import { currentLanguage, defaultLanguage } from 'kolibri.utils.i18n';
   import coreBannerContent from 'kolibri.utils.coreBannerContent';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import AppError from 'kolibri-common/components/AppError';
+  import GlobalSnackbar from 'kolibri-common/components/GlobalSnackbar';
   import navComponentsMixin from '../../mixins/nav-components';
-  import AppError from '../AppError';
-  import GlobalSnackbar from '../GlobalSnackbar';
   import ImmersiveToolbar from '../ImmersiveToolbar';
   import UpdateNotification from '../UpdateNotification';
   import LanguageSwitcherModal from '../language-switcher/LanguageSwitcherModal';

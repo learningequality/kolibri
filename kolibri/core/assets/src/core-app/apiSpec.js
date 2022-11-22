@@ -81,7 +81,6 @@ import UserTable from '../views/UserTable';
 import CoachContentLabel from '../views/CoachContentLabel';
 import PrivacyInfoModal from '../views/PrivacyInfoModal';
 import UserTypeDisplay from '../views/UserTypeDisplay';
-import TechnicalTextBlock from '../views/AppError/TechnicalTextBlock';
 import Draggable from '../views/sortable/Draggable';
 import DragHandle from '../views/sortable/DragHandle';
 import DragContainer from '../views/sortable/DragContainer';
@@ -194,7 +193,6 @@ export default {
       UiToolbar,
       PrivacyInfoModal,
       UserTypeDisplay,
-      TechnicalTextBlock,
       Draggable,
       DragHandle,
       DragContainer,
