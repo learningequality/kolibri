@@ -9,6 +9,7 @@
     <div v-if="blockDoubleClicks" class="click-mask"></div>
     <SkipNavigationLink />
     <LearningActivityBar
+      ref="activityBar"
       :resourceTitle="resourceTitle"
       :learningActivities="content.learning_activities"
       :isLessonContext="lessonContext"
@@ -23,6 +24,7 @@
       @toggleBookmark="toggleBookmark"
       @viewResourceList="toggleResourceList"
       @viewInfo="openSidePanel"
+      @completionModal="openCompletionModal"
     />
     <KLinearLoader
       v-if="loading"
@@ -49,11 +51,13 @@
       class="main"
     >
       <ContentPage
+        ref="contentPage"
         class="content"
         data-test="contentPage"
         :content="content"
         :lessonId="lessonId"
         :allowMarkComplete="allowMarkComplete"
+        @finished="$refs.activityBar && $refs.activityBar.animateNextSteps()"
       />
     </div>
 
@@ -420,6 +424,11 @@
           this.$refs.embeddedPanel.focusFirstEl();
         } else {
           this.$refs.resourcePanel.focusFirstEl();
+        }
+      },
+      openCompletionModal() {
+        if (this.$refs.contentPage) {
+          this.$refs.contentPage.displayCompletionModal();
         }
       },
     },

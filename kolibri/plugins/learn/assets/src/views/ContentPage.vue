@@ -61,7 +61,8 @@
       :isUserLoggedIn="isUserLoggedIn"
       :contentNodeId="content.id"
       :lessonId="lessonId"
-      @close="showCompletionModal = false"
+      :wasComplete="wasComplete"
+      @close="hideCompletionModal"
       @shouldFocusFirstEl="findFirstEl()"
     />
 
@@ -156,6 +157,7 @@
     data() {
       return {
         showCompletionModal: false,
+        wasComplete: false,
         sessionReady: false,
       };
     },
@@ -174,6 +176,7 @@
         lessonId: this.lessonId,
       }).then(() => {
         this.sessionReady = true;
+        this.wasComplete = this.progress >= 1;
         // Set progress into the content node progress store in case it was not already loaded
         this.cacheProgress();
       });
@@ -204,6 +207,9 @@
       },
       handleMarkAsComplete() {
         this.hideMarkAsCompleteModal();
+        // Do this immediately to remove any delay
+        // before the completion modal displays if appropriate.
+        this.onFinished();
         return this.updateProgress(1.0)
           .then(() => {
             this.$store.dispatch('createSnackbar', this.learnString('resourceCompletedLabel'));
@@ -223,7 +229,18 @@
           });
       },
       onFinished() {
-        this.showCompletionModal = this.progress >= 1;
+        if (this.wasComplete) {
+          this.$emit('finished');
+        } else {
+          this.displayCompletionModal();
+        }
+      },
+      displayCompletionModal() {
+        this.showCompletionModal = true;
+      },
+      hideCompletionModal() {
+        this.showCompletionModal = false;
+        this.wasComplete = true;
       },
       onError(error) {
         this.$store.dispatch('handleApiError', error);
