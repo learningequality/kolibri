@@ -1,122 +1,124 @@
 <template>
 
-  <CoreBase
-    :immersivePage="true"
-    immersivePageIcon="back"
-    :immersivePagePrimary="false"
-    :immersivePageRoute="toolbarRoute"
-    :appBarTitle="$tr('appBarLabel')"
+  <NotificationsRoot
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
-    :marginBottom="72"
   >
-
-    <KPageContainer>
-      <h1>{{ $tr('preview') }}</h1>
-      <h2>{{ coachString('detailsLabel') }}</h2>
-      <KGrid>
-        <KGridItem :layout12="{ span: 6 }">
-          <KTextbox
-            ref="title"
-            v-model.trim="examTitle"
-            :label="coachString('titleLabel')"
-            :autofocus="true"
-            :maxlength="100"
-            :invalid="Boolean(showError && titleIsInvalidText)"
-            :invalidText="titleIsInvalidText"
-            @input="showTitleError = false"
-          />
-        </KGridItem>
-        <KGridItem :layout12="{ span: 6 }" class="number-input-grid-item">
-          <KTextbox
-            ref="numQuest"
-            v-model.trim.number="numQuestions"
-            type="number"
-            :min="1"
-            :max="maxQs"
-            :label="$tr('numQuestions')"
-            :invalid="Boolean(showError && numQuestIsInvalidText)"
-            :invalidText="numQuestIsInvalidText"
-            class="number-field"
-          />
+    <ImmersivePage
+      :appBarTitle="$tr('appBarLabel')"
+      icon="back"
+      :route="toolbarRoute"
+    >
+      <KPageContainer
+        :topMargin="100"
+      >
+        <h1>{{ $tr('preview') }}</h1>
+        <h2>{{ coachString('detailsLabel') }}</h2>
+        <KGrid>
+          <KGridItem :layout12="{ span: 6 }">
+            <KTextbox
+              ref="title"
+              v-model.trim="examTitle"
+              :label="coachString('titleLabel')"
+              :autofocus="true"
+              :maxlength="100"
+              :invalid="Boolean(showError && titleIsInvalidText)"
+              :invalidText="titleIsInvalidText"
+              @input="showTitleError = false"
+            />
+          </KGridItem>
+          <KGridItem :layout12="{ span: 6 }" class="number-input-grid-item">
+            <KTextbox
+              ref="numQuest"
+              v-model.trim.number="numQuestions"
+              type="number"
+              :min="1"
+              :max="maxQs"
+              :label="$tr('numQuestions')"
+              :invalid="Boolean(showError && numQuestIsInvalidText)"
+              :invalidText="numQuestIsInvalidText"
+              class="number-field"
+            />
+            <KIconButton
+              icon="minus"
+              aria-hidden="true"
+              class="number-btn"
+              :disabled="numQuestions === 1"
+              @click="numQuestions -= 1"
+            />
+            <KIconButton
+              icon="plus"
+              aria-hidden="true"
+              class="number-btn"
+              :disabled="numQuestions === maxQs"
+              @click="numQuestions += 1"
+            />
+          </KGridItem>
+        </KGrid>
+        <div>
           <KIconButton
-            icon="minus"
+            icon="refresh"
             aria-hidden="true"
-            class="number-btn"
-            :disabled="numQuestions === 1"
-            @click="numQuestions -= 1"
-          />
-          <KIconButton
-            icon="plus"
-            aria-hidden="true"
-            class="number-btn"
-            :disabled="numQuestions === maxQs"
-            @click="numQuestions += 1"
-          />
-        </KGridItem>
-      </KGrid>
-      <div>
-        <KIconButton
-          icon="refresh"
-          aria-hidden="true"
-          tabindex="-1"
-          :color="$themeTokens.primary"
-          @click="getNewQuestionSet"
-        />
-        <KButton
-          :text="$tr('randomize')"
-          appearance="basic-link"
-          :primary="false"
-          @click="getNewQuestionSet"
-        />
-      </div>
-      <h2 class="header-margin">
-        {{ coachString('questionOrderLabel') }}
-      </h2>
-      <div>
-        <KRadioButton
-          v-model="fixedOrder"
-          :label="coachString('orderRandomLabel')"
-          :description="coachString('orderRandomDescription')"
-          :value="false"
-        />
-        <KRadioButton
-          v-model="fixedOrder"
-          :label="coachString('orderFixedLabel')"
-          :description="coachString('orderFixedDescription')"
-          :value="true"
-        />
-      </div>
-
-      <h2 class="header-margin">
-        {{ $tr('questionsLabel') }}
-      </h2>
-
-      <QuestionListPreview
-        v-if="!loadingNewQuestions"
-        :fixedOrder="fixedOrder"
-        :selectedQuestions="selectedQuestions"
-        :selectedExercises="selectedExercises"
-      />
-
-      <BottomAppBar style="z-index: 1062;">
-        <KButtonGroup>
-          <KRouterLink
-            appearance="flat-button"
-            :text="$tr('previousStep')"
-            :to="toolbarRoute"
+            tabindex="-1"
+            :color="$themeTokens.primary"
+            @click="getNewQuestionSet"
           />
           <KButton
-            :text="coreString('finishAction')"
-            :disabled="loadingNewQuestions"
-            primary
-            @click="submit"
+            :text="$tr('randomize')"
+            appearance="basic-link"
+            :primary="false"
+            @click="getNewQuestionSet"
           />
-        </KButtonGroup>
-      </BottomAppBar>
-    </KPageContainer>
+        </div>
+        <h2 class="header-margin">
+          {{ coachString('questionOrderLabel') }}
+        </h2>
+        <div>
+          <KRadioButton
+            v-model="fixedOrder"
+            :label="coachString('orderRandomLabel')"
+            :description="coachString('orderRandomDescription')"
+            :value="false"
+          />
+          <KRadioButton
+            v-model="fixedOrder"
+            :label="coachString('orderFixedLabel')"
+            :description="coachString('orderFixedDescription')"
+            :value="true"
+          />
+        </div>
 
-  </CoreBase>
+        <h2 class="header-margin">
+          {{ $tr('questionsLabel') }}
+        </h2>
+
+        <QuestionListPreview
+          v-if="!loadingNewQuestions"
+          :fixedOrder="fixedOrder"
+          :selectedQuestions="selectedQuestions"
+          :selectedExercises="selectedExercises"
+        />
+
+        <BottomAppBar style="z-index: 1062;">
+          <KButtonGroup>
+            <KRouterLink
+              appearance="flat-button"
+              :text="$tr('previousStep')"
+              :to="toolbarRoute"
+            />
+            <KButton
+              :text="coreString('finishAction')"
+              :disabled="loadingNewQuestions"
+              primary
+              @click="submit"
+            />
+          </KButtonGroup>
+        </BottomAppBar>
+      </KPageContainer>
+    </ImmersivePage>
+
+    <router-view />
+  </NotificationsRoot>
 
 </template>
 
@@ -129,6 +131,8 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
+  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
+  import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../../common';
   import { MAX_QUESTIONS } from '../../../constants/examConstants';
@@ -143,6 +147,8 @@
     },
     components: {
       BottomAppBar,
+      ImmersivePage,
+      NotificationsRoot,
       QuestionListPreview,
     },
     mixins: [responsiveWindowMixin, commonCoach, commonCoreStrings],

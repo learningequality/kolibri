@@ -1,37 +1,39 @@
 <template>
 
-  <CoreBase
-    :immersivePage="false"
+  <NotificationsRoot
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
-    :showSubNav="true"
   >
+    <AppBarPage>
+      <template #subNav>
+        <TopNavbar />
+      </template>
 
-    <template #sub-nav>
-      <TopNavbar />
-    </template>
+      <KPageContainer>
+        <p>
+          <BackLink
+            :to="classRoute('HomePage', {})"
+            :text="coreString('classHome')"
+          />
+        </p>
 
-    <KPageContainer>
-      <p>
-        <BackLink
-          :to="classRoute('HomePage', {})"
-          :text="coreString('classHome')"
+        <ActivityList
+          :noActivityString="$tr('noActivityLabel')"
+          embeddedPageName="HomeActivityPage"
         />
-      </p>
 
-      <ActivityList
-        :noActivityString="$tr('noActivityLabel')"
-        embeddedPageName="HomeActivityPage"
-      />
+      </KPageContainer>
+    </AppBarPage>
 
-    </KPageContainer>
-  </CoreBase>
+    <router-view />
+  </NotificationsRoot>
 
 </template>
 
 
 <script>
 
+  import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import { nStringsMixin } from '../common/notifications/notificationStrings';
@@ -41,6 +43,7 @@
     name: 'HomeActivityPage',
     components: {
       ActivityList,
+      NotificationsRoot,
     },
     mixins: [commonCoach, nStringsMixin, commonCoreStrings],
     $trs: {

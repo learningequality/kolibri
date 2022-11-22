@@ -1,14 +1,10 @@
 <template>
 
-  <CoreBase
-    :immersivePage="true"
-    immersivePageIcon="back"
-    :immersivePagePrimary="true"
-    :primary="true"
-    :toolbarTitle="currentGroup.name"
+  <ImmersivePage
     :appBarTitle="currentGroup.name"
-    :immersivePageRoute="$router.getRoute('GroupMembersPage')"
-    :pageTitle="pageTitle"
+    icon="back"
+    :route="$router.getRoute('GroupMembersPage')"
+    :primary="false"
   >
     <KPageContainer>
       <h1>
@@ -75,9 +71,7 @@
         </div>
       </form>
     </KPageContainer>
-
-
-  </CoreBase>
+  </ImmersivePage>
 
 </template>
 
@@ -86,6 +80,7 @@
 
   import { mapActions, mapGetters, mapState } from 'vuex';
   import differenceWith from 'lodash/differenceWith';
+  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -95,7 +90,13 @@
 
   export default {
     name: 'GroupEnrollPage',
+    metaInfo() {
+      return {
+        title: this.pageTitle,
+      };
+    },
     components: {
+      ImmersivePage,
       FilterTextbox,
       UserTable,
     },

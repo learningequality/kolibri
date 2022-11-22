@@ -1,55 +1,64 @@
 <template>
 
-  <CoreBase
-    :immersivePage="false"
-    :appBarTitle="coreString('coachLabel')"
+  <NotificationsRoot
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
-    :showSubNav="false"
-    :pageTitle="coreString('allFacilitiesLabel')"
   >
-    <KPageContainer>
-      <h1>{{ coreString('facilitiesLabel') }} </h1>
-      <CoreTable>
-        <template #headers>
-          <th>{{ coreString('nameLabel') }}</th>
-          <th>{{ coreString('classesLabel') }}</th>
-        </template>
-        <template #tbody>
-          <tbody>
-            <tr v-for="facility in facilities" :key="facility.id">
-              <td>
-                <KRouterLink
-                  :text="facility.name"
-                  :to="coachClassListPageLink(facility)"
-                  icon="facility"
-                />
-              </td>
-              <td>
-                {{ $formatNumber(facility.num_classrooms) }}
-              </td>
-            </tr>
-          </tbody>
-        </template>
-      </CoreTable>
-    </KPageContainer>
-  </CoreBase>
+    <AppBarPage
+      :title="coreString('coachLabel')"
+    >
+      <KPageContainer>
+        <h1>{{ coreString('facilitiesLabel') }} </h1>
+        <CoreTable>
+          <template #headers>
+            <th>{{ coreString('nameLabel') }}</th>
+            <th>{{ coreString('classesLabel') }}</th>
+          </template>
+          <template #tbody>
+            <tbody>
+              <tr v-for="facility in facilities" :key="facility.id">
+                <td>
+                  <KRouterLink
+                    :text="facility.name"
+                    :to="coachClassListPageLink(facility)"
+                    icon="facility"
+                  />
+                </td>
+                <td>
+                  {{ $formatNumber(facility.num_classrooms) }}
+                </td>
+              </tr>
+            </tbody>
+          </template>
+        </CoreTable>
+      </KPageContainer>
+    </AppBarPage>
+
+    <router-view />
+  </NotificationsRoot>
 
 </template>
 
 
 <script>
 
-  import CoreBase from 'kolibri.coreVue.components.CoreBase';
+  import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from './common';
 
   export default {
     name: 'AllFacilitiesPage',
+    metaInfo() {
+      return {
+        title: this.coreString('allFacilitiesLabel'),
+      };
+    },
     components: {
-      CoreBase,
+      AppBarPage,
       CoreTable,
+      NotificationsRoot,
     },
     mixins: [commonCoach, commonCoreStrings],
     computed: {

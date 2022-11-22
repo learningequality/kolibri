@@ -1,186 +1,188 @@
 <template>
 
-  <CoreBase
-    :immersivePage="true"
-    immersivePageIcon="close"
-    :immersivePagePrimary="false"
-    :immersivePageRoute="toolbarRoute"
-    :appBarTitle="$tr('createNewExamLabel')"
+  <NotificationsRoot
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
-    :pageTitle="$tr('createNewExamLabel')"
-    :marginBottom="72"
   >
+    <ImmersivePage
+      :appBarTitle="$tr('createNewExamLabel')"
+      icon="close"
+      :route="toolbarRoute"
+    >
 
-    <KPageContainer>
-
-      <h1>{{ $tr('createNewExamLabel') }}</h1>
-
-      <UiAlert
-        v-if="showError && !inSearchMode"
-        type="error"
-        :dismissible="false"
+      <KPageContainer
+        :topMargin="100"
       >
-        {{ selectionIsInvalidText }}
-      </UiAlert>
 
-      <h2>{{ coachString('detailsLabel') }}</h2>
+        <h1>{{ $tr('createNewExamLabel') }}</h1>
 
-      <KGrid>
-        <KGridItem :layout12="{ span: 6 }">
-          <KTextbox
-            ref="title"
-            v-model.trim="examTitle"
-            :label="coachString('titleLabel')"
-            :autofocus="true"
-            :maxlength="100"
-          />
-        </KGridItem>
-        <KGridItem :layout12="{ span: 6 }">
-          <KGrid>
-            <KGridItem
-              :layout4="{ span: 2 }"
-              :layout8="{ span: 5 }"
-              :layout12="{ span: 8 }"
-            >
-              <KTextbox
-                ref="questionsInput"
-                v-model.trim.number="numQuestions"
-                type="number"
-                :min="1"
-                :max="maxQs"
-                :invalid="Boolean(showError && numQuestIsInvalidText)"
-                :invalidText="numQuestIsInvalidText"
-                :label="$tr('numQuestions')"
-                @blur="handleNumberQuestionsBlur"
-              />
-            </KGridItem>
-            <KGridItem
-              :layout4="{ span: 2 }"
-              :layout8="{ span: 3 }"
-              :layout12="{ span: 4 }"
-              :style="{ marginTop: '16px' }"
-            >
-              <KIconButton
-                icon="minus"
-                aria-hidden="true"
-                class="number-btn"
-                :disabled="numQuestions === 1"
-                @click="numQuestions -= 1"
-              />
-              <KIconButton
-                icon="plus"
-                aria-hidden="true"
-                class="number-btn"
-                :disabled="numQuestions === maxQs"
-                @click="numQuestions += 1"
-              />
-            </KGridItem>
-          </KGrid>
-        </KGridItem>
-      </KGrid>
-
-      <h2>{{ $tr('chooseExercises') }}</h2>
-      <div v-if="bookmarksRoute">
-        <strong>
-          <KRouterLink
-            :text="coreString('channelsLabel')"
-            :to="channelsLink"
-          />
-        </strong>
-        <ContentCardList
-          :contentList="bookmarks"
-          :contentHasCheckbox="contentHasCheckbox"
-          :contentCardMessage="() => ''"
-          :selectAllChecked="selectAllChecked"
-          :selectAllIndeterminate="selectAllIndeterminate"
-          :contentCardLink="bookmarksLink"
-          :contentIsChecked="contentIsSelected"
-          :viewMoreButtonState="viewMoreButtonState"
-          :showSelectAll="selectAllIsVisible"
-          :contentIsIndeterminate="contentIsIndeterminate"
-          @changeselectall="toggleTopicInWorkingResources"
-          @change_content_card="toggleSelected"
-          @moreresults="handleMoreResults"
-        />
-      </div>
-      <div v-if="examCreationRoute">
-        <p v-if="bookmarksCount">
-          {{ coreString('selectFromBookmarks') }}
-        </p>
-        <KRouterLink
-          v-if="bookmarksCount"
-          :style="{ width: '100%' }"
-          :to="getBookmarksLink()"
+        <UiAlert
+          v-if="showError && !inSearchMode"
+          type="error"
+          :dismissible="false"
         >
-          <div class="bookmark-container">
-            <BookmarkIcon />
-            <div class="text">
-              <h3>{{ coreString('bookmarksLabel') }}</h3>
-              <p>{{ $tr('resources', { count: bookmarksCount }) }}</p>
-            </div>
-          </div>
-        </KRouterLink>
-      </div>
+          {{ selectionIsInvalidText }}
+        </UiAlert>
 
-      <div v-if="examCreationRoute || examTopicRoute || inSearchMode">
-        <LessonsSearchBox
-          class="search-box"
-          @searchterm="handleSearchTerm"
-        />
+        <h2>{{ coachString('detailsLabel') }}</h2>
 
-        <LessonsSearchFilters
-          v-if="inSearchMode"
-          v-model="filters"
-          :searchTerm="searchTerm"
-          :searchResults="searchResults"
-        />
-        <ResourceSelectionBreadcrumbs
-          v-else
-          :ancestors="ancestors"
-          :channelsLink="channelsLink"
-          :topicsLink="topicsLink"
-        />
-        <h2>{{ topicTitle }}</h2>
-        <p>{{ topicDescription }}</p>
-        <ContentCardList
-          :contentList="filteredContentList"
-          :showSelectAll="selectAllIsVisible"
-          :viewMoreButtonState="viewMoreButtonState"
-          :selectAllChecked="selectAllChecked"
-          :selectAllIndeterminate="selectAllIndeterminate"
-          :contentIsChecked="contentIsSelected"
-          :contentIsIndeterminate="contentIsIndeterminate"
-          :contentHasCheckbox="contentHasCheckbox"
-          :contentCardMessage="selectionMetadata"
-          :contentCardLink="contentLink"
-          @changeselectall="toggleTopicInWorkingResources"
-          @change_content_card="toggleSelected"
-          @moreresults="handleMoreResults"
-        />
-      </div>
-      <BottomAppBar v-if="inSearchMode">
-        <KRouterLink
-          appearance="raised-button"
-          :text="$tr('exitSearchButtonLabel')"
-          primary
-          :to="topicRoute"
-        />
-      </BottomAppBar>
-      <BottomAppBar v-else>
-        <KButtonGroup>
-          <KButton
-            :text="coreString('continueAction')"
-            primary
-            :disabled="!exercisesHaveBeenSelected"
-            @click="continueProcess"
+        <KGrid>
+          <KGridItem :layout12="{ span: 6 }">
+            <KTextbox
+              ref="title"
+              v-model.trim="examTitle"
+              :label="coachString('titleLabel')"
+              :autofocus="true"
+              :maxlength="100"
+            />
+          </KGridItem>
+          <KGridItem :layout12="{ span: 6 }">
+            <KGrid>
+              <KGridItem
+                :layout4="{ span: 2 }"
+                :layout8="{ span: 5 }"
+                :layout12="{ span: 8 }"
+              >
+                <KTextbox
+                  ref="questionsInput"
+                  v-model.trim.number="numQuestions"
+                  type="number"
+                  :min="1"
+                  :max="maxQs"
+                  :invalid="Boolean(showError && numQuestIsInvalidText)"
+                  :invalidText="numQuestIsInvalidText"
+                  :label="$tr('numQuestions')"
+                  @blur="handleNumberQuestionsBlur"
+                />
+              </KGridItem>
+              <KGridItem
+                :layout4="{ span: 2 }"
+                :layout8="{ span: 3 }"
+                :layout12="{ span: 4 }"
+                :style="{ marginTop: '16px' }"
+              >
+                <KIconButton
+                  icon="minus"
+                  aria-hidden="true"
+                  class="number-btn"
+                  :disabled="numQuestions === 1"
+                  @click="numQuestions -= 1"
+                />
+                <KIconButton
+                  icon="plus"
+                  aria-hidden="true"
+                  class="number-btn"
+                  :disabled="numQuestions === maxQs"
+                  @click="numQuestions += 1"
+                />
+              </KGridItem>
+            </KGrid>
+          </KGridItem>
+        </KGrid>
+
+        <h2>{{ $tr('chooseExercises') }}</h2>
+        <div v-if="bookmarksRoute">
+          <strong>
+            <KRouterLink
+              :text="coreString('channelsLabel')"
+              :to="channelsLink"
+            />
+          </strong>
+          <ContentCardList
+            :contentList="bookmarks"
+            :contentHasCheckbox="contentHasCheckbox"
+            :contentCardMessage="() => ''"
+            :selectAllChecked="selectAllChecked"
+            :selectAllIndeterminate="selectAllIndeterminate"
+            :contentCardLink="bookmarksLink"
+            :contentIsChecked="contentIsSelected"
+            :viewMoreButtonState="viewMoreButtonState"
+            :showSelectAll="selectAllIsVisible"
+            :contentIsIndeterminate="contentIsIndeterminate"
+            @changeselectall="toggleTopicInWorkingResources"
+            @change_content_card="toggleSelected"
+            @moreresults="handleMoreResults"
           />
-        </KButtonGroup>
-      </BottomAppBar>
+        </div>
+        <div v-if="examCreationRoute">
+          <p v-if="bookmarksCount">
+            {{ coreString('selectFromBookmarks') }}
+          </p>
+          <KRouterLink
+            v-if="bookmarksCount"
+            :style="{ width: '100%' }"
+            :to="getBookmarksLink()"
+          >
+            <div class="bookmark-container">
+              <BookmarkIcon />
+              <div class="text">
+                <h3>{{ coreString('bookmarksLabel') }}</h3>
+                <p>{{ $tr('resources', { count: bookmarksCount }) }}</p>
+              </div>
+            </div>
+          </KRouterLink>
+        </div>
 
-    </KPageContainer>
+        <div v-if="examCreationRoute || examTopicRoute || inSearchMode">
+          <LessonsSearchBox
+            class="search-box"
+            @searchterm="handleSearchTerm"
+          />
 
-  </CoreBase>
+          <LessonsSearchFilters
+            v-if="inSearchMode"
+            v-model="filters"
+            :searchTerm="searchTerm"
+            :searchResults="searchResults"
+          />
+          <ResourceSelectionBreadcrumbs
+            v-else
+            :ancestors="ancestors"
+            :channelsLink="channelsLink"
+            :topicsLink="topicsLink"
+          />
+          <h2>{{ topicTitle }}</h2>
+          <p>{{ topicDescription }}</p>
+          <ContentCardList
+            :contentList="filteredContentList"
+            :showSelectAll="selectAllIsVisible"
+            :viewMoreButtonState="viewMoreButtonState"
+            :selectAllChecked="selectAllChecked"
+            :selectAllIndeterminate="selectAllIndeterminate"
+            :contentIsChecked="contentIsSelected"
+            :contentIsIndeterminate="contentIsIndeterminate"
+            :contentHasCheckbox="contentHasCheckbox"
+            :contentCardMessage="selectionMetadata"
+            :contentCardLink="contentLink"
+            @changeselectall="toggleTopicInWorkingResources"
+            @change_content_card="toggleSelected"
+            @moreresults="handleMoreResults"
+          />
+        </div>
+        <BottomAppBar v-if="inSearchMode">
+          <KRouterLink
+            appearance="raised-button"
+            :text="$tr('exitSearchButtonLabel')"
+            primary
+            :to="topicRoute"
+          />
+        </BottomAppBar>
+        <BottomAppBar v-else>
+          <KButtonGroup>
+            <KButton
+              :text="coreString('continueAction')"
+              primary
+              :disabled="!exercisesHaveBeenSelected"
+              @click="continueProcess"
+            />
+          </KButtonGroup>
+        </BottomAppBar>
+
+      </KPageContainer>
+    </ImmersivePage>
+
+    <router-view />
+  </NotificationsRoot>
 
 </template>
 
@@ -189,6 +191,8 @@
 
   import { mapState, mapActions, mapGetters } from 'vuex';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
+  import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import flatMap from 'lodash/flatMap';
@@ -208,10 +212,17 @@
   export default {
     // TODO: Rename this to 'ExamCreationPage'
     name: 'CreateExamPage',
+    metaInfo() {
+      return {
+        title: this.$tr('createNewExamLabel'),
+      };
+    },
     components: {
       UiAlert,
+      ImmersivePage,
       LessonsSearchBox,
       LessonsSearchFilters,
+      NotificationsRoot,
       ResourceSelectionBreadcrumbs,
       ContentCardList,
       BottomAppBar,

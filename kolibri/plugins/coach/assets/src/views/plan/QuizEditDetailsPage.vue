@@ -1,28 +1,27 @@
 <template>
 
-  <CoreBase
-    :immersivePage="true"
-    immersivePageIcon="close"
-    :immersivePagePrimary="false"
+  <NotificationsRoot
     :authorized="$store.getters.userIsAuthorizedForCoach"
     authorizedRole="adminOrCoach"
-    :appBarTitle="$tr('appBarTitle')"
-    :pageTitle="$tr('pageTitle', { title: quiz.title })"
-    :showSubNav="false"
-    :immersivePageRoute="previousPageRoute"
   >
+    <ImmersivePage
+      :appBarTitle="$tr('appBarTitle')"
+      icon="close"
+      :route="previousPageRoute"
+    >
+      <KPageContainer v-if="!loading && !error">
+        <AssignmentDetailsForm
+          v-bind="formProps"
+          :disabled="disabled"
+          :initialAdHocLearners="quiz.learner_ids"
+          @cancel="goBackToSummaryPage"
+          @submit="handleSaveChanges"
+        />
+      </KPageContainer>
+    </ImmersivePage>
 
-    <KPageContainer v-if="!loading && !error">
-      <AssignmentDetailsForm
-        v-bind="formProps"
-        :disabled="disabled"
-        :initialAdHocLearners="quiz.learner_ids"
-        @cancel="goBackToSummaryPage"
-        @submit="handleSaveChanges"
-      />
-    </KPageContainer>
-
-  </CoreBase>
+    <router-view />
+  </NotificationsRoot>
 
 </template>
 
@@ -31,16 +30,23 @@
 
   import { mapGetters } from 'vuex';
   import { ExamResource } from 'kolibri.resources';
+  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
+  import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { CoachCoreBase } from '../common';
   import { coachStringsMixin } from '../common/commonCoachStrings';
   import AssignmentDetailsModal from './assignments/AssignmentDetailsModal';
 
   export default {
     name: 'QuizEditDetailsPage',
+    metaInfo() {
+      return {
+        title: this.$tr('pageTitle', { title: this.quiz.title }),
+      };
+    },
     components: {
+      ImmersivePage,
       AssignmentDetailsForm: AssignmentDetailsModal,
-      CoreBase: CoachCoreBase,
+      NotificationsRoot,
     },
     mixins: [coachStringsMixin, commonCoreStrings],
     data() {

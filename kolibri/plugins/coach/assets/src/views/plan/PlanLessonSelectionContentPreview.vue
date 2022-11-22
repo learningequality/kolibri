@@ -1,26 +1,30 @@
 <template>
 
-  <CoreBase
-    :immersivePage="true"
-    immersivePageIcon="back"
-    :immersivePageRoute="returnBackRoute"
-    :immersivePagePrimary="true"
-    :appBarTitle="lessonNameLabel"
+  <NotificationsRoot
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
   >
-    <KPageContainer :topMargin="0">
-      <LessonContentPreviewPage
-        :currentContentNode="currentContentNode"
-        :isSelected="isSelected"
-        :questions="preview.questions"
-        :displaySelectOptions="showSelectOptions"
-        :completionData="preview.completionData"
-        @addResource="handleAddResource"
-        @removeResource="handleRemoveResource"
-      />
-    </KPageContainer>
-  </CoreBase>
+    <ImmersivePage
+      :appBarTitle="lessonNameLabel"
+      icon="back"
+      :route="returnBackRoute"
+      :primary="false"
+    >
+      <KPageContainer :topMargin="100">
+        <LessonContentPreviewPage
+          :currentContentNode="currentContentNode"
+          :isSelected="isSelected"
+          :questions="preview.questions"
+          :displaySelectOptions="showSelectOptions"
+          :completionData="preview.completionData"
+          @addResource="handleAddResource"
+          @removeResource="handleRemoveResource"
+        />
+      </KPageContainer>
+    </ImmersivePage>
+
+    <router-view />
+  </NotificationsRoot>
 
 </template>
 
@@ -29,6 +33,8 @@
 
   import { mapState, mapActions } from 'vuex';
   import get from 'lodash/get';
+  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
+  import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import LessonContentPreviewPage from '../plan/LessonContentPreviewPage';
@@ -36,7 +42,9 @@
   export default {
     name: 'PlanLessonSelectionContentPreview',
     components: {
+      ImmersivePage,
       LessonContentPreviewPage,
+      NotificationsRoot,
     },
     mixins: [commonCoreStrings, commonCoach],
     props: {

@@ -1,69 +1,71 @@
 <template>
 
-  <CoreBase
-    :immersivePage="false"
+  <NotificationsRoot
     :authorized="$store.getters.userIsAuthorizedForCoach"
     authorizedRole="adminOrCoach"
-    :showSubNav="true"
-    :maxMainWidth="1440"
   >
+    <AppBarPage
+      :title="appBarTitle"
+    >
+      <template #subNav>
+        <TopNavbar />
+      </template>
 
-    <template #sub-nav>
-      <TopNavbar />
-    </template>
+      <KGrid gutter="16">
+        <KGridItem>
+          <QuizLessonDetailsHeader
+            :backlink="$router.getRoute('EXAMS')"
+            :backlinkLabel="coachString('allQuizzesLabel')"
+            examOrLesson="exam"
+          >
+            <template #dropdown>
+              <QuizOptionsDropdownMenu
+                optionsFor="plan"
+                @select="setCurrentAction"
+              />
+            </template>
+          </QuizLessonDetailsHeader>
+        </KGridItem>
+        <KGridItem :layout12="{ span: 4 }">
+          <QuizStatus
+            :className="className"
+            :avgScore="avgScore"
+            :groupAndAdHocLearnerNames="getRecipientNamesForExam(exam)"
+            :exam="exam"
+          />
+        </KGridItem>
+        <KGridItem :layout12="{ span: 8 }">
+          <KPageContainer v-if="!loading" :topMargin="16">
+            <section v-if="selectedQuestions">
+              <h2>
+                {{ coachString('numberOfQuestions', { value: selectedQuestions.length }) }}
+              </h2>
 
-    <KGrid gutter="16">
-      <KGridItem>
-        <QuizLessonDetailsHeader
-          :backlink="$router.getRoute('EXAMS')"
-          :backlinkLabel="coachString('allQuizzesLabel')"
-          examOrLesson="exam"
-        >
-          <template #dropdown>
-            <QuizOptionsDropdownMenu
-              optionsFor="plan"
-              @select="setCurrentAction"
-            />
-          </template>
-        </QuizLessonDetailsHeader>
-      </KGridItem>
-      <KGridItem :layout12="{ span: 4 }">
-        <QuizStatus
-          :className="className"
-          :avgScore="avgScore"
-          :groupAndAdHocLearnerNames="getRecipientNamesForExam(exam)"
-          :exam="exam"
-        />
-      </KGridItem>
-      <KGridItem :layout12="{ span: 8 }">
-        <KPageContainer v-if="!loading" :topMargin="16">
-          <section v-if="selectedQuestions">
-            <h2>
-              {{ coachString('numberOfQuestions', { value: selectedQuestions.length }) }}
-            </h2>
+              <p>
+                {{ orderDescriptionString }}
+              </p>
 
-            <p>
-              {{ orderDescriptionString }}
-            </p>
+              <QuestionListPreview
+                :fixedOrder="!quizIsRandomized"
+                :readOnly="true"
+                :selectedQuestions="selectedQuestions"
+                :selectedExercises="selectedExercises"
+              />
+            </section>
+          </KPageContainer>
+        </KGridItem>
+      </KGrid>
+      <ManageExamModals
+        :currentAction="currentAction"
+        :quiz="quiz"
+        @submit_delete="handleSubmitDelete"
+        @submit_copy="handleSubmitCopy"
+        @cancel="closeModal"
+      />
+    </AppBarPage>
 
-            <QuestionListPreview
-              :fixedOrder="!quizIsRandomized"
-              :readOnly="true"
-              :selectedQuestions="selectedQuestions"
-              :selectedExercises="selectedExercises"
-            />
-          </section>
-        </KPageContainer>
-      </KGridItem>
-    </KGrid>
-    <ManageExamModals
-      :currentAction="currentAction"
-      :quiz="quiz"
-      @submit_delete="handleSubmitDelete"
-      @submit_copy="handleSubmitCopy"
-      @cancel="closeModal"
-    />
-  </CoreBase>
+    <router-view />
+  </NotificationsRoot>
 
 </template>
 
@@ -75,11 +77,14 @@
   import find from 'lodash/find';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
+  import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
+  import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import commonCoach, { CoachCoreBase } from '../../common';
+  import commonCoach from '../../common';
   import TopNavbar from '../../TopNavbar';
   import QuestionListPreview from '../CreateExamPage/QuestionListPreview';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
+  import useCoreCoach from '../../../composables/useCoreCoach';
   import QuizOptionsDropdownMenu from './QuizOptionsDropdownMenu';
   import ManageExamModals from './ManageExamModals';
   import {
@@ -92,13 +97,21 @@
   export default {
     name: 'QuizSummaryPage',
     components: {
-      CoreBase: CoachCoreBase,
+      AppBarPage,
       ManageExamModals,
       QuestionListPreview,
       TopNavbar,
       QuizOptionsDropdownMenu,
+      NotificationsRoot,
     },
     mixins: [commonCoach, coachStringsMixin, commonCoreStrings],
+    setup() {
+      const { appBarTitle } = useCoreCoach();
+
+      return {
+        appBarTitle,
+      };
+    },
     data() {
       return {
         quiz: {

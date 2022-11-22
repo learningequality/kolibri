@@ -1,13 +1,13 @@
 <template>
 
-  <CoreBase
-    :immersivePage="true"
-    immersivePageIcon="back"
-    :immersivePagePrimary="false"
-    :immersivePageRoute="backlink"
+  <ImmersivePage
     :appBarTitle="$store.state.classSummary.name"
+    icon="back"
+    :route="backlink"
   >
-    <KPageContainer>
+    <KPageContainer
+      :topMargin="100"
+    >
       <h1>{{ $tr('pageHeader', { className: $store.state.classSummary.name }) }} </h1>
       <KButton
         :text="$tr('howToTroubleshootModalHeader')"
@@ -70,16 +70,16 @@
         </template>
       </CoreTable>
     </KPageContainer>
-  </CoreBase>
+  </ImmersivePage>
 
 </template>
 
 
 <script>
 
-  import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
+  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { SyncStatus } from 'kolibri.coreVue.vuex.constants';
   import { mapState, mapActions } from 'vuex';
@@ -94,9 +94,9 @@
       };
     },
     components: {
-      CoreBase,
       CoreTable,
       ElapsedTime,
+      ImmersivePage,
       SyncStatusDisplay,
       SyncStatusDescription,
     },

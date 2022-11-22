@@ -1,79 +1,82 @@
 <template>
 
-  <CoreBase
-    :immersivePage="false"
+  <NotificationsRoot
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
-    :showSubNav="true"
   >
-    <template #sub-nav>
-      <TopNavbar />
-    </template>
+    <AppBarPage
+      :title="appBarTitle"
+    >
+      <template #subNav>
+        <TopNavbar />
+      </template>
 
-    <KGrid v-if="!loading">
-      <KGridItem>
-        <QuizLessonDetailsHeader
-          examOrLesson="lesson"
-          :backlinkLabel="coreString('allLessonsLabel')"
-          :backlink="$router.getRoute('PLAN_LESSONS_ROOT', { classId: classId })"
-        >
-          <template #dropdown>
-            <LessonOptionsDropdownMenu
-              optionsFor="plan"
-              @select="handleSelectOption"
-            />
-          </template>
-        </QuizLessonDetailsHeader>
-      </KGridItem>
-      <KGridItem :layout12="{ span: 4 }">
-        <LessonStatus
-          :className="className"
-          :lesson="currentLesson"
-          :groupNames="getRecipientNamesForLesson(currentLesson)"
-          activeKey="is_active"
-        />
-      </KGridItem>
-      <KGridItem :layout12="{ span: 8 }">
-        <KPageContainer>
-          <div class="lesson-summary">
-            <div>
-              <div class="resource-list">
-                <div class="resource-list-header">
-                  <div class="resource-list-header-title-block">
-                    <h2 class="resource-list-header-title">
-                      {{ coreString('resourcesLabel') }}
-                    </h2>
-                  </div>
-                  <div class="resource-list-header-add-resource-button">
-                    <KRouterLink
-                      :to="lessonSelectionRootPage"
-                      :text="coachString('manageResourcesAction')"
-                      :primary="true"
-                      appearance="raised-button"
-                    />
+      <KGrid v-if="!loading">
+        <KGridItem>
+          <QuizLessonDetailsHeader
+            examOrLesson="lesson"
+            :backlinkLabel="coreString('allLessonsLabel')"
+            :backlink="$router.getRoute('PLAN_LESSONS_ROOT', { classId: classId })"
+          >
+            <template #dropdown>
+              <LessonOptionsDropdownMenu
+                optionsFor="plan"
+                @select="handleSelectOption"
+              />
+            </template>
+          </QuizLessonDetailsHeader>
+        </KGridItem>
+        <KGridItem :layout12="{ span: 4 }">
+          <LessonStatus
+            :className="className"
+            :lesson="currentLesson"
+            :groupNames="getRecipientNamesForLesson(currentLesson)"
+            activeKey="is_active"
+          />
+        </KGridItem>
+        <KGridItem :layout12="{ span: 8 }">
+          <KPageContainer>
+            <div class="lesson-summary">
+              <div>
+                <div class="resource-list">
+                  <div class="resource-list-header">
+                    <div class="resource-list-header-title-block">
+                      <h2 class="resource-list-header-title">
+                        {{ coreString('resourcesLabel') }}
+                      </h2>
+                    </div>
+                    <div class="resource-list-header-add-resource-button">
+                      <KRouterLink
+                        :to="lessonSelectionRootPage"
+                        :text="coachString('manageResourcesAction')"
+                        :primary="true"
+                        appearance="raised-button"
+                      />
+                    </div>
                   </div>
                 </div>
+
+                <ResourceListTable v-if="workingResources.length" />
+
+                <p v-else class="no-resources-message">
+                  {{ coachString('noResourcesInLessonLabel') }}
+                </p>
+
+                <ManageLessonModals
+                  :currentAction="currentAction"
+                  @cancel="currentAction = ''"
+                />
               </div>
 
-              <ResourceListTable v-if="workingResources.length" />
-
-              <p v-else class="no-resources-message">
-                {{ coachString('noResourcesInLessonLabel') }}
-              </p>
-
-              <ManageLessonModals
-                :currentAction="currentAction"
-                @cancel="currentAction = ''"
-              />
             </div>
 
-          </div>
+          </KPageContainer>
+        </KGridItem>
+      </KGrid>
+    </AppBarPage>
 
-        </KPageContainer>
-      </KGridItem>
-    </KGrid>
-
-  </CoreBase>
+    <router-view />
+  </NotificationsRoot>
 
 </template>
 
@@ -81,9 +84,12 @@
 <script>
 
   import { mapState } from 'vuex';
+  import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
+  import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../../common';
   import { selectionRootLink } from '../../../routes/planLessonsRouterUtils';
+  import useCoreCoach from '../../../composables/useCoreCoach';
   import ManageLessonModals from './ManageLessonModals';
   import ResourceListTable from './ResourceListTable';
   import LessonOptionsDropdownMenu from './LessonOptionsDropdownMenu';
@@ -96,11 +102,20 @@
       };
     },
     components: {
+      AppBarPage,
       ResourceListTable,
       ManageLessonModals,
+      NotificationsRoot,
       LessonOptionsDropdownMenu,
     },
     mixins: [commonCoach, commonCoreStrings],
+    setup() {
+      const { appBarTitle } = useCoreCoach();
+
+      return {
+        appBarTitle,
+      };
+    },
     data() {
       return {
         currentAction: '',

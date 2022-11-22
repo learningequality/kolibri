@@ -1,90 +1,95 @@
 <template>
 
-  <CoreBase
-    :immersivePage="false"
+  <NotificationsRoot
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
-    :showSubNav="true"
   >
-    <template #sub-nav>
-      <TopNavbar />
-    </template>
+    <AppBarPage
+      :title="appBarTitle"
+    >
 
-    <KPageContainer>
-      <p>
-        <BackLink
-          :to="$router.getRoute('GroupsPage')"
-          :text="$tr('back')"
-        />
+      <template #subNav>
+        <TopNavbar />
+      </template>
 
-      </p>
+      <KPageContainer>
+        <p>
+          <BackLink
+            :to="$router.getRoute('GroupsPage')"
+            :text="$tr('back')"
+          />
 
-      <div v-if="!currentGroup">
-        {{ $tr('groupDoesNotExist') }}
-      </div>
+        </p>
 
-      <div v-else>
-        <h1>
-          <KLabeledIcon icon="group" :label="currentGroup.name" />
-        </h1>
+        <div v-if="!currentGroup">
+          {{ $tr('groupDoesNotExist') }}
+        </div>
 
-        <KFixedGrid numCols="2">
-          <KFixedGridItem span="1" class="number-learners">
-            {{ coachString('numberOfLearners', { value: currentGroup.users.length }) }}
-          </KFixedGridItem>
-          <KFixedGridItem span="1" alignment="right">
-            <KRouterLink
-              :primary="true"
-              appearance="raised-button"
-              :text="$tr('enrollButton')"
-              :to="$router.getRoute('GroupEnrollPage')"
-            />
-          </KFixedGridItem>
-        </KFixedGrid>
+        <div v-else>
+          <h1>
+            <KLabeledIcon icon="group" :label="currentGroup.name" />
+          </h1>
 
-        <CoreTable>
-          <template #headers>
-            <th>{{ coreString('fullNameLabel') }}</th>
-            <th>{{ coreString('usernameLabel') }}</th>
-            <th></th>
-          </template>
+          <KFixedGrid numCols="2">
+            <KFixedGridItem span="1" class="number-learners">
+              {{ coachString('numberOfLearners', { value: currentGroup.users.length }) }}
+            </KFixedGridItem>
+            <KFixedGridItem span="1" alignment="right">
+              <KRouterLink
+                :primary="true"
+                appearance="raised-button"
+                :text="$tr('enrollButton')"
+                :to="$router.getRoute('GroupEnrollPage')"
+              />
+            </KFixedGridItem>
+          </KFixedGrid>
 
-          <template #tbody>
-            <tbody>
-              <p v-if="currentGroup.users.length === 0">
-                {{ coachString('learnerListEmptyState') }}
-              </p>
-              <tr
-                v-for="user in currentGroup.users"
-                :key="user.id"
-              >
-                <td>
-                  <KLabeledIcon icon="person" :label="user.full_name" />
-                </td>
-                <td>
-                  {{ user.username }}
-                </td>
-                <td class="core-table-button-col">
-                  <KButton
-                    :text="coreString('removeAction')"
-                    appearance="flat-button"
-                    @click="userForRemoval = user"
-                  />
-                </td>
-              </tr>
-            </tbody>
-          </template>
-        </CoreTable>
-        <RemoveFromGroupModal
-          v-if="userForRemoval"
-          :groupName="currentGroup.name"
-          :username="userForRemoval.full_name"
-          @cancel="userForRemoval = null"
-          @submit="removeSelectedUserFromGroup"
-        />
-      </div>
-    </KPageContainer>
-  </CoreBase>
+          <CoreTable>
+            <template #headers>
+              <th>{{ coreString('fullNameLabel') }}</th>
+              <th>{{ coreString('usernameLabel') }}</th>
+              <th></th>
+            </template>
+
+            <template #tbody>
+              <tbody>
+                <p v-if="currentGroup.users.length === 0">
+                  {{ coachString('learnerListEmptyState') }}
+                </p>
+                <tr
+                  v-for="user in currentGroup.users"
+                  :key="user.id"
+                >
+                  <td>
+                    <KLabeledIcon icon="person" :label="user.full_name" />
+                  </td>
+                  <td>
+                    {{ user.username }}
+                  </td>
+                  <td class="core-table-button-col">
+                    <KButton
+                      :text="coreString('removeAction')"
+                      appearance="flat-button"
+                      @click="userForRemoval = user"
+                    />
+                  </td>
+                </tr>
+              </tbody>
+            </template>
+          </CoreTable>
+          <RemoveFromGroupModal
+            v-if="userForRemoval"
+            :groupName="currentGroup.name"
+            :username="userForRemoval.full_name"
+            @cancel="userForRemoval = null"
+            @submit="removeSelectedUserFromGroup"
+          />
+        </div>
+      </KPageContainer>
+    </AppBarPage>
+
+    <router-view />
+  </NotificationsRoot>
 
 </template>
 
@@ -92,9 +97,12 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
+  import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../../common';
+  import useCoreCoach from '../../../composables/useCoreCoach';
   import RemoveFromGroupModal from './RemoveFromGroupModal';
 
   export default {
@@ -112,10 +120,19 @@
       };
     },
     components: {
+      AppBarPage,
       CoreTable,
+      NotificationsRoot,
       RemoveFromGroupModal,
     },
     mixins: [commonCoreStrings, commonCoach],
+    setup() {
+      const { appBarTitle } = useCoreCoach();
+
+      return {
+        appBarTitle,
+      };
+    },
     data() {
       return {
         userForRemoval: null,

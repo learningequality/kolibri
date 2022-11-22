@@ -1,26 +1,29 @@
 <template>
 
-  <CoreBase
-    :immersivePage="true"
-    immersivePageIcon="back"
-    :immersivePageRoute="returnBackRoute"
-    :immersivePagePrimary="true"
-    :appBarTitle="appBarTitle"
+  <NotificationsRoot
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
   >
-    <KPageContainer>
-      <LessonContentPreviewPage
-        :currentContentNode="currentContentNode"
-        :isSelected="isSelected"
-        :questions="preview.questions"
-        :displaySelectOptions="true"
-        :completionData="preview.completionData"
-        @addResource="handleAddResource"
-        @removeResource="handleRemoveResource"
-      />
-    </KPageContainer>
-  </CoreBase>
+    <ImmersivePage
+      :appBarTitle="appBarTitle"
+      icon="back"
+      :route="returnBackRoute"
+    >
+      <KPageContainer>
+        <LessonContentPreviewPage
+          :currentContentNode="currentContentNode"
+          :isSelected="isSelected"
+          :questions="preview.questions"
+          :displaySelectOptions="true"
+          :completionData="preview.completionData"
+          @addResource="handleAddResource"
+          @removeResource="handleRemoveResource"
+        />
+      </KPageContainer>
+    </ImmersivePage>
+
+    <router-view />
+  </NotificationsRoot>
 
 </template>
 
@@ -28,6 +31,8 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
+  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
+  import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import LessonContentPreviewPage from '../plan/LessonContentPreviewPage';
@@ -35,7 +40,9 @@
   export default {
     name: 'PlanQuizPreviewPage',
     components: {
+      ImmersivePage,
       LessonContentPreviewPage,
+      NotificationsRoot,
     },
     mixins: [commonCoreStrings, commonCoach],
     computed: {
