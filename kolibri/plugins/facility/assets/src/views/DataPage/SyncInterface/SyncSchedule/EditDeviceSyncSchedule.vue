@@ -7,18 +7,24 @@
   >
     <KPageContainer v-if="device">
       <KGrid gutter="48">
+
         <KGridItem>
           <h1>{{ $tr('editSyncScheduleSubTitle') }}</h1>
         </KGridItem>
+
         <KGridItem>
           <p>{{ device.device_name }}</p><br>
         </KGridItem>
 
         <KGridItem
-          :layout8="{ span: 3 }"
-          :layout12="{ span: 4 }"
+          :layout8="{ span: 8 }"
+          :layout12="{ span: 12 }"
         >
-          <div>
+
+          <KGridItem
+            :layout8="{ span: 2 }"
+            :layout12="{ span: 3 }"
+          >
             <KSelect
               :value="myvalue"
               class="selector"
@@ -26,33 +32,57 @@
               :options="selectArray"
               label="Repeat"
             />
-          </div>
+          </KGridItem>
 
-        </KGridItem>
-
-        <KGridItem>
-          <p> </p>
-          <span>
-            {{ $tr('serverTime') }}
-            {{ serverTime }}
-          </span>
-        </KGridItem>
-
-        <KGridItem>
-          <KCheckbox>
-            {{ $tr('checboxlabel') }}
-          </KCheckbox>
-        </KGridItem>
-        <KGridItem>
-          <KButton
-            :vIf="msg"
-            appearance="basic-link"
-            @click="removeDevice"
+          <KGridItem
+            :layout8="{ span: 2 }"
+            :layout12="{ span: 3 }"
           >
-            {{ msg }}
-          </KButton>
-        </KGridItem>
+            <KSelect
+              :value="myday"
+              class="selector"
+              :style="selectorStyle"
+              :options="Days"
+              label="On"
+            />
+          </KGridItem>
 
+          <KGridItem
+            :layout8="{ span: 2 }"
+            :layout12="{ span: 3 }"
+          >
+
+            <KSelect
+              :value="mytime"
+              class="selector"
+              :style="selectorStyle"
+              :options="SyncTime"
+              label="At"
+            />
+          </KGridItem>
+
+          <KGridItem>
+            <span>
+              {{ $tr('serverTime') }}
+              {{ serverTime }}
+            </span>
+          </KGridItem>
+
+          <KGridItem>
+            <KCheckbox>
+              {{ $tr('checboxlabel') }}
+            </KCheckbox>
+          </KGridItem>
+          <KGridItem>
+            <KButton
+              :vIf="msg"
+              appearance="basic-link"
+              @click="removeDevice"
+            >
+              {{ msg }}
+            </KButton>
+          </KGridItem>
+        </KGridItem>
       </KGrid>
     </KPageContainer>
 
@@ -139,6 +169,8 @@
         now: now(),
         timer: null,
         myvalue: null,
+        myday: null,
+        mytime: null,
       };
     },
     computed: {
@@ -163,12 +195,35 @@
           { label: this.$tr('everyMonth'), value: 2592000 },
         ];
       },
+      Days() {
+        return [
+          { label: 'Monday', value: 3600 },
+          { label: 'Tuesday', value: 86400 },
+          { label: 'Wednesday', value: 604800 },
+          { label: 'Thursday', value: 604800 },
+          { label: 'Friday', value: 2592000 },
+          { label: 'Saturday', value: 2592000 },
+        ];
+      },
+      SyncTime() {
+        return [
+          { label: '1:30 AM', value: 3600 },
+          { label: '2:00 AM', value: 86400 },
+          { label: '2:30 AM', value: 604800 },
+          { label: '3:00 AM', value: 604800 },
+          { label: '3:30 AM', value: 2592000 },
+          { label: '4:00 AM', value: 2592000 },
+          { label: '4:30 AM', value: 2592000 },
+        ];
+      },
     },
     beforeMount() {
       this.fetchFacility();
       this.deviceName = this.$route.query.name;
       this.available = this.$route.query.present;
       this.myvalue = this.selectArray[0];
+      this.myday = this.Days[0];
+      this.mytime = this.SyncTime[0];
       this.serverTime = this.now;
     },
     mounted() {
