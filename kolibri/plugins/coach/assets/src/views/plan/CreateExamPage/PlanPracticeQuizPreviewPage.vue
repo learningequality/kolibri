@@ -10,7 +10,9 @@
       :route="returnBackRoute"
       :primary="false"
     >
-      <KPageContainer>
+      <KPageContainer
+        :topMargin="100"
+      >
         <PracticeQuizContentPreviewPage
           :currentContentNode="currentContentNode"
           :isSelected="isSelected"

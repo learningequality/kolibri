@@ -6,7 +6,9 @@
     :route="$router.getRoute('GroupMembersPage')"
     :primary="false"
   >
-    <KPageContainer>
+    <KPageContainer
+      :topMargin="100"
+    >
       <h1>
         {{ $tr('pageHeader', { className: currentGroup.name }) }}
       </h1>

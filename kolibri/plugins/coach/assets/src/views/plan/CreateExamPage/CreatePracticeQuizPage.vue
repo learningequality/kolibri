@@ -10,7 +10,9 @@
       :route="toolbarRoute"
       :primary="false"
     >
-      <KPageContainer>
+      <KPageContainer
+        :topMargin="100"
+      >
 
         <h1>{{ $tr('selectPracticeQuizLabel') }}</h1>
         <div v-if="ancestors.length === 0">

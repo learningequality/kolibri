@@ -9,7 +9,10 @@
       icon="close"
       :route="previousPageRoute"
     >
-      <KPageContainer v-if="!loading && !error">
+      <KPageContainer
+        v-if="!loading && !error"
+        :topMargin="100"
+      >
         <AssignmentDetailsForm
           v-bind="formProps"
           :disabled="disabled"

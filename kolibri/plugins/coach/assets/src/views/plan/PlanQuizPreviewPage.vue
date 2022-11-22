@@ -8,6 +8,7 @@
       :appBarTitle="appBarTitle"
       icon="back"
       :route="returnBackRoute"
+      :primary="false"
     >
       <KPageContainer>
         <LessonContentPreviewPage
