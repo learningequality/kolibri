@@ -59,7 +59,7 @@
             :disabled="availableRootCategories &&
               !availableRootCategories[key] &&
               !isKeyActive(key)"
-            :iconAfter="hasNestedCategories(key) ? 'chevronRight' : null"
+            :iconAfter="hasNestedCategories(category) ? 'chevronRight' : null"
             @click="$emit('currentCategory', category)"
           />
         </div>
@@ -300,9 +300,8 @@
       noCategories() {
         this.$emit('input', { ...this.value, categories: { [NoCategories]: true } });
       },
-      hasNestedCategories(key) {
-        let object = Object.values(libraryCategories).filter(category => category.value === key)[0];
-        return Object.keys(object.nested).length > 0;
+      hasNestedCategories(category) {
+        return Object.keys(libraryCategories[category].nested).length > 0;
       },
       handleActivity(activity) {
         if (activity && !this.value.learning_activities[activity]) {
