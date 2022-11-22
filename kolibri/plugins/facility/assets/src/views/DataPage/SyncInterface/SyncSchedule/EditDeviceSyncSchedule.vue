@@ -13,7 +13,7 @@
         </KGridItem>
 
         <KGridItem>
-          <p>{{ device.device_name }}</p><br>
+          <p>{{ device.device_name }} </p><br>
         </KGridItem>
 
         <KGridItem
@@ -26,6 +26,7 @@
             :layout12="{ span: 3 }"
           >
             <KSelect
+              v-model="selectedItem"
               :value="myvalue"
               class="selector"
               :style="selectorStyle"
@@ -35,6 +36,12 @@
           </KGridItem>
 
           <KGridItem
+            v-if="selectedItem.label === 'Never'"
+            :layout8="{ span: 2 }"
+            :layout12="{ span: 3 }"
+          />
+          <KGridItem
+            v-else
             :layout8="{ span: 2 }"
             :layout12="{ span: 3 }"
           >
@@ -48,9 +55,16 @@
           </KGridItem>
 
           <KGridItem
+            v-if="selectedItem.label === 'Never' && selectedItem.label === 'Every hour' "
+            :layout8="{ span: 2 }"
+            :layout12="{ span: 3 }"
+          />
+          <KGridItem
+            v-else
             :layout8="{ span: 2 }"
             :layout12="{ span: 3 }"
           >
+
 
             <KSelect
               :value="mytime"
@@ -171,6 +185,7 @@
         myvalue: null,
         myday: null,
         mytime: null,
+        selectedItem: '',
       };
     },
     computed: {
@@ -188,6 +203,7 @@
       },
       selectArray() {
         return [
+          { label: 'Never', value: 3600 },
           { label: this.$tr('everyHour'), value: 3600 },
           { label: this.$tr('everyDay'), value: 86400 },
           { label: this.$tr('everyWeek'), value: 604800 },
