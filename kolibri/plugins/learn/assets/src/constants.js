@@ -44,6 +44,8 @@ export const pageNameToModuleMap = {
   [PageNames.TOPICS_TOPIC_SEARCH]: 'topicsTree',
 };
 
+export const libraryCategories = {};
+
 const availablePaths = {};
 
 plugin_data.categories.map(key => {
@@ -54,9 +56,6 @@ plugin_data.categories.map(key => {
     availablePaths[path] = true;
   }
 });
-
-export const libraryCategories = {};
-
 // Create a nested object representing the hierarchy of categories
 for (let value of Object.values(Categories)
   // Sort by the length of the key path to deal with
