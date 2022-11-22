@@ -244,9 +244,8 @@
   import FullScreenSidePanel from 'kolibri.coreVue.components.FullScreenSidePanel';
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
-  import { Categories, CategoriesLookup } from 'kolibri.coreVue.vuex.constants';
   import genContentLink from '../utils/genContentLink';
-  import { PageNames } from '../constants';
+  import { PageNames, libraryCategories } from '../constants';
   import useSearch from '../composables/useSearch';
   import useLearnerResources from '../composables/useLearnerResources';
   import BrowseResourceMetadata from './BrowseResourceMetadata';
@@ -257,47 +256,9 @@
   import EmbeddedSidePanel from './EmbeddedSidePanel';
   import CategorySearchModal from './CategorySearchModal';
   import SearchChips from './SearchChips';
-  import plugin_data from 'plugin_data';
 
   const mobileCarouselLimit = 3;
   const desktopCarouselLimit = 15;
-
-  const availablePaths = {};
-
-  plugin_data.categories.map(key => {
-    const paths = key.split('.');
-    let path = '';
-    for (let path_segment of paths) {
-      path = path === '' ? path_segment : path + '.' + path_segment;
-      availablePaths[path] = true;
-    }
-  });
-
-  const libraryCategories = {};
-
-  for (let subjectKey of Object.entries(Categories)
-    .sort((a, b) => a[0].length - b[0].length)
-    .map(a => a[0])) {
-    const ids = Categories[subjectKey].split('.');
-    let path = '';
-    let nested = libraryCategories;
-    for (let fragment of ids) {
-      path += fragment;
-      if (availablePaths[path]) {
-        const nestedKey = CategoriesLookup[path];
-        if (!nested[nestedKey]) {
-          nested[nestedKey] = {
-            value: path,
-            nested: {},
-          };
-        }
-        nested = nested[nestedKey].nested;
-        path += '.';
-      } else {
-        break;
-      }
-    }
-  }
 
   export default {
     name: 'LibraryPage',
