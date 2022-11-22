@@ -282,7 +282,22 @@
     watch: {
       content(newContent, oldContent) {
         if ((newContent && !oldContent) || newContent.id !== oldContent.id) {
-          this.resetSidebarInfo();
+          this.initializeState();
+        }
+      },
+      showViewResourcesSidePanel(newVal, oldVal) {
+        if (newVal && !oldVal) {
+          this.getSidebarInfo();
+        }
+      },
+    },
+    created() {
+      this.initializeState();
+    },
+    methods: {
+      initializeState() {
+        this.resetSidebarInfo();
+        if (this.content) {
           client({
             method: 'get',
             url: urls['kolibri:core:bookmarks-list'](),
@@ -292,13 +307,6 @@
           });
         }
       },
-      showViewResourcesSidePanel(newVal, oldVal) {
-        if (newVal && !oldVal) {
-          this.getSidebarInfo();
-        }
-      },
-    },
-    methods: {
       resetSidebarInfo() {
         this.showViewResourcesSidePanel = false;
         this.nextContent = null;
