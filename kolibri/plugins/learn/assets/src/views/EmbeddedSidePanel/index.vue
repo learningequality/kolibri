@@ -59,7 +59,7 @@
             :disabled="availableRootCategories &&
               !availableRootCategories[key] &&
               !isKeyActive(key)"
-            iconAfter="chevronRight"
+            :iconAfter="hasNestedCategories(key) ? 'chevronRight' : null"
             @click="$emit('currentCategory', category)"
           />
         </div>
@@ -131,6 +131,7 @@
   import SearchBox from '../SearchBox';
   import commonLearnStrings from '../commonLearnStrings';
   import genContentLink from '../../utils/genContentLink';
+  import { libraryCategories } from '../../constants';
   import ActivityButtonsGroup from './ActivityButtonsGroup';
   import SelectGroup from './SelectGroup';
   import plugin_data from 'plugin_data';
@@ -140,7 +141,7 @@
   const resourcesNeeded = {};
   resourcesNeededShown.map(key => {
     const value = ResourcesNeededTypes[key];
-    if (plugin_data.learnerNeeds.includes(value) || process.env.NODE_ENV !== 'production') {
+    if (plugin_data.learnerNeeds.includes(value)) {
       resourcesNeeded[key] = value;
     }
   });
@@ -149,7 +150,7 @@
 
   availableIds = plugin_data.categories;
 
-  const libraryCategories = pick(
+  const libraryCategoriesSelection = pick(
     CategoriesLookup,
     uniq(availableIds.map(key => key.split('.')[0]))
   );
@@ -237,7 +238,7 @@
         },
       },
       libraryCategoriesList() {
-        return libraryCategories;
+        return libraryCategoriesSelection;
       },
       resourcesNeededList() {
         return resourcesNeeded;
@@ -298,6 +299,10 @@
       },
       noCategories() {
         this.$emit('input', { ...this.value, categories: { [NoCategories]: true } });
+      },
+      hasNestedCategories(key) {
+        let object = Object.values(libraryCategories).filter(category => category.value === key)[0];
+        return Object.keys(object.nested).length > 0;
       },
       handleActivity(activity) {
         if (activity && !this.value.learning_activities[activity]) {
