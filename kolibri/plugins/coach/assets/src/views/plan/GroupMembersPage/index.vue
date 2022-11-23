@@ -101,6 +101,7 @@
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import useKolibriPageTitle from 'kolibri-common/composables/useKolibriPageTitle';
   import commonCoach from '../../common';
   import useCoreCoach from '../../../composables/useCoreCoach';
   import RemoveFromGroupModal from './RemoveFromGroupModal';
@@ -108,16 +109,7 @@
   export default {
     name: 'GroupMembersPage',
     metaInfo() {
-      let title;
-      if (this.currentGroup) {
-        const { name } = this.currentGroup;
-        title = name;
-      } else {
-        title = '';
-      }
-      return {
-        title: title,
-      };
+      return this.getKolibriMetaInfo(this.pageTitle, this.error);
     },
     components: {
       AppBarPage,
@@ -127,10 +119,13 @@
     },
     mixins: [commonCoreStrings, commonCoach],
     setup() {
-      const { appBarTitle } = useCoreCoach();
+      const { getKolibriMetaInfo } = useKolibriPageTitle();
+      const { pageTitle, appBarTitle } = useCoreCoach();
 
       return {
+        pageTitle,
         appBarTitle,
+        getKolibriMetaInfo,
       };
     },
     data() {

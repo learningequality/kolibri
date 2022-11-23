@@ -87,6 +87,7 @@
   import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
   import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import useKolibriPageTitle from 'kolibri-common/composables/useKolibriPageTitle';
   import commonCoach from '../../common';
   import { selectionRootLink } from '../../../routes/planLessonsRouterUtils';
   import useCoreCoach from '../../../composables/useCoreCoach';
@@ -97,9 +98,7 @@
   export default {
     name: 'LessonSummaryPage',
     metaInfo() {
-      return {
-        title: this.currentLesson.title,
-      };
+      return this.getKolibriMetaInfo(this.pageTitle, this.error);
     },
     components: {
       AppBarPage,
@@ -110,10 +109,13 @@
     },
     mixins: [commonCoach, commonCoreStrings],
     setup() {
-      const { appBarTitle } = useCoreCoach();
+      const { getKolibriMetaInfo } = useKolibriPageTitle();
+      const { pageTitle, appBarTitle } = useCoreCoach();
 
       return {
+        pageTitle,
         appBarTitle,
+        getKolibriMetaInfo,
       };
     },
     data() {

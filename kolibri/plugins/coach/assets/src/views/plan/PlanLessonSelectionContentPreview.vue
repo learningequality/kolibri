@@ -36,17 +36,31 @@
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import useKolibriPageTitle from 'kolibri-common/composables/useKolibriPageTitle';
   import commonCoach from '../common';
   import LessonContentPreviewPage from '../plan/LessonContentPreviewPage';
+  import useCoreCoach from '../../composables/useCoreCoach';
 
   export default {
     name: 'PlanLessonSelectionContentPreview',
+    metaInfo() {
+      return this.getKolibriMetaInfo(this.pageTitle, this.error);
+    },
     components: {
       ImmersivePage,
       LessonContentPreviewPage,
       NotificationsRoot,
     },
     mixins: [commonCoreStrings, commonCoach],
+    setup() {
+      const { getKolibriMetaInfo } = useKolibriPageTitle();
+      const { pageTitle } = useCoreCoach();
+
+      return {
+        pageTitle,
+        getKolibriMetaInfo,
+      };
+    },
     props: {
       // If set to true, will show the add/remove buttons.
       showSelectOptions: {

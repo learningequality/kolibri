@@ -41,6 +41,7 @@
 
   import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
   import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
+  import useKolibriPageTitle from 'kolibri-common/composables/useKolibriPageTitle';
   import commonCoach from '../../common';
   import useCoreCoach from '../../../composables/useCoreCoach';
   import OverviewBlock from './OverviewBlock';
@@ -50,6 +51,9 @@
 
   export default {
     name: 'HomePage',
+    metaInfo() {
+      return this.getKolibriMetaInfo(this.pageTitle, this.error);
+    },
     components: {
       AppBarPage,
       NotificationsRoot,
@@ -60,10 +64,13 @@
     },
     mixins: [commonCoach],
     setup() {
-      const { appBarTitle } = useCoreCoach();
+      const { pageTitle, appBarTitle } = useCoreCoach();
+      const { getKolibriMetaInfo } = useKolibriPageTitle();
 
       return {
+        pageTitle,
         appBarTitle,
+        getKolibriMetaInfo,
       };
     },
   };

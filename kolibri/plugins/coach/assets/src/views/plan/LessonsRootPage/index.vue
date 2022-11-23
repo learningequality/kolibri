@@ -133,6 +133,7 @@
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import useKolibriPageTitle from 'kolibri-common/composables/useKolibriPageTitle';
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
   import commonCoach from '../../common';
   import PlanHeader from '../../plan/PlanHeader';
@@ -142,6 +143,9 @@
 
   export default {
     name: 'LessonsRootPage',
+    metaInfo() {
+      return this.getKolibriMetaInfo(this.pageTitle, this.error);
+    },
     components: {
       AppBarPage,
       PlanHeader,
@@ -151,10 +155,13 @@
     },
     mixins: [commonCoach, commonCoreStrings],
     setup() {
-      const { appBarTitle } = useCoreCoach();
+      const { getKolibriMetaInfo } = useKolibriPageTitle();
+      const { pageTitle, appBarTitle } = useCoreCoach();
 
       return {
+        pageTitle,
         appBarTitle,
+        getKolibriMetaInfo,
       };
     },
     data() {

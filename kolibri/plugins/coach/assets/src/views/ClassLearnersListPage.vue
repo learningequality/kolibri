@@ -83,15 +83,14 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { SyncStatus } from 'kolibri.coreVue.vuex.constants';
   import { mapState, mapActions } from 'vuex';
+  import useKolibriPageTitle from 'kolibri-common/composables/useKolibriPageTitle';
   import SyncStatusDisplay from '../../../../../core/assets/src/views/SyncStatusDisplay';
   import SyncStatusDescription from '../../../../../core/assets/src/views/SyncStatusDescription';
 
   export default {
     name: 'ClassLearnersListPage',
     metaInfo() {
-      return {
-        title: this.$tr('pageHeader', { className: this.className }),
-      };
+      return this.getKolibriMetaInfo(null, this.error);
     },
     components: {
       CoreTable,
@@ -101,6 +100,13 @@
       SyncStatusDescription,
     },
     mixins: [commonCoreStrings],
+    setup() {
+      const { getKolibriMetaInfo } = useKolibriPageTitle();
+
+      return {
+        getKolibriMetaInfo,
+      };
+    },
     data: function() {
       return {
         displayTroubleshootModal: false,

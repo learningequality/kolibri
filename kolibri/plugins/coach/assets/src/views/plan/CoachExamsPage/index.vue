@@ -161,6 +161,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ExamResource } from 'kolibri.resources';
   import plugin_data from 'plugin_data';
+  import useKolibriPageTitle from 'kolibri-common/composables/useKolibriPageTitle';
   import { PageNames } from '../../../constants';
   import commonCoach from '../../common';
   import PlanHeader from '../../plan/PlanHeader';
@@ -169,9 +170,7 @@
   export default {
     name: 'CoachExamsPage',
     metaInfo() {
-      return {
-        title: this.coreString('quizzesLabel'),
-      };
+      return this.getKolibriMetaInfo(this.pageTitle, this.error);
     },
     components: {
       AppBarPage,
@@ -181,10 +180,13 @@
     },
     mixins: [commonCoach, commonCoreStrings],
     setup() {
-      const { appBarTitle } = useCoreCoach();
+      const { getKolibriMetaInfo } = useKolibriPageTitle();
+      const { pageTitle, appBarTitle } = useCoreCoach();
 
       return {
+        pageTitle,
         appBarTitle,
+        getKolibriMetaInfo,
       };
     },
     data() {
