@@ -691,22 +691,25 @@
         this.showRestartModal = false;
         if (this.restartSetting === 'add') {
           this.storageLocations.push(this.restartPath);
-          this.secondaryStorageLocations.push(this.restartPath.path);
           if (confirmationChecked === true) {
+            this.secondaryStorageLocations.push(this.primaryStorageLocation);
+            this.secondaryStorageLocations = this.secondaryStorageLocations.filter(
+              el => el !== this.restartPath.path
+            );
             this.primaryStorageLocation = this.restartPath.path;
+          } else {
+            this.secondaryStorageLocations.push(this.restartPath.path);
           }
           this.handleClickSave();
         } else if (this.restartSetting === 'remove') {
           this.storageLocations = this.storageLocations.filter(
             el => el.path !== this.restartPath.path
           );
-          // TODO: remove location
           this.secondaryStorageLocations = this.secondaryStorageLocations.filter(
             el => el !== this.restartPath.path
           );
           this.handleClickSave();
         } else if (this.restartSetting === 'primary') {
-          // TODO: set primary location
           this.secondaryStorageLocations.push(this.primaryStorageLocation);
           this.secondaryStorageLocations = this.secondaryStorageLocations.filter(
             el => el !== this.restartPath.path

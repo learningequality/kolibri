@@ -18,6 +18,7 @@
         :checked="confirmationChecked"
         :label="$tr('makePrimary')"
         :description="$tr('labelPrimary')"
+        @change="confirmationChecked = $event"
       />
     </div>
   </KModal>
