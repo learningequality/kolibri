@@ -245,7 +245,7 @@
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import genContentLink from '../utils/genContentLink';
-  import { PageNames } from '../constants';
+  import { PageNames, libraryCategories } from '../constants';
   import useSearch from '../composables/useSearch';
   import useLearnerResources from '../composables/useLearnerResources';
   import BrowseResourceMetadata from './BrowseResourceMetadata';
@@ -403,9 +403,20 @@
     methods: {
       genContentLink,
       handleShowSearchModal(value) {
-        this.currentCategory = value;
-        this.showSearchModal = true;
-        !(this.windowIsSmall || this.windowIsMedium) ? (this.sidePanelIsOpen = false) : '';
+        // for categories with sub-categories, open the modal
+        if (
+          libraryCategories[value] &&
+          libraryCategories[value].nested &&
+          Object.keys(libraryCategories[value].nested).length > 0
+        ) {
+          this.currentCategory = value;
+          this.showSearchModal = true;
+          !(this.windowIsSmall || this.windowIsMedium) ? (this.sidePanelIsOpen = false) : '';
+        }
+        // for valid categories with no subcategories, search directly
+        else if (libraryCategories[value]) {
+          this.setCategory(libraryCategories[value].value);
+        }
       },
       toggleCardView(value) {
         this.currentViewStyle = value;
