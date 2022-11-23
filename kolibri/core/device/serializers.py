@@ -134,11 +134,20 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
             }
 
 
+class PathListField(serializers.ListField):
+    def to_representation(self, data):
+        return [
+            self.child.to_representation(item)
+            for item in data
+            if check_is_directory(item)
+        ]
+
+
 class DeviceSettingsSerializer(DeviceSerializerMixin, serializers.ModelSerializer):
 
     extra_settings = serializers.JSONField(required=False)
     primary_storage_location = serializers.CharField(required=False)
-    secondary_storage_locations = serializers.ListField(
+    secondary_storage_locations = PathListField(
         child=serializers.CharField(required=False), required=False
     )
 
