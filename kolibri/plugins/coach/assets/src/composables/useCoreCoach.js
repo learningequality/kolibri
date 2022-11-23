@@ -1,7 +1,7 @@
 import find from 'lodash/find';
 import { get } from '@vueuse/core';
 import { computed, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
-import { isRtl } from 'kolibri.utils.i18n';
+import { currentLanguage, isRtl } from 'kolibri.utils.i18n';
 import { coachStrings } from '../views/common/commonCoachStrings';
 
 export default function useCoreCoach(store) {
@@ -65,7 +65,7 @@ export default function useCoreCoach(store) {
       }
     });
 
-    if (isRtl) {
+    if (isRtl(currentLanguage)) {
       strings = strings.reverse();
     }
     return strings.join(' - ');
