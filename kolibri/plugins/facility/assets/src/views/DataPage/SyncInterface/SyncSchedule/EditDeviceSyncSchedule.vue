@@ -36,12 +36,7 @@
           </KGridItem>
 
           <KGridItem
-            v-if="selectedItem.label === 'Never'"
-            :layout8="{ span: 2 }"
-            :layout12="{ span: 3 }"
-          />
-          <KGridItem
-            v-else
+            v-if="selectedItem.label !== 'Never'"
             :layout8="{ span: 2 }"
             :layout12="{ span: 3 }"
           >
@@ -55,12 +50,7 @@
           </KGridItem>
 
           <KGridItem
-            v-if="selectedItem.label === 'Never' && selectedItem.label === 'Every hour' "
-            :layout8="{ span: 2 }"
-            :layout12="{ span: 3 }"
-          />
-          <KGridItem
-            v-else
+            v-if="selectedItem.label !== 'Never' && selectedItem.label !== 'Every hour' "
             :layout8="{ span: 2 }"
             :layout12="{ span: 3 }"
           >
