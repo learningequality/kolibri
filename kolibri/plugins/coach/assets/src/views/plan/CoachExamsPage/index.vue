@@ -1,21 +1,16 @@
 <template>
 
-  <NotificationsRoot
+  <CoachAppBarPage
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
+    :showSubNav="true"
   >
-    <AppBarPage
-      :title="appBarTitle"
-    >
-      <template #subNav>
-        <TopNavbar />
-      </template>
 
-      <KPageContainer>
-        <PlanHeader />
+    <KPageContainer>
+      <PlanHeader />
 
-        <div class="filter-and-button">
-          <!-- Hidden temporarily per https://github.com/learningequality/kolibri/issues/6174
+      <div class="filter-and-button">
+        <!-- Hidden temporarily per https://github.com/learningequality/kolibri/issues/6174
           <KSelect
             v-model="statusSelected"
             :label="coreString('showAction')"
@@ -23,94 +18,97 @@
             :inline="true"
           />
           -->
-          <!-- Remove this div - it makes sure the [NEW LESSON] button stays right-aligned
+        <!-- Remove this div - it makes sure the [NEW LESSON] button stays right-aligned
               while the above <KSelect> is hidden
           -->
-          <div>&nbsp;</div>
-          <KButtonGroup v-if="practiceQuizzesExist">
-            <KButton
-              primary
-              hasDropdown
-              appearance="raised-button"
-              :text="coachString('newQuizAction')"
-            >
-              <template #menu>
-                <KDropdownMenu
-                  :options="dropdownOptions"
-                  class="options-btn"
-                  @select="handleSelect"
-                />
-              </template>
-            </KButton>
-          </KButtonGroup>
-          <KRouterLink
-            v-else
-            :primary="true"
+        <div>&nbsp;</div>
+        <KButtonGroup v-if="practiceQuizzesExist">
+          <KButton
+            primary
+            hasDropdown
             appearance="raised-button"
-            :to="newExamRoute"
             :text="coachString('newQuizAction')"
-          />
-        </div>
-        <CoreTable>
-          <template #headers>
-            <th>{{ coachString('titleLabel') }}</th>
-            <th>{{ coachString('recipientsLabel') }}</th>
-            <th class="center-text">
-              {{ coachString('statusLabel') }}
-            </th>
-          </template>
-          <template #tbody>
-            <transition-group tag="tbody" name="list">
-              <tr
-                v-for="exam in filteredExams"
-                :key="exam.id"
-              >
-                <td>
-                  <KRouterLink
-                    :to="$router.getRoute('QuizSummaryPage', { quizId: exam.id })"
-                    appearance="basic-link"
-                    :text="exam.title"
-                    icon="quiz"
-                  />
-                </td>
+          >
+            <template #menu>
+              <KDropdownMenu
+                :options="dropdownOptions"
+                class="options-btn"
+                @select="handleSelect"
+              />
+            </template>
+          </KButton>
+        </KButtonGroup>
+        <KRouterLink
+          v-else
+          :primary="true"
+          appearance="raised-button"
+          :to="newExamRoute"
+          :text="coachString('newQuizAction')"
+        />
+      </div>
+      <CoreTable>
+        <template #headers>
+          <th>{{ coachString('titleLabel') }}</th>
+          <th>{{ coachString('recipientsLabel') }}</th>
+          <th class="center-text">
+            {{ coachString('statusLabel') }}
+          </th>
+        </template>
+        <template #tbody>
+          <transition-group
+            tag="tbody"
+            name="list"
+          >
+            <tr
+              v-for="exam in filteredExams"
+              :key="exam.id"
+            >
+              <td>
+                <KRouterLink
+                  :to="$router.getRoute('QuizSummaryPage', { quizId: exam.id })"
+                  appearance="basic-link"
+                  :text="exam.title"
+                  icon="quiz"
+                />
+              </td>
 
-                <td>
-                  <Recipients
-                    :groupNames="getRecipientNamesForExam(exam)"
-                    :hasAssignments="exam.assignments.length > 0"
-                  />
-                </td>
+              <td>
+                <Recipients
+                  :groupNames="getRecipientNamesForExam(exam)"
+                  :hasAssignments="exam.assignments.length > 0"
+                />
+              </td>
 
-                <td class="button-col center-text core-table-button-col">
-                  <!-- Open quiz button -->
-                  <KButton
-                    v-if="!exam.active && !exam.archive"
-                    :text="coachString('openQuizLabel')"
-                    appearance="flat-button"
-                    @click="showOpenConfirmationModal = true; modalQuizId = exam.id"
-                  />
-                  <!-- Close quiz button -->
-                  <KButton
-                    v-if="exam.active && !exam.archive"
-                    :text="coachString('closeQuizLabel')"
-                    appearance="flat-button"
-                    @click="showCloseConfirmationModal = true; modalQuizId = exam.id;"
-                  />
-                  <!-- Closed quiz label -->
-                  <div v-if="exam.archive">
-                    {{ coachString('quizClosedLabel') }}
-                  </div>
-                </td>
+              <td class="button-col center-text core-table-button-col">
+                <!-- Open quiz button -->
+                <KButton
+                  v-if="!exam.active && !exam.archive"
+                  :text="coachString('openQuizLabel')"
+                  appearance="flat-button"
+                  @click="showOpenConfirmationModal = true; modalQuizId = exam.id"
+                />
+                <!-- Close quiz button -->
+                <KButton
+                  v-if="exam.active && !exam.archive"
+                  :text="coachString('closeQuizLabel')"
+                  appearance="flat-button"
+                  @click="showCloseConfirmationModal = true; modalQuizId = exam.id;"
+                />
+                <!-- Closed quiz label -->
+                <div v-if="exam.archive">
+                  {{ coachString('quizClosedLabel') }}
+                </div>
+              </td>
 
-              </tr>
-            </transition-group>
-          </template>
-        </CoreTable>
+            </tr>
+          </transition-group>
+        </template>
+      </CoreTable>
 
-        <p v-if="!exams.length">
-          {{ $tr('noExams') }}
-        </p>
-        <!--       <p
+      <p v-if="!exams.length">
+        {{ $tr('noExams') }}
+      </p>
+      <!--       <p
           v-else-if="statusSelected.value === coachString('activeQuizzesLabel') &&
             !activeExams.length"
         >
@@ -123,72 +121,52 @@
           {{ $tr('noInactiveExams') }}
         </p> -->
 
-        <!-- Modals for Close & Open of quiz from right-most column -->
-        <KModal
-          v-if="showOpenConfirmationModal"
-          :title="coachString('openQuizLabel')"
-          :submitText="coreString('continueAction')"
-          :cancelText="coreString('cancelAction')"
-          @cancel="showOpenConfirmationModal = false"
-          @submit="handleOpenQuiz(modalQuizId)"
-        >
-          <div>{{ coachString('openQuizModalDetail') }}</div>
-        </KModal>
-        <KModal
-          v-if="showCloseConfirmationModal"
-          :title="coachString('closeQuizLabel')"
-          :submitText="coreString('continueAction')"
-          :cancelText="coreString('cancelAction')"
-          @cancel="showCloseConfirmationModal = false"
-          @submit="handleCloseQuiz(modalQuizId)"
-        >
-          <div>{{ coachString('closeQuizModalDetail') }}</div>
-        </KModal>
-      </KPageContainer>
-    </AppBarPage>
-
-    <router-view />
-  </NotificationsRoot>
+      <!-- Modals for Close & Open of quiz from right-most column -->
+      <KModal
+        v-if="showOpenConfirmationModal"
+        :title="coachString('openQuizLabel')"
+        :submitText="coreString('continueAction')"
+        :cancelText="coreString('cancelAction')"
+        @cancel="showOpenConfirmationModal = false"
+        @submit="handleOpenQuiz(modalQuizId)"
+      >
+        <div>{{ coachString('openQuizModalDetail') }}</div>
+      </KModal>
+      <KModal
+        v-if="showCloseConfirmationModal"
+        :title="coachString('closeQuizLabel')"
+        :submitText="coreString('continueAction')"
+        :cancelText="coreString('cancelAction')"
+        @cancel="showCloseConfirmationModal = false"
+        @submit="handleCloseQuiz(modalQuizId)"
+      >
+        <div>{{ coachString('closeQuizModalDetail') }}</div>
+      </KModal>
+    </KPageContainer>
+  </CoachAppBarPage>
 
 </template>
 
 
 <script>
 
-  import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
-  import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ExamResource } from 'kolibri.resources';
   import plugin_data from 'plugin_data';
-  import useKolibriPageTitle from 'kolibri-common/composables/useKolibriPageTitle';
   import { PageNames } from '../../../constants';
   import commonCoach from '../../common';
+  import CoachAppBarPage from '../../CoachAppBarPage';
   import PlanHeader from '../../plan/PlanHeader';
-  import useCoreCoach from '../../../composables/useCoreCoach';
 
   export default {
     name: 'CoachExamsPage',
-    metaInfo() {
-      return this.getKolibriMetaInfo(this.pageTitle, this.error);
-    },
     components: {
-      AppBarPage,
       CoreTable,
-      NotificationsRoot,
+      CoachAppBarPage,
       PlanHeader,
     },
     mixins: [commonCoach, commonCoreStrings],
-    setup() {
-      const { getKolibriMetaInfo } = useKolibriPageTitle();
-      const { pageTitle, appBarTitle } = useCoreCoach();
-
-      return {
-        pageTitle,
-        appBarTitle,
-        getKolibriMetaInfo,
-      };
-    },
     data() {
       return {
         // statusSelected: {
@@ -209,23 +187,23 @@
       // Hidden temporarily per https://github.com/learningequality/kolibri/issues/6174
       // Uncomment this once we use the filters again.
       /*
-      statusOptions() {
-        return [
-          {
-            label: this.coachString('allQuizzesLabel'),
-            value: this.coachString('allQuizzesLabel'),
-          },
-          {
-            label: this.coachString('activeQuizzesLabel'),
-            value: this.coachString('activeQuizzesLabel'),
-          },
-          {
-            label: this.coachString('inactiveQuizzesLabel'),
-            value: this.coachString('inactiveQuizzesLabel'),
-          },
-        ];
-      },
-      */
+        statusOptions() {
+          return [
+            {
+              label: this.coachString('allQuizzesLabel'),
+              value: this.coachString('allQuizzesLabel'),
+            },
+            {
+              label: this.coachString('activeQuizzesLabel'),
+              value: this.coachString('activeQuizzesLabel'),
+            },
+            {
+              label: this.coachString('inactiveQuizzesLabel'),
+              value: this.coachString('inactiveQuizzesLabel'),
+            },
+          ];
+        },
+        */
       // activeExams() {
       //   return this.sortedExams.filter(exam => exam.active === true);
       // },

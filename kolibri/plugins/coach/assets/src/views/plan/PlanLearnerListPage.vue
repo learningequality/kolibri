@@ -1,40 +1,30 @@
 <template>
 
-  <NotificationsRoot
+  <CoachAppBarPage
+    :appBarTitle="coreString('coachLabel')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
+    :showSubNav="true"
   >
-    <AppBarPage
-      :title="coreString('coachLabel')"
-    >
-      <template #subNav>
-        <TopNavbar />
-      </template>
-
-      <KPageContainer>
-        <PlanHeader />
-        Learner list
-      </KPageContainer>
-    </AppBarPage>
-
-    <router-view />
-  </NotificationsRoot>
+    <KPageContainer>
+      <PlanHeader />
+      Learner list
+    </KPageContainer>
+  </CoachAppBarPage>
 
 </template>
 
 
 <script>
 
-  import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
-  import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import CoachAppBarPage from '../CoachAppBarPage';
   import PlanHeader from './PlanHeader';
 
   export default {
     name: 'PlanLearnerListPage',
     components: {
-      AppBarPage,
-      NotificationsRoot,
+      CoachAppBarPage,
       PlanHeader,
     },
     mixins: [commonCoreStrings],

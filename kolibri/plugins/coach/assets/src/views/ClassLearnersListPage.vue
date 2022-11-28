@@ -1,13 +1,11 @@
 <template>
 
-  <ImmersivePage
+  <CoachImmersivePage
     :appBarTitle="$store.state.classSummary.name"
     icon="back"
     :route="backlink"
   >
-    <KPageContainer
-      :topMargin="100"
-    >
+    <KPageContainer :topMargin="100">
       <h1>{{ $tr('pageHeader', { className: $store.state.classSummary.name }) }} </h1>
       <KButton
         :text="$tr('howToTroubleshootModalHeader')"
@@ -22,8 +20,15 @@
         :submitText="$tr('close')"
         @submit="displayTroubleshootModal = false"
       >
-        <div v-for="status in syncStatusOptions" :key="status.id" class="status-option-display">
-          <SyncStatusDisplay :syncStatus="status" displaySize="large-bold" />
+        <div
+          v-for="status in syncStatusOptions"
+          :key="status.id"
+          class="status-option-display"
+        >
+          <SyncStatusDisplay
+            :syncStatus="status"
+            displaySize="large-bold"
+          />
           <SyncStatusDescription :syncStatus="status" />
         </div>
       </KModal>
@@ -61,16 +66,14 @@
                 />
               </td>
               <td>
-                <ElapsedTime
-                  :date="mapLastSyncedTimeToLearner(learner.id)"
-                />
+                <ElapsedTime :date="mapLastSyncedTimeToLearner(learner.id)" />
               </td>
             </tr>
           </tbody>
         </template>
       </CoreTable>
     </KPageContainer>
-  </ImmersivePage>
+  </CoachImmersivePage>
 
 </template>
 
@@ -79,23 +82,25 @@
 
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
-  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { SyncStatus } from 'kolibri.coreVue.vuex.constants';
   import { mapState, mapActions } from 'vuex';
   import useKolibriPageTitle from 'kolibri-common/composables/useKolibriPageTitle';
   import SyncStatusDisplay from '../../../../../core/assets/src/views/SyncStatusDisplay';
   import SyncStatusDescription from '../../../../../core/assets/src/views/SyncStatusDescription';
+  import CoachImmersivePage from '../views/CoachImmersivePage';
 
   export default {
     name: 'ClassLearnersListPage',
     metaInfo() {
-      return this.getKolibriMetaInfo(null, this.error);
+      return {
+        title: this.$tr('pageHeader', { className: this.className }),
+      };
     },
     components: {
       CoreTable,
       ElapsedTime,
-      ImmersivePage,
+      CoachImmersivePage,
       SyncStatusDisplay,
       SyncStatusDescription,
     },

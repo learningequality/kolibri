@@ -1,43 +1,39 @@
 <template>
 
-  <NotificationsRoot
+  <CoachImmersivePage
+    :appBarTitle="$tr('appBarTitle')"
     :authorized="$store.getters.userIsAuthorizedForCoach"
     authorizedRole="adminOrCoach"
+    icon="close"
+    :pageTitle="$tr('pageTitle', { title: lesson.title })"
+    :route="previousPageRoute"
   >
-    <ImmersivePage
-      :appBarTitle="$tr('appBarTitle')"
-      icon="close"
-      :route="previousPageRoute"
+    <KPageContainer
+      v-if="!loading"
+      :topMargin="100"
     >
-      <KPageContainer
-        v-if="!loading"
-        :topMargin="100"
+      <AssignmentDetailsForm
+        v-bind="formProps"
+        :disabled="disabled"
+        @cancel="goBackToSummaryPage"
+        @submit="handleSaveChanges"
       >
-        <AssignmentDetailsForm
-          v-bind="formProps"
-          :disabled="disabled"
-          @cancel="goBackToSummaryPage"
-          @submit="handleSaveChanges"
-        >
 
-          <template #resourceTable>
-            <section v-if="showResourcesTable">
-              <h2 class="resource-header">
-                {{ coreString('resourcesLabel') }}
-              </h2>
-              <ResourceListTable
-                v-show="!disabled"
-                :resources.sync="updatedResources"
-              />
-            </section>
-          </template>
-        </AssignmentDetailsForm>
+        <template #resourceTable>
+          <section v-if="showResourcesTable">
+            <h2 class="resource-header">
+              {{ coreString('resourcesLabel') }}
+            </h2>
+            <ResourceListTable
+              v-show="!disabled"
+              :resources.sync="updatedResources"
+            />
+          </section>
+        </template>
+      </AssignmentDetailsForm>
 
-      </KPageContainer>
-    </ImmersivePage>
-
-    <router-view />
-  </NotificationsRoot>
+    </KPageContainer>
+  </CoachImmersivePage>
 
 </template>
 
@@ -46,24 +42,17 @@
 
   import isEqual from 'lodash/isEqual';
   import { LessonResource } from 'kolibri.resources';
-  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
-  import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
+  import CoachImmersivePage from '../../CoachImmersivePage';
   import AssignmentDetailsModal from '../assignments/AssignmentDetailsModal';
   import ResourceListTable from './EditDetailsResourceListTable';
 
   export default {
     name: 'LessonEditDetailsPage',
-    metaInfo() {
-      return {
-        title: this.$tr('pageTitle', { title: this.lesson.title }),
-      };
-    },
     components: {
       AssignmentDetailsForm: AssignmentDetailsModal,
-      ImmersivePage,
-      NotificationsRoot,
+      CoachImmersivePage,
       ResourceListTable,
     },
     mixins: [coachStringsMixin, commonCoreStrings],

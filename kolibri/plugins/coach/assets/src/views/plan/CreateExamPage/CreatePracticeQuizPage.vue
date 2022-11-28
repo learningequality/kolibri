@@ -1,44 +1,38 @@
 <template>
 
-  <NotificationsRoot
+  <CoachImmersivePage
+    :appBarTitle="$tr('createNewExamLabel')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
+    icon="close"
+    :pageTitle="$tr('selectPracticeQuizLabel')"
+    :route="toolbarRoute"
+    :primary="false"
   >
-    <ImmersivePage
-      :appBarTitle="$tr('createNewExamLabel')"
-      icon="close"
-      :route="toolbarRoute"
-      :primary="false"
-    >
-      <KPageContainer
-        :topMargin="100"
-      >
+    <KPageContainer>
 
-        <h1>{{ $tr('selectPracticeQuizLabel') }}</h1>
-        <div v-if="ancestors.length === 0">
-          {{ $tr('channelsWithQuizzesLabel') }}
-        </div>
+      <h1>{{ $tr('selectPracticeQuizLabel') }}</h1>
+      <div v-if="ancestors.length === 0">
+        {{ $tr('channelsWithQuizzesLabel') }}
+      </div>
 
-        <ResourceSelectionBreadcrumbs
-          :ancestors="ancestors"
-          :channelsLink="channelsLink"
-          :topicsLink="topicsLink"
-        />
+      <ResourceSelectionBreadcrumbs
+        :ancestors="ancestors"
+        :channelsLink="channelsLink"
+        :topicsLink="topicsLink"
+      />
 
-        <ContentCardList
-          :contentList="filteredContentList"
-          :contentCardMessage="selectionMetadata"
-          :contentCardLink="contentLink"
-          :viewMoreButtonState="viewMoreButtonState"
-          :contentIsChecked="contentIsSelected"
-          :contentHasCheckbox="contentHasCheckbox"
-        />
+      <ContentCardList
+        :contentList="filteredContentList"
+        :contentCardMessage="selectionMetadata"
+        :contentCardLink="contentLink"
+        :viewMoreButtonState="viewMoreButtonState"
+        :contentIsChecked="contentIsSelected"
+        :contentHasCheckbox="contentHasCheckbox"
+      />
 
-      </KPageContainer>
-    </ImmersivePage>
-
-    <router-view />
-  </NotificationsRoot>
+    </KPageContainer>
+  </CoachImmersivePage>
 
 </template>
 
@@ -47,26 +41,19 @@
 
   import { mapState } from 'vuex';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
-  import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ResourceSelectionBreadcrumbs from '../../plan/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs';
   import { PageNames } from '../../../constants';
   import ContentCardList from '../../plan/LessonResourceSelectionPage/ContentCardList';
   import commonCoach from '../../common';
+  import CoachImmersivePage from '../../CoachImmersivePage';
 
   export default {
     name: 'CreatePracticeQuizPage',
-    metaInfo() {
-      return {
-        title: this.$tr('selectPracticeQuizLabel'),
-      };
-    },
     components: {
+      CoachImmersivePage,
       ContentCardList,
-      ImmersivePage,
-      NotificationsRoot,
       ResourceSelectionBreadcrumbs,
     },
     mixins: [commonCoreStrings, commonCoach, responsiveWindowMixin],

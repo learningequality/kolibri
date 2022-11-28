@@ -1,37 +1,31 @@
 <template>
 
-  <NotificationsRoot
+  <CoachImmersivePage
+    :appBarTitle="coachString('createLessonAction')"
     :authorized="true"
     authorizedRole="adminOrCoach"
+    icon="close"
+    :pageTitle="coachString('createLessonAction')"
+    :route="{ name: 'PLAN_LESSONS_ROOT' }"
   >
-    <ImmersivePage
-      :appBarTitle="coachString('createLessonAction')"
-      icon="close"
-      :route="{ name: 'PLAN_LESSONS_ROOT' }"
-    >
-      <KPageContainer
-        :topMargin="100"
-      >
-        <AssignmentDetailsModal
-          ref="detailsModal"
-          assignmentType="new_lesson"
-          :modalTitleErrorMessage="coachString('duplicateLessonTitleError')"
-          :submitErrorMessage="coachString('saveLessonError')"
-          :initialDescription="''"
-          :initialTitle="''"
-          :initialSelectedCollectionIds="[classId]"
-          :initialAdHocLearners="[]"
-          :classId="classId"
-          :groups="groups"
-          :disabled="false"
-          @submit="createLesson"
-          @cancel="() => $router.go(-1)"
-        />
-      </KPageContainer>
-    </ImmersivePage>
-
-    <router-view />
-  </NotificationsRoot>
+    <KPageContainer>
+      <AssignmentDetailsModal
+        ref="detailsModal"
+        assignmentType="new_lesson"
+        :modalTitleErrorMessage="coachString('duplicateLessonTitleError')"
+        :submitErrorMessage="coachString('saveLessonError')"
+        :initialDescription="''"
+        :initialTitle="''"
+        :initialSelectedCollectionIds="[classId]"
+        :initialAdHocLearners="[]"
+        :classId="classId"
+        :groups="groups"
+        :disabled="false"
+        @submit="createLesson"
+        @cancel="() => $router.go(-1)"
+      />
+    </KPageContainer>
+  </CoachImmersivePage>
 
 </template>
 
@@ -40,23 +34,16 @@
 
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
-  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
-  import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import AssignmentDetailsModal from '../assignments/AssignmentDetailsModal';
   import commonCoach from '../../common';
+  import CoachImmersivePage from '../../CoachImmersivePage';
 
   export default {
     name: 'LessonCreationPage',
-    metaInfo() {
-      return {
-        title: this.coachString('createLessonAction'),
-      };
-    },
     components: {
       AssignmentDetailsModal,
-      ImmersivePage,
-      NotificationsRoot,
+      CoachImmersivePage,
     },
     mixins: [commonCoach, commonCoreStrings],
     computed: {

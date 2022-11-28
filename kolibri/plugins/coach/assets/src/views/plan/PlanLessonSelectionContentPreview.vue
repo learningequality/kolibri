@@ -1,30 +1,26 @@
 <template>
 
-  <NotificationsRoot
+  <CoachImmersivePage
+    :appBarTitle="lessonNameLabel"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
+    icon="back"
+    :route="returnBackRoute"
+    :primary="false"
   >
-    <ImmersivePage
-      :appBarTitle="lessonNameLabel"
-      icon="back"
-      :route="returnBackRoute"
-      :primary="false"
-    >
-      <KPageContainer :topMargin="100">
-        <LessonContentPreviewPage
-          :currentContentNode="currentContentNode"
-          :isSelected="isSelected"
-          :questions="preview.questions"
-          :displaySelectOptions="showSelectOptions"
-          :completionData="preview.completionData"
-          @addResource="handleAddResource"
-          @removeResource="handleRemoveResource"
-        />
-      </KPageContainer>
-    </ImmersivePage>
+    <KPageContainer>
+      <LessonContentPreviewPage
+        :currentContentNode="currentContentNode"
+        :isSelected="isSelected"
+        :questions="preview.questions"
+        :displaySelectOptions="showSelectOptions"
+        :completionData="preview.completionData"
+        @addResource="handleAddResource"
+        @removeResource="handleRemoveResource"
+      />
+    </KPageContainer>
 
-    <router-view />
-  </NotificationsRoot>
+  </CoachImmersivePage>
 
 </template>
 
@@ -33,34 +29,19 @@
 
   import { mapState, mapActions } from 'vuex';
   import get from 'lodash/get';
-  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
-  import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import useKolibriPageTitle from 'kolibri-common/composables/useKolibriPageTitle';
   import commonCoach from '../common';
   import LessonContentPreviewPage from '../plan/LessonContentPreviewPage';
-  import useCoreCoach from '../../composables/useCoreCoach';
+  import CoachImmersivePage from '../../views/CoachImmersivePage';
 
   export default {
     name: 'PlanLessonSelectionContentPreview',
-    metaInfo() {
-      return this.getKolibriMetaInfo(this.pageTitle, this.error);
-    },
+
     components: {
-      ImmersivePage,
+      CoachImmersivePage,
       LessonContentPreviewPage,
-      NotificationsRoot,
     },
     mixins: [commonCoreStrings, commonCoach],
-    setup() {
-      const { getKolibriMetaInfo } = useKolibriPageTitle();
-      const { pageTitle } = useCoreCoach();
-
-      return {
-        pageTitle,
-        getKolibriMetaInfo,
-      };
-    },
     props: {
       // If set to true, will show the add/remove buttons.
       showSelectOptions: {

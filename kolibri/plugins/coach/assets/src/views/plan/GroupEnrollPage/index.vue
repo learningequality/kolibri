@@ -1,14 +1,13 @@
 <template>
 
-  <ImmersivePage
+  <CoachImmersivePage
     :appBarTitle="currentGroup.name"
     icon="back"
+    :pageTitle="pageTitle"
     :route="$router.getRoute('GroupMembersPage')"
     :primary="false"
   >
-    <KPageContainer
-      :topMargin="100"
-    >
+    <KPageContainer>
       <h1>
         {{ $tr('pageHeader', { className: currentGroup.name }) }}
       </h1>
@@ -49,7 +48,6 @@
               :ariaLabel="$tr('previousResults')"
               :disabled="pageNum === 1"
               size="small"
-
               @click="goToPage(pageNum - 1)"
             />
             <KIconButton
@@ -57,7 +55,6 @@
               :ariaLabel="$tr('nextResults')"
               :disabled="numPages === 0 || pageNum === numPages"
               size="small"
-
               @click="goToPage(pageNum + 1)"
             />
           </KButtonGroup>
@@ -73,7 +70,7 @@
         </div>
       </form>
     </KPageContainer>
-  </ImmersivePage>
+  </CoachImmersivePage>
 
 </template>
 
@@ -82,23 +79,18 @@
 
   import { mapActions, mapGetters, mapState } from 'vuex';
   import differenceWith from 'lodash/differenceWith';
-  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import filterUsersByNames from 'kolibri.utils.filterUsersByNames';
   import UserTable from 'kolibri.coreVue.components.UserTable';
   import commonCoach from '../../common';
+  import CoachImmersivePage from '../../CoachImmersivePage';
 
   export default {
     name: 'GroupEnrollPage',
-    metaInfo() {
-      return {
-        title: this.pageTitle,
-      };
-    },
     components: {
-      ImmersivePage,
+      CoachImmersivePage,
       FilterTextbox,
       UserTable,
     },

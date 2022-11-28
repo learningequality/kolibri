@@ -1,41 +1,34 @@
 <template>
 
-  <NotificationsRoot
+  <CoachAppBarPage
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
+    :showSubNav="true"
   >
-    <AppBarPage>
-      <template #subNav>
-        <TopNavbar />
-      </template>
-
-      <KPageContainer>
-        <p>
-          <BackLink
-            :to="classRoute('HomePage', {})"
-            :text="coreString('classHome')"
-          />
-        </p>
-
-        <ActivityList
-          :noActivityString="$tr('noActivityLabel')"
-          embeddedPageName="HomeActivityPage"
+    <KPageContainer>
+      <p>
+        <BackLink
+          :to="classRoute('HomePage', {})"
+          :text="coreString('classHome')"
         />
+      </p>
 
-      </KPageContainer>
-    </AppBarPage>
+      <ActivityList
+        :noActivityString="$tr('noActivityLabel')"
+        embeddedPageName="HomeActivityPage"
+      />
 
-    <router-view />
-  </NotificationsRoot>
+    </KPageContainer>
+  </CoachAppBarPage>
 
 </template>
 
 
 <script>
 
-  import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
+  import CoachAppBarPage from '../CoachAppBarPage';
   import { nStringsMixin } from '../common/notifications/notificationStrings';
   import ActivityList from '../common/notifications/ActivityList';
 
@@ -43,7 +36,7 @@
     name: 'HomeActivityPage',
     components: {
       ActivityList,
-      NotificationsRoot,
+      CoachAppBarPage,
     },
     mixins: [commonCoach, nStringsMixin, commonCoreStrings],
     $trs: {

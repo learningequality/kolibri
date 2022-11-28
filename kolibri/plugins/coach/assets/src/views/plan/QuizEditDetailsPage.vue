@@ -1,30 +1,23 @@
 <template>
 
-  <NotificationsRoot
+  <CoachImmersivePage
+    :appBarTitle="$tr('appBarTitle')"
     :authorized="$store.getters.userIsAuthorizedForCoach"
     authorizedRole="adminOrCoach"
+    icon="close"
+    :pageTitle="$tr('pageTitle', { title: quiz.title })"
+    :route="previousPageRoute"
   >
-    <ImmersivePage
-      :appBarTitle="$tr('appBarTitle')"
-      icon="close"
-      :route="previousPageRoute"
-    >
-      <KPageContainer
-        v-if="!loading && !error"
-        :topMargin="100"
-      >
-        <AssignmentDetailsForm
-          v-bind="formProps"
-          :disabled="disabled"
-          :initialAdHocLearners="quiz.learner_ids"
-          @cancel="goBackToSummaryPage"
-          @submit="handleSaveChanges"
-        />
-      </KPageContainer>
-    </ImmersivePage>
-
-    <router-view />
-  </NotificationsRoot>
+    <KPageContainer v-if="!loading && !error">
+      <AssignmentDetailsForm
+        v-bind="formProps"
+        :disabled="disabled"
+        :initialAdHocLearners="quiz.learner_ids"
+        @cancel="goBackToSummaryPage"
+        @submit="handleSaveChanges"
+      />
+    </KPageContainer>
+  </CoachImmersivePage>
 
 </template>
 
@@ -33,23 +26,16 @@
 
   import { mapGetters } from 'vuex';
   import { ExamResource } from 'kolibri.resources';
-  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
-  import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { coachStringsMixin } from '../common/commonCoachStrings';
+  import CoachImmersivePage from '../CoachImmersivePage';
   import AssignmentDetailsModal from './assignments/AssignmentDetailsModal';
 
   export default {
     name: 'QuizEditDetailsPage',
-    metaInfo() {
-      return {
-        title: this.$tr('pageTitle', { title: this.quiz.title }),
-      };
-    },
     components: {
-      ImmersivePage,
       AssignmentDetailsForm: AssignmentDetailsModal,
-      NotificationsRoot,
+      CoachImmersivePage,
     },
     mixins: [coachStringsMixin, commonCoreStrings],
     data() {
