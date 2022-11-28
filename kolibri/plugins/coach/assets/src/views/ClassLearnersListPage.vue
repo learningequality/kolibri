@@ -5,7 +5,7 @@
     icon="back"
     :route="backlink"
   >
-    <KPageContainer :topMargin="100">
+    <KPageContainer>
       <h1>{{ $tr('pageHeader', { className: $store.state.classSummary.name }) }} </h1>
       <KButton
         :text="$tr('howToTroubleshootModalHeader')"

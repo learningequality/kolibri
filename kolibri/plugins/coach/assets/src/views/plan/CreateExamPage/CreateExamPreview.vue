@@ -8,7 +8,7 @@
     :pageTitle="$tr('title')"
     :route="toolbarRoute"
   >
-    <KPageContainer :topMargin="100">
+    <KPageContainer>
       <h1>{{ $tr('preview') }}</h1>
       <h2>{{ coachString('detailsLabel') }}</h2>
       <KGrid>

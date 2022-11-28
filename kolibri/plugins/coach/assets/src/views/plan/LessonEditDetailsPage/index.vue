@@ -8,10 +8,7 @@
     :pageTitle="$tr('pageTitle', { title: lesson.title })"
     :route="previousPageRoute"
   >
-    <KPageContainer
-      v-if="!loading"
-      :topMargin="100"
-    >
+    <KPageContainer v-if="!loading">
       <AssignmentDetailsForm
         v-bind="formProps"
         :disabled="disabled"
