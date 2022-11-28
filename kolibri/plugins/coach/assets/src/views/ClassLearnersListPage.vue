@@ -1,12 +1,13 @@
 <template>
 
   <CoachImmersivePage
-    :appBarTitle="$store.state.classSummary.name"
+    :appBarTitle="className"
     icon="back"
     :route="backlink"
+    :pageTitle="$tr('pageHeader', { className: className })"
   >
     <KPageContainer>
-      <h1>{{ $tr('pageHeader', { className: $store.state.classSummary.name }) }} </h1>
+      <h1>{{ $tr('pageHeader', { className: className }) }} </h1>
       <KButton
         :text="$tr('howToTroubleshootModalHeader')"
         appearance="basic-link"
@@ -85,18 +86,12 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { SyncStatus } from 'kolibri.coreVue.vuex.constants';
   import { mapState, mapActions } from 'vuex';
-  import useKolibriPageTitle from 'kolibri-common/composables/useKolibriPageTitle';
   import SyncStatusDisplay from '../../../../../core/assets/src/views/SyncStatusDisplay';
   import SyncStatusDescription from '../../../../../core/assets/src/views/SyncStatusDescription';
   import CoachImmersivePage from '../views/CoachImmersivePage';
 
   export default {
     name: 'ClassLearnersListPage',
-    metaInfo() {
-      return {
-        title: this.$tr('pageHeader', { className: this.className }),
-      };
-    },
     components: {
       CoreTable,
       ElapsedTime,
@@ -105,13 +100,6 @@
       SyncStatusDescription,
     },
     mixins: [commonCoreStrings],
-    setup() {
-      const { getKolibriMetaInfo } = useKolibriPageTitle();
-
-      return {
-        getKolibriMetaInfo,
-      };
-    },
     data: function() {
       return {
         displayTroubleshootModal: false,
@@ -122,6 +110,9 @@
     },
     computed: {
       ...mapState('classSummary', ['learnerMap']),
+      className() {
+        return this.$store.state.classSummary.name;
+      },
       syncStatusOptions() {
         let options = [];
         for (const [value] of Object.entries(SyncStatus)) {
