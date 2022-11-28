@@ -1,19 +1,17 @@
 <template>
 
-  <CoreBase
-    :immersivePage="false"
+  <CoachAppBarPage
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
   >
 
-    <template #sub-nav>
-      <TopNavbar />
-    </template>
-
     <KPageContainer>
 
-      <ReportsResourceHeader :resource="resource" @previewClick="onPreviewClick" />
+      <ReportsResourceHeader
+        :resource="resource"
+        @previewClick="onPreviewClick"
+      />
 
       <ReportsControls @export="exportCSV">
         <KCheckbox
@@ -34,7 +32,10 @@
             class="group-title"
             data-test="group-title"
           >
-            <KLabeledIcon icon="group" :label="group.name" />
+            <KLabeledIcon
+              icon="group"
+              :label="group.name"
+            />
           </h2>
 
           <p>
@@ -79,10 +80,13 @@
           />
         </p>
 
-        <ReportsLearnersTable :entries="allEntries" :questionCount="numAssessments" />
+        <ReportsLearnersTable
+          :entries="allEntries"
+          :questionCount="numAssessments"
+        />
       </div>
     </KPageContainer>
-  </CoreBase>
+  </CoachAppBarPage>
 
 </template>
 
@@ -93,6 +97,7 @@
   import fromPairs from 'lodash/fromPairs';
   import { mapState } from 'vuex';
   import commonCoach from '../common';
+  import CoachAppBarPage from '../CoachAppBarPage';
   import { PageNames } from '../../constants';
   import { LastPages } from '../../constants/lastPagesConstants';
   import CSVExporter from '../../csv/exporter';
@@ -104,6 +109,7 @@
   export default {
     name: 'ReportsLessonExerciseLearnerListPage',
     components: {
+      CoachAppBarPage,
       ReportsResourceHeader,
       ReportsLearnersTable,
       ReportsControls,

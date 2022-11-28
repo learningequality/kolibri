@@ -1,15 +1,10 @@
 <template>
 
-  <CoreBase
-    :immersivePage="false"
+  <CoachAppBarPage
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
   >
-
-    <template #sub-nav>
-      <TopNavbar />
-    </template>
 
     <KPageContainer>
       <p>
@@ -20,7 +15,10 @@
         />
       </p>
       <h1>
-        <KLabeledIcon icon="person" :label="learner.name" />
+        <KLabeledIcon
+          icon="person"
+          :label="learner.name"
+        />
       </h1>
 
       <ReportsResourcesStats
@@ -37,8 +35,14 @@
           <th>{{ coreString('timeSpentLabel') }}</th>
         </template>
         <template #tbody>
-          <transition-group tag="tbody" name="list">
-            <tr v-for="tableRow in table" :key="tableRow.node_id">
+          <transition-group
+            tag="tbody"
+            name="list"
+          >
+            <tr
+              v-for="tableRow in table"
+              :key="tableRow.node_id"
+            >
               <td>
                 <KLabeledIcon :icon="tableRow.kind">
                   <KRouterLink
@@ -55,16 +59,14 @@
                 <StatusSimple :status="tableRow.statusObj.status" />
               </td>
               <td>
-                <TimeDuration
-                  :seconds="showTimeDuration(tableRow)"
-                />
+                <TimeDuration :seconds="showTimeDuration(tableRow)" />
               </td>
             </tr>
           </transition-group>
         </template>
       </CoreTable>
     </KPageContainer>
-  </CoreBase>
+  </CoachAppBarPage>
 
 </template>
 
@@ -73,6 +75,7 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
+  import CoachAppBarPage from '../CoachAppBarPage';
   import CSVExporter from '../../csv/exporter';
   import * as csvFields from '../../csv/fields';
   import { PageNames } from './../../constants';
@@ -81,7 +84,11 @@
 
   export default {
     name: 'ReportsLessonLearnerBase',
-    components: { ReportsControls, ReportsResourcesStats },
+    components: {
+      CoachAppBarPage,
+      ReportsControls,
+      ReportsResourcesStats,
+    },
     mixins: [commonCoach, commonCoreStrings],
     computed: {
       lesson() {

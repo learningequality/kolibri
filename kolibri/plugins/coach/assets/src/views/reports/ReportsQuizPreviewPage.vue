@@ -1,14 +1,19 @@
 <template>
 
-  <CoreBase
+  <CoachImmersivePage
+    :appBarTitle="title"
     :authorized="$store.getters.userIsAuthorizedForCoach"
     authorizedRole="adminOrCoach"
-    :showSubNav="false"
-    v-bind="immersivePageProps"
+    icon="close"
+    :pageTitle="title"
+    :route="backRouteForQuery($route.query)"
   >
     <KPageContainer v-if="!loading">
       <h1>
-        <KLabeledIcon icon="quiz" :label="quiz.title" />
+        <KLabeledIcon
+          icon="quiz"
+          :label="quiz.title"
+        />
       </h1>
       <p>
         {{ orderDescriptionString }}
@@ -21,7 +26,7 @@
         :selectedExercises="selectedExercises"
       />
     </KPageContainer>
-  </CoreBase>
+  </CoachImmersivePage>
 
 </template>
 
@@ -30,12 +35,14 @@
 
   import fromPairs from 'lodash/fromPairs';
   import commonCoach from '../common';
+  import CoachImmersivePage from '../CoachImmersivePage';
   import QuestionListPreview from '../plan/CreateExamPage/QuestionListPreview';
   import { fetchQuizSummaryPageData } from '../plan/QuizSummaryPage/api';
 
   export default {
     name: 'ReportsQuizPreviewPage',
     components: {
+      CoachImmersivePage,
       QuestionListPreview,
     },
     mixins: [commonCoach],
@@ -63,16 +70,8 @@
           ? this.coachString('orderRandomDescription')
           : this.coachString('orderFixedDescription');
       },
-      immersivePageProps() {
-        const title = this.$tr('pageTitle', { title: this.quiz.title });
-        return {
-          appBarTitle: title,
-          pageTitle: title,
-          immersivePage: true,
-          immersivePageIcon: 'close',
-          immersivePagePrimary: false,
-          immersivePageRoute: this.backRouteForQuery(this.$route.query),
-        };
+      title() {
+        return this.$tr('pageTitle', { title: this.quiz.title });
       },
     },
     beforeRouteEnter(to, from, next) {

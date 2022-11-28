@@ -1,15 +1,10 @@
 <template>
 
-  <CoreBase
-    :immersivePage="false"
+  <CoachAppBarPage
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
   >
-
-    <template #sub-nav>
-      <TopNavbar />
-    </template>
 
     <KPageContainer>
 
@@ -19,7 +14,10 @@
         <KGridItem :layout12="{ span: 6 }">
           <h2>{{ coachString('lessonsAssignedLabel') }}</h2>
           <ul class="list">
-            <li v-for="lesson in lessonsList" :key="lesson.id">
+            <li
+              v-for="lesson in lessonsList"
+              :key="lesson.id"
+            >
               <KRouterLink
                 :to="classRoute('ReportsGroupReportLessonPage', { lessonId: lesson.id })"
                 :text="lesson.title"
@@ -34,7 +32,10 @@
         <KGridItem :layout12="{ span: 6 }">
           <h2>{{ coachString('quizzesAssignedLabel') }}</h2>
           <ul class="list">
-            <li v-for="exam in examsList" :key="exam.id">
+            <li
+              v-for="exam in examsList"
+              :key="exam.id"
+            >
               <KRouterLink
                 :to="classRoute('ReportsGroupReportQuizLearnerListPage', { quizId: exam.id })"
                 :text="exam.title"
@@ -49,7 +50,7 @@
       </KGrid>
 
     </KPageContainer>
-  </CoreBase>
+  </CoachAppBarPage>
 
 </template>
 
@@ -57,11 +58,13 @@
 <script>
 
   import commonCoach from '../common';
+  import CoachAppBarPage from '../CoachAppBarPage';
   import ReportsGroupHeader from './ReportsGroupHeader';
 
   export default {
     name: 'ReportsGroupReportPage',
     components: {
+      CoachAppBarPage,
       ReportsGroupHeader,
     },
     mixins: [commonCoach],
