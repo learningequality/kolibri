@@ -10,19 +10,19 @@ List of the most important changes for each release.
 ### Fixed
 * Fixed PDF completion issues
 * Fixed learner-facing metadata display of content duration
-* Fixed "Mark as complete" modal
+* Fixed "Mark as complete" functionality to allow learners to mark resources as complete when allowed by the resource
 * Disable forward/back buttons on EPUB renderer until locations are properly loaded
 * Fix issue that causes learners to skip every other question in an exercise
 * Fix searchbox outline
 * Fix title spacing in app bar
-* Fix bookmark failure to load data
+* Fix bookmark data loading issues that caused inaccurate bookmark display
 ### Changed
-* Changed _init_.py  from 5 tuple to 3
+* Changed \_\_init\_\_.py  from 5 tuple to 3
 * Set a max width on Library main content grid to display properly on extra large monitors
 * Remove "All options" from filters in Learn search/filtering side panel
-* Switch display of the completion modal to require both completed progress and the 'finished' event
+* Switch display of the completion modal to require both completed progress and the resource to be finished
 * Add tests to assert totalattempts behaviour
-* Prevent excessive completion modals
+* Display completion modals only on first completion, and allow user to reopen the modal if needed
 * Update category search for each level to be searchable
 * Update KDS to 1.4.1
 
