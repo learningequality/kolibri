@@ -6,7 +6,7 @@
         :text="coreString(camelCase(selectedCategory))"
         :appearanceOverrides="appearanceOverrides"
         appearance="basic-link"
-
+        :disabled="availablePaths && !availablePaths[topLevelCategory.value]"
         @click="$emit('input', topLevelCategory.value)"
       />
     </h2>
@@ -46,6 +46,7 @@
             :text="coreString(camelCase(nestedKey))"
             :appearanceOverrides="appearanceOverrides"
             appearance="basic-link"
+            :disabled="availablePaths && !availablePaths[nestedObject.value]"
             @click="$emit('input', item.value)"
           />
         </div>
