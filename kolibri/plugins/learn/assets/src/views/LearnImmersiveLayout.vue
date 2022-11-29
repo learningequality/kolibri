@@ -296,23 +296,27 @@
     },
     methods: {
       initializeState() {
-        this.resetSidebarInfo();
-        if (this.content) {
-          client({
-            method: 'get',
-            url: urls['kolibri:core:bookmarks-list'](),
-            params: { contentnode_id: this.content.id },
-          }).then(response => {
-            this.bookmark = response.data[0] || false;
-          });
-        }
-      },
-      resetSidebarInfo() {
+        this.bookmark = null;
         this.showViewResourcesSidePanel = false;
         this.nextContent = null;
         this.viewResourcesContents = [];
         this.resourcesSidePanelFetched = false;
         this.resourcesSidePanelLoading = false;
+        if (this.content) {
+          const id = this.content.id;
+          client({
+            method: 'get',
+            url: urls['kolibri:core:bookmarks-list'](),
+            params: { contentnode_id: this.content.id },
+          }).then(response => {
+            // As the component never gets fully torn down
+            // this request could be stale. Only set bookmark
+            // data in the case that the ids still match.
+            if (this.content && this.content.id === id) {
+              this.bookmark = response.data[0] || false;
+            }
+          });
+        }
       },
       getSidebarInfo() {
         if (!this.resourcesSidePanelFetched && !this.resourcesSidePanelLoading) {
@@ -412,15 +416,20 @@
             this.bookmark = false;
           });
         } else if (this.bookmark === false) {
+          const id = this.content.id;
           client({
             method: 'post',
             url: urls['kolibri:core:bookmarks-list'](),
             data: {
-              contentnode_id: this.content.id,
+              contentnode_id: id,
               user: this.currentUserId,
             },
           }).then(response => {
-            this.bookmark = response.data;
+            if (this.content && this.content.id === id) {
+              // Don't set a stale response if a user
+              // navigated away before the bookmark finished.
+              this.bookmark = response.data;
+            }
           });
         }
       },
