@@ -3,7 +3,10 @@
   <CoreFullscreen
     ref="pdfRenderer"
     class="pdf-renderer"
-    :class="{ 'pdf-controls-open': showControls }"
+    :class="{
+      'pdf-controls-open': showControls,
+      'pdf-full-screen': isInFullscreen
+    }"
     :style="{ backgroundColor: $themeTokens.text }"
     @changeFullscreen="isInFullscreen = $event"
   >
@@ -608,6 +611,7 @@
   @import '~kolibri-design-system/lib/styles/definitions';
   $controls-height: 40px;
   $top-bar-height: 32px;
+  $tool-bar-height: 56px;
 
   .pdf-renderer {
     @extend %momentum-scroll;
@@ -689,11 +693,19 @@
   }
 
   .sidebar-container {
-    height: calc(100vh - 56px);
+    height: calc(100vh - #{$tool-bar-height});
   }
 
   .pdf-renderer.pdf-controls-open .sidebar-container {
-    height: calc(100vh - 96px);
+    height: calc(100vh - #{$tool-bar-height} - #{$controls-height});
+  }
+
+  .pdf-renderer.pdf-full-screen .sidebar-container {
+    height: 100vh;
+  }
+
+  .pdf-renderer.pdf-full-screen.pdf-controls-open .sidebar-container {
+    height: calc(100vh - #{$controls-height});
   }
 
   /deep/ .sidebar-container > div {

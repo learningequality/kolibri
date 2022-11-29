@@ -6,7 +6,7 @@
       background: $themeTokens.surface,
     }"
   >
-    <nav>
+    <nav :style="{ height: '100%' }">
       <KGrid gutter="0">
         <KGridItem
           v-for="tab in tabs"
