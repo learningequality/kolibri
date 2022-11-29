@@ -2,6 +2,30 @@
 
 List of the most important changes for each release.
 
+
+## 0.15.9
+### Added
+* Specified pre-commit hook python version to 3.10
+* Added Python3.11 to supported python versions
+### Fixed
+* Fixed PDF completion issues
+* Fixed learner-facing metadata display of content duration
+* Fixed "Mark as complete" modal
+* Disable forward/back buttons on EPUB renderer until locations are properly loaded
+* Fix issue that causes learners to skip every other question in an exercise
+* Fix searchbox outline
+* Fix title spacing in app bar
+* Fix bookmark failure to load data
+### Changed
+* Changed _init_.py  from 5 tuple to 3
+* Set a max width on Library main content grid to display properly on extra large monitors
+* Remove "All options" from filters in Learn search/filtering side panel
+* Switch display of the completion modal to require both completed progress and the 'finished' event
+* Add tests to assert totalattempts behaviour
+* Prevent excessive completion modals
+* Update category search for each level to be searchable
+* Update KDS to 1.4.1
+
 ## 0.15.8
 
 ### Added
