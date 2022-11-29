@@ -4,6 +4,7 @@ import os
 import tempfile
 import uuid
 
+import pytest
 from django.core.management import call_command
 from django.test import TestCase
 from django.test import TransactionTestCase
@@ -406,6 +407,79 @@ class ContentImportTestBase(TransactionTestCase):
         super(ContentImportTestBase, cls).tearDownClass()
 
 
+@pytest.fixture(scope="class")
+def alternate_existing_channel(request):
+    content_root = ContentNode.objects.create(
+        id="579ddae52c2349d32ca6e655840dc2c0",
+        channel_id="6436067f6f8f7c2eb15a296c887c788d",
+        parent_id=None,
+        content_id="ae5b5a53580aace508b6545486662d93",
+        title="root2",
+        description="ordinary root",
+        kind="topic",
+        author="",
+        license_name="WTFPL",
+        license_description=None,
+        license_owner="",
+        lang_id=None,
+        available=False,
+        tree_id=2,
+        level=0,
+        lft=1,
+        rght=2,
+        sort_order=None,
+    )
+    channel = ChannelMetadata.objects.create(
+        id=content_root.channel_id,
+        name="testing 2",
+        description="more test data",
+        author="buster",
+        last_updated=None,
+        min_schema_version="1",
+        thumbnail="",
+        root_id=content_root.id,
+        version=0,
+    )
+    video_content = ContentNode.objects.create(
+        id="f0dcb2c7e365a9c480042e2af93b0411",
+        channel_id=channel.id,
+        parent_id=content_root.id,
+        content_id="c3e0d6073a31fd8b8d138b926d7b8567",
+        title="alt video",
+        description="ordinary video",
+        kind="video",
+        author="",
+        license_name="WTFPL",
+        license_description=None,
+        license_owner="",
+        lang_id=None,
+        available=False,
+        tree_id=2,
+        level=1,
+        lft=2,
+        rght=1,
+        sort_order=None,
+    )
+    local_video = LocalFile.objects.create(
+        id="c3e0d6073a31fd8b8d138b926d7b8567",
+        file_size=None,
+        available=False,
+        extension="mp4",
+    )
+    File.objects.create(
+        id="c3e0d6073a31fd8b8d138b926d7b8567",
+        local_file_id=local_video.id,
+        preset="high_res_video",
+        thumbnail=False,
+        priority=None,
+        contentnode_id=video_content.id,
+        supplementary=False,
+        lang_id=None,
+    )
+
+    request.cls.alternate_existing_channel = channel
+
+
 class NaiveImportTestCase(ContentNodeTestBase, ContentImportTestBase):
     """
     Integration test for naive import
@@ -498,6 +572,7 @@ class NaiveImportTestCase(ContentNodeTestBase, ContentImportTestBase):
         new_prereqs = ContentNode.has_prerequisite.through.objects.all().count()
         self.assertEqual(prereqs, new_prereqs)
 
+    @pytest.mark.usefixtures("alternate_existing_channel")
     def test_learning_activity_set(self):
         # Do this to avoid doing this test on more up to date versions
         try:
@@ -509,11 +584,23 @@ class NaiveImportTestCase(ContentNodeTestBase, ContentImportTestBase):
         for kind, learning_activity in kind_activity_map.items():
             # For each defined mapping, make sure none have not been mapped
             self.assertEqual(
-                ContentNode.objects.filter(kind=kind)
+                ContentNode.objects.filter(
+                    kind=kind, channel_id="6199dde695db4ee4ab392222d5af1e5c"
+                )
                 .exclude(learning_activities=learning_activity)
                 .count(),
                 0,
             )
+
+        # verify existing channel was not modified
+        self.assertEqual(
+            ContentNode.objects.filter(
+                kind="video", channel_id=self.alternate_existing_channel.id
+            )
+            .filter(learning_activities__isnull=True)
+            .count(),
+            1,
+        )
 
     def test_existing_localfiles_are_not_overwritten(self):
 

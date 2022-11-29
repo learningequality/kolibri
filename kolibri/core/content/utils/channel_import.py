@@ -6,6 +6,7 @@ from itertools import islice
 
 from django.apps import apps
 from django.db.models.fields.related import ForeignKey
+from sqlalchemy import and_
 from sqlalchemy import or_
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.exc import OperationalError
@@ -951,7 +952,12 @@ class NoLearningActivitiesChannelImport(ChannelImport):
         for kind, la in kind_activity_map.items():
             self.destination.execute(
                 ContentNodeTable.update()
-                .where(ContentNodeTable.c.kind == kind)
+                .where(
+                    and_(
+                        ContentNodeTable.c.kind == kind,
+                        ContentNodeTable.c.channel_id == self.channel_id,
+                    )
+                )
                 .values(learning_activities=la)
             )
 
