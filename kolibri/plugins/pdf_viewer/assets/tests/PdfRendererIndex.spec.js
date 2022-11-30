@@ -213,18 +213,6 @@ describe('PdfRendererIndex', () => {
       expect(wrapper.find('.pdf-controls-container').exists()).toBe(true);
     });
 
-    it('should show the pdf controls when show controls is true', async () => {
-      const wrapper = await loadPdfContainer();
-      await wrapper.setData({ showControls: true });
-      expect(wrapper.find('.pdf-controls-container').exists()).toBe(true);
-    });
-
-    it('should hide the pdf controls when show controls is false', async () => {
-      const wrapper = await loadPdfContainer();
-      await wrapper.setData({ showControls: false });
-      expect(wrapper.find('.pdf-controls-container').exists()).toBe(false);
-    });
-
     it('Should increase the scale when the user clicks on the zoom in button', async () => {
       const mockUpdateVisibleItems = jest.fn();
       const wrapper = await loadPdfContainer({
