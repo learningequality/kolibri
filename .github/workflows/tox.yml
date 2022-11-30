@@ -26,7 +26,7 @@ jobs:
   unit_test:
     name: Python unit tests
     needs: pre_job
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     strategy:
       max-parallel: 5
       matrix:
@@ -56,7 +56,7 @@ jobs:
   postgres:
     name: Python postgres unit tests
     needs: pre_job
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     services:
       # Label used to access the service container
       postgres:
