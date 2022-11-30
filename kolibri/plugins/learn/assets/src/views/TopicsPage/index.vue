@@ -693,7 +693,7 @@
 <style lang="scss" scoped>
 
   $header-height: 324px;
-  $toolbar-height: 70px;
+  $toolbar-height: 45px;
   $total-height: 394px;
 
   .page {
