@@ -17,6 +17,7 @@ except ImportError:
 from .logger import LOG_COLORS
 from .logger import EncodingStreamHandler as StreamHandler
 from kolibri.utils.compat import monkey_patch_collections
+from kolibri.utils.compat import monkey_patch_translation
 
 
 logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
@@ -119,6 +120,8 @@ def set_env():
     from kolibri import dist as kolibri_dist  # noqa
 
     monkey_patch_collections()
+
+    monkey_patch_translation()
 
     sys.path = [os.path.realpath(os.path.dirname(kolibri_dist.__file__))] + sys.path
 

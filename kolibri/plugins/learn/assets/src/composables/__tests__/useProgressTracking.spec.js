@@ -1,4 +1,4 @@
-import { get } from '@vueuse/core';
+import { get, set } from '@vueuse/core';
 import client from 'kolibri.client';
 import { coreStoreFactory as makeStore } from 'kolibri.coreVue.vuex.store';
 import useProgressTracking from '../useProgressTracking';
@@ -418,6 +418,25 @@ describe('useProgressTracking composable', () => {
       expect(get(progress)).toEqual(1);
       expect(client.mock.calls[0][0].data.progress_delta).toEqual(0.5);
     });
+    it('should max progress and store progress_delta if progress is updated over threshold and over max value and progress_delta is greater than 0', async () => {
+      const { updateContentSession, progress, progress_delta } = await initStore({
+        progress: 0.167,
+      });
+      set(progress_delta, 0.5);
+      await updateContentSession({ progress: 1 });
+      expect(get(progress)).toEqual(1);
+      expect(client.mock.calls[0][0].data.progress_delta).toEqual(1);
+    });
+    it('should max progress and store progress_delta if progress is asymptotically updated to 1', async () => {
+      const progress_delta_value = 0.5 / 999;
+      const { updateContentSession, progress } = await initStore();
+      for (let i = 999; i > 0; i--) {
+        updateContentSession({ progress: 1 - progress_delta_value * i });
+      }
+      await updateContentSession({ progress: 1 });
+      expect(get(progress)).toEqual(1);
+      expect(client.mock.calls[0][0].data.progress_delta).toBeGreaterThanOrEqual(0.5);
+    });
     it('should not update progress and store progress_delta if progress is updated under current value', async () => {
       const { updateContentSession, progress, progress_delta } = await initStore();
       await updateContentSession({ progress: 0.4 });
@@ -444,6 +463,14 @@ describe('useProgressTracking composable', () => {
       expect(get(progress)).toEqual(1);
       // Will store the maximum possible value for progress_delta which is 1,
       // even though current progress can only increase by 0.5
+      expect(client.mock.calls[0][0].data.progress_delta).toEqual(1);
+    });
+    it('should max progress and max progress_delta if progressDelta is updated twice to be over max value', async () => {
+      const { updateContentSession, progress } = await initStore({ progress: 0 });
+      await updateContentSession({ progressDelta: 0.023 });
+      await updateContentSession({ progressDelta: 1 });
+      expect(get(progress)).toEqual(1);
+      // Will store the maximum possible value for progress_delta which is 1,
       expect(client.mock.calls[0][0].data.progress_delta).toEqual(1);
     });
     it('should update extra_fields and store if contentState is updated', async () => {
@@ -486,8 +513,13 @@ describe('useProgressTracking composable', () => {
       });
       expect(client).not.toHaveBeenCalled();
     });
-    it('should update pastattempts and store if interaction is passed without an id', async () => {
-      const { updateContentSession, pastattempts, pastattemptMap } = await initStore();
+    it('should update totalattempts, pastattempts and store if interaction is passed without an id', async () => {
+      const {
+        updateContentSession,
+        pastattempts,
+        pastattemptMap,
+        totalattempts,
+      } = await initStore();
       await updateContentSession({
         interaction: {
           item: 'testitem',
@@ -502,6 +534,7 @@ describe('useProgressTracking composable', () => {
         correct: 1,
         complete: true,
       });
+      expect(get(totalattempts)).toEqual(1);
       // No attempt is returned from the backend, so should not update the past attempts map,
       // as no id for map.
       expect(get(pastattemptMap)).toEqual({});
@@ -510,8 +543,13 @@ describe('useProgressTracking composable', () => {
         { item: 'testitem', answer: { response: 'answer' }, correct: 1, complete: true },
       ]);
     });
-    it('should update pastattempts and map if passed without an id and backend returns id', async () => {
-      const { updateContentSession, pastattempts, pastattemptMap } = await initStore();
+    it('should update totalattempts, pastattempts and map if passed without an id and backend returns id', async () => {
+      const {
+        updateContentSession,
+        pastattempts,
+        pastattemptMap,
+        totalattempts,
+      } = await initStore();
       client.__setPayload({
         attempts: [
           {
@@ -547,6 +585,7 @@ describe('useProgressTracking composable', () => {
           complete: true,
         },
       });
+      expect(get(totalattempts)).toEqual(1);
       expect(client).toHaveBeenCalled();
       expect(client.mock.calls[0][0].data.interactions).toEqual([
         {
@@ -557,8 +596,13 @@ describe('useProgressTracking composable', () => {
         },
       ]);
     });
-    it('should update pastattempts and map if passed without an id and backend returns id and additional interactions happen', async () => {
-      const { updateContentSession, pastattempts, pastattemptMap } = await initStore();
+    it('should update totalattempts, pastattempts and map if passed without an id and backend returns id and additional interactions happen', async () => {
+      const {
+        updateContentSession,
+        pastattempts,
+        pastattemptMap,
+        totalattempts,
+      } = await initStore();
       client.__setPayload({
         attempts: [
           {
@@ -605,6 +649,7 @@ describe('useProgressTracking composable', () => {
           hinted: true,
         },
       });
+      expect(get(totalattempts)).toEqual(1);
       expect(client).not.toHaveBeenCalled();
       const interaction3 = { id: 'testid', item: 'testitem', error: true };
       await updateContentSession({
@@ -721,8 +766,13 @@ describe('useProgressTracking composable', () => {
       });
       expect(get(unsaved_interactions)).toHaveLength(0);
     });
-    it('should multiple unrelated interactions without overwriting', async () => {
-      const { updateContentSession, pastattempts, pastattemptMap } = await initStore();
+    it('should save multiple unrelated interactions without overwriting', async () => {
+      const {
+        updateContentSession,
+        pastattempts,
+        pastattemptMap,
+        totalattempts,
+      } = await initStore();
       client.__setPayload({
         attempts: [
           {
@@ -807,6 +857,7 @@ describe('useProgressTracking composable', () => {
         complete: true,
         error: true,
       });
+      expect(get(totalattempts)).toEqual(3);
       expect(Object.keys(get(pastattemptMap))).toHaveLength(3);
       await updateContentSession({
         interaction: {
@@ -864,13 +915,15 @@ describe('useProgressTracking composable', () => {
     });
     it('should debounce requests', async () => {
       const { updateContentSession } = await initStore();
-      updateContentSession({ progress: 1 });
-      updateContentSession({ contentState: { yes: 'no' } });
-      updateContentSession({ progressDelta: 1 });
-      updateContentSession({ progress: 1 });
-      updateContentSession({ contentState: { yes: 'no' } });
-      updateContentSession({ progressDelta: 1 });
+      const promises = [];
+      promises.push(updateContentSession({ progress: 0.6 }));
+      promises.push(updateContentSession({ contentState: { yes: 'no' } }));
+      promises.push(updateContentSession({ progressDelta: 0.1 }));
+      promises.push(updateContentSession({ progress: 0.8 }));
+      promises.push(updateContentSession({ contentState: { yes: 'no' } }));
+      promises.push(updateContentSession({ progressDelta: 0.9 }));
       await updateContentSession({ progress: 1 });
+      await Promise.all(promises);
       expect(client).toHaveBeenCalledTimes(1);
     });
     it('should retry 5 times if it receives a 503', async () => {

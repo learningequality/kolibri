@@ -14,6 +14,7 @@
         <CardThumbnail
           :isMobile="isMobile"
           :contentNode="content"
+          :hideDuration="true"
         />
       </div>
       <h3 class="title">

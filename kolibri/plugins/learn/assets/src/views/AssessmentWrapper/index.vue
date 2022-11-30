@@ -338,6 +338,13 @@ oriented data synchronization.
         return (this.renderer && this.renderer.totalHints) || 0;
       },
     },
+    watch: {
+      success(newValue, oldValue) {
+        if (newValue && !oldValue) {
+          this.$emit('finished');
+        }
+      },
+    },
     created() {
       this.nextQuestion();
     },

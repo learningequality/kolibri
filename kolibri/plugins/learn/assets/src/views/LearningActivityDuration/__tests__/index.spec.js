@@ -26,10 +26,11 @@ describe(`LearningActivityDuration`, () => {
     expect(wrapper.exists()).toBe(true);
   });
 
-  it('displays time duration for exact time', () => {
+  it('displays time duration for exact time for audio/video resources', () => {
     const wrapper = makeWrapper({
       contentNode: {
         duration: 322,
+        kind: 'audio',
         options: {
           completion_criteria: {
             model: CompletionCriteria.TIME,
@@ -38,6 +39,21 @@ describe(`LearningActivityDuration`, () => {
       },
     });
     expect(wrapper.text()).toBe('5 minutes');
+  });
+
+  it('displays time duration as a short or long activity for non-audio/video resources with an exact time set', () => {
+    const wrapper = makeWrapper({
+      contentNode: {
+        duration: 300,
+        kind: 'document',
+        options: {
+          completion_criteria: {
+            model: CompletionCriteria.TIME,
+          },
+        },
+      },
+    });
+    expect(wrapper.text()).toBe('Short activity');
   });
 
   it(`displays 'Short activity' as duration for approximate time

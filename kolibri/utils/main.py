@@ -41,6 +41,7 @@ from kolibri.utils.sanity_checks import check_django_stack_ready
 from kolibri.utils.sanity_checks import check_log_file_location
 from kolibri.utils.sanity_checks import DatabaseInaccessible
 from kolibri.utils.sanity_checks import DatabaseNotMigrated
+from kolibri.utils.sanity_checks import ensure_job_tables_created
 from kolibri.utils.server import get_status
 from kolibri.utils.server import NotRunning
 
@@ -254,14 +255,14 @@ def _upgrades_after_django_setup(updated, version):
             logging.error(e)
 
 
-def initialize(
+def initialize(  # noqa C901
     skip_update=False,
     settings=None,
     debug=False,
     debug_database=False,
     no_input=True,
     pythonpath=None,
-):  # noqa: max-complexity=12
+):
     """
     This should be called before starting the Kolibri app, it initializes Kolibri plugins
     and sets up Django.
@@ -305,6 +306,16 @@ def initialize(
         run_plugin_updates()
 
         check_django_stack_ready()
+
+        try:
+            ensure_job_tables_created()
+        except Exception as e:
+            logging.error(
+                "The job tables were not fully migrated. Tried to "
+                "create them in the database and an error occurred: "
+                "{}".format(e)
+            )
+            raise
 
         try:
             check_database_is_migrated()

@@ -1121,6 +1121,7 @@ const nonconformingKeys = {
   digitalLiteracy: 'digitialLiteracy',
   BASIC_SKILLS: 'allLevelsBasicSkills',
   FOUNDATIONS: 'basicSkills',
+  foundations: 'basicSkills',
   toolsAndSoftwareTraining: 'softwareToolsAndTraining',
   foundationsLogicAndCriticalThinking: 'logicAndCriticalThinking',
 };

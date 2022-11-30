@@ -24,6 +24,7 @@
         @updateContentState="updateContentState"
         @navigateTo="navigateTo"
         @error="onError"
+        @finished="onFinished"
       />
       <QuizRenderer
         v-else-if="practiceQuiz || survey"
@@ -70,20 +71,28 @@
         @updateInteraction="updateInteraction"
         @updateProgress="updateProgress"
         @updateContentState="updateContentState"
+        @finished="onFinished"
       />
     </template>
     <KCircularLoader v-else />
 
     <CompletionModal
-      v-if="progress >= 1 && wasIncomplete"
+      v-if="showCompletionModal"
       ref="completionModal"
       :isUserLoggedIn="isUserLoggedIn"
       :contentNodeId="content.id"
       :lessonId="lessonId"
       :isQuiz="practiceQuiz"
       :isSurvey="survey"
-      @close="markAsComplete"
+      :wasComplete="wasComplete"
+      @close="hideCompletionModal"
       @shouldFocusFirstEl="findFirstEl()"
+    />
+
+    <MarkAsCompleteModal
+      v-if="showCompleteContentModal && allowMarkComplete"
+      @complete="handleMarkAsComplete"
+      @cancel="hideMarkAsCompleteModal"
     />
   </div>
 
@@ -104,6 +113,7 @@
   import commonLearnStrings from './commonLearnStrings';
   import CompletionModal from './CompletionModal';
   import QuizRenderer from './QuizRenderer';
+  import MarkAsCompleteModal from './MarkAsCompleteModal';
 
   export default {
     name: 'ContentPage',
@@ -119,6 +129,7 @@
       AssessmentWrapper,
       CompletionModal,
       QuizRenderer,
+      MarkAsCompleteModal,
     },
     mixins: [commonLearnStrings, responsiveWindowMixin],
     setup() {
@@ -163,10 +174,20 @@
         required: false,
         default: null,
       },
+      /**
+       * Does a resource have the option to be
+       * manually marked as complete?
+       */
+      allowMarkComplete: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
     },
     data() {
       return {
-        wasIncomplete: false,
+        showCompletionModal: false,
+        wasComplete: false,
         sessionReady: false,
       };
     },
@@ -175,6 +196,7 @@
       ...mapState({
         fullName: state => state.core.session.full_name,
       }),
+      ...mapState(['showCompleteContentModal']),
       practiceQuiz() {
         return get(this, ['content', 'options', 'modality']) === Modalities.QUIZ;
       },
@@ -192,9 +214,6 @@
       this.$emit('mounted');
     },
     methods: {
-      setWasIncomplete() {
-        this.wasIncomplete = this.progress < 1;
-      },
       /*
        * Update the progress of the content node in the shared progress store
        * in the useContentNodeProgress composable. Do this to have a single
@@ -210,13 +229,29 @@
         this.updateContentSession({ progress, interaction }).then(this.cacheProgress);
       },
       updateProgress(progress) {
-        this.updateContentSession({ progress }).then(this.cacheProgress);
+        return this.updateContentSession({ progress }).then(this.cacheProgress);
       },
       addProgress(progressDelta) {
         this.updateContentSession({ progressDelta }).then(this.cacheProgress);
       },
       updateContentState(contentState) {
         this.updateContentSession({ contentState });
+      },
+      hideMarkAsCompleteModal() {
+        this.$store.commit('SET_SHOW_COMPLETE_CONTENT_MODAL', false);
+      },
+      handleMarkAsComplete() {
+        this.hideMarkAsCompleteModal();
+        // Do this immediately to remove any delay
+        // before the completion modal displays if appropriate.
+        this.onFinished();
+        return this.updateProgress(1.0)
+          .then(() => {
+            this.$store.dispatch('createSnackbar', this.learnString('resourceCompletedLabel'));
+          })
+          .catch(error => {
+            this.$store.dispatch('handleApiError', error);
+          });
       },
       navigateTo(message) {
         let id = message.nodeId;
@@ -228,13 +263,26 @@
             this.$store.dispatch('handleApiError', error);
           });
       },
-      markAsComplete() {
-        this.wasIncomplete = false;
+      onFinished() {
+        if (this.wasComplete) {
+          this.$emit('finished');
+        } else {
+          this.displayCompletionModal();
+        }
+      },
+      displayCompletionModal() {
+        this.showCompletionModal = true;
+      },
+      hideCompletionModal() {
+        this.showCompletionModal = false;
+        this.wasComplete = true;
       },
       onError(error) {
         this.$store.dispatch('handleApiError', error);
       },
       initSession(repeat = false) {
+        /* Always be sure that this is hidden before the component renders */
+        this.hideMarkAsCompleteModal();
         this.sessionReady = false;
         return this.initContentSession({
           nodeId: this.content.id,
@@ -242,7 +290,7 @@
           repeat,
         }).then(() => {
           this.sessionReady = true;
-          this.setWasIncomplete();
+          this.wasComplete = this.progress >= 1;
           // Set progress into the content node progress store in case it was not already loaded
           this.cacheProgress();
         });

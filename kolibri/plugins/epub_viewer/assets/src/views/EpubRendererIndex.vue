@@ -104,6 +104,7 @@
           <NextButton
             v-if="contentIsRtl"
             v-show="!isAtEnd"
+            :disabled="!locationsAreReady"
             :color="navigationButtonColor"
             :isRtl="contentIsRtl"
             :style="{ backgroundColor }"
@@ -112,6 +113,7 @@
           <PreviousButton
             v-else
             v-show="!isAtStart"
+            :disabled="!locationsAreReady"
             :color="navigationButtonColor"
             :isRtl="contentIsRtl"
             :style="{ backgroundColor }"
@@ -130,6 +132,7 @@
           <PreviousButton
             v-if="contentIsRtl"
             v-show="!isAtStart"
+            :disabled="!locationsAreReady"
             :color="navigationButtonColor"
             :isRtl="contentIsRtl"
             :style="{ backgroundColor }"
@@ -138,6 +141,7 @@
           <NextButton
             v-else
             v-show="!isAtEnd"
+            :disabled="!locationsAreReady"
             :color="navigationButtonColor"
             :isRtl="contentIsRtl"
             :style="{ backgroundColor }"
@@ -148,7 +152,7 @@
 
       <BottomBar
         class="bottom-bar"
-        :locationsAreReady="locations.length > 0"
+        :locationsAreReady="locationsAreReady"
         :heading="bottomBarHeading"
         :sliderValue="sliderValue"
         :sliderStep="sliderStep"
@@ -367,6 +371,9 @@
         return seconds;
       },
       /* eslint-enable kolibri/vue-no-unused-properties */
+      locationsAreReady() {
+        return this.locations && this.locations.length > 0;
+      },
     },
     watch: {
       sideBarOpen(newSideBar, oldSideBar) {
@@ -742,6 +749,9 @@
         ) {
           this.storeVisitedPage(this.locations[locationIndex]);
         }
+        if (location.end.percentage >= 1) {
+          this.finish();
+        }
         this.updateProgress();
         this.updateContentState();
       },
@@ -767,6 +777,9 @@
           };
         }
         this.$emit('updateContentState', contentState);
+      },
+      finish() {
+        this.$emit('finished');
       },
     },
   };
