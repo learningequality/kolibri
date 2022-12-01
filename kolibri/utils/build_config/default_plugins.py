@@ -1,6 +1,6 @@
 DEFAULT_PLUGINS = [
     "kolibri.plugins.coach",
-    "kolibri.plugins.default_theme",
+    "kolibri.plugins.kolibri_new_branding_plugin",
     "kolibri.plugins.device",
     "kolibri.plugins.epub_viewer",
     "kolibri.plugins.html5_viewer",

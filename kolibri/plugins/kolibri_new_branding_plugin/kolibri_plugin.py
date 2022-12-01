@@ -114,7 +114,7 @@ class NewBrandingPluginThemeHook(theme_hook.ThemeHook):
                 "appBarDark": "brand.primary.v_1000",
                 "appBarFullscreen": "palette.grey.v_900",
                 "appBarFullscreenDark": "black",
-                "link": "brand.primary.v_800",
+                "link": "brand.primary.v_1000",
                 "linkDark": "brand.primary.v_1100",
                 "loading": "brand.secondary.v_1100",
                 "focusOutline": "brand.secondary.v_1100",
