@@ -28,7 +28,7 @@ __version__ = str(get_version(VERSION))
 INTERNAL_PLUGINS = [
     "kolibri.plugins.app",
     "kolibri.plugins.coach",
-    "kolibri.plugins.default_theme",
+    "kolibri.plugins.kolibri_new_branding_plugin",
     "kolibri.plugins.demo_server",
     "kolibri.plugins.device",
     "kolibri.plugins.epub_viewer",
