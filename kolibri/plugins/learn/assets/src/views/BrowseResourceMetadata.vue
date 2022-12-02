@@ -77,7 +77,7 @@
         {{ metadataStrings.$tr('level') }}:
       </span>
       <span>
-        {{ content.grade_levels.join(", ") }}
+        {{ levels(content.grade_levels) }}
       </span>
     </div>
 
@@ -198,6 +198,8 @@
 
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import camelCase from 'lodash/camelCase';
+  import { ContentLevels } from 'kolibri.coreVue.vuex.constants';
   import get from 'lodash/get';
   import {
     licenseShortName,
@@ -330,6 +332,31 @@
       calculateDescriptionOverflow() {
         if (this.$refs.description && this.$refs.description.scrollHeight > 175) {
           this.descriptionOverflow = true;
+        }
+      },
+      levels(levels) {
+        const matches = Object.keys(ContentLevels)
+          .sort()
+          .filter(k => levels.includes(ContentLevels[k]));
+        if (matches && matches.length > 0) {
+          let adjustedMatches = [];
+          matches.map(key => {
+            let translationKey;
+            if (key === 'PROFESSIONAL') {
+              translationKey = 'specializedProfessionalTraining';
+            } else if (key === 'WORK_SKILLS') {
+              translationKey = 'allLevelsWorkSkills';
+            } else if (key === 'BASIC_SKILLS') {
+              translationKey = 'allLevelsBasicSkills';
+            } else {
+              translationKey = camelCase(key);
+            }
+            adjustedMatches.push(translationKey);
+          });
+          adjustedMatches = adjustedMatches.map(m => this.coreString(m)).join(', ');
+          return adjustedMatches;
+        } else {
+          return '-';
         }
       },
       /**

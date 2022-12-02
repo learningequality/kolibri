@@ -20,6 +20,7 @@ from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import ExamAttemptLog
 from kolibri.core.logger.models import ExamLog
 from kolibri.core.logger.models import MasteryLog
+from kolibri.core.logger.utils.quiz import annotate_response_summary
 from kolibri.core.query import annotate_array_aggregate
 
 
@@ -565,11 +566,11 @@ def quiz_completed_notification(masterylog, quiz_id):
         Exam.objects.filter(id=quiz_id).values_list("collection_id", flat=True).first()
     )
 
-    attempts = (
-        masterylog.attemptlogs.values_list("item")
-        .order_by("completion_timestamp")
-        .distinct()
-        .values_list("correct", flat=True)
+    response_data = (
+        annotate_response_summary(MasteryLog.objects.filter(id=masterylog.id))
+        .values("num_correct", "num_answered")
+        .first()
+        or {}
     )
 
     notification = create_notification(
@@ -579,8 +580,8 @@ def quiz_completed_notification(masterylog, quiz_id):
         collection_id,
         assignment_collections=assigned_collections,
         quiz_id=quiz_id,
-        quiz_num_correct=sum(attempts) or 0,
-        quiz_num_answered=len(attempts) or 0,
+        quiz_num_correct=response_data.get("num_correct", 0),
+        quiz_num_answered=response_data.get("num_answered", 0),
         timestamp=masterylog.completion_timestamp,
     )
 

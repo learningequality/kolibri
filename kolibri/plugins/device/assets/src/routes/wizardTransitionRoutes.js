@@ -21,6 +21,7 @@ export default [
       return showAvailableChannelsPage(store, {
         address_id: query.address_id,
         drive_id: query.drive_id,
+        token: query.token,
       });
     },
   },

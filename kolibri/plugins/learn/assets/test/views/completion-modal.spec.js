@@ -72,7 +72,7 @@ describe('CompletionModal', () => {
     });
 
     it("doesn't display obtained points", () => {
-      expect(wrapper.text()).not.toContain('+500 points');
+      expect(wrapper.text()).not.toContain('+ 500 points');
     });
   });
 
@@ -93,6 +93,16 @@ describe('CompletionModal', () => {
 
     it('displays obtained points', () => {
       expect(wrapper.text()).toContain('+ 500 points');
+    });
+
+    it('does not display obtained points if wasComplete is true', () => {
+      wrapper = makeWrapper({
+        propsData: {
+          isUserLoggedIn: true,
+          wasComplete: true,
+        },
+      });
+      expect(wrapper.text()).not.toContain('+ 500 points');
     });
 
     it("displays 'Stay and practice' section with 'Stay here' button", async () => {

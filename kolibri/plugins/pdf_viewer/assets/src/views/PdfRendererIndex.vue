@@ -17,7 +17,6 @@
     <template v-else>
       <transition name="slide">
         <div
-          v-if="showControls"
           class="fullscreen-header pdf-controls-container"
           :style="{ backgroundColor: this.$themePalette.grey.v_100 }"
         >
@@ -121,7 +120,6 @@
       isInFullscreen: false,
       currentLocation: 0,
       updateContentStateInterval: null,
-      showControls: true,
       visitedPages: {},
       eventBus: null,
     }),
@@ -173,6 +171,13 @@
         return this.totalPages * 30;
       },
       /* eslint-enable kolibri/vue-no-unused-properties */
+      debouncedShowVisiblePages() {
+        // So as not to share debounced functions between instances of the same component
+        // and also to allow access to the cancel method of the debounced function
+        // best practice seems to be to do it as a computed property and not a method:
+        // https://github.com/vuejs/vue/issues/2870#issuecomment-219096773
+        return debounce(this.showVisiblePages, renderDebounceTime);
+      },
     },
     watch: {
       recycleListIsMounted(newVal) {
@@ -203,14 +208,6 @@
           this.debounceForceUpdateRecycleList();
         }
       },
-      // Listen to change in scroll position to determine whether we show top control bar or not
-      currentLocation(newPos, oldPos) {
-        if (newPos > oldPos) {
-          this.showControls = false;
-        } else {
-          this.showControls = true;
-        }
-      },
     },
     destroyed() {
       // Reset the overflow on the HTML tag that we set to hidden in created()
@@ -222,7 +219,6 @@
       window.document.getElementsByTagName('html')[0].style.overflow = 'hidden';
 
       this.currentLocation = this.savedLocation;
-      this.showControls = true; // Ensures it shows on load even if we're scrolled
       const loadingPdf = PDFJSLib.getDocument(this.defaultFile.storage_url);
       // pass callback to update loading bar
       loadingPdf.onProgress = loadingProgress => {
@@ -309,7 +305,7 @@
         this.savedVisitedPages = visited;
       },
       // handle the recycle list update event
-      handleUpdate: debounce(function(start, end) {
+      handleUpdate(start, end) {
         // check that it is mounted
         if (!this.$refs.recycleList || !this.$refs.recycleList.$el) {
           return;
@@ -333,19 +329,29 @@
           // TODO: there is a miscalculation that causes a wrong position change on scale
           this.savePosition(this.calculatePosition());
 
-          // determine how many pages user has viewed/visited; fix edge case of 2 pages
-          let currentPage =
-            this.totalPages === 2 ? 2 : parseInt(this.currentLocation * this.totalPages) + 1;
+          // determine how many pages user has viewed/visited
+          const currentPage = parseInt(this.currentLocation * this.totalPages) + 1;
+          // If the user has already scrolled all the way to the end and is still not scrolled
+          // to the final page, set the final page as viewed as well.
+          if (currentPage === this.totalPages - 1 && this.scrolledToEnd()) {
+            this.storeVisitedPage(currentPage + 1);
+          }
           this.storeVisitedPage(currentPage);
           this.updateProgress();
           this.updateContentState();
+          if (this.scrolledToEnd()) {
+            this.$emit('finished');
+          }
         }
+        this.debouncedShowVisiblePages(start, end);
+      },
+      showVisiblePages(start, end) {
         const startIndex = Math.floor(start) + 1;
         const endIndex = Math.ceil(end) + 1;
         for (let i = startIndex; i <= endIndex; i++) {
           this.showPage(i);
         }
-      }, renderDebounceTime),
+      },
       zoomIn() {
         this.setScale(Math.min(scaleIncrement * 20, this.scale + scaleIncrement));
       },
@@ -357,6 +363,12 @@
       }, 500),
       calculatePosition() {
         return this.$refs.recycleList.$el.scrollTop / this.$refs.recycleList.$el.scrollHeight;
+      },
+      scrolledToEnd() {
+        return (
+          this.$refs.recycleList.$el.scrollTop + this.$refs.recycleList.$el.clientHeight ===
+          this.$refs.recycleList.$el.scrollHeight
+        );
       },
       savePosition(val) {
         this.currentLocation = val;

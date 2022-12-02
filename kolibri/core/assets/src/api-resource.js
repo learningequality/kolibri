@@ -586,6 +586,7 @@ export class Resource {
     idKey = 'id',
     namespace = 'core',
     useContentCacheKey = false,
+    cacheBust = true,
     ...options
   } = {}) {
     if (!name) {
@@ -594,6 +595,7 @@ export class Resource {
     this.name = `kolibri:${namespace}:${name}`;
     this.idKey = idKey;
     this.useContentCacheKey = useContentCacheKey;
+    this.cacheBust = cacheBust;
     const optionsDefinitions = Object.getOwnPropertyDescriptors(options);
     Object.keys(optionsDefinitions).forEach(key => {
       Object.defineProperty(this, key, optionsDefinitions[key]);
@@ -1035,6 +1037,7 @@ export class Resource {
 
   client(options) {
     const client = require('./core-app/client').default;
+    options.cacheBust = this.cacheBust;
     // Add in content cache parameter if relevant
     if (this.useContentCacheKey && !options.data) {
       options.params = options.params || {};

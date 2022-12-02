@@ -1,45 +1,58 @@
 <template>
 
-  <KGrid
-    :style="{ margin: '24px' }"
-  >
-    <KGridItem
-      v-for="(nestedObject, key) in displaySelectedCategories"
-      :key="key"
-      :layout4="{ span: 4 }"
-      :layout8="{ span: 8 }"
-      :layout12="{ span: 4 }"
-      class="category-item"
+  <div>
+    <h2 class="top-category">
+      <KButton
+        :text="coreString(camelCase(selectedCategory))"
+        :appearanceOverrides="appearanceOverrides"
+        appearance="basic-link"
+        :disabled="availablePaths && !availablePaths[topLevelCategory.value]"
+        @click="$emit('input', topLevelCategory.value)"
+      />
+    </h2>
+    <KGrid
+      :style="{ margin: '24px' }"
     >
-      <div class="filter-list-title">
-        <KIcon
-          :icon="icon(key)"
-          size="large"
-        />
-        <h2>
-          <KButton
-            :text="coreString(camelCase(key))"
-            appearance="basic-link"
-            :appearanceOverrides="appearanceOverrides"
-            :disabled="availablePaths && !availablePaths[nestedObject.value]"
-            @click="$emit('input', nestedObject.value)"
-          />
-        </h2>
-
-      </div>
-      <div
-        v-for="(item, nestedKey) in nestedObject.nested"
-        :key="item.value"
+      <KGridItem
+        v-for="(nestedObject, key) in displaySelectedCategories"
+        :key="key"
+        :layout4="{ span: 4 }"
+        :layout8="{ span: 8 }"
+        :layout12="{ span: 4 }"
+        class="category-item"
       >
-        <KButton
-          :text="coreString(camelCase(nestedKey))"
-          :appearanceOverrides="appearanceOverrides"
-          appearance="basic-link"
-          @click="$emit('input', item.value)"
-        />
-      </div>
-    </KGridItem>
-  </KGrid>
+        <div class="filter-list-title">
+          <KIcon
+            :icon="icon(key)"
+            size="large"
+          />
+          <h3>
+            <KButton
+              :text="coreString(camelCase(key))"
+              appearance="basic-link"
+              class="larger-text"
+              :appearanceOverrides="appearanceOverrides"
+              :disabled="availablePaths && !availablePaths[nestedObject.value]"
+              @click="$emit('input', nestedObject.value)"
+            />
+          </h3>
+
+        </div>
+        <div
+          v-for="(item, nestedKey) in nestedObject.nested"
+          :key="item.value"
+        >
+          <KButton
+            :text="coreString(camelCase(nestedKey))"
+            :appearanceOverrides="appearanceOverrides"
+            appearance="basic-link"
+            :disabled="availablePaths && !availablePaths[nestedObject.value]"
+            @click="$emit('input', item.value)"
+          />
+        </div>
+      </KGridItem>
+    </KGrid>
+  </div>
 
 </template>
 
@@ -48,51 +61,8 @@
 
   import camelCase from 'lodash/camelCase';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { Categories, CategoriesLookup } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import plugin_data from 'plugin_data';
-
-  const availablePaths = {};
-
-  if (process.env.NODE_ENV !== 'production') {
-    // TODO rtibbles: remove this condition
-    Object.assign(availablePaths, CategoriesLookup);
-  } else {
-    plugin_data.categories.map(key => {
-      const paths = key.split('.');
-      let path = '';
-      for (let path_segment of paths) {
-        path = path === '' ? path_segment : path + '.' + path_segment;
-        availablePaths[path] = true;
-      }
-    });
-  }
-
-  const libraryCategories = {};
-
-  for (let subjectKey of Object.entries(Categories)
-    .sort((a, b) => a[0].length - b[0].length)
-    .map(a => a[0])) {
-    const ids = Categories[subjectKey].split('.');
-    let path = '';
-    let nested = libraryCategories;
-    for (let fragment of ids) {
-      path += fragment;
-      if (availablePaths[path]) {
-        const nestedKey = CategoriesLookup[path];
-        if (!nested[nestedKey]) {
-          nested[nestedKey] = {
-            value: path,
-            nested: {},
-          };
-        }
-        nested = nested[nestedKey].nested;
-        path += '.';
-      } else {
-        break;
-      }
-    }
-  }
+  import { libraryCategories } from '../../constants';
 
   export default {
     name: 'CategorySearchOptions',
@@ -124,6 +94,9 @@
           return paths;
         }
         return null;
+      },
+      topLevelCategory() {
+        return libraryCategories[this.selectedCategory];
       },
       displaySelectedCategories() {
         return libraryCategories[this.selectedCategory].nested;
@@ -167,17 +140,31 @@
 
 <style lang="scss" scoped>
 
-  h2 {
+  .top-category {
+    margin-right: 16px;
+    margin-bottom: 4px;
+    margin-left: 16px;
+    font-size: 24px;
+  }
+
+  .larger-text {
     margin-top: 4px;
     margin-bottom: 4px;
+    font-size: 20px;
   }
 
   /deep/ .link-text {
     text-decoration: none !important;
+    transition: none !important;
   }
 
   .category-item {
     margin-bottom: 32px;
+  }
+
+  h3 {
+    margin-top: 0;
+    margin-bottom: 8px;
   }
 
   /deep/ svg {

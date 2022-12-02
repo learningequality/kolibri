@@ -4,10 +4,12 @@
     :title="learnString('markResourceAsCompleteLabel')"
     :submitText="coreString('confirmAction')"
     :cancelText="coreString('cancelAction')"
-    @submit="markResourceAsCompleted"
+    @submit="$emit('complete')"
     @cancel="$emit('cancel')"
   >
-    {{ $tr('markResourceAsCompleteConfirmation') }}
+    <div v-if="!showLoading">
+      {{ $tr('markResourceAsCompleteConfirmation') }}
+    </div>
   </KModal>
 
 </template>
@@ -21,20 +23,10 @@
   export default {
     name: 'MarkAsCompleteModal',
     mixins: [commonCoreStrings, commonLearnStrings],
-    methods: {
-      /*
-       * Emits "complete" event on success.
-       * Errors handled using the `handleApiError` action.
-       */
-      markResourceAsCompleted() {
-        this.$store
-          .dispatch('updateContentSession', { progress: 1 })
-          .then(() => {
-            this.$emit('complete');
-            this.$store.dispatch('createSnackbar', this.learnString('resourceCompletedLabel'));
-          })
-          .catch(e => this.$store.dispatch('handleApiError', e));
-      },
+    data() {
+      return {
+        showLoading: false,
+      };
     },
     $trs: {
       markResourceAsCompleteConfirmation: {

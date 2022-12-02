@@ -2,6 +2,31 @@
 
 List of the most important changes for each release.
 
+## 0.15.8
+
+### Added
+* Adds job storage sanity check to ensure that Kolibri will not fail to start if the asynchronous job storage is malformed
+
+### Changed
+* Logging: remove unused simple formatter, add asctime to color formatter
+* Order resume content display by last interaction
+* Upgrade morango and lower default sync chunk size through CLI
+* Make learners only appear once in reports when assigned from both groups and individually to lessons and quizzes.
+* Persist collection tokens when switching between individual and bulk import workflows for channels
+
+### Fixed
+* CSV Endpoint permissions and error handling
+* Adds fix for multiple worker processes duplicating jobs.
+* Adds translated string for user kind in the user table
+* Check for an array's length to avoid breaking errors
+* Fixes Version logic not handling non-tripartite version strings
+* Filters out empty nodes, add safety to breaking code
+* Prevent controls for the PDF renderer from overlapping content
+* Fix quiz completion regression which caused the notification to contain the incorrect score
+* height = width in import cards on thumbnail, fix misaligned text
+* Update levels to display translated strings, not constant ids
+
+
 ## 0.15.7
 
 ### Added

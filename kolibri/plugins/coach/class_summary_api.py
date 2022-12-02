@@ -21,6 +21,7 @@ from kolibri.core.content.models import ContentNode
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger import models as logger_models
+from kolibri.core.logger.utils.quiz import annotate_response_summary
 from kolibri.core.notifications.models import LearnerProgressNotification
 from kolibri.core.notifications.models import NotificationEventType
 from kolibri.core.query import annotate_array_aggregate
@@ -48,25 +49,10 @@ def _get_quiz_status(queryset):
             ).values_list("id")[:1]
         ),
     )
+    queryset = annotate_response_summary(queryset)
     items = []
     statuses = queryset.annotate(
         last_activity=Max("attemptlogs__end_timestamp"),
-        num_correct=SQCount(
-            logger_models.AttemptLog.objects.filter(
-                masterylog=OuterRef("id"), correct=1
-            )
-            .order_by()
-            .values_list("item")
-            .distinct(),
-            field="item",
-        ),
-        num_answered=SQCount(
-            logger_models.AttemptLog.objects.filter(masterylog=OuterRef("id"))
-            .order_by()
-            .values_list("item")
-            .distinct(),
-            field="item",
-        ),
         previous_num_correct=SQCount(
             logger_models.AttemptLog.objects.filter(
                 masterylog=OuterRef("previous_masterylog"), correct=1
