@@ -10,41 +10,33 @@ class EnqueueArgsSerializer(serializers.Serializer):
 
     enqueue_at = DateTimeTzField(required=False)
     enqueue_in = serializers.DurationField(required=False)
-    repeat = serializers.IntegerField(required=False, allow_null=True, min_value=0)
-    repeat_interval = serializers.IntegerField(required=False, min_value=0)
-    retry_interval = serializers.IntegerField(
-        required=False, allow_null=True, min_value=0
-    )
+    repeat = serializers.IntegerField(required=False, allow_null=True, min_value=1)
+    repeat_interval = serializers.IntegerField(required=False, min_value=1)
+    retry_interval = serializers.IntegerField(required=False, min_value=0)
 
     def validate(self, data):
-        try:
-            is_repeat = data["repeat"] is None or data["repeat"] > 0
-        except KeyError:
-            is_repeat = False
-
         if data.get("enqueue_at") and data.get("enqueue_in"):
             raise serializers.ValidationError(
                 "Specify either `enqueue_at` or `enqueue_in`. Cannot specify both."
             )
         elif not data.get("enqueue_at") and not data.get("enqueue_in"):
-            if data.get("repeat", "empty") != "empty":
+            if "repeat" in data:
                 raise serializers.ValidationError(
                     "`repeat` can only be specified when either `enqueue_in` or `enqueue_at` is specified."
                 )
-            elif data.get("repeat_interval") is not None:
+            elif "repeat_interval" in data:
                 raise serializers.ValidationError(
                     "`repeat_interval` can only be specified when either `enqueue_in` or `enqueue_at` is specified."
                 )
         elif data.get("enqueue_at") or data.get("enqueue_in"):
-            if is_repeat and not data.get("repeat_interval"):
+            if "repeat" in data and "repeat_interval" not in data:
                 raise serializers.ValidationError(
-                    "`repeat_interval` must be specified and greater than 0 when the task is repeating."
+                    "`repeat_interval` must be specified when `repeat` is specified."
                 )
-            elif data.get("repeat_interval") and not is_repeat:
+            elif "repeat_interval" in data and "repeat" not in data:
                 raise serializers.ValidationError(
-                    "Task must be repeating if `repeat_interval` is specified and greater than 0."
+                    "`repeat` must be specified when `repeat_interval` is specified."
                 )
-
         return data
 
 

@@ -563,35 +563,30 @@ class EnqueueArgsCreateAPITestCase(BaseAPITestCase):
     def test_erroneous_request(self, mock_job_storage):
         erroneous_enqueue_args = [
             {"enqueue_at": self.enqueue_in_timedelta},  # Wrong format.
-            {  # Both specified.
+            {  # Both `enqueue_at` and `enqueue_in` specified.
                 "enqueue_at": self.enqueue_at_datetime,
                 "enqueue_in": self.enqueue_in_timedelta,
             },
-            {"repeat": 0},  # `repeat` without enqueue_in, enqueue_at.
-            {"repeat_interval": 0},  # `repeat_interval` without enqueue_in, enqueue_at.
-            {  # No `repeat_interval`.
+            {"repeat": 1},  # `repeat` without enqueue_in, enqueue_at.
+            {"repeat_interval": 1},  # `repeat_interval` without enqueue_in, enqueue_at.
+            {  # `repeat` and `repeat_interval` 0 not allowed.
                 "enqueue_at": self.enqueue_at_datetime,
-                "repeat": 1,
+                "repeat": 0,
+                "repeat_interval": 0,
             },
-            {  # No `repeat`.
+            {  # `repeat` not specified.
                 "enqueue_at": self.enqueue_at_datetime,
                 "repeat_interval": 1,
             },
-            {  # Task repeating but no `repeat_interval`.
+            {  # `repeat_interval` not specified.
                 "enqueue_at": self.enqueue_at_datetime,
                 "repeat": 1,
-                "repeat_interval": 0,
             },
             {  # Task infinite repeat but no `repeat_interval`.
                 "enqueue_at": self.enqueue_at_datetime,
                 "repeat": None,
-                "repeat_interval": 0,
             },
-            {  # Task not repeating but `repeat_interval`.
-                "enqueue_at": self.enqueue_at_datetime,
-                "repeat": 0,
-                "repeat_interval": 1,
-            },
+            {"retry_interval": None},  # `retry_interval` None not allowed.
         ]
 
         for err_enq_arg in erroneous_enqueue_args:
@@ -612,8 +607,9 @@ class EnqueueArgsCreateAPITestCase(BaseAPITestCase):
             {},
             {
                 "enqueue_at": self.enqueue_at_datetime,
-                "repeat": 0,
-                "repeat_interval": 0,
+            },
+            {
+                "enqueue_in": self.enqueue_in_timedelta,
             },
             {
                 "enqueue_at": self.enqueue_at_datetime,
@@ -623,21 +619,24 @@ class EnqueueArgsCreateAPITestCase(BaseAPITestCase):
             {
                 "enqueue_at": self.enqueue_at_datetime,
                 "repeat": None,
-                "repeat_interval": 1,
+                "repeat_interval": 86400,
             },
             {
                 "enqueue_in": self.enqueue_in_timedelta,
                 "repeat": None,
-                "repeat_interval": 1,
+                "repeat_interval": 360,
             },
             {
                 "enqueue_at": self.enqueue_at_datetime,
                 "repeat": None,
-                "repeat_interval": 1,
-                "retry_interval": 1,
+                "repeat_interval": 7200,
+                "retry_interval": 60,
             },
             {
-                "retry_interval": 1,
+                "retry_interval": 0,
+            },
+            {
+                "retry_interval": 900,
             },
         ]
 
@@ -720,8 +719,6 @@ class EnqueueArgsCreateAPITestCase(BaseAPITestCase):
             {"retry_interval": 60},  # Normal enqueue with `retry_interval`.
             {  # `enqueue_in` with `retry_interval`.
                 "enqueue_in": self.enqueue_in_timedelta,
-                "repeat": 0,
-                "repeat_interval": 0,
                 "retry_interval": 60,
             },
             {  # `enqueue_at` with `retry_interval`.
