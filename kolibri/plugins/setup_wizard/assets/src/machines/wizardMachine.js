@@ -1,7 +1,8 @@
 import { assign, createMachine } from 'xstate';
-import reduce from 'lodash/reduce';
 import { checkCapability } from 'kolibri.utils.appCapabilities';
 import { DeviceTypePresets, FacilityTypePresets, UsePresets } from '../constants';
+
+console.log(checkCapability('get_os_user'));
 
 const isOnMyOwnOrGroup = context => {
   return context.onMyOwnOrGroup === UsePresets.ON_MY_OWN;
@@ -11,9 +12,7 @@ const isGroupSetup = context => {
   return context.onMyOwnOrGroup === UsePresets.GROUP;
 };
 
-const canGetOsUser = context => {
-  return context.canGetOsUser;
-};
+const canGetOsUser = () => checkCapability('get_os_user');
 
 const isNewFacility = context => {
   return context.facilityNewOrImport === FacilityTypePresets.NEW;
@@ -48,7 +47,30 @@ const setCanGetOsUser = assign({
 });
 
 const setFacilityNewOrImport = assign({
-  facilityNewOrImport: (_, event) => event.value,
+  facilityNewOrImport: (_, event) => {
+    return event.value.importOrNew;
+  },
+  importDeviceId: (_, event) => {
+    return event.value.importDeviceId;
+  },
+});
+
+const setSelectedImportDeviceFacility = assign({
+  selectedFacility: (_, event) => {
+    return event.value.selectedFacility;
+  },
+  importDevice: (_, event) => {
+    return event.value.importDevice;
+  },
+});
+
+const clearSelectedSetupType = assign({
+  facilityNewOrImport: () => null,
+});
+
+const revertFullDeviceImport = assign({
+  selectedFacility: () => null,
+  importDeviceId: () => null,
 });
 
 const setFormalOrNonformal = assign({
@@ -69,7 +91,6 @@ const setRequirePassword = assign({
 
 const initialContext = {
   onMyOwnOrGroup: null,
-  canGetOsUser: checkCapability('get_os_user'),
   facilityNewOrImport: null,
   fullOrLOD: null,
   deviceName: 'default-device-name',
@@ -77,7 +98,12 @@ const initialContext = {
   guestAccess: null,
   createLearnerAccount: null,
   requirePassword: null,
+  selectedFacility: null,
+  importDeviceId: null,
+  importDevice: null,
 };
+
+console.log(initialContext);
 
 /**
  * Assigns the machine to have the initial context again while maintaining the value of
@@ -85,21 +111,7 @@ const initialContext = {
  *
  * This effectively resets the machine's state
  */
-const resetContext = assign({
-  ...reduce(
-    initialContext,
-    (result, value, key) => {
-      if (key === 'canGetOsUser') {
-        // This won't change because of starting over
-        result[key] = context => context.canGetOsUser;
-      } else {
-        result[key] = () => value;
-      }
-      return result;
-    },
-    {}
-  ),
-});
+const resetContext = assign(initialContext);
 
 export const wizardMachine = createMachine({
   id: 'wizard',
@@ -251,7 +263,11 @@ export const wizardMachine = createMachine({
       },
     },
     personalDataConsent: {
-      meta: { route: { name: 'PERSONAL_DATA_CONSENT' } },
+      /**
+       * nextEvent here is used to provide the Vue component what command it is expected to send
+       * in this particular case
+       **/
+      meta: { route: { name: 'PERSONAL_DATA_CONSENT' }, nextEvent: 'CONTINUE' },
       on: {
         CONTINUE: 'createSuperuserAndFacility',
         BACK: 'requirePassword',
@@ -280,10 +296,45 @@ export const wizardMachine = createMachine({
       },
     },
 
+    // It's own little baby state machine
     importFacility: {
-      meta: { route: { name: 'IMPORT_FACILITY' } },
+      initial: 'selectFacilityForm',
+      states: {
+        selectFacilityForm: {
+          meta: { step: 1, route: { name: 'SELECT_FACILITY_FOR_IMPORT' } },
+          on: {
+            BACK: { target: '..fullDeviceNewOrImportFacility', actions: clearSelectedSetupType },
+            CONTINUE: { target: 'importAuthentication', actions: setSelectedImportDeviceFacility },
+          },
+        },
+        importAuthentication: {
+          meta: { step: 2, route: { name: 'IMPORT_AUTHENTICATION' } },
+          on: {
+            BACK: { target: 'selectFacilityForm', actions: revertFullDeviceImport },
+            // THE POINT OF NO RETURN
+            CONTINUE: { target: 'loadingTaskPage' },
+          },
+        },
+        loadingTaskPage: {
+          meta: { step: 3, route: { name: 'IMPORT_LOADING' } },
+          on: {
+            CONTINUE: 'selectSuperAdminAccountForm',
+          },
+        },
+        selectSuperAdminAccountForm: {
+          meta: { step: 4, route: { name: 'SELECT_ADMIN' } },
+          on: {
+            CONTINUE: { target: 'personalDataConsentForm', nextEvent: 'FINISH' },
+          },
+        },
+        personalDataConsentForm: {
+          meta: { step: 5, route: { name: 'IMPORT_DATA_CONSENT' }, nextEvent: 'FINISH' },
+        },
+      },
+      // Listener on the importFacility state; typically this would be above `states` but
+      // putting it here flows more with the above as this is the state after the final step
       on: {
-        BACK: 'fullDeviceNewOrImportFacility',
+        FINISH: 'finalizeSetup',
       },
     },
 

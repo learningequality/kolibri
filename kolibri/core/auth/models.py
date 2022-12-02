@@ -1415,6 +1415,23 @@ class Facility(Collection):
     def remove_coach(self, user):
         self.remove_role(user, role_kinds.COACH)
 
+    @classmethod
+    def get_or_create(cls, facility_name):
+        if cls.objects.count() == 0:
+            return cls.objects.create(name=facility_name)
+        else:
+            facility = None
+            try:
+                # We accept the parameter so we may as well try searching for it first
+                facility = cls.objects.get(name=facility_name)
+            except cls.ObjectDoesNotExist:
+                # or just fall back to returning the first Facility that exists
+                facility = cls.objects.get()
+                if facility_name:
+                    facility.name = facility_name
+                    facility.save()
+            return facility
+
     @property
     def on_my_own_setup(self):
         if self.dataset.extra_fields is not None:

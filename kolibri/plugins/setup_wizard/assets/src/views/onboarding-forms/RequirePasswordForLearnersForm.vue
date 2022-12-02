@@ -36,9 +36,10 @@
     components: {
       OnboardingStepBase,
     },
+    inject: ['wizardService'],
     data() {
       let setting;
-      const { preset } = this.$store.state.onboardingData;
+      let preset = this.wizardService._state.context.formalOrNonFormal;
       if (preset === null || preset === Presets.NONFORMAL) {
         setting = true;
       } else {
@@ -48,7 +49,6 @@
         setting,
       };
     },
-    inject: ['wizardService'],
     methods: {
       handleContinue() {
         this.wizardService.send({ type: 'CONTINUE', value: this.setting });

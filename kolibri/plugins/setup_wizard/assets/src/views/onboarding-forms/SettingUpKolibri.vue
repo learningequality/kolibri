@@ -17,6 +17,7 @@
 
 <script>
 
+  import { v4 } from 'uuid';
   import KolibriLoadingSnippet from 'kolibri.coreVue.components.KolibriLoadingSnippet';
   import urls from 'kolibri.urls';
   import { SetupWizardResource } from '../../api';
@@ -56,7 +57,7 @@
             on_my_own_setup: this.isOnMyOwnSetup,
             os_user: this.canGetOsUser,
           },
-          auth_token: null, // TODO Get this somehow
+          auth_token: v4(),
         };
       },
       isOnMyOwnSetup() {
@@ -77,8 +78,13 @@
       this.user = this.$store.state.onboardingData.user;
 
       if (this.isOnMyOwnSetup) {
-        // 1) If user is doing "on my own" setup, there is only one path from here
-        this.createAndProvisionOnMyOwnUserDevice();
+        if (this.canGetOsUser) {
+          // 1a) If we can get the OS user, we'll do this
+          this.createAndProvisionOnMyOwnUserApp();
+        } else {
+          // 1b) If user is doing "on my own" setup but we cannot get OS user
+          this.createAndProvisionOnMyOwnUserDevice();
+        }
       }
 
       // From here, all are going to be "group learning" flows
@@ -89,9 +95,12 @@
           this.createAndProvisionNewFullFacilityDevice();
         } else {
           // 2.2) Import Facility
+          // We already have the facility imported, just provision and redirect
+          this.provisionDevice();
         }
       } else {
         // 3) Group learning, learn only device
+        this.provisionDevice();
       }
     },
     methods: {
@@ -99,6 +108,9 @@
         SetupWizardResource.createonmyownuser(this.facilityUserData).then(() =>
           this.provisionDevice()
         );
+      },
+      createAndProvisionOnMyOwnUserApp() {
+        SetupWizardResource.createappuser(this.facilityUserData).then(() => this.provisionDevice());
       },
       createAndProvisionNewFullFacilityDevice() {
         SetupWizardResource.createsuperuser(this.facilityUserData).then(() =>

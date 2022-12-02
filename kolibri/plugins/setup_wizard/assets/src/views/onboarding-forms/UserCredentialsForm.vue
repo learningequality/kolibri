@@ -13,7 +13,12 @@
          inside a slot default
     -->
     <slot name="form">
+      <!-- Hiding the fullname and username textboxes, but their values are filled in and presumed
+           valid if we're given the user that we're taking credentials for (ie, just entering
+           password for admin)
+      -->
       <FullNameTextbox
+        v-show="!selectedUser"
         ref="fullNameTextbox"
         :value.sync="fullName"
         :isValid.sync="fullNameValid"
@@ -23,11 +28,12 @@
       />
 
       <UsernameTextbox
+        v-show="!selectedUser"
         ref="usernameTextbox"
         :value.sync="username"
         :isValid.sync="usernameValid"
         :shouldValidate="formSubmitted"
-        :isUniqueValidator="uniqueUsernameValidator"
+        :isUniqueValidator="!selectedUser ? uniqueUsernameValidator : () => true"
       />
 
       <PasswordTextbox
@@ -35,6 +41,7 @@
         :value.sync="password"
         :isValid.sync="passwordValid"
         :shouldValidate="formSubmitted"
+        :showConfirmationInput="!selectedUser"
         autocomplete="new-password"
       />
 
@@ -68,8 +75,6 @@
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
   import PrivacyLinkAndModal from 'kolibri.coreVue.components.PrivacyLinkAndModal';
   import OnboardingStepBase from '../OnboardingStepBase';
-  import { UsePresets } from '../../constants';
-  import { FacilityImportResource } from '../../api';
 
   export default {
     name: 'UserCredentialsForm',
@@ -91,9 +96,22 @@
         type: Boolean,
         default: false,
       },
+      /**
+       * The user given which will prefill the data for fullName and username
+       */
+      selectedUser: {
+        type: Object,
+        required: false,
+        default: null,
+      },
     },
     data() {
-      const { user } = this.$store.state.onboardingData;
+      let user;
+      if (this.selectedUser) {
+        user = this.selectedUser;
+      } else {
+        user = this.$store.state.onboardingData;
+      }
       return {
         fullName: user.full_name,
         fullNameValid: false,
@@ -106,13 +124,25 @@
     },
     computed: {
       formIsValid() {
-        return every([this.usernameValid, this.fullNameValid, this.passwordValid]);
+        if (this.selectedUser) {
+          return this.passwordValid;
+        } else {
+          return every([this.usernameValid, this.fullNameValid, this.passwordValid]);
+        }
+      },
+    },
+    watch: {
+      selectedUser() {
+        // If the selected user is changed at all we should reset everything
+        // so that if they choose to make a new admin, the previously selected
+        // admin's data isn't in the form still
+        this.fullName = '';
+        this.username = '';
+        this.password = '';
+        this.focusOnInvalidField();
       },
     },
     methods: {
-      isOnMyOwnSetup() {
-        return this.wizardService.state.context.onMyOwnOrGroup == UsePresets.ON_MY_OWN;
-      },
       syncOnboardingData() {
         // Set vuex state w/ the form data
         const payload = {
@@ -123,43 +153,21 @@
         this.$store.commit('SET_USER_CREDENTIALS', payload);
       },
       handleContinue() {
+        // Be sure to sync this as it updates Vuex with the form data so other components
+        // have access to it
         this.syncOnboardingData();
-        this.wizardService.send('CONTINUE');
-        return;
-        /**
-         * Partially provision the device
-         * Create SuperUser
-         * Continue
-         * TODO: Not sure "Facility" and "Device" are the best default names here -- will need to
-         * get the OS user's info I think.
-         */
-        const facilityUserData = {
-          fullName: this.fullName,
-          username: this.username,
-          password: this.password,
-          facility_name: this.$store.state.onboardingData.facility.name,
-          extra_fields: {
-            on_my_own_setup: this.isOnMyOwnSetup(),
-          },
-        };
-        if (this.formIsValid) {
-          return FacilityImportResource.createsuperuser(facilityUserData)
-            .then(() => {
-              const deviceProvisioningData = {
-                device_name: this.wizardService.state.context.deviceName,
-                language_id: this.$store.state.onboardingData.language_id,
-                is_provisioned: true,
-              };
-              FacilityImportResource.provisiondevice(deviceProvisioningData).then(() =>
-                this.wizardService.send('CONTINUE')
-              );
-            })
-            .catch(e => {
-              throw new Error(`Error creating superuser: ${e}`);
-            });
-        } else {
+        if (!this.formIsValid) {
+          if (this.$refs.password && this.$refs.password.isValid) {
+            // In this case, we have been given a separate password form in our #form slot
+            // and it's ref can tell us if it's valid and whether we should continue
+            console.log('OKGO');
+            this.wizardService.send('CONTINUE');
+            return;
+          }
           this.focusOnInvalidField();
+          return;
         }
+        this.wizardService.send('CONTINUE');
       },
       focusOnInvalidField() {
         this.$nextTick().then(() => {
@@ -188,6 +196,7 @@
   };
 
 </script>
+
 
 <style lang="scss" scoped>
 

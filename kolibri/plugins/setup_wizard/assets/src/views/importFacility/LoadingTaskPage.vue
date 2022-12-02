@@ -49,13 +49,8 @@
       FacilityTaskPanel,
       OnboardingStepBase,
     },
+    inject: ['wizardService'],
     mixins: [commonCoreStrings],
-    props: {
-      facility: {
-        type: Object,
-        required: true,
-      },
-    },
     data() {
       return {
         loadingTask: {},
@@ -63,6 +58,9 @@
       };
     },
     computed: {
+      facility() {
+        return this.wizardService._state.context.selectedFacility;
+      },
       header() {
         return this.$tr('importFacilityTitle');
       },
@@ -110,7 +108,7 @@
       handleClickContinue() {
         this.isPolling = false;
         this.clearTasks();
-        this.$emit('click_next');
+        this.wizardService.send('CONTINUE');
       },
     },
     $trs: {

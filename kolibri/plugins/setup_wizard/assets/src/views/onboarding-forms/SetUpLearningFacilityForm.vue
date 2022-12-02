@@ -20,7 +20,7 @@
     <SelectAddressModalGroup
       v-if="showSelectAddressModal"
       @cancel="showSelectAddressModal = false"
-      @submit="handleAddressSubmit"
+      @submit="handleContinueImport"
     />
   </OnboardingStepBase>
 
@@ -51,20 +51,22 @@
         showSelectAddressModal: false,
       };
     },
+    mounted() {
+      console.log('New or Import form', this.wizardService.state);
+    },
     methods: {
-      handleAddressSubmit(address) {
-        this.$router.push({
-          path: '/import_facility/1',
-          query: {
-            deviceId: address.id,
-          },
+      handleContinueImport(address) {
+        this.wizardService.send({
+          type: 'CONTINUE',
+          value: { importOrNew: Options.IMPORT, importDeviceId: address.id },
         });
+        console.log('continue to import', this.wizardService.state);
       },
       handleContinue() {
         if (this.selected === Options.IMPORT) {
           this.showSelectAddressModal = true;
         } else {
-          this.wizardService.send({ type: 'CONTINUE', value: this.selected });
+          this.wizardService.send({ type: 'CONTINUE', value: { importOrNew: Options.NEW } });
         }
       },
     },

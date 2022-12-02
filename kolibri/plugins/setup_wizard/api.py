@@ -40,12 +40,35 @@ class SetupWizardResource(ViewSet):
     permission_classes = (HasPermissionDuringSetup,)
 
     @decorators.action(methods=["post"], detail=False)
+    def createappuser(self, request):
+        """
+        Creates a Learner from the OS User
+        NOTE: This is for use when the App Plugin is *enabled*
+        """
+        facility_name = request.data.get("facility_name", None)
+
+        if Facility.objects.count() == 0:
+            # FIXME If we are using a default message, should we translate it?
+            facility = Facility.objects.create(name="Personal")
+        else:
+            facility = Facility.objects.get()
+            if facility_name:
+                facility.name = facility_name
+
+        # Set the facility to have been created during On my own setup
+        facility.on_my_own_setup = True
+        facility.save()
+
+        osuser = FacilityUser.objects.get_or_create_os_user(
+            facility=facility, auth_token=request.data.get("auth_token")
+        )
+        return Response({"username": osuser.get("username")})
+
+    @decorators.action(methods=["post"], detail=False)
     def createonmyownuser(self, request):
         """
-        Creates a user. When the request data's extra_fields['on_my_own_setup'] is truthy, we
-        will create an OS user with the FacilityUser.get_or_create_os_user method.
-
-        Otherwise a user is created with the given username and password.
+        Creating a Learner who has signed up using the On My Own flow
+        NOTE: This is for use when the App Plugin is *disabled*
         """
         facility_name = request.data.get("facility_name", None)
 
@@ -93,17 +116,11 @@ class SetupWizardResource(ViewSet):
         Given a username, full name and password, create a superuser attached
         to the facility that was imported (or create a facility with given facility_name)
         """
-        facility_name = request.data.get("facility_name", None)
+        # TODO Default facility name?
+        facility_name = request.data.get("facility_name", "Personal")
 
         # Get the imported facility (assuming its the only one at this point)
-        if Facility.objects.count() == 0:
-            the_facility = Facility.objects.create(name=facility_name)
-        else:
-            the_facility = Facility.objects.get()
-            if facility_name:
-                the_facility.name = facility_name
-                the_facility.save()
-
+        the_facility = Facility.get_or_create(facility_name=facility_name)
         try:
             superuser = FacilityUser.objects.create_superuser(
                 request.data.get("username"),
@@ -160,7 +177,8 @@ class FacilityImportViewSet(ViewSet):
         # users are from the new facility
         queryset = FacilityUser.objects.filter(roles__kind__contains="admin")
         response_data = [
-            {"username": user.username, "id": user.id} for user in queryset
+            {"full_name": user.full_name, "username": user.username, "id": user.id}
+            for user in queryset
         ]
         return Response(response_data)
 

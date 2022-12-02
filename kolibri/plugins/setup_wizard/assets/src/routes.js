@@ -10,8 +10,11 @@ import CreateLearnerAccountForm from './views/onboarding-forms/CreateLearnerAcco
 import RequirePasswordForLearnersForm from './views/onboarding-forms/RequirePasswordForLearnersForm';
 import PersonalDataConsentForm from './views/onboarding-forms/PersonalDataConsentForm';
 import SettingUpKolibri from './views/onboarding-forms/SettingUpKolibri';
-import ImportFacilitySetup from './views/ImportFacilitySetup';
 import ImportLODUsersSetup from './views/ImportLODUsersSetup';
+import ImportAuthentication from './views/importFacility/ImportAuthentication';
+import SelectFacilityForm from './views/importFacility/SelectFacilityForm';
+import SelectSuperAdminAccountForm from './views/importFacility/SelectSuperAdminAccountForm';
+import LoadingTaskPage from './views/importFacility/LoadingTaskPage';
 import Sandbox from './views/Sandbox';
 
 export default [
@@ -53,33 +56,55 @@ export default [
   },
   {
     name: 'GUEST_ACCESS',
-    path: '/create_facility/2',
+    path: '/create-facility/2',
     component: GuestAccessForm,
   },
   {
     name: 'CREATE_LEARNER_ACCOUNT',
-    path: '/create_facility/3',
+    path: '/create-facility/3',
     component: CreateLearnerAccountForm,
   },
   {
     name: 'REQUIRE_PASSWORD',
-    path: '/create_facility/4',
+    path: '/create-facility/4',
     component: RequirePasswordForLearnersForm,
   },
   {
     name: 'PERSONAL_DATA_CONSENT',
-    path: '/create_facility/5',
+    path: '/create-facility/5',
     component: PersonalDataConsentForm,
   },
   // Import a facility
   {
-    name: 'IMPORT_FACILITY',
-    path: '/import_facility/:step',
-    component: ImportFacilitySetup,
+    name: 'SELECT_FACILITY_FOR_IMPORT',
+    path: '/import-facility/select',
+    component: SelectFacilityForm,
   },
   {
+    name: 'IMPORT_AUTHENTICATION',
+    path: '/import-facility/auth',
+    component: ImportAuthentication,
+  },
+  {
+    name: 'IMPORT_LOADING',
+    path: '/import-facility/loading',
+    component: LoadingTaskPage,
+  },
+  {
+    name: 'SELECT_ADMIN',
+    path: '/import-facility/select-admin',
+    component: SelectSuperAdminAccountForm,
+  },
+  {
+    name: 'IMPORT_DATA_CONSENT',
+    path: '/import-facility/consent',
+    component: PersonalDataConsentForm,
+  },
+
+  // Learn only device
+  {
     name: 'IMPORT_LOD',
-    path: '/import_lod/:step',
+    path: '/import-lod/:step',
     component: ImportLODUsersSetup,
   },
   {
@@ -89,7 +114,7 @@ export default [
   },
   {
     name: 'FINALIZE_SETUP',
-    path: '/setting_up',
+    path: '/setting-up',
     component: SettingUpKolibri,
   },
 ];

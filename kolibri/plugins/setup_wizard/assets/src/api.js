@@ -28,6 +28,15 @@ export const SetupWizardResource = new Resource({
   },
 
   // Also creates the facility w/ given name if one doesn't exist already
+  createappuser({ facility, extra_fields, auth_token }) {
+    return this.postListEndpoint('createappuser', {
+      facility,
+      extra_fields,
+      auth_token,
+    });
+  },
+
+  // Also creates the facility w/ given name if one doesn't exist already
   createsuperuser({ username, full_name, password, extra_fields, facility_name }) {
     return this.postListEndpoint('createsuperuser', {
       username,
