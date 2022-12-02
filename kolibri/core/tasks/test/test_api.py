@@ -1,3 +1,6 @@
+import datetime
+from contextlib import contextmanager
+
 from django.urls import reverse
 from mock import call
 from mock import Mock
@@ -14,11 +17,15 @@ from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.exceptions import JobNotFound
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import State
+from kolibri.core.tasks.main import job_storage
 from kolibri.core.tasks.permissions import CanManageContent
 from kolibri.core.tasks.permissions import IsSuperAdmin
 from kolibri.core.tasks.registry import RegisteredTask
 from kolibri.core.tasks.registry import TaskRegistry
+from kolibri.core.tasks.test.base import connection
 from kolibri.core.tasks.validation import JobValidator
+from kolibri.utils.time_utils import local_now
+from kolibri.utils.time_utils import naive_utc_datetime
 
 
 DUMMY_PASSWORD = "password"
@@ -40,6 +47,13 @@ def fake_job(**kwargs):
     fake_data = fake_job_defaults.copy()
     fake_data.update(kwargs)
     return Mock(spec=Job, **fake_data)
+
+
+@contextmanager
+def job_storage_test_connection():
+    with connection():
+        yield
+        job_storage.clear(force=True)
 
 
 class BaseAPITestCase(APITestCase):
@@ -518,6 +532,224 @@ class CreateTaskAPITestCase(BaseAPITestCase):
         # Do we retrieve the task from db to ready the response?
         self.assertEqual(mock_job_storage.get_job.call_count, 2)
         mock_job_storage.get_job.assert_has_calls([call("test"), call("test")])
+
+
+class EnqueueArgsCreateAPITestCase(BaseAPITestCase):
+    @classmethod
+    def setUpClass(cls):
+        super(EnqueueArgsCreateAPITestCase, cls).setUpClass()
+
+        datetime_obj = datetime.datetime(
+            year=2023, month=1, day=1, tzinfo=datetime.timezone.utc
+        )
+        timedelta_obj = datetime.timedelta(days=1, hours=1)
+
+        cls.enqueue_at_datetime = str(datetime_obj)
+        cls.enqueue_in_timedelta = str(timedelta_obj)
+
+    def setUp(self):
+        @register_task(job_id="test-id")
+        def life():
+            return 42
+
+        TaskRegistry["kolibri.core.tasks.test.test_api.life"] = life
+        self.registered_task = TaskRegistry["kolibri.core.tasks.test.test_api.life"]
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
+
+    def tearDown(self):
+        TaskRegistry.clear()
+
+    @patch("kolibri.core.tasks.api.job_storage")
+    def test_erroneous_request(self, mock_job_storage):
+        erroneous_enqueue_args = [
+            {"enqueue_at": self.enqueue_in_timedelta},  # Wrong format.
+            {  # Both specified.
+                "enqueue_at": self.enqueue_at_datetime,
+                "enqueue_in": self.enqueue_in_timedelta,
+            },
+            {"repeat": 0},  # `repeat` without enqueue_in, enqueue_at.
+            {"repeat_interval": 0},  # `repeat_interval` without enqueue_in, enqueue_at.
+            {  # No `repeat_interval`.
+                "enqueue_at": self.enqueue_at_datetime,
+                "repeat": 1,
+            },
+            {  # No `repeat`.
+                "enqueue_at": self.enqueue_at_datetime,
+                "repeat_interval": 1,
+            },
+            {  # Task repeating but no `repeat_interval`.
+                "enqueue_at": self.enqueue_at_datetime,
+                "repeat": 1,
+                "repeat_interval": 0,
+            },
+            {  # Task infinite repeat but no `repeat_interval`.
+                "enqueue_at": self.enqueue_at_datetime,
+                "repeat": None,
+                "repeat_interval": 0,
+            },
+            {  # Task not repeating but `repeat_interval`.
+                "enqueue_at": self.enqueue_at_datetime,
+                "repeat": 0,
+                "repeat_interval": 1,
+            },
+        ]
+
+        for err_enq_arg in erroneous_enqueue_args:
+            response = self.client.post(
+                reverse("kolibri:core:task-list"),
+                {
+                    "type": "kolibri.core.tasks.test.test_api.life",
+                    "enqueue_args": err_enq_arg,
+                },
+                format="json",
+            )
+            # Did API raise `ValidationError`` on erroneous input?
+            self.assertEqual(response.status_code, 400)
+
+    @patch("kolibri.core.tasks.api.job_storage")
+    def test_acceptable_request(self, mock_job_storage):
+        acceptable_enqueue_args = [
+            {},
+            {
+                "enqueue_at": self.enqueue_at_datetime,
+                "repeat": 0,
+                "repeat_interval": 0,
+            },
+            {
+                "enqueue_at": self.enqueue_at_datetime,
+                "repeat": 1,
+                "repeat_interval": 1,
+            },
+            {
+                "enqueue_at": self.enqueue_at_datetime,
+                "repeat": None,
+                "repeat_interval": 1,
+            },
+            {
+                "enqueue_in": self.enqueue_in_timedelta,
+                "repeat": None,
+                "repeat_interval": 1,
+            },
+            {
+                "enqueue_at": self.enqueue_at_datetime,
+                "repeat": None,
+                "repeat_interval": 1,
+                "retry_interval": 1,
+            },
+            {
+                "retry_interval": 1,
+            },
+        ]
+
+        mock_job_storage.get_job.return_value = fake_job(state=State.QUEUED)
+
+        for enq_arg in acceptable_enqueue_args:
+
+            response = self.client.post(
+                reverse("kolibri:core:task-list"),
+                {
+                    "type": "kolibri.core.tasks.test.test_api.life",
+                    "enqueue_args": enq_arg,
+                },
+                format="json",
+            )
+
+            # Did API call go through successfully?
+            self.assertEqual(response.status_code, 200)
+
+    def test_enqueue_at(self):
+        enqueue_args = {
+            "enqueue_at": self.enqueue_at_datetime,
+            "repeat": None,
+            "repeat_interval": 60,
+        }
+        validated_enq_args = self.registered_task.get_validated_enqueue_args(
+            enqueue_args
+        )
+        with job_storage_test_connection():
+            response = self.client.post(
+                reverse("kolibri:core:task-list"),
+                {
+                    "type": "kolibri.core.tasks.test.test_api.life",
+                    "enqueue_args": enqueue_args,
+                },
+                format="json",
+            )
+            with job_storage.session_scope() as session:
+                job, orm_job = job_storage._get_job_and_orm_job("test-id", session)
+                orm_job_scheduled_time = orm_job.scheduled_time
+
+        # Did API call go through successfully?
+        self.assertEqual(response.status_code, 200)
+        # Did we schedule the job at specified enqueue_at?
+        self.assertEqual(
+            orm_job_scheduled_time, naive_utc_datetime(validated_enq_args["enqueue_at"])
+        )
+
+    def test_enqueue_in(self):
+        enqueue_args = {
+            "enqueue_in": self.enqueue_in_timedelta,
+            "repeat": None,
+            "repeat_interval": 60,
+        }
+
+        with job_storage_test_connection():
+            api_call_time = naive_utc_datetime(local_now())
+            response = self.client.post(
+                reverse("kolibri:core:task-list"),
+                {
+                    "type": "kolibri.core.tasks.test.test_api.life",
+                    "enqueue_args": enqueue_args,
+                },
+                format="json",
+            )
+            with job_storage.session_scope() as session:
+                job, orm_job = job_storage._get_job_and_orm_job("test-id", session)
+                orm_job_scheduled_time = orm_job.scheduled_time
+
+        # Did API call go through successfully?
+        self.assertEqual(response.status_code, 200)
+        # Make sure the task is scheduled after one day.
+        self.assertGreater(
+            (orm_job_scheduled_time - api_call_time), datetime.timedelta(days=1)
+        )
+
+    def test_enqueue_with_retry_interval(self):
+        enqueue_args_list = [
+            # Retry all these tasks in 60 seconds if they fail.
+            {"retry_interval": 60},  # Normal enqueue with `retry_interval`.
+            {  # `enqueue_in` with `retry_interval`.
+                "enqueue_in": self.enqueue_in_timedelta,
+                "repeat": 0,
+                "repeat_interval": 0,
+                "retry_interval": 60,
+            },
+            {  # `enqueue_at` with `retry_interval`.
+                "enqueue_at": self.enqueue_at_datetime,
+                "repeat": 10,
+                "repeat_interval": 86400,
+                "retry_interval": 60,
+            },
+        ]
+        with job_storage_test_connection():
+            for i in range(0, len(enqueue_args_list)):
+                job_id = self.registered_task.job_id = "test-id-{}".format(i)
+                response = self.client.post(
+                    reverse("kolibri:core:task-list"),
+                    {
+                        "type": "kolibri.core.tasks.test.test_api.life",
+                        "enqueue_args": enqueue_args_list[i],
+                    },
+                    format="json",
+                )
+                with job_storage.session_scope() as session:
+                    job, orm_job = job_storage._get_job_and_orm_job(job_id, session)
+                    orm_job_retry_interval = orm_job.retry_interval
+
+                # Did API call go through successfully?
+                self.assertEqual(response.status_code, 200)
+                # Did we set `retry_interval` correctly?
+                self.assertEqual(orm_job_retry_interval, 60)
 
 
 @patch("kolibri.core.tasks.api.job_storage")

@@ -13,7 +13,9 @@ from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.main import job_storage
 from kolibri.core.tasks.permissions import BasePermission
 from kolibri.core.tasks.utils import stringify_func
+from kolibri.core.tasks.validation import EnqueueArgsSerializer
 from kolibri.core.tasks.validation import JobValidator
+
 
 logger = logging.getLogger(__name__)
 
@@ -105,7 +107,7 @@ class _registry(dict):
 
     def __setitem__(self, key, value):
         if not isinstance(value, RegisteredTask):
-            raise TypeError("Value must be an instance of RegisteredJob")
+            raise TypeError("Value must be an instance of RegisteredTask")
         return super(_registry, self).__setitem__(key, value)
 
     def update(self, other):
@@ -242,6 +244,15 @@ class RegisteredTask(object):
         for permission in self.permissions:
             if not permission.has_permission(user, job, view):
                 raise PermissionDenied
+
+    def get_validated_enqueue_args(self, enqueue_args_data):
+        """
+        The `JobValidator` pops out `enqueue_args` during validation so
+        this method serves the purpose of returning validated `enqueue_args`.
+        """
+        enqueue_args_serializer = EnqueueArgsSerializer(data=enqueue_args_data)
+        enqueue_args_serializer.is_valid(raise_exception=True)
+        return enqueue_args_serializer.validated_data
 
     def validate_job_data(self, user, data):
         # Run validator with `user` and `data` as its argument.
