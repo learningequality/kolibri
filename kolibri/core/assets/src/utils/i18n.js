@@ -58,16 +58,7 @@ export let currentLanguage = defaultLocale;
 export let languageDirection = languageDirections.LTR;
 
 export function getLangDir(id) {
-  /*
-    The lang_direction property is returned as a boolean and not as a string.
-    The previous logic would fail for non strings thus the change to allow for both
-    string and non string to work as values of lang_direction.
-  */
-  let langDirection = (availableLanguages[id] || {}).lang_direction || languageDirections.LTR;
-  if (typeof langDirection !== 'string' && langDirection) {
-    langDirection = languageDirections.RTL;
-  }
-  return langDirection;
+  return (availableLanguages[id] || {}).lang_direction || languageDirections.LTR;
 }
 
 export function isRtl(id) {
