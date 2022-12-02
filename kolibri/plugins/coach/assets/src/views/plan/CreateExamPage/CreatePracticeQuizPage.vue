@@ -1,15 +1,13 @@
 <template>
 
-  <CoreBase
-    :immersivePage="true"
-    immersivePageIcon="close"
-    :immersivePagePrimary="true"
-    :immersivePageRoute="toolbarRoute"
+  <CoachImmersivePage
     :appBarTitle="$tr('createNewExamLabel')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
+    icon="close"
     :pageTitle="$tr('selectPracticeQuizLabel')"
-    :marginBottom="72"
+    :route="toolbarRoute"
+    :primary="false"
   >
     <KPageContainer>
 
@@ -34,8 +32,7 @@
       />
 
     </KPageContainer>
-
-  </CoreBase>
+  </CoachImmersivePage>
 
 </template>
 
@@ -50,12 +47,14 @@
   import { PageNames } from '../../../constants';
   import ContentCardList from '../../plan/LessonResourceSelectionPage/ContentCardList';
   import commonCoach from '../../common';
+  import CoachImmersivePage from '../../CoachImmersivePage';
 
   export default {
     name: 'CreatePracticeQuizPage',
     components: {
-      ResourceSelectionBreadcrumbs,
+      CoachImmersivePage,
       ContentCardList,
+      ResourceSelectionBreadcrumbs,
     },
     mixins: [commonCoreStrings, commonCoach, responsiveWindowMixin],
     data() {

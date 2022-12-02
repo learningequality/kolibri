@@ -1,11 +1,9 @@
 <template>
 
-  <CoreBase
-    :immersivePage="false"
+  <CoachAppBarPage
     :appBarTitle="coreString('coachLabel')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
-    :showSubNav="false"
     :pageTitle="coreString('allFacilitiesLabel')"
   >
     <KPageContainer>
@@ -17,7 +15,10 @@
         </template>
         <template #tbody>
           <tbody>
-            <tr v-for="facility in facilities" :key="facility.id">
+            <tr
+              v-for="facility in facilities"
+              :key="facility.id"
+            >
               <td>
                 <KRouterLink
                   :text="facility.name"
@@ -33,22 +34,22 @@
         </template>
       </CoreTable>
     </KPageContainer>
-  </CoreBase>
+  </CoachAppBarPage>
 
 </template>
 
 
 <script>
 
-  import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from './common';
+  import CoachAppBarPage from './CoachAppBarPage';
 
   export default {
     name: 'AllFacilitiesPage',
     components: {
-      CoreBase,
+      CoachAppBarPage,
       CoreTable,
     },
     mixins: [commonCoach, commonCoreStrings],

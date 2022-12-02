@@ -1,15 +1,10 @@
 <template>
 
-  <CoreBase
-    :immersivePage="false"
+  <CoachAppBarPage
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
   >
-
-    <template #sub-nav>
-      <TopNavbar />
-    </template>
 
     <KGrid gutter="16">
       <KGridItem>
@@ -29,14 +24,14 @@
         <ActivityBlock />
       </KGridItem>
     </KGrid>
-
-  </CoreBase>
+  </CoachAppBarPage>
 
 </template>
 
 
 <script>
 
+  import CoachAppBarPage from '../../CoachAppBarPage';
   import commonCoach from '../../common';
   import OverviewBlock from './OverviewBlock';
   import ActivityBlock from './ActivityBlock';
@@ -46,6 +41,7 @@
   export default {
     name: 'HomePage',
     components: {
+      CoachAppBarPage,
       OverviewBlock,
       ActivityBlock,
       LessonsBlock,

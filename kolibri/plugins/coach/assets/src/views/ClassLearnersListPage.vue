@@ -1,14 +1,13 @@
 <template>
 
-  <CoreBase
-    :immersivePage="true"
-    immersivePageIcon="back"
-    :immersivePagePrimary="false"
-    :immersivePageRoute="backlink"
-    :appBarTitle="$store.state.classSummary.name"
+  <CoachImmersivePage
+    :appBarTitle="className"
+    icon="back"
+    :route="backlink"
+    :pageTitle="$tr('pageHeader', { className: className })"
   >
     <KPageContainer>
-      <h1>{{ $tr('pageHeader', { className: $store.state.classSummary.name }) }} </h1>
+      <h1>{{ $tr('pageHeader', { className: className }) }} </h1>
       <KButton
         :text="$tr('howToTroubleshootModalHeader')"
         appearance="basic-link"
@@ -22,8 +21,15 @@
         :submitText="$tr('close')"
         @submit="displayTroubleshootModal = false"
       >
-        <div v-for="status in syncStatusOptions" :key="status.id" class="status-option-display">
-          <SyncStatusDisplay :syncStatus="status" displaySize="large-bold" />
+        <div
+          v-for="status in syncStatusOptions"
+          :key="status.id"
+          class="status-option-display"
+        >
+          <SyncStatusDisplay
+            :syncStatus="status"
+            displaySize="large-bold"
+          />
           <SyncStatusDescription :syncStatus="status" />
         </div>
       </KModal>
@@ -61,23 +67,20 @@
                 />
               </td>
               <td>
-                <ElapsedTime
-                  :date="mapLastSyncedTimeToLearner(learner.id)"
-                />
+                <ElapsedTime :date="mapLastSyncedTimeToLearner(learner.id)" />
               </td>
             </tr>
           </tbody>
         </template>
       </CoreTable>
     </KPageContainer>
-  </CoreBase>
+  </CoachImmersivePage>
 
 </template>
 
 
 <script>
 
-  import CoreBase from 'kolibri.coreVue.components.CoreBase';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -85,18 +88,14 @@
   import { mapState, mapActions } from 'vuex';
   import SyncStatusDisplay from '../../../../../core/assets/src/views/SyncStatusDisplay';
   import SyncStatusDescription from '../../../../../core/assets/src/views/SyncStatusDescription';
+  import CoachImmersivePage from '../views/CoachImmersivePage';
 
   export default {
     name: 'ClassLearnersListPage',
-    metaInfo() {
-      return {
-        title: this.$tr('pageHeader', { className: this.className }),
-      };
-    },
     components: {
-      CoreBase,
       CoreTable,
       ElapsedTime,
+      CoachImmersivePage,
       SyncStatusDisplay,
       SyncStatusDescription,
     },
@@ -111,6 +110,9 @@
     },
     computed: {
       ...mapState('classSummary', ['learnerMap']),
+      className() {
+        return this.$store.state.classSummary.name;
+      },
       syncStatusOptions() {
         let options = [];
         for (const [value] of Object.entries(SyncStatus)) {

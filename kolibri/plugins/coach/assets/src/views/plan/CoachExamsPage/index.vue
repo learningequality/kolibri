@@ -1,30 +1,26 @@
 <template>
 
-  <CoreBase
-    :immersivePage="false"
+  <CoachAppBarPage
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
   >
-    <template #sub-nav>
-      <TopNavbar />
-    </template>
 
     <KPageContainer>
       <PlanHeader />
 
       <div class="filter-and-button">
         <!-- Hidden temporarily per https://github.com/learningequality/kolibri/issues/6174
-        <KSelect
-          v-model="statusSelected"
-          :label="coreString('showAction')"
-          :options="statusOptions"
-          :inline="true"
-        />
-        -->
+          <KSelect
+            v-model="statusSelected"
+            :label="coreString('showAction')"
+            :options="statusOptions"
+            :inline="true"
+          />
+          -->
         <!-- Remove this div - it makes sure the [NEW LESSON] button stays right-aligned
-            while the above <KSelect> is hidden
-        -->
+              while the above <KSelect> is hidden
+          -->
         <div>&nbsp;</div>
         <KButtonGroup v-if="practiceQuizzesExist">
           <KButton
@@ -59,7 +55,10 @@
           </th>
         </template>
         <template #tbody>
-          <transition-group tag="tbody" name="list">
+          <transition-group
+            tag="tbody"
+            name="list"
+          >
             <tr
               v-for="exam in filteredExams"
               :key="exam.id"
@@ -110,17 +109,17 @@
         {{ $tr('noExams') }}
       </p>
       <!--       <p
-        v-else-if="statusSelected.value === coachString('activeQuizzesLabel') &&
-          !activeExams.length"
-      >
-        {{ $tr('noActiveExams') }}
-      </p>
-      <p
-        v-else-if=" statusSelected.value === coachString('inactiveQuizzesLabel') &&
-          !inactiveExams.length"
-      >
-        {{ $tr('noInactiveExams') }}
-      </p> -->
+          v-else-if="statusSelected.value === coachString('activeQuizzesLabel') &&
+            !activeExams.length"
+        >
+          {{ $tr('noActiveExams') }}
+        </p>
+        <p
+          v-else-if=" statusSelected.value === coachString('inactiveQuizzesLabel') &&
+            !inactiveExams.length"
+        >
+          {{ $tr('noInactiveExams') }}
+        </p> -->
 
       <!-- Modals for Close & Open of quiz from right-most column -->
       <KModal
@@ -144,8 +143,7 @@
         <div>{{ coachString('closeQuizModalDetail') }}</div>
       </KModal>
     </KPageContainer>
-
-  </CoreBase>
+  </CoachAppBarPage>
 
 </template>
 
@@ -158,18 +156,15 @@
   import plugin_data from 'plugin_data';
   import { PageNames } from '../../../constants';
   import commonCoach from '../../common';
+  import CoachAppBarPage from '../../CoachAppBarPage';
   import PlanHeader from '../../plan/PlanHeader';
 
   export default {
     name: 'CoachExamsPage',
-    metaInfo() {
-      return {
-        title: this.coreString('quizzesLabel'),
-      };
-    },
     components: {
-      PlanHeader,
       CoreTable,
+      CoachAppBarPage,
+      PlanHeader,
     },
     mixins: [commonCoach, commonCoreStrings],
     data() {
@@ -192,23 +187,23 @@
       // Hidden temporarily per https://github.com/learningequality/kolibri/issues/6174
       // Uncomment this once we use the filters again.
       /*
-      statusOptions() {
-        return [
-          {
-            label: this.coachString('allQuizzesLabel'),
-            value: this.coachString('allQuizzesLabel'),
-          },
-          {
-            label: this.coachString('activeQuizzesLabel'),
-            value: this.coachString('activeQuizzesLabel'),
-          },
-          {
-            label: this.coachString('inactiveQuizzesLabel'),
-            value: this.coachString('inactiveQuizzesLabel'),
-          },
-        ];
-      },
-      */
+        statusOptions() {
+          return [
+            {
+              label: this.coachString('allQuizzesLabel'),
+              value: this.coachString('allQuizzesLabel'),
+            },
+            {
+              label: this.coachString('activeQuizzesLabel'),
+              value: this.coachString('activeQuizzesLabel'),
+            },
+            {
+              label: this.coachString('inactiveQuizzesLabel'),
+              value: this.coachString('inactiveQuizzesLabel'),
+            },
+          ];
+        },
+        */
       // activeExams() {
       //   return this.sortedExams.filter(exam => exam.active === true);
       // },

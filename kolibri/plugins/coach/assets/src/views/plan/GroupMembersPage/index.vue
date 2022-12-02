@@ -1,22 +1,16 @@
 <template>
 
-  <CoreBase
-    :immersivePage="false"
+  <CoachAppBarPage
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
   >
-    <template #sub-nav>
-      <TopNavbar />
-    </template>
-
     <KPageContainer>
       <p>
         <BackLink
           :to="$router.getRoute('GroupsPage')"
           :text="$tr('back')"
         />
-
       </p>
 
       <div v-if="!currentGroup">
@@ -25,14 +19,23 @@
 
       <div v-else>
         <h1>
-          <KLabeledIcon icon="group" :label="currentGroup.name" />
+          <KLabeledIcon
+            icon="group"
+            :label="currentGroup.name"
+          />
         </h1>
 
         <KFixedGrid numCols="2">
-          <KFixedGridItem span="1" class="number-learners">
+          <KFixedGridItem
+            span="1"
+            class="number-learners"
+          >
             {{ coachString('numberOfLearners', { value: currentGroup.users.length }) }}
           </KFixedGridItem>
-          <KFixedGridItem span="1" alignment="right">
+          <KFixedGridItem
+            span="1"
+            alignment="right"
+          >
             <KRouterLink
               :primary="true"
               appearance="raised-button"
@@ -59,7 +62,10 @@
                 :key="user.id"
               >
                 <td>
-                  <KLabeledIcon icon="person" :label="user.full_name" />
+                  <KLabeledIcon
+                    icon="person"
+                    :label="user.full_name"
+                  />
                 </td>
                 <td>
                   {{ user.username }}
@@ -84,7 +90,7 @@
         />
       </div>
     </KPageContainer>
-  </CoreBase>
+  </CoachAppBarPage>
 
 </template>
 
@@ -95,23 +101,13 @@
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../../common';
+  import CoachAppBarPage from '../../CoachAppBarPage';
   import RemoveFromGroupModal from './RemoveFromGroupModal';
 
   export default {
     name: 'GroupMembersPage',
-    metaInfo() {
-      let title;
-      if (this.currentGroup) {
-        const { name } = this.currentGroup;
-        title = name;
-      } else {
-        title = '';
-      }
-      return {
-        title: title,
-      };
-    },
     components: {
+      CoachAppBarPage,
       CoreTable,
       RemoveFromGroupModal,
     },

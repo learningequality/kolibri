@@ -1,16 +1,10 @@
 <template>
 
-  <CoreBase
-    :immersivePage="false"
+  <CoachAppBarPage
     :authorized="$store.getters.userIsAuthorizedForCoach"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
-    :maxMainWidth="1440"
   >
-
-    <template #sub-nav>
-      <TopNavbar />
-    </template>
 
     <KGrid gutter="16">
       <KGridItem>
@@ -36,7 +30,10 @@
         />
       </KGridItem>
       <KGridItem :layout12="{ span: 8 }">
-        <KPageContainer v-if="!loading" :topMargin="16">
+        <KPageContainer
+          v-if="!loading"
+          :topMargin="16"
+        >
           <section v-if="selectedQuestions">
             <h2>
               {{ coachString('numberOfQuestions', { value: selectedQuestions.length }) }}
@@ -63,7 +60,7 @@
       @submit_copy="handleSubmitCopy"
       @cancel="closeModal"
     />
-  </CoreBase>
+  </CoachAppBarPage>
 
 </template>
 
@@ -76,8 +73,8 @@
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import commonCoach, { CoachCoreBase } from '../../common';
-  import TopNavbar from '../../TopNavbar';
+  import commonCoach from '../../common';
+  import CoachAppBarPage from '../../CoachAppBarPage';
   import QuestionListPreview from '../CreateExamPage/QuestionListPreview';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
   import QuizOptionsDropdownMenu from './QuizOptionsDropdownMenu';
@@ -92,10 +89,9 @@
   export default {
     name: 'QuizSummaryPage',
     components: {
-      CoreBase: CoachCoreBase,
+      CoachAppBarPage,
       ManageExamModals,
       QuestionListPreview,
-      TopNavbar,
       QuizOptionsDropdownMenu,
     },
     mixins: [commonCoach, coachStringsMixin, commonCoreStrings],

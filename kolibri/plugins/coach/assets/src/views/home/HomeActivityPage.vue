@@ -1,16 +1,10 @@
 <template>
 
-  <CoreBase
-    :immersivePage="false"
+  <CoachAppBarPage
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
   >
-
-    <template #sub-nav>
-      <TopNavbar />
-    </template>
-
     <KPageContainer>
       <p>
         <BackLink
@@ -25,7 +19,7 @@
       />
 
     </KPageContainer>
-  </CoreBase>
+  </CoachAppBarPage>
 
 </template>
 
@@ -34,6 +28,7 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
+  import CoachAppBarPage from '../CoachAppBarPage';
   import { nStringsMixin } from '../common/notifications/notificationStrings';
   import ActivityList from '../common/notifications/ActivityList';
 
@@ -41,6 +36,7 @@
     name: 'HomeActivityPage',
     components: {
       ActivityList,
+      CoachAppBarPage,
     },
     mixins: [commonCoach, nStringsMixin, commonCoreStrings],
     $trs: {

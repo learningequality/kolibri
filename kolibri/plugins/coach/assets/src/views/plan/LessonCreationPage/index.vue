@@ -1,15 +1,12 @@
 <template>
 
-  <CoreBase
-    :immersivePage="true"
-    immersivePageIcon="close"
-    :immersivePagePrimary="false"
-    :immersivePageRoute="{ name: 'PLAN_LESSONS_ROOT' }"
+  <CoachImmersivePage
     :appBarTitle="coachString('createLessonAction')"
     :authorized="true"
     authorizedRole="adminOrCoach"
+    icon="close"
     :pageTitle="coachString('createLessonAction')"
-    :marginBottom="72"
+    :route="{ name: 'PLAN_LESSONS_ROOT' }"
   >
     <KPageContainer>
       <AssignmentDetailsModal
@@ -28,7 +25,7 @@
         @cancel="() => $router.go(-1)"
       />
     </KPageContainer>
-  </CoreBase>
+  </CoachImmersivePage>
 
 </template>
 
@@ -40,10 +37,14 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import AssignmentDetailsModal from '../assignments/AssignmentDetailsModal';
   import commonCoach from '../../common';
+  import CoachImmersivePage from '../../CoachImmersivePage';
 
   export default {
     name: 'LessonCreationPage',
-    components: { AssignmentDetailsModal },
+    components: {
+      AssignmentDetailsModal,
+      CoachImmersivePage,
+    },
     mixins: [commonCoach, commonCoreStrings],
     computed: {
       classId() {

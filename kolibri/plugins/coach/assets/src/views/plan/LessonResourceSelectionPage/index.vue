@@ -1,16 +1,14 @@
 <template>
 
-  <CoreBase
-    :immersivePage="getUserPermissions.can_manage_content"
-    immersivePageIcon="close"
-    :immersivePagePrimary="false"
-    :immersivePageRoute="exitButtonRoute"
+  <component
+    :is="page"
     :appBarTitle="$tr('manageResourcesAction')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
+    icon="close"
     :pageTitle="pageTitle"
+    :route="exitButtonRoute"
   >
-
     <KPageContainer>
       <h1 v-if="showChannels">
         {{ $tr('documentTitle', { lessonName: currentLesson.title }) }}
@@ -104,8 +102,7 @@
         :to="exitButtonRoute"
       />
     </BottomAppBar>
-
-  </CoreBase>
+  </component>
 
 </template>
 
@@ -122,6 +119,8 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoach from '../../common';
+  import CoachAppBarPage from '../../CoachAppBarPage';
+  import CoachImmersivePage from '../../CoachImmersivePage';
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
   import LessonsSearchBox from './SearchTools/LessonsSearchBox';
   import LessonsSearchFilters from './SearchTools/LessonsSearchFilters';
@@ -138,6 +137,8 @@
       };
     },
     components: {
+      CoachAppBarPage,
+      CoachImmersivePage,
       ContentCardList,
       LessonsSearchFilters,
       LessonsSearchBox,
@@ -217,6 +218,11 @@
       },
       inSearchMode() {
         return this.pageName === LessonsPageNames.SELECTION_SEARCH;
+      },
+      page() {
+        return this.getUserPermissions.can_manage_content
+          ? 'CoachImmersivePage'
+          : 'CoachAppBarPage';
       },
       searchTerm() {
         return this.$route.params.searchTerm || '';

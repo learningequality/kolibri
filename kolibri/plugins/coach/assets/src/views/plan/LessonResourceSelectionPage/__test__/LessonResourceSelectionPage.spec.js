@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import { BookmarksResource } from 'kolibri.resources';
 import LessonResourceSelectionPage from '../index.vue';
@@ -30,11 +30,11 @@ const store = makeStore();
 store.state.toolbarRoute = { name: 'SUMMARY' };
 
 function makeWrapper() {
-  const wrapper = mount(LessonResourceSelectionPage, {
+  const wrapper = shallowMount(LessonResourceSelectionPage, {
     store,
     router,
     stubs: {
-      CoreBase: slotDiv,
+      CoachImmersivePage: slotDiv,
     },
   });
   return { wrapper };
