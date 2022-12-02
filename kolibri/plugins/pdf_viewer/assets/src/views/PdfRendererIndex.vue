@@ -244,8 +244,8 @@
         // Is either the first page or the saved last page visited
         const firstPageToRender = parseInt(this.getSavedPosition() * this.totalPages);
         return this.getPage(firstPageToRender + 1).then(firstPage => {
-          this.firstPageHeight = firstPage.view[3];
-          this.firstPageWidth = firstPage.view[2];
+          this.firstPageHeight = firstPage.view[3] - firstPage.view[1];
+          this.firstPageWidth = firstPage.view[2] - firstPage.view[0];
           const screenSizeMultiplier = this.windowIsLarge ? 1.25 : this.windowIsSmall ? 1 : 1.125;
           this.scale = this.elementWidth / (this.firstPageWidth * screenSizeMultiplier);
           // Set the firstPageToRender into the pdfPages object so that we do not refetch the page

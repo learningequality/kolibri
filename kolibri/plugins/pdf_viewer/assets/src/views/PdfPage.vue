@@ -87,13 +87,13 @@
         if (!this.pageReady) {
           return null;
         }
-        return this.pdfPage.view[3];
+        return this.pdfPage.view[3] - this.pdfPage.view[1];
       },
       actualWidth() {
         if (!this.pageReady) {
           return null;
         }
-        return this.pdfPage.view[2];
+        return this.pdfPage.view[2] - this.pdfPage.view[0];
       },
       heightToWidthRatio() {
         return this.actualHeight / this.actualWidth || this.firstPageHeight / this.firstPageWidth;
