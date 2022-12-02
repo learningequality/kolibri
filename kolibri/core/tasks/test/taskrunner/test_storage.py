@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import datetime
 import time
 
 import pytest
@@ -166,3 +167,29 @@ class TestBackend:
 
                 assert restarted_job_id == job_id
                 assert restarted_job.state == State.QUEUED
+
+    def test_get_all_jobs(self, defaultbackend, simplejob):
+        tz_aware_now = datetime.datetime.now(tz=datetime.timezone.utc)
+        # 3 repeating tasks.
+        simplejob.job_id = "1"
+        defaultbackend.enqueue_at(tz_aware_now, simplejob, repeat=2, interval=1)
+        simplejob.job_id = "2"
+        defaultbackend.enqueue_at(tz_aware_now, simplejob, repeat=1, interval=1)
+        simplejob.job_id = "3"
+        defaultbackend.enqueue_at(
+            tz_aware_now, simplejob, queue="forever", repeat=None, interval=1
+        )
+        # 1 non-repeating task.
+        simplejob.job_id = "4"
+        defaultbackend.enqueue_at(tz_aware_now, simplejob)
+
+        assert len(defaultbackend.get_all_jobs()) == 4
+        assert len(defaultbackend.get_all_jobs(queue="forever")) == 1
+        assert len(defaultbackend.get_all_jobs(repeating=True)) == 3
+        assert len(defaultbackend.get_all_jobs(repeating=False)) == 1
+        assert len(defaultbackend.get_all_jobs(repeating=True, queue="forever")) == 1
+
+    def test_schedule_error_on_wrong_repeat(self, defaultbackend, simplejob):
+        tz_aware_now = datetime.datetime.now(tz=datetime.timezone.utc)
+        with pytest.raises(ValueError):
+            defaultbackend.enqueue_at(tz_aware_now, simplejob, repeat=-1, interval=1)

@@ -267,12 +267,17 @@ class Storage(object):
 
             return [self._orm_to_job(job) for job in jobs]
 
-    def get_all_jobs(self, queue=None):
+    def get_all_jobs(self, queue=None, repeating=None):
         with self.session_scope() as s:
             q = s.query(ORMJob)
 
             if queue:
                 q = q.filter(ORMJob.queue == queue)
+
+            if repeating is True:
+                q = q.filter(or_(ORMJob.repeat > 0, ORMJob.repeat == None))  # noqa E711
+            elif repeating is False:
+                q = q.filter(ORMJob.repeat == 0)
 
             orm_jobs = q.all()
 
@@ -524,6 +529,10 @@ class Storage(object):
         """
         if not isinstance(dt, datetime):
             raise ValueError("Time argument must be a datetime object.")
+        if repeat != None and repeat < 0:  # noqa E711
+            raise ValueError(
+                "Must specify repeat greater than equal to 0 or None (repeat forever)"
+            )
         if not interval and repeat != 0:
             raise ValueError("Must specify an interval if the task is repeating")
         if dt.tzinfo is None:

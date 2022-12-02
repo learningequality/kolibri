@@ -90,6 +90,14 @@ class TasksViewSet(viewsets.GenericViewSet):
         }
         return output
 
+    def _handle_repeat_query_param(self, repeating):
+        if repeating == "true":
+            return True
+        elif repeating == "false":
+            return False
+        else:
+            return None
+
     def list(self, request):
         """
         Returns a list of jobs that `request.user` has permissions for.
@@ -98,7 +106,11 @@ class TasksViewSet(viewsets.GenericViewSet):
         """
         queue = request.query_params.get("queue", None)
 
-        all_jobs = job_storage.get_all_jobs(queue=queue)
+        repeating = self._handle_repeat_query_param(
+            repeating=request.query_params.get("repeating", None)
+        )
+
+        all_jobs = job_storage.get_all_jobs(queue=queue, repeating=repeating)
 
         jobs_response = []
         for job in all_jobs:

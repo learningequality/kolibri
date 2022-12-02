@@ -749,6 +749,95 @@ class EnqueueArgsCreateAPITestCase(BaseAPITestCase):
                 self.assertEqual(orm_job_retry_interval, 60)
 
 
+class ListAPIRepeat(BaseAPITestCase):
+    @classmethod
+    def setUpClass(cls):
+        super(ListAPIRepeat, cls).setUpClass()
+
+        @register_task
+        def life():
+            return 42
+
+        TaskRegistry["kolibri.core.tasks.test.test_api.life"] = life
+
+    def setUp(self):
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
+
+    def _enqueue_tasks(self):
+        """
+        Enqueues 2 repeating and 3 non-repeating tasks.
+        """
+        datetime_obj = datetime.datetime(
+            year=2023, month=1, day=1, tzinfo=datetime.timezone.utc
+        )
+        timedelta_obj = datetime.timedelta(days=1, hours=1)
+
+        enqueue_args_list = [
+            # 2 repeating tasks.
+            {
+                "enqueue_at": str(datetime_obj),
+                "repeat": None,
+                "repeat_interval": 86400,
+            },
+            {
+                "enqueue_in": str(timedelta_obj),
+                "repeat": 20,
+                "repeat_interval": 9600,
+                "retry_interval": 60,
+            },
+            # 3 non-repeating tasks.
+            {"enqueue_at": str(datetime_obj)},
+            {"enqueue_in": str(timedelta_obj)},
+            {},
+        ]
+
+        for enq_arg in enqueue_args_list:
+            self.client.post(
+                reverse("kolibri:core:task-list"),
+                {
+                    "type": "kolibri.core.tasks.test.test_api.life",
+                    "enqueue_args": enq_arg,
+                },
+                format="json",
+            )
+
+    def test_list_api_repeating_true(self):
+        with job_storage_test_connection():
+            self._enqueue_tasks()
+            response = self.client.get(
+                reverse("kolibri:core:task-list"), {"repeating": "true"}
+            )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 2)
+
+    def test_list_api_repeating_false(self):
+        with job_storage_test_connection():
+            self._enqueue_tasks()
+            response = self.client.get(
+                reverse("kolibri:core:task-list"), {"repeating": "false"}
+            )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 3)
+
+    def test_list_api_repeating_invalid_value(self):
+        with job_storage_test_connection():
+            self._enqueue_tasks()
+            response = self.client.get(
+                reverse("kolibri:core:task-list"), {"repeating": "typo"}
+            )
+        self.assertEqual(response.status_code, 200)
+        # Should return all 5 tasks.
+        self.assertEqual(len(response.data), 5)
+
+    def test_list_api_repeating_not_present(self):
+        with job_storage_test_connection():
+            self._enqueue_tasks()
+            response = self.client.get(reverse("kolibri:core:task-list"))
+        self.assertEqual(response.status_code, 200)
+        # Should return all 5 tasks.
+        self.assertEqual(len(response.data), 5)
+
+
 @patch("kolibri.core.tasks.api.job_storage")
 class TaskManagementAPITestCase(BaseAPITestCase):
     def setUp(self):
@@ -837,7 +926,9 @@ class TaskManagementAPITestCase(BaseAPITestCase):
         response = self.client.get(reverse("kolibri:core:task-list"))
 
         self.assertEqual(response.data, self.jobs_response)
-        mock_job_storage.get_all_jobs.assert_called_once_with(queue=None)
+        mock_job_storage.get_all_jobs.assert_called_once_with(
+            queue=None, repeating=None
+        )
 
     def test_can_manage_content_can_only_view_can_manage_content_jobs(
         self, mock_job_storage
@@ -848,7 +939,9 @@ class TaskManagementAPITestCase(BaseAPITestCase):
         response = self.client.get(reverse("kolibri:core:task-list"))
 
         self.assertEqual(response.data, [self.jobs_response[1], self.jobs_response[2]])
-        mock_job_storage.get_all_jobs.assert_called_once_with(queue=None)
+        mock_job_storage.get_all_jobs.assert_called_once_with(
+            queue=None, repeating=None
+        )
 
     def test_can_list_queue_specific_jobs(self, mock_job_storage):
         mock_job_storage.get_all_jobs.return_value = self.jobs[:2]
@@ -859,7 +952,9 @@ class TaskManagementAPITestCase(BaseAPITestCase):
         )
 
         self.assertEqual(response.data, self.jobs_response[:2])
-        mock_job_storage.get_all_jobs.assert_called_once_with(queue="kolibri")
+        mock_job_storage.get_all_jobs.assert_called_once_with(
+            queue="kolibri", repeating=None
+        )
 
     def test_task_clearable_flag(self, mock_job_storage):
         self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
