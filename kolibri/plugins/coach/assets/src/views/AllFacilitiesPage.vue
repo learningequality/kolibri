@@ -1,7 +1,7 @@
 <template>
 
   <CoachAppBarPage
-    :appBarPage="coreString('coachLabel')"
+    :appBarTitle="coreString('coachLabel')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :pageTitle="coreString('allFacilitiesLabel')"
