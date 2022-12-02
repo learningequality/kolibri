@@ -1,6 +1,7 @@
 import datetime
 from contextlib import contextmanager
 
+import pytz
 from django.urls import reverse
 from mock import call
 from mock import Mock
@@ -536,12 +537,10 @@ class CreateTaskAPITestCase(BaseAPITestCase):
 
 class EnqueueArgsCreateAPITestCase(BaseAPITestCase):
     @classmethod
-    def setUpClass(cls):
-        super(EnqueueArgsCreateAPITestCase, cls).setUpClass()
+    def setUpTestData(cls):
+        super(EnqueueArgsCreateAPITestCase, cls).setUpTestData()
 
-        datetime_obj = datetime.datetime(
-            year=2023, month=1, day=1, tzinfo=datetime.timezone.utc
-        )
+        datetime_obj = datetime.datetime(year=2023, month=1, day=1, tzinfo=pytz.utc)
         timedelta_obj = datetime.timedelta(days=1, hours=1)
 
         cls.enqueue_at_datetime = str(datetime_obj)
@@ -751,8 +750,8 @@ class EnqueueArgsCreateAPITestCase(BaseAPITestCase):
 
 class ListAPIRepeat(BaseAPITestCase):
     @classmethod
-    def setUpClass(cls):
-        super(ListAPIRepeat, cls).setUpClass()
+    def setUpTestData(cls):
+        super(ListAPIRepeat, cls).setUpTestData()
 
         @register_task
         def life():
@@ -767,9 +766,7 @@ class ListAPIRepeat(BaseAPITestCase):
         """
         Enqueues 2 repeating and 3 non-repeating tasks.
         """
-        datetime_obj = datetime.datetime(
-            year=2023, month=1, day=1, tzinfo=datetime.timezone.utc
-        )
+        datetime_obj = datetime.datetime(year=2023, month=1, day=1, tzinfo=pytz.utc)
         timedelta_obj = datetime.timedelta(days=1, hours=1)
 
         enqueue_args_list = [

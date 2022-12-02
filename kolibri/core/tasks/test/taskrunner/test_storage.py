@@ -3,6 +3,7 @@ import datetime
 import time
 
 import pytest
+import pytz
 from mock import patch
 
 from kolibri.core.tasks.decorators import register_task
@@ -169,7 +170,7 @@ class TestBackend:
                 assert restarted_job.state == State.QUEUED
 
     def test_get_all_jobs(self, defaultbackend, simplejob):
-        tz_aware_now = datetime.datetime.now(tz=datetime.timezone.utc)
+        tz_aware_now = datetime.datetime.now(tz=pytz.utc)
         # 3 repeating tasks.
         simplejob.job_id = "1"
         defaultbackend.enqueue_at(tz_aware_now, simplejob, repeat=2, interval=1)
@@ -190,6 +191,6 @@ class TestBackend:
         assert len(defaultbackend.get_all_jobs(repeating=True, queue="forever")) == 1
 
     def test_schedule_error_on_wrong_repeat(self, defaultbackend, simplejob):
-        tz_aware_now = datetime.datetime.now(tz=datetime.timezone.utc)
+        tz_aware_now = datetime.datetime.now(tz=pytz.utc)
         with pytest.raises(ValueError):
             defaultbackend.enqueue_at(tz_aware_now, simplejob, repeat=-1, interval=1)
