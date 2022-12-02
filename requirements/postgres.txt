@@ -1,2 +1,2 @@
 # Additional reqs for running kolibri with a postgres db layer
-psycopg2==2.7.5
+psycopg2-binary==2.8.6
