@@ -60,7 +60,9 @@ export default function useCoreCoach(store) {
             return coachStrings.$tr(part);
         }
       } catch (err) {
-        // TODO - make this error handling cleaner
+        console.error(
+          "Failed to obtain page title. Ensure that this route's meta.titleParts are corrrectly configured."
+        );
         return '';
       }
     });
