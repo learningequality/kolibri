@@ -70,11 +70,10 @@ class SetupWizardResource(ViewSet):
         Creating a Learner who has signed up using the On My Own flow
         NOTE: This is for use when the App Plugin is *disabled*
         """
-        facility_name = request.data.get("facility_name", None)
+        facility_name = request.data.get("facility_name", "Personal")
 
         if Facility.objects.count() == 0:
-            # FIXME If we are using a default message, should we translate it?
-            facility = Facility.objects.create(name="Personal")
+            facility = Facility.objects.create(name=facility_name)
         else:
             facility = Facility.objects.get()
             if facility_name:
@@ -105,10 +104,15 @@ class SetupWizardResource(ViewSet):
             )
             return Response({"username": osuser.get("username")})
 
-        FacilityUser.objects.create(
-            username=username, password=password, facility=facility, full_name=full_name
-        )
-        return Response(status=201)
+        try:
+            user = FacilityUser.objects.create(
+                username=username, facility=facility, full_name=full_name
+            )
+            user.set_password(password)
+            user.save()
+            return Response(status=201)
+        except Exception as e:
+            return Response("Failed to create a user: {}".format(e), status=400)
 
     @decorators.action(methods=["post"], detail=False)
     def createsuperuser(self, request):
@@ -145,8 +149,8 @@ class SetupWizardResource(ViewSet):
         language_id = request.data.get("language_id", "")
         is_provisioned = request.data.get("is_provisioned", False)
 
-        # Get the imported facility (assuming its the only one at this point)
-        the_facility = Facility.objects.get()
+        # Get the created/imported facility (assuming its the only one at this point)
+        the_facility = Facility.objects.first()
 
         # Use the facility's preset to determine whether to allow guest access
         allow_guest_access = the_facility.dataset.preset != "formal"
