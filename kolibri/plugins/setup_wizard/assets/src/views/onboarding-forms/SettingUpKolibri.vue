@@ -27,11 +27,6 @@
     name: 'SettingUpKolibri',
     components: { KolibriLoadingSnippet },
     inject: ['wizardService'],
-    data() {
-      return {
-        user: {},
-      };
-    },
     computed: {
       deviceProvisioningData() {
         return {
@@ -42,14 +37,13 @@
         };
       },
       facilityUserData() {
-        let { full_name, username, password } = this.user;
+        // Data from user credentials form
+        let { full_name, username, password } = this.$store.state.onboardingData.user;
         return {
           full_name,
           username,
           password,
-          facility: {
-            name: this.$store.state.onboardingData.facility.name,
-          },
+          facility_name: this.$store.state.onboardingData.facility.name || null,
           facility_dataset: {
             learner_can_login_with_no_password: this.wizardService.state.context.requirePassword,
           },
@@ -74,9 +68,6 @@
       },
     },
     mounted() {
-      // Data from user credentials form
-      this.user = this.$store.state.onboardingData.user;
-
       if (this.isOnMyOwnSetup) {
         if (this.canGetOsUser) {
           // 1a) If we can get the OS user, we'll do this
