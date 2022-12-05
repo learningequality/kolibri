@@ -1,15 +1,10 @@
 <template>
 
-  <CoreBase
-    :immersivePage="false"
+  <CoachAppBarPage
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
   >
-
-    <template #sub-nav>
-      <TopNavbar />
-    </template>
 
     <KGrid gutter="16">
       <KGridItem>
@@ -53,14 +48,19 @@
                 classRoute('ReportsLessonLearnerListPage')"
             />
           </HeaderTabs>
-          <ReportsLessonResourcesList v-if="showResources" :entries="contentTable" />
-          <ReportsLessonLearnersList v-else-if="showLearners" :entries="learnerTable" />
+          <ReportsLessonResourcesList
+            v-if="showResources"
+            :entries="contentTable"
+          />
+          <ReportsLessonLearnersList
+            v-else-if="showLearners"
+            :entries="learnerTable"
+          />
         </KPageContainer>
       </KGridItem>
     </KGrid>
 
-
-  </CoreBase>
+  </CoachAppBarPage>
 
 </template>
 
@@ -70,6 +70,7 @@
   import sortBy from 'lodash/sortBy';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
+  import CoachAppBarPage from '../CoachAppBarPage';
   import CSVExporter from '../../csv/exporter';
   import * as csvFields from '../../csv/fields';
   import LessonOptionsDropdownMenu from '../plan/LessonSummaryPage/LessonOptionsDropdownMenu';
@@ -80,6 +81,7 @@
   export default {
     name: 'ReportsLessonBase',
     components: {
+      CoachAppBarPage,
       ReportsControls,
       LessonOptionsDropdownMenu,
       ReportsLessonLearnersList,

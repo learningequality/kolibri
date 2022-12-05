@@ -1,19 +1,17 @@
 <template>
 
-  <CoreBase
-    :immersivePage="false"
+  <CoachAppBarPage
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
   >
 
-    <template #sub-nav>
-      <TopNavbar />
-    </template>
-
     <KPageContainer>
 
-      <ReportsResourceHeader :resource="exercise" @previewClick="onPreviewClick" />
+      <ReportsResourceHeader
+        :resource="exercise"
+        @previewClick="onPreviewClick"
+      />
 
       <ReportsControls @export="exportCSV" />
 
@@ -23,8 +21,14 @@
           <th>{{ coachString('helpNeededLabel') }}</th>
         </template>
         <template #tbody>
-          <transition-group tag="tbody" name="list">
-            <tr v-for="tableRow in table" :key="tableRow.question_id">
+          <transition-group
+            tag="tbody"
+            name="list"
+          >
+            <tr
+              v-for="tableRow in table"
+              :key="tableRow.question_id"
+            >
               <td>
                 <KRouterLink
                   :text="tableRow.title"
@@ -45,7 +49,7 @@
         </template>
       </CoreTable>
     </KPageContainer>
-  </CoreBase>
+  </CoachAppBarPage>
 
 </template>
 
@@ -54,6 +58,7 @@
 
   import { mapGetters, mapState } from 'vuex';
   import commonCoach from '../common';
+  import CoachAppBarPage from '../CoachAppBarPage';
   import LearnerProgressRatio from '../common/status/LearnerProgressRatio';
   import { LastPages } from '../../constants/lastPagesConstants';
   import CSVExporter from '../../csv/exporter';
@@ -65,6 +70,7 @@
   export default {
     name: 'ReportsLessonExerciseQuestionListPage',
     components: {
+      CoachAppBarPage,
       ReportsResourceHeader,
       ReportsControls,
       LearnerProgressRatio,

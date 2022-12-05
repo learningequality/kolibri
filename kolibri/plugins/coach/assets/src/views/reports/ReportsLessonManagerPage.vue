@@ -1,20 +1,15 @@
 <template>
 
-  <CoreBase
-    :immersivePage="false"
+  <CoachAppBarPage
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
   >
 
-    <template #sub-nav>
-      <TopNavbar />
-    </template>
-
     <KPageContainer>
       Resource manager
     </KPageContainer>
-  </CoreBase>
+  </CoachAppBarPage>
 
 </template>
 
@@ -22,9 +17,11 @@
 <script>
 
   import commonCoach from '../common';
+  import CoachAppBarPage from '../CoachAppBarPage';
 
   export default {
     name: 'ReportsLessonManagerPage',
+    components: { CoachAppBarPage },
     mixins: [commonCoach],
   };
 

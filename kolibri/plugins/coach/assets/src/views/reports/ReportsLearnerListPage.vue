@@ -1,15 +1,10 @@
 <template>
 
-  <CoreBase
-    :immersivePage="false"
+  <CoachAppBarPage
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
   >
-
-    <template #sub-nav>
-      <TopNavbar />
-    </template>
 
     <KPageContainer>
       <ReportsHeader :title="$isPrint ? $tr('printLabel', { className }) : null" />
@@ -24,8 +19,14 @@
           <th>{{ coachString('lastActivityLabel') }}</th>
         </template>
         <template #tbody>
-          <transition-group tag="tbody" name="list">
-            <tr v-for="tableRow in table" :key="tableRow.id">
+          <transition-group
+            tag="tbody"
+            name="list"
+          >
+            <tr
+              v-for="tableRow in table"
+              :key="tableRow.id"
+            >
               <td>
                 <KRouterLink
                   :text="tableRow.name"
@@ -33,17 +34,23 @@
                   icon="person"
                 />
               </td>
-              <td><TruncatedItemList :items="tableRow.groups" /></td>
-              <td><Score :value="tableRow.avgScore" /></td>
+              <td>
+                <TruncatedItemList :items="tableRow.groups" />
+              </td>
+              <td>
+                <Score :value="tableRow.avgScore" />
+              </td>
               <td>{{ $formatNumber(tableRow.exercises) }}</td>
               <td>{{ $formatNumber(tableRow.resources) }}</td>
-              <td><ElapsedTime :date="tableRow.lastActivity" /></td>
+              <td>
+                <ElapsedTime :date="tableRow.lastActivity" />
+              </td>
             </tr>
           </transition-group>
         </template>
       </CoreTable>
     </KPageContainer>
-  </CoreBase>
+  </CoachAppBarPage>
 
 </template>
 
@@ -53,6 +60,7 @@
   import sortBy from 'lodash/sortBy';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
   import commonCoach from '../common';
+  import CoachAppBarPage from '../CoachAppBarPage';
   import CSVExporter from '../../csv/exporter';
   import * as csvFields from '../../csv/fields';
   import ReportsControls from './ReportsControls';
@@ -61,6 +69,7 @@
   export default {
     name: 'ReportsLearnerListPage',
     components: {
+      CoachAppBarPage,
       ReportsControls,
       ReportsHeader,
       ElapsedTime,

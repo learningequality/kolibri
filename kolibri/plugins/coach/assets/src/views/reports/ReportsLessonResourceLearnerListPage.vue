@@ -1,15 +1,10 @@
 <template>
 
-  <CoreBase
-    :immersivePage="false"
+  <CoachAppBarPage
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
   >
-
-    <template #sub-nav>
-      <TopNavbar />
-    </template>
 
     <KPageContainer>
       <ReportsResourceHeader :resource="resource" @previewClick="onPreviewClick" />
@@ -94,7 +89,7 @@
         <ReportsLearnersTable :entries="allEntries" />
       </template>
     </KPageContainer>
-  </CoreBase>
+  </CoachAppBarPage>
 
 </template>
 
@@ -106,6 +101,7 @@
   import { mapState } from 'vuex';
   import { LastPages } from '../../constants/lastPagesConstants';
   import commonCoach from '../common';
+  import CoachAppBarPage from '../CoachAppBarPage';
   import CSVExporter from '../../csv/exporter';
   import * as csvFields from '../../csv/fields';
   import ReportsLearnersTable from './ReportsLearnersTable';
@@ -116,6 +112,7 @@
   export default {
     name: 'ReportsLessonResourceLearnerListPage',
     components: {
+      CoachAppBarPage,
       ReportsLearnersTable,
       ReportsResourcesStats,
       ReportsControls,

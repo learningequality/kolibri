@@ -1,15 +1,10 @@
 <template>
 
-  <CoreBase
-    :immersivePage="false"
+  <CoachAppBarPage
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
   >
-
-    <template #sub-nav>
-      <TopNavbar />
-    </template>
 
     <KPageContainer>
       <p>
@@ -61,8 +56,14 @@
           <th>{{ coreString('timeSpentLabel') }}</th>
         </template>
         <template #tbody>
-          <transition-group tag="tbody" name="list">
-            <tr v-for="tableRow in table" :key="tableRow.node_id">
+          <transition-group
+            tag="tbody"
+            name="list"
+          >
+            <tr
+              v-for="tableRow in table"
+              :key="tableRow.node_id"
+            >
               <td>
                 <KLabeledIcon :icon="tableRow.kind">
                   <KRouterLink
@@ -79,16 +80,14 @@
                 <StatusSimple :status="tableRow.statusObj.status" />
               </td>
               <td>
-                <TimeDuration
-                  :seconds="showTime(tableRow)"
-                />
+                <TimeDuration :seconds="showTime(tableRow)" />
               </td>
             </tr>
           </transition-group>
         </template>
       </CoreTable>
     </KPageContainer>
-  </CoreBase>
+  </CoachAppBarPage>
 
 </template>
 
@@ -98,6 +97,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../../constants';
   import commonCoach from '../common';
+  import CoachAppBarPage from '../CoachAppBarPage';
   import CSVExporter from '../../csv/exporter';
   import * as csvFields from '../../csv/fields';
   import ReportsControls from './ReportsControls';
@@ -105,6 +105,7 @@
   export default {
     name: 'ReportsLearnerReportLessonPage',
     components: {
+      CoachAppBarPage,
       ReportsControls,
     },
     mixins: [commonCoach, commonCoreStrings],

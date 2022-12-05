@@ -16,6 +16,14 @@ jest.mock('kolibri.coreVue.router', () => {
     },
   };
 });
+jest.mock('../../../src/composables/useCoreCoach', () => {
+  return () => {
+    return {
+      pageTitle: '',
+      appBarTitle: '',
+    };
+  };
+});
 
 const ROUTE_NAME = 'FakeReportsLessonResourceLearnerListPage';
 
@@ -190,8 +198,7 @@ const initWrapper = lessonMap => {
     localVue,
     router,
     stubs: {
-      // avoid auth setup etc. for now since specs are currently dealing mostly with grouping
-      CoreBase: true,
+      CoachAppBarPage: true, // avoid auth setup.
       RouterLink: RouterLinkStub,
     },
   });

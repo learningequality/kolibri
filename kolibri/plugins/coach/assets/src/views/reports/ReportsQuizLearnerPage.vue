@@ -1,18 +1,15 @@
 <template>
 
-  <CoreBase
-    :immersivePage="true"
-    :immersivePagePrimary="true"
-    immersivePageIcon="back"
-    :immersivePageRoute="toolbarRoute"
+  <CoachImmersivePage
     :appBarTitle="exam.title"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
+    icon="back"
+    :primary="false"
+    :route="toolbarRoute"
   >
-    <LearnerQuizReport
-      @navigate="handleNavigation"
-    />
-  </CoreBase>
+    <LearnerQuizReport @navigate="handleNavigation" />
+  </CoachImmersivePage>
 
 </template>
 
@@ -21,11 +18,13 @@
 
   import { mapState } from 'vuex';
   import commonCoach from '../common';
+  import CoachImmersivePage from '../CoachImmersivePage';
   import LearnerQuizReport from '../common/LearnerQuizReport';
 
   export default {
     name: 'ReportsQuizLearnerPage',
     components: {
+      CoachImmersivePage,
       LearnerQuizReport,
     },
     mixins: [commonCoach],
