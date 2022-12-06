@@ -2,8 +2,9 @@ import { assign, createMachine } from 'xstate';
 import { checkCapability } from 'kolibri.utils.appCapabilities';
 import { DeviceTypePresets, FacilityTypePresets, UsePresets } from '../constants';
 
-console.log(checkCapability('get_os_user'));
-
+/** Predicates */
+// Functions used to return a true/false value. When the functions are called, they are passed
+// the current value of the machine's context as the only parameter
 const isOnMyOwnOrGroup = context => {
   return context.onMyOwnOrGroup === UsePresets.ON_MY_OWN;
 };
@@ -30,6 +31,10 @@ const isFullSetup = context => {
   return context.fullOrLOD === DeviceTypePresets.FULL;
 };
 
+/** Actions */
+// The `assign` function takes an object that maps keys that match those in the machine's `context`
+// to functions that take two parameters `(context, event)` - where the context is the current
+// context and event refers to the event sent to the machine to initiate a transition.
 const setOnMyOwnOrGroup = assign({
   onMyOwnOrGroup: (_, event) => event.value,
 });
@@ -101,9 +106,8 @@ const initialContext = {
   selectedFacility: null,
   importDeviceId: null,
   importDevice: null,
+  canGetOsUser: null,
 };
-
-console.log(initialContext);
 
 /**
  * Assigns the machine to have the initial context again while maintaining the value of
@@ -121,7 +125,8 @@ export const wizardMachine = createMachine({
     START_OVER: { target: 'howAreYouUsingKolibri', action: resetContext },
   },
   states: {
-    // This state will be the start so the machine won't progress until the canGetOsUser is set
+    // This state will be the start so the machine won't progress until
+    // the setCanGetOsUser is run to set the context.canGetOsUser value
     initializeContext: {
       on: {
         CONTINUE: { target: 'howAreYouUsingKolibri', actions: setCanGetOsUser },
@@ -138,6 +143,8 @@ export const wizardMachine = createMachine({
     onMyOwnOrGroupSetup: {
       always: [
         {
+          // `cond` takes a function that returns a Boolean, continuing to the
+          // `target` when it returns truthy
           cond: isOnMyOwnOrGroup,
           target: 'defaultLanguage',
         },
@@ -145,6 +152,7 @@ export const wizardMachine = createMachine({
           cond: isGroupSetup,
           target: 'deviceName',
         },
+        // There is no fallback path here; if neither `cond` above is truthy, this will break
       ],
     },
 
