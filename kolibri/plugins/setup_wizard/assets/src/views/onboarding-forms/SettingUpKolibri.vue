@@ -18,6 +18,7 @@
 <script>
 
   import { v4 } from 'uuid';
+  import { currentLanguage } from 'kolibri.utils.i18n';
   import KolibriLoadingSnippet from 'kolibri.coreVue.components.KolibriLoadingSnippet';
   import urls from 'kolibri.urls';
   import { SetupWizardResource } from '../../api';
@@ -33,7 +34,7 @@
         return {
           device_name: this.wizardService.state.context.deviceName,
           allow_guest_access: this.wizardService.state.context.guestAccess,
-          language_id: this.$store.state.onboardingData.language_id,
+          language_id: currentLanguage,
           is_provisioned: true,
         };
       },
