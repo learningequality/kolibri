@@ -28,6 +28,7 @@
     components: { KolibriLoadingSnippet },
     inject: ['wizardService'],
     computed: {
+      /** The data we will use to initialize the device during provisioning */
       deviceProvisioningData() {
         return {
           device_name: this.wizardService.state.context.deviceName,
@@ -36,6 +37,8 @@
           is_provisioned: true,
         };
       },
+
+      /** The data we will use to create the user and facility, if needed, during provisioning */
       facilityUserData() {
         // Data from user credentials form
         let { full_name, username, password } = this.$store.state.onboardingData.user;
@@ -54,6 +57,8 @@
           auth_token: v4(),
         };
       },
+
+      /** Introspecting the machine via it's `state.context` properties */
       isOnMyOwnSetup() {
         return this.wizardService.state.context.onMyOwnOrGroup == UsePresets.ON_MY_OWN;
       },
@@ -69,11 +74,12 @@
     },
     mounted() {
       if (this.isOnMyOwnSetup) {
+        // 1) On my own
         if (this.canGetOsUser) {
-          // 1a) If we can get the OS user, we'll do this
+          // 1.1) If we can get the OS user, we'll do this
           this.createAndProvisionOnMyOwnUserApp();
         } else {
-          // 1b) If user is doing "on my own" setup but we cannot get OS user
+          // 1.2) If user is doing "on my own" setup but we cannot get OS user
           this.createAndProvisionOnMyOwnUserDevice();
         }
       }
