@@ -12,6 +12,9 @@ export function getDeviceSettings() {
       allowLearnerUnassignedResourceAccess: data.allow_learner_unassigned_resource_access,
       allowPeerUnlistedChannelImport: data.allow_peer_unlisted_channel_import,
       allowOtherBrowsersToConnect: data.allow_other_browsers_to_connect,
+      extraSettings: data.extra_settings,
+      primaryStorageLocation: data.primary_storage_location,
+      secondaryStorageLocations: data.secondary_storage_locations,
     };
   });
 }
@@ -28,6 +31,34 @@ export function saveDeviceSettings(settings) {
       allow_learner_unassigned_resource_access: settings.allowLearnerUnassignedResourceAccess,
       allow_peer_unlisted_channel_import: settings.allowPeerUnlistedChannelImport,
       allow_other_browsers_to_connect: settings.allowOtherBrowsersToConnect,
+      extra_settings: settings.extraSettings,
+      primary_storage_location: settings.primaryStorageLocation,
+      secondary_storage_locations: settings.secondaryStorageLocations,
     },
   });
+}
+
+export function getDeviceURLs() {
+  return client({ url: urls['kolibri:core:deviceinfo']() }).then(response => {
+    return {
+      deviceUrls: response.data.urls,
+    };
+  });
+}
+
+export function getPathPermissions(path) {
+  return client({
+    url: `${urls['kolibri:core:pathpermission']()}`,
+    params: { path },
+  });
+}
+
+export function getPathsPermissions(paths) {
+  let pathsInfo = [];
+  for (let path of paths) {
+    getPathPermissions(path).then(permissions => {
+      pathsInfo.push({ path, writable: permissions.data.writable });
+    });
+  }
+  return pathsInfo;
 }

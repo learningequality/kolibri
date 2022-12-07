@@ -1,11 +1,40 @@
 import { mount, createLocalVue } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import Vuex from 'vuex';
-import client from 'kolibri.client';
 import DeviceSettingsPage from '../index.vue';
+import { getPathPermissions, getDeviceURLs, getDeviceSettings, getPathsPermissions } from '../api';
+import { getFreeSpaceOnServer } from '../../AvailableChannelsPage/api';
 
-jest.mock('kolibri.client');
 jest.mock('kolibri.urls');
+
+jest.mock('../api.js', () => ({
+  getPathPermissions: jest.fn(),
+  getPathsPermissions: jest.fn(),
+  getDeviceURLs: jest.fn(),
+  getDeviceSettings: jest.fn(),
+}));
+
+jest.mock('../../AvailableChannelsPage/api.js', () => ({
+  getFreeSpaceOnServer: jest.fn(),
+}));
+
+const DeviceSettingsData = {
+  languageId: 'en',
+  landingPage: 'sign-in',
+  allowGuestAccess: false,
+  allowLearnerUnassignedResourceAccess: false,
+  allowPeerUnlistedChannelImport: true,
+  allowOtherBrowsersToConnect: false,
+  primaryStorageLocation: null,
+  secondaryStorageLocations: [],
+  extraSettings: {
+    allow_download_on_mettered_connection: false,
+    allow_learner_download_resources: false,
+    enable_automatic_download: false,
+    limit_for_autodownload: 0,
+    set_limit_for_autodownload: false,
+  },
+};
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
@@ -32,34 +61,34 @@ async function makeWrapper() {
 }
 
 function getButtons(wrapper) {
-  const radioButtons = wrapper.findAllComponents({ name: 'KRadioButton' });
-  const saveButton = wrapper.findComponent({ name: 'KButton' });
+  const saveButton = wrapper.find('[data-test="saveButton"]');
+  const learnPage = wrapper.find('[data-test="landingPageButton"]');
+  const signInPage = wrapper.find('[data-test="signInPageButton"]');
+  const allowGuestAccess = wrapper.find('[data-test="allowGuestAccessButton"]');
+  const disallowGuestAccess = wrapper.find('[data-test="disallowGuestAccessButton"]');
+  const lockedContent = wrapper.find('[data-test="lockedContentButton"]');
   return {
-    learnPage: radioButtons.at(0),
-    signInPage: radioButtons.at(1),
-    allowGuestAccess: radioButtons.at(2),
-    disallowGuestAccess: radioButtons.at(3),
-    lockedContent: radioButtons.at(4),
+    learnPage,
+    signInPage,
+    allowGuestAccess,
+    disallowGuestAccess,
+    lockedContent,
     saveButton,
   };
 }
 
 describe('DeviceSettingsPage', () => {
-  afterEach(() => {
-    client.mockReset();
+  beforeEach(() => {
+    jest.clearAllMocks();
+    getPathPermissions.mockResolvedValue({});
+    getPathsPermissions.mockResolvedValue({});
+    getDeviceURLs.mockResolvedValue({});
+    getDeviceSettings.mockResolvedValue(DeviceSettingsData);
+    getFreeSpaceOnServer.mockResolvedValue({ freeSpace: 0 });
   });
 
   it('loads the data from getDeviceSettings', async () => {
-    client.mockResolvedValue({
-      data: {
-        language_id: 'en',
-        landing_page: 'sign-in',
-        allow_guest_access: false,
-        allow_learner_unassigned_resource_access: false,
-        allow_peer_unlisted_channel_import: true,
-        allow_other_browsers_to_connect: false,
-      },
-    });
+    getDeviceSettings.mockResolvedValue(DeviceSettingsData);
     const { wrapper } = await makeWrapper();
     const data = wrapper.vm.$data;
     expect(data.language).toMatchObject({ value: 'en', label: 'English' });
@@ -90,12 +119,10 @@ describe('DeviceSettingsPage', () => {
   }
 
   function setMockedData(allowGuestAccess, allowAllAccess) {
-    client.mockResolvedValue({
-      data: {
-        landing_page: 'sign-in',
-        allow_guest_access: allowGuestAccess,
-        allow_learner_unassigned_resource_access: allowAllAccess,
-      },
+    getDeviceSettings.mockResolvedValue({
+      landingPage: 'sign-in',
+      allowGuestAccess: allowGuestAccess,
+      allowLearnerUnassignedResourceAccess: allowAllAccess,
     });
   }
 
@@ -128,13 +155,12 @@ describe('DeviceSettingsPage', () => {
     // The fourth possibility with guest access but no channels tab should be impossible
 
     it('if Learn page is the landing page, sign-in page options are disabled', async () => {
-      client.mockResolvedValue({
-        data: {
-          landing_page: 'learn',
-          // The guest access button should not be checked
-          allow_guest_access: true,
-        },
+      getDeviceSettings.mockResolvedValue({
+        landingPage: 'learn',
+        // The guest access button should not be checked
+        allowGuestAccess: true,
       });
+
       const { wrapper } = await makeWrapper();
       const { learnPage, allowGuestAccess, disallowGuestAccess, lockedContent } = getButtons(
         wrapper
@@ -151,7 +177,9 @@ describe('DeviceSettingsPage', () => {
     });
 
     it('if switching  from Learn to Sign-In, "Allow users to explore..." is selected', async () => {
-      client.mockResolvedValue({ data: { landing_page: 'learn' } });
+      getDeviceSettings.mockResolvedValue({
+        landingPage: 'learn',
+      });
       const { wrapper } = await makeWrapper();
       const { signInPage, allowGuestAccess } = getButtons(wrapper);
       await clickRadioButton(signInPage);
@@ -162,16 +190,11 @@ describe('DeviceSettingsPage', () => {
 
   describe('submitting changes', () => {
     beforeEach(() => {
-      client.mockResolvedValue({
-        data: {
-          language_id: 'en',
-          landing_page: 'sign-in',
-          allow_guest_access: false,
-          allow_learner_unassigned_resource_access: true,
-          allow_peer_unlisted_channel_import: true,
-          allow_other_browsers_to_connect: false,
-        },
-      });
+      jest.clearAllMocks();
+      // allow_learner_unassigned_resource_access: allowAllAccess,
+      const newData = { ...DeviceSettingsData };
+      newData.allowLearnerUnassignedResourceAccess = true;
+      getDeviceSettings.mockResolvedValue(newData);
     });
 
     it('landing page is Learn page', async () => {

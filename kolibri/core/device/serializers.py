@@ -13,6 +13,8 @@ from kolibri.core.device.utils import provision_device
 from kolibri.core.device.utils import valid_app_key_on_request
 from kolibri.plugins.app.utils import GET_OS_USER
 from kolibri.plugins.app.utils import interface
+from kolibri.utils.filesystem import check_is_directory
+from kolibri.utils.filesystem import get_path_permission
 
 
 class DevicePermissionsSerializer(serializers.ModelSerializer):
@@ -132,7 +134,23 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
             }
 
 
+class PathListField(serializers.ListField):
+    def to_representation(self, data):
+        return [
+            self.child.to_representation(item)
+            for item in data
+            if check_is_directory(item)
+        ]
+
+
 class DeviceSettingsSerializer(DeviceSerializerMixin, serializers.ModelSerializer):
+
+    extra_settings = serializers.JSONField(required=False)
+    primary_storage_location = serializers.CharField(required=False)
+    secondary_storage_locations = PathListField(
+        child=serializers.CharField(required=False), required=False
+    )
+
     class Meta:
         model = DeviceSettings
         fields = (
@@ -142,7 +160,38 @@ class DeviceSettingsSerializer(DeviceSerializerMixin, serializers.ModelSerialize
             "allow_peer_unlisted_channel_import",
             "allow_learner_unassigned_resource_access",
             "allow_other_browsers_to_connect",
+            "extra_settings",
+            "primary_storage_location",
+            "secondary_storage_locations",
         )
 
     def create(self, validated_data):
         raise serializers.ValidationError("Device settings can only be updated")
+
+    def validate(self, data):
+        data = super(DeviceSettingsSerializer, self).validate(data)
+        if "primary_storage_location" in data:
+            if not check_is_directory(data["primary_storage_location"]):
+                raise serializers.ValidationError(
+                    {
+                        "primary_storage_location": "Primary storage location must be a directory"
+                    }
+                )
+            if not get_path_permission(data["primary_storage_location"]):
+                raise serializers.ValidationError(
+                    {
+                        "primary_storage_location": "Primary storage location must be writable"
+                    }
+                )
+
+        if "secondary_storage_locations" in data:
+            for path in data["secondary_storage_locations"]:
+                if path == "" or path is None:
+                    continue
+                if not check_is_directory(path):
+                    raise serializers.ValidationError(
+                        {
+                            "secondary_storage_locations": "Secondary storage location must be a directory"
+                        }
+                    )
+        return data

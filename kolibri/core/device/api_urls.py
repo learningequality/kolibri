@@ -10,6 +10,7 @@ from .api import DeviceRestartView
 from .api import DeviceSettingsView
 from .api import DriveInfoViewSet
 from .api import FreeSpaceView
+from .api import PathPermissionView
 from .api import RemoteFacilitiesViewset
 from .api import UserSyncStatusViewSet
 
@@ -36,4 +37,5 @@ urlpatterns = [
     url(
         r"^remotefacilities", RemoteFacilitiesViewset.as_view(), name="remotefacilities"
     ),
+    url(r"^pathpermission/", PathPermissionView.as_view(), name="pathpermission"),
 ]
