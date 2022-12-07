@@ -1434,7 +1434,7 @@ class ImportContentTestCase(TestCase):
                 manifest_file,
             )
 
-        manager = DiskChannelResourceImportManager(
+        manager = DiskChannelResourceImportManager.from_manifest(
             self.the_channel_id,
             path=import_source_dir,
         )
@@ -1482,7 +1482,7 @@ class ImportContentTestCase(TestCase):
         # of node_ids.
         get_import_export_mock.assert_called_once_with(
             self.the_channel_id,
-            set(),
+            None,
             None,
             False,
             renderable_only=True,
@@ -1561,7 +1561,7 @@ class ImportContentTestCase(TestCase):
 
         get_import_export_mock.return_value = (0, [], 0)
 
-        manager = DiskChannelResourceImportManager(
+        manager = DiskChannelResourceImportManager.from_manifest(
             self.the_channel_id,
             path=import_source_dir,
             manifest_file=six.StringIO(
@@ -1657,13 +1657,9 @@ class ImportContentTestCase(TestCase):
 
         get_import_export_mock.reset_mock()
 
-        manager = DiskChannelResourceImportManager(
-            self.the_channel_id,
-            path=import_source_dir,
-            node_ids=[],
+        call_command(
+            "importcontent", "disk", self.the_channel_id, import_source_dir, node_ids=[]
         )
-
-        manager.run()
 
         # If a manifest file is present in the source directory but node_ids is set to
         # an empty (falsey) list, importcontent should call get_import_export with that
@@ -1674,7 +1670,7 @@ class ImportContentTestCase(TestCase):
             None,
             False,
             renderable_only=True,
-            drive_id=None,
+            drive_id="",
         )
 
     def test_local_import_with_detected_manifest_file_and_manifest_file(
@@ -1704,7 +1700,7 @@ class ImportContentTestCase(TestCase):
                 manifest_file,
             )
 
-        manager = DiskChannelResourceImportManager(
+        manager = DiskChannelResourceImportManager.from_manifest(
             self.the_channel_id,
             path=import_source_dir,
             manifest_file=six.StringIO(
@@ -1764,13 +1760,13 @@ class ImportContentTestCase(TestCase):
                 manifest_file,
             )
 
-        manager = DiskChannelResourceImportManager(
+        call_command(
+            "importcontent",
+            "disk",
             self.the_channel_id,
-            path=import_source_dir,
+            import_source_dir,
             detect_manifest=False,
         )
-
-        manager.run()
 
         # If a manifest file is present in the source directory but the detect_manifest
         # argument is set to False, importcontent should ignore the detected manifest
@@ -1782,7 +1778,7 @@ class ImportContentTestCase(TestCase):
             None,
             False,
             renderable_only=True,
-            drive_id=None,
+            drive_id="",
         )
 
     @patch("kolibri.core.content.utils.resource_import.transfer.FileDownload")
@@ -1800,7 +1796,7 @@ class ImportContentTestCase(TestCase):
     ):
         get_import_export_mock.return_value = (0, [], 0)
 
-        manager = RemoteChannelResourceImportManager(
+        manager = RemoteChannelResourceImportManager.from_manifest(
             self.the_channel_id,
             manifest_file=six.StringIO(
                 json.dumps(

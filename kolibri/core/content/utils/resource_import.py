@@ -16,7 +16,6 @@ from kolibri.core.content.utils import annotation
 from kolibri.core.content.utils import paths
 from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.content_manifest import ContentManifest
-from kolibri.core.content.utils.content_manifest import ContentManifestParseError
 from kolibri.core.content.utils.file_availability import LocationError
 from kolibri.core.content.utils.import_export_content import get_import_export_data
 from kolibri.core.content.utils.paths import get_channel_lookup_url
@@ -55,7 +54,6 @@ class ResourceImportManagerBase(with_metaclass(ABCMeta, JobProgressMixin)):
     def __init__(
         self,
         channel_id,
-        manifest_file=None,
         node_ids=None,
         exclude_node_ids=None,
         renderable_only=True,
@@ -70,24 +68,29 @@ class ResourceImportManagerBase(with_metaclass(ABCMeta, JobProgressMixin)):
         if exclude_node_ids is not None:
             exclude_node_ids = set(exclude_node_ids)
 
-        if manifest_file:
-            if isinstance(manifest_file, string_types):
-                manifest_file = open(manifest_file, "r")
-            content_manifest = ContentManifest()
-            try:
-                content_manifest.read_file(manifest_file)
-                node_ids = content_manifest.get_node_ids_for_channel(channel_id)
-                exclude_node_ids = None
-            except ContentManifestParseError:
-                pass
-            manifest_file.close()
-
         self.node_ids = node_ids
         self.exclude_node_ids = exclude_node_ids
         self.renderable_only = renderable_only
         self.fail_on_error = fail_on_error
         self.content_dir = content_dir or conf.OPTIONS["Paths"]["CONTENT_DIR"]
         super(ResourceImportManagerBase, self).__init__()
+
+    @classmethod
+    def from_manifest(cls, channel_id, manifest_file, **kwargs):
+        if "node_ids" in kwargs:
+            raise TypeError("Unexpected keyword argument node_ids")
+        if "exclude_node_ids" in kwargs:
+            raise TypeError("Unexpected keyword argument exclude_node_ids")
+        if isinstance(manifest_file, string_types):
+            manifest_file = open(manifest_file, "r")
+        content_manifest = ContentManifest()
+        content_manifest.read_file(manifest_file)
+        node_ids = content_manifest.get_node_ids_for_channel(channel_id)
+        exclude_node_ids = None
+        manifest_file.close()
+        return cls(
+            channel_id, node_ids=node_ids, exclude_node_ids=exclude_node_ids, **kwargs
+        )
 
     def _start_file_transfer(self, f, filetransfer):
         """
@@ -346,7 +349,6 @@ class RemoteResourceImportManagerBase(ResourceImportManagerBase):
         channel_id,
         peer_id=None,
         baseurl=None,
-        manifest_file=None,
         node_ids=None,
         exclude_node_ids=None,
         renderable_only=True,
@@ -356,7 +358,6 @@ class RemoteResourceImportManagerBase(ResourceImportManagerBase):
     ):
         super(RemoteResourceImportManagerBase, self).__init__(
             channel_id,
-            manifest_file=manifest_file,
             node_ids=node_ids,
             exclude_node_ids=exclude_node_ids,
             renderable_only=renderable_only,
@@ -402,10 +403,8 @@ class DiskResourceImportManagerBase(ResourceImportManagerBase):
     def __init__(
         self,
         channel_id,
-        manifest_file=None,
         drive_id=None,
         path=None,
-        detect_manifest=True,
         node_ids=None,
         exclude_node_ids=None,
         renderable_only=True,
@@ -414,45 +413,55 @@ class DiskResourceImportManagerBase(ResourceImportManagerBase):
     ):
         self.drive_id = drive_id
         if drive_id and not path:
-            try:
-                drive = get_mounted_drive_by_id(drive_id)
-            except KeyError:
-                raise LocationError(
-                    "The external drive with given drive id {} does not exist.".format(
-                        drive_id
-                    )
-                )
-            path = drive["path"]
+            path = self.get_path_from_drive_id(drive_id)
+
         self.path = path
-
-        if manifest_file and not self.path:
-            # If manifest_file is stdin, its name will be "<stdin>" and path
-            # will become "". This feels clumsy, but the resulting behaviour
-            # is reasonable.
-            manifest_file_name = getattr(manifest_file, "name", "")
-            manifest_dir = os.path.dirname(manifest_file_name)
-            self.path = os.path.dirname(manifest_dir)
-
-        if (
-            self.path
-            and not manifest_file
-            and detect_manifest
-            and node_ids is None
-            and exclude_node_ids is None
-        ):
-            manifest_file_path = os.path.join(path, "content", "manifest.json")
-            if os.path.exists(manifest_file_path):
-                manifest_file = manifest_file_path
 
         super(DiskResourceImportManagerBase, self).__init__(
             channel_id,
-            manifest_file=manifest_file,
             node_ids=node_ids,
             exclude_node_ids=exclude_node_ids,
             renderable_only=renderable_only,
             fail_on_error=fail_on_error,
             content_dir=content_dir,
         )
+
+    @staticmethod
+    def get_path_from_drive_id(drive_id):
+        try:
+            drive = get_mounted_drive_by_id(drive_id)
+        except KeyError:
+            raise LocationError(
+                "The external drive with given drive id {} does not exist.".format(
+                    drive_id
+                )
+            )
+        return drive["path"]
+
+    @classmethod
+    def from_manifest(
+        cls, channel_id, manifest_file=None, path=None, drive_id=None, **kwargs
+    ):
+        if drive_id and not path:
+            path = cls.get_path_from_drive_id(drive_id)
+        if not manifest_file and not path:
+            raise TypeError("Must specify either manifest_file or path")
+        if not path:
+            # If manifest_file is stdin, its name will be "<stdin>" and path
+            # will become "". This feels clumsy, but the resulting behaviour
+            # is reasonable.
+            manifest_file_name = getattr(manifest_file, "name", "")
+            manifest_dir = os.path.dirname(manifest_file_name)
+            path = os.path.dirname(manifest_dir)
+        if not manifest_file:
+            manifest_file_path = os.path.join(path, "content", "manifest.json")
+            if os.path.exists(manifest_file_path):
+                manifest_file = manifest_file_path
+        if manifest_file:
+            return super(DiskResourceImportManagerBase, cls).from_manifest(
+                channel_id, manifest_file, path=path, drive_id=drive_id, **kwargs
+            )
+        return cls(channel_id, path=path, drive_id=drive_id, **kwargs)
 
     def create_file_transfer(self, f, filename, dest):
         try:

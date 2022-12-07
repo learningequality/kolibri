@@ -115,9 +115,6 @@ class Command(BaseCommand):
         # the network command has a channel id required positional argument,
         # and some optional content_id arguments.
 
-        # TODO: implement a --content-domain parameter, for optionally
-        # specifying the domain for the curation server.
-
         # Note: cmd should be the management command instance, as though the
         # interface for adding arguments is argparse, Django overrides the
         # parser object with its own thing, hence why we need to add cmd. See
@@ -190,9 +187,24 @@ class Command(BaseCommand):
             if import_updates
             else RemoteChannelResourceImportManager
         )
+        if (
+            not import_updates
+            and not node_ids
+            and not exclude_node_ids
+            and manifest_file
+        ):
+            return manager_class.from_manifest(
+                channel_id,
+                manifest_file,
+                baseurl=baseurl,
+                peer_id=peer_id,
+                renderable_only=renderable_only,
+                fail_on_error=fail_on_error,
+                timeout=timeout,
+                content_dir=content_dir,
+            )
         return manager_class(
             channel_id,
-            manifest_file=manifest_file,
             node_ids=node_ids,
             exclude_node_ids=exclude_node_ids,
             baseurl=baseurl,
@@ -222,11 +234,29 @@ class Command(BaseCommand):
             if import_updates
             else DiskChannelResourceImportManager
         )
+        if not import_updates and node_ids is None and exclude_node_ids is None:
+            if manifest_file:
+                return manager_class.from_manifest(
+                    channel_id,
+                    manifest_file=manifest_file,
+                    path=path,
+                    drive_id=drive_id,
+                    renderable_only=renderable_only,
+                    fail_on_error=fail_on_error,
+                    content_dir=content_dir,
+                )
+            elif detect_manifest:
+                return manager_class.from_manifest(
+                    channel_id,
+                    path=path,
+                    drive_id=drive_id,
+                    renderable_only=renderable_only,
+                    fail_on_error=fail_on_error,
+                    content_dir=content_dir,
+                )
         return manager_class(
             channel_id,
             path=path,
-            manifest_file=manifest_file,
-            detect_manifest=detect_manifest,
             drive_id=drive_id,
             node_ids=node_ids,
             exclude_node_ids=exclude_node_ids,
