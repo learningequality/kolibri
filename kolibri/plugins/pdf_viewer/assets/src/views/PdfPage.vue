@@ -87,13 +87,19 @@
         if (!this.pageReady) {
           return null;
         }
-        return this.pdfPage.view[3];
+        // page.view is a viewbox array of [x1, y1, x2, y2] coordinates where x1, y1 is the
+        // top left corner and x2, y2 is the bottom right corner of the visible page in PDF
+        // coordinates, subtracting y2 - y1 gives the height of the page
+        return this.pdfPage.view[3] - this.pdfPage.view[1];
       },
       actualWidth() {
         if (!this.pageReady) {
           return null;
         }
-        return this.pdfPage.view[2];
+        // page.view is a viewbox array of [x1, y1, x2, y2] coordinates where x1, y1 is the
+        // top left corner and x2, y2 is the bottom right corner of the visible page in PDF
+        // coordinates, subtracting x2 - x1 gives the width of the page
+        return this.pdfPage.view[2] - this.pdfPage.view[0];
       },
       heightToWidthRatio() {
         return this.actualHeight / this.actualWidth || this.firstPageHeight / this.firstPageWidth;
