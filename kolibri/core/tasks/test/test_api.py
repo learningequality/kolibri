@@ -661,16 +661,19 @@ class EnqueueArgsCreateAPITestCase(BaseAPITestCase):
             "repeat": None,
             "repeat_interval": 60,
         }
-        validated_enq_args = self.registered_task.get_validated_enqueue_args(
-            enqueue_args
+        req_data = {
+            "type": "kolibri.core.tasks.test.test_api.life",
+            "enqueue_args": enqueue_args,
+        }
+
+        job, validated_enq_args = self.registered_task.validate_job_data(
+            user=self.superuser, data=req_data
         )
+
         with job_storage_test_connection():
             response = self.client.post(
                 reverse("kolibri:core:task-list"),
-                {
-                    "type": "kolibri.core.tasks.test.test_api.life",
-                    "enqueue_args": enqueue_args,
-                },
+                req_data,
                 format="json",
             )
             with job_storage.session_scope() as session:

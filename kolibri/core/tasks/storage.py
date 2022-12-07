@@ -538,7 +538,7 @@ class Storage(object):
         """
         if not isinstance(dt, datetime):
             raise ValueError("Time argument must be a datetime object.")
-        if repeat != None and repeat < 0:  # noqa E711
+        if repeat is not None and repeat < 0:
             raise ValueError(
                 "Must specify repeat greater than equal to 0 or None (repeat forever)"
             )

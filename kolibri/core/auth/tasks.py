@@ -477,7 +477,7 @@ def startpeerusersync(
     # attempt to resume an existing session
     sync_session = find_soud_sync_session_for_resume(user, server)
 
-    job = peerusersync.validate_job_data(
+    job, enqueue_args = peerusersync.validate_job_data(
         user,
         {
             "baseurl": server,

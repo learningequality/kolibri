@@ -245,16 +245,12 @@ class RegisteredTask(object):
             if not permission.has_permission(user, job, view):
                 raise PermissionDenied
 
-    def get_validated_enqueue_args(self, enqueue_args_data):
-        """
-        The `JobValidator` pops out `enqueue_args` during validation so
-        this method serves the purpose of returning validated `enqueue_args`.
-        """
-        enqueue_args_serializer = EnqueueArgsSerializer(data=enqueue_args_data)
-        enqueue_args_serializer.is_valid(raise_exception=True)
-        return enqueue_args_serializer.validated_data
-
     def validate_job_data(self, user, data):
+        enqueue_args_serializer = EnqueueArgsSerializer(
+            data=data.pop("enqueue_args", {})
+        )
+        enqueue_args_serializer.is_valid(raise_exception=True)
+
         # Run validator with `user` and `data` as its argument.
         if "type" not in data:
             data["type"] = stringify_func(self)
@@ -268,7 +264,7 @@ class RegisteredTask(object):
                 "Invalid job data returned from validator."
             )
 
-        return job
+        return job, enqueue_args_serializer.validated_data
 
     def enqueue(self, job=None, retry_interval=None, **job_kwargs):
         """

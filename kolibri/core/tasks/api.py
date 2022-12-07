@@ -60,11 +60,8 @@ class TasksViewSet(viewsets.GenericViewSet):
             registered_task = TaskRegistry.validate_task(request_data.get("type"))
 
             # Make sure the job's data is valid along with `enqueue_args`.
-            job = registered_task.validate_job_data(request.user, request_data)
-
-            # Get validated `enqueue_args`.
-            enqueue_args = registered_task.get_validated_enqueue_args(
-                request_data.get("enqueue_args", {})
+            job, enqueue_args = registered_task.validate_job_data(
+                request.user, request_data
             )
 
             # Make sure the user has permission to enqueue this job.
