@@ -1,15 +1,10 @@
 <template>
 
-  <CoreBase
-    :immersivePage="false"
+  <CoachAppBarPage
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
   >
-
-    <template #sub-nav>
-      <TopNavbar />
-    </template>
 
     <KPageContainer :class="{ 'print': $isPrint }">
       <ReportsHeader :title="$isPrint ? $tr('printLabel', { className }) : null" />
@@ -115,7 +110,7 @@
         <div>{{ coachString('closeQuizModalDetail') }}</div>
       </KModal>
     </KPageContainer>
-  </CoreBase>
+  </CoachAppBarPage>
 
 </template>
 
@@ -125,6 +120,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ExamResource } from 'kolibri.resources';
   import commonCoach from '../common';
+  import CoachAppBarPage from '../CoachAppBarPage';
   import CSVExporter from '../../csv/exporter';
   import * as csvFields from '../../csv/fields';
   import ReportsControls from './ReportsControls';
@@ -133,6 +129,7 @@
   export default {
     name: 'ReportsQuizListPage',
     components: {
+      CoachAppBarPage,
       ReportsControls,
       ReportsHeader,
     },

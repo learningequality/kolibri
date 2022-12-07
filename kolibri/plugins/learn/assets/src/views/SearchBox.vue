@@ -180,7 +180,6 @@
     display: table;
     width: 100%;
     max-width: 450px;
-    overflow: hidden;
     border: solid 1px;
     border-radius: $radius;
   }

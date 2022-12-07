@@ -1,30 +1,26 @@
 <template>
 
-  <CoreBase
-    :immersivePage="false"
+  <CoachAppBarPage
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
   >
-    <template #sub-nav>
-      <TopNavbar />
-    </template>
 
     <KPageContainer>
       <PlanHeader />
 
       <div class="filter-and-button">
         <!-- Hidden temporarily per https://github.com/learningequality/kolibri/issues/6174
-          <KSelect
-            v-model="filterSelection"
-            :label="coreString('showAction')"
-            :options="filterOptions"
-            :inline="true"
-          />
-          -->
+            <KSelect
+              v-model="filterSelection"
+              :label="coreString('showAction')"
+              :options="filterOptions"
+              :inline="true"
+            />
+            -->
         <!-- Remove this div - it makes sure the [NEW LESSON] button stays right-aligned
-              while the above <KSelect> is hidden
-          -->
+                while the above <KSelect> is hidden
+            -->
         <div style="display: inline;"></div>
         <KRouterLink
           :primary="true"
@@ -42,7 +38,10 @@
           <th>{{ coachString('lessonVisibleLabel') }}</th>
         </template>
         <template #tbody>
-          <transition-group tag="tbody" name="list">
+          <transition-group
+            tag="tbody"
+            name="list"
+          >
             <tr
               v-for="lesson in sortedLessons"
               v-show="showLesson(lesson)"
@@ -59,8 +58,8 @@
               <td>
                 <Recipients
                   :groupNames="getRecipientNamesForLesson(lesson)"
-                  :hasAssignments="lesson.lesson_assignments.length > 0 ||
-                    lesson.learner_ids.length > 0"
+                  :hasAssignments="lesson.lesson_assignments.length > 0
+                    || lesson.learner_ids.length > 0"
                 />
               </td>
               <td>
@@ -81,11 +80,11 @@
         {{ $tr('noLessons') }}
       </p>
       <!-- <p v-else-if="!activeLessonCounts.true && filterSelection.value === 'activeLessons'">
-        {{ $tr('noActiveLessons') }}
-      </p>
-      <p v-else-if="!activeLessonCounts.false && filterSelection.value === 'inactiveLessons'">
-        {{ $tr('noInactiveLessons') }}
-      </p> -->
+          {{ $tr('noActiveLessons') }}
+        </p>
+        <p v-else-if="!activeLessonCounts.false && filterSelection.value === 'inactiveLessons'">
+          {{ $tr('noInactiveLessons') }}
+        </p> -->
 
       <KModal
         v-if="showModal"
@@ -113,8 +112,7 @@
         />
       </KModal>
     </KPageContainer>
-
-  </CoreBase>
+  </CoachAppBarPage>
 
 </template>
 
@@ -128,6 +126,7 @@
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import CoachAppBarPage from '../../CoachAppBarPage';
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
   import commonCoach from '../../common';
   import PlanHeader from '../../plan/PlanHeader';
@@ -139,6 +138,7 @@
     components: {
       PlanHeader,
       CoreTable,
+      CoachAppBarPage,
       AssignmentDetailsModal,
     },
     mixins: [commonCoach, commonCoreStrings],

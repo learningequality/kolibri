@@ -1,14 +1,10 @@
 <template>
 
-  <CoreBase
-    :immersivePage="false"
+  <CoachAppBarPage
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
   >
-    <template #sub-nav>
-      <TopNavbar />
-    </template>
 
     <KGrid gutter="16">
       <KGridItem>
@@ -58,7 +54,7 @@
         </KPageContainer>
       </KGridItem>
     </KGrid>
-  </CoreBase>
+  </CoachAppBarPage>
 
 </template>
 
@@ -67,12 +63,14 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
+  import CoachAppBarPage from '../CoachAppBarPage';
   import QuizOptionsDropdownMenu from '../plan/QuizSummaryPage/QuizOptionsDropdownMenu';
   import ReportsControls from './ReportsControls';
 
   export default {
     name: 'ReportsQuizBaseListPage',
     components: {
+      CoachAppBarPage,
       ReportsControls,
       QuizOptionsDropdownMenu,
     },

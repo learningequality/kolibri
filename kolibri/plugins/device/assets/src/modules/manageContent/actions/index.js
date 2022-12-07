@@ -7,11 +7,13 @@ function refreshChannelList(store) {
   return ChannelResource.fetchCollection({
     getParams: { include_fields: 'on_device_file_size' },
     force: true,
-  }).then(channels => {
-    store.commit('SET_CHANNEL_LIST', [...channels]);
-    store.commit('SET_CHANNEL_LIST_LOADING', false);
-    return [...channels];
-  });
+  })
+    .then(channels => {
+      store.commit('SET_CHANNEL_LIST', [...channels]);
+      store.commit('SET_CHANNEL_LIST_LOADING', false);
+      return [...channels];
+    })
+    .catch(() => []);
 }
 
 function startImportWorkflow(store, channel) {

@@ -1,15 +1,10 @@
 <template>
 
-  <CoreBase
-    :immersivePage="false"
+  <CoachAppBarPage
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
   >
-    <template #sub-nav>
-      <TopNavbar />
-    </template>
-
     <KPageContainer>
       <PlanHeader />
       <div class="ta-r">
@@ -67,7 +62,7 @@
       />
 
     </KPageContainer>
-  </CoreBase>
+  </CoachAppBarPage>
 
 </template>
 
@@ -80,6 +75,7 @@
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../../common';
+  import CoachAppBarPage from '../../CoachAppBarPage';
   import PlanHeader from '../../plan/PlanHeader';
   import { GroupModals } from '../../../constants';
   import CreateGroupModal from './CreateGroupModal';
@@ -90,6 +86,7 @@
   export default {
     name: 'GroupsPage',
     components: {
+      CoachAppBarPage,
       CoreTable,
       PlanHeader,
       GroupRowTr,

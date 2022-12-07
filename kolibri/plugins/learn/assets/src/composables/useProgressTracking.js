@@ -220,7 +220,6 @@ export default function useProgressTracking(store) {
         );
         Object.assign(nowSavedInteraction, interaction);
         pastattemptMap[nowSavedInteraction.id] = nowSavedInteraction;
-        set(totalattempts, get(totalattempts) + 1);
       } else {
         for (let key in interaction) {
           if (!blocklist[key]) {
@@ -350,6 +349,7 @@ export default function useProgressTracking(store) {
     // Used to ensure state is always saved when a session closes.
     force = false,
   } = {}) {
+    const wasComplete = get(progress_state) >= 1;
     if (get(session_id) === null) {
       throw ReferenceError(noSessionErrorText);
     }
@@ -363,8 +363,9 @@ export default function useProgressTracking(store) {
       progress = _zeroToOne(progress);
       progress = threeDecimalPlaceRoundup(progress);
       if (get(progress_state) < progress) {
-        const newProgressDelta =
-          get(progress_delta) + threeDecimalPlaceRoundup(progress - get(progress_state));
+        const newProgressDelta = _zeroToOne(
+          threeDecimalPlaceRoundup(get(progress_delta) + progress - get(progress_state))
+        );
         set(progress_delta, newProgressDelta);
         set(progress_state, progress);
       }
@@ -375,7 +376,10 @@ export default function useProgressTracking(store) {
       }
       progressDelta = _zeroToOne(progressDelta);
       progressDelta = threeDecimalPlaceRoundup(progressDelta);
-      set(progress_delta, threeDecimalPlaceRoundup(get(progress_delta) + progressDelta));
+      set(
+        progress_delta,
+        _zeroToOne(threeDecimalPlaceRoundup(get(progress_delta) + progressDelta))
+      );
       set(
         progress_state,
         Math.min(threeDecimalPlaceRoundup(get(progress_state) + progressDelta), 1)
@@ -421,7 +425,8 @@ export default function useProgressTracking(store) {
       set(time_spent_delta, threeDecimalPlaceRoundup(get(time_spent_delta) + elapsedTime));
     }
 
-    immediate = (!isUndefined(interaction) && !interaction.id) || immediate;
+    const completed = !wasComplete && get(progress_state) >= 1;
+    immediate = (!isUndefined(interaction) && !interaction.id) || completed || immediate;
     forceSessionUpdate = forceSessionUpdate || force;
     // Logic for promise returning debounce vendored and modified from:
     // https://github.com/sindresorhus/p-debounce/blob/main/index.js

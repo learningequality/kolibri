@@ -1,15 +1,12 @@
 <template>
 
-  <CoreBase
-    :immersivePage="true"
-    immersivePageIcon="close"
-    :immersivePagePrimary="false"
-    :immersivePageRoute="toolbarRoute"
+  <CoachImmersivePage
     :appBarTitle="$tr('createNewExamLabel')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
+    icon="close"
     :pageTitle="$tr('createNewExamLabel')"
-    :marginBottom="72"
+    :route="toolbarRoute"
   >
 
     <KPageContainer>
@@ -179,8 +176,7 @@
       </BottomAppBar>
 
     </KPageContainer>
-
-  </CoreBase>
+  </CoachImmersivePage>
 
 </template>
 
@@ -203,6 +199,7 @@
   import ResourceSelectionBreadcrumbs from '../../plan/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs';
   import ContentCardList from '../../plan/LessonResourceSelectionPage/ContentCardList';
   import commonCoach from '../../common';
+  import CoachImmersivePage from '../../CoachImmersivePage';
   import BookmarkIcon from '../LessonResourceSelectionPage/LessonContentCard/BookmarkIcon';
 
   export default {
@@ -210,6 +207,7 @@
     name: 'CreateExamPage',
     components: {
       UiAlert,
+      CoachImmersivePage,
       LessonsSearchBox,
       LessonsSearchFilters,
       ResourceSelectionBreadcrumbs,

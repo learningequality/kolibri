@@ -1,13 +1,12 @@
 <template>
 
-  <CoreBase
-    :immersivePage="true"
-    immersivePageIcon="back"
-    :immersivePageRoute="returnBackRoute"
-    :immersivePagePrimary="true"
+  <CoachImmersivePage
     :appBarTitle="appBarTitle"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
+    icon="back"
+    :route="returnBackRoute"
+    :primary="false"
   >
     <KPageContainer>
       <PracticeQuizContentPreviewPage
@@ -20,7 +19,7 @@
         @submit="handleSubmit"
       />
     </KPageContainer>
-  </CoreBase>
+  </CoachImmersivePage>
 
 </template>
 
@@ -32,11 +31,13 @@
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import commonCoach from '../../common';
+  import CoachImmersivePage from '../../CoachImmersivePage';
   import PracticeQuizContentPreviewPage from '../LessonContentPreviewPage/PracticeQuizContentPreviewPage';
 
   export default {
     name: 'PlanPracticeQuizPreviewPage',
     components: {
+      CoachImmersivePage,
       PracticeQuizContentPreviewPage,
     },
     mixins: [commonCoreStrings, commonCoach],

@@ -1,19 +1,11 @@
 <template>
 
-  <CoreBase
-    :immersivePage="false"
+  <CoachAppBarPage
     :appBarTitle="appBarTitle"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
-    :showSubNav="false"
   >
-
-    <template #sub-nav>
-      <TopNavbar />
-    </template>
-
     <KPageContainer>
-
       <p>
         <KRouterLink
           v-if="userIsMultiFacilityAdmin"
@@ -43,8 +35,14 @@
           <th>{{ coreString('learnersLabel') }}</th>
         </template>
         <template #tbody>
-          <transition-group tag="tbody" name="list">
-            <tr v-for="classObj in classList" :key="classObj.id">
+          <transition-group
+            tag="tbody"
+            name="list"
+          >
+            <tr
+              v-for="classObj in classList"
+              :key="classObj.id"
+            >
               <td>
                 <KRouterLink
                   :text="classObj.name"
@@ -63,8 +61,7 @@
         </template>
       </CoreTable>
     </KPageContainer>
-
-  </CoreBase>
+  </CoachAppBarPage>
 
 </template>
 
@@ -75,10 +72,14 @@
   import find from 'lodash/find';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import urls from 'kolibri.urls';
+  import CoachAppBarPage from './CoachAppBarPage';
   import commonCoach from './common';
 
   export default {
     name: 'CoachClassListPage',
+    components: {
+      CoachAppBarPage,
+    },
     mixins: [commonCoach, commonCoreStrings],
     computed: {
       ...mapGetters(['isAdmin', 'isClassCoach', 'isFacilityCoach', 'userIsMultiFacilityAdmin']),

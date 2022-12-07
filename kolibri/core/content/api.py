@@ -17,6 +17,7 @@ from django.http import Http404
 from django.utils.cache import patch_response_headers
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext as _
+from django.views.decorators.cache import cache_page
 from django.views.decorators.http import etag
 from django_filters.rest_framework import BaseInFilter
 from django_filters.rest_framework import BooleanFilter
@@ -1586,6 +1587,7 @@ class FileViewset(viewsets.ReadOnlyModelViewSet):
         return models.File.objects.all()
 
 
+@method_decorator(cache_page(60 * 5), name="dispatch")
 class RemoteChannelViewSet(viewsets.ViewSet):
     permission_classes = (CanManageContent,)
 
@@ -1668,9 +1670,10 @@ class RemoteChannelViewSet(viewsets.ViewSet):
         baseurl = request.GET.get("baseurl", None)
         keyword = request.GET.get("keyword", None)
         language = request.GET.get("language", None)
+        token = request.GET.get("token", None)
         try:
             channels = self._make_channel_endpoint_request(
-                baseurl=baseurl, keyword=keyword, language=language
+                identifier=token, baseurl=baseurl, keyword=keyword, language=language
             )
         except requests.exceptions.ConnectionError:
             return Response(
@@ -1707,19 +1710,3 @@ class RemoteChannelViewSet(viewsets.ViewSet):
                 return Response({"status": "online"})
         except requests.ConnectionError:
             return Response({"status": "offline"})
-
-    @action(detail=True)
-    def retrieve_list(self, request, pk=None):
-        baseurl = request.GET.get("baseurl", None)
-        keyword = request.GET.get("keyword", None)
-        language = request.GET.get("language", None)
-        try:
-            return Response(
-                self._make_channel_endpoint_request(
-                    identifier=pk, baseurl=baseurl, keyword=keyword, language=language
-                )
-            )
-        except requests.exceptions.ConnectionError:
-            return Response(
-                {"status": "offline"}, status=status.HTTP_503_SERVICE_UNAVAILABLE
-            )

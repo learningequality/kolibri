@@ -1,15 +1,10 @@
 <template>
 
-  <CoreBase
-    :immersivePage="false"
+  <CoachAppBarPage
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
   >
-
-    <template #sub-nav>
-      <TopNavbar />
-    </template>
 
     <KPageContainer>
 
@@ -26,8 +21,14 @@
               <th>{{ coreString('progressLabel') }}</th>
             </template>
             <template #tbody>
-              <transition-group tag="tbody" name="list">
-                <tr v-for="tableRow in lessonsTable" :key="tableRow.id">
+              <transition-group
+                tag="tbody"
+                name="list"
+              >
+                <tr
+                  v-for="tableRow in lessonsTable"
+                  :key="tableRow.id"
+                >
                   <td>
                     <KRouterLink
                       :to="classRoute('ReportsLearnerReportLessonPage', {
@@ -47,15 +48,24 @@
         </KGridItem>
         <KGridItem :layout12="{ span: $isPrint ? 12 : 6 }">
           <h2>{{ coachString('quizzesAssignedLabel') }}</h2>
-          <CoreTable :class="{ print: $isPrint }" :emptyMessage="coachString('quizListEmptyState')">
+          <CoreTable
+            :class="{ print: $isPrint }"
+            :emptyMessage="coachString('quizListEmptyState')"
+          >
             <template #headers>
               <th>{{ coachString('titleLabel') }}</th>
               <th>{{ coreString('progressLabel') }}</th>
               <th>{{ coreString('scoreLabel') }}</th>
             </template>
             <template #tbody>
-              <transition-group tag="tbody" name="list">
-                <tr v-for="tableRow in examsTable" :key="tableRow.id">
+              <transition-group
+                tag="tbody"
+                name="list"
+              >
+                <tr
+                  v-for="tableRow in examsTable"
+                  :key="tableRow.id"
+                >
                   <td>
                     <KRouterLink
                       :to="quizLink(tableRow.id)"
@@ -66,7 +76,9 @@
                   <td>
                     <StatusSimple :status="tableRow.statusObj.status" />
                   </td>
-                  <td><Score :value="tableRow.statusObj.score" /></td>
+                  <td>
+                    <Score :value="tableRow.statusObj.score" />
+                  </td>
                 </tr>
               </transition-group>
             </template>
@@ -75,7 +87,7 @@
       </KGrid>
 
     </KPageContainer>
-  </CoreBase>
+  </CoachAppBarPage>
 
 </template>
 
@@ -84,6 +96,7 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
+  import CoachAppBarPage from '../CoachAppBarPage';
   import { PageNames } from '../../constants';
   import ReportsLearnerHeader from './ReportsLearnerHeader';
   import ReportsControls from './ReportsControls';
@@ -91,6 +104,7 @@
   export default {
     name: 'ReportsLearnerReportPage',
     components: {
+      CoachAppBarPage,
       ReportsLearnerHeader,
       ReportsControls,
     },

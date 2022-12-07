@@ -1,16 +1,13 @@
 <template>
 
-  <CoreBase
-    :immersivePage="true"
-    immersivePageIcon="back"
-    :immersivePagePrimary="false"
-    :immersivePageRoute="toolbarRoute"
+  <CoachImmersivePage
     :appBarTitle="$tr('appBarLabel')"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
-    :marginBottom="72"
+    icon="back"
+    :pageTitle="$tr('title')"
+    :route="toolbarRoute"
   >
-
     <KPageContainer>
       <h1>{{ $tr('preview') }}</h1>
       <h2>{{ coachString('detailsLabel') }}</h2>
@@ -27,7 +24,10 @@
             @input="showTitleError = false"
           />
         </KGridItem>
-        <KGridItem :layout12="{ span: 6 }" class="number-input-grid-item">
+        <KGridItem
+          :layout12="{ span: 6 }"
+          class="number-input-grid-item"
+        >
           <KTextbox
             ref="numQuest"
             v-model.trim.number="numQuestions"
@@ -115,8 +115,7 @@
         </KButtonGroup>
       </BottomAppBar>
     </KPageContainer>
-
-  </CoreBase>
+  </CoachImmersivePage>
 
 </template>
 
@@ -131,18 +130,15 @@
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../../common';
+  import CoachImmersivePage from '../../CoachImmersivePage';
   import { MAX_QUESTIONS } from '../../../constants/examConstants';
   import QuestionListPreview from './QuestionListPreview';
 
   export default {
     name: 'CreateExamPreview',
-    metaInfo() {
-      return {
-        title: this.$tr('title'),
-      };
-    },
     components: {
       BottomAppBar,
+      CoachImmersivePage,
       QuestionListPreview,
     },
     mixins: [responsiveWindowMixin, commonCoach, commonCoreStrings],

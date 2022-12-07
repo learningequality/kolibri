@@ -9,6 +9,7 @@
     <div v-if="blockDoubleClicks" class="click-mask"></div>
     <SkipNavigationLink />
     <LearningActivityBar
+      ref="activityBar"
       :resourceTitle="resourceTitle"
       :learningActivities="content.learning_activities"
       :isLessonContext="lessonContext"
@@ -27,6 +28,7 @@
       @toggleBookmark="toggleBookmark"
       @viewResourceList="toggleResourceList"
       @viewInfo="openSidePanel"
+      @completionModal="openCompletionModal"
     />
     <KLinearLoader
       v-if="loading"
@@ -59,7 +61,9 @@
         :content="content"
         :lessonId="lessonId"
         :style="{ backgroundColor: ( content.assessment ? '' : $themeTokens.textInverted ) }"
+        :allowMarkComplete="allowMarkComplete"
         @mounted="contentPageMounted = true"
+        @finished="$refs.activityBar && $refs.activityBar.animateNextSteps()"
       />
     </div>
 
@@ -318,14 +322,7 @@
     watch: {
       content(newContent, oldContent) {
         if ((newContent && !oldContent) || newContent.id !== oldContent.id) {
-          this.resetSidebarInfo();
-          client({
-            method: 'get',
-            url: urls['kolibri:core:bookmarks-list'](),
-            params: { contentnode_id: this.content.id },
-          }).then(response => {
-            this.bookmark = response.data[0] || false;
-          });
+          this.initializeState();
         }
       },
       showViewResourcesSidePanel(newVal, oldVal) {
@@ -334,13 +331,32 @@
         }
       },
     },
+    created() {
+      this.initializeState();
+    },
     methods: {
-      resetSidebarInfo() {
+      initializeState() {
+        this.bookmark = null;
         this.showViewResourcesSidePanel = false;
         this.nextContent = null;
         this.viewResourcesContents = [];
         this.resourcesSidePanelFetched = false;
         this.resourcesSidePanelLoading = false;
+        if (this.content) {
+          const id = this.content.id;
+          client({
+            method: 'get',
+            url: urls['kolibri:core:bookmarks-list'](),
+            params: { contentnode_id: this.content.id },
+          }).then(response => {
+            // As the component never gets fully torn down
+            // this request could be stale. Only set bookmark
+            // data in the case that the ids still match.
+            if (this.content && this.content.id === id) {
+              this.bookmark = response.data[0] || false;
+            }
+          });
+        }
       },
       getSidebarInfo() {
         if (!this.resourcesSidePanelFetched && !this.resourcesSidePanelLoading) {
@@ -440,15 +456,20 @@
             this.bookmark = false;
           });
         } else if (this.bookmark === false) {
+          const id = this.content.id;
           client({
             method: 'post',
             url: urls['kolibri:core:bookmarks-list'](),
             data: {
-              contentnode_id: this.content.id,
+              contentnode_id: id,
               user: this.currentUserId,
             },
           }).then(response => {
-            this.bookmark = response.data;
+            if (this.content && this.content.id === id) {
+              // Don't set a stale response if a user
+              // navigated away before the bookmark finished.
+              this.bookmark = response.data;
+            }
           });
         }
       },
@@ -460,6 +481,11 @@
           this.$refs.embeddedPanel.focusFirstEl();
         } else {
           this.$refs.resourcePanel.focusFirstEl();
+        }
+      },
+      openCompletionModal() {
+        if (this.$refs.contentPage) {
+          this.$refs.contentPage.displayCompletionModal();
         }
       },
     },

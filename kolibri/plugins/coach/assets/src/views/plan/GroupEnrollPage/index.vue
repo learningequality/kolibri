@@ -1,14 +1,11 @@
 <template>
 
-  <CoreBase
-    :immersivePage="true"
-    immersivePageIcon="back"
-    :immersivePagePrimary="true"
-    :primary="true"
-    :toolbarTitle="currentGroup.name"
+  <CoachImmersivePage
     :appBarTitle="currentGroup.name"
-    :immersivePageRoute="$router.getRoute('GroupMembersPage')"
+    icon="back"
     :pageTitle="pageTitle"
+    :route="$router.getRoute('GroupMembersPage')"
+    :primary="false"
   >
     <KPageContainer>
       <h1>
@@ -51,7 +48,6 @@
               :ariaLabel="$tr('previousResults')"
               :disabled="pageNum === 1"
               size="small"
-
               @click="goToPage(pageNum - 1)"
             />
             <KIconButton
@@ -59,7 +55,6 @@
               :ariaLabel="$tr('nextResults')"
               :disabled="numPages === 0 || pageNum === numPages"
               size="small"
-
               @click="goToPage(pageNum + 1)"
             />
           </KButtonGroup>
@@ -75,9 +70,7 @@
         </div>
       </form>
     </KPageContainer>
-
-
-  </CoreBase>
+  </CoachImmersivePage>
 
 </template>
 
@@ -92,10 +85,12 @@
   import filterUsersByNames from 'kolibri.utils.filterUsersByNames';
   import UserTable from 'kolibri.coreVue.components.UserTable';
   import commonCoach from '../../common';
+  import CoachImmersivePage from '../../CoachImmersivePage';
 
   export default {
     name: 'GroupEnrollPage',
     components: {
+      CoachImmersivePage,
       FilterTextbox,
       UserTable,
     },

@@ -6,6 +6,7 @@
       :appBarTitle="(!loading ? appBarTitle : '')"
       :route="route"
       :icon="icon"
+      :isFullscreen="primary"
     />
     <slot></slot>
     <KLinearLoader
@@ -47,6 +48,11 @@
       loading: {
         type: Boolean,
         default: null,
+      },
+      primary: {
+        type: Boolean,
+        required: false,
+        default: true,
       },
     },
     data() {

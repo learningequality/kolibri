@@ -76,10 +76,10 @@ describe('channelTokenModal component', () => {
     });
 
     it('emits a "submit" event if token lookup is successful', () => {
-      const tokenPayload = { id: 'toka-toka-token' };
+      const tokenPayload = { token: 'toka-toka-token', channels: [{ id: 'toka-toka-token' }] };
       const { lookupTokenStub } = getElements(wrapper);
       const lookupStub = lookupTokenStub();
-      lookupStub.mockResolvedValue([tokenPayload]);
+      lookupStub.mockResolvedValue(tokenPayload.channels);
       return inputToken(wrapper, 'toka-toka-token')
         .then(() => {
           wrapper.vm.submitForm();

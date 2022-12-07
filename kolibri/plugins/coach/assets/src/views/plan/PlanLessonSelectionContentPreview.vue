@@ -1,15 +1,14 @@
 <template>
 
-  <CoreBase
-    :immersivePage="true"
-    immersivePageIcon="back"
-    :immersivePageRoute="returnBackRoute"
-    :immersivePagePrimary="true"
+  <CoachImmersivePage
     :appBarTitle="lessonNameLabel"
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
+    icon="back"
+    :route="returnBackRoute"
+    :primary="false"
   >
-    <KPageContainer :topMargin="0">
+    <KPageContainer>
       <LessonContentPreviewPage
         :currentContentNode="currentContentNode"
         :isSelected="isSelected"
@@ -20,7 +19,8 @@
         @removeResource="handleRemoveResource"
       />
     </KPageContainer>
-  </CoreBase>
+
+  </CoachImmersivePage>
 
 </template>
 
@@ -32,10 +32,13 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import LessonContentPreviewPage from '../plan/LessonContentPreviewPage';
+  import CoachImmersivePage from '../../views/CoachImmersivePage';
 
   export default {
     name: 'PlanLessonSelectionContentPreview',
+
     components: {
+      CoachImmersivePage,
       LessonContentPreviewPage,
     },
     mixins: [commonCoreStrings, commonCoach],

@@ -43,15 +43,6 @@
       @click="toggleShowMoreOrLess"
     />
 
-    <div v-if="content.level" class="section">
-      <span class="label">
-        {{ metadataStrings.$tr('level') }}:
-      </span>
-      <span>
-        {{ content.level }}
-      </span>
-    </div>
-
     <div v-if="content.duration" class="section" data-test="estimated-time">
       <span class="label">
         {{ metadataStrings.$tr('estimatedTime') }}:
@@ -70,7 +61,7 @@
         {{ metadataStrings.$tr('level') }}:
       </span>
       <span>
-        {{ content.grade_levels.join(", ") }}
+        {{ levels(content.grade_levels) }}
       </span>
     </div>
 
@@ -139,7 +130,9 @@
 
 <script>
 
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import { ContentNodeKinds, ContentLevels } from 'kolibri.coreVue.vuex.constants';
+  import camelCase from 'lodash/camelCase';
+
   import { isEmbeddedWebView } from 'kolibri.utils.browserInfo';
   import LearnerNeeds from 'kolibri-constants/labels/Needs';
   import DownloadButton from 'kolibri.coreVue.components.DownloadButton';
@@ -234,6 +227,32 @@
       calculateDescriptionOverflow() {
         if (this.$refs.description && this.$refs.description.scrollHeight > 175) {
           this.descriptionOverflow = true;
+        }
+      },
+
+      levels(levels) {
+        const matches = Object.keys(ContentLevels)
+          .sort()
+          .filter(k => levels.includes(ContentLevels[k]));
+        if (matches && matches.length > 0) {
+          let adjustedMatches = [];
+          matches.map(key => {
+            let translationKey;
+            if (key === 'PROFESSIONAL') {
+              translationKey = 'specializedProfessionalTraining';
+            } else if (key === 'WORK_SKILLS') {
+              translationKey = 'allLevelsWorkSkills';
+            } else if (key === 'BASIC_SKILLS') {
+              translationKey = 'allLevelsBasicSkills';
+            } else {
+              translationKey = camelCase(key);
+            }
+            adjustedMatches.push(translationKey);
+          });
+          adjustedMatches = adjustedMatches.map(m => this.coreString(m)).join(', ');
+          return adjustedMatches;
+        } else {
+          return '-';
         }
       },
     },

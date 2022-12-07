@@ -14,7 +14,7 @@ on:
 jobs:
   build_pex:
     name: Build PEX
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     outputs:
       pex-file-name: ${{ steps.get-pex-filename.outputs.pex-file-name }}
     steps:

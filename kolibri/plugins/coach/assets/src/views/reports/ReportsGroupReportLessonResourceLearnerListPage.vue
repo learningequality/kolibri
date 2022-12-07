@@ -1,18 +1,16 @@
 <template>
 
-  <CoreBase
-    :immersivePage="false"
+  <CoachAppBarPage
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
   >
 
-    <template #sub-nav>
-      <TopNavbar />
-    </template>
-
     <KPageContainer>
-      <ReportsResourceHeader :resource="resource" @previewClick="onPreviewClick" />
+      <ReportsResourceHeader
+        :resource="resource"
+        @previewClick="onPreviewClick"
+      />
 
       <ReportsControls @export="exportCSV">
         <p>
@@ -23,7 +21,7 @@
       <ReportsLearnersTable :entries="table" />
 
     </KPageContainer>
-  </CoreBase>
+  </CoachAppBarPage>
 
 </template>
 
@@ -34,6 +32,7 @@
   import { mapState } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
+  import CoachAppBarPage from '../CoachAppBarPage';
   import CSVExporter from '../../csv/exporter';
   import * as csvFields from '../../csv/fields';
   import ReportsLearnersTable from './ReportsLearnersTable';
@@ -43,6 +42,7 @@
   export default {
     name: 'ReportsGroupReportLessonResourceLearnerListPage',
     components: {
+      CoachAppBarPage,
       ReportsControls,
       ReportsLearnersTable,
       ReportsResourceHeader,

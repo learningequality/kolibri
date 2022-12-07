@@ -26,11 +26,11 @@ jobs:
   unit_test:
     name: Python unit tests
     needs: pre_job
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     strategy:
       max-parallel: 5
       matrix:
-        python-version: [2.7, 3.6, 3.7, 3.8, 3.9, '3.10']
+        python-version: [2.7, 3.6, 3.7, 3.8, 3.9, '3.10', '3.11']
 
     steps:
     - uses: actions/checkout@v2
@@ -56,7 +56,7 @@ jobs:
   postgres:
     name: Python postgres unit tests
     needs: pre_job
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     services:
       # Label used to access the service container
       postgres:
@@ -78,11 +78,11 @@ jobs:
           - 5432:5432
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python 3.6 for Postgres
+    - name: Set up Python 3.9 for Postgres
       if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
       uses: actions/setup-python@v2
       with:
-        python-version: 3.6
+        python-version: 3.9
     - name: Install tox
       if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
       run: |
@@ -92,8 +92,8 @@ jobs:
       if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
       uses: actions/cache@v2
       with:
-        path: ${{ github.workspace }}/.tox/py3.6
-        key: ${{ runner.os }}-tox-py3.6-${{ hashFiles('requirements/*.txt') }}
+        path: ${{ github.workspace }}/.tox/py3.9
+        key: ${{ runner.os }}-tox-py3.9-${{ hashFiles('requirements/*.txt') }}
     - name: Test with tox
       if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
       run: tox -e postgres

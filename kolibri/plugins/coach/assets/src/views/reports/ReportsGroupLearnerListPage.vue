@@ -1,15 +1,10 @@
 <template>
 
-  <CoreBase
-    :immersivePage="false"
+  <CoachAppBarPage
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
   >
-
-    <template #sub-nav>
-      <TopNavbar />
-    </template>
 
     <KPageContainer>
       <ReportsGroupHeader :enablePrint="true" />
@@ -23,8 +18,14 @@
           <th>{{ coachString('lastActivityLabel') }}</th>
         </template>
         <template #tbody>
-          <transition-group tag="tbody" name="list">
-            <tr v-for="tableRow in table" :key="tableRow.id">
+          <transition-group
+            tag="tbody"
+            name="list"
+          >
+            <tr
+              v-for="tableRow in table"
+              :key="tableRow.id"
+            >
               <td>
                 <KRouterLink
                   :text="tableRow.name"
@@ -32,16 +33,20 @@
                   icon="person"
                 />
               </td>
-              <td><Score :value="tableRow.avgScore" /></td>
+              <td>
+                <Score :value="tableRow.avgScore" />
+              </td>
               <td>{{ $formatNumber(tableRow.exercises) }}</td>
               <td>{{ $formatNumber(tableRow.resources) }}</td>
-              <td><ElapsedTime :date="tableRow.lastActivity" /></td>
+              <td>
+                <ElapsedTime :date="tableRow.lastActivity" />
+              </td>
             </tr>
           </transition-group>
         </template>
       </CoreTable>
     </KPageContainer>
-  </CoreBase>
+  </CoachAppBarPage>
 
 </template>
 
@@ -50,6 +55,7 @@
 
   import sortBy from 'lodash/sortBy';
   import commonCoach from '../common';
+  import CoachAppBarPage from '../CoachAppBarPage';
   import CSVExporter from '../../csv/exporter';
   import * as csvFields from '../../csv/fields';
   import ReportsGroupHeader from './ReportsGroupHeader';
@@ -58,6 +64,7 @@
   export default {
     name: 'ReportsGroupLearnerListPage',
     components: {
+      CoachAppBarPage,
       ReportsGroupHeader,
       ReportsControls,
     },

@@ -1,14 +1,10 @@
 <template>
 
-  <CoreBase
-    :immersivePage="false"
+  <CoachAppBarPage
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
     :showSubNav="true"
   >
-    <template #sub-nav>
-      <TopNavbar />
-    </template>
 
     <KPageContainer>
       <ReportsHeader :title="$isPrint ? $tr('printLabel', { className }) : null" />
@@ -32,8 +28,14 @@
           </th>
         </template>
         <template #tbody>
-          <transition-group tag="tbody" name="list">
-            <tr v-for="tableRow in table" :key="tableRow.id">
+          <transition-group
+            tag="tbody"
+            name="list"
+          >
+            <tr
+              v-for="tableRow in table"
+              :key="tableRow.id"
+            >
               <td>
                 <KRouterLink
                   :text="tableRow.title"
@@ -67,7 +69,7 @@
         </template>
       </CoreTable>
     </KPageContainer>
-  </CoreBase>
+  </CoachAppBarPage>
 
 </template>
 
@@ -77,6 +79,7 @@
   import { LessonResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
+  import CoachAppBarPage from '../CoachAppBarPage';
   import CSVExporter from '../../csv/exporter';
   import * as csvFields from '../../csv/fields';
   import ReportsControls from './ReportsControls';
@@ -85,6 +88,7 @@
   export default {
     name: 'ReportsLessonListPage',
     components: {
+      CoachAppBarPage,
       ReportsControls,
       ReportsHeader,
     },

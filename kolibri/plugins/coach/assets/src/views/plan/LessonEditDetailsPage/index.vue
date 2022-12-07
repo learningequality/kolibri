@@ -1,17 +1,13 @@
 <template>
 
-  <CoreBase
-    :immersivePage="true"
-    immersivePageIcon="close"
-    :immersivePagePrimary="false"
+  <CoachImmersivePage
+    :appBarTitle="$tr('appBarTitle')"
     :authorized="$store.getters.userIsAuthorizedForCoach"
     authorizedRole="adminOrCoach"
-    :appBarTitle="$tr('appBarTitle')"
+    icon="close"
     :pageTitle="$tr('pageTitle', { title: lesson.title })"
-    :showSubNav="false"
-    :immersivePageRoute="previousPageRoute"
+    :route="previousPageRoute"
   >
-
     <KPageContainer v-if="!loading">
       <AssignmentDetailsForm
         v-bind="formProps"
@@ -34,8 +30,7 @@
       </AssignmentDetailsForm>
 
     </KPageContainer>
-
-  </CoreBase>
+  </CoachImmersivePage>
 
 </template>
 
@@ -45,8 +40,8 @@
   import isEqual from 'lodash/isEqual';
   import { LessonResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { CoachCoreBase } from '../../common';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
+  import CoachImmersivePage from '../../CoachImmersivePage';
   import AssignmentDetailsModal from '../assignments/AssignmentDetailsModal';
   import ResourceListTable from './EditDetailsResourceListTable';
 
@@ -54,7 +49,7 @@
     name: 'LessonEditDetailsPage',
     components: {
       AssignmentDetailsForm: AssignmentDetailsModal,
-      CoreBase: CoachCoreBase,
+      CoachImmersivePage,
       ResourceListTable,
     },
     mixins: [coachStringsMixin, commonCoreStrings],

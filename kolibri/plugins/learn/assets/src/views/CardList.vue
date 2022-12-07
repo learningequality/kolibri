@@ -8,7 +8,7 @@
     >
       <KFixedGrid numCols="4">
         <KFixedGridItem :span="isMobile ? 4 : 1" class="thumb-area">
-          <CardThumbnail :contentNode="content" />
+          <CardThumbnail :contentNode="content" :hideDuration="!windowIsLarge" />
           <p
             v-if="isBookmarksPage && !isMobile"
             class="created-info"
@@ -22,29 +22,58 @@
         <KFixedGridItem :span="isMobile ? 4 : 3" class="text-area">
           <span :style="{ color: $themeTokens.text }">
             <div class="metadata-info" :style="{ color: $themePalette.grey.v_700 }">
-              <LearningActivityLabel :contentNode="content" labelAfter condensed />
+              <LearningActivityLabel
+                :contentNode="content"
+                :hideDuration="true"
+                labelAfter
+                condensed
+              />
             </div>
-            <h3>
+            <h3 :style="{ marginTop: '4px', marginBottom: '4px' }">
               <TextTruncatorCss :text="content.title" :maxLines="1" />
             </h3>
-            <p v-if="content.description" style="font-size: 14px;">
-              <TextTruncatorCss :text="content.description" :maxLines="4" />
+            <p
+              v-if="content.description"
+              style="font-size: 14px; marginTop: 4px; marginBottom: 4px;"
+            >
+              <TextTruncatorCss :text="content.description" :maxLines="2" />
             </p>
             <div v-if="!isMobile" class="bottom-items">
-              <p v-if="categoryAndLevelString">{{ categoryAndLevelString }}</p>
-              <img
-                :src="content.channel_thumbnail"
-                :alt="learnString('logo', { channelTitle: content.channel_title })"
-                class="channel-logo"
-              >
-              <KButton
-                v-if="isLibraryPage && content.copies"
-                appearance="basic-link"
-                class="copies"
-                :style="{ color: $themeTokens.text }"
-                :text="coreString('copies', { num: content.copies.length })"
-                @click.prevent="$emit('openCopiesModal', content.copies)"
+              <LearningActivityDuration
+                v-if="!windowIsLarge"
+                :contentNode="content"
+                :class="categoryAndLevelString ? 'duration prepends' : 'duration'"
+                condensed
+                :style="{ color: $themePalette.grey.v_700, marginTop: 0 }"
               />
+              <p
+                v-if="categoryAndLevelString"
+                class="metadata-info"
+                :style="{ color: $themePalette.grey.v_700, marginTop: 0 }"
+              >{{ categoryAndLevelString }}</p>
+              <div>
+                <img
+                  v-if="content.channel_thumbnail"
+                  :src="
+                    content.channel_thumbnail"
+                  :alt="learnString('logo', { channelTitle: content.channel_title })"
+                  class="channel-logo"
+                  :style="{ color: $themePalette.grey.v_700 }"
+                >
+                <p
+                  v-else
+                  class="metadata-info"
+                  :style="{ color: $themePalette.grey.v_700, marginTop: 0 }"
+                >{{ learnString('logo', { channelTitle: content.channel_title }) }}</p>
+                <KButton
+                  v-if="isLibraryPage && content.copies"
+                  appearance="basic-link"
+                  class="copies"
+                  :style="{ color: $themeTokens.text }"
+                  :text="coreString('copies', { num: content.copies.length })"
+                  @click.prevent="$emit('openCopiesModal', content.copies)"
+                />
+              </div>
             </div>
           </span>
         </KFixedGridItem>
@@ -85,9 +114,13 @@
   import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { now } from 'kolibri.utils.serverClock';
+  import { ContentLevels, Categories } from 'kolibri.coreVue.vuex.constants';
+  import camelCase from 'lodash/camelCase';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { PageNames } from '../constants';
   import ProgressBar from './ProgressBar';
   import LearningActivityLabel from './LearningActivityLabel';
+  import LearningActivityDuration from './LearningActivityDuration';
   import commonLearnStrings from './commonLearnStrings';
   import CardThumbnail from './HybridLearningContentCard/CardThumbnail';
 
@@ -97,9 +130,10 @@
       CardThumbnail,
       TextTruncatorCss,
       LearningActivityLabel,
+      LearningActivityDuration,
       ProgressBar,
     },
-    mixins: [commonLearnStrings, commonCoreStrings],
+    mixins: [responsiveWindowMixin, commonLearnStrings, commonCoreStrings],
     props: {
       createdDate: {
         type: String,
@@ -131,16 +165,6 @@
       now: now(),
     }),
     computed: {
-      categoryAndLevelString() {
-        if (this.category && this.level) {
-          return this.coreString(this.category) + ' | ' + this.coreString(this.level);
-        } else if (this.category) {
-          return this.coreString(this.category);
-        } else if (this.level) {
-          return this.coreString(this.level);
-        }
-        return null;
-      },
       isBookmarksPage() {
         return this.currentPage === PageNames.BOOKMARKS;
       },
@@ -156,6 +180,51 @@
       bookmarkCreated() {
         const time = this.$formatRelative(this.ceilingDate, { now: this.now });
         return this.coreString('bookmarkedTimeAgoLabel', { time });
+      },
+      categoryAndLevelString() {
+        if (this.levels(this.content.grade_levels) && this.category(this.content.categories)) {
+          return (
+            this.category(this.content.categories) + ' | ' + this.levels(this.content.grade_levels)
+          );
+        } else if (this.category(this.content.categories)) {
+          return this.category(this.content.categories);
+        } else if (this.levels(this.content.grade_levels)) {
+          return this.levels(this.content.grade_levels);
+        }
+        return null;
+      },
+    },
+    methods: {
+      levels(levels) {
+        const matches = Object.keys(ContentLevels)
+          .sort()
+          .filter(k => levels.includes(ContentLevels[k]));
+        if (matches && matches.length > 0) {
+          let adjustedMatches = [];
+          matches.map(key => {
+            let translationKey;
+            if (key === 'PROFESSIONAL') {
+              translationKey = 'specializedProfessionalTraining';
+            } else if (key === 'WORK_SKILLS') {
+              translationKey = 'allLevelsWorkSkills';
+            } else if (key === 'BASIC_SKILLS') {
+              translationKey = 'allLevelsBasicSkills';
+            } else {
+              translationKey = camelCase(key);
+            }
+            adjustedMatches.push(translationKey);
+          });
+          adjustedMatches = adjustedMatches.map(m => this.coreString(m)).join(', ');
+          return adjustedMatches;
+        }
+      },
+      category(options) {
+        const matches = Object.keys(Categories)
+          .sort()
+          .filter(k => options.includes(Categories[k]));
+        if (matches && matches.length > 0) {
+          return matches.map(m => this.coreString(camelCase(m))).join(', ');
+        }
       },
     },
   };
@@ -199,13 +268,16 @@
   }
 
   .metadata-info {
-    font-size: 14px;
+    display: inline-block;
+    padding-left: 2px;
+    font-size: 13px;
   }
 
   .channel-logo {
     display: inline-block;
     height: 24px;
     margin-right: 8px;
+    font-size: 13px;
   }
 
   .copies {
@@ -214,6 +286,18 @@
     font-size: 13px;
     text-decoration: none;
     vertical-align: top;
+  }
+
+  .duration {
+    display: inline-block;
+    margin-top: 4px;
+    font-size: 13px;
+  }
+
+  .prepends {
+    &::after {
+      content: ' | ';
+    }
   }
 
   .footer {

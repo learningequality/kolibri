@@ -1,17 +1,13 @@
 <template>
 
-  <CoreBase
-    :immersivePage="true"
-    immersivePageIcon="close"
-    :immersivePagePrimary="false"
+  <CoachImmersivePage
+    :appBarTitle="$tr('appBarTitle')"
     :authorized="$store.getters.userIsAuthorizedForCoach"
     authorizedRole="adminOrCoach"
-    :appBarTitle="$tr('appBarTitle')"
+    icon="close"
     :pageTitle="$tr('pageTitle', { title: quiz.title })"
-    :showSubNav="false"
-    :immersivePageRoute="previousPageRoute"
+    :route="previousPageRoute"
   >
-
     <KPageContainer v-if="!loading && !error">
       <AssignmentDetailsForm
         v-bind="formProps"
@@ -21,8 +17,7 @@
         @submit="handleSaveChanges"
       />
     </KPageContainer>
-
-  </CoreBase>
+  </CoachImmersivePage>
 
 </template>
 
@@ -32,15 +27,15 @@
   import { mapGetters } from 'vuex';
   import { ExamResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { CoachCoreBase } from '../common';
   import { coachStringsMixin } from '../common/commonCoachStrings';
+  import CoachImmersivePage from '../CoachImmersivePage';
   import AssignmentDetailsModal from './assignments/AssignmentDetailsModal';
 
   export default {
     name: 'QuizEditDetailsPage',
     components: {
       AssignmentDetailsForm: AssignmentDetailsModal,
-      CoreBase: CoachCoreBase,
+      CoachImmersivePage,
     },
     mixins: [coachStringsMixin, commonCoreStrings],
     data() {

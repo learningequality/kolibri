@@ -55,7 +55,7 @@
               {{ $tr('signIn') }}
             </UiAlert>
             <div
-              v-else
+              v-else-if="!wasComplete"
               class="stats"
             >
               <div class="points">
@@ -208,6 +208,10 @@
         default: false,
       },
       isSurvey: {
+        type: Boolean,
+        default: false,
+      },
+      wasComplete: {
         type: Boolean,
         default: false,
       },

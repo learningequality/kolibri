@@ -60,8 +60,8 @@
               : categoryListItemStyles"
             :disabled="!availableRootCategories[key] &&
               !isKeyActive(key)"
-            iconAfter="chevronRight"
-            @click="$emit('currentCategory', category)"
+            :iconAfter="hasNestedCategories(category) ? 'chevronRight' : null"
+            @click="handleCategory(category)"
           />
         </div>
         <div
@@ -132,6 +132,7 @@
   import SearchBox from '../SearchBox';
   import commonLearnStrings from '../commonLearnStrings';
   import genContentLink from '../../utils/genContentLink';
+  import { libraryCategories } from '../../constants';
   import ActivityButtonsGroup from './ActivityButtonsGroup';
   import SelectGroup from './SelectGroup';
   import plugin_data from 'plugin_data';
@@ -141,22 +142,16 @@
   const resourcesNeeded = {};
   resourcesNeededShown.map(key => {
     const value = ResourcesNeededTypes[key];
-    // TODO rtibbles: remove this condition
-    if ((plugin_data.learnerNeeds || []).includes(value) || process.env.NODE_ENV !== 'production') {
+    if ((plugin_data.learnerNeeds || []).includes(value)) {
       resourcesNeeded[key] = value;
     }
   });
 
   let availableIds;
 
-  if (process.env.NODE_ENV !== 'production') {
-    // TODO rtibbles: remove this condition
-    availableIds = Object.keys(CategoriesLookup);
-  } else {
-    availableIds = plugin_data.categories;
-  }
+  availableIds = plugin_data.categories || [];
 
-  const libraryCategories = pick(
+  const libraryCategoriesSelection = pick(
     CategoriesLookup,
     uniq(availableIds.map(key => key.split('.')[0]))
   );
@@ -244,7 +239,7 @@
         },
       },
       libraryCategoriesList() {
-        return libraryCategories;
+        return libraryCategoriesSelection;
       },
       resourcesNeededList() {
         return resourcesNeeded;
@@ -306,6 +301,9 @@
       noCategories() {
         this.$emit('input', { ...this.value, categories: { [NoCategories]: true } });
       },
+      hasNestedCategories(category) {
+        return Object.keys(libraryCategories[category].nested).length > 0;
+      },
       handleActivity(activity) {
         if (activity && !this.value.learning_activities[activity]) {
           const learning_activities = {
@@ -332,6 +330,25 @@
           this.$emit('input', {
             ...this.value,
             learner_needs: { ...this.value.learner_needs, [need]: true },
+          });
+        }
+      },
+      handleCategory(category) {
+        // for categories with sub-categories, open the modal
+        if (
+          libraryCategories[category] &&
+          libraryCategories[category].nested &&
+          Object.keys(libraryCategories[category].nested).length > 0
+        ) {
+          this.$emit('currentCategory', category);
+        }
+        // for valid categories with no subcategories, search directly
+        else if (libraryCategories[category]) {
+          this.$emit('input', {
+            ...this.value,
+            // This parallels the behaviour of setCategory in the useSearch
+            // composable - where category selection is mutually exclusive.
+            categories: { [libraryCategories[category].value]: true },
           });
         }
       },

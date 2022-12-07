@@ -59,7 +59,7 @@
         :availableLabels="labels"
         position="fullscreen"
         @cancel="currentCategory = null"
-        @input="handleCategory"
+        @input="category => $emit('setCategory', category)"
       />
     </SidePanelModal>
 
@@ -73,7 +73,7 @@
       :availableLabels="labels"
       position="modal"
       @cancel="currentCategory = null"
-      @input="handleCategory"
+      @input="category => $emit('setCategory', category)"
     />
   </div>
 
@@ -103,7 +103,6 @@
       var currentCategory = ref(null);
       const closeCategoryModal = () => (currentCategory.value = null);
       const handleCategory = category => {
-        context.emit('setCategory', category);
         currentCategory.value = category;
       };
 
