@@ -56,14 +56,19 @@ class TasksViewSet(viewsets.GenericViewSet):
         validated_jobs = []
 
         for request_data in request_data_list:
-            # Make sure the task is registered
+            # Make sure the task is registered.
             registered_task = TaskRegistry.validate_task(request_data.get("type"))
 
-            job = registered_task.validate_job_data(request.user, request_data)
+            # Make sure the job's data is valid along with `enqueue_args`.
+            job, enqueue_args = registered_task.validate_job_data(
+                request.user, request_data
+            )
 
+            # Make sure the user has permission to enqueue this job.
             registered_task.check_job_permissions(request.user, job, self)
 
-            validated_jobs.append((registered_task, job))
+            # OK - the task passed all our validation, it's good to go!
+            validated_jobs.append((registered_task, job, enqueue_args))
 
         return validated_jobs
 
@@ -82,6 +87,14 @@ class TasksViewSet(viewsets.GenericViewSet):
         }
         return output
 
+    def _handle_repeat_query_param(self, repeating):
+        if repeating == "true":
+            return True
+        elif repeating == "false":
+            return False
+        else:
+            return None
+
     def list(self, request):
         """
         Returns a list of jobs that `request.user` has permissions for.
@@ -90,7 +103,11 @@ class TasksViewSet(viewsets.GenericViewSet):
         """
         queue = request.query_params.get("queue", None)
 
-        all_jobs = job_storage.get_all_jobs(queue=queue)
+        repeating = self._handle_repeat_query_param(
+            repeating=request.query_params.get("repeating", None)
+        )
+
+        all_jobs = job_storage.get_all_jobs(queue=queue, repeating=repeating)
 
         jobs_response = []
         for job in all_jobs:
@@ -111,9 +128,42 @@ class TasksViewSet(viewsets.GenericViewSet):
 
         return Response(jobs_response)
 
+    def _enqueue_job_based_on_enqueue_args(self, registered_task, job, enqueue_args):
+        """
+        Enqueues job based on `enqueue_args` arguments.
+        """
+        if enqueue_args.get("enqueue_at"):
+            job_id = job_storage.enqueue_at(
+                dt=enqueue_args["enqueue_at"],
+                job=job,
+                queue=registered_task.queue,
+                priority=registered_task.priority,
+                interval=enqueue_args.get("repeat_interval", 0),
+                repeat=enqueue_args.get("repeat", 0),
+                retry_interval=enqueue_args.get("retry_interval", None),
+            )
+        elif enqueue_args.get("enqueue_in"):
+            job_id = job_storage.enqueue_in(
+                delta_t=enqueue_args["enqueue_in"],
+                job=job,
+                queue=registered_task.queue,
+                priority=registered_task.priority,
+                interval=enqueue_args.get("repeat_interval", 0),
+                repeat=enqueue_args.get("repeat", 0),
+                retry_interval=enqueue_args.get("retry_interval", None),
+            )
+        else:
+            job_id = job_storage.enqueue_job(
+                job,
+                queue=registered_task.queue,
+                priority=registered_task.priority,
+                retry_interval=enqueue_args.get("retry_interval", None),
+            )
+        return job_id
+
     def create(self, request):
         """
-        Enqueues a registered task for async processing.
+        Enqueue or schedule a registered task for async processing.
 
         If the registered task has a validator then that validator is run with the
         `request` object and the corresponding `request.data` as its arguments. The dict
@@ -126,7 +176,8 @@ class TasksViewSet(viewsets.GenericViewSet):
             POST /api/tasks/tasks/
 
         Request payload parameters:
-            - `task` (required): a string representing the dotted path to task function.
+            - `type` (required): a string representing the dotted path to task function.
+            - `enqueue_args` (optional): a dict for modifying enqueue behaviour.
             - Other key value pairs.
 
         Keep in mind:
@@ -138,12 +189,11 @@ class TasksViewSet(viewsets.GenericViewSet):
         enqueued_jobs_response = []
 
         # Once we have validated all the tasks, we are good to go!
-        for registered_task, job in validated_data:
-            # Use job_storage to enqueue rather than using the registered_task wrapper
-            # for ease of testing, so we only have to mock job_storage once.
-            job_id = job_storage.enqueue_job(
-                job, queue=registered_task.queue, priority=registered_task.priority
+        for registered_task, job, enqueue_args in validated_data:
+            job_id = self._enqueue_job_based_on_enqueue_args(
+                registered_task, job, enqueue_args
             )
+
             enqueued_jobs_response.append(
                 self._job_to_response(job_storage.get_job(job_id))
             )
