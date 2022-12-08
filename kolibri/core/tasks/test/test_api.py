@@ -1,5 +1,4 @@
 import datetime
-from contextlib import contextmanager
 
 import pytz
 from django.urls import reverse
@@ -18,15 +17,11 @@ from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.exceptions import JobNotFound
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import State
-from kolibri.core.tasks.main import job_storage
 from kolibri.core.tasks.permissions import CanManageContent
 from kolibri.core.tasks.permissions import IsSuperAdmin
 from kolibri.core.tasks.registry import RegisteredTask
 from kolibri.core.tasks.registry import TaskRegistry
-from kolibri.core.tasks.test.base import connection
 from kolibri.core.tasks.validation import JobValidator
-from kolibri.utils.time_utils import local_now
-from kolibri.utils.time_utils import naive_utc_datetime
 
 
 DUMMY_PASSWORD = "password"
@@ -48,13 +43,6 @@ def fake_job(**kwargs):
     fake_data = fake_job_defaults.copy()
     fake_data.update(kwargs)
     return Mock(spec=Job, **fake_data)
-
-
-@contextmanager
-def job_storage_test_connection():
-    with connection():
-        yield
-        job_storage.clear(force=True)
 
 
 class BaseAPITestCase(APITestCase):
@@ -535,16 +523,17 @@ class CreateTaskAPITestCase(BaseAPITestCase):
         mock_job_storage.get_job.assert_has_calls([call("test"), call("test")])
 
 
+@patch("kolibri.core.tasks.api.job_storage")
 class EnqueueArgsCreateAPITestCase(BaseAPITestCase):
     @classmethod
     def setUpTestData(cls):
         super(EnqueueArgsCreateAPITestCase, cls).setUpTestData()
 
-        datetime_obj = datetime.datetime(year=2023, month=1, day=1, tzinfo=pytz.utc)
-        timedelta_obj = datetime.timedelta(days=1, hours=1)
+        cls.datetime_obj = datetime.datetime(year=2023, month=1, day=1, tzinfo=pytz.utc)
+        cls.timedelta_obj = datetime.timedelta(days=1, hours=1)
 
-        cls.enqueue_at_datetime = str(datetime_obj)
-        cls.enqueue_in_timedelta = str(timedelta_obj)
+        cls.enqueue_at_datetime = str(cls.datetime_obj)
+        cls.enqueue_in_timedelta = str(cls.timedelta_obj)
 
     def setUp(self):
         @register_task(job_id="test-id")
@@ -558,7 +547,6 @@ class EnqueueArgsCreateAPITestCase(BaseAPITestCase):
     def tearDown(self):
         TaskRegistry.clear()
 
-    @patch("kolibri.core.tasks.api.job_storage")
     def test_erroneous_request(self, mock_job_storage):
         erroneous_enqueue_args = [
             {"enqueue_at": self.enqueue_in_timedelta},  # Wrong format.
@@ -600,7 +588,6 @@ class EnqueueArgsCreateAPITestCase(BaseAPITestCase):
             # Did API raise `ValidationError`` on erroneous input?
             self.assertEqual(response.status_code, 400)
 
-    @patch("kolibri.core.tasks.api.job_storage")
     def test_acceptable_request(self, mock_job_storage):
         acceptable_enqueue_args = [
             {},
@@ -655,7 +642,7 @@ class EnqueueArgsCreateAPITestCase(BaseAPITestCase):
             # Did API call go through successfully?
             self.assertEqual(response.status_code, 200)
 
-    def test_enqueue_at(self):
+    def test_enqueue_at(self, mock_job_storage):
         enqueue_args = {
             "enqueue_at": self.enqueue_at_datetime,
             "repeat": None,
@@ -666,90 +653,124 @@ class EnqueueArgsCreateAPITestCase(BaseAPITestCase):
             user=self.superuser, data={"enqueue_args": enqueue_args}
         )
 
-        with job_storage_test_connection():
-            response = self.client.post(
-                reverse("kolibri:core:task-list"),
-                {
-                    "type": "kolibri.core.tasks.test.test_api.life",
-                    "enqueue_args": enqueue_args,
-                },
-                format="json",
-            )
-            with job_storage.session_scope() as session:
-                job, orm_job = job_storage._get_job_and_orm_job("test-id", session)
-                orm_job_scheduled_time = orm_job.scheduled_time
+        mock_job_storage.enqueue_at.return_value = "test"
+        mock_job_storage.get_job.return_value = fake_job(
+            state=State.QUEUED, job_id="test"
+        )
+
+        response = self.client.post(
+            reverse("kolibri:core:task-list"),
+            {
+                "type": "kolibri.core.tasks.test.test_api.life",
+                "enqueue_args": enqueue_args,
+            },
+            format="json",
+        )
 
         # Did API call go through successfully?
         self.assertEqual(response.status_code, 200)
         # Did we schedule the job at specified enqueue_at?
         self.assertEqual(
-            orm_job_scheduled_time, naive_utc_datetime(validated_enq_args["enqueue_at"])
+            mock_job_storage.enqueue_at.call_args[1]["dt"], self.datetime_obj
         )
 
-    def test_enqueue_in(self):
+    def test_enqueue_in(self, mock_job_storage):
         enqueue_args = {
             "enqueue_in": self.enqueue_in_timedelta,
             "repeat": None,
             "repeat_interval": 60,
         }
 
-        with job_storage_test_connection():
-            api_call_time = naive_utc_datetime(local_now())
-            response = self.client.post(
-                reverse("kolibri:core:task-list"),
-                {
-                    "type": "kolibri.core.tasks.test.test_api.life",
-                    "enqueue_args": enqueue_args,
-                },
-                format="json",
-            )
-            with job_storage.session_scope() as session:
-                job, orm_job = job_storage._get_job_and_orm_job("test-id", session)
-                orm_job_scheduled_time = orm_job.scheduled_time
+        mock_job_storage.enqueue_in.return_value = "test"
+        mock_job_storage.get_job.return_value = fake_job(
+            state=State.QUEUED, job_id="test"
+        )
+
+        response = self.client.post(
+            reverse("kolibri:core:task-list"),
+            {
+                "type": "kolibri.core.tasks.test.test_api.life",
+                "enqueue_args": enqueue_args,
+            },
+            format="json",
+        )
 
         # Did API call go through successfully?
         self.assertEqual(response.status_code, 200)
-        # Make sure the task is scheduled after one day.
-        self.assertGreater(
-            (orm_job_scheduled_time - api_call_time), datetime.timedelta(days=1)
+        # Make sure the task is scheduled after one day and one hour
+        self.assertEqual(
+            mock_job_storage.enqueue_in.call_args[1]["delta_t"], self.timedelta_obj
         )
 
-    def test_enqueue_with_retry_interval(self):
-        enqueue_args_list = [
-            # Retry all these tasks in 60 seconds if they fail.
-            {"retry_interval": 60},  # Normal enqueue with `retry_interval`.
-            {  # `enqueue_in` with `retry_interval`.
-                "enqueue_in": self.enqueue_in_timedelta,
-                "retry_interval": 60,
+    def test_enqueue_job_with_retry_interval(self, mock_job_storage):
+        mock_job_storage.enqueue_job.return_value = "test"
+        mock_job_storage.get_job.return_value = fake_job(
+            state=State.QUEUED, job_id="test"
+        )
+        response = self.client.post(
+            reverse("kolibri:core:task-list"),
+            {
+                "type": "kolibri.core.tasks.test.test_api.life",
+                "enqueue_args": {"retry_interval": 60},
             },
-            {  # `enqueue_at` with `retry_interval`.
-                "enqueue_at": self.enqueue_at_datetime,
-                "repeat": 10,
-                "repeat_interval": 86400,
-                "retry_interval": 60,
+            format="json",
+        )
+
+        # Did API call go through successfully?
+        self.assertEqual(response.status_code, 200)
+        # Did we set `retry_interval` correctly?
+        self.assertEqual(
+            mock_job_storage.enqueue_job.call_args[1]["retry_interval"], 60
+        )
+
+    def test_enqueue_at_with_retry_interval(self, mock_job_storage):
+        mock_job_storage.enqueue_at.return_value = "test"
+        mock_job_storage.get_job.return_value = fake_job(
+            state=State.QUEUED, job_id="test"
+        )
+        response = self.client.post(
+            reverse("kolibri:core:task-list"),
+            {
+                "type": "kolibri.core.tasks.test.test_api.life",
+                "enqueue_args": {
+                    "enqueue_at": self.enqueue_at_datetime,
+                    "repeat": 10,
+                    "repeat_interval": 86400,
+                    "retry_interval": 60,
+                },
             },
-        ]
-        with job_storage_test_connection():
-            for i in range(0, len(enqueue_args_list)):
-                job_id = self.registered_task.job_id = "test-id-{}".format(i)
-                response = self.client.post(
-                    reverse("kolibri:core:task-list"),
-                    {
-                        "type": "kolibri.core.tasks.test.test_api.life",
-                        "enqueue_args": enqueue_args_list[i],
-                    },
-                    format="json",
-                )
-                with job_storage.session_scope() as session:
-                    job, orm_job = job_storage._get_job_and_orm_job(job_id, session)
-                    orm_job_retry_interval = orm_job.retry_interval
+            format="json",
+        )
 
-                # Did API call go through successfully?
-                self.assertEqual(response.status_code, 200)
-                # Did we set `retry_interval` correctly?
-                self.assertEqual(orm_job_retry_interval, 60)
+        # Did API call go through successfully?
+        self.assertEqual(response.status_code, 200)
+        # Did we set `retry_interval` correctly?
+        self.assertEqual(mock_job_storage.enqueue_at.call_args[1]["retry_interval"], 60)
+
+    def test_enqueue_in_with_retry_interval(self, mock_job_storage):
+        mock_job_storage.enqueue_in.return_value = "test"
+        mock_job_storage.get_job.return_value = fake_job(
+            state=State.QUEUED, job_id="test"
+        )
+        response = self.client.post(
+            reverse("kolibri:core:task-list"),
+            {
+                "type": "kolibri.core.tasks.test.test_api.life",
+                "enqueue_args": {
+                    "enqueue_in": self.enqueue_in_timedelta,
+                    "retry_interval": 60,
+                },
+            },
+            format="json",
+        )
+
+        # Did API call go through successfully?
+        self.assertEqual(response.status_code, 200)
+        # Did we set `retry_interval` correctly?
+        self.assertEqual(mock_job_storage.enqueue_in.call_args[1]["retry_interval"], 60)
 
 
+@patch("kolibri.core.tasks.api.job_storage")
 class ListAPIRepeat(BaseAPITestCase):
     @classmethod
     def setUpTestData(cls):
@@ -764,77 +785,41 @@ class ListAPIRepeat(BaseAPITestCase):
     def setUp(self):
         self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
 
-    def _enqueue_tasks(self):
-        """
-        Enqueues 2 repeating and 3 non-repeating tasks.
-        """
-        datetime_obj = datetime.datetime(year=2023, month=1, day=1, tzinfo=pytz.utc)
-        timedelta_obj = datetime.timedelta(days=1, hours=1)
-
-        enqueue_args_list = [
-            # 2 repeating tasks.
-            {
-                "enqueue_at": str(datetime_obj),
-                "repeat": None,
-                "repeat_interval": 86400,
-            },
-            {
-                "enqueue_in": str(timedelta_obj),
-                "repeat": 20,
-                "repeat_interval": 9600,
-                "retry_interval": 60,
-            },
-            # 3 non-repeating tasks.
-            {"enqueue_at": str(datetime_obj)},
-            {"enqueue_in": str(timedelta_obj)},
-            {},
-        ]
-
-        for enq_arg in enqueue_args_list:
-            self.client.post(
-                reverse("kolibri:core:task-list"),
-                {
-                    "type": "kolibri.core.tasks.test.test_api.life",
-                    "enqueue_args": enq_arg,
-                },
-                format="json",
-            )
-
-    def test_list_api_repeating_true(self):
-        with job_storage_test_connection():
-            self._enqueue_tasks()
-            response = self.client.get(
-                reverse("kolibri:core:task-list"), {"repeating": "true"}
-            )
+    def test_list_api_repeating_true(self, mock_job_storage):
+        mock_job_storage.get_all_jobs.return_value = []
+        response = self.client.get(
+            reverse("kolibri:core:task-list"), {"repeating": "true"}
+        )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 2)
+        self.assertEqual(mock_job_storage.get_all_jobs.call_args[1]["repeating"], True)
 
-    def test_list_api_repeating_false(self):
-        with job_storage_test_connection():
-            self._enqueue_tasks()
-            response = self.client.get(
-                reverse("kolibri:core:task-list"), {"repeating": "false"}
-            )
+    def test_list_api_repeating_false(self, mock_job_storage):
+        mock_job_storage.get_all_jobs.return_value = []
+        response = self.client.get(
+            reverse("kolibri:core:task-list"), {"repeating": "false"}
+        )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 3)
+        self.assertEqual(mock_job_storage.get_all_jobs.call_args[1]["repeating"], False)
 
-    def test_list_api_repeating_invalid_value(self):
-        with job_storage_test_connection():
-            self._enqueue_tasks()
-            response = self.client.get(
-                reverse("kolibri:core:task-list"), {"repeating": "typo"}
-            )
+    def test_list_api_repeating_invalid_value(self, mock_job_storage):
+        mock_job_storage.get_all_jobs.return_value = []
+        response = self.client.get(
+            reverse("kolibri:core:task-list"), {"repeating": "typo"}
+        )
         self.assertEqual(response.status_code, 200)
-        # Should return all 5 tasks.
-        self.assertEqual(len(response.data), 5)
+        self.assertEqual(
+            mock_job_storage.get_all_jobs.call_args[1],
+            {"queue": None, "repeating": None},
+        )
 
-    def test_list_api_repeating_not_present(self):
-        with job_storage_test_connection():
-            self._enqueue_tasks()
-            response = self.client.get(reverse("kolibri:core:task-list"))
+    def test_list_api_repeating_not_present(self, mock_job_storage):
+        mock_job_storage.get_all_jobs.return_value = []
+        response = self.client.get(reverse("kolibri:core:task-list"))
         self.assertEqual(response.status_code, 200)
-        # Should return all 5 tasks.
-        self.assertEqual(len(response.data), 5)
+        self.assertEqual(
+            mock_job_storage.get_all_jobs.call_args[1],
+            {"queue": None, "repeating": None},
+        )
 
 
 @patch("kolibri.core.tasks.api.job_storage")
