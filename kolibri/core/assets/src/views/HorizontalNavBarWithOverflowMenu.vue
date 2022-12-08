@@ -114,12 +114,14 @@
           let numberOfTabLinks = 0;
           if (navItems && navItems.length > 0) {
             while (index < navItems.length) {
-              viewportWidthTakenUp = viewportWidthTakenUp + navItems[index].offsetWidth;
-              if (viewportWidthTakenUp < window.innerWidth - 60) {
-                navItems[index].classList.add('visible');
-                numberOfTabLinks = index + 1;
-              } else {
-                navItems[index].classList.remove('visible');
+              if (navItems[index]) {
+                viewportWidthTakenUp = viewportWidthTakenUp + navItems[index].offsetWidth;
+                if (viewportWidthTakenUp < window.innerWidth - 60) {
+                  navItems[index].classList.add('visible');
+                  numberOfTabLinks = index + 1;
+                } else {
+                  navItems[index].classList.remove('visible');
+                }
               }
               index = index + 1;
             }
