@@ -393,6 +393,10 @@ def remoteimport(
         update_progress=None,
     )
 
+    if update:
+        current_job = get_current_job()
+        current_job.update_metadata(database_ready=True)
+
     manager_class = (
         RemoteChannelUpdateManager if update else RemoteChannelResourceImportManager
     )
@@ -426,6 +430,10 @@ def diskimport(
         channel_id,
         directory,
     )
+
+    if update:
+        current_job = get_current_job()
+        current_job.update_metadata(database_ready=True)
 
     manager_class = (
         DiskChannelUpdateManager if update else DiskChannelResourceImportManager

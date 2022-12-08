@@ -42,7 +42,7 @@
     props: {
       pageName: {
         type: String,
-        required: true,
+        default: null,
       },
       manageMode: {
         type: Boolean,

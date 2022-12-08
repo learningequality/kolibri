@@ -229,16 +229,16 @@
           update: true,
           ...this.params,
         })
-          .then(taskResponse => {
+          .then(task => {
             // If there are new resources in the new version, wait until the new
             // metadata DB is loaded, then redirect to the "Import More from Studio" flow.
             if (this.newResources) {
               this.loadingTask = true;
-              const taskId = taskResponse.data.id;
+              const taskId = task.id;
               const taskList = state => state.manageContent.taskList;
               const stopWatching = this.$store.watch(taskList, tasks => {
                 const match = tasks.find(task => task.id === taskId) || {};
-                if (match && match.database_ready) {
+                if (match && match.extra_metadata.database_ready) {
                   stopWatching();
                   this.$router.push({
                     ...this.$router.getRoute(PageNames.SELECT_CONTENT),
