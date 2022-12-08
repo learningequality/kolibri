@@ -45,7 +45,7 @@
         <h3 class="title" dir="auto">
           <TextTruncatorCss
             :text="content.title"
-            :maxLines="3"
+            :maxLines="1"
           />
         </h3>
         <KButton
