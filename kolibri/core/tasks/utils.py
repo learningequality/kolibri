@@ -5,7 +5,6 @@ import sqlite3
 import sys
 import time
 import uuid
-from collections import namedtuple
 from threading import Thread
 
 import click
@@ -215,13 +214,8 @@ def db_connection():
     return connection
 
 
-Progress = namedtuple(
-    "Progress", ["progress_fraction", "message", "extra_data", "level"]
-)
-
-
 class ProgressTracker:
-    def __init__(self, total=100, level=0, update_callback=None):
+    def __init__(self, total=100):
 
         # set default values
         self.progress = 0
@@ -230,8 +224,6 @@ class ProgressTracker:
 
         # store provided arguments
         self.total = total
-        self.level = level
-        self.update_callback = update_callback
 
         # Also check that we are not running Python 2:
         # https://github.com/learningequality/kolibri/issues/6597
@@ -250,37 +242,14 @@ class ProgressTracker:
             except RuntimeError:
                 self.progressbar = None
 
-    def update_progress(self, increment=1, message="", extra_data=None):
+    def update_progress(self, increment, message):
+        self.progress += increment
+
         if self.progressbar:
             # Click only enforces integers on the total (because it is implemented assuming a length)
             self.progressbar.update(increment)
             if message:
                 self.progressbar.label = message
-
-        self.progress += increment
-        self.message = message
-        self.extra_data = extra_data
-
-        if callable(self.update_callback):
-            p = self.get_progress()
-            self.update_callback(p.progress_fraction, p)
-
-    def get_progress(self):
-
-        return Progress(
-            progress_fraction=0
-            if self.total == 0
-            else self.progress / float(self.total),
-            message=self.message,
-            extra_data=self.extra_data,
-            level=self.level,
-        )
-
-    def __enter__(self):
-        return self.update_progress
-
-    def __exit__(self, *exc_details):
-        pass
 
 
 class JobProgressMixin(object):
@@ -288,27 +257,25 @@ class JobProgressMixin(object):
     progress to the user, and updating progress on a job.
 
     If ran from the command line, code here displays a progress bar to the
-    user. If ran asynchronously through kolibri.core.tasks.schedule_command(),
-    this mixin sends results through the Progress class to the main Django
-    process. Anyone who knows the task id for the command instance can check
-    the intermediate progress by looking at the task's AsyncResult.result
-    variable.
-
+    user. If ran asynchronously this mixin sends results through the Job class
+    to the main job storage database. Anyone who knows the task id for the
+    job instance can check the intermediate progress by looking at the Job's progress.
     """
 
     def __init__(self, *args, **kwargs):
-        self.progresstrackers = []
+        self.progresstracker = None
         self.job = get_current_job()
         super(JobProgressMixin, self).__init__(*args, **kwargs)
 
-    def _update_all_progress(self, progress_fraction, progress):
-        if callable(self.update_progress):
-            progress_list = [p.get_progress() for p in self.progresstrackers]
-            self.update_progress(progress_list[0].progress_fraction, 1.0)
-
-    def update_progress(self, progress_fraction, total_progress):
+    def update_progress(self, increment=1, message="", extra_data=None):
+        if self.progresstracker:
+            self.progresstracker.update_progress(increment, message)
         if self.job:
-            self.job.update_progress(progress_fraction, total_progress)
+            self.job.update_progress(
+                self.job.progress + increment, self.job.total_progress
+            )
+            if extra_data and isinstance(extra_data, dict):
+                self.job.update_job_metadata(**extra_data)
 
     def update_job_metadata(self, **kwargs):
         if self.job:
@@ -321,12 +288,14 @@ class JobProgressMixin(object):
             self.job.check_for_cancel()
 
     def start_progress(self, total=100):
-        level = len(self.progresstrackers)
-        tracker = ProgressTracker(
-            total=total, level=level, update_callback=self._update_all_progress
-        )
-        self.progresstrackers.append(tracker)
-        return tracker
+        self.progresstracker = ProgressTracker(total=total)
+        return self
+
+    def __enter__(self):
+        return self.update_progress
+
+    def __exit__(self, *args, **kwargs):
+        self.progresstracker = None
 
     def is_cancelled(self):
         try:
@@ -344,15 +313,20 @@ def fd_safe_executor(fds_per_task=2):
     Context manager to give an executor that should be safe for not overloading
     file descriptors.
     """
+    # We should be deferring to conf.OPTIONS["Tasks"]["USE_WORKER_MULTIPROCESSING"]
+    # for this value, but unfortunately, the current way that the import logic
+    # is setup relies on shared memory that can only be used with threads.
+    use_multiprocessing = False
+
     executor = (
         concurrent.futures.ProcessPoolExecutor
-        if conf.OPTIONS["Tasks"]["USE_WORKER_MULTIPROCESSING"]
+        if use_multiprocessing
         else concurrent.futures.ThreadPoolExecutor
     )
 
     max_workers = 10
 
-    if not conf.OPTIONS["Tasks"]["USE_WORKER_MULTIPROCESSING"]:
+    if not use_multiprocessing:
         # If we're not using multiprocessing for workers, we may need
         # to limit the number of workers depending on the number of allowed
         # file descriptors.

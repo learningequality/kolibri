@@ -1,6 +1,7 @@
 import hashlib
 import itertools
 import json
+import logging
 import os
 from collections import namedtuple
 
@@ -16,6 +17,9 @@ try:
     from json import JSONDecodeError
 except ImportError:
     JSONDecodeError = ValueError
+
+
+logger = logging.getLogger(__name__)
 
 
 ContentManifestChannelData = namedtuple(
@@ -176,6 +180,24 @@ class ContentManifest(object):
 
         channel_data = self._get_channel_data(channel_id, channel_version)
         return channel_data.include_node_ids
+
+    def get_node_ids_for_channel(self, channel_id):
+        node_ids = set()
+
+        channel_metadata = ChannelMetadata.objects.get(id=channel_id)
+
+        for channel_version in self.get_channel_versions(channel_id):
+            if channel_version != channel_metadata.version:
+                logger.warning(
+                    "Manifest entry for {channel_id} has a different version ({manifest_version}) than the installed channel ({local_version})".format(
+                        channel_id=channel_id,
+                        manifest_version=channel_version,
+                        local_version=channel_metadata.version,
+                    )
+                )
+            node_ids.update(self.get_include_node_ids(channel_id, channel_version))
+
+        return node_ids
 
     def add_content_nodes(self, channel_id, channel_version, nodes_queries_list):
         """

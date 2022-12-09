@@ -7,6 +7,12 @@ from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.channels import read_channel_metadata_from_db_file
 from kolibri.core.content.utils.paths import get_channel_lookup_url
 from kolibri.core.content.utils.paths import get_content_database_file_path
+from kolibri.core.content.utils.resource_import import DiskChannelResourceImportManager
+from kolibri.core.content.utils.resource_import import DiskChannelUpdateManager
+from kolibri.core.content.utils.resource_import import (
+    RemoteChannelResourceImportManager,
+)
+from kolibri.core.content.utils.resource_import import RemoteChannelUpdateManager
 from kolibri.core.content.utils.upgrade import diff_stats
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.discovery.utils.network.client import NetworkClient
@@ -108,17 +114,19 @@ class LocalChannelImportResourcesValidator(LocalMixin, ChannelResourcesImportVal
 def diskcontentimport(
     channel_id, drive_id, update=False, node_ids=None, exclude_node_ids=None
 ):
+    manager_class = (
+        DiskChannelUpdateManager if update else DiskChannelResourceImportManager
+    )
     drive = get_mounted_drive_by_id(drive_id)
-    call_command(
-        "importcontent",
-        "disk",
+    manager = manager_class(
         channel_id,
-        drive.datafolder,
+        path=drive.datafolder,
         drive_id=drive_id,
         node_ids=node_ids,
         exclude_node_ids=exclude_node_ids,
         import_updates=update,
     )
+    manager.run()
 
 
 class RemoteImportMixin(with_metaclass(serializers.SerializerMetaclass)):
@@ -189,16 +197,17 @@ def remotecontentimport(
     exclude_node_ids=None,
     update=False,
 ):
-    call_command(
-        "importcontent",
-        "network",
+    manager_class = (
+        RemoteChannelUpdateManager if update else RemoteChannelResourceImportManager
+    )
+    manager = manager_class(
         channel_id,
         baseurl=baseurl,
         peer_id=peer_id,
         node_ids=node_ids,
         exclude_node_ids=exclude_node_ids,
-        import_updates=update,
     )
+    manager.run()
 
 
 class ExportChannelResourcesValidator(LocalMixin, ChannelResourcesValidator):
@@ -293,16 +302,17 @@ def remoteimport(
         update_progress=None,
     )
 
-    call_command(
-        "importcontent",
-        "network",
+    manager_class = (
+        RemoteChannelUpdateManager if update else RemoteChannelResourceImportManager
+    )
+    manager = manager_class(
         channel_id,
         baseurl=baseurl,
         peer_id=peer_id,
         node_ids=node_ids,
         exclude_node_ids=exclude_node_ids,
-        import_updates=update,
     )
+    manager.run()
 
 
 @register_task(
@@ -326,16 +336,19 @@ def diskimport(
         directory,
     )
 
-    call_command(
-        "importcontent",
-        "disk",
+    manager_class = (
+        DiskChannelUpdateManager if update else DiskChannelResourceImportManager
+    )
+    drive = get_mounted_drive_by_id(drive_id)
+    manager = manager_class(
         channel_id,
-        directory,
+        path=drive.datafolder,
         drive_id=drive_id,
         node_ids=node_ids,
         exclude_node_ids=exclude_node_ids,
         import_updates=update,
     )
+    manager.run()
 
 
 class LocalChannelImportValidator(LocalMixin, ChannelValidator):
