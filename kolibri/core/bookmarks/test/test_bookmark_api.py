@@ -100,7 +100,7 @@ class BookmarkAPITestCase(APITestCase):
         # Make sure there actually are more than just what we're getting back
         # so we're sure the permissions are applied as expected
         users_bookmarks = Bookmark.objects.filter(user=self.user)
-        self.assertTrue(len(Bookmark.objects.all()) > len(users_bookmarks))
+        self.assertGreater(len(Bookmark.objects.all()), len(users_bookmarks))
         for bookmark_entry in response.data:
             # We're going to filter the users_bookmarks QuerySet over and over
             # to be sure that everything we get from the API exists there which

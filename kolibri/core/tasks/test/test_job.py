@@ -70,7 +70,7 @@ class TestRegisteredTask(TestCase):
         self.assertEqual(self.registered_task.func, int)
         self.assertEqual(self.registered_task.validator, JobValidator)
         self.assertEqual(self.registered_task.priority, Priority.HIGH)
-        self.assertTrue(isinstance(self.registered_task.permissions[0], IsSuperAdmin))
+        self.assertIsInstance(self.registered_task.permissions[0], IsSuperAdmin)
         self.assertEqual(self.registered_task.job_id, "test")
         self.assertEqual(self.registered_task.queue, "test")
         self.assertEqual(self.registered_task.cancellable, True)

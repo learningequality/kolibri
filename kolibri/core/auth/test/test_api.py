@@ -1114,7 +1114,7 @@ class LoginLogoutTestCase(APITestCase):
             reverse("kolibri:core:session-detail", kwargs={"pk": "current"})
         )
         new_expire_date = self.client.session.get_expiry_date()
-        self.assertTrue(expire_date < new_expire_date)
+        self.assertLess(expire_date, new_expire_date)
 
 
 class SignUpBase(object):

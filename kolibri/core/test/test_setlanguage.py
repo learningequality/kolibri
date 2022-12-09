@@ -88,7 +88,7 @@ class I18NTests(TestCase):
             response.content.decode("utf-8"),
             translate_url(reverse("kolibri:core:redirect_user"), "en"),
         )
-        self.assertFalse(LANGUAGE_SESSION_KEY in self.client.session)
+        self.assertNotIn(LANGUAGE_SESSION_KEY, self.client.session)
 
     def test_setlang_null_next_valid(self):
         """
@@ -112,7 +112,7 @@ class I18NTests(TestCase):
             response.content.decode("utf-8"),
             translate_url(reverse("kolibri:kolibri.plugins.learn:learn"), "en"),
         )
-        self.assertFalse(LANGUAGE_SESSION_KEY in self.client.session)
+        self.assertNotIn(LANGUAGE_SESSION_KEY, self.client.session)
 
     def test_setlang_null_next_invalid(self):
         """
@@ -136,7 +136,7 @@ class I18NTests(TestCase):
             response.content.decode("utf-8"),
             translate_url(reverse("kolibri:core:redirect_user"), "en"),
         )
-        self.assertFalse(LANGUAGE_SESSION_KEY in self.client.session)
+        self.assertNotIn(LANGUAGE_SESSION_KEY, self.client.session)
 
     def test_setlang_get(self):
         """

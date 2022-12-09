@@ -842,7 +842,7 @@ class ImportContentTestCase(TestCase):
             renderable_only=False,
         )
         logger_mock.assert_called_once()
-        self.assertTrue("3 files are skipped" in logger_mock.call_args_list[0][0][0])
+        self.assertIn("3 files are skipped", logger_mock.call_args_list[0][0][0])
         annotation_mock.set_content_visibility.assert_called_with(
             self.the_channel_id,
             [],
@@ -1097,7 +1097,7 @@ class ImportContentTestCase(TestCase):
             10,
         )
         call_command("importcontent", "disk", self.the_channel_id, "destination")
-        self.assertTrue("1 files are skipped" in logger_mock.call_args_list[0][0][0])
+        self.assertIn("1 files are skipped", logger_mock.call_args_list[0][0][0])
         annotation_mock.set_content_visibility.assert_called()
 
     @patch("kolibri.core.content.management.commands.importcontent.logger.error")
@@ -1125,7 +1125,7 @@ class ImportContentTestCase(TestCase):
         )
         with self.assertRaises(OSError):
             call_command("importcontent", "disk", self.the_channel_id, "destination")
-            self.assertTrue("Permission denied" in logger_mock.call_args_list[0][0][0])
+            self.assertIn("Permission denied", logger_mock.call_args_list[0][0][0])
             annotation_mock.set_content_visibility.assert_called()
 
     @patch("kolibri.core.content.management.commands.importcontent.os.remove")
