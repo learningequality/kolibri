@@ -1,4 +1,3 @@
-import hashlib
 from math import ceil
 
 from django.db.models import Max
@@ -253,13 +252,3 @@ def get_content_nodes_data(
 
     total_bytes_to_transfer = sum(map(lambda x: x["file_size"] or 0, files_to_download))
     return number_of_resources, files_to_download, total_bytes_to_transfer
-
-
-def compare_checksums(file_name, file_id):
-    hasher = hashlib.md5()
-    with open(file_name, "rb") as f:
-        # Read chunks of 4096 bytes for memory efficiency
-        for chunk in iter(lambda: f.read(4096), b""):
-            hasher.update(chunk)
-    checksum = hasher.hexdigest()
-    return checksum == file_id

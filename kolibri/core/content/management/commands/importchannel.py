@@ -183,7 +183,8 @@ class Command(AsyncCommand):
                 logger.info(
                     "Tried to remove {}, but exception {} occurred.".format(dest, e)
                 )
-            self.cancel()
+            # Reraise any cancellation
+            self.check_for_cancel()
 
         # if we are trying to upgrade, remove new channel db
         if os.path.exists(new_channel_dest) and not no_upgrade:

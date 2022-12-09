@@ -112,7 +112,7 @@ def _MPTT_descendant_ids_statement(
     # First we fetch a list of non-topic ids from the specified node ids
     # that match the specified tree boundary ranges
     non_topic_results = connection.execute(
-        select([ContentNodeTable.c.id]).where(
+        select(ContentNodeTable.c.id).where(
             and_(
                 ContentNodeTable.c.channel_id == channel_id,
                 filter_by_uuids(ContentNodeTable.c.id, node_ids),
@@ -181,10 +181,10 @@ def _MPTT_descendant_ids_statement(
     if not or_queries:
         # No constraints that apply in this range, so therefore this query should always
         # evaluate to False, because nothing can match it.
-        return select([ContentNodeTable.c.id]).where(false())
+        return select(ContentNodeTable.c.id).where(false())
 
     # Return a query that ors each of the constraints
-    return select([ContentNodeTable.c.id]).where(or_(*or_queries))
+    return select(ContentNodeTable.c.id).where(or_(*or_queries))
 
 
 def _create_batch_update_statement(
@@ -234,7 +234,7 @@ def _calculate_batch_params(bridge, channel_id, node_ids, exclude_node_ids):
     # To chunk the tree, we first find the full extent of the tree - this gives the
     # highest rght value for this channel.
     max_rght = connection.execute(
-        select([func.max(ContentNodeTable.c.rght)]).where(
+        select(func.max(ContentNodeTable.c.rght)).where(
             ContentNodeTable.c.channel_id == channel_id
         )
     ).scalar()
@@ -333,7 +333,7 @@ def set_leaf_node_availability_from_local_file_availability(
     # available for rendering, or False otherwise.
     contentnode_statement = (
         # We could select any property here, as it's the exist that matters.
-        select([1]).select_from(
+        select(1).select_from(
             # This does the first step in the many to many lookup for File
             # and LocalFile.
             FileTable.join(
@@ -566,7 +566,7 @@ def recurse_annotation_up_tree(channel_id):
     )
 
     # Expression to capture all available child nodes of a contentnode
-    available_nodes = select([child.c.available]).where(
+    available_nodes = select(child.c.available).where(
         and_(
             child.c.available == True,  # noqa
             ContentNodeTable.c.id == child.c.parent_id,
@@ -581,7 +581,7 @@ def recurse_annotation_up_tree(channel_id):
     # Everything after the select statement should be identical to the available_nodes expression above.
     if bridge.engine.name == "sqlite":
         # Use a min function to simulate an AND.
-        coach_content_nodes = select([func.min(child.c.coach_content)]).where(
+        coach_content_nodes = select(func.min(child.c.coach_content)).where(
             and_(
                 child.c.available == True,  # noqa
                 ContentNodeTable.c.id == child.c.parent_id,
@@ -589,7 +589,7 @@ def recurse_annotation_up_tree(channel_id):
         )
     elif bridge.engine.name == "postgresql":
         # Use the postgres boolean AND operator
-        coach_content_nodes = select([func.bool_and(child.c.coach_content)]).where(
+        coach_content_nodes = select(func.bool_and(child.c.coach_content)).where(
             and_(
                 child.c.available == True,  # noqa
                 ContentNodeTable.c.id == child.c.parent_id,
@@ -598,7 +598,7 @@ def recurse_annotation_up_tree(channel_id):
 
     # Expression that sums the total number of coach contents for each child node
     # of a contentnode
-    coach_content_num = select([func.sum(child.c.num_coach_contents)]).where(
+    coach_content_num = select(func.sum(child.c.num_coach_contents)).where(
         and_(
             child.c.available == True,  # noqa
             ContentNodeTable.c.id == child.c.parent_id,
@@ -607,7 +607,7 @@ def recurse_annotation_up_tree(channel_id):
 
     # Expression that sums the total number of on_device_resources for each child node
     # of a contentnode
-    on_device_num = select([func.sum(child.c.on_device_resources)]).where(
+    on_device_num = select(func.sum(child.c.on_device_resources)).where(
         and_(
             child.c.available == True,  # noqa
             ContentNodeTable.c.id == child.c.parent_id,
@@ -637,9 +637,9 @@ def recurse_annotation_up_tree(channel_id):
             .where(exists(available_nodes))
             .values(
                 available=exists(available_nodes),
-                coach_content=coach_content_nodes,
-                num_coach_contents=coach_content_num,
-                on_device_resources=on_device_num,
+                coach_content=coach_content_nodes.scalar_subquery(),
+                num_coach_contents=coach_content_num.scalar_subquery(),
+                on_device_resources=on_device_num.scalar_subquery(),
             )
         )
 
@@ -876,7 +876,7 @@ def set_channel_ancestors(channel_id):
                 )
             )
             .values(
-                ancestors=ancestors,
+                ancestors=ancestors.scalar_subquery(),
             )
         )
 

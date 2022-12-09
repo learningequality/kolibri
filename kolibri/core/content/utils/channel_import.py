@@ -6,6 +6,7 @@ from itertools import islice
 
 from django.apps import apps
 from django.db.models.fields.related import ForeignKey
+from six import string_types
 from sqlalchemy import and_
 from sqlalchemy import or_
 from sqlalchemy.dialects.postgresql import insert
@@ -51,6 +52,9 @@ models_not_to_overwrite = [LocalFile]
 models_to_exclude = [
     apps.get_model(CONTENT_APP_NAME, "ChannelMetadata_included_languages")
 ]
+
+
+SOURCE_DB_ALIAS = "sourcedb"
 
 
 class ImportCancelError(Exception):
@@ -173,6 +177,15 @@ def topological_sort(content_models):
     return sorted_models
 
 
+def get_attribute(obj, key, default):
+    """
+    Get an attribute from an object, regardless of whether it is a dict or an object
+    """
+    if not isinstance(obj, dict):
+        return getattr(obj, key, default)
+    return obj.get(key, default)
+
+
 class ChannelImport(object):
     """
     The ChannelImport class has two functions:
@@ -185,7 +198,6 @@ class ChannelImport(object):
     to another.
     """
 
-    current_model_being_imported = None
     _sqlite_db_attached = False
 
     # Specific instructions and exceptions for importing table from previous versions of Kolibri
@@ -212,22 +224,43 @@ class ChannelImport(object):
     def __init__(
         self,
         channel_id,
+        source,
         channel_version=None,
         cancel_check=None,
-        source=None,
         destination=None,
-        contentfolder=None,
+        partial=False,
     ):
         self.channel_id = channel_id
         self.channel_version = channel_version
 
         self.cancel_check = cancel_check
 
-        self.source_db_path = source or get_content_database_file_path(
-            self.channel_id, contentfolder=contentfolder
-        )
+        self.partial = partial
 
-        self.source = Bridge(sqlite_file_path=self.source_db_path)
+        if isinstance(source, string_types):
+            if self.partial:
+                raise ValueError(
+                    "partial init argument to channel import class can only be used with dict imports"
+                )
+            # Source is assumed to be a filepath to a SQLite database file
+            self.source_db_path = source
+
+            self.source_data = None
+
+            self.source = Bridge(sqlite_file_path=self.source_db_path)
+
+        elif isinstance(source, dict):
+            # If a dict, should be a mapping from tablenames to lists of the rows of the table
+            self.source_db_path = None
+
+            self.source_data = source
+
+            schema_version = self.source_data["schema_version"]
+
+            # Still set this so that we have a reference for table names from the source schema
+            self.source = Bridge(
+                sqlite_file_path=":memory:", schema_version=schema_version
+            )
 
         # Explicitly set the destination schema version to our latest published schema version
         # Not the current schema of the DB, as we do our mapping to the published versions.
@@ -264,8 +297,13 @@ class ChannelImport(object):
 
         self.content_models = topological_sort(self.content_models)
 
-        # Get the next available tree_id in our database
-        self.available_tree_id = self.find_unique_tree_id()
+        if self.partial:
+            self.available_tree_id = (
+                self.get_destination_channel_tree_id() or self.find_unique_tree_id()
+            )
+        else:
+            # Get the next available tree_id in our database
+            self.available_tree_id = self.find_unique_tree_id()
 
         self.default_to_not_available = False
 
@@ -274,13 +312,21 @@ class ChannelImport(object):
     def get_none(self, source_object):
         return None
 
+    def get_destination_channel_tree_id(self):
+        ContentNodeTable = self.destination.get_table(ContentNode)
+        return self.destination.execute(
+            select(ContentNodeTable.c.tree_id).where(
+                ContentNodeTable.c.channel_id == self.channel_id
+            )
+        ).scalar()
+
     def get_all_destination_tree_ids(self):
         ContentNodeTable = self.destination.get_table(ContentNode)
         return sorted(
             map(
                 lambda x: x[0],
                 self.destination.execute(
-                    select([ContentNodeTable.c.tree_id]).distinct()
+                    select(ContentNodeTable.c.tree_id).distinct()
                 ).fetchall(),
             )
         )
@@ -361,12 +407,14 @@ class ChannelImport(object):
     def base_table_mapper(self, SourceTable):
         # If SourceTable is none, then the source table does not exist in the DB
         if SourceTable is not None:
-            return self.source.execute(select([SourceTable])).fetchall()
+            if self.source_data is not None:
+                return self.source_data.get(SourceTable.name, [])
+            return self.source.execute(select(SourceTable)).fetchall()
         return []
 
     def base_row_mapper(self, record, column):
         # By default just return value directly from the record
-        return getattr(record, column, None)
+        return get_attribute(record, column, None)
 
     def generate_table_mapper(self, table_map=None):
         if table_map is None:
@@ -390,6 +438,11 @@ class ChannelImport(object):
             for column_name, column_obj in DestinationTable.columns.items()
             if column_not_auto_integer_pk(column_obj)
         ]
+
+    def _sqlite_method(self, model):
+        if model in models_not_to_overwrite:
+            return "INSERT OR IGNORE"
+        return "INSERT OR REPLACE"
 
     def raw_attached_sqlite_table_import(self, model, table_mapper):
 
@@ -437,21 +490,62 @@ class ChannelImport(object):
                 val = convert_to_sqlite_value(model._meta.get_field(col).get_default())
             source_vals.append(val)
 
-        if model in models_not_to_overwrite:
-            method = "INSERT OR IGNORE"
-        else:
-            method = "REPLACE"
-
         # wrap column names in parentheses in case names are sql keywords (ex. order)
         dest_columns = ["'{}'".format(col) for col in dest_columns]
         # build and execute a raw SQL query to transfer the data in one fell swoop
-        query = """{method} INTO {table} ({destcols}) SELECT {sourcevals} FROM sourcedb.{table} AS source""".format(
-            method=method,
+        query = "{method} INTO {table} ({destcols}) SELECT {sourcevals} FROM {alias}.{table} AS source".format(
+            method=self._sqlite_method(model),
+            table=DestinationTable.name,
+            destcols=", ".join(dest_columns),
+            sourcevals=", ".join(source_vals),
+            alias=SOURCE_DB_ALIAS,
+        )
+        self.destination.execute(text(query))
+
+    def sqlite_table_import(self, model, row_mapper, table_mapper):
+        DestinationTable = self.destination.get_table(model)
+
+        # If the source class does not exist (i.e. this table is undefined in the source database)
+        # this will raise an error so we set it to None. In this case, a custom table mapper must
+        # have been set up to handle the fact that this is None.
+        try:
+            SourceTable = self.source.get_table(model)
+        except ClassNotFoundError:
+            SourceTable = None
+
+        columns = self.get_dest_columns(DestinationTable)
+        self.check_cancelled()
+
+        # wrap column names in parentheses in case names are sql keywords (ex. order)
+        dest_columns = ["'{}'".format(col.name) for _, col in columns]
+        source_vals = [":{}".format(col.name) for _, col in columns]
+        # build and execute a raw SQL query to transfer the data in one fell swoop
+        query = "{method} INTO {table} ({destcols}) VALUES ({sourcevals})".format(
+            method=self._sqlite_method(model),
             table=DestinationTable.name,
             destcols=", ".join(dest_columns),
             sourcevals=", ".join(source_vals),
         )
-        self.destination.execute(text(query))
+
+        def create_data_dict_with_default(record):
+            output = {}
+            for col_name, column_obj in columns:
+                default = self.get_and_set_column_default(column_obj)
+                value = row_mapper(record, column_obj.name)
+                output[col_name] = value if value is not None else default
+            return output
+
+        results = table_mapper(SourceTable)
+
+        i = 0
+        results_slice = list(islice(results, i, i + BATCH_SIZE))
+        while results_slice:
+            self.destination.execute(
+                query,
+                [create_data_dict_with_default(record) for record in results_slice],
+            )
+            i += BATCH_SIZE
+            results_slice = list(islice(results, i, i + BATCH_SIZE))
 
     def get_and_set_column_default(self, column_obj):
         if hasattr(column_obj, "k_memoized_default"):
@@ -479,7 +573,10 @@ class ChannelImport(object):
 
         columns = self.get_dest_columns(DestinationTable)
         column_names = [column.name for col_name, column in columns]
-        merge = model in merge_models
+        # For partial updates we don't delete pre-existing data
+        # so as a precaution we treat all models as merge models
+        # which will allow us to merge into any existing data.
+        merge = model in merge_models or self.partial
         do_not_overwrite = model in models_not_to_overwrite
         self.check_cancelled()
 
@@ -575,56 +672,9 @@ class ChannelImport(object):
                 results_slice = list(islice(results, i, i + BATCH_SIZE))
         cursor.close()
 
-    def sqlite_insert_data(
-        self, data_to_insert, DestinationTable, merge, do_not_overwrite
-    ):
-        if merge:
-            data_to_insert = self.merge_sqlite_records(
-                data_to_insert, DestinationTable, do_not_overwrite
-            )
-        if data_to_insert:
-            self.destination.execute(insert(DestinationTable), data_to_insert)
-
-    def sqlite_table_import(self, model, row_mapper, table_mapper):
-        DestinationTable = self.destination.get_table(model)
-
-        # If the source class does not exist (i.e. this table is undefined in the source database)
-        # this will raise an error so we set it to None. In this case, a custom table mapper must
-        # have been set up to handle the fact that this is None.
-        try:
-            SourceTable = self.source.get_table(model)
-        except ClassNotFoundError:
-            SourceTable = None
-
-        columns = self.get_dest_columns(DestinationTable)
-        merge = model in merge_models
-        do_not_overwrite = model in models_not_to_overwrite
-        data_to_insert = []
-        unflushed_rows = 0
-        for record in table_mapper(SourceTable):
-            self.check_cancelled()
-            data = {}
-            for column_name, column in columns:
-                value = row_mapper(record, column_name)
-                if value is None and not merge:
-                    value = self.get_and_set_column_default(column)
-                data[column_name] = value
-            data_to_insert.append(data)
-            unflushed_rows += 1
-            if unflushed_rows == BATCH_SIZE:
-                self.sqlite_insert_data(
-                    data_to_insert, DestinationTable, merge, do_not_overwrite
-                )
-                data_to_insert = []
-                unflushed_rows = 0
-
-        if data_to_insert:
-            self.sqlite_insert_data(
-                data_to_insert, DestinationTable, merge, do_not_overwrite
-            )
-
     def can_use_sqlite_attach_method(self, model, table_mapper):
-
+        if self.source_data is not None:
+            return False
         # Check whether we can directly "attach" the sqlite database and do a one-line transfer
         # First check that we are not doing any mapping to construct the tables
         can_use_attach = table_mapper == self.base_table_mapper
@@ -653,9 +703,6 @@ class ChannelImport(object):
         return can_use_attach
 
     def table_import(self, model, row_mapper, table_mapper):
-        # keep track of which model is currently being imported
-        self.current_model_being_imported = model
-
         if self.destination.engine.name == "postgresql":
             result = self.postgres_table_import(model, row_mapper, table_mapper)
         elif self.can_use_sqlite_attach_method(model, table_mapper):
@@ -663,63 +710,33 @@ class ChannelImport(object):
         else:
             result = self.sqlite_table_import(model, row_mapper, table_mapper)
 
-        self.current_model_being_imported = None
-
         return result
-
-    def merge_sqlite_records(self, data, DestinationTable, do_not_overwrite=False):
-        # Models that should be merged (see list above) need to be individually merged
-        # as SQL Alchemy ORM does not support INSERT ... ON DUPLICATE KEY UPDATE style queries,
-        # as not available in SQLite, only MySQL as far as I can tell:
-        # http://hackthology.com/how-to-compile-mysqls-on-duplicate-key-update-in-sql-alchemy.html
-        # and ON CONFLICT is only available in SQLite 3.24 and higher, which we cannot be sure of existing.
-        pk_column = DestinationTable.primary_key.columns.values()[0]
-        columns = self.get_dest_columns(DestinationTable)
-        # We don't do any batching inside this method, as we assume it is being called by a method
-        # that is already limiting the number of elements that will be passed into this.
-        existing_values = {
-            v[pk_column.name]: v
-            for v in self.destination.execute(
-                select([DestinationTable]).where(
-                    pk_column.in_(d[pk_column.name] for d in data)
-                )
-            ).fetchall()
-        }
-        data_to_return = []
-        if do_not_overwrite:
-            for d in data:
-                if d[pk_column.name] not in existing_values:
-                    for column_name, column in columns:
-                        value = d.get(column_name)
-                        if value is None:
-                            value = self.get_and_set_column_default(column)
-                        d[column_name] = value
-                    data_to_return.append(d)
-        else:
-            for d in data:
-                pk = d[pk_column.name]
-                if pk in existing_values:
-                    value = dict(existing_values[pk])
-                    value.update(d)
-                else:
-                    value = d
-                for column_name, column in columns:
-                    if column_name not in value or value[column_name] is None:
-                        value[column_name] = self.get_and_set_column_default(column)
-                data_to_return.append(value)
-        return data_to_return
 
     def check_and_delete_existing_channel(self):
         ChannelMetadataTable = self.destination.get_table(ChannelMetadata)
         existing_channel = self.destination.execute(
-            select([ChannelMetadataTable]).where(
+            select(ChannelMetadataTable).where(
                 ChannelMetadataTable.c.id == self.channel_id
             )
         ).fetchone()
 
         if existing_channel:
-
-            if existing_channel["version"] < self.channel_version:
+            if self.partial:
+                if existing_channel["version"] != self.channel_version:
+                    # We have previously loaded this channel, with a different version to the metadata we are trying to insert
+                    logger.warning(
+                        (
+                            "Version {channel_version} of channel {channel_id} already exists in database; cancelling partial import of "
+                            + "version {new_channel_version}"
+                        ).format(
+                            channel_version=existing_channel["version"],
+                            channel_id=self.channel_id,
+                            new_channel_version=self.channel_version,
+                        )
+                    )
+                    return False
+                return True
+            elif existing_channel["version"] < self.channel_version:
                 # We have an older version of this channel, so let's clean out the old stuff first
                 logger.info(
                     (
@@ -735,7 +752,7 @@ class ChannelImport(object):
                 ContentNodeTable = self.destination.get_table(ContentNode)
 
                 root_node = self.destination.execute(
-                    select([ContentNodeTable]).where(
+                    select(ContentNodeTable).where(
                         ContentNodeTable.c.id == existing_channel["root_id"]
                     )
                 ).fetchone()
@@ -806,7 +823,7 @@ class ChannelImport(object):
                 # run a query for each field this model has that foreignkeys onto ContentNode
                 or_queries = [
                     getattr(table.c, column).in_(
-                        select([ContentNodeTable.c.id]).where(
+                        select(ContentNodeTable.c.id).where(
                             ContentNodeTable.c.tree_id == old_tree_id
                         )
                     )
@@ -824,8 +841,10 @@ class ChannelImport(object):
                 pk_name = pk_column.name
                 query = query.where(
                     text(
-                        "NOT {pk_name} IN (SELECT id FROM sourcedb.{table})".format(
-                            pk_name=pk_name, table=table.name
+                        "NOT {pk_name} IN (SELECT id FROM {alias}.{table})".format(
+                            pk_name=pk_name,
+                            table=table.name,
+                            alias=SOURCE_DB_ALIAS,
                         )
                     )
                 )
@@ -845,11 +864,13 @@ class ChannelImport(object):
 
     def try_attaching_sqlite_database(self):
         # attach the external content database to our primary database so we can directly transfer records en masse
-        if self.destination.engine.name == "sqlite":
+        if self.destination.engine.name == "sqlite" and self.source_data is None:
             try:
                 self.destination.execute(
                     text(
-                        "ATTACH '{path}' AS 'sourcedb'".format(path=self.source_db_path)
+                        "ATTACH '{path}' AS '{alias}'".format(
+                            path=self.source_db_path, alias=SOURCE_DB_ALIAS
+                        )
                     )
                 )
                 self._sqlite_db_attached = True
@@ -859,9 +880,11 @@ class ChannelImport(object):
 
     def try_detaching_sqlite_database(self):
         # detach the content database from the primary database so we don't get errors trying to attach it again later
-        if self.destination.engine.name == "sqlite":
+        if self.destination.engine.name == "sqlite" and self.source_data is None:
             try:
-                self.destination.execute(text("DETACH 'sourcedb'"))
+                self.destination.execute(
+                    text("DETACH '{alias}'".format(alias=SOURCE_DB_ALIAS))
+                )
             except OperationalError:
                 # silently ignore if the database was already detached, as then we're good to go
                 pass
@@ -924,6 +947,41 @@ class ChannelImport(object):
                 time.time() - start
             )
         )
+        return import_ran
+
+    def run_and_annotate(self):
+        import_ran = self.import_channel_data()
+
+        self.end()
+
+        if import_ran:
+            channel = ChannelMetadata.objects.get(id=self.channel_id)
+            channel.last_updated = local_now()
+            channel.partial = self.partial
+            try:
+                if not channel.root:
+                    raise AssertionError
+            except ContentNode.DoesNotExist:
+                node_id = channel.root_id
+                ContentNode.objects.create(
+                    id=node_id,
+                    title=channel.name,
+                    content_id=node_id,
+                    channel_id=self.channel_id,
+                )
+
+            annotate_label_bitmasks(
+                ContentNode.objects.filter(channel_id=self.channel_id)
+            )
+            set_channel_ancestors(self.channel_id)
+
+            channel.save()
+
+            logger.info(
+                "Channel {} successfully imported into the database".format(
+                    self.channel_id
+                )
+            )
         return import_ran
 
     def end(self):
@@ -1028,7 +1086,9 @@ class NoVersionChannelImport(NoLearningActivitiesChannelImport):
         SourceTable = self.source.get_table(File)
         checksum_record = set()
         # LocalFile objects are unique per checksum
-        for record in self.source.execute(select([SourceTable])).fetchall():
+        # Note, this would fail for a data import but for now we will not be supporting
+        # data imports from schema versions this old.
+        for record in self.source.execute(select(SourceTable)).fetchall():
             if record.checksum not in checksum_record:
                 checksum_record.add(record.checksum)
                 yield record
@@ -1044,8 +1104,10 @@ class NoVersionChannelImport(NoLearningActivitiesChannelImport):
             return None
         if license_id not in self.licenses:
             LicenseTable = self.source.get_table(License)
+            # Note, this would fail for a data import but for now we will not be supporting
+            # data imports from schema versions this old.
             license = self.source.execute(
-                select([LicenseTable]).where(LicenseTable.c.id == license_id)
+                select(LicenseTable).where(LicenseTable.c.id == license_id)
             ).fetchone()
             self.licenses[license_id] = license
         return self.licenses[license_id]
@@ -1088,12 +1150,8 @@ class InvalidSchemaVersionError(Exception):
 
 
 def initialize_import_manager(
-    channel_id, cancel_check=None, source=None, destination=None, contentfolder=None
+    channel_metadata, source, cancel_check=None, destination=None, partial=False
 ):
-    channel_metadata = read_channel_metadata_from_db_file(
-        source
-        or get_content_database_file_path(channel_id, contentfolder=contentfolder)
-    )
     # For old versions of content databases, we can only infer the schema version
     min_version = channel_metadata.get(
         "min_schema_version",
@@ -1126,39 +1184,32 @@ def initialize_import_manager(
             )
 
     return ImportClass(
-        channel_id,
+        channel_metadata["id"],
+        source,
         channel_version=channel_metadata["version"],
         cancel_check=cancel_check,
-        source=source,
         destination=destination,
-        contentfolder=contentfolder,
+        partial=partial,
     )
 
 
 def import_channel_from_local_db(channel_id, cancel_check=None, contentfolder=None):
+    source = get_content_database_file_path(channel_id, contentfolder=contentfolder)
+
+    channel_metadata = read_channel_metadata_from_db_file(source)
+
     import_manager = initialize_import_manager(
-        channel_id, cancel_check=cancel_check, contentfolder=contentfolder
+        channel_metadata, source, cancel_check=cancel_check
     )
 
-    import_ran = import_manager.import_channel_data()
+    return import_manager.run_and_annotate()
 
-    import_manager.end()
 
-    channel = ChannelMetadata.objects.get(id=channel_id)
-    channel.last_updated = local_now()
-    try:
-        if not channel.root:
-            raise AssertionError
-    except ContentNode.DoesNotExist:
-        node_id = channel.root_id
-        ContentNode.objects.create(
-            id=node_id, title=channel.name, content_id=node_id, channel_id=channel_id
-        )
+def import_channel_from_data(source_data, cancel_check=None, partial=False):
+    channel_metadata = source_data.get(ChannelMetadata._meta.db_table)[0]
 
-    annotate_label_bitmasks(ContentNode.objects.filter(channel_id=channel_id))
-    set_channel_ancestors(channel_id)
+    import_manager = initialize_import_manager(
+        channel_metadata, source_data, cancel_check=cancel_check, partial=partial
+    )
 
-    channel.save()
-
-    logger.info("Channel {} successfully imported into the database".format(channel_id))
-    return import_ran
+    return import_manager.run_and_annotate()

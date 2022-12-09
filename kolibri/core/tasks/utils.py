@@ -1,10 +1,13 @@
+import concurrent.futures
 import logging
 import os
 import sqlite3
+import sys
 import time
 import uuid
 from threading import Thread
 
+import click
 from django.utils.functional import SimpleLazyObject
 from django.utils.module_loading import import_string
 from six import string_types
@@ -15,7 +18,10 @@ from sqlalchemy import exc
 from kolibri.core.sqlite.utils import check_sqlite_integrity
 from kolibri.core.sqlite.utils import repair_sqlite_db
 from kolibri.core.tasks import compat
+from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.utils import conf
+from kolibri.utils.options import FD_PER_THREAD
+from kolibri.utils.system import get_fd_limit
 
 
 logger = logging.getLogger(__name__)
@@ -206,3 +212,139 @@ def db_connection():
         repair_sqlite_db(connection)
 
     return connection
+
+
+class ProgressTracker:
+    def __init__(self, total=100):
+
+        # set default values
+        self.progress = 0
+        self.message = ""
+        self.extra_data = None
+
+        # store provided arguments
+        self.total = total
+
+        # Also check that we are not running Python 2:
+        # https://github.com/learningequality/kolibri/issues/6597
+        if sys.version_info[0] == 2:
+            self.progressbar = None
+        else:
+            # Check that we are executing inside a click context
+            # as we only want to display progress bars from the command line.
+            try:
+                click.get_current_context()
+                # Coerce to an integer for safety, as click uses Python `range` on this
+                # value, which requires an integer argument
+                # N.B. because we are only doing this in Python3, safe to just use int,
+                # as long is Py2 only
+                self.progressbar = click.progressbar(length=int(total), width=0)
+            except RuntimeError:
+                self.progressbar = None
+
+    def update_progress(self, increment, message):
+        self.progress += increment
+
+        if self.progressbar:
+            # Click only enforces integers on the total (because it is implemented assuming a length)
+            self.progressbar.update(increment)
+            if message:
+                self.progressbar.label = message
+
+
+class JobProgressMixin(object):
+    """A mixin with convenience functions for displaying
+    progress to the user, and updating progress on a job.
+
+    If ran from the command line, code here displays a progress bar to the
+    user. If ran asynchronously this mixin sends results through the Job class
+    to the main job storage database. Anyone who knows the task id for the
+    job instance can check the intermediate progress by looking at the Job's progress.
+    """
+
+    def __init__(self, *args, **kwargs):
+        self.progresstracker = None
+        self.job = get_current_job()
+        super(JobProgressMixin, self).__init__(*args, **kwargs)
+
+    def update_progress(self, increment=1, message="", extra_data=None):
+        if self.progresstracker:
+            self.progresstracker.update_progress(increment, message)
+        if self.job:
+            self.job.update_progress(
+                self.job.progress + increment, self.job.total_progress
+            )
+            if extra_data and isinstance(extra_data, dict):
+                self.job.update_metadata(**extra_data)
+
+    def update_job_metadata(self, **kwargs):
+        if self.job:
+            self.job.update_metadata(**kwargs)
+
+    def check_for_cancel(self):
+        if self.job:
+            self.job.check_for_cancel()
+
+    def start_progress(self, total=100):
+        self.progresstracker = ProgressTracker(total=total)
+        if self.job:
+            self.job.update_progress(0, total)
+        return self
+
+    def __enter__(self):
+        return self.update_progress
+
+    def __exit__(self, *args, **kwargs):
+        self.progresstracker = None
+
+    def is_cancelled(self):
+        try:
+            self.check_for_cancel()
+            return False
+        except (UserCancelledError, KeyError):
+            return True
+
+
+def fd_safe_executor(fds_per_task=2):
+    """
+    Context manager to give an executor that should be safe for not overloading
+    file descriptors.
+    """
+    # We should be deferring to conf.OPTIONS["Tasks"]["USE_WORKER_MULTIPROCESSING"]
+    # for this value, but unfortunately, the current way that the import logic
+    # is setup relies on shared memory that can only be used with threads.
+    use_multiprocessing = False
+
+    executor = (
+        concurrent.futures.ProcessPoolExecutor
+        if use_multiprocessing
+        else concurrent.futures.ThreadPoolExecutor
+    )
+
+    max_workers = 10
+
+    if not use_multiprocessing:
+        # If we're not using multiprocessing for workers, we may need
+        # to limit the number of workers depending on the number of allowed
+        # file descriptors.
+        # This is a heuristic method, where we know there can be issues if
+        # the max number of file descriptors for a process is 256, and we use 10
+        # workers, with potentially 4 concurrent tasks downloading files.
+        # The number of concurrent tasks that might be downloading files is determined
+        # by the number of regular workers running in the task runner
+        # (although the high priority task queue could also be running a channel database download).
+        server_reserved_fd_count = (
+            FD_PER_THREAD * conf.OPTIONS["Server"]["CHERRYPY_THREAD_POOL"]
+        )
+        max_descriptors_per_task = (
+            get_fd_limit() - server_reserved_fd_count
+        ) / conf.OPTIONS["Tasks"]["REGULAR_PRIORITY_WORKERS"]
+        # Each task only needs to have a maximum of `fds_per_task` open file descriptors at once.
+        # To add tolerance, we divide the number of file descriptors that could be allocated to
+        # this task by double this number which should give us leeway in case of unforeseen
+        # descriptor use during the process.
+        max_workers = min(
+            max_workers, min(1, max_descriptors_per_task // (fds_per_task * 2))
+        )
+
+    return executor(max_workers=max_workers)

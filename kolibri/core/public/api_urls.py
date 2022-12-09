@@ -31,6 +31,7 @@ from .api import PublicChannelMetadataViewSet
 from .api import PublicContentNodeTreeViewSet
 from .api import PublicContentNodeViewSet
 from .api import SyncQueueViewSet
+from kolibri.core.content.public_api import ImportMetadataViewset
 
 
 router = routers.SimpleRouter()
@@ -55,6 +56,9 @@ public_content_v2_router.register(
     r"contentnode_tree",
     PublicContentNodeTreeViewSet,
     basename="publiccontentnode_tree",
+)
+public_content_v2_router.register(
+    r"importmetadata", ImportMetadataViewset, basename="importmetadata"
 )
 
 # Add public api endpoints

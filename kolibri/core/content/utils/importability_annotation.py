@@ -56,7 +56,7 @@ def get_channel_annotation_stats(channel_id, checksums=None):  # noqa
         )
 
     contentnode_statement = (
-        select([FileTable.c.contentnode_id])
+        select(FileTable.c.contentnode_id)
         .select_from(file_table)
         .where(FileTable.c.supplementary == False)  # noqa
         .where(
@@ -118,7 +118,7 @@ def get_channel_annotation_stats(channel_id, checksums=None):  # noqa
     )
 
     # Expression to capture all available child nodes of a contentnode
-    available_nodes = select([child.c.available]).where(
+    available_nodes = select(child.c.available).where(
         and_(
             child.c.available == True,  # noqa
             ContentNodeTable.c.id == child.c.parent_id,
@@ -133,7 +133,7 @@ def get_channel_annotation_stats(channel_id, checksums=None):  # noqa
     # Everything after the select statement should be identical to the available_nodes expression above.
     if bridge.engine.name == "sqlite":
         # Use a min function to simulate an AND.
-        coach_content_nodes = select([func.min(child.c.coach_content)]).where(
+        coach_content_nodes = select(func.min(child.c.coach_content)).where(
             and_(
                 child.c.available == True,  # noqa
                 ContentNodeTable.c.id == child.c.parent_id,
@@ -141,7 +141,7 @@ def get_channel_annotation_stats(channel_id, checksums=None):  # noqa
         )
     elif bridge.engine.name == "postgresql":
         # Use the postgres boolean AND operator
-        coach_content_nodes = select([func.bool_and(child.c.coach_content)]).where(
+        coach_content_nodes = select(func.bool_and(child.c.coach_content)).where(
             and_(
                 child.c.available == True,  # noqa
                 ContentNodeTable.c.id == child.c.parent_id,
@@ -150,7 +150,7 @@ def get_channel_annotation_stats(channel_id, checksums=None):  # noqa
 
     # Expression that sums the total number of coach contents for each child node
     # of a contentnode
-    coach_content_num = select([func.sum(child.c.num_coach_contents)]).where(
+    coach_content_num = select(func.sum(child.c.num_coach_contents)).where(
         and_(
             child.c.available == True,  # noqa
             ContentNodeTable.c.id == child.c.parent_id,
@@ -159,7 +159,7 @@ def get_channel_annotation_stats(channel_id, checksums=None):  # noqa
 
     # Expression that sums the total number of on_device_resources for each child node
     # of a contentnode
-    on_device_num = select([func.sum(child.c.on_device_resources)]).where(
+    on_device_num = select(func.sum(child.c.on_device_resources)).where(
         and_(
             child.c.available == True,  # noqa
             ContentNodeTable.c.id == child.c.parent_id,
@@ -186,9 +186,9 @@ def get_channel_annotation_stats(channel_id, checksums=None):  # noqa
             .where(exists(available_nodes))
             .values(
                 available=exists(available_nodes),
-                coach_content=coach_content_nodes,
-                num_coach_contents=coach_content_num,
-                on_device_resources=on_device_num,
+                coach_content=coach_content_nodes.scalar_subquery(),
+                num_coach_contents=coach_content_num.scalar_subquery(),
+                on_device_resources=on_device_num.scalar_subquery(),
             )
         )
 
@@ -321,7 +321,7 @@ def get_channel_annotation_stats(channel_id, checksums=None):  # noqa
                     stats[key]["num_new_resources"] = stat[1]
 
         root_node_stats = connection.execute(
-            select([ContentNodeTable.c.id]).where(
+            select(ContentNodeTable.c.id).where(
                 and_(
                     ContentNodeTable.c.level == 0,
                     ContentNodeTable.c.channel_id == channel_id,

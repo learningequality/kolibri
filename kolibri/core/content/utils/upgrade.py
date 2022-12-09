@@ -17,6 +17,7 @@ from kolibri.core.content.utils import channel_import
 from kolibri.core.content.utils.annotation import CONTENT_APP_NAME
 from kolibri.core.content.utils.channels import CHANNEL_UPDATE_STATS_CACHE_KEY
 from kolibri.core.content.utils.channels import get_mounted_drive_by_id
+from kolibri.core.content.utils.channels import read_channel_metadata_from_db_file
 from kolibri.core.content.utils.content_types_tools import (
     renderable_contentnodes_q_filter,
 )
@@ -72,10 +73,11 @@ def diff_stats(channel_id, method, drive_id=None, baseurl=None):
         bridge.Base.metadata.create_all(bridge.engine)
 
         # initialize import manager based on annotated destination path, pulling from source db path
+        channel_metadata = read_channel_metadata_from_db_file(source_path)
         import_manager = channel_import.initialize_import_manager(
-            channel_id,
+            channel_metadata,
+            source_path,
             cancel_check=False,
-            source=source_path,
             destination=destination_path,
         )
 
@@ -221,7 +223,7 @@ def get_new_resources_available_for_import(destination, channel_id):
         node_ids = current_resource_node_id_queryset[i : i + batch_size]
 
     renderable_contentnodes = (
-        select([FileTable.c.contentnode_id])
+        select(FileTable.c.contentnode_id)
         .where(FileTable.c.supplementary == False)  # noqa
         .where(
             or_(*(FileTable.c.preset == preset for preset in renderable_files_presets))
@@ -238,9 +240,9 @@ def get_new_resources_available_for_import(destination, channel_id):
     new_resource_nodes_total_size = (
         connection.execute(
             # This does the first step in the many to many lookup for File
-            select([func.sum(LocalFileTable.c.file_size)]).where(
+            select(func.sum(LocalFileTable.c.file_size)).where(
                 LocalFileTable.c.id.in_(
-                    select([LocalFileTable.c.id])
+                    select(LocalFileTable.c.id)
                     .select_from(
                         # and LocalFile.
                         LocalFileTable.join(
@@ -265,7 +267,7 @@ def get_new_resources_available_for_import(destination, channel_id):
         or 0
     )
 
-    new_resource_node_ids_statement = select([ContentNodeTable.c.id]).where(
+    new_resource_node_ids_statement = select(ContentNodeTable.c.id).where(
         and_(
             ContentNodeTable.c.channel_id == channel_id,
             ContentNodeTable.c.kind != content_kinds.TOPIC,
@@ -326,7 +328,7 @@ def get_new_resources_available_for_import(destination, channel_id):
         content_ids = current_resource_content_id_queryset[i : i + batch_size]
 
     new_resource_content_ids_statement = (
-        select([ContentNodeTable.c.content_id])
+        select(ContentNodeTable.c.content_id)
         .where(
             and_(
                 ContentNodeTable.c.channel_id == channel_id,
@@ -361,7 +363,7 @@ def count_removed_resources(destination, channel_id):
     connection = bridge.get_connection()
     ContentNodeTable = bridge.get_table(ContentNode)
     resource_node_ids_statement = (
-        select([ContentNodeTable.c.id])
+        select(ContentNodeTable.c.id)
         .where(
             and_(
                 ContentNodeTable.c.channel_id == channel_id,
@@ -430,12 +432,12 @@ def get_automatically_updated_resources(destination, channel_id):
     # information about the files on disk, such as availability
     LocalFileTable = bridge.get_table(LocalFile)
     # get unavailable local file ids on the destination db
-    unavailable_local_file_ids_statement = select([LocalFileTable.c.id]).where(
+    unavailable_local_file_ids_statement = select(LocalFileTable.c.id).where(
         LocalFileTable.c.available == False  # noqa
     )
     # get the Contentnode ids where File objects are missing in the destination db
     contentnode_ids_statement = (
-        select([FileTable.c.contentnode_id])
+        select(FileTable.c.contentnode_id)
         .where(
             and_(
                 FileTable.c.local_file_id.in_(unavailable_local_file_ids_statement),
@@ -506,9 +508,9 @@ def get_automatically_updated_resources(destination, channel_id):
 
         # This does the first step in the many to many lookup for File
         updated_resources_total_size += connection.execute(
-            select([func.sum(LocalFileTable.c.file_size)]).where(
+            select(func.sum(LocalFileTable.c.file_size)).where(
                 LocalFileTable.c.id.in_(
-                    select([LocalFileTable.c.id])
+                    select(LocalFileTable.c.id)
                     .select_from(
                         # and LocalFile.
                         LocalFileTable.join(

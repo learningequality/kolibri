@@ -43,3 +43,12 @@ class ResourceGoneError(APIException):
 
     status_code = status.HTTP_410_GONE
     default_detail = "Unable to connect"
+
+
+class IncompatibleVersionError(APIException):
+    """
+    API error for when a peer is not a compatible version
+    """
+
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = "Kolibri version is incompatible"

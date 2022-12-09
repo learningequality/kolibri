@@ -85,7 +85,7 @@
   import isEmpty from 'lodash/isEmpty';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
-  import { TaskTypes, PageNames } from 'kolibri.utils.syncTaskUtils';
+  import { TaskTypes } from 'kolibri.utils.syncTaskUtils';
   import find from 'lodash/find';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { TaskResource } from 'kolibri.resources';
@@ -96,7 +96,7 @@
   import { updateTreeViewTopic } from '../../modules/wizard/handlers';
   import { getChannelWithContentSizes } from '../../modules/wizard/apiChannelMetadata';
   import NewChannelVersionBanner from '../ManageContentPage/NewChannelVersionBanner';
-  import { ContentWizardPages, ContentWizardErrors } from '../../constants';
+  import { ContentWizardPages, ContentWizardErrors, PageNames } from '../../constants';
   import AvailableChannelsPage from '../AvailableChannelsPage';
   import ChannelContentsSummary from './ChannelContentsSummary';
   import ContentTreeViewer from './ContentTreeViewer';

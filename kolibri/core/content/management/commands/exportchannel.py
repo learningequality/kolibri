@@ -38,5 +38,5 @@ class Command(AsyncCommand):
                 except transfer.TransferCanceled:
                     pass
 
-                if self.is_cancelled():
-                    self.cancel()
+                # Reraise any cancellation
+                self.check_for_cancel()

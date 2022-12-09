@@ -87,7 +87,7 @@ def read_channel_metadata_from_db_file(channeldbpath):
     ChannelMetadataTable = source.get_table(ChannelMetadata)
 
     source_channel_metadata = dict(
-        source.execute(select([ChannelMetadataTable])).fetchone()
+        source.execute(select(ChannelMetadataTable)).fetchone()
     )
 
     # Use the inferred version from the SQLAlchemy Bridge object, and set it as additional
