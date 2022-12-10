@@ -76,12 +76,10 @@
             v-if="topics.length"
             :text="coreString('folders')"
             :to="foldersLink"
-            class="tabspace"
           />
           <HeaderTab
             :text="coreString('searchLabel')"
             :to="topics.length ? searchTabLink : {} "
-            class="tabspace"
           />
         </HeaderTabs>
       </div>
@@ -922,13 +920,10 @@
     margin-bottom: -8px;
     margin-left: -8px;
   }
+
   .chip {
     margin-bottom: 8px;
     margin-left: 8px;
-  }
-  .tabspace {
-    padding: 0;
-    margin-bottom: 14px;
   }
 
 </style>
