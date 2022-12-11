@@ -281,11 +281,9 @@
         // Is either the first page or the saved last page visited
         const firstPageToRender = parseInt(this.getSavedPosition() * this.totalPages);
         return this.getPage(firstPageToRender + 1).then(firstPage => {
-          // page.view is a viewbox array of [x1, y1, x2, y2] coordinates where x1, y1 is the
-          // top left corner and x2, y2 is the bottom right corner of the visible page in PDF
-          // coordinates, subtracting the two gives us the width and height of the visible page
-          this.firstPageHeight = firstPage.view[3] - firstPage.view[1];
-          this.firstPageWidth = firstPage.view[2] - firstPage.view[0];
+          const viewPort = firstPage.getViewport({ scale: 1 });
+          this.firstPageHeight = viewPort.height;
+          this.firstPageWidth = viewPort.width;
 
           const screenSizeMultiplier = this.windowIsLarge ? 1.25 : this.windowIsSmall ? 1 : 1.125;
           this.scale = this.elementWidth / (this.firstPageWidth * screenSizeMultiplier);

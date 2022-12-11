@@ -84,35 +84,19 @@
       };
     },
     computed: {
-      actualHeight() {
-        if (!this.pageReady) {
-          return null;
-        }
-        // page.view is a viewbox array of [x1, y1, x2, y2] coordinates where x1, y1 is the
-        // top left corner and x2, y2 is the bottom right corner of the visible page in PDF
-        // coordinates, subtracting y2 - y1 gives the height of the page
-        return this.pdfPage.view[3] - this.pdfPage.view[1];
-      },
-      actualWidth() {
-        if (!this.pageReady) {
-          return null;
-        }
-        // page.view is a viewbox array of [x1, y1, x2, y2] coordinates where x1, y1 is the
-        // top left corner and x2, y2 is the bottom right corner of the visible page in PDF
-        // coordinates, subtracting x2 - x1 gives the width of the page
-        return this.pdfPage.view[2] - this.pdfPage.view[0];
-      },
-      heightToWidthRatio() {
-        return this.actualHeight / this.actualWidth || this.firstPageHeight / this.firstPageWidth;
-      },
       scaledHeight() {
-        return this.firstPageHeight * this.scale;
+        if (!this.pdfPage) {
+          return this.firstPageHeight * this.scale;
+        }
+        const viewport = this.getViewport();
+        return viewport.height;
       },
       scaledWidth() {
-        return this.scaledHeight / this.heightToWidthRatio;
-      },
-      pageScale() {
-        return this.scaledHeight / this.actualHeight || this.scale;
+        if (!this.pdfPage) {
+          return this.firstPageWidth * this.scale;
+        }
+        const viewport = this.getViewport();
+        return viewport.width;
       },
     },
     watch: {
@@ -132,7 +116,7 @@
     methods: {
       getViewport() {
         // Get viewport, which contains directions to be passed into render function
-        return this.pdfPage.getViewport({ scale: this.pageScale });
+        return this.pdfPage.getViewport({ scale: this.scale || 1 });
       },
       renderPage(newVal, oldVal) {
         if (typeof newVal === 'number' && typeof oldVal === 'number' && newVal !== oldVal) {
