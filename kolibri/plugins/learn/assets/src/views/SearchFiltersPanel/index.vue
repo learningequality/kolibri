@@ -58,7 +58,8 @@
             :appearanceOverrides="isKeyActive(key)
               ? { ...categoryListItemStyles, ...categoryListItemActiveStyles }
               : categoryListItemStyles"
-            :disabled="!availableRootCategories[key] &&
+            :disabled="availableRootCategories &&
+              !availableRootCategories[key] &&
               !isKeyActive(key)"
             :iconAfter="hasNestedCategories(category) ? 'chevronRight' : null"
             @click="handleCategory(category)"
@@ -275,7 +276,7 @@
           }
           return roots;
         }
-        return {};
+        return null;
       },
       availableNeeds() {
         if (this.availableLabels) {
