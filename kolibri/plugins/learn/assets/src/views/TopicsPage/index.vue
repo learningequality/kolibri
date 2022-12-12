@@ -86,7 +86,6 @@
               data-test="search-results"
               :contents="resourcesDisplayed"
               :numCols="numCols"
-              :genContentLink="genContentLink"
               currentCardViewStyle="card"
               @toggleInfoPanel="toggleInfoPanel"
             />
@@ -169,7 +168,6 @@
         :activeCategories="activeCategories"
         :topicsLoading="topicMoreLoading"
         :more="topicMore"
-        :genContentLink="genContentLink"
         :width="`${sidePanelWidth}px`"
         :availableLabels="labels"
         :showChannels="false"
@@ -198,7 +196,6 @@
           :topics="topics"
           :topicsLoading="topicMoreLoading"
           :more="topicMore"
-          :genContentLink="genContentLink"
           :availableLabels="labels"
           :activeActivityButtons="activeActivityButtons"
           :activeCategories="activeCategories"
@@ -281,7 +278,6 @@
   import { PageNames } from '../../constants';
   import { normalizeContentNode } from '../../modules/coreLearn/utils.js';
   import useSearch from '../../composables/useSearch';
-  import genContentLink from '../../utils/genContentLink';
   import LibraryAndChannelBrowserMainContent from '../LibraryAndChannelBrowserMainContent';
   import SearchFiltersPanel from '../SearchFiltersPanel';
   import BrowseResourceMetadata from '../BrowseResourceMetadata';
@@ -614,7 +610,6 @@
     },
     methods: {
       ...mapActions('topicsTree', ['loadMoreContents', 'loadMoreTopics']),
-      genContentLink,
       handleShowSearchModal(value) {
         this.currentCategory = value;
         this.showSearchModal = true;
