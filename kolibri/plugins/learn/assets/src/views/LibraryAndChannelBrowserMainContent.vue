@@ -105,7 +105,7 @@
       genContentLink(content) {
         return genContentLink(
           content.id,
-          this.topicId,
+          this.$route.params.id,
           content.is_leaf,
           this.$route.name,
           this.$route.query

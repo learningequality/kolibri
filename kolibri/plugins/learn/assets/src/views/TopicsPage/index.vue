@@ -76,10 +76,7 @@
             </template>
 
             <!-- display for each nested topic/folder  -->
-            <!-- search results -->
-            <!----
-              TODO - is this necessary at all? how is this different than the search results below?
-            -->
+            <!-- display all resources at the top level of the folder -->
             <LibraryAndChannelBrowserMainContent
               v-if="resources.length"
               :gridType="2"
