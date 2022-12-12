@@ -79,7 +79,7 @@ describe('when search results are loaded', () => {
           displayingSearchResults: true,
           searchLoading: false,
         },
-        stubs: ['HybridLearningCardGrid', 'LibraryAndChannelBrowserMainContent'],
+        stubs: ['LibraryAndChannelBrowserMainContent'],
       });
 
       const moreButton = wrapper.find('[data-test="more-results-button"]');
