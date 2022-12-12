@@ -99,9 +99,6 @@
       footerIcons() {
         return { info: 'viewInformation' };
       },
-      backRoute() {
-        return this.$route.name;
-      },
     },
 
     methods: {
@@ -110,8 +107,8 @@
           content.id,
           this.topicId,
           content.is_leaf,
-          this.backRoute,
-          this.context
+          this.$route.name,
+          this.$route.query
         );
       },
     },
