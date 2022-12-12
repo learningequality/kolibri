@@ -5,7 +5,7 @@
       ref="navbarUl"
       class="items"
       tabindex="-1"
-      :style="mediumAndSmallStyleOverrides"
+      :style="styleOverrides"
     >
       <!-- Contains NavbarLink components -->
       <slot></slot>
@@ -25,8 +25,17 @@
     name: 'Navbar',
     mixins: [responsiveWindowMixin],
     computed: {
-      mediumAndSmallStyleOverrides() {
-        return !this.windowIsLarge ? { marginTop: 0 } : {};
+      styleOverrides() {
+        const styles = { maxHeight: '52px' };
+        if (this.windowIsLarge) {
+          return styles;
+        }
+        styles.marginTop = 0;
+        if (this.windowIsMedium) {
+          return styles;
+        }
+        styles.maxHeight = '42px';
+        return styles;
       },
     },
   };
