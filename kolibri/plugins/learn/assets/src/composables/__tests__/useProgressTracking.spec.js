@@ -1,4 +1,5 @@
 import { get, set } from '@vueuse/core';
+import omit from 'lodash/omit';
 import client from 'kolibri.client';
 import { coreStoreFactory as makeStore } from 'kolibri.coreVue.vuex.store';
 import useProgressTracking from '../useProgressTracking';
@@ -11,6 +12,13 @@ function setUp() {
   return { store, ...useProgressTracking(store) };
 }
 
+const node = {
+  id: 'test_node',
+  channel_id: 'test_channel_id',
+  content_id: 'test_content_id',
+  kind: 'video',
+};
+
 describe('useProgressTracking composable', () => {
   describe('initContentSession', () => {
     it('should throw an error if no context provided', async () => {
@@ -18,7 +26,7 @@ describe('useProgressTracking composable', () => {
       try {
         await initContentSession({});
       } catch (error) {
-        expect(error).toEqual(new TypeError('Must define either nodeId or quizId'));
+        expect(error).toEqual(new TypeError('Must define either node or quizId'));
       }
     });
     it('should throw an error if only lessonId provided', async () => {
@@ -26,13 +34,13 @@ describe('useProgressTracking composable', () => {
       try {
         await initContentSession({ lessonId: 'test_lesson' });
       } catch (error) {
-        expect(error).toEqual(new TypeError('Must define either nodeId or quizId'));
+        expect(error).toEqual(new TypeError('Must define either node or quizId'));
       }
     });
-    it('should throw an error if quizId and nodeId provided', async () => {
+    it('should throw an error if quizId and node provided', async () => {
       const { initContentSession } = setUp();
       try {
-        await initContentSession({ quizId: 'test_quiz', nodeId: 'test_node' });
+        await initContentSession({ quizId: 'test_quiz', node });
       } catch (error) {
         expect(error).toEqual(
           new TypeError('quizId must be the only defined parameter if defined')
@@ -52,24 +60,111 @@ describe('useProgressTracking composable', () => {
         );
       }
     });
+    it.each(['id', 'content_id', 'channel_id', 'kind'])(
+      'should throw an error if %s is missing from node',
+      async property => {
+        const { initContentSession } = setUp();
+        try {
+          await initContentSession({
+            node: omit(node, property),
+          });
+        } catch (error) {
+          expect(error).toEqual(new TypeError(`node must have ${property} property`));
+        }
+      }
+    );
+    it('should throw an error if assessmentmetadata is missing from an exercise node', async () => {
+      const { initContentSession } = setUp();
+      try {
+        await initContentSession({
+          node: {
+            ...node,
+            kind: 'exercise',
+          },
+        });
+      } catch (error) {
+        expect(error).toEqual(new TypeError(`node must have assessmentmetadata property`));
+      }
+    });
+    it('should throw an error if mastery_model is missing from assessmentmetadata on an exercise node', async () => {
+      const { initContentSession } = setUp();
+      try {
+        await initContentSession({
+          node: {
+            ...node,
+            kind: 'exercise',
+            assessmentmetadata: {},
+          },
+        });
+      } catch (error) {
+        expect(error).toEqual(
+          new TypeError(`node must have assessmentmetadata property with mastery_model property`)
+        );
+      }
+    });
+    it('should throw an error if mastery_model is not an object on assessmentmetadata on an exercise node', async () => {
+      const { initContentSession } = setUp();
+      try {
+        await initContentSession({
+          node: {
+            ...node,
+            kind: 'exercise',
+            assessmentmetadata: {
+              mastery_model: [],
+            },
+          },
+        });
+      } catch (error) {
+        expect(error).toEqual(
+          new TypeError(
+            `node must have assessmentmetadata property with plain object mastery_model property`
+          )
+        );
+      }
+    });
+    it('should throw an error if there is no type property on mastery_model on assessmentmetadata on an exercise node', async () => {
+      const { initContentSession } = setUp();
+      try {
+        await initContentSession({
+          node: {
+            ...node,
+            kind: 'exercise',
+            assessmentmetadata: {
+              mastery_model: {},
+            },
+          },
+        });
+      } catch (error) {
+        expect(error).toEqual(
+          new TypeError(
+            `node must have assessmentmetadata property with mastery_model property with type property`
+          )
+        );
+      }
+    });
     it('should not set a lessonId if the lessonId is a falsey value', async () => {
       const { initContentSession } = setUp();
-      const node_id = 'test_node_id';
+      const node_id = node.id;
       const lesson_id = null;
       client.__setPayload({
         context: { node_id, lesson_id },
       });
-      await initContentSession({ nodeId: node_id, lessonId: lesson_id });
-      expect(client.mock.calls[0][0].data).toEqual({ node_id: node_id });
+      await initContentSession({ node, lessonId: lesson_id });
+      expect(client.mock.calls[0][0].data).toEqual({
+        node_id: node.id,
+        kind: node.kind,
+        content_id: node.content_id,
+        channel_id: node.channel_id,
+      });
     });
-    it('should not set a nodeId if the nodeId is a falsey value', async () => {
+    it('should not set a nodeId if the node is a falsey value', async () => {
       const { initContentSession } = setUp();
       const node_id = null;
       const quiz_id = 'test-quiz-id';
       client.__setPayload({
         context: { node_id, quiz_id },
       });
-      await initContentSession({ nodeId: node_id, quizId: quiz_id });
+      await initContentSession({ node: null, quizId: quiz_id });
       expect(client.mock.calls[0][0].data).toEqual({ quiz_id: quiz_id });
     });
     it('should set the logging state with the return data from the client', async () => {
@@ -84,14 +179,14 @@ describe('useProgressTracking composable', () => {
       } = setUp();
       const payload = {
         session_id: 'test_session_id',
-        context: { node_id: 'test_node_id' },
+        context: { node_id: node.id },
         progress: 0.5,
         time_spent: 15,
         extra_fields: { extra: true },
         complete: false,
       };
       client.__setPayload(payload);
-      await initContentSession({ nodeId: payload.context.node_id });
+      await initContentSession({ node });
       expect(get(session_id)).toEqual(payload.session_id);
       expect(get(context).node_id).toEqual(payload.context.node_id);
       expect(get(progress)).toEqual(payload.progress);
@@ -102,7 +197,7 @@ describe('useProgressTracking composable', () => {
     it('should not make a backend request when the session for node_id is already active', async () => {
       const { initContentSession } = setUp();
       const session_id = 'test_session_id';
-      const node_id = 'test_node_id';
+      const node_id = node.id;
       const progress = 0.5;
       const time_spent = 15;
       const extra_fields = { extra: true };
@@ -114,15 +209,15 @@ describe('useProgressTracking composable', () => {
         extra_fields,
         complete: false,
       });
-      await initContentSession({ nodeId: node_id });
+      await initContentSession({ node });
       client.__reset();
-      await initContentSession({ nodeId: node_id });
+      await initContentSession({ node });
       expect(client).not.toHaveBeenCalled();
     });
     it('should not make a backend request when the session for lesson_id and node_id is already active', async () => {
       const { initContentSession } = setUp();
       const session_id = 'test_session_id';
-      const node_id = 'test_node_id';
+      const node_id = node.id;
       const lesson_id = 'test_lesson_id';
       const progress = 0.5;
       const time_spent = 15;
@@ -135,15 +230,15 @@ describe('useProgressTracking composable', () => {
         extra_fields,
         complete: false,
       });
-      await initContentSession({ nodeId: node_id, lessonId: lesson_id });
+      await initContentSession({ node, lessonId: lesson_id });
       client.__reset();
-      await initContentSession({ nodeId: node_id, lessonId: lesson_id });
+      await initContentSession({ node, lessonId: lesson_id });
       expect(client).not.toHaveBeenCalled();
     });
     it('should not make a backend request when the session for lesson_id and node_id is already active unless repeat is true', async () => {
       const { initContentSession } = setUp();
       const session_id = 'test_session_id';
-      const node_id = 'test_node_id';
+      const node_id = node.id;
       const lesson_id = 'test_lesson_id';
       const progress = 0.5;
       const time_spent = 15;
@@ -156,10 +251,10 @@ describe('useProgressTracking composable', () => {
         extra_fields,
         complete: false,
       });
-      await initContentSession({ nodeId: node_id, lessonId: lesson_id });
+      await initContentSession({ node, lessonId: lesson_id });
       client.__reset();
       await initContentSession({
-        nodeId: node_id,
+        node,
         lessonId: lesson_id,
         repeat: true,
       });
@@ -220,7 +315,7 @@ describe('useProgressTracking composable', () => {
       } = setUp();
       const payload = {
         session_id: 'test_session_id',
-        context: { node_id: 'test_node_id' },
+        context: { node_id: node.id },
         progress: 0.5,
         time_spent: 15,
         extra_fields: { extra: true },
@@ -241,7 +336,15 @@ describe('useProgressTracking composable', () => {
         complete: false,
       };
       client.__setPayload(payload);
-      await initContentSession({ nodeId: payload.context.node_id });
+      await initContentSession({
+        node: {
+          ...node,
+          kind: 'exercise',
+          assessmentmetadata: {
+            mastery_model: payload.mastery_criterion,
+          },
+        },
+      });
       expect(get(session_id)).toEqual(payload.session_id);
       expect(get(context).node_id).toEqual(payload.context.node_id);
       expect(get(progress)).toEqual(payload.progress);
@@ -266,7 +369,7 @@ describe('useProgressTracking composable', () => {
       client.mockImplementation(() => {
         return Promise.reject(error);
       });
-      await expect(initContentSession({ nodeId: 'test' })).rejects.toMatchObject(error);
+      await expect(initContentSession({ node })).rejects.toMatchObject(error);
       expect(client).toHaveBeenCalledTimes(5);
     });
   });
@@ -274,7 +377,7 @@ describe('useProgressTracking composable', () => {
     async function initStore(data = {}) {
       const all = setUp();
       const session_id = 'test_session_id';
-      const node_id = 'test_node_id';
+      const node_id = node.id;
       const progress = 0.5;
       const time_spent = 15;
       const extra_fields = {};
@@ -291,7 +394,7 @@ describe('useProgressTracking composable', () => {
       };
       Object.assign(payload, data);
       client.__setPayload(payload);
-      await all.initContentSession({ nodeId: node_id });
+      await all.initContentSession({ node });
       client.__reset();
       return all;
     }

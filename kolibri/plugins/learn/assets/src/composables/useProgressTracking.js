@@ -11,6 +11,7 @@ import isNumber from 'lodash/isNumber';
 import isPlainObject from 'lodash/isPlainObject';
 import isUndefined from 'lodash/isUndefined';
 import { diff } from 'deep-object-diff';
+import Modalities from 'kolibri-constants/Modalities';
 import client from 'kolibri.client';
 import logger from 'kolibri.lib.logging';
 import urls from 'kolibri.urls';
@@ -175,12 +176,12 @@ export default function useProgressTracking(store) {
    * Initialize a content session for progress tracking
    * To be called on page load for content renderers
    */
-  function initContentSession({ nodeId, lessonId, quizId, repeat = false } = {}) {
+  function initContentSession({ node, lessonId, quizId, repeat = false } = {}) {
     const data = {};
-    if (!nodeId && !quizId) {
-      throw TypeError('Must define either nodeId or quizId');
+    if (!node && !quizId) {
+      throw TypeError('Must define either node or quizId');
     }
-    if ((nodeId || lessonId) && quizId) {
+    if ((node || lessonId) && quizId) {
       throw TypeError('quizId must be the only defined parameter if defined');
     }
     let sessionStarted = false;
@@ -190,12 +191,53 @@ export default function useProgressTracking(store) {
       data.quiz_id = quizId;
     }
 
-    if (nodeId) {
-      sessionStarted = get(context) && get(context).node_id === nodeId;
-      data.node_id = nodeId;
+    if (node) {
+      if (!node.id) {
+        throw TypeError('node must have id property');
+      }
+      if (!node.content_id) {
+        throw TypeError('node must have content_id property');
+      }
+      if (!node.channel_id) {
+        throw TypeError('node must have channel_id property');
+      }
+      if (!node.kind) {
+        throw TypeError('node must have kind property');
+      }
+      sessionStarted = get(context) && get(context).node_id === node.id;
+      data.node_id = node.id;
+      data.content_id = node.content_id;
+      data.channel_id = node.channel_id;
+      data.kind = node.kind;
       if (lessonId) {
         sessionStarted = sessionStarted && get(context) && get(context).lesson_id === lessonId;
         data.lesson_id = lessonId;
+      }
+      if (node.kind === 'exercise') {
+        if (!node.assessmentmetadata) {
+          throw new TypeError('node must have assessmentmetadata property');
+        }
+        if (!node.assessmentmetadata.mastery_model) {
+          throw new TypeError(
+            'node must have assessmentmetadata property with mastery_model property'
+          );
+        }
+        if (!isPlainObject(node.assessmentmetadata.mastery_model)) {
+          throw new TypeError(
+            'node must have assessmentmetadata property with plain object mastery_model property'
+          );
+        }
+        if (!node.assessmentmetadata.mastery_model.type) {
+          throw new TypeError(
+            'node must have assessmentmetadata property with mastery_model property with type property'
+          );
+        }
+        data.mastery_model = node.assessmentmetadata.mastery_model;
+        if (node.options && node.options.modality === Modalities.QUIZ) {
+          // The mastery model and the modalities have different
+          // casing, so we don't reuse it here.
+          data.mastery_model = { type: 'quiz' };
+        }
       }
     }
 
