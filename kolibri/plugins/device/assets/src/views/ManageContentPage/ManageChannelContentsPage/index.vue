@@ -7,9 +7,7 @@
   >
     <KPageContainer class="device-container">
       <!-- Show this progress bar to match other import flows -->
-      <TaskProgress
-        v-if="!channel"
-      />
+      <TaskProgress v-if="!channel" />
 
       <template v-if="channel">
 
@@ -30,7 +28,10 @@
         </div>
 
         <transition mode="out-in">
-          <KLinearLoader v-if="!currentNode" :delay="false" />
+          <KLinearLoader
+            v-if="!currentNode"
+            :delay="false"
+          />
           <ContentTreeViewer
             v-else
             :node="currentNode"
@@ -196,7 +197,6 @@
       next();
     },
     beforeMount() {
-      this.$store.commit('coreBase/SET_APP_BAR_TITLE', this.coreString('loadingLabel'));
       this.fetchPageData(this.channelId)
         .then(pageData => {
           this.setUpPage(pageData);
@@ -216,7 +216,6 @@
         this.$store.commit('manageContent/wizard/SET_TRANSFERRED_CHANNEL', this.channel);
         this.$store.commit('manageContent/wizard/SET_TRANSFER_TYPE', TransferTypes.LOCALEXPORT);
 
-        this.$store.commit('coreBase/SET_APP_BAR_TITLE', this.appBarTitle);
         return this.updateNode(this.$route.query.node || channel.root);
       },
       updateNode(newNodeId) {

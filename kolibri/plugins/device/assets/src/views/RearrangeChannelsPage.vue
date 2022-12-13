@@ -14,9 +14,20 @@
       </p>
 
       <template v-else>
-        <DragContainer class="container" :items="channels" @sort="handleOrderChange">
-          <transition-group tag="div" name="list" class="wrapper">
-            <Draggable v-for="(channel, index) in channels" :key="channel.id">
+        <DragContainer
+          class="container"
+          :items="channels"
+          @sort="handleOrderChange"
+        >
+          <transition-group
+            tag="div"
+            name="list"
+            class="wrapper"
+          >
+            <Draggable
+              v-for="(channel, index) in channels"
+              :key="channel.id"
+            >
               <DragHandle>
                 <div
                   :class="$computedClass(itemClass)"
@@ -108,8 +119,6 @@
         .catch(error => {
           this.$store.disptch('CORE_SET_ERROR', error);
         });
-
-      this.$store.commit('coreBase/SET_APP_BAR_TITLE', this.$tr('editChannelOrderTitle'));
     },
     methods: {
       postNewOrder(channelIds) {

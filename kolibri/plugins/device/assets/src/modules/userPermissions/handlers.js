@@ -1,18 +1,5 @@
 import { DevicePermissionsResource, FacilityUserResource } from 'kolibri.resources';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
-import { createTranslator } from 'kolibri.utils.i18n';
-
-const translator = createTranslator('UserPermissionToolbarTitles', {
-  loading: 'Loading user permissions…',
-  goBackTitle: {
-    message: 'Go Back',
-    context: 'Link to go back to the list of users.',
-  },
-  invalidUserTitle: {
-    message: 'User ID not valid',
-    context: 'Error message.',
-  },
-});
 
 /**
  * Serially fetches Permissions, then FacilityUser. If returned Promise rejects,
@@ -53,27 +40,21 @@ function fetchUserPermissions(userId) {
  * @returns Promise<void>
  */
 export function showUserPermissionsPage(store, userId) {
-  const setAppBarTitle = title => store.commit('coreBase/SET_APP_BAR_TITLE', title);
   const setUserPermissionsState = state => store.commit('userPermissions/SET_STATE', state);
   const stopLoading = () => store.commit('CORE_SET_PAGE_LOADING', false);
 
   // Don't request any data if not an Admin
   if (!store.getters.isSuperuser) {
     setUserPermissionsState({ user: null, permissions: {} });
-    setAppBarTitle(translator.$tr('goBackTitle'));
     stopLoading();
     return Promise.resolve();
   }
-
-  // CoreBase parameters for loading state
-  setAppBarTitle(translator.$tr('loading'));
 
   const samePage = samePageCheckGenerator(store);
 
   return Promise.all([fetchUserPermissions(userId), store.dispatch('getFacilities')])
     .then(([data]) => {
       if (samePage()) {
-        setAppBarTitle(data.user.full_name);
         setUserPermissionsState({ user: data.user, permissions: data.permissions });
         stopLoading();
       }
@@ -81,7 +62,6 @@ export function showUserPermissionsPage(store, userId) {
     .catch(error => {
       if (samePage()) {
         if (error.response.status === 404) {
-          setAppBarTitle(translator.$tr('invalidUserTitle'));
           setUserPermissionsState({ user: null, permissions: {} });
         }
         store.dispatch('handleApiError', error);

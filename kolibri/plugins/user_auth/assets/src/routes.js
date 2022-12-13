@@ -80,8 +80,6 @@ export default [
     path: '/signin-or-signup',
     component: AuthSelect,
     beforeEnter(to, from, next) {
-      // If we're loading CoreBase won't render.
-      // There is nothing to load within this component.
       store.commit('CORE_SET_PAGE_LOADING', false);
       next();
     },
@@ -109,8 +107,6 @@ export default [
     component: FacilitySelect,
     props: true,
     beforeEnter(to, from, next) {
-      // If we're loading CoreBase won't render.
-      // There is nothing to load within this component.
       store.commit('CORE_SET_PAGE_LOADING', false);
       // This param is required, so return to AuthSelect
       // unless we have it

@@ -4,7 +4,6 @@ export default {
   state() {
     return {
       pageName: '',
-      appBarTitle: '',
     };
   },
   actions: {
@@ -19,9 +18,6 @@ export default {
   mutations: {
     SET_PAGE_NAME(state, name) {
       state.pageName = name;
-    },
-    SET_APPBAR_TITLE(state, appBarTitle) {
-      state.appBarTitle = appBarTitle;
     },
   },
   modules: {
