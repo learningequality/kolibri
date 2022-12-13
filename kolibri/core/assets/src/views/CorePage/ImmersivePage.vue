@@ -1,20 +1,24 @@
 <template>
 
-  <div :style="wrapperStyles">
-    <ImmersiveToolbar
-      ref="appBar"
-      :appBarTitle="(!loading ? appBarTitle : '')"
-      :route="route"
-      :icon="icon"
-      :isFullscreen="primary"
-    />
-    <slot></slot>
-    <KLinearLoader
-      v-if="loading"
-      class="loader"
-      type="indeterminate"
-      :delay="false"
-    />
+  <div class="main">
+    <ScrollingHeader :scrollPosition="0">
+      <ImmersiveToolbar
+        ref="appBar"
+        :appBarTitle="(!loading ? appBarTitle : '')"
+        :route="route"
+        :icon="icon"
+        :isFullscreen="primary"
+      />
+      <KLinearLoader
+        v-if="loading"
+        class="loader"
+        type="indeterminate"
+        :delay="false"
+      />
+    </ScrollingHeader>
+    <div class="main-wrapper" :style="wrapperStyles">
+      <slot></slot>
+    </div>
   </div>
 
 </template>
@@ -22,11 +26,12 @@
 
 <script>
 
+  import ScrollingHeader from 'kolibri.coreVue.components.ScrollingHeader';
   import ImmersiveToolbar from '../ImmersiveToolbar';
 
   export default {
     name: 'ImmersivePage',
-    components: { ImmersiveToolbar },
+    components: { ImmersiveToolbar, ScrollingHeader },
     props: {
       appBarTitle: {
         type: String,
