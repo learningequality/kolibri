@@ -599,8 +599,11 @@
       this.translator = crossComponentTranslator(LibraryPage);
       this.filterTranslator = crossComponentTranslator(FilterTextbox);
       window.addEventListener('scroll', this.throttledHandleScroll);
-      this.setSearchWithinDescendant(this.topic);
-      this.search();
+      const loadingWatch = this.$watch('loading', () => {
+        this.setSearchWithinDescendant(this.topic);
+        this.search();
+        loadingWatch();
+      });
       if (this.subTopicId) {
         this.handleLoadMoreInSubtopic(this.subTopicId);
       }
