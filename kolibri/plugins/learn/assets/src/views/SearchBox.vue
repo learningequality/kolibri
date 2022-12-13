@@ -60,7 +60,6 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
-  import { PageNames } from '../constants';
 
   export default {
     name: 'SearchBox',
@@ -122,6 +121,9 @@
         this.searchInputValue = current || '';
       },
     },
+    created() {
+      this.searchInputValue = this.value;
+    },
     methods: {
       /**
        * @public
@@ -131,6 +133,7 @@
       },
       clearInput() {
         this.searchInputValue = '';
+        this.updateSearchQuery();
       },
       handleEscKey() {
         if (this.searchInputValue === '') {
@@ -144,19 +147,7 @@
         this.$refs.searchInput.focus();
       },
       updateSearchQuery() {
-        if (this.value !== null) {
-          this.$emit('change', this.searchInputValue);
-        } else {
-          this.$router
-            .push({
-              name: PageNames.LIBRARY,
-              query: {
-                ...this.$route.query,
-                keywords: this.searchInputValue || this.$route.query.keywords,
-              },
-            })
-            .catch(() => {});
-        }
+        this.$emit('change', this.searchInputValue);
       },
     },
   };
