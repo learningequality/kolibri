@@ -11,7 +11,6 @@
       />
       <KLinearLoader
         v-if="loading"
-        class="loader"
         type="indeterminate"
         :delay="false"
       />
@@ -88,15 +87,3 @@
   };
 
 </script>
-
-
-<style lang="scss" scoped>
-
-  .loader {
-    position: fixed;
-    top: 64px;
-    right: 0;
-    left: 0;
-  }
-
-</style>
