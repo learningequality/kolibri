@@ -57,25 +57,6 @@
       pageName() {
         return this.$route.name;
       },
-      currentPageIsImmersive() {
-        if (this.pageName == PageNames.MANAGE_CONTENT_PAGE) {
-          return false;
-        }
-        return (
-          this.inContentManagementPage || [PageNames.USER_PERMISSIONS_PAGE].includes(this.pageName)
-        );
-      },
-      inContentManagementPage() {
-        return this.$route.path.includes('/content');
-      },
-    },
-    watch: {
-      currentPageIsImmersive(val) {
-        // If going to a non-immersive page, reset the state to show normal Toolbar
-        if (!val) {
-          this.$store.commit('coreBase/SET_APP_BAR_TITLE', '');
-        }
-      },
     },
     methods: {
       hideWelcomeModal() {

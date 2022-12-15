@@ -17,7 +17,10 @@
         :selectAllCheckbox="multipleMode"
       >
         <template #header>
-          <h1 v-if="status === ''" data-test="title">
+          <h1
+            v-if="status === ''"
+            data-test="title"
+          >
             {{ multipleMode ? $tr('importChannelsHeader') : $tr('importResourcesHeader') }}
           </h1>
         </template>
@@ -87,7 +90,10 @@
         </template>
       </FilteredChannelListContainer>
 
-      <KCircularLoader v-else style="margin: 2em auto;" />
+      <KCircularLoader
+        v-else
+        style="margin: 2em auto;"
+      />
 
       <ChannelTokenModal
         v-if="showTokenModal"
@@ -127,7 +133,7 @@
 
 <script>
 
-  import { mapState, mapMutations, mapGetters } from 'vuex';
+  import { mapState, mapGetters } from 'vuex';
   import find from 'lodash/find';
   import differenceBy from 'lodash/differenceBy';
   import omit from 'lodash/omit';
@@ -281,22 +287,8 @@
         return this.freeSpace < this.fileSize;
       },
     },
-    watch: {
-      // HACK doing it here to avoid moving $trs out of the component
-      transferType(val) {
-        this.setAppBarTitle(this.toolbarTitle(val));
-      },
-    },
     created() {
       this.setFreeSpace();
-    },
-    beforeMount() {
-      this.$store.commit('coreBase/SET_QUERY', this.$route.query);
-      if (this.status) {
-        this.setAppBarTitle(this.$tr('pageLoadError'));
-      } else {
-        this.setAppBarTitle(this.toolbarTitle(this.transferType));
-      }
     },
     mounted() {
       // If arriving here from the PostSetupModalGroup/WelcomeModal,
@@ -306,9 +298,6 @@
       }
     },
     methods: {
-      ...mapMutations('coreBase', {
-        setAppBarTitle: 'SET_APP_BAR_TITLE',
-      }),
       toolbarTitle(transferType) {
         switch (transferType) {
           case TransferTypes.LOCALIMPORT:
@@ -462,10 +451,6 @@
         message: 'Import with token',
         context:
           "If a user needs to import learning resources from a private/unlisted channel, they would click on the 'Import with token' button above the channel list.",
-      },
-      pageLoadError: {
-        message: 'There was a problem loading this page…',
-        context: 'Error message.',
       },
       documentTitleForLocalImport: {
         message: "Available Channels on '{driveName}'",

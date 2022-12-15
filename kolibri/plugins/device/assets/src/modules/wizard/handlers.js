@@ -1,6 +1,5 @@
 import find from 'lodash/find';
 import router from 'kolibri.coreVue.router';
-import { createTranslator } from 'kolibri.utils.i18n';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import { TransferTypes } from 'kolibri.utils.syncTaskUtils';
 import { ContentNodeGranularResource, RemoteChannelResource } from 'kolibri.resources';
@@ -12,13 +11,6 @@ import {
   getTransferredChannelOnPeerServer,
 } from './apiPeerImport';
 import { getChannelWithContentSizes } from './apiChannelMetadata';
-
-const translator = createTranslator('WizardHandlerTexts', {
-  loadingChannelToolbar: {
-    message: 'Loading channel…',
-    context: 'Indicates a channel is loading.',
-  },
-});
 
 // Utilities for the show*Page actions
 function getSelectedDrive(store, driveId) {
@@ -158,7 +150,6 @@ export function showSelectContentPage(store, params) {
   store.commit('manageContent/wizard/RESET_STATE');
   store.commit('SET_PAGE_NAME', ContentWizardPages.SELECT_CONTENT);
   store.commit('CORE_SET_PAGE_LOADING', true);
-  store.commit('coreBase/SET_APP_BAR_TITLE', translator.$tr('loadingChannelToolbar'));
 
   if (transferType === null) {
     return router.replace(manageContentPageLink());

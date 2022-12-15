@@ -99,7 +99,7 @@
         facilityUsers: state => state.facilityUsers,
         userPermissions: state => userid => state.permissions[userid],
       }),
-      ...mapState('coreBase', {
+      ...mapState({
         query: state => state.query,
       }),
       ...mapGetters(['facilities']),
@@ -218,28 +218,28 @@
       },
     },
     watch: {
-      // These watchers update the coreBase/query when the dropdown
+      // These watchers update the query when the dropdown
       // selections are changed. This lets us persist the values across
       // routes within Device.
       permissionsFilter(value) {
         const query = this.query;
         query.permissionsFilter = value;
-        this.$store.commit('coreBase/SET_QUERY', query);
+        this.$store.commit('SET_QUERY', query);
       },
       userTypeFilter(value) {
         const query = this.query;
         query.userTypeFilter = value;
-        this.$store.commit('coreBase/SET_QUERY', query);
+        this.$store.commit('SET_QUERY', query);
       },
       facilityFilter(value) {
         const query = this.query;
         query.facilityFilter = value;
-        this.$store.commit('coreBase/SET_QUERY', query);
+        this.$store.commit('SET_QUERY', query);
       },
     },
     beforeMount() {
       // Set all filters initial values here. If the value exists in
-      // coreBase/query, then we use it, otherwise, we default to ALL.
+      // query, then we use it, otherwise, we default to ALL.
       this.facilityFilter = this.query.facilityFilter || this.facilityOptions[0];
       this.permissionsFilter = this.query.permissionsFilter || this.permissionsOptions[0];
       this.userTypeFilter = this.query.userTypeFilter || this.userTypeOptions[0];

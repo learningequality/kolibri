@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import ScrollingHeader from '../../../src/views/CoreBase/ScrollingHeader';
+import ScrollingHeader from '../../../src/views/ScrollingHeader';
 
 function makeWrapper(params = {}) {
   const node = document.createElement('app');

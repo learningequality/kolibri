@@ -33,11 +33,10 @@ import ProgressBar from '../views/ProgressBar';
 import ContentIcon from '../views/ContentIcon';
 import ProgressIcon from '../views/ProgressIcon';
 import PermissionsIcon from '../views/PermissionsIcon';
-import CoreBase from '../views/CoreBase';
 import AppBarPage from '../views/CorePage/AppBarPage';
 import AppBar from '../views/AppBar';
 import ImmersivePage from '../views/CorePage/ImmersivePage';
-import ScrollingHeader from '../views/CoreBase/ScrollingHeader';
+import ScrollingHeader from '../views/ScrollingHeader';
 import SidePanelModal from '../views/SidePanelModal';
 import SideNav from '../views/SideNav';
 import Navbar from '../views/Navbar';
@@ -160,7 +159,6 @@ export default {
       AppBar,
       AppBarPage,
       ImmersivePage,
-      CoreBase,
       SidePanelModal,
       SideNav,
       Navbar,

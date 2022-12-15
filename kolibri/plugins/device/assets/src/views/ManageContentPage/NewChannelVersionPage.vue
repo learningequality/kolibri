@@ -79,7 +79,10 @@
             <dt :key="`dt-${idx}`">
               {{ $tr('versionNumberHeader', { version: note.version }) }}
             </dt>
-            <dd :key="`dd-${idx}`" dir="auto">
+            <dd
+              :key="`dd-${idx}`"
+              dir="auto"
+            >
               {{ note.notes }}
             </dd>
           </template>
@@ -210,7 +213,6 @@
       },
     },
     mounted() {
-      this.$store.commit('coreBase/SET_APP_BAR_TITLE', this.coreString('loadingLabel'));
       this.loadChannelInfo().then(([installedChannel, sourceChannel]) => {
         // Show the channel info ASAP
         this.setChannelData(installedChannel, sourceChannel);
@@ -266,7 +268,6 @@
           });
       },
       setChannelData(installedChannel, sourceChannel) {
-        this.$store.commit('coreBase/SET_APP_BAR_TITLE', installedChannel.name);
         this.channelName = installedChannel.name;
         this.currentVersion = installedChannel.version;
         this.nextVersion = sourceChannel.version;

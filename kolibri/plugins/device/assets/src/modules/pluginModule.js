@@ -3,13 +3,13 @@ import deviceInfo from './deviceInfo';
 import manageContent from './manageContent';
 import managePermissions from './managePermissions';
 import userPermissions from './userPermissions';
-import coreBase from './coreBase';
 
 export default {
   state() {
     return {
       pageName: '',
       welcomeModalVisible: false,
+      query: {},
     };
   },
   mutations: {
@@ -18,6 +18,9 @@ export default {
     },
     SET_WELCOME_MODAL_VISIBLE(state, visibility) {
       state.welcomeModalVisible = visibility;
+    },
+    SET_QUERY(state, query) {
+      state.query = query;
     },
   },
   actions: {
@@ -49,7 +52,5 @@ export default {
     userPermissions,
     // MANAGE_CONTENT_PAGE + wizards
     manageContent,
-    // CoreBase properties
-    coreBase,
   },
 };

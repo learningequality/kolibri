@@ -1,5 +1,4 @@
 import router from 'kolibri.coreVue.router';
-import { createTranslator } from 'kolibri.utils.i18n';
 import { TransferTypes } from 'kolibri.utils.syncTaskUtils';
 import { ContentSources, ContentWizardPages } from '../../../constants';
 import {
@@ -7,19 +6,8 @@ import {
   selectContentPageLink,
 } from '../../../views/ManageContentPage/manageContentLinks';
 
-const translator = createTranslator('ContentWizardTexts', {
-  loadingChannelsToolbar: {
-    message: 'Loading channels…',
-    context:
-      "Displays when user clicks the 'import' button to indicate that channels are being loaded.",
-  },
-});
-
 // Provide a intermediate state before Available Channels is fully-loaded
 function prepareForAvailableChannelsPage(store) {
-  store.commit('coreBase/SET_APP_BAR_TITLE', translator.$tr('loadingChannelsToolbar'), {
-    root: true,
-  });
   store.commit('SET_PAGE_NAME', ContentWizardPages.AVAILABLE_CHANNELS, { root: true });
 }
 

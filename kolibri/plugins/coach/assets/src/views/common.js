@@ -1,5 +1,4 @@
 import { mapState, mapGetters } from 'vuex';
-import CoreBase from 'kolibri.coreVue.components.CoreBase';
 import CoreTable from 'kolibri.coreVue.components.CoreTable';
 import { ContentNodeKinds, CollectionKinds } from 'kolibri.coreVue.vuex.constants';
 import router from 'kolibri.coreVue.router';
@@ -7,7 +6,6 @@ import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
 import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
 import meanBy from 'lodash/meanBy';
 import maxBy from 'lodash/maxBy';
-import find from 'lodash/find';
 import map from 'lodash/map';
 import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
 import MasteryModel from 'kolibri.coreVue.components.MasteryModel';
@@ -18,7 +16,7 @@ import { PageNames } from '../constants';
 import { LastPages } from '../constants/lastPagesConstants';
 import { STATUSES } from '../modules/classSummary/constants';
 import TopNavbar from './TopNavbar';
-import { coachStrings, coachStringsMixin } from './common/commonCoachStrings';
+import { coachStringsMixin } from './common/commonCoachStrings';
 import AverageScoreTooltip from './common/AverageScoreTooltip';
 import BackLink from './common/BackLink';
 import TruncatedItemList from './common/TruncatedItemList';
@@ -40,90 +38,8 @@ import Placeholder from './common/Placeholder';
 import StatusElapsedTime from './common/StatusElapsedTime';
 import { VERBS, ICONS } from './common/status/constants';
 
-function formatPageTitle() {
-  // To get a page title, each coach route should have
-  // meta.titleParts defined, which is an array of coachStrings tr keys
-  // or special all-caps strings that get mapped to names.
-  const parts = this.$route.meta.titleParts || [];
-  const classSummary = this.$store.state.classSummary;
-  const { params } = this.$route;
-
-  let strings = parts.map(part => {
-    try {
-      switch (part) {
-        case 'GROUP_NAME':
-          return classSummary.groupMap[params.groupId].name;
-        case 'CLASS_NAME':
-          return classSummary.name;
-        case 'LEARNER_NAME':
-          return classSummary.learnerMap[params.learnerId].name;
-        case 'LESSON_NAME':
-          return classSummary.lessonMap[params.lessonId].title;
-        case 'QUIZ_NAME':
-          return classSummary.examMap[params.quizId].title;
-        case 'EXERCISE_NAME':
-          return classSummary.contentMap[params.exerciseId].title;
-        case 'RESOURCE_NAME':
-          return classSummary.contentMap[params.resourceId].title;
-        default:
-          return coachStrings.$tr(part);
-      }
-    } catch (err) {
-      // TODO - make this error handling cleaner
-      return '';
-    }
-  });
-
-  if (this.isRtl) {
-    strings = strings.reverse();
-  }
-  return strings.join(' - ');
-}
-
-export const CoachCoreBase = {
-  extends: CoreBase,
-  mixins: [coachStringsMixin],
-  props: {
-    // Gives each Coach page a default title of 'Coach – [Class Name]'
-    appBarTitle: {
-      type: String,
-      default() {
-        let facilityName;
-        // Using coachStrings.$tr() here because mixins are not applied
-        // prior to props being processed.
-        const { facility_id, name } = this.$store.state.classSummary;
-        if (
-          facility_id &&
-          this.$store.state.core.facilities.length > 1 &&
-          this.$store.getters.isSuperuser
-        ) {
-          const match = find(this.$store.state.core.facilities, { id: facility_id }) || {};
-          facilityName = match.name;
-        }
-        if (facilityName && name) {
-          return coachStrings.$tr('coachLabelWithOneTwoNames', {
-            name1: facilityName,
-            name2: name,
-          });
-        } else if (name) {
-          return coachStrings.$tr('coachLabelWithOneName', { name });
-        } else {
-          return coachStrings.$tr('coachLabel');
-        }
-      },
-    },
-    pageTitle: {
-      type: String,
-      default() {
-        return formatPageTitle.call(this);
-      },
-    },
-  },
-};
-
 export default {
   components: {
-    CoreBase: CoachCoreBase,
     CoreTable,
     ContentIcon,
     TopNavbar,

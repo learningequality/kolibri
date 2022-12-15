@@ -53,9 +53,6 @@ export default {
       Lockr.set('facilityId', facilityId);
       state.facilityId = facilityId;
     },
-    SET_APPBAR_TITLE(state, appBarTitle) {
-      state.appBarTitle = appBarTitle;
-    },
   },
   modules: {
     signIn,

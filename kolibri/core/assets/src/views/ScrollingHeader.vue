@@ -1,6 +1,9 @@
 <template>
 
-  <div class="scrolling-header" :class="classes">
+  <div
+    class="scrolling-header"
+    :class="classes"
+  >
     <slot></slot>
   </div>
 
@@ -35,7 +38,7 @@
         type: Number,
         default: 100,
       },
-      // Synced with CoreBase to handle changes when window is resized
+      // Hides scroll header when window is resized
       isHidden: {
         type: Boolean,
         default: false,
