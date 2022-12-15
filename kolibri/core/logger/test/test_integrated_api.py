@@ -81,13 +81,15 @@ class ProgressTrackingViewSetStartSessionFreshTestCase(APITestCase):
             kind=content_kinds.VIDEO,
         )
 
-    def _make_request(self, data):
+    def _make_request(self, data, delete_keys=None):
         post_data = {
             "node_id": self.node.id,
             "content_id": self.node.content_id,
             "channel_id": self.node.channel_id,
             "kind": self.node.kind,
         }
+        for key in delete_keys or []:
+            del post_data[key]
         post_data.update(data)
         return self.client.post(
             reverse("kolibri:core:trackprogress-list"),
@@ -412,6 +414,48 @@ class ProgressTrackingViewSetStartSessionFreshTestCase(APITestCase):
         self.assertEqual(result["pastattempts"], [])
         self.assertEqual(result["totalattempts"], 0)
         self.assertEqual(result["context"]["node_id"], self.node.id)
+
+    def test_start_session_node_id_no_channel_id_fails(self):
+        self.client.login(
+            username=self.user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self._make_request({}, delete_keys=["channel_id"])
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_start_session_node_id_no_content_id_fails(self):
+        self.client.login(
+            username=self.user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self._make_request({}, delete_keys=["content_id"])
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_start_session_node_id_has_mastery_model_not_exercise_fails(self):
+        self.client.login(
+            username=self.user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self._make_request({"mastery_model": {"type": "do_all"}})
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_start_session_node_id_no_mastery_model_exercise_fails(self):
+        self.node.kind = content_kinds.EXERCISE
+        self.node.save()
+        self.client.login(
+            username=self.user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self._make_request({})
+
+        self.assertEqual(response.status_code, 400)
 
     def tearDown(self):
         self.client.logout()

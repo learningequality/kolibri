@@ -86,29 +86,31 @@ class StartSessionSerializer(serializers.Serializer):
         if "node_id" not in data and "quiz_id" not in data:
             raise ValidationError("node_id is required if not a coach assigned quiz")
         if "node_id" in data:
-            errors = []
+            errors = {}
             if "kind" not in data:
-                errors.append(ValidationError("kind is required for any node_id"))
+                errors["kind"] = ValidationError("kind is required for any node_id")
             else:
                 if (
                     data["kind"] == content_kinds.EXERCISE
                     and "mastery_model" not in data
                 ):
-                    errors.append(
-                        ValidationError(
-                            "mastery model must be specified for exercise kinds"
-                        )
+                    errors["mastery_model"] = ValidationError(
+                        "mastery model must be specified for exercise kinds"
                     )
                 elif data["kind"] != content_kinds.EXERCISE and "mastery_model" in data:
-                    errors.append(
-                        ValidationError(
-                            "mastery model must not be specified for non-exercise kinds"
-                        )
+                    errors["mastery_model"] = ValidationError(
+                        "mastery model must not be specified for non-exercise kinds"
                     )
             if "content_id" not in data:
-                errors.append(ValidationError("content_id is required for any node_id"))
+                errors["content_id"] = ValidationError(
+                    "content_id is required for any node_id"
+                )
             if "channel_id" not in data:
-                errors.append(ValidationError("channel_id is required for any node_id"))
+                errors["channel_id"] = ValidationError(
+                    "channel_id is required for any node_id"
+                )
+            if errors:
+                raise ValidationError(errors)
         return data
 
 
