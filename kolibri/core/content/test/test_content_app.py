@@ -377,6 +377,7 @@ class ContentNodeAPIBase(object):
         self._assert_nodes(response.data, nodes)
 
     def _recurse_and_assert(self, data, nodes, recursion_depth=0):
+        recursion_depths = []
         for actual, expected in zip(data, nodes):
             children = actual.pop("children", None)
             self._assert_node(actual, expected)
@@ -399,11 +400,14 @@ class ContentNodeAPIBase(object):
                         self.assertEqual(
                             children["more"]["params"]["baseurl"], self.baseurl
                         )
-                self._recurse_and_assert(
-                    children["results"],
-                    child_nodes,
-                    recursion_depth=recursion_depth + 1,
+                recursion_depths.append(
+                    self._recurse_and_assert(
+                        children["results"],
+                        child_nodes,
+                        recursion_depth=recursion_depth + 1,
+                    )
                 )
+        return recursion_depth if not recursion_depths else max(recursion_depths)
 
     def test_contentnode_tree(self):
         root = content.ContentNode.objects.get(title="root")
@@ -489,6 +493,49 @@ class ContentNodeAPIBase(object):
         )
         self.assertEqual(len(nested_page_response.data["children"]["results"]), 5)
         self.assertIsNone(nested_page_response.data["children"]["more"])
+
+    def test_contentnode_tree_singleton_path(self):
+        builder = ChannelBuilder(levels=5, num_children=1)
+        builder.insert_into_default_db()
+        content.ContentNode.objects.all().update(available=True)
+        root = content.ContentNode.objects.get(id=builder.root_node["id"])
+        response = self._get(
+            reverse("kolibri:core:contentnode_tree-detail", kwargs={"pk": root.id})
+        )
+        max_depth = self._recurse_and_assert([response.data], [root])
+        # Should recurse all the way down the tree through a total of 6 levels
+        # including the root.
+        self.assertEqual(max_depth, 6)
+
+    def test_contentnode_tree_singleton_child(self):
+        builder = ChannelBuilder(levels=5, num_children=2)
+        builder.insert_into_default_db()
+        content.ContentNode.objects.all().update(available=True)
+        root = content.ContentNode.objects.get(id=builder.root_node["id"])
+        first_child = root.children.first()
+        first_child.available = False
+        first_child.save()
+        response = self._get(
+            reverse("kolibri:core:contentnode_tree-detail", kwargs={"pk": root.id})
+        )
+        max_depth = self._recurse_and_assert([response.data], [root])
+        # Should recurse an extra level to find multiple descendants under the first grandchild.
+        self.assertEqual(max_depth, 3)
+
+    def test_contentnode_tree_singleton_grandchild(self):
+        builder = ChannelBuilder(levels=5, num_children=2)
+        builder.insert_into_default_db()
+        content.ContentNode.objects.all().update(available=True)
+        root = content.ContentNode.objects.get(id=builder.root_node["id"])
+        first_grandchild = root.children.first().children.first()
+        first_grandchild.available = False
+        first_grandchild.save()
+        response = self._get(
+            reverse("kolibri:core:contentnode_tree-detail", kwargs={"pk": root.id})
+        )
+        max_depth = self._recurse_and_assert([response.data], [root])
+        # Should recurse an extra level to find multiple descendants under the first child.
+        self.assertEqual(max_depth, 3)
 
 
 class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
