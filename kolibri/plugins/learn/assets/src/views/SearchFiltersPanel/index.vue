@@ -17,7 +17,7 @@
           :text="t.title"
           class="side-panel-folder-link"
           :appearanceOverrides="{ color: $themeTokens.text }"
-          :to="genContentLink(t.id, false)"
+          :to="genContentLinkBackLinkCurrentPage(t.id, false)"
         />
       </div>
       <KButton
@@ -166,8 +166,8 @@
     },
     mixins: [commonLearnStrings, commonCoreStrings],
     setup() {
-      const { genContentLink } = useContentLink();
-      return { genContentLink };
+      const { genContentLinkBackLinkCurrentPage } = useContentLink();
+      return { genContentLinkBackLinkCurrentPage };
     },
     props: {
       value: {

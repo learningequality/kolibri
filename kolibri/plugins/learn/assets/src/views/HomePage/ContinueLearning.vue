@@ -14,7 +14,7 @@
           v-for="(resource, idx) in uniqueResumableClassesResources"
           :key="`resource-${idx}`"
           :contentNode="resource.contentNode"
-          :to="genContentLink(resource.contentNode.id, true)"
+          :to="genContentLinkBackLinkCurrentPage(resource.contentNode.id, true)"
           :collectionTitle="getResourceClassName(resource)"
         />
         <QuizCard
@@ -31,7 +31,7 @@
           v-for="(contentNode, idx) in resumableContentNodes"
           :key="idx"
           :contentNode="contentNode"
-          :to="genContentLink(contentNode.id, true)"
+          :to="genContentLinkBackLinkCurrentPage(contentNode.id, true)"
           :collectionTitle="getContentNodeTopicName(contentNode)"
           @openCopiesModal="openCopiesModal"
         />
@@ -117,7 +117,7 @@
         return last(contentNode.ancestors).title;
       }
 
-      const { genContentLink } = useContentLink();
+      const { genContentLinkBackLinkCurrentPage } = useContentLink();
 
       return {
         resumableClassesQuizzes,
@@ -129,7 +129,7 @@
         getQuizClassName,
         getResourceClassName,
         getContentNodeTopicName,
-        genContentLink,
+        genContentLinkBackLinkCurrentPage,
       };
     },
     props: {

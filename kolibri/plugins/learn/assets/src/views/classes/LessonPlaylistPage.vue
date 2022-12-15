@@ -35,7 +35,7 @@
           :content="content"
           class="content-card"
           :isMobile="windowIsSmall"
-          :link="genContentLink(content.id, true)"
+          :link="genContentLinkBackLinkCurrentPage(content.id, true)"
         />
         <p v-if="!lessonHasResources" class="no-resources-message">
           {{ $tr('noResourcesInLesson') }}
@@ -78,8 +78,8 @@
     },
     mixins: [commonCoreStrings, commonLearnStrings, responsiveWindowMixin],
     setup() {
-      const { genContentLink } = useContentLink();
-      return { genContentLink };
+      const { genContentLinkBackLinkCurrentPage } = useContentLink();
+      return { genContentLinkBackLinkCurrentPage };
     },
     computed: {
       ...mapState('lessonPlaylist', ['contentNodes', 'currentLesson']),

@@ -5,7 +5,7 @@
     <h2>
       <KRouterLink
         :text="topic.title"
-        :to="genContentLink(topic.id, false, true)"
+        :to="genContentLinkKeepCurrentBackLink(topic.id, false)"
         class="folder-header-link"
         :appearanceOverrides="{ color: $themeTokens.text }"
       >
@@ -64,8 +64,8 @@
     components: { LibraryAndChannelBrowserMainContent },
     mixins: [commonCoreStrings],
     setup() {
-      const { genContentLink } = useContentLink();
-      return { genContentLink };
+      const { genContentLinkKeepCurrentBackLink } = useContentLink();
+      return { genContentLinkKeepCurrentBackLink };
     },
     props: {
       topic: {

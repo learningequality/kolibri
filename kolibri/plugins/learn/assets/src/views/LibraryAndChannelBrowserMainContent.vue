@@ -8,7 +8,7 @@
         :key="`resource-${idx}`"
         :data-test="'resource-card-' + idx"
         :contentNode="content"
-        :to="genContentLink(content.id, content.is_leaf)"
+        :to="genContentLinkBackLinkCurrentPage(content.id, content.is_leaf)"
         @openCopiesModal="$emit('openCopiesModal', content.copies)"
       />
     </CardGrid>
@@ -25,7 +25,7 @@
         :data-test="'content-card-' + idx"
         :isMobile="windowIsSmall"
         :content="content"
-        :link="genContentLink(content.id, content.is_leaf)"
+        :link="genContentLinkBackLinkCurrentPage(content.id, content.is_leaf)"
         @openCopiesModal="$emit('openCopiesModal', content.copies)"
         @toggleInfoPanel="$emit('toggleInfoPanel', content)"
       />
@@ -38,7 +38,7 @@
       :content="content"
       class="card-grid-item"
       :data-test="'card-list-view-' + idx"
-      :link="genContentLink(content.id, content.is_leaf)"
+      :link="genContentLinkBackLinkCurrentPage(content.id, content.is_leaf)"
       :footerIcons="footerIcons"
       :createdDate="content.bookmark ? content.bookmark.created : null"
       @openCopiesModal="$emit('openCopiesModal', content.copies)"
@@ -73,8 +73,8 @@
     mixins: [responsiveWindowMixin],
 
     setup() {
-      const { genContentLink } = useContentLink();
-      return { genContentLink };
+      const { genContentLinkBackLinkCurrentPage } = useContentLink();
+      return { genContentLinkBackLinkCurrentPage };
     },
 
     props: {

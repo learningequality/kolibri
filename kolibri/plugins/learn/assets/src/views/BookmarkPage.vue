@@ -17,7 +17,7 @@
         :content="content"
         class="card-grid-item"
         :isMobile="windowIsSmall"
-        :link="genContentLink(content.id, content.is_leaf)"
+        :link="genContentLinkBackLinkCurrentPage(content.id, content.is_leaf)"
         :footerIcons="footerIcons"
         :createdDate="content.bookmark ? content.bookmark.created : null"
         @viewInformation="toggleInfoPanel(content)"
@@ -111,8 +111,8 @@
     mixins: [commonCoreStrings, commonLearnStrings, responsiveWindowMixin],
     setup() {
       const { fetchContentNodeProgress } = useContentNodeProgress();
-      const { genContentLink } = useContentLink();
-      return { fetchContentNodeProgress, genContentLink };
+      const { genContentLinkBackLinkCurrentPage } = useContentLink();
+      return { fetchContentNodeProgress, genContentLinkBackLinkCurrentPage };
     },
     data() {
       return {

@@ -23,7 +23,7 @@
           :text="metadataStrings.$tr('viewResource')"
           appearance="raised-button"
           :primary="false"
-          :to="genContentLink(content.id, content.is_leaf, true)"
+          :to="genContentLinkKeepCurrentBackLink(content.id, content.is_leaf)"
           data-test="view-resource-link"
         />
       </div>
@@ -159,7 +159,7 @@
           :key="related.title"
           class="list-item"
         >
-          <KRouterLink :to="genContentLink(related.id, related.is_leaf, true)">
+          <KRouterLink :to="genContentLinkKeepCurrentBackLink(related.id, related.is_leaf)">
             <KLabeledIcon>
               <template #icon>
                 <LearningActivityIcon :kind="related.learning_activities" />
@@ -181,7 +181,7 @@
       <div v-for="location in locationsInChannel" :key="location.id">
         <div>
           <KRouterLink
-            :to="genContentLink(lastAncestor(location).id, false, true)"
+            :to="genContentLinkKeepCurrentBackLink(lastAncestor(location).id, false)"
           >
             {{ lastAncestor(location).title }}
           </KRouterLink>
@@ -223,8 +223,8 @@
     },
     mixins: [commonCoreStrings],
     setup() {
-      const { genContentLink } = useContentLink();
-      return { genContentLink };
+      const { genContentLinkKeepCurrentBackLink } = useContentLink();
+      return { genContentLinkKeepCurrentBackLink };
     },
     props: {
       content: {

@@ -147,7 +147,7 @@
         startTrackingProgress,
         stopTrackingProgress,
       } = useProgressTracking();
-      const { genContentLink } = useContentLink();
+      const { genContentLinkKeepCurrentBackLink } = useContentLink();
       return {
         progress,
         time_spent,
@@ -160,7 +160,7 @@
         updateContentSession,
         startTracking: startTrackingProgress,
         stopTracking: stopTrackingProgress,
-        genContentLink,
+        genContentLinkKeepCurrentBackLink,
       };
     },
     props: {
@@ -260,7 +260,9 @@
         let id = message.nodeId;
         return ContentNodeResource.fetchModel({ id })
           .then(contentNode => {
-            router.push(this.genContentLink(contentNode.id, contentNode.is_leaf, true));
+            router.push(
+              this.genContentLinkKeepCurrentBackLink(contentNode.id, contentNode.is_leaf)
+            );
           })
           .catch(error => {
             this.$store.dispatch('handleApiError', error);

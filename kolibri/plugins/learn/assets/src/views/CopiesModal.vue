@@ -46,8 +46,8 @@
     name: 'CopiesModal',
     mixins: [commonCoreStrings],
     setup() {
-      const { genContentLink } = useContentLink();
-      return { genContentLink };
+      const { genContentLinkBackLinkCurrentPage } = useContentLink();
+      return { genContentLinkBackLinkCurrentPage };
     },
     props: {
       displayedCopies: {
@@ -57,7 +57,7 @@
     },
     methods: {
       contentLink(copy) {
-        return this.genContentLink(copy.id, true);
+        return this.genContentLinkBackLinkCurrentPage(copy.id, true);
       },
     },
     $trs: {

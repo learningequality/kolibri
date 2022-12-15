@@ -114,10 +114,9 @@
                     <ResourceItem
                       data-test="recommended-resource"
                       :contentNode="contentNode"
-                      :contentNodeRoute="genContentLink(
+                      :contentNodeRoute="genContentLinkKeepCurrentBackLink(
                         contentNode.id,
                         contentNode.is_leaf,
-                        true,
                       )"
                       :size="recommendedResourceItemSize"
                     />
@@ -181,8 +180,8 @@
     setup() {
       const { canAccessUnassignedContent } = useDeviceSettings();
       const { fetchLesson } = useLearnerResources();
-      const { genContentLink } = useContentLink();
-      return { canAccessUnassignedContent, fetchLesson, genContentLink };
+      const { genContentLinkKeepCurrentBackLink } = useContentLink();
+      return { canAccessUnassignedContent, fetchLesson, genContentLinkKeepCurrentBackLink };
     },
     props: {
       /**
@@ -301,7 +300,11 @@
         }
       },
       nextContentNodeRoute() {
-        return this.genContentLink(this.nextContentNode.id, this.nextContentNode.is_leaf, true);
+        return this.genContentLinkKeepCurrentBackLink(
+          this.nextContentNode.id,
+          this.nextContentNode.is_leaf,
+          true
+        );
       },
     },
     created() {

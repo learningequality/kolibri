@@ -9,7 +9,7 @@
       <KRouterLink
         v-for="content in contentNodes"
         :key="content.id"
-        :to="genContentLink(content.id, content.is_leaf, true)"
+        :to="genContentLinkKeepCurrentBackLink(content.id, content.is_leaf)"
         class="item"
         :class="windowIsSmall && 'small'"
         :style="linkStyles"
@@ -59,7 +59,7 @@
 
     <KRouterLink
       v-if="nextContent"
-      :to="genContentLink(nextContent.id, nextContent.is_leaf, true)"
+      :to="genContentLinkKeepCurrentBackLink(nextContent.id, nextContent.is_leaf)"
       class="next-content-link"
       :style="{
         borderTop: '1px solid ' + $themeTokens.fineLine,
@@ -106,8 +106,8 @@
     mixins: [KResponsiveWindowMixin],
     setup() {
       const { contentNodeProgressMap } = useContentNodeProgress();
-      const { genContentLink } = useContentLink();
-      return { contentNodeProgressMap, genContentLink };
+      const { genContentLinkKeepCurrentBackLink } = useContentLink();
+      return { contentNodeProgressMap, genContentLinkKeepCurrentBackLink };
     },
     props: {
       /**

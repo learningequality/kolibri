@@ -65,8 +65,8 @@
       ContentModal,
     },
     setup() {
-      const { genContentLink } = useContentLink();
-      return { genContentLink };
+      const { genContentLinkBackLinkCurrentPage } = useContentLink();
+      return { genContentLinkBackLinkCurrentPage };
     },
     props: {
       topic: {
@@ -268,7 +268,9 @@
         return ContentNodeResource.fetchModel({ id })
           .then(contentNode => {
             if (contentNode && contentNode.kind === 'topic') {
-              router.push(this.genContentLink(contentNode.id, contentNode.is_leaf));
+              router.push(
+                this.genContentLinkBackLinkCurrentPage(contentNode.id, contentNode.is_leaf)
+              );
             } else if (contentNode && this.overlayIsOpen == false) {
               // in a custom context, launch overlay
               this.currentContent = contentNode;
