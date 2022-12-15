@@ -597,6 +597,11 @@
       this.translator = crossComponentTranslator(LibraryPage);
       this.filterTranslator = crossComponentTranslator(FilterTextbox);
       window.addEventListener('scroll', this.throttledHandleScroll);
+      // Ideally we would just do this immediately upon create,
+      // but we can't guarantee that the topic data has loaded yet, so topic
+      // may be null or undefined. So watch here and capture the unwatch callback
+      // that this.$watch returns, so that we can invoke it after it has changed value
+      // from true to false.
       const loadingWatch = this.$watch('loading', () => {
         this.setSearchWithinDescendant(this.topic);
         this.search();
