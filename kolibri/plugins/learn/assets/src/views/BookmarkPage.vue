@@ -79,7 +79,6 @@
 
   import { mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import SidePanelModal from 'kolibri.coreVue.components.SidePanelModal';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { ContentNodeResource } from 'kolibri.resources';
   import client from 'kolibri.client';
@@ -87,6 +86,7 @@
   import genContentLink from '../utils/genContentLink';
   import { normalizeContentNode } from '../modules/coreLearn/utils.js';
   import useContentNodeProgress from '../composables/useContentNodeProgress';
+  import SidePanelModal from './SidePanelModal';
   import commonLearnStrings from './commonLearnStrings';
   import LearnAppBarPage from './LearnAppBarPage';
   import LearningActivityChip from './LearningActivityChip';

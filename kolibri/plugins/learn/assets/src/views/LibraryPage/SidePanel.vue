@@ -84,8 +84,8 @@
 
   import { ref } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import SidePanelModal from 'kolibri.coreVue.components.SidePanelModal';
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
+  import SidePanelModal from '../SidePanelModal';
   import CategorySearchModal from '../CategorySearchModal';
   import SearchFiltersPanel from '../SearchFiltersPanel';
   import commonLearnStrings from './../commonLearnStrings';

@@ -43,7 +43,7 @@
 
 <script>
 
-  import SidePanelModal from 'kolibri.coreVue.components.SidePanelModal';
+  import SidePanelModal from '../SidePanelModal';
   import genContentLink from '../../utils/genContentLink';
   import SearchFiltersPanel from '../SearchFiltersPanel';
 
