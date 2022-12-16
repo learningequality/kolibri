@@ -105,10 +105,10 @@
       genContentLink(content) {
         return genContentLink(
           content.id,
-          this.$route.params.id,
+          this.$route && this.$route.params && this.$route.params.id,
           content.is_leaf,
-          this.$route.name,
-          this.$route.query
+          this.$route && this.$route.name,
+          this.$route && this.$route.query
         );
       },
     },

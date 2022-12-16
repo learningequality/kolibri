@@ -148,10 +148,10 @@
   import AppError from 'kolibri-common/components/AppError';
   import GlobalSnackbar from 'kolibri-common/components/GlobalSnackbar';
   import SkipNavigationLink from '../../../../../../kolibri/core/assets/src/views/SkipNavigationLink';
+  import { getBackRoute } from '../utils/genContentLink';
   import useCoreLearn from '../composables/useCoreLearn';
   import useContentNodeProgress from '../composables/useContentNodeProgress';
   import useLearnerResources from '../composables/useLearnerResources';
-  import { PageNames } from '../constants';
   import SidePanelModal from './SidePanelModal';
   import LearningActivityChip from './LearningActivityChip';
   import LessonResourceViewer from './classes/LessonResourceViewer';
@@ -290,33 +290,7 @@
         return this.contentPageMounted ? this.$refs.contentPage.time_spent : 0;
       },
       back() {
-        if (!this.$route) {
-          return null;
-        }
-        const query = { ...this.$route.query };
-        const lastPage = (this.$route.query || {}).last;
-        delete query.last;
-        delete query.topicId;
-        // returning to a topic page requires an id
-        if (lastPage === PageNames.TOPICS_TOPIC_SEARCH || lastPage === PageNames.TOPICS_TOPIC) {
-          const lastId = this.$route.query.topicId
-            ? this.$route.query.topicId
-            : this.content.parent;
-          // Need to guard for parent being non-empty to avoid console errors
-          return this.$router.getRoute(
-            lastPage,
-            {
-              id: lastId,
-            },
-            query
-          );
-        } else if (lastPage === PageNames.LIBRARY) {
-          return this.$router.getRoute(lastPage, {}, query);
-        } else if (lastPage) {
-          return this.$router.getRoute(lastPage, query);
-        } else {
-          return this.$router.getRoute(PageNames.HOME);
-        }
+        return getBackRoute(this.$route, this.content.parent);
       },
     },
     watch: {
