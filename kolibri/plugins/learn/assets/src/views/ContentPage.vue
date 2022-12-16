@@ -285,7 +285,7 @@
         this.hideMarkAsCompleteModal();
         this.sessionReady = false;
         return this.initContentSession({
-          nodeId: this.content.id,
+          node: this.content,
           lessonId: this.lessonId,
           repeat,
         }).then(() => {

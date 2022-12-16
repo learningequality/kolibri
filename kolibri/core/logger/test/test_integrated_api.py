@@ -81,10 +81,15 @@ class ProgressTrackingViewSetStartSessionFreshTestCase(APITestCase):
             kind=content_kinds.VIDEO,
         )
 
-    def _make_request(self, data):
+    def _make_request(self, data, delete_keys=None):
         post_data = {
             "node_id": self.node.id,
+            "content_id": self.node.content_id,
+            "channel_id": self.node.channel_id,
+            "kind": self.node.kind,
         }
+        for key in delete_keys or []:
+            del post_data[key]
         post_data.update(data)
         return self.client.post(
             reverse("kolibri:core:trackprogress-list"),
@@ -218,7 +223,11 @@ class ProgressTrackingViewSetStartSessionFreshTestCase(APITestCase):
             password=DUMMY_PASSWORD,
             facility=self.facility,
         )
-        response = self._make_request({})
+        response = self._make_request(
+            {
+                "mastery_model": mastery_model,
+            }
+        )
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["mastery_criterion"], mastery_model)
@@ -377,7 +386,11 @@ class ProgressTrackingViewSetStartSessionFreshTestCase(APITestCase):
             password=DUMMY_PASSWORD,
             facility=self.facility,
         )
-        response = self._make_request({})
+        response = self._make_request(
+            {
+                "mastery_model": {"type": exercises.QUIZ},
+            }
+        )
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["mastery_criterion"], {"type": exercises.QUIZ})
@@ -401,6 +414,48 @@ class ProgressTrackingViewSetStartSessionFreshTestCase(APITestCase):
         self.assertEqual(result["pastattempts"], [])
         self.assertEqual(result["totalattempts"], 0)
         self.assertEqual(result["context"]["node_id"], self.node.id)
+
+    def test_start_session_node_id_no_channel_id_fails(self):
+        self.client.login(
+            username=self.user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self._make_request({}, delete_keys=["channel_id"])
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_start_session_node_id_no_content_id_fails(self):
+        self.client.login(
+            username=self.user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self._make_request({}, delete_keys=["content_id"])
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_start_session_node_id_has_mastery_model_not_exercise_fails(self):
+        self.client.login(
+            username=self.user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self._make_request({"mastery_model": {"type": "do_all"}})
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_start_session_node_id_no_mastery_model_exercise_fails(self):
+        self.node.kind = content_kinds.EXERCISE
+        self.node.save()
+        self.client.login(
+            username=self.user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self._make_request({})
+
+        self.assertEqual(response.status_code, 400)
 
     def tearDown(self):
         self.client.logout()
@@ -449,7 +504,12 @@ class ProgressTrackingViewSetStartSessionResumeTestCase(APITestCase):
         )
 
     def _make_request(self, data):
-        post_data = {"node_id": self.node.id}
+        post_data = {
+            "node_id": self.node.id,
+            "content_id": self.node.content_id,
+            "channel_id": self.node.channel_id,
+            "kind": self.node.kind,
+        }
         post_data.update(data)
         return self.client.post(
             reverse("kolibri:core:trackprogress-list"),
@@ -548,7 +608,13 @@ class ProgressTrackingViewSetStartSessionAssessmentResumeTestCase(APITestCase):
         )
 
     def _make_request(self, data):
-        post_data = {"node_id": self.node.id}
+        post_data = {
+            "node_id": self.node.id,
+            "content_id": self.node.content_id,
+            "channel_id": self.node.channel_id,
+            "kind": self.node.kind,
+            "mastery_model": self.assessmentmetadata.mastery_model,
+        }
         post_data.update(data)
         return self.client.post(
             reverse("kolibri:core:trackprogress-list"),
@@ -596,7 +662,11 @@ class ProgressTrackingViewSetStartSessionAssessmentResumeTestCase(APITestCase):
         self.mastery_log.mastery_level = -10
         self.mastery_log.mastery_criterion = {"type": exercises.QUIZ}
         self.mastery_log.save()
-        response = self._make_request({})
+        response = self._make_request(
+            {
+                "mastery_model": {"type": exercises.QUIZ},
+            }
+        )
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["mastery_criterion"], {"type": exercises.QUIZ})
@@ -653,7 +723,7 @@ class ProgressTrackingViewSetStartSessionAssessmentResumeTestCase(APITestCase):
         self.mastery_log.mastery_criterion = {"type": exercises.QUIZ}
         self.mastery_log.complete = True
         self.mastery_log.save()
-        response = self._make_request({})
+        response = self._make_request({"mastery_model": {"type": exercises.QUIZ}})
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(MasteryLog.objects.all().count(), 1)
@@ -698,6 +768,7 @@ class ProgressTrackingViewSetStartSessionAssessmentResumeTestCase(APITestCase):
         self.mastery_log.save()
         response = self._make_request(
             {
+                "mastery_model": {"type": exercises.QUIZ},
                 "repeat": True,
             }
         )
@@ -809,7 +880,7 @@ class ProgressTrackingViewSetStartSessionAssessmentResumeTestCase(APITestCase):
                 answer=interaction["answer"],
                 interaction_history=[interaction],
             )
-        response = self._make_request({})
+        response = self._make_request({"mastery_model": {"type": exercises.QUIZ}})
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["totalattempts"], 15)
@@ -861,7 +932,7 @@ class ProgressTrackingViewSetStartSessionAssessmentResumeTestCase(APITestCase):
                 answer=interaction["answer"],
                 interaction_history=[interaction],
             )
-        response = self._make_request({})
+        response = self._make_request({"mastery_model": {"type": exercises.QUIZ}})
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["totalattempts"], 15)
