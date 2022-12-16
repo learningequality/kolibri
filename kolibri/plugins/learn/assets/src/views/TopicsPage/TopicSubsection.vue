@@ -5,7 +5,7 @@
     <h2>
       <KRouterLink
         :text="topic.title"
-        :to="genContentLink(topic)"
+        :to="genContentLink(topic.id, false, true)"
         class="folder-header-link"
         :appearanceOverrides="{ color: $themeTokens.text }"
       >
@@ -56,13 +56,17 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import genContentLink from '../../utils/genContentLink';
+  import useContentLink from '../../composables/useContentLink';
   import LibraryAndChannelBrowserMainContent from '../LibraryAndChannelBrowserMainContent';
 
   export default {
     name: 'TopicSubsection',
     components: { LibraryAndChannelBrowserMainContent },
     mixins: [commonCoreStrings],
+    setup() {
+      const { genContentLink } = useContentLink();
+      return { genContentLink };
+    },
     props: {
       topic: {
         type: Object,
@@ -72,17 +76,6 @@
         type: Boolean,
         default: false,
         required: false,
-      },
-    },
-    data() {
-      return {};
-    },
-    methods: {
-      genContentLink(topic) {
-        return genContentLink(topic.id, this.topicId, topic.is_leaf, this.backRoute, {
-          ...this.context,
-          ...this.$route.query,
-        });
       },
     },
     $trs: {

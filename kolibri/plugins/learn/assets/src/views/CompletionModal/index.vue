@@ -116,10 +116,8 @@
                       :contentNode="contentNode"
                       :contentNodeRoute="genContentLink(
                         contentNode.id,
-                        null,
                         contentNode.is_leaf,
-                        $route.query.last,
-                        $route.query
+                        true,
                       )"
                       :size="recommendedResourceItemSize"
                     />
@@ -155,7 +153,7 @@
   import { ContentNodeResource } from 'kolibri.resources';
   import useDeviceSettings from '../../composables/useDeviceSettings';
   import useLearnerResources from '../../composables/useLearnerResources';
-  import genContentLink from '../../utils/genContentLink';
+  import useContentLink from '../../composables/useContentLink';
   import commonLearnStrings from '../commonLearnStrings';
   import CompletionModalSection from './CompletionModalSection';
   import ResourceItem from './ResourceItem';
@@ -183,7 +181,8 @@
     setup() {
       const { canAccessUnassignedContent } = useDeviceSettings();
       const { fetchLesson } = useLearnerResources();
-      return { canAccessUnassignedContent, fetchLesson };
+      const { genContentLink } = useContentLink();
+      return { canAccessUnassignedContent, fetchLesson, genContentLink };
     },
     props: {
       /**
@@ -302,13 +301,7 @@
         }
       },
       nextContentNodeRoute() {
-        return this.genContentLink(
-          this.nextContentNode.id,
-          null,
-          this.nextContentNode.is_leaf,
-          this.$route.query.last,
-          this.$route.query
-        );
+        return this.genContentLink(this.nextContentNode.id, this.nextContentNode.is_leaf, true);
       },
     },
     created() {
@@ -368,7 +361,6 @@
             : null;
         });
       },
-      genContentLink,
       emitCloseEvent() {
         this.$emit('close');
       },

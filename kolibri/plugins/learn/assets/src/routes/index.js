@@ -144,7 +144,11 @@ export default [
       if (toRoute.params.id === fromRoute.params.id) {
         return;
       }
-      showTopicsTopic(store, { id: toRoute.params.id, pageName: toRoute.name });
+      showTopicsTopic(store, {
+        id: toRoute.params.id,
+        pageName: toRoute.name,
+        query: toRoute.query,
+      });
     },
     component: TopicsPage,
   },
@@ -162,7 +166,11 @@ export default [
       if (toRoute.params.id === fromRoute.params.id) {
         return;
       }
-      showTopicsTopic(store, { id: toRoute.params.id, pageName: toRoute.name });
+      showTopicsTopic(store, {
+        id: toRoute.params.id,
+        pageName: toRoute.name,
+        query: toRoute.query,
+      });
     },
     component: TopicsPage,
   },
@@ -178,7 +186,11 @@ export default [
       if (toRoute.params.id === fromRoute.params.id) {
         return;
       }
-      showTopicsTopic(store, { id: toRoute.params.id, pageName: toRoute.name });
+      showTopicsTopic(store, {
+        id: toRoute.params.id,
+        pageName: toRoute.name,
+        query: toRoute.query,
+      });
     },
     component: TopicsPage,
   },

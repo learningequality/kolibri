@@ -1,9 +1,31 @@
+import Vuex from 'vuex';
 import { validateLinkObject } from 'kolibri.utils.validators';
-import { PageNames } from '../../src/constants';
-import genContentLink from '../../src/utils/genContentLink';
+import { PageNames } from '../../../src/constants';
+import useContentLink from '../useContentLink';
 
-const topicLink = genContentLink(19, null, false, null, {});
-const contentLink = genContentLink(88, 1, true, null, {});
+const name = 'test';
+const query = {
+  keyword: 'word',
+  prevName: 'notatest',
+  prevParams: encodeURI(JSON.stringify({ id: 'id' })),
+  prevQuery: encodeURI(JSON.stringify({ search: 'this' })),
+};
+const params = { lesson: 'that' };
+
+const store = new Vuex.Store({
+  state: {
+    route: {
+      name,
+      params,
+      query,
+    },
+  },
+});
+
+const { genContentLink } = useContentLink(store);
+
+const topicLink = genContentLink(19, false);
+const contentLink = genContentLink(88, true);
 
 describe('genContentLink - generating for a topic (isLeaf != true)', () => {
   it('returns a valid link object', () => {

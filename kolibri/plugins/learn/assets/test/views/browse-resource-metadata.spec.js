@@ -10,12 +10,12 @@ import Subjects from 'kolibri-constants/labels/Subjects';
 import LearningActivities from 'kolibri-constants/labels/LearningActivities';
 import ContentNodeThumbnail from '../../src/views/thumbnails/ContentNodeThumbnail';
 import BrowseResourceMetadata from '../../src/views/BrowseResourceMetadata';
-import genContentLink from '../../src/utils/genContentLink';
 import routes from '../../src/routes/index.js';
 
 const localVue = createLocalVue();
 localVue.use(VueRouter);
 
+jest.mock('../../src/composables/useContentLink');
 jest.mock('plugin_data', () => {
   return {
     __esModule: true,
@@ -105,13 +105,9 @@ describe('BrowseResourceMetadata', () => {
       expect(wrapper.find("[data-test='beginners-chip']").exists()).toBeTruthy();
     });
 
-    it('shows the view resource button-link with genContentLink-generated path', () => {
+    it('shows the view resource button-link', () => {
       const link = wrapper.findComponent(KRouterLink);
       expect(link.exists()).toBeTruthy();
-      const to = link.props().to;
-      expect(to).toEqual(
-        genContentLink(baseContentNode.id, null, baseContentNode.is_leaf, null, {})
-      );
     });
 
     it('displays a ContentNodeThumbnail', () => {

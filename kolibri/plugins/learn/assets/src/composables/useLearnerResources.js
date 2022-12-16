@@ -12,9 +12,8 @@ import flatMapDepth from 'lodash/flatMapDepth';
 
 import { ContentNodeResource } from 'kolibri.resources';
 import { deduplicateResources } from '../utils/contentNode';
-import genContentLink from '../utils/genContentLink';
 import { LearnerClassroomResource, LearnerLessonResource } from '../apiResources';
-import { PageNames, ClassesPageNames } from '../constants';
+import { ClassesPageNames } from '../constants';
 import { normalizeContentNode } from '../modules/coreLearn/utils';
 import useContentNodeProgress, { setContentNodeProgress } from './useContentNodeProgress';
 
@@ -100,24 +99,6 @@ export default function useLearnerResources() {
       2
     );
   });
-
-  /**
-   * @param {Object} resource { contentNodeId, lessonId, classId }
-   * @returns {Number} Index of a resource in a class lesson
-   * @private
-   */
-  function _getLessonResourceIdx(resource) {
-    const lesson = get(activeClassesLessons).find(
-      l => l.collection === resource.classId && l.id === resource.lessonId
-    );
-    if (!lesson) {
-      return undefined;
-    }
-    const lessonResourceIdx = lesson.resources.findIndex(
-      r => r.contentnode_id === resource.contentNodeId
-    );
-    return lessonResourceIdx === -1 ? undefined : lessonResourceIdx;
-  }
 
   /**
    * @returns {Array} - All active quizzes assigned to a learner in all their classes
@@ -248,34 +229,6 @@ export default function useLearnerResources() {
   }
 
   /**
-   * @param {Object} resource { contentNodeId, lessonId, classId }
-   * @returns {Object} vue-router link to a resource page
-   * @public
-   */
-  function getClassResourceLink(resource) {
-    const lessonResourceIdx = _getLessonResourceIdx(resource);
-    if (lessonResourceIdx === undefined) {
-      return undefined;
-    }
-    return genContentLink(resource.contentNodeId, null, true, undefined, {
-      lessonId: resource.lessonId,
-      classId: resource.classId,
-    });
-  }
-
-  /**
-   * @returns {Object} - A vue-router link to a topic content node page
-   */
-  function getTopicContentNodeLink(contentNodeId) {
-    return {
-      name: PageNames.TOPICS_CONTENT,
-      params: {
-        id: contentNodeId,
-      },
-    };
-  }
-
-  /**
    * Fetches a class by its ID and saves data
    * to this composable's store
    *
@@ -371,8 +324,6 @@ export default function useLearnerResources() {
     getClassActiveQuizzes,
     getClassLessonLink,
     getClassQuizLink,
-    getClassResourceLink,
-    getTopicContentNodeLink,
     fetchClass,
     fetchClasses,
     fetchLesson,

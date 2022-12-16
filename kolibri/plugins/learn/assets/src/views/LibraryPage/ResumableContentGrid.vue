@@ -48,7 +48,6 @@
     <CopiesModal
       v-if="displayedCopies.length"
       :copies="displayedCopies"
-      :genContentLink="genContentLink"
       @submit="displayedCopies = []"
     />
 
@@ -65,7 +64,6 @@
   import useLearnerResources from '../../composables/useLearnerResources';
   import CopiesModal from '../CopiesModal';
   import LibraryAndChannelBrowserMainContent from '../LibraryAndChannelBrowserMainContent';
-  import genContentLink from '../../utils/genContentLink';
 
   export default {
     name: 'ResumableContentGrid',
@@ -115,18 +113,7 @@
         displayedCopies: [],
       };
     },
-    computed: {
-      backRoute() {
-        return this.$route.name;
-      },
-    },
     methods: {
-      genContentLink(content) {
-        return genContentLink(content.id, this.topicId, content.is_leaf, this.backRoute, {
-          ...this.context,
-          ...this.$route.query,
-        });
-      },
       toggleCardView(value) {
         this.$emit('setCardStyle', value);
       },

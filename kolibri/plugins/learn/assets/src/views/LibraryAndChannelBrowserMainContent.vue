@@ -8,7 +8,7 @@
         :key="`resource-${idx}`"
         :data-test="'resource-card-' + idx"
         :contentNode="content"
-        :to="genContentLink(content)"
+        :to="genContentLink(content.id, content.is_leaf)"
         @openCopiesModal="$emit('openCopiesModal', content.copies)"
       />
     </CardGrid>
@@ -25,7 +25,7 @@
         :data-test="'content-card-' + idx"
         :isMobile="windowIsSmall"
         :content="content"
-        :link="genContentLink(content)"
+        :link="genContentLink(content.id, content.is_leaf)"
         @openCopiesModal="$emit('openCopiesModal', content.copies)"
         @toggleInfoPanel="$emit('toggleInfoPanel', content)"
       />
@@ -38,7 +38,7 @@
       :content="content"
       class="card-grid-item"
       :data-test="'card-list-view-' + idx"
-      :link="genContentLink(content)"
+      :link="genContentLink(content.id, content.is_leaf)"
       :footerIcons="footerIcons"
       :createdDate="content.bookmark ? content.bookmark.created : null"
       @openCopiesModal="$emit('openCopiesModal', content.copies)"
@@ -53,7 +53,7 @@
 <script>
 
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import genContentLink from '../utils/genContentLink';
+  import useContentLink from '../composables/useContentLink';
   import CardGrid from './cards/CardGrid';
   import ResourceCard from './cards/ResourceCard';
 
@@ -71,6 +71,11 @@
     },
 
     mixins: [responsiveWindowMixin],
+
+    setup() {
+      const { genContentLink } = useContentLink();
+      return { genContentLink };
+    },
 
     props: {
       contents: {
@@ -98,18 +103,6 @@
     computed: {
       footerIcons() {
         return { info: 'viewInformation' };
-      },
-    },
-
-    methods: {
-      genContentLink(content) {
-        return genContentLink(
-          content.id,
-          this.$route && this.$route.params && this.$route.params.id,
-          content.is_leaf,
-          this.$route && this.$route.name,
-          this.$route && this.$route.query
-        );
       },
     },
   };

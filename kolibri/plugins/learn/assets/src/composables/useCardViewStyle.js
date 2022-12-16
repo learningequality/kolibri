@@ -9,15 +9,15 @@ export default function useCardViewStyle(store, router) {
   // injection, primarily for tests.
   store = store || getCurrentInstance().proxy.$store;
   router = router || getCurrentInstance().proxy.$router;
-  const route = computed(() => store.state.route);
+  const route = computed(() => store.state.route || {});
 
   const currentCardViewStyle = computed({
     get() {
-      const query = get(route).query;
+      const query = get(route).query || {};
       return query[cardViewStyleQueryParam] || 'card';
     },
     set(value) {
-      const query = { ...get(route).query };
+      const query = { ...(get(route).query || {}) };
       query[cardViewStyleQueryParam] = value;
       // Just catch an error from making a redundant navigation rather
       // than try to precalculate this.

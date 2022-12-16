@@ -148,7 +148,7 @@
   import AppError from 'kolibri-common/components/AppError';
   import GlobalSnackbar from 'kolibri-common/components/GlobalSnackbar';
   import SkipNavigationLink from '../../../../../../kolibri/core/assets/src/views/SkipNavigationLink';
-  import { getBackRoute } from '../utils/genContentLink';
+  import useContentLink from '../composables/useContentLink';
   import useCoreLearn from '../composables/useCoreLearn';
   import useContentNodeProgress from '../composables/useContentNodeProgress';
   import useLearnerResources from '../composables/useLearnerResources';
@@ -202,12 +202,14 @@
         contentNodeProgressMap,
       } = useContentNodeProgress();
       const { fetchLesson } = useLearnerResources();
+      const { back } = useContentLink();
       return {
         canDownload,
         contentNodeProgressMap,
         fetchContentNodeProgress,
         fetchContentNodeTreeProgress,
         fetchLesson,
+        back,
       };
     },
     props: {
@@ -288,9 +290,6 @@
       },
       timeSpent() {
         return this.contentPageMounted ? this.$refs.contentPage.time_spent : 0;
-      },
-      back() {
-        return getBackRoute(this.$route, this.content.parent);
       },
     },
     watch: {

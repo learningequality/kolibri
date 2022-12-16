@@ -9,7 +9,7 @@
     <ImmersivePage
       v-else-if="!loading"
       :loading="loading"
-      :route="backLink"
+      :route="back"
       :appBarTitle="topic.title || ''"
       :appearanceOverrides="{}"
       class="page"
@@ -274,8 +274,8 @@
   import SidePanelModal from '../SidePanelModal';
   import { PageNames } from '../../constants';
   import { normalizeContentNode } from '../../modules/coreLearn/utils.js';
-  import { getBackRoute } from '../../utils/genContentLink';
   import useSearch from '../../composables/useSearch';
+  import useContentLink from '../../composables/useContentLink';
   import LibraryAndChannelBrowserMainContent from '../LibraryAndChannelBrowserMainContent';
   import SearchFiltersPanel from '../SearchFiltersPanel';
   import BrowseResourceMetadata from '../BrowseResourceMetadata';
@@ -342,6 +342,7 @@
         setCategory,
         setSearchWithinDescendant,
       } = useSearch();
+      const { back } = useContentLink();
       return {
         searchTerms,
         displayingSearchResults,
@@ -356,6 +357,7 @@
         clearSearch,
         setCategory,
         setSearchWithinDescendant,
+        back,
       };
     },
     props: {
@@ -413,9 +415,6 @@
           };
         }
         return {};
-      },
-      backLink() {
-        return getBackRoute(this.$route);
       },
       desktopSearchActive() {
         return this.$route.name === PageNames.TOPICS_TOPIC_SEARCH;

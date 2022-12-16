@@ -1,6 +1,8 @@
 import { shallowMount } from '@vue/test-utils';
 import LibraryAndChannelBrowserMainContent from '../../src/views/LibraryAndChannelBrowserMainContent';
 
+jest.mock('../../src/composables/useContentLink');
+
 describe('Library and Channel Browser Main Content', () => {
   let wrapper;
   beforeEach(() => {

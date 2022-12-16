@@ -17,7 +17,7 @@
           :text="t.title"
           class="side-panel-folder-link"
           :appearanceOverrides="{ color: $themeTokens.text }"
-          :to="genContentLink(t.id)"
+          :to="genContentLink(t.id, false)"
         />
       </div>
       <KButton
@@ -132,7 +132,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import SearchBox from '../SearchBox';
   import commonLearnStrings from '../commonLearnStrings';
-  import genContentLink from '../../utils/genContentLink';
+  import useContentLink from '../../composables/useContentLink';
   import { libraryCategories } from '../../constants';
   import ActivityButtonsGroup from './ActivityButtonsGroup';
   import SelectGroup from './SelectGroup';
@@ -165,6 +165,10 @@
       SelectGroup,
     },
     mixins: [commonLearnStrings, commonCoreStrings],
+    setup() {
+      const { genContentLink } = useContentLink();
+      return { genContentLink };
+    },
     props: {
       value: {
         type: Object,
@@ -295,7 +299,6 @@
       },
     },
     methods: {
-      genContentLink,
       isKeyActive(key) {
         return !!this.activeKeys.filter(k => k.includes(key)).length;
       },

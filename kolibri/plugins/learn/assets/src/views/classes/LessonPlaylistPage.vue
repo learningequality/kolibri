@@ -35,7 +35,7 @@
           :content="content"
           class="content-card"
           :isMobile="windowIsSmall"
-          :link="genContentLink(content)"
+          :link="genContentLink(content.id, true)"
         />
         <p v-if="!lessonHasResources" class="no-resources-message">
           {{ $tr('noResourcesInLesson') }}
@@ -56,7 +56,7 @@
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import genContentLink from '../../utils/genContentLink';
+  import useContentLink from '../../composables/useContentLink';
   import { PageNames, ClassesPageNames } from '../../constants';
   import commonLearnStrings from './../commonLearnStrings';
   import LearnAppBarPage from './../LearnAppBarPage';
@@ -77,6 +77,10 @@
       LearnAppBarPage,
     },
     mixins: [commonCoreStrings, commonLearnStrings, responsiveWindowMixin],
+    setup() {
+      const { genContentLink } = useContentLink();
+      return { genContentLink };
+    },
     computed: {
       ...mapState('lessonPlaylist', ['contentNodes', 'currentLesson']),
       lessonHasResources() {
@@ -119,19 +123,6 @@
             ]
           : [];
       },
-      backRoute() {
-        return this.$route.name;
-      },
-      context() {
-        const context = {};
-        if (this.currentLesson && this.currentLesson.classroom) {
-          context.lessonId = this.currentLesson.id;
-          context.classId = this.currentLesson.classroom.id;
-        } else if (this.isLibraryPage || this.pageName === PageNames.TOPICS_TOPIC_SEARCH) {
-          Object.assign(context, this.$route.query);
-        }
-        return context;
-      },
     },
     beforeDestroy() {
       /* If we are going anywhere except for content we unset the lesson */
@@ -142,15 +133,6 @@
     },
     methods: {
       ...mapMutations('lessonPlaylist', ['SET_CURRENT_LESSON']),
-      genContentLink(content) {
-        return genContentLink(
-          content.id,
-          this.topicId,
-          content.is_leaf,
-          this.backRoute,
-          this.context
-        );
-      },
     },
     $trs: {
       noResourcesInLesson: {

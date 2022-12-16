@@ -23,6 +23,7 @@ jest.mock('plugin_data', () => {
   };
 });
 
+jest.mock('../../src/composables/useContentLink');
 jest.mock('../../src/composables/useSearch');
 // Needed to test anything using mount() where children use this composable
 jest.mock('../../src/composables/useLearningActivities');

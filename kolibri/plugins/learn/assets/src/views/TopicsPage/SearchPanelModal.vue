@@ -26,7 +26,6 @@
       :topics="topics"
       :topicsLoading="topicsLoading"
       :more="topicMore"
-      :genContentLink="genContentLink"
       :availableLabels="availableLabels"
       :activeActivityButtons="activeActivityButtons"
       :activeCategories="activeCategories"
@@ -44,7 +43,6 @@
 <script>
 
   import SidePanelModal from '../SidePanelModal';
-  import genContentLink from '../../utils/genContentLink';
   import SearchFiltersPanel from '../SearchFiltersPanel';
 
   export default {
@@ -108,7 +106,6 @@
       };
     },
     methods: {
-      genContentLink,
       findFirstEl() {
         if (this.$refs.embeddedPanel) {
           this.$refs.embeddedPanel.focusFirstEl();

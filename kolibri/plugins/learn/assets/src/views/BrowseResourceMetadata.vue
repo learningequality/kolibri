@@ -23,7 +23,7 @@
           :text="metadataStrings.$tr('viewResource')"
           appearance="raised-button"
           :primary="false"
-          :to="genContentLink(content.id, null, content.is_leaf, $route.name, { ...$route.query })"
+          :to="genContentLink(content.id, content.is_leaf, true)"
           data-test="view-resource-link"
         />
       </div>
@@ -159,7 +159,7 @@
           :key="related.title"
           class="list-item"
         >
-          <KRouterLink :to="genContentLink(related.id, null, related.is_leaf, null, {})">
+          <KRouterLink :to="genContentLink(related.id, related.is_leaf, true)">
             <KLabeledIcon>
               <template #icon>
                 <LearningActivityIcon :kind="related.learning_activities" />
@@ -181,7 +181,7 @@
       <div v-for="location in locationsInChannel" :key="location.id">
         <div>
           <KRouterLink
-            :to="genContentLink(lastAncestor(location).id, null, false, null, {})"
+            :to="genContentLink(lastAncestor(location).id, false, true)"
           >
             {{ lastAncestor(location).title }}
           </KRouterLink>
@@ -209,7 +209,7 @@
   import LearnerNeeds from 'kolibri-constants/labels/Needs';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import { ContentNodeResource } from 'kolibri.resources';
-  import genContentLink from '../utils/genContentLink';
+  import useContentLink from '../composables/useContentLink';
   import LearningActivityIcon from './LearningActivityIcon';
   import ContentNodeThumbnail from './thumbnails/ContentNodeThumbnail';
   import SidePanelResourceMetadata from './SidePanelResourceMetadata';
@@ -222,6 +222,10 @@
       ContentNodeThumbnail,
     },
     mixins: [commonCoreStrings],
+    setup() {
+      const { genContentLink } = useContentLink();
+      return { genContentLink };
+    },
     props: {
       content: {
         type: Object,
@@ -311,7 +315,6 @@
       this.calculateDescriptionOverflow();
     },
     methods: {
-      genContentLink,
       lastAncestor(location) {
         const lastAncestor = location.ancestors[location.ancestors.length - 1];
         return lastAncestor;
