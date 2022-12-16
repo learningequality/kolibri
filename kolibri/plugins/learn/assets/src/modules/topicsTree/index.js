@@ -7,11 +7,11 @@ const { fetchContentNodeTreeProgress } = useContentNodeProgress();
 function defaultState() {
   return {
     channel: {},
-    content: {},
+    content: null,
     // used in TOPICS_TOPIC, TOPICS_TOPIC_SEARCH
     contents: [],
     isRoot: null,
-    topic: {},
+    topic: null,
   };
 }
 

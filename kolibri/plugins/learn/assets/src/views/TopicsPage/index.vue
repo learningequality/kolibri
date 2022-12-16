@@ -303,7 +303,7 @@
       } else {
         title = this.$tr('documentTitleForTopic', {
           channelTitle: this.channelTitle,
-          topicTitle: this.topic.title,
+          topicTitle: this.topic ? this.topic.title : '',
         });
       }
       return { title };
@@ -551,7 +551,7 @@
         return [];
       },
       topicMore() {
-        return this.topic.children && this.topic.children.more;
+        return this.topic && this.topic.children && this.topic.children.more;
       },
     },
     watch: {

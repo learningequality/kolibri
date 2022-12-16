@@ -1,7 +1,7 @@
 <template>
 
   <div
-    v-if="!loading"
+    v-if="!loading && content"
     ref="mainWrapper"
     class="main-wrapper"
   >
@@ -249,13 +249,13 @@
       }),
       ...mapState('topicsTree', ['content']),
       ...mapState('topicsTree', {
-        isCoachContent: state => (state.content.coach_content ? 1 : 0),
+        isCoachContent: state => (state.content && state.content.coach_content ? 1 : 0),
       }),
       practiceQuiz() {
         return get(this, ['content', 'options', 'modality']) === Modalities.QUIZ;
       },
       contentProgress() {
-        return this.contentNodeProgressMap[this.content.content_id];
+        return this.contentNodeProgressMap[this.content && this.content.content_id];
       },
       notAuthorized() {
         // catch "not authorized" error, display AuthMessage
@@ -382,6 +382,9 @@
        * is logged in
        */
       fetchSiblings() {
+        if (!this.content) {
+          return Promise.resolve();
+        }
         // Fetch the next content
         const nextPromise = ContentNodeResource.fetchNextContent(this.content.parent, {
           topicOnly: true,
@@ -421,6 +424,9 @@
         this.sidePanelContent = this.content;
       },
       toggleBookmark() {
+        if (!this.content) {
+          return;
+        }
         if (this.bookmark) {
           client({
             method: 'delete',
