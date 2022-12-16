@@ -1,5 +1,5 @@
 import { ref, computed, onBeforeMount } from 'kolibri.lib.vueCompositionApi';
-import { get, set, and } from '@vueuse/core';
+import { get, set } from '@vueuse/core';
 import { deleteAddress, fetchStaticAddresses } from './api';
 
 const Stages = Object.freeze({
@@ -81,7 +81,7 @@ export default function useSavedAddresses(props, context) {
   });
 
   const requestsFailed = computed(() => {
-    return and(fetchingFailed, deletingFailed);
+    return get(fetchingFailed) && get(deletingFailed);
   });
 
   return {
