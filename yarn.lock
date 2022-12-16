@@ -6953,10 +6953,10 @@ ipaddr.js@^2.0.1:
   resolved "https://registry.yarnpkg.com/ipaddr.js/-/ipaddr.js-2.0.1.tgz#eca256a7a877e917aeb368b0a7497ddf42ef81c0"
   integrity sha512-1qTgH9NG+IIJ4yfKs2e6Pp1bZg8wbDbKHT21HrLIeYBTRLgMYKnMTPAuI3Lcs61nfx5h1xlXnbJtH1kX5/d/ng==
 
-iri@^1.3.0:
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/iri/-/iri-1.3.0.tgz#3eedfb38a8ebaf7196b4d76b44603ac6f130cd7c"
-  integrity sha512-1bPyBMoj15VLCxtPDPC7YREka60TTAp7FH+4cU7k/haISq4XyR4/GVMmX+J3TeIOlNYH7twHbpYO9QQyejBZMg==
+iri@^1.3.1:
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/iri/-/iri-1.3.1.tgz#66f66cfc70b7bf3c01eb1bf8e46f9185320e36ed"
+  integrity sha512-CpzxCf3ycTphqF2hQRQAp25yK7+XM1iMJHUoJbFiQDLt70hYC+vUlrgQXuhzPrLNMuejhV0VelFp8zQmtqgAxA==
 
 is-arrayish@^0.2.1:
   version "0.2.1"
