@@ -8155,10 +8155,10 @@ locate-path@^5.0.0:
   dependencies:
     p-locate "^4.1.0"
 
-lockr@0.8.4:
-  version "0.8.4"
-  resolved "https://registry.yarnpkg.com/lockr/-/lockr-0.8.4.tgz#7614f9c7c98a60bc4ac45f44567d1d03d8fb493c"
-  integrity sha1-dhT5x8mKYLxKxF9EVn0dA9j7STw=
+lockr@0.8.5:
+  version "0.8.5"
+  resolved "https://registry.yarnpkg.com/lockr/-/lockr-0.8.5.tgz#ed021978dadc87afe8c8ec8bd50fce15f5a3d84e"
+  integrity sha512-PyWX+NYcJtk+12cARV5qaR0I2cfpHDplpOOI4KKoJtJufdnXo4sJPmfWhbZUAT5rCMgszzU0DovlSjEKp2u12A==
 
 lodash-es@^4.2.1:
   version "4.17.21"
