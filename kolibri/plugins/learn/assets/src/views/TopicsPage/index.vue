@@ -557,6 +557,7 @@
     watch: {
       topic() {
         this.setSearchWithinDescendant(this.topic);
+        this.search();
       },
       subTopicId(newValue, oldValue) {
         if (newValue && newValue !== oldValue) {
