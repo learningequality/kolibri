@@ -10,18 +10,12 @@
       <PlanHeader />
 
       <div class="filter-and-button">
-        <!-- Hidden temporarily per https://github.com/learningequality/kolibri/issues/6174
-          <KSelect
-            v-model="statusSelected"
-            :label="coreString('showAction')"
-            :options="statusOptions"
-            :inline="true"
-          />
-          -->
-        <!-- Remove this div - it makes sure the [NEW LESSON] button stays right-aligned
-              while the above <KSelect> is hidden
-          -->
-        <div>&nbsp;</div>
+        <KSelect
+          v-model="statusSelected"
+          :label="coreString('statusLabel')"
+          :options="statusOptions"
+          :inline="true"
+        />
         <KButtonGroup v-if="practiceQuizzesExist">
           <KButton
             primary
@@ -38,13 +32,17 @@
             </template>
           </KButton>
         </KButtonGroup>
-        <KRouterLink
+        <div
           v-else
-          :primary="true"
-          appearance="raised-button"
-          :to="newExamRoute"
-          :text="coachString('newQuizAction')"
-        />
+          class="button"
+        >
+          <KRouterLink
+            :primary="true"
+            appearance="raised-button"
+            :to="newExamRoute"
+            :text="coachString('newQuizAction')"
+          />
+        </div>
       </div>
       <CoreTable>
         <template #headers>
@@ -108,18 +106,18 @@
       <p v-if="!exams.length">
         {{ $tr('noExams') }}
       </p>
-      <!--       <p
-          v-else-if="statusSelected.value === coachString('activeQuizzesLabel') &&
-            !activeExams.length"
-        >
-          {{ $tr('noActiveExams') }}
-        </p>
-        <p
-          v-else-if=" statusSelected.value === coachString('inactiveQuizzesLabel') &&
-            !inactiveExams.length"
-        >
-          {{ $tr('noInactiveExams') }}
-        </p> -->
+      <p
+        v-else-if="statusSelected.value === coachString('activeQuizzesLabel') &&
+          !activeExams.length"
+      >
+        {{ $tr('noActiveExams') }}
+      </p>
+      <p
+        v-else-if=" statusSelected.value === coachString('inactiveQuizzesLabel') &&
+          !inactiveExams.length"
+      >
+        {{ $tr('noInactiveExams') }}
+      </p>
 
       <!-- Modals for Close & Open of quiz from right-most column -->
       <KModal
@@ -169,10 +167,10 @@
     mixins: [commonCoach, commonCoreStrings],
     data() {
       return {
-        // statusSelected: {
-        //   label: this.coachString('allQuizzesLabel'),
-        //   value: this.coachString('allQuizzesLabel'),
-        // },
+        statusSelected: {
+          label: this.coachString('allQuizzesLabel'),
+          value: this.coachString('allQuizzesLabel'),
+        },
         showOpenConfirmationModal: false,
         showCloseConfirmationModal: false,
       };
@@ -184,39 +182,36 @@
       practiceQuizzesExist() {
         return plugin_data.practice_quizzes_exist;
       },
-      // Hidden temporarily per https://github.com/learningequality/kolibri/issues/6174
-      // Uncomment this once we use the filters again.
-      /*
-        statusOptions() {
-          return [
-            {
-              label: this.coachString('allQuizzesLabel'),
-              value: this.coachString('allQuizzesLabel'),
-            },
-            {
-              label: this.coachString('activeQuizzesLabel'),
-              value: this.coachString('activeQuizzesLabel'),
-            },
-            {
-              label: this.coachString('inactiveQuizzesLabel'),
-              value: this.coachString('inactiveQuizzesLabel'),
-            },
-          ];
-        },
-        */
-      // activeExams() {
-      //   return this.sortedExams.filter(exam => exam.active === true);
-      // },
-      // inactiveExams() {
-      //   return this.sortedExams.filter(exam => exam.active === false);
-      // },
+      statusOptions() {
+        return [
+          {
+            label: this.coachString('allQuizzesLabel'),
+            value: this.coachString('allQuizzesLabel'),
+          },
+          {
+            label: this.coachString('activeQuizzesLabel'),
+            value: this.coachString('activeQuizzesLabel'),
+          },
+          {
+            label: this.coachString('inactiveQuizzesLabel'),
+            value: this.coachString('inactiveQuizzesLabel'),
+          },
+        ];
+      },
+
+      activeExams() {
+        return this.sortedExams.filter(exam => exam.active === true);
+      },
+      inactiveExams() {
+        return this.sortedExams.filter(exam => exam.active === false);
+      },
       filteredExams() {
-        // const filter = this.statusSelected.label;
-        // if (filter === this.coachString('activeQuizzesLabel')) {
-        //   return this.activeExams;
-        // } else if (filter === this.coachString('inactiveQuizzesLabel')) {
-        //   return this.inactiveExams;
-        // }
+        const filter = this.statusSelected.label;
+        if (filter === this.coachString('activeQuizzesLabel')) {
+          return this.activeExams;
+        } else if (filter === this.coachString('inactiveQuizzesLabel')) {
+          return this.inactiveExams;
+        }
         return this.sortedExams;
       },
       newExamRoute() {
@@ -283,14 +278,12 @@
         message: 'You do not have any quizzes',
         context: 'Message displayed when there are no quizzes within a class.',
       },
-      // noActiveExams: 'No active quizzes',
-      // noInactiveExams: {
-      //   message: 'No inactive quizzes',
-      //   context:
-      //     "Inactive quizzes are ones that are no longer in progress.
-      //     When the coach presses the 'End quiz' button, the quiz
-      //passes from 'active' to 'inactive'.",
-      // },
+      noActiveExams: 'No active quizzes',
+      noInactiveExams: {
+        message: 'No inactive quizzes',
+        context:
+          "Inactive quizzes are ones that are no longer in progress. When the coach presses the 'End quiz' button, the quiz passes from 'active' to 'inactive'.",
+      },
       newQuiz: {
         message: 'Create new quiz',
         context: "Title of the screen launched from the 'New quiz' button on the 'Plan' tab.\n",

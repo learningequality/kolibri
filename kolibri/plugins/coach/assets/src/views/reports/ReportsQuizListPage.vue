@@ -9,14 +9,13 @@
     <KPageContainer :class="{ 'print': $isPrint }">
       <ReportsHeader :title="$isPrint ? $tr('printLabel', { className }) : null" />
       <ReportsControls @export="exportCSV">
-        <!-- Hidden temporarily per https://github.com/learningequality/kolibri/issues/6174
         <KSelect
           v-model="filter"
-          :label="coreString('showAction')"
+          :label="coreString('statusLabel')"
           :options="filterOptions"
           :inline="true"
         />
-        -->
+
       </ReportsControls>
       <CoreTable :emptyMessage="emptyMessage">
         <template #headers>
@@ -27,13 +26,22 @@
           </th>
           <th>{{ coreString('progressLabel') }}</th>
           <th>{{ coachString('recipientsLabel') }}</th>
-          <th v-show="!$isPrint" class="center-text">
+          <th
+            v-show="!$isPrint"
+            class="center-text"
+          >
             {{ coachString('statusLabel') }}
           </th>
         </template>
         <template #tbody>
-          <transition-group tag="tbody" name="list">
-            <tr v-for="tableRow in table" :key="tableRow.id">
+          <transition-group
+            tag="tbody"
+            name="list"
+          >
+            <tr
+              v-for="tableRow in table"
+              :key="tableRow.id"
+            >
               <td>
                 <KRouterLink
                   :text="tableRow.title"
@@ -147,12 +155,12 @@
         if (this.filter.value === 'allQuizzes') {
           return this.coachString('quizListEmptyState');
         }
-        // if (this.filter.value === 'activeQuizzes') {
-        //   return this.$tr('noActiveExams');
-        // }
-        // if (this.filter.value === 'inactiveQuizzes') {
-        //   return this.$tr('noInactiveExams');
-        // }
+        if (this.filter.value === 'activeQuizzes') {
+          return this.$tr('noActiveExams');
+        }
+        if (this.filter.value === 'inactiveQuizzes') {
+          return this.$tr('noInactiveExams');
+        }
 
         return '';
       },
@@ -161,17 +169,17 @@
           {
             label: this.coachString('allQuizzesLabel'),
             value: 'allQuizzes',
-            // noActiveExams: 'No active quizzes',
-            // noInactiveExams: 'No inactive quizzes',
+            noActiveExams: 'No active quizzes',
+            noInactiveExams: 'No inactive quizzes',
           },
-          // {
-          //   label: this.coachString('activeQuizzesLabel'),
-          //   value: 'activeQuizzes',
-          // },
-          // {
-          //   label: this.coachString('inactiveQuizzesLabel'),
-          //   value: 'inactiveQuizzes',
-          // },
+          {
+            label: this.coachString('activeQuizzesLabel'),
+            value: 'activeQuizzes',
+          },
+          {
+            label: this.coachString('inactiveQuizzesLabel'),
+            value: 'inactiveQuizzes',
+          },
         ];
       },
       table() {
@@ -257,8 +265,8 @@
       },
     },
     $trs: {
-      // noActiveExams: 'No active quizzes',
-      // noInactiveExams: 'No inactive quizzes',
+      noActiveExams: 'No active quizzes',
+      noInactiveExams: 'No inactive quizzes',
       printLabel: {
         message: '{className} Quizzes',
         context:

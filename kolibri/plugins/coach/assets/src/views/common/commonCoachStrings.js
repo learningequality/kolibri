@@ -56,11 +56,11 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   },
 
   // labels, phrases, titles, headers...
-  // activeLabel: 'Active',
-  // activeQuizzesLabel: {
-  //   message: 'Active quizzes',
-  //   context: 'An active quiz is one that is in progress.',
-  // },
+  activeLabel: 'Active',
+  activeQuizzesLabel: {
+    message: 'Active quizzes',
+    context: 'An active quiz is one that is in progress.',
+  },
   activityLabel: {
     message: 'Activity',
     context:
@@ -151,12 +151,12 @@ const coachStrings = createTranslator('CommonCoachStrings', {
     context:
       "In the 'Difficult questions' sub-tab within the 'Reports' section, there's a column called 'Help needed' which shows the coach which learners need help on what questions.\n\nCoaches can also filter class activity by 'Help needed'",
   },
-  // inactiveQuizzesLabel: 'Inactive quizzes',
+  inactiveQuizzesLabel: 'Inactive quizzes',
   lastActivityLabel: {
     message: 'Last activity',
     context: 'Indicates when a learner was last active on a particular resource.',
   },
-  // inactiveLabel: 'Inactive',
+  inactiveLabel: 'Inactive',
   learnersLabel: {
     message: 'Learners',
     context:
