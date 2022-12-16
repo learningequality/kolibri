@@ -21,10 +21,10 @@ export default {
   mutations: {
     SET_STATE(state, payload) {
       state.channel = payload.channel || {};
-      state.content = payload.content || {};
+      state.content = payload.content || null;
       state.contents = payload.contents || [];
       state.isRoot = payload.isRoot || null;
-      state.topic = payload.topic || {};
+      state.topic = payload.topic || null;
     },
     ADD_MORE_CONTENTS(state, payload) {
       state.contents = state.contents.concat(_collectionState(payload.children.results));
