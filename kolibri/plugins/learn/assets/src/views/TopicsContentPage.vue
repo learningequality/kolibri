@@ -141,7 +141,6 @@
   import Modalities from 'kolibri-constants/Modalities';
 
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
-  import SidePanelModal from 'kolibri.coreVue.components.SidePanelModal';
   import { ContentNodeResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import client from 'kolibri.client';
@@ -153,6 +152,7 @@
   import useContentNodeProgress from '../composables/useContentNodeProgress';
   import useLearnerResources from '../composables/useLearnerResources';
   import { PageNames } from '../constants';
+  import SidePanelModal from './SidePanelModal';
   import LearningActivityChip from './LearningActivityChip';
   import LessonResourceViewer from './classes/LessonResourceViewer';
   import CurrentlyViewedResourceMetadata from './CurrentlyViewedResourceMetadata';

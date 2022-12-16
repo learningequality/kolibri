@@ -65,7 +65,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import FocusTrap from 'kolibri.coreVue.components.FocusTrap';
-  import commonLearnStrings from '../../../../../plugins/learn/assets/src/views/commonLearnStrings.js';
+  import commonLearnStrings from '../commonLearnStrings.js';
 
   export default {
     name: 'SidePanelModal',

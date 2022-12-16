@@ -120,9 +120,9 @@
   import { onMounted } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
-  import SidePanelModal from 'kolibri.coreVue.components.SidePanelModal';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
+  import SidePanelModal from '../SidePanelModal';
   import useSearch from '../../composables/useSearch';
   import useLearnerResources from '../../composables/useLearnerResources';
   import BrowseResourceMetadata from '../BrowseResourceMetadata';
