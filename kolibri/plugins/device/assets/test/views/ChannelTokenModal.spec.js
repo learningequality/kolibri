@@ -119,7 +119,7 @@ describe('channelTokenModal component', () => {
       await inputToken(wrapper, 'toka-toka-token');
       await wrapper.vm.submitForm();
       expect(lookupStub).toHaveBeenCalledWith('toka-toka-token');
-      expect(Object.keys(wrapper.emitted()).length).toEqual(0);
+      expect(wrapper.emitted().submit).toBeUndefined();
       assertTextboxInvalid(wrapper);
     });
 
@@ -132,7 +132,7 @@ describe('channelTokenModal component', () => {
       await inputToken(wrapper, 'toka-toka-token');
       await wrapper.vm.submitForm();
       expect(lookupStub).toHaveBeenCalledWith('toka-toka-token');
-      expect(Object.keys(wrapper.emitted()).length).toEqual(0);
+      expect(wrapper.emitted().submit).toBeUndefined();
       expect(textbox.props().invalid).toEqual(false);
       expect(networkErrorAlert().exists()).toEqual(true);
     });
