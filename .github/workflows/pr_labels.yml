@@ -7,13 +7,12 @@ jobs:
     runs-on: ubuntu-latest
     name: Label the PR size
     steps:
-      - uses: coverwallet/pr-labeler@v1.2.1
+      - uses: learningequality/pr-labeler@f65f4833779868fff4f469c6506df758d200f22e
         with:
           xs_max_size: '10'
           s_max_size: '100'
           m_max_size: '500'
           l_max_size: '1000'
-          exclude_files: '.css'
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   other-labels:
