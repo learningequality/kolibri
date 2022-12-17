@@ -29,14 +29,14 @@
       >
         <h1 class="title" data-test="header-title">
           <TextTruncator
-            :text="topic.title"
+            :text="title"
             :maxHeight="60"
           />
         </h1>
       </KGridItem>
 
       <KGridItem
-        v-if="topic.thumbnail"
+        v-if="thumbnail"
         class="thumbnail"
         :layout4="{ span: 1 }"
         :layout8="{ span: 2 }"
@@ -44,7 +44,7 @@
       >
         <CardThumbnail
           class="thumbnail"
-          :thumbnail="topic.thumbnail"
+          :thumbnail="thumbnail"
           :isMobile="windowIsSmall"
           :showTooltip="false"
           kind="channel"
@@ -54,14 +54,14 @@
 
       <!-- tagline or description -->
       <KGridItem
-        v-if="topic.description"
+        v-if="description"
         class="text"
-        :layout4="{ span: topic.thumbnail ? 3 : 4, alignment: 'auto' }"
-        :layout8="{ span: topic.thumbnail ? 6 : 8, alignment: 'auto' }"
-        :layout12="{ span: topic.thumbnail ? 10 : 12, alignment: 'auto' }"
+        :layout4="{ span: thumbnail ? 3 : 4, alignment: 'auto' }"
+        :layout8="{ span: thumbnail ? 6 : 8, alignment: 'auto' }"
+        :layout12="{ span: thumbnail ? 10 : 12, alignment: 'auto' }"
       >
         <TextTruncator
-          :text="topic.description"
+          :text="description"
           :maxHeight="110"
         />
       </KGridItem>
@@ -91,9 +91,17 @@
     },
     mixins: [responsiveWindowMixin, commonCoreStrings, commonLearnStrings],
     props: {
-      topic: {
-        type: Object,
+      title: {
+        type: String,
         required: true,
+      },
+      description: {
+        type: String,
+        default: null,
+      },
+      thumbnail: {
+        type: String,
+        default: null,
       },
       breadcrumbs: {
         type: Array,

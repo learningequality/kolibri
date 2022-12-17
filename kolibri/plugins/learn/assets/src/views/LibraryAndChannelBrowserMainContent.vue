@@ -8,7 +8,7 @@
         :key="`resource-${idx}`"
         :data-test="'resource-card-' + idx"
         :contentNode="content"
-        :to="genContentLinkBackLinkCurrentPage(content.id, content.is_leaf)"
+        :to="contentLink(content.id, content.is_leaf)"
         @openCopiesModal="$emit('openCopiesModal', content.copies)"
       />
     </CardGrid>
@@ -25,7 +25,7 @@
         :data-test="'content-card-' + idx"
         :isMobile="windowIsSmall"
         :content="content"
-        :link="genContentLinkBackLinkCurrentPage(content.id, content.is_leaf)"
+        :link="contentLink(content.id, content.is_leaf)"
         @openCopiesModal="$emit('openCopiesModal', content.copies)"
         @toggleInfoPanel="$emit('toggleInfoPanel', content)"
       />
@@ -38,7 +38,7 @@
       :content="content"
       class="card-grid-item"
       :data-test="'card-list-view-' + idx"
-      :link="genContentLinkBackLinkCurrentPage(content.id, content.is_leaf)"
+      :link="contentLink(content.id, content.is_leaf)"
       :footerIcons="footerIcons"
       :createdDate="content.bookmark ? content.bookmark.created : null"
       @openCopiesModal="$emit('openCopiesModal', content.copies)"
@@ -73,8 +73,11 @@
     mixins: [responsiveWindowMixin],
 
     setup() {
-      const { genContentLinkBackLinkCurrentPage } = useContentLink();
-      return { genContentLinkBackLinkCurrentPage };
+      const {
+        genContentLinkBackLinkCurrentPage,
+        genContentLinkKeepCurrentBackLink,
+      } = useContentLink();
+      return { genContentLinkBackLinkCurrentPage, genContentLinkKeepCurrentBackLink };
     },
 
     props: {
@@ -98,11 +101,22 @@
         required: true,
         default: 1,
       },
+      keepCurrentBackLink: {
+        type: Boolean,
+        default: false,
+      },
     },
 
     computed: {
       footerIcons() {
         return { info: 'viewInformation' };
+      },
+    },
+    methods: {
+      contentLink(id, isResource) {
+        return this.keepCurrentBackLink
+          ? this.genContentLinkKeepCurrentBackLink(id, isResource)
+          : this.genContentLinkBackLinkCurrentPage(id, isResource);
       },
     },
   };

@@ -37,6 +37,7 @@ const mockStore = new Vuex.Store({
 jest.mock('../../src/composables/useSearch');
 jest.mock('../../src/composables/useLearnerResources');
 jest.mock('../../src/composables/useLearningActivities');
+jest.mock('../../src/composables/useContentLink');
 jest.mock('kolibri-design-system/lib/useKResponsiveWindow');
 
 describe('LibraryPage', () => {

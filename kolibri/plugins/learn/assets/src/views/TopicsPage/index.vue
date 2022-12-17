@@ -10,7 +10,7 @@
       v-else-if="!loading"
       :loading="loading"
       :route="back"
-      :appBarTitle="topic.title || ''"
+      :appBarTitle="(topic && topic.title) || ''"
       :appearanceOverrides="{}"
       class="page"
     >
@@ -20,8 +20,9 @@
         ref="header"
         role="complementary"
         data-test="header-breadcrumbs"
-        :topics="topics"
-        :topic="topic"
+        :title="(topic && topic.title) || ''"
+        :description="topic && topic.description"
+        :thumbnail="topic && topic.thumbnail"
         :breadcrumbs="breadcrumbs"
       />
 
@@ -110,7 +111,7 @@
           <!-- TODO: Should card preference be permitted in Topics page as well? At least for
               search results? -->
           <SearchResultsGrid
-            v-else-if="!searchLoading"
+            v-else
             data-test="search-results"
             :currentCardViewStyle="currentSearchCardViewStyle"
             :hideCardViewToggle="true"
@@ -264,6 +265,7 @@
   import { mapActions, mapState } from 'vuex';
   import isEqual from 'lodash/isEqual';
   import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
+  import { computed, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
@@ -327,6 +329,8 @@
     },
     mixins: [responsiveWindowMixin, commonCoreStrings, commonLearnStrings],
     setup() {
+      const store = getCurrentInstance().proxy.$store;
+      const topic = computed(() => store.state.topicsTree && store.state.topicsTree.topic);
       const {
         searchTerms,
         displayingSearchResults,
@@ -340,9 +344,8 @@
         removeFilterTag,
         clearSearch,
         setCategory,
-        setSearchWithinDescendant,
-      } = useSearch();
-      const { back } = useContentLink();
+      } = useSearch(topic);
+      const { back, genContentLinkKeepCurrentBackLink } = useContentLink();
       return {
         searchTerms,
         displayingSearchResults,
@@ -356,8 +359,8 @@
         removeFilterTag,
         clearSearch,
         setCategory,
-        setSearchWithinDescendant,
         back,
+        genContentLinkKeepCurrentBackLink,
       };
     },
     props: {
@@ -395,10 +398,7 @@
           ...this.topic.ancestors.map(({ title, id }, index) => ({
             // Use the channel name just in case the root node does not have a title.
             text: index === 0 ? this.channelTitle : title,
-            link: {
-              name: PageNames.TOPICS_TOPIC,
-              params: { id },
-            },
+            link: this.genContentLinkKeepCurrentBackLink(id, false),
           })),
           { text: this.topic.ancestors.length ? this.topic.title : this.channelTitle },
         ];
@@ -555,10 +555,6 @@
       },
     },
     watch: {
-      topic() {
-        this.setSearchWithinDescendant(this.topic);
-        this.search();
-      },
       subTopicId(newValue, oldValue) {
         if (newValue && newValue !== oldValue) {
           this.handleLoadMoreInSubtopic(newValue);
@@ -598,16 +594,6 @@
       this.translator = crossComponentTranslator(LibraryPage);
       this.filterTranslator = crossComponentTranslator(FilterTextbox);
       window.addEventListener('scroll', this.throttledHandleScroll);
-      // Ideally we would just do this immediately upon create,
-      // but we can't guarantee that the topic data has loaded yet, so topic
-      // may be null or undefined. So watch here and capture the unwatch callback
-      // that this.$watch returns, so that we can invoke it after it has changed value
-      // from true to false.
-      const loadingWatch = this.$watch('loading', () => {
-        this.setSearchWithinDescendant(this.topic);
-        this.search();
-        loadingWatch();
-      });
       if (this.subTopicId) {
         this.handleLoadMoreInSubtopic(this.subTopicId);
       }

@@ -24,6 +24,7 @@
       :contents="topic.children"
       currentCardViewStyle="card"
       :gridType="2"
+      :keepCurrentBackLink="true"
       @toggleInfoPanel="$emit('toggleInfoPanel', $event)"
     />
     <KButton

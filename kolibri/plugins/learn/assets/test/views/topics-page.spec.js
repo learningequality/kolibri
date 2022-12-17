@@ -36,7 +36,6 @@ useSearch.mockImplementation(() => ({
   searchQuery: '',
   searchLoading: false,
   searchError: null,
-  setSearchWithinDescendant: jest.fn(),
 }));
 
 const localVue = createLocalVue();
@@ -71,11 +70,7 @@ describe('TopicsPage', () => {
     it('renders a CustomContentRenderer', async () => {
       plugin_data.enableCustomChannelNav.mockImplementation(() => true);
 
-      useSearch.mockImplementation(() =>
-        useSearchMock({
-          setSearchWithinDescendant: jest.fn(),
-        })
-      );
+      useSearch.mockImplementation(() => useSearchMock());
 
       store.state.topicsTree.topic = {
         ...store.state.topicsTree.topic,
@@ -202,7 +197,6 @@ describe('TopicsPage', () => {
           searchQuery: '',
           searchLoading: false,
           searchError: null,
-          setSearchWithinDescendant: jest.fn(),
         }));
 
         wrapper = mount(TopicsPage, {
@@ -234,7 +228,6 @@ describe('TopicsPage', () => {
           searchQuery: '',
           searchLoading: false,
           searchError: null,
-          setSearchWithinDescendant: jest.fn(),
         }));
         wrapper = mount(TopicsPage, {
           store: store,
