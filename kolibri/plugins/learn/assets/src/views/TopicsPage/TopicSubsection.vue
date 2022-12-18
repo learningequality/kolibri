@@ -8,7 +8,7 @@
           {{ prefixTitle }}
         </span>
         <KIcon
-          :key="prefixTitle"
+          :key="topic.title + prefixTitle"
           icon="chevronRight"
           :color="$themeTokens.annotation"
           :style="{ top: '4px' }"

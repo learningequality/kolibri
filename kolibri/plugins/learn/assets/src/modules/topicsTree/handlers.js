@@ -66,7 +66,7 @@ export function showTopicsTopic(store, { id, pageName, query }) {
           }
           let children = topic.children.results || [];
           // If there is only one child, and that child is a topic, then display that instead
-          if (children.length === 1 && !children[0].is_leaf) {
+          while (children.length === 1 && !children[0].is_leaf) {
             topic = children[0];
             children = topic.children.results || [];
           }
