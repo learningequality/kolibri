@@ -39,6 +39,6 @@
     "vue-router": "^3.6.5",
     "vuex": "^3.1.0",
     "vuex-router-sync": "^5.0.0",
-    "xstate": "^4.33.2"
+    "xstate": "^4.35.1"
   }
 }
