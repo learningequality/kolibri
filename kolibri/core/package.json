@@ -23,7 +23,7 @@
     "kolibri-design-system": "https://github.com/learningequality/kolibri-design-system#d24d3d590c6fe82ca8c475c722511ed9410a1da4",
     "lockr": "0.8.5",
     "lodash": "^4.17.21",
-    "loglevel": "^1.4.1",
+    "loglevel": "^1.8.1",
     "markdown-it": "13.0.1",
     "screenfull": "^4.0.0",
     "shave": "^5.0.0",
