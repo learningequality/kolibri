@@ -38,26 +38,49 @@
         />
 
         <div class="card-grid">
-          <!-- Filter buttons - shown when not sidebar not visible -->
-          <div v-if="!windowIsLarge" data-test="tab-buttons">
+
+          <!-- catering for a more smaller screen  -->
+          <div v-if="windowIsSmall" data-test="tab-buttons">
             <KButton
               v-if="topics.length"
               icon="topic"
               data-test="folders-button"
-              class="overlay-toggle-button"
+              class="btn-space-mobile-1"
               :text="coreString('folders')"
               :primary="false"
               @click="toggleFolderSearchSidePanel('folder')"
             />
             <KButton
               icon="filter"
-              class="overlay-toggle-button"
+              class="btn-space-mobile-1"
               data-test="filter-button"
               :text="filterTranslator.$tr('filter')"
               :primary="false"
               @click="toggleFolderSearchSidePanel('search')"
             />
           </div>
+
+          <!-- Filter buttons - shown when not sidebar not visible -->
+          <div v-else-if="!windowIsLarge" data-test="tab-buttons">
+            <KButton
+              v-if="topics.length"
+              icon="topic"
+              data-test="folders-button"
+              class="btn-space-mobile-2"
+              :text="coreString('folders')"
+              :primary="false"
+              @click="toggleFolderSearchSidePanel('folder')"
+            />
+            <KButton
+              icon="filter"
+              class="btn-space-mobile-2"
+              data-test="filter-button"
+              :text="filterTranslator.$tr('filter')"
+              :primary="false"
+              @click="toggleFolderSearchSidePanel('search')"
+            />
+          </div>
+
 
           <!-- default/preview display of nested folder structure, not search -->
           <div v-if="!displayingSearchResults" data-test="topics">
@@ -650,6 +673,7 @@
           [topicId]: true,
         };
       },
+
       handleLoadMoreInSubtopic(topicId) {
         this.subTopicLoading = topicId;
         this.loadMoreContents(topicId).then(() => {
@@ -714,6 +738,14 @@
     margin: 24px;
   }
 
+  .btn-space-mobile-1 {
+    margin: 0 16px 16px 0;
+  }
+
+  .btn-space-mobile-2 {
+    margin: 16px 16px 16px 0;
+  }
+
   .text {
     max-width: 920px;
   }
@@ -736,10 +768,6 @@
     display: inline-block;
     margin: 4px;
     margin-left: 8px;
-  }
-
-  .overlay-toggle-button {
-    margin: 16px 16px 16px 0;
   }
 
   .full-screen-side-panel {
