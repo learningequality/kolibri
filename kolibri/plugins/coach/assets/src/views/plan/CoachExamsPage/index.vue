@@ -12,7 +12,7 @@
       <div class="filter-and-button">
         <KSelect
           v-model="statusSelected"
-          :label="coreString('statusLabel')"
+          :label="coachString('filterQuizStatus')"
           :options="statusOptions"
           :inline="true"
         />
@@ -107,16 +107,22 @@
         {{ $tr('noExams') }}
       </p>
       <p
-        v-else-if="statusSelected.value === coachString('activeQuizzesLabel') &&
+        v-else-if="statusSelected.value === coachString('filterQuizStarted') &&
           !activeExams.length"
       >
         {{ $tr('noActiveExams') }}
       </p>
       <p
-        v-else-if=" statusSelected.value === coachString('inactiveQuizzesLabel') &&
+        v-else-if=" statusSelected.value === coachString('filterQuizNotStarted') &&
           !inactiveExams.length"
       >
         {{ $tr('noInactiveExams') }}
+      </p>
+      <p
+        v-else-if=" statusSelected.value === coachString('filterQuizEnded') &&
+          !endedExams.length"
+      >
+        {{ $tr('noEndedExams') }}
       </p>
 
       <!-- Modals for Close & Open of quiz from right-most column -->
@@ -168,8 +174,8 @@
     data() {
       return {
         statusSelected: {
-          label: this.coachString('allQuizzesLabel'),
-          value: this.coachString('allQuizzesLabel'),
+          label: this.coachString('filterQuizAll'),
+          value: this.coachString('filterQuizAll'),
         },
         showOpenConfirmationModal: false,
         showCloseConfirmationModal: false,
@@ -185,32 +191,41 @@
       statusOptions() {
         return [
           {
-            label: this.coachString('allQuizzesLabel'),
-            value: this.coachString('allQuizzesLabel'),
+            label: this.coachString('filterQuizAll'),
+            value: this.coachString('filterQuizAll'),
           },
           {
-            label: this.coachString('activeQuizzesLabel'),
-            value: this.coachString('activeQuizzesLabel'),
+            label: this.coachString('filterQuizStarted'),
+            value: this.coachString('filterQuizStarted'),
           },
           {
-            label: this.coachString('inactiveQuizzesLabel'),
-            value: this.coachString('inactiveQuizzesLabel'),
+            label: this.coachString('filterQuizNotStarted'),
+            value: this.coachString('filterQuizNotStarted'),
+          },
+          {
+            label: this.coachString('filterQuizEnded'),
+            value: this.coachString('filterQuizEnded'),
           },
         ];
       },
 
       activeExams() {
-        return this.sortedExams.filter(exam => exam.active === true);
+        return this.sortedExams.filter(exam => exam.active === true && exam.archive === false);
+      },
+      endedExams() {
+        return this.sortedExams.filter(exam => exam.active === true && exam.archive === true);
       },
       inactiveExams() {
         return this.sortedExams.filter(exam => exam.active === false);
       },
       filteredExams() {
         const filter = this.statusSelected.label;
-        if (filter === this.coachString('activeQuizzesLabel')) {
+        if (filter === this.coachString('filterQuizStarted')) {
           return this.activeExams;
-        } else if (filter === this.coachString('inactiveQuizzesLabel')) {
+        } else if (filter === this.coachString('filterQuizNotStarted')) {
           return this.inactiveExams;
+        } else if (filter === this.coachString('filterQuizEnded')) {
+          return this.endedExams;
         }
         return this.sortedExams;
       },
@@ -279,6 +294,11 @@
         context: 'Message displayed when there are no quizzes within a class.',
       },
       noActiveExams: 'No active quizzes',
+      noEndedExams: {
+        message: 'No ended quizzes',
+        context:
+          'Message displayed when there are no ended quizes. Ended quizzes are those that are no longer in progress.',
+      },
       noInactiveExams: {
         message: 'No inactive quizzes',
         context:

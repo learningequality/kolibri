@@ -137,6 +137,51 @@ const coachStrings = createTranslator('CommonCoachStrings', {
     context:
       'Exercises are marked as completed when the learner has answered the required number of questions correctly in that specific exercise.',
   },
+  filterLessonAll: {
+    message: 'All',
+    context:
+      'Refers to LESSON. Default option in the selector used to filter and display lessons by status.',
+  },
+  filterLessonNotVisible: {
+    message: 'Not Visible',
+    context:
+      'Refers to LESSON. Option in the selector used to filter and display only the lessons not visible  to learners.',
+  },
+  filterLessonStatus: {
+    message: 'Status',
+    context: 'Label for the selector used to filter and display lessons by status.',
+  },
+  filterLessonVisible: {
+    message: 'Visible',
+    context:
+      'Refers to LESSON. Option in the selector used to filter and display only the lessons visible to learners. ',
+  },
+
+  filterQuizAll: {
+    message: 'All',
+    context:
+      'Refers to QUIZ. Default option in the selector used to filter and display quizes by status.',
+  },
+  filterQuizEnded: {
+    message: 'Ended',
+    context:
+      'Refers to QUIZ. Option in the selector used to filter and display only the ended quizzes.',
+  },
+  filterQuizNotStarted: {
+    message: 'Not Started',
+    context:
+      'Refers to QUIZ. Option in the selector used to filter and display only the quizes not started. ',
+  },
+  filterQuizStarted: {
+    message: 'Started',
+    context:
+      'Refers to QUIZ. Option in the selector used to filter and display only the started quizes. ',
+  },
+  filterQuizStatus: {
+    message: 'Status',
+    context: 'Label for the selector used to filter and display quizes by status.',
+  },
+
   groupNameLabel: {
     message: 'Group name',
     context: "Displays on the 'Create new group' window when a coach creates a new group.",

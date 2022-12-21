@@ -11,7 +11,7 @@
       <ReportsControls @export="exportCSV">
         <KSelect
           v-model="filter"
-          :label="coreString('statusLabel')"
+          :label="coachString('filterLessonStatus')"
           :options="filterOptions"
           :inline="true"
         />
@@ -114,15 +114,15 @@
       filterOptions() {
         return [
           {
-            label: this.coreString('allLessonsLabel'),
+            label: this.coachString('filterLessonAll'),
             value: 'allLessons',
           },
           {
-            label: this.$tr('activeLessons'),
+            label: this.coachString('filterLessonVisible'),
             value: 'activeLessons',
           },
           {
-            label: this.$tr('inactiveLessons'),
+            label: this.coachString('filterLessonNotVisible'),
             value: 'inactiveLessons',
           },
         ];

@@ -12,7 +12,7 @@
       <div class="filter-and-button">
         <KSelect
           v-model="filterSelection"
-          :label="coreString('statusLabel')"
+          :label="coachString('filterLessonStatus')"
           :options="filterOptions"
           :inline="true"
         />
@@ -76,10 +76,10 @@
       <p v-if="!lessons.length">
         {{ $tr('noLessons') }}
       </p>
-      <p v-else-if="!activeLessonCounts.true && filterSelection.value === 'activeLessons'">
+      <p v-else-if="!hasActiveLessons">
         {{ $tr('noActiveLessons') }}
       </p>
-      <p v-else-if="!activeLessonCounts.false && filterSelection.value === 'inactiveLessons'">
+      <p v-else-if="!hasInactiveLessons">
         {{ $tr('noInactiveLessons') }}
       </p>
 
@@ -153,9 +153,9 @@
         return this._.orderBy(this.lessons, ['date_created'], ['desc']);
       },
       filterOptions() {
-        const filters = ['allLessons', 'activeLessons', 'inactiveLessons'];
+        const filters = ['filterLessonAll', 'filterLessonVisible', 'filterLessonNotVisible'];
         return filters.map(filter => ({
-          label: this.$tr(filter),
+          label: this.coachString(filter),
           value: filter,
         }));
       },
@@ -165,6 +165,16 @@
       newLessonRoute() {
         return { name: LessonsPageNames.LESSON_CREATION_ROOT };
       },
+      hasActiveLessons() {
+        return !(
+          !this.activeLessonCounts.true && this.filterSelection.value === 'filterLessonVisible'
+        );
+      },
+      hasInactiveLessons() {
+        return !(
+          !this.activeLessonCounts.false && this.filterSelection.value === 'filterLessonNotVisible'
+        );
+      },
     },
     beforeMount() {
       this.filterSelection = this.filterOptions[0];
@@ -173,9 +183,9 @@
       ...mapActions('lessonsRoot', ['createLesson']),
       showLesson(lesson) {
         switch (this.filterSelection.value) {
-          case 'activeLessons':
+          case 'filterLessonVisible':
             return lesson.is_active;
-          case 'inactiveLessons':
+          case 'filterLessonNotVisible':
             return !lesson.is_active;
           default:
             return true;
@@ -220,13 +230,6 @@
       },
     },
     $trs: {
-      allLessons: {
-        message: 'All lessons',
-        context:
-          'Indicates a link that takes the user back to the main list of lessons from an individual lesson.',
-      },
-      activeLessons: 'Active lessons',
-      inactiveLessons: 'Inactive lessons',
       size: {
         message: 'Size',
         context:

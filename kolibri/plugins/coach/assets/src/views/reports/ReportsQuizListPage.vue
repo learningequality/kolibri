@@ -11,7 +11,7 @@
       <ReportsControls @export="exportCSV">
         <KSelect
           v-model="filter"
-          :label="coreString('statusLabel')"
+          :label="coachString('filterQuizStatus')"
           :options="filterOptions"
           :inline="true"
         />
@@ -161,24 +161,31 @@
         if (this.filter.value === 'inactiveQuizzes') {
           return this.$tr('noInactiveExams');
         }
+        if (this.filter.value === 'endedQuizzes') {
+          return this.$tr('noEndedExams');
+        }
 
         return '';
       },
       filterOptions() {
         return [
           {
-            label: this.coachString('allQuizzesLabel'),
+            label: this.coachString('filterQuizAll'),
             value: 'allQuizzes',
             noActiveExams: 'No active quizzes',
             noInactiveExams: 'No inactive quizzes',
           },
           {
-            label: this.coachString('activeQuizzesLabel'),
+            label: this.coachString('filterQuizStarted'),
             value: 'activeQuizzes',
           },
           {
-            label: this.coachString('inactiveQuizzesLabel'),
+            label: this.coachString('filterQuizNotStarted'),
             value: 'inactiveQuizzes',
+          },
+          {
+            label: this.coachString('filterQuizEnded'),
+            value: 'endedQuizzes',
           },
         ];
       },
@@ -187,9 +194,11 @@
           if (this.filter.value === 'allQuizzes') {
             return true;
           } else if (this.filter.value === 'activeQuizzes') {
-            return exam.active;
+            return exam.active && !exam.archive;
           } else if (this.filter.value === 'inactiveQuizzes') {
             return !exam.active;
+          } else if (this.filter.value === 'endedQuizzes') {
+            return exam.active && exam.archive;
           }
         });
         const sorted = this._.orderBy(filtered, ['date_created'], ['desc']);
@@ -266,6 +275,11 @@
     },
     $trs: {
       noActiveExams: 'No active quizzes',
+      noEndedExams: {
+        message: 'No ended quizzes',
+        context:
+          'Message displayed when there are no ended quizes. Ended quizzes are those that are no longer in progress.',
+      },
       noInactiveExams: 'No inactive quizzes',
       printLabel: {
         message: '{className} Quizzes',
