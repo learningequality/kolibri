@@ -103,7 +103,7 @@
 <style lang="scss" scoped>
 
   .folder-header-link {
-    margin-top: 15px;
+    margin-top: 25px;
 
     /deep/ .link-text {
       text-decoration: none !important;

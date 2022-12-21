@@ -109,7 +109,7 @@
               :numCols="numCols"
               :genContentLink="genContentLink"
               currentCardViewStyle="card"
-              style="padding-top:20px"
+              style="padding-top:35px"
               @toggleInfoPanel="toggleInfoPanel"
             />
             <KButton
