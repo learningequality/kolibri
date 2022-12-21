@@ -1,98 +1,51 @@
-import { assign, createMachine } from 'xstate';
 import { checkCapability } from 'kolibri.utils.appCapabilities';
 import { DeviceTypePresets, FacilityTypePresets, UsePresets } from '../constants';
 
-/** Predicates */
-// Functions used to return a true/false value. When the functions are called, they are passed
-// the current value of the machine's context as the only parameter
-const isOnMyOwnOrGroup = context => {
-  return context.onMyOwnOrGroup === UsePresets.ON_MY_OWN;
-};
+/**
+ * __ Setting up the XState Visualizer __
+ * You can visit https://github.com/statelyai/xstate-viz for everything you need
+ * to know to access the visualizer either locally or using their online service.
+ */
 
-const isGroupSetup = context => {
-  return context.onMyOwnOrGroup === UsePresets.GROUP;
-};
+/**
+ * __ Getting Started __
+ * At a high level, we will copy and paste code into the Visualizer. The call to
+ * `createMachine` is all that is needed there.
+ *
+ * We have some external depdencies which we will need to mock - anything imported
+ * at the top of this file is liable to be used within the machine itself.
+ *
+ * Thus, we will do best to:
+ * 1) Avoid introducing external dependencies wherever possible
+ * 2) Provide usable default mocks for all depdencies we do add (commented out)
+ *    OR
+ *    Know that we will need to directly copy and paste them into the visualizer
+ *
+ * For now, this means copying the imports from `../constants` and writing a
+ * function in place of `checkCapability`.
+ */
 
-const canGetOsUser = () => checkCapability('get_os_user');
+/**
+ * __ Using the Visualizer __
+ * The `initialContext` variable below can be adjusted to declare up front what the values are.
+ *
+ * However, to truly emulate the machine, you will need to use the `Events` tab. If you are ever
+ * on a node that says `DO/` then that transition expects an event to be sent with a `value`
+ * property. You can use the "Send Event" button to open a little dialog where you can enter
+ * JSON. One downside here is that you'll have to reference the *value* of the constants as you
+ * cannot reference the code in this dialog.
+ *
+ * You can click on events to send them, but if there is a `DO/` it implies actions with
+ * side effects will occur. Those actions will take in the whole JSON object that you send
+ * in the `Events` tab. Note that the use of `value` as a property is just a preference and
+ * the only required property is the `type` property indicating what kind of event is sent.
+ */
 
-const isNewFacility = context => {
-  return context.facilityNewOrImport === FacilityTypePresets.NEW;
-};
+/* eslint-disable-next-line */
+import { assign, createMachine } from 'xstate';
 
-const isImportFacility = context => {
-  return context.facilityNewOrImport === FacilityTypePresets.IMPORT;
-};
-
-const isLodSetup = context => {
-  return context.fullOrLOD === DeviceTypePresets.LOD;
-};
-
-const isFullSetup = context => {
-  return context.fullOrLOD === DeviceTypePresets.FULL;
-};
-
-/** Actions */
-// The `assign` function takes an object that maps keys that match those in the machine's `context`
-// to functions that take two parameters `(context, event)` - where the context is the current
-// context and event refers to the event sent to the machine to initiate a transition.
-const setOnMyOwnOrGroup = assign({
-  onMyOwnOrGroup: (_, event) => event.value,
-});
-
-const setDeviceName = assign({
-  deviceName: (_, event) => event.value,
-});
-
-const setFullOrLOD = assign({
-  fullOrLOD: (_, event) => event.value,
-});
-
-const setCanGetOsUser = assign({
-  canGetOsUser: (_, event) => event.value,
-});
-
-const setFacilityNewOrImport = assign({
-  facilityNewOrImport: (_, event) => {
-    return event.value.importOrNew;
-  },
-  importDeviceId: (_, event) => {
-    return event.value.importDeviceId;
-  },
-});
-
-const setSelectedImportDeviceFacility = assign({
-  selectedFacility: (_, event) => {
-    return event.value.selectedFacility;
-  },
-  importDevice: (_, event) => {
-    return event.value.importDevice;
-  },
-});
-
-const clearSelectedSetupType = assign({
-  facilityNewOrImport: () => null,
-});
-
-const revertFullDeviceImport = assign({
-  selectedFacility: () => null,
-  importDeviceId: () => null,
-});
-
-const setFormalOrNonformal = assign({
-  formalOrNonformal: (_, event) => event.value,
-});
-
-const setGuestAccess = assign({
-  guestAccess: (_, event) => event.value,
-});
-
-const setCreateLearnerAccount = assign({
-  createLearnerAccount: (_, event) => event.value,
-});
-
-const setRequirePassword = assign({
-  requirePassword: (_, event) => event.value,
-});
+// NOTE: Uncomment the following function if you're using the visualizer
+// const checkCapability = capabilityToCheck => ["get_os_user"].includes(capabilityToCheck);
 
 const initialContext = {
   onMyOwnOrGroup: null,
@@ -109,255 +62,343 @@ const initialContext = {
   canGetOsUser: null,
 };
 
-/**
- * Assigns the machine to have the initial context again while maintaining the value of
- * canGetOsUser.
- *
- * This effectively resets the machine's state
- */
-const resetContext = assign(initialContext);
+export const wizardMachine = createMachine(
+  {
+    id: 'wizard',
+    initial: 'initializeContext',
+    context: initialContext,
+    on: {
+      START_OVER: { target: 'howAreYouUsingKolibri', action: 'resetContext' },
+    },
+    states: {
+      // This state will be the start so the machine won't progress until
+      // the setCanGetOsUser is run to set the context.canGetOsUser value
+      initializeContext: {
+        on: {
+          CONTINUE: { target: 'howAreYouUsingKolibri', actions: 'setCanGetOsUser' },
+        },
+      },
+      // Initial step where user selects between "On my own" or "Group learning"
+      howAreYouUsingKolibri: {
+        meta: { route: { name: 'HOW_ARE_YOU_USING_KOLIBRI', path: '/' } },
+        on: {
+          CONTINUE: { target: 'onMyOwnOrGroupSetup', actions: 'setOnMyOwnOrGroup' },
+        },
+      },
+      // A passthrough step depending on the value of context.onMyOwnOrGroup
+      onMyOwnOrGroupSetup: {
+        on: { BACK: 'howAreYouUsingKolibri' },
+        always: [
+          {
+            // `cond` takes a function that returns a Boolean, continuing to the
+            // `target` when it returns truthy
+            cond: 'isOnMyOwnOrGroup',
+            target: 'defaultLanguage',
+          },
+          {
+            cond: 'isGroupSetup',
+            target: 'deviceName',
+          },
+          // There is no fallback path here; if neither `cond` above is truthy, this will break
+        ],
+      },
 
-export const wizardMachine = createMachine({
-  id: 'wizard',
-  initial: 'initializeContext',
-  context: initialContext,
-  on: {
-    START_OVER: { target: 'howAreYouUsingKolibri', action: resetContext },
+      // The On My Own path
+      defaultLanguage: {
+        meta: { route: { name: 'DEFAULT_LANGUAGE', path: 'default-language' } },
+        on: {
+          CONTINUE: 'createAccountOrFinalizeSetup',
+          BACK: 'howAreYouUsingKolibri',
+        },
+      },
+      // A passthrough step depending on the value of context.canGetOsUser
+      createAccountOrFinalizeSetup: {
+        on: { BACK: 'defaultLanguage' },
+        always: [
+          {
+            cond: 'canGetOsUser',
+            target: 'finalizeSetup',
+          },
+          {
+            target: 'createOnMyOwnAccount',
+          },
+        ],
+      },
+
+      createOnMyOwnAccount: {
+        meta: { route: { name: 'CREATE_SUPERUSER_AND_FACILITY', path: 'create-account' } },
+        on: {
+          CONTINUE: 'finalizeSetup',
+          BACK: 'defaultLanguage',
+        },
+      },
+
+      // The Group path
+      deviceName: {
+        meta: { route: { name: 'DEVICE_NAME', path: 'device-name' } },
+        on: {
+          CONTINUE: { target: 'fullOrLearnOnlyDevice', actions: 'setDeviceName' },
+          BACK: 'howAreYouUsingKolibri',
+        },
+      },
+      fullOrLearnOnlyDevice: {
+        meta: { route: { name: 'FULL_OR_LOD', path: 'full-or-lod' } },
+        on: {
+          CONTINUE: { target: 'fullOrLodSetup', actions: 'setFullOrLOD' },
+          BACK: 'deviceName',
+        },
+      },
+
+      // A passthrough step depending on the value of context.fullOrLOD
+      // that either continues along with full device setup, or into the Lod setup
+      fullOrLodSetup: {
+        on: { BACK: 'fullOrLearnOnlyDevice' },
+        always: [
+          {
+            cond: 'isLodSetup',
+            target: 'importLodUsers',
+          },
+          {
+            cond: 'isFullSetup',
+            target: 'fullDeviceNewOrImportFacility',
+          },
+        ],
+      },
+
+      // Full Device Path
+      fullDeviceNewOrImportFacility: {
+        meta: { route: { name: 'FULL_NEW_OR_IMPORT_FACILITY' } },
+        on: {
+          CONTINUE: { target: 'facilitySetupType', actions: 'setFacilityNewOrImport' },
+          BACK: 'fullOrLearnOnlyDevice',
+        },
+      },
+
+      // A passthrough step depending on whether the user is creating a new facility or importing
+      facilitySetupType: {
+        on: { BACK: 'fullDeviceNewOrImportFacility' },
+        always: [
+          {
+            cond: 'isNewFacility',
+            target: 'setFacilityPermissions',
+          },
+          {
+            cond: 'isImportFacility',
+            target: 'importFacility',
+          },
+        ],
+      },
+
+      // Facility Creation Path
+      setFacilityPermissions: {
+        meta: { route: { name: 'FACILITY_PERMISSIONS' } },
+        on: {
+          CONTINUE: { target: 'guestAccess', actions: 'setFormalOrNonformal' },
+          BACK: 'fullDeviceNewOrImportFacility',
+        },
+      },
+      guestAccess: {
+        meta: { route: { name: 'GUEST_ACCESS' } },
+        on: {
+          CONTINUE: { target: 'createLearnerAccount', actions: 'setGuestAccess' },
+          BACK: 'setFacilityPermissions',
+        },
+      },
+      createLearnerAccount: {
+        meta: { route: { name: 'CREATE_LEARNER_ACCOUNT' } },
+        on: {
+          CONTINUE: { target: 'requirePassword', action: 'setCreateLearnerAccount' },
+          BACK: 'guestAccess',
+        },
+      },
+      requirePassword: {
+        meta: { route: { name: 'REQUIRE_PASSWORD' } },
+        on: {
+          CONTINUE: { target: 'personalDataConsent', action: 'setRequirePassword' },
+          BACK: 'createLearnerAccount',
+        },
+      },
+      personalDataConsent: {
+        /**
+         * nextEvent here is used to provide the Vue component what command it is expected to send
+         * in this particular case
+         **/
+        meta: { route: { name: 'PERSONAL_DATA_CONSENT' }, nextEvent: 'CONTINUE' },
+        on: {
+          CONTINUE: 'createSuperuserAndFacility',
+          BACK: 'requirePassword',
+        },
+      },
+      // A passthrough step depending on the value of context.canGetOsUser - the finalizeSetup state
+      // will provision the device with the OS user and create the default facility
+      createSuperuserAndFacility: {
+        on: { BACK: 'personalDataConsent' },
+        always: [
+          {
+            cond: 'canGetOsUser',
+            target: 'finalizeSetup',
+          },
+          {
+            target: 'createSuperuserAndFacilityForm',
+          },
+        ],
+      },
+
+      // If we're not able to get an OS user, the user creates their account
+      createSuperuserAndFacilityForm: {
+        meta: { route: { name: 'CREATE_SUPERUSER_AND_FACILITY', path: 'create-account' } },
+        on: {
+          CONTINUE: 'finalizeSetup',
+          BACK: 'personalDataConsent',
+        },
+      },
+
+      // It's own little baby state machine
+      importFacility: {
+        initial: 'selectFacilityForm',
+        states: {
+          selectFacilityForm: {
+            meta: { step: 1, route: { name: 'SELECT_FACILITY_FOR_IMPORT' } },
+            on: {
+              BACK: {
+                target: '..fullDeviceNewOrImportFacility',
+                actions: 'clearSelectedSetupType',
+              },
+              CONTINUE: {
+                target: 'importAuthentication',
+                actions: 'setSelectedImportDeviceFacility',
+              },
+            },
+          },
+          importAuthentication: {
+            meta: { step: 2, route: { name: 'IMPORT_AUTHENTICATION' } },
+            on: {
+              BACK: { target: 'selectFacilityForm', actions: 'revertFullDeviceImport' },
+              // THE POINT OF NO RETURN
+              CONTINUE: { target: 'loadingTaskPage' },
+            },
+          },
+          loadingTaskPage: {
+            meta: { step: 3, route: { name: 'IMPORT_LOADING' } },
+            on: {
+              CONTINUE: 'selectSuperAdminAccountForm',
+            },
+          },
+          selectSuperAdminAccountForm: {
+            meta: { step: 4, route: { name: 'SELECT_ADMIN' } },
+            on: {
+              CONTINUE: { target: 'personalDataConsentForm', nextEvent: 'FINISH' },
+            },
+          },
+          personalDataConsentForm: {
+            meta: { step: 5, route: { name: 'IMPORT_DATA_CONSENT' }, nextEvent: 'FINISH' },
+          },
+        },
+        // Listener on the importFacility state; typically this would be above `states` but
+        // putting it here flows more with the above as this is the state after the final step
+        on: {
+          FINISH: 'finalizeSetup',
+        },
+      },
+
+      // Lod Path - the lodMachine is imported, interpreted and managed in the Lod Setup component
+      // This means that
+      importLodUsers: {
+        meta: { route: { name: 'IMPORT_LOD' } },
+        on: {
+          BACK: 'fullOrLearnOnlyDevice',
+        },
+      },
+
+      // This is a dead-end where the router will send the user where they need to go
+      finalizeSetup: {
+        meta: { route: { name: 'FINALIZE_SETUP' } },
+      },
+    },
   },
-  states: {
-    // This state will be the start so the machine won't progress until
-    // the setCanGetOsUser is run to set the context.canGetOsUser value
-    initializeContext: {
-      on: {
-        CONTINUE: { target: 'howAreYouUsingKolibri', actions: setCanGetOsUser },
-      },
-    },
-    // Initial step where user selects between "On my own" or "Group learning"
-    howAreYouUsingKolibri: {
-      meta: { route: { name: 'HOW_ARE_YOU_USING_KOLIBRI', path: '/' } },
-      on: {
-        CONTINUE: { target: 'onMyOwnOrGroupSetup', actions: setOnMyOwnOrGroup },
-      },
-    },
-    // A passthrough step depending on the value of context.onMyOwnOrGroup
-    onMyOwnOrGroupSetup: {
-      always: [
-        {
-          // `cond` takes a function that returns a Boolean, continuing to the
-          // `target` when it returns truthy
-          cond: isOnMyOwnOrGroup,
-          target: 'defaultLanguage',
+  {
+    actions: {
+      // The `assign` function takes an object that maps keys that match those in the machine's
+      // `context`to functions that take two parameters `(context, event)` - where the context
+      // is the current context and event refers to the event sent to the machine to initiate a
+      // transition.
+      setOnMyOwnOrGroup: assign({
+        onMyOwnOrGroup: (_, event) => event.value,
+      }),
+      setDeviceName: assign({
+        deviceName: (_, event) => event.value,
+      }),
+      setFullOrLOD: assign({
+        fullOrLOD: (_, event) => event.value,
+      }),
+      setCanGetOsUser: assign({
+        canGetOsUser: (_, event) => event.value,
+      }),
+      setFacilityNewOrImport: assign({
+        facilityNewOrImport: (_, event) => {
+          return event.value.importOrNew;
         },
-        {
-          cond: isGroupSetup,
-          target: 'deviceName',
+        importDeviceId: (_, event) => {
+          return event.value.importDeviceId;
         },
-        // There is no fallback path here; if neither `cond` above is truthy, this will break
-      ],
-    },
-
-    // The On My Own path
-    defaultLanguage: {
-      meta: { route: { name: 'DEFAULT_LANGUAGE', path: 'default-language' } },
-      on: {
-        CONTINUE: 'createAccountOrFinalizeSetup',
-        BACK: 'howAreYouUsingKolibri',
-      },
-    },
-    // A passthrough step depending on the value of context.canGetOsUser
-    createAccountOrFinalizeSetup: {
-      always: [
-        {
-          cond: canGetOsUser,
-          target: 'finalizeSetup',
+      }),
+      setSelectedImportDeviceFacility: assign({
+        selectedFacility: (_, event) => {
+          return event.value.selectedFacility;
         },
-        {
-          target: 'createOnMyOwnAccount',
+        importDevice: (_, event) => {
+          return event.value.importDevice;
         },
-      ],
-    },
-
-    createOnMyOwnAccount: {
-      meta: { route: { name: 'CREATE_SUPERUSER_AND_FACILITY', path: 'create-account' } },
-      on: {
-        CONTINUE: 'finalizeSetup',
-        BACK: 'defaultLanguage',
-      },
-    },
-
-    // The Group path
-    deviceName: {
-      meta: { route: { name: 'DEVICE_NAME', path: 'device-name' } },
-      on: {
-        CONTINUE: { target: 'fullOrLearnOnlyDevice', actions: setDeviceName },
-        BACK: 'howAreYouUsingKolibri',
-      },
-    },
-    fullOrLearnOnlyDevice: {
-      meta: { route: { name: 'FULL_OR_LOD', path: 'full-or-lod' } },
-      on: {
-        CONTINUE: { target: 'fullOrLodSetup', actions: setFullOrLOD },
-        BACK: 'deviceName',
-      },
-    },
-
-    // A passthrough step depending on the value of context.fullOrLOD
-    // that either continues along with full device setup, or into the Lod setup
-    fullOrLodSetup: {
-      always: [
-        {
-          cond: isLodSetup,
-          target: 'importLodUsers',
-        },
-        {
-          cond: isFullSetup,
-          target: 'fullDeviceNewOrImportFacility',
-        },
-      ],
-    },
-
-    // Full Device Path
-    fullDeviceNewOrImportFacility: {
-      meta: { route: { name: 'FULL_NEW_OR_IMPORT_FACILITY' } },
-      on: {
-        // FIXME: The component for this step needs to send a value to the machine when making
-        // this transition that is 'new' or 'import'
-        CONTINUE: { target: 'facilitySetupType', actions: setFacilityNewOrImport },
-        BACK: 'fullOrLearnOnlyDevice',
-      },
-    },
-
-    // A passthrough step depending on whether the user is creating a new facility or importing
-    facilitySetupType: {
-      always: [
-        {
-          cond: isNewFacility,
-          target: 'setFacilityPermissions',
-        },
-        {
-          cond: isImportFacility,
-          target: 'importFacility',
-        },
-      ],
-    },
-
-    // Facility Creation Path
-    setFacilityPermissions: {
-      meta: { route: { name: 'FACILITY_PERMISSIONS' } },
-      on: {
-        CONTINUE: { target: 'guestAccess', actions: setFormalOrNonformal },
-        BACK: 'fullDeviceNewOrImportFacility',
-      },
-    },
-    guestAccess: {
-      meta: { route: { name: 'GUEST_ACCESS' } },
-      on: {
-        CONTINUE: { target: 'createLearnerAccount', actions: setGuestAccess },
-        BACK: 'setFacilityPermissions',
-      },
-    },
-    createLearnerAccount: {
-      meta: { route: { name: 'CREATE_LEARNER_ACCOUNT' } },
-      on: {
-        CONTINUE: { target: 'requirePassword', action: setCreateLearnerAccount },
-        BACK: 'guestAccess',
-      },
-    },
-    requirePassword: {
-      meta: { route: { name: 'REQUIRE_PASSWORD' } },
-      on: {
-        CONTINUE: { target: 'personalDataConsent', action: setRequirePassword },
-        BACK: 'createLearnerAccount',
-      },
-    },
-    personalDataConsent: {
+      }),
+      clearSelectedSetupType: assign({
+        facilityNewOrImport: () => null,
+      }),
+      revertFullDeviceImport: assign({
+        selectedFacility: () => null,
+        importDeviceId: () => null,
+      }),
+      setFormalOrNonformal: assign({
+        formalOrNonformal: (_, event) => event.value,
+      }),
+      setGuestAccess: assign({
+        guestAccess: (_, event) => event.value,
+      }),
+      setCreateLearnerAccount: assign({
+        createLearnerAccount: (_, event) => event.value,
+      }),
+      setRequirePassword: assign({
+        requirePassword: (_, event) => event.value,
+      }),
       /**
-       * nextEvent here is used to provide the Vue component what command it is expected to send
-       * in this particular case
-       **/
-      meta: { route: { name: 'PERSONAL_DATA_CONSENT' }, nextEvent: 'CONTINUE' },
-      on: {
-        CONTINUE: 'createSuperuserAndFacility',
-        BACK: 'requirePassword',
+       * Assigns the machine to have the initial context again while maintaining the value of
+       * canGetOsUser.
+       *
+       * This effectively resets the machine's state
+       */
+      resetContext: assign(initialContext),
+    },
+    guards: {
+      // Functions used to return a true/false value. When the functions are called, they are passed
+      // the current value of the machine's context as the only parameter
+      isOnMyOwnOrGroup: context => {
+        return context.onMyOwnOrGroup === UsePresets.ON_MY_OWN;
+      },
+      isGroupSetup: context => {
+        return context.onMyOwnOrGroup === UsePresets.GROUP;
+      },
+      canGetOsUser: () => checkCapability('get_os_user'),
+      isNewFacility: context => {
+        return context.facilityNewOrImport === FacilityTypePresets.NEW;
+      },
+      isImportFacility: context => {
+        return context.facilityNewOrImport === FacilityTypePresets.IMPORT;
+      },
+      isLodSetup: context => {
+        return context.fullOrLOD === DeviceTypePresets.LOD;
+      },
+      isFullSetup: context => {
+        return context.fullOrLOD === DeviceTypePresets.FULL;
       },
     },
-    // A passthrough step depending on the value of context.canGetOsUser -- the finalizeSetup state
-    // will provision the device with the OS user and create the default facility
-    createSuperuserAndFacility: {
-      always: [
-        {
-          cond: canGetOsUser,
-          target: 'finalizeSetup',
-        },
-        {
-          target: 'createSuperuserAndFacilityForm',
-        },
-      ],
-    },
-
-    // If we're not able to get an OS user, the user creates their account
-    createSuperuserAndFacilityForm: {
-      meta: { route: { name: 'CREATE_SUPERUSER_AND_FACILITY', path: 'create-account' } },
-      on: {
-        CONTINUE: 'finalizeSetup',
-        BACK: 'personalDataConsent',
-      },
-    },
-
-    // It's own little baby state machine
-    importFacility: {
-      initial: 'selectFacilityForm',
-      states: {
-        selectFacilityForm: {
-          meta: { step: 1, route: { name: 'SELECT_FACILITY_FOR_IMPORT' } },
-          on: {
-            BACK: { target: '..fullDeviceNewOrImportFacility', actions: clearSelectedSetupType },
-            CONTINUE: { target: 'importAuthentication', actions: setSelectedImportDeviceFacility },
-          },
-        },
-        importAuthentication: {
-          meta: { step: 2, route: { name: 'IMPORT_AUTHENTICATION' } },
-          on: {
-            BACK: { target: 'selectFacilityForm', actions: revertFullDeviceImport },
-            // THE POINT OF NO RETURN
-            CONTINUE: { target: 'loadingTaskPage' },
-          },
-        },
-        loadingTaskPage: {
-          meta: { step: 3, route: { name: 'IMPORT_LOADING' } },
-          on: {
-            CONTINUE: 'selectSuperAdminAccountForm',
-          },
-        },
-        selectSuperAdminAccountForm: {
-          meta: { step: 4, route: { name: 'SELECT_ADMIN' } },
-          on: {
-            CONTINUE: { target: 'personalDataConsentForm', nextEvent: 'FINISH' },
-          },
-        },
-        personalDataConsentForm: {
-          meta: { step: 5, route: { name: 'IMPORT_DATA_CONSENT' }, nextEvent: 'FINISH' },
-        },
-      },
-      // Listener on the importFacility state; typically this would be above `states` but
-      // putting it here flows more with the above as this is the state after the final step
-      on: {
-        FINISH: 'finalizeSetup',
-      },
-    },
-
-    // Lod Path - the lodMachine is imported, interpreted and managed in the Lod Setup component
-    // This means that
-    importLodUsers: {
-      meta: { route: { name: 'IMPORT_LOD' } },
-      on: {
-        BACK: 'fullOrLearnOnlyDevice',
-      },
-    },
-
-    // This is a dead-end where the router will send the user where they need to go
-    finalizeSetup: {
-      meta: { route: { name: 'FINALIZE_SETUP' } },
-    },
-  },
-});
+  }
+);
