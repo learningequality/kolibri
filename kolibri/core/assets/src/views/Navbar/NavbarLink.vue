@@ -2,6 +2,7 @@
 
   <li class="list-item-navigation visible">
     <router-link
+      :active="isActive"
       class="tab"
       :class="$computedClass(tabStyles)"
       :style="windowIsSmall ? smallScreenOverrides : {}"
@@ -51,7 +52,8 @@
     computed: {
       tabStyles() {
         return {
-          color: this.$themePalette.grey.v_50,
+          color:this.isActive? this.$themeTokens.textInverted: this.$themePalette.grey.v_50,
+          'border-bottom-color':this.isActive? this.$themeTokens.textInverted: 'none',
           ':hover': {
             'background-color': this.$themeTokens.appBarDark,
           },
@@ -67,6 +69,9 @@
           fontSize: '14px',
           borderBottomWidth: '2px',
         };
+      },
+      isActive() { 
+        return this.$route.path === `/${this.link.name.toLowerCase()}`;
       },
     },
   };
@@ -116,8 +121,6 @@
   //  3. Somehow refactor the tab styling to not require nested active classes
   .router-link-active {
     font-weight: bold;
-    color: white;
-    border-bottom-color: white;
     border-bottom-style: solid;
     border-bottom-width: 4px;
 
