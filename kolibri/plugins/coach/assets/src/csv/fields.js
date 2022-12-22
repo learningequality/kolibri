@@ -45,6 +45,7 @@ const VERB_MAP = {
   [STATUSES.helpNeeded]: VERBS.needHelp,
   [STATUSES.completed]: VERBS.completed,
 };
+
 const coreStrings = coreStringsMixin.methods.coreString;
 
 /*
@@ -69,7 +70,7 @@ export function avgScore() {
           return '';
         }
 
-        return coachStrings.$tr('percentage', { value: row.avgScore });
+        return coreStrings('percentage', { value: row.avgScore });
       },
     },
   ];
@@ -183,14 +184,14 @@ export function recipients(className) {
 export function score() {
   return [
     {
-      name: coreStrings.$tr('scoreLabel'),
+      name: coreStrings('scoreLabel'),
       key: 'score',
       format: row => {
         if (!row.statusObj.score && row.statusObj.score !== 0) {
           return '';
         }
 
-        return coachStrings.$tr('percentage', { value: row.statusObj.score });
+        return coreStrings('percentage', { value: row.statusObj.score });
       },
     },
   ];
