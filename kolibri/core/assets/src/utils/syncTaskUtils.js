@@ -19,6 +19,10 @@ export const TaskTypes = {
   SYNCPEERFULL: 'kolibri.core.auth.tasks.peerfacilitysync',
   SYNCPEERPULL: 'kolibri.core.auth.tasks.peerfacilityimport',
   DELETEFACILITY: 'kolibri.core.auth.tasks.deletefacility',
+  EXPORTSESSIONLOGCSV: 'kolibri.core.logger.tasks.exportsessionlogcsv',
+  EXPORTSUMMARYLOGCSV: 'kolibri.core.logger.tasks.exportsummarylogcsv',
+  IMPORTUSERSFROMCSV: 'kolibri.core.auth.tasks.importusersfromcsv',
+  EXPORTUSERSTOCSV: 'kolibri.core.auth.tasks.exportuserstocsv',
 };
 
 // identical to facility constants.js
