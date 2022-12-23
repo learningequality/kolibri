@@ -3315,7 +3315,7 @@ babel-plugin-syntax-export-extensions@^6.8.0:
   resolved "https://registry.yarnpkg.com/babel-plugin-syntax-export-extensions/-/babel-plugin-syntax-export-extensions-6.13.0.tgz#70a1484f0f9089a4e84ad44bac353c95b9b12721"
   integrity sha1-cKFITw+QiaToStRLrDU8lbmxJyE=
 
-babel-plugin-syntax-flow@^6.18.0, babel-plugin-syntax-flow@^6.3.13:
+babel-plugin-syntax-flow@^6.18.0:
   version "6.18.0"
   resolved "https://registry.yarnpkg.com/babel-plugin-syntax-flow/-/babel-plugin-syntax-flow-6.18.0.tgz#4c3ab20a2af26aa20cd25995c398c4eb70310c8d"
   integrity sha1-TDqyCiryaqIM0lmVw5jE63AxDI0=
@@ -3600,10 +3600,10 @@ babel-plugin-transform-export-extensions@^6.22.0:
     babel-plugin-syntax-export-extensions "^6.8.0"
     babel-runtime "^6.22.0"
 
-babel-plugin-transform-flow-strip-types@^6.3.13:
+babel-plugin-transform-flow-strip-types@^6.22.0:
   version "6.22.0"
   resolved "https://registry.yarnpkg.com/babel-plugin-transform-flow-strip-types/-/babel-plugin-transform-flow-strip-types-6.22.0.tgz#84cb672935d43714fdc32bce84568d87441cf7cf"
-  integrity sha1-hMtnKTXUNxT9wyvOhFaNh0Qc988=
+  integrity sha512-TxIM0ZWNw9oYsoTthL3lvAK3+eTujzktoXJg4ubGvICGbVuXVYv5hHv0XXpz8fbqlJaGYY4q5SVzaSmsg3t4Fg==
   dependencies:
     babel-plugin-syntax-flow "^6.18.0"
     babel-runtime "^6.22.0"
@@ -3616,25 +3616,33 @@ babel-plugin-transform-object-rest-spread@^6.22.0:
     babel-plugin-syntax-object-rest-spread "^6.8.0"
     babel-runtime "^6.26.0"
 
-babel-plugin-transform-react-display-name@^6.3.13:
+babel-plugin-transform-react-display-name@^6.23.0:
   version "6.25.0"
   resolved "https://registry.yarnpkg.com/babel-plugin-transform-react-display-name/-/babel-plugin-transform-react-display-name-6.25.0.tgz#67e2bf1f1e9c93ab08db96792e05392bf2cc28d1"
-  integrity sha1-Z+K/Hx6ck6sI25Z5LgU5K/LMKNE=
+  integrity sha512-QLYkLiZeeED2PKd4LuXGg5y9fCgPB5ohF8olWUuETE2ryHNRqqnXlEVP7RPuef89+HTfd3syptMGVHeoAu0Wig==
   dependencies:
     babel-runtime "^6.22.0"
 
-babel-plugin-transform-react-jsx-source@^6.3.13:
+babel-plugin-transform-react-jsx-self@^6.22.0:
   version "6.22.0"
-  resolved "https://registry.yarnpkg.com/babel-plugin-transform-react-jsx-source/-/babel-plugin-transform-react-jsx-source-6.22.0.tgz#66ac12153f5cd2d17b3c19268f4bf0197f44ecd6"
-  integrity sha1-ZqwSFT9c0tF7PBkmj0vwGX9E7NY=
+  resolved "https://registry.yarnpkg.com/babel-plugin-transform-react-jsx-self/-/babel-plugin-transform-react-jsx-self-6.22.0.tgz#df6d80a9da2612a121e6ddd7558bcbecf06e636e"
+  integrity sha512-Y3ZHP1nunv0U1+ysTNwLK39pabHj6cPVsfN4TRC7BDBfbgbyF4RifP5kd6LnbuMV9wcfedQMe7hn1fyKc7IzTQ==
   dependencies:
     babel-plugin-syntax-jsx "^6.8.0"
     babel-runtime "^6.22.0"
 
-babel-plugin-transform-react-jsx@^6.3.13:
+babel-plugin-transform-react-jsx-source@^6.22.0:
+  version "6.22.0"
+  resolved "https://registry.yarnpkg.com/babel-plugin-transform-react-jsx-source/-/babel-plugin-transform-react-jsx-source-6.22.0.tgz#66ac12153f5cd2d17b3c19268f4bf0197f44ecd6"
+  integrity sha512-pcDNDsZ9q/6LJmujQ/OhjeoIlp5Nl546HJ2yiFIJK3mYpgNXhI5/S9mXfVxu5yqWAi7HdI7e/q6a9xtzwL69Vw==
+  dependencies:
+    babel-plugin-syntax-jsx "^6.8.0"
+    babel-runtime "^6.22.0"
+
+babel-plugin-transform-react-jsx@^6.24.1:
   version "6.24.1"
   resolved "https://registry.yarnpkg.com/babel-plugin-transform-react-jsx/-/babel-plugin-transform-react-jsx-6.24.1.tgz#840a028e7df460dfc3a2d29f0c0d91f6376e66a3"
-  integrity sha1-hAoCjn30YN/DotKfDA2R9jduZqM=
+  integrity sha512-s+q/Y2u2OgDPHRuod3t6zyLoV8pUHc64i/O7ZNgIOEdYTq+ChPeybcKBi/xk9VI60VriILzFPW+dUxAEbTxh2w==
   dependencies:
     babel-helper-builder-react-jsx "^6.24.1"
     babel-plugin-syntax-jsx "^6.8.0"
@@ -3712,6 +3720,13 @@ babel-preset-es2015@6.24.1:
     babel-plugin-transform-es2015-unicode-regex "^6.24.1"
     babel-plugin-transform-regenerator "^6.24.1"
 
+babel-preset-flow@^6.23.0:
+  version "6.23.0"
+  resolved "https://registry.yarnpkg.com/babel-preset-flow/-/babel-preset-flow-6.23.0.tgz#e71218887085ae9a24b5be4169affb599816c49d"
+  integrity sha512-PQZFJXnM3d80Vq4O67OE6EMVKIw2Vmzy8UXovqulNogCtblWU8rzP7Sm5YgHiCg4uejUxzCkHfNXQ4Z6GI+Dhw==
+  dependencies:
+    babel-plugin-transform-flow-strip-types "^6.22.0"
+
 babel-preset-jest@^27.0.1:
   version "27.0.1"
   resolved "https://registry.yarnpkg.com/babel-preset-jest/-/babel-preset-jest-27.0.1.tgz#7a50c75d16647c23a2cf5158d5bb9eb206b10e20"
@@ -3728,17 +3743,17 @@ babel-preset-jest@^29.0.0:
     babel-plugin-jest-hoist "^29.0.0"
     babel-preset-current-node-syntax "^1.0.0"
 
-babel-preset-react@6.5.0:
-  version "6.5.0"
-  resolved "https://registry.yarnpkg.com/babel-preset-react/-/babel-preset-react-6.5.0.tgz#d3289aa0e308dbd48b7210f9977101f0f96ebe1f"
-  integrity sha1-0yiaoOMI29SLchD5l3EB8Pluvh8=
+babel-preset-react@6.24.1:
+  version "6.24.1"
+  resolved "https://registry.yarnpkg.com/babel-preset-react/-/babel-preset-react-6.24.1.tgz#ba69dfaea45fc3ec639b6a4ecea6e17702c91380"
+  integrity sha512-phQe3bElbgF887UM0Dhz55d22ob8czTL1kbhZFwpCE6+R/X9kHktfwmx9JZb+bBSVRGphP5tZ9oWhVhlgjrX3Q==
   dependencies:
-    babel-plugin-syntax-flow "^6.3.13"
     babel-plugin-syntax-jsx "^6.3.13"
-    babel-plugin-transform-flow-strip-types "^6.3.13"
-    babel-plugin-transform-react-display-name "^6.3.13"
-    babel-plugin-transform-react-jsx "^6.3.13"
-    babel-plugin-transform-react-jsx-source "^6.3.13"
+    babel-plugin-transform-react-display-name "^6.23.0"
+    babel-plugin-transform-react-jsx "^6.24.1"
+    babel-plugin-transform-react-jsx-self "^6.22.0"
+    babel-plugin-transform-react-jsx-source "^6.22.0"
+    babel-preset-flow "^6.23.0"
 
 babel-preset-stage-1@6.24.1:
   version "6.24.1"
