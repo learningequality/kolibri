@@ -456,7 +456,7 @@
           .filter(content => content.kind === ContentNodeKinds.TOPIC)
           .filter(t => t.children && t.children.results.length)
           .map(t => {
-            let topicChildren = t.children ? t.children.results : [];
+            let topicChildren = t.children.results;
             const prefixTitles = [];
             while (topicChildren.length === 1 && !topicChildren[0].is_leaf) {
               // If the topic has only one child, and that child is also a topic

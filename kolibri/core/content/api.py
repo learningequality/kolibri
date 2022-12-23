@@ -962,6 +962,10 @@ class TreeQueryMixin(object):
             # Use this to keep track of how many grand children we have accumulated per child of the parent node
             gc_by_parent = self._get_gc_by_parent(child_ids)
             singletons = []
+            # Now loop through each of the child_ids we passed in
+            # that have any children, check if any of them have only one
+            # child, and also add up to the page size to the list of
+            # grandchild_ids.
             for child_id in gc_by_parent:
                 gc_ids = gc_by_parent[child_id]
                 if len(gc_ids) == 1:
