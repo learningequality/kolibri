@@ -9009,6 +9009,11 @@ open@^8.0.9:
     is-docker "^2.1.1"
     is-wsl "^2.2.0"
 
+opencollective-postinstall@^2.0.2:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/opencollective-postinstall/-/opencollective-postinstall-2.0.3.tgz#7a0fff978f6dbfa4d006238fbac98ed4198c3259"
+  integrity sha512-8AV/sCtuzUeTo8gQK5qDZzARrulB3egtLzFgteqB2tcT4Mw7B8Kt7JcDHmltjz6FOAHsvTevk70gZEbhM4ZS9Q==
+
 optionator@^0.8.1, optionator@^0.8.2, optionator@^0.8.3:
   version "0.8.3"
   resolved "https://registry.yarnpkg.com/optionator/-/optionator-0.8.3.tgz#84fa1d036fe9d3c7e21d99884b601167ec8fb495"
@@ -9276,7 +9281,7 @@ pofile@^1.0.8:
   resolved "https://registry.yarnpkg.com/pofile/-/pofile-1.1.1.tgz#a581df04a6fae4941eebd7c1211dbd43700c5541"
   integrity sha512-RVAzFGo1Mx9+YukVKSgTLut6r4ZVBW8IVrqGHAPfEsVJN93WSp5HRD6+qNa7av1q/joPKDNJd55m5AJl9GBQGA==
 
-popper.js@^1.14.3, popper.js@^1.14.6, popper.js@^1.14.7:
+popper.js@^1.14.6, popper.js@^1.14.7, popper.js@^1.15.0:
   version "1.16.1"
   resolved "https://registry.yarnpkg.com/popper.js/-/popper.js-1.16.1.tgz#2a223cb3dc7b6213d740e40372be40de43e65b1b"
   integrity sha512-Wb4p1J4zyFTbM+u6WuO4XstYx4Ky9Cewe4DWrel7B0w6VVICvPwdOpotjzcf6eD8TsckVnIMNONQyPIUFOUbCQ==
@@ -11885,12 +11890,13 @@ vue-observe-visibility@^0.4.1:
   resolved "https://registry.yarnpkg.com/vue-observe-visibility/-/vue-observe-visibility-0.4.6.tgz#878cb8ebcf3078e40807af29774e97105ebd519e"
   integrity sha512-xo0CEVdkjSjhJoDdLSvoZoQrw/H2BlzB5jrCBKGZNXN2zdZgMuZ9BKrxXDjNP2AxlcCoKc8OahI3F3r3JGLv2Q==
 
-vue-popperjs@^1.5.4:
-  version "1.6.3"
-  resolved "https://registry.yarnpkg.com/vue-popperjs/-/vue-popperjs-1.6.3.tgz#69b00509024468be05064ce7e5aca0d39c25a809"
-  integrity sha512-D0k/PxsDoCQxYykTh26t//6Uw5hk5Yl3BDlZj2nHqB2AyD0NjKCceLbuBRlPh+O59CXYJLSW2p5QveepLwkUvg==
+vue-popperjs@^2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/vue-popperjs/-/vue-popperjs-2.3.0.tgz#9cfa052878a3b47b670339ea81e05edcb863200f"
+  integrity sha512-925QEeNjlMtb3eDHl5ZlODJzqnQL0nQPEKpr9aQ3XBg21DyqAdfLgD/At4svsPwFeIkpdF1gvHarENon47L9Cg==
   dependencies:
-    popper.js "^1.14.3"
+    opencollective-postinstall "^2.0.2"
+    popper.js "^1.15.0"
 
 vue-resize@^0.4.4:
   version "0.4.5"
