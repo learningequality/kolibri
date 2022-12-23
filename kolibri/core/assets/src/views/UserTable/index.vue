@@ -297,7 +297,7 @@
       selectAll(checked) {
         const currentUsers = this.users.map(user => user.id);
         if (checked) {
-          return this.$emit('input', [...this.value, ...currentUsers]);
+          return this.$emit('input', [...currentUsers]);
         }
         return this.$emit('input', difference(this.value, currentUsers));
       },
