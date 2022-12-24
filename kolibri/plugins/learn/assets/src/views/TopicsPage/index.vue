@@ -398,7 +398,13 @@
           ...this.topic.ancestors.map(({ title, id }, index) => ({
             // Use the channel name just in case the root node does not have a title.
             text: index === 0 ? this.channelTitle : title,
-            link: this.genContentLinkKeepCurrentBackLink(id, false),
+            // If we are operating under skip logic, then we could already be on the page
+            // for one of the ancestors, in that case, do not include a link to avoid
+            // a redundant link.
+            link:
+              id === this.$route.params.id
+                ? null
+                : this.genContentLinkKeepCurrentBackLink(id, false),
           })),
           { text: this.topic.ancestors.length ? this.topic.title : this.channelTitle },
         ];
@@ -444,16 +450,29 @@
         return this.resourcesDisplayed.length < this.resources.length;
       },
       topics() {
-        return this.contents.filter(content => content.kind === ContentNodeKinds.TOPIC);
+        return this.contents
+          .filter(content => content.kind === ContentNodeKinds.TOPIC)
+          .filter(t => t.children && t.children.results.length)
+          .map(t => {
+            let topicChildren = t.children ? t.children.results : [];
+            const prefixTitles = [];
+            while (topicChildren.length === 1 && !topicChildren[0].is_leaf) {
+              // If the topic has only one child, and that child is also a topic
+              // we should collapse the topics to display the child topic instead.
+              prefixTitles.push(t.title);
+              t = topicChildren[0];
+              topicChildren = t.children ? t.children.results : [];
+            }
+            t.prefixTitles = prefixTitles;
+            return t;
+          });
       },
       topicsForDisplay() {
         return this.topics
-          .filter(t =>
-            this.subTopicId ? t.id === this.subTopicId : t.children && t.children.results.length
-          )
+          .filter(t => (this.subTopicId ? t.id === this.subTopicId : true))
           .map(t => {
             let childrenToDisplay;
-            const topicChildren = t.children ? t.children.results : [];
+            let topicChildren = t.children ? t.children.results : [];
             if (this.subTopicId || this.topics.length === 1) {
               // If we are in a subtopic display, we should only be displaying this topic
               // so don't bother checking if the ids match.

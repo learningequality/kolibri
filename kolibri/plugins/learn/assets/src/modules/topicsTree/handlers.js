@@ -64,7 +64,12 @@ export function showTopicsTopic(store, { id, pageName, query }) {
             topic.tagline = currentChannel.tagline;
             topic.thumbnail = currentChannel.thumbnail;
           }
-          const children = topic.children.results || [];
+          let children = topic.children.results || [];
+          // If there is only one child, and that child is a topic, then display that instead
+          if (children.length === 1 && !children[0].is_leaf) {
+            topic = children[0];
+            children = topic.children.results || [];
+          }
 
           // if there are no children which are not leaf nodes (i.e. they have children themselves)
           // then redirect to search results

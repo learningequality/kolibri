@@ -3,6 +3,17 @@
   <div>
     <!-- header link to folder -->
     <h2>
+      <template v-for="prefixTitle in (topic.prefixTitles || [])">
+        <span :key="prefixTitle" :style="{ color: $themeTokens.annotation }">
+          {{ prefixTitle }}
+        </span>
+        <KIcon
+          :key="prefixTitle"
+          icon="chevronRight"
+          :color="$themeTokens.annotation"
+          :style="{ top: '4px' }"
+        />
+      </template>
       <KRouterLink
         :text="topic.title"
         :to="genContentLinkKeepCurrentBackLink(topic.id, false)"
