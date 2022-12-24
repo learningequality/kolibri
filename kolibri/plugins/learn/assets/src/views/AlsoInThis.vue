@@ -9,7 +9,7 @@
       <KRouterLink
         v-for="content in contentNodes"
         :key="content.id"
-        :to="genContentLink(content.id, null, content.is_leaf, null, context)"
+        :to="genContentLinkKeepCurrentBackLink(content.id, content.is_leaf)"
         class="item"
         :class="windowIsSmall && 'small'"
         :style="linkStyles"
@@ -59,7 +59,7 @@
 
     <KRouterLink
       v-if="nextContent"
-      :to="genContentLink(nextContent.id, null, nextContent.is_leaf, null, context)"
+      :to="genContentLinkKeepCurrentBackLink(nextContent.id, nextContent.is_leaf)"
       class="next-content-link"
       :style="{
         borderTop: '1px solid ' + $themeTokens.fineLine,
@@ -88,7 +88,7 @@
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
   import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
   import useContentNodeProgress from '../composables/useContentNodeProgress';
-  import genContentLink from '../utils/genContentLink';
+  import useContentLink from '../composables/useContentLink';
   import SidePanelResourcesList from './SidePanelModal/SidePanelResourcesList';
   import LearningActivityIcon from './LearningActivityIcon.vue';
   import ProgressBar from './ProgressBar';
@@ -106,7 +106,8 @@
     mixins: [KResponsiveWindowMixin],
     setup() {
       const { contentNodeProgressMap } = useContentNodeProgress();
-      return { contentNodeProgressMap };
+      const { genContentLinkKeepCurrentBackLink } = useContentLink();
+      return { contentNodeProgressMap, genContentLinkKeepCurrentBackLink };
     },
     props: {
       /**
@@ -155,9 +156,6 @@
           : sidePanelStrings.$tr('noOtherTopicResources');
         /* eslint-enable */
       },
-      context() {
-        return this.$route.query;
-      },
       nextFolderMessage() {
         /* eslint-disable kolibri/vue-no-undefined-string-uses */
         return sidePanelStrings.$tr('nextFolder');
@@ -165,7 +163,6 @@
       },
     },
     methods: {
-      genContentLink,
       progressFor(node) {
         return this.contentNodeProgressMap[node.content_id] || 0;
       },

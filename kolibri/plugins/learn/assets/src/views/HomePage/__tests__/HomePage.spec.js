@@ -17,6 +17,7 @@ jest.mock('../../../composables/useChannels');
 jest.mock('../../../composables/useUser');
 jest.mock('../../../composables/useDeviceSettings');
 jest.mock('../../../composables/useLearnerResources');
+jest.mock('../../../composables/useContentLink');
 
 jest.mock('kolibri.utils.coreStrings', () => {
   const translations = {
@@ -186,9 +187,6 @@ describe(`HomePage`, () => {
             getClassQuizLink() {
               return { path: '/class-quiz' };
             },
-            getClassResourceLink() {
-              return { path: '/class-resource' };
-            },
           })
         );
       });
@@ -211,14 +209,6 @@ describe(`HomePage`, () => {
         expect(getContinueLearningFromClassesSection(wrapper).text()).not.toContain(
           'Non-class resource 2'
         );
-      });
-
-      it(`clicking a resource navigates to the class resource page`, () => {
-        const wrapper = makeWrapper();
-        expect(wrapper.vm.$route.path).toBe('/');
-        const links = getContinueLearningFromClassesSection(wrapper).findAll('a');
-        links.at(0).trigger('click');
-        expect(wrapper.vm.$route.path).toBe('/class-resource');
       });
 
       it(`clicking a quiz navigates to the class quiz page`, () => {
@@ -326,9 +316,6 @@ describe(`HomePage`, () => {
               { id: 'non-class-resource-1', title: 'Non-class resource 1', is_leaf: true },
               { id: 'non-class-resource-2', title: 'Non-class resource 2', is_leaf: true },
             ],
-            getTopicContentNodeLink() {
-              return { path: '/topic-resource' };
-            },
           })
         );
       });
@@ -354,14 +341,6 @@ describe(`HomePage`, () => {
           expect(links.length).toBe(2);
           expect(links.at(0).text()).toBe('Non-class resource 1');
           expect(links.at(1).text()).toBe('Non-class resource 2');
-        });
-
-        it(`clicking a resource navigates to the topic resource page`, () => {
-          const wrapper = makeWrapper();
-          expect(wrapper.vm.$route.path).toBe('/');
-          const links = getContinueLearningOnYourOwnSection(wrapper).findAll('a');
-          links.at(0).trigger('click');
-          expect(wrapper.vm.$route.path).toBe('/topic-resource');
         });
       });
     });

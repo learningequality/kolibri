@@ -18,7 +18,7 @@ export const searchKeys = [
 
 const { fetchContentNodeProgress } = useContentNodeProgress();
 
-export default function useSearch(store, router) {
+export default function useSearch(descendant, store, router) {
   // Get store and router references from the curent instance
   // but allow them to be passed in to allow for dependency
   // injection, primarily for tests.
@@ -31,12 +31,6 @@ export default function useSearch(store, router) {
   const _results = ref([]);
   const more = ref(null);
   const labels = ref(null);
-
-  let descendant;
-
-  function setSearchWithinDescendant(d) {
-    descendant = d;
-  }
 
   const searchTerms = computed({
     get() {
@@ -90,10 +84,11 @@ export default function useSearch(store, router) {
       include_coach_content:
         store.getters.isAdmin || store.getters.isCoach || store.getters.isSuperuser,
     };
-    if (descendant) {
-      getParams.tree_id = descendant.tree_id;
-      getParams.lft__gt = descendant.lft;
-      getParams.rght__lt = descendant.rght;
+    const descValue = descendant ? get(descendant) : null;
+    if (descValue) {
+      getParams.tree_id = descValue.tree_id;
+      getParams.lft__gt = descValue.lft;
+      getParams.rght__lt = descValue.rght;
     }
     if (get(displayingSearchResults)) {
       getParams.max_results = 25;
@@ -109,7 +104,7 @@ export default function useSearch(store, router) {
             continue;
           }
         }
-        if (key === 'channels' && descendant) {
+        if (key === 'channels' && descValue) {
           continue;
         }
         const keys = Object.keys(terms[key]);
@@ -129,7 +124,7 @@ export default function useSearch(store, router) {
         set(labels, data.labels);
         set(searchLoading, false);
       });
-    } else if (descendant) {
+    } else if (descValue) {
       getParams.max_results = 1;
       ContentNodeResource.fetchCollection({ getParams }).then(data => {
         set(labels, data.labels);
@@ -184,6 +179,14 @@ export default function useSearch(store, router) {
 
   watch(searchTerms, search);
 
+  if (descendant) {
+    watch(descendant, newValue => {
+      if (newValue) {
+        search();
+      }
+    });
+  }
+
   // Helper to get the route information in a setup() function
   function currentRoute() {
     return get(route);
@@ -207,6 +210,5 @@ export default function useSearch(store, router) {
     removeFilterTag,
     clearSearch,
     setCategory,
-    setSearchWithinDescendant,
   };
 }

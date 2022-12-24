@@ -14,7 +14,7 @@
         :tagline="getTagLine(content)"
         :progress="content.progress || 0"
         :numCoachContents="content.num_coach_contents"
-        :link="genChannelLink(content.id, content.is_leaf)"
+        :link="genContentLinkBackLinkCurrentPage(content.id, content.is_leaf)"
         :contentId="content.content_id"
       />
     </KGridItem>
@@ -27,7 +27,7 @@
 <script>
 
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import { PageNames } from '../constants';
+  import useContentLink from '../composables/useContentLink';
   import ChannelCard from './ChannelCard';
 
   export default {
@@ -36,6 +36,10 @@
       ChannelCard,
     },
     mixins: [responsiveWindowMixin],
+    setup() {
+      const { genContentLinkBackLinkCurrentPage } = useContentLink();
+      return { genContentLinkBackLinkCurrentPage };
+    },
     props: {
       contents: {
         type: Array,
@@ -51,12 +55,6 @@
       },
     },
     methods: {
-      genChannelLink(id) {
-        return {
-          name: PageNames.TOPICS_TOPIC,
-          params: { id },
-        };
-      },
       getTagLine(content) {
         return content.tagline || content.description;
       },
