@@ -264,6 +264,7 @@
 
   import { mapActions, mapState } from 'vuex';
   import isEqual from 'lodash/isEqual';
+  import set from 'lodash/set';
   import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
   import { computed, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
@@ -395,17 +396,18 @@
           return [];
         }
         return [
-          ...this.topic.ancestors.map(({ title, id }, index) => ({
-            // Use the channel name just in case the root node does not have a title.
-            text: index === 0 ? this.channelTitle : title,
-            // If we are operating under skip logic, then we could already be on the page
-            // for one of the ancestors, in that case, do not include a link to avoid
-            // a redundant link.
-            link:
-              id === this.$route.params.id
-                ? null
-                : this.genContentLinkKeepCurrentBackLink(id, false),
-          })),
+          ...this.topic.ancestors.map(({ title, id }, index) => {
+            const link = this.genContentLinkKeepCurrentBackLink(id, false);
+            // To allow navigating to a specific topic under the breadcrumb
+            // without following the normal skip logic, add a special query
+            // parameter to signal that we do not want to skip.
+            set(link, ['query', 'skip'], 'false');
+            return {
+              // Use the channel name just in case the root node does not have a title.
+              text: index === 0 ? this.channelTitle : title,
+              link,
+            };
+          }),
           { text: this.topic.ancestors.length ? this.topic.title : this.channelTitle },
         ];
       },
