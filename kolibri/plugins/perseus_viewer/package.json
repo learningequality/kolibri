@@ -24,7 +24,7 @@
     "react-addons-pure-render-mixin": "^15.6.0",
     "react-components": "^0.5.1",
     "react-dom": "15.3.2",
-    "react-redux": "^5.0.5",
+    "react-redux": "^8.0.5",
     "redux": "^3.7.2",
     "simple-markdown": "^0.2.1",
     "underscore": "1.4.4",
