@@ -28,7 +28,7 @@
     "lodash": "^4.17.21",
     "loglevel": "^1.8.1",
     "markdown-it": "13.0.1",
-    "screenfull": "^4.0.0",
+    "screenfull": "^6.0.2",
     "shave": "^5.0.0",
     "tinycolor2": "^1.4.2",
     "ua-parser-js": "^1.0.2",
