@@ -233,7 +233,7 @@
   .col-3 {
     display: flex;
     align-items: center;
-    padding-left: 20px;
+    padding: 0 1.25rem;
 
     .channel-list-item-sm & {
       flex-direction: column;
