@@ -3,6 +3,8 @@ import VueRouter from 'vue-router';
 
 import CompletionModal from '../../src/views/CompletionModal';
 
+jest.mock('../../src/composables/useContentLink');
+
 const localVue = createLocalVue();
 localVue.use(VueRouter);
 

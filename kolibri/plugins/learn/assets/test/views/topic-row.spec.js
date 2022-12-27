@@ -2,6 +2,8 @@ import { createLocalVue, shallowMount } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import TopicSubsection from '../../src/views/TopicsPage/TopicSubsection';
 
+jest.mock('../../src/composables/useContentLink');
+
 const localVue = createLocalVue();
 localVue.use(VueRouter);
 

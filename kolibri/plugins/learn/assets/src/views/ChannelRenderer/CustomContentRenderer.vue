@@ -37,7 +37,7 @@
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { events, MessageStatuses } from 'hashi/src/hashiBase';
   import { validateChannelTheme } from '../../utils/validateChannelTheme';
-  import genContentLink from '../../utils/genContentLink';
+  import useContentLink from '../../composables/useContentLink';
   import useChannels from '../../composables/useChannels';
   import ContentModal from './ContentModal';
 
@@ -63,6 +63,10 @@
     name: 'CustomContentRenderer',
     components: {
       ContentModal,
+    },
+    setup() {
+      const { genContentLinkBackLinkCurrentPage } = useContentLink();
+      return { genContentLinkBackLinkCurrentPage };
     },
     props: {
       topic: {
@@ -132,8 +136,6 @@
       );
     },
     methods: {
-      genContentLink,
-
       // helper functions for fetching data from kolibri
       // called in mainClient.js
       fetchContentCollection(message) {
@@ -266,7 +268,9 @@
         return ContentNodeResource.fetchModel({ id })
           .then(contentNode => {
             if (contentNode && contentNode.kind === 'topic') {
-              router.push(this.genContentLink(contentNode.id, contentNode.is_leaf));
+              router.push(
+                this.genContentLinkBackLinkCurrentPage(contentNode.id, contentNode.is_leaf)
+              );
             } else if (contentNode && this.overlayIsOpen == false) {
               // in a custom context, launch overlay
               this.currentContent = contentNode;

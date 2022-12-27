@@ -42,7 +42,7 @@ describe('when there are nodes with progress that can be resumed', () => {
     expect(wrapper.find('[data-test="toggle-view-buttons"]').element).toBeFalsy();
   });
 
-  it('displays HybridLearningCardGrid', () => {
+  it('displays ResumableContentGrid', () => {
     const wrapper = shallowMount(ResumableContentGrid, {});
     expect(wrapper.find('[data-test="resumable-content-card-grid"').element).toBeTruthy();
   });

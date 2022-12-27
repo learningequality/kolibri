@@ -19,7 +19,7 @@ jest.mock('plugin_data', () => {
 });
 
 jest.mock('../../src/composables/useChannels');
-
+jest.mock('../../src/composables/useContentLink');
 jest.mock('../../src/composables/useSearch');
 
 const localVue = createLocalVue();
@@ -108,12 +108,8 @@ describe('learn page breadcrumbs', () => {
       const bcs = breadcrumbItems();
       expect(bcs.length).toEqual(3);
       // Parent Channel Link
-      expect(bcs[0].link.name).toEqual(PageNames.TOPICS_TOPIC);
-      expect(bcs[0].link.params.id).toEqual('root-1');
       expect(bcs[0].text).toEqual('Another Recommended Channel');
       // Previous Topic Link
-      expect(bcs[1].link.name).toEqual(PageNames.TOPICS_TOPIC);
-      expect(bcs[1].link.params.id).toEqual('previous_topic');
       expect(bcs[1].text).toEqual('Previous Topic');
       // Topic
       expect(bcs[2].link).toEqual(undefined);

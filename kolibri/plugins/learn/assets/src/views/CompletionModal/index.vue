@@ -114,12 +114,9 @@
                     <ResourceItem
                       data-test="recommended-resource"
                       :contentNode="contentNode"
-                      :contentNodeRoute="genContentLink(
+                      :contentNodeRoute="genContentLinkKeepCurrentBackLink(
                         contentNode.id,
-                        null,
                         contentNode.is_leaf,
-                        $route.query.last,
-                        $route.query
                       )"
                       :size="recommendedResourceItemSize"
                     />
@@ -155,7 +152,7 @@
   import { ContentNodeResource } from 'kolibri.resources';
   import useDeviceSettings from '../../composables/useDeviceSettings';
   import useLearnerResources from '../../composables/useLearnerResources';
-  import genContentLink from '../../utils/genContentLink';
+  import useContentLink from '../../composables/useContentLink';
   import commonLearnStrings from '../commonLearnStrings';
   import CompletionModalSection from './CompletionModalSection';
   import ResourceItem from './ResourceItem';
@@ -183,7 +180,8 @@
     setup() {
       const { canAccessUnassignedContent } = useDeviceSettings();
       const { fetchLesson } = useLearnerResources();
-      return { canAccessUnassignedContent, fetchLesson };
+      const { genContentLinkKeepCurrentBackLink } = useContentLink();
+      return { canAccessUnassignedContent, fetchLesson, genContentLinkKeepCurrentBackLink };
     },
     props: {
       /**
@@ -302,12 +300,10 @@
         }
       },
       nextContentNodeRoute() {
-        return this.genContentLink(
+        return this.genContentLinkKeepCurrentBackLink(
           this.nextContentNode.id,
-          null,
           this.nextContentNode.is_leaf,
-          this.$route.query.last,
-          this.$route.query
+          true
         );
       },
     },
@@ -368,7 +364,6 @@
             : null;
         });
       },
-      genContentLink,
       emitCloseEvent() {
         this.$emit('close');
       },

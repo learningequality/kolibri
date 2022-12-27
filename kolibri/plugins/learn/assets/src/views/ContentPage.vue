@@ -109,6 +109,7 @@
   import Modalities from 'kolibri-constants/Modalities';
   import { setContentNodeProgress } from '../composables/useContentNodeProgress';
   import useProgressTracking from '../composables/useProgressTracking';
+  import useContentLink from '../composables/useContentLink';
   import AssessmentWrapper from './AssessmentWrapper';
   import commonLearnStrings from './commonLearnStrings';
   import CompletionModal from './CompletionModal';
@@ -146,6 +147,7 @@
         startTrackingProgress,
         stopTrackingProgress,
       } = useProgressTracking();
+      const { genContentLinkKeepCurrentBackLink } = useContentLink();
       return {
         progress,
         time_spent,
@@ -158,6 +160,7 @@
         updateContentSession,
         startTracking: startTrackingProgress,
         stopTracking: stopTrackingProgress,
+        genContentLinkKeepCurrentBackLink,
       };
     },
     props: {
@@ -257,7 +260,9 @@
         let id = message.nodeId;
         return ContentNodeResource.fetchModel({ id })
           .then(contentNode => {
-            router.push(this.genContentLink(contentNode.id, null, contentNode.is_leaf, null, {}));
+            router.push(
+              this.genContentLinkKeepCurrentBackLink(contentNode.id, contentNode.is_leaf)
+            );
           })
           .catch(error => {
             this.$store.dispatch('handleApiError', error);

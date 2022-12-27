@@ -8,7 +8,7 @@
         :key="`resource-${idx}`"
         :data-test="'resource-card-' + idx"
         :contentNode="content"
-        :to="genContentLink(content)"
+        :to="contentLink(content.id, content.is_leaf)"
         @openCopiesModal="$emit('openCopiesModal', content.copies)"
       />
     </CardGrid>
@@ -25,7 +25,7 @@
         :data-test="'content-card-' + idx"
         :isMobile="windowIsSmall"
         :content="content"
-        :link="genContentLink(content)"
+        :link="contentLink(content.id, content.is_leaf)"
         @openCopiesModal="$emit('openCopiesModal', content.copies)"
         @toggleInfoPanel="$emit('toggleInfoPanel', content)"
       />
@@ -38,7 +38,7 @@
       :content="content"
       class="card-grid-item"
       :data-test="'card-list-view-' + idx"
-      :link="genContentLink(content)"
+      :link="contentLink(content.id, content.is_leaf)"
       :footerIcons="footerIcons"
       :createdDate="content.bookmark ? content.bookmark.created : null"
       @openCopiesModal="$emit('openCopiesModal', content.copies)"
@@ -53,7 +53,7 @@
 <script>
 
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import genContentLink from '../utils/genContentLink';
+  import useContentLink from '../composables/useContentLink';
   import CardGrid from './cards/CardGrid';
   import ResourceCard from './cards/ResourceCard';
 
@@ -71,6 +71,14 @@
     },
 
     mixins: [responsiveWindowMixin],
+
+    setup() {
+      const {
+        genContentLinkBackLinkCurrentPage,
+        genContentLinkKeepCurrentBackLink,
+      } = useContentLink();
+      return { genContentLinkBackLinkCurrentPage, genContentLinkKeepCurrentBackLink };
+    },
 
     props: {
       contents: {
@@ -93,26 +101,22 @@
         required: true,
         default: 1,
       },
+      keepCurrentBackLink: {
+        type: Boolean,
+        default: false,
+      },
     },
 
     computed: {
       footerIcons() {
         return { info: 'viewInformation' };
       },
-      backRoute() {
-        return this.$route.name;
-      },
     },
-
     methods: {
-      genContentLink(content) {
-        return genContentLink(
-          content.id,
-          this.topicId,
-          content.is_leaf,
-          this.backRoute,
-          this.context
-        );
+      contentLink(id, isResource) {
+        return this.keepCurrentBackLink
+          ? this.genContentLinkKeepCurrentBackLink(id, isResource)
+          : this.genContentLinkBackLinkCurrentPage(id, isResource);
       },
     },
   };

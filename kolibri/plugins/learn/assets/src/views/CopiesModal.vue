@@ -40,11 +40,15 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import genContentLink from '../utils/genContentLink';
+  import useContentLink from '../composables/useContentLink';
 
   export default {
     name: 'CopiesModal',
     mixins: [commonCoreStrings],
+    setup() {
+      const { genContentLinkBackLinkCurrentPage } = useContentLink();
+      return { genContentLinkBackLinkCurrentPage };
+    },
     props: {
       displayedCopies: {
         type: Object,
@@ -53,7 +57,7 @@
     },
     methods: {
       contentLink(copy) {
-        return genContentLink(copy);
+        return this.genContentLinkBackLinkCurrentPage(copy.id, true);
       },
     },
     $trs: {

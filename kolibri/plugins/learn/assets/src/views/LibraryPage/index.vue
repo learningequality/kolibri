@@ -123,6 +123,7 @@
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import SidePanelModal from '../SidePanelModal';
+  import useCardViewStyle from '../../composables/useCardViewStyle';
   import useSearch from '../../composables/useSearch';
   import useLearnerResources from '../../composables/useLearnerResources';
   import BrowseResourceMetadata from '../BrowseResourceMetadata';
@@ -187,6 +188,8 @@
         }
       });
 
+      const { currentCardViewStyle } = useCardViewStyle();
+
       return {
         displayingSearchResults,
         searchTerms,
@@ -207,6 +210,7 @@
         windowIsLarge,
         windowIsMedium,
         windowIsSmall,
+        currentCardViewStyle,
       };
     },
     props: {
@@ -217,7 +221,6 @@
     },
     data: function() {
       return {
-        currentCardViewStyle: 'card',
         metadataSidePanelContent: null,
         mobileSidePanelIsOpen: false,
       };

@@ -7,11 +7,11 @@ const { fetchContentNodeTreeProgress } = useContentNodeProgress();
 function defaultState() {
   return {
     channel: {},
-    content: {},
+    content: null,
     // used in TOPICS_TOPIC, TOPICS_TOPIC_SEARCH
     contents: [],
     isRoot: null,
-    topic: {},
+    topic: null,
   };
 }
 
@@ -21,10 +21,10 @@ export default {
   mutations: {
     SET_STATE(state, payload) {
       state.channel = payload.channel || {};
-      state.content = payload.content || {};
+      state.content = payload.content || null;
       state.contents = payload.contents || [];
       state.isRoot = payload.isRoot || null;
-      state.topic = payload.topic || {};
+      state.topic = payload.topic || null;
     },
     ADD_MORE_CONTENTS(state, payload) {
       state.contents = state.contents.concat(_collectionState(payload.children.results));

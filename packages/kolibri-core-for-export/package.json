@@ -12,11 +12,11 @@
     "@vueuse/core": "^9.6.0",
     "axios": "^0.27.2",
     "clipboard": "^2.0.11",
-    "core-js": "^3.25",
+    "core-js": "^3.26",
     "csv-generator-client": "^2.1.1",
     "date-fns": "^1.28.2",
     "deep-object-diff": "^1.1.0",
-    "fontfaceobserver": "^2.0.13",
+    "fontfaceobserver": "^2.3.0",
     "frame-throttle": "^3.0.0",
     "fuse.js": "^6.6.2",
     "hammerjs": "^2.0.8",
@@ -26,7 +26,7 @@
     "kolibri-design-system": "https://github.com/learningequality/kolibri-design-system#d24d3d590c6fe82ca8c475c722511ed9410a1da4",
     "lockr": "0.8.5",
     "lodash": "^4.17.21",
-    "loglevel": "^1.4.1",
+    "loglevel": "^1.8.1",
     "markdown-it": "13.0.1",
     "screenfull": "^4.0.0",
     "shave": "^5.0.0",
@@ -35,10 +35,9 @@
     "vue": "^2.6.14",
     "vue-intl": "3.1.0",
     "vue-meta": "^1.5.0",
-    "vue-popperjs": "^1.5.4",
     "vue-router": "^3.6.5",
     "vuex": "^3.1.0",
     "vuex-router-sync": "^5.0.0",
-    "xstate": "^4.33.2"
+    "xstate": "^4.35.1"
   }
 }

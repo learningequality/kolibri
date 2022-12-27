@@ -17,7 +17,7 @@
         :content="content"
         class="card-grid-item"
         :isMobile="windowIsSmall"
-        :link="genContentLink(content)"
+        :link="genContentLinkBackLinkCurrentPage(content.id, content.is_leaf)"
         :footerIcons="footerIcons"
         :createdDate="content.bookmark ? content.bookmark.created : null"
         @viewInformation="toggleInfoPanel(content)"
@@ -83,9 +83,9 @@
   import { ContentNodeResource } from 'kolibri.resources';
   import client from 'kolibri.client';
   import urls from 'kolibri.urls';
-  import genContentLink from '../utils/genContentLink';
   import { normalizeContentNode } from '../modules/coreLearn/utils.js';
   import useContentNodeProgress from '../composables/useContentNodeProgress';
+  import useContentLink from '../composables/useContentLink';
   import SidePanelModal from './SidePanelModal';
   import commonLearnStrings from './commonLearnStrings';
   import LearnAppBarPage from './LearnAppBarPage';
@@ -111,7 +111,8 @@
     mixins: [commonCoreStrings, commonLearnStrings, responsiveWindowMixin],
     setup() {
       const { fetchContentNodeProgress } = useContentNodeProgress();
-      return { fetchContentNodeProgress };
+      const { genContentLinkBackLinkCurrentPage } = useContentLink();
+      return { fetchContentNodeProgress, genContentLinkBackLinkCurrentPage };
     },
     data() {
       return {
@@ -125,9 +126,6 @@
       footerIcons() {
         return { infoOutline: 'viewInformation', close: 'removeFromBookmarks' };
       },
-      backRoute() {
-        return this.$route.name;
-      },
     },
     created() {
       ContentNodeResource.fetchBookmarks({ params: { limit: 25, available: true } }).then(data => {
@@ -139,15 +137,6 @@
     },
     methods: {
       ...mapActions(['createSnackbar']),
-      genContentLink(content) {
-        return genContentLink(
-          content.id,
-          this.topicId,
-          content.is_leaf,
-          this.backRoute,
-          this.context
-        );
-      },
       loadMore() {
         if (!this.loading) {
           this.loading = true;

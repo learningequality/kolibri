@@ -14,7 +14,7 @@
           v-for="(resource, idx) in uniqueResumableClassesResources"
           :key="`resource-${idx}`"
           :contentNode="resource.contentNode"
-          :to="getClassResourceLink(resource)"
+          :to="genContentLinkBackLinkCurrentPage(resource.contentNode.id, true)"
           :collectionTitle="getResourceClassName(resource)"
         />
         <QuizCard
@@ -31,7 +31,7 @@
           v-for="(contentNode, idx) in resumableContentNodes"
           :key="idx"
           :contentNode="contentNode"
-          :to="getTopicContentNodeLink(contentNode.id)"
+          :to="genContentLinkBackLinkCurrentPage(contentNode.id, true)"
           :collectionTitle="getContentNodeTopicName(contentNode)"
           @openCopiesModal="openCopiesModal"
         />
@@ -67,6 +67,7 @@
   import ResourceCard from '../cards/ResourceCard';
   import CopiesModal from '../CopiesModal';
   import useLearnerResources from '../../composables/useLearnerResources';
+  import useContentLink from '../../composables/useContentLink';
 
   /**
    * Shows learner's resources and quizzes that are in progress.
@@ -89,8 +90,6 @@
         fetchMoreResumableContentNodes,
         getClass,
         getClassQuizLink,
-        getClassResourceLink,
-        getTopicContentNodeLink,
       } = useLearnerResources();
 
       // A single resource can be in more lessons and in more classes
@@ -118,6 +117,8 @@
         return last(contentNode.ancestors).title;
       }
 
+      const { genContentLinkBackLinkCurrentPage } = useContentLink();
+
       return {
         resumableClassesQuizzes,
         resumableContentNodes,
@@ -125,11 +126,10 @@
         fetchMoreResumableContentNodes,
         uniqueResumableClassesResources,
         getClassQuizLink,
-        getClassResourceLink,
-        getTopicContentNodeLink,
         getQuizClassName,
         getResourceClassName,
         getContentNodeTopicName,
+        genContentLinkBackLinkCurrentPage,
       };
     },
     props: {
