@@ -14,7 +14,7 @@
 
   /deep/ .ui-toolbar__title {
     overflow: hidden;
-    white-space: nowrap;
+    white-space: normal;
   }
 
   /deep/ .ui-toolbar__left {

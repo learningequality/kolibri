@@ -48,9 +48,15 @@
 
 <style lang="scss" scoped>
 
+  $mobile-header-height: 100px;
+  $toolbar-height: 70px;
+
   .mobile-header {
     position: relative;
-    height: 100%;
+    top: $toolbar-height;
+    height: $mobile-header-height;
+    padding-right: 16px;
+    padding-left: 16px;
   }
 
   .mobile-title {
