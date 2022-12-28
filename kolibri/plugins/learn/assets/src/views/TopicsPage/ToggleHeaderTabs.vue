@@ -109,7 +109,6 @@
   // Stolen from Coach HeaderTab(s) components
   .tab-block {
     position: fixed;
-    top: 324px;
   }
 
   .header-tab {

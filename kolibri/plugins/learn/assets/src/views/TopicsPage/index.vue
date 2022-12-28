@@ -520,9 +520,7 @@
         }
       },
       gridOffset() {
-        return this.isRtl
-          ? { marginRight: `${this.sidePanelWidth + 24}px` }
-          : { marginLeft: `${this.sidePanelWidth + 24}px` };
+        return { marginLeft: `${this.sidePanelWidth + 24}px` };
       },
       numCols() {
         if (this.windowBreakpoint > 1 && this.windowBreakpoint < 2) {
