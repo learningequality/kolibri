@@ -1,6 +1,6 @@
 <template>
 
-  <UiToolbar style="z-index: 8;" :style="contentSpecificStyles" class="toolbar">
+  <UiToolbar style="z-index: 8;" :style="contentSpecificStyles" class="toolbar" :class="isRTL">
     <CoachContentLabel
       :value="isCoachContent"
       style="margin-top: 8px; width: auto;"
@@ -293,6 +293,9 @@
           return {};
         }
       },
+      isRTL() {
+        return document.getElementsByTagName('html')[0].getAttribute('dir') === 'rtl' ? 'rtl' : {};
+      },
     },
     created() {
       window.addEventListener('click', this.onWindowClick);
@@ -391,14 +394,14 @@
   }
 
   /*
-    Make truncation via text ellipsis work well in UIToolbar's body flex item:
-    By default, `min-width` is `auto`  for a flex item which means it
-    cannot be smaller than the size of its content which causes the whole
-    title being visible even in cases when it should be already truncated.
-    Overriding it to `0` allows the title to be shrinked and then truncated
-    properly. Labeled icon wrapper needs to have this set too for its parent
-    flex item to shrink.
-  */
+      Make truncation via text ellipsis work well in UIToolbar's body flex item:
+      By default, `min-width` is `auto`  for a flex item which means it
+      cannot be smaller than the size of its content which causes the whole
+      title being visible even in cases when it should be already truncated.
+      Overriding it to `0` allows the title to be shrinked and then truncated
+      properly. Labeled icon wrapper needs to have this set too for its parent
+      flex item to shrink.
+    */
   /deep/ .ui-toolbar__body,
   /deep/ .labeled-icon-wrapper {
     min-width: 0;
@@ -417,6 +420,10 @@
       width: 18px;
       height: 18px;
     }
+  }
+
+  /deep/ .toolbar.rtl .icon {
+    right: 0.625rem;
   }
 
   @media (prefers-reduced-motion: reduce) {

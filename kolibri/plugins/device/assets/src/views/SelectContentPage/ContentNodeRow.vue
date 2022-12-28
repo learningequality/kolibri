@@ -12,7 +12,7 @@
       />
     </td>
 
-    <td class="title">
+    <td class="title" :class="isRTL">
       <KLabeledIcon>
         <template #icon>
           <ContentIcon :kind="node.kind" />
@@ -99,6 +99,9 @@
       importing() {
         return this.node.updated_resource && !this.node.available;
       },
+      isRTL() {
+        return document.getElementsByTagName('html')[0].getAttribute('dir') === 'rtl' ? 'rtl' : {};
+      },
     },
   };
 
@@ -124,6 +127,10 @@
 
   .update-label {
     margin-left: 24px;
+  }
+
+  /deep/ .title.rtl .icon {
+    left: auto;
   }
 
 </style>
