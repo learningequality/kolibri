@@ -241,7 +241,7 @@ class SyncJobValidator(JobValidator):
             facility_name = facility.name
         else:
             facility_id = facility
-            facility_name = ""
+            facility_name = data["facility_name"]
         return {
             "extra_metadata": dict(
                 facility_id=facility_id,
@@ -353,6 +353,7 @@ def peerfacilitysync(command, **kwargs):
 
 class PeerFacilityImportJobValidator(PeerFacilitySyncJobValidator):
     facility = HexOnlyUUIDField()
+    facility_name = serializers.CharField()
     username = serializers.CharField()
     password = serializers.CharField(default=NOT_SPECIFIED, required=False)
 
