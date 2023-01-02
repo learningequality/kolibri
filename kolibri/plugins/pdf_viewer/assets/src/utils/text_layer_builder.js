@@ -119,7 +119,6 @@ class TextLayerBuilder {
       textDivs: this.textDivs,
       textContentItemsStr: this.textContentItemsStr,
       timeout,
-      enhanceTextSelection: this.enhanceTextSelection,
     });
     this.textLayerRenderTask.promise.then(
       () => {

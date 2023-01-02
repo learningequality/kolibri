@@ -474,73 +474,71 @@
        * - https://github.com/mozilla/pdf.js/blob/v2.14.305/web/pdf_link_service.js#L176
        * - https://github.com/mozilla/pdf.js/blob/v2.14.305/web/base_viewer.js#L1175
        */
-      async goToDestination(dest) {
+      goToDestination(dest) {
         if (!this.pdfDocument) {
           return;
         }
-        let explicitDest;
-        if (typeof dest === 'string') {
-          explicitDest = await this.pdfDocument.getDestination(dest);
-        } else {
-          explicitDest = await dest;
-        }
-        if (!Array.isArray(explicitDest)) {
-          console.error('Error getting destination');
-          return;
-        }
-
-        const pageNumber = await this.getDestinationPageNumber(explicitDest);
-        if (!pageNumber || pageNumber < 1 || pageNumber > this.pagesCount) {
-          console.error('Invalid destination page');
-          return;
-        }
-
-        let position = (pageNumber - 1) / this.totalPages; // relative page position
-
-        // add relative y offset of the destination on the page
-        if (explicitDest[1].name === 'XYZ') {
-          // XYZ is a dest name value from pdfjs
-          const y = this.firstPageHeight - explicitDest[3];
-          const relativeYPage = y / this.firstPageHeight;
-          // This isnt taking into account the padding between pages
-          // but it gives it a good little space
-          position += relativeYPage * (1 / this.totalPages);
-        }
-
-        this.scrollTo(position);
-      },
-      async focusDestPage(dest, event) {
-        if (!this.pdfDocument) {
-          return;
-        }
-        let explicitDest;
-        if (typeof dest === 'string') {
-          explicitDest = await this.pdfDocument.getDestination(dest);
-        } else {
-          explicitDest = await dest;
-        }
-        if (!Array.isArray(explicitDest)) {
-          console.error('Error getting destination');
-          return;
-        }
-
-        const pageNumber = await this.getDestinationPageNumber(explicitDest);
-        if (!pageNumber || pageNumber < 1 || pageNumber > this.pagesCount) {
-          console.error('Invalid destination page');
-          return;
-        }
-        const isFocused = this.focusPage(pageNumber, event.target);
-        if (!isFocused) {
-          let position = (pageNumber - 1) / this.totalPages;
-          this.scrollTo(position); // scroll to page so the virtual list can render it
-          const onPageRendered = e => {
-            if (e.pageNumber === pageNumber) {
-              this.focusPage(pageNumber, event.target);
-              this.eventBus.off('pageRendered', onPageRendered);
+        Promise.resolve(dest === 'string' ? this.pdfDocument.getDestination(dest) : dest).then(
+          explicitDest => {
+            if (!Array.isArray(explicitDest)) {
+              console.error('Error getting destination');
+              return;
             }
-          };
-          this.eventBus.on('pageRendered', onPageRendered);
+
+            this.getDestinationPageNumber(explicitDest).then(pageNumber => {
+              if (!pageNumber || pageNumber < 1 || pageNumber > this.pagesCount) {
+                console.error('Invalid destination page');
+                return;
+              }
+
+              let position = (pageNumber - 1) / this.totalPages; // relative page position
+
+              // add relative y offset of the destination on the page
+              if (explicitDest[1].name === 'XYZ') {
+                // XYZ is a dest name value from pdfjs
+                const y = this.firstPageHeight - explicitDest[3];
+                const relativeYPage = y / this.firstPageHeight;
+                // This isnt taking into account the padding between pages
+                // but it gives it a good little space
+                position += relativeYPage * (1 / this.totalPages);
+              }
+
+              this.scrollTo(position);
+            });
+          }
+        );
+      },
+      focusDestPage(dest, event) {
+        if (!this.pdfDocument) {
+          return;
         }
+        Promise.resolve(dest === 'string' ? this.pdfDocument.getDestination(dest) : dest).then(
+          explicitDest => {
+            if (!Array.isArray(explicitDest)) {
+              console.error('Error getting destination');
+              return;
+            }
+
+            this.getDestinationPageNumber(explicitDest).then(pageNumber => {
+              if (!pageNumber || pageNumber < 1 || pageNumber > this.pagesCount) {
+                console.error('Invalid destination page');
+                return;
+              }
+              const isFocused = this.focusPage(pageNumber, event.target);
+              if (!isFocused) {
+                let position = (pageNumber - 1) / this.totalPages;
+                this.scrollTo(position); // scroll to page so the virtual list can render it
+                const onPageRendered = e => {
+                  if (e.pageNumber === pageNumber) {
+                    this.focusPage(pageNumber, event.target);
+                    this.eventBus.off('pageRendered', onPageRendered);
+                  }
+                };
+                this.eventBus.on('pageRendered', onPageRendered);
+              }
+            });
+          }
+        );
       },
       /**
        * Focus a given pdf page and return true if the page was already rendered
@@ -559,7 +557,10 @@
               bookmark.focus();
             }
           };
-          window.addEventListener('keydown', backToBookmark);
+          setTimeout(() => {
+            // Timeout to avoid catching the keydown event that triggered this.focusPage
+            window.addEventListener('keydown', backToBookmark);
+          }, 0);
           return true;
         }
         return false;
@@ -569,22 +570,26 @@
        * Adaptation of the original function from pdf.js:
        * - https://github.com/mozilla/pdf.js/blob/v2.14.305/web/pdf_link_service.js#L181
        */
-      async getDestinationPageNumber(explicitDest) {
-        try {
+      getDestinationPageNumber(explicitDest) {
+        return new Promise(resolve => {
           const destRef = explicitDest[0];
           if (typeof destRef === 'object' && destRef !== null) {
-            const pageIndex = await this.pdfDocument.getPageIndex(destRef);
-            return pageIndex + 1;
+            return this.pdfDocument
+              .getPageIndex(destRef)
+              .then(pageIndex => {
+                resolve(pageIndex + 1);
+              })
+              .catch(e => {
+                console.error('Error getting destination page number', e);
+                resolve();
+              });
           }
           if (Number.isInteger(destRef)) {
-            return destRef + 1;
+            return resolve(destRef + 1);
           }
           console.error('Invalid destination reference');
-          return null;
-        } catch (e) {
-          console.error('Error getting destination page number', e);
-          return null;
-        }
+          resolve();
+        });
       },
     },
     $trs: {
