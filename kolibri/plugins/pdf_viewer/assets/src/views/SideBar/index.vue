@@ -7,12 +7,11 @@
     }"
   >
     <nav :style="{ height: '100%' }">
-      <KGrid gutter="0">
-        <KGridItem
+      <div :style="{ display: 'flex' }">
+        <div
           v-for="tab in tabs"
           :key="tab.name"
           :ref="tab.name"
-          :layout12="{ span: 4, alignment: 'center' }"
           :style="{
             background: selectedTab === tab.name ?
               $themeTokens.annotation :
@@ -25,6 +24,7 @@
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
+            width: '100%'
           }"
         >
           <div
@@ -53,8 +53,8 @@
               {{ tab.label }}
             </KTooltip>
           </div>
-        </KGridItem>
-      </KGrid>
+        </div>
+      </div>
       <div class="sidebar-content">
         <template v-if="selectedTab === 'bookmarks'">
           <Bookmarks

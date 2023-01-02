@@ -84,7 +84,7 @@
             :items="pdfPages"
             :itemHeight="itemHeight"
             :emitUpdate="true"
-            :style="{ height: `${elementHeight}px` }"
+            :style="{ height: `${elementHeight - 40}px` }"
             class="pdf-container"
             keyField="index"
             @update="handleUpdate"
@@ -297,7 +297,7 @@
           });
           pdfDocument.getOutline().then(outline => {
             this.outline = outline;
-            this.showSideBar = outline && outline.length > 0; // Remove if other tabs are already implemented
+            this.showSideBar = outline && outline.length > 0 && this.windowIsLarge; // Remove if other tabs are already implemented
           });
         });
       });
@@ -504,6 +504,9 @@
               }
 
               this.scrollTo(position);
+              if (this.windowIsSmall) {
+                this.showSideBar = false;
+              }
             });
           }
         );
@@ -524,6 +527,7 @@
                 console.error('Invalid destination page');
                 return;
               }
+
               const isFocused = this.focusPage(pageNumber, event.target);
               if (!isFocused) {
                 let position = (pageNumber - 1) / this.totalPages;
@@ -535,6 +539,9 @@
                   }
                 };
                 this.eventBus.on('pageRendered', onPageRendered);
+              }
+              if (this.windowIsSmall) {
+                this.showSideBar = false;
               }
             });
           }
