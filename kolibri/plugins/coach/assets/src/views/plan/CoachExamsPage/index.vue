@@ -108,15 +108,15 @@
       </p>
       <p
         v-else-if="statusSelected.value === coachString('filterQuizStarted') &&
-          !activeExams.length"
+          !startedExams.length"
       >
-        {{ $tr('noActiveExams') }}
+        {{ $tr('noStartedExams') }}
       </p>
       <p
         v-else-if=" statusSelected.value === coachString('filterQuizNotStarted') &&
-          !inactiveExams.length"
+          !notStartedExams.length"
       >
-        {{ $tr('noInactiveExams') }}
+        {{ $tr('noExamsNotStarted') }}
       </p>
       <p
         v-else-if=" statusSelected.value === coachString('filterQuizEnded') &&
@@ -209,21 +209,21 @@
         ];
       },
 
-      activeExams() {
+      startedExams() {
         return this.sortedExams.filter(exam => exam.active === true && exam.archive === false);
       },
       endedExams() {
         return this.sortedExams.filter(exam => exam.active === true && exam.archive === true);
       },
-      inactiveExams() {
+      notStartedExams() {
         return this.sortedExams.filter(exam => exam.active === false);
       },
       filteredExams() {
         const filter = this.statusSelected.label;
         if (filter === this.coachString('filterQuizStarted')) {
-          return this.activeExams;
+          return this.startedExams;
         } else if (filter === this.coachString('filterQuizNotStarted')) {
-          return this.inactiveExams;
+          return this.notStartedExams;
         } else if (filter === this.coachString('filterQuizEnded')) {
           return this.endedExams;
         }
@@ -293,16 +293,20 @@
         message: 'You do not have any quizzes',
         context: 'Message displayed when there are no quizzes within a class.',
       },
-      noActiveExams: 'No active quizzes',
+      noStartedExams: {
+        message: 'No started quizzes',
+        context:
+          'Message displayed when there are no started quizes. Started quizzes are those that are in progress.',
+      },
       noEndedExams: {
         message: 'No ended quizzes',
         context:
           'Message displayed when there are no ended quizes. Ended quizzes are those that are no longer in progress.',
       },
-      noInactiveExams: {
-        message: 'No inactive quizzes',
+      noExamsNotStarted: {
+        message: 'No quizzes not started',
         context:
-          "Inactive quizzes are ones that are no longer in progress. When the coach presses the 'End quiz' button, the quiz passes from 'active' to 'inactive'.",
+          'Message displayed when there are no quizes not started. Quizzes not started are those that are not in progress and have not been started yet.',
       },
       newQuiz: {
         message: 'Create new quiz',
