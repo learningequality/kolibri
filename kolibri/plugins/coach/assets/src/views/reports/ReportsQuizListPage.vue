@@ -155,11 +155,11 @@
         if (this.filter.value === 'allQuizzes') {
           return this.coachString('quizListEmptyState');
         }
-        if (this.filter.value === 'activeQuizzes') {
-          return this.$tr('noActiveExams');
+        if (this.filter.value === 'startedQuizzes') {
+          return this.$tr('noStartedExams');
         }
-        if (this.filter.value === 'inactiveQuizzes') {
-          return this.$tr('noInactiveExams');
+        if (this.filter.value === 'quizzesNotStarted') {
+          return this.$tr('noExamsNotStarted');
         }
         if (this.filter.value === 'endedQuizzes') {
           return this.$tr('noEndedExams');
@@ -172,16 +172,16 @@
           {
             label: this.coachString('filterQuizAll'),
             value: 'allQuizzes',
-            noActiveExams: 'No active quizzes',
-            noInactiveExams: 'No inactive quizzes',
+            noStartedExams: 'No started quizzes',
+            noExamsNotStarted: 'No quizzes not started',
           },
           {
             label: this.coachString('filterQuizStarted'),
-            value: 'activeQuizzes',
+            value: 'startedQuizzes',
           },
           {
             label: this.coachString('filterQuizNotStarted'),
-            value: 'inactiveQuizzes',
+            value: 'quizzesNotStarted',
           },
           {
             label: this.coachString('filterQuizEnded'),
@@ -193,9 +193,9 @@
         const filtered = this.exams.filter(exam => {
           if (this.filter.value === 'allQuizzes') {
             return true;
-          } else if (this.filter.value === 'activeQuizzes') {
+          } else if (this.filter.value === 'startedQuizzes') {
             return exam.active && !exam.archive;
-          } else if (this.filter.value === 'inactiveQuizzes') {
+          } else if (this.filter.value === 'quizzesNotStarted') {
             return !exam.active;
           } else if (this.filter.value === 'endedQuizzes') {
             return exam.active && exam.archive;
@@ -274,13 +274,13 @@
       },
     },
     $trs: {
-      noActiveExams: 'No active quizzes',
+      noStartedExams: 'No started quizzes',
       noEndedExams: {
         message: 'No ended quizzes',
         context:
           'Message displayed when there are no ended quizes. Ended quizzes are those that are no longer in progress.',
       },
-      noInactiveExams: 'No inactive quizzes',
+      noExamsNotStarted: 'No quizzes not started',
       printLabel: {
         message: '{className} Quizzes',
         context:

@@ -76,11 +76,11 @@
       <p v-if="!lessons.length">
         {{ $tr('noLessons') }}
       </p>
-      <p v-else-if="!hasActiveLessons">
-        {{ $tr('noActiveLessons') }}
+      <p v-else-if="!hasVisibleLessons">
+        {{ $tr('noVisibleLessons') }}
       </p>
-      <p v-else-if="!hasInactiveLessons">
-        {{ $tr('noInactiveLessons') }}
+      <p v-else-if="!hasLessonsNotVisible">
+        {{ $tr('noLessonsNotVisible') }}
       </p>
 
       <KModal
@@ -165,12 +165,12 @@
       newLessonRoute() {
         return { name: LessonsPageNames.LESSON_CREATION_ROOT };
       },
-      hasActiveLessons() {
+      hasVisibleLessons() {
         return !(
           !this.activeLessonCounts.true && this.filterSelection.value === 'filterLessonVisible'
         );
       },
-      hasInactiveLessons() {
+      hasLessonsNotVisible() {
         return !(
           !this.activeLessonCounts.false && this.filterSelection.value === 'filterLessonNotVisible'
         );
@@ -240,8 +240,8 @@
         context:
           "Text displayed in the 'Lessons' tab of the 'Plan' section if there are no lessons created",
       },
-      noActiveLessons: 'No active lessons',
-      noInactiveLessons: 'No inactive lessons',
+      noVisibleLessons: 'No visible lessons',
+      noLessonsNotVisible: 'No lessons not visible',
     },
   };
 
