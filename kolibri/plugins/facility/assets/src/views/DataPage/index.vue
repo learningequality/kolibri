@@ -13,67 +13,80 @@
           <p>{{ $tr('pageSubHeading') }}</p>
         </KGridItem>
 
-        <KGridItem :layout8="{ span: 4 }" :layout12="{ span: 6 }">
+        <KGridItem :layout12="{ span: 8 }">
           <h2>{{ $tr('detailsHeading') }}</h2>
-          <p>{{ $tr('detailsSubHeading') }}</p>
-          <p>
-            <KButton
-              :text="$tr('download')"
-              style="margin-right: 8px;"
-              :disabled="!availableSessionCSVLog"
-              @click="downloadSessionLog"
-            />
-            <span v-if="noSessionLogs">{{ $tr('noLogsYet') }}</span>
-            <GeneratedElapsedTime v-else-if="sessionDateCreated" :date="sessionDateCreated" />
+          <p class="subheading">
+            {{ $tr('detailsSubHeading') }}
           </p>
-          <p v-if="!canUploadDownloadFiles" :style="noDlStyle">
-            {{ $tr('noDownload') }}
-          </p>
-          <p v-else-if="inSessionCSVCreation">
-            <DataPageTaskProgress>{{ $tr('generatingLog') }}</DataPageTaskProgress>
-          </p>
-          <p v-else>
-
+          <p class="subheading">
             <KButton
               appearance="basic-link"
-              :text="noSessionLogs ? $tr('generateLog') : $tr('regenerateLog')"
-              @click="generateSessionLog"
+              :text="$tr('LearnMore')"
+              @click="showLearnMoreSessionModal = true"
             />
           </p>
-          <p class="infobox">
-            <b>{{ $tr('note') }}</b> {{ $tr('detailsInfo') }}
+          <p class="generated-time">
+            <GeneratedElapsedTime v-if="sessionDateCreated" :date="sessionDateCreated" />
           </p>
         </KGridItem>
 
-        <KGridItem :layout8="{ span: 4 }" :layout12="{ span: 6 }">
-          <h2>{{ $tr('summaryHeading') }}</h2>
-          <p>{{ $tr('summarySubHeading') }}</p>
-          <p>
-            <KButton
-              :text="$tr('download')"
-              style="margin-right: 8px;"
-              :disabled="!availableSummaryCSVLog"
-              @click="downloadSummaryLog"
-            />
-            <span v-if="noSummaryLogs">{{ $tr('noLogsYet') }}</span>
-            <GeneratedElapsedTime v-else-if="summaryDateCreated" :date="summaryDateCreated" />
-          </p>
-          <p v-if="!canUploadDownloadFiles" :style="noDlStyle">
-            {{ $tr('noDownload') }}
-          </p>
-          <p v-else-if="inSummaryCSVCreation">
+        <KGridItem class="session-section-buttons" :layout12="{ span: 4, alignment: 'right' }">
+          <KButton
+            v-if="availableSessionCSVLog"
+            class="subheading-buttons"
+            appearance="flat-button"
+            :text="$tr('download')"
+            @click="downloadSessionLog"
+          />
+          <p v-if="inSessionCSVCreation">
             <DataPageTaskProgress>{{ $tr('generatingLog') }}</DataPageTaskProgress>
           </p>
-          <p v-else>
+          <KButton
+            v-else
+            class="subheading-buttons"
+            :text="$tr('generateLog')"
+            @click="generateSessionLog"
+          />
+        </KGridItem>
+
+        <KGridItem>
+          <p class="section-seperator"></p>
+        </KGridItem>
+
+        <KGridItem :layout12="{ span: 8 }">
+          <h2>{{ $tr('summaryHeading') }}</h2>
+          <p class="subheading">
+            {{ $tr('summarySubHeading') }}
+          </p>
+          <p class="subheading">
             <KButton
               appearance="basic-link"
-              :text="noSummaryLogs ? $tr('generateLog') : $tr('regenerateLog')"
-              @click="generateSummaryLog"
+              :text="$tr('LearnMore')"
+              @click="showLearnMoreSummaryModal = true"
             />
           </p>
-          <p class="infobox">
-            <b>{{ $tr('note') }}</b> {{ $tr('summaryInfo') }}
+          <p class="generated-time">
+            <GeneratedElapsedTime v-if="summaryDateCreated" :date="summaryDateCreated" />
           </p>
+        </KGridItem>
+
+        <KGridItem class="summary-section-buttons" :layout12="{ span: 4, alignment: 'right' }">
+          <KButton
+            v-if="availableSummaryCSVLog"
+            class="subheading-buttons"
+            appearance="flat-button"
+            :text="$tr('download')"
+            @click="downloadSummaryLog"
+          />
+          <p v-if="inSummaryCSVCreation">
+            <DataPageTaskProgress>{{ $tr('generatingLog') }}</DataPageTaskProgress>
+          </p>
+          <KButton
+            v-else
+            class="subheading-buttons"
+            :text="$tr('generateLog')"
+            @click="generateSummaryLog"
+          />
         </KGridItem>
 
       </KGrid>
@@ -81,6 +94,20 @@
 
     <ImportInterface v-if="canUploadDownloadFiles" />
     <SyncInterface />
+
+    <LearnMoreModal
+      v-if="showLearnMoreSummaryModal"
+      logType="summary"
+      @cancel="showLearnMoreSummaryModal = false"
+      @submit="showLearnMoreSummaryModal = false"
+    />
+
+    <LearnMoreModal
+      v-if="showLearnMoreSessionModal"
+      logType="session"
+      @cancel="showLearnMoreSessionModal = false"
+      @submit="showLearnMoreSessionModal = false"
+    />
 
   </FacilityAppBarPage>
 
@@ -100,6 +127,7 @@
   import DataPageTaskProgress from './DataPageTaskProgress';
   import SyncInterface from './SyncInterface';
   import ImportInterface from './ImportInterface';
+  import LearnMoreModal from './LearnMoreModal.vue';
 
   export default {
     name: 'DataPage',
@@ -114,16 +142,21 @@
       GeneratedElapsedTime,
       ImportInterface,
       SyncInterface,
+      LearnMoreModal,
     },
     mixins: [commonCoreStrings],
+    data() {
+      return {
+        showLearnMoreSummaryModal: false,
+        showLearnMoreSessionModal: false,
+      };
+    },
     computed: {
       ...mapGetters('manageCSV', [
         'availableSessionCSVLog',
         'availableSummaryCSVLog',
         'inSessionCSVCreation',
         'inSummaryCSVCreation',
-        'noSessionLogs',
-        'noSummaryLogs',
       ]),
       ...mapGetters(['activeFacilityId']),
       ...mapState('manageCSV', ['sessionDateCreated', 'summaryDateCreated']),
@@ -134,11 +167,6 @@
       },
       pollForTasks() {
         return this.$route.name === PageNames.DATA_EXPORT_PAGE;
-      },
-      noDlStyle() {
-        return {
-          color: this.$themeTokens.annotation,
-        };
       },
     },
     watch: {
@@ -208,13 +236,8 @@
         message: 'Session logs',
         context: "'Session logs' refer to individual visits to each resource made by a user.",
       },
-      detailsInfo: {
-        message:
-          'When a user views a resource, we record how long they spend and the progress they make. Each row in this file records a single visit a user made to a specific resource. This includes anonymous usage, when no user is signed in.',
-        context: "Detailed explanation of 'Session logs'.",
-      },
       detailsSubHeading: {
-        message: 'Individual visits to each resource',
+        message: 'Individual visits to each resource.',
         context: "Description of 'Session logs'.",
       },
       documentTitle: {
@@ -226,7 +249,7 @@
         context: 'Button used to download logs contained in CSV files.',
       },
       generateLog: {
-        message: 'Generate log file',
+        message: 'Generate log',
         context:
           "Option to generate a log file which can then be downloaded in CSV format.\n\nWhen there are no logs, this string is displayed, after the user generates logs, the string is replaced with 'Generate a new log file'.",
       },
@@ -234,18 +257,6 @@
         message: 'Generating log file...',
         context:
           "Message that displays when user clicks on 'Generate a new log file'. Log files contain information about users and their interactions with the resources on the device.",
-      },
-      noDownload: {
-        message: 'Download is not supported on Android',
-        context: 'Android specific message.',
-      },
-      noLogsYet: {
-        message: 'No logs are available to download.',
-        context: "Message that displays if no logs are available yet in the user's facility.",
-      },
-      note: {
-        message: 'Note:',
-        context: 'Text that precedes the more detailed explanation of what logs are.',
       },
       pageHeading: {
         message: 'Export usage data',
@@ -256,23 +267,18 @@
           'Download CSV (comma-separated value) files containing information about users and their interactions with the resources on this device',
         context: "Description of the 'Export usage data' page.\n",
       },
-      regenerateLog: {
-        message: 'Generate a new log file',
-        context: 'Option to generate a log file which can then be downloaded in CSV format.',
-      },
       summaryHeading: {
         message: 'Summary logs',
         context:
           'Summary logs record the total time and progress each user has achieved for each resource.',
       },
       summarySubHeading: {
-        message: 'Total time/progress for each resource',
+        message: 'Total time/progress for each resource.',
         context: "Description of 'Summary logs'.",
       },
-      summaryInfo: {
-        message:
-          'A user may visit the same resource multiple times. This file records the total time and progress each user has achieved for each resource, summarized across possibly more than one visit. Anonymous usage is not included.',
-        context: "Detailed explanation of 'Summary logs'.\n",
+      LearnMore: {
+        message: 'Learn More',
+        context: 'Message that displays session or summary log information\n',
       },
     },
   };
@@ -284,12 +290,33 @@
 
   @import '~kolibri-design-system/lib/styles/definitions';
 
-  .infobox {
-    padding: 8px;
-    margin-right: -8px;
-    margin-left: -8px;
-    font-size: 0.8em;
-    border-radius: $radius;
+  .subheading {
+    display: inline-block;
+    margin: 0 0.313rem 0.313rem 0;
+  }
+
+  .subheading-buttons {
+    display: inline-block;
+    margin-right: 0.313rem;
+  }
+
+  .generated-time {
+    margin: 0.313rem 0;
+    color: #616161;
+  }
+
+  .section-seperator {
+    margin: 0.313rem 0;
+    border-bottom: 1px solid rgb(222, 222, 222);
+  }
+
+  .session-section-buttons {
+    padding-top: 20px;
+    padding-bottom: 15px;
+  }
+
+  .summary-section-buttons {
+    padding-top: 20px;
   }
 
 </style>
