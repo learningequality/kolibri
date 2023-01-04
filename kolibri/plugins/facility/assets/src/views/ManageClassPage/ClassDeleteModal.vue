@@ -17,7 +17,6 @@
 
 <script>
 
-  import { readonly } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useDeleteClass from './useDeleteClass';
 
@@ -28,7 +27,7 @@
       const { deleteSelectedClassModel } = useDeleteClass(props.classToDelete);
       const { name } = props.classToDelete;
       return {
-        className: readonly(name),
+        className: name,
         deleteSelectedClassModel,
       };
     },
