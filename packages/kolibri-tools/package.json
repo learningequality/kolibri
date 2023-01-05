@@ -98,7 +98,7 @@
     "npm": ">= 8"
   },
   "devDependencies": {
-    "recast": "^0.21.2",
+    "recast": "^0.22.0",
     "rewire": "^6.0.0"
   }
 }
