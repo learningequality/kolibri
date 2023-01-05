@@ -24,7 +24,7 @@
     "autoprefixer": "10.4.2",
     "babel-core": "7.0.0-bridge.0",
     "babel-jest": "^27.0.2",
-    "babel-loader": "^8.2.5",
+    "babel-loader": "^9.1.2",
     "browserslist-config-kolibri": "0.16.0-dev.1",
     "chalk": "4.1.2",
     "check-node-version": "^4.2.1",
