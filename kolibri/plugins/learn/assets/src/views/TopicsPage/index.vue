@@ -533,9 +533,11 @@
           return 4;
         } else return null;
       },
+      throttledStickyCalculation() {
+        return throttle(this.stickyCalculation);
+      },
       // calls handleScroll no more than every 17ms
-      throttledHandleScroll() {
-        throttle(this.stickyCalculation);
+      throttledtabPositionCalculation() {
         return throttle(this.tabPositionCalculation);
       },
       activeActivityButtons() {
@@ -600,6 +602,10 @@
     },
     methods: {
       ...mapActions('topicsTree', ['loadMoreContents', 'loadMoreTopics']),
+      throttledHandleScroll() {
+        this.throttledStickyCalculation();
+        this.throttledtabPositionCalculation();
+      },
       handleShowSearchModal(value) {
         this.currentCategory = value;
         this.showSearchModal = true;
@@ -641,7 +647,10 @@
       // down and appears again when scrolling up).
       // Takes effect only when the side panel is not displayed full-screen.
       stickyCalculation() {
-        const header = this.$refs.header;
+        const header = this.$refs.header && this.$refs.header.$el;
+        if (!header) {
+          return;
+        }
         const topbar = document.querySelector('.scrolling-header');
         const headerBottom = header ? header.getBoundingClientRect().bottom : 0;
         const topbarBottom = topbar ? topbar.getBoundingClientRect().bottom : 0;
