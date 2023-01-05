@@ -1037,10 +1037,6 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       'Score obtained by a learner on a quiz, indicated by the percentage of correct answers given.',
   },
-  percentage: {
-    message: '{value, number, percent}',
-    context: 'Formatting a number into a percentage',
-  },
   // TODO - move these into diff sections as we make this a full feature in 0.16
   // Past Papers Project (12/2021) strings
   timeSpentLabel: {
