@@ -12,7 +12,7 @@
           <div class="d-t-r">
             <div class="bottom-bar-progress-container d-t-c">
               <div class="bottom-bar-progress">
-                {{ $tr('progress', { progress: sliderValue / 100 }) }}
+                {{ $formatNumber(sliderValue / 100, { style: 'percent' }) }}
               </div>
             </div>
             <div class="d-t-c full-width">
@@ -75,10 +75,6 @@
       },
     },
     $trs: {
-      progress: {
-        message: `{progress, number, percent}`,
-        context: 'DO NOT TRANSLATE\nCopy the source string.',
-      },
       jumpToPositionInBook: {
         message: 'Jump to position in book',
         context:
