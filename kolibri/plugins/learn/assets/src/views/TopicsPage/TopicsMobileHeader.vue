@@ -16,7 +16,7 @@
       </h1>
     </KGridItem>
     <KGridItem
-      :layout4="{ span: 1 }"
+      :layout4="{ span: 4 }"
     >
       <img
         :src="topic.thumbnail"
@@ -50,7 +50,8 @@
 
   .mobile-header {
     position: relative;
-    height: 100%;
+    top: 70px;
+    height: 70px;
   }
 
   .mobile-title {

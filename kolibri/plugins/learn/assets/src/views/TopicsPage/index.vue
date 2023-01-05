@@ -32,7 +32,7 @@
         :style="gridOffset"
       >
         <KBreadcrumbs
-          v-if="breadcrumbs.length && windowIsSmall"
+          v-if="breadcrumbs.length"
           data-test="mobile-breadcrumbs"
           :items="breadcrumbs"
         />
@@ -693,7 +693,7 @@
 <style lang="scss" scoped>
 
   $header-height: 324px;
-  $toolbar-height: 70px;
+  $toolbar-height: 50px;
   $total-height: 394px;
 
   .page {
