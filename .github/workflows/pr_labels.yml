@@ -1,4 +1,4 @@
-name: pr-labels
+name: PR Labels
 
 on: [pull_request_target]
 
@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Label the PR size
     steps:
-      - uses: learningequality/pr-labeler@a7471f6df24578f27948d696c8c1cf89cb04710b
+      - uses: learningequality/pr-labeler@0da0f2aedfe5cb64819beb865015a57e19fbecf6
         with:
           xs_max_size: '10'
           s_max_size: '100'
