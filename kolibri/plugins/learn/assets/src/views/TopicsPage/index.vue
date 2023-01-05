@@ -537,7 +537,7 @@
         return throttle(this.stickyCalculation);
       },
       // calls handleScroll no more than every 17ms
-      throttledtabPositionCalculation() {
+      throttledTabPositionCalculation() {
         return throttle(this.tabPositionCalculation);
       },
       activeActivityButtons() {
@@ -604,7 +604,7 @@
       ...mapActions('topicsTree', ['loadMoreContents', 'loadMoreTopics']),
       throttledHandleScroll() {
         this.throttledStickyCalculation();
-        this.throttledtabPositionCalculation();
+        this.throttledTabPositionCalculation();
       },
       handleShowSearchModal(value) {
         this.currentCategory = value;
