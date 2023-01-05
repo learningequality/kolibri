@@ -353,7 +353,7 @@ def peerfacilitysync(command, **kwargs):
 
 class PeerFacilityImportJobValidator(PeerFacilitySyncJobValidator):
     facility = HexOnlyUUIDField()
-    facility_name = serializers.CharField()
+    facility_name = serializers.CharField(default="")
     username = serializers.CharField()
     password = serializers.CharField(default=NOT_SPECIFIED, required=False)
 
