@@ -1,0 +1,26 @@
+name: pr-labels
+
+on: [pull_request]
+
+jobs:
+  size-labels:
+    runs-on: ubuntu-latest
+    name: Label the PR size
+    steps:
+      - uses: learningequality/pr-labeler@f65f4833779868fff4f469c6506df758d200f22e
+        with:
+          xs_max_size: '10'
+          s_max_size: '100'
+          m_max_size: '500'
+          l_max_size: '1000'
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  other-labels:
+    permissions:
+      contents: read
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/labeler@v4
+      with:
+        repo-token: "${{ secrets.GITHUB_TOKEN }}"
