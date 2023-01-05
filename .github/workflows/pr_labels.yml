@@ -13,6 +13,7 @@ jobs:
           s_max_size: '100'
           m_max_size: '500'
           l_max_size: '1000'
+          exclude_files: '^$'
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   other-labels:
