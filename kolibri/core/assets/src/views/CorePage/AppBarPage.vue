@@ -11,7 +11,7 @@
         @toggleSideNav="navShown = !navShown"
         @showLanguageModal="languageModalShown = true"
       >
-        <template #sub-nav>
+        <template v-if="!isAppContext" #sub-nav>
           <slot name="subNav"></slot>
         </template>
       </AppBar>
