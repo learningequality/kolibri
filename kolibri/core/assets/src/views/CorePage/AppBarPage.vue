@@ -30,6 +30,7 @@
       ref="sideNav"
       :navShown="navShown"
       @toggleSideNav="navShown = !navShown"
+      @shouldFocusFirstEl="findFirstEl()"
     />
 
     <LanguageSwitcherModal
@@ -39,7 +40,10 @@
       @cancel="languageModalShown = false"
     />
 
-    <AppBottomBar class="bottom-bar" :navigationLinks="links" />
+    <AppBottomBar
+      class="bottom-bar"
+      :navigationLinks="links"
+    />
 
   </div>
 
@@ -54,6 +58,7 @@
   import AppBottomBar from 'kolibri.coreVue.components.AppBottomBar';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import urls from 'kolibri.urls';
+  import generateSideNavRoute from '../../../../../plugins/learn/assets/src/appNavigationRoutes';
   import AppBar from '../AppBar';
   import { PageNames } from './../../../../../plugins/learn/assets/src/constants';
   import commonLearnStrings from './../../../../../plugins/learn/assets/src/views/commonLearnStrings';
@@ -85,6 +90,9 @@
       };
     },
     computed: {
+      url() {
+        return urls['kolibri:kolibri.plugins.learn:learn']();
+      },
       wrapperStyles() {
         return this.appearanceOverrides
           ? this.appearanceOverrides
@@ -105,21 +113,21 @@
           {
             condition: this.isUserLoggedIn,
             title: this.coreString('homeLabel'),
-            link: this.baseLink(PageNames.HOME),
+            link: this.generateBottomBarRoute(PageNames.HOME),
             icon: 'dashboard',
             color: this.$themeTokens.primary,
           },
           {
             condition: this.canAccessUnassignedContent,
             title: this.learnString('libraryLabel'),
-            link: this.baseLink(PageNames.LIBRARY),
+            link: this.generateBottomBarRoute(PageNames.LIBRARY),
             icon: 'library',
             color: this.$themeTokens.primary,
           },
           {
             condition: this.isUserLoggedIn && this.canAccessUnassignedContent,
             title: this.coreString('bookmarksLabel'),
-            link: this.baseLink(PageNames.BOOKMARKS),
+            link: this.generateBottomBarRoute(PageNames.BOOKMARKS),
             icon: 'bookmark',
             color: this.$themeTokens.primary,
           },
@@ -133,10 +141,13 @@
       });
     },
     methods: {
-      baseLink(link) {
-        const url = urls['kolibri:kolibri.plugins.learn:learn']();
-        const path = this.$router.getRoute(link).name.toLowerCase();
-        return `${url}#/${path}`;
+      generateBottomBarRoute(route) {
+        return generateSideNavRoute(this.url, route);
+      },
+      findFirstEl() {
+        this.$nextTick(() => {
+          this.$refs.sideNav.focusFirstEl();
+        });
       },
     },
   };

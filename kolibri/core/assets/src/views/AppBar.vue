@@ -14,7 +14,7 @@
         :raised="false"
         :removeBrandDivider="true"
       >
-        <template #icon>
+        <template v-if="!isAppContext" #icon>
           <KIconButton
             icon="menu"
             :color="$themeTokens.textInverted"
@@ -33,7 +33,7 @@
           >
         </template>
 
-        <template v-if="windowIsLarge" #navigation>
+        <template v-if="windowIsLarge && !isAppContext" #navigation>
           <slot name="sub-nav"></slot>
         </template>
 
@@ -129,7 +129,7 @@
       };
     },
     computed: {
-      ...mapGetters(['isUserLoggedIn', 'totalPoints', 'isLearner']),
+      ...mapGetters(['isUserLoggedIn', 'totalPoints', 'isLearner', 'isAppContext']),
       ...mapState({
         username: state => state.core.session.username,
         fullName: state => state.core.session.full_name,
