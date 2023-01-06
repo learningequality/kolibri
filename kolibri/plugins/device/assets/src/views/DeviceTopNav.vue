@@ -1,9 +1,6 @@
 <template>
 
-  <HorizontalNavBarWithOverflowMenu
-    v-if="links.length > 0"
-    :navigationLinks="links"
-  />
+  <HorizontalNavBarWithOverflowMenu v-if="links.length > 0" :navigationLinks="links" />
 
 </template>
 
@@ -19,7 +16,7 @@
     components: {
       HorizontalNavBarWithOverflowMenu,
     },
-    mixins: [commonCoreStrings, responsiveWindowMixin],
+    mixins: [commonCoreStrings],
     data() {
       return {
         links: [
