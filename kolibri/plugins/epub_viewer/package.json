@@ -5,7 +5,7 @@
   "version": "0.0.1",
   "dependencies": {
     "browserify-zlib": "^0.2.0",
-    "epubjs": "0.3.84",
+    "epubjs": "0.3.93",
     "mark.js": "^8.11.1",
     "vue-focus-lock": "^1.2.0",
     "web-streams-polyfill": "^3.2.0"
