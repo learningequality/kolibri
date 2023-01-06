@@ -13,7 +13,6 @@
 <style lang="scss" scoped>
 
   /deep/ .ui-toolbar__title {
-    margin-right: 1rem;
     overflow: hidden;
     white-space: nowrap;
   }

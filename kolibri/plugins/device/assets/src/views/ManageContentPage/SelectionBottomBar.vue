@@ -196,7 +196,7 @@
 
   .message {
     display: inline-block;
-    margin: 0 16px;
+    margin-right: 16px;
   }
 
 </style>
