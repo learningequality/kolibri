@@ -115,4 +115,10 @@
     }
   }
 
+  .core-menu-option /deep/ .icon {
+    [dir='rtl'] & {
+      left: auto;
+    }
+  }
+
 </style>
