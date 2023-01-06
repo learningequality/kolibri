@@ -117,6 +117,7 @@ export default [
     path: '/',
     // Redirect to AllFacilitiesPage if a superuser and device has > 1 facility
     beforeEnter(to, from, next) {
+      console.log(window.location);
       if (store.getters.userIsMultiFacilityAdmin) {
         next(store.getters.facilityPageLinks.AllFacilitiesPage);
       } else {

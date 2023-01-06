@@ -1,8 +1,6 @@
 <template>
 
-  <HorizontalNavBarWithOverflowMenu
-    :navigationLinks="links"
-  />
+  <HorizontalNavBarWithOverflowMenu :navigationLinks="links" />
 
 </template>
 
