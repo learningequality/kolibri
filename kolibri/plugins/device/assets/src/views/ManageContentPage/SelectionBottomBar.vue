@@ -196,10 +196,7 @@
 
   .message {
     display: inline-block;
-    margin-right: 16px;
-    [dir='rtl'] & {
-      margin: 0 16px;
-    }
+    margin: 0 16px;
   }
 
 </style>

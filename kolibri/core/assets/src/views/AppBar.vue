@@ -357,11 +357,8 @@
     position: fixed;
     right: 8px;
     z-index: 8;
-    [dir='rtl'] & {
-      right: auto;
-      left: 8px;
-    }
   }
+
   .role {
     margin-bottom: 8px;
     font-size: small;
@@ -388,6 +385,7 @@
   /deep/ .ui-toolbar__title {
     margin-right: 10px;
   }
+
   .brand-logo {
     max-width: 48px;
     max-height: 48px;

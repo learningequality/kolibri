@@ -379,7 +379,9 @@
         return this.searchTerms.categories;
       },
       gridOffset() {
-        return { marginLeft: `${this.sidePanelWidth + 24}px` };
+        return this.isRtl
+          ? { marginRight: `${this.sidePanelWidth + 24}px` }
+          : { marginLeft: `${this.sidePanelWidth + 24}px` };
       },
     },
     watch: {
