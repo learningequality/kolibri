@@ -3,7 +3,6 @@
   <HorizontalNavBarWithOverflowMenu
     ref="navigation"
     :ariaLabel="$tr('learnPageMenuLabel')"
-    v-if="isAppContext"
     :navigationLinks="links"
   />
 
