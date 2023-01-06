@@ -129,10 +129,6 @@
   import PdfPage from './PdfPage';
   import SideBar from './SideBar';
 
-  // Source from which PDFJS loads its service worker, this is based on the __publicPath
-  // global that is defined in the Kolibri webpack pipeline, and the additional entry in the PDF
-  // renderer's own webpack config
-  PDFJSLib.GlobalWorkerOptions.workerSrc = __webpack_public_path__ + `pdfJSWorker-${__version}.js`;
   // How often should we respond to changes in scrolling to render new pages?
   const renderDebounceTime = 300;
   const scaleIncrement = 0.25;
@@ -249,6 +245,10 @@
           this.debounceForceUpdateRecycleList();
         }
       },
+    },
+    beforeCreate() {
+      PDFJSLib.GlobalWorkerOptions.workerSrc =
+        __webpack_public_path__ + `pdfJSWorker-${__version}.js`;
     },
     destroyed() {
       // Reset the overflow on the HTML tag that we set to hidden in created()
