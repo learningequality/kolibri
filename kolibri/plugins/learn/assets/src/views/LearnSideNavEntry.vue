@@ -12,7 +12,7 @@
 
     <div v-if="isAppContext && visibleSubMenu">
       <div v-for="(nestedObject, key) in routes" :key="key" class="link-container">
-        <a :href="nestedObject.route" class="link" :styles="menuPluginStyles">
+        <a :href="nestedObject.route" class="link" :class="$computedClass(optionStyle)">
           {{ nestedObject.text }}
         </a>
       </div>
@@ -28,13 +28,14 @@
   import navComponents from 'kolibri.utils.navComponents';
   import urls from 'kolibri.urls';
   import { mapGetters } from 'vuex';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames as LearnPageNames } from '../constants';
   import generateSideNavRoute from '../appNavigationRoutes.js';
   import commonLearnStrings from './commonLearnStrings';
 
   const component = {
     name: 'LearnSideNavEntry',
-    mixins: [commonLearnStrings],
+    mixins: [commonLearnStrings, commonCoreStrings],
     components: {
       CoreMenuOption,
     },
@@ -51,39 +52,28 @@
       routes() {
         return {
           home: {
-            text: 'homeLabel',
+            text: this.coreString('homeLabel'),
             route: this.generateSideNavRoute(LearnPageNames.HOME),
           },
           library: {
-            text: 'libraryLabel',
+            text: this.coreString('libraryLabel'),
             route: this.generateSideNavRoute(LearnPageNames.LIBRARY),
           },
           bookmarks: {
-            text: 'bookmarksLabel',
+            text: this.coreString('bookmarksLabel'),
             route: this.generateSideNavRoute(LearnPageNames.BOOKMARKS),
           },
         };
       },
-      menuPluginStyles() {
+      optionStyle() {
         return {
           color: this.$themeTokens.text,
-          width: '99%',
-          height: '48px',
-          textAlign: 'left',
-          padding: '0px 4px',
-          border: 'none',
-          textTransform: 'capitalize',
-          fontWeight: 'normal',
-          ':hover': this.menuPluginActiveStyles,
-        };
-      },
-      menuPluginActiveStyles() {
-        return {
-          backgroundColor: this.$themeBrand.primary.v_50,
-          color: this.$themeBrand.primary,
-          fontWeight: 'bold',
-          padding: '0px 4px',
-          borderRadius: '4px',
+          textDecoration: 'none',
+          ':hover': {
+            color: this.$themeTokens.primaryDark,
+            fontWeight: 'bold',
+          },
+          ':focus': this.$coreOutline,
         };
       },
       iconAfter() {

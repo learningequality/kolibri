@@ -41,6 +41,7 @@
     />
 
     <AppBottomBar
+      v-if="isAppContext"
       class="bottom-bar"
       :navigationLinks="links"
     />
@@ -52,6 +53,7 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import LanguageSwitcherModal from 'kolibri.coreVue.components.LanguageSwitcherModal';
   import ScrollingHeader from 'kolibri.coreVue.components.ScrollingHeader';
   import SideNav from 'kolibri.coreVue.components.SideNav';
@@ -90,6 +92,7 @@
       };
     },
     computed: {
+      ...mapGetters(['isAppContext']),
       url() {
         return urls['kolibri:kolibri.plugins.learn:learn']();
       },

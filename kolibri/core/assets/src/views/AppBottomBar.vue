@@ -17,7 +17,7 @@
           class="icon-box"
           :activeClasses="activeClasses"
         >
-          <a :href="link.link">
+          <a :href="link.link" tabindex="-1">
             <KIconButton
               :icon="link.icon"
               :color="link.color"
