@@ -1,13 +1,14 @@
 <template>
 
   <div>
-    <div v-if="navigationIsOpen" class="menu">
-      <AndroidNavigationNestedMenu
-        ref="menu"
-        @shouldFocusFirstEl="focusFirstEl"
-        @shouldFocusLastEl="focusLastEl"
-      />
-    </div>
+    <AndroidNavigationNestedMenu
+      v-if="navigationIsOpen"
+      ref="sideNav"
+      :navShown="navigationIsOpen"
+      @toggleSideNav="navigationIsOpen = !navigationIsOpen"
+      @shouldFocusFirstEl="findFirstEl()"
+    />
+
     <div class="bottom-bar">
       <div class="icons">
         <span
@@ -16,23 +17,22 @@
           class="icon-box"
           :activeClasses="activeClasses"
         >
-          <KIconButton
-            :icon="link.icon"
-            :color="link.color"
-            :ariaLabel="link.title"
-            @click="navigateToRoute(link.link)"
-          />
+          <a :href="link.link">
+            <KIconButton
+              :icon="link.icon"
+              :color="link.color"
+              :ariaLabel="link.title"
+            />
+          </a>
           <p class="label" :style="{ color: $themeTokens.primary }">{{ link.title }}</p>
         </span>
         <KIconButton
-          v-if="isAdmin || isCoach"
           icon="menu"
           :color="$themeTokens.primary"
           :ariaLabel="$tr('openNav')"
           @click="toggleBottomNav"
         />
       </div>
-
     </div>
   </div>
 
@@ -42,7 +42,6 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { mapGetters } from 'vuex';
   import AndroidNavigationNestedMenu from './AndroidNavigationNestedMenu';
 
   export default {
@@ -62,7 +61,6 @@
       };
     },
     computed: {
-      ...mapGetters(['isAdmin', 'isCoach']),
       activeClasses() {
         // return both fixed and dynamic classes
         return `router-link-active ${this.$computedClass({
@@ -74,7 +72,7 @@
       navigationIsOpen(navigationIsOpen) {
         this.$nextTick(() => {
           if (navigationIsOpen) {
-            this.focusFirstEl();
+            this.findFirstEl();
           }
         });
       },
@@ -83,23 +81,11 @@
       toggleBottomNav() {
         this.navigationIsOpen = !this.navigationIsOpen;
       },
-      navigateToRoute(link) {
-        console.log(link);
-        this.$router.redirectTo(link);
-      },
-      /**
-       * @public
-       * Focuses on correct first element for FocusTrap.
-       */
-      focusFirstEl() {
+      findFirstEl() {
         this.$nextTick(() => {
-          if (this.$refs && this.$refs.menu && this.$refs.menu.$refs) {
-            this.$refs.menu.$refs.menuItem[0].$el.focus();
-          }
+          console.log(this.$refs);
+          this.$refs.sideNav.focusFirstEl();
         });
-      },
-      focusLastEl() {
-        this.$refs.menu.$refs.menuItem[this.$refs.menu.$refs.menuItem.length - 1].focus();
       },
     },
     $trs: {
@@ -125,19 +111,14 @@
     right: 0;
     bottom: 0;
     left: 0;
-    z-index: 24;
+    z-index: 12;
     height: 48px;
     background-color: white;
   }
 
   .menu {
-    position: fixed;
-    right: 0;
-    bottom: 48px;
-    left: 0;
     z-index: 24;
-    width: 100%;
-    height: 100%;
+    overflow-y: scroll;
     background-color: white;
     transition: background-color $core-time ease;
   }
