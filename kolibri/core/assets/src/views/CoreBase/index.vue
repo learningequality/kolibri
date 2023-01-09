@@ -147,8 +147,8 @@
   import UpdateNotification from '../UpdateNotification';
   import LanguageSwitcherModal from '../language-switcher/LanguageSwitcherModal';
   import CoreBanner from '../CoreBanner';
+  import ScrollingHeader from '../ScrollingHeader';
   import { PageNames } from './../../../../../plugins/learn/assets/src/constants';
-  import ScrollingHeader from './ScrollingHeader';
 
   // NOTE: there is a new useScrollPosition composable in kolibri.core
   // that can be used when CoreBase is refactored
