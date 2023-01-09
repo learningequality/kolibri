@@ -16,7 +16,7 @@
       </h1>
     </KGridItem>
     <KGridItem
-      :layout4="{ span: 4 }"
+      :layout4="{ span: 1 }"
     >
       <img
         :src="topic.thumbnail"
