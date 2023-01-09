@@ -13,7 +13,7 @@
           <p>{{ $tr('pageSubHeading') }}</p>
         </KGridItem>
 
-        <KGridItem :layout12="{ span: 8 }">
+        <KGridItem :layout12="{ span: 6 }">
           <h2>{{ $tr('detailsHeading') }}</h2>
           <p class="subheading">
             {{ $tr('detailsSubHeading') }}
@@ -25,12 +25,12 @@
               @click="showLearnMoreSessionModal = true"
             />
           </p>
-          <p class="generated-time">
+          <p class="generated-time" :style="{ color: $themeTokens.annotation }">
             <GeneratedElapsedTime v-if="sessionDateCreated" :date="sessionDateCreated" />
           </p>
         </KGridItem>
 
-        <KGridItem class="session-section-buttons" :layout12="{ span: 4, alignment: 'right' }">
+        <KGridItem class="session-section-buttons" :layout12="{ span: 6, alignment: 'right' }">
           <KButton
             v-if="availableSessionCSVLog"
             class="subheading-buttons"
@@ -44,16 +44,22 @@
           <KButton
             v-else
             class="subheading-buttons"
-            :text="$tr('generateLog')"
+            :style="windowSizeStyle"
+            :text="$tr('generateLogButtonText')"
             @click="generateSessionLog"
           />
         </KGridItem>
 
         <KGridItem>
-          <p class="section-seperator"></p>
+          <p
+            class="section-seperator"
+            :style="{
+              borderBottom: `1px solid ${$themeTokens.fineLine}`,
+            }"
+          ></p>
         </KGridItem>
 
-        <KGridItem :layout12="{ span: 8 }">
+        <KGridItem :layout12="{ span: 6 }">
           <h2>{{ $tr('summaryHeading') }}</h2>
           <p class="subheading">
             {{ $tr('summarySubHeading') }}
@@ -65,12 +71,12 @@
               @click="showLearnMoreSummaryModal = true"
             />
           </p>
-          <p class="generated-time">
+          <p class="generated-time" :style="{ color: $themeTokens.annotation }">
             <GeneratedElapsedTime v-if="summaryDateCreated" :date="summaryDateCreated" />
           </p>
         </KGridItem>
 
-        <KGridItem class="summary-section-buttons" :layout12="{ span: 4, alignment: 'right' }">
+        <KGridItem class="summary-section-buttons" :layout12="{ span: 6, alignment: 'right' }">
           <KButton
             v-if="availableSummaryCSVLog"
             class="subheading-buttons"
@@ -84,7 +90,8 @@
           <KButton
             v-else
             class="subheading-buttons"
-            :text="$tr('generateLog')"
+            :style="windowSizeStyle"
+            :text="$tr('generateLogButtonText')"
             @click="generateSummaryLog"
           />
         </KGridItem>
@@ -121,6 +128,7 @@
   import urls from 'kolibri.urls';
   import { FacilityResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
   import { PageNames } from '../../constants';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import GeneratedElapsedTime from './GeneratedElapsedTime';
@@ -144,7 +152,7 @@
       SyncInterface,
       LearnMoreModal,
     },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, KResponsiveWindowMixin],
     data() {
       return {
         showLearnMoreSummaryModal: false,
@@ -167,6 +175,14 @@
       },
       pollForTasks() {
         return this.$route.name === PageNames.DATA_EXPORT_PAGE;
+      },
+      windowSizeStyle() {
+        if (this.windowIsMedium || this.windowIsSmall) {
+          return {
+            float: 'left',
+          };
+        }
+        return {};
       },
     },
     watch: {
@@ -248,7 +264,7 @@
         message: 'Download',
         context: 'Button used to download logs contained in CSV files.',
       },
-      generateLog: {
+      generateLogButtonText: {
         message: 'Generate log',
         context:
           "Option to generate a log file which can then be downloaded in CSV format.\n\nWhen there are no logs, this string is displayed, after the user generates logs, the string is replaced with 'Generate a new log file'.",
@@ -302,12 +318,10 @@
 
   .generated-time {
     margin: 0.313rem 0;
-    color: #616161;
   }
 
   .section-seperator {
     margin: 0.313rem 0;
-    border-bottom: 1px solid rgb(222, 222, 222);
   }
 
   .session-section-buttons {

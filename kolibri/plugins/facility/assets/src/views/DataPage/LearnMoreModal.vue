@@ -1,14 +1,14 @@
 <template>
 
   <KModal
-    :title="logType === 'summary' ? $tr('summaryLogs') : $tr('sessionLogs')"
+    :title="modalTitle"
     :submitText="$tr('close')"
     size="medium"
     @cancel="closeModal"
     @submit="closeModal"
   >
     <p class="description">
-      {{ getMessage() }}
+      {{ modalMessage }}
     </p>
   </KModal>
 
@@ -23,29 +23,31 @@
       logType: {
         type: String,
         required: true,
+        validator(value) {
+          return ['summary', 'session'].includes(value);
+        },
+      },
+    },
+    computed: {
+      modalTitle() {
+        return this.logType === 'summary' ? this.$tr('summaryLogs') : this.$tr('sessionLogs');
+      },
+      modalMessage() {
+        return this.logType === 'summary' ? this.$tr('summaryLogText') : this.$tr('sessionLogText');
       },
     },
     methods: {
       closeModal() {
         this.$emit('cancel');
       },
-      getMessage() {
-        let message = '';
-        if (this.logType === 'summary') {
-          message = this.$tr('summaryLogText');
-        } else if (this.logType === 'session') {
-          message = this.$tr('sessionLogText');
-        }
-        return message;
-      },
     },
     $trs: {
       summaryLogs: {
-        message: 'Summary Logs',
+        message: 'Summary logs',
         context: 'Title for Summary logs description',
       },
       sessionLogs: {
-        message: 'Session Logs',
+        message: 'Session logs',
         context: 'Title for Session logs description',
       },
       summaryLogText: {
