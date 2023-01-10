@@ -147,7 +147,7 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
                 "english_name": lang_info["english_name"]
                 if lang_info
                 else get_language_info(code)["name"],
-                "lang_direction": get_language_info(code)["bidi"],
+                "lang_direction": "rtl" if get_language_info(code)["bidi"] else "ltr",
             }
         return {
             "coreLanguageMessages": self.frontend_messages(),
