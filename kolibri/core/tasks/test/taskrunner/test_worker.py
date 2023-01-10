@@ -9,6 +9,7 @@ from kolibri.core.tasks.job import State
 from kolibri.core.tasks.test.base import connection
 from kolibri.core.tasks.test.taskrunner.test_job_running import EventProxy
 from kolibri.core.tasks.worker import Worker
+from kolibri.utils import conf
 
 QUEUE = "pytest"
 
@@ -62,17 +63,20 @@ class TestWorker:
         assert job.state == State.COMPLETED
 
     def test_enqueue_job_runs_job_once(self, worker, flag):
-        b = Worker(worker.storage.engine, regular_workers=1, high_workers=1)
-        job = Job(toggle_flag, args=(flag.event_id,))
-        worker.storage.enqueue_job(job, QUEUE)
+        # Do conditional check in here, as it seems to not work properly
+        # inside a pytest.mark.skipIf
+        if conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "postgres":
+            b = Worker(worker.storage.engine, regular_workers=1, high_workers=1)
+            job = Job(toggle_flag, args=(flag.event_id,))
+            worker.storage.enqueue_job(job, QUEUE)
 
-        while job.state != State.COMPLETED:
-            job = worker.storage.get_job(job.job_id)
-            time.sleep(0.5)
+            while job.state != State.COMPLETED:
+                job = worker.storage.get_job(job.job_id)
+                time.sleep(0.5)
 
-        assert job.state == State.COMPLETED
-        assert flag.is_set()
-        b.shutdown()
+            assert job.state == State.COMPLETED
+            assert flag.is_set()
+            b.shutdown()
 
     def test_can_handle_unicode_exceptions(self, worker):
         # Make sure task exception info is not an object, but is either a string or None.

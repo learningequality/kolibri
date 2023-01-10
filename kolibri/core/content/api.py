@@ -940,27 +940,50 @@ class TreeQueryMixin(object):
 
         return depth, next__gt
 
+    def _get_gc_by_parent(self, child_ids):
+        # Use this to keep track of how many grand children we have accumulated per child of the parent node
+        gc_by_parent = {}
+        # Iterate through the grand children of the parent node in lft order so we follow the tree traversal order
+        for gc in (
+            self.filter_queryset(self.get_queryset())
+            .filter(parent_id__in=child_ids)
+            .values("id", "parent_id")
+            .order_by("lft")
+        ):
+            # If we have not already added a list of nodes to the gc_by_parent map, initialize it here
+            if gc["parent_id"] not in gc_by_parent:
+                gc_by_parent[gc["parent_id"]] = []
+            gc_by_parent[gc["parent_id"]].append(gc["id"])
+        return gc_by_parent
+
     def get_grandchild_ids(self, child_ids, depth, page_size):
+        grandchild_ids = []
         if depth == 2:
             # Use this to keep track of how many grand children we have accumulated per child of the parent node
-            gc_by_parent = {}
-            # Iterate through the grand children of the parent node in lft order so we follow the tree traversal order
-            for gc in (
-                self.filter_queryset(self.get_queryset())
-                .filter(parent_id__in=child_ids)
-                .values("id", "parent_id")
-                .order_by("lft")
-            ):
-                # If we have not already added a list of nodes to the gc_by_parent map, initialize it here
-                if gc["parent_id"] not in gc_by_parent:
-                    gc_by_parent[gc["parent_id"]] = []
-                # If the number of grand children for a specific child node is less than the page size
-                # then we keep on adding them to both lists
-                # If not, we just skip this node, as we have already hit the page limit for the node that is
-                # its parent.
-                if len(gc_by_parent[gc["parent_id"]]) < page_size:
-                    gc_by_parent[gc["parent_id"]].append(gc["id"])
-                    yield gc["id"]
+            gc_by_parent = self._get_gc_by_parent(child_ids)
+            singletons = []
+            # Now loop through each of the child_ids we passed in
+            # that have any children, check if any of them have only one
+            # child, and also add up to the page size to the list of
+            # grandchild_ids.
+            for child_id in gc_by_parent:
+                gc_ids = gc_by_parent[child_id]
+                if len(gc_ids) == 1:
+                    singletons.append(gc_ids[0])
+                # Only add up to the page size to the list
+                grandchild_ids.extend(gc_ids[:page_size])
+            if singletons:
+                grandchild_ids.extend(
+                    self.get_grandchild_ids(singletons, depth, page_size)
+                )
+        return grandchild_ids
+
+    def get_child_ids(self, parent_id, next__gt):
+        # Get a list of child_ids of the parent node up to the pagination limit
+        child_qs = self.get_queryset().filter(parent_id=parent_id)
+        if next__gt is not None:
+            child_qs = child_qs.filter(lft__gt=next__gt)
+        return child_qs.values_list("id", flat=True).order_by("lft")[0:NUM_CHILDREN]
 
     def get_tree_queryset(self, request, pk):
         # Get the model for the parent node here - we do this so that we trigger a 404 immediately if the node
@@ -975,18 +998,21 @@ class TreeQueryMixin(object):
             raise Http404
         depth, next__gt = self.validate_and_return_params(request)
 
-        # Get a list of child_ids of the parent node up to the pagination limit
-        child_qs = self.get_queryset().filter(parent_id=parent_id)
-        if next__gt is not None:
-            child_qs = child_qs.filter(lft__gt=next__gt)
-        child_ids = child_qs.values_list("id", flat=True).order_by("lft")[
-            0:NUM_CHILDREN
-        ]
+        child_ids = self.get_child_ids(parent_id, next__gt)
+
+        ancestor_ids = []
+
+        while next__gt is None and len(child_ids) == 1:
+            ancestor_ids.extend(child_ids)
+            child_ids = self.get_child_ids(child_ids[0], next__gt)
 
         # Get a flat list of ids for grandchildren we will be returning
         gc_ids = self.get_grandchild_ids(child_ids, depth, NUM_GRANDCHILDREN_PER_CHILD)
         return self.filter_queryset(self.get_queryset()).filter(
-            Q(id=parent_id) | Q(id__in=child_ids) | Q(id__in=gc_ids)
+            Q(id=parent_id)
+            | Q(id__in=ancestor_ids)
+            | Q(id__in=child_ids)
+            | Q(id__in=gc_ids)
         )
 
 
@@ -1026,19 +1052,19 @@ class BaseContentNodeTreeViewset(
         # The serialized parent representation is the first node in the lft order
         parent = nodes[0]
 
-        # Use this to keep track of direct children of the parent node
-        # this will allow us to do lookups for the grandchildren, in order
+        # Use this to keep track of descendants of the parent node
+        # this will allow us to do lookups for any further descendants, in order
         # to insert them into the "children" property
-        children_by_id = {}
+        descendants_by_id = {}
 
         # Iterate through all the descendants that we have serialized
         for desc in nodes[1:]:
+            # Add them to the descendants_by_id map so that
+            # descendants can reference them later
+            descendants_by_id[desc["id"]] = desc
             # First check to see whether it is a direct child of the
             # parent node that we initially queried
             if desc["parent"] == pk:
-                # If so add them to the children_by_id map so that
-                # grandchildren descendants can reference them later
-                children_by_id[desc["id"]] = desc
                 # The parent of this descendant is the parent node
                 # for this query
                 desc_parent = parent
@@ -1048,11 +1074,11 @@ class BaseContentNodeTreeViewset(
                 # For the parent node the page size is the maximum number of children
                 # we are returning (regardless of whether they have a full representation)
                 page_size = NUM_CHILDREN
-            elif desc["parent"] in children_by_id:
+            elif desc["parent"] in descendants_by_id:
                 # Otherwise, check to see if our descendant's parent is in the
-                # children_by_id map - if it failed the first condition,
+                # descendants_by_id map - if it failed the first condition,
                 # it really should not fail this
-                desc_parent = children_by_id[desc["parent"]]
+                desc_parent = descendants_by_id[desc["parent"]]
                 # When we request more results for pagination, we only want to return
                 # nodes at this level, and not any of its children
                 more_depth = 1

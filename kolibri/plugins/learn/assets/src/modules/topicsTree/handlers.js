@@ -37,6 +37,7 @@ export function showTopicsContent(store, id) {
 }
 
 export function showTopicsTopic(store, { id, pageName, query }) {
+  const skip = query && query.skip === 'true';
   return store.dispatch('loading').then(() => {
     store.commit('SET_PAGE_NAME', pageName);
     const params = {
@@ -64,13 +65,23 @@ export function showTopicsTopic(store, { id, pageName, query }) {
             topic.tagline = currentChannel.tagline;
             topic.thumbnail = currentChannel.thumbnail;
           }
-          const children = topic.children.results || [];
+          let children = topic.children.results || [];
+          let skipped = false;
+          // If there is only one child, and that child is a topic, then display that instead
+          while (skip && children.length === 1 && !children[0].is_leaf) {
+            topic = children[0];
+            children = topic.children.results || [];
+            skipped = true;
+            id = topic.id;
+          }
 
           // if there are no children which are not leaf nodes (i.e. they have children themselves)
           // then redirect to search results
           if (!children.some(c => !c.is_leaf) && pageName !== PageNames.TOPICS_TOPIC_SEARCH) {
             router.replace({ name: PageNames.TOPICS_TOPIC_SEARCH, params: { id }, query });
             store.commit('SET_PAGE_NAME', PageNames.TOPICS_TOPIC_SEARCH);
+          } else if (skipped) {
+            router.replace({ name: pageName, params: { id }, query });
           }
 
           store.commit('topicsTree/SET_STATE', {

@@ -138,7 +138,28 @@ describe('TopicsPage', () => {
   describe('showing cards', () => {
     let wrapper;
     beforeEach(() => {
-      store.state.topicsTree.contents = [{ kind: ContentNodeKinds.TOPIC }];
+      store.state.topicsTree.contents = [
+        {
+          kind: ContentNodeKinds.TOPIC,
+          is_leaf: false,
+          children: {
+            results: [
+              { kind: ContentNodeKinds.VIDEO, is_leaf: true },
+              { kind: ContentNodeKinds.VIDEO, is_leaf: true },
+            ],
+          },
+        },
+        {
+          kind: ContentNodeKinds.TOPIC,
+          is_leaf: false,
+          children: {
+            results: [
+              { kind: ContentNodeKinds.VIDEO, is_leaf: true },
+              { kind: ContentNodeKinds.VIDEO, is_leaf: true },
+            ],
+          },
+        },
+      ];
       wrapper = shallowMount(TopicsPage, {
         store: store,
         localVue,

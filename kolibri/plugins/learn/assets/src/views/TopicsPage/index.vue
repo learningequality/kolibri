@@ -264,6 +264,7 @@
 
   import { mapActions, mapState } from 'vuex';
   import isEqual from 'lodash/isEqual';
+  import set from 'lodash/set';
   import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
   import { computed, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
@@ -395,11 +396,18 @@
           return [];
         }
         return [
-          ...this.topic.ancestors.map(({ title, id }, index) => ({
-            // Use the channel name just in case the root node does not have a title.
-            text: index === 0 ? this.channelTitle : title,
-            link: this.genContentLinkKeepCurrentBackLink(id, false),
-          })),
+          ...this.topic.ancestors.map(({ title, id }, index) => {
+            const link = this.genContentLinkKeepCurrentBackLink(id, false);
+            // To allow navigating to a specific topic under the breadcrumb
+            // without following the normal skip logic, add a special query
+            // parameter to signal that we do not want to skip.
+            set(link, ['query', 'skip'], 'false');
+            return {
+              // Use the channel name just in case the root node does not have a title.
+              text: index === 0 ? this.channelTitle : title,
+              link,
+            };
+          }),
           { text: this.topic.ancestors.length ? this.topic.title : this.channelTitle },
         ];
       },
@@ -444,16 +452,29 @@
         return this.resourcesDisplayed.length < this.resources.length;
       },
       topics() {
-        return this.contents.filter(content => content.kind === ContentNodeKinds.TOPIC);
+        return this.contents
+          .filter(content => content.kind === ContentNodeKinds.TOPIC)
+          .filter(t => t.children && t.children.results.length)
+          .map(t => {
+            let topicChildren = t.children.results;
+            const prefixTitles = [];
+            while (topicChildren.length === 1 && !topicChildren[0].is_leaf) {
+              // If the topic has only one child, and that child is also a topic
+              // we should collapse the topics to display the child topic instead.
+              prefixTitles.push(t.title);
+              t = topicChildren[0];
+              topicChildren = t.children ? t.children.results : [];
+            }
+            t.prefixTitles = prefixTitles;
+            return t;
+          });
       },
       topicsForDisplay() {
         return this.topics
-          .filter(t =>
-            this.subTopicId ? t.id === this.subTopicId : t.children && t.children.results.length
-          )
+          .filter(t => (this.subTopicId ? t.id === this.subTopicId : true))
           .map(t => {
             let childrenToDisplay;
-            const topicChildren = t.children ? t.children.results : [];
+            let topicChildren = t.children ? t.children.results : [];
             if (this.subTopicId || this.topics.length === 1) {
               // If we are in a subtopic display, we should only be displaying this topic
               // so don't bother checking if the ids match.
