@@ -87,11 +87,12 @@ export default {
         device_id,
       });
     },
-    startPeerImportTask({ facility, username, password, device_id }) {
+    startPeerImportTask({ facility, username, facility_name, password, device_id }) {
       return TaskResource.startTask({
         type: 'kolibri.core.auth.tasks.peerfacilityimport',
         device_id,
         facility,
+        facility_name,
         username,
         password,
       });

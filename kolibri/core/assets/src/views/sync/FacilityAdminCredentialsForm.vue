@@ -103,6 +103,7 @@
           return this.startPeerImportTask({
             device_id: this.device.id,
             facility: this.facility.id,
+            facility_name: this.facility.name,
             username: this.username,
             password: this.password,
           })
