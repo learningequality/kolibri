@@ -284,7 +284,7 @@
         if (option === Options.REMOVE) {
           this.facilityForRemoval = facility;
         } else if (option === Options.REGISTER) {
-          this.$router.push({ path: '../../facilities' });
+          this.$router.push({ path: '/manage' });
           // this.facilityForRegister = facility;
         }
       },

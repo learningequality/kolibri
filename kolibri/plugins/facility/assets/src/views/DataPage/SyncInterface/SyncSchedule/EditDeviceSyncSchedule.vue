@@ -33,20 +33,24 @@
               :options="selectArray"
               label="Repeat"
             />
+
           </KGridItem>
 
           <KGridItem
-            v-if="selectedItem.label !== 'Never'"
+            v-if="selectedItem.label !== 'Never'
+              && selectedItem.label !== 'Every hour'
+              && selectedItem.label !== 'Every day'"
             :layout8="{ span: 2 }"
             :layout12="{ span: 3 }"
           >
             <KSelect
-              :value="myday"
+              v-model="dayselected"
               class="selector"
               :style="selectorStyle"
               :options="Days"
               label="On"
             />
+
           </KGridItem>
 
           <KGridItem
@@ -57,6 +61,7 @@
 
 
             <KSelect
+              v-model="timeseed"
               :value="mytime"
               class="selector"
               :style="selectorStyle"
@@ -88,6 +93,11 @@
           </KGridItem>
         </KGridItem>
       </KGrid>
+
+      <CoreSnackbar
+        :text="hello"
+        :duration="60"
+      />
     </KPageContainer>
 
     <BottomAppBar>
@@ -100,9 +110,11 @@
         <KButton
           :text="$tr('saveBtn')"
           :primary="true"
+          @click=" handleSaveSchedule"
         />
       </KButtonGroup>
     </BottomAppBar>
+
 
     <KModal
       v-if="removeDeviceModal"
@@ -111,7 +123,7 @@
       :submitText="$tr('removeText')"
       :cancelText="$tr('cancelText')"
       @cancel="closeModal"
-      @submit="ConfirmRemoveDevice"
+      @submit="handleDeleteDevice"
     >
       <KGrid>
         <KGridItem
@@ -146,6 +158,7 @@
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import { NetworkLocationResource } from 'kolibri.resources';
   import { now } from 'kolibri.utils.serverClock';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../../../../constants';
 
   export default {
@@ -154,6 +167,7 @@
       ImmersivePage,
       BottomAppBar,
     },
+    mixins: [commonCoreStrings],
     props: {
       icon: {
         type: String,
@@ -203,12 +217,13 @@
       },
       Days() {
         return [
-          { label: 'Monday', value: 3600 },
-          { label: 'Tuesday', value: 86400 },
-          { label: 'Wednesday', value: 604800 },
-          { label: 'Thursday', value: 604800 },
-          { label: 'Friday', value: 2592000 },
-          { label: 'Saturday', value: 2592000 },
+          { label: this.$tr('mon'), value: 3600 },
+          { label: this.$tr('tue'), value: 86400 },
+          { label: this.$tr('wed'), value: 604800 },
+          { label: this.$tr('thur'), value: 604800 },
+          { label: this.$tr('fri'), value: 2592000 },
+          { label: this.$tr('sat'), value: 2595000 },
+          { label: this.$tr('sun'), value: 2595000 },
         ];
       },
       SyncTime() {
@@ -247,9 +262,18 @@
       closeModal() {
         this.removeDeviceModal = false;
       },
-      ConfirmRemoveDevice() {
+      handleDeleteDevice() {
         this.removeDeviceModal = false;
+        NetworkLocationResource.deleteModel({ id: this.$route.query.id })
+          .then(() => {
+            this.showSnackbarNotification('Device removed');
+            history.back();
+          })
+          .catch(() => {
+            this.showSnackbarNotification('Device not removed');
+          });
       },
+
       cancelBtn() {
         this.$router.push({ name: PageNames.ManageSyncSchedule });
       },
@@ -258,6 +282,10 @@
           this.device = device;
         });
       },
+      // saveschedule() {
+      //   NetworkLocationResource.saveModel();
+      //   this.showSnackbarNotification('Data saved');
+      // },
     },
     $trs: {
       toolbarHeader: {
@@ -323,6 +351,34 @@
       cancelText: {
         message: 'Cancel',
         context: 'Label for cancel button on the remove device modal',
+      },
+      mon: {
+        message: 'Monday',
+        context: 'Day 1',
+      },
+      tue: {
+        message: 'Tuesday',
+        context: 'Day 2',
+      },
+      wed: {
+        message: 'Wednesday',
+        context: 'Day 3',
+      },
+      thur: {
+        message: 'Thrusday',
+        context: 'Day 4',
+      },
+      fri: {
+        message: 'Friday',
+        context: 'Day 5',
+      },
+      sat: {
+        message: 'Saturday',
+        context: 'Day 6',
+      },
+      sun: {
+        message: 'Sunday',
+        context: 'Day 7',
       },
     },
   };

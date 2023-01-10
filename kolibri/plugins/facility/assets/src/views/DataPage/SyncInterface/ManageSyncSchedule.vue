@@ -89,7 +89,7 @@
         :submitText="$tr('continueText')"
         :cancelText="$tr('cancelText')"
         @cancel="closeModal"
-        @submit="submitModal"
+        @submit="submitModal(radioBtnValue)"
       >
         <KGrid>
           <KGridItem
@@ -99,7 +99,7 @@
             <KButton
               appearance="basic-link"
               :text=" $tr('addAddress')"
-              @click="newAddress"
+              @click.prevent="newAddress"
             />
           </KGridItem>
         </KGrid>
@@ -138,6 +138,7 @@
           </KGridItem>
         </KGrid>
       </KModal>
+      <AddAddressFormVue v-if="newaddressclick" />
     </KPageContainer>
   </ImmersivePage>
 
@@ -149,17 +150,27 @@
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import { TaskResource, FacilityResource, NetworkLocationResource } from 'kolibri.resources';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../../../constants';
+  import AddAddressFormVue from '../../../../../../../core/assets/src/views/sync/SelectAddressModalGroup/AddAddressForm.vue';
 
   export default {
     name: 'ManageSyncSchedule',
     components: {
       ImmersivePage,
       CoreTable,
+      AddAddressFormVue,
     },
     extends: ImmersivePage,
+    mixins: [commonCoreStrings],
     data() {
-      return { deviceModal: false, facility: null, data: null, radioBtnValue: ' ' };
+      return {
+        deviceModal: false,
+        facility: null,
+        data: null,
+        radioBtnValue: ' ',
+        newaddressclick: false,
+      };
     },
     computed: {
       goBack() {
@@ -170,6 +181,7 @@
       // console.log(this.$store.core.Facility);
       this.fetchFacility();
       this.fetchAddressesForLOD();
+      this.fetchNetworkDevice();
     },
 
     methods: {
@@ -179,6 +191,11 @@
             this.facility = { ...facility };
           }
         );
+      },
+      fetchNetworkDevice() {
+        NetworkLocationResource.fetchCollection({ force: false }).then(data => {
+          console.log(data);
+        });
       },
       fetchAddressesForLOD(LocationResource = NetworkLocationResource) {
         return LocationResource.fetchCollection({ force: true }).then(locations => {
@@ -200,17 +217,25 @@
       closeModal() {
         this.deviceModal = false;
       },
-      submitModal() {
+      submitModal(id) {
         this.deviceModal = false;
-        this.$router.push({ path: '/editdevice/' });
+        if (id !== ' ') {
+          this.$router.push({ path: '/editdevice/?id=' + id });
+        } else {
+          return window.location.href;
+        }
       },
       newAddress() {
-        this.$router.push('/newAddress');
+        this.newaddressclick = true;
       },
       editButton(value) {
-        this.$router.push({
-          path: '/editdevice/?id=' + value,
-        });
+        if (value !== ' ') {
+          this.$router.push({
+            path: '/editdevice/?id=' + value,
+          });
+        } else {
+          return window.location.href;
+        }
       },
     },
 
