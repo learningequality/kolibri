@@ -1,7 +1,7 @@
 import pad from 'lodash/padStart';
 import get from 'lodash/get';
 import { createTranslator, formatList } from 'kolibri.utils.i18n';
-import coreStringsMixin from 'kolibri.coreVue.mixins.commonCoreStrings';
+import coreStrings from 'kolibri.utils.coreStrings';
 import { STATUSES } from '../modules/classSummary/constants';
 import { VERBS } from '../views/common/status/constants';
 import { learnerProgressTranslators } from '../views/common/status/statusStrings';
@@ -45,7 +45,6 @@ const VERB_MAP = {
   [STATUSES.helpNeeded]: VERBS.needHelp,
   [STATUSES.completed]: VERBS.completed,
 };
-const coreStrings = coreStringsMixin.methods.coreString;
 
 /*
  * Common CSV export fields and formats
@@ -69,7 +68,7 @@ export function avgScore() {
           return '';
         }
 
-        return coachStrings.$tr('percentage', { value: row.avgScore });
+        return coreStrings.$formatNumber(row.avgScore, { style: 'percent' });
       },
     },
   ];
@@ -109,7 +108,7 @@ export function lastActivity() {
 export function learnerProgress(key = 'status') {
   return [
     {
-      name: coreStrings('progressLabel'),
+      name: coreStrings.$tr('progressLabel'),
       key,
       format(row) {
         const value = get(row, key);
@@ -190,7 +189,7 @@ export function score() {
           return '';
         }
 
-        return coachStrings.$tr('percentage', { value: row.statusObj.score });
+        return coreStrings.$formatNumber(row.statusObj.score, { style: 'percent' });
       },
     },
   ];
@@ -199,7 +198,7 @@ export function score() {
 export function tally() {
   return [
     {
-      name: coreStrings('notStartedLabel'),
+      name: coreStrings.$tr('notStartedLabel'),
       key: 'tally.notStarted',
     },
     {
@@ -207,7 +206,7 @@ export function tally() {
       key: 'tally.started',
     },
     {
-      name: coreStrings('completedLabel'),
+      name: coreStrings.$tr('completedLabel'),
       key: 'tally.completed',
     },
     {

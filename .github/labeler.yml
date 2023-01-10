@@ -1,0 +1,32 @@
+'APP: Coach':
+- kolibri/plugins/coach/**/*
+
+'APP: Device':
+- kolibri/plugins/device/**/*
+
+'APP: Facility':
+- kolibri/plugins/facility/**/*
+
+'APP: Learn':
+- kolibri/plugins/learn/**/*
+
+'APP: Setup Wizard':
+- kolibri/plugins/setup_wizard/**/*
+
+'APP: User':
+- kolibri/plugins/user_*/**/*
+
+'DEV: backend':
+- '**/*.py'
+
+'DEV: frontend':
+- any: ['kolibri/**/*.js', 'kolibri/**/*.vue']
+
+'DEV: dev-ops':
+- '.github/workflows**/*'
+
+'DEV: tools':
+- any: ['packages/kolibri-tools/**/*', 'packages/eslint-plugin-kolibri/**/*', 'packages/browserslist-config-kolibri/**/*']
+
+'DEV: renderers':
+- any: ['kolibri/plugins/*viewer/**/*', 'kolibri/plugins/*player/**/*']

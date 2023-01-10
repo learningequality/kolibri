@@ -59,7 +59,6 @@
     <CopiesModal
       v-if="displayedCopies.length"
       :copies="displayedCopies"
-      :genContentLink="genContentLink"
       @submit="displayedCopies = []"
     />
   </div>
@@ -72,7 +71,6 @@
   import { ref } from 'kolibri.lib.vueCompositionApi';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import genContentLink from '../utils/genContentLink';
   import CopiesModal from './CopiesModal';
   import SearchChips from './SearchChips';
   import LibraryAndChannelBrowserMainContent from './LibraryAndChannelBrowserMainContent';
@@ -141,18 +139,7 @@
         displayedCopies: [],
       };
     },
-    computed: {
-      backRoute() {
-        return this.$route.name;
-      },
-    },
     methods: {
-      genContentLink(content) {
-        return genContentLink(content.id, this.topicId, content.is_leaf, this.backRoute, {
-          ...this.context,
-          ...this.$route.query,
-        });
-      },
       toggleCardView(value) {
         this.$emit('setCardStyle', value);
       },

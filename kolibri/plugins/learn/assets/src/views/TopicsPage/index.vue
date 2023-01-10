@@ -9,8 +9,8 @@
     <ImmersivePage
       v-else-if="!loading"
       :loading="loading"
-      :route="libraryPageLink"
-      :appBarTitle="topic.title || ''"
+      :route="back"
+      :appBarTitle="(topic && topic.title) || ''"
       :appearanceOverrides="{}"
       class="page"
     >
@@ -20,8 +20,9 @@
         ref="header"
         role="complementary"
         data-test="header-breadcrumbs"
-        :topics="topics"
-        :topic="topic"
+        :title="(topic && topic.title) || ''"
+        :description="topic && topic.description"
+        :thumbnail="topic && topic.thumbnail"
         :breadcrumbs="breadcrumbs"
       />
 
@@ -76,17 +77,13 @@
             </template>
 
             <!-- display for each nested topic/folder  -->
-            <!-- search results -->
-            <!----
-              TODO - is this necessary at all? how is this different than the search results below?
-            -->
+            <!-- display all resources at the top level of the folder -->
             <LibraryAndChannelBrowserMainContent
               v-if="resources.length"
               :gridType="2"
               data-test="search-results"
               :contents="resourcesDisplayed"
               :numCols="numCols"
-              :genContentLink="genContentLink"
               currentCardViewStyle="card"
               @toggleInfoPanel="toggleInfoPanel"
             />
@@ -114,7 +111,7 @@
           <!-- TODO: Should card preference be permitted in Topics page as well? At least for
               search results? -->
           <SearchResultsGrid
-            v-else-if="!searchLoading"
+            v-else
             data-test="search-results"
             :currentCardViewStyle="currentSearchCardViewStyle"
             :hideCardViewToggle="true"
@@ -169,7 +166,6 @@
         :activeCategories="activeCategories"
         :topicsLoading="topicMoreLoading"
         :more="topicMore"
-        :genContentLink="genContentLink"
         :width="`${sidePanelWidth}px`"
         :availableLabels="labels"
         :showChannels="false"
@@ -198,7 +194,6 @@
           :topics="topics"
           :topicsLoading="topicMoreLoading"
           :more="topicMore"
-          :genContentLink="genContentLink"
           :availableLabels="labels"
           :activeActivityButtons="activeActivityButtons"
           :activeCategories="activeCategories"
@@ -270,6 +265,7 @@
   import { mapActions, mapState } from 'vuex';
   import isEqual from 'lodash/isEqual';
   import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
+  import { computed, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
@@ -281,7 +277,7 @@
   import { PageNames } from '../../constants';
   import { normalizeContentNode } from '../../modules/coreLearn/utils.js';
   import useSearch from '../../composables/useSearch';
-  import genContentLink from '../../utils/genContentLink';
+  import useContentLink from '../../composables/useContentLink';
   import LibraryAndChannelBrowserMainContent from '../LibraryAndChannelBrowserMainContent';
   import SearchFiltersPanel from '../SearchFiltersPanel';
   import BrowseResourceMetadata from '../BrowseResourceMetadata';
@@ -309,7 +305,7 @@
       } else {
         title = this.$tr('documentTitleForTopic', {
           channelTitle: this.channelTitle,
-          topicTitle: this.topic.title,
+          topicTitle: this.topic ? this.topic.title : '',
         });
       }
       return { title };
@@ -333,6 +329,8 @@
     },
     mixins: [responsiveWindowMixin, commonCoreStrings, commonLearnStrings],
     setup() {
+      const store = getCurrentInstance().proxy.$store;
+      const topic = computed(() => store.state.topicsTree && store.state.topicsTree.topic);
       const {
         searchTerms,
         displayingSearchResults,
@@ -346,8 +344,8 @@
         removeFilterTag,
         clearSearch,
         setCategory,
-        setSearchWithinDescendant,
-      } = useSearch();
+      } = useSearch(topic);
+      const { back, genContentLinkKeepCurrentBackLink } = useContentLink();
       return {
         searchTerms,
         displayingSearchResults,
@@ -361,7 +359,8 @@
         removeFilterTag,
         clearSearch,
         setCategory,
-        setSearchWithinDescendant,
+        back,
+        genContentLinkKeepCurrentBackLink,
       };
     },
     props: {
@@ -399,10 +398,7 @@
           ...this.topic.ancestors.map(({ title, id }, index) => ({
             // Use the channel name just in case the root node does not have a title.
             text: index === 0 ? this.channelTitle : title,
-            link: {
-              name: PageNames.TOPICS_TOPIC,
-              params: { id },
-            },
+            link: this.genContentLinkKeepCurrentBackLink(id, false),
           })),
           { text: this.topic.ancestors.length ? this.topic.title : this.channelTitle },
         ];
@@ -419,11 +415,6 @@
           };
         }
         return {};
-      },
-      libraryPageLink() {
-        return {
-          name: PageNames.LIBRARY,
-        };
       },
       desktopSearchActive() {
         return this.$route.name === PageNames.TOPICS_TOPIC_SEARCH;
@@ -542,9 +533,11 @@
           return 4;
         } else return null;
       },
+      throttledStickyCalculation() {
+        return throttle(this.stickyCalculation);
+      },
       // calls handleScroll no more than every 17ms
-      throttledHandleScroll() {
-        throttle(this.stickyCalculation);
+      throttledTabPositionCalculation() {
         return throttle(this.tabPositionCalculation);
       },
       activeActivityButtons() {
@@ -560,13 +553,10 @@
         return [];
       },
       topicMore() {
-        return this.topic.children && this.topic.children.more;
+        return this.topic && this.topic.children && this.topic.children.more;
       },
     },
     watch: {
-      topic() {
-        this.setSearchWithinDescendant(this.topic);
-      },
       subTopicId(newValue, oldValue) {
         if (newValue && newValue !== oldValue) {
           this.handleLoadMoreInSubtopic(newValue);
@@ -606,15 +596,16 @@
       this.translator = crossComponentTranslator(LibraryPage);
       this.filterTranslator = crossComponentTranslator(FilterTextbox);
       window.addEventListener('scroll', this.throttledHandleScroll);
-      this.setSearchWithinDescendant(this.topic);
-      this.search();
       if (this.subTopicId) {
         this.handleLoadMoreInSubtopic(this.subTopicId);
       }
     },
     methods: {
       ...mapActions('topicsTree', ['loadMoreContents', 'loadMoreTopics']),
-      genContentLink,
+      throttledHandleScroll() {
+        this.throttledStickyCalculation();
+        this.throttledTabPositionCalculation();
+      },
       handleShowSearchModal(value) {
         this.currentCategory = value;
         this.showSearchModal = true;
@@ -656,7 +647,10 @@
       // down and appears again when scrolling up).
       // Takes effect only when the side panel is not displayed full-screen.
       stickyCalculation() {
-        const header = this.$refs.header;
+        const header = this.$refs.header && this.$refs.header.$el;
+        if (!header) {
+          return;
+        }
         const topbar = document.querySelector('.scrolling-header');
         const headerBottom = header ? header.getBoundingClientRect().bottom : 0;
         const topbarBottom = topbar ? topbar.getBoundingClientRect().bottom : 0;

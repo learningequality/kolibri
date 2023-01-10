@@ -6,9 +6,7 @@ from random import randint
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.db.models import IntegerField
-from django.db.models import OuterRef
 from django.db.models import Q
-from django.db.models import Subquery
 from django.db.models import Sum
 from django.db.models import Value
 from django.db.models.functions import Coalesce
@@ -21,7 +19,6 @@ from django_filters.rest_framework import NumberFilter
 from django_filters.rest_framework import UUIDFilter
 from le_utils.constants import content_kinds
 from le_utils.constants import exercises
-from le_utils.constants import modalities
 from rest_framework import serializers
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -37,8 +34,6 @@ from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.auth.models import dataset_cache
 from kolibri.core.content.api import OptionalPageNumberPagination
-from kolibri.core.content.models import AssessmentMetaData
-from kolibri.core.content.models import ContentNode
 from kolibri.core.decorators import query_params_required
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
@@ -67,9 +62,19 @@ class HexStringUUIDField(serializers.UUIDField):
         return super(HexStringUUIDField, self).to_internal_value(data).hex
 
 
+class MasteryModelSerializer(serializers.Serializer):
+    type = serializers.ChoiceField(choices=exercises.MASTERY_MODELS)
+    m = serializers.IntegerField(required=False)
+    n = serializers.IntegerField(required=False)
+
+
 class StartSessionSerializer(serializers.Serializer):
     lesson_id = HexStringUUIDField(required=False)
     node_id = HexStringUUIDField(required=False)
+    content_id = HexStringUUIDField(required=False)
+    channel_id = HexStringUUIDField(required=False)
+    kind = serializers.ChoiceField(choices=content_kinds.choices, required=False)
+    mastery_model = MasteryModelSerializer(required=False)
     # Do this as a special way of handling our coach generated quizzes
     quiz_id = HexStringUUIDField(required=False)
     # A flag to indicate whether to start the session over again
@@ -80,6 +85,32 @@ class StartSessionSerializer(serializers.Serializer):
             raise ValidationError("quiz_id must not be mixed with other context")
         if "node_id" not in data and "quiz_id" not in data:
             raise ValidationError("node_id is required if not a coach assigned quiz")
+        if "node_id" in data:
+            errors = {}
+            if "kind" not in data:
+                errors["kind"] = ValidationError("kind is required for any node_id")
+            else:
+                if (
+                    data["kind"] == content_kinds.EXERCISE
+                    and "mastery_model" not in data
+                ):
+                    errors["mastery_model"] = ValidationError(
+                        "mastery model must be specified for exercise kinds"
+                    )
+                elif data["kind"] != content_kinds.EXERCISE and "mastery_model" in data:
+                    errors["mastery_model"] = ValidationError(
+                        "mastery model must not be specified for non-exercise kinds"
+                    )
+            if "content_id" not in data:
+                errors["content_id"] = ValidationError(
+                    "content_id is required for any node_id"
+                )
+            if "channel_id" not in data:
+                errors["channel_id"] = ValidationError(
+                    "channel_id is required for any node_id"
+                )
+            if errors:
+                raise ValidationError(errors)
         return data
 
 
@@ -228,35 +259,14 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
         context = LogContext()
 
         if node_id is not None:
-            try:
-                node = (
-                    ContentNode.objects.annotate(
-                        mastery_model=Subquery(
-                            AssessmentMetaData.objects.filter(
-                                contentnode_id=OuterRef("id")
-                            ).values_list("mastery_model", flat=True)[:1]
-                        )
-                    )
-                    .values(
-                        "content_id", "channel_id", "kind", "mastery_model", "options"
-                    )
-                    .get(id=node_id)
-                )
-                mastery_model = node["mastery_model"]
-                content_id = node["content_id"]
-                channel_id = node["channel_id"]
-                kind = node["kind"]
-                context["node_id"] = node_id
-                if lesson_id:
-                    self._check_lesson_permissions(user, lesson_id)
-                    context["lesson_id"] = lesson_id
-                if (
-                    node["options"]
-                    and node["options"].get("modality") == modalities.QUIZ
-                ):
-                    mastery_model = {"type": exercises.QUIZ}
-            except ContentNode.DoesNotExist:
-                raise ValidationError("Invalid node_id")
+            mastery_model = validated_data.get("mastery_model")
+            content_id = validated_data.get("content_id")
+            channel_id = validated_data.get("channel_id")
+            kind = validated_data.get("kind")
+            context["node_id"] = node_id
+            if lesson_id:
+                self._check_lesson_permissions(user, lesson_id)
+                context["lesson_id"] = lesson_id
         elif quiz_id is not None:
             self._check_quiz_permissions(user, quiz_id)
             mastery_model = {"type": exercises.QUIZ, "coach_assigned": True}

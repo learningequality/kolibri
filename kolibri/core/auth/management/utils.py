@@ -665,7 +665,7 @@ class MorangoSyncCommand(AsyncCommand):
                 progress = 100
 
             tracker.update_progress(
-                increment=math.ceil(progress - tracker.progress),
+                increment=math.ceil(progress - tracker.job.progress),
                 message=stats_msg(transfer_session),
                 extra_data=dict(
                     bytes_sent=transfer_session.bytes_sent,

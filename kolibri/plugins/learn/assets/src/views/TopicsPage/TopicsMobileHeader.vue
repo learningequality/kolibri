@@ -50,7 +50,8 @@
 
   .mobile-header {
     position: relative;
-    height: 100%;
+    top: 70px;
+    height: 70px;
   }
 
   .mobile-title {

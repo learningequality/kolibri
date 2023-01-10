@@ -1059,7 +1059,6 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       'Score obtained by a learner on a quiz, indicated by the percentage of correct answers given.',
   },
-
   // TODO - move these into diff sections as we make this a full feature in 0.16
   // Past Papers Project (12/2021) strings
   timeSpentLabel: {
@@ -1142,6 +1141,7 @@ const MetadataLookup = invert(
     METADATA.ResourcesNeededTypes
   )
 );
+
 /**
  * Return translated string for key defined in the coreStrings translator. Will map
  * ID keys generated in the kolibri-constants library to their appropriate translations

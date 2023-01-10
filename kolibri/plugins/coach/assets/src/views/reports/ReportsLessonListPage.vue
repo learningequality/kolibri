@@ -9,14 +9,13 @@
     <KPageContainer>
       <ReportsHeader :title="$isPrint ? $tr('printLabel', { className }) : null" />
       <ReportsControls @export="exportCSV">
-        <!-- Hidden temporarily per https://github.com/learningequality/kolibri/issues/6174
         <KSelect
           v-model="filter"
-          :label="coreString('showAction')"
+          :label="coachString('filterLessonStatus')"
           :options="filterOptions"
           :inline="true"
         />
-        -->
+
       </ReportsControls>
       <CoreTable :emptyMessage="emptyMessage">
         <template #headers>
@@ -103,38 +102,38 @@
         if (this.filter.value === 'allLessons') {
           return this.coachString('lessonListEmptyState');
         }
-        // if (this.filter.value === 'activeLessons') {
-        //   return this.$tr('noActiveLessons');
-        // }
-        // if (this.filter.value === 'inactiveLessons') {
-        //   return this.$tr('noInactiveLessons');
-        // }
+        if (this.filter.value === 'visibleLessons') {
+          return this.$tr('noVisibleLessons');
+        }
+        if (this.filter.value === 'lessonsNotVisible') {
+          return this.$tr('noLessonsNotVisble');
+        }
 
         return '';
       },
       filterOptions() {
         return [
           {
-            label: this.coreString('allLessonsLabel'),
+            label: this.coachString('filterLessonAll'),
             value: 'allLessons',
           },
-          // {
-          //   label: this.$tr('activeLessons'),
-          //   value: 'activeLessons',
-          // },
-          // {
-          //   label: this.$tr('inactiveLessons'),
-          //   value: 'inactiveLessons',
-          // },
+          {
+            label: this.coachString('filterLessonVisible'),
+            value: 'visibleLessons',
+          },
+          {
+            label: this.coachString('filterLessonNotVisible'),
+            value: 'lessonsNotVisible',
+          },
         ];
       },
       table() {
         const filtered = this.lessons.filter(lesson => {
           if (this.filter.value === 'allLessons') {
             return true;
-          } else if (this.filter.value === 'activeLessons') {
+          } else if (this.filter.value === 'visibleLessons') {
             return lesson.active;
-          } else if (this.filter.value === 'inactiveLessons') {
+          } else if (this.filter.value === 'lessonsNotVisible') {
             return !lesson.active;
           }
         });
@@ -188,10 +187,10 @@
       },
     },
     $trs: {
-      // activeLessons: 'Active lessons',
-      // inactiveLessons: 'Inactive lessons',
-      // noActiveLessons: 'No active lessons',
-      // noInactiveLessons: 'No inactive lessons',
+      visibleLessons: 'Visile lessons',
+      lessonsNotVisible: 'Lessons not visible',
+      noVisibleLessons: 'No visible lessons',
+      noLessonsNotVisble: 'No lessons not visible',
       printLabel: {
         message: '{className} Lessons',
         context:

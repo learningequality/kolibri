@@ -36,7 +36,7 @@ export function showTopicsContent(store, id) {
   );
 }
 
-export function showTopicsTopic(store, { id, pageName }) {
+export function showTopicsTopic(store, { id, pageName, query }) {
   return store.dispatch('loading').then(() => {
     store.commit('SET_PAGE_NAME', pageName);
     const params = {
@@ -69,7 +69,7 @@ export function showTopicsTopic(store, { id, pageName }) {
           // if there are no children which are not leaf nodes (i.e. they have children themselves)
           // then redirect to search results
           if (!children.some(c => !c.is_leaf) && pageName !== PageNames.TOPICS_TOPIC_SEARCH) {
-            router.replace({ name: PageNames.TOPICS_TOPIC_SEARCH, id });
+            router.replace({ name: PageNames.TOPICS_TOPIC_SEARCH, params: { id }, query });
             store.commit('SET_PAGE_NAME', PageNames.TOPICS_TOPIC_SEARCH);
           }
 

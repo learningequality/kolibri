@@ -1,6 +1,7 @@
 import { get, set } from '@vueuse/core';
 import VueRouter from 'vue-router';
 import Vue from 'vue';
+import { ref } from 'kolibri.lib.vueCompositionApi';
 import { ContentNodeResource } from 'kolibri.resources';
 import { coreStoreFactory } from 'kolibri.coreVue.vuex.store';
 import { AllCategories, NoCategories } from 'kolibri.coreVue.vuex.constants';
@@ -11,7 +12,7 @@ Vue.use(VueRouter);
 
 const name = 'not important';
 
-function prep(query = {}) {
+function prep(query = {}, descendant = null) {
   const store = coreStoreFactory({
     state: () => ({
       route: {
@@ -28,7 +29,7 @@ function prep(query = {}) {
   const router = new VueRouter();
   router.push = jest.fn().mockReturnValue(Promise.resolve());
   return {
-    ...useSearch(store, router),
+    ...useSearch(descendant, store, router),
     router,
     store,
   };
@@ -224,8 +225,7 @@ describe(`useSearch`, () => {
       expect(get(more)).toBeNull();
     });
     it('should call ContentNodeResource.fetchCollection if there is no search but a descendant is set', () => {
-      const { search, setSearchWithinDescendant } = prep();
-      setSearchWithinDescendant({ tree_id: 1, lft: 10, rght: 20 });
+      const { search } = prep({}, ref({ tree_id: 1, lft: 10, rght: 20 }));
       ContentNodeResource.fetchCollection = jest.fn();
       ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
       search();
@@ -240,8 +240,7 @@ describe(`useSearch`, () => {
       });
     });
     it('should set labels and clear more if there is no search but a descendant is set', async () => {
-      const { labels, more, search, setSearchWithinDescendant } = prep();
-      setSearchWithinDescendant({ tree_id: 1, lft: 10, rght: 20 });
+      const { labels, more, search } = prep({}, ref({ tree_id: 1, lft: 10, rght: 20 }));
       ContentNodeResource.fetchCollection = jest.fn();
       const labelsSet = {
         available: ['labels'],
@@ -285,11 +284,13 @@ describe(`useSearch`, () => {
       });
     });
     it('should ignore channels when descendant is set', () => {
-      const { search, setSearchWithinDescendant } = prep({
-        categories: `test1,test2`,
-        channels: 'test1',
-      });
-      setSearchWithinDescendant({ tree_id: 1, lft: 10, rght: 20 });
+      const { search } = prep(
+        {
+          categories: `test1,test2`,
+          channels: 'test1',
+        },
+        ref({ tree_id: 1, lft: 10, rght: 20 })
+      );
       ContentNodeResource.fetchCollection = jest.fn();
       ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
       search();

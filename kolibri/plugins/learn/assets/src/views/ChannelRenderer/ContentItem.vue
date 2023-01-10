@@ -133,9 +133,6 @@
           totalattempts: this.totalattempts,
         };
       },
-      contentNodeId() {
-        return this.contentNode.id;
-      },
       assessment() {
         if (this.contentNode.kind !== ContentNodeKinds.EXERCISE) {
           return null;
@@ -146,7 +143,7 @@
     },
     created() {
       return this.initContentSession({
-        nodeId: this.contentNodeId,
+        node: this.contentNode,
       }).then(() => {
         this.sessionReady = true;
         this.setWasIncomplete();
