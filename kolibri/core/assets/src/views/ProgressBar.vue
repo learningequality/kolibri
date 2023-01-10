@@ -23,7 +23,7 @@
       </div>
     </div>
     <div v-if="showPercentage" class="progress-bar-text">
-      {{ $tr('pct', [progress]) }}
+      {{ $formatNumber(progress, { style: 'percent' }) }}
     </div>
   </div>
 
@@ -55,12 +55,6 @@
     computed: {
       percent() {
         return Math.max(Math.min(this.progress * 100, 100), 0);
-      },
-    },
-    $trs: {
-      pct: {
-        message: '{0, number, percent}',
-        context: 'DO NOT TRANSLATE\nCopy the source string.',
       },
     },
   };

@@ -55,17 +55,17 @@
       </tr>
       <tr>
         <th>{{ $tr('totalSizeRow') }}</th>
-        <td>{{ $tr('resourceCount', { count: channel.total_resources || 0 }) }}</td>
+        <td>{{ $formatNumber(channel.total_resources || 0, { useGrouping: true }) }}</td>
         <td>{{ bytesForHumans(channel.total_file_size || 0) }}</td>
       </tr>
       <tr>
         <th>{{ $tr('onDeviceRow') }}</th>
-        <td>{{ $tr('resourceCount', { count: channel.on_device_resources || 0 }) }}</td>
+        <td>{{ $formatNumber(channel.on_device_resources || 0, { useGrouping: true }) }}</td>
         <td>{{ bytesForHumans(channel.on_device_file_size || 0) }}</td>
       </tr>
       <tr v-if="channel.new_resource_count !== null">
         <th>{{ $tr('newOrUpdatedLabel') }}</th>
-        <td>{{ $tr('resourceCount', { count: channel.new_resource_count || 0 }) }}</td>
+        <td>{{ $formatNumber(channel.new_resource_count || 0, { useGrouping: true }) }}</td>
         <td>{{ bytesForHumans(channel.new_resource_total_size || 0) }}</td>
       </tr>
       <tr v-if="!remoteContentEnabled && freeSpace !== null">
@@ -132,10 +132,6 @@
       onDeviceRow: {
         message: 'On your device',
         context: "Indicates resources that are on the user's device.",
-      },
-      resourceCount: {
-        message: '{count, number, useGrouping}',
-        context: 'DO NOT TRANSLATE\nCopy the source string.',
       },
       sizeCol: {
         message: 'Size',
