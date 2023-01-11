@@ -3,6 +3,7 @@
  */
 
 import { ref } from 'kolibri.lib.vueCompositionApi';
+import { get } from '@vueuse/core';
 import plugin_data from 'plugin_data';
 
 const channelsArray = plugin_data.channels ? plugin_data.channels : [];
@@ -16,9 +17,27 @@ for (let channel of channelsArray) {
 const channels = ref(channelsArray);
 const channelsMap = ref(chanMap);
 
+function getChannelThumbnail(channelId) {
+  const channel = get(channelsMap)[channelId];
+  if (channel) {
+    return channel.thumbnail;
+  }
+  return '';
+}
+
+function getChannelTitle(channelId) {
+  const channel = get(channelsMap)[channelId];
+  if (channel) {
+    return channel.name;
+  }
+  return '';
+}
+
 export default function useChannels() {
   return {
     channels,
     channelsMap,
+    getChannelThumbnail,
+    getChannelTitle,
   };
 }
