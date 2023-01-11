@@ -9,7 +9,7 @@
     "@vueuse/core": "^9.6.0",
     "axios": "^0.27.2",
     "clipboard": "^2.0.11",
-    "core-js": "^3.26",
+    "core-js": "^3.27",
     "csv-generator-client": "^2.1.1",
     "date-fns": "^1.28.2",
     "deep-object-diff": "^1.1.0",
