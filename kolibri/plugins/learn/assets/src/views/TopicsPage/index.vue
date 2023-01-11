@@ -276,7 +276,6 @@
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import SidePanelModal from '../SidePanelModal';
   import { PageNames } from '../../constants';
-  import { normalizeContentNode } from '../../modules/coreLearn/utils.js';
   import useSearch from '../../composables/useSearch';
   import useContentLink from '../../composables/useContentLink';
   import LibraryAndChannelBrowserMainContent from '../LibraryAndChannelBrowserMainContent';
@@ -486,7 +485,7 @@
             } else {
               childrenToDisplay = this.childrenToDisplay;
             }
-            const children = topicChildren.slice(0, childrenToDisplay).map(normalizeContentNode);
+            const children = topicChildren.slice(0, childrenToDisplay);
             // showMore is whether we should show more inline
             const showMore =
               !this.subTopicId &&

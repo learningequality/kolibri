@@ -5,7 +5,7 @@ import router from 'kolibri.coreVue.router';
 import { PageNames } from '../../constants';
 import useChannels from '../../composables/useChannels';
 import useContentNodeProgress from '../../composables/useContentNodeProgress';
-import { _collectionState, normalizeContentNode, contentState } from '../coreLearn/utils';
+import { _collectionState, contentState } from '../coreLearn/utils';
 
 const { channelsMap } = useChannels();
 const { fetchContentNodeTreeProgress } = useContentNodeProgress();
@@ -87,7 +87,7 @@ export function showTopicsTopic(store, { id, pageName, query }) {
           store.commit('topicsTree/SET_STATE', {
             isRoot,
             channel: currentChannel,
-            topic: normalizeContentNode(topic),
+            topic,
             contents: _collectionState(children),
           });
 

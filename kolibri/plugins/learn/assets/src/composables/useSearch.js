@@ -3,7 +3,6 @@ import { computed, getCurrentInstance, ref, watch } from 'kolibri.lib.vueComposi
 import { ContentNodeResource } from 'kolibri.resources';
 import { AllCategories, NoCategories } from 'kolibri.coreVue.vuex.constants';
 import { deduplicateResources } from '../utils/contentNode';
-import { normalizeContentNode } from '../modules/coreLearn/utils';
 import useContentNodeProgress from './useContentNodeProgress';
 
 export const searchKeys = [
@@ -119,7 +118,7 @@ export default function useSearch(descendant, store, router) {
         fetchContentNodeProgress(getParams);
       }
       ContentNodeResource.fetchCollection({ getParams }).then(data => {
-        set(_results, (data.results || []).map(normalizeContentNode));
+        set(_results, data.results || []);
         set(more, data.more);
         set(labels, data.labels);
         set(searchLoading, false);
@@ -145,7 +144,7 @@ export default function useSearch(descendant, store, router) {
         fetchContentNodeProgress(get(more));
       }
       return ContentNodeResource.fetchCollection({ getParams: get(more) }).then(data => {
-        set(_results, [...get(_results), ...(data.results || []).map(normalizeContentNode)]);
+        set(_results, [...get(_results), ...(data.results || [])]);
         set(more, data.more);
         set(labels, data.labels);
         set(moreLoading, false);

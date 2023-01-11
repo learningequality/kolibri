@@ -6,7 +6,6 @@ import { ContentNodeResource } from 'kolibri.resources';
 import { coreStoreFactory } from 'kolibri.coreVue.vuex.store';
 import { AllCategories, NoCategories } from 'kolibri.coreVue.vuex.constants';
 import useSearch from '../useSearch';
-import { normalizeContentNode } from '../../modules/coreLearn/utils';
 
 Vue.use(VueRouter);
 
@@ -338,7 +337,7 @@ describe(`useSearch`, () => {
       search();
       await Vue.nextTick();
       expect(get(labels)).toEqual(expectedLabels);
-      expect(get(results)).toEqual(expectedResults.map(normalizeContentNode));
+      expect(get(results)).toEqual(expectedResults);
       expect(get(more)).toEqual(expectedMore);
     });
   });
@@ -410,9 +409,7 @@ describe(`useSearch`, () => {
       searchMore();
       await Vue.nextTick();
       expect(get(labels)).toEqual(expectedLabels);
-      expect(get(results)).toEqual(
-        originalResults.concat(expectedResults).map(normalizeContentNode)
-      );
+      expect(get(results)).toEqual(originalResults.concat(expectedResults));
       expect(get(more)).toEqual(expectedMore);
     });
   });
