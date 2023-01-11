@@ -1,15 +1,20 @@
 <template>
 
-  <li class="list-item-navigation visible">
+  <li class="list-item">
     <router-link
-      :active="isActive"
       class="tab"
       :class="$computedClass(tabStyles)"
-      :style="windowIsSmall ? smallScreenOverrides : {}"
       :to="link"
+      :activeClass="activeClasses"
     >
       <div class="dimmable tab-icon">
-        <slot></slot>
+        <UiIcon
+          class="icon"
+          tabindex="-1"
+        >
+          <!--The icon svg-->
+          <slot></slot>
+        </UiIcon>
       </div>
 
       <div class="dimmable tab-title" tabindex="-1">
@@ -22,16 +27,14 @@
 
 
 <script>
-
   import { validateLinkObject } from 'kolibri.utils.validators';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-
+  import UiIcon from 'kolibri-design-system/lib/keen/UiIcon';
   /**
    Links for use inside the Navbar
    */
   export default {
     name: 'NavbarLink',
-    mixins: [responsiveWindowMixin],
+    components: { UiIcon },
     props: {
       /**
        * The text
@@ -52,8 +55,7 @@
     computed: {
       tabStyles() {
         return {
-          color:this.isActive? this.$themeTokens.textInverted: this.$themePalette.grey.v_50,
-          'border-bottom-color':this.isActive? this.$themeTokens.textInverted: 'none',
+          color: this.$themePalette.grey.v_100,
           ':hover': {
             'background-color': this.$themeTokens.appBarDark,
           },
@@ -63,42 +65,27 @@
           },
         };
       },
-      smallScreenOverrides() {
-        return {
-          padding: '0 8px',
-          fontSize: '14px',
-          borderBottomWidth: '2px',
-        };
-      },
-      isActive() { 
-        return this.$route.path === `/${this.link.name.toLowerCase()}`;
+      activeClasses() {
+        // return both fixed and dynamic classes
+        return `router-link-active ${this.$computedClass({ color: this.$themeTokens.textInverted })}`;
       },
     },
   };
-
 </script>
 
 
 <style lang="scss" scoped>
-
   @import '~kolibri-design-system/lib/styles/definitions';
-
-  .list-item-navigation {
+  .list-item {
     display: inline-block;
     text-align: center;
-    visibility: hidden;
   }
-
-  .visible {
-    visibility: visible;
-  }
-
   .tab {
     display: inline-block;
     min-width: 72px;
     max-width: 264px;
-    padding: 0 16px;
-    padding-bottom: 6px;
+    padding: 0 18px;
+    padding-bottom: 3px;
     margin: 0;
     font-size: 14px;
     text-decoration: none;
@@ -107,12 +94,10 @@
     border-top-left-radius: $radius;
     border-top-right-radius: $radius;
     transition: background-color $core-time ease;
-
     .dimmable {
-      opacity: 1;
+      opacity: 0.6;
     }
   }
-
   // Getting this class to work correctly with our theme system is not currently
   // possible. Some options:
   //  1. Update vueAphrodite to handle nested classes (to handle .dimmable)
@@ -120,33 +105,26 @@
   //     https://github.com/vuejs/rfcs/pull/34
   //  3. Somehow refactor the tab styling to not require nested active classes
   .router-link-active {
-    font-weight: bold;
+    padding-bottom: 2px;
     border-bottom-style: solid;
-    border-bottom-width: 4px;
-
+    border-bottom-width: 2px;
     .dimmable {
       opacity: 1;
     }
   }
-
   .icon {
-    top: 0;
+    font-size: 24px;
   }
-
-  svg {
-    width: 14px;
-    height: 14px;
-  }
-
   .tab-icon {
     display: inline-block;
     padding: 10px 0;
     margin-right: 4px;
   }
-
   .tab-title {
     display: inline-block;
+    font-weight: bold;
     text-overflow: ellipsis;
+    text-transform: uppercase;
+    vertical-align: middle;
   }
-
 </style>
