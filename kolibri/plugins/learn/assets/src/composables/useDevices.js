@@ -27,9 +27,9 @@ export function fetchDevice(id) {
 
 export default function useDevices(store) {
   store = store || getCurrentInstance().proxy.$store;
-  const route = computed(() => store.state.route);
+  const route = computed(() => store && store.state.route);
   const baseurl = computed(() => {
-    const params = get(route).params;
+    const params = get(route) && get(route).params;
     const deviceId = params && params.deviceId;
     const device = get(deviceMap)[deviceId];
     if (device) {

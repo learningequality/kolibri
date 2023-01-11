@@ -80,7 +80,7 @@
       v-if="showCompletionModal"
       ref="completionModal"
       :isUserLoggedIn="isUserLoggedIn"
-      :contentNodeId="content.id"
+      :contentNode="content"
       :lessonId="lessonId"
       :isQuiz="practiceQuiz"
       :isSurvey="survey"
