@@ -14,11 +14,13 @@
         </KGridItem>
 
         <KGridItem :layout12="{ span: 6 }">
-          <h2>{{ $tr('detailsHeading') }}</h2>
-          <p class="subheading">
+          <h3 class="subheading">
+            {{ $tr('detailsHeading') }}
+          </h3>
+          <p class="subheading-desc">
             {{ $tr('detailsSubHeading') }}
           </p>
-          <p class="subheading">
+          <p class="subheading-desc">
             <KButton
               appearance="basic-link"
               :text="$tr('LearnMore')"
@@ -30,10 +32,15 @@
           </p>
         </KGridItem>
 
-        <KGridItem class="session-section-buttons" :layout12="{ span: 6, alignment: 'right' }">
+        <KGridItem
+          class="session-section-buttons"
+          :class="windowSizeStyle"
+          :layout12="{ span: 6, alignment: 'right' }"
+        >
           <KButton
             v-if="availableSessionCSVLog"
             class="subheading-buttons"
+            :style="windowIsMedium || windowIsSmall ? { order: 2 } : { order: 1 }"
             appearance="flat-button"
             :text="$tr('download')"
             @click="downloadSessionLog"
@@ -44,7 +51,6 @@
           <KButton
             v-else
             class="subheading-buttons"
-            :style="windowSizeStyle"
             :text="$tr('generateLogButtonText')"
             @click="generateSessionLog"
           />
@@ -60,11 +66,13 @@
         </KGridItem>
 
         <KGridItem :layout12="{ span: 6 }">
-          <h2>{{ $tr('summaryHeading') }}</h2>
-          <p class="subheading">
+          <h3 class="subheading">
+            {{ $tr('summaryHeading') }}
+          </h3>
+          <p class="subheading-desc">
             {{ $tr('summarySubHeading') }}
           </p>
-          <p class="subheading">
+          <p class="subheading-desc">
             <KButton
               appearance="basic-link"
               :text="$tr('LearnMore')"
@@ -76,10 +84,15 @@
           </p>
         </KGridItem>
 
-        <KGridItem class="summary-section-buttons" :layout12="{ span: 6, alignment: 'right' }">
+        <KGridItem
+          class="summary-section-buttons"
+          :class="windowSizeStyle"
+          :layout12="{ span: 6, alignment: 'right' }"
+        >
           <KButton
             v-if="availableSummaryCSVLog"
             class="subheading-buttons"
+            :style="windowIsMedium || windowIsSmall ? { order: 2 } : { order: 1 }"
             appearance="flat-button"
             :text="$tr('download')"
             @click="downloadSummaryLog"
@@ -90,7 +103,6 @@
           <KButton
             v-else
             class="subheading-buttons"
-            :style="windowSizeStyle"
             :text="$tr('generateLogButtonText')"
             @click="generateSummaryLog"
           />
@@ -178,9 +190,7 @@
       },
       windowSizeStyle() {
         if (this.windowIsMedium || this.windowIsSmall) {
-          return {
-            float: 'left',
-          };
+          return 'section-buttons-flex';
         }
         return {};
       },
@@ -306,7 +316,17 @@
 
   @import '~kolibri-design-system/lib/styles/definitions';
 
+  /deep/ .page-container p {
+    font-size: 0.93em;
+  }
+
   .subheading {
+    margin-top: 10px;
+    margin-bottom: 5px;
+    font-size: 0.93em;
+  }
+
+  .subheading-desc {
     display: inline-block;
     margin: 0 0.313rem 0.313rem 0;
   }
@@ -331,6 +351,10 @@
 
   .summary-section-buttons {
     padding-top: 20px;
+  }
+
+  /deep/ .section-buttons-flex div {
+    display: flex;
   }
 
 </style>
