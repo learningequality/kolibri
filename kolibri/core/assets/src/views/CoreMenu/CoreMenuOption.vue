@@ -2,6 +2,7 @@
 
   <li>
     <a
+      ref="menuItem"
       :href="link"
       class="core-menu-option"
       role="menuitem"
@@ -11,18 +12,13 @@
       @keydown.enter="conditionalEmit"
     >
       <slot>
-        <KLabeledIcon>
+        <KLabeledIcon :iconAfter="iconAfter">
           <template v-if="icon" #icon>
-            <KIcon
-              :icon="icon"
-              :color="optionIconColor"
-            />
+            <KIcon :icon="icon" :color="optionIconColor" />
           </template>
           <div v-if="label">{{ label }}</div>
         </KLabeledIcon>
-        <div
-          v-if="secondaryText"
-        >{{ secondaryText }}</div>
+        <div v-if="secondaryText">{{ secondaryText }}</div>
       </slot>
     </a>
   </li>
@@ -49,6 +45,11 @@
         default: null,
       },
       icon: {
+        type: String,
+        required: false,
+        default: '',
+      },
+      iconAfter: {
         type: String,
         required: false,
         default: '',

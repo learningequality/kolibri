@@ -11,7 +11,7 @@
         @toggleSideNav="navShown = !navShown"
         @showLanguageModal="languageModalShown = true"
       >
-        <template #sub-nav>
+        <template v-if="!isAppContext" #sub-nav>
           <slot name="subNav"></slot>
         </template>
       </AppBar>
@@ -35,6 +35,7 @@
       ref="sideNav"
       :navShown="navShown"
       @toggleSideNav="navShown = !navShown"
+      @shouldFocusFirstEl="findFirstEl()"
     />
     <LanguageSwitcherModal
       v-if="languageModalShown"
@@ -42,6 +43,13 @@
       :style="{ color: $themeTokens.text }"
       @cancel="languageModalShown = false"
     />
+
+    <AppBottomBar
+      v-if="isAppContext"
+      class="bottom-bar"
+      :navigationLinks="links"
+    />
+
   </div>
 
 </template>
@@ -49,18 +57,25 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import LanguageSwitcherModal from 'kolibri.coreVue.components.LanguageSwitcherModal';
   import ScrollingHeader from 'kolibri.coreVue.components.ScrollingHeader';
   import SideNav from 'kolibri.coreVue.components.SideNav';
   import { LearnerDeviceStatus } from 'kolibri.coreVue.vuex.constants';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import urls from 'kolibri.urls';
+  import AppBottomBar from '../AppBottomBar';
+  import generateSideNavRoute from '../../../../../plugins/learn/assets/src/appNavigationRoutes';
   import AppBar from '../AppBar';
   import StorageNotification from '../StorageNotification';
   import useUserSyncStatus from '../../composables/useUserSyncStatus';
   import plugin_data from 'plugin_data';
+  import { PageNames } from './../../../../../plugins/learn/assets/src/constants';
+  import commonLearnStrings from './../../../../../plugins/learn/assets/src/views/commonLearnStrings';
 
   export default {
     name: 'AppBarPage',
-    components: { AppBar, LanguageSwitcherModal, ScrollingHeader, SideNav, StorageNotification },
+    components: { AppBar, AppBottomBar, LanguageSwitcherModal, ScrollingHeader, SideNav, StorageNotification },
     setup() {
       let userDeviceStatus = null;
       if (plugin_data.isSubsetOfUsersDevice) {
@@ -70,6 +85,7 @@
         userDeviceStatus,
       };
     },
+    mixins: [commonCoreStrings, commonLearnStrings],
     props: {
       title: {
         type: String,
@@ -93,6 +109,10 @@
       };
     },
     computed: {
+      ...mapGetters(['isAppContext']),
+      url() {
+        return urls['kolibri:kolibri.plugins.learn:learn']();
+      },
       wrapperStyles() {
         return this.appearanceOverrides
           ? this.appearanceOverrides
@@ -108,6 +128,32 @@
               marginTop: 0,
             };
       },
+      links() {
+        const links = [
+          {
+            condition: this.isUserLoggedIn,
+            title: this.coreString('homeLabel'),
+            link: this.generateBottomBarRoute(PageNames.HOME),
+            icon: 'dashboard',
+            color: this.$themeTokens.primary,
+          },
+          {
+            condition: this.canAccessUnassignedContent,
+            title: this.learnString('libraryLabel'),
+            link: this.generateBottomBarRoute(PageNames.LIBRARY),
+            icon: 'library',
+            color: this.$themeTokens.primary,
+          },
+          {
+            condition: this.isUserLoggedIn && this.canAccessUnassignedContent,
+            title: this.coreString('bookmarksLabel'),
+            link: this.generateBottomBarRoute(PageNames.BOOKMARKS),
+            icon: 'bookmark',
+            color: this.$themeTokens.primary,
+          },
+        ];
+        return links;
+      },
       showStorageNotification() {
         return this.userDeviceStatus === LearnerDeviceStatus.INSUFFICIENT_STORAGE;
       },
@@ -116,6 +162,16 @@
       this.$nextTick(() => {
         this.appBarHeight = this.$refs.appBar.$el.scrollHeight || 0;
       });
+    },
+    methods: {
+      generateBottomBarRoute(route) {
+        return generateSideNavRoute(this.url, route);
+      },
+      findFirstEl() {
+        this.$nextTick(() => {
+          this.$refs.sideNav.focusFirstEl();
+        });
+      },
     },
   };
 
@@ -127,7 +183,7 @@
   @import '~kolibri-design-system/lib/styles/definitions';
 
   .app-bar {
-    @extend %dropshadow-4dp;
+    @extend %dropshadow-8dp;
 
     width: 100%;
   }
