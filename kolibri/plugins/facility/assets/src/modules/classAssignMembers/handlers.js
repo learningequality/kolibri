@@ -14,7 +14,7 @@ export function showLearnerClassEnrollmentPage(store, toRoute, fromRoute) {
     getParams: pickBy({
       member_of: facility_id || store.getters.activeFacilityId,
       page: toRoute.query.page || 1,
-      page_size: toRoute.query.page_size || 10,
+      page_size: toRoute.query.page_size || 30,
       search: toRoute.query.search && toRoute.query.search.trim(),
       exclude_member_of: id,
       exclude_coach_for: id,

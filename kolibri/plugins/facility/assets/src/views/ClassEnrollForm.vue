@@ -107,7 +107,7 @@
       },
       itemsPerPage: {
         get() {
-          return this.$route.query.page_size || 10;
+          return this.$route.query.page_size || 30;
         },
         set(value) {
           this.$router.push({
