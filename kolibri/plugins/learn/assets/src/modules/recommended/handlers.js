@@ -3,16 +3,17 @@ import { ContentNodeResource } from 'kolibri.resources';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import { PageNames } from '../../constants';
 import useChannels from '../../composables/useChannels';
+import { fetchDevice } from '../../composables/useDevices';
 import useLearnerResources from '../../composables/useLearnerResources';
 import { searchKeys } from '../../composables/useSearch';
 import { _collectionState } from '../coreLearn/utils';
 
-const { channels } = useChannels();
+const { channels, fetchChannels } = useChannels();
 
 const { fetchResumableContentNodes } = useLearnerResources();
 
-export function showLibrary(store, query) {
-  if (!get(channels).length) {
+function _showLibrary(store, query, channels, baseurl) {
+  if (!channels.length) {
     return;
   }
   // Special case for when only the page number changes:
@@ -31,10 +32,11 @@ export function showLibrary(store, query) {
           parent__isnull: true,
           include_coach_content:
             store.getters.isAdmin || store.getters.isCoach || store.getters.isSuperuser,
+          baseurl,
         },
       })
     );
-    if (store.getters.isUserLoggedIn) {
+    if (store.getters.isUserLoggedIn && !baseurl) {
       promises.push(fetchResumableContentNodes());
     }
   }
@@ -44,7 +46,7 @@ export function showLibrary(store, query) {
       if (shouldResolve()) {
         if (channelCollection && channelCollection.length) {
           // we want them to be in the same order as the channels list
-          const rootNodes = get(channels)
+          const rootNodes = channels
             .map(channel => {
               const node = _collectionState(channelCollection).find(
                 n => n.channel_id === channel.id
@@ -73,4 +75,16 @@ export function showLibrary(store, query) {
       shouldResolve() ? store.dispatch('handleError', error) : null;
     }
   );
+}
+
+export function showLibrary(store, query, deviceId = null) {
+  if (deviceId) {
+    return fetchDevice(deviceId).then(device => {
+      const baseurl = device.base_url;
+      return fetchChannels({ baseurl }).then(channels => {
+        return _showLibrary(store, query, channels, baseurl);
+      });
+    });
+  }
+  return _showLibrary(store, query, get(channels));
 }
