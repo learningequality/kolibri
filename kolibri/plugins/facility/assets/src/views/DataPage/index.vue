@@ -353,6 +353,7 @@
     padding-top: 20px;
   }
 
+  // conditional class to support KButton order style; based on computed prop windowSizeStyle
   /deep/ .section-buttons-flex div {
     display: flex;
   }
