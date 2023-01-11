@@ -4447,10 +4447,10 @@ csv-generator-client@^2.1.1:
     babel-polyfill "^6.26.0"
     lodash "^4.17.4"
 
-csv-parse@^4.14.1:
-  version "4.14.1"
-  resolved "https://registry.yarnpkg.com/csv-parse/-/csv-parse-4.14.1.tgz#b6b3736508fb94682fa6d450fe1755237221d291"
-  integrity sha512-4wmcO7QbWtDAncGFaBwlWFPhEN4Akr64IbM4zvDwEOFekI8blLc04Nw7XjQjtSNy+3AUAgBgtUa9nWo5Cq89Xg==
+csv-parse@^5.3.3:
+  version "5.3.3"
+  resolved "https://registry.yarnpkg.com/csv-parse/-/csv-parse-5.3.3.tgz#3b75d2279e2edb550cbc54c65b25cbbf3d0033ad"
+  integrity sha512-kEWkAPleNEdhFNkHQpFHu9RYPogsFj3dx6bCxL847fsiLgidzWg0z/O0B1kVWMJUc5ky64zGp18LX2T3DQrOfw==
 
 csv-writer@^1.3.0:
   version "1.6.0"
