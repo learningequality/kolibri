@@ -71,7 +71,7 @@
       },
       activeClasses() {
         // return both fixed and dynamic classes
-        return `router-link-active ${this.$computedClass({ color: this.$themeTokens.primary })}`;
+        return `router-link-active ${this.$computedClass({ color: this.$themeTokens.textInverted })}`;
       },
     },
   };
