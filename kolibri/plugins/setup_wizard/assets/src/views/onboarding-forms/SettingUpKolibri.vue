@@ -10,6 +10,30 @@
         {{ $tr('pleaseWaitMessage') }}
       </p>
     </main>
+    <div
+      v-if="devMode"
+      style="
+        z-index: 9999;
+        position: fixed;
+        left: 1em;
+        right: 1em;
+        bottom: 1em;
+        top: 1em;
+        background-color: rgba(0, 0, 0, 0.86);
+        padding: 2em;
+        color: white;
+        font-weight: bold;
+      "
+    >
+      <h2>Setup Wizard Debugger 3000</h2>
+      <h3>Device Provisioning Data</h3>
+      <pre>{{ JSON.stringify(deviceProvisioningData, null, 2) }}</pre>
+      <h3>Facility User Data</h3>
+      <pre>{{ JSON.stringify(facilityUserData, null, 2) }}</pre>
+      <KButton primary @click="wizardService.send('START_OVER')">
+        Start Over
+      </KButton>
+    </div>
   </div>
 
 </template>
@@ -29,6 +53,9 @@
     components: { KolibriLoadingSnippet },
     inject: ['wizardService'],
     computed: {
+      devMode() {
+        return process.NODE_ENV !== 'production';
+      },
       /** The data we will use to initialize the device during provisioning */
       deviceProvisioningData() {
         return {
@@ -74,30 +101,25 @@
       },
     },
     mounted() {
+      if (this.devMode) {
+        return null; // debugger activated, don't do anything
+      }
       if (this.isOnMyOwnSetup) {
-        // 1) On my own
         if (this.canGetOsUser) {
-          // 1.1) If we can get the OS user, we'll do this
           this.createAndProvisionOnMyOwnUserApp();
         } else {
-          // 1.2) If user is doing "on my own" setup but we cannot get OS user
           this.createAndProvisionOnMyOwnUserDevice();
         }
       }
 
-      // From here, all are going to be "group learning" flows
       if (!this.isLearnOnlyDevice) {
-        // 2) Group learning, Full device setup
         if (this.isNewFacility) {
-          // 2.1) New Facility
           this.createAndProvisionNewFullFacilityDevice();
         } else {
-          // 2.2) Import Facility
           // We already have the facility imported, just provision and redirect
-          this.provisionDevice();
+          this.createAndProvisionNewFullFacilityDevice();
         }
       } else {
-        // 3) Group learning, learn only device
         this.provisionDevice();
       }
     },
