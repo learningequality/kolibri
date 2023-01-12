@@ -157,7 +157,7 @@ export default function useSearch(descendant, store, router) {
   const more = ref(null);
   const labels = ref(null);
 
-  const { baseurl } = useDevices();
+  const { baseurl } = useDevices(store);
 
   const searchTerms = computed({
     get() {
@@ -207,11 +207,13 @@ export default function useSearch(descendant, store, router) {
   );
 
   function _setAvailableLabels(searchableLabels) {
-    set(labels, {
-      ...searchableLabels,
-      channels: searchableLabels.channels.map(c => c.id),
-      languages: searchableLabels.languages.map(l => l.id),
-    });
+    if (searchableLabels) {
+      set(labels, {
+        ...searchableLabels,
+        channels: searchableLabels.channels ? searchableLabels.channels.map(c => c.id) : [],
+        languages: searchableLabels.languages ? searchableLabels.languages.map(l => l.id) : [],
+      });
+    }
   }
 
   function search() {

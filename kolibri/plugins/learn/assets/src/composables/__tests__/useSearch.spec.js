@@ -243,6 +243,8 @@ describe(`useSearch`, () => {
       ContentNodeResource.fetchCollection = jest.fn();
       const labelsSet = {
         available: ['labels'],
+        channels: [],
+        languages: [],
       };
       ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({ labels: labelsSet }));
       set(more, { test: 'test' });
@@ -321,6 +323,8 @@ describe(`useSearch`, () => {
       const { labels, more, results, search } = prep({ categories: 'test1,test2' });
       const expectedLabels = {
         available: ['labels'],
+        channels: [],
+        languages: [],
       };
       const expectedMore = {
         cursor: 'adalskdjsadlkjsadlkjsalkd',
@@ -381,6 +385,8 @@ describe(`useSearch`, () => {
       });
       const expectedLabels = {
         available: ['labels'],
+        channels: [],
+        languages: [],
       };
       const expectedMore = {
         cursor: 'adalskdjsadlkjsadlkjsalkd',
