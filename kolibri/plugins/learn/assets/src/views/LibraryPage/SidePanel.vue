@@ -13,7 +13,6 @@
       data-test="desktop-search-side-panel"
       :width="`${sidePanelWidth}px`"
       position="embedded"
-      :activeCategories="searchTerms.categories"
       @input="val => $emit('setSearchTerms', val)"
       @currentCategory="handleCategory"
     />
@@ -43,7 +42,6 @@
         :value="searchTerms"
         :width="`${sidePanelOverlayWidth}px`"
         position="overlay"
-        :activeCategories="searchTerms.categories"
         @input="val => $emit('setSearchTerms', val)"
         @currentCategory="handleCategory"
       />
