@@ -59,10 +59,14 @@
       /** The data we will use to initialize the device during provisioning */
       deviceProvisioningData() {
         return {
-          device_name: this.wizardContext('deviceName'),
-          allow_guest_access: this.wizardContext('guestAccess'),
+          facility: null,
+          preset: null,
+          superuser: {},
           language_id: currentLanguage,
-          is_provisioned: true,
+          device_name: this.wizardContext('deviceName'),
+          settings: {},
+          allow_guest_access: this.wizardContext('guestAccess'),
+          is_provisioned: true
         };
       },
 
