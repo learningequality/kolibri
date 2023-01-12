@@ -15,6 +15,7 @@
     <FacilityNameTextbox
       v-if="selected === Presets.NONFORMAL"
       ref="facility-name"
+      v-model="facilityName"
       class="textbox"
     />
     <KRadioButton
@@ -27,6 +28,7 @@
     <FacilityNameTextbox
       v-if="selected === Presets.FORMAL"
       ref="facility-name"
+      v-model="facilityName"
       class="textbox"
     />
 
@@ -56,6 +58,7 @@
         selected = Presets.FORMAL;
       }
       return {
+        facilityName: '',
         selected,
         Presets,
       };
@@ -66,7 +69,9 @@
     inject: ['wizardService'],
     methods: {
       handleContinue() {
-        this.wizardService.send({ type: 'CONTINUE', value: this.selected });
+        this.wizardService.send(
+          { type: 'CONTINUE', value: { selected: this.selected, facilityName: this.facilityName } }
+        );
       },
       focusOnTextbox() {
         if (this.$refs && this.$refs['facility-name']) {

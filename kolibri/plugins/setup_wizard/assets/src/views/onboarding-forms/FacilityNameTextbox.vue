@@ -9,6 +9,7 @@
       :label="$tr('facilityNameFieldLabel')"
       :maxlength="50"
       @blur="validateFacilityName"
+      @input="$emit('input', facilityName)"
     />
   </div>
 
@@ -21,7 +22,7 @@
     name: 'FacilityNameTextbox',
     data() {
       return {
-        facilityName: this.$store.state.onboardingData.facility.name,
+        facilityName: '',
         fieldVisited: false,
       };
     },
