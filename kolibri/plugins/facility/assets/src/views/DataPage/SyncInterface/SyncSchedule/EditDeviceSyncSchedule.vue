@@ -156,9 +156,10 @@
 
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
-  import { NetworkLocationResource } from 'kolibri.resources';
+  import { NetworkLocationResource, FacilityResource, TaskResource } from 'kolibri.resources';
   import { now } from 'kolibri.utils.serverClock';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { TaskTypes } from 'kolibri.utils.syncTaskUtils';
   import { PageNames } from '../../../../constants';
 
   export default {
@@ -272,6 +273,28 @@
           .catch(() => {
             this.showSnackbarNotification('Device not removed');
           });
+      },
+      handleSaveSchedule() {
+        FacilityResource.fetchModel({ id: this.$store.getters.activeFacilityId, force: true }).then(
+          facility => {
+            this.facility = { ...facility };
+            const currentDate = new Date();
+            TaskResource.startTask({
+              type: TaskTypes.SYNCPEERFULL,
+              facility: this.facility.id,
+              device_id: this.device.id,
+              enqueue_args: { enqueue_at: currentDate },
+            })
+              .then(tasks => {
+                this.notifyAndWatchTask(tasks);
+                TaskResource.list({ repeating: true, que: 'falility_task' });
+              })
+              .catch(() => {
+                // this.createTaskFailedSnackbar();
+                console.log('failed');
+              });
+          }
+        );
       },
 
       cancelBtn() {

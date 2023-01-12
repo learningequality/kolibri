@@ -170,6 +170,7 @@
         data: null,
         radioBtnValue: ' ',
         newaddressclick: false,
+        deviceIds: [],
       };
     },
     computed: {
@@ -182,6 +183,7 @@
       this.fetchFacility();
       this.fetchAddressesForLOD();
       this.fetchNetworkDevice();
+      this.pollFacilityTasks();
     },
 
     methods: {
@@ -192,23 +194,17 @@
           }
         );
       },
-      fetchNetworkDevice() {
-        NetworkLocationResource.fetchCollection({ force: false }).then(data => {
-          console.log(data);
-        });
-      },
       fetchAddressesForLOD(LocationResource = NetworkLocationResource) {
         return LocationResource.fetchCollection({ force: true }).then(locations => {
           this.data = locations;
+          console.log(this.data);
         });
       },
       pollFacilityTasks() {
         TaskResource.list({ queue: 'facility_task' }).then(tasks => {
           this.myFacility = tasks;
-          console.log(this.myFacility);
           if (this.isPolling) {
             setTimeout(() => {
-              console.log(this.pollFacilityTasks);
               return this.pollFacilityTasks();
             }, 2000);
           }
@@ -220,6 +216,8 @@
       submitModal(id) {
         this.deviceModal = false;
         if (id !== ' ') {
+          this.deviceIds.push(id);
+          console.log(this.deviceIds);
           this.$router.push({ path: '/editdevice/?id=' + id });
         } else {
           return window.location.href;
