@@ -83,7 +83,6 @@
     <!-- Side Panels for filtering and searching  -->
     <SidePanel
       ref="sidePanel"
-      :labels="labels"
       :searchTerms="searchTerms"
       :mobileSidePanelIsOpen="mobileSidePanelIsOpen"
       @toggleMobileSidePanel="toggleSidePanelVisibility"
@@ -180,7 +179,6 @@
         moreLoading,
         results,
         more,
-        labels,
         search,
         searchMore,
         removeFilterTag,
@@ -218,7 +216,6 @@
         moreLoading,
         results,
         more,
-        labels,
         search,
         searchMore,
         removeFilterTag,

@@ -133,9 +133,6 @@
       <SearchPanelModal
         v-if="!windowIsLarge && sidePanelIsOpen"
         v-model="searchTerms"
-        :activeCategories="activeCategories"
-        :activeActivityButtons="activeActivityButtons"
-        :availableLabels="labels"
         :mobileSearchActive="mobileSearchActive"
         :topicMore="topicMore"
         :topics="topics"
@@ -162,12 +159,9 @@
         class="side-panel"
         topicPage="True"
         :topics="topics"
-        :activeActivityButtons="activeActivityButtons"
-        :activeCategories="activeCategories"
         :topicsLoading="topicMoreLoading"
         :more="topicMore"
         :width="`${sidePanelWidth}px`"
-        :availableLabels="labels"
         :showChannels="false"
         position="embedded"
         :style="sidePanelStyleOverrides"
@@ -194,9 +188,6 @@
           :topics="topics"
           :topicsLoading="topicMoreLoading"
           :more="topicMore"
-          :availableLabels="labels"
-          :activeActivityButtons="activeActivityButtons"
-          :activeCategories="activeCategories"
           :showChannels="false"
           position="overlay"
           @currentCategory="handleShowSearchModal"
@@ -205,7 +196,6 @@
         <CategorySearchModal
           v-if="currentCategory && windowIsSmall"
           :selectedCategory="currentCategory"
-          :availableLabels="labels"
           @cancel="currentCategory = null"
           @input="handleCategory"
         />
@@ -213,7 +203,6 @@
       <CategorySearchModal
         v-if="currentCategory"
         :selectedCategory="currentCategory"
-        :availableLabels="labels"
         @cancel="currentCategory = null"
         @input="handleCategory"
       />
@@ -338,7 +327,6 @@
         moreLoading,
         results,
         more,
-        labels,
         search,
         searchMore,
         removeFilterTag,
@@ -353,7 +341,6 @@
         moreLoading,
         results,
         more,
-        labels,
         search,
         searchMore,
         removeFilterTag,
@@ -559,18 +546,6 @@
       // calls handleScroll no more than every 17ms
       throttledTabPositionCalculation() {
         return throttle(this.tabPositionCalculation);
-      },
-      activeActivityButtons() {
-        if (this.searchTerms) {
-          return this.searchTerms.learning_activities;
-        }
-        return [];
-      },
-      activeCategories() {
-        if (this.searchTerms) {
-          return this.searchTerms.categories;
-        }
-        return [];
       },
       topicMore() {
         return this.topic && this.topic.children && this.topic.children.more;

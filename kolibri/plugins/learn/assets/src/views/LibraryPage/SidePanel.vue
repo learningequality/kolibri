@@ -12,9 +12,7 @@
       :value="searchTerms"
       data-test="desktop-search-side-panel"
       :width="`${sidePanelWidth}px`"
-      :availableLabels="labels"
       position="embedded"
-      :activeActivityButtons="searchTerms.learning_activities"
       :activeCategories="searchTerms.categories"
       @input="val => $emit('setSearchTerms', val)"
       @currentCategory="handleCategory"
@@ -44,9 +42,7 @@
         ref="embeddedPanel"
         :value="searchTerms"
         :width="`${sidePanelOverlayWidth}px`"
-        :availableLabels="labels"
         position="overlay"
-        :activeActivityButtons="searchTerms.learning_activities"
         :activeCategories="searchTerms.categories"
         @input="val => $emit('setSearchTerms', val)"
         @currentCategory="handleCategory"
@@ -56,7 +52,6 @@
         ref="searchModal"
         :selectedCategory="currentCategory"
         :numCols="numCols"
-        :availableLabels="labels"
         position="fullscreen"
         @cancel="currentCategory = null"
         @input="category => $emit('setCategory', category)"
@@ -70,7 +65,6 @@
       ref="searchModal"
       :selectedCategory="currentCategory"
       :numCols="numCols"
-      :availableLabels="labels"
       position="modal"
       @cancel="currentCategory = null"
       @input="category => $emit('setCategory', category)"
@@ -139,10 +133,6 @@
       };
     },
     props: {
-      labels: {
-        type: Object,
-        default: () => {},
-      },
       mobileSidePanelIsOpen: {
         type: Boolean,
         default: false,

@@ -1,9 +1,122 @@
 import { get, set } from '@vueuse/core';
-import { computed, getCurrentInstance, ref, watch } from 'kolibri.lib.vueCompositionApi';
+import invert from 'lodash/invert';
+import pick from 'lodash/pick';
+import uniq from 'lodash/uniq';
+import {
+  computed,
+  getCurrentInstance,
+  inject,
+  provide,
+  ref,
+  watch,
+} from 'kolibri.lib.vueCompositionApi';
 import { ContentNodeResource } from 'kolibri.resources';
-import { AllCategories, NoCategories } from 'kolibri.coreVue.vuex.constants';
+import {
+  AllCategories,
+  Categories,
+  CategoriesLookup,
+  ContentLevels,
+  AccessibilityCategories,
+  LearningActivities,
+  NoCategories,
+  ResourcesNeededTypes,
+} from 'kolibri.coreVue.vuex.constants';
 import { deduplicateResources } from '../utils/contentNode';
 import useContentNodeProgress from './useContentNodeProgress';
+import plugin_data from 'plugin_data';
+
+const activitiesLookup = invert(LearningActivities);
+
+const learningActivitiesShown = {};
+
+(plugin_data.learningActivities || []).map(id => {
+  const key = activitiesLookup[id];
+  learningActivitiesShown[key] = id;
+});
+
+const resourcesNeededShown = ['FOR_BEGINNERS', 'PEOPLE', 'PAPER_PENCIL', 'INTERNET', 'MATERIALS'];
+
+const resourcesNeeded = {};
+resourcesNeededShown.map(key => {
+  const value = ResourcesNeededTypes[key];
+  if ((plugin_data.learnerNeeds || []).includes(value)) {
+    resourcesNeeded[key] = value;
+  }
+});
+
+const gradeLevelsList = Object.keys(ContentLevels).filter(key => {
+  const value = ContentLevels[key];
+  return (get(plugin_data, 'gradeLevels', []) || []).includes(value);
+});
+
+const accessibilityOptionsList = Object.keys(AccessibilityCategories).filter(key => {
+  const value = AccessibilityCategories[key];
+  return (get(plugin_data, 'accessibilityLabels', []) || []).includes(value);
+});
+
+const languagesList = get(plugin_data, 'languages', []) || [];
+
+const channelsList = get(plugin_data, 'channels', []) || [];
+
+const libraryCategoriesList = pick(
+  CategoriesLookup,
+  uniq((plugin_data.categories || []).map(key => key.split('.')[0]))
+);
+
+const libraryCategories = {};
+
+const availablePaths = {};
+
+(plugin_data.categories || []).map(key => {
+  const paths = key.split('.');
+  let path = '';
+  for (let path_segment of paths) {
+    path = path === '' ? path_segment : path + '.' + path_segment;
+    availablePaths[path] = true;
+  }
+});
+// Create a nested object representing the hierarchy of categories
+for (let value of Object.values(Categories)
+  // Sort by the length of the key path to deal with
+  // shorter key paths first.
+  .sort((a, b) => a.length - b.length)) {
+  // Split the value into the paths so we can build the object
+  // down the path to create the nested representation
+  const ids = value.split('.');
+  // Start with an empty path
+  let path = '';
+  // Start with the global object
+  let nested = libraryCategories;
+  for (let fragment of ids) {
+    // Add the fragment to create the path we examine
+    path += fragment;
+    // Check to see if this path is one of the paths
+    // that is available on this device
+    if (availablePaths[path]) {
+      // Lookup the human readable key for this path
+      const nestedKey = CategoriesLookup[path];
+      // Check if we have already represented this in the object
+      if (!nested[nestedKey]) {
+        // If not, add an object representing this category
+        nested[nestedKey] = {
+          // The value is the whole path to this point, so the value
+          // of the key.
+          value: path,
+          // Nested is an object that contains any subsidiary categories
+          nested: {},
+        };
+      }
+      // For the next stage of the loop the relevant object to edit is
+      // the nested object under this key.
+      nested = nested[nestedKey].nested;
+      // Add '.' to path so when we next append to the path,
+      // it is properly '.' separated.
+      path += '.';
+    } else {
+      break;
+    }
+  }
+}
 
 export const searchKeys = [
   'learning_activities',
@@ -195,6 +308,30 @@ export default function useSearch(descendant, store, router) {
     return deduplicateResources(get(_results));
   });
 
+  // Globally available metadata labels
+  // These are the labels that are available globally for this search context
+  // These labels may be disabled for specific searches within a search context
+  // We use provide/inject here to allow a parent
+  // component to setup the available labels for child components
+  // to consume them.
+
+  provide('availableLearningActivities', learningActivitiesShown);
+  provide('availableLibraryCategories', libraryCategoriesList);
+  provide('availableLibraryCategoriesLookup', libraryCategories);
+  provide('availableResourcesNeeded', resourcesNeeded);
+  provide('availableGradeLevels', gradeLevelsList);
+  provide('availableAccessibilityOptions', accessibilityOptionsList);
+  provide('availableLanguages', languagesList);
+  provide('availableChannels', channelsList);
+
+  // Provide an object of searchable labels
+  // This is a manifest of all the labels that could still be selected and produce search results
+  // given the currently applied search filters.
+  provide('searchableLabels', labels);
+
+  // Currently selected search terms
+  provide('activeSearchTerms', searchTerms);
+
   return {
     currentRoute,
     searchTerms,
@@ -209,5 +346,34 @@ export default function useSearch(descendant, store, router) {
     removeFilterTag,
     clearSearch,
     setCategory,
+  };
+}
+
+/*
+ * Helper function to retrieve references for provided properties
+ * from an ancestor's use of useSearch
+ */
+export function injectSearch() {
+  const availableLearningActivities = inject('availableLearningActivities');
+  const availableLibraryCategories = inject('availableLibraryCategories');
+  const availableLibraryCategoriesLookup = inject('availableLibraryCategoriesLookup');
+  const availableResourcesNeeded = inject('availableResourcesNeeded');
+  const availableGradeLevels = inject('availableGradeLevels');
+  const availableAccessibilityOptions = inject('availableAccessibilityOptions');
+  const availableLanguages = inject('availableLanguages');
+  const availableChannels = inject('availableChannels');
+  const searchableLabels = inject('searchableLabels');
+  const activeSearchTerms = inject('activeSearchTerms');
+  return {
+    availableLearningActivities,
+    availableLibraryCategories,
+    availableLibraryCategoriesLookup,
+    availableResourcesNeeded,
+    availableGradeLevels,
+    availableAccessibilityOptions,
+    availableLanguages,
+    availableChannels,
+    searchableLabels,
+    activeSearchTerms,
   };
 }
