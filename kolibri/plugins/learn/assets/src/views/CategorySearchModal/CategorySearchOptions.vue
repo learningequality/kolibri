@@ -68,9 +68,9 @@
     name: 'CategorySearchOptions',
     mixins: [commonCoreStrings, responsiveWindowMixin],
     setup() {
-      const { availableLibraryCategoriesLookup, searchableLabels } = injectSearch();
+      const { availableLibraryCategories, searchableLabels } = injectSearch();
       return {
-        availableLibraryCategoriesLookup,
+        availableLibraryCategories,
         searchableLabels,
       };
     },
@@ -98,10 +98,10 @@
         return null;
       },
       topLevelCategory() {
-        return this.availableLibraryCategoriesLookup[this.selectedCategory];
+        return this.availableLibraryCategories[this.selectedCategory];
       },
       displaySelectedCategories() {
-        return this.availableLibraryCategoriesLookup[this.selectedCategory].nested;
+        return this.availableLibraryCategories[this.selectedCategory].nested;
       },
       appearanceOverrides() {
         return {

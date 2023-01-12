@@ -48,12 +48,12 @@
         <!-- list of category metadata - clicking prompts a filter modal -->
         <div
           v-for="(category, key) in availableLibraryCategories"
-          :key="category"
+          :key="key"
           span="4"
           class="category-list-item"
         >
           <KButton
-            :text="coreString(key)"
+            :text="coreString(category.value)"
             appearance="flat-button"
             :appearanceOverrides="isKeyActive(key)
               ? { ...categoryListItemStyles, ...categoryListItemActiveStyles }
@@ -61,8 +61,8 @@
             :disabled="availableRootCategories &&
               !availableRootCategories[key] &&
               !isKeyActive(key)"
-            :iconAfter="hasNestedCategories(category) ? 'chevronRight' : null"
-            @click="handleCategory(category)"
+            :iconAfter="hasNestedCategories(key) ? 'chevronRight' : null"
+            @click="handleCategory(key)"
           />
         </div>
         <div
@@ -140,14 +140,12 @@
       const { genContentLinkBackLinkCurrentPage } = useContentLink();
       const {
         availableLibraryCategories,
-        availableLibraryCategoriesLookup,
         availableResourcesNeeded,
         searchableLabels,
         activeSearchTerms,
       } = injectSearch();
       return {
         availableLibraryCategories,
-        availableLibraryCategoriesLookup,
         availableResourcesNeeded,
         genContentLinkBackLinkCurrentPage,
         searchableLabels,
@@ -270,7 +268,7 @@
         this.$emit('input', { ...this.value, categories: { [NoCategories]: true } });
       },
       hasNestedCategories(category) {
-        return Object.keys(this.availableLibraryCategoriesLookup[category].nested).length > 0;
+        return Object.keys(this.availableLibraryCategories[category].nested).length > 0;
       },
       handleActivity(activity) {
         if (activity && !this.value.learning_activities[activity]) {
@@ -304,19 +302,19 @@
       handleCategory(category) {
         // for categories with sub-categories, open the modal
         if (
-          this.availableLibraryCategoriesLookup[category] &&
-          this.availableLibraryCategoriesLookup[category].nested &&
-          Object.keys(this.availableLibraryCategoriesLookup[category].nested).length > 0
+          this.availableLibraryCategories[category] &&
+          this.availableLibraryCategories[category].nested &&
+          Object.keys(this.availableLibraryCategories[category].nested).length > 0
         ) {
           this.$emit('currentCategory', category);
         }
         // for valid categories with no subcategories, search directly
-        else if (this.availableLibraryCategoriesLookup[category]) {
+        else if (this.availableLibraryCategories[category]) {
           this.$emit('input', {
             ...this.value,
             // This parallels the behaviour of setCategory in the useSearch
             // composable - where category selection is mutually exclusive.
-            categories: { [this.availableLibraryCategoriesLookup[category].value]: true },
+            categories: { [this.availableLibraryCategories[category].value]: true },
           });
         }
       },

@@ -1,7 +1,5 @@
 import { get, set } from '@vueuse/core';
 import invert from 'lodash/invert';
-import pick from 'lodash/pick';
-import uniq from 'lodash/uniq';
 import {
   computed,
   getCurrentInstance,
@@ -58,10 +56,6 @@ const languagesList = get(plugin_data, 'languages', []) || [];
 
 const channelsList = get(plugin_data, 'channels', []) || [];
 
-const libraryCategoriesList = pick(
-  CategoriesLookup,
-  uniq((plugin_data.categories || []).map(key => key.split('.')[0]))
-);
 
 const libraryCategories = {};
 
@@ -316,8 +310,7 @@ export default function useSearch(descendant, store, router) {
   // to consume them.
 
   provide('availableLearningActivities', learningActivitiesShown);
-  provide('availableLibraryCategories', libraryCategoriesList);
-  provide('availableLibraryCategoriesLookup', libraryCategories);
+  provide('availableLibraryCategories', libraryCategories);
   provide('availableResourcesNeeded', resourcesNeeded);
   provide('availableGradeLevels', gradeLevelsList);
   provide('availableAccessibilityOptions', accessibilityOptionsList);
@@ -356,7 +349,6 @@ export default function useSearch(descendant, store, router) {
 export function injectSearch() {
   const availableLearningActivities = inject('availableLearningActivities');
   const availableLibraryCategories = inject('availableLibraryCategories');
-  const availableLibraryCategoriesLookup = inject('availableLibraryCategoriesLookup');
   const availableResourcesNeeded = inject('availableResourcesNeeded');
   const availableGradeLevels = inject('availableGradeLevels');
   const availableAccessibilityOptions = inject('availableAccessibilityOptions');
@@ -367,7 +359,6 @@ export function injectSearch() {
   return {
     availableLearningActivities,
     availableLibraryCategories,
-    availableLibraryCategoriesLookup,
     availableResourcesNeeded,
     availableGradeLevels,
     availableAccessibilityOptions,
