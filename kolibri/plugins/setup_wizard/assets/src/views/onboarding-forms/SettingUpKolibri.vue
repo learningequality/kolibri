@@ -59,8 +59,8 @@
       /** The data we will use to initialize the device during provisioning */
       deviceProvisioningData() {
         return {
-          device_name: this.wizardService.state.context.deviceName,
-          allow_guest_access: this.wizardService.state.context.guestAccess,
+          device_name: this.wizardContext('deviceName'),
+          allow_guest_access: this.wizardContext('guestAccess'),
           language_id: currentLanguage,
           is_provisioned: true,
         };
@@ -74,9 +74,13 @@
           full_name,
           username,
           password,
-          facility_name: this.$store.state.onboardingData.facility.name || null,
+          facility_name: this.wizardContext('facilityName'),
           facility_dataset: {
-            learner_can_login_with_no_password: this.wizardService.state.context.requirePassword,
+            // TODO Make the key names on FacilityDataset map properly to the actual questions we ask
+            // The question here was "enable passwords?" so a `yes` there means `no` here:
+            learner_can_login_with_no_password: !this.wizardContext('requirePassword'),
+            learner_can_sign_up: this.wizardContext('learnerCanCreateAccount'),
+            preset: this.wizardContext('formalOrNonformal'),
           },
           extra_fields: {
             on_my_own_setup: this.isOnMyOwnSetup,
@@ -88,16 +92,16 @@
 
       /** Introspecting the machine via it's `state.context` properties */
       isOnMyOwnSetup() {
-        return this.wizardService.state.context.onMyOwnOrGroup == UsePresets.ON_MY_OWN;
+        return this.wizardContext('onMyOwnOrGroup') == UsePresets.ON_MY_OWN;
       },
       canGetOsUser() {
-        return this.wizardService.state.context.canGetOsUser;
+        return this.wizardContext('canGetOsUser');
       },
       isNewFacility() {
-        return this.wizardService.state.context.facilityNewOrImport === FacilityTypePresets.NEW;
+        return this.wizardContext('facilityNewOrImport') === FacilityTypePresets.NEW;
       },
       isLearnOnlyDevice() {
-        return this.wizardService.state.context.fullOrLOD === DeviceTypePresets.LOD;
+        return this.wizardContext('fullOrLOD') === DeviceTypePresets.LOD;
       },
     },
     mounted() {
@@ -124,6 +128,10 @@
       }
     },
     methods: {
+      // A helper for readability
+      wizardContext(key) {
+        return this.wizardService.state.context[key];
+      },
       createAndProvisionOnMyOwnUserDevice() {
         SetupWizardResource.createonmyownuser(this.facilityUserData).then(() =>
           this.provisionDevice()

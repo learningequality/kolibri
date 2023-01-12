@@ -50,11 +50,12 @@ import { assign, createMachine } from 'xstate';
 const initialContext = {
   onMyOwnOrGroup: null,
   facilityNewOrImport: null,
+  facilityName: '',
   fullOrLOD: null,
   deviceName: 'default-device-name',
   formalOrNonformal: null,
   guestAccess: null,
-  createLearnerAccount: null,
+  learnerCanCreateAccount: null,
   requirePassword: null,
   selectedFacility: null,
   importDeviceId: null,
@@ -68,7 +69,7 @@ export const wizardMachine = createMachine(
     initial: 'initializeContext',
     context: initialContext,
     on: {
-      START_OVER: { target: 'howAreYouUsingKolibri', action: 'resetContext' },
+      START_OVER: { target: 'howAreYouUsingKolibri', actions: 'resetContext' },
     },
     states: {
       // This state will be the start so the machine won't progress until
@@ -193,7 +194,7 @@ export const wizardMachine = createMachine(
       setFacilityPermissions: {
         meta: { route: { name: 'FACILITY_PERMISSIONS' } },
         on: {
-          CONTINUE: { target: 'guestAccess', actions: 'setFormalOrNonformal' },
+          CONTINUE: { target: 'guestAccess', actions: 'setFacilityTypeAndName' },
           BACK: 'fullDeviceNewOrImportFacility',
         },
       },
@@ -207,14 +208,14 @@ export const wizardMachine = createMachine(
       createLearnerAccount: {
         meta: { route: { name: 'CREATE_LEARNER_ACCOUNT' } },
         on: {
-          CONTINUE: { target: 'requirePassword', action: 'setCreateLearnerAccount' },
+          CONTINUE: { target: 'requirePassword', actions: 'setLearnerCanCreateAccount' },
           BACK: 'guestAccess',
         },
       },
       requirePassword: {
         meta: { route: { name: 'REQUIRE_PASSWORD' } },
         on: {
-          CONTINUE: { target: 'personalDataConsent', action: 'setRequirePassword' },
+          CONTINUE: { target: 'personalDataConsent', actions: 'setRequirePassword' },
           BACK: 'createLearnerAccount',
         },
       },
@@ -357,14 +358,15 @@ export const wizardMachine = createMachine(
         selectedFacility: () => null,
         importDeviceId: () => null,
       }),
-      setFormalOrNonformal: assign({
-        formalOrNonformal: (_, event) => event.value,
+      setFacilityTypeAndName: assign({
+        formalOrNonformal: (_, event) => event.value.selected,
+        facilityName: (_, event) => event.value.facilityName,
       }),
       setGuestAccess: assign({
         guestAccess: (_, event) => event.value,
       }),
-      setCreateLearnerAccount: assign({
-        createLearnerAccount: (_, event) => event.value,
+      setLearnerCanCreateAccount: assign({
+        learnerCanCreateAccount: (_, event) => event.value,
       }),
       setRequirePassword: assign({
         requirePassword: (_, event) => event.value,
