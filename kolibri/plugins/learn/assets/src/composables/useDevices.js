@@ -2,25 +2,22 @@
  * A composable function containing logic related to channels
  */
 
-import { computed, getCurrentInstance, reactive } from 'kolibri.lib.vueCompositionApi';
+import { computed, getCurrentInstance, ref } from 'kolibri.lib.vueCompositionApi';
 import { NetworkLocationResource } from 'kolibri.resources';
 import { get, set } from '@vueuse/core';
 
 // The refs are defined in the outer scope so they can be used as a shared store
-const deviceMap = reactive({});
+const currentDevice = ref(null);
 
 function fetchDevices() {
   return NetworkLocationResource.list().then(devices => {
-    for (let device of devices) {
-      set(deviceMap, device.id, device);
-    }
     return devices;
   });
 }
 
-export function fetchDevice(id) {
+export function setCurrentDevice(id) {
   return NetworkLocationResource.fetchModel({ id }).then(device => {
-    set(deviceMap, device.id, device);
+    set(currentDevice, device);
     return device;
   });
 }
@@ -31,8 +28,8 @@ export default function useDevices(store) {
   const baseurl = computed(() => {
     const params = get(route) && get(route).params;
     const deviceId = params && params.deviceId;
-    const device = get(deviceMap)[deviceId];
-    if (device) {
+    const device = get(currentDevice);
+    if (device && device.id === deviceId) {
       return device.base_url;
     }
     return;
@@ -40,7 +37,7 @@ export default function useDevices(store) {
 
   return {
     fetchDevices,
-    fetchDevice,
+    setCurrentDevice,
     baseurl,
   };
 }

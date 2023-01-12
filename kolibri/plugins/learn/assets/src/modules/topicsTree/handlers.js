@@ -4,7 +4,7 @@ import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import router from 'kolibri.coreVue.router';
 import { PageNames } from '../../constants';
 import useChannels from '../../composables/useChannels';
-import { fetchDevice } from '../../composables/useDevices';
+import { setCurrentDevice } from '../../composables/useDevices';
 import useContentNodeProgress from '../../composables/useContentNodeProgress';
 import { _collectionState, contentState } from '../coreLearn/utils';
 
@@ -39,7 +39,7 @@ export function showTopicsContent(store, id, deviceId = null) {
   store.commit('CORE_SET_PAGE_LOADING', true);
   store.commit('SET_PAGE_NAME', PageNames.TOPICS_CONTENT);
   if (deviceId) {
-    return fetchDevice(deviceId).then(device => {
+    return setCurrentDevice(deviceId).then(device => {
       const baseurl = device.base_url;
       return fetchChannels({ baseurl }).then(() => {
         return _loadTopicsContent(store, id, baseurl);
@@ -117,7 +117,7 @@ export function showTopicsTopic(store, { id, pageName, query, deviceId = null } 
   return store.dispatch('loading').then(() => {
     store.commit('SET_PAGE_NAME', pageName);
     if (deviceId) {
-      return fetchDevice(deviceId).then(device => {
+      return setCurrentDevice(deviceId).then(device => {
         const baseurl = device.base_url;
         return fetchChannels({ baseurl }).then(() => {
           return _loadTopicsTopic(store, { id, pageName, query, baseurl });

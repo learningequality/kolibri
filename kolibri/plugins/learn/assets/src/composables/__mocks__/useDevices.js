@@ -33,7 +33,7 @@
 
 const MOCK_DEFAULTS = {
   fetchDevices: jest.fn(() => Promise.resolve([])),
-  fetchDevice: jest.fn(() => Promise.resolve(null)),
+  setCurrentDevice: jest.fn(() => Promise.resolve(null)),
   baseurl: null,
 };
 

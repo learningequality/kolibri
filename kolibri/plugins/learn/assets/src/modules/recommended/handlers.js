@@ -3,7 +3,7 @@ import { ContentNodeResource } from 'kolibri.resources';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import { PageNames } from '../../constants';
 import useChannels from '../../composables/useChannels';
-import { fetchDevice } from '../../composables/useDevices';
+import { setCurrentDevice } from '../../composables/useDevices';
 import useLearnerResources from '../../composables/useLearnerResources';
 import { searchKeys } from '../../composables/useSearch';
 import { _collectionState } from '../coreLearn/utils';
@@ -79,7 +79,7 @@ function _showLibrary(store, query, channels, baseurl) {
 
 export function showLibrary(store, query, deviceId = null) {
   if (deviceId) {
-    return fetchDevice(deviceId).then(device => {
+    return setCurrentDevice(deviceId).then(device => {
       const baseurl = device.base_url;
       return fetchChannels({ baseurl }).then(channels => {
         return _showLibrary(store, query, channels, baseurl);
