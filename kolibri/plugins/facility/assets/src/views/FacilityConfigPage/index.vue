@@ -67,28 +67,17 @@
           </div>
 
           <div>
-            <KButtonGroup style="margin-top: 8px;">
-              <KButton
-                :primary="false"
-                appearance="raised-button"
-                :text="$tr('resetToDefaultSettings')"
 
-                name="reset-settings"
-                @click="showModal = true"
-              />
-
-              <KButton
-                :primary="true"
-                :class="windowIsSmall ? 'mobile-button' : ''"
-                appearance="raised-button"
-                :text="coreString('saveChangesAction')"
-                name="save-settings"
-
-                :disabled="!settingsHaveChanged"
-                @click="saveConfig()"
-              />
-            </KButtonGroup>
           </div>
+        </div>
+
+        <div class="">
+          <h2>{{ $tr('deviceManagementPin') }}</h2>
+
+          <p>{{ $tr('deviceManagementDescription') }}</p>
+          <KButton @click="handlecreatePin">
+            {{ $tr('createPinBtn') }}
+          </KButton>
         </div>
       </template>
 
@@ -106,7 +95,36 @@
         @submit="sendFacilityName"
         @cancel="showEditFacilityModal = false"
       />
+
+      <CreateManagementPinModal
+        v-if="CreatePinShow"
+        @submit="CreatePinShow = false"
+        @cancel="CreatePinShow = false"
+      />
+
     </KPageContainer>
+
+    <BottomAppBar>
+      <KButtonGroup style="margin-top: 8px;">
+        <KButton
+          :primary="false"
+          appearance="flat-button"
+          :text="$tr('resetToDefaultSettings')"
+          name="reset-settings"
+          @click="showModal = true"
+        />
+
+        <KButton
+          :primary="true"
+          :class="windowIsSmall ? 'mobile-button' : ''"
+          appearance="raised-button"
+          :text="coreString('saveChangesAction')"
+          name="save-settings"
+          :disabled="!settingsHaveChanged"
+          @click="saveConfig()"
+        />
+      </KButtonGroup>
+    </BottomAppBar>
   </FacilityAppBarPage>
 
 </template>
@@ -121,9 +139,11 @@
   import isEqual from 'lodash/isEqual';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import urls from 'kolibri.urls';
+  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import ConfirmResetModal from './ConfirmResetModal';
   import EditFacilityNameModal from './EditFacilityNameModal';
+  import CreateManagementPinModal from './CreateManagementPinModal';
 
   // See FacilityDataset in core.auth.models for details
   const settingsList = [
@@ -146,6 +166,8 @@
       FacilityAppBarPage,
       ConfirmResetModal,
       EditFacilityNameModal,
+      BottomAppBar,
+      CreateManagementPinModal,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
     data() {
@@ -153,6 +175,7 @@
         showModal: false,
         showEditFacilityModal: false,
         settingsCopy: {},
+        CreatePinShow: false,
       };
     },
     computed: {
@@ -247,6 +270,9 @@
       copySettings() {
         this.settingsCopy = Object.assign({}, this.settings);
       },
+      handlecreatePin() {
+        this.CreatePinShow = true;
+      },
     },
     $trs: {
       // These are not going to be picked up by the linter because snake cased versions
@@ -298,6 +324,19 @@
       documentTitle: {
         message: 'Facility Settings',
         context: 'Title of page where user can configure facility settings.',
+      },
+      deviceManagementPin: {
+        message: 'Device management PIN',
+        context: 'The title for the device management pin',
+      },
+      deviceManagementDescription: {
+        message:
+          'This 4-digit PIN allows users to manage content and other settings on learn-only devices',
+        context: 'Description for the device management',
+      },
+      createPinBtn: {
+        message: 'CREATE PIN',
+        context: 'Button for the create pin',
       },
     },
   };
