@@ -134,7 +134,6 @@ describe('CurrentlyViewedResourceMetadata', () => {
     );
 
     it('does not show the forBeginners chip when one of LearnerNeeds is FOR_BEGINNERS', () => {
-      console.log(wrapper.vm.forBeginners);
       expect(wrapper.find("[data-test='beginners-chip']").exists()).toBeFalsy();
     });
 
