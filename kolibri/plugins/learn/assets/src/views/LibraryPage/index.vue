@@ -44,6 +44,24 @@
           @setCardStyle="style => currentCardViewStyle = style"
           @setSidePanelMetadataContent="content => metadataSidePanelContent = content"
         />
+        <template v-if="!baseurl">
+          <p
+            v-for="device in devices"
+            :key="device.id"
+          >
+            <KRouterLink
+              :text="device.nickname.length ? device.nickname : device.device_name"
+              :to="{ name: 'LIBRARY', params: { deviceId: device.id } }"
+              appearance="basic-link"
+            />
+          </p>
+        </template>
+        <KRouterLink
+          v-else
+          :text="learnString('libraryLabel')"
+          :to="{ name: 'LIBRARY' }"
+          appearance="basic-link"
+        />
       </div>
 
       <SearchResultsGrid
@@ -124,6 +142,7 @@
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import SidePanelModal from '../SidePanelModal';
   import useCardViewStyle from '../../composables/useCardViewStyle';
+  import useDevices from '../../composables/useDevices';
   import useSearch from '../../composables/useSearch';
   import useLearnerResources from '../../composables/useLearnerResources';
   import BrowseResourceMetadata from '../BrowseResourceMetadata';
@@ -190,6 +209,8 @@
 
       const { currentCardViewStyle } = useCardViewStyle();
 
+      const { baseurl, fetchDevices } = useDevices();
+
       return {
         displayingSearchResults,
         searchTerms,
@@ -211,6 +232,8 @@
         windowIsMedium,
         windowIsSmall,
         currentCardViewStyle,
+        baseurl,
+        fetchDevices,
       };
     },
     props: {
@@ -223,6 +246,7 @@
       return {
         metadataSidePanelContent: null,
         mobileSidePanelIsOpen: false,
+        devices: [],
       };
     },
     computed: {
@@ -257,6 +281,9 @@
     created() {
       this.search();
       this.translator = crossComponentTranslator(FilterTextbox);
+      this.fetchDevices().then(devices => {
+        this.devices = devices.filter(d => d.available);
+      });
     },
     methods: {
       findFirstEl() {

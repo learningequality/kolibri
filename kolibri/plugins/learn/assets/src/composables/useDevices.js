@@ -9,8 +9,8 @@ import { get, set } from '@vueuse/core';
 // The refs are defined in the outer scope so they can be used as a shared store
 const deviceMap = reactive({});
 
-function fetchDevices(params) {
-  return NetworkLocationResource.list(params).then(devices => {
+function fetchDevices() {
+  return NetworkLocationResource.list().then(devices => {
     for (let device of devices) {
       set(deviceMap, device.id, device);
     }

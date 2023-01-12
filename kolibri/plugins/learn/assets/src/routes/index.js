@@ -44,8 +44,7 @@ function hydrateHomePage() {
   });
 }
 
-const optionalDeviceIdPathSegment =
-  '/:deviceId([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})?';
+const optionalDeviceIdPathSegment = '/:deviceId([a-f0-9]{32})?';
 
 export default [
   {
