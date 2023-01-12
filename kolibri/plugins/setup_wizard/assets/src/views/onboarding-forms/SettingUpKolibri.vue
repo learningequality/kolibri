@@ -14,7 +14,7 @@
       v-if="devMode"
       style="
         z-index: 9999;
-        position: fixed;
+        position: absolute;
         left: 1em;
         right: 1em;
         bottom: 1em;
@@ -23,6 +23,7 @@
         padding: 2em;
         color: white;
         font-weight: bold;
+        overflow: auto;
       "
     >
       <h2>Setup Wizard Debugger 3000</h2>
@@ -30,9 +31,18 @@
       <pre>{{ JSON.stringify(deviceProvisioningData, null, 2) }}</pre>
       <h3>Facility User Data</h3>
       <pre>{{ JSON.stringify(facilityUserData, null, 2) }}</pre>
-      <KButton primary @click="wizardService.send('START_OVER')">
-        Start Over
-      </KButton>
+      <KButton
+        primary
+        style="
+          position: fixed;
+          top: 2em;
+          right: 3em;
+        "
+        icon="back"
+        iconAfter="back"
+        text="START OVER"
+        @click="wizardService.send('START_OVER')"
+      />
     </div>
   </div>
 
