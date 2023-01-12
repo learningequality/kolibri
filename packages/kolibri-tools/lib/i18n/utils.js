@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const glob = require('glob');
-const parseCsvSync = require('csv-parse/lib/sync');
+const parseCsvSync = require('csv-parse/sync');
 const { lint } = require('kolibri-tools/lib/lint');
 
 function writeSourceToFile(filePath, fileSource) {
