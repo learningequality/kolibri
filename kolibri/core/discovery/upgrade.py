@@ -4,6 +4,9 @@ A file to contain specific logic to handle version upgrades in Kolibri.
 import logging
 
 from django.db import connection
+from django.db.models import F
+from django.db.models import Func
+from django.db.models import Value
 from django.db.utils import OperationalError
 from django.db.utils import ProgrammingError
 
@@ -41,3 +44,19 @@ def move_network_location_entries():
         # this may happen if we are upgrading from a version before the NetworkLocation model existed
         # and so the default database never had these migrations run on it.
         pass
+
+
+@version_upgrade(old_version="<0.16.0")
+def correct_static_network_location_ids():
+    """
+    Update network location ids to be uniformly hyphenless uuids
+    """
+
+    NetworkLocation.objects.all().update(
+        id=Func(
+            F("id"),
+            Value("-"),
+            Value(""),
+            function="replace",
+        )
+    )
