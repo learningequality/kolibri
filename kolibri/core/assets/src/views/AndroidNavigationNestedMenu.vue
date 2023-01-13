@@ -23,7 +23,7 @@
 
         <div v-if="userIsLearner" class="user-information">
           <!-- display user details -->
-          <TotalPoints class="points" />
+          <!-- <TotalPoints class="points" /> -->
           <b>{{ fullName }}</b>
           <p
             :style="{
@@ -52,6 +52,7 @@
           role="navigation"
           :style="{ backgroundColor: $themeTokens.surface }"
           :aria-label="$tr('navigationLabel')"
+          @close="$emit('close')"
         >
           <template #options>
             <component :is="component" v-for="component in menuOptions" :key="component.name" />
@@ -175,7 +176,6 @@
   import Backdrop from 'kolibri.coreVue.components.Backdrop';
   import LanguageSwitcherModal from 'kolibri.coreVue.components.LanguageSwitcherModal';
   import navComponentsMixin from '../mixins/nav-components';
-  import TotalPoints from '../../../../plugins/learn/assets/src/views/TotalPoints.vue';
   import SyncStatusDisplay from './SyncStatusDisplay';
   import logout from './LogoutSideNavEntry';
   import SideNavDivider from './SideNavDivider';
@@ -204,7 +204,7 @@
       SideNavDivider,
       PrivacyInfoModal,
       FocusTrap,
-      TotalPoints,
+      // TotalPoints,
       LanguageSwitcherModal,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin, responsiveElementMixin, navComponentsMixin],
@@ -287,17 +287,13 @@
         this.$emit('shouldFocusFirstEl');
       });
     },
-    created() {
-      window.addEventListener('click', this.handleWindowClick);
-    },
     beforeDestroy() {
-      window.removeEventListener('click', this.handleWindowClick);
       this.isPolling = false;
     },
     methods: {
       ...mapActions(['fetchUserSyncStatus']),
       toggleNav() {
-        this.$emit('toggleSideNav');
+        this.$emit('toggleBottomNav');
       },
       handleShowLanguageModal() {
         this.languageModalShown = true;

@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div v-if="mainDisplay">
     <CoreMenuOption
       ref="firstMenu"
       :label="learnString('learnLabel')"
@@ -17,6 +17,22 @@
         </a>
       </div>
     </div>
+  </div>
+  <div v-else class="bottom-bar">
+    <span v-for="(link, key) in routes" :key="key">
+      <a :href="link.route" tabindex="-1">
+        <KIconButton
+          :icon="link.icon"
+          :color="$themeTokens.primary"
+          :ariaLabel="link.text"
+        />
+      </a>
+    </span>
+    <KIconButton
+      icon="menu"
+      :color="$themeTokens.primary"
+      @click="toggleAndroidMenu"
+    />
   </div>
 
 </template>
@@ -39,6 +55,13 @@
     components: {
       CoreMenuOption,
     },
+    props: {
+      mainDisplay: {
+        type: Boolean,
+        default: true,
+        required: false,
+      },
+    },
     data() {
       return {
         visibleSubMenu: false,
@@ -53,14 +76,17 @@
         return {
           home: {
             text: this.coreString('homeLabel'),
+            icon: 'dashboard',
             route: this.generateSideNavRoute(LearnPageNames.HOME),
           },
           library: {
             text: this.coreString('libraryLabel'),
+            icon: 'library',
             route: this.generateSideNavRoute(LearnPageNames.LIBRARY),
           },
           bookmarks: {
             text: this.coreString('bookmarksLabel'),
+            icon: 'bookmark',
             route: this.generateSideNavRoute(LearnPageNames.BOOKMARKS),
           },
         };
@@ -86,6 +112,9 @@
       generateSideNavRoute(route) {
         return generateSideNavRoute(this.url, route);
       },
+      toggleAndroidMenu() {
+        this.$emit('toggleAndroidMenu');
+      },
     },
     priority: 10,
   };
@@ -99,6 +128,8 @@
 
 <style lang="scss" scoped>
 
+  @import '~kolibri-design-system/lib/styles/definitions';
+
   .link-container {
     height: 44px;
   }
@@ -108,9 +139,24 @@
     align-items: center;
     justify-content: flex-start;
     height: 44px;
-    margin-left: 40px;
+    margin: 0 40px;
     font-size: 12px;
     text-decoration: none;
+  }
+
+  .bottom-bar {
+    @extend %dropshadow-4dp;
+
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 12;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-around;
+    height: 48px;
+    background-color: white;
   }
 
 </style>

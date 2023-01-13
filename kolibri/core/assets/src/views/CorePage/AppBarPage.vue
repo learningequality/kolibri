@@ -45,9 +45,9 @@
     />
 
     <AppBottomBar
-      v-if="isAppContext"
-      class="bottom-bar"
-      :navigationLinks="links"
+      ref="sideNav"
+      class="android-nav-bottom-bar"
+      :navShown="true"
     />
 
   </div>
@@ -63,15 +63,11 @@
   import SideNav from 'kolibri.coreVue.components.SideNav';
   import { LearnerDeviceStatus } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import urls from 'kolibri.urls';
   import AppBottomBar from '../AppBottomBar';
-  import generateSideNavRoute from '../../../../../plugins/learn/assets/src/appNavigationRoutes';
   import AppBar from '../AppBar';
   import StorageNotification from '../StorageNotification';
   import useUserSyncStatus from '../../composables/useUserSyncStatus';
   import plugin_data from 'plugin_data';
-  import { PageNames } from './../../../../../plugins/learn/assets/src/constants';
-  import commonLearnStrings from './../../../../../plugins/learn/assets/src/views/commonLearnStrings';
 
   export default {
     name: 'AppBarPage',
@@ -85,7 +81,7 @@
         userDeviceStatus,
       };
     },
-    mixins: [commonCoreStrings, commonLearnStrings],
+    mixins: [commonCoreStrings],
     props: {
       title: {
         type: String,
@@ -110,9 +106,6 @@
     },
     computed: {
       ...mapGetters(['isAppContext']),
-      url() {
-        return urls['kolibri:kolibri.plugins.learn:learn']();
-      },
       wrapperStyles() {
         return this.appearanceOverrides
           ? this.appearanceOverrides
@@ -128,32 +121,6 @@
               marginTop: 0,
             };
       },
-      links() {
-        const links = [
-          {
-            condition: this.isUserLoggedIn,
-            title: this.coreString('homeLabel'),
-            link: this.generateBottomBarRoute(PageNames.HOME),
-            icon: 'dashboard',
-            color: this.$themeTokens.primary,
-          },
-          {
-            condition: this.canAccessUnassignedContent,
-            title: this.learnString('libraryLabel'),
-            link: this.generateBottomBarRoute(PageNames.LIBRARY),
-            icon: 'library',
-            color: this.$themeTokens.primary,
-          },
-          {
-            condition: this.isUserLoggedIn && this.canAccessUnassignedContent,
-            title: this.coreString('bookmarksLabel'),
-            link: this.generateBottomBarRoute(PageNames.BOOKMARKS),
-            icon: 'bookmark',
-            color: this.$themeTokens.primary,
-          },
-        ];
-        return links;
-      },
       showStorageNotification() {
         return this.userDeviceStatus === LearnerDeviceStatus.INSUFFICIENT_STORAGE;
       },
@@ -164,12 +131,11 @@
       });
     },
     methods: {
-      generateBottomBarRoute(route) {
-        return generateSideNavRoute(this.url, route);
-      },
       findFirstEl() {
         this.$nextTick(() => {
-          this.$refs.sideNav.focusFirstEl();
+          if (this.navShown) {
+            this.$refs.sideNav.focusFirstEl();
+          }
         });
       },
     },
@@ -186,6 +152,18 @@
     @extend %dropshadow-8dp;
 
     width: 100%;
+  }
+
+  .android-nav-bottom-bar {
+    @extend %dropshadow-4dp;
+
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 12;
+    height: 48px;
+    background-color: white;
   }
 
 </style>
