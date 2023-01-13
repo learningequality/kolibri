@@ -9541,12 +9541,13 @@ qtip2@2.2.0:
   resolved "https://registry.yarnpkg.com/qtip2/-/qtip2-2.2.0.tgz#421ea5040722624ac685cdf961baf5b740db3385"
   integrity sha1-Qh6lBAciYkrGhc35Ybr1t0DbM4U=
 
-query-ast@^1.0.4:
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/query-ast/-/query-ast-1.0.4.tgz#efa832e1270cc3e0ab42291716f73a7de1928c2a"
-  integrity sha512-KFJFSvODCBjIH5HbHvITj9EEZKYUU6VX0T5CuB1ayvjUoUaZkKMi6eeby5Tf8DMukyZHlJQOE1+f3vevKUe6eg==
+query-ast@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/query-ast/-/query-ast-1.0.5.tgz#60f60593e8ea085082aaf9f316631a5cc070074a"
+  integrity sha512-JK+1ma4YDuLjvKKcz9JZ70G+CM9qEOs/l1cZzstMMfwKUabTJ9sud5jvDGrUNuv03yKUgs82bLkHXJkDyhRmBw==
   dependencies:
     invariant "2.2.4"
+    lodash "^4.17.21"
 
 querystring@0.2.0:
   version "0.2.0"
