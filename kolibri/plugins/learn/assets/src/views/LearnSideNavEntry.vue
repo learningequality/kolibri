@@ -46,7 +46,7 @@
   import { mapGetters } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames as LearnPageNames } from '../constants';
-  import generateSideNavRoute from '../appNavigationRoutes.js';
+  import { generateSideNavRoute } from '../modules/coreLearn/utils.js';
   import commonLearnStrings from './commonLearnStrings';
 
   const component = {
