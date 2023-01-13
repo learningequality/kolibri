@@ -14,7 +14,7 @@
     "build-kolibri-tools": "node ./build_kolibri_tools.js"
   },
   "dependencies": {
-    "@babel/core": "^7.9.6",
+    "@babel/core": "^7.20.12",
     "@babel/plugin-syntax-import-assertions": "^7.12.1",
     "@babel/plugin-transform-runtime": "^7.9.6",
     "@babel/preset-env": "^7.19.1",
