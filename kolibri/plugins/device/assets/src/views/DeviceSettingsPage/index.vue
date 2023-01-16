@@ -236,6 +236,40 @@
             </div>
           </div>
         </div>
+
+        <div class="fieldset">
+          <h2>
+            {{ $tr('enabledPages') }}
+          </h2>
+          <p class="info-description">
+            {{ $tr('enabledPagesDescription') }}
+          </p>
+
+          <KCheckbox
+            :label="$tr('enabledLearn')"
+            :checked="enabledLearn"
+            :description="$tr('enabledLearnDescription')"
+            @change="enabledLearn = $event"
+          />
+          <KCheckbox
+            :label="$tr('enabledCoach')"
+            :checked="enabledCoach"
+            :description="$tr('enabledCoachDescription')"
+            @change="enabledCoach = $event"
+          />
+          <KCheckbox
+            :label="$tr('enabledFacility')"
+            :checked="enabledFacility"
+            :description="$tr('enabledFacilityDescription')"
+            @change="enabledFacility = $event"
+          />
+          <KCheckbox
+            :label="$tr('enabledProfile')"
+            :checked="enabledProfile"
+            :description="$tr('enabledProfileDescription')"
+            @change="enabledProfile = $event"
+          />
+        </div>
       </section>
 
       <section>
@@ -380,6 +414,10 @@
         showRestartModal: false,
         writablePaths: 0,
         readOnlyPaths: 0,
+        enabledCoach: true,
+        enabledLearn: true,
+        enabledProfile: true,
+        enabledFacility: true,
       };
     },
     computed: {
@@ -525,6 +563,10 @@
           enable_automatic_download = true,
           limit_for_autodownload = 0,
           set_limit_for_autodownload = false,
+          enabled_coach = true,
+          enabled_learn = true,
+          enabled_facility = true,
+          enabled_profile = true,
         } = extraSettings;
 
         if (allow_download_on_mettered_connection === false) {
@@ -538,6 +580,10 @@
         this.enableAutomaticDownload = enable_automatic_download;
         this.limitForAutodownload = limit_for_autodownload.toString();
         this.setLimitForAutodownload = set_limit_for_autodownload;
+        this.enabledCoach = enabled_coach;
+        this.enabledLearn = enabled_learn;
+        this.enabledFacility = enabled_facility;
+        this.enabledProfile = enabled_profile;
       },
       getContentSettings() {
         // This is the inverse of 'setSignInPageOption'
@@ -580,6 +626,10 @@
             this.enableAutomaticDownload === false || this.notEnoughFreeSpace
               ? false
               : this.setLimitForAutodownload,
+          enabled_coach: this.enabledCoach,
+          enabled_learn: this.enabledLearn,
+          enabled_facility: this.enabledFacility,
+          enabled_profile: this.enabledProfile,
         };
         Object.assign(this.extraSettings, newExtraSettings);
       },
@@ -899,6 +949,46 @@
       readOnly: {
         message: '(read-only)',
         context: 'Label for read-only storage locations',
+      },
+      enabledPages: {
+        message: 'Enabled pages',
+        context: 'Label for enabled pages section',
+      },
+      enabledPagesDescription: {
+        message: 'Unselect a page to hide it even if the user has permission to access it.',
+        context: "Description for the 'Enabled pages' section.",
+      },
+      enabledLearn: {
+        message: 'Learn',
+        context: 'Label for the Learn page',
+      },
+      enabledLearnDescription: {
+        message: 'Unselect to hide the Learn page even if the user has permission to access it.',
+        context: "Description for the 'Learn' page.",
+      },
+      enabledCoach: {
+        message: 'Coach',
+        context: 'Label for the Coach page',
+      },
+      enabledCoachDescription: {
+        message: 'Unselect to hide the Coach page even if the user has permission to access it.',
+        context: "Description for the 'Coach' page.",
+      },
+      enabledFacility: {
+        message: 'Facility',
+        context: 'Label for the Facility page',
+      },
+      enabledFacilityDescription: {
+        message: 'Unselect to hide the Facility page even if the user has permission to access it.',
+        context: "Description for the 'Facility' page.",
+      },
+      enabledProfile: {
+        message: 'Profile',
+        context: 'Label for the Profile page',
+      },
+      enabledProfileDescription: {
+        message: 'Unselect to hide the Profile page even if the user has permission to access it.',
+        context: "Description for the 'Profile' page.",
       },
     },
   };
