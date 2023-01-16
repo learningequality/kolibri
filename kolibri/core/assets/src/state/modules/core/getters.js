@@ -33,3 +33,7 @@ export function pageSessionId(state) {
 export function allowAccess(state, getters, rootState, rootGetters) {
   return state.allowRemoteAccess || rootGetters.isAppContext;
 }
+
+export function getEnabledPages(state) {
+  return state.enabledPages;
+}
