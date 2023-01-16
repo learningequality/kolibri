@@ -640,6 +640,7 @@
             this.$store.dispatch('createSnackbar', this.$tr('saveSuccessNotification'));
             if (this.restartSetting !== null) {
               this.restart();
+              this.restartSetting = null;
             }
           })
           .catch(() => {
