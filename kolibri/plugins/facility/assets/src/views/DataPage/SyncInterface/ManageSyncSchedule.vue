@@ -48,6 +48,9 @@
               <th></th>
             </tr>
 
+            <!-- data.length is temporary not to allow data
+               to populate in the main table but when we get
+               the suitable end point which has key for sync schedule it will be replaced  -->
             <tr v-for="device in data" :key="device.id">
               <td>
                 <span>{{ device.device_name }}<br>

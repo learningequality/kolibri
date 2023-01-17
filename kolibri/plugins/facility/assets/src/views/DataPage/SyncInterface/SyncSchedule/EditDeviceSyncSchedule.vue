@@ -267,11 +267,11 @@
         this.removeDeviceModal = false;
         NetworkLocationResource.deleteModel({ id: this.$route.query.id })
           .then(() => {
-            this.showSnackbarNotification('Device removed');
+            this.showSnackbarNotification('deviceRemove');
             history.back();
           })
           .catch(() => {
-            this.showSnackbarNotification('Device not removed');
+            this.showSnackbarNotification('deviceNotRemove');
           });
       },
       handleSaveSchedule() {
@@ -283,16 +283,16 @@
               type: TaskTypes.SYNCPEERFULL,
               facility: this.facility.id,
               device_id: this.device.id,
-              enqueue_args: { enqueue_at: currentDate },
+              enqueue_args: { enqueue_at: currentDate, repeat_interval: 2, repeat: 2 },
             })
               .then(tasks => {
                 this.notifyAndWatchTask(tasks);
-                TaskResource.list({ repeating: true, que: 'falility_task' });
+                TaskResource.list({ repeating: true, queue: 'facility_task' });
               })
               .catch(() => {
                 // this.createTaskFailedSnackbar();
-                console.log('failed');
               });
+            this.showSnackbarNotification('syncAdded');
           }
         );
       },

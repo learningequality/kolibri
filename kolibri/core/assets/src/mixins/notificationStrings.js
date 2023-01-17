@@ -110,6 +110,18 @@ export default createTranslator('NotificationStrings', {
     message: 'Group deleted',
     context: 'A confirmation message indicating that the user has deleted a new group of learners.',
   },
+  syncAdded: {
+    message: 'Sync Schedule added',
+    context: 'Snackbar message for adding the sync schedule',
+  },
+  deviceRemove: {
+    message: 'Device removed',
+    context: 'Snackbar message when a device is removed from the sync schedule',
+  },
+  deviceNotRemove: {
+    message: 'Device not removed',
+    context: 'Snackbar message when a device fails to be removed from he sync schedule',
+  },
   // TODO move more messages into this namespace:
   // - "Quiz started"
   // - "Quiz Ended"
