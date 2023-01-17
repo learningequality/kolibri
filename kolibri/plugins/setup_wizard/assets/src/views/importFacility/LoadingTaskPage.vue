@@ -53,7 +53,7 @@
     mixins: [commonCoreStrings],
     data() {
       return {
-        loadingTask: {},
+        loadingTask: { status: '' },
         isPolling: false,
       };
     },
@@ -66,6 +66,14 @@
       },
       facilityName() {
         return this.facility.name;
+      },
+    },
+    watch: {
+      // Mitigate chance of getting stuck after the task has completed
+      loadingTask(newVal) {
+        if (newVal.status === undefined) {
+          this.handleClickContinue();
+        }
       },
     },
     beforeMount() {
