@@ -7,7 +7,7 @@
     }"
   >
     <nav :style="{ height: '100%' }">
-      <div :style="{ display: 'flex' }">
+      <div v-if="tabs.filter(t => !t.disabled).length > 1" :style="{ display: 'flex' }">
         <div
           v-for="tab in tabs"
           :key="tab.name"
@@ -30,7 +30,7 @@
           <div
             class="tab"
             :tabindex="tab.disabled ? -1 : 0"
-            :aria-label="tab.name"
+            :aria-label="tab.label"
             role="button"
             @click="selectTab(tab.name)"
             @keydown.enter="selectTab(tab.name)"
@@ -64,10 +64,10 @@
           />
         </template>
         <template v-if="selectedTab === 'preview'">
-          <span> Preview </span>
+          <span></span>
         </template>
         <template v-if="selectedTab === 'annotations'">
-          <span> Annotations </span>
+          <span></span>
         </template>
       </div>
     </nav>
@@ -78,6 +78,7 @@
 
 <script>
 
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import Bookmarks from './Bookmarks';
 
   export default {
@@ -85,6 +86,7 @@
     components: {
       Bookmarks,
     },
+    mixins: [commonCoreStrings],
     props: {
       outline: {
         type: Array,
@@ -105,19 +107,19 @@
         tabs: [
           {
             name: 'bookmarks',
-            label: 'Bookmarks',
+            label: this.coreString('bookmarksLabel'),
             icon: 'list',
             disabled: false,
           },
           {
             name: 'preview',
-            label: 'Preview',
+            label: '',
             icon: 'channel',
             disabled: true,
           },
           {
             name: 'annotations',
-            label: 'Annotations',
+            label: '',
             icon: 'edit',
             disabled: true,
           },
