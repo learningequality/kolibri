@@ -4623,6 +4623,11 @@ envinfo@^7.7.3:
   resolved "https://registry.yarnpkg.com/envinfo/-/envinfo-7.8.1.tgz#06377e3e5f4d379fea7ac592d5ad8927e0c4d475"
   integrity sha512-/o+BXHmB7ocbHEAs6F2EnG0ogybVVUdkRunTT2glZU9XAaGmhqskrvKwqXuDfNjEO0LZKWdejEEpnq8aM0tOaw==
 
+epub-cfi-resolver@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/epub-cfi-resolver/-/epub-cfi-resolver-1.0.2.tgz#09105899f0f5d75f02166a764ef7178491b979cf"
+  integrity sha512-br7af3O6lRjNoE0r3RVgCLwmuhwsdjfOfjWyhDjxTWm5sqSa3HWWib+Hr5/Grt6jUloH/F33fACxCR0+0WA8kg==
+
 epubjs@0.3.84:
   version "0.3.84"
   resolved "https://registry.yarnpkg.com/epubjs/-/epubjs-0.3.84.tgz#c7f340df442cb994489c1b292fc4ba94d8861a0f"

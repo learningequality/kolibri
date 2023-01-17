@@ -73,11 +73,14 @@
         :style="{ borderTop: `solid 1px ${$themeTokens.fineLine}` }"
       >
         <KButton
-          :text="item.excerpt"
           appearance="basic-link"
           class="search-results-list-item-button"
           @click="$emit('navigateToSearchResult', item)"
-        />
+        >
+          <span>{{ item.before }}</span>
+          <span class="mark">{{ item.match }}</span>
+          <span>{{ item.after }}</span>
+        </KButton>
       </li>
     </ol>
   </SideBar>
@@ -88,6 +91,7 @@
 <script>
 
   import Mark from 'mark.js';
+  import CFI from 'epub-cfi-resolver';
   import SideBar from './SideBar';
 
   /**
@@ -185,7 +189,8 @@
               if (searchResults.length > MAX_SEARCH_RESULTS) {
                 this.maxSearchResultsExceeded = true;
               }
-              this.searchResults = searchResults.slice(0, MAX_SEARCH_RESULTS);
+              searchResults = searchResults.slice(0, MAX_SEARCH_RESULTS);
+              this.searchResults = this.selectMatchResult(searchResults);
               this.$emit('newSearchQuery', searchQuery);
               this.searchIsLoading = false;
               // Wait for list to be updated
@@ -196,8 +201,63 @@
           );
         }
       },
+      selectMatchResult(searchResults) {
+        const searchQuery = this.searchQuery.toLowerCase();
+        return searchResults.map((result, i) => {
+          const textSplit = result.excerpt.toLowerCase().split(searchQuery);
+
+          const selectedIndex = this.getMatchIndex({
+            textSplit,
+            cfi: result.cfi,
+            nextResult: searchResults[i + 1],
+          });
+
+          const slicedExcerpt = this.splitExcerpt({
+            textSplit,
+            excerpt: result.excerpt,
+            selectedIndex,
+          });
+
+          return {
+            ...result,
+            ...slicedExcerpt,
+          };
+        });
+      },
+      getMatchIndex({ textSplit, cfi, nextResult }) {
+        if (textSplit <= 2) {
+          return 0;
+        }
+        if (!nextResult) {
+          return textSplit.length - 2;
+        }
+        const currentCFI = new CFI(cfi);
+        const nextCFI = new CFI(nextResult.cfi);
+        const distanceNext = CFI.compare(nextCFI, currentCFI);
+        for (let i = 1; i < textSplit.length - 1; i++) {
+          const split = textSplit[i];
+          if (split.length === distanceNext - 1) {
+            return i - 1;
+          }
+        }
+        return textSplit.length - 2;
+      },
+      splitExcerpt({ textSplit, excerpt, selectedIndex }) {
+        const searchQueryLength = this.searchQuery.length;
+        let startIndex = searchQueryLength * selectedIndex;
+        for (let i = 0; i < selectedIndex + 1; i++) {
+          startIndex += textSplit[i].length;
+        }
+        const endIndex = startIndex + searchQueryLength;
+        return {
+          before: excerpt.slice(0, startIndex),
+          match: excerpt.slice(startIndex, endIndex),
+          after: excerpt.slice(endIndex),
+        };
+      },
       createMarks(searchQuery) {
-        const markInstance = new Mark(this.$refs.searchResultsList);
+        const resultList = this.$refs.searchResultsList;
+        this.markInstance = new Mark(resultList.querySelectorAll('.mark'));
         markInstance.mark(searchQuery, {
           separateWordSearch: false,
         });
