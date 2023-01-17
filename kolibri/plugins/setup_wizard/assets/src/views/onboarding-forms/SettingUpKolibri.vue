@@ -71,7 +71,7 @@
         return {
           facility: null,
           preset: null,
-          superuser: {},
+          superuser: null,
           language_id: currentLanguage,
           device_name: this.wizardContext('deviceName'),
           settings: {},
@@ -90,8 +90,8 @@
           password,
           facility_name: this.wizardContext('facilityName'),
           facility_dataset: {
-            // TODO Make the key names on FacilityDataset map properly to the actual questions we ask
-            // The question here was "enable passwords?" so a `yes` there means `no` here:
+            // TODO Make the key names on FacilityDataset map properly to the actual questions asked
+            // The question here is "require passwords?" so a `yes` there means `no` here:
             learner_can_login_with_no_password: !this.wizardContext('requirePassword'),
             learner_can_sign_up: this.wizardContext('learnerCanCreateAccount'),
             preset: this.wizardContext('formalOrNonformal'),
