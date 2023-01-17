@@ -58,7 +58,7 @@
     "lodash": "^4.17.21",
     "mini-css-extract-plugin": "^1.4.1",
     "mkdirp": "^1.0.4",
-    "node-sass": "7.0.1",
+    "node-sass": "8.0.0",
     "postcss-less": "^6.0.0",
     "postcss-loader": "^7.0.2",
     "postcss-sass": "^0.5.0",
