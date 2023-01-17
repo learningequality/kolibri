@@ -28,7 +28,8 @@
             <KIconButton
               v-if="outline && outline.length > 0"
               class="controls"
-              :ariaLabel="coreString('menu')"
+              :ariaLabel="coreString('bookmarksLabel')"
+              :tooltip="coreString('bookmarksLabel')"
               aria-controls="sidebar-container"
               icon="menu"
               @click="toggleSideBar"
