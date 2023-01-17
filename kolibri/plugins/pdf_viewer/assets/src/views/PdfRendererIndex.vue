@@ -76,6 +76,7 @@
           />
         </KGridItem>
         <KGridItem
+          ref="pdfContainer"
           :layout8="{ span: showSideBar ? 6 : 8 }"
           :layout12="{ span: showSideBar ? 9 : 12 }"
         >
@@ -215,6 +216,15 @@
         // https://github.com/vuejs/vue/issues/2870#issuecomment-219096773
         return debounce(this.showVisiblePages, renderDebounceTime);
       },
+      screenSizeMultiplier() {
+        if (this.windowIsLarge) {
+          return 1.25;
+        }
+        if (this.windowIsSmall) {
+          return 1;
+        }
+        return 1.125;
+      },
     },
     watch: {
       recycleListIsMounted(newVal) {
@@ -244,6 +254,15 @@
         if (this.recycleListIsMounted) {
           this.debounceForceUpdateRecycleList();
         }
+      },
+      showSideBar() {
+        this.$nextTick(() => {
+          if (!this.$refs.pdfContainer || !this.$refs.pdfContainer.$el) {
+            return;
+          }
+          const containerWidth = this.$refs.pdfContainer.$el.clientWidth;
+          this.scale = containerWidth / (this.firstPageWidth * this.screenSizeMultiplier);
+        });
       },
     },
     beforeCreate() {
@@ -284,9 +303,8 @@
           const viewPort = firstPage.getViewport({ scale: 1 });
           this.firstPageHeight = viewPort.height;
           this.firstPageWidth = viewPort.width;
+          this.scale = this.elementWidth / (this.firstPageWidth * this.screenSizeMultiplier);
 
-          const screenSizeMultiplier = this.windowIsLarge ? 1.25 : this.windowIsSmall ? 1 : 1.125;
-          this.scale = this.elementWidth / (this.firstPageWidth * screenSizeMultiplier);
           // Set the firstPageToRender into the pdfPages object so that we do not refetch the page
           // from PDFJS when we do our initial render
           // splice so changes are detected
