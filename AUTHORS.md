@@ -89,3 +89,4 @@ If you have contributed to Kolibri, feel free to add your name and Github accoun
 | Jaideep Sharma | camperjett |
 | Allan Otodi | AllanOXDi |
 | Liana Harris | LianaHarris360 |
+| Rishi Kejriwal | Kej-r03 |
