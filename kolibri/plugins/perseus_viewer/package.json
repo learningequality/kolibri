@@ -27,7 +27,7 @@
     "react-redux": "^5.0.5",
     "redux": "^3.7.2",
     "simple-markdown": "^0.2.1",
-    "underscore": "1.4.4",
+    "underscore": "1.13.6",
     "webfontloader": "^1.6.24"
   },
   "devDependencies": {
