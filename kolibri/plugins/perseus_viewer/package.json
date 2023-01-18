@@ -13,7 +13,7 @@
     "draft-js": "^0.10.1",
     "fractional": "^1.0.0",
     "immutable": "^3.8.1",
-    "jquery": "2.2.4",
+    "jquery": "3.6.3",
     "jszip": "^3.5.0",
     "kmath": "^0.0.1",
     "qtip2": "2.2.0",

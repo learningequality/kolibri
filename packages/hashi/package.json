@@ -16,7 +16,7 @@
   "devDependencies": {
     "eslint-plugin-compat": "^3.0.0",
     "html-webpack-plugin": "5.5.0",
-    "jquery": "3.5.1",
+    "jquery": "3.6.3",
     "mime-db": "^1.52.0",
     "mutationobserver-shim": "^0.3.7",
     "purgecss": "^5.0.0",
