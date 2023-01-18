@@ -28,7 +28,7 @@
   import navComponents from 'kolibri.utils.navComponents';
   import urls from 'kolibri.urls';
   import { mapGetters } from 'vuex';
-  import generateSideNavRoute from '../appNavigationRoutes.js';
+  import { generateNavRoute } from '../../../../../core/assets/src/utils/generateNavRoutes';
   import { PageNames as FacilityPageNames } from '../constants';
 
   const component = {
@@ -51,19 +51,19 @@
         return {
           facilityClasses: {
             text: this.coreString('classesLabel'),
-            route: this.generateSideNavRoute(FacilityPageNames.CLASS_MGMT_PAGE),
+            route: this.generateNavRoute(FacilityPageNames.CLASS_MGMT_PAGE),
           },
           facilityUsers: {
             text: this.coreString('usersLabel'),
-            route: this.generateSideNavRoute(FacilityPageNames.USER_MGMT_PAGE),
+            route: this.generateNavRoute(FacilityPageNames.USER_MGMT_PAGE),
           },
           facilitySettings: {
             text: this.$tr('settingsLabel'),
-            route: this.generateSideNavRoute(FacilityPageNames.FACILITY_CONFIG_PAGE),
+            route: this.generateNavRoute(FacilityPageNames.FACILITY_CONFIG_PAGE),
           },
           facilityData: {
             text: this.$tr('data'),
-            route: this.generateSideNavRoute(FacilityPageNames.DATA_EXPORT_PAGE),
+            route: this.generateNavRoute(FacilityPageNames.DATA_EXPORT_PAGE),
           },
         };
       },
@@ -85,8 +85,8 @@
       },
     },
     methods: {
-      generateSideNavRoute(route) {
-        return generateSideNavRoute(this.url, route);
+      generateNavRoute(route) {
+        return generateNavRoute(route, this.url);
       },
     },
     role: UserKinds.ADMIN,

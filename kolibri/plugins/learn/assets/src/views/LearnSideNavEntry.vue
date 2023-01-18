@@ -11,7 +11,7 @@
     />
 
     <div v-if="isAppContext && visibleSubMenu">
-      <div v-for="(nestedObject, key) in routes" :key="key" class="link-container">
+      <div v-for="(nestedObject, key) in learnRoutes" :key="key" class="link-container">
         <a :href="nestedObject.route" class="link" :class="$computedClass(optionStyle)">
           {{ nestedObject.text }}
         </a>
@@ -19,7 +19,7 @@
     </div>
   </div>
   <div v-else class="bottom-bar">
-    <span v-for="(link, key) in routes" :key="key">
+    <span v-for="(link, key) in learnRoutes" :key="key">
       <a :href="link.route" tabindex="-1">
         <KIconButton
           :icon="link.icon"
@@ -46,7 +46,8 @@
   import { mapGetters } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames as LearnPageNames } from '../constants';
-  import { generateSideNavRoute } from '../modules/coreLearn/utils.js';
+  import { generateNavRoute } from '../../../../../core/assets/src/utils/generateNavRoutes';
+  import baseRoutes from '../routes/baseRoutes';
   import commonLearnStrings from './commonLearnStrings';
 
   const component = {
@@ -72,22 +73,22 @@
       url() {
         return urls['kolibri:kolibri.plugins.learn:learn']();
       },
-      routes() {
+      learnRoutes() {
         return {
           home: {
             text: this.coreString('homeLabel'),
             icon: 'dashboard',
-            route: this.generateSideNavRoute(LearnPageNames.HOME),
+            route: this.generateNavRoute(LearnPageNames.HOME),
           },
           library: {
             text: this.coreString('libraryLabel'),
             icon: 'library',
-            route: this.generateSideNavRoute(LearnPageNames.LIBRARY),
+            route: this.generateNavRoute(LearnPageNames.LIBRARY),
           },
           bookmarks: {
             text: this.coreString('bookmarksLabel'),
             icon: 'bookmark',
-            route: this.generateSideNavRoute(LearnPageNames.BOOKMARKS),
+            route: this.generateNavRoute(LearnPageNames.BOOKMARKS),
           },
         };
       },
@@ -109,8 +110,9 @@
       },
     },
     methods: {
-      generateSideNavRoute(route) {
-        return generateSideNavRoute(this.url, route);
+      generateNavRoute(route) {
+        console.log(baseRoutes, route);
+        return generateNavRoute(this.url, route, baseRoutes);
       },
       toggleAndroidMenu() {
         this.$emit('toggleAndroidMenu');

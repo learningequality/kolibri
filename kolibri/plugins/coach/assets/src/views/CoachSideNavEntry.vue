@@ -32,7 +32,6 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import navComponents from 'kolibri.utils.navComponents';
   import urls from 'kolibri.urls';
-  import { generateSideNavReportRoute, generateSideNavPlanRoute } from '../appNavigationRoutes.js';
   import { coachStringsMixin } from './common/commonCoachStrings';
   import commonCoach from './common.js';
 
@@ -70,12 +69,6 @@
       },
     },
     methods: {
-      generateSideNavPlanRoute(route) {
-        return generateSideNavPlanRoute(route);
-      },
-      generateSideNavReportRoute(route) {
-        return generateSideNavReportRoute(route);
-      },
       redirectToRoute() {
         window.location = this.url;
       },

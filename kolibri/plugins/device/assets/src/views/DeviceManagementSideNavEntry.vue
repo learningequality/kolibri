@@ -28,7 +28,7 @@
   import navComponents from 'kolibri.utils.navComponents';
   import urls from 'kolibri.urls';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import generateSideNavRoute from '../appNavigationRoutes.js';
+  import { generateNavRoute } from '../../../../../core/assets/src/utils/generateNavRoutes';
   import { PageNames as DevicePageNames } from '../constants';
 
   const component = {
@@ -51,23 +51,23 @@
         return {
           channels: {
             text: this.coreString('channelsLabel'),
-            route: this.generateSideNavRoute(DevicePageNames.MANAGE_CONTENT_PAGE),
+            route: this.generateNavRoute(DevicePageNames.MANAGE_CONTENT_PAGE),
           },
           permissions: {
             text: this.$tr('permissionsLabel'),
-            route: this.generateSideNavRoute(DevicePageNames.MANAGE_PERMISSIONS_PAGE),
+            route: this.generateNavRoute(DevicePageNames.MANAGE_PERMISSIONS_PAGE),
           },
           facilities: {
             text: this.coreString('facilitiesLabel'),
-            route: this.generateSideNavRoute(DevicePageNames.FACILITIES_PAGE),
+            route: this.generateNavRoute(DevicePageNames.FACILITIES_PAGE),
           },
           info: {
             text: this.$tr('infoLabel'),
-            route: this.generateSideNavRoute(DevicePageNames.DEVICE_INFO_PAGE),
+            route: this.generateNavRoute(DevicePageNames.DEVICE_INFO_PAGE),
           },
           settings: {
             text: this.$tr('settingsLabel'),
-            route: this.generateSideNavRoute(DevicePageNames.DEVICE_SETTINGS_PAGE),
+            route: this.generateNavRoute(DevicePageNames.DEVICE_SETTINGS_PAGE),
           },
         };
       },
@@ -89,8 +89,8 @@
       },
     },
     methods: {
-      generateSideNavRoute(route) {
-        return generateSideNavRoute(this.url, route);
+      generateNavRoute(route) {
+        return generateNavRoute(this.url, route);
       },
     },
     $trs: {
