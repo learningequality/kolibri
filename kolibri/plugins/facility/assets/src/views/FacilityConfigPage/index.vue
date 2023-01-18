@@ -78,6 +78,22 @@
           <KButton @click="handlecreatePin">
             {{ $tr('createPinBtn') }}
           </KButton>
+
+          <KButton
+            hasDropdown
+            :text="$tr('optionBtn')"
+          >
+            <template #menu>
+              <KDropdownMenu
+                :options="dropdownOption"
+                class="options-btn"
+                @select="handleSelect"
+              />
+            </template>
+          </KButton>
+
+
+
         </div>
       </template>
 
@@ -100,6 +116,22 @@
         v-if="CreatePinShow"
         @submit="CreatePinShow = false"
         @cancel="CreatePinShow = false"
+      />
+
+      <ViewPinModal
+        v-if="handleViewModal"
+        @cancel="handleViewModal = false"
+      />
+      <ChangePinModal
+        v-if="handleChangePinModal"
+        @submit="handleChangePinModal = false"
+        @cancel="handleChangePinModal = false"
+      />
+
+      <RemovePinModal
+        v-if="handleRemovePinModal"
+        @submit="handleRemovePinModal = false"
+        @cancel="handleRemovePinModal = false"
       />
 
     </KPageContainer>
@@ -144,6 +176,9 @@
   import ConfirmResetModal from './ConfirmResetModal';
   import EditFacilityNameModal from './EditFacilityNameModal';
   import CreateManagementPinModal from './CreateManagementPinModal';
+  import ViewPinModal from './ViewPinModal';
+  import ChangePinModal from './ChangePinModal';
+  import RemovePinModal from './RemovePinModal';
 
   // See FacilityDataset in core.auth.models for details
   const settingsList = [
@@ -168,6 +203,9 @@
       EditFacilityNameModal,
       BottomAppBar,
       CreateManagementPinModal,
+      ViewPinModal,
+      ChangePinModal,
+      RemovePinModal,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
     data() {
@@ -176,6 +214,9 @@
         showEditFacilityModal: false,
         settingsCopy: {},
         CreatePinShow: false,
+        handleViewModal: false,
+        handleChangePinModal: false,
+        handleRemovePinModal: false,
       };
     },
     computed: {
@@ -203,6 +244,13 @@
       },
       enableChangePassword() {
         return this.settings['learner_can_login_with_no_password'];
+      },
+      dropdownOption() {
+        return [
+          { label: 'View PIN', value: 'VIEW' },
+          { label: 'Change PIN', value: 'CHANGE' },
+          { label: 'Remove PIN', value: 'REMOVE' },
+        ];
       },
     },
     watch: {
@@ -273,6 +321,15 @@
       handlecreatePin() {
         this.CreatePinShow = true;
       },
+      handleSelect(option) {
+        if (option.value === 'VIEW') {
+          this.handleViewModal = true;
+        } else if (option.value === 'CHANGE') {
+          this.handleChangePinModal = true;
+        } else if (option.value === 'REMOVE') {
+          this.handleRemovePinModal = true;
+        }
+      },
     },
     $trs: {
       // These are not going to be picked up by the linter because snake cased versions
@@ -337,6 +394,10 @@
       createPinBtn: {
         message: 'CREATE PIN',
         context: 'Button for the create pin',
+      },
+      optionBtn: {
+        message: 'option',
+        context: 'Options button for the create pin page',
       },
     },
   };
