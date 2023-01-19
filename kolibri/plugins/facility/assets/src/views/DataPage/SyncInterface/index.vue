@@ -59,37 +59,16 @@
                 >
                   <template #options>
                     <CoreMenuOption
-                      v-if="theFacility.dataset.registered"
+                      :style="{ 'cursor': 'pointer', textAlign: 'left' }"
+                      :label="$tr('manage_sync')"
+                      @select="managesync()"
+                    />
+
+                    <CoreMenuOption
                       :style="{ 'cursor': 'pointer', textAlign: 'left' }"
                       :label="$tr('register')"
                       @select="displayModal(Modals.REGISTER_FACILITY)"
                     />
-                    <CoreMenuOption
-                      v-else
-<<<<<<< HEAD
-                      :style="{ 'cursor': 'pointer', textAlign: 'left' }"
-                      :label="$tr('sync')"
-                      @select="displayModal(Modals.SYNC_FACILITY)"
-                    />
-=======
-                      @close:
-                    >
-                      <CoreMenuOption
-                        :style="{ 'cursor': 'pointer', textAlign: 'left' }"
-                        :label="$tr('manage_sync')"
-                        @select="managesync()"
-                      />
-
-                      <CoreMenuOption
-                        :style="{ 'cursor': 'pointer', textAlign: 'left' }"
-                        :label="$tr('register')"
-                        @select="displayModal(Modals.REGISTER_FACILITY)"
-                      />
-
-                    </CoreMenuOption>
-
-
->>>>>>> 276d3b663a ( added sync schedule page)
                   </template>
                 </CoreMenu>
               </KButtonGroup>
@@ -287,6 +266,10 @@
         message: 'Sync',
         context:
           "Describes the 'sync' button which is used to synchronize data from a facility with the project on the Kolibri Data Portal.",
+      },
+      manage_sync: {
+        message: 'Manage Sync Schedule',
+        context: 'Text for the manage sync schedule menu option',
       },
     },
   };

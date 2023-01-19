@@ -94,10 +94,6 @@
         </KGridItem>
       </KGrid>
 
-      <CoreSnackbar
-        :text="hello"
-        :duration="60"
-      />
     </KPageContainer>
 
     <BottomAppBar>
@@ -278,12 +274,11 @@
         FacilityResource.fetchModel({ id: this.$store.getters.activeFacilityId, force: true }).then(
           facility => {
             this.facility = { ...facility };
-            const currentDate = new Date();
             TaskResource.startTask({
               type: TaskTypes.SYNCPEERFULL,
               facility: this.facility.id,
               device_id: this.device.id,
-              enqueue_args: { enqueue_at: currentDate, repeat_interval: 2, repeat: 2 },
+              enqueue_args: { enqueue_at: this.serverTime, repeat_interval: 2, repeat: 2 },
             })
               .then(tasks => {
                 this.notifyAndWatchTask(tasks);
