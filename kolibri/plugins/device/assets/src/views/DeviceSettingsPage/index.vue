@@ -178,27 +178,25 @@
           </h2>
           <KCheckbox
             :label="$tr('enableAutoDownload')"
-            :checked="enableAutomaticDownload ||
-              allowLearnerDownloadResources ||
-              setLimitForAutodownload"
+            :checked="enableAutomaticDownload"
             :description="$tr('enableAutoDownloadDescription')"
-            @change="enableAutomaticDownload = $event"
+            @change="handleCheckAutodownload('enableAutomaticDownload', $event)"
           />
           <div class="fieldset left-margin">
             <KCheckbox
               :label="$tr('allowLearnersDownloadResources')"
-              :checked="enableAutomaticDownload === false ? false : allowLearnerDownloadResources"
+              :checked="allowLearnerDownloadResources"
               :description="$tr('allowLearnersDownloadDescription')"
-              @change="allowLearnerDownloadResources = $event"
+              @change="handleCheckAutodownload('allowLearnerDownloadResources', $event)"
             />
             <KCheckbox
               :label="$tr('setStorageLimit')"
-              :checked="enableAutomaticDownload === false ? false : setLimitForAutodownload"
+              :checked="setLimitForAutodownload"
               :description="$tr('setStorageLimitDescription')"
-              @change="setLimitForAutodownload = $event"
+              @change="handleCheckAutodownload('setLimitForAutodownload', $event)"
             />
             <div
-              v-show="enableAutomaticDownload === false ? false : setLimitForAutodownload"
+              v-show="setLimitForAutodownload"
               class="left-margin"
             >
               <KTextbox
@@ -666,6 +664,27 @@
           return getUrl() + '#/settings';
         }
         return '';
+      },
+      handleCheckAutodownload(option, value) {
+        switch (option) {
+          case 'enableAutomaticDownload':
+            this.enableAutomaticDownload = value;
+            if (!value) {
+              this.allowLearnerDownloadResources = false;
+              this.setLimitForAutodownload = false;
+            }
+            break;
+          case 'allowLearnerDownloadResources':
+            this.allowLearnerDownloadResources = value;
+            break;
+          case 'setLimitForAutodownload':
+            this.setLimitForAutodownload = value;
+            break;
+        }
+        this.enableAutomaticDownload =
+          this.enableAutomaticDownload ||
+          this.allowLearnerDownloadResources ||
+          this.setLimitForAutodownload;
       },
       handleClickSave() {
         const {
