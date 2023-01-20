@@ -5,7 +5,7 @@ const logging = require('../logging');
 const { forEachPathInfo, parseCSVDefinitions, toLocale } = require('./utils');
 const { getAllMessagesFromEntryFiles, getAllMessagesFromFilePath } = require('./astUtils');
 
-module.exports = function(pathInfo, ignore, langInfo, localeDataFolder) {
+module.exports = function(pathInfo, ignore, langInfo, localeDataFolder, verbose) {
   const languageInfo = require(langInfo);
   // A map per webpack bundle designating which messages
   // are needed for full translation. Will be a map from:
@@ -18,9 +18,9 @@ module.exports = function(pathInfo, ignore, langInfo, localeDataFolder) {
     logging.info(`Gathering required string ids for ${name}`);
     let messages;
     if (pathData.entry) {
-      messages = getAllMessagesFromEntryFiles(pathData.entry, moduleFilePath, ignore);
+      messages = getAllMessagesFromEntryFiles(pathData.entry, moduleFilePath, ignore, verbose);
     } else {
-      messages = getAllMessagesFromFilePath(moduleFilePath, ignore);
+      messages = getAllMessagesFromFilePath(moduleFilePath, ignore, verbose);
     }
     requiredMessages[name] = Object.keys(messages);
     Object.assign(allDefaultMessages, messages);

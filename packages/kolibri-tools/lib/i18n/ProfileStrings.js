@@ -333,7 +333,7 @@ function getVueTemplateAST(filePath) {
   return parseAST(render);
 }
 
-module.exports = function(pathInfo, ignore, outputFile) {
+module.exports = function(pathInfo, ignore, outputFile, verbose) {
   const allMessages = {};
   /**
    * An object where "Translation strings" are the keys.
@@ -350,9 +350,14 @@ module.exports = function(pathInfo, ignore, outputFile) {
     logging.info(`Gathering string ids for ${name}`);
     let bundleMessages;
     if (pathData.entry) {
-      bundleMessages = getAllMessagesFromEntryFiles(pathData.entry, moduleFilePath, ignore);
+      bundleMessages = getAllMessagesFromEntryFiles(
+        pathData.entry,
+        moduleFilePath,
+        ignore,
+        verbose
+      );
     } else {
-      bundleMessages = getAllMessagesFromFilePath(moduleFilePath, ignore);
+      bundleMessages = getAllMessagesFromFilePath(moduleFilePath, ignore, verbose);
     }
     for (let id in bundleMessages) {
       const message = bundleMessages[id]['message'];

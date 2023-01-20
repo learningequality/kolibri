@@ -110,12 +110,16 @@ function toCSV(csvPath, namespace, messages) {
   return csvWriter.writeRecords(sortBy(csvData, 'identifier'));
 }
 
-module.exports = function(pathInfo, ignore, localeDataFolder) {
+module.exports = function(pathInfo, ignore, localeDataFolder, verbose) {
   // An object for storing our messages.
   const extractedMessages = {};
   forEachPathInfo(pathInfo, pathData => {
     const namespace = pathData.name;
-    extractedMessages[namespace] = getAllMessagesFromFilePath(pathData.moduleFilePath, ignore);
+    extractedMessages[namespace] = getAllMessagesFromFilePath(
+      pathData.moduleFilePath,
+      ignore,
+      verbose
+    );
   });
 
   const csvPath = path.join(localeDataFolder, 'en', 'LC_MESSAGES');

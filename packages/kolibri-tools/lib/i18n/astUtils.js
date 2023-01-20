@@ -521,23 +521,23 @@ function getFilesFromFilePath(moduleFilePath, ignore) {
   return glob.sync(globPath, { ignore });
 }
 
-function getAllMessagesFromFilePath(moduleFilePath, ignore) {
+function getAllMessagesFromFilePath(moduleFilePath, ignore, verbose) {
   const files = getFilesFromFilePath(moduleFilePath, ignore);
   logging.info('Processing ', files.length, ' files...');
   const messages = {};
 
   files.forEach(filePath => {
-    Object.assign(messages, getMessagesFromFile(filePath));
+    Object.assign(messages, getMessagesFromFile(filePath, verbose));
   });
   return messages;
 }
 
-function recurseForStrings(entryFile, ignore, visited) {
+function recurseForStrings(entryFile, ignore, visited, verbose) {
   const outputStrings = {};
   if (!visited.has(entryFile)) {
-    Object.assign(outputStrings, getMessagesFromFile(entryFile));
+    Object.assign(outputStrings, getMessagesFromFile(entryFile, verbose));
     for (let filePath of getImportFileNames(entryFile, ignore)) {
-      Object.assign(outputStrings, recurseForStrings(filePath, ignore, visited));
+      Object.assign(outputStrings, recurseForStrings(filePath, ignore, visited, verbose));
     }
     visited.add(entryFile);
   }
@@ -555,13 +555,13 @@ function _validateEntryFiles(entryFiles) {
   return entryFiles;
 }
 
-function getAllMessagesFromEntryFiles(entryFiles, moduleFilePath, ignore) {
+function getAllMessagesFromEntryFiles(entryFiles, moduleFilePath, ignore, verbose) {
   entryFiles = _validateEntryFiles(entryFiles);
   const visited = new Set();
   return entryFiles.reduce((acc, entryFile) => {
     try {
       const filePath = getFileNameForImport(path.join(moduleFilePath, entryFile), '/');
-      return Object.assign(acc, recurseForStrings(filePath, ignore, visited));
+      return Object.assign(acc, recurseForStrings(filePath, ignore, visited, verbose));
     } catch (e) {
       return acc;
     }
@@ -580,21 +580,20 @@ function getFilesFromEntryFiles(entryFiles, moduleFilePath, ignore) {
   return visited;
 }
 
-function getMessagesFromFile(filePath) {
+function getMessagesFromFile(filePath, verbose = false) {
   const messages = {};
-  let ast = null;
   try {
-    ast = getAstFromFile(filePath);
+    const ast = getAstFromFile(filePath);
 
     // At this point - if we basically don't have any JS to parse,
     // so we should let the user know and leave
     if (!ast) {
-      throw 'No AST created';
+      throw new Error('No AST created');
     }
 
     Object.assign(messages, extract$trs(ast, filePath));
     Object.assign(messages, extractCreateTranslator(ast, filePath));
-    if (process.argv.includes('--verbose')) {
+    if (verbose) {
       logging.info(`Extracted ${Object.keys(messages).length} messages from  :: ${filePath}`);
       logging.info(JSON.stringify(messages));
     }
