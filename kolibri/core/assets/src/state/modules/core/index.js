@@ -20,7 +20,7 @@ export default {
         currentId: null,
       },
       allowRemoteAccess: plugin_data.allowRemoteAccess,
-      enabledPages: plugin_data.enabledPages,
+      enabledPages: plugin_data.enabledPages || {},
       // facility
       facilityConfig: {},
       facilities: [],
