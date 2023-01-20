@@ -101,6 +101,9 @@ class MembershipSerializer(serializers.ModelSerializer):
 
 
 class FacilityDatasetSerializer(serializers.ModelSerializer):
+
+    extra_fields = serializers.JSONField(required=False)
+
     class Meta:
         model = FacilityDataset
         fields = (
@@ -112,6 +115,7 @@ class FacilityDatasetSerializer(serializers.ModelSerializer):
             "learner_can_delete_account",
             "learner_can_login_with_no_password",
             "show_download_button_in_learn",
+            "extra_fields",
             "description",
             "location",
             "registered",

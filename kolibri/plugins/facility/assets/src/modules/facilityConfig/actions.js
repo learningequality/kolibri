@@ -54,3 +54,35 @@ export function resetFacilityConfig(store) {
     });
   });
 }
+
+export function setPin(store, payload) {
+  const { facilityDatasetId } = store.state;
+  return client({
+    url: urls['kolibri:core:facilitydataset-update-pin'](facilityDatasetId),
+    method: 'POST',
+    data: payload,
+  }).then(({ data }) => {
+    store.commit('UPDATE_FACILITY_EXTRA_SETTINGS', { extra_fields: data.extra_fields });
+  });
+}
+
+export function unsetPin(store) {
+  const { facilityDatasetId } = store.state;
+  return client({
+    url: urls['kolibri:core:facilitydataset-update-pin'](facilityDatasetId),
+    method: 'PATCH',
+  }).then(({ data }) => {
+    store.commit('UPDATE_FACILITY_EXTRA_SETTINGS', { extra_fields: data.extra_fields });
+  });
+}
+
+export function isPinValid(store, payload) {
+  const { facilityDatasetId } = store.state;
+  return client({
+    url: urls['kolibri:core:facilitydataset-is-pin-valid'](facilityDatasetId),
+    method: 'POST',
+    data: payload,
+  }).then(({ data }) => {
+    store.commit('IS_FACILITY_PIN_VALID', data.is_pin_valid);
+  });
+}

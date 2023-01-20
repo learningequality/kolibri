@@ -75,10 +75,27 @@ from kolibri.core.device.utils import set_device_settings
 from kolibri.core.errors import KolibriValidationError
 from kolibri.core.fields import DateTimeTzField
 from kolibri.core.fields import JSONField
+from kolibri.core.utils.validators import JSON_Schema_Validator
 from kolibri.plugins.app.utils import interface
 from kolibri.utils.time_utils import local_now
 
 logger = logging.getLogger(__name__)
+
+extra_fields_schema = {
+    "type": "object",
+    "additionalProperties": False,
+    "properties": {
+        "facility": {"type": "object"},
+        "on_my_own_setup": {"type": "boolean"},
+        "pin_code": {"type": "string"},
+    },
+}
+
+extra_fields_default_values = {
+    "facility": {},
+    "on_my_own_setup": False,
+    "pin_code": "",
+}
 
 
 class DatasetCache(local):
@@ -160,7 +177,12 @@ class FacilityDataset(FacilityDataSyncableModel):
     learner_can_delete_account = models.BooleanField(default=True)
     learner_can_login_with_no_password = models.BooleanField(default=False)
     show_download_button_in_learn = models.BooleanField(default=True)
-    extra_fields = JSONField(null=True, blank=True)
+    extra_fields = JSONField(
+        null=True,
+        blank=True,
+        validators=[JSON_Schema_Validator(extra_fields_schema)],
+        default=extra_fields_default_values,
+    )
     registered = models.BooleanField(default=False)
 
     def __str__(self):

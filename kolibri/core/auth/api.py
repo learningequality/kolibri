@@ -23,6 +23,7 @@ from django.db.models import TextField
 from django.db.models import Value
 from django.db.models.functions import Cast
 from django.http import Http404
+from django.http import HttpResponseBadRequest
 from django.utils.decorators import method_decorator
 from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
@@ -166,6 +167,7 @@ class FacilityDatasetViewSet(ValuesViewset):
         "learner_can_delete_account",
         "learner_can_login_with_no_password",
         "show_download_button_in_learn",
+        "extra_fields",
         "description",
         "location",
         "registered",
@@ -194,6 +196,50 @@ class FacilityDatasetViewSet(ValuesViewset):
             return Response(data)
         except FacilityDataset.DoesNotExist:
             raise Http404("Facility does not exist")
+
+    @decorators.action(methods=["post", "patch"], detail=True, url_path="update-pin")
+    def update_pin(self, request, pk):
+
+        pin_code = request.data.get("pin_code")
+        str_pin_code = str(pin_code)
+        if request.method == "POST" and (
+            not str_pin_code.isdigit() or len(str_pin_code) != 4
+        ):
+            return HttpResponseBadRequest(
+                "A Pin is a required and it must be a number and 4 characters long"
+            )
+
+        try:
+            dataset = FacilityDataset.objects.get(pk=pk)
+            if dataset.extra_fields is None:
+                dataset.extra_fields = {}
+            dataset.extra_fields["pin_code"] = (
+                pin_code if pin_code is None else str_pin_code
+            )
+            dataset.save()
+            return Response(FacilityDatasetSerializer(dataset).data)
+        except FacilityDataset.DoesNotExist:
+            raise Http404("Facility not found")
+
+    @decorators.action(methods=["post"], detail=True, url_path="is-pin-valid")
+    def is_pin_valid(self, request, pk):
+        input_pin_code = request.data.get("pin_code", "")
+        if len(str(input_pin_code)) == 0 or not str(input_pin_code).isdigit():
+            return HttpResponseBadRequest("A Pin is a required")
+
+        try:
+            dataset = FacilityDataset.objects.get(pk=pk)
+            data = FacilityDatasetSerializer(dataset).data
+            extra_fields = data.get("extra_fields")
+        except FacilityDataset.DoesNotExist:
+            raise Http404("Facility not found")
+
+        valid_pin = False
+        if extra_fields is not None and str(extra_fields.get("pin_code")) == str(
+            input_pin_code
+        ):
+            valid_pin = True
+        return Response({"is_pin_valid": valid_pin})
 
 
 class FacilityUserFilter(FilterSet):
@@ -453,6 +499,7 @@ dataset_keys = [
     "dataset__learner_can_delete_account",
     "dataset__learner_can_login_with_no_password",
     "dataset__show_download_button_in_learn",
+    "dataset__extra_fields",
     "dataset__description",
     "dataset__location",
     "dataset__registered",
