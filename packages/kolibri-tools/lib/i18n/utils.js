@@ -3,6 +3,7 @@ const path = require('path');
 const glob = require('glob');
 const { parse } = require('csv-parse/sync');
 const { lint } = require('kolibri-tools/lib/lint');
+const { addAliases, resetAliases } = require('kolibri-tools/lib/alias_import_resolver');
 
 function writeSourceToFile(filePath, fileSource) {
   fs.writeFileSync(filePath, fileSource, { encoding: 'utf-8' });
@@ -55,8 +56,19 @@ function toLocale(language) {
   return lang + '_' + country;
 }
 
+function forEachPathInfo(pathInfo, callback) {
+  for (let pathData of pathInfo) {
+    if (pathData.aliases) {
+      addAliases(pathData.aliases);
+    }
+    callback(pathData);
+    resetAliases();
+  }
+}
+
 module.exports = {
   parseCSVDefinitions,
   toLocale,
   writeSourceToFile,
+  forEachPathInfo,
 };

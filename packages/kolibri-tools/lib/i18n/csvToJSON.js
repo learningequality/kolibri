@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const mkdirp = require('mkdirp');
 const logging = require('../logging');
-const { parseCSVDefinitions, toLocale } = require('./utils');
+const { forEachPathInfo, parseCSVDefinitions, toLocale } = require('./utils');
 const { getAllMessagesFromEntryFiles, getAllMessagesFromFilePath } = require('./astUtils');
 
 module.exports = function(pathInfo, ignore, langInfo, localeDataFolder) {
@@ -12,7 +12,7 @@ module.exports = function(pathInfo, ignore, langInfo, localeDataFolder) {
   // name to an array of message ids of format namespace.key.
   const requiredMessages = {};
   const allDefaultMessages = {};
-  for (let pathData of pathInfo) {
+  forEachPathInfo(pathInfo, pathData => {
     const moduleFilePath = pathData.moduleFilePath;
     const name = pathData.name;
     logging.info(`Gathering required string ids for ${name}`);
@@ -25,7 +25,7 @@ module.exports = function(pathInfo, ignore, langInfo, localeDataFolder) {
     requiredMessages[name] = Object.keys(messages);
     Object.assign(allDefaultMessages, messages);
     logging.info(`Gathered ${requiredMessages[name].length} required string ids for ${name}`);
-  }
+  });
   for (let langObject of languageInfo) {
     const crowdinCode = langObject['crowdin_code'];
     const intlCode = langObject['intl_code'];

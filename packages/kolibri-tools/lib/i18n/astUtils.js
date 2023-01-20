@@ -13,8 +13,6 @@ const logging = require('../logging');
 const { resolve } = require('../alias_import_resolver');
 const { CONTEXT_LINE } = require('./constants');
 
-var MODULE_ROOT = '';
-
 function parseAST(scriptContent) {
   return recast.parse(scriptContent, {
     parser: babylonParser,
@@ -164,45 +162,18 @@ function getObjectifiedValue(nodePropertyValue) {
 
 function getFileNameForImport(importPath, filePath) {
   const extensions = ['.js', '.vue'];
-  const resolveAttempt1 = resolve(importPath, filePath, { extensions });
-
-  /**
-   * If the first attempt didn't work, we will assume this is an aliased path located in the root
-   * of the module, which is the value given for `searchPath` in the CLI - we almost certainly
-   * should never get this far when extracting a proper plugin as those aliases are properly set up
-   * and available for `resolve` to use in the first attempt.
-   *
-   * This assumes that Studio and our other products will not begin making aliased paths elsewhere,
-   * so if you're here then good chance that's your problem.
-   */
-  const rootAliasPath = path.resolve(path.join(MODULE_ROOT, importPath));
-  const resolveAttempt2 = resolve(rootAliasPath, filePath, { extensions });
+  const resolveAttempt = resolve(importPath, filePath, { extensions });
 
   if (
-    !resolveAttempt1.found ||
-    !extensions.some(ext => resolveAttempt1.path && resolveAttempt1.path.endsWith(ext))
+    !resolveAttempt.found ||
+    !extensions.some(ext => resolveAttempt.path && resolveAttempt.path.endsWith(ext))
   ) {
-    if (!resolveAttempt2.found) {
-      // Just throw up here if we don't have another worthy attempt
-      throw new ReferenceError(
-        `Attempted to resolve an import in ${filePath} for module ${importPath} but could not be resolved as a Javascript or Vue file`
-      );
-    }
-  } else {
-    return resolveAttempt1.path;
-  }
-
-  if (
-    !resolveAttempt2.found ||
-    !extensions.some(ext => resolveAttempt2.path && resolveAttempt2.path.endsWith(ext))
-  ) {
-    logging.error(JSON.stringify(resolveAttempt2));
+    // Just throw up here if we don't have another worthy attempt
     throw new ReferenceError(
       `Attempted to resolve an import in ${filePath} for module ${importPath} but could not be resolved as a Javascript or Vue file`
     );
-  } else {
-    return resolveAttempt2.path;
   }
+  return resolveAttempt.path;
 }
 
 function getImportFileNames(filePath, ignore) {
@@ -539,8 +510,7 @@ function getAstFromFile(filePath) {
   }
 
   // Finally! Do the extraction
-  let x = parseAST(scriptContent);
-  return x;
+  return parseAST(scriptContent);
 }
 
 const GLOB = '/**/*.@(vue|js)';
@@ -552,7 +522,6 @@ function getFilesFromFilePath(moduleFilePath, ignore) {
 }
 
 function getAllMessagesFromFilePath(moduleFilePath, ignore) {
-  MODULE_ROOT = moduleFilePath;
   const files = getFilesFromFilePath(moduleFilePath, ignore);
   logging.info('Processing ', files.length, ' files...');
   const messages = {};

@@ -17,6 +17,7 @@ const {
   getAstFromFile,
   parseAST,
 } = require('./astUtils');
+const { forEachPathInfo } = require('./utils');
 
 // If you ever add a namespace here - you should also add that to the
 // $TR_FUNCTIONS array in the vue-no-unused-translations eslint rule.
@@ -343,7 +344,7 @@ module.exports = function(pathInfo, ignore, outputFile) {
    *
    */
   const definitions = {};
-  for (let pathData of pathInfo) {
+  forEachPathInfo(pathInfo, pathData => {
     const moduleFilePath = pathData.moduleFilePath;
     const name = pathData.name;
     logging.info(`Gathering string ids for ${name}`);
@@ -366,9 +367,9 @@ module.exports = function(pathInfo, ignore, outputFile) {
     }
     Object.assign(allMessages, bundleMessages);
     logging.info(`Gathered ${Object.keys(bundleMessages).length} string ids for ${name}`);
-  }
+  });
   logging.info(`Gathered ${Object.keys(definitions).length} unique strings`);
-  for (let pathData of pathInfo) {
+  forEachPathInfo(pathInfo, pathData => {
     const moduleFilePath = pathData.moduleFilePath;
     const name = pathData.name;
     logging.info(`Gathering string uses for ${name}`);
@@ -390,6 +391,6 @@ module.exports = function(pathInfo, ignore, outputFile) {
       }
     }
     logging.info(`Gathered string uses from ${files.size} files for ${name}`);
-  }
+  });
   writeProfileToCSV(definitions, outputFile);
 };

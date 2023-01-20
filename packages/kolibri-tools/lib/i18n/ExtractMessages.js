@@ -6,6 +6,7 @@ const del = require('del');
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 const logging = require('../logging');
 const { getAllMessagesFromFilePath } = require('./astUtils');
+const { forEachPathInfo } = require('./utils');
 
 // This function will clear the way for new CSV files to avoid any conflicts
 function clearCsvPath(csvPath) {
@@ -112,7 +113,7 @@ function toCSV(csvPath, namespace, messages) {
 module.exports = function(pathInfo, ignore, localeDataFolder) {
   // An object for storing our messages.
   const extractedMessages = {};
-  pathInfo.forEach(pathData => {
+  forEachPathInfo(pathInfo, pathData => {
     const namespace = pathData.name;
     extractedMessages[namespace] = getAllMessagesFromFilePath(pathData.moduleFilePath, ignore);
   });
