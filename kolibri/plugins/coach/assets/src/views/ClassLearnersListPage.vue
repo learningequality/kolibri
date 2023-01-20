@@ -14,6 +14,13 @@
         class="troubleshooting-modal-link"
         @click="displayTroubleshootModal = true"
       />
+      <template>
+        <div aria-live="polite">
+          <GlobalSnackbar />
+        </div>
+      </template>
+
+
       <KModal
         v-if="displayTroubleshootModal"
         :title="$tr('howToTroubleshootModalHeader')"
@@ -89,6 +96,7 @@
   import SyncStatusDisplay from '../../../../../core/assets/src/views/SyncStatusDisplay';
   import SyncStatusDescription from '../../../../../core/assets/src/views/SyncStatusDescription';
   import CoachImmersivePage from '../views/CoachImmersivePage';
+  import GlobalSnackbar from './GlobalSnackbar';
 
   export default {
     name: 'ClassLearnersListPage',
@@ -98,6 +106,7 @@
       CoachImmersivePage,
       SyncStatusDisplay,
       SyncStatusDescription,
+      GlobalSnackbar,
     },
     mixins: [commonCoreStrings],
     data: function() {
