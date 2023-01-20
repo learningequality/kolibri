@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const glob = require('glob');
-const parseCsvSync = require('csv-parse/sync');
+const { parse } = require('csv-parse/sync');
 const { lint } = require('kolibri-tools/lib/lint');
 
 function writeSourceToFile(filePath, fileSource) {
@@ -25,7 +25,7 @@ function parseCSVDefinitions(dir, intlLangCode = null) {
   return glob.sync(path.join(dir, intlLangCode, 'LC_MESSAGES', '*.csv')).reduce((acc, filePath) => {
     const csvFile = fs.readFileSync(filePath).toString();
 
-    return [...acc, ...parseCsvSync(csvFile, { skip_empty_lines: true, columns: true })];
+    return [...acc, ...parse(csvFile, { skip_empty_lines: true, columns: true })];
   }, []);
 }
 
