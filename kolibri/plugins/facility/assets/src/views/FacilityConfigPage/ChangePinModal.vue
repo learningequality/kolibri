@@ -13,7 +13,7 @@
 
       <KTextbox
         v-model="name"
-        type="number"
+        input="number"
         :label="$tr('enterPinLabel')"
         :maxlength="4"
         @blur="nameBlurred = true"

@@ -82,6 +82,7 @@
           <KButton
             hasDropdown
             :text="$tr('optionBtn')"
+            style="marginLeft:15px"
           >
             <template #menu>
               <KDropdownMenu

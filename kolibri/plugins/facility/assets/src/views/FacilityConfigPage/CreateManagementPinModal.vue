@@ -4,7 +4,7 @@
     :title="$tr('title')"
     :submitText="$tr('save')"
     :cancelText="$tr('cancel')"
-    @submit="$emit('submit')"
+    @submit="submit"
     @cancel="$emit('cancel')"
   >
     <div>
@@ -12,11 +12,13 @@
       <p>{{ $tr('enterPin') }}</p>
 
       <KTextbox
-        v-model="name"
-        type="number"
+        v-model="pin"
+        input="number"
         :label="$tr('enterPinLabel')"
         :maxlength="4"
-        @blur="nameBlurred = true"
+        :invalid="true"
+        :invalidText="pinError"
+        :showInvalidText="showErrorText"
       />
     </div>
   </KModal>
@@ -31,8 +33,30 @@
   export default {
     name: 'CreateManagementPinModal',
     mixins: [commonCoreStrings],
-    methods: {},
-
+    data() {
+      return {
+        pin: '',
+        pinPattern: /^[0-9]{4}$/,
+        pinError: null,
+        showErrorText: false,
+      };
+    },
+    computed: {},
+    methods: {
+      submit() {
+        if (!this.pin) {
+          this.showErrorText = true;
+          this.pinError = 'This feild cannot be empty';
+        } else {
+          if (this.pinPattern.test(this.pin)) {
+            this.pinError = '';
+            this.$emit('submit');
+          } else {
+            this.pinError = 'Invalid PIN format. Please enter a 4-digit number.';
+          }
+        }
+      },
+    },
     $trs: {
       title: {
         message: 'Create device management PIN',
