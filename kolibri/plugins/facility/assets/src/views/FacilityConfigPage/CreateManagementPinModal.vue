@@ -46,7 +46,7 @@
       submit() {
         if (!this.pin) {
           this.showErrorText = true;
-          this.pinError = 'This feild cannot be empty';
+          this.pinError = 'This field cannot be empty';
         } else {
           if (this.pinPattern.test(this.pin)) {
             this.pinError = '';
