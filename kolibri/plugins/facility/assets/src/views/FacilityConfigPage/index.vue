@@ -114,9 +114,9 @@
       />
 
       <CreateManagementPinModal
-        v-if="CreatePinShow"
-        @submit="CreatePinShow = false"
-        @cancel="CreatePinShow = false"
+        v-if="createPinShow"
+        @submit="createPinShow = false"
+        @cancel="createPinShow = false"
       />
 
       <ViewPinModal
@@ -214,7 +214,7 @@
         showModal: false,
         showEditFacilityModal: false,
         settingsCopy: {},
-        CreatePinShow: false,
+        createPinShow: false,
         handleViewModal: false,
         handleChangePinModal: false,
         handleRemovePinModal: false,
@@ -320,7 +320,7 @@
         this.settingsCopy = Object.assign({}, this.settings);
       },
       handlecreatePin() {
-        this.CreatePinShow = true;
+        this.createPinShow = true;
       },
       handleSelect(option) {
         if (option.value === 'VIEW') {
@@ -393,7 +393,7 @@
         context: 'Description for the device management',
       },
       createPinBtn: {
-        message: 'CREATE PIN',
+        message: 'create pin',
         context: 'Button for the create pin',
       },
       optionBtn: {
