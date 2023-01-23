@@ -12,6 +12,7 @@
       <p>{{ $tr('enterPin') }}</p>
 
       <KTextbox
+        ref="myfocus"
         v-model="pin"
         input="number"
         :label="$tr('enterPinLabel')"
@@ -47,14 +48,19 @@
         if (!this.pin) {
           this.showErrorText = true;
           this.pinError = 'This field cannot be empty';
+          this.focus();
         } else {
           if (this.pinPattern.test(this.pin)) {
             this.pinError = '';
             this.$emit('submit');
           } else {
             this.pinError = 'Invalid PIN format. Please enter a 4-digit number.';
+            this.focus();
           }
         }
+      },
+      focus: function() {
+        this.$refs.myfocus.focus();
       },
     },
     $trs: {
