@@ -20,6 +20,12 @@ export default {
       state.deviceName = null;
     },
   },
+  getters: {
+    getDeviceOS(state) {
+      // Channel data just needs to exist, but doesn't need to be available
+      return state.deviceInfo.os;
+    },
+  },
   actions: {
     updateDeviceName(store, name) {
       return client({

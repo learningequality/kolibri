@@ -101,7 +101,7 @@
           </div>
         </div>
 
-        <div class="fieldset">
+        <div v-if="deviceIsAndroid" class="fieldset">
           <h2>
             <label>{{ $tr('allowDownloadOnMeteredConnection') }}</label>
           </h2>
@@ -420,6 +420,7 @@
     },
     computed: {
       ...mapGetters(['isAppContext']),
+      ...mapGetters('deviceInfo', ['getDeviceOS']),
       pageTitle() {
         return deviceString('deviceManagementTitle');
       },
@@ -495,6 +496,12 @@
             },
           };
         }
+      },
+      deviceIsAndroid() {
+        if (this.getDeviceOS === undefined) {
+          return true;
+        }
+        return this.getDeviceOS.includes('Android');
       },
     },
     created() {

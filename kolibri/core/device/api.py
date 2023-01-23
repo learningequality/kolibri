@@ -60,6 +60,7 @@ from kolibri.core.utils.urls import reverse_remote
 from kolibri.plugins.utils import initialize_kolibri_plugin
 from kolibri.plugins.utils import iterate_plugins
 from kolibri.plugins.utils import PluginDoesNotExist
+from kolibri.utils.android import on_android
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.filesystem import check_is_directory
 from kolibri.utils.filesystem import get_path_permission
@@ -146,7 +147,7 @@ class DeviceInfoView(views.APIView):
         instance_model = InstanceIDModel.get_or_create_current_instance()[0]
 
         info["device_id"] = instance_model.id
-        info["os"] = instance_model.platform
+        info["os"] = "Android" if on_android() else instance_model.platform
 
         info["content_storage_free_space"] = get_free_space(
             OPTIONS["Paths"]["CONTENT_DIR"]
