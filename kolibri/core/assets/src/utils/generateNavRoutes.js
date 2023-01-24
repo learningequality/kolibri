@@ -1,6 +1,8 @@
-export function generateNavRoute(rootUrl, pathReference, baseRoutes) {
-  console.log('generating side nav route', rootUrl, pathReference, baseRoutes);
+var pathToRegexp = require('path-to-regexp');
+
+export function generateNavRoute(rootUrl, pathReference, baseRoutes, params) {
   let pathMap = {};
+  let compiledRoute;
   Object.keys(baseRoutes).forEach(key => {
     let pathName = baseRoutes[key].name;
     let pathRoute = baseRoutes[key].path;
@@ -8,7 +10,15 @@ export function generateNavRoute(rootUrl, pathReference, baseRoutes) {
       pathMap[`${pathName}`] = pathRoute;
     }
   });
-  console.log('pathmap', `${rootUrl}#${pathMap[pathReference]}`);
 
-  return `${rootUrl}#${pathMap[pathReference]}`;
+  compiledRoute = `${rootUrl}#${pathMap[pathReference]}`;
+
+  if (params) {
+    const pathRegex = `${rootUrl}#${pathMap[pathReference]}`;
+    const toPath = pathToRegexp.compile(pathRegex);
+    toPath(params);
+    compiledRoute = toPath(params);
+  }
+
+  return compiledRoute;
 }

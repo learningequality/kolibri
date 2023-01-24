@@ -293,7 +293,7 @@
     methods: {
       ...mapActions(['fetchUserSyncStatus']),
       toggleNav() {
-        this.$emit('toggleBottomNav');
+        this.$emit('toggleAndroidMenu');
       },
       handleShowLanguageModal() {
         this.languageModalShown = true;

@@ -11,20 +11,28 @@
     />
 
     <div v-if="isAppContext && visibleSubMenu">
-      <div v-for="(nestedObject, key) in learnRoutes" :key="key" class="link-container">
-        <a :href="nestedObject.route" class="link" :class="$computedClass(optionStyle)">
-          {{ nestedObject.text }}
-        </a>
+      <div v-for="(nestedObject, key) in learnRoutes" :key="key">
+        <div v-if="nestedObject.condition" class="link-container">
+          <a
+            :href="nestedObject.route"
+            class="link"
+            :class="$computedClass(optionStyle)"
+            @click="visibleSubMenu = false"
+          >
+            {{ nestedObject.text }}
+          </a>
+        </div>
       </div>
     </div>
   </div>
   <div v-else class="bottom-bar">
     <span v-for="(link, key) in learnRoutes" :key="key">
-      <a :href="link.route" tabindex="-1">
+      <a v-if="link.condition || isUserLoggedIn" :href="link.route" tabindex="-1">
         <KIconButton
           :icon="link.icon"
           :color="$themeTokens.primary"
           :ariaLabel="link.text"
+          @click="visibleSubMenu = false"
         />
       </a>
     </span>
@@ -69,23 +77,26 @@
       };
     },
     computed: {
-      ...mapGetters(['isAppContext']),
+      ...mapGetters(['isAppContext', 'isUserLoggedIn']),
       url() {
         return urls['kolibri:kolibri.plugins.learn:learn']();
       },
       learnRoutes() {
         return {
           home: {
+            condition: this.isUserLoggedIn,
             text: this.coreString('homeLabel'),
             icon: 'dashboard',
             route: this.generateNavRoute(LearnPageNames.HOME),
           },
           library: {
+            condition: Boolean(true),
             text: this.coreString('libraryLabel'),
             icon: 'library',
             route: this.generateNavRoute(LearnPageNames.LIBRARY),
           },
           bookmarks: {
+            condition: this.isUserLoggedIn,
             text: this.coreString('bookmarksLabel'),
             icon: 'bookmark',
             route: this.generateNavRoute(LearnPageNames.BOOKMARKS),
@@ -111,7 +122,6 @@
     },
     methods: {
       generateNavRoute(route) {
-        console.log(baseRoutes, route);
         return generateNavRoute(this.url, route, baseRoutes);
       },
       toggleAndroidMenu() {

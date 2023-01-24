@@ -8,16 +8,18 @@
       @select="handleMenu()"
     />
     <div v-if="isAppContext && visibleSubMenu">
-      <a
-        href="#"
-        class="link"
-        :class="$computedClass(optionStyle)"
-      > {{ coachString('plan') }} </a>
-      <a
-        href="#"
-        class="link"
-        :class="$computedClass(optionStyle)"
-      > {{ coachString('reportsLabel') }} </a>
+      <div v-for="(nestedObject, key) in coachRoutes" :key="key">
+        <div class="link-container">
+          <a
+            :href="nestedObject.route"
+            class="link"
+            :class="$computedClass(optionStyle)"
+            @click="visibleSubMenu = false"
+          >
+            {{ nestedObject.text }}
+          </a>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -32,8 +34,11 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import navComponents from 'kolibri.utils.navComponents';
   import urls from 'kolibri.urls';
-  import { coachStringsMixin } from './common/commonCoachStrings';
+  import { PageNames } from '../constants';
+  import { generateNavRoute } from '../../../../../core/assets/src/utils/generateNavRoutes';
+  import navigationBaseRoutes from '../routes/navigationBaseRoutes';
   import commonCoach from './common.js';
+  import { coachStringsMixin } from './common/commonCoachStrings';
 
   const component = {
     name: 'CoachSideNavEntry',
@@ -50,6 +55,18 @@
       ...mapGetters(['isAppContext']),
       url() {
         return urls['kolibri:kolibri.plugins.coach:coach']();
+      },
+      coachRoutes() {
+        return {
+          plan: {
+            text: this.coachString('reportsLabel'),
+            route: this.generateNavRoute(PageNames.REPORTS_PAGE),
+          },
+          reports: {
+            text: this.coachString('plan'),
+            route: this.generateNavRoute(PageNames.PLAN_PAGE),
+          },
+        };
       },
       optionStyle() {
         return {
@@ -69,8 +86,22 @@
       },
     },
     methods: {
-      redirectToRoute() {
-        window.location = this.url;
+      generateNavRoute(route) {
+        // if class id
+        let params;
+        if (this.classId) {
+          params = { classId: this.classId };
+          return generateNavRoute(this.url, route, navigationBaseRoutes, params);
+        } else {
+          // otherwise, go to class page and then have the next
+          return generateNavRoute(
+            this.url,
+            PageNames.COACH_CLASS_LIST_PAGE,
+            navigationBaseRoutes,
+            params,
+            route
+          );
+        }
       },
       handleMenu() {
         // in the app, and there is an active class ID

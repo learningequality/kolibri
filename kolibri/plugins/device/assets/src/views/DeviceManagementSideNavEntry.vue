@@ -30,6 +30,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { generateNavRoute } from '../../../../../core/assets/src/utils/generateNavRoutes';
   import { PageNames as DevicePageNames } from '../constants';
+  import baseRoutes from '../routes/baseRoutes';
 
   const component = {
     name: 'DeviceManagementSideNavEntry',
@@ -90,7 +91,7 @@
     },
     methods: {
       generateNavRoute(route) {
-        return generateNavRoute(this.url, route);
+        return generateNavRoute(this.url, route, baseRoutes);
       },
     },
     $trs: {

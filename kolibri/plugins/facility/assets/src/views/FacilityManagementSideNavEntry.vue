@@ -9,7 +9,7 @@
       @select="visibleSubMenu = !visibleSubMenu"
     />
     <div v-if="isAppContext && visibleSubMenu">
-      <div v-for="(nestedObject, key) in routes" :key="key" class="link-container">
+      <div v-for="(nestedObject, key) in facilityRoutes" :key="key" class="link-container">
         <a :href="nestedObject.route" class="link" :class="$computedClass(optionStyle)">
           {{ nestedObject.text }}
         </a>
@@ -29,6 +29,7 @@
   import urls from 'kolibri.urls';
   import { mapGetters } from 'vuex';
   import { generateNavRoute } from '../../../../../core/assets/src/utils/generateNavRoutes';
+  import baseRoutes from '../baseRoutes';
   import { PageNames as FacilityPageNames } from '../constants';
 
   const component = {
@@ -47,7 +48,7 @@
       url() {
         return urls['kolibri:kolibri.plugins.facility:facility_management']();
       },
-      routes() {
+      facilityRoutes() {
         return {
           facilityClasses: {
             text: this.coreString('classesLabel'),
@@ -86,7 +87,21 @@
     },
     methods: {
       generateNavRoute(route) {
-        return generateNavRoute(route, this.url);
+        // if class id
+        let params;
+        if (this.$store.getters.currentFacilityId) {
+          params = { facilityId: this.$store.getters.currentFacilityId };
+          return generateNavRoute(this.url, route, baseRoutes, params);
+        } else {
+          // otherwise, go to class page and then have the next
+          return generateNavRoute(
+            this.url,
+            FacilityPageNames.COACH_CLASS_LIST_PAGE,
+            baseRoutes,
+            params,
+            route
+          );
+        }
       },
     },
     role: UserKinds.ADMIN,
