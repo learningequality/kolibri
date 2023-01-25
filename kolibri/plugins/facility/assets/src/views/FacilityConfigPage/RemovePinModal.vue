@@ -4,7 +4,7 @@
     :title="$tr('title')"
     :submitText="$tr('removePin')"
     :cancelText="$tr('cancel')"
-    @submit="$emit('submit')"
+    @submit="removePin"
     @cancel="$emit('cancel')"
   >
     <div>
@@ -22,8 +22,12 @@
   export default {
     name: 'RemovePinModal',
     mixins: [commonCoreStrings],
-    methods: {},
-
+    methods: {
+      removePin() {
+        this.$emit('submit');
+        this.showSnackbarNotification('pinRemove');
+      },
+    },
     $trs: {
       title: {
         message: 'Remove device management PIN',

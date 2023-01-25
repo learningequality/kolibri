@@ -4,7 +4,7 @@
     :title="$tr('title')"
     :submitText="$tr('save')"
     :cancelText="$tr('cancel')"
-    @submit="$emit('submit')"
+    @submit="submit"
     @cancel="$emit('cancel')"
   >
     <div>
@@ -12,11 +12,14 @@
       <p>{{ $tr('setPin') }}</p>
 
       <KTextbox
-        v-model="name"
+        ref="myfocus"
+        v-model="pin"
         input="number"
         :label="$tr('enterPinLabel')"
         :maxlength="4"
-        @blur="nameBlurred = true"
+        :invalid="true"
+        :invalidText="pinError"
+        :showInvalidText="showErrorText"
       />
     </div>
   </KModal>
@@ -31,8 +34,36 @@
   export default {
     name: 'ChangePinModal',
     mixins: [commonCoreStrings],
-    methods: {},
-
+    data() {
+      return {
+        pin: '',
+        pinPattern: /^[0-9]{4}$/,
+        pinError: null,
+        showErrorText: false,
+      };
+    },
+    computed: {},
+    methods: {
+      submit() {
+        if (!this.pin) {
+          this.showErrorText = true;
+          this.pinError = 'This field cannot be empty';
+          this.focus();
+        } else {
+          if (this.pinPattern.test(this.pin)) {
+            this.pinError = '';
+            this.$emit('submit');
+          } else {
+            this.pinError = 'Invalid PIN format. Please enter a 4-digit number.';
+            this.focus();
+          }
+        }
+        this.showSnackbarNotification('pinUpadeted');
+      },
+      focus: function() {
+        this.$refs.myfocus.focus();
+      },
+    },
     $trs: {
       title: {
         message: 'Change device management PIN',

@@ -58,6 +58,7 @@
             this.focus();
           }
         }
+        this.showSnackbarNotification('pinCreated');
       },
       focus: function() {
         this.$refs.myfocus.focus();

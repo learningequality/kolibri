@@ -110,6 +110,19 @@ export default createTranslator('NotificationStrings', {
     message: 'Group deleted',
     context: 'A confirmation message indicating that the user has deleted a new group of learners.',
   },
+  pinCreated: {
+    message: 'New PIN created',
+    context: 'A confirmation message for creating a new a pin',
+  },
+  pinUpadeted: {
+    message: 'PIN updated',
+    context: 'A confimation message for updating a pin',
+  },
+  pinRemove: {
+    message: 'PIN removed',
+    context: 'A confirmation message for removing a pin',
+  },
+
   // TODO move more messages into this namespace:
   // - "Quiz started"
   // - "Quiz Ended"
