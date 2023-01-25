@@ -78,9 +78,7 @@ export default {
       return state;
     },
     isAppContext(state) {
-      console.log(state.app_context);
-      return true;
-      // return state.app_context;
+      return state.app_context;
     },
   },
   mutations: {
