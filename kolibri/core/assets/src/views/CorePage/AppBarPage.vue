@@ -20,6 +20,9 @@
         type="indeterminate"
         :delay="false"
       />
+      <div aria-live="polite">
+        <StorageNotification />
+      </div>
     </ScrollingHeader>
 
     <div class="main-wrapper" :style="wrapperStyles">
@@ -49,10 +52,11 @@
   import ScrollingHeader from 'kolibri.coreVue.components.ScrollingHeader';
   import SideNav from 'kolibri.coreVue.components.SideNav';
   import AppBar from '../AppBar';
+  import StorageNotification from '../StorageNotification';
 
   export default {
     name: 'AppBarPage',
-    components: { AppBar, LanguageSwitcherModal, ScrollingHeader, SideNav },
+    components: { AppBar, LanguageSwitcherModal, ScrollingHeader, SideNav, StorageNotification },
     props: {
       title: {
         type: String,
