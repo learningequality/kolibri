@@ -94,7 +94,7 @@
       },
     },
     beforeCreate() {
-      this.$translator = Translator('PaginatedListContainer', {
+      this.$translator = createTranslator('PaginatedListContainer', {
         previousResults: {
           message: 'Previous results',
           context:
