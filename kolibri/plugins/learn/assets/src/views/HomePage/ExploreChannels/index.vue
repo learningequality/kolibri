@@ -36,7 +36,7 @@
 
 <script>
 
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
+  import { createTranslator } from 'kolibri.utils.i18n';
   import { PageNames } from '../../../constants';
   import CardGrid from '../../cards/CardGrid';
   import BaseChannelCard from '../../cards/BaseChannelCard';
@@ -86,9 +86,22 @@
       },
     },
     mounted() {
-      // `crossComponentTranslator` needs to be used because it's after string freeze
       // TODO: Add 'View all' string into this component after 0.15 release
-      this.crossComponentStrings = crossComponentTranslator(YourClasses);
+      this.crossComponentStrings = createTranslator('YourClasses', {
+        yourClassesHeader: {
+          message: 'Your classes',
+          context: 'Refers to the classes the learner is enrolled in.',
+        },
+        noClasses: {
+          message: 'You are not enrolled in any classes',
+          context:
+            'Message that a learner sees in the Learn > CLASSES section and in the Learn > HOME section if they are not enrolled in any classes.',
+        },
+        viewAll: {
+          message: 'View all',
+          context: 'Option to view all the classes the user is enrolled in.',
+        },
+      });
     },
     methods: {
       getChannelLink(channel) {

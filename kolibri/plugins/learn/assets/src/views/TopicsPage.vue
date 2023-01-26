@@ -387,7 +387,7 @@
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
+  import { createTranslator } from 'kolibri.utils.i18n';
   import FullScreenSidePanel from 'kolibri.coreVue.components.FullScreenSidePanel';
   import { throttle } from 'frame-throttle';
   import { PageNames } from '../constants';
@@ -404,7 +404,6 @@
   import CardThumbnail from './ContentCard/CardThumbnail';
   import CategorySearchModal from './CategorySearchModal';
   import SearchChips from './SearchChips';
-  import LibraryPage from './LibraryPage';
   import plugin_data from 'plugin_data';
 
   export default {
@@ -694,8 +693,42 @@
       document.documentElement.style.position = '';
     },
     created() {
-      this.translator = crossComponentTranslator(LibraryPage);
-      this.filterTranslator = crossComponentTranslator(FilterTextbox);
+      this.translator = createTranslator('LibraryPage', {
+        recent: {
+          message: 'Recent',
+          context:
+            'Header for the section in the Library tab with resources that the learner recently engaged with.',
+        },
+        /* eslint-disable kolibri/vue-no-unused-translations */
+        results: {
+          message: '{results, number, integer} {results, plural, one {result} other {results}}',
+          context: 'Number of results for a given term after a Library search.',
+        },
+        moreThanXResults: {
+          message: 'More than {results} results',
+          context: 'Number of results for a given term after a Library search.',
+        },
+        /* eslint-disable kolibri/vue-no-unused-translations */
+        viewAsList: {
+          message: 'View as list',
+          context: 'Label for a button used to view resources as a list.',
+        },
+        viewAsGrid: {
+          message: 'View as grid',
+          context: 'Label for a button used to view resources as a grid.',
+        },
+        clearAll: {
+          message: 'Clear all',
+          context: 'Clickable link which removes all currently applied search filters.',
+        },
+      });
+      this.filterTranslator = createTranslator('FilterTextbox', {
+        filter: {
+          message: 'filter',
+          context:
+            'The filter functionality allows users to find elements in Kolibri more efficiently. For example, in a list of users the filter can be used to view users by permissions, user type or facility.',
+        },
+      });
       window.addEventListener('scroll', this.throttledHandleScroll);
       this.setSearchWithinDescendant(this.topic);
       this.search();

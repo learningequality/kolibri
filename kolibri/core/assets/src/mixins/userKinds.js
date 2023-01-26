@@ -1,12 +1,19 @@
 import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-import { crossComponentTranslator } from 'kolibri.utils.i18n';
+import { createTranslator } from 'kolibri.utils.i18n';
 import { UserKinds } from 'kolibri.coreVue.vuex.constants';
-import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
 
 export default {
   data() {
     return {
-      translator: crossComponentTranslator(UserTypeDisplay),
+      translator: createTranslator('UserTypeDisplay', {
+        /* eslint-disable kolibri/vue-no-unused-translations */
+        superUserLabel: {
+          message: 'Super admin',
+          context:
+            'An account type that can manage the device. Super admin accounts also have permission to do everything that admins, coaches, and learners can do.',
+        },
+        /* eslint-enable */
+      }),
     };
   },
   mixins: [commonCoreStrings],

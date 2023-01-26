@@ -47,8 +47,7 @@
 <script>
 
   import clamp from 'lodash/clamp';
-  import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
+  import { createTranslator } from 'kolibri.utils.i18n';
 
   export default {
     name: 'PaginatedListContainerWithBackend',
@@ -95,7 +94,23 @@
       },
     },
     beforeCreate() {
-      this.$translator = crossComponentTranslator(PaginatedListContainer);
+      this.$translator = Translator('PaginatedListContainer', {
+        previousResults: {
+          message: 'Previous results',
+          context:
+            'Text which indicates the previous page of results when a user makes a search query.\n',
+        },
+        nextResults: {
+          message: 'Next results',
+          context:
+            'Text which indicates the next page of results when a user makes a search query.',
+        },
+        pagination: {
+          message:
+            '{ visibleStartRange, number } - { visibleEndRange, number } of { numFilteredItems, number }',
+          context: "Refers to pagination. Only translate the word \"of''.",
+        },
+      });
     },
     methods: {
       changePage(change) {

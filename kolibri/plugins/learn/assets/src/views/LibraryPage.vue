@@ -242,8 +242,7 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import FullScreenSidePanel from 'kolibri.coreVue.components.FullScreenSidePanel';
-  import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
+  import { createTranslator } from 'kolibri.utils.i18n';
   import genContentLink from '../utils/genContentLink';
   import { PageNames, libraryCategories } from '../constants';
   import useSearch from '../composables/useSearch';
@@ -398,7 +397,13 @@
     },
     created() {
       this.search();
-      this.translator = crossComponentTranslator(FilterTextbox);
+      this.translator = createTranslator('FilterTextbox', {
+        filter: {
+          message: 'filter',
+          context:
+            'The filter functionality allows users to find elements in Kolibri more efficiently. For example, in a list of users the filter can be used to view users by permissions, user type or facility.',
+        },
+      });
     },
     methods: {
       genContentLink,

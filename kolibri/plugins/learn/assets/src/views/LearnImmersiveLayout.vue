@@ -129,7 +129,7 @@
   import { mapGetters, mapState } from 'vuex';
   import get from 'lodash/get';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
+  import { createTranslator } from 'kolibri.utils.i18n';
 
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import FullScreenSidePanel from 'kolibri.coreVue.components.FullScreenSidePanel';
@@ -144,13 +144,18 @@
   import useContentNodeProgress from '../composables/useContentNodeProgress';
   import useLearnerResources from '../composables/useLearnerResources';
   import LearningActivityChip from './LearningActivityChip';
-  import LessonResourceViewer from './classes/LessonResourceViewer';
   import CurrentlyViewedResourceMetadata from './CurrentlyViewedResourceMetadata';
   import ContentPage from './ContentPage';
   import LearningActivityBar from './LearningActivityBar';
   import AlsoInThis from './AlsoInThis';
 
-  const lessonStrings = crossComponentTranslator(LessonResourceViewer);
+  const lessonStrings = createTranslator('LessonResourceViewer', {
+    /* eslint-disable kolibri/vue-no-unused-translations */
+    nextInLesson: {
+      message: 'Next in lesson',
+      context: 'Refers to the next learning resource in a lesson.',
+    },
+  });
 
   export default {
     name: 'LearnImmersiveLayout',

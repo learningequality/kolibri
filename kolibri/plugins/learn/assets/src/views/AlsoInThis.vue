@@ -83,17 +83,32 @@
 
 <script>
 
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
+  import { createTranslator } from 'kolibri.utils.i18n';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
   import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
-  import SidePanelResourcesList from '../../../../../../kolibri/core/assets/src/views/FullScreenSidePanel/SidePanelResourcesList';
   import useContentNodeProgress from '../composables/useContentNodeProgress';
   import genContentLink from '../utils/genContentLink';
   import LearningActivityIcon from './LearningActivityIcon.vue';
   import ProgressBar from './ProgressBar';
 
-  const sidePanelStrings = crossComponentTranslator(SidePanelResourcesList);
+  const sidePanelStrings = createTranslator('SidePanelResourcesList', {
+    /* eslint-disable kolibri/vue-no-unused-translations */
+    noOtherLessonResources: {
+      message: 'No other resources in this lesson',
+      context: 'Message indicating that no resources remain in the lesson they are engaging with.',
+    },
+    /* eslint-disable kolibri/vue-no-unused-translations */
+    noOtherTopicResources: {
+      message: 'No other resources in this folder',
+      context: 'Message indicating that no resources remain in the topic they are browsing.',
+    },
+    /* eslint-disable kolibri/vue-no-unused-translations */
+    nextFolder: {
+      message: 'Next folder',
+      context: 'Indicates navigation to the next folder and its contents.',
+    },
+  });
 
   export default {
     name: 'AlsoInThis',
