@@ -104,6 +104,31 @@ export default [
   // Learn only device
   {
     name: 'IMPORT_LOD',
+    path: '/import-lod/select',
+    component: ImportLODUsersSetup,
+  },
+  {
+    name: 'IMPORT_LOD',
+    path: '/import-lod/import-user',
+    component: ImportLODUsersSetup,
+  },
+  {
+    name: 'IMPORT_LOD',
+    path: '/import-lod/loading',
+    component: ImportLODUsersSetup,
+  },
+  {
+    name: 'IMPORT_LOD',
+    path: '/import-lod/select-users',
+    component: ImportLODUsersSetup,
+  },
+  {
+    name: 'IMPORT_LOD',
+    path: '/import-lod/:step',
+    component: ImportLODUsersSetup,
+  },
+  {
+    name: 'IMPORT_LOD',
     path: '/import-lod/:step',
     component: ImportLODUsersSetup,
   },
