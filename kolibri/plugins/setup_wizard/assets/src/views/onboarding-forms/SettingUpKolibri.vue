@@ -78,6 +78,7 @@
           settings: {},
           allow_guest_access: this.wizardContext('guestAccess'),
           is_provisioned: true,
+          os_user: this.canGetOsUser,
         };
       },
 
