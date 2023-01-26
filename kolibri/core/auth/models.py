@@ -1424,7 +1424,7 @@ class Facility(Collection):
             try:
                 # We accept the parameter so we may as well try searching for it first
                 facility = cls.objects.get(name=facility_name)
-            except cls.ObjectDoesNotExist:
+            except cls.DoesNotExist:
                 # or just fall back to returning the first Facility that exists
                 facility = cls.objects.get()
                 if facility_name:

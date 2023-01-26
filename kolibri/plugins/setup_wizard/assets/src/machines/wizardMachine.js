@@ -61,6 +61,7 @@ const initialContext = {
   importDeviceId: null,
   importDevice: null,
   canGetOsUser: null,
+  superuser: null,
 };
 
 export const wizardMachine = createMachine(
@@ -288,7 +289,11 @@ export const wizardMachine = createMachine(
           selectSuperAdminAccountForm: {
             meta: { step: 4, route: { name: 'SELECT_ADMIN' } },
             on: {
-              CONTINUE: { target: 'personalDataConsentForm', nextEvent: 'FINISH' },
+              CONTINUE: {
+                target: 'personalDataConsentForm',
+                nextEvent: 'FINISH',
+                actions: 'setSuperuser',
+              },
             },
           },
           personalDataConsentForm: {
@@ -343,6 +348,9 @@ export const wizardMachine = createMachine(
           return event.value.importDeviceId;
         },
       }),
+      setSuperuser: assign({
+        superuser: (_, event) => event.value,
+      }),
       setSelectedImportDeviceFacility: assign({
         selectedFacility: (_, event) => {
           return event.value.selectedFacility;
@@ -374,7 +382,7 @@ export const wizardMachine = createMachine(
       /**
        * Assigns the machine to have the initial context again while maintaining the value of
        * canGetOsUser.
-       *
+
        * This effectively resets the machine's state
        */
       resetContext: assign(initialContext),

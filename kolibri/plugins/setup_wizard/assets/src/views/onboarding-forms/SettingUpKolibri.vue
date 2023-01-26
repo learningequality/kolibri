@@ -68,19 +68,20 @@
       },
       /** The data we will use to initialize the device during provisioning */
       deviceProvisioningData() {
+        const superuser = this.$store.state.onboardingData.user || null;
         return {
-          facility: null,
-          preset: null,
-          superuser: null,
+          superuser,
+          facility: this.wizardContext('selectedFacility'),
+          preset: this.wizardContext('formalOrNonformal'),
           language_id: currentLanguage,
           device_name: this.wizardContext('deviceName'),
           settings: {},
           allow_guest_access: this.wizardContext('guestAccess'),
-          is_provisioned: true
+          is_provisioned: true,
         };
       },
 
-      /** The data we will use to create the user and facility, if needed, during provisioning */
+      /** The data we will use to create the user and facility, *if needed*, during provisioning */
       facilityUserData() {
         // Data from user credentials form
         let { full_name, username, password } = this.$store.state.onboardingData.user;
@@ -90,8 +91,6 @@
           password,
           facility_name: this.wizardContext('facilityName'),
           facility_dataset: {
-            // TODO Make the key names on FacilityDataset map properly to the actual questions asked
-            // The question here is "require passwords?" so a `yes` there means `no` here:
             learner_can_login_with_no_password: !this.wizardContext('requirePassword'),
             learner_can_sign_up: this.wizardContext('learnerCanCreateAccount'),
             preset: this.wizardContext('formalOrNonformal'),
