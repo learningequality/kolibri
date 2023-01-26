@@ -117,7 +117,7 @@
         fullNameValid: false,
         username: user.username,
         usernameValid: false,
-        password: user.password,
+        password: '',
         passwordValid: false,
         formSubmitted: false,
       };
@@ -132,15 +132,25 @@
       },
     },
     watch: {
-      selectedUser() {
-        // If the selected user is changed at all we should reset everything
-        // so that if they choose to make a new admin, the previously selected
-        // admin's data isn't in the form still
-        this.fullName = '';
-        this.username = '';
-        this.password = '';
-        this.focusOnInvalidField();
+      selectedUser(user) {
+        // user will be null unless an existing user is selected
+        if (user) {
+          this.fullName = user.full_name;
+          this.username = user.username;
+        } else {
+          // We should clear the form because this is where the user creates a new superuser
+          this.fullName = '';
+          this.username = '';
+        }
+        // Always clear the password field on change
+        this.$nextTick(() => {
+          this.syncOnboardingData();
+          this.focusOnInvalidField();
+        });
       },
+    },
+    mounted() {
+      this.syncOnboardingData();
     },
     methods: {
       syncOnboardingData() {
@@ -157,7 +167,7 @@
         // have access to it
         this.syncOnboardingData();
         if (!this.formIsValid) {
-          if (this.$refs.password && this.$refs.password.isValid) {
+          if (this.$refs.passwordTextbox && this.$refs.passwordTextbox.isValid) {
             // In this case, we have been given a separate password form in our #form slot
             // and it's ref can tell us if it's valid and whether we should continue
             console.log('OKGO');
