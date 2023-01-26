@@ -2,8 +2,8 @@
 
   <KModal
     :title="$tr('title')"
-    :submitText="$tr('removePin')"
-    :cancelText="$tr('cancel')"
+    :submitText="coreString('removePinPlacholder')"
+    :cancelText="coreString('cancelAction')"
     @submit="removePin"
     @cancel="$emit('cancel')"
   >
@@ -37,14 +37,6 @@
         message:
           'You will need to sync this device with other devices that share this facility in order to use this PIN.',
         context: 'Reminder to sync devices',
-      },
-      cancel: {
-        message: 'cancel',
-        context: 'label for the cancel button',
-      },
-      removePin: {
-        message: 'REMOVE PIN',
-        context: 'label for the remove pin button',
       },
     },
   };

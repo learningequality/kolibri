@@ -6,7 +6,7 @@
     @cancel="$emit('cancel')"
   >
     <div>
-      <p>{{ $tr('pin') }}</p>
+      <p>{{ userPinNumber }}</p>
 
     </div>
   </KModal>
@@ -21,16 +21,17 @@
   export default {
     name: 'ViewPinModal',
     mixins: [commonCoreStrings],
+    computed: {
+      userPinNumber() {
+        return 123;
+      },
+    },
     methods: {},
 
     $trs: {
       title: {
         message: 'Device management PIN',
         context: 'Title for the view pin modal.',
-      },
-      pin: {
-        message: '123',
-        context: 'user pin',
       },
       close: {
         message: 'close',

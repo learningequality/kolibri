@@ -2,8 +2,8 @@
 
   <KModal
     :title="$tr('title')"
-    :submitText="$tr('save')"
-    :cancelText="$tr('cancel')"
+    :submitText="coreString('saveAction')"
+    :cancelText="coreString('cancelAction')"
     @submit="submit"
     @cancel="$emit('cancel')"
   >
@@ -12,10 +12,10 @@
       <p>{{ $tr('enterPin') }}</p>
 
       <KTextbox
-        ref="myfocus"
+        ref="pinFocus"
         v-model="pin"
         input="number"
-        :label="$tr('enterPinLabel')"
+        :label="coreString('enterPinPlaceholder')"
         :maxlength="4"
         :invalid="true"
         :invalidText="pinError"
@@ -61,7 +61,7 @@
         this.showSnackbarNotification('pinCreated');
       },
       focus: function() {
-        this.$refs.myfocus.focus();
+        this.$refs.pinFocus.focus();
       },
     },
     $trs: {
@@ -77,18 +77,6 @@
       enterPin: {
         message: 'Enter four numbers to set as your new PIN',
         context: 'Label to allow user to enter PIN',
-      },
-      cancel: {
-        message: 'cancel',
-        context: 'cancel btn text',
-      },
-      save: {
-        message: 'save',
-        context: 'Text for save button',
-      },
-      enterPinLabel: {
-        message: 'Enter PIN',
-        context: 'Enter PIN label',
       },
     },
   };

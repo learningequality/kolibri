@@ -75,7 +75,7 @@
           <h2>{{ $tr('deviceManagementPin') }}</h2>
 
           <p>{{ $tr('deviceManagementDescription') }}</p>
-          <KButton @click="handlecreatePin">
+          <KButton @click="handleCreatePin">
             {{ $tr('createPinBtn') }}
           </KButton>
 
@@ -319,7 +319,7 @@
       copySettings() {
         this.settingsCopy = Object.assign({}, this.settings);
       },
-      handlecreatePin() {
+      handleCreatePin() {
         this.createPinShow = true;
       },
       handleSelect(option) {
