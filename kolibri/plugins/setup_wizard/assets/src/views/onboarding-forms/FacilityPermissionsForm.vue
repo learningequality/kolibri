@@ -69,9 +69,10 @@
     inject: ['wizardService'],
     methods: {
       handleContinue() {
-        this.wizardService.send(
-          { type: 'CONTINUE', value: { selected: this.selected, facilityName: this.facilityName } }
-        );
+        this.wizardService.send({
+          type: 'CONTINUE',
+          value: { selected: this.selected, facilityName: this.facilityName },
+        });
       },
       focusOnTextbox() {
         if (this.$refs && this.$refs['facility-name']) {
