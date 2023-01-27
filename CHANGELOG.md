@@ -3,6 +3,21 @@
 List of the most important changes for each release.
 
 
+## 0.15.10
+
+### Added
+* Add PDF accessibility support for screen readers
+* Add support for captions for audio
+
+### Fixed
+* Fixed overflowing title alignment on content cards
+* Improved visible focus outline
+* Fixed positioning of transcript layout when language is set to a right-to-left language
+* Fixed calculation for number of users displayed on the User Tables
+
+### Changed
+* Only display the completion modal on the finish event when the resource is also complete
+
 ## 0.15.9
 ### Added
 * Specified pre-commit hook python version to 3.10
