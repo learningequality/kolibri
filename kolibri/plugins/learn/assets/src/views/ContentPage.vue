@@ -247,7 +247,7 @@
         this.hideMarkAsCompleteModal();
         // Do this immediately to remove any delay
         // before the completion modal displays if appropriate.
-        this.onFinished();
+        this.displayCompletionModal();
         return this.updateProgress(1.0)
           .then(() => {
             this.$store.dispatch('createSnackbar', this.learnString('resourceCompletedLabel'));
@@ -271,8 +271,23 @@
       onFinished() {
         if (this.wasComplete) {
           this.$emit('finished');
-        } else {
+        } else if (this.complete) {
+          // Only show the completion modal if this is marked as complete
           this.displayCompletionModal();
+        } else {
+          // Otherwise, set a watch for complete changing value
+          // in case this gets updated soon after the finish event.
+          // For example the media player plugin seems to emit the finished
+          // event before the progress has been updated.
+          const watchComplete = this.$watch('complete', () => {
+            this.displayCompletionModal();
+            watchComplete();
+          });
+          // We give a 250 millisecond timeout to let this change happen.
+          // So if the completion does not update within 250 milliseconds,
+          // we clear the watcher and will require another finished event
+          // before we display the completion modal.
+          setTimeout(watchComplete, 250);
         }
       },
       displayCompletionModal() {
