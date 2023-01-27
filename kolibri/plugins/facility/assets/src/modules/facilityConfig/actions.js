@@ -83,6 +83,6 @@ export function isPinValid(store, payload) {
     method: 'POST',
     data: payload,
   }).then(({ data }) => {
-    store.commit('IS_FACILITY_PIN_VALID', data.is_pin_valid);
+    store.commit('SET_IS_FACILITY_PIN_VALID', data.is_pin_valid);
   });
 }

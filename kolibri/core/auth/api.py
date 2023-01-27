@@ -201,21 +201,20 @@ class FacilityDatasetViewSet(ValuesViewset):
     def update_pin(self, request, pk):
 
         pin_code = request.data.get("pin_code")
-        str_pin_code = str(pin_code)
-        if request.method == "POST" and (
-            not str_pin_code.isdigit() or len(str_pin_code) != 4
-        ):
-            return HttpResponseBadRequest(
-                "A Pin is a required and it must be a number and 4 characters long"
-            )
+        # pin_code = None if raw_pin_code is None else str(raw_pin_code)
+        if request.method == "POST":
+            if not pin_code:
+                return HttpResponseBadRequest("Please provide a pin")
+            if not str(pin_code).isdigit() or len(str(pin_code)) != 4:
+                return HttpResponseBadRequest(
+                    "A Pin must be a number and 4 characters long"
+                )
 
         try:
             dataset = FacilityDataset.objects.get(pk=pk)
             if dataset.extra_fields is None:
                 dataset.extra_fields = {}
-            dataset.extra_fields["pin_code"] = (
-                pin_code if pin_code is None else str_pin_code
-            )
+            dataset.extra_fields["pin_code"] = pin_code
             dataset.save()
             return Response(FacilityDatasetSerializer(dataset).data)
         except FacilityDataset.DoesNotExist:

@@ -62,7 +62,7 @@ export default {
         return f.name === payload.oldName;
       }).name = payload.newName;
     },
-    IS_FACILITY_PIN_VALID(state, valid) {
+    SET_IS_FACILITY_PIN_VALID(state, valid) {
       state.isFacilityPinValid = valid;
     },
     UPDATE_FACILITY_EXTRA_SETTINGS(state, extraSettings) {
