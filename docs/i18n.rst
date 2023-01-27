@@ -283,6 +283,18 @@ Or to run pre-translation with auto-approval:
 .. warning:: The exact behavior of Crowdin's translation memory is not specified. Given some English phrase, it is not always possible to predict what suggested translation it will make. Therefore, auto-approval be used with caution.
 
 
+Transferring screenshots
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Every release, we need to transfer screenshots on the platform from the previous branch to the new branch, as this is the only way to persist screenshots across branches. To do this run:
+
+.. code-block:: bash
+
+  make i18n-transfer-screenshots branch=[release-branch-name] source=[previous-release-branch-name]
+
+This will match all screenshots by their Kolibri message ID to persist screenshots across releases.
+
+
 Reviewing screenshots
 ~~~~~~~~~~~~~~~~~~~~~
 

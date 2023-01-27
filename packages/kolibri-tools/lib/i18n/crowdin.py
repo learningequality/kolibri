@@ -606,6 +606,56 @@ def screenshot_report(branch, project):
     logging.info("Screenshot report written to {}".format(filename))
 
 
+@click.command(cls=CrowdinCommand)
+@branch_argument
+@click.argument(
+    "source_branch",
+    callback=validate_branch,
+    required=True,
+)
+def transfer_screenshots(branch, project, source_branch):
+    """
+    Transfer screenshots from source_branch to branch
+    """
+    if branch["id"] == source_branch["id"]:
+        raise click.ClickException(
+            "Must specify different branches to copy screenshots"
+        )
+
+    source_branch_string_lookup = {
+        string["id"]: string for string in _source_strings(project, source_branch)
+    }
+    target_branch_string_lookup = {
+        string["identifier"]: string for string in _source_strings(project, branch)
+    }
+    transferred = 0
+    for sc in _all_screenshots(project):
+        new_tags = []
+        for tag in sc["tags"]:
+            try:
+                string = source_branch_string_lookup[tag["stringId"]]
+                message_id = string["identifier"]
+                target_branch_string = target_branch_string_lookup[message_id]
+                new_tags.append(
+                    {
+                        "stringId": target_branch_string["id"],
+                        "position": tag["position"],
+                    }
+                )
+            except KeyError:
+                pass
+        if new_tags:
+            with handle_api_exception("Adding screenshot to string"):
+                crowdin_client.screenshots.add_tag(project["id"], sc["id"], new_tags)
+                transferred += len(new_tags)
+
+    logging.info(
+        "Transferred {} screenshots from {} to {}".format(
+            transferred, source_branch["name"], branch["name"]
+        )
+    )
+
+
 """
 Main
 """
@@ -625,6 +675,7 @@ main.add_command(upload_sources)
 main.add_command(download_glossary)
 main.add_command(upload_glossary)
 main.add_command(screenshot_report)
+main.add_command(transfer_screenshots)
 
 if __name__ == "__main__":
     main()
