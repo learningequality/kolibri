@@ -129,7 +129,7 @@ export const wizardMachine = createMachine(
       createOnMyOwnAccount: {
         meta: { route: { name: 'CREATE_SUPERUSER_AND_FACILITY', path: 'create-account' } },
         on: {
-          CONTINUE: 'finalizeSetup',
+          CONTINUE: { target: 'finalizeSetup', actions: 'setSuperuser' },
           BACK: 'defaultLanguage',
         },
       },
@@ -249,7 +249,7 @@ export const wizardMachine = createMachine(
       createSuperuserAndFacilityForm: {
         meta: { route: { name: 'CREATE_SUPERUSER_AND_FACILITY', path: 'create-account' } },
         on: {
-          CONTINUE: 'finalizeSetup',
+          CONTINUE: { target: 'finalizeSetup', actions: 'setSuperuser' },
           BACK: 'personalDataConsent',
         },
       },
