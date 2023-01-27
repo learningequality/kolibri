@@ -44,6 +44,11 @@
             {{ $tr('lastSync', { relativeTime: formattedTime(facility.last_successful_sync) }) }}
           </span>
         </template>
+        <KButton
+          :text="$tr('createSync')"
+          appearance="basic-link"
+          @click="manageSync"
+        />
       </span>
     </div>
   </div>
@@ -55,6 +60,7 @@
 
   import { now } from 'kolibri.utils.serverClock';
   import taskStrings from 'kolibri.coreVue.mixins.commonTaskStrings';
+  import { PageNames } from './../../../../../../plugins/facility/assets/src/constants';
 
   export default {
     name: 'FacilityNameAndSyncStatus',
@@ -105,6 +111,9 @@
         }
         return this.$formatRelative(datetime, { now: this.now });
       },
+      manageSync() {
+        this.$router.push({ name: PageNames.ManageSyncSchedule });
+      },
     },
     $trs: {
       registeredAlready: {
@@ -135,6 +144,10 @@
       syncing: {
         message: 'Syncing',
         context: 'Indicates when a syncing process between facilities is in progress.',
+      },
+      createSync: {
+        message: 'Create sync schedule',
+        context: 'Link to create sync schedule',
       },
     },
   };

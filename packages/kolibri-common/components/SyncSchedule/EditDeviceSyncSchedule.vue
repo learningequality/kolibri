@@ -156,7 +156,7 @@
   import { now } from 'kolibri.utils.serverClock';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskTypes } from 'kolibri.utils.syncTaskUtils';
-  import { PageNames } from '../../../../constants';
+  import { PageNames } from '../../../../kolibri/plugins/facility/assets/src/constants';
 
   export default {
     name: 'EditDeviceSyncSchedule',
@@ -280,10 +280,17 @@
               device_id: this.device.id,
               enqueue_args: { enqueue_at: this.serverTime, repeat_interval: 2, repeat: 2 },
             })
-              .then(tasks => {
-                this.notifyAndWatchTask(tasks);
-                TaskResource.list({ repeating: true, queue: 'facility_task' });
+              .then(() => {
+                // this.notifyAndWatchTask(tasks);
+                history.back();
               })
+              // const notifyAndWatchPromise = startTaskPromise.then(tasks => {
+
+              // });
+              // Promise.all([startTaskPromise, notifyAndWatchPromise])
+              //   .then(() => {
+
+              //   })
               .catch(() => {
                 // this.createTaskFailedSnackbar();
               });

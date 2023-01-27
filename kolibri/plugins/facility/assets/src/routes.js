@@ -1,4 +1,7 @@
 import store from 'kolibri.coreVue.vuex.store';
+import ManageSyncSchedule from '../../../../../packages/kolibri-common/components/SyncSchedule/ManageSyncSchedule';
+import SyncSchedule from '../../../../../packages/kolibri-common/components/SyncSchedule/SyncSchedule';
+import editDeviceSyncSchedule from '../../../../../packages/kolibri-common/components/SyncSchedule/EditDeviceSyncSchedule';
 import ClassEditPage from './views/ClassEditPage';
 import CoachClassAssignmentPage from './views/CoachClassAssignmentPage';
 import LearnerClassEnrollmentPage from './views/LearnerClassEnrollmentPage';
@@ -14,14 +17,11 @@ import { showClassesPage } from './modules/classManagement/handlers';
 import { showClassEditPage } from './modules/classEditManagement/handlers';
 import { showUserPage } from './modules/userManagement/handlers';
 import { showFacilityConfigPage } from './modules/facilityConfig/handlers';
-import ManageSyncSchedule from './views/DataPage/SyncInterface/ManageSyncSchedule';
-import SyncSchedule from './views/DataPage/SyncInterface/SyncSchedule/SyncSchedule';
 import {
   showLearnerClassEnrollmentPage,
   showCoachClassAssignmentPage,
 } from './modules/classAssignMembers/handlers';
 import { PageNames } from './constants';
-import editDeviceSyncSchedule from './views/DataPage/SyncInterface/SyncSchedule/EditDeviceSyncSchedule';
 
 export default [
   // Routes for multi-facility case

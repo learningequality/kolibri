@@ -154,8 +154,8 @@
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import { TaskResource, FacilityResource, NetworkLocationResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { PageNames } from '../../../constants';
-  import AddAddressFormVue from '../../../../../../../core/assets/src/views/sync/SelectAddressModalGroup/AddAddressForm.vue';
+  import { PageNames } from '../../../../kolibri/plugins/facility/assets/src/constants';
+  import AddAddressFormVue from '../../../../kolibri/core/assets/src/views/sync/SelectAddressModalGroup/AddAddressForm.vue';
 
   export default {
     name: 'ManageSyncSchedule',
