@@ -31,18 +31,25 @@
       <pre>{{ JSON.stringify(deviceProvisioningData, null, 2) }}</pre>
       <h3>Facility User Data</h3>
       <pre>{{ JSON.stringify(facilityUserData, null, 2) }}</pre>
-      <KButton
-        primary
+      <KButtonGroup
         style="
           position: fixed;
           top: 2em;
           right: 3em;
         "
-        icon="back"
-        iconAfter="back"
-        text="START OVER"
-        @click="wizardService.send('START_OVER')"
-      />
+      >
+        <KButton
+          icon="back"
+          text="START OVER"
+          @click="wizardService.send('START_OVER')"
+        />
+        <KButton
+          primary
+          iconAfter="forward"
+          text="Continue and Finish"
+          @click="provisionDevice()"
+        />
+      </KButtonGroup>
     </div>
   </div>
 
