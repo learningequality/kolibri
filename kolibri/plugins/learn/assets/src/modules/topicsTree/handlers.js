@@ -49,6 +49,45 @@ export function showTopicsContent(store, id, deviceId = null) {
   return _loadTopicsContent(store, id);
 }
 
+function _handleRootTopic(topic, currentChannel) {
+  const isRoot = !topic.parent;
+  if (isRoot) {
+    topic.description = currentChannel.description;
+    topic.tagline = currentChannel.tagline;
+    topic.thumbnail = currentChannel.thumbnail;
+  }
+  return isRoot;
+}
+
+function _getChildren(id, topic, skip) {
+  let children = topic.children.results || [];
+  let skipped = false;
+  // If there is only one child, and that child is a topic, then display that instead
+  while (skip && children.length === 1 && !children[0].is_leaf) {
+    topic = children[0];
+    children = topic.children.results || [];
+    skipped = true;
+    id = topic.id;
+  }
+  return {
+    children,
+    skipped,
+    id,
+  };
+}
+
+function _handleTopicRedirect(store, pageName, children, id, query, skipped) {
+  if (!children.some(c => !c.is_leaf) && pageName !== PageNames.TOPICS_TOPIC_SEARCH) {
+    // if there are no children which are not leaf nodes (i.e. they have children themselves)
+    // then redirect to search results
+    router.replace({ name: PageNames.TOPICS_TOPIC_SEARCH, params: { id }, query });
+    store.commit('SET_PAGE_NAME', PageNames.TOPICS_TOPIC_SEARCH);
+  } else if (skipped) {
+    // If we have skipped down the topic tree, replace to the new top level topic
+    router.replace({ name: pageName, params: { id }, query });
+  }
+}
+
 function _loadTopicsTopic(store, { id, pageName, query, baseurl }) {
   const skip = query && query.skip === 'true';
   const params = {
@@ -71,30 +110,16 @@ function _loadTopicsTopic(store, { id, pageName, query, baseurl }) {
           router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
           return;
         }
-        const isRoot = !topic.parent;
-        if (isRoot) {
-          topic.description = currentChannel.description;
-          topic.tagline = currentChannel.tagline;
-          topic.thumbnail = currentChannel.thumbnail;
-        }
-        let children = topic.children.results || [];
-        let skipped = false;
-        // If there is only one child, and that child is a topic, then display that instead
-        while (skip && children.length === 1 && !children[0].is_leaf) {
-          topic = children[0];
-          children = topic.children.results || [];
-          skipped = true;
-          id = topic.id;
-        }
 
-        // if there are no children which are not leaf nodes (i.e. they have children themselves)
-        // then redirect to search results
-        if (!children.some(c => !c.is_leaf) && pageName !== PageNames.TOPICS_TOPIC_SEARCH) {
-          router.replace({ name: PageNames.TOPICS_TOPIC_SEARCH, params: { id }, query });
-          store.commit('SET_PAGE_NAME', PageNames.TOPICS_TOPIC_SEARCH);
-        } else if (skipped) {
-          router.replace({ name: pageName, params: { id }, query });
-        }
+        const isRoot = _handleRootTopic(topic, currentChannel);
+
+        const childrenResults = _getChildren(id, topic, skip);
+
+        const { children, skipped } = childrenResults;
+
+        id = childrenResults.id;
+
+        _handleTopicRedirect(store, pageName, children, id, query, skipped);
 
         store.commit('topicsTree/SET_STATE', {
           isRoot,

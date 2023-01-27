@@ -12,59 +12,38 @@ const { channels, fetchChannels } = useChannels();
 
 const { fetchResumableContentNodes } = useLearnerResources();
 
-function _showLibrary(store, query, channels, baseurl) {
-  if (!channels.length) {
-    return;
-  }
-  // Special case for when only the page number changes:
-  // Don't set the 'page loading' boolean, to prevent flash and loss of keyboard focus.
-  if (store.state.pageName !== PageNames.LIBRARY) {
-    store.commit('CORE_SET_PAGE_LOADING', true);
-  }
-
-  const promises = [];
-
-  if (!searchKeys.some(key => query[key])) {
-    // If not currently on a route with search terms
-    promises.push(
-      ContentNodeResource.fetchCollection({
-        getParams: {
-          parent__isnull: true,
-          include_coach_content:
-            store.getters.isAdmin || store.getters.isCoach || store.getters.isSuperuser,
-          baseurl,
-        },
-      })
-    );
-    if (store.getters.isUserLoggedIn && !baseurl) {
-      promises.push(fetchResumableContentNodes());
-    }
+function _showChannels(store, query, channels, baseurl) {
+  if (store.getters.isUserLoggedIn && !baseurl) {
+    fetchResumableContentNodes();
   }
   const shouldResolve = samePageCheckGenerator(store);
-  return Promise.all(promises).then(
-    ([channelCollection]) => {
+  return ContentNodeResource.fetchCollection({
+    getParams: {
+      parent__isnull: true,
+      include_coach_content:
+        store.getters.isAdmin || store.getters.isCoach || store.getters.isSuperuser,
+      baseurl,
+    },
+  }).then(
+    channelCollection => {
       if (shouldResolve()) {
-        if (channelCollection && channelCollection.length) {
-          // we want them to be in the same order as the channels list
-          const rootNodes = channels
-            .map(channel => {
-              const node = _collectionState(channelCollection).find(
-                n => n.channel_id === channel.id
-              );
-              if (node) {
-                // The `channel` comes with additional data that is
-                // not returned from the ContentNodeResource.
-                // Namely thumbnail, description and tagline (so far)
-                node.title = channel.name || node.title;
-                node.thumbnail = channel.thumbnail;
-                node.description = channel.tagline || channel.description;
-                return node;
-              }
-            })
-            .filter(Boolean);
+        // we want them to be in the same order as the channels list
+        const rootNodes = channels
+          .map(channel => {
+            const node = _collectionState(channelCollection).find(n => n.channel_id === channel.id);
+            if (node) {
+              // The `channel` comes with additional data that is
+              // not returned from the ContentNodeResource.
+              // Namely thumbnail, description and tagline (so far)
+              node.title = channel.name || node.title;
+              node.thumbnail = channel.thumbnail;
+              node.description = channel.tagline || channel.description;
+              return node;
+            }
+          })
+          .filter(Boolean);
 
-          store.commit('SET_ROOT_NODES', rootNodes);
-        }
+        store.commit('SET_ROOT_NODES', rootNodes);
 
         store.commit('CORE_SET_PAGE_LOADING', false);
         store.commit('CORE_SET_ERROR', null);
@@ -75,6 +54,27 @@ function _showLibrary(store, query, channels, baseurl) {
       shouldResolve() ? store.dispatch('handleError', error) : null;
     }
   );
+}
+
+function _showLibrary(store, query, channels, baseurl) {
+  if (!channels.length) {
+    return;
+  }
+  // Special case for when only the page number changes:
+  // Don't set the 'page loading' boolean, to prevent flash and loss of keyboard focus.
+  if (store.state.pageName !== PageNames.LIBRARY) {
+    store.commit('CORE_SET_PAGE_LOADING', true);
+  }
+
+  if (searchKeys.some(key => query[key])) {
+    // If currently on a route with search terms
+    // just finish early and let the component handle loading
+    store.commit('CORE_SET_PAGE_LOADING', false);
+    store.commit('CORE_SET_ERROR', null);
+    store.commit('SET_PAGE_NAME', PageNames.LIBRARY);
+    return Promise.resolve();
+  }
+  return _showChannels(store, query, channels, baseurl);
 }
 
 export function showLibrary(store, query, deviceId = null) {
