@@ -2,6 +2,45 @@
 
 List of the most important changes for each release.
 
+
+## 0.15.10
+
+### Added
+* Add PDF accessibility support for screen readers
+* Add support for captions for audio
+
+### Fixed
+* Fixed overflowing title alignment on content cards
+* Improved visible focus outline
+* Fixed positioning of transcript layout when language is set to a right-to-left language
+* Fixed calculation for number of users displayed on the User Tables
+
+### Changed
+* Only display the completion modal on the finish event when the resource is also complete
+
+## 0.15.9
+### Added
+* Specified pre-commit hook python version to 3.10
+* Added Python3.11 to supported python versions
+### Fixed
+* Fixed PDF completion issues
+* Fixed learner-facing metadata display of content duration
+* Fixed "Mark as complete" functionality to allow learners to mark resources as complete when allowed by the resource
+* Disable forward/back buttons on EPUB renderer until locations are properly loaded
+* Fix issue that causes learners to skip every other question in an exercise
+* Fix searchbox outline
+* Fix title spacing in app bar
+* Fix bookmark data loading issues that caused inaccurate bookmark display
+### Changed
+* Changed \_\_init\_\_.py  from 5 tuple to 3
+* Set a max width on Library main content grid to display properly on extra large monitors
+* Remove "All options" from filters in Learn search/filtering side panel
+* Switch display of the completion modal to require both completed progress and the resource to be finished
+* Add tests to assert totalattempts behaviour
+* Display completion modals only on first completion, and allow user to reopen the modal if needed
+* Update category search for each level to be searchable
+* Update KDS to 1.4.1
+
 ## 0.15.8
 
 ### Added

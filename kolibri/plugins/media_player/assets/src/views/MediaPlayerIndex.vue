@@ -61,6 +61,16 @@
             :type="audioSourceType(audio.extension)"
           >
         </template>
+        <template v-for="track in trackSources">
+          <track
+            :key="track.storage_url"
+            kind="captions"
+            :src="track.storage_url"
+            :srclang="track.lang.id"
+            :label="track.lang.lang_name"
+            :default="isDefaultTrack(track.lang.id)"
+          >
+        </template>
       </audio>
 
       <MediaPlayerTranscript v-if="transcriptVisible" ref="transcript" />
