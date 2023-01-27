@@ -29,8 +29,6 @@
       <h2>Setup Wizard Debugger 3000</h2>
       <h3>Device Provisioning Data</h3>
       <pre>{{ JSON.stringify(deviceProvisioningData, null, 2) }}</pre>
-      <h3>Facility User Data</h3>
-      <pre>{{ JSON.stringify(facilityUserData, null, 2) }}</pre>
       <KButtonGroup
         style="
           position: fixed;
@@ -59,11 +57,13 @@
 <script>
 
   import { v4 } from 'uuid';
+  import omitBy from 'lodash/omitBy';
   import { currentLanguage } from 'kolibri.utils.i18n';
+  import { checkCapability } from 'kolibri.utils.appCapabilities';
   import KolibriLoadingSnippet from 'kolibri.coreVue.components.KolibriLoadingSnippet';
   import urls from 'kolibri.urls';
-  import { SetupWizardResource } from '../../api';
-  import { DeviceTypePresets, FacilityTypePresets, UsePresets } from '../../constants';
+  import client from 'kolibri.client';
+  import { UsePresets } from '../../constants';
 
   export default {
     name: 'SettingUpKolibri',
@@ -77,75 +77,33 @@
     computed: {
       /** The data we will use to initialize the device during provisioning */
       deviceProvisioningData() {
-        const superuser = this.$store.state.onboardingData.user || null;
-        return {
+        const superuser = this.wizardContext('superuser');
+
+        let payload = {
           superuser,
           facility: this.wizardContext('selectedFacility'),
-          preset: this.wizardContext('formalOrNonformal'),
+          preset: this.wizardContext('formalOrNonformal') || 'nonformal', // TODO remove this default!
           language_id: currentLanguage,
           device_name: this.wizardContext('deviceName'),
-          settings: {},
+          settings: { on_my_own_setup: this.isOnMyOwnSetup },
           allow_guest_access: this.wizardContext('guestAccess'),
           is_provisioned: true,
-          os_user: this.canGetOsUser,
-        };
-      },
-
-      /** The data we will use to create the user and facility, *if needed*, during provisioning */
-      facilityUserData() {
-        // Data from user credentials form
-        let { full_name, username, password } = this.$store.state.onboardingData.user;
-        return {
-          full_name,
-          username,
-          password,
-          facility_name: this.wizardContext('facilityName'),
-          facility_dataset: {
-            learner_can_login_with_no_password: !this.wizardContext('requirePassword'),
-            learner_can_sign_up: this.wizardContext('learnerCanCreateAccount'),
-            preset: this.wizardContext('formalOrNonformal'),
-          },
-          extra_fields: {
-            on_my_own_setup: this.isOnMyOwnSetup,
-            os_user: this.canGetOsUser,
-          },
+          os_user: checkCapability('get_os_user'),
           auth_token: v4(),
         };
+
+        // Remove anything that is `null` value
+        return omitBy(payload, v => v === null);
       },
 
       /** Introspecting the machine via it's `state.context` properties */
       isOnMyOwnSetup() {
         return this.wizardContext('onMyOwnOrGroup') == UsePresets.ON_MY_OWN;
       },
-      canGetOsUser() {
-        return this.wizardContext('canGetOsUser');
-      },
-      isNewFacility() {
-        return this.wizardContext('facilityNewOrImport') === FacilityTypePresets.NEW;
-      },
-      isLearnOnlyDevice() {
-        return this.wizardContext('fullOrLOD') === DeviceTypePresets.LOD;
-      },
     },
     mounted() {
       if (this.devMode) {
         return null; // debugger activated, don't do anything
-      }
-      if (this.isOnMyOwnSetup) {
-        if (this.canGetOsUser) {
-          this.createAndProvisionOnMyOwnUserApp();
-        } else {
-          this.createAndProvisionOnMyOwnUserDevice();
-        }
-      }
-
-      if (!this.isLearnOnlyDevice) {
-        if (this.isNewFacility) {
-          this.createAndProvisionNewFullFacilityDevice();
-        } else {
-          // We already have the facility imported, just provision and redirect
-          this.createAndProvisionNewFullFacilityDevice();
-        }
       } else {
         this.provisionDevice();
       }
@@ -155,32 +113,25 @@
       wizardContext(key) {
         return this.wizardService.state.context[key];
       },
-      createAndProvisionOnMyOwnUserDevice() {
-        SetupWizardResource.createonmyownuser(this.facilityUserData).then(() =>
-          this.provisionDevice()
-        );
-      },
-      createAndProvisionOnMyOwnUserApp() {
-        SetupWizardResource.createappuser(this.facilityUserData).then(() => this.provisionDevice());
-      },
-      createAndProvisionNewFullFacilityDevice() {
-        SetupWizardResource.createsuperuser(this.facilityUserData).then(() =>
-          this.provisionDevice()
-        );
-      },
       provisionDevice() {
-        SetupWizardResource.provisiondevice(this.deviceProvisioningData)
-          .then(() => {
-            // FIXME In dev mode, we'll wait 5 seconds before moving along so we can see the page
-            // ... maybe we keep this?
+        client({
+          url: urls['kolibri:core:deviceprovision'](),
+          method: 'POST',
+          data: this.deviceProvisioningData,
+        })
+          .then(response => {
+            console.log(JSON.stringify(response.data));
+            const appKey = response.data.app_key;
             const timeout = process.NODE_ENV === 'production' ? 1 : 5000;
-            setTimeout(
-              () =>
-                (window.location.pathname = urls['kolibri:kolibri.plugins.user_auth:user_auth']()),
-              timeout
-            );
+
+            const path = appKey
+              ? urls['kolibri:kolibri.plugins.app:initialize'](appKey) + '?auth_token=' + v4()
+              : urls['kolibri:kolibri.plugins.user_auth:user_auth']();
+
+            console.log('Going to redirect to ', path);
+            setTimeout(() => (window.location.href = path), timeout);
           })
-          .catch(err => console.log(err));
+          .catch(e => console.error(e));
       },
     },
     $trs: {

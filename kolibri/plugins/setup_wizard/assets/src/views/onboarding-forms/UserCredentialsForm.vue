@@ -163,21 +163,21 @@
         this.$store.commit('SET_USER_CREDENTIALS', payload);
       },
       handleContinue() {
-        // Be sure to sync this as it updates Vuex with the form data so other components
-        // have access to it
+        // Here we will do some final handoff from Vuex to the XState machine
+        // We syncOnboardingData (to Vuex)
+        // Then we will send the data set in Vuex there into the wizard machine's superuser context
+        // value.
+        // This will ensure that users' selections persist across page reloads as well.
         this.syncOnboardingData();
         if (!this.formIsValid) {
-          if (this.$refs.passwordTextbox && this.$refs.passwordTextbox.isValid) {
-            // In this case, we have been given a separate password form in our #form slot
-            // and it's ref can tell us if it's valid and whether we should continue
-            console.log('OKGO');
-            this.wizardService.send('CONTINUE');
-            return;
-          }
           this.focusOnInvalidField();
           return;
+        } else {
+          this.wizardService.send({
+            type: 'CONTINUE',
+            value: this.$store.state.onboardingData.user,
+          });
         }
-        this.wizardService.send('CONTINUE');
       },
       focusOnInvalidField() {
         this.$nextTick().then(() => {

@@ -54,13 +54,12 @@ const initialContext = {
   fullOrLOD: null,
   deviceName: 'default-device-name',
   formalOrNonformal: null,
-  guestAccess: null,
+  guestAccess: false,
   learnerCanCreateAccount: null,
   requirePassword: null,
-  selectedFacility: null,
+  selectedFacility: { name: 'Default Facility Name' },
   importDeviceId: null,
   importDevice: null,
-  canGetOsUser: null,
   superuser: null,
 };
 
@@ -349,7 +348,9 @@ export const wizardMachine = createMachine(
         },
       }),
       setSuperuser: assign({
-        superuser: (_, event) => event.value,
+        superuser: (_, event) => {
+          return event.value;
+        },
       }),
       setSelectedImportDeviceFacility: assign({
         selectedFacility: (_, event) => {
