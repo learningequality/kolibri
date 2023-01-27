@@ -19,7 +19,7 @@
     "@babel/plugin-transform-runtime": "^7.19.6",
     "@babel/preset-env": "^7.19.1",
     "@testing-library/jest-dom": "^5.16.5",
-    "@vue/test-utils": "^1.0.3",
+    "@vue/test-utils": "^2.2.8",
     "ast-traverse": "^0.1.1",
     "autoprefixer": "10.4.2",
     "babel-core": "7.0.0-bridge.0",
