@@ -132,7 +132,7 @@
 
 <script>
 
-  import { mapState } from 'vuex';
+  import { mapGetters, mapState } from 'vuex';
 
   import { onMounted } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -248,6 +248,7 @@
     },
     computed: {
       ...mapState(['rootNodes']),
+      ...mapGetters(['isUserLoggedIn']),
       sidePanelWidth() {
         if (this.windowIsSmall || this.windowIsMedium) {
           return 0;
@@ -278,9 +279,11 @@
     created() {
       this.search();
       this.translator = crossComponentTranslator(FilterTextbox);
-      this.fetchDevices().then(devices => {
-        this.devices = devices.filter(d => d.available);
-      });
+      if (this.isUserLoggedIn) {
+        this.fetchDevices().then(devices => {
+          this.devices = devices.filter(d => d.available);
+        });
+      }
     },
     methods: {
       findFirstEl() {
