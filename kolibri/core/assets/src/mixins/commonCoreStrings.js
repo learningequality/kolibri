@@ -1082,6 +1082,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Change learning facility',
     context: 'Menu or screen used for the user to move to a different learning facility',
   },
+  sizeLabelText: {
+    message: 'size',
+    context: 'Figure for the lesson size in MBs',
+  },
 });
 
 // We forgot a string, so we are using one from the PerseusInternalMessages namespace

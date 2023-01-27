@@ -27,6 +27,9 @@
         </div>
       </div>
 
+      <p>
+        {{ $tr('availablSizeTolearner') }}
+      </p>
       <CoreTable>
         <template #headers>
           <th>{{ coachString('titleLabel') }}</th>
@@ -234,6 +237,10 @@
         message: 'Size',
         context:
           "'Size' is a column name in the 'Lessons' section. It refers to the number or learning resources there are in a specific lesson.",
+      },
+      availablSizeTolearner: {
+        message: 'Total size of lessons that are visible to learners: 162 MB',
+        context: 'The text for notifying about the availbale size for learners',
       },
       noLessons: {
         message: 'You do not have any lessons',

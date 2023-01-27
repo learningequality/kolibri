@@ -44,10 +44,16 @@
           />
         </div>
       </div>
+
+      <p>
+        {{ $tr('availablSizeTolearner') }}
+      </p>
+
       <CoreTable>
         <template #headers>
           <th>{{ coachString('titleLabel') }}</th>
           <th>{{ coachString('recipientsLabel') }}</th>
+          <th>{{ coreString('sizeLabelText') }}</th>
           <th class="center-text">
             {{ coachString('statusLabel') }}
           </th>
@@ -75,6 +81,10 @@
                   :groupNames="getRecipientNamesForExam(exam)"
                   :hasAssignments="exam.assignments.length > 0"
                 />
+              </td>
+              <!-- Waiting for the backend implementation -->
+              <td>
+                4MB
               </td>
 
               <td class="button-col center-text core-table-button-col">
@@ -316,6 +326,10 @@
         message: 'Select quiz',
         context:
           "Practice quizzes are pre-made quizzes, that don't require the curation work on the part of the coach. Selecting a practice quiz refers to importing a ready-to-use quiz.",
+      },
+      availablSizeTolearner: {
+        message: 'Total size of lessons that are visible to learners: 162 MB',
+        context: 'The text for notifying about the availbale size for learners',
       },
     },
   };

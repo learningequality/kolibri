@@ -17,11 +17,16 @@
         />
 
       </ReportsControls>
+      <p>
+        {{ $tr('availablSizeTolearner') }}
+      </p>
+
       <CoreTable :emptyMessage="emptyMessage">
         <template #headers>
           <th>{{ coachString('titleLabel') }}</th>
           <th>{{ coreString('progressLabel') }}</th>
           <th>{{ coachString('recipientsLabel') }}</th>
+          <th>{{ coreString('sizeLabelText') }}</th>
           <th v-show="!$isPrint">
             {{ coachString('lessonVisibleLabel') }}
           </th>
@@ -53,6 +58,10 @@
                   :groupNames="getRecipientNamesForExam(tableRow)"
                   :hasAssignments="tableRow.assignments.length > 0"
                 />
+              </td>
+              <!-- Waiting for the backend implementation -->
+              <td>
+                2MB
               </td>
               <td v-show="!$isPrint">
                 <KSwitch
@@ -195,6 +204,10 @@
         message: '{className} Lessons',
         context:
           "Title that displays on a printed copy of the 'Reports' > 'Lessons' page. This shows if the user uses the 'Print' option by clicking on the printer icon.",
+      },
+      availablSizeTolearner: {
+        message: 'Total size of lessons that are visible to learners: 162 MB',
+        context: 'The text for notifying about the availbale size for learners',
       },
     },
   };
