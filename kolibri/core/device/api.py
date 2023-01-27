@@ -92,8 +92,8 @@ class DeviceProvisionView(viewsets.GenericViewSet):
             login(request, data["superuser"])
         output_serializer = self.get_serializer(data)
         response_data = output_serializer.data
-        app_key = request.COOKIES[APP_KEY_COOKIE_NAME]
-        if app_key:
+        if APP_KEY_COOKIE_NAME in request.COOKIES:
+            app_key = request.COOKIES[APP_KEY_COOKIE_NAME]
             response_data["app_key"] = app_key
         return Response(response_data, status=status.HTTP_201_CREATED)
 
