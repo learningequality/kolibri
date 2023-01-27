@@ -69,10 +69,12 @@
     name: 'SettingUpKolibri',
     components: { KolibriLoadingSnippet },
     inject: ['wizardService'],
+    data() {
+      return {
+        devMode: process.NODE_ENV !== 'production',
+      };
+    },
     computed: {
-      devMode() {
-        return process.NODE_ENV !== 'production';
-      },
       /** The data we will use to initialize the device during provisioning */
       deviceProvisioningData() {
         const superuser = this.$store.state.onboardingData.user || null;
