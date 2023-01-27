@@ -31,11 +31,7 @@
 
   import { SelectAddressModalGroup } from 'kolibri.coreVue.componentSets.sync';
   import OnboardingStepBase from '../OnboardingStepBase';
-
-  const Options = Object.freeze({
-    IMPORT: 'IMPORT',
-    NEW: 'NEW',
-  });
+  import { FacilityTypePresets as Options } from '../../constants';
 
   export default {
     name: 'SetUpLearningFacilityForm',
@@ -51,16 +47,12 @@
         showSelectAddressModal: false,
       };
     },
-    mounted() {
-      console.log('New or Import form', this.wizardService.state);
-    },
     methods: {
       handleContinueImport(address) {
         this.wizardService.send({
           type: 'CONTINUE',
           value: { importOrNew: Options.IMPORT, importDeviceId: address.id },
         });
-        console.log('continue to import', this.wizardService.state);
       },
       handleContinue() {
         if (this.selected === Options.IMPORT) {
