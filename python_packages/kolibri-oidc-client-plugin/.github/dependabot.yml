@@ -1,0 +1,10 @@
+# Automatically update versions for pip
+
+version: 2
+updates:
+
+  # Maintain dependencies for Python
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "daily"
