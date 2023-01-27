@@ -85,10 +85,19 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
         superuser - the required fields for a facilityuser who will be set as the super user for this device
         """
         with transaction.atomic():
-            facility = Facility.objects.create(**validated_data.pop("facility"))
-            preset = validated_data.pop("preset")
-            facility.dataset.preset = preset
-            facility.dataset.reset_to_default_settings(preset)
+            facility_data = validated_data.pop("facility")
+            facility_id = facility_data.get("id")
+
+            if facility_id:
+                # We've already imported the facility to the device before provisioning
+                facility = Facility.objects.get(facility_id)
+                preset = facility.dataset.preset
+            else:
+                facility = Facility.objects.create(**facility_data)
+                preset = validated_data.pop("preset")
+                facility.dataset.preset = preset
+                facility.dataset.reset_to_default_settings(preset)
+
             # overwrite the settings in dataset_data with validated_data.settings
             custom_settings = validated_data.pop("settings")
             for key, value in custom_settings.items():
