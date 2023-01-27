@@ -283,39 +283,16 @@ Or to run pre-translation with auto-approval:
 .. warning:: The exact behavior of Crowdin's translation memory is not specified. Given some English phrase, it is not always possible to predict what suggested translation it will make. Therefore, auto-approval be used with caution.
 
 
-Displaying stats
-~~~~~~~~~~~~~~~~
+Reviewing screenshots
+~~~~~~~~~~~~~~~~~~~~~
 
-Every release, we need to let translators for each language know how much work they will have to do. In order to see how many new strings and words are in a particular release, run:
+Every release, we need to review screenshots on the platform to ensure they are up to date. To generate a report of all the screenshots for a particular branch run:
 
 .. code-block:: bash
 
-  make i18n-stats branch=[release-branch-name]
+  make i18n-screenshot-report branch=[release-branch-name]
 
-This will give you some output like this:
-
-.. code-block:: text
-
-    Branch: develop-alpha
-
-    New since last release:
-    -------------  ---
-    Total strings   67
-    Total words    402
-    -------------  ---
-
-    Untranslated:
-    Language                        Strings    Words
-    ----------------------------  ---------  -------
-    ** average, all languages **         49      370
-    Arabic                               48      366
-    Bengali                              47      370
-    ...
-    Yoruba                               50      375
-    Zulu                                 49      367
-
-
-This information can be provided to translators; it's also available on the Crowdin website.
+This will generate an HTML report that can be browsed to double check screenshots against the source English strings, with a link to the string on Crowdin to update the screenshot if needed.
 
 
 Downloading translations to Kolibri

@@ -8,7 +8,12 @@ import time
 import zipfile
 from contextlib import contextmanager
 
+from utils import available_languages
 from utils import install_requirement
+from utils import KEY_CROWDIN_CODE
+from utils import local_locale_path
+from utils import local_locale_source_path
+from utils import read_config_file
 
 try:
     import click
@@ -22,19 +27,18 @@ except ImportError:
     install_requirement("requests")
     import requests
 
+crowdin_version = "1.8.0"
+
 try:
     import crowdin_api  # noqa
+
+    if getattr(crowdin_api, "__version__") != crowdin_version:
+        raise ImportError
 except ImportError:
-    install_requirement("crowdin-api-client==1.2.0")
+    install_requirement("crowdin-api-client=={}".format(crowdin_version))
 
-from crowdin_api import CrowdinClient
-from crowdin_api.exceptions import APIException
-
-from utils import available_languages
-from utils import KEY_CROWDIN_CODE
-from utils import local_locale_path
-from utils import local_locale_source_path
-from utils import read_config_file
+from crowdin_api import CrowdinClient  # noqa E402
+from crowdin_api.exceptions import APIException  # noqa E402
 
 logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
 logging.StreamHandler(sys.stdout)
@@ -61,7 +65,9 @@ def verify_project(project_name):
     """
 
     with handle_api_exception("Listing projects"):
-        list_projects_response = crowdin_client.projects.list_projects()
+        list_projects_response = (
+            crowdin_client.projects.with_fetch_all().list_projects()
+        )
     projects = list_projects_response["data"]
 
     found_project = next(
@@ -90,8 +96,10 @@ def verify_branch(project_id, branch_name):
     it went
     """
     with handle_api_exception("Listing branches:"):
-        list_branches_response = crowdin_client.source_files.list_project_branches(
-            project_id
+        list_branches_response = (
+            crowdin_client.source_files.with_fetch_all().list_project_branches(
+                project_id
+            )
         )
     branches = list_branches_response["data"]
 
@@ -530,6 +538,74 @@ def upload_sources(branch, project, locale_data_folder):
             logging.info("Uploaded new file {}".format(file_name))
 
 
+def _all_screenshots(project):
+    screenshot_response = crowdin_client.screenshots.with_fetch_all().list_screenshots(
+        project["id"]
+    )
+    for sc in screenshot_response["data"]:
+        yield sc["data"]
+
+
+def _source_strings(project, branch):
+    source_string_response = (
+        crowdin_client.source_strings.with_fetch_all().list_strings(
+            project["id"], branchId=branch["id"]
+        )
+    )
+    for string in source_string_response["data"]:
+        yield string["data"]
+
+
+@click.command(cls=CrowdinCommand)
+@branch_argument
+def screenshot_report(branch, project):
+    """
+    Make a QA report for screenshots
+    """
+    string_lookup = {
+        string["id"]: string for string in _source_strings(project, branch)
+    }
+    html = "<html><body>"
+    html += """
+    <style>
+        table,
+        td {
+            border: 1px solid #333;
+        }
+        thead,
+        {
+            font-weight: bold;
+        }
+    </style>
+    """
+    html += "<table><thead><tr><th>Screenshot</th><th>English String</th><th>String Identifier</th></tr></thead>"
+    for sc in _all_screenshots(project):
+        for tag in sc["tags"]:
+            try:
+                string = string_lookup[tag["stringId"]]
+                html += """
+                    <tr>
+                        <td><img style="max-width: 600px;" src="{url}" /></td>
+                        <td>{text}</td>
+                        <td><a href="https://crowdin.com/translate/{project}/all/en-es?filter=basic&value=0#{crowdinId}">{messageId}</a></td>
+                        </tr>
+                    """.format(
+                    url=sc["url"],
+                    project=project["name"],
+                    crowdinId=string["id"],
+                    messageId=string["identifier"],
+                    text=string["text"],
+                )
+            except KeyError:
+                pass
+    html += "</table></body></html>"
+    filename = "screenshot_report_{}.html".format(branch["name"])
+    with open(filename, "w") as f:
+        f.write(html)
+
+    logging.info("Screenshot report written to {}".format(filename))
+
+
 """
 Main
 """
@@ -548,6 +624,7 @@ main.add_command(rebuild_translations)
 main.add_command(upload_sources)
 main.add_command(download_glossary)
 main.add_command(upload_glossary)
+main.add_command(screenshot_report)
 
 if __name__ == "__main__":
     main()
