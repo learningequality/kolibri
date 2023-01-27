@@ -6,7 +6,6 @@ import { PageNames } from '../../constants';
 import useChannels from '../../composables/useChannels';
 import { setCurrentDevice } from '../../composables/useDevices';
 import useContentNodeProgress from '../../composables/useContentNodeProgress';
-import { _collectionState, contentState } from '../coreLearn/utils';
 
 const { channelsMap, fetchChannels } = useChannels();
 const { fetchContentNodeTreeProgress } = useContentNodeProgress();
@@ -22,7 +21,7 @@ function _loadTopicsContent(store, id, baseurl) {
           return;
         }
         store.commit('topicsTree/SET_STATE', {
-          content: contentState(content),
+          content,
           channel: currentChannel,
         });
         store.commit('CORE_SET_PAGE_LOADING', false);
@@ -125,7 +124,7 @@ function _loadTopicsTopic(store, { id, pageName, query, baseurl }) {
           isRoot,
           channel: currentChannel,
           topic,
-          contents: _collectionState(children),
+          contents: children,
         });
 
         store.dispatch('notLoading');

@@ -6,7 +6,6 @@ import useChannels from '../../composables/useChannels';
 import { setCurrentDevice } from '../../composables/useDevices';
 import useLearnerResources from '../../composables/useLearnerResources';
 import { searchKeys } from '../../composables/useSearch';
-import { _collectionState } from '../coreLearn/utils';
 
 const { channels, fetchChannels } = useChannels();
 
@@ -30,7 +29,7 @@ function _showChannels(store, query, channels, baseurl) {
         // we want them to be in the same order as the channels list
         const rootNodes = channels
           .map(channel => {
-            const node = _collectionState(channelCollection).find(n => n.channel_id === channel.id);
+            const node = channelCollection.find(n => n.channel_id === channel.id);
             if (node) {
               // The `channel` comes with additional data that is
               // not returned from the ContentNodeResource.
