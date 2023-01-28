@@ -46,6 +46,10 @@ logging.StreamHandler(sys.stdout)
 
 @contextmanager
 def handle_api_exception(contextual_message=""):
+    """
+    Context manager to add contextual messages to tell us what kind of API request failed
+    and raise the error as a ClickException.
+    """
     contextual_message = (
         contextual_message + ": " if contextual_message else contextual_message
     )
@@ -65,11 +69,13 @@ def verify_project(project_name):
     """
 
     with handle_api_exception("Listing projects"):
+        # Fetch all projects
         list_projects_response = (
             crowdin_client.projects.with_fetch_all().list_projects()
         )
     projects = list_projects_response["data"]
 
+    # Find the first project that matches the project_name
     found_project = next(
         (b for b in projects if b["data"]["identifier"] == project_name), None
     )
@@ -81,6 +87,7 @@ def verify_project(project_name):
                 found_project["data"]["name"], project_id
             )
         )
+        # Return a dict with the project name and id
         return {"name": project_name, "id": project_id}
     else:
         raise ValueError("Project does not exist")
@@ -174,6 +181,7 @@ project_option = click.Option(
 
 
 def set_key(ctx, param, value):
+    # To set the API token we just set it globally on the crowdin API client.
     crowdin_client.TOKEN = value
     return value
 
@@ -230,11 +238,16 @@ class CrowdinCommand(click.Command):
     allow_extra_args = True
 
     def __init__(self, *args, **kwargs):
+        # Add in the default key option and project option to ensure that
+        # it is set on every command without having to manually specify it.
         kwargs["params"] = [key_option, project_option] + (
             kwargs["params"] if "params" in kwargs else []
         )
         context_settings = kwargs.get("context_settings", {})
         default_map = context_settings.get("default_map", {})
+        # Read in any configuration file information into the default map
+        # this means that explicit command line args will overwrite these defaults
+        # but otherwise the configuration file options will be used.
         default_map.update(read_config_file())
         context_settings["default_map"] = default_map
         kwargs["context_settings"] = context_settings
@@ -280,7 +293,6 @@ Pre-translate command
 """
 
 
-# pre-translate all strings matches, and auto-approve only those with exact ID matches
 @click.command(cls=CrowdinCommand)
 @branch_argument
 @click.option(
@@ -292,6 +304,7 @@ Pre-translate command
 def pretranslate(branch, project, approve_all=False):
     """
     Apply pre-translation to the given branch
+    auto-approve only those with exact ID matches
     """
     logging.info(
         "Initiating pre-translation for Project: {}, Branch: {}{}".format(
@@ -327,16 +340,19 @@ def download_translations(branch, project, locale_data_folder):
     """
     logging.info("Crowdin: downloading '{}'.".format(branch["name"]))
 
+    # Get all the builds for this branch
     with handle_api_exception("Listing builds"):
         builds_response = crowdin_client.translations.list_project_builds(
             project["id"], branch["id"], limit=500
         )
 
+    # Look for the most recent build
     sorted_builds = sorted(
         builds_response["data"], key=lambda x: x["data"]["createdAt"], reverse=True
     )
 
     if not sorted_builds:
+        # If there isn't one, then force a rebuild now.
         build_id = _rebuild_translations(branch, project)
     else:
         build_id = sorted_builds[0]["data"]["id"]
@@ -350,6 +366,7 @@ def download_translations(branch, project, locale_data_folder):
             )
         finished = status_response["data"]["status"] == "finished"
         if not finished:
+            # Don't bother waiting if we've already finished
             time.sleep(5)
 
     with handle_api_exception("Getting translations download URL"):
@@ -394,6 +411,7 @@ GLOSSARY_XML_FILE = "glossary.tbx"
 
 
 def _get_glossary_id(project):
+    # Currently we only support handling a single glossary file for a project
     with handle_api_exception("Listing glossaries"):
         glossaries_response = crowdin_client.glossaries.list_glossaries()
 
@@ -427,12 +445,14 @@ def download_glossary(project, locale_data_folder):
 
     logging.info("Starting an export of the glossary. This may take a minute.")
     with handle_api_exception("Starting glossary export"):
+        # Start a request to export a glossary file.
         response = crowdin_client.glossaries.export_glossary(glossary_id, file_format)
     export_id = response["data"]["identifier"]
     export_status = None
+    # Wait for the glossary export
     time.sleep(5)
     while export_status != "finished":
-        logging.info("Export not finished, trying again in 5 seconds.")
+        # Check on the status of the glossary export
         with handle_api_exception("Checking glossary export status"):
             response = crowdin_client.glossaries.check_glossary_export_status(
                 glossary_id, export_id
@@ -440,10 +460,12 @@ def download_glossary(project, locale_data_folder):
         export_status = response["data"]["status"]
         logging.info("Current export status: {}".format(export_status))
         if export_status != "finished":
+            logging.info("Export not finished, trying again in 5 seconds.")
             time.sleep(5)
 
     logging.info("Export finished! Fetching the download URL.")
     with handle_api_exception("Fetching glossary download URL"):
+        # Get the download URL for the exported glossary.
         response = crowdin_client.glossaries.download_glossary(glossary_id, export_id)
     download_url = response["data"]["url"]
     r = requests.get(download_url)
@@ -464,17 +486,19 @@ def upload_glossary(project, locale_data_folder):
 
     GLOSSARY_FILE = os.path.join(locale_data_folder, GLOSSARY_XML_FILE)
     logging.info("Uploading {} to storage.".format(GLOSSARY_FILE))
+    # Upload the glossary file to Crowdin's storage
     storage_id = add_to_storage(GLOSSARY_FILE)
 
     logging.info("Beginning import process.")
     with handle_api_exception("Starting glossary import"):
+        # Import the glossary file from Crowdin's storage and set as the glossary
         response = crowdin_client.glossaries.import_glossary(glossary_id, storage_id)
     import_id = response["data"]["identifier"]
 
     import_status = None
     time.sleep(5)
+    # Wait for the import to be complete
     while import_status != "finished":
-        logging.info("Still importing, will check again in 5 seconds.")
         with handle_api_exception("Checking glossary import status"):
             response = crowdin_client.glossaries.check_glossary_import_status(
                 glossary_id, import_id
@@ -482,6 +506,7 @@ def upload_glossary(project, locale_data_folder):
         import_status = response["data"]["status"]
         logging.info("Current import status: {}".format(import_status))
         if import_status != "finished":
+            logging.info("Still importing, will check again in 5 seconds.")
             time.sleep(5)
 
     logging.info("Imported successfully!")
@@ -513,16 +538,22 @@ def upload_sources(branch, project, locale_data_folder):
     }
     logging.info("Found {} source files to upload.".format(len(source_files)))
 
+    # Make a lookup dict of file name to the file data for all the files
+    # currently on crowdin.
     crowdin_files = {
         file["data"]["name"]: file["data"]
         for file in list_files(project["id"], branch["id"])["data"]
     }
 
     for file_name in source_files:
+        # For each file we have to upload, add to Crowdin's storage
         storage_id = add_to_storage(os.path.join(source_path, file_name))
+        # If this specific CSV file already exists on Crowdin
         if file_name in crowdin_files:
+            # Get the id for this file name on Crowdin
             file_id = crowdin_files[file_name]["id"]
             with handle_api_exception("Updating source file"):
+                # Update that file to point to the new storage id
                 crowdin_client.source_files.update_file(
                     project["id"],
                     file_id,
@@ -532,6 +563,7 @@ def upload_sources(branch, project, locale_data_folder):
             logging.info("Updated file {} with id {}".format(file_name, file_id))
         else:
             with handle_api_exception("Adding new source file"):
+                # Otherwise just add a new file with the file name to this branch
                 crowdin_client.source_files.add_file(
                     project["id"], storage_id, file_name, branch["id"]
                 )
@@ -562,6 +594,7 @@ def screenshot_report(branch, project):
     """
     Make a QA report for screenshots
     """
+    # Make a lookup dict of Crowdin string id to data about the string
     string_lookup = {
         string["id"]: string for string in _source_strings(project, branch)
     }
@@ -579,10 +612,18 @@ def screenshot_report(branch, project):
     </style>
     """
     html += "<table><thead><tr><th>Screenshot</th><th>English String</th><th>String Identifier</th></tr></thead>"
+    # Loop through all the screenshots on Crowdin
     for sc in _all_screenshots(project):
+        # Loop through each tag on the screenshot
         for tag in sc["tags"]:
             try:
+                # If it's a tag for the branch we're interested in,
+                # it will be in our string_lookup
                 string = string_lookup[tag["stringId"]]
+                # Create a table row with the inlined image,
+                # source string text, and string id.
+                # Also add a link to the string on Crowdin so that the screenshot
+                # can be updated.
                 html += """
                     <tr>
                         <td><img style="max-width: 600px;" src="{url}" /></td>
@@ -622,20 +663,30 @@ def transfer_screenshots(branch, project, source_branch):
             "Must specify different branches to copy screenshots"
         )
 
+    # Make a lookup dict of Crowdin string id to data about the string for the source branch
     source_branch_string_lookup = {
         string["id"]: string for string in _source_strings(project, source_branch)
     }
+
+    # Make a lookup dict from our message ids to data about the strings for the target branch
     target_branch_string_lookup = {
         string["identifier"]: string for string in _source_strings(project, branch)
     }
     transferred = 0
+    # Loop through all the screenshots on Crowdin
     for sc in _all_screenshots(project):
         new_tags = []
+        # Loop through each tag on the screenshot
         for tag in sc["tags"]:
             try:
+                # If it's a tag for the source branch we're interested in,
+                # it will be in our string_lookup
                 string = source_branch_string_lookup[tag["stringId"]]
+                # Get the message identifier to match it up with strings on our target branch
                 message_id = string["identifier"]
                 target_branch_string = target_branch_string_lookup[message_id]
+                # Create a new tag with the stringId for the target branch
+                # and copy the position information from the source branch
                 new_tags.append(
                     {
                         "stringId": target_branch_string["id"],
@@ -646,6 +697,7 @@ def transfer_screenshots(branch, project, source_branch):
                 pass
         if new_tags:
             with handle_api_exception("Adding screenshot to string"):
+                # Create all the new tags for this particular screenshot at once.
                 crowdin_client.screenshots.add_tag(project["id"], sc["id"], new_tags)
                 transferred += len(new_tags)
 
