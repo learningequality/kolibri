@@ -91,7 +91,9 @@
 <script>
 
   import Mark from 'mark.js';
-  import CFI from 'epub-cfi-resolver';
+  import { EpubCFI } from 'epubjs';
+  import isEqual from 'lodash/isEqual';
+
   import SideBar from './SideBar';
 
   /**
@@ -225,22 +227,45 @@
         });
       },
       getMatchIndex({ textSplit, cfi, nextResult }) {
-        if (textSplit <= 2) {
+        if (textSplit.length <= 2) {
           return 0;
         }
         if (!nextResult) {
           return textSplit.length - 2;
         }
-        const currentCFI = new CFI(cfi);
-        const nextCFI = new CFI(nextResult.cfi);
-        const distanceNext = CFI.compare(nextCFI, currentCFI);
+        const distanceNext = this.getDistanceInNode(cfi, nextResult.cfi);
         for (let i = 1; i < textSplit.length - 1; i++) {
           const split = textSplit[i];
-          if (split.length === distanceNext - 1) {
+          if (split.length === distanceNext) {
             return i - 1;
           }
         }
         return textSplit.length - 2;
+      },
+      getDistanceInNode(cfi1, cfi2) {
+        const cfiParser = new EpubCFI();
+        const cfi1Parsed = cfiParser.parse(cfi1);
+        const cfi2Parsed = cfiParser.parse(cfi2);
+
+        if (!cfi1Parsed.range || !cfi2Parsed.range) {
+          // Just in case we have a cfi that is not a range
+          return -1;
+        }
+
+        const cfi2StartTerminal = cfi2Parsed.start.terminal;
+        const cfi1EndTerminal = cfi1Parsed.end.terminal;
+
+        delete cfi1Parsed.start.terminal;
+        delete cfi2Parsed.start.terminal;
+        delete cfi1Parsed.end.terminal;
+        delete cfi2Parsed.end.terminal;
+        const isInSameNode = isEqual(cfi1Parsed, cfi2Parsed);
+        if (!isInSameNode) {
+          return -1;
+        }
+
+        const distance = cfi2StartTerminal.offset - cfi1EndTerminal.offset;
+        return distance;
       },
       splitExcerpt({ textSplit, excerpt, selectedIndex }) {
         const searchQueryLength = this.searchQuery.length;
