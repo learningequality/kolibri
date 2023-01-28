@@ -2,6 +2,7 @@ import hashlib
 import logging
 import os
 import shutil
+from io import BufferedIOBase
 from time import sleep
 
 import requests
@@ -403,3 +404,40 @@ class FileCopy(Transfer):
     def close(self):
         self.source_file_obj.close()
         super(FileCopy, self).close()
+
+
+class RemoteFile(BufferedIOBase):
+    """
+    A file like wrapper to handle downloading a file from a remote location.
+    """
+
+    def __init__(self, filepath, remote_url, callback=None):
+        self.transfer = FileDownload(
+            remote_url, filepath, remove_existing_temp_file=True
+        )
+        self.callback = callback
+        self.transfer.start()
+        self._previously_read = b""
+
+    def read(self, size=-1):
+        data = self._previously_read
+        while size == -1 or len(data) < size:
+            try:
+                data += next(self.transfer)
+            except StopIteration:
+                if self.callback:
+                    self.callback()
+                break
+        if size != -1:
+            self._previously_read = data[size:]
+            data = data[:size]
+        return data
+
+    def close(self):
+        # Finish the download and close the file
+        self.read()
+        self.transfer.close()
+
+    def seek(self, offset, whence=0):
+        # Just read from the response until the offset is reached
+        self.read(size=offset)

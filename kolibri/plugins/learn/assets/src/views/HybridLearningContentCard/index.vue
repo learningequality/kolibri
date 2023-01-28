@@ -30,9 +30,9 @@
           :style="{ color: $themeTokens.text }"
         />
         <img
-          v-if="content.is_leaf && content.channel_thumbnail.length > 0"
-          :src="content.channel_thumbnail"
-          :alt="learnString('logo', { channelTitle: content.channel_title })"
+          v-if="content.is_leaf && channelThumbnail.length > 0"
+          :src="channelThumbnail"
+          :alt="learnString('logo', { channelTitle: channelTitle })"
           class="channel-logo"
         >
       </div>
@@ -95,6 +95,7 @@
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import useChannels from '../../composables/useChannels';
   import ProgressBar from '../ProgressBar';
   import LearningActivityLabel from '../LearningActivityLabel';
   import commonLearnStrings from '../commonLearnStrings';
@@ -110,6 +111,13 @@
       ProgressBar,
     },
     mixins: [commonLearnStrings, commonCoreStrings],
+    setup() {
+      const { getChannelThumbnail, getChannelTitle } = useChannels();
+      return {
+        getChannelThumbnail,
+        getChannelTitle,
+      };
+    },
     props: {
       link: {
         type: Object,
@@ -156,6 +164,12 @@
         } else {
           return {};
         }
+      },
+      channelThumbnail() {
+        return this.getChannelThumbnail(this.content && this.content.channel_id);
+      },
+      channelTitle() {
+        return this.getChannelTitle(this.content && this.content.channel_id);
       },
     },
   };

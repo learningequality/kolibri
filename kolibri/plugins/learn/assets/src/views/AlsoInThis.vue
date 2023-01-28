@@ -83,6 +83,7 @@
 
 <script>
 
+  import isBoolean from 'lodash/isBoolean';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
@@ -129,7 +130,7 @@
             return true;
           } // falsy ok
           const { id, is_leaf, title } = node;
-          return id && is_leaf && title;
+          return id && isBoolean(is_leaf) && title;
         },
       },
       isLesson: {

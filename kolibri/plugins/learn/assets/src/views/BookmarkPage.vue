@@ -83,7 +83,6 @@
   import { ContentNodeResource } from 'kolibri.resources';
   import client from 'kolibri.client';
   import urls from 'kolibri.urls';
-  import { normalizeContentNode } from '../modules/coreLearn/utils.js';
   import useContentNodeProgress from '../composables/useContentNodeProgress';
   import useContentLink from '../composables/useContentLink';
   import SidePanelModal from './SidePanelModal';
@@ -130,7 +129,7 @@
     created() {
       ContentNodeResource.fetchBookmarks({ params: { limit: 25, available: true } }).then(data => {
         this.more = data.more;
-        this.bookmarks = data.results ? data.results.map(normalizeContentNode) : [];
+        this.bookmarks = data.results ? data.results : [];
         this.loading = false;
         this.fetchContentNodeProgress({ ids: this.bookmarks.map(b => b.id) });
       });
@@ -142,7 +141,7 @@
           this.loading = true;
           ContentNodeResource.fetchBookmarks({ params: this.more }).then(data => {
             this.more = data.more;
-            this.bookmarks.push(...data.results.map(normalizeContentNode));
+            this.bookmarks.push(...data.results);
             this.loading = false;
             this.fetchContentNodeProgress({ ids: data.results.map(b => b.id) });
           });

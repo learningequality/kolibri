@@ -12,7 +12,6 @@
       <CategorySearchOptions
         ref="searchOptions"
         :selectedCategory="selectedCategory"
-        :availableLabels="availableLabels"
         v-on="$listeners"
       />
     </KModal>
@@ -21,7 +20,6 @@
       <CategorySearchOptions
         ref="searchOptions"
         :selectedCategory="selectedCategory"
-        :availableLabels="availableLabels"
         v-on="$listeners"
       />
     </div>
@@ -48,11 +46,6 @@
       selectedCategory: {
         type: String,
         required: true,
-        default: null,
-      },
-      availableLabels: {
-        type: Object,
-        required: false,
         default: null,
       },
     },

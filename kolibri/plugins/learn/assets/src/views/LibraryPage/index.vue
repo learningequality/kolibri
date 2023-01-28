@@ -44,6 +44,24 @@
           @setCardStyle="style => currentCardViewStyle = style"
           @setSidePanelMetadataContent="content => metadataSidePanelContent = content"
         />
+        <template v-if="!baseurl">
+          <p
+            v-for="device in devices"
+            :key="device.id"
+          >
+            <KRouterLink
+              :text="device.nickname.length ? device.nickname : device.device_name"
+              :to="{ name: 'LIBRARY', params: { deviceId: device.id } }"
+              appearance="basic-link"
+            />
+          </p>
+        </template>
+        <KRouterLink
+          v-else
+          :text="learnString('libraryLabel')"
+          :to="{ name: 'LIBRARY' }"
+          appearance="basic-link"
+        />
       </div>
 
       <SearchResultsGrid
@@ -65,7 +83,6 @@
     <!-- Side Panels for filtering and searching  -->
     <SidePanel
       ref="sidePanel"
-      :labels="labels"
       :searchTerms="searchTerms"
       :mobileSidePanelIsOpen="mobileSidePanelIsOpen"
       @toggleMobileSidePanel="toggleSidePanelVisibility"
@@ -115,7 +132,7 @@
 
 <script>
 
-  import { mapState } from 'vuex';
+  import { mapGetters, mapState } from 'vuex';
 
   import { onMounted } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -124,6 +141,7 @@
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import SidePanelModal from '../SidePanelModal';
   import useCardViewStyle from '../../composables/useCardViewStyle';
+  import useDevices from '../../composables/useDevices';
   import useSearch from '../../composables/useSearch';
   import useLearnerResources from '../../composables/useLearnerResources';
   import BrowseResourceMetadata from '../BrowseResourceMetadata';
@@ -161,7 +179,6 @@
         moreLoading,
         results,
         more,
-        labels,
         search,
         searchMore,
         removeFilterTag,
@@ -190,6 +207,8 @@
 
       const { currentCardViewStyle } = useCardViewStyle();
 
+      const { baseurl, fetchDevices } = useDevices();
+
       return {
         displayingSearchResults,
         searchTerms,
@@ -197,7 +216,6 @@
         moreLoading,
         results,
         more,
-        labels,
         search,
         searchMore,
         removeFilterTag,
@@ -211,6 +229,8 @@
         windowIsMedium,
         windowIsSmall,
         currentCardViewStyle,
+        baseurl,
+        fetchDevices,
       };
     },
     props: {
@@ -223,10 +243,12 @@
       return {
         metadataSidePanelContent: null,
         mobileSidePanelIsOpen: false,
+        devices: [],
       };
     },
     computed: {
       ...mapState(['rootNodes']),
+      ...mapGetters(['isUserLoggedIn']),
       sidePanelWidth() {
         if (this.windowIsSmall || this.windowIsMedium) {
           return 0;
@@ -257,6 +279,11 @@
     created() {
       this.search();
       this.translator = crossComponentTranslator(FilterTextbox);
+      if (this.isUserLoggedIn) {
+        this.fetchDevices().then(devices => {
+          this.devices = devices.filter(d => d.available);
+        });
+      }
     },
     methods: {
       findFirstEl() {

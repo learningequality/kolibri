@@ -114,7 +114,7 @@
     },
     methods: {
       contentLink(id, isResource) {
-        return this.keepCurrentBackLink
+        return this.keepCurrentBackLink && !isResource
           ? this.genContentLinkKeepCurrentBackLink(id, isResource)
           : this.genContentLinkBackLinkCurrentPage(id, isResource);
       },
