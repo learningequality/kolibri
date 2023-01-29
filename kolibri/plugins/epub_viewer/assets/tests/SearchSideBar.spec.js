@@ -3,6 +3,11 @@ import store from 'kolibri.coreVue.vuex.store';
 import SearchSideBar from '../src/views/SearchSideBar';
 import SampleSearchResults from './SampleSearchResults';
 
+const mockMark = {
+  mark: jest.fn(),
+};
+jest.mock('mark.js', () => jest.fn().mockImplementation(() => mockMark));
+
 function createWrapper() {
   const node = document.createElement('app');
   document.body.appendChild(node);
@@ -33,9 +38,6 @@ describe('Search side bar', () => {
     wrapper.vm.searchQuery = 'biology';
     wrapper.vm.searchResults = SampleSearchResults;
     wrapper.vm.createMarks(wrapper.vm.searchQuery);
-    // const allMarks = wrapper.findAll('mark');
-    // expect(allMarks.length).toBeGreaterThanOrEqual(wrapper.vm.searchResults.length);
-    // Listen for event as a proxy for Mark to have done the highlighting
-    expect(wrapper.emitted().newSearchQuery[0]).toEqual(['biology']);
+    expect(mockMark.mark).toHaveBeenCalled();
   });
 });
