@@ -165,10 +165,9 @@
             </td>
             <template v-if="showDemographicInfo">
               <td class="id-col">
-                <span v-if="user.id_number">
-                  {{ user.id_number }}
-                </span>
-                <KEmptyPlaceholder v-else />
+                <KOptionalText
+                  :text="user.id_number ? user.id_number : ''"
+                />
               </td>
               <td>
                 <GenderDisplayText :gender="user.gender" />
