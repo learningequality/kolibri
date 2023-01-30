@@ -103,7 +103,7 @@ class LessonViewset(ValuesViewset):
         )
 
     @action(detail=False)
-    def size(self, request, url_path="size"):
+    def size(self, request, **kwargs):
         lessons = self.get_queryset()
         if lessons:
             lessons_nodes_list = [{lesson.id: lesson.resources} for lesson in lessons]
@@ -123,4 +123,4 @@ class LessonViewset(ValuesViewset):
                     resource_nodes[0]
                 )
 
-        return Response(lessons_sizes_dict)
+        return Response([lessons_sizes_dict])

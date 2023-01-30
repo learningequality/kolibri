@@ -398,6 +398,11 @@ const coachStrings = createTranslator('CommonCoachStrings', {
     context:
       "Refers to the number of resources in a lesson. Only translate 'resource' and 'resources'.",
   },
+  resourcesAndSize: {
+    message: '{value, number, integer} {value, plural, one {resource} other {resources}}, {size}',
+    context:
+      "Refers to the number of resources in a lesson and the total size (i.e. 20 MB) of the lesson. Only translate 'resource' and 'resources'.",
+  },
   ratioShort: {
     message: '{value, number, integer} of {total, number, integer}',
     context:

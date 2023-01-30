@@ -1,11 +1,6 @@
 <template>
 
-  <CoachAppBarPage
-    :authorized="userIsAuthorized"
-    authorizedRole="adminOrCoach"
-    :showSubNav="true"
-  >
-
+  <CoachAppBarPage :authorized="userIsAuthorized" authorizedRole="adminOrCoach" :showSubNav="true">
     <KPageContainer>
       <PlanHeader />
 
@@ -35,15 +30,8 @@
           <th>{{ coachString('lessonVisibleLabel') }}</th>
         </template>
         <template #tbody>
-          <transition-group
-            tag="tbody"
-            name="list"
-          >
-            <tr
-              v-for="lesson in sortedLessons"
-              v-show="showLesson(lesson)"
-              :key="lesson.id"
-            >
+          <transition-group tag="tbody" name="list">
+            <tr v-for="lesson in sortedLessons" v-show="showLesson(lesson)" :key="lesson.id">
               <td>
                 <KRouterLink
                   :to="lessonSummaryLink({ lessonId: lesson.id, classId })"
@@ -51,12 +39,20 @@
                   icon="lesson"
                 />
               </td>
-              <td>{{ coachString('numberOfResources', { value: lesson.resources.length }) }}</td>
+              <td>
+                {{
+                  coachString('resourcesAndSize', {
+                    value: lesson.resources.length,
+                    size: lessonSize(lesson.id),
+                  })
+                }}
+              </td>
               <td>
                 <Recipients
                   :groupNames="getRecipientNamesForLesson(lesson)"
-                  :hasAssignments="lesson.lesson_assignments.length > 0
-                    || lesson.learner_ids.length > 0"
+                  :hasAssignments="
+                    lesson.lesson_assignments.length > 0 || lesson.learner_ids.length > 0
+                  "
                 />
               </td>
               <td>
@@ -123,6 +119,7 @@
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
   import commonCoach from '../../common';
@@ -148,7 +145,7 @@
     },
     computed: {
       ...mapState('classSummary', { classId: 'id' }),
-      ...mapState('lessonsRoot', ['lessons', 'learnerGroups']),
+      ...mapState('lessonsRoot', ['lessons', 'learnerGroups', 'lessonsSizes']),
       sortedLessons() {
         return this._.orderBy(this.lessons, ['date_created'], ['desc']);
       },
@@ -227,6 +224,14 @@
           this.$store.dispatch('lessonsRoot/refreshClassLessons', this.$route.params.classId);
           this.$store.dispatch('createSnackbar', snackbarMessage);
         });
+      },
+      lessonSize(lessonId) {
+        if (this.lessonsSizes && this.lessonsSizes[0]) {
+          let size = this.lessonsSizes[0][lessonId];
+          size = bytesForHumans(size);
+          return size;
+        }
+        return '--';
       },
     },
     $trs: {
