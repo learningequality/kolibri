@@ -16,6 +16,7 @@
           backgroundColor: $themeTokens.surface,
         }"
       >
+
         <FocusTrap
           @shouldFocusFirstEl="$emit('shouldFocusFirstEl')"
           @shouldFocusLastEl="focusLastEl"
@@ -51,6 +52,8 @@
               <p :style="{ color: $themeTokens.annotation, fontSize: '12px', marginTop: 0 }">
                 {{ getUserKind }}
               </p>
+
+              <SideNavStorageNotification />
               <!-- display sync status, when relevant -->
               <div v-if="isSubsetOfUsersDevice" data-test="syncStatusInDropdown">
                 <div class="sync-status">
@@ -210,6 +213,7 @@
   import logout from './LogoutSideNavEntry';
   import SideNavDivider from './SideNavDivider';
   import FocusTrap from './FocusTrap.vue';
+  import SideNavStorageNotification from './SideNavStorageNotification.vue';
   import plugin_data from 'plugin_data';
 
   // Explicit ordered list of roles for nav item sorting
@@ -236,6 +240,7 @@
       FocusTrap,
       TotalPoints,
       LanguageSwitcherModal,
+      SideNavStorageNotification,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin, responsiveElementMixin, navComponentsMixin],
     setup() {

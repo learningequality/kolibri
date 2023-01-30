@@ -20,21 +20,21 @@
             style="margin-right: 10px"
             appearance="flat-button"
             :secondary="true"
-            @click="CloseBanner"
+            @click="closeBanner"
           />
           <KButton
             v-if="availableDownloads"
             :text="$tr('goToDownloads')"
             appearance="raised-button"
             :secondary="true"
-            @click="CloseBanner"
+            @click="closeBanner"
           />
           <KButton
             v-if="isSuperAdmin"
             :text="$tr('manageChannels')"
             appearance="raised-button"
             :secondary="true"
-            @click="CloseBanner"
+            @click="manageChannel"
           />
         </KGridItem>
       </KGrid>
@@ -96,11 +96,14 @@
         }
         return message;
       },
-      CloseBanner() {
+      closeBanner() {
         this.bannerOpened = false;
         if (this.previouslyFocusedElement) {
           this.previouslyFocusedElement.focus();
         }
+      },
+      manageChannel() {
+        this.$router.push('/');
       },
       focusChange(e) {
         // We need the element prior to the close button and more info
