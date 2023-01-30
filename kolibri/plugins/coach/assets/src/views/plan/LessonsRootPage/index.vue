@@ -61,7 +61,7 @@
                   label=""
                   :checked="lesson.is_active"
                   :value="lesson.is_active"
-                  @change="handleToggleVisibility(lesson)"
+                  @change="toggleModal(lesson)"
                 />
               </td>
             </tr>
@@ -78,6 +78,40 @@
       <p v-else-if="!hasLessonsNotVisible">
         {{ $tr('noLessonsNotVisible') }}
       </p>
+
+      <KModal
+        v-if="showLessonIsVisibleModal"
+        :title="$tr('makeLessonVisibleTitle')"
+        :submitText="coreString('continueAction')"
+        :cancelText="coreString('cancelAction')"
+        @submit="handleToggleVisibility(activeLesson)"
+        @cancel="showLessonIsVisibleModal = false"
+      >
+        <p>{{ $tr('makeLessonVisibleText') }}</p>
+        <p>{{ $tr('fileSizeToDownload', { size: lessonSize(activeLesson.id) }) }}</p>
+        <KCheckbox
+          :checked="dontShowAgainChecked"
+          :label="$tr('dontShowAgain')"
+          @change="dontShowAgainChecked = $event"
+        />
+      </KModal>
+
+      <KModal
+        v-if="showLessonIsNotVisibleModal"
+        :title="$tr('makeLessonNotVisibleTitle')"
+        :submitText="coreString('continueAction')"
+        :cancelText="coreString('cancelAction')"
+        @submit="handleToggleVisibility(activeLesson)"
+        @cancel="showLessonIsNotVisibleModal = false"
+      >
+        <p>{{ $tr('makeLessonNotVisibleText') }}</p>
+        <p>{{ $tr('fileSizeToRemove', { size: lessonSize(activeLesson.id) }) }}</p>
+        <KCheckbox
+          :checked="dontShowAgainChecked"
+          :label="$tr('dontShowAgain')"
+          @change="dontShowAgainChecked = $event"
+        />
+      </KModal>
 
       <KModal
         v-if="showModal"
@@ -139,8 +173,12 @@
     data() {
       return {
         showModal: false,
+        showLessonIsVisibleModal: false,
+        showLessonIsNotVisibleModal: false,
+        activeLesson: null,
         filterSelection: {},
         detailsModalIsDisabled: false,
+        dontShowAgainChecked: false,
       };
     },
     computed: {
@@ -220,10 +258,24 @@
           exists: true,
         });
 
+        this.activeLesson = null;
+        this.showLessonIsVisibleModal = false;
+        this.showLessonIsNotVisibleModal = false;
+
         return promise.then(() => {
           this.$store.dispatch('lessonsRoot/refreshClassLessons', this.$route.params.classId);
           this.$store.dispatch('createSnackbar', snackbarMessage);
         });
+      },
+      toggleModal(lesson) {
+        this.activeLesson = lesson;
+        if (lesson.is_active) {
+          this.showLessonIsVisibleModal = false;
+          this.showLessonIsNotVisibleModal = true;
+        } else {
+          this.showLessonIsNotVisibleModal = false;
+          this.showLessonIsVisibleModal = true;
+        }
       },
       lessonSize(lessonId) {
         if (this.lessonsSizes && this.lessonsSizes[0]) {
@@ -247,6 +299,38 @@
       },
       noVisibleLessons: 'No visible lessons',
       noLessonsNotVisible: 'No lessons not visible',
+      makeLessonVisibleTitle: {
+        message: 'Make lesson visible',
+        context: 'Informational prompt for coaches when updating lesson visibility to learners',
+      },
+      makeLessonVisibleText: {
+        message:
+          'Learners will be able to see this lesson and use its resources. Resource files in this lesson will be downloaded to learn-only devices that are set up to sync with this server.',
+        context: 'Informational prompt for coaches when updating lesson visibility to learners',
+      },
+      makeLessonNotVisibleTitle: {
+        message: 'Make lesson not visible',
+        context: 'Informational prompt for coaches when updating lesson visibility to learners',
+      },
+      makeLessonNotVisibleText: {
+        message:
+          'Learners will no longer be able to see this lesson. Resource files in this lesson will be removed from learn-only devices that are set up to sync with this server.',
+        context: 'Informational prompt for coaches when updating lesson visibility to learners',
+      },
+      dontShowAgain: {
+        message: "Don't show this message again",
+        context: 'Option for a check box to not be prompted again with an informational modal',
+      },
+      fileSizeToDownload: {
+        message: 'File size to download: {size}',
+        context:
+          'The size of the file or files that must be downloaded to learner devices for the lesson, (i.e. 20 KB)',
+      },
+      fileSizeToRemove: {
+        message: 'File size to remove: {size}',
+        context:
+          'The size of the file or files that will be removed from learner devices for the lesson, (i.e. 20 KB)',
+      },
     },
   };
 
