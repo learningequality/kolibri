@@ -53,10 +53,9 @@
               >{{ categoryAndLevelString }}</p>
               <div>
                 <img
-                  v-if="content.channel_thumbnail"
-                  :src="
-                    content.channel_thumbnail"
-                  :alt="learnString('logo', { channelTitle: content.channel_title })"
+                  v-if="channelThumbnail"
+                  :src="channelThumbnail"
+                  :alt="learnString('logo', { channelTitle: channelTitle })"
                   class="channel-logo"
                   :style="{ color: $themePalette.grey.v_700 }"
                 >
@@ -64,7 +63,7 @@
                   v-else
                   class="metadata-info"
                   :style="{ color: $themePalette.grey.v_700, marginTop: 0 }"
-                >{{ learnString('logo', { channelTitle: content.channel_title }) }}</p>
+                >{{ learnString('logo', { channelTitle: channelTitle }) }}</p>
                 <KButton
                   v-if="isLibraryPage && content.copies"
                   appearance="basic-link"
@@ -117,6 +116,7 @@
   import { ContentLevels, Categories } from 'kolibri.coreVue.vuex.constants';
   import camelCase from 'lodash/camelCase';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useChannels from '../composables/useChannels';
   import { PageNames } from '../constants';
   import ProgressBar from './ProgressBar';
   import LearningActivityLabel from './LearningActivityLabel';
@@ -134,6 +134,13 @@
       ProgressBar,
     },
     mixins: [responsiveWindowMixin, commonLearnStrings, commonCoreStrings],
+    setup() {
+      const { getChannelThumbnail, getChannelTitle } = useChannels();
+      return {
+        getChannelThumbnail,
+        getChannelTitle,
+      };
+    },
     props: {
       createdDate: {
         type: String,
@@ -192,6 +199,12 @@
           return this.levels(this.content.grade_levels);
         }
         return null;
+      },
+      channelThumbnail() {
+        return this.getChannelThumbnail(this.content && this.content.channel_id);
+      },
+      channelTitle() {
+        return this.getChannelTitle(this.content && this.content.channel_id);
       },
     },
     methods: {

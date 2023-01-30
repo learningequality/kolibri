@@ -62,7 +62,7 @@
     </transition>
 
     <ol
-      v-show="searchHasBeenMade && !searchIsLoading && searchResults.length > 0"
+      v-if="searchHasBeenMade && !searchIsLoading && searchResults.length > 0"
       ref="searchResultsList"
       class="search-results-list"
     >
@@ -153,7 +153,6 @@
       searchIsLoading: false,
       maxSearchResultsExceeded: false,
       searchHasBeenMade: false,
-      markInstance: null,
     }),
     computed: {
       numberOfSearchResults() {
@@ -187,29 +186,20 @@
                 this.maxSearchResultsExceeded = true;
               }
               this.searchResults = searchResults.slice(0, MAX_SEARCH_RESULTS);
-
+              this.$emit('newSearchQuery', searchQuery);
+              this.searchIsLoading = false;
               // Wait for list to be updated
               this.$nextTick().then(() => {
-                if (this.markInstance) {
-                  this.markInstance.unmark({
-                    done: () => this.createMarks(searchQuery),
-                  });
-                } else {
-                  this.createMarks(searchQuery);
-                }
+                this.createMarks(searchQuery);
               });
             }
           );
         }
       },
       createMarks(searchQuery) {
-        this.markInstance = new Mark(this.$refs.searchResultsList);
-        this.markInstance.mark(searchQuery, {
+        const markInstance = new Mark(this.$refs.searchResultsList);
+        markInstance.mark(searchQuery, {
           separateWordSearch: false,
-          done: () => {
-            this.$emit('newSearchQuery', searchQuery);
-            this.searchIsLoading = false;
-          },
         });
       },
     },

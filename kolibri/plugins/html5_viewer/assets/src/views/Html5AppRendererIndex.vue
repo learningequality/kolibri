@@ -161,12 +161,25 @@
         this.loading = false;
         this.$emit('error', err);
       });
+      let storageUrl = this.defaultFile.storage_url;
+      if (!this.isH5P) {
+        // In the case that this is being routed via a remote URL
+        // ensure we preserve that for the zip endpoint.
+        const query = this.defaultFile.storage_url.split('?')[1];
+        storageUrl = urls.zipContentUrl(
+          this.defaultFile.checksum,
+          this.defaultFile.extension,
+          this.entry
+        );
+        if (query) {
+          storageUrl += '?' + query;
+        }
+      }
+
       this.hashi.initialize(
         (this.extraFields && this.extraFields.contentState) || {},
         this.userData,
-        this.isH5P
-          ? this.defaultFile.storage_url
-          : urls.zipContentUrl(this.defaultFile.checksum, this.defaultFile.extension, this.entry),
+        storageUrl,
         this.defaultFile.checksum
       );
       this.$emit('startTracking');

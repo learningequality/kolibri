@@ -62,28 +62,30 @@
   import camelCase from 'lodash/camelCase';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import { libraryCategories } from '../../constants';
+  import { injectSearch } from '../../composables/useSearch';
 
   export default {
     name: 'CategorySearchOptions',
     mixins: [commonCoreStrings, responsiveWindowMixin],
+    setup() {
+      const { availableLibraryCategories, searchableLabels } = injectSearch();
+      return {
+        availableLibraryCategories,
+        searchableLabels,
+      };
+    },
     props: {
       selectedCategory: {
         type: String,
         required: true,
         default: null,
       },
-      availableLabels: {
-        type: Object,
-        required: false,
-        default: null,
-      },
     },
     computed: {
       availablePaths() {
-        if (this.availableLabels) {
+        if (this.searchableLabels) {
           const paths = {};
-          for (let key of this.availableLabels.categories) {
+          for (let key of this.searchableLabels.categories) {
             const keyPaths = key.split('.');
             let path = '';
             for (let keyPath of keyPaths) {
@@ -96,10 +98,10 @@
         return null;
       },
       topLevelCategory() {
-        return libraryCategories[this.selectedCategory];
+        return this.availableLibraryCategories[this.selectedCategory];
       },
       displaySelectedCategories() {
-        return libraryCategories[this.selectedCategory].nested;
+        return this.availableLibraryCategories[this.selectedCategory].nested;
       },
       appearanceOverrides() {
         return {

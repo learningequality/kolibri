@@ -5,7 +5,7 @@
       v-if="languageOptionsList.length"
       :options="languageOptionsList"
       :disabled="!langId && enabledLanguageOptions.length < 2"
-      :clearable="true"
+      :clearable="!(!langId && enabledLanguageOptions.length < 2)"
       :clearText="coreString('clearAction')"
       :value="selectedLanguage"
       :label="coreString('languageLabel')"
@@ -17,7 +17,7 @@
       :options="contentLevelsList"
       :disabled="!levelId && enabledContentLevels.length < 2"
       class="selector"
-      :clearable="true"
+      :clearable="!(!levelId && enabledContentLevels.length < 2)"
       :clearText="coreString('clearAction')"
       :value="selectedLevel"
       :label="coreString('levelLabel')"
@@ -29,7 +29,7 @@
       :options="channelOptionsList"
       :disabled="!channelId && enabledChannelOptions.length < 2"
       class="selector"
-      :clearable="true"
+      :clearable="!(!channelId && enabledChannelOptions.length < 2)"
       :clearText="coreString('clearAction')"
       :value="selectedChannel"
       :label="coreString('channelLabel')"
@@ -41,7 +41,7 @@
       :options="accessibilityOptionsList"
       :disabled="!accessId && enabledAccessibilityOptions.length < 2"
       class="selector"
-      :clearable="true"
+      :clearable="!(!accessId && enabledAccessibilityOptions.length < 2)"
       :clearText="coreString('clearAction')"
       :value="selectedAccessibilityFilter"
       :label="coreString('accessibility')"
@@ -56,31 +56,29 @@
 <script>
 
   import camelCase from 'lodash/camelCase';
-  import get from 'lodash/get';
   import { ContentLevels, AccessibilityCategories } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import plugin_data from 'plugin_data';
-
-  const contentLevelsList = Object.keys(ContentLevels).filter(key => {
-    const value = ContentLevels[key];
-    // TODO rtibbles: remove this condition
-    return (
-      get(plugin_data, 'gradeLevels', []).includes(value) || process.env.NODE_ENV !== 'production'
-    );
-  });
-
-  const accessibilityOptionsList = Object.keys(AccessibilityCategories).filter(key => {
-    const value = AccessibilityCategories[key];
-    // TODO rtibbles: remove this condition
-    return (
-      get(plugin_data, 'accessibilityLabels', []).includes(value) ||
-      process.env.NODE_ENV !== 'production'
-    );
-  });
+  import { injectSearch } from '../../composables/useSearch';
 
   export default {
     name: 'SelectGroup',
     mixins: [commonCoreStrings],
+    setup() {
+      const {
+        availableGradeLevels,
+        availableAccessibilityOptions,
+        availableLanguages,
+        availableChannels,
+        searchableLabels,
+      } = injectSearch();
+      return {
+        availableGradeLevels,
+        availableAccessibilityOptions,
+        availableLanguages,
+        availableChannels,
+        searchableLabels,
+      };
+    },
     props: {
       value: {
         type: Object,
@@ -89,11 +87,6 @@
           const inputKeys = ['channels', 'accessibility_labels', 'languages', 'grade_levels'];
           return inputKeys.every(k => Object.prototype.hasOwnProperty.call(value, k));
         },
-      },
-      availableLabels: {
-        type: Object,
-        required: false,
-        default: null,
       },
       showChannels: {
         type: Boolean,
@@ -111,10 +104,11 @@
         };
       },
       languageOptionsList() {
-        return get(plugin_data, 'languages', []).map(language => {
+        return this.availableLanguages.map(language => {
           return {
             value: language.id,
-            disabled: this.availableLabels && !this.availableLabels.languages.includes(language.id),
+            disabled:
+              this.searchableLabels && !this.searchableLabels.languages.includes(language.id),
             label: language.lang_name,
           };
         });
@@ -123,12 +117,12 @@
         return this.languageOptionsList.filter(l => !l.disabled);
       },
       accessibilityOptionsList() {
-        return accessibilityOptionsList.map(key => {
+        return this.availableAccessibilityOptions.map(key => {
           const value = AccessibilityCategories[key];
           return {
             value,
             disabled:
-              this.availableLabels && !this.availableLabels.accessibility_labels.includes(value),
+              this.searchableLabels && !this.searchableLabels.accessibility_labels.includes(value),
             label: this.coreString(camelCase(key)),
           };
         });
@@ -137,7 +131,7 @@
         return this.accessibilityOptionsList.filter(a => !a.disabled);
       },
       contentLevelsList() {
-        return contentLevelsList.map(key => {
+        return this.availableGradeLevels.map(key => {
           const value = ContentLevels[key];
           let translationKey;
           if (key === 'PROFESSIONAL') {
@@ -151,7 +145,7 @@
           }
           return {
             value,
-            disabled: this.availableLabels && !this.availableLabels.grade_levels.includes(value),
+            disabled: this.searchableLabels && !this.searchableLabels.grade_levels.includes(value),
             label: this.coreString(translationKey),
           };
         });
@@ -160,9 +154,9 @@
         return this.contentLevelsList.filter(c => !c.disabled);
       },
       channelOptionsList() {
-        return get(plugin_data, 'channels', []).map(channel => ({
+        return this.availableChannels.map(channel => ({
           value: channel.id,
-          disabled: this.availableLabels && !this.availableLabels.channels.includes(channel.id),
+          disabled: this.searchableLabels && !this.searchableLabels.channels.includes(channel.id),
           label: channel.name,
         }));
       },
