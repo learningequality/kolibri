@@ -11,9 +11,13 @@ import RequirePasswordForLearnersForm from './views/onboarding-forms/RequirePass
 import PersonalDataConsentForm from './views/onboarding-forms/PersonalDataConsentForm';
 import SettingUpKolibri from './views/onboarding-forms/SettingUpKolibri';
 import ImportLODUsersSetup from './views/ImportLODUsersSetup';
+import JoinOrNew from './views/importLODUsers/JoinOrNew';
 import ImportAuthentication from './views/importFacility/ImportAuthentication';
 import SelectFacilityForm from './views/importFacility/SelectFacilityForm';
 import SelectSuperAdminAccountForm from './views/importFacility/SelectSuperAdminAccountForm';
+import ImportUserAuth from './views/importLODUsers/ImportUserAuth';
+import { SelectFacilityForm as LodSelectFacility } from './views/importLODUsers/SelectFacilityForm';
+import ImportMultipleUsers from './views/importLODUsers/ImportMultipleUsers';
 import LoadingTaskPage from './views/importFacility/LoadingTaskPage';
 import Sandbox from './views/Sandbox';
 
@@ -103,33 +107,38 @@ export default [
 
   // Learn only device
   {
-    name: 'IMPORT_LOD',
-    path: '/import-lod/select',
+    name: 'LOD_SETUP_TYPE',
+    path: '/learn-only/setup-type',
+    component: JoinOrNew,
+  },
+  {
+    name: 'LOD_SELECT_FACILITY',
+    path: '/learn-only/select-facility',
+    component: LodSelectFacility,
+  },
+  {
+    name: 'LOD_IMPORT_USER',
+    path: '/learn-only/import',
     component: ImportLODUsersSetup,
   },
   {
-    name: 'IMPORT_LOD',
-    path: '/import-lod/import-user',
-    component: ImportLODUsersSetup,
+    name: 'LOD_IMPORT_USER_AUTH',
+    path: '/learn-only/import/sign-in',
+    component: ImportUserAuth,
   },
   {
-    name: 'IMPORT_LOD',
-    path: '/import-lod/loading',
-    component: ImportLODUsersSetup,
+    name: 'LOD_LOADING_TASK_PAGE',
+    path: '/learn-only/loading',
+    component: LoadingTaskPage,
   },
   {
-    name: 'IMPORT_LOD',
-    path: '/import-lod/select-users',
-    component: ImportLODUsersSetup,
+    name: 'LOD_IMPORT_AS_ADMIN',
+    path: '/learn-only/import/multiple-users',
+    component: ImportMultipleUsers,
   },
   {
-    name: 'IMPORT_LOD',
-    path: '/import-lod/:step',
-    component: ImportLODUsersSetup,
-  },
-  {
-    name: 'IMPORT_LOD',
-    path: '/import-lod/:step',
+    name: 'LOD_CREATE_USER_FORM',
+    path: '/learn-only/join/create-user',
     component: ImportLODUsersSetup,
   },
   {

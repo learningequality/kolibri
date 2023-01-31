@@ -52,6 +52,7 @@ const initialContext = {
   facilityNewOrImport: null,
   facilityName: '',
   fullOrLOD: null,
+  lodImportOrJoin: null,
   deviceName: 'default-device-name',
   formalOrNonformal: null,
   guestAccess: false,
@@ -306,12 +307,76 @@ export const wizardMachine = createMachine(
         },
       },
 
-      // Lod Path - the lodMachine is imported, interpreted and managed in the Lod Setup component
-      // This means that
+      // LOD machine with substates to manage its own steps
       importLodUsers: {
-        meta: { route: { name: 'IMPORT_LOD' } },
+        initial: 'selectLodSetupType',
+        states: {
+          selectLodSetupType: {
+            meta: { step: 1, route: { name: 'LOD_SETUP_TYPE' } },
+            on: {
+              BACK: '..fullOrLearnOnlyDevice',
+              SET_LOD_FLOW_TYPE: {
+                actions: 'setLodType',
+              },
+              CONTINUE: {
+                target: 'selectLodFacility',
+                actions: 'setLodImportDeviceId',
+              },
+            },
+          },
+
+          selectLodFacility: {
+            meta: { step: 2, route: { name: 'LOD_SELECT_FACILITY' } },
+            on: {
+              CONTINUE_IMPORT: {
+                target: 'lodImportUser',
+                actions: 'setSelectedImportDeviceFacility',
+              },
+              CONTINUE_JOIN: {
+                target: 'lodJoinFacility',
+                actions: 'setSelectedImportDeviceFacility',
+              },
+            },
+          },
+
+          // IMPORT
+          lodImportUserAuth: {
+            meta: { step: 3, route: { name: 'LOD_IMPORT_USER_AUTH' } },
+            on: {
+              BACK: 'selectLodSetupType',
+              CONTINUE: 'lodLoading',
+              ADMIN: 'lodImportAsAdmin',
+            },
+          },
+
+          lodLoading: {
+            meta: { step: 4, route: { name: 'LOD_LOADING_TASK_PAGE' } },
+            on: {
+              IMPORT_ANOTHER: 'lodImportUserAuth',
+              // Otherwise send FINISH, which is handled at the root of this sub-machine
+            },
+          },
+
+          lodImportAsAdmin: {
+            meta: { step: 3, route: { name: 'LOD_IMPORT_AS_ADMIN' } },
+            on: {
+              CONTINUE: 'lodLoading',
+            },
+          },
+
+          // JOIN
+          lodJoinFacility: {
+            meta: { step: 3, route: { name: 'LOD_JOIN_FACILITY' } },
+            on: {
+              BACK: 'selectLodSetupType',
+              CONTINUE: 'loadingTaskPage',
+            },
+          },
+        },
+        // Listener on the lod import state; typically this would be above `states` but
+        // putting it here flows more with the above as this is the state after the final step
         on: {
-          BACK: 'fullOrLearnOnlyDevice',
+          FINISH: 'finalizeSetup',
         },
       },
 
@@ -379,6 +444,12 @@ export const wizardMachine = createMachine(
       }),
       setRequirePassword: assign({
         requirePassword: (_, event) => event.value,
+      }),
+      setLodType: assign({
+        lodImportOrJoin: (_, event) => event.value,
+      }),
+      setLodImportDeviceId: assign({
+        importDeviceId: (_, event) => event.value,
       }),
       /**
        * Assigns the machine to have the initial context again while maintaining the value of

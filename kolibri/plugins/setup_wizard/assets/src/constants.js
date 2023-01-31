@@ -20,6 +20,11 @@ const FacilityTypePresets = Object.freeze({
   IMPORT: 'IMPORT',
 });
 
+const LodTypePresets = Object.freeze({
+  JOIN: 'JOIN',
+  IMPORT: 'IMPORT',
+});
+
 const DeviceTypePresets = Object.freeze({
   FULL: 'FULL',
   LOD: 'LOD',
@@ -34,4 +39,5 @@ export {
   Presets,
   UsePresets,
   SoudQueue,
+  LodTypePresets,
 };
