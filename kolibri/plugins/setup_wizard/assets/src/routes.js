@@ -15,9 +15,9 @@ import JoinOrNew from './views/importLODUsers/JoinOrNew';
 import ImportAuthentication from './views/importFacility/ImportAuthentication';
 import SelectFacilityForm from './views/importFacility/SelectFacilityForm';
 import SelectSuperAdminAccountForm from './views/importFacility/SelectSuperAdminAccountForm';
-import ImportUserAuth from './views/importLODUsers/ImportUserAuth';
-import { SelectFacilityForm as LodSelectFacility } from './views/importLODUsers/SelectFacilityForm';
-import ImportMultipleUsers from './views/importLODUsers/ImportMultipleUsers';
+//import ImportUserAuth from './views/importLODUsers/ImportUserAuth';
+//import LodSelectFacility from './views/importLODUsers/SelectFacilityForm';
+//import ImportMultipleUsers from './views/importLODUsers/ImportMultipleUsers';
 import LoadingTaskPage from './views/importFacility/LoadingTaskPage';
 import Sandbox from './views/Sandbox';
 
@@ -114,7 +114,7 @@ export default [
   {
     name: 'LOD_SELECT_FACILITY',
     path: '/learn-only/select-facility',
-    component: LodSelectFacility,
+    //component: LodSelectFacility,
   },
   {
     name: 'LOD_IMPORT_USER',
@@ -124,7 +124,7 @@ export default [
   {
     name: 'LOD_IMPORT_USER_AUTH',
     path: '/learn-only/import/sign-in',
-    component: ImportUserAuth,
+    //component: ImportUserAuth,
   },
   {
     name: 'LOD_LOADING_TASK_PAGE',
@@ -134,7 +134,7 @@ export default [
   {
     name: 'LOD_IMPORT_AS_ADMIN',
     path: '/learn-only/import/multiple-users',
-    component: ImportMultipleUsers,
+    //component: ImportMultipleUsers,
   },
   {
     name: 'LOD_CREATE_USER_FORM',
