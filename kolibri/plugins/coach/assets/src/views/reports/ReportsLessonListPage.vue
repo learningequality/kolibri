@@ -8,6 +8,10 @@
 
     <KPageContainer>
       <ReportsHeader :title="$isPrint ? $tr('printLabel', { className }) : null" />
+      <p class="total-size">
+        {{ $tr('totalLessonsSize', { size: calcTotalSizeOfAllLessons }) }}
+      </p>
+
       <ReportsControls @export="exportCSV">
         <KSelect
           v-model="filter"
@@ -22,6 +26,7 @@
           <th>{{ coachString('titleLabel') }}</th>
           <th>{{ coreString('progressLabel') }}</th>
           <th>{{ coachString('recipientsLabel') }}</th>
+          <th>{{ coachString('sizeLabel') }}</th>
           <th v-show="!$isPrint">
             {{ coachString('lessonVisibleLabel') }}
           </th>
@@ -54,19 +59,55 @@
                   :hasAssignments="tableRow.assignments.length > 0"
                 />
               </td>
+              <td>
+                {{ lessonSize(tableRow.id) }}
+              </td>
               <td v-show="!$isPrint">
                 <KSwitch
                   name="toggle-lesson-visibility"
                   label=""
                   :checked="tableRow.active"
                   :value="tableRow.active"
-                  @change="handleToggleVisibility(tableRow)"
+                  @change="toggleModal(tableRow)"
                 />
               </td>
             </tr>
           </transition-group>
         </template>
       </CoreTable>
+      <KModal
+        v-if="showLessonIsVisibleModal && !userHasDismissedModal"
+        :title="$tr('makeLessonVisibleTitle')"
+        :submitText="coreString('continueAction')"
+        :cancelText="coreString('cancelAction')"
+        @submit="handleToggleVisibility(activeLesson)"
+        @cancel="showLessonIsVisibleModal = false"
+      >
+        <p>{{ $tr('makeLessonVisibleText') }}</p>
+        <p>{{ $tr('fileSizeToDownload', { size: lessonSize(activeLesson.id) }) }}</p>
+        <KCheckbox
+          :checked="dontShowAgainChecked"
+          :label="$tr('dontShowAgain')"
+          @change="dontShowAgainChecked = $event"
+        />
+      </KModal>
+
+      <KModal
+        v-if="showLessonIsNotVisibleModal && !userHasDismissedModal"
+        :title="$tr('makeLessonNotVisibleTitle')"
+        :submitText="coreString('continueAction')"
+        :cancelText="coreString('cancelAction')"
+        @submit="handleToggleVisibility(activeLesson)"
+        @cancel="showLessonIsNotVisibleModal = false"
+      >
+        <p>{{ $tr('makeLessonNotVisibleText') }}</p>
+        <p>{{ $tr('fileSizeToRemove', { size: lessonSize(activeLesson.id) }) }}</p>
+        <KCheckbox
+          :checked="dontShowAgainChecked"
+          :label="$tr('dontShowAgain')"
+          @change="dontShowAgainChecked = $event"
+        />
+      </KModal>
     </KPageContainer>
   </CoachAppBarPage>
 
@@ -76,7 +117,11 @@
 <script>
 
   import { LessonResource } from 'kolibri.resources';
+  import { mapState } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { LESSON_VISIBILITY_MODAL_DISMISSED } from 'kolibri.coreVue.vuex.constants';
+  import Lockr from 'lockr';
+  import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import commonCoach from '../common';
   import CoachAppBarPage from '../CoachAppBarPage';
   import CSVExporter from '../../csv/exporter';
@@ -95,9 +140,14 @@
     data() {
       return {
         filter: 'allLessons',
+        showLessonIsVisibleModal: false,
+        showLessonIsNotVisibleModal: false,
+        activeLesson: null,
+        dontShowAgainChecked: false,
       };
     },
     computed: {
+      ...mapState('classSummary', ['lessonsSizes']),
       emptyMessage() {
         if (this.filter.value === 'allLessons') {
           return this.coachString('lessonListEmptyState');
@@ -110,6 +160,9 @@
         }
 
         return '';
+      },
+      userHasDismissedModal() {
+        return Lockr.get(LESSON_VISIBILITY_MODAL_DISMISSED);
       },
       filterOptions() {
         return [
@@ -151,6 +204,14 @@
           return tableRow;
         });
       },
+      calcTotalSizeOfAllLessons() {
+        if (this.lessonsSizes && this.lessonsSizes[0]) {
+          let size = Object.values(this.lessonsSizes[0]).reduce((a, b) => a + b, 0);
+          size = bytesForHumans(size);
+          return size;
+        }
+        return '--';
+      },
     },
     beforeMount() {
       this.filter = this.filterOptions[0];
@@ -170,6 +231,8 @@
           exists: true,
         });
 
+        this.manageModalVisibilityAndPreferences();
+
         return promise.then(() => {
           this.$store.dispatch('classSummary/refreshClassSummary');
           this.$store.dispatch('createSnackbar', snackbarMessage);
@@ -185,6 +248,42 @@
         const fileName = this.$tr('printLabel', { className: this.className });
         new CSVExporter(columns, fileName).export(this.table);
       },
+      toggleModal(lesson) {
+        // has the user set their preferences to not have a modal confirmation?
+        Lockr.set(LESSON_VISIBILITY_MODAL_DISMISSED, false);
+
+        const hideModalConfirmation = Lockr.get(LESSON_VISIBILITY_MODAL_DISMISSED);
+        console.log(hideModalConfirmation);
+        this.activeLesson = lesson;
+        if (!hideModalConfirmation) {
+          if (lesson.active) {
+            this.showLessonIsVisibleModal = false;
+            this.showLessonIsNotVisibleModal = true;
+          } else {
+            this.showLessonIsNotVisibleModal = false;
+            this.showLessonIsVisibleModal = true;
+          }
+        } else {
+          // proceed with visibility changes withhout the modal
+          this.handleToggleVisibility(lesson);
+        }
+      },
+      manageModalVisibilityAndPreferences() {
+        if (this.dontShowAgainChecked) {
+          Lockr.set(LESSON_VISIBILITY_MODAL_DISMISSED, true);
+        }
+        this.activeLesson = null;
+        this.showLessonIsVisibleModal = false;
+        this.showLessonIsNotVisibleModal = false;
+      },
+      lessonSize(lessonId) {
+        if (this.lessonsSizes && this.lessonsSizes[0]) {
+          let size = this.lessonsSizes[0][lessonId];
+          size = bytesForHumans(size);
+          return size;
+        }
+        return '--';
+      },
     },
     $trs: {
       visibleLessons: 'Visile lessons',
@@ -196,6 +295,43 @@
         context:
           "Title that displays on a printed copy of the 'Reports' > 'Lessons' page. This shows if the user uses the 'Print' option by clicking on the printer icon.",
       },
+      totalLessonsSize: {
+        message: 'Total size of lessons that are visible to learners: {size}',
+        context:
+          "Descriptive text at the top of the table that displays the calculated file size of all lessons' resources (i.e. 120 MB)",
+      },
+      makeLessonVisibleTitle: {
+        message: 'Make lesson visible',
+        context: 'Informational prompt for coaches when updating lesson visibility to learners',
+      },
+      makeLessonVisibleText: {
+        message:
+          'Learners will be able to see this lesson and use its resources. Resource files in this lesson will be downloaded to learn-only devices that are set up to sync with this server.',
+        context: 'Informational prompt for coaches when updating lesson visibility to learners',
+      },
+      makeLessonNotVisibleTitle: {
+        message: 'Make lesson not visible',
+        context: 'Informational prompt for coaches when updating lesson visibility to learners',
+      },
+      makeLessonNotVisibleText: {
+        message:
+          'Learners will no longer be able to see this lesson. Resource files in this lesson will be removed from learn-only devices that are set up to sync with this server.',
+        context: 'Informational prompt for coaches when updating lesson visibility to learners',
+      },
+      dontShowAgain: {
+        message: "Don't show this message again",
+        context: 'Option for a check box to not be prompted again with an informational modal',
+      },
+      fileSizeToDownload: {
+        message: 'File size to download: {size}',
+        context:
+          'The size of the file or files that must be downloaded to learner devices for the lesson, (i.e. 20 KB)',
+      },
+      fileSizeToRemove: {
+        message: 'File size to remove: {size}',
+        context:
+          'The size of the file or files that will be removed from learner devices for the lesson, (i.e. 20 KB)',
+      },
     },
   };
 
@@ -206,5 +342,9 @@
 
   @import '../common/list-transition';
   @import '../common/print-table';
+
+  .total-size {
+    padding: 16px 0;
+  }
 
 </style>

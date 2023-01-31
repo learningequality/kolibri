@@ -108,6 +108,7 @@ export default {
           // whether this user has access to multiple classes or not.
           store.dispatch('setClassList'),
           store.dispatch('classSummary/loadClassSummary', classId),
+          store.dispatch('classSummary/fetchLessonsSizes', classId),
           store.dispatch('coachNotifications/fetchNotificationsForClass', classId),
         ]).catch(error => {
           store.dispatch('handleError', error);

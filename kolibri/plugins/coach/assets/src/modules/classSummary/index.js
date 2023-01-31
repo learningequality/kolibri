@@ -4,6 +4,7 @@ import flatten from 'lodash/flatten';
 import find from 'lodash/find';
 import Vue from 'kolibri.lib.vue';
 import ClassSummaryResource from '../../apiResources/classSummary';
+import { LessonResource } from '../../../../../../core/assets/src/api-resources';
 import dataHelpers from './dataHelpers';
 import { STATUSES } from './constants';
 import { updateWithNotifications } from './actions';
@@ -262,6 +263,14 @@ export default {
       );
     },
     /*
+     * lessonsSizes := [
+     *   { lesson_id: size in bytes for humans }, ...
+     * ]
+     */
+    lessonsSizes(state) {
+      return Object.values(state.lessonMap);
+    },
+    /*
      * lessonLearnerStatusMap := {
      *   [lesson_id]: {
      *     [learner_id]: { lesson_id, learner_id, status, last_activity }
@@ -418,6 +427,9 @@ export default {
       state.examLearnerStatusMap = { ...state.examLearnerStatusMap };
       state.contentLearnerStatusMap = { ...state.contentLearnerStatusMap };
     },
+    SET_CLASS_LESSONS_SIZES(state, sizes) {
+      state.lessonsSizes = sizes;
+    },
   },
   actions: {
     updateWithNotifications,
@@ -425,6 +437,15 @@ export default {
       return ClassSummaryResource.fetchModel({ id: classId, force: true }).then(summary => {
         store.commit('SET_STATE', summary);
       });
+    },
+    fetchLessonsSizes(store, classId) {
+      return LessonResource.fetchLessonsSizes(classId)
+        .then(sizes => {
+          store.commit('SET_CLASS_LESSONS_SIZES', sizes);
+        })
+        .catch(error => {
+          return store.dispatch('handleApiError', error, { root: true });
+        });
     },
     refreshClassSummary(store) {
       return store.dispatch('loadClassSummary', store.state.id);

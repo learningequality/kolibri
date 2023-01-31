@@ -82,6 +82,7 @@ export default {
       'contentNodeMap',
       'contentLearnerStatusMap',
       'lessonMap',
+      'lessonsSizes',
     ]),
     ...mapGetters('classSummary', [
       'coaches',

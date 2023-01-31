@@ -111,6 +111,7 @@
     },
     computed: {
       ...mapState('lessonSummary', ['lessonsSizes']),
+      ...mapState('classSummary', ['lessonsSizes']),
       assignments() {
         return this.activeKey === 'is_active'
           ? this.lesson.lesson_assignments

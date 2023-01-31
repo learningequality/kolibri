@@ -408,6 +408,11 @@ const coachStrings = createTranslator('CommonCoachStrings', {
     context:
       "Refers to a number out of a total. For example, a number of learners in a class. \n\ne.g. 5 of 10. (Only translate 'of'.)",
   },
+  sizeLabel: {
+    message: 'Size',
+    context:
+      'Refers to the number of resources in a lesson or quiz, and/or the total size (i.e. 20 MB) of the lesson or quiz.',
+  },
 
   // Errors
   quizDuplicateTitleError: {
