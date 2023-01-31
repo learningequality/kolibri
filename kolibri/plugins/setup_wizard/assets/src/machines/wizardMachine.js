@@ -329,7 +329,7 @@ export const wizardMachine = createMachine(
             meta: { step: 2, route: { name: 'LOD_SELECT_FACILITY' } },
             on: {
               CONTINUE_IMPORT: {
-                target: 'lodImportUser',
+                target: 'lodImportUserAuth',
                 actions: 'setSelectedImportDeviceFacility',
               },
               CONTINUE_JOIN: {
@@ -369,7 +369,7 @@ export const wizardMachine = createMachine(
             meta: { step: 3, route: { name: 'LOD_JOIN_FACILITY' } },
             on: {
               BACK: 'selectLodSetupType',
-              CONTINUE: 'loadingTaskPage',
+              CONTINUE: 'lodLoading',
             },
           },
         },
