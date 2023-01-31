@@ -120,16 +120,13 @@
           data: this.deviceProvisioningData,
         })
           .then(response => {
-            console.log(JSON.stringify(response.data));
             const appKey = response.data.app_key;
-            const timeout = process.NODE_ENV === 'production' ? 1 : 5000;
 
             const path = appKey
               ? urls['kolibri:kolibri.plugins.app:initialize'](appKey) + '?auth_token=' + v4()
               : urls['kolibri:kolibri.plugins.user_auth:user_auth']();
 
-            console.log('Going to redirect to ', path);
-            setTimeout(() => (window.location.href = path), timeout);
+            window.location.href = path;
           })
           .catch(e => console.error(e));
       },
