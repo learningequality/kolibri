@@ -11,7 +11,7 @@ import RequirePasswordForLearnersForm from './views/onboarding-forms/RequirePass
 import PersonalDataConsentForm from './views/onboarding-forms/PersonalDataConsentForm';
 import SettingUpKolibri from './views/onboarding-forms/SettingUpKolibri';
 import ImportLODUsersSetup from './views/ImportLODUsersSetup';
-import JoinOrNew from './views/importLODUsers/JoinOrNew';
+//import JoinOrNew from './views/importLODUsers/JoinOrNew';
 import ImportAuthentication from './views/importFacility/ImportAuthentication';
 import SelectFacilityForm from './views/importFacility/SelectFacilityForm';
 import SelectSuperAdminAccountForm from './views/importFacility/SelectSuperAdminAccountForm';
@@ -109,7 +109,7 @@ export default [
   {
     name: 'LOD_SETUP_TYPE',
     path: '/learn-only/setup-type',
-    component: JoinOrNew,
+    //component: JoinOrNew,
   },
   {
     name: 'LOD_SELECT_FACILITY',
