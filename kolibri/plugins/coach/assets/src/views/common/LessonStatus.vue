@@ -56,6 +56,18 @@
           </KOptionalText>
         </KGridItem>
       </div>
+
+      <!-- Lesson Sizes -->
+      <div class="status-item">
+        <KGridItem class="status-label" :layout12="layout12Label">
+          {{ $tr('size') }}
+        </KGridItem>
+        <KGridItem :layout12="layout12Value">
+          <p>
+            {{ lessonSize(lesson.id) }}
+          </p>
+        </KGridItem>
+      </div>
     </KGrid>
   </KPageContainer>
 
@@ -65,6 +77,8 @@
 <script>
 
   import { LessonResource } from 'kolibri.resources';
+  import { mapState } from 'vuex';
+  import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import Recipients from './Recipients';
   import { coachStringsMixin } from './commonCoachStrings';
 
@@ -96,6 +110,7 @@
       },
     },
     computed: {
+      ...mapState('lessonSummary', ['lessonsSizes']),
       assignments() {
         return this.activeKey === 'is_active'
           ? this.lesson.lesson_assignments
@@ -128,6 +143,21 @@
           this.$store.dispatch('classSummary/refreshClassSummary');
           this.$store.dispatch('createSnackbar', snackbarMessage);
         });
+      },
+      lessonSize(lessonId) {
+        if (this.lessonsSizes && this.lessonsSizes[0]) {
+          let size = this.lessonsSizes[0][lessonId];
+          size = bytesForHumans(size);
+          return size;
+        }
+        return '--';
+      },
+    },
+    $trs: {
+      size: {
+        message: 'Size',
+        context:
+          "'Size' is title in the information section of a lesson's detail page. It refers to total the file size of the resources contained within the lesson.",
       },
     },
   };

@@ -3,16 +3,18 @@
   <CoachAppBarPage :authorized="userIsAuthorized" authorizedRole="adminOrCoach" :showSubNav="true">
     <KPageContainer>
       <PlanHeader />
-
       <div class="filter-and-button">
-        <KSelect
-          v-model="filterSelection"
-          :label="coachString('filterLessonStatus')"
-          :options="filterOptions"
-          :inline="true"
-        />
+        <p>{{ $tr('totalLessonsSize', { size: calcTotalSizeOfAllLessons }) }}</p>
+
 
         <div class="button">
+          <KSelect
+            v-model="filterSelection"
+            class="select"
+            :label="coachString('filterLessonStatus')"
+            :options="filterOptions"
+            :inline="true"
+          />
           <KRouterLink
             :primary="true"
             appearance="raised-button"
@@ -217,6 +219,14 @@
           !this.activeLessonCounts.false && this.filterSelection.value === 'filterLessonNotVisible'
         );
       },
+      calcTotalSizeOfAllLessons() {
+        if (this.lessonsSizes && this.lessonsSizes[0]) {
+          let size = Object.values(this.lessonsSizes[0]).reduce((a, b) => a + b, 0);
+          size = bytesForHumans(size);
+          return size;
+        }
+        return '--';
+      },
     },
     beforeMount() {
       this.filterSelection = this.filterOptions[0];
@@ -310,7 +320,12 @@
       size: {
         message: 'Size',
         context:
-          "'Size' is a column name in the 'Lessons' section. It refers to the number or learning resources there are in a specific lesson.",
+          "'Size' is a column name in the 'Lessons' section. It refers to the number or learning resources there are in a specific lesson and the file size of these resources.",
+      },
+      totalLessonsSize: {
+        message: 'Total size of lessons that are visible to learners: {size}',
+        context:
+          "Descriptive text at the top of the table that displays the calculated file size of all lessons' resources (i.e. 120 MB)",
       },
       noLessons: {
         message: 'You do not have any lessons',
@@ -363,10 +378,17 @@
     display: flex;
     flex-wrap: nowrap;
     justify-content: space-between;
+    padding-top: 16px;
+    padding-bottom: 16px;
 
     button {
       align-self: flex-end;
     }
+  }
+
+  .select {
+    margin-top: -16px;
+    margin-right: 32px;
   }
 
 </style>
