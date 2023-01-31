@@ -1082,6 +1082,14 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Change learning facility',
     context: 'Menu or screen used for the user to move to a different learning facility',
   },
+  enterPinPlaceholder: {
+    message: 'Enter PIN',
+    context: 'Placholder text for the enter pin textbox',
+  },
+  removePinPlacholder: {
+    message: 'REMOVE PIN',
+    context: 'Placholder text for the remove pin textbox',
+  },
 });
 
 // We forgot a string, so we are using one from the PerseusInternalMessages namespace

@@ -67,28 +67,34 @@
           </div>
 
           <div>
-            <KButtonGroup style="margin-top: 8px;">
-              <KButton
-                :primary="false"
-                appearance="raised-button"
-                :text="$tr('resetToDefaultSettings')"
 
-                name="reset-settings"
-                @click="showModal = true"
-              />
-
-              <KButton
-                :primary="true"
-                :class="windowIsSmall ? 'mobile-button' : ''"
-                appearance="raised-button"
-                :text="coreString('saveChangesAction')"
-                name="save-settings"
-
-                :disabled="!settingsHaveChanged"
-                @click="saveConfig()"
-              />
-            </KButtonGroup>
           </div>
+        </div>
+
+        <div class="">
+          <h2>{{ $tr('deviceManagementPin') }}</h2>
+
+          <p>{{ $tr('deviceManagementDescription') }}</p>
+          <KButton @click="handleCreatePin">
+            {{ $tr('createPinBtn') }}
+          </KButton>
+
+          <KButton
+            hasDropdown
+            :text="$tr('optionBtn')"
+            style="marginLeft:15px"
+          >
+            <template #menu>
+              <KDropdownMenu
+                :options="dropdownOption"
+                class="options-btn"
+                @select="handleSelect"
+              />
+            </template>
+          </KButton>
+
+
+
         </div>
       </template>
 
@@ -106,7 +112,52 @@
         @submit="sendFacilityName"
         @cancel="showEditFacilityModal = false"
       />
+
+      <CreateManagementPinModal
+        v-if="createPinShow"
+        @submit="createPinShow = false"
+        @cancel="createPinShow = false"
+      />
+
+      <ViewPinModal
+        v-if="handleViewModal"
+        @cancel="handleViewModal = false"
+      />
+      <ChangePinModal
+        v-if="handleChangePinModal"
+        @submit="handleChangePinModal = false"
+        @cancel="handleChangePinModal = false"
+      />
+
+      <RemovePinModal
+        v-if="handleRemovePinModal"
+        @submit="handleRemovePinModal = false"
+        @cancel="handleRemovePinModal = false"
+      />
+
     </KPageContainer>
+
+    <BottomAppBar>
+      <KButtonGroup style="margin-top: 8px;">
+        <KButton
+          :primary="false"
+          appearance="flat-button"
+          :text="$tr('resetToDefaultSettings')"
+          name="reset-settings"
+          @click="showModal = true"
+        />
+
+        <KButton
+          :primary="true"
+          :class="windowIsSmall ? 'mobile-button' : ''"
+          appearance="raised-button"
+          :text="coreString('saveChangesAction')"
+          name="save-settings"
+          :disabled="!settingsHaveChanged"
+          @click="saveConfig()"
+        />
+      </KButtonGroup>
+    </BottomAppBar>
   </FacilityAppBarPage>
 
 </template>
@@ -121,9 +172,14 @@
   import isEqual from 'lodash/isEqual';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import urls from 'kolibri.urls';
+  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import ConfirmResetModal from './ConfirmResetModal';
   import EditFacilityNameModal from './EditFacilityNameModal';
+  import CreateManagementPinModal from './CreateManagementPinModal';
+  import ViewPinModal from './ViewPinModal';
+  import ChangePinModal from './ChangePinModal';
+  import RemovePinModal from './RemovePinModal';
 
   // See FacilityDataset in core.auth.models for details
   const settingsList = [
@@ -146,6 +202,11 @@
       FacilityAppBarPage,
       ConfirmResetModal,
       EditFacilityNameModal,
+      BottomAppBar,
+      CreateManagementPinModal,
+      ViewPinModal,
+      ChangePinModal,
+      RemovePinModal,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
     data() {
@@ -153,6 +214,10 @@
         showModal: false,
         showEditFacilityModal: false,
         settingsCopy: {},
+        createPinShow: false,
+        handleViewModal: false,
+        handleChangePinModal: false,
+        handleRemovePinModal: false,
       };
     },
     computed: {
@@ -180,6 +245,13 @@
       },
       enableChangePassword() {
         return this.settings['learner_can_login_with_no_password'];
+      },
+      dropdownOption() {
+        return [
+          { label: 'View PIN', value: 'VIEW' },
+          { label: 'Change PIN', value: 'CHANGE' },
+          { label: 'Remove PIN', value: 'REMOVE' },
+        ];
       },
     },
     watch: {
@@ -247,6 +319,18 @@
       copySettings() {
         this.settingsCopy = Object.assign({}, this.settings);
       },
+      handleCreatePin() {
+        this.createPinShow = true;
+      },
+      handleSelect(option) {
+        if (option.value === 'VIEW') {
+          this.handleViewModal = true;
+        } else if (option.value === 'CHANGE') {
+          this.handleChangePinModal = true;
+        } else if (option.value === 'REMOVE') {
+          this.handleRemovePinModal = true;
+        }
+      },
     },
     $trs: {
       // These are not going to be picked up by the linter because snake cased versions
@@ -298,6 +382,23 @@
       documentTitle: {
         message: 'Facility Settings',
         context: 'Title of page where user can configure facility settings.',
+      },
+      deviceManagementPin: {
+        message: 'Device management PIN',
+        context: 'The title for the device management pin',
+      },
+      deviceManagementDescription: {
+        message:
+          'This 4-digit PIN allows users to manage content and other settings on learn-only devices',
+        context: 'Description for the device management',
+      },
+      createPinBtn: {
+        message: 'create pin',
+        context: 'Button for the create pin',
+      },
+      optionBtn: {
+        message: 'option',
+        context: 'Options button for the create pin page',
       },
     },
   };
