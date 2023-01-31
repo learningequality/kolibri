@@ -80,7 +80,7 @@
       </p>
 
       <KModal
-        v-if="showLessonIsVisibleModal"
+        v-if="showLessonIsVisibleModal && !userHasDismissedModal"
         :title="$tr('makeLessonVisibleTitle')"
         :submitText="coreString('continueAction')"
         :cancelText="coreString('cancelAction')"
@@ -97,7 +97,7 @@
       </KModal>
 
       <KModal
-        v-if="showLessonIsNotVisibleModal"
+        v-if="showLessonIsNotVisibleModal && !userHasDismissedModal"
         :title="$tr('makeLessonNotVisibleTitle')"
         :submitText="coreString('continueAction')"
         :cancelText="coreString('cancelAction')"
@@ -149,8 +149,12 @@
   import { mapState, mapActions } from 'vuex';
   import { LessonResource } from 'kolibri.resources';
   import countBy from 'lodash/countBy';
+  import {
+    LESSON_VISIBILITY_MODAL_DISMISSED,
+    ERROR_CONSTANTS,
+  } from 'kolibri.coreVue.vuex.constants';
+  import Lockr from 'lockr';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
-  import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
@@ -186,6 +190,9 @@
       ...mapState('lessonsRoot', ['lessons', 'learnerGroups', 'lessonsSizes']),
       sortedLessons() {
         return this._.orderBy(this.lessons, ['date_created'], ['desc']);
+      },
+      userHasDismissedModal() {
+        return Lockr.get(LESSON_VISIBILITY_MODAL_DISMISSED);
       },
       filterOptions() {
         const filters = ['filterLessonAll', 'filterLessonVisible', 'filterLessonNotVisible'];
@@ -258,9 +265,7 @@
           exists: true,
         });
 
-        this.activeLesson = null;
-        this.showLessonIsVisibleModal = false;
-        this.showLessonIsNotVisibleModal = false;
+        this.manageModalVisibilityAndPreferences();
 
         return promise.then(() => {
           this.$store.dispatch('lessonsRoot/refreshClassLessons', this.$route.params.classId);
@@ -268,14 +273,29 @@
         });
       },
       toggleModal(lesson) {
+        // has the user set their preferences to not have a modal confirmation?
+        const hideModalConfirmation = Lockr.get(LESSON_VISIBILITY_MODAL_DISMISSED);
         this.activeLesson = lesson;
-        if (lesson.is_active) {
-          this.showLessonIsVisibleModal = false;
-          this.showLessonIsNotVisibleModal = true;
+        if (!hideModalConfirmation) {
+          if (lesson.is_active) {
+            this.showLessonIsVisibleModal = false;
+            this.showLessonIsNotVisibleModal = true;
+          } else {
+            this.showLessonIsNotVisibleModal = false;
+            this.showLessonIsVisibleModal = true;
+          }
         } else {
-          this.showLessonIsNotVisibleModal = false;
-          this.showLessonIsVisibleModal = true;
+          // proceed with visibility changes withhout the modal
+          this.handleToggleVisibility(lesson);
         }
+      },
+      manageModalVisibilityAndPreferences() {
+        if (this.dontShowAgainChecked) {
+          Lockr.set(LESSON_VISIBILITY_MODAL_DISMISSED, true);
+        }
+        this.activeLesson = null;
+        this.showLessonIsVisibleModal = false;
+        this.showLessonIsNotVisibleModal = false;
       },
       lessonSize(lessonId) {
         if (this.lessonsSizes && this.lessonsSizes[0]) {
