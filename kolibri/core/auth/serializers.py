@@ -192,3 +192,14 @@ class LearnerGroupSerializer(serializers.ModelSerializer):
             return super(LearnerGroupSerializer, self).save(**kwargs)
         except InvalidCollectionHierarchy as e:
             raise serializers.ValidationError(str(e))
+
+
+def validate_pin_code(value):
+    if len(str(value)) != 4:
+        raise serializers.ValidationError("A Pin must be 4 characters long")
+
+
+class ExtraFieldsSerializer(serializers.Serializer):
+    facility = serializers.JSONField(required=False)
+    pin_code = serializers.IntegerField(required=False, validators=[validate_pin_code])
+    on_my_own_setup = serializers.BooleanField(required=False)

@@ -58,6 +58,7 @@ from .models import LearnerGroup
 from .models import Membership
 from .models import Role
 from .serializers import ClassroomSerializer
+from .serializers import ExtraFieldsSerializer
 from .serializers import FacilityDatasetSerializer
 from .serializers import FacilitySerializer
 from .serializers import FacilityUserSerializer
@@ -200,15 +201,13 @@ class FacilityDatasetViewSet(ValuesViewset):
     @decorators.action(methods=["post", "patch"], detail=True, url_path="update-pin")
     def update_pin(self, request, pk):
 
-        pin_code = request.data.get("pin_code")
-        # pin_code = None if raw_pin_code is None else str(raw_pin_code)
-        if request.method == "POST":
-            if not pin_code:
-                return HttpResponseBadRequest("Please provide a pin")
-            if not str(pin_code).isdigit() or len(str(pin_code)) != 4:
-                return HttpResponseBadRequest(
-                    "A Pin must be a number and 4 characters long"
-                )
+        serializer = ExtraFieldsSerializer(data=request.data)
+        if not serializer.is_valid():
+            return HttpResponseBadRequest("Invalid pin input")
+
+        pin_code = serializer.data.get("pin_code")
+        if request.method == "POST" and not pin_code:
+            return HttpResponseBadRequest("Please provide a pin")
 
         try:
             dataset = FacilityDataset.objects.get(pk=pk)
@@ -222,23 +221,23 @@ class FacilityDatasetViewSet(ValuesViewset):
 
     @decorators.action(methods=["post"], detail=True, url_path="is-pin-valid")
     def is_pin_valid(self, request, pk):
-        input_pin_code = request.data.get("pin_code", "")
-        if len(str(input_pin_code)) == 0 or not str(input_pin_code).isdigit():
-            return HttpResponseBadRequest("A Pin is a required")
+        serializer = ExtraFieldsSerializer(data=request.data)
+        if not serializer.is_valid() or serializer.data.get("pin_code") is None:
+            return HttpResponseBadRequest("Invalid pin input")
+
+        input_pin_code = serializer.data.get("pin_code")
+        if not input_pin_code:
+            return HttpResponseBadRequest("Please provide a pin")
 
         try:
             dataset = FacilityDataset.objects.get(pk=pk)
             data = FacilityDatasetSerializer(dataset).data
-            extra_fields = data.get("extra_fields")
+            extra_fields = data.get("extra_fields", {})
+            saved_pin_code = extra_fields.get("pin_code")
         except FacilityDataset.DoesNotExist:
             raise Http404("Facility not found")
 
-        valid_pin = False
-        if extra_fields is not None and str(extra_fields.get("pin_code")) == str(
-            input_pin_code
-        ):
-            valid_pin = True
-        return Response({"is_pin_valid": valid_pin})
+        return Response({"is_pin_valid": saved_pin_code == input_pin_code})
 
 
 class FacilityUserFilter(FilterSet):

@@ -87,14 +87,14 @@ extra_fields_schema = {
     "properties": {
         "facility": {"type": "object"},
         "on_my_own_setup": {"type": "boolean"},
-        "pin_code": {"type": "string"},
+        "pin_code": {"type": "integer"},
     },
 }
 
 extra_fields_default_values = {
     "facility": {},
     "on_my_own_setup": False,
-    "pin_code": "",
+    "pin_code": 0,
 }
 
 

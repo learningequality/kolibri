@@ -1264,7 +1264,7 @@ class FacilityDatasetAPITestCase(APITestCase):
         cls.user = FacilityUserFactory.create(facility=cls.facility)
         cls.facility.add_admin(cls.admin)
 
-    def set_pin(self, payload):
+    def update_pin(self, payload):
         return self.client.post(
             reverse(
                 "kolibri:core:facilitydataset-update-pin",
@@ -1432,30 +1432,35 @@ class FacilityDatasetAPITestCase(APITestCase):
 
     def test_facility_admin_can_set_pin(self):
         self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
-        response = self.set_pin({"pin_code": "1234"})
+        response = self.update_pin({"pin_code": 1234})
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data["extra_fields"]["pin_code"], "1234")
+        self.assertEqual(response.data["extra_fields"]["pin_code"], 1234)
+
+    def test_facility_admin_can_set_pin_short_pin(self):
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
+        response = self.update_pin({"pin_code": 123})
+        self.assertEqual(response.status_code, 400)
 
     def test_facility_admin_can_set_pin_empty_payload(self):
         self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
-        response = self.set_pin({})
+        response = self.update_pin({})
         self.assertEqual(response.status_code, 400)
 
     def test_facility_admin_can_set_pin_invalid_input(self):
         self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
-        response = self.set_pin({"pin_code": "abcd"})
+        response = self.update_pin({"pin_code": "abcd"})
         self.assertEqual(response.status_code, 400)
 
     def test_facility_admin_can_set_pin_pin_as_none(self):
         self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
-        response = self.set_pin({"pin_code": None})
+        response = self.update_pin({"pin_code": None})
         self.assertEqual(response.status_code, 400)
 
     def test_facility_admin_can_unset_pin(self):
         self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
-        response = self.set_pin({"pin_code": "5555"})
+        response = self.update_pin({"pin_code": 5555})
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data["extra_fields"]["pin_code"], "5555")
+        self.assertEqual(response.data["extra_fields"]["pin_code"], 5555)
 
         # Unset pin from settings
         response = self.client.patch(
@@ -1469,33 +1474,51 @@ class FacilityDatasetAPITestCase(APITestCase):
 
     def test_facility_admin_can_check_is_pin_valid_correct_pin(self):
         self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
-        response = self.set_pin({"pin_code": "1234"})
-        response = self.is_pin_valid({"pin_code": "1234"})
+        response = self.update_pin({"pin_code": 1234})
         self.assertEqual(response.status_code, 200)
+        response = self.is_pin_valid({"pin_code": 1234})
         self.assertEqual(response.data["is_pin_valid"], True)
 
     def test_facility_admin_can_check_is_pin_valid_incorrect_pin(self):
         self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
-        response = self.set_pin({"pin_code": "1234"})
-        response = self.is_pin_valid({"pin_code": "1243"})
+        response = self.update_pin({"pin_code": 1234})
         self.assertEqual(response.status_code, 200)
+        response = self.is_pin_valid({"pin_code": 1243})
+        self.assertEqual(response.data["is_pin_valid"], False)
+
+    def test_facility_admin_can_check_is_pin_valid_unset_pin(self):
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
+        response = self.update_pin({"pin_code": 1234})
+        self.assertEqual(response.status_code, 200)
+
+        # unset pin
+        response = self.client.patch(
+            reverse(
+                "kolibri:core:facilitydataset-update-pin",
+                kwargs={"pk": self.facility.dataset_id},
+            ),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["extra_fields"]["pin_code"], None)
+
+        response = self.is_pin_valid({"pin_code": 1234})
         self.assertEqual(response.data["is_pin_valid"], False)
 
     def test_facility_admin_can_check_is_pin_valid_empty_pin_specified(self):
         self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
-        response = self.set_pin({"pin_code": "1234"})
-        response = self.is_pin_valid({"pin_code": ""})
+        response = self.update_pin({"pin_code": 1234})
+        response = self.is_pin_valid({"pin_code": None})
         self.assertEqual(response.status_code, 400)
 
     def test_facility_admin_can_check_is_pin_valid_empty_payload(self):
         self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
-        response = self.set_pin({"pin_code": "1234"})
+        response = self.update_pin({"pin_code": 1234})
         response = self.is_pin_valid({})
         self.assertEqual(response.status_code, 400)
 
     def test_facility_admin_can_check_is_pin_valid_pin_as_none(self):
         self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
-        response = self.set_pin({"pin_code": "1234"})
+        response = self.update_pin({"pin_code": 1234})
         response = self.is_pin_valid({"pin_code": None})
         self.assertEqual(response.status_code, 400)
 
