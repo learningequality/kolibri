@@ -101,6 +101,9 @@ class MembershipSerializer(serializers.ModelSerializer):
 
 
 class FacilityDatasetSerializer(serializers.ModelSerializer):
+
+    extra_fields = serializers.JSONField(required=False)
+
     class Meta:
         model = FacilityDataset
         fields = (
@@ -112,6 +115,7 @@ class FacilityDatasetSerializer(serializers.ModelSerializer):
             "learner_can_delete_account",
             "learner_can_login_with_no_password",
             "show_download_button_in_learn",
+            "extra_fields",
             "description",
             "location",
             "registered",
@@ -188,3 +192,14 @@ class LearnerGroupSerializer(serializers.ModelSerializer):
             return super(LearnerGroupSerializer, self).save(**kwargs)
         except InvalidCollectionHierarchy as e:
             raise serializers.ValidationError(str(e))
+
+
+def validate_pin_code(value):
+    if len(str(value)) != 4:
+        raise serializers.ValidationError("A Pin must be 4 characters long")
+
+
+class ExtraFieldsSerializer(serializers.Serializer):
+    facility = serializers.JSONField(required=False)
+    pin_code = serializers.IntegerField(required=False, validators=[validate_pin_code])
+    on_my_own_setup = serializers.BooleanField(required=False)
