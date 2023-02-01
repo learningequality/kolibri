@@ -6,6 +6,10 @@ export default [
     path: '/classes',
   },
   {
+    name: PageNames.HOME_PAGE,
+    path: '/:classId/home',
+  },
+  {
     name: PageNames.PLAN_PAGE,
     path: '/:classId/plan',
     redirect: '/:classId/plan/lessons',

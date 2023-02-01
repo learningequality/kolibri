@@ -14,7 +14,7 @@
             :href="nestedObject.route"
             class="link"
             :class="$computedClass(optionStyle)"
-            @click="visibleSubMenu = false"
+            @click="handleNav(nestedObject.route)"
           >
             {{ nestedObject.text }}
           </a>
@@ -51,6 +51,9 @@
         visibleSubMenu: false,
       };
     },
+    mounted() {
+      this.submenuShouldBeOpen();
+    },
     computed: {
       ...mapGetters(['isAppContext']),
       url() {
@@ -58,6 +61,10 @@
       },
       coachRoutes() {
         return {
+          home: {
+            text: this.coreString('classHome'),
+            route: this.generateNavRoute(PageNames.HOME_PAGE),
+          },
           plan: {
             text: this.coachString('reportsLabel'),
             route: this.generateNavRoute(PageNames.REPORTS_PAGE),
@@ -108,6 +115,19 @@
         if (this.isAppContext) {
           this.visibleSubMenu = !this.visibleSubMenu;
         }
+      },
+      toggleAndroidMenu() {
+        this.$emit('toggleAndroidMenu');
+      },
+      isActiveLink(route) {
+        return route.includes(this.$router.currentRoute.path);
+      },
+      submenuShouldBeOpen() {
+        // which plugin are we currently in?
+        this.visibleSubMenu = window.location.pathname.includes(this.url);
+      },
+      handleNav(route) {
+        this.isActiveLink(route) ? this.toggleAndroidMenu() : null;
       },
     },
     role: UserKinds.COACH,

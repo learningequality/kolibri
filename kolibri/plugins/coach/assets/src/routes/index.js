@@ -47,6 +47,7 @@ export default [
     },
   },
   {
+    name: ClassesPageNames.HOME_PAGE,
     path: '/:classId/home',
     component: HomePage,
     handler() {

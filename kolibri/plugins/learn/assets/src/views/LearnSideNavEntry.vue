@@ -17,7 +17,7 @@
             :href="nestedObject.route"
             class="link"
             :class="$computedClass(optionStyle)"
-            @click="visibleSubMenu = false"
+            @click="handleNav(nestedObject.route)"
           >
             {{ nestedObject.text }}
           </a>
@@ -25,22 +25,35 @@
       </div>
     </div>
   </div>
-  <div v-else class="bottom-bar">
+  <div v-else class="bottom-bar" :style="{ backgroundColor: $themeTokens.textInverted }">
     <span v-for="(link, key) in learnRoutes" :key="key">
-      <a v-if="link.condition || isUserLoggedIn" :href="link.route" tabindex="-1">
-        <KIconButton
-          :icon="link.icon"
-          :color="$themeTokens.primary"
-          :ariaLabel="link.text"
-          @click="visibleSubMenu = false"
-        />
+      <a
+        v-if="link.condition || isUserLoggedIn"
+        :href="link.route"
+        tabindex="-1"
+        class="nav-menu-item"
+        :style="{ textDecoration: 'none' }"
+        @click="handleNav(link.route)"
+      >
+        <div :style="isActiveLink(link.route) ? bottomMenuActiveStyles : bottomMenuInactiveStyles">
+          <KIconButton
+            :icon="link.icon"
+            :color="$themeTokens.primary"
+            :ariaLabel="link.text"
+          />
+        </div>
+        <p class="nav-menu-label">{{ link.text }}</p>
       </a>
     </span>
-    <KIconButton
-      icon="menu"
-      :color="$themeTokens.primary"
-      @click="toggleAndroidMenu"
-    />
+    <span class="nav-menu-item" :style="bottomMenuInactiveStyles">
+      <KIconButton
+        icon="menu"
+        :ariaLabel="coreString('menuLabel')"
+        :color="$themeTokens.primary"
+        @click="toggleAndroidMenu"
+      />
+      <p :style="{ color: $themeTokens.primary }">{{ coreString('menuLabel') }}</p>
+    </span>
   </div>
 
 </template>
@@ -75,6 +88,9 @@
       return {
         visibleSubMenu: false,
       };
+    },
+    mounted() {
+      this.submenuShouldBeOpen();
     },
     computed: {
       ...mapGetters(['isAppContext', 'isUserLoggedIn']),
@@ -114,6 +130,16 @@
           ':focus': this.$coreOutline,
         };
       },
+      bottomMenuActiveStyles() {
+        return {
+          borderTop: `4px solid ${this.$themeTokens.primary}`,
+        };
+      },
+      bottomMenuInactiveStyles() {
+        return {
+          borderTop: `4px solid ${this.$themeTokens.textInverted}`,
+        };
+      },
       iconAfter() {
         if (this.isAppContext) {
           return this.visibleSubMenu ? 'chevronUp' : 'chevronDown';
@@ -126,6 +152,18 @@
       },
       toggleAndroidMenu() {
         this.$emit('toggleAndroidMenu');
+      },
+      isActiveLink(route) {
+        return route.includes(this.$router.currentRoute.path);
+      },
+      submenuShouldBeOpen() {
+        // which plugin are we currently in?
+        this.visibleSubMenu = window.location.pathname.includes(this.url);
+      },
+      handleNav(route) {
+        if (this.isActiveLink(route)) {
+          this.$emit('toggleAndroidMenu');
+        }
       },
     },
     priority: 10,
@@ -167,8 +205,24 @@
     display: flex;
     align-items: flex-start;
     justify-content: space-around;
-    height: 48px;
-    background-color: white;
+    height: 50px;
+  }
+
+  .nav-menu-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100px;
+  }
+
+  button {
+    margin-top: -6px;
+  }
+
+  p {
+    margin: 0;
+    margin-top: -8px;
+    font-size: 12px;
   }
 
 </style>

@@ -10,7 +10,12 @@
     />
     <div v-if="isAppContext && visibleSubMenu">
       <div v-for="(nestedObject, key) in facilityRoutes" :key="key" class="link-container">
-        <a :href="nestedObject.route" class="link" :class="$computedClass(optionStyle)">
+        <a
+          :href="nestedObject.route"
+          class="link"
+          :class="$computedClass(optionStyle)"
+          @click="handleNav(nestedObject.route)"
+        >
           {{ nestedObject.text }}
         </a>
       </div>
@@ -42,6 +47,9 @@
       return {
         visibleSubMenu: false,
       };
+    },
+    mounted() {
+      this.submenuShouldBeOpen();
     },
     computed: {
       ...mapGetters(['isAppContext']),
@@ -102,6 +110,19 @@
             route
           );
         }
+      },
+      toggleAndroidMenu() {
+        this.$emit('toggleAndroidMenu');
+      },
+      isActiveLink(route) {
+        return route.includes(this.$router.currentRoute.path);
+      },
+      submenuShouldBeOpen() {
+        // which plugin are we currently in?
+        this.visibleSubMenu = window.location.pathname.includes(this.url);
+      },
+      handleNav(route) {
+        this.isActiveLink(route) ? this.toggleAndroidMenu() : null;
       },
     },
     role: UserKinds.ADMIN,

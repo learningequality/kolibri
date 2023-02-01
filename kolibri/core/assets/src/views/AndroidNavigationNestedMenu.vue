@@ -55,7 +55,12 @@
           @close="$emit('close')"
         >
           <template #options>
-            <component :is="component" v-for="component in menuOptions" :key="component.name" />
+            <component
+              :is="component"
+              v-for="component in menuOptions"
+              :key="component.name"
+              @toggleAndroidMenu="$emit('toggleAndroidMenu')"
+            />
             <CoreMenuOption
               :label="$tr('languageSwitchMenuOption')"
               icon="language"

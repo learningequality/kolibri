@@ -1,6 +1,7 @@
 import { LessonsPageNames } from './lessonsConstants';
 
 export const PageNames = {
+  HOME_PAGE: 'HOME_PAGE',
   REPORTS_PAGE: 'REPORTS_PAGE',
   PLAN_PAGE: 'PLAN_PAGE',
   COACH_CLASS_LIST_PAGE: 'COACH_CLASS_LIST_PAGE',

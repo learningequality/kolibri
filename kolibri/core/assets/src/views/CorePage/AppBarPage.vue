@@ -45,6 +45,7 @@
     />
 
     <AppBottomBar
+      v-if="isAppContext"
       ref="sideNav"
       class="android-nav-bottom-bar"
       :navShown="true"
