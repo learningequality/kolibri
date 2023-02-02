@@ -268,7 +268,7 @@ class multiple_kolibri_servers(object):
             server_conn = connections[server.db_alias]
             try:
                 server_conn.creation.destroy_test_db()
-            except FileNotFoundError:
+            except IOError:
                 pass
             server_conn.close()
 
