@@ -126,14 +126,14 @@ def verify_branch(project_id, branch_name):
                 branch_name
             )
         ):
-            raise ValueError("Branch does not exist")
-        else:
             response = crowdin_client.source_files.add_branch(project_id, branch_name)
             branch_id = response["data"]["id"]
             logging.info(
                 "Branch {} created. Branch ID: {}".format(branch_name, branch_id)
             )
             return {"name": branch_name, "id": branch_id}
+        else:
+            raise ValueError("Branch does not exist")
 
 
 def list_files(project_id, branch_id):
