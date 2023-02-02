@@ -1,6 +1,7 @@
 import logging
 from datetime import timedelta
 from itertools import groupby
+from math import ceil
 from random import randint
 
 from django.core.exceptions import PermissionDenied
@@ -699,6 +700,9 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             )
 
     def _normalize_progress(self, progress):
+        # Round progress to three decimal places
+        # but always rounding up.
+        progress = ceil(progress * 1000) / float(1000)
         return max(0, min(1.0, progress))
 
     def _update_content_log(self, log, end_timestamp, validated_data):
