@@ -7,7 +7,6 @@
   >
     <div>
       <p>{{ userPinNumber }}</p>
-
     </div>
   </KModal>
 
@@ -16,14 +15,16 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'ViewPinModal',
     mixins: [commonCoreStrings],
     computed: {
+      ...mapState('facilityConfig', ['settings']),
       userPinNumber() {
-        return 123;
+        return this.settings['extra_fields']['pin_code'];
       },
     },
     methods: {},

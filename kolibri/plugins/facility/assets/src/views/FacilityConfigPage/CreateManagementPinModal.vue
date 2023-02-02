@@ -30,6 +30,7 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { mapActions } from 'vuex';
 
   export default {
     name: 'CreateManagementPinModal',
@@ -44,6 +45,7 @@
     },
     computed: {},
     methods: {
+      ...mapActions('facilityConfig', ['setPin']),
       submit() {
         if (!this.pin) {
           this.showErrorText = true;
@@ -52,13 +54,14 @@
         } else {
           if (this.pinPattern.test(this.pin)) {
             this.pinError = '';
+            this.setPin({ pin_code: this.pin });
+            this.showSnackbarNotification('pinCreated');
             this.$emit('submit');
           } else {
             this.pinError = 'Invalid PIN format. Please enter a 4-digit number.';
             this.focus();
           }
         }
-        this.showSnackbarNotification('pinCreated');
       },
       focus: function() {
         this.$refs.pinFocus.focus();

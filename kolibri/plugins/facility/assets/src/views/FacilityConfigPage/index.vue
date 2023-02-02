@@ -75,14 +75,14 @@
           <h2>{{ $tr('deviceManagementPin') }}</h2>
 
           <p>{{ $tr('deviceManagementDescription') }}</p>
-          <KButton @click="handleCreatePin">
+          <KButton v-show="!isPinSet" @click="handleCreatePin">
             {{ $tr('createPinBtn') }}
           </KButton>
 
           <KButton
+            v-show="isPinSet"
             hasDropdown
             :text="$tr('optionBtn')"
-            style="marginLeft:15px"
           >
             <template #menu>
               <KDropdownMenu
@@ -233,6 +233,13 @@
       settingsHaveChanged() {
         return !isEqual(this.settings, this.settingsCopy);
       },
+      isPinSet() {
+        if (this.settings['extra_fields']['pin_code']) {
+          return this.settings['extra_fields']['pin_code'];
+        } else {
+          return null;
+        }
+      },
       deviceSettingsUrl() {
         const getUrl = urls['kolibri:kolibri.plugins.device:device_management'];
         if (getUrl) {
@@ -273,7 +280,6 @@
     },
     methods: {
       camelCase,
-      ...mapActions('facilityConfig', ['saveFacilityName']),
       ...mapActions(['createSnackbar']),
       updateSettingValue(settingName, newValue) {
         this.$store.commit('facilityConfig/CONFIG_PAGE_MODIFY_SETTING', {
