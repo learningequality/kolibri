@@ -549,6 +549,8 @@ def upload_sources(branch, project, locale_data_folder):
         for file in list_files(project["id"], branch["id"])
     }
 
+    importOptions = {"firstLineContainsHeader": True}
+
     for file_name in source_files:
         # For each file we have to upload, add to Crowdin's storage
         storage_id = add_to_storage(os.path.join(source_path, file_name))
@@ -562,14 +564,18 @@ def upload_sources(branch, project, locale_data_folder):
                     project["id"],
                     file_id,
                     storage_id,
-                    importOptions={"firstLineContainsHeader": True},
+                    importOptions=importOptions,
                 )
             logging.info("Updated file {} with id {}".format(file_name, file_id))
         else:
             with handle_api_exception("Adding new source file"):
                 # Otherwise just add a new file with the file name to this branch
                 crowdin_client.source_files.add_file(
-                    project["id"], storage_id, file_name, branch["id"]
+                    project["id"],
+                    storage_id,
+                    file_name,
+                    branch["id"],
+                    importOptions=importOptions,
                 )
             logging.info("Uploaded new file {}".format(file_name))
 
