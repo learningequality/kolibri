@@ -337,6 +337,14 @@ describe('useProgressTracking composable', () => {
       await updateContentSession({ contentState: { test: 'test' } });
       expect(store.state.core.totalProgress).toEqual(1);
     });
+    it('should update progress_state if the backend returns complete', async () => {
+      const { updateContentSession, progress } = await initStore();
+      client.__setPayload({
+        complete: true,
+      });
+      await updateContentSession({ contentState: { test: 'test' } });
+      expect(get(progress)).toEqual(1);
+    });
     it('should not update total progress if the backend returns complete and was already complete', async () => {
       const { updateContentSession, store } = await initStore({ complete: true });
       store.commit('CORE_SET_SESSION', { kind: ['learner'] });
