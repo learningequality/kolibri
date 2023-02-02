@@ -78,10 +78,16 @@
       /** The data we will use to initialize the device during provisioning */
       deviceProvisioningData() {
         const superuser = this.wizardContext('superuser');
+
+        const selectedFacility = this.wizardContext('selectedFacility');
+        // FIXME Should the default name be i18nized?
+        const facilityName = this.wizardContext('facilityName') || 'Default Facility Name';
         // If the user has selected a facility, we use that.
         // Otherwise, we create an object w/ the facility name
-        const selectedFacility = this.wizardContext('selectFacility');
-        const facility = selectedFacility || { name: this.wizardContext('facilityName') };
+        let facility;
+        if (!selectedFacility && !facilityName) {
+          facility = selectedFacility || { name: facilityName };
+        }
 
         let payload = {
           superuser,

@@ -58,7 +58,7 @@ const initialContext = {
   guestAccess: false,
   learnerCanCreateAccount: null,
   requirePassword: null,
-  selectedFacility: { name: 'Default Facility Name' },
+  selectedFacility: null,
   importDeviceId: null,
   importDevice: null,
   superuser: null,
