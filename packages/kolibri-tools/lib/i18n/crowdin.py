@@ -141,7 +141,9 @@ def list_files(project_id, branch_id):
     List all Source Files for a given branch
     """
     with handle_api_exception("Listing files"):
-        response = crowdin_client.source_files.list_files(project_id, branch_id)
+        response = crowdin_client.source_files.with_fetch_all().list_files(
+            project_id, branch_id
+        )
     return response["data"]
 
 
@@ -413,7 +415,9 @@ GLOSSARY_XML_FILE = "glossary.tbx"
 def _get_glossary_id(project):
     # Currently we only support handling a single glossary file for a project
     with handle_api_exception("Listing glossaries"):
-        glossaries_response = crowdin_client.glossaries.list_glossaries()
+        glossaries_response = (
+            crowdin_client.glossaries.with_fetch_all().list_glossaries()
+        )
 
     glossary = next(
         filter(
@@ -542,7 +546,7 @@ def upload_sources(branch, project, locale_data_folder):
     # currently on crowdin.
     crowdin_files = {
         file["data"]["name"]: file["data"]
-        for file in list_files(project["id"], branch["id"])["data"]
+        for file in list_files(project["id"], branch["id"])
     }
 
     for file_name in source_files:
