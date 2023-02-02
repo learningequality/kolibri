@@ -37,7 +37,7 @@ class KolibriServer(object):
         self,
         autostart=True,
         settings="kolibri.deployment.default.settings.base",
-        db_name="default",
+        db_name=None,
         kolibri_home=None,
         seeded_kolibri_home=None,
         env=None,
@@ -45,7 +45,8 @@ class KolibriServer(object):
         self.env = os.environ.copy()
         self.env["KOLIBRI_HOME"] = kolibri_home or tempfile.mkdtemp()
         self.env["DJANGO_SETTINGS_MODULE"] = settings
-        self.env["KOLIBRI_DATABASE_NAME"] = db_name
+        if db_name is not None:
+            self.env["KOLIBRI_DATABASE_NAME"] = db_name
         self.env["KOLIBRI_RUN_MODE"] = self.env.get("KOLIBRI_RUN_MODE", "") + "-testing"
         self.env["KOLIBRI_ZIP_CONTENT_PORT"] = str(get_free_tcp_port())
         if env is not None:
