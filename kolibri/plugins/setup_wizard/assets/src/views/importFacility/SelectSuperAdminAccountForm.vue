@@ -6,6 +6,7 @@
     :description="$tr('description')"
     :uniqueUsernameValidator="uniqueUsernameValidator"
     :selectedUser="selectedImportedUser"
+    :noBackAction="true"
     @submit="handleClickNext"
   >
     <template #aboveform>

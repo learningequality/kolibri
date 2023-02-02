@@ -4,6 +4,7 @@
     dir="auto"
     :title="$attrs.header || $tr('adminAccountCreationHeader')"
     :description="$attrs.description || $tr('adminAccountCreationDescription')"
+    :noBackAction="noBackAction"
     @continue="handleContinue"
   >
     <slot name="aboveform"></slot>
@@ -88,6 +89,11 @@
     mixins: [commonCoreStrings],
     inject: ['wizardService'],
     props: {
+      // A passthrough to the onboarding step base to hide "GO BACK" when needed
+      noBackAction: {
+        type: Boolean,
+        default: false,
+      },
       uniqueUsernameValidator: {
         type: Function,
         default: null,

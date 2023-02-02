@@ -85,17 +85,23 @@
         // If the user has selected a facility, we use that.
         // Otherwise, we create an object w/ the facility name
         let facility;
-        if (!selectedFacility && !facilityName) {
+        if (!selectedFacility) {
           facility = selectedFacility || { name: facilityName };
         }
+
+        const settings = {
+          on_my_own_setup: this.isOnMyOwnSetup,
+          learner_can_sign_up: this.wizardContext('learnerCanCreateAccount'),
+          learner_can_login_with_no_password: !this.wizardContext('requirePassword'),
+        };
 
         let payload = {
           superuser,
           facility,
-          preset: this.wizardContext('formalOrNonformal') || 'nonformal', // TODO remove this default!
+          settings,
+          preset: this.wizardContext('formalOrNonformal') || 'nonformal',
           language_id: currentLanguage,
           device_name: this.wizardContext('deviceName'),
-          settings: { on_my_own_setup: this.isOnMyOwnSetup },
           allow_guest_access: this.wizardContext('guestAccess'),
           is_provisioned: true,
           os_user: checkCapability('get_os_user'),

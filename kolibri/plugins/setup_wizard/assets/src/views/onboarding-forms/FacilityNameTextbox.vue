@@ -20,9 +20,16 @@
 
   export default {
     name: 'FacilityNameTextbox',
+    props: {
+      value: {
+        type: String,
+        required: true,
+        default: '',
+      },
+    },
     data() {
       return {
-        facilityName: '',
+        facilityName: this.value,
         fieldVisited: false,
       };
     },

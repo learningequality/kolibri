@@ -55,7 +55,7 @@ const initialContext = {
   lodImportOrJoin: null,
   deviceName: 'default-device-name',
   formalOrNonformal: null,
-  guestAccess: false,
+  guestAccess: null,
   learnerCanCreateAccount: null,
   requirePassword: null,
   selectedFacility: null,
@@ -203,21 +203,21 @@ export const wizardMachine = createMachine(
         meta: { route: { name: 'GUEST_ACCESS' } },
         on: {
           CONTINUE: { target: 'createLearnerAccount', actions: 'setGuestAccess' },
-          BACK: 'setFacilityPermissions',
+          BACK: { target: 'setFacilityPermissions', actions: 'setGuestAccess' },
         },
       },
       createLearnerAccount: {
         meta: { route: { name: 'CREATE_LEARNER_ACCOUNT' } },
         on: {
           CONTINUE: { target: 'requirePassword', actions: 'setLearnerCanCreateAccount' },
-          BACK: 'guestAccess',
+          BACK: { target: 'guestAccess', actions: 'setLearnerCanCreateAccount' },
         },
       },
       requirePassword: {
         meta: { route: { name: 'REQUIRE_PASSWORD' } },
         on: {
           CONTINUE: { target: 'personalDataConsent', actions: 'setRequirePassword' },
-          BACK: 'createLearnerAccount',
+          BACK: { target: 'createLearnerAccount', actions: 'setRequirePassword' },
         },
       },
       personalDataConsent: {
@@ -298,6 +298,9 @@ export const wizardMachine = createMachine(
           },
           personalDataConsentForm: {
             meta: { step: 5, route: { name: 'IMPORT_DATA_CONSENT' }, nextEvent: 'FINISH' },
+            on: {
+              BACK: 'selectSuperAdminAccountForm',
+            },
           },
         },
         // Listener on the importFacility state; typically this would be above `states` but

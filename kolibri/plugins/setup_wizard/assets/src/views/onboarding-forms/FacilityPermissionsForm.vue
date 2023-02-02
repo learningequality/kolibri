@@ -51,14 +51,13 @@
     },
     data() {
       let selected;
-      const { preset } = this.$store.state.onboardingData;
-      if (preset === null || preset === Presets.NONFORMAL) {
-        selected = Presets.NONFORMAL;
-      } else {
-        selected = Presets.FORMAL;
-      }
+      const preset = this.wizardService.state.context['formalOrNonformal'];
+      // preset inits to null, so either it'll be what the user selected or default to nonformal
+      selected = preset || Presets.NONFORMAL;
+
+      const facilityName = this.wizardService.state.context['facilityName'] || '';
       return {
-        facilityName: '',
+        facilityName,
         selected,
         Presets,
       };
