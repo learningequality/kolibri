@@ -78,10 +78,14 @@
       /** The data we will use to initialize the device during provisioning */
       deviceProvisioningData() {
         const superuser = this.wizardContext('superuser');
+        // If the user has selected a facility, we use that.
+        // Otherwise, we create an object w/ the facility name
+        const selectedFacility = this.wizardContext('selectFacility');
+        const facility = selectedFacility || { name: this.wizardContext('facilityName') };
 
         let payload = {
           superuser,
-          facility: this.wizardContext('selectedFacility'),
+          facility,
           preset: this.wizardContext('formalOrNonformal') || 'nonformal', // TODO remove this default!
           language_id: currentLanguage,
           device_name: this.wizardContext('deviceName'),
