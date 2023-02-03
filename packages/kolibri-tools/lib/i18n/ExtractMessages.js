@@ -114,12 +114,14 @@ module.exports = function(pathInfo, ignore, localeDataFolder, verbose) {
   // An object for storing our messages.
   const extractedMessages = {};
   forEachPathInfo(pathInfo, pathData => {
-    const namespace = pathData.name;
-    extractedMessages[namespace] = getAllMessagesFromFilePath(
-      pathData.moduleFilePath,
-      ignore,
-      verbose
-    );
+    const namespace = pathData.namespace;
+    if (!extractedMessages[namespace]) {
+      extractedMessages[namespace] = getAllMessagesFromFilePath(
+        pathData.moduleFilePath,
+        ignore,
+        verbose
+      );
+    }
   });
 
   const csvPath = path.join(localeDataFolder, 'en', 'LC_MESSAGES');
