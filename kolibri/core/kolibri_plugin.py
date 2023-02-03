@@ -22,7 +22,6 @@ from kolibri.core.content.utils.paths import get_zip_content_base_path
 from kolibri.core.content.utils.paths import get_zip_content_config
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.device.utils import allow_other_browsers_to_connect
-from kolibri.core.device.utils import enabled_pages
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.hooks import NavigationHook
 from kolibri.core.oidc_provider_hook import OIDCProviderHook
@@ -124,7 +123,6 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
             ),
             "allowRemoteAccess": allow_other_browsers_to_connect()
             or not interface.enabled,
-            "enabledPages": enabled_pages(),
             "appCapabilities": interface.capabilities,
             "contentCacheKey": ContentCacheKey.get_cache_key(),
             "languageGlobals": self.language_globals(),

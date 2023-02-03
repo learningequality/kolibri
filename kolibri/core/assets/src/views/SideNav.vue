@@ -261,7 +261,7 @@
       };
     },
     computed: {
-      ...mapGetters(['isAdmin', 'isCoach', 'getUserKind', 'getEnabledPages']),
+      ...mapGetters(['isAdmin', 'isCoach', 'getUserKind']),
       ...mapState({
         username: state => state.core.session.username,
         fullName: state => state.core.session.full_name,
@@ -276,17 +276,10 @@
         return this.$tr('poweredBy', { version: __version });
       },
       menuOptions() {
-        const visibleNavComponents = navComponents.filter(component => {
-          if (component.name in this.getEnabledPages) {
-            return this.getEnabledPages[component.name];
-          } else {
-            return true;
-          }
-        });
-        const topComponents = visibleNavComponents
+        const topComponents = navComponents
           .filter(component => component.section !== NavComponentSections.ACCOUNT)
           .sort(this.compareMenuComponents);
-        const accountComponents = visibleNavComponents
+        const accountComponents = navComponents
           .filter(component => component.section === NavComponentSections.ACCOUNT)
           .sort(this.compareMenuComponents);
         return [...topComponents, SideNavDivider, ...accountComponents, logout].filter(

@@ -89,10 +89,6 @@ extra_settings_schema = {
         "allow_learner_download_resources": {"type": "boolean"},
         "set_limit_for_autodownload": {"type": "boolean"},
         "limit_for_autodownload": {"type": "integer"},
-        "enabled_learn": {"type": "boolean"},
-        "enabled_coach": {"type": "boolean"},
-        "enabled_facility": {"type": "boolean"},
-        "enabled_profile": {"type": "boolean"},
     },
     "required": [
         "allow_download_on_mettered_connection",
@@ -106,10 +102,6 @@ extra_settings_default_values = {
     "allow_learner_download_resources": False,
     "set_limit_for_autodownload": False,
     "limit_for_autodownload": 0,
-    "enabled_learn": True,
-    "enabled_coach": True,
-    "enabled_facility": True,
-    "enabled_profile": True,
 }
 
 

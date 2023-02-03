@@ -35,7 +35,7 @@
     mixins: [commonCoreStrings],
     props: {
       changedSetting: {
-        type: String, // primary, remove, add
+        type: String, // primary, remove, add, plugins
         required: true,
       },
       path: {
@@ -52,15 +52,22 @@
     methods: {
       getMessage() {
         let message = '';
-        if (this.changedSetting === 'primary') {
-          message = this.$tr('newPrimaryLocationRestartDescription');
-        } else if (this.changedSetting === 'remove') {
-          message = this.$tr('removeLocationRestartDescription');
-        } else if (this.changedSetting === 'add') {
-          message = this.$tr('newLocationRestartDescription');
+        switch (this.changedSetting) {
+          case 'primary':
+            message = this.$tr('newPrimaryLocationRestartDescription');
+            break;
+          case 'remove':
+            message = this.$tr('removeLocationRestartDescription');
+            break;
+          case 'add':
+            message = this.$tr('newLocationRestartDescription');
+            break;
+          case 'plugin':
+            message = this.$tr('newPluginsState');
+            break;
         }
 
-        return message + this.$tr('serverRestartDecription');
+        return message + this.$tr('serverRestartDescription');
       },
       handleSubmit() {
         if (this.changedSetting === 'add') {
@@ -87,9 +94,13 @@
         message: 'Removing a storage location will restart this server.',
         context: 'Reason to restart the server.',
       },
-      serverRestartDecription: {
+      serverRestartDescription: {
         message:
           ' Anyone using Kolibri on this server right now will temporarily be unable to use it.',
+        context: 'Description for restarting the server.',
+      },
+      newPluginsState: {
+        message: 'Changing the state of the enabled plugins will restart this server.',
         context: 'Description for restarting the server.',
       },
       selectedPath: {

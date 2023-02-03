@@ -78,17 +78,6 @@ def allow_other_browsers_to_connect():
     return get_device_setting("allow_other_browsers_to_connect", True)
 
 
-def enabled_pages():
-    extra_settings = get_device_setting("extra_settings", {})
-    pages = {
-        "LearnSideNavEntry": extra_settings.get("enabled_learn", True),
-        "CoachSideNavEntry": extra_settings.get("enabled_coach", True),
-        "FacilityManagementSideNavEntry": extra_settings.get("enabled_facility", True),
-        "UserProfileSideNavEntry": extra_settings.get("enabled_profile", True),
-    }
-    return pages
-
-
 def set_device_settings(**kwargs):
     from .models import DeviceSettings
 

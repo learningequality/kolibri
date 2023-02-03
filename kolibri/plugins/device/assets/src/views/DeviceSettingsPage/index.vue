@@ -347,6 +347,7 @@
   import { deviceString } from '../commonDeviceStrings';
   import { getFreeSpaceOnServer } from '../AvailableChannelsPage/api';
   import useDeviceRestart from '../../composables/useDeviceRestart';
+  import usePlugins from '../../composables/usePlugins';
   import { getDeviceSettings, getPathsPermissions, saveDeviceSettings, getDeviceURLs } from './api';
   import PrimaryStorageLocationModal from './PrimaryStorageLocationModal';
   import AddStorageLocationModal from './AddStorageLocationModal';
@@ -377,7 +378,47 @@
     mixins: [commonCoreStrings],
     setup() {
       const { restart } = useDeviceRestart();
-      return { restart };
+      const { plugins, togglePlugin } = usePlugins();
+
+      function getPluginState(pluginName) {
+        if (plugins.value === null) {
+          return false;
+        } // plugins not loaded yet
+        const plugin = plugins.value.find(p => p.id.includes(pluginName));
+        if (plugin === undefined) {
+          return false;
+        } // plugin not found
+        return plugin.enabled;
+      }
+
+      function getPluginId(pluginName) {
+        if (plugins.value === null) {
+          return null;
+        } // plugins not loaded yet
+        const plugin = plugins.value.find(p => p.id.includes(pluginName));
+        if (plugin === undefined) {
+          return null;
+        } // plugin not found
+        return plugin.id;
+      }
+
+      function checkAndTogglePlugin(pluginState, pluginName) {
+        let restart = null;
+        if (pluginState !== getPluginState(pluginName)) {
+          togglePlugin(getPluginId(pluginName), pluginState);
+          restart = 'plugins';
+        }
+        return restart;
+      }
+
+      function checkPluginChanges(pluginStates, pluginNames) {
+        const previousPluginStates = pluginNames.map(pluginName => getPluginState(pluginName));
+        return pluginStates.some(
+          (pluginState, index) => pluginState !== previousPluginStates[index]
+        );
+      }
+
+      return { restart, plugins, getPluginState, checkPluginChanges, checkAndTogglePlugin };
     },
     data() {
       return {
@@ -504,6 +545,14 @@
         return this.getDeviceOS.includes('Android');
       },
     },
+    watch: {
+      plugins() {
+        this.enabledCoach = this.getPluginState('coach');
+        this.enabledLearn = this.getPluginState('learn');
+        this.enabledProfile = this.getPluginState('profile');
+        this.enabledFacility = this.getPluginState('facility');
+      },
+    },
     created() {
       this.setDeviceURLs();
       this.setFreeSpace();
@@ -568,10 +617,6 @@
           enable_automatic_download = true,
           limit_for_autodownload = 0,
           set_limit_for_autodownload = false,
-          enabled_coach = true,
-          enabled_learn = true,
-          enabled_facility = true,
-          enabled_profile = true,
         } = extraSettings;
 
         if (allow_download_on_mettered_connection === false) {
@@ -585,10 +630,6 @@
         this.enableAutomaticDownload = enable_automatic_download;
         this.limitForAutodownload = limit_for_autodownload.toString();
         this.setLimitForAutodownload = set_limit_for_autodownload;
-        this.enabledCoach = enabled_coach;
-        this.enabledLearn = enabled_learn;
-        this.enabledFacility = enabled_facility;
-        this.enabledProfile = enabled_profile;
       },
       getContentSettings() {
         // This is the inverse of 'setSignInPageOption'
@@ -631,10 +672,6 @@
             this.enableAutomaticDownload === false || this.notEnoughFreeSpace
               ? false
               : this.setLimitForAutodownload,
-          enabled_coach: this.enabledCoach,
-          enabled_learn: this.enabledLearn,
-          enabled_facility: this.enabledFacility,
-          enabled_profile: this.enabledProfile,
         };
         Object.assign(this.extraSettings, newExtraSettings);
       },
@@ -694,12 +731,31 @@
           this.setLimitForAutodownload;
       },
       handleClickSave() {
+        const restartPlugins = this.checkPluginChanges(
+          [this.enabledCoach, this.enabledLearn, this.enabledProfile, this.enabledFacility],
+          ['coach', 'learn', 'user_profile', 'facility']
+        );
+
+        if (restartPlugins) {
+          this.restartSetting = 'plugin';
+          this.showRestartModal = true;
+        } else {
+          this.restartSetting = null;
+          this.handleSave();
+        }
+      },
+      handleSave() {
         const {
           allowGuestAccess,
           allowLearnerUnassignedResourceAccess,
         } = this.getContentSettings();
 
         this.getExtraSettings();
+
+        this.checkAndTogglePlugin(this.enabledCoach, 'coach');
+        this.checkAndTogglePlugin(this.enabledLearn, 'learn');
+        this.checkAndTogglePlugin(this.enabledProfile, 'user_profile');
+        this.checkAndTogglePlugin(this.enabledFacility, 'facility');
 
         this.saveDeviceSettings({
           languageId: this.language.value,
@@ -716,6 +772,7 @@
             this.$store.dispatch('createSnackbar', this.$tr('saveSuccessNotification'));
             if (this.restartSetting !== null) {
               this.restart();
+              this.showRestartModal = false;
               this.restartSetting = null;
             }
           })
@@ -766,33 +823,40 @@
       },
       handleServerRestart(confirmationChecked) {
         this.showRestartModal = false;
-        if (this.restartSetting === 'add') {
-          this.storageLocations.push(this.restartPath);
-          if (confirmationChecked === true) {
+        switch (this.restartSetting) {
+          case 'plugin':
+            this.handleSave();
+            break;
+          case 'primary':
             this.secondaryStorageLocations.push(this.primaryStorageLocation);
             this.secondaryStorageLocations = this.secondaryStorageLocations.filter(
               el => el !== this.restartPath.path
             );
             this.primaryStorageLocation = this.restartPath.path;
-          } else {
-            this.secondaryStorageLocations.push(this.restartPath.path);
-          }
-          this.handleClickSave();
-        } else if (this.restartSetting === 'remove') {
-          this.storageLocations = this.storageLocations.filter(
-            el => el.path !== this.restartPath.path
-          );
-          this.secondaryStorageLocations = this.secondaryStorageLocations.filter(
-            el => el !== this.restartPath.path
-          );
-          this.handleClickSave();
-        } else if (this.restartSetting === 'primary') {
-          this.secondaryStorageLocations.push(this.primaryStorageLocation);
-          this.secondaryStorageLocations = this.secondaryStorageLocations.filter(
-            el => el !== this.restartPath.path
-          );
-          this.primaryStorageLocation = this.restartPath.path;
-          this.handleClickSave();
+            this.handleClickSave();
+            break;
+          case 'add':
+            this.storageLocations.push(this.restartPath);
+            if (confirmationChecked === true) {
+              this.secondaryStorageLocations.push(this.primaryStorageLocation);
+              this.secondaryStorageLocations = this.secondaryStorageLocations.filter(
+                el => el !== this.restartPath.path
+              );
+              this.primaryStorageLocation = this.restartPath.path;
+            } else {
+              this.secondaryStorageLocations.push(this.restartPath.path);
+            }
+            this.handleClickSave();
+            break;
+          case 'remove':
+            this.storageLocations = this.storageLocations.filter(
+              el => el.path !== this.restartPath.path
+            );
+            this.secondaryStorageLocations = this.secondaryStorageLocations.filter(
+              el => el !== this.restartPath.path
+            );
+            this.handleClickSave();
+            break;
         }
       },
       isWritablePath(path) {

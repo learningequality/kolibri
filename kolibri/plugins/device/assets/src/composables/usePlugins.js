@@ -45,5 +45,6 @@ export default function usePlugins() {
     plugins,
     enablePlugin,
     disablePlugin,
+    togglePlugin,
   };
 }
