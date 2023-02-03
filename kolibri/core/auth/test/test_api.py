@@ -1512,19 +1512,19 @@ class FacilityDatasetAPITestCase(APITestCase):
 
     def test_facility_admin_can_check_is_pin_valid_empty_pin_specified(self):
         self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
-        response = self.update_pin({"pin_code": "1234"})
+        self.update_pin({"pin_code": "1234"})
         response = self.is_pin_valid({"pin_code": ""})
         self.assertEqual(response.status_code, 400)
 
     def test_facility_admin_can_check_is_pin_valid_empty_payload(self):
         self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
-        response = self.update_pin({"pin_code": "1234"})
+        self.update_pin({"pin_code": "1234"})
         response = self.is_pin_valid({})
         self.assertEqual(response.status_code, 400)
 
     def test_facility_admin_can_check_is_pin_valid_pin_as_none(self):
         self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
-        response = self.update_pin({"pin_code": "1234"})
+        self.update_pin({"pin_code": "1234"})
         response = self.is_pin_valid({"pin_code": None})
         self.assertEqual(response.status_code, 400)
 
