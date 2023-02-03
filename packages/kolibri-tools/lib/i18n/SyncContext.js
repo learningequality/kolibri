@@ -15,7 +15,7 @@ const {
   extractContext,
   printAST,
 } = require('./astUtils');
-const { parseCSVDefinitions, writeSourceToFile } = require('./utils');
+const { forEachPathInfo, parseCSVDefinitions, writeSourceToFile } = require('./utils');
 
 // Glob path patterns
 // All JS files
@@ -219,7 +219,7 @@ module.exports = function(pathInfo, ignore, localeDataFolder) {
     process.exit(1);
   }
 
-  for (let pathData of pathInfo) {
+  forEachPathInfo(pathInfo, pathData => {
     logging.info(`Updating context for all files in ${pathData.moduleFilePath}`);
     // Load the files
     const vueFiles = glob.sync(path.join(pathData.moduleFilePath, VUE_GLOB), { ignore });
@@ -235,7 +235,7 @@ module.exports = function(pathInfo, ignore, localeDataFolder) {
     const jsFilesToWrite = processJSFiles(jsFiles, csvDefinitions);
     logging.info(`Parsed ${jsFiles.length} JS files, added context to ${jsFilesToWrite.length}`);
     updatedFiles.push(...jsFilesToWrite);
-  }
+  });
 
   // Write the updated files
   updatedFiles.forEach(fileObj => {

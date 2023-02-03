@@ -1,5 +1,9 @@
 import { toLocale } from '../lib/i18n/utils';
 
+// Mock this as importing from lib i18n utils
+// calls functions in this module that will otherwise error
+jest.mock('../lib/apiSpecExportTools');
+
 const langLocales = [
   ['en', 'en'],
   ['EN', 'en'],

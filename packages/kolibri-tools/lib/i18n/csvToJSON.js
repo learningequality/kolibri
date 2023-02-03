@@ -2,30 +2,30 @@ const fs = require('fs');
 const path = require('path');
 const mkdirp = require('mkdirp');
 const logging = require('../logging');
-const { parseCSVDefinitions, toLocale } = require('./utils');
+const { forEachPathInfo, parseCSVDefinitions, toLocale } = require('./utils');
 const { getAllMessagesFromEntryFiles, getAllMessagesFromFilePath } = require('./astUtils');
 
-module.exports = function(pathInfo, ignore, langInfo, localeDataFolder) {
+module.exports = function(pathInfo, ignore, langInfo, localeDataFolder, verbose) {
   const languageInfo = require(langInfo);
   // A map per webpack bundle designating which messages
   // are needed for full translation. Will be a map from:
   // name to an array of message ids of format namespace.key.
   const requiredMessages = {};
   const allDefaultMessages = {};
-  for (let pathData of pathInfo) {
+  forEachPathInfo(pathInfo, pathData => {
     const moduleFilePath = pathData.moduleFilePath;
     const name = pathData.name;
     logging.info(`Gathering required string ids for ${name}`);
     let messages;
     if (pathData.entry) {
-      messages = getAllMessagesFromEntryFiles(pathData.entry, moduleFilePath, ignore);
+      messages = getAllMessagesFromEntryFiles(pathData.entry, moduleFilePath, ignore, verbose);
     } else {
-      messages = getAllMessagesFromFilePath(moduleFilePath, ignore);
+      messages = getAllMessagesFromFilePath(moduleFilePath, ignore, verbose);
     }
     requiredMessages[name] = Object.keys(messages);
     Object.assign(allDefaultMessages, messages);
     logging.info(`Gathered ${requiredMessages[name].length} required string ids for ${name}`);
-  }
+  });
   for (let langObject of languageInfo) {
     const crowdinCode = langObject['crowdin_code'];
     const intlCode = langObject['intl_code'];

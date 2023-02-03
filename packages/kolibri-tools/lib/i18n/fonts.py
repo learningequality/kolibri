@@ -18,6 +18,12 @@ import tempfile
 
 import noto_source
 import utils
+
+try:
+    import fontTools  # noqa
+except ImportError:
+    utils.install_requirement("fonttools==4.28.1")
+
 from fontTools import merge
 from fontTools import subset
 

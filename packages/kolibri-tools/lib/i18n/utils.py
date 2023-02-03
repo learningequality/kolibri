@@ -5,6 +5,7 @@ import io
 import json
 import logging
 import os
+import subprocess
 import sys
 
 logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
@@ -145,3 +146,7 @@ def read_config_file():
             for key in config["kolibri:i18n"]:
                 output[key] = config["kolibri:i18n"][key]
     return output
+
+
+def install_requirement(requirement_name):
+    subprocess.run([sys.executable, "-m", "pip", "install", requirement_name])
