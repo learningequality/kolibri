@@ -60,7 +60,9 @@
         data-test="contentPage"
         :content="content"
         :lessonId="lessonId"
-        :style="{ backgroundColor: ( content.assessment ? '' : $themeTokens.textInverted ) }"
+        :style="{
+          backgroundColor: ( content.assessmentmetadata ? '' : $themeTokens.textInverted )
+        }"
         :allowMarkComplete="allowMarkComplete"
         @mounted="contentPageMounted = true"
         @finished="$refs.activityBar && $refs.activityBar.animateNextSteps()"

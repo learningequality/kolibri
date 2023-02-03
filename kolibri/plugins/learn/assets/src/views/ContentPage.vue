@@ -4,7 +4,7 @@
 
     <template v-if="sessionReady">
       <KContentRenderer
-        v-if="!content.assessment"
+        v-if="!content.assessmentmetadata"
         class="content-renderer"
         :kind="content.kind"
         :lang="content.lang"
@@ -54,9 +54,9 @@
         :kind="content.kind"
         :files="content.files"
         :lang="content.lang"
-        :randomize="content.randomize"
-        :masteryModel="content.masteryModel"
-        :assessmentIds="content.assessmentIds"
+        :randomize="content.assessmentmetadata.randomize"
+        :masteryModel="content.assessmentmetadata.mastery_model"
+        :assessmentIds="content.assessmentmetadata.assessment_item_ids"
         :available="content.available"
         :extraFields="extra_fields"
         :progress="progress"
