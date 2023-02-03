@@ -665,6 +665,24 @@ def screenshot_report(branch, project):
     logging.info("Screenshot report written to {}".format(filename))
 
 
+def _normalize_position(position, size):
+    """
+    Helper function to ensure the position object does not exceed the size
+    of the screenshot.
+    """
+    # Position can be None, so just return that as is.
+    if not position:
+        return position
+    height = min(position["height"], size["height"] - position["y"])
+    width = min(position["width"], size["width"] - position["x"])
+    return {
+        "height": height,
+        "width": width,
+        "x": position["x"],
+        "y": position["y"],
+    }
+
+
 @click.command(cls=CrowdinCommand)
 @branch_argument
 @click.argument(
@@ -694,6 +712,8 @@ def transfer_screenshots(branch, project, source_branch):
     # Loop through all the screenshots on Crowdin
     for sc in _all_screenshots(project):
         new_tags = []
+        size = sc["size"]
+        current_string_ids = {tag["stringId"] for tag in sc["tags"]}
         # Loop through each tag on the screenshot
         for tag in sc["tags"]:
             try:
@@ -703,14 +723,16 @@ def transfer_screenshots(branch, project, source_branch):
                 # Get the message identifier to match it up with strings on our target branch
                 message_id = string["identifier"]
                 target_branch_string = target_branch_string_lookup[message_id]
-                # Create a new tag with the stringId for the target branch
-                # and copy the position information from the source branch
-                new_tags.append(
-                    {
-                        "stringId": target_branch_string["id"],
-                        "position": tag["position"],
-                    }
-                )
+                if target_branch_string["id"] not in current_string_ids:
+                    # If not already tagged to this screenshot
+                    # Create a new tag with the stringId for the target branch
+                    # and copy the position information from the source branch
+                    new_tags.append(
+                        {
+                            "stringId": target_branch_string["id"],
+                            "position": _normalize_position(tag["position"], size),
+                        }
+                    )
             except KeyError:
                 pass
         if new_tags:
