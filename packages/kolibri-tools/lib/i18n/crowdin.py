@@ -549,7 +549,15 @@ def upload_sources(branch, project, locale_data_folder):
         for file in list_files(project["id"], branch["id"])
     }
 
-    importOptions = {"firstLineContainsHeader": True}
+    importOptions = {
+        "firstLineContainsHeader": True,
+        "scheme": {
+            "identifier": 0,
+            "sourcePhrase": 1,
+            "context": 2,
+            "translation": 3,
+        },
+    }
 
     for file_name in source_files:
         # For each file we have to upload, add to Crowdin's storage
