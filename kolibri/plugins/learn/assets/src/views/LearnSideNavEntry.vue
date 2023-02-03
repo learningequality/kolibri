@@ -107,7 +107,7 @@
           },
           library: {
             condition: Boolean(true),
-            text: this.coreString('libraryLabel'),
+            text: this.learnString('libraryLabel'),
             icon: 'library',
             route: this.generateNavRoute(LearnPageNames.LIBRARY),
           },

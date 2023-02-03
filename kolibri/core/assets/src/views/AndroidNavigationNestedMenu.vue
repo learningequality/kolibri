@@ -21,9 +21,9 @@
           :style="themeConfig.sideNav.topLogo.style"
         >
 
-        <div v-if="userIsLearner" class="user-information">
+        <div v-if="isUserLoggedIn" class="user-information">
           <!-- display user details -->
-          <!-- <TotalPoints class="points" /> -->
+          <TotalPoints class="points" />
           <b>{{ fullName }}</b>
           <p
             :style="{
@@ -36,7 +36,7 @@
             {{ username }}
           </p>
           <p :style="{ color: $themeTokens.annotation, fontSize: '12px', marginTop: 0 }">
-            {{ getUserKind }}
+            {{ userKind }}
           </p>
           <!-- display sync status, when relevant -->
           <div v-if="isSubsetOfUsersDevice" data-test="syncStatusInDropdown">
@@ -174,6 +174,7 @@
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
   import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
   import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
+  import TotalPoints from 'kolibri.coreVue.components.TotalPoints';
   import LearnOnlyDeviceNotice from 'kolibri.coreVue.components.LearnOnlyDeviceNotice';
   import navComponents from 'kolibri.utils.navComponents';
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
@@ -209,7 +210,7 @@
       SideNavDivider,
       PrivacyInfoModal,
       FocusTrap,
-      // TotalPoints,
+      TotalPoints,
       LanguageSwitcherModal,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin, responsiveElementMixin, navComponentsMixin],
@@ -236,11 +237,14 @@
       };
     },
     computed: {
-      ...mapGetters(['isAdmin', 'isCoach', 'getUserKind', 'isAppContext']),
+      ...mapGetters(['isAdmin', 'isCoach', 'getUserKind', 'isAppContext', 'isUserLoggedIn']),
       ...mapState({
         username: state => state.core.session.username,
         fullName: state => state.core.session.full_name,
       }),
+      userKind() {
+        return this.getUserKind.charAt(0).toUpperCase() + this.getUserKind.slice(1);
+      },
       showSoudNotice() {
         return this.isSubsetOfUsersDevice && (this.isAdmin || this.isCoach);
       },

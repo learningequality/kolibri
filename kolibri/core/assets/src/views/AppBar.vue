@@ -7,6 +7,7 @@
 
       <UiToolbar
         :title="title"
+        :removeNavIcon="isAppContext"
         type="clear"
         textColor="white"
         class="app-bar"
@@ -29,7 +30,7 @@
             :src="themeConfig.appBar.topLogo.src"
             :alt="themeConfig.appBar.topLogo.alt"
             :style="themeConfig.appBar.topLogo.style"
-            class="brand-logo"
+            :class="isAppContext ? 'brand-logo-left' : 'brand-logo'"
           >
         </template>
 
@@ -267,6 +268,7 @@
   /deep/ .ui-toolbar__left {
     display: flex;
     align-items: center;
+    margin-left: 8px;
   }
 
   .brand-logo {
@@ -274,6 +276,10 @@
     max-height: 48px;
     margin-right: 8px;
     vertical-align: middle;
+  }
+
+  .brand-logo-left {
+    margin-left: -16px !important;
   }
 
   // Hide the UiButton focus ring

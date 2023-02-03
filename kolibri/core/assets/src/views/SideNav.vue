@@ -208,6 +208,7 @@
   import themeConfig from 'kolibri.themeConfig';
   import Backdrop from 'kolibri.coreVue.components.Backdrop';
   import LanguageSwitcherModal from 'kolibri.coreVue.components.LanguageSwitcherModal';
+  import TotalPoints from 'kolibri.coreVue.components.TotalPoints';
   import navComponentsMixin from '../mixins/nav-components';
   import TotalPoints from '../../../../plugins/learn/assets/src/views/TotalPoints.vue';
   import useUserSyncStatus from '../composables/useUserSyncStatus';

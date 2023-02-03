@@ -19,6 +19,21 @@
           {{ nestedObject.text }}
         </a>
       </div>
+      <!-- routes supported for "general" device permissions, for non-LOD configurations -->
+      <div v-if="!isSubsetOfUsersDevice">
+        <div v-for="(nestedObject, key) in generalDeviceRoutes" :key="key" class="link-container">
+          <a
+            :href="nestedObject.route"
+            class="link"
+            :class="$computedClass(optionStyle)"
+            @click="handleNav(nestedObject.route)"
+          >
+            {{ nestedObject.text }}
+          </a>
+        </div>
+
+      </div>
+
     </div>
   </div>
 
@@ -36,6 +51,7 @@
   import { generateNavRoute } from '../../../../../core/assets/src/utils/generateNavRoutes';
   import { PageNames as DevicePageNames } from '../constants';
   import baseRoutes from '../routes/baseRoutes';
+  import plugin_data from 'plugin_data';
 
   const component = {
     name: 'DeviceManagementSideNavEntry',
@@ -46,6 +62,7 @@
     data() {
       return {
         visibleSubMenu: false,
+        isSubsetOfUsersDevice: plugin_data.isSubsetOfUsersDevice,
       };
     },
     mounted() {
@@ -62,6 +79,10 @@
             text: this.coreString('channelsLabel'),
             route: this.generateNavRoute(DevicePageNames.MANAGE_CONTENT_PAGE),
           },
+        };
+      },
+      generalDeviceRoutes() {
+        return {
           permissions: {
             text: this.$tr('permissionsLabel'),
             route: this.generateNavRoute(DevicePageNames.MANAGE_PERMISSIONS_PAGE),
