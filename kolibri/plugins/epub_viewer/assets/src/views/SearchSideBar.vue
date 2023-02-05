@@ -90,7 +90,6 @@
 
 <script>
 
-  import Mark from 'mark.js';
   import { EpubCFI } from 'epubjs';
   import isEqual from 'lodash/isEqual';
   import SideBar from './SideBar';
@@ -194,10 +193,6 @@
               this.searchResults = this.selectMatchResult(searchResults);
               this.$emit('newSearchQuery', searchQuery);
               this.searchIsLoading = false;
-              // Wait for list to be updated
-              this.$nextTick().then(() => {
-                this.createMarks(searchQuery);
-              });
             }
           );
         }
@@ -325,13 +320,6 @@
           after: excerpt.slice(endIndex),
         };
       },
-      createMarks(searchQuery) {
-        const resultList = this.$refs.searchResultsList;
-        this.markInstance = new Mark(resultList.querySelectorAll('.mark'));
-        markInstance.mark(searchQuery, {
-          separateWordSearch: false,
-        });
-      },
     },
     $trs: {
       searchThroughBook: {
@@ -401,6 +389,13 @@
   .search-results-list-item {
     padding-top: 8px;
     padding-bottom: 8px;
+  }
+
+  .mark {
+    color: #000000;
+
+    /* Styles same as markjs default styles */
+    background: #ffff00;
   }
 
   .search-results-list-item-button {
