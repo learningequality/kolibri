@@ -405,7 +405,11 @@
       function checkAndTogglePlugin(pluginState, pluginName) {
         let restart = null;
         if (pluginState !== getPluginState(pluginName)) {
-          togglePlugin(getPluginId(pluginName), pluginState);
+          const plugin_id = getPluginId(pluginName);
+          if (plugin_id == null) {
+            return null;
+          }
+          togglePlugin(plugin_id, pluginState);
           restart = 'plugins';
         }
         return restart;

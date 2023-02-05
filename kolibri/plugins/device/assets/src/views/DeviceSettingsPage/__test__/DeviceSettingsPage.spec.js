@@ -2,9 +2,15 @@ import { mount, createLocalVue } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import Vuex from 'vuex';
 import DeviceSettingsPage from '../index.vue';
+import usePlugins, {
+  // eslint-disable-next-line import/named
+  usePluginsMock,
+} from '../../../composables/usePlugins';
+
 import { getPathPermissions, getDeviceURLs, getDeviceSettings, getPathsPermissions } from '../api';
 import { getFreeSpaceOnServer } from '../../AvailableChannelsPage/api';
 
+jest.mock('../../../composables/usePlugins');
 jest.mock('kolibri.urls');
 
 jest.mock('../api.js', () => ({
@@ -54,6 +60,14 @@ async function makeWrapper() {
     store,
     router: new VueRouter(),
     stubs: ['AppBarPage', 'DeviceTopNav'],
+    data() {
+      return {
+        enabledCoach: false,
+        enabledLearn: false,
+        enabledProfile: false,
+        enabledFacility: false,
+      };
+    },
   });
   // Need to wait for beforeMount to finish
   await global.flushPromises();
@@ -195,6 +209,12 @@ describe('DeviceSettingsPage', () => {
       const newData = { ...DeviceSettingsData };
       newData.allowLearnerUnassignedResourceAccess = true;
       getDeviceSettings.mockResolvedValue(newData);
+      usePlugins.mockImplementation(() =>
+        usePluginsMock({
+          plugins: { value: [] },
+          togglePlugin: jest.fn(),
+        })
+      );
     });
 
     it('landing page is Learn page', async () => {
