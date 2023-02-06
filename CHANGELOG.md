@@ -2,6 +2,11 @@
 
 List of the most important changes for each release.
 
+## 0.15.11
+
+### Fixed
+* Fixed progress tracking edge case where float rounding issues prevent progress reaching 100%
+
 
 ## 0.15.10
 
