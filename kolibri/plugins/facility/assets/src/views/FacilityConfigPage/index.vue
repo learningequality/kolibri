@@ -234,7 +234,11 @@
         return !isEqual(this.settings, this.settingsCopy);
       },
       isPinSet() {
-        if (this.settings['extra_fields']['pin_code']) {
+        if (
+          this.settings &&
+          this.settings['extra_fields'] &&
+          this.settings['extra_fields']['pin_code']
+        ) {
           return this.settings['extra_fields']['pin_code'];
         } else {
           return null;
