@@ -56,7 +56,7 @@
             this.pinError = '';
             this.setPin({ pin_code: this.pin });
             this.$emit('submit');
-            this.showSnackbarNotification('pinUpadeted');
+            this.showSnackbarNotification('pinUpdated');
           } else {
             this.pinError = 'Invalid PIN format. Please enter a 4-digit number.';
             this.focus();
