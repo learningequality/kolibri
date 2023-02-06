@@ -16,14 +16,12 @@ This repository is for software developers wishing to contribute to Kolibri. If 
 
 ## What is Kolibri?
 
-[Kolibri Learning Platform](https://learningequality.org/kolibri/): the offline-first platform for teaching and learning with technology without requiring the Internet.
-
-Developed with and for the community by [Learning Equality](https://learningequality.org/).
+[Kolibri Learning Platform](https://learningequality.org/kolibri/)is an amazing tool for teaching and learning, even when you don't have access to the Internet. It's created by the amazing people at [Learning Equality](https://learningequality.org/) with the community in mind.
 
 
 ## How can I use it?
 
-Kolibri is [available for download](https://learningequality.org/download/) from our website.
+Using Kolibri is easy! Just visit our website at learningequality.org and download the platform for free.
 
 
 ## How do I get help or give feedback?
@@ -35,4 +33,7 @@ If you have found a bug and are comfortable using Github and Markdown, you can c
 
 ## How can I contribute?
 
-Please see the 'contributing' section of our [developer documentation](http://kolibri-dev.readthedocs.io/).
+We would love for you to be a part of the Kolibri community! If you're interested in contributing, you can check out the "contributing" section of our [developer documentation](http://kolibri-dev.readthedocs.io/). Don't hesitate to reach out if you have any questions!
+
+Stay informed about the latest developments and opportunities to contribute by following Learning Equality on their official channels. Spread the word about Kolibri and help others who can benefit from it. Let's join forces to make a positive impact on education.
+
