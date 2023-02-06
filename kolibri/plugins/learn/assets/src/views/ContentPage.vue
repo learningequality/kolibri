@@ -168,6 +168,12 @@
       }),
       ...mapState(['showCompleteContentModal']),
     },
+    watch: {
+      progress() {
+        // Ensure that our cached progress and tracked progress always stay up to date
+        this.cacheProgress();
+      },
+    },
     created() {
       /* Always be sure that this is hidden before the component renders */
       this.hideMarkAsCompleteModal();
@@ -191,13 +197,13 @@
         setContentNodeProgress({ content_id: this.content.content_id, progress: this.progress });
       },
       updateInteraction({ progress, interaction }) {
-        this.updateContentSession({ progress, interaction }).then(this.cacheProgress);
+        this.updateContentSession({ progress, interaction });
       },
       updateProgress(progress) {
-        return this.updateContentSession({ progress }).then(this.cacheProgress);
+        return this.updateContentSession({ progress });
       },
       addProgress(progressDelta) {
-        this.updateContentSession({ progressDelta }).then(this.cacheProgress);
+        this.updateContentSession({ progressDelta });
       },
       updateContentState(contentState) {
         this.updateContentSession({ contentState });

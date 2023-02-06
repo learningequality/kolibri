@@ -145,7 +145,7 @@ export default function useProgressTracking(store) {
       const data = response.data;
       set(context, valOrNull(data.context));
       set(complete, valOrNull(data.complete));
-      set(progress_state, threeDecimalPlaceRoundup(valOrNull(data.progress)));
+      set(progress_state, valOrNull(data.progress));
       set(progress_delta, 0);
       set(time_spent, valOrNull(data.time_spent));
       set(time_spent_delta, 0);
@@ -231,6 +231,7 @@ export default function useProgressTracking(store) {
       }
       if (response.data.complete) {
         set(complete, true);
+        set(progress_state, 1);
         if (store.getters.isUserLoggedIn && !wasComplete) {
           store.commit('INCREMENT_TOTAL_PROGRESS', 1);
         }
