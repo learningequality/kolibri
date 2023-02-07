@@ -83,7 +83,7 @@
                   v-if="!exam.active && !exam.archive"
                   :text="coachString('openQuizLabel')"
                   appearance="flat-button"
-                  @click="showOpeåppanConfirmationModal = true; modalQuizId = exam.id"
+                  @click="showOpenConfirmationModal = true; modalQuizId = exam.id"
                 />
                 <!-- Close quiz button -->
                 <KButton

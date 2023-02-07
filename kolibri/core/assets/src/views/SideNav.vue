@@ -53,12 +53,13 @@
                 {{ getUserKind }}
               </p>
 
-              <SideNavStorageNotification />
+
               <!-- display sync status, when relevant -->
               <div v-if="isSubsetOfUsersDevice" data-test="syncStatusInDropdown">
                 <div class="sync-status">
                   {{ $tr('deviceStatus') }}
                 </div>
+                <SideNavStorageNotification />
                 <SyncStatusDisplay
                   :syncStatus="mapSyncStatusOptionToLearner"
                   displaySize="small"
