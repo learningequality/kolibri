@@ -22,7 +22,6 @@ export default {
   },
   getters: {
     getDeviceOS(state) {
-      // Channel data just needs to exist, but doesn't need to be available
       return state.deviceInfo.os;
     },
   },

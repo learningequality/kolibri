@@ -66,7 +66,7 @@
             message = this.$tr('newPluginsState');
             break;
         }
-
+        // message is a separate sentence, concatenating them is not problematic
         return message + this.$tr('serverRestartDescription');
       },
       handleSubmit() {

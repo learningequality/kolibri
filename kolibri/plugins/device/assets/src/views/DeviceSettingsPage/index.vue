@@ -246,25 +246,21 @@
           <KCheckbox
             :label="$tr('enabledLearn')"
             :checked="enabledLearn"
-            :description="$tr('enabledLearnDescription')"
             @change="enabledLearn = $event"
           />
           <KCheckbox
             :label="$tr('enabledCoach')"
             :checked="enabledCoach"
-            :description="$tr('enabledCoachDescription')"
             @change="enabledCoach = $event"
           />
           <KCheckbox
             :label="$tr('enabledFacility')"
             :checked="enabledFacility"
-            :description="$tr('enabledFacilityDescription')"
             @change="enabledFacility = $event"
           />
           <KCheckbox
             :label="$tr('enabledProfile')"
             :checked="enabledProfile"
-            :description="$tr('enabledProfileDescription')"
             @change="enabledProfile = $event"
           />
         </div>
@@ -1056,33 +1052,17 @@
         message: 'Learn',
         context: 'Label for the Learn page',
       },
-      enabledLearnDescription: {
-        message: 'Unselect to hide the Learn page even if the user has permission to access it.',
-        context: "Description for the 'Learn' page.",
-      },
       enabledCoach: {
         message: 'Coach',
         context: 'Label for the Coach page',
-      },
-      enabledCoachDescription: {
-        message: 'Unselect to hide the Coach page even if the user has permission to access it.',
-        context: "Description for the 'Coach' page.",
       },
       enabledFacility: {
         message: 'Facility',
         context: 'Label for the Facility page',
       },
-      enabledFacilityDescription: {
-        message: 'Unselect to hide the Facility page even if the user has permission to access it.',
-        context: "Description for the 'Facility' page.",
-      },
       enabledProfile: {
         message: 'Profile',
         context: 'Label for the Profile page',
-      },
-      enabledProfileDescription: {
-        message: 'Unselect to hide the Profile page even if the user has permission to access it.',
-        context: "Description for the 'Profile' page.",
       },
     },
   };
