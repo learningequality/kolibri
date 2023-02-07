@@ -7,6 +7,7 @@ DEFAULT_PLUGINS = [
     "kolibri.plugins.facility",
     "kolibri.plugins.learn",
     "kolibri.plugins.media_player",
+    "kolibri.plugins.my_downloads",
     "kolibri.plugins.pdf_viewer",
     "kolibri.plugins.perseus_viewer",
     "kolibri.plugins.setup_wizard",
