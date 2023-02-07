@@ -12,7 +12,7 @@
     "classnames": "^2.2.5",
     "draft-js": "^0.10.1",
     "fractional": "^1.0.0",
-    "immutable": "^3.8.1",
+    "immutable": "^4.2.4",
     "jquery": "2.2.4",
     "jszip": "^3.8.0",
     "kmath": "^0.0.1",
