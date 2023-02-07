@@ -52,6 +52,14 @@ const store = new Vuex.Store({
   actions: {
     createSnackbar() {},
   },
+  modules: {
+    deviceInfo: {
+      namespaced: true,
+      getters: {
+        getDeviceOS: () => 'linux',
+      },
+    },
+  },
 });
 
 async function makeWrapper() {
@@ -60,14 +68,6 @@ async function makeWrapper() {
     store,
     router: new VueRouter(),
     stubs: ['AppBarPage', 'DeviceTopNav'],
-    data() {
-      return {
-        enabledCoach: false,
-        enabledLearn: false,
-        enabledProfile: false,
-        enabledFacility: false,
-      };
-    },
   });
   // Need to wait for beforeMount to finish
   await global.flushPromises();
@@ -209,12 +209,7 @@ describe('DeviceSettingsPage', () => {
       const newData = { ...DeviceSettingsData };
       newData.allowLearnerUnassignedResourceAccess = true;
       getDeviceSettings.mockResolvedValue(newData);
-      usePlugins.mockImplementation(() =>
-        usePluginsMock({
-          plugins: { value: [] },
-          togglePlugin: jest.fn(),
-        })
-      );
+      usePlugins.mockImplementation(() => usePluginsMock());
     });
 
     it('landing page is Learn page', async () => {

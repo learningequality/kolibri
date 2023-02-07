@@ -244,24 +244,11 @@
           </p>
 
           <KCheckbox
-            :label="$tr('enabledLearn')"
-            :checked="enabledLearn"
-            @change="enabledLearn = $event"
-          />
-          <KCheckbox
-            :label="$tr('enabledCoach')"
-            :checked="enabledCoach"
-            @change="enabledCoach = $event"
-          />
-          <KCheckbox
-            :label="$tr('enabledFacility')"
-            :checked="enabledFacility"
-            @change="enabledFacility = $event"
-          />
-          <KCheckbox
-            :label="$tr('enabledProfile')"
-            :checked="enabledProfile"
-            @change="enabledProfile = $event"
+            v-for="plugin in dataPlugins"
+            :key="plugin.id"
+            :label="plugin.name"
+            :checked="plugin.enabled"
+            @change="plugin.enabled = $event"
           />
         </div>
       </section>
@@ -333,6 +320,7 @@
   import { mapGetters } from 'vuex';
   import find from 'lodash/find';
   import urls from 'kolibri.urls';
+  import { ref } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { availableLanguages, currentLanguage } from 'kolibri.utils.i18n';
   import sortLanguages from 'kolibri.utils.sortLanguages';
@@ -374,51 +362,34 @@
     mixins: [commonCoreStrings],
     setup() {
       const { restart } = useDeviceRestart();
-      const { plugins, togglePlugin } = usePlugins();
+      const { plugins, fetchPlugins, togglePlugin } = usePlugins();
+      const dataPlugins = ref(null);
 
-      function getPluginState(pluginName) {
-        if (plugins.value === null) {
-          return false;
-        } // plugins not loaded yet
-        const plugin = plugins.value.find(p => p.id.includes(pluginName));
-        if (plugin === undefined) {
-          return false;
-        } // plugin not found
-        return plugin.enabled;
-      }
+      fetchPlugins.then(() => {
+        dataPlugins.value = plugins.value.map(plugin => ({ ...plugin }));
+      });
 
-      function getPluginId(pluginName) {
-        if (plugins.value === null) {
-          return null;
-        } // plugins not loaded yet
-        const plugin = plugins.value.find(p => p.id.includes(pluginName));
-        if (plugin === undefined) {
-          return null;
-        } // plugin not found
-        return plugin.id;
-      }
-
-      function checkAndTogglePlugin(pluginState, pluginName) {
-        let restart = null;
-        if (pluginState !== getPluginState(pluginName)) {
-          const plugin_id = getPluginId(pluginName);
-          if (plugin_id == null) {
-            return null;
+      function checkAndTogglePlugins() {
+        dataPlugins.value.forEach((plugin, index) => {
+          if (plugin.enabled !== plugins.value[index].enabled) {
+            togglePlugin(plugin.id, plugin.enabled);
           }
-          togglePlugin(plugin_id, pluginState);
-          restart = 'plugins';
-        }
-        return restart;
+        });
       }
 
-      function checkPluginChanges(pluginStates, pluginNames) {
-        const previousPluginStates = pluginNames.map(pluginName => getPluginState(pluginName));
-        return pluginStates.some(
-          (pluginState, index) => pluginState !== previousPluginStates[index]
-        );
+      function checkPluginChanges() {
+        // returns true if any of the plugins have changed its
+        // enabled state
+        const unchanged = dataPlugins.value.every((plugin, index) => {
+          if (plugin.enabled !== plugins.value[index].enabled) {
+            return false;
+          }
+          return true;
+        });
+        return !unchanged;
       }
 
-      return { restart, plugins, getPluginState, checkPluginChanges, checkAndTogglePlugin };
+      return { restart, dataPlugins, checkPluginChanges, checkAndTogglePlugins };
     },
     data() {
       return {
@@ -453,10 +424,6 @@
         showRestartModal: false,
         writablePaths: 0,
         readOnlyPaths: 0,
-        enabledCoach: true,
-        enabledLearn: true,
-        enabledProfile: true,
-        enabledFacility: true,
       };
     },
     computed: {
@@ -543,14 +510,6 @@
           return true;
         }
         return this.getDeviceOS.includes('Android');
-      },
-    },
-    watch: {
-      plugins() {
-        this.enabledCoach = this.getPluginState('coach');
-        this.enabledLearn = this.getPluginState('learn');
-        this.enabledProfile = this.getPluginState('profile');
-        this.enabledFacility = this.getPluginState('facility');
       },
     },
     created() {
@@ -731,11 +690,7 @@
           this.setLimitForAutodownload;
       },
       handleClickSave() {
-        const restartPlugins = this.checkPluginChanges(
-          [this.enabledCoach, this.enabledLearn, this.enabledProfile, this.enabledFacility],
-          ['coach', 'learn', 'user_profile', 'facility']
-        );
-
+        const restartPlugins = this.checkPluginChanges();
         if (restartPlugins) {
           this.restartSetting = 'plugin';
           this.showRestartModal = true;
@@ -752,10 +707,7 @@
 
         this.getExtraSettings();
 
-        this.checkAndTogglePlugin(this.enabledCoach, 'coach');
-        this.checkAndTogglePlugin(this.enabledLearn, 'learn');
-        this.checkAndTogglePlugin(this.enabledProfile, 'user_profile');
-        this.checkAndTogglePlugin(this.enabledFacility, 'facility');
+        this.checkAndTogglePlugins();
 
         this.saveDeviceSettings({
           languageId: this.language.value,
@@ -1047,22 +999,6 @@
       enabledPagesDescription: {
         message: 'Unselect a page to hide it even if the user has permission to access it.',
         context: "Description for the 'Enabled pages' section.",
-      },
-      enabledLearn: {
-        message: 'Learn',
-        context: 'Label for the Learn page',
-      },
-      enabledCoach: {
-        message: 'Coach',
-        context: 'Label for the Coach page',
-      },
-      enabledFacility: {
-        message: 'Facility',
-        context: 'Label for the Facility page',
-      },
-      enabledProfile: {
-        message: 'Profile',
-        context: 'Label for the Profile page',
       },
     },
   };

@@ -1,7 +1,8 @@
 export let plugins = [];
 
 const MOCK_DEFAULTS = {
-  plugins,
+  plugins: { value: [] },
+  fetchPlugins: Promise.resolve(jest.fn()),
   enablePlugin: jest.fn(),
   disablePlugin: jest.fn(),
   togglePlugin: jest.fn(),
