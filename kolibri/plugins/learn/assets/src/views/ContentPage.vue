@@ -210,6 +210,12 @@
         return get(this, ['context', 'mastery_level']);
       },
     },
+    watch: {
+      progress() {
+        // Ensure that our cached progress and tracked progress always stay up to date
+        this.cacheProgress();
+      },
+    },
     created() {
       return this.initSession();
     },
@@ -229,13 +235,13 @@
         return this.updateContentSession(data).then(this.cacheProgress);
       },
       updateInteraction({ progress, interaction }) {
-        this.updateContentSession({ progress, interaction }).then(this.cacheProgress);
+        this.updateContentSession({ progress, interaction });
       },
       updateProgress(progress) {
-        return this.updateContentSession({ progress }).then(this.cacheProgress);
+        return this.updateContentSession({ progress });
       },
       addProgress(progressDelta) {
-        this.updateContentSession({ progressDelta }).then(this.cacheProgress);
+        this.updateContentSession({ progressDelta });
       },
       updateContentState(contentState) {
         this.updateContentSession({ contentState });

@@ -1125,6 +1125,17 @@ class UpdateSessionBase(object):
         self.assertEqual(response.status_code, 200)
         self._assert_logs_value("progress", 1.0)
 
+    def test_update_session_progress_delta_asymptotic_succeeds(self):
+        self._update_logs("progress", 0.666)
+        response = self._make_request(
+            {
+                "progress_delta": 0.3331,
+            }
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self._assert_logs_value("progress", 1.0)
+
     def test_update_session_absolute_progress_succeeds(self):
         self._update_logs("progress", 0.3)
         response = self._make_request(
