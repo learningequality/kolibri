@@ -105,22 +105,11 @@ class LessonViewset(ValuesViewset):
     @action(detail=False)
     def size(self, request, **kwargs):
         lessons = self.get_queryset()
-        if lessons:
-            lessons_nodes_list = [{lesson.id: lesson.resources} for lesson in lessons]
-            lessons_sizes_dict = {}
-
-            for lesson_node_item in lessons_nodes_list:
-                current_lesson_id = list(lesson_node_item.keys())[0]
-                current_lesson_resources_list = list(lesson_node_item.values())[0]
-                resource_nodes = []
-
-                for resource in current_lesson_resources_list:
-                    resource_nodes.append(
-                        ContentNode.objects.filter(id=resource["contentnode_id"])
-                    )
-
-                lessons_sizes_dict[current_lesson_id] = total_file_size(
-                    resource_nodes[0]
-                )
+        lessons_sizes_dict = {}
+        for lesson in lessons:
+            resource_nodes = ContentNode.objects.filter(
+                id__in=[r["contentnode_id"] for r in lesson.resources]
+            )
+            lessons_sizes_dict[lesson.id] = total_file_size(resource_nodes)
 
         return Response([lessons_sizes_dict])
