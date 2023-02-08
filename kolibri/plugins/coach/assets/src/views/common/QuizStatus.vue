@@ -173,6 +173,26 @@
         </KGridItem>
       </div>
 
+      <!-- quiz size -->
+      <div v-if="!$isPrint" class="status-item">
+        <KGridItem
+          class="status-label"
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 4 }"
+          :layout12="{ span: 12 }"
+        >
+          {{ coachString('sizeLabel') }}
+        </KGridItem>
+        <KGridItem
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 4 }"
+          :layout12="{ span: 12 }"
+        >
+          <p>{{ quizSize(exam.id) }}</p>
+        </KGridItem>
+      </div>
+
+
     </KGrid>
 
     <KModal
@@ -204,9 +224,11 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   import { ExamResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
+  import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import { coachStringsMixin } from './commonCoachStrings';
   import Score from './Score';
   import Recipients from './Recipients';
@@ -242,6 +264,7 @@
       };
     },
     computed: {
+      ...mapState('classSummary', ['quizzesSizes']),
       orderDescriptionString() {
         return this.exam.learners_see_fixed_order
           ? this.coachString('orderFixedLabel')
@@ -335,6 +358,14 @@
           this.showConfirmationModal = false;
           this.$store.dispatch('createSnackbar', snackbarMessage);
         });
+      },
+      quizSize(quizId) {
+        if (this.quizzesSizes && this.quizzesSizes[0]) {
+          let size = this.quizzesSizes[0][quizId];
+          size = bytesForHumans(size);
+          return size;
+        }
+        return '--';
       },
     },
     $trs: {
