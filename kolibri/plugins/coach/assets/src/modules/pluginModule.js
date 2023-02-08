@@ -60,6 +60,7 @@ export default {
   },
   actions: {
     setClassList(store, facilityId) {
+      console.log('are we seting the class list?');
       return ClassroomResource.fetchCollection({
         getParams: { parent: facilityId || store.getters.currentFacilityId, role: 'coach' },
       })
@@ -109,6 +110,7 @@ export default {
           store.dispatch('setClassList'),
           store.dispatch('classSummary/loadClassSummary', classId),
           store.dispatch('classSummary/fetchLessonsSizes', classId),
+          store.dispatch('classSummary/fetchQuizzesSizes', classId),
           store.dispatch('coachNotifications/fetchNotificationsForClass', classId),
         ]).catch(error => {
           store.dispatch('handleError', error);

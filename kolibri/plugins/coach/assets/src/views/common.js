@@ -83,6 +83,7 @@ export default {
       'contentLearnerStatusMap',
       'lessonMap',
       'lessonsSizes',
+      'quizzesSizes',
     ]),
     ...mapGetters('classSummary', [
       'coaches',
@@ -90,6 +91,7 @@ export default {
       'groups',
       'exams',
       'examStatuses',
+      'quizzesSizes',
       'content',
       'contentStatuses',
       'adHocGroups',

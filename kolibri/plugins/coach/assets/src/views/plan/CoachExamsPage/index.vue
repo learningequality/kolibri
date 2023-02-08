@@ -48,6 +48,7 @@
         <template #headers>
           <th>{{ coachString('titleLabel') }}</th>
           <th>{{ coachString('recipientsLabel') }}</th>
+          <th>{{ coachString('sizeLabel') }}</th>
           <th class="center-text">
             {{ coachString('statusLabel') }}
           </th>
@@ -76,7 +77,9 @@
                   :hasAssignments="exam.assignments.length > 0"
                 />
               </td>
-
+              <td>
+                {{ quizSize(exam.id) }}
+              </td>
               <td class="button-col center-text core-table-button-col">
                 <!-- Open quiz button -->
                 <KButton
@@ -154,10 +157,12 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ExamResource } from 'kolibri.resources';
   import plugin_data from 'plugin_data';
+  import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import { PageNames } from '../../../constants';
   import commonCoach from '../../common';
   import CoachAppBarPage from '../../CoachAppBarPage';
@@ -182,6 +187,7 @@
       };
     },
     computed: {
+      ...mapState('classSummary', ['quizzesSizes']),
       sortedExams() {
         return this._.orderBy(this.exams, ['date_created'], ['desc']);
       },
@@ -286,6 +292,15 @@
           SELECT_QUIZ: PageNames.EXAM_CREATION_PRACTICE_QUIZ,
         }[value];
         this.$router.push(this.$router.getRoute(nextRoute));
+      },
+      quizSize(quizId) {
+        if (this.quizzesSizes && this.quizzesSizes[0]) {
+          console.log(this.quizzesSizes[0]);
+          let size = this.quizzesSizes[0][quizId];
+          size = bytesForHumans(size);
+          return size;
+        }
+        return '--';
       },
     },
     $trs: {

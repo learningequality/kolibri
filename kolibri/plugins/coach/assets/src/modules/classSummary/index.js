@@ -4,7 +4,7 @@ import flatten from 'lodash/flatten';
 import find from 'lodash/find';
 import Vue from 'kolibri.lib.vue';
 import ClassSummaryResource from '../../apiResources/classSummary';
-import { LessonResource } from '../../../../../../core/assets/src/api-resources';
+import { ExamResource, LessonResource } from '../../../../../../core/assets/src/api-resources';
 import dataHelpers from './dataHelpers';
 import { STATUSES } from './constants';
 import { updateWithNotifications } from './actions';
@@ -227,6 +227,14 @@ export default {
       );
     },
     /*
+     * quizzesSizes := [
+     *   { quiz_id: size in bytes for humans }, ...
+     * ]
+     */
+    quizzesSizes(state) {
+      return Object.values(state.examMap);
+    },
+    /*
      * content := [
      *   { content_id, node_id, kind, title }, ...
      * ]
@@ -430,6 +438,9 @@ export default {
     SET_CLASS_LESSONS_SIZES(state, sizes) {
       state.lessonsSizes = sizes;
     },
+    SET_CLASS_QUIZZES_SIZES(state, sizes) {
+      state.quizzesSizes = sizes;
+    },
   },
   actions: {
     updateWithNotifications,
@@ -442,6 +453,16 @@ export default {
       return LessonResource.fetchLessonsSizes(classId)
         .then(sizes => {
           store.commit('SET_CLASS_LESSONS_SIZES', sizes);
+        })
+        .catch(error => {
+          return store.dispatch('handleApiError', error, { root: true });
+        });
+    },
+    fetchQuizzesSizes(store, classId) {
+      return ExamResource.fetchQuizzesSizes(classId)
+        .then(sizes => {
+          console.log('got sizes');
+          store.commit('SET_CLASS_QUIZZES_SIZES', sizes);
         })
         .catch(error => {
           return store.dispatch('handleApiError', error, { root: true });

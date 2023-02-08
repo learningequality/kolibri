@@ -7,6 +7,8 @@ export function showExamsPage(store, classId) {
   store.dispatch('loading');
   store.commit('SET_PAGE_NAME', PageNames.EXAMS);
 
+  console.log('showing exams pages');
+
   const promises = [
     ExamResource.fetchCollection({
       getParams: { collection: classId },

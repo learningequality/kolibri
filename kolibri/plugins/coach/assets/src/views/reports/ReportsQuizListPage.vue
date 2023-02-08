@@ -26,6 +26,7 @@
           </th>
           <th>{{ coreString('progressLabel') }}</th>
           <th>{{ coachString('recipientsLabel') }}</th>
+          <th>{{ coachString('sizeLabel') }}</th>
           <th
             v-show="!$isPrint"
             class="center-text"
@@ -64,6 +65,9 @@
                   :groupNames="getRecipientNamesForExam(tableRow)"
                   :hasAssignments="tableRow.hasAssignments"
                 />
+              </td>
+              <td>
+                {{ quizSize(tableRow.id) }}
               </td>
               <td
                 v-show="!$isPrint"
@@ -125,8 +129,10 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ExamResource } from 'kolibri.resources';
+  import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import commonCoach from '../common';
   import CoachAppBarPage from '../CoachAppBarPage';
   import CSVExporter from '../../csv/exporter';
@@ -151,6 +157,8 @@
       };
     },
     computed: {
+      ...mapState('classSummary', ['quizzesSizes']),
+
       emptyMessage() {
         if (this.filter.value === 'allQuizzes') {
           return this.coachString('quizListEmptyState');
@@ -271,6 +279,14 @@
 
         const fileName = this.$tr('printLabel', { className: this.className });
         new CSVExporter(columns, fileName).export(this.table);
+      },
+      quizSize(quizId) {
+        if (this.quizzesSizes && this.quizzesSizes[0]) {
+          let size = this.quizzesSizes[0][quizId];
+          size = bytesForHumans(size);
+          return size;
+        }
+        return '--';
       },
     },
     $trs: {
