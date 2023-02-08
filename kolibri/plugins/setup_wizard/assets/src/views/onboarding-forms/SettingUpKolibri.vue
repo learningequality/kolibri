@@ -58,6 +58,7 @@
 
   import { v4 } from 'uuid';
   import omitBy from 'lodash/omitBy';
+  import get from 'lodash/get';
   import { currentLanguage } from 'kolibri.utils.i18n';
   import { checkCapability } from 'kolibri.utils.appCapabilities';
   import KolibriLoadingSnippet from 'kolibri.coreVue.components.KolibriLoadingSnippet';
@@ -75,35 +76,39 @@
       };
     },
     computed: {
+      facility() {
+        // FIXME Should the default name be i18nized?
+        const facilityName = this.wizardContext('facilityName') || 'Default Facility Name';
+        const selectedFacility = this.wizardContext('selectedFacility');
+        return selectedFacility || { name: facilityName };
+      },
+      learnerCanLoginWithNoPassword() {
+        // The user answers the question "Enable passwords" -- so the `requirePassword` value
+        // is the boolean opposite of whatever the value we need to assign here is.
+        // If there is already a facility imported, we will use its value
+        // If it is `null`, then it was never set by the user and we set to require passwords
+        const facilitySetting = get(this.facility, 'learner_can_login_with_no_password', null);
+        if (facilitySetting !== null) {
+          return facilitySetting;
+        } else {
+          return this.wizardContext('requirePassword') === null
+            ? true
+            : !this.wizardContext('requirePassword');
+        }
+      },
       /** The data we will use to initialize the device during provisioning */
       deviceProvisioningData() {
         const superuser = this.wizardContext('superuser');
-
-        const selectedFacility = this.wizardContext('selectedFacility');
-        // FIXME Should the default name be i18nized?
-        const facilityName = this.wizardContext('facilityName') || 'Default Facility Name';
-        // If the user has selected a facility, we use that.
-        // Otherwise, we create an object w/ the facility name
-        let facility;
-        if (!selectedFacility) {
-          facility = selectedFacility || { name: facilityName };
-        }
-
-        const learner_can_login_with_no_password =
-          this.wizardContext('requirePassword') === null
-            ? false
-            : this.wizardContext('requirePassword');
-
         const settings = {
-          learner_can_login_with_no_password,
+          learner_can_login_with_no_password: this.learnerCanLoginWithNoPassword,
           on_my_own_setup: this.isOnMyOwnSetup,
           learner_can_sign_up: this.wizardContext('learnerCanCreateAccount'),
         };
 
         let payload = {
           superuser,
-          facility,
-          settings,
+          facility: this.facility,
+          settings: omitBy(settings, v => v === null),
           preset: this.wizardContext('formalOrNonformal') || 'nonformal',
           language_id: currentLanguage,
           device_name: this.wizardContext('deviceName'),
