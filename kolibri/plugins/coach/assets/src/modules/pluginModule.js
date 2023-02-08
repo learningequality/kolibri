@@ -60,7 +60,6 @@ export default {
   },
   actions: {
     setClassList(store, facilityId) {
-      console.log('are we seting the class list?');
       return ClassroomResource.fetchCollection({
         getParams: { parent: facilityId || store.getters.currentFacilityId, role: 'coach' },
       })

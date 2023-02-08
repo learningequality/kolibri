@@ -461,7 +461,6 @@ export default {
     fetchQuizzesSizes(store, classId) {
       return ExamResource.fetchQuizzesSizes(classId)
         .then(sizes => {
-          console.log('got sizes');
           store.commit('SET_CLASS_QUIZZES_SIZES', sizes);
         })
         .catch(error => {

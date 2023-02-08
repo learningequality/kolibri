@@ -253,7 +253,6 @@
         Lockr.set(LESSON_VISIBILITY_MODAL_DISMISSED, false);
 
         const hideModalConfirmation = Lockr.get(LESSON_VISIBILITY_MODAL_DISMISSED);
-        console.log(hideModalConfirmation);
         this.activeLesson = lesson;
         if (!hideModalConfirmation) {
           if (lesson.active) {
