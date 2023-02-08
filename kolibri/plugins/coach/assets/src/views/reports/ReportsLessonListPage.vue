@@ -84,10 +84,10 @@
         @cancel="showLessonIsVisibleModal = false"
       >
         <p>{{ $tr('makeLessonVisibleText') }}</p>
-        <p>{{ $tr('fileSizeToDownload', { size: lessonSize(activeLesson.id) }) }}</p>
+        <p>{{ coachString('fileSizeToDownload', { size: lessonSize(activeLesson.id) }) }}</p>
         <KCheckbox
           :checked="dontShowAgainChecked"
-          :label="$tr('dontShowAgain')"
+          :label="coachString('dontShowAgain')"
           @change="dontShowAgainChecked = $event"
         />
       </KModal>
@@ -101,10 +101,10 @@
         @cancel="showLessonIsNotVisibleModal = false"
       >
         <p>{{ $tr('makeLessonNotVisibleText') }}</p>
-        <p>{{ $tr('fileSizeToRemove', { size: lessonSize(activeLesson.id) }) }}</p>
+        <p>{{ coachString('fileSizeToRemove', { size: lessonSize(activeLesson.id) }) }}</p>
         <KCheckbox
           :checked="dontShowAgainChecked"
-          :label="$tr('dontShowAgain')"
+          :label="coachString('dontShowAgain')"
           @change="dontShowAgainChecked = $event"
         />
       </KModal>
@@ -316,20 +316,6 @@
         message:
           'Learners will no longer be able to see this lesson. Resource files in this lesson will be removed from learn-only devices that are set up to sync with this server.',
         context: 'Informational prompt for coaches when updating lesson visibility to learners',
-      },
-      dontShowAgain: {
-        message: "Don't show this message again",
-        context: 'Option for a check box to not be prompted again with an informational modal',
-      },
-      fileSizeToDownload: {
-        message: 'File size to download: {size}',
-        context:
-          'The size of the file or files that must be downloaded to learner devices for the lesson, (i.e. 20 KB)',
-      },
-      fileSizeToRemove: {
-        message: 'File size to remove: {size}',
-        context:
-          'The size of the file or files that will be removed from learner devices for the lesson, (i.e. 20 KB)',
       },
     },
   };

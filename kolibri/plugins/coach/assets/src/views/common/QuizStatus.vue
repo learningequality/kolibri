@@ -203,7 +203,9 @@
       @cancel="showConfirmationModal = false"
       @submit="handleOpenQuiz"
     >
-      <div>{{ coachString('openQuizModalDetail') }}</div>
+      <p>{{ coachString('openQuizModalDetail') }}</p>
+      <p>{{ coachString('lodQuizDetail') }}</p>
+      <p>{{ coachString('fileSizeToDownload', { size: quizSize(exam.id) }) }}</p>
     </KModal>
 
     <KModal
@@ -339,6 +341,7 @@
             this.$store.dispatch('createSnackbar', this.coachString('quizFailedToCloseMessage'));
           });
       },
+
       handleToggleVisibility() {
         const newActiveState = !this.exam.active;
         const snackbarMessage = newActiveState

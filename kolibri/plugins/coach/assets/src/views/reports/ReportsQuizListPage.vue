@@ -109,7 +109,9 @@
         @cancel="showOpenConfirmationModal = false"
         @submit="handleOpenQuiz(modalQuizId)"
       >
-        <div>{{ coachString('openQuizModalDetail') }}</div>
+        <p>{{ coachString('openQuizModalDetail') }}</p>
+        <p>{{ coachString('lodQuizDetail') }}</p>
+        <p>{{ coachString('fileSizeToDownload', { size: quizSize(modalQuizId) }) }}</p>
       </KModal>
       <KModal
         v-if="showCloseConfirmationModal"

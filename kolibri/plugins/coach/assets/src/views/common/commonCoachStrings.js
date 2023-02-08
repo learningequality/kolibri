@@ -500,6 +500,26 @@ const coachStrings = createTranslator('CommonCoachStrings', {
     context:
       'Snackbar message telling the user that the lesson is now visible to learners. This will display whenever the user changes the lesson from not visible to visible.',
   },
+  dontShowAgain: {
+    message: "Don't show this message again",
+    context: 'Option for a check box to not be prompted again with an informational modal',
+  },
+  fileSizeToDownload: {
+    message: 'File size to download: {size}',
+    context:
+      'The size of the file or files that must be downloaded to learner devices for the lesson or quiz, (i.e. 20 KB)',
+  },
+  fileSizeToRemove: {
+    message: 'File size to remove: {size}',
+    context:
+      'The size of the file or files that will be removed from learner devices for the lesson or quiz, (i.e. 20 KB)',
+  },
+  lodQuizDetail: {
+    message:
+      'Resource files in this quiz will be downloaded to learn-only devices that are set up to sync with this server.',
+    context:
+      'Information provided to a coach when starting a quiz that has been assigned to learners.',
+  },
   // TODO - move these into diff sections as we make this a full feature in 0.16
   // Past Papers Project (12/2021) strings
   latestScoreLabel: {

@@ -86,14 +86,14 @@
                   v-if="!exam.active && !exam.archive"
                   :text="coachString('openQuizLabel')"
                   appearance="flat-button"
-                  @click="showOpenConfirmationModal = true; modalQuizId = exam.id"
+                  @click="showOpenConfirmationModal = true; activeQuizId = exam.id"
                 />
                 <!-- Close quiz button -->
                 <KButton
                   v-if="exam.active && !exam.archive"
                   :text="coachString('closeQuizLabel')"
                   appearance="flat-button"
-                  @click="showCloseConfirmationModal = true; modalQuizId = exam.id;"
+                  @click="showCloseConfirmationModal = true; activeQuizId = exam.id;"
                 />
                 <!-- Closed quiz label -->
                 <div v-if="exam.archive">
@@ -135,9 +135,11 @@
         :submitText="coreString('continueAction')"
         :cancelText="coreString('cancelAction')"
         @cancel="showOpenConfirmationModal = false"
-        @submit="handleOpenQuiz(modalQuizId)"
+        @submit="handleOpenQuiz(activeQuizId)"
       >
-        <div>{{ coachString('openQuizModalDetail') }}</div>
+        <p>{{ coachString('openQuizModalDetail') }}</p>
+        <p>{{ coachString('lodQuizDetail') }}</p>
+        <p>{{ coachString('fileSizeToDownload', { size: quizSize(activeQuizId) }) }}</p>
       </KModal>
       <KModal
         v-if="showCloseConfirmationModal"
@@ -145,7 +147,7 @@
         :submitText="coreString('continueAction')"
         :cancelText="coreString('cancelAction')"
         @cancel="showCloseConfirmationModal = false"
-        @submit="handleCloseQuiz(modalQuizId)"
+        @submit="handleCloseQuiz(activeQuizId)"
       >
         <div>{{ coachString('closeQuizModalDetail') }}</div>
       </KModal>
@@ -184,6 +186,7 @@
         },
         showOpenConfirmationModal: false,
         showCloseConfirmationModal: false,
+        activeQuizId: null,
       };
     },
     computed: {
@@ -295,7 +298,6 @@
       },
       quizSize(quizId) {
         if (this.quizzesSizes && this.quizzesSizes[0]) {
-          console.log(this.quizzesSizes[0]);
           let size = this.quizzesSizes[0][quizId];
           size = bytesForHumans(size);
           return size;
