@@ -466,6 +466,24 @@ const coachStrings = createTranslator('CommonCoachStrings', {
     context:
       'A brief snackbar message notifying the user that learners may no longer view their quiz report. It will show when the user changes a setting to make the quiz no longer visible.',
   },
+  makeQuizReportVisibleTitle: {
+    message: 'Make quiz report visibile',
+  },
+  makeQuizReportNotVisibleTitle: {
+    message: 'Make quiz report not visible',
+  },
+  makeQuizReportVisibleText: {
+    message:
+      'Learners will be able to see this quiz report. Resource files in this quiz will be downloaded to learn-only devices that are set up to sync with this server.',
+    context:
+      'A message within a pop up modal explaining the impact of changing the quiz report visibility to learners',
+  },
+  makeQuizReportNotVisibleText: {
+    message:
+      'Learners will no longer be able to see this quiz report. Resource files in this quiz will be removed from learn-only devices that are set up to sync with this server.',
+    context:
+      'A message within a pop up modal explaining the impact of changing the quiz report visibility to learners',
+  },
   openQuizLabel: {
     message: 'Start quiz',
     context:
