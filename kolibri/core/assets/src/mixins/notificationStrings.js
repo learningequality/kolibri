@@ -114,7 +114,7 @@ export default createTranslator('NotificationStrings', {
     message: 'New PIN created',
     context: 'A confirmation message for creating a new a pin',
   },
-  pinUpadeted: {
+  pinUpdated: {
     message: 'PIN updated',
     context: 'A confimation message for updating a pin',
   },
