@@ -4,9 +4,9 @@
     <KPageContainer>
       <PlanHeader />
       <div class="filter-and-button">
-        <p>{{ $tr('totalLessonsSize', { size: calcTotalSizeOfAllLessons }) }}</p>
-
-
+        <p v-if="hasVisibleLessons">
+          {{ $tr('totalLessonsSize', { size: calcTotalSizeOfVisibleLessons }) }}
+        </p>
         <div class="button">
           <KSelect
             v-model="filterSelection"
@@ -219,7 +219,7 @@
           !this.activeLessonCounts.false && this.filterSelection.value === 'filterLessonNotVisible'
         );
       },
-      calcTotalSizeOfAllLessons() {
+      calcTotalSizeOfVisibleLessons() {
         if (this.lessonsSizes && this.lessonsSizes[0]) {
           let size = Object.values(this.lessonsSizes[0]).reduce((a, b) => a + b, 0);
           size = bytesForHumans(size);

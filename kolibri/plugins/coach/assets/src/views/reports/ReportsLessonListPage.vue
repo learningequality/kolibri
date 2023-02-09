@@ -250,8 +250,6 @@
       },
       toggleModal(lesson) {
         // has the user set their preferences to not have a modal confirmation?
-        Lockr.set(LESSON_VISIBILITY_MODAL_DISMISSED, false);
-
         const hideModalConfirmation = Lockr.get(LESSON_VISIBILITY_MODAL_DISMISSED);
         this.activeLesson = lesson;
         if (!hideModalConfirmation) {
@@ -278,8 +276,7 @@
       lessonSize(lessonId) {
         if (this.lessonsSizes && this.lessonsSizes[0]) {
           let size = this.lessonsSizes[0][lessonId];
-          size = bytesForHumans(size);
-          return size;
+          return size ? bytesForHumans(size) : bytesForHumans(0);
         }
         return '--';
       },
