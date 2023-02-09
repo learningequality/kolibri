@@ -4,7 +4,7 @@
     <KPageContainer>
       <PlanHeader />
       <div class="filter-and-button">
-        <p v-if="hasVisibleLessons">
+        <p v-if="lessons.length && lessons.length > 0">
           {{ $tr('totalLessonsSize', { size: calcTotalSizeOfVisibleLessons }) }}
         </p>
         <div class="button">
@@ -220,9 +220,15 @@
         );
       },
       calcTotalSizeOfVisibleLessons() {
-        if (this.lessonsSizes && this.lessonsSizes[0]) {
-          let size = Object.values(this.lessonsSizes[0]).reduce((a, b) => a + b, 0);
-          size = bytesForHumans(size);
+        if (this.lessons && this.lessonsSizes && this.lessonsSizes[0]) {
+          let sum = 0;
+          this.lessons.forEach(lesson => {
+            // only include visible lessons
+            if (lesson.is_active) {
+              sum += this.lessonsSizes[0][lesson.id];
+            }
+          });
+          const size = bytesForHumans(sum);
           return size;
         }
         return '--';

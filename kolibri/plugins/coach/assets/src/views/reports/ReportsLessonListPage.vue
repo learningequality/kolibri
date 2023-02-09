@@ -8,8 +8,8 @@
 
     <KPageContainer>
       <ReportsHeader :title="$isPrint ? $tr('printLabel', { className }) : null" />
-      <p class="total-size">
-        {{ $tr('totalLessonsSize', { size: calcTotalSizeOfAllLessons }) }}
+      <p v-if="table.length && table.length > 0 " class="total-size">
+        {{ $tr('totalLessonsSize', { size: calcTotalSizeOfVisibleLessons }) }}
       </p>
 
       <ReportsControls @export="exportCSV">
@@ -204,10 +204,16 @@
           return tableRow;
         });
       },
-      calcTotalSizeOfAllLessons() {
-        if (this.lessonsSizes && this.lessonsSizes[0]) {
-          let size = Object.values(this.lessonsSizes[0]).reduce((a, b) => a + b, 0);
-          size = bytesForHumans(size);
+      calcTotalSizeOfVisibleLessons() {
+        if (this.table && this.lessonsSizes && this.lessonsSizes[0]) {
+          let sum = 0;
+          this.table.forEach(lesson => {
+            // only include visible lessons
+            if (lesson.active) {
+              sum += this.lessonsSizes[0][lesson.id];
+            }
+          });
+          const size = bytesForHumans(sum);
           return size;
         }
         return '--';
