@@ -704,7 +704,6 @@
           allowGuestAccess,
           allowLearnerUnassignedResourceAccess,
         } = this.getContentSettings();
-
         this.getExtraSettings();
 
         this.checkAndTogglePlugins();
@@ -722,9 +721,9 @@
         })
           .then(() => {
             this.$store.dispatch('createSnackbar', this.$tr('saveSuccessNotification'));
+            this.showRestartModal = false;
             if (this.restartSetting !== null) {
               this.restart();
-              this.showRestartModal = false;
               this.restartSetting = null;
             }
           })
@@ -785,7 +784,7 @@
               el => el !== this.restartPath.path
             );
             this.primaryStorageLocation = this.restartPath.path;
-            this.handleClickSave();
+            this.handleSave();
             break;
           case 'add':
             this.storageLocations.push(this.restartPath);
@@ -798,7 +797,7 @@
             } else {
               this.secondaryStorageLocations.push(this.restartPath.path);
             }
-            this.handleClickSave();
+            this.handleSave();
             break;
           case 'remove':
             this.storageLocations = this.storageLocations.filter(
@@ -807,7 +806,7 @@
             this.secondaryStorageLocations = this.secondaryStorageLocations.filter(
               el => el !== this.restartPath.path
             );
-            this.handleClickSave();
+            this.handleSave();
             break;
         }
       },
