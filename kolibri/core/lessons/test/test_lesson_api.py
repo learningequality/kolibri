@@ -438,3 +438,14 @@ class LessonAPITestCase(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data[0]["id"], error_constants.UNIQUE)
+
+    def test_can_get_lesson_size(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+
+        response = self.client.get(
+            reverse("kolibri:core:lesson-size"),
+            {
+                "class_id": self.classroom.id,
+            },
+        )
+        self.assertEqual(response.status_code, 200)
