@@ -7,116 +7,124 @@
   >
 
     <KPageContainer :class="{ 'print': $isPrint }">
-      <ReportsHeader :title="$isPrint ? $tr('printLabel', { className }) : null" />
-      <ReportsControls @export="exportCSV">
-        <KSelect
-          v-model="filter"
-          :label="coachString('filterQuizStatus')"
-          :options="filterOptions"
-          :inline="true"
-        />
+      <ReportsHeader
+        :title="$isPrint ? $tr('printLabel', { className }) : null"
+        activeTabId="tabQuizzes"
+      />
+      <KTabsPanel
+        tabsId="coachReports"
+        activeTabId="tabQuizzes"
+      >
+        <ReportsControls @export="exportCSV">
+          <KSelect
+            v-model="filter"
+            :label="coachString('filterQuizStatus')"
+            :options="filterOptions"
+            :inline="true"
+          />
 
-      </ReportsControls>
-      <CoreTable :emptyMessage="emptyMessage">
-        <template #headers>
-          <th>{{ coachString('titleLabel') }}</th>
-          <th style="position:relative;">
-            {{ coachString('avgScoreLabel') }}
-            <AverageScoreTooltip v-show="!$isPrint" />
-          </th>
-          <th>{{ coreString('progressLabel') }}</th>
-          <th>{{ coachString('recipientsLabel') }}</th>
-          <th
-            v-show="!$isPrint"
-            class="center-text"
-          >
-            {{ coachString('statusLabel') }}
-          </th>
-        </template>
-        <template #tbody>
-          <transition-group
-            tag="tbody"
-            name="list"
-          >
-            <tr
-              v-for="tableRow in table"
-              :key="tableRow.id"
+        </ReportsControls>
+        <CoreTable :emptyMessage="emptyMessage">
+          <template #headers>
+            <th>{{ coachString('titleLabel') }}</th>
+            <th style="position:relative;">
+              {{ coachString('avgScoreLabel') }}
+              <AverageScoreTooltip v-show="!$isPrint" />
+            </th>
+            <th>{{ coreString('progressLabel') }}</th>
+            <th>{{ coachString('recipientsLabel') }}</th>
+            <th
+              v-show="!$isPrint"
+              class="center-text"
             >
-              <td>
-                <KRouterLink
-                  :text="tableRow.title"
-                  :to="classRoute('ReportsQuizLearnerListPage', { quizId: tableRow.id })"
-                  icon="quiz"
-                />
-              </td>
-              <td>
-                <Score :value="tableRow.avgScore" />
-              </td>
-              <td>
-                <StatusSummary
-                  :tally="tableRow.tally"
-                  :verbose="true"
-                  :includeNotStarted="true"
-                />
-              </td>
-              <td>
-                <Recipients
-                  :groupNames="getRecipientNamesForExam(tableRow)"
-                  :hasAssignments="tableRow.hasAssignments"
-                />
-              </td>
-              <td
-                v-show="!$isPrint"
-                class="button-col center-text core-table-button-col"
+              {{ coachString('statusLabel') }}
+            </th>
+          </template>
+          <template #tbody>
+            <transition-group
+              tag="tbody"
+              name="list"
+            >
+              <tr
+                v-for="tableRow in table"
+                :key="tableRow.id"
               >
-                <!-- Open quiz button -->
-                <KButton
-                  v-if="!tableRow.active && !tableRow.archive"
-                  :text="coachString('openQuizLabel')"
-                  appearance="flat-button"
-                  class="table-left-aligned-button"
-                  @click="showOpenConfirmationModal = true; modalQuizId = tableRow.id"
-                />
-                <!-- Close quiz button -->
-                <KButton
-                  v-if="tableRow.active && !tableRow.archive"
-                  :text="coachString('closeQuizLabel')"
-                  appearance="flat-button"
-                  class="table-left-aligned-button"
-                  @click="showCloseConfirmationModal = true; modalQuizId = tableRow.id;"
-                />
-                <div
-                  v-if="tableRow.archive"
-                  class="quiz-closed-label"
+                <td>
+                  <KRouterLink
+                    :text="tableRow.title"
+                    :to="classRoute('ReportsQuizLearnerListPage', { quizId: tableRow.id })"
+                    icon="quiz"
+                  />
+                </td>
+                <td>
+                  <Score :value="tableRow.avgScore" />
+                </td>
+                <td>
+                  <StatusSummary
+                    :tally="tableRow.tally"
+                    :verbose="true"
+                    :includeNotStarted="true"
+                  />
+                </td>
+                <td>
+                  <Recipients
+                    :groupNames="getRecipientNamesForExam(tableRow)"
+                    :hasAssignments="tableRow.hasAssignments"
+                  />
+                </td>
+                <td
+                  v-show="!$isPrint"
+                  class="button-col center-text core-table-button-col"
                 >
-                  {{ coachString('quizClosedLabel') }}
-                </div>
-              </td>
-            </tr>
-          </transition-group>
-        </template>
-      </CoreTable>
-      <!-- Modals for Close & Open of quiz from right-most column -->
-      <KModal
-        v-if="showOpenConfirmationModal"
-        :title="coachString('openQuizLabel')"
-        :submitText="coreString('continueAction')"
-        :cancelText="coreString('cancelAction')"
-        @cancel="showOpenConfirmationModal = false"
-        @submit="handleOpenQuiz(modalQuizId)"
-      >
-        <div>{{ coachString('openQuizModalDetail') }}</div>
-      </KModal>
-      <KModal
-        v-if="showCloseConfirmationModal"
-        :title="coachString('closeQuizLabel')"
-        :submitText="coreString('continueAction')"
-        :cancelText="coreString('cancelAction')"
-        @cancel="showCloseConfirmationModal = false"
-        @submit="handleCloseQuiz(modalQuizId)"
-      >
-        <div>{{ coachString('closeQuizModalDetail') }}</div>
-      </KModal>
+                  <!-- Open quiz button -->
+                  <KButton
+                    v-if="!tableRow.active && !tableRow.archive"
+                    :text="coachString('openQuizLabel')"
+                    appearance="flat-button"
+                    class="table-left-aligned-button"
+                    @click="showOpenConfirmationModal = true; modalQuizId = tableRow.id"
+                  />
+                  <!-- Close quiz button -->
+                  <KButton
+                    v-if="tableRow.active && !tableRow.archive"
+                    :text="coachString('closeQuizLabel')"
+                    appearance="flat-button"
+                    class="table-left-aligned-button"
+                    @click="showCloseConfirmationModal = true; modalQuizId = tableRow.id;"
+                  />
+                  <div
+                    v-if="tableRow.archive"
+                    class="quiz-closed-label"
+                  >
+                    {{ coachString('quizClosedLabel') }}
+                  </div>
+                </td>
+              </tr>
+            </transition-group>
+          </template>
+        </CoreTable>
+        <!-- Modals for Close & Open of quiz from right-most column -->
+        <KModal
+          v-if="showOpenConfirmationModal"
+          :title="coachString('openQuizLabel')"
+          :submitText="coreString('continueAction')"
+          :cancelText="coreString('cancelAction')"
+          @cancel="showOpenConfirmationModal = false"
+          @submit="handleOpenQuiz(modalQuizId)"
+        >
+          <div>{{ coachString('openQuizModalDetail') }}</div>
+        </KModal>
+        <KModal
+          v-if="showCloseConfirmationModal"
+          :title="coachString('closeQuizLabel')"
+          :submitText="coreString('continueAction')"
+          :cancelText="coreString('cancelAction')"
+          @cancel="showCloseConfirmationModal = false"
+          @submit="handleCloseQuiz(modalQuizId)"
+        >
+          <div>{{ coachString('closeQuizModalDetail') }}</div>
+        </KModal>
+      </KTabsPanel>
     </KPageContainer>
   </CoachAppBarPage>
 

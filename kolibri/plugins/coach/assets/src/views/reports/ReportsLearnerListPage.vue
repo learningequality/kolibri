@@ -7,48 +7,56 @@
   >
 
     <KPageContainer>
-      <ReportsHeader :title="$isPrint ? $tr('printLabel', { className }) : null" />
-      <ReportsControls @export="exportCSV" />
-      <CoreTable :emptyMessage="coachString('learnerListEmptyState')">
-        <template #headers>
-          <th>{{ coachString('nameLabel') }}</th>
-          <th>{{ coachString('groupsLabel') }}</th>
-          <th>{{ coachString('avgScoreLabel') }}</th>
-          <th>{{ coachString('exercisesCompletedLabel') }}</th>
-          <th>{{ coachString('resourcesViewedLabel') }}</th>
-          <th>{{ coachString('lastActivityLabel') }}</th>
-        </template>
-        <template #tbody>
-          <transition-group
-            tag="tbody"
-            name="list"
-          >
-            <tr
-              v-for="tableRow in table"
-              :key="tableRow.id"
+      <ReportsHeader
+        :title="$isPrint ? $tr('printLabel', { className }) : null"
+        activeTabId="tabLearners"
+      />
+      <KTabsPanel
+        tabsId="coachReports"
+        activeTabId="tabLearners"
+      >
+        <ReportsControls @export="exportCSV" />
+        <CoreTable :emptyMessage="coachString('learnerListEmptyState')">
+          <template #headers>
+            <th>{{ coachString('nameLabel') }}</th>
+            <th>{{ coachString('groupsLabel') }}</th>
+            <th>{{ coachString('avgScoreLabel') }}</th>
+            <th>{{ coachString('exercisesCompletedLabel') }}</th>
+            <th>{{ coachString('resourcesViewedLabel') }}</th>
+            <th>{{ coachString('lastActivityLabel') }}</th>
+          </template>
+          <template #tbody>
+            <transition-group
+              tag="tbody"
+              name="list"
             >
-              <td>
-                <KRouterLink
-                  :text="tableRow.name"
-                  :to="classRoute('ReportsLearnerReportPage', { learnerId: tableRow.id })"
-                  icon="person"
-                />
-              </td>
-              <td>
-                <TruncatedItemList :items="tableRow.groups" />
-              </td>
-              <td>
-                <Score :value="tableRow.avgScore" />
-              </td>
-              <td>{{ $formatNumber(tableRow.exercises) }}</td>
-              <td>{{ $formatNumber(tableRow.resources) }}</td>
-              <td>
-                <ElapsedTime :date="tableRow.lastActivity" />
-              </td>
-            </tr>
-          </transition-group>
-        </template>
-      </CoreTable>
+              <tr
+                v-for="tableRow in table"
+                :key="tableRow.id"
+              >
+                <td>
+                  <KRouterLink
+                    :text="tableRow.name"
+                    :to="classRoute('ReportsLearnerReportPage', { learnerId: tableRow.id })"
+                    icon="person"
+                  />
+                </td>
+                <td>
+                  <TruncatedItemList :items="tableRow.groups" />
+                </td>
+                <td>
+                  <Score :value="tableRow.avgScore" />
+                </td>
+                <td>{{ $formatNumber(tableRow.exercises) }}</td>
+                <td>{{ $formatNumber(tableRow.resources) }}</td>
+                <td>
+                  <ElapsedTime :date="tableRow.lastActivity" />
+                </td>
+              </tr>
+            </transition-group>
+          </template>
+        </CoreTable>
+      </KTabsPanel>
     </KPageContainer>
   </CoachAppBarPage>
 

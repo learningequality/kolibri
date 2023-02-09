@@ -7,66 +7,74 @@
   >
 
     <KPageContainer>
-      <ReportsHeader :title="$isPrint ? $tr('printLabel', { className }) : null" />
-      <ReportsControls @export="exportCSV">
-        <KSelect
-          v-model="filter"
-          :label="coachString('filterLessonStatus')"
-          :options="filterOptions"
-          :inline="true"
-        />
+      <ReportsHeader
+        :title="$isPrint ? $tr('printLabel', { className }) : null"
+        activeTabId="tabLessons"
+      />
+      <KTabsPanel
+        tabsId="coachReports"
+        activeTabId="tabLessons"
+      >
+        <ReportsControls @export="exportCSV">
+          <KSelect
+            v-model="filter"
+            :label="coachString('filterLessonStatus')"
+            :options="filterOptions"
+            :inline="true"
+          />
 
-      </ReportsControls>
-      <CoreTable :emptyMessage="emptyMessage">
-        <template #headers>
-          <th>{{ coachString('titleLabel') }}</th>
-          <th>{{ coreString('progressLabel') }}</th>
-          <th>{{ coachString('recipientsLabel') }}</th>
-          <th v-show="!$isPrint">
-            {{ coachString('lessonVisibleLabel') }}
-          </th>
-        </template>
-        <template #tbody>
-          <transition-group
-            tag="tbody"
-            name="list"
-          >
-            <tr
-              v-for="tableRow in table"
-              :key="tableRow.id"
+        </ReportsControls>
+        <CoreTable :emptyMessage="emptyMessage">
+          <template #headers>
+            <th>{{ coachString('titleLabel') }}</th>
+            <th>{{ coreString('progressLabel') }}</th>
+            <th>{{ coachString('recipientsLabel') }}</th>
+            <th v-show="!$isPrint">
+              {{ coachString('lessonVisibleLabel') }}
+            </th>
+          </template>
+          <template #tbody>
+            <transition-group
+              tag="tbody"
+              name="list"
             >
-              <td>
-                <KRouterLink
-                  :text="tableRow.title"
-                  :to="classRoute('ReportsLessonReportPage', { lessonId: tableRow.id })"
-                  icon="lesson"
-                />
-              </td>
-              <td>
-                <StatusSummary
-                  :tally="tableRow.tally"
-                  :verbose="true"
-                />
-              </td>
-              <td>
-                <Recipients
-                  :groupNames="getRecipientNamesForExam(tableRow)"
-                  :hasAssignments="tableRow.assignments.length > 0"
-                />
-              </td>
-              <td v-show="!$isPrint">
-                <KSwitch
-                  name="toggle-lesson-visibility"
-                  label=""
-                  :checked="tableRow.active"
-                  :value="tableRow.active"
-                  @change="handleToggleVisibility(tableRow)"
-                />
-              </td>
-            </tr>
-          </transition-group>
-        </template>
-      </CoreTable>
+              <tr
+                v-for="tableRow in table"
+                :key="tableRow.id"
+              >
+                <td>
+                  <KRouterLink
+                    :text="tableRow.title"
+                    :to="classRoute('ReportsLessonReportPage', { lessonId: tableRow.id })"
+                    icon="lesson"
+                  />
+                </td>
+                <td>
+                  <StatusSummary
+                    :tally="tableRow.tally"
+                    :verbose="true"
+                  />
+                </td>
+                <td>
+                  <Recipients
+                    :groupNames="getRecipientNamesForExam(tableRow)"
+                    :hasAssignments="tableRow.assignments.length > 0"
+                  />
+                </td>
+                <td v-show="!$isPrint">
+                  <KSwitch
+                    name="toggle-lesson-visibility"
+                    label=""
+                    :checked="tableRow.active"
+                    :value="tableRow.active"
+                    @change="handleToggleVisibility(tableRow)"
+                  />
+                </td>
+              </tr>
+            </transition-group>
+          </template>
+        </CoreTable>
+      </KTabsPanel>
     </KPageContainer>
   </CoachAppBarPage>
 
