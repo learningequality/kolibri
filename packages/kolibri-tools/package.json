@@ -81,7 +81,7 @@
     "stylelint-config-standard": "24.0.0",
     "stylelint-csstree-validator": "2.0.0",
     "stylelint-scss": "4.3.0",
-    "temp": "^0.8.3",
+    "temp": "^0.9.4",
     "terser-webpack-plugin": "^5.3.6",
     "url-loader": "^4.1.1",
     "vue-jest": "^3.0.0",
