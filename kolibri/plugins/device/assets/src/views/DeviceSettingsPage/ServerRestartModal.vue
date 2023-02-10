@@ -101,7 +101,7 @@
       },
       newPluginsState: {
         message:
-          'Changing the state of the enabled plugins will restart this server. This page has to be refrehed to see the changes.',
+          'When you enable or disable a page, Kolibri will restart, and you must refresh the browser to see the changes.',
         context: 'Description for restarting the server.',
       },
       selectedPath: {
