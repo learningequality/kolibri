@@ -76,18 +76,33 @@
       };
     },
     computed: {
-      facility() {
+      facilityData() {
         // FIXME Should the default name be i18nized?
         const facilityName = this.wizardContext('facilityName') || 'Default Facility Name';
         const selectedFacility = this.wizardContext('selectedFacility');
-        return selectedFacility || { name: facilityName };
+        if (selectedFacility) {
+          if (selectedFacility.id) {
+            // Imported a facility already
+            return { facility_id: selectedFacility.id };
+          } else {
+            return { facility: selectedFacility };
+          }
+        } else {
+          // Default -- no facility was selected
+          return { facility: { name: facilityName } };
+        }
       },
       learnerCanLoginWithNoPassword() {
         // The user answers the question "Enable passwords" -- so the `requirePassword` value
         // is the boolean opposite of whatever the value we need to assign here is.
         // If there is already a facility imported, we will use its value
         // If it is `null`, then it was never set by the user and we set to require passwords
-        const facilitySetting = get(this.facility, 'learner_can_login_with_no_password', null);
+        const { facility, facility_id } = this.facilityData;
+        // If we have a facility_id then we imported the facility
+        if (facility_id) {
+          return null;
+        }
+        const facilitySetting = get(facility, 'learner_can_login_with_no_password', null);
         if (facilitySetting !== null) {
           return facilitySetting;
         } else {
@@ -101,13 +116,18 @@
         const superuser = this.wizardContext('superuser');
         const settings = {
           learner_can_login_with_no_password: this.learnerCanLoginWithNoPassword,
+          // The default nonformal facility sets the following to True -- however the onMyOwnUser
+          // flow will have the user create a password and then they will sign in with it
+          // null values are removed from the final payload
+          learner_can_edit_password:
+            this.isOnMyOwnSetup || checkCapability('get_os_user') ? false : null,
           on_my_own_setup: this.isOnMyOwnSetup,
           learner_can_sign_up: this.wizardContext('learnerCanCreateAccount'),
         };
 
         let payload = {
+          ...this.facilityData,
           superuser,
-          facility: this.facility,
           settings: omitBy(settings, v => v === null),
           preset: this.wizardContext('formalOrNonformal') || 'nonformal',
           language_id: currentLanguage,
@@ -140,6 +160,7 @@
         return this.wizardService.state.context[key];
       },
       provisionDevice() {
+        console.log('PROVISIONING!');
         client({
           url: urls['kolibri:core:deviceprovision'](),
           method: 'POST',

@@ -43,7 +43,8 @@ class DeviceSerializerMixin(object):
 
 
 class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
-    facility = FacilitySerializer()
+    facility = FacilitySerializer(required=False, allow_null=True)
+    facility_id = serializers.CharField(max_length=50, required=False, allow_null=True)
     preset = serializers.ChoiceField(choices=choices)
     superuser = NoFacilityFacilityUserSerializer(required=False)
     language_id = serializers.CharField(max_length=15)
@@ -55,12 +56,14 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
     class Meta:
         fields = (
             "facility",
+            "facility_id",
             "superuser",
             "language_id",
             "settings",
             "device_name",
             "allow_guest_access",
             "is_provisioned",
+            "superuser",
         )
 
     def validate(self, data):
@@ -73,6 +76,17 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
             data["os_user"] = True
         elif "superuser" not in data:
             raise serializers.ValidationError("Superuser is required for provisioning")
+
+        has_facility = "facility" in data
+        has_facility_id = "facility_id" in data
+
+        if (has_facility and has_facility_id) or (
+            not has_facility and not has_facility_id
+        ):
+            raise serializers.ValidationError(
+                "Please provide one of `facility` or `facility_id`; but not both."
+            )
+
         return data
 
     def create(self, validated_data):
@@ -85,12 +99,16 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
         superuser - the required fields for a facilityuser who will be set as the super user for this device
         """
         with transaction.atomic():
-            facility_data = validated_data.pop("facility")
-            facility_id = facility_data.get("id")
+            if validated_data.get("facility"):
+                facility_data = validated_data.pop("facility")
+                facility_id = None
+            else:
+                facility_id = validated_data.pop("facility_id")
+                facility_data = None
 
             if facility_id:
                 # We've already imported the facility to the device before provisioning
-                facility = Facility.objects.get(facility_id)
+                facility = Facility.objects.get(pk=facility_id)
                 preset = facility.dataset.preset
             else:
                 facility = Facility.objects.create(**facility_data)
@@ -98,8 +116,12 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
                 facility.dataset.preset = preset
                 facility.dataset.reset_to_default_settings(preset)
 
-            # overwrite the settings in dataset_data with validated_data.settings
             custom_settings = validated_data.pop("settings")
+
+            if "on_my_own_setup" in custom_settings:
+                facility.on_my_own_setup = custom_settings.pop("on_my_own_setup")
+
+            # overwrite the settings in dataset_data with validated_data.settings
             for key, value in custom_settings.items():
                 if value is not None:
                     setattr(facility.dataset, key, value)
@@ -110,12 +132,19 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
             # Note that this requires the app to redirect back to the initialization URL
             # after initial provisioning.
             if not validated_data.get("os_user"):
-                superuser = FacilityUser.objects.create_superuser(
-                    validated_data["superuser"]["username"],
-                    validated_data["superuser"]["password"],
-                    facility=facility,
-                    full_name=validated_data["superuser"].get("full_name"),
-                )
+                # We've imported a facility if the username exists
+                try:
+                    superuser = FacilityUser.objects.get(
+                        username=validated_data["superuser"]["username"]
+                    )
+                except FacilityUser.DoesNotExist:
+                    # Otherwise we make the superuser
+                    superuser = FacilityUser.objects.create_superuser(
+                        validated_data["superuser"]["username"],
+                        validated_data["superuser"]["password"],
+                        facility=facility,
+                        full_name=validated_data["superuser"].get("full_name"),
+                    )
             else:
                 superuser = None
 
