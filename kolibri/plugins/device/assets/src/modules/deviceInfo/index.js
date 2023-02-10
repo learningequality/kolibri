@@ -20,6 +20,11 @@ export default {
       state.deviceName = null;
     },
   },
+  getters: {
+    getDeviceOS(state) {
+      return state.deviceInfo.os;
+    },
+  },
   actions: {
     updateDeviceName(store, name) {
       return client({
