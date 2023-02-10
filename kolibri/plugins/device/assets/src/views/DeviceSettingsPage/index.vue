@@ -253,15 +253,6 @@
         </div>
       </section>
 
-      <section>
-        <KButton
-          :text="coreString('saveChangesAction')"
-          appearance="raised-button"
-          primary
-          data-test="saveButton"
-          @click="handleClickSave"
-        />
-      </section>
 
       <!-- List of separate links to Facility Settings pages -->
       <section v-if="isMultiFacilitySuperuser">
@@ -278,6 +269,27 @@
           </template>
         </ul>
       </section>
+
+      <section v-if="deviceIsAndroid" class="android-bar">
+        <KButton
+          :text="coreString('saveChangesAction')"
+          appearance="raised-button"
+          primary
+          data-test="saveButtonAndroid"
+          @click="handleClickSave"
+        />
+      </section>
+      <BottomAppBar v-else>
+        <KButtonGroup>
+          <KButton
+            :text="coreString('saveChangesAction')"
+            appearance="raised-button"
+            primary
+            data-test="saveButton"
+            @click="handleClickSave"
+          />
+        </KButtonGroup>
+      </BottomAppBar>
 
       <PrimaryStorageLocationModal
         v-if="showChangePrimaryLocationModal"
@@ -326,6 +338,7 @@
   import sortLanguages from 'kolibri.utils.sortLanguages';
   import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
+  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import { LandingPageChoices, MeteredConnectionDownloadOptions } from '../../constants';
   import DeviceTopNav from '../DeviceTopNav';
   import { deviceString } from '../commonDeviceStrings';
@@ -353,6 +366,7 @@
     },
     components: {
       AppBarPage,
+      BottomAppBar,
       DeviceTopNav,
       PrimaryStorageLocationModal,
       AddStorageLocationModal,
@@ -1096,6 +1110,11 @@
   .disabled {
     color: #e0e0e0 !important;
     pointer-events: none;
+  }
+
+  .android-bar {
+    padding-top: 10px;
+    border-top: 1px solid rgb(222, 222, 222);
   }
 
 </style>
