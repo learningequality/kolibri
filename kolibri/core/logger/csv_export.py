@@ -7,6 +7,7 @@ import os
 from collections import OrderedDict
 from functools import partial
 
+from dateutil import parser
 from django.core.cache import cache
 from le_utils.constants import content_kinds
 
@@ -21,8 +22,8 @@ from kolibri.core.utils.csv import output_mapper
 logger = logging.getLogger(__name__)
 
 CSV_EXPORT_FILENAMES = {
-    "session": "{}_{}_content_session_logs.csv",
-    "summary": "{}_{}_content_summary_logs.csv",
+    "session": "{}_{}_content_session_logs_from_{}_to_{}.csv",
+    "summary": "{}_{}_content_summary_logs_from_{}_to_{}.csv",
 }
 
 
@@ -115,7 +116,9 @@ classes_info = {
 }
 
 
-def csv_file_generator(facility, log_type, filepath, overwrite=False):
+def csv_file_generator(
+    facility, log_type, filepath, start_date, end_date, overwrite=False
+):
 
     if log_type not in ("summary", "session"):
         raise ValueError(
@@ -123,6 +126,8 @@ def csv_file_generator(facility, log_type, filepath, overwrite=False):
         )
 
     log_info = classes_info[log_type]
+    start = parser.parse(start_date)
+    end = parser.parse(end_date)
 
     if not overwrite and os.path.exists(filepath):
         raise ValueError("{} already exists".format(filepath))
@@ -144,5 +149,6 @@ def csv_file_generator(facility, log_type, filepath, overwrite=False):
         for item in queryset.select_related("user", "user__facility").values(
             *log_info["db_columns"]
         ):
-            writer.writerow(map_object(item))
-            yield
+            if (item["start_timestamp"]) >= start and (item["start_timestamp"]) <= end:
+                writer.writerow(map_object(item))
+                yield

@@ -1,5 +1,5 @@
 import logger from 'kolibri.lib.logging';
-import { TaskResource } from 'kolibri.resources';
+import { TaskResource, GenerateCSVLogRequestResource } from 'kolibri.resources';
 import client from 'kolibri.client';
 import urls from 'kolibri.urls';
 import { currentLanguage } from 'kolibri.utils.i18n';
@@ -7,12 +7,40 @@ import { TaskStatuses, TaskTypes } from 'kolibri.utils.syncTaskUtils';
 
 const logging = logger.getLogger(__filename);
 
-function startCSVExport(store, type, creating, commitStart) {
+function getFirstLogDate(store) {
+  return client({
+    url: urls['kolibri:kolibri.plugins.facility:firstlogdate'](store.rootGetters.activeFacilityId),
+  }).then(response => {
+    store.commit('SET_SESSION_FIRST_LOG', new Date(response.data.first_session_log_date));
+    store.commit('SET_SUMMARY_FIRST_LOG', new Date(response.data.first_session_log_date));
+  });
+}
+
+function getCSVLogRequest(store, logType, facility) {
+  return GenerateCSVLogRequestResource.fetchCollection({
+    getParams: { log_type: logType, facility: facility },
+    force: true,
+  })
+    .then(csvlogrequest => {
+      if (logType == 'summary') {
+        store.commit('SET_SUMMARY_LOG_REQUEST', csvlogrequest[0]);
+      } else {
+        store.commit('SET_SESSION_LOG_REQUEST', csvlogrequest[0]);
+      }
+    })
+    .catch(error => {
+      return store.dispatch('handleApiError', error, { root: true });
+    });
+}
+
+function startCSVExport(store, type, dateRange, creating, commitStart) {
   if (creating) {
     return;
   }
   const params = {
     facility: store.rootGetters.activeFacilityId,
+    start_date: dateRange['start'],
+    end_date: dateRange['end'],
     type,
   };
   return TaskResource.startTask(params).then(task => {
@@ -21,19 +49,21 @@ function startCSVExport(store, type, creating, commitStart) {
   });
 }
 
-function startSummaryCSVExport(store) {
+function startSummaryCSVExport(store, dateRange) {
   return startCSVExport(
     store,
     TaskTypes.EXPORTSUMMARYLOGCSV,
+    dateRange,
     store.getters.inSummaryCSVCreation,
     'START_SUMMARY_CSV_EXPORT'
   );
 }
 
-function startSessionCSVExport(store) {
+function startSessionCSVExport(store, dateRange) {
   return startCSVExport(
     store,
     TaskTypes.EXPORTSESSIONLOGCSV,
+    dateRange,
     store.getters.inSessionCSVCreation,
     'START_SESSION_CSV_EXPORT'
   );
@@ -47,10 +77,12 @@ function getExportedCSVsInfo(store) {
   }).then(response => {
     const data = response.data;
     if (data.session != null) {
+      getCSVLogRequest(store, 'session', store.rootGetters.activeFacilityId);
       const sessionTimeStamp = new Date(data.session * 1000);
       store.commit('SET_FINISHED_SESSION_CSV_CREATION', sessionTimeStamp);
     }
     if (data.summary != null) {
+      getCSVLogRequest(store, 'summary', store.rootGetters.activeFacilityId);
       const summaryTimeStamp = new Date(data.summary * 1000);
       store.commit('SET_FINISHED_SUMMARY_CSV_CREATION', summaryTimeStamp);
     }
@@ -74,6 +106,7 @@ function checkTaskStatus(store, newTasks, taskType, taskId, commitStart, commitF
         store.commit(commitFinish, task.extra_metadata.filename);
       } else {
         store.commit(commitFinish, new Date());
+        getExportedCSVsInfo(store);
       }
       TaskResource.clear(taskId);
     }
@@ -146,4 +179,6 @@ export default {
   startSessionCSVExport,
   getExportedCSVsInfo,
   startExportUsers,
+  getFirstLogDate,
+  getCSVLogRequest,
 };

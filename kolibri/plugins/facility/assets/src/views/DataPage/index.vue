@@ -52,10 +52,9 @@
             v-else
             class="subheading-buttons"
             :text="$tr('generateLogButtonText')"
-            @click="generateSessionLog"
+            @click="sessionDateRangeModal = true"
           />
         </KGridItem>
-
         <KGridItem>
           <p
             class="section-seperator"
@@ -104,7 +103,7 @@
             v-else
             class="subheading-buttons"
             :text="$tr('generateLogButtonText')"
-            @click="generateSummaryLog"
+            @click="summaryDateRangeModal = true"
           />
         </KGridItem>
 
@@ -128,6 +127,44 @@
       @submit="showLearnMoreSessionModal = false"
     />
 
+    <KDateRange
+      v-if="summaryDateRangeModal"
+      class="generate-calendar"
+      :firstAllowedDate="firstSummaryLogDate"
+      :lastAllowedDate="lastAllowedDate"
+      :defaultStartDate="summaryDateCreated"
+      :submitText="$tr('submitText')"
+      :cancelText="coreString('cancelAction')"
+      :title="$tr('title')"
+      :description="$tr('description')"
+      :dateLocale="selectedLanguage"
+      :startDateLegendText="$tr('startDateLegendText')"
+      :endDateLegendText="$tr('endDateLegendText')"
+      :previousMonthText="$tr('previousMonthText')"
+      :nextMonthText="$tr('nextMonthText')"
+      v-bind="summaryLogsErrorMessages"
+      @submit="generateSummaryLog"
+      @cancel="summaryDateRangeModal = false"
+    />
+    <KDateRange
+      v-if="sessionDateRangeModal"
+      class="generate-calendar"
+      :firstAllowedDate="firstSessionLogDate"
+      :lastAllowedDate="lastAllowedDate"
+      :defaultStartDate="sessionDateCreated"
+      :submitText="$tr('submitText')"
+      :cancelText="coreString('cancelAction')"
+      :title="$tr('title')"
+      :description="$tr('description')"
+      :dateLocale="selectedLanguage"
+      :startDateLegendText="$tr('startDateLegendText')"
+      :endDateLegendText="$tr('endDateLegendText')"
+      :previousMonthText="$tr('previousMonthText')"
+      :nextMonthText="$tr('nextMonthText')"
+      v-bind="sessionLogsErrorMessages"
+      @submit="generateSessionLog"
+      @cancel="sessionDateRangeModal = false"
+    />
   </FacilityAppBarPage>
 
 </template>
@@ -141,6 +178,10 @@
   import { FacilityResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
+  import validationConstants from 'kolibri-design-system/lib/KDateRange/validationConstants';
+  import { currentLanguage } from 'kolibri.utils.i18n';
+  import { now } from 'kolibri.utils.serverClock';
+  import format from 'date-fns/format';
   import { PageNames } from '../../constants';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import GeneratedElapsedTime from './GeneratedElapsedTime';
@@ -169,6 +210,11 @@
       return {
         showLearnMoreSummaryModal: false,
         showLearnMoreSessionModal: false,
+        summaryDateRangeModal: false,
+        sessionDateRangeModal: false,
+        lastAllowedDate: now(),
+        selectedLanguage: currentLanguage,
+        dateRange: {},
       };
     },
     computed: {
@@ -179,7 +225,12 @@
         'inSummaryCSVCreation',
       ]),
       ...mapGetters(['activeFacilityId']),
-      ...mapState('manageCSV', ['sessionDateCreated', 'summaryDateCreated']),
+      ...mapState('manageCSV', [
+        'sessionDateCreated',
+        'summaryDateCreated',
+        'firstSummaryLogDate',
+        'firstSessionLogDate',
+      ]),
       // NOTE: We disable CSV file upload/download on embedded web views like the Mac
       // and Android apps
       canUploadDownloadFiles() {
@@ -193,6 +244,26 @@
           return 'section-buttons-flex';
         }
         return {};
+      },
+      sessionLogsErrorMessages() {
+        return {
+          [validationConstants.MALFORMED]: this.$tr('invalidateDateError'),
+          [validationConstants.START_DATE_AFTER_END_DATE]: this.$tr('startDateAfterEndDateError'),
+          [validationConstants.FUTURE_DATE]: this.$tr('futureDateError'),
+          [validationConstants.DATE_BEFORE_FIRST_ALLOWED]: this.$tr('beforeFirstAllowedDateError', {
+            date: format(this.firstSessionLogDate, 'DD/MM/YYYY'),
+          }),
+        };
+      },
+      summaryLogsErrorMessages() {
+        return {
+          [validationConstants.MALFORMED]: this.$tr('invalidateDateError'),
+          [validationConstants.START_DATE_AFTER_END_DATE]: this.$tr('startDateAfterEndDateError'),
+          [validationConstants.FUTURE_DATE]: this.$tr('futureDateError'),
+          [validationConstants.DATE_BEFORE_FIRST_ALLOWED]: this.$tr('beforeFirstAllowedDateError', {
+            date: format(this.firstSummaryLogDate, 'DD/MM/YYYY'),
+          }),
+        };
       },
     },
     watch: {
@@ -220,15 +291,27 @@
         'startSessionCSVExport',
         'refreshTaskList',
         'getExportedCSVsInfo',
+        'getFirstLogDate',
       ]),
-      generateSessionLog() {
-        this.startSessionCSVExport();
+      generateSessionLog(dates) {
+        this.sessionDateRangeModal = false;
+        this.dateRange = {
+          start: dates['start'].toISOString(),
+          end: dates['end'].toISOString(),
+        };
+        this.startSessionCSVExport(this.dateRange);
       },
-      generateSummaryLog() {
-        this.startSummaryCSVExport();
+      generateSummaryLog(dates) {
+        this.summaryDateRangeModal = false;
+        this.dateRange = {
+          start: dates['start'].toISOString(),
+          end: dates['end'].toISOString(),
+        };
+        this.startSummaryCSVExport(this.dateRange);
       },
       startTaskPolling() {
         this.getExportedCSVsInfo();
+        this.getFirstLogDate();
         if (!this.intervalId) {
           this.intervalId = setInterval(this.refreshTaskList, 1000);
         }
@@ -306,6 +389,50 @@
         message: 'Learn More',
         context: 'Message that displays session or summary log information\n',
       },
+      submitText: {
+        message: 'Generate',
+        context: 'Submission text of calendar modal',
+      },
+      title: {
+        message: 'Select a date range',
+        context: 'Title of calendar modal',
+      },
+      description: {
+        message: 'The default start date is the last time you exported this log',
+        context: 'Description of modal',
+      },
+      startDateLegendText: {
+        message: 'Start Date',
+        context: 'Start date input label for calendar modal',
+      },
+      endDateLegendText: {
+        message: 'End Date',
+        context: 'End date input label for calendar modal',
+      },
+      previousMonthText: {
+        message: 'Previous Month',
+        context: 'label for previous month button',
+      },
+      nextMonthText: {
+        message: 'Next Month',
+        context: 'label for next month button',
+      },
+      invalidateDateError: {
+        message: 'Please enter a valid date',
+        context: 'Error message displayed when an invalid date is entered',
+      },
+      startDateAfterEndDateError: {
+        message: 'Start date cannot be after end date',
+        context: 'Error message displayed when the start date is after the end date',
+      },
+      futureDateError: {
+        message: 'Cannot select a future date',
+        context: 'Error message displayed when an unavailable future date is entered',
+      },
+      beforeFirstAllowedDateError: {
+        message: 'Date must be after {date}',
+        context: 'Error message displayed when the input date is before the first allowed date',
+      },
     },
   };
 
@@ -356,6 +483,10 @@
   // conditional class to support KButton order style; based on computed prop windowSizeStyle
   /deep/ .section-buttons-flex div {
     display: flex;
+  }
+
+  .generate-calendar /deep/ .months-text {
+    font-family: 'noto-full', 'noto-subset', 'noto-common', sans-serif;
   }
 
 </style>
