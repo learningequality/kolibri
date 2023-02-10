@@ -50,6 +50,7 @@
 
   export default {
     name: 'StorageNotification',
+    components: {},
     mixins: [commonCoreStrings],
     data() {
       return {

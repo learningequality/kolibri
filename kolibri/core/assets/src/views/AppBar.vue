@@ -88,16 +88,16 @@
 
 <script>
 
-  import { mapGetters, mapState, mapActions } from 'vuex';
+  import { mapGetters, mapState } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
   import KIconButton from 'kolibri-design-system/lib/buttons-and-links/KIconButton';
-  import { SyncStatus } from 'kolibri.coreVue.vuex.constants';
+  // import { SyncStatus } from 'kolibri.coreVue.vuex.constants';
   import themeConfig from 'kolibri.themeConfig';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import navComponentsMixin from '../mixins/nav-components';
   import SkipNavigationLink from './SkipNavigationLink';
-  import plugin_data from 'plugin_data';
+  // import plugin_data from 'plugin_data';
 
   const hashedValuePattern = /^[a-f0-9]{30}$/;
 
@@ -121,11 +121,9 @@
     data() {
       return {
         pointsDisplayed: false,
-        userSyncStatus: null,
         isPolling: false,
         // poll every 10 seconds
-        pollingInterval: 10000,
-        isSubsetOfUsersDevice: plugin_data['isSubsetOfUsersDevice'],
+        // pollingInterval: 10000,
       };
     },
     computed: {
@@ -133,7 +131,6 @@
       ...mapState({
         username: state => state.core.session.username,
         fullName: state => state.core.session.full_name,
-        userId: state => state.core.session.user_id,
       }),
       // temp hack for the VF plugin
       usernameForDisplay() {
@@ -150,20 +147,6 @@
       this.isPolling = false;
     },
     methods: {
-      ...mapActions(['fetchUserSyncStatus']),
-      pollUserSyncStatusTask() {
-        this.fetchUserSyncStatus({ user: this.userId }).then(syncData => {
-          if (syncData && syncData[0]) {
-            this.userSyncStatus = syncData[0];
-            this.setPollingInterval(this.userSyncStatus.status);
-          }
-        });
-        if (this.isPolling && this.isSubsetOfUsersDevice) {
-          setTimeout(() => {
-            this.pollUserSyncStatusTask();
-          }, this.pollingInterval);
-        }
-      },
       handleWindowClick(event) {
         if (this.$refs.pointsButton && this.$refs.pointsButton.$el) {
           if (!this.$refs.pointsButton.$el.contains(event.target) && this.pointsDisplayed) {
@@ -181,15 +164,6 @@
       handlePopoverByKeyboard(event) {
         if ((event.key == 'Tab' || event.key == 'Escape') && this.pointsDisplayed) {
           this.pointsDisplayed = false;
-        }
-      },
-      setPollingInterval(status) {
-        if (status === SyncStatus.QUEUED) {
-          // check more frequently for updates if the user is waiting to sync,
-          // so that the sync isn't missed
-          this.pollingInterval = 1000;
-        } else {
-          this.pollingInterval = 10000;
         }
       },
     },

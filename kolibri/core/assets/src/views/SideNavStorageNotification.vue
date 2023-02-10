@@ -23,9 +23,19 @@
 
 <script>
 
+  import { useUserSyncStatus } from '../composables/useUserSyncStatus';
+
   export default {
     name: 'SideNavStorageNotification',
+    setup() {
+      const { userSyncStatus, usageCount } = useUserSyncStatus();
+      return { userSyncStatus, usageCount };
+    },
     props: {},
+    beforeMount() {
+      console.log(this.usageCount);
+      console.log('this is a sidenav notification');
+    },
 
     $trs: {
       NotEnoughSpace: {
