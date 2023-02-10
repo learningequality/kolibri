@@ -42,7 +42,13 @@
             :ariaLabel="link.text"
           />
         </div>
-        <p class="nav-menu-label">{{ link.text }}</p>
+        <p
+          v-if="isActiveLink(link.route)"
+          class="nav-menu-label"
+          :style="{ color: $themeTokens.primary }"
+        >
+          {{ link.text }}
+        </p>
       </a>
     </span>
     <span class="nav-menu-item" :style="bottomMenuInactiveStyles">
@@ -127,6 +133,10 @@
             color: this.$themeTokens.primaryDark,
             fontWeight: 'bold',
           },
+          ':active': {
+            color: this.$themeTokens.primaryDark,
+            fontWeight: 'bold',
+          },
           ':focus': this.$coreOutline,
         };
       },
@@ -154,7 +164,10 @@
         this.$emit('toggleAndroidMenu');
       },
       isActiveLink(route) {
-        return route.includes(this.$router.currentRoute.path);
+        return (
+          route.includes(this.$router.currentRoute.path) &&
+          this.$router.currentRoute.name != 'PROFILE'
+        );
       },
       submenuShouldBeOpen() {
         // which plugin are we currently in?

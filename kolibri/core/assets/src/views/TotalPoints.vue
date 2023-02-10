@@ -4,7 +4,7 @@
     <div class="icon-wrapper" :style="{ backgroundColor: $themeTokens.surface }">
       <PointsIcon class="icon" />
     </div>
-    <div v-show="!windowIsSmall" class="description">
+    <div class="description">
       {{ $formatNumber(totalPoints) }}
     </div>
     <KTooltip
