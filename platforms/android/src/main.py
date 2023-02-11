@@ -2,7 +2,6 @@ import logging
 
 import initialization  # noqa: F401 keep this first, to ensure we're set up for other imports
 from android_utils import share_by_intent
-from android_utils import start_service
 from jnius import autoclass
 from kolibri.main import enable_plugin
 from kolibri.plugins.app.utils import interface
@@ -34,7 +33,6 @@ class AppPlugin(SimplePlugin):
             "http://127.0.0.1:{port}".format(port=port) + interface.get_initialize_url()
         )
         loadUrl(start_url)
-        start_service("workers")
 
 
 logging.info("Initializing Kolibri and running any upgrade routines")
