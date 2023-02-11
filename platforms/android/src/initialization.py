@@ -2,7 +2,7 @@ import os
 import re
 import sys
 
-from android_utils import get_activity
+from android_utils import get_context
 from android_utils import get_home_folder
 from android_utils import get_signature_key_issuing_organization
 from android_utils import get_timezone_name
@@ -36,7 +36,7 @@ os.environ["KOLIBRI_CHERRYPY_THREAD_POOL"] = "2"
 
 Secure = autoclass("android.provider.Settings$Secure")
 
-node_id = Secure.getString(get_activity().getContentResolver(), Secure.ANDROID_ID)
+node_id = Secure.getString(get_context().getContentResolver(), Secure.ANDROID_ID)
 
 # Don't set this if the retrieved id is falsy, too short, or a specific
 # id that is known to be hardcoded in many devices.

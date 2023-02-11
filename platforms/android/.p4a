@@ -10,7 +10,6 @@
 --ndk-api 23
 --permission ACCESS_NETWORK_STATE
 --permission FOREGROUND_SERVICE
---service workers:workers.py
 --service remoteshell:remoteshell.py
 --presplash assets/icon.png
 --presplash-color #FFFFFF

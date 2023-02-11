@@ -1,6 +1,7 @@
 import json
 import os
 import re
+from functools import cache
 
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
@@ -12,12 +13,8 @@ def is_service_context():
     return "PYTHON_SERVICE_ARGUMENT" in os.environ
 
 
-def get_service():
-    assert (
-        is_service_context()
-    ), "Cannot get service, as we are not in a service context."
-    PythonService = autoclass("org.kivy.android.PythonService")
-    return PythonService.mService
+def is_taskworker_context():
+    return "PYTHON_WORKER_ARGUMENT" in os.environ
 
 
 def get_timezone_name():
@@ -42,35 +39,29 @@ def get_service_args():
 
 
 def get_package_info(package_name="org.learningequality.Kolibri", flags=0):
-    return get_activity().getPackageManager().getPackageInfo(package_name, flags)
+    return get_context().getPackageManager().getPackageInfo(package_name, flags)
 
 
 def get_version_name():
     return get_package_info().versionName
 
 
-ACTIVITY = None
+@cache
+def get_context():
+    if is_service_context():
+        PythonService = autoclass("org.kivy.android.PythonService")
+        return PythonService.mService.getApplicationContext()
+    elif is_taskworker_context():
+        PythonWorker = autoclass("org.kivy.android.PythonWorker")
+        return PythonWorker.mWorker.getApplicationContext()
+    else:
+        PythonActivity = autoclass("org.kivy.android.PythonActivity")
+        return PythonActivity.mActivity.getApplicationContext()
 
 
-def get_activity():
-    global ACTIVITY
-    if ACTIVITY is None:
-        if is_service_context():
-            ACTIVITY = cast("android.app.Service", get_service())
-        else:
-            PythonActivity = autoclass("org.kivy.android.PythonActivity")
-            ACTIVITY = PythonActivity.mActivity
-    return ACTIVITY
-
-
-HOME_FILE = None
-
-
+@cache
 def get_external_files_dir():
-    global HOME_FILE
-    if HOME_FILE is None:
-        HOME_FILE = get_activity().getExternalFilesDir(None).toString()
-    return HOME_FILE
+    return get_context().getExternalFilesDir(None).toString()
 
 
 # TODO: check for storage availability, allow user to chose sd card or internal
@@ -157,11 +148,11 @@ def share_by_intent(path=None, filename=None, message=None, app=None, mimetype=N
     if app:
         sendIntent.setPackage(AndroidString(app))
     sendIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    get_activity().startActivity(sendIntent)
+    get_context().startActivity(sendIntent)
 
 
 def make_service_foreground(title, message):
-    service = get_service()
+    service = autoclass("org.kivy.android.PythonService").mService
     Drawable = autoclass("{}.R$drawable".format(service.getPackageName()))
     app_context = service.getApplication().getApplicationContext()
 
@@ -179,9 +170,9 @@ def make_service_foreground(title, message):
         NotificationChannel = autoclass("android.app.NotificationChannel")
         notification_service = cast(
             NotificationManager,
-            get_activity().getSystemService(Context.NOTIFICATION_SERVICE),
+            get_context().getSystemService(Context.NOTIFICATION_SERVICE),
         )
-        channel_id = get_activity().getPackageName()
+        channel_id = get_context().getPackageName()
         app_channel = NotificationChannel(
             channel_id,
             "Kolibri Background Server",

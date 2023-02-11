@@ -112,6 +112,5 @@ def _get_manhole_factory(namespace):
     return f
 
 
-def launch_remoteshell(port=4242):
-    reactor.listenTCP(port, _get_manhole_factory(globals()))
-    reactor.run()
+reactor.listenTCP(4242, _get_manhole_factory(globals()))
+reactor.run()
