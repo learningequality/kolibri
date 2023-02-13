@@ -16,12 +16,20 @@
         "--system-talk-name=org.learningequality.Kolibri.Devel.Daemon",
         "--env=KOLIBRI_HOME=~/.var/app/org.learningequality.Kolibri.Devel/data/kolibri",
         "--env=KOLIBRI_HTTP_PORT=0",
-        "--env=KOLIBRI_STATIC_USE_SYMLINKS=0"
+        "--env=KOLIBRI_STATIC_USE_SYMLINKS=0",
+        "--env=PYTHONPATH=/app/kolibri-plugins/lib/python"
     ],
     "add-extensions" : {
         "org.learningequality.Kolibri.Content" : {
             "version" : "1.0",
             "directory" : "share/kolibri-content",
+            "subdirectories" : true,
+            "no-autodownload" : true
+        },
+        "org.learningequality.Kolibri.Plugin" : {
+            "version" : "1.0",
+            "directory" : "kolibri-plugins",
+            "merge-dirs": "lib/python",
             "subdirectories" : true,
             "no-autodownload" : true
         }
@@ -45,6 +53,7 @@
         "modules/python3-setproctitle.json",
         "modules/python3-virtualenv-api.json",
         "modules/kolibri-content-dir.json",
+        "modules/kolibri-plugins-dir.json",
         {
             "name" : "kolibri-gnome",
             "buildsystem" : "meson",
