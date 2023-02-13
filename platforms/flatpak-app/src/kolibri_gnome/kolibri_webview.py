@@ -81,24 +81,26 @@ class KolibriWebView(WebKit2.WebView):
     ):
         if decision_type == WebKit2.PolicyDecisionType.NAVIGATION_ACTION:
             target_url = decision.get_request().get_uri()
-            if not self.__context.should_load_url(target_url):
+            if self.__context.should_open_url(target_url):
+                return False
+            else:
                 decision.ignore()
                 self.__emit_external_url(target_url)
                 return True
         return False
 
     def __on_notify_uri(self, webview: WebKit2.WebView, pspec: GObject.ParamSpec):
-        # PEWApp.should_load_url is not called when the URL fragment changes.
-        # So, when the uri property changes, we may want to check if the URL
-        # (including URL fragment) refers to content which belongs inside the
-        # window.
+        # KolibriContext.should_open_url is not called when the URL fragment
+        # changes. So, when the URI property changes, we may want to check if
+        # the URL (including URL fragment) refers to content which belongs
+        # inside the window.
 
         target_url = webview.get_uri()
 
         if not target_url:
             return
 
-        if self.__context.should_load_url(target_url):
+        if self.__context.should_open_url(target_url):
             return
 
         # It would be nice if we could remove the not allowed items from the
@@ -130,14 +132,14 @@ class KolibriWebView(WebKit2.WebView):
     def __get_allowed_back_item(self, webview: WebKit2.WebView):
         for back_item in webview.get_back_forward_list().get_back_list():
             back_uri = back_item.get_uri()
-            if back_uri and self.__context.should_load_url(back_uri):
+            if back_uri and self.__context.should_open_url(back_uri):
                 return back_item
         return None
 
     def __context_on_kolibri_ready(self, context: KolibriContext):
         if self.__deferred_load_kolibri_url:
             self.__continue_load_kolibri_url()
-        elif not self.__context.should_load_url(self.get_uri()):
+        elif not self.__context.should_open_url(self.get_uri()):
             self.load_kolibri_url(self.__context.default_url)
         else:
             self.emit("kolibri-load-finished")

@@ -132,7 +132,7 @@ class Application(Gtk.Application):
     ) -> typing.Optional[KolibriWindow]:
         target_url = target_url or self.__context.default_url
 
-        if not self.__context.should_load_url(target_url):
+        if not self.__context.should_open_url(target_url):
             self.open_url_in_external_application(target_url)
             return None
 

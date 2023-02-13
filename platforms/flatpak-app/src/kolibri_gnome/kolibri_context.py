@@ -123,7 +123,7 @@ class KolibriContext(GObject.GObject):
     def kolibri_api_get_async(self, *args, **kwargs):
         self.__kolibri_daemon.kolibri_api_get_async(*args, **kwargs)
 
-    def should_load_url(self, url: str) -> bool:
+    def should_open_url(self, url: str) -> bool:
         return (
             url == self.default_url
             or urlsplit(url).scheme in ("kolibri", "x-kolibri-app", "about")
