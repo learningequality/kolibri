@@ -10,6 +10,7 @@ export const baseSessionState = {
   kind: [UserKinds.ANONYMOUS],
   user_id: undefined,
   username: '',
+  is_pin_authenticated: false,
 };
 
 export default {
