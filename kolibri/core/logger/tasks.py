@@ -79,10 +79,7 @@ def _exportlogcsv(log_type, facility_id, start_date, end_date):
     track_progress=True,
     permission_classes=[IsAdminForJob],
 )
-def exportsessionlogcsv(
-    facility_id,
-    **kwargs,
-):
+def exportsessionlogcsv(facility_id, **kwargs):
     """
     Dumps in csv format the content session logs.
 
@@ -98,10 +95,7 @@ def exportsessionlogcsv(
     track_progress=True,
     permission_classes=[IsAdminForJob],
 )
-def exportsummarylogcsv(
-    facility_id,
-    **kwargs,
-):
+def exportsummarylogcsv(facility_id, **kwargs):
     """
     Dumps in csv format the content summary logs.
 
