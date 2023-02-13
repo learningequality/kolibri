@@ -51,6 +51,37 @@
       @submit="displayedCopies = []"
     />
 
+    <!-- Other Libraires -->
+    <div>
+      <KGrid gutter="12">
+        <KGridItem :layout="{ span: 6 }">
+          <span>
+            <h1>
+              {{ $tr('otherLibraries') }}
+            </h1>
+          </span>
+        </KGridItem>
+        <KGridItem :layout="{ span: 6, alignment: 'right' }">
+          <p style="padding-top:20px">
+            {{ $tr('showOtherLibrary') }}
+            <KButton appearance="basic-link">
+              {{ $tr('refresh') }}
+            </KButton>
+            <KIcon
+              icon="done"
+            />
+          </p>
+        </KGridItem>
+      </KGrid>
+      <BrowsNetworkResources />
+    </div>
+    <!-- More  -->
+    <div>
+      <h1>
+        {{ $tr('moreLibraries') }}
+      </h1>
+      <MoreNetworkDevices />
+    </div>
   </div>
 
 </template>
@@ -64,12 +95,16 @@
   import useLearnerResources from '../../composables/useLearnerResources';
   import CopiesModal from '../CopiesModal';
   import LibraryAndChannelBrowserMainContent from '../LibraryAndChannelBrowserMainContent';
+  import BrowsNetworkResources from './BrowsNetworkResources';
+  import MoreNetworkDevices from './MoreNetworkDevices';
 
   export default {
     name: 'ResumableContentGrid',
     components: {
       CopiesModal,
       LibraryAndChannelBrowserMainContent,
+      BrowsNetworkResources,
+      MoreNetworkDevices,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
     setup() {
@@ -131,6 +166,22 @@
       viewAsGrid: {
         message: 'View as grid',
         context: 'Label for a button used to view resources as a grid.',
+      },
+      otherLibraries: {
+        message: 'Other libraries',
+        context: 'Header for viewing other remote content Library',
+      },
+      showOtherLibrary: {
+        message: 'Showing other libraries around you.',
+        context: 'Label for showing other library',
+      },
+      refresh: {
+        message: 'Refresh',
+        context: 'Link for refreshing library',
+      },
+      moreLibraries: {
+        message: 'More',
+        context: 'Title section containing unpinned devices',
       },
     },
   };
