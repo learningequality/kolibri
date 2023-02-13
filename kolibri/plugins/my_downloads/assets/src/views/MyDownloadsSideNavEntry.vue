@@ -1,9 +1,9 @@
 <template>
 
   <CoreMenuOption
-    :label="$tr('profile')"
+    :label="coreString('myDownloadsLabel')"
     :link="url"
-    icon="profile"
+    icon="download"
   />
 
 </template>
@@ -12,6 +12,7 @@
 <script>
 
   import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
   import navComponents from 'kolibri.utils.navComponents';
   import urls from 'kolibri.urls';
@@ -21,9 +22,7 @@
     components: {
       CoreMenuOption,
     },
-    $trs: {
-      profile: 'Profile',
-    },
+    mixins: [commonCoreStrings],
     computed: {
       url() {
         return urls['kolibri:kolibri.plugins.my_downloads:my_downloads']();

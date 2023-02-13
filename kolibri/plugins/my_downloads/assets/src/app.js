@@ -1,4 +1,4 @@
-import router from 'kolibri.coreVue.router';
+// import router from 'kolibri.coreVue.router';
 import PageRoot from 'kolibri.coreVue.components.PageRoot';
 import routes from './routes';
 import pluginModule from './modules/pluginModule';
@@ -15,9 +15,9 @@ class MyDownloadsModule extends KolibriApp {
     return pluginModule;
   }
   ready() {
-    router.afterEach((toRoute, fromRoute) => {
-      this.store.dispatch('resetModuleState', { toRoute, fromRoute });
-    });
+    // router.afterEach((toRoute, fromRoute) => {
+    // this.store.dispatch('resetModuleState', { toRoute, fromRoute });
+    // });
     super.ready();
   }
 }
