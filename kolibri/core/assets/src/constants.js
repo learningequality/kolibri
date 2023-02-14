@@ -114,6 +114,18 @@ export const SyncStatus = {
   NOT_CONNECTED: 'NOT_CONNECTED',
 };
 
+export const DownloadRequestStatus = {
+  QUEUED: 'QUEUED',
+  DOWNLOADED: 'DOWNLOADED',
+  FAILED: 'FAILED',
+};
+
+export const DownloadRequestReason = {
+  USER_INITIATED: 'USER_INITIATED',
+  DOWNLOADED_BY_ADMIN: 'DOWNLOADED_BY_ADMIN',
+  AUTO_SYNCED: 'AUTO_SYNCED',
+};
+
 export const ERROR_CONSTANTS = {
   // These are an exact copy of the python module kolibri.core.error_constants
   // and should be kept in sync.
