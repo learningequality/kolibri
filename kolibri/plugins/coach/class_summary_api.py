@@ -340,9 +340,19 @@ class ClassSummaryViewSet(viewsets.ViewSet):
         for exam in exam_data:
             all_node_ids |= set(exam.get("node_ids"))
 
-        query_content = ContentNode.objects.filter_by_uuids(all_node_ids)
+        content = list(
+            ContentNode.objects.filter_by_uuids(all_node_ids).values(
+                "available",
+                "content_id",
+                "title",
+                "kind",
+                "channel_id",
+                "options",
+                node_id=F("id"),
+            )
+        )
         # final list of available nodes
-        set_of_ids = {node.id for node in query_content}
+        node_lookup = {node["node_id"]: node for node in content}
 
         individual_learners_group_ids = AdHocGroup.objects.filter(
             parent=classroom
@@ -357,7 +367,8 @@ class ClassSummaryViewSet(viewsets.ViewSet):
             ]
             # determine if any resources are missing locally for the quiz
             exam["missing_resource"] = any(
-                node_id not in set_of_ids for node_id in exam["node_ids"]
+                node_id not in node_lookup or not node_lookup[node_id]["available"]
+                for node_id in exam["node_ids"]
             )
 
         # filter classes out of lesson assignments
@@ -369,7 +380,8 @@ class ClassSummaryViewSet(viewsets.ViewSet):
             ]
             # determine if any resources are missing locally for the lesson
             lesson["missing_resource"] = any(
-                node_id not in set_of_ids for node_id in lesson["node_ids"]
+                node_id not in node_lookup or not node_lookup[node_id]["available"]
+                for node_id in lesson["node_ids"]
             )
 
         learners_data = serialize_users(query_learners)
@@ -390,16 +402,7 @@ class ClassSummaryViewSet(viewsets.ViewSet):
             ),
             "exams": exam_data,
             "exam_learner_status": serialize_coach_assigned_quiz_status(query_exams),
-            "content": list(
-                query_content.values(
-                    "content_id",
-                    "title",
-                    "kind",
-                    "channel_id",
-                    "options",
-                    node_id=F("id"),
-                )
-            ),
+            "content": content,
             "content_learner_status": content_status_serializer(
                 lesson_data, learners_data, classroom
             ),
