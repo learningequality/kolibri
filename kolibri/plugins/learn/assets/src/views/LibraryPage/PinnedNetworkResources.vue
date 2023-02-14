@@ -33,7 +33,7 @@
   import CardContent from './CardContent';
 
   export default {
-    name: 'BrowsNetworkResources',
+    name: 'PinnedNetworkResources',
     components: {
       CardContent,
     },

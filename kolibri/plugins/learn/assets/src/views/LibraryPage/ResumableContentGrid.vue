@@ -73,7 +73,7 @@
           </p>
         </KGridItem>
       </KGrid>
-      <BrowsNetworkResources />
+      <PinnedNetworkResources />
     </div>
     <!-- More  -->
     <div>
@@ -95,7 +95,7 @@
   import useLearnerResources from '../../composables/useLearnerResources';
   import CopiesModal from '../CopiesModal';
   import LibraryAndChannelBrowserMainContent from '../LibraryAndChannelBrowserMainContent';
-  import BrowsNetworkResources from './BrowsNetworkResources';
+  import PinnedNetworkResources from './PinnedNetworkResources';
   import MoreNetworkDevices from './MoreNetworkDevices';
 
   export default {
@@ -103,7 +103,7 @@
     components: {
       CopiesModal,
       LibraryAndChannelBrowserMainContent,
-      BrowsNetworkResources,
+      PinnedNetworkResources,
       MoreNetworkDevices,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],

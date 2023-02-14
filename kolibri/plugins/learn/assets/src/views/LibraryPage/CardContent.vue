@@ -4,8 +4,8 @@
     class="card-main-wrapper"
     :style="cardStyle"
   >
-    <div class="" style="width:250px;height:250px;">
-      <h1 style="width:250px;height:250px">
+    <div class="" style="width:250px;height:250px;text-align:center;margin-top:80px">
+      <h1>
         {{ body }}
       </h1>
     </div>
