@@ -77,10 +77,12 @@
                 </KLabeledIcon>
               </td>
               <td>
-                <StatusSimple :status="tableRow.statusObj.status" />
+                <StatusSimple v-if="tableRow.statusObj" :status="tableRow.statusObj.status" />
+                <KEmptyPlaceholder v-else />
               </td>
               <td>
-                <TimeDuration :seconds="showTime(tableRow)" />
+                <TimeDuration v-if="tableRow.statusObj" :seconds="showTime(tableRow)" />
+                <KEmptyPlaceholder v-else />
               </td>
             </tr>
           </transition-group>
@@ -121,7 +123,10 @@
       },
       table() {
         const contentArray = this.lesson.node_ids.map(node_id => this.contentNodeMap[node_id]);
-        return contentArray.map(content => {
+        return contentArray.map((content, index) => {
+          if (!content) {
+            return this.missingResourceObj(index);
+          }
           const tableRow = {
             statusObj: this.getContentStatusObjForLearner(content.content_id, this.learner.id),
             link: this.classRoute(PageNames.REPORTS_LEARNER_REPORT_LESSON_EXERCISE_PAGE_ROOT, {

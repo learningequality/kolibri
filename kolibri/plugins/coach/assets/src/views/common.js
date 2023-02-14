@@ -1,4 +1,5 @@
 import { mapState, mapGetters } from 'vuex';
+import coreStrings from 'kolibri.utils.coreStrings';
 import CoreTable from 'kolibri.coreVue.components.CoreTable';
 import { ContentNodeKinds, CollectionKinds } from 'kolibri.coreVue.vuex.constants';
 import router from 'kolibri.coreVue.router';
@@ -232,6 +233,14 @@ export default {
     maxLastActivity(statuses) {
       const max = this._.maxBy(statuses, 'last_activity');
       return max && max.last_activity ? max.last_activity : null;
+    },
+    missingResourceObj(dummyId) {
+      return {
+        node_id: dummyId,
+        kind: 'warning',
+        title: coreStrings.$tr('resourceNotFoundOnDevice'),
+        missing: true,
+      };
     },
   },
 };
