@@ -553,6 +553,8 @@ class BaseContentNodeMixin(object):
     }
 
     def get_queryset(self):
+        if self.request.GET.get("no_available_filtering", False):
+            return models.ContentNode.objects.all()
         return models.ContentNode.objects.filter(available=True)
 
     def get_related_data_maps(self, items, queryset):
