@@ -122,6 +122,11 @@ export default createTranslator('NotificationStrings', {
     message: 'PIN removed',
     context: 'A confirmation message for removing a pin',
   },
+  pinAuthenticate: {
+    message: 'PIN authenticated succesfully',
+    context:
+      'A confirmation message indicating that the pin provided for authentication is correct',
+  },
 
   // TODO move more messages into this namespace:
   // - "Quiz started"

@@ -41,6 +41,7 @@
   import plugin_data from 'plugin_data';
 
   const welcomeDimissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
+  const isPinAuthenticatedKey = 'IS_PIN_AUTHENTICATED';
 
   export default {
     name: 'DeviceIndex',
@@ -53,6 +54,8 @@
     data() {
       return {
         showModal: true,
+        currentFacility: {},
+        isPinAuthenticated: window.sessionStorage.getItem(isPinAuthenticatedKey) === 'true',
       };
     },
     computed: {
@@ -64,16 +67,10 @@
       facilities() {
         return this.$store.state.core.facilities;
       },
-      currentFacility() {
-        return find(this.facilities, { id: this.currentFacilityId }) || {};
-      },
       isPinSet() {
         const dataset = this.currentFacility['dataset'] || {};
         const extraFields = dataset['extra_fields'] || {};
         return extraFields['pin_code'];
-      },
-      isPinAuthenticated() {
-        return this.$store.state.core.session['is_pin_authenticated'];
       },
       userIsAuthorized() {
         if (this.pageName === PageNames.BOOKMARKS) {
@@ -93,12 +90,13 @@
         return this.$route.name;
       },
       requirePinAuthentication() {
-        return this.authenticateWithPin && !this.isPinSet;
+        return this.authenticateWithPin && this.isPinSet;
       },
     },
     watch: {
-      currentFacility(newValue) {
-        const { dataset } = newValue;
+      facilities(newValue) {
+        this.currentFacility = find(newValue, { id: this.currentFacilityId }) || {};
+        const { dataset } = this.currentFacility;
         this.$store.commit('facilityConfig/SET_STATE', {
           facilityDatasetId: dataset.id, //Required for pin authentication
         });
@@ -117,7 +115,8 @@
         return (this.showModal = false);
       },
       submit() {
-        this.$store.commit('CORE_SET_SESSION', { is_pin_authenticated: true });
+        window.sessionStorage.setItem(isPinAuthenticatedKey, true);
+        this.isPinAuthenticated = window.sessionStorage.getItem(isPinAuthenticatedKey) === 'true';
       },
     },
   };

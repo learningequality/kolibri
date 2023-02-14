@@ -27,9 +27,7 @@ class DeviceManagementModule extends KolibriApp {
       if (this.store.state.core.facilities.length === 0) {
         this.store.dispatch('getFacilities').then(next, next);
       }
-      if (!this.store.state.core.session['is_pin_authenticated']) {
-        this.showPinPrompt(this.store);
-      }
+      this.showPinPrompt(this.store);
       next();
     });
     router.afterEach((toRoute, fromRoute) => {

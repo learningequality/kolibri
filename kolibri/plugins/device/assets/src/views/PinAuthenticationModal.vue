@@ -47,11 +47,12 @@
         } else {
           this.pinError = '';
           this.showErrorText = false;
-          this.isPinValid(this.store, { pin_code: this.pin })
+          this.isPinValid({ pin_code: this.pin })
             .then(() => {
               this.pinError = '';
               this.showErrorText = false;
               this.$emit('submit');
+              this.showSnackbarNotification('pinAuthenticate');
             })
             .catch(error => {
               this.pinError = error['response']['data'];
