@@ -51,33 +51,31 @@
   import ScrollingHeader from 'kolibri.coreVue.components.ScrollingHeader';
   import SideNav from 'kolibri.coreVue.components.SideNav';
   // import { mapState, mapGetters } from 'vuex';
-  // import { computed } from 'vue-demi';
   import AppBar from '../AppBar';
   import StorageNotification from '../StorageNotification';
-  // import useUserSyncStatus from '../../composables/useUserSyncStatus.js';
+  import { useUserSyncStatus } from '../../composables/useUserSyncStatus.js';
 
   export default {
     name: 'AppBarPage',
     components: { AppBar, LanguageSwitcherModal, ScrollingHeader, SideNav, StorageNotification },
-    // setup() {
-    // const id = computed({
-    //   ...mapGetters(['isUserLoggedIn', 'totalPoints', 'isLearner']),
-    //   ...mapState({
-    //     userId: state => state.core.session.user_id,
-    //   }),
-    // });
-    // const { status, queued, lastSynced, deviceStatus, deviceStatusSentiment }
-    //  = useUserSyncStatus(
-    //   '5'
-    // );
-    // return {
-    //   queued,
-    //   lastSynced,
-    //   status,
-    //   deviceStatus,
-    //   deviceStatusSentiment,
-    // };
-    // },
+    setup() {
+      const {
+        status,
+        queued,
+        lastSynced,
+        deviceStatus,
+        deviceStatusSentiment,
+      } = useUserSyncStatus();
+      const { isUserLoggedIn, userUser } = userUser();
+      return {
+        queued,
+        lastSynced,
+        status,
+        deviceStatus,
+        deviceStatusSentiment,
+        isUserLoggedIn,
+      };
+    },
     props: {
       title: {
         type: String,
@@ -123,10 +121,15 @@
     },
 
     mounted() {
+      // this.console.log(this.userId);
       this.$nextTick(() => {
         this.appBarHeight = this.$refs.appBar.$el.scrollHeight || 0;
       });
-      console.log(this.userId);
+      console.log(this.deviceStatus);
+      console.log(this.lastSynced);
+      console.log(this.status);
+      console.log(this.isUserLoggedIn);
+      console.log(this.deviceStatusSentiment);
     },
   };
 

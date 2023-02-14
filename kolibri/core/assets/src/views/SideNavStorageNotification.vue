@@ -28,12 +28,21 @@
   export default {
     name: 'SideNavStorageNotification',
     setup() {
-      const { userSyncStatus, usageCount } = useUserSyncStatus();
-      return { userSyncStatus, usageCount };
+      const {
+        queued,
+        lastSynced,
+        status,
+        deviceStatus,
+        deviceStatusSentiment,
+      } = useUserSyncStatus();
+      return { queued, lastSynced, status, deviceStatus, deviceStatusSentiment };
     },
     props: {},
     beforeMount() {
-      console.log(this.usageCount);
+      console.log(this.deviceStatus);
+      console.log(this.lastSynced);
+      console.log(this.status);
+      console.log(this.deviceStatusSentiment);
       console.log('this is a sidenav notification');
     },
 

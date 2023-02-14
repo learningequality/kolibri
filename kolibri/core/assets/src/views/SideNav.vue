@@ -271,6 +271,7 @@
       ...mapState({
         username: state => state.core.session.username,
         fullName: state => state.core.session.full_name,
+        userId: state => state.core.session.user_id,
       }),
       width() {
         return this.topBarHeight * 4;

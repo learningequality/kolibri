@@ -1,5 +1,6 @@
-import { ref, onMounted, onUnmounted } from 'kolibri.lib.vueCompositionApi';
+import { ref, onMounted, onUnmounted, computed } from 'kolibri.lib.vueCompositionApi';
 import { UserSyncStatusResource } from 'kolibri.resources';
+import store from 'kolibri.coreVue.vuex.store';
 
 const queued = ref(false);
 const lastSynced = ref(null);
@@ -10,8 +11,31 @@ const deviceStatusSentiment = ref(null);
 const usageCount = ref(0);
 const timeoutId = ref(null);
 
-export default function pollUserSyncStatusTask(user_id) {
-  fetchUserSyncStatus({ user: user_id }).then(syncData => {
+export function useUser() {
+  const isUserLoggedIn = computed(() => store.getters.isUserLoggedIn);
+  // const isUserLoggedIn = computed(() => store.getters.param.user_id);
+  return {
+    isUserLoggedIn,
+  };
+}
+
+export function fetchUserSyncStatus(store, param) {
+  return UserSyncStatusResource.fetchCollection({
+    force: true,
+    getParams: param,
+  }).then(
+    syncData => {
+      return syncData;
+    },
+    error => {
+      store.dispatch('handleApiError', error);
+      return error;
+    }
+  );
+}
+
+export default function pollUserSyncStatusTask() {
+  fetchUserSyncStatus({ user: this.useUser }).then(syncData => {
     if (syncData && syncData[0]) {
       queued.value = syncData[0].queued;
       lastSynced.value = syncData[0].last_synced;
@@ -30,35 +54,23 @@ export default function pollUserSyncStatusTask(user_id) {
     },
     queued.value ? 1000 : 10000
   );
-}
-
-export function fetchUserSyncStatus(store, param) {
-  // Blaine: like we said during our call, these two cases are
-  //    very similar, so you can remove one...
-  // Blaine: remove the `if` statement and have one call to
-  //   `UserSyncStatusResource.fetchCollection`
-
-  return UserSyncStatusResource.fetchCollection({
-    force: true,
-    getParams: param,
-  }).then(
-    syncData => {
-      return syncData;
-    },
-    error => {
-      store.dispatch('handleApiError', error);
-      return error;
-    }
-  );
+  return {
+    queued,
+    lastSynced,
+    status,
+    deviceStatus,
+    deviceStatusSentiment,
+  };
 }
 
 export function useUserSyncStatus() {
   onMounted(() => {
     usageCount.value++;
+
     if (usageCount.value === 1) {
       // Blaine: looks like you want to call `pollUserSyncStatusTask`
       //   and pass only `userId`
-      //   startFetchUserSyncStatus({ user_id: userId });
+      // startFetchUserSyncStatus({ user_id: this.useUser });
     }
   });
 
