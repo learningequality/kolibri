@@ -248,6 +248,15 @@ export function title() {
   ];
 }
 
+export function questionTitle() {
+  return [
+    {
+      name: coachStrings.$tr('titleLabel'),
+      key: 'title',
+    },
+  ];
+}
+
 export function quizQuestionsAnswered(quiz) {
   return [
     {
