@@ -2,7 +2,6 @@
 
   <KPageContainer :topMargin="0">
     <ExamReport
-      v-if="exerciseContentNodes && exerciseContentNodes.length"
       :contentId="exam.id"
       :title="exam.title"
       :userName="learner.name"

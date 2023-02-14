@@ -146,11 +146,10 @@
               num_coach_contents: match.num_coach_contents,
               channelTitle: this.resourceChannelTitle(contentnode_id),
             };
-          } else {
-            // Need to filter out objects not in the contentNodeMap.
-            // Hopefully the contentNodeMap is always updated.
-            return resource;
           }
+          // Need to filter out objects not in the contentNodeMap.
+          // Hopefully the contentNodeMap is always updated.
+          return resource;
         });
       },
       resourceMissingText() {
@@ -163,7 +162,11 @@
         this.$emit('update:resources', resources);
       },
       resourceChannelTitle(id) {
-        const match = this.$store.getters['getChannelObject'](this.contentNodeMap[id].channel_id);
+        const contentNode = this.contentNodeMap[id];
+        if (!contentNode) {
+          return '';
+        }
+        const match = this.$store.getters['getChannelObject'](contentNode.channel_id);
         return match ? match.title : '';
       },
       removeResource(resource) {

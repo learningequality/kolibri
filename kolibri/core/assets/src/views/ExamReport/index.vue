@@ -91,6 +91,7 @@
           @select="navigateToQuestion"
         />
         <div
+          v-if="exercise && exercise.available"
           class="exercise-container"
           :class="windowIsSmall ? 'mobile-exercise-container' : ''"
           :style="{ backgroundColor: $themeTokens.surface }"
@@ -122,7 +123,6 @@
             />
           </div>
           <KContentRenderer
-            v-if="exercise"
             :itemId="renderableItemId"
             :allowHints="false"
             :kind="exercise.kind"
@@ -135,6 +135,7 @@
             :showCorrectAnswer="showCorrectAnswer"
           />
         </div>
+        <MissingResourceAlert v-else :multiple="false" />
       </template>
 
       <p v-else>
@@ -159,6 +160,7 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { MasteryLogResource } from 'kolibri.resources';
   import { now } from 'kolibri.utils.serverClock';
+  import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert';
   import AttemptLogList from '../AttemptLogList';
   import AttemptTextDiff from './AttemptTextDiff';
   import AttemptIconDiff from './AttemptIconDiff';
@@ -175,6 +177,7 @@
       AttemptTextDiff,
       TriesOverview,
       CurrentTryOverview,
+      MissingResourceAlert,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
     props: {
@@ -226,10 +229,10 @@
         default: 0,
       },
       // An object containing all of the content metadata for the item.
-      // TODO: Add general purpose content node validator here.
+      // We allow this to be empty to accommodate missing resources
       exercise: {
         type: Object,
-        required: true,
+        default: null,
       },
       // A function that has the signature tryIndex, questionNumber, interactionIndex
       // this should handle changes to the three parameters above.
@@ -453,11 +456,13 @@
             const questionNumber = index + 1;
             const noattempt = !attempt;
             let num_coach_contents;
+            let missing_resource = true;
             if (this.exerciseContentNodes.length) {
               const exerciseId = this.questions[questionNumber - 1].exercise_id;
               const exerciseMatch = find(this.exerciseContentNodes, { id: exerciseId });
               if (exerciseMatch) {
                 num_coach_contents = exerciseMatch.num_coach_contents;
+                missing_resource = false;
               }
             }
             return {
@@ -465,6 +470,7 @@
               noattempt,
               questionNumber,
               num_coach_contents,
+              missing_resource,
             };
           }),
           'questionNumber'
@@ -476,17 +482,20 @@
           .map(attempt => {
             const questionNumber = this.questions.findIndex(q => q.item === attempt.item) + 1;
             let num_coach_contents;
+            let missing_resource = true;
             if (this.exerciseContentNodes.length) {
               const exerciseId = this.questions[questionNumber - 1].exercise_id;
               const exerciseMatch = find(this.exerciseContentNodes, { id: exerciseId });
               if (exerciseMatch) {
                 num_coach_contents = exerciseMatch.num_coach_contents;
+                missing_resource = false;
               }
             }
             return {
               ...attempt,
               questionNumber,
               num_coach_contents,
+              missing_resource,
             };
           });
       },
