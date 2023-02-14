@@ -46,6 +46,7 @@
       <KGridItem :layout12="{ span: 8 }" class="column-pane">
         <main :class="{ 'column-contents-wrapper': !windowIsSmall }">
           <KPageContainer>
+            <MissingResourceAlert v-if="missingResources" />
             <h1>
               {{ $tr('question', { num: questionNumber + 1, total: exam.question_count }) }}
             </h1>
@@ -178,6 +179,7 @@
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
+  import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert';
   import useProgressTracking from '../../composables/useProgressTracking';
   import { PageNames, ClassesPageNames } from '../../constants';
   import { LearnerClassroomResource } from '../../apiResources';
@@ -199,6 +201,7 @@
       TimeDuration,
       SuggestedTime,
       ImmersivePage,
+      MissingResourceAlert,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
     setup() {
@@ -278,6 +281,9 @@
       },
       nodeId() {
         return this.currentQuestion ? this.currentQuestion.exercise_id : null;
+      },
+      missingResources() {
+        return this.questions.some(q => !this.contentNodeMap[q.exercise_id]);
       },
       itemId() {
         return this.currentQuestion ? this.currentQuestion.question_id : null;
