@@ -689,7 +689,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Numeracy',
     context: 'Category type. See https://en.wikipedia.org/wiki/Numeracy',
   },
-  digitialLiteracy: {
+  digitalLiteracy: {
     message: 'Digital literacy',
     context: 'Category type. See https://en.wikipedia.org/wiki/Digital_literacy',
   },
@@ -711,7 +711,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
 
   //  VocationalSubcategories
-  softwareToolsAndTraining: {
+  toolsAndSoftwareTraining: {
     message: 'Software tools and training',
     context: 'Subcategory type for technical and vocational training.',
   },
@@ -777,24 +777,33 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
 
   // Resources Needed Categories = {
-  ForBeginners: {
+  forBeginners: {
     message: 'For beginners',
     context: 'Filter option and a label for the resources in the Kolibri Library.',
   },
-  ToUseWithTeachersAndPeers: {
-    message: 'To use with teachers and peers',
+  toUseWithPeers: {
+    message: 'To use with peers',
     context:
       "'Peers' in this context refers to classmates or other learners who are interacting with Kolibri.",
   },
-  ToUseWithPaperAndPencil: {
+  toUseWithTeachers: {
+    message: 'To use with teachers',
+    context:
+      'To use with a subject matter or pedagogical expert who is helping to guide the learner.',
+  },
+  toUseWithPaperAndPencil: {
     message: 'To use with paper and pencil',
     context: 'Refers to a filter for resources.\n',
   },
-  NeedsInternet: {
+  needsInternet: {
     message: 'That need internet connection',
     context: 'Refers to a filter for resources.',
   },
-  NeedsMaterials: {
+  needsSpecialSoftware: {
+    message: 'That need special software',
+    context: 'Refers to a filter for resources.',
+  },
+  needsMaterials: {
     message: 'That need other materials',
     context: 'Refers to a filter for resources.\n',
   },
@@ -1102,16 +1111,17 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
  * - Keys which, when _.camelCase()'ed will not result in a valid key, requiring manual mapping
  */
 const nonconformingKeys = {
-  PEOPLE: 'ToUseWithTeachersAndPeers',
-  PAPER_PENCIL: 'ToUseWithPaperAndPencil',
-  INTERNET: 'NeedsInternet',
-  MATERIALS: 'NeedsMaterials',
-  FOR_BEGINNERS: 'ForBeginners',
-  digitalLiteracy: 'digitialLiteracy',
+  PEERS: 'toUseWithPeers',
+  TEACHER: 'toUseWithTeachers',
+  PAPER_PENCIL: 'toUseWithPaperAndPencil',
+  INTERNET: 'needsInternet',
+  SPECIAL_SOFTWARE: 'needsSpecialSoftware',
+  MATERIALS: 'needsMaterials',
+  OTHER_SUPPLIES: 'needsMaterials',
+  FOR_BEGINNERS: 'forBeginners',
   BASIC_SKILLS: 'allLevelsBasicSkills',
   FOUNDATIONS: 'basicSkills',
   foundations: 'basicSkills',
-  toolsAndSoftwareTraining: 'softwareToolsAndTraining',
   foundationsLogicAndCriticalThinking: 'logicAndCriticalThinking',
 };
 
