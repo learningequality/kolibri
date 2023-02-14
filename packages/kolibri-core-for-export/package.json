@@ -29,7 +29,7 @@
     "loglevel": "^1.8.1",
     "markdown-it": "13.0.1",
     "screenfull": "^5.2.0",
-    "shave": "^5.0.0",
+    "shave": "^5.0.2",
     "tinycolor2": "^1.6.0",
     "ua-parser-js": "^1.0.33",
     "vue": "^2.6.14",
