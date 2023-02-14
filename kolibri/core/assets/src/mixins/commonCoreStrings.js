@@ -768,6 +768,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
       'Category label in the Kolibri resources library; refers to lesson planning materials for teachers.',
   },
 
+  uncategorized: {
+    message: 'Uncategorized',
+    context: 'A label to indicate that no category label has been applied to the resource.',
+  },
+
   // Resources Needed Categories = {
   ForBeginners: {
     message: 'For beginners',
@@ -1084,13 +1089,6 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
 });
 
-// We forgot a string, so we are using one from the PerseusInternalMessages namespace
-// do not do this, do as I say, not as I do, etc. etc.
-// TODO: 0.16 - remove this and put a proper string in place
-const noneOfTheAboveTranslator = createTranslator('PerseusInternalMessages', {
-  'None of the above': 'None of the above',
-});
-
 // We forgot another string, so we are using one from the EPubRenderer SearchSideBar namespace
 // do not do this, do as I say, not as I do, etc. etc.
 // TODO: 0.16 - remove this and put a proper string in place
@@ -1153,10 +1151,6 @@ const MetadataLookup = invert(
  * string mapping to the values to be passed for those arguments.
  */
 export function coreString(key, args) {
-  if (key === 'None of the above' || key === METADATA.NoCategories) {
-    return noneOfTheAboveTranslator.$tr('None of the above', args);
-  }
-
   if (key === 'overCertainNumberOfSearchResults') {
     return overResultsTranslator.$tr(key, args);
   }
