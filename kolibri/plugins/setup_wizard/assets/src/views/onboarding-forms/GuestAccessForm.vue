@@ -3,6 +3,7 @@
   <OnboardingStepBase
     :title="$tr('header')"
     :description="$tr('description')"
+    :eventOnGoBack="backEvent"
     @continue="handleContinue"
   >
 
@@ -30,6 +31,7 @@
 
 <script>
 
+  import { Presets } from '../../constants';
   import OnboardingStepBase from '../OnboardingStepBase';
 
   export default {
@@ -38,11 +40,21 @@
       OnboardingStepBase,
     },
     data() {
+      let setting = this.wizardService.state.context['guestAccess'];
+      if (setting === null) {
+        const preset = this.wizardService.state.context['formalOrNonformal'];
+        setting = preset === Presets.NONFORMAL;
+      }
       return {
-        setting: false,
+        setting,
       };
     },
     inject: ['wizardService'],
+    computed: {
+      backEvent() {
+        return { type: 'BACK', value: Boolean(this.setting) };
+      },
+    },
     methods: {
       handleContinue() {
         this.wizardService.send({ type: 'CONTINUE', value: this.setting });

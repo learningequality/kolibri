@@ -1,10 +1,10 @@
 import { mount } from '@vue/test-utils';
 import makeStore from '../makeStore';
-import SuperuserCredentialsForm from '../../src/views/onboarding-forms/SuperuserCredentialsForm';
+import UserCredentialsForm from '../../src/views/onboarding-forms/UserCredentialsForm';
 
 function makeWrapper() {
   const store = makeStore();
-  const wrapper = mount(SuperuserCredentialsForm, {
+  const wrapper = mount(UserCredentialsForm, {
     store,
     // These need to be stubbed because of some mysterious errors
     stubs: ['FullNameTextbox', 'UsernameTextbox'],
@@ -16,7 +16,7 @@ function makeWrapper() {
   return { store, wrapper, actions };
 }
 
-describe.skip('SuperuserCredentialsForm', () => {
+describe.skip('UserCredentialsForm', () => {
   it('clicking submit updates vuex with correct data', async () => {
     const { store, wrapper, actions } = makeWrapper();
     wrapper.setData({
@@ -29,7 +29,7 @@ describe.skip('SuperuserCredentialsForm', () => {
     });
     actions.simulateSubmit();
     await wrapper.vm.$nextTick();
-    expect(store.state.onboardingData.superuser).toEqual({
+    expect(store.state.onboardingData.user).toEqual({
       full_name: 'Schoolhouse Rock',
       username: 'schoolhouse_rock',
       password: 'password',

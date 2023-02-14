@@ -21,7 +21,7 @@
         v-else-if="!noBackAction"
         class="back-icon-button"
         icon="back"
-        @click="wizardService.send('BACK')"
+        @click="wizardService.send(eventOnGoBack)"
       />
 
       <!-- Language switcher visible regardless of screen size -->
@@ -76,7 +76,7 @@
             appearance="flat-button"
             :primary="false"
             :disabled="navDisabled"
-            @click="wizardService.send('BACK')"
+            @click="wizardService.send(eventOnGoBack)"
           />
           <KButton
             v-if="!$slots.buttons"
@@ -128,6 +128,15 @@
     inject: ['wizardService'],
     mixins: [commonCoreStrings, responsiveWindowMixin],
     props: {
+      /**
+       * The event sent to the state machine when the user clicks GO BACK.
+       * Can be an object with the `type` and `value` and used to include data
+       * to the state machine to use during the transition back.
+       */
+      eventOnGoBack: {
+        type: Object,
+        default: () => ({ type: 'BACK' }),
+      },
       noBackAction: {
         type: Boolean,
         default: false,

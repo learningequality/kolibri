@@ -46,6 +46,7 @@ from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.channels import get_mounted_drives_with_channel_info
 from kolibri.core.device.permissions import IsNotAnonymous
 from kolibri.core.device.permissions import IsSuperuser
+from kolibri.core.device.utils import APP_KEY_COOKIE_NAME
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.discovery.models import DynamicNetworkLocation
 from kolibri.core.public.constants.user_sync_options import DELAYED_SYNC
@@ -91,7 +92,11 @@ class DeviceProvisionView(viewsets.GenericViewSet):
         if data["superuser"]:
             login(request, data["superuser"])
         output_serializer = self.get_serializer(data)
-        return Response(output_serializer.data, status=status.HTTP_201_CREATED)
+        response_data = output_serializer.data
+        if APP_KEY_COOKIE_NAME in request.COOKIES:
+            app_key = request.COOKIES[APP_KEY_COOKIE_NAME]
+            response_data["app_key"] = app_key
+        return Response(response_data, status=status.HTTP_201_CREATED)
 
 
 class FreeSpaceView(mixins.ListModelMixin, viewsets.GenericViewSet):
