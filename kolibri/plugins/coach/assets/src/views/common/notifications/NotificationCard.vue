@@ -31,7 +31,7 @@
               placement="bottom"
               :refs="$refs"
             >
-              {{ getMissingContentString('resourceNotFoundOnDevice') }}
+              {{ coreString('resourceNotFoundOnDevice') }}
             </KTooltip>
           </template>
           <KRouterLink
@@ -58,8 +58,8 @@
 
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import CoachStatusIcon from '../status/CoachStatusIcon';
-  import { coachStringsMixin } from '../commonCoachStrings';
   import {
     NotificationEvents,
     NotificationObjects,
@@ -81,7 +81,7 @@
       CoachStatusIcon,
       ElapsedTime,
     },
-    mixins: [coachStringsMixin],
+    mixins: [commonCoreStrings],
     props: {
       notification: {
         type: Object,
@@ -137,7 +137,7 @@
         return new Date(this.notification.timestamp);
       },
       linkText() {
-        return cardTextForNotification(this.notification, !this.notification.resource.type.length);
+        return cardTextForNotification(this.notification);
       },
       route() {
         const targetPage = notificationLink(this.notification);

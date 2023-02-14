@@ -15,9 +15,6 @@
       :navigateTo="navigateTo"
       :questions="questions"
     />
-    <div v-else>
-      {{ getMissingContentString('someResourcesMissingOrNotSupported') }}
-    </div>
   </KPageContainer>
 
 </template>

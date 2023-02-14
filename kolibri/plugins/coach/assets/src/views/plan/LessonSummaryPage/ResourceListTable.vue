@@ -85,7 +85,6 @@
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { coachStringsMixin } from '../../common/commonCoachStrings';
 
   const removalSnackbarTime = 5000;
 
@@ -99,7 +98,7 @@
       CoachContentLabel,
       ContentIcon,
     },
-    mixins: [commonCoreStrings, coachStringsMixin],
+    mixins: [commonCoreStrings],
     data() {
       return {
         workingResourcesBackup: [...this.$store.state.lessonSummary.workingResources],
@@ -121,7 +120,7 @@
         return this.workingResourcesBackup.length - this.workingResources.length;
       },
       resourceMissingText() {
-        return this.getMissingContentString('resourceNotFoundOnDevice');
+        return this.coreString('resourceNotFoundOnDevice');
       },
     },
     methods: {

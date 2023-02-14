@@ -98,7 +98,7 @@
   import DragContainer from 'kolibri.coreVue.components.DragContainer';
   import Draggable from 'kolibri.coreVue.components.Draggable';
   import DragHandle from 'kolibri.coreVue.components.DragHandle';
-  import { coachStringsMixin } from '../../common/commonCoachStrings';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import AssessmentQuestionListItem from './AssessmentQuestionListItem';
 
   export default {
@@ -109,7 +109,7 @@
       DragContainer,
       DragHandle,
     },
-    mixins: [coachStringsMixin],
+    mixins: [commonCoreStrings],
     props: {
       // If set to true, question buttons will be draggable
       fixedOrder: {
@@ -165,7 +165,7 @@
         return this.currentQuestion.question_id;
       },
       resourceMissingText() {
-        return this.getMissingContentString('resourceNotFoundOnDevice');
+        return this.coreString('resourceNotFoundOnDevice');
       },
     },
     methods: {

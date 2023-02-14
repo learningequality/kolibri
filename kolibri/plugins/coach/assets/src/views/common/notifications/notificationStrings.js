@@ -140,7 +140,7 @@ const nStringsMixin = {
   },
 };
 
-function cardTextForNotification(notification, missing = false) {
+function cardTextForNotification(notification) {
   const { collection, resource, learnerSummary, object, event } = notification;
   let stringType;
   let stringDetails = {
@@ -188,7 +188,7 @@ function cardTextForNotification(notification, missing = false) {
     }
   }
 
-  if (missing) {
+  if (object === RESOURCE && !resource.type.length) {
     stringType += 'Missing';
   }
 

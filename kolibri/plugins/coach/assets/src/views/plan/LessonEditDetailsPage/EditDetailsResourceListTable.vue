@@ -89,7 +89,6 @@
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
-  import { coachStringsMixin } from '../../common/commonCoachStrings';
 
   // This is a simplified version of ResourceListTable that is supposed to work
   // outside of the LessonSummaryPage workflow.
@@ -103,7 +102,7 @@
       ContentIcon,
       CoachContentLabel,
     },
-    mixins: [coachStringsMixin, commonCoreStrings],
+    mixins: [commonCoreStrings],
     props: {
       // Array<{ contentnode_id, content_id, channel_id }>
       resources: {
@@ -155,7 +154,7 @@
         });
       },
       resourceMissingText() {
-        return this.getMissingContentString('resourceNotFoundOnDevice');
+        return this.coreString('resourceNotFoundOnDevice');
       },
     },
     methods: {
