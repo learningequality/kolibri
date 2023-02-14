@@ -1,5 +1,7 @@
+import datetime
 from uuid import uuid4
 
+import pytz
 from django.core.management.base import CommandError
 from django.test import TestCase
 from django.urls import reverse
@@ -50,6 +52,13 @@ def fake_job(**kwargs):
     fake_data = fake_job_defaults.copy()
     fake_data.update(kwargs)
     return Mock(spec=Job, **fake_data)
+
+
+class dummy_orm_job_data(object):
+    scheduled_time = datetime.datetime(year=2023, month=1, day=1, tzinfo=pytz.utc)
+    repeat = 5
+    interval = 8600
+    retry_interval = 5
 
 
 @patch("kolibri.core.tasks.api.job_storage")
@@ -116,6 +125,7 @@ class FacilityTasksAPITestCase(APITestCase):
             extra_metadata=dict(this_is_extra=True),
         )
         mock_job_storage.get_job.return_value = fake_job(**fake_job_data)
+        mock_job_storage.get_orm_job.return_value = dummy_orm_job_data
 
         response = self.client.post(
             reverse("kolibri:core:task-list"),
@@ -152,6 +162,7 @@ class FacilityTasksAPITestCase(APITestCase):
             extra_metadata=dict(this_is_extra=True),
         )
         mock_job_storage.get_job.return_value = fake_job(**fake_job_data)
+        mock_job_storage.get_orm_job.return_value = dummy_orm_job_data
 
         response = self.client.post(
             reverse("kolibri:core:task-list"),
@@ -219,6 +230,7 @@ class FacilityTasksAPITestCase(APITestCase):
         )
         fake_job_data["extra_metadata"].update(extra_metadata)
         mock_job_storage.get_job.return_value = fake_job(**fake_job_data)
+        mock_job_storage.get_orm_job.return_value = dummy_orm_job_data
 
         req_data = dict(
             facility=self.facility.id,
@@ -283,6 +295,7 @@ class FacilityTasksAPITestCase(APITestCase):
         )
         fake_job_data["extra_metadata"].update(extra_metadata)
         mock_job_storage.get_job.return_value = fake_job(**fake_job_data)
+        mock_job_storage.get_orm_job.return_value = dummy_orm_job_data
 
         req_data = dict(
             facility=self.facility.id,
@@ -331,6 +344,7 @@ class FacilityTasksAPITestCase(APITestCase):
         )
         fake_job_data["extra_metadata"].update(extra_metadata)
         mock_job_storage.get_job.return_value = fake_job(**fake_job_data)
+        mock_job_storage.get_orm_job.return_value = dummy_orm_job_data
 
         response = self.client.post(
             reverse("kolibri:core:task-list"),

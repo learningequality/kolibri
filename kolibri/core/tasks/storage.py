@@ -9,6 +9,7 @@ from sqlalchemy import func
 from sqlalchemy import Index
 from sqlalchemy import Integer
 from sqlalchemy import or_
+from sqlalchemy import select
 from sqlalchemy import String
 from sqlalchemy import update
 from sqlalchemy.exc import OperationalError
@@ -305,6 +306,15 @@ class Storage(object):
         with self.session_scope() as session:
             job, _ = self._get_job_and_orm_job(job_id, session)
             return job
+
+    def get_orm_job(self, job_id):
+        with self.engine.connect() as connection:
+            orm_job = connection.execute(
+                select(ORMJob).where(ORMJob.id == job_id)
+            ).fetchone()
+        if orm_job is None:
+            raise JobNotFound()
+        return orm_job
 
     def restart_job(self, job_id):
         """
