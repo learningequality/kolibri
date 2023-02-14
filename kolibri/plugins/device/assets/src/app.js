@@ -1,4 +1,6 @@
 import router from 'kolibri.coreVue.router';
+import { IsPinAuthenticated } from 'kolibri.coreVue.vuex.constants';
+import { getCookie } from 'kolibri.utils.cookieUtils';
 import RootVue from './views/DeviceIndex';
 import routes from './routes';
 import pluginModule from './modules/pluginModule';
@@ -15,11 +17,13 @@ class DeviceManagementModule extends KolibriApp {
   get pluginModule() {
     return pluginModule;
   }
-  showPinPrompt(store) {
+  showPinPrompt(store, next) {
     const isLearnOnlyDevice = plugin_data.isSubsetOfUsersDevice;
     const isLearner = store.getters.isLearner;
-    //Should be isLearnOnlyDevice && isLearner
-    store.dispatch('displayPinModal', { authenticate: !isLearnOnlyDevice && !isLearner });
+    store.dispatch('displayPinModal', {
+      authenticate: isLearnOnlyDevice && isLearner,
+      next,
+    });
   }
   ready() {
     // reset module states after leaving their respective page
@@ -27,11 +31,18 @@ class DeviceManagementModule extends KolibriApp {
       if (this.store.state.core.facilities.length === 0) {
         this.store.dispatch('getFacilities').then(next, next);
       }
-      this.showPinPrompt(this.store);
       next();
     });
     router.afterEach((toRoute, fromRoute) => {
       this.store.dispatch('resetModuleState', { toRoute, fromRoute });
+    });
+    router.beforeResolve((to, from, next) => {
+      //check if cookie is set and is valid and if so, proceed with navigation else show pinPrompt
+      if (!getCookie(IsPinAuthenticated) && this.store.getters.isLearner) {
+        this.showPinPrompt(this.store, next);
+      } else {
+        next(true);
+      }
     });
     super.ready();
   }

@@ -35,13 +35,16 @@
   import find from 'lodash/find';
   import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { IsPinAuthenticated } from 'kolibri.coreVue.vuex.constants';
+  import { getCookie, setCookie } from 'kolibri.utils.cookieUtils';
+  import redirectBrowser from 'kolibri.utils.redirectBrowser';
+  import urls from 'kolibri.urls';
   import { PageNames } from '../constants';
   import PostSetupModalGroup from './PostSetupModalGroup';
   import PinAuthenticationModal from './PinAuthenticationModal';
   import plugin_data from 'plugin_data';
 
   const welcomeDimissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
-  const isPinAuthenticatedKey = 'IS_PIN_AUTHENTICATED';
 
   export default {
     name: 'DeviceIndex',
@@ -55,12 +58,12 @@
       return {
         showModal: true,
         currentFacility: {},
-        isPinAuthenticated: window.sessionStorage.getItem(isPinAuthenticatedKey) === 'true',
+        isPinAuthenticated: getCookie(IsPinAuthenticated) === 'true',
       };
     },
     computed: {
       ...mapGetters(['isUserLoggedIn', 'currentFacilityId']),
-      ...mapState(['authenticateWithPin']),
+      ...mapState(['authenticateWithPin', 'grantPluginAccess']),
       ...mapState({
         welcomeModalVisibleState: 'welcomeModalVisible',
       }),
@@ -109,14 +112,15 @@
       },
       closePinModal() {
         if (this.requirePinAuthentication) {
-          //Due to cross-plugin routing limitations, navigate to last accessed page
-          this.$router.go(-1);
+          //Force learner back to learn
+          redirectBrowser(urls['kolibri:kolibri.plugins.learn:learn']());
         }
         return (this.showModal = false);
       },
       submit() {
-        window.sessionStorage.setItem(isPinAuthenticatedKey, true);
-        this.isPinAuthenticated = window.sessionStorage.getItem(isPinAuthenticatedKey) === 'true';
+        this.isPinAuthenticated = true;
+        setCookie(IsPinAuthenticated, true, 15000);
+        this.grantPluginAccess();
       },
     },
   };

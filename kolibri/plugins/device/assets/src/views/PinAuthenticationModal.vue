@@ -24,7 +24,7 @@
 
 <script>
 
-  import { mapActions } from 'vuex';
+  import { mapActions, mapState } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
@@ -36,6 +36,9 @@
         pinError: null,
         showErrorText: false,
       };
+    },
+    computed: {
+      ...mapState('facilityConfig', ['isFacilityPinValid']),
     },
     methods: {
       ...mapActions('facilityConfig', ['isPinValid']),
@@ -49,10 +52,15 @@
           this.showErrorText = false;
           this.isPinValid({ pin_code: this.pin })
             .then(() => {
-              this.pinError = '';
-              this.showErrorText = false;
-              this.$emit('submit');
-              this.showSnackbarNotification('pinAuthenticate');
+              if (this.isFacilityPinValid) {
+                this.pinError = '';
+                this.showErrorText = false;
+                this.$emit('submit');
+                this.showSnackbarNotification('pinAuthenticate');
+              } else {
+                this.pinError = 'Incorrect pin, please try again';
+                this.showErrorText = true;
+              }
             })
             .catch(error => {
               this.pinError = error['response']['data'];

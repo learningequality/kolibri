@@ -62,6 +62,7 @@ import * as serverClock from '../serverClock';
 import * as resources from '../api-resources';
 import * as i18n from '../utils/i18n';
 import * as browserInfo from '../utils/browserInfo';
+import * as cookieUtils from '../utils/cookieUtils';
 import redirectBrowser from '../utils/redirectBrowser';
 import * as licenseTranslations from '../utils/licenseTranslations';
 import bytesForHumans from '../utils/bytesForHumans';
@@ -236,6 +237,7 @@ export default {
     bytesForHumans,
     CatchErrors,
     clientFactory,
+    cookieUtils,
     contentNode,
     coreBannerContent,
     exams,

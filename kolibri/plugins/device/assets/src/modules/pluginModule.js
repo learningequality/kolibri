@@ -12,11 +12,13 @@ export default {
       pageName: '',
       welcomeModalVisible: false,
       query: {},
+      grantPluginAccess: null,
     };
   },
   mutations: {
-    SET_AUTHENTICATE_WITH_PIN(state, authenticate) {
+    SET_AUTHENTICATE_WITH_PIN(state, { authenticate, next }) {
       state.authenticateWithPin = authenticate;
+      state.grantPluginAccess = next;
     },
     SET_PAGE_NAME(state, name) {
       state.pageName = name;
@@ -29,8 +31,8 @@ export default {
     },
   },
   actions: {
-    displayPinModal(store, { authenticate }) {
-      store.commit('SET_AUTHENTICATE_WITH_PIN', authenticate);
+    displayPinModal(store, { authenticate, next }) {
+      store.commit('SET_AUTHENTICATE_WITH_PIN', { authenticate, next });
     },
     preparePage(store, { name, isAsync = true }) {
       store.commit('CORE_SET_PAGE_LOADING', isAsync);
