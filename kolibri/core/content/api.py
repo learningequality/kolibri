@@ -1319,7 +1319,10 @@ class UserContentNodeFilter(ContentNodeFilter):
 
     def filter_by_lesson(self, queryset, name, value):
         try:
-            lesson = Lesson.objects.get(pk=value)
+            lesson = Lesson.objects.filter(
+                lesson_assignments__collection__membership__user=self.request.user,
+                is_active=True,
+            ).get(pk=value)
             node_ids = list(map(lambda x: x["contentnode_id"], lesson.resources))
             return queryset.filter(pk__in=node_ids)
         except Lesson.DoesNotExist:
