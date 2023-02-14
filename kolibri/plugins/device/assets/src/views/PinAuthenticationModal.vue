@@ -44,7 +44,7 @@
       ...mapActions('facilityConfig', ['isPinValid']),
       submit() {
         if (!this.pin.match(/^\d+$/)) {
-          this.pinError = 'Please enter a 4-digit number';
+          this.pinError = this.$tr('invalidPin');
           this.showErrorText = true;
           this.focus();
         } else {
@@ -58,7 +58,7 @@
                 this.$emit('submit');
                 this.showSnackbarNotification('pinAuthenticate');
               } else {
-                this.pinError = 'Incorrect pin, please try again';
+                this.pinError = this.$tr('incorrectPin');
                 this.showErrorText = true;
               }
             })
@@ -76,6 +76,14 @@
       title: {
         message: 'Enter PIN',
         context: 'Title for the pin modal.',
+      },
+      incorrectPin: {
+        message: 'Incorrect pin, please try again',
+        context: 'Error message displayed when an incorrect pin is input',
+      },
+      invalidPin: {
+        message: 'Please enter a 4-digit number',
+        context: 'Error message displayed when a pin with less than 4 digits is input',
       },
       pinPlaceholder: {
         message: 'PIN',
