@@ -417,6 +417,9 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       'A user is any person who has access to a facility in Kolibri. There are  four main types of users in Kolibri: Learners, Coaches, Admins and Super admins.',
   },
+  uncountedAdditionalResults: {
+    message: 'More than { num, number } results',
+  },
   viewMoreAction: {
     message: 'View more',
     context:
@@ -1089,17 +1092,6 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
 });
 
-// We forgot another string, so we are using one from the EPubRenderer SearchSideBar namespace
-// do not do this, do as I say, not as I do, etc. etc.
-// TODO: 0.16 - remove this and put a proper string in place
-const overResultsTranslator = createTranslator('SearchSideBar', {
-  overCertainNumberOfSearchResults: {
-    message: 'Over {num, number, integer} {num, plural, one {result} other {results}}',
-    context:
-      'Refers to number of search results when there are over a specified amount. Only translate "over", "result" and "results".\n',
-  },
-});
-
 /**
  * An object mapping ad hoc keys (like those to be passed to coreString()) which do not
  * conform to the expectations. Examples:
@@ -1151,10 +1143,6 @@ const MetadataLookup = invert(
  * string mapping to the values to be passed for those arguments.
  */
 export function coreString(key, args) {
-  if (key === 'overCertainNumberOfSearchResults') {
-    return overResultsTranslator.$tr(key, args);
-  }
-
   const metadataKey = get(MetadataLookup, key, null);
   key = metadataKey ? camelCase(metadataKey) : key;
 
