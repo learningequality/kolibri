@@ -77,8 +77,9 @@
     },
     computed: {
       facilityData() {
-        // FIXME Should the default name be i18nized?
-        const facilityName = this.wizardContext('facilityName') || 'Default Facility Name';
+        const usersName = get(this.wizardContext('superuser'), 'full_name', '');
+        const facilityName = this.wizardContext('facilityName') 
+          || this.$tr('onMyOwnFacilityName', { name: usersName });
         const selectedFacility = this.wizardContext('selectedFacility');
         if (selectedFacility) {
           if (selectedFacility.id) {
@@ -187,6 +188,11 @@
         message: 'This may take several minutes',
         context: 'Kolibri is working in the background and the user may need to wait',
       },
+      onMyOwnFacilityName: {
+        message: 'Home Facility for {name}',
+        context:
+          "Default facility name when Kolibri is installed with the 'Quick start' setup option for at home learning, outside any type of structure or institution like a school or a library. '{name}' will display the full name of the super admin user for their Kolibri server. Note that users can change this default name after the setup, and put whatever name they want to use for their home facility.",
+  },
     },
   };
 
