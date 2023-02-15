@@ -12,6 +12,7 @@ export const PdfPage = {
     cancel: jest.fn(),
   })),
   streamTextContent: jest.fn(() => ({})),
+  getAnnotations: jest.fn(() => Promise.resolve([])),
 };
 
 export const PdfDocument = {
@@ -36,5 +37,9 @@ export const renderTextLayer = jest.fn(() => ({
   expandTextDivs: jest.fn(),
   cancel: jest.fn(),
 }));
+
+export const AnnotationMode = {
+  ENABLE_FORMS: 'ENABLE_FORMS',
+};
 
 /* eslint-enable */

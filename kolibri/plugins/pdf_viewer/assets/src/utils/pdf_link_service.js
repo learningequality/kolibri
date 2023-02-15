@@ -74,8 +74,11 @@ function addLinkAttributes(link, { url, target, rel, enabled = true } = {}) {
   }
 
   let targetStr = ''; // LinkTarget.NONE
+  // Modified: default targets as _blank
+  // Original line: 16
   switch (target) {
     case LinkTarget.NONE:
+      targetStr = '_blank';
       break;
     case LinkTarget.SELF:
       targetStr = '_self';
@@ -89,6 +92,8 @@ function addLinkAttributes(link, { url, target, rel, enabled = true } = {}) {
     case LinkTarget.TOP:
       targetStr = '_top';
       break;
+    default:
+      targetStr = '_blank';
   }
   link.target = targetStr;
 

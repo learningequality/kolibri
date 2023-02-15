@@ -172,13 +172,6 @@ class AnnotationLayerBuilder {
         AnnotationLayer.render(parameters);
         this.l10n.translate(this.div);
       }
-
-      // Modified: Code added to get external links with _blank target
-      const linkAnnotations = this.div.querySelectorAll('.linkAnnotation a');
-      for (let i = 0; i < linkAnnotations.length; i++) {
-        const linkAnnotation = linkAnnotations[i];
-        linkAnnotation.setAttribute('target', '_blank');
-      }
     });
   }
 
