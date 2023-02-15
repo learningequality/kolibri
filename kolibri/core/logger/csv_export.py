@@ -135,7 +135,7 @@ def csv_file_generator(
     queryset = log_info["queryset"].filter(
         dataset_id=facility.dataset_id,
         start_timestamp__gte=start,
-        end_timestamp__lte=end,
+        start_timestamp__lte=end,
     )
 
     # Exclude completion timestamp for the sessionlog CSV
