@@ -54,7 +54,7 @@
       // preset inits to null, so either it'll be what the user selected or default to nonformal
       const selected = preset || Presets.NONFORMAL;
 
-      const facilityName = this.wizardService.state.context['facilityName'] || '';
+      const facilityName = this.wizardService.state.context['facilityName'] || this.$tr();
       return {
         facilityName,
         selected,
@@ -79,6 +79,11 @@
       },
     },
     $trs: {
+      personalFacilityName: {
+        message: 'Home Facility for {name}',
+        context:
+          "Default facility name when Kolibri is installed with the 'Quick start' setup option for at home learning, outside any type of structure or institution like a school or a library. '{name}' will display the full name of the super admin user for their Kolibri server. Note that users can change this default name after the setup, and put whatever name they want to use for their home facility.",
+      },
       learningEnvironmentHeader: {
         message: 'What kind of learning environment is your facility?',
         context: 'Page title for facility setup process.',

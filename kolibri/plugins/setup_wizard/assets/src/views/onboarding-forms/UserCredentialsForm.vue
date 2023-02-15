@@ -2,8 +2,8 @@
 
   <OnboardingStepBase
     dir="auto"
-    :title="$attrs.header || $tr('adminAccountCreationHeader')"
-    :description="$attrs.description || $tr('adminAccountCreationDescription')"
+    :title="header"
+    :description="description"
     :noBackAction="noBackAction"
     @continue="handleContinue"
   >
@@ -70,6 +70,7 @@
 <script>
 
   import every from 'lodash/every';
+  import get from 'lodash/get';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import FullNameTextbox from 'kolibri.coreVue.components.FullNameTextbox';
   import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
@@ -102,6 +103,11 @@
         type: Boolean,
         default: false,
       },
+      /** Will use learner-focused labels if false -- the data flow is the same in any case **/
+      adminUserLabels: {
+        type: Boolean,
+        default: true,
+      },
       /**
        * The user given which will prefill the data for fullName and username
        */
@@ -129,6 +135,19 @@
       };
     },
     computed: {
+      header() {
+        return this.adminUserLabels ?
+          this.$tr('adminAccountCreationHeader') :
+          this.$tr('learnerAccountCreationHeader');
+      },
+      description() {
+        return this.adminUserLabels ?
+          this.$tr('adminAccountCreationDescription') :
+          this.$tr('learnerAccountCreationDescription', { facility: this.selectedFacilityName });
+      },
+      selectedFacilityName() {
+        return get(this, 'wizardService.state.context.selectedFacility.name', '');
+      },
       formIsValid() {
         if (this.selectedUser) {
           return this.passwordValid;
@@ -207,6 +226,14 @@
         message:
           'This account allows you to manage the facility, resources, and user accounts on this device',
         context: "Description of the 'Create super admin account' page.",
+      },
+      learnerAccountCreationHeader: {
+        message: 'Create your account',
+        context: "The title of the 'Create your account' section.",
+      },
+      learnerAccountCreationDescription: {
+        message: "New account for '{facility}' learning facility",
+        context: "The learner is creating their account for an existing facility and is told what that is"
       },
     },
   };

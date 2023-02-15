@@ -11,14 +11,16 @@ import RequirePasswordForLearnersForm from './views/onboarding-forms/RequirePass
 import PersonalDataConsentForm from './views/onboarding-forms/PersonalDataConsentForm';
 import SettingUpKolibri from './views/onboarding-forms/SettingUpKolibri';
 import ImportLODUsersSetup from './views/ImportLODUsersSetup';
-//import JoinOrNew from './views/importLODUsers/JoinOrNew';
+import JoinOrNew from './views/importLODUsers/JoinOrNew';
 import ImportAuthentication from './views/importFacility/ImportAuthentication';
 import SelectFacilityForm from './views/importFacility/SelectFacilityForm';
 import SelectSuperAdminAccountForm from './views/importFacility/SelectSuperAdminAccountForm';
-//import ImportUserAuth from './views/importLODUsers/ImportUserAuth';
+import ImportIndividualUserForm from './views/importLODUsers/ImportIndividualUserForm';
+import ImportUserAuth from './views/importLODUsers/ImportUserAuth';
 //import LodSelectFacility from './views/importLODUsers/SelectFacilityForm';
 //import ImportMultipleUsers from './views/importLODUsers/ImportMultipleUsers';
 import LoadingTaskPage from './views/importFacility/LoadingTaskPage';
+import LodLoadingTaskPage from './views/importLODUsers/LoadingTaskPage';
 import Sandbox from './views/Sandbox';
 
 export default [
@@ -109,12 +111,12 @@ export default [
   {
     name: 'LOD_SETUP_TYPE',
     path: '/learn-only/setup-type',
-    //component: JoinOrNew,
+    component: JoinOrNew,
   },
   {
     name: 'LOD_SELECT_FACILITY',
     path: '/learn-only/select-facility',
-    //component: LodSelectFacility,
+    component: SelectFacilityForm,
   },
   {
     name: 'LOD_IMPORT_USER',
@@ -124,12 +126,12 @@ export default [
   {
     name: 'LOD_IMPORT_USER_AUTH',
     path: '/learn-only/import/sign-in',
-    //component: ImportUserAuth,
+    component: ImportIndividualUserForm,
   },
   {
     name: 'LOD_LOADING_TASK_PAGE',
     path: '/learn-only/loading',
-    component: LoadingTaskPage,
+    component: LodLoadingTaskPage,
   },
   {
     name: 'LOD_IMPORT_AS_ADMIN',
@@ -139,7 +141,8 @@ export default [
   {
     name: 'LOD_CREATE_USER_FORM',
     path: '/learn-only/join/create-user',
-    component: ImportLODUsersSetup,
+    component: UserCredentialsForm,
+    props: { adminUserLabels: false },
   },
   {
     name: 'SANDBOX',
