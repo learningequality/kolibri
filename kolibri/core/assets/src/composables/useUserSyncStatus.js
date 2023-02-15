@@ -37,9 +37,9 @@ export function fetchUserSyncStatus(store, param) {
 export function pollUserSyncStatusTask() {
   //const isUserLoggedIn = computed(() => store.getters.isUserLoggedIn);
 
-  fetchUserSyncStatus({ user: store.state.core.session.device_id }).then(syncData => {
+  fetchUserSyncStatus({ user: store.state.core.session.user_id }).then(syncData => {
     console.log(syncData);
-    console.log(store.state.core.session.device_id);
+    console.log(store.state.core.session.user_id);
     if (syncData && syncData[0]) {
       queued.value = syncData[0].queued;
       lastSynced.value = syncData[0].last_synced;
