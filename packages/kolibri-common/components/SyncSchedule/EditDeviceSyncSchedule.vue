@@ -203,25 +203,23 @@
         };
       },
       selectArray() {
-        return {
-          1: { label: 'Never', value: 3600 },
-          2: { label: this.$tr('everyHour'), value: 3600 },
-          3: { label: this.$tr('everyDay'), value: 86400 },
-          4: { label: this.$tr('everyWeek'), value: 604800 },
-          5: { label: this.$tr('everyTwoWeeks'), value: 604800 },
-          6: { label: this.$tr('everyMonth'), value: 2592000 },
-        };
+        return [
+          { label: 'Never', value: 3600 },
+          { label: this.$tr('everyHour'), value: 3600 },
+          { label: this.$tr('everyDay'), value: 86400 },
+          { label: this.$tr('everyMonth'), value: 2592000 },
+        ];
       },
       Days() {
-        return {
-          0: { label: this.$tr('mon'), value: 3600 },
-          1: { label: this.$tr('tue'), value: 86400 },
-          2: { label: this.$tr('wed'), value: 604800 },
-          3: { label: this.$tr('thur'), value: 604800 },
-          4: { label: this.$tr('fri'), value: 2592000 },
-          5: { label: this.$tr('sat'), value: 2595000 },
-          6: { label: this.$tr('sun'), value: 2595000 },
-        };
+        return [
+          { label: this.$tr('mon'), value: 3600 },
+          { label: this.$tr('tue'), value: 86400 },
+          { label: this.$tr('wed'), value: 604800 },
+          { label: this.$tr('thur'), value: 604800 },
+          { label: this.$tr('fri'), value: 2592000 },
+          { label: this.$tr('sat'), value: 2595000 },
+          { label: this.$tr('sun'), value: 2595000 },
+        ];
       },
       SyncTime() {
         return [
@@ -242,6 +240,7 @@
       this.myday = this.Days[0];
       this.mytime = this.SyncTime[0];
       this.serverTime = this.now;
+      this.fetchFacility();
     },
     mounted() {
       this.timer = setInterval(() => {
@@ -303,11 +302,11 @@
       cancelBtn() {
         this.$router.push({ name: PageNames.ManageSyncSchedule });
       },
-      // fetchFacility() {
-      //   NetworkLocationResource.fetchModel({ id: this.$route.query.id }).then(device => {
-      //     this.device = device;
-      //   });
-      // },
+      fetchFacility() {
+        NetworkLocationResource.fetchModel({ id: this.$route.query.id }).then(device => {
+          this.device = device;
+        });
+      },
     },
     $trs: {
       toolbarHeader: {
@@ -354,18 +353,11 @@
         message: 'Every day',
         context: 'Label for every day',
       },
-      everyWeek: {
-        message: 'Every week',
-        context: 'Label for every week',
-      },
       everyMonth: {
         message: 'Every month',
         context: 'Label for every month',
       },
-      everyTwoWeeks: {
-        message: 'Every two weeks',
-        context: 'Label for every two weeks',
-      },
+
       removeText: {
         message: 'Remove',
         context: 'Label for remove button on the remove device modal',
