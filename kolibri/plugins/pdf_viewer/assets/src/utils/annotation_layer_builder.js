@@ -53,19 +53,19 @@ function formatL10nValue(text, args) {
  * @implements {IL10n}
  */
 const NullL10n = {
-  async getLanguage() {
+  getLanguage() {
     return 'en-us';
   },
 
-  async getDirection() {
+  getDirection() {
     return 'ltr';
   },
 
-  async get(key, args = null, fallback = getL10nFallback(key, args)) {
+  get(key, args = null, fallback = getL10nFallback(key, args)) {
     return formatL10nValue(fallback, args);
   },
 
-  async translate(element) {},
+  translate(element) {},
 };
 
 /**
