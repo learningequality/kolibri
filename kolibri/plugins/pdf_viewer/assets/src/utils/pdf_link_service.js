@@ -142,7 +142,7 @@ class SimpleLinkService {
   /**
    * @param {string|Array} dest - The named, or explicit, PDF destination.
    */
-  async goToDestination(dest) {}
+  goToDestination(dest) {}
 
   /**
    * @param {number|string} val - The page number, or page label.
