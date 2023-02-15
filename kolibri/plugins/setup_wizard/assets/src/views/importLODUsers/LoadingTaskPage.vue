@@ -49,6 +49,7 @@
 
 <script>
 
+  import get from 'lodash/get';
   import { TaskResource } from 'kolibri.resources';
   import { FacilityTaskPanel } from 'kolibri.coreVue.componentSets.sync';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -67,23 +68,24 @@
     mixins: [commonCoreStrings, commonSyncElements],
     data() {
       return {
-        loadingTask: this.state.value.task,
+        loadingTask: { status: '' },
         isPolling: false,
         user: null,
         loginFinished: false,
       };
     },
-    inject: ['lodService', 'state'],
+    inject: ['wizardService'],
     computed: {
       usersDevice() {
-        const users = this.state.value.users.filter(u => u.task === null);
-        return users;
+        return [];
+        //const users = this.state.value.users.filter(u => u.task === null);
+        //return users;
       },
       loadingTaskID() {
-        return this.state.value.task.id;
+        return this.loadingTask.id;
       },
       facility() {
-        return this.state.value.facility;
+        return get(this, 'wizardService.state.context.selectedFacility', {});
       },
     },
     beforeMount() {

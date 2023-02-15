@@ -74,9 +74,6 @@
         return this.facilities.find(f => f.id === this.selectedFacilityId);
       },
     },
-    mounted() {
-      console.log('ImportAuthentication', this.wizardService.state);
-    },
     beforeMount() {
       this.fetchNetworkLocation(this.importDeviceId);
     },
@@ -103,9 +100,6 @@
         this.fetchNetworkLocation(address.id).then(() => (this.showSelectAddressModal = false));
       },
       handleContinue() {
-        //$emit('click_next', { facility: selectedFacility, device: device })
-        console.log(this.wizardService._state);
-        console.log(this.wizardService.state);
         this.wizardService.send({
           type: 'CONTINUE',
           value: { selectedFacility: this.selectedFacility, importDevice: this.device },

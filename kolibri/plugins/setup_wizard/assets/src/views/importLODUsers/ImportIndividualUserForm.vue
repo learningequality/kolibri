@@ -1,7 +1,7 @@
 <template>
 
-  <OnboardingForm
-    :header="$tr('importIndividualUsersHeader')"
+  <OnboardingStepBase
+    :title="$tr('importIndividualUsersHeader')"
     :description="formDescription"
     :submitText="coreString('importAction')"
     :disabled="checkFormDisabled"
@@ -9,75 +9,79 @@
     @submit="handleSubmit"
     @click_finish="redirectToChannels"
   >
-    <p class="facility-name">
-      {{ formatNameAndId(facility.name, facility.id) }}
-    </p>
-    <p>{{ $tr('enterCredentials') }}</p>
-    <p v-if="error && !useAdmin" :style="{ color: $themeTokens.error }">
-      {{ coreString('invalidCredentialsError') }}
-    </p>
-    <KTextbox
-      ref="usernameTextbox"
-      v-model.trim="username"
-      :disabled="false"
-      :label="coreString('usernameLabel')"
-      :autofocus="$attrs.autofocus"
-      @blur="blurred = true"
-    />
-    <PasswordTextbox
-      v-if="!facility.learner_can_login_with_no_password"
-      ref="passwordTextbox"
-      :value.sync="password"
-      :showConfirmationInput="false"
-      autocomplete="new-password"
-    />
-    <p>
-      {{ $tr('doNotHaveUserCredentials') }}
-      <KButton
-        :text=" $tr('useAdmin')"
-        appearance="basic-link"
-        @click="openAdminCredentialsForm"
-      />
-    </p>
+    <KCircularLoader v-if="!facility" />
 
-    <KModal
-      v-if="deviceLimitations"
-      :title="$tr('deviceLimitationsTitle') "
-      :cancelText="coreString('cancelAction')"
-      @cancel="closeModal"
-    >
-      <p> {{ modalMessage }} </p>
-    </KModal>
-
-    <KModal
-      v-if="useAdmin"
-      :title="$tr('headerAdmin') "
-      :cancelText="coreString('cancelAction')"
-      :submitText="coreString('continueAction')"
-      @cancel="closeModal"
-      @submit="moveAdmin"
-    >
-      <p> {{ adminModalMessage }} </p>
-      <p v-if="error && useAdmin" :style="{ color: $themeTokens.error }">
+    <div v-else>
+      <p class="facility-name">
+        {{ formatNameAndId(facility.name, facility.id) }}
+      </p>
+      <p>{{ $tr('enterCredentials') }}</p>
+      <p v-if="error && !useAdmin" :style="{ color: $themeTokens.error }">
         {{ coreString('invalidCredentialsError') }}
       </p>
       <KTextbox
-        ref="adminUsernameTextbox"
-        v-model.trim="adminUsername"
+        ref="usernameTextbox"
+        v-model.trim="username"
         :disabled="false"
         :label="coreString('usernameLabel')"
         :autofocus="$attrs.autofocus"
         @blur="blurred = true"
       />
       <PasswordTextbox
-        ref="adminPasswordTextbox"
-        :value.sync="adminPassword"
+        v-if="!facility.learner_can_login_with_no_password"
+        ref="passwordTextbox"
+        :value.sync="password"
         :showConfirmationInput="false"
         autocomplete="new-password"
       />
-    </KModal>
+      <p>
+        {{ $tr('doNotHaveUserCredentials') }}
+        <KButton
+          :text=" $tr('useAdmin')"
+          appearance="basic-link"
+          @click="openAdminCredentialsForm"
+        />
+      </p>
 
-  </OnboardingForm>
+      <KModal
+        v-if="deviceLimitations"
+        :title="$tr('deviceLimitationsTitle') "
+        :cancelText="coreString('cancelAction')"
+        @cancel="closeModal"
+      >
+        <p> {{ modalMessage }} </p>
+      </KModal>
+
+      <KModal
+        v-if="useAdmin"
+        :title="$tr('headerAdmin') "
+        :cancelText="coreString('cancelAction')"
+        :submitText="coreString('continueAction')"
+        @cancel="closeModal"
+        @submit="moveAdmin"
+      >
+        <p> {{ adminModalMessage }} </p>
+        <p v-if="error && useAdmin" :style="{ color: $themeTokens.error }">
+          {{ coreString('invalidCredentialsError') }}
+        </p>
+        <KTextbox
+          ref="adminUsernameTextbox"
+          v-model.trim="adminUsername"
+          :disabled="false"
+          :label="coreString('usernameLabel')"
+          :autofocus="$attrs.autofocus"
+          @blur="blurred = true"
+        />
+        <PasswordTextbox
+          ref="adminPasswordTextbox"
+          :value.sync="adminPassword"
+          :showConfirmationInput="false"
+          autocomplete="new-password"
+        />
+      </KModal>
+    </div>
+
+  </OnboardingStepBase>
 
 </template>
 
@@ -90,13 +94,13 @@
   import { DemographicConstants, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import { TaskResource } from 'kolibri.resources';
   import CatchErrors from 'kolibri.utils.CatchErrors';
-  import OnboardingForm from '../onboarding-forms/OnboardingForm';
+  import OnboardingStepBase from '../OnboardingStepBase';
   import { FacilityImportResource, FinishSoUDSyncingResource } from '../../api';
 
   export default {
     name: 'ImportIndividualUserForm',
     components: {
-      OnboardingForm,
+      OnboardingStepBase,
       PasswordTextbox,
     },
     mixins: [commonSyncElements, commonCoreStrings],
@@ -111,18 +115,21 @@
         useAdmin: false,
         adminUsername: null,
         adminPassword: null,
+        device: null,
+        facilities: [],
+        selectedFacilityId: 'selectedFacilityId',
       };
     },
-    inject: ['lodService', 'state'],
+    inject: ['wizardService'],
     computed: {
-      device() {
-        return this.state.value.device;
+      deviceId() {
+        return this.wizardService.state.context.importDeviceId;
       },
       facility() {
-        return this.state.value.facility;
+        return this.facilities.find(f => f.id === this.selectedFacilityId);
       },
       users() {
-        return this.state.value.users;
+        return this.wizardService.state.context.importedUsers || [];
       },
       checkFormDisabled() {
         return (
@@ -131,9 +138,9 @@
         );
       },
       formDescription() {
-        if (this.device.name) {
+        if (this.device && this.device.name) {
           return this.$tr('commaSeparatedPair', {
-            first: this.formatNameAndId(this.device.name, this.device.id),
+            first: this.formatNameAndId(this.device.name, this.deviceId),
             second: this.device.baseurl,
           });
         }
@@ -151,7 +158,32 @@
         return this.$tr('enterAdminCredentials', { facility: this.facility.name });
       },
     },
+    beforeMount() {
+      this.fetchNetworkLocation(this.deviceId).then(() => {
+        if (!this.facility) {
+          this.$store.dispatch('showError', 'Failed to retrieve facilities.');
+        }
+      });
+    },
     methods: {
+      fetchNetworkLocation(deviceId) {
+        this.loadingNewAddress = true;
+        return this.fetchNetworkLocationFacilities(deviceId)
+          .then(data => {
+            this.facilities = [...data.facilities];
+            this.device = {
+              name: data.device_name,
+              id: data.device_id,
+              baseurl: data.device_address,
+            };
+            this.selectedFacilityId = this.facilities[0].id;
+            this.loadingNewAddress = false;
+          })
+          .catch(error => {
+            // TODO handle disconnected peers error more gracefully
+            this.$store.dispatch('showError', error);
+          });
+      },
       closeModal() {
         this.deviceLimitations = false;
         this.useAdmin = false;
@@ -167,16 +199,16 @@
         const password = this.password === '' ? DemographicConstants.NOT_SPECIFIED : this.password;
         const params = {
           type: task_name,
-          device_id: this.device.id,
+          device_id: this.deviceId,
           username: this.username,
           password: password,
           facility_id: this.facility.id,
         };
         TaskResource.startTask(params)
           .then(task => {
-            task['device_id'] = this.device.id;
+            task['device_id'] = this.deviceId;
             task['facility_name'] = this.facility.name;
-            this.lodService.send({
+            this.wizardService.send({
               type: 'CONTINUE',
               value: {
                 username: this.username,
@@ -212,7 +244,7 @@
         };
         FacilityImportResource.listfacilitylearners(params)
           .then(data => {
-            this.lodService.send({
+            this.wizardService.send({
               type: 'CONTINUEADMIN',
               value: {
                 adminUsername: this.adminUsername,

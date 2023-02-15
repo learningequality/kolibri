@@ -1,5 +1,6 @@
+import { createTranslator } from 'kolibri.utils.i18n';
 import { checkCapability } from 'kolibri.utils.appCapabilities';
-import { DeviceTypePresets, FacilityTypePresets, UsePresets } from '../constants';
+import { DeviceTypePresets, FacilityTypePresets, LodTypePresets, UsePresets } from '../constants';
 
 /**
  * __ Setting up the XState Visualizer __
@@ -53,7 +54,7 @@ const initialContext = {
   facilityName: '',
   fullOrLOD: null,
   lodImportOrJoin: null,
-  deviceName: 'default-device-name',
+  deviceName: '',
   formalOrNonformal: null,
   guestAccess: null,
   learnerCanCreateAccount: null,
@@ -62,6 +63,7 @@ const initialContext = {
   importDeviceId: null,
   importDevice: null,
   superuser: null,
+  importedUsers: [],
 };
 
 export const wizardMachine = createMachine(
@@ -318,28 +320,33 @@ export const wizardMachine = createMachine(
             meta: { step: 1, route: { name: 'LOD_SETUP_TYPE' } },
             on: {
               BACK: '..fullOrLearnOnlyDevice',
-              SET_LOD_FLOW_TYPE: {
-                actions: 'setLodType',
-              },
               CONTINUE: {
                 target: 'selectLodFacility',
-                actions: 'setLodImportDeviceId',
+                actions: 'setLodType',
+              },
+            },
+          },
+          selectLodFacility: {
+            meta: { step: 2, route: { name: 'LOD_SELECT_FACILITY' } },
+            on: {
+              BACK: 'selectLodSetupType',
+              CONTINUE: {
+                target: 'lodProceedJoinOrNew',
+                actions: 'setSelectedImportDeviceFacility',
               },
             },
           },
 
-          selectLodFacility: {
-            meta: { step: 2, route: { name: 'LOD_SELECT_FACILITY' } },
-            on: {
-              CONTINUE_IMPORT: {
-                target: 'lodImportUserAuth',
-                actions: 'setSelectedImportDeviceFacility',
-              },
-              CONTINUE_JOIN: {
+          lodProceedJoinOrNew: {
+            always: [
+              {
+                cond: ctx => ctx.lodImportOrJoin === LodTypePresets.JOIN,
                 target: 'lodJoinFacility',
-                actions: 'setSelectedImportDeviceFacility',
               },
-            },
+              {
+                target: 'lodImportUserAuth',
+              },
+            ],
           },
 
           // IMPORT
@@ -348,7 +355,7 @@ export const wizardMachine = createMachine(
             on: {
               BACK: 'selectLodSetupType',
               CONTINUE: 'lodLoading',
-              ADMIN: 'lodImportAsAdmin',
+              CONTINUEADMIN: 'lodImportAsAdmin',
             },
           },
 
@@ -369,7 +376,7 @@ export const wizardMachine = createMachine(
 
           // JOIN
           lodJoinFacility: {
-            meta: { step: 3, route: { name: 'LOD_JOIN_FACILITY' } },
+            meta: { step: 3, route: { name: 'LOD_CREATE_USER_FORM' } },
             on: {
               BACK: 'selectLodSetupType',
               CONTINUE: 'lodLoading',
@@ -449,7 +456,8 @@ export const wizardMachine = createMachine(
         requirePassword: (_, event) => event.value,
       }),
       setLodType: assign({
-        lodImportOrJoin: (_, event) => event.value,
+        lodImportOrJoin: (_, event) => event.value.importOrJoin,
+        importDeviceId: (_, event) => event.value.importDeviceId,
       }),
       setLodImportDeviceId: assign({
         importDeviceId: (_, event) => event.value,
