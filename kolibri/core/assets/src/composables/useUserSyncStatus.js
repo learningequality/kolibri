@@ -3,8 +3,8 @@ import { UserSyncStatusResource } from 'kolibri.resources';
 import store from 'kolibri.coreVue.vuex.store';
 
 const queued = ref(false);
-const lastSynced = ref(null);
-const status = ref(null);
+const lastSynced = ref();
+const status = ref();
 const deviceStatus = ref(null);
 const deviceStatusSentiment = ref(null);
 
@@ -34,8 +34,12 @@ export function fetchUserSyncStatus(store, param) {
   );
 }
 
-export default function pollUserSyncStatusTask() {
-  fetchUserSyncStatus({ user: this.useUser }).then(syncData => {
+export function pollUserSyncStatusTask() {
+  //const isUserLoggedIn = computed(() => store.getters.isUserLoggedIn);
+
+  fetchUserSyncStatus({ user: store.state.core.session.device_id }).then(syncData => {
+    console.log(syncData);
+    console.log(store.state.core.session.device_id);
     if (syncData && syncData[0]) {
       queued.value = syncData[0].queued;
       lastSynced.value = syncData[0].last_synced;
@@ -48,12 +52,12 @@ export default function pollUserSyncStatusTask() {
   // Blaine: composable if `this.isSubsetOfUsersDevice` is false in the component we'll use it in.
   // Blaine: So I think we can remove this `if` statement, and directly set the timeout
 
-  timeoutId.value = setTimeout(
-    () => {
-      pollUserSyncStatusTask();
-    },
-    queued.value ? 1000 : 10000
-  );
+  // timeoutId.value = setTimeout(
+  //   () => {
+  //     pollUserSyncStatusTask();
+  //   },
+  //   queued.value ? 1000 : 10000
+  // );
   return {
     queued,
     lastSynced,

@@ -53,27 +53,25 @@
   // import { mapState, mapGetters } from 'vuex';
   import AppBar from '../AppBar';
   import StorageNotification from '../StorageNotification';
-  import { useUserSyncStatus } from '../../composables/useUserSyncStatus.js';
+  import { pollUserSyncStatusTask } from '../../composables/useUserSyncStatus.js';
 
   export default {
     name: 'AppBarPage',
     components: { AppBar, LanguageSwitcherModal, ScrollingHeader, SideNav, StorageNotification },
     setup() {
       const {
-        status,
         queued,
         lastSynced,
+        status,
         deviceStatus,
         deviceStatusSentiment,
-      } = useUserSyncStatus();
-      const { isUserLoggedIn, userUser } = userUser();
+      } = pollUserSyncStatusTask();
       return {
         queued,
         lastSynced,
         status,
         deviceStatus,
         deviceStatusSentiment,
-        isUserLoggedIn,
       };
     },
     props: {
@@ -126,9 +124,6 @@
         this.appBarHeight = this.$refs.appBar.$el.scrollHeight || 0;
       });
       console.log(this.deviceStatus);
-      console.log(this.lastSynced);
-      console.log(this.status);
-      console.log(this.isUserLoggedIn);
       console.log(this.deviceStatusSentiment);
     },
   };
