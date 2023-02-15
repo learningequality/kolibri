@@ -51,10 +51,10 @@
             <!-- data.length is temporary not to allow data
                to populate in the main table but when we get
                the suitable end point which has key for sync schedule it will be replaced  -->
-            <tr v-for="device in data" :key="device.id">
+            <tr v-for="device in myDevices" :key="device.id">
               <td>
-                <span>{{ device.device_name }}<br>
-                  {{ device.base_url }}
+                <span>{{ device.extra_metadata.device_name }}<br>
+                  {{ device.extra_metadata.baseurl }}
                 </span>
               </td>
 
@@ -75,7 +75,7 @@
               <td>
                 <KButton
                   class="right"
-                  @click="editButton(device.id,device.device_name,device.available)"
+                  @click="editButton(device.extra_metadata.facility_id)"
                 >
                   {{ $tr('editBtn') }}
                 </KButton>
@@ -174,6 +174,7 @@
         radioBtnValue: ' ',
         newaddressclick: false,
         deviceIds: [],
+        myDevices: [],
       };
     },
     computed: {
@@ -182,11 +183,9 @@
       },
     },
     beforeMount() {
-      // console.log(this.$store.core.Facility);
+      this.pollFacilityTasks();
       this.fetchFacility();
       this.fetchAddressesForLOD();
-      this.fetchNetworkDevice();
-      this.pollFacilityTasks();
     },
 
     methods: {
@@ -200,12 +199,11 @@
       fetchAddressesForLOD(LocationResource = NetworkLocationResource) {
         return LocationResource.fetchCollection({ force: true }).then(locations => {
           this.data = locations;
-          console.log(this.data);
         });
       },
       pollFacilityTasks() {
         TaskResource.list({ queue: 'facility_task' }).then(tasks => {
-          this.myFacility = tasks;
+          this.myDevices = tasks;
           if (this.isPolling) {
             setTimeout(() => {
               return this.pollFacilityTasks();

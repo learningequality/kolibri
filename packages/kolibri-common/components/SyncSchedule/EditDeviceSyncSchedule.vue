@@ -203,25 +203,25 @@
         };
       },
       selectArray() {
-        return [
-          { label: 'Never', value: 3600 },
-          { label: this.$tr('everyHour'), value: 3600 },
-          { label: this.$tr('everyDay'), value: 86400 },
-          { label: this.$tr('everyWeek'), value: 604800 },
-          { label: this.$tr('everyTwoWeeks'), value: 604800 },
-          { label: this.$tr('everyMonth'), value: 2592000 },
-        ];
+        return {
+          1: { label: 'Never', value: 3600 },
+          2: { label: this.$tr('everyHour'), value: 3600 },
+          3: { label: this.$tr('everyDay'), value: 86400 },
+          4: { label: this.$tr('everyWeek'), value: 604800 },
+          5: { label: this.$tr('everyTwoWeeks'), value: 604800 },
+          6: { label: this.$tr('everyMonth'), value: 2592000 },
+        };
       },
       Days() {
-        return [
-          { label: this.$tr('mon'), value: 3600 },
-          { label: this.$tr('tue'), value: 86400 },
-          { label: this.$tr('wed'), value: 604800 },
-          { label: this.$tr('thur'), value: 604800 },
-          { label: this.$tr('fri'), value: 2592000 },
-          { label: this.$tr('sat'), value: 2595000 },
-          { label: this.$tr('sun'), value: 2595000 },
-        ];
+        return {
+          0: { label: this.$tr('mon'), value: 3600 },
+          1: { label: this.$tr('tue'), value: 86400 },
+          2: { label: this.$tr('wed'), value: 604800 },
+          3: { label: this.$tr('thur'), value: 604800 },
+          4: { label: this.$tr('fri'), value: 2592000 },
+          5: { label: this.$tr('sat'), value: 2595000 },
+          6: { label: this.$tr('sun'), value: 2595000 },
+        };
       },
       SyncTime() {
         return [
@@ -236,7 +236,6 @@
       },
     },
     beforeMount() {
-      this.fetchFacility();
       this.deviceName = this.$route.query.name;
       this.available = this.$route.query.present;
       this.myvalue = this.selectArray[0];
@@ -274,10 +273,12 @@
         FacilityResource.fetchModel({ id: this.$store.getters.activeFacilityId, force: true }).then(
           facility => {
             this.facility = { ...facility };
+            // console.log(this.facility);
             TaskResource.startTask({
               type: TaskTypes.SYNCPEERFULL,
               facility: this.facility.id,
               device_id: this.device.id,
+              baseurl: this.baseurl,
               enqueue_args: { enqueue_at: this.serverTime, repeat_interval: 2, repeat: 2 },
             })
               .then(() => {
@@ -302,14 +303,10 @@
       cancelBtn() {
         this.$router.push({ name: PageNames.ManageSyncSchedule });
       },
-      fetchFacility() {
-        NetworkLocationResource.fetchModel({ id: this.$route.query.id }).then(device => {
-          this.device = device;
-        });
-      },
-      // saveschedule() {
-      //   NetworkLocationResource.saveModel();
-      //   this.showSnackbarNotification('Data saved');
+      // fetchFacility() {
+      //   NetworkLocationResource.fetchModel({ id: this.$route.query.id }).then(device => {
+      //     this.device = device;
+      //   });
       // },
     },
     $trs: {
