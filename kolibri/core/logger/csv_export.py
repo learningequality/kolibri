@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 import csv
+import datetime
 import logging
 import math
 import os
@@ -127,11 +128,15 @@ def csv_file_generator(
 
     log_info = classes_info[log_type]
     start = parser.parse(start_date)
-    end = parser.parse(end_date)
+    end = parser.parse(end_date) + datetime.timedelta(days=1)
 
     if not overwrite and os.path.exists(filepath):
         raise ValueError("{} already exists".format(filepath))
-    queryset = log_info["queryset"].filter(dataset_id=facility.dataset_id)
+    queryset = log_info["queryset"].filter(
+        dataset_id=facility.dataset_id,
+        start_timestamp__gte=start,
+        end_timestamp__lte=end,
+    )
 
     # Exclude completion timestamp for the sessionlog CSV
     header_labels = tuple(
@@ -149,6 +154,5 @@ def csv_file_generator(
         for item in queryset.select_related("user", "user__facility").values(
             *log_info["db_columns"]
         ):
-            if (item["start_timestamp"]) >= start and (item["start_timestamp"]) <= end:
-                writer.writerow(map_object(item))
-                yield
+            writer.writerow(map_object(item))
+            yield
