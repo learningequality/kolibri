@@ -57,14 +57,31 @@
                   {{ device.extra_metadata.baseurl }}
                 </span>
               </td>
+              <td>
+                <div v-if="device.extra_metadata.sync_state = 'PENDING'">
+                  {{ $tr('never') }}
+                </div>
+                <div v-else>
+                  {{ device.extra_metadata.sync_state }}
+                </div>
+              </td>
+              <!-- <td>Never</td> -->
 
-              <td>Never</td>
-
-              <td v-if="device.available">
-                <KIcon
-                  icon="onDevice"
-                />
-                <span>{{ $tr('connected') }}</span>
+              <td v-if="data.length > 0">
+                <div v-for="ids in data" :key="ids.id">
+                  <span v-if="ids.id === device.id">
+                    <KIcon
+                      icon="onDevice"
+                    />
+                    <span>{{ $tr('connected') }}</span>
+                  </span>
+                  <span v-else>
+                    <KIcon
+                      icon="disconnected"
+                    />
+                    <span>{{ $tr('disconnected') }}</span>
+                  </span>
+                </div>
               </td>
               <td v-else>
                 <KIcon
@@ -75,7 +92,7 @@
               <td>
                 <KButton
                   class="right"
-                  @click="editButton(device.extra_metadata.facility_id)"
+                  @click="editButton(device.id)"
                 >
                   {{ $tr('editBtn') }}
                 </KButton>
@@ -109,6 +126,7 @@
 
         <KGrid gutter="48">
           <KGridItem
+            v-if="data"
             :layout8="{ span: 4 }"
             :layout12="{ span: 6 }"
           >
@@ -199,11 +217,13 @@
       fetchAddressesForLOD(LocationResource = NetworkLocationResource) {
         return LocationResource.fetchCollection({ force: true }).then(locations => {
           this.data = locations;
+          console.log(this.data);
         });
       },
       pollFacilityTasks() {
         TaskResource.list({ queue: 'facility_task' }).then(tasks => {
           this.myDevices = tasks;
+          console.log(this.myDevices);
           if (this.isPolling) {
             setTimeout(() => {
               return this.pollFacilityTasks();
@@ -297,8 +317,12 @@
         context: 'Connected device',
       },
       disconnected: {
-        message: 'Disconnected',
+        message: 'Not Connected',
         context: 'Disconnected device',
+      },
+      never: {
+        message: 'Never',
+        context: 'Text that shows when the device sync time was not scheduled',
       },
     },
   };

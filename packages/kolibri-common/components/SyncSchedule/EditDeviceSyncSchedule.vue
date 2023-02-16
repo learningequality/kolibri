@@ -272,7 +272,6 @@
         FacilityResource.fetchModel({ id: this.$store.getters.activeFacilityId, force: true }).then(
           facility => {
             this.facility = { ...facility };
-            // console.log(this.facility);
             TaskResource.startTask({
               type: TaskTypes.SYNCPEERFULL,
               facility: this.facility.id,
@@ -281,20 +280,12 @@
               enqueue_args: { enqueue_at: this.serverTime, repeat_interval: 2, repeat: 2 },
             })
               .then(() => {
-                // this.notifyAndWatchTask(tasks);
                 history.back();
+                this.showSnackbarNotification('syncAdded');
               })
-              // const notifyAndWatchPromise = startTaskPromise.then(tasks => {
-
-              // });
-              // Promise.all([startTaskPromise, notifyAndWatchPromise])
-              //   .then(() => {
-
-              //   })
               .catch(() => {
-                // this.createTaskFailedSnackbar();
+                this.createTaskFailedSnackbar();
               });
-            this.showSnackbarNotification('syncAdded');
           }
         );
       },
@@ -304,7 +295,11 @@
       },
       fetchFacility() {
         NetworkLocationResource.fetchModel({ id: this.$route.query.id }).then(device => {
-          this.device = device;
+          if (device) {
+            this.device = device;
+          } else {
+            history.back();
+          }
         });
       },
     },
