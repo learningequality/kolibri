@@ -17,13 +17,16 @@ class DeviceManagementModule extends KolibriApp {
   get pluginModule() {
     return pluginModule;
   }
-  showPinPrompt(store, next) {
+  checkIfPinAuthenticationIsRequired(store, next) {
     const isLearnOnlyDevice = plugin_data.isSubsetOfUsersDevice;
-    const isLearner = store.getters.isLearner;
-    store.dispatch('displayPinModal', {
-      authenticate: isLearnOnlyDevice && isLearner,
-      next,
-    });
+    const isSuperuser = store.getters.isSuperuser;
+    const isFacilityAdmin = store.getters.isFacilityAdmin;
+    if (isLearnOnlyDevice && isSuperuser && !isFacilityAdmin) {
+      const authenticate = !getCookie(IsPinAuthenticated);
+      store.dispatch('displayPinModal', { authenticate, next });
+    } else {
+      next(true);
+    }
   }
   ready() {
     // reset module states after leaving their respective page
@@ -37,12 +40,7 @@ class DeviceManagementModule extends KolibriApp {
       this.store.dispatch('resetModuleState', { toRoute, fromRoute });
     });
     router.beforeResolve((to, from, next) => {
-      //check if cookie is set and is valid and if so, proceed with navigation else show pinPrompt
-      if (!getCookie(IsPinAuthenticated) && this.store.getters.isLearner) {
-        this.showPinPrompt(this.store, next);
-      } else {
-        next(true);
-      }
+      this.checkIfPinAuthenticationIsRequired(this.store, next);
     });
     super.ready();
   }
