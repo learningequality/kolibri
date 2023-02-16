@@ -1,0 +1,241 @@
+<template>
+
+  <div class="footer">
+    <ProgressBar
+      class="progress-bar"
+      :contentNode="content"
+      :style="{ maxWidth: `calc(100% - ${24 + 32 * footerLength}px)` }"
+    />
+    <div class="footer-icons">
+      <KIconButton
+        v-if="downloadableByLearner"
+        icon="download"
+        size="mini"
+        :color="$themePalette.grey.v_600"
+        :ariaLabel="$tr('downloadAction')"
+        :tooltip="$tr('downloadAction')"
+        @click="handleDownloadRequest"
+      />
+      <CoachContentLabel
+        v-if="isUserLoggedIn && !isLearner && content.num_coach_contents"
+        :style="coachContentLabelStyles"
+        class="coach-content-label"
+        :value="content.num_coach_contents"
+        :isTopic="isTopic"
+      />
+      <KIconButton
+        v-if="content.is_leaf"
+        icon="infoOutline"
+        size="mini"
+        :color="$themePalette.grey.v_600"
+        :ariaLabel="coreString('viewInformation')"
+        :tooltip="coreString('viewInformation')"
+        @click="$emit('toggleInfoPanel')"
+      />
+      <KIconButton
+        v-if="downloadedByLearner"
+        ref="moreOptionsButton"
+        data-test="moreOptionsButton"
+        icon="optionsHorizontal"
+        :tooltip="coreString('moreOptions')"
+        :ariaLabel="coreString('moreOptions')"
+        @click="isMenuOpen = !isMenuOpen"
+      />
+      <CoreMenu
+        v-show="isMenuOpen"
+        ref="menu"
+        class="menu"
+        :style="{
+          left: isRtl ? '16px' : 'auto',
+          right: isRtl ? 'auto' : '16px',
+          position: 'absolute'
+        }"
+        :raised="true"
+        :isOpen="isMenuOpen"
+        :containFocus="true"
+        @close="isMenuOpen = false"
+        @shouldFocusFirstEl="findFirstEl()"
+      >
+        <template #options>
+          <CoreMenuOption
+            :style="{ 'cursor': 'pointer' }"
+            @select="handleRemoveRequest"
+          >
+            {{ $tr('removeFromMyLibraryAction') }}
+          </CoreMenuOption>
+        </template>
+      </CoreMenu>
+    </div>
+    <KModal
+      v-if="removeConfirmationModalOpen"
+      :title="$tr('removeFromMyLibraryAction')"
+      :cancelText="coreString('cancelAction')"
+      :submitText="coreString('removeAction')"
+      size="medium"
+      @cancel="removeConfirmationModalOpen = false"
+      @submit="confirmRemoveRequest"
+    >
+      <p>{{ $tr('removeFromMyLibraryInfo') }}</p>
+    </KModal>
+  </div>
+
+</template>
+
+
+<script>
+
+  import { mapGetters } from 'vuex';
+  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
+  import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
+  import ProgressBar from '../ProgressBar';
+  import commonLearnStrings from '../commonLearnStrings';
+  import useDownloadRequests from '../../composables/useDownloadRequests';
+
+  export default {
+    name: 'HybridLearningFooter',
+    components: {
+      CoachContentLabel,
+      ProgressBar,
+      CoreMenu,
+      CoreMenuOption,
+    },
+    mixins: [commonLearnStrings, commonCoreStrings],
+    setup() {
+      const {
+        addDownloadRequest,
+        downloadRequestMap,
+        removeDownloadRequest,
+      } = useDownloadRequests();
+      return { addDownloadRequest, downloadRequestMap, removeDownloadRequest };
+    },
+    props: {
+      content: {
+        type: Object,
+        required: true,
+      },
+    },
+    data() {
+      return {
+        isMenuOpen: false,
+        disableRequestButtons: false,
+        removeConfirmationModalOpen: false,
+      };
+    },
+    computed: {
+      ...mapGetters(['isLearner', 'isUserLoggedIn']),
+      isTopic() {
+        return !this.content.is_leaf;
+      },
+      downloadedByLearner() {
+        return Boolean(this.downloadRequestMap[this.content.id]);
+      },
+      downloadableByLearner() {
+        return !this.isTopic && !this.downloadedByLearner && !this.content.admin_imported;
+      },
+      footerLength() {
+        return (
+          1 +
+          Number(this.downloadableByLearner) +
+          Number(this.isTopic) +
+          Number(this.isUserLoggedIn && !this.isLearner && this.content.num_coach_contents) +
+          Number(this.downloadedByLearner)
+        );
+      },
+      coachContentLabelStyles() {
+        if (this.content.num_coach_contents < 2 && !this.isTopic) {
+          return { maxWidth: '24px', marginTop: '4px' };
+        } else if (this.content.num_coach_contents < 2 && this.isTopic) {
+          return { maxWidth: '24px', marginTop: '4px', marginRight: '16px' };
+        } else {
+          return {};
+        }
+      },
+    },
+    methods: {
+      findFirstEl() {
+        this.$nextTick(() => {
+          this.$refs.menu.focusFirstEl();
+        });
+      },
+      handleDownloadRequest() {
+        this.disableRequestButtons = true;
+        this.addDownloadRequest(this.content).then(() => {
+          this.disableRequestButtons = false;
+        });
+      },
+      handleRemoveRequest() {
+        this.disableRequestButtons = true;
+        this.isMenuOpen = false;
+        this.removeConfirmationModalOpen = true;
+        this.disableRequestButtons = false;
+      },
+      confirmRemoveRequest() {
+        this.removeDownloadRequest(this.content).then(() => {
+          this.removeConfirmationModalOpen = false;
+        });
+      },
+    },
+    $trs: {
+      downloadAction: {
+        message: 'Download',
+        context: 'Label for a button used to initiate a file download.',
+      },
+      removeFromMyLibraryAction: {
+        message: 'Remove from my library',
+        context: "Label for a button to remove a file from a learner's library",
+      },
+      removeFromMyLibraryInfo: {
+        message:
+          'You will no longer be able to use this resource, but you can download it again later when it’s available around you.',
+        context:
+          'Information given to a user when confirming that they are removing a resource from their library.',
+      },
+    },
+  };
+
+</script>
+
+
+<style lang="scss" scoped>
+
+  @import './card';
+
+  .footer {
+    position: absolute;
+    bottom: 0;
+    display: flex;
+    width: 100%;
+    padding: $margin;
+  }
+
+  .progress-bar {
+    position: absolute;
+    bottom: 6px;
+    left: $margin-thin;
+  }
+
+  .footer-icons {
+    position: absolute;
+    right: $margin-thin;
+    bottom: 0;
+    display: inline;
+    // this override fixes an existing KDS bug with
+    // the hover state circle being squished
+    // and can be removed upon that hover state fix
+    .button {
+      width: 32px !important;
+      height: 32px !important;
+
+      /deep/ svg {
+        top: 4px !important;
+      }
+    }
+  }
+
+  .coach-content-label {
+    vertical-align: top;
+  }
+
+</style>
