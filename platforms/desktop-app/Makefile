@@ -26,7 +26,11 @@ clean-whl:
 install-whl:
 	rm -rf kolibri
 	pip3 install ${whl} -t kolibri/
+	# Read SQLAlchemy version from the unpacked whl file to avoid hard coding.
+	$(eval SQLALVER = $(shell grep "__version__ =" kolibri/kolibri/dist/sqlalchemy/__init__.py  2>&1 | sed 's/__version__ = "//' | sed 's/"//'))
 	rm -rf kolibri/kolibri/dist/sqlalchemy
+	# Manually install the sqlalchemy version
+	pip3 install "sqlalchemy==${SQLALVER}"
 	# This doesn't exist in 0.15, so don't error if it doesn't exist.
 	echo "3.3.1" > kolibri/kolibri/dist/importlib_resources/version.txt || true
 
@@ -44,7 +48,7 @@ dependencies:
 
 build-mac-app:
 	$(eval LIBPYTHON_FOLDER = $(shell python3 -c 'from distutils.sysconfig import get_config_var; print(get_config_var("LIBDIR"))'))
-	test -f ${LIBPYTHON_FOLDER}/libpython3.9.dylib || ln -s ${LIBPYTHON_FOLDER}/libpython3.9m.dylib ${LIBPYTHON_FOLDER}/libpython3.9.dylib
+	test -f ${LIBPYTHON_FOLDER}/libpython3.11.dylib || ln -s ${LIBPYTHON_FOLDER}/libpython3.11m.dylib ${LIBPYTHON_FOLDER}/libpython3.11.dylib
 	$(MAKE) pyinstaller
 
 pyinstaller: clean
