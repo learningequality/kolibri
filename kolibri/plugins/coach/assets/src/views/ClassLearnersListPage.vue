@@ -14,6 +14,12 @@
         class="troubleshooting-modal-link"
         @click="displayTroubleshootModal = true"
       />
+      <template>
+        <div aria-live="polite">
+          <StorageNotificationBanner v-if="learnerHasInsufficientStorage" />
+        </div>
+      </template>
+
       <KModal
         v-if="displayTroubleshootModal"
         :title="$tr('howToTroubleshootModalHeader')"
@@ -89,6 +95,7 @@
   import SyncStatusDisplay from '../../../../../core/assets/src/views/SyncStatusDisplay';
   import SyncStatusDescription from '../../../../../core/assets/src/views/SyncStatusDescription';
   import CoachImmersivePage from '../views/CoachImmersivePage';
+  import StorageNotificationBanner from './StorageNotificationBanner';
 
   export default {
     name: 'ClassLearnersListPage',
@@ -98,6 +105,7 @@
       CoachImmersivePage,
       SyncStatusDisplay,
       SyncStatusDescription,
+      StorageNotificationBanner,
     },
     mixins: [commonCoreStrings],
     data: function() {
@@ -132,6 +140,16 @@
           backRoute = this.$router.getRoute('ReportsQuizListPage');
         }
         return backRoute;
+      },
+      learnerHasInsufficientStorage() {
+        for (const learner in this.learnerMap) {
+          if (this.classSyncStatusList[learner]) {
+            if (this.classSyncStatusList[learner].status === SyncStatus.INSUFFICIENT_STORAGE) {
+              return true;
+            }
+          }
+        }
+        return false;
       },
     },
     mounted() {
@@ -217,7 +235,7 @@
   }
 
   .status-option-display {
-    padding-bottom: 8px;
+    padding-bottom: 3px;
   }
 
 </style>

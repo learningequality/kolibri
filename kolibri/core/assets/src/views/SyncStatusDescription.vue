@@ -26,6 +26,7 @@
           [SyncStatus.QUEUED]: this.$tr('queuedDescription'),
           [SyncStatus.SYNCING]: this.$tr('syncingDescription'),
           [SyncStatus.UNABLE_OR_NOT_SYNCED]: this.$tr('unableOrNoSyncDescription'),
+          [SyncStatus.INSUFFICIENT_STORAGE]: this.$tr('insufficientStorageDescription'),
           [SyncStatus.NOT_CONNECTED]: this.$tr('notConnectedDescription'),
         };
         return statusTranslations[this.syncStatus] || '';
@@ -51,6 +52,11 @@
       },
       notConnectedDescription: {
         message: 'Device isn’t connected to a server it can sync with',
+        context: 'Device syncing status explained.',
+      },
+      insufficientStorageDescription: {
+        message:
+          'This device does not have enough storage for updates. Check the size of your visible lessons and quizzes. Making a lesson or quiz not visible will remove it from learner devices.',
         context: 'Device syncing status explained.',
       },
     },

@@ -47,6 +47,7 @@
           [SyncStatus.UNABLE_TO_SYNC]: this.$tr('unableToSync'),
           [SyncStatus.NOT_RECENTLY_SYNCED]: this.$tr('notRecentlySynced'),
           [SyncStatus.UNABLE_OR_NOT_SYNCED]: this.$tr('unableOrNotSynced'),
+          [SyncStatus.INSUFFICIENT_STORAGE]: this.$tr('insufficientStorage'),
           [SyncStatus.NOT_CONNECTED]: this.$tr('notConnected'),
         };
         return statusTranslations[this.syncStatus] || '';
@@ -57,6 +58,7 @@
           [SyncStatus.UNABLE_TO_SYNC]: 'error',
           [SyncStatus.NOT_RECENTLY_SYNCED]: 'error',
           [SyncStatus.UNABLE_OR_NOT_SYNCED]: 'error',
+          [SyncStatus.INSUFFICIENT_STORAGE]: 'error',
           [SyncStatus.NOT_CONNECTED]: 'disconnected',
         };
         return statusIcons[this.syncStatus] || '';
@@ -97,6 +99,10 @@
       notConnected: {
         message: 'Not connected to server',
         context: 'Status label for a disconnected device.',
+      },
+      insufficientStorage: {
+        message: 'Not enough storage',
+        context: 'Status label for a device that does not have enough storage to sync.',
       },
     },
   };
