@@ -2,9 +2,9 @@ import { ref, onMounted, onUnmounted, computed } from 'kolibri.lib.vueCompositio
 import { UserSyncStatusResource } from 'kolibri.resources';
 import store from 'kolibri.coreVue.vuex.store';
 
+const status = ref(null);
 const queued = ref(false);
 const lastSynced = ref();
-const status = ref();
 const deviceStatus = ref(null);
 const deviceStatusSentiment = ref(null);
 
@@ -13,7 +13,7 @@ const timeoutId = ref(null);
 
 export function useUser() {
   const isUserLoggedIn = computed(() => store.getters.isUserLoggedIn);
-  // const isUserLoggedIn = computed(() => store.getters.param.user_id);
+
   return {
     isUserLoggedIn,
   };
@@ -35,11 +35,7 @@ export function fetchUserSyncStatus(store, param) {
 }
 
 export function pollUserSyncStatusTask() {
-  //const isUserLoggedIn = computed(() => store.getters.isUserLoggedIn);
-
   fetchUserSyncStatus({ user: store.state.core.session.user_id }).then(syncData => {
-    console.log(syncData);
-    console.log(store.state.core.session.user_id);
     if (syncData && syncData[0]) {
       queued.value = syncData[0].queued;
       lastSynced.value = syncData[0].last_synced;
@@ -48,23 +44,8 @@ export function pollUserSyncStatusTask() {
       deviceStatusSentiment.value = syncData[0].device_status_sentiment;
     }
   });
-  // Blaine: the variables in this `if` statement aren't defined. Let's make sure not to use this
-  // Blaine: composable if `this.isSubsetOfUsersDevice` is false in the component we'll use it in.
-  // Blaine: So I think we can remove this `if` statement, and directly set the timeout
 
-  // timeoutId.value = setTimeout(
-  //   () => {
-  //     pollUserSyncStatusTask();
-  //   },
-  //   queued.value ? 1000 : 10000
-  // );
-  return {
-    queued,
-    lastSynced,
-    status,
-    deviceStatus,
-    deviceStatusSentiment,
-  };
+  return status;
 }
 
 export function useUserSyncStatus() {
@@ -72,9 +53,7 @@ export function useUserSyncStatus() {
     usageCount.value++;
 
     if (usageCount.value === 1) {
-      // Blaine: looks like you want to call `pollUserSyncStatusTask`
-      //   and pass only `userId`
-      // startFetchUserSyncStatus({ user_id: this.useUser });
+      setTimeout(pollUserSyncStatusTask, 1000);
     }
   });
 

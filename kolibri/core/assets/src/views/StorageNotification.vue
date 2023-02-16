@@ -30,7 +30,7 @@
             @click="closeBanner"
           />
           <KButton
-            v-if="isSuperAdmin"
+            v-if="isAdmin"
             :text="$tr('manageChannels')"
             appearance="raised-button"
             :secondary="true"
@@ -47,37 +47,49 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { mapGetters } from 'vuex';
+  import plugin_data from 'plugin_data';
 
   export default {
     name: 'StorageNotification',
     components: {},
     mixins: [commonCoreStrings],
+    props: {
+      showBanner: {
+        type: String,
+        required: true,
+      },
+    },
     data() {
       return {
-        bannerOpened: true,
+        isSubsetOfUsersDevice: plugin_data.isSubsetOfUsersDevice,
+        bannerOpened: false,
         hasDevicePermissions: false,
-        isSuperAdmin: true,
+        // isSuperAdmin: false,
         availableDownloads: false,
-        learnOnlyDevice: false,
-        insufficientSpace: false,
+        // learnOnlyDevice: true,
+
+        insufficientSpace: true,
         resourcesRemoved: false,
       };
     },
     computed: {
+      ...mapGetters(['isLearner', 'isAdmin']),
       insufficientStorageNoDownloads() {
         return (
-          (this.learnOnlyDevice && this.insufficientSpace) ||
+          (this.isLearner && this.insufficientSpace) ||
           (!this.hasDevicePermissions && !this.availableDownloads)
         );
       },
       learnOnlyRemovedResources() {
-        return this.learnOnlyDevice && this.resourcesRemoved;
+        return this.isLearner && this.resourcesRemoved && this.isSubsetOfUsersDevice;
       },
       availableDownload() {
-        return !this.hasDevicePermissions && this.availableDownloads && !this.learnOnlyDevice;
+        return !this.hasDevicePermissions && this.availableDownloads && !this.isLearner;
       },
     },
     created() {
+      this.toggleBanner();
       document.addEventListener('focusin', this.focusChange);
     },
     beforeDestroy() {
@@ -86,7 +98,7 @@
     methods: {
       getMessage() {
         let message = '';
-        if (this.isSuperAdmin) {
+        if (this.isAdmin) {
           message = this.$tr('superAdminMessage');
         } else if (this.insufficientStorageNoDownloads) {
           message = this.$tr('insufficientStorageNoDownloads');
@@ -105,6 +117,11 @@
       },
       manageChannel() {
         this.$router.push('/');
+      },
+      toggleBanner() {
+        if (this.showBanner == 'QUEUED') {
+          this.bannerOpened = true;
+        }
       },
       focusChange(e) {
         // We need the element prior to the close button and more info

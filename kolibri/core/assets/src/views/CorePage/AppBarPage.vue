@@ -21,7 +21,10 @@
         :delay="false"
       />
       <div aria-live="polite">
-        <StorageNotification />
+        <StorageNotification
+          :showBanner="status"
+        />
+
       </div>
     </ScrollingHeader>
 
@@ -50,28 +53,17 @@
   import LanguageSwitcherModal from 'kolibri.coreVue.components.LanguageSwitcherModal';
   import ScrollingHeader from 'kolibri.coreVue.components.ScrollingHeader';
   import SideNav from 'kolibri.coreVue.components.SideNav';
-  // import { mapState, mapGetters } from 'vuex';
   import AppBar from '../AppBar';
   import StorageNotification from '../StorageNotification';
-  import { pollUserSyncStatusTask } from '../../composables/useUserSyncStatus.js';
+  import { useUserSyncStatus } from '../../composables/useUserSyncStatus.js';
 
   export default {
     name: 'AppBarPage',
     components: { AppBar, LanguageSwitcherModal, ScrollingHeader, SideNav, StorageNotification },
     setup() {
-      const {
-        queued,
-        lastSynced,
-        status,
-        deviceStatus,
-        deviceStatusSentiment,
-      } = pollUserSyncStatusTask();
+      const { status } = useUserSyncStatus();
       return {
-        queued,
-        lastSynced,
         status,
-        deviceStatus,
-        deviceStatusSentiment,
       };
     },
     props: {
@@ -119,12 +111,9 @@
     },
 
     mounted() {
-      // this.console.log(this.userId);
       this.$nextTick(() => {
         this.appBarHeight = this.$refs.appBar.$el.scrollHeight || 0;
       });
-      console.log(this.deviceStatus);
-      console.log(this.deviceStatusSentiment);
     },
   };
 
