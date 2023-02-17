@@ -42,6 +42,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskResource } from 'kolibri.resources';
   import OnboardingStepBase from '../OnboardingStepBase';
+  import { DeviceTypePresets, SoudQueue } from '../../constants';
 
   export default {
     name: 'LoadingTaskPage',
@@ -58,6 +59,11 @@
       };
     },
     computed: {
+      queue() {
+        return this.wizardService.state.context.fullOrLOD === DeviceTypePresets.LOD
+          ? SoudQueue
+          : 'facility_task';
+      },
       facility() {
         return this.wizardService._state.context.selectedFacility;
       },
@@ -82,7 +88,7 @@
     },
     methods: {
       pollTask() {
-        TaskResource.list({ queue: 'facility_task' }).then(tasks => {
+        TaskResource.list({ queue: this.queue }).then(tasks => {
           this.loadingTask = {
             ...tasks[0],
             extra_metadata: {
