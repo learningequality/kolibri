@@ -1,8 +1,10 @@
 <template>
 
   <FacilityAppBarPage>
-    <KPageContainer>
-
+    <KPageContainer
+      data-test="page-container"
+      :style="{ marginBottom: '42px' }"
+    >
       <div class="mb">
         <h1>{{ $tr('pageHeader') }}</h1>
         <p>
@@ -92,9 +94,35 @@
               />
             </template>
           </KButton>
+        </div>
 
-
-
+        <div
+          v-if="isAppContext"
+          :style="{
+            marginTop: '32px',
+            borderTop: '1px solid',
+            borderTopColor: $themeTokens.fineLine
+          }"
+        >
+          <KButtonGroup
+            :style="{ marginTop: '24px', marginLeft: '-8px' }"
+          >
+            <KButton
+              :primary="true"
+              appearance="raised-button"
+              :text="coreString('saveChangesAction')"
+              name="save-settings"
+              :disabled="!settingsHaveChanged"
+              @click="saveConfig()"
+            />
+            <KButton
+              :primary="false"
+              appearance="flat-button"
+              :text="$tr('resetToDefaultSettings')"
+              name="reset-settings"
+              @click="showModal = true"
+            />
+          </KButtonGroup>
         </div>
       </template>
 
@@ -137,8 +165,11 @@
 
     </KPageContainer>
 
-    <BottomAppBar>
-      <KButtonGroup style="margin-top: 8px;">
+    <BottomAppBar data-test="bottom-bar">
+      <KButtonGroup
+        v-if="!isAppContext"
+        style="margin-top: 8px;"
+      >
         <KButton
           :primary="false"
           appearance="flat-button"
@@ -228,7 +259,7 @@
         'facilityNameSaved',
         'facilityNameError',
       ]),
-      ...mapGetters(['isSuperuser']),
+      ...mapGetters(['isAppContext', 'isSuperuser']),
       settingsList: () => settingsList,
       settingsHaveChanged() {
         return !isEqual(this.settings, this.settingsCopy);
