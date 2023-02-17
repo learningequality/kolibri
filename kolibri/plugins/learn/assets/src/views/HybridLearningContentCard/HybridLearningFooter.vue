@@ -3,7 +3,7 @@
   <div class="footer">
     <ProgressBar
       class="progress-bar"
-      :contentNode="content"
+      :contentNode="contentNode"
       :style="{ maxWidth: `calc(100% - ${24 + 32 * footerLength}px)` }"
     />
     <div class="footer-icons">
@@ -16,15 +16,24 @@
         :tooltip="$tr('downloadAction')"
         @click="handleDownloadRequest"
       />
+      <KIconButton
+        v-if="bookmarked"
+        icon="close"
+        size="mini"
+        :color="$themePalette.grey.v_600"
+        :ariaLabel="coreString('removeFromBookmarks')"
+        :tooltip="coreString('removeFromBookmarks')"
+        @click="$emit('removeFromBookmarks')"
+      />
       <CoachContentLabel
-        v-if="isUserLoggedIn && !isLearner && content.num_coach_contents"
+        v-if="isUserLoggedIn && !isLearner && contentNode.num_coach_contents"
         :style="coachContentLabelStyles"
         class="coach-content-label"
-        :value="content.num_coach_contents"
+        :value="contentNode.num_coach_contents"
         :isTopic="isTopic"
       />
       <KIconButton
-        v-if="content.is_leaf"
+        v-if="contentNode.is_leaf"
         icon="infoOutline"
         size="mini"
         :color="$themePalette.grey.v_600"
@@ -111,9 +120,17 @@
       return { addDownloadRequest, downloadRequestMap, removeDownloadRequest };
     },
     props: {
-      content: {
+      contentNode: {
         type: Object,
         required: true,
+      },
+      allowDownloads: {
+        type: Boolean,
+        default: false,
+      },
+      bookmarked: {
+        type: Boolean,
+        default: false,
       },
     },
     data() {
@@ -126,27 +143,33 @@
     computed: {
       ...mapGetters(['isLearner', 'isUserLoggedIn']),
       isTopic() {
-        return !this.content.is_leaf;
+        return !this.contentNode.is_leaf;
+      },
+      downloadEnabled() {
+        return !this.isTopic && this.allowDownloads;
       },
       downloadedByLearner() {
-        return Boolean(this.downloadRequestMap[this.content.id]);
+        return this.downloadEnabled && Boolean(this.downloadRequestMap[this.contentNode.id]);
       },
       downloadableByLearner() {
-        return !this.isTopic && !this.downloadedByLearner && !this.content.admin_imported;
+        return (
+          this.downloadEnabled && !this.downloadedByLearner && !this.contentNode.admin_imported
+        );
       },
       footerLength() {
         return (
           1 +
+          Number(this.bookmarked) +
           Number(this.downloadableByLearner) +
           Number(this.isTopic) +
-          Number(this.isUserLoggedIn && !this.isLearner && this.content.num_coach_contents) +
+          Number(this.isUserLoggedIn && !this.isLearner && this.contentNode.num_coach_contents) +
           Number(this.downloadedByLearner)
         );
       },
       coachContentLabelStyles() {
-        if (this.content.num_coach_contents < 2 && !this.isTopic) {
+        if (this.contentNode.num_coach_contents < 2 && !this.isTopic) {
           return { maxWidth: '24px', marginTop: '4px' };
-        } else if (this.content.num_coach_contents < 2 && this.isTopic) {
+        } else if (this.contentNode.num_coach_contents < 2 && this.isTopic) {
           return { maxWidth: '24px', marginTop: '4px', marginRight: '16px' };
         } else {
           return {};
@@ -161,7 +184,7 @@
       },
       handleDownloadRequest() {
         this.disableRequestButtons = true;
-        this.addDownloadRequest(this.content).then(() => {
+        this.addDownloadRequest(this.contentNode).then(() => {
           this.disableRequestButtons = false;
         });
       },
@@ -172,7 +195,7 @@
         this.disableRequestButtons = false;
       },
       confirmRemoveRequest() {
-        this.removeDownloadRequest(this.content).then(() => {
+        this.removeDownloadRequest(this.contentNode).then(() => {
           this.removeConfirmationModalOpen = false;
         });
       },
@@ -205,6 +228,7 @@
   .footer {
     position: absolute;
     bottom: 0;
+    left: 0;
     display: flex;
     width: 100%;
     padding: $margin;
