@@ -3,7 +3,7 @@
   <div v-if="bannerOpened" class="banner" :style="{ background: $themeTokens.surface }">
     <div class="banner-inner">
       <h1 style="display: none">
-        Storage notification
+        {{ $tr('bannerHeading') }}
       </h1>
       <KGrid>
         <!-- Grid Content -->
@@ -57,7 +57,8 @@
     props: {
       showBanner: {
         type: String,
-        required: true,
+        required: false,
+        default: null,
       },
     },
     data() {
@@ -156,6 +157,10 @@
       manageChannels: {
         message: 'Manage Channels',
         context: ' ',
+      },
+      bannerHeading: {
+        message: 'Storage Notification',
+        context: 'Heading to the storage notifcation banner',
       },
     },
   };
