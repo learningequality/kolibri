@@ -4,10 +4,9 @@
     :title="$tr('importIndividualUsersHeader')"
     :description="formDescription"
     :submitText="coreString('importAction')"
-    :disabled="checkFormDisabled"
+    :disabled="false"
     :finishButton="users.length !== 0"
-    @submit="handleSubmit"
-    @click_finish="redirectToChannels"
+    @continue="handleSubmit"
   >
     <KCircularLoader v-if="!facility" />
 
@@ -95,7 +94,7 @@
   import { TaskResource } from 'kolibri.resources';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import OnboardingStepBase from '../OnboardingStepBase';
-  import { FacilityImportResource, FinishSoUDSyncingResource } from '../../api';
+  import { FacilityImportResource } from '../../api';
 
   export default {
     name: 'ImportIndividualUserForm',
@@ -130,12 +129,6 @@
       },
       users() {
         return this.wizardService.state.context.importedUsers || [];
-      },
-      checkFormDisabled() {
-        return (
-          this.username === '' ||
-          this.state.value.users.find(f => f.username === this.username) !== undefined
-        );
       },
       formDescription() {
         if (this.device && this.device.name) {
@@ -195,14 +188,15 @@
         });
       },
       handleSubmit() {
-        const task_name = 'kolibri.plugins.setup_wizard.tasks.startprovisionsoud';
+        const task_name = 'kolibri.core.auth.tasks.peeruserimport';
         const password = this.password === '' ? DemographicConstants.NOT_SPECIFIED : this.password;
         const params = {
           type: task_name,
-          device_id: this.deviceId,
           username: this.username,
           password: password,
-          facility_id: this.facility.id,
+          facility: this.facility.id,
+          device_id: this.deviceId,
+          using_admin: false,
         };
         TaskResource.startTask(params)
           .then(task => {
@@ -210,12 +204,6 @@
             task['facility_name'] = this.facility.name;
             this.wizardService.send({
               type: 'CONTINUE',
-              value: {
-                username: this.username,
-                password: password,
-                full_name: task.extra_metadata.full_name,
-                type: task,
-              },
             });
           })
           .catch(error => {
@@ -264,9 +252,6 @@
               this.error = true;
             } else this.$store.dispatch('handleApiError', error);
           });
-      },
-      redirectToChannels() {
-        FinishSoUDSyncingResource.finish();
       },
     },
     $trs: {
