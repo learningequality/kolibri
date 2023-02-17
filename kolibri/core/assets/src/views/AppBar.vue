@@ -92,12 +92,10 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
   import KIconButton from 'kolibri-design-system/lib/buttons-and-links/KIconButton';
-  // import { SyncStatus } from 'kolibri.coreVue.vuex.constants';
   import themeConfig from 'kolibri.themeConfig';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import navComponentsMixin from '../mixins/nav-components';
   import SkipNavigationLink from './SkipNavigationLink';
-  // import plugin_data from 'plugin_data';
 
   const hashedValuePattern = /^[a-f0-9]{30}$/;
 
@@ -122,8 +120,6 @@
       return {
         pointsDisplayed: false,
         isPolling: false,
-        // poll every 10 seconds
-        // pollingInterval: 10000,
       };
     },
     computed: {

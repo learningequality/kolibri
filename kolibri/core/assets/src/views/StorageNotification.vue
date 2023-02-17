@@ -65,10 +65,7 @@
         isSubsetOfUsersDevice: plugin_data.isSubsetOfUsersDevice,
         bannerOpened: false,
         hasDevicePermissions: false,
-        // isSuperAdmin: false,
         availableDownloads: false,
-        // learnOnlyDevice: true,
-
         insufficientSpace: true,
         resourcesRemoved: false,
       };

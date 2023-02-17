@@ -80,10 +80,6 @@
         type: Boolean,
         default: null,
       },
-      // userId: {
-      //   type: String,
-      //   required: false,
-      // },
     },
     data() {
       return {

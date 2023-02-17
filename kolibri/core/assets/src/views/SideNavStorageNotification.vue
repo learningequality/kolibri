@@ -38,14 +38,6 @@
       return { queued, lastSynced, status, deviceStatus, deviceStatusSentiment };
     },
     props: {},
-    beforeMount() {
-      console.log(this.deviceStatus);
-      console.log(this.lastSynced);
-      console.log(this.status);
-      console.log(this.deviceStatusSentiment);
-      console.log('this is a sidenav notification');
-    },
-
     $trs: {
       NotEnoughSpace: {
         message: 'Not enough storage',
