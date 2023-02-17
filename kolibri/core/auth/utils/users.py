@@ -33,13 +33,9 @@ def get_remote_users_info(baseurl, facility_id, username, password):
              'users' containing the list of users of the facility if the user had rights.
     """
     user_info_url = reverse_remote(baseurl, "kolibri:core:publicuser-list")
-    params = {
-        "facility_id": facility_id,
-    }
     try:
         response = requests.get(
             user_info_url,
-            data=params,
             auth=(
                 "username={}&{}={}".format(
                     username, FACILITY_CREDENTIAL_KEY, facility_id

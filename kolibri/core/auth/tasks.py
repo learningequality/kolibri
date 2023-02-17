@@ -253,7 +253,7 @@ class SyncJobValidator(JobValidator):
             facility_name = facility.name
         else:
             facility_id = facility
-            facility_name = data["facility_name"]
+            facility_name = data.get("facility_name", "")
         return {
             "extra_metadata": dict(
                 facility_id=facility_id,
@@ -829,8 +829,8 @@ class PeerImportSingleSyncJobValidator(PeerSyncJobValidator):
     permission_classes=[IsSuperAdmin() | NotProvisioned()],
     status_fn=status_fn,
 )
-def peeruserimport(**kwargs):
-    call_command("sync", **kwargs)
+def peeruserimport(command, **kwargs):
+    call_command(command, **kwargs)
 
 
 @register_task(
