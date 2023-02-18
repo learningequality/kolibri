@@ -155,7 +155,6 @@
     },
     computed: {
       ...mapState('lessonSummary', ['lessonsSizes']),
-      ...mapState('classSummary', ['lessonsSizes']),
       assignments() {
         return this.activeKey === 'is_active'
           ? this.lesson.lesson_assignments
@@ -220,9 +219,11 @@
         this.showLessonIsNotVisibleModal = false;
       },
       lessonSize(lessonId) {
+        console.log('calling lesson size');
         if (this.lessonsSizes && this.lessonsSizes[0]) {
           let size = this.lessonsSizes[0][lessonId];
           size = bytesForHumans(size);
+          console.log('size', size);
           return size;
         }
         return '--';
