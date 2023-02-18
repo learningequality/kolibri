@@ -3,7 +3,6 @@ import { LessonsPageNames } from '../../constants/lessonsConstants';
 
 // Show the Lessons Root Page, where all the Lessons are listed for a given Classroom
 export function showLessonsRootPage(store, classId) {
-  console.log('lessons root');
   return store.dispatch('loading').then(() => {
     store.commit('lessonsRoot/SET_STATE', {
       lessons: [],

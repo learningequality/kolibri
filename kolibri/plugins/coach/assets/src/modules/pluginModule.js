@@ -88,7 +88,10 @@ export default {
         fromRoute.name === LessonsPageNames.SUMMARY &&
         toRoute.name !== LessonsPageNames.SELECTION_ROOT
       ) {
-        return store.dispatch('lessonSummary/resetLessonSummaryState');
+        return Promise.all([
+          store.dispatch('lessonSummary/resetLessonSummaryState'),
+          store.dispatch('lessonSummary/fetchLessonsSizes', store.state.classSummary.id),
+        ]);
       }
       if (toRoute.name === PageNames.EXAMS) {
         return store.dispatch('examCreation/resetExamCreationState');
@@ -109,7 +112,6 @@ export default {
           store.dispatch('setClassList'),
           store.dispatch('classSummary/loadClassSummary', classId),
           store.dispatch('lessonSummary/fetchLessonsSizes', classId),
-          // store.dispatch('classSummary/fetchLessonsSizes', classId),
           store.dispatch('classSummary/fetchQuizzesSizes', classId),
           store.dispatch('coachNotifications/fetchNotificationsForClass', classId),
         ]).catch(error => {
