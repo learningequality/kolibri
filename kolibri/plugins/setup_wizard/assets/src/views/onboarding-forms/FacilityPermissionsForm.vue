@@ -50,10 +50,9 @@
       OnboardingStepBase,
     },
     data() {
-      let selected;
       const preset = this.wizardService.state.context['formalOrNonformal'];
       // preset inits to null, so either it'll be what the user selected or default to nonformal
-      selected = preset || Presets.NONFORMAL;
+      const selected = preset || Presets.NONFORMAL;
 
       const facilityName = this.wizardService.state.context['facilityName'] || '';
       return {
