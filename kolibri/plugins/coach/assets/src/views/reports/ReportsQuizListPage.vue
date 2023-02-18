@@ -9,6 +9,9 @@
     <KPageContainer :class="{ 'print': $isPrint }">
       <ReportsHeader :title="$isPrint ? $tr('printLabel', { className }) : null" />
       <ReportsControls @export="exportCSV">
+        <p v-if="table.length && table.length > 0">
+          {{ $tr('totalQuizSize', { size: calcTotalSizeOfVisibleQuizzes }) }}
+        </p>
         <KSelect
           v-model="filter"
           :label="coachString('filterQuizStatus')"
@@ -226,6 +229,20 @@
           return tableRow;
         });
       },
+      calcTotalSizeOfVisibleQuizzes() {
+        if (this.table && this.quizzesSizes && this.quizzesSizes[0]) {
+          let sum = 0;
+          this.exams.forEach(exam => {
+            // only include visible lessons
+            if (exam.active) {
+              sum += this.quizzesSizes[0][exam.id];
+            }
+          });
+          const size = bytesForHumans(sum);
+          return size;
+        }
+        return '--';
+      },
     },
     beforeMount() {
       this.filter = this.filterOptions[0];
@@ -303,6 +320,11 @@
         message: '{className} Quizzes',
         context:
           "Title that displays on a printed copy of the 'Reports' > 'Quizzes' page. This shows if the user uses the 'Print' option by clicking on the printer icon and displays on the downloadable CSV file.",
+      },
+      totalQuizSize: {
+        message: 'Total size of quizzes that are visible to learners: {size}',
+        context:
+          'Descriptive text at the top of the table that displays the calculated file size of all quiz resources (i.e. 120 MB)',
       },
     },
   };

@@ -10,6 +10,9 @@
       <PlanHeader />
 
       <div class="filter-and-button">
+        <p v-if="filteredExams.length && filteredExams.length > 0">
+          {{ $tr('totalQuizSize', { size: calcTotalSizeOfVisibleQuizzes }) }}
+        </p>
         <KSelect
           v-model="statusSelected"
           :label="coachString('filterQuizStatus')"
@@ -247,6 +250,20 @@
           { label: this.$tr('selectQuiz'), value: 'SELECT_QUIZ' },
         ];
       },
+      calcTotalSizeOfVisibleQuizzes() {
+        if (this.filteredExams && this.quizzesSizes && this.quizzesSizes[0]) {
+          let sum = 0;
+          this.filteredExams.forEach(exam => {
+            // only include visible lessons
+            if (exam.active) {
+              sum += this.quizzesSizes[0][exam.id];
+            }
+          });
+          const size = bytesForHumans(sum);
+          return size;
+        }
+        return '--';
+      },
     },
     methods: {
       handleOpenQuiz(quizId) {
@@ -324,6 +341,11 @@
         message: 'No quizzes not started',
         context:
           'Message displayed when there are no quizes not started. Quizzes not started are those that are not in progress and have not been started yet.',
+      },
+      totalQuizSize: {
+        message: 'Total size of quizzes that are visible to learners: {size}',
+        context:
+          'Descriptive text at the top of the table that displays the calculated file size of all quiz resources (i.e. 120 MB)',
       },
       newQuiz: {
         message: 'Create new quiz',
