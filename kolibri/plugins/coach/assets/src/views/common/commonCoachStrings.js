@@ -467,7 +467,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
       'A brief snackbar message notifying the user that learners may no longer view their quiz report. It will show when the user changes a setting to make the quiz no longer visible.',
   },
   makeQuizReportVisibleTitle: {
-    message: 'Make quiz report visibile',
+    message: 'Make quiz report visible',
   },
   makeQuizReportNotVisibleTitle: {
     message: 'Make quiz report not visible',

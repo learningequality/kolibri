@@ -445,13 +445,20 @@ export default {
   actions: {
     updateWithNotifications,
     loadClassSummary(store, classId) {
-      return ClassSummaryResource.fetchModel({ id: classId, force: true }).then(summary => {
-        store.commit('SET_STATE', summary);
-      });
+      console.log('loading class summary');
+      return ClassSummaryResource.fetchModel({ id: classId, force: true })
+        .then(summary => {
+          store.commit('SET_STATE', summary);
+        })
+        .then(() => {
+          return store.dispatch('fetchLessonsSizes', { classId: classId, force: true });
+        });
     },
     fetchLessonsSizes(store, classId) {
+      console.log('class summary lesson sizes');
       return LessonResource.fetchLessonsSizes(classId)
         .then(sizes => {
+          console.log(sizes);
           store.commit('SET_CLASS_LESSONS_SIZES', sizes);
         })
         .catch(error => {
