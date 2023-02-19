@@ -3,25 +3,23 @@
   <CoachAppBarPage :authorized="userIsAuthorized" authorizedRole="adminOrCoach" :showSubNav="true">
     <KPageContainer>
       <PlanHeader />
+      <p v-if="lessons.length && lessons.length > 0">
+        {{ $tr('totalLessonsSize', { size: calcTotalSizeOfVisibleLessons }) }}
+      </p>
       <div class="filter-and-button">
-        <p v-if="lessons.length && lessons.length > 0">
-          {{ $tr('totalLessonsSize', { size: calcTotalSizeOfVisibleLessons }) }}
-        </p>
-        <div class="button">
-          <KSelect
-            v-model="filterSelection"
-            class="select"
-            :label="coachString('filterLessonStatus')"
-            :options="filterOptions"
-            :inline="true"
-          />
-          <KRouterLink
-            :primary="true"
-            appearance="raised-button"
-            :text="coachString('newLessonAction')"
-            :to="newLessonRoute"
-          />
-        </div>
+        <KSelect
+          v-model="filterSelection"
+          class="select"
+          :label="coachString('filterLessonStatus')"
+          :options="filterOptions"
+          :inline="true"
+        />
+        <KRouterLink
+          :primary="true"
+          appearance="raised-button"
+          :text="coachString('newLessonAction')"
+          :to="newLessonRoute"
+        />
       </div>
 
       <CoreTable>
@@ -382,19 +380,14 @@
 
   .filter-and-button {
     display: flex;
-    flex-wrap: nowrap;
+    align-items: center;
     justify-content: space-between;
-    padding-top: 16px;
-    padding-bottom: 16px;
+    margin-top: 24px;
+    margin-bottom: 24px;
 
     button {
       align-self: flex-end;
     }
-  }
-
-  .select {
-    margin-top: -16px;
-    margin-right: 32px;
   }
 
 </style>

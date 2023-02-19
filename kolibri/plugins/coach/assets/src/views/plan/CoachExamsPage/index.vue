@@ -342,11 +342,6 @@
         context:
           'Message displayed when there are no quizes not started. Quizzes not started are those that are not in progress and have not been started yet.',
       },
-      totalQuizSize: {
-        message: 'Total size of quizzes that are visible to learners: {size}',
-        context:
-          'Descriptive text at the top of the table that displays the calculated file size of all quiz resources (i.e. 120 MB)',
-      },
       newQuiz: {
         message: 'Create new quiz',
         context: "Title of the screen launched from the 'New quiz' button on the 'Plan' tab.\n",
@@ -355,6 +350,11 @@
         message: 'Select quiz',
         context:
           "Practice quizzes are pre-made quizzes, that don't require the curation work on the part of the coach. Selecting a practice quiz refers to importing a ready-to-use quiz.",
+      },
+      totalQuizSize: {
+        message: 'Total size of quizzes that are visible to learners: {size}',
+        context:
+          'Descriptive text at the top of the table that displays the calculated file size of all quiz resources (i.e. 120 MB)',
       },
     },
   };
