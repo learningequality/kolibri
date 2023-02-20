@@ -16,18 +16,19 @@ from .content_extensions_manager import ContentExtensionsManager
 
 logger = logging.getLogger(__name__)
 
-# These Kolibri plugins must be enabled for the application to function
-# correctly:
+# These Kolibri plugins must be enabled for the application to function:
 REQUIRED_PLUGINS = [
     "kolibri.plugins.app",
 ]
 
-# These Kolibri plugins will be dynamically enabled if they are
-# available:
+# These Kolibri plugins will be automatically enabled if they are available:
 OPTIONAL_PLUGINS = [
     "kolibri_app_desktop_xdg_plugin",
     "kolibri_desktop_auth_plugin",
+    "kolibri_dynamic_collections_plugin",
 ]
+
+# TODO: Automatically enable plugins from flatpak plugin extensions.
 
 
 def init_kolibri(**kwargs):
