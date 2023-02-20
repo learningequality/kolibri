@@ -143,10 +143,9 @@
       },
       learnerHasInsufficientStorage() {
         for (const learner in this.learnerMap) {
-          if (this.classSyncStatusList[learner]) {
-            if (this.classSyncStatusList[learner].status === SyncStatus.INSUFFICIENT_STORAGE) {
-              return true;
-            }
+          const learnerDevice = this.classSyncStatusList[learner];
+          if (learnerDevice && learnerDevice.status === SyncStatus.INSUFFICIENT_STORAGE) {
+            return true;
           }
         }
         return false;
@@ -222,7 +221,7 @@
 <style lang="scss" scoped>
 
   .troubleshooting-modal-link {
-    margin-bottom: 40px;
+    margin-bottom: 25px;
   }
 
   /deep/ .title {

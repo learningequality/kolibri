@@ -64,7 +64,6 @@
         };
       },
     },
-    beforeMount() {},
     methods: {
       closeAlert() {
         this.displayBanner = 'none';
