@@ -25,8 +25,8 @@
         <KIconButton
           size="small"
           icon="incorrect"
-          :ariaLabel="coreString('closeAction')"
-          :tooltip="coreString('closeAction')"
+          :ariaLabel="$tr('closeNotification')"
+          :tooltip="$tr('closeNotification')"
           @click="closeAlert"
         />
       </div>
@@ -41,14 +41,12 @@
 <script>
 
   import { mapState } from 'vuex';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { useLocalStorage } from '@vueuse/core';
   import { PageNames } from '../constants';
 
   export default {
     name: 'StorageNotificationBanner',
     components: {},
-    mixins: [commonCoreStrings],
     data: function() {
       return {
         displayBanner: 'auto',
@@ -82,6 +80,10 @@
       alertLink: {
         message: 'Manage lessons and quizzes',
         context: 'Insufficient storage alert link text to coach plan page.',
+      },
+      closeNotification: {
+        message: 'Close notification',
+        context: 'Label to close notification.',
       },
     },
   };
