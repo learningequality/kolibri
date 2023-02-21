@@ -31,6 +31,7 @@ class KolibriWindow(Gtk.ApplicationWindow):
     __present_on_main_webview_ready: bool = True
 
     __gsignals__ = {
+        "open-in-browser": (GObject.SIGNAL_RUN_FIRST, None, (str,)),
         "open-new-window": (
             GObject.SIGNAL_RUN_FIRST,
             KolibriWebView,
@@ -39,7 +40,6 @@ class KolibriWindow(Gtk.ApplicationWindow):
                 WebKit2.WebView,
             ),
         ),
-        "external-url": (GObject.SIGNAL_RUN_FIRST, None, (str,)),
     }
 
     def __init__(
@@ -139,7 +139,6 @@ class KolibriWindow(Gtk.ApplicationWindow):
         self.__header_bar.show_all()
 
         bubble_signal(self.__webview_stack, "open-new-window", self)
-        bubble_signal(self.__webview_stack, "external-url", self)
 
         self.__webview_stack.connect(
             "main-webview-ready", self.__webview_stack_on_main_webview_ready
@@ -215,7 +214,7 @@ class KolibriWindow(Gtk.ApplicationWindow):
     def __on_open_in_browser(self, action, *args):
         url = self.__webview_stack.get_uri()
         if url:
-            self.emit("external-url", url)
+            self.emit("open-in-browser", url)
 
     def __on_navigate_back(self, action, *args):
         self.__webview_stack.go_back()

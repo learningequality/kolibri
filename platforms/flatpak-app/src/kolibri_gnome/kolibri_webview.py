@@ -9,7 +9,6 @@ from gi.repository import WebKit2
 from kolibri_app.globals import KOLIBRI_APP_DEVELOPER_EXTRAS
 
 from .kolibri_context import KolibriContext
-from .utils import bubble_signal
 
 
 MOUSE_BUTTON_BACK = 8
@@ -29,7 +28,6 @@ class KolibriWebView(WebKit2.WebView):
     __deferred_load_kolibri_url: typing.Optional[str] = None
 
     __gsignals__ = {
-        "external-url": (GObject.SIGNAL_RUN_FIRST, None, (str,)),
         "kolibri-load-finished": (GObject.SIGNAL_RUN_FIRST, None, ()),
     }
 
@@ -81,11 +79,8 @@ class KolibriWebView(WebKit2.WebView):
     ):
         if decision_type == WebKit2.PolicyDecisionType.NAVIGATION_ACTION:
             target_url = decision.get_request().get_uri()
-            if self.__context.should_open_url(target_url):
-                return False
-            else:
-                decision.ignore()
-                self.__emit_external_url(target_url)
+            if not self.__context.should_open_url(target_url):
+                decision.download()
                 return True
         return False
 
@@ -114,14 +109,7 @@ class KolibriWebView(WebKit2.WebView):
         else:
             webview.load_uri(self.__context.default_url)
 
-        self.__emit_external_url(target_url)
-
-    def __emit_external_url(self, url: str):
-        # If the URL will open in the default Kolibri app (it is only external
-        # for this context), translate it to a x-kolibri-app URL.
-        if self.__context.default_is_url_in_scope(url):
-            url = self.__context.url_to_x_kolibri_app(url)
-        self.emit("external-url", url)
+        webview.download_uri(target_url)
 
     def __on_load_changed(
         self, webview: WebKit2.WebView, load_event: WebKit2.LoadEvent
@@ -176,7 +164,6 @@ class KolibriWebViewStack(Gtk.Stack):
                 WebKit2.WebView,
             ),
         ),
-        "external-url": (GObject.SIGNAL_RUN_FIRST, None, (str,)),
         "main-webview-ready": (GObject.SIGNAL_RUN_FIRST, None, ()),
     }
 
@@ -208,8 +195,6 @@ class KolibriWebViewStack(Gtk.Stack):
 
         self.__main_webview.show()
         self.__loading_webview.show()
-
-        bubble_signal(self.__main_webview, "external-url", self)
 
         self.__context.connect(
             "notify::session-status", self.__context_on_notify_session_status

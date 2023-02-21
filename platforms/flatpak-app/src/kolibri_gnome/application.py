@@ -140,8 +140,8 @@ class Application(Gtk.Application):
 
         window = KolibriWindow(application=self, context=self.__context, **kwargs)
 
+        window.connect("open-in-browser", self.__window_on_open_in_browser)
         window.connect("open-new-window", self.__window_on_open_new_window)
-        window.connect("external-url", self.__window_on_external_url)
 
         # Set WM_CLASS for improved window management
         # FIXME: GTK+ strongly discourages doing this:
@@ -197,6 +197,9 @@ class Application(Gtk.Application):
     ):
         self.open_url_in_external_application(external_url)
 
+    def __window_on_open_in_browser(self, window: KolibriWindow, current_url: str):
+        self.open_url_in_external_application(current_url)
+
     def __window_on_open_new_window(
         self, window: KolibriWindow, target_url: str, related_webview: WebKit2.WebView
     ) -> typing.Optional[KolibriWebView]:
@@ -204,9 +207,6 @@ class Application(Gtk.Application):
             target_url, related_webview=related_webview
         )
         return new_window.get_main_webview() if new_window else None
-
-    def __window_on_external_url(self, window: KolibriWindow, external_url: str):
-        self.open_url_in_external_application(external_url)
 
     def __handle_open_file_url(self, url: str):
         valid_url_schemes = ("kolibri", "x-kolibri-app")
