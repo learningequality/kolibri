@@ -32,6 +32,7 @@ class Application(Gtk.Application):
         super().__init__(*args, flags=Gio.ApplicationFlags.HANDLES_OPEN, **kwargs)
 
         self.__context = context or KolibriContext()
+        self.__context.connect("download-started", self.__context_on_download_started)
 
         action = Gio.SimpleAction.new("open-documentation", None)
         action.connect("activate", self.__on_open_documentation)
@@ -158,6 +159,37 @@ class Application(Gtk.Application):
         window.show()
 
         return window
+
+    def __context_on_download_started(
+        self, context: KolibriContext, download: WebKit2.Download
+    ):
+        download.connect("decide-destination", self.__download_on_decide_destination)
+
+    def __download_on_decide_destination(
+        self, download: WebKit2.Download, suggested_filename: str
+    ) -> bool:
+        file_chooser = Gtk.FileChooserNative.new(
+            _("Save File"),
+            self.get_active_window(),
+            Gtk.FileChooserAction.SAVE,
+            None,
+            None,
+        )
+        file_chooser.set_current_name(suggested_filename)
+        file_chooser.set_do_overwrite_confirmation(True)
+
+        # We need to block on the dialog here because webkit will be unhappy if
+        # we return before setting a destination.
+
+        response = file_chooser.run()
+
+        if response != Gtk.ResponseType.ACCEPT:
+            download.cancel()
+            return False
+
+        download.set_allow_overwrite(True)
+        download.set_destination(file_chooser.get_uri())
+        return True
 
     def __window_on_open_new_window(
         self, window: KolibriWindow, target_url: str, related_webview: WebKit2.WebView

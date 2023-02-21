@@ -48,6 +48,7 @@ class KolibriContext(GObject.GObject):
     session_status = GObject.Property(type=int, default=SESSION_STATUS_LOADING)
 
     __gsignals__ = {
+        "download-started": (GObject.SIGNAL_RUN_FIRST, None, (WebKit2.Download,)),
         "kolibri-ready": (GObject.SIGNAL_RUN_FIRST, None, ()),
     }
 
@@ -76,6 +77,11 @@ class KolibriContext(GObject.GObject):
         self.__webkit_web_context = WebKit2.WebContext(
             website_data_manager=website_data_manager
         )
+
+        self.__webkit_web_context.connect(
+            "download-started", self.__webkit_web_context_on_download_started
+        )
+
         self.__kolibri_daemon = KolibriDaemonManager()
         self.__setup_helper = _KolibriSetupHelper(
             self.__webkit_web_context, self.__kolibri_daemon
@@ -214,6 +220,13 @@ class KolibriContext(GObject.GObject):
         - x-kolibri-app:/device
         """
         return url_tuple._replace(scheme="", netloc="").geturl()
+
+    def __webkit_web_context_on_download_started(
+        self, webkit_web_context: WebKit2.WebContext, download: WebKit2.Download
+    ):
+        url = download.get_request().get_uri()
+
+        self.emit("download-started", download)
 
     def __update_session_status(self, has_error: bool, is_setup_complete: bool):
         if has_error:
