@@ -79,11 +79,11 @@
       },
       alertLink: {
         message: 'Manage lessons and quizzes',
-        context: 'Insufficient storage alert link text to coach plan page.',
+        context: 'Link for coach plan page.',
       },
       closeNotification: {
         message: 'Close notification',
-        context: 'Label to close notification.',
+        context: 'Label for a button used to close a notification.',
       },
     },
   };
