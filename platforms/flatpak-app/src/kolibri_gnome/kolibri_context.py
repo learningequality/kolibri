@@ -49,6 +49,7 @@ class KolibriContext(GObject.GObject):
 
     __gsignals__ = {
         "download-started": (GObject.SIGNAL_RUN_FIRST, None, (WebKit2.Download,)),
+        "open-external-url": (GObject.SIGNAL_RUN_FIRST, None, (str,)),
         "kolibri-ready": (GObject.SIGNAL_RUN_FIRST, None, ()),
     }
 
@@ -226,7 +227,23 @@ class KolibriContext(GObject.GObject):
     ):
         url = download.get_request().get_uri()
 
+        # If the URL will open in the default Kolibri app (it is only external
+        # for this context), translate it to a x-kolibri-app URL.
+        if self.default_is_url_in_scope(url):
+            url = self.url_to_x_kolibri_app(url)
+
+        if self.__should_open_url_in_external_application(url):
+            download.cancel()
+            self.emit("open-external-url", url)
+            return
+
         self.emit("download-started", download)
+
+    def __should_open_url_in_external_application(self, url):
+        # We need to download blob URLs because they are unique to this context,
+        # but otherwise we will expect that a local application can handle the
+        # same protocol.
+        return urlsplit(url).scheme not in ("blob",)
 
     def __update_session_status(self, has_error: bool, is_setup_complete: bool):
         if has_error:

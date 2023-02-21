@@ -33,6 +33,7 @@ class Application(Gtk.Application):
 
         self.__context = context or KolibriContext()
         self.__context.connect("download-started", self.__context_on_download_started)
+        self.__context.connect("open-external-url", self.__context_on_open_external_url)
 
         action = Gio.SimpleAction.new("open-documentation", None)
         action.connect("activate", self.__on_open_documentation)
@@ -190,6 +191,11 @@ class Application(Gtk.Application):
         download.set_allow_overwrite(True)
         download.set_destination(file_chooser.get_uri())
         return True
+
+    def __context_on_open_external_url(
+        self, context: KolibriContext, external_url: str
+    ):
+        self.open_url_in_external_application(external_url)
 
     def __window_on_open_new_window(
         self, window: KolibriWindow, target_url: str, related_webview: WebKit2.WebView
