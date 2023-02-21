@@ -1,5 +1,4 @@
 import { get } from '@vueuse/core';
-import { ContentNodeResource } from 'kolibri.resources';
 import router from 'kolibri.coreVue.router';
 import useChannels from '../../composables/useChannels';
 import { PageNames, pageNameToModuleMap } from '../../constants';
@@ -18,12 +17,4 @@ export function setAndCheckChannels() {
     router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
   }
   return get(channels);
-}
-
-export function getCopies(store, contentId) {
-  return new Promise((resolve, reject) => {
-    ContentNodeResource.fetchCopies(contentId)
-      .then(copies => resolve(copies))
-      .catch(error => reject(error));
-  });
 }

@@ -101,7 +101,7 @@
           </div>
         </div>
 
-        <div class="fieldset">
+        <div v-if="deviceIsAndroid" class="fieldset">
           <h2>
             <label>{{ $tr('allowDownloadOnMeteredConnection') }}</label>
           </h2>
@@ -178,27 +178,25 @@
           </h2>
           <KCheckbox
             :label="$tr('enableAutoDownload')"
-            :checked="enableAutomaticDownload ||
-              allowLearnerDownloadResources ||
-              setLimitForAutodownload"
+            :checked="enableAutomaticDownload"
             :description="$tr('enableAutoDownloadDescription')"
-            @change="enableAutomaticDownload = $event"
+            @change="handleCheckAutodownload('enableAutomaticDownload', $event)"
           />
           <div class="fieldset left-margin">
             <KCheckbox
               :label="$tr('allowLearnersDownloadResources')"
-              :checked="enableAutomaticDownload === false ? false : allowLearnerDownloadResources"
+              :checked="allowLearnerDownloadResources"
               :description="$tr('allowLearnersDownloadDescription')"
-              @change="allowLearnerDownloadResources = $event"
+              @change="handleCheckAutodownload('allowLearnerDownloadResources', $event)"
             />
             <KCheckbox
               :label="$tr('setStorageLimit')"
-              :checked="enableAutomaticDownload === false ? false : setLimitForAutodownload"
+              :checked="setLimitForAutodownload"
               :description="$tr('setStorageLimitDescription')"
-              @change="setLimitForAutodownload = $event"
+              @change="handleCheckAutodownload('setLimitForAutodownload', $event)"
             />
             <div
-              v-show="enableAutomaticDownload === false ? false : setLimitForAutodownload"
+              v-show="setLimitForAutodownload"
               class="left-margin"
             >
               <KTextbox
@@ -236,17 +234,25 @@
             </div>
           </div>
         </div>
+
+        <div class="fieldset">
+          <h2>
+            {{ $tr('enabledPages') }}
+          </h2>
+          <p class="info-description">
+            {{ $tr('enabledPagesDescription') }}
+          </p>
+
+          <KCheckbox
+            v-for="plugin in dataPlugins"
+            :key="plugin.id"
+            :label="plugin.name"
+            :checked="plugin.enabled"
+            @change="plugin.enabled = $event"
+          />
+        </div>
       </section>
 
-      <section>
-        <KButton
-          :text="coreString('saveChangesAction')"
-          appearance="raised-button"
-          primary
-          data-test="saveButton"
-          @click="handleClickSave"
-        />
-      </section>
 
       <!-- List of separate links to Facility Settings pages -->
       <section v-if="isMultiFacilitySuperuser">
@@ -263,6 +269,27 @@
           </template>
         </ul>
       </section>
+
+      <section v-if="deviceIsAndroid" class="android-bar">
+        <KButton
+          :text="coreString('saveChangesAction')"
+          appearance="raised-button"
+          primary
+          data-test="saveButtonAndroid"
+          @click="handleClickSave"
+        />
+      </section>
+      <BottomAppBar v-else>
+        <KButtonGroup>
+          <KButton
+            :text="coreString('saveChangesAction')"
+            appearance="raised-button"
+            primary
+            data-test="saveButton"
+            @click="handleClickSave"
+          />
+        </KButtonGroup>
+      </BottomAppBar>
 
       <PrimaryStorageLocationModal
         v-if="showChangePrimaryLocationModal"
@@ -305,16 +332,19 @@
   import { mapGetters } from 'vuex';
   import find from 'lodash/find';
   import urls from 'kolibri.urls';
+  import { ref } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { availableLanguages, currentLanguage } from 'kolibri.utils.i18n';
   import sortLanguages from 'kolibri.utils.sortLanguages';
   import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
+  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import { LandingPageChoices, MeteredConnectionDownloadOptions } from '../../constants';
   import DeviceTopNav from '../DeviceTopNav';
   import { deviceString } from '../commonDeviceStrings';
   import { getFreeSpaceOnServer } from '../AvailableChannelsPage/api';
   import useDeviceRestart from '../../composables/useDeviceRestart';
+  import usePlugins from '../../composables/usePlugins';
   import { getDeviceSettings, getPathsPermissions, saveDeviceSettings, getDeviceURLs } from './api';
   import PrimaryStorageLocationModal from './PrimaryStorageLocationModal';
   import AddStorageLocationModal from './AddStorageLocationModal';
@@ -336,6 +366,7 @@
     },
     components: {
       AppBarPage,
+      BottomAppBar,
       DeviceTopNav,
       PrimaryStorageLocationModal,
       AddStorageLocationModal,
@@ -345,7 +376,34 @@
     mixins: [commonCoreStrings],
     setup() {
       const { restart } = useDeviceRestart();
-      return { restart };
+      const { plugins, fetchPlugins, togglePlugin } = usePlugins();
+      const dataPlugins = ref(null);
+
+      fetchPlugins.then(() => {
+        dataPlugins.value = plugins.value.map(plugin => ({ ...plugin }));
+      });
+
+      function checkAndTogglePlugins() {
+        dataPlugins.value.forEach((plugin, index) => {
+          if (plugin.enabled !== plugins.value[index].enabled) {
+            togglePlugin(plugin.id, plugin.enabled);
+          }
+        });
+      }
+
+      function checkPluginChanges() {
+        // returns true if any of the plugins have changed its
+        // enabled state
+        const unchanged = dataPlugins.value.every((plugin, index) => {
+          if (plugin.enabled !== plugins.value[index].enabled) {
+            return false;
+          }
+          return true;
+        });
+        return !unchanged;
+      }
+
+      return { restart, dataPlugins, checkPluginChanges, checkAndTogglePlugins };
     },
     data() {
       return {
@@ -384,6 +442,7 @@
     },
     computed: {
       ...mapGetters(['isAppContext']),
+      ...mapGetters('deviceInfo', ['getDeviceOS']),
       pageTitle() {
         return deviceString('deviceManagementTitle');
       },
@@ -459,6 +518,12 @@
             },
           };
         }
+      },
+      deviceIsAndroid() {
+        if (this.getDeviceOS === undefined) {
+          return true;
+        }
+        return this.getDeviceOS.includes('Android');
       },
     },
     created() {
@@ -617,13 +682,45 @@
         }
         return '';
       },
+      handleCheckAutodownload(option, value) {
+        switch (option) {
+          case 'enableAutomaticDownload':
+            this.enableAutomaticDownload = value;
+            if (!value) {
+              this.allowLearnerDownloadResources = false;
+              this.setLimitForAutodownload = false;
+            }
+            break;
+          case 'allowLearnerDownloadResources':
+            this.allowLearnerDownloadResources = value;
+            break;
+          case 'setLimitForAutodownload':
+            this.setLimitForAutodownload = value;
+            break;
+        }
+        this.enableAutomaticDownload =
+          this.enableAutomaticDownload ||
+          this.allowLearnerDownloadResources ||
+          this.setLimitForAutodownload;
+      },
       handleClickSave() {
+        const restartPlugins = this.checkPluginChanges();
+        if (restartPlugins) {
+          this.restartSetting = 'plugin';
+          this.showRestartModal = true;
+        } else {
+          this.restartSetting = null;
+          this.handleSave();
+        }
+      },
+      handleSave() {
         const {
           allowGuestAccess,
           allowLearnerUnassignedResourceAccess,
         } = this.getContentSettings();
-
         this.getExtraSettings();
+
+        this.checkAndTogglePlugins();
 
         this.saveDeviceSettings({
           languageId: this.language.value,
@@ -638,6 +735,7 @@
         })
           .then(() => {
             this.$store.dispatch('createSnackbar', this.$tr('saveSuccessNotification'));
+            this.showRestartModal = false;
             if (this.restartSetting !== null) {
               this.restart();
               this.restartSetting = null;
@@ -690,33 +788,40 @@
       },
       handleServerRestart(confirmationChecked) {
         this.showRestartModal = false;
-        if (this.restartSetting === 'add') {
-          this.storageLocations.push(this.restartPath);
-          if (confirmationChecked === true) {
+        switch (this.restartSetting) {
+          case 'plugin':
+            this.handleSave();
+            break;
+          case 'primary':
             this.secondaryStorageLocations.push(this.primaryStorageLocation);
             this.secondaryStorageLocations = this.secondaryStorageLocations.filter(
               el => el !== this.restartPath.path
             );
             this.primaryStorageLocation = this.restartPath.path;
-          } else {
-            this.secondaryStorageLocations.push(this.restartPath.path);
-          }
-          this.handleClickSave();
-        } else if (this.restartSetting === 'remove') {
-          this.storageLocations = this.storageLocations.filter(
-            el => el.path !== this.restartPath.path
-          );
-          this.secondaryStorageLocations = this.secondaryStorageLocations.filter(
-            el => el !== this.restartPath.path
-          );
-          this.handleClickSave();
-        } else if (this.restartSetting === 'primary') {
-          this.secondaryStorageLocations.push(this.primaryStorageLocation);
-          this.secondaryStorageLocations = this.secondaryStorageLocations.filter(
-            el => el !== this.restartPath.path
-          );
-          this.primaryStorageLocation = this.restartPath.path;
-          this.handleClickSave();
+            this.handleSave();
+            break;
+          case 'add':
+            this.storageLocations.push(this.restartPath);
+            if (confirmationChecked === true) {
+              this.secondaryStorageLocations.push(this.primaryStorageLocation);
+              this.secondaryStorageLocations = this.secondaryStorageLocations.filter(
+                el => el !== this.restartPath.path
+              );
+              this.primaryStorageLocation = this.restartPath.path;
+            } else {
+              this.secondaryStorageLocations.push(this.restartPath.path);
+            }
+            this.handleSave();
+            break;
+          case 'remove':
+            this.storageLocations = this.storageLocations.filter(
+              el => el.path !== this.restartPath.path
+            );
+            this.secondaryStorageLocations = this.secondaryStorageLocations.filter(
+              el => el !== this.restartPath.path
+            );
+            this.handleSave();
+            break;
         }
       },
       isWritablePath(path) {
@@ -900,6 +1005,14 @@
         message: '(read-only)',
         context: 'Label for read-only storage locations',
       },
+      enabledPages: {
+        message: 'Enabled pages',
+        context: 'Label for enabled pages section',
+      },
+      enabledPagesDescription: {
+        message: 'Unselect a page to hide it even if the user has permission to access it.',
+        context: "Description for the 'Enabled pages' section.",
+      },
     },
   };
 
@@ -997,6 +1110,11 @@
   .disabled {
     color: #e0e0e0 !important;
     pointer-events: none;
+  }
+
+  .android-bar {
+    padding-top: 10px;
+    border-top: 1px solid rgb(222, 222, 222);
   }
 
 </style>

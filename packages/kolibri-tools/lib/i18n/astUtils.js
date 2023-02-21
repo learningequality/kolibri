@@ -102,15 +102,18 @@ function extractContext(context) {
 
 // Get the value we care about from a node that is type TemplateLiteral or StringLiteral
 function stringFromAnyLiteral(node) {
-  if (['TemplateLiteral', 'StringLiteral'].includes(node.type)) {
+  if (node.type === 'ObjectProperty') {
+    return stringFromAnyLiteral(node.value);
+  }
+  if (['TemplateLiteral', 'StringLiteral', 'Literal'].includes(get(node, 'type'))) {
     return node.type === 'TemplateLiteral'
       ? get(node, 'quasis[0].value.raw')
       : get(node, 'value', null);
   } else {
     logging.error(
-      'Tried to get string value from a node that is not a TemplateLiteral or a StringLiteral',
+      'Tried to get string value from a node that is not a Literal, TemplateLiteral or a StringLiteral',
       '\n\n',
-      node
+      get(node, 'init.properties[0].key.name', '')
     );
   }
 }
@@ -126,15 +129,19 @@ function getObjectifiedValue(nodePropertyValue) {
   // includes `context` key and value and some will have a string)
   let message, context;
   if (nodePropertyValue.type !== 'ObjectExpression') {
-    message = nodePropertyValue.value;
+    message = stringFromAnyLiteral(nodePropertyValue);
     context = '';
   } else {
-    const contextNode = nodePropertyValue.properties.find(n => n.key.name === 'context');
-    const messageNode = nodePropertyValue.properties.find(n => n.key.name === 'message');
+    const contextNode = get(nodePropertyValue, 'properties', []).find(
+      n => n.key.name === 'context'
+    );
+    const messageNode = get(nodePropertyValue, 'properties', []).find(
+      n => n.key.name === 'message'
+    );
 
-    message = stringFromAnyLiteral(messageNode.value);
+    message = stringFromAnyLiteral(messageNode);
     try {
-      context = stringFromAnyLiteral(contextNode.value);
+      context = stringFromAnyLiteral(contextNode);
     } catch (e) {
       context = '';
     }
@@ -144,9 +151,9 @@ function getObjectifiedValue(nodePropertyValue) {
       // we should let the user know and just bail for now until it gets worked out
       logging.error(
         'Trying to get the message from an object in $trs but did not find a `message` key.\n\n',
-        'The above error is unrecoverable (✖╭╮✖). This indicates a bug that needs fixing. Sorry. Here is the node:\n\n',
-        messageNode.value
+        'The above error is unrecoverable (✖╭╮✖). This indicates a bug that needs fixing. Sorry.'
       );
+      logging.error(nodePropertyValue.properties[0].value.value);
       process.exit(1);
     }
   }
@@ -161,11 +168,11 @@ function getFileNameForImport(importPath, filePath) {
     !resolveAttempt.found ||
     !extensions.some(ext => resolveAttempt.path && resolveAttempt.path.endsWith(ext))
   ) {
+    // Just throw up here if we don't have another worthy attempt
     throw new ReferenceError(
       `Attempted to resolve an import in ${filePath} for module ${importPath} but could not be resolved as a Javascript or Vue file`
     );
   }
-
   return resolveAttempt.path;
 }
 
@@ -238,8 +245,8 @@ function getPropertyKey(node, ast, filePath) {
         ) {
           try {
             foundValue = stringFromAnyLiteral(
-              get(astNode, 'init.properties').find(p => get(p, 'key.name') === prop)
-            ).value;
+              get(astNode, 'init.properties', []).find(p => get(p, 'key.name') === prop)
+            );
           } catch (e) {
             logging.error(
               `Tried to get the value of ${obj}.${prop} from ${filePath} but failed.\n`,
@@ -288,7 +295,9 @@ function getPropertyKey(node, ast, filePath) {
               ) {
                 try {
                   foundValue = stringFromAnyLiteral(
-                    get(node, 'init.properties').find(p => get(p, 'key.name') === prop).value
+                    // get the matching property's `value` (a node) to give to stringFromAnyLiteral
+                    get(importedNode, 'init.properties', []).find(p => get(p, 'key.name') === prop)
+                      .value
                   );
                 } catch (e) {
                   logging.error(
@@ -512,23 +521,23 @@ function getFilesFromFilePath(moduleFilePath, ignore) {
   return glob.sync(globPath, { ignore });
 }
 
-function getAllMessagesFromFilePath(moduleFilePath, ignore) {
+function getAllMessagesFromFilePath(moduleFilePath, ignore, verbose) {
   const files = getFilesFromFilePath(moduleFilePath, ignore);
   logging.info('Processing ', files.length, ' files...');
   const messages = {};
 
   files.forEach(filePath => {
-    Object.assign(messages, getMessagesFromFile(filePath));
+    Object.assign(messages, getMessagesFromFile(filePath, verbose));
   });
   return messages;
 }
 
-function recurseForStrings(entryFile, ignore, visited) {
+function recurseForStrings(entryFile, ignore, visited, verbose) {
   const outputStrings = {};
   if (!visited.has(entryFile)) {
-    Object.assign(outputStrings, getMessagesFromFile(entryFile));
+    Object.assign(outputStrings, getMessagesFromFile(entryFile, verbose));
     for (let filePath of getImportFileNames(entryFile, ignore)) {
-      Object.assign(outputStrings, recurseForStrings(filePath, ignore, visited));
+      Object.assign(outputStrings, recurseForStrings(filePath, ignore, visited, verbose));
     }
     visited.add(entryFile);
   }
@@ -546,13 +555,13 @@ function _validateEntryFiles(entryFiles) {
   return entryFiles;
 }
 
-function getAllMessagesFromEntryFiles(entryFiles, moduleFilePath, ignore) {
+function getAllMessagesFromEntryFiles(entryFiles, moduleFilePath, ignore, verbose) {
   entryFiles = _validateEntryFiles(entryFiles);
   const visited = new Set();
   return entryFiles.reduce((acc, entryFile) => {
     try {
       const filePath = getFileNameForImport(path.join(moduleFilePath, entryFile), '/');
-      return Object.assign(acc, recurseForStrings(filePath, ignore, visited));
+      return Object.assign(acc, recurseForStrings(filePath, ignore, visited, verbose));
     } catch (e) {
       return acc;
     }
@@ -571,22 +580,30 @@ function getFilesFromEntryFiles(entryFiles, moduleFilePath, ignore) {
   return visited;
 }
 
-function getMessagesFromFile(filePath) {
+function getMessagesFromFile(filePath, verbose = false) {
   const messages = {};
-  const ast = getAstFromFile(filePath);
+  try {
+    const ast = getAstFromFile(filePath);
 
-  // At this point - if we basically don't have any JS to parse,
-  // so we should let the user know and leave
-  if (!ast) {
+    // At this point - if we basically don't have any JS to parse,
+    // so we should let the user know and leave
+    if (!ast) {
+      throw new Error('No AST created');
+    }
+
+    Object.assign(messages, extract$trs(ast, filePath));
+    Object.assign(messages, extractCreateTranslator(ast, filePath));
+    if (verbose) {
+      logging.info(`Extracted ${Object.keys(messages).length} messages from  :: ${filePath}`);
+      logging.info(JSON.stringify(messages));
+    }
+    return messages;
+  } catch (_) {
     logging.error(
       `Tried to find parsable Javascript in ${filePath} but could not. Will skip the file for now. This is a problem if you are expecting to translate any messages in that file - otherwise - you may ignore this message.`
     );
     return;
   }
-
-  Object.assign(messages, extract$trs(ast, filePath));
-  Object.assign(messages, extractCreateTranslator(ast, filePath));
-  return messages;
 }
 
 module.exports = {

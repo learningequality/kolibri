@@ -17,6 +17,7 @@ from morango.models import UUIDField
 from kolibri.core.fields import DateTimeTzField
 from kolibri.core.fields import JSONField
 from kolibri.deployment.default.sqlite_db_names import NOTIFICATIONS
+from kolibri.utils.data import ChoicesEnum
 from kolibri.utils.time_utils import local_now
 
 # Remove NotificationsRouter if sqlite is not being used:
@@ -75,30 +76,21 @@ class NotificationsRouter(object):
         return None
 
 
-class myEnum(object):
-    @classmethod
-    def choices(cls):
-        choices_list = [
-            ("{}".format(m), getattr(cls, m)) for m in cls.__dict__ if m[0] != "_"
-        ]
-        return tuple(sorted(choices_list))
-
-
-class NotificationObjectType(myEnum):
+class NotificationObjectType(ChoicesEnum):
     Resource = "Resource"
     Quiz = "Quiz"
     Help = "Help"
     Lesson = "Lesson"
 
 
-class NotificationEventType(myEnum):
+class NotificationEventType(ChoicesEnum):
     Started = "Started"
     Completed = "Completed"
     Help = "HelpNeeded"
     Answered = "Answered"
 
 
-class HelpReason(myEnum):
+class HelpReason(ChoicesEnum):
     Multiple = "MultipleUnsuccessfulAttempts"
 
 

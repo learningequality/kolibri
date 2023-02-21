@@ -1,22 +1,27 @@
 const Table = require('cli-table');
-const { parseCSVDefinitions } = require('./utils');
+const { forEachPathInfo, parseCSVDefinitions } = require('./utils');
 const { getAllMessagesFromEntryFiles, getAllMessagesFromFilePath } = require('./astUtils');
 
-module.exports = function(pathInfo, ignore, langInfo, localeDataFolder) {
+module.exports = function(pathInfo, ignore, langInfo, localeDataFolder, verbose) {
   const languageInfo = require(langInfo);
   // A map per webpack bundle designating which messages
   // are needed for full translation. Will be a map from:
   // name to an object of message ids to message object.
   const requiredMessages = {};
-  for (let pathData of pathInfo) {
+  forEachPathInfo(pathInfo, pathData => {
     const moduleFilePath = pathData.moduleFilePath;
     const name = pathData.name;
     if (pathData.entry) {
-      requiredMessages[name] = getAllMessagesFromEntryFiles(pathData.entry, moduleFilePath, ignore);
+      requiredMessages[name] = getAllMessagesFromEntryFiles(
+        pathData.entry,
+        moduleFilePath,
+        ignore,
+        verbose
+      );
     } else {
-      requiredMessages[name] = getAllMessagesFromFilePath(moduleFilePath, ignore);
+      requiredMessages[name] = getAllMessagesFromFilePath(moduleFilePath, ignore, verbose);
     }
-  }
+  });
   const table = new Table({
     head: ['Crowdin Code', 'Intl Code', '# Untranslated Messages', 'Untranslated Word Count'],
   });

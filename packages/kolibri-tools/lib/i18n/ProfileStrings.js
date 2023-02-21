@@ -17,6 +17,7 @@ const {
   getAstFromFile,
   parseAST,
 } = require('./astUtils');
+const { forEachPathInfo } = require('./utils');
 
 // If you ever add a namespace here - you should also add that to the
 // $TR_FUNCTIONS array in the vue-no-unused-translations eslint rule.
@@ -332,7 +333,7 @@ function getVueTemplateAST(filePath) {
   return parseAST(render);
 }
 
-module.exports = function(pathInfo, ignore, outputFile) {
+module.exports = function(pathInfo, ignore, outputFile, verbose) {
   const allMessages = {};
   /**
    * An object where "Translation strings" are the keys.
@@ -343,15 +344,20 @@ module.exports = function(pathInfo, ignore, outputFile) {
    *
    */
   const definitions = {};
-  for (let pathData of pathInfo) {
+  forEachPathInfo(pathInfo, pathData => {
     const moduleFilePath = pathData.moduleFilePath;
     const name = pathData.name;
     logging.info(`Gathering string ids for ${name}`);
     let bundleMessages;
     if (pathData.entry) {
-      bundleMessages = getAllMessagesFromEntryFiles(pathData.entry, moduleFilePath, ignore);
+      bundleMessages = getAllMessagesFromEntryFiles(
+        pathData.entry,
+        moduleFilePath,
+        ignore,
+        verbose
+      );
     } else {
-      bundleMessages = getAllMessagesFromFilePath(moduleFilePath, ignore);
+      bundleMessages = getAllMessagesFromFilePath(moduleFilePath, ignore, verbose);
     }
     for (let id in bundleMessages) {
       const message = bundleMessages[id]['message'];
@@ -366,9 +372,9 @@ module.exports = function(pathInfo, ignore, outputFile) {
     }
     Object.assign(allMessages, bundleMessages);
     logging.info(`Gathered ${Object.keys(bundleMessages).length} string ids for ${name}`);
-  }
+  });
   logging.info(`Gathered ${Object.keys(definitions).length} unique strings`);
-  for (let pathData of pathInfo) {
+  forEachPathInfo(pathInfo, pathData => {
     const moduleFilePath = pathData.moduleFilePath;
     const name = pathData.name;
     logging.info(`Gathering string uses for ${name}`);
@@ -390,6 +396,6 @@ module.exports = function(pathInfo, ignore, outputFile) {
       }
     }
     logging.info(`Gathered string uses from ${files.size} files for ${name}`);
-  }
+  });
   writeProfileToCSV(definitions, outputFile);
 };

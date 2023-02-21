@@ -2,7 +2,7 @@
 
   <OnboardingStepBase
     :title="header"
-    @continue="$emit('click_next', { facility: selectedFacility, device: device })"
+    @continue="handleContinue"
   >
     <!-- TODO: Show "you cannot import from this facility" message -->
     <RadioButtonGroup
@@ -37,7 +37,6 @@
 
 <script>
 
-  import isString from 'lodash/isString';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import { SelectAddressModalGroup, RadioButtonGroup } from 'kolibri.coreVue.componentSets.sync';
@@ -51,21 +50,14 @@
       RadioButtonGroup,
       SelectAddressModalGroup,
     },
+    inject: ['wizardService'],
     mixins: [commonCoreStrings, commonSyncElements],
-    props: {
-      device: {
-        type: Object,
-        required: true,
-        validator(val) {
-          return isString(val.name) && isString(val.id) && isString(val.baseurl);
-        },
-      },
-    },
     data() {
       return {
         // Need to initialize to non-empty string to fix #7595
         selectedFacilityId: 'selectedFacilityId',
         facilities: [],
+        device: null,
         formDisabled: false,
         loadingNewAddress: false,
         showSelectAddressModal: false,
@@ -75,12 +67,18 @@
       header() {
         return this.getCommonSyncString('selectFacilityTitle');
       },
+      importDeviceId() {
+        return this.wizardService._state.context.importDeviceId;
+      },
       selectedFacility() {
         return this.facilities.find(f => f.id === this.selectedFacilityId);
       },
     },
+    mounted() {
+      console.log('ImportAuthentication', this.wizardService.state);
+    },
     beforeMount() {
-      this.fetchNetworkLocation(this.$route.query.deviceId);
+      this.fetchNetworkLocation(this.importDeviceId);
     },
     methods: {
       fetchNetworkLocation(deviceId) {
@@ -88,11 +86,11 @@
         return this.fetchNetworkLocationFacilities(deviceId)
           .then(data => {
             this.facilities = [...data.facilities];
-            this.$emit('update:device', {
+            this.device = {
               name: data.device_name,
               id: data.device_id,
               baseurl: data.device_address,
-            });
+            };
             this.selectedFacilityId = this.facilities[0].id;
             this.loadingNewAddress = false;
           })
@@ -103,6 +101,15 @@
       },
       handleAddressSubmit(address) {
         this.fetchNetworkLocation(address.id).then(() => (this.showSelectAddressModal = false));
+      },
+      handleContinue() {
+        //$emit('click_next', { facility: selectedFacility, device: device })
+        console.log(this.wizardService._state);
+        console.log(this.wizardService.state);
+        this.wizardService.send({
+          type: 'CONTINUE',
+          value: { selectedFacility: this.selectedFacility, importDevice: this.device },
+        });
       },
     },
     $trs: {

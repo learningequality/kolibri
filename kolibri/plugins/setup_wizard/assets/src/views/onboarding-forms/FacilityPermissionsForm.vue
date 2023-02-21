@@ -15,6 +15,7 @@
     <FacilityNameTextbox
       v-if="selected === Presets.NONFORMAL"
       ref="facility-name"
+      v-model="facilityName"
       class="textbox"
     />
     <KRadioButton
@@ -27,6 +28,7 @@
     <FacilityNameTextbox
       v-if="selected === Presets.FORMAL"
       ref="facility-name"
+      v-model="facilityName"
       class="textbox"
     />
 
@@ -49,13 +51,13 @@
     },
     data() {
       let selected;
-      const { preset } = this.$store.state.onboardingData;
-      if (preset === null || preset === Presets.NONFORMAL) {
-        selected = Presets.NONFORMAL;
-      } else {
-        selected = Presets.FORMAL;
-      }
+      const preset = this.wizardService.state.context['formalOrNonformal'];
+      // preset inits to null, so either it'll be what the user selected or default to nonformal
+      selected = preset || Presets.NONFORMAL;
+
+      const facilityName = this.wizardService.state.context['facilityName'] || '';
       return {
+        facilityName,
         selected,
         Presets,
       };
@@ -66,7 +68,10 @@
     inject: ['wizardService'],
     methods: {
       handleContinue() {
-        this.wizardService.send({ type: 'CONTINUE', value: this.selected });
+        this.wizardService.send({
+          type: 'CONTINUE',
+          value: { selected: this.selected, facilityName: this.facilityName },
+        });
       },
       focusOnTextbox() {
         if (this.$refs && this.$refs['facility-name']) {

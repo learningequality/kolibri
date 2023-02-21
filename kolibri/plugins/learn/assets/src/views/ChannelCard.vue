@@ -20,20 +20,11 @@
     </h3>
 
 
-    <ProgressIcon
-      v-if="progress > 0"
-      class="progress-icon"
-      :progress="progress"
-    />
-
-
     <KFixedGrid numCols="4" gutter="16" style="margin: 0 16px;">
       <KFixedGridItem span="1">
-        <CardThumbnail
+        <ChannelThumbnail
           class="thumbnail"
-          v-bind="{ thumbnail, kind, isMobile }"
-          :showTooltip="false"
-          :showContentIcon="false"
+          v-bind="{ thumbnail, isMobile }"
         />
       </KFixedGridItem>
       <KFixedGridItem span="3" alignment="auto">
@@ -60,20 +51,18 @@
 <script>
 
   import { mapGetters } from 'vuex';
-  import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
+  import { validateLinkObject } from 'kolibri.utils.validators';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
-  import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
-  import CardThumbnail from './ContentCard/CardThumbnail';
+  import ChannelThumbnail from './ChannelThumbnail';
 
   export default {
     name: 'ChannelCard',
     components: {
-      CardThumbnail,
+      ChannelThumbnail,
       CoachContentLabel,
       TextTruncator,
-      ProgressIcon,
     },
     mixins: [responsiveWindowMixin],
     props: {
@@ -89,25 +78,12 @@
         type: String,
         default: null,
       },
-      kind: {
-        type: String,
-        required: true,
-        validator: validateContentNodeKind,
-      },
       // ContentNode.coach_content will be `0` if not a coach content leaf node,
       // or a topic without coach content. It will be a positive integer if a topic
       // with coach content, and `1` if a coach content leaf node.
       numCoachContents: {
         type: Number,
         default: 0,
-      },
-      progress: {
-        type: Number,
-        required: false,
-        default: 0.0,
-        validator(value) {
-          return value >= 0.0 && value <= 1.0;
-        },
       },
       link: {
         type: Object,
@@ -147,7 +123,6 @@
 <style lang="scss" scoped>
 
   @import '~kolibri-design-system/lib/styles/definitions';
-  @import './ContentCard/card';
 
   $margin: 16px;
 

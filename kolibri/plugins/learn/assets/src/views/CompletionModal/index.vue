@@ -104,8 +104,8 @@
               >
                 <KGrid :style="{ marginTop: '6px' }">
                   <KGridItem
-                    v-for="contentNode in recommendedContentNodes"
-                    :key="contentNode.id"
+                    v-for="node in recommendedContentNodes"
+                    :key="node.id"
                     :layout12="{ span: 6 }"
                     :layout8="{ span: 4 }"
                     :layout4="{ span: 4 }"
@@ -113,10 +113,10 @@
                   >
                     <ResourceItem
                       data-test="recommended-resource"
-                      :contentNode="contentNode"
+                      :contentNode="node"
                       :contentNodeRoute="genContentLinkKeepCurrentBackLink(
-                        contentNode.id,
-                        contentNode.is_leaf,
+                        node.id,
+                        node.is_leaf,
                       )"
                       :size="recommendedResourceItemSize"
                     />
@@ -150,6 +150,7 @@
   import FocusTrap from 'kolibri.coreVue.components.FocusTrap';
   import PointsIcon from 'kolibri.coreVue.components.PointsIcon';
   import { ContentNodeResource } from 'kolibri.resources';
+  import useDevices from '../../composables/useDevices';
   import useDeviceSettings from '../../composables/useDeviceSettings';
   import useLearnerResources from '../../composables/useLearnerResources';
   import useContentLink from '../../composables/useContentLink';
@@ -181,7 +182,13 @@
       const { canAccessUnassignedContent } = useDeviceSettings();
       const { fetchLesson } = useLearnerResources();
       const { genContentLinkKeepCurrentBackLink } = useContentLink();
-      return { canAccessUnassignedContent, fetchLesson, genContentLinkKeepCurrentBackLink };
+      const { baseurl } = useDevices();
+      return {
+        baseurl,
+        canAccessUnassignedContent,
+        fetchLesson,
+        genContentLinkKeepCurrentBackLink,
+      };
     },
     props: {
       /**
@@ -193,8 +200,8 @@
         type: Boolean,
         required: true,
       },
-      contentNodeId: {
-        type: String,
+      contentNode: {
+        type: Object,
         required: true,
       },
       lessonId: {
@@ -236,6 +243,9 @@
       };
     },
     computed: {
+      contentNodeId() {
+        return this.contentNode && this.contentNode.id;
+      },
       staySectionDescription() {
         if (this.isQuiz) {
           return this.$tr('reviewQuizDescription');
@@ -347,14 +357,37 @@
         this.$el.querySelector('.close-button').focus();
       },
       loadNextContent() {
-        return ContentNodeResource.fetchNextContent(this.contentNodeId).then(data => {
-          this.nextContentNode = data;
+        const fetchGrandparent = this.contentNode.ancestors.length > 1;
+        const treeParams = {
+          id: fetchGrandparent
+            ? this.contentNode.ancestors.slice(-2)[0].id
+            : this.contentNode.parent,
+          params: {
+            include_coach_content:
+              this.$store.getters.isAdmin ||
+              this.$store.getters.isCoach ||
+              this.$store.getters.isSuperuser,
+            depth: fetchGrandparent ? 2 : 1,
+            baseurl: this.baseurl,
+          },
+        };
+        return ContentNodeResource.fetchTree(treeParams).then(ancestor => {
+          let parent;
+          if (fetchGrandparent) {
+            parent = ancestor.children.results.find(c => c.id === this.contentNode.parent);
+          } else {
+            parent = ancestor;
+          }
+          const contentIndex = parent.children.results.findIndex(c => c.id === this.contentNode.id);
+          this.nextContentNode = parent.children.results.slice(contentIndex + 1)[0] || null;
         });
       },
       loadRecommendedContent() {
-        return ContentNodeResource.fetchRecommendationsFor(this.contentNodeId).then(data => {
-          this.recommendedContentNodes = data;
-        });
+        if (!this.baseurl) {
+          return ContentNodeResource.fetchRecommendationsFor(this.contentNodeId).then(data => {
+            this.recommendedContentNodes = data;
+          });
+        }
       },
       loadNextLessonContent() {
         return this.fetchLesson({ lessonId: this.lessonId }).then(lesson => {

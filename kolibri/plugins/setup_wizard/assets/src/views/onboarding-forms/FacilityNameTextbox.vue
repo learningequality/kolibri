@@ -9,6 +9,7 @@
       :label="$tr('facilityNameFieldLabel')"
       :maxlength="50"
       @blur="validateFacilityName"
+      @input="$emit('input', facilityName)"
     />
   </div>
 
@@ -19,9 +20,16 @@
 
   export default {
     name: 'FacilityNameTextbox',
+    props: {
+      value: {
+        type: String,
+        required: true,
+        default: '',
+      },
+    },
     data() {
       return {
-        facilityName: this.$store.state.onboardingData.facility.name,
+        facilityName: this.value,
         fieldVisited: false,
       };
     },

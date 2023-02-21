@@ -90,15 +90,6 @@ export default new Resource({
   fetchDescendantsAssessments(ids) {
     return this.getListEndpoint('descendants_assessments', { ids });
   },
-  fetchCopies(content_id) {
-    return this.fetchDetailCollection('copies', content_id);
-  },
-  fetchCopiesCount(getParams = {}) {
-    return this.fetchListCollection('copies_count', getParams);
-  },
-  fetchNextContent(id, getParams = {}) {
-    return this.fetchDetailModel('next_content', id, getParams);
-  },
   fetchNodeAssessments(ids) {
     return this.getListEndpoint('node_assessments', { ids });
   },
@@ -127,11 +118,11 @@ export default new Resource({
     });
   },
   cache: {},
-  fetchModel({ id }) {
+  fetchModel({ id, getParams: params }) {
     if (this.cache[id]) {
       return Promise.resolve(cloneDeep(this.cache[id]));
     }
-    return this.client({ url: this.modelUrl(id) }).then(response => {
+    return this.client({ url: this.modelUrl(id), params }).then(response => {
       this.cacheData(response.data);
       return response.data;
     });

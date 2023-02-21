@@ -85,7 +85,6 @@
 <style lang="scss" scoped>
 
   @import '~kolibri-design-system/lib/styles/definitions';
-  @import './ContentCard/card';
 
   $margin: 24px;
 

@@ -13,7 +13,6 @@ from kolibri.utils.translation import ugettext as _
 class SetupWizardPlugin(KolibriPluginBase):
     untranslated_view_urls = "api_urls"
     translated_view_urls = "urls"
-    can_manage_while_running = True
 
     @property
     def url_slug(self):

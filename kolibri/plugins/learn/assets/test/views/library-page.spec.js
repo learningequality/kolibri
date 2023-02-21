@@ -34,6 +34,7 @@ const mockStore = new Vuex.Store({
   },
 });
 
+jest.mock('../../src/composables/useDevices');
 jest.mock('../../src/composables/useSearch');
 jest.mock('../../src/composables/useLearnerResources');
 jest.mock('../../src/composables/useLearningActivities');
