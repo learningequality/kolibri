@@ -128,17 +128,17 @@ export default [
     },
   },
   {
-    path: '/:facility_id?/managesync',
+    path: '/:facility_id?/:device_id?/managesync',
     component: ManageSyncSchedule,
     name: 'ManageSyncSchedule',
   },
   {
-    path: '/:facility_id?/editsyncschedule/?',
+    path: '/:facility_id?/:device_id?/editsyncschedule/?',
     component: editDeviceSyncSchedule,
     name: 'EditSyncSchedule',
   },
   {
-    path: '/:facility_id?/editdevice',
+    path: '/:facility_id?/:device_id?/editdevice',
     component: SyncSchedule,
     name: 'SyncSchedule',
   },

@@ -6,91 +6,84 @@
     :icon="icon"
   >
     <KPageContainer v-if="device">
-      <KGrid gutter="48">
+      <KGrid gutter="48" class="edit-sync-schedule">
 
         <KGridItem>
           <h1>{{ $tr('editSyncScheduleSubTitle') }}</h1>
         </KGridItem>
 
         <KGridItem>
-          <p>{{ device.device_name }} </p><br>
+          <p>{{ device.device_name }} </p>
         </KGridItem>
 
         <KGridItem
-          :layout8="{ span: 8 }"
-          :layout12="{ span: 12 }"
+          :layout8="{ span: 2 }"
+          :layout12="{ span: 3 }"
         >
+          <KSelect
+            v-model="selectedItem"
+            :value="myvalue"
+            class="selector"
+            :style="selectorStyle"
+            :options="selectArray"
+            label="Repeat"
+          />
 
-          <KGridItem
-            :layout8="{ span: 2 }"
-            :layout12="{ span: 3 }"
+        </KGridItem>
+
+        <KGridItem
+          v-if="selectedItem.label !== 'Never'
+            && selectedItem.label !== 'Every hour'
+            && selectedItem.label !== 'Every day'"
+          :layout8="{ span: 2 }"
+          :layout12="{ span: 3 }"
+        >
+          <KSelect
+            v-model="dayselected"
+            class="selector"
+            :style="selectorStyle"
+            :options="Days"
+            label="On"
+          />
+
+        </KGridItem>
+
+        <KGridItem
+          v-if="selectedItem.label !== 'Never' && selectedItem.label !== 'Every hour' "
+          :layout8="{ span: 2 }"
+          :layout12="{ span: 3 }"
+        >
+          <KSelect
+            v-model="timeseed"
+            :value="mytime"
+            class="selector"
+            :style="selectorStyle"
+            :options="SyncTime"
+            label="At"
+          />
+        </KGridItem>
+
+        <KGridItem>
+          <span class="spacing">
+            {{ $tr('serverTime') }}
+            {{ serverTime }}
+          </span>
+        </KGridItem>
+
+        <KGridItem class="spacing">
+          <KCheckbox>
+            {{ $tr('checboxlabel') }}
+          </KCheckbox>
+        </KGridItem>
+        <KGridItem>
+          <KButton
+            :vIf="msg"
+            appearance="basic-link"
+            class="spacing"
+            @click="removeDevice"
           >
-            <KSelect
-              v-model="selectedItem"
-              :value="myvalue"
-              class="selector"
-              :style="selectorStyle"
-              :options="selectArray"
-              label="Repeat"
-            />
-
-          </KGridItem>
-
-          <KGridItem
-            v-if="selectedItem.label !== 'Never'
-              && selectedItem.label !== 'Every hour'
-              && selectedItem.label !== 'Every day'"
-            :layout8="{ span: 2 }"
-            :layout12="{ span: 3 }"
-          >
-            <KSelect
-              v-model="dayselected"
-              class="selector"
-              :style="selectorStyle"
-              :options="Days"
-              label="On"
-            />
-
-          </KGridItem>
-
-          <KGridItem
-            v-if="selectedItem.label !== 'Never' && selectedItem.label !== 'Every hour' "
-            :layout8="{ span: 2 }"
-            :layout12="{ span: 3 }"
-          >
-
-
-            <KSelect
-              v-model="timeseed"
-              :value="mytime"
-              class="selector"
-              :style="selectorStyle"
-              :options="SyncTime"
-              label="At"
-            />
-          </KGridItem>
-
-          <KGridItem>
-            <span>
-              {{ $tr('serverTime') }}
-              {{ serverTime }}
-            </span>
-          </KGridItem>
-
-          <KGridItem>
-            <KCheckbox>
-              {{ $tr('checboxlabel') }}
-            </KCheckbox>
-          </KGridItem>
-          <KGridItem>
-            <KButton
-              :vIf="msg"
-              appearance="basic-link"
-              @click="removeDevice"
-            >
-              {{ msg }}
-            </KButton>
-          </KGridItem>
+            {{ msg }}
+          </KButton>
         </KGridItem>
       </KGrid>
 
@@ -374,7 +367,7 @@
         context: 'Day 3',
       },
       thur: {
-        message: 'Thrusday',
+        message: 'Thursday',
         context: 'Day 4',
       },
       fri: {
@@ -393,3 +386,13 @@
   };
 
 </script>
+
+
+<style scoped>
+  .spacing{
+    margin-top:10px;
+  }
+  .edit-sync-schedule{
+    margin-left:20px;
+  }
+</style>
