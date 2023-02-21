@@ -1,6 +1,7 @@
 import json
 import logging
 import socket
+import uuid
 
 from magicbus.base import Bus
 from magicbus.plugins import SimplePlugin
@@ -207,6 +208,37 @@ class KolibriInstance(object):
         instance.zeroconf_id = service_info.name.replace(SERVICE_TYPE, "").strip(".")
         return instance
 
+    def to_dict(self):
+        """
+        :rtype: dict
+        """
+        return dict(
+            id=self.id,
+            ip=self.ip,
+            port=self.port,
+            host=self.host,
+            device_info=self.device_info,
+            is_self=self.is_self,
+            prefix=self.prefix,
+        )
+
+    @classmethod
+    def from_dict(cls, state):
+        """
+        :type state: dict
+        :rtype: KolibriInstance
+        """
+        instance = cls(
+            state.pop("id"),
+            ip=state.pop("ip"),
+            port=state.pop("port"),
+            host=state.pop("host"),
+            device_info=state.pop("device_info"),
+            prefix=state.pop("prefix"),
+        )
+        instance.is_self = state.pop("is_self")
+        return instance
+
 
 def build_broadcast_instance(port):
     """
@@ -279,27 +311,6 @@ class KolibriInstanceListener(SimplePlugin):
         super(KolibriInstanceListener, self).__init__(broadcast.events)
         self.broadcast = broadcast
 
-    def partial_subscribe(self, events):
-        """
-        See similarity to SimplePlugin.subscribe()
-        :param events: A list of string event names, matching methods on this class
-        """
-        for event in events:
-            method = getattr(self, event, None)
-            listeners = self.bus.listeners.get(event)
-            if method is not None and method not in listeners:
-                self.bus.subscribe(event, method)
-
-    def partial_unsubscribe(self, events):
-        """
-        See similarity to SimplePlugin.unsubscribe()
-        :param events: A list of string event names, matching methods on this class
-        """
-        for event in events:
-            method = getattr(self, event, None)
-            if method is not None:
-                self.bus.unsubscribe(event, method)
-
 
 class KolibriBroadcast(object):
     """
@@ -307,6 +318,7 @@ class KolibriBroadcast(object):
     """
 
     __slots__ = (
+        "id",
         "instance",
         "interfaces",
         "events",
@@ -319,6 +331,7 @@ class KolibriBroadcast(object):
         :param instance: A `KolibriInstance` we'll register and broadcast on Zeroconf
         :param interfaces: A list of addresses or a Zeroconf `InterfaceChoice`
         """
+        self.id = uuid.uuid4().hex
         self.instance = instance
         self.interfaces = interfaces
         self.events = KolibriBroadcastEvents()
@@ -372,6 +385,9 @@ class KolibriBroadcast(object):
         if not self.is_broadcasting:
             logger.error("Zeroconf service is not broadcasting!")
             return
+
+        # a new ID every time the broadcast changes
+        self.id = uuid.uuid4().hex
 
         # when interfaces is being updated, pass along to Zeroconf so it can bind to them
         if interfaces is not None:

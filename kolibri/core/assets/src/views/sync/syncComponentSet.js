@@ -8,3 +8,11 @@ export { default as RadioButtonGroup } from './RadioButtonGroup';
 export { default as RegisterFacilityModal } from './RegisterFacilityModal';
 export { default as SelectSourceModal } from './SelectSourceModal';
 export { default as SyncFacilityModalGroup } from './SyncFacilityModalGroup';
+export {
+  default as useDevices,
+  useDevicesForLearnOnlyDevice,
+  useDevicesWithFacility,
+  useDevicesWithChannel,
+} from './SelectAddressModalGroup/useDevices';
+export { default as useDeviceDeletion } from './SelectAddressModalGroup/useDeviceDeletion';
+export { default as useConnectionChecker } from './SelectAddressModalGroup/useConnectionChecker';

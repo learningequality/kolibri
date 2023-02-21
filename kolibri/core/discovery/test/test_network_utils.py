@@ -2,10 +2,16 @@ import mock
 import requests
 from django.test import TestCase
 
+from ..models import ConnectionStatus
+from ..models import NetworkLocation
 from ..utils.network import errors
 from ..utils.network.client import NetworkClient
 from ..utils.network.urls import get_normalized_url_variations
-from .helpers import mock_request
+from .helpers import info as mock_device_info
+from .helpers import mock_happy_request
+from .helpers import mock_not_found
+from .helpers import mock_response
+from .helpers import mock_sad_request
 
 
 class TestURLParsing(TestCase):
@@ -19,6 +25,21 @@ class TestURLParsing(TestCase):
                 "http://192.168.0.1:8008/",
                 "http://192.168.0.1:8000/",
                 "http://192.168.0.1:5000/",
+                "https://192.168.0.1/",
+            ],
+        )
+
+    def test_valid_ipv4_address__dedupe_port(self):
+        urls = get_normalized_url_variations("192.168.0.1:8080")
+        self.assertEqual(
+            urls,
+            [
+                "http://192.168.0.1:8080/",
+                "http://192.168.0.1/",
+                "http://192.168.0.1:8008/",
+                "http://192.168.0.1:8000/",
+                "http://192.168.0.1:5000/",
+                "https://192.168.0.1:8080/",
                 "https://192.168.0.1/",
             ],
         )
@@ -140,36 +161,192 @@ class TestURLParsing(TestCase):
             get_normalized_url_variations("www.nomansland.com:1231d")
 
 
-@mock.patch.object(requests.Session, "get", mock_request)
-class TestNetworkClientConnections(TestCase):
-    def test_successful_connection_to_kolibri_address(self):
-        nc = NetworkClient(address="kolibrihappyurl.qqq")
-        self.assertEqual(nc.base_url, "https://kolibrihappyurl.qqq/")
+class NetworkClientTestCase(TestCase):
+    @mock.patch.object(
+        requests.Session, "request", mock_happy_request("https://happyurl.qqq/")
+    )
+    def test_build_for_address__success(self):
+        nc = NetworkClient.build_for_address("happyurl.qqq")
+        self.assertEqual(nc.base_url, "https://happyurl.qqq/")
 
-    def test_unsuccessful_connection_to_unavailable_address(self):
+    @mock.patch.object(
+        requests.Session, "request", mock_sad_request("https://sadurl.qqq/")
+    )
+    def test_build_for_address__not_found__request_failure(self):
         with self.assertRaises(errors.NetworkLocationNotFound):
-            NetworkClient(address="sadurl.qqq")
+            NetworkClient.build_for_address("sadurl.qqq")
 
-    def test_unsuccessful_connection_to_nonkolibri_address(self):
+    @mock.patch.object(requests.Session, "request", mock_not_found())
+    def test_build_for_address__not_found(self):
         with self.assertRaises(errors.NetworkLocationNotFound):
-            NetworkClient(address="nonkolibrihappyurl.qqq")
+            NetworkClient.build_for_address("nonkolibrihappyurl.qqq")
 
-    def test_successful_connection_to_address_with_port80_timeout(self):
-        nc = NetworkClient(address="timeoutonport80url.qqq")
-        self.assertEqual(nc.base_url, "http://timeoutonport80url.qqq:8080/")
+    @mock.patch.object(
+        requests.Session, "request", mock_happy_request("https://url.qqq/")
+    )
+    def test_build_for_network_location__previously_not_okay(self):
+        network_loc = mock.MagicMock(
+            spec=NetworkLocation(),
+            base_url="url.qqq",
+            connection_status=ConnectionStatus.ConnectionFailure,
+        )
+        client = NetworkClient.build_from_network_location(network_loc)
+        # should have resolved the base url to something different
+        self.assertNotEqual(client.base_url, network_loc.base_url)
+        self.assertEqual(client.base_url, "https://url.qqq/")
 
-    def test_successful_connection_to_kolibri_base_url(self):
-        nc = NetworkClient(base_url="https://kolibrihappyurl.qqq/")
-        self.assertEqual(nc.base_url, "https://kolibrihappyurl.qqq/")
-
-    def test_unsuccessful_connection_to_unavailable_base_url(self):
+    @mock.patch.object(
+        requests.Session, "request", mock_sad_request("https://url.qqq/")
+    )
+    def test_build_for_network_location__failure(self):
+        network_loc = mock.MagicMock(
+            spec=NetworkLocation(),
+            base_url="url.qqq",
+            connection_status=ConnectionStatus.ConnectionFailure,
+        )
         with self.assertRaises(errors.NetworkLocationNotFound):
-            NetworkClient(base_url="https://sadurl.qqq")
+            NetworkClient.build_from_network_location(network_loc)
 
-    def test_unsuccessful_connection_to_nonkolibri_base_url(self):
-        with self.assertRaises(errors.NetworkLocationNotFound):
-            NetworkClient(base_url="nonkolibrihappyurl.qqq")
+    @mock.patch.object(
+        requests.Session, "request", mock_happy_request("https://url.qqq/")
+    )
+    def test_build_for_network_location__already_okay(self):
+        network_loc = mock.MagicMock(
+            spec=NetworkLocation(),
+            base_url="https://url.qqq/",
+            connection_status=ConnectionStatus.Okay,
+        )
+        client = NetworkClient.build_from_network_location(network_loc)
+        # should have resolved the base url to something different
+        self.assertEqual(client.base_url, network_loc.base_url)
+        self.assertEqual(client.base_url, "https://url.qqq/")
 
-    def test_unsuccessful_connection_to_base_url_with_timeout(self):
-        with self.assertRaises(errors.NetworkLocationNotFound):
-            NetworkClient(base_url="http://timeoutonport80url.qqq")
+    def test_request__connection_failure(self):
+        excs = (
+            requests.exceptions.ConnectionError,
+            requests.exceptions.SSLError,
+            requests.exceptions.ConnectTimeout,
+            requests.exceptions.URLRequired,
+            requests.exceptions.MissingSchema,
+            requests.exceptions.InvalidSchema,
+            requests.exceptions.InvalidURL,
+            requests.exceptions.InvalidHeader,
+            requests.exceptions.InvalidJSONError,
+        )
+        for exc in excs:
+            with mock.patch.object(
+                requests.Session, "request", mock_not_found(default_error=exc)
+            ):
+                with self.assertRaises(errors.NetworkLocationConnectionFailure):
+                    with NetworkClient("http://sadurl.qqq") as nc:
+                        nc.connect()
+
+    def test_request__response_timeout(self):
+        excs = (
+            requests.exceptions.ReadTimeout,
+            requests.exceptions.TooManyRedirects,
+        )
+        for exc in excs:
+            with mock.patch.object(
+                requests.Session, "request", mock_not_found(default_error=exc)
+            ):
+                with self.assertRaises(errors.NetworkLocationResponseTimeout):
+                    with NetworkClient("http://sadurl.qqq") as nc:
+                        nc.connect()
+
+    def test_request__response_failure(self):
+        excs = (
+            requests.exceptions.HTTPError,
+            requests.exceptions.ContentDecodingError,
+            requests.exceptions.ChunkedEncodingError,
+            requests.exceptions.RequestException,
+        )
+        for exc in excs:
+            with mock.patch.object(
+                requests.Session, "request", mock_not_found(default_error=exc)
+            ):
+                with self.assertRaises(errors.NetworkLocationResponseFailure):
+                    with NetworkClient("http://sadurl.qqq") as nc:
+                        nc.connect()
+
+    @mock.patch.object(
+        requests.Session, "request", mock_happy_request("https://url.qqq/")
+    )
+    def test_connect__success(self):
+        with NetworkClient("https://url.qqq/") as nc:
+            self.assertTrue(nc.connect())
+            self.assertEqual(nc.base_url, "https://url.qqq/")
+            self.assertEqual(
+                nc.device_info, dict(subset_of_users_device=False, **mock_device_info)
+            )
+
+    @mock.patch.object(
+        requests.Session, "request", mock_happy_request("https://url.qqq/prefix/")
+    )
+    def test_connect__success__prefixed(self):
+        with NetworkClient("https://url.qqq/prefix/") as nc:
+            self.assertTrue(nc.connect())
+            self.assertEqual(nc.base_url, "https://url.qqq/prefix/")
+            self.assertEqual(
+                nc.device_info, dict(subset_of_users_device=False, **mock_device_info)
+            )
+
+    @mock.patch.object(requests.Session, "request", mock_not_found())
+    def test_connect__not_found(self):
+        with self.assertRaises(errors.NetworkLocationConnectionFailure):
+            with NetworkClient("https://sadurl.qqq") as nc:
+                nc.connect()
+
+    @mock.patch.object(
+        requests.Session, "request", mock_sad_request("http://sadurl.qqq")
+    )
+    def test_connect__server_error(self):
+        with NetworkClient("http://sadurl.qqq") as nc:
+            self.assertFalse(nc.connect(raise_if_unavailable=False))
+
+    @mock.patch.object(
+        requests.Session,
+        "request",
+        mock_not_found(default_error=requests.exceptions.ReadTimeout),
+    )
+    def test_connect__timeout(self):
+        with NetworkClient("http://erroronport80url.qqq/") as nc:
+            self.assertFalse(nc.connect(raise_if_unavailable=False))
+
+    def test_connect__not_okay(self):
+        response = mock_response(204)
+        response.url = "http://url.qqq/"
+
+        with self.assertRaises(errors.NetworkLocationInvalidResponse):
+            with mock.patch.object(NetworkClient, "get", return_value=response):
+                with NetworkClient("http://url.qqq/") as nc:
+                    nc.connect()
+
+    def test_connect__redirected(self):
+        response = mock_response(200)
+        response.url = "http://url.qqq/not/the/api"
+
+        with self.assertRaises(errors.NetworkLocationInvalidResponse):
+            with mock.patch.object(NetworkClient, "get", return_value=response):
+                with NetworkClient("http://url.qqq/") as nc:
+                    nc.connect()
+
+    def test_connect__not_a_kolibri(self):
+        response = mock_response(200)
+        response.json.return_value = {"application": "not-a-kolibri"}
+        response.url = "http://url.qqq/api/public/info"
+
+        with self.assertRaises(errors.NetworkLocationInvalidResponse):
+            with mock.patch.object(NetworkClient, "get", return_value=response):
+                with NetworkClient("http://url.qqq/") as nc:
+                    nc.connect()
+
+    def test_connect__invalid_json(self):
+        response = mock_response(200)
+        response.json.side_effect = requests.exceptions.JSONDecodeError("oops")
+        response.url = "http://url.qqq/api/public/info"
+
+        with self.assertRaises(errors.NetworkLocationInvalidResponse):
+            with mock.patch.object(NetworkClient, "get", return_value=response):
+                with NetworkClient("http://url.qqq/") as nc:
+                    nc.connect()

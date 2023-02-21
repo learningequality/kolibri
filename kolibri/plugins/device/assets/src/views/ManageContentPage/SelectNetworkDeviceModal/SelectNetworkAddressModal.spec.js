@@ -1,18 +1,17 @@
 import { mount } from '@vue/test-utils';
-// import makeStore from '../../../../../test/utils/makeStore';
 import SelectNetworkDeviceModal from '../index.vue';
+import { coreStoreFactory } from '../../../../state/store';
 
 jest.mock('../api.js', () => ({
-  fetchStaticAddresses: jest.fn().mockResolvedValue([]),
-  fetchDynamicAddresses: jest.fn().mockResolvedValue([]),
-  deleteAddress: jest.fn().mockResolvedValue(),
-  createAddress: jest.fn().mockResolvedValue(),
+  fetchDevices: jest.fn().mockResolvedValue([]),
+  deleteDevice: jest.fn().mockResolvedValue(),
+  createDevice: jest.fn().mockResolvedValue(),
 }));
 
 // prettier-ignore
 function makeWrapper() {
-  const store = {};
-  const wrapper = mount(SelectNetworkDeviceModal, {
+  const store = coreStoreFactory();
+  const wrapper = mount(SelectNetworkAddressModal, {
     store,
   })
   const els = {
@@ -29,8 +28,8 @@ function makeWrapper() {
   return { wrapper, store, els, actions };
 }
 
-xdescribe('SelectNetworkDeviceModal', () => {
-  it('starts on the Select Address Form', () => {
+describe('SelectNetworkDeviceModal', () => {
+  it('starts on the Select Device Form', () => {
     const { els } = makeWrapper();
     expect(els.SelectDeviceForm().isVueInstance()).toBe(true);
   });
@@ -47,18 +46,11 @@ xdescribe('SelectNetworkDeviceModal', () => {
     const { actions, wrapper } = makeWrapper();
     actions.clickNewAddress();
     await wrapper.vm.$nextTick();
-    expect(wrapper.vm.stage).toBe('ADD_ADDRESS');
+    expect(wrapper.vm.addingAddress).toBe(true);
     actions.clickAddAddressCancel();
     await wrapper.vm.$nextTick();
     // Can't test presence of component for some reason. Checking the wrapper.vm.stage
-    expect(wrapper.vm.stage).toBe('SELECT_ADDRESS');
-  });
-
-  it('click "cancel" on Select Address Form clears the wizard state', () => {
-    const { store, actions } = makeWrapper();
-    store.commit('manageContent/wizard/SET_WIZARD_PAGENAME', 'SELECT_NETWORK_ADDRESS');
-    actions.clickSelectAddressCancel();
-    expect(store.state.manageContent.wizard.pageName).toEqual('');
+    expect(wrapper.vm.addingAddress).toBe(false);
   });
 
   describe('responding to a new address', () => {
@@ -71,7 +63,7 @@ xdescribe('SelectNetworkDeviceModal', () => {
         address: '0.0.0.1:8000',
       });
       // And we are sent back to the Select Address Modal
-      expect(wrapper.vm.stage).toEqual('SELECT_ADDRESS');
+      expect(wrapper.vm.addingAddress).toEqual(false);
       expect(store.state.core.snackbar).toEqual({
         isVisible: true,
         options: {

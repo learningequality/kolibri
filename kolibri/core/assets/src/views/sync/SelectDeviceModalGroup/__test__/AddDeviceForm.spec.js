@@ -1,11 +1,10 @@
 import { mount } from '@vue/test-utils';
 import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
 import AddDeviceForm from '../AddDeviceForm';
-// import makeStore from '../../../../../test/utils/makeStore';
-import { createAddress } from '../api';
+import { createDevice } from '../api';
 
 jest.mock('../api', () => ({
-  createAddress: jest.fn(),
+  createDevice: jest.fn(),
 }));
 
 function makeWrapper() {
@@ -20,25 +19,27 @@ function makeWrapper() {
     addressBlurred: true,
   });
   const els = {
-    addressTextbox: () => wrapper.findAll({ name: 'KTextbox' }).at(0),
-    nameTextbox: () => wrapper.findAll({ name: 'KTextbox' }).at(1),
+    addressTextbox: () => wrapper.findComponent({ name: 'KTextbox' }),
+    nameTextbox: () => wrapper.findAllComponents({ name: 'KTextbox' }).at(1),
   };
   return { store, wrapper, els };
 }
 
-xdescribe('AddDeviceForm', () => {
+describe('AddDeviceForm', () => {
   beforeEach(() => {
-    createAddress.mockReset();
+    createDevice.mockReset();
   });
 
   it('shows a URL formatting error if API responds with one', async () => {
     const { els, wrapper } = makeWrapper();
-    createAddress.mockRejectedValue({
-      data: [
-        {
-          id: ERROR_CONSTANTS.NETWORK_LOCATION_NOT_FOUND,
-        },
-      ],
+    createDevice.mockRejectedValue({
+      response: {
+        data: [
+          {
+            id: ERROR_CONSTANTS.NETWORK_LOCATION_NOT_FOUND,
+          },
+        ],
+      },
     });
     expect(els.addressTextbox().props().invalid).toEqual(false);
     try {
@@ -53,8 +54,10 @@ xdescribe('AddDeviceForm', () => {
 
   it('shows a server unavailable error if API responds with one', async () => {
     const { els, wrapper } = makeWrapper();
-    createAddress.mockRejectedValue({
-      data: [{ id: ERROR_CONSTANTS.INVALID_NETWORK_LOCATION_FORMAT }],
+    createDevice.mockRejectedValue({
+      response: {
+        data: [{ id: ERROR_CONSTANTS.INVALID_NETWORK_LOCATION_FORMAT }],
+      },
     });
     expect(els.addressTextbox().props().invalid).toEqual(false);
     try {
@@ -81,7 +84,9 @@ xdescribe('AddDeviceForm', () => {
 
   it('emits a "added_address" event if adding the address is successful', async () => {
     const { wrapper } = makeWrapper();
-    createAddress.mockResolvedValue();
+    createDevice.mockResolvedValue({
+      id: '123',
+    });
     await wrapper.vm.handleSubmit();
     expect(wrapper.emitted().added_address).toHaveLength(1);
   });

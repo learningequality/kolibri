@@ -15,7 +15,6 @@
     <SelectDeviceForm
       v-else-if="step === Steps.SELECT_SOURCE_FACILITY_PEER"
       :title="getCommonSyncString('selectSourceTitle')"
-      hideSavedAddresses
       @submit="handleSubmit"
       @cancel="$emit('cancel')"
     >

@@ -6,7 +6,7 @@
 
       <transition name="spinner-fade">
 
-        <div v-if="discoveringPeers">
+        <div v-if="isFetching">
           <KLabeledIcon>
             <template #icon>
               <KCircularLoader :size="16" :stroke="6" />
@@ -16,7 +16,7 @@
       </transition>
 
     </span>
-    <p v-if="initialFetchingComplete && !availableFacilities.length">
+    <p v-if="hasFetched && !availableFacilities.length">
       {{ $tr('noFacilitiesText') }}
     </p>
     <div v-for="f in availableFacilities" :key="`div-${f.id}`">
@@ -72,17 +72,19 @@
 
 <script>
 
-  import { useLocalStorage } from '@vueuse/core';
-  import { computed, getCurrentInstance, ref } from 'kolibri.lib.vueCompositionApi';
+  import { useLocalStorage, useMemoize, computedAsync } from '@vueuse/core';
+  import { computed, getCurrentInstance, ref, watch } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import client from 'kolibri.client';
   import urls from 'kolibri.urls';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
-  import useSavedAddresses from '../../../../../../core/assets/src/views/sync/SelectDeviceModalGroup/useSavedAddresses.js';
-  import useDynamicAddresses from '../../../../../../core/assets/src/views/sync/SelectDeviceModalGroup/useDynamicAddresses.js';
-  import AddDeviceForm from '../../../../../../core/assets/src/views/sync/SelectDeviceModalGroup/AddDeviceForm';
-  import useMinimumKolibriVersion from '../../../../../../core/assets/src/composables/useMinimumKolibriVersion';
+  import useMinimumKolibriVersion from 'kolibri.coreVue.composables.useMinimumKolibriVersion';
+  import {
+    AddDeviceForm,
+    useDevices,
+    useDeviceDeletion,
+  } from 'kolibri.coreVue.componentSets.sync';
 
   export default {
     name: 'SelectFacility',
@@ -95,42 +97,74 @@
 
     mixins: [commonCoreStrings, commonSyncElements],
     setup(props, context) {
-      const {
-        addresses: discoveredAddresses,
-        discoveringPeers,
-        discoveryFailed,
-        discoveredAddressesInitiallyFetched,
-      } = useDynamicAddresses(props);
-      const {
-        addresses: savedAddresses,
-        refreshSavedAddressList,
-        savedAddressesInitiallyFetched,
-      } = useSavedAddresses(props, context);
-      const combinedAddresses = computed(() => {
-        return [...savedAddresses.value, ...discoveredAddresses.value];
+      const { devices: _devices, isFetching, hasFetched, fetchFailed, forceFetch } = useDevices({
+        subset_of_users_device: false,
       });
-      const initialFetchingComplete = computed(() => {
-        return savedAddressesInitiallyFetched.value && discoveredAddressesInitiallyFetched.value;
-      });
+
+      const { devices, isDeleting, hasDeleted, deletingFailed, doDelete } = useDeviceDeletion(
+        _devices,
+        context
+      );
+
       const storageFacilityId = useLocalStorage('kolibri-lastSelectedFacilityId', '');
 
       // data:
-      const availableAddressIds = ref([]);
-      const availableFacilities = ref([]);
       const selectedFacilityId = ref('');
       const showAddAddressModal = ref(false);
       const $store = getCurrentInstance().proxy.$store;
 
+      const fetchDeviceFacilities = useMemoize(
+        async device => {
+          try {
+            const response = await client({
+              url: urls['kolibri:core:remotefacilities'](),
+              params: { baseurl: device.base_url },
+            });
+
+            return response.data.map(facility => {
+              return {
+                id: facility.id,
+                name: facility.name,
+                base_url: device.base_url,
+                address_id: device.id,
+                learner_can_sign_up: facility.learner_can_sign_up,
+                learner_can_login_with_no_password: facility.learner_can_login_with_no_password,
+                kolibri_version: device.kolibri_version,
+              };
+            });
+          } catch (e) {
+            return [];
+          }
+        },
+        {
+          getKey: device => device.id,
+        }
+      );
+
       // computed properties (functions):
-      const { isMinimumKolibriVersion } = useMinimumKolibriVersion();
+      const availableAddressIds = computed(() => devices.value.filter(d => d.available));
+      const availableFacilities = computedAsync(async () => {
+        const results = await Promise.all(devices.value.map(d => fetchDeviceFacilities(d)));
+        return results.reduce((reduced, item) => reduced.concat(item), []);
+      });
+      const { isMinimumKolibriVersion } = useMinimumKolibriVersion(0, 16, 0);
       const facilityDisabled = computed(() => {
         return function(facility) {
           return (
-            discoveryFailed.value ||
-            availableAddressIds.value.find(id => id == facility.address_id) === undefined ||
-            !isMinimumKolibriVersion.value(facility.kolibri_version, 0, 16, 0)
+            fetchFailed.value ||
+            availableAddressIds.value.find(id => id === facility.address_id) === undefined ||
+            !isMinimumKolibriVersion(facility.kolibri_version)
           );
         };
+      });
+
+      watch(availableFacilities, availableFacilities => {
+        if (!availableFacilities.value.map(f => f.id).includes(selectedFacilityId.value)) {
+          selectedFacilityId.value = '';
+        }
+        if (!selectedFacilityId.value) {
+          resetSelectedAddress();
+        }
       });
 
       // methods:
@@ -139,14 +173,14 @@
       }
 
       function handleAddedAddress() {
-        refreshSavedAddressList();
+        forceFetch();
         createSnackbar(this.$tr('addDeviceSnackbarText'));
         this.showAddAddressModal = false;
       }
 
       function resetSelectedAddress() {
         const enabledFacilities = availableFacilities.value.filter(f =>
-          isMinimumKolibriVersion.value(f.kolibri_version, 0, 16)
+          isMinimumKolibriVersion(f.kolibri_version)
         );
         if (enabledFacilities.length !== 0) {
           const selectedId = storageFacilityId.value || selectedFacilityId.value;
@@ -164,14 +198,23 @@
       }
 
       return {
-        combinedAddresses,
-        initialFetchingComplete,
-        discoveredAddresses,
-        discoveringPeers,
-        savedAddresses,
-        storageFacilityId,
-        availableAddressIds,
+        // useDevices
+        devices,
+        isFetching,
+        hasFetched,
+        fetchFailed,
+        forceFetch,
+        // useDeviceDeletion
+        isDeleting,
+        hasDeleted,
+        deletingFailed,
+        doDelete,
+
+        // internal
+        fetchDeviceFacilities,
         availableFacilities,
+        availableAddressIds,
+        storageFacilityId,
         selectedFacilityId,
         showAddAddressModal,
         facilityDisabled,
@@ -196,52 +239,6 @@
             learner_can_login_with_no_password: facility.learner_can_login_with_no_password,
           },
         });
-      },
-      combinedAddresses(addrs) {
-        const availableDevices = addrs.filter(
-          address =>
-            address.available &&
-            address.application === 'kolibri' &&
-            !address.subset_of_users_device
-        );
-        const newDevices = availableDevices.filter(
-          address => !this.availableAddressIds.includes(address.id)
-        );
-        newDevices.forEach(address => {
-          client({
-            url: urls['kolibri:core:remotefacilities'](),
-            params: { baseurl: address.base_url },
-          }).then(response => {
-            response.data.forEach(facility => {
-              const newFacility = {
-                id: facility.id,
-                name: facility.name,
-                base_url: address.base_url,
-                address_id: address.id,
-                learner_can_sign_up: facility.learner_can_sign_up,
-                learner_can_login_with_no_password: facility.learner_can_login_with_no_password,
-                kolibri_version: address.kolibri_version,
-              };
-              if (!this.availableFacilities.find(f => f.id === facility.id))
-                this.availableFacilities.push(newFacility);
-            });
-          });
-          this.availableAddressIds = availableDevices.map(address => address.id);
-
-          if (address.facility_name) {
-            this.availableFacilities.push({
-              id: address.id,
-              name: address.facility_name,
-            });
-          }
-        });
-
-        if (!this.availableFacilities.map(f => f.id).includes(this.selectedFacilityId)) {
-          this.selectedFacilityId = '';
-        }
-        if (!this.selectedFacilityId) {
-          this.resetSelectedAddress();
-        }
       },
     },
     $trs: {

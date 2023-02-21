@@ -177,11 +177,7 @@ class TestServerServices(object):
 
 
 class TestZeroConfPlugin(object):
-    @mock.patch(
-        "kolibri.core.discovery.utils.network.search.DynamicNetworkLocationListener"
-    )
-    @mock.patch("kolibri.core.discovery.utils.network.search.SoUDClientListener")
-    @mock.patch("kolibri.core.discovery.utils.network.search.SoUDServerListener")
+    @mock.patch("kolibri.core.discovery.utils.network.search.NetworkLocationListener")
     @mock.patch(
         "kolibri.core.discovery.utils.network.broadcast.build_broadcast_instance"
     )

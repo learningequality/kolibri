@@ -1,7 +1,8 @@
-import requests
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import decorators
 from rest_framework import viewsets
 from rest_framework.exceptions import NotFound
+from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
 from .models import DynamicNetworkLocation
@@ -9,8 +10,11 @@ from .models import NetworkLocation
 from .models import StaticNetworkLocation
 from .permissions import NetworkLocationPermissions
 from .serializers import NetworkLocationSerializer
+from .utils.network import errors
+from .utils.network.client import NetworkClient
+from .utils.network.connections import capture_connection_state
+from .utils.network.connections import update_network_location
 from kolibri.core.device.permissions import NotProvisionedHasPermission
-from kolibri.core.utils.urls import join_url
 
 
 class NetworkLocationViewSet(viewsets.ModelViewSet):
@@ -21,6 +25,16 @@ class NetworkLocationViewSet(viewsets.ModelViewSet):
     filter_fields = [
         "subset_of_users_device",
     ]
+
+    @decorators.action(methods=("post",), detail=True)
+    def update_connection_status(self, request, pk=None):
+        network_location = get_object_or_404(self.get_queryset(), pk=pk)
+        try:
+            update_network_location(network_location)
+        except errors.NetworkClientError:
+            pass
+        serializer = self.get_serializer(network_location)
+        return Response(serializer.data)
 
 
 class DynamicNetworkLocationViewSet(NetworkLocationViewSet):
@@ -39,22 +53,21 @@ class NetworkLocationFacilitiesView(viewsets.GenericViewSet):
         Given a NetworkLocation ID, returns a list of Facilities that are on
         that NetworkLocation, for the purposes of syncing
         """
-
         # Step 1: Retrieve NetworkLocation Model and get base_url
+        facilities = []
         try:
             peer_device = NetworkLocation.objects.get(id=pk)
-            base_url = peer_device.base_url
-
-            # Step 2: Make request to the /facility endpoint
-            response = requests.get(join_url(base_url, "api/public/v1/facility"))
-            response.raise_for_status()
-        except (requests.RequestException, NetworkLocation.DoesNotExist):
+            with capture_connection_state(peer_device):
+                with NetworkClient.build_from_network_location(peer_device) as client:
+                    base_url = client.base_url
+                    # Step 2: Make request to the /facility endpoint
+                    response = client.get("api/public/v1/facility")
+                    facilities = response.json()
+        except (errors.NetworkClientError, NetworkLocation.DoesNotExist):
             raise NotFound()
 
         # Step 3: Respond with the list of facilities, and append device info
         # for convenience
-        facilities = response.json()
-
         return Response(
             {
                 "device_id": peer_device.id,
