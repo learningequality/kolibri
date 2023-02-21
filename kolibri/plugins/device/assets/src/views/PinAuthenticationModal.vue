@@ -13,7 +13,7 @@
       input="number"
       :label="$tr('pinPlaceholder')"
       :maxlength="4"
-      :invalid="true"
+      :invalid="showErrorText"
       :invalidText="pinError"
       :showInvalidText="showErrorText"
     />
@@ -48,8 +48,6 @@
           this.showErrorText = true;
           this.focus();
         } else {
-          this.pinError = '';
-          this.showErrorText = false;
           this.isPinValid({ pin_code: this.pin })
             .then(() => {
               if (this.isFacilityPinValid) {
