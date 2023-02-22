@@ -70,7 +70,7 @@
           class="category-list-item"
         >
           <KButton
-            :text="coreString('None of the above')"
+            :text="coreString('uncategorized')"
             appearance="flat-button"
             :appearanceOverrides="isKeyActive('no_categories')
               ? { ...categoryListItemStyles, ...categoryListItemActiveStyles }

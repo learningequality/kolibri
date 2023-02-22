@@ -36,7 +36,15 @@ function _generateLearningActivitiesShown(learningActivities) {
   return learningActivitiesShown;
 }
 
-const resourcesNeededShown = ['FOR_BEGINNERS', 'PEOPLE', 'PAPER_PENCIL', 'INTERNET', 'MATERIALS'];
+const resourcesNeededShown = [
+  'FOR_BEGINNERS',
+  'PEERS',
+  'TEACHER',
+  'SPECIAL_SOFTWARE',
+  'PAPER_PENCIL',
+  'INTERNET',
+  'OTHER_SUPPLIES',
+];
 
 function _generateResourcesNeeded(learnerNeeds) {
   const resourcesNeeded = {};

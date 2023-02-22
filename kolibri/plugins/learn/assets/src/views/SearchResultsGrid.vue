@@ -5,7 +5,7 @@
     <!-- for interacting or updating the results   -->
     <h2 class="results-title" data-test="search-results-title">
       {{ more ?
-        coreString('overCertainNumberOfSearchResults', { num: results.length }) :
+        coreString('uncountedAdditionalResults', { num: results.length }) :
         $tr('results', { results: results.length })
       }}
     </h2>
