@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div :style="{ marginBottom: '8px' }">
     <UiAlert
       :dismissible="false"
       :removeIcon="true"
