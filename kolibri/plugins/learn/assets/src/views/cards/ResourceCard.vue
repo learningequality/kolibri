@@ -39,9 +39,11 @@
       </template>
 
       <template #progress>
-        <ProgressBar :contentNode="contentNode" />
+        <!-- only show if we're not also showing a footer !-->
+        <ProgressBar v-if="!$slots.footer" :contentNode="contentNode" />
       </template>
     </BaseCard>
+    <slot name="footer"></slot>
   </div>
 
 </template>

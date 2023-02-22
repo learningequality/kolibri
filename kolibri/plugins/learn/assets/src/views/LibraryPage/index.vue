@@ -38,8 +38,10 @@
           class="grid"
           :contents="rootNodes"
         />
-        <!-- ResumableContentGrid handles whether it renders or not internally -->
+        <!-- ResumableContentGrid mostly handles whether it renders or not internally !-->
+        <!-- but we conditionalize it based on whether we are on another device's library page !-->
         <ResumableContentGrid
+          v-if="!deviceId"
           :currentCardViewStyle="currentCardViewStyle"
           @setCardStyle="style => currentCardViewStyle = style"
           @setSidePanelMetadataContent="content => metadataSidePanelContent = content"
@@ -234,6 +236,10 @@
       };
     },
     props: {
+      deviceId: {
+        type: String,
+        default: null,
+      },
       loading: {
         type: Boolean,
         default: null,

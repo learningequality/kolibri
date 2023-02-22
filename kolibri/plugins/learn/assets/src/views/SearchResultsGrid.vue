@@ -39,6 +39,7 @@
     <!-- Grid of search results  -->
     <LibraryAndChannelBrowserMainContent
       :contents="results"
+      :allowDownloads="allowDownloads"
       data-test="search-results-card-grid"
       :currentCardViewStyle="currentCardViewStyle"
       :gridType="1"
@@ -93,6 +94,10 @@
       };
     },
     props: {
+      allowDownloads: {
+        type: Boolean,
+        default: false,
+      },
       currentCardViewStyle: {
         type: String,
         default: 'card',
