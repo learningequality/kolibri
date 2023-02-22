@@ -5,6 +5,7 @@ from requests.exceptions import HTTPError
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.exceptions import PermissionDenied
 
+from kolibri.core import error_constants
 from kolibri.core.auth.backends import FACILITY_CREDENTIAL_KEY
 from kolibri.core.auth.models import AdHocGroup
 from kolibri.core.auth.models import Membership
@@ -44,11 +45,12 @@ def get_remote_users_info(baseurl, facility_id, username, password):
             ),
         )
         response.raise_for_status()
-    except (CommandError, HTTPError, ConnectionError) as e:
+    except (CommandError, HTTPError, ConnectionError):
         if not username and not password:
             raise PermissionDenied()
         else:
-            raise AuthenticationFailed(e)
+            detail = [{"id": error_constants.INVALID_CREDENTIALS}]
+            raise AuthenticationFailed(detail)
     auth_info = response.json()
     if len(auth_info) > 1:
         user_info = [u for u in response.json() if u["username"] == username][0]
