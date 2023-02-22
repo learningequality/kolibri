@@ -21,6 +21,7 @@ from ..tasks import remove_dynamic_network_location
 from ..tasks import reset_connection_states
 from ..utils.network.broadcast import KolibriInstance
 from .helpers import info as mock_device_info
+from kolibri.core.tasks.registry import RegisteredTask
 
 MOCK_INTERFACE_IP = "111.222.111.222"
 MOCK_PORT = 555
@@ -28,6 +29,8 @@ SEARCH_MODULE = "kolibri.core.discovery.utils.network.search."
 
 
 def unwrap(func):
+    if isinstance(func, RegisteredTask):
+        return func.func
     return func.__wrapped__
 
 
