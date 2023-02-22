@@ -320,6 +320,8 @@ def admin_imported_flag():
     available resources, as resources could only be imported by admins
     until now!
     """
-    ContentNode.objects.filter(available=True).update(admin_imported=True)
+    ContentNode.objects.filter(available=True).exclude(kind=content_kinds.TOPIC).update(
+        admin_imported=True
+    )
 
     ContentCacheKey.update_cache_key()

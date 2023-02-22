@@ -661,6 +661,10 @@ class InternalContentNodeMixin(BaseContentNodeMixin):
 
     values = BaseContentNodeMixin.values + ("admin_imported",)
 
+    field_map = BaseContentNodeMixin.field_map.copy()
+
+    field_map["admin_imported"] = lambda x: bool(x["admin_imported"])
+
     def update_data(self, response_data, baseurl):
         if type(response_data) is dict:
             if "more" in response_data and "results" in response_data:
