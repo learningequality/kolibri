@@ -14,6 +14,7 @@ from kolibri.core.auth.models import Facility
 from kolibri.core.content.api import ContentNodeProgressViewset
 from kolibri.core.content.api import ContentNodeViewset
 from kolibri.core.content.api import UserContentNodeViewset
+from kolibri.core.content.models import ContentNode
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import AttemptLog
@@ -84,11 +85,14 @@ def _consolidate_lessons_data(request, lessons):
             ),
             "total_resources": len(lesson["resources"]),
         }
+        missing_resource = False
         for resource in lesson["resources"]:
             resource["progress"] = progress_map.get(resource["content_id"], 0)
             resource["contentnode"] = contentnode_map.get(
                 resource["contentnode_id"], None
             )
+            missing_resource = missing_resource or not resource["contentnode"]
+        lesson["missing_resource"] = missing_resource
 
 
 class LearnerClassroomViewset(ReadOnlyValuesViewset):
@@ -174,6 +178,18 @@ class LearnerClassroomViewset(ReadOnlyValuesViewset):
                 "closed",
                 "answer_count",
                 "score",
+                "question_sources",
+            )
+        )
+        exam_node_ids = set()
+        for exam in exams:
+            exam_node_ids |= {
+                question["exercise_id"] for question in exam.get("question_sources")
+            }
+
+        available_exam_ids = set(
+            ContentNode.objects.filter_by_uuids(exam_node_ids).values_list(
+                "id", flat=True
             )
         )
 
@@ -195,6 +211,10 @@ class LearnerClassroomViewset(ReadOnlyValuesViewset):
                     "closed": None,
                     "started": False,
                 }
+            exam["missing_resource"] = any(
+                question["exercise_id"] not in available_exam_ids
+                for question in exam.get("question_sources")
+            )
         out_items = []
         for item in items:
             item["assignments"] = {
