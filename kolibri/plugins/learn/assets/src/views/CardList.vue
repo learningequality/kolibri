@@ -1,7 +1,7 @@
 <template>
 
   <div
-    class="card drop-shadow"
+    class="card container drop-shadow"
     :class="{ 'mobile-card': isMobile }"
     :style="{ backgroundColor: $themeTokens.surface }"
   >
@@ -239,13 +239,14 @@
     }
   }
 
+  .container {
+    padding: $v-padding $h-padding;
+    margin-top: $h-padding;
+  }
+
   .card {
     position: relative;
-    display: inline-block;
-    width: 100%;
     min-height: 246px;
-    padding: $v-padding $h-padding;
-    text-decoration: none;
     vertical-align: top;
     border-radius: 8px;
     transition: box-shadow $core-time ease;
