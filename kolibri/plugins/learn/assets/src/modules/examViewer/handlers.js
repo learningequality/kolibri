@@ -77,6 +77,10 @@ export function showExam(store, params, alreadyOnQuiz) {
                   contentNodeMap[node.id] = node;
                 }
 
+                for (const question of questions) {
+                  question.missing = !contentNodeMap[question.exercise_id];
+                }
+
                 store.commit('examViewer/SET_STATE', {
                   contentNodeMap,
                   exam,
