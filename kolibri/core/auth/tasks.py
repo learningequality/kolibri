@@ -818,6 +818,12 @@ class PeerImportSingleSyncJobValidator(PeerSyncJobValidator):
         )
         job_data["kwargs"]["user"] = user_id
 
+        job_data["kwargs"].update(
+            dict(
+                no_push=True,
+                no_provision=True,
+            )
+        )
         return job_data
 
 
