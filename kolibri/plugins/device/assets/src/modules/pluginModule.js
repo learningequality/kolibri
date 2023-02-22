@@ -1,4 +1,5 @@
 import { pageNameToModuleMap, PageNames, ContentWizardPages } from '../constants';
+import facilityConfig from '../../../../facility/assets/src/modules/facilityConfig';
 import deviceInfo from './deviceInfo';
 import manageContent from './manageContent';
 import managePermissions from './managePermissions';
@@ -7,12 +8,18 @@ import userPermissions from './userPermissions';
 export default {
   state() {
     return {
+      authenticateWithPin: false,
       pageName: '',
       welcomeModalVisible: false,
       query: {},
+      grantPluginAccess: null,
     };
   },
   mutations: {
+    SET_AUTHENTICATE_WITH_PIN(state, { authenticate, next }) {
+      state.authenticateWithPin = authenticate;
+      state.grantPluginAccess = next;
+    },
     SET_PAGE_NAME(state, name) {
       state.pageName = name;
     },
@@ -24,6 +31,9 @@ export default {
     },
   },
   actions: {
+    displayPinModal(store, { authenticate, next }) {
+      store.commit('SET_AUTHENTICATE_WITH_PIN', { authenticate, next });
+    },
     preparePage(store, { name, isAsync = true }) {
       store.commit('CORE_SET_PAGE_LOADING', isAsync);
       store.commit('SET_PAGE_NAME', name);
@@ -52,5 +62,7 @@ export default {
     userPermissions,
     // MANAGE_CONTENT_PAGE + wizards
     manageContent,
+    //Facility configurations for pin setup
+    facilityConfig,
   },
 };
