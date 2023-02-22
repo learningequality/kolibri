@@ -126,6 +126,7 @@
         :nextContent="nextContent"
         :isLesson="lessonContext"
         :loading="resourcesSidePanelLoading"
+        :currentResourceID="currentResourceID"
       />
     </SidePanelModal>
 
@@ -297,6 +298,9 @@
       timeSpent() {
         return this.contentPageMounted ? this.$refs.contentPage.time_spent : 0;
       },
+      currentResourceID() {
+        return this.content ? this.content.content_id : '';
+      },
     },
     watch: {
       content(newContent, oldContent) {
@@ -370,7 +374,7 @@
         this.fetchLesson({ lessonId: this.lessonId }).then(lesson => {
           // Filter out this.content
           this.viewResourcesContents = lesson.resources
-            .filter(n => n.contentnode && n.contentnode_id !== this.content.id)
+            .filter(n => n.contentnode)
             .map(n => n.contentnode);
         });
       },
@@ -422,10 +426,7 @@
             nextContents = ancestor.children.results.slice(contentIndex + 1);
           }
           this.nextContent = nextContents.find(c => c.kind === ContentNodeKinds.TOPIC) || null;
-          // Filter out this.content
-          this.viewResourcesContents = parent.children.results.filter(
-            n => n.id !== this.content.id
-          );
+          this.viewResourcesContents = parent.children.results.filter(n => n.id);
         });
       },
       navigateBack() {
@@ -533,6 +534,8 @@
   }
 
   .also-in-this-side-panel {
+    overflow: hidden;
+
     /deep/ .side-panel {
       padding-bottom: 0;
     }

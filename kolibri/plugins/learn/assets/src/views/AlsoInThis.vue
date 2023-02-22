@@ -11,9 +11,17 @@
         :key="content.id"
         :to="genContentLinkKeepCurrentBackLink(content.id, content.is_leaf)"
         class="item"
-        :class="windowIsSmall && 'small'"
+        :class="[windowIsSmall && 'small',
+                 currentResource(content.content_id) &&
+                   $computedClass(currentlyViewedItemStyle)]"
         :style="linkStyles"
       >
+        <p
+          v-if="currentResource(content.content_id)"
+          :style="currentlyViewingTextStyle"
+        >
+          {{ $tr('currentlyViewing') }}
+        </p>
         <LearningActivityIcon
           v-if="content.is_leaf"
           class="activity-icon"
@@ -141,6 +149,10 @@
         type: Boolean,
         default: false,
       },
+      currentResourceID: {
+        type: String,
+        required: true,
+      },
     },
     computed: {
       /** Overrides some default styles in KRouterLink */
@@ -148,6 +160,28 @@
         return {
           color: this.$themeTokens.text + '!important',
           fontSize: '14px',
+        };
+      },
+      currentlyViewingTextStyle() {
+        return {
+          color: this.$themePalette.grey.v_700,
+          fontSize: '12px',
+          margin: 'auto',
+        };
+      },
+      currentlyViewedItemStyle() {
+        return {
+          padding: '15px 0',
+          ':before': {
+            content: "''",
+            backgroundColor: this.$themePalette.grey.v_100,
+            position: 'absolute',
+            top: '0',
+            bottom: '0',
+            width: '200vw',
+            transform: 'translateX(-50%)',
+            zIndex: '-1',
+          },
         };
       },
       emptyMessage() {
@@ -166,6 +200,15 @@
     methods: {
       progressFor(node) {
         return this.contentNodeProgressMap[node.content_id] || 0;
+      },
+      currentResource(contentId) {
+        return contentId === this.currentResourceID || '';
+      },
+    },
+    $trs: {
+      currentlyViewing: {
+        message: 'Currently viewing',
+        context: 'Indicator of resource that is currently being viewed.',
       },
     },
   };
@@ -189,6 +232,7 @@
 
   .wrapper {
     position: relative;
+    top: -30px;
     width: 100%;
 
     /* Avoids overflow issues, aligns bottom bit */
@@ -200,7 +244,7 @@
     display: block;
     width: 100%;
     min-height: 72px;
-    margin-top: 24px;
+    padding: 20px 0;
   }
 
   .activity-icon,
@@ -215,7 +259,7 @@
 
   .activity-icon,
   .topic-icon {
-    top: 0;
+    top: auto;
   }
 
   .content-meta {
@@ -223,6 +267,7 @@
     left: calc(#{$icon-size} + 16px);
     display: inline-block;
     width: calc(100% - #{$icon-size});
+    margin-top: 5px;
   }
 
   .text-and-time {
@@ -246,6 +291,10 @@
     right: 16px;
     width: 24px;
     height: 24px;
+  }
+
+  /deep/ .link {
+    text-decoration: none;
   }
 
   /** Styles overriding the above when windowIsSmall **/
