@@ -1,4 +1,5 @@
 export { default as SelectDeviceForm } from '././SelectDeviceModalGroup/SelectDeviceForm';
+export { default as AddDeviceForm } from '././SelectDeviceModalGroup/AddDeviceForm';
 export { default as SelectDeviceModalGroup } from './SelectDeviceModalGroup';
 export { default as FacilityTaskPanel } from './FacilityTaskPanel';
 export { default as ConfirmationRegisterModal } from './ConfirmationRegisterModal';
@@ -13,6 +14,6 @@ export {
   useDevicesForLearnOnlyDevice,
   useDevicesWithFacility,
   useDevicesWithChannel,
-} from './SelectAddressModalGroup/useDevices';
-export { default as useDeviceDeletion } from './SelectAddressModalGroup/useDeviceDeletion';
-export { default as useConnectionChecker } from './SelectAddressModalGroup/useConnectionChecker';
+} from './SelectDeviceModalGroup/useDevices';
+export { default as useDeviceDeletion } from './SelectDeviceModalGroup/useDeviceDeletion';
+export { default as useConnectionChecker } from './SelectDeviceModalGroup/useConnectionChecker';

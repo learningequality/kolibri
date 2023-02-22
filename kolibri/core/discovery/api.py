@@ -15,6 +15,7 @@ from .utils.network.client import NetworkClient
 from .utils.network.connections import capture_connection_state
 from .utils.network.connections import update_network_location
 from kolibri.core.device.permissions import NotProvisionedHasPermission
+from kolibri.core.utils.urls import reverse_path
 
 
 class NetworkLocationViewSet(viewsets.ModelViewSet):
@@ -61,7 +62,9 @@ class NetworkLocationFacilitiesView(viewsets.GenericViewSet):
                 with NetworkClient.build_from_network_location(peer_device) as client:
                     base_url = client.base_url
                     # Step 2: Make request to the /facility endpoint
-                    response = client.get("api/public/v1/facility")
+                    response = client.get(
+                        reverse_path("kolibri:core:publicfacility-list")
+                    )
                     facilities = response.json()
         except (errors.NetworkClientError, NetworkLocation.DoesNotExist):
             raise NotFound()

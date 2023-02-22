@@ -72,12 +72,11 @@
 
 <script>
 
-  import { useLocalStorage, useMemoize, computedAsync } from '@vueuse/core';
+  import { useLocalStorage, useMemoize, computedAsync, get } from '@vueuse/core';
   import { computed, getCurrentInstance, ref, watch } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import client from 'kolibri.client';
-  import urls from 'kolibri.urls';
+  import { NetworkLocationResource } from 'kolibri.resources';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import useMinimumKolibriVersion from 'kolibri.coreVue.composables.useMinimumKolibriVersion';
   import {
@@ -96,14 +95,19 @@
     components: { AddDeviceForm, BottomAppBar },
 
     mixins: [commonCoreStrings, commonSyncElements],
-    setup(props, context) {
-      const { devices: _devices, isFetching, hasFetched, fetchFailed, forceFetch } = useDevices({
+    setup() {
+      const {
+        devices: _devices,
+        isFetching: _isFetching,
+        hasFetched,
+        fetchFailed,
+        forceFetch,
+      } = useDevices({
         subset_of_users_device: false,
       });
 
       const { devices, isDeleting, hasDeleted, deletingFailed, doDelete } = useDeviceDeletion(
-        _devices,
-        context
+        _devices
       );
 
       const storageFacilityId = useLocalStorage('kolibri-lastSelectedFacilityId', '');
@@ -111,17 +115,15 @@
       // data:
       const selectedFacilityId = ref('');
       const showAddAddressModal = ref(false);
+      const isLoading = ref(false);
       const $store = getCurrentInstance().proxy.$store;
 
       const fetchDeviceFacilities = useMemoize(
         async device => {
           try {
-            const response = await client({
-              url: urls['kolibri:core:remotefacilities'](),
-              params: { baseurl: device.base_url },
-            });
+            const { facilities } = await NetworkLocationResource.fetchFacilities(device.id);
 
-            return response.data.map(facility => {
+            return facilities.map(facility => {
               return {
                 id: facility.id,
                 name: facility.name,
@@ -142,24 +144,38 @@
       );
 
       // computed properties (functions):
-      const availableAddressIds = computed(() => devices.value.filter(d => d.available));
-      const availableFacilities = computedAsync(async () => {
-        const results = await Promise.all(devices.value.map(d => fetchDeviceFacilities(d)));
-        return results.reduce((reduced, item) => reduced.concat(item), []);
-      });
+      const isFetching = computed(() => get(_isFetching) || get(isLoading));
+      const availableAddressIds = computed(() =>
+        get(devices)
+          .filter(d => d.available)
+          .map(d => d.id)
+      );
+      const availableFacilities = computedAsync(
+        async () => {
+          const results = await Promise.all(get(devices).map(d => fetchDeviceFacilities(d)));
+          return results.reduce((reduced, item) => reduced.concat(item), []);
+        },
+        [],
+        isLoading
+      );
+
       const { isMinimumKolibriVersion } = useMinimumKolibriVersion(0, 16, 0);
       const facilityDisabled = computed(() => {
         return function(facility) {
           return (
-            fetchFailed.value ||
-            availableAddressIds.value.find(id => id === facility.address_id) === undefined ||
+            get(fetchFailed) ||
+            get(availableAddressIds).find(id => id === facility.address_id) === undefined ||
             !isMinimumKolibriVersion(facility.kolibri_version)
           );
         };
       });
 
       watch(availableFacilities, availableFacilities => {
-        if (!availableFacilities.value.map(f => f.id).includes(selectedFacilityId.value)) {
+        if (
+          !get(availableFacilities)
+            .map(f => f.id)
+            .includes(selectedFacilityId.value)
+        ) {
           selectedFacilityId.value = '';
         }
         if (!selectedFacilityId.value) {
