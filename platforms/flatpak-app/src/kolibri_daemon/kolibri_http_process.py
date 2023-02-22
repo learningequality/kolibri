@@ -128,12 +128,12 @@ class KolibriHttpProcess(KolibriServiceProcess):
         pass
 
     def __update_kolibri_context(self):
-        from kolibri.utils.version import get_version
+        import kolibri
         from kolibri.core.device.models import DeviceAppKey
 
         self.context.app_key = DeviceAppKey.get_app_key()
         self.context.kolibri_home = KOLIBRI_HOME_PATH.as_posix()
-        self.context.kolibri_version = get_version()
+        self.context.kolibri_version = kolibri.__version__
 
 
 class _KolibriDaemonPlugin(SimplePlugin):
