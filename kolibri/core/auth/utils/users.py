@@ -3,10 +3,10 @@ from django.core.management.base import CommandError
 from requests.exceptions import ConnectionError
 from requests.exceptions import HTTPError
 from rest_framework.exceptions import AuthenticationFailed
-from rest_framework.exceptions import PermissionDenied
 
 from kolibri.core import error_constants
 from kolibri.core.auth.backends import FACILITY_CREDENTIAL_KEY
+from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 from kolibri.core.auth.models import AdHocGroup
 from kolibri.core.auth.models import Membership
 from kolibri.core.utils.urls import reverse_remote
@@ -46,10 +46,12 @@ def get_remote_users_info(baseurl, facility_id, username, password):
         )
         response.raise_for_status()
     except (CommandError, HTTPError, ConnectionError):
-        if not username and not password:
-            raise PermissionDenied()
+        detail = []
+        if password == NOT_SPECIFIED or not password:
+            detail = [{"id": error_constants.MISSING_PASSWORD}]
+            raise AuthenticationFailed(detail)
         else:
-            detail = [{"id": error_constants.INVALID_CREDENTIALS}]
+            detail = [{"id": error_constants.AUTHENTICATION_FAILED}]
             raise AuthenticationFailed(detail)
     auth_info = response.json()
     if len(auth_info) > 1:
