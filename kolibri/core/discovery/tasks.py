@@ -16,11 +16,16 @@ from kolibri.core.discovery.models import StaticNetworkLocation
 from kolibri.core.discovery.utils.network.broadcast import KolibriInstance
 from kolibri.core.discovery.utils.network.connections import update_network_location
 from kolibri.core.tasks.decorators import register_task
+from kolibri.core.tasks.main import job_storage
 
 logger = logging.getLogger(__name__)
 
 CONNECTION_RESET_JOB_ID = "1000"
 CONNECTION_FAULT_LIMIT = 10
+
+TYPE_CONNECT = "connect"
+TYPE_ADD = "add"
+TYPE_REMOVE = "remove"
 
 
 def _store_dynamic_instance(broadcast_id, instance):
@@ -136,6 +141,10 @@ def hydrate_instance(func):
         new_args[1] = KolibriInstance.from_dict(args[1])
         return func(*new_args)
 
+    # for py2.7
+    if not hasattr(wrapped, "__wrapped__"):
+        setattr(wrapped, "__wrapped__", func)
+
     return wrapped
 
 
@@ -249,17 +258,20 @@ def reset_connection_states(broadcast_id):
     Handles resetting all connection states when a network change occurs
     :param broadcast_id: The hex UUID of the new broadcast
     """
-    # dispatch disconnect hooks
     for network_location in NetworkLocation.objects.exclude(
         broadcast_id=broadcast_id
     ).filter(connection_status=ConnectionStatus.Okay):
+        # cancel pending connect jobs
+        job_storage.cancel(generate_job_id(TYPE_CONNECT, network_location.id))
+        # dispatch disconnect hooks
         _dispatch_hooks(network_location, False)
 
     # remove any dynamic locations that don't match the current broadcast
     DynamicNetworkLocation.objects.exclude(broadcast_id=broadcast_id).delete()
     # reset the connection status for each
     NetworkLocation.objects.exclude(broadcast_id=broadcast_id).update(
-        connection_status=ConnectionStatus.Unknown
+        connection_status=ConnectionStatus.Unknown,
+        connection_faults=0,
     )
 
     # enqueue update tasks for all static locations
@@ -267,6 +279,6 @@ def reset_connection_states(broadcast_id):
         "id", flat=True
     ):
         perform_network_location_update.enqueue(
-            job_id=generate_job_id("connect", static_location_id),
+            job_id=generate_job_id(TYPE_CONNECT, static_location_id),
             args=(static_location_id,),
         )
