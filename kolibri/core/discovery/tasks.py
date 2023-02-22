@@ -262,7 +262,7 @@ def reset_connection_states(broadcast_id):
         broadcast_id=broadcast_id
     ).filter(connection_status=ConnectionStatus.Okay):
         # cancel pending connect jobs
-        job_storage.cancel(generate_job_id(TYPE_CONNECT, network_location.id))
+        job_storage.cancel_if_exists(generate_job_id(TYPE_CONNECT, network_location.id))
         # dispatch disconnect hooks
         _dispatch_hooks(network_location, False)
 
