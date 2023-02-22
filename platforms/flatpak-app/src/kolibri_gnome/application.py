@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-import subprocess
 import typing
 from functools import partial
 from gettext import gettext as _
@@ -144,7 +143,9 @@ class Application(Adw.Application):
         self.quit()
 
     def open_url_in_external_application(self, url: str):
-        subprocess.call(["xdg-open", url])
+        url_file = Gio.File.new_for_uri(url)
+        file_launcher = Gtk.FileLauncher.new(url_file)
+        file_launcher.launch(None, None, None)
 
     def open_kolibri_window(
         self, target_url: str = None, **kwargs
@@ -202,6 +203,7 @@ class Application(Adw.Application):
         self, context: KolibriContext, download: WebKit.Download
     ):
         download.connect("decide-destination", self.__download_on_decide_destination)
+        download.connect("finished", self.__download_on_finished)
 
     def __download_on_decide_destination(
         self, download: WebKit.Download, suggested_filename: str
@@ -244,6 +246,17 @@ class Application(Adw.Application):
         response_file = file_chooser.get_file()
         download.set_allow_overwrite(True)
         download.set_destination(response_file.get_uri())
+
+    def __download_on_finished(self, download: WebKit.Download):
+        download_destination = download.get_destination()
+
+        if not download_destination:
+            return
+
+        download_file = Gio.File.new_for_uri(download_destination)
+
+        file_launcher = Gtk.FileLauncher.new(download_file)
+        file_launcher.open_containing_folder(None, None, None)
 
     def __context_on_open_external_url(
         self, context: KolibriContext, external_url: str
