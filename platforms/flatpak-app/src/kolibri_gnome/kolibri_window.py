@@ -7,7 +7,7 @@ from gi.repository import Adw
 from gi.repository import Gio
 from gi.repository import GObject
 from gi.repository import Gtk
-from gi.repository import WebKit2
+from gi.repository import WebKit
 
 from .kolibri_context import KolibriContext
 from .kolibri_webview import KolibriWebView
@@ -38,7 +38,7 @@ class KolibriWindow(Adw.ApplicationWindow):
             KolibriWebView,
             (
                 str,
-                WebKit2.WebView,
+                WebKit.WebView,
             ),
         ),
         "auto-close": (GObject.SIGNAL_RUN_FIRST, None, ()),
@@ -49,7 +49,7 @@ class KolibriWindow(Adw.ApplicationWindow):
         application: Adw.Application,
         context: KolibriContext,
         *args,
-        related_webview: typing.Optional[WebKit2.WebView] = None,
+        related_webview: typing.Optional[WebKit.WebView] = None,
         **kwargs,
     ):
         super().__init__(application=application, *args, **kwargs)
@@ -255,7 +255,7 @@ class KolibriWindow(Adw.ApplicationWindow):
         self,
         webview_stack: KolibriWebViewStack,
         target_url: str,
-        related_webview: WebKit2.WebView,
+        related_webview: WebKit.WebView,
     ) -> typing.Optional[KolibriWebViewStack]:
         window = self.emit("open-new-window", target_url, related_webview)
         return window.__webview_stack if window else None

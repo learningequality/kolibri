@@ -4,7 +4,7 @@ import typing
 
 from gi.repository import GObject
 from gi.repository import Gtk
-from gi.repository import WebKit2
+from gi.repository import WebKit
 from kolibri_app.globals import KOLIBRI_APP_DEVELOPER_EXTRAS
 
 from .kolibri_context import KolibriContext
@@ -14,7 +14,7 @@ MOUSE_BUTTON_BACK = 8
 MOUSE_BUTTON_FORWARD = 9
 
 
-class KolibriWebView(WebKit2.WebView):
+class KolibriWebView(WebKit.WebView):
     """
     A WebView that is confined to showing Kolibri content from the provided
     KolibriContext. Use the load_kolibri_url method to load a x-kolibri-app URL.
@@ -86,19 +86,20 @@ class KolibriWebView(WebKit2.WebView):
 
     def __on_decide_policy(
         self,
-        webview: WebKit2.WebView,
-        decision: WebKit2.PolicyDecision,
-        decision_type: WebKit2.PolicyDecisionType,
+        webview: WebKit.WebView,
+        decision: WebKit.PolicyDecision,
+        decision_type: WebKit.PolicyDecisionType,
     ):
-        if decision_type == WebKit2.PolicyDecisionType.NAVIGATION_ACTION:
-            target_url = decision.get_request().get_uri()
+        if decision_type == WebKit.PolicyDecisionType.NAVIGATION_ACTION:
+            action = decision.get_navigation_action()
+            target_url = action.get_request().get_uri()
             if not self.__context.should_open_url(target_url):
                 self.__context.open_external_url(target_url)
                 decision.ignore()
                 return True
         return False
 
-    def __on_notify_uri(self, webview: WebKit2.WebView, pspec: GObject.ParamSpec):
+    def __on_notify_uri(self, webview: WebKit.WebView, pspec: GObject.ParamSpec):
         # KolibriContext.should_open_url is not called when the URL fragment
         # changes. So, when the URI property changes, we may want to check if
         # the URL (including URL fragment) refers to content which belongs
@@ -125,13 +126,11 @@ class KolibriWebView(WebKit2.WebView):
 
         self.__context.open_external_url(target_url)
 
-    def __on_load_changed(
-        self, webview: WebKit2.WebView, load_event: WebKit2.LoadEvent
-    ):
-        if load_event == WebKit2.LoadEvent.FINISHED:
+    def __on_load_changed(self, webview: WebKit.WebView, load_event: WebKit.LoadEvent):
+        if load_event == WebKit.LoadEvent.FINISHED:
             self.emit("kolibri-load-finished")
 
-    def __get_allowed_back_item(self, webview: WebKit2.WebView):
+    def __get_allowed_back_item(self, webview: WebKit.WebView):
         for back_item in webview.get_back_forward_list().get_back_list():
             back_uri = back_item.get_uri()
             if back_uri and self.__context.should_open_url(back_uri):
@@ -157,7 +156,7 @@ class KolibriWebViewStack(Gtk.Stack):
     __context: KolibriContext
 
     __main_webview: KolibriWebView
-    __loading_webview: WebKit2.WebView
+    __loading_webview: WebKit.WebView
 
     __default_zoom_step: int = 2
     __current_zoom_step: int = 2
@@ -176,7 +175,7 @@ class KolibriWebViewStack(Gtk.Stack):
             KolibriWebView,
             (
                 str,
-                WebKit2.WebView,
+                WebKit.WebView,
             ),
         ),
         "main-webview-blank": (GObject.SIGNAL_RUN_FIRST, None, ()),
@@ -186,7 +185,7 @@ class KolibriWebViewStack(Gtk.Stack):
     def __init__(
         self,
         context: KolibriContext,
-        related_webview: typing.Optional[WebKit2.WebView] = None,
+        related_webview: typing.Optional[WebKit.WebView] = None,
         *args,
         **kwargs,
     ):
@@ -204,8 +203,8 @@ class KolibriWebViewStack(Gtk.Stack):
             )
         self.add_child(self.__main_webview)
 
-        self.__loading_webview = WebKit2.WebView(
-            web_context=self.__context.webkit_web_context, is_ephemeral=True
+        self.__loading_webview = WebKit.WebView(
+            web_context=self.__context.webkit_web_context
         )
         self.add_child(self.__loading_webview)
 
@@ -290,7 +289,7 @@ class KolibriWebViewStack(Gtk.Stack):
         else:
             self.show_loading()
 
-    def __main_webview_on_kolibri_load_finished(self, webview: WebKit2.WebView):
+    def __main_webview_on_kolibri_load_finished(self, webview: WebKit.WebView):
         if not webview.get_uri():
             self.emit("main-webview-blank")
         else:
@@ -298,14 +297,14 @@ class KolibriWebViewStack(Gtk.Stack):
             self.emit("main-webview-ready")
 
     def __main_webview_on_create(
-        self, webview: WebKit2.WebView, navigation_action: WebKit2.NavigationAction
-    ) -> typing.Optional[WebKit2.WebView]:
+        self, webview: WebKit.WebView, navigation_action: WebKit.NavigationAction
+    ) -> typing.Optional[WebKit.WebView]:
         target_url = navigation_action.get_request().get_uri()
         new_webview = self.emit("open-new-window", target_url, self.__main_webview)
         return new_webview
 
     def __main_webview_back_forward_list_on_changed(
-        self, back_forward_list: WebKit2.BackForwardList, *args
+        self, back_forward_list: WebKit.BackForwardList, *args
     ):
         self.can_go_back = back_forward_list.get_back_item() is not None
         self.can_go_forward = back_forward_list.get_forward_item() is not None

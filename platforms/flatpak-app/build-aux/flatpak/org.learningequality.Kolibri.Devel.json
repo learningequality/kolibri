@@ -1,7 +1,7 @@
 {
     "app-id" : "org.learningequality.Kolibri.Devel",
     "runtime" : "org.gnome.Platform",
-    "runtime-version" : "43",
+    "runtime-version" : "44",
     "sdk" : "org.gnome.Sdk",
     "command" : "/app/bin/kolibri-gnome",
     "desktop-file-name-suffix" : " ☢️",

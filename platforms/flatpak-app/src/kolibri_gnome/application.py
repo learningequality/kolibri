@@ -13,7 +13,7 @@ from gi.repository import Gio
 from gi.repository import GLib
 from gi.repository import GObject
 from gi.repository import Gtk
-from gi.repository import WebKit2
+from gi.repository import WebKit
 from kolibri_app.config import BASE_APPLICATION_ID
 from kolibri_app.config import PROJECT_VERSION
 from kolibri_app.globals import KOLIBRI_HOME_PATH
@@ -50,7 +50,7 @@ class Application(Adw.Application):
             self.css_provider,
             Gtk.STYLE_PROVIDER_PRIORITY_THEME + 1,
         )
-        self.css_provider.load_from_data(bytes(self.CSS_OVERRIDE, "utf-8"))
+        self.css_provider.load_from_data(self.CSS_OVERRIDE, -1)
 
         action = Gio.SimpleAction.new("open-documentation", None)
         action.connect("activate", self.__on_open_documentation)
@@ -199,12 +199,12 @@ class Application(Adw.Application):
         self.remove_window(window)
 
     def __context_on_download_started(
-        self, context: KolibriContext, download: WebKit2.Download
+        self, context: KolibriContext, download: WebKit.Download
     ):
         download.connect("decide-destination", self.__download_on_decide_destination)
 
     def __download_on_decide_destination(
-        self, download: WebKit2.Download, suggested_filename: str
+        self, download: WebKit.Download, suggested_filename: str
     ) -> bool:
         file_chooser = Gtk.FileChooserNative.new(
             _("Save File"),
@@ -234,7 +234,7 @@ class Application(Adw.Application):
 
     def __download_file_chooser_on_response(
         self,
-        download: WebKit2.Download,
+        download: WebKit.Download,
         file_chooser: Gtk.FileChooserNative,
         response: Gtk.ResponseType,
     ):
@@ -254,7 +254,7 @@ class Application(Adw.Application):
         self.open_url_in_external_application(current_url)
 
     def __window_on_open_new_window(
-        self, window: KolibriWindow, target_url: str, related_webview: WebKit2.WebView
+        self, window: KolibriWindow, target_url: str, related_webview: WebKit.WebView
     ) -> typing.Optional[KolibriWebView]:
         new_window = self.open_kolibri_window(
             target_url, related_webview=related_webview

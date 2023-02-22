@@ -14,7 +14,7 @@ from urllib.parse import urlsplit
 from gi.repository import Gio
 from gi.repository import GLib
 from gi.repository import GObject
-from gi.repository import WebKit2
+from gi.repository import WebKit
 from kolibri_app.config import DATA_DIR
 from kolibri_app.config import FRONTEND_APPLICATION_ID
 
@@ -31,13 +31,13 @@ class KolibriContext(GObject.GObject):
     """
     Keeps track of global context related to accessing Kolibri over HTTP. A
     single KolibriContext object is shared between all Application,
-    KolibriWindow, and KolibriWebView objects. Generates a WebKit2.WebContext
+    KolibriWindow, and KolibriWebView objects. Generates a WebKit.WebContext
     with the appropriate cookies to enable Kolibri's app mode and to log in as
     the correct user. Use the session-status property or kolibri-ready signal to
     determine whether Kolibri is ready to use.
     """
 
-    __webkit_web_context: WebKit2.WebContext
+    __webkit_web_context: WebKit.WebContext
     __kolibri_daemon: KolibriDaemonManager
     __setup_helper: _KolibriSetupHelper
     __loader_url: str
@@ -49,7 +49,7 @@ class KolibriContext(GObject.GObject):
     session_status = GObject.Property(type=int, default=SESSION_STATUS_LOADING)
 
     __gsignals__ = {
-        "download-started": (GObject.SIGNAL_RUN_FIRST, None, (WebKit2.Download,)),
+        "download-started": (GObject.SIGNAL_RUN_FIRST, None, (WebKit.Download,)),
         "open-external-url": (GObject.SIGNAL_RUN_FIRST, None, (str,)),
         "kolibri-ready": (GObject.SIGNAL_RUN_FIRST, None, ()),
     }
@@ -57,17 +57,12 @@ class KolibriContext(GObject.GObject):
     def __init__(self):
         GObject.GObject.__init__(self)
 
-        cache_dir = Path(GLib.get_user_cache_dir(), FRONTEND_APPLICATION_ID)
-        data_dir = Path(GLib.get_user_data_dir(), FRONTEND_APPLICATION_ID)
-        cookies_filename = Path(data_dir, "cookies.sqlite")
-
-        website_data_manager = WebKit2.WebsiteDataManager(
-            base_cache_directory=cache_dir.as_posix(),
-            base_data_directory=data_dir.as_posix(),
+        cookies_filename = Path(
+            GLib.get_user_data_dir(), FRONTEND_APPLICATION_ID, "cookies.sqlite"
         )
 
-        website_data_manager.get_cookie_manager().set_persistent_storage(
-            cookies_filename.as_posix(), WebKit2.CookiePersistentStorage.SQLITE
+        WebKit.NetworkSession.get_default().get_cookie_manager().set_persistent_storage(
+            cookies_filename.as_posix(), WebKit.CookiePersistentStorage.SQLITE
         )
 
         loader_path = get_localized_file(
@@ -76,11 +71,10 @@ class KolibriContext(GObject.GObject):
         )
         self.__loader_url = loader_path.as_uri()
 
-        self.__webkit_web_context = WebKit2.WebContext(
-            website_data_manager=website_data_manager
-        )
+        self.__webkit_web_context = WebKit.WebContext()
+        self.__webkit_web_context.set_cache_model(WebKit.CacheModel.DOCUMENT_VIEWER)
 
-        bubble_signal(self.__webkit_web_context, "download-started", self)
+        bubble_signal(WebKit.NetworkSession.get_default(), "download-started", self)
 
         self.__kolibri_daemon = KolibriDaemonManager()
         self.__setup_helper = _KolibriSetupHelper(
@@ -104,7 +98,7 @@ class KolibriContext(GObject.GObject):
         return "x-kolibri-app:/"
 
     @property
-    def webkit_web_context(self) -> WebKit2.WebContext:
+    def webkit_web_context(self) -> WebKit.WebContext:
         return self.__webkit_web_context
 
     def init(self):
@@ -240,10 +234,10 @@ class _KolibriSetupHelper(GObject.GObject):
     Kolibri has not been set up, it will automatically create a facility.
     """
 
-    __webkit_web_context: WebKit2.WebContext
+    __webkit_web_context: WebKit.WebContext
     __kolibri_daemon: KolibriDaemonManager
 
-    __login_webview: WebKit2.WebView
+    __login_webview: WebKit.WebView
 
     AUTOLOGIN_URL_TEMPLATE = "kolibri_desktop_auth_plugin/login/{token}"
 
@@ -257,7 +251,7 @@ class _KolibriSetupHelper(GObject.GObject):
 
     def __init__(
         self,
-        webkit_web_context: WebKit2.WebContext,
+        webkit_web_context: WebKit.WebContext,
         kolibri_daemon: KolibriDaemonManager,
     ):
         GObject.GObject.__init__(self)
@@ -265,7 +259,7 @@ class _KolibriSetupHelper(GObject.GObject):
         self.__webkit_web_context = webkit_web_context
         self.__kolibri_daemon = kolibri_daemon
 
-        self.__login_webview = WebKit2.WebView(web_context=self.__webkit_web_context)
+        self.__login_webview = WebKit.WebView(web_context=self.__webkit_web_context)
         self.__login_webview.connect(
             "load-changed", self.__login_webview_on_load_changed
         )
@@ -300,10 +294,10 @@ class _KolibriSetupHelper(GObject.GObject):
         self.__kolibri_daemon_on_notify_app_key_cookie(self.__kolibri_daemon)
 
     def __login_webview_on_load_changed(
-        self, webview: WebKit2.WebView, load_event: WebKit2.LoadEvent
+        self, webview: WebKit.WebView, load_event: WebKit.LoadEvent
     ):
         # Show the main webview once it finishes loading.
-        if load_event == WebKit2.LoadEvent.FINISHED:
+        if load_event == WebKit.LoadEvent.FINISHED:
             self.props.is_session_cookie_ready = True
             self.props.login_token = None
 
@@ -410,14 +404,14 @@ class _KolibriSetupHelper(GObject.GObject):
         if not self.__kolibri_daemon.props.app_key_cookie:
             return
 
-        self.__webkit_web_context.get_cookie_manager().add_cookie(
+        WebKit.NetworkSession.get_default().get_cookie_manager().add_cookie(
             self.__kolibri_daemon.props.app_key_cookie,
             None,
             self.__on_app_key_cookie_ready,
         )
 
     def __on_app_key_cookie_ready(
-        self, cookie_manager: WebKit2.CookieManager, result: Gio.Task
+        self, cookie_manager: WebKit.CookieManager, result: Gio.Task
     ):
         self.props.is_app_key_cookie_ready = True
 
