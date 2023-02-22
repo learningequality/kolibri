@@ -16,7 +16,7 @@
           <a
             :href="nestedObject.route"
             class="link"
-            :class="$computedClass(optionStyle)"
+            :class="$computedClass(subpathStyles(nestedObject.route))"
             @click="handleNav(nestedObject.route)"
           >
             {{ nestedObject.text }}
@@ -89,6 +89,11 @@
         default: true,
         required: false,
       },
+      navigationIsOpen: {
+        type: Boolean,
+        default: false,
+        required: false,
+      },
     },
     data() {
       return {
@@ -125,21 +130,6 @@
           },
         };
       },
-      optionStyle() {
-        return {
-          color: this.$themeTokens.text,
-          textDecoration: 'none',
-          ':hover': {
-            color: this.$themeTokens.primaryDark,
-            fontWeight: 'bold',
-          },
-          ':active': {
-            color: this.$themeTokens.primaryDark,
-            fontWeight: 'bold',
-          },
-          ':focus': this.$coreOutline,
-        };
-      },
       bottomMenuActiveStyles() {
         return {
           borderTop: `4px solid ${this.$themeTokens.primary}`,
@@ -173,8 +163,26 @@
         // which plugin are we currently in?
         this.visibleSubMenu = window.location.pathname.includes(this.url);
       },
-      handleNav(route) {
+      subpathStyles(route) {
         if (this.isActiveLink(route)) {
+          return {
+            color: this.$themeTokens.primaryDark,
+            fontWeight: 'bold',
+            textDecoration: 'none',
+          };
+        }
+        return {
+          color: this.$themeTokens.text,
+          textDecoration: 'none',
+          ':hover': {
+            color: this.$themeTokens.primaryDark,
+            fontWeight: 'bold',
+          },
+          ':focus': this.$coreOutline,
+        };
+      },
+      handleNav(route) {
+        if (this.isActiveLink(route) && this.navigationIsOpen) {
           this.$emit('toggleAndroidMenu');
         }
       },
@@ -236,6 +244,7 @@
     margin: 0;
     margin-top: -8px;
     font-size: 12px;
+    text-align: center;
   }
 
 </style>

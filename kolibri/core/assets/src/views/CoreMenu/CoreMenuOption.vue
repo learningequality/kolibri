@@ -55,17 +55,16 @@
         default: '',
       },
     },
-    inject: ['showActive'],
     computed: {
-      active() {
-        const showActive = typeof this.showActive !== 'undefined' ? this.showActive : true;
-        return showActive && window.location.pathname.startsWith(this.link);
+      isActive() {
+        return window.location.pathname.includes(this.label.toLowerCase());
       },
       optionStyle() {
-        if (this.active) {
+        if (this.isActive) {
           return {
             color: this.$themeTokens.primaryDark,
             fontWeight: 'bold',
+            margin: '8px',
             backgroundColor: this.$themeBrand.primary.v_50,
             ':hover': {
               backgroundColor: this.$themeBrand.primary.v_100,

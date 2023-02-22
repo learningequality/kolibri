@@ -16,6 +16,7 @@
       v-for="component in learnPluginMenuNavigationOptions"
       :key="component.name"
       :mainDisplay="false"
+      :navigationIsOpen="navigationIsOpen"
       @toggleAndroidMenu="navigationIsOpen = !navigationIsOpen"
     />
   </div>
