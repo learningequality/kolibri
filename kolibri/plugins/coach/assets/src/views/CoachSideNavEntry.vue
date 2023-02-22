@@ -85,8 +85,8 @@
       generateNavRoute(route) {
         // if class id
         let params;
-        if (this.classId) {
-          params = { classId: this.classId };
+        if (this.$router.currentRoute.params.classId) {
+          params = this.$router.currentRoute.params;
           return generateNavRoute(this.url, route, navigationBaseRoutes, params);
         } else {
           // otherwise, go to class page and then have the next

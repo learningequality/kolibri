@@ -89,15 +89,6 @@
         if (this.$store.getters.currentFacilityId) {
           params = { facilityId: this.$store.getters.currentFacilityId };
           return generateNavRoute(this.url, route, baseRoutes, params);
-        } else {
-          // otherwise, go to class page and then have the next
-          return generateNavRoute(
-            this.url,
-            FacilityPageNames.COACH_CLASS_LIST_PAGE,
-            baseRoutes,
-            params,
-            route
-          );
         }
       },
       toggleAndroidMenu() {
