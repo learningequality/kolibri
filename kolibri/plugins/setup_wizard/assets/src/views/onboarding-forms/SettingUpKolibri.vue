@@ -78,8 +78,9 @@
     computed: {
       facilityData() {
         const usersName = get(this.wizardContext('superuser'), 'full_name', '');
-        const facilityName = this.wizardContext('facilityName') 
-          || this.$tr('onMyOwnFacilityName', { name: usersName });
+        const facilityName =
+          this.wizardContext('facilityName') ||
+          this.$tr('onMyOwnFacilityName', { name: usersName });
         const selectedFacility = this.wizardContext('selectedFacility');
         if (selectedFacility) {
           if (selectedFacility.id) {
@@ -132,7 +133,9 @@
           settings: omitBy(settings, v => v === null),
           preset: this.wizardContext('formalOrNonformal') || 'nonformal',
           language_id: currentLanguage,
-          device_name: this.wizardContext('deviceName'),
+          device_name:
+            this.wizardContext('deviceName') ||
+            this.$tr('onMyOwnDeviceName', { name: superuser.full_name }),
           allow_guest_access: Boolean(this.wizardContext('guestAccess')),
           is_provisioned: true,
           os_user: checkCapability('get_os_user'),
@@ -188,11 +191,16 @@
         message: 'This may take several minutes',
         context: 'Kolibri is working in the background and the user may need to wait',
       },
+      onMyOwnDeviceName: {
+        message: 'Personal device for {name}',
+        context:
+          "The default device name for a user installing Kolibri using the personal 'on my own' (formerly Quick Start) flow",
+      },
       onMyOwnFacilityName: {
         message: 'Home Facility for {name}',
         context:
           "Default facility name when Kolibri is installed with the 'Quick start' setup option for at home learning, outside any type of structure or institution like a school or a library. '{name}' will display the full name of the super admin user for their Kolibri server. Note that users can change this default name after the setup, and put whatever name they want to use for their home facility.",
-  },
+      },
     },
   };
 
