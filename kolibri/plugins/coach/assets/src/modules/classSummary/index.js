@@ -445,13 +445,12 @@ export default {
   actions: {
     updateWithNotifications,
     loadClassSummary(store, classId) {
-      return ClassSummaryResource.fetchModel({ id: classId, force: true })
-        .then(summary => {
-          store.commit('SET_STATE', summary);
-        })
-        .then(() => {
-          return store.dispatch('fetchLessonsSizes', { classId: classId, force: true });
-        });
+      return ClassSummaryResource.fetchModel({ id: classId, force: true }).then(summary => {
+        store.commit('SET_STATE', summary);
+      });
+      // .then(() => {
+      //   return store.dispatch('fetchLessonsSizes', { classId: classId, force: true });
+      // });
     },
     fetchLessonsSizes(store, classId) {
       return LessonResource.fetchLessonsSizes(classId)
