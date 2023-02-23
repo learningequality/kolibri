@@ -25,14 +25,14 @@ module.exports = function(pathInfo, ignore, langInfo, localeDataFolder, verbose)
   const table = new Table({
     head: ['Crowdin Code', 'Intl Code', '# Untranslated Messages', 'Untranslated Word Count'],
   });
-  for (let langObject of languageInfo) {
+  for (const langObject of languageInfo) {
     const crowdinCode = langObject['crowdin_code'];
     const intlCode = langObject['intl_code'];
     const csvDefinitions = parseCSVDefinitions(localeDataFolder, intlCode);
     // An object for storing missing messages.
     const missingMessages = {};
-    for (let name in requiredMessages) {
-      for (let msg in requiredMessages[name]) {
+    for (const name in requiredMessages) {
+      for (const msg in requiredMessages[name]) {
         const definition = csvDefinitions.find(o => o['Identifier'] === msg);
         if (!definition) {
           missingMessages[msg] = requiredMessages[name][msg]['message'];

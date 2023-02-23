@@ -19,8 +19,8 @@ class MimicFullscreenToggle extends FullscreenToggle {
   }
 
   handleChangeFullscreen(isFullscreen) {
-    let el = this.$('.vjs-icon-placeholder'),
-      addClass = MimicFullscreenToggle.INACTIVE_CLASS,
+    const el = this.$('.vjs-icon-placeholder');
+    let addClass = MimicFullscreenToggle.INACTIVE_CLASS,
       removeClass = MimicFullscreenToggle.ACTIVE_CLASS,
       controlText = 'Fullscreen';
 

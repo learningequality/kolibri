@@ -43,7 +43,7 @@ export default function useDownloadRequests(store) {
         node_id: '2ea9bda8703241be89b5b9fd87f88815',
       },
     ];
-    for (let req of dummyDownloadRequests) {
+    for (const req of dummyDownloadRequests) {
       set(downloadRequestMap, req.node_id, req);
     }
   }

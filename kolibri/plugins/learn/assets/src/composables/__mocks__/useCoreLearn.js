@@ -31,8 +31,8 @@
  * ```
  */
 
-export let inClasses = false;
-export let canDownload = true;
+export const inClasses = false;
+export const canDownload = true;
 
 const MOCK_DEFAULTS = {
   inClasses,

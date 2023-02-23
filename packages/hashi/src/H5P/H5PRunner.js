@@ -48,7 +48,7 @@ const doNotLogVerbs = [
   'accessed-copyright',
 ];
 const doNotLogVerbMap = {};
-for (let doNotLogVerb of doNotLogVerbs) {
+for (const doNotLogVerb of doNotLogVerbs) {
   doNotLogVerbMap[XAPIVerbMap[doNotLogVerb]] = true;
 }
 // These verbs are reported too much by H5P leading to spammy responses,
@@ -61,7 +61,7 @@ const maxDelay = 30;
 
 const completionVerbs = ['completed', 'mastered', 'passed'];
 const completionVerbMap = {};
-for (let completionVerb of completionVerbs) {
+for (const completionVerb of completionVerbs) {
   completionVerbMap[XAPIVerbMap[completionVerb]] = true;
 }
 
@@ -268,7 +268,7 @@ export default class H5PRunner {
           this.iframe.contentWindow.H5P.init();
           this.loaded();
           setTimeout(() => {
-            for (let instance of this.iframe.contentWindow.H5P.instances) {
+            for (const instance of this.iframe.contentWindow.H5P.instances) {
               this.iframe.contentWindow.H5P.trigger(instance, 'resize');
             }
           }, 0);
@@ -376,7 +376,7 @@ export default class H5PRunner {
       }
     };
     const debouncedHandlers = {};
-    for (let debouncedVerb of debounceVerbs) {
+    for (const debouncedVerb of debounceVerbs) {
       const verb = XAPIVerbMap[debouncedVerb];
       debouncedHandlers[verb] = debounce(
         function(statement) {
@@ -523,7 +523,7 @@ export default class H5PRunner {
   setDependencies() {
     const dependencySorter = new Toposort();
 
-    for (let dependency of this.dependencies) {
+    for (const dependency of this.dependencies) {
       this.packageFiles[dependency.packagePath] = {};
       dependencySorter.add(dependency.packagePath, dependency.dependencies);
 

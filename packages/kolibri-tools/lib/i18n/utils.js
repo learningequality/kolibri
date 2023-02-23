@@ -33,8 +33,8 @@ function parseCSVDefinitions(dir, intlLangCode = null) {
 // Turn a language name (en-us) into a locale name (en_US).
 // This is converted from the equivalent Django function.
 function toLocale(language) {
-  let [lang, ...country] = language.toLowerCase().split('-');
-  country = country.join('-');
+  const [lang, ...countryFromLanguage] = language.toLowerCase().split('-');
+  let country = countryFromLanguage.join('-');
   if (!country) {
     return language.slice(0, 3).toLowerCase() + language.slice(3);
   }
@@ -57,7 +57,7 @@ function toLocale(language) {
 }
 
 function forEachPathInfo(pathInfo, callback) {
-  for (let pathData of pathInfo) {
+  for (const pathData of pathInfo) {
     if (pathData.aliases) {
       addAliases(pathData.aliases);
     }

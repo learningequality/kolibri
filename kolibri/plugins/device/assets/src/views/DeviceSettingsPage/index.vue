@@ -470,7 +470,7 @@
         return this.$store.getters.isSuperuser && this.facilities.length > 1;
       },
       languageOptions() {
-        let languages = sortLanguages(Object.values(availableLanguages), currentLanguage).map(
+        const languages = sortLanguages(Object.values(availableLanguages), currentLanguage).map(
           language => {
             return {
               value: language.id,

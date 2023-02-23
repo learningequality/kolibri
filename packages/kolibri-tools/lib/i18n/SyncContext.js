@@ -33,7 +33,7 @@ function findObjectsWith$trs(scriptAST) {
   traverse(scriptAST, {
     pre: node => {
       if (node.type === 'ObjectExpression') {
-        for (let property of node.properties) {
+        for (const property of node.properties) {
           if (is$trs(property)) {
             objects.push(node);
             break;
@@ -109,7 +109,7 @@ function modifyVueComponent$trs(vueComponent, definitions) {
     pre: node => {
       if (is$trs(node)) {
         // node.value.properties is the object passed to $trs
-        for (let property of node.value.properties) {
+        for (const property of node.value.properties) {
           fileHasChanged =
             modifyTranslationObjectNode(property, namespace, definitions) || fileHasChanged;
         }
@@ -139,7 +139,7 @@ function modifyCreateTranslatorASTNodes(ast, definitions) {
         );
         if (namespace && node.arguments[1].properties) {
           // Go through all of the properties and update the nodes as needed.
-          for (let property of node.arguments[1].properties) {
+          for (const property of node.arguments[1].properties) {
             fileHasChanged =
               modifyTranslationObjectNode(property, namespace, translatorDefinitions) ||
               fileHasChanged;
@@ -162,7 +162,7 @@ function processVueFiles(files, definitions) {
         whitespace: 'preserve',
       });
 
-      let scriptContent = get(vueSFC, 'script.content');
+      const scriptContent = get(vueSFC, 'script.content');
 
       // If we don't have a script, nothing to modify so stop here.
       if (!scriptContent) {

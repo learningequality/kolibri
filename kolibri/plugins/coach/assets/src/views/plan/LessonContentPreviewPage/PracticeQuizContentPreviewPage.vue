@@ -162,14 +162,14 @@
         );
       },
       newTitle() {
-        let currentPracticeQuizName = this.content.title;
-        let practiceQuizNameAlreadyExists = this.exams.filter(exam =>
+        const currentPracticeQuizName = this.content.title;
+        const practiceQuizNameAlreadyExists = this.exams.filter(exam =>
           exam.title.includes(currentPracticeQuizName)
         );
 
         if (practiceQuizNameAlreadyExists.length >= 1) {
           // Set the new (#) for additional copies based on how many copies exist
-          let newCopyNum = practiceQuizNameAlreadyExists.length;
+          const newCopyNum = practiceQuizNameAlreadyExists.length;
           return this.$tr('duplicateTitle', {
             copyNum: newCopyNum,
             originalTitle: this.content.title,

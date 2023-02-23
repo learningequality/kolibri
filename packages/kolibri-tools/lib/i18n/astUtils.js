@@ -349,7 +349,7 @@ function generateMessagesFromASTNode(messageNodeProperties, messageNamespace, as
   const results = {};
   if (messageNodeProperties && messageNamespace) {
     // Now that we have the properties we care about, let's do the thing we're here to do!
-    for (let $trProperty of messageNodeProperties) {
+    for (const $trProperty of messageNodeProperties) {
       results[
         `${messageNamespace}.${getPropertyKey($trProperty, ast, filePath)}`
       ] = getObjectifiedValue($trProperty.value);
@@ -536,7 +536,7 @@ function recurseForStrings(entryFile, ignore, visited, verbose) {
   const outputStrings = {};
   if (!visited.has(entryFile)) {
     Object.assign(outputStrings, getMessagesFromFile(entryFile, verbose));
-    for (let filePath of getImportFileNames(entryFile, ignore)) {
+    for (const filePath of getImportFileNames(entryFile, ignore)) {
       Object.assign(outputStrings, recurseForStrings(filePath, ignore, visited, verbose));
     }
     visited.add(entryFile);

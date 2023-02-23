@@ -15,8 +15,8 @@ const { GROUP_PROPS, GROUP_DATA, GROUP_COMPUTED } = constants;
 const create = context => {
   let hasTemplate;
   let unusedProperties = [];
-  let thisExpressionsVariablesNames = [];
-  let befoureRouteEnterInstanceProperties = [];
+  const thisExpressionsVariablesNames = [];
+  const befoureRouteEnterInstanceProperties = [];
 
   const initialize = {
     Program(node) {

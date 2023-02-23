@@ -73,7 +73,7 @@ export function showExam(store, params, alreadyOnQuiz) {
 
                 const contentNodeMap = {};
 
-                for (let node of contentNodes) {
+                for (const node of contentNodes) {
                   contentNodeMap[node.id] = node;
                 }
 

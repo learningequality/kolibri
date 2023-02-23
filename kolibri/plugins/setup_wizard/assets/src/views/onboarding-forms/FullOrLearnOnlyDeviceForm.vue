@@ -38,7 +38,7 @@
     },
     inject: ['wizardService'],
     data() {
-      let selected = get(this, 'wizardService.context.setupType', Options.FULL);
+      const selected = get(this, 'wizardService.context.setupType', Options.FULL);
       return {
         Options,
         selected,

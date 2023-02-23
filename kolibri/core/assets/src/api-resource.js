@@ -1063,7 +1063,7 @@ export class Resource {
       console.log(`Route name: ${store.state.route.name}`);
       if (Object.keys(store.state.route.params).length) {
         console.group('Vue router params');
-        for (let [k, v] of Object.entries(store.state.route.params)) {
+        for (const [k, v] of Object.entries(store.state.route.params)) {
           console.log(`${k}: ${v}`);
         }
         console.groupEnd();
@@ -1072,7 +1072,7 @@ export class Resource {
     }
     if (Object.keys(err.config.params).length) {
       console.group('Query parameters');
-      for (let [k, v] of Object.entries(err.config.params)) {
+      for (const [k, v] of Object.entries(err.config.params)) {
         console.log(`${k}: ${v}`);
       }
       console.groupEnd();
@@ -1082,7 +1082,7 @@ export class Resource {
         const data = JSON.parse(err.config.data);
         if (Object.keys(data).length) {
           console.group('Data');
-          for (let [k, v] of Object.entries(data)) {
+          for (const [k, v] of Object.entries(data)) {
             console.log(`${k}: ${v}`);
           }
           console.groupEnd();
@@ -1091,7 +1091,7 @@ export class Resource {
     }
     if (Object.keys(err.config.headers).length) {
       console.group('Headers');
-      for (let [k, v] of Object.entries(err.config.headers)) {
+      for (const [k, v] of Object.entries(err.config.headers)) {
         console.log(`${k}: ${v}`);
       }
       console.groupEnd();

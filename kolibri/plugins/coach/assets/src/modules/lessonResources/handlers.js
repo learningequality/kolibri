@@ -45,9 +45,7 @@ function showResourceSelectionPage(store, params) {
 
         const ancestorCounts = {};
 
-        let resourceAncestors;
-
-        resourceAncestors = store.state.lessonSummary.workingResources.map(
+        const resourceAncestors = store.state.lessonSummary.workingResources.map(
           resource => (cache[resource.contentnode_id] || {}).ancestors || []
         );
         // store ancestor ids to get their descendants later
