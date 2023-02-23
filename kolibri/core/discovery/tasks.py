@@ -16,6 +16,7 @@ from kolibri.core.discovery.models import StaticNetworkLocation
 from kolibri.core.discovery.utils.network.broadcast import KolibriInstance
 from kolibri.core.discovery.utils.network.connections import update_network_location
 from kolibri.core.tasks.decorators import register_task
+from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.main import job_storage
 
 logger = logging.getLogger(__name__)
@@ -168,12 +169,13 @@ def _enqueue_network_location_update_with_backoff(network_location):
     next_attempt = datetime.timedelta(minutes=2 ** network_location.connection_faults)
     perform_network_location_update.enqueue_in(
         next_attempt,
-        job_id=generate_job_id("connect", network_location.id),
+        job_id=generate_job_id(TYPE_CONNECT, network_location.id),
         args=(network_location.id,),
+        priority=Priority.LOW,
     )
 
 
-@register_task
+@register_task(priority=Priority.REGULAR)
 def perform_network_location_update(network_location_id):
     """
     Updates the connection status for the network location, and dispatches hooks if applicable
@@ -183,13 +185,6 @@ def perform_network_location_update(network_location_id):
         network_location = NetworkLocation.objects.get(id=network_location_id)
     except NetworkLocation.DoesNotExist:
         # may have been removed if its dynamic
-        return
-
-    # slightly awkward optimization-- if we're a SoUD and the location is too, don't connect
-    if (
-        get_device_setting("subset_of_users_device", default=False)
-        and network_location.subset_of_users_device
-    ):
         return
 
     prior_status = network_location.connection_status
@@ -208,7 +203,7 @@ def perform_network_location_update(network_location_id):
         _enqueue_network_location_update_with_backoff(network_location)
 
 
-@register_task
+@register_task(priority=Priority.HIGH)
 @hydrate_instance
 def add_dynamic_network_location(broadcast_id, instance):
     """
@@ -225,14 +220,26 @@ def add_dynamic_network_location(broadcast_id, instance):
         time.sleep(0.1)
 
     # if we couldn't store it, that's the end
-    if network_location is not None:
-        new_status = _update_connection_status(network_location)
-        # enqueue another attempt if the connection failed
-        if new_status != ConnectionStatus.Okay:
-            _enqueue_network_location_update_with_backoff(network_location)
+    if network_location is None:
+        return
+
+    priority = Priority.REGULAR
+    is_self_soud = get_device_setting("subset_of_users_device", default=False)
+    if is_self_soud and network_location.subset_of_users_device:
+        # if we're both SoUDs, prioritize connection checks lower than normal
+        priority = Priority.LOW
+    elif is_self_soud:
+        # if we're a SoUD, prioritize the connection check ASAP
+        priority = Priority.HIGH
+
+    perform_network_location_update.enqueue(
+        job_id=generate_job_id(TYPE_CONNECT, network_location.id),
+        args=(network_location.id,),
+        priority=priority,
+    )
 
 
-@register_task
+@register_task(priority=Priority.HIGH)
 @hydrate_instance
 def remove_dynamic_network_location(broadcast_id, instance):
     """
@@ -252,7 +259,7 @@ def remove_dynamic_network_location(broadcast_id, instance):
     network_location.delete()
 
 
-@register_task(job_id=CONNECTION_RESET_JOB_ID)
+@register_task(job_id=CONNECTION_RESET_JOB_ID, priority=Priority.HIGH)
 def reset_connection_states(broadcast_id):
     """
     Handles resetting all connection states when a network change occurs

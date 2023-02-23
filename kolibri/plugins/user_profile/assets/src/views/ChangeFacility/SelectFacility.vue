@@ -162,8 +162,8 @@
           );
           const facilities = {};
           // Promise.all will resolve with an array of arrays
-          for (let deviceFacilities of facilitiesFromDevices) {
-            for (let facility of deviceFacilities) {
+          for (const deviceFacilities of facilitiesFromDevices) {
+            for (const facility of deviceFacilities) {
               // deduplicate the same facility across more than one device
               if (!facility[facility.id]) {
                 facilities[facility.id] = facility;

@@ -21,6 +21,7 @@ from ..tasks import remove_dynamic_network_location
 from ..tasks import reset_connection_states
 from ..utils.network.broadcast import KolibriInstance
 from .helpers import info as mock_device_info
+from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.registry import RegisteredTask
 
 MOCK_INTERFACE_IP = "111.222.111.222"
@@ -54,18 +55,6 @@ class PerformNetworkLocationUpdateTestCase(TestCase):
     @mock.patch("kolibri.core.discovery.tasks._update_connection_status")
     def test_not_found(self, mock_update):
         perform_network_location_update("c" * 32)
-        mock_update.assert_not_called()
-
-    @mock.patch("kolibri.core.discovery.tasks.get_device_setting", return_value=True)
-    @mock.patch("kolibri.core.discovery.tasks._update_connection_status")
-    def test_skip_as_soud(self, mock_update, mock_get_device_setting):
-        self.network_location.subset_of_users_device = True
-        self.network_location.save()
-
-        perform_network_location_update(self.network_location.id)
-        mock_get_device_setting.assert_called_once_with(
-            "subset_of_users_device", default=False
-        )
         mock_update.assert_not_called()
 
     @mock.patch(
@@ -124,43 +113,51 @@ class AddDynamicNetworkLocationTestCase(TestCase):
             mock_device_info.get("instance_id"),
             ip=MOCK_INTERFACE_IP,
             port=MOCK_PORT,
-            device_info=mock_device_info,
+            device_info=mock_device_info.copy(),
         )
         self.task = unwrap(unwrap(add_dynamic_network_location))
 
-    @mock.patch("kolibri.core.discovery.tasks._update_connection_status")
+    @mock.patch("kolibri.core.discovery.tasks.perform_network_location_update.enqueue")
     @mock.patch("kolibri.core.discovery.tasks._store_dynamic_instance")
-    def test_could_not_add(self, mock_store, mock_update):
+    def test_could_not_add(self, mock_store, mock_enqueue_update):
         mock_store.return_value = None
         self.task(self.broadcast_id, self.instance)
-        mock_update.assert_not_called()
+        mock_enqueue_update.assert_not_called()
         self.assertEqual(6, mock_store.call_count)
 
-    @mock.patch(
-        "kolibri.core.discovery.tasks._enqueue_network_location_update_with_backoff"
-    )
-    @mock.patch("kolibri.core.discovery.tasks._update_connection_status")
-    def test_added_okay(self, mock_update, mock_enqueue_another):
-        mock_update.return_value = ConnectionStatus.Okay
+    @mock.patch("kolibri.core.discovery.tasks.get_device_setting", return_value=True)
+    @mock.patch("kolibri.core.discovery.tasks.perform_network_location_update.enqueue")
+    def test_added__not_soud(self, mock_enqueue_update, mock_get_device_setting):
+        mock_get_device_setting.return_value = False
         self.task(self.broadcast_id, self.instance)
-        mock_update.assert_called()
-        added_network_location = mock_update.call_args[0][0]
-        self.assertEqual(self.instance.id, added_network_location.id)
-        self.assertEqual(self.broadcast_id, added_network_location.broadcast_id)
-        self.assertEqual(self.instance.base_url, added_network_location.base_url)
-        self.assertTrue(added_network_location.dynamic)
-        mock_enqueue_another.assert_not_called()
+        mock_enqueue_update.assert_called_once_with(
+            job_id="88452dfa2ec2726589d4c63732cc51e4",
+            args=(self.instance.id,),
+            priority=Priority.REGULAR,
+        )
 
-    @mock.patch(
-        "kolibri.core.discovery.tasks._enqueue_network_location_update_with_backoff"
-    )
-    @mock.patch("kolibri.core.discovery.tasks._update_connection_status")
-    def test_added_but_connect_failure(self, mock_update, mock_enqueue_another):
-        mock_update.return_value = ConnectionStatus.ConnectionFailure
+    @mock.patch("kolibri.core.discovery.tasks.get_device_setting", return_value=True)
+    @mock.patch("kolibri.core.discovery.tasks.perform_network_location_update.enqueue")
+    def test_added__soud(self, mock_enqueue_update, mock_get_device_setting):
+        mock_get_device_setting.return_value = True
         self.task(self.broadcast_id, self.instance)
-        mock_update.assert_called()
-        added_network_location = mock_update.call_args[0][0]
-        mock_enqueue_another.assert_called_once_with(added_network_location)
+        mock_enqueue_update.assert_called_once_with(
+            job_id="88452dfa2ec2726589d4c63732cc51e4",
+            args=(self.instance.id,),
+            priority=Priority.HIGH,
+        )
+
+    @mock.patch("kolibri.core.discovery.tasks.get_device_setting", return_value=True)
+    @mock.patch("kolibri.core.discovery.tasks.perform_network_location_update.enqueue")
+    def test_added__both_souds(self, mock_enqueue_update, mock_get_device_setting):
+        self.instance.device_info.update(subset_of_users_device=True)
+        mock_get_device_setting.return_value = True
+        self.task(self.broadcast_id, self.instance)
+        mock_enqueue_update.assert_called_once_with(
+            job_id="88452dfa2ec2726589d4c63732cc51e4",
+            args=(self.instance.id,),
+            priority=Priority.LOW,
+        )
 
 
 class RemoveDynamicNetworkLocationTestCase(TestCase):
@@ -408,6 +405,7 @@ class TaskUtilitiesTestCase(TestCase):
             next_attempt,
             job_id="88452dfa2ec2726589d4c63732cc51e4",
             args=(self.network_location.id,),
+            priority=Priority.LOW,
         )
 
     @mock.patch(
@@ -423,4 +421,5 @@ class TaskUtilitiesTestCase(TestCase):
             next_attempt,
             job_id="88452dfa2ec2726589d4c63732cc51e4",
             args=(self.network_location.id,),
+            priority=Priority.LOW,
         )

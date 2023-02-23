@@ -21,7 +21,7 @@ export default function useDevices(apiParams = {}) {
     set(isFetching, true);
     set(fetchFailed, false);
     try {
-      let _devices = await fetchDevices(apiParams);
+      const _devices = await fetchDevices(apiParams);
       set(
         devices,
         _devices.map(d => reactive(d))
@@ -81,7 +81,7 @@ function useDevicesWithFilter(apiParams, filterFunction) {
       get(devices).map(async device => {
         try {
           // result is memoized once successful
-          let isAvailable = await getIsAvailable(device);
+          const isAvailable = await getIsAvailable(device);
 
           // Put into refs to trigger reactive behavior in computed devices
           if (isAvailable) {
