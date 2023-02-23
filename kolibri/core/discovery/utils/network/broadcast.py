@@ -399,6 +399,10 @@ class KolibriBroadcast(object):
             instance.zeroconf_id = self.instance.zeroconf_id
             self.instance = instance
             self.renew()
+        else:
+            # if not provided a new instance, we still trigger this event when the broadcast is
+            # updated so the listeners can hook into that lifecycle
+            self.events.publish(EVENT_RENEW_INSTANCE, self.instance)
 
     def stop_broadcast(self):
         """Stops broadcasting our instance and shuts down Zeroconf"""
@@ -584,7 +588,6 @@ class KolibriBroadcast(object):
         if not self.is_broadcasting:
             return None
 
-        logger.debug("Querying service information for service {}".format(name))
         timeout = 10000
         service_info = self.zeroconf.get_service_info(
             SERVICE_TYPE, name, timeout=timeout

@@ -188,7 +188,8 @@ class NetworkClientTestCase(TestCase):
         network_loc = mock.MagicMock(
             spec=NetworkLocation(),
             base_url="url.qqq",
-            connection_status=ConnectionStatus.ConnectionFailure,
+            connection_status=ConnectionStatus.Unknown,
+            dynamic=True,
         )
         client = NetworkClient.build_from_network_location(network_loc)
         # should have resolved the base url to something different
@@ -202,10 +203,41 @@ class NetworkClientTestCase(TestCase):
         network_loc = mock.MagicMock(
             spec=NetworkLocation(),
             base_url="url.qqq",
-            connection_status=ConnectionStatus.ConnectionFailure,
+            connection_status=ConnectionStatus.Unknown,
+            dynamic=True,
         )
         with self.assertRaises(errors.NetworkLocationNotFound):
             NetworkClient.build_from_network_location(network_loc)
+
+    @mock.patch.object(
+        requests.Session, "request", mock_sad_request("https://url.qqq/")
+    )
+    def test_build_for_network_location__no_raise(self):
+        network_loc = mock.MagicMock(
+            spec=NetworkLocation(),
+            base_url="url.qqq",
+            connection_status=ConnectionStatus.ConnectionFailure,
+            dynamic=True,
+        )
+        try:
+            NetworkClient.build_from_network_location(network_loc)
+        except errors.NetworkLocationNotFound:
+            self.fail("Should not raise NetworkLocationNotFound")
+
+    @mock.patch.object(
+        requests.Session, "request", mock_sad_request("https://url.qqq/")
+    )
+    def test_build_for_network_location__static(self):
+        network_loc = mock.MagicMock(
+            spec=NetworkLocation(),
+            base_url="url.qqq",
+            connection_status=ConnectionStatus.Unknown,
+            dynamic=False,
+        )
+        try:
+            NetworkClient.build_from_network_location(network_loc)
+        except errors.NetworkLocationNotFound:
+            self.fail("Should not raise NetworkLocationNotFound")
 
     @mock.patch.object(
         requests.Session, "request", mock_happy_request("https://url.qqq/")

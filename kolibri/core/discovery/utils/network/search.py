@@ -23,6 +23,14 @@ class NetworkLocationListener(KolibriInstanceListener):
         # when we start broadcasting, enqueue task to reset all connection states
         reset_connection_states.enqueue(args=(self.broadcast.id,))
 
+    def renew_instance(self, instance):
+        """
+        :type instance: kolibri.core.discovery.utils.network.broadcast.KolibriInstance
+        """
+        # when we update the broadcast, on a network change, we also enqueue task to reset all
+        # connection states
+        reset_connection_states.enqueue(args=(self.broadcast.id,))
+
     def add_instance(self, instance):
         """
         :type instance: kolibri.core.discovery.utils.network.broadcast.KolibriInstance

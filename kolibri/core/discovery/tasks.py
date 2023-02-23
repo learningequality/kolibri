@@ -82,6 +82,12 @@ def _dispatch_hooks(network_location, is_connected):
     :type network_location: NetworkLocation
     :type is_connected: bool
     """
+    hook_type = "on_connect" if is_connected else "on_disconnect"
+    logger.debug(
+        "Dispatching {} hooks for network location {}".format(
+            hook_type, network_location.id
+        )
+    )
     for hook in NetworkLocationDiscoveryHook.registered_hooks:
         # we catch all errors because as a rule of thumb,
         # we don't want hooks to fail everything else
@@ -93,7 +99,7 @@ def _dispatch_hooks(network_location, is_connected):
         except Exception as e:
             logger.error(
                 "{}.{} hook failed".format(
-                    "on_connect" if is_connected else "on_disconnect",
+                    hook_type,
                     hook.__class__.__name__,
                 ),
                 exc_info=e,
@@ -166,9 +172,14 @@ def _enqueue_network_location_update_with_backoff(network_location):
     :type network_location: NetworkLocation
     """
     # exponential backoff depending on how many faults/attempts we've had
-    next_attempt = datetime.timedelta(minutes=2 ** network_location.connection_faults)
+    next_attempt_minutes = 2 ** network_location.connection_faults
+    logger.debug(
+        "Delaying network location {} connection update {} minutes".format(
+            network_location.id, next_attempt_minutes
+        )
+    )
     perform_network_location_update.enqueue_in(
-        next_attempt,
+        datetime.timedelta(minutes=next_attempt_minutes),
         job_id=generate_job_id(TYPE_CONNECT, network_location.id),
         args=(network_location.id,),
         priority=Priority.LOW,
@@ -187,6 +198,9 @@ def perform_network_location_update(network_location_id):
         # may have been removed if its dynamic
         return
 
+    logger.debug(
+        "Checking connection status for network location {}".format(network_location.id)
+    )
     prior_status = network_location.connection_status
     new_status = _update_connection_status(network_location)
 
@@ -232,6 +246,9 @@ def add_dynamic_network_location(broadcast_id, instance):
         # if we're a SoUD, prioritize the connection check ASAP
         priority = Priority.HIGH
 
+    logger.debug(
+        "Enqueuing connection check for network location {}".format(network_location.id)
+    )
     perform_network_location_update.enqueue(
         job_id=generate_job_id(TYPE_CONNECT, network_location.id),
         args=(network_location.id,),
@@ -255,6 +272,7 @@ def remove_dynamic_network_location(broadcast_id, instance):
     except NetworkLocation.DoesNotExist:
         return
 
+    logger.debug("Removing network location {}".format(network_location.id))
     _dispatch_hooks(network_location, False)
     network_location.delete()
 
