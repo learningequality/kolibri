@@ -61,6 +61,7 @@
           />
         </KGridItem>
       </KGrid>
+      <DownloadsList :downloads="[]" />
     </KPageContainer>
   </AppBarPage>
 
@@ -72,11 +73,13 @@
   import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import DownloadsList from './DownloadsList';
 
   export default {
     name: 'MyDownloads',
     components: {
       AppBarPage,
+      DownloadsList,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
     data() {
@@ -185,7 +188,7 @@
 <style lang="scss" scoped>
 
   .container {
-    min-height: 600px;
+    min-height: 450px;
   }
 
   .selector {
