@@ -22,6 +22,23 @@
     </screenshot>
   </screenshots>
   <releases>
+    <release version="2.2.0" date="2023-02-22" type="stable">
+      <p>Changes included in this release:</p>
+      <ul>
+        <li>
+          The About dialog now displays Kolibri's version in addition to the
+          desktop application's version.
+        </li>
+        <li>
+          The desktop application now supports downloading files, for example
+          to download configuration or log files from Kolibri, or to make
+          another copy of a video.
+        </li>
+        <li>
+          Kolibri is updated to 0.15.11.
+        </li>
+      </ul>
+    </release>
     <release version="2.1.4" date="2022-09-06" type="stable">
       <p>Changes included in this release:</p>
       <ul>
