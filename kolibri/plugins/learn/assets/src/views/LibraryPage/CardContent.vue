@@ -5,9 +5,9 @@
     :style="cardStyle"
   >
     <div class="" style="width:250px;height:250px;text-align:center;margin-top:80px">
-      <h1>
+      <h2>
         {{ body }}
-      </h1>
+      </h2>
     </div>
   </div>
 
@@ -48,7 +48,7 @@
 <style lang="scss" scoped>
 
   @import '~kolibri-design-system/lib/styles/definitions';
-  @import '../ContentCard/card';
+  @import '../HybridLearningContentCard/card';
 
   $margin: 24px;
 

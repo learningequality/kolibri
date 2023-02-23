@@ -1,16 +1,17 @@
 <template>
 
   <KGrid>
-
     <KGridItem
-      v-for="item in groups"
-      :key="item.id"
+      v-for="device in devices"
+      :key="device.id"
       :layout="{ span: cardColumnSpan, alignment: 'auto' }"
     >
+      {{ device.channels }}
       <UnPinnedDevices
-        :deviceName="item.deviceName"
-        :channels="item.channels"
+        :deviceName="device.device_name"
+        :channels="device.channels"
       />
+
     </KGridItem>
   </KGrid>
 
@@ -20,6 +21,8 @@
 <script>
 
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useDevices from '../../composables/useDevices';
+  import useChannels from '../../composables/useChannels';
   import UnPinnedDevices from './UnPinnedDevices';
 
   export default {
@@ -28,147 +31,18 @@
       UnPinnedDevices,
     },
     mixins: [responsiveWindowMixin],
+    setup() {
+      const { fetchChannels } = useChannels();
+      const { baseurl, fetchDevices } = useDevices();
+      return {
+        baseurl,
+        fetchDevices,
+        fetchChannels,
+      };
+    },
     data() {
       return {
-        groups: [
-          {
-            id: 1,
-            deviceName: 'Device 1',
-            channels: 2,
-            content: [
-              {
-                id: 1,
-                title: 'Card 1',
-                body: ' ',
-              },
-              {
-                id: 2,
-                title: 'Card 2',
-                body: 'Explore',
-              },
-            ],
-          },
-          {
-            id: 2,
-            deviceName: 'Device 2',
-            channels: 7,
-            content: [
-              {
-                id: 1,
-                title: 'Card 1',
-                body: ' ',
-              },
-              {
-                id: 2,
-                title: 'Card 2',
-                body: ' ',
-              },
-            ],
-          },
-          {
-            id: 3,
-            deviceName: 'Device 3',
-            channels: 5,
-            content: [
-              {
-                id: 1,
-                title: 'Card 1',
-                body: ' ',
-              },
-              {
-                id: 2,
-                title: 'Card 2',
-                body: 'Explore',
-              },
-            ],
-          },
-          {
-            id: 4,
-            deviceName: 'Device 4',
-            channels: 2,
-            content: [
-              {
-                id: 1,
-                title: 'Card 1',
-                body: ' ',
-              },
-              {
-                id: 2,
-                title: 'Card 2',
-                body: ' ',
-              },
-              {
-                id: 2,
-                title: 'Card 2',
-                body: ' ',
-              },
-              {
-                id: 2,
-                title: 'Card 2',
-                body: ' ',
-              },
-              {
-                id: 2,
-                title: 'Card 2',
-                body: ' ',
-              },
-              {
-                id: 2,
-                title: 'Card 2',
-                body: 'Explore',
-              },
-            ],
-          },
-          {
-            id: 5,
-            deviceName: 'Device 5',
-            channels: 8,
-            content: [
-              {
-                id: 1,
-                title: 'Card 1',
-                body: ' ',
-              },
-              {
-                id: 2,
-                title: 'Card 2',
-                body: 'Explore',
-              },
-            ],
-          },
-          {
-            id: 3,
-            deviceName: 'Device 3',
-            channels: 1,
-            content: [
-              {
-                id: 1,
-                title: 'Card 1',
-                body: ' ',
-              },
-              {
-                id: 2,
-                title: 'Card 2',
-                body: ' ',
-              },
-              {
-                id: 2,
-                title: 'Card 2',
-                body: ' ',
-              },
-              {
-                id: 2,
-                title: 'Card 2',
-                body: ' ',
-              },
-              {
-                id: 2,
-                title: 'Card 2',
-                body: 'Explore',
-              },
-            ],
-          },
-        ],
+        devices: [],
       };
     },
     computed: {
@@ -179,6 +53,17 @@
         return 3;
       },
     },
+    created() {
+      this.fetchDevices().then(devices => {
+        const device = devices.filter(d => d.available);
+        device.forEach(element => {
+          this.fetchChannels({ baseurl: element.baseurl }).then(channel => {
+            element['channels'] = channel.length;
+          });
+          this.devices.push(element);
+        });
+      });
+    },
   };
 
 </script>
@@ -187,7 +72,7 @@
 <style lang="scss"  scoped>
 
   @import '~kolibri-design-system/lib/styles/definitions';
-  @import '../ContentCard/card';
+  @import '../HybridLearningContentCard/card';
 
   $margin: 24px;
 

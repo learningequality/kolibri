@@ -77,9 +77,9 @@
     </div>
     <!-- More  -->
     <div>
-      <h1>
+      <h2>
         {{ $tr('moreLibraries') }}
-      </h1>
+      </h2>
       <MoreNetworkDevices />
     </div>
   </div>

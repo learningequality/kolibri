@@ -183,6 +183,7 @@
         return 3;
       },
     },
+    created() {},
   };
 
 </script>
@@ -191,7 +192,7 @@
 <style lang="scss"  scoped>
 
   @import '~kolibri-design-system/lib/styles/definitions';
-  @import '../ContentCard/card';
+  @import '../HybridLearningContentCard/card';
 
   $margin: 24px;
 

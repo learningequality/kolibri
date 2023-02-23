@@ -6,8 +6,15 @@
   >
     <div class="" style="width:250px;height:100px;">
       <h2 class="device-name">
-        <KIcon icon="mediaLiteracyResource" />
-        {{ deviceName }}
+        <span>
+          <KIcon icon="mediaLiteracyResource" />
+        </span>
+        <span>
+          <TextTruncator
+            :text="deviceName"
+            :maxHeight="52"
+          />
+        </span>
       </h2>
       <p class="channels">
         {{ channels }} channel(s)
@@ -21,10 +28,13 @@
 <script>
 
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
 
   export default {
     name: 'UnPinnedDevices',
-    components: {},
+    components: {
+      TextTruncator,
+    },
     mixins: [responsiveWindowMixin],
     props: {
       deviceName: {
@@ -35,7 +45,7 @@
       channels: {
         type: Number,
         required: false,
-        default: null,
+        default: 0,
       },
     },
 
@@ -57,7 +67,7 @@
 <style lang="scss" scoped>
 
   @import '~kolibri-design-system/lib/styles/definitions';
-  @import '../ContentCard/card';
+  @import '../HybridLearningContentCard/card';
 
   $margin: 24px;
 
@@ -94,7 +104,11 @@
   }
 
   .device-name {
-    margin-left: 20px;
+    display: inline-flex;
+  }
+
+  .device-name span {
+    margin-left: 10px;
   }
 
 </style>
