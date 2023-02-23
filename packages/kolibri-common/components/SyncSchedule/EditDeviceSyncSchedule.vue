@@ -5,7 +5,7 @@
     :route="backRoute"
     :icon="icon"
   >
-    <KPageContainer v-if="device">
+    <KPageContainer v-if="device" :style="pageHeight">
       <KGrid gutter="48" class="edit-sync-schedule">
 
         <KGridItem>
@@ -16,66 +16,63 @@
           <p>{{ device.device_name }} </p>
         </KGridItem>
 
-        <KGridItem
-          :layout8="{ span: 2 }"
-          :layout12="{ span: 3 }"
-        >
-          <KSelect
-            v-model="selectedItem"
-            :value="myvalue"
-            class="selector"
-            :style="selectorStyle"
-            :options="selectArray"
-            label="Repeat"
-          />
+        <KGridItem class="select-element">
+          <div
+            class="k-select"
+          >
+            <KSelect
+              v-model="selectedItem"
+              :value="myvalue"
+              class="selector"
+              :style="selectorStyle"
+              :options="selectArray"
+              label="Repeat"
+            />
+
+          </div>
+          <div
+            v-if="selectedItem.label !== 'Never'
+              && selectedItem.label !== 'Every hour'
+              && selectedItem.label !== 'Every day'"
+            class="k-select next-k-select-1"
+          >
+            <KSelect
+              v-model="dayselected"
+              class="selector"
+              :style="selectorStyle"
+              :options="Days"
+              label="On"
+            />
+
+          </div>
+          <div
+            v-if="selectedItem.label !== 'Never' && selectedItem.label !== 'Every hour' "
+            class="k-select next-k-select-2"
+          >
+            <KSelect
+              v-model="timeseed"
+              :value="mytime"
+              class="selector"
+              :style="selectorStyle"
+              :options="SyncTime"
+              label="At"
+            />
+          </div>
 
         </KGridItem>
 
-        <KGridItem
-          v-if="selectedItem.label !== 'Never'
-            && selectedItem.label !== 'Every hour'
-            && selectedItem.label !== 'Every day'"
-          :layout8="{ span: 2 }"
-          :layout12="{ span: 3 }"
-        >
-          <KSelect
-            v-model="dayselected"
-            class="selector"
-            :style="selectorStyle"
-            :options="Days"
-            label="On"
-          />
+        <KGridItem class="more-spacing">
 
-        </KGridItem>
-
-        <KGridItem
-          v-if="selectedItem.label !== 'Never' && selectedItem.label !== 'Every hour' "
-          :layout8="{ span: 2 }"
-          :layout12="{ span: 3 }"
-        >
-          <KSelect
-            v-model="timeseed"
-            :value="mytime"
-            class="selector"
-            :style="selectorStyle"
-            :options="SyncTime"
-            label="At"
-          />
-        </KGridItem>
-
-        <KGridItem>
-          <span class="spacing">
+          <p class="spacing">
             {{ $tr('serverTime') }}
             {{ serverTime }}
-          </span>
-        </KGridItem>
+          </p>
 
-        <KGridItem class="spacing">
-          <KCheckbox>
-            {{ $tr('checboxlabel') }}
-          </KCheckbox>
-        </KGridItem>
-        <KGridItem>
+          <p class="spacing">
+            <KCheckbox>
+              {{ $tr('checboxlabel') }}
+            </KCheckbox>
+          </p>
           <KButton
             :vIf="msg"
             appearance="basic-link"
@@ -84,7 +81,9 @@
           >
             {{ msg }}
           </KButton>
+
         </KGridItem>
+
       </KGrid>
 
     </KPageContainer>
@@ -99,7 +98,7 @@
         <KButton
           :text="$tr('saveBtn')"
           :primary="true"
-          @click=" handleSaveSchedule"
+          @click="handleSaveSchedule"
         />
       </KButtonGroup>
     </BottomAppBar>
@@ -173,18 +172,25 @@
         removeDeviceModal: false,
         deviceName: null,
         available: null,
-        device: null,
+        device: [],
         now: now(),
         timer: null,
         myvalue: null,
         myday: null,
         mytime: null,
         selectedItem: '',
+        tasks: [],
       };
     },
     computed: {
       backRoute() {
         return { name: PageNames.ManageSyncSchedule };
+      },
+      pageHeight() {
+        return {
+          height: '80%',
+          zIndex: -1,
+        };
       },
       selectorStyle() {
         return {
@@ -193,6 +199,7 @@
           borderRadius: '5px 5px 0px 0px',
           paddingTop: '5px',
           paddingLeft: '5px',
+          width: '300px',
         };
       },
       selectArray() {
@@ -233,7 +240,7 @@
       this.myday = this.Days[0];
       this.mytime = this.SyncTime[0];
       this.serverTime = this.now;
-      this.fetchFacility();
+      this.fetchDevice();
     },
     mounted() {
       this.timer = setInterval(() => {
@@ -286,13 +293,14 @@
       cancelBtn() {
         this.$router.push({ name: PageNames.ManageSyncSchedule });
       },
-      fetchFacility() {
+      fetchDevice() {
         NetworkLocationResource.fetchModel({ id: this.$route.query.id }).then(device => {
-          if (device) {
-            this.device = device;
-          } else {
-            history.back();
-          }
+          this.device = device;
+          console.log(this.device);
+          TaskResource.list({ queue: 'facility_task' }).then(tasks => {
+            this.tasks = tasks.filter((device.extra_metadata.device_id = this.id));
+            console.log(this.tasks);
+          });
         });
       },
     },
@@ -392,7 +400,24 @@
   .spacing{
     margin-top:10px;
   }
+  .loader{
+    margin-top:5px;
+  }
   .edit-sync-schedule{
     margin-left:20px;
   }
+  .more-spacing{
+    margin-top:60px;
+  }
+  .select-element .k-select{
+    display:inline-flex;
+    position:absolute
+  }
+  .next-k-select-1{
+    margin-left:316px;
+  }
+  .next-k-select-2{
+    margin-left:632px;
+  }
+
 </style>

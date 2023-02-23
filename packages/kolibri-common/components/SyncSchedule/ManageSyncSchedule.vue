@@ -9,6 +9,7 @@
 
         <KGridItem>
           <h1>{{ $tr('manageSyncTitle') }}</h1>
+
         </KGridItem>
 
         <KGridItem>
@@ -37,20 +38,15 @@
       </KGrid>
 
       <!--      creating the table-->
-
       <CoreTable>
         <template #tbody>
-          <tbody>
+          <tbody v-if="myDevices.length > 0">
             <tr>
               <th>{{ $tr('deviceName') }}</th>
               <th>{{ $tr('Schedule') }}</th>
               <th>{{ $tr('Status') }}</th>
               <th></th>
             </tr>
-
-            <!-- data.length is temporary not to allow data
-               to populate in the main table but when we get
-               the suitable end point which has key for sync schedule it will be replaced  -->
             <tr v-for="device in myDevices" :key="device.id">
               <td>
                 <span>{{ device.extra_metadata.device_name }}<br>
@@ -99,6 +95,20 @@
               </td>
             </tr>
           </tbody>
+
+          <tbody v-else>
+            <tr>
+              <th>{{ $tr('deviceName') }}</th>
+              <th>{{ $tr('Schedule') }}</th>
+              <th>{{ $tr('Status') }}</th>
+              <th></th>
+            </tr>
+            <tr>
+              <td colspan="3" style="text-align:center">
+                <b> No Device found</b>
+              </td>
+            </tr>
+          </tbody>
         </template>
 
       </CoreTable>
@@ -130,18 +140,27 @@
             :layout8="{ span: 4 }"
             :layout12="{ span: 6 }"
           >
-
-            <div v-for="btn in data" :key="btn.id">
-              <div>
-                <KRadioButton
-                  v-model="radioBtnValue"
-                  class="radio-button"
-                  :value="btn.id"
-                  :label="btn.device_name"
-                />
-                <span>{{ btn.base_url }}</span>
+            <div v-if="data.length > 0">
+              <div v-for="btn in data" :key="btn.id">
+                <div>
+                  <KRadioButton
+                    v-model="radioBtnValue"
+                    class="radio-button"
+                    :value="btn.id"
+                    :label="btn.device_name"
+                  />
+                  <span>{{ btn.base_url }}</span>
+                </div>
               </div>
-
+            </div>
+            <div v-else>
+              <div class="loader-size">
+                <KCircularLoader
+                  :delay="false"
+                  class="loader"
+                  :size="18"
+                />
+              </div>
             </div>
 
 
@@ -152,6 +171,7 @@
             :layout8="{ span: 4 }"
             :layout12="{ span: 6 }"
           >
+
             <KButton
               appearance="basic-link"
               :text="$tr('forgetText')"
@@ -339,4 +359,8 @@
   position: absolute;
   right: 50px;
 }
+.loader-size{
+  margin-top:10px
+}
+
 </style>
