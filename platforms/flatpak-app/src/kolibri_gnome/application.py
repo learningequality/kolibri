@@ -3,10 +3,12 @@ from __future__ import annotations
 import logging
 import subprocess
 import typing
+from functools import partial
 from gettext import gettext as _
 from urllib.parse import urlsplit
 
 from gi.repository import Gio
+from gi.repository import GLib
 from gi.repository import GObject
 from gi.repository import Gtk
 from gi.repository import WebKit2
@@ -158,9 +160,28 @@ class Application(Gtk.Application):
         if XDG_CURRENT_DESKTOP == "endless:GNOME":
             window.maximize()
 
-        window.show()
+        window.connect("auto-close", self.__kolibri_window_on_auto_close)
+
+        # In some cases, a window will be created with a URL that returns an
+        # unsupported content type. In this case, WebKit will start a download
+        # and the window will be immediately auto-closed. To avoid showing a
+        # window for a split second, we will wait for 500 ms, which is usually
+        # enough time to determine if the target URL will trigger a download.
+
+        GLib.timeout_add(
+            500, partial(self.__kolibri_window_auto_show_timeout_cb, window)
+        )
 
         return window
+
+    def __kolibri_window_auto_show_timeout_cb(self, window: KolibriWindow) -> bool:
+        if window.get_application() == self:
+            window.show()
+        return GLib.SOURCE_REMOVE
+
+    def __kolibri_window_on_auto_close(self, window: KolibriWindow):
+        window.close()
+        self.remove_window(window)
 
     def __context_on_download_started(
         self, context: KolibriContext, download: WebKit2.Download

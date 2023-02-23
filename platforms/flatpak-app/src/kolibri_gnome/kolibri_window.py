@@ -40,6 +40,7 @@ class KolibriWindow(Gtk.ApplicationWindow):
                 WebKit2.WebView,
             ),
         ),
+        "auto-close": (GObject.SIGNAL_RUN_FIRST, None, ()),
     }
 
     def __init__(
@@ -139,6 +140,7 @@ class KolibriWindow(Gtk.ApplicationWindow):
         self.__header_bar.show_all()
 
         bubble_signal(self.__webview_stack, "open-new-window", self)
+        bubble_signal(self.__webview_stack, "main-webview-blank", self, "auto-close")
 
         self.__webview_stack.connect(
             "main-webview-ready", self.__webview_stack_on_main_webview_ready

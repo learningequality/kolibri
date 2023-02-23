@@ -165,6 +165,7 @@ class KolibriWebViewStack(Gtk.Stack):
                 WebKit2.WebView,
             ),
         ),
+        "main-webview-blank": (GObject.SIGNAL_RUN_FIRST, None, ()),
         "main-webview-ready": (GObject.SIGNAL_RUN_FIRST, None, ()),
     }
 
@@ -276,8 +277,11 @@ class KolibriWebViewStack(Gtk.Stack):
             self.show_loading()
 
     def __main_webview_on_kolibri_load_finished(self, webview: WebKit2.WebView):
-        self.emit("main-webview-ready")
-        self.show_main()
+        if not webview.get_uri():
+            self.emit("main-webview-blank")
+        else:
+            self.show_main()
+            self.emit("main-webview-ready")
 
     def __main_webview_on_create(
         self, webview: WebKit2.WebView, navigation_action: WebKit2.NavigationAction
