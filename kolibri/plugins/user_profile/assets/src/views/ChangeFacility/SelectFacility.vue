@@ -152,8 +152,34 @@
       );
       const availableFacilities = computedAsync(
         async () => {
-          const results = await Promise.all(get(devices).map(d => fetchDeviceFacilities(d)));
-          return results.reduce((reduced, item) => reduced.concat(item), []);
+          // Extract available devices, and sort to most recently accessed so when we dedupe
+          // facilities across two+ devices, the most recently connected device's facility is shown
+          const _devices = get(devices)
+            .filter(d => get(availableAddressIds).includes(d.id))
+            .sort((deviceA, deviceB) => deviceA.since_last_accessed - deviceB.since_last_accessed);
+          const facilitiesFromDevices = await Promise.all(
+            _devices.map(d => fetchDeviceFacilities(d))
+          );
+          const facilities = {};
+          // Promise.all will resolve with an array of arrays
+          for (let deviceFacilities of facilitiesFromDevices) {
+            for (let facility of deviceFacilities) {
+              // deduplicate the same facility across more than one device
+              if (!facility[facility.id]) {
+                facilities[facility.id] = facility;
+              }
+            }
+          }
+          // Sort alphabetically for predictable ordering
+          return Object.values(facilities).sort((facilityA, facilityB) => {
+            if (facilityA.name < facilityB.name) {
+              return -1;
+            }
+            if (facilityA.name > facilityB.name) {
+              return 1;
+            }
+            return 0;
+          });
         },
         [],
         isLoading
