@@ -80,7 +80,8 @@ class KolibriWebView(WebKit2.WebView):
         if decision_type == WebKit2.PolicyDecisionType.NAVIGATION_ACTION:
             target_url = decision.get_request().get_uri()
             if not self.__context.should_open_url(target_url):
-                decision.download()
+                self.__context.open_external_url(target_url)
+                decision.ignore()
                 return True
         return False
 
@@ -109,7 +110,7 @@ class KolibriWebView(WebKit2.WebView):
         else:
             webview.load_uri(self.__context.default_url)
 
-        webview.download_uri(target_url)
+        self.__context.open_external_url(target_url)
 
     def __on_load_changed(
         self, webview: WebKit2.WebView, load_event: WebKit2.LoadEvent

@@ -20,6 +20,7 @@ from kolibri_app.config import FRONTEND_APPLICATION_ID
 
 from .kolibri_daemon_manager import KolibriDaemonManager
 from .utils import await_properties
+from .utils import bubble_signal
 from .utils import get_localized_file
 from .utils import map_properties
 
@@ -79,9 +80,7 @@ class KolibriContext(GObject.GObject):
             website_data_manager=website_data_manager
         )
 
-        self.__webkit_web_context.connect(
-            "download-started", self.__webkit_web_context_on_download_started
-        )
+        bubble_signal(self.__webkit_web_context, "download-started", self)
 
         self.__kolibri_daemon = KolibriDaemonManager()
         self.__setup_helper = _KolibriSetupHelper(
@@ -133,7 +132,7 @@ class KolibriContext(GObject.GObject):
     def should_open_url(self, url: str) -> bool:
         return (
             url == self.default_url
-            or urlsplit(url).scheme in ("kolibri", "x-kolibri-app", "about")
+            or urlsplit(url).scheme in ("kolibri", "x-kolibri-app", "about", "blob")
             or self.is_url_in_scope(url)
         )
 
@@ -145,11 +144,7 @@ class KolibriContext(GObject.GObject):
         url_path = url_tuple.path.lstrip("/")
 
         return not (
-            url_path.startswith("static/")
-            or url_path.startswith("downloadcontent/")
-            or url_path.startswith("content/storage/")
-            or url_path.startswith("facility/api/downloadcsvfile/")
-            or url_path.startswith("api/logger/downloadcsvfile/")
+            url_path.startswith("static/") or url_path.startswith("content/storage/")
         )
 
     def is_url_in_scope(self, url: str) -> bool:
@@ -222,28 +217,10 @@ class KolibriContext(GObject.GObject):
         """
         return url_tuple._replace(scheme="", netloc="").geturl()
 
-    def __webkit_web_context_on_download_started(
-        self, webkit_web_context: WebKit2.WebContext, download: WebKit2.Download
-    ):
-        url = download.get_request().get_uri()
-
-        # If the URL will open in the default Kolibri app (it is only external
-        # for this context), translate it to a x-kolibri-app URL.
+    def open_external_url(self, url: str):
         if self.default_is_url_in_scope(url):
             url = self.url_to_x_kolibri_app(url)
-
-        if self.__should_open_url_in_external_application(url):
-            download.cancel()
-            self.emit("open-external-url", url)
-            return
-
-        self.emit("download-started", download)
-
-    def __should_open_url_in_external_application(self, url):
-        # We need to download blob URLs because they are unique to this context,
-        # but otherwise we will expect that a local application can handle the
-        # same protocol.
-        return urlsplit(url).scheme not in ("blob",)
+        self.emit("open-external-url", url)
 
     def __update_session_status(self, has_error: bool, is_setup_complete: bool):
         if has_error:
