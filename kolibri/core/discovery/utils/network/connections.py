@@ -68,7 +68,7 @@ def capture_connection_state(network_location):
         yield
         # finally confirm status is OKAY
         network_location.connection_status = ConnectionStatus.Okay
-    except errors.NetworkLocationConnectionFailure:
+    except (errors.NetworkLocationConnectionFailure, errors.NetworkLocationNotFound):
         network_location.connection_status = ConnectionStatus.ConnectionFailure
     except errors.NetworkLocationResponseFailure:
         network_location.connection_status = ConnectionStatus.ResponseFailure

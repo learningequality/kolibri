@@ -42,6 +42,15 @@ class CaptureConnectionStateTestCase(BaseTestCase):
         )
         self.assertEqual(self.mock_location.connection_faults, 1)
 
+    def test_connection_failure__from_not_found(self):
+        with capture_connection_state(self.mock_location):
+            raise errors.NetworkLocationNotFound()
+
+        self.assertEqual(
+            self.mock_location.connection_status, ConnectionStatus.ConnectionFailure
+        )
+        self.assertEqual(self.mock_location.connection_faults, 1)
+
     def test_response_failure(self):
         with capture_connection_state(self.mock_location):
             raise errors.NetworkLocationResponseFailure()
