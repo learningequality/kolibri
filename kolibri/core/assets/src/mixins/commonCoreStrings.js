@@ -1180,7 +1180,7 @@ export default {
      * `CORE_CREATE_SNACKBAR` mutation.
      */
     showSnackbarNotification(key, args, coreCreateSnackbarArgs) {
-      let text = notificationStrings.$tr(key, args || {});
+      const text = notificationStrings.$tr(key, args || {});
       if (coreCreateSnackbarArgs) {
         this.$store.commit('CORE_CREATE_SNACKBAR', {
           ...coreCreateSnackbarArgs,

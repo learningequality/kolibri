@@ -1,4 +1,4 @@
-export let onMyOwnSetup = false;
+export const onMyOwnSetup = false;
 
 const MOCK_DEFAULTS = {
   onMyOwnSetup,

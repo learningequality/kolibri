@@ -122,7 +122,7 @@
         return this.$store.state.classSummary.name;
       },
       syncStatusOptions() {
-        let options = [];
+        const options = [];
         for (const [value] of Object.entries(SyncStatus)) {
           // skip displaying the "not recently synced" "unable to sync"
           // so they can be as separate option, per Figma design
@@ -177,7 +177,7 @@
       pollClassListSyncStatuses() {
         this.fetchUserSyncStatus({ member_of: this.$route.params.classId }).then(data => {
           const statuses = {};
-          for (let status of data) {
+          for (const status of data) {
             statuses[status.user] = status;
           }
           this.classSyncStatusList = statuses;

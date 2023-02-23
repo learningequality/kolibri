@@ -155,7 +155,7 @@ function runWebpackBuild(mode, bundleData, devServer, options, cb = null) {
           performance: true, // info about oversized assets
         });
         mkdirp.sync('./.stats');
-        for (let stat of statsJson.children) {
+        for (const stat of statsJson.children) {
           fs.writeFileSync(`.stats/${stat.name}.json`, JSON.stringify(stat, null, 2), {
             encoding: 'utf-8',
           });
@@ -653,7 +653,7 @@ try {
 
     for (const packageName of Object.keys(results.versions)) {
       if (!results.versions[packageName].isSatisfied) {
-        let required = engines[packageName];
+        const required = engines[packageName];
         cliLogging.break();
         cliLogging.error(`Incorrect version of ${packageName}.`);
         cliLogging.error(`${packageName} ${required} is required.`);

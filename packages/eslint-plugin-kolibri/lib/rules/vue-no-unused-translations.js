@@ -17,7 +17,7 @@ const $TR_FUNCTION = '$tr';
 const create = context => {
   let hasTemplate;
   let definitionNodes = [];
-  let usedStrings = [];
+  const usedStrings = [];
 
   const initialize = {
     Program(node) {

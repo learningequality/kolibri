@@ -114,7 +114,7 @@
           ? this.coachString('lessonVisibleToLearnersLabel')
           : this.coachString('lessonNotVisibleToLearnersLabel');
 
-        let promise = LessonResource.saveModel({
+        const promise = LessonResource.saveModel({
           id: this.lesson.id,
           data: {
             is_active: newActiveState,

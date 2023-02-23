@@ -53,7 +53,7 @@ describe('the kolibri hashi shim', () => {
   });
 
   describe('getContentByFilter method', () => {
-    let options = { page: 1, pageSize: 50, parent: 'self' };
+    const options = { page: 1, pageSize: 50, parent: 'self' };
     response = { page: 1, pageSize: 50, results: [{ id: 'abc123' }, { id: 'def456' }] };
     beforeEach(function() {
       mockMessage = {

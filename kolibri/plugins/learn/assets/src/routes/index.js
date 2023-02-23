@@ -38,7 +38,7 @@ function hydrateHomePage() {
       response.data.resumable_resources.results || [],
       response.data.resumable_resources.more || null
     );
-    for (let progress of response.data.resumable_resources_progress) {
+    for (const progress of response.data.resumable_resources_progress) {
       setContentNodeProgress(progress);
     }
   });

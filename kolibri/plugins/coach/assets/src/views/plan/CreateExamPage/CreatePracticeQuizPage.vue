@@ -91,7 +91,7 @@
           };
         }
 
-        let value = content.assessmentmetadata.assessment_item_ids.length;
+        const value = content.assessmentmetadata.assessment_item_ids.length;
         this.$store.commit('examCreation/SET_NUMBER_OF_QUESTIONS', value);
 
         return {

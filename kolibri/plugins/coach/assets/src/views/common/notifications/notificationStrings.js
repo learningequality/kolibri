@@ -82,7 +82,7 @@ const nStringsMixin = {
 function cardTextForNotification(notification) {
   const { collection, resource, learnerSummary, object, event } = notification;
   let stringType;
-  let stringDetails = {
+  const stringDetails = {
     learnerName: learnerSummary.firstUserName,
   };
 
