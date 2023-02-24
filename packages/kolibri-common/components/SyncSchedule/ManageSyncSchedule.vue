@@ -134,9 +134,8 @@
           </KGridItem>
         </KGrid>
 
-        <KGrid gutter="48">
+        <KGrid gutter="48" class="add-space">
           <KGridItem
-            v-if="data"
             :layout8="{ span: 4 }"
             :layout12="{ span: 6 }"
           >
@@ -162,8 +161,6 @@
                 />
               </div>
             </div>
-
-
           </KGridItem>
 
           <KGridItem
@@ -224,6 +221,7 @@
       this.pollFacilityTasks();
       this.fetchFacility();
       this.fetchAddressesForLOD();
+      this.setDate();
     },
 
     methods: {
@@ -275,6 +273,14 @@
         } else {
           return window.location.href;
         }
+      },
+      setDate() {
+        const time = new Date();
+        return this.$formatDate(time, {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        });
       },
     },
 
@@ -354,6 +360,9 @@
 .separate{
   margin-bottom:35px;
   margin-top:35px;
+}
+.add-space{
+  margin:4px;
 }
 .right {
   position: absolute;
