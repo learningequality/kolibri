@@ -3,6 +3,7 @@ from django.utils.translation import check_for_language
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
+from kolibri.core.auth.constants import user_kinds
 from kolibri.core.auth.constants.facility_presets import choices
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
@@ -78,8 +79,6 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
             data["os_user"] = True
         elif "superuser" not in data:
             # We don't need a superuser if we're on an SoUD
-            print(data)
-            print(data.get("is_soud"))
             if not data.get("is_soud"):
                 raise serializers.ValidationError(
                     "Superuser is required for provisioning"
@@ -97,7 +96,7 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
 
         return data
 
-    def create(self, validated_data):
+    def create(self, validated_data):  # noqa C901
         """
         Endpoint for initial setup of a device.
         Expects a value for:
@@ -155,6 +154,9 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
                     )
             else:
                 superuser = None
+
+            if superuser:
+                facility.add_role(superuser, user_kinds.ADMIN)
 
             # Create device settings
             language_id = validated_data.pop("language_id")

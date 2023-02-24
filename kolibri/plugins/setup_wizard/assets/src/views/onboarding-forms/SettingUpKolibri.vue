@@ -133,7 +133,9 @@
       },
       /** The data we will use to initialize the device during provisioning */
       deviceProvisioningData() {
-        const superuser = this.wizardContext('superuser');
+        // The superuser data is stored in Vuex when importing a facility and selecting a user,
+        // so if it isn't in the machine's context, it's in Vuex
+        const superuser = this.wizardContext('superuser') || this.$store.state.onboardingData.user;
 
         const settings = {
           learner_can_login_with_no_password: this.learnerCanLoginWithNoPassword,

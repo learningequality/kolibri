@@ -146,7 +146,7 @@
       handleClickContinue() {
         this.isPolling = false;
         this.clearTasks();
-        this.wizardService.send('FINISH');
+        this.wizardService.send(this.isSoud ? 'FINISH' : 'CONTINUE');
       },
     },
     $trs: {
