@@ -2,7 +2,7 @@
 
   <OnboardingStepBase
     :title="header"
-    :navDisabled="!['COMPLETED', 'FAILED'].includes(loadingTask.status)"
+    :navDisabled="![TaskStatuses.COMPLETED, TaskStatuses.FAILED].includes(loadingTask.status)"
     @continue="$emit('click_next')"
   >
     <FacilityTaskPanel
@@ -31,6 +31,12 @@
       </template>
       <span v-else></span>
     </template>
+    <KButton
+      v-if="loadingTask.status === 'COMPLETED' && isSoud"
+      appearance="basic-link"
+      :text="$tr('importAnother')"
+      @click="importAnother"
+    />
   </OnboardingStepBase>
 
 </template>
@@ -41,6 +47,7 @@
   import { FacilityTaskPanel } from 'kolibri.coreVue.componentSets.sync';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskResource } from 'kolibri.resources';
+  import { TaskStatuses } from 'kolibri.utils.syncTaskUtils';
   import OnboardingStepBase from '../OnboardingStepBase';
   import { DeviceTypePresets, SoudQueue } from '../../constants';
 
@@ -56,9 +63,13 @@
       return {
         loadingTask: { status: '' },
         isPolling: false,
+        TaskStatuses,
       };
     },
     computed: {
+      isSoud() {
+        return this.queue === SoudQueue;
+      },
       queue() {
         return this.wizardService.state.context.fullOrLOD === DeviceTypePresets.LOD
           ? SoudQueue
@@ -68,33 +79,46 @@
         return this.wizardService._state.context.selectedFacility;
       },
       header() {
-        return this.$tr('importFacilityTitle');
+        return this.isSoud ? this.$tr('loadUserTitle') : this.$tr('importFacilityTitle');
       },
       facilityName() {
         return this.facility.name;
       },
     },
-    watch: {
-      // Mitigate chance of getting stuck after the task has completed
-      loadingTask(newVal) {
-        if (newVal.status === undefined) {
-          this.handleClickContinue();
-        }
-      },
-    },
     beforeMount() {
+      this.clearTasks();
       this.isPolling = true;
       this.pollTask();
     },
     methods: {
+      importAnother() {
+        this.isPolling = false;
+        this.wizardService.send('IMPORT_ANOTHER');
+      },
       pollTask() {
         TaskResource.list({ queue: this.queue }).then(tasks => {
-          this.loadingTask = {
-            ...tasks[0],
-            extra_metadata: {
-              facility_name: this.facilityName,
-            },
-          };
+          if (tasks.length) {
+            this.loadingTask = {
+              ...tasks[0],
+              extra_metadata: {
+                facility_name: this.facilityName,
+                ...tasks[0].extra_metadata,
+              },
+            };
+            if (this.loadingTask.status === TaskStatuses.COMPLETED) {
+              const taskUsername = this.loadingTask.extra_metadata.username;
+
+              // Update the wizard context to know this user has been imported
+              this.wizardService.send({ type: 'ADD_IMPORTED_USER', value: taskUsername });
+            }
+          } else {
+            this.isPolling = false;
+            // If we don't have a status on the loading task, we got here without there being
+            // any tasks active; we can just continue along
+            if (!this.loadingTask.status) {
+              this.handleClickContinue();
+            }
+          }
         });
         if (this.isPolling) {
           setTimeout(() => {
@@ -117,15 +141,23 @@
         });
       },
       clearTasks() {
-        return TaskResource.clearAll();
+        return TaskResource.clearAll(this.queue);
       },
       handleClickContinue() {
         this.isPolling = false;
         this.clearTasks();
-        this.wizardService.send('CONTINUE');
+        this.wizardService.send('FINISH');
       },
     },
     $trs: {
+      importAnother: {
+        message: 'Import another user',
+        context: 'Link to restart the import step for another user. ',
+      },
+      loadUserTitle: {
+        message: 'Load user account',
+        context: 'Title of a page where user is waiting for a user to be imported',
+      },
       importFacilityTitle: {
         message: 'Import learning facility',
         context:

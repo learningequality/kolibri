@@ -41,10 +41,20 @@
       :topMargin="16"
       :noPadding="true"
     >
+
       <div class="content">
+        <!-- Optional back arrow to show at the top for longer content views -->
+        <KIconButton
+          v-if="showBackArrow"
+          icon="back"
+          style="margin-left: -12px;"
+          @click="wizardService.send(eventOnGoBack)"
+        />
+
         <h1 class="title">
           {{ title }}
         </h1>
+
         <p v-if="description" class="description">
           {{ description }}
         </p>
@@ -136,6 +146,10 @@
       eventOnGoBack: {
         type: Object,
         default: () => ({ type: 'BACK' }),
+      },
+      showBackArrow: {
+        type: Boolean,
+        default: false,
       },
       noBackAction: {
         type: Boolean,

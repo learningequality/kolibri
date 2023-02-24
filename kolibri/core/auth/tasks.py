@@ -811,11 +811,15 @@ class PeerImportSingleSyncJobValidator(PeerSyncJobValidator):
                     "roles": ", ".join(roles),
                 }
             )
+
         user_id = user_info["id"]
 
         validate_and_create_sync_credentials(
             baseurl, facility_id, username, password, user_id=user_id
         )
+        job_data["extra_metadata"]["user_id"] = user_id
+        job_data["extra_metadata"]["username"] = user_info["username"]
+
         job_data["kwargs"]["user"] = user_id
 
         job_data["kwargs"].update(

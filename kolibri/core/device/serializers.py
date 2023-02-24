@@ -52,6 +52,7 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
     settings = serializers.JSONField()
     allow_guest_access = serializers.BooleanField(allow_null=True)
     is_provisioned = serializers.BooleanField(default=True)
+    is_soud = serializers.BooleanField(default=True)
 
     class Meta:
         fields = (
@@ -63,6 +64,7 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
             "device_name",
             "allow_guest_access",
             "is_provisioned",
+            "is_soud",
             "superuser",
         )
 
@@ -75,7 +77,13 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
         ):
             data["os_user"] = True
         elif "superuser" not in data:
-            raise serializers.ValidationError("Superuser is required for provisioning")
+            # We don't need a superuser if we're on an SoUD
+            print(data)
+            print(data.get("is_soud"))
+            if not data.get("is_soud"):
+                raise serializers.ValidationError(
+                    "Superuser is required for provisioning"
+                )
 
         has_facility = "facility" in data
         has_facility_id = "facility_id" in data
@@ -131,7 +139,7 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
             # we are in an app that is equipped to handle this.
             # Note that this requires the app to redirect back to the initialization URL
             # after initial provisioning.
-            if not validated_data.get("os_user"):
+            if not validated_data.get("os_user") and not validated_data.get("is_soud"):
                 # We've imported a facility if the username exists
                 try:
                     superuser = FacilityUser.objects.get(

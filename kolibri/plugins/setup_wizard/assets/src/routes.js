@@ -16,11 +16,8 @@ import ImportAuthentication from './views/importFacility/ImportAuthentication';
 import SelectFacilityForm from './views/importFacility/SelectFacilityForm';
 import SelectSuperAdminAccountForm from './views/importFacility/SelectSuperAdminAccountForm';
 import ImportIndividualUserForm from './views/importLODUsers/ImportIndividualUserForm';
-import ImportUserAuth from './views/importLODUsers/ImportUserAuth';
-//import LodSelectFacility from './views/importLODUsers/SelectFacilityForm';
-//import ImportMultipleUsers from './views/importLODUsers/ImportMultipleUsers';
+import MultipleUsers from './views/importLODUsers/MultipleUsers';
 import LoadingTaskPage from './views/importFacility/LoadingTaskPage';
-import LodLoadingTaskPage from './views/importLODUsers/LoadingTaskPage';
 import Sandbox from './views/Sandbox';
 
 export default [
@@ -131,12 +128,12 @@ export default [
   {
     name: 'LOD_LOADING_TASK_PAGE',
     path: '/learn-only/loading',
-    component: LodLoadingTaskPage,
+    component: LoadingTaskPage,
   },
   {
     name: 'LOD_IMPORT_AS_ADMIN',
     path: '/learn-only/import/multiple-users',
-    //component: ImportMultipleUsers,
+    component: MultipleUsers,
   },
   {
     name: 'LOD_CREATE_USER_FORM',

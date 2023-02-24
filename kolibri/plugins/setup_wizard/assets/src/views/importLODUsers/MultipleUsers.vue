@@ -1,7 +1,8 @@
 <template>
 
-  <OnboardingForm
-    :header="$tr('selectAUser')"
+  <OnboardingStepBase
+    :showBackArrow="true"
+    :title="$tr('selectAUser')"
     :description="facilityDescription"
   >
     <p class="device-name">
@@ -21,11 +22,15 @@
         >
           <template #action="userRow">
             <KButton
-              v-if="isNotImported(userRow.user)"
+              v-if="!isImported(userRow.user) && !isImporting(userRow.user)"
               :text="coreString('importAction')"
-              :disabled="lodService.state.matches('syncAdminUser')"
               appearance="flat-button"
-              @click="confirmImport(userRow.user)"
+              @click="startImport(userRow.user)"
+            />
+            <KCircularLoader
+              v-else-if="isImporting(userRow.user)"
+              :size="24"
+              style="margin: 4px auto 0;"
             />
             <p v-else class="imported">
               {{ $tr('imported') }}
@@ -37,7 +42,7 @@
     <template #buttons>
       <div></div>
     </template>
-  </OnboardingForm>
+  </OnboardingStepBase>
 
 </template>
 
@@ -50,13 +55,22 @@
   import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
   import { TaskStatuses } from 'kolibri.utils.syncTaskUtils';
   import UserTable from 'kolibri.coreVue.components.UserTable';
-  import OnboardingForm from '../onboarding-forms/OnboardingForm';
+  import OnboardingStepBase from '../OnboardingStepBase';
   import { SoudQueue } from '../../constants';
 
+  /** Workflow
+    - wizardService holds successfully imported learners and a list of all possible learners
+    - This component will maintain a list of users currently being imported by polling the
+      SoudQueue task queue - we use this list of users to change their "import" button to a
+      circular loader; then when they are done being imported, we add them to the final state
+      which allows us to identify them as being "imported" in place of the "import" button
+    - If the admin goes back from here they go to a loading page which will ping the same Queue
+      and offer them to import another user once all SoudQueue tasks are COMPLETE
+  */
   export default {
     name: 'MultipleUsers',
     components: {
-      OnboardingForm,
+      OnboardingStepBase,
       PaginatedListContainer,
       UserTable,
     },
@@ -65,21 +79,23 @@
     data() {
       return {
         isPolling: false,
+        // array of user/learner ids
+        learnersBeingImported: [],
       };
     },
-    inject: ['lodService', 'state'],
+    inject: ['wizardService'],
     computed: {
       learners() {
-        return this.state.value.remoteStudents;
+        return this.wizardService.state.context.remoteUsers;
       },
       usersID() {
-        return this.state.value.users.map(user => user.id);
+        return this.learners.map(user => user.id);
       },
       device() {
-        return this.state.value.device;
+        return this.wizardService.state.context.importDevice;
       },
       facility() {
-        return this.state.value.facility;
+        return this.wizardService.state.context.selectedFacility;
       },
       facilityDescription() {
         return this.formatNameAndId(this.facility.name, this.facility.id);
@@ -96,69 +112,64 @@
     },
     beforeMount() {
       this.isPolling = true;
-      this.pollAdminSyncTask();
+      this.pollImportTask();
     },
     methods: {
-      confirmImport(learner) {
-        const task_name = 'kolibri.plugins.setup_wizard.tasks.startprovisionsoud';
-        const params = {
-          type: task_name,
-          username: this.facility.adminUser,
-          password: this.facility.adminPassword,
-          user_id: learner.id,
-          facility_id: this.facility.id,
-          device_id: this.device.id,
-        };
-        TaskResource.startTask(params)
-          .then(task => {
-            task['device_id'] = this.device.id;
-            task['facility_name'] = this.facility.name;
-            this.lodService.send({
-              type: 'CONTINUE',
-              value: {
-                username: learner.username,
-                full_name: learner.full_name,
-                id: learner.id,
-                type: task,
-              },
-            });
-          })
-          .catch(error => {
-            this.$store.dispatch('showError', error);
-          });
+      importedLearners() {
+        return this.wizardService.state.context.importedUsers;
       },
-      isNotImported(learner) {
-        const user = this.state.value.users.filter(u => u.username === learner.username);
-        return user.length === 0;
-      },
+      pollImportTask() {
+        TaskResource.list({ queue: SoudQueue }).then(tasks => {
+          if (tasks.length) {
+            tasks.forEach(task => {
+              if (task.status === TaskStatuses.COMPLETED) {
+                // Remove completed user id from 'being imported'
+                const taskUserId = task.extra_metadata.user_id;
+                this.learnersBeingImported = this.learnersBeingImported.filter(
+                  id => id != taskUserId
+                );
 
-      pollAdminSyncTask() {
-        TaskResource.list({ queue: SoudQueue }).then(soudTasks => {
-          if (soudTasks.length > 0) {
-            this.loadingTask = {
-              ...soudTasks[0],
-            };
-            if (this.loadingTask.status === TaskStatuses.COMPLETED) {
-              // after importing the admin, let's sign him in to continue:
-              this.$store
-                .dispatch('logIntoSyncedFacility', {
-                  username: this.facility.adminUser,
-                  password: this.facility.adminPassword,
-                  facility: this.facility.id,
-                })
-                .then(() => {
-                  this.isPolling = false;
-                  this.lodService.send('CONTINUE');
-                  TaskResource.clearAll(SoudQueue);
-                });
-            }
+                // Update the wizard context to know this user has been imported - only if they
+                // haven't already been added to the list (ie, imported by other means)
+                const taskUsername = task.extra_metadata.username;
+                if (!this.importedLearners().includes(taskUsername)) {
+                  this.wizardService.send({
+                    type: 'ADD_IMPORTED_USER',
+                    value: taskUsername,
+                  });
+                }
+              }
+            });
           }
         });
         if (this.isPolling) {
           setTimeout(() => {
-            this.pollAdminSyncTask();
-          }, 500);
+            this.pollImportTask();
+          }, 2000);
         }
+      },
+      startImport(learner) {
+        // Push the learner into being imported, we'll remove it if we get an error later on
+        this.learnersBeingImported.push(learner.id);
+
+        const task_name = 'kolibri.core.auth.tasks.peeruserimport';
+        const params = {
+          type: task_name,
+          ...this.wizardService.state.context.lodAdmin,
+          facility: this.facility.id,
+          device_id: this.device.id,
+          user_id: learner.id,
+          using_admin: true,
+        };
+        TaskResource.startTask(params).catch(() => {
+          this.learnersBeingImported = this.learnersBeingImported.filter(id => id != learner.id);
+        });
+      },
+      isImported(learner) {
+        return this.importedLearners().find(u => u === learner.username);
+      },
+      isImporting(learner) {
+        return this.learnersBeingImported.includes(learner.id);
       },
     },
     $trs: {

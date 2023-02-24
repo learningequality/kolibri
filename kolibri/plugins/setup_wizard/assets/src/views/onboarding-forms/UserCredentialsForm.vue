@@ -136,14 +136,14 @@
     },
     computed: {
       header() {
-        return this.adminUserLabels ?
-          this.$tr('adminAccountCreationHeader') :
-          this.$tr('learnerAccountCreationHeader');
+        return this.adminUserLabels
+          ? this.$tr('adminAccountCreationHeader')
+          : this.$tr('learnerAccountCreationHeader');
       },
       description() {
-        return this.adminUserLabels ?
-          this.$tr('adminAccountCreationDescription') :
-          this.$tr('learnerAccountCreationDescription', { facility: this.selectedFacilityName });
+        return this.adminUserLabels
+          ? this.$tr('adminAccountCreationDescription')
+          : this.$tr('learnerAccountCreationDescription', { facility: this.selectedFacilityName });
       },
       selectedFacilityName() {
         return get(this, 'wizardService.state.context.selectedFacility.name', '');
@@ -233,7 +233,8 @@
       },
       learnerAccountCreationDescription: {
         message: "New account for '{facility}' learning facility",
-        context: "The learner is creating their account for an existing facility and is told what that is"
+        context:
+          'The learner is creating their account for an existing facility and is told what that is',
       },
     },
   };

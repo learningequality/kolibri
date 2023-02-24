@@ -4,7 +4,7 @@
     :title="$tr('importIndividualUsersHeader')"
     :description="formDescription"
     :submitText="coreString('importAction')"
-    :disabled="false"
+    :disabled="formSubmitted || wizardService.state.context.importedUsers.length > 0"
     :finishButton="users.length !== 0"
     @continue="handleSubmit"
   >
@@ -21,7 +21,7 @@
       <KTextbox
         ref="usernameTextbox"
         v-model.trim="username"
-        :disabled="false"
+        :disabled="formSubmitted"
         :label="coreString('usernameLabel')"
         :autofocus="$attrs.autofocus"
         @blur="blurred = true"
@@ -29,6 +29,7 @@
       <PasswordTextbox
         v-if="!facility.learner_can_login_with_no_password"
         ref="passwordTextbox"
+        :disabled="formSubmitted"
         :value.sync="password"
         :showConfirmationInput="false"
         autocomplete="new-password"
@@ -66,7 +67,6 @@
         <KTextbox
           ref="adminUsernameTextbox"
           v-model.trim="adminUsername"
-          :disabled="false"
           :label="coreString('usernameLabel')"
           :autofocus="$attrs.autofocus"
           @blur="blurred = true"
@@ -87,6 +87,7 @@
 
 <script>
 
+  import get from 'lodash/get';
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
@@ -117,6 +118,7 @@
         device: null,
         facilities: [],
         selectedFacilityId: 'selectedFacilityId',
+        formSubmitted: false,
       };
     },
     inject: ['wizardService'],
@@ -188,6 +190,7 @@
         });
       },
       handleSubmit() {
+        this.formSubmitted = true;
         const task_name = 'kolibri.core.auth.tasks.peeruserimport';
         const password = this.password === '' ? DemographicConstants.NOT_SPECIFIED : this.password;
         const params = {
@@ -198,25 +201,49 @@
           device_id: this.deviceId,
           using_admin: false,
         };
+
+        if (!params.username && params.password === DemographicConstants.NOT_SPECIFIED) {
+          this.formSubmitted = false;
+          // Here, the user has already imported a user so does not need to enter anything
+          // in the form in order to continue
+          if (this.wizardService.state.context.importedUsers.length > 0) {
+            return this.wizardService.send('FINISH');
+          }
+        }
+
         TaskResource.startTask(params)
           .then(task => {
             task['device_id'] = this.deviceId;
             task['facility_name'] = this.facility.name;
             this.wizardService.send({
               type: 'CONTINUE',
+              value: task,
             });
           })
           .catch(error => {
-            const error_info = error.response.data;
+            this.formSubmitted = false;
             const errorsCaught = CatchErrors(error, [
               ERROR_CONSTANTS.INVALID_CREDENTIALS,
               ERROR_CONSTANTS.MISSING_PASSWORD,
               ERROR_CONSTANTS.PASSWORD_NOT_SPECIFIED,
               ERROR_CONSTANTS.AUTHENTICATION_FAILED,
             ]);
+
+            const errorData = error.response.data;
+
             if (errorsCaught) {
               this.error = true;
-            } else if (error_info['id'] === ERROR_CONSTANTS.DEVICE_LIMITATIONS) {
+            } else if (
+              Array.isArray(errorData) &&
+              errorData.find(
+                e => get(e, 'metadata.message', null) === ERROR_CONSTANTS.DEVICE_LIMITATIONS
+              )
+            ) {
+              let error_info = errorData.reduce((info, err) => {
+                const { field, message } = err.metadata;
+                info[field] = message;
+                return info;
+              }, {});
               this.full_name = error_info['full_name'];
               this.roles = error_info['roles'];
               this.deviceLimitations = true;

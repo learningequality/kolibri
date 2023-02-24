@@ -1,4 +1,4 @@
-import { createTranslator } from 'kolibri.utils.i18n';
+import uniq from 'lodash/uniq';
 import { checkCapability } from 'kolibri.utils.appCapabilities';
 import { DeviceTypePresets, FacilityTypePresets, LodTypePresets, UsePresets } from '../constants';
 
@@ -63,6 +63,8 @@ const initialContext = {
   importDeviceId: null,
   importDevice: null,
   superuser: null,
+  lodAdmin: {},
+  remoteUsers: [],
   importedUsers: [],
 };
 
@@ -355,7 +357,10 @@ export const wizardMachine = createMachine(
             on: {
               BACK: 'selectLodSetupType',
               CONTINUE: 'lodLoading',
-              CONTINUEADMIN: 'lodImportAsAdmin',
+              CONTINUEADMIN: {
+                target: 'lodImportAsAdmin',
+                actions: ['setRemoteUsers', 'setLodAdmin'],
+              },
             },
           },
 
@@ -370,7 +375,7 @@ export const wizardMachine = createMachine(
           lodImportAsAdmin: {
             meta: { step: 3, route: { name: 'LOD_IMPORT_AS_ADMIN' } },
             on: {
-              CONTINUE: 'lodLoading',
+              BACK: 'lodLoading',
             },
           },
 
@@ -386,6 +391,7 @@ export const wizardMachine = createMachine(
         // Listener on the lod import state; typically this would be above `states` but
         // putting it here flows more with the above as this is the state after the final step
         on: {
+          ADD_IMPORTED_USER: { actions: 'addImportedUser' },
           FINISH: 'finalizeSetup',
         },
       },
@@ -461,6 +467,26 @@ export const wizardMachine = createMachine(
       }),
       setLodImportDeviceId: assign({
         importDeviceId: (_, event) => event.value,
+      }),
+      addImportedUser: assign({
+        importedUsers: (ctx, event) => {
+          console.log(ctx, event);
+          const users = ctx.importedUsers;
+          users.push(event.value);
+          return uniq(users);
+        },
+      }),
+      setLodAdmin: assign({
+        lodAdmin: (_, event) => {
+          return {
+            username: event.value.adminUsername,
+            password: event.value.adminPassword,
+            id: event.value.id,
+          };
+        },
+      }),
+      setRemoteUsers: assign({
+        remoteUsers: (_, event) => event.value.users,
       }),
       /**
        * Assigns the machine to have the initial context again while maintaining the value of
