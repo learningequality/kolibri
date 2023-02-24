@@ -3,6 +3,7 @@
   <div>
     <CoreMenuOption
       :label="coreString('coachLabel')"
+      :link="isAppContext ? null : url"
       :iconAfter="iconAfter"
       icon="coach"
       @select="handleMenu()"
