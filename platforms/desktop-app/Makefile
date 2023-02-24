@@ -54,6 +54,8 @@ build-mac-app:
 
 pyinstaller: clean
 	mkdir -p logs
+	# Need to install this for wxPython on Python 3.11
+	pip3 install attrdict3
 	pip3 install .
 	python3 -OO -m PyInstaller kolibri.spec
 
