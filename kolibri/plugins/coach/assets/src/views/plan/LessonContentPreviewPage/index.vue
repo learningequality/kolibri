@@ -217,7 +217,7 @@
         return '';
       },
       description() {
-        if (this.content) {
+        if (this.content && this.content.description) {
           const md = new markdownIt('zero', { breaks: true });
           return md.render(this.content.description);
         }

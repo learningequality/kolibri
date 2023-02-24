@@ -123,7 +123,7 @@ export default function useLearnerResources() {
    */
   const resumableClassesResources = computed(() => {
     return get(_classesResources).filter(resource => {
-      return resource.progress && resource.progress < 1;
+      return resource.progress && resource.progress < 1 && resource.contentNode;
     });
   });
 

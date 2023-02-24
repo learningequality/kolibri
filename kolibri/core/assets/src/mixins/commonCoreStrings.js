@@ -1058,6 +1058,18 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
       "Could also be translated as \"View information about providing identifier\"\n\nAll 'AriaLabel' type of messages are providing additional context to the screen-reader users. \n\nIn this case the screen-reader will announce the message to the user indicating that they can access more information and examples about the 'Identifier' through the 'i' icon.",
   },
 
+  // Missing resource strings
+  someResourcesMissingOrNotSupported: {
+    message: 'Some resources are missing or not supported',
+    context:
+      'Floating notification message that appears over the alert icon and indicates that there are missing resources',
+  },
+  resourceNotFoundOnDevice: {
+    message: 'Resource not found on device',
+    context:
+      'Error message that displays if a learning resource cannot be found on the device being used currently.',
+  },
+
   // Content activity
   notStartedLabel: {
     message: 'Not started',

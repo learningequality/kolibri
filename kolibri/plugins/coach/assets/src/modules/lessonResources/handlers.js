@@ -241,7 +241,10 @@ export function showLessonSelectionContentPreview(store, params, query = {}) {
 
 function _prepLessonContentPreview(store, classId, lessonId, contentId) {
   const cache = store.state.lessonSummary.resourceCache || {};
-  return ContentNodeResource.fetchModel({ id: contentId }).then(
+  return ContentNodeResource.fetchModel({
+    id: contentId,
+    getParams: { no_available_filtering: true },
+  }).then(
     contentNode => {
       const contentMetadata = assessmentMetaDataState(contentNode);
       store.commit('lessonSummary/SET_STATE', {

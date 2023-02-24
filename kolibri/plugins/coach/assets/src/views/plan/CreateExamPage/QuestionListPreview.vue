@@ -67,11 +67,11 @@
       :layout8="{ span: 4 }"
       :layout12="{ span: 7 }"
     >
-      <h3 class="question-title">
+      <h3 v-if="content && content.available" class="question-title">
         {{ currentQuestion.title }}
       </h3>
       <KContentRenderer
-        v-if="content && questionId"
+        v-if="content && content.available && questionId"
         ref="contentRenderer"
         :kind="content.kind"
         :files="content.files"
@@ -98,7 +98,7 @@
   import DragContainer from 'kolibri.coreVue.components.DragContainer';
   import Draggable from 'kolibri.coreVue.components.Draggable';
   import DragHandle from 'kolibri.coreVue.components.DragHandle';
-  import { coachStringsMixin } from '../../common/commonCoachStrings';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import AssessmentQuestionListItem from './AssessmentQuestionListItem';
 
   export default {
@@ -109,7 +109,7 @@
       DragContainer,
       DragHandle,
     },
-    mixins: [coachStringsMixin],
+    mixins: [commonCoreStrings],
     props: {
       // If set to true, question buttons will be draggable
       fixedOrder: {
@@ -152,6 +152,8 @@
           if (totals[question.exercise_id] > 1) {
             question.counterInExercise = counts[this.listKey(question)];
           }
+          const node = this.selectedExercises[question.exercise_id];
+          question.missing_resource = !node || !node.available;
           return question;
         });
       },
@@ -165,7 +167,7 @@
         return this.currentQuestion.question_id;
       },
       resourceMissingText() {
-        return this.getMissingContentString('resourceNotFoundOnDevice');
+        return this.coreString('resourceNotFoundOnDevice');
       },
     },
     methods: {

@@ -127,6 +127,7 @@
         :isLesson="lessonContext"
         :loading="resourcesSidePanelLoading"
         :currentResourceID="currentResourceID"
+        :missingLessonResources="missingLessonResources"
       />
     </SidePanelModal>
 
@@ -246,6 +247,7 @@
         resourcesSidePanelFetched: false,
         resourcesSidePanelLoading: false,
         contentPageMounted: false,
+        lesson: null,
       };
     },
     computed: {
@@ -300,6 +302,9 @@
       },
       currentResourceID() {
         return this.content ? this.content.content_id : '';
+      },
+      missingLessonResources() {
+        return this.lesson && this.lesson.resources.some(c => !c.contentnode);
       },
     },
     watch: {
@@ -371,8 +376,9 @@
         // Get the lesson and then assign its resources to this.viewResourcesContents
         // fetchLesson also handles fetching the progress data for this lesson and
         // the content node data for the resources
-        this.fetchLesson({ lessonId: this.lessonId }).then(lesson => {
+        return this.fetchLesson({ lessonId: this.lessonId }).then(lesson => {
           // Filter out this.content
+          this.lesson = lesson;
           this.viewResourcesContents = lesson.resources
             .filter(n => n.contentnode)
             .map(n => n.contentnode);

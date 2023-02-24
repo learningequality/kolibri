@@ -46,6 +46,7 @@
       <KGridItem :layout12="{ span: 8 }" class="column-pane">
         <main :class="{ 'column-contents-wrapper': !windowIsSmall }">
           <KPageContainer>
+
             <h1>
               {{ $tr('question', { num: questionNumber + 1, total: exam.question_count }) }}
             </h1>
@@ -62,9 +63,7 @@
               :answerState="currentAttempt.answer"
               @interaction="saveAnswer"
             />
-            <UiAlert v-else :dismissible="false" type="error">
-              {{ $tr('noItemId') }}
-            </UiAlert>
+            <MissingResourceAlert v-else :multiple="false" />
           </KPageContainer>
 
           <BottomAppBar :dir="bottomBarLayoutDirection" :maxWidth="null">
@@ -112,15 +111,19 @@
               :dir="layoutDirReset"
               class="left-align"
             >
-              <div class="answered">
+              <div v-if="!missingResources" class="answered">
                 {{ answeredText }}
               </div>
               <KButton
+                v-if="!missingResources"
                 :text="$tr('submitExam')"
                 :primary="false"
                 appearance="flat-button"
                 @click="toggleModal"
               />
+              <div v-if="missingResources" class="nosubmit">
+                {{ $tr('unableToSubmit') }}
+              </div>
             </div>
 
           </BottomAppBar>
@@ -131,15 +134,19 @@
               class="bottom-block"
               :class="{ windowIsSmall }"
             >
-              <div class="answered">
+              <div v-if="!missingResources" class="answered">
                 {{ answeredText }}
               </div>
               <KButton
+                v-if="!missingResources"
                 :text="$tr('submitExam')"
                 :primary="false"
                 appearance="flat-button"
                 @click="toggleModal"
               />
+              <div v-if="missingResources" class="nosubmit">
+                {{ $tr('unableToSubmit') }}
+              </div>
             </div>
           </KPageContainer>
         </main>
@@ -178,6 +185,7 @@
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
+  import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert';
   import useProgressTracking from '../../composables/useProgressTracking';
   import { PageNames, ClassesPageNames } from '../../constants';
   import { LearnerClassroomResource } from '../../apiResources';
@@ -199,6 +207,7 @@
       TimeDuration,
       SuggestedTime,
       ImmersivePage,
+      MissingResourceAlert,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
     setup() {
@@ -278,6 +287,9 @@
       },
       nodeId() {
         return this.currentQuestion ? this.currentQuestion.exercise_id : null;
+      },
+      missingResources() {
+        return this.questions.some(q => !this.contentNodeMap[q.exercise_id]);
       },
       itemId() {
         return this.currentQuestion ? this.currentQuestion.question_id : null;
@@ -481,15 +493,15 @@
 
         context: 'Indicates how many questions the learner has not answered.',
       },
-      noItemId: {
-        message: 'This question has an error, please move on to the next question',
-        context:
-          'Message they may appear to the learner if there is a question missing in a quiz. The question may have been deleted accidentally, for example.',
-      },
       question: {
         message: 'Question {num, number, integer} of {total, number, integer}',
         context:
           'Indicates which question the user is working on currently and the total number of questions in a quiz.\n\nFor example: "Question 2 of 10".',
+      },
+      unableToSubmit: {
+        message: 'Unable to submit quiz because some resources are missing or not supported',
+        context:
+          'Indicates that a learner cannot submit the quiz because they are not able to see all the questions.',
       },
     },
   };
@@ -504,6 +516,13 @@
     margin-right: 8px;
     margin-left: 8px;
     white-space: nowrap;
+  }
+
+  .nosubmit {
+    display: inline-block;
+    margin-top: 8px;
+    margin-right: 8px;
+    margin-left: 8px;
   }
 
   .column-pane {

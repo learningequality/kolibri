@@ -1,6 +1,7 @@
 <template>
 
   <div class="wrapper">
+    <MissingResourceAlert v-if="missingLessonResources" />
     <div
       v-if="contentNodes.length"
       class="content-list"
@@ -96,6 +97,7 @@
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
   import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
+  import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert';
   import useContentNodeProgress from '../composables/useContentNodeProgress';
   import useContentLink from '../composables/useContentLink';
   import SidePanelResourcesList from './SidePanelModal/SidePanelResourcesList';
@@ -111,6 +113,7 @@
       ProgressBar,
       TextTruncator,
       TimeDuration,
+      MissingResourceAlert,
     },
     mixins: [KResponsiveWindowMixin],
     setup() {
@@ -152,6 +155,10 @@
       currentResourceID: {
         type: String,
         required: true,
+      },
+      missingLessonResources: {
+        type: Boolean,
+        default: false,
       },
     },
     computed: {
