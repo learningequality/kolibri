@@ -1,4 +1,4 @@
-### sPrerequisites
+### Prerequisites
 
 [Git](https://git-scm.com/) installed.
 
