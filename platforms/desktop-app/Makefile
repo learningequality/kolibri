@@ -27,10 +27,11 @@ install-whl:
 	rm -rf kolibri
 	pip3 install ${whl} -t kolibri/
 	# Read SQLAlchemy version from the unpacked whl file to avoid hard coding.
-	$(eval SQLALVER = $(shell grep "__version__ =" kolibri/kolibri/dist/sqlalchemy/__init__.py  2>&1 | sed 's/__version__ = "//' | sed 's/"//'))
-	rm -rf kolibri/kolibri/dist/sqlalchemy
 	# Manually install the sqlalchemy version
-	pip3 install "sqlalchemy==${SQLALVER}"
+	@version=$$(grep -Eo '__version__ = "([0-9]+\.[0-9]+\.[0-9]+)"' kolibri/kolibri/dist/sqlalchemy/__init__.py | grep -Eo "([0-9]+\.[0-9]+\.[0-9]+)"); \
+	pip3 install sqlalchemy==$$version
+	# Delete sqlalchemy from the dist folder
+	rm -rf kolibri/kolibri/dist/sqlalchemy
 	# This doesn't exist in 0.15, so don't error if it doesn't exist.
 	echo "3.3.1" > kolibri/kolibri/dist/importlib_resources/version.txt || true
 
