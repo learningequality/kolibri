@@ -1,4 +1,4 @@
-### Prerequisites
+### sPrerequisites
 
 [Git](https://git-scm.com/) installed.
 
@@ -89,7 +89,7 @@ The output of the command tells you to add certain lines to your startup files f
 
   **Proxy note**: If you use a proxy, export `http_proxy` and `https_proxy`, too.
 
-### Installation of pyenv on windows
+### Installation of pyenv on Windows
 
 1. Run PowerShell terminal as Administrator
 2. Run the following installation command in the PowerShell terminal :
@@ -106,7 +106,7 @@ then run the previous command again
 
 ### Restart your shell
 
-* for the `PATH` changes to take effect.
+* For the `PATH` changes to take effect, run the following command.
 
 ```sh
 exec "$SHELL"
@@ -114,7 +114,7 @@ exec "$SHELL"
 
 This will give no visual indicator, but the `pyenv` command should now work in the terminal.
 
-* For windows, you can check if pyenv is installed correctly, type:
+* For Windows, you can check if pyenv is installed correctly, type:
 
   `pyenv version`
 
