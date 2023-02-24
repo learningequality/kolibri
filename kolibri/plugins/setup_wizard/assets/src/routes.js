@@ -10,15 +10,13 @@ import CreateLearnerAccountForm from './views/onboarding-forms/CreateLearnerAcco
 import RequirePasswordForLearnersForm from './views/onboarding-forms/RequirePasswordForLearnersForm';
 import PersonalDataConsentForm from './views/onboarding-forms/PersonalDataConsentForm';
 import SettingUpKolibri from './views/onboarding-forms/SettingUpKolibri';
-import ImportLODUsersSetup from './views/ImportLODUsersSetup';
-import JoinOrNew from './views/importLODUsers/JoinOrNew';
-import ImportAuthentication from './views/importFacility/ImportAuthentication';
-import SelectFacilityForm from './views/importFacility/SelectFacilityForm';
-import SelectSuperAdminAccountForm from './views/importFacility/SelectSuperAdminAccountForm';
-import ImportIndividualUserForm from './views/importLODUsers/ImportIndividualUserForm';
-import MultipleUsers from './views/importLODUsers/MultipleUsers';
-import LoadingTaskPage from './views/importFacility/LoadingTaskPage';
-import Sandbox from './views/Sandbox';
+import JoinOrNewLOD from './views/JoinOrNewLOD';
+import ImportAuthentication from './views/ImportAuthentication';
+import SelectFacilityForm from './views/SelectFacilityForm';
+import SelectSuperAdminAccountForm from './views/SelectSuperAdminAccountForm';
+import ImportIndividualUserForm from './views/ImportIndividualUserForm';
+import ImportMultipleUsers from './views/ImportMultipleUsers';
+import LoadingTaskPage from './views/LoadingTaskPage';
 
 export default [
   {
@@ -108,17 +106,12 @@ export default [
   {
     name: 'LOD_SETUP_TYPE',
     path: '/learn-only/setup-type',
-    component: JoinOrNew,
+    component: JoinOrNewLOD,
   },
   {
     name: 'LOD_SELECT_FACILITY',
     path: '/learn-only/select-facility',
     component: SelectFacilityForm,
-  },
-  {
-    name: 'LOD_IMPORT_USER',
-    path: '/learn-only/import',
-    component: ImportLODUsersSetup,
   },
   {
     name: 'LOD_IMPORT_USER_AUTH',
@@ -133,18 +126,13 @@ export default [
   {
     name: 'LOD_IMPORT_AS_ADMIN',
     path: '/learn-only/import/multiple-users',
-    component: MultipleUsers,
+    component: ImportMultipleUsers,
   },
   {
     name: 'LOD_CREATE_USER_FORM',
     path: '/learn-only/join/create-user',
     component: UserCredentialsForm,
     props: { adminUserLabels: false },
-  },
-  {
-    name: 'SANDBOX',
-    path: '/sandbox',
-    component: Sandbox,
   },
   {
     name: 'FINALIZE_SETUP',

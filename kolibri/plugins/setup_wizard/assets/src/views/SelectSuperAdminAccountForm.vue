@@ -45,8 +45,8 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import UserCredentialsForm from '../onboarding-forms/UserCredentialsForm';
-  import { FacilityImportResource } from '../../api';
+  import { FacilityImportResource } from '../api';
+  import UserCredentialsForm from './onboarding-forms/UserCredentialsForm';
 
   const CREATE_NEW_SUPER_ADMIN = 'CREATE_NEW_SUPER_ADMIN';
 

@@ -73,6 +73,7 @@ export const wizardMachine = createMachine(
     id: 'wizard',
     initial: 'initializeContext',
     context: initialContext,
+    predictableActionArguments: true,
     on: {
       START_OVER: { target: 'howAreYouUsingKolibri', actions: 'resetContext' },
     },
@@ -148,6 +149,7 @@ export const wizardMachine = createMachine(
         },
       },
       fullOrLearnOnlyDevice: {
+        id: 'fullOrLearnOnlyDevice',
         meta: { route: { name: 'FULL_OR_LOD', path: 'full-or-lod' } },
         on: {
           CONTINUE: { target: 'fullOrLodSetup', actions: 'setFullOrLOD' },
@@ -267,7 +269,8 @@ export const wizardMachine = createMachine(
             meta: { step: 1, route: { name: 'SELECT_FACILITY_FOR_IMPORT' } },
             on: {
               BACK: {
-                target: '..fullDeviceNewOrImportFacility',
+                // #<name> points to a state w/ an `id` property; wizard is the root
+                target: '#wizard.fullDeviceNewOrImportFacility',
                 actions: 'clearSelectedSetupType',
               },
               CONTINUE: {
@@ -321,13 +324,15 @@ export const wizardMachine = createMachine(
           selectLodSetupType: {
             meta: { step: 1, route: { name: 'LOD_SETUP_TYPE' } },
             on: {
-              BACK: '..fullOrLearnOnlyDevice',
+              // #<name> points to a state w/ an `id` property; wizard is the root
+              BACK: { target: '#wizard.fullOrLearnOnlyDevice', actions: 'clearFullOrLOD' },
               CONTINUE: {
                 target: 'selectLodFacility',
                 actions: 'setLodType',
               },
             },
           },
+
           selectLodFacility: {
             meta: { step: 2, route: { name: 'LOD_SELECT_FACILITY' } },
             on: {
@@ -443,6 +448,12 @@ export const wizardMachine = createMachine(
       }),
       clearSelectedSetupType: assign({
         facilityNewOrImport: () => null,
+      }),
+      clearFullOrLOD: assign({
+        fullOrLOD: (c, e) => {
+          console.log(c, e);
+          return null;
+        },
       }),
       revertFullDeviceImport: assign({
         selectedFacility: () => null,

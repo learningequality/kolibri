@@ -41,7 +41,7 @@
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import { SelectAddressModalGroup, RadioButtonGroup } from 'kolibri.coreVue.componentSets.sync';
 
-  import OnboardingStepBase from '../OnboardingStepBase';
+  import OnboardingStepBase from './OnboardingStepBase';
 
   export default {
     name: 'SelectFacilityForm',

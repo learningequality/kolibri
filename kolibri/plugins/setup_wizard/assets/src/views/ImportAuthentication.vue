@@ -18,7 +18,7 @@
 <script>
 
   import { FacilityAdminCredentialsForm } from 'kolibri.coreVue.componentSets.sync';
-  import OnboardingStepBase from '../OnboardingStepBase';
+  import OnboardingStepBase from './OnboardingStepBase';
 
   export default {
     name: 'ImportAuthentication',

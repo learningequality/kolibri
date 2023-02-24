@@ -30,11 +30,11 @@
 <script>
 
   import { SelectAddressModalGroup } from 'kolibri.coreVue.componentSets.sync';
-  import OnboardingStepBase from '../OnboardingStepBase';
-  import { LodTypePresets as Options } from '../../constants';
+  import { LodTypePresets as Options } from '../constants';
+  import OnboardingStepBase from './OnboardingStepBase';
 
   export default {
-    name: 'JoinOrNew',
+    name: 'JoinOrNewLOD',
     components: {
       OnboardingStepBase,
       SelectAddressModalGroup,

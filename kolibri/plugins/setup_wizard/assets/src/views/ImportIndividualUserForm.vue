@@ -94,8 +94,8 @@
   import { DemographicConstants, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import { TaskResource } from 'kolibri.resources';
   import CatchErrors from 'kolibri.utils.CatchErrors';
-  import OnboardingStepBase from '../OnboardingStepBase';
-  import { FacilityImportResource } from '../../api';
+  import { FacilityImportResource } from '../api';
+  import OnboardingStepBase from './OnboardingStepBase';
 
   export default {
     name: 'ImportIndividualUserForm',

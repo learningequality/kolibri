@@ -55,8 +55,8 @@
   import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
   import { TaskStatuses } from 'kolibri.utils.syncTaskUtils';
   import UserTable from 'kolibri.coreVue.components.UserTable';
-  import OnboardingStepBase from '../OnboardingStepBase';
-  import { SoudQueue } from '../../constants';
+  import { SoudQueue } from '../constants';
+  import OnboardingStepBase from './OnboardingStepBase';
 
   /** Workflow
     - wizardService holds successfully imported learners and a list of all possible learners
@@ -68,7 +68,7 @@
       and offer them to import another user once all SoudQueue tasks are COMPLETE
   */
   export default {
-    name: 'MultipleUsers',
+    name: 'ImportMultipleUsers',
     components: {
       OnboardingStepBase,
       PaginatedListContainer,

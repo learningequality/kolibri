@@ -48,8 +48,8 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskResource } from 'kolibri.resources';
   import { TaskStatuses } from 'kolibri.utils.syncTaskUtils';
-  import OnboardingStepBase from '../OnboardingStepBase';
-  import { DeviceTypePresets, SoudQueue } from '../../constants';
+  import { DeviceTypePresets, SoudQueue } from '../constants';
+  import OnboardingStepBase from './OnboardingStepBase';
 
   export default {
     name: 'LoadingTaskPage',
@@ -76,7 +76,7 @@
           : 'facility_task';
       },
       facility() {
-        return this.wizardService._state.context.selectedFacility;
+        return this.wizardService.state.context.selectedFacility;
       },
       header() {
         return this.isSoud ? this.$tr('loadUserTitle') : this.$tr('importFacilityTitle');
