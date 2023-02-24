@@ -221,7 +221,6 @@
       this.pollFacilityTasks();
       this.fetchFacility();
       this.fetchAddressesForLOD();
-      this.setDate();
     },
 
     methods: {
@@ -235,13 +234,12 @@
       fetchAddressesForLOD(LocationResource = NetworkLocationResource) {
         return LocationResource.fetchCollection({ force: true }).then(locations => {
           this.data = locations;
-          console.log(this.data);
         });
       },
       pollFacilityTasks() {
         TaskResource.list({ queue: 'facility_task' }).then(tasks => {
           this.myDevices = tasks;
-          console.log(this.myDevices);
+
           if (this.isPolling) {
             setTimeout(() => {
               return this.pollFacilityTasks();
@@ -256,7 +254,7 @@
         this.deviceModal = false;
         if (id !== ' ') {
           this.deviceIds.push(id);
-          console.log(this.deviceIds);
+
           this.$router.push({ path: '/editdevice/?id=' + id });
         } else {
           return window.location.href;
@@ -273,14 +271,6 @@
         } else {
           return window.location.href;
         }
-      },
-      setDate() {
-        const time = new Date();
-        return this.$formatDate(time, {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-        });
       },
     },
 

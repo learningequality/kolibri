@@ -21,8 +21,7 @@
             class="k-select"
           >
             <KSelect
-              v-model="selectedItem"
-              :value="myvalue"
+              v-model="selectedInterval"
               class="selector"
               :style="selectorStyle"
               :options="selectArray"
@@ -37,10 +36,10 @@
             class="k-select next-k-select-1"
           >
             <KSelect
-              v-model="dayselected"
+              v-model="selectedDay"
               class="selector"
               :style="selectorStyle"
-              :options="Days"
+              :options="getDays"
               label="On"
             />
 
@@ -50,8 +49,7 @@
             class="k-select next-k-select-2"
           >
             <KSelect
-              v-model="timeseed"
-              :value="mytime"
+              v-model="selectedT"
               class="selector"
               :style="selectorStyle"
               :options="SyncTime"
@@ -65,7 +63,7 @@
 
           <p class="spacing">
             {{ $tr('serverTime') }}
-            {{ serverTime }}
+            {{ now }}
           </p>
 
           <p class="spacing">
@@ -171,13 +169,8 @@
       return {
         removeDeviceModal: false,
         deviceName: null,
-        available: null,
         device: [],
         now: now(),
-        timer: null,
-        myvalue: null,
-        myday: null,
-        mytime: null,
         selectedItem: '',
         tasks: [],
       };
@@ -204,48 +197,64 @@
       },
       selectArray() {
         return [
-          { label: 'Never', value: 3600 },
+          { label: this.$tr('neverSync'), value: 3600 },
           { label: this.$tr('everyHour'), value: 3600 },
           { label: this.$tr('everyDay'), value: 86400 },
+          { label: this.$tr('everyWeek'), value: 86400 },
+          { label: this.$tr('everyTwoWeeks'), value: 86400 },
           { label: this.$tr('everyMonth'), value: 2592000 },
         ];
       },
-      Days() {
-        return [
-          { label: this.$tr('mon'), value: 3600 },
-          { label: this.$tr('tue'), value: 86400 },
-          { label: this.$tr('wed'), value: 604800 },
-          { label: this.$tr('thur'), value: 604800 },
-          { label: this.$tr('fri'), value: 2592000 },
-          { label: this.$tr('sat'), value: 2595000 },
-          { label: this.$tr('sun'), value: 2595000 },
-        ];
+      getDays() {
+        const today = new Date();
+        const daysOfWeek = [];
+        let date = new Date(
+          today.getFullYear(),
+          today.getMonth(),
+          today.getDate() + (7 - today.getDay())
+        );
+        for (let i = 0; i < 7; i++) {
+          daysOfWeek.push({ label: this.$formatDate(date, { weekday: 'long' }), value: i });
+          date.setDate(date.getDate() + 1);
+        }
+        return daysOfWeek;
       },
+      // Time increments by 30 minutes  Changes to 12 hour
+      // - 24 hour according to locale/device setting
       SyncTime() {
-        return [
-          { label: '1:30 AM', value: 3600 },
-          { label: '2:00 AM', value: 86400 },
-          { label: '2:30 AM', value: 604800 },
-          { label: '3:00 AM', value: 604800 },
-          { label: '3:30 AM', value: 2592000 },
-          { label: '4:00 AM', value: 2592000 },
-          { label: '4:30 AM', value: 2592000 },
-        ];
+        let startTime = new Date();
+        startTime.setHours(0, 0, 0, 0);
+        let endTime = new Date();
+        endTime.setHours(24, 0, 0, 0);
+        let interval = 30;
+
+        let times = [];
+        let time = startTime;
+
+        while (time <= endTime) {
+          let hours = time.getHours();
+          let minutes = time.getMinutes();
+
+          let formattedHours = hours < 10 ? '0' + hours : hours;
+          let formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
+
+          let amPm = hours < 12 ? 'AM' : 'PM';
+          if (hours == 0) {
+            formattedHours = 12;
+          } else if (hours > 12) {
+            formattedHours = formattedHours - 12;
+          }
+
+          times.push(formattedHours + ':' + formattedMinutes + ' ' + amPm);
+
+          time.setMinutes(time.getMinutes() + interval);
+        }
+
+        return times;
       },
     },
     beforeMount() {
-      this.deviceName = this.$route.query.name;
-      this.available = this.$route.query.present;
-      this.myvalue = this.selectArray[0];
-      this.myday = this.Days[0];
-      this.mytime = this.SyncTime[0];
-      this.serverTime = this.now;
       this.fetchDevice();
-    },
-    mounted() {
-      this.timer = setInterval(() => {
-        this.now = now();
-      }, 10000);
     },
     beforeDestroy() {
       clearInterval(this.timer);
@@ -296,7 +305,6 @@
       fetchDevice() {
         NetworkLocationResource.fetchModel({ id: this.$route.query.id }).then(device => {
           this.device = device;
-          console.log(this.device);
           TaskResource.list({ queue: 'facility_task' }).then(tasks => {
             this.tasks = tasks.filter((device.extra_metadata.device_id = this.id));
             console.log(this.tasks);
@@ -343,17 +351,28 @@
       },
       everyHour: {
         message: 'Every hour',
-        context: 'Label for every hour',
+        context: 'Period for scheduling the sync between devices every hour',
       },
       everyDay: {
         message: 'Every day',
-        context: 'Label for every day',
+        context: 'Period for scheduling the sync between devices every day',
+      },
+      everyWeek: {
+        message: 'Every Week',
+        context: 'Period for scheduling the sync between devices every week',
       },
       everyMonth: {
         message: 'Every month',
-        context: 'Label for every month',
+        context: 'Period for scheduling the sync between devices every month',
       },
-
+      everyTwoWeeks: {
+        message: 'Every Two Weeks',
+        context: 'Period for scheduling the sync between devices every two weeks',
+      },
+      neverSync: {
+        message: 'Never',
+        context: 'Never schedule the sync between devices',
+      },
       removeText: {
         message: 'Remove',
         context: 'Label for remove button on the remove device modal',
@@ -361,34 +380,6 @@
       cancelText: {
         message: 'Cancel',
         context: 'Label for cancel button on the remove device modal',
-      },
-      mon: {
-        message: 'Monday',
-        context: 'Day 1',
-      },
-      tue: {
-        message: 'Tuesday',
-        context: 'Day 2',
-      },
-      wed: {
-        message: 'Wednesday',
-        context: 'Day 3',
-      },
-      thur: {
-        message: 'Thursday',
-        context: 'Day 4',
-      },
-      fri: {
-        message: 'Friday',
-        context: 'Day 5',
-      },
-      sat: {
-        message: 'Saturday',
-        context: 'Day 6',
-      },
-      sun: {
-        message: 'Sunday',
-        context: 'Day 7',
       },
     },
   };
