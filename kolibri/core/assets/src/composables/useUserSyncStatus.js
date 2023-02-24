@@ -1,6 +1,7 @@
 import { ref, onMounted, onUnmounted, computed } from 'kolibri.lib.vueCompositionApi';
 import { UserSyncStatusResource } from 'kolibri.resources';
 import store from 'kolibri.coreVue.vuex.store';
+import { useTimeoutPoll } from '@vueuse/core';
 
 const status = ref(null);
 const queued = ref(false);
@@ -9,7 +10,6 @@ const deviceStatus = ref(null);
 const deviceStatusSentiment = ref(null);
 
 const usageCount = ref(0);
-const timeoutId = ref(null);
 
 export function useUser() {
   const isUserLoggedIn = computed(() => store.getters.isUserLoggedIn);
@@ -44,23 +44,21 @@ export function pollUserSyncStatusTask() {
       deviceStatusSentiment.value = syncData[0].device_status_sentiment;
     }
   });
-
-  return status;
 }
 
 export function useUserSyncStatus() {
+  const { pause, resume } = useTimeoutPoll(pollUserSyncStatusTask, 1000);
   onMounted(() => {
     usageCount.value++;
-
     if (usageCount.value === 1) {
-      setTimeout(pollUserSyncStatusTask, 1000);
+      resume();
     }
   });
 
   onUnmounted(() => {
     usageCount.value--;
     if (usageCount.value === 0) {
-      clearTimeout(timeoutId.value);
+      pause();
     }
   });
 
