@@ -24,7 +24,7 @@ export function showLessonPlaylist(store, { lessonId }) {
       })
       .then(contentNodes => {
         const contentNodesMap = {};
-        for (let node of contentNodes) {
+        for (const node of contentNodes) {
           contentNodesMap[node.id] = node;
         }
         store.commit('lessonPlaylist/SET_LESSON_CONTENTNODES', contentNodesMap);
