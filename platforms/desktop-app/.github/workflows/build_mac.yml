@@ -76,7 +76,7 @@ jobs:
         ln -s /usr/local/bin/python3 /usr/local/bin/python
     - uses: actions/cache@v3
       with:
-        path: ~/.cache/pip
+        path: ~/Library/Caches/pip
         key: ${{ runner.os }}-pip-${{ hashFiles('setup.py', 'build_requires.txt', '.github/workflows/build_mac.yml') }}
         restore-keys: |
           ${{ runner.os }}-pip-
