@@ -68,7 +68,7 @@
               {{ $tr('refresh') }}
             </KButton>
             <KIcon
-              icon="done"
+              icon="wifi"
             />
           </p>
         </KGridItem>

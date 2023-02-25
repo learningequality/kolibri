@@ -7,7 +7,7 @@
     >
       <KGridItem>
         <h2>
-          <KIcon icon="device" />
+          <KIcon icon="laptop" />
           <span class="device-name">{{ group.deviceName }}</span>
         </h2>
       </KGridItem>
@@ -43,7 +43,7 @@
         groups: [
           {
             id: 1,
-            deviceName: 'Device 1',
+            deviceName: 'Samson`s MacBook-Pro',
             content: [
               {
                 id: 1,
@@ -59,7 +59,7 @@
           },
           {
             id: 2,
-            deviceName: 'Device 2',
+            deviceName: 'Marcella MBP',
             content: [
               {
                 id: 1,
@@ -70,105 +70,6 @@
                 id: 2,
                 title: 'Card 2',
                 body: ' ',
-              },
-            ],
-          },
-          {
-            id: 3,
-            deviceName: 'Device 3',
-            content: [
-              {
-                id: 1,
-                title: 'Card 1',
-                body: ' ',
-              },
-              {
-                id: 2,
-                title: 'Card 2',
-                body: 'Explore',
-              },
-            ],
-          },
-          {
-            id: 4,
-            deviceName: 'Device 4',
-            content: [
-              {
-                id: 1,
-                title: 'Card 1',
-                body: ' ',
-              },
-              {
-                id: 2,
-                title: 'Card 2',
-                body: ' ',
-              },
-              {
-                id: 3,
-                title: 'Card 2',
-                body: ' ',
-              },
-              {
-                id: 4,
-                title: 'Card 2',
-                body: ' ',
-              },
-              {
-                id: 5,
-                title: 'Card 2',
-                body: ' ',
-              },
-              {
-                id: 6,
-                title: 'Card 2',
-                body: 'Explore',
-              },
-            ],
-          },
-          {
-            id: 5,
-            deviceName: 'Device 5',
-            content: [
-              {
-                id: 1,
-                title: 'Card 1',
-                body: ' ',
-              },
-              {
-                id: 2,
-                title: 'Card 2',
-                body: 'Explore',
-              },
-            ],
-          },
-          {
-            id: 6,
-            deviceName: 'Device 3',
-            content: [
-              {
-                id: 1,
-                title: 'Card 1',
-                body: ' ',
-              },
-              {
-                id: 2,
-                title: 'Card 2',
-                body: ' ',
-              },
-              {
-                id: 3,
-                title: 'Card 2',
-                body: ' ',
-              },
-              {
-                id: 4,
-                title: 'Card 2',
-                body: ' ',
-              },
-              {
-                id: 6,
-                title: 'Card 2',
-                body: 'Explore',
               },
             ],
           },
@@ -225,7 +126,6 @@
 
   .device-name {
     padding-left: 10px;
-    text-transform: uppercase;
   }
 
 </style>
