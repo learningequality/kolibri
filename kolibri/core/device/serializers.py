@@ -78,11 +78,7 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
         ):
             data["os_user"] = True
         elif "superuser" not in data:
-            # We don't need a superuser if we're on an SoUD
-            if not data.get("is_soud"):
-                raise serializers.ValidationError(
-                    "Superuser is required for provisioning"
-                )
+            raise serializers.ValidationError("Superuser is required for provisioning")
 
         has_facility = "facility" in data
         has_facility_id = "facility_id" in data
@@ -157,6 +153,10 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
 
             if superuser:
                 facility.add_role(superuser, user_kinds.ADMIN)
+                if DevicePermissions.objects.count() == 0:
+                    DevicePermissions.objects.create(
+                        user=superuser, is_superuser=True, can_manage_content=True
+                    )
 
             # Create device settings
             language_id = validated_data.pop("language_id")
