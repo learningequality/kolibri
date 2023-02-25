@@ -53,9 +53,9 @@ jobs:
       PYTHON_VERSION: "3.11.2"
       MACOSX_DEPLOYMENT_TARGET: "10.9"
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       if: ${{ !inputs.ref }}
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       if: ${{ inputs.ref }}
       with:
         repository: learningequality/kolibri-app
@@ -74,7 +74,7 @@ jobs:
         sudo installer -pkg ~/python.pkg -target /
         unlink /usr/local/bin/python
         ln -s /usr/local/bin/python3 /usr/local/bin/python
-    - uses: actions/cache@v2
+    - uses: actions/cache@v3
       with:
         path: ~/.cache/pip
         key: ${{ runner.os }}-pip-${{ hashFiles('setup.py', 'build_requires.txt', '.github/workflows/build_mac.yml') }}
@@ -85,7 +85,7 @@ jobs:
       run: make get-whl whl=${{ github.event.inputs.whl-url }}
     - name: Download the whlfile from artifacts
       if: ${{ inputs.whl-file-name }}
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: ${{ inputs.whl-file-name }}
         path: whl
@@ -128,8 +128,8 @@ jobs:
       run: make notarize-dmg
     - name: Get DMG filename
       id: get-dmg-filename
-      run: echo "::set-output name=dmg-file-name::$(ls dist | grep .dmg | cat)"
-    - uses: actions/upload-artifact@v2
+      run: echo "dmg-file-name=$(ls dist | grep .dmg | cat)" >> $GITHUB_OUTPUT
+    - uses: actions/upload-artifact@v3
       with:
         name: ${{ steps.get-dmg-filename.outputs.dmg-file-name }}
         path: dist/${{ steps.get-dmg-filename.outputs.dmg-file-name }}
