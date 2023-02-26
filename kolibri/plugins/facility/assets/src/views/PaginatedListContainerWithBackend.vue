@@ -20,18 +20,18 @@
 
     <nav class="pagination-nav">
       <span dir="auto" class="pagination-label">
-        {{ $translate('pagination', { visibleStartRange, visibleEndRange, numFilteredItems }) }}
+        {{ $tr('pagination', { visibleStartRange, visibleEndRange, numFilteredItems }) }}
       </span>
       <KButtonGroup>
         <KIconButton
-          :ariaLabel="$translate('previousResults')"
+          :ariaLabel="$tr('previousResults')"
           :disabled="previousButtonDisabled"
           size="small"
           icon="back"
           @click="changePage(-1)"
         />
         <KIconButton
-          :ariaLabel="$translate('nextResults')"
+          :ariaLabel="$tr('nextResults')"
           :disabled="nextButtonDisabled"
           size="small"
           icon="forward"
@@ -47,8 +47,6 @@
 <script>
 
   import clamp from 'lodash/clamp';
-  import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
 
   export default {
     name: 'PaginatedListContainerWithBackend',
@@ -94,17 +92,27 @@
         );
       },
     },
-    beforeCreate() {
-      this.$translator = crossComponentTranslator(PaginatedListContainer);
-    },
     methods: {
       changePage(change) {
         // Clamp the newPage number between the bounds if browser doesn't correctly
         // disable buttons (see #6454 issue with old versions of MS Edge)
         this.$emit('input', clamp(this.value + change, 1, this.totalPageNumber));
       },
-      $translate(msg, params) {
-        return this.$translator.$tr(msg, params);
+    },
+    $trs: {
+      previousResults: {
+        message: 'Previous results',
+        context:
+          'Text which indicates the previous page of results when a user makes a search query.\n',
+      },
+      nextResults: {
+        message: 'Next results',
+        context: 'Text which indicates the next page of results when a user makes a search query.',
+      },
+      pagination: {
+        message:
+          '{ visibleStartRange, number } - { visibleEndRange, number } of { numFilteredItems, number }',
+        context: "Refers to pagination. Only translate the word \"of''.",
       },
     },
   };

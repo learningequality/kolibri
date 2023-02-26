@@ -63,7 +63,7 @@
               :dismissible="false"
               type="error"
             >
-              {{ $tr('notEnoughSpaceForChannelsWarning') }}
+              {{ deviceStrings('notEnoughSpaceForChannelsWarning') }}
             </UiAlert>
           </p>
 
@@ -145,6 +145,7 @@
   import { TaskResource } from 'kolibri.resources';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import { TransferTypes, TaskTypes } from 'kolibri.utils.syncTaskUtils';
+  import commonDeviceStrings from '../commonDeviceStrings';
   import ChannelPanel from '../ManageContentPage/ChannelPanel/WithImportDetails';
   import ContentWizardUiAlert from '../SelectContentPage/ContentWizardUiAlert';
   import { selectContentPageLink } from '../ManageContentPage/manageContentLinks';
@@ -175,7 +176,7 @@
       SelectionBottomBar,
       UiAlert,
     },
-    mixins: [commonCoreStrings, responsiveWindowMixin, taskNotificationMixin],
+    mixins: [commonCoreStrings, commonDeviceStrings, responsiveWindowMixin, taskNotificationMixin],
     setup() {
       useContentTasks();
     },
@@ -473,13 +474,6 @@
         message: 'Select folders and resources instead',
         context:
           'Option to allow the user to select individual folders/resources within a channel instead of importing entire channels.',
-      },
-      notEnoughSpaceForChannelsWarning: {
-        message:
-          'Not enough space available on your device. Free up disk space or select fewer resources',
-
-        context:
-          'Warning that appears when there is not enough space on the user’s device for the selected resources',
       },
     },
   };

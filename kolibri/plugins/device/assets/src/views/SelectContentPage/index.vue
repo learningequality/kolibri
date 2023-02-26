@@ -52,7 +52,7 @@
             :dismissible="false"
             type="error"
           >
-            {{ spaceTranslator.$tr('notEnoughSpaceForChannelsWarning') }}
+            {{ deviceStrings('notEnoughSpaceForChannelsWarning') }}
           </UiAlert>
           <ContentTreeViewer
             v-if="!newVersionAvailable"
@@ -81,12 +81,12 @@
   import { mapState, mapActions, mapGetters } from 'vuex';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import isEmpty from 'lodash/isEmpty';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import { TaskTypes } from 'kolibri.utils.syncTaskUtils';
   import find from 'lodash/find';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { TaskResource } from 'kolibri.resources';
+  import commonDeviceStrings from '../commonDeviceStrings';
   import TaskProgress from '../ManageContentPage/TaskProgress';
   import useContentTasks from '../../composables/useContentTasks';
   import SelectionBottomBar from '../ManageContentPage/SelectionBottomBar';
@@ -95,7 +95,6 @@
   import { getChannelWithContentSizes } from '../../modules/wizard/apiChannelMetadata';
   import NewChannelVersionBanner from '../ManageContentPage/NewChannelVersionBanner';
   import { ContentWizardPages, ContentWizardErrors, PageNames } from '../../constants';
-  import AvailableChannelsPage from '../AvailableChannelsPage';
   import ChannelContentsSummary from './ChannelContentsSummary';
   import ContentTreeViewer from './ContentTreeViewer';
   import ContentWizardUiAlert from './ContentWizardUiAlert';
@@ -119,7 +118,7 @@
       TaskProgress,
       UiAlert,
     },
-    mixins: [responsiveWindowMixin, taskNotificationMixin],
+    mixins: [commonDeviceStrings, responsiveWindowMixin, taskNotificationMixin],
     setup() {
       useContentTasks();
     },
@@ -239,9 +238,6 @@
       this.cancelMetadataDownloadTask();
       this.$store.commit('manageContent/wizard/RESET_NODE_LISTS');
       next();
-    },
-    created() {
-      this.spaceTranslator = crossComponentTranslator(AvailableChannelsPage);
     },
     methods: {
       ...mapActions('manageContent', ['cancelTask']),

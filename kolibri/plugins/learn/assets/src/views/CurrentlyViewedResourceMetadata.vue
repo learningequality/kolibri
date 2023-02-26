@@ -144,9 +144,7 @@
     licenseLongName,
     licenseDescriptionForConsumer,
   } from 'kolibri.utils.licenseTranslations';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import ContentNodeThumbnail from './thumbnails/ContentNodeThumbnail';
-  import SidePanelResourceMetadata from './SidePanelResourceMetadata';
 
   export default {
     name: 'CurrentlyViewedResourceMetadata',
@@ -173,7 +171,6 @@
         showMoreOrLess: 'Show More',
         truncate: 'truncate-description',
         descriptionOverflow: false,
-        metadataStrings: { $tr: () => null },
       };
     },
     computed: {
@@ -207,7 +204,6 @@
       },
     },
     mounted() {
-      this.metadataStrings = crossComponentTranslator(SidePanelResourceMetadata);
       this.calculateDescriptionOverflow();
     },
     methods: {
@@ -254,6 +250,16 @@
         } else {
           return '-';
         }
+      },
+    },
+    $tr: {
+      level: {
+        message: 'Level',
+        context: 'Refers to the level of education to which the resource is directed at.',
+      },
+      estimatedTime: {
+        message: 'Estimated time',
+        context: 'Refers to the expected time it will take the learner to complete a resource.',
       },
     },
   };

@@ -21,6 +21,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Clear',
     context: 'Button that allows to clear a single *task* from the list in the task manager.',
   },
+  clearAllAction: {
+    message: 'Clear all',
+    context: 'Button that allows a user to clear all selections or filters.',
+  },
   closeAction: {
     message: 'Close',
     context: 'Closes some element in Kolibri, like a window.',
@@ -49,6 +53,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Edit details',
     context:
       "'Edit details' changes a set of information in Kolibri.\n\nFor example, in a list of users, selecting OPTIONS > 'Edit details' allows a user to edit other users' information like their name, username or type.",
+  },
+  filter: {
+    message: 'filter',
+    context:
+      'The filter functionality allows users to find elements in Kolibri more efficiently. For example, in a list of users the filter can be used to view users by permissions, user type or facility.',
   },
   finishAction: {
     message: 'Finish',
@@ -118,6 +127,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Update',
     context:
       "If a user account has been created prior to version 0.13 of Kolibri, the user will see a notification that they can update their profile to provide their birth year and gender. \n\nThe 'UPDATE' button allows them to provide this new information if they choose to do so.",
+  },
+  viewAll: {
+    message: 'View all',
+    context: 'Option to view all available options',
   },
   viewAction: {
     message: 'View',
@@ -416,6 +429,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Users',
     context:
       'A user is any person who has access to a facility in Kolibri. There are  four main types of users in Kolibri: Learners, Coaches, Admins and Super admins.',
+  },
+  superUserLabel: {
+    message: 'Super admin',
+    context:
+      'An account type that can manage the device. Super admin accounts also have permission to do everything that admins, coaches, and learners can do.',
   },
   uncountedAdditionalResults: {
     message: 'More than { num, number } results',

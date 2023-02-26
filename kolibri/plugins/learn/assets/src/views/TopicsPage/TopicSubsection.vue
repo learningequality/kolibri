@@ -49,7 +49,7 @@
       {{ $tr('showMore') }}
     </KButton>
     <KRouterLink v-else-if="topic.viewAll" class="more-after-grid" :to="topic.viewAll">
-      {{ $tr('viewAll') }}
+      {{ coreString('viewAll') }}
     </KRouterLink>
     <KButton
       v-else-if="topic.viewMore && topic.id !== subTopicLoading"
@@ -99,10 +99,6 @@
       showMore: {
         message: 'Show more',
         context: 'Clickable link which allows to load more resources.',
-      },
-      viewAll: {
-        message: 'View all',
-        context: 'Clickable link which allows to display all resources in a topic.',
       },
     },
   };
