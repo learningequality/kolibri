@@ -13,4 +13,5 @@ DEFAULT_PLUGINS = [
     "kolibri.plugins.slideshow_viewer",
     "kolibri.plugins.user_auth",
     "kolibri.plugins.user_profile",
+    "kolibri.plugins.policies",
 ]
