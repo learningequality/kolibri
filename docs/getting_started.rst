@@ -15,6 +15,8 @@ If you encounter issues:
 * Searching online is often effective: chances are high that someone else encountered similar issues in the past
 * Please let us know if our docs can be improved, either by filing an issue or submitting a PR!
 
+.. note::
+  Theoretically, Windows can be used to develop Kolibri, but we haven't done much testing with it. If you're running Windows, you are likely to encounter some issues with this guide, and we'd appreciate any help improving these docs for Windows developers!
 
 Git and GitHub
 ~~~~~~~~~~~~~~
