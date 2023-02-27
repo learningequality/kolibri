@@ -209,7 +209,7 @@
       getDays() {
         const today = new Date();
         const daysOfWeek = [];
-        let date = new Date(
+        const date = new Date(
           today.getFullYear(),
           today.getMonth(),
           today.getDate() + (7 - today.getDay())
