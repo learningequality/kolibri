@@ -11,8 +11,7 @@ function getFirstLogDate(store) {
   return client({
     url: urls['kolibri:kolibri.plugins.facility:firstlogdate'](store.rootGetters.activeFacilityId),
   }).then(response => {
-    store.commit('SET_SESSION_FIRST_LOG', new Date(response.data.first_session_log_date));
-    store.commit('SET_SUMMARY_FIRST_LOG', new Date(response.data.first_session_log_date));
+    store.commit('SET_FIRST_LOG_DATE', new Date(response.data.first_log_date));
   });
 }
 

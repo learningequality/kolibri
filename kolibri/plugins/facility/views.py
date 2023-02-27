@@ -30,7 +30,6 @@ from kolibri.core.logger.csv_export import (
     CSV_EXPORT_FILENAMES as LOGGER_CSV_EXPORT_FILENAMES,
 )
 from kolibri.core.logger.models import ContentSessionLog
-from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import GenerateCSVLogRequest
 from kolibri.utils import conf
 
@@ -81,31 +80,15 @@ def first_log_date(request, facility_id):
     """
     facility = _get_facility_check_permissions(request, facility_id)
     dataset_id = facility.dataset_id
-    first_session_log = (
+    first_log = (
         ContentSessionLog.objects.filter(dataset_id=dataset_id)
         .exclude(kind=content_kinds.QUIZ)
         .order_by("start_timestamp")
         .first()
     )
-    first_summary_log = (
-        ContentSummaryLog.objects.filter(dataset_id=dataset_id)
-        .exclude(kind=content_kinds.QUIZ)
-        .order_by("start_timestamp")
-        .first()
-    )
-    first_session_log_date = (
-        first_session_log.start_timestamp
-        if first_session_log is not None
-        else dt.utcnow()
-    )
-    first_summary_log_date = (
-        first_summary_log.start_timestamp
-        if first_summary_log is not None
-        else dt.utcnow()
-    )
+    first_log_date = first_log.start_timestamp if first_log is not None else dt.utcnow()
     response = {
-        "first_session_log_date": first_session_log_date.isoformat(),
-        "first_summary_log_date": first_summary_log_date.isoformat(),
+        "first_log_date": first_log_date.isoformat(),
     }
     return HttpResponse(json.dumps(response), content_type="application/json")
 

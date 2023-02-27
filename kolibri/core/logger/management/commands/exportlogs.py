@@ -16,6 +16,7 @@ from kolibri.core.logger.csv_export import csv_file_generator
 from kolibri.core.logger.models import GenerateCSVLogRequest
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.core.tasks.utils import get_current_job
+from kolibri.utils.time_utils import local_now
 
 logger = logging.getLogger(__name__)
 
@@ -154,5 +155,6 @@ class Command(AsyncCommand):
             defaults={
                 "selected_start_date": parser.parse(start_date),
                 "selected_end_date": parser.parse(end_date),
+                "date_requested": local_now(),
             },
         )

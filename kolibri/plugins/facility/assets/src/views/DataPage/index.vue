@@ -130,7 +130,7 @@
     <KDateRange
       v-if="summaryDateRangeModal"
       class="generate-calendar"
-      :firstAllowedDate="firstSummaryLogDate"
+      :firstAllowedDate="firstAllowedDate"
       :lastAllowedDate="lastAllowedDate"
       :defaultStartDate="summaryDateCreated"
       :submitText="$tr('submitText')"
@@ -142,14 +142,14 @@
       :endDateLegendText="$tr('endDateLegendText')"
       :previousMonthText="$tr('previousMonthText')"
       :nextMonthText="$tr('nextMonthText')"
-      v-bind="summaryLogsErrorMessages"
+      v-bind="errorMessages"
       @submit="generateSummaryLog"
       @cancel="summaryDateRangeModal = false"
     />
     <KDateRange
       v-if="sessionDateRangeModal"
       class="generate-calendar"
-      :firstAllowedDate="firstSessionLogDate"
+      :firstAllowedDate="firstAllowedDate"
       :lastAllowedDate="lastAllowedDate"
       :defaultStartDate="sessionDateCreated"
       :submitText="$tr('submitText')"
@@ -161,7 +161,7 @@
       :endDateLegendText="$tr('endDateLegendText')"
       :previousMonthText="$tr('previousMonthText')"
       :nextMonthText="$tr('nextMonthText')"
-      v-bind="sessionLogsErrorMessages"
+      v-bind="errorMessages"
       @submit="generateSessionLog"
       @cancel="sessionDateRangeModal = false"
     />
@@ -223,14 +223,10 @@
         'availableSummaryCSVLog',
         'inSessionCSVCreation',
         'inSummaryCSVCreation',
+        'firstLogDate',
       ]),
       ...mapGetters(['activeFacilityId']),
-      ...mapState('manageCSV', [
-        'sessionDateCreated',
-        'summaryDateCreated',
-        'firstSummaryLogDate',
-        'firstSessionLogDate',
-      ]),
+      ...mapState('manageCSV', ['sessionDateCreated', 'summaryDateCreated']),
       // NOTE: We disable CSV file upload/download on embedded web views like the Mac
       // and Android apps
       canUploadDownloadFiles() {
@@ -245,23 +241,20 @@
         }
         return {};
       },
-      sessionLogsErrorMessages() {
-        return {
-          [validationConstants.MALFORMED]: this.$tr('invalidateDateError'),
-          [validationConstants.START_DATE_AFTER_END_DATE]: this.$tr('startDateAfterEndDateError'),
-          [validationConstants.FUTURE_DATE]: this.$tr('futureDateError'),
-          [validationConstants.DATE_BEFORE_FIRST_ALLOWED]: this.$tr('beforeFirstAllowedDateError', {
-            date: format(this.firstSessionLogDate, 'DD/MM/YYYY'),
-          }),
-        };
+      firstAllowedDate() {
+        // setting firstAllowedDate to firstLogDate minus one day
+        // because KDateRange prop firstAllowedDate is not inclusive
+        const firstAllowed = this.firstLogDate;
+        const day = this.firstLogDate.getDate() - 1;
+        return new Date(firstAllowed.setDate(day));
       },
-      summaryLogsErrorMessages() {
+      errorMessages() {
         return {
           [validationConstants.MALFORMED]: this.$tr('invalidateDateError'),
           [validationConstants.START_DATE_AFTER_END_DATE]: this.$tr('startDateAfterEndDateError'),
           [validationConstants.FUTURE_DATE]: this.$tr('futureDateError'),
           [validationConstants.DATE_BEFORE_FIRST_ALLOWED]: this.$tr('beforeFirstAllowedDateError', {
-            date: format(this.firstSummaryLogDate, 'DD/MM/YYYY'),
+            date: format(this.firstAllowedDate, 'DD/MM/YYYY'),
           }),
         };
       },
@@ -295,19 +288,23 @@
       ]),
       generateSessionLog(dates) {
         this.sessionDateRangeModal = false;
-        this.dateRange = {
-          start: dates['start'].toISOString(),
-          end: dates['end'].toISOString(),
-        };
+        this.updateDateRange(dates);
         this.startSessionCSVExport(this.dateRange);
       },
       generateSummaryLog(dates) {
         this.summaryDateRangeModal = false;
-        this.dateRange = {
-          start: dates['start'].toISOString(),
-          end: dates['end'].toISOString(),
-        };
+        this.updateDateRange(dates);
         this.startSummaryCSVExport(this.dateRange);
+      },
+      updateDateRange(dates) {
+        const start_date = dates['start'];
+        const end_date = dates['end'];
+        this.dateRange = {
+          start: new Date(
+            start_date.getTime() - start_date.getTimezoneOffset() * 60000
+          ).toISOString(),
+          end: new Date(end_date.getTime() - end_date.getTimezoneOffset() * 60000).toISOString(),
+        };
       },
       startTaskPolling() {
         this.getExportedCSVsInfo();
