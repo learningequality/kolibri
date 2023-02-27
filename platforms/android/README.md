@@ -83,3 +83,22 @@ You could also do so using [Weinre](https://people.apache.org/~pmuellr/weinre/do
 The image was optimized to limit rebuilding and to be run in a developer-centric way. `scripts/rundocker.sh` describes the options needed to get the build running properly.
 
 Unless you need to make edits to the build method or are debugging one of the build dependencies and would like to continue using docker, you shouldn't need to modify that script.
+
+## Getting a Python shell within the running app context
+
+We implemented code for an SSH server that allows connecting into a running Kolibri Android app and running code in an interactive Python shell. You can use this for developing, testing, and debugging Python code running inside the Android and Kolibri environments, which is handy especially for testing out Pyjnius code, checking environment variables, etc. This will soon be implemented as an Android service that can be turned on over ADB, but in the meantime you can use it a bit like you might use `import ipdb; ipdb.set_trace()` to get an interactive shell at a particular context in your code, as follows:
+
+- Drop `import remoteshell` at the spot you want to have the shell get dropped in, and build/run the app.
+- Connect the device over ADB, e.g. via USB.
+- Run `adb forward tcp:4242 tcp:4242` (needs to be re-run if you disconnect and reconnect the device)
+- Run `ssh -p 4242 localhost`
+- If the device isn’t provisioned, any username/password will be accepted. Otherwise, use the admin credentials.
+- If you get an error about “ssh-rsa”, you can put the following SSH config in:
+```
+Host kolibri-android
+    HostName localhost
+    Port 4242
+    PubkeyAcceptedAlgorithms +ssh-rsa
+    HostkeyAlgorithms +ssh-rsa
+```
+Then, you should be able to just do “ssh kolibri-android”
