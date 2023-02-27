@@ -77,7 +77,10 @@
           <h2>{{ $tr('deviceManagementPin') }}</h2>
 
           <p>{{ $tr('deviceManagementDescription') }}</p>
-          <KButton v-show="!isPinSet" @click="handleCreatePin">
+          <KButton
+            v-show="!isPinSet"
+            @click="handleCreatePin"
+          >
             {{ $tr('createPinBtn') }}
           </KButton>
 
@@ -104,9 +107,7 @@
             borderTopColor: $themeTokens.fineLine
           }"
         >
-          <KButtonGroup
-            :style="{ marginTop: '24px', marginLeft: '-8px' }"
-          >
+          <KButtonGroup :style="{ marginTop: '24px', marginLeft: '-8px' }">
             <KButton
               :primary="true"
               appearance="raised-button"
@@ -315,6 +316,7 @@
     },
     methods: {
       camelCase,
+      ...mapActions('facilityConfig', ['saveFacilityName']),
       ...mapActions(['createSnackbar']),
       updateSettingValue(settingName, newValue) {
         this.$store.commit('facilityConfig/CONFIG_PAGE_MODIFY_SETTING', {
