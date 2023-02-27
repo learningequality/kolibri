@@ -49,7 +49,7 @@
             class="k-select next-k-select-2"
           >
             <KSelect
-              v-model="selectedT"
+              v-model="selectedTime"
               class="selector"
               :style="selectorStyle"
               :options="SyncTime"
@@ -173,6 +173,8 @@
         now: now(),
         selectedItem: '',
         tasks: [],
+        selectedDay: null,
+        selectedTime: null,
       };
     },
     computed: {
@@ -197,7 +199,6 @@
       },
       selectArray() {
         return [
-          { label: this.$tr('neverSync'), value: 3600 },
           { label: this.$tr('everyHour'), value: 3600 },
           { label: this.$tr('everyDay'), value: 86400 },
           { label: this.$tr('everyWeek'), value: 86400 },
@@ -219,33 +220,18 @@
         }
         return daysOfWeek;
       },
-      // Time increments by 30 minutes  Changes to 12 hour
-      // - 24 hour according to locale/device setting
+
       SyncTime() {
-        let startTime = new Date();
-        startTime.setHours(0, 0, 0, 0);
-        let endTime = new Date();
+        const endTime = new Date();
         endTime.setHours(24, 0, 0, 0);
-        let interval = 30;
+        const interval = 30;
 
-        let times = [];
-        let time = startTime;
+        const times = [];
+        const time = new Date();
+        time.setHours(0, 0, 0, 0);
 
-        while (time <= endTime) {
-          let hours = time.getHours();
-          let minutes = time.getMinutes();
-
-          let formattedHours = hours < 10 ? '0' + hours : hours;
-          let formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
-
-          let amPm = hours < 12 ? 'AM' : 'PM';
-          if (hours == 0) {
-            formattedHours = 12;
-          } else if (hours > 12) {
-            formattedHours = formattedHours - 12;
-          }
-
-          times.push(formattedHours + ':' + formattedMinutes + ' ' + amPm);
+        while (time < endTime) {
+          times.push(this.$formatTime(time));
 
           time.setMinutes(time.getMinutes() + interval);
         }
@@ -306,8 +292,7 @@
         NetworkLocationResource.fetchModel({ id: this.$route.query.id }).then(device => {
           this.device = device;
           TaskResource.list({ queue: 'facility_task' }).then(tasks => {
-            this.tasks = tasks.filter((device.extra_metadata.device_id = this.id));
-            console.log(this.tasks);
+            this.tasks = tasks.filter(device.extra_metadata.device_id === this.id);
           });
         });
       },
@@ -368,10 +353,6 @@
       everyTwoWeeks: {
         message: 'Every Two Weeks',
         context: 'Period for scheduling the sync between devices every two weeks',
-      },
-      neverSync: {
-        message: 'Never',
-        context: 'Never schedule the sync between devices',
       },
       removeText: {
         message: 'Remove',
