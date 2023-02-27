@@ -106,7 +106,7 @@ then run the previous command again
 
 ### Restart your shell
 
-* For the `PATH` changes to take effect, run the following command.
+For the `PATH` changes to take effect, run the following command.
 
 ```sh
 exec "$SHELL"
@@ -114,7 +114,7 @@ exec "$SHELL"
 
 This will give no visual indicator, but the `pyenv` command should now work in the terminal.
 
-* For Windows, you can check if pyenv is installed correctly, type:
+To check if pyenv is installed correctly, type:
 
   `pyenv version`
 
