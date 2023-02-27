@@ -19,53 +19,114 @@ const nStrings = createTranslator('NotificationStrings', {
   // started
   individualStarted: {
     message: `{learnerName} started '{itemName}'`,
-    context: 'Indicates that a learner has started a lesson.',
+    context: 'Indicates that a learner has started a lesson or resource.',
+  },
+  individualStartedMissing: {
+    message: `{learnerName} started a resource in this lesson`,
+    context: 'Indicates that a learner has started a resource but the title cannot be displayed.',
   },
   multipleStarted: {
     message: `{learnerName} and {numOthers, number} {numOthers, plural, one {other} other {others}} started '{itemName}'`,
-    context: 'Indicates the learner name and how many other learners started a specific exercise.',
+    context:
+      'Indicates the learner name and how many other learners started a specific lesson or resource.',
+  },
+  multipleStartedMissing: {
+    message: `{learnerName} and {numOthers, number} {numOthers, plural, one {other} other {others}} started a resource in this lesson`,
+    context:
+      'Indicates the learner name and how many other learners started a resource but the title cannot be displayed.',
   },
   wholeClassStarted: {
     message: `Everyone started '{itemName}'`,
-    context: 'Indicates that every learner in the class started an activity.',
+    context: 'Indicates that every learner in the class started a lesson or resource.',
+  },
+  wholeClassStartedMissing: {
+    message: `Everyone started a resource in this lesson`,
+    context:
+      'Indicates that every learner in the class started a resource but the title cannot be displayed.',
   },
   wholeGroupStarted: {
     message: `Everyone in '{groupName}' started '{itemName}'`,
-    context: 'Indicates that all the learners in a specific group started a lesson.',
+    context: 'Indicates that all the learners in a specific group started a lesson or resource.',
+  },
+  wholeGroupStartedMissing: {
+    message: `Everyone in '{groupName}' started a resource in this lesson`,
+    context:
+      'Indicates that all the learners in a specific group started a resource but the title cannot be displayed.',
   },
   everyoneStarted: {
     message: `Everyone started '{itemName}'`,
-    context: 'Indicates that every learner in the group or class started an activity.',
+    context: 'Indicates that every learner in the group or class started a lesson or resource.',
+  },
+  everyoneStartedMissing: {
+    message: `Everyone started a resource in this lesson`,
+    context:
+      'Indicates that every learner in the group or class started a resource but the title cannot be displayed.',
   },
 
   // completed
   individualCompleted: {
     message: `{learnerName} completed '{itemName}'`,
-    context: 'Indicates that a learner has completed an exercise.',
+    context: 'Indicates that a learner has completed a lesson or resource.',
+  },
+  individualCompletedMissing: {
+    message: `{learnerName} completed a resource in this lesson`,
+    context: 'Indicates that a learner has completed a resource but the title cannot be displayed.',
   },
   multipleCompleted: {
     message: `{learnerName} and {numOthers, number} {numOthers, plural, one {other} other {others}} completed '{itemName}'`,
-    context: 'Indicates a learner and one other or others have completed an exercise.',
+    context: 'Indicates a learner and one other or others have completed a lesson or resource.',
+  },
+  multipleCompletedMissing: {
+    message: `{learnerName} and {numOthers, number} {numOthers, plural, one {other} other {others}} completed a resource in this lesson`,
+    context:
+      'Indicates a learner and one other or others have completed a resource but the title cannot be displayed.',
   },
   wholeClassCompleted: {
     message: `Everyone completed '{itemName}'`,
-    context: 'Indicates that every learner in the class completed an activity.',
+    context: 'Indicates that every learner in the class completed a lesson or resource.',
+  },
+  wholeClassCompletedMissing: {
+    message: `Everyone completed a resource in this lesson`,
+    context:
+      'Indicates that every learner in the class completed a resource but the title cannot be displayed.',
   },
   wholeGroupCompleted: {
     message: `Everyone in '{groupName}' completed '{itemName}'`,
-    context: 'Indicates that all the learners in a specific group completed a lesson.',
+    context: 'Indicates that all the learners in a specific group completed a lesson or resource.',
+  },
+  wholeGroupCompletedMissing: {
+    message: `Everyone in '{groupName}' completed a resource in this lesson`,
+    context:
+      'Indicates that all the learners in a specific group completed a resource but the title cannot be displayed.',
   },
   everyoneCompleted: {
     message: `Everyone completed '{itemName}'`,
-    context: 'Indicates that every learner in the group or class completed an activity.',
+    context: 'Indicates that every learner in the group or class completed a lesson or resource.',
+  },
+  everyoneCompletedMissing: {
+    message: `Everyone completed a resource in this lesson`,
+    context:
+      'Indicates that every learner in the group or class completed a resource but the title cannot be displayed.',
   },
 
   // needs help
   individualNeedsHelp: {
     message: `{learnerName} needs help with '{itemName}'`,
-    context: 'Indicates that a learner needs help with a specific lesson.',
+    context: 'Indicates that a learner needs help with a specific exercise.',
   },
-  multipleNeedHelp: `{learnerName} and {numOthers, number} {numOthers, plural, one {other} other {others}} need help with '{itemName}'`,
+  individualNeedsHelpMissing: {
+    message: `{learnerName} needs help with a resource in this lesson`,
+    context: 'Indicates that a learner needs help a resource but the title cannot be displayed.',
+  },
+  multipleNeedHelp: {
+    message: `{learnerName} and {numOthers, number} {numOthers, plural, one {other} other {others}} need help with '{itemName}'`,
+    context: 'Indicates a learner and one other or others need help with a specific exercise.',
+  },
+  multipleNeedHelpMissing: {
+    message: `{learnerName} and {numOthers, number} {numOthers, plural, one {other} other {others}} need help with a resource in this lesson`,
+    context:
+      'Indicates a learner and one other or others need help a resource but the title cannot be displayed.',
+  },
 });
 
 const nStringsMixin = {
@@ -82,7 +143,7 @@ const nStringsMixin = {
 function cardTextForNotification(notification) {
   const { collection, resource, learnerSummary, object, event } = notification;
   let stringType;
-  let stringDetails = {
+  const stringDetails = {
     learnerName: learnerSummary.firstUserName,
   };
 
@@ -125,6 +186,10 @@ function cardTextForNotification(notification) {
       stringType = 'multipleNeedHelp';
       stringDetails.numOthers = learnerSummary.total - 1;
     }
+  }
+
+  if (object === RESOURCE && !resource.type.length) {
+    stringType += 'Missing';
   }
 
   return nStrings.$tr(stringType, stringDetails);

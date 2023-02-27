@@ -24,8 +24,6 @@
     inject: ['wizardService'],
     methods: {
       handleSubmit() {
-        const currentLanguageId = this.$store.state.onboardingData.language_id;
-        this.$store.commit('SET_LANGUAGE', currentLanguageId);
         this.wizardService.send('CONTINUE');
       },
     },

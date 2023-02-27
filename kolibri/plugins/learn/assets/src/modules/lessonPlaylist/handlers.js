@@ -12,27 +12,22 @@ export function showLessonPlaylist(store, { lessonId }) {
     if (store.getters.isUserLoggedIn) {
       fetchContentNodeProgress({ lesson: lessonId });
     }
+    const contentNodePromise = ContentNodeResource.fetchLessonResources(lessonId);
     return LearnerLessonResource.fetchModel({ id: lessonId })
       .then(lesson => {
         store.commit('SET_PAGE_NAME', ClassesPageNames.LESSON_PLAYLIST);
         store.commit('lessonPlaylist/SET_CURRENT_LESSON', lesson);
         if (lesson.resources.length) {
-          return ContentNodeResource.fetchCollection({
-            getParams: {
-              ids: lesson.resources.map(resource => resource.contentnode_id),
-            },
-          });
+          return contentNodePromise;
         }
         return Promise.resolve([]);
       })
       .then(contentNodes => {
-        const sortedContentNodes = contentNodes.sort((a, b) => {
-          const lesson = store.state.lessonPlaylist.currentLesson;
-          const aKey = lesson.resources.findIndex(resource => resource.contentnode_id === a.id);
-          const bKey = lesson.resources.findIndex(resource => resource.contentnode_id === b.id);
-          return aKey - bKey;
-        });
-        store.commit('lessonPlaylist/SET_LESSON_CONTENTNODES', sortedContentNodes);
+        const contentNodesMap = {};
+        for (const node of contentNodes) {
+          contentNodesMap[node.id] = node;
+        }
+        store.commit('lessonPlaylist/SET_LESSON_CONTENTNODES', contentNodesMap);
         store.dispatch('notLoading');
       })
       .catch(error => {

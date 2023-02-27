@@ -15,6 +15,13 @@
           @click="$emit('goToQuestion', index)"
         >
           <KIcon
+            v-if="question.missing"
+            class="dot"
+            icon="warning"
+            :color="$themePalette.orange.v_400"
+          />
+          <KIcon
+            v-else
             class="dot"
             icon="notStarted"
             :color="isAnswered(question) ? $themeTokens.progress : $themeTokens.textDisabled"

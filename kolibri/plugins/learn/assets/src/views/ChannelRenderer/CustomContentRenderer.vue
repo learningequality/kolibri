@@ -263,8 +263,8 @@
       },
 
       navigateTo(message) {
-        let id = message.nodeId;
-        let context = {};
+        const id = message.nodeId;
+        const context = {};
         return ContentNodeResource.fetchModel({ id })
           .then(contentNode => {
             if (contentNode && contentNode.kind === 'topic') {

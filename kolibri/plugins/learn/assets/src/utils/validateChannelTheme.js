@@ -16,7 +16,7 @@ export function validateChannelTheme(theme) {
   const updatedTheme = {
     ...defaultTheme,
   };
-  for (let key in theme) {
+  for (const key in theme) {
     const color = theme[key];
     if (!color) {
       continue;

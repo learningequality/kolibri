@@ -23,12 +23,15 @@
           </td>
           <td>
             <StatusSummary
+              v-if="tableRow.tally"
               :tally="tableRow.tally"
               :verbose="true"
             />
+            <KEmptyPlaceholder v-else />
           </td>
           <td>
-            <TimeDuration :seconds="tableRow.avgTimeSpent" />
+            <TimeDuration v-if="tableRow.tally" :seconds="tableRow.avgTimeSpent" />
+            <KEmptyPlaceholder v-else />
           </td>
         </tr>
       </transition-group>

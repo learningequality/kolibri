@@ -137,7 +137,7 @@ export function summarizedNotifications(state, getters, rootState, rootGetters) 
     }
   );
 
-  for (let groupCode in groupedNotifications) {
+  for (const groupCode in groupedNotifications) {
     // Filter out all bust the most recent event for each user
     const allEvents = sortedUniqBy(groupedNotifications[groupCode], 'user_id');
 
@@ -145,12 +145,12 @@ export function summarizedNotifications(state, getters, rootState, rootGetters) 
 
     // Iterate through each of the assignee collections and create one
     // summarizing notification for each event type in the collection.
-    for (let collIdx in eventsByCollection) {
+    for (const collIdx in eventsByCollection) {
       const collectionEvents = eventsByCollection[collIdx];
 
       const eventTypeEvents = groupBy(collectionEvents, 'event');
 
-      for (let eventType in eventTypeEvents) {
+      for (const eventType in eventTypeEvents) {
         const orderedEvents = eventTypeEvents[eventType];
 
         const firstEvent = orderedEvents.slice(-1)[0];

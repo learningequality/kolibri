@@ -38,7 +38,7 @@ class WebpackRTLPlugin {
           additionalAssets: true,
         },
         assets => {
-          for (let asset in assets) {
+          for (const asset in assets) {
             if (asset.endsWith('.css') && !asset.endsWith('.rtl.css')) {
               const baseSource = assets[asset].source();
               const rtlSource = rtlcss.process(

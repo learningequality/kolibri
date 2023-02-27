@@ -126,6 +126,8 @@
         :nextContent="nextContent"
         :isLesson="lessonContext"
         :loading="resourcesSidePanelLoading"
+        :currentResourceID="currentResourceID"
+        :missingLessonResources="missingLessonResources"
       />
     </SidePanelModal>
 
@@ -245,6 +247,7 @@
         resourcesSidePanelFetched: false,
         resourcesSidePanelLoading: false,
         contentPageMounted: false,
+        lesson: null,
       };
     },
     computed: {
@@ -296,6 +299,12 @@
       },
       timeSpent() {
         return this.contentPageMounted ? this.$refs.contentPage.time_spent : 0;
+      },
+      currentResourceID() {
+        return this.content ? this.content.content_id : '';
+      },
+      missingLessonResources() {
+        return this.lesson && this.lesson.resources.some(c => !c.contentnode);
       },
     },
     watch: {
@@ -367,10 +376,11 @@
         // Get the lesson and then assign its resources to this.viewResourcesContents
         // fetchLesson also handles fetching the progress data for this lesson and
         // the content node data for the resources
-        this.fetchLesson({ lessonId: this.lessonId }).then(lesson => {
+        return this.fetchLesson({ lessonId: this.lessonId }).then(lesson => {
           // Filter out this.content
+          this.lesson = lesson;
           this.viewResourcesContents = lesson.resources
-            .filter(n => n.contentnode && n.contentnode_id !== this.content.id)
+            .filter(n => n.contentnode)
             .map(n => n.contentnode);
         });
       },
@@ -422,10 +432,7 @@
             nextContents = ancestor.children.results.slice(contentIndex + 1);
           }
           this.nextContent = nextContents.find(c => c.kind === ContentNodeKinds.TOPIC) || null;
-          // Filter out this.content
-          this.viewResourcesContents = parent.children.results.filter(
-            n => n.id !== this.content.id
-          );
+          this.viewResourcesContents = parent.children.results.filter(n => n.id);
         });
       },
       navigateBack() {
@@ -533,6 +540,8 @@
   }
 
   .also-in-this-side-panel {
+    overflow: hidden;
+
     /deep/ .side-panel {
       padding-bottom: 0;
     }

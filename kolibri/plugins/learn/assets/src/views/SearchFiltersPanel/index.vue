@@ -70,7 +70,7 @@
           class="category-list-item"
         >
           <KButton
-            :text="coreString('None of the above')"
+            :text="coreString('uncategorized')"
             appearance="flat-button"
             :appearanceOverrides="isKeyActive('no_categories')
               ? { ...categoryListItemStyles, ...categoryListItemActiveStyles }
@@ -236,7 +236,7 @@
       availableRootCategories() {
         if (this.searchableLabels) {
           const roots = {};
-          for (let key of this.searchableLabels.categories) {
+          for (const key of this.searchableLabels.categories) {
             const root = key.split('.')[0];
             roots[root] = true;
           }
@@ -247,7 +247,7 @@
       availableNeeds() {
         if (this.searchableLabels) {
           const needs = {};
-          for (let key of this.searchableLabels.learner_needs) {
+          for (const key of this.searchableLabels.learner_needs) {
             const root = key.split('.')[0];
             needs[root] = true;
             needs[key] = true;
@@ -286,7 +286,7 @@
       handleNeed(need) {
         if (this.value.learner_needs[need]) {
           const learner_needs = {};
-          for (let n in this.value.learner_needs) {
+          for (const n in this.value.learner_needs) {
             if (n !== need) {
               learner_needs[n] = true;
             }

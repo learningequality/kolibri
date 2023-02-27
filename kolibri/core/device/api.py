@@ -46,6 +46,7 @@ from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.channels import get_mounted_drives_with_channel_info
 from kolibri.core.device.permissions import IsNotAnonymous
 from kolibri.core.device.permissions import IsSuperuser
+from kolibri.core.device.utils import APP_KEY_COOKIE_NAME
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.discovery.models import DynamicNetworkLocation
 from kolibri.core.public.constants.user_sync_options import DELAYED_SYNC
@@ -60,6 +61,7 @@ from kolibri.core.utils.urls import reverse_remote
 from kolibri.plugins.utils import initialize_kolibri_plugin
 from kolibri.plugins.utils import iterate_plugins
 from kolibri.plugins.utils import PluginDoesNotExist
+from kolibri.utils.android import on_android
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.filesystem import check_is_directory
 from kolibri.utils.filesystem import get_path_permission
@@ -90,7 +92,11 @@ class DeviceProvisionView(viewsets.GenericViewSet):
         if data["superuser"]:
             login(request, data["superuser"])
         output_serializer = self.get_serializer(data)
-        return Response(output_serializer.data, status=status.HTTP_201_CREATED)
+        response_data = output_serializer.data
+        if APP_KEY_COOKIE_NAME in request.COOKIES:
+            app_key = request.COOKIES[APP_KEY_COOKIE_NAME]
+            response_data["app_key"] = app_key
+        return Response(response_data, status=status.HTTP_201_CREATED)
 
 
 class FreeSpaceView(mixins.ListModelMixin, viewsets.GenericViewSet):
@@ -146,7 +152,7 @@ class DeviceInfoView(views.APIView):
         instance_model = InstanceIDModel.get_or_create_current_instance()[0]
 
         info["device_id"] = instance_model.id
-        info["os"] = instance_model.platform
+        info["os"] = "Android" if on_android() else instance_model.platform
 
         info["content_storage_free_space"] = get_free_space(
             OPTIONS["Paths"]["CONTENT_DIR"]

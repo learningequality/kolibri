@@ -60,8 +60,8 @@
     },
     computed: {
       splitLanguageOptions() {
-        let secondCol = this.languageOptions;
-        let firstCol = secondCol.splice(0, Math.ceil(secondCol.length / 2));
+        const secondCol = this.languageOptions;
+        const firstCol = secondCol.splice(0, Math.ceil(secondCol.length / 2));
 
         return [firstCol, secondCol];
       },

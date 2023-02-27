@@ -23,7 +23,7 @@
     computed: {
       ...mapGetters(['canManageContent', 'isSuperuser']),
       links() {
-        let list = [];
+        const list = [];
         if (this.canManageContent) {
           list.push({
             title: this.coreString('channelsLabel'),

@@ -10,7 +10,7 @@ import plugin_data from 'plugin_data';
 const langArray = plugin_data.languages ? plugin_data.languages : [];
 const langMap = {};
 
-for (let lang of langArray) {
+for (const lang of langArray) {
   langMap[lang.id] = lang;
 }
 

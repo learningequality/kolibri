@@ -30,6 +30,7 @@
         </div>
       </template>
     </HeaderWithOptions>
+    <MissingResourceAlert v-if="resource.missing_resource" />
 
   </KPageContainer>
 
@@ -39,6 +40,7 @@
 <script>
 
   import { mapState } from 'vuex';
+  import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert';
   import HeaderWithOptions from './HeaderWithOptions';
   import StatusElapsedTime from './StatusElapsedTime';
   import BackLink from './BackLink';
@@ -47,6 +49,7 @@
     name: 'QuizLessonDetailsHeader',
     components: {
       HeaderWithOptions,
+      MissingResourceAlert,
       StatusElapsedTime,
       BackLink,
     },

@@ -36,6 +36,13 @@ initialize()
 # start kolibri server
 logging.info("Starting kolibri server.")
 
+
+def os_user(auth_token):
+    return ("os_user", True)
+
+
+interface.register(get_os_user=os_user)
+
 kolibri_bus = KolibriProcessBus(port=8000)
 app_plugin = AppPlugin(kolibri_bus)
 app_plugin.subscribe()

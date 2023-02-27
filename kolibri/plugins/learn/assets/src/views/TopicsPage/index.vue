@@ -70,6 +70,7 @@
                 :key="t.id"
                 :topic="t"
                 :subTopicLoading="t.id === subTopicLoading"
+                :allowDownloads="allowDownloads"
                 @showMore="handleShowMore"
                 @loadMoreInSubtopic="handleLoadMoreInSubtopic"
                 @toggleInfoPanel="toggleInfoPanel"
@@ -81,6 +82,7 @@
             <LibraryAndChannelBrowserMainContent
               v-if="resources.length"
               :gridType="2"
+              :allowDownloads="allowDownloads"
               data-test="search-results"
               :contents="resourcesDisplayed"
               :numCols="numCols"
@@ -113,6 +115,7 @@
           <SearchResultsGrid
             v-else
             data-test="search-results"
+            :allowDownloads="allowDownloads"
             :currentCardViewStyle="currentSearchCardViewStyle"
             :hideCardViewToggle="true"
             :results="results"
@@ -355,6 +358,10 @@
         type: Boolean,
         default: null,
       },
+      deviceId: {
+        type: String,
+        default: null,
+      },
     },
     data: function() {
       return {
@@ -374,6 +381,9 @@
     },
     computed: {
       ...mapState('topicsTree', ['channel', 'contents', 'isRoot', 'topic']),
+      allowDownloads() {
+        return Boolean(this.deviceId);
+      },
       childrenToDisplay() {
         return Math.max(this.numCols, 3);
       },
@@ -460,7 +470,7 @@
           .filter(t => (this.subTopicId ? t.id === this.subTopicId : true))
           .map(t => {
             let childrenToDisplay;
-            let topicChildren = t.children ? t.children.results : [];
+            const topicChildren = t.children ? t.children.results : [];
             if (this.subTopicId || this.topics.length === 1) {
               // If we are in a subtopic display, we should only be displaying this topic
               // so don't bother checking if the ids match.

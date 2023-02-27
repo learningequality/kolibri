@@ -43,7 +43,7 @@ exports.addAliases = function(aliases) {
 };
 
 exports.resetAliases = function() {
-  for (let key in moduleAliases) {
+  for (const key in moduleAliases) {
     delete moduleAliases[key];
   }
 };

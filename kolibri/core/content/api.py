@@ -171,10 +171,12 @@ class RemoteMixin(object):
 
 
 class RemoteViewSet(ReadOnlyValuesViewset, RemoteMixin):
-    def retrieve(self, request, *args, **kwargs):
+    def retrieve(self, request, pk=None):
+        if pk is None:
+            raise Http404
         if self._should_proxy_request(request):
             return self._hande_proxied_request(request)
-        return super(RemoteViewSet, self).retrieve(request, *args, **kwargs)
+        return super(RemoteViewSet, self).retrieve(request, pk=pk)
 
     def list(self, request, *args, **kwargs):
         if self._should_proxy_request(request):
@@ -509,6 +511,7 @@ class BaseContentNodeMixin(object):
     """
     A base mixin for viewsets that need to return the same format of data
     serialization for ContentNodes.
+    Also used for public ContentNode endpoints!
     """
 
     filter_backends = (DjangoFilterBackend,)
@@ -553,6 +556,8 @@ class BaseContentNodeMixin(object):
     }
 
     def get_queryset(self):
+        if self.request.GET.get("no_available_filtering", False):
+            return models.ContentNode.objects.all()
         return models.ContentNode.objects.filter(available=True)
 
     def get_related_data_maps(self, items, queryset):
@@ -649,6 +654,19 @@ class BaseContentNodeMixin(object):
                 output.append(item)
         return output
 
+
+class InternalContentNodeMixin(BaseContentNodeMixin):
+    """
+    A mixin for all content node viewsets for internal use, whereas BaseContentNodeMixin is reused
+    for public API endpoints also.
+    """
+
+    values = BaseContentNodeMixin.values + ("admin_imported",)
+
+    field_map = BaseContentNodeMixin.field_map.copy()
+
+    field_map["admin_imported"] = lambda x: bool(x["admin_imported"])
+
     def update_data(self, response_data, baseurl):
         if type(response_data) is dict:
             if "more" in response_data and "results" in response_data:
@@ -663,6 +681,9 @@ class BaseContentNodeMixin(object):
                 )
             else:
                 response_data = self.add_base_url_to_node(response_data, baseurl)
+                response_data["admin_imported"] = (
+                    response_data["id"] in self.locally_admin_imported_ids
+                )
                 if "children" in response_data:
                     response_data["children"] = self.update_data(
                         response_data["children"], baseurl
@@ -729,8 +750,31 @@ class OptionalContentNodePagination(OptionalPagination):
 
 
 @method_decorator(metadata_cache, name="dispatch")
-class ContentNodeViewset(BaseContentNodeMixin, RemoteViewSet):
+class ContentNodeViewset(InternalContentNodeMixin, RemoteMixin, ReadOnlyValuesViewset):
     pagination_class = OptionalContentNodePagination
+
+    def retrieve(self, request, pk=None):
+        if pk is None:
+            raise Http404
+        if self._should_proxy_request(request):
+            if self.get_queryset().filter(admin_imported=True, pk=pk).exists():
+                # Used in the update method for remote request retrieval
+                self.locally_admin_imported_ids = set([pk])
+            else:
+                # Used in the update method for remote request retrieval
+                self.locally_admin_imported_ids = set()
+            return self._hande_proxied_request(request)
+        return super(ContentNodeViewset, self).retrieve(request, pk=pk)
+
+    def list(self, request, *args, **kwargs):
+        if self._should_proxy_request(request):
+            queryset, _ = self._get_list_queryset()
+            # Used in the update method for remote request retrieval
+            self.locally_admin_imported_ids = set(
+                queryset.filter(admin_imported=True).values_list("id", flat=True)
+            )
+            return self._hande_proxied_request(request)
+        return super(ContentNodeViewset, self).list(request, *args, **kwargs)
 
     @action(detail=False)
     def random(self, request, **kwargs):
@@ -945,7 +989,7 @@ class TreeQueryMixin(object):
 
 
 class BaseContentNodeTreeViewset(
-    BaseContentNodeMixin, TreeQueryMixin, BaseValuesViewset
+    InternalContentNodeMixin, TreeQueryMixin, BaseValuesViewset
 ):
     def retrieve(self, request, pk=None):
         """
@@ -1045,10 +1089,21 @@ class BaseContentNodeTreeViewset(
 
 @method_decorator(metadata_cache, name="dispatch")
 class ContentNodeTreeViewset(BaseContentNodeTreeViewset, RemoteMixin):
-    def retrieve(self, request, *args, **kwargs):
+    def retrieve(self, request, pk=None):
+        if pk is None:
+            raise Http404
         if self._should_proxy_request(request):
+            try:
+                queryset = self.get_tree_queryset(request, pk)
+                # Used in the update method for remote request retrieval
+                self.locally_admin_imported_ids = set(
+                    queryset.filter(admin_imported=True).values_list("id", flat=True)
+                )
+            except Http404:
+                # Used in the update method for remote request retrieval
+                self.locally_admin_imported_ids = set()
             return self._hande_proxied_request(request)
-        return super(ContentNodeTreeViewset, self).retrieve(request, *args, **kwargs)
+        return super(ContentNodeTreeViewset, self).retrieve(request, pk=pk)
 
 
 # return the result of and-ing a list of queries
@@ -1214,7 +1269,7 @@ class BookmarkFilter(FilterSet):
 
 
 class ContentNodeBookmarksViewset(
-    BaseContentNodeMixin, BaseValuesViewset, ListModelMixin
+    InternalContentNodeMixin, BaseValuesViewset, ListModelMixin
 ):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (
@@ -1319,7 +1374,10 @@ class UserContentNodeFilter(ContentNodeFilter):
 
     def filter_by_lesson(self, queryset, name, value):
         try:
-            lesson = Lesson.objects.get(pk=value)
+            lesson = Lesson.objects.filter(
+                lesson_assignments__collection__membership__user=self.request.user,
+                is_active=True,
+            ).get(pk=value)
             node_ids = list(map(lambda x: x["contentnode_id"], lesson.resources))
             return queryset.filter(pk__in=node_ids)
         except Lesson.DoesNotExist:
@@ -1437,7 +1495,9 @@ class UserContentNodeFilter(ContentNodeFilter):
         fields = contentnode_filter_fields + ["resume", "lesson"]
 
 
-class UserContentNodeViewset(BaseContentNodeMixin, BaseValuesViewset, ListModelMixin):
+class UserContentNodeViewset(
+    InternalContentNodeMixin, BaseValuesViewset, ListModelMixin
+):
     """
     A content node viewset for filtering on user specific fields.
     """

@@ -220,7 +220,7 @@ class TextLayerBuilder {
 
       // Modified: Refactor simplified code for deleting PDFJS Dev global variables references
       // Original line: 178
-      let adjustTop =
+      const adjustTop =
         evt.target !== div &&
         window.getComputedStyle(end).getPropertyValue('-moz-user-select') !== 'none';
       if (adjustTop) {

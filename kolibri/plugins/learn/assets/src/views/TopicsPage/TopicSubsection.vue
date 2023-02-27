@@ -33,6 +33,7 @@
       v-if="topic.children && topic.children.length"
       data-test="children-cards-grid"
       :contents="topic.children"
+      :allowDownloads="allowDownloads"
       currentCardViewStyle="card"
       :gridType="2"
       :keepCurrentBackLink="true"
@@ -80,6 +81,10 @@
       return { genContentLinkKeepCurrentBackLink };
     },
     props: {
+      allowDownloads: {
+        type: Boolean,
+        default: false,
+      },
       topic: {
         type: Object,
         required: true,

@@ -27,6 +27,7 @@ export function setItemStats(store, { classId, exerciseId, quizId, lessonId, gro
     resource = practiceQuiz ? PracticeQuizDifficulties : ExerciseDifficulties;
     itemPromise = ContentNodeResource.fetchModel({
       id: store.rootState.classSummary.contentMap[pk].node_id,
+      getParams: { no_available_filtering: true },
     });
   }
 

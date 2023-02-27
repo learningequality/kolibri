@@ -49,25 +49,31 @@
       FacilityTaskPanel,
       OnboardingStepBase,
     },
+    inject: ['wizardService'],
     mixins: [commonCoreStrings],
-    props: {
-      facility: {
-        type: Object,
-        required: true,
-      },
-    },
     data() {
       return {
-        loadingTask: {},
+        loadingTask: { status: '' },
         isPolling: false,
       };
     },
     computed: {
+      facility() {
+        return this.wizardService._state.context.selectedFacility;
+      },
       header() {
         return this.$tr('importFacilityTitle');
       },
       facilityName() {
         return this.facility.name;
+      },
+    },
+    watch: {
+      // Mitigate chance of getting stuck after the task has completed
+      loadingTask(newVal) {
+        if (newVal.status === undefined) {
+          this.handleClickContinue();
+        }
       },
     },
     beforeMount() {
@@ -110,7 +116,7 @@
       handleClickContinue() {
         this.isPolling = false;
         this.clearTasks();
-        this.$emit('click_next');
+        this.wizardService.send('CONTINUE');
       },
     },
     $trs: {

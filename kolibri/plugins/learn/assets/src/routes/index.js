@@ -38,7 +38,7 @@ function hydrateHomePage() {
       response.data.resumable_resources.results || [],
       response.data.resumable_resources.more || null
     );
-    for (let progress of response.data.resumable_resources_progress) {
+    for (const progress of response.data.resumable_resources_progress) {
       setContentNodeProgress(progress);
     }
   });
@@ -107,6 +107,7 @@ export default [
       showLibrary(store, to.query, to.params.deviceId);
     },
     component: LibraryPage,
+    props: true,
   },
   {
     name: PageNames.CONTENT_UNAVAILABLE,
@@ -159,6 +160,7 @@ export default [
       });
     },
     component: TopicsPage,
+    props: true,
   },
   {
     name: PageNames.TOPICS_TOPIC,
@@ -180,6 +182,7 @@ export default [
       });
     },
     component: TopicsPage,
+    props: true,
   },
   {
     name: PageNames.TOPICS_CONTENT,
@@ -188,6 +191,7 @@ export default [
       showTopicsContent(store, toRoute.params.id, toRoute.params.deviceId);
     },
     component: TopicsContentPage,
+    props: true,
   },
   {
     name: PageNames.BOOKMARKS,

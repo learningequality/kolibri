@@ -6,6 +6,7 @@ import { PageNames } from '../../constants';
 import useChannels from '../../composables/useChannels';
 import { setCurrentDevice } from '../../composables/useDevices';
 import useContentNodeProgress from '../../composables/useContentNodeProgress';
+import useDownloadRequests from '../../composables/useDownloadRequests';
 
 const { channelsMap, fetchChannels } = useChannels();
 const { fetchContentNodeTreeProgress } = useContentNodeProgress();
@@ -143,6 +144,8 @@ export function showTopicsTopic(store, { id, pageName, query, deviceId = null } 
     if (deviceId) {
       return setCurrentDevice(deviceId).then(device => {
         const baseurl = device.base_url;
+        const { fetchUserDownloadRequests } = useDownloadRequests(store);
+        fetchUserDownloadRequests();
         return fetchChannels({ baseurl }).then(() => {
           return _loadTopicsTopic(store, { id, pageName, query, baseurl });
         });

@@ -1,6 +1,7 @@
 <template>
 
   <KPageContainer :topMargin="0">
+    <MissingResourceAlert v-if="!exercise.available" :multiple="false" />
     <ExamReport
       :contentId="exercise.content_id"
       :title="exercise.title"
@@ -24,6 +25,7 @@
 <script>
 
   import { mapGetters, mapState } from 'vuex';
+  import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ExamReport from 'kolibri.coreVue.components.ExamReport';
   import commonCoach from '../common';
@@ -31,6 +33,7 @@
   export default {
     name: 'LearnerExerciseReport',
     components: {
+      MissingResourceAlert,
       ExamReport,
     },
     mixins: [commonCoach, commonCoreStrings],

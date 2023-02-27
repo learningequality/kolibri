@@ -309,3 +309,19 @@ def metadata_annotation_update():
     for channel_id in ChannelMetadata.objects.values_list("id", flat=True):
         set_channel_ancestors(channel_id)
     ContentCacheKey.update_cache_key()
+
+
+# This was introduced in 0.16.0, so only annotate
+# when upgrading from versions prior to this.
+@version_upgrade(old_version="<0.16.0")
+def admin_imported_flag():
+    """
+    Function to set the admin_imported flag to True for any currently
+    available resources, as resources could only be imported by admins
+    until now!
+    """
+    ContentNode.objects.filter(available=True).exclude(kind=content_kinds.TOPIC).update(
+        admin_imported=True
+    )
+
+    ContentCacheKey.update_cache_key()

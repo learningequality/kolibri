@@ -526,7 +526,7 @@ class Schema {
   }
   clean(obj) {
     const output = {};
-    for (let key in this.spec) {
+    for (const key in this.spec) {
       const keySpec = this.spec[key];
       let required = keySpec.required;
       if (isFunction(required)) {

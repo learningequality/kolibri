@@ -49,7 +49,7 @@ xdescribe('SetupWizardIndex', () => {
     const { wrapper, store } = makeWrapper();
     // set superuser, since that's how name is derived
     store.commit('SET_FACILITY_PRESET', 'informal');
-    store.commit('SET_SUPERUSER_CREDENTIALS', {
+    store.commit('SET_USER_CREDENTIALS', {
       full_name: 'Fred Rogers',
       username: 'mr_rogers',
       password: 'password',
@@ -65,7 +65,7 @@ xdescribe('SetupWizardIndex', () => {
     const { wrapper, store } = makeWrapper();
     // set superuser, since that's how name is derived
     store.commit('SET_FACILITY_PRESET', 'formal');
-    store.commit('SET_SUPERUSER_CREDENTIALS', {
+    store.commit('SET_USER_CREDENTIALS', {
       full_name: 'Fred Rogers',
       username: 'mr_rogers',
       password: 'password',

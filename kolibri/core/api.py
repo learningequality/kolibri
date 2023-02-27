@@ -295,15 +295,19 @@ def _generate_request(request, query_params, method="GET"):
 
 
 class ListModelMixin(object):
-    def list(self, request, *args, **kwargs):
+    def _get_list_queryset(self):
         queryset = self.filter_queryset(self.get_queryset())
 
         page_queryset = self.paginate_queryset(queryset)
 
         if page_queryset is not None:
-            queryset = page_queryset
+            return page_queryset, True
+        return queryset, False
 
-        if page_queryset is not None:
+    def list(self, request, *args, **kwargs):
+        queryset, paginated = self._get_list_queryset()
+
+        if paginated:
             return self.get_paginated_response(self.serialize(queryset))
 
         return Response(self.serialize(queryset))
