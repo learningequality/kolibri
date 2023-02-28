@@ -1,11 +1,11 @@
 var pathToRegexp = require('path-to-regexp');
 
 export function generateNavRoute(rootUrl, pathReference, baseRoutes, params) {
-  let pathMap = {};
+  const pathMap = {};
   let compiledRoute;
   Object.keys(baseRoutes).forEach(key => {
-    let pathName = baseRoutes[key].name;
-    let pathRoute = baseRoutes[key].path;
+    const pathName = baseRoutes[key].name;
+    const pathRoute = baseRoutes[key].path;
     if (pathName) {
       pathMap[`${pathName}`] = pathRoute;
     }
