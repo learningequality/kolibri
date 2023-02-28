@@ -94,6 +94,12 @@ module.exports = function(locale) {
           resolve(() => require('intl/locale-data/jsonp/hi-IN.js'));
         });
       });
+    case 'ht':
+      return new Promise(function(resolve) {
+        require.ensure(['kolibri-tools/lib/i18n/locale-data/intl/ht.js'], function(require) {
+          resolve(() => require('kolibri-tools/lib/i18n/locale-data/intl/ht.js'));
+        });
+      });
     case 'id':
       return new Promise(function(resolve) {
         require.ensure(['intl/locale-data/jsonp/id.js'], function(require) {
