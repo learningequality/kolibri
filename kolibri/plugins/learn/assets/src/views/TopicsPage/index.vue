@@ -56,7 +56,7 @@
               icon="filter"
               class="overlay-toggle-button"
               data-test="filter-button"
-              :text="filterTranslator.$tr('filter')"
+              :text="coreString('filter')"
               :primary="false"
               @click="toggleFolderSearchSidePanel('search')"
             />
@@ -261,9 +261,7 @@
   import { computed, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import { throttle } from 'frame-throttle';
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import SidePanelModal from '../SidePanelModal';
@@ -277,7 +275,6 @@
   import CustomContentRenderer from '../ChannelRenderer/CustomContentRenderer';
   import CategorySearchModal from '../CategorySearchModal';
   import SearchResultsGrid from '../SearchResultsGrid';
-  import LibraryPage from '../LibraryPage';
   import TopicsHeader from './TopicsHeader';
   import ToggleHeaderTabs from './ToggleHeaderTabs';
   import TopicsMobileHeader from './TopicsMobileHeader';
@@ -598,8 +595,6 @@
       document.documentElement.style.position = '';
     },
     created() {
-      this.translator = crossComponentTranslator(LibraryPage);
-      this.filterTranslator = crossComponentTranslator(FilterTextbox);
       window.addEventListener('scroll', this.throttledHandleScroll);
       if (this.subTopicId) {
         this.handleLoadMoreInSubtopic(this.subTopicId);

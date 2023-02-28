@@ -18,7 +18,7 @@
       </span>
     </div>
     <KButton
-      :text="clearAllString()"
+      :text="coreString('clearAllAction')"
       appearance="basic-link"
       class="filter-action-button"
       @click="$emit('clearSearch')"
@@ -32,7 +32,6 @@
 
   import flatMap from 'lodash/flatMap';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import { NoCategories } from 'kolibri.coreVue.vuex.constants';
   import useChannels from '../composables/useChannels';
   import useLanguages from '../composables/useLanguages';
@@ -73,14 +72,7 @@
         });
       },
     },
-    created() {
-      const LibraryPageComponent = require('./LibraryPage').default;
-      this.translator = crossComponentTranslator(LibraryPageComponent);
-    },
     methods: {
-      clearAllString() {
-        return this.translator.$tr('clearAll'); // eslint-disable-line kolibri/vue-no-undefined-string-uses
-      },
       translate(key, value) {
         if (key === 'languages') {
           return this.languagesMap[value].lang_name;

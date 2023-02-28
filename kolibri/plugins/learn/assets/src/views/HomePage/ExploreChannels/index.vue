@@ -13,7 +13,7 @@
       <KFixedGridItem :span="1" alignment="right">
         <KRouterLink
           v-if="displayAllChannelsLink"
-          :text="crossComponentStrings.$tr('viewAll')"
+          :text="coreString('viewAll')"
           :to="allChannelsLink"
           data-test="viewAllLink"
         />
@@ -36,11 +36,10 @@
 
 <script>
 
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../../../constants';
   import CardGrid from '../../cards/CardGrid';
   import BaseChannelCard from '../../cards/BaseChannelCard';
-  import YourClasses from '../../YourClasses';
 
   export default {
     name: 'ExploreChannels',
@@ -48,6 +47,7 @@
       CardGrid,
       BaseChannelCard,
     },
+    mixins: [commonCoreStrings],
     props: {
       channels: {
         type: Array,
@@ -62,11 +62,6 @@
         required: false,
         default: false,
       },
-    },
-    data() {
-      return {
-        crossComponentStrings: { $tr: () => null },
-      };
     },
     computed: {
       visibleChannels() {
@@ -84,11 +79,6 @@
       allChannelsLink() {
         return { name: PageNames.LIBRARY };
       },
-    },
-    mounted() {
-      // `crossComponentTranslator` needs to be used because it's after string freeze
-      // TODO: Add 'View all' string into this component after 0.15 release
-      this.crossComponentStrings = crossComponentTranslator(YourClasses);
     },
     methods: {
       getChannelLink(channel) {
