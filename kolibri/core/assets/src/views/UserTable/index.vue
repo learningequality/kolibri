@@ -140,6 +140,7 @@
                 <KLabeledIcon
                   :icon="isCoach ? 'coach' : 'person'"
                   :label="user.full_name"
+                  :style="{ color: $themeTokens.text }"
                   data-test="fullName"
                 />
                 <UserTypeDisplay
@@ -158,7 +159,7 @@
             <td class="visuallyhidden" data-test="userRoleLabel">
               {{ typeDisplayMap[user.kind] }}
             </td>
-            <td data-test="username">
+            <td data-test="username" :style="{ color: $themeTokens.text }">
               <span dir="auto">
                 {{ user.username }}
               </span>
