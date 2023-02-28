@@ -2,6 +2,7 @@
 
   <OnboardingStepBase
     :showBackArrow="true"
+    :eventOnGoBack="backArrowEvent"
     :title="$tr('selectAUser')"
     :description="facilityDescription"
   >
@@ -108,6 +109,11 @@
           });
         }
         return '';
+      },
+      backArrowEvent() {
+        return this.learnersBeingImported.length == 0
+          ? 'BACK' // No tasks are running, go back to the auth screen
+          : 'LOADING'; // There are users being loaded, go to Loading Tasks Page
       },
     },
     beforeMount() {

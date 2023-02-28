@@ -381,7 +381,8 @@ export const wizardMachine = createMachine(
           lodImportAsAdmin: {
             meta: { step: 3, route: { name: 'LOD_IMPORT_AS_ADMIN' } },
             on: {
-              BACK: 'lodLoading',
+              BACK: 'lodImportUserAuth',
+              LOADING: 'lodLoading',
               SET_SUPERADMIN: { actions: 'setLodSuperAdmin' },
             },
           },
@@ -500,8 +501,6 @@ export const wizardMachine = createMachine(
       setLodSuperAdmin: assign({
         // Sets the super admin to be set as the device super admin -- the first LOD user imported
         superuser: (ctx, event) => {
-          console.log(ctx.superuser);
-          console.log(event);
           if (!ctx.superuser) {
             return {
               username: event.value.username,
