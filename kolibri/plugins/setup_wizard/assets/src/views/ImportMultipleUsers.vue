@@ -167,6 +167,7 @@
           type: task_name,
           ...this.wizardService.state.context.lodAdmin,
           facility: this.facility.id,
+          facility_name: this.facility.name,
           device_id: this.device.id,
           user_id: learner.id,
           using_admin: true,

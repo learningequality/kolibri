@@ -61,6 +61,7 @@
               type: task_name,
               ...user,
               facility: this.facility.id,
+              facility_name: this.facility.name,
               device_id: id,
               using_admin: false,
             };
