@@ -133,7 +133,7 @@
   import useSavedAddresses from './useSavedAddresses.js';
 
   export default {
-    name: 'SelectAddressForm',
+    name: 'SelectDeviceForm',
     components: {
       UiAlert,
     },

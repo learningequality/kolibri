@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import SelectAddressForm from '../SelectAddressForm';
+import SelectDeviceForm from '../SelectDeviceForm';
 // import makeStore from '../../../../../test/utils/makeStore';
 import { fetchStaticAddresses, fetchDynamicAddresses } from '../api';
 
@@ -38,7 +38,7 @@ jest.mock('../api.js', () => ({
 
 function makeWrapper() {
   const store = {};
-  const wrapper = mount(SelectAddressForm, {
+  const wrapper = mount(SelectDeviceForm, {
     store,
   });
   // prettier-ignore
@@ -52,7 +52,7 @@ function makeWrapper() {
   return { store, wrapper, els };
 }
 
-xdescribe('SelectAddressForm', () => {
+xdescribe('SelectDeviceForm', () => {
   beforeEach(() => {
     fetchStaticAddresses.mockReset();
     fetchStaticAddresses.mockResolvedValue(addresses);

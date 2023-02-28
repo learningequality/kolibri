@@ -16,14 +16,14 @@ function makeWrapper() {
     store,
   })
   const els = {
-    SelectAddressForm: () => wrapper.find({ name: 'SelectAddressForm' }),
+    SelectDeviceForm: () => wrapper.find({ name: 'SelectDeviceForm' }),
     AddDeviceForm: () => wrapper.find({ name: 'AddDeviceForm' }),
   };
 
   const actions = {
-    clickNewAddress: () => els.SelectAddressForm().find({ name: 'KButton' }).vm.$emit('click'),
+    clickNewAddress: () => els.SelectDeviceForm().find({ name: 'KButton' }).vm.$emit('click'),
     clickAddAddressCancel: () => els.AddDeviceForm().vm.$emit('cancel'),
-    clickSelectAddressCancel: () => els.SelectAddressForm().vm.$emit('cancel'),
+    clickSelectAddressCancel: () => els.SelectDeviceForm().vm.$emit('cancel'),
   }
 
   return { wrapper, store, els, actions };
@@ -32,14 +32,14 @@ function makeWrapper() {
 xdescribe('SelectNetworkAddressModal', () => {
   it('starts on the Select Address Form', () => {
     const { els } = makeWrapper();
-    expect(els.SelectAddressForm().isVueInstance()).toBe(true);
+    expect(els.SelectDeviceForm().isVueInstance()).toBe(true);
   });
 
   it('clicking the "new address" button takes you to the New Address Form', async () => {
     const { els, actions, wrapper } = makeWrapper();
     actions.clickNewAddress();
     await wrapper.vm.$nextTick();
-    expect(els.SelectAddressForm().exists()).toBe(false);
+    expect(els.SelectDeviceForm().exists()).toBe(false);
     expect(els.AddDeviceForm().isVueInstance()).toBe(true);
   });
 

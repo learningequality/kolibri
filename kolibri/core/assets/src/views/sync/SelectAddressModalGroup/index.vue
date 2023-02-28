@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <SelectAddressForm
+    <SelectDeviceForm
       v-if="stage === Stages.SELECT_ADDRESS"
       :filterByChannelId="filterByChannelId"
       :filterByFacilityId="filterByFacilityId"
@@ -27,7 +27,7 @@
 <script>
 
   import AddDeviceForm from './AddDeviceForm';
-  import SelectAddressForm from './SelectAddressForm';
+  import SelectDeviceForm from './SelectDeviceForm';
 
   const Stages = Object.freeze({
     ADD_ADDRESS: 'ADD_ADDRESS',
@@ -38,7 +38,7 @@
     name: 'SelectAddressModalGroup',
     components: {
       AddDeviceForm,
-      SelectAddressForm,
+      SelectDeviceForm,
     },
     props: {
       // Channel filter only needed on ManageContentPage/SelectNetworkAddressModal

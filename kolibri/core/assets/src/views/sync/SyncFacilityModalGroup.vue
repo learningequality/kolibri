@@ -40,7 +40,7 @@
     },
     mixins: [commonCoreStrings, commonSyncElements],
     props: {
-      // If facility has not been KDP-registered, skip to SelectAddressForm
+      // If facility has not been KDP-registered, skip to SelectDeviceForm
       // and use facility ID to filter the selectable addresses
       facilityForSync: {
         type: Object,
