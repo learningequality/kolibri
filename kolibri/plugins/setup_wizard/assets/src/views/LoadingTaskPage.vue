@@ -161,7 +161,7 @@
       startOver() {
         this.isPolling = false;
         this.clearTasks().then(() => {
-          this.$emit('start_over');
+          this.wizardService.send('START_OVER');
         });
       },
       clearTasks() {
