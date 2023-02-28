@@ -400,19 +400,6 @@
   .align-kselects{
     margin-left:16px;
   }
-  /* .kselect{
-    margin-right:16px;
-  } */
-  /* .select-element .k-select{
-    /* display:flex; */
-    /* display: flex;
-    position:absolute
-  }
-  .next-k-select-1{
-    margin-left:316px;
-  }
-  .next-k-select-2{
-    margin-left:632px;
-  } */ 
+
 
 </style>
