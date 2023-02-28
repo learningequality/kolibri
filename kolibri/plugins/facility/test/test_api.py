@@ -3,9 +3,11 @@
 Tests that ensure the correct items are returned from api calls.
 Also tests whether the users with permissions can create logs.
 """
+import datetime
 import os
 import uuid
 
+import pytz
 from django.core.management import call_command
 from django.urls import reverse
 from rest_framework.test import APITestCase
@@ -18,16 +20,28 @@ from kolibri.core.logger.test.factory_logger import ContentSummaryLogFactory
 from kolibri.core.logger.test.factory_logger import FacilityUserFactory
 from kolibri.plugins.facility.views import CSV_EXPORT_FILENAMES
 from kolibri.utils import conf
+from kolibri.utils.time_utils import local_now
 
 
-def output_filename(log_type, facility):
+def output_filename(log_type, facility, **kwargs):
     logs_dir = os.path.join(conf.KOLIBRI_HOME, "log_export")
     if not os.path.isdir(logs_dir):
         os.mkdir(logs_dir)
-    return os.path.join(
-        logs_dir,
-        CSV_EXPORT_FILENAMES[log_type].format(facility.name, facility.id[:4]),
-    )
+    if log_type in ("summary", "session"):
+        start_date = kwargs.get("start_date")
+        end_date = kwargs.get("end_date")
+        log_path = os.path.join(
+            logs_dir,
+            CSV_EXPORT_FILENAMES[log_type].format(
+                facility.name, facility.id[:4], start_date[:10], end_date[:10]
+            ),
+        )
+    else:
+        log_path = os.path.join(
+            logs_dir,
+            CSV_EXPORT_FILENAMES[log_type].format(facility.name, facility.id[:4]),
+        )
+    return log_path
 
 
 class ContentSummaryLogCSVExportTestCase(APITestCase):
@@ -50,13 +64,22 @@ class ContentSummaryLogCSVExportTestCase(APITestCase):
             for _ in range(3)
         ]
         cls.facility.add_admin(cls.admin)
+        cls.start_date = datetime.datetime(2020, 10, 21, tzinfo=pytz.UTC).isoformat()
+        cls.end_date = local_now().isoformat()
 
     def test_csv_download_anonymous_permissions(self):
         call_command(
             "exportlogs",
             log_type="summary",
-            output_file=output_filename("summary", self.facility),
+            output_file=output_filename(
+                "summary",
+                self.facility,
+                start_date=self.start_date,
+                end_date=self.end_date,
+            ),
             overwrite=True,
+            start_date=self.start_date,
+            end_date=self.end_date,
         )
         response = self.client.get(
             reverse(
@@ -70,8 +93,15 @@ class ContentSummaryLogCSVExportTestCase(APITestCase):
         call_command(
             "exportlogs",
             log_type="summary",
-            output_file=output_filename("summary", self.facility),
+            output_file=output_filename(
+                "summary",
+                self.facility,
+                start_date=self.start_date,
+                end_date=self.end_date,
+            ),
             overwrite=True,
+            start_date=self.start_date,
+            end_date=self.end_date,
         )
         self.client.login(
             username=self.user1.username,
@@ -90,8 +120,15 @@ class ContentSummaryLogCSVExportTestCase(APITestCase):
         call_command(
             "exportlogs",
             log_type="summary",
-            output_file=output_filename("summary", self.facility),
+            output_file=output_filename(
+                "summary",
+                self.facility,
+                start_date=self.start_date,
+                end_date=self.end_date,
+            ),
             overwrite=True,
+            start_date=self.start_date,
+            end_date=self.end_date,
         )
         self.client.login(
             username=self.admin.username,
@@ -127,13 +164,22 @@ class ContentSessionLogCSVExportTestCase(APITestCase):
             for _ in range(3)
         ]
         cls.facility.add_admin(cls.admin)
+        cls.start_date = datetime.datetime(2020, 10, 21, tzinfo=pytz.UTC).isoformat()
+        cls.end_date = local_now().isoformat()
 
     def test_csv_download_anonymous_permissions(self):
         call_command(
             "exportlogs",
             log_type="session",
-            output_file=output_filename("session", self.facility),
+            output_file=output_filename(
+                "session",
+                self.facility,
+                start_date=self.start_date,
+                end_date=self.end_date,
+            ),
             overwrite=True,
+            start_date=self.start_date,
+            end_date=self.end_date,
         )
         response = self.client.get(
             reverse(
@@ -147,8 +193,15 @@ class ContentSessionLogCSVExportTestCase(APITestCase):
         call_command(
             "exportlogs",
             log_type="session",
-            output_file=output_filename("session", self.facility),
+            output_file=output_filename(
+                "session",
+                self.facility,
+                start_date=self.start_date,
+                end_date=self.end_date,
+            ),
             overwrite=True,
+            start_date=self.start_date,
+            end_date=self.end_date,
         )
         self.client.login(
             username=self.user1.username,
@@ -167,8 +220,15 @@ class ContentSessionLogCSVExportTestCase(APITestCase):
         call_command(
             "exportlogs",
             log_type="session",
-            output_file=output_filename("session", self.facility),
+            output_file=output_filename(
+                "session",
+                self.facility,
+                start_date=self.start_date,
+                end_date=self.end_date,
+            ),
             overwrite=True,
+            start_date=self.start_date,
+            end_date=self.end_date,
         )
         self.client.login(
             username=self.admin.username,

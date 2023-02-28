@@ -4,16 +4,19 @@ Tests that ensure the correct items are returned from api calls.
 Also tests whether the users with permissions can create logs.
 """
 import csv
+import datetime
 import sys
 import tempfile
 import uuid
 
+import pytz
 from django.core.management import call_command
 from django.urls import reverse
 from rest_framework.test import APITestCase
 
 from ..models import ContentSessionLog
 from ..models import ContentSummaryLog
+from ..models import GenerateCSVLogRequest
 from .factory_logger import ContentSessionLogFactory
 from .factory_logger import ContentSummaryLogFactory
 from .factory_logger import FacilityUserFactory
@@ -23,6 +26,7 @@ from kolibri.core.auth.test.test_api import FacilityFactory
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.logger.csv_export import labels
+from kolibri.utils.time_utils import local_now
 
 
 class ContentSummaryLogCSVExportTestCase(APITestCase):
@@ -45,12 +49,19 @@ class ContentSummaryLogCSVExportTestCase(APITestCase):
             for _ in range(3)
         ]
         cls.facility.add_admin(cls.admin)
+        cls.start_date = datetime.datetime(2020, 10, 21, tzinfo=pytz.UTC).isoformat()
+        cls.end_date = local_now().isoformat()
 
     def test_csv_download(self):
         expected_count = ContentSummaryLog.objects.count()
         _, filepath = tempfile.mkstemp(suffix=".csv")
         call_command(
-            "exportlogs", log_type="summary", output_file=filepath, overwrite=True
+            "exportlogs",
+            log_type="summary",
+            output_file=filepath,
+            overwrite=True,
+            start_date=self.start_date,
+            end_date=self.end_date,
         )
         if sys.version_info[0] < 3:
             csv_file = open(filepath, "rb")
@@ -61,6 +72,11 @@ class ContentSummaryLogCSVExportTestCase(APITestCase):
         for row in results[1:]:
             self.assertEqual(len(results[0]), len(row))
         self.assertEqual(len(results[1:]), expected_count)
+        self.assertTrue(
+            GenerateCSVLogRequest.objects.filter(
+                log_type="summary", facility=self.facility.id
+            ).exists()
+        )
 
     def test_csv_download_deleted_content(self):
         expected_count = ContentSummaryLog.objects.count()
@@ -68,7 +84,12 @@ class ContentSummaryLogCSVExportTestCase(APITestCase):
         ChannelMetadata.objects.all().delete()
         _, filepath = tempfile.mkstemp(suffix=".csv")
         call_command(
-            "exportlogs", log_type="summary", output_file=filepath, overwrite=True
+            "exportlogs",
+            log_type="summary",
+            output_file=filepath,
+            overwrite=True,
+            start_date=self.start_date,
+            end_date=self.end_date,
         )
         if sys.version_info[0] < 3:
             csv_file = open(filepath, "rb")
@@ -79,6 +100,11 @@ class ContentSummaryLogCSVExportTestCase(APITestCase):
         for row in results[1:]:
             self.assertEqual(len(results[0]), len(row))
         self.assertEqual(len(results[1:]), expected_count)
+        self.assertTrue(
+            GenerateCSVLogRequest.objects.filter(
+                log_type="summary", facility=self.facility.id
+            ).exists()
+        )
 
     def test_csv_download_unicode_username(self):
         user = FacilityUserFactory.create(
@@ -94,7 +120,12 @@ class ContentSummaryLogCSVExportTestCase(APITestCase):
         expected_count = ContentSummaryLog.objects.count()
         _, filepath = tempfile.mkstemp(suffix=".csv")
         call_command(
-            "exportlogs", log_type="summary", output_file=filepath, overwrite=True
+            "exportlogs",
+            log_type="summary",
+            output_file=filepath,
+            overwrite=True,
+            start_date=self.start_date,
+            end_date=self.end_date,
         )
         if sys.version_info[0] < 3:
             csv_file = open(filepath, "rb")
@@ -105,6 +136,11 @@ class ContentSummaryLogCSVExportTestCase(APITestCase):
         for row in results[1:]:
             self.assertEqual(len(results[0]), len(row))
         self.assertEqual(len(results[1:]), expected_count)
+        self.assertTrue(
+            GenerateCSVLogRequest.objects.filter(
+                log_type="summary", facility=self.facility.id
+            ).exists()
+        )
 
 
 class ContentSessionLogCSVExportTestCase(APITestCase):
@@ -127,12 +163,19 @@ class ContentSessionLogCSVExportTestCase(APITestCase):
             for _ in range(3)
         ]
         cls.facility.add_admin(cls.admin)
+        cls.start_date = datetime.datetime(2020, 10, 21, tzinfo=pytz.UTC).isoformat()
+        cls.end_date = local_now().isoformat()
 
     def test_csv_download(self):
         expected_count = ContentSessionLog.objects.count()
         _, filepath = tempfile.mkstemp(suffix=".csv")
         call_command(
-            "exportlogs", log_type="session", output_file=filepath, overwrite=True
+            "exportlogs",
+            log_type="session",
+            output_file=filepath,
+            overwrite=True,
+            start_date=self.start_date,
+            end_date=self.end_date,
         )
         if sys.version_info[0] < 3:
             csv_file = open(filepath, "rb")
@@ -143,6 +186,11 @@ class ContentSessionLogCSVExportTestCase(APITestCase):
         for row in results[1:]:
             self.assertEqual(len(results[0]), len(row))
         self.assertEqual(len(results[1:]), expected_count)
+        self.assertTrue(
+            GenerateCSVLogRequest.objects.filter(
+                log_type="session", facility=self.facility.id
+            ).exists()
+        )
 
     def test_csv_download_deleted_content(self):
         expected_count = ContentSessionLog.objects.count()
@@ -150,7 +198,12 @@ class ContentSessionLogCSVExportTestCase(APITestCase):
         ChannelMetadata.objects.all().delete()
         _, filepath = tempfile.mkstemp(suffix=".csv")
         call_command(
-            "exportlogs", log_type="session", output_file=filepath, overwrite=True
+            "exportlogs",
+            log_type="session",
+            output_file=filepath,
+            overwrite=True,
+            start_date=self.start_date,
+            end_date=self.end_date,
         )
         if sys.version_info[0] < 3:
             csv_file = open(filepath, "rb")
@@ -161,6 +214,11 @@ class ContentSessionLogCSVExportTestCase(APITestCase):
         for row in results[1:]:
             self.assertEqual(len(results[0]), len(row))
         self.assertEqual(len(results[1:]), expected_count)
+        self.assertTrue(
+            GenerateCSVLogRequest.objects.filter(
+                log_type="session", facility=self.facility.id
+            ).exists()
+        )
 
     def test_csv_download_unicode_username(self):
         user = FacilityUserFactory.create(
@@ -176,7 +234,12 @@ class ContentSessionLogCSVExportTestCase(APITestCase):
         expected_count = ContentSessionLog.objects.count()
         _, filepath = tempfile.mkstemp(suffix=".csv")
         call_command(
-            "exportlogs", log_type="session", output_file=filepath, overwrite=True
+            "exportlogs",
+            log_type="session",
+            output_file=filepath,
+            overwrite=True,
+            start_date=self.start_date,
+            end_date=self.end_date,
         )
         if sys.version_info[0] < 3:
             csv_file = open(filepath, "rb")
@@ -187,11 +250,21 @@ class ContentSessionLogCSVExportTestCase(APITestCase):
         for row in results[1:]:
             self.assertEqual(len(results[0]), len(row))
         self.assertEqual(len(results[1:]), expected_count)
+        self.assertTrue(
+            GenerateCSVLogRequest.objects.filter(
+                log_type="session", facility=self.facility.id
+            ).exists()
+        )
 
     def test_csv_download_no_completion_timestamp(self):
         _, filepath = tempfile.mkstemp(suffix=".csv")
         call_command(
-            "exportlogs", log_type="session", output_file=filepath, overwrite=True
+            "exportlogs",
+            log_type="session",
+            output_file=filepath,
+            overwrite=True,
+            start_date=self.start_date,
+            end_date=self.end_date,
         )
         if sys.version_info[0] < 3:
             csv_file = open(filepath, "rb")
@@ -201,6 +274,11 @@ class ContentSessionLogCSVExportTestCase(APITestCase):
             results = list(csv.reader(f))
         for column_label in results[0]:
             self.assertNotEqual(column_label, labels["completion_timestamp"])
+        self.assertTrue(
+            GenerateCSVLogRequest.objects.filter(
+                log_type="session", facility=self.facility.id
+            ).exists()
+        )
 
 
 class MasteryLogViewSetTestCase(EvaluationMixin, APITestCase):

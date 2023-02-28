@@ -14,8 +14,10 @@ from django.db.models.functions import Coalesce
 from django.http import Http404
 from django_filters.rest_framework import BooleanFilter
 from django_filters.rest_framework import CharFilter
+from django_filters.rest_framework import ChoiceFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
+from django_filters.rest_framework import ModelChoiceFilter
 from django_filters.rest_framework import NumberFilter
 from django_filters.rest_framework import UUIDFilter
 from le_utils.constants import content_kinds
@@ -29,11 +31,13 @@ from rest_framework.response import Response
 from .models import AttemptLog
 from .models import ContentSessionLog
 from .models import ContentSummaryLog
+from .models import GenerateCSVLogRequest
 from .models import MasteryLog
 from kolibri.core.api import ReadOnlyValuesViewset
 from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.auth.models import dataset_cache
+from kolibri.core.auth.models import Facility
 from kolibri.core.content.api import OptionalPageNumberPagination
 from kolibri.core.decorators import query_params_required
 from kolibri.core.exams.models import Exam
@@ -1053,3 +1057,68 @@ class AttemptLogViewSet(ReadOnlyValuesViewset):
     filter_class = AttemptFilter
 
     values = attemptlog_values
+
+
+class GenerateCSVLogRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GenerateCSVLogRequest
+        fields = [
+            "facility",
+            "log_type",
+            "selected_start_date",
+            "selected_end_date",
+            "date_requested",
+        ]
+
+
+class GenerateCSVLogRequestFilter(FilterSet):
+    log_type = ChoiceFilter(choices=GenerateCSVLogRequest.LOG_TYPE_CHOICES)
+    facility = ModelChoiceFilter(queryset=Facility.objects.all())
+
+    class Meta:
+        model = GenerateCSVLogRequest
+        fields = ["log_type", "facility"]
+
+
+class GenerateCSVLogRequestViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows csv log request data to be created or updated
+    """
+
+    permission_classes = (KolibriAuthPermissions,)
+    queryset = GenerateCSVLogRequest.objects.all()
+    serializer_class = GenerateCSVLogRequestSerializer
+    filter_class = GenerateCSVLogRequestFilter
+
+    def _get_or_create_logrequest(
+        self,
+        facility,
+        log_type,
+        selected_start_date,
+        selected_end_date,
+        date_requested,
+    ):
+
+        try:
+            csvlogrequest = GenerateCSVLogRequest.objects.get(
+                facility=facility,
+                log_type=log_type,
+            )
+            updated_fields = (
+                "selected_start_date",
+                "selected_end_date",
+                "date_requested",
+            )
+            csvlogrequest.selected_start_date = selected_start_date
+            csvlogrequest.selected_end_date = selected_end_date
+            csvlogrequest.date_requested = date_requested
+            csvlogrequest.save(update_fields=updated_fields)
+        except GenerateCSVLogRequest.DoesNotExist:
+            csvlogrequest = GenerateCSVLogRequest.objects.create(
+                facility=facility,
+                log_type=log_type,
+                selected_start_date=selected_start_date,
+                selected_end_date=selected_end_date,
+                date_requested=date_requested,
+            )
+            csvlogrequest.save()
