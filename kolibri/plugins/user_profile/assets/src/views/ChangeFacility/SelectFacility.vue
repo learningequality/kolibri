@@ -40,7 +40,7 @@
       <KGridItem>{{ $tr('doNotSeeYourFacility') }}</KGridItem>
       <KGridItem>
         <KButton
-          :text="$tr('newAddressButtonLabel')"
+          :text="$tr('newDeviceButtonLabel')"
           appearance="basic-link"
           @click="showAddAddressModal = true"
         />
@@ -140,7 +140,7 @@
 
       function handleAddedAddress() {
         refreshSavedAddressList();
-        createSnackbar(this.$tr('addAddressSnackbarText'));
+        createSnackbar(this.$tr('addDeviceSnackbarText'));
         this.showAddAddressModal = false;
       }
 
@@ -245,9 +245,9 @@
       },
     },
     $trs: {
-      addAddressSnackbarText: {
-        message: 'Successfully added address',
-        context: 'This message appears if a network address has been added correctly.',
+      addDeviceSnackbarText: {
+        message: 'Successfully added device',
+        context: 'This message appears if a network device has been added correctly.',
       },
       documentTitle: {
         message: 'Select learning facility',
@@ -258,15 +258,15 @@
         context:
           'This text appears next to the "Add new address" link. This option allows you to add a new network address from which to sync data.',
       },
-      newAddressButtonLabel: {
-        message: 'Add new address',
+      newDeviceButtonLabel: {
+        message: 'Add new device',
         context:
-          'The "Add new address" link appears in the \'Select network address\' screen. This option allows you to add a new network address from which to sync data.',
+          'The "Add new device" link appears in the \'Select network device\' screen. This option allows you to add a new network device from which to sync data.',
       },
       noFacilitiesText: {
         message: 'No learning facilities found',
         context:
-          'This message displays when there are no accesible facilities found in the network. It can appear after the user selects to change to another existing facility.',
+          'This message displays when there are no accessible facilities found in the network. It can appear after the user selects to change to another existing facility.',
       },
     },
   };

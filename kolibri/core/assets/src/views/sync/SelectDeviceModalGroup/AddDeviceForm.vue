@@ -162,7 +162,7 @@
       header: {
         message: 'New device',
         context:
-          'The title of the section that an admin accesses when they select the "Add new address" link in the Device > Facilities section.\n\nThey use this screen to add a new network address.',
+          'The title of the section that an admin accesses when they select the "Add new device" link in the Device > Facilities section.\n\nThey use this screen to add a new network device.',
       },
       nameDesc: {
         message: 'Choose a name for this device so you can remember it later:',

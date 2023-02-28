@@ -11,18 +11,18 @@ const syncStrings = createTranslator('CommonSyncStrings', {
     context: 'Title of menu where the user selects the source from where to import a facility',
   },
   selectNetworkAddressTitle: {
-    message: 'Select network address',
+    message: 'Select network device',
     context:
-      'Title of menu where user selects a device at an address in order to communicate with it',
+      'Title of menu where user selects a device at an device in order to communicate with it',
   },
   newAddressTitle: {
-    message: 'New address',
+    message: 'New device',
     context:
-      'Title of the menu where the user manually adds a new device address from where to import a facility',
+      'Title of the menu where the user manually adds a new device device from where to import a facility',
   },
   addNewAddressAction: {
-    message: 'Add new address',
-    context: 'Label for a button that opens a menu to save a new network address.',
+    message: 'Add new device',
+    context: 'Label for a button that opens a menu to save a new network device.',
   },
   selectFacilityTitle: {
     message: 'Select learning facility',
