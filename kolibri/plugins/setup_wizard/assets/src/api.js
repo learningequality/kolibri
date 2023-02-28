@@ -12,6 +12,14 @@ export const SetupWizardResource = new Resource({
   name: 'setupwizard',
   namespace: 'kolibri.plugins.setup_wizard',
 
+  createuseronremote({ facility_id, username, password, baseurl }) {
+    return this.postListEndpoint('createuseronremote', {
+      facility_id,
+      username,
+      password,
+      baseurl,
+    });
+  },
   provisiondevice({ device_name, language_id, is_provisioned }) {
     return this.postListEndpoint('provisiondevice', { device_name, language_id, is_provisioned });
   },

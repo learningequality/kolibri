@@ -32,7 +32,7 @@
       <span v-else></span>
     </template>
     <KButton
-      v-if="loadingTask.status === 'COMPLETED' && isSoud"
+      v-if="loadingTask.status === 'COMPLETED' && isImportingSoud"
       appearance="basic-link"
       :text="$tr('importAnother')"
       @click="importAnother"
@@ -48,7 +48,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskResource } from 'kolibri.resources';
   import { TaskStatuses } from 'kolibri.utils.syncTaskUtils';
-  import { DeviceTypePresets, SoudQueue } from '../constants';
+  import { DeviceTypePresets, LodTypePresets, SoudQueue } from '../constants';
   import OnboardingStepBase from './OnboardingStepBase';
 
   export default {
@@ -63,12 +63,16 @@
       return {
         loadingTask: { status: '' },
         isPolling: false,
+        emptyPollResponseCount: 0,
         TaskStatuses,
       };
     },
     computed: {
       isSoud() {
         return this.queue === SoudQueue;
+      },
+      isImportingSoud() {
+        return this.wizardService.state.context.lodImportOrJoin === LodTypePresets.IMPORT;
       },
       queue() {
         return this.wizardService.state.context.fullOrLOD === DeviceTypePresets.LOD
@@ -95,15 +99,19 @@
         this.isPolling = false;
         this.wizardService.send('IMPORT_ANOTHER');
       },
-      setSuperAdminIfNotSet(username) {
+      setSuperAdminIfNotSet(_username) {
+        // This is the first imported user and will be made into the superuser
         if (!this.wizardService.state.context.importedUsers.length) {
-          // This is the first imported user and will be made into the superuser
+          // See if the user is in Vuex first -- use that if it's there.
+          let { username, password } = this.$store.state.onboardingData.user;
+          // Note we include something in the `password` field here to pass serialization
+          // In this particular case, we will find the imported user with their username
+          // And they will become the device's super admin
+          username = username || _username;
+          password = password || 'NOT_SPECIFIED';
           this.wizardService.send({
             type: 'SET_SUPERADMIN',
-            // Note we include something in the `password` field here to pass serialization
-            // In this particular case, we will find the imported user with their username
-            // And they will become the device's super admin
-            value: { username: username, password: 'Not The Real Password' },
+            value: { username, password },
           });
         }
       },
@@ -125,11 +133,14 @@
               this.wizardService.send({ type: 'ADD_IMPORTED_USER', value: taskUsername });
             }
           } else {
-            this.isPolling = false;
             // If we don't have a status on the loading task, we got here without there being
             // any tasks active; we can just continue along
             if (!this.loadingTask.status) {
-              this.handleClickContinue();
+              this.emptyPollResponseCount += 1;
+              if (this.emptyPollResponseCount >= 3) {
+                this.isPolling = false;
+                this.handleClickContinue(); // We've tried a few times, there is nothing queued
+              }
             }
           }
         });

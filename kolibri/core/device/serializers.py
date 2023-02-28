@@ -11,6 +11,7 @@ from kolibri.core.auth.serializers import FacilitySerializer
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
 from kolibri.core.device.utils import provision_device
+from kolibri.core.device.utils import provision_single_user_device
 from kolibri.core.device.utils import valid_app_key_on_request
 from kolibri.plugins.app.utils import GET_OS_USER
 from kolibri.plugins.app.utils import interface
@@ -130,10 +131,6 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
                     setattr(facility.dataset, key, value)
             facility.dataset.save()
 
-            # Create superuser only if the details are present and
-            # we are in an app that is equipped to handle this.
-            # Note that this requires the app to redirect back to the initialization URL
-            # after initial provisioning.
             if not validated_data.get("os_user"):
                 # We've imported a facility if the username exists
                 try:
@@ -149,13 +146,22 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
                         full_name=validated_data["superuser"].get("full_name"),
                     )
             else:
-                superuser = None
+                superuser = FacilityUser.get_or_create_os_user(
+                    validated_data.pop("auth_token"), facility=facility
+                )
+
+            is_soud = validated_data.pop("is_soud")
 
             if superuser:
-                facility.add_role(superuser, user_kinds.ADMIN)
+                if is_soud:
+                    is_super = False
+                else:
+                    is_super = True
+                    facility.add_role(superuser, user_kinds.ADMIN)
+
                 if DevicePermissions.objects.count() == 0:
                     DevicePermissions.objects.create(
-                        user=superuser, is_superuser=True, can_manage_content=True
+                        user=superuser, is_superuser=is_super, can_manage_content=True
                     )
 
             # Create device settings
@@ -165,21 +171,28 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
             if allow_guest_access is None:
                 allow_guest_access = preset != "formal"
 
-            provision_device(
-                device_name=validated_data["device_name"],
-                is_provisioned=validated_data["is_provisioned"],
-                language_id=language_id,
-                default_facility=facility,
-                allow_guest_access=allow_guest_access,
-            )
-            return {
-                "facility": facility,
-                "preset": preset,
-                "superuser": superuser,
+            provisioning_data = {
+                "device_name": validated_data["device_name"],
+                "is_provisioned": validated_data["is_provisioned"],
                 "language_id": language_id,
-                "settings": custom_settings,
+                "default_facility": facility,
                 "allow_guest_access": allow_guest_access,
             }
+
+            if is_soud:
+                provision_single_user_device(superuser, **provisioning_data)
+            else:
+                provision_device(**provisioning_data)
+
+            # The API View expects these fields to be in the returned serialized data as well
+            provisioning_data.update(
+                {
+                    "superuser": superuser,
+                    "preset": preset,
+                    "settings": custom_settings,
+                }
+            )
+            return provisioning_data
 
 
 class PathListField(serializers.ListField):

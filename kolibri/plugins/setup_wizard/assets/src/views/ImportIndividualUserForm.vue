@@ -198,6 +198,7 @@
           username: this.username,
           password: password,
           facility: this.facility.id,
+          facility_name: this.facility.name,
           device_id: this.deviceId,
           using_admin: false,
         };

@@ -452,8 +452,7 @@ export const wizardMachine = createMachine(
         facilityNewOrImport: () => null,
       }),
       clearFullOrLOD: assign({
-        fullOrLOD: (c, e) => {
-          console.log(c, e);
+        fullOrLOD: () => {
           return null;
         },
       }),
@@ -483,7 +482,6 @@ export const wizardMachine = createMachine(
       }),
       addImportedUser: assign({
         importedUsers: (ctx, event) => {
-          console.log(ctx, event);
           const users = ctx.importedUsers;
           users.push(event.value);
           return uniq(users);
@@ -502,6 +500,8 @@ export const wizardMachine = createMachine(
       setLodSuperAdmin: assign({
         // Sets the super admin to be set as the device super admin -- the first LOD user imported
         superuser: (ctx, event) => {
+          console.log(ctx.superuser);
+          console.log(event);
           if (!ctx.superuser) {
             return {
               username: event.value.username,

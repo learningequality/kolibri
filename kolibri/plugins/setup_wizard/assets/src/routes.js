@@ -11,6 +11,7 @@ import RequirePasswordForLearnersForm from './views/onboarding-forms/RequirePass
 import PersonalDataConsentForm from './views/onboarding-forms/PersonalDataConsentForm';
 import SettingUpKolibri from './views/onboarding-forms/SettingUpKolibri';
 import JoinOrNewLOD from './views/JoinOrNewLOD';
+import LodJoinFacility from './views/LodJoinFacility';
 import ImportAuthentication from './views/ImportAuthentication';
 import SelectFacilityForm from './views/SelectFacilityForm';
 import SelectSuperAdminAccountForm from './views/SelectSuperAdminAccountForm';
@@ -131,8 +132,7 @@ export default [
   {
     name: 'LOD_CREATE_USER_FORM',
     path: '/learn-only/join/create-user',
-    component: UserCredentialsForm,
-    props: { adminUserLabels: false },
+    component: LodJoinFacility,
   },
   {
     name: 'FINALIZE_SETUP',

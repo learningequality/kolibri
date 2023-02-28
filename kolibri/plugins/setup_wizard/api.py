@@ -1,3 +1,5 @@
+import requests
+from django.urls import reverse
 from rest_framework import decorators
 from rest_framework.exceptions import NotFound
 from rest_framework.exceptions import PermissionDenied
@@ -38,6 +40,26 @@ class SetupWizardResource(ViewSet):
     """
 
     permission_classes = (HasPermissionDuringSetup,)
+
+    @decorators.action(methods=["post"], detail=False)
+    def createuseronremote(self, request):
+        facility_id = request.data.get("facility_id", None)
+        username = request.data.get("username", None)
+        password = request.data.get("password", None)
+        baseurl = request.data.get("baseurl", None)
+
+        api_url = reverse("kolibri:core:publicsignup-list")
+
+        url = "{}{}".format(baseurl, api_url)
+
+        payload = {
+            "facility_id": facility_id,
+            "username": username,
+            "password": password,
+        }
+
+        r = requests.post(url, data=payload)
+        return Response({"status": r.status_code, "data": r.content})
 
     @decorators.action(methods=["post"], detail=False)
     def createappuser(self, request):

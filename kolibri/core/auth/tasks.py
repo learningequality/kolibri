@@ -239,6 +239,7 @@ def exportuserstocsv(facility=None, locale=None):
 
 class SyncJobValidator(JobValidator):
     facility = serializers.PrimaryKeyRelatedField(queryset=Facility.objects.all())
+    facility_name = serializers.CharField(required=False)
     command = serializers.ChoiceField(choices=["sync", "resumesync"], default="sync")
     sync_session_id = HexOnlyUUIDField(format="hex", required=False, allow_null=True)
 
@@ -253,7 +254,7 @@ class SyncJobValidator(JobValidator):
             facility_name = facility.name
         else:
             facility_id = facility
-            facility_name = data.get("facility_name", "")
+            facility_name = data["facility_name"]
         return {
             "extra_metadata": dict(
                 facility_id=facility_id,
