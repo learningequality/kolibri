@@ -23,7 +23,7 @@
     "intl": "^1.2.4",
     "knuth-shuffle-seeded": "^1.0.6",
     "kolibri-constants": "0.1.42",
-    "kolibri-design-system": "https://github.com/learningequality/kolibri-design-system#e203de2141dd9c8e807a1285a9d695a083576fc8",
+    "kolibri-design-system": "https://github.com/learningequality/kolibri-design-system#6bae8277e0dd61d88122a1a85b63bc79a65be22e",
     "lockr": "0.8.5",
     "lodash": "^4.17.21",
     "loglevel": "^1.8.1",
