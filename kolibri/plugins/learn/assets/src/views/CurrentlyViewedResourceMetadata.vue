@@ -253,16 +253,6 @@
         }
       },
     },
-    $tr: {
-      level: {
-        message: 'Level',
-        context: 'Refers to the level of education to which the resource is directed at.',
-      },
-      estimatedTime: {
-        message: 'Estimated time',
-        context: 'Refers to the expected time it will take the learner to complete a resource.',
-      },
-    },
   };
 
 </script>
