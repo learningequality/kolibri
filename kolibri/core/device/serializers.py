@@ -134,7 +134,7 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
             # we are in an app that is equipped to handle this.
             # Note that this requires the app to redirect back to the initialization URL
             # after initial provisioning.
-            if not validated_data.get("os_user") and not validated_data.get("is_soud"):
+            if not validated_data.get("os_user"):
                 # We've imported a facility if the username exists
                 try:
                     superuser = FacilityUser.objects.get(

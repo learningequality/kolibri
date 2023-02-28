@@ -132,6 +132,16 @@
                 // Update the wizard context to know this user has been imported - only if they
                 // haven't already been added to the list (ie, imported by other means)
                 const taskUsername = task.extra_metadata.username;
+                if (!this.importedLearners().length) {
+                  // This is the first imported user and will be made into the superuser
+                  this.wizardService.send({
+                    type: 'SET_SUPERADMIN',
+                    // Note we include something in the `password` field here to pass serialization
+                    // In this particular case, we will find the imported user with their username
+                    // And they will become the device's super admin
+                    value: { username: taskUsername, password: 'Not The Real Password' },
+                  });
+                }
                 if (!this.importedLearners().includes(taskUsername)) {
                   this.wizardService.send({
                     type: 'ADD_IMPORTED_USER',

@@ -361,7 +361,7 @@ export const wizardMachine = createMachine(
             meta: { step: 3, route: { name: 'LOD_IMPORT_USER_AUTH' } },
             on: {
               BACK: 'selectLodSetupType',
-              CONTINUE: 'lodLoading',
+              CONTINUE: { target: 'lodLoading', actions: 'setLodSuperAdmin' },
               CONTINUEADMIN: {
                 target: 'lodImportAsAdmin',
                 actions: ['setRemoteUsers', 'setLodAdmin'],
@@ -372,6 +372,7 @@ export const wizardMachine = createMachine(
           lodLoading: {
             meta: { step: 4, route: { name: 'LOD_LOADING_TASK_PAGE' } },
             on: {
+              SET_SUPERADMIN: { actions: 'setLodSuperAdmin' },
               IMPORT_ANOTHER: 'lodImportUserAuth',
               // Otherwise send FINISH, which is handled at the root of this sub-machine
             },
@@ -381,6 +382,7 @@ export const wizardMachine = createMachine(
             meta: { step: 3, route: { name: 'LOD_IMPORT_AS_ADMIN' } },
             on: {
               BACK: 'lodLoading',
+              SET_SUPERADMIN: { actions: 'setLodSuperAdmin' },
             },
           },
 
@@ -488,12 +490,26 @@ export const wizardMachine = createMachine(
         },
       }),
       setLodAdmin: assign({
+        // Used when setting the Admin user for multiple import
         lodAdmin: (_, event) => {
           return {
             username: event.value.adminUsername,
             password: event.value.adminPassword,
             id: event.value.id,
           };
+        },
+      }),
+      setLodSuperAdmin: assign({
+        // Sets the super admin to be set as the device super admin -- the first LOD user imported
+        superuser: (ctx, event) => {
+          if (!ctx.superuser) {
+            return {
+              username: event.value.username,
+              password: event.value.password,
+            };
+          } else {
+            return ctx.superuser;
+          }
         },
       }),
       setRemoteUsers: assign({

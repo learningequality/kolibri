@@ -95,6 +95,18 @@
         this.isPolling = false;
         this.wizardService.send('IMPORT_ANOTHER');
       },
+      setSuperAdminIfNotSet(username) {
+        if (!this.wizardService.state.context.importedUsers.length) {
+          // This is the first imported user and will be made into the superuser
+          this.wizardService.send({
+            type: 'SET_SUPERADMIN',
+            // Note we include something in the `password` field here to pass serialization
+            // In this particular case, we will find the imported user with their username
+            // And they will become the device's super admin
+            value: { username: username, password: 'Not The Real Password' },
+          });
+        }
+      },
       pollTask() {
         TaskResource.list({ queue: this.queue }).then(tasks => {
           if (tasks.length) {
@@ -107,6 +119,7 @@
             };
             if (this.loadingTask.status === TaskStatuses.COMPLETED) {
               const taskUsername = this.loadingTask.extra_metadata.username;
+              this.setSuperAdminIfNotSet(taskUsername);
 
               // Update the wizard context to know this user has been imported
               this.wizardService.send({ type: 'ADD_IMPORTED_USER', value: taskUsername });

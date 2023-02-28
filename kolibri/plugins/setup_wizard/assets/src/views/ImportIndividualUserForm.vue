@@ -213,11 +213,17 @@
 
         TaskResource.startTask(params)
           .then(task => {
+            let user = {};
+            if (!this.users.length) {
+              // If this is the first imported Learn Only Device user, it will be the superuser
+              // we create upon provisioning so we'll set them as the superuser
+              user = { username: params.username, password: params.password };
+            }
             task['device_id'] = this.deviceId;
             task['facility_name'] = this.facility.name;
             this.wizardService.send({
               type: 'CONTINUE',
-              value: task,
+              value: { ...task, ...user },
             });
           })
           .catch(error => {
@@ -239,7 +245,7 @@
                 e => get(e, 'metadata.message', null) === ERROR_CONSTANTS.DEVICE_LIMITATIONS
               )
             ) {
-              let error_info = errorData.reduce((info, err) => {
+              const error_info = errorData.reduce((info, err) => {
                 const { field, message } = err.metadata;
                 info[field] = message;
                 return info;
