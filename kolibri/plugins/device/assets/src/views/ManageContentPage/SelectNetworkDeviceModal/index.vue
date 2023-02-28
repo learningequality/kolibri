@@ -16,7 +16,7 @@
   import { availableChannelsPageLink, selectContentPageLink } from '../manageContentLinks';
 
   export default {
-    name: 'SelectNetworkAddressModal',
+    name: 'SelectNetworkDeviceModal',
     components: {
       SelectDeviceModalGroup,
     },

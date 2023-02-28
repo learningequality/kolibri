@@ -41,7 +41,7 @@
       SelectDeviceForm,
     },
     props: {
-      // Channel filter only needed on ManageContentPage/SelectNetworkAddressModal
+      // Channel filter only needed on ManageContentPage/SelectNetworkDeviceModal
       filterByChannelId: {
         type: String,
         default: null,

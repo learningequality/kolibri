@@ -192,7 +192,7 @@
         type: String,
         default: null,
       },
-      // Channel filter only needed on ManageContentPage/SelectNetworkAddressModal
+      // Channel filter only needed on ManageContentPage/SelectNetworkDeviceModal
       // eslint-disable-next-line kolibri/vue-no-unused-properties
       filterByChannelId: {
         type: String,

@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
 // import makeStore from '../../../../../test/utils/makeStore';
-import SelectNetworkAddressModal from '../index.vue';
+import SelectNetworkDeviceModal from '../index.vue';
 
 jest.mock('../api.js', () => ({
   fetchStaticAddresses: jest.fn().mockResolvedValue([]),
@@ -12,7 +12,7 @@ jest.mock('../api.js', () => ({
 // prettier-ignore
 function makeWrapper() {
   const store = {};
-  const wrapper = mount(SelectNetworkAddressModal, {
+  const wrapper = mount(SelectNetworkDeviceModal, {
     store,
   })
   const els = {
@@ -29,7 +29,7 @@ function makeWrapper() {
   return { wrapper, store, els, actions };
 }
 
-xdescribe('SelectNetworkAddressModal', () => {
+xdescribe('SelectNetworkDeviceModal', () => {
   it('starts on the Select Address Form', () => {
     const { els } = makeWrapper();
     expect(els.SelectDeviceForm().isVueInstance()).toBe(true);
