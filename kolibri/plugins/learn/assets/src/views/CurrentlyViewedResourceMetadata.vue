@@ -12,7 +12,7 @@
         }"
         data-test="beginners-chip"
       >
-        {{ coreString(forBeginners) }}
+        {{ coreString('forBeginners') }}
       </span>
     </div>
 
