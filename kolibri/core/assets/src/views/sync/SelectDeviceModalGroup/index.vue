@@ -79,11 +79,11 @@
       },
       handleAddedAddress(addressId) {
         this.addedAddressId = addressId;
-        this.createSnackbar(this.$tr('addAddressSnackbarText'));
+        this.createSnackbar(this.$tr('addDeviceSnackbarText'));
         this.goToSelectAddress();
       },
       handleRemovedAddress() {
-        this.createSnackbar(this.$tr('removeAddressSnackbarText'));
+        this.createSnackbar(this.$tr('removeDeviceSnackbarText'));
       },
       handleSelectAddressSubmit(address) {
         this.$emit('submit', address);
@@ -93,13 +93,13 @@
       },
     },
     $trs: {
-      addAddressSnackbarText: {
-        message: 'Successfully added address',
-        context: 'This message appears if a network address has been added correctly.',
+      addDeviceSnackbarText: {
+        message: 'Successfully added device',
+        context: 'This message appears if a network device has been added correctly.',
       },
-      removeAddressSnackbarText: {
-        message: 'Successfully removed address',
-        context: 'This message appears if a network address has been removed correctly.',
+      removeDeviceSnackbarText: {
+        message: 'Successfully removed device',
+        context: 'This message appears if a network device has been removed correctly.',
       },
     },
   };

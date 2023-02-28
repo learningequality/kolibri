@@ -13,7 +13,7 @@
         {{ $tr('lodSubHeader') }}
       </p>
       <p v-if="initialFetchingComplete && !combinedAddresses.length">
-        {{ $tr('noAddressText') }}
+        {{ $tr('noDeviceText') }}
       </p>
       <UiAlert
         v-if="uiAlertProps"
@@ -25,7 +25,7 @@
         <KButton
           v-if="requestsFailed"
           appearance="basic-link"
-          :text="$tr('refreshAddressesButtonLabel')"
+          :text="$tr('refreshDevicesButtonLabel')"
           @click="refreshSavedAddressList"
         />
       </UiAlert>
@@ -45,7 +45,7 @@
           <KButton
             v-if="!hideSavedAddresses"
             :key="`forget-${idx}`"
-            :text="$tr('forgetAddressButtonLabel')"
+            :text="$tr('forgetDeviceButtonLabel')"
             appearance="basic-link"
             @click="removeSavedAddress(a.id)"
           />
@@ -110,7 +110,7 @@
     <KButton
       v-show="!newAddressButtonDisabled && !formDisabled"
       class="new-address-button"
-      :text="$tr('newAddressButtonLabel')"
+      :text="$tr('newDeviceButtonLabel')"
       appearance="basic-link"
       @click="$emit('click_add_address')"
     />
@@ -314,44 +314,44 @@
     },
     $trs: {
       deletingFailedText: {
-        message: 'There was a problem removing this address',
+        message: 'There was a problem removing this device',
         context:
-          'Error message that displays when an admin attempts to remove a network address, but is unable to do so.',
+          'Error message that displays when an admin attempts to remove a network device, but is unable to do so.',
       },
       fetchingFailedText: {
-        message: 'There was a problem getting the available addresses',
+        message: 'There was a problem getting the available devices',
         context:
-          'Error message that displays when an admin attempts to find a network address, but the address is not found.',
+          'Error message that displays when an admin attempts to find a network device, but the device is not found.',
       },
-      forgetAddressButtonLabel: {
+      forgetDeviceButtonLabel: {
         message: 'Remove',
         context:
-          'Removes a network address from the list of network addresses which have been registered in the Device > Facilities section.',
+          'Removes a network device from the list of network devices which have been registered in the Device > Facilities section.',
       },
       header: {
-        message: 'Select network address',
+        message: 'Select network device',
         context:
-          "In the Device > Facilities section, you select the 'SYNC' option to choose the network address you want to sync from.\n\nYou do this in the 'Select network address' section which displays a list of network addresses.",
+          "In the Device > Facilities section, you select the 'SYNC' option to choose the network device you want to sync from.\n\nYou do this in the 'Select network device' section which displays a list of network devices.",
       },
-      newAddressButtonLabel: {
-        message: 'Add new address',
+      newDeviceButtonLabel: {
+        message: 'Add new device',
         context:
-          'The "Add new address" link appears in the \'Select network address\' screen. This option allows you to add a new network address from which to sync data.',
+          'The "Add new device" link appears in the \'Select network device\' screen. This option allows you to add a new network device from which to sync data.',
       },
       lodSubHeader: {
         message: 'Select a device with Kolibri version 0.15 to import learner user accounts',
         context:
-          "In the first startup wizard, when you select to 'Import one or more user accounts from an existing facility' option to choose the network address you want to sync from.\n\nYou do this in the 'Select network address' section which displays a list of network addresses.",
+          "In the first startup wizard, when you select to 'Import one or more user accounts from an existing facility' option to choose the network device you want to sync from.\n\nYou do this in the 'Select network device' section which displays a list of network devices.",
       },
-      noAddressText: {
-        message: 'There are no addresses yet',
+      noDeviceText: {
+        message: 'There are no devices yet',
         context:
-          "This message displays when there are no network addresses to sync with.\n\nIt appears when selecting 'SYNC' in the Device > Facilities section if there are no network addresses.",
+          "This message displays when there are no network devices to sync with.\n\nIt appears when selecting 'SYNC' in the Device > Facilities section if there are no network devices.",
       },
-      refreshAddressesButtonLabel: {
-        message: 'Refresh addresses',
+      refreshDevicesButtonLabel: {
+        message: 'Refresh devices',
         context:
-          'This message displays if there was a problem getting the network addresses. It allows the user to refresh the application to be able to see all the addresses available.',
+          'This message displays if there was a problem getting the network devices. It allows the user to refresh the application to be able to see all the devices available.',
       },
     },
   };
