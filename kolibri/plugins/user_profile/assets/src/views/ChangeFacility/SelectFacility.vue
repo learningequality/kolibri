@@ -47,7 +47,7 @@
       </KGridItem>
     </KGrid>
 
-    <AddAddressForm
+    <AddDeviceForm
       v-if="showAddAddressModal"
       @cancel="showAddAddressModal = false"
       @added_address="handleAddedAddress"
@@ -81,7 +81,7 @@
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import useSavedAddresses from '../../../../../../core/assets/src/views/sync/SelectAddressModalGroup/useSavedAddresses.js';
   import useDynamicAddresses from '../../../../../../core/assets/src/views/sync/SelectAddressModalGroup/useDynamicAddresses.js';
-  import AddAddressForm from '../../../../../../core/assets/src/views/sync/SelectAddressModalGroup/AddAddressForm';
+  import AddDeviceForm from '../../../../../../core/assets/src/views/sync/SelectAddressModalGroup/AddDeviceForm';
   import useMinimumKolibriVersion from '../../../../../../core/assets/src/composables/useMinimumKolibriVersion';
 
   export default {
@@ -91,7 +91,7 @@
         title: this.$tr('documentTitle'),
       };
     },
-    components: { AddAddressForm, BottomAppBar },
+    components: { AddDeviceForm, BottomAppBar },
 
     mixins: [commonCoreStrings, commonSyncElements],
     setup(props, context) {

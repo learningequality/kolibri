@@ -14,7 +14,7 @@
       @cancel="handleCancel"
       @submit="handleSelectAddressSubmit"
     />
-    <AddAddressForm
+    <AddDeviceForm
       v-if="stage === Stages.ADD_ADDRESS"
       @cancel="goToSelectAddress"
       @added_address="handleAddedAddress"
@@ -26,7 +26,7 @@
 
 <script>
 
-  import AddAddressForm from './AddAddressForm';
+  import AddDeviceForm from './AddDeviceForm';
   import SelectAddressForm from './SelectAddressForm';
 
   const Stages = Object.freeze({
@@ -37,7 +37,7 @@
   export default {
     name: 'SelectAddressModalGroup',
     components: {
-      AddAddressForm,
+      AddDeviceForm,
       SelectAddressForm,
     },
     props: {

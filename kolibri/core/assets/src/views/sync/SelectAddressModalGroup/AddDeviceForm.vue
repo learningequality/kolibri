@@ -61,7 +61,7 @@
   };
 
   export default {
-    name: 'AddAddressForm',
+    name: 'AddDeviceForm',
     components: {
       UiAlert,
     },

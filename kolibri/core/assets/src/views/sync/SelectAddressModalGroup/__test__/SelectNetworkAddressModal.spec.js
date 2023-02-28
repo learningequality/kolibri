@@ -17,12 +17,12 @@ function makeWrapper() {
   })
   const els = {
     SelectAddressForm: () => wrapper.find({ name: 'SelectAddressForm' }),
-    AddAddressForm: () => wrapper.find({ name: 'AddAddressForm' }),
+    AddDeviceForm: () => wrapper.find({ name: 'AddDeviceForm' }),
   };
 
   const actions = {
     clickNewAddress: () => els.SelectAddressForm().find({ name: 'KButton' }).vm.$emit('click'),
-    clickAddAddressCancel: () => els.AddAddressForm().vm.$emit('cancel'),
+    clickAddAddressCancel: () => els.AddDeviceForm().vm.$emit('cancel'),
     clickSelectAddressCancel: () => els.SelectAddressForm().vm.$emit('cancel'),
   }
 
@@ -40,7 +40,7 @@ xdescribe('SelectNetworkAddressModal', () => {
     actions.clickNewAddress();
     await wrapper.vm.$nextTick();
     expect(els.SelectAddressForm().exists()).toBe(false);
-    expect(els.AddAddressForm().isVueInstance()).toBe(true);
+    expect(els.AddDeviceForm().isVueInstance()).toBe(true);
   });
 
   it('clicking "cancel" on the New Address Form takes you back', async () => {
