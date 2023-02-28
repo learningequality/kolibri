@@ -24,7 +24,6 @@
         />
       </div>
     </form>
-
     <transition mode="out-in">
       <p
         v-if="!searchHasBeenMade"
@@ -62,7 +61,7 @@
     </transition>
 
     <ol
-      v-show="searchHasBeenMade && !searchIsLoading && searchResults.length > 0"
+      v-if="searchHasBeenMade && !searchIsLoading && searchResults.length > 0"
       ref="searchResultsList"
       class="search-results-list"
     >
@@ -73,11 +72,14 @@
         :style="{ borderTop: `solid 1px ${$themeTokens.fineLine}` }"
       >
         <KButton
-          :text="item.excerpt"
           appearance="basic-link"
           class="search-results-list-item-button"
           @click="$emit('navigateToSearchResult', item)"
-        />
+        >
+          <span>{{ item.before }}</span>
+          <span class="mark">{{ item.match }}</span>
+          <span>{{ item.after }}</span>
+        </KButton>
       </li>
     </ol>
   </SideBar>
@@ -87,7 +89,8 @@
 
 <script>
 
-  import Mark from 'mark.js';
+  import { EpubCFI } from 'epubjs';
+  import isEqual from 'lodash/isEqual';
   import SideBar from './SideBar';
 
   /**
@@ -153,7 +156,6 @@
       searchIsLoading: false,
       maxSearchResultsExceeded: false,
       searchHasBeenMade: false,
-      markInstance: null,
     }),
     computed: {
       numberOfSearchResults() {
@@ -186,31 +188,136 @@
               if (searchResults.length > MAX_SEARCH_RESULTS) {
                 this.maxSearchResultsExceeded = true;
               }
-              this.searchResults = searchResults.slice(0, MAX_SEARCH_RESULTS);
-
-              // Wait for list to be updated
-              this.$nextTick().then(() => {
-                if (this.markInstance) {
-                  this.markInstance.unmark({
-                    done: () => this.createMarks(searchQuery),
-                  });
-                } else {
-                  this.createMarks(searchQuery);
-                }
-              });
+              searchResults = searchResults.slice(0, MAX_SEARCH_RESULTS);
+              this.searchResults = this.selectMatchResult(searchResults);
+              this.$emit('newSearchQuery', searchQuery);
+              this.searchIsLoading = false;
             }
           );
         }
       },
-      createMarks(searchQuery) {
-        this.markInstance = new Mark(this.$refs.searchResultsList);
-        this.markInstance.mark(searchQuery, {
-          separateWordSearch: false,
-          done: () => {
-            this.$emit('newSearchQuery', searchQuery);
-            this.searchIsLoading = false;
-          },
+      /**
+       * This method "marks" the match text to which the cfi refers in every result in the
+       * search results list
+       * @param {array} searchResults
+       * @returns {array} searchResults with the excerpt split into before, match, and after
+       * where the match is the text that will be highlighted
+       */
+      selectMatchResult(searchResults) {
+        const searchQuery = this.searchQuery.toLowerCase();
+        return searchResults.map((result, i) => {
+          const textSplit = result.excerpt.toLowerCase().split(searchQuery);
+
+          const selectedIndex = this.getMatchIndex({
+            textSplit,
+            cfi: result.cfi,
+            nextResult: searchResults[i + 1],
+          });
+
+          const slicedExcerpt = this.splitExcerpt({
+            textSplit,
+            excerpt: result.excerpt,
+            selectedIndex,
+          });
+
+          return {
+            ...result,
+            ...slicedExcerpt,
+          };
         });
+      },
+      /**
+       * Identify the index of the match in the result excerpt based
+       * on the distance between the cfis with the next result compared to
+       * the distance of the result excerpt between a match and the next match.
+       * @param {object} params
+       * @param {string[]} params.textSplit The result excerpt split by the search query
+       * @param {string} params.cfi The cfi of the current result
+       * @param {object} params.nextResult The next result
+       * @returns {number} The index of the match in the result excerpt
+       * @example If there are n matches in the same result excerpt, this method will
+       * return 0 if the cfi refers to the first match, 1 for the second match, etc.
+       */
+      getMatchIndex({ textSplit, cfi, nextResult }) {
+        if (textSplit.length <= 2) {
+          // There is just one match in the result excerpt
+          return 0;
+        }
+        if (!nextResult) {
+          // This is the last result so the index is the last match
+          return textSplit.length - 2;
+        }
+
+        const distanceNext = this.getDistanceInNode(cfi, nextResult.cfi);
+        for (let i = 1; i < textSplit.length - 1; i++) {
+          const split = textSplit[i];
+          if (split.length === distanceNext) {
+            return i - 1;
+          }
+        }
+        // If the distance between the two cfis doesnt match the distance between
+        // any two matches in the result excerpt, then the two matches are not in the same node,
+        // so we return the last match.
+        return textSplit.length - 2;
+      },
+      /**
+       * If two matches appears in the same result excerpt then they are in the same node.
+       * So, this method finds the distance between the two matches and return -1 if they are
+       * not in the same node.
+       * @param {string} cfi1 The cfi of the first match
+       * @param {string} cfi2 The cfi of the second match after the first one
+       * @returns {number} The number of characters between the two matches or -1 if they are
+       * not in the same node.
+       */
+      getDistanceInNode(cfi1, cfi2) {
+        const cfiParser = new EpubCFI();
+        const cfi1Parsed = cfiParser.parse(cfi1);
+        const cfi2Parsed = cfiParser.parse(cfi2);
+
+        if (!cfi1Parsed.range || !cfi2Parsed.range) {
+          // Just in case we have a cfi that is not a range
+          return -1;
+        }
+
+        const cfi2StartTerminal = cfi2Parsed.start.terminal;
+        const cfi1EndTerminal = cfi1Parsed.end.terminal;
+
+        // If both cfi's are in the same node, all its steps will be the same except
+        // for the terminals of the range. We can safely delete them to compare the rest.
+        delete cfi1Parsed.start.terminal;
+        delete cfi2Parsed.start.terminal;
+        delete cfi1Parsed.end.terminal;
+        delete cfi2Parsed.end.terminal;
+        const isInSameNode = isEqual(cfi1Parsed, cfi2Parsed);
+        if (!isInSameNode) {
+          return -1;
+        }
+
+        const distance = cfi2StartTerminal.offset - cfi1EndTerminal.offset;
+        return distance;
+      },
+      /**
+       * Divide the excerpt into before, match, and after based on the index of the match
+       * where the match is the text that will be highlighted
+       * @param {object} params
+       * @param {string[]} params.textSplit The result excerpt split by the search query
+       * @param {string} params.excerpt The result excerpt
+       * @param {number} params.selectedIndex The index of the match in the result excerpt
+       * @returns {object} The excerpt divided into before, match, and after
+       */
+      splitExcerpt({ textSplit, excerpt, selectedIndex }) {
+        const searchQueryLength = this.searchQuery.length;
+        let startIndex = searchQueryLength * selectedIndex;
+        for (let i = 0; i < selectedIndex + 1; i++) {
+          startIndex += textSplit[i].length;
+        }
+        const endIndex = startIndex + searchQueryLength;
+
+        return {
+          before: excerpt.slice(0, startIndex),
+          match: excerpt.slice(startIndex, endIndex),
+          after: excerpt.slice(endIndex),
+        };
       },
     },
     $trs: {
@@ -281,6 +388,13 @@
   .search-results-list-item {
     padding-top: 8px;
     padding-bottom: 8px;
+  }
+
+  .mark {
+    color: #000000;
+
+    /* Styles same as markjs default styles */
+    background: #ffff00;
   }
 
   .search-results-list-item-button {

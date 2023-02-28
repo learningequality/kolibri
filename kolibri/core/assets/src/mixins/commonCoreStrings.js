@@ -417,6 +417,9 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       'A user is any person who has access to a facility in Kolibri. There are  four main types of users in Kolibri: Learners, Coaches, Admins and Super admins.',
   },
+  uncountedAdditionalResults: {
+    message: 'More than { num, number } results',
+  },
   viewMoreAction: {
     message: 'View more',
     context:
@@ -686,7 +689,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Numeracy',
     context: 'Category type. See https://en.wikipedia.org/wiki/Numeracy',
   },
-  digitialLiteracy: {
+  digitalLiteracy: {
     message: 'Digital literacy',
     context: 'Category type. See https://en.wikipedia.org/wiki/Digital_literacy',
   },
@@ -708,7 +711,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
 
   //  VocationalSubcategories
-  softwareToolsAndTraining: {
+  toolsAndSoftwareTraining: {
     message: 'Software tools and training',
     context: 'Subcategory type for technical and vocational training.',
   },
@@ -768,25 +771,39 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
       'Category label in the Kolibri resources library; refers to lesson planning materials for teachers.',
   },
 
+  uncategorized: {
+    message: 'Uncategorized',
+    context: 'A label to indicate that no category label has been applied to the resource.',
+  },
+
   // Resources Needed Categories = {
-  ForBeginners: {
+  forBeginners: {
     message: 'For beginners',
     context: 'Filter option and a label for the resources in the Kolibri Library.',
   },
-  ToUseWithTeachersAndPeers: {
-    message: 'To use with teachers and peers',
+  toUseWithPeers: {
+    message: 'To use with peers',
     context:
       "'Peers' in this context refers to classmates or other learners who are interacting with Kolibri.",
   },
-  ToUseWithPaperAndPencil: {
+  toUseWithTeachers: {
+    message: 'To use with teachers',
+    context:
+      'To use with a subject matter or pedagogical expert who is helping to guide the learner.',
+  },
+  toUseWithPaperAndPencil: {
     message: 'To use with paper and pencil',
     context: 'Refers to a filter for resources.\n',
   },
-  NeedsInternet: {
+  needsInternet: {
     message: 'That need internet connection',
     context: 'Refers to a filter for resources.',
   },
-  NeedsMaterials: {
+  needsSpecialSoftware: {
+    message: 'That need special software',
+    context: 'Refers to a filter for resources.',
+  },
+  needsMaterials: {
     message: 'That need other materials',
     context: 'Refers to a filter for resources.\n',
   },
@@ -1041,6 +1058,18 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
       "Could also be translated as \"View information about providing identifier\"\n\nAll 'AriaLabel' type of messages are providing additional context to the screen-reader users. \n\nIn this case the screen-reader will announce the message to the user indicating that they can access more information and examples about the 'Identifier' through the 'i' icon.",
   },
 
+  // Missing resource strings
+  someResourcesMissingOrNotSupported: {
+    message: 'Some resources are missing or not supported',
+    context:
+      'Floating notification message that appears over the alert icon and indicates that there are missing resources',
+  },
+  resourceNotFoundOnDevice: {
+    message: 'Resource not found on device',
+    context:
+      'Error message that displays if a learning resource cannot be found on the device being used currently.',
+  },
+
   // Content activity
   notStartedLabel: {
     message: 'Not started',
@@ -1084,24 +1113,6 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
 });
 
-// We forgot a string, so we are using one from the PerseusInternalMessages namespace
-// do not do this, do as I say, not as I do, etc. etc.
-// TODO: 0.16 - remove this and put a proper string in place
-const noneOfTheAboveTranslator = createTranslator('PerseusInternalMessages', {
-  'None of the above': 'None of the above',
-});
-
-// We forgot another string, so we are using one from the EPubRenderer SearchSideBar namespace
-// do not do this, do as I say, not as I do, etc. etc.
-// TODO: 0.16 - remove this and put a proper string in place
-const overResultsTranslator = createTranslator('SearchSideBar', {
-  overCertainNumberOfSearchResults: {
-    message: 'Over {num, number, integer} {num, plural, one {result} other {results}}',
-    context:
-      'Refers to number of search results when there are over a specified amount. Only translate "over", "result" and "results".\n',
-  },
-});
-
 /**
  * An object mapping ad hoc keys (like those to be passed to coreString()) which do not
  * conform to the expectations. Examples:
@@ -1112,16 +1123,17 @@ const overResultsTranslator = createTranslator('SearchSideBar', {
  * - Keys which, when _.camelCase()'ed will not result in a valid key, requiring manual mapping
  */
 const nonconformingKeys = {
-  PEOPLE: 'ToUseWithTeachersAndPeers',
-  PAPER_PENCIL: 'ToUseWithPaperAndPencil',
-  INTERNET: 'NeedsInternet',
-  MATERIALS: 'NeedsMaterials',
-  FOR_BEGINNERS: 'ForBeginners',
-  digitalLiteracy: 'digitialLiteracy',
+  PEERS: 'toUseWithPeers',
+  TEACHER: 'toUseWithTeachers',
+  PAPER_PENCIL: 'toUseWithPaperAndPencil',
+  INTERNET: 'needsInternet',
+  SPECIAL_SOFTWARE: 'needsSpecialSoftware',
+  MATERIALS: 'needsMaterials',
+  OTHER_SUPPLIES: 'needsMaterials',
+  FOR_BEGINNERS: 'forBeginners',
   BASIC_SKILLS: 'allLevelsBasicSkills',
   FOUNDATIONS: 'basicSkills',
   foundations: 'basicSkills',
-  toolsAndSoftwareTraining: 'softwareToolsAndTraining',
   foundationsLogicAndCriticalThinking: 'logicAndCriticalThinking',
 };
 
@@ -1153,14 +1165,6 @@ const MetadataLookup = invert(
  * string mapping to the values to be passed for those arguments.
  */
 export function coreString(key, args) {
-  if (key === 'None of the above' || key === METADATA.NoCategories) {
-    return noneOfTheAboveTranslator.$tr('None of the above', args);
-  }
-
-  if (key === 'overCertainNumberOfSearchResults') {
-    return overResultsTranslator.$tr(key, args);
-  }
-
   const metadataKey = get(MetadataLookup, key, null);
   key = metadataKey ? camelCase(metadataKey) : key;
 
@@ -1188,7 +1192,7 @@ export default {
      * `CORE_CREATE_SNACKBAR` mutation.
      */
     showSnackbarNotification(key, args, coreCreateSnackbarArgs) {
-      let text = notificationStrings.$tr(key, args || {});
+      const text = notificationStrings.$tr(key, args || {});
       if (coreCreateSnackbarArgs) {
         this.$store.commit('CORE_CREATE_SNACKBAR', {
           ...coreCreateSnackbarArgs,

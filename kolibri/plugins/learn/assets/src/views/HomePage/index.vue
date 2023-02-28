@@ -5,6 +5,7 @@
     :loading="loading"
   >
     <div v-if="!loading" id="main" role="main">
+      <MissingResourceAlert v-if="missingResources" />
       <YourClasses
         v-if="displayClasses"
         class="section"
@@ -58,6 +59,7 @@
 
   import { computed } from 'kolibri.lib.vueCompositionApi';
   import { get } from '@vueuse/core';
+  import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert';
   import useChannels from '../../composables/useChannels';
   import useDeviceSettings from '../../composables/useDeviceSettings';
   import useLearnerResources from '../../composables/useLearnerResources';
@@ -85,6 +87,7 @@
       ContinueLearning,
       ExploreChannels,
       LearnAppBarPage,
+      MissingResourceAlert,
     },
     mixins: [commonLearnStrings],
     setup() {
@@ -141,6 +144,13 @@
         return get(isUserLoggedIn) && (get(classes).length || !get(canAccessUnassignedContent));
       });
 
+      const missingResources = computed(() => {
+        return (
+          get(activeClassesLessons).some(l => l.missing_resource) ||
+          get(activeClassesQuizzes).some(q => q.missing_resource)
+        );
+      });
+
       return {
         isUserLoggedIn,
         channels,
@@ -153,6 +163,7 @@
         continueLearning,
         displayExploreChannels,
         displayClasses,
+        missingResources,
       };
     },
     props: {

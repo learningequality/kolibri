@@ -60,7 +60,9 @@
         data-test="contentPage"
         :content="content"
         :lessonId="lessonId"
-        :style="{ backgroundColor: ( content.assessment ? '' : $themeTokens.textInverted ) }"
+        :style="{
+          backgroundColor: ( content.assessmentmetadata ? '' : $themeTokens.textInverted )
+        }"
         :allowMarkComplete="allowMarkComplete"
         @mounted="contentPageMounted = true"
         @finished="$refs.activityBar && $refs.activityBar.animateNextSteps()"
@@ -124,6 +126,8 @@
         :nextContent="nextContent"
         :isLesson="lessonContext"
         :loading="resourcesSidePanelLoading"
+        :currentResourceID="currentResourceID"
+        :missingLessonResources="missingLessonResources"
       />
     </SidePanelModal>
 
@@ -143,6 +147,7 @@
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import { ContentNodeResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import client from 'kolibri.client';
   import urls from 'kolibri.urls';
   import AppError from 'kolibri-common/components/AppError';
@@ -151,6 +156,7 @@
   import useContentLink from '../composables/useContentLink';
   import useCoreLearn from '../composables/useCoreLearn';
   import useContentNodeProgress from '../composables/useContentNodeProgress';
+  import useDevices from '../composables/useDevices';
   import useLearnerResources from '../composables/useLearnerResources';
   import SidePanelModal from './SidePanelModal';
   import LearningActivityChip from './LearningActivityChip';
@@ -203,7 +209,9 @@
       } = useContentNodeProgress();
       const { fetchLesson } = useLearnerResources();
       const { back } = useContentLink();
+      const { baseurl } = useDevices();
       return {
+        baseurl,
         canDownload,
         contentNodeProgressMap,
         fetchContentNodeProgress,
@@ -239,6 +247,7 @@
         resourcesSidePanelFetched: false,
         resourcesSidePanelLoading: false,
         contentPageMounted: false,
+        lesson: null,
       };
     },
     computed: {
@@ -290,6 +299,12 @@
       },
       timeSpent() {
         return this.contentPageMounted ? this.$refs.contentPage.time_spent : 0;
+      },
+      currentResourceID() {
+        return this.content ? this.content.content_id : '';
+      },
+      missingLessonResources() {
+        return this.lesson && this.lesson.resources.some(c => !c.contentnode);
       },
     },
     watch: {
@@ -361,10 +376,11 @@
         // Get the lesson and then assign its resources to this.viewResourcesContents
         // fetchLesson also handles fetching the progress data for this lesson and
         // the content node data for the resources
-        this.fetchLesson({ lessonId: this.lessonId }).then(lesson => {
+        return this.fetchLesson({ lessonId: this.lessonId }).then(lesson => {
           // Filter out this.content
+          this.lesson = lesson;
           this.viewResourcesContents = lesson.resources
-            .filter(n => n.contentnode && n.contentnode_id !== this.content.id)
+            .filter(n => n.contentnode)
             .map(n => n.contentnode);
         });
       },
@@ -385,37 +401,39 @@
         if (!this.content) {
           return Promise.resolve();
         }
-        // Fetch the next content
-        const nextPromise = ContentNodeResource.fetchNextContent(this.content.parent, {
-          topicOnly: true,
-        }).then(nextContent => {
-          // This may return the immediate parent if nothing else is found so let's be sure
-          // not to assign that
-          if (nextContent && this.content.parent !== nextContent.id) {
-            this.nextContent = nextContent;
-          }
-        });
+        const fetchGrandparent = this.content.ancestors.length > 1;
         const treeParams = {
-          id: this.content.parent,
+          id: fetchGrandparent ? this.content.ancestors.slice(-2)[0].id : this.content.parent,
           params: {
             include_coach_content:
               this.$store.getters.isAdmin ||
               this.$store.getters.isCoach ||
               this.$store.getters.isSuperuser,
-            depth: 1,
+            depth: fetchGrandparent ? 2 : 1,
+            baseurl: this.baseurl,
           },
         };
         // Fetch and map the progress for the nodes if logged in
-        if (this.$store.getters.isUserLoggedIn) {
+        if (this.$store.getters.isUserLoggedIn && !this.baseurl) {
           this.fetchContentNodeTreeProgress(treeParams);
         }
-        const treePromise = ContentNodeResource.fetchTree(treeParams).then(parent => {
-          // Filter out this.content
-          this.viewResourcesContents = parent.children.results.filter(
-            n => n.id !== this.content.id
-          );
+        return ContentNodeResource.fetchTree(treeParams).then(ancestor => {
+          let parent;
+          let nextContents;
+          if (fetchGrandparent) {
+            const parentIndex = ancestor.children.results.findIndex(
+              c => c.id === this.content.parent
+            );
+            parent = ancestor.children.results[parentIndex];
+            nextContents = ancestor.children.results.slice(parentIndex + 1);
+          } else {
+            parent = ancestor;
+            const contentIndex = ancestor.children.results.findIndex(c => c.id === this.content.id);
+            nextContents = ancestor.children.results.slice(contentIndex + 1);
+          }
+          this.nextContent = nextContents.find(c => c.kind === ContentNodeKinds.TOPIC) || null;
+          this.viewResourcesContents = parent.children.results.filter(n => n.id);
         });
-        return Promise.all([nextPromise, treePromise]);
       },
       navigateBack() {
         this.$router.push(this.back);
@@ -522,6 +540,8 @@
   }
 
   .also-in-this-side-panel {
+    overflow: hidden;
+
     /deep/ .side-panel {
       padding-bottom: 0;
     }

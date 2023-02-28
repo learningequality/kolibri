@@ -277,7 +277,7 @@
     },
     methods: {
       handleOpenQuiz() {
-        let promise = ExamResource.saveModel({
+        const promise = ExamResource.saveModel({
           id: this.$route.params.quizId,
           data: {
             active: true,
@@ -297,7 +297,7 @@
           });
       },
       handleCloseQuiz() {
-        let promise = ExamResource.saveModel({
+        const promise = ExamResource.saveModel({
           id: this.$route.params.quizId,
           data: {
             archive: true,
@@ -322,7 +322,7 @@
           ? this.coachString('quizVisibleToLearners')
           : this.coachString('quizNotVisibleToLearners');
 
-        let promise = ExamResource.saveModel({
+        const promise = ExamResource.saveModel({
           id: this.$route.params.quizId,
           data: {
             active: newActiveState,

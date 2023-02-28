@@ -81,7 +81,7 @@ class ClassSummaryTestCase(EvaluationMixin, APITestCase):
         cls.basename = "kolibri:kolibri.plugins.coach:classsummary"
         cls.detail_name = cls.basename + "-detail"
 
-    def test_non_existent_nodes_dont_show_up_in_lessons(self):
+    def test_non_existent_nodes_do_show_up_in_lessons(self):
         node = ContentNode.objects.exclude(kind=content_kinds.TOPIC).first()
         last_node = ContentNode.objects.exclude(kind=content_kinds.TOPIC).last()
         real_data = {
@@ -108,11 +108,13 @@ class ClassSummaryTestCase(EvaluationMixin, APITestCase):
         response = self.client.get(
             reverse(self.detail_name, kwargs={"pk": self.classroom.id})
         )
-        node_ids = response.data["lessons"][0]["node_ids"]
+        lesson = response.data["lessons"][0]
+        node_ids = lesson["node_ids"]
         self.assertIn(real_data["contentnode_id"], node_ids)
         # swapped data
-        self.assertIn(last_node.id, node_ids)
-        self.assertNotIn(fake_data["contentnode_id"], node_ids)
+        self.assertNotIn(last_node.id, node_ids)
+        self.assertIn(fake_data["contentnode_id"], node_ids)
+        self.assertTrue(lesson["missing_resource"])
 
     def test_anon_user_cannot_access_detail(self):
         response = self.client.get(

@@ -49,9 +49,9 @@ const allowedFileExtensions = new Set([
 
 const output = {};
 
-for (let key in mimeDB) {
+for (const key in mimeDB) {
   if (mimeDB[key].extensions) {
-    for (let ext of mimeDB[key].extensions) {
+    for (const ext of mimeDB[key].extensions) {
       if (allowedFileExtensions.has(ext)) {
         output[ext] = key;
       }

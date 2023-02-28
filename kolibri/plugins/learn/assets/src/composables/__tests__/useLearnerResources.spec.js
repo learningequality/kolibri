@@ -3,7 +3,6 @@ import cloneDeep from 'lodash/cloneDeep';
 import { ContentNodeResource } from 'kolibri.resources';
 import { ClassesPageNames } from '../../constants';
 import { LearnerClassroomResource } from '../../apiResources';
-import { normalizeContentNode } from '../../modules/coreLearn/utils';
 import useLearnerResources from '../useLearnerResources';
 
 const {
@@ -627,9 +626,7 @@ describe(`useLearnerResources`, () => {
         .fn()
         .mockResolvedValue({ results: TEST_RESUMABLE_CONTENT_NODES, more });
       await fetchResumableContentNodes();
-      expect(resumableContentNodes.value).toEqual(
-        TEST_RESUMABLE_CONTENT_NODES.map(normalizeContentNode)
-      );
+      expect(resumableContentNodes.value).toEqual(TEST_RESUMABLE_CONTENT_NODES);
       expect(moreResumableContentNodes.value).toEqual(more);
     });
   });

@@ -1,5 +1,6 @@
 import urls from 'kolibri.urls';
 import client from 'kolibri.client';
+import plugin_data from 'plugin_data';
 
 export default {
   namespaced: true,
@@ -18,6 +19,17 @@ export default {
     RESET_STATE(state) {
       state.deviceInfo = {};
       state.deviceName = null;
+    },
+  },
+  getters: {
+    getDeviceOS(state) {
+      return state.deviceInfo.os;
+    },
+    canRestart() {
+      return plugin_data.canRestart;
+    },
+    isRemoteContent() {
+      return plugin_data.isRemoteContent;
     },
   },
   actions: {

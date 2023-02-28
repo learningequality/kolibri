@@ -79,6 +79,7 @@
     border-top-left-radius: $radius;
     border-top-right-radius: $radius;
     outline: none;
+    outline-offset: -2px !important;
     transition: background-color $core-time ease;
 
     @media print {

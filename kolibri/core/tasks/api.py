@@ -73,6 +73,7 @@ class TasksViewSet(viewsets.GenericViewSet):
         return validated_jobs
 
     def _job_to_response(self, job):
+        orm_job = job_storage.get_orm_job(job_id=job.job_id)
         output = {
             "status": job.state,
             "type": job.func,
@@ -84,6 +85,10 @@ class TasksViewSet(viewsets.GenericViewSet):
             "clearable": job.state in [State.FAILED, State.CANCELED, State.COMPLETED],
             "facility_id": job.facility_id,
             "extra_metadata": job.extra_metadata,
+            "scheduled_datetime": str(orm_job.scheduled_time),  # Output is UTC naive.
+            "repeat": orm_job.repeat,
+            "repeat_interval": orm_job.interval,
+            "retry_interval": orm_job.retry_interval,
         }
         return output
 

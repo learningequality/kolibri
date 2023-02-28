@@ -70,6 +70,7 @@
                 :key="t.id"
                 :topic="t"
                 :subTopicLoading="t.id === subTopicLoading"
+                :allowDownloads="allowDownloads"
                 @showMore="handleShowMore"
                 @loadMoreInSubtopic="handleLoadMoreInSubtopic"
                 @toggleInfoPanel="toggleInfoPanel"
@@ -81,6 +82,7 @@
             <LibraryAndChannelBrowserMainContent
               v-if="resources.length"
               :gridType="2"
+              :allowDownloads="allowDownloads"
               data-test="search-results"
               :contents="resourcesDisplayed"
               :numCols="numCols"
@@ -113,6 +115,7 @@
           <SearchResultsGrid
             v-else
             data-test="search-results"
+            :allowDownloads="allowDownloads"
             :currentCardViewStyle="currentSearchCardViewStyle"
             :hideCardViewToggle="true"
             :results="results"
@@ -133,9 +136,6 @@
       <SearchPanelModal
         v-if="!windowIsLarge && sidePanelIsOpen"
         v-model="searchTerms"
-        :activeCategories="activeCategories"
-        :activeActivityButtons="activeActivityButtons"
-        :availableLabels="labels"
         :mobileSearchActive="mobileSearchActive"
         :topicMore="topicMore"
         :topics="topics"
@@ -162,12 +162,9 @@
         class="side-panel"
         topicPage="True"
         :topics="topics"
-        :activeActivityButtons="activeActivityButtons"
-        :activeCategories="activeCategories"
         :topicsLoading="topicMoreLoading"
         :more="topicMore"
         :width="`${sidePanelWidth}px`"
-        :availableLabels="labels"
         :showChannels="false"
         position="embedded"
         :style="sidePanelStyleOverrides"
@@ -194,9 +191,6 @@
           :topics="topics"
           :topicsLoading="topicMoreLoading"
           :more="topicMore"
-          :availableLabels="labels"
-          :activeActivityButtons="activeActivityButtons"
-          :activeCategories="activeCategories"
           :showChannels="false"
           position="overlay"
           @currentCategory="handleShowSearchModal"
@@ -205,7 +199,6 @@
         <CategorySearchModal
           v-if="currentCategory && windowIsSmall"
           :selectedCategory="currentCategory"
-          :availableLabels="labels"
           @cancel="currentCategory = null"
           @input="handleCategory"
         />
@@ -213,7 +206,6 @@
       <CategorySearchModal
         v-if="currentCategory"
         :selectedCategory="currentCategory"
-        :availableLabels="labels"
         @cancel="currentCategory = null"
         @input="handleCategory"
       />
@@ -276,7 +268,6 @@
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import SidePanelModal from '../SidePanelModal';
   import { PageNames } from '../../constants';
-  import { normalizeContentNode } from '../../modules/coreLearn/utils.js';
   import useSearch from '../../composables/useSearch';
   import useContentLink from '../../composables/useContentLink';
   import LibraryAndChannelBrowserMainContent from '../LibraryAndChannelBrowserMainContent';
@@ -339,7 +330,6 @@
         moreLoading,
         results,
         more,
-        labels,
         search,
         searchMore,
         removeFilterTag,
@@ -354,7 +344,6 @@
         moreLoading,
         results,
         more,
-        labels,
         search,
         searchMore,
         removeFilterTag,
@@ -367,6 +356,10 @@
     props: {
       loading: {
         type: Boolean,
+        default: null,
+      },
+      deviceId: {
+        type: String,
         default: null,
       },
     },
@@ -388,6 +381,9 @@
     },
     computed: {
       ...mapState('topicsTree', ['channel', 'contents', 'isRoot', 'topic']),
+      allowDownloads() {
+        return Boolean(this.deviceId);
+      },
       childrenToDisplay() {
         return Math.max(this.numCols, 3);
       },
@@ -474,7 +470,7 @@
           .filter(t => (this.subTopicId ? t.id === this.subTopicId : true))
           .map(t => {
             let childrenToDisplay;
-            let topicChildren = t.children ? t.children.results : [];
+            const topicChildren = t.children ? t.children.results : [];
             if (this.subTopicId || this.topics.length === 1) {
               // If we are in a subtopic display, we should only be displaying this topic
               // so don't bother checking if the ids match.
@@ -486,7 +482,7 @@
             } else {
               childrenToDisplay = this.childrenToDisplay;
             }
-            const children = topicChildren.slice(0, childrenToDisplay).map(normalizeContentNode);
+            const children = topicChildren.slice(0, childrenToDisplay);
             // showMore is whether we should show more inline
             const showMore =
               !this.subTopicId &&
@@ -560,18 +556,6 @@
       // calls handleScroll no more than every 17ms
       throttledTabPositionCalculation() {
         return throttle(this.tabPositionCalculation);
-      },
-      activeActivityButtons() {
-        if (this.searchTerms) {
-          return this.searchTerms.learning_activities;
-        }
-        return [];
-      },
-      activeCategories() {
-        if (this.searchTerms) {
-          return this.searchTerms.categories;
-        }
-        return [];
       },
       topicMore() {
         return this.topic && this.topic.children && this.topic.children.more;

@@ -97,7 +97,12 @@ const routes = [
     name: PageNames.DEVICE_SETTINGS_PAGE,
     component: withAuthMessage(DeviceSettingsPage, 'admin'),
     path: '/settings',
-    handler: defaultHandler,
+    handler: ({ name }) => {
+      store.dispatch('preparePage', { name });
+      if (store.getters['deviceInfo/getDeviceOS'] === undefined) {
+        showDeviceInfoPage(store).then(hideLoadingScreen);
+      }
+    },
   },
   {
     name: PageNames.DELETE_CHANNELS,

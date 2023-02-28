@@ -36,6 +36,18 @@ function nodeResolver(source, file, config) {
   }
 }
 
+const moduleAliases = {};
+
+exports.addAliases = function(aliases) {
+  Object.assign(moduleAliases, aliases);
+};
+
+exports.resetAliases = function() {
+  for (const key in moduleAliases) {
+    delete moduleAliases[key];
+  }
+};
+
 exports.interfaceVersion = 2;
 
 exports.resolve = function(source, file, config) {
@@ -57,5 +69,10 @@ exports.resolve = function(source, file, config) {
   if (coreExternals[source]) {
     return { found: true, path: null };
   }
+  const alias = Object.keys(moduleAliases).find(k => source.startsWith(k));
+  if (alias) {
+    source = source.replace(alias, moduleAliases[alias]);
+  }
+
   return nodeResolver(source, file, config);
 };

@@ -16,8 +16,7 @@ If you encounter issues:
 * Please let us know if our docs can be improved, either by filing an issue or submitting a PR!
 
 .. note::
-  Theoretically, Windows can be used to develop Kolibri, but we haven't tested this lately. If you're running Windows, you are likely to encounter issues with this guide. That said, we'd appreciate any help improving these docs for Windows developers!
-
+  Theoretically, Windows can be used to develop Kolibri, but we haven't done much testing with it. If you're running Windows, you are likely to encounter some issues with this guide, and we'd appreciate any help improving these docs for Windows developers!
 
 Git and GitHub
 ~~~~~~~~~~~~~~
@@ -49,6 +48,7 @@ Next, initialize Git LFS:
   git lfs install
 
 Finally, add the Learning Equality repo as a remote called `upstream`. That way you can keep your local checkout updated with the most recent changes:
+
 
 .. code-block:: bash
 

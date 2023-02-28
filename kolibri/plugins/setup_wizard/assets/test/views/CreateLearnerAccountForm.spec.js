@@ -14,6 +14,16 @@ function makeWrapper(options) {
   }
   const wrapper = mount(CreateLearnerAccountForm, {
     store,
+    provide: {
+      wizardService: {
+        state: {
+          context: {
+            learnerCanCreateAccount: null,
+            formalOrNonformal: options.preset,
+          },
+        },
+      },
+    },
   });
   jest.spyOn(wrapper.vm, '$emit');
 

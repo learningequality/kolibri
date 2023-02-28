@@ -89,7 +89,6 @@
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
-  import { coachStringsMixin } from '../../common/commonCoachStrings';
 
   // This is a simplified version of ResourceListTable that is supposed to work
   // outside of the LessonSummaryPage workflow.
@@ -103,7 +102,7 @@
       ContentIcon,
       CoachContentLabel,
     },
-    mixins: [coachStringsMixin, commonCoreStrings],
+    mixins: [commonCoreStrings],
     props: {
       // Array<{ contentnode_id, content_id, channel_id }>
       resources: {
@@ -147,15 +146,14 @@
               num_coach_contents: match.num_coach_contents,
               channelTitle: this.resourceChannelTitle(contentnode_id),
             };
-          } else {
-            // Need to filter out objects not in the contentNodeMap.
-            // Hopefully the contentNodeMap is always updated.
-            return resource;
           }
+          // Need to filter out objects not in the contentNodeMap.
+          // Hopefully the contentNodeMap is always updated.
+          return resource;
         });
       },
       resourceMissingText() {
-        return this.getMissingContentString('resourceNotFoundOnDevice');
+        return this.coreString('resourceNotFoundOnDevice');
       },
     },
     methods: {
@@ -164,7 +162,11 @@
         this.$emit('update:resources', resources);
       },
       resourceChannelTitle(id) {
-        const match = this.$store.getters['getChannelObject'](this.contentNodeMap[id].channel_id);
+        const contentNode = this.contentNodeMap[id];
+        if (!contentNode) {
+          return '';
+        }
+        const match = this.$store.getters['getChannelObject'](contentNode.channel_id);
         return match ? match.title : '';
       },
       removeResource(resource) {

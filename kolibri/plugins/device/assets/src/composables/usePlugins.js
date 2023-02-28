@@ -8,14 +8,14 @@ import urls from 'kolibri.urls';
 
 export default function usePlugins() {
   const plugins = ref(null);
-  function fetchPlugins() {
-    return client({
+  const fetchPlugins = Promise.resolve(
+    client({
       url: urls['kolibri:core:plugins-list'](),
     }).then(response => {
       plugins.value = response.data;
-    });
-  }
-  fetchPlugins();
+    })
+  );
+
   function togglePlugin(pluginId, value) {
     const pluginIndex = plugins.value.findIndex(plugin => plugin.id === pluginId);
     if (pluginIndex !== -1) {
@@ -43,7 +43,9 @@ export default function usePlugins() {
   }
   return {
     plugins,
+    fetchPlugins,
     enablePlugin,
     disablePlugin,
+    togglePlugin,
   };
 }

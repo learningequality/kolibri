@@ -25,7 +25,9 @@ from django.utils.http import http_date
 
 from kolibri.core.content.errors import InvalidStorageFilenameError
 from kolibri.core.content.utils.paths import get_content_storage_file_path
+from kolibri.core.content.utils.paths import get_content_storage_remote_url
 from kolibri.core.content.utils.paths import get_zip_content_base_path
+from kolibri.utils.file_transfer import RemoteFile
 
 
 logger = logging.getLogger(__name__)
@@ -191,11 +193,25 @@ def _zip_content_from_request(request):  # noqa: C901
             '"%(filename)s" is not a valid file name' % {"filename": zipped_filename}
         )
 
+    remote_baseurl = request.GET.get("baseurl")
+
     # if the zipfile does not exist on disk, return a 404
     if not os.path.exists(zipped_path):
-        return HttpResponseNotFound(
-            '"%(filename)s" is not a valid zip file' % {"filename": zipped_filename}
-        )
+        if not remote_baseurl:
+            return HttpResponseNotFound(
+                '"%(filename)s" is not a valid zip file' % {"filename": zipped_filename}
+            )
+        else:
+            try:
+                zipped_url = get_content_storage_remote_url(
+                    zipped_filename, baseurl=remote_baseurl
+                )
+                zipped_path = RemoteFile(zipped_path, zipped_url)
+            except Exception:
+                return HttpResponseNotFound(
+                    '"%(filename)s" is either not available on the remote "%(baseurl)s, or cannot be fetched'
+                    % {"filename": zipped_filename, "baseurl": remote_baseurl}
+                )
 
     # Sometimes due to URL concatenation, we get URLs with double-slashes in them, like //path/to/file.html.
     # the zipped_filename and embedded_filepath are defined by the regex capturing groups in the URL defined
@@ -225,7 +241,15 @@ def _zip_content_from_request(request):  # noqa: C901
     if cached_response is not None:
         return cached_response
 
-    response = get_embedded_file(zipped_path, zipped_filename, embedded_filepath)
+    try:
+        response = get_embedded_file(zipped_path, zipped_filename, embedded_filepath)
+    except Exception:
+        if remote_baseurl:
+            return HttpResponseNotFound(
+                '"%(filename)s" is either not available on the remote "%(baseurl)s, or cannot be fetched'
+                % {"filename": zipped_filename, "baseurl": remote_baseurl}
+            )
+        raise
 
     # ensure the browser knows not to try byte-range requests, as we don't support them here
     response["Accept-Ranges"] = "none"

@@ -1,50 +1,29 @@
 <template>
 
   <div>
-    <!-- small and xs displays -->
-    <CardGrid v-if="windowIsSmall" data-test="mobile-card-grid">
-      <ResourceCard
-        v-for="(content, idx) in contents"
-        :key="`resource-${idx}`"
-        :data-test="'resource-card-' + idx"
-        :contentNode="content"
-        :to="contentLink(content.id, content.is_leaf)"
-        @openCopiesModal="$emit('openCopiesModal', content.copies)"
-      />
-    </CardGrid>
-    <!-- large displays, card view -->
-    <CardGrid
-      v-else-if="!windowIsSmall && currentCardViewStyle === 'card'"
-      :gridType="gridType"
-      data-test="non-mobile-card-grid"
+    <component
+      :is="!windowIsSmall && currentCardViewStyle === 'list' ? 'div' : 'CardGrid'"
+      :data-test="`${windowIsSmall ? '' : 'non-'}mobile-card-grid`"
+      :gridType="grid"
     >
-      <HybridLearningContentCard
-        v-for="(content, idx) in contents"
+      <component
+        :is="componentType"
+        v-for="(contentNode, idx) in contents"
         :key="`resource-${idx}`"
-        class="card-grid-item"
-        :data-test="'content-card-' + idx"
-        :isMobile="windowIsSmall"
-        :content="content"
-        :link="contentLink(content.id, content.is_leaf)"
-        @openCopiesModal="$emit('openCopiesModal', content.copies)"
-        @toggleInfoPanel="$emit('toggleInfoPanel', content)"
-      />
-    </CardGrid>
-    <!-- large displays, list view -->
-    <CardList
-      v-for="(content, idx) in contents"
-      v-else-if="!windowIsSmall && currentCardViewStyle === 'list'"
-      :key="content.id"
-      :content="content"
-      class="card-grid-item"
-      :data-test="'card-list-view-' + idx"
-      :link="contentLink(content.id, content.is_leaf)"
-      :footerIcons="footerIcons"
-      :createdDate="content.bookmark ? content.bookmark.created : null"
-      @openCopiesModal="$emit('openCopiesModal', content.copies)"
-      @viewInformation="$emit('toggleInfoPanel', content)"
-      @removeFromBookmarks="$emit('removeFromBookmarks',content, contents)"
-    />
+        :data-test="componentType + '-' + idx"
+        :contentNode="contentNode"
+        :to="contentLink(contentNode.id, contentNode.is_leaf)"
+        @openCopiesModal="$emit('openCopiesModal', contentNode.copies)"
+      >
+        <template #footer>
+          <HybridLearningFooter
+            :contentNode="contentNode"
+            :allowDownloads="allowDownloads"
+            @toggleInfoPanel="$emit('toggleInfoPanel', contentNode)"
+          />
+        </template>
+      </component>
+    </component>
   </div>
 
 </template>
@@ -58,6 +37,7 @@
   import ResourceCard from './cards/ResourceCard';
 
   import HybridLearningContentCard from './HybridLearningContentCard';
+  import HybridLearningFooter from './HybridLearningContentCard/HybridLearningFooter';
   import CardList from './CardList';
 
   export default {
@@ -66,6 +46,7 @@
     components: {
       CardGrid,
       HybridLearningContentCard,
+      HybridLearningFooter,
       CardList,
       ResourceCard,
     },
@@ -105,16 +86,32 @@
         type: Boolean,
         default: false,
       },
+      // Whether to enable learner initiated downloads on the contained resource cards.
+      allowDownloads: {
+        type: Boolean,
+        default: false,
+      },
     },
-
     computed: {
-      footerIcons() {
-        return { info: 'viewInformation' };
+      componentType() {
+        if (this.windowIsSmall) {
+          return 'ResourceCard';
+        }
+        if (this.currentCardViewStyle === 'card') {
+          return 'HybridLearningContentCard';
+        }
+        return 'CardList';
+      },
+      grid() {
+        if (this.windowIsSmall) {
+          return 1;
+        }
+        return this.gridType;
       },
     },
     methods: {
       contentLink(id, isResource) {
-        return this.keepCurrentBackLink
+        return this.keepCurrentBackLink && !isResource
           ? this.genContentLinkKeepCurrentBackLink(id, isResource)
           : this.genContentLinkBackLinkCurrentPage(id, isResource);
       },

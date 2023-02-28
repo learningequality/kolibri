@@ -2,7 +2,7 @@ import { computed } from 'kolibri.lib.vueCompositionApi';
 import { get } from '@vueuse/core';
 
 export default function useScrollPosition() {
-  let _scrollPositions = {};
+  const _scrollPositions = {};
 
   const scrollPosition = computed({
     get() {

@@ -14,6 +14,12 @@
         class="troubleshooting-modal-link"
         @click="displayTroubleshootModal = true"
       />
+      <template>
+        <div aria-live="polite">
+          <StorageNotificationBanner v-if="learnerHasInsufficientStorage" />
+        </div>
+      </template>
+
       <KModal
         v-if="displayTroubleshootModal"
         :title="$tr('howToTroubleshootModalHeader')"
@@ -89,6 +95,7 @@
   import SyncStatusDisplay from '../../../../../core/assets/src/views/SyncStatusDisplay';
   import SyncStatusDescription from '../../../../../core/assets/src/views/SyncStatusDescription';
   import CoachImmersivePage from '../views/CoachImmersivePage';
+  import StorageNotificationBanner from './StorageNotificationBanner';
 
   export default {
     name: 'ClassLearnersListPage',
@@ -98,6 +105,7 @@
       CoachImmersivePage,
       SyncStatusDisplay,
       SyncStatusDescription,
+      StorageNotificationBanner,
     },
     mixins: [commonCoreStrings],
     data: function() {
@@ -114,7 +122,7 @@
         return this.$store.state.classSummary.name;
       },
       syncStatusOptions() {
-        let options = [];
+        const options = [];
         for (const [value] of Object.entries(SyncStatus)) {
           // skip displaying the "not recently synced" "unable to sync"
           // so they can be as separate option, per Figma design
@@ -132,6 +140,15 @@
           backRoute = this.$router.getRoute('ReportsQuizListPage');
         }
         return backRoute;
+      },
+      learnerHasInsufficientStorage() {
+        for (const learner in this.learnerMap) {
+          const learnerDevice = this.classSyncStatusList[learner];
+          if (learnerDevice && learnerDevice.status === SyncStatus.INSUFFICIENT_STORAGE) {
+            return true;
+          }
+        }
+        return false;
       },
     },
     mounted() {
@@ -160,7 +177,7 @@
       pollClassListSyncStatuses() {
         this.fetchUserSyncStatus({ member_of: this.$route.params.classId }).then(data => {
           const statuses = {};
-          for (let status of data) {
+          for (const status of data) {
             statuses[status.user] = status;
           }
           this.classSyncStatusList = statuses;
@@ -204,7 +221,7 @@
 <style lang="scss" scoped>
 
   .troubleshooting-modal-link {
-    margin-bottom: 40px;
+    margin-bottom: 25px;
   }
 
   /deep/ .title {
@@ -217,7 +234,7 @@
   }
 
   .status-option-display {
-    padding-bottom: 8px;
+    padding-bottom: 3px;
   }
 
 </style>

@@ -14,7 +14,6 @@ import { ContentNodeResource } from 'kolibri.resources';
 import { deduplicateResources } from '../utils/contentNode';
 import { LearnerClassroomResource, LearnerLessonResource } from '../apiResources';
 import { ClassesPageNames } from '../constants';
-import { normalizeContentNode } from '../modules/coreLearn/utils';
 import useContentNodeProgress, { setContentNodeProgress } from './useContentNodeProgress';
 
 // The refs are defined in the outer scope so they can be used as a shared store
@@ -24,19 +23,19 @@ const classes = ref([]);
 const { fetchContentNodeProgress } = useContentNodeProgress();
 
 export function setResumableContentNodes(nodes, more = null) {
-  set(_resumableContentNodes, nodes.map(normalizeContentNode));
+  set(_resumableContentNodes, nodes);
   set(moreResumableContentNodes, more);
   ContentNodeResource.cacheData(nodes);
 }
 
 function addResumableContentNodes(nodes, more = null) {
-  set(_resumableContentNodes, [...get(_resumableContentNodes), ...nodes.map(normalizeContentNode)]);
+  set(_resumableContentNodes, [...get(_resumableContentNodes), ...nodes]);
   set(moreResumableContentNodes, more);
   ContentNodeResource.cacheData(nodes);
 }
 
 function _cacheLessonResources(lesson) {
-  for (let resource of lesson.resources) {
+  for (const resource of lesson.resources) {
     if (resource.contentnode && resource.contentnode.content_id) {
       ContentNodeResource.cacheData(resource.contentnode);
       setContentNodeProgress({
@@ -48,14 +47,14 @@ function _cacheLessonResources(lesson) {
 }
 
 function setClassData(classroom) {
-  for (let lesson of classroom.assignments.lessons) {
+  for (const lesson of classroom.assignments.lessons) {
     _cacheLessonResources(lesson);
   }
 }
 
 export function setClasses(classData) {
   set(classes, classData);
-  for (let classroom of classData) {
+  for (const classroom of classData) {
     setClassData(classroom);
   }
 }
@@ -124,7 +123,7 @@ export default function useLearnerResources() {
    */
   const resumableClassesResources = computed(() => {
     return get(_classesResources).filter(resource => {
-      return resource.progress && resource.progress < 1;
+      return resource.progress && resource.progress < 1 && resource.contentNode;
     });
   });
 

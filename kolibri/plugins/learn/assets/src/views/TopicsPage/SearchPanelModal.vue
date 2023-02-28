@@ -26,9 +26,6 @@
       :topics="topics"
       :topicsLoading="topicsLoading"
       :more="topicMore"
-      :availableLabels="availableLabels"
-      :activeActivityButtons="activeActivityButtons"
-      :activeCategories="activeCategories"
       :showChannels="false"
       position="overlay"
       @input="val => $emit('searchTerms', val)"
@@ -63,21 +60,6 @@
           ];
           return inputKeys.every(k => Object.prototype.hasOwnProperty.call(value, k));
         },
-      },
-      activeActivityButtons: {
-        type: Object,
-        required: false,
-        default: null,
-      },
-      activeCategories: {
-        type: Object,
-        required: false,
-        default: null,
-      },
-      availableLabels: {
-        type: Object,
-        required: false,
-        default: null,
       },
       mobileSearchActive: {
         type: Boolean,

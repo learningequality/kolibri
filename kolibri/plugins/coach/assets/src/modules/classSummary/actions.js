@@ -9,7 +9,7 @@ export function updateWithNotifications(store, notifications) {
   const contentLearnerStatusMapUpdates = [];
   const { learnerMap, examMap, contentNodeMap, lessonMap } = store.state;
 
-  for (let nIdx in notifications) {
+  for (const nIdx in notifications) {
     const notification = notifications[nIdx];
     const { object } = notification;
 

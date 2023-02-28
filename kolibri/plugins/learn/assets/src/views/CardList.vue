@@ -1,109 +1,98 @@
 <template>
 
-  <router-link :to="link" :class="$computedClass({ ':focus': $coreOutline })">
-    <div
-      class="card"
-      :class="{ 'mobile-card': isMobile }"
+  <div
+    class="card container drop-shadow"
+    :class="{ 'mobile-card': isMobile }"
+    :style="{ backgroundColor: $themeTokens.surface }"
+  >
+    <router-link
+      :to="to"
+      class="card card-link"
+      :class="[
+        isMobile ? 'mobile-card' : '',
+        $computedClass({ ':focus': $coreOutline })
+      ]"
       :style="{ backgroundColor: $themeTokens.surface }"
     >
-      <KFixedGrid numCols="4">
-        <KFixedGridItem :span="isMobile ? 4 : 1" class="thumb-area">
-          <CardThumbnail :contentNode="content" :hideDuration="!windowIsLarge" />
-          <p
-            v-if="isBookmarksPage && !isMobile"
-            class="created-info"
-            :style="{ color: $themePalette.grey.v_700 }"
-          >
-            {{ bookmarkCreated }}
-          </p>
-          <ProgressBar v-if="!isMobile" :contentNode="content" />
-        </KFixedGridItem>
+      <div
+        class="card"
+        :class="{ 'mobile-card': isMobile }"
+        :style="{ backgroundColor: $themeTokens.surface }"
+      >
+        <KFixedGrid numCols="4">
+          <KFixedGridItem :span="isMobile ? 4 : 1" class="thumb-area">
+            <CardThumbnail :contentNode="contentNode" :hideDuration="!windowIsLarge" />
+          </KFixedGridItem>
 
-        <KFixedGridItem :span="isMobile ? 4 : 3" class="text-area">
-          <span :style="{ color: $themeTokens.text }">
-            <div class="metadata-info" :style="{ color: $themePalette.grey.v_700 }">
-              <LearningActivityLabel
-                :contentNode="content"
-                :hideDuration="true"
-                labelAfter
-                condensed
-              />
-            </div>
-            <h3 :style="{ marginTop: '4px', marginBottom: '4px' }">
-              <TextTruncatorCss :text="content.title" :maxLines="1" />
-            </h3>
-            <p
-              v-if="content.description"
-              style="font-size: 14px; marginTop: 4px; marginBottom: 4px;"
-            >
-              <TextTruncatorCss :text="content.description" :maxLines="2" />
-            </p>
-            <div v-if="!isMobile" class="bottom-items">
-              <LearningActivityDuration
-                v-if="!windowIsLarge"
-                :contentNode="content"
-                :class="categoryAndLevelString ? 'duration prepends' : 'duration'"
-                condensed
-                :style="{ color: $themePalette.grey.v_700, marginTop: 0 }"
-              />
-              <p
-                v-if="categoryAndLevelString"
-                class="metadata-info"
-                :style="{ color: $themePalette.grey.v_700, marginTop: 0 }"
-              >{{ categoryAndLevelString }}</p>
-              <div>
-                <img
-                  v-if="content.channel_thumbnail"
-                  :src="
-                    content.channel_thumbnail"
-                  :alt="learnString('logo', { channelTitle: content.channel_title })"
-                  class="channel-logo"
-                  :style="{ color: $themePalette.grey.v_700 }"
-                >
-                <p
-                  v-else
-                  class="metadata-info"
-                  :style="{ color: $themePalette.grey.v_700, marginTop: 0 }"
-                >{{ learnString('logo', { channelTitle: content.channel_title }) }}</p>
-                <KButton
-                  v-if="isLibraryPage && content.copies"
-                  appearance="basic-link"
-                  class="copies"
-                  :style="{ color: $themeTokens.text }"
-                  :text="coreString('copies', { num: content.copies.length })"
-                  @click.prevent="$emit('openCopiesModal', content.copies)"
+          <KFixedGridItem :span="isMobile ? 4 : 3" class="text-area">
+            <span :style="{ color: $themeTokens.text }">
+              <div class="metadata-info" :style="{ color: $themePalette.grey.v_700 }">
+                <LearningActivityLabel
+                  :contentNode="contentNode"
+                  :hideDuration="true"
+                  labelAfter
+                  condensed
                 />
               </div>
-            </div>
-          </span>
-        </KFixedGridItem>
-      </KFixedGrid>
-      <div class="footer">
-        <p
-          v-if="isBookmarksPage && isMobile"
-          class="created-info-mobile"
-          :style="{ color: $themePalette.grey.v_700 }"
-        >
-          {{ bookmarkCreated }}
-        </p>
-        <ProgressBar v-if="!!isMobile" :contentNode="content" class="footer-progress" />
-
-        <div class="footer-icons">
-          <KIconButton
-            v-for="(value, key) in footerIcons"
-            :key="key"
-            :icon="key"
-            size="mini"
-            :color="$themePalette.grey.v_600"
-            :ariaLabel="coreString(value)"
-            :tooltip="coreString(value)"
-            class="icon-fix"
-            @click.prevent="$emit(value)"
-          />
-        </div>
+              <h3 :style="{ marginTop: '4px', marginBottom: '4px' }">
+                <TextTruncatorCss :text="contentNode.title" :maxLines="1" />
+              </h3>
+              <p
+                v-if="contentNode.description"
+                style="font-size: 14px; marginTop: 4px; marginBottom: 4px;"
+              >
+                <TextTruncatorCss :text="contentNode.description" :maxLines="2" />
+              </p>
+              <div v-if="!isMobile" class="bottom-items">
+                <LearningActivityDuration
+                  v-if="!windowIsLarge"
+                  :contentNode="contentNode"
+                  :class="categoryAndLevelString ? 'duration prepends' : 'duration'"
+                  condensed
+                  :style="{ color: $themePalette.grey.v_700, marginTop: 0 }"
+                />
+                <p
+                  v-if="categoryAndLevelString"
+                  class="metadata-info"
+                  :style="{ color: $themePalette.grey.v_700, marginTop: 0 }"
+                >{{ categoryAndLevelString }}</p>
+                <div>
+                  <img
+                    v-if="channelThumbnail"
+                    :src="channelThumbnail"
+                    :alt="learnString('logo', { channelTitle: channelTitle })"
+                    class="channel-logo"
+                    :style="{ color: $themePalette.grey.v_700 }"
+                  >
+                  <p
+                    v-else
+                    class="metadata-info"
+                    :style="{ color: $themePalette.grey.v_700, marginTop: 0 }"
+                  >{{ learnString('logo', { channelTitle: channelTitle }) }}</p>
+                  <KButton
+                    v-if="contentNode.copies"
+                    appearance="basic-link"
+                    class="copies"
+                    :style="{ color: $themeTokens.text }"
+                    :text="coreString('copies', { num: contentNode.copies.length })"
+                    @click.prevent="$emit('openCopiesModal', contentNode.copies)"
+                  />
+                </div>
+              </div>
+            </span>
+            <p
+              v-if="createdDate"
+              class="created-info"
+              :style="{ color: $themePalette.grey.v_700 }"
+            >
+              {{ bookmarkCreated }}
+            </p>
+          </KFixedGridItem>
+        </KFixedGrid>
       </div>
-    </div>
-  </router-link>
+    </router-link>
+    <slot name="footer"></slot>
+  </div>
 
 </template>
 
@@ -117,8 +106,7 @@
   import { ContentLevels, Categories } from 'kolibri.coreVue.vuex.constants';
   import camelCase from 'lodash/camelCase';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import { PageNames } from '../constants';
-  import ProgressBar from './ProgressBar';
+  import useChannels from '../composables/useChannels';
   import LearningActivityLabel from './LearningActivityLabel';
   import LearningActivityDuration from './LearningActivityDuration';
   import commonLearnStrings from './commonLearnStrings';
@@ -131,19 +119,25 @@
       TextTruncatorCss,
       LearningActivityLabel,
       LearningActivityDuration,
-      ProgressBar,
     },
     mixins: [responsiveWindowMixin, commonLearnStrings, commonCoreStrings],
+    setup() {
+      const { getChannelThumbnail, getChannelTitle } = useChannels();
+      return {
+        getChannelThumbnail,
+        getChannelTitle,
+      };
+    },
     props: {
       createdDate: {
         type: String,
         default: null,
       },
-      content: {
+      contentNode: {
         type: Object,
         required: true,
       },
-      link: {
+      to: {
         type: Object,
         required: true,
         validator: validateLinkObject,
@@ -152,25 +146,11 @@
         type: Boolean,
         default: false,
       },
-      currentPage: {
-        type: String,
-        default: null,
-      },
-      footerIcons: {
-        type: Object,
-        default: null,
-      },
     },
     data: () => ({
       now: now(),
     }),
     computed: {
-      isBookmarksPage() {
-        return this.currentPage === PageNames.BOOKMARKS;
-      },
-      isLibraryPage() {
-        return this.currentPage === PageNames.LIBRARY;
-      },
       ceilingDate() {
         if (this.createdDate > this.now) {
           return this.now;
@@ -182,16 +162,27 @@
         return this.coreString('bookmarkedTimeAgoLabel', { time });
       },
       categoryAndLevelString() {
-        if (this.levels(this.content.grade_levels) && this.category(this.content.categories)) {
+        if (
+          this.levels(this.contentNode.grade_levels) &&
+          this.category(this.contentNode.categories)
+        ) {
           return (
-            this.category(this.content.categories) + ' | ' + this.levels(this.content.grade_levels)
+            this.category(this.contentNode.categories) +
+            ' | ' +
+            this.levels(this.contentNode.grade_levels)
           );
-        } else if (this.category(this.content.categories)) {
-          return this.category(this.content.categories);
-        } else if (this.levels(this.content.grade_levels)) {
-          return this.levels(this.content.grade_levels);
+        } else if (this.category(this.contentNode.categories)) {
+          return this.category(this.contentNode.categories);
+        } else if (this.levels(this.contentNode.grade_levels)) {
+          return this.levels(this.contentNode.grade_levels);
         }
         return null;
+      },
+      channelThumbnail() {
+        return this.getChannelThumbnail(this.contentNode && this.contentNode.channel_id);
+      },
+      channelTitle() {
+        return this.getChannelTitle(this.contentNode && this.contentNode.channel_id);
       },
     },
     methods: {
@@ -240,31 +231,40 @@
   $h-padding: 24px;
   $v-padding: 16px;
 
-  a {
-    display: block;
+  .drop-shadow {
+    @extend %dropshadow-1dp;
+
+    &:hover {
+      @extend %dropshadow-8dp;
+    }
+  }
+
+  .container {
+    padding: $v-padding $h-padding;
+    margin-top: $h-padding;
   }
 
   .card {
-    @extend %dropshadow-1dp;
-
     position: relative;
-    display: inline-block;
-    width: 100%;
     min-height: 246px;
-    padding: $v-padding $h-padding;
-    margin-top: $h-padding;
-    text-decoration: none;
     vertical-align: top;
     border-radius: 8px;
     transition: box-shadow $core-time ease;
 
-    &:hover {
-      @extend %dropshadow-4dp;
+    &:focus {
+      outline-width: 4px;
+      outline-offset: 6px;
     }
   }
 
+  .card-link {
+    display: block;
+    width: 100%;
+    text-decoration: none;
+  }
+
   .mobile-card {
-    min-height: 490px;
+    min-height: 400px;
   }
 
   .metadata-info {
@@ -300,56 +300,8 @@
     }
   }
 
-  .footer {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    width: 100%;
-    height: $footer-height;
-  }
-
-  .footer-icons {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    display: inline-block;
-    margin-right: $h-padding;
-    margin-bottom: $v-padding;
-  }
-
-  .footer-progress {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    display: inline-block;
-    max-width: 60%;
-    margin-bottom: 8px;
-    margin-left: $h-padding;
-  }
-
-  .created-info-mobile {
-    position: absolute;
-    bottom: 8px;
-    left: 0;
-    display: inline-block;
-    margin-bottom: $v-padding;
-    margin-left: $h-padding;
-  }
-
   .created-info {
     font-size: 13px;
-  }
-
-  .icon-fix {
-    // this override fixes an existing KDS bug with
-    // the hover state circle being squished
-    // and can be removed upon that hover state fix
-    width: 32px !important;
-    height: 32px !important;
-
-    /deep/ svg {
-      top: 4px !important;
-    }
   }
 
   .bottom-items {
@@ -367,10 +319,6 @@
 
   .text-area {
     margin-bottom: $footer-height;
-  }
-
-  .coach-footer-icon {
-    max-width: 24px;
   }
 
 </style>

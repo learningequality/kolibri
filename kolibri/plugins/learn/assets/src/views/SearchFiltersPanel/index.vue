@@ -41,19 +41,19 @@
         :value="value.keywords || ''"
         @change="val => $emit('input', { ...value, keywords: val })"
       />
-      <div v-if="Object.keys(libraryCategoriesList).length">
+      <div v-if="Object.keys(availableLibraryCategories).length">
         <h2 class="section title">
           {{ $tr('categories') }}
         </h2>
         <!-- list of category metadata - clicking prompts a filter modal -->
         <div
-          v-for="(category, key) in libraryCategoriesList"
-          :key="category"
+          v-for="(category, key) in availableLibraryCategories"
+          :key="key"
           span="4"
           class="category-list-item"
         >
           <KButton
-            :text="coreString(key)"
+            :text="coreString(category.value)"
             appearance="flat-button"
             :appearanceOverrides="isKeyActive(key)
               ? { ...categoryListItemStyles, ...categoryListItemActiveStyles }
@@ -61,8 +61,8 @@
             :disabled="availableRootCategories &&
               !availableRootCategories[key] &&
               !isKeyActive(key)"
-            :iconAfter="hasNestedCategories(category) ? 'chevronRight' : null"
-            @click="handleCategory(category)"
+            :iconAfter="hasNestedCategories(key) ? 'chevronRight' : null"
+            @click="handleCategory(key)"
           />
         </div>
         <div
@@ -70,7 +70,7 @@
           class="category-list-item"
         >
           <KButton
-            :text="coreString('None of the above')"
+            :text="coreString('uncategorized')"
             appearance="flat-button"
             :appearanceOverrides="isKeyActive('no_categories')
               ? { ...categoryListItemStyles, ...categoryListItemActiveStyles }
@@ -80,27 +80,24 @@
         </div>
       </div>
       <ActivityButtonsGroup
-        :availableLabels="availableLabels"
-        :activeButtons="activeActivityButtons"
         class="section"
         @input="handleActivity"
       />
       <!-- Filter results by learning activity, displaying all options -->
       <SelectGroup
         v-model="inputValue"
-        :availableLabels="availableLabels"
         :showChannels="showChannels"
         class="section"
       />
       <div
-        v-if="Object.keys(resourcesNeededList).length"
+        v-if="Object.keys(availableResourcesNeeded).length"
         class="section"
       >
         <h2 class="title">
           {{ coreString('showResources') }}
         </h2>
         <div
-          v-for="(val, activity) in resourcesNeededList"
+          v-for="(val, activity) in availableResourcesNeeded"
 
           :key="activity"
           span="4"
@@ -122,40 +119,14 @@
 
 <script>
 
-  import pick from 'lodash/pick';
-  import uniq from 'lodash/uniq';
-  import {
-    CategoriesLookup,
-    NoCategories,
-    ResourcesNeededTypes,
-  } from 'kolibri.coreVue.vuex.constants';
+  import { NoCategories } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import SearchBox from '../SearchBox';
   import commonLearnStrings from '../commonLearnStrings';
   import useContentLink from '../../composables/useContentLink';
-  import { libraryCategories } from '../../constants';
+  import { injectSearch } from '../../composables/useSearch';
   import ActivityButtonsGroup from './ActivityButtonsGroup';
   import SelectGroup from './SelectGroup';
-  import plugin_data from 'plugin_data';
-
-  const resourcesNeededShown = ['FOR_BEGINNERS', 'PEOPLE', 'PAPER_PENCIL', 'INTERNET', 'MATERIALS'];
-
-  const resourcesNeeded = {};
-  resourcesNeededShown.map(key => {
-    const value = ResourcesNeededTypes[key];
-    if ((plugin_data.learnerNeeds || []).includes(value)) {
-      resourcesNeeded[key] = value;
-    }
-  });
-
-  let availableIds;
-
-  availableIds = plugin_data.categories || [];
-
-  const libraryCategoriesSelection = pick(
-    CategoriesLookup,
-    uniq(availableIds.map(key => key.split('.')[0]))
-  );
 
   export default {
     name: 'SearchFiltersPanel',
@@ -167,7 +138,19 @@
     mixins: [commonLearnStrings, commonCoreStrings],
     setup() {
       const { genContentLinkBackLinkCurrentPage } = useContentLink();
-      return { genContentLinkBackLinkCurrentPage };
+      const {
+        availableLibraryCategories,
+        availableResourcesNeeded,
+        searchableLabels,
+        activeSearchTerms,
+      } = injectSearch();
+      return {
+        availableLibraryCategories,
+        availableResourcesNeeded,
+        genContentLinkBackLinkCurrentPage,
+        searchableLabels,
+        activeSearchTerms,
+      };
     },
     props: {
       value: {
@@ -184,11 +167,6 @@
           ];
           return inputKeys.every(k => Object.prototype.hasOwnProperty.call(value, k));
         },
-      },
-      availableLabels: {
-        type: Object,
-        required: false,
-        default: null,
       },
       topics: {
         type: Array,
@@ -223,16 +201,6 @@
         type: Boolean,
         default: true,
       },
-      activeActivityButtons: {
-        type: Object,
-        required: false,
-        default: null,
-      },
-      activeCategories: {
-        type: Object,
-        required: false,
-        default: null,
-      },
     },
     computed: {
       inputValue: {
@@ -242,12 +210,6 @@
         set(value) {
           this.$emit('input', value);
         },
-      },
-      libraryCategoriesList() {
-        return libraryCategoriesSelection;
-      },
-      resourcesNeededList() {
-        return resourcesNeeded;
       },
       categoryListItemStyles() {
         return {
@@ -272,9 +234,9 @@
         };
       },
       availableRootCategories() {
-        if (this.availableLabels) {
+        if (this.searchableLabels) {
           const roots = {};
-          for (let key of this.availableLabels.categories) {
+          for (const key of this.searchableLabels.categories) {
             const root = key.split('.')[0];
             roots[root] = true;
           }
@@ -283,9 +245,9 @@
         return null;
       },
       availableNeeds() {
-        if (this.availableLabels) {
+        if (this.searchableLabels) {
           const needs = {};
-          for (let key of this.availableLabels.learner_needs) {
+          for (const key of this.searchableLabels.learner_needs) {
             const root = key.split('.')[0];
             needs[root] = true;
             needs[key] = true;
@@ -295,7 +257,7 @@
         return null;
       },
       activeKeys() {
-        return Object.keys(this.activeCategories);
+        return Object.keys((this.activeSearchTerms && this.activeSearchTerms.categories) || {});
       },
     },
     methods: {
@@ -306,7 +268,7 @@
         this.$emit('input', { ...this.value, categories: { [NoCategories]: true } });
       },
       hasNestedCategories(category) {
-        return Object.keys(libraryCategories[category].nested).length > 0;
+        return Object.keys(this.availableLibraryCategories[category].nested).length > 0;
       },
       handleActivity(activity) {
         if (activity && !this.value.learning_activities[activity]) {
@@ -324,7 +286,7 @@
       handleNeed(need) {
         if (this.value.learner_needs[need]) {
           const learner_needs = {};
-          for (let n in this.value.learner_needs) {
+          for (const n in this.value.learner_needs) {
             if (n !== need) {
               learner_needs[n] = true;
             }
@@ -340,19 +302,19 @@
       handleCategory(category) {
         // for categories with sub-categories, open the modal
         if (
-          libraryCategories[category] &&
-          libraryCategories[category].nested &&
-          Object.keys(libraryCategories[category].nested).length > 0
+          this.availableLibraryCategories[category] &&
+          this.availableLibraryCategories[category].nested &&
+          Object.keys(this.availableLibraryCategories[category].nested).length > 0
         ) {
           this.$emit('currentCategory', category);
         }
         // for valid categories with no subcategories, search directly
-        else if (libraryCategories[category]) {
+        else if (this.availableLibraryCategories[category]) {
           this.$emit('input', {
             ...this.value,
             // This parallels the behaviour of setCategory in the useSearch
             // composable - where category selection is mutually exclusive.
-            categories: { [libraryCategories[category].value]: true },
+            categories: { [this.availableLibraryCategories[category].value]: true },
           });
         }
       },

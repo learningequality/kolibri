@@ -7,21 +7,25 @@ from django.db import models
 from django.db.models import F
 from django.db.models import QuerySet
 from morango.models import UUIDField
+from morango.models.core import InstanceIDModel
 from morango.models.core import SyncSession
 
 from .utils import LANDING_PAGE_LEARN
 from .utils import LANDING_PAGE_SIGN_IN
 from kolibri.core.auth.constants import role_kinds
+from kolibri.core.auth.models import AbstractFacilityDataModel
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.permissions.base import RoleBasedPermissions
 from kolibri.core.auth.permissions.general import IsOwn
+from kolibri.core.device.utils import get_device_setting
 from kolibri.core.fields import JSONField
 from kolibri.core.utils.cache import process_cache as cache
 from kolibri.core.utils.validators import JSON_Schema_Validator
 from kolibri.deployment.default.sqlite_db_names import SYNC_QUEUE
 from kolibri.plugins.app.utils import interface
 from kolibri.utils.conf import OPTIONS
+from kolibri.utils.data import ChoicesEnum
 from kolibri.utils.options import update_options_file
 
 device_permissions_fields = ["is_superuser", "can_manage_content"]
@@ -366,3 +370,123 @@ class OSUser(models.Model):
     os_username = models.CharField(
         db_index=True, null=False, blank=False, max_length=64
     )
+
+
+class StatusSentiment(ChoicesEnum):
+    Negative = -1
+    Neutral = 0
+    Positive = 1
+
+
+class DeviceStatus(ChoicesEnum):
+    InsufficientStorage = ("InsufficientStorage", StatusSentiment.Negative)
+
+
+class LearnerDeviceStatus(AbstractFacilityDataModel):
+    """
+    Stores information regarding the device's status, scoped to user+instance pair to allow
+    syncing under a learner-only device filter
+    """
+
+    morango_model_name = "learnerdevicestatus"
+
+    instance_id = UUIDField(max_length=32, editable=False, null=False)
+    user = models.OneToOneField(
+        FacilityUser,
+        on_delete=models.CASCADE,
+        related_name="learner_device_status",
+        blank=False,
+        null=False,
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    # Since `LearnerDeviceStatus` is a syncable model, we don't pass any `choices` because we want
+    # to avoid validating choices for the status in the event more statuses are added in future
+    # releases. The sentiment field can be used to if the specific status is unknown
+    status = models.CharField(max_length=32, null=False)
+    status_sentiment = models.IntegerField(
+        null=False, choices=StatusSentiment.choices()
+    )
+
+    # users can read their own status
+    own = IsOwn(read_only=True)
+    # SyncStatus can be read by admins, and coaches, for the member user
+    role = RoleBasedPermissions(
+        target_field="user",
+        can_be_created_by=(),
+        can_be_read_by=(role_kinds.ADMIN, role_kinds.COACH),
+        can_be_updated_by=(),
+        can_be_deleted_by=(),
+        collection_field="user__memberships__collection",
+        is_syncable=True,
+    )
+    permissions = own | role
+
+    class Meta:
+        unique_together = ("instance_id", "user")
+
+    @classmethod
+    def save_statuses(cls, status):
+        """
+        Saves the specified status for all learners on the device, only supported for devices
+        provisioned as a `subset_of_users_device`
+        :param status: A status tuple of which to save, see `DeviceStatus`
+        :type status: tuple(string, int)
+        """
+        if not get_device_setting("subset_of_users_device", False):
+            raise NotImplementedError(
+                "Saving all learner statuses is not supported on full-facility devices"
+            )
+
+        for user_id in FacilityUser.objects.all().values_list("id", flat=True):
+            cls.save_learner_status(user_id, status)
+
+    @classmethod
+    def save_learner_status(cls, learner_user_id, status):
+        """
+        Saves the status for the specified learner
+
+        Example:
+            LearnerDeviceStatus.save_learner_status(
+                facility_user.id, DeviceStatus.InsufficientStorage
+            )
+
+        :param learner_user_id: The ID of the learner (`FacilityUser`) affected by the status
+        :param status: A status tuple of which to save, see `DeviceStatus`
+        :type status: tuple(string, int)
+        """
+        instance_model = InstanceIDModel.get_or_create_current_instance()[0]
+
+        # in order to save a status, it must be defined
+        if not any(status == choice for _, choice in DeviceStatus.choices()):
+            raise ValueError("Value '{}' is not a valid status".format(status[0]))
+
+        cls.objects.update_or_create(
+            instance_id=instance_model.id,
+            user_id=learner_user_id,
+            defaults=dict(zip(("status", "status_sentiment"), status)),
+        )
+
+    @classmethod
+    def clear_learner_status(cls, learner_user_id):
+        """
+        :param learner_user_id: The ID of the learner (`FacilityUser`) of which to clear status
+        """
+        instance_model = InstanceIDModel.get_or_create_current_instance()[0]
+        cls.objects.filter(
+            instance_id=instance_model.id, user_id=learner_user_id
+        ).delete()
+
+    def infer_dataset(self, *args, **kwargs):
+        return self.cached_related_dataset_lookup("user")
+
+    def calculate_source_id(self):
+        return "{instance_id}:{user_id}".format(
+            instance_id=self.instance_id, user_id=self.user_id
+        )
+
+    def calculate_partition(self):
+        return "{dataset_id}:user-rw:{user_id}".format(
+            dataset_id=self.dataset_id, user_id=self.user_id
+        )

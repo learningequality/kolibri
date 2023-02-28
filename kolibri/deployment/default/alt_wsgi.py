@@ -32,6 +32,7 @@ def generate_alt_wsgi_application():
             (alt_content_path, content_dir) for content_dir in content_dirs
         ]
         + [(paths.zip_content_static_root(), content_static_path)],
+        app_paths=[paths.get_zip_content_base_path()],
     )
 
 

@@ -108,7 +108,8 @@ export default class SandboxEnvironment {
     this.iframe.style.width = '100%';
     this.iframe.height = '100%';
     document.body.appendChild(this.iframe);
-    if (startUrl.indexOf('.h5p') === startUrl.length - 4) {
+    const baseUrl = startUrl.split('?')[0];
+    if (baseUrl.indexOf('.h5p') === baseUrl.length - 4) {
       this.mediator.sendMessage({ nameSpace, event: events.LOADING, data: true });
       this.H5P.init(this.iframe, startUrl);
     } else {

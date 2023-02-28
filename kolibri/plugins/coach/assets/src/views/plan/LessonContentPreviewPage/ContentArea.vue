@@ -5,6 +5,7 @@
       {{ header }}
     </h2>
     <KContentRenderer
+      v-if="content.available"
       :class="{ hof: isExercise }"
       :showCorrectAnswer="true"
       :itemId="selectedQuestion"
@@ -15,6 +16,7 @@
       :extraFields="content.extra_fields"
       :interactive="false"
     />
+    <MissingResourceAlert v-else :multiple="false" />
   </section>
 
 </template>
@@ -22,8 +24,13 @@
 
 <script>
 
+  import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert';
+
   export default {
     name: 'ContentArea',
+    components: {
+      MissingResourceAlert,
+    },
     props: {
       content: {
         type: Object,

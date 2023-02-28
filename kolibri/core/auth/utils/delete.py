@@ -28,6 +28,7 @@ from kolibri.core.auth.models import Membership
 from kolibri.core.auth.models import Role
 from kolibri.core.bookmarks.models import Bookmark
 from kolibri.core.device.models import DevicePermissions
+from kolibri.core.device.models import LearnerDeviceStatus
 from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import ExamAssignment
 from kolibri.core.exams.models import IndividualSyncableExam
@@ -190,6 +191,7 @@ def _get_users(dataset_id):
     return GroupDeletion(
         "User models",
         querysets=[
+            LearnerDeviceStatus.objects.filter(dataset_id_filter),
             LogEntry.objects.filter(user_id_filter),
             DevicePermissions.objects.filter(user_id_filter),
             PingbackNotificationDismissed.objects.filter(user_id_filter),

@@ -11,18 +11,24 @@
       </p>
 
       <CardList
-        v-for="content in bookmarks"
+        v-for="contentNode in bookmarks"
         v-else
-        :key="content.id"
-        :content="content"
+        :key="contentNode.id"
+        :contentNode="contentNode"
         class="card-grid-item"
         :isMobile="windowIsSmall"
-        :link="genContentLinkBackLinkCurrentPage(content.id, content.is_leaf)"
-        :footerIcons="footerIcons"
-        :createdDate="content.bookmark ? content.bookmark.created : null"
-        @viewInformation="toggleInfoPanel(content)"
-        @removeFromBookmarks="removeFromBookmarks(content.bookmark)"
-      />
+        :to="genContentLinkBackLinkCurrentPage(contentNode.id, contentNode.is_leaf)"
+        :createdDate="contentNode.bookmark ? contentNode.bookmark.created : null"
+      >
+        <template #footer>
+          <HybridLearningFooter
+            :contentNode="contentNode"
+            :bookmarked="true"
+            @toggleInfoPanel="toggleInfoPanel(contentNode)"
+            @removeFromBookmarks="removeFromBookmarks(contentNode.bookmark)"
+          />
+        </template>
+      </CardList>
 
       <KButton
         v-if="more && !loading"
@@ -83,7 +89,6 @@
   import { ContentNodeResource } from 'kolibri.resources';
   import client from 'kolibri.client';
   import urls from 'kolibri.urls';
-  import { normalizeContentNode } from '../modules/coreLearn/utils.js';
   import useContentNodeProgress from '../composables/useContentNodeProgress';
   import useContentLink from '../composables/useContentLink';
   import SidePanelModal from './SidePanelModal';
@@ -91,6 +96,7 @@
   import LearnAppBarPage from './LearnAppBarPage';
   import LearningActivityChip from './LearningActivityChip';
   import CardList from './CardList';
+  import HybridLearningFooter from './HybridLearningContentCard/HybridLearningFooter';
 
   import BrowseResourceMetadata from './BrowseResourceMetadata';
 
@@ -107,6 +113,7 @@
       LearningActivityChip,
       CardList,
       LearnAppBarPage,
+      HybridLearningFooter,
     },
     mixins: [commonCoreStrings, commonLearnStrings, responsiveWindowMixin],
     setup() {
@@ -122,15 +129,10 @@
         sidePanelContent: null,
       };
     },
-    computed: {
-      footerIcons() {
-        return { infoOutline: 'viewInformation', close: 'removeFromBookmarks' };
-      },
-    },
     created() {
       ContentNodeResource.fetchBookmarks({ params: { limit: 25, available: true } }).then(data => {
         this.more = data.more;
-        this.bookmarks = data.results ? data.results.map(normalizeContentNode) : [];
+        this.bookmarks = data.results ? data.results : [];
         this.loading = false;
         this.fetchContentNodeProgress({ ids: this.bookmarks.map(b => b.id) });
       });
@@ -142,7 +144,7 @@
           this.loading = true;
           ContentNodeResource.fetchBookmarks({ params: this.more }).then(data => {
             this.more = data.more;
-            this.bookmarks.push(...data.results.map(normalizeContentNode));
+            this.bookmarks.push(...data.results);
             this.loading = false;
             this.fetchContentNodeProgress({ ids: data.results.map(b => b.id) });
           });

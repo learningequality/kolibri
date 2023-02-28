@@ -33,6 +33,9 @@ from kolibri.core.auth.test.test_api import FacilityFactory
 from kolibri.core.auth.test.test_api import FacilityUserFactory
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
+from kolibri.core.device.models import DeviceStatus
+from kolibri.core.device.models import LearnerDeviceStatus
+from kolibri.core.device.models import StatusSentiment
 from kolibri.core.device.models import UserSyncStatus
 from kolibri.core.public.constants import user_sync_statuses
 from kolibri.core.public.constants.user_sync_options import DELAYED_SYNC
@@ -522,8 +525,8 @@ class UserSyncStatusTestCase(APITestCase):
             "last_activity_timestamp": timezone.now(),
             "active": False,
             "is_server": False,
-            "client_instance": True,
-            "server_instance": False,
+            "client_instance_id": None,
+            "server_instance_id": None,
             "extra_fields": {},
         }
         cls.syncsession1 = SyncSession.objects.create(**syncdata)
@@ -540,8 +543,8 @@ class UserSyncStatusTestCase(APITestCase):
             "last_activity_timestamp": timezone.now(),
             "active": False,
             "is_server": False,
-            "client_instance": True,
-            "server_instance": False,
+            "client_instance_id": None,
+            "server_instance_id": None,
             "extra_fields": {},
         }
         cls.syncsession2 = SyncSession.objects.create(**syncdata2)
@@ -551,6 +554,27 @@ class UserSyncStatusTestCase(APITestCase):
             "queued": False,
         }
         cls.syncstatus2 = UserSyncStatus.objects.create(**data2)
+
+    def _create_transfer_session(self, **data):
+        defaults = dict(
+            id=uuid.uuid4(),
+            filter="no-filter",
+            push=True,
+            active=True,
+            sync_session=self.syncsession1,
+            last_activity_timestamp=timezone.now(),
+            transfer_stage_status=transfer_statuses.COMPLETED,
+        )
+        defaults.update(data)
+        TransferSession.objects.create(**defaults)
+
+    def _create_device_status(self, *status):
+        instance_id = uuid.uuid4()
+        return LearnerDeviceStatus.objects.create(
+            instance_id=instance_id,
+            user=self.user1,
+            **dict(zip(("status", "status_sentiment"), status))
+        )
 
     def setUp(self):
         self.client.login(
@@ -631,13 +655,7 @@ class UserSyncStatusTestCase(APITestCase):
             password=DUMMY_PASSWORD,
             facility=self.facility,
         )
-        TransferSession.objects.create(
-            id=uuid.uuid4(),
-            filter="no-filter",
-            push=True,
-            active=True,
-            sync_session=self.syncsession1,
-            last_activity_timestamp=timezone.now(),
+        self._create_transfer_session(
             transfer_stage_status=transfer_statuses.ERRORED,
         )
 
@@ -652,13 +670,7 @@ class UserSyncStatusTestCase(APITestCase):
             password=DUMMY_PASSWORD,
             facility=self.facility,
         )
-        TransferSession.objects.create(
-            id=uuid.uuid4(),
-            filter="no-filter",
-            push=True,
-            active=True,
-            sync_session=self.syncsession1,
-            last_activity_timestamp=timezone.now(),
+        self._create_transfer_session(
             transfer_stage_status=transfer_statuses.STARTED,
         )
 
@@ -673,22 +685,11 @@ class UserSyncStatusTestCase(APITestCase):
             password=DUMMY_PASSWORD,
             facility=self.facility,
         )
-        TransferSession.objects.create(
-            id=uuid.uuid4(),
-            filter="no-filter",
-            push=True,
-            active=True,
-            sync_session=self.syncsession1,
+        self._create_transfer_session(
             last_activity_timestamp=timezone.now() - timedelta(seconds=100),
             transfer_stage_status=transfer_statuses.ERRORED,
         )
-        TransferSession.objects.create(
-            id=uuid.uuid4(),
-            filter="no-filter",
-            push=True,
-            active=True,
-            sync_session=self.syncsession1,
-            last_activity_timestamp=timezone.now(),
+        self._create_transfer_session(
             transfer_stage_status=transfer_statuses.STARTED,
         )
 
@@ -705,14 +706,8 @@ class UserSyncStatusTestCase(APITestCase):
         )
         self.syncstatus1.queued = False
         self.syncstatus1.save()
-        TransferSession.objects.create(
-            id=uuid.uuid4(),
-            filter="no-filter",
-            push=True,
+        self._create_transfer_session(
             active=False,
-            sync_session=self.syncsession1,
-            last_activity_timestamp=timezone.now(),
-            transfer_stage_status=transfer_statuses.COMPLETED,
         )
 
         response = self.client.get(reverse("kolibri:core:usersyncstatus-list"))
@@ -741,14 +736,8 @@ class UserSyncStatusTestCase(APITestCase):
             facility=self.facility,
         )
 
-        TransferSession.objects.create(
-            id=uuid.uuid4(),
-            filter="no-filter",
-            push=True,
+        self._create_transfer_session(
             active=False,
-            sync_session=self.syncsession1,
-            last_activity_timestamp=timezone.now(),
-            transfer_stage_status=transfer_statuses.COMPLETED,
         )
         response = self.client.get(reverse("kolibri:core:usersyncstatus-list"))
         self.assertEqual(len(response.data), 1)
@@ -765,14 +754,9 @@ class UserSyncStatusTestCase(APITestCase):
         last_sync = timezone.now() - timedelta(seconds=DELAYED_SYNC * 2)
         self.syncsession1.last_activity_timestamp = last_sync
         self.syncsession1.save()
-        TransferSession.objects.create(
-            id=uuid.uuid4(),
-            filter="no-filter",
-            push=True,
+        self._create_transfer_session(
             active=False,
-            sync_session=self.syncsession1,
             last_activity_timestamp=last_sync,
-            transfer_stage_status=transfer_statuses.COMPLETED,
         )
 
         response = self.client.get(reverse("kolibri:core:usersyncstatus-list"))
@@ -791,14 +775,9 @@ class UserSyncStatusTestCase(APITestCase):
         last_sync = timezone.now() - timedelta(seconds=DELAYED_SYNC * 2)
         self.syncsession1.last_activity_timestamp = last_sync
         self.syncsession1.save()
-        TransferSession.objects.create(
-            id=uuid.uuid4(),
-            filter="no-filter",
-            push=True,
+        self._create_transfer_session(
             active=False,
-            sync_session=self.syncsession1,
             last_activity_timestamp=last_sync,
-            transfer_stage_status=transfer_statuses.COMPLETED,
         )
 
         response = self.client.get(reverse("kolibri:core:usersyncstatus-list"))
@@ -807,3 +786,59 @@ class UserSyncStatusTestCase(APITestCase):
         self.assertEqual(
             response.data[0]["status"], user_sync_statuses.NOT_RECENTLY_SYNCED
         )
+
+    def test_usersyncstatus_list__insufficient_storage(self):
+        self.client.login(
+            username=self.user1.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        self._create_transfer_session(
+            active=False,
+        )
+        device_status = self._create_device_status(*DeviceStatus.InsufficientStorage)
+        self.syncsession1.client_instance_id = device_status.instance_id
+        self.syncsession1.save()
+
+        response = self.client.get(reverse("kolibri:core:usersyncstatus-list"))
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["user"], self.user1.id)
+        self.assertEqual(
+            response.data[0]["status"], user_sync_statuses.INSUFFICIENT_STORAGE
+        )
+
+    def test_usersyncstatus_list__unknown_negative_device_status(self):
+        self.client.login(
+            username=self.user1.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        self._create_transfer_session(
+            active=False,
+        )
+        device_status = self._create_device_status("oopsie", StatusSentiment.Negative)
+        self.syncsession1.client_instance_id = device_status.instance_id
+        self.syncsession1.save()
+
+        response = self.client.get(reverse("kolibri:core:usersyncstatus-list"))
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["user"], self.user1.id)
+        self.assertEqual(response.data[0]["status"], user_sync_statuses.UNABLE_TO_SYNC)
+
+    def test_usersyncstatus_list__unknown_non_negative_device_status(self):
+        self.client.login(
+            username=self.user1.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        self._create_transfer_session(
+            active=False,
+        )
+        device_status = self._create_device_status("oopsie", StatusSentiment.Neutral)
+        self.syncsession1.client_instance_id = device_status.instance_id
+        self.syncsession1.save()
+
+        response = self.client.get(reverse("kolibri:core:usersyncstatus-list"))
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["user"], self.user1.id)
+        self.assertEqual(response.data[0]["status"], user_sync_statuses.RECENTLY_SYNCED)

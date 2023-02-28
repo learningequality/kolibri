@@ -252,8 +252,11 @@ i18n-regenerate-fonts:
 
 i18n-download: i18n-download-translations i18n-regenerate-fonts i18n-transfer-context
 
-i18n-stats:
-	python packages/kolibri-tools/lib/i18n/crowdin.py translation-stats ${branch}
+i18n-screenshot-report:
+	python packages/kolibri-tools/lib/i18n/crowdin.py screenshot-report ${branch}
+
+i18n-transfer-screenshots:
+	python packages/kolibri-tools/lib/i18n/crowdin.py transfer-screenshots ${branch} ${source}
 
 i18n-install-font:
 	python packages/kolibri-tools/lib/i18n/fonts.py add-source-font ${name}

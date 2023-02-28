@@ -32,6 +32,141 @@ class HasPermissionDuringLODSetup(BasePermission):
         return subset_of_users_device
 
 
+class SetupWizardResource(ViewSet):
+    """
+    Generic endpoints for use during various setup wizard onboarding flows
+    """
+
+    permission_classes = (HasPermissionDuringSetup,)
+
+    @decorators.action(methods=["post"], detail=False)
+    def createappuser(self, request):
+        """
+        Creates a Learner from the OS User
+        NOTE: This is for use when the App Plugin is *enabled*
+        """
+        facility_name = request.data.get("facility_name", None)
+
+        if Facility.objects.count() == 0:
+            # FIXME If we are using a default message, should we translate it?
+            facility = Facility.objects.create(name="Personal")
+        else:
+            facility = Facility.objects.get()
+            if facility_name:
+                facility.name = facility_name
+
+        # Set the facility to have been created during On my own setup
+        facility.on_my_own_setup = True
+        facility.save()
+
+        osuser = FacilityUser.objects.get_or_create_os_user(
+            facility=facility, auth_token=request.data.get("auth_token")
+        )
+        return Response({"username": osuser.get("username")})
+
+    @decorators.action(methods=["post"], detail=False)
+    def createonmyownuser(self, request):
+        """
+        Creating a Learner who has signed up using the On My Own flow
+        NOTE: This is for use when the App Plugin is *disabled*
+        """
+        facility_name = request.data.get("facility_name", "Personal")
+
+        if Facility.objects.count() == 0:
+            facility = Facility.objects.create(name=facility_name)
+        else:
+            facility = Facility.objects.get()
+            if facility_name:
+                facility.name = facility_name
+                facility.save()
+
+        if not facility:
+            return Response("facility_name is a required field", status=400)
+
+        username = request.data.get("username")
+        password = request.data.get("password")
+        full_name = request.data.get("full_name")
+
+        if not (username and password):
+            return Response(
+                "username and password fields are required fields", status=400
+            )
+
+        # Here we only expect and accept the on_my_own_setup extra_field and set it directly
+        # using the setter method for `on_my_own_setup` on Facility
+        extra_fields = request.data.get("extra_fields", None)
+        if extra_fields and extra_fields.get("on_my_own_setup"):
+            facility.on_my_own_setup = extra_fields.get("on_my_own_setup")
+
+        if extra_fields and extra_fields.get("os_user"):
+            osuser = FacilityUser.objects.get_or_create_os_user(
+                facility=facility, auth_token=request.data.get("auth_token")
+            )
+            return Response({"username": osuser.get("username")})
+
+        try:
+            user = FacilityUser.objects.create(
+                username=username, facility=facility, full_name=full_name
+            )
+            user.set_password(password)
+            user.save()
+            return Response(status=201)
+        except Exception as e:
+            return Response("Failed to create a user: {}".format(e), status=400)
+
+    @decorators.action(methods=["post"], detail=False)
+    def createsuperuser(self, request):
+        """
+        Given a username, full name and password, create a superuser attached
+        to the facility that was imported (or create a facility with given facility_name)
+        """
+        # TODO Default facility name?
+        facility_name = request.data.get("facility_name", "Personal")
+
+        # Get the imported facility (assuming its the only one at this point)
+        the_facility = Facility.get_or_create(facility_name=facility_name)
+        try:
+            superuser = FacilityUser.objects.create_superuser(
+                request.data.get("username"),
+                request.data.get("password"),
+                facility=the_facility,
+                full_name=request.data.get("full_name"),
+            )
+            return Response({"username": superuser.username})
+
+        except ValidationError:
+            raise ValidationError(detail="duplicate", code="duplicate_username")
+
+    @decorators.action(methods=["post"], detail=False)
+    def provisiondevice(self, request):
+        """
+        After creating/importing a Facility and designating/creating a super admins,
+        provision the device using that facility
+        """
+
+        # TODO validate the data
+        device_name = request.data.get("device_name", "")
+        language_id = request.data.get("language_id", "")
+        is_provisioned = request.data.get("is_provisioned", False)
+
+        # Get the created/imported facility (assuming its the only one at this point)
+        the_facility = Facility.objects.first()
+
+        # Use the facility's preset to determine whether to allow guest access
+        allow_guest_access = the_facility.dataset.preset != "formal"
+
+        # Finally: Call provision_device
+        provision_device(
+            device_name=device_name,
+            language_id=language_id,
+            default_facility=the_facility,
+            allow_guest_access=allow_guest_access,
+            is_provisioned=is_provisioned,
+        )
+
+        return Response({"is_provisioned": is_provisioned})
+
+
 class FacilityImportViewSet(ViewSet):
     """
     A group of endpoints that are used by the SetupWizard to import a facility
@@ -46,7 +181,8 @@ class FacilityImportViewSet(ViewSet):
         # users are from the new facility
         queryset = FacilityUser.objects.filter(roles__kind__contains="admin")
         response_data = [
-            {"username": user.username, "id": user.id} for user in queryset
+            {"full_name": user.full_name, "username": user.username, "id": user.id}
+            for user in queryset
         ]
         return Response(response_data)
 
@@ -96,18 +232,6 @@ class FacilityImportViewSet(ViewSet):
             if facility_name:
                 the_facility.name = facility_name
                 the_facility.save()
-
-        # Here we only expect and accept the on_my_own_setup extra_field and set it directly
-        # using the setter method for `on_my_own_setup` on Facility
-        extra_fields = request.data.get("extra_fields", None)
-        if extra_fields and extra_fields.get("on_my_own_setup"):
-            the_facility.on_my_own_setup = extra_fields.get("on_my_own_setup")
-
-        if extra_fields and extra_fields.get("os_user"):
-            osuser = FacilityUser.objects.get_or_create_os_user(
-                facility=the_facility, auth_token=request.data.get("auth_token")
-            )
-            return Response({"username": osuser.username})
 
         try:
             superuser = FacilityUser.objects.create_superuser(

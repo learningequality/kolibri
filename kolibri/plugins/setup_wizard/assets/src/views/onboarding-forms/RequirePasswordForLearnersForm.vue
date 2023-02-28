@@ -2,6 +2,7 @@
 
   <OnboardingStepBase
     :title="$tr('header')"
+    :eventOnGoBack="backEvent"
     @continue="handleContinue"
   >
     <KRadioButton
@@ -36,19 +37,23 @@
     components: {
       OnboardingStepBase,
     },
+    inject: ['wizardService'],
     data() {
-      let setting;
-      const { preset } = this.$store.state.onboardingData;
-      if (preset === null || preset === Presets.NONFORMAL) {
-        setting = true;
-      } else {
-        setting = false;
+      let setting = this.wizardService.state.context['requirePassword'];
+      if (setting === null) {
+        // Set default for the setting if one isn't selected; depends on the preset selected
+        const preset = this.wizardService.state.context['formalOrNonformal'];
+        setting = preset === Presets.NONFORMAL;
       }
       return {
         setting,
       };
     },
-    inject: ['wizardService'],
+    computed: {
+      backEvent() {
+        return { type: 'BACK', value: Boolean(this.setting) };
+      },
+    },
     methods: {
       handleContinue() {
         this.wizardService.send({ type: 'CONTINUE', value: this.setting });

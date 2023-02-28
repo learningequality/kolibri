@@ -20,7 +20,7 @@
     <SelectAddressModalGroup
       v-if="showSelectAddressModal"
       @cancel="showSelectAddressModal = false"
-      @submit="handleAddressSubmit"
+      @submit="handleContinueImport"
     />
   </OnboardingStepBase>
 
@@ -31,11 +31,7 @@
 
   import { SelectAddressModalGroup } from 'kolibri.coreVue.componentSets.sync';
   import OnboardingStepBase from '../OnboardingStepBase';
-
-  const Options = Object.freeze({
-    IMPORT: 'IMPORT',
-    NEW: 'NEW',
-  });
+  import { FacilityTypePresets as Options } from '../../constants';
 
   export default {
     name: 'SetUpLearningFacilityForm',
@@ -52,19 +48,17 @@
       };
     },
     methods: {
-      handleAddressSubmit(address) {
-        this.$router.push({
-          path: '/import_facility/1',
-          query: {
-            deviceId: address.id,
-          },
+      handleContinueImport(address) {
+        this.wizardService.send({
+          type: 'CONTINUE',
+          value: { importOrNew: Options.IMPORT, importDeviceId: address.id },
         });
       },
       handleContinue() {
         if (this.selected === Options.IMPORT) {
           this.showSelectAddressModal = true;
         } else {
-          this.wizardService.send({ type: 'CONTINUE', value: this.selected });
+          this.wizardService.send({ type: 'CONTINUE', value: { importOrNew: Options.NEW } });
         }
       },
     },

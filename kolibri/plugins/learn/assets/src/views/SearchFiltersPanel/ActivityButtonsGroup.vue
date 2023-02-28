@@ -5,7 +5,7 @@
       {{ $tr('activities') }}
     </h2>
     <span
-      v-for="(key, activity) in learningActivitiesList"
+      v-for="(key, activity) in availableLearningActivities"
       :key="key"
       alignment="center"
     >
@@ -33,45 +33,22 @@
 <script>
 
   import camelCase from 'lodash/camelCase';
-  import invert from 'lodash/invert';
-  import { LearningActivities } from 'kolibri.coreVue.vuex.constants';
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import plugin_data from 'plugin_data';
-
-  const activitiesLookup = invert(LearningActivities);
-
-  const learningActivitiesShown = {};
-
-  if (process.env.NODE_ENV !== 'production') {
-    // TODO rtibbles: remove this condition
-    Object.assign(learningActivitiesShown, LearningActivities);
-  } else {
-    plugin_data.learningActivities.map(id => {
-      const key = activitiesLookup[id];
-      learningActivitiesShown[key] = id;
-    });
-  }
+  import { injectSearch } from '../../composables/useSearch';
 
   export default {
     name: 'ActivityButtonsGroup',
     mixins: [commonCoreStrings],
-    props: {
-      availableLabels: {
-        type: Object,
-        required: false,
-        default: null,
-      },
-      activeButtons: {
-        type: Object,
-        required: false,
-        default: null,
-      },
+    setup() {
+      const { availableLearningActivities, searchableLabels, activeSearchTerms } = injectSearch();
+      return {
+        availableLearningActivities,
+        searchableLabels,
+        activeSearchTerms,
+      };
     },
     computed: {
-      learningActivitiesList() {
-        return learningActivitiesShown;
-      },
       activityStyles() {
         return {
           color: this.$themeTokens.text,
@@ -94,9 +71,9 @@
         };
       },
       availableActivities() {
-        if (this.availableLabels) {
+        if (this.searchableLabels) {
           const activities = {};
-          for (let key of this.availableLabels.learning_activities) {
+          for (const key of this.searchableLabels.learning_activities) {
             activities[key] = true;
           }
           return activities;
@@ -104,7 +81,9 @@
         return null;
       },
       activeKeys() {
-        return Object.keys(this.activeButtons);
+        return Object.keys(
+          (this.activeSearchTerms && this.activeSearchTerms.learning_activities) || {}
+        );
       },
     },
     methods: {

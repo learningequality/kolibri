@@ -26,9 +26,10 @@
             {{ currentLesson.description }}
           </p>
         </div>
+        <MissingResourceAlert v-if="lessonResources.length > contentNodes.length" />
       </section>
 
-      <section v-if="contentNodes && contentNodes.length" class="content-cards">
+      <section v-if="lessonHasResources" class="content-cards">
         <HybridLearningLessonCard
           v-for="content in contentNodes"
           :key="content.id"
@@ -37,10 +38,10 @@
           :isMobile="windowIsSmall"
           :link="genContentLinkBackLinkCurrentPage(content.id, true)"
         />
-        <p v-if="!lessonHasResources" class="no-resources-message">
-          {{ $tr('noResourcesInLesson') }}
-        </p>
       </section>
+      <p v-else class="no-resources-message">
+        {{ $tr('noResourcesInLesson') }}
+      </p>
     </div>
   </LearnAppBarPage>
 
@@ -50,13 +51,14 @@
 <script>
 
   import { mapMutations, mapState } from 'vuex';
-  import sumBy from 'lodash/sumBy';
   import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert';
   import useContentLink from '../../composables/useContentLink';
+  import useContentNodeProgress from '../../composables/useContentNodeProgress';
   import { PageNames, ClassesPageNames } from '../../constants';
   import commonLearnStrings from './../commonLearnStrings';
   import LearnAppBarPage from './../LearnAppBarPage';
@@ -75,22 +77,40 @@
       ContentIcon,
       ProgressIcon,
       LearnAppBarPage,
+      MissingResourceAlert,
     },
     mixins: [commonCoreStrings, commonLearnStrings, responsiveWindowMixin],
     setup() {
       const { genContentLinkBackLinkCurrentPage } = useContentLink();
-      return { genContentLinkBackLinkCurrentPage };
+      const { contentNodeProgressMap } = useContentNodeProgress();
+      return { contentNodeProgressMap, genContentLinkBackLinkCurrentPage };
     },
     computed: {
-      ...mapState('lessonPlaylist', ['contentNodes', 'currentLesson']),
+      ...mapState('lessonPlaylist', ['contentNodesMap', 'currentLesson']),
+      contentNodes() {
+        return this.lessonResources
+          .map(r => {
+            return this.contentNodesMap[r.contentnode_id] || null;
+          })
+          .filter(Boolean);
+      },
+      lessonResources() {
+        return (this.currentLesson && this.currentLesson.resources) || [];
+      },
       lessonHasResources() {
+        return this.lessonResources.length > 0;
+      },
+      lessonHasResourcesAvailable() {
         return this.contentNodes.length > 0;
       },
       lessonProgress() {
-        if (this.lessonHasResources) {
+        if (this.lessonHasResourcesAvailable) {
           // HACK: Infer the Learner's progress by summing the progress_fractions
           // on all the ContentNodes
-          const total = sumBy(this.contentNodes, cn => cn.progress_fraction || 0);
+          const total = Object.values(this.contentNodesMap).reduce(
+            (tot, node) => tot + (this.contentNodeProgressMap[node.content_id] || 0),
+            0
+          );
           if (total === 0) {
             return null;
           }

@@ -18,7 +18,9 @@ exports[`ReportsLessonResourceLearnerListPage for a lesson restricted to some gr
     <th>
       Average time spent
     </th>
-    <td><span>2 minutes</span></td>
+    <td><span>
+    2 minutes
+  </span></td>
   </tr>
 </table>
 `;
@@ -62,7 +64,9 @@ exports[`ReportsLessonResourceLearnerListPage for a lesson restricted to some gr
     <th>
       Average time spent
     </th>
-    <td><span>2 minutes</span></td>
+    <td><span>
+    2 minutes
+  </span></td>
   </tr>
 </table>
 `;
@@ -92,7 +96,9 @@ exports[`ReportsLessonResourceLearnerListPage for an entire class lesson when di
     <th>
       Average time spent
     </th>
-    <td><span>3 minutes</span></td>
+    <td><span>
+    3 minutes
+  </span></td>
   </tr>
 </table>
 `;
@@ -157,7 +163,9 @@ exports[`ReportsLessonResourceLearnerListPage for an entire class lesson when di
     <th>
       Average time spent
     </th>
-    <td><span>3 minutes</span></td>
+    <td><span>
+    3 minutes
+  </span></td>
   </tr>
 </table>
 `;
@@ -170,7 +178,9 @@ exports[`ReportsLessonResourceLearnerListPage for an entire class lesson when di
     <th>
       Average time spent
     </th>
-    <td><span>2 minutes</span></td>
+    <td><span>
+    2 minutes
+  </span></td>
   </tr>
 </table>
 `;

@@ -31,7 +31,7 @@ window.H5P.jQuery.fn.load = function(url) {
    */
   if (typeof url === 'function') {
     console.warn('You are using a deprecated H5P library. Please upgrade!');
-    let args = Array.prototype.slice.call(arguments);
+    const args = Array.prototype.slice.call(arguments);
     args.unshift('load');
     return window.H5P.jQuery.fn.on.apply(this, args);
   }

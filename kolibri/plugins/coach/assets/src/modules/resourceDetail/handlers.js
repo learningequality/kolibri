@@ -23,7 +23,10 @@ function showResourceView({ resourceId, exerciseId } = {}) {
   // Passed in exerciseId is the content_id of the contentNode
   // Map this to the id of the content node to do this fetch
   const nodeId = store.state.classSummary.contentMap[resourceId || exerciseId].node_id;
-  return ContentNodeResource.fetchModel({ id: nodeId }).then(
+  return ContentNodeResource.fetchModel({
+    id: nodeId,
+    getParams: { no_available_filtering: true },
+  }).then(
     resource => {
       store.commit('resourceDetail/SET_STATE', {
         resource,
