@@ -49,7 +49,7 @@ Next, initialize Git LFS:
 
 Finally, add the Learning Equality repo as a remote called `upstream`. That way you can keep your local checkout updated with the most recent changes:
 
-  
+
 .. code-block:: bash
 
   git remote add upstream git@github.com:learningequality/kolibri.git
