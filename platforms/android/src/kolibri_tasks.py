@@ -16,6 +16,8 @@ def queue_task(
     keep=True,
 ):
     if id:
+        from kolibri.core.tasks.job import Priority
+
         id = str(id)
         delay = (
             max(0, (scheduled_time - datetime.now()).total_seconds())
@@ -24,16 +26,18 @@ def queue_task(
         )
         retry_interval = retry_interval if retry_interval else 0
 
+        high_priority = priority <= Priority.HIGH
+
         if repeat is None:
             # Kolibri uses `None` for repeat to indicate a task that repeats indefinitely
             # in this case it is suitable for the Android PeriodicWorkRequest as that is
             # designed for indefinitely repeating tasks.
-            Task.enqueueIndefinitely(id, interval, delay, retry_interval)
+            Task.enqueueIndefinitely(id, interval, delay, retry_interval, high_priority)
         else:
             # Android has no mechanism for scheduling a limited run of repeating tasks
             # so anything else is just scheduled once, and we use the task_updates function
             # below to reschedule the next invocation.
-            Task.enqueueOnce(id, delay, retry_interval, keep)
+            Task.enqueueOnce(id, delay, retry_interval, keep, high_priority)
 
 
 def task_updates(job, orm_job, state=None, **kwargs):

@@ -8,6 +8,7 @@ import androidx.work.PeriodicWorkRequest;
 import androidx.work.BackoffPolicy;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.OutOfQuotaPolicy;
 import java.util.concurrent.TimeUnit;
 
 import org.learningequality.Kolibri.TaskworkerWorker;
@@ -15,13 +16,17 @@ import org.kivy.android.PythonActivity;
 
 
 public class Task {
-    public static void enqueueIndefinitely(String id, int interval, int delay, int retryInterval) {
+    public static void enqueueIndefinitely(String id, int interval, int delay, int retryInterval, boolean expedite) {
         WorkManager workManager = WorkManager.getInstance(PythonActivity.mActivity);
         Data data = TaskworkerWorker.buildInputData(id);
 
         PeriodicWorkRequest.Builder workRequestBuilder = new PeriodicWorkRequest.Builder(
             TaskworkerWorker.class, interval, TimeUnit.SECONDS
         );
+
+        if (expedite) {
+            workRequestBuilder.setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST);
+        }
 
         if (retryInterval > 0) {
             workRequestBuilder.setBackoffCriteria(
@@ -35,11 +40,16 @@ public class Task {
         PeriodicWorkRequest workRequest = workRequestBuilder.build();
         workManager.enqueueUniquePeriodicWork(id, ExistingPeriodicWorkPolicy.KEEP, workRequest);
     }
-    public static void enqueueOnce(String id, int delay, int retryInterval, boolean keep) {
+    public static void enqueueOnce(String id, int delay, int retryInterval, boolean keep, boolean expedite) {
         WorkManager workManager = WorkManager.getInstance(PythonActivity.mActivity);
         Data data = TaskworkerWorker.buildInputData(id);
 
         OneTimeWorkRequest.Builder workRequestBuilder = new OneTimeWorkRequest.Builder(TaskworkerWorker.class);
+
+        if (expedite) {
+            workRequestBuilder.setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST);
+        }
+
         if (retryInterval > 0) {
             workRequestBuilder.setBackoffCriteria(
                 BackoffPolicy.LINEAR, retryInterval, TimeUnit.SECONDS
