@@ -10,7 +10,8 @@ export const PageNames = {
   DATA_EXPORT_PAGE: 'DATA_EXPORT_PAGE',
   FACILITY_CONFIG_PAGE: 'FACILITY_CONFIG_PAGE',
   ALL_FACILITIES_PAGE: 'ALL_FACILITIES_PAGE',
-  ManageSyncSchedule: 'ManageSyncSchedule',
+  MANAGE_SYNC_SCHEDULE: 'MANAGE_SYNC_SCHEDULE',
+  EDIT_SYNC_SCHEDULE: 'EDIT_SYNC_SCHEDULE',
 };
 
 // modal names
@@ -34,8 +35,8 @@ export const pageNameToModuleMap = {
   [PageNames.USER_MGMT_PAGE]: 'userManagement',
   [PageNames.FACILITY_CONFIG_PAGE]: 'facilityConfig',
   [PageNames.DATA_EXPORT_PAGE]: 'dataExport',
-  [PageNames.ManageSyncSchedule]: 'manageSyncSchedule',
-  [PageNames.EditSyncSchedule]: 'editsyncshedule',
+  [PageNames.MANAGE_SYNC_SCHEDULE]: 'manageSyncSchedule',
+  [PageNames.EDIT_SYNC_SCHEDULE]: 'editsyncshedule',
 };
 
 export const CSVGenerationStatuses = {

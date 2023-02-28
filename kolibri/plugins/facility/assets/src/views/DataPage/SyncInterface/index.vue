@@ -60,14 +60,23 @@
                   <template #options>
                     <CoreMenuOption
                       :style="{ 'cursor': 'pointer', textAlign: 'left' }"
-                      :label="$tr('manage_sync')"
+                      :label="coreString('manageSyncAction')"
                       @select="managesync()"
+                      
                     />
-
                     <CoreMenuOption
+                      
                       :style="{ 'cursor': 'pointer', textAlign: 'left' }"
                       :label="$tr('register')"
                       @select="displayModal(Modals.REGISTER_FACILITY)"
+                      
+                    />
+
+                    <CoreMenuOption
+                      
+                      :style="{ 'cursor': 'pointer', textAlign: 'left' }"
+                      :label="$tr('sync')"
+                      @select="displayModal(Modals.SYNC_FACILITY)"
                     />
                   </template>
                 </CoreMenu>
@@ -167,7 +176,7 @@
     },
     methods: {
       managesync() {
-        this.$router.push({ name: PageNames.ManageSyncSchedule });
+        this.$router.push({ name: PageNames.MANAGE_SYNC_SCHEDULE });
       },
       fetchFacility() {
         FacilityResource.fetchModel({ id: this.$store.getters.activeFacilityId, force: true }).then(

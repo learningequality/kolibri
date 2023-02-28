@@ -270,11 +270,15 @@
       facilityOptions(facility) {
         return [
           {
-            label: 'Manage sync Schedule',
-            value: Options.REGISTER,
+            label: this.coreString('manageSyncAction'),
+            value: Options.MANAGESYNC,
             disabled: facility.dataset.registered,
           },
-          {
+          { 
+            label: this.coreString('registerAction'),
+            value: Options.REGISTER,
+          },
+          { 
             label: this.coreString('removeAction'),
             value: Options.REMOVE,
           },
@@ -284,8 +288,9 @@
         if (option === Options.REMOVE) {
           this.facilityForRemoval = facility;
         } else if (option === Options.REGISTER) {
+          this.facilityForRegister = facility;
+        }else if(option === Options.MANAGESYNC){
           this.$router.push({ path: '/manage' });
-          // this.facilityForRegister = facility;
         }
       },
       fetchFacilites() {

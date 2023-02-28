@@ -16,25 +16,26 @@
           <p>{{ device.device_name }} </p>
         </KGridItem>
 
-        <KGridItem class="select-element">
-          <div
-            class="k-select"
+        <KGrid class="align-kselects">
+          <KGrid
           >
+          <KGridItem>
             <KSelect
-              v-model="selectedInterval"
+              v-model="selectedItem"
               class="selector"
               :style="selectorStyle"
               :options="selectArray"
               label="Repeat"
             />
+          </KGridItem>
 
-          </div>
-          <div
-            v-if="selectedItem.label !== 'Never'
-              && selectedItem.label !== 'Every hour'
-              && selectedItem.label !== 'Every day'"
-            class="k-select next-k-select-1"
+          </KGrid>
+          <KGrid
+            v-if="selectedItem.value !== 0
+              && selectedItem.value !== 1"
+            class=""
           >
+          <KGridItem>
             <KSelect
               v-model="selectedDay"
               class="selector"
@@ -43,11 +44,14 @@
               label="On"
             />
 
-          </div>
-          <div
-            v-if="selectedItem.label !== 'Never' && selectedItem.label !== 'Every hour' "
-            class="k-select next-k-select-2"
+          </KGridItem>
+
+          </KGrid>
+          <KGrid
+            v-if="selectedItem.value !== 0"
+            class=""
           >
+          <KGridItem>
             <KSelect
               v-model="selectedTime"
               class="selector"
@@ -55,11 +59,11 @@
               :options="SyncTime"
               label="At"
             />
-          </div>
+          </KGridItem>
+          </KGrid>
 
-        </KGridItem>
-
-        <KGridItem class="more-spacing">
+        </KGrid>
+        <KGridItem>
 
           <p class="spacing">
             {{ $tr('serverTime') }}
@@ -71,14 +75,17 @@
               {{ $tr('checboxlabel') }}
             </KCheckbox>
           </p>
-          <KButton
-            :vIf="msg"
-            appearance="basic-link"
-            class="spacing"
-            @click="removeDevice"
-          >
-            {{ msg }}
-          </KButton>
+          <p>
+            <KButton
+              v-if="removeBtn"
+              appearance="basic-link"
+              class="spacing"
+              @click="removeDeviceModal = true"
+            >
+              {{ $tr('removeDeviceLabel') }}
+            </KButton>
+
+          </p>
 
         </KGridItem>
 
@@ -175,11 +182,12 @@
         tasks: [],
         selectedDay: null,
         selectedTime: null,
+        removeBtn:false,
       };
     },
     computed: {
       backRoute() {
-        return { name: PageNames.ManageSyncSchedule };
+        return { name: PageNames.MANAGE_SYNC_SCHEDULE };
       },
       pageHeight() {
         return {
@@ -195,15 +203,16 @@
           paddingTop: '5px',
           paddingLeft: '5px',
           width: '300px',
+          marginLeft:'16px'
         };
       },
       selectArray() {
         return [
-          { label: this.$tr('everyHour'), value: 3600 },
-          { label: this.$tr('everyDay'), value: 86400 },
-          { label: this.$tr('everyWeek'), value: 86400 },
-          { label: this.$tr('everyTwoWeeks'), value: 86400 },
-          { label: this.$tr('everyMonth'), value: 2592000 },
+          { label: this.$tr('everyHour'), value: 0 },
+          { label: this.$tr('everyDay'), value: 1 },
+          { label: this.$tr('everyWeek'), value: 2 },
+          { label: this.$tr('everyTwoWeeks'), value: 3 },
+          { label: this.$tr('everyMonth'), value: 4 },
         ];
       },
       getDays() {
@@ -242,13 +251,15 @@
     beforeMount() {
       this.fetchDevice();
     },
+    mounted() {
+      this.timer = setInterval(() => {
+        this.now = now();
+      }, 10000);
+    },
     beforeDestroy() {
       clearInterval(this.timer);
     },
     methods: {
-      removeDevice() {
-        this.removeDeviceModal = true;
-      },
       closeModal() {
         this.removeDeviceModal = false;
       },
@@ -289,10 +300,14 @@
         this.$router.push({ name: PageNames.ManageSyncSchedule });
       },
       fetchDevice() {
-        NetworkLocationResource.fetchModel({ id: this.$route.query.id }).then(device => {
+        NetworkLocationResource.fetchModel({ id: this.$route.params.deviceId }).then(device => {
           this.device = device;
           TaskResource.list({ queue: 'facility_task' }).then(tasks => {
-            this.tasks = tasks.filter(device.extra_metadata.device_id === this.id);
+            this.tasks = tasks.filter(task => task.extra_metadata.device_id === device.id 
+            && task.facility_id === this.$store.getters.activeFacilityId);
+             if(this.tasks.length !=0){
+               this.removeBtn = true;
+             }
           });
         });
       },
@@ -362,6 +377,10 @@
         message: 'Cancel',
         context: 'Label for cancel button on the remove device modal',
       },
+      removeDeviceLabel:{
+        message:'Remove device from sync schedule',
+        context:'Button label for removing the device from the sync schedule',
+      }
     },
   };
 
@@ -378,11 +397,15 @@
   .edit-sync-schedule{
     margin-left:20px;
   }
-  .more-spacing{
-    margin-top:60px;
+  .align-kselects{
+    margin-left:16px;
   }
-  .select-element .k-select{
-    display:inline-flex;
+  /* .kselect{
+    margin-right:16px;
+  } */
+  /* .select-element .k-select{
+    /* display:flex; */
+    /* display: flex;
     position:absolute
   }
   .next-k-select-1{
@@ -390,6 +413,6 @@
   }
   .next-k-select-2{
     margin-left:632px;
-  }
+  } */ 
 
 </style>

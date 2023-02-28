@@ -40,14 +40,14 @@
       <!--      creating the table-->
       <CoreTable>
         <template #tbody>
-          <tbody v-if="myDevices.length > 0">
+          <tbody v-if="savedDevices.length > 0">
             <tr>
               <th>{{ $tr('deviceName') }}</th>
               <th>{{ $tr('Schedule') }}</th>
               <th>{{ $tr('Status') }}</th>
               <th></th>
             </tr>
-            <tr v-for="device in myDevices" :key="device.id">
+            <tr v-for="device in savedDevices" :key="device.id">
               <td>
                 <span>{{ device.extra_metadata.device_name }}<br>
                   {{ device.extra_metadata.baseurl }}
@@ -209,7 +209,7 @@
         radioBtnValue: ' ',
         newaddressclick: false,
         deviceIds: [],
-        myDevices: [],
+        savedDevices: [],
       };
     },
     computed: {
@@ -234,11 +234,12 @@
       fetchAddressesForLOD(LocationResource = NetworkLocationResource) {
         return LocationResource.fetchCollection({ force: true }).then(locations => {
           this.data = locations;
+          console.log(this.data);
         });
       },
       pollFacilityTasks() {
         TaskResource.list({ queue: 'facility_task' }).then(tasks => {
-          this.myDevices = tasks;
+          this.savedDevices = tasks;
 
           if (this.isPolling) {
             setTimeout(() => {
@@ -254,8 +255,7 @@
         this.deviceModal = false;
         if (id !== ' ') {
           this.deviceIds.push(id);
-
-          this.$router.push({ path: '/editdevice/?id=' + id });
+          this.$router.push({ name: PageNames.EDIT_SYNC_SCHEDULE, params: { deviceId: id } });
         } else {
           return window.location.href;
         }
@@ -265,9 +265,7 @@
       },
       editButton(value) {
         if (value !== ' ') {
-          this.$router.push({
-            path: '/editdevice/?id=' + value,
-          });
+          this.$router.push({ name: PageNames.EDIT_SYNC_SCHEDULE, params: { deviceId: value} });
         } else {
           return window.location.href;
         }

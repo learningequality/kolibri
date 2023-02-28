@@ -1,6 +1,5 @@
 import store from 'kolibri.coreVue.vuex.store';
 import ManageSyncSchedule from 'kolibri-common/components/SyncSchedule/ManageSyncSchedule';
-import SyncSchedule from 'kolibri-common/components/SyncSchedule/SyncSchedule';
 import editDeviceSyncSchedule from 'kolibri-common/components/SyncSchedule/EditDeviceSyncSchedule';
 import ClassEditPage from './views/ClassEditPage';
 import CoachClassAssignmentPage from './views/CoachClassAssignmentPage';
@@ -128,18 +127,13 @@ export default [
     },
   },
   {
-    path: '/:facility_id?/:device_id?/managesync',
+    path: '/:facility_id?/managesync',
     component: ManageSyncSchedule,
-    name: 'ManageSyncSchedule',
+    name: PageNames.MANAGE_SYNC_SCHEDULE,
   },
   {
-    path: '/:facility_id?/:device_id?/editsyncschedule/?',
+    path: '/:facility_id?/:device_id?/editdevice/:deviceId',
     component: editDeviceSyncSchedule,
-    name: 'EditSyncSchedule',
-  },
-  {
-    path: '/:facility_id?/:device_id?/editdevice',
-    component: SyncSchedule,
-    name: 'SyncSchedule',
+    name: PageNames.EDIT_SYNC_SCHEDULE,
   },
 ];
