@@ -54,14 +54,10 @@
                 </span>
               </td>
               <td>
-                <div v-if="device.extra_metadata.sync_state = 'PENDING'">
-                  {{ $tr('never') }}
-                </div>
-                <div v-else>
+                <div>
                   {{ device.extra_metadata.sync_state }}
                 </div>
               </td>
-              <!-- <td>Never</td> -->
 
               <td v-if="data.length > 0">
                 <div v-for="ids in data" :key="ids.id">
