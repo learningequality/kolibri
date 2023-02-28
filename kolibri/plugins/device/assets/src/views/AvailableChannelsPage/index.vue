@@ -63,7 +63,7 @@
               :dismissible="false"
               type="error"
             >
-              {{ deviceStrings('notEnoughSpaceForChannelsWarning') }}
+              {{ deviceString('notEnoughSpaceForChannelsWarning') }}
             </UiAlert>
           </p>
 

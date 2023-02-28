@@ -13,7 +13,7 @@
           }"
           data-test="beginners-chip"
         >
-          {{ coreString("ForBeginners") }}
+          {{ coreString('forBeginners') }}
         </span>
       </div>
 
@@ -208,6 +208,7 @@
   import LearnerNeeds from 'kolibri-constants/labels/Needs';
   import { ContentNodeResource } from 'kolibri.resources';
   import useContentLink from '../composables/useContentLink';
+  import commonLearnStrings from './commonLearnStrings';
   import LearningActivityIcon from './LearningActivityIcon';
   import ContentNodeThumbnail from './thumbnails/ContentNodeThumbnail';
 
@@ -218,7 +219,7 @@
       TimeDuration,
       ContentNodeThumbnail,
     },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, commonLearnStrings],
     setup() {
       const { genContentLinkKeepCurrentBackLink } = useContentLink();
       return { genContentLinkKeepCurrentBackLink };
@@ -318,13 +319,11 @@
         if (this.showMoreOrLess === 'Show More') {
           this.showMoreOrLess = 'Show Less';
           this.truncate = 'show-description';
-          /* eslint-disable kolibri/vue-no-undefined-string-uses */
           return this.learnString('showLess');
         } else {
           this.showMoreOrLess = 'Show More';
           this.truncate = 'truncate-description';
           return this.learnString('showMore');
-          /* eslint-enable kolibri/vue-no-undefined-string-uses */
         }
       },
       calculateDescriptionOverflow() {
