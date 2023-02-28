@@ -2,7 +2,7 @@
 
   <div>
     <!-- Select Network Address Step -->
-    <SelectAddressModalGroup
+    <SelectDeviceModalGroup
       v-if="atSelectAddress"
       @submit="handleAddressSubmit"
       @cancel="closeModal"
@@ -33,7 +33,7 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import { SelectAddressModalGroup } from 'kolibri.coreVue.componentSets.sync';
+  import { SelectDeviceModalGroup } from 'kolibri.coreVue.componentSets.sync';
   import SelectFacilityModal from './SelectFacilityModal';
   import FacilityAdminCredentialsModal from './FacilityAdminCredentialsModal';
 
@@ -46,7 +46,7 @@
   export default {
     name: 'ImportFacilityModalGroup',
     components: {
-      SelectAddressModalGroup,
+      SelectDeviceModalGroup,
       SelectFacilityModal,
       FacilityAdminCredentialsModal,
     },

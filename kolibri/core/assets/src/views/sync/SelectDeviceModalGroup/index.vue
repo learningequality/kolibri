@@ -35,7 +35,7 @@
   });
 
   export default {
-    name: 'SelectAddressModalGroup',
+    name: 'SelectDeviceModalGroup',
     components: {
       AddDeviceForm,
       SelectDeviceForm,

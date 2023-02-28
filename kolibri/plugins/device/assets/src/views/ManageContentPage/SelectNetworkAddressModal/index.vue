@@ -1,6 +1,6 @@
 <template>
 
-  <SelectAddressModalGroup
+  <SelectDeviceModalGroup
     :filterByChannelId="filterByChannelId"
     @cancel="handleCancel"
     @submit="handleSelectAddressSubmit"
@@ -12,13 +12,13 @@
 <script>
 
   import { mapGetters, mapMutations, mapState } from 'vuex';
-  import { SelectAddressModalGroup } from 'kolibri.coreVue.componentSets.sync';
+  import { SelectDeviceModalGroup } from 'kolibri.coreVue.componentSets.sync';
   import { availableChannelsPageLink, selectContentPageLink } from '../manageContentLinks';
 
   export default {
     name: 'SelectNetworkAddressModal',
     components: {
-      SelectAddressModalGroup,
+      SelectDeviceModalGroup,
     },
     props: {
       manageMode: {

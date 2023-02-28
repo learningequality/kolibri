@@ -1,5 +1,5 @@
-export { default as SelectDeviceForm } from './SelectAddressModalGroup/SelectDeviceForm';
-export { default as SelectAddressModalGroup } from './SelectAddressModalGroup';
+export { default as SelectDeviceForm } from '././SelectDeviceModalGroup/SelectDeviceForm';
+export { default as SelectDeviceModalGroup } from './SelectDeviceModalGroup';
 export { default as FacilityTaskPanel } from './FacilityTaskPanel';
 export { default as ConfirmationRegisterModal } from './ConfirmationRegisterModal';
 export { default as FacilityAdminCredentialsForm } from './FacilityAdminCredentialsForm';

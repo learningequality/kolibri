@@ -32,7 +32,7 @@
         @click="showSelectAddressModal = true"
       />
 
-      <SelectAddressModalGroup
+      <SelectDeviceModalGroup
         v-if="showSelectAddressModal"
         @cancel="showSelectAddressModal = false"
         @submit="handleAddressSubmit"
@@ -48,7 +48,7 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import { SelectAddressModalGroup, RadioButtonGroup } from 'kolibri.coreVue.componentSets.sync';
+  import { SelectDeviceModalGroup, RadioButtonGroup } from 'kolibri.coreVue.componentSets.sync';
   import { FooterMessageTypes } from '../constants';
 
   import OnboardingStepBase from './OnboardingStepBase';
@@ -58,7 +58,7 @@
     components: {
       OnboardingStepBase,
       RadioButtonGroup,
-      SelectAddressModalGroup,
+      SelectDeviceModalGroup,
     },
     inject: ['wizardService'],
     mixins: [commonCoreStrings, commonSyncElements],
