@@ -167,10 +167,6 @@
         type: String,
         default: 'back',
       },
-      msg: {
-        type: String,
-        default: '',
-      },
     },
     data() {
       return {

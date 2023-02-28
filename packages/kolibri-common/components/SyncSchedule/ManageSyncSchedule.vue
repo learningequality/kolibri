@@ -334,10 +334,6 @@
         message: 'Not Connected',
         context: 'Disconnected device',
       },
-      never: {
-        message: 'Never',
-        context: 'Text that shows when the device sync time was not scheduled',
-      },
     },
   };
 

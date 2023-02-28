@@ -277,10 +277,6 @@
         context:
           "Describes the 'sync' button which is used to synchronize data from a facility with the project on the Kolibri Data Portal.",
       },
-      manage_sync: {
-        message: 'Manage Sync Schedule',
-        context: 'Text for the manage sync schedule menu option',
-      },
     },
   };
 
