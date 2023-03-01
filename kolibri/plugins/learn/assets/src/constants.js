@@ -11,6 +11,7 @@ export const PageNames = {
   EXAM: 'EXAM',
   EXAM_ROOT: 'EXAM_ROOT',
   BOOKMARKS: 'BOOKMARKS',
+  EXPLORE_LIBRARIES: 'EXPLORE_LIBRARIES',
 };
 
 // switch between modes

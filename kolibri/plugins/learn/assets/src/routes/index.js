@@ -16,6 +16,7 @@ import TopicsPage from '../views/TopicsPage';
 import TopicsContentPage from '../views/TopicsContentPage';
 import ContentUnavailablePage from '../views/ContentUnavailablePage';
 import BookmarkPage from '../views/BookmarkPage.vue';
+import ExploreLibrariesPage from '../views/ExploreLibrariesPage';
 import classesRoutes from './classesRoutes';
 
 const { channels, channelsMap } = useChannels();
@@ -204,6 +205,11 @@ export default [
       store.commit('CORE_SET_PAGE_LOADING', false);
     },
     component: BookmarkPage,
+  },
+  {
+    name: PageNames.EXPLORE_LIBRARIES,
+    path: '/explore_libraries',
+    component: ExploreLibrariesPage,
   },
   {
     path: '*',
