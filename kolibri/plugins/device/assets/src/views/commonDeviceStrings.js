@@ -32,7 +32,7 @@ const deviceStrings = createTranslator('CommonDeviceStrings', {
   },
   permissionsLabel: {
     message: 'Permissions',
-    context: 'Refers to the Device > Permissions tab.',
+    context: "Title of tab in 'Device' section.",
   },
 });
 

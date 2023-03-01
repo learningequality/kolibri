@@ -303,7 +303,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
   infoLabel: {
     message: 'Info',
-    context: 'Refers to the Device > Info tab.',
+    context: "Title of tab in 'Device' section.",
   },
   inProgressLabel: {
     message: 'In progress',
@@ -338,9 +338,19 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       'A lesson is a linear learning pathway defined by a coach. The coach can select resources from any channel, add them to the lesson, define the ordering, and assign the lesson to learners in their class.',
   },
+  libraryLabel: {
+    message: 'Library',
+    context:
+      "The 'Library' section displays channels available on Kolibri server, and allows learners to browse, explore and filter topics and resources on their own.",
+  },
   loadingLabel: {
     message: 'Loading…',
     context: 'Message displayed when a resource is loading indicating that the user should wait.',
+  },
+  menuLabel: {
+    message: 'Menu',
+    context:
+      'Label that indicates a list of options. May be a button label, or a reference to the menu itself',
   },
   nameLabel: {
     message: 'Name',
