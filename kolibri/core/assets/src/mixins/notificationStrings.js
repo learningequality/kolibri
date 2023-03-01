@@ -112,20 +112,20 @@ export default createTranslator('NotificationStrings', {
   },
   pinCreated: {
     message: 'New PIN created',
-    context: 'A confirmation message for creating a new a pin',
+    context: 'A confirmation message for creating a new a PIN',
   },
   pinUpdated: {
     message: 'PIN updated',
-    context: 'A confimation message for updating a pin',
+    context: 'A confimation message for updating a PIN',
   },
   pinRemove: {
     message: 'PIN removed',
-    context: 'A confirmation message for removing a pin',
+    context: 'A confirmation message for removing a PIN',
   },
   pinAuthenticate: {
-    message: 'PIN authenticated succesfully',
+    message: 'PIN authenticated successfully',
     context:
-      'A confirmation message indicating that the pin provided for authentication is correct',
+      'A confirmation message indicating that the PIN provided for authentication is correct',
   },
 
   // TODO move more messages into this namespace:

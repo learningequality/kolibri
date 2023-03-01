@@ -73,15 +73,15 @@
     $trs: {
       title: {
         message: 'Enter PIN',
-        context: 'Title for the pin modal.',
+        context: 'Title for the PIN modal.',
       },
       incorrectPin: {
-        message: 'Incorrect pin, please try again',
-        context: 'Error message displayed when an incorrect pin is input',
+        message: 'Incorrect PIN, please try again',
+        context: 'Error message displayed when an incorrect PIN is input',
       },
       invalidPin: {
         message: 'Please enter a 4-digit number',
-        context: 'Error message displayed when a pin with less than 4 digits is input',
+        context: 'Error message displayed when a PIN with less than 4 digits is input',
       },
       pinPlaceholder: {
         message: 'PIN',

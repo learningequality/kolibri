@@ -1084,11 +1084,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
   enterPinPlaceholder: {
     message: 'Enter PIN',
-    context: 'Placholder text for the enter pin textbox',
+    context: 'Placholder text for the enter PIN textbox',
   },
   removePinPlacholder: {
     message: 'REMOVE PIN',
-    context: 'Placholder text for the remove pin textbox',
+    context: 'Placholder text for the remove PIN textbox',
   },
 });
 

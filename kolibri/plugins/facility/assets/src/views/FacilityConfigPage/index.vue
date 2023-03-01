@@ -428,7 +428,7 @@
       },
       deviceManagementPin: {
         message: 'Device management PIN',
-        context: 'The title for the device management pin',
+        context: 'The title for the device management PIN',
       },
       deviceManagementDescription: {
         message:
@@ -436,12 +436,12 @@
         context: 'Description for the device management',
       },
       createPinBtn: {
-        message: 'create pin',
-        context: 'Button for the create pin',
+        message: 'Create PIN',
+        context: 'Button for the create PIN',
       },
       optionBtn: {
         message: 'option',
-        context: 'Options button for the create pin page',
+        context: 'Options button for the create PIN page',
       },
     },
   };

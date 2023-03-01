@@ -51,7 +51,7 @@ describe('PinAuthenticationModal', () => {
     expect(cancelListener).toHaveBeenCalled();
   });
 
-  describe('submitting a pin', () => {
+  describe('submitting a PIN', () => {
     async function inputPin(wrapper, pin) {
       const textbox = getElements(wrapper).pinTextbox();
       textbox.vm.$emit('input', pin);
@@ -70,7 +70,7 @@ describe('PinAuthenticationModal', () => {
       expect(pinTextbox().props().invalid).toEqual(false);
     });
 
-    it('emits a "submit" event if pin validation is successful', async () => {
+    it('emits a "submit" event if PIN validation is successful', async () => {
       const { isPinValidStub } = getElements(wrapper);
       const isPinValid = isPinValidStub();
       await isPinValid.mockResolvedValue({ is_pin_valid: true });
@@ -86,7 +86,7 @@ describe('PinAuthenticationModal', () => {
         });
     });
 
-    it('on submit, shows a validation message when pin code is input but invalid', async () => {
+    it('on submit, shows a validation message when PIN code is input but invalid', async () => {
       //Force is isFacilityPinValid to be false
       store.state.facilityConfig.isFacilityPinValid = false;
 
@@ -101,11 +101,11 @@ describe('PinAuthenticationModal', () => {
         .then(() => {
           expect(isPinValid).toHaveBeenCalledWith({ pin_code: '1234' });
           expect(wrapper.emitted().submit).toBeUndefined();
-          assertTextbox(wrapper, 'Incorrect pin, please try again', true);
+          assertTextbox(wrapper, 'Incorrect PIN, please try again', true);
         });
     });
 
-    it('on submit, shows a validation message when pin code is empty', async () => {
+    it('on submit, shows a validation message when PIN code is empty', async () => {
       return inputPin(wrapper, '')
         .then(() => {
           const elements = getElements(wrapper);

@@ -35,7 +35,7 @@
     $trs: {
       title: {
         message: 'Remove device management PIN',
-        context: 'Title for the remove pin modal.',
+        context: 'Title for the remove PIN modal.',
       },
       warningToSync: {
         message:
