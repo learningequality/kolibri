@@ -59,9 +59,9 @@
                 <div class="sync-status">
                   {{ $tr('deviceStatus') }}
                 </div>
-                <SideNavStorageNotification />
                 <SyncStatusDisplay
-                  :syncStatus="mapSyncStatusOptionToLearner"
+                  :syncStatus="userSyncStatus"
+                  :lastSynced="userLastSynced"
                   displaySize="small"
                 />
               </div>
@@ -194,9 +194,9 @@
 
 <script>
 
-  import { mapGetters, mapState, mapActions } from 'vuex';
+  import { mapGetters, mapState } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { UserKinds, SyncStatus, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
+  import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
@@ -210,11 +210,11 @@
   import LanguageSwitcherModal from 'kolibri.coreVue.components.LanguageSwitcherModal';
   import navComponentsMixin from '../mixins/nav-components';
   import TotalPoints from '../../../../plugins/learn/assets/src/views/TotalPoints.vue';
+  import useUserSyncStatus from '../composables/useUserSyncStatus';
   import SyncStatusDisplay from './SyncStatusDisplay';
   import logout from './LogoutSideNavEntry';
   import SideNavDivider from './SideNavDivider';
   import FocusTrap from './FocusTrap.vue';
-  import SideNavStorageNotification from './SideNavStorageNotification.vue';
   import plugin_data from 'plugin_data';
 
   // Explicit ordered list of roles for nav item sorting
@@ -241,11 +241,17 @@
       FocusTrap,
       TotalPoints,
       LanguageSwitcherModal,
-      SideNavStorageNotification,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin, responsiveElementMixin, navComponentsMixin],
     setup() {
-      return { themeConfig };
+      let userSyncStatus = null;
+      let userLastSynced = null;
+      if (plugin_data.isSubsetOfUsersDevice) {
+        const { status, lastSynced } = useUserSyncStatus();
+        userSyncStatus = status;
+        userLastSynced = lastSynced;
+      }
+      return { themeConfig, userSyncStatus, userLastSynced };
     },
     props: {
       navShown: {
@@ -260,10 +266,6 @@
         privacyModalVisible: false,
         languageModalShown: false,
         isSubsetOfUsersDevice: plugin_data.isSubsetOfUsersDevice,
-        userSyncStatus: null,
-        isPolling: false,
-        // poll every 10 seconds
-        pollingInterval: 10000,
       };
     },
     computed: {
@@ -271,7 +273,6 @@
       ...mapState({
         username: state => state.core.session.username,
         fullName: state => state.core.session.full_name,
-        userId: state => state.core.session.user_id,
       }),
       width() {
         return this.topBarHeight * 4;
@@ -302,22 +303,12 @@
       userIsLearner() {
         return this.getUserKind == UserKinds.LEARNER;
       },
-      mapSyncStatusOptionToLearner() {
-        if (this.userSyncStatus) {
-          return this.userSyncStatus.status;
-        }
-        return SyncStatus.NOT_CONNECTED;
-      },
     },
     watch: {
       navShown(isShown) {
         this.$nextTick(() => {
           if (isShown) {
-            this.isPolling = true;
-            this.pollUserSyncStatusTask();
             this.focusFirstEl();
-          } else {
-            this.isPolling = false;
           }
         });
       },
@@ -332,39 +323,13 @@
     },
     beforeDestroy() {
       window.removeEventListener('click', this.handleWindowClick);
-      this.isPolling = false;
     },
     methods: {
-      ...mapActions(['fetchUserSyncStatus']),
       toggleNav() {
         this.$emit('toggleSideNav');
       },
       handleShowLanguageModal() {
         this.languageModalShown = true;
-      },
-      pollUserSyncStatusTask() {
-        if (this.navShown) {
-          this.fetchUserSyncStatus({ user: this.userId }).then(syncData => {
-            if (syncData && syncData[0]) {
-              this.userSyncStatus = syncData[0];
-              this.setPollingInterval(this.userSyncStatus.status);
-            }
-          });
-          if (this.isPolling && this.isSubsetOfUsersDevice) {
-            setTimeout(() => {
-              this.pollUserSyncStatusTask();
-            }, this.pollingInterval);
-          }
-        }
-      },
-      setPollingInterval(status) {
-        if (status === SyncStatus.QUEUED) {
-          // check more frequently for updates if the user is waiting to sync,
-          // so that the sync isn't missed
-          this.pollingInterval = 1000;
-        } else {
-          this.pollingInterval = 10000;
-        }
       },
       handleClickPrivacyLink() {
         this.privacyModalVisible = true;

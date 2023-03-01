@@ -56,18 +56,19 @@
     mixins: [commonCoreStrings],
     props: {
       showBanner: {
-        type: String,
-        required: false,
-        default: null,
+        type: Boolean,
+        default: false,
       },
     },
     data() {
       return {
-        isSubsetOfUsersDevice: plugin_data.isSubsetOfUsersDevice,
         bannerOpened: false,
+        isSubsetOfUsersDevice: plugin_data.isSubsetOfUsersDevice,
+        // TODO: remove this
+        insufficientSpace: true,
+        // TODO: retrieve proper info for these
         hasDevicePermissions: false,
         availableDownloads: false,
-        insufficientSpace: true,
         resourcesRemoved: false,
       };
     },
@@ -108,6 +109,7 @@
         return message;
       },
       closeBanner() {
+        // TODO: Store preference after closure
         this.bannerOpened = false;
         if (this.previouslyFocusedElement) {
           this.previouslyFocusedElement.focus();
@@ -117,7 +119,7 @@
         this.$router.push('/');
       },
       toggleBanner() {
-        if (this.showBanner == 'QUEUED') {
+        if (this.showBanner) {
           this.bannerOpened = true;
         }
       },
@@ -135,32 +137,38 @@
       insufficientStorageNoDownloads: {
         message:
           'You do not have enough storage for new learning materials. Ask your coach or administrator for help.',
-        context: ' ',
+        context:
+          'Shown to the learner when their device has exhausted storage space for additional materials',
       },
       insufficientStorageAvailableDownloads: {
         message:
           'You do not have enough storage for updates. Try removing resources from My downloads.',
-        context: ' ',
+        context:
+          'Shown to the learner when their device has exhausted storage space for additional materials, but they have manually download materials that could be removed to make space',
       },
       superAdminMessage: {
         message: 'You do not have enough storage for updates.',
-        context: ' ',
+        context:
+          'Shown to the admin when the device has exhausted storage space for additional materials',
       },
       resourcesRemoved: {
         message: 'Some resources have been removed to make room for new class materials.',
-        context: ' ',
+        context:
+          'Shown to the learner when learning materials were automatically removed to make space for new materials',
       },
       goToDownloads: {
         message: 'Go To My Downloads',
-        context: ' ',
+        context:
+          'Text for a button that takes the learner to a page where they can remove downloaded materials',
       },
       manageChannels: {
         message: 'Manage Channels',
-        context: ' ',
+        context:
+          'Text for a button that takes the admin to a page where they can remove imported channels',
       },
       bannerHeading: {
         message: 'Storage Notification',
-        context: 'Heading to the storage notifcation banner',
+        context: 'Visually hidden heading of the storage notification banner',
       },
     },
   };

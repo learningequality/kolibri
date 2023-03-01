@@ -119,6 +119,10 @@ export const SyncStatus = {
   NOT_CONNECTED: 'NOT_CONNECTED',
 };
 
+export const LearnerDeviceStatus = {
+  INSUFFICIENT_STORAGE: 'InsufficientStorage',
+};
+
 export const DownloadRequestStatus = {
   QUEUED: 'QUEUED',
   DOWNLOADED: 'DOWNLOADED',
