@@ -132,7 +132,7 @@ export default [
     name: PageNames.MANAGE_SYNC_SCHEDULE,
   },
   {
-    path: '/:facility_id?/:device_id?/editdevice/:deviceId',
+    path: '/:facility_id?/editdevice/:deviceId',
     component: editDeviceSyncSchedule,
     name: PageNames.EDIT_SYNC_SCHEDULE,
   },

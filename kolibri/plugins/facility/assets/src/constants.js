@@ -34,9 +34,6 @@ export const pageNameToModuleMap = {
   [PageNames.CLASS_ENROLL_LEARNER]: 'classAssignMembers',
   [PageNames.USER_MGMT_PAGE]: 'userManagement',
   [PageNames.FACILITY_CONFIG_PAGE]: 'facilityConfig',
-  [PageNames.DATA_EXPORT_PAGE]: 'dataExport',
-  [PageNames.MANAGE_SYNC_SCHEDULE]: 'manageSyncSchedule',
-  [PageNames.EDIT_SYNC_SCHEDULE]: 'editsyncshedule',
 };
 
 export const CSVGenerationStatuses = {
