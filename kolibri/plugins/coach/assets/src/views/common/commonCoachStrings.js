@@ -249,6 +249,11 @@ const coachStrings = createTranslator('CommonCoachStrings', {
     context:
       "Coaches can choose between 'Randomized' and 'Fixed' question order when they create quizzes.\n\nThis text is a description of the 'Randomized' question order.",
   },
+  planLabel: {
+    message: 'Plan',
+    context:
+      "Translate as a VERB. Refers to the 'Plan' tab where coaches manage lessons, quizzes, and groups.",
+  },
   previewLabel: {
     message: 'Preview',
     context:

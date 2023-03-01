@@ -240,6 +240,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       "A topic is marked as 'Completed' when a learner finishes that specific topic within an educational resource. A topic could be a video, audio, document file or interactive app.",
   },
+  dataLabel: {
+    message: 'Data',
+    context: "Title of tab in 'Facility' section.",
+  },
   deviceNameLabel: {
     message: 'Device name',
     context:
@@ -297,6 +301,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       "An 'Identifier' could be a student ID number or an existing user identification number. This is an optional field in the user create/edit screen.",
   },
+  infoLabel: {
+    message: 'Info',
+    context: "Title of tab in 'Device' section.",
+  },
   inProgressLabel: {
     message: 'In progress',
     context:
@@ -330,9 +338,19 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       'A lesson is a linear learning pathway defined by a coach. The coach can select resources from any channel, add them to the lesson, define the ordering, and assign the lesson to learners in their class.',
   },
+  libraryLabel: {
+    message: 'Library',
+    context:
+      "The 'Library' section displays channels available on Kolibri server, and allows learners to browse, explore and filter topics and resources on their own.",
+  },
   loadingLabel: {
     message: 'Loading…',
     context: 'Message displayed when a resource is loading indicating that the user should wait.',
+  },
+  menuLabel: {
+    message: 'Menu',
+    context:
+      'Label that indicates a list of options. May be a button label, or a reference to the menu itself',
   },
   nameLabel: {
     message: 'Name',
@@ -382,6 +400,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Search for a user...',
     context:
       'Text which appears in the search field above the table with users from whom to choose from (e.g. when enrolling learners to a class, selecting users to sync, etc.)',
+  },
+  settingsLabel: {
+    message: 'Settings',
+    context: "Title of tab used in 'Facility' and 'Device' sections.",
   },
   findSomethingToLearn: {
     message: 'Find something to learn',
