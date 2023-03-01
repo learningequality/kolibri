@@ -6,7 +6,6 @@
       :key="device.id"
       :layout="{ span: cardColumnSpan, alignment: 'auto' }"
     >
-      {{ device.channels }}
       <UnPinnedDevices
         :deviceName="device.device_name"
         :channels="device.channels"

@@ -50,45 +50,6 @@
       :copies="displayedCopies"
       @submit="displayedCopies = []"
     />
-
-    <!-- Other Libraires -->
-    <div>
-      <KGrid gutter="12">
-        <KGridItem :layout="{ span: 6 }">
-          <span>
-            <h1>
-              {{ $tr('otherLibraries') }}
-            </h1>
-          </span>
-        </KGridItem>
-        <KGridItem :layout="{ span: 6, alignment: 'right' }">
-          <p v-if="searching" style="padding-top:20px">
-            {{ $tr('searchingOtherLibrary') }}
-            <KButton appearance="basic-link">
-              {{ $tr('refresh') }}
-            </KButton>
-            <KIcon
-              icon="wifi"
-            />
-          </p>
-          <p v-else>
-            {{ $tr('viewMore') }}
-            {{ $tr('pinned') }}
-            {{ $tr('showingAllLibraries') }}
-            {{ $tr('noOtherLibraries') }}
-            {{ $tr('searchingOtherLibrary') }}
-          </p>
-        </KGridItem>
-      </KGrid>
-      <PinnedNetworkResources />
-    </div>
-    <!-- More  -->
-    <div>
-      <h2>
-        {{ $tr('moreLibraries') }}
-      </h2>
-      <MoreNetworkDevices />
-    </div>
   </div>
 
 </template>
@@ -102,16 +63,12 @@
   import useLearnerResources from '../../composables/useLearnerResources';
   import CopiesModal from '../CopiesModal';
   import LibraryAndChannelBrowserMainContent from '../LibraryAndChannelBrowserMainContent';
-  import PinnedNetworkResources from './PinnedNetworkResources';
-  import MoreNetworkDevices from './MoreNetworkDevices';
 
   export default {
     name: 'ResumableContentGrid',
     components: {
       CopiesModal,
       LibraryAndChannelBrowserMainContent,
-      PinnedNetworkResources,
-      MoreNetworkDevices,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
     setup() {
@@ -153,7 +110,6 @@
     data() {
       return {
         displayedCopies: [],
-        searching: true,
       };
     },
     methods: {
@@ -174,38 +130,6 @@
       viewAsGrid: {
         message: 'View as grid',
         context: 'Label for a button used to view resources as a grid.',
-      },
-      otherLibraries: {
-        message: 'Other libraries',
-        context: 'Header for viewing other remote content Library',
-      },
-      searchingOtherLibrary: {
-        message: 'Searching for libraries around you.',
-        context: 'Connection state for showing other library',
-      },
-      noOtherLibraries: {
-        message: 'No other libraries around you right now',
-        context: 'Connection state when there is no other libraries around',
-      },
-      showingAllLibraries: {
-        message: 'Showing all available libraries around you.',
-        context: 'Connection state when the device is connected and shows other libraries',
-      },
-      refresh: {
-        message: 'Refresh',
-        context: 'Link for refreshing library',
-      },
-      viewMore: {
-        message: 'View More',
-        context: 'Link label for showing other libraries',
-      },
-      moreLibraries: {
-        message: 'More',
-        context: 'Title section containing unpinned devices',
-      },
-      pinned: {
-        message: 'Pinned',
-        context: 'Sub heading for the pinned devices',
       },
     },
   };

@@ -7,7 +7,7 @@
     >
       <KGridItem>
         <h2>
-          <KIcon icon="laptop" />
+          <KIcon icon="device" />
           <span class="device-name">{{ group.deviceName }}</span>
         </h2>
       </KGridItem>
