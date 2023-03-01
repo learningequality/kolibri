@@ -261,7 +261,7 @@
       },
       editButton(value) {
         if (value !== ' ') {
-          this.$router.push({ name: PageNames.EDIT_SYNC_SCHEDULE, params: { deviceId: value} });
+          this.$router.push({ name: PageNames.EDIT_SYNC_SCHEDULE, params: { deviceId: value } });
         } else {
           return window.location.href;
         }

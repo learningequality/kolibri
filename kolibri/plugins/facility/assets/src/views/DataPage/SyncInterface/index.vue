@@ -62,18 +62,16 @@
                       :style="{ 'cursor': 'pointer', textAlign: 'left' }"
                       :label="coreString('manageSyncAction')"
                       @select="managesync()"
-                      
                     />
                     <CoreMenuOption
-                      
+                  
                       :style="{ 'cursor': 'pointer', textAlign: 'left' }"
                       :label="$tr('register')"
                       @select="displayModal(Modals.REGISTER_FACILITY)"
-                      
                     />
 
                     <CoreMenuOption
-                      
+                  
                       :style="{ 'cursor': 'pointer', textAlign: 'left' }"
                       :label="$tr('sync')"
                       @select="displayModal(Modals.SYNC_FACILITY)"

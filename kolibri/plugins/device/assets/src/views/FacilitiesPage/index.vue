@@ -274,11 +274,11 @@
             value: Options.MANAGESYNC,
             disabled: facility.dataset.registered,
           },
-          { 
+          {
             label: this.coreString('registerAction'),
             value: Options.REGISTER,
           },
-          { 
+          {
             label: this.coreString('removeAction'),
             value: Options.REMOVE,
           },
@@ -289,7 +289,7 @@
           this.facilityForRemoval = facility;
         } else if (option === Options.REGISTER) {
           this.facilityForRegister = facility;
-        }else if(option === Options.MANAGESYNC){
+        } else if (option === Options.MANAGESYNC) {
           this.$router.push({ path: '/manage' });
         }
       },

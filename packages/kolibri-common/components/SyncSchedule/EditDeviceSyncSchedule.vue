@@ -17,17 +17,16 @@
         </KGridItem>
 
         <KGrid class="align-kselects">
-          <KGrid
-          >
-          <KGridItem>
-            <KSelect
-              v-model="selectedItem"
-              class="selector"
-              :style="selectorStyle"
-              :options="selectArray"
-              label="Repeat"
-            />
-          </KGridItem>
+          <KGrid>
+            <KGridItem>
+              <KSelect
+                v-model="selectedItem"
+                class="selector"
+                :style="selectorStyle"
+                :options="selectArray"
+                label="Repeat"
+              />
+            </KGridItem>
 
           </KGrid>
           <KGrid
@@ -35,31 +34,31 @@
               && selectedItem.value !== 1"
             class=""
           >
-          <KGridItem>
-            <KSelect
-              v-model="selectedDay"
-              class="selector"
-              :style="selectorStyle"
-              :options="getDays"
-              label="On"
-            />
+            <KGridItem>
+              <KSelect
+                v-model="selectedDay"
+                class="selector"
+                :style="selectorStyle"
+                :options="getDays"
+                label="On"
+              />
 
-          </KGridItem>
+            </KGridItem>
 
           </KGrid>
           <KGrid
             v-if="selectedItem.value !== 0"
             class=""
           >
-          <KGridItem>
-            <KSelect
-              v-model="selectedTime"
-              class="selector"
-              :style="selectorStyle"
-              :options="SyncTime"
-              label="At"
-            />
-          </KGridItem>
+            <KGridItem>
+              <KSelect
+                v-model="selectedTime"
+                class="selector"
+                :style="selectorStyle"
+                :options="SyncTime"
+                label="At"
+              />
+            </KGridItem>
           </KGrid>
 
         </KGrid>
@@ -178,7 +177,7 @@
         tasks: [],
         selectedDay: null,
         selectedTime: null,
-        removeBtn:false,
+        removeBtn: false,
       };
     },
     computed: {
@@ -199,7 +198,7 @@
           paddingTop: '5px',
           paddingLeft: '5px',
           width: '300px',
-          marginLeft:'16px'
+          marginLeft: '16px',
         };
       },
       selectArray() {
@@ -299,11 +298,14 @@
         NetworkLocationResource.fetchModel({ id: this.$route.params.deviceId }).then(device => {
           this.device = device;
           TaskResource.list({ queue: 'facility_task' }).then(tasks => {
-            this.tasks = tasks.filter(task => task.extra_metadata.device_id === device.id 
-            && task.facility_id === this.$store.getters.activeFacilityId);
-             if(this.tasks.length !=0){
-               this.removeBtn = true;
-             }
+            this.tasks = tasks.filter(
+              task =>
+                task.extra_metadata.device_id === device.id &&
+                task.facility_id === this.$store.getters.activeFacilityId
+            );
+            if (this.tasks.length != 0) {
+              this.removeBtn = true;
+            }
           });
         });
       },
@@ -373,10 +375,10 @@
         message: 'Cancel',
         context: 'Label for cancel button on the remove device modal',
       },
-      removeDeviceLabel:{
-        message:'Remove device from sync schedule',
-        context:'Button label for removing the device from the sync schedule',
-      }
+      removeDeviceLabel: {
+        message: 'Remove device from sync schedule',
+        context: 'Button label for removing the device from the sync schedule',
+      },
     },
   };
 
