@@ -272,11 +272,11 @@
           {
             label: this.coreString('manageSyncAction'),
             value: Options.MANAGESYNC,
-            disabled: facility.dataset.registered,
           },
           {
             label: this.coreString('registerAction'),
             value: Options.REGISTER,
+            disabled: facility.dataset.registered,
           },
           {
             label: this.coreString('removeAction'),

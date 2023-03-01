@@ -64,11 +64,13 @@
                       @select="managesync()"
                     />
                     <CoreMenuOption
+                      v-if="theFacility.dataset.registered"
                       :style="{ 'cursor': 'pointer', textAlign: 'left' }"
                       :label="$tr('register')"
                       @select="displayModal(Modals.REGISTER_FACILITY)"
                     />
                     <CoreMenuOption
+                      v-else
                       :style="{ 'cursor': 'pointer', textAlign: 'left' }"
                       :label="$tr('sync')"
                       @select="displayModal(Modals.SYNC_FACILITY)"

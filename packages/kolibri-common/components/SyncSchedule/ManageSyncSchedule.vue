@@ -59,7 +59,7 @@
                 </div>
               </td>
 
-              <td v-if="data.length > 0">
+              <td v-if="data && data.length > 0">
                 <div v-for="ids in data" :key="ids.id">
                   <span v-if="ids.id === device.id">
                     <KIcon
