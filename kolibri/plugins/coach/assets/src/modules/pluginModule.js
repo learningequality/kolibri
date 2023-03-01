@@ -64,6 +64,7 @@ export default {
         getParams: { parent: facilityId || store.getters.currentFacilityId, role: 'coach' },
       })
         .then(classrooms => {
+          console.log(classrooms);
           store.commit('SET_CLASS_LIST', classrooms);
         })
         .catch(error => store.dispatch('handleApiError', error));
@@ -88,7 +89,10 @@ export default {
         fromRoute.name === LessonsPageNames.SUMMARY &&
         toRoute.name !== LessonsPageNames.SELECTION_ROOT
       ) {
-        return store.dispatch('lessonSummary/resetLessonSummaryState');
+        return Promise.all([
+          store.dispatch('lessonSummary/resetLessonSummaryState'),
+          store.dispatch('lessonSummary/fetchLessonsSizes', store.state.classSummary.id),
+        ]);
       }
       if (toRoute.name === PageNames.EXAMS) {
         return store.dispatch('examCreation/resetExamCreationState');
@@ -108,6 +112,8 @@ export default {
           // whether this user has access to multiple classes or not.
           store.dispatch('setClassList'),
           store.dispatch('classSummary/loadClassSummary', classId),
+          // store.dispatch('lessonSummary/fetchLessonsSizes', classId),
+          // store.dispatch('classSummary/fetchQuizzesSizes', classId),
           store.dispatch('coachNotifications/fetchNotificationsForClass', classId),
         ]).catch(error => {
           store.dispatch('handleError', error);

@@ -332,3 +332,13 @@ class ExamAPITestCase(APITestCase):
         )
         response = self.post_new_exam(exam)
         self.assertEqual(response.status_code, 201)
+
+    def test_can_get_quiz_size(self):
+        self.login_as_admin()
+        response = self.client.get(
+            reverse("kolibri:core:exam-size"),
+            {
+                "class_id": self.classroom.id,
+            },
+        )
+        self.assertEqual(response.status_code, 200)

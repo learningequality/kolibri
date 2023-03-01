@@ -173,6 +173,26 @@
         </KGridItem>
       </div>
 
+      <!-- quiz size -->
+      <div v-if="!$isPrint" class="status-item">
+        <KGridItem
+          class="status-label"
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 4 }"
+          :layout12="{ span: 12 }"
+        >
+          {{ coachString('sizeLabel') }}
+        </KGridItem>
+        <KGridItem
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 4 }"
+          :layout12="{ span: 12 }"
+        >
+          <p>{{ quizSize(exam.id) }}</p>
+        </KGridItem>
+      </div>
+
+
     </KGrid>
 
     <KModal
@@ -183,7 +203,9 @@
       @cancel="showConfirmationModal = false"
       @submit="handleOpenQuiz"
     >
-      <div>{{ coachString('openQuizModalDetail') }}</div>
+      <p>{{ coachString('openQuizModalDetail') }}</p>
+      <p>{{ coachString('lodQuizDetail') }}</p>
+      <p>{{ coachString('fileSizeToDownload', { size: quizSize(exam.id) }) }}</p>
     </KModal>
 
     <KModal
@@ -197,6 +219,39 @@
       <div>{{ coachString('closeQuizModalDetail') }}</div>
     </KModal>
 
+    <KModal
+      v-if="showRemoveReportVisibilityModal"
+      :title="coachString('makeQuizReportNotVisibleTitle')"
+      :submitText="coreString('continueAction')"
+      :cancelText="coreString('cancelAction')"
+      @cancel="showRemoveReportVisibilityModal = false"
+      @submit="makeQuizInactive(exam)"
+    >
+      <p>{{ coachString('makeQuizReportNotVisibleText') }}</p>
+      <p>{{ coachString('fileSizeToRemove', { size: quizSize(exam.id) }) }}</p>
+      <KCheckbox
+        :checked="dontShowAgainChecked"
+        :label="coachString('dontShowAgain')"
+        @change="dontShowAgainChecked = $event"
+      />
+    </KModal>
+    <KModal
+      v-if="showMakeReportVisibleModal"
+      :title="coachString('makeQuizReportVisibleTitle')"
+      :submitText="coreString('continueAction')"
+      :cancelText="coreString('cancelAction')"
+      @cancel="showMakeReportVisibleModal = false"
+      @submit="makeQuizInactive(exam)"
+    >
+      <p>{{ coachString('makeQuizReportVisibleText') }}</p>
+      <p>{{ coachString('fileSizeToDownload', { size: quizSize(exam.id) }) }}</p>
+      <KCheckbox
+        :checked="dontShowAgainChecked"
+        :label="coachString('dontShowAgain')"
+        @change="dontShowAgainChecked = $event"
+      />
+    </KModal>
+
   </KPageContainer>
 
 </template>
@@ -204,9 +259,13 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   import { ExamResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
+  import bytesForHumans from 'kolibri.utils.bytesForHumans';
+  import Lockr from 'lockr';
+  import { QUIZ_REPORT_VISIBILITY_MODAL_DISMISSED } from 'kolibri.coreVue.vuex.constants';
   import { coachStringsMixin } from './commonCoachStrings';
   import Score from './Score';
   import Recipients from './Recipients';
@@ -239,9 +298,13 @@
       return {
         showConfirmationModal: false,
         showCancellationModal: false,
+        showRemoveReportVisibilityModal: false,
+        showMakeReportVisibleModal: false,
+        dontShowAgainChecked: false,
       };
     },
     computed: {
+      ...mapState('classSummary', ['quizzesSizes']),
       orderDescriptionString() {
         return this.exam.learners_see_fixed_order
           ? this.coachString('orderFixedLabel')
@@ -316,7 +379,27 @@
             this.$store.dispatch('createSnackbar', this.coachString('quizFailedToCloseMessage'));
           });
       },
+
       handleToggleVisibility() {
+        // has the user set their preferences to not have a modal confirmation?
+        const hideModalConfirmation = Lockr.get(QUIZ_REPORT_VISIBILITY_MODAL_DISMISSED);
+        if (!hideModalConfirmation) {
+          if (this.exam.active) {
+            this.showRemoveReportVisibilityModal = true;
+            this.showMakeReportVisibleModal = false;
+          } else {
+            this.showMakeReportVisibleModal = true;
+            this.showRemoveReportVisibilityModal = false;
+          }
+        } else {
+          // proceed with visibility changes withhout the modal
+          this.makeQuizInactive(this.exam);
+        }
+      },
+      makeQuizInactive() {
+        if (this.dontShowAgainChecked) {
+          Lockr.set(QUIZ_REPORT_VISIBILITY_MODAL_DISMISSED, true);
+        }
         const newActiveState = !this.exam.active;
         const snackbarMessage = newActiveState
           ? this.coachString('quizVisibleToLearners')
@@ -333,8 +416,18 @@
         return promise.then(() => {
           this.$store.dispatch('classSummary/refreshClassSummary');
           this.showConfirmationModal = false;
+          this.showRemoveReportVisibilityModal = false;
+          this.showMakeReportVisibleModal = false;
           this.$store.dispatch('createSnackbar', snackbarMessage);
         });
+      },
+      quizSize(quizId) {
+        if (this.quizzesSizes && this.quizzesSizes[0]) {
+          let size = this.quizzesSizes[0][quizId];
+          size = bytesForHumans(size);
+          return size;
+        }
+        return '--';
       },
     },
     $trs: {

@@ -23,7 +23,7 @@
             label=""
             :checked="lesson[activeKey]"
             :value="lesson[activeKey]"
-            @change="handleToggleVisibility"
+            @change="toggleModal(lesson)"
           />
         </KGridItem>
       </div>
@@ -56,7 +56,52 @@
           </KOptionalText>
         </KGridItem>
       </div>
+
+      <!-- Lesson Sizes -->
+      <div class="status-item">
+        <KGridItem class="status-label" :layout12="layout12Label">
+          {{ coachString('sizeLabel') }}
+        </KGridItem>
+        <KGridItem :layout12="layout12Value">
+          <p>
+            {{ lessonSize(lesson.id) }}
+          </p>
+        </KGridItem>
+      </div>
     </KGrid>
+    <KModal
+      v-if="showLessonIsVisibleModal && !userHasDismissedModal"
+      :title="$tr('makeLessonVisibleTitle')"
+      :submitText="coreString('continueAction')"
+      :cancelText="coreString('cancelAction')"
+      @submit="handleToggleVisibility(activeLesson)"
+      @cancel="showLessonIsVisibleModal = false"
+    >
+      <p>{{ $tr('makeLessonVisibleText') }}</p>
+      <p>{{ coachString('fileSizeToDownload', { size: lessonSize(activeLesson.id) }) }}</p>
+      <KCheckbox
+        :checked="dontShowAgainChecked"
+        :label="coachString('dontShowAgain')"
+        @change="dontShowAgainChecked = $event"
+      />
+    </KModal>
+
+    <KModal
+      v-if="showLessonIsNotVisibleModal && !userHasDismissedModal"
+      :title="$tr('makeLessonNotVisibleTitle')"
+      :submitText="coreString('continueAction')"
+      :cancelText="coreString('cancelAction')"
+      @submit="handleToggleVisibility(activeLesson)"
+      @cancel="showLessonIsNotVisibleModal = false"
+    >
+      <p>{{ $tr('makeLessonNotVisibleText') }}</p>
+      <p>{{ coachString('fileSizeToRemove', { size: lessonSize(activeLesson.id) }) }}</p>
+      <KCheckbox
+        :checked="dontShowAgainChecked"
+        :label="coachString('dontShowAgain')"
+        @change="dontShowAgainChecked = $event"
+      />
+    </KModal>
   </KPageContainer>
 
 </template>
@@ -65,13 +110,18 @@
 <script>
 
   import { LessonResource } from 'kolibri.resources';
+  import { mapState } from 'vuex';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import bytesForHumans from 'kolibri.utils.bytesForHumans';
+  import { LESSON_VISIBILITY_MODAL_DISMISSED } from 'kolibri.coreVue.vuex.constants';
+  import Lockr from 'lockr';
   import Recipients from './Recipients';
   import { coachStringsMixin } from './commonCoachStrings';
 
   export default {
     name: 'LessonStatus',
     components: { Recipients },
-    mixins: [coachStringsMixin],
+    mixins: [coachStringsMixin, commonCoreStrings],
     props: {
       className: {
         type: String,
@@ -95,7 +145,16 @@
         },
       },
     },
+    data() {
+      return {
+        showLessonIsVisibleModal: false,
+        showLessonIsNotVisibleModal: false,
+        activeLesson: null,
+        dontShowAgainChecked: false,
+      };
+    },
     computed: {
+      ...mapState('lessonSummary', ['lessonsSizes']),
       assignments() {
         return this.activeKey === 'is_active'
           ? this.lesson.lesson_assignments
@@ -106,6 +165,9 @@
       },
       layout12Value() {
         return { span: this.$isPrint ? 9 : 12 };
+      },
+      userHasDismissedModal() {
+        return Lockr.get(LESSON_VISIBILITY_MODAL_DISMISSED);
       },
     },
     methods: {
@@ -123,11 +185,66 @@
           exists: true,
         });
 
+        this.manageModalVisibilityAndPreferences();
+
         return promise.then(() => {
           this.$store.dispatch('lessonSummary/updateCurrentLesson', this.lesson.id);
           this.$store.dispatch('classSummary/refreshClassSummary');
           this.$store.dispatch('createSnackbar', snackbarMessage);
         });
+      },
+      toggleModal(lesson) {
+        // has the user set their preferences to not have a modal confirmation?
+        const hideModalConfirmation = Lockr.get(LESSON_VISIBILITY_MODAL_DISMISSED);
+        this.activeLesson = lesson;
+        if (!hideModalConfirmation) {
+          if (lesson.active) {
+            this.showLessonIsVisibleModal = false;
+            this.showLessonIsNotVisibleModal = true;
+          } else {
+            this.showLessonIsNotVisibleModal = false;
+            this.showLessonIsVisibleModal = true;
+          }
+        } else {
+          // proceed with visibility changes withhout the modal
+          this.handleToggleVisibility(lesson);
+        }
+      },
+      manageModalVisibilityAndPreferences() {
+        if (this.dontShowAgainChecked) {
+          Lockr.set(LESSON_VISIBILITY_MODAL_DISMISSED, true);
+        }
+        this.activeLesson = null;
+        this.showLessonIsVisibleModal = false;
+        this.showLessonIsNotVisibleModal = false;
+      },
+      lessonSize(lessonId) {
+        if (this.lessonsSizes && this.lessonsSizes[0]) {
+          let size = this.lessonsSizes[0][lessonId];
+          size = bytesForHumans(size);
+          return size;
+        }
+        return '--';
+      },
+    },
+    $trs: {
+      makeLessonVisibleTitle: {
+        message: 'Make lesson visible',
+        context: 'Informational prompt for coaches when updating lesson visibility to learners',
+      },
+      makeLessonVisibleText: {
+        message:
+          'Learners will be able to see this lesson and use its resources. Resource files in this lesson will be downloaded to learn-only devices that are set up to sync with this server.',
+        context: 'Informational prompt for coaches when updating lesson visibility to learners',
+      },
+      makeLessonNotVisibleTitle: {
+        message: 'Make lesson not visible',
+        context: 'Informational prompt for coaches when updating lesson visibility to learners',
+      },
+      makeLessonNotVisibleText: {
+        message:
+          'Learners will no longer be able to see this lesson. Resource files in this lesson will be removed from learn-only devices that are set up to sync with this server.',
+        context: 'Informational prompt for coaches when updating lesson visibility to learners',
       },
     },
   };

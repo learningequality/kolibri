@@ -9,6 +9,9 @@
     <KPageContainer :class="{ 'print': $isPrint }">
       <ReportsHeader :title="$isPrint ? $tr('printLabel', { className }) : null" />
       <ReportsControls @export="exportCSV">
+        <p v-if="table.length && table.length > 0">
+          {{ $tr('totalQuizSize', { size: calcTotalSizeOfVisibleQuizzes }) }}
+        </p>
         <KSelect
           v-model="filter"
           :label="coachString('filterQuizStatus')"
@@ -26,6 +29,7 @@
           </th>
           <th>{{ coreString('progressLabel') }}</th>
           <th>{{ coachString('recipientsLabel') }}</th>
+          <th>{{ coachString('sizeLabel') }}</th>
           <th
             v-show="!$isPrint"
             class="center-text"
@@ -64,6 +68,9 @@
                   :groupNames="getRecipientNamesForExam(tableRow)"
                   :hasAssignments="tableRow.hasAssignments"
                 />
+              </td>
+              <td>
+                {{ quizSize(tableRow.id) }}
               </td>
               <td
                 v-show="!$isPrint"
@@ -105,7 +112,9 @@
         @cancel="showOpenConfirmationModal = false"
         @submit="handleOpenQuiz(modalQuizId)"
       >
-        <div>{{ coachString('openQuizModalDetail') }}</div>
+        <p>{{ coachString('openQuizModalDetail') }}</p>
+        <p>{{ coachString('lodQuizDetail') }}</p>
+        <p>{{ coachString('fileSizeToDownload', { size: quizSize(modalQuizId) }) }}</p>
       </KModal>
       <KModal
         v-if="showCloseConfirmationModal"
@@ -125,8 +134,10 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ExamResource } from 'kolibri.resources';
+  import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import commonCoach from '../common';
   import CoachAppBarPage from '../CoachAppBarPage';
   import CSVExporter from '../../csv/exporter';
@@ -151,6 +162,8 @@
       };
     },
     computed: {
+      ...mapState('classSummary', ['quizzesSizes']),
+
       emptyMessage() {
         if (this.filter.value === 'allQuizzes') {
           return this.coachString('quizListEmptyState');
@@ -216,6 +229,20 @@
           return tableRow;
         });
       },
+      calcTotalSizeOfVisibleQuizzes() {
+        if (this.table && this.quizzesSizes && this.quizzesSizes[0]) {
+          let sum = 0;
+          this.exams.forEach(exam => {
+            // only include visible lessons
+            if (exam.active) {
+              sum += this.quizzesSizes[0][exam.id];
+            }
+          });
+          const size = bytesForHumans(sum);
+          return size;
+        }
+        return '--';
+      },
     },
     beforeMount() {
       this.filter = this.filterOptions[0];
@@ -272,6 +299,14 @@
         const fileName = this.$tr('printLabel', { className: this.className });
         new CSVExporter(columns, fileName).export(this.table);
       },
+      quizSize(quizId) {
+        if (this.quizzesSizes && this.quizzesSizes[0]) {
+          let size = this.quizzesSizes[0][quizId];
+          size = bytesForHumans(size);
+          return size;
+        }
+        return '--';
+      },
     },
     $trs: {
       noStartedExams: 'No started quizzes',
@@ -285,6 +320,11 @@
         message: '{className} Quizzes',
         context:
           "Title that displays on a printed copy of the 'Reports' > 'Quizzes' page. This shows if the user uses the 'Print' option by clicking on the printer icon and displays on the downloadable CSV file.",
+      },
+      totalQuizSize: {
+        message: 'Total size of quizzes that are visible to learners: {size}',
+        context:
+          'Descriptive text at the top of the table that displays the calculated file size of all quiz resources (i.e. 120 MB)',
       },
     },
   };
