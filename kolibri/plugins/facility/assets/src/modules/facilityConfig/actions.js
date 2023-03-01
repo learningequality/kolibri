@@ -63,6 +63,7 @@ export function setPin(store, payload) {
     data: payload,
   }).then(({ data }) => {
     store.commit('UPDATE_FACILITY_EXTRA_SETTINGS', { extra_fields: data.extra_fields });
+    saveFacilityConfig(store);
   });
 }
 
@@ -73,6 +74,7 @@ export function unsetPin(store) {
     method: 'PATCH',
   }).then(({ data }) => {
     store.commit('UPDATE_FACILITY_EXTRA_SETTINGS', { extra_fields: data.extra_fields });
+    saveFacilityConfig(store);
   });
 }
 

@@ -1,6 +1,6 @@
+import Cookies from 'js-cookie';
 import router from 'kolibri.coreVue.router';
 import { IsPinAuthenticated } from 'kolibri.coreVue.vuex.constants';
-import { getCookie } from 'kolibri.utils.cookieUtils';
 import RootVue from './views/DeviceIndex';
 import routes from './routes';
 import pluginModule from './modules/pluginModule';
@@ -22,8 +22,12 @@ class DeviceManagementModule extends KolibriApp {
     const isSuperuser = store.getters.isSuperuser;
     const isFacilityAdmin = store.getters.isFacilityAdmin;
     if (isLearnOnlyDevice && isSuperuser && !isFacilityAdmin) {
-      const authenticate = !getCookie(IsPinAuthenticated);
-      store.dispatch('displayPinModal', { authenticate, next });
+      const authenticated = Cookies.get(IsPinAuthenticated) === 'true';
+      if (authenticated) {
+        next(true);
+      } else {
+        store.dispatch('displayPinModal', next);
+      }
     } else {
       next(true);
     }
