@@ -240,6 +240,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       "A topic is marked as 'Completed' when a learner finishes that specific topic within an educational resource. A topic could be a video, audio, document file or interactive app.",
   },
+  dataLabel: {
+    message: 'Data',
+    context: "Title of tab in 'Facility' section.",
+  },
   deviceNameLabel: {
     message: 'Device name',
     context:
@@ -296,6 +300,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Identifier',
     context:
       "An 'Identifier' could be a student ID number or an existing user identification number. This is an optional field in the user create/edit screen.",
+  },
+  infoLabel: {
+    message: 'Info',
+    context: 'Refers to the Device > Info tab.',
   },
   inProgressLabel: {
     message: 'In progress',
@@ -382,6 +390,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Search for a user...',
     context:
       'Text which appears in the search field above the table with users from whom to choose from (e.g. when enrolling learners to a class, selecting users to sync, etc.)',
+  },
+  settingsLabel: {
+    message: 'Settings',
+    context: "Title of tab used in 'Facility' and 'Device' sections.",
   },
   findSomethingToLearn: {
     message: 'Find something to learn',

@@ -35,28 +35,18 @@
             color: this.$themeTokens.textInverted,
           },
           {
-            title: this.$tr('settings'),
+            title: this.coreString('settingsLabel'),
             link: this.$router.getRoute(PageNames.FACILITY_CONFIG_PAGE),
             icon: 'settings',
             color: this.$themeTokens.textInverted,
           },
           {
-            title: this.$tr('data'),
+            title: this.coreString('dataLabel'),
             link: this.$router.getRoute(PageNames.DATA_EXPORT_PAGE),
             icon: 'save',
             color: this.$themeTokens.textInverted,
           },
         ];
-      },
-    },
-    $trs: {
-      data: {
-        message: 'Data',
-        context: "Title of tab in 'Facility' section.",
-      },
-      settings: {
-        message: 'Settings',
-        context: "Title of tab in 'Facility' section.",
       },
     },
   };

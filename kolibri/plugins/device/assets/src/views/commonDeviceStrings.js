@@ -30,6 +30,10 @@ const deviceStrings = createTranslator('CommonDeviceStrings', {
     context:
       'Warning that appears when there is not enough space on the user’s device for the selected resources',
   },
+  permissionsLabel: {
+    message: 'Permissions',
+    context: 'Refers to the Device > Permissions tab.',
+  },
 });
 
 /**
