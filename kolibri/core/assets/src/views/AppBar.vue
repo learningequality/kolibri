@@ -116,12 +116,7 @@
         required: true,
       },
     },
-    data() {
-      return {
-        pointsDisplayed: false,
-        isPolling: false,
-      };
-    },
+
     computed: {
       ...mapGetters(['isUserLoggedIn', 'totalPoints', 'isLearner']),
       ...mapState({

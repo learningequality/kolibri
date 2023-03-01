@@ -8,6 +8,7 @@ const queued = ref(false);
 const lastSynced = ref();
 const deviceStatus = ref(null);
 const deviceStatusSentiment = ref(null);
+const { pause, resume } = useTimeoutPoll(pollUserSyncStatusTask, 1000);
 
 const usageCount = ref(0);
 
@@ -19,7 +20,8 @@ export function useUser() {
   };
 }
 
-export function fetchUserSyncStatus(store, param) {
+export function fetchUserSyncStatus() {
+  const param = computed(() => store.state.core.session.user_id);
   return UserSyncStatusResource.fetchCollection({
     force: true,
     getParams: param,
@@ -43,11 +45,11 @@ export function pollUserSyncStatusTask() {
       deviceStatus.value = syncData[0].device_status;
       deviceStatusSentiment.value = syncData[0].device_status_sentiment;
     }
+    return syncData;
   });
 }
 
 export function useUserSyncStatus() {
-  const { pause, resume } = useTimeoutPoll(pollUserSyncStatusTask, 1000);
   onMounted(() => {
     usageCount.value++;
     if (usageCount.value === 1) {
