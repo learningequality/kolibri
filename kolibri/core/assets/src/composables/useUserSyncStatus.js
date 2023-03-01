@@ -20,11 +20,10 @@ export function useUser() {
   };
 }
 
-export function fetchUserSyncStatus() {
-  const param = computed(() => store.state.core.session.user_id);
+export function fetchUserSyncStatus(params) {
   return UserSyncStatusResource.fetchCollection({
     force: true,
-    getParams: param,
+    getParams: params,
   }).then(
     syncData => {
       return syncData;
@@ -37,7 +36,11 @@ export function fetchUserSyncStatus() {
 }
 
 export function pollUserSyncStatusTask() {
-  fetchUserSyncStatus({ user: store.state.core.session.user_id }).then(syncData => {
+  if (!store.state.core.session.user_id) {
+    return Promise.resolve();
+  }
+
+  return fetchUserSyncStatus({ user: store.state.core.session.user_id }).then(syncData => {
     if (syncData && syncData[0]) {
       queued.value = syncData[0].queued;
       lastSynced.value = syncData[0].last_synced;
@@ -45,7 +48,6 @@ export function pollUserSyncStatusTask() {
       deviceStatus.value = syncData[0].device_status;
       deviceStatusSentiment.value = syncData[0].device_status_sentiment;
     }
-    return syncData;
   });
 }
 
