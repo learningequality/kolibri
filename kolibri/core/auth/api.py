@@ -777,7 +777,18 @@ class SessionViewSet(viewsets.ViewSet):
                 username__iexact=username, facility=facility_id
             )
         except ObjectDoesNotExist:
-            unauthenticated_user = None
+            return Response(
+                [
+                    {
+                        "id": error_constants.NOT_FOUND,
+                        "metadata": {
+                            "field": "username",
+                            "message": "Username not found.",
+                        },
+                    }
+                ],
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         user = authenticate(username=username, password=password, facility=facility_id)
         if user is not None and user.is_active:
@@ -785,10 +796,7 @@ class SessionViewSet(viewsets.ViewSet):
             login(request, user)
             # Success!
             return self.get_session_response(request)
-        if (
-            unauthenticated_user is not None
-            and unauthenticated_user.password == NOT_SPECIFIED
-        ):
+        if unauthenticated_user.password == NOT_SPECIFIED:
             # Here - we have a Learner whose password is "NOT_SPECIFIED" because they were created
             # while the "Require learners to log in with password" setting was disabled - but now
             # it is enabled again.
