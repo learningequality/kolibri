@@ -1,7 +1,8 @@
 <template>
 
-  <span v-if="seconds">{{ formattedTime }}</span>
-  <KEmptyPlaceholder v-else />
+  <KOptionalText
+    :text="seconds ? formattedTime : ''"
+  />
 
 </template>
 

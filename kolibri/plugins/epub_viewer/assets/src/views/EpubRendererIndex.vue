@@ -519,7 +519,7 @@
       },
       storeVisitedPage(currentLocation) {
         if (currentLocation) {
-          let visited = this.savedVisitedPages;
+          const visited = this.savedVisitedPages;
           visited[currentLocation] = true;
           this.savedVisitedPages = visited;
         }

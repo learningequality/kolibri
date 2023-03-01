@@ -48,7 +48,24 @@
     inject: ['wizardService'],
     methods: {
       handleContinue() {
-        this.wizardService.send({ type: 'CONTINUE', value: this.setting });
+        // Assumes all states that this transitions from have a `meta` object (as they do and
+        // should) the `meta` object maps states in the wizardMachine to their metadata.
+        // In our case, we either want to go straight to the finish OR to a user credentials
+        // form. The state machine can define the expected event name for it's particular context.
+        // See the comments around this in wizardMachine
+        const lastStatePath = Object.keys(this.wizardService._state.meta)[0];
+        const { nextEvent = null } = this.wizardService.state.meta[lastStatePath];
+        console.log('OK NEXT:', nextEvent);
+        if (!nextEvent) {
+          console.error(
+            'Please provide the event you expect where you are using this Component in',
+            "the state machine in the meta field's `nextEvent` property."
+          );
+          return;
+        }
+        // TODO Add an Error State with a "Start over" button? Something better than
+        // "this silently fails" if something goes wrong for the user
+        this.wizardService.send(nextEvent);
       },
       closeModal() {
         this.focusOnModalButton();

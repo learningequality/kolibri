@@ -687,9 +687,17 @@ base_option_spec = {
         "SCHEDULE_HOOKS": {
             "type": "lazy_import_callback_list",
             "description": """
-                A lsit of module paths for function callbacks that will be called when a job is scheduled in the storage class.
+                A list of module paths for function callbacks that will be called when a job is scheduled in the storage class.
                 This is intended to allow an external task runner to be used to execute Kolibri tasks. The default is empty,
                 as the internal handling is sufficient for Kolibri's task running.
+            """,
+        },
+        "UPDATE_HOOKS": {
+            "type": "lazy_import_callback_list",
+            "description": """
+                A list of module paths for function callbacks that will be called when a job is updated in the storage class.
+                This is intended to allow an external task runner to do additional actions when the status of a kolibri Job is updated.
+                The default is empty, as the internal handling is sufficient for Kolibri's task running.
             """,
         },
     },

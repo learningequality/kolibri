@@ -366,7 +366,7 @@
         }
       },
       storeVisitedPage(currentPageNum) {
-        let visited = this.savedVisitedPages;
+        const visited = this.savedVisitedPages;
         visited[currentPageNum] = true;
         this.savedVisitedPages = visited;
       },
@@ -549,7 +549,7 @@
 
               const isFocused = this.focusPage(pageNumber, event.target);
               if (!isFocused) {
-                let position = (pageNumber - 1) / this.totalPages;
+                const position = (pageNumber - 1) / this.totalPages;
                 this.scrollTo(position); // scroll to page so the virtual list can render it
                 const onPageRendered = e => {
                   if (e.pageNumber === pageNumber) {

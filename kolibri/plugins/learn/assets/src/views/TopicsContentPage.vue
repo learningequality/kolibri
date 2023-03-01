@@ -60,7 +60,9 @@
         data-test="contentPage"
         :content="content"
         :lessonId="lessonId"
-        :style="{ backgroundColor: ( content.assessment ? '' : $themeTokens.textInverted ) }"
+        :style="{
+          backgroundColor: ( content.assessmentmetadata ? '' : $themeTokens.textInverted )
+        }"
         :allowMarkComplete="allowMarkComplete"
         @mounted="contentPageMounted = true"
         @finished="$refs.activityBar && $refs.activityBar.animateNextSteps()"
@@ -124,6 +126,8 @@
         :nextContent="nextContent"
         :isLesson="lessonContext"
         :loading="resourcesSidePanelLoading"
+        :currentResourceID="currentResourceID"
+        :missingLessonResources="missingLessonResources"
       />
     </SidePanelModal>
 
@@ -137,7 +141,6 @@
   import { mapGetters, mapState } from 'vuex';
   import get from 'lodash/get';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import Modalities from 'kolibri-constants/Modalities';
 
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
@@ -156,13 +159,10 @@
   import useLearnerResources from '../composables/useLearnerResources';
   import SidePanelModal from './SidePanelModal';
   import LearningActivityChip from './LearningActivityChip';
-  import LessonResourceViewer from './classes/LessonResourceViewer';
   import CurrentlyViewedResourceMetadata from './CurrentlyViewedResourceMetadata';
   import ContentPage from './ContentPage';
   import LearningActivityBar from './LearningActivityBar';
   import AlsoInThis from './AlsoInThis';
-
-  const lessonStrings = crossComponentTranslator(LessonResourceViewer);
 
   export default {
     name: 'TopicsContentPage',
@@ -243,6 +243,7 @@
         resourcesSidePanelFetched: false,
         resourcesSidePanelLoading: false,
         contentPageMounted: false,
+        lesson: null,
       };
     },
     computed: {
@@ -288,12 +289,18 @@
       viewResourcesTitle() {
         /* eslint-disable kolibri/vue-no-undefined-string-uses */
         return this.lessonContext
-          ? lessonStrings.$tr('nextInLesson')
+          ? this.$tr('nextInLesson')
           : this.content && this.content.ancestors.slice(-1)[0].title;
         /* eslint-enable */
       },
       timeSpent() {
         return this.contentPageMounted ? this.$refs.contentPage.time_spent : 0;
+      },
+      currentResourceID() {
+        return this.content ? this.content.content_id : '';
+      },
+      missingLessonResources() {
+        return this.lesson && this.lesson.resources.some(c => !c.contentnode);
       },
     },
     watch: {
@@ -365,10 +372,11 @@
         // Get the lesson and then assign its resources to this.viewResourcesContents
         // fetchLesson also handles fetching the progress data for this lesson and
         // the content node data for the resources
-        this.fetchLesson({ lessonId: this.lessonId }).then(lesson => {
+        return this.fetchLesson({ lessonId: this.lessonId }).then(lesson => {
           // Filter out this.content
+          this.lesson = lesson;
           this.viewResourcesContents = lesson.resources
-            .filter(n => n.contentnode && n.contentnode_id !== this.content.id)
+            .filter(n => n.contentnode)
             .map(n => n.contentnode);
         });
       },
@@ -420,10 +428,7 @@
             nextContents = ancestor.children.results.slice(contentIndex + 1);
           }
           this.nextContent = nextContents.find(c => c.kind === ContentNodeKinds.TOPIC) || null;
-          // Filter out this.content
-          this.viewResourcesContents = parent.children.results.filter(
-            n => n.id !== this.content.id
-          );
+          this.viewResourcesContents = parent.children.results.filter(n => n.id);
         });
       },
       navigateBack() {
@@ -487,6 +492,10 @@
         context:
           "When Kolibri throws an error, this is the text that's used as the title of the error page. The description of the error follows below.",
       },
+      nextInLesson: {
+        message: 'Next in lesson',
+        context: 'Refers to the next learning resource in a lesson.',
+      },
     },
   };
 
@@ -531,6 +540,8 @@
   }
 
   .also-in-this-side-panel {
+    overflow: hidden;
+
     /deep/ .side-panel {
       padding-bottom: 0;
     }

@@ -73,7 +73,7 @@
       availableActivities() {
         if (this.searchableLabels) {
           const activities = {};
-          for (let key of this.searchableLabels.learning_activities) {
+          for (const key of this.searchableLabels.learning_activities) {
             activities[key] = true;
           }
           return activities;

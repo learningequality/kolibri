@@ -123,12 +123,12 @@
       breadcrumbs() {
         if (this.manageMode) {
           return this.path.map(x => {
-            let query = {};
+            const query = {};
             if (x.id !== this.$route.params.channel_id) {
               query.node = x.id;
             }
 
-            let params = { scrollTo: '.content-tree-viewer' };
+            const params = { scrollTo: '.content-tree-viewer' };
 
             return {
               text: x.title,

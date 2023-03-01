@@ -342,6 +342,7 @@ class ContentNodeAPIBase(object):
                 "assessmentmetadata": assessmentmetadata,
                 "is_leaf": expected.kind != "topic",
                 "files": files,
+                "admin_imported": bool(expected.admin_imported),
             },
         )
 

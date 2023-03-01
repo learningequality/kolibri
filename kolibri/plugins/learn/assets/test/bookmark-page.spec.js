@@ -53,7 +53,7 @@ describe('Bookmark Page', () => {
       expect(wrapper.find("[data-test='load-more-button']")).toBeTruthy();
     });
     it('clicking the load more button calls the load more function', async () => {
-      let mockFetchBookmarks = ContentNodeResource.fetchBookmarks.mockResolvedValue({
+      const mockFetchBookmarks = ContentNodeResource.fetchBookmarks.mockResolvedValue({
         results: fakeBookmarks,
       });
       await wrapper.find("[data-test='load-more-button']").vm.$emit('click');

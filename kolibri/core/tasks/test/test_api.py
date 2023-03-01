@@ -45,6 +45,13 @@ def fake_job(**kwargs):
     return Mock(spec=Job, **fake_data)
 
 
+class dummy_orm_job_data(object):
+    scheduled_time = datetime.datetime(year=2023, month=1, day=1, tzinfo=pytz.utc)
+    repeat = 5
+    interval = 8600
+    retry_interval = 5
+
+
 class BaseAPITestCase(APITestCase):
     @classmethod
     def setUpTestData(cls):
@@ -80,6 +87,7 @@ class TaskAPITestCase(BaseAPITestCase):
         job_storage_mock.get_job.return_value = fake_job(
             state=State.QUEUED, cancellable=True
         )
+        job_storage_mock.get_orm_job.return_value = dummy_orm_job_data
         TaskRegistry[""] = RegisteredTask(lambda x: None)
         response = self.client.post(
             reverse("kolibri:core:task-cancel", kwargs={"pk": "1"}), format="json"
@@ -243,6 +251,7 @@ class CreateTaskAPITestCase(BaseAPITestCase):
         mock_job_storage.get_job.return_value = fake_job(
             state=State.QUEUED, job_id="test"
         )
+        mock_job_storage.get_orm_job.return_value = dummy_orm_job_data
 
         response = self.client.post(
             reverse("kolibri:core:task-list"),
@@ -261,6 +270,10 @@ class CreateTaskAPITestCase(BaseAPITestCase):
             "clearable": False,
             "extra_metadata": {},
             "facility_id": None,
+            "scheduled_datetime": str(dummy_orm_job_data.scheduled_time),
+            "repeat": dummy_orm_job_data.repeat,
+            "repeat_interval": dummy_orm_job_data.interval,
+            "retry_interval": dummy_orm_job_data.retry_interval,
         }
 
         # Did API return the right stuff?
@@ -287,6 +300,7 @@ class CreateTaskAPITestCase(BaseAPITestCase):
         mock_job_storage.get_job.return_value = fake_job(
             state=State.QUEUED, job_id="test"
         )
+        mock_job_storage.get_orm_job.return_value = dummy_orm_job_data
 
         TaskRegistry["kolibri.core.tasks.test.test_api.add"] = add
 
@@ -313,6 +327,10 @@ class CreateTaskAPITestCase(BaseAPITestCase):
                 "clearable": False,
                 "extra_metadata": {},
                 "facility_id": None,
+                "scheduled_datetime": str(dummy_orm_job_data.scheduled_time),
+                "repeat": dummy_orm_job_data.repeat,
+                "repeat_interval": dummy_orm_job_data.interval,
+                "retry_interval": dummy_orm_job_data.retry_interval,
             },
             {
                 "id": "test",
@@ -325,6 +343,10 @@ class CreateTaskAPITestCase(BaseAPITestCase):
                 "clearable": False,
                 "extra_metadata": {},
                 "facility_id": None,
+                "scheduled_datetime": str(dummy_orm_job_data.scheduled_time),
+                "repeat": dummy_orm_job_data.repeat,
+                "repeat_interval": dummy_orm_job_data.interval,
+                "retry_interval": dummy_orm_job_data.retry_interval,
             },
         ]
 
@@ -379,6 +401,7 @@ class CreateTaskAPITestCase(BaseAPITestCase):
         mock_job_storage.get_job.return_value = fake_job(
             state=State.QUEUED, job_id="test", extra_metadata={"facility": "kolibri HQ"}
         )
+        mock_job_storage.get_orm_job.return_value = dummy_orm_job_data
 
         response = self.client.post(
             reverse("kolibri:core:task-list"),
@@ -399,6 +422,10 @@ class CreateTaskAPITestCase(BaseAPITestCase):
             "extra_metadata": {
                 "facility": "kolibri HQ",
             },
+            "scheduled_datetime": str(dummy_orm_job_data.scheduled_time),
+            "repeat": dummy_orm_job_data.repeat,
+            "repeat_interval": dummy_orm_job_data.interval,
+            "retry_interval": dummy_orm_job_data.retry_interval,
         }
 
         # Did API return the right stuff?
@@ -453,6 +480,7 @@ class CreateTaskAPITestCase(BaseAPITestCase):
         mock_job_storage.get_job.return_value = fake_job(
             state=State.QUEUED, job_id="test", extra_metadata={"facility": "kolibri HQ"}
         )
+        mock_job_storage.get_orm_job.return_value = dummy_orm_job_data
 
         request_payload = [
             {"type": "kolibri.core.tasks.test.test_api.add", "kolibri": "fly"},
@@ -481,6 +509,10 @@ class CreateTaskAPITestCase(BaseAPITestCase):
                 "extra_metadata": {
                     "facility": "kolibri HQ",
                 },
+                "scheduled_datetime": str(dummy_orm_job_data.scheduled_time),
+                "repeat": dummy_orm_job_data.repeat,
+                "repeat_interval": dummy_orm_job_data.interval,
+                "retry_interval": dummy_orm_job_data.retry_interval,
             },
             {
                 "id": "test",
@@ -495,6 +527,10 @@ class CreateTaskAPITestCase(BaseAPITestCase):
                 "extra_metadata": {
                     "facility": "kolibri HQ",
                 },
+                "scheduled_datetime": str(dummy_orm_job_data.scheduled_time),
+                "repeat": dummy_orm_job_data.repeat,
+                "repeat_interval": dummy_orm_job_data.interval,
+                "retry_interval": dummy_orm_job_data.retry_interval,
             },
         ]
 
@@ -627,6 +663,7 @@ class EnqueueArgsCreateAPITestCase(BaseAPITestCase):
         ]
 
         mock_job_storage.get_job.return_value = fake_job(state=State.QUEUED)
+        mock_job_storage.get_orm_job.return_value = dummy_orm_job_data
 
         for enq_arg in acceptable_enqueue_args:
 
@@ -657,6 +694,7 @@ class EnqueueArgsCreateAPITestCase(BaseAPITestCase):
         mock_job_storage.get_job.return_value = fake_job(
             state=State.QUEUED, job_id="test"
         )
+        mock_job_storage.get_orm_job.return_value = dummy_orm_job_data
 
         response = self.client.post(
             reverse("kolibri:core:task-list"),
@@ -685,6 +723,7 @@ class EnqueueArgsCreateAPITestCase(BaseAPITestCase):
         mock_job_storage.get_job.return_value = fake_job(
             state=State.QUEUED, job_id="test"
         )
+        mock_job_storage.get_orm_job.return_value = dummy_orm_job_data
 
         response = self.client.post(
             reverse("kolibri:core:task-list"),
@@ -707,6 +746,8 @@ class EnqueueArgsCreateAPITestCase(BaseAPITestCase):
         mock_job_storage.get_job.return_value = fake_job(
             state=State.QUEUED, job_id="test"
         )
+        mock_job_storage.get_orm_job.return_value = dummy_orm_job_data
+
         response = self.client.post(
             reverse("kolibri:core:task-list"),
             {
@@ -728,6 +769,8 @@ class EnqueueArgsCreateAPITestCase(BaseAPITestCase):
         mock_job_storage.get_job.return_value = fake_job(
             state=State.QUEUED, job_id="test"
         )
+        mock_job_storage.get_orm_job.return_value = dummy_orm_job_data
+
         response = self.client.post(
             reverse("kolibri:core:task-list"),
             {
@@ -752,6 +795,8 @@ class EnqueueArgsCreateAPITestCase(BaseAPITestCase):
         mock_job_storage.get_job.return_value = fake_job(
             state=State.QUEUED, job_id="test"
         )
+        mock_job_storage.get_orm_job.return_value = dummy_orm_job_data
+
         response = self.client.post(
             reverse("kolibri:core:task-list"),
             {
@@ -873,6 +918,10 @@ class TaskManagementAPITestCase(BaseAPITestCase):
                 "clearable": False,
                 "facility_id": self.superuser.facility_id,
                 "extra_metadata": {},
+                "scheduled_datetime": str(dummy_orm_job_data.scheduled_time),
+                "repeat": dummy_orm_job_data.repeat,
+                "repeat_interval": dummy_orm_job_data.interval,
+                "retry_interval": dummy_orm_job_data.retry_interval,
             },
             {
                 "status": State.QUEUED,
@@ -885,6 +934,10 @@ class TaskManagementAPITestCase(BaseAPITestCase):
                 "clearable": False,
                 "facility_id": self.superuser.facility_id,
                 "extra_metadata": {},
+                "scheduled_datetime": str(dummy_orm_job_data.scheduled_time),
+                "repeat": dummy_orm_job_data.repeat,
+                "repeat_interval": dummy_orm_job_data.interval,
+                "retry_interval": dummy_orm_job_data.retry_interval,
             },
             {
                 "status": State.QUEUED,
@@ -897,6 +950,10 @@ class TaskManagementAPITestCase(BaseAPITestCase):
                 "clearable": False,
                 "facility_id": self.facility2user.facility_id,
                 "extra_metadata": {},
+                "scheduled_datetime": str(dummy_orm_job_data.scheduled_time),
+                "repeat": dummy_orm_job_data.repeat,
+                "repeat_interval": dummy_orm_job_data.interval,
+                "retry_interval": dummy_orm_job_data.retry_interval,
             },
         ]
 
@@ -905,6 +962,7 @@ class TaskManagementAPITestCase(BaseAPITestCase):
 
     def test_superuser_can_list_all_facility_jobs(self, mock_job_storage):
         mock_job_storage.get_all_jobs.return_value = self.jobs
+        mock_job_storage.get_orm_job.return_value = dummy_orm_job_data
 
         self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
         response = self.client.get(reverse("kolibri:core:task-list"))
@@ -918,6 +976,7 @@ class TaskManagementAPITestCase(BaseAPITestCase):
         self, mock_job_storage
     ):
         mock_job_storage.get_all_jobs.return_value = self.jobs
+        mock_job_storage.get_orm_job.return_value = dummy_orm_job_data
 
         self.client.login(username=self.facility2user.username, password=DUMMY_PASSWORD)
         response = self.client.get(reverse("kolibri:core:task-list"))
@@ -929,6 +988,8 @@ class TaskManagementAPITestCase(BaseAPITestCase):
 
     def test_can_list_queue_specific_jobs(self, mock_job_storage):
         mock_job_storage.get_all_jobs.return_value = self.jobs[:2]
+        mock_job_storage.get_orm_job.return_value = dummy_orm_job_data
+
         self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
 
         response = self.client.get(
@@ -956,6 +1017,7 @@ class TaskManagementAPITestCase(BaseAPITestCase):
                 State.COMPLETED,
             ]
         ]
+        mock_job_storage.get_orm_job.return_value = dummy_orm_job_data
 
         response = self.client.get(reverse("kolibri:core:task-list"))
 
@@ -970,6 +1032,7 @@ class TaskManagementAPITestCase(BaseAPITestCase):
     def test_can_superuser_retrieve_any_job(self, mock_job_storage):
         self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
         mock_job_storage.get_job.return_value = self.jobs[0]
+        mock_job_storage.get_orm_job.return_value = dummy_orm_job_data
 
         response = self.client.get(
             reverse("kolibri:core:task-detail", kwargs={"pk": "0"})
@@ -979,6 +1042,7 @@ class TaskManagementAPITestCase(BaseAPITestCase):
         mock_job_storage.reset_mock()
 
         mock_job_storage.get_job.return_value = self.jobs[2]
+        mock_job_storage.get_orm_job.return_value = dummy_orm_job_data
         response = self.client.get(
             reverse("kolibri:core:task-detail", kwargs={"pk": "2"})
         )
@@ -990,13 +1054,14 @@ class TaskManagementAPITestCase(BaseAPITestCase):
     ):
         self.client.login(username=self.facility2user.username, password=DUMMY_PASSWORD)
         mock_job_storage.get_job.return_value = self.jobs[0]
-
+        mock_job_storage.get_orm_job.return_value = dummy_orm_job_data
         response = self.client.get(
             reverse("kolibri:core:task-detail", kwargs={"pk": "0"})
         )
         self.assertEqual(response.status_code, 403)
         mock_job_storage.reset_mock()
         mock_job_storage.get_job.return_value = self.jobs[1]
+        mock_job_storage.get_orm_job.return_value = dummy_orm_job_data
 
         response = self.client.get(
             reverse("kolibri:core:task-detail", kwargs={"pk": "1"})
@@ -1006,6 +1071,7 @@ class TaskManagementAPITestCase(BaseAPITestCase):
         mock_job_storage.reset_mock()
 
         mock_job_storage.get_job.return_value = self.jobs[2]
+        mock_job_storage.get_orm_job.return_value = dummy_orm_job_data
         response = self.client.get(
             reverse("kolibri:core:task-detail", kwargs={"pk": "2"})
         )
@@ -1015,6 +1081,7 @@ class TaskManagementAPITestCase(BaseAPITestCase):
     def test_retrieval_respects_registered_job_permissions(self, mock_job_storage):
         self.client.login(username=self.facility2user.username, password=DUMMY_PASSWORD)
         mock_job_storage.get_job.return_value = self.jobs[0]
+        mock_job_storage.get_orm_job.return_value = dummy_orm_job_data
 
         response = self.client.get(
             reverse("kolibri:core:task-detail", kwargs={"pk": "0"})
@@ -1023,7 +1090,7 @@ class TaskManagementAPITestCase(BaseAPITestCase):
 
     def test_retrieval_404(self, mock_job_storage):
         self.client.login(username=self.facility2user.username, password=DUMMY_PASSWORD)
-        mock_job_storage.get_job.side_effect = JobNotFound
+        mock_job_storage.get_job.side_effect = JobNotFound()
 
         response = self.client.get(
             reverse("kolibri:core:task-detail", kwargs={"pk": "3"})
@@ -1036,6 +1103,7 @@ class TaskManagementAPITestCase(BaseAPITestCase):
 
         mock_job_storage.restart_job.return_value = self.jobs[2].job_id
         mock_job_storage.get_job.return_value = self.jobs[2]
+        mock_job_storage.get_orm_job.return_value = dummy_orm_job_data
 
         response = self.client.post(
             reverse("kolibri:core:task-restart", kwargs={"pk": "2"}), format="json"
@@ -1049,6 +1117,7 @@ class TaskManagementAPITestCase(BaseAPITestCase):
 
         mock_job_storage.restart_job.return_value = self.jobs[0].job_id
         mock_job_storage.get_job.return_value = self.jobs[0]
+        mock_job_storage.get_orm_job.return_value = dummy_orm_job_data
 
         response = self.client.post(
             reverse("kolibri:core:task-restart", kwargs={"pk": "0"}), format="json"
@@ -1061,6 +1130,7 @@ class TaskManagementAPITestCase(BaseAPITestCase):
 
         mock_job_storage.restart_job.return_value = self.jobs[0].job_id
         mock_job_storage.get_job.return_value = self.jobs[0]
+        mock_job_storage.get_orm_job.return_value = dummy_orm_job_data
 
         response = self.client.post(
             reverse("kolibri:core:task-cancel", kwargs={"pk": "0"}), format="json"
@@ -1073,6 +1143,7 @@ class TaskManagementAPITestCase(BaseAPITestCase):
 
         mock_job_storage.restart_job.return_value = self.jobs[0].job_id
         mock_job_storage.get_job.return_value = self.jobs[0]
+        mock_job_storage.get_orm_job.return_value = dummy_orm_job_data
 
         response = self.client.post(
             reverse("kolibri:core:task-clear", kwargs={"pk": "0"}), format="json"

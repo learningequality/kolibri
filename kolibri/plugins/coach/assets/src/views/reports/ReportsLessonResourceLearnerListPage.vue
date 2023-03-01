@@ -208,7 +208,7 @@
           this.$router.getRoute(
             'RESOURCE_CONTENT_PREVIEW',
             {
-              contentId: this.resource.node_id,
+              contentId: this.resource.id,
             },
             {
               last: lastPage,

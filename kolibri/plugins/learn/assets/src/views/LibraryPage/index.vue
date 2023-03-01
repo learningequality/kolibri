@@ -13,7 +13,7 @@
         <KButton
           icon="filter"
           data-test="filter-button"
-          :text="translator.$tr('filter')"
+          :text="coreString('filter')"
           :primary="false"
           @click="toggleSidePanelVisibility"
         />
@@ -38,8 +38,10 @@
           class="grid"
           :contents="rootNodes"
         />
-        <!-- ResumableContentGrid handles whether it renders or not internally -->
+        <!-- ResumableContentGrid mostly handles whether it renders or not internally !-->
+        <!-- but we conditionalize it based on whether we are on another device's library page !-->
         <ResumableContentGrid
+          v-if="!deviceId"
           :currentCardViewStyle="currentCardViewStyle"
           @setCardStyle="style => currentCardViewStyle = style"
           @setSidePanelMetadataContent="content => metadataSidePanelContent = content"
@@ -136,8 +138,6 @@
 
   import { onMounted } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import SidePanelModal from '../SidePanelModal';
   import useCardViewStyle from '../../composables/useCardViewStyle';
@@ -234,6 +234,10 @@
       };
     },
     props: {
+      deviceId: {
+        type: String,
+        default: null,
+      },
       loading: {
         type: Boolean,
         default: null,
@@ -278,7 +282,6 @@
     },
     created() {
       this.search();
-      this.translator = crossComponentTranslator(FilterTextbox);
       if (this.isUserLoggedIn) {
         this.fetchDevices().then(devices => {
           this.devices = devices.filter(d => d.available);
@@ -291,30 +294,6 @@
       },
       toggleSidePanelVisibility() {
         this.mobileSidePanelIsOpen = !this.mobileSidePanelIsOpen;
-      },
-    },
-    $trs: {
-      /* eslint-disable kolibri/vue-no-unused-translations */
-      results: {
-        message: '{results, number, integer} {results, plural, one {result} other {results}}',
-        context: 'Number of results for a given term after a Library search.',
-      },
-      moreThanXResults: {
-        message: 'More than {results} results',
-        context: 'Number of results for a given term after a Library search.',
-      },
-      /* eslint-disable kolibri/vue-no-unused-translations */
-      viewAsList: {
-        message: 'View as list',
-        context: 'Label for a button used to view resources as a list.',
-      },
-      viewAsGrid: {
-        message: 'View as grid',
-        context: 'Label for a button used to view resources as a grid.',
-      },
-      clearAll: {
-        message: 'Clear all',
-        context: 'Clickable link which removes all currently applied search filters.',
       },
     },
   };

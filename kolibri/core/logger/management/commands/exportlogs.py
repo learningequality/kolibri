@@ -2,6 +2,7 @@ import logging
 import ntpath
 import os
 
+from dateutil import parser
 from django.conf import settings
 from django.core.management.base import CommandError
 from django.utils import translation
@@ -12,8 +13,10 @@ from kolibri.core.auth.constants.commands_errors import NO_FACILITY
 from kolibri.core.auth.models import Facility
 from kolibri.core.logger.csv_export import classes_info
 from kolibri.core.logger.csv_export import csv_file_generator
+from kolibri.core.logger.models import GenerateCSVLogRequest
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.core.tasks.utils import get_current_job
+from kolibri.utils.time_utils import local_now
 
 logger = logging.getLogger(__name__)
 
@@ -59,6 +62,20 @@ class Command(AsyncCommand):
             default=None,
             help="Code of the language for the messages to be translated",
         )
+        parser.add_argument(
+            "--start_date",
+            action="store",
+            dest="start_date",
+            type=str,
+            help="Start date for date range selection of log files",
+        )
+        parser.add_argument(
+            "--end_date",
+            action="store",
+            dest="end_date",
+            type=str,
+            help="End date for date range selection of log files",
+        )
 
     def get_facility(self, options):
         if options["facility"]:
@@ -86,8 +103,14 @@ class Command(AsyncCommand):
 
             log_info = classes_info[log_type]
 
+            start_date = options["start_date"]
+
+            end_date = options["end_date"]
+
             if options["output_file"] is None:
-                filename = log_info["filename"].format(facility.name, facility.id[:4])
+                filename = log_info["filename"].format(
+                    facility.name, facility.id[:4], start_date[:10], end_date[:10]
+                )
             else:
                 filename = options["output_file"]
 
@@ -100,7 +123,12 @@ class Command(AsyncCommand):
             with self.start_progress(total=total_rows) as progress_update:
                 try:
                     for row in csv_file_generator(
-                        facility, log_type, filepath, overwrite=options["overwrite"]
+                        facility,
+                        log_type,
+                        filepath,
+                        start_date=start_date,
+                        end_date=end_date,
+                        overwrite=options["overwrite"],
                     ):
                         progress_update(1)
                 except (ValueError, IOError) as e:
@@ -119,3 +147,14 @@ class Command(AsyncCommand):
                 )
 
         translation.deactivate()
+
+        # create or update record of log request
+        GenerateCSVLogRequest.objects.update_or_create(
+            log_type=log_type,
+            facility=facility,
+            defaults={
+                "selected_start_date": parser.parse(start_date),
+                "selected_end_date": parser.parse(end_date),
+                "date_requested": local_now(),
+            },
+        )

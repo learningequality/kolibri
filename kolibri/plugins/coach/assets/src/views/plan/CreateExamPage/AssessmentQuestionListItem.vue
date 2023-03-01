@@ -29,15 +29,6 @@
         :isTopic="false"
       />
     </a>
-    <KTooltip
-      v-if="!available"
-      reference="missing"
-      placement="bottom"
-      style="position: relative;"
-      :refs="$refs"
-    >
-      {{ getMissingContentString('someResourcesMissingOrNotSupported') }}
-    </KTooltip>
     <div v-if="draggable" class="handle">
       <DragSortWidget
         :isFirst="isFirst"
@@ -57,6 +48,7 @@
 
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import DragSortWidget from 'kolibri.coreVue.components.DragSortWidget';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
 
   export default {
@@ -65,7 +57,7 @@
       CoachContentLabel,
       DragSortWidget,
     },
-    mixins: [coachStringsMixin],
+    mixins: [coachStringsMixin, commonCoreStrings],
     props: {
       draggable: {
         type: Boolean,
@@ -81,7 +73,7 @@
       },
       exerciseName: {
         type: String,
-        required: true,
+        default: null,
       },
       isCoachContent: {
         type: Boolean,
@@ -102,6 +94,9 @@
     },
     computed: {
       text() {
+        if (!this.exerciseName) {
+          return this.coreString('resourceNotFoundOnDevice');
+        }
         if (this.questionNumberOfExercise === undefined || this.questionNumberOfExercise === null) {
           return this.exerciseName;
         }

@@ -36,7 +36,15 @@ function _generateLearningActivitiesShown(learningActivities) {
   return learningActivitiesShown;
 }
 
-const resourcesNeededShown = ['FOR_BEGINNERS', 'PEOPLE', 'PAPER_PENCIL', 'INTERNET', 'MATERIALS'];
+const resourcesNeededShown = [
+  'FOR_BEGINNERS',
+  'PEERS',
+  'TEACHER',
+  'SPECIAL_SOFTWARE',
+  'PAPER_PENCIL',
+  'INTERNET',
+  'OTHER_SUPPLIES',
+];
 
 function _generateResourcesNeeded(learnerNeeds) {
   const resourcesNeeded = {};
@@ -71,13 +79,13 @@ function _generateLibraryCategoriesLookup(categories) {
   (categories || []).map(key => {
     const paths = key.split('.');
     let path = '';
-    for (let path_segment of paths) {
+    for (const path_segment of paths) {
       path = path === '' ? path_segment : path + '.' + path_segment;
       availablePaths[path] = true;
     }
   });
   // Create a nested object representing the hierarchy of categories
-  for (let value of Object.values(Categories)
+  for (const value of Object.values(Categories)
     // Sort by the length of the key path to deal with
     // shorter key paths first.
     .sort((a, b) => a.length - b.length)) {
@@ -88,7 +96,7 @@ function _generateLibraryCategoriesLookup(categories) {
     let path = '';
     // Start with the global object
     let nested = libraryCategories;
-    for (let fragment of ids) {
+    for (const fragment of ids) {
       // Add the fragment to create the path we examine
       path += fragment;
       // Check to see if this path is one of the paths
@@ -163,10 +171,10 @@ export default function useSearch(descendant, store, router) {
     get() {
       const searchTerms = {};
       const query = get(route).query;
-      for (let key of searchKeys) {
+      for (const key of searchKeys) {
         const obj = {};
         if (query[key]) {
-          for (let value of query[key].split(',')) {
+          for (const value of query[key].split(',')) {
             obj[value] = true;
           }
         }
@@ -177,7 +185,7 @@ export default function useSearch(descendant, store, router) {
     },
     set(value) {
       const query = { ...get(route).query };
-      for (let key of searchKeys) {
+      for (const key of searchKeys) {
         const val = Object.keys(value[key] || {})
           .filter(Boolean)
           .join(',');
@@ -231,7 +239,7 @@ export default function useSearch(descendant, store, router) {
       getParams.max_results = 25;
       const terms = get(searchTerms);
       set(searchLoading, true);
-      for (let key of searchKeys) {
+      for (const key of searchKeys) {
         if (key === 'categories') {
           if (terms[key][AllCategories]) {
             getParams['categories__isnull'] = false;

@@ -48,6 +48,7 @@ import ElapsedTime from '../views/ElapsedTime';
 import PointsIcon from '../views/PointsIcon';
 import AuthMessage from '../views/AuthMessage';
 import FilterTextbox from '../views/FilterTextbox';
+import KolibriLoadingSnippet from '../views/KolibriLoadingSnippet';
 import router from '../router';
 import commonCoreStrings from '../mixins/commonCoreStrings'; // eslint-disable-line import/no-duplicates
 import { coreStrings } from '../mixins/commonCoreStrings'; // eslint-disable-line import/no-duplicates
@@ -210,6 +211,7 @@ export default {
       PageRoot,
       MasteryModel,
       NotificationsRoot,
+      KolibriLoadingSnippet,
     },
     componentSets: {
       sync,

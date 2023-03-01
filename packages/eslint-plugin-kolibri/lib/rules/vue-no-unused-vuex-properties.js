@@ -12,9 +12,9 @@ const { VUEX_STATE, VUEX_GETTER } = require('../constants');
 
 const create = context => {
   let hasTemplate;
-  let unusedVuexProperties = [];
-  let thisExpressionsVariablesNames = [];
-  let befoureRouteEnterInstanceProperties = [];
+  const unusedVuexProperties = [];
+  const thisExpressionsVariablesNames = [];
+  const befoureRouteEnterInstanceProperties = [];
 
   const initialize = {
     Program(node) {

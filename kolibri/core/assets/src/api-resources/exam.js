@@ -7,4 +7,7 @@ import { Resource } from 'kolibri.lib.apiResource';
 export default new Resource({
   name: 'exam',
   idKey: 'id',
+  fetchQuizzesSizes(getParams = {}) {
+    return this.fetchListCollection('size', getParams);
+  },
 });

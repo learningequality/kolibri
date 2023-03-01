@@ -528,8 +528,6 @@ class SyncQueueViewSetTestCase(APITestCase):
             "last_activity_timestamp": timezone.now(),
             "active": False,
             "is_server": False,
-            "client_instance": True,
-            "server_instance": False,
             "extra_fields": {},
         }
         syncsession1 = SyncSession.objects.create(**syncdata)
@@ -567,8 +565,6 @@ class SyncQueueViewSetTestCase(APITestCase):
             "last_activity_timestamp": timezone.now(),
             "active": False,
             "is_server": False,
-            "client_instance": True,
-            "server_instance": False,
             "extra_fields": {},
         }
         syncsession1 = SyncSession.objects.create(**syncdata)
@@ -604,8 +600,6 @@ class SyncQueueViewSetTestCase(APITestCase):
             "last_activity_timestamp": timezone.now(),
             "active": False,
             "is_server": False,
-            "client_instance": True,
-            "server_instance": False,
             "extra_fields": {},
         }
         syncsession1 = SyncSession.objects.create(**syncdata)
@@ -637,8 +631,6 @@ class SyncQueueViewSetTestCase(APITestCase):
             "last_activity_timestamp": timezone.now(),
             "active": False,
             "is_server": False,
-            "client_instance": True,
-            "server_instance": False,
             "extra_fields": {},
         }
         syncsession1 = SyncSession.objects.create(**syncdata)

@@ -4,7 +4,7 @@
 
     <template v-if="sessionReady">
       <KContentRenderer
-        v-if="!content.assessment"
+        v-if="!content.assessmentmetadata"
         class="content-renderer"
         :kind="content.kind"
         :lang="content.lang"
@@ -54,9 +54,9 @@
         :kind="content.kind"
         :files="content.files"
         :lang="content.lang"
-        :randomize="content.randomize"
-        :masteryModel="content.masteryModel"
-        :assessmentIds="content.assessmentIds"
+        :randomize="content.assessmentmetadata.randomize"
+        :masteryModel="content.assessmentmetadata.mastery_model"
+        :assessmentIds="content.assessmentmetadata.assessment_item_ids"
         :available="content.available"
         :extraFields="extra_fields"
         :progress="progress"
@@ -210,6 +210,12 @@
         return get(this, ['context', 'mastery_level']);
       },
     },
+    watch: {
+      progress() {
+        // Ensure that our cached progress and tracked progress always stay up to date
+        this.cacheProgress();
+      },
+    },
     created() {
       return this.initSession();
     },
@@ -229,13 +235,13 @@
         return this.updateContentSession(data).then(this.cacheProgress);
       },
       updateInteraction({ progress, interaction }) {
-        this.updateContentSession({ progress, interaction }).then(this.cacheProgress);
+        this.updateContentSession({ progress, interaction });
       },
       updateProgress(progress) {
-        return this.updateContentSession({ progress }).then(this.cacheProgress);
+        return this.updateContentSession({ progress });
       },
       addProgress(progressDelta) {
-        this.updateContentSession({ progressDelta }).then(this.cacheProgress);
+        this.updateContentSession({ progressDelta });
       },
       updateContentState(contentState) {
         this.updateContentSession({ contentState });
@@ -257,7 +263,7 @@
           });
       },
       navigateTo(message) {
-        let id = message.nodeId;
+        const id = message.nodeId;
         return ContentNodeResource.fetchModel({ id })
           .then(contentNode => {
             router.push(

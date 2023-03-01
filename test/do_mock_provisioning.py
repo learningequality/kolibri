@@ -22,7 +22,7 @@ data = {
         "learner_can_edit_username": True,
         "learner_can_login_with_no_password": True,
     },
-    "superuser": {
+    "user": {
         "full_name": "Billy",
         "username": "Joel",
         "password": "123",

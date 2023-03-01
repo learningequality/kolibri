@@ -85,10 +85,10 @@
       availablePaths() {
         if (this.searchableLabels) {
           const paths = {};
-          for (let key of this.searchableLabels.categories) {
+          for (const key of this.searchableLabels.categories) {
             const keyPaths = key.split('.');
             let path = '';
-            for (let keyPath of keyPaths) {
+            for (const keyPath of keyPaths) {
               path = path === '' ? keyPath : path + '.' + keyPath;
               paths[path] = true;
             }

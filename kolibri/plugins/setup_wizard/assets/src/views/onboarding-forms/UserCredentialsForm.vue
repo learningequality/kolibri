@@ -4,6 +4,7 @@
     dir="auto"
     :title="$attrs.header || $tr('adminAccountCreationHeader')"
     :description="$attrs.description || $tr('adminAccountCreationDescription')"
+    :noBackAction="noBackAction"
     @continue="handleContinue"
   >
     <slot name="aboveform"></slot>
@@ -13,7 +14,12 @@
          inside a slot default
     -->
     <slot name="form">
+      <!-- Hiding the fullname and username textboxes, but their values are filled in and presumed
+           valid if we're given the user that we're taking credentials for (ie, just entering
+           password for admin)
+      -->
       <FullNameTextbox
+        v-show="!selectedUser"
         ref="fullNameTextbox"
         :value.sync="fullName"
         :isValid.sync="fullNameValid"
@@ -23,11 +29,12 @@
       />
 
       <UsernameTextbox
+        v-show="!selectedUser"
         ref="usernameTextbox"
         :value.sync="username"
         :isValid.sync="usernameValid"
         :shouldValidate="formSubmitted"
-        :isUniqueValidator="uniqueUsernameValidator"
+        :isUniqueValidator="!selectedUser ? uniqueUsernameValidator : () => true"
       />
 
       <PasswordTextbox
@@ -35,6 +42,7 @@
         :value.sync="password"
         :isValid.sync="passwordValid"
         :shouldValidate="formSubmitted"
+        :showConfirmationInput="!selectedUser"
         autocomplete="new-password"
       />
 
@@ -68,11 +76,9 @@
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
   import PrivacyLinkAndModal from 'kolibri.coreVue.components.PrivacyLinkAndModal';
   import OnboardingStepBase from '../OnboardingStepBase';
-  import { UsePresets } from '../../constants';
-  import { FacilityImportResource } from '../../api';
 
   export default {
-    name: 'SuperuserCredentialsForm',
+    name: 'UserCredentialsForm',
     components: {
       OnboardingStepBase,
       FullNameTextbox,
@@ -83,6 +89,11 @@
     mixins: [commonCoreStrings],
     inject: ['wizardService'],
     props: {
+      // A passthrough to the onboarding step base to hide "GO BACK" when needed
+      noBackAction: {
+        type: Boolean,
+        default: false,
+      },
       uniqueUsernameValidator: {
         type: Function,
         default: null,
@@ -91,62 +102,87 @@
         type: Boolean,
         default: false,
       },
+      /**
+       * The user given which will prefill the data for fullName and username
+       */
+      selectedUser: {
+        type: Object,
+        required: false,
+        default: null,
+      },
     },
     data() {
-      const { superuser } = this.$store.state.onboardingData;
+      let user;
+      if (this.selectedUser) {
+        user = this.selectedUser;
+      } else {
+        user = this.$store.state.onboardingData;
+      }
       return {
-        fullName: superuser.full_name,
+        fullName: user.full_name,
         fullNameValid: false,
-        username: superuser.username,
+        username: user.username,
         usernameValid: false,
-        password: superuser.password,
+        password: '',
         passwordValid: false,
         formSubmitted: false,
       };
     },
     computed: {
       formIsValid() {
-        return every([this.usernameValid, this.fullNameValid, this.passwordValid]);
+        if (this.selectedUser) {
+          return this.passwordValid;
+        } else {
+          return every([this.usernameValid, this.fullNameValid, this.passwordValid]);
+        }
       },
     },
+    watch: {
+      selectedUser(user) {
+        // user will be null unless an existing user is selected
+        if (user) {
+          this.fullName = user.full_name;
+          this.username = user.username;
+        } else {
+          // We should clear the form because this is where the user creates a new superuser
+          this.fullName = '';
+          this.username = '';
+        }
+        // Always clear the password field on change
+        this.$nextTick(() => {
+          this.syncOnboardingData();
+          this.focusOnInvalidField();
+        });
+      },
+    },
+    mounted() {
+      this.syncOnboardingData();
+    },
     methods: {
-      isOnMyOwnSetup() {
-        return this.wizardService.state.context.onMyOwnOrGroup == UsePresets.ON_MY_OWN;
+      syncOnboardingData() {
+        // Set vuex state w/ the form data
+        const payload = {
+          password: this.password,
+          username: this.username,
+          full_name: this.fullName,
+        };
+        this.$store.commit('SET_USER_CREDENTIALS', payload);
       },
       handleContinue() {
-        /**
-         * Partially provision the device
-         * Create SuperUser
-         * Continue
-         * TODO: Not sure "Facility" and "Device" are the best default names here -- will need to
-         * get the OS user's info I think.
-         */
-        const facilityUserData = {
-          fullName: this.fullName,
-          username: this.username,
-          password: this.password,
-          facility_name: this.$store.state.onboardingData.facility.name,
-          extra_fields: {
-            on_my_own_setup: this.isOnMyOwnSetup(),
-          },
-        };
-        if (this.formIsValid) {
-          return FacilityImportResource.createsuperuser(facilityUserData)
-            .then(() => {
-              const deviceProvisioningData = {
-                device_name: this.wizardService.state.context.deviceName,
-                language_id: this.$store.state.onboardingData.language_id,
-                is_provisioned: true,
-              };
-              FacilityImportResource.provisiondevice(deviceProvisioningData).then(() =>
-                this.wizardService.send('CONTINUE')
-              );
-            })
-            .catch(e => {
-              throw new Error(`Error creating superuser: ${e}`);
-            });
-        } else {
+        // Here we will do some final handoff from Vuex to the XState machine
+        // We syncOnboardingData (to Vuex)
+        // Then we will send the data set in Vuex there into the wizard machine's superuser context
+        // value.
+        // This will ensure that users' selections persist across page reloads as well.
+        this.syncOnboardingData();
+        if (!this.formIsValid) {
           this.focusOnInvalidField();
+          return;
+        } else {
+          this.wizardService.send({
+            type: 'CONTINUE',
+            value: this.$store.state.onboardingData.user,
+          });
         }
       },
       focusOnInvalidField() {

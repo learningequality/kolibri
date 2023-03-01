@@ -63,7 +63,7 @@ const replaceBlocklist = {
 };
 
 function clearObject(obj) {
-  for (let key in obj) {
+  for (const key in obj) {
     delete obj[key];
   }
 }
@@ -152,7 +152,7 @@ export default function useProgressTracking(store) {
       const data = response.data;
       set(context, valOrNull(data.context));
       set(complete, valOrNull(data.complete));
-      set(progress_state, threeDecimalPlaceRoundup(valOrNull(data.progress)));
+      set(progress_state, valOrNull(data.progress));
       set(progress_delta, 0);
       set(time_spent, valOrNull(data.time_spent));
       set(time_spent_delta, 0);
@@ -263,7 +263,7 @@ export default function useProgressTracking(store) {
         Object.assign(nowSavedInteraction, interaction);
         pastattemptMap[nowSavedInteraction.id] = nowSavedInteraction;
       } else {
-        for (let key in interaction) {
+        for (const key in interaction) {
           if (!blocklist[key]) {
             pastattemptMap[interaction.id][key] = interaction[key];
           }
@@ -280,12 +280,13 @@ export default function useProgressTracking(store) {
       data,
     }).then(response => {
       if (response.data.attempts) {
-        for (let attempt of response.data.attempts) {
+        for (const attempt of response.data.attempts) {
           updateAttempt(attempt);
         }
       }
       if (response.data.complete) {
         set(complete, true);
+        set(progress_state, 1);
         if (store.getters.isUserLoggedIn && !wasComplete) {
           store.commit('INCREMENT_TOTAL_PROGRESS', 1);
         }
@@ -361,7 +362,7 @@ export default function useProgressTracking(store) {
         // If it is successful call all of the resolve functions that we have stored
         // from all the Promises that have been returned while this specific debounce
         // has been active.
-        for (let [resolve] of updateContentSessionResolveRejectStack) {
+        for (const [resolve] of updateContentSessionResolveRejectStack) {
           resolve(result);
         }
         // Reset the stack for resolve/reject functions, so that future invocations
@@ -370,7 +371,7 @@ export default function useProgressTracking(store) {
       })
       .catch(err => {
         // If there is an error call reject for all previously returned promises.
-        for (let [, reject] of updateContentSessionResolveRejectStack) {
+        for (const [, reject] of updateContentSessionResolveRejectStack) {
           reject(err);
         }
         // Likewise reset the stack.
@@ -448,7 +449,7 @@ export default function useProgressTracking(store) {
           a => !a.id && a.item === interaction.item
         );
         if (unsavedInteraction) {
-          for (let key in interaction) {
+          for (const key in interaction) {
             set(unsavedInteraction, key, interaction[key]);
           }
         } else {

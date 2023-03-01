@@ -28,6 +28,7 @@ from kolibri.core.auth.models import Membership
 from kolibri.core.auth.models import Role
 from kolibri.core.bookmarks.models import Bookmark
 from kolibri.core.device.models import DevicePermissions
+from kolibri.core.device.models import LearnerDeviceStatus
 from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import ExamAssignment
 from kolibri.core.exams.models import IndividualSyncableExam
@@ -39,6 +40,7 @@ from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import ExamAttemptLog
 from kolibri.core.logger.models import ExamLog
+from kolibri.core.logger.models import GenerateCSVLogRequest
 from kolibri.core.logger.models import MasteryLog
 from kolibri.core.logger.models import UserSessionLog
 
@@ -190,6 +192,7 @@ def _get_users(dataset_id):
     return GroupDeletion(
         "User models",
         querysets=[
+            LearnerDeviceStatus.objects.filter(dataset_id_filter),
             LogEntry.objects.filter(user_id_filter),
             DevicePermissions.objects.filter(user_id_filter),
             PingbackNotificationDismissed.objects.filter(user_id_filter),
@@ -233,6 +236,7 @@ def _get_log_models(dataset_id):
             ExamLog.objects.filter(dataset_id_filter),
             MasteryLog.objects.filter(dataset_id_filter),
             UserSessionLog.objects.filter(dataset_id_filter),
+            GenerateCSVLogRequest.objects.filter(facility=dataset_id),
         ],
     )
 

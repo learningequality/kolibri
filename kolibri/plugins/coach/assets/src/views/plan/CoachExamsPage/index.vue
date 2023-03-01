@@ -10,6 +10,9 @@
       <PlanHeader />
 
       <div class="filter-and-button">
+        <p v-if="filteredExams.length && filteredExams.length > 0">
+          {{ $tr('totalQuizSize', { size: calcTotalSizeOfVisibleQuizzes }) }}
+        </p>
         <KSelect
           v-model="statusSelected"
           :label="coachString('filterQuizStatus')"
@@ -48,6 +51,7 @@
         <template #headers>
           <th>{{ coachString('titleLabel') }}</th>
           <th>{{ coachString('recipientsLabel') }}</th>
+          <th>{{ coachString('sizeLabel') }}</th>
           <th class="center-text">
             {{ coachString('statusLabel') }}
           </th>
@@ -76,21 +80,23 @@
                   :hasAssignments="exam.assignments.length > 0"
                 />
               </td>
-
+              <td>
+                {{ quizSize(exam.id) }}
+              </td>
               <td class="button-col center-text core-table-button-col">
                 <!-- Open quiz button -->
                 <KButton
                   v-if="!exam.active && !exam.archive"
                   :text="coachString('openQuizLabel')"
                   appearance="flat-button"
-                  @click="showOpenConfirmationModal = true; modalQuizId = exam.id"
+                  @click="showOpenConfirmationModal = true; activeQuizId = exam.id"
                 />
                 <!-- Close quiz button -->
                 <KButton
                   v-if="exam.active && !exam.archive"
                   :text="coachString('closeQuizLabel')"
                   appearance="flat-button"
-                  @click="showCloseConfirmationModal = true; modalQuizId = exam.id;"
+                  @click="showCloseConfirmationModal = true; activeQuizId = exam.id;"
                 />
                 <!-- Closed quiz label -->
                 <div v-if="exam.archive">
@@ -132,9 +138,11 @@
         :submitText="coreString('continueAction')"
         :cancelText="coreString('cancelAction')"
         @cancel="showOpenConfirmationModal = false"
-        @submit="handleOpenQuiz(modalQuizId)"
+        @submit="handleOpenQuiz(activeQuizId)"
       >
-        <div>{{ coachString('openQuizModalDetail') }}</div>
+        <p>{{ coachString('openQuizModalDetail') }}</p>
+        <p>{{ coachString('lodQuizDetail') }}</p>
+        <p>{{ coachString('fileSizeToDownload', { size: quizSize(activeQuizId) }) }}</p>
       </KModal>
       <KModal
         v-if="showCloseConfirmationModal"
@@ -142,7 +150,7 @@
         :submitText="coreString('continueAction')"
         :cancelText="coreString('cancelAction')"
         @cancel="showCloseConfirmationModal = false"
-        @submit="handleCloseQuiz(modalQuizId)"
+        @submit="handleCloseQuiz(activeQuizId)"
       >
         <div>{{ coachString('closeQuizModalDetail') }}</div>
       </KModal>
@@ -154,10 +162,12 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ExamResource } from 'kolibri.resources';
   import plugin_data from 'plugin_data';
+  import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import { PageNames } from '../../../constants';
   import commonCoach from '../../common';
   import CoachAppBarPage from '../../CoachAppBarPage';
@@ -179,9 +189,11 @@
         },
         showOpenConfirmationModal: false,
         showCloseConfirmationModal: false,
+        activeQuizId: null,
       };
     },
     computed: {
+      ...mapState('classSummary', ['quizzesSizes']),
       sortedExams() {
         return this._.orderBy(this.exams, ['date_created'], ['desc']);
       },
@@ -238,10 +250,24 @@
           { label: this.$tr('selectQuiz'), value: 'SELECT_QUIZ' },
         ];
       },
+      calcTotalSizeOfVisibleQuizzes() {
+        if (this.filteredExams && this.quizzesSizes && this.quizzesSizes[0]) {
+          let sum = 0;
+          this.filteredExams.forEach(exam => {
+            // only include visible lessons
+            if (exam.active) {
+              sum += this.quizzesSizes[0][exam.id];
+            }
+          });
+          const size = bytesForHumans(sum);
+          return size;
+        }
+        return '--';
+      },
     },
     methods: {
       handleOpenQuiz(quizId) {
-        let promise = ExamResource.saveModel({
+        const promise = ExamResource.saveModel({
           id: quizId,
           data: {
             active: true,
@@ -261,7 +287,7 @@
           });
       },
       handleCloseQuiz(quizId) {
-        let promise = ExamResource.saveModel({
+        const promise = ExamResource.saveModel({
           id: quizId,
           data: {
             archive: true,
@@ -286,6 +312,14 @@
           SELECT_QUIZ: PageNames.EXAM_CREATION_PRACTICE_QUIZ,
         }[value];
         this.$router.push(this.$router.getRoute(nextRoute));
+      },
+      quizSize(quizId) {
+        if (this.quizzesSizes && this.quizzesSizes[0]) {
+          let size = this.quizzesSizes[0][quizId];
+          size = bytesForHumans(size);
+          return size;
+        }
+        return '--';
       },
     },
     $trs: {
@@ -316,6 +350,11 @@
         message: 'Select quiz',
         context:
           "Practice quizzes are pre-made quizzes, that don't require the curation work on the part of the coach. Selecting a practice quiz refers to importing a ready-to-use quiz.",
+      },
+      totalQuizSize: {
+        message: 'Total size of quizzes that are visible to learners: {size}',
+        context:
+          'Descriptive text at the top of the table that displays the calculated file size of all quiz resources (i.e. 120 MB)',
       },
     },
   };

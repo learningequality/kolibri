@@ -15,10 +15,25 @@
       <KFixedGridItem :span="showTime ? 3 : 4">
         <div class="icon-spacer">
           <ContentIcon
+            v-if="contentIcon"
             class="content-icon"
             :kind="contentIcon"
             :showTooltip="false"
           />
+          <template v-else>
+            <KIcon
+              ref="warning"
+              icon="warning"
+              :color="$themePalette.orange.v_400"
+            />
+            <KTooltip
+              reference="warning"
+              placement="bottom"
+              :refs="$refs"
+            >
+              {{ coreString('resourceNotFoundOnDevice') }}
+            </KTooltip>
+          </template>
           <KRouterLink
             v-if="route"
             :text="linkText"
@@ -43,6 +58,7 @@
 
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import CoachStatusIcon from '../status/CoachStatusIcon';
   import {
     NotificationEvents,
@@ -65,6 +81,7 @@
       CoachStatusIcon,
       ElapsedTime,
     },
+    mixins: [commonCoreStrings],
     props: {
       notification: {
         type: Object,
@@ -94,9 +111,10 @@
           return 'exam';
         } else if (this.notification.object === NotificationObjects.LESSON) {
           return 'lesson';
-        } else {
+        } else if (this.notification.resource.type.length) {
           return this.notification.resource.type;
         }
+        return null;
       },
       context() {
         const contentContext = this.notification.assignment.name;

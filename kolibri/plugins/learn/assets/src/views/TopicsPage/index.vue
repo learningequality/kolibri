@@ -56,7 +56,7 @@
               icon="filter"
               class="overlay-toggle-button"
               data-test="filter-button"
-              :text="filterTranslator.$tr('filter')"
+              :text="coreString('filter')"
               :primary="false"
               @click="toggleFolderSearchSidePanel('search')"
             />
@@ -70,6 +70,7 @@
                 :key="t.id"
                 :topic="t"
                 :subTopicLoading="t.id === subTopicLoading"
+                :allowDownloads="allowDownloads"
                 @showMore="handleShowMore"
                 @loadMoreInSubtopic="handleLoadMoreInSubtopic"
                 @toggleInfoPanel="toggleInfoPanel"
@@ -81,6 +82,7 @@
             <LibraryAndChannelBrowserMainContent
               v-if="resources.length"
               :gridType="2"
+              :allowDownloads="allowDownloads"
               data-test="search-results"
               :contents="resourcesDisplayed"
               :numCols="numCols"
@@ -113,6 +115,7 @@
           <SearchResultsGrid
             v-else
             data-test="search-results"
+            :allowDownloads="allowDownloads"
             :currentCardViewStyle="currentSearchCardViewStyle"
             :hideCardViewToggle="true"
             :results="results"
@@ -258,9 +261,7 @@
   import { computed, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import { throttle } from 'frame-throttle';
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import SidePanelModal from '../SidePanelModal';
@@ -274,7 +275,6 @@
   import CustomContentRenderer from '../ChannelRenderer/CustomContentRenderer';
   import CategorySearchModal from '../CategorySearchModal';
   import SearchResultsGrid from '../SearchResultsGrid';
-  import LibraryPage from '../LibraryPage';
   import TopicsHeader from './TopicsHeader';
   import ToggleHeaderTabs from './ToggleHeaderTabs';
   import TopicsMobileHeader from './TopicsMobileHeader';
@@ -355,6 +355,10 @@
         type: Boolean,
         default: null,
       },
+      deviceId: {
+        type: String,
+        default: null,
+      },
     },
     data: function() {
       return {
@@ -374,6 +378,9 @@
     },
     computed: {
       ...mapState('topicsTree', ['channel', 'contents', 'isRoot', 'topic']),
+      allowDownloads() {
+        return Boolean(this.deviceId);
+      },
       childrenToDisplay() {
         return Math.max(this.numCols, 3);
       },
@@ -460,7 +467,7 @@
           .filter(t => (this.subTopicId ? t.id === this.subTopicId : true))
           .map(t => {
             let childrenToDisplay;
-            let topicChildren = t.children ? t.children.results : [];
+            const topicChildren = t.children ? t.children.results : [];
             if (this.subTopicId || this.topics.length === 1) {
               // If we are in a subtopic display, we should only be displaying this topic
               // so don't bother checking if the ids match.
@@ -588,8 +595,6 @@
       document.documentElement.style.position = '';
     },
     created() {
-      this.translator = crossComponentTranslator(LibraryPage);
-      this.filterTranslator = crossComponentTranslator(FilterTextbox);
       window.addEventListener('scroll', this.throttledHandleScroll);
       if (this.subTopicId) {
         this.handleLoadMoreInSubtopic(this.subTopicId);
