@@ -112,10 +112,15 @@ const coachStrings = createTranslator('CommonCoachStrings', {
     message: 'No description',
     context: 'Indicates when a lesson does not have a description.',
   },
+  generalInformationLabel: {
+    message: 'General information',
+    context:
+      'Used as a visually hidden label for the section on quiz and lesson pages that contains general information about a lesson or a quizz',
+  },
   detailsLabel: {
     message: 'Details',
     context:
-      'Can refer to the details of the quiz that the coach is creating. For example, the title and the number of questions.',
+      'General label describing some details about a lesson or a quiz. For example, the quiz title and the number of questions, or title of the section with reports on the lesson page.',
   },
   difficultQuestionsLabel: {
     message: 'Difficult questions',
