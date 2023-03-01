@@ -1,9 +1,9 @@
 <template>
 
-  <span v-if="isSpecified && birthYear">
-    {{ $formatDate(birthYear, { year: 'numeric' }) }}
-  </span>
-  <KEmptyPlaceholder v-else />
+  <KOptionalText
+    :text="
+      (isSpecified && birthYear) ? $formatDate(birthYear, { year: 'numeric' }) : ''"
+  />
 
 </template>
 

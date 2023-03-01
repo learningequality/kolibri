@@ -117,6 +117,13 @@ export default new Resource({
       return response.data;
     });
   },
+  fetchLessonResources(lesson) {
+    const url = urls['kolibri:core:usercontentnode_list']();
+    return this.client({ url, params: { lesson } }).then(response => {
+      this.cacheData(response.data);
+      return response.data;
+    });
+  },
   cache: {},
   fetchModel({ id, getParams: params }) {
     if (this.cache[id]) {
@@ -129,7 +136,7 @@ export default new Resource({
   },
   cacheData(data) {
     if (Array.isArray(data)) {
-      for (let model of data) {
+      for (const model of data) {
         this.cacheData(model);
       }
     } else if (isPlainObject(data)) {
@@ -142,7 +149,7 @@ export default new Resource({
           this.cacheData(data.children);
         }
       } else if (data.results) {
-        for (let model of data.results) {
+        for (const model of data.results) {
           this.cacheData(model);
         }
       }

@@ -15,7 +15,7 @@ export default function sortLanguages(availableLanguages, currentLanguageId) {
     return language.id == currentLanguageId;
   });
 
-  let sortedLanguages = availableLanguages
+  const sortedLanguages = availableLanguages
     .sort(compareLanguages)
     .filter(language => language.id != currentLanguageId);
 

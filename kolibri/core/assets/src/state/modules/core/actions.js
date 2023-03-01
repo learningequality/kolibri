@@ -236,7 +236,7 @@ export function getFacilities(store) {
 
 export function getFacilityConfig(store, facilityId) {
   const { currentFacilityId, selectedFacility } = store.getters;
-  let facId = facilityId || currentFacilityId;
+  const facId = facilityId || currentFacilityId;
   if (!facId) {
     // No facility Id, so nothing good is going to happen here.
     // Redirect and let Kolibri sort it out.

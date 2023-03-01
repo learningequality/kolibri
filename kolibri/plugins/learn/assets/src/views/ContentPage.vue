@@ -263,7 +263,7 @@
           });
       },
       navigateTo(message) {
-        let id = message.nodeId;
+        const id = message.nodeId;
         return ContentNodeResource.fetchModel({ id })
           .then(contentNode => {
             router.push(

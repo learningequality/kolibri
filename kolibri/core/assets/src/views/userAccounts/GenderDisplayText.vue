@@ -1,9 +1,9 @@
 <template>
 
-  <span v-if="isSpecified && displayText">
-    {{ displayText }}
-  </span>
-  <KEmptyPlaceholder v-else />
+  <KOptionalText
+    :text="
+      (isSpecified && displayText) ? displayText : ''"
+  />
 
 </template>
 

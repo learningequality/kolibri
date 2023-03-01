@@ -112,7 +112,10 @@
       },
       contentTable() {
         const contentArray = this.lesson.node_ids.map(node_id => this.contentNodeMap[node_id]);
-        return contentArray.map(content => {
+        return contentArray.map((content, index) => {
+          if (!content) {
+            return this.missingResourceObj(index);
+          }
           const tally = this.getContentStatusTally(content.content_id, this.recipients);
           const tableRow = {
             avgTimeSpent: this.getContentAvgTimeSpent(content.content_id, this.recipients),

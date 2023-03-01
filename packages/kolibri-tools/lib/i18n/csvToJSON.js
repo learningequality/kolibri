@@ -26,7 +26,7 @@ module.exports = function(pathInfo, ignore, langInfo, localeDataFolder, verbose)
     Object.assign(allDefaultMessages, messages);
     logging.info(`Gathered ${requiredMessages[name].length} required string ids for ${name}`);
   });
-  for (let langObject of languageInfo) {
+  for (const langObject of languageInfo) {
     const crowdinCode = langObject['crowdin_code'];
     const intlCode = langObject['intl_code'];
     logging.info(
@@ -35,10 +35,10 @@ module.exports = function(pathInfo, ignore, langInfo, localeDataFolder, verbose)
     const csvDefinitions = parseCSVDefinitions(localeDataFolder, intlCode);
     let messagesExist = false;
     const localeFolder = path.join(localeDataFolder, toLocale(intlCode), 'LC_MESSAGES');
-    for (let name in requiredMessages) {
+    for (const name in requiredMessages) {
       // An object for storing our messages.
       const messages = {};
-      for (let msg of requiredMessages[name]) {
+      for (const msg of requiredMessages[name]) {
         const definition = csvDefinitions.find(o => o['Identifier'] === msg);
         if (intlCode === 'en') {
           messages[msg] = allDefaultMessages[msg].message;

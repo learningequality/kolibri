@@ -91,7 +91,7 @@
         return '';
       },
       valid() {
-        let passwordValid = this.passwordInvalidText === '';
+        const passwordValid = this.passwordInvalidText === '';
         if (this.showConfirmationInput) {
           return this.confirmationInvalidText === '' && passwordValid;
         }

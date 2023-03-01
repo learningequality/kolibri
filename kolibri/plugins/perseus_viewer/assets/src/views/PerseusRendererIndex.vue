@@ -310,7 +310,7 @@
         } catch (e) {
           logging.debug('Error during unmounting of item renderer', e);
         }
-        for (let key in this.imageUrls) {
+        for (const key in this.imageUrls) {
           if (this.imageUrls[key].indexOf('blob:') === 0) {
             URL.revokeObjectURL(this.imageUrls[key]);
           }

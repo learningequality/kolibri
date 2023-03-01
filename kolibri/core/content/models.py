@@ -193,6 +193,15 @@ class ContentNode(base_models.ContentNode):
         default=[], null=True, blank=True, load_kwargs={"strict": False}
     )
 
+    # This resource has been added to Kolibri directly or
+    # indirectly by someone responsible for administering the device
+    # whether a device super admin, or via initial configuration.
+    # These nodes will not be subject to automatic garbage collection
+    # to manage space.
+    # Set as a NullBooleanField to limit migration time in creating the new column,
+    # needs a subsequent Kolibri upgrade step to backfill these values.
+    admin_imported = models.NullBooleanField()
+
     objects = ContentNodeManager()
 
     class Meta:

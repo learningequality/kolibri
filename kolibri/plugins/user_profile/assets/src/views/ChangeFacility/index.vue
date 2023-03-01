@@ -75,7 +75,7 @@
         }
         const stateID = Object.keys(state.meta)[0];
         if (state.meta[stateID] !== undefined) {
-          let newRoute = state.meta[stateID].route;
+          const newRoute = state.meta[stateID].route;
           if (newRoute != this.$router.currentRoute.name) {
             if ('path' in state.meta[stateID]) {
               this.internalNavigation = true;

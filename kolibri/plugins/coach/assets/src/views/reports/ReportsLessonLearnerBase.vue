@@ -28,6 +28,8 @@
 
       <ReportsControls @export="exportCSV" />
 
+      <MissingResourceAlert v-if="lesson.missing_resource" />
+
       <CoreTable :emptyMessage="coachString('activityListEmptyState')">
         <template #headers>
           <th>{{ coachString('titleLabel') }}</th>
@@ -56,10 +58,12 @@
                 </KLabeledIcon>
               </td>
               <td>
-                <StatusSimple :status="tableRow.statusObj.status" />
+                <StatusSimple v-if="tableRow.statusObj" :status="tableRow.statusObj.status" />
+                <KEmptyPlaceholder v-else />
               </td>
               <td>
-                <TimeDuration :seconds="showTimeDuration(tableRow)" />
+                <TimeDuration v-if="tableRow.statusObj" :seconds="showTimeDuration(tableRow)" />
+                <KEmptyPlaceholder v-else />
               </td>
             </tr>
           </transition-group>
@@ -74,6 +78,7 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert';
   import commonCoach from '../common';
   import CoachAppBarPage from '../CoachAppBarPage';
   import CSVExporter from '../../csv/exporter';
@@ -86,6 +91,7 @@
     name: 'ReportsLessonLearnerBase',
     components: {
       CoachAppBarPage,
+      MissingResourceAlert,
       ReportsControls,
       ReportsResourcesStats,
     },
@@ -102,7 +108,10 @@
       },
       table() {
         const contentArray = this.lesson.node_ids.map(node_id => this.contentNodeMap[node_id]);
-        return contentArray.map(content => {
+        return contentArray.map((content, index) => {
+          if (!content) {
+            return this.missingResourceObj(index);
+          }
           const tableRow = {
             statusObj: this.getContentStatusObjForLearner(content.content_id, this.learner.id),
           };

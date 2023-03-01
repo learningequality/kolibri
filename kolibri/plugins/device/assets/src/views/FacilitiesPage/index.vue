@@ -239,7 +239,7 @@
     watch: {
       // Update facilities whenever a watched task completes
       facilityTasks(newTasks) {
-        for (let index in newTasks) {
+        for (const index in newTasks) {
           const task = newTasks[index];
           if (this.taskIdsToWatch.includes(task.id)) {
             if (task.status === TaskStatuses.COMPLETED) {

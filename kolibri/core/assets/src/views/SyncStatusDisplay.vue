@@ -47,6 +47,7 @@
           [SyncStatus.UNABLE_TO_SYNC]: this.$tr('unableToSync'),
           [SyncStatus.NOT_RECENTLY_SYNCED]: this.$tr('notRecentlySynced'),
           [SyncStatus.UNABLE_OR_NOT_SYNCED]: this.$tr('unableOrNotSynced'),
+          [SyncStatus.INSUFFICIENT_STORAGE]: this.$tr('insufficientStorage'),
           [SyncStatus.NOT_CONNECTED]: this.$tr('notConnected'),
         };
         return statusTranslations[this.syncStatus] || '';
@@ -57,6 +58,7 @@
           [SyncStatus.UNABLE_TO_SYNC]: 'error',
           [SyncStatus.NOT_RECENTLY_SYNCED]: 'error',
           [SyncStatus.UNABLE_OR_NOT_SYNCED]: 'error',
+          [SyncStatus.INSUFFICIENT_STORAGE]: 'error',
           [SyncStatus.NOT_CONNECTED]: 'disconnected',
         };
         return statusIcons[this.syncStatus] || '';
@@ -71,32 +73,36 @@
     $trs: {
       recentlySynced: {
         message: 'Synced',
-        context: 'Status label for a device that has been synced.',
+        context: 'Status indicator for a device that has been synced.',
       },
       syncing: {
         message: 'Syncing...',
-        context: 'Status label for a device where syncing is in progress.',
+        context: 'Status indicator for a device where syncing is in progress.',
       },
       queued: {
         message: 'Waiting to sync...',
-        context: 'Status label for a device awaiting to sync with server.',
+        context: 'Status indicator for a device awaiting to sync with server.',
       },
       unableToSync: {
         message: 'Unable to sync',
-        context: 'Status label for a device not synced with server.',
+        context: 'Status indicator for a device not synced with server.',
       },
       notRecentlySynced: {
         message: 'Not recently synced',
         context:
-          'Status label for a device not synced with server.\n\nThis message appears when a learn-only device has synced with the server at least once before, but its last sync has been over an hour ago.',
+          'Status indicator for a device not synced with server.\n\nThis message appears when a learn-only device has synced with the server at least once before, but its last sync has been over an hour ago.',
       },
       unableOrNotSynced: {
         message: 'Not recently synced or unable to sync',
-        context: 'Status label for a device not synced with server.',
+        context: 'Status indicator for a device not synced with server.',
       },
       notConnected: {
         message: 'Not connected to server',
-        context: 'Status label for a disconnected device.',
+        context: 'Status indicator for a disconnected device.',
+      },
+      insufficientStorage: {
+        message: 'Not enough storage',
+        context: 'Status indicator for a device that does not have enough storage to sync.',
       },
     },
   };

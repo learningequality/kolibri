@@ -13,9 +13,9 @@ const { GROUP_METHODS } = require('../constants');
 const create = context => {
   let hasTemplate;
   let unusedProperties = [];
-  let thisExpressionsVariablesNames = [];
-  let befoureRouteEnterInstanceProperties = [];
-  let watchStringMethods = [];
+  const thisExpressionsVariablesNames = [];
+  const befoureRouteEnterInstanceProperties = [];
+  const watchStringMethods = [];
 
   const sourceCode = context.getSourceCode();
   const comments = sourceCode.getAllComments();

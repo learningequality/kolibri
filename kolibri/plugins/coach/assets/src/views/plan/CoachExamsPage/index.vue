@@ -241,7 +241,7 @@
     },
     methods: {
       handleOpenQuiz(quizId) {
-        let promise = ExamResource.saveModel({
+        const promise = ExamResource.saveModel({
           id: quizId,
           data: {
             active: true,
@@ -261,7 +261,7 @@
           });
       },
       handleCloseQuiz(quizId) {
-        let promise = ExamResource.saveModel({
+        const promise = ExamResource.saveModel({
           id: quizId,
           data: {
             archive: true,

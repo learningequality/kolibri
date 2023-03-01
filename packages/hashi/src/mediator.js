@@ -52,7 +52,7 @@ class Mediator {
   sendMessageAwaitReply({ event, data, nameSpace }) {
     return new Promise((resolve, reject) => {
       const msgId = uuidv4();
-      let self = this;
+      const self = this;
       function handler(message) {
         if (message.message_id === msgId && message.type === 'response') {
           if (message.status == MessageStatuses.SUCCESS) {

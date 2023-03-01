@@ -11,18 +11,24 @@
       </p>
 
       <CardList
-        v-for="content in bookmarks"
+        v-for="contentNode in bookmarks"
         v-else
-        :key="content.id"
-        :content="content"
+        :key="contentNode.id"
+        :contentNode="contentNode"
         class="card-grid-item"
         :isMobile="windowIsSmall"
-        :link="genContentLinkBackLinkCurrentPage(content.id, content.is_leaf)"
-        :footerIcons="footerIcons"
-        :createdDate="content.bookmark ? content.bookmark.created : null"
-        @viewInformation="toggleInfoPanel(content)"
-        @removeFromBookmarks="removeFromBookmarks(content.bookmark)"
-      />
+        :to="genContentLinkBackLinkCurrentPage(contentNode.id, contentNode.is_leaf)"
+        :createdDate="contentNode.bookmark ? contentNode.bookmark.created : null"
+      >
+        <template #footer>
+          <HybridLearningFooter
+            :contentNode="contentNode"
+            :bookmarked="true"
+            @toggleInfoPanel="toggleInfoPanel(contentNode)"
+            @removeFromBookmarks="removeFromBookmarks(contentNode.bookmark)"
+          />
+        </template>
+      </CardList>
 
       <KButton
         v-if="more && !loading"
@@ -90,6 +96,7 @@
   import LearnAppBarPage from './LearnAppBarPage';
   import LearningActivityChip from './LearningActivityChip';
   import CardList from './CardList';
+  import HybridLearningFooter from './HybridLearningContentCard/HybridLearningFooter';
 
   import BrowseResourceMetadata from './BrowseResourceMetadata';
 
@@ -106,6 +113,7 @@
       LearningActivityChip,
       CardList,
       LearnAppBarPage,
+      HybridLearningFooter,
     },
     mixins: [commonCoreStrings, commonLearnStrings, responsiveWindowMixin],
     setup() {
@@ -120,11 +128,6 @@
         more: null,
         sidePanelContent: null,
       };
-    },
-    computed: {
-      footerIcons() {
-        return { infoOutline: 'viewInformation', close: 'removeFromBookmarks' };
-      },
     },
     created() {
       ContentNodeResource.fetchBookmarks({ params: { limit: 25, available: true } }).then(data => {

@@ -6,7 +6,14 @@
       <DeviceTopNav />
     </template>
     <KPageContainer class="device-container">
+      <UiAlert
+        v-if="showDisabledAlert && alertDismissed"
+        type="warning"
+        @dismiss="alertDismissed = false"
+      >
+        {{ disabledAlertText }}
 
+      </UiAlert>
       <section>
         <h1>
           {{ $tr('pageHeader') }}
@@ -136,7 +143,7 @@
               :text="$tr('changeLocation')"
               :primary="true"
               appearance="basic-link"
-              :disabled="!multipleWritablePaths"
+              :disabled="!multipleWritablePaths || isRemoteContent"
               :class="{ 'disabled': !multipleWritablePaths }"
               @click="showChangePrimaryLocationModal = true"
             />
@@ -144,6 +151,7 @@
           <KButton
             v-if="browserLocationMatchesServerURL && (secondaryStorageLocations.length === 0)"
             :text="$tr('addLocation')"
+            :disabled="isRemoteContent"
             appearance="raised-button"
             secondary
             @click="showAddStorageLocationModal = true"
@@ -164,6 +172,7 @@
             hasDropdown
             secondary
             appearance="raised-button"
+            :disabled="isRemoteContent"
             :text="coreString('optionsLabel')"
           >
             <template #menu>
@@ -180,6 +189,7 @@
             :label="$tr('enableAutoDownload')"
             :checked="enableAutomaticDownload"
             :description="$tr('enableAutoDownloadDescription')"
+            :disabled="isRemoteContent"
             @change="handleCheckAutodownload('enableAutomaticDownload', $event)"
           />
           <div class="fieldset left-margin">
@@ -187,23 +197,26 @@
               :label="$tr('allowLearnersDownloadResources')"
               :checked="allowLearnerDownloadResources"
               :description="$tr('allowLearnersDownloadDescription')"
+              :disabled="isRemoteContent"
               @change="handleCheckAutodownload('allowLearnerDownloadResources', $event)"
             />
             <KCheckbox
               :label="$tr('setStorageLimit')"
               :checked="setLimitForAutodownload"
               :description="$tr('setStorageLimitDescription')"
+              :disabled="isRemoteContent"
               @change="handleCheckAutodownload('setLimitForAutodownload', $event)"
             />
             <div
               v-show="setLimitForAutodownload"
               class="left-margin"
+              :disabled="isRemoteContent"
             >
               <KTextbox
                 ref="autoDownloadLimit"
                 v-model="limitForAutodownload"
                 class="download-limit-textbox"
-                :disabled="notEnoughFreeSpace"
+                :disabled="notEnoughFreeSpace || isRemoteContent"
                 type="number"
                 label="GB"
                 :min="0"
@@ -216,7 +229,7 @@
                   id="slider"
                   v-model="limitForAutodownload"
                   :class="$computedClass(sliderStyle)"
-                  :disabled="notEnoughFreeSpace"
+                  :disabled="notEnoughFreeSpace || isRemoteContent"
                   type="range"
                   min="0"
                   :max="freeSpace"
@@ -248,6 +261,7 @@
             :key="plugin.id"
             :label="plugin.name"
             :checked="plugin.enabled"
+            :disabled="!canRestart"
             @change="plugin.enabled = $event"
           />
         </div>
@@ -334,6 +348,7 @@
   import urls from 'kolibri.urls';
   import { ref } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import { availableLanguages, currentLanguage } from 'kolibri.utils.i18n';
   import sortLanguages from 'kolibri.utils.sortLanguages';
   import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
@@ -372,6 +387,7 @@
       AddStorageLocationModal,
       RemoveStorageLocationModal,
       ServerRestartModal,
+      UiAlert,
     },
     mixins: [commonCoreStrings],
     setup() {
@@ -438,11 +454,12 @@
         showRestartModal: false,
         writablePaths: 0,
         readOnlyPaths: 0,
+        alertDismissed: true,
       };
     },
     computed: {
       ...mapGetters(['isAppContext']),
-      ...mapGetters('deviceInfo', ['getDeviceOS']),
+      ...mapGetters('deviceInfo', ['getDeviceOS', 'canRestart', 'isRemoteContent']),
       pageTitle() {
         return deviceString('deviceManagementTitle');
       },
@@ -453,7 +470,7 @@
         return this.$store.getters.isSuperuser && this.facilities.length > 1;
       },
       languageOptions() {
-        let languages = sortLanguages(Object.values(availableLanguages), currentLanguage).map(
+        const languages = sortLanguages(Object.values(availableLanguages), currentLanguage).map(
           language => {
             return {
               value: language.id,
@@ -524,6 +541,22 @@
           return true;
         }
         return this.getDeviceOS.includes('Android');
+      },
+
+      showDisabledAlert() {
+        return this.isRemoteContent || !this.canRestart;
+      },
+      disabledAlertText() {
+        if (!this.canRestart && this.isRemoteContent) {
+          return this.$tr('alertDisabledOptions');
+        }
+        if (!this.canRestart) {
+          return this.$tr('alertDisabledPlugins');
+        }
+        if (this.isRemoteContent) {
+          return this.$tr('alertDisabledPaths');
+        }
+        return this.$tr('alertDisabledOptions');
       },
     },
     created() {
@@ -1013,6 +1046,20 @@
         message: 'Unselect a page to hide it even if the user has permission to access it.',
         context: "Description for the 'Enabled pages' section.",
       },
+      alertDisabledOptions: {
+        message:
+          'Some configuration options have been disabled due to the way Kolibri has been set up.',
+        context: 'Alert text that is provided if some options are disabled',
+      },
+      alertDisabledPaths: {
+        message: 'This Kolibri is not set up to manage its own resource files locally.',
+        context: 'Alert text that is provided if some storage locations are disabled',
+      },
+      alertDisabledPlugins: {
+        message:
+          'This Kolibri is not able to initiate a restart from the user interface - any plugin management will have to happen from the command line, and Kolibri will have to be restarted manually.',
+        context: 'Alert text that is provided if some plugins are disabled',
+      },
     },
   };
 
@@ -1115,6 +1162,10 @@
   .android-bar {
     padding-top: 10px;
     border-top: 1px solid rgb(222, 222, 222);
+  }
+
+  /deep/ .ui-alert--type-warning .ui-alert__body {
+    background-color: rgba(255, 253, 231, 1) !important;
   }
 
 </style>

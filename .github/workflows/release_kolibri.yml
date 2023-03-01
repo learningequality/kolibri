@@ -52,7 +52,6 @@ jobs:
     uses: learningequality/pi-gen/.github/workflows/build_zip.yml@master
     with:
       deb-file-name: ${{ needs.deb.outputs.deb-file-name }}
-      release: true
       ref: master
   test_pypi_upload:
     name: Upload to TestPyPi
@@ -72,6 +71,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [whl, pex, dmg, deb, exe, zip]
     steps:
+      - uses: actions/checkout@v3
       - uses: actions/github-script@v6
         with:
           script: |

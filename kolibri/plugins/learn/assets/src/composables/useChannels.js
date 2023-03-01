@@ -10,7 +10,7 @@ import plugin_data from 'plugin_data';
 const channelsArray = plugin_data.channels ? plugin_data.channels : [];
 const chanMap = {};
 
-for (let channel of channelsArray) {
+for (const channel of channelsArray) {
   chanMap[channel.id] = channel;
 }
 
@@ -20,7 +20,7 @@ const channelsMap = reactive(chanMap);
 
 function fetchChannels(params) {
   return ChannelResource.list(params).then(channels => {
-    for (let channel of channels) {
+    for (const channel of channels) {
       set(channelsMap, channel.id, channel);
     }
     return channels;

@@ -49,10 +49,11 @@
           {{ coachString('descriptionLabel') }}
         </KGridItem>
         <KGridItem :layout12="layout12Value">
-          <template v-if="lesson.description">
-            {{ lesson.description }}
-          </template>
-          <KEmptyPlaceholder v-else />
+          <KOptionalText>
+            <template v-if="lesson.description">
+              {{ lesson.description }}
+            </template>
+          </KOptionalText>
         </KGridItem>
       </div>
     </KGrid>
@@ -114,7 +115,7 @@
           ? this.coachString('lessonVisibleToLearnersLabel')
           : this.coachString('lessonNotVisibleToLearnersLabel');
 
-        let promise = LessonResource.saveModel({
+        const promise = LessonResource.saveModel({
           id: this.lesson.id,
           data: {
             is_active: newActiveState,

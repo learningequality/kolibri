@@ -38,7 +38,7 @@ export default function useContentNodeProgress() {
       force: true,
     }).then(progressData => {
       const progresses = progressData ? progressData : [];
-      for (let progress of progresses) {
+      for (const progress of progresses) {
         setContentNodeProgress(progress);
       }
     });
@@ -59,7 +59,7 @@ export default function useContentNodeProgress() {
       id,
     }).then(progressData => {
       const progresses = progressData ? progressData : [];
-      for (let progress of progresses) {
+      for (const progress of progresses) {
         setContentNodeProgress(progress);
       }
     });

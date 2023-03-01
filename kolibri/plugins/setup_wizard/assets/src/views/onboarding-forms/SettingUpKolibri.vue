@@ -125,7 +125,7 @@
           learner_can_sign_up: this.wizardContext('learnerCanCreateAccount'),
         };
 
-        let payload = {
+        const payload = {
           ...this.facilityData,
           superuser,
           settings: omitBy(settings, v => v === null),

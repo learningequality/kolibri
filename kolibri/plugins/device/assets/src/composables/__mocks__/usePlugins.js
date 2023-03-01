@@ -1,4 +1,4 @@
-export let plugins = [];
+export const plugins = [];
 
 const MOCK_DEFAULTS = {
   plugins: { value: [] },

@@ -43,14 +43,16 @@ export function getResourceCache(store, resourceIds) {
     return ContentNodeResource.fetchCollection({
       getParams: {
         ids: nonCachedResourceIds,
+        no_available_filtering: true,
       },
     }).then(contentNodes => {
-      contentNodes.forEach(contentNode =>
+      contentNodes.forEach(contentNode => {
+        const channel = store.getters.getChannelForNode(contentNode);
         store.commit('ADD_TO_RESOURCE_CACHE', {
           node: contentNode,
-          channelTitle: store.getters.getChannelForNode(contentNode).title,
-        })
-      );
+          channelTitle: channel ? channel.title : '',
+        });
+      });
       return { ...resourceCache };
     });
   } else {

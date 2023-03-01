@@ -13,7 +13,7 @@ const { insertContent } = require('./vueTools');
 require('./htmlhint_custom');
 
 // check for host project's linting configs, otherwise use defaults
-let hostProjectDir = process.cwd();
+const hostProjectDir = process.cwd();
 
 let esLintConfig;
 try {
@@ -78,10 +78,10 @@ function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
       let formatted = source;
       let messages = [];
       // Array of promises that we need to let resolve before finishing up.
-      let promises = [];
+      const promises = [];
       // Array of callbacks to call to apply changes to style blocks.
       // Store for application after linting has completed to prevent race conditions.
-      let styleCodeUpdates = [];
+      const styleCodeUpdates = [];
       let notSoPretty = false;
       let lineOffset;
       function eslint(code) {
@@ -162,7 +162,7 @@ function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
                   stylinted = output.output;
                 }
               }
-              let linted = prettierFormat(stylinted || code, style, vue);
+              const linted = prettierFormat(stylinted || code, style, vue);
 
               if (linted.trim() !== (stylinted || code).trim()) {
                 notSoPretty = true;
@@ -210,7 +210,7 @@ function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
           }
 
           // Now run htmlhint on the whole vue component
-          let htmlMessages = HTMLHint.verify(formatted, htmlHintConfig);
+          const htmlMessages = HTMLHint.verify(formatted, htmlHintConfig);
           if (htmlMessages.length) {
             messages.push(...HTMLHint.format(htmlMessages, { colors: true }));
           }
@@ -220,7 +220,7 @@ function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
             block = vueComponent.script;
 
             const js = block.content;
-            let formattedJs = prettierFormat(js, 'babel', true);
+            const formattedJs = prettierFormat(js, 'babel', true);
             formatted = insertContent(formatted, block, formattedJs);
             if (formattedJs.trim() !== js.trim()) {
               notSoPretty = true;

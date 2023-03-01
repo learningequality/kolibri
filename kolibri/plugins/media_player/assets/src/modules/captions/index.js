@@ -153,7 +153,7 @@ export default {
       );
     },
     setTrackList(store, trackList) {
-      let { language } = store.state;
+      const { language } = store.state;
 
       if (store.state.trackList) {
         store.state.trackListeners.forEach(({ trackId, event, listener }) => {
@@ -235,7 +235,7 @@ export default {
     },
     synchronizeTrackList(store) {
       const { subtitles, transcript } = store.state;
-      let { language } = store.state;
+      const { language } = store.state;
       const settings = new Settings(defaultSettings());
       settings.captionSubtitles = subtitles;
       settings.captionTranscript = transcript;

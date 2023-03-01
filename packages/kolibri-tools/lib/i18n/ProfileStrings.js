@@ -61,9 +61,9 @@ function profileToCSV(profile) {
   return reduce(
     profile,
     (csv, data, $tr) => {
-      let definitions = data.definitions;
-      let uses = data.uses;
-      let dataRows = [];
+      const definitions = data.definitions;
+      const uses = data.uses;
+      const dataRows = [];
       definitions.forEach(def => {
         dataRows.push({
           string: $tr,
@@ -74,7 +74,7 @@ function profileToCSV(profile) {
         });
       });
       uses.forEach(use => {
-        let newUse = {
+        const newUse = {
           string: '',
           definition: 'No',
           namespace: use.namespace,
@@ -163,12 +163,12 @@ function profileVueScript(profile, ast, pathname, namespace, allMessages) {
                 common = true;
               }
 
-              let currentNamespace = common
+              const currentNamespace = common
                 ? COMMON_NAMESPACES[node.callee.property.name]
                 : namespace;
 
               if (key && currentNamespace) {
-                let $tring = getStringFromNamespaceKey(allMessages, currentNamespace, key);
+                const $tring = getStringFromNamespaceKey(allMessages, currentNamespace, key);
 
                 if ($tring) {
                   profile[$tring].uses.push({
@@ -215,10 +215,10 @@ function profileVueTemplate(profile, ast, pathname, namespace, allMessages) {
               common = true;
             }
 
-            let currentNamespace = common ? COMMON_NAMESPACES[node.callee.name] : namespace;
+            const currentNamespace = common ? COMMON_NAMESPACES[node.callee.name] : namespace;
 
             if (key && currentNamespace) {
-              let $tring = getStringFromNamespaceKey(allMessages, currentNamespace, key);
+              const $tring = getStringFromNamespaceKey(allMessages, currentNamespace, key);
 
               if ($tring) {
                 profile[$tring].uses.push({
@@ -241,9 +241,9 @@ function profileVueTemplate(profile, ast, pathname, namespace, allMessages) {
 }
 
 function profileJSFile(profile, ast, pathname, allMessages) {
-  let common = false;
-  let varDeclarations = {};
-  let $trUses = {};
+  const common = false;
+  const varDeclarations = {};
+  const $trUses = {};
 
   // Process the AST
   try {
@@ -267,7 +267,7 @@ function profileJSFile(profile, ast, pathname, allMessages) {
           if (node.callee && node.callee.type === 'MemberExpression') {
             if (node.callee.property && node.callee.property.name === '$tr') {
               if (node.arguments && node.arguments.length > 0) {
-                let varName = node.callee.object.name;
+                const varName = node.callee.object.name;
                 // Profile all $tr() calls (ie, uses of the key)
                 // storing the key (variableName) => value (key)
                 if (Object.keys($trUses).includes(varName)) {
@@ -359,7 +359,7 @@ module.exports = function(pathInfo, ignore, outputFile, verbose) {
     } else {
       bundleMessages = getAllMessagesFromFilePath(moduleFilePath, ignore, verbose);
     }
-    for (let id in bundleMessages) {
+    for (const id in bundleMessages) {
       const message = bundleMessages[id]['message'];
       const [namespace, key] = id.split('.');
       if (!definitions[message]) {
@@ -384,7 +384,7 @@ module.exports = function(pathInfo, ignore, outputFile, verbose) {
     } else {
       files = getFilesFromFilePath(moduleFilePath, ignore);
     }
-    for (let filePath of files) {
+    for (const filePath of files) {
       const scriptAST = getAstFromFile(filePath);
       if (filePath.endsWith('.vue')) {
         const namespace = getVueSFCName(scriptAST);

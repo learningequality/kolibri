@@ -49,10 +49,9 @@
         v-if="currentCategory && (windowIsSmall || windowIsMedium)"
         ref="searchModal"
         :selectedCategory="currentCategory"
-        :numCols="numCols"
         position="fullscreen"
         @cancel="currentCategory = null"
-        @input="category => $emit('setCategory', category)"
+        @input="selectCategory"
       />
     </SidePanelModal>
 
@@ -62,10 +61,9 @@
       v-if="windowIsLarge && currentCategory"
       ref="searchModal"
       :selectedCategory="currentCategory"
-      :numCols="numCols"
       position="modal"
       @cancel="currentCategory = null"
-      @input="category => $emit('setCategory', category)"
+      @input="selectCategory"
     />
   </div>
 
@@ -165,6 +163,12 @@
     watch: {
       searchTerms(val) {
         this.$emit('searchTerms', val);
+      },
+    },
+    methods: {
+      selectCategory(category) {
+        this.$emit('setCategory', category);
+        this.currentCategory = null;
       },
     },
   };

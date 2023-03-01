@@ -119,6 +119,7 @@ export function fetchNodeDataAndConvertExam(exam) {
   return ContentNodeResource.fetchCollection({
     getParams: {
       ids: uniq(exam.question_sources.map(item => item.exercise_id)),
+      no_available_filtering: true,
     },
   }).then(contentNodes => {
     return {
@@ -160,6 +161,7 @@ export function getExamReport(examId, tryIndex = 0, questionNumber = 0, interact
           contentPromise = ContentNodeResource.fetchCollection({
             getParams: {
               ids: uniq(questionSources.map(item => item.exercise_id)),
+              no_available_filtering: true,
             },
           });
         } else {
