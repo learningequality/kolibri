@@ -71,6 +71,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [whl, pex, dmg, deb, exe, zip]
     steps:
+      - uses: actions/checkout@v3
       - uses: actions/github-script@v6
         with:
           script: |

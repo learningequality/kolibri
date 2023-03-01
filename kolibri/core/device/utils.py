@@ -15,6 +15,8 @@ from django.db.utils import ProgrammingError
 
 import kolibri
 from kolibri.core.auth.constants.facility_presets import mappings
+from kolibri.utils.android import ANDROID_PLATFORM_SYSTEM_VALUE
+from kolibri.utils.android import on_android
 
 logger = logging.getLogger(__name__)
 
@@ -422,7 +424,9 @@ def get_device_info(version=DEVICE_INFO_VERSION):
         "kolibri_version": kolibri.__version__,
         "instance_id": instance_model.id,
         "device_name": device_name,
-        "operating_system": platform.system(),
+        "operating_system": ANDROID_PLATFORM_SYSTEM_VALUE
+        if on_android()
+        else platform.system(),
         "subset_of_users_device": subset_of_users_device,
     }
 

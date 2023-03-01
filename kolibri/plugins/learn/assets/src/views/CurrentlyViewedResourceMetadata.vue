@@ -12,7 +12,7 @@
         }"
         data-test="beginners-chip"
       >
-        {{ coreString("ForBeginners") }}
+        {{ coreString('forBeginners') }}
       </span>
     </div>
 
@@ -45,7 +45,7 @@
 
     <div v-if="content.duration" class="section" data-test="estimated-time">
       <span class="label">
-        {{ metadataStrings.$tr('estimatedTime') }}:
+        {{ learnString('estimatedTime') }}:
       </span>
       <span>
         <TimeDuration :seconds="content.duration" />
@@ -58,7 +58,7 @@
       data-test="grade-levels"
     >
       <span class="label">
-        {{ metadataStrings.$tr('level') }}:
+        {{ learnString('level') }}:
       </span>
       <span>
         {{ levels(content.grade_levels) }}
@@ -67,7 +67,7 @@
 
     <div v-if="content.lang" class="section" data-test="lang">
       <span class="label">
-        {{ metadataStrings.$tr('language') }}:
+        {{ learnString('language') }}:
       </span>
       <span>
         {{ content.lang.lang_name }}
@@ -76,7 +76,7 @@
 
     <div v-if="content.author" class="section" data-test="author">
       <span class="label">
-        {{ metadataStrings.$tr('author') }}:
+        {{ learnString('author') }}:
       </span>
       <span>
         {{ content.author }}
@@ -85,7 +85,7 @@
 
     <div v-if="content.license_owner" class="section" data-test="license-owner">
       <span class="label">
-        {{ metadataStrings.$tr('copyrightHolder') }}:
+        {{ learnString('copyrightHolder') }}:
       </span>
       <span>
         {{ content.license_owner }}
@@ -94,13 +94,13 @@
 
     <div v-if="licenseDescription" class="section" data-test="license-desc">
       <span class="label">
-        {{ metadataStrings.$tr('license') }}:
+        {{ learnString('license') }}:
       </span>
       <span>
         {{ licenseShortName || '' }}
         <KIconButton
           :icon="licenseDescriptionIsVisible ? 'chevronUp' : 'chevronDown'"
-          :ariaLabel="metadataStrings.$tr('toggleLicenseDescription')"
+          :ariaLabel="learnString('toggleLicenseDescription')"
           size="small"
           type="secondary"
           class="license-toggle"
@@ -144,9 +144,8 @@
     licenseLongName,
     licenseDescriptionForConsumer,
   } from 'kolibri.utils.licenseTranslations';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
+  import commonLearnStrings from './commonLearnStrings';
   import ContentNodeThumbnail from './thumbnails/ContentNodeThumbnail';
-  import SidePanelResourceMetadata from './SidePanelResourceMetadata';
 
   export default {
     name: 'CurrentlyViewedResourceMetadata',
@@ -155,7 +154,7 @@
       ContentNodeThumbnail,
       TimeDuration,
     },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, commonLearnStrings],
     props: {
       canDownloadContent: {
         type: Boolean,
@@ -173,7 +172,6 @@
         showMoreOrLess: 'Show More',
         truncate: 'truncate-description',
         descriptionOverflow: false,
-        metadataStrings: { $tr: () => null },
       };
     },
     computed: {
@@ -207,7 +205,6 @@
       },
     },
     mounted() {
-      this.metadataStrings = crossComponentTranslator(SidePanelResourceMetadata);
       this.calculateDescriptionOverflow();
     },
     methods: {
@@ -216,11 +213,11 @@
           this.showMoreOrLess = 'Show Less';
           this.truncate = 'show-description';
           /* eslint-disable kolibri/vue-no-undefined-string-uses */
-          return this.metadataStrings.$tr('showLess');
+          return this.learnString('showLess');
         } else {
           this.showMoreOrLess = 'Show More';
           this.truncate = 'truncate-description';
-          return this.metadataStrings.$tr('showMore');
+          return this.learnString('showMore');
           /* eslint-enable kolibri/vue-no-undefined-string-uses */
         }
       },

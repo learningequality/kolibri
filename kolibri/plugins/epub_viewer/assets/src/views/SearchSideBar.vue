@@ -24,7 +24,6 @@
         />
       </div>
     </form>
-
     <transition mode="out-in">
       <p
         v-if="!searchHasBeenMade"

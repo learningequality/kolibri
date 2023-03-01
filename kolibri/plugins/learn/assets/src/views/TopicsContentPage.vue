@@ -141,7 +141,6 @@
   import { mapGetters, mapState } from 'vuex';
   import get from 'lodash/get';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import Modalities from 'kolibri-constants/Modalities';
 
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
@@ -160,13 +159,10 @@
   import useLearnerResources from '../composables/useLearnerResources';
   import SidePanelModal from './SidePanelModal';
   import LearningActivityChip from './LearningActivityChip';
-  import LessonResourceViewer from './classes/LessonResourceViewer';
   import CurrentlyViewedResourceMetadata from './CurrentlyViewedResourceMetadata';
   import ContentPage from './ContentPage';
   import LearningActivityBar from './LearningActivityBar';
   import AlsoInThis from './AlsoInThis';
-
-  const lessonStrings = crossComponentTranslator(LessonResourceViewer);
 
   export default {
     name: 'TopicsContentPage',
@@ -293,7 +289,7 @@
       viewResourcesTitle() {
         /* eslint-disable kolibri/vue-no-undefined-string-uses */
         return this.lessonContext
-          ? lessonStrings.$tr('nextInLesson')
+          ? this.$tr('nextInLesson')
           : this.content && this.content.ancestors.slice(-1)[0].title;
         /* eslint-enable */
       },
@@ -495,6 +491,10 @@
         message: 'Error',
         context:
           "When Kolibri throws an error, this is the text that's used as the title of the error page. The description of the error follows below.",
+      },
+      nextInLesson: {
+        message: 'Next in lesson',
+        context: 'Refers to the next learning resource in a lesson.',
       },
     },
   };

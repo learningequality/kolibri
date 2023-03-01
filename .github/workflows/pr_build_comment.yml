@@ -11,6 +11,7 @@ jobs:
     name: Add build artifact PR comment
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
       - name: Make text for build comment
         id: comment-text
         uses: actions/github-script@v6

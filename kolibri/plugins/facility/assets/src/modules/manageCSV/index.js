@@ -7,9 +7,12 @@ function defaultState() {
     summaryLogStatus: CSVGenerationStatuses.NO_LOGS_CREATED,
     summaryTaskId: '',
     summaryDateCreated: null,
+    summaryLogRequest: null,
     sessionLogStatus: CSVGenerationStatuses.NO_LOGS_CREATED,
     sessionTaskId: '',
     sessionDateCreated: null,
+    sessionLogRequest: null,
+    firstLogDate: null,
     facilities: [],
     facilityTaskId: '',
     exportUsersTaskId: '',
@@ -51,6 +54,15 @@ export default {
     },
     exported(state) {
       return state.exportUsersStatus !== CSVGenerationStatuses.NO_LOGS_CREATED;
+    },
+    summaryLogRequest(state) {
+      return state.summaryLogRequest;
+    },
+    sessionLogRequest(state) {
+      return state.sessionLogRequest;
+    },
+    firstLogDate(state) {
+      return state.firstLogDate;
     },
   },
   mutations: {
@@ -95,6 +107,17 @@ export default {
       state.exportUsersDateCreated = payload;
       state.exportUsersStatus = UsersExportStatuses.FINISHED;
       state.exportUsersTaskId = '';
+    },
+    /*State for First Log Date*/
+    SET_FIRST_LOG_DATE(state, payload) {
+      state.firstLogDate = payload;
+    },
+    /*State for Log Request*/
+    SET_SESSION_LOG_REQUEST(state, payload) {
+      state.sessionLogRequest = payload;
+    },
+    SET_SUMMARY_LOG_REQUEST(state, payload) {
+      state.summaryLogRequest = payload;
     },
   },
   actions,

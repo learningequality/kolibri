@@ -13,14 +13,14 @@
           }"
           data-test="beginners-chip"
         >
-          {{ coreString("ForBeginners") }}
+          {{ coreString('forBeginners') }}
         </span>
       </div>
 
       <div>
         <KRouterLink
           ref="resourceButton"
-          :text="metadataStrings.$tr('viewResource')"
+          :text="learnString('viewResource')"
           appearance="raised-button"
           :primary="false"
           :to="genContentLinkKeepCurrentBackLink(content.id, content.is_leaf)"
@@ -61,7 +61,7 @@
 
     <div v-if="content.duration" class="section" data-test="estimated-time">
       <span class="label">
-        {{ metadataStrings.$tr('estimatedTime') }}:
+        {{ learnString('estimatedTime') }}:
       </span>
       <span>
         <TimeDuration :seconds="content.duration" />
@@ -74,7 +74,7 @@
       data-test="grade-levels"
     >
       <span class="label">
-        {{ metadataStrings.$tr('level') }}:
+        {{ learnString('level') }}:
       </span>
       <span>
         {{ levels(content.grade_levels) }}
@@ -83,7 +83,7 @@
 
     <div v-if="content.lang" class="section" data-test="lang">
       <span class="label">
-        {{ metadataStrings.$tr('language') }}:
+        {{ learnString('language') }}:
       </span>
       <span>
         {{ content.lang.lang_name }}
@@ -101,7 +101,7 @@
 
     <div v-if="content.learner_needs" class="section" data-test="learner-needs">
       <span class="label">
-        {{ metadataStrings.$tr('whatYouWillNeed') }}:
+        {{ learnString('whatYouWillNeed') }}:
       </span>
       <span>
         {{ learnerNeedsLabels }}
@@ -110,7 +110,7 @@
 
     <div v-if="content.author" class="section" data-test="author">
       <span class="label">
-        {{ metadataStrings.$tr('author') }}:
+        {{ learnString('author') }}:
       </span>
       <span>
         {{ content.author }}
@@ -119,7 +119,7 @@
 
     <div v-if="content.license_owner" class="section" data-test="license-owner">
       <span class="label">
-        {{ metadataStrings.$tr('copyrightHolder') }}:
+        {{ learnString('copyrightHolder') }}:
       </span>
       <span>
         {{ content.license_owner }}
@@ -128,13 +128,13 @@
 
     <div v-if="licenseDescription" class="section" data-test="license-desc">
       <span class="label">
-        {{ metadataStrings.$tr('license') }}:
+        {{ learnString('license') }}:
       </span>
       <span>
         {{ licenseShortName || '' }}
         <KIconButton
           :icon="licenseDescriptionIsVisible ? 'chevronUp' : 'chevronDown'"
-          :ariaLabel="metadataStrings.$tr('toggleLicenseDescription')"
+          :ariaLabel="learnString('toggleLicenseDescription')"
           size="small"
           type="secondary"
           class="absolute-icon license-toggle"
@@ -174,8 +174,7 @@
     <div v-if="showLocationsInChannel && locationsInChannel" class="section" data-test="locations">
       <div class="label">
         {{
-          metadataStrings
-            .$tr('locationsInChannel', { 'channelname': (content.ancestors[0] || {}).title })
+          learnString('locationsInChannel', { 'channelname': (content.ancestors[0] || {}).title })
         }}:
       </div>
       <div v-for="location in locationsInChannel" :key="location.id">
@@ -207,12 +206,11 @@
     licenseDescriptionForConsumer,
   } from 'kolibri.utils.licenseTranslations';
   import LearnerNeeds from 'kolibri-constants/labels/Needs';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import { ContentNodeResource } from 'kolibri.resources';
   import useContentLink from '../composables/useContentLink';
+  import commonLearnStrings from './commonLearnStrings';
   import LearningActivityIcon from './LearningActivityIcon';
   import ContentNodeThumbnail from './thumbnails/ContentNodeThumbnail';
-  import SidePanelResourceMetadata from './SidePanelResourceMetadata';
 
   export default {
     name: 'BrowseResourceMetadata',
@@ -221,7 +219,7 @@
       TimeDuration,
       ContentNodeThumbnail,
     },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, commonLearnStrings],
     setup() {
       const { genContentLinkKeepCurrentBackLink } = useContentLink();
       return { genContentLinkKeepCurrentBackLink };
@@ -242,7 +240,6 @@
         showMoreOrLess: 'Show More',
         truncate: 'truncate-description',
         descriptionOverflow: false,
-        metadataStrings: { $tr: () => null },
         recommendations: null,
         locationsInChannel: null,
       };
@@ -311,7 +308,6 @@
         });
       }
 
-      this.metadataStrings = crossComponentTranslator(SidePanelResourceMetadata);
       this.calculateDescriptionOverflow();
     },
     methods: {
@@ -323,13 +319,11 @@
         if (this.showMoreOrLess === 'Show More') {
           this.showMoreOrLess = 'Show Less';
           this.truncate = 'show-description';
-          /* eslint-disable kolibri/vue-no-undefined-string-uses */
-          return this.metadataStrings.$tr('showLess');
+          return this.learnString('showLess');
         } else {
           this.showMoreOrLess = 'Show More';
           this.truncate = 'truncate-description';
-          return this.metadataStrings.$tr('showMore');
-          /* eslint-enable kolibri/vue-no-undefined-string-uses */
+          return this.learnString('showMore');
         }
       },
       calculateDescriptionOverflow() {

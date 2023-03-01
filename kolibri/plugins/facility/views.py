@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 import io
 import json
 import os
+from datetime import datetime as dt
 
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
@@ -17,6 +18,7 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import get_language_from_request
 from django.utils.translation import pgettext
 from django.views.generic.base import TemplateView
+from le_utils.constants import content_kinds
 
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.management.commands.bulkexportusers import (
@@ -27,6 +29,8 @@ from kolibri.core.decorators import cache_no_user_data
 from kolibri.core.logger.csv_export import (
     CSV_EXPORT_FILENAMES as LOGGER_CSV_EXPORT_FILENAMES,
 )
+from kolibri.core.logger.models import ContentSessionLog
+from kolibri.core.logger.models import GenerateCSVLogRequest
 from kolibri.utils import conf
 
 
@@ -34,10 +38,22 @@ CSV_EXPORT_FILENAMES = {}
 CSV_EXPORT_FILENAMES.update(LOGGER_CSV_EXPORT_FILENAMES)
 CSV_EXPORT_FILENAMES.update(USER_CSV_EXPORT_FILENAMES)
 
+content_kinds.QUIZ = "quiz"
+
 
 @method_decorator(cache_no_user_data, name="dispatch")
 class FacilityManagementView(TemplateView):
     template_name = "facility_management.html"
+
+
+def _get_log_request(log_type, facility_id):
+    try:
+        log_request = GenerateCSVLogRequest.objects.get(
+            log_type=log_type, facility=facility_id
+        )
+    except GenerateCSVLogRequest.DoesNotExist:
+        log_request = {}
+    return log_request
 
 
 def _get_facility_check_permissions(request, facility_id):
@@ -56,6 +72,27 @@ def _get_facility_check_permissions(request, facility_id):
     return facility
 
 
+def first_log_date(request, facility_id):
+    """
+    Get the first date that data exists for summary and session logs
+
+    :returns: An object with the first summary and session log dates
+    """
+    facility = _get_facility_check_permissions(request, facility_id)
+    dataset_id = facility.dataset_id
+    first_log = (
+        ContentSessionLog.objects.filter(dataset_id=dataset_id)
+        .exclude(kind=content_kinds.QUIZ)
+        .order_by("start_timestamp")
+        .first()
+    )
+    first_log_date = first_log.start_timestamp if first_log is not None else dt.utcnow()
+    response = {
+        "first_log_date": first_log_date.isoformat(),
+    }
+    return HttpResponse(json.dumps(response), content_type="application/json")
+
+
 def exported_csv_info(request, facility_id):
     """
     Get the last modification timestamp of the summary logs exported
@@ -68,10 +105,25 @@ def exported_csv_info(request, facility_id):
     csv_statuses = {}
 
     for log_type in CSV_EXPORT_FILENAMES:
-        log_path = os.path.join(
-            logs_dir,
-            CSV_EXPORT_FILENAMES[log_type].format(facility.name, facility.id[:4]),
-        )
+        if log_type in ("summary", "session"):
+            log_request = _get_log_request(log_type, facility_id)
+            if log_request:
+                start = log_request.selected_start_date.isoformat()
+                end = log_request.selected_end_date.isoformat()
+            else:
+                start = ""
+                end = ""
+            log_path = os.path.join(
+                logs_dir,
+                CSV_EXPORT_FILENAMES[log_type].format(
+                    facility.name, facility.id[:4], start[:10], end[:10]
+                ),
+            )
+        else:
+            log_path = os.path.join(
+                logs_dir,
+                CSV_EXPORT_FILENAMES[log_type].format(facility.name, facility.id[:4]),
+            )
         if os.path.exists(log_path):
             csv_statuses[log_type] = os.path.getmtime(log_path)
         else:
@@ -87,27 +139,46 @@ def download_csv_file(request, csv_type, facility_id):
     locale = get_language_from_request(request)
     translation.activate(locale)
 
+    start = None
+    end = None
+
     csv_translated_filenames = {
         "session": (
             "{}_{}_"
             + slugify(
                 pgettext(
                     "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation",
-                    "content_session_logs",
+                    "content_session_logs_from_",
                 )
             )
+            + "{}_"
+            + slugify(
+                pgettext(
+                    "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation",
+                    "to_",
+                )
+            )
+            + "{}"
             + ".csv"
-        ).replace("-", "_"),
+        ),
         "summary": (
             "{}_{}_"
             + slugify(
                 pgettext(
                     "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation",
-                    "content_summary_logs",
+                    "content_summary_logs_from_",
                 )
             )
+            + "{}_"
+            + slugify(
+                pgettext(
+                    "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation",
+                    "to_",
+                )
+            )
+            + "{}"
             + ".csv"
-        ).replace("-", "_"),
+        ),
         "user": (
             "{}_{}_"
             + slugify(
@@ -121,11 +192,24 @@ def download_csv_file(request, csv_type, facility_id):
     }
 
     if csv_type in CSV_EXPORT_FILENAMES.keys():
-        filepath = os.path.join(
-            conf.KOLIBRI_HOME,
-            "log_export",
-            CSV_EXPORT_FILENAMES[csv_type].format(facility.name, facility.id[:4]),
-        )
+        if csv_type == "user":
+            filepath = os.path.join(
+                conf.KOLIBRI_HOME,
+                "log_export",
+                CSV_EXPORT_FILENAMES[csv_type].format(facility.name, facility.id[:4]),
+            )
+        else:
+            log_request = _get_log_request(csv_type, facility_id)
+            if log_request:
+                start = log_request.selected_start_date.isoformat()
+                end = log_request.selected_end_date.isoformat()
+            filepath = os.path.join(
+                conf.KOLIBRI_HOME,
+                "log_export",
+                CSV_EXPORT_FILENAMES[csv_type].format(
+                    facility.name, facility.id[:4], start[:10], end[:10]
+                ),
+            )
     else:
         filepath = None
 
@@ -139,9 +223,18 @@ def download_csv_file(request, csv_type, facility_id):
     response["Content-Type"] = "text/csv"
 
     # set the content-disposition as attachment to force download
-    response["Content-Disposition"] = "attachment; filename={}".format(
-        str(csv_translated_filenames[csv_type]).format(facility.name, facility.id[:4])
-    )
+    if csv_type == "user":
+        response["Content-Disposition"] = "attachment; filename={}".format(
+            str(csv_translated_filenames[csv_type]).format(
+                facility.name, facility.id[:4]
+            )
+        )
+    else:
+        response["Content-Disposition"] = "attachment; filename={}".format(
+            str(csv_translated_filenames[csv_type]).format(
+                facility.name, facility.id[:4], start[:10], end[:10]
+            )
+        )
     translation.deactivate()
 
     # set the content-length to the file size
