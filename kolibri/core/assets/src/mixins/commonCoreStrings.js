@@ -84,6 +84,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       'Description of a remove task. For example, a coach can remove a user from a class if they are no longer in that class.\n',
   },
+  downloadAction: {
+    message: 'Download',
+    context: 'Label for a button used to initiate a file download.',
+  },
   saveAction: {
     message: 'Save',
     context:
