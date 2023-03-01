@@ -91,6 +91,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Register',
     context: 'Register a facility to the Kolibri Data Portal',
   },
+  manageSyncAction: {
+    message: 'Manage Sync Schedule',
+    context: 'Action for managing sync schedule',
+  },
   retryAction: {
     message: 'Retry',
     context:

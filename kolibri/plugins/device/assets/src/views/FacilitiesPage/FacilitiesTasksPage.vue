@@ -93,7 +93,7 @@
     $trs: {
       facilitiesTaskManagerTitle: {
         message: 'Facilities - Task manager',
-        context: 'Title of the page that displays all the tasks in the task manager. ',
+        context: 'Title of the page that displays all the tasks in the task manager.',
       },
     },
   };
