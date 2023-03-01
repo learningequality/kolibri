@@ -251,6 +251,12 @@ EXTRA_LANG_INFO = {
         "name": "Hausa",
         "name_local": "Hausa",
     },
+    "ht": {
+        "bidi": False,
+        "code": "ht",
+        "name": "Haitian Creole",
+        "name_local": "Kreyòl Ayisyen",
+    },
     "id": {
         "bidi": False,
         "code": "id",

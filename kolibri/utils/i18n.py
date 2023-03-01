@@ -56,6 +56,7 @@ KOLIBRI_SUPPORTED_LANGUAGES = [
     "gu-in",
     "ha",
     "hi-in",
+    "ht",
     "id",
     "it",
     "ka",

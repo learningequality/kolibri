@@ -105,6 +105,13 @@
     "default_font": "NotoSansDevanagari"
   },
   {
+    "crowdin_code":   "ht",
+    "intl_code":      "ht",
+    "language_name":  "Kreyòl Ayisyen",
+    "english_name":   "Haitian Creole",
+    "default_font":   "NotoSans"
+  },
+  {
     "crowdin_code": "id",
     "intl_code": "id",
     "language_name": "Bahasa Indonesia",
