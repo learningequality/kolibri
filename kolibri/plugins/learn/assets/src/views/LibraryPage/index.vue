@@ -67,7 +67,7 @@
                 />
               </p>
               <p v-else>
-                {{ $tr('viewMore') }}
+                {{ coreString('viewMoreAction') }}
                 {{ $tr('pinned') }}
                 {{ $tr('showingAllLibraries') }}
                 {{ $tr('noOtherLibraries') }}
@@ -360,10 +360,6 @@
       refresh: {
         message: 'Refresh',
         context: 'Link for refreshing library',
-      },
-      viewMore: {
-        message: 'View More',
-        context: 'Link label for showing other libraries',
       },
       moreLibraries: {
         message: 'More',
