@@ -55,6 +55,7 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
     allow_guest_access = serializers.BooleanField(allow_null=True)
     is_provisioned = serializers.BooleanField(default=True)
     is_soud = serializers.BooleanField(default=True)
+    auth_token = serializers.CharField(max_length=50, required=False, allow_null=True)
 
     class Meta:
         fields = (
@@ -68,6 +69,7 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
             "is_provisioned",
             "is_soud",
             "superuser",
+            "auth_token",
         )
 
     def validate(self, data):
@@ -146,7 +148,7 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
                         full_name=validated_data["superuser"].get("full_name"),
                     )
             else:
-                superuser = FacilityUser.get_or_create_os_user(
+                superuser = FacilityUser.objects.get_or_create_os_user(
                     validated_data.pop("auth_token"), facility=facility
                 )
 
