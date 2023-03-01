@@ -118,10 +118,12 @@
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
   import PrivacyLinkAndModal from 'kolibri.coreVue.components.PrivacyLinkAndModal';
   import redirectBrowser from 'kolibri.utils.redirectBrowser';
+  import urls from 'kolibri.urls';
+  import client from 'kolibri.client';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ComponentMap } from '../constants';
-  import { SignUpResource, getUsernameExists } from '../apiResource';
+  import { SignUpResource } from '../apiResource';
   import LanguageSwitcherFooter from './LanguageSwitcherFooter';
   import getUrlParameter from './getUrlParameter';
   import commonUserStrings from './commonUserStrings';
@@ -194,11 +196,20 @@
         if (!username) {
           return Promise.resolve();
         }
-        return getUsernameExists({
-          facilityId: this.selectedFacility.id,
-          username,
-        }).then(usernameExists => {
-          if (usernameExists) this.caughtErrors.push(ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS);
+        return client({
+          url: urls['kolibri:core:usernameavailable'](),
+          method: 'POST',
+          data: {
+            facility: this.selectedFacility.id,
+            username,
+          },
+        }).catch(error => {
+          const errorsCaught = CatchErrors(error, [ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS]);
+          if (errorsCaught) {
+            this.caughtErrors.push(ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS);
+          } else {
+            this.$store.dispatch('handleApiError', error);
+          }
         });
       },
       handleSubmit() {
