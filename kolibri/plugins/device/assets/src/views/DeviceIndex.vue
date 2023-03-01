@@ -10,7 +10,7 @@
 
     <transition name="delay-entry">
       <PinAuthenticationModal
-        v-if="showModal && requirePinAuthentication && !isPinAuthenticated"
+        v-if="showModal && requirePinAuthentication"
         @submit="submit"
         @cancel="closePinModal"
       />
@@ -31,12 +31,12 @@
 
 <script>
 
+  import Cookies from 'js-cookie';
   import { mapGetters, mapState } from 'vuex';
   import find from 'lodash/find';
   import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { IsPinAuthenticated } from 'kolibri.coreVue.vuex.constants';
-  import { getCookie, setCookie } from 'kolibri.utils.cookieUtils';
   import redirectBrowser from 'kolibri.utils.redirectBrowser';
   import urls from 'kolibri.urls';
   import { PageNames } from '../constants';
@@ -58,7 +58,6 @@
       return {
         showModal: true,
         currentFacility: {},
-        isPinAuthenticated: getCookie(IsPinAuthenticated) === 'true',
       };
     },
     computed: {
@@ -93,7 +92,12 @@
         return this.$route.name;
       },
       requirePinAuthentication() {
-        return this.authenticateWithPin && this.isPinSet;
+        if (this.isPinSet) {
+          return this.authenticateWithPin;
+        } else {
+          this.showDevicesPage();
+          return false;
+        }
       },
     },
     watch: {
@@ -117,10 +121,17 @@
         }
         return (this.showModal = false);
       },
+      showDevicesPage() {
+        if (this.isPinSet !== undefined) {
+          this.grantPluginAccess();
+        }
+      },
       submit() {
-        this.isPinAuthenticated = true;
-        setCookie(IsPinAuthenticated, true, 15000);
-        this.grantPluginAccess();
+        Cookies.set(IsPinAuthenticated, true, {
+          expires: new Date(new Date().getTime() + 15 * 1000),
+        });
+        this.$store.commit('SET_AUTHENTICATE_WITH_PIN', false);
+        this.showDevicesPage();
       },
     },
   };

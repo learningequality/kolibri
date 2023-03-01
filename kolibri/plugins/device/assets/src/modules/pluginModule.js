@@ -12,13 +12,20 @@ export default {
       pageName: '',
       welcomeModalVisible: false,
       query: {},
-      grantPluginAccess: null,
+      grantPluginAccess: () => {},
     };
   },
+  getters: {
+    name: state => {
+      return state.name;
+    },
+  },
   mutations: {
-    SET_AUTHENTICATE_WITH_PIN(state, { authenticate, next }) {
+    SET_AUTHENTICATE_WITH_PIN(state, authenticate) {
       state.authenticateWithPin = authenticate;
-      state.grantPluginAccess = next;
+    },
+    SET_GRANT_PLUGIN_ACCESS(state, grantAccess) {
+      state.grantPluginAccess = grantAccess;
     },
     SET_PAGE_NAME(state, name) {
       state.pageName = name;
@@ -31,8 +38,9 @@ export default {
     },
   },
   actions: {
-    displayPinModal(store, { authenticate, next }) {
-      store.commit('SET_AUTHENTICATE_WITH_PIN', { authenticate, next });
+    displayPinModal(store, grantAccess) {
+      store.commit('SET_AUTHENTICATE_WITH_PIN', true);
+      store.commit('SET_GRANT_PLUGIN_ACCESS', grantAccess);
     },
     preparePage(store, { name, isAsync = true }) {
       store.commit('CORE_SET_PAGE_LOADING', isAsync);
