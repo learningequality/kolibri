@@ -116,7 +116,11 @@
         required: true,
       },
     },
-
+    data() {
+      return {
+        pointsDisplayed: false,
+      };
+    },
     computed: {
       ...mapGetters(['isUserLoggedIn', 'totalPoints', 'isLearner']),
       ...mapState({
@@ -135,7 +139,6 @@
     beforeDestroy() {
       window.removeEventListener('click', this.handleWindowClick);
       window.removeEventListener('keydown', this.handlePopoverByKeyboard, true);
-      this.isPolling = false;
     },
     methods: {
       handleWindowClick(event) {
