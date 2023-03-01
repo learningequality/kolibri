@@ -3,11 +3,11 @@
   <!-- The v-if ensures the page isn't visible briefly before redirection -->
   <ImmersivePage
     icon="close"
-    :appBarTitle="$tr('cookiePolicyTitle')"
+    :appBarTitle="coreString('cookiePolicy')"
     :route="cookiePolicyRoute"
   >
     <KPageContainer :topMargin="100">
-      <h1>{{ $tr('cookiePolicyTitle') }}</h1>
+      <h1>{{ coreString('cookiePolicy') }}</h1>
 
       <section>
         <p>{{ $tr('cookieP1') }}</p>
@@ -21,9 +21,9 @@
 
         <table>
           <tr>
-            <th>{{ $tr('cookieName') }}</th>
-            <th>{{ $tr('cookiePurpose') }}</th>
-            <th>{{ $tr('cookieExpiry') }}</th>
+            <th>{{ $tr('cookieNameTableHeader') }}</th>
+            <th>{{ $tr('cookiePurposeTableHeader') }}</th>
+            <th>{{ $tr('cookieExpiryTableHeader') }}</th>
           </tr>
           <tr>
             <td> kolibri_csrftoken </td>
@@ -49,9 +49,9 @@
         <p>{{ $tr('statisticsCookiesP1') }}</p>
         <table>
           <tr>
-            <th>{{ $tr('cookieName') }}</th>
-            <th>{{ $tr('cookiePurpose') }}</th>
-            <th>{{ $tr('cookieExpiry') }}</th>
+            <th>{{ $tr('cookieNameTableHeader') }}</th>
+            <th>{{ $tr('cookiePurposeTableHeader') }}</th>
+            <th>{{ $tr('cookieExpiryTableHeader') }}</th>
           </tr>
           <tr>
             <td> visitor_id </td>
@@ -85,11 +85,6 @@
     name: 'CookiePolicy',
     mixins: [commonCoreStrings],
     $trs: {
-      cookiePolicyTitle: {
-        message: 'Cookie Policy',
-        context:
-          'This text is the page header for a page outlining the policy around cookie usage on Kolibri.',
-      },
       cookieP1: {
         message:
           "The Kolibri Learning Platform uses cookies to personalize and secure your experience, to analyze traffic, and to improve the performance and functionality of its service. Cookies are small text files that can be used by websites to make a user's experience more efficient.",
@@ -112,13 +107,13 @@
         message:
           'Necessary cookies help make a website usable by enabling basic functions like page navigation and access to its secure areas. The website cannot function properly without these cookies.',
       },
-      cookieName: {
+      cookieNameTableHeader: {
         message: 'Name',
       },
-      cookiePurpose: {
+      cookiePurposeTableHeader: {
         message: 'Purpose',
       },
-      cookieExpiry: {
+      cookieExpiryTableHeader: {
         message: 'Expiry',
       },
       csrftokenCookiePurpose: {

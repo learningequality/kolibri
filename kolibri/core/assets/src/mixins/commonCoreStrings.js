@@ -7,6 +7,10 @@ import notificationStrings from './notificationStrings';
 
 export const coreStrings = createTranslator('CommonCoreStrings', {
   // actions
+  acceptAction: {
+    message: 'Accept',
+    context: 'Button to agree and accept the selected terms',
+  },
   cancelAction: {
     message: 'Cancel',
     context:
@@ -34,6 +38,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Continue',
     context:
       'Used on a button to move to the next step in a process like creating an account, for example.',
+  },
+  declineAction: {
+    message: 'Decline',
+    context: 'Button text to decline selected terms (i.e. cookie usage)',
   },
   deleteAction: {
     message: 'Delete',
@@ -402,6 +410,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Usage and privacy',
     context:
       'The "Usage and privacy" link displays on the \'Create an account\' screen and on the left navigation bar.\n\nIt contains information about who has access to personal information of users.',
+  },
+  cookiePolicy: {
+    message: 'Cookie policy',
+    context:
+      'The "Cookie policy" link displays on the \'cookie notification\' banner and on the left navigation bar.\n\nIt contains information about usage of cookies within online Kolibri instances. It is also used as a title and heading on the page that describes this policy.',
   },
   userTypeLabel: {
     message: 'User type',
