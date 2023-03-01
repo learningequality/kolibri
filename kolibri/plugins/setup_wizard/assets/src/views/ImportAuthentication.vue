@@ -2,6 +2,10 @@
 
   <OnboardingStepBase
     :title="$tr('importFacilityTitle')"
+    :eventOnGoBack="backEvent"
+    :footerMessageType="footerMessageType"
+    :step="step"
+    :steps="steps"
     @continue="handleCredentialsSubmit"
   >
     <FacilityAdminCredentialsForm
@@ -18,6 +22,7 @@
 <script>
 
   import { FacilityAdminCredentialsForm } from 'kolibri.coreVue.componentSets.sync';
+  import { FooterMessageTypes } from '../constants';
   import OnboardingStepBase from './OnboardingStepBase';
 
   export default {
@@ -25,16 +30,32 @@
     components: { FacilityAdminCredentialsForm, OnboardingStepBase },
     inject: ['wizardService'],
     data() {
+      const footerMessageType = FooterMessageTypes.IMPORT_FACILITY;
       return {
+        footerMessageType,
         formDisabled: false,
       };
     },
     computed: {
+      // If there is only one facility we skipped a step, so we're on step 1
+      step() {
+        return this.wizardService.state.context.facilitiesOnDeviceCount == 1 ? 1 : 2;
+      },
+      // If there is only one facility we skipped a step, so we only have 4 steps
+      steps() {
+        return this.wizardService.state.context.facilitiesOnDeviceCount == 1 ? 4 : 5;
+      },
+      // If there is only one facility, we skipped a step on our way here, so skip it going back
+      backEvent() {
+        return this.wizardService.state.context.facilitiesOnDeviceCount == 1
+          ? { type: 'BACK_SKIP_FACILITY_FORM' }
+          : { type: 'BACK' };
+      },
       facility() {
-        return this.wizardService._state.context.selectedFacility;
+        return this.wizardService.state.context.selectedFacility;
       },
       device() {
-        return this.wizardService._state.context.importDevice;
+        return this.wizardService.state.context.importDevice;
       },
     },
     mounted() {

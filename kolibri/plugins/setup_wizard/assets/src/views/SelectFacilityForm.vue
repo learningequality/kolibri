@@ -1,35 +1,44 @@
 <template>
 
+  <!-- If we skip this, we don't want any messaging shown around the loader we v-else onto
+       so show null and '' wherever if we're loading
+  -->
   <OnboardingStepBase
-    :title="header"
+    :title="loading ? '' : header"
+    :footerMessageType="loading ? null : footerMessageType"
+    :step="loading ? null : 1"
+    :steps="loading ? null : 5"
     @continue="handleContinue"
   >
-    <!-- TODO: Show "you cannot import from this facility" message -->
-    <RadioButtonGroup
-      v-if="!loadingNewAddress"
-      class="radio-group"
-      :items="facilities"
-      :currentValue.sync="selectedFacilityId"
-      :itemLabel="x => formatNameAndId(x.name, x.id)"
-      :itemValue="x => x.id"
-      :disabled="formDisabled"
-    />
+    <div v-if="!loading">
+      <!-- TODO: Show "you cannot import from this facility" message -->
+      <RadioButtonGroup
+        v-if="!loadingNewAddress"
+        class="radio-group"
+        :items="facilities"
+        :currentValue.sync="selectedFacilityId"
+        :itemLabel="x => formatNameAndId(x.name, x.id)"
+        :itemValue="x => x.id"
+        :disabled="formDisabled"
+      />
 
-    <label class="select-button-label" for="select-address-button">
-      {{ $tr('selectDifferentAddressLabel') }}
-    </label>
-    <KButton
-      id="select-address-button"
-      appearance="basic-link"
-      :text="$tr('addNewAddressAction')"
-      @click="showSelectAddressModal = true"
-    />
+      <label class="select-button-label" for="select-address-button">
+        {{ $tr('selectDifferentAddressLabel') }}
+      </label>
+      <KButton
+        id="select-address-button"
+        appearance="basic-link"
+        :text="$tr('addNewAddressAction')"
+        @click="showSelectAddressModal = true"
+      />
 
-    <SelectAddressModalGroup
-      v-if="showSelectAddressModal"
-      @cancel="showSelectAddressModal = false"
-      @submit="handleAddressSubmit"
-    />
+      <SelectAddressModalGroup
+        v-if="showSelectAddressModal"
+        @cancel="showSelectAddressModal = false"
+        @submit="handleAddressSubmit"
+      />
+    </div>
+    <KCircularLoader v-else />
   </OnboardingStepBase>
 
 </template>
@@ -40,6 +49,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import { SelectAddressModalGroup, RadioButtonGroup } from 'kolibri.coreVue.componentSets.sync';
+  import { FooterMessageTypes } from '../constants';
 
   import OnboardingStepBase from './OnboardingStepBase';
 
@@ -53,8 +63,11 @@
     inject: ['wizardService'],
     mixins: [commonCoreStrings, commonSyncElements],
     data() {
+      const footerMessageType = FooterMessageTypes.IMPORT_FACILITY;
       return {
         // Need to initialize to non-empty string to fix #7595
+        loading: true,
+        footerMessageType,
         selectedFacilityId: 'selectedFacilityId',
         facilities: [],
         device: null,
@@ -68,7 +81,7 @@
         return this.getCommonSyncString('selectFacilityTitle');
       },
       importDeviceId() {
-        return this.wizardService._state.context.importDeviceId;
+        return this.wizardService.state.context.importDeviceId;
       },
       selectedFacility() {
         return this.facilities.find(f => f.id === this.selectedFacilityId);
@@ -89,7 +102,12 @@
               baseurl: data.device_address,
             };
             this.selectedFacilityId = this.facilities[0].id;
-            this.loadingNewAddress = false;
+            if (this.facilities.length === 1) {
+              this.handleContinue(); // If we only have one, just move along
+            } else {
+              this.loading = false;
+              this.loadingNewAddress = false;
+            }
           })
           .catch(error => {
             // TODO handle disconnected peers error more gracefully
@@ -102,7 +120,11 @@
       handleContinue() {
         this.wizardService.send({
           type: 'CONTINUE',
-          value: { selectedFacility: this.selectedFacility, importDevice: this.device },
+          value: {
+            selectedFacility: this.selectedFacility,
+            importDevice: this.device,
+            facilitiesCount: this.facilities.length,
+          },
         });
       },
     },

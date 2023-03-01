@@ -2,7 +2,10 @@
 
   <OnboardingStepBase
     :title="header"
-    :navDisabled="![TaskStatuses.COMPLETED, TaskStatuses.FAILED].includes(loadingTask.status)"
+    :navDisabled="runningTasks.length > 0"
+    :footerMessageType="footerMessageType"
+    :step="step"
+    :steps="steps"
     @continue="$emit('click_next')"
   >
     <FacilityTaskPanel
@@ -10,11 +13,12 @@
       :task="loadingTask"
       @cancel="cancelTask"
     />
+    <KCircularLoader v-else />
     <template #buttons>
       <KButton
         v-if="loadingTask.status === 'COMPLETED'"
         primary
-        :text="coreString('continueAction')"
+        :text="nextButtonLabel"
         @click="handleClickContinue"
       />
       <template v-else-if="loadingTask.status === 'FAILED'">
@@ -48,7 +52,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskResource } from 'kolibri.resources';
   import { TaskStatuses } from 'kolibri.utils.syncTaskUtils';
-  import { DeviceTypePresets, LodTypePresets, SoudQueue } from '../constants';
+  import { DeviceTypePresets, LodTypePresets, SoudQueue, FooterMessageTypes } from '../constants';
   import OnboardingStepBase from './OnboardingStepBase';
 
   export default {
@@ -59,15 +63,63 @@
     },
     inject: ['wizardService'],
     mixins: [commonCoreStrings],
+    props: {
+      footerMessageType: {
+        type: String,
+        required: true,
+      },
+    },
     data() {
       return {
-        loadingTask: { status: '' },
+        allTasks: [],
         isPolling: false,
-        emptyPollResponseCount: 0,
-        TaskStatuses,
+        lastLoadingTask: { status: null },
       };
     },
     computed: {
+      nextButtonLabel() {
+        return this.step === this.steps && this.step !== null
+          ? this.coreString('finishAction') // We're on the last step since step === steps
+          : this.coreString('continueAction');
+      },
+      // If there is only one facility we skipped a step, so we're on step 1
+      step() {
+        if (this.footerMessageType === FooterMessageTypes.IMPORT_FACILITY) {
+          return this.wizardService.state.context.facilitiesOnDeviceCount == 1 ? 2 : 3;
+        }
+        if (
+          this.footerMessageType === FooterMessageTypes.IMPORT_INDIVIDUALS ||
+          this.footerMessageType === FooterMessageTypes.JOIN_FACILITY
+        ) {
+          return this.wizardService.state.context.facilitiesOnDeviceCount == 1 ? 2 : 3;
+        }
+        return null;
+      },
+      // If there is only one facility we skipped a step, so we only have 4 steps
+      steps() {
+        if (this.footerMessageType === FooterMessageTypes.IMPORT_FACILITY) {
+          return this.wizardService.state.context.facilitiesOnDeviceCount == 1 ? 4 : 5;
+        }
+        if (
+          this.footerMessageType === FooterMessageTypes.IMPORT_INDIVIDUALS ||
+          this.footerMessageType === FooterMessageTypes.JOIN_FACILITY
+        ) {
+          return this.wizardService.state.context.facilitiesOnDeviceCount == 1 ? 2 : 3;
+        }
+        return null;
+      },
+      doneTaskStatuses() {
+        return [TaskStatuses.COMPLETED, TaskStatuses.FAILED];
+      },
+      completedTasks() {
+        return this.allTasks.filter(t => t.status === TaskStatuses.COMPLETED);
+      },
+      runningTasks() {
+        return this.allTasks.filter(t => !this.doneTaskStatuses.includes(t.status));
+      },
+      loadingTask() {
+        return this.runningTasks.length ? this.runningTasks[0] : this.lastLoadingTask;
+      },
       isSoud() {
         return this.queue === SoudQueue;
       },
@@ -79,18 +131,11 @@
           ? SoudQueue
           : 'facility_task';
       },
-      facility() {
-        return this.wizardService.state.context.selectedFacility;
-      },
       header() {
         return this.isSoud ? this.$tr('loadUserTitle') : this.$tr('importFacilityTitle');
       },
-      facilityName() {
-        return this.facility.name;
-      },
     },
     beforeMount() {
-      this.clearTasks();
       this.isPolling = true;
       this.pollTask();
     },
@@ -99,56 +144,50 @@
         this.isPolling = false;
         this.wizardService.send('IMPORT_ANOTHER');
       },
-      setSuperAdminIfNotSet(_username) {
-        // This is the first imported user and will be made into the superuser
-        if (!this.wizardService.state.context.importedUsers.length) {
-          // See if the user is in Vuex first -- use that if it's there.
-          let { username, password } = this.$store.state.onboardingData.user;
-          // Note we include something in the `password` field here to pass serialization
-          // In this particular case, we will find the imported user with their username
-          // And they will become the device's super admin
-          username = username || _username;
-          password = password || 'NOT_SPECIFIED';
-          this.wizardService.send({
-            type: 'SET_SUPERADMIN',
-            value: { username, password },
-          });
-        }
-      },
-      pollTask() {
-        TaskResource.list({ queue: this.queue }).then(tasks => {
-          if (tasks.length) {
-            this.loadingTask = {
-              ...tasks[0],
-              extra_metadata: {
-                facility_name: this.facilityName,
-                ...tasks[0].extra_metadata,
-              },
-            };
-            if (this.loadingTask.status === TaskStatuses.COMPLETED) {
-              const taskUsername = this.loadingTask.extra_metadata.username;
-              this.setSuperAdminIfNotSet(taskUsername);
-
-              // Update the wizard context to know this user has been imported
-              this.wizardService.send({ type: 'ADD_IMPORTED_USER', value: taskUsername });
-            }
-          } else {
-            // If we don't have a status on the loading task, we got here without there being
-            // any tasks active; we can just continue along
-            if (!this.loadingTask.status) {
-              this.emptyPollResponseCount += 1;
-              if (this.emptyPollResponseCount >= 3) {
-                this.isPolling = false;
-                this.handleClickContinue(); // We've tried a few times, there is nothing queued
-              }
-            }
+      pushCompletedToWizardMachine() {
+        this.completedTasks.forEach(task => {
+          if (!this.wizardService.state.context.importedUsers.includes(task.username)) {
+            this.wizardService.send({
+              type: 'ADD_IMPORTED_USER',
+              value: task.extra_metadata.username,
+            });
           }
         });
-        if (this.isPolling) {
-          setTimeout(() => {
-            this.pollTask();
-          }, 2000);
-        }
+      },
+      pollTask() {
+        /**
+         - Save tasks returned to this.loadingTasks
+         - Clear completed
+         **/
+        TaskResource.list({ queue: this.queue }).then(tasks => {
+          if (!tasks.length) {
+            // If we have no tasks (ie, they've been cleared and the page loaded here)
+            // we can just move along to the next step
+            this.handleClickContinue();
+          }
+          if (this.loadingTask) {
+            // We cache the last task so when all are complete we can show its status
+            this.lastLoadingTask = this.loadingTask;
+          }
+          this.allTasks = tasks;
+          this.pushCompletedToWizardMachine(); // Update state machine
+
+          // No more tasks are yet to be completed
+          if (this.runningTasks.length === 0) {
+            // In case we got here and every task was already done, set the lastLoadingTask
+            // to the last COMPLETED task -- or the first of all of the tasks
+            this.lastLoadingTask = this.completedTasks.length
+              ? this.completedTasks[this.completedTasks.length - 1]
+              : this.allTasks[0];
+            this.isPolling = false;
+          }
+          // New timeout to poll again if we should
+          if (this.isPolling) {
+            setTimeout(() => {
+              this.pollTask();
+            }, 2000);
+          }
+        });
       },
       retryImport() {
         TaskResource.restart(this.loadingTask.id).catch(error => {

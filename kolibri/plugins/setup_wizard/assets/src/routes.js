@@ -18,6 +18,7 @@ import SelectSuperAdminAccountForm from './views/SelectSuperAdminAccountForm';
 import ImportIndividualUserForm from './views/ImportIndividualUserForm';
 import ImportMultipleUsers from './views/ImportMultipleUsers';
 import LoadingTaskPage from './views/LoadingTaskPage';
+import { FooterMessageTypes } from './constants';
 
 export default [
   {
@@ -75,6 +76,7 @@ export default [
     name: 'PERSONAL_DATA_CONSENT',
     path: '/create-facility/5',
     component: PersonalDataConsentForm,
+    props: { footerMessageType: FooterMessageTypes.NEW_FACILITY },
   },
   // Import a facility
   {
@@ -91,6 +93,7 @@ export default [
     name: 'IMPORT_LOADING',
     path: '/import-facility/loading',
     component: LoadingTaskPage,
+    props: { footerMessageType: FooterMessageTypes.IMPORT_FACILITY },
   },
   {
     name: 'SELECT_ADMIN',
@@ -101,6 +104,7 @@ export default [
     name: 'IMPORT_DATA_CONSENT',
     path: '/import-facility/consent',
     component: PersonalDataConsentForm,
+    props: { footerMessageType: FooterMessageTypes.IMPORT_FACILITY },
   },
 
   // Learn only device
@@ -123,6 +127,13 @@ export default [
     name: 'LOD_LOADING_TASK_PAGE',
     path: '/learn-only/loading',
     component: LoadingTaskPage,
+    props: { footerMessageType: FooterMessageTypes.IMPORT_INDIVIDUALS },
+  },
+  {
+    name: 'LOD_JOIN_LOADING_TASK_PAGE',
+    path: '/learn-only/loading',
+    component: LoadingTaskPage,
+    props: { footerMessageType: FooterMessageTypes.JOIN_FACILITY },
   },
   {
     name: 'LOD_IMPORT_AS_ADMIN',

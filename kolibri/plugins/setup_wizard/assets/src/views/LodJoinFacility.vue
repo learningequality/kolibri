@@ -3,9 +3,14 @@
   <UserCredentialsForm
     :header="$tr('header')"
     :description="$tr('description')"
+    :footerMessageType="footerMessageType"
+    :disabled="loading"
+    :step="1"
+    :steps="2"
+    :doNotContinue="true"
     :uniqueUsernameValidator="() => true"
     :adminUserLabels="false"
-    :noBackAction="true"
+    :noBackAction="false"
     @submit="handleClickNext"
   />
 
@@ -18,6 +23,7 @@
   import { TaskResource } from 'kolibri.resources';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import { SetupWizardResource } from '../api';
+  import { FooterMessageTypes } from '../constants';
   import UserCredentialsForm from './onboarding-forms/UserCredentialsForm';
 
   export default {
@@ -28,7 +34,10 @@
     mixins: [commonCoreStrings],
     inject: ['wizardService'],
     data() {
+      const footerMessageType = FooterMessageTypes.JOIN_FACILITY;
       return {
+        loading: false,
+        footerMessageType,
         shouldValidate: false,
         usernameIsUniqueFn: () => true,
       };
@@ -48,6 +57,7 @@
           password: this.$store.state.onboardingData.user.password,
         };
 
+        this.loading = true;
         SetupWizardResource.createuseronremote({
           facility_id: this.facility.id,
           baseurl: baseurl.slice(0, -1),
@@ -74,6 +84,7 @@
             if (errorData.find(error => error.id === ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS)) {
               this.usernameIsUniqueFn = () => false;
             }
+            this.loading = false;
           }
         });
       },

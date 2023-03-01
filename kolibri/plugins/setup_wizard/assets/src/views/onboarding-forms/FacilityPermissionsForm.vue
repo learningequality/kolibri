@@ -2,6 +2,9 @@
 
   <OnboardingStepBase
     :title="$tr('learningEnvironmentHeader')"
+    :footerMessageType="footerMessageType"
+    :step="1"
+    :steps="5"
     @continue="handleContinue"
   >
     <KRadioButton
@@ -39,7 +42,7 @@
 
 <script>
 
-  import { Presets } from '../../constants';
+  import { Presets, FooterMessageTypes } from '../../constants';
   import OnboardingStepBase from '../OnboardingStepBase';
   import FacilityNameTextbox from './FacilityNameTextbox';
 
@@ -55,7 +58,9 @@
       const selected = preset || Presets.NONFORMAL;
 
       const facilityName = this.wizardService.state.context['facilityName'];
+      const footerMessageType = FooterMessageTypes.NEW_FACILITY;
       return {
+        footerMessageType,
         facilityName,
         selected,
         Presets,

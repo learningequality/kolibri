@@ -2,6 +2,10 @@
 
   <OnboardingStepBase
     :title="$tr('importIndividualUsersHeader')"
+    :noBackAction="!canGoBack"
+    :footerMessageType="footerMessageType"
+    :step="step"
+    :steps="steps"
     :description="formDescription"
     :submitText="coreString('importAction')"
     :disabled="formSubmitted || wizardService.state.context.importedUsers.length > 0"
@@ -95,6 +99,7 @@
   import { TaskResource } from 'kolibri.resources';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import { FacilityImportResource } from '../api';
+  import { FooterMessageTypes } from '../constants';
   import OnboardingStepBase from './OnboardingStepBase';
 
   export default {
@@ -105,7 +110,9 @@
     },
     mixins: [commonSyncElements, commonCoreStrings],
     data() {
+      const footerMessageType = FooterMessageTypes.IMPORT_INDIVIDUALS;
       return {
+        footerMessageType,
         username: '',
         password: '',
         full_name: '',
@@ -123,6 +130,19 @@
     },
     inject: ['wizardService'],
     computed: {
+      canGoBack() {
+        // User can only go back from here if they've not yet imported any users, otherwise
+        // they've gone beyond the point of no return.
+        return this.wizardService.state.context.importedUsers.length == 0;
+      },
+      // If there is only one facility we skipped a step, so we're on step 1
+      step() {
+        return this.wizardService.state.context.facilitiesOnDeviceCount == 1 ? 1 : 2;
+      },
+      // If there is only one facility we skipped a step, so we only have 4 steps
+      steps() {
+        return this.wizardService.state.context.facilitiesOnDeviceCount == 1 ? 2 : 3;
+      },
       deviceId() {
         return this.wizardService.state.context.importDeviceId;
       },
@@ -210,6 +230,13 @@
           if (this.wizardService.state.context.importedUsers.length > 0) {
             return this.wizardService.send('FINISH');
           }
+        }
+
+        if (!this.wizardService.state.context.firstImportedLodUser) {
+          this.wizardService.send({
+            type: 'SET_FIRST_LOD',
+            value: { username: this.username, password },
+          });
         }
 
         TaskResource.startTask(params)

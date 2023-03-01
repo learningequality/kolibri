@@ -2,6 +2,9 @@
 
   <OnboardingStepBase
     :title="$tr('header')"
+    :footerMessageType="footerMessageType"
+    :step="3"
+    :steps="5"
     :eventOnGoBack="backEvent"
     @continue="handleContinue"
   >
@@ -23,6 +26,7 @@
     <p class="description">
       {{ $tr('changeLater') }}
     </p>
+
   </OnboardingStepBase>
 
 </template>
@@ -31,7 +35,7 @@
 <script>
 
   import OnboardingStepBase from '../OnboardingStepBase';
-  import { Presets } from '../../constants';
+  import { Presets, FooterMessageTypes } from '../../constants';
 
   export default {
     name: 'CreateLearnerAccountForm',
@@ -45,7 +49,9 @@
         const preset = this.wizardService.state.context['formalOrNonformal'];
         setting = preset === Presets.NONFORMAL;
       }
+      const footerMessageType = FooterMessageTypes.NEW_FACILITY;
       return {
+        footerMessageType,
         setting,
       };
     },

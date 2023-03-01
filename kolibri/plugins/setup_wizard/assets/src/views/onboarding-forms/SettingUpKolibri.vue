@@ -133,9 +133,21 @@
       },
       /** The data we will use to initialize the device during provisioning */
       deviceProvisioningData() {
-        // The superuser data is stored in Vuex when importing a facility and selecting a user,
-        // so if it isn't in the machine's context, it's in Vuex
-        const superuser = this.wizardContext('superuser') || this.$store.state.onboardingData.user;
+        let superuser = null;
+        // We only need a superuser if we cannot get the OS user; null valued keys will be omitted
+        // in the eventual API call
+        if (!checkCapability('get_os_user')) {
+          // Here we see if we've set a firstImportedLodUser -- if they exist, they must be the
+          // superuser as they were the first imported user.
+          if (this.wizardContext('firstImportedLodUser')) {
+            superuser = this.wizardContext('firstImportedLodUser');
+          }
+          if (!superuser) {
+            // If we are creating a user, their data is in the Vuex store because UserCredentials is
+            // tightly coupled to it (for now).
+            superuser = this.wizardContext('superuser') || this.$store.state.onboardingData.user;
+          }
+        }
 
         const settings = {
           learner_can_login_with_no_password: this.learnerCanLoginWithNoPassword,
@@ -152,7 +164,7 @@
           language_id: currentLanguage,
           device_name:
             this.wizardContext('deviceName') ||
-            this.$tr('onMyOwnDeviceName', { name: superuser.full_name }),
+            this.$tr('onMyOwnDeviceName', { name: get(superuser, 'full_name', '') }),
           allow_guest_access: Boolean(this.wizardContext('guestAccess')),
           is_provisioned: true,
           os_user: checkCapability('get_os_user'),

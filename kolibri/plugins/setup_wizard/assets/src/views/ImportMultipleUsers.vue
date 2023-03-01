@@ -1,6 +1,9 @@
 <template>
 
   <OnboardingStepBase
+    :footerMessageType="footerMessageType"
+    :step="step"
+    :steps="steps"
     :showBackArrow="true"
     :eventOnGoBack="backArrowEvent"
     :title="$tr('selectAUser')"
@@ -54,9 +57,10 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
+  import { DemographicConstants } from 'kolibri.coreVue.vuex.constants';
   import { TaskStatuses } from 'kolibri.utils.syncTaskUtils';
   import UserTable from 'kolibri.coreVue.components.UserTable';
-  import { SoudQueue } from '../constants';
+  import { FooterMessageTypes, SoudQueue } from '../constants';
   import OnboardingStepBase from './OnboardingStepBase';
 
   /** Workflow
@@ -78,7 +82,9 @@
     mixins: [commonCoreStrings, commonSyncElements],
 
     data() {
+      const footerMessageType = FooterMessageTypes.IMPORT_INDIVIDUALS;
       return {
+        footerMessageType,
         isPolling: false,
         // array of user/learner ids
         learnersBeingImported: [],
@@ -86,6 +92,13 @@
     },
     inject: ['wizardService'],
     computed: {
+      step() {
+        return this.wizardService.state.context.facilitiesOnDeviceCount == 1 ? 1 : 2;
+      },
+      // If there is only one facility we skipped a step, so we only have 4 steps
+      steps() {
+        return this.wizardService.state.context.facilitiesOnDeviceCount == 1 ? 2 : 3;
+      },
       learners() {
         return this.wizardService.state.context.remoteUsers;
       },
@@ -112,8 +125,8 @@
       },
       backArrowEvent() {
         return this.learnersBeingImported.length == 0
-          ? 'BACK' // No tasks are running, go back to the auth screen
-          : 'LOADING'; // There are users being loaded, go to Loading Tasks Page
+          ? { type: 'BACK' } // No tasks are running, go back to the auth screen
+          : { type: 'LOADING' }; // There are users being loaded, go to Loading Tasks Page
       },
     },
     beforeMount() {
@@ -178,6 +191,12 @@
           user_id: learner.id,
           using_admin: true,
         };
+        if (!this.wizardService.state.context.firstImportedLodUser) {
+          this.wizardService.send({
+            type: 'SET_FIRST_LOD',
+            value: { username: learner.username, password: DemographicConstants.NOT_SPECIFIED },
+          });
+        }
         TaskResource.startTask(params).catch(() => {
           this.learnersBeingImported = this.learnersBeingImported.filter(id => id != learner.id);
         });

@@ -66,6 +66,8 @@ const initialContext = {
   lodAdmin: {},
   remoteUsers: [],
   importedUsers: [],
+  firstImportedLodUser: null,
+  facilitiesOnDeviceCount: null,
 };
 
 export const wizardMachine = createMachine(
@@ -266,12 +268,12 @@ export const wizardMachine = createMachine(
         initial: 'selectFacilityForm',
         states: {
           selectFacilityForm: {
-            meta: { step: 1, route: { name: 'SELECT_FACILITY_FOR_IMPORT' } },
+            meta: { route: { name: 'SELECT_FACILITY_FOR_IMPORT' } },
             on: {
               BACK: {
                 // #<name> points to a state w/ an `id` property; wizard is the root
                 target: '#wizard.fullDeviceNewOrImportFacility',
-                actions: 'clearSelectedSetupType',
+                actions: ['clearSelectedSetupType', 'revertFullDeviceImport'],
               },
               CONTINUE: {
                 target: 'importAuthentication',
@@ -280,21 +282,25 @@ export const wizardMachine = createMachine(
             },
           },
           importAuthentication: {
-            meta: { step: 2, route: { name: 'IMPORT_AUTHENTICATION' } },
+            meta: { route: { name: 'IMPORT_AUTHENTICATION' } },
             on: {
-              BACK: { target: 'selectFacilityForm', actions: 'revertFullDeviceImport' },
+              BACK: { target: 'selectFacilityForm' },
+              BACK_SKIP_FACILITY_FORM: {
+                target: '#wizard.fullDeviceNewOrImportFacility',
+                actions: ['clearSelectedSetupType', 'revertFullDeviceImport'],
+              },
               // THE POINT OF NO RETURN
               CONTINUE: { target: 'loadingTaskPage' },
             },
           },
           loadingTaskPage: {
-            meta: { step: 3, route: { name: 'IMPORT_LOADING' } },
+            meta: { route: { name: 'IMPORT_LOADING' } },
             on: {
               CONTINUE: 'selectSuperAdminAccountForm',
             },
           },
           selectSuperAdminAccountForm: {
-            meta: { step: 4, route: { name: 'SELECT_ADMIN' } },
+            meta: { route: { name: 'SELECT_ADMIN' } },
             on: {
               CONTINUE: {
                 target: 'personalDataConsentForm',
@@ -304,7 +310,7 @@ export const wizardMachine = createMachine(
             },
           },
           personalDataConsentForm: {
-            meta: { step: 5, route: { name: 'IMPORT_DATA_CONSENT' }, nextEvent: 'FINISH' },
+            meta: { route: { name: 'IMPORT_DATA_CONSENT' }, nextEvent: 'FINISH' },
             on: {
               BACK: 'selectSuperAdminAccountForm',
             },
@@ -322,7 +328,7 @@ export const wizardMachine = createMachine(
         initial: 'selectLodSetupType',
         states: {
           selectLodSetupType: {
-            meta: { step: 1, route: { name: 'LOD_SETUP_TYPE' } },
+            meta: { route: { name: 'LOD_SETUP_TYPE' } },
             on: {
               // #<name> points to a state w/ an `id` property; wizard is the root
               BACK: { target: '#wizard.fullOrLearnOnlyDevice', actions: 'clearFullOrLOD' },
@@ -334,7 +340,7 @@ export const wizardMachine = createMachine(
           },
 
           selectLodFacility: {
-            meta: { step: 2, route: { name: 'LOD_SELECT_FACILITY' } },
+            meta: { route: { name: 'LOD_SELECT_FACILITY' } },
             on: {
               BACK: 'selectLodSetupType',
               CONTINUE: {
@@ -358,7 +364,7 @@ export const wizardMachine = createMachine(
 
           // IMPORT
           lodImportUserAuth: {
-            meta: { step: 3, route: { name: 'LOD_IMPORT_USER_AUTH' } },
+            meta: { route: { name: 'LOD_IMPORT_USER_AUTH' } },
             on: {
               BACK: 'selectLodSetupType',
               CONTINUE: { target: 'lodLoading', actions: 'setLodSuperAdmin' },
@@ -370,7 +376,7 @@ export const wizardMachine = createMachine(
           },
 
           lodLoading: {
-            meta: { step: 4, route: { name: 'LOD_LOADING_TASK_PAGE' } },
+            meta: { route: { name: 'LOD_LOADING_TASK_PAGE' } },
             on: {
               SET_SUPERADMIN: { actions: 'setLodSuperAdmin' },
               IMPORT_ANOTHER: 'lodImportUserAuth',
@@ -379,7 +385,7 @@ export const wizardMachine = createMachine(
           },
 
           lodImportAsAdmin: {
-            meta: { step: 3, route: { name: 'LOD_IMPORT_AS_ADMIN' } },
+            meta: { route: { name: 'LOD_IMPORT_AS_ADMIN' } },
             on: {
               BACK: 'lodImportUserAuth',
               LOADING: 'lodLoading',
@@ -388,18 +394,29 @@ export const wizardMachine = createMachine(
           },
 
           // JOIN
+          lodJoinLoading: {
+            meta: { route: { name: 'LOD_JOIN_LOADING_TASK_PAGE' } },
+            on: {
+              SET_SUPERADMIN: { actions: 'setLodSuperAdmin' },
+              IMPORT_ANOTHER: 'lodImportUserAuth',
+              // Otherwise send FINISH, which is handled at the root of this sub-machine
+            },
+          },
+
           lodJoinFacility: {
-            meta: { step: 3, route: { name: 'LOD_CREATE_USER_FORM' } },
+            meta: { route: { name: 'LOD_CREATE_USER_FORM' } },
             on: {
               BACK: 'selectLodSetupType',
-              CONTINUE: 'lodLoading',
+              CONTINUE: 'lodJoinLoading',
             },
           },
         },
         // Listener on the lod import state; typically this would be above `states` but
         // putting it here flows more with the above as this is the state after the final step
         on: {
+          SET_SUPERUSER: { actions: 'setSuperuser' },
           ADD_IMPORTED_USER: { actions: 'addImportedUser' },
+          SET_FIRST_LOD: { actions: 'setFirstLodUser' },
           FINISH: 'finalizeSetup',
         },
       },
@@ -448,6 +465,9 @@ export const wizardMachine = createMachine(
         importDevice: (_, event) => {
           return event.value.importDevice;
         },
+        facilitiesOnDeviceCount: (_, event) => {
+          return event.value.facilitiesCount;
+        },
       }),
       clearSelectedSetupType: assign({
         facilityNewOrImport: () => null,
@@ -487,6 +507,9 @@ export const wizardMachine = createMachine(
           users.push(event.value);
           return uniq(users);
         },
+      }),
+      setFirstLodUser: assign({
+        firstImportedLodUser: (_, event) => event.value,
       }),
       setLodAdmin: assign({
         // Used when setting the Admin user for multiple import

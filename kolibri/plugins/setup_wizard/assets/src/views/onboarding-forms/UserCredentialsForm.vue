@@ -3,6 +3,9 @@
   <OnboardingStepBase
     dir="auto"
     :title="header"
+    :footerMessageType="footerMessageType"
+    :step="step"
+    :steps="steps"
     :description="description"
     :noBackAction="noBackAction"
     @continue="handleContinue"
@@ -24,6 +27,7 @@
         :value.sync="fullName"
         :isValid.sync="fullNameValid"
         :shouldValidate="formSubmitted"
+        :disabled="disabled"
         :autofocus="true"
         autocomplete="name"
       />
@@ -33,6 +37,7 @@
         ref="usernameTextbox"
         :value.sync="username"
         :isValid.sync="usernameValid"
+        :disabled="disabled"
         :shouldValidate="formSubmitted"
         :isUniqueValidator="!selectedUser ? uniqueUsernameValidator : () => true"
       />
@@ -40,6 +45,7 @@
       <PasswordTextbox
         ref="passwordTextbox"
         :value.sync="password"
+        :disabled="disabled"
         :isValid.sync="passwordValid"
         :shouldValidate="formSubmitted"
         :showConfirmationInput="!selectedUser"
@@ -90,6 +96,27 @@
     mixins: [commonCoreStrings],
     inject: ['wizardService'],
     props: {
+      disabled: {
+        type: Boolean,
+        default: false,
+      },
+      // Pass this as true if you want to handle the continue on your own from a parent component
+      doNotContinue: {
+        type: Boolean,
+        default: false,
+      },
+      step: {
+        type: Number,
+        required: true,
+      },
+      steps: {
+        type: Number,
+        required: true,
+      },
+      footerMessageType: {
+        type: String,
+        required: true,
+      },
       // A passthrough to the onboarding step base to hide "GO BACK" when needed
       noBackAction: {
         type: Boolean,
@@ -198,10 +225,20 @@
           this.focusOnInvalidField();
           return;
         } else {
-          this.wizardService.send({
-            type: 'CONTINUE',
-            value: this.$store.state.onboardingData.user,
-          });
+          this.$emit('submit');
+
+          if (!this.doNotContinue) {
+            this.wizardService.send({
+              type: 'CONTINUE',
+              value: this.$store.state.onboardingData.user,
+            });
+          } else {
+            // still set the onboarding data for the superuser
+            this.wizardService.send({
+              type: 'SET_SUPERUSER',
+              value: this.$store.state.onboardingData.user,
+            });
+          }
         }
       },
       focusOnInvalidField() {
