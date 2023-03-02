@@ -7,7 +7,7 @@
     <div class="" style="width:250px;height:100px;">
       <h2 class="device-name">
         <span>
-          <KIcon icon="laptop" />
+          <KIcon icon="device" />
         </span>
         <span>
           <TextTruncator
