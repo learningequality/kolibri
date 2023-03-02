@@ -12,23 +12,13 @@
     <p v-show="!$isPrint">
       {{ $tr('description') }}
     </p>
-    <HeaderTabs>
-
-      <HeaderTab
-        :text="coreString('lessonsLabel')"
-        :to="classRoute('ReportsLessonListPage')"
-      />
-      <HeaderTab
-        :text="coreString('quizzesLabel')"
-        :to="classRoute('ReportsQuizListPage')"
-      />
-      <HeaderTab
-        :text="coachString('groupsLabel')"
-        :to="classRoute('ReportsGroupListPage')"
-      />
-      <HeaderTab
-        :text="coreString('learnersLabel')"
-        :to="classRoute('ReportsLearnerListPage')"
+    <HeaderTabs :style="{ marginTop: '28px' }">
+      <KTabsList
+        :tabsId="REPORTS_TABS_ID"
+        ariaLabel="Coach reports"
+        :activeTabId="activeTabId"
+        :tabs="tabs"
+        :style="{ position: 'relative', top: '5px' }"
       />
     </HeaderTabs>
   </div>
@@ -41,6 +31,7 @@
   import { mapGetters } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
+  import { REPORTS_TABS_ID, ReportsTabs } from '../../constants/tabsConstants';
 
   export default {
     name: 'ReportsHeader',
@@ -50,11 +41,44 @@
         type: String,
         default: null,
       },
+      activeTabId: {
+        type: String,
+        required: true,
+      },
+    },
+    data() {
+      return {
+        REPORTS_TABS_ID,
+      };
     },
     computed: {
       ...mapGetters(['classListPageEnabled']),
       reportTitle() {
         return this.title || this.coachString('reportsLabel');
+      },
+      tabs() {
+        return [
+          {
+            id: ReportsTabs.LESSONS,
+            label: this.coreString('lessonsLabel'),
+            to: this.classRoute('ReportsLessonListPage'),
+          },
+          {
+            id: ReportsTabs.QUIZZES,
+            label: this.coreString('quizzesLabel'),
+            to: this.classRoute('ReportsQuizListPage'),
+          },
+          {
+            id: ReportsTabs.GROUPS,
+            label: this.coachString('groupsLabel'),
+            to: this.classRoute('ReportsGroupListPage'),
+          },
+          {
+            id: ReportsTabs.LEARNERS,
+            label: this.coreString('learnersLabel'),
+            to: this.classRoute('ReportsLearnerListPage'),
+          },
+        ];
       },
     },
     $trs: {
