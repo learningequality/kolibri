@@ -67,14 +67,14 @@ class Command(AsyncCommand):
             action="store",
             dest="start_date",
             type=str,
-            help="Start date for date range selection of log files",
+            help="Start date for date range selection of log files. Valid value is an ISO string formatted as YYYY-MM-DDTHH:MM:SS",
         )
         parser.add_argument(
             "--end_date",
             action="store",
             dest="end_date",
             type=str,
-            help="End date for date range selection of log files",
+            help="End date for date range selection of log files. Valid value is an ISO string formatted as YYYY-MM-DDTHH:MM:SS",
         )
 
     def get_facility(self, options):
