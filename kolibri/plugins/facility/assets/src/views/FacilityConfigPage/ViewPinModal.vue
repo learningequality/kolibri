@@ -2,7 +2,7 @@
 
   <KModal
     :title="$tr('title')"
-    :cancelText="$tr('close')"
+    :cancelText="coreString('closeAction')"
     @cancel="$emit('cancel')"
   >
     <div>
@@ -32,11 +32,7 @@
     $trs: {
       title: {
         message: 'Device management PIN',
-        context: 'Title for the view pin modal.',
-      },
-      close: {
-        message: 'close',
-        context: 'close button for the modal',
+        context: 'Title for the view PIN modal.',
       },
     },
   };

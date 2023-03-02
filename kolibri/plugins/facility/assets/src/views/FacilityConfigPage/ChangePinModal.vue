@@ -70,7 +70,7 @@
     $trs: {
       title: {
         message: 'Change device management PIN',
-        context: 'Title for the change pin modal.',
+        context: 'Title for the change PIN modal.',
       },
       needToSync: {
         message:
