@@ -16,6 +16,7 @@ import TopicsPage from '../views/TopicsPage';
 import TopicsContentPage from '../views/TopicsContentPage';
 import ContentUnavailablePage from '../views/ContentUnavailablePage';
 import BookmarkPage from '../views/BookmarkPage.vue';
+import ExploreLibrariesPage from '../views/ExploreLibrariesPage';
 import classesRoutes from './classesRoutes';
 
 const { channels, channelsMap } = useChannels();
@@ -38,11 +39,13 @@ function hydrateHomePage() {
       response.data.resumable_resources.results || [],
       response.data.resumable_resources.more || null
     );
-    for (let progress of response.data.resumable_resources_progress) {
+    for (const progress of response.data.resumable_resources_progress) {
       setContentNodeProgress(progress);
     }
   });
 }
+
+const optionalDeviceIdPathSegment = '/:deviceId([a-f0-9]{32})?';
 
 export default [
   {
@@ -93,7 +96,7 @@ export default [
   }),
   {
     name: PageNames.LIBRARY,
-    path: '/library',
+    path: '/library' + optionalDeviceIdPathSegment,
     handler: to => {
       if (!get(channels) || !get(channels).length) {
         router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
@@ -102,9 +105,10 @@ export default [
       if (unassignedContentGuard()) {
         return unassignedContentGuard();
       }
-      showLibrary(store, to.query);
+      showLibrary(store, to.query, to.params.deviceId);
     },
     component: LibraryPage,
+    props: true,
   },
   {
     name: PageNames.CONTENT_UNAVAILABLE,
@@ -133,30 +137,14 @@ export default [
   },
   {
     // Handle redirect for links without the /folder appended
-    path: '/topics/t/:id',
-    redirect: '/topics/t/:id/:subtopic?/folders',
-    handler: (toRoute, fromRoute) => {
-      if (unassignedContentGuard()) {
-        return unassignedContentGuard();
-      }
-      // If navigation is triggered by a custom navigation updating the
-      // context query param, do not run the handler
-      if (toRoute.params.id === fromRoute.params.id) {
-        return;
-      }
-      showTopicsTopic(store, {
-        id: toRoute.params.id,
-        pageName: toRoute.name,
-        query: toRoute.query,
-      });
-    },
-    component: TopicsPage,
+    path: `/topics${optionalDeviceIdPathSegment}/t/:id`,
+    redirect: `/topics${optionalDeviceIdPathSegment}/t/:id/:subtopic?/folders`,
   },
   // Have to put TOPICS_TOPIC_SEARCH before TOPICS_TOPIC to ensure
   // search gets picked up before being interpreted as a subtopic id.
   {
     name: PageNames.TOPICS_TOPIC_SEARCH,
-    path: '/topics/t/:id/search',
+    path: `/topics${optionalDeviceIdPathSegment}/t/:id/search`,
     handler: (toRoute, fromRoute) => {
       if (unassignedContentGuard()) {
         return unassignedContentGuard();
@@ -173,10 +161,11 @@ export default [
       });
     },
     component: TopicsPage,
+    props: true,
   },
   {
     name: PageNames.TOPICS_TOPIC,
-    path: '/topics/t/:id/:subtopic?/folders',
+    path: `/topics${optionalDeviceIdPathSegment}/t/:id/:subtopic?/folders`,
     handler: (toRoute, fromRoute) => {
       if (unassignedContentGuard()) {
         return unassignedContentGuard();
@@ -190,17 +179,20 @@ export default [
         id: toRoute.params.id,
         pageName: toRoute.name,
         query: toRoute.query,
+        deviceId: toRoute.params.deviceId,
       });
     },
     component: TopicsPage,
+    props: true,
   },
   {
     name: PageNames.TOPICS_CONTENT,
-    path: '/topics/c/:id',
+    path: `/topics${optionalDeviceIdPathSegment}/c/:id`,
     handler: toRoute => {
-      showTopicsContent(store, toRoute.params.id);
+      showTopicsContent(store, toRoute.params.id, toRoute.params.deviceId);
     },
     component: TopicsContentPage,
+    props: true,
   },
   {
     name: PageNames.BOOKMARKS,
@@ -213,6 +205,11 @@ export default [
       store.commit('CORE_SET_PAGE_LOADING', false);
     },
     component: BookmarkPage,
+  },
+  {
+    name: PageNames.EXPLORE_LIBRARIES,
+    path: '/explore_libraries',
+    component: ExploreLibrariesPage,
   },
   {
     path: '*',

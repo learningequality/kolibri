@@ -13,9 +13,9 @@
     "test-jest-cov": "yarn run test-jest --coverage",
     "coverage": "yarn run test-jest-cov",
     "build": "yarn run hashi-build && kolibri-tools build prod --file ./build_tools/build_plugins.txt --transpile",
-    "makemessages": "kolibri-tools i18n-extract-messages --pluginFile ./build_tools/build_plugins.txt",
-    "createprofiles": "kolibri-tools i18n-profile --pluginFile ./build_tools/build_plugins.txt --output-file ./kolibri/locale/en/LC_MESSAGES/profiles/strings.csv",
-    "transfercontext": "kolibri-tools i18n-transfer-context --pluginFile ./build_tools/build_plugins.txt",
+    "makemessages": "kolibri-tools i18n-extract-messages --pluginFile ./build_tools/build_plugins.txt --namespace kolibri-common --searchPath ./packages/kolibri-common",
+    "createprofiles": "kolibri-tools i18n-profile --pluginFile ./build_tools/build_plugins.txt --output-file ./kolibri/locale/en/LC_MESSAGES/profiles/strings.csv --namespace kolibri-common --searchPath ./packages/kolibri-common",
+    "transfercontext": "kolibri-tools i18n-transfer-context --pluginFile ./build_tools/build_plugins.txt --namespace kolibri-common --searchPath ./packages/kolibri-common",
     "watch": "kolibri-tools build dev --file ./build_tools/build_plugins.txt --cache",
     "watch-hot": "yarn run watch --hot",
     "app-python-devserver": "DJANGO_SETTINGS_MODULE=kolibri.deployment.default.settings.dev python ./integration_testing/scripts/run_kolibri_app_mode.py",
@@ -51,7 +51,7 @@
   "devDependencies": {
     "@types/jest": "^24.0.12",
     "xhr-mock": "^2.5.1",
-    "concurrently": "^7.4.0"
+    "concurrently": "^7.6.0"
   },
   "optionalDependencies": {
     "fsevents": "*"
@@ -69,3 +69,4 @@
     "node": "16.18.0"
   }
 }
+

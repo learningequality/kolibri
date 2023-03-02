@@ -14,7 +14,7 @@ def _filter_out_unsupported_fields(fields):
 
 
 def _uuid_string():
-    return str(uuid.uuid4())
+    return str(uuid.uuid4().hex)
 
 
 class NetworkLocation(models.Model):

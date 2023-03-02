@@ -7,6 +7,10 @@ import notificationStrings from './notificationStrings';
 
 export const coreStrings = createTranslator('CommonCoreStrings', {
   // actions
+  acceptAction: {
+    message: 'Accept',
+    context: 'Button to agree and accept the selected terms',
+  },
   cancelAction: {
     message: 'Cancel',
     context:
@@ -20,6 +24,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   clearAction: {
     message: 'Clear',
     context: 'Button that allows to clear a single *task* from the list in the task manager.',
+  },
+  clearAllAction: {
+    message: 'Clear all',
+    context: 'Button that allows a user to clear all selections or filters.',
   },
   closeAction: {
     message: 'Close',
@@ -35,6 +43,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       'Used on a button to move to the next step in a process like creating an account, for example.',
   },
+  declineAction: {
+    message: 'Decline',
+    context: 'Button text to decline selected terms (i.e. cookie usage)',
+  },
   deleteAction: {
     message: 'Delete',
     context:
@@ -49,6 +61,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Edit details',
     context:
       "'Edit details' changes a set of information in Kolibri.\n\nFor example, in a list of users, selecting OPTIONS > 'Edit details' allows a user to edit other users' information like their name, username or type.",
+  },
+  filter: {
+    message: 'filter',
+    context:
+      'The filter functionality allows users to find elements in Kolibri more efficiently. For example, in a list of users the filter can be used to view users by permissions, user type or facility.',
   },
   finishAction: {
     message: 'Finish',
@@ -74,6 +91,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Register',
     context: 'Register a facility to the Kolibri Data Portal',
   },
+  manageSyncAction: {
+    message: 'Manage Sync Schedule',
+    context: 'Action for managing sync schedule',
+  },
   retryAction: {
     message: 'Retry',
     context:
@@ -83,6 +104,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Remove',
     context:
       'Description of a remove task. For example, a coach can remove a user from a class if they are no longer in that class.\n',
+  },
+  downloadAction: {
+    message: 'Download',
+    context: 'Label for a button used to initiate a file download.',
   },
   saveAction: {
     message: 'Save',
@@ -118,6 +143,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Update',
     context:
       "If a user account has been created prior to version 0.13 of Kolibri, the user will see a notification that they can update their profile to provide their birth year and gender. \n\nThe 'UPDATE' button allows them to provide this new information if they choose to do so.",
+  },
+  viewAll: {
+    message: 'View all',
+    context: 'Option to view all available options',
   },
   viewAction: {
     message: 'View',
@@ -227,6 +256,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       "A topic is marked as 'Completed' when a learner finishes that specific topic within an educational resource. A topic could be a video, audio, document file or interactive app.",
   },
+  dataLabel: {
+    message: 'Data',
+    context: "Title of tab in 'Facility' section.",
+  },
   deviceNameLabel: {
     message: 'Device name',
     context:
@@ -284,6 +317,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       "An 'Identifier' could be a student ID number or an existing user identification number. This is an optional field in the user create/edit screen.",
   },
+  infoLabel: {
+    message: 'Info',
+    context: "Title of tab in 'Device' section.",
+  },
   inProgressLabel: {
     message: 'In progress',
     context:
@@ -317,9 +354,19 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       'A lesson is a linear learning pathway defined by a coach. The coach can select resources from any channel, add them to the lesson, define the ordering, and assign the lesson to learners in their class.',
   },
+  libraryLabel: {
+    message: 'Library',
+    context:
+      "The 'Library' section displays channels available on Kolibri server, and allows learners to browse, explore and filter topics and resources on their own.",
+  },
   loadingLabel: {
     message: 'Loading…',
     context: 'Message displayed when a resource is loading indicating that the user should wait.',
+  },
+  menuLabel: {
+    message: 'Menu',
+    context:
+      'Label that indicates a list of options. May be a button label, or a reference to the menu itself',
   },
   nameLabel: {
     message: 'Name',
@@ -370,6 +417,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       'Text which appears in the search field above the table with users from whom to choose from (e.g. when enrolling learners to a class, selecting users to sync, etc.)',
   },
+  settingsLabel: {
+    message: 'Settings',
+    context: "Title of tab used in 'Facility' and 'Device' sections.",
+  },
   findSomethingToLearn: {
     message: 'Find something to learn',
     context: 'Suggestion located inside the the keyword search field.',
@@ -403,6 +454,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       'The "Usage and privacy" link displays on the \'Create an account\' screen and on the left navigation bar.\n\nIt contains information about who has access to personal information of users.',
   },
+  cookiePolicy: {
+    message: 'Cookie policy',
+    context:
+      'The "Cookie policy" link displays on the \'cookie notification\' banner and on the left navigation bar.\n\nIt contains information about usage of cookies within online Kolibri instances. It is also used as a title and heading on the page that describes this policy.',
+  },
   userTypeLabel: {
     message: 'User type',
     context:
@@ -416,6 +472,14 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Users',
     context:
       'A user is any person who has access to a facility in Kolibri. There are  four main types of users in Kolibri: Learners, Coaches, Admins and Super admins.',
+  },
+  superUserLabel: {
+    message: 'Super admin',
+    context:
+      'An account type that can manage the device. Super admin accounts also have permission to do everything that admins, coaches, and learners can do.',
+  },
+  uncountedAdditionalResults: {
+    message: 'More than { num, number } results',
   },
   viewMoreAction: {
     message: 'View more',
@@ -686,7 +750,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Numeracy',
     context: 'Category type. See https://en.wikipedia.org/wiki/Numeracy',
   },
-  digitialLiteracy: {
+  digitalLiteracy: {
     message: 'Digital literacy',
     context: 'Category type. See https://en.wikipedia.org/wiki/Digital_literacy',
   },
@@ -708,7 +772,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
 
   //  VocationalSubcategories
-  softwareToolsAndTraining: {
+  toolsAndSoftwareTraining: {
     message: 'Software tools and training',
     context: 'Subcategory type for technical and vocational training.',
   },
@@ -768,25 +832,39 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
       'Category label in the Kolibri resources library; refers to lesson planning materials for teachers.',
   },
 
+  uncategorized: {
+    message: 'Uncategorized',
+    context: 'A label to indicate that no category label has been applied to the resource.',
+  },
+
   // Resources Needed Categories = {
-  ForBeginners: {
+  forBeginners: {
     message: 'For beginners',
     context: 'Filter option and a label for the resources in the Kolibri Library.',
   },
-  ToUseWithTeachersAndPeers: {
-    message: 'To use with teachers and peers',
+  toUseWithPeers: {
+    message: 'To use with peers',
     context:
       "'Peers' in this context refers to classmates or other learners who are interacting with Kolibri.",
   },
-  ToUseWithPaperAndPencil: {
+  toUseWithTeachers: {
+    message: 'To use with teachers',
+    context:
+      'To use with a subject matter or pedagogical expert who is helping to guide the learner.',
+  },
+  toUseWithPaperAndPencil: {
     message: 'To use with paper and pencil',
     context: 'Refers to a filter for resources.\n',
   },
-  NeedsInternet: {
+  needsInternet: {
     message: 'That need internet connection',
     context: 'Refers to a filter for resources.',
   },
-  NeedsMaterials: {
+  needsSpecialSoftware: {
+    message: 'That need special software',
+    context: 'Refers to a filter for resources.',
+  },
+  needsMaterials: {
     message: 'That need other materials',
     context: 'Refers to a filter for resources.\n',
   },
@@ -1041,6 +1119,18 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
       "Could also be translated as \"View information about providing identifier\"\n\nAll 'AriaLabel' type of messages are providing additional context to the screen-reader users. \n\nIn this case the screen-reader will announce the message to the user indicating that they can access more information and examples about the 'Identifier' through the 'i' icon.",
   },
 
+  // Missing resource strings
+  someResourcesMissingOrNotSupported: {
+    message: 'Some resources are missing or not supported',
+    context:
+      'Floating notification message that appears over the alert icon and indicates that there are missing resources',
+  },
+  resourceNotFoundOnDevice: {
+    message: 'Resource not found on device',
+    context:
+      'Error message that displays if a learning resource cannot be found on the device being used currently.',
+  },
+
   // Content activity
   notStartedLabel: {
     message: 'Not started',
@@ -1092,24 +1182,6 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
 });
 
-// We forgot a string, so we are using one from the PerseusInternalMessages namespace
-// do not do this, do as I say, not as I do, etc. etc.
-// TODO: 0.16 - remove this and put a proper string in place
-const noneOfTheAboveTranslator = createTranslator('PerseusInternalMessages', {
-  'None of the above': 'None of the above',
-});
-
-// We forgot another string, so we are using one from the EPubRenderer SearchSideBar namespace
-// do not do this, do as I say, not as I do, etc. etc.
-// TODO: 0.16 - remove this and put a proper string in place
-const overResultsTranslator = createTranslator('SearchSideBar', {
-  overCertainNumberOfSearchResults: {
-    message: 'Over {num, number, integer} {num, plural, one {result} other {results}}',
-    context:
-      'Refers to number of search results when there are over a specified amount. Only translate "over", "result" and "results".\n',
-  },
-});
-
 /**
  * An object mapping ad hoc keys (like those to be passed to coreString()) which do not
  * conform to the expectations. Examples:
@@ -1120,16 +1192,17 @@ const overResultsTranslator = createTranslator('SearchSideBar', {
  * - Keys which, when _.camelCase()'ed will not result in a valid key, requiring manual mapping
  */
 const nonconformingKeys = {
-  PEOPLE: 'ToUseWithTeachersAndPeers',
-  PAPER_PENCIL: 'ToUseWithPaperAndPencil',
-  INTERNET: 'NeedsInternet',
-  MATERIALS: 'NeedsMaterials',
-  FOR_BEGINNERS: 'ForBeginners',
-  digitalLiteracy: 'digitialLiteracy',
+  PEERS: 'toUseWithPeers',
+  TEACHER: 'toUseWithTeachers',
+  PAPER_PENCIL: 'toUseWithPaperAndPencil',
+  INTERNET: 'needsInternet',
+  SPECIAL_SOFTWARE: 'needsSpecialSoftware',
+  MATERIALS: 'needsMaterials',
+  OTHER_SUPPLIES: 'needsMaterials',
+  FOR_BEGINNERS: 'forBeginners',
   BASIC_SKILLS: 'allLevelsBasicSkills',
   FOUNDATIONS: 'basicSkills',
   foundations: 'basicSkills',
-  toolsAndSoftwareTraining: 'softwareToolsAndTraining',
   foundationsLogicAndCriticalThinking: 'logicAndCriticalThinking',
 };
 
@@ -1161,14 +1234,6 @@ const MetadataLookup = invert(
  * string mapping to the values to be passed for those arguments.
  */
 export function coreString(key, args) {
-  if (key === 'None of the above' || key === METADATA.NoCategories) {
-    return noneOfTheAboveTranslator.$tr('None of the above', args);
-  }
-
-  if (key === 'overCertainNumberOfSearchResults') {
-    return overResultsTranslator.$tr(key, args);
-  }
-
   const metadataKey = get(MetadataLookup, key, null);
   key = metadataKey ? camelCase(metadataKey) : key;
 
@@ -1196,7 +1261,7 @@ export default {
      * `CORE_CREATE_SNACKBAR` mutation.
      */
     showSnackbarNotification(key, args, coreCreateSnackbarArgs) {
-      let text = notificationStrings.$tr(key, args || {});
+      const text = notificationStrings.$tr(key, args || {});
       if (coreCreateSnackbarArgs) {
         this.$store.commit('CORE_CREATE_SNACKBAR', {
           ...coreCreateSnackbarArgs,

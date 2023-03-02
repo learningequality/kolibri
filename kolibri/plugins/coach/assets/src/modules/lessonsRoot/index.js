@@ -4,6 +4,7 @@ function defaultState() {
   return {
     learnerGroups: [],
     lessons: [],
+    lessonsSizes: [],
   };
 }
 
@@ -22,6 +23,9 @@ export default {
     },
     SET_CLASS_LESSONS(state, lessons) {
       state.lessons = lessons;
+    },
+    SET_CLASS_LESSONS_SIZES(state, sizes) {
+      state.lessonsSizes = sizes;
     },
   },
   actions,

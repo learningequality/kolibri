@@ -23,6 +23,7 @@
           />
         </template>
       </HeaderWithOptions>
+      <MissingResourceAlert v-if="!$isPrint && !resource.available" :multiple="false" />
       <h1>
         <KLabeledIcon :icon="resource.kind" :label="resource.title" />
       </h1>
@@ -129,6 +130,7 @@
   import InfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import SlotTruncator from 'kolibri.coreVue.components.SlotTruncator';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert';
   import {
     licenseLongName,
     licenseDescriptionForConsumer,
@@ -140,6 +142,7 @@
   export default {
     name: 'ReportsResourceHeader',
     components: {
+      MissingResourceAlert,
       HeaderWithOptions,
       InfoIcon,
       SlotTruncator,

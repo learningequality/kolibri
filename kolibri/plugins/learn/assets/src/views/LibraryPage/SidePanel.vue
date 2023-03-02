@@ -12,10 +12,7 @@
       :value="searchTerms"
       data-test="desktop-search-side-panel"
       :width="`${sidePanelWidth}px`"
-      :availableLabels="labels"
       position="embedded"
-      :activeActivityButtons="searchTerms.learning_activities"
-      :activeCategories="searchTerms.categories"
       @input="val => $emit('setSearchTerms', val)"
       @currentCategory="handleCategory"
     />
@@ -44,10 +41,7 @@
         ref="embeddedPanel"
         :value="searchTerms"
         :width="`${sidePanelOverlayWidth}px`"
-        :availableLabels="labels"
         position="overlay"
-        :activeActivityButtons="searchTerms.learning_activities"
-        :activeCategories="searchTerms.categories"
         @input="val => $emit('setSearchTerms', val)"
         @currentCategory="handleCategory"
       />
@@ -55,11 +49,9 @@
         v-if="currentCategory && (windowIsSmall || windowIsMedium)"
         ref="searchModal"
         :selectedCategory="currentCategory"
-        :numCols="numCols"
-        :availableLabels="labels"
         position="fullscreen"
         @cancel="currentCategory = null"
-        @input="category => $emit('setCategory', category)"
+        @input="selectCategory"
       />
     </SidePanelModal>
 
@@ -69,11 +61,9 @@
       v-if="windowIsLarge && currentCategory"
       ref="searchModal"
       :selectedCategory="currentCategory"
-      :numCols="numCols"
-      :availableLabels="labels"
       position="modal"
       @cancel="currentCategory = null"
-      @input="category => $emit('setCategory', category)"
+      @input="selectCategory"
     />
   </div>
 
@@ -139,10 +129,6 @@
       };
     },
     props: {
-      labels: {
-        type: Object,
-        default: () => {},
-      },
       mobileSidePanelIsOpen: {
         type: Boolean,
         default: false,
@@ -177,6 +163,12 @@
     watch: {
       searchTerms(val) {
         this.$emit('searchTerms', val);
+      },
+    },
+    methods: {
+      selectCategory(category) {
+        this.$emit('setCategory', category);
+        this.currentCategory = null;
       },
     },
   };

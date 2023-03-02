@@ -1,5 +1,4 @@
 import { ContentNodeResource } from 'kolibri.resources';
-import { _collectionState } from '../coreLearn/utils';
 import useContentNodeProgress from '../../composables/useContentNodeProgress';
 
 const { fetchContentNodeTreeProgress } = useContentNodeProgress();
@@ -27,7 +26,7 @@ export default {
       state.topic = payload.topic || null;
     },
     ADD_MORE_CONTENTS(state, payload) {
-      state.contents = state.contents.concat(_collectionState(payload.children.results));
+      state.contents = state.contents.concat(payload.children.results);
       state.topic.children.more = payload.children.more;
     },
     ADD_MORE_CHILD_CONTENTS(state, payload) {

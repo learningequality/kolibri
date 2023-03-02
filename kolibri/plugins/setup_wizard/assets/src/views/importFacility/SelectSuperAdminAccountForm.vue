@@ -1,11 +1,13 @@
 <template>
 
-  <SuperuserCredentialsForm
+  <UserCredentialsForm
     v-if="!loading"
     :header="$tr('header')"
     :description="$tr('description')"
     :uniqueUsernameValidator="uniqueUsernameValidator"
-    @click_next="handleClickNext"
+    :selectedUser="selectedImportedUser"
+    :noBackAction="true"
+    @submit="handleClickNext"
   >
     <template #aboveform>
       <p
@@ -32,33 +34,10 @@
       </p>
     </template>
 
-    <!-- HACK
-      Default form is replaced with this simpler form if an existing user
-      is selected
-   -->
-    <template
-      v-if="importedUserIsSelected"
-      #form
-    >
-      <p>
-        {{ $tr('enterPasswordPrompt', { username: selected.label }) }}
-      </p>
-      <!--
-        NOTE: This PasswordTextbox needs a key so the default form
-        doesn't re-use it
-     -->
-      <PasswordTextbox
-        key="altpw"
-        ref="password"
-        :value.sync="password"
-        :isValid.sync="passwordValid"
-        :shouldValidate.sync="shouldValidate"
-        :showConfirmationInput="false"
-        :autofocus="true"
-        autocomplete="password"
-      />
-    </template>
-  </SuperuserCredentialsForm>
+    <p v-if="importedUserIsSelected">
+      {{ $tr('enterPasswordPrompt', { username: selected.label }) }}
+    </p>
+  </UserCredentialsForm>
 
 </template>
 
@@ -66,8 +45,7 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
-  import SuperuserCredentialsForm from '../onboarding-forms/SuperuserCredentialsForm';
+  import UserCredentialsForm from '../onboarding-forms/UserCredentialsForm';
   import { FacilityImportResource } from '../../api';
 
   const CREATE_NEW_SUPER_ADMIN = 'CREATE_NEW_SUPER_ADMIN';
@@ -75,16 +53,10 @@
   export default {
     name: 'SelectSuperAdminAccountForm',
     components: {
-      PasswordTextbox,
-      SuperuserCredentialsForm,
+      UserCredentialsForm,
     },
     mixins: [commonCoreStrings],
-    props: {
-      facility: {
-        type: Object,
-        required: true,
-      },
-    },
+    inject: ['wizardService'],
     data() {
       return {
         selected: {},
@@ -97,6 +69,12 @@
       };
     },
     computed: {
+      facility() {
+        return this.wizardService._state.context.selectedFacility;
+      },
+      selectedImportedUser() {
+        return this.facilityAdmins.find(admin => admin.id == this.selected.value);
+      },
       importedUserIsSelected() {
         return this.selected.value !== CREATE_NEW_SUPER_ADMIN;
       },
@@ -120,7 +98,6 @@
         if (newVal.label === this.facility.username) {
           this.setSavedAdminPassword();
         }
-        this.resetFormAndRefocus();
       },
     },
     beforeMount() {

@@ -4,20 +4,21 @@ import pick from 'lodash/pick';
 import { computed, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
 import { PageNames } from '../constants';
 
-function _makeLink(id, isResource, query) {
-  return {
-    name: isResource ? PageNames.TOPICS_CONTENT : PageNames.TOPICS_TOPIC,
-    params: { id },
-    query,
-  };
-}
-
 export default function useContentLink(store) {
   // Get store reference from the curent instance
   // but allow it to be passed in to allow for dependency
   // injection, primarily for tests.
   store = store || getCurrentInstance().proxy.$store;
   const route = computed(() => store.state.route);
+
+  function _makeLink(id, isResource, query) {
+    const params = get(route).params;
+    return {
+      name: isResource ? PageNames.TOPICS_CONTENT : PageNames.TOPICS_TOPIC,
+      params: pick({ id, deviceId: params.deviceId }, ['id', 'deviceId']),
+      query,
+    };
+  }
 
   /**
    * A function to generate a VueRouter link object that links to

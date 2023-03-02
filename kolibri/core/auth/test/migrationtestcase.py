@@ -1,5 +1,6 @@
 from django.db import connection
 from django.db.migrations.executor import MigrationExecutor
+from django.db.migrations.recorder import MigrationRecorder
 from django.test import TestCase
 
 
@@ -11,6 +12,16 @@ class TestMigrations(TestCase):
     migrate_from = None
     migrate_to = None
     app = None
+
+    @classmethod
+    def setUpClass(cls):
+        super(TestMigrations, cls).setUpClass()
+
+        # get the latest migration before starting
+        latest_migration = MigrationRecorder.Migration.objects.filter(
+            app=cls.app
+        ).last()
+        cls.latest_migration = (cls.app, latest_migration.name)
 
     def setUp(self):
         assert (
@@ -38,3 +49,12 @@ class TestMigrations(TestCase):
 
     def setUpBeforeMigration(self, apps):
         pass
+
+    @classmethod
+    def tearDownClass(cls):
+        # revert migration back to latest migration
+        executor = MigrationExecutor(connection)
+        executor.loader.build_graph()
+        executor.migrate([cls.latest_migration])
+
+        super(TestMigrations, cls).tearDownClass()

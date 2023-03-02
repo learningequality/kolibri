@@ -10,12 +10,9 @@
         :isMobile="windowIsSmall"
         :title="content.title"
         :thumbnail="content.thumbnail"
-        :kind="content.kind"
         :tagline="getTagLine(content)"
-        :progress="content.progress || 0"
         :numCoachContents="content.num_coach_contents"
-        :link="genContentLinkBackLinkCurrentPage(content.id, content.is_leaf)"
-        :contentId="content.content_id"
+        :link="genContentLinkBackLinkCurrentPage(content.id, false)"
       />
     </KGridItem>
 

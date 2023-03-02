@@ -2,7 +2,6 @@
 
   <KPageContainer :topMargin="0">
     <ExamReport
-      v-if="exerciseContentNodes && exerciseContentNodes.length"
       :contentId="exam.id"
       :title="exam.title"
       :userName="learner.name"
@@ -15,9 +14,6 @@
       :navigateTo="navigateTo"
       :questions="questions"
     />
-    <div v-else>
-      {{ getMissingContentString('someResourcesMissingOrNotSupported') }}
-    </div>
   </KPageContainer>
 
 </template>

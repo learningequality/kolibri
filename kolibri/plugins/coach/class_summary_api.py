@@ -274,6 +274,9 @@ def serialize_lessons(queryset):
 
 def _map_exam(item):
     item["assignments"] = item.pop("exam_assignments")
+    item["node_ids"] = list(
+        {question["exercise_id"] for question in item.get("question_sources")}
+    )
     return item
 
 
@@ -331,6 +334,26 @@ class ClassSummaryViewSet(viewsets.ViewSet):
         lesson_data = serialize_lessons(query_lesson)
         exam_data = serialize_exams(query_exams)
 
+        all_node_ids = set()
+        for lesson in lesson_data:
+            all_node_ids |= set(lesson.get("node_ids"))
+        for exam in exam_data:
+            all_node_ids |= set(exam.get("node_ids"))
+
+        content = list(
+            ContentNode.objects.filter_by_uuids(all_node_ids).values(
+                "available",
+                "content_id",
+                "title",
+                "kind",
+                "channel_id",
+                "options",
+                node_id=F("id"),
+            )
+        )
+        # final list of available nodes
+        node_lookup = {node["node_id"]: node for node in content}
+
         individual_learners_group_ids = AdHocGroup.objects.filter(
             parent=classroom
         ).values_list("id", flat=True)
@@ -342,6 +365,11 @@ class ClassSummaryViewSet(viewsets.ViewSet):
                 for g in exam["assignments"]
                 if g != pk and g not in individual_learners_group_ids
             ]
+            # determine if any resources are missing locally for the quiz
+            exam["missing_resource"] = any(
+                node_id not in node_lookup or not node_lookup[node_id]["available"]
+                for node_id in exam["node_ids"]
+            )
 
         # filter classes out of lesson assignments
         for lesson in lesson_data:
@@ -350,41 +378,11 @@ class ClassSummaryViewSet(viewsets.ViewSet):
                 for g in lesson["assignments"]
                 if g != pk and g not in individual_learners_group_ids
             ]
-
-        all_node_ids = set()
-        for lesson in lesson_data:
-            all_node_ids |= set(lesson.get("node_ids"))
-        for exam in exam_data:
-            exam_node_ids = [
-                question["exercise_id"] for question in exam.get("question_sources")
-            ]
-            all_node_ids |= set(exam_node_ids)
-
-        # map node ids => content_ids so we can replace missing nodes, if another matching content_id node exists
-        content_id_map = {
-            resource["contentnode_id"]: resource["content_id"]
-            for lesson in lesson_data
-            for resource in (lesson.pop("resources") or [])
-        }
-        query_content = ContentNode.objects.filter_by_uuids(all_node_ids)
-        # final list of available nodes
-        list_of_ids = [node.id for node in query_content]
-        # determine a new list of node_ids for each lesson, removing/replacing missing content items
-        for lesson in lesson_data:
-            node_ids = []
-            for node_id in lesson["node_ids"]:
-                # if resource exists, add to node_ids
-                if node_id in list_of_ids:
-                    node_ids.append(node_id)
-                else:
-                    # if resource does not exist, check if another resource with same content_id exists
-                    nodes = ContentNode.objects.filter(
-                        content_id=content_id_map[node_id]
-                    )
-                    if nodes:
-                        node_ids.append(nodes[0].id)
-            # point to new list of node ids
-            lesson["node_ids"] = node_ids
+            # determine if any resources are missing locally for the lesson
+            lesson["missing_resource"] = any(
+                node_id not in node_lookup or not node_lookup[node_id]["available"]
+                for node_id in lesson["node_ids"]
+            )
 
         learners_data = serialize_users(query_learners)
 
@@ -404,16 +402,7 @@ class ClassSummaryViewSet(viewsets.ViewSet):
             ),
             "exams": exam_data,
             "exam_learner_status": serialize_coach_assigned_quiz_status(query_exams),
-            "content": list(
-                query_content.values(
-                    "content_id",
-                    "title",
-                    "kind",
-                    "channel_id",
-                    "options",
-                    node_id=F("id"),
-                )
-            ),
+            "content": content,
             "content_learner_status": content_status_serializer(
                 lesson_data, learners_data, classroom
             ),

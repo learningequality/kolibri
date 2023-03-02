@@ -197,6 +197,7 @@
           'margin-top': this.fixedHeaderHeight === '0px' ? '24px' : this.fixedHeaderHeight,
           padding: '24px 32px 16px',
           'overflow-y': 'scroll',
+          'overflow-x': 'hidden',
           height: `calc(100vh - ${this.fixedHeaderHeight})`,
         };
       },

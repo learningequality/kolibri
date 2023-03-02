@@ -56,6 +56,12 @@
       :value="attemptLog.num_coach_contents || 0"
       :isTopic="false"
     />
+    <KIcon
+      v-if="attemptLog.missing_resource"
+      class="coach-content-label"
+      icon="warning"
+      :color="$themePalette.orange.v_400"
+    />
   </span>
 
 </template>

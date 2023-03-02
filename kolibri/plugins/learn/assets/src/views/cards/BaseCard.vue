@@ -31,7 +31,7 @@
         <TextTruncatorCss
           dir="auto"
           :text="title"
-          :maxLines="2"
+          :maxLines="1"
         />
       </h3>
     </div>

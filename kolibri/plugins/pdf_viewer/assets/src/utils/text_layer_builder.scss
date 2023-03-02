@@ -35,7 +35,10 @@
   letter-spacing: normal;
   opacity: 0.2;
   text-size-adjust: none;
+
+  /* stylelint-disable */
   forced-color-adjust: none;
+  /* stylelint-enable */
 }
 
 .text-layer span,

@@ -87,7 +87,7 @@
           }
         } else if (this.step === Steps.SELECT_SOURCE_FACILITY_PEER) {
           this.$emit('cancel');
-          let newRoute = availableChannelsPageLink({ addressId: data.id });
+          const newRoute = availableChannelsPageLink({ addressId: data.id });
           newRoute.query.setup = true;
           this.$router.push(newRoute);
         }

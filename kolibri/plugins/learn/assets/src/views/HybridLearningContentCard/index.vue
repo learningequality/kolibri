@@ -2,16 +2,15 @@
 
   <div class="card drop-shadow">
     <router-link
-      :to="link"
+      :to="to"
       class="card card-link"
       :class="[
-        { 'mobile-card': isMobile },
         $computedClass({ ':focus': $coreOutline })
       ]"
       :style="{ backgroundColor: $themeTokens.surface }"
     >
       <div class="header-bar" :style="headerStyles">
-        <div v-if="!content.is_leaf">
+        <div v-if="!contentNode.is_leaf">
           <KIcon
             icon="topic"
             :color="$themeTokens.textInverted"
@@ -22,67 +21,41 @@
           </p>
         </div>
         <LearningActivityLabel
-          v-if="content.is_leaf"
+          v-if="contentNode.is_leaf"
           :labelAfter="true"
-          :contentNode="content"
+          :contentNode="contentNode"
           :hideDuration="true"
           class="learning-activity-label"
           :style="{ color: $themeTokens.text }"
         />
         <img
-          v-if="content.is_leaf && content.channel_thumbnail.length > 0"
-          :src="content.channel_thumbnail"
-          :alt="learnString('logo', { channelTitle: content.channel_title })"
+          v-if="contentNode.is_leaf && channelThumbnail.length > 0"
+          :src="channelThumbnail"
+          :alt="learnString('logo', { channelTitle: channelTitle })"
           class="channel-logo"
         >
       </div>
       <CardThumbnail
         class="thumbnail"
-        :isMobile="isMobile"
-        :contentNode="content"
+        :contentNode="contentNode"
       />
       <div class="text" :style="{ color: $themeTokens.text }">
         <h3 class="title" dir="auto">
           <TextTruncatorCss
-            :text="content.title"
-            :maxLines="3"
+            :text="contentNode.title"
+            :maxLines="1"
           />
         </h3>
         <KButton
-          v-if="content.copies && content.copies.length"
+          v-if="contentNode.copies && contentNode.copies.length"
           appearance="basic-link"
           class="copies"
-          :text="coreString('copies', { num: content.copies.length })"
-          @click.prevent="$emit('openCopiesModal', content.copies)"
+          :text="coreString('copies', { num: contentNode.copies.length })"
+          @click.prevent="$emit('openCopiesModal', contentNode.copies)"
         />
       </div>
     </router-link>
-    <div class="footer">
-      <ProgressBar
-        class="progress-bar"
-        :contentNode="content"
-        :style="{ maxWidth: `calc(100% - ${24 + 32 * footerLength}px)` }"
-      />
-      <div class="footer-icons">
-        <CoachContentLabel
-          v-if="isUserLoggedIn && !isLearner && content.num_coach_contents"
-          :style="coachContentLabelStyles"
-          class="coach-content-label"
-          :value="content.num_coach_contents"
-          :isTopic="isTopic"
-        />
-        <KIconButton
-          v-if="content.is_leaf"
-          icon="infoOutline"
-          size="mini"
-          :color="$themePalette.grey.v_600"
-          :ariaLabel="coreString('viewInformation')"
-          :tooltip="coreString('viewInformation')"
-          @click="$emit('toggleInfoPanel')"
-        />
-        <slot name="actions"></slot>
-      </div>
-    </div>
+    <slot name="footer"></slot>
   </div>
 
 </template>
@@ -90,12 +63,10 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
   import { validateLinkObject } from 'kolibri.utils.validators';
-  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import ProgressBar from '../ProgressBar';
+  import useChannels from '../../composables/useChannels';
   import LearningActivityLabel from '../LearningActivityLabel';
   import commonLearnStrings from '../commonLearnStrings';
   import CardThumbnail from './CardThumbnail.vue';
@@ -104,35 +75,32 @@
     name: 'HybridLearningContentCard',
     components: {
       CardThumbnail,
-      CoachContentLabel,
       TextTruncatorCss,
       LearningActivityLabel,
-      ProgressBar,
     },
     mixins: [commonLearnStrings, commonCoreStrings],
+    setup() {
+      const { getChannelThumbnail, getChannelTitle } = useChannels();
+      return {
+        getChannelThumbnail,
+        getChannelTitle,
+      };
+    },
     props: {
-      link: {
+      to: {
         type: Object,
         required: true,
         validator: validateLinkObject,
       },
-      isMobile: {
-        type: Boolean,
-        default: false,
-      },
-      content: {
+      contentNode: {
         type: Object,
         required: true,
       },
     },
     computed: {
-      ...mapGetters(['isLearner', 'isUserLoggedIn']),
-      isTopic() {
-        return !this.content.is_leaf;
-      },
       headerStyles() {
         let styles = {};
-        if (!this.content.is_leaf) {
+        if (!this.contentNode.is_leaf) {
           styles = {
             backgroundColor: this.$themeTokens.text,
             borderRadius: '8px 8px 0 0',
@@ -141,21 +109,11 @@
         }
         return styles;
       },
-      footerLength() {
-        return (
-          (this.content.is_leaf ? 1 : 0) +
-          (this.isUserLoggedIn && !this.isLearner && this.content.num_coach_contents ? 1 : 0) +
-          (this.$slots.actions ? this.$slots.actions.length : 0)
-        );
+      channelThumbnail() {
+        return this.getChannelThumbnail(this.contentNode && this.contentNode.channel_id);
       },
-      coachContentLabelStyles() {
-        if (this.content.num_coach_contents < 2 && !this.isTopic) {
-          return { maxWidth: '24px', marginTop: '4px' };
-        } else if (this.content.num_coach_contents < 2 && this.isTopic) {
-          return { maxWidth: '24px', marginTop: '4px', marginRight: '16px' };
-        } else {
-          return {};
-        }
+      channelTitle() {
+        return this.getChannelTitle(this.contentNode && this.contentNode.channel_id);
       },
     },
   };
@@ -167,9 +125,6 @@
 
   @import '~kolibri-design-system/lib/styles/definitions';
   @import './card';
-
-  $margin: 16px;
-  $margin-thin: 8px;
 
   .drop-shadow {
     @extend %dropshadow-1dp;
@@ -245,60 +200,8 @@
     padding: 0 $margin $margin $margin;
   }
 
-  .footer {
-    position: absolute;
-    bottom: 0;
-    display: flex;
-    width: 100%;
-    padding: $margin;
-  }
-
-  .progress-bar {
-    position: absolute;
-    bottom: 12px;
-    left: $margin-thin;
-  }
-
-  .footer-icons {
-    position: absolute;
-    right: $margin-thin;
-    bottom: $margin-thin;
-    display: inline;
-    // this override fixes an existing KDS bug with
-    // the hover state circle being squished
-    // and can be removed upon that hover state fix
-    .button {
-      width: 32px !important;
-      height: 32px !important;
-
-      /deep/ svg {
-        top: 4px !important;
-      }
-    }
-  }
-
-  .coach-content-label {
-    vertical-align: top;
-  }
-
   .learning-activity-label {
     width: 60%;
-  }
-
-  .mobile-card.card {
-    width: 100%;
-    height: 490px;
-  }
-
-  .mobile-card {
-    .thumbnail {
-      position: absolute;
-    }
-
-    .text {
-      height: 84px;
-      margin-top: $thumb-height-mobile-hybrid-learning;
-    }
   }
 
 </style>

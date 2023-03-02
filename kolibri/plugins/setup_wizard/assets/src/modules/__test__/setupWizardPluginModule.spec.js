@@ -28,7 +28,7 @@ describe('Setup Wizard Vuex module', () => {
   it('sets the correct default facility name', async () => {
     const store = makeStore();
     store.commit('SET_FACILITY_PRESET', 'informal');
-    store.commit('SET_SUPERUSER_CREDENTIALS', {
+    store.commit('SET_USER_CREDENTIALS', {
       full_name: 'Kolibri Admin',
     });
     await store.dispatch('provisionDevice');

@@ -57,7 +57,7 @@
     inject: ['showActive'],
     computed: {
       active() {
-        let showActive = typeof this.showActive !== 'undefined' ? this.showActive : true;
+        const showActive = typeof this.showActive !== 'undefined' ? this.showActive : true;
         return showActive && window.location.pathname.startsWith(this.link);
       },
       optionStyle() {

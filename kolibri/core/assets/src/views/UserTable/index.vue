@@ -165,10 +165,9 @@
             </td>
             <template v-if="showDemographicInfo">
               <td class="id-col">
-                <span v-if="user.id_number">
-                  {{ user.id_number }}
-                </span>
-                <KEmptyPlaceholder v-else />
+                <KOptionalText
+                  :text="user.id_number ? user.id_number : ''"
+                />
               </td>
               <td>
                 <GenderDisplayText :gender="user.gender" />
@@ -297,7 +296,10 @@
       selectAll(checked) {
         const currentUsers = this.users.map(user => user.id);
         if (checked) {
-          return this.$emit('input', [...this.value, ...currentUsers]);
+          return this.$emit(
+            'input',
+            this.value.concat(currentUsers.filter(item => this.value.indexOf(item) < 0))
+          );
         }
         return this.$emit('input', difference(this.value, currentUsers));
       },

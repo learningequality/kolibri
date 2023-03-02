@@ -635,7 +635,7 @@ class MorangoSyncCommand(AsyncCommand):
         :type sync_state: str
         :type noninteractive: bool
         """
-        tracker = self.start_progress(total=100)
+        tracker = self.start_progress(total=100).progresstracker
 
         def stats_msg(transfer_session):
             transfer_total = (
@@ -664,8 +664,8 @@ class MorangoSyncCommand(AsyncCommand):
             else:
                 progress = 100
 
-            tracker.update_progress(
-                increment=math.ceil(progress - tracker.job.progress),
+            self.update_progress(
+                increment=math.ceil(progress - tracker.progress),
                 message=stats_msg(transfer_session),
                 extra_data=dict(
                     bytes_sent=transfer_session.bytes_sent,
@@ -691,7 +691,7 @@ class MorangoSyncCommand(AsyncCommand):
         :type sync_state: str
         :type noninteractive: bool
         """
-        tracker = self.start_progress(total=2)
+        tracker = self.start_progress(total=2).progresstracker
 
         def started(transfer_session):
             dataset_cache.clear()
@@ -705,7 +705,7 @@ class MorangoSyncCommand(AsyncCommand):
                     logger.info("No records transferred")
 
         def handler(transfer_session):
-            tracker.update_progress(
+            self.update_progress(
                 message=message, extra_data=dict(sync_state=sync_state)
             )
 

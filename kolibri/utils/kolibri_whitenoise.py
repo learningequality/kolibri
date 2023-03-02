@@ -18,7 +18,7 @@ from whitenoise.responders import Response
 from whitenoise.responders import StaticFile
 from whitenoise.string_utils import decode_path_info
 
-from kolibri.utils.file_transfer import FileDownload
+from kolibri.utils.file_transfer import RemoteFile
 
 
 compressed_file_extensions = ("gz",)
@@ -87,43 +87,6 @@ class FileFinder(finders.FileSystemFinder):
         path = _get_file_path(root, path, prefix)
         if path and os.path.exists(path):
             return path
-
-
-class RemoteFile(BufferedIOBase):
-    """
-    A file like wrapper to handle downloading a file from a remote location.
-    """
-
-    def __init__(self, filepath, remote_url, callback=None):
-        self.transfer = FileDownload(
-            remote_url, filepath, remove_existing_temp_file=True
-        )
-        self.callback = callback
-        self.transfer.start()
-        self._previously_read = b""
-
-    def read(self, size=-1):
-        data = self._previously_read
-        while size == -1 or len(data) < size:
-            try:
-                data += next(self.transfer)
-            except StopIteration:
-                if self.callback:
-                    self.callback()
-                break
-        if size != -1:
-            self._previously_read = data[size:]
-            data = data[:size]
-        return data
-
-    def close(self):
-        # Finish the download and close the file
-        self.read()
-        self.transfer.close()
-
-    def seek(self, offset, whence=0):
-        # Just read from the response until the offset is reached
-        self.read(size=offset)
 
 
 class SlicedFile(BufferedIOBase):
@@ -229,6 +192,7 @@ class DynamicWhiteNoise(WhiteNoise):
         dynamic_locations=None,
         static_prefix=None,
         writable_locations=(0,),
+        app_paths=None,
         **kwargs
     ):
         whitenoise_settings = {
@@ -263,6 +227,9 @@ class DynamicWhiteNoise(WhiteNoise):
             if self.writable_locations
             else None
         )
+        self.app_path_check = (
+            re.compile("^({})".format("|".join(app_paths))) if app_paths else None
+        )
         if static_prefix is not None and not static_prefix.endswith("/"):
             raise ValueError("Static prefix must end in '/'")
         self.static_prefix = static_prefix
@@ -276,7 +243,9 @@ class DynamicWhiteNoise(WhiteNoise):
             static_file = self.find_file(path)
         else:
             static_file = self.files.get(path)
-        if static_file is None:
+        if static_file is None and (
+            self.app_path_check is None or not self.app_path_check.match(path)
+        ):
             static_file = self.find_and_cache_dynamic_file(path, remote_baseurl)
         if static_file is None:
             return self.application(environ, start_response)

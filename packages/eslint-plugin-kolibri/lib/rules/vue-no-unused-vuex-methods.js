@@ -12,10 +12,10 @@ const { VUEX_MUTATION, VUEX_ACTION } = require('../constants');
 
 const create = context => {
   let hasTemplate;
-  let unusedVuexProperties = [];
-  let thisExpressionsVariablesNames = [];
-  let befoureRouteEnterInstanceProperties = [];
-  let watchStringMethods = [];
+  const unusedVuexProperties = [];
+  const thisExpressionsVariablesNames = [];
+  const befoureRouteEnterInstanceProperties = [];
+  const watchStringMethods = [];
 
   const initialize = {
     Program(node) {

@@ -60,14 +60,24 @@ for key, labels in metadata_lookup.items():
 
 
 def _get_available_languages(base_queryset):
-    lang_ids = (
-        base_queryset.exclude(lang=None).values_list("lang_id", flat=True).distinct()
-    )
-    return list(lang_ids)
+    from kolibri.core.content.models import Language
+
+    langs = Language.objects.filter(
+        id__in=base_queryset.exclude(lang=None)
+        .values_list("lang_id", flat=True)
+        .distinct()
+    ).values("id", "lang_name")
+    return list(langs)
 
 
 def _get_available_channels(base_queryset):
-    return list(base_queryset.values_list("channel_id", flat=True).distinct())
+    from kolibri.core.content.models import ChannelMetadata
+
+    return list(
+        ChannelMetadata.objects.filter(
+            id__in=base_queryset.values_list("channel_id", flat=True).distinct()
+        ).values("id", "name")
+    )
 
 
 class SQLiteBitwiseORAggregate(Aggregate):

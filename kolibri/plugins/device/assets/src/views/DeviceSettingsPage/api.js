@@ -54,8 +54,8 @@ export function getPathPermissions(path) {
 }
 
 export function getPathsPermissions(paths) {
-  let pathsInfo = [];
-  for (let path of paths) {
+  const pathsInfo = [];
+  for (const path of paths) {
     getPathPermissions(path).then(permissions => {
       pathsInfo.push({ path, writable: permissions.data.writable });
     });

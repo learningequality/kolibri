@@ -44,6 +44,11 @@
             {{ $tr('lastSync', { relativeTime: formattedTime(facility.last_successful_sync) }) }}
           </span>
         </template>
+        <KButton
+          :text="$tr('createSync')"
+          appearance="basic-link"
+          @click="$emit('manageSync')"
+        />
       </span>
     </div>
   </div>
@@ -135,6 +140,10 @@
       syncing: {
         message: 'Syncing',
         context: 'Indicates when a syncing process between facilities is in progress.',
+      },
+      createSync: {
+        message: 'Create sync schedule',
+        context: 'Link to create sync schedule',
       },
     },
   };

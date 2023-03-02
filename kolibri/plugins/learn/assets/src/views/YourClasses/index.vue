@@ -13,7 +13,7 @@
       <KFixedGridItem :span="1" alignment="right">
         <KRouterLink
           v-if="displayAllClassesLink"
-          :text="$tr('viewAll')"
+          :text="coreString('viewAll')"
           :to="allClassesLink"
           data-test="viewAllLink"
         />
@@ -50,6 +50,7 @@
 
 <script>
 
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ClassesPageNames } from '../../constants';
   import { classAssignmentsLink } from '../classes/classPageLinks';
   import CardGrid from '../cards/CardGrid';
@@ -64,6 +65,7 @@
       CardGrid,
       CardLink,
     },
+    mixins: [commonCoreStrings],
     props: {
       classes: {
         type: Array,
@@ -110,10 +112,6 @@
         message: 'You are not enrolled in any classes',
         context:
           'Message that a learner sees in the Learn > CLASSES section and in the Learn > HOME section if they are not enrolled in any classes.',
-      },
-      viewAll: {
-        message: 'View all',
-        context: 'Option to view all the classes the user is enrolled in.',
       },
     },
   };

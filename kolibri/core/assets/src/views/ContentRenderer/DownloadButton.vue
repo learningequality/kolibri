@@ -35,7 +35,7 @@
     },
     computed: {
       fileOptions() {
-        let options = this.files.map(file => {
+        const options = this.files.map(file => {
           const label = getFilePresetString(file);
           return {
             label,

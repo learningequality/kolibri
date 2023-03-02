@@ -1,13 +1,54 @@
 <template>
 
   <div class="full-page">
-    <CoreLogo class="logo" />
-    <h1 class="page-title">
-      {{ $tr('pageTitle') }}
-    </h1>
-    <p class="message">
-      {{ $tr('pleaseWaitMessage') }}
-    </p>
+    <main class="content">
+      <KolibriLoadingSnippet />
+      <h1 class="page-title">
+        {{ $tr('pageTitle') }}
+      </h1>
+      <p class="message">
+        {{ $tr('pleaseWaitMessage') }}
+      </p>
+    </main>
+    <div
+      v-if="devMode"
+      style="
+        z-index: 9999;
+        position: absolute;
+        left: 1em;
+        right: 1em;
+        bottom: 1em;
+        top: 1em;
+        background-color: rgba(0, 0, 0, 0.86);
+        padding: 2em;
+        color: white;
+        font-weight: bold;
+        overflow: auto;
+      "
+    >
+      <h2>Setup Wizard Debugger 3000</h2>
+      <h3>Device Provisioning Data</h3>
+      <pre>{{ JSON.stringify(deviceProvisioningData, null, 2) }}</pre>
+      <KButtonGroup
+        style="
+          position: fixed;
+          top: 2em;
+          right: 3em;
+        "
+      >
+        <KButton
+          icon="back"
+          text="START OVER"
+          @click="wizardService.send('START_OVER')"
+        />
+        <KButton
+          primary
+          iconAfter="forward"
+          text="Continue and Finish"
+          @click="provisionDevice()"
+        />
+      </KButtonGroup>
+    </div>
   </div>
 
 </template>
@@ -15,36 +56,126 @@
 
 <script>
 
-  import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
-  import { FacilityImportResource } from '../../api';
+  import { v4 } from 'uuid';
+  import omitBy from 'lodash/omitBy';
+  import get from 'lodash/get';
+  import { currentLanguage } from 'kolibri.utils.i18n';
+  import { checkCapability } from 'kolibri.utils.appCapabilities';
+  import KolibriLoadingSnippet from 'kolibri.coreVue.components.KolibriLoadingSnippet';
+  import urls from 'kolibri.urls';
+  import client from 'kolibri.client';
   import { UsePresets } from '../../constants';
 
   export default {
     name: 'SettingUpKolibri',
-    components: { CoreLogo },
+    components: { KolibriLoadingSnippet },
     inject: ['wizardService'],
-    mounted() {
-      // If we're in app mode
-      if (this.wizardService.state.context.canGetOsUser) {
-        const facilityUserData = {
-          facility_name: this.$store.state.onboardingData.facility.name,
-          extra_fields: {
-            on_my_own_setup: this.isOnMyOwnSetup(),
-            os_user: true,
-          },
+    data() {
+      return {
+        devMode: process.NODE_ENV !== 'production',
+      };
+    },
+    computed: {
+      facilityData() {
+        // FIXME Should the default name be i18nized?
+        const facilityName = this.wizardContext('facilityName') || 'Default Facility Name';
+        const selectedFacility = this.wizardContext('selectedFacility');
+        if (selectedFacility) {
+          if (selectedFacility.id) {
+            // Imported a facility already
+            return { facility_id: selectedFacility.id };
+          } else {
+            return { facility: selectedFacility };
+          }
+        } else {
+          // Default -- no facility was selected
+          return { facility: { name: facilityName } };
+        }
+      },
+      learnerCanLoginWithNoPassword() {
+        // The user answers the question "Enable passwords" -- so the `requirePassword` value
+        // is the boolean opposite of whatever the value we need to assign here is.
+        // If there is already a facility imported, we will use its value
+        // If it is `null`, then it was never set by the user and we set to require passwords
+        const { facility, facility_id } = this.facilityData;
+        // If we have a facility_id then we imported the facility
+        if (facility_id) {
+          return null;
+        }
+        const facilitySetting = get(facility, 'learner_can_login_with_no_password', null);
+        if (facilitySetting !== null) {
+          return facilitySetting;
+        } else {
+          return this.wizardContext('requirePassword') === null
+            ? true
+            : !this.wizardContext('requirePassword');
+        }
+      },
+      /** The data we will use to initialize the device during provisioning */
+      deviceProvisioningData() {
+        const superuser = this.wizardContext('superuser');
+        const settings = {
+          learner_can_login_with_no_password: this.learnerCanLoginWithNoPassword,
+          // The default nonformal facility sets the following to True -- however the onMyOwnUser
+          // flow will have the user create a password and then they will sign in with it
+          // null values are removed from the final payload
+          learner_can_edit_password:
+            this.isOnMyOwnSetup || checkCapability('get_os_user') ? false : null,
+          on_my_own_setup: this.isOnMyOwnSetup,
+          learner_can_sign_up: this.wizardContext('learnerCanCreateAccount'),
         };
-        FacilityImportResource.createsuperuser(facilityUserData)
-          .then(
-            () => (window.location = window.urls['kolibri:kolibri.plugins.user_auth:user_auth']())
-          )
-          .catch(err => console.log(err));
+
+        const payload = {
+          ...this.facilityData,
+          superuser,
+          settings: omitBy(settings, v => v === null),
+          preset: this.wizardContext('formalOrNonformal') || 'nonformal',
+          language_id: currentLanguage,
+          device_name: this.wizardContext('deviceName'),
+          allow_guest_access: Boolean(this.wizardContext('guestAccess')),
+          is_provisioned: true,
+          os_user: checkCapability('get_os_user'),
+          auth_token: v4(),
+        };
+
+        // Remove anything that is `null` value
+        return omitBy(payload, v => v === null);
+      },
+
+      /** Introspecting the machine via it's `state.context` properties */
+      isOnMyOwnSetup() {
+        return this.wizardContext('onMyOwnOrGroup') == UsePresets.ON_MY_OWN;
+      },
+    },
+    mounted() {
+      if (this.devMode) {
+        return null; // debugger activated, don't do anything
       } else {
-        window.location = window.urls['kolibri:kolibri.plugins.user_auth:user_auth']();
+        this.provisionDevice();
       }
     },
     methods: {
-      isOnMyOwnSetup() {
-        return this.wizardService.state.context.onMyOwnOrGroup == UsePresets.ON_MY_OWN;
+      // A helper for readability
+      wizardContext(key) {
+        return this.wizardService.state.context[key];
+      },
+      provisionDevice() {
+        console.log('PROVISIONING!');
+        client({
+          url: urls['kolibri:core:deviceprovision'](),
+          method: 'POST',
+          data: this.deviceProvisioningData,
+        })
+          .then(response => {
+            const appKey = response.data.app_key;
+
+            const path = appKey
+              ? urls['kolibri:kolibri.plugins.app:initialize'](appKey) + '?auth_token=' + v4()
+              : urls['kolibri:kolibri.plugins.user_auth:user_auth']();
+
+            window.location.href = path;
+          })
+          .catch(e => console.error(e));
       },
     },
     $trs: {
@@ -65,33 +196,18 @@
 <style scoped lang="scss">
 
   .full-page {
+    /* Fill the screen, no scroll bars */
     position: relative;
     width: 100vw;
     height: 100vh;
     overflow: hidden;
   }
 
-  .logo {
-    display: block;
-    max-width: 400px;
-    padding: 0 2em;
-    margin: 12em auto 0;
-
-    /* TODO Replace this with animated logo */
-    animation-name: spin;
-    animation-duration: 400ms;
-    animation-timing-function: linear;
-    animation-iteration-count: infinite;
-  }
-
-  @keyframes spin {
-    from {
-      transform: rotate(0deg);
-    }
-
-    to {
-      transform: rotate(360deg);
-    }
+  .content {
+    /* Vertically centered */
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
   }
 
   .page-title,

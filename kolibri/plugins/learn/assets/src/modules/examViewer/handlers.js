@@ -4,7 +4,6 @@ import { convertExamQuestionSources } from 'kolibri.utils.exams';
 import shuffled from 'kolibri.utils.shuffled';
 import { ClassesPageNames } from '../../constants';
 import { LearnerClassroomResource } from '../../apiResources';
-import { contentState } from '../coreLearn/utils';
 
 export function showExam(store, params, alreadyOnQuiz) {
   const questionNumber = Number(params.questionNumber);
@@ -74,8 +73,12 @@ export function showExam(store, params, alreadyOnQuiz) {
 
                 const contentNodeMap = {};
 
-                for (let node of contentNodes) {
-                  contentNodeMap[node.id] = contentState(node);
+                for (const node of contentNodes) {
+                  contentNodeMap[node.id] = node;
+                }
+
+                for (const question of questions) {
+                  question.missing = !contentNodeMap[question.exercise_id];
                 }
 
                 store.commit('examViewer/SET_STATE', {

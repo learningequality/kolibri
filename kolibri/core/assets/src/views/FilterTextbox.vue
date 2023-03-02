@@ -4,7 +4,7 @@
     <UiIcon
       class="k-filter-icon"
       :style="{ color: $themeTokens.annotation }"
-      :ariaLabel="$tr('filter')"
+      :ariaLabel="coreString('filter')"
     >
       <KIcon icon="search" />
     </UiIcon>
@@ -118,13 +118,6 @@
       handleClickClear() {
         this.model = '';
         this.$refs.searchinput.focus();
-      },
-    },
-    $trs: {
-      filter: {
-        message: 'filter',
-        context:
-          'The filter functionality allows users to find elements in Kolibri more efficiently. For example, in a list of users the filter can be used to view users by permissions, user type or facility.',
       },
     },
   };

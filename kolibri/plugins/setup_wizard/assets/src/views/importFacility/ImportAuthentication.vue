@@ -23,20 +23,22 @@
   export default {
     name: 'ImportAuthentication',
     components: { FacilityAdminCredentialsForm, OnboardingStepBase },
-    props: {
-      device: {
-        type: Object,
-        required: true,
-      },
-      facility: {
-        type: Object,
-        required: true,
-      },
-    },
+    inject: ['wizardService'],
     data() {
       return {
         formDisabled: false,
       };
+    },
+    computed: {
+      facility() {
+        return this.wizardService._state.context.selectedFacility;
+      },
+      device() {
+        return this.wizardService._state.context.importDevice;
+      },
+    },
+    mounted() {
+      console.log('ImportAuthentication', this.wizardService.state);
     },
     methods: {
       callSubmitCredentials() {
@@ -69,7 +71,7 @@
               password: data.password,
             });
             */
-            this.$emit('click_next');
+            this.wizardService.send('CONTINUE');
           } else {
             this.formDisabled = false;
           }

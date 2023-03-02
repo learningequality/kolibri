@@ -5,7 +5,7 @@
     <!-- for interacting or updating the results   -->
     <h2 class="results-title" data-test="search-results-title">
       {{ more ?
-        coreString('overCertainNumberOfSearchResults', { num: results.length }) :
+        coreString('uncountedAdditionalResults', { num: results.length }) :
         $tr('results', { results: results.length })
       }}
     </h2>
@@ -39,6 +39,7 @@
     <!-- Grid of search results  -->
     <LibraryAndChannelBrowserMainContent
       :contents="results"
+      :allowDownloads="allowDownloads"
       data-test="search-results-card-grid"
       :currentCardViewStyle="currentCardViewStyle"
       :gridType="1"
@@ -93,6 +94,10 @@
       };
     },
     props: {
+      allowDownloads: {
+        type: Boolean,
+        default: false,
+      },
       currentCardViewStyle: {
         type: String,
         default: 'card',

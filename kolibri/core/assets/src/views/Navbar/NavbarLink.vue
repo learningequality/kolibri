@@ -6,6 +6,7 @@
       :class="$computedClass(tabStyles)"
       :style="windowIsSmall ? smallScreenOverrides : {}"
       :to="link"
+      :activeClass="activeClasses"
     >
       <div class="dimmable tab-icon">
         <slot></slot>
@@ -68,6 +69,12 @@
           borderBottomWidth: '2px',
         };
       },
+      activeClasses() {
+        // return both fixed and dynamic classes
+        return `router-link-active ${this.$computedClass({
+          color: this.$themeTokens.textInverted,
+        })}`;
+      },
     },
   };
 
@@ -116,8 +123,6 @@
   //  3. Somehow refactor the tab styling to not require nested active classes
   .router-link-active {
     font-weight: bold;
-    color: white;
-    border-bottom-color: white;
     border-bottom-style: solid;
     border-bottom-width: 4px;
 

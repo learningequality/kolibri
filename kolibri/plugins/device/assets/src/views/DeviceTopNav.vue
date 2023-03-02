@@ -13,17 +13,18 @@
   import { mapGetters } from 'vuex';
   import HorizontalNavBarWithOverflowMenu from 'kolibri.coreVue.components.HorizontalNavBarWithOverflowMenu';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonDeviceStrings from './commonDeviceStrings';
 
   export default {
     name: 'DeviceTopNav',
     components: {
       HorizontalNavBarWithOverflowMenu,
     },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, commonDeviceStrings],
     computed: {
       ...mapGetters(['canManageContent', 'isSuperuser']),
       links() {
-        let list = [];
+        const list = [];
         if (this.canManageContent) {
           list.push({
             title: this.coreString('channelsLabel'),
@@ -35,7 +36,7 @@
         if (this.isSuperuser) {
           list.push([
             {
-              title: this.$tr('permissionsLabel'),
+              title: this.deviceString('permissionsLabel'),
               link: this.$router.getRoute('MANAGE_PERMISSIONS_PAGE'),
               icon: 'permissions',
               color: this.$themeTokens.textInverted,
@@ -47,13 +48,13 @@
               color: this.$themeTokens.textInverted,
             },
             {
-              title: this.$tr('infoLabel'),
+              title: this.coreString('infoLabel'),
               link: this.$router.getRoute('DEVICE_INFO_PAGE'),
               icon: 'deviceInfo',
               color: this.$themeTokens.textInverted,
             },
             {
-              title: this.$tr('settingsLabel'),
+              title: this.coreString('settingsLabel'),
               link: this.$router.getRoute('DEVICE_SETTINGS_PAGE'),
               icon: 'settings',
               color: this.$themeTokens.textInverted,
@@ -61,21 +62,6 @@
           ]);
         }
         return list.flat();
-      },
-    },
-
-    $trs: {
-      permissionsLabel: {
-        message: 'Permissions',
-        context: 'Refers to the Device > Permissions tab.',
-      },
-      infoLabel: {
-        message: 'Info',
-        context: 'Refers to the Device > Info tab.',
-      },
-      settingsLabel: {
-        message: 'Settings',
-        context: 'Refers to the Device > Settings tab.\n',
       },
     },
   };

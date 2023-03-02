@@ -26,6 +26,16 @@ export function updateCurrentLesson(store, lessonId) {
   );
 }
 
+export function fetchLessonsSizes(store, classId) {
+  return LessonResource.fetchLessonsSizes(classId)
+    .then(sizes => {
+      store.commit('SET_CLASS_LESSONS_SIZES', sizes);
+    })
+    .catch(error => {
+      return store.dispatch('handleApiError', error, { root: true });
+    });
+}
+
 export function getResourceCache(store, resourceIds) {
   // duplicate data to remove reliance on state throughout the entire method
   const { resourceCache } = Object.assign({}, store.state);
@@ -43,14 +53,16 @@ export function getResourceCache(store, resourceIds) {
     return ContentNodeResource.fetchCollection({
       getParams: {
         ids: nonCachedResourceIds,
+        no_available_filtering: true,
       },
     }).then(contentNodes => {
-      contentNodes.forEach(contentNode =>
+      contentNodes.forEach(contentNode => {
+        const channel = store.getters.getChannelForNode(contentNode);
         store.commit('ADD_TO_RESOURCE_CACHE', {
           node: contentNode,
-          channelTitle: store.getters.getChannelForNode(contentNode).title,
-        })
-      );
+          channelTitle: channel ? channel.title : '',
+        });
+      });
       return { ...resourceCache };
     });
   } else {

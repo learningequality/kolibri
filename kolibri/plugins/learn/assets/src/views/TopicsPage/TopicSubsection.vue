@@ -33,6 +33,7 @@
       v-if="topic.children && topic.children.length"
       data-test="children-cards-grid"
       :contents="topic.children"
+      :allowDownloads="allowDownloads"
       currentCardViewStyle="card"
       :gridType="2"
       :keepCurrentBackLink="true"
@@ -48,7 +49,7 @@
       {{ $tr('showMore') }}
     </KButton>
     <KRouterLink v-else-if="topic.viewAll" class="more-after-grid" :to="topic.viewAll">
-      {{ $tr('viewAll') }}
+      {{ coreString('viewAll') }}
     </KRouterLink>
     <KButton
       v-else-if="topic.viewMore && topic.id !== subTopicLoading"
@@ -80,6 +81,10 @@
       return { genContentLinkKeepCurrentBackLink };
     },
     props: {
+      allowDownloads: {
+        type: Boolean,
+        default: false,
+      },
       topic: {
         type: Object,
         required: true,
@@ -94,10 +99,6 @@
       showMore: {
         message: 'Show more',
         context: 'Clickable link which allows to load more resources.',
-      },
-      viewAll: {
-        message: 'View all',
-        context: 'Clickable link which allows to display all resources in a topic.',
       },
     },
   };

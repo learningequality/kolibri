@@ -192,7 +192,7 @@
       fetchOutsideClassroom() {
         this.fetchingOutside = true;
         ClassSummaryResource.fetchModel({ id: this.targetClassId, force: true }).then(summary => {
-          let summaryGroupMap = {};
+          const summaryGroupMap = {};
           summary.groups.forEach(group => {
             summaryGroupMap[group.id] = group;
           });
@@ -212,7 +212,7 @@
         this.$emit('update:selectedLearnerIds', newLearnerIds);
       },
       selectVisiblePage() {
-        let newIds = [...this.selectedLearnerIds];
+        const newIds = [...this.selectedLearnerIds];
         const isWholePageSelected = every(this.currentPageLearners, learner =>
           this.selectedLearnerIds.includes(learner.id)
         );

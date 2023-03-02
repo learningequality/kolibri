@@ -521,6 +521,11 @@ class ProcessControlPlugin(Monitor):
             if command == RESTART:
                 self.bus.log("Restarting server.")
                 self.thread.cancel()
+                if installation_types.WINDOWS in installation_type().lower():
+                    # On Windows, we need to restart the server with the same executable
+                    # magicbus gets messed up trying to find a python script to run
+                    sys.executable = sys.argv[0]
+                    sys.argv = sys.argv[1:]
                 self.bus.restart()
             elif command == STOP:
                 self.bus.log("Stopping server.")

@@ -42,13 +42,10 @@
         :layout8="{ span: 2 }"
         :layout12="{ span: 2 }"
       >
-        <CardThumbnail
+        <ChannelThumbnail
           class="thumbnail"
           :thumbnail="thumbnail"
           :isMobile="windowIsSmall"
-          :showTooltip="false"
-          kind="channel"
-          :showContentIcon="false"
         />
       </KGridItem>
 
@@ -79,13 +76,13 @@
   import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import CardThumbnail from '../ContentCard/CardThumbnail';
+  import ChannelThumbnail from '../ChannelThumbnail';
   import commonLearnStrings from './../commonLearnStrings';
 
   export default {
     name: 'TopicsHeader',
     components: {
-      CardThumbnail,
+      ChannelThumbnail,
       KBreadcrumbs,
       TextTruncator,
     },

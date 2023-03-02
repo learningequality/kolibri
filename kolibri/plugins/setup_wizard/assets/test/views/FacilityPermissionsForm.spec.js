@@ -9,6 +9,16 @@ function makeWrapper() {
   const wrapper = mount(FacilityPermissionsForm, {
     attachTo: node,
     store,
+    provide: {
+      wizardService: {
+        state: {
+          context: {
+            learnerCanCreateAccount: null,
+            formalOrNonformal: 'nonformal',
+          },
+        },
+      },
+    },
   });
   // prettier-ignore
   const els = {

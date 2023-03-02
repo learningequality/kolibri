@@ -59,6 +59,11 @@
                 >
                   <template #options>
                     <CoreMenuOption
+                      :style="{ 'cursor': 'pointer', textAlign: 'left' }"
+                      :label="coreString('manageSyncAction')"
+                      @select="managesync()"
+                    />
+                    <CoreMenuOption
                       v-if="theFacility.dataset.registered"
                       :style="{ 'cursor': 'pointer', textAlign: 'left' }"
                       :label="$tr('register')"
@@ -78,7 +83,6 @@
         </tbody>
       </template>
     </CoreTable>
-
     <PrivacyModal
       v-if="modalShown === Modals.PRIVACY"
       @cancel="closeModal"
@@ -126,6 +130,7 @@
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
   import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
   import { TaskStatuses } from 'kolibri.utils.syncTaskUtils';
+  import { PageNames } from './../../../constants';
   import PrivacyModal from './PrivacyModal';
 
   const Modals = Object.freeze({
@@ -167,6 +172,9 @@
       this.syncTaskId = '';
     },
     methods: {
+      managesync() {
+        this.$router.push({ name: PageNames.MANAGE_SYNC_SCHEDULE });
+      },
       fetchFacility() {
         FacilityResource.fetchModel({ id: this.$store.getters.activeFacilityId, force: true }).then(
           facility => {

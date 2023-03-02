@@ -10,9 +10,11 @@ export default function clientFactory(options) {
   const client = axios.create({
     xsrfCookieName: 'kolibri_csrftoken',
     xsrfHeaderName: 'X-CSRFToken',
-    paramsSerializer: function(params) {
-      // Do custom querystring stingifying to comma separate array params
-      return qs.stringify(params, { arrayFormat: 'comma' });
+    paramsSerializer: {
+      serialize: function(params) {
+        // Do custom querystring stingifying to comma separate array params
+        return qs.stringify(params, { arrayFormat: 'comma' });
+      },
     },
     ...options,
   });

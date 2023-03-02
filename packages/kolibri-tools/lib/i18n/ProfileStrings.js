@@ -17,6 +17,7 @@ const {
   getAstFromFile,
   parseAST,
 } = require('./astUtils');
+const { forEachPathInfo } = require('./utils');
 
 // If you ever add a namespace here - you should also add that to the
 // $TR_FUNCTIONS array in the vue-no-unused-translations eslint rule.
@@ -60,9 +61,9 @@ function profileToCSV(profile) {
   return reduce(
     profile,
     (csv, data, $tr) => {
-      let definitions = data.definitions;
-      let uses = data.uses;
-      let dataRows = [];
+      const definitions = data.definitions;
+      const uses = data.uses;
+      const dataRows = [];
       definitions.forEach(def => {
         dataRows.push({
           string: $tr,
@@ -73,7 +74,7 @@ function profileToCSV(profile) {
         });
       });
       uses.forEach(use => {
-        let newUse = {
+        const newUse = {
           string: '',
           definition: 'No',
           namespace: use.namespace,
@@ -162,12 +163,12 @@ function profileVueScript(profile, ast, pathname, namespace, allMessages) {
                 common = true;
               }
 
-              let currentNamespace = common
+              const currentNamespace = common
                 ? COMMON_NAMESPACES[node.callee.property.name]
                 : namespace;
 
               if (key && currentNamespace) {
-                let $tring = getStringFromNamespaceKey(allMessages, currentNamespace, key);
+                const $tring = getStringFromNamespaceKey(allMessages, currentNamespace, key);
 
                 if ($tring) {
                   profile[$tring].uses.push({
@@ -214,10 +215,10 @@ function profileVueTemplate(profile, ast, pathname, namespace, allMessages) {
               common = true;
             }
 
-            let currentNamespace = common ? COMMON_NAMESPACES[node.callee.name] : namespace;
+            const currentNamespace = common ? COMMON_NAMESPACES[node.callee.name] : namespace;
 
             if (key && currentNamespace) {
-              let $tring = getStringFromNamespaceKey(allMessages, currentNamespace, key);
+              const $tring = getStringFromNamespaceKey(allMessages, currentNamespace, key);
 
               if ($tring) {
                 profile[$tring].uses.push({
@@ -240,9 +241,9 @@ function profileVueTemplate(profile, ast, pathname, namespace, allMessages) {
 }
 
 function profileJSFile(profile, ast, pathname, allMessages) {
-  let common = false;
-  let varDeclarations = {};
-  let $trUses = {};
+  const common = false;
+  const varDeclarations = {};
+  const $trUses = {};
 
   // Process the AST
   try {
@@ -266,7 +267,7 @@ function profileJSFile(profile, ast, pathname, allMessages) {
           if (node.callee && node.callee.type === 'MemberExpression') {
             if (node.callee.property && node.callee.property.name === '$tr') {
               if (node.arguments && node.arguments.length > 0) {
-                let varName = node.callee.object.name;
+                const varName = node.callee.object.name;
                 // Profile all $tr() calls (ie, uses of the key)
                 // storing the key (variableName) => value (key)
                 if (Object.keys($trUses).includes(varName)) {
@@ -332,7 +333,7 @@ function getVueTemplateAST(filePath) {
   return parseAST(render);
 }
 
-module.exports = function(pathInfo, ignore, outputFile) {
+module.exports = function(pathInfo, ignore, outputFile, verbose) {
   const allMessages = {};
   /**
    * An object where "Translation strings" are the keys.
@@ -343,17 +344,22 @@ module.exports = function(pathInfo, ignore, outputFile) {
    *
    */
   const definitions = {};
-  for (let pathData of pathInfo) {
+  forEachPathInfo(pathInfo, pathData => {
     const moduleFilePath = pathData.moduleFilePath;
     const name = pathData.name;
     logging.info(`Gathering string ids for ${name}`);
     let bundleMessages;
     if (pathData.entry) {
-      bundleMessages = getAllMessagesFromEntryFiles(pathData.entry, moduleFilePath, ignore);
+      bundleMessages = getAllMessagesFromEntryFiles(
+        pathData.entry,
+        moduleFilePath,
+        ignore,
+        verbose
+      );
     } else {
-      bundleMessages = getAllMessagesFromFilePath(moduleFilePath, ignore);
+      bundleMessages = getAllMessagesFromFilePath(moduleFilePath, ignore, verbose);
     }
-    for (let id in bundleMessages) {
+    for (const id in bundleMessages) {
       const message = bundleMessages[id]['message'];
       const [namespace, key] = id.split('.');
       if (!definitions[message]) {
@@ -366,9 +372,9 @@ module.exports = function(pathInfo, ignore, outputFile) {
     }
     Object.assign(allMessages, bundleMessages);
     logging.info(`Gathered ${Object.keys(bundleMessages).length} string ids for ${name}`);
-  }
+  });
   logging.info(`Gathered ${Object.keys(definitions).length} unique strings`);
-  for (let pathData of pathInfo) {
+  forEachPathInfo(pathInfo, pathData => {
     const moduleFilePath = pathData.moduleFilePath;
     const name = pathData.name;
     logging.info(`Gathering string uses for ${name}`);
@@ -378,7 +384,7 @@ module.exports = function(pathInfo, ignore, outputFile) {
     } else {
       files = getFilesFromFilePath(moduleFilePath, ignore);
     }
-    for (let filePath of files) {
+    for (const filePath of files) {
       const scriptAST = getAstFromFile(filePath);
       if (filePath.endsWith('.vue')) {
         const namespace = getVueSFCName(scriptAST);
@@ -390,6 +396,6 @@ module.exports = function(pathInfo, ignore, outputFile) {
       }
     }
     logging.info(`Gathered string uses from ${files.size} files for ${name}`);
-  }
+  });
   writeProfileToCSV(definitions, outputFile);
 };
