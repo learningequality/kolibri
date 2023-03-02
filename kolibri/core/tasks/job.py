@@ -12,6 +12,7 @@ from kolibri.core.tasks.utils import current_state_tracker
 from kolibri.core.tasks.utils import import_stringified_func
 from kolibri.core.tasks.utils import stringify_func
 from kolibri.utils import translation
+from kolibri.utils.translation import ugettext as _
 
 logger = logging.getLogger(__name__)
 
@@ -90,6 +91,23 @@ class Priority(object):
 
 
 JobStatus = namedtuple("Status", ("title", "text"))
+
+
+def default_status_text(job):
+    if job.state == State.COMPLETED:
+        # Translators: Message shown to indicate that a background process has finished successfully.
+        return _("Complete")
+    elif job.state == State.FAILED or job.state == State.CANCELED:
+        # Translators: Message shown to indicate that a background process has failed.
+        return _("Failed")
+    elif job.state == State.CANCELED:
+        # Translators: Message shown to indicate that a background process has been cancelled.
+        return _("Cancelled")
+    elif job.state == State.RUNNING and job.percentage_progress:
+        # Translators: Message shown to indicate the percentage completed of a background process.
+        return _("In progress - {percent}").format(percent=job.percentage_progress)
+    # Translators: Message shown to indicate that while a background process has started, no progress can be reported yet.
+    return _("Waiting")
 
 
 class Job(object):
