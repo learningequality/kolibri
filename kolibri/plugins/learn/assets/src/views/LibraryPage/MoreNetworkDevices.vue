@@ -18,6 +18,7 @@
 
 <script>
 
+  import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import useDevices from '../../composables/useDevices';
   import useChannels from '../../composables/useChannels';
   import UnPinnedDevices from './UnPinnedDevices';
@@ -28,12 +29,14 @@
       UnPinnedDevices,
     },
     setup() {
+      const { windowBreakpoint } = useKResponsiveWindow();
       const { fetchChannels } = useChannels();
       const { baseurl, fetchDevices } = useDevices();
       return {
         baseurl,
         fetchDevices,
         fetchChannels,
+        windowBreakpoint,
       };
     },
     data() {

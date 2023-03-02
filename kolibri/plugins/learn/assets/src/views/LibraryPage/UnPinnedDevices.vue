@@ -28,11 +28,18 @@
 <script>
 
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
+  import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
 
   export default {
     name: 'UnPinnedDevices',
     components: {
       TextTruncator,
+    },
+    setup() {
+      const { windowGutter } = useKResponsiveWindow();
+      return {
+        windowGutter,
+      };
     },
 
     props: {

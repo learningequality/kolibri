@@ -29,12 +29,19 @@
 
 <script>
 
+  import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import CardContent from './CardContent';
 
   export default {
     name: 'PinnedNetworkResources',
     components: {
       CardContent,
+    },
+    setup() {
+      const { windowBreakpoint } = useKResponsiveWindow();
+      return {
+        windowBreakpoint,
+      };
     },
     data() {
       return {

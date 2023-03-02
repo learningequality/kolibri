@@ -16,9 +16,18 @@
 
 <script>
 
+  import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
+
   export default {
     name: 'CardContent',
     components: {},
+    setup() {
+      const { windowBreakpoint, windowGutter } = useKResponsiveWindow();
+      return {
+        windowBreakpoint,
+        windowGutter,
+      };
+    },
     props: {
       body: {
         type: String,
