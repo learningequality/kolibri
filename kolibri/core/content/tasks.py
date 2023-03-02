@@ -24,16 +24,34 @@ from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
 from kolibri.core.discovery.utils.network.errors import ResourceGoneError
 from kolibri.core.serializers import HexOnlyUUIDField
 from kolibri.core.tasks.decorators import register_task
+from kolibri.core.tasks.job import default_status_text
+from kolibri.core.tasks.job import JobStatus
 from kolibri.core.tasks.job import Priority
+from kolibri.core.tasks.job import State
 from kolibri.core.tasks.permissions import CanManageContent
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.tasks.validation import JobValidator
 from kolibri.core.utils.urls import reverse_remote
 from kolibri.utils import conf
+from kolibri.utils.translation import ugettext as _
 from kolibri.utils.version import version_matches_range
 
 
 QUEUE = "content"
+
+
+def get_status(job):
+    # Translators: Message shown to an App user when the device's library is being updated
+    # either with new resources, or unwanted resources being deleted.
+    title = _("Updating your library")
+    if job.state == State.COMPLETED:
+        # Translators: Message shown to an App user when an update to the library has been successful.
+        title = _("Library updated")
+    elif job.state == State.FAILED or job.state == State.CANCELED:
+        # Translators: Message shown to an App user when an update to the library has failed.
+        title = _("Library update failed")
+    text = default_status_text(job)
+    return JobStatus(title, text)
 
 
 class ChannelValidator(JobValidator):
@@ -117,6 +135,7 @@ class LocalChannelImportResourcesValidator(LocalMixin, ChannelResourcesImportVal
     permission_classes=[CanManageContent],
     queue=QUEUE,
     long_running=True,
+    status_fn=get_status,
 )
 def diskcontentimport(
     channel_id, drive_id, update=False, node_ids=None, exclude_node_ids=None
@@ -171,6 +190,7 @@ class RemoteChannelImportValidator(RemoteImportMixin, ChannelValidator):
     permission_classes=[CanManageContent],
     priority=Priority.HIGH,
     queue=QUEUE,
+    status_fn=get_status,
 )
 def remotechannelimport(channel_id, baseurl=None, peer_id=None):
     call_command(
@@ -195,6 +215,7 @@ class RemoteChannelResourcesImportValidator(
     permission_classes=[CanManageContent],
     queue=QUEUE,
     long_running=True,
+    status_fn=get_status,
 )
 def remotecontentimport(
     channel_id,
@@ -276,6 +297,7 @@ class RemoteResourceImportValidator(ResourceNodeValidator):
     permission_classes=[CanManageContent],
     queue=QUEUE,
     long_running=False,
+    status_fn=get_status,
 )
 def remoteresourceimport(
     node_id,
@@ -312,6 +334,7 @@ class ExportChannelResourcesValidator(LocalMixin, ChannelResourcesValidator):
     permission_classes=[CanManageContent],
     queue=QUEUE,
     long_running=True,
+    status_fn=get_status,
 )
 def diskexport(
     channel_id,
@@ -350,6 +373,7 @@ class DeleteChannelValidator(ChannelResourcesValidator):
     permission_classes=[CanManageContent],
     queue=QUEUE,
     long_running=True,
+    status_fn=get_status,
 )
 def deletechannel(
     channel_id=None,
@@ -376,6 +400,7 @@ def deletechannel(
     permission_classes=[CanManageContent],
     queue=QUEUE,
     long_running=True,
+    status_fn=get_status,
 )
 def remoteimport(
     channel_id,
@@ -417,6 +442,7 @@ def remoteimport(
     permission_classes=[CanManageContent],
     queue=QUEUE,
     long_running=True,
+    status_fn=get_status,
 )
 def diskimport(
     channel_id, drive_id, update=False, node_ids=None, exclude_node_ids=None
@@ -460,6 +486,7 @@ class LocalChannelImportValidator(LocalMixin, ChannelValidator):
     permission_classes=[CanManageContent],
     priority=Priority.HIGH,
     queue=QUEUE,
+    status_fn=get_status,
 )
 def diskchannelimport(
     channel_id,

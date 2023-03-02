@@ -158,6 +158,7 @@
                   type: 'kolibri.plugins.user_profile.tasks.mergeuser',
                   baseurl: state.value.targetFacility.url,
                   facility: state.value.targetFacility.id,
+                  facility_name: state.value.targetFacility.name,
                   username: state.value.targetAccount.username,
                   local_user_id: state.value.userId,
                   user_id: state.value.targetAccount.id,
