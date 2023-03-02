@@ -12,11 +12,11 @@
     :finishButton="users.length !== 0"
     @continue="handleSubmit"
   >
-    <KCircularLoader v-if="!facility" />
-
     <div v-if="noUsersImported">
       {{ $tr('warningFirstImportedIsSuperuser') }}
     </div>
+
+    <KCircularLoader v-if="!facility" />
 
     <div v-else>
       <p class="facility-name">
