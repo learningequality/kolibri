@@ -168,3 +168,5 @@ export const FacilityUserGender = {
   FEMALE: 'FEMALE',
   ...DemographicConstants,
 };
+
+export const IsPinAuthenticated = 'is_pin_authenticated';

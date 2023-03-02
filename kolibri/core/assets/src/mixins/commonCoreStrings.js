@@ -1172,6 +1172,14 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Change learning facility',
     context: 'Menu or screen used for the user to move to a different learning facility',
   },
+  enterPinPlaceholder: {
+    message: 'Enter PIN',
+    context: 'Placholder text for the enter PIN textbox',
+  },
+  removePinPlacholder: {
+    message: 'REMOVE PIN',
+    context: 'Placholder text for the remove PIN textbox',
+  },
 });
 
 /**
