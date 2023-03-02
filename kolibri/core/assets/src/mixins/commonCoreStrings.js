@@ -1203,6 +1203,24 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
       'Text that displays the status of a resource the user has downloaded when the download has failed, and Kolibri is not able to automatically try the download again.',
   },
 
+  // Device upgrades recommended
+  currentDeviceUsingIE11: {
+    message: 'You seem to be using Internet Explorer 11.',
+    context:
+      'Displayed on a device that is using Internet Explorer 11, as part of a message encouraging the user to upgrade.',
+  },
+  userDevicesUsingIE11: {
+    message: 'Users accessing Kolibri seem to be using Internet Explorer 11',
+    context:
+      'Displayed to an admin, where devices on their network are using Internet Explorer 11, as part of a message encouraging the user to upgrade.',
+  },
+  browserSupportWillBeDroppedIE11: {
+    message:
+      'Please note that  support for this browser will be dropped in the upcoming version 0.17, so please install another browser to continue working with Kolibri. We recommend Mozilla Firefox or Google Chrome.',
+    context:
+      'Displayed to users of kolibri where one or more devices on the network are using Internet Explorer 11, as part of a message encouraging the user to upgrade.',
+  },
+
   // Content activity
   notStartedLabel: {
     message: 'Not started',
