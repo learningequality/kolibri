@@ -1131,6 +1131,25 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
       'Error message that displays if a learning resource cannot be found on the device being used currently.',
   },
 
+  // Downloads management
+  myDownloadsLabel: {
+    message: 'My downloads',
+    context: "Users can access and see their content downloads via 'my downloads' option.",
+  },
+  removeFromLibrary: {
+    message: 'Remove from library',
+    context:
+      'Title of the modal that appears when the user tries to remove a resource from the library.',
+  },
+  resourcesSelectedMessage: {
+    message: 'Selected: {count, number} {count, plural, one {resource} other {resources}} ({size})',
+    context: 'Indicates how many resources have been selected to be deleted.\n',
+  },
+  removeSelectedMessage: {
+    message: 'Remove selected',
+    context: 'Action to remove selected resources',
+  },
+
   // Content activity
   notStartedLabel: {
     message: 'Not started',
