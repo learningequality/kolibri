@@ -12,6 +12,9 @@
     <p class="device-name">
       {{ deviceDescription }}
     </p>
+    <div v-if="noUsersImported">
+      {{ $tr('warningFirstImportedIsSuperuser') }}
+    </div>
     <PaginatedListContainer
       :items="learners"
       :filterPlaceholder="coreString('searchForUser')"
@@ -92,6 +95,11 @@
     },
     inject: ['wizardService'],
     computed: {
+      noUsersImported() {
+        // User can only go back from here if they've not yet imported any users, otherwise
+        // they've gone beyond the point of no return.
+        return this.wizardService.state.context.importedUsers.length == 0;
+      },
       step() {
         return this.wizardService.state.context.facilitiesOnDeviceCount == 1 ? 1 : 2;
       },
@@ -221,6 +229,12 @@
         message: 'Select a user',
         context:
           'Descriptive text which appears in the title of this page to select users to sync.',
+      },
+      warningFirstImportedIsSuperuser: {
+        message:
+          'Please note: The first user you choose to import will be given super admin permissions on this device, and be able to manage all channels and device settings.',
+        context:
+          'A note at the top of the page for importing a user explaining that the first user imported will be given the permissions of a superuser',
       },
     },
   };

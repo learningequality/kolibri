@@ -2,7 +2,7 @@
 
   <OnboardingStepBase
     :title="$tr('importIndividualUsersHeader')"
-    :noBackAction="!canGoBack"
+    :noBackAction="!noUsersImported"
     :footerMessageType="footerMessageType"
     :step="step"
     :steps="steps"
@@ -13,6 +13,10 @@
     @continue="handleSubmit"
   >
     <KCircularLoader v-if="!facility" />
+
+    <div v-if="noUsersImported">
+      {{ $tr('warningFirstImportedIsSuperuser') }}
+    </div>
 
     <div v-else>
       <p class="facility-name">
@@ -130,7 +134,7 @@
     },
     inject: ['wizardService'],
     computed: {
-      canGoBack() {
+      noUsersImported() {
         // User can only go back from here if they've not yet imported any users, otherwise
         // they've gone beyond the point of no return.
         return this.wizardService.state.context.importedUsers.length == 0;
@@ -316,6 +320,12 @@
       },
     },
     $trs: {
+      warningFirstImportedIsSuperuser: {
+        message:
+          'Please note: The first user you choose to import will be given super admin permissions on this device, and be able to manage all channels and device settings.',
+        context:
+          'A note at the top of the page for importing a user explaining that the first user imported will be given the permissions of a superuser',
+      },
       commaSeparatedPair: {
         message: '{first}, {second}',
         context: 'DO NOT TRANSLATE\nCopy the source string.',
