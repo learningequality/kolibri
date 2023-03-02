@@ -23,6 +23,9 @@ override_dh_auto_test:
 	echo "skipping tests"
 #	dh_auto_test -- --test-pytest
 
+override_dh_builddeb:
+	dh_builddeb -- -Zgzip
+
 override_dh_auto_install:
 	# Our own tests
 	debian/test_build_sanity.sh
