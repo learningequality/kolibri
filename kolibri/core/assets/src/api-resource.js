@@ -1057,7 +1057,7 @@ export class Resource {
       'color: red'
     );
     console.log(`Error occured for ${this.name} resource on page ${window.location.href}`);
-    if (store.state.route) {
+    if (store?.state?.route) {
       console.group('Vue Router');
       console.log(`fullPath: ${store.state.route.fullPath}`);
       console.log(`Route name: ${store.state.route.name}`);

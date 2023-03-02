@@ -6,6 +6,7 @@ import SideNav from '../../src/views/SideNav';
 import logoutSideNavEntry from '../../src/views/LogoutSideNavEntry';
 import LearnOnlyDeviceNotice from '../../src/views/LearnOnlyDeviceNotice';
 import SyncStatusDisplay from '../../src/views/SyncStatusDisplay';
+import { stubWindowLocation } from 'testUtils'; // eslint-disable-line
 
 import { coreStoreFactory as makeStore } from '../../src/state/store';
 
@@ -62,6 +63,8 @@ function emptyNavComponents(n = 1) {
 }
 
 describe('side nav component', () => {
+  stubWindowLocation(beforeAll, afterAll);
+
   it('should be hidden if navShown is false', () => {
     const wrapper = createWrapper({ navShown: false });
     expect(wrapper.find('.side-nav').element).not.toBeVisible();

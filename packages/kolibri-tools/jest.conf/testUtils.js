@@ -10,6 +10,7 @@ export function stubWindowLocation(beforeAll, afterAll) {
 
     window.location = {
       href: '',
+      pathname: '',
     };
   });
 

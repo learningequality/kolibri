@@ -20,6 +20,11 @@
         type="indeterminate"
         :delay="false"
       />
+      <div aria-live="polite">
+        <StorageNotification
+          :showBanner="showStorageNotification"
+        />
+      </div>
     </ScrollingHeader>
 
     <div class="main-wrapper" :style="wrapperStyles">
@@ -31,7 +36,6 @@
       :navShown="navShown"
       @toggleSideNav="navShown = !navShown"
     />
-
     <LanguageSwitcherModal
       v-if="languageModalShown"
       ref="languageSwitcherModal"
@@ -48,11 +52,24 @@
   import LanguageSwitcherModal from 'kolibri.coreVue.components.LanguageSwitcherModal';
   import ScrollingHeader from 'kolibri.coreVue.components.ScrollingHeader';
   import SideNav from 'kolibri.coreVue.components.SideNav';
+  import { LearnerDeviceStatus } from 'kolibri.coreVue.vuex.constants';
   import AppBar from '../AppBar';
+  import StorageNotification from '../StorageNotification';
+  import useUserSyncStatus from '../../composables/useUserSyncStatus';
+  import plugin_data from 'plugin_data';
 
   export default {
     name: 'AppBarPage',
-    components: { AppBar, LanguageSwitcherModal, ScrollingHeader, SideNav },
+    components: { AppBar, LanguageSwitcherModal, ScrollingHeader, SideNav, StorageNotification },
+    setup() {
+      let userDeviceStatus = null;
+      if (plugin_data.isSubsetOfUsersDevice) {
+        userDeviceStatus = useUserSyncStatus().deviceStatus;
+      }
+      return {
+        userDeviceStatus,
+      };
+    },
     props: {
       title: {
         type: String,
@@ -90,6 +107,9 @@
               paddingBottom: '72px',
               marginTop: 0,
             };
+      },
+      showStorageNotification() {
+        return this.userDeviceStatus === LearnerDeviceStatus.INSUFFICIENT_STORAGE;
       },
     },
     mounted() {

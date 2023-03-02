@@ -8,7 +8,7 @@
       data-test="syncStatusSpinner"
     />
     <KIcon
-      v-else
+      v-else-if="syncIconDisplayMap"
       :icon="syncIconDisplayMap"
       class="inline-icon"
       data-test="syncStatusIcon"
@@ -21,6 +21,7 @@
 
 <script>
 
+  import { now } from 'kolibri.utils.serverClock';
   import { SyncStatus } from 'kolibri.coreVue.vuex.constants';
 
   export default {
@@ -30,6 +31,10 @@
         type: String,
         default: '',
       },
+      lastSynced: {
+        type: Date,
+        default: null,
+      },
       displaySize: {
         type: String,
         default: '',
@@ -38,10 +43,15 @@
         },
       },
     },
+    data() {
+      return {
+        now: now(),
+      };
+    },
     computed: {
       syncTextDisplayMap() {
         const statusTranslations = {
-          [SyncStatus.RECENTLY_SYNCED]: this.$tr('recentlySynced'),
+          [SyncStatus.RECENTLY_SYNCED]: this.recentlySyncedText,
           [SyncStatus.QUEUED]: this.$tr('queued'),
           [SyncStatus.SYNCING]: this.$tr('syncing'),
           [SyncStatus.UNABLE_TO_SYNC]: this.$tr('unableToSync'),
@@ -63,17 +73,27 @@
         };
         return statusIcons[this.syncStatus] || '';
       },
-      syncInProgress() {
-        if (this.syncStatus === SyncStatus.SYNCING || this.syncStatus === SyncStatus.QUEUED) {
-          return true;
+      recentlySyncedText() {
+        // Keep it simple if just synced
+        if (!this.lastSynced || this.now - this.lastSynced < 10000) {
+          return this.$tr('recentlySynced');
         }
-        return false;
+        const relativeTime = this.$formatRelative(this.lastSynced, { now: this.now });
+        return this.$tr('recentlySyncedRelative', { relativeTime });
+      },
+      syncInProgress() {
+        return this.syncStatus === SyncStatus.SYNCING || this.syncStatus === SyncStatus.QUEUED;
       },
     },
     $trs: {
       recentlySynced: {
         message: 'Synced',
         context: 'Status indicator for a device that has been synced.',
+      },
+      recentlySyncedRelative: {
+        message: 'Synced {relativeTime}',
+        context:
+          "Status indicator for time period since the last successful sync. For example, 'relativeTime' could be '2 minutes ago'",
       },
       syncing: {
         message: 'Syncing...',
