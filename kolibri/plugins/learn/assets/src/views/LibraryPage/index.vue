@@ -63,7 +63,7 @@
                   {{ $tr('refresh') }}
                 </KButton>
                 <KIcon
-                  icon="disconnected"
+                  icon="wifi"
                 />
               </p>
               <p v-else>

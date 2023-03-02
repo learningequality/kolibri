@@ -10,7 +10,6 @@
         :deviceName="device.device_name"
         :channels="device.channels"
       />
-
     </KGridItem>
   </KGrid>
 
@@ -19,7 +18,6 @@
 
 <script>
 
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import useDevices from '../../composables/useDevices';
   import useChannels from '../../composables/useChannels';
   import UnPinnedDevices from './UnPinnedDevices';
@@ -29,7 +27,6 @@
     components: {
       UnPinnedDevices,
     },
-    mixins: [responsiveWindowMixin],
     setup() {
       const { fetchChannels } = useChannels();
       const { baseurl, fetchDevices } = useDevices();

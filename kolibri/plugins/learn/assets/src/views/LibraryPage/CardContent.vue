@@ -16,12 +16,9 @@
 
 <script>
 
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-
   export default {
     name: 'CardContent',
     components: {},
-    mixins: [responsiveWindowMixin],
     props: {
       body: {
         type: String,

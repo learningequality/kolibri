@@ -7,7 +7,7 @@
     <div class="" style="width:250px;height:100px;">
       <h2 class="device-name">
         <span>
-          <KIcon icon="mediaLiteracyResource" />
+          <KIcon icon="laptop" />
         </span>
         <span>
           <TextTruncator
@@ -27,7 +27,6 @@
 
 <script>
 
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
 
   export default {
@@ -35,7 +34,7 @@
     components: {
       TextTruncator,
     },
-    mixins: [responsiveWindowMixin],
+
     props: {
       deviceName: {
         type: String,

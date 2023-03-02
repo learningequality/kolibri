@@ -29,7 +29,6 @@
 
 <script>
 
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import CardContent from './CardContent';
 
   export default {
@@ -37,7 +36,6 @@
     components: {
       CardContent,
     },
-    mixins: [responsiveWindowMixin],
     data() {
       return {
         groups: [
