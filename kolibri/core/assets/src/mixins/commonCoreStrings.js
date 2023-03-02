@@ -1149,6 +1149,59 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Remove selected',
     context: 'Action to remove selected resources',
   },
+  totalSizeMyDownloads: {
+    message: 'Total size of my downloads: {size}',
+    context:
+      'A lable explaining the size (i.e. in MB) of the resources a user has downloaded to their library',
+  },
+  availableStorage: {
+    message: 'Available storage',
+    context:
+      'A lable explaining the amount (i.e. in MB) of the storage remaining that a user has to downloads items to their library',
+  },
+  fileSize: {
+    message: 'File size',
+    context: 'A lable explaining the size (i.e. in MB) of a single resource',
+  },
+  dateAdded: {
+    message: 'Date added',
+    context: "The date a resource was downloaded to a user's library",
+  },
+  noResourcesDownloaded: {
+    message: 'You do not have any resources downloaded',
+    context:
+      'Message displayed a user looks at their My Downloads page, but has not yet downloaded any resources to the device',
+  },
+  removeResourceText: {
+    message:
+      "You will no longer be able to use this resource, but you can download it again later when it's available around you.",
+    context:
+      'Text displayed in a modal when a user decides to remove one downloaded resource from the device',
+  },
+  removeResourcesText: {
+    message:
+      'You will no longer be able to use these resources, but you can download them again later when they are available around you.',
+    context:
+      'Text displayed in a modal when a user decides to remove more than one downloaded resources from the device',
+  },
+  waitingToDownload: {
+    message: 'Waiting to download',
+    context: 'Text that displays the status of a resource the user has downloaded',
+  },
+  downloading: {
+    message: 'Downloading',
+    context: 'Text that displays the status of a resource the user has downloaded',
+  },
+  downloadedFailedWillRetry: {
+    message: 'Download failed. Retrying in {minutes, number} minutes',
+    context:
+      'Text that displays the status of a resource the user has downloaded when the download has failed, but Kolibri is able to automatically try the download again.',
+  },
+  downloadedFailedCanNotRetry: {
+    message: 'Download failed. Unable to retry.',
+    context:
+      'Text that displays the status of a resource the user has downloaded when the download has failed, and Kolibri is not able to automatically try the download again.',
+  },
 
   // Content activity
   notStartedLabel: {
@@ -1198,6 +1251,23 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   removePinPlacholder: {
     message: 'REMOVE PIN',
     context: 'Placholder text for the remove PIN textbox',
+  },
+
+  // preferred learning language
+  preferredLanguage: {
+    message: 'Preferred language',
+    context:
+      'Label for an setting where a user can select the language that they would like to learn in',
+  },
+  changePreferredLanguage: {
+    message: 'Change preferred language',
+    context:
+      'Title for a modal where a user can select the language that they would like to learn in',
+  },
+  preferredLanguageHelperText: {
+    message: 'Channels in the preferred language will be displayed first',
+    context:
+      'Explanatory text for the setting where a user can select the language that they would like to learn in',
   },
 });
 
