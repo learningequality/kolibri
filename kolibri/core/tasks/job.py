@@ -3,6 +3,7 @@ import json
 import logging
 import traceback
 import uuid
+from collections import namedtuple
 
 from six import string_types
 
@@ -10,6 +11,7 @@ from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.core.tasks.utils import current_state_tracker
 from kolibri.core.tasks.utils import import_stringified_func
 from kolibri.core.tasks.utils import stringify_func
+from kolibri.utils import translation
 
 logger = logging.getLogger(__name__)
 
@@ -85,6 +87,9 @@ class Priority(object):
 
     # A set of all valid priorities
     Priorities = {HIGH, REGULAR}
+
+
+JobStatus = namedtuple("Status", ("title", "text"))
 
 
 class Job(object):
@@ -260,7 +265,7 @@ class Job(object):
 
         setattr(current_state_tracker, "job", self)
 
-        func = import_stringified_func(self.func)
+        func = self.task
 
         args, kwargs = copy.copy(self.args), copy.copy(self.kwargs)
 
@@ -281,6 +286,22 @@ class Job(object):
             self.storage.mark_job_as_failed(self.job_id, e, traceback_str)
 
         setattr(current_state_tracker, "job", None)
+
+    @property
+    def task(self):
+        """
+        In theory we could read this from the task registry instead
+        but as this is running inside an ephemeral task runner thread
+        or process, we can potentially save ourselves some initialization
+        time and memory by just importing just this function - whereas initializing
+        the registry would import all of the registered tasks for this Kolibri.
+        This is less of an issue when the task runner is using threads and has
+        shared memory, but when it is using multiprocessing or is running in another
+        context, this will save some time.
+
+        We don't bother caching this property, as we rely on the Python module import cache instead.
+        """
+        return import_stringified_func(self.func)
 
     @property
     def percentage_progress(self):
@@ -305,3 +326,7 @@ class Job(object):
                 total=self.total_progress,
             )
         )
+
+    def status(self, lang):
+        with translation.override(lang):
+            return self.task.generate_status(self)
