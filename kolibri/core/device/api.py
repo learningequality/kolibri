@@ -247,8 +247,8 @@ def map_status(record):
     the frontend.
     """
     transfer_status = record.pop("transfer_status", None)
-    device_status = record.pop("device_status", None)
-    device_status_sentiment = record.pop("device_status_sentiment", None)
+    device_status = record.get("device_status")
+    device_status_sentiment = record.get("device_status_sentiment")
     queued = record.pop("queued", None)
     recent = record["last_synced"] and (
         timezone.now() - record["last_synced"] < sync_diff

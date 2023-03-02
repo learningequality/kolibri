@@ -110,6 +110,35 @@ export default createTranslator('NotificationStrings', {
     message: 'Group deleted',
     context: 'A confirmation message indicating that the user has deleted a new group of learners.',
   },
+  pinCreated: {
+    message: 'New PIN created',
+    context: 'A confirmation message for creating a new a PIN',
+  },
+  pinUpdated: {
+    message: 'PIN updated',
+    context: 'A confimation message for updating a PIN',
+  },
+  pinRemove: {
+    message: 'PIN removed',
+    context: 'A confirmation message for removing a PIN',
+  },
+  pinAuthenticate: {
+    message: 'PIN authenticated successfully',
+    context:
+      'A confirmation message indicating that the PIN provided for authentication is correct',
+  },
+  syncAdded: {
+    message: 'Sync Schedule added',
+    context: 'Snackbar message for adding the sync schedule',
+  },
+  deviceRemove: {
+    message: 'Device removed',
+    context: 'Snackbar message when a device is removed from the sync schedule',
+  },
+  deviceNotRemove: {
+    message: 'Device not removed',
+    context: 'Snackbar message when a device fails to be removed from he sync schedule',
+  },
   // TODO move more messages into this namespace:
   // - "Quiz started"
   // - "Quiz Ended"

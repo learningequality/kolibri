@@ -2,6 +2,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
+from django.core.validators import MinLengthValidator
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
@@ -101,6 +102,9 @@ class MembershipSerializer(serializers.ModelSerializer):
 
 
 class FacilityDatasetSerializer(serializers.ModelSerializer):
+
+    extra_fields = serializers.JSONField(required=False)
+
     class Meta:
         model = FacilityDataset
         fields = (
@@ -112,6 +116,7 @@ class FacilityDatasetSerializer(serializers.ModelSerializer):
             "learner_can_delete_account",
             "learner_can_login_with_no_password",
             "show_download_button_in_learn",
+            "extra_fields",
             "description",
             "location",
             "registered",
@@ -188,3 +193,18 @@ class LearnerGroupSerializer(serializers.ModelSerializer):
             return super(LearnerGroupSerializer, self).save(**kwargs)
         except InvalidCollectionHierarchy as e:
             raise serializers.ValidationError(str(e))
+
+
+def validate_pin_code(value):
+    if not value.isdigit():
+        raise serializers.ValidationError("A Pin must be number")
+
+
+class ExtraFieldsSerializer(serializers.Serializer):
+    facility = serializers.JSONField(required=False)
+    pin_code = serializers.CharField(
+        required=False,
+        max_length=4,
+        validators=[MinLengthValidator(4), validate_pin_code],
+    )
+    on_my_own_setup = serializers.BooleanField(required=False)

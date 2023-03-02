@@ -100,6 +100,10 @@ export const SIGNED_OUT_DUE_TO_INACTIVITY = 'SIGNED_OUT_DUE_TO_INACTIVITY';
 
 export const UPDATE_MODAL_DISMISSED = 'UPDATE_MODAL_DISMISSED';
 
+export const LESSON_VISIBILITY_MODAL_DISMISSED = 'LESSON_VISIBILITY_MODAL_DISMISSED';
+
+export const QUIZ_REPORT_VISIBILITY_MODAL_DISMISSED = 'QUIZ_REPORT_VISIBILITY_MODAL_DISMISSED';
+
 export const NavComponentSections = {
   ACCOUNT: 'account',
 };
@@ -113,6 +117,10 @@ export const SyncStatus = {
   UNABLE_OR_NOT_SYNCED: 'UNABLE_OR_NOT_SYNCED',
   INSUFFICIENT_STORAGE: 'INSUFFICIENT_STORAGE',
   NOT_CONNECTED: 'NOT_CONNECTED',
+};
+
+export const LearnerDeviceStatus = {
+  INSUFFICIENT_STORAGE: 'InsufficientStorage',
 };
 
 export const DownloadRequestStatus = {
@@ -164,3 +172,5 @@ export const FacilityUserGender = {
   FEMALE: 'FEMALE',
   ...DemographicConstants,
 };
+
+export const IsPinAuthenticated = 'is_pin_authenticated';

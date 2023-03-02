@@ -21,6 +21,8 @@ function getElements(wrapper) {
     saveButton: () => wrapper.find('button[name="save-settings"]'),
     confirmResetModal: () => wrapper.findComponent({ name: 'ConfirmResetModal' }),
     form: () => wrapper.find('form'),
+    bottomBar: () => wrapper.find('[data-test="bottom-bar"]'),
+    pageContainer: () => wrapper.find('[data-test="page-container"]'),
   };
 }
 
@@ -102,6 +104,50 @@ describe('facility config page view', () => {
     expect(mock).toHaveBeenCalledWith('facilityConfig/resetFacilityConfig');
     expect(mock).toHaveBeenCalledWith('createSnackbar', 'Facility settings updated');
     assertModalIsDown(wrapper);
+  });
+
+  describe(`in the browser mode`, () => {
+    let wrapper;
+    beforeAll(() => {
+      wrapper = makeWrapper();
+      wrapper.vm.$store.state.core.session.app_context = false;
+    });
+
+    it(`reset and save buttons are in the bottom bar`, () => {
+      const { bottomBar } = getElements(wrapper);
+      const { resetButton, saveButton } = getElements(bottomBar());
+      expect(resetButton().exists()).toBeTruthy();
+      expect(saveButton().exists()).toBeTruthy();
+    });
+
+    it(`reset and save buttons aren't in the page container`, () => {
+      const { pageContainer } = getElements(wrapper);
+      const { resetButton, saveButton } = getElements(pageContainer());
+      expect(resetButton().exists()).toBeFalsy();
+      expect(saveButton().exists()).toBeFalsy();
+    });
+  });
+
+  describe(`in the Android app mode`, () => {
+    let wrapper;
+    beforeAll(() => {
+      wrapper = makeWrapper();
+      wrapper.vm.$store.state.core.session.app_context = true;
+    });
+
+    it(`reset and save buttons are in the bottom bar`, () => {
+      const { bottomBar } = getElements(wrapper);
+      const { resetButton, saveButton } = getElements(bottomBar());
+      expect(resetButton().exists()).toBeFalsy();
+      expect(saveButton().exists()).toBeFalsy();
+    });
+
+    it(`reset and save buttons aren't in the page container`, () => {
+      const { pageContainer } = getElements(wrapper);
+      const { resetButton, saveButton } = getElements(pageContainer());
+      expect(resetButton().exists()).toBeTruthy();
+      expect(saveButton().exists()).toBeTruthy();
+    });
   });
   // not tested: notifications
 });

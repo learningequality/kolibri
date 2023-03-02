@@ -30,7 +30,8 @@
           "Confirmation message on the 'Reset to defaults' window accessed via the Facility > Settings page.",
       },
       reconfirmation: {
-        message: 'Any custom changes will be lost.',
+        message:
+          'Your device management PIN will not be affected, but any other custom changes will be lost.',
         context:
           "Description on the 'Reset to defaults' window accessed via the Facility > Settings page.",
       },

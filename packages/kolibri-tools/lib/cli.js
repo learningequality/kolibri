@@ -465,24 +465,28 @@ function _generatePathInfo({
     plugins: plugins,
     pluginPath: pluginPath,
   });
+  const pathInfoArray = [];
   if (bundleData.length) {
-    return bundleData.map(bundle => {
-      let buildConfig = require(bundle.config_path);
-      if (bundle.index !== null) {
-        buildConfig = buildConfig[bundle.index];
-      }
-      const entry = buildConfig.webpack_config.entry;
-      const aliases =
-        buildConfig.webpack_config.resolve && buildConfig.webpack_config.resolve.alias;
-      return {
-        moduleFilePath: bundle.plugin_path,
-        namespace: bundle.module_path,
-        name: bundle.name,
-        entry,
-        aliases,
-      };
-    });
-  } else if (namespace && searchPath) {
+    pathInfoArray.push(
+      ...bundleData.map(bundle => {
+        let buildConfig = require(bundle.config_path);
+        if (bundle.index !== null) {
+          buildConfig = buildConfig[bundle.index];
+        }
+        const entry = buildConfig.webpack_config.entry;
+        const aliases =
+          buildConfig.webpack_config.resolve && buildConfig.webpack_config.resolve.alias;
+        return {
+          moduleFilePath: bundle.plugin_path,
+          namespace: bundle.module_path,
+          name: bundle.name,
+          entry,
+          aliases,
+        };
+      })
+    );
+  }
+  if (namespace && searchPath) {
     let aliases;
     if (webpackConfig) {
       const webpack = require('webpack');
@@ -497,16 +501,17 @@ function _generatePathInfo({
       }
       aliases = buildConfig.resolve.alias;
     }
-    return [
-      {
-        moduleFilePath: searchPath,
-        namespace: namespace,
-        name: namespace,
-        aliases,
-      },
-    ];
+    pathInfoArray.push({
+      moduleFilePath: searchPath,
+      namespace: namespace,
+      name: namespace,
+      aliases,
+    });
   }
-  cliLogging.error('This command requires one of the following combinations of arguments:');
+  if (pathInfoArray.length) {
+    return pathInfoArray;
+  }
+  cliLogging.error('This command requires one or more of the following combinations of arguments:');
   cliLogging.error('1) The --pluginFile, --plugins, or --pluginPath argument.');
   cliLogging.error('2) The --searchPath argument along with the --namespace argument.');
 }

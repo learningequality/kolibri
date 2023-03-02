@@ -193,6 +193,13 @@
           return this.$tr('cancelSize', {
             bytesText: bytesForHumans(file_size),
           });
+        } else if (
+          this.task.type === TaskTypes.DELETECHANNEL ||
+          this.task.type === TaskTypes.DELETECONTENT
+        ) {
+          return this.$tr('deletePreparing', {
+            channelName: this.task.extra_metadata.channel_name || this.$tr('unknownChannelName'),
+          });
         }
         return '';
       },
@@ -313,6 +320,10 @@
       deleteChannelWhole: {
         message: `Delete '{channelName}'`,
         context: 'Refers to deleting an entire channel.',
+      },
+      deletePreparing: {
+        message: `Preparing to delete resources for '{channelName}'`,
+        context: 'Indicates that deletion has started but no status can be reported yet.',
       },
       deleteChannelPartial: {
         message: `Delete resources from '{channelName}'`,

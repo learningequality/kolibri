@@ -9,6 +9,14 @@
     </template>
 
     <transition name="delay-entry">
+      <PinAuthenticationModal
+        v-if="showModal && requirePinAuthentication"
+        @submit="submit"
+        @cancel="closePinModal"
+      />
+    </transition>
+
+    <transition name="delay-entry">
       <PostSetupModalGroup
         v-if="welcomeModalVisible"
         @cancel="hideWelcomeModal"
@@ -23,10 +31,17 @@
 
 <script>
 
+  import Cookies from 'js-cookie';
   import { mapGetters, mapState } from 'vuex';
+  import find from 'lodash/find';
   import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { IsPinAuthenticated } from 'kolibri.coreVue.vuex.constants';
+  import redirectBrowser from 'kolibri.utils.redirectBrowser';
+  import urls from 'kolibri.urls';
   import { PageNames } from '../constants';
   import PostSetupModalGroup from './PostSetupModalGroup';
+  import PinAuthenticationModal from './PinAuthenticationModal';
   import plugin_data from 'plugin_data';
 
   const welcomeDimissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
@@ -36,10 +51,29 @@
     components: {
       NotificationsRoot,
       PostSetupModalGroup,
+      PinAuthenticationModal,
+    },
+    mixins: [commonCoreStrings],
+    data() {
+      return {
+        showModal: true,
+        currentFacility: {},
+      };
     },
     computed: {
-      ...mapGetters(['isUserLoggedIn']),
-      ...mapState({ welcomeModalVisibleState: 'welcomeModalVisible' }),
+      ...mapGetters(['isUserLoggedIn', 'currentFacilityId']),
+      ...mapState(['authenticateWithPin', 'grantPluginAccess']),
+      ...mapState({
+        welcomeModalVisibleState: 'welcomeModalVisible',
+      }),
+      facilities() {
+        return this.$store.state.core.facilities;
+      },
+      isPinSet() {
+        const dataset = this.currentFacility['dataset'] || {};
+        const extraFields = dataset['extra_fields'] || {};
+        return extraFields['pin_code'];
+      },
       userIsAuthorized() {
         if (this.pageName === PageNames.BOOKMARKS) {
           return this.isUserLoggedIn;
@@ -57,11 +91,47 @@
       pageName() {
         return this.$route.name;
       },
+      requirePinAuthentication() {
+        if (this.isPinSet) {
+          return this.authenticateWithPin;
+        } else {
+          this.showDevicesPage();
+          return false;
+        }
+      },
+    },
+    watch: {
+      facilities(newValue) {
+        this.currentFacility = find(newValue, { id: this.currentFacilityId }) || {};
+        const { dataset } = this.currentFacility;
+        this.$store.commit('facilityConfig/SET_STATE', {
+          facilityDatasetId: dataset.id, //Required for pin authentication
+        });
+      },
     },
     methods: {
       hideWelcomeModal() {
         window.sessionStorage.setItem(welcomeDimissalKey, true);
         this.$store.commit('SET_WELCOME_MODAL_VISIBLE', false);
+      },
+      closePinModal() {
+        if (this.requirePinAuthentication) {
+          //Force learner back to learn
+          redirectBrowser(urls['kolibri:kolibri.plugins.learn:learn']());
+        }
+        return (this.showModal = false);
+      },
+      showDevicesPage() {
+        if (this.isPinSet !== undefined) {
+          this.grantPluginAccess();
+        }
+      },
+      submit() {
+        Cookies.set(IsPinAuthenticated, true, {
+          expires: new Date(new Date().getTime() + 15 * 1000),
+        });
+        this.$store.commit('SET_AUTHENTICATE_WITH_PIN', false);
+        this.showDevicesPage();
       },
     },
   };

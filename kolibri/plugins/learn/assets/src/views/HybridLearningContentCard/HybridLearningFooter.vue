@@ -12,8 +12,8 @@
         icon="download"
         size="mini"
         :color="$themePalette.grey.v_600"
-        :ariaLabel="$tr('downloadAction')"
-        :tooltip="$tr('downloadAction')"
+        :ariaLabel="coreString('downloadAction')"
+        :tooltip="coreString('downloadAction')"
         @click="handleDownloadRequest"
       />
       <KIconButton
@@ -201,10 +201,6 @@
       },
     },
     $trs: {
-      downloadAction: {
-        message: 'Download',
-        context: 'Label for a button used to initiate a file download.',
-      },
       removeFromMyLibraryAction: {
         message: 'Remove from my library',
         context: "Label for a button to remove a file from a learner's library",

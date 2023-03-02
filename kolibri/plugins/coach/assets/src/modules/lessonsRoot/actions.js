@@ -25,6 +25,16 @@ export function refreshClassLessons(store, classId) {
     });
 }
 
+export function fetchLessonsSizes(store, classId) {
+  return LessonResource.fetchLessonsSizes(classId)
+    .then(sizes => {
+      store.commit('SET_CLASS_LESSONS_SIZES', sizes);
+    })
+    .catch(error => {
+      return store.dispatch('handleApiError', error, { root: true });
+    });
+}
+
 export function createLesson(store, { classId, payload }) {
   return new Promise((resolve, reject) => {
     const lesson_assignments = payload.assignments;

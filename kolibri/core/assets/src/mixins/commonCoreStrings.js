@@ -7,6 +7,10 @@ import notificationStrings from './notificationStrings';
 
 export const coreStrings = createTranslator('CommonCoreStrings', {
   // actions
+  acceptAction: {
+    message: 'Accept',
+    context: 'Button to agree and accept the selected terms',
+  },
   cancelAction: {
     message: 'Cancel',
     context:
@@ -38,6 +42,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Continue',
     context:
       'Used on a button to move to the next step in a process like creating an account, for example.',
+  },
+  declineAction: {
+    message: 'Decline',
+    context: 'Button text to decline selected terms (i.e. cookie usage)',
   },
   deleteAction: {
     message: 'Delete',
@@ -83,6 +91,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Register',
     context: 'Register a facility to the Kolibri Data Portal',
   },
+  manageSyncAction: {
+    message: 'Manage Sync Schedule',
+    context: 'Action for managing sync schedule',
+  },
   retryAction: {
     message: 'Retry',
     context:
@@ -92,6 +104,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Remove',
     context:
       'Description of a remove task. For example, a coach can remove a user from a class if they are no longer in that class.\n',
+  },
+  downloadAction: {
+    message: 'Download',
+    context: 'Label for a button used to initiate a file download.',
   },
   saveAction: {
     message: 'Save',
@@ -240,6 +256,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       "A topic is marked as 'Completed' when a learner finishes that specific topic within an educational resource. A topic could be a video, audio, document file or interactive app.",
   },
+  dataLabel: {
+    message: 'Data',
+    context: "Title of tab in 'Facility' section.",
+  },
   deviceNameLabel: {
     message: 'Device name',
     context:
@@ -297,6 +317,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       "An 'Identifier' could be a student ID number or an existing user identification number. This is an optional field in the user create/edit screen.",
   },
+  infoLabel: {
+    message: 'Info',
+    context: "Title of tab in 'Device' section.",
+  },
   inProgressLabel: {
     message: 'In progress',
     context:
@@ -330,9 +354,19 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       'A lesson is a linear learning pathway defined by a coach. The coach can select resources from any channel, add them to the lesson, define the ordering, and assign the lesson to learners in their class.',
   },
+  libraryLabel: {
+    message: 'Library',
+    context:
+      "The 'Library' section displays channels available on Kolibri server, and allows learners to browse, explore and filter topics and resources on their own.",
+  },
   loadingLabel: {
     message: 'Loading…',
     context: 'Message displayed when a resource is loading indicating that the user should wait.',
+  },
+  menuLabel: {
+    message: 'Menu',
+    context:
+      'Label that indicates a list of options. May be a button label, or a reference to the menu itself',
   },
   nameLabel: {
     message: 'Name',
@@ -383,6 +417,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       'Text which appears in the search field above the table with users from whom to choose from (e.g. when enrolling learners to a class, selecting users to sync, etc.)',
   },
+  settingsLabel: {
+    message: 'Settings',
+    context: "Title of tab used in 'Facility' and 'Device' sections.",
+  },
   findSomethingToLearn: {
     message: 'Find something to learn',
     context: 'Suggestion located inside the the keyword search field.',
@@ -415,6 +453,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Usage and privacy',
     context:
       'The "Usage and privacy" link displays on the \'Create an account\' screen and on the left navigation bar.\n\nIt contains information about who has access to personal information of users.',
+  },
+  cookiePolicy: {
+    message: 'Cookie policy',
+    context:
+      'The "Cookie policy" link displays on the \'cookie notification\' banner and on the left navigation bar.\n\nIt contains information about usage of cookies within online Kolibri instances. It is also used as a title and heading on the page that describes this policy.',
   },
   userTypeLabel: {
     message: 'User type',
@@ -1128,6 +1171,14 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   changeLearningFacility: {
     message: 'Change learning facility',
     context: 'Menu or screen used for the user to move to a different learning facility',
+  },
+  enterPinPlaceholder: {
+    message: 'Enter PIN',
+    context: 'Placholder text for the enter PIN textbox',
+  },
+  removePinPlacholder: {
+    message: 'REMOVE PIN',
+    context: 'Placholder text for the remove PIN textbox',
   },
 });
 

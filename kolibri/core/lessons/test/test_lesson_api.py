@@ -14,6 +14,10 @@ from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import LearnerGroup
 from kolibri.core.auth.test.helpers import provision_device
+from kolibri.core.content.models import ChannelMetadata
+from kolibri.core.content.models import ContentNode
+from kolibri.core.content.models import File
+from kolibri.core.content.models import LocalFile
 
 
 DUMMY_PASSWORD = "password"
@@ -31,6 +35,12 @@ class LessonAPITestCase(APITestCase):
         cls.classroom = Classroom.objects.create(name="Classroom", parent=cls.facility)
         cls.lesson = models.Lesson.objects.create(
             title="title",
+            is_active=True,
+            collection=cls.classroom,
+            created_by=cls.admin,
+        )
+        cls.lesson2 = models.Lesson.objects.create(
+            title="title2",
             is_active=True,
             collection=cls.classroom,
             created_by=cls.admin,
@@ -438,3 +448,86 @@ class LessonAPITestCase(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data[0]["id"], error_constants.UNIQUE)
+
+    def test_can_get_lesson_size(self):
+
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+
+        content_root = ContentNode.objects.create(
+            id="579ddae52c2349d32ca6e655840dc2c0",
+            channel_id="6436067f6f8f7c2eb15a296c887c788d",
+            parent_id=None,
+            content_id="ae5b5a53580aace508b6545486662d93",
+            title="root2",
+            description="ordinary root",
+            kind="topic",
+            author="",
+            license_name="WTFPL",
+            license_description=None,
+            license_owner="",
+            lang_id=None,
+            available=False,
+            tree_id=2,
+            level=0,
+            lft=1,
+            rght=2,
+            sort_order=None,
+        )
+        channel = ChannelMetadata.objects.create(
+            id=content_root.channel_id,
+            name="testing 2",
+            description="more test data",
+            author="buster",
+            last_updated=None,
+            min_schema_version="1",
+            thumbnail="",
+            root_id=content_root.id,
+            version=0,
+        )
+        video_content = ContentNode.objects.create(
+            id="f0dcb2c7e365a9c480042e2af93b0411",
+            channel_id=channel.id,
+            parent_id=content_root.id,
+            content_id="c3e0d6073a31fd8b8d138b926d7b8567",
+            title="alt video",
+            description="ordinary video",
+            kind="video",
+            author="",
+            license_name="WTFPL",
+            license_description=None,
+            license_owner="",
+            lang_id=None,
+            available=False,
+            tree_id=2,
+            level=1,
+            lft=2,
+            rght=1,
+            sort_order=None,
+        )
+        local_video = LocalFile.objects.create(
+            id="c3e0d6073a31fd8b8d138b926d7b8567",
+            file_size=1000,
+            available=False,
+            extension="mp4",
+        )
+        File.objects.create(
+            id="c3e0d6073a31fd8b8d138b926d7b8567",
+            local_file_id=local_video.id,
+            preset="high_res_video",
+            thumbnail=False,
+            priority=None,
+            contentnode_id=video_content.id,
+            supplementary=False,
+            lang_id=None,
+        )
+
+        self.lesson.resources.append(video_content)
+
+        response = self.client.get(
+            reverse("kolibri:core:lesson-size"),
+            {
+                "collection": self.classroom.id,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)  # passing!

@@ -116,6 +116,7 @@
     },
     computed: {
       ...mapState('lessonSummary', {
+        classId: state => state.currentLesson.classroom.id,
         lessonId: state => state.currentLesson.id,
         workingResources: state => state.workingResources,
         // consider loading this async?
@@ -135,7 +136,11 @@
     },
     methods: {
       ...mapActions(['clearSnackbar']),
-      ...mapActions('lessonSummary', ['saveLessonResources', 'updateCurrentLesson']),
+      ...mapActions('lessonSummary', [
+        'saveLessonResources',
+        'updateCurrentLesson',
+        'fetchLessonsSizes',
+      ]),
       ...mapMutations('lessonSummary', {
         removeFromWorkingResources: 'REMOVE_FROM_WORKING_RESOURCES',
         setWorkingResources: 'SET_WORKING_RESOURCES',
@@ -152,7 +157,7 @@
       removeResource(resource) {
         this.removeFromWorkingResources([resource]);
 
-        this.autoSave(this.lessonId, this.workingResources);
+        this.autoSave(this.lessonId, this.workingResources, this.classId);
 
         if (this.numberOfRemovals > 0) {
           this.showSnackbarNotification(
@@ -164,7 +169,7 @@
               actionText: this.$tr('undoActionPrompt'),
               actionCallback: () => {
                 this.setWorkingResources(this.workingResourcesBackup);
-                this.autoSave(this.lessonId, this.workingResources);
+                this.autoSave(this.lessonId, this.workingResources, this.classId);
                 this.clearSnackbar();
               },
               hideCallback: () => {
@@ -199,13 +204,17 @@
         this.autoSave(this.lessonId, newArray);
         this.showSnackbarNotification('resourceOrderSaved');
       },
-      autoSave(id, resources) {
+      autoSave(id, resources, classID) {
         this.saveLessonResources({ lessonId: id, resources: resources })
           .then(() => {
             this.updateCurrentLesson(id);
           })
+          .then(() => {
+            this.fetchLessonsSizes({ classId: classID });
+          })
           .catch(() => {
             this.updateCurrentLesson(id).then(currentLesson => {
+              this.fetchLessonsSizes({ classId: currentLesson.classroom.id });
               this.setWorkingResources(currentLesson.resources);
             });
           });

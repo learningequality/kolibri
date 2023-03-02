@@ -2,11 +2,15 @@ from django.utils.timezone import now
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
 from rest_framework import pagination
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 from kolibri.core.api import ValuesViewset
 from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.auth.constants.collection_kinds import ADHOCLEARNERSGROUP
+from kolibri.core.content.models import ContentNode
+from kolibri.core.content.utils.annotation import total_file_size
 from kolibri.core.exams import models
 from kolibri.core.exams import serializers
 from kolibri.core.logger.models import MasteryLog
@@ -130,3 +134,15 @@ class ExamViewset(ValuesViewset):
         if not was_archived and serializer.instance.archive:
             # It was not archived (closed), but now it is - so we set all MasteryLogs as complete
             masterylog_queryset.update(complete=True)
+
+    @action(detail=False)
+    def size(self, request, **kwargs):
+        exams = self.get_queryset()
+        exams_sizes_dict = {}
+        for exam in exams:
+            quiz_nodes = ContentNode.objects.filter(
+                id__in={source["exercise_id"] for source in exam.question_sources}
+            )
+            exams_sizes_dict[exam.id] = total_file_size(quiz_nodes)
+
+        return Response([exams_sizes_dict])
