@@ -247,7 +247,7 @@
     $trs: {
       addDeviceSnackbarText: {
         message: 'Successfully added device',
-        context: 'This message appears if a network device has been added correctly.',
+        context: 'This message appears if a device has been added correctly.',
       },
       documentTitle: {
         message: 'Select learning facility',
@@ -261,7 +261,7 @@
       newDeviceButtonLabel: {
         message: 'Add new device',
         context:
-          'The "Add new device" link appears in the \'Select network device\' screen. This option allows you to add a new network device from which to sync data.',
+          'The "Add new device" link appears in the \'Select device\' screen. This option allows you to add a new device from which to sync data.',
       },
       noFacilitiesText: {
         message: 'No learning facilities found',

@@ -11,7 +11,7 @@ const syncStrings = createTranslator('CommonSyncStrings', {
     context: 'Title of menu where the user selects the source from where to import a facility',
   },
   selectNetworkAddressTitle: {
-    message: 'Select network device',
+    message: 'Select device',
     context:
       'Title of menu where user selects a device at an device in order to communicate with it',
   },
@@ -22,7 +22,7 @@ const syncStrings = createTranslator('CommonSyncStrings', {
   },
   addNewAddressAction: {
     message: 'Add new device',
-    context: 'Label for a button that opens a menu to save a new network device.',
+    context: 'Label for a button that opens a menu to save a new device.',
   },
   selectFacilityTitle: {
     message: 'Select learning facility',

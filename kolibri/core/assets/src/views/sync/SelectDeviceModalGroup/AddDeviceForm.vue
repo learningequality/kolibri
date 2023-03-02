@@ -150,9 +150,9 @@
         context: 'Example of a network address.',
       },
       errorCouldNotConnect: {
-        message: 'Could not connect to this network device',
+        message: 'Could not connect to this device',
         context:
-          "This is an error message that an admin will see when Kolibri can't connect to another network device when trying to import resources.",
+          "This is an error message that an admin will see when Kolibri can't connect to another device when trying to import resources.",
       },
       errorInvalidAddress: {
         message: 'Please enter a valid IP address, URL, or hostname',
@@ -162,12 +162,12 @@
       header: {
         message: 'New device',
         context:
-          'The title of the section that an admin accesses when they select the "Add new device" link in the Device > Facilities section.\n\nThey use this screen to add a new network device.',
+          'The title of the section that an admin accesses when they select the "Add new device" link in the Device > Facilities section.\n\nThey use this screen to add a new device.',
       },
       nameDesc: {
         message: 'Choose a name for this device so you can remember it later:',
         context:
-          'When an admin adds a new network device they can give it a name. This is a helper text to remind them to choose a name for the device.',
+          'When an admin adds a new device they can give it a name. This is a helper text to remind them to choose a name for the device.',
       },
       nameLabel: {
         message: 'Name',
@@ -179,12 +179,12 @@
       },
       submitButtonLabel: {
         message: 'Add',
-        context: 'Text for button used to add a new network device.',
+        context: 'Text for button used to add a new device.',
       },
       tryingToConnect: {
         message: 'Trying to connect to server…',
         context:
-          'Progress message an admin sees when Kolibri is attempting to connect to a network device.',
+          'Progress message an admin sees when Kolibri is attempting to connect to a device.',
       },
     },
   };

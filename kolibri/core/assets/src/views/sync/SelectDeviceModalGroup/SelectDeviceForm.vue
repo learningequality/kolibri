@@ -316,42 +316,42 @@
       deletingFailedText: {
         message: 'There was a problem removing this device',
         context:
-          'Error message that displays when an admin attempts to remove a network device, but is unable to do so.',
+          'Error message that displays when an admin attempts to remove a device, but is unable to do so.',
       },
       fetchingFailedText: {
         message: 'There was a problem getting the available devices',
         context:
-          'Error message that displays when an admin attempts to find a network device, but the device is not found.',
+          'Error message that displays when an admin attempts to find a device, but the device is not found.',
       },
       forgetDeviceButtonLabel: {
         message: 'Remove',
         context:
-          'Removes a network device from the list of network devices which have been registered in the Device > Facilities section.',
+          'Removes a device from the list of devices which have been registered in the Device > Facilities section.',
       },
       header: {
-        message: 'Select network device',
+        message: 'Select device',
         context:
-          "In the Device > Facilities section, you select the 'SYNC' option to choose the network device you want to sync from.\n\nYou do this in the 'Select network device' section which displays a list of network devices.",
+          "In the Device > Facilities section, you select the 'SYNC' option to choose the device you want to sync from.\n\nYou do this in the 'Select device' section which displays a list of devices.",
       },
       newDeviceButtonLabel: {
         message: 'Add new device',
         context:
-          'The "Add new device" link appears in the \'Select network device\' screen. This option allows you to add a new network device from which to sync data.',
+          'The "Add new device" link appears in the \'Select device\' screen. This option allows you to add a new device from which to sync data.',
       },
       lodSubHeader: {
         message: 'Select a device with Kolibri version 0.15 to import learner user accounts',
         context:
-          "In the first startup wizard, when you select to 'Import one or more user accounts from an existing facility' option to choose the network device you want to sync from.\n\nYou do this in the 'Select network device' section which displays a list of network devices.",
+          "In the first startup wizard, when you select to 'Import one or more user accounts from an existing facility' option to choose the device you want to sync from.\n\nYou do this in the 'Select device' section which displays a list of devices.",
       },
       noDeviceText: {
         message: 'There are no devices yet',
         context:
-          "This message displays when there are no network devices to sync with.\n\nIt appears when selecting 'SYNC' in the Device > Facilities section if there are no network devices.",
+          "This message displays when there are no devices to sync with.\n\nIt appears when selecting 'SYNC' in the Device > Facilities section if there are no devices.",
       },
       refreshDevicesButtonLabel: {
         message: 'Refresh devices',
         context:
-          'This message displays if there was a problem getting the network devices. It allows the user to refresh the application to be able to see all the devices available.',
+          'This message displays if there was a problem getting the devices. It allows the user to refresh the application to be able to see all the devices available.',
       },
     },
   };

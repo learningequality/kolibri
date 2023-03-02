@@ -95,11 +95,11 @@
     $trs: {
       addDeviceSnackbarText: {
         message: 'Successfully added device',
-        context: 'This message appears if a network device has been added correctly.',
+        context: 'This message appears if a device has been added correctly.',
       },
       removeDeviceSnackbarText: {
         message: 'Successfully removed device',
-        context: 'This message appears if a network device has been removed correctly.',
+        context: 'This message appears if a device has been removed correctly.',
       },
     },
   };
