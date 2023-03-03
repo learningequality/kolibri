@@ -74,7 +74,7 @@
     $trs: {
       warningMessage: {
         message:
-          'Some devices do not have enough storage for updates. Change the visibility of any active lessons and quizzes you aren’t using right now to free up space. ',
+          'Some devices do not have enough storage for updates. Change the visibility of lessons and quizzes you aren’t using right now to free up space.',
         context: 'Message displayed when a learner device does not have enough storage to sync.',
       },
       alertLink: {

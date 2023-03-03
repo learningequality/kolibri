@@ -140,6 +140,13 @@
         message: 'Import individual user accounts - {step, number} of {total, number}',
         context: 'Title that goes on top of the screen to indicate the current step.',
       },
+      /* eslint-disable kolibri/vue-no-unused-translations */
+      firstUserWarning: {
+        message:
+          'Please note: The first user you choose to import will be given super admin permissions on this device, and be able to manage all channels and device settings.',
+        context: 'Notice about impleications of importing the first user on a learn-only device',
+      },
+      /* eslint-enable */
     },
   };
 

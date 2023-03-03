@@ -1286,6 +1286,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Remove PIN',
     context: 'Placholder text for the remove PIN textbox',
   },
+  setPin: {
+    message: 'Choose a 4-digit number to set as your new PIN',
+    context: 'Label to allow user to choose numbers to set PIN',
+  },
 
   // preferred learning language
   preferredLanguage: {

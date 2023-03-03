@@ -18,6 +18,11 @@ const deviceStrings = createTranslator('CommonDeviceStrings', {
     message: 'New',
     context: 'Refers to CHANNEL; indicates that it was recently updated, imported, and unlocked',
   },
+  newEnabledPluginsState: {
+    message:
+      'When you uncheck a page, it will become invisible to users even if they have permission to access it.',
+    context: 'Description for restarting the server.',
+  },
   unlistedChannelLabel: {
     message: 'Unlisted channel',
     context:
