@@ -76,9 +76,9 @@
     },
     $trs: {
       downloadContent: {
-        message: 'Download resource',
+        message: 'Save to device',
         context:
-          "The 'DOWNLOAD RESOURCE' button allows learners to download learning resources, like a PDF document for example, to their own device.",
+          "The 'SAVE TO DEVICE' button allows learners to download learning resources, like a PDF document for example, to their own device.",
       },
       downloadFilename: {
         message: '{ resourceTitle } ({ fileId }).{ fileExtension }',
