@@ -160,6 +160,7 @@
                   facility: state.value.targetFacility.id,
                   username: state.value.targetAccount.username,
                   local_user_id: state.value.userId,
+                  facility_name: state.value.targetFacility.name,
                   user_id: state.value.targetAccount.id,
                 };
                 if (state.value.targetAccount.password !== '') {

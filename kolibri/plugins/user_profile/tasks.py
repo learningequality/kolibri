@@ -29,6 +29,7 @@ class MergeUserValidator(PeerImportSingleSyncJobValidator):
     new_superuser_id = serializers.PrimaryKeyRelatedField(
         queryset=FacilityUser.objects.all(), required=False
     )
+    facility_name = serializers.CharField(default="")
 
     def validate(self, data):
         try:
