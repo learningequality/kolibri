@@ -40,6 +40,7 @@ function startCSVExport(store, type, dateRange, creating, commitStart) {
     facility: store.rootGetters.activeFacilityId,
     start_date: dateRange['start'],
     end_date: dateRange['end'],
+    locale: currentLanguage,
     type,
   };
   return TaskResource.startTask(params).then(task => {

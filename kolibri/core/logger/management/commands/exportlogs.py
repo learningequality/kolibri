@@ -97,7 +97,6 @@ class Command(AsyncCommand):
         # set language for the translation of the messages
         locale = settings.LANGUAGE_CODE if not options["locale"] else options["locale"]
         translation.activate(locale)
-
         self.overall_error = ""
         job = get_current_job()
 
