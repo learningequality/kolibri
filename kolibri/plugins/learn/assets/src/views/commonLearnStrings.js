@@ -156,6 +156,20 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
     message: 'What you will need',
     context: '',
   },
+  //
+  loadingLibraries: {
+    message: 'Loading Kolibri libraries around you',
+    context: '',
+  },
+  cannotConnectToLibrary: {
+    message:
+      'Kolibri cannot connect to the library on {deviceName}. Your network connection may be unstable, or {deviceName} is no longer available.',
+    context: '',
+  },
+  backToAllLibraries: {
+    message: 'Go back to all libraries',
+    context: '',
+  },
 });
 
 export function learnString(key, args) {
