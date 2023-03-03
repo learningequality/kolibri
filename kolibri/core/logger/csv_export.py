@@ -10,6 +10,7 @@ from functools import partial
 
 from dateutil import parser
 from django.core.cache import cache
+from django.utils.translation import gettext_lazy as _
 from le_utils.constants import content_kinds
 
 from .models import ContentSessionLog
@@ -64,18 +65,18 @@ mappings = {
 
 labels = OrderedDict(
     (
-        ("user__facility__name", "Facility name"),
-        ("user__username", "Username"),
-        ("channel_id", "Channel id"),
-        ("channel_name", "Channel name"),
-        ("content_id", "Content id"),
-        ("content_title", "Content title"),
-        ("start_timestamp", "Time of first interaction"),
-        ("end_timestamp", "Time of last interaction"),
-        ("completion_timestamp", "Time of completion"),
-        ("time_spent", "Time Spent (sec)"),
-        ("progress", "Progress (0-1)"),
-        ("kind", "Content kind"),
+        ("user__facility__name", _("Facility name")),
+        ("user__username", _("Username")),
+        ("channel_id", _("Channel id")),
+        ("channel_name", _("Channel name")),
+        ("content_id", _("Content id")),
+        ("content_title", _("Content title")),
+        ("start_timestamp", _("Time of first interaction")),
+        ("end_timestamp", _("Time of last interaction")),
+        ("completion_timestamp", _("Time of completion")),
+        ("time_spent", _("Time Spent (sec)")),
+        ("progress", _("Progress (0-1)")),
+        ("kind", _("Content kind")),
     )
 )
 
