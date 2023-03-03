@@ -1249,7 +1249,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context: 'Placholder text for the enter PIN textbox',
   },
   removePinPlacholder: {
-    message: 'REMOVE PIN',
+    message: 'Remove PIN',
     context: 'Placholder text for the remove PIN textbox',
   },
 
