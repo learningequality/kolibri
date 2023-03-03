@@ -12,3 +12,10 @@ export const PlanTabs = {
   QUIZZES: 'tabQuizzes',
   GROUPS: 'tabGroups',
 };
+
+export const REPORTS_GROUP_TABS_ID = 'coachPlanGroup';
+export const ReportsGroupTabs = {
+  REPORTS: 'tabReports',
+  MEMBERS: 'tabMembers',
+  ACTIVITY: 'tabActivity',
+};
