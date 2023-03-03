@@ -7,153 +7,157 @@
   >
 
     <KPageContainer>
-      <PlanHeader />
-
-      <div class="filter-and-button">
-        <p v-if="filteredExams.length && filteredExams.length > 0">
-          {{ $tr('totalQuizSize', { size: calcTotalSizeOfVisibleQuizzes }) }}
-        </p>
-        <KSelect
-          v-model="statusSelected"
-          :label="coachString('filterQuizStatus')"
-          :options="statusOptions"
-          :inline="true"
-        />
-        <KButtonGroup v-if="practiceQuizzesExist">
-          <KButton
-            primary
-            hasDropdown
-            appearance="raised-button"
-            :text="coachString('newQuizAction')"
-          >
-            <template #menu>
-              <KDropdownMenu
-                :options="dropdownOptions"
-                class="options-btn"
-                @select="handleSelect"
-              />
-            </template>
-          </KButton>
-        </KButtonGroup>
-        <div
-          v-else
-          class="button"
-        >
-          <KRouterLink
-            :primary="true"
-            appearance="raised-button"
-            :to="newExamRoute"
-            :text="coachString('newQuizAction')"
+      <PlanHeader :activeTabId="PlanTabs.QUIZZES" />
+      <KTabsPanel
+        :tabsId="PLAN_TABS_ID"
+        :activeTabId="PlanTabs.QUIZZES"
+      >
+        <div class="filter-and-button">
+          <p v-if="filteredExams.length && filteredExams.length > 0">
+            {{ $tr('totalQuizSize', { size: calcTotalSizeOfVisibleQuizzes }) }}
+          </p>
+          <KSelect
+            v-model="statusSelected"
+            :label="coachString('filterQuizStatus')"
+            :options="statusOptions"
+            :inline="true"
           />
-        </div>
-      </div>
-      <CoreTable>
-        <template #headers>
-          <th>{{ coachString('titleLabel') }}</th>
-          <th>{{ coachString('recipientsLabel') }}</th>
-          <th>{{ coachString('sizeLabel') }}</th>
-          <th class="center-text">
-            {{ coachString('statusLabel') }}
-          </th>
-        </template>
-        <template #tbody>
-          <transition-group
-            tag="tbody"
-            name="list"
-          >
-            <tr
-              v-for="exam in filteredExams"
-              :key="exam.id"
+          <KButtonGroup v-if="practiceQuizzesExist">
+            <KButton
+              primary
+              hasDropdown
+              appearance="raised-button"
+              :text="coachString('newQuizAction')"
             >
-              <td>
-                <KRouterLink
-                  :to="$router.getRoute('QuizSummaryPage', { quizId: exam.id })"
-                  appearance="basic-link"
-                  :text="exam.title"
-                  icon="quiz"
+              <template #menu>
+                <KDropdownMenu
+                  :options="dropdownOptions"
+                  class="options-btn"
+                  @select="handleSelect"
                 />
-              </td>
+              </template>
+            </KButton>
+          </KButtonGroup>
+          <div
+            v-else
+            class="button"
+          >
+            <KRouterLink
+              :primary="true"
+              appearance="raised-button"
+              :to="newExamRoute"
+              :text="coachString('newQuizAction')"
+            />
+          </div>
+        </div>
+        <CoreTable>
+          <template #headers>
+            <th>{{ coachString('titleLabel') }}</th>
+            <th>{{ coachString('recipientsLabel') }}</th>
+            <th>{{ coachString('sizeLabel') }}</th>
+            <th class="center-text">
+              {{ coachString('statusLabel') }}
+            </th>
+          </template>
+          <template #tbody>
+            <transition-group
+              tag="tbody"
+              name="list"
+            >
+              <tr
+                v-for="exam in filteredExams"
+                :key="exam.id"
+              >
+                <td>
+                  <KRouterLink
+                    :to="$router.getRoute('QuizSummaryPage', { quizId: exam.id })"
+                    appearance="basic-link"
+                    :text="exam.title"
+                    icon="quiz"
+                  />
+                </td>
 
-              <td>
-                <Recipients
-                  :groupNames="getRecipientNamesForExam(exam)"
-                  :hasAssignments="exam.assignments.length > 0"
-                />
-              </td>
-              <td>
-                {{ quizSize(exam.id) }}
-              </td>
-              <td class="button-col center-text core-table-button-col">
-                <!-- Open quiz button -->
-                <KButton
-                  v-if="!exam.active && !exam.archive"
-                  :text="coachString('openQuizLabel')"
-                  appearance="flat-button"
-                  @click="showOpenConfirmationModal = true; activeQuizId = exam.id"
-                />
-                <!-- Close quiz button -->
-                <KButton
-                  v-if="exam.active && !exam.archive"
-                  :text="coachString('closeQuizLabel')"
-                  appearance="flat-button"
-                  @click="showCloseConfirmationModal = true; activeQuizId = exam.id;"
-                />
-                <!-- Closed quiz label -->
-                <div v-if="exam.archive">
-                  {{ coachString('quizClosedLabel') }}
-                </div>
-              </td>
+                <td>
+                  <Recipients
+                    :groupNames="getRecipientNamesForExam(exam)"
+                    :hasAssignments="exam.assignments.length > 0"
+                  />
+                </td>
+                <td>
+                  {{ quizSize(exam.id) }}
+                </td>
+                <td class="button-col center-text core-table-button-col">
+                  <!-- Open quiz button -->
+                  <KButton
+                    v-if="!exam.active && !exam.archive"
+                    :text="coachString('openQuizLabel')"
+                    appearance="flat-button"
+                    @click="showOpenConfirmationModal = true; activeQuizId = exam.id"
+                  />
+                  <!-- Close quiz button -->
+                  <KButton
+                    v-if="exam.active && !exam.archive"
+                    :text="coachString('closeQuizLabel')"
+                    appearance="flat-button"
+                    @click="showCloseConfirmationModal = true; activeQuizId = exam.id;"
+                  />
+                  <!-- Closed quiz label -->
+                  <div v-if="exam.archive">
+                    {{ coachString('quizClosedLabel') }}
+                  </div>
+                </td>
 
-            </tr>
-          </transition-group>
-        </template>
-      </CoreTable>
+              </tr>
+            </transition-group>
+          </template>
+        </CoreTable>
 
-      <p v-if="!exams.length">
-        {{ $tr('noExams') }}
-      </p>
-      <p
-        v-else-if="statusSelected.value === coachString('filterQuizStarted') &&
-          !startedExams.length"
-      >
-        {{ $tr('noStartedExams') }}
-      </p>
-      <p
-        v-else-if=" statusSelected.value === coachString('filterQuizNotStarted') &&
-          !notStartedExams.length"
-      >
-        {{ $tr('noExamsNotStarted') }}
-      </p>
-      <p
-        v-else-if=" statusSelected.value === coachString('filterQuizEnded') &&
-          !endedExams.length"
-      >
-        {{ $tr('noEndedExams') }}
-      </p>
+        <p v-if="!exams.length">
+          {{ $tr('noExams') }}
+        </p>
+        <p
+          v-else-if="statusSelected.value === coachString('filterQuizStarted') &&
+            !startedExams.length"
+        >
+          {{ $tr('noStartedExams') }}
+        </p>
+        <p
+          v-else-if=" statusSelected.value === coachString('filterQuizNotStarted') &&
+            !notStartedExams.length"
+        >
+          {{ $tr('noExamsNotStarted') }}
+        </p>
+        <p
+          v-else-if=" statusSelected.value === coachString('filterQuizEnded') &&
+            !endedExams.length"
+        >
+          {{ $tr('noEndedExams') }}
+        </p>
 
-      <!-- Modals for Close & Open of quiz from right-most column -->
-      <KModal
-        v-if="showOpenConfirmationModal"
-        :title="coachString('openQuizLabel')"
-        :submitText="coreString('continueAction')"
-        :cancelText="coreString('cancelAction')"
-        @cancel="showOpenConfirmationModal = false"
-        @submit="handleOpenQuiz(activeQuizId)"
-      >
-        <p>{{ coachString('openQuizModalDetail') }}</p>
-        <p>{{ coachString('lodQuizDetail') }}</p>
-        <p>{{ coachString('fileSizeToDownload', { size: quizSize(activeQuizId) }) }}</p>
-      </KModal>
-      <KModal
-        v-if="showCloseConfirmationModal"
-        :title="coachString('closeQuizLabel')"
-        :submitText="coreString('continueAction')"
-        :cancelText="coreString('cancelAction')"
-        @cancel="showCloseConfirmationModal = false"
-        @submit="handleCloseQuiz(activeQuizId)"
-      >
-        <div>{{ coachString('closeQuizModalDetail') }}</div>
-      </KModal>
+        <!-- Modals for Close & Open of quiz from right-most column -->
+        <KModal
+          v-if="showOpenConfirmationModal"
+          :title="coachString('openQuizLabel')"
+          :submitText="coreString('continueAction')"
+          :cancelText="coreString('cancelAction')"
+          @cancel="showOpenConfirmationModal = false"
+          @submit="handleOpenQuiz(activeQuizId)"
+        >
+          <p>{{ coachString('openQuizModalDetail') }}</p>
+          <p>{{ coachString('lodQuizDetail') }}</p>
+          <p>{{ coachString('fileSizeToDownload', { size: quizSize(activeQuizId) }) }}</p>
+        </KModal>
+        <KModal
+          v-if="showCloseConfirmationModal"
+          :title="coachString('closeQuizLabel')"
+          :submitText="coreString('continueAction')"
+          :cancelText="coreString('cancelAction')"
+          @cancel="showCloseConfirmationModal = false"
+          @submit="handleCloseQuiz(activeQuizId)"
+        >
+          <div>{{ coachString('closeQuizModalDetail') }}</div>
+        </KModal>
+      </KTabsPanel>
     </KPageContainer>
   </CoachAppBarPage>
 
@@ -169,6 +173,7 @@
   import plugin_data from 'plugin_data';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import { PageNames } from '../../../constants';
+  import { PLAN_TABS_ID, PlanTabs } from '../../../constants/tabsConstants';
   import commonCoach from '../../common';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import PlanHeader from '../../plan/PlanHeader';
@@ -183,6 +188,8 @@
     mixins: [commonCoach, commonCoreStrings],
     data() {
       return {
+        PLAN_TABS_ID,
+        PlanTabs,
         statusSelected: {
           label: this.coachString('filterQuizAll'),
           value: this.coachString('filterQuizAll'),

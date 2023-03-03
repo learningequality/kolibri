@@ -5,3 +5,10 @@ export const ReportsTabs = {
   GROUPS: 'tabGroups',
   LEARNERS: 'tabLearners',
 };
+
+export const PLAN_TABS_ID = 'coachPlan';
+export const PlanTabs = {
+  LESSONS: 'tabLessons',
+  QUIZZES: 'tabQuizzes',
+  GROUPS: 'tabGroups',
+};
