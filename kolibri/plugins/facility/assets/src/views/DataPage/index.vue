@@ -182,6 +182,7 @@
   import { currentLanguage } from 'kolibri.utils.i18n';
   import { now } from 'kolibri.utils.serverClock';
   import format from 'date-fns/format';
+  import KDateRange from 'kolibri-design-system/lib/KDateRange';
   import { PageNames } from '../../constants';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import GeneratedElapsedTime from './GeneratedElapsedTime';
@@ -204,6 +205,7 @@
       ImportInterface,
       SyncInterface,
       LearnMoreModal,
+      KDateRange,
     },
     mixins: [commonCoreStrings, KResponsiveWindowMixin],
     data() {
