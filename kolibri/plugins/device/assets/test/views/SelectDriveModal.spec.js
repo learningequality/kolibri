@@ -159,7 +159,8 @@ describe('selectDriveModal component', () => {
     });
     const wrapper = makeWrapper({ store });
     const driveListText = wrapper.findComponent({ name: 'UiAlert' });
-    const expectedMessage = 'No drives with Kolibri resources are connected to the server';
+    const expectedMessage =
+      'No USB or network drives with Kolibri resources are connected to the server.';
     expect(driveListText.text().trim()).toEqual(expectedMessage);
   });
 

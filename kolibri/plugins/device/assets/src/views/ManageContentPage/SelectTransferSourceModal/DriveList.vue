@@ -83,7 +83,7 @@
           'Refers to importing and exporting channels from external USB or disk drives that Kolibri can recognize and export channels to.',
       },
       noImportableDrives: {
-        message: 'No drives with Kolibri resources are connected to the server',
+        message: 'No USB or network drives with Kolibri resources are connected to the server.',
         context:
           "Error message that refers to importing resources. If the drive being used doesn't have Kolibri resources on it, then this message will display.",
       },
