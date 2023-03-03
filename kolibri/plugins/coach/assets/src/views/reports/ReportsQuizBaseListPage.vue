@@ -24,6 +24,9 @@
         </QuizLessonDetailsHeader>
       </KGridItem>
       <KGridItem :layout12="{ span: $isPrint ? 12 : 4 }">
+        <h2 class="visuallyhidden">
+          {{ coachString('generalInformationLabel') }}
+        </h2>
         <QuizStatus
           :className="className"
           :avgScore="avgScore"
@@ -32,6 +35,9 @@
         />
       </KGridItem>
       <KGridItem :layout12="{ span: $isPrint ? 12 : 8 }">
+        <h2 class="visuallyhidden">
+          {{ coachString('detailsLabel') }}
+        </h2>
         <KPageContainer :topMargin="$isPrint ? 0 : 16">
           <ReportsControls @export="$emit('export')" />
           <HeaderTabs :enablePrint="true">
