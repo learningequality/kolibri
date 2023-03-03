@@ -22,6 +22,7 @@ from kolibri.core.tasks.exceptions import JobNotRestartable
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.job import State
+from kolibri.utils import conf
 from kolibri.utils.time_utils import local_now
 from kolibri.utils.time_utils import naive_utc_datetime
 
@@ -80,13 +81,15 @@ def _validate_hooks(hooks):
 
 
 class Storage(object):
-    def __init__(self, connection, Base=Base, schedule_hooks=None, update_hooks=None):
+    def __init__(self, connection, Base=Base):
         self.engine = connection
         if self.engine.name == "sqlite":
             self.set_sqlite_pragmas()
         self.Base = Base
         self.Base.metadata.create_all(self.engine)
         self.sessionmaker = sessionmaker(bind=self.engine)
+        schedule_hooks = conf.OPTIONS["Tasks"]["SCHEDULE_HOOKS"]
+        update_hooks = conf.OPTIONS["Tasks"]["UPDATE_HOOKS"]
         self.schedule_hooks = _validate_hooks(schedule_hooks)
         self.update_hooks = _validate_hooks(update_hooks)
 
@@ -436,8 +439,6 @@ class Storage(object):
         with self.session_scope() as session:
             try:
                 job, orm_job = self._get_job_and_orm_job(job_id, session)
-                for update_hook in self.update_hooks:
-                    update_hook(job, orm_job, state=state, **kwargs)
                 if state is not None:
                     orm_job.state = job.state = state
                     if state == State.FAILED and orm_job.retry_interval is not None:
@@ -460,6 +461,8 @@ class Storage(object):
                     setattr(job, kwarg, kwargs[kwarg])
                 orm_job.saved_job = job.to_json()
                 session.add(orm_job)
+                for update_hook in self.update_hooks:
+                    update_hook(job, orm_job, state=state, **kwargs)
                 return job, orm_job
             except JobNotFound:
                 if state:
