@@ -105,7 +105,9 @@ def default_status_text(job):
         return _("Cancelled")
     elif job.state == State.RUNNING and job.percentage_progress:
         # Translators: Message shown to indicate the percentage completed of a background process.
-        return _("In progress - {percent}").format(percent=job.percentage_progress)
+        return _("In progress - {percent}%").format(
+            percent=round(job.percentage_progress * 100)
+        )
     # Translators: Message shown to indicate that while a background process has started, no progress can be reported yet.
     return _("Waiting")
 
