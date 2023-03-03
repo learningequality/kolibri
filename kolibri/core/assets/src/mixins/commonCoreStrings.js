@@ -973,6 +973,16 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Long activity',
     context: 'Label with time estimation for learning activities that take more than 30 minutes.',
   },
+  shortExerciseGoalDescription: {
+    message: 'Get {count, number, integer} {count, plural, other {correct}}',
+    context:
+      'Label that indicates to the learner how many correct answers they need to give in order to master the given topic, and for the exercise to be considered completed.',
+  },
+  practiceQuizLabel: {
+    message: 'Practice quiz',
+    context:
+      'Label that indicates this self paced activity is in the style of a quiz, and learners will only see the correct answers once they have submitted the quiz.',
+  },
 
   // assigning bookmarked resources
 
