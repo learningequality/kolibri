@@ -253,7 +253,7 @@
             {{ $tr('enabledPages') }}
           </h2>
           <p class="info-description">
-            {{ $tr('enabledPagesDescription') }}
+            {{ deviceString('newEnabledPluginsState') }}
           </p>
 
           <KCheckbox
@@ -354,9 +354,9 @@
   import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
+  import { deviceString } from '../commonDeviceStrings';
   import { LandingPageChoices, MeteredConnectionDownloadOptions } from '../../constants';
   import DeviceTopNav from '../DeviceTopNav';
-  import { deviceString } from '../commonDeviceStrings';
   import { getFreeSpaceOnServer } from '../AvailableChannelsPage/api';
   import useDeviceRestart from '../../composables/useDeviceRestart';
   import usePlugins from '../../composables/usePlugins';
@@ -1041,11 +1041,6 @@
       enabledPages: {
         message: 'Enabled pages',
         context: 'Label for enabled pages section',
-      },
-      enabledPagesDescription: {
-        message:
-          'When you uncheck a page, it will make it invisible to users even if they have permission to access it.',
-        context: "Description for the 'Enabled pages' section.",
       },
       alertDisabledOptions: {
         message:

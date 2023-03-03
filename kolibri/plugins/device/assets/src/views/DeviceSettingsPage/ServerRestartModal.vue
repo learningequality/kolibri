@@ -29,10 +29,11 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonDeviceStrings from '../commonDeviceStrings';
 
   export default {
     name: 'ServerRestartModal',
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, commonDeviceStrings],
     props: {
       changedSetting: {
         type: String, // primary, remove, add, plugins
@@ -63,7 +64,7 @@
             message = this.$tr('newLocationRestartDescription');
             break;
           case 'plugin':
-            message = this.$tr('newPluginsState');
+            message = this.deviceString('newEnabledPluginsState');
             break;
         }
         // message is a separate sentence, concatenating them is not problematic
@@ -97,11 +98,6 @@
       serverRestartDescription: {
         message:
           ' Anyone using Kolibri on this server right now will temporarily be unable to use it.',
-        context: 'Description for restarting the server.',
-      },
-      newPluginsState: {
-        message:
-          'When you uncheck a page, it will make it invisible to users even if they have permission to access it.',
         context: 'Description for restarting the server.',
       },
       /* eslint-disable kolibri/vue-no-unused-translations */
