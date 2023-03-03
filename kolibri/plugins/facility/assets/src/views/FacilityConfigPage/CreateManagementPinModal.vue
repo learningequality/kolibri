@@ -9,7 +9,7 @@
   >
     <div>
       <p>{{ $tr('newToSync') }}</p>
-      <p>{{ $tr('enterPin') }}</p>
+      <p>{{ coreString('setPin') }}</p>
 
       <KTextbox
         ref="pinFocus"
@@ -76,10 +76,6 @@
         message:
           'You will need to sync this device with other devices with the same facility in order to use this PIN.',
         context: 'Reminder to sync devices',
-      },
-      enterPin: {
-        message: 'Choose a 4-digit number to set as your new PIN',
-        context: 'Label to allow user to enter PIN',
       },
     },
   };
