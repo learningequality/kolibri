@@ -354,7 +354,7 @@
   import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
-  import { deviceString } from '../commonDeviceStrings';
+  import commonDeviceStrings from '../commonDeviceStrings';
   import { LandingPageChoices, MeteredConnectionDownloadOptions } from '../../constants';
   import DeviceTopNav from '../DeviceTopNav';
   import { getFreeSpaceOnServer } from '../AvailableChannelsPage/api';
@@ -389,7 +389,7 @@
       ServerRestartModal,
       UiAlert,
     },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, commonDeviceStrings],
     setup() {
       const { restart } = useDeviceRestart();
       const { plugins, fetchPlugins, togglePlugin } = usePlugins();
@@ -461,7 +461,7 @@
       ...mapGetters(['isAppContext']),
       ...mapGetters('deviceInfo', ['getDeviceOS', 'canRestart', 'isRemoteContent']),
       pageTitle() {
-        return deviceString('deviceManagementTitle');
+        return this.deviceString('deviceManagementTitle');
       },
       facilities() {
         return this.$store.getters.facilities;
