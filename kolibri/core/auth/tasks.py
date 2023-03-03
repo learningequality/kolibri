@@ -239,7 +239,6 @@ def exportuserstocsv(facility=None, locale=None):
 
 class SyncJobValidator(JobValidator):
     facility = serializers.PrimaryKeyRelatedField(queryset=Facility.objects.all())
-    facility_name = serializers.CharField(default="")
     command = serializers.ChoiceField(choices=["sync", "resumesync"], default="sync")
     sync_session_id = HexOnlyUUIDField(format="hex", required=False, allow_null=True)
 
@@ -370,6 +369,7 @@ def peerfacilitysync(command, **kwargs):
 
 class PeerFacilityImportJobValidator(PeerFacilitySyncJobValidator):
     facility = HexOnlyUUIDField()
+    facility_name = serializers.CharField(default="")
     username = serializers.CharField()
     password = serializers.CharField(default=NOT_SPECIFIED, required=False)
 
