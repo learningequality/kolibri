@@ -16,11 +16,13 @@
       :style="{ marginTop: '34px' }"  
     >
       <KTabsList
+        ref="tabsList"
         :tabsId="REPORTS_GROUP_TABS_ID"
         ariaLabel="Group reports"
         :activeTabId="activeTabId"
         :tabs="tabs"
         :style="{ position: 'relative', top: '5px' }"
+        @click="() => saveTabsClick(REPORTS_GROUP_TABS_ID)"
       />
     </HeaderTabs>
   </div>
@@ -33,10 +35,18 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import { REPORTS_GROUP_TABS_ID, ReportsGroupTabs } from '../../constants/tabsConstants';
+  import { useCoachTabs } from '../../composables/useCoachTabs';
 
   export default {
     name: 'ReportsGroupHeader',
     mixins: [commonCoach, commonCoreStrings],
+    setup() {
+      const { saveTabsClick, wereTabsClickedRecently } = useCoachTabs();
+      return {
+        saveTabsClick,
+        wereTabsClickedRecently,
+      };
+    },
     props: {
       activeTabId: {
         type: String,
@@ -76,6 +86,18 @@
           },
         ];
       },
+    },
+    mounted() {
+      // focus the active tab but only when it's likely
+      // that this header was re-mounted as a result
+      // of navigation after clicking a tab (focus shouldn't
+      // be manipulated programatically in other cases, e.g.
+      // when visiting the Group page for the first time)
+      if (this.wereTabsClickedRecently(this.REPORTS_GROUP_TABS_ID)) {
+        this.$nextTick(() => {
+          this.$refs.tabsList.focusActiveTab();
+        });
+      }
     },
     $trs: {
       back: {

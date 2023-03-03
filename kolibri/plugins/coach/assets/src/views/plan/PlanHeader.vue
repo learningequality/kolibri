@@ -12,11 +12,13 @@
     <p>{{ $tr('planYourClassDescription') }}</p>
     <HeaderTabs :style="{ marginTop: '28px' }">
       <KTabsList
+        ref="tabsList"
         :tabsId="PLAN_TABS_ID"
         ariaLabel="Coach plan"
         :activeTabId="activeTabId"
         :tabs="tabs"
         :style="{ position: 'relative', top: '5px' }"
+        @click="() => saveTabsClick(PLAN_TABS_ID)"
       />
     </HeaderTabs>
   </div>
@@ -32,10 +34,18 @@
   import { PageNames } from '../../constants';
   import { LessonsPageNames } from '../../constants/lessonsConstants';
   import { PLAN_TABS_ID, PlanTabs } from '../../constants/tabsConstants';
+  import { useCoachTabs } from '../../composables/useCoachTabs';
 
   export default {
     name: 'PlanHeader',
     mixins: [commonCoach, commonCoreStrings],
+    setup() {
+      const { saveTabsClick, wereTabsClickedRecently } = useCoachTabs();
+      return {
+        saveTabsClick,
+        wereTabsClickedRecently,
+      };
+    },
     props: {
       activeTabId: {
         type: String,
@@ -71,6 +81,18 @@
           },
         ];
       },
+    },
+    mounted() {
+      // focus the active tab but only when it's likely
+      // that this header was re-mounted as a result
+      // of navigation after clicking a tab (focus shouldn't
+      // be manipulated programatically in other cases, e.g.
+      // when visiting the Plan page for the first time)
+      if (this.wereTabsClickedRecently(this.PLAN_TABS_ID)) {
+        this.$nextTick(() => {
+          this.$refs.tabsList.focusActiveTab();
+        });
+      }
     },
     $trs: {
       planYourClassLabel: {
