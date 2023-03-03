@@ -3,7 +3,7 @@ Cross-platform Kolibri app
 
 ### Requirements
 
-- Python 3.11
+- Python 3.10
 
 ### Supported Platforms
 

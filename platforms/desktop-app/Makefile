@@ -29,7 +29,7 @@ install-whl:
 	# Read SQLAlchemy version from the unpacked whl file to avoid hard coding.
 	# Manually install the sqlalchemy version
 	@version=$$(grep -Eo '__version__ = "([0-9]+\.[0-9]+\.[0-9]+)"' kolibri/kolibri/dist/sqlalchemy/__init__.py | grep -Eo "([0-9]+\.[0-9]+\.[0-9]+)"); \
-	pip3 install sqlalchemy==$$version
+	pip3 install sqlalchemy==$$version --no-binary :all:
 	# Delete sqlalchemy from the dist folder
 	rm -rf kolibri/kolibri/dist/sqlalchemy
 	# This doesn't exist in 0.15, so don't error if it doesn't exist.
@@ -49,13 +49,11 @@ dependencies:
 
 build-mac-app:
 	$(eval LIBPYTHON_FOLDER = $(shell python3 -c 'from distutils.sysconfig import get_config_var; print(get_config_var("LIBDIR"))'))
-	test -f ${LIBPYTHON_FOLDER}/libpython3.11.dylib || ln -s ${LIBPYTHON_FOLDER}/libpython3.11m.dylib ${LIBPYTHON_FOLDER}/libpython3.11.dylib
+	test -f ${LIBPYTHON_FOLDER}/libpython3.10.dylib || ln -s ${LIBPYTHON_FOLDER}/libpython3.10m.dylib ${LIBPYTHON_FOLDER}/libpython3.10.dylib
 	$(MAKE) pyinstaller
 
 pyinstaller: clean
 	mkdir -p logs
-	# Need to install this for wxPython on Python 3.11
-	pip3 install attrdict3
 	pip3 install .
 	python3 -OO -m PyInstaller kolibri.spec
 
