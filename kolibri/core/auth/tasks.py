@@ -42,6 +42,7 @@ from kolibri.core.public.constants.user_sync_statuses import QUEUED
 from kolibri.core.public.constants.user_sync_statuses import SYNC
 from kolibri.core.serializers import HexOnlyUUIDField
 from kolibri.core.tasks.decorators import register_task
+from kolibri.core.tasks.job import JobStatus
 from kolibri.core.tasks.job import State
 from kolibri.core.tasks.main import job_storage
 from kolibri.core.tasks.permissions import IsAdminForJob
@@ -51,9 +52,20 @@ from kolibri.core.tasks.validation import JobValidator
 from kolibri.core.utils.urls import reverse_remote
 from kolibri.utils.conf import KOLIBRI_HOME
 from kolibri.utils.conf import OPTIONS
+from kolibri.utils.translation import ugettext as _
 
 
 logger = logging.getLogger(__name__)
+
+
+def status_fn(job):
+    # Translators: A notification title shown to users when their Kolibri device is syncing data to another Kolibri instance
+    data_syncing_in_progress = _("Data syncing in progress")
+
+    # Translators: Notification text shown to users when their Kolibri device is syncing data to another Kolibri instance
+    # to encourage them to stay connected to their network to ensure a successful sync.
+    do_not_disconnect = _("Do not disconnect your device from the network.")
+    return JobStatus(data_syncing_in_progress, do_not_disconnect)
 
 
 class LocaleChoiceField(serializers.ChoiceField):
@@ -270,6 +282,8 @@ facility_task_queue = "facility_task"
     track_progress=True,
     cancellable=False,
     queue=facility_task_queue,
+    long_running=True,
+    status_fn=status_fn,
 )
 def dataportalsync(command, **kwargs):
     """
@@ -343,6 +357,8 @@ class PeerFacilitySyncJobValidator(PeerSyncJobValidator):
     track_progress=True,
     cancellable=False,
     queue=facility_task_queue,
+    long_running=True,
+    status_fn=status_fn,
 )
 def peerfacilitysync(command, **kwargs):
     """
@@ -374,6 +390,8 @@ class PeerFacilityImportJobValidator(PeerFacilitySyncJobValidator):
     track_progress=True,
     cancellable=False,
     queue=facility_task_queue,
+    long_running=True,
+    status_fn=status_fn,
 )
 def peerfacilityimport(command, **kwargs):
     """
@@ -429,6 +447,7 @@ soud_sync_queue = "soud_sync"
 @register_task(
     validator=PeerRepeatingSingleSyncJobValidator,
     queue=soud_sync_queue,
+    status_fn=status_fn,
 )
 def peerusersync(command, **kwargs):
     cleanup = False
@@ -808,6 +827,7 @@ class PeerImportSingleSyncJobValidator(PeerSyncJobValidator):
     track_progress=True,
     queue=soud_sync_queue,
     permission_classes=[IsSuperAdmin() | NotProvisioned()],
+    status_fn=status_fn,
 )
 def peeruserimport(**kwargs):
     call_command("sync", **kwargs)

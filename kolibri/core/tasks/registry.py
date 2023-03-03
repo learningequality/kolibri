@@ -149,7 +149,7 @@ class RegisteredTask(object):
         Look at each method's docstring for more info.
     """
 
-    def __init__(
+    def __init__(  # noqa: C901
         self,
         func,
         job_id=None,
@@ -160,6 +160,7 @@ class RegisteredTask(object):
         track_progress=False,
         permission_classes=None,
         long_running=False,
+        status_fn=None,
     ):
         """
         :param func: Function to be wrapped as a Registered task
@@ -186,6 +187,10 @@ class RegisteredTask(object):
         :param long_running: In regular operation should this task finish in under ten minutes,
         defaults to False
         :type long_running: bool
+        :param status_fn: A function that takes a job object as its only argument and returns
+        text describing the status of the job to an end user. Should use string wrapping, as it will
+        usually be invoked in a context where internationalization is being used.
+        :type status_fn: function
         """
         if permission_classes is None:
             permission_classes = []
@@ -203,6 +208,16 @@ class RegisteredTask(object):
             raise TypeError("track_progress must be of bool type.")
         if not isinstance(long_running, bool):
             raise TypeError("long_running must be of bool type.")
+        if status_fn is not None and not callable(status_fn):
+            raise TypeError("status_fn must be callable.")
+        if long_running and status_fn is None:
+            raise ValueError(
+                "When long_running is set to True, status_fn must be defined"
+            )
+        if priority <= Priority.HIGH and status_fn is None:
+            raise ValueError(
+                "High priority tasks must specify a status_fn to inform the user of why it is important"
+            )
 
         self.func = func
         self.validator = validator
@@ -215,6 +230,7 @@ class RegisteredTask(object):
         self.cancellable = cancellable
         self.track_progress = track_progress
         self.long_running = long_running
+        self._status_fn = status_fn
 
         # Make this wrapper object look seamlessly like the wrapped function
         update_wrapper(self, func)
@@ -348,3 +364,14 @@ class RegisteredTask(object):
             **job_kwargs
         )
         return job_obj
+
+    def generate_status(self, job):
+        """
+        Takes a job object and returns text describing the current status for a user.
+        Relies on the task having registered a status_fn, otherwise this will
+        return None.
+
+        Otherwise it should return an object of type JobStatus, defined in the job module.
+        """
+        if self._status_fn:
+            return self._status_fn(job)
