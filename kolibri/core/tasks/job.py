@@ -348,3 +348,17 @@ class Job(object):
     def status(self, lang):
         with translation.override(lang):
             return self.task.generate_status(self)
+
+
+def log_status(job, orm_job, state=None, **kwargs):
+    """
+    An example handler for task update hooks.
+    All it does is attempt to generate a status object for the job
+    and log it if it returns one.
+    """
+
+    status = job.status(translation.get_language())
+    if status:
+        logging.info(status.title)
+        if status.text:
+            logging.info(status.text)
