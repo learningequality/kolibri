@@ -7,6 +7,10 @@ from kolibri.core.tasks.registry import RegisteredTask
 from kolibri.core.tasks.validation import JobValidator
 
 
+def status_fn(job):
+    pass
+
+
 class TestTaskDecorators(TestCase):
     @patch("kolibri.core.tasks.decorators.RegisteredTask")
     def test_register_decorator_calls_registered_job(self, MockRegisteredTask):
@@ -21,6 +25,7 @@ class TestTaskDecorators(TestCase):
             queue="test",
             cancellable=True,
             track_progress=True,
+            status_fn=status_fn,
         )(add)
 
         MockRegisteredTask.assert_called_once_with(
@@ -33,6 +38,7 @@ class TestTaskDecorators(TestCase):
             cancellable=True,
             track_progress=True,
             long_running=False,
+            status_fn=status_fn,
         )
 
     def test_register_decorator_registers_without_args(self):
@@ -54,6 +60,7 @@ class TestTaskDecorators(TestCase):
             queue="test",
             cancellable=True,
             track_progress=True,
+            status_fn=status_fn,
         )
         def add(x, y):
             return x + y
