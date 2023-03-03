@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-12 06:47-0800\n"
+"POT-Creation-Date: 2023-03-03 11:11+0100\n"
 "PO-Revision-Date: 2022-01-25 01:56\n"
 "Last-Translator: \n"
 "Language-Team: Spanish\n"
@@ -22,7 +22,8 @@ msgid "Unexpected exception [{}]: {}"
 msgstr "Error no esperado [{}]: {}"
 
 #: core/auth/constants/commands_errors.py:20
-msgctxt "Error report message when the allowed number of digits has been exceeded."
+msgctxt ""
+"Error report message when the allowed number of digits has been exceeded."
 msgid "Content of cell '{}' is too long"
 msgstr "El contenido de la celda '{}' es demasiado largo"
 
@@ -38,7 +39,8 @@ msgstr "Nombre de usuario duplicado"
 #: core/auth/constants/commands_errors.py:28
 #: core/auth/management/commands/bulkimportusers.py:85
 msgid "Username only can contain characters, numbers and underscores"
-msgstr "Los nombres de usuario solo pueden contener letras, números y guiones bajos"
+msgstr ""
+"Los nombres de usuario solo pueden contener letras, números y guiones bajos"
 
 #: core/auth/constants/commands_errors.py:30
 msgid "The column '{}' is required"
@@ -49,8 +51,12 @@ msgid "Mix of valid and/or invalid header labels found in first row"
 msgstr "Se encontraron algunos encabezados no válidos en la primera fila"
 
 #: core/auth/constants/commands_errors.py:33
-msgid "No default facility exists. Make sure to set up a facility on the device before running this command"
-msgstr "No existe centro educativo predeterminado. Asegúrese de configurar un centro educativo en el dispositivo antes de ejecutar este comando"
+msgid ""
+"No default facility exists. Make sure to set up a facility on the device "
+"before running this command"
+msgstr ""
+"No existe centro educativo predeterminado. Asegúrese de configurar un centro "
+"educativo en el dispositivo antes de ejecutar este comando"
 
 #: core/auth/constants/commands_errors.py:35
 #: core/auth/management/commands/bulkimportusers.py:99
@@ -62,73 +68,83 @@ msgstr "Se ha producido un error al leer el archivo csv: {}"
 msgid "Error trying to write csv file: {}"
 msgstr "Se ha producido un error al escribir el archivo csv: {}"
 
-#: core/auth/management/commands/bulkexportusers.py:42
-#: core/auth/management/commands/bulkexportusers.py:124
+#: core/auth/management/commands/bulkexportusers.py:46
+#: core/auth/management/commands/bulkexportusers.py:123
 msgid "Database ID ({})"
 msgstr "ID de la base de datos ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:43
-#: core/auth/management/commands/bulkexportusers.py:125
+#: core/auth/management/commands/bulkexportusers.py:47
+#: core/auth/management/commands/bulkexportusers.py:124
 msgid "Username ({})"
 msgstr "Nombre de usuario ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:44
-#: core/auth/management/commands/bulkexportusers.py:126
+#: core/auth/management/commands/bulkexportusers.py:48
+#: core/auth/management/commands/bulkexportusers.py:125
 msgid "Password ({})"
 msgstr "Contraseña ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:45
-#: core/auth/management/commands/bulkexportusers.py:127
+#: core/auth/management/commands/bulkexportusers.py:49
+#: core/auth/management/commands/bulkexportusers.py:126
 msgid "Full name ({})"
 msgstr "Nombre completo ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:50
+#: core/auth/management/commands/bulkexportusers.py:54
 msgctxt "CSV column header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
 msgstr "Tipo de usuario ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:53
-#: core/auth/management/commands/bulkexportusers.py:135
+#: core/auth/management/commands/bulkexportusers.py:57
+#: core/auth/management/commands/bulkexportusers.py:134
 msgid "Identifier ({})"
 msgstr "Identificador ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:54
-#: core/auth/management/commands/bulkexportusers.py:136
+#: core/auth/management/commands/bulkexportusers.py:58
+#: core/auth/management/commands/bulkexportusers.py:135
 msgid "Birth year ({})"
 msgstr "Año de nacimiento ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:55
-#: core/auth/management/commands/bulkexportusers.py:137
+#: core/auth/management/commands/bulkexportusers.py:59
+#: core/auth/management/commands/bulkexportusers.py:136
 msgid "Gender ({})"
 msgstr "Género ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:60
-msgctxt "CSV column header for the list of classrooms names where the learner is going to be enrolled"
+#: core/auth/management/commands/bulkexportusers.py:64
+msgctxt ""
+"CSV column header for the list of classrooms names where the learner is "
+"going to be enrolled"
 msgid "Learner enrollment ({})"
 msgstr "Inscrito como estudiante ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:67
-msgctxt "CSV column header for the list of classrooms names where the tutor is going to be a coach"
+#: core/auth/management/commands/bulkexportusers.py:71
+msgctxt ""
+"CSV column header for the list of classrooms names where the tutor is going "
+"to be a coach"
 msgid "Coach assignment ({})"
 msgstr "Asignado como tutor ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:132
+#: core/auth/management/commands/bulkexportusers.py:131
 msgctxt "CSV header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
 msgstr "Tipo de usuario ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:142
-msgctxt "CSV file header for the list of classrooms names where the learner is going to be enrolled"
+#: core/auth/management/commands/bulkexportusers.py:141
+msgctxt ""
+"CSV file header for the list of classrooms names where the learner is going "
+"to be enrolled"
 msgid "Learner enrollment ({})"
 msgstr "Inscrito como estudiante ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:149
-msgctxt "CSV file header for the list of classrooms names where the tutor is going to be a coach"
+#: core/auth/management/commands/bulkexportusers.py:148
+msgctxt ""
+"CSV file header for the list of classrooms names where the tutor is going to "
+"be a coach"
 msgid "Coach assignment ({})"
 msgstr "Asignado como tutor ({})"
 
 #: core/auth/management/commands/bulkimportusers.py:76
-msgctxt "Error message that might appear when there's a programming error importing a CSV file"
+msgctxt ""
+"Error message that might appear when there's a programming error importing a "
+"CSV file"
 msgid "Unexpected error [{}]: {}"
 msgstr "Error inesperado [{}]: {}"
 
@@ -146,74 +162,145 @@ msgid "Username is duplicated"
 msgstr "Nombre de usuario duplicado"
 
 #: core/auth/management/commands/bulkimportusers.py:89
-msgctxt "Error message indicating that the CSV file selected for import is missing a required column"
+msgctxt ""
+"Error message indicating that the CSV file selected for import is missing a "
+"required column"
 msgid "The column '{}' is required"
 msgstr "Falta la columna '{}'"
 
 #: core/auth/management/commands/bulkimportusers.py:93
-msgctxt "Error message indicating that one column header in the CSV file selected for import is missing or incorrect"
+msgctxt ""
+"Error message indicating that one column header in the CSV file selected for "
+"import is missing or incorrect"
 msgid "Incorrect header label found in the first row"
 msgstr "Etiqueta de encabezado incorrecta en la primera fila"
 
 #: core/auth/management/commands/bulkimportusers.py:97
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
-msgid "No default facility exists. Make sure to set up a facility on the  device before importing users and classes"
-msgstr "No existe centro educativo predeterminado. Asegúrese de configurar un centro educativo en el dispositivo antes de importar usuarios y clases"
+msgid ""
+"No default facility exists. Make sure to set up a facility on the  device "
+"before importing users and classes"
+msgstr ""
+"No existe centro educativo predeterminado. Asegúrese de configurar un centro "
+"educativo en el dispositivo antes de importar usuarios y clases"
 
 #: core/auth/management/commands/bulkimportusers.py:102
-msgid "The password field is required. To leave the password unchanged in existing users, insert an asterisk (*)"
-msgstr "El campo de contraseña es obligatorio. Para dejar la contraseña sin cambios en los usuarios existentes, inserte un asterisco (*)"
+msgid ""
+"The password field is required. To leave the password unchanged in existing "
+"users, insert an asterisk (*)"
+msgstr ""
+"El campo de contraseña es obligatorio. Para dejar la contraseña sin cambios "
+"en los usuarios existentes, inserte un asterisco (*)"
 
 #: core/auth/management/commands/bulkimportusers.py:105
-msgid "Cannot update user with ID: '{}' because no user with that database ID exists in this facility"
-msgstr "No se puede actualizar el usuario con ID: '{}' porque no existe ningún usuario con ese ID de base de datos en este centro educativo"
+msgid ""
+"Cannot update user with ID: '{}' because no user with that database ID "
+"exists in this facility"
+msgstr ""
+"No se puede actualizar el usuario con ID: '{}' porque no existe ningún "
+"usuario con ese ID de base de datos en este centro educativo"
 
 #: core/auth/management/commands/bulkimportusers.py:107
 msgid "Database ID is not valid"
 msgstr "El ID de la base de datos no es válido"
 
-#: core/content/api.py:254
+#: core/content/api.py:352
 msgid "Resource"
 msgstr "Material"
 
-#: core/content/api.py:1467
+#: core/content/api.py:1622
 msgid "The requested channel does not exist on the content server"
 msgstr "El canal solicitado no existe en el servidor de contenidos"
 
-#: core/content/models.py:256
+#: core/content/models.py:265
 msgid "Unknown format"
 msgstr "Formato desconocido"
 
-#: core/device/serializers.py:36
+#: core/device/serializers.py:41
 msgid "Language is not supported by Kolibri"
 msgstr "Kolibri todavía no está disponible en este idioma"
 
-#: core/logger/csv_export.py:205
-msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
-msgid "content_session_logs"
-msgstr "registros_sesiones_unicas_por_recurso"
+#: core/logger/csv_export.py:69
+msgid "Facility name"
+msgstr "Nombre del centro educativo"
 
-#: core/logger/csv_export.py:215
-msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
-msgid "content_summary_logs"
-msgstr "registros_sesiones_resumidas_por_recurso"
+#: core/logger/csv_export.py:70
+msgid "Username"
+msgstr "Nombre de usuario"
 
-#: core/tasks/api.py:82
-msgid "There was a network error."
-msgstr "Hubo un error de red."
+#: core/logger/csv_export.py:71
+msgid "Channel id"
+msgstr "id del Canal"
 
-#: core/tasks/api.py:84
-msgid "There was a disk access error."
-msgstr "Hubo un error de acceso a disco."
+#: core/logger/csv_export.py:72
+msgid "Channel name"
+msgstr "Nombre del canal"
 
-#: core/tasks/api.py:86
-msgid "There was an unknown error."
-msgstr "Se ha producido un error desconocido."
+#: core/logger/csv_export.py:73
+msgid "Content id"
+msgstr "Id del contenido"
+
+#: core/logger/csv_export.py:74
+msgid "Content title"
+msgstr "Título del contenido"
+
+#: core/logger/csv_export.py:75
+msgctxt ""
+"CSV column header for the time of the first interaction in the exported logs"
+msgid "Time of first interaction"
+msgstr "Hora de la primera interacción"
+
+#: core/logger/csv_export.py:76
+msgctxt ""
+"CSV column header for the time of the last interaction in the exported logs"
+msgid "Time of last interaction"
+msgstr "Hora de la última interacción"
+
+#: core/logger/csv_export.py:77
+msgctxt ""
+"CSV column header for the percentage of completion in the exported logs"
+msgid "Time of completion"
+msgstr "Fecha de finalización"
+
+#: core/logger/csv_export.py:78
+msgctxt ""
+"CSV column header for the time spent in a resource in the exported logs"
+msgid "Time Spent (sec)"
+msgstr "Tiempo empleado (seg)"
+
+#: core/logger/csv_export.py:79
+msgid "Progress (0-1)"
+msgstr "Progreso (0-1))"
+
+#: core/logger/csv_export.py:80
+msgid "Content kind"
+msgstr "Tipo de contenido"
 
 #: core/templates/kolibri/base.html:13
 #: core/templates/kolibri/unsupported_browser.html:13
 msgid "Kolibri"
 msgstr "Kolibri"
+
+#: core/templates/kolibri/loading_page.html:8
+msgid "Kolibri is starting"
+msgstr ""
+
+#: core/templates/kolibri/loading_page.html:87
+#, fuzzy
+msgid "Starting Kolibri"
+msgstr "Kolibri"
+
+#: core/templates/kolibri/loading_page.html:89
+msgid "You should be automatically redirected when Kolibri is ready"
+msgstr ""
+
+#: core/templates/kolibri/loading_page.html:90
+msgid "If not, please ask for help in our community forums"
+msgstr ""
+
+#: core/templates/kolibri/loading_page.html:91
+msgid "Refresh page"
+msgstr ""
 
 #: core/templates/kolibri/unsupported_browser.html:42
 msgid "Unsupported browser"
@@ -231,12 +318,74 @@ msgstr "Para utilizar el Kolibri, recomendamos usar Firefox o Chrome."
 msgid "You can also try updating your current browser."
 msgstr "También puedes actualizar tu navegador actual."
 
-#: core/views.py:168
-msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
-msgstr "Fue imposible redirigir página correctamente. Es probable que Kolibri está mal configurado"
+#: core/views.py:165
+msgid ""
+"No appropriate redirect pages found. It is likely that Kolibri is badly "
+"configured"
+msgstr ""
+"Fue imposible redirigir página correctamente. Es probable que Kolibri está "
+"mal configurado"
 
-#: plugins/facility/views.py:52
-msgctxt "Default name for the exported CSV file of facility user data. Please keep the underscore between words in the translation"
-msgid "users_{}"
+#: plugins/coach/kolibri_plugin.py:30
+msgid "Coach"
+msgstr ""
+
+#: plugins/facility/kolibri_plugin.py:30
+msgid "Facility"
+msgstr ""
+
+#: plugins/facility/views.py:151
+#, fuzzy
+msgctxt ""
+"Default name for the exported CSV file with content session logs. Please "
+"keep the underscores between words in the translation"
+msgid "content_session_logs_from_"
+msgstr "registros_sesiones_unicas_por_recurso"
+
+#: plugins/facility/views.py:158 plugins/facility/views.py:176
+msgctxt ""
+"Default name for the exported CSV file with content summary logs. Please "
+"keep the underscores between words in the translation"
+msgid "to_"
+msgstr ""
+
+#: plugins/facility/views.py:169
+#, fuzzy
+msgctxt ""
+"Default name for the exported CSV file with content summary logs. Please "
+"keep the underscores between words in the translation"
+msgid "content_summary_logs_from_"
+msgstr "registros_sesiones_resumidas_por_recurso"
+
+#: plugins/facility/views.py:187
+#, fuzzy
+msgctxt ""
+"Default name for the exported CSV file of facility user data. Please keep "
+"the underscore between words in the translation"
+msgid "users"
 msgstr "usuarios_{}"
 
+#: plugins/learn/kolibri_plugin.py:32
+msgid "Learn"
+msgstr ""
+
+#: plugins/policies/kolibri_plugin.py:19
+msgid "Policies"
+msgstr ""
+
+#: plugins/setup_wizard/kolibri_plugin.py:23
+msgid "Setup Wizard"
+msgstr ""
+
+#: plugins/user_profile/kolibri_plugin.py:25
+msgid "User Profile"
+msgstr ""
+
+#~ msgid "There was a network error."
+#~ msgstr "Hubo un error de red."
+
+#~ msgid "There was a disk access error."
+#~ msgstr "Hubo un error de acceso a disco."
+
+#~ msgid "There was an unknown error."
+#~ msgstr "Se ha producido un error desconocido."

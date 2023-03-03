@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-01 22:12-0700\n"
+"POT-Creation-Date: 2023-03-03 11:11+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -65,73 +65,73 @@ msgstr ""
 msgid "Error trying to write csv file: {}"
 msgstr ""
 
-#: core/auth/management/commands/bulkexportusers.py:42
-#: core/auth/management/commands/bulkexportusers.py:124
+#: core/auth/management/commands/bulkexportusers.py:46
+#: core/auth/management/commands/bulkexportusers.py:123
 msgid "Database ID ({})"
 msgstr ""
 
-#: core/auth/management/commands/bulkexportusers.py:43
-#: core/auth/management/commands/bulkexportusers.py:125
+#: core/auth/management/commands/bulkexportusers.py:47
+#: core/auth/management/commands/bulkexportusers.py:124
 msgid "Username ({})"
 msgstr ""
 
-#: core/auth/management/commands/bulkexportusers.py:44
-#: core/auth/management/commands/bulkexportusers.py:126
+#: core/auth/management/commands/bulkexportusers.py:48
+#: core/auth/management/commands/bulkexportusers.py:125
 msgid "Password ({})"
 msgstr ""
 
-#: core/auth/management/commands/bulkexportusers.py:45
-#: core/auth/management/commands/bulkexportusers.py:127
+#: core/auth/management/commands/bulkexportusers.py:49
+#: core/auth/management/commands/bulkexportusers.py:126
 msgid "Full name ({})"
 msgstr ""
 
-#: core/auth/management/commands/bulkexportusers.py:50
+#: core/auth/management/commands/bulkexportusers.py:54
 msgctxt "CSV column header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
 msgstr ""
 
-#: core/auth/management/commands/bulkexportusers.py:53
-#: core/auth/management/commands/bulkexportusers.py:135
+#: core/auth/management/commands/bulkexportusers.py:57
+#: core/auth/management/commands/bulkexportusers.py:134
 msgid "Identifier ({})"
 msgstr ""
 
-#: core/auth/management/commands/bulkexportusers.py:54
-#: core/auth/management/commands/bulkexportusers.py:136
+#: core/auth/management/commands/bulkexportusers.py:58
+#: core/auth/management/commands/bulkexportusers.py:135
 msgid "Birth year ({})"
 msgstr ""
 
-#: core/auth/management/commands/bulkexportusers.py:55
-#: core/auth/management/commands/bulkexportusers.py:137
+#: core/auth/management/commands/bulkexportusers.py:59
+#: core/auth/management/commands/bulkexportusers.py:136
 msgid "Gender ({})"
 msgstr ""
 
-#: core/auth/management/commands/bulkexportusers.py:60
+#: core/auth/management/commands/bulkexportusers.py:64
 msgctxt ""
 "CSV column header for the list of classrooms names where the learner is "
 "going to be enrolled"
 msgid "Learner enrollment ({})"
 msgstr ""
 
-#: core/auth/management/commands/bulkexportusers.py:67
+#: core/auth/management/commands/bulkexportusers.py:71
 msgctxt ""
 "CSV column header for the list of classrooms names where the tutor is going "
 "to be a coach"
 msgid "Coach assignment ({})"
 msgstr ""
 
-#: core/auth/management/commands/bulkexportusers.py:132
+#: core/auth/management/commands/bulkexportusers.py:131
 msgctxt "CSV header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
 msgstr ""
 
-#: core/auth/management/commands/bulkexportusers.py:142
+#: core/auth/management/commands/bulkexportusers.py:141
 msgctxt ""
 "CSV file header for the list of classrooms names where the learner is going "
 "to be enrolled"
 msgid "Learner enrollment ({})"
 msgstr ""
 
-#: core/auth/management/commands/bulkexportusers.py:149
+#: core/auth/management/commands/bulkexportusers.py:148
 msgctxt ""
 "CSV file header for the list of classrooms names where the tutor is going to "
 "be a coach"
@@ -195,51 +195,101 @@ msgstr ""
 msgid "Database ID is not valid"
 msgstr ""
 
-#: core/content/api.py:170
+#: core/content/api.py:352
 msgid "Resource"
 msgstr ""
 
-#: core/content/api.py:1327
+#: core/content/api.py:1622
 msgid "The requested channel does not exist on the content server"
 msgstr ""
 
-#: core/content/models.py:252
+#: core/content/models.py:265
 msgid "Unknown format"
 msgstr ""
 
-#: core/device/serializers.py:36
+#: core/device/serializers.py:41
 msgid "Language is not supported by Kolibri"
 msgstr ""
 
-#: core/logger/csv_export.py:205
+#: core/logger/csv_export.py:69
+msgid "Facility name"
+msgstr ""
+
+#: core/logger/csv_export.py:70
+msgid "Username"
+msgstr ""
+
+#: core/logger/csv_export.py:71
+msgid "Channel id"
+msgstr ""
+
+#: core/logger/csv_export.py:72
+msgid "Channel name"
+msgstr ""
+
+#: core/logger/csv_export.py:73
+msgid "Content id"
+msgstr ""
+
+#: core/logger/csv_export.py:74
+msgid "Content title"
+msgstr ""
+
+#: core/logger/csv_export.py:75
 msgctxt ""
-"Default name for the exported CSV file with content session logs. Please "
-"keep the underscores between words in the translation"
-msgid "content_session_logs"
+"CSV column header for the time of the first interaction in the exported logs"
+msgid "Time of first interaction"
 msgstr ""
 
-#: core/logger/csv_export.py:215
+#: core/logger/csv_export.py:76
 msgctxt ""
-"Default name for the exported CSV file with content summary logs. Please "
-"keep the underscores between words in the translation"
-msgid "content_summary_logs"
+"CSV column header for the time of the last interaction in the exported logs"
+msgid "Time of last interaction"
 msgstr ""
 
-#: core/tasks/api.py:82
-msgid "There was a network error."
+#: core/logger/csv_export.py:77
+msgctxt ""
+"CSV column header for the percentage of completion in the exported logs"
+msgid "Time of completion"
 msgstr ""
 
-#: core/tasks/api.py:84
-msgid "There was a disk access error."
+#: core/logger/csv_export.py:78
+msgctxt ""
+"CSV column header for the time spent in a resource in the exported logs"
+msgid "Time Spent (sec)"
 msgstr ""
 
-#: core/tasks/api.py:86
-msgid "There was an unknown error."
+#: core/logger/csv_export.py:79
+msgid "Progress (0-1)"
+msgstr ""
+
+#: core/logger/csv_export.py:80
+msgid "Content kind"
 msgstr ""
 
 #: core/templates/kolibri/base.html:13
 #: core/templates/kolibri/unsupported_browser.html:13
 msgid "Kolibri"
+msgstr ""
+
+#: core/templates/kolibri/loading_page.html:8
+msgid "Kolibri is starting"
+msgstr ""
+
+#: core/templates/kolibri/loading_page.html:87
+msgid "Starting Kolibri"
+msgstr ""
+
+#: core/templates/kolibri/loading_page.html:89
+msgid "You should be automatically redirected when Kolibri is ready"
+msgstr ""
+
+#: core/templates/kolibri/loading_page.html:90
+msgid "If not, please ask for help in our community forums"
+msgstr ""
+
+#: core/templates/kolibri/loading_page.html:91
+msgid "Refresh page"
 msgstr ""
 
 #: core/templates/kolibri/unsupported_browser.html:42
@@ -258,15 +308,60 @@ msgstr ""
 msgid "You can also try updating your current browser."
 msgstr ""
 
-#: core/views.py:168
+#: core/views.py:165
 msgid ""
 "No appropriate redirect pages found. It is likely that Kolibri is badly "
 "configured"
 msgstr ""
 
-#: plugins/facility/views.py:52
+#: plugins/coach/kolibri_plugin.py:30
+msgid "Coach"
+msgstr ""
+
+#: plugins/facility/kolibri_plugin.py:30
+msgid "Facility"
+msgstr ""
+
+#: plugins/facility/views.py:151
+msgctxt ""
+"Default name for the exported CSV file with content session logs. Please "
+"keep the underscores between words in the translation"
+msgid "content_session_logs_from_"
+msgstr ""
+
+#: plugins/facility/views.py:158 plugins/facility/views.py:176
+msgctxt ""
+"Default name for the exported CSV file with content summary logs. Please "
+"keep the underscores between words in the translation"
+msgid "to_"
+msgstr ""
+
+#: plugins/facility/views.py:169
+msgctxt ""
+"Default name for the exported CSV file with content summary logs. Please "
+"keep the underscores between words in the translation"
+msgid "content_summary_logs_from_"
+msgstr ""
+
+#: plugins/facility/views.py:187
 msgctxt ""
 "Default name for the exported CSV file of facility user data. Please keep "
 "the underscore between words in the translation"
-msgid "users_{}"
+msgid "users"
+msgstr ""
+
+#: plugins/learn/kolibri_plugin.py:32
+msgid "Learn"
+msgstr ""
+
+#: plugins/policies/kolibri_plugin.py:19
+msgid "Policies"
+msgstr ""
+
+#: plugins/setup_wizard/kolibri_plugin.py:23
+msgid "Setup Wizard"
+msgstr ""
+
+#: plugins/user_profile/kolibri_plugin.py:25
+msgid "User Profile"
 msgstr ""
