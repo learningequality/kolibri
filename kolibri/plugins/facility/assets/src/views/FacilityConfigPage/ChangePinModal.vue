@@ -78,7 +78,7 @@
         context: 'Reminder to sync devices',
       },
       setPin: {
-        message: 'Choose four numbers to set as your new PIN.',
+        message: 'Choose a 4-digit number to set as your new PIN',
         context: 'Label to allow user to choose numbers to set PIN',
       },
     },

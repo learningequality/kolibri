@@ -267,6 +267,12 @@
         context:
           "Appears on 'Device limitations' window which informs that only learner features will be available on the device.",
       },
+      /* eslint-disable kolibri/vue-no-unused-translations */
+      deviceLimitationsAdminsMessage: {
+        message:
+          '’{full_name} ({username})’ is an admin on ‘{device}’. This device is limited to features for learners only. Features for coaches and admins will not be available.',
+      },
+      /* eslint-enable */
       headerAdmin: {
         message: 'Use an admin account',
         context: 'Modal form to introduce admin account credentials.',

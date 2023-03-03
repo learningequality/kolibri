@@ -1043,7 +1043,8 @@
         context: 'Label for enabled pages section',
       },
       enabledPagesDescription: {
-        message: 'Unselect a page to hide it even if the user has permission to access it.',
+        message:
+          'When you uncheck a page, it will make it invisible to users even if they have permission to access it.',
         context: "Description for the 'Enabled pages' section.",
       },
       alertDisabledOptions: {
@@ -1057,7 +1058,7 @@
       },
       alertDisabledPlugins: {
         message:
-          'This Kolibri is not able to initiate a restart from the user interface - any plugin management will have to happen from the command line, and Kolibri will have to be restarted manually.',
+          'This Kolibri is not able to initiate a restart from the user interface - management of the enabled pages will have to happen from the command line, and Kolibri will have to be restarted manually.',
         context: 'Alert text that is provided if some plugins are disabled',
       },
     },

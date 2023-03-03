@@ -113,13 +113,13 @@
       },
       deviceIsNotKolibri: {
         message:
-          "Another program is running at the network address on '{name}'. Please close that program, ensure Kolibri is running on the device, and try again.",
+          "Another program is running at the same network address as '{name}'. Please close the program, ensure Kolibri is running on that device, and try again.",
         context:
           "Error message when testing the connection to the network device specified by 'name' fails for this reason",
       },
       connectionTimedOut: {
         message:
-          "The connection with '{name}' is taking too long to respond. Please check the connection and try again.",
+          "The device '{name}' is taking too long to respond. Please check the connection and try again.",
         context:
           "Error message when testing the connection to the network device specified by 'name' fails for this reason",
       },

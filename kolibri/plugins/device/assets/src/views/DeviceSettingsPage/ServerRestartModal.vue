@@ -101,9 +101,16 @@
       },
       newPluginsState: {
         message:
-          'When you enable or disable a page, Kolibri will restart, and you must refresh the browser to see the changes.',
+          'When you uncheck a page, it will make it invisible to users even if they have permission to access it.',
         context: 'Description for restarting the server.',
       },
+      /* eslint-disable kolibri/vue-no-unused-translations */
+      enableOrDisableRequiresRefresh: {
+        message:
+          'When you enable or disable a page, Kolibri will restart, and you must refresh the browser to see the changes. Anyone using Kolibri on this server at this time will be temporarily disconnected.',
+        context: 'Changing enabled pages',
+      },
+      /* eslint-enable */
       selectedPath: {
         message: 'Selected: {path}',
         context: 'Label for the selected path.',

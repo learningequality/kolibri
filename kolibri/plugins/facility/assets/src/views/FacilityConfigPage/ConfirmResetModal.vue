@@ -31,7 +31,7 @@
       },
       reconfirmation: {
         message:
-          'Your device management PIN will not be affected, but any other custom changes will be lost.',
+          'Your device management PIN will not be affected, but any other changes made to the facility settings will be lost.',
         context:
           "Description on the 'Reset to defaults' window accessed via the Facility > Settings page.",
       },
