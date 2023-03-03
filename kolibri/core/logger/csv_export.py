@@ -11,6 +11,7 @@ from functools import partial
 from dateutil import parser
 from django.core.cache import cache
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 from le_utils.constants import content_kinds
 
 from .models import ContentSessionLog
@@ -71,10 +72,34 @@ labels = OrderedDict(
         ("channel_name", _("Channel name")),
         ("content_id", _("Content id")),
         ("content_title", _("Content title")),
-        ("start_timestamp", _("Time of first interaction")),
-        ("end_timestamp", _("Time of last interaction")),
-        ("completion_timestamp", _("Time of completion")),
-        ("time_spent", _("Time Spent (sec)")),
+        (
+            "start_timestamp",
+            pgettext_lazy(
+                "CSV column header for the time of the first interaction in the exported logs",
+                "Time of first interaction",
+            ),
+        ),
+        (
+            "end_timestamp",
+            pgettext_lazy(
+                "CSV column header for the time of the last interaction in the exported logs",
+                "Time of last interaction",
+            ),
+        ),
+        (
+            "completion_timestamp",
+            pgettext_lazy(
+                "CSV column header for the percentage of completion in the exported logs",
+                "Time of completion",
+            ),
+        ),
+        (
+            "time_spent",
+            pgettext_lazy(
+                "CSV column header for the time spent in a resource in the exported logs",
+                "Time Spent (sec)",
+            ),
+        ),
         ("progress", _("Progress (0-1)")),
         ("kind", _("Content kind")),
     )
