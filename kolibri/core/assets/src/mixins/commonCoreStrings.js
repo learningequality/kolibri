@@ -1307,6 +1307,34 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       'Explanatory text for the setting where a user can select the language that they would like to learn in',
   },
+
+  // setup wizard and post-set-up strings
+  whatLanguageLearningMaterials: {
+    message: 'What language do you want your learning materials to be in?',
+    context: '',
+  },
+  whatLanguageLearningMaterialsHelperText: {
+    message: 'Kolibri will recommend materials in the language you select.',
+    context: '',
+  },
+  superAdminAccountNotification: {
+    message:
+      'This is a super admin account that will let you manage resources and user accounts on this device.',
+    context: '',
+  },
+  addLearningMaterials: {
+    message: 'Add learning materials',
+    context: '',
+  },
+  chooseMaterials: {
+    message:
+      'Choose materials to use on your device. You will also be able to add more whenever you are connected to the internet or there are other Kolibris around you.',
+    context: '',
+  },
+  noLearningFacilitiesAround: {
+    message: 'There are no learning facilities around you right now',
+    context: '',
+  },
 });
 
 /**

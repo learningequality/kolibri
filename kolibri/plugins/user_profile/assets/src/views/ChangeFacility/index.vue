@@ -129,7 +129,7 @@
     },
     $trs: {
       documentTitle: {
-        message: 'Change Facility',
+        message: 'Change learning facility',
         context: 'Title of the change facility page.',
       },
     },

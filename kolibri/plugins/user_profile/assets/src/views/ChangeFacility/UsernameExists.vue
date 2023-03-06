@@ -88,7 +88,7 @@
 
     $trs: {
       documentTitle: {
-        message: 'Change Facility',
+        message: 'Change learning facility',
         context: 'Title of this step for the change facility page.',
       },
       mergeAccounts: {
