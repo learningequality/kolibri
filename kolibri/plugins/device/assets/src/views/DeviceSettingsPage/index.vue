@@ -253,7 +253,7 @@
             {{ $tr('enabledPages') }}
           </h2>
           <p class="info-description">
-            {{ $tr('enabledPagesDescription') }}
+            {{ deviceString('newEnabledPluginsState') }}
           </p>
 
           <KCheckbox
@@ -354,9 +354,9 @@
   import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
+  import commonDeviceStrings from '../commonDeviceStrings';
   import { LandingPageChoices, MeteredConnectionDownloadOptions } from '../../constants';
   import DeviceTopNav from '../DeviceTopNav';
-  import { deviceString } from '../commonDeviceStrings';
   import { getFreeSpaceOnServer } from '../AvailableChannelsPage/api';
   import useDeviceRestart from '../../composables/useDeviceRestart';
   import usePlugins from '../../composables/usePlugins';
@@ -389,7 +389,7 @@
       ServerRestartModal,
       UiAlert,
     },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, commonDeviceStrings],
     setup() {
       const { restart } = useDeviceRestart();
       const { plugins, fetchPlugins, togglePlugin } = usePlugins();
@@ -461,7 +461,7 @@
       ...mapGetters(['isAppContext']),
       ...mapGetters('deviceInfo', ['getDeviceOS', 'canRestart', 'isRemoteContent']),
       pageTitle() {
-        return deviceString('deviceManagementTitle');
+        return this.deviceString('deviceManagementTitle');
       },
       facilities() {
         return this.$store.getters.facilities;
@@ -1042,10 +1042,6 @@
         message: 'Enabled pages',
         context: 'Label for enabled pages section',
       },
-      enabledPagesDescription: {
-        message: 'Unselect a page to hide it even if the user has permission to access it.',
-        context: "Description for the 'Enabled pages' section.",
-      },
       alertDisabledOptions: {
         message:
           'Some configuration options have been disabled due to the way Kolibri has been set up.',
@@ -1057,7 +1053,7 @@
       },
       alertDisabledPlugins: {
         message:
-          'This Kolibri is not able to initiate a restart from the user interface - any plugin management will have to happen from the command line, and Kolibri will have to be restarted manually.',
+          'This Kolibri is not able to initiate a restart from the user interface - management of the enabled pages will have to happen from the command line, and Kolibri will have to be restarted manually.',
         context: 'Alert text that is provided if some plugins are disabled',
       },
     },

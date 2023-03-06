@@ -227,7 +227,7 @@
         context: 'An action to filter only downloaded resources',
       },
       useDownloadedResourcesFilter: {
-        message: 'Use this filter to see only resources you have downloaded from this library.',
+        message: 'Use this filter to only see resources you have downloaded from this library.',
         context: 'A dialog message displayed when filtering only downloaded resources',
       },
       /* eslint-enable kolibri/vue-no-unused-translations */

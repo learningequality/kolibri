@@ -11,6 +11,7 @@ from kolibri.core.auth.tasks import PeerImportSingleSyncJobValidator
 from kolibri.core.auth.utils.migrate import merge_users
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.tasks.decorators import register_task
+from kolibri.core.tasks.job import JobStatus
 from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.permissions import IsFacilityAdmin
 from kolibri.core.tasks.permissions import IsSelf
@@ -18,6 +19,7 @@ from kolibri.core.tasks.permissions import IsSuperAdmin
 from kolibri.core.tasks.permissions import PermissionsFromAny
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.utils.urls import reverse_remote
+from kolibri.utils.translation import ugettext as _
 
 
 class MergeUserValidator(PeerImportSingleSyncJobValidator):
@@ -36,6 +38,7 @@ class MergeUserValidator(PeerImportSingleSyncJobValidator):
             job_data = super(MergeUserValidator, self).validate(data)
 
         job_data["kwargs"]["local_user_id"] = data["local_user_id"].id
+        job_data["extra_metadata"].update(user_fullname=data["local_user_id"].full_name)
         if data.get("new_superuser_id"):
             job_data["kwargs"]["new_superuser_id"] = data["new_superuser_id"].id
 
@@ -55,6 +58,19 @@ class MergeUserValidator(PeerImportSingleSyncJobValidator):
             raise serializers.ValidationError(response.json()[0]["id"])
 
 
+def status_fn(job):
+    # Translators: A notification title shown to users when their learner account is joining a new learning facility.
+    account_transfer_in_progress = _("Account transfer in progress")
+    # Translators: Notification text shown to users when their learner account is joining a new learning facility.
+    notification_text = _(
+        "Moving {learner_name} to learning facility {facility_name}"
+    ).format(
+        learner_name=job.extra_metadata["user_fullname"],
+        facility_name=job.extra_metadata["facility_name"],
+    )
+    return JobStatus(account_transfer_in_progress, notification_text)
+
+
 @register_task(
     queue="soud",
     validator=MergeUserValidator,
@@ -64,6 +80,7 @@ class MergeUserValidator(PeerImportSingleSyncJobValidator):
     permission_classes=[
         PermissionsFromAny(IsSelf(), IsSuperAdmin(), IsFacilityAdmin())
     ],
+    status_fn=status_fn,
 )
 def mergeuser(command, **kwargs):
     """

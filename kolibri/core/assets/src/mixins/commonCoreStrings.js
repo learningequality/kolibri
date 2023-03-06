@@ -978,6 +978,16 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Long activity',
     context: 'Label with time estimation for learning activities that take more than 30 minutes.',
   },
+  shortExerciseGoalDescription: {
+    message: 'Get {count, number, integer} {count, plural, other {correct}}',
+    context:
+      'Label that indicates to the learner how many correct answers they need to give in order to master the given topic, and for the exercise to be considered completed.',
+  },
+  practiceQuizLabel: {
+    message: 'Practice quiz',
+    context:
+      'Label that indicates this self paced activity is in the style of a quiz, and learners will only see the correct answers once they have submitted the quiz.',
+  },
 
   // assigning bookmarked resources
 
@@ -1136,6 +1146,102 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
       'Error message that displays if a learning resource cannot be found on the device being used currently.',
   },
 
+  // Downloads management
+  myDownloadsLabel: {
+    message: 'My downloads',
+    context: "Users can access and see their content downloads via 'my downloads' option.",
+  },
+  removeFromLibrary: {
+    message: 'Remove from library',
+    context:
+      'Title of the modal that appears when the user tries to remove a resource from the library.',
+  },
+  resourcesSelectedMessage: {
+    message: 'Selected: {count, number} {count, plural, one {resource} other {resources}} ({size})',
+    context: 'Indicates how many resources have been selected to be deleted.\n',
+  },
+  removeSelectedMessage: {
+    message: 'Remove selected',
+    context: 'Action to remove selected resources',
+  },
+  totalSizeMyDownloads: {
+    message: 'Total size of my downloads: {size}',
+    context:
+      'A lable explaining the size (i.e. in MB) of the resources a user has downloaded to their library',
+  },
+  availableStorage: {
+    message: 'Available storage',
+    context:
+      'A lable explaining the amount (i.e. in MB) of the storage remaining that a user has to downloads items to their library',
+  },
+  fileSize: {
+    message: 'File size',
+    context: 'A lable explaining the size (i.e. in MB) of a single resource',
+  },
+  dateAdded: {
+    message: 'Date added',
+    context: "The date a resource was downloaded to a user's library",
+  },
+  noResourcesDownloaded: {
+    message: 'You do not have any resources downloaded',
+    context:
+      'Message displayed a user looks at their My Downloads page, but has not yet downloaded any resources to the device',
+  },
+  removeResourceText: {
+    message:
+      "You will no longer be able to use this resource, but you can download it again later when it's available around you.",
+    context:
+      'Text displayed in a modal when a user decides to remove one downloaded resource from the device',
+  },
+  removeResourcesText: {
+    message:
+      'You will no longer be able to use these resources, but you can download them again later when they are available around you.',
+    context:
+      'Text displayed in a modal when a user decides to remove more than one downloaded resources from the device',
+  },
+  waitingToDownload: {
+    message: 'Waiting to download',
+    context: 'Text that displays the status of a resource the user has downloaded',
+  },
+  downloading: {
+    message: 'Downloading',
+    context: 'Text that displays the status of a resource the user has downloaded',
+  },
+  downloadedFailedWillRetry: {
+    message: 'Download failed. Retrying in {minutes, number} minutes',
+    context:
+      'Text that displays the status of a resource the user has downloaded when the download has failed, but Kolibri is able to automatically try the download again.',
+  },
+  downloadedFailedCanNotRetry: {
+    message: 'Download failed. Unable to retry.',
+    context:
+      'Text that displays the status of a resource the user has downloaded when the download has failed, and Kolibri is not able to automatically try the download again.',
+  },
+
+  // Device upgrades recommended
+  currentDeviceUsingIE11: {
+    message: 'You seem to be using Internet Explorer 11.',
+    context:
+      'Displayed on a device that is using Internet Explorer 11, as part of a message encouraging the user to upgrade.',
+  },
+  userDevicesUsingIE11: {
+    message: 'Some users seem to be accessing Kolibri via Internet Explorer 11',
+    context:
+      'Displayed to an admin, where devices on their network are using Internet Explorer 11, as part of a message encouraging the user to upgrade.',
+  },
+  browserSupportWillBeDroppedIE11: {
+    message:
+      'Please note that support for this browser will be dropped in the upcoming version, 0.17.  We recommend installing other browsers, such as Mozilla Firefox or Google Chrome, in order to continue working with Kolibri.',
+    context:
+      'Displayed to users of kolibri where one or more devices on the network are using Internet Explorer 11, as part of a message encouraging the user to upgrade.',
+  },
+  pythonSupportWillBeDropped: {
+    message:
+      'Please note that support for Python 2.7 will be dropped in the upcoming version 0.17. Upgrade your Python version to Python 3.7+ to continue working with Kolibri. More recent versions of Python 3 are recommended.',
+    context:
+      'Displayed to users of kolibri where one or more devices on the network are using Python 2.7, as part of a message encouraging the user to upgrade.',
+  },
+
   // Content activity
   notStartedLabel: {
     message: 'Not started',
@@ -1182,8 +1288,29 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context: 'Placholder text for the enter PIN textbox',
   },
   removePinPlacholder: {
-    message: 'REMOVE PIN',
+    message: 'Remove PIN',
     context: 'Placholder text for the remove PIN textbox',
+  },
+  setPin: {
+    message: 'Choose a 4-digit number to set as your new PIN',
+    context: 'Label to allow user to choose numbers to set PIN',
+  },
+
+  // preferred learning language
+  preferredLanguage: {
+    message: 'Preferred language',
+    context:
+      'Label for an setting where a user can select the language that they would like to learn in',
+  },
+  changePreferredLanguage: {
+    message: 'Change preferred language',
+    context:
+      'Title for a modal where a user can select the language that they would like to learn in',
+  },
+  preferredLanguageHelperText: {
+    message: 'Channels in the preferred language will be displayed first',
+    context:
+      'Explanatory text for the setting where a user can select the language that they would like to learn in',
   },
 });
 

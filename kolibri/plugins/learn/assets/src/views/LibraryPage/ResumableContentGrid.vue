@@ -50,7 +50,6 @@
       :copies="displayedCopies"
       @submit="displayedCopies = []"
     />
-
   </div>
 
 </template>

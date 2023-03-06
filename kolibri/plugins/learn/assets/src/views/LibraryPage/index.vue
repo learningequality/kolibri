@@ -46,6 +46,45 @@
           @setCardStyle="style => currentCardViewStyle = style"
           @setSidePanelMetadataContent="content => metadataSidePanelContent = content"
         />
+        <!-- Other Libraires -->
+        <div>
+          <KGrid gutter="12">
+            <KGridItem :layout="{ span: 6 }">
+              <span>
+                <h1>
+                  {{ $tr('otherLibraries') }}
+                </h1>
+              </span>
+            </KGridItem>
+            <KGridItem :layout="{ span: 6, alignment: 'right' }">
+              <p v-if="searching" style="padding-top:20px">
+                {{ $tr('searchingOtherLibrary') }}
+                <KButton appearance="basic-link">
+                  {{ $tr('refresh') }}
+                </KButton>
+                <KIcon
+                  icon="disconnected"
+                />
+              </p>
+              <p v-else>
+                {{ coreString('viewMoreAction') }}
+                {{ $tr('pinned') }}
+                {{ $tr('showingAllLibraries') }}
+                {{ $tr('noOtherLibraries') }}
+                {{ $tr('searchingOtherLibrary') }}
+              </p>
+            </KGridItem>
+          </KGrid>
+          <PinnedNetworkResources />
+        </div>
+        <!-- More  -->
+        <div>
+          <h2>
+            {{ $tr('moreLibraries') }}
+          </h2>
+          <MoreNetworkDevices />
+        </div>
+
         <template v-if="!baseurl">
           <p
             v-for="device in devices"
@@ -151,6 +190,8 @@
   import SearchResultsGrid from '../SearchResultsGrid';
   import LearnAppBarPage from '../LearnAppBarPage';
   import ResumableContentGrid from './ResumableContentGrid';
+  import PinnedNetworkResources from './PinnedNetworkResources';
+  import MoreNetworkDevices from './MoreNetworkDevices';
   import SidePanel from './SidePanel';
 
   export default {
@@ -169,6 +210,8 @@
       SearchResultsGrid,
       SidePanel,
       LearnAppBarPage,
+      PinnedNetworkResources,
+      MoreNetworkDevices,
     },
     mixins: [commonLearnStrings, commonCoreStrings],
     setup() {
@@ -248,6 +291,7 @@
         metadataSidePanelContent: null,
         mobileSidePanelIsOpen: false,
         devices: [],
+        searching: true,
       };
     },
     computed: {
@@ -294,6 +338,36 @@
       },
       toggleSidePanelVisibility() {
         this.mobileSidePanelIsOpen = !this.mobileSidePanelIsOpen;
+      },
+    },
+    $trs: {
+      otherLibraries: {
+        message: 'Other libraries',
+        context: 'Header for viewing other remote content Library',
+      },
+      searchingOtherLibrary: {
+        message: 'Searching for libraries around you.',
+        context: 'Connection state for showing other library',
+      },
+      noOtherLibraries: {
+        message: 'No other libraries around you right now',
+        context: 'Connection state when there is no other libraries around',
+      },
+      showingAllLibraries: {
+        message: 'Showing all available libraries around you.',
+        context: 'Connection state when the device is connected and shows other libraries',
+      },
+      refresh: {
+        message: 'Refresh',
+        context: 'Link for refreshing library',
+      },
+      moreLibraries: {
+        message: 'More',
+        context: 'Title section containing unpinned devices',
+      },
+      pinned: {
+        message: 'Pinned',
+        context: 'Sub heading for the pinned devices',
       },
     },
   };
