@@ -420,6 +420,6 @@ Much of our string workflow before developer implementation happens using `Ditto
 
 .. code-block:: bash
 
-  yarn run yarn run auditdittostrings --ditto-file <path to Ditto CSV>
+  yarn run auditdittostrings --ditto-file <path to Ditto CSV>
 
 This will produce an output CSV file in kolibri/locale/en/LC_MESSAGES/profiles/ditto.csv that contains an audit report on which strings from the Ditto file that are marked as FINAL were not found in the codebase (using an exact match method, so this may produce false positives if strings are not in ICU syntax on Ditto), and also any strings that have been discovered in the codebase to be an exact match - i.e. when we appear to have duplicate strings in our codebase (again, these may be false positives, as some strings may be repeated for different senses).
