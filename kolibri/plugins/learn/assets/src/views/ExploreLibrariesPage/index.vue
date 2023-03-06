@@ -177,7 +177,7 @@
         }
       },
       getPinIcon(pinned) {
-        return pinned ? 'pinned' : 'unpinned';
+        return pinned ? 'pinned' : 'notPinned';
       },
       loadMoreDevices() {
         const start = this.moreDevices.length;
