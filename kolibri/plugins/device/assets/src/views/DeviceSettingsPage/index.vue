@@ -979,7 +979,8 @@
         context: 'Secondary storage paths for users to store downloaded resources',
       },
       secondaryStorageDescription: {
-        message: 'Read-only locations cannot be the primary storage location.',
+        message:
+          'Kolibri will display channels stored in these locations. Read-only locations cannot be the primary storage location.',
         context: 'Informs user of limits for read-only locations',
       },
       autoDownload: {
@@ -1043,8 +1044,7 @@
         context: 'Label for enabled pages section',
       },
       alertDisabledOptions: {
-        message:
-          'Some configuration options have been disabled due to the way Kolibri has been set up.',
+        message: 'Some configuration options are disabled due to the way Kolibri has been set up.',
         context: 'Alert text that is provided if some options are disabled',
       },
       alertDisabledPaths: {

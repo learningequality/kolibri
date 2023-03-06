@@ -49,7 +49,7 @@
       submit() {
         if (!this.pin) {
           this.showErrorText = true;
-          this.pinError = 'This field cannot be empty';
+          this.pinError = this.coreString('noEmptyField');
           this.focus();
         } else {
           if (this.pinPattern.test(this.pin)) {
@@ -58,7 +58,7 @@
             this.$emit('submit');
             this.showSnackbarNotification('pinUpdated');
           } else {
-            this.pinError = 'Invalid PIN format. Please enter a 4-digit number.';
+            this.pinError = this.coreString('numbersOnly');
             this.focus();
           }
         }
