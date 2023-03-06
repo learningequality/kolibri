@@ -156,6 +156,10 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
     message: 'What you will need',
     context: '',
   },
+  moreLibraries: {
+    message: 'More',
+    context: 'Title section containing unpinned devices',
+  },
 });
 
 export function learnString(key, args) {
