@@ -76,20 +76,25 @@ function _getChildren(id, topic, skip) {
   };
 }
 
-function _handleTopicRedirect(store, pageName, children, id, query, skipped) {
-  if (!children.some(c => !c.is_leaf) && pageName !== PageNames.TOPICS_TOPIC_SEARCH) {
+function _handleTopicRedirect(store, route, children, id, skipped) {
+  if (!children.some(c => !c.is_leaf) && route.name !== PageNames.TOPICS_TOPIC_SEARCH) {
     // if there are no children which are not leaf nodes (i.e. they have children themselves)
     // then redirect to search results
-    router.replace({ name: PageNames.TOPICS_TOPIC_SEARCH, params: { id }, query });
+    router.replace({
+      name: PageNames.TOPICS_TOPIC_SEARCH,
+      params: { ...route.params, id },
+      query: route.query,
+    });
     store.commit('SET_PAGE_NAME', PageNames.TOPICS_TOPIC_SEARCH);
   } else if (skipped) {
     // If we have skipped down the topic tree, replace to the new top level topic
-    router.replace({ name: pageName, params: { id }, query });
+    router.replace({ name: route.name, params: { ...route.params, id }, query: route.query });
   }
 }
 
-function _loadTopicsTopic(store, { id, pageName, query, baseurl }) {
-  const skip = query && query.skip === 'true';
+function _loadTopicsTopic(store, { route, baseurl } = {}) {
+  let id = route.params.id;
+  const skip = route.query && route.query.skip === 'true';
   const params = {
     include_coach_content:
       store.getters.isAdmin || store.getters.isCoach || store.getters.isSuperuser,
@@ -119,7 +124,7 @@ function _loadTopicsTopic(store, { id, pageName, query, baseurl }) {
 
         id = childrenResults.id;
 
-        _handleTopicRedirect(store, pageName, children, id, query, skipped);
+        _handleTopicRedirect(store, route, children, id, skipped);
 
         store.commit('topicsTree/SET_STATE', {
           isRoot,
@@ -138,19 +143,19 @@ function _loadTopicsTopic(store, { id, pageName, query, baseurl }) {
   );
 }
 
-export function showTopicsTopic(store, { id, pageName, query, deviceId = null } = {}) {
+export function showTopicsTopic(store, route) {
   return store.dispatch('loading').then(() => {
-    store.commit('SET_PAGE_NAME', pageName);
-    if (deviceId) {
-      return setCurrentDevice(deviceId).then(device => {
+    store.commit('SET_PAGE_NAME', route.name);
+    if (route.params.deviceId) {
+      return setCurrentDevice(route.params.deviceId).then(device => {
         const baseurl = device.base_url;
         const { fetchUserDownloadRequests } = useDownloadRequests(store);
         fetchUserDownloadRequests();
         return fetchChannels({ baseurl }).then(() => {
-          return _loadTopicsTopic(store, { id, pageName, query, baseurl });
+          return _loadTopicsTopic(store, { route, baseurl });
         });
       });
     }
-    return _loadTopicsTopic(store, { id, pageName, query });
+    return _loadTopicsTopic(store, { route });
   });
 }
