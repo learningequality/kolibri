@@ -1,9 +1,31 @@
 const fs = require('fs');
 const path = require('path');
 const glob = require('glob');
+const intersection = require('lodash/intersection');
 const { parse } = require('csv-parse/sync');
 const { lint } = require('kolibri-tools/lib/lint');
 const { addAliases, resetAliases } = require('kolibri-tools/lib/alias_import_resolver');
+const logging = require('../logging');
+
+/*
+ * A function that compares two message objects, and ensure that they do not share any messageIds
+ * unless the text of the message is an exact match.
+ */
+function checkForDuplicateIds(obj1, obj2) {
+  const potentialDuplicates = intersection(Object.keys(obj1), Object.keys(obj2));
+  const actualDuplicates = [];
+  for (const potentialDuplicate of potentialDuplicates) {
+    const message1 = obj1[potentialDuplicate].message;
+    const message2 = obj2[potentialDuplicate].message;
+    if (message1 !== message1) {
+      logging.error(
+        `${potentialDuplicate} messageId is repeated with different strings '${message1}' and '${message2}'`
+      );
+      actualDuplicates.push(potentialDuplicate);
+    }
+  }
+  return Boolean(actualDuplicates.length);
+}
 
 function writeSourceToFile(filePath, fileSource) {
   fs.writeFileSync(filePath, fileSource, { encoding: 'utf-8' });
@@ -71,4 +93,5 @@ module.exports = {
   toLocale,
   writeSourceToFile,
   forEachPathInfo,
+  checkForDuplicateIds,
 };
