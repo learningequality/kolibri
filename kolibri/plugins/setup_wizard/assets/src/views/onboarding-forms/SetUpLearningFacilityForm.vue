@@ -69,7 +69,7 @@
       },
       setUpFacilityDescription: {
         message:
-          'Learning facility represents the location where you are installing Kolibri, such as a school, training center, or a home',
+          'A learning facility is the location where you use Kolibri, such as a school, training center, or your home.',
         context: '',
       },
       createFacilityLabel: {

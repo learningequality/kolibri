@@ -1203,8 +1203,8 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Waiting to download',
     context: 'Text that displays the status of a resource the user has downloaded',
   },
-  downloading: {
-    message: 'Downloading',
+  downloadStarted: {
+    message: 'Download started',
     context: 'Text that displays the status of a resource the user has downloaded',
   },
   downloadedFailedWillRetry: {
@@ -1216,6 +1216,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Download failed. Unable to retry.',
     context:
       'Text that displays the status of a resource the user has downloaded when the download has failed, and Kolibri is not able to automatically try the download again.',
+  },
+  deviceDisconnectd: {
+    message: 'Your device seems to be disconnected',
+    context: '',
   },
 
   // Device upgrades recommended

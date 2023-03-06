@@ -354,7 +354,7 @@
       },
       learnModalLine2: {
         message:
-          'Moving your account to another learning facility means your data will be accessible to other administrators of that facility.',
+          'Moving your account to another learning facility means administrators of that facility will be able to access your data.',
         context:
           'Second line of text in the modal explaining what changing to another learning facility means.',
       },

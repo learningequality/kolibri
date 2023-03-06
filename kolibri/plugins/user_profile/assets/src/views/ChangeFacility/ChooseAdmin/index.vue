@@ -106,7 +106,7 @@
           'Title of the step for choosing a new super admin in a source facility when a user changing facilities is the only super admin of the source facility.',
       },
       description: {
-        message: 'Choose an account to manage channels and accounts.',
+        message: 'Choose someone to manage channels and user accounts.',
         context:
           'Description of the step for choosing a new super admin in a source facility when a user changing facilities is the only super admin of the source facility.',
       },
