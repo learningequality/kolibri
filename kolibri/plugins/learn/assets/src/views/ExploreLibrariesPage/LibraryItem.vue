@@ -4,7 +4,7 @@
     :debug="false"
     class="library-item"
   >
-    <div class="library-header">
+    <div :class="{ 'library-header': true, 'library-header-sm': windowIsSmall }">
       <KGridItem
         :layout12="{ span: 10 }"
         :layout8="{ span: 6 }"
@@ -149,6 +149,10 @@
   .device-description {
     padding: 0;
     margin: 0 0 15px;
+  }
+
+  .library-header-sm {
+    margin-bottom: 20px;
   }
 
   .library-header,
