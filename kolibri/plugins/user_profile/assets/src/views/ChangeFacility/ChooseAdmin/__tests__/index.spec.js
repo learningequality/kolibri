@@ -54,7 +54,7 @@ describe(`ChangeFacility/ChooseAdmin`, () => {
   it('shows the title and the description', () => {
     const wrapper = makeWrapper();
     expect(wrapper.text()).toContain('Choose a new super admin');
-    expect(wrapper.text()).toContain('Choose an account to manage channels and accounts.');
+    expect(wrapper.text()).toContain('Choose someone to manage channels and user accounts.');
   });
 
   it('shows a selectable table with all facility users except of a current user', () => {
