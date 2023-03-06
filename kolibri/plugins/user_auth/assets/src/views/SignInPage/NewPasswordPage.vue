@@ -122,7 +122,10 @@
       },
     },
     $trs: {
-      needToMakeNewPasswordLabel: 'Hi, {user}. You need to set a new password for your account.',
+      needToMakeNewPasswordLabel: {
+        message: 'Hi, {user}. You need to set a new password for your account.',
+        context: 'Instructions for the user to create a new password.',
+      },
     },
   };
 

@@ -275,7 +275,10 @@
         context:
           'Notification that can refer to when resources are added to a lesson, for example.',
       },
-      addButtonLabel: 'Add',
+      addButtonLabel: {
+        message: 'Add',
+        context: 'Label for a button to add a resource to lessons.',
+      },
       totalQuestionsHeader: {
         message: 'Total questions',
         context: 'Refers to the total number of questions in a quiz.',
