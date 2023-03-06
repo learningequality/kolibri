@@ -221,7 +221,10 @@
         message: 'Delete class',
         context: 'Option to delete a class.',
       },
-      tableCaption: 'List of classes',
+      tableCaption: {
+        message: 'List of classes',
+        context: 'Caption for the table containing the list of classes.',
+      },
       twoCoachNames: {
         message: '{name1}, {name2}',
         context: 'DO NOT TRANSLATE\nCopy the source string.',

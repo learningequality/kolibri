@@ -378,7 +378,10 @@
         message: 'Go to Device permissions to change this',
         context: 'Refers to admin permissions.',
       },
-      viewInDeviceTabPrompt: 'View details in Device permissions',
+      viewInDeviceTabPrompt: {
+        message: 'View details in Device permissions',
+        context: 'Reminder for the admin that they can review permissions in the Device page.',
+      },
       userUpdateNotification: {
         message: 'Changes saved',
         context: 'Notification.',
