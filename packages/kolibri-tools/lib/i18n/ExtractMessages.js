@@ -6,7 +6,7 @@ const del = require('del');
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 const logging = require('../logging');
 const { getAllMessagesFromFilePath } = require('./astUtils');
-const { forEachPathInfo } = require('./utils');
+const { checkForDuplicateIds, forEachPathInfo } = require('./utils');
 
 // This function will clear the way for new CSV files to avoid any conflicts
 function clearCsvPath(csvPath) {
@@ -116,11 +116,16 @@ module.exports = function(pathInfo, ignore, localeDataFolder, verbose) {
   forEachPathInfo(pathInfo, pathData => {
     const namespace = pathData.namespace;
     if (!extractedMessages[namespace]) {
-      extractedMessages[namespace] = getAllMessagesFromFilePath(
-        pathData.moduleFilePath,
-        ignore,
-        verbose
-      );
+      const filePathMessages = getAllMessagesFromFilePath(pathData.moduleFilePath, ignore, verbose);
+      for (const otherNamespace in extractedMessages) {
+        const nameSpaceMessages = extractedMessages[otherNamespace];
+        if (checkForDuplicateIds(nameSpaceMessages, filePathMessages)) {
+          logging.error(
+            `Duplicate message ids across namespaces ${namespace} and ${otherNamespace}`
+          );
+        }
+      }
+      extractedMessages[namespace] = filePathMessages;
     }
   });
 
