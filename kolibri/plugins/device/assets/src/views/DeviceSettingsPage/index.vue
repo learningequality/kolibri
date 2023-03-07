@@ -1016,7 +1016,7 @@
         context: "Description for 'Set storage limit' option under 'Auto-download' section.",
       },
       addStorageLocation: {
-        message: 'Add storage location ',
+        message: 'Add storage location',
         context: 'Menu option for storage paths',
       },
       removeStorageLocation: {

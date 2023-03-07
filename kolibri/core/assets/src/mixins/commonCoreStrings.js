@@ -1027,7 +1027,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context: 'Section header for the list of resources that are related to the current resource',
   },
   doNotShowAgain: {
-    message: "Don't show this again",
+    message: "Don't show this message again",
     context:
       'Option that allows the user to prevent this resource from displaying in the future while using category search',
   },
@@ -1229,7 +1229,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Disconnected',
     context: '',
   },
-
+  addToLibrary: {
+    message: 'Add to library',
+    context: '',
+  },
   //
   sortBy: {
     message: 'Sort by',
@@ -1432,6 +1435,18 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
   joinedSuccessfully: {
     message: 'You have successfully joined the {facility} learning facility',
+    context: '',
+  },
+  dontKnowUserName: {
+    message: 'Don’t know the username?',
+    context: '',
+  },
+  editAccountDetails: {
+    message: 'Edit account details',
+    context: '',
+  },
+  enterPassword: {
+    message: 'Enter password',
     context: '',
   },
 

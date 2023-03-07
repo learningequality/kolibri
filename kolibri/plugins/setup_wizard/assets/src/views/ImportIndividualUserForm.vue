@@ -335,7 +335,7 @@
         context: "The title of the 'Import individual user accounts' step in the wizard setup",
       },
       enterCredentials: {
-        message: 'Enter the user credentials of the account you want to import',
+        message: 'Enter the user credentials of the account you want to import.',
         context: 'Asking user and password of the user to be imported.',
       },
       enterAdminCredentials: {
