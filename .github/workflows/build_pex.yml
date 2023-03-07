@@ -18,12 +18,12 @@ jobs:
     outputs:
       pex-file-name: ${{ steps.get-pex-filename.outputs.pex-file-name }}
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Python 2.7
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: 2.7
-    - uses: actions/cache@v2
+    - uses: actions/cache@v3
       with:
         path: ~/.cache/pip
         key: ${{ runner.os }}-pip-${{ hashFiles('requirements/*.txt') }}
@@ -39,7 +39,7 @@ jobs:
       run: make pex
     - name: Get PEX filename
       id: get-pex-filename
-      run: echo "::set-output name=pex-file-name::$(ls dist | grep .pex | cat)"
+      run: echo "pex-file-name=$(ls dist | grep .pex | cat)" >> $GITHUB_OUTPUT
     - uses: actions/upload-artifact@v2
       with:
         name: ${{ steps.get-pex-filename.outputs.pex-file-name }}
