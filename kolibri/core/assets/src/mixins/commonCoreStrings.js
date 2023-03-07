@@ -1299,6 +1299,15 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Choose a 4-digit number to set as your new PIN',
     context: 'Label to allow user to choose numbers to set PIN',
   },
+  numbersOnly: {
+    message: 'Enter numbers only',
+    context:
+      'Error message indicating a user has entered characters other than numbers as their PIN',
+  },
+  noEmptyField: {
+    message: 'The field cannot be empty',
+    context: 'Error message indicating a user has not added their PIN to the form field',
+  },
 
   // preferred learning language
   preferredLanguage: {
@@ -1315,6 +1324,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Channels in the preferred language will be displayed first',
     context:
       'Explanatory text for the setting where a user can select the language that they would like to learn in',
+  },
+
+  changingStorageLocation: {
+    message: 'Changing storage location',
+    context: '',
   },
 });
 

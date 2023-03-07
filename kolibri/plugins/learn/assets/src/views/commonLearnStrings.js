@@ -43,7 +43,7 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
   },
   multipleLearningActivitiesLabel: {
     message: 'Multiple learning activities',
-    context: '',
+    context: 'Label that indicates the user has selected learning activities of multiple types.',
   },
   exploreResources: {
     message: 'Explore resources',

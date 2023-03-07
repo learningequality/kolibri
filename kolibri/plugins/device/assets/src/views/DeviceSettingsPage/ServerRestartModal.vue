@@ -88,7 +88,8 @@
         context: 'Reason to restart the server.',
       },
       newPrimaryLocationRestartDescription: {
-        message: 'Changing the primary storage location will restart this server.',
+        message:
+          'The server will restart. Anyone using Kolibri on this server at this time will be temporarily disconnected.',
         context: 'Reason to restart the server.',
       },
       removeLocationRestartDescription: {
@@ -97,7 +98,7 @@
       },
       serverRestartDescription: {
         message:
-          ' Anyone using Kolibri on this server right now will temporarily be unable to use it.',
+          'Anyone using Kolibri on this server right now will temporarily be unable to use it.',
         context: 'Description for restarting the server.',
       },
       /* eslint-disable kolibri/vue-no-unused-translations */
@@ -105,6 +106,11 @@
         message:
           'When you enable or disable a page, Kolibri will restart, and you must refresh the browser to see the changes. Anyone using Kolibri on this server at this time will be temporarily disconnected.',
         context: 'Changing enabled pages',
+      },
+      serverNeedsRestart: {
+        message:
+          'The server will need to restart. Do this during low server usage times to avoid disruptions.',
+        context: '',
       },
       /* eslint-enable */
       selectedPath: {
