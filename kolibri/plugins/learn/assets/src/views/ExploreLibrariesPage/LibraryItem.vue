@@ -50,7 +50,13 @@
         :layout8="{ span: 4 }"
         :layout4="{ span: 4 }"
       >
-        <LibraryChannelCard :channel="channel" />
+        <ChannelCard
+          :title="channel.name"
+          :tagline="channel.description"
+          :thumbnail="channel.thumbnail"
+          :link="{}"
+          :version="channel.version"
+        />
       </KGridItem>
     </div>
   </KGrid>
@@ -62,12 +68,12 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
-  import LibraryChannelCard from './LibraryChannelCard';
+  import ChannelCard from '../ChannelCard';
 
   export default {
     name: 'LibraryItem',
     components: {
-      LibraryChannelCard,
+      ChannelCard,
     },
     mixins: [commonCoreStrings],
     setup() {

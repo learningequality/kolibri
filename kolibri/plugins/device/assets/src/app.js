@@ -21,7 +21,7 @@ class DeviceManagementModule extends KolibriApp {
     const isLearnOnlyDevice = plugin_data.isSubsetOfUsersDevice;
     const isSuperuser = store.getters.isSuperuser;
     const isFacilityAdmin = store.getters.isFacilityAdmin;
-    const userCanManageContent = store.getters.getUserPermissions['can_manage_content'];
+    const userCanManageContent = store.getters.canManageContent;
     if (isLearnOnlyDevice && !isFacilityAdmin && (isSuperuser || userCanManageContent)) {
       const authenticated = Cookies.get(IsPinAuthenticated) === 'true';
       if (authenticated) {
