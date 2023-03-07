@@ -103,12 +103,16 @@ def mergeuser(command, **kwargs):
 
     local_user_id = kwargs.pop("local_user_id")
     local_user = FacilityUser.objects.get(id=local_user_id)
+    # Sync with the server to get the remote user:
+    kwargs["no_push"] = True
     call_command(command, **kwargs)
 
     remote_user = FacilityUser.objects.get(id=kwargs["user"])
     merge_users(local_user, remote_user)
 
     # Resync with the server to update the merged records
+    # kwargs["no_pull"] = True
+    del kwargs["no_push"]
     call_command("sync", **kwargs)
     new_superuser_id = kwargs.get("new_superuser_id")
     if new_superuser_id:
@@ -126,6 +130,7 @@ def mergeuser(command, **kwargs):
     remote_user = FacilityUser.objects.get(pk=remote_user_pk)
     token = TokenGenerator().make_token(remote_user)
     job.extra_metadata["token"] = token
+    job.extra_metadata["remote_user_pk"] = remote_user_pk
     job.save_meta()
     job.update_progress(1.0, 1.0)
     local_user.delete()

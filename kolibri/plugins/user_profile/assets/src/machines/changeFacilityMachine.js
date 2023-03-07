@@ -74,6 +74,10 @@ const setTargetAccount = assign({
   targetAccount: (_, event) => event.value,
 });
 
+const setTargetAccountPassword = assign({
+  targetAccount: (_, event) => event.value,
+});
+
 const setMerging = assign({
   isMerging: () => true,
 });
@@ -239,8 +243,31 @@ const states = {
         actions: [send({ type: 'PUSH_HISTORY', value: 'confirmAccountUsername' })],
       },
       CONTINUE: {
-        target: 'isAdmin',
+        target: 'doesTargetRequirePassword',
         actions: [send({ type: 'PUSH_HISTORY', value: 'confirmAccountUsername' })],
+      },
+    },
+  },
+  doesTargetRequirePassword: {
+    always: [
+      {
+        cond: context => context.targetFacility.learner_can_login_with_no_password === false,
+        target: 'provideTargetAccountPassword',
+      },
+      {
+        target: 'isAdmin',
+      },
+    ],
+  },
+  provideTargetAccountPassword: {
+    meta: { route: 'TARGET_PASSWORD', path: '/change_facility' },
+    on: {
+      CONTINUE: {
+        target: 'isAdmin',
+        actions: [
+          setTargetAccountPassword,
+          send({ type: 'PUSH_HISTORY', value: 'provideTargetAccountPassword' }),
+        ],
       },
     },
   },

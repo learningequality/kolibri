@@ -76,6 +76,7 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import { computed, inject, onMounted, ref } from 'kolibri.lib.vueCompositionApi';
   import { TaskResource } from 'kolibri.resources';
@@ -94,7 +95,7 @@
       };
     },
     components: { BottomAppBar },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, responsiveWindowMixin],
     setup() {
       const changeFacilityService = inject('changeFacilityService');
       const state = inject('state');
@@ -228,6 +229,10 @@
           pk: state.value.targetAccount.id,
           token,
         };
+        // if the user was created in the target facility, we need to gets its id:
+        if (params.pk === undefined) {
+          params.pk = this.task.extra_metadata.remote_user_pk;
+        }
         client({
           url: urls['kolibri:kolibri.plugins.user_profile:loginmergeduser'](),
           method: 'POST',

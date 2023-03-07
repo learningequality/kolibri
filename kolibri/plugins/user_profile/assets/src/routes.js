@@ -10,6 +10,7 @@ import ConfirmChangeFacility from './views/ChangeFacility/ConfirmChangeFacility'
 import MergeAccountDialog from './views/ChangeFacility/MergeAccountDialog';
 import ConfirmAccountDetails from './views/ChangeFacility/MergeAccountDialog/ConfirmAccountDetails';
 import CreateAccount from './views/ChangeFacility/CreateAccount';
+import CreatePassword from './views/ChangeFacility/CreatePassword';
 import ChooseAdmin from './views/ChangeFacility/ChooseAdmin';
 import MergeFacility from './views/ChangeFacility/MergeFacility';
 import UsernameExists from './views/ChangeFacility/UsernameExists';
@@ -76,6 +77,11 @@ export default [
         path: 'confirm_account',
         name: 'CONFIRM_ACCOUNT_USERNAME',
         component: ConfirmAccountUsername,
+      },
+      {
+        path: 'target_password',
+        name: 'TARGET_PASSWORD',
+        component: CreatePassword,
       },
       {
         path: 'choose_admin',
