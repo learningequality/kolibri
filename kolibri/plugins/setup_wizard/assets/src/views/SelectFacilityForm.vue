@@ -23,12 +23,12 @@
       />
 
       <label class="select-button-label" for="select-address-button">
-        {{ $tr('selectDifferentAddressLabel') }}
+        {{ $tr('selectDifferentDeviceLabel') }}
       </label>
       <KButton
         id="select-address-button"
         appearance="basic-link"
-        :text="$tr('addNewAddressAction')"
+        :text="$tr('addNewDeviceAction')"
         @click="showSelectAddressModal = true"
       />
 
