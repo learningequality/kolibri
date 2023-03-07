@@ -8,5 +8,6 @@ sphinx-autobuild==0.7.1
 m2r==0.2.1
 mistune<2.0.0
 sphinx-notfound-page==0.6
+kolibri==0.15.11
 # Do this to prevent undefined imports in newer versions of Jinja2
 Jinja2<3.1
