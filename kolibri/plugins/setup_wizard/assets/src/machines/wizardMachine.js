@@ -1,5 +1,6 @@
+import uniq from 'lodash/uniq';
 import { checkCapability } from 'kolibri.utils.appCapabilities';
-import { DeviceTypePresets, FacilityTypePresets, UsePresets } from '../constants';
+import { DeviceTypePresets, FacilityTypePresets, LodTypePresets, UsePresets } from '../constants';
 
 /**
  * __ Setting up the XState Visualizer __
@@ -53,7 +54,7 @@ const initialContext = {
   facilityName: '',
   fullOrLOD: null,
   lodImportOrJoin: null,
-  deviceName: 'default-device-name',
+  deviceName: '',
   formalOrNonformal: null,
   guestAccess: null,
   learnerCanCreateAccount: null,
@@ -62,6 +63,11 @@ const initialContext = {
   importDeviceId: null,
   importDevice: null,
   superuser: null,
+  lodAdmin: {},
+  remoteUsers: [],
+  importedUsers: [],
+  firstImportedLodUser: null,
+  facilitiesOnDeviceCount: null,
 };
 
 export const wizardMachine = createMachine(
@@ -69,6 +75,7 @@ export const wizardMachine = createMachine(
     id: 'wizard',
     initial: 'initializeContext',
     context: initialContext,
+    predictableActionArguments: true,
     on: {
       START_OVER: { target: 'howAreYouUsingKolibri', actions: 'resetContext' },
     },
@@ -144,6 +151,7 @@ export const wizardMachine = createMachine(
         },
       },
       fullOrLearnOnlyDevice: {
+        id: 'fullOrLearnOnlyDevice',
         meta: { route: { name: 'FULL_OR_LOD', path: 'full-or-lod' } },
         on: {
           CONTINUE: { target: 'fullOrLodSetup', actions: 'setFullOrLOD' },
@@ -260,11 +268,12 @@ export const wizardMachine = createMachine(
         initial: 'selectFacilityForm',
         states: {
           selectFacilityForm: {
-            meta: { step: 1, route: { name: 'SELECT_FACILITY_FOR_IMPORT' } },
+            meta: { route: { name: 'SELECT_FACILITY_FOR_IMPORT' } },
             on: {
               BACK: {
-                target: '..fullDeviceNewOrImportFacility',
-                actions: 'clearSelectedSetupType',
+                // #<name> points to a state w/ an `id` property; wizard is the root
+                target: '#wizard.fullDeviceNewOrImportFacility',
+                actions: ['clearSelectedSetupType', 'revertFullDeviceImport'],
               },
               CONTINUE: {
                 target: 'importAuthentication',
@@ -273,21 +282,25 @@ export const wizardMachine = createMachine(
             },
           },
           importAuthentication: {
-            meta: { step: 2, route: { name: 'IMPORT_AUTHENTICATION' } },
+            meta: { route: { name: 'IMPORT_AUTHENTICATION' } },
             on: {
-              BACK: { target: 'selectFacilityForm', actions: 'revertFullDeviceImport' },
+              BACK: { target: 'selectFacilityForm' },
+              BACK_SKIP_FACILITY_FORM: {
+                target: '#wizard.fullDeviceNewOrImportFacility',
+                actions: ['clearSelectedSetupType', 'revertFullDeviceImport'],
+              },
               // THE POINT OF NO RETURN
               CONTINUE: { target: 'loadingTaskPage' },
             },
           },
           loadingTaskPage: {
-            meta: { step: 3, route: { name: 'IMPORT_LOADING' } },
+            meta: { route: { name: 'IMPORT_LOADING' } },
             on: {
               CONTINUE: 'selectSuperAdminAccountForm',
             },
           },
           selectSuperAdminAccountForm: {
-            meta: { step: 4, route: { name: 'SELECT_ADMIN' } },
+            meta: { route: { name: 'SELECT_ADMIN' } },
             on: {
               CONTINUE: {
                 target: 'personalDataConsentForm',
@@ -297,7 +310,7 @@ export const wizardMachine = createMachine(
             },
           },
           personalDataConsentForm: {
-            meta: { step: 5, route: { name: 'IMPORT_DATA_CONSENT' }, nextEvent: 'FINISH' },
+            meta: { route: { name: 'IMPORT_DATA_CONSENT' }, nextEvent: 'FINISH' },
             on: {
               BACK: 'selectSuperAdminAccountForm',
             },
@@ -315,70 +328,95 @@ export const wizardMachine = createMachine(
         initial: 'selectLodSetupType',
         states: {
           selectLodSetupType: {
-            meta: { step: 1, route: { name: 'LOD_SETUP_TYPE' } },
+            meta: { route: { name: 'LOD_SETUP_TYPE' } },
             on: {
-              BACK: '..fullOrLearnOnlyDevice',
-              SET_LOD_FLOW_TYPE: {
-                actions: 'setLodType',
-              },
+              // #<name> points to a state w/ an `id` property; wizard is the root
+              BACK: { target: '#wizard.fullOrLearnOnlyDevice', actions: 'clearFullOrLOD' },
               CONTINUE: {
                 target: 'selectLodFacility',
-                actions: 'setLodImportDeviceId',
+                actions: 'setLodType',
               },
             },
           },
 
           selectLodFacility: {
-            meta: { step: 2, route: { name: 'LOD_SELECT_FACILITY' } },
+            meta: { route: { name: 'LOD_SELECT_FACILITY' } },
             on: {
-              CONTINUE_IMPORT: {
-                target: 'lodImportUserAuth',
-                actions: 'setSelectedImportDeviceFacility',
-              },
-              CONTINUE_JOIN: {
-                target: 'lodJoinFacility',
+              BACK: 'selectLodSetupType',
+              CONTINUE: {
+                target: 'lodProceedJoinOrNew',
                 actions: 'setSelectedImportDeviceFacility',
               },
             },
+          },
+
+          lodProceedJoinOrNew: {
+            always: [
+              {
+                cond: ctx => ctx.lodImportOrJoin === LodTypePresets.JOIN,
+                target: 'lodJoinFacility',
+              },
+              {
+                target: 'lodImportUserAuth',
+              },
+            ],
           },
 
           // IMPORT
           lodImportUserAuth: {
-            meta: { step: 3, route: { name: 'LOD_IMPORT_USER_AUTH' } },
+            meta: { route: { name: 'LOD_IMPORT_USER_AUTH' } },
             on: {
               BACK: 'selectLodSetupType',
-              CONTINUE: 'lodLoading',
-              ADMIN: 'lodImportAsAdmin',
+              CONTINUE: { target: 'lodLoading', actions: 'setLodSuperAdmin' },
+              CONTINUEADMIN: {
+                target: 'lodImportAsAdmin',
+                actions: ['setRemoteUsers', 'setLodAdmin'],
+              },
             },
           },
 
           lodLoading: {
-            meta: { step: 4, route: { name: 'LOD_LOADING_TASK_PAGE' } },
+            meta: { route: { name: 'LOD_LOADING_TASK_PAGE' } },
             on: {
+              SET_SUPERADMIN: { actions: 'setLodSuperAdmin' },
               IMPORT_ANOTHER: 'lodImportUserAuth',
               // Otherwise send FINISH, which is handled at the root of this sub-machine
             },
           },
 
           lodImportAsAdmin: {
-            meta: { step: 3, route: { name: 'LOD_IMPORT_AS_ADMIN' } },
+            meta: { route: { name: 'LOD_IMPORT_AS_ADMIN' } },
             on: {
-              CONTINUE: 'lodLoading',
+              BACK: 'lodImportUserAuth',
+              LOADING: 'lodLoading',
+              SET_SUPERADMIN: { actions: 'setLodSuperAdmin' },
             },
           },
 
           // JOIN
+          lodJoinLoading: {
+            meta: { route: { name: 'LOD_JOIN_LOADING_TASK_PAGE' } },
+            on: {
+              SET_SUPERADMIN: { actions: 'setLodSuperAdmin' },
+              IMPORT_ANOTHER: 'lodImportUserAuth',
+              // Otherwise send FINISH, which is handled at the root of this sub-machine
+            },
+          },
+
           lodJoinFacility: {
-            meta: { step: 3, route: { name: 'LOD_JOIN_FACILITY' } },
+            meta: { route: { name: 'LOD_CREATE_USER_FORM' } },
             on: {
               BACK: 'selectLodSetupType',
-              CONTINUE: 'lodLoading',
+              CONTINUE: 'lodJoinLoading',
             },
           },
         },
         // Listener on the lod import state; typically this would be above `states` but
         // putting it here flows more with the above as this is the state after the final step
         on: {
+          SET_SUPERUSER: { actions: 'setSuperuser' },
+          ADD_IMPORTED_USER: { actions: 'addImportedUser' },
+          SET_FIRST_LOD: { actions: 'setFirstLodUser' },
           FINISH: 'finalizeSetup',
         },
       },
@@ -427,9 +465,17 @@ export const wizardMachine = createMachine(
         importDevice: (_, event) => {
           return event.value.importDevice;
         },
+        facilitiesOnDeviceCount: (_, event) => {
+          return event.value.facilitiesCount;
+        },
       }),
       clearSelectedSetupType: assign({
         facilityNewOrImport: () => null,
+      }),
+      clearFullOrLOD: assign({
+        fullOrLOD: () => {
+          return null;
+        },
       }),
       revertFullDeviceImport: assign({
         selectedFacility: () => null,
@@ -449,10 +495,47 @@ export const wizardMachine = createMachine(
         requirePassword: (_, event) => event.value,
       }),
       setLodType: assign({
-        lodImportOrJoin: (_, event) => event.value,
+        lodImportOrJoin: (_, event) => event.value.importOrJoin,
+        importDeviceId: (_, event) => event.value.importDeviceId,
       }),
       setLodImportDeviceId: assign({
         importDeviceId: (_, event) => event.value,
+      }),
+      addImportedUser: assign({
+        importedUsers: (ctx, event) => {
+          const users = ctx.importedUsers;
+          users.push(event.value);
+          return uniq(users);
+        },
+      }),
+      setFirstLodUser: assign({
+        firstImportedLodUser: (_, event) => event.value,
+      }),
+      setLodAdmin: assign({
+        // Used when setting the Admin user for multiple import
+        lodAdmin: (_, event) => {
+          return {
+            username: event.value.adminUsername,
+            password: event.value.adminPassword,
+            id: event.value.id,
+          };
+        },
+      }),
+      setLodSuperAdmin: assign({
+        // Sets the super admin to be set as the device super admin -- the first LOD user imported
+        superuser: (ctx, event) => {
+          if (!ctx.superuser) {
+            return {
+              username: event.value.username,
+              password: event.value.password,
+            };
+          } else {
+            return ctx.superuser;
+          }
+        },
+      }),
+      setRemoteUsers: assign({
+        remoteUsers: (_, event) => event.value.users,
       }),
       /**
        * Assigns the machine to have the initial context again while maintaining the value of

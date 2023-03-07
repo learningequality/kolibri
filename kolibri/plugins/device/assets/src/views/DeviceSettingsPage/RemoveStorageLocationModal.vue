@@ -54,12 +54,12 @@
     },
     $trs: {
       removeStorageLocation: {
-        message: 'Remove storage location',
+        message: 'Removing storage location',
         context: 'Prompt for removing a storage location.',
       },
       removeStorageLocationDescription: {
         message:
-          'Removing a storage location will remove access to them on Kolibri, but will not delete the resources from your device.',
+          'When you remove a storage location, Kolibri will not be able to access it, but resources will not be deleted from your device.',
         context: 'Description for removing a storage location.',
       },
       deleteFilesDescription: {

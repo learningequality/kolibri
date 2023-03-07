@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
+import atexit
 import logging
+import os
 
 from magicbus.plugins import SimplePlugin
 
+from kolibri.main import disable_plugin
 from kolibri.main import enable_plugin
 from kolibri.plugins.app.utils import interface
 from kolibri.utils.cli import initialize
@@ -29,6 +32,10 @@ logging.info("Initializing Kolibri and running any upgrade routines")
 
 # activate app mode
 enable_plugin("kolibri.plugins.app")
+atexit.register(disable_plugin, "kolibri.plugins.app")
+
+# Add a task update hook
+os.environ["KOLIBRI_UPDATE_HOOKS"] = "kolibri.core.tasks.job.log_status"
 
 # we need to initialize Kolibri to allow us to access the app key
 initialize()

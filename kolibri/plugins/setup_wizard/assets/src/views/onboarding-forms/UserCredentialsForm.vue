@@ -2,8 +2,11 @@
 
   <OnboardingStepBase
     dir="auto"
-    :title="$attrs.header || $tr('adminAccountCreationHeader')"
-    :description="$attrs.description || $tr('adminAccountCreationDescription')"
+    :title="header"
+    :footerMessageType="footerMessageType"
+    :step="step"
+    :steps="steps"
+    :description="description"
     :noBackAction="noBackAction"
     @continue="handleContinue"
   >
@@ -24,6 +27,7 @@
         :value.sync="fullName"
         :isValid.sync="fullNameValid"
         :shouldValidate="formSubmitted"
+        :disabled="disabled"
         :autofocus="true"
         autocomplete="name"
       />
@@ -33,6 +37,7 @@
         ref="usernameTextbox"
         :value.sync="username"
         :isValid.sync="usernameValid"
+        :disabled="disabled"
         :shouldValidate="formSubmitted"
         :isUniqueValidator="!selectedUser ? uniqueUsernameValidator : () => true"
       />
@@ -40,6 +45,7 @@
       <PasswordTextbox
         ref="passwordTextbox"
         :value.sync="password"
+        :disabled="disabled"
         :isValid.sync="passwordValid"
         :shouldValidate="formSubmitted"
         :showConfirmationInput="!selectedUser"
@@ -70,6 +76,7 @@
 <script>
 
   import every from 'lodash/every';
+  import get from 'lodash/get';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import FullNameTextbox from 'kolibri.coreVue.components.FullNameTextbox';
   import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
@@ -89,6 +96,27 @@
     mixins: [commonCoreStrings],
     inject: ['wizardService'],
     props: {
+      disabled: {
+        type: Boolean,
+        default: false,
+      },
+      // Pass this as true if you want to handle the continue on your own from a parent component
+      doNotContinue: {
+        type: Boolean,
+        default: false,
+      },
+      step: {
+        type: Number,
+        required: true,
+      },
+      steps: {
+        type: Number,
+        required: true,
+      },
+      footerMessageType: {
+        type: String,
+        required: true,
+      },
       // A passthrough to the onboarding step base to hide "GO BACK" when needed
       noBackAction: {
         type: Boolean,
@@ -101,6 +129,11 @@
       hidePrivacyLink: {
         type: Boolean,
         default: false,
+      },
+      /** Will use learner-focused labels if false -- the data flow is the same in any case **/
+      adminUserLabels: {
+        type: Boolean,
+        default: true,
       },
       /**
        * The user given which will prefill the data for fullName and username
@@ -129,6 +162,19 @@
       };
     },
     computed: {
+      header() {
+        return this.adminUserLabels
+          ? this.$tr('adminAccountCreationHeader')
+          : this.$tr('learnerAccountCreationHeader');
+      },
+      description() {
+        return this.adminUserLabels
+          ? this.$tr('adminAccountCreationDescription')
+          : this.$tr('learnerAccountCreationDescription', { facility: this.selectedFacilityName });
+      },
+      selectedFacilityName() {
+        return get(this, 'wizardService.state.context.selectedFacility.name', '');
+      },
       formIsValid() {
         if (this.selectedUser) {
           return this.passwordValid;
@@ -179,10 +225,20 @@
           this.focusOnInvalidField();
           return;
         } else {
-          this.wizardService.send({
-            type: 'CONTINUE',
-            value: this.$store.state.onboardingData.user,
-          });
+          this.$emit('submit');
+
+          if (!this.doNotContinue) {
+            this.wizardService.send({
+              type: 'CONTINUE',
+              value: this.$store.state.onboardingData.user,
+            });
+          } else {
+            // still set the onboarding data for the superuser
+            this.wizardService.send({
+              type: 'SET_SUPERUSER',
+              value: this.$store.state.onboardingData.user,
+            });
+          }
         }
       },
       focusOnInvalidField() {
@@ -207,6 +263,15 @@
         message:
           'This account allows you to manage the facility, resources, and user accounts on this device',
         context: "Description of the 'Create super admin account' page.",
+      },
+      learnerAccountCreationHeader: {
+        message: 'Create your account',
+        context: "The title of the 'Create your account' section.",
+      },
+      learnerAccountCreationDescription: {
+        message: "New account for '{facility}' learning facility",
+        context:
+          'The learner is creating their account for an existing facility and is told what that is',
       },
     },
   };

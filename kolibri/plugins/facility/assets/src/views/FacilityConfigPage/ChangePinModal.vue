@@ -9,7 +9,7 @@
   >
     <div>
       <p>{{ $tr('needToSync') }}</p>
-      <p>{{ $tr('setPin') }}</p>
+      <p>{{ coreString('setPin') }}</p>
 
       <KTextbox
         ref="pinFocus"
@@ -49,7 +49,7 @@
       submit() {
         if (!this.pin) {
           this.showErrorText = true;
-          this.pinError = 'This field cannot be empty';
+          this.pinError = this.coreString('noEmptyField');
           this.focus();
         } else {
           if (this.pinPattern.test(this.pin)) {
@@ -58,7 +58,7 @@
             this.$emit('submit');
             this.showSnackbarNotification('pinUpdated');
           } else {
-            this.pinError = 'Invalid PIN format. Please enter a 4-digit number.';
+            this.pinError = this.coreString('numbersOnly');
             this.focus();
           }
         }
@@ -76,10 +76,6 @@
         message:
           'You will need to sync this device with other devices that share this facility in order to use this PIN.',
         context: 'Reminder to sync devices',
-      },
-      setPin: {
-        message: 'Choose four numbers to set as your new PIN.',
-        context: 'Label to allow user to choose numbers to set PIN',
       },
     },
   };

@@ -19,15 +19,21 @@
       />
     </h3>
 
-
-    <KFixedGrid numCols="4" gutter="16" style="margin: 0 16px;">
+    <KFixedGrid
+      numCols="4"
+      gutter="16"
+      style="margin: 0 16px;"
+    >
       <KFixedGridItem span="1">
         <ChannelThumbnail
           class="thumbnail"
           v-bind="{ thumbnail, isMobile }"
         />
       </KFixedGridItem>
-      <KFixedGridItem span="3" alignment="auto">
+      <KFixedGridItem
+        span="3"
+        alignment="auto"
+      >
         <TextTruncator
           :text="tagline"
           :maxHeight="taglineHeight"
@@ -42,6 +48,14 @@
       :value="numCoachContents"
       :isTopic="true"
     />
+
+    <div
+      v-if="version"
+      class="version-wrapper"
+      :style="versionStyle"
+    >
+      <p>{{ $tr('version', { version: version }) }}</p>
+    </div>
 
   </router-link>
 
@@ -94,11 +108,16 @@
         type: Boolean,
         default: false,
       },
+      version: {
+        type: Number,
+        required: false,
+        default: null,
+      },
     },
     computed: {
       ...mapGetters(['isLearner', 'isUserLoggedIn']),
       overallHeight() {
-        return 258;
+        return 270;
       },
       cardStyle() {
         return {
@@ -112,7 +131,19 @@
         return 60;
       },
       taglineHeight() {
-        return 165;
+        return 155;
+      },
+      versionStyle() {
+        return {
+          color: this.$themeTokens.annotation,
+        };
+      },
+    },
+    $trs: {
+      version: {
+        message: 'Version {version, number, integer}',
+        context:
+          'Indicates the channel version. This can be updated when new resources are made available in a channel.',
       },
     },
   };
@@ -139,7 +170,7 @@
     position: relative;
     display: inline-block;
     width: 100%;
-    max-height: 258px;
+    max-height: 270px;
     padding-bottom: $margin;
     text-decoration: none;
     vertical-align: top;
@@ -168,6 +199,17 @@
 
   /deep/.card-thumbnail-wrapper {
     max-width: 100%;
+  }
+
+  .version-wrapper {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+
+    p {
+      padding: $margin;
+      margin-bottom: 0;
+    }
   }
 
 </style>

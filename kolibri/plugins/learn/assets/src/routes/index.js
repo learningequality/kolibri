@@ -154,11 +154,7 @@ export default [
       if (toRoute.params.id === fromRoute.params.id) {
         return;
       }
-      showTopicsTopic(store, {
-        id: toRoute.params.id,
-        pageName: toRoute.name,
-        query: toRoute.query,
-      });
+      showTopicsTopic(store, toRoute);
     },
     component: TopicsPage,
     props: true,
@@ -175,12 +171,7 @@ export default [
       if (toRoute.params.id === fromRoute.params.id) {
         return;
       }
-      showTopicsTopic(store, {
-        id: toRoute.params.id,
-        pageName: toRoute.name,
-        query: toRoute.query,
-        deviceId: toRoute.params.deviceId,
-      });
+      showTopicsTopic(store, toRoute);
     },
     component: TopicsPage,
     props: true,

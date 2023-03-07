@@ -12,38 +12,12 @@ export const SetupWizardResource = new Resource({
   name: 'setupwizard',
   namespace: 'kolibri.plugins.setup_wizard',
 
-  provisiondevice({ device_name, language_id, is_provisioned }) {
-    return this.postListEndpoint('provisiondevice', { device_name, language_id, is_provisioned });
-  },
-
-  // Also creates the facility w/ given name if one doesn't exist already
-  createonmyownuser({ username, full_name, password, facility, extra_fields }) {
-    return this.postListEndpoint('createonmyownuser', {
+  createuseronremote({ facility_id, username, password, baseurl }) {
+    return this.postListEndpoint('createuseronremote', {
+      facility_id,
       username,
-      full_name,
       password,
-      facility,
-      extra_fields,
-    });
-  },
-
-  // Also creates the facility w/ given name if one doesn't exist already
-  createappuser({ facility, extra_fields, auth_token }) {
-    return this.postListEndpoint('createappuser', {
-      facility,
-      extra_fields,
-      auth_token,
-    });
-  },
-
-  // Also creates the facility w/ given name if one doesn't exist already
-  createsuperuser({ username, full_name, password, extra_fields, facility_name }) {
-    return this.postListEndpoint('createsuperuser', {
-      username,
-      full_name,
-      password,
-      extra_fields,
-      facility_name,
+      baseurl,
     });
   },
 });
@@ -62,16 +36,6 @@ export const FacilityImportResource = new Resource({
       extra_fields,
       facility_name,
     });
-  },
-  provisionosuser({ device_name, language_id, is_provisioned }) {
-    return this.postListEndpoint('provisionosuserdevice', {
-      device_name,
-      language_id,
-      is_provisioned,
-    });
-  },
-  provisiondevice({ device_name, language_id, is_provisioned }) {
-    return this.postListEndpoint('provisiondevice', { device_name, language_id, is_provisioned });
   },
   facilityadmins() {
     return this.getListEndpoint('facilityadmins').then(response => {

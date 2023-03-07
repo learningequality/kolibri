@@ -12,6 +12,7 @@ const { glob } = require('glob');
 const logging = require('../logging');
 const { resolve } = require('../alias_import_resolver');
 const { CONTEXT_LINE } = require('./constants');
+const { checkForDuplicateIds } = require('./utils');
 
 function parseAST(scriptContent) {
   return recast.parse(scriptContent, {
@@ -527,7 +528,11 @@ function getAllMessagesFromFilePath(moduleFilePath, ignore, verbose) {
   const messages = {};
 
   files.forEach(filePath => {
-    Object.assign(messages, getMessagesFromFile(filePath, verbose));
+    const extractedMessages = getMessagesFromFile(filePath, verbose);
+    if (checkForDuplicateIds(messages, extractedMessages)) {
+      logging.error(`Duplicate message ids across files in ${moduleFilePath}`);
+    }
+    Object.assign(messages, extractedMessages);
   });
   return messages;
 }
@@ -537,7 +542,11 @@ function recurseForStrings(entryFile, ignore, visited, verbose) {
   if (!visited.has(entryFile)) {
     Object.assign(outputStrings, getMessagesFromFile(entryFile, verbose));
     for (const filePath of getImportFileNames(entryFile, ignore)) {
-      Object.assign(outputStrings, recurseForStrings(filePath, ignore, visited, verbose));
+      const extractedMessages = recurseForStrings(filePath, ignore, visited, verbose);
+      if (checkForDuplicateIds(outputStrings, extractedMessages)) {
+        logging.error(`Duplicate message ids found in imports for ${entryFile}`);
+      }
+      Object.assign(outputStrings, extractedMessages);
     }
     visited.add(entryFile);
   }
@@ -561,7 +570,11 @@ function getAllMessagesFromEntryFiles(entryFiles, moduleFilePath, ignore, verbos
   return entryFiles.reduce((acc, entryFile) => {
     try {
       const filePath = getFileNameForImport(path.join(moduleFilePath, entryFile), '/');
-      return Object.assign(acc, recurseForStrings(filePath, ignore, visited, verbose));
+      const fileMessages = recurseForStrings(filePath, ignore, visited, verbose);
+      if (checkForDuplicateIds(acc, fileMessages)) {
+        logging.error(`Duplicate message ids across entry files in ${moduleFilePath}`);
+      }
+      return Object.assign(acc, fileMessages);
     } catch (e) {
       return acc;
     }
@@ -592,7 +605,11 @@ function getMessagesFromFile(filePath, verbose = false) {
     }
 
     Object.assign(messages, extract$trs(ast, filePath));
-    Object.assign(messages, extractCreateTranslator(ast, filePath));
+    const translatorMessages = extractCreateTranslator(ast, filePath);
+    if (checkForDuplicateIds(messages, translatorMessages)) {
+      logging.error(`Duplicate message ids within the file ${filePath}`);
+    }
+    Object.assign(messages, translatorMessages);
     if (verbose) {
       logging.info(`Extracted ${Object.keys(messages).length} messages from  :: ${filePath}`);
       logging.info(JSON.stringify(messages));

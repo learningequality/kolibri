@@ -79,6 +79,8 @@
        */
 
       const synchronizeRouteAndMachine = state => {
+        if (!state) return;
+
         const { meta } = state;
 
         // Dump out of here if there is nothing to resume from

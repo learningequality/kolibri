@@ -23,6 +23,7 @@ export const TaskTypes = {
   EXPORTSUMMARYLOGCSV: 'kolibri.core.logger.tasks.exportsummarylogcsv',
   IMPORTUSERSFROMCSV: 'kolibri.core.auth.tasks.importusersfromcsv',
   EXPORTUSERSTOCSV: 'kolibri.core.auth.tasks.exportuserstocsv',
+  IMPORTLODUSER: 'kolibri.core.auth.tasks.peeruserimport',
 };
 
 // identical to facility constants.js
@@ -218,5 +219,16 @@ export function importFacilityTaskDisplayInfo(task) {
   }
   info.canRetry = false;
   info.canClear = false;
+  return info;
+}
+
+export function importLodTaskDisplayInfo(task) {
+  const info = syncFacilityTaskDisplayInfo(task);
+  if (task.status === TaskStatuses.COMPLETED) {
+    info.statusMsg = getTaskString('taskLODFinishedByLabel', {
+      facilityname: task.extra_metadata.facility_name,
+      fullname: task.extra_metadata.username,
+    });
+  }
   return info;
 }

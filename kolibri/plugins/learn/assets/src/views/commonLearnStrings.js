@@ -43,7 +43,7 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
   },
   multipleLearningActivitiesLabel: {
     message: 'Multiple learning activities',
-    context: '',
+    context: 'Label that indicates the user has selected learning activities of multiple types.',
   },
   exploreResources: {
     message: 'Explore resources',
@@ -83,12 +83,6 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
     context: 'Label indicating the resource contains several different learning activities.',
   },
 
-  // TODO - move these into diff sections as we make this a full feature in 0.16
-  // Past Papers Project (12/2021) strings
-  quizLabel: {
-    message: 'Quiz',
-    context: 'Label to show that the practice resource can be interacted with as a quiz.',
-  },
   suggestedTime: {
     message: 'Suggested time',
     context: 'Time suggested by coach for how long an independent practice quiz should take',
@@ -154,6 +148,23 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
   },
   whatYouWillNeed: {
     message: 'What you will need',
+    context: '',
+  },
+  moreLibraries: {
+    message: 'More',
+    context: 'Title section containing unpinned devices',
+  },
+  loadingLibraries: {
+    message: 'Loading Kolibri libraries around you',
+    context: '',
+  },
+  cannotConnectToLibrary: {
+    message:
+      'Kolibri cannot connect to the library on {deviceName}. Your network connection may be unstable, or {deviceName} is no longer available.',
+    context: '',
+  },
+  backToAllLibraries: {
+    message: 'Go back to all libraries',
     context: '',
   },
 });

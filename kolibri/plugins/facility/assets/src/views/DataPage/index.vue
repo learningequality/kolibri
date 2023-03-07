@@ -182,6 +182,7 @@
   import { currentLanguage } from 'kolibri.utils.i18n';
   import { now } from 'kolibri.utils.serverClock';
   import format from 'date-fns/format';
+  import KDateRange from 'kolibri-design-system/lib/KDateRange';
   import { PageNames } from '../../constants';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import GeneratedElapsedTime from './GeneratedElapsedTime';
@@ -204,6 +205,7 @@
       ImportInterface,
       SyncInterface,
       LearnMoreModal,
+      KDateRange,
     },
     mixins: [commonCoreStrings, KResponsiveWindowMixin],
     data() {
@@ -399,19 +401,19 @@
         context: 'Description of modal',
       },
       startDateLegendText: {
-        message: 'Start Date',
+        message: 'Start date',
         context: 'Start date input label for calendar modal',
       },
       endDateLegendText: {
-        message: 'End Date',
+        message: 'End date',
         context: 'End date input label for calendar modal',
       },
       previousMonthText: {
-        message: 'Previous Month',
+        message: 'Previous month',
         context: 'label for previous month button',
       },
       nextMonthText: {
-        message: 'Next Month',
+        message: 'Next month',
         context: 'label for next month button',
       },
       invalidateDateError: {
@@ -423,7 +425,7 @@
         context: 'Error message displayed when the start date is after the end date',
       },
       futureDateError: {
-        message: 'Cannot select a future date',
+        message: 'You cannot select a future date',
         context: 'Error message displayed when an unavailable future date is entered',
       },
       beforeFirstAllowedDateError: {

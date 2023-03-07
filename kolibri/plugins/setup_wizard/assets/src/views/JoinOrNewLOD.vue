@@ -7,13 +7,13 @@
   >
     <KRadioButton
       v-model="selected"
-      :label="$tr('createFacilityLabel')"
-      :value="Options.NEW"
+      :label="$tr('joinFacilityLabel')"
+      :value="Options.JOIN"
       class="radio-button"
     />
     <KRadioButton
       v-model="selected"
-      :label="$tr('importFacilityLabel')"
+      :label="$tr('importFromFacilityLabel')"
       :value="Options.IMPORT"
       class="radio-button"
     />
@@ -30,11 +30,11 @@
 <script>
 
   import { SelectAddressModalGroup } from 'kolibri.coreVue.componentSets.sync';
-  import OnboardingStepBase from '../OnboardingStepBase';
-  import { FacilityTypePresets as Options } from '../../constants';
+  import { LodTypePresets as Options } from '../constants';
+  import OnboardingStepBase from './OnboardingStepBase';
 
   export default {
-    name: 'SetUpLearningFacilityForm',
+    name: 'JoinOrNewLOD',
     components: {
       OnboardingStepBase,
       SelectAddressModalGroup,
@@ -43,7 +43,7 @@
     data() {
       return {
         Options,
-        selected: Options.NEW,
+        selected: Options.JOIN,
         showSelectAddressModal: false,
       };
     },
@@ -51,33 +51,29 @@
       handleContinueImport(address) {
         this.wizardService.send({
           type: 'CONTINUE',
-          value: { importOrNew: Options.IMPORT, importDeviceId: address.id },
+          value: { importDeviceId: address.id, importOrJoin: this.selected },
         });
       },
       handleContinue() {
-        if (this.selected === Options.IMPORT) {
-          this.showSelectAddressModal = true;
-        } else {
-          this.wizardService.send({ type: 'CONTINUE', value: { importOrNew: Options.NEW } });
-        }
+        this.showSelectAddressModal = true;
       },
     },
     $trs: {
       setUpFacilityTitle: {
-        message: 'Set up learning facility for this full device',
+        message: 'Select a facility setup for this learn-only device',
         context: '',
       },
       setUpFacilityDescription: {
         message:
-          'A learning facility is the location where you use Kolibri, such as a school, training center, or your home.',
+          'This device will have Kolibri features for learners, but not those for coaches and admins',
         context: '',
       },
-      createFacilityLabel: {
-        message: 'Create a new learning facility',
+      joinFacilityLabel: {
+        message: 'Create a new user account for an existing facility',
         context: '',
       },
-      importFacilityLabel: {
-        message: 'Import all data from an existing learning facility',
+      importFromFacilityLabel: {
+        message: 'Import one or more existing user accounts from an existing facility',
         context: '',
       },
     },

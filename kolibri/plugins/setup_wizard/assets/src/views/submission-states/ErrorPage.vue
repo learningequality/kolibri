@@ -30,8 +30,10 @@
   export default {
     name: 'ErrorPage',
     components: { SubmissionStatePage },
+    inject: ['wizardService'],
     methods: {
       refreshPage() {
+        this.wizardService.send('START_OVER');
         global.location.reload(true);
       },
     },
