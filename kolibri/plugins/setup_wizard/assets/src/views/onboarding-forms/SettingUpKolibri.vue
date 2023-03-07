@@ -65,6 +65,7 @@
   import urls from 'kolibri.urls';
   import client from 'kolibri.client';
   import Lockr from 'lockr';
+  import { FinishSoUDSyncingResource } from '../../api';
   import { DeviceTypePresets, UsePresets } from '../../constants';
 
   export default {
@@ -194,6 +195,9 @@
         return this.wizardService.state.context[key];
       },
       provisionDevice() {
+        // Restart ZeroConf (needs to be done before provisioning)
+        FinishSoUDSyncingResource.postListEndpoint('restart');
+
         client({
           url: urls['kolibri:core:deviceprovision'](),
           method: 'POST',
@@ -205,6 +209,9 @@
             const path = appKey
               ? urls['kolibri:kolibri.plugins.app:initialize'](appKey) + '?auth_token=' + v4()
               : urls['kolibri:kolibri.plugins.user_auth:user_auth']();
+
+            const welcomeDimissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
+            window.sessionStorage.setItem(welcomeDimissalKey, false);
 
             Lockr.set('savedState', null); // Clear out saved state machine
             window.location.href = path;
