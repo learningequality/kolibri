@@ -82,7 +82,8 @@ from kolibri.utils.time_utils import local_now
 logger = logging.getLogger(__name__)
 
 # '"optional":True' is obsolete but needed while we keep using an
-# old json_schema_validator version compatible with python 2.7
+# old json_schema_validator version compatible with python 2.7.
+# "additionalProperties": False must be avoided for backwards compatibility
 extra_fields_schema = {
     "type": "object",
     "properties": {

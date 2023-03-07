@@ -91,13 +91,6 @@
         }
       },
       sendContinue() {
-        console.log({
-          type: 'CONTINUE',
-          value: {
-            username: get(this.state, 'value.targetAccount.username', ''),
-            password: this.formData.password,
-          },
-        });
         this.changeFacilityService.send({
           type: 'CONTINUE',
           value: {
