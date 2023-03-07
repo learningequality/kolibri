@@ -109,7 +109,7 @@
         default: false,
       },
       version: {
-        type: String,
+        type: Number,
         required: false,
         default: null,
       },
