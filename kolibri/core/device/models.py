@@ -80,15 +80,16 @@ def app_is_enabled():
     return interface.enabled
 
 
+# '"optional":True' is obsolete but needed while we keep using an
+# old json_schema_validator version compatible with python 2.7
 extra_settings_schema = {
     "type": "object",
-    "additionalProperties": False,
     "properties": {
         "allow_download_on_mettered_connection": {"type": "boolean"},
         "enable_automatic_download": {"type": "boolean"},
-        "allow_learner_download_resources": {"type": "boolean"},
-        "set_limit_for_autodownload": {"type": "boolean"},
-        "limit_for_autodownload": {"type": "integer"},
+        "allow_learner_download_resources": {"type": "boolean", "optional": True},
+        "set_limit_for_autodownload": {"type": "boolean", "optional": True},
+        "limit_for_autodownload": {"type": "integer", "optional": True},
     },
     "required": [
         "allow_download_on_mettered_connection",
