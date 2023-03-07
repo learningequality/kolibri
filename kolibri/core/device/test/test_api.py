@@ -206,6 +206,7 @@ class DeviceProvisionTestCase(APITestCase):
             self.client.get(initialize_url)
             data = self._default_provision_data()
             del data["superuser"]
+            data.update({"auth_token": "test"})
             self._post_deviceprovision(data)
             self.client.get(initialize_url)
             self.assertEqual(

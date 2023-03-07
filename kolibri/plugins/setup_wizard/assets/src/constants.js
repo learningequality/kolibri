@@ -30,6 +30,13 @@ const DeviceTypePresets = Object.freeze({
   LOD: 'LOD',
 });
 
+const FooterMessageTypes = Object.freeze({
+  NEW_FACILITY: 'NEW_FACILITY',
+  IMPORT_FACILITY: 'IMPORT_FACILITY',
+  IMPORT_INDIVIDUALS: 'IMPORT_INDIVIDUALS',
+  JOIN_FACILITY: 'JOIN_FACILITY',
+});
+
 const SoudQueue = 'soud_sync';
 
 export {
@@ -40,4 +47,5 @@ export {
   UsePresets,
   SoudQueue,
   LodTypePresets,
+  FooterMessageTypes,
 };

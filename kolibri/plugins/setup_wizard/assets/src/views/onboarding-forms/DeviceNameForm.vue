@@ -33,7 +33,7 @@
     mixins: [commonCoreStrings],
     data() {
       return {
-        value: this.$store.state.onboardingData.device_name || '',
+        value: this.wizardService.state.context.deviceName,
         shouldValidate: false,
       };
     },
@@ -55,7 +55,6 @@
         if (this.invalidText) {
           this.$refs.textbox.focus();
         } else {
-          this.$store.commit('SET_DEVICE_NAME', this.value);
           this.goToNextStep();
         }
       },

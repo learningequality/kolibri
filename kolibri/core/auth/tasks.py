@@ -239,6 +239,7 @@ def exportuserstocsv(facility=None, locale=None):
 
 class SyncJobValidator(JobValidator):
     facility = serializers.PrimaryKeyRelatedField(queryset=Facility.objects.all())
+    facility_name = serializers.CharField(required=False)
     command = serializers.ChoiceField(choices=["sync", "resumesync"], default="sync")
     sync_session_id = HexOnlyUUIDField(format="hex", required=False, allow_null=True)
 
@@ -811,13 +812,23 @@ class PeerImportSingleSyncJobValidator(PeerSyncJobValidator):
                     "roles": ", ".join(roles),
                 }
             )
+
         user_id = user_info["id"]
 
         validate_and_create_sync_credentials(
             baseurl, facility_id, username, password, user_id=user_id
         )
+        job_data["extra_metadata"]["user_id"] = user_id
+        job_data["extra_metadata"]["username"] = user_info["username"]
+
         job_data["kwargs"]["user"] = user_id
 
+        job_data["kwargs"].update(
+            dict(
+                no_push=True,
+                no_provision=True,
+            )
+        )
         return job_data
 
 
@@ -829,8 +840,8 @@ class PeerImportSingleSyncJobValidator(PeerSyncJobValidator):
     permission_classes=[IsSuperAdmin() | NotProvisioned()],
     status_fn=status_fn,
 )
-def peeruserimport(**kwargs):
-    call_command("sync", **kwargs)
+def peeruserimport(command, **kwargs):
+    call_command(command, **kwargs)
 
 
 @register_task(

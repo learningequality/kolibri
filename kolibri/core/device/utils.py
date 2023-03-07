@@ -102,12 +102,12 @@ def provision_device(device_name=None, is_provisioned=True, **kwargs):
     device_settings.save()
 
 
-def provision_single_user_device(user):
+def provision_single_user_device(user, **kwargs):
     from .models import DevicePermissions
 
     # if device has not been provisioned, set it up
     if not device_provisioned():
-        provision_device(default_facility=user.facility)
+        provision_device(**kwargs)
         set_device_settings(subset_of_users_device=True)
 
     DevicePermissions.objects.get_or_create(

@@ -25,6 +25,7 @@
     syncFacilityTaskDisplayInfo,
     removeFacilityTaskDisplayInfo,
     importFacilityTaskDisplayInfo,
+    importLodTaskDisplayInfo,
     TaskTypes,
   } from '../../utils/syncTaskUtils';
   import FacilityTaskPanelDetails from './FacilityTaskPanelDetails';
@@ -66,6 +67,9 @@
         // HACK infer that we're in the setup wizard because the started_by field is null
         return !this.task.extra_metadata.started_by && this.task.type === TaskTypes.SYNCPEERPULL;
       },
+      isLODImportTask() {
+        return this.task.type === TaskTypes.IMPORTLODUSER;
+      },
       isImportTask() {
         return this.task.type === TaskTypes.SYNCPEERPULL;
       },
@@ -78,6 +82,9 @@
         }
         if (this.isDeleteTask) {
           return removeFacilityTaskDisplayInfo(this.task);
+        }
+        if (this.isLODImportTask) {
+          return importLodTaskDisplayInfo(this.task);
         }
         return {};
       },
