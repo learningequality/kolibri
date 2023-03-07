@@ -109,8 +109,8 @@ class Storage(object):
         """
         Returns the number of jobs currently in the storage.
         """
-        with self.session_scope() as session:
-            return session.query(ORMJob).count()
+        with self.engine.connect() as conn:
+            return conn.execute(func.count(ORMJob.id)).scalar()
 
     def __contains__(self, item):
         """
@@ -120,10 +120,11 @@ class Storage(object):
         job_id = item
         if isinstance(item, Job):
             job_id = item.job_id
-        with self.session_scope() as session:
-            return session.query(
-                session.query(ORMJob).filter_by(id=job_id).exists()
-            ).scalar()
+        with self.engine.connect() as connection:
+            return (
+                connection.execute(select(ORMJob).where(ORMJob.id == job_id)).fetchone()
+                is not None
+            )
 
     def recreate_tables(self):
         self.Base.metadata.drop_all(self.engine)
@@ -291,9 +292,8 @@ class Storage(object):
         """
         Do a quick query to raise errors if the database is unusable.
         """
-        with self.session_scope() as s:
-            q = s.query(ORMJob)
-
+        with self.engine.connect() as conn:
+            q = conn.execute(select(ORMJob))
             q.first()
 
     def count_all_jobs(self, queue=None):
@@ -306,9 +306,9 @@ class Storage(object):
             return q.count()
 
     def get_job(self, job_id):
-        with self.session_scope() as session:
-            job, _ = self._get_job_and_orm_job(job_id, session)
-            return job
+        orm_job = self.get_orm_job(job_id)
+        job = self._orm_to_job(orm_job)
+        return job
 
     def get_orm_job(self, job_id):
         with self.engine.connect() as connection:
@@ -329,10 +329,10 @@ class Storage(object):
         Raises `JobNotRestartable` exception if the job with id = job_id state is
         not in CANCELED or FAILED.
         """
-        with self.session_scope() as session:
-            job_to_restart, orm_job = self._get_job_and_orm_job(job_id, session)
-            queue = orm_job.queue
-            priority = orm_job.priority
+        orm_job = self.get_orm_job(job_id)
+        job_to_restart = self._orm_to_job(orm_job)
+        queue = orm_job.queue
+        priority = orm_job.priority
 
         if job_to_restart.state in [State.CANCELED, State.FAILED]:
             self.clear(job_id=job_to_restart.job_id, force=False)
