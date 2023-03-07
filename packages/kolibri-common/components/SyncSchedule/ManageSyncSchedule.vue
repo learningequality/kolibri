@@ -101,7 +101,7 @@
             </tr>
             <tr>
               <td colspan="3" style="text-align:center">
-                <b> No Device found</b>
+                <b>{{ $tr('NoSync') }}</b>
               </td>
             </tr>
           </tbody>
@@ -230,7 +230,6 @@
       fetchAddressesForLOD(LocationResource = NetworkLocationResource) {
         return LocationResource.fetchCollection({ force: true }).then(locations => {
           this.data = locations;
-          console.log(this.data);
         });
       },
       pollFacilityTasks() {
@@ -325,6 +324,10 @@
       disconnected: {
         message: 'Not Connected',
         context: 'Disconnected device',
+      },
+      NoSync: {
+        message: 'There are no syncs scheduled',
+        context: 'Text to display when there is no schedule sync to be managed.',
       },
     },
   };
