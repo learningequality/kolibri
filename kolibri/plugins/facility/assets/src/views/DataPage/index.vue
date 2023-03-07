@@ -137,7 +137,6 @@
       :cancelText="coreString('cancelAction')"
       :title="$tr('title')"
       :description="$tr('description')"
-      :dateLocale="selectedLanguage"
       :startDateLegendText="$tr('startDateLegendText')"
       :endDateLegendText="$tr('endDateLegendText')"
       :previousMonthText="$tr('previousMonthText')"
@@ -156,7 +155,6 @@
       :cancelText="coreString('cancelAction')"
       :title="$tr('title')"
       :description="$tr('description')"
-      :dateLocale="selectedLanguage"
       :startDateLegendText="$tr('startDateLegendText')"
       :endDateLegendText="$tr('endDateLegendText')"
       :previousMonthText="$tr('previousMonthText')"
@@ -179,7 +177,6 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
   import validationConstants from 'kolibri-design-system/lib/KDateRange/validationConstants';
-  import { currentLanguage } from 'kolibri.utils.i18n';
   import { now } from 'kolibri.utils.serverClock';
   import format from 'date-fns/format';
   import KDateRange from 'kolibri-design-system/lib/KDateRange';
@@ -215,7 +212,6 @@
         summaryDateRangeModal: false,
         sessionDateRangeModal: false,
         lastAllowedDate: now(),
-        selectedLanguage: currentLanguage,
         dateRange: {},
       };
     },
