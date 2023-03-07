@@ -17,7 +17,7 @@
       :value="Options.IMPORT"
       class="radio-button"
     />
-    <SelectAddressModalGroup
+    <SelectDeviceModalGroup
       v-if="showSelectAddressModal"
       @cancel="showSelectAddressModal = false"
       @submit="handleContinueImport"
@@ -29,7 +29,7 @@
 
 <script>
 
-  import { SelectAddressModalGroup } from 'kolibri.coreVue.componentSets.sync';
+  import { SelectDeviceModalGroup } from 'kolibri.coreVue.componentSets.sync';
   import { LodTypePresets as Options } from '../constants';
   import OnboardingStepBase from './OnboardingStepBase';
 
@@ -37,7 +37,7 @@
     name: 'JoinOrNewLOD',
     components: {
       OnboardingStepBase,
-      SelectAddressModalGroup,
+      SelectDeviceModalGroup,
     },
     inject: ['wizardService'],
     data() {
