@@ -330,7 +330,7 @@
         context: 'Disconnected device',
       },
       NoSync: {
-        message: 'There are no sync schedules',
+        message: 'There are no syncs scheduled',
         context: 'Text to display when there is no schedule sync to be managed.',
       },
     },
