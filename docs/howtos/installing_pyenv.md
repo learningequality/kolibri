@@ -94,11 +94,15 @@ The output of the command tells you to add certain lines to your startup files f
 1. Run PowerShell terminal as Administrator
 2. Run the following installation command in the PowerShell terminal :
 
-`Invoke-WebRequest -UseBasicParsing -Uri "https://raw.githubusercontent.com/pyenv-win/pyenv-win/master/pyenv-win/install-pyenv-win.ps1" -OutFile "./install-pyenv-win.ps1"; &"./install-pyenv-win.ps1" `
+```sh
+Invoke-WebRequest -UseBasicParsing -Uri "https://raw.githubusercontent.com/pyenv-win/pyenv-win/master/pyenv-win/install-pyenv-win.ps1" -OutFile "./install-pyenv-win.ps1"; &"./install-pyenv-win.ps1"
+```
 
 If you are getting any **UnauthorizedAccess** error, run:
 
-`Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine`
+```sh
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine
+```
 
 press Y not A, to execute Policy Change for this power shell only.
 
