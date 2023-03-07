@@ -23,16 +23,16 @@
       />
 
       <label class="select-button-label" for="select-address-button">
-        {{ $tr('selectDifferentAddressLabel') }}
+        {{ $tr('selectDifferentDeviceLabel') }}
       </label>
       <KButton
         id="select-address-button"
         appearance="basic-link"
-        :text="$tr('addNewAddressAction')"
+        :text="$tr('addNewDeviceAction')"
         @click="showSelectAddressModal = true"
       />
 
-      <SelectAddressModalGroup
+      <SelectDeviceModalGroup
         v-if="showSelectAddressModal"
         @cancel="showSelectAddressModal = false"
         @submit="handleAddressSubmit"
@@ -48,7 +48,7 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import { SelectAddressModalGroup, RadioButtonGroup } from 'kolibri.coreVue.componentSets.sync';
+  import { SelectDeviceModalGroup, RadioButtonGroup } from 'kolibri.coreVue.componentSets.sync';
   import { FooterMessageTypes } from '../constants';
 
   import OnboardingStepBase from './OnboardingStepBase';
@@ -58,7 +58,7 @@
     components: {
       OnboardingStepBase,
       RadioButtonGroup,
-      SelectAddressModalGroup,
+      SelectDeviceModalGroup,
     },
     inject: ['wizardService'],
     mixins: [commonCoreStrings, commonSyncElements],
@@ -129,15 +129,15 @@
       },
     },
     $trs: {
-      selectDifferentAddressLabel: {
+      selectDifferentDeviceLabel: {
         message: "Don't see your learning facility?",
         context:
           'A label shown above a link that will open a modal to select a different network location from which to select a facility',
       },
-      addNewAddressAction: {
-        message: 'Add new address',
+      addNewDeviceAction: {
+        message: 'Add new device',
         context:
-          'The text for a link that will open a modal that allows the user to add or select a new address from which to import a facility',
+          'The text for a link that will open a modal that allows the user to add or select a new device from which to import a facility',
       },
     },
   };

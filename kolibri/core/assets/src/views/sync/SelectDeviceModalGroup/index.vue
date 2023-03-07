@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <SelectAddressForm
+    <SelectDeviceForm
       v-if="stage === Stages.SELECT_ADDRESS"
       :filterByChannelId="filterByChannelId"
       :filterByFacilityId="filterByFacilityId"
@@ -14,7 +14,7 @@
       @cancel="handleCancel"
       @submit="handleSelectAddressSubmit"
     />
-    <AddAddressForm
+    <AddDeviceForm
       v-if="stage === Stages.ADD_ADDRESS"
       @cancel="goToSelectAddress"
       @added_address="handleAddedAddress"
@@ -26,8 +26,8 @@
 
 <script>
 
-  import AddAddressForm from './AddAddressForm';
-  import SelectAddressForm from './SelectAddressForm';
+  import AddDeviceForm from './AddDeviceForm';
+  import SelectDeviceForm from './SelectDeviceForm';
 
   const Stages = Object.freeze({
     ADD_ADDRESS: 'ADD_ADDRESS',
@@ -35,13 +35,13 @@
   });
 
   export default {
-    name: 'SelectAddressModalGroup',
+    name: 'SelectDeviceModalGroup',
     components: {
-      AddAddressForm,
-      SelectAddressForm,
+      AddDeviceForm,
+      SelectDeviceForm,
     },
     props: {
-      // Channel filter only needed on ManageContentPage/SelectNetworkAddressModal
+      // Channel filter only needed on ManageContentPage/SelectNetworkDeviceModal
       filterByChannelId: {
         type: String,
         default: null,
@@ -79,11 +79,11 @@
       },
       handleAddedAddress(addressId) {
         this.addedAddressId = addressId;
-        this.createSnackbar(this.$tr('addAddressSnackbarText'));
+        this.createSnackbar(this.$tr('addDeviceSnackbarText'));
         this.goToSelectAddress();
       },
       handleRemovedAddress() {
-        this.createSnackbar(this.$tr('removeAddressSnackbarText'));
+        this.createSnackbar(this.$tr('removeDeviceSnackbarText'));
       },
       handleSelectAddressSubmit(address) {
         this.$emit('submit', address);
@@ -93,13 +93,13 @@
       },
     },
     $trs: {
-      addAddressSnackbarText: {
-        message: 'Successfully added address',
-        context: 'This message appears if a network address has been added correctly.',
+      addDeviceSnackbarText: {
+        message: 'Successfully added device',
+        context: 'This message appears if a device has been added correctly.',
       },
-      removeAddressSnackbarText: {
-        message: 'Successfully removed address',
-        context: 'This message appears if a network address has been removed correctly.',
+      removeDeviceSnackbarText: {
+        message: 'Successfully removed device',
+        context: 'This message appears if a device has been removed correctly.',
       },
     },
   };

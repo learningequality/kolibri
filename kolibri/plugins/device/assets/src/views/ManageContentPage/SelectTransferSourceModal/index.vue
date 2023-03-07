@@ -13,7 +13,7 @@
       @submit="nextState"
       @cancel="emitCancel"
     />
-    <SelectNetworkAddressModal
+    <SelectNetworkDeviceModal
       v-if="atSelectNetworkAddress"
       :manageMode="manageMode"
       @submit="nextState"
@@ -28,7 +28,7 @@
 <script>
 
   import { ContentWizardPages, ContentSources } from '../../../constants';
-  import SelectNetworkAddressModal from '../SelectNetworkAddressModal';
+  import SelectNetworkDeviceModal from '../SelectNetworkDeviceModal';
   import SelectImportSourceModal from './SelectImportSourceModal';
   import SelectDriveModal from './SelectDriveModal';
 
@@ -37,7 +37,7 @@
     components: {
       SelectDriveModal,
       SelectImportSourceModal,
-      SelectNetworkAddressModal,
+      SelectNetworkDeviceModal,
     },
     props: {
       pageName: {

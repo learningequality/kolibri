@@ -8,7 +8,7 @@
       @cancel="closeModal()"
     />
 
-    <SelectAddressModalGroup
+    <SelectDeviceModalGroup
       v-else-if="atSelectAddress"
       :filterByFacilityId="facilityForSync.id"
       :selectAddressDisabled="syncSubmitDisabled"
@@ -24,7 +24,7 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import SelectAddressModalGroup from './SelectAddressModalGroup';
+  import SelectDeviceModalGroup from './SelectDeviceModalGroup';
   import SelectSyncSourceModal from './SelectSyncSourceModal';
 
   const Steps = Object.freeze({
@@ -36,11 +36,11 @@
     name: 'SyncFacilityModalGroup',
     components: {
       SelectSyncSourceModal,
-      SelectAddressModalGroup,
+      SelectDeviceModalGroup,
     },
     mixins: [commonCoreStrings, commonSyncElements],
     props: {
-      // If facility has not been KDP-registered, skip to SelectAddressForm
+      // If facility has not been KDP-registered, skip to SelectDeviceForm
       // and use facility ID to filter the selectable addresses
       facilityForSync: {
         type: Object,
