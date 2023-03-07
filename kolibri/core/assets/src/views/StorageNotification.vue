@@ -136,23 +136,23 @@
     $trs: {
       insufficientStorageNoDownloads: {
         message:
-          'You do not have enough storage for new learning materials. Ask your coach or administrator for help.',
+          'You do not have enough storage for new resources. Ask your coach or administrator for help.',
         context:
           'Shown to the learner when their device has exhausted storage space for additional materials',
       },
       insufficientStorageAvailableDownloads: {
         message:
-          'You do not have enough storage for updates. Try removing resources from My downloads.',
+          'You do not have enough storage for new resources. Remove some resources from My downloads.',
         context:
           'Shown to the learner when their device has exhausted storage space for additional materials, but they have manually download materials that could be removed to make space',
       },
       superAdminMessage: {
-        message: 'You do not have enough storage for updates.',
+        message: 'You do not have enough storage for new resources',
         context:
           'Shown to the admin when the device has exhausted storage space for additional materials',
       },
       resourcesRemoved: {
-        message: 'Some resources have been removed to make room for new class materials.',
+        message: 'Some resources have been removed to make room for new lessons or quizzes',
         context:
           'Shown to the learner when learning materials were automatically removed to make space for new materials',
       },

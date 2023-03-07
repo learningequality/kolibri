@@ -74,7 +74,7 @@
       },
       needToSync: {
         message:
-          'You will need to sync this device with other devices that share this facility in order to use this PIN.',
+          'You will need to sync this device with other devices that have the same facility in order to use this PIN.',
         context: 'Reminder to sync devices',
       },
     },

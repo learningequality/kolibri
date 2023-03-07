@@ -1230,6 +1230,36 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context: '',
   },
 
+  //
+  sortBy: {
+    message: 'Sort by',
+    context: '',
+  },
+  newestResource: {
+    message: 'Newest',
+    context: 'Label to filter by newest resource',
+  },
+  oldestResource: {
+    message: 'Oldest',
+    context: 'Label to filter by oldest resource',
+  },
+  largestFile: {
+    message: 'Largest file size',
+    context: 'Label to filter by largest file size',
+  },
+  smallestFile: {
+    message: 'Smallest file size',
+    context: 'Label to filter by smallest file size',
+  },
+  myLibrary: {
+    message: 'My library',
+    context: '',
+  },
+  showingYourLibrary: {
+    message: 'Showing results from your library only',
+    context: '',
+  },
+
   // Device upgrades recommended
   currentDeviceUsingIE11: {
     message: 'You seem to be using Internet Explorer 11.',
