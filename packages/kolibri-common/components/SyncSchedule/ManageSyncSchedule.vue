@@ -18,7 +18,8 @@
 
 
         <KGridItem :layout8="{ span: 4 }" :layout12="{ span: 6 }" class="separate">
-          <b>{{ facility.name }}</b>
+          <b v-if="facility">{{ facility.name }}</b>
+          <KCircularLoader v-else />
         </KGridItem>
         <KGridItem
           :layout="{ alignment: 'right' }"
@@ -40,7 +41,7 @@
       <!--      creating the table-->
       <CoreTable>
         <template #tbody>
-          <tbody v-if="savedDevices.length > 0">
+          <tbody v-if="savedDevices !== null">
             <tr>
               <th>{{ $tr('deviceName') }}</th>
               <th>{{ $tr('Schedule') }}</th>

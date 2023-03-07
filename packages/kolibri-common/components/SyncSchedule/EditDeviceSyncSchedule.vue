@@ -20,7 +20,7 @@
           <KGrid>
             <KGridItem>
               <KSelect
-                v-model="selectedItem"
+                :value="selectedItem"
                 class="selector"
                 :style="selectorStyle"
                 :options="selectArray"
@@ -36,7 +36,7 @@
           >
             <KGridItem>
               <KSelect
-                v-model="selectedDay"
+                :value="selectedDay"
                 class="selector"
                 :style="selectorStyle"
                 :options="getDays"
@@ -52,11 +52,12 @@
           >
             <KGridItem>
               <KSelect
-                v-model="selectedTime"
+                :value="selectedTime"
                 class="selector"
                 :style="selectorStyle"
                 :options="SyncTime"
                 label="At"
+                @change="$emit('changeTime',)"
               />
             </KGridItem>
           </KGrid>
@@ -66,7 +67,7 @@
 
           <p class="spacing">
             {{ $tr('serverTime') }}
-            {{ now }}
+            {{ serverTime }}
           </p>
 
           <p class="spacing">
@@ -172,12 +173,13 @@
         removeDeviceModal: false,
         deviceName: null,
         device: [],
-        now: now(),
-        selectedItem: '',
+        serverTime: now(),
+        selectedItem: null,
         tasks: [],
         selectedDay: null,
         selectedTime: null,
         removeBtn: false,
+        baseurl: null,
       };
     },
     computed: {
@@ -245,6 +247,9 @@
     },
     beforeMount() {
       this.fetchDevice();
+      this.selectedTime = this.SyncTime[0];
+      this.selectedDay = this.getDays[0];
+      this.selectedItem = this.selectArray[0];
     },
     mounted() {
       this.timer = setInterval(() => {
@@ -273,6 +278,7 @@
         FacilityResource.fetchModel({ id: this.$store.getters.activeFacilityId, force: true }).then(
           facility => {
             this.facility = { ...facility };
+            console.log(this.baseurl);
             TaskResource.startTask({
               type: TaskTypes.SYNCPEERFULL,
               facility: this.facility.id,
@@ -285,7 +291,7 @@
                 this.showSnackbarNotification('syncAdded');
               })
               .catch(() => {
-                this.createTaskFailedSnackbar();
+                console.log('failed');
               });
           }
         );
@@ -297,6 +303,7 @@
       fetchDevice() {
         NetworkLocationResource.fetchModel({ id: this.$route.params.deviceId }).then(device => {
           this.device = device;
+          this.baseurl = device.base_url;
           TaskResource.list({ queue: 'facility_task' }).then(tasks => {
             this.tasks = tasks.filter(
               task =>
