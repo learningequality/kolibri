@@ -62,7 +62,7 @@
     },
     $trs: {
       facilityNameFieldLabel: {
-        message: 'Facility name',
+        message: 'Learning facility name',
         context: 'The field where the admin adds the name of their facility.',
       },
       facilityNameFieldEmptyErrorMessage: {

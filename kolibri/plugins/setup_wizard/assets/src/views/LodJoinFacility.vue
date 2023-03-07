@@ -91,12 +91,12 @@
     },
     $trs: {
       header: {
-        message: 'Select super admin account',
+        message: 'Select super admin',
         context: 'Page title,',
       },
       description: {
         message:
-          'This account allows you to manage all facilities, resources, and user accounts on this device.',
+          'This super admin account allows you to manage all facilities, resources, and users on this device.',
 
         context: 'Explanation of what the super admin account is used for on device.',
       },

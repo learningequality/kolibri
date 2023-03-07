@@ -99,7 +99,7 @@
       },
       changeFacilityInfoLine2: {
         message:
-          'Your user account type will change from ‘{role} to ‘learner’. You will need someone with admin permissions to change your account type to ‘{role}’ again.',
+          'Your user account type will change from ‘{role}’ to ‘learner’ and you will no longer be able to manage resources on this device. You will need someone with admin permissions in ‘{facility}’ to change your account type back to ‘{role}’.',
         context:
           'Second line of text explaining that changing to another learning facility will downgrade the user role to learner',
       },

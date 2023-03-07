@@ -77,7 +77,7 @@
           "Option on the 'Enable passwords for learners' screen. The admin selects this option if they don't want to enable passwords for learner accounts.",
       },
       noOptionLabel: {
-        message: 'No. Learner accounts can sign in with just a username',
+        message: 'No. Learners can sign in with just a username.',
         context:
           "Option on the 'Enable passwords for learners' screen. The admin selects this option if they don't want to enable passwords for learner accounts.",
       },

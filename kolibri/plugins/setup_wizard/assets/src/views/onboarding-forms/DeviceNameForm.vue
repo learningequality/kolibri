@@ -69,7 +69,7 @@
       },
       deviceNameDescription: {
         message:
-          'Give this device a meaningful name that can help you and others you connect with to recognize it',
+          'Give this device a name that can be easily recognized by you and others you connect with.',
         context: '',
       },
     },

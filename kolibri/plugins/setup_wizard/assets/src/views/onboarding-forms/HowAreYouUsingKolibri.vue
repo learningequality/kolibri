@@ -69,8 +69,7 @@
         context: 'Label for a radio button...',
       },
       onMyOwnDescription: {
-        message:
-          'For homeschooling, supplementary individual learning, and other self-directed use',
+        message: 'For homeschooling and other personal use.',
         context: 'Description',
       },
       groupLearningLabel: {
@@ -79,7 +78,7 @@
       },
       groupLearningDescription: {
         message:
-          'This device will need to connect with other devices using Kolibri in schools, educational programs, organizations, or other group learning settings',
+          'This device will need to connect with other devices using Kolibri in schools or other group learning settings.',
         context: 'desc',
       },
     },

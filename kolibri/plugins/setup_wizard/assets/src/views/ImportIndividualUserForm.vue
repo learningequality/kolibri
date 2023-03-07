@@ -335,7 +335,7 @@
         context: "The title of the 'Import individual user accounts' step in the wizard setup",
       },
       enterCredentials: {
-        message: 'Enter the credentials of the user account you want to import',
+        message: 'Enter the user credentials of the account you want to import',
         context: 'Asking user and password of the user to be imported.',
       },
       enterAdminCredentials: {
@@ -359,6 +359,10 @@
       deviceLimitationsAdminsMessage: {
         message:
           '’{full_name} ({username})’ is an admin on ‘{device}’. This device is limited to features for learners only. Features for coaches and admins will not be available.',
+      },
+      noCredentialsLabel: {
+        message: 'Don’t have the user credentials?',
+        context: '',
       },
       /* eslint-enable */
       headerAdmin: {

@@ -93,7 +93,7 @@
         context: 'Label for the radio button option in the facility setup.',
       },
       formalDescription: {
-        message: 'Schools and other formal learning contexts',
+        message: 'Schools and other formal learning contexts.',
         context: "Option description text for 'Formal' facility types.",
       },
       nonFormalLabel: {
@@ -102,7 +102,7 @@
       },
       nonFormalDescription: {
         message:
-          'Libraries, orphanages, correctional facilities, youth centers, computer labs, and other non-formal learning contexts',
+          'Libraries, orphanages, youth centers, computer labs, and other non-formal learning contexts.',
 
         context: "Option description text for 'Non-formal' facility types.",
       },
