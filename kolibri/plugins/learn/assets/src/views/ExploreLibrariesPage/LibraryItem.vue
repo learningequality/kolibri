@@ -52,7 +52,7 @@
       >
         <ChannelCard
           :title="channel.name"
-          :tagline="channel.description"
+          :tagline="channel.tagline || channel.description"
           :thumbnail="channel.thumbnail"
           :link="{}"
           :version="channel.version"
