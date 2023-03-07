@@ -300,13 +300,13 @@
       // eslint-disable-next-line kolibri/vue-no-unused-translations
       userExistsError: {
         message:
-          'User ‘{username}’ already exists in ‘{target_facility}’. Please choose a different username.',
+          '‘{username}’ already exists in ‘{target_facility}’. Please choose a different username.',
         context: 'Error message for a user already existing in the target facility.',
       },
       // eslint-disable-next-line kolibri/vue-no-unused-translations
       userAdminError: {
         message:
-          'User ‘{username}’ already exists in ‘{target_facility}’ is not a learner. Please choose a different username.',
+          '‘{username}’ already exists in ‘{target_facility}’ and ‘{username}’ is not a learner. Please choose a different username.',
         context: 'Error message for a user being other than a learner in the target facility.',
       },
       // eslint-disable-next-line kolibri/vue-no-unused-translations
