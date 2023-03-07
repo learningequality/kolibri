@@ -129,6 +129,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       "Users have the option to either 'show' or 'hide' coach resources in the 'Manage lesson resources' section.",
   },
+  showMoreAction: {
+    message: 'Show more',
+    context:
+      'Generic button which allows user to see more content on a page. For example more learning resources.',
+  },
   startOverAction: {
     message: 'Start over',
     context:

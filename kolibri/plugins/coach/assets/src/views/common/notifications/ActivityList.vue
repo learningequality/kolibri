@@ -37,7 +37,7 @@
         <template v-else>
           <KButton
             v-if="moreResults"
-            :text="coachString('showMoreAction')"
+            :text="coreString('showMoreAction')"
             @click="fetchMore"
           />
         </template>
@@ -53,9 +53,9 @@
   import uniq from 'lodash/uniq';
   import map from 'lodash/map';
   import { mapActions, mapGetters } from 'vuex';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { NotificationObjects } from '../../../constants/notificationsConstants';
   import { LastPages } from '../../../constants/lastPagesConstants';
-  import { coachStringsMixin } from '../../common/commonCoachStrings';
   import NotificationCard from './NotificationCard';
   import NotificationsFilter from './NotificationsFilter';
 
@@ -67,7 +67,7 @@
       NotificationsFilter,
       NotificationCard,
     },
-    mixins: [coachStringsMixin],
+    mixins: [commonCoreStrings],
     props: {
       // String to display when there are no notifications
       noActivityString: {

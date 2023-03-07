@@ -150,7 +150,10 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
     message: 'What you will need',
     context: '',
   },
-  //
+  moreLibraries: {
+    message: 'More',
+    context: 'Title section containing unpinned devices',
+  },
   loadingLibraries: {
     message: 'Loading Kolibri libraries around you',
     context: '',
