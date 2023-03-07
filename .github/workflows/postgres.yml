@@ -32,9 +32,9 @@ jobs:
           # Maps tcp port 5432 on service container to the host
           - 5432:5432
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Python 3.9 for Postgres
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: 3.9
     - name: Install tox
@@ -42,7 +42,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install tox
     - name: tox env cache
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: ${{ github.workspace }}/.tox/py3.9
         key: ${{ runner.os }}-tox-py3.9-${{ hashFiles('requirements/*.txt') }}
