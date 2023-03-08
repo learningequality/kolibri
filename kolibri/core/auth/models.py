@@ -81,13 +81,15 @@ from kolibri.utils.time_utils import local_now
 
 logger = logging.getLogger(__name__)
 
+# '"optional":True' is obsolete but needed while we keep using an
+# old json_schema_validator version compatible with python 2.7.
+# "additionalProperties": False must be avoided for backwards compatibility
 extra_fields_schema = {
     "type": "object",
-    "additionalProperties": False,
     "properties": {
-        "facility": {"type": "object"},
-        "on_my_own_setup": {"type": "boolean"},
-        "pin_code": {"type": "string"},
+        "facility": {"type": "object", "optional": True},
+        "on_my_own_setup": {"type": "boolean", "optional": True},
+        "pin_code": {"type": "string", "optional": True},
     },
 }
 
