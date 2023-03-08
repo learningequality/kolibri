@@ -14,20 +14,27 @@ set -e
 # Ignoring: docutils, because it's not distributed.
 # Ignoring: nose because it's something Travis installs in its Python 3.5
 #           environment without it being distributed by us.
-# Ignoring: cloud-init, because it's installed in distpackages in GHA runners.
-IGNORES="docutils;nose;cloud-init;"
+IGNORES="docutils;nose;"
 
 echo "Checking all requirements installed with pip, except $IGNORES..."
 
 for requirement in `pip freeze | grep -v '^-e' | sed 's/\(.*\)==.*/\1/'`
 do
-    echo "$requirement;"
     if echo "$IGNORES" | grep -q "$requirement;" && true
     then
         continue
     fi
 
-    details=`pip show "$requirement"`
+
+    details=`pip show "$requirement" || echo ""`
+
+    # This check is not concerned with system level packages, so ignore
+    # anything found here.
+    if echo "$details" | grep -q "dist-packages" && true
+    then
+        continue
+    fi
+
     license=`echo "$details" | grep -i "License" || echo ""`
     if echo "$license" | grep -qi " gpl" && true
     then
