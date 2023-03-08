@@ -1,3 +1,4 @@
+import io
 import logging as log
 import os
 import sys
@@ -16,10 +17,16 @@ file_handler = KolibriTimedRotatingFileHandler(
 logging.addHandler(file_handler)
 
 
-class LoggerWriter(object):
+class LoggerWriter(io.IOBase):
     def __init__(self, writer):
         self._writer = writer
         self._msg = ""
+    
+    def readable(self):
+        return False
+    
+    def writable(self):
+        return True
 
     def write(self, message):
         self._msg = self._msg + message
