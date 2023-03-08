@@ -68,7 +68,7 @@ repos:
     rev: 0.4.3
     hooks:
     -   id: teyit
-        language_version: '3.10'
+        language_version: Python3
 # Always keep black as the final hook so it reformats any other reformatting.
 -   repo: https://github.com/python/black
     rev: 20.8b1
