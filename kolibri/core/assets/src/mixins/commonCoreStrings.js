@@ -1242,6 +1242,9 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Add to library',
     context: '',
   },
+  selectADevice: {
+    message: 'Select a device from your network',
+  },
   //
   sortBy: {
     message: 'Sort by',

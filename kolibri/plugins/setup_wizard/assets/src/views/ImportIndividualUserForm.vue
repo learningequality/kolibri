@@ -366,7 +366,7 @@
         context: 'Modal form to introduce admin account credentials.',
       },
       doNotHaveUserCredentials: {
-        message: "Don't have user's credentials?",
+        message: "Don't have the user credentials?",
         context: "'Credentials' refers to learner's username and password.",
       },
       useAdmin: {
