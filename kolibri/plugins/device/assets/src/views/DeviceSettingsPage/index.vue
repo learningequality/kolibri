@@ -922,7 +922,7 @@
         context: 'This refers to the page you reach when you click "Learn" in the main side nav.',
       },
       unlistedChannels: {
-        message: 'Allow other computers on this network to import my unlisted channels',
+        message: 'Allow other devices on this network to view and import my unlisted channels',
         context: "Option on 'Device settings' page.",
       },
       configureFacilitySettingsHeader: {
