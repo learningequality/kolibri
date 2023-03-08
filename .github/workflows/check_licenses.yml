@@ -22,7 +22,7 @@ jobs:
         uses: fkirc/skip-duplicate-actions@master
         with:
           github_token: ${{ github.token }}
-          paths: '["requirements/*.txt", "package.json", "**/package.json", "yarn.lock", "test/conditional/test_licenses.sh"]'
+          paths: '["requirements/*.txt", "package.json", "**/package.json", "yarn.lock", "test/conditional/test_licenses.sh", ".github/workflows/check_licenses.yml"]'
   licenses:
     name: Licenses check
     needs: pre_job
