@@ -101,13 +101,13 @@
       },
       changeFacilityInfoLine1: {
         message:
-          'An account with the username ‘{username}’ already exists in the ‘{target_facility}’ learning facility.',
+          "An account with the username '{username}' already exists in the '{target_facility}' learning facility. You can merge your account and its progress data with this account.",
         context:
           'First line of text explaining that the username also exists in the target facility.',
       },
       changeFacilityInfoLine2: {
         message:
-          'You can merge all of your account and progress data with this account in ‘{target_facility}’ learning facility, or you can create a new account. All of your progress data will be moved to this new account.',
+          'Alternatively, you can create a new account and all your progress data will be moved to this new account.',
         context:
           'Second line of text explaining that the username also exists in the target facility.',
       },

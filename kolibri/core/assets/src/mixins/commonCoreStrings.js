@@ -95,6 +95,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Manage sync schedule',
     context: 'Action for managing sync schedule',
   },
+  whenAvailable: {
+    message: 'When available',
+    context: '',
+  },
   retryAction: {
     message: 'Retry',
     context:
@@ -1349,6 +1353,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Enter numbers only',
     context:
       'Error message indicating a user has entered characters other than numbers as their PIN',
+  },
+  wrongNumberOfDigits: {
+    message: 'Please enter a 4-digit number',
+    context: 'Error message indicating a user has entered the wrong number of digits as their PIN',
   },
   noEmptyField: {
     message: 'The field cannot be empty',

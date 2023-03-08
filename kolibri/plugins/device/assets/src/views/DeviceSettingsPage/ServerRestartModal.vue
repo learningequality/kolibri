@@ -89,7 +89,7 @@
       },
       newPrimaryLocationRestartDescription: {
         message:
-          'The server will restart. Anyone using Kolibri on this server at this time will be temporarily disconnected.',
+          'Server needs to restart to add a new storage location. Anyone using Kolibri on this server at this time will temporarily be unable to access it.',
         context: 'Reason to restart the server.',
       },
       removeLocationRestartDescription: {
