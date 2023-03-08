@@ -94,6 +94,11 @@ class LearnAsset(webpack_hooks.WebpackBundleHook):
 
 
 @register_hook
+class MyDownloadsAsset(webpack_hooks.WebpackBundleHook):
+    bundle_id = "my_downloads_app"
+
+
+@register_hook
 class LearnContentNodeHook(ContentNodeDisplayHook):
     def node_url(self, node):
         kind_slug = None

@@ -25,7 +25,7 @@
     mixins: [commonCoreStrings],
     computed: {
       url() {
-        return urls['kolibri:kolibri.plugins.my_downloads:my_downloads']();
+        return urls['kolibri:kolibri.plugins.learn:my_downloads']();
       },
     },
     role: UserKinds.LEARNER,
