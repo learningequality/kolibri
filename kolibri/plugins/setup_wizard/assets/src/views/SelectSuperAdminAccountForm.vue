@@ -216,7 +216,7 @@
         context: 'Prompt that goes above a select input of options for admins',
       },
       enterPasswordPrompt: {
-        message: "Enter the password for '{username}' in {facility_name} learning facility",
+        message: "Enter the password for '{username}' in '{facility_name}' learning facility",
         context: 'Prompt that goes above the password input.',
       },
       createSuperAdminOption: {

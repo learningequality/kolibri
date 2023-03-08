@@ -112,7 +112,7 @@ describe('PinAuthenticationModal', () => {
           elements.form().trigger('submit');
         })
         .then(() => {
-          assertTextbox(wrapper, 'Please enter a 4-digit number', true);
+          assertTextbox(wrapper, 'Enter four numbers to set as your new PIN', true);
         });
     });
   });

@@ -1027,6 +1027,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context: 'Section header for the list of resources that are related to the current resource',
   },
   doNotShowAgain: {
+    message: "Don't show this again",
+    context:
+      'Option that allows the user to prevent this resource from displaying in the future while using category search',
+  },
+  doNotShowMessageAgain: {
     message: "Don't show this message again",
     context:
       'Option that allows the user to prevent this resource from displaying in the future while using category search',
@@ -1434,7 +1439,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context: '',
   },
   joinedSuccessfully: {
-    message: 'You have successfully joined the {facility} learning facility',
+    message: "You have successfully joined the '{facility}' learning facility",
     context: '',
   },
   dontKnowUserName: {
@@ -1453,7 +1458,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   // post setup
   preLoadedContentWelcomeText: {
     message:
-      'Welcome to the {facility} learning facility. Your class materials can be found on the home page.',
+      "Welcome to the '{facility}' learning facility. Your class materials can be found on the home page.",
     context: '',
   },
   channelsDescriptionNoChannelsAdded: {

@@ -350,7 +350,7 @@
       },
       deviceLimitationsMessage: {
         message:
-          '’{full_name} ({username})’ is a {roles} on ‘{device}’. This device is limited to features for learners only. Features for coaches and admins will not be available.',
+          "'{full_name} ({username})' is a {non_admin_role} on '{device}'. This device is limited to features for learners only. Features for coaches and admins will not be available.",
 
         context:
           "Appears on 'Device limitations' window which informs that only learner features will be available on the device.",
@@ -358,11 +358,7 @@
       /* eslint-disable kolibri/vue-no-unused-translations */
       deviceLimitationsAdminsMessage: {
         message:
-          '’{full_name} ({username})’ is an admin on ‘{device}’. This device is limited to features for learners only. Features for coaches and admins will not be available.',
-      },
-      noCredentialsLabel: {
-        message: 'Don’t have the user credentials?',
-        context: '',
+          "'{full_name} ({username})' is an admin on '{device}'. This device is limited to features for learners only. Features for coaches and admins will not be available.",
       },
       /* eslint-enable */
       headerAdmin: {
@@ -370,7 +366,7 @@
         context: 'Modal form to introduce admin account credentials.',
       },
       doNotHaveUserCredentials: {
-        message: 'Don’t have user’s credentials?',
+        message: "Don't have user's credentials?",
         context: "'Credentials' refers to learner's username and password.",
       },
       useAdmin: {

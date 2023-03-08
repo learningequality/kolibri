@@ -94,18 +94,18 @@
       },
       changeFacilityInfoLine1: {
         message:
-          'You are about to move your account and progress data to ‘{target_facility}’ learning facility. Your current data will still be available to you and will also be accessible to any administrators of this learning facility.',
+          "You are about to move your account and progress data to '{target_facility}'' learning facility. Your current data will still be available to you and will also be accessible to any administrators of this learning facility.",
         context: 'First line of text explaining what changing to another learning facility means.',
       },
       changeFacilityInfoLine2: {
         message:
-          'Your user account type will change from ‘{role}’ to ‘learner’ and you will no longer be able to manage resources on this device. You will need someone with admin permissions in ‘{facility}’ to change your account type back to ‘{role}’.',
+          "Your user account type will change from '{role}' to 'learner' and you will no longer be able to manage resources on this device. You will need someone with admin permissions in '{facility}' to change your account type back to '{role}'.",
         context:
           'Second line of text explaining that changing to another learning facility will downgrade the user role to learner',
       },
       changeFacilityInfoLine3: {
         message:
-          'You can also search for an account in ‘{target_facility}’ to merge with. Progress data from both accounts will be combined into one account.',
+          "You can also search for an account in '{target_facility}' to merge with. Progress data from both accounts will be combined into one account.",
         context: 'Last line of text explaining what changing to another learning facility means.',
       },
     },

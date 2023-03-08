@@ -1002,7 +1002,7 @@
       },
       allowLearnersDownloadDescription: {
         message:
-          'Allow users to explore resources they don’t have and mark it for Kolibri to automatically download when it’s available in their network.',
+          'Allow users to mark resources for Kolibri to download when available in their network.',
         context:
           "Description for 'Allow learners to download resources' option under 'Auto-download' section.",
       },
