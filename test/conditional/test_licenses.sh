@@ -25,7 +25,16 @@ do
         continue
     fi
 
-    details=`pip show "$requirement"`
+
+    details=`pip show "$requirement" || echo ""`
+
+    # This check is not concerned with system level packages, so ignore
+    # anything found here.
+    if echo "$details" | grep -q "dist-packages" && true
+    then
+        continue
+    fi
+
     license=`echo "$details" | grep -i "License" || echo ""`
     if echo "$license" | grep -qi " gpl" && true
     then
