@@ -9,7 +9,7 @@
     <KPageContainer>
 
       <ReportsGroupHeader
-        :activeTabId="ReportsGroupTabs.ACTIVITY"  
+        :activeTabId="ReportsGroupTabs.ACTIVITY"
         :enablePrint="true"
       />
       <KTabsPanel

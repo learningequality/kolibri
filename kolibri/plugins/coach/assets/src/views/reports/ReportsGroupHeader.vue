@@ -13,7 +13,7 @@
 
     <HeaderTabs
       :enablePrint="enablePrint"
-      :style="{ marginTop: '34px' }"  
+      :style="{ marginTop: '34px' }"
     >
       <KTabsList
         ref="tabsList"
