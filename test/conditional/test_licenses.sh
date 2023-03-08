@@ -14,12 +14,14 @@ set -e
 # Ignoring: docutils, because it's not distributed.
 # Ignoring: nose because it's something Travis installs in its Python 3.5
 #           environment without it being distributed by us.
-IGNORES="docutils;nose;"
+# Ignoring: cloud-init, because it's installed in distpackages in GHA runners.
+IGNORES="docutils;nose;cloud-init;"
 
 echo "Checking all requirements installed with pip, except $IGNORES..."
 
 for requirement in `pip freeze | grep -v '^-e' | sed 's/\(.*\)==.*/\1/'`
 do
+    echo "$requirement;"
     if echo "$IGNORES" | grep -q "$requirement;" && true
     then
         continue
