@@ -2,6 +2,9 @@
 
   <OnboardingStepBase
     :title="$tr('header')"
+    :footerMessageType="footerMessageType"
+    :step="4"
+    :steps="5"
     :eventOnGoBack="backEvent"
     @continue="handleContinue"
   >
@@ -22,6 +25,7 @@
     <p class="description">
       {{ $tr('changeLater') }}
     </p>
+
   </OnboardingStepBase>
 
 </template>
@@ -29,7 +33,7 @@
 
 <script>
 
-  import { Presets } from '../../constants';
+  import { Presets, FooterMessageTypes } from '../../constants';
   import OnboardingStepBase from '../OnboardingStepBase';
 
   export default {
@@ -45,7 +49,9 @@
         const preset = this.wizardService.state.context['formalOrNonformal'];
         setting = preset === Presets.NONFORMAL;
       }
+      const footerMessageType = FooterMessageTypes.NEW_FACILITY;
       return {
+        footerMessageType,
         setting,
       };
     },
@@ -71,7 +77,7 @@
           "Option on the 'Enable passwords for learners' screen. The admin selects this option if they don't want to enable passwords for learner accounts.",
       },
       noOptionLabel: {
-        message: 'No. Learner accounts can sign in with just a username',
+        message: 'No. Learners can sign in with just a username.',
         context:
           "Option on the 'Enable passwords for learners' screen. The admin selects this option if they don't want to enable passwords for learner accounts.",
       },

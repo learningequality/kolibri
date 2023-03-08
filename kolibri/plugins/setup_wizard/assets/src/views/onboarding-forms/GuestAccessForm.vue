@@ -2,6 +2,9 @@
 
   <OnboardingStepBase
     :title="$tr('header')"
+    :footerMessageType="footerMessageType"
+    :step="2"
+    :steps="5"
     :description="$tr('description')"
     :eventOnGoBack="backEvent"
     @continue="handleContinue"
@@ -23,7 +26,6 @@
       {{ $tr('changeLater') }}
     </p>
 
-
   </OnboardingStepBase>
 
 </template>
@@ -31,7 +33,7 @@
 
 <script>
 
-  import { Presets } from '../../constants';
+  import { Presets, FooterMessageTypes } from '../../constants';
   import OnboardingStepBase from '../OnboardingStepBase';
 
   export default {
@@ -45,7 +47,9 @@
         const preset = this.wizardService.state.context['formalOrNonformal'];
         setting = preset === Presets.NONFORMAL;
       }
+      const footerMessageType = FooterMessageTypes.NEW_FACILITY;
       return {
+        footerMessageType,
         setting,
       };
     },
@@ -72,16 +76,16 @@
           "Description of the 'Enable guest access?' option that an admin can configure in the set up process. It means that anyone can access Kolibri without having to create an account.",
       },
       header: {
-        message: 'Enable guest access?',
+        message: 'Enable users to explore Kolibri without an account?',
         context:
           'Option that an admin can configure in the set up process. If selected, guests can access Kolibri without the need to create an account.',
       },
       noOptionLabel: {
-        message: 'No. Users must have an account to view resources on Kolibri',
+        message: 'No. Users must have an account to explore Kolibri.',
         context: "Possible answer to the 'Enable guest access?' question.",
       },
       changeLater: {
-        message: 'You can change this in your learning facility settings later',
+        message: 'You can change this in your device settings later.',
         context: '',
       },
     },

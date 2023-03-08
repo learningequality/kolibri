@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
 // import makeStore from '../../../../../test/utils/makeStore';
-import SelectNetworkAddressModal from '../index.vue';
+import SelectNetworkDeviceModal from '../index.vue';
 
 jest.mock('../api.js', () => ({
   fetchStaticAddresses: jest.fn().mockResolvedValue([]),
@@ -12,35 +12,35 @@ jest.mock('../api.js', () => ({
 // prettier-ignore
 function makeWrapper() {
   const store = {};
-  const wrapper = mount(SelectNetworkAddressModal, {
+  const wrapper = mount(SelectNetworkDeviceModal, {
     store,
   })
   const els = {
-    SelectAddressForm: () => wrapper.find({ name: 'SelectAddressForm' }),
-    AddAddressForm: () => wrapper.find({ name: 'AddAddressForm' }),
+    SelectDeviceForm: () => wrapper.find({ name: 'SelectDeviceForm' }),
+    AddDeviceForm: () => wrapper.find({ name: 'AddDeviceForm' }),
   };
 
   const actions = {
-    clickNewAddress: () => els.SelectAddressForm().find({ name: 'KButton' }).vm.$emit('click'),
-    clickAddAddressCancel: () => els.AddAddressForm().vm.$emit('cancel'),
-    clickSelectAddressCancel: () => els.SelectAddressForm().vm.$emit('cancel'),
+    clickNewAddress: () => els.SelectDeviceForm().find({ name: 'KButton' }).vm.$emit('click'),
+    clickAddAddressCancel: () => els.AddDeviceForm().vm.$emit('cancel'),
+    clickSelectAddressCancel: () => els.SelectDeviceForm().vm.$emit('cancel'),
   }
 
   return { wrapper, store, els, actions };
 }
 
-xdescribe('SelectNetworkAddressModal', () => {
+xdescribe('SelectNetworkDeviceModal', () => {
   it('starts on the Select Address Form', () => {
     const { els } = makeWrapper();
-    expect(els.SelectAddressForm().isVueInstance()).toBe(true);
+    expect(els.SelectDeviceForm().isVueInstance()).toBe(true);
   });
 
   it('clicking the "new address" button takes you to the New Address Form', async () => {
     const { els, actions, wrapper } = makeWrapper();
     actions.clickNewAddress();
     await wrapper.vm.$nextTick();
-    expect(els.SelectAddressForm().exists()).toBe(false);
-    expect(els.AddAddressForm().isVueInstance()).toBe(true);
+    expect(els.SelectDeviceForm().exists()).toBe(false);
+    expect(els.AddDeviceForm().isVueInstance()).toBe(true);
   });
 
   it('clicking "cancel" on the New Address Form takes you back', async () => {

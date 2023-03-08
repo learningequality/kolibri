@@ -10,16 +10,15 @@ import CreateLearnerAccountForm from './views/onboarding-forms/CreateLearnerAcco
 import RequirePasswordForLearnersForm from './views/onboarding-forms/RequirePasswordForLearnersForm';
 import PersonalDataConsentForm from './views/onboarding-forms/PersonalDataConsentForm';
 import SettingUpKolibri from './views/onboarding-forms/SettingUpKolibri';
-import ImportLODUsersSetup from './views/ImportLODUsersSetup';
-//import JoinOrNew from './views/importLODUsers/JoinOrNew';
-import ImportAuthentication from './views/importFacility/ImportAuthentication';
-import SelectFacilityForm from './views/importFacility/SelectFacilityForm';
-import SelectSuperAdminAccountForm from './views/importFacility/SelectSuperAdminAccountForm';
-//import ImportUserAuth from './views/importLODUsers/ImportUserAuth';
-//import LodSelectFacility from './views/importLODUsers/SelectFacilityForm';
-//import ImportMultipleUsers from './views/importLODUsers/ImportMultipleUsers';
-import LoadingTaskPage from './views/importFacility/LoadingTaskPage';
-import Sandbox from './views/Sandbox';
+import JoinOrNewLOD from './views/JoinOrNewLOD';
+import LodJoinFacility from './views/LodJoinFacility';
+import ImportAuthentication from './views/ImportAuthentication';
+import SelectFacilityForm from './views/SelectFacilityForm';
+import SelectSuperAdminAccountForm from './views/SelectSuperAdminAccountForm';
+import ImportIndividualUserForm from './views/ImportIndividualUserForm';
+import ImportMultipleUsers from './views/ImportMultipleUsers';
+import LoadingTaskPage from './views/LoadingTaskPage';
+import { FooterMessageTypes } from './constants';
 
 export default [
   {
@@ -77,6 +76,7 @@ export default [
     name: 'PERSONAL_DATA_CONSENT',
     path: '/create-facility/5',
     component: PersonalDataConsentForm,
+    props: { footerMessageType: FooterMessageTypes.NEW_FACILITY },
   },
   // Import a facility
   {
@@ -93,6 +93,7 @@ export default [
     name: 'IMPORT_LOADING',
     path: '/import-facility/loading',
     component: LoadingTaskPage,
+    props: { footerMessageType: FooterMessageTypes.IMPORT_FACILITY },
   },
   {
     name: 'SELECT_ADMIN',
@@ -103,48 +104,46 @@ export default [
     name: 'IMPORT_DATA_CONSENT',
     path: '/import-facility/consent',
     component: PersonalDataConsentForm,
+    props: { footerMessageType: FooterMessageTypes.IMPORT_FACILITY },
   },
 
   // Learn only device
   {
     name: 'LOD_SETUP_TYPE',
     path: '/learn-only/setup-type',
-    //component: JoinOrNew,
+    component: JoinOrNewLOD,
   },
   {
     name: 'LOD_SELECT_FACILITY',
     path: '/learn-only/select-facility',
-    //component: LodSelectFacility,
-  },
-  {
-    name: 'LOD_IMPORT_USER',
-    path: '/learn-only/import',
-    component: ImportLODUsersSetup,
+    component: SelectFacilityForm,
   },
   {
     name: 'LOD_IMPORT_USER_AUTH',
     path: '/learn-only/import/sign-in',
-    //component: ImportUserAuth,
+    component: ImportIndividualUserForm,
   },
   {
     name: 'LOD_LOADING_TASK_PAGE',
     path: '/learn-only/loading',
     component: LoadingTaskPage,
+    props: { footerMessageType: FooterMessageTypes.IMPORT_INDIVIDUALS },
+  },
+  {
+    name: 'LOD_JOIN_LOADING_TASK_PAGE',
+    path: '/learn-only/loading',
+    component: LoadingTaskPage,
+    props: { footerMessageType: FooterMessageTypes.JOIN_FACILITY },
   },
   {
     name: 'LOD_IMPORT_AS_ADMIN',
     path: '/learn-only/import/multiple-users',
-    //component: ImportMultipleUsers,
+    component: ImportMultipleUsers,
   },
   {
     name: 'LOD_CREATE_USER_FORM',
     path: '/learn-only/join/create-user',
-    component: ImportLODUsersSetup,
-  },
-  {
-    name: 'SANDBOX',
-    path: '/sandbox',
-    component: Sandbox,
+    component: LodJoinFacility,
   },
   {
     name: 'FINALIZE_SETUP',

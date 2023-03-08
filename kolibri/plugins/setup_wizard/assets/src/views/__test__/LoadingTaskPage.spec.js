@@ -26,7 +26,7 @@ const facilityMock = {
 function makeWrapper() {
   const wrapper = mount(LoadingTaskPage, {
     mocks: {
-      wizardService: { _state: { context: { selectedFacility: facilityMock } } },
+      wizardService: { state: { context: { selectedFacility: facilityMock } } },
     },
   });
   return { wrapper };

@@ -335,7 +335,7 @@
           "'Size' is a column name in the 'Lessons' section. It refers to the number or learning resources there are in a specific lesson and the file size of these resources.",
       },
       totalLessonsSize: {
-        message: 'Total size of lessons that are visible to learners: {size}',
+        message: 'Total size of lessons visible to learners: {size}',
         context:
           "Descriptive text at the top of the table that displays the calculated file size of all lessons' resources (i.e. 120 MB)",
       },

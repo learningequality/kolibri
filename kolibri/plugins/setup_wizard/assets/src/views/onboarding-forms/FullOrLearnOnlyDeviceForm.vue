@@ -60,7 +60,7 @@
       },
       fullDeviceDescription: {
         message:
-          'This device will be a fully featured Kolibri server used by admins, coaches and learners',
+          'This device will be a fully-featured Kolibri server used by admins, coaches, and learners.',
         context: '',
       },
       learnOnlyDeviceLabel: {
@@ -69,7 +69,7 @@
       },
       learnOnlyDeviceDescription: {
         message:
-          'This device will have one or more learner accounts from a full device that already exists. Learner accounts will be auto-synced with the full device',
+          'This device will have one or more learner accounts imported from a full device that already exists. Learner accounts will auto-sync with the full device.',
         context: '',
       },
     },

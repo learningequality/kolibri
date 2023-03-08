@@ -11,6 +11,10 @@ from kolibri.core.tasks.registry import RegisteredTask
 from kolibri.core.tasks.validation import JobValidator
 
 
+def status_fn(job):
+    pass
+
+
 class JobTest(TestCase):
     def setUp(self):
         self.job = Job(id, track_progress=True)
@@ -64,6 +68,7 @@ class TestRegisteredTask(TestCase):
             cancellable=True,
             track_progress=True,
             long_running=True,
+            status_fn=status_fn,
         )
 
     def test_constructor_sets_required_params(self):

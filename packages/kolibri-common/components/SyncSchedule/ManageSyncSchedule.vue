@@ -101,7 +101,7 @@
             </tr>
             <tr>
               <td colspan="3" style="text-align:center">
-                <b> No Device found</b>
+                <b>{{ $tr('NoSync') }}</b>
               </td>
             </tr>
           </tbody>
@@ -124,7 +124,7 @@
           >
             <KButton
               appearance="basic-link"
-              :text=" $tr('addAddress')"
+              :text=" $tr('addDevice')"
               @click.prevent="newAddress"
             />
           </KGridItem>
@@ -172,7 +172,7 @@
           </KGridItem>
         </KGrid>
       </KModal>
-      <AddAddressFormVue v-if="newaddressclick" />
+      <AddDeviceForm v-if="newaddressclick" />
     </KPageContainer>
   </ImmersivePage>
 
@@ -186,14 +186,14 @@
   import { TaskResource, FacilityResource, NetworkLocationResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../../../../kolibri/plugins/facility/assets/src/constants';
-  import AddAddressFormVue from '../../../../kolibri/core/assets/src/views/sync/SelectAddressModalGroup/AddAddressForm.vue';
+  import AddDeviceForm from '../../../../kolibri/core/assets/src/views/sync/SelectDeviceModalGroup/AddDeviceForm.vue';
 
   export default {
     name: 'ManageSyncSchedule',
     components: {
       ImmersivePage,
       CoreTable,
-      AddAddressFormVue,
+      AddDeviceForm,
     },
     extends: ImmersivePage,
     mixins: [commonCoreStrings],
@@ -230,7 +230,6 @@
       fetchAddressesForLOD(LocationResource = NetworkLocationResource) {
         return LocationResource.fetchCollection({ force: true }).then(locations => {
           this.data = locations;
-          console.log(this.data);
         });
       },
       pollFacilityTasks() {
@@ -310,10 +309,6 @@
         message: 'cancel',
         context: 'Cancel button',
       },
-      addAddress: {
-        message: 'Add address',
-        context: 'Add address button',
-      },
       forgetText: {
         message: 'Forget',
         context: 'Forget device button',
@@ -329,6 +324,10 @@
       disconnected: {
         message: 'Not Connected',
         context: 'Disconnected device',
+      },
+      NoSync: {
+        message: 'There are no syncs scheduled',
+        context: 'Text to display when there is no schedule sync to be managed.',
       },
     },
   };

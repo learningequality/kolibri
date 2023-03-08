@@ -64,7 +64,8 @@
   import KolibriLoadingSnippet from 'kolibri.coreVue.components.KolibriLoadingSnippet';
   import urls from 'kolibri.urls';
   import client from 'kolibri.client';
-  import { UsePresets } from '../../constants';
+  import Lockr from 'lockr';
+  import { DeviceTypePresets, UsePresets } from '../../constants';
 
   export default {
     name: 'SettingUpKolibri',
@@ -77,24 +78,28 @@
     },
     computed: {
       facilityData() {
-        // FIXME Should the default name be i18nized?
-        const facilityName = this.wizardContext('facilityName') || 'Default Facility Name';
+        const usersName = get(this.wizardContext('superuser'), 'full_name', '');
+        const facilityName =
+          this.wizardContext('facilityName') ||
+          this.$tr('onMyOwnFacilityName', { name: usersName });
         const selectedFacility = this.wizardContext('selectedFacility');
         if (selectedFacility) {
           if (selectedFacility.id) {
-            // Imported a facility already
+            // Imported a facility already otherwise we wouldn't have an ID yet,
+            // so we'll just be sending off the `facility_id`
             return { facility_id: selectedFacility.id };
           } else {
+            // Otherwise we'll pass the facility data we have (including settings set by user)
             return { facility: selectedFacility };
           }
         } else {
-          // Default -- no facility was selected
           return { facility: { name: facilityName } };
         }
       },
       learnerCanLoginWithNoPassword() {
-        // The user answers the question "Enable passwords" -- so the `requirePassword` value
-        // is the boolean opposite of whatever the value we need to assign here is.
+        // The user answers the question "Enable passwords?" -- so the `requirePassword` value
+        // is the boolean opposite of whatever the value we need to assign to
+        // `learner_can_login_with_no_password` in the API call.
         // If there is already a facility imported, we will use its value
         // If it is `null`, then it was never set by the user and we set to require passwords
         const { facility, facility_id } = this.facilityData;
@@ -111,16 +116,42 @@
             : !this.wizardContext('requirePassword');
         }
       },
+      learnerCanEditPassword() {
+        // Note that we don't ask this question of a user during onboarding -- however,
+        // the nonformal facility will set this to `true` by default -- which does not jive
+        // with the possibility that a user can login with no password
+        if (
+          // Learner cannot edit a password they cannot set
+          this.learnerCanLoginWithNoPassword ||
+          // OS on my own users don't use password to sign in
+          (this.isOnMyOwnSetup && checkCapability('get_os_user'))
+        ) {
+          return false; // Learner cannot edit a password they cannot set
+        } else {
+          return null; // We'll set this to a key and null values are removed from the API call
+        }
+      },
       /** The data we will use to initialize the device during provisioning */
       deviceProvisioningData() {
-        const superuser = this.wizardContext('superuser');
+        let superuser = null;
+        // We only need a superuser if we cannot get the OS user; null valued keys will be omitted
+        // in the eventual API call
+        if (!checkCapability('get_os_user')) {
+          // Here we see if we've set a firstImportedLodUser -- if they exist, they must be the
+          // superuser as they were the first imported user.
+          if (this.wizardContext('firstImportedLodUser')) {
+            superuser = this.wizardContext('firstImportedLodUser');
+          }
+          if (!superuser) {
+            // If we are creating a user, their data is in the Vuex store because UserCredentials is
+            // tightly coupled to it (for now).
+            superuser = this.wizardContext('superuser') || this.$store.state.onboardingData.user;
+          }
+        }
+
         const settings = {
           learner_can_login_with_no_password: this.learnerCanLoginWithNoPassword,
-          // The default nonformal facility sets the following to True -- however the onMyOwnUser
-          // flow will have the user create a password and then they will sign in with it
-          // null values are removed from the final payload
-          learner_can_edit_password:
-            this.isOnMyOwnSetup || checkCapability('get_os_user') ? false : null,
+          learner_can_edit_password: this.learnerCanEditPassword,
           on_my_own_setup: this.isOnMyOwnSetup,
           learner_can_sign_up: this.wizardContext('learnerCanCreateAccount'),
         };
@@ -131,10 +162,13 @@
           settings: omitBy(settings, v => v === null),
           preset: this.wizardContext('formalOrNonformal') || 'nonformal',
           language_id: currentLanguage,
-          device_name: this.wizardContext('deviceName'),
+          device_name:
+            this.wizardContext('deviceName') ||
+            this.$tr('onMyOwnDeviceName', { name: get(superuser, 'full_name', '') }),
           allow_guest_access: Boolean(this.wizardContext('guestAccess')),
           is_provisioned: true,
           os_user: checkCapability('get_os_user'),
+          is_soud: this.wizardService.state.context.fullOrLOD === DeviceTypePresets.LOD,
           auth_token: v4(),
         };
 
@@ -160,7 +194,6 @@
         return this.wizardService.state.context[key];
       },
       provisionDevice() {
-        console.log('PROVISIONING!');
         client({
           url: urls['kolibri:core:deviceprovision'](),
           method: 'POST',
@@ -173,6 +206,7 @@
               ? urls['kolibri:kolibri.plugins.app:initialize'](appKey) + '?auth_token=' + v4()
               : urls['kolibri:kolibri.plugins.user_auth:user_auth']();
 
+            Lockr.set('savedState', null); // Clear out saved state machine
             window.location.href = path;
           })
           .catch(e => console.error(e));
@@ -186,6 +220,16 @@
       pleaseWaitMessage: {
         message: 'This may take several minutes',
         context: 'Kolibri is working in the background and the user may need to wait',
+      },
+      onMyOwnDeviceName: {
+        message: 'Personal device for {name}',
+        context:
+          "The default device name for a user installing Kolibri using the personal 'on my own' (formerly Quick Start) flow",
+      },
+      onMyOwnFacilityName: {
+        message: 'Home Facility for {name}',
+        context:
+          "Default facility name when Kolibri is installed with the 'Quick start' setup option for at home learning, outside any type of structure or institution like a school or a library. '{name}' will display the full name of the super admin user for their Kolibri server. Note that users can change this default name after the setup, and put whatever name they want to use for their home facility.",
       },
     },
   };

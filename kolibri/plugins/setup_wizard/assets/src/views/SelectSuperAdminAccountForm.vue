@@ -2,6 +2,9 @@
 
   <UserCredentialsForm
     v-if="!loading"
+    :footerMessageType="footerMessageType"
+    :step="step"
+    :steps="steps"
     :header="$tr('header')"
     :description="$tr('description')"
     :uniqueUsernameValidator="uniqueUsernameValidator"
@@ -45,8 +48,9 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import UserCredentialsForm from '../onboarding-forms/UserCredentialsForm';
-  import { FacilityImportResource } from '../../api';
+  import { FacilityImportResource } from '../api';
+  import { FooterMessageTypes } from '../constants';
+  import UserCredentialsForm from './onboarding-forms/UserCredentialsForm';
 
   const CREATE_NEW_SUPER_ADMIN = 'CREATE_NEW_SUPER_ADMIN';
 
@@ -58,7 +62,9 @@
     mixins: [commonCoreStrings],
     inject: ['wizardService'],
     data() {
+      const footerMessageType = FooterMessageTypes.IMPORT_FACILITY;
       return {
+        footerMessageType,
         selected: {},
         password: '',
         passwordValid: false,
@@ -69,6 +75,14 @@
       };
     },
     computed: {
+      // If there is only one facility we skipped a step, so we're on step 1
+      step() {
+        return this.wizardService.state.context.facilitiesOnDeviceCount == 1 ? 3 : 4;
+      },
+      // If there is only one facility we skipped a step, so we only have 4 steps
+      steps() {
+        return this.wizardService.state.context.facilitiesOnDeviceCount == 1 ? 4 : 5;
+      },
       facility() {
         return this.wizardService._state.context.selectedFacility;
       },
@@ -188,21 +202,21 @@
     },
     $trs: {
       header: {
-        message: 'Select super admin account',
+        message: 'Select super admin',
         context: 'Page title,',
       },
       description: {
         message:
-          'This account allows you to manage all facilities, resources, and user accounts on this device.',
+          'This super admin account allows you to manage all facilities, resources, and users on this device.',
 
         context: 'Explanation of what the super admin account is used for on device.',
       },
       chooseAdminPrompt: {
-        message: "Choose an admin from '{facility}' or create a new super admin.",
+        message: "Choose an admin from '{facility}' learning facility or create a new super admin.",
         context: 'Prompt that goes above a select input of options for admins',
       },
       enterPasswordPrompt: {
-        message: "Enter the password for '{username}'",
+        message: "Enter the password for '{username}' in '{facility_name}' learning facility",
         context: 'Prompt that goes above the password input.',
       },
       createSuperAdminOption: {

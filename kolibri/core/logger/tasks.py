@@ -31,11 +31,13 @@ class ExportLogCSVValidator(JobValidator):
     )
     start_date = serializers.CharField()
     end_date = serializers.CharField()
+    locale = serializers.CharField(required=False)
 
     def validate(self, data):
         facility = data.get("facility", None)
         start_date = data.get("start_date", None)
         end_date = data.get("end_date", None)
+        locale = data.get("locale", None)
 
         if facility is None and "user" in self.context:
             facility = self.context["user"].facility
@@ -53,6 +55,7 @@ class ExportLogCSVValidator(JobValidator):
             "facility": facility.id,
             "start_date": start_date,
             "end_date": end_date,
+            "locale": locale,
         }
         return {
             "facility_id": facility.id,
@@ -61,7 +64,7 @@ class ExportLogCSVValidator(JobValidator):
         }
 
 
-def _exportlogcsv(log_type, facility_id, start_date, end_date):
+def _exportlogcsv(log_type, facility_id, start_date, end_date, locale):
     filepath = get_filepath(log_type, facility_id, start_date, end_date)
     call_command(
         "exportlogs",
@@ -71,6 +74,7 @@ def _exportlogcsv(log_type, facility_id, start_date, end_date):
         overwrite=True,
         start_date=start_date,
         end_date=end_date,
+        locale=locale,
     )
 
 
@@ -86,7 +90,11 @@ def exportsessionlogcsv(facility_id, **kwargs):
     :param: facility.
     """
     _exportlogcsv(
-        "session", facility_id, kwargs.get("start_date"), kwargs.get("end_date")
+        "session",
+        facility_id,
+        kwargs.get("start_date"),
+        kwargs.get("end_date"),
+        kwargs.get("locale"),
     )
 
 
@@ -102,5 +110,9 @@ def exportsummarylogcsv(facility_id, **kwargs):
     :param: facility.
     """
     _exportlogcsv(
-        "summary", facility_id, kwargs.get("start_date"), kwargs.get("end_date")
+        "summary",
+        facility_id,
+        kwargs.get("start_date"),
+        kwargs.get("end_date"),
+        kwargs.get("locale"),
     )

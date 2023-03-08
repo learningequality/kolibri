@@ -49,11 +49,6 @@ const coachStrings = createTranslator('CommonCoachStrings', {
     context:
       'Option to view all elements that make up a class. For example, all quizzes or all lessons.',
   },
-  showMoreAction: {
-    message: 'Show more',
-    context:
-      'Generic button which allows user to see more content on a page. For example more learning resources.',
-  },
 
   // labels, phrases, titles, headers...
   activityLabel: {

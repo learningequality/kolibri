@@ -2,6 +2,9 @@
 
   <OnboardingStepBase
     :title="$tr('learningEnvironmentHeader')"
+    :footerMessageType="footerMessageType"
+    :step="1"
+    :steps="5"
     @continue="handleContinue"
   >
     <KRadioButton
@@ -39,7 +42,7 @@
 
 <script>
 
-  import { Presets } from '../../constants';
+  import { Presets, FooterMessageTypes } from '../../constants';
   import OnboardingStepBase from '../OnboardingStepBase';
   import FacilityNameTextbox from './FacilityNameTextbox';
 
@@ -54,8 +57,10 @@
       // preset inits to null, so either it'll be what the user selected or default to nonformal
       const selected = preset || Presets.NONFORMAL;
 
-      const facilityName = this.wizardService.state.context['facilityName'] || '';
+      const facilityName = this.wizardService.state.context['facilityName'];
+      const footerMessageType = FooterMessageTypes.NEW_FACILITY;
       return {
+        footerMessageType,
         facilityName,
         selected,
         Presets,
@@ -88,7 +93,7 @@
         context: 'Label for the radio button option in the facility setup.',
       },
       formalDescription: {
-        message: 'Schools and other formal learning contexts',
+        message: 'Schools and other formal learning contexts.',
         context: "Option description text for 'Formal' facility types.",
       },
       nonFormalLabel: {
@@ -97,7 +102,7 @@
       },
       nonFormalDescription: {
         message:
-          'Libraries, orphanages, correctional facilities, youth centers, computer labs, and other non-formal learning contexts',
+          'Libraries, orphanages, youth centers, computer labs, and other non-formal learning contexts.',
 
         context: "Option description text for 'Non-formal' facility types.",
       },

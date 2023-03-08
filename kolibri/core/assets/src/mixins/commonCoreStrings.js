@@ -92,7 +92,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context: 'Register a facility to the Kolibri Data Portal',
   },
   manageSyncAction: {
-    message: 'Manage Sync Schedule',
+    message: 'Manage sync schedule',
     context: 'Action for managing sync schedule',
   },
   retryAction: {
@@ -128,6 +128,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Show',
     context:
       "Users have the option to either 'show' or 'hide' coach resources in the 'Manage lesson resources' section.",
+  },
+  showMoreAction: {
+    message: 'Show more',
+    context:
+      'Generic button which allows user to see more content on a page. For example more learning resources.',
   },
   startOverAction: {
     message: 'Start over',
@@ -973,6 +978,16 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Long activity',
     context: 'Label with time estimation for learning activities that take more than 30 minutes.',
   },
+  shortExerciseGoalDescription: {
+    message: 'Get {count, number, integer} {count, plural, other {correct}}',
+    context:
+      'Label that indicates to the learner how many correct answers they need to give in order to master the given topic, and for the exercise to be considered completed.',
+  },
+  practiceQuizLabel: {
+    message: 'Practice quiz',
+    context:
+      'Label that indicates this self paced activity is in the style of a quiz, and learners will only see the correct answers once they have submitted the quiz.',
+  },
 
   // assigning bookmarked resources
 
@@ -1013,6 +1028,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
   doNotShowAgain: {
     message: "Don't show this again",
+    context:
+      'Option that allows the user to prevent this resource from displaying in the future while using category search',
+  },
+  doNotShowMessageAgain: {
+    message: "Don't show this message again",
     context:
       'Option that allows the user to prevent this resource from displaying in the future while using category search',
   },
@@ -1131,6 +1151,147 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
       'Error message that displays if a learning resource cannot be found on the device being used currently.',
   },
 
+  // Downloads management
+  myDownloadsLabel: {
+    message: 'My downloads',
+    context: "Users can access and see their content downloads via 'my downloads' option.",
+  },
+  removeFromLibrary: {
+    message: 'Remove from library',
+    context:
+      'Title of the modal that appears when the user tries to remove a resource from the library.',
+  },
+  resourcesSelectedMessage: {
+    message: 'Selected: {count, number} {count, plural, one {resource} other {resources}} ({size})',
+    context: 'Indicates how many resources have been selected to be deleted.\n',
+  },
+  removeSelectedMessage: {
+    message: 'Remove selected',
+    context: 'Action to remove selected resources',
+  },
+  dateCreated: {
+    message: 'Date created',
+    context: '',
+  },
+  totalSizeMyDownloads: {
+    message: 'Total size of my downloads: {size}',
+    context:
+      'A lable explaining the size (i.e. in MB) of the resources a user has downloaded to their library',
+  },
+  availableStorage: {
+    message: 'Available storage',
+    context:
+      'A lable explaining the amount (i.e. in MB) of the storage remaining that a user has to downloads items to their library',
+  },
+  fileSize: {
+    message: 'File size',
+    context: 'A lable explaining the size (i.e. in MB) of a single resource',
+  },
+  dateAdded: {
+    message: 'Date added',
+    context: "The date a resource was downloaded to a user's library",
+  },
+  noResourcesDownloaded: {
+    message: 'You do not have any resources downloaded',
+    context:
+      'Message displayed a user looks at their My Downloads page, but has not yet downloaded any resources to the device',
+  },
+  removeResourceText: {
+    message:
+      "You will no longer be able to use this resource, but you can download it again later when it's available around you.",
+    context:
+      'Text displayed in a modal when a user decides to remove one downloaded resource from the device',
+  },
+  removeResourcesText: {
+    message:
+      'You will no longer be able to use these resources, but you can download them again later when they are available around you.',
+    context:
+      'Text displayed in a modal when a user decides to remove more than one downloaded resources from the device',
+  },
+  waitingToDownload: {
+    message: 'Waiting to download',
+    context: 'Text that displays the status of a resource the user has downloaded',
+  },
+  downloadStarted: {
+    message: 'Download started',
+    context: 'Text that displays the status of a resource the user has downloaded',
+  },
+  downloadedFailedWillRetry: {
+    message: 'Download failed. Retrying in {minutes, number} minutes',
+    context:
+      'Text that displays the status of a resource the user has downloaded when the download has failed, but Kolibri is able to automatically try the download again.',
+  },
+  downloadedFailedCanNotRetry: {
+    message: 'Download failed. Unable to retry.',
+    context:
+      'Text that displays the status of a resource the user has downloaded when the download has failed, and Kolibri is not able to automatically try the download again.',
+  },
+  deviceDisconnected: {
+    message: 'Your device seems to be disconnected',
+    context: '',
+  },
+  disconnected: {
+    message: 'Disconnected',
+    context: '',
+  },
+  addToLibrary: {
+    message: 'Add to library',
+    context: '',
+  },
+  //
+  sortBy: {
+    message: 'Sort by',
+    context: '',
+  },
+  newestResource: {
+    message: 'Newest',
+    context: 'Label to filter by newest resource',
+  },
+  oldestResource: {
+    message: 'Oldest',
+    context: 'Label to filter by oldest resource',
+  },
+  largestFile: {
+    message: 'Largest file size',
+    context: 'Label to filter by largest file size',
+  },
+  smallestFile: {
+    message: 'Smallest file size',
+    context: 'Label to filter by smallest file size',
+  },
+  myLibrary: {
+    message: 'My library',
+    context: '',
+  },
+  showingYourLibrary: {
+    message: 'Showing results from your library only',
+    context: '',
+  },
+
+  // Device upgrades recommended
+  currentDeviceUsingIE11: {
+    message: 'You seem to be using Internet Explorer 11.',
+    context:
+      'Displayed on a device that is using Internet Explorer 11, as part of a message encouraging the user to upgrade.',
+  },
+  userDevicesUsingIE11: {
+    message: 'Some users seem to be accessing Kolibri via Internet Explorer 11',
+    context:
+      'Displayed to an admin, where devices on their network are using Internet Explorer 11, as part of a message encouraging the user to upgrade.',
+  },
+  browserSupportWillBeDroppedIE11: {
+    message:
+      'Please note that support for this browser will be dropped in the upcoming version, 0.17.  We recommend installing other browsers, such as Mozilla Firefox or Google Chrome, in order to continue working with Kolibri.',
+    context:
+      'Displayed to users of kolibri where one or more devices on the network are using Internet Explorer 11, as part of a message encouraging the user to upgrade.',
+  },
+  pythonSupportWillBeDropped: {
+    message:
+      'Please note that support for Python 2.7 will be dropped in the upcoming version 0.17. Upgrade your Python version to Python 3.7+ to continue working with Kolibri. More recent versions of Python 3 are recommended.',
+    context:
+      'Displayed to users of kolibri where one or more devices on the network are using Python 2.7, as part of a message encouraging the user to upgrade.',
+  },
+
   // Content activity
   notStartedLabel: {
     message: 'Not started',
@@ -1177,8 +1338,170 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context: 'Placholder text for the enter PIN textbox',
   },
   removePinPlacholder: {
-    message: 'REMOVE PIN',
+    message: 'Remove PIN',
     context: 'Placholder text for the remove PIN textbox',
+  },
+  setPin: {
+    message: 'Choose a 4-digit number to set as your new PIN',
+    context: 'Label to allow user to choose numbers to set PIN',
+  },
+  numbersOnly: {
+    message: 'Enter numbers only',
+    context:
+      'Error message indicating a user has entered characters other than numbers as their PIN',
+  },
+  noEmptyField: {
+    message: 'The field cannot be empty',
+    context: 'Error message indicating a user has not added their PIN to the form field',
+  },
+
+  // preferred learning language
+  preferredLanguage: {
+    message: 'Preferred language',
+    context:
+      'Label for an setting where a user can select the language that they would like to learn in',
+  },
+  changePreferredLanguage: {
+    message: 'Change preferred language',
+    context:
+      'Title for a modal where a user can select the language that they would like to learn in',
+  },
+  preferredLanguageHelperText: {
+    message: 'Channels in the preferred language will be displayed first',
+    context:
+      'Explanatory text for the setting where a user can select the language that they would like to learn in',
+  },
+  // getting started, pre-and-post-setup-wizard misc.
+
+  // pre setup
+  getStarted: {
+    message: 'Get started',
+    context: '',
+  },
+  learnWherever: {
+    message: 'Learn wherever you are',
+    context: '',
+  },
+  learnWhereverDescription: {
+    message: 'Thousands of learning materials at your fingertips, completely offline',
+    context: '',
+  },
+  goAtYourOwnPace: {
+    message: 'Go at your own pace',
+    context: '',
+  },
+  goAtYourOwnPaceDescription: {
+    message: 'Track your own progress and use your learning materials as many times as you need',
+    context: '',
+  },
+  exploreGlobalLibrary: {
+    message: 'Explore a global library',
+    context: '',
+  },
+  exploreGlobalLibraryDescription: {
+    message: 'Find learning materials in over 170 languages',
+    context: '',
+  },
+  neverPay: {
+    message: 'Never pay to learn',
+    context: '',
+  },
+  neverPayDescription: {
+    message: 'Kolibri and its library will always be free of charge',
+    context: '',
+  },
+
+  // setup wizard catch all
+  whatLanguage: {
+    message: 'What language do you want your learning materials to be in?',
+    context: '',
+  },
+  whatLanguageDescription: {
+    message: 'Kolibri will recommend materials in the language you select.',
+    context: '',
+  },
+  currentLanguageLabel: {
+    message: 'Language: {curentLanguage}',
+    context: '',
+  },
+  superAdminAccountDescription: {
+    message:
+      'This is a super admin account that will let you manage resources and user accounts on this device.',
+    context: '',
+  },
+  learningFacilityDescription: {
+    message:
+      'A learning facility represents the location where you are installing Kolibri, such as a school, training center, or your home.',
+    context: '',
+  },
+  joinLearningFacility: {
+    message: 'Join learning facility',
+    context: '',
+  },
+  joinedSuccessfully: {
+    message: "You have successfully joined the '{facility}' learning facility",
+    context: '',
+  },
+  dontKnowUserName: {
+    message: 'Don’t know the username?',
+    context: '',
+  },
+  editAccountDetails: {
+    message: 'Edit account details',
+    context: '',
+  },
+  enterPassword: {
+    message: 'Enter password',
+    context: '',
+  },
+
+  // post setup
+  preLoadedContentWelcomeText: {
+    message:
+      "Welcome to the '{facility}' learning facility. Your class materials can be found on the home page.",
+    context: '',
+  },
+  channelsDescriptionNoChannelsAdded: {
+    message:
+      'Channels are collections of learning materials. Explore your network to start finding channels.',
+  },
+  nothingInLibraryLearner: {
+    message:
+      'There is nothing in your library yet. Explore libraries around you and start adding materials to your own.',
+  },
+  noNearbyFacilities: {
+    message: 'There are no learning facilities around you right now',
+    context: '',
+  },
+
+  changingStorageLocation: {
+    message: 'Changing storage location',
+    context: '',
+  },
+  showingLibrariesAroundYou: {
+    message: 'Showing other libraries around you.',
+    context: '',
+  },
+  noLibraries: {
+    message: 'No libraries found around you.',
+    context: '',
+  },
+  refresh: {
+    message: 'Refresh',
+    context: '',
+  },
+  addLearningMaterials: {
+    message: 'Add learning materials',
+    context: '',
+  },
+  addLearningMaterialsDescription: {
+    message:
+      'Choose materials to use on your device. You will also be able to add more whenever you are connected to the internet or there are other Kolibris around you.',
+    context: '',
+  },
+  yourLibrary: {
+    message: 'Your library',
+    context: '',
   },
 });
 

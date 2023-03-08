@@ -641,6 +641,33 @@ _addPathOptions(program.command('i18n-profile'))
     profileStrings(pathInfo, options.ignore, options.outputFile, options.verbose);
   });
 
+// I18N Ditto Audit
+_addPathOptions(program.command('i18n-audit'))
+  .option(
+    '--output-file <outputFile>',
+    'File path and name to which to write out the audit to',
+    filePath
+  )
+  .option(
+    '--ditto-file <dittoFile>',
+    'File paths of the CSV files to read the ditto strings from',
+    filePath
+  )
+  .action(function(options) {
+    const pathInfo = _generatePathInfo(options);
+    if (!pathInfo) {
+      program.command('i18n-audit').help();
+    }
+    const auditStrings = require('./i18n/auditMessages');
+    auditStrings(
+      pathInfo,
+      options.ignore,
+      [options.dittoFile],
+      options.outputFile,
+      options.verbose
+    );
+  });
+
 // Check engines, then process args
 try {
   const engines = require(path.join(process.cwd(), 'package.json')).engines;

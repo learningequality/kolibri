@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
 import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
-import AddAddressForm from '../AddAddressForm';
+import AddDeviceForm from '../AddDeviceForm';
 // import makeStore from '../../../../../test/utils/makeStore';
 import { createAddress } from '../api';
 
@@ -10,7 +10,7 @@ jest.mock('../api', () => ({
 
 function makeWrapper() {
   const store = {};
-  const wrapper = mount(AddAddressForm, {
+  const wrapper = mount(AddDeviceForm, {
     store,
   });
   wrapper.setData({
@@ -26,7 +26,7 @@ function makeWrapper() {
   return { store, wrapper, els };
 }
 
-xdescribe('AddAddressForm', () => {
+xdescribe('AddDeviceForm', () => {
   beforeEach(() => {
     createAddress.mockReset();
   });

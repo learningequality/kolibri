@@ -2,6 +2,9 @@
 
   <OnboardingStepBase
     :title="$tr('header')"
+    :footerMessageType="footerMessageType"
+    :step="step"
+    :steps="step"
     :description="$tr('description')"
     @continue="handleContinue"
   >
@@ -19,6 +22,7 @@
       @cancel="closeModal"
       @submit="closeModal"
     />
+
   </OnboardingStepBase>
 
 </template>
@@ -29,6 +33,7 @@
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import OnboardingStepBase from '../OnboardingStepBase';
+  import { FooterMessageTypes } from '../../constants';
 
   export default {
     name: 'PersonalDataConsentForm',
@@ -37,10 +42,28 @@
       OnboardingStepBase,
     },
     mixins: [commonCoreStrings],
+    props: {
+      footerMessageType: {
+        type: String,
+        required: true,
+      },
+    },
     data() {
       return {
         showModal: false,
       };
+    },
+    computed: {
+      // It's the last step in any case, so we can just use this for both step and steps props
+      step() {
+        if (this.footerMessageType === FooterMessageTypes.NEW_FACILITY) {
+          return 5;
+        }
+        if (this.footerMessageType === FooterMessageTypes.IMPORT_FACILITY) {
+          return this.wizardService.state.context.facilitiesOnDeviceCount == 1 ? 4 : 5;
+        }
+        return null;
+      },
     },
     mounted() {
       this.focusOnModalButton();
@@ -88,7 +111,7 @@
     $trs: {
       description: {
         message:
-          'If you are setting up Kolibri to be used by other users, you or someone you delegate will be responsible for protecting and managing the user accounts and personal information stored on this device.',
+          'If you are setting up Kolibri for other users, you or someone you delegate will need to be responsible for protecting and managing their accounts and personal information.',
         context: "Description of the 'Responsibilities as an administrator' page.",
       },
       header: {

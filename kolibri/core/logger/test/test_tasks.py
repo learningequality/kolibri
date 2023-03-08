@@ -35,6 +35,7 @@ class StartExportLogCSVTestCase(TestCase):
                     "facility": self.facility.id,
                     "start_date": self.start_date,
                     "end_date": self.end_date,
+                    "locale": None,
                 },
                 "args": [self.facility.id],
                 "extra_metadata": {

@@ -40,14 +40,14 @@
       <KGridItem>{{ $tr('doNotSeeYourFacility') }}</KGridItem>
       <KGridItem>
         <KButton
-          :text="$tr('newAddressButtonLabel')"
+          :text="$tr('newDeviceButtonLabel')"
           appearance="basic-link"
           @click="showAddAddressModal = true"
         />
       </KGridItem>
     </KGrid>
 
-    <AddAddressForm
+    <AddDeviceForm
       v-if="showAddAddressModal"
       @cancel="showAddAddressModal = false"
       @added_address="handleAddedAddress"
@@ -79,9 +79,9 @@
   import client from 'kolibri.client';
   import urls from 'kolibri.urls';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
-  import useSavedAddresses from '../../../../../../core/assets/src/views/sync/SelectAddressModalGroup/useSavedAddresses.js';
-  import useDynamicAddresses from '../../../../../../core/assets/src/views/sync/SelectAddressModalGroup/useDynamicAddresses.js';
-  import AddAddressForm from '../../../../../../core/assets/src/views/sync/SelectAddressModalGroup/AddAddressForm';
+  import useSavedAddresses from '../../../../../../core/assets/src/views/sync/SelectDeviceModalGroup/useSavedAddresses.js';
+  import useDynamicAddresses from '../../../../../../core/assets/src/views/sync/SelectDeviceModalGroup/useDynamicAddresses.js';
+  import AddDeviceForm from '../../../../../../core/assets/src/views/sync/SelectDeviceModalGroup/AddDeviceForm';
   import useMinimumKolibriVersion from '../../../../../../core/assets/src/composables/useMinimumKolibriVersion';
 
   export default {
@@ -91,7 +91,7 @@
         title: this.$tr('documentTitle'),
       };
     },
-    components: { AddAddressForm, BottomAppBar },
+    components: { AddDeviceForm, BottomAppBar },
 
     mixins: [commonCoreStrings, commonSyncElements],
     setup(props, context) {
@@ -140,7 +140,7 @@
 
       function handleAddedAddress() {
         refreshSavedAddressList();
-        createSnackbar(this.$tr('addAddressSnackbarText'));
+        createSnackbar(this.$tr('addDeviceSnackbarText'));
         this.showAddAddressModal = false;
       }
 
@@ -245,9 +245,9 @@
       },
     },
     $trs: {
-      addAddressSnackbarText: {
-        message: 'Successfully added address',
-        context: 'This message appears if a network address has been added correctly.',
+      addDeviceSnackbarText: {
+        message: 'Successfully added device',
+        context: 'This message appears if a device has been added correctly.',
       },
       documentTitle: {
         message: 'Select learning facility',
@@ -258,16 +258,22 @@
         context:
           'This text appears next to the "Add new address" link. This option allows you to add a new network address from which to sync data.',
       },
-      newAddressButtonLabel: {
-        message: 'Add new address',
+      newDeviceButtonLabel: {
+        message: 'Add new device',
         context:
-          'The "Add new address" link appears in the \'Select network address\' screen. This option allows you to add a new network address from which to sync data.',
+          'The "Add new device" link appears in the \'Select device\' screen. This option allows you to add a new device from which to sync data.',
       },
       noFacilitiesText: {
         message: 'No learning facilities found',
         context:
-          'This message displays when there are no accesible facilities found in the network. It can appear after the user selects to change to another existing facility.',
+          'This message displays when there are no accessible facilities found in the network. It can appear after the user selects to change to another existing facility.',
       },
+      /* eslint-disable kolibri/vue-no-unused-translations */
+      noPermissionToJoinFacility: {
+        message: 'You don’t have permission to join this learning facility',
+        context: '',
+      },
+      /* eslint-enable kolibri/vue-no-unused-translations */
     },
   };
 

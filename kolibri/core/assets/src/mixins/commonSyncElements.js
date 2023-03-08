@@ -11,18 +11,18 @@ const syncStrings = createTranslator('CommonSyncStrings', {
     context: 'Title of menu where the user selects the source from where to import a facility',
   },
   selectNetworkAddressTitle: {
-    message: 'Select network address',
+    message: 'Select device',
     context:
-      'Title of menu where user selects a device at an address in order to communicate with it',
+      'Title of menu where user selects a device at an device in order to communicate with it',
   },
   newAddressTitle: {
-    message: 'New address',
+    message: 'New device',
     context:
-      'Title of the menu where the user manually adds a new device address from where to import a facility',
+      'Title of the menu where the user manually adds a new device device from where to import a facility',
   },
   addNewAddressAction: {
-    message: 'Add new address',
-    context: 'Label for a button that opens a menu to save a new network address.',
+    message: 'Add new device',
+    context: 'Label for a button that opens a menu to save a new device.',
   },
   selectFacilityTitle: {
     message: 'Select learning facility',
@@ -39,7 +39,7 @@ const syncStrings = createTranslator('CommonSyncStrings', {
       'Template for strings of the form "Name (1234)"\nDO NOT TRANSLATE\nCopy the source string.',
   },
   importFacilityAction: {
-    message: 'Import facility',
+    message: 'Import learning facility',
     context: 'Label for a button used to import a facility on the device',
   },
   distinctFacilityNameExplanation: {

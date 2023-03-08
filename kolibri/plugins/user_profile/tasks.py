@@ -11,6 +11,7 @@ from kolibri.core.auth.tasks import PeerImportSingleSyncJobValidator
 from kolibri.core.auth.utils.migrate import merge_users
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.tasks.decorators import register_task
+from kolibri.core.tasks.job import JobStatus
 from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.permissions import IsFacilityAdmin
 from kolibri.core.tasks.permissions import IsSelf
@@ -18,6 +19,7 @@ from kolibri.core.tasks.permissions import IsSuperAdmin
 from kolibri.core.tasks.permissions import PermissionsFromAny
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.utils.urls import reverse_remote
+from kolibri.utils.translation import ugettext as _
 
 
 class MergeUserValidator(PeerImportSingleSyncJobValidator):
@@ -27,6 +29,7 @@ class MergeUserValidator(PeerImportSingleSyncJobValidator):
     new_superuser_id = serializers.PrimaryKeyRelatedField(
         queryset=FacilityUser.objects.all(), required=False
     )
+    facility_name = serializers.CharField(default="")
 
     def validate(self, data):
         try:
@@ -36,6 +39,7 @@ class MergeUserValidator(PeerImportSingleSyncJobValidator):
             job_data = super(MergeUserValidator, self).validate(data)
 
         job_data["kwargs"]["local_user_id"] = data["local_user_id"].id
+        job_data["extra_metadata"].update(user_fullname=data["local_user_id"].full_name)
         if data.get("new_superuser_id"):
             job_data["kwargs"]["new_superuser_id"] = data["new_superuser_id"].id
 
@@ -55,6 +59,19 @@ class MergeUserValidator(PeerImportSingleSyncJobValidator):
             raise serializers.ValidationError(response.json()[0]["id"])
 
 
+def status_fn(job):
+    # Translators: A notification title shown to users when their learner account is joining a new learning facility.
+    account_transfer_in_progress = _("Account transfer in progress")
+    # Translators: Notification text shown to users when their learner account is joining a new learning facility.
+    notification_text = _(
+        "Moving {learner_name} to learning facility {facility_name}"
+    ).format(
+        learner_name=job.extra_metadata["user_fullname"],
+        facility_name=job.extra_metadata["facility_name"],
+    )
+    return JobStatus(account_transfer_in_progress, notification_text)
+
+
 @register_task(
     queue="soud",
     validator=MergeUserValidator,
@@ -64,6 +81,7 @@ class MergeUserValidator(PeerImportSingleSyncJobValidator):
     permission_classes=[
         PermissionsFromAny(IsSelf(), IsSuperAdmin(), IsFacilityAdmin())
     ],
+    status_fn=status_fn,
 )
 def mergeuser(command, **kwargs):
     """
@@ -85,12 +103,16 @@ def mergeuser(command, **kwargs):
 
     local_user_id = kwargs.pop("local_user_id")
     local_user = FacilityUser.objects.get(id=local_user_id)
+    # Sync with the server to get the remote user:
+    kwargs["no_push"] = True
     call_command(command, **kwargs)
 
     remote_user = FacilityUser.objects.get(id=kwargs["user"])
     merge_users(local_user, remote_user)
 
     # Resync with the server to update the merged records
+    # kwargs["no_pull"] = True
+    del kwargs["no_push"]
     call_command("sync", **kwargs)
     new_superuser_id = kwargs.get("new_superuser_id")
     if new_superuser_id:
@@ -108,6 +130,7 @@ def mergeuser(command, **kwargs):
     remote_user = FacilityUser.objects.get(pk=remote_user_pk)
     token = TokenGenerator().make_token(remote_user)
     job.extra_metadata["token"] = token
+    job.extra_metadata["remote_user_pk"] = remote_user_pk
     job.save_meta()
     job.update_progress(1.0, 1.0)
     local_user.delete()

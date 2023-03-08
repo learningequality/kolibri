@@ -359,7 +359,7 @@
           "Practice quizzes are pre-made quizzes, that don't require the curation work on the part of the coach. Selecting a practice quiz refers to importing a ready-to-use quiz.",
       },
       totalQuizSize: {
-        message: 'Total size of quizzes that are visible to learners: {size}',
+        message: 'Total size of quizzes visible to learners: {size}',
         context:
           'Descriptive text at the top of the table that displays the calculated file size of all quiz resources (i.e. 120 MB)',
       },

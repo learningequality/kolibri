@@ -30,8 +30,7 @@ repos:
     entry: We do not allow _auto_ in migration names. Please give the migration a telling name.
     language: fail
     files: .*/migrations/.*_auto_.*\.py$
-    exclude: ^
-      (?x)^(
+    exclude: (?x)^(
         kolibri/core/auth/migrations/0002_auto_20170608_2125\.py|
         kolibri/core/auth/migrations/0003_auto_20170621_0958\.py|
         kolibri/core/auth/migrations/0004_auto_20170816_1607\.py|
@@ -69,7 +68,7 @@ repos:
     rev: 0.4.3
     hooks:
     -   id: teyit
-        language_version: '3.10'
+        language_version: python3
 # Always keep black as the final hook so it reformats any other reformatting.
 -   repo: https://github.com/python/black
     rev: 20.8b1

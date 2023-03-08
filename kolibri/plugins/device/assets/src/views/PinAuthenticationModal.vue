@@ -80,7 +80,7 @@
         context: 'Error message displayed when an incorrect PIN is input',
       },
       invalidPin: {
-        message: 'Please enter a 4-digit number',
+        message: 'Enter four numbers to set as your new PIN',
         context: 'Error message displayed when a PIN with less than 4 digits is input',
       },
       pinPlaceholder: {

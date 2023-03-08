@@ -76,6 +76,7 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import { computed, inject, onMounted, ref } from 'kolibri.lib.vueCompositionApi';
   import { TaskResource } from 'kolibri.resources';
@@ -94,7 +95,7 @@
       };
     },
     components: { BottomAppBar },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, responsiveWindowMixin],
     setup() {
       const changeFacilityService = inject('changeFacilityService');
       const state = inject('state');
@@ -160,6 +161,7 @@
                   facility: state.value.targetFacility.id,
                   username: state.value.targetAccount.username,
                   local_user_id: state.value.userId,
+                  facility_name: state.value.targetFacility.name,
                   user_id: state.value.targetAccount.id,
                 };
                 if (state.value.targetAccount.password !== '') {
@@ -227,6 +229,10 @@
           pk: state.value.targetAccount.id,
           token,
         };
+        // if the user was created in the target facility, we need to gets its id:
+        if (params.pk === undefined) {
+          params.pk = this.task.extra_metadata.remote_user_pk;
+        }
         client({
           url: urls['kolibri:kolibri.plugins.user_profile:loginmergeduser'](),
           method: 'POST',
@@ -299,13 +305,13 @@
       // eslint-disable-next-line kolibri/vue-no-unused-translations
       userExistsError: {
         message:
-          'User ‘{username}’ already exists in ‘{target_facility}’. Please choose a different username.',
+          '‘{username}’ already exists in ‘{target_facility}’. Please choose a different username.',
         context: 'Error message for a user already existing in the target facility.',
       },
       // eslint-disable-next-line kolibri/vue-no-unused-translations
       userAdminError: {
         message:
-          'User ‘{username}’ already exists in ‘{target_facility}’ is not a learner. Please choose a different username.',
+          '‘{username}’ already exists in ‘{target_facility}’ and ‘{username}’ is not a learner. Please choose a different username.',
         context: 'Error message for a user being other than a learner in the target facility.',
       },
       // eslint-disable-next-line kolibri/vue-no-unused-translations

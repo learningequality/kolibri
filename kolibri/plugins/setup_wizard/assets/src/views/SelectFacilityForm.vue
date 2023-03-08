@@ -1,35 +1,44 @@
 <template>
 
+  <!-- If we skip this, we don't want any messaging shown around the loader we v-else onto
+       so show null and '' wherever if we're loading
+  -->
   <OnboardingStepBase
-    :title="header"
+    :title="loading ? '' : header"
+    :footerMessageType="loading ? null : footerMessageType"
+    :step="loading ? null : 1"
+    :steps="loading ? null : 5"
     @continue="handleContinue"
   >
-    <!-- TODO: Show "you cannot import from this facility" message -->
-    <RadioButtonGroup
-      v-if="!loadingNewAddress"
-      class="radio-group"
-      :items="facilities"
-      :currentValue.sync="selectedFacilityId"
-      :itemLabel="x => formatNameAndId(x.name, x.id)"
-      :itemValue="x => x.id"
-      :disabled="formDisabled"
-    />
+    <div v-if="!loading">
+      <!-- TODO: Show "you cannot import from this facility" message -->
+      <RadioButtonGroup
+        v-if="!loadingNewAddress"
+        class="radio-group"
+        :items="facilities"
+        :currentValue.sync="selectedFacilityId"
+        :itemLabel="x => formatNameAndId(x.name, x.id)"
+        :itemValue="x => x.id"
+        :disabled="formDisabled"
+      />
 
-    <label class="select-button-label" for="select-address-button">
-      {{ $tr('selectDifferentAddressLabel') }}
-    </label>
-    <KButton
-      id="select-address-button"
-      appearance="basic-link"
-      :text="$tr('addNewAddressAction')"
-      @click="showSelectAddressModal = true"
-    />
+      <label class="select-button-label" for="select-address-button">
+        {{ $tr('selectDifferentDeviceLabel') }}
+      </label>
+      <KButton
+        id="select-address-button"
+        appearance="basic-link"
+        :text="$tr('addNewDeviceAction')"
+        @click="showSelectAddressModal = true"
+      />
 
-    <SelectAddressModalGroup
-      v-if="showSelectAddressModal"
-      @cancel="showSelectAddressModal = false"
-      @submit="handleAddressSubmit"
-    />
+      <SelectDeviceModalGroup
+        v-if="showSelectAddressModal"
+        @cancel="showSelectAddressModal = false"
+        @submit="handleAddressSubmit"
+      />
+    </div>
+    <KCircularLoader v-else />
   </OnboardingStepBase>
 
 </template>
@@ -39,22 +48,26 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import { SelectAddressModalGroup, RadioButtonGroup } from 'kolibri.coreVue.componentSets.sync';
+  import { SelectDeviceModalGroup, RadioButtonGroup } from 'kolibri.coreVue.componentSets.sync';
+  import { FooterMessageTypes } from '../constants';
 
-  import OnboardingStepBase from '../OnboardingStepBase';
+  import OnboardingStepBase from './OnboardingStepBase';
 
   export default {
     name: 'SelectFacilityForm',
     components: {
       OnboardingStepBase,
       RadioButtonGroup,
-      SelectAddressModalGroup,
+      SelectDeviceModalGroup,
     },
     inject: ['wizardService'],
     mixins: [commonCoreStrings, commonSyncElements],
     data() {
+      const footerMessageType = FooterMessageTypes.IMPORT_FACILITY;
       return {
         // Need to initialize to non-empty string to fix #7595
+        loading: true,
+        footerMessageType,
         selectedFacilityId: 'selectedFacilityId',
         facilities: [],
         device: null,
@@ -68,14 +81,11 @@
         return this.getCommonSyncString('selectFacilityTitle');
       },
       importDeviceId() {
-        return this.wizardService._state.context.importDeviceId;
+        return this.wizardService.state.context.importDeviceId;
       },
       selectedFacility() {
         return this.facilities.find(f => f.id === this.selectedFacilityId);
       },
-    },
-    mounted() {
-      console.log('ImportAuthentication', this.wizardService.state);
     },
     beforeMount() {
       this.fetchNetworkLocation(this.importDeviceId);
@@ -92,7 +102,12 @@
               baseurl: data.device_address,
             };
             this.selectedFacilityId = this.facilities[0].id;
-            this.loadingNewAddress = false;
+            if (this.facilities.length === 1) {
+              this.handleContinue(); // If we only have one, just move along
+            } else {
+              this.loading = false;
+              this.loadingNewAddress = false;
+            }
           })
           .catch(error => {
             // TODO handle disconnected peers error more gracefully
@@ -103,25 +118,26 @@
         this.fetchNetworkLocation(address.id).then(() => (this.showSelectAddressModal = false));
       },
       handleContinue() {
-        //$emit('click_next', { facility: selectedFacility, device: device })
-        console.log(this.wizardService._state);
-        console.log(this.wizardService.state);
         this.wizardService.send({
           type: 'CONTINUE',
-          value: { selectedFacility: this.selectedFacility, importDevice: this.device },
+          value: {
+            selectedFacility: this.selectedFacility,
+            importDevice: this.device,
+            facilitiesCount: this.facilities.length,
+          },
         });
       },
     },
     $trs: {
-      selectDifferentAddressLabel: {
+      selectDifferentDeviceLabel: {
         message: "Don't see your learning facility?",
         context:
           'A label shown above a link that will open a modal to select a different network location from which to select a facility',
       },
-      addNewAddressAction: {
-        message: 'Add new address',
+      addNewDeviceAction: {
+        message: 'Add new device',
         context:
-          'The text for a link that will open a modal that allows the user to add or select a new address from which to import a facility',
+          'The text for a link that will open a modal that allows the user to add or select a new device from which to import a facility',
       },
     },
   };

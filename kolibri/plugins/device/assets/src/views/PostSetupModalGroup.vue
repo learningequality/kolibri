@@ -12,7 +12,7 @@
       newRole="superadmin"
     />
 
-    <SelectAddressForm
+    <SelectDeviceForm
       v-else-if="step === Steps.SELECT_SOURCE_FACILITY_PEER"
       :title="getCommonSyncString('selectSourceTitle')"
       hideSavedAddresses
@@ -26,7 +26,7 @@
           @click="startNormalImportWorkflow"
         />
       </template>
-    </SelectAddressForm>
+    </SelectDeviceForm>
   </div>
 
 </template>
@@ -35,7 +35,7 @@
 <script>
 
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import { SelectAddressForm } from 'kolibri.coreVue.componentSets.sync';
+  import { SelectDeviceForm } from 'kolibri.coreVue.componentSets.sync';
   import { availableChannelsPageLink } from './ManageContentPage/manageContentLinks';
   import WelcomeModal from './WelcomeModal';
   import PermissionsChangeModal from './PermissionsChangeModal';
@@ -52,7 +52,7 @@
     components: {
       PermissionsChangeModal,
       WelcomeModal,
-      SelectAddressForm,
+      SelectDeviceForm,
     },
     mixins: [commonSyncElements],
     data() {
