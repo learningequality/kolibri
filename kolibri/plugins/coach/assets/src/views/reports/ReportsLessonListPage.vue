@@ -298,7 +298,7 @@
           "Title that displays on a printed copy of the 'Reports' > 'Lessons' page. This shows if the user uses the 'Print' option by clicking on the printer icon.",
       },
       totalLessonsSize: {
-        message: 'Total size of lessons that are visible to learners: {size}',
+        message: 'Total size of lessons visible to learners: {size}',
         context:
           "Descriptive text at the top of the table that displays the calculated file size of all lessons' resources (i.e. 120 MB)",
       },

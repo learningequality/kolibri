@@ -214,7 +214,7 @@
     },
     $trs: {
       importAnother: {
-        message: 'Import another user',
+        message: 'Import another user account',
         context: 'Link to restart the import step for another user. ',
       },
       loadUserTitle: {

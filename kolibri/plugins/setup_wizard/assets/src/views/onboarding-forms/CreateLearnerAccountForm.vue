@@ -78,7 +78,7 @@
           "Possible answer to the 'Allow anyone to create their own learner account?' question.",
       },
       noOptionLabel: {
-        message: 'No. Admins must create all accounts',
+        message: 'No. Admins must create an account for them to join this facility.',
         context:
           "Possible answer to the 'Allow anyone to create their own learner account?' question.",
       },

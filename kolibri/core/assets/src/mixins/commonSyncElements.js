@@ -39,7 +39,7 @@ const syncStrings = createTranslator('CommonSyncStrings', {
       'Template for strings of the form "Name (1234)"\nDO NOT TRANSLATE\nCopy the source string.',
   },
   importFacilityAction: {
-    message: 'Import facility',
+    message: 'Import learning facility',
     context: 'Label for a button used to import a facility on the device',
   },
   distinctFacilityNameExplanation: {

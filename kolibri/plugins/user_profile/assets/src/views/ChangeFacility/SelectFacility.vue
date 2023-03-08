@@ -268,6 +268,12 @@
         context:
           'This message displays when there are no accessible facilities found in the network. It can appear after the user selects to change to another existing facility.',
       },
+      /* eslint-disable kolibri/vue-no-unused-translations */
+      noPermissionToJoinFacility: {
+        message: 'You don’t have permission to join this learning facility',
+        context: '',
+      },
+      /* eslint-enable kolibri/vue-no-unused-translations */
     },
   };
 

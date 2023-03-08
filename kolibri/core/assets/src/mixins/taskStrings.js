@@ -31,7 +31,7 @@ const taskStrings = createTranslator('TaskStrings', {
     context: 'Displays the user that started a task',
   },
   taskLODFinishedByLabel: {
-    message: '‘{fullname}’ from ‘{facilityname}’ successfully loaded to this device',
+    message: "Account '{fullname} from '{facilityname}' successfully loaded to this device",
     context: 'Displays the full name of the user that has been synced in a task',
   },
   clearCompletedTasksAction: {
@@ -105,7 +105,7 @@ const taskStrings = createTranslator('TaskStrings', {
     context: 'Description of import-facility task',
   },
   importSuccessStatus: {
-    message: `'{facilityName}' successfully loaded to this device`,
+    message: "The '{facilityName}' learning facility has been successfully loaded to this device",
     context:
       "Confirmation message displayed when a facility's data is imported successfully in the syncing process.",
   },

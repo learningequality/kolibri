@@ -92,7 +92,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context: 'Register a facility to the Kolibri Data Portal',
   },
   manageSyncAction: {
-    message: 'Manage Sync Schedule',
+    message: 'Manage sync schedule',
     context: 'Action for managing sync schedule',
   },
   retryAction: {
@@ -1031,6 +1031,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       'Option that allows the user to prevent this resource from displaying in the future while using category search',
   },
+  doNotShowMessageAgain: {
+    message: "Don't show this message again",
+    context:
+      'Option that allows the user to prevent this resource from displaying in the future while using category search',
+  },
   resourceHidden: {
     message: 'Resource hidden',
     context:
@@ -1164,6 +1169,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Remove selected',
     context: 'Action to remove selected resources',
   },
+  dateCreated: {
+    message: 'Date created',
+    context: '',
+  },
   totalSizeMyDownloads: {
     message: 'Total size of my downloads: {size}',
     context:
@@ -1217,8 +1226,45 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       'Text that displays the status of a resource the user has downloaded when the download has failed, and Kolibri is not able to automatically try the download again.',
   },
-  deviceDisconnectd: {
+  deviceDisconnected: {
     message: 'Your device seems to be disconnected',
+    context: '',
+  },
+  disconnected: {
+    message: 'Disconnected',
+    context: '',
+  },
+  addToLibrary: {
+    message: 'Add to library',
+    context: '',
+  },
+  //
+  sortBy: {
+    message: 'Sort by',
+    context: '',
+  },
+  newestResource: {
+    message: 'Newest',
+    context: 'Label to filter by newest resource',
+  },
+  oldestResource: {
+    message: 'Oldest',
+    context: 'Label to filter by oldest resource',
+  },
+  largestFile: {
+    message: 'Largest file size',
+    context: 'Label to filter by largest file size',
+  },
+  smallestFile: {
+    message: 'Smallest file size',
+    context: 'Label to filter by smallest file size',
+  },
+  myLibrary: {
+    message: 'My library',
+    context: '',
+  },
+  showingYourLibrary: {
+    message: 'Showing results from your library only',
     context: '',
   },
 
@@ -1325,9 +1371,136 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       'Explanatory text for the setting where a user can select the language that they would like to learn in',
   },
+  // getting started, pre-and-post-setup-wizard misc.
+
+  // pre setup
+  getStarted: {
+    message: 'Get started',
+    context: '',
+  },
+  learnWherever: {
+    message: 'Learn wherever you are',
+    context: '',
+  },
+  learnWhereverDescription: {
+    message: 'Thousands of learning materials at your fingertips, completely offline',
+    context: '',
+  },
+  goAtYourOwnPace: {
+    message: 'Go at your own pace',
+    context: '',
+  },
+  goAtYourOwnPaceDescription: {
+    message: 'Track your own progress and use your learning materials as many times as you need',
+    context: '',
+  },
+  exploreGlobalLibrary: {
+    message: 'Explore a global library',
+    context: '',
+  },
+  exploreGlobalLibraryDescription: {
+    message: 'Find learning materials in over 170 languages',
+    context: '',
+  },
+  neverPay: {
+    message: 'Never pay to learn',
+    context: '',
+  },
+  neverPayDescription: {
+    message: 'Kolibri and its library will always be free of charge',
+    context: '',
+  },
+
+  // setup wizard catch all
+  whatLanguage: {
+    message: 'What language do you want your learning materials to be in?',
+    context: '',
+  },
+  whatLanguageDescription: {
+    message: 'Kolibri will recommend materials in the language you select.',
+    context: '',
+  },
+  currentLanguageLabel: {
+    message: 'Language: {curentLanguage}',
+    context: '',
+  },
+  superAdminAccountDescription: {
+    message:
+      'This is a super admin account that will let you manage resources and user accounts on this device.',
+    context: '',
+  },
+  learningFacilityDescription: {
+    message:
+      'A learning facility represents the location where you are installing Kolibri, such as a school, training center, or your home.',
+    context: '',
+  },
+  joinLearningFacility: {
+    message: 'Join learning facility',
+    context: '',
+  },
+  joinedSuccessfully: {
+    message: "You have successfully joined the '{facility}' learning facility",
+    context: '',
+  },
+  dontKnowUserName: {
+    message: 'Don’t know the username?',
+    context: '',
+  },
+  editAccountDetails: {
+    message: 'Edit account details',
+    context: '',
+  },
+  enterPassword: {
+    message: 'Enter password',
+    context: '',
+  },
+
+  // post setup
+  preLoadedContentWelcomeText: {
+    message:
+      "Welcome to the '{facility}' learning facility. Your class materials can be found on the home page.",
+    context: '',
+  },
+  channelsDescriptionNoChannelsAdded: {
+    message:
+      'Channels are collections of learning materials. Explore your network to start finding channels.',
+  },
+  nothingInLibraryLearner: {
+    message:
+      'There is nothing in your library yet. Explore libraries around you and start adding materials to your own.',
+  },
+  noNearbyFacilities: {
+    message: 'There are no learning facilities around you right now',
+    context: '',
+  },
 
   changingStorageLocation: {
     message: 'Changing storage location',
+    context: '',
+  },
+  showingLibrariesAroundYou: {
+    message: 'Showing other libraries around you.',
+    context: '',
+  },
+  noLibraries: {
+    message: 'No libraries found around you.',
+    context: '',
+  },
+  refresh: {
+    message: 'Refresh',
+    context: '',
+  },
+  addLearningMaterials: {
+    message: 'Add learning materials',
+    context: '',
+  },
+  addLearningMaterialsDescription: {
+    message:
+      'Choose materials to use on your device. You will also be able to add more whenever you are connected to the internet or there are other Kolibris around you.',
+    context: '',
+  },
+  yourLibrary: {
+    message: 'Your library',
     context: '',
   },
 });

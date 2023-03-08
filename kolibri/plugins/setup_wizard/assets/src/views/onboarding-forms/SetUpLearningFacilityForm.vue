@@ -64,7 +64,7 @@
     },
     $trs: {
       setUpFacilityTitle: {
-        message: 'Set up learning facility for this full device',
+        message: 'Set up the learning facility for this full device',
         context: '',
       },
       setUpFacilityDescription: {

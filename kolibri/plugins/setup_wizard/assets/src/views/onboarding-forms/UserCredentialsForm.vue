@@ -261,7 +261,7 @@
       },
       adminAccountCreationDescription: {
         message:
-          'This account allows you to manage the facility, resources, and user accounts on this device',
+          'This super admin account allows you to manage all facilities, resources, and users on this device.',
         context: "Description of the 'Create super admin account' page.",
       },
       learnerAccountCreationHeader: {

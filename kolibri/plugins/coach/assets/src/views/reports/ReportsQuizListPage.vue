@@ -322,7 +322,7 @@
           "Title that displays on a printed copy of the 'Reports' > 'Quizzes' page. This shows if the user uses the 'Print' option by clicking on the printer icon and displays on the downloadable CSV file.",
       },
       totalQuizSize: {
-        message: 'Total size of quizzes that are visible to learners: {size}',
+        message: 'Total size of quizzes visible to learners: {size}',
         context:
           'Descriptive text at the top of the table that displays the calculated file size of all quiz resources (i.e. 120 MB)',
       },

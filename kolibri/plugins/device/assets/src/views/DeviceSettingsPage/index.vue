@@ -1002,7 +1002,7 @@
       },
       allowLearnersDownloadDescription: {
         message:
-          "Allow users to explore resources they don't have and mark it for Kolibri to automatically download when it's available in their network.",
+          'Allow users to mark resources for Kolibri to download when available in their network.',
         context:
           "Description for 'Allow learners to download resources' option under 'Auto-download' section.",
       },
@@ -1016,7 +1016,7 @@
         context: "Description for 'Set storage limit' option under 'Auto-download' section.",
       },
       addStorageLocation: {
-        message: 'Add storage location ',
+        message: 'Add storage location',
         context: 'Menu option for storage paths',
       },
       removeStorageLocation: {

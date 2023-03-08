@@ -202,21 +202,21 @@
     },
     $trs: {
       header: {
-        message: 'Select super admin account',
+        message: 'Select super admin',
         context: 'Page title,',
       },
       description: {
         message:
-          'This account allows you to manage all facilities, resources, and user accounts on this device.',
+          'This super admin account allows you to manage all facilities, resources, and users on this device.',
 
         context: 'Explanation of what the super admin account is used for on device.',
       },
       chooseAdminPrompt: {
-        message: "Choose an admin from '{facility}' or create a new super admin.",
+        message: "Choose an admin from '{facility}' learning facility or create a new super admin.",
         context: 'Prompt that goes above a select input of options for admins',
       },
       enterPasswordPrompt: {
-        message: "Enter the password for '{username}'",
+        message: "Enter the password for '{username}' in '{facility_name}' learning facility",
         context: 'Prompt that goes above the password input.',
       },
       createSuperAdminOption: {

@@ -111,7 +111,7 @@
     $trs: {
       description: {
         message:
-          'If you are setting up Kolibri to be used by other users, you or someone you delegate will be responsible for protecting and managing the user accounts and personal information stored on this device.',
+          'If you are setting up Kolibri for other users, you or someone you delegate will need to be responsible for protecting and managing their accounts and personal information.',
         context: "Description of the 'Responsibilities as an administrator' page.",
       },
       header: {
