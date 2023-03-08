@@ -1,3 +1,5 @@
+import { LearningActivities } from 'kolibri.coreVue.vuex.constants';
+
 // a name for every URL pattern
 export const PageNames = {
   ROOT: 'ROOT',
@@ -43,3 +45,13 @@ export const pageNameToModuleMap = {
 };
 
 export const KolibriStudioId = 'kolibri-studio';
+
+export const LearningActivityToIconMap = {
+  [LearningActivities.CREATE]: 'createSolid',
+  [LearningActivities.LISTEN]: 'listenSolid',
+  [LearningActivities.REFLECT]: 'reflectSolid',
+  [LearningActivities.PRACTICE]: 'practiceSolid',
+  [LearningActivities.READ]: 'readSolid',
+  [LearningActivities.WATCH]: 'watchSolid',
+  [LearningActivities.EXPLORE]: 'interactSolid',
+};

@@ -26,36 +26,41 @@
         </template>
         <template #tbody>
           <tbody>
-            <tr>
+            <tr
+              v-for="download in downloads"
+              :key="download.id"
+            >
               <td>
                 <KCheckbox
-                  :checked="resourceIsSelected(1)"
+                  :checked="resourceIsSelected(download.id)"
                   class="download-checkbox"
-                  data-test="userCheckbox"
-                  @change="handleCheckResource(1, $event)"
+                  data-test="downloadCheckbox"
+                  @change="handleCheckResource(download.id, $event)"
                 >
                   <KLabeledIcon
-                    :icon="'watchSolid'"
-                    :label="'Resource 1 Watch this video'"
+                    :icon="getIcon(download)"
+                    :label="download.resource_metadata.title"
                   />
                 </KCheckbox>
               </td>
               <td>
-                f
+                {{ formattedResourceSize(download) }}
               </td>
-              <td>zz</td>
+              <td>
+                {{ formattedTime(download) }}
+              </td>
               <td class="resource-action">
                 <KButton
                   :text="$tr('view')"
                   appearance="flat-button"
-                  @click="viewResource(1)"
+                  @click="viewResource(download.id)"
                 />
               </td>
               <td class="resource-action">
                 <KButton
                   :text="$tr('remove')"
                   appearance="flat-button"
-                  @click="removeResource(1)"
+                  @click="removeResource(download.id)"
                 />
               </td>
             </tr>
@@ -82,7 +87,10 @@
 <script>
 
   import pickBy from 'lodash/pickBy';
+  import { now } from 'kolibri.utils.serverClock';
+  import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import { LearningActivityToIconMap } from '../../../constants';
   import SelectionBottomBar from './SelectionBottomBar.vue';
   import ConfirmationDeleteModal from './ConfirmationDeleteModal.vue';
   import PaginatedListContainerWithBackend from './PaginatedListContainerWithBackend.vue';
@@ -103,6 +111,7 @@
     },
     data() {
       return {
+        now: now(),
         selectedDownloads: [],
         allAreSelected: false,
         totalPageNumber: 3,
@@ -141,11 +150,6 @@
         },
       },
     },
-    watch: {
-      downloads(newVal) {
-        console.log('watch', newVal);
-      },
-    },
     methods: {
       selectAll() {
         this.allAreSelected = !this.allAreSelected;
@@ -172,6 +176,19 @@
         console.log('remove resource', id);
         this.resourcesToDelete = [id];
       },
+      getIcon(download) {
+        return LearningActivityToIconMap[download.resource_metadata.learning_activities[0]];
+      },
+      formattedTime(download) {
+        const datetime = download.date_added;
+        if (this.now - datetime < 10000) {
+          return this.$tr('justNow');
+        }
+        return this.$formatRelative(datetime, { now: this.now });
+      },
+      formattedResourceSize(download) {
+        return bytesForHumans(download.resource_metadata.file_size);
+      },
     },
     $trs: {
       name: {
@@ -185,6 +202,10 @@
       remove: {
         message: 'Remove',
         context: 'Button to remove the resource',
+      },
+      justNow: {
+        message: 'Just now',
+        context: 'This is used to indicate that a download was added to the list very recently',
       },
     },
   };

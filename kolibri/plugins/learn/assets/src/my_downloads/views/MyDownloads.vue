@@ -64,7 +64,7 @@
           />
         </KGridItem>
       </KGrid>
-      <DownloadsList :downloads="downloads" />
+      <DownloadsList :downloads="downloads || []" />
     </KPageContainer>
   </AppBarPage>
 

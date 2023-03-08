@@ -31,6 +31,7 @@ export default function useDownloadRequests(store) {
     const loading = ref(true);
     const dummyDownloadRequests = [
       {
+        id: '2ea9bda8703241be89b5b9fd87f88113',
         user_id: store.getters.currentUserId,
         reason: 'USER_INITIATED',
         facility_id: store.getters.currentFacilityId,
