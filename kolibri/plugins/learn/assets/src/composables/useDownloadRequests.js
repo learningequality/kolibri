@@ -2,7 +2,7 @@
  * A composable function containing logic related to download requests
  */
 
-import { getCurrentInstance, reactive } from 'kolibri.lib.vueCompositionApi';
+import { getCurrentInstance, reactive, ref } from 'kolibri.lib.vueCompositionApi';
 import Vue from 'kolibri.lib.vue';
 import { createTranslator } from 'kolibri.utils.i18n';
 import { set } from '@vueuse/core';
@@ -28,6 +28,7 @@ const downloadRequestMap = reactive({});
 export default function useDownloadRequests(store) {
   store = store || getCurrentInstance().proxy.$store;
   function fetchUserDownloadRequests() {
+    const loading = ref(true);
     const dummyDownloadRequests = [
       {
         user_id: store.getters.currentUserId,
@@ -46,6 +47,8 @@ export default function useDownloadRequests(store) {
     for (const req of dummyDownloadRequests) {
       set(downloadRequestMap, req.node_id, req);
     }
+    setTimeout(() => set(loading, false), 5000);
+    return loading;
   }
 
   function navigateToDownloads() {}
