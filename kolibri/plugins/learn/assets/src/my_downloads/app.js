@@ -15,9 +15,6 @@ class MyDownloadsModule extends KolibriApp {
     return pluginModule;
   }
   ready() {
-    // router.afterEach((toRoute, fromRoute) => {
-    // this.store.dispatch('resetModuleState', { toRoute, fromRoute });
-    // });
     super.ready();
   }
 }
