@@ -511,7 +511,7 @@
         context: 'Message to the user after completing a resource with additional suggestions.',
       },
       helpfulResourcesDescription: {
-        message: 'Here are some related resources we think you’ll find helpful',
+        message: "Here are some related resources we think you'll find helpful",
         context: "Description on the 'Resource completed' window.",
       },
     },

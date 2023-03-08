@@ -60,7 +60,7 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
       'Message when the user successfully finishes a resource or marks a resource as complete',
   },
   dontShowThisAgainLabel: {
-    message: 'Don’t show this again',
+    message: "Don't show this again",
     context:
       'Option that allows the user to prevent this resource from displaying in the future while using category search',
   },

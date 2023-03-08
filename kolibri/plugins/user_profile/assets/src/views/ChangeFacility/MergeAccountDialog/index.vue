@@ -200,18 +200,18 @@
       },
       mergeAccountUserInfo: {
         message:
-          'Enter the password of the account ‘{username}’ in ‘{target_facility}’ learning facility that you want to merge your account with.',
+          "Enter the password of the account '{username}'' in '{target_facility}' learning facility that you want to merge your account with.",
         context:
           'Line of text asking for the password of the user to be merged in the target facility.',
       },
       mergeAccountUsingAdminAccount: {
         message:
-          'Enter the username and password of a facility admin or a super admin for ‘{target_facility}’ learning facility.',
+          "Enter the username and password of a facility admin or a super admin for '{target_facility}' learning facility.",
         context:
           'Line of text asking for the credentials of an admin account in the target facility.',
       },
       doNotKnowPassword: {
-        message: 'Don’t know the password?',
+        message: "Don't know the password?",
         context:
           'Giving an option if the user does not know the password for this user in the target facility',
       },

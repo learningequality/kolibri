@@ -299,25 +299,25 @@
         context: 'Title of this step for the change facility page.',
       },
       success: {
-        message: 'Successfully joined ‘{target_facility}’ learning facility.',
+        message: "Successfully joined '{target_facility}' learning facility.",
         context: 'Status message for a successful task.',
       },
       // eslint-disable-next-line kolibri/vue-no-unused-translations
       userExistsError: {
         message:
-          '‘{username}’ already exists in ‘{target_facility}’. Please choose a different username.',
+          "User '{username}' already exists in '{target_facility}'. Please choose a different username.",
         context: 'Error message for a user already existing in the target facility.',
       },
       // eslint-disable-next-line kolibri/vue-no-unused-translations
       userAdminError: {
         message:
-          '‘{username}’ already exists in ‘{target_facility}’ and ‘{username}’ is not a learner. Please choose a different username.',
+          "User '{username}' already exists in '{target_facility}' is not a learner. Please choose a different username.",
         context: 'Error message for a user being other than a learner in the target facility.',
       },
       // eslint-disable-next-line kolibri/vue-no-unused-translations
       failedTaskError: {
         message:
-          'Merging task for ‘{username}’ has failed due to some problem connecting to the ‘{target_facility}’. Please, check your network connection and try again.',
+          "Merging task for '{username}' has failed due to some problem connecting to the '{target_facility}'. Please, check your network connection and try again.",
         context: 'Error message for a connection error when merging the user',
       },
     },

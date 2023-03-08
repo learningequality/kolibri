@@ -1454,7 +1454,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context: '',
   },
   dontKnowUserName: {
-    message: 'Don’t know the username?',
+    message: "Don't know the username?",
     context: '',
   },
   editAccountDetails: {
