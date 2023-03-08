@@ -141,6 +141,11 @@
         },
       },
     },
+    watch: {
+      downloads(newVal) {
+        console.log('watch', newVal);
+      },
+    },
     methods: {
       selectAll() {
         this.allAreSelected = !this.allAreSelected;

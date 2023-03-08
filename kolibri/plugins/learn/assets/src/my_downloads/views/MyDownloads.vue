@@ -1,6 +1,9 @@
 <template>
 
-  <AppBarPage :title="coreString('myDownloadsLabel')">
+  <AppBarPage
+    :title="coreString('myDownloadsLabel')"
+    :loading="loading"
+  >
     <KPageContainer class="container">
       <h1> {{ coreString('myDownloadsLabel') }} </h1>
       <KGrid>
@@ -61,7 +64,7 @@
           />
         </KGridItem>
       </KGrid>
-      <DownloadsList :downloads="[]" />
+      <DownloadsList :downloads="downloads" />
     </KPageContainer>
   </AppBarPage>
 
@@ -70,9 +73,12 @@
 
 <script>
 
+  import { computed } from 'kolibri.lib.vueCompositionApi';
   import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+
+  import useDownloadRequests from '../../composables/useDownloadRequests';
   import DownloadsList from './DownloadsList';
 
   export default {
@@ -82,6 +88,12 @@
       DownloadsList,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
+    setup() {
+      const { downloadRequestMap, fetchUserDownloadRequests } = useDownloadRequests();
+      const loading = fetchUserDownloadRequests();
+      const downloads = computed(() => Object.values(downloadRequestMap));
+      return { loading, downloads };
+    },
     data() {
       return {
         activityTypeSelected: {
