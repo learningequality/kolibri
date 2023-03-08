@@ -103,7 +103,7 @@
       },
       confirmAccountLine2: {
         message:
-          "You can continue using this username or create a new account for '{target_facility}'.",
+          "You can continue with this username or create a new account for '{target_facility}'.",
         context:
           'Second line of text confirming the username and facility where the user is changing',
       },

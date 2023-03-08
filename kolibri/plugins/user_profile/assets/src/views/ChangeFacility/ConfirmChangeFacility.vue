@@ -94,7 +94,7 @@
       },
       changeFacilityInfoLine1: {
         message:
-          "You are about to move your account and progress data to '{target_facility}'' learning facility. Your current data will still be available to you and will also be accessible to any administrators of this learning facility.",
+          "You are about to move your account and progress data to '{target_facility}' learning facility. Your current data will still be available to you and will also be accessible to any administrators of this learning facility.",
         context: 'First line of text explaining what changing to another learning facility means.',
       },
       changeFacilityInfoLine2: {
