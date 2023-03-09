@@ -7,7 +7,7 @@
     >
       <KGridItem>
         <h2>
-          <KIcon icon="device" />
+          <KIcon :icon="getDeviceIcon(group)" />
           <span class="device-name">{{ group.deviceName }}</span>
         </h2>
       </KGridItem>
@@ -30,6 +30,8 @@
 <script>
 
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
+  import useDevices from './../../composables/useDevices';
+  import useChannels from './../../composables/useChannels';
   import CardContent from './CardContent';
 
   export default {
@@ -39,8 +41,12 @@
     },
     setup() {
       const { windowBreakpoint } = useKResponsiveWindow();
+      const { fetchDevices } = useDevices();
+      const { fetchChannels } = useChannels();
       return {
         windowBreakpoint,
+        fetchDevices,
+        fetchChannels,
       };
     },
     data() {
@@ -49,6 +55,7 @@
           {
             id: 1,
             deviceName: 'Samson`s MacBook-Pro',
+            operating_system: 'linux',
             content: [
               {
                 id: 1,
@@ -65,6 +72,7 @@
           {
             id: 2,
             deviceName: 'Marcella MBP',
+            operating_system: 'Android',
             content: [
               {
                 id: 1,
@@ -89,7 +97,38 @@
         return 3;
       },
     },
-    created() {},
+    created() {
+      this.fetchDevices().then(devices => {
+        console.log(devices);
+        for (const device of devices) {
+          const baseurl = device.base_url;
+          this.fetchChannels({ baseurl })
+            .then(channels => {
+              this.setNetworkDeviceChannels(device, channels.slice(0, 4), channels.length);
+            })
+            .catch(() => {
+              this.setNetworkDeviceChannels(device, [], 0);
+            });
+        }
+      });
+    },
+    methods: {
+      setNetworkDeviceChannels(device, channels, total) {
+        this.$set(device, 'channels', channels.slice(0, 4));
+        this.$set(device, 'total_channels', total);
+      },
+      getDeviceIcon(device) {
+        if (device['operating_system'] === 'Darwin') {
+          return 'laptop';
+        } else if (device['operating_system'] === 'Android') {
+          return 'device';
+        } else if (device.subset_of_users_device) {
+          return 'cloud';
+        } else {
+          return 'laptop';
+        }
+      },
+    },
   };
 
 </script>

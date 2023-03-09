@@ -6,9 +6,11 @@
       :key="device.id"
       :layout="{ span: cardColumnSpan, alignment: 'auto' }"
     >
+      <p>{{ device.channels }}</p>
       <UnPinnedDevices
         :deviceName="device.device_name"
         :channels="device.channels"
+        :allDevices="device"
       />
     </KGridItem>
   </KGrid>
@@ -62,6 +64,7 @@
           this.devices.push(element);
         });
       });
+      console.log(this.devices);
     },
   };
 
