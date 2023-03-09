@@ -7,7 +7,7 @@
     <div class="" style="width:250px;height:100px;">
       <h2 class="device-name">
         <span>
-          <KIcon icon="device" />
+          <KIcon :icon="getDeviceIcon(allDevices)" />
         </span>
         <span>
           <TextTruncator
@@ -53,6 +53,11 @@
         required: false,
         default: 0,
       },
+      allDevices: {
+        type: Object,
+        required: false,
+        default: null,
+      },
     },
 
     computed: {
@@ -63,6 +68,19 @@
           marginBottom: `${this.windowGutter}px`,
           minHeight: `${this.overallHeight}px`,
         };
+      },
+    },
+    methods: {
+      getDeviceIcon(device) {
+        if (device['operating_system'] === 'Darwin') {
+          return 'laptop';
+        } else if (device['operating_system'] === 'Android') {
+          return 'device';
+        } else if (!device['subset_of_users_device']) {
+          return 'cloud';
+        } else {
+          return 'laptop';
+        }
       },
     },
   };

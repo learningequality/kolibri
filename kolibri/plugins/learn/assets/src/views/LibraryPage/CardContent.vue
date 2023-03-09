@@ -4,10 +4,15 @@
     class="card-main-wrapper"
     :style="cardStyle"
   >
-    <div class="" style="width:250px;height:250px;text-align:center;margin-top:80px">
-      <h2>
-        {{ body }}
-      </h2>
+    <div class="" style="width:250px;height:250px;">
+      <div class="card-body">
+        <div class="explore">
+          {{ body }}
+        </div>
+        <div class="side-icon">
+          <KIcon icon="wifi" />
+        </div>
+      </div>
     </div>
   </div>
 
@@ -83,6 +88,22 @@
 
   .cardgroup .card-main-wrapper {
     display: inline-flex;
+  }
+
+  .side-icon {
+    margin-top: 220px;
+    text-align: right;
+  }
+
+  .explore {
+    margin-top: 120px;
+    font-size: 25px;
+    font-weight: bold;
+    text-align: center;
+  }
+
+  .card-body {
+    width: 100%;
   }
 
 </style>
