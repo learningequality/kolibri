@@ -246,7 +246,6 @@
 
   .card {
     position: relative;
-    min-height: 246px;
     vertical-align: top;
     border-radius: 8px;
     transition: box-shadow $core-time ease;
@@ -261,10 +260,6 @@
     display: block;
     width: 100%;
     text-decoration: none;
-  }
-
-  .mobile-card {
-    min-height: 400px;
   }
 
   .metadata-info {
@@ -320,5 +315,11 @@
   .text-area {
     margin-bottom: $footer-height;
   }
+
+  @media only screen and (max-width: 720px) {
+    .text-area {
+      margin-bottom: 0;
+    }
+}
 
 </style>
