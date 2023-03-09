@@ -20,7 +20,7 @@
           <KGrid>
             <KGridItem>
               <KSelect
-                v-model="selectedItem"
+                :value="selectedItem"
                 class="selector"
                 :style="selectorStyle"
                 :options="selectArray"
@@ -36,7 +36,7 @@
           >
             <KGridItem>
               <KSelect
-                v-model="selectedDay"
+                :value="selectedDay"
                 class="selector"
                 :style="selectorStyle"
                 :options="getDays"
@@ -52,7 +52,7 @@
           >
             <KGridItem>
               <KSelect
-                v-model="selectedTime"
+                :value="selectedTime"
                 class="selector"
                 :style="selectorStyle"
                 :options="SyncTime"
@@ -66,7 +66,7 @@
 
           <p class="spacing">
             {{ $tr('serverTime') }}
-            {{ now }}
+            {{ serverTime }}
           </p>
 
           <p class="spacing">
@@ -173,11 +173,13 @@
         deviceName: null,
         device: [],
         now: now(),
-        selectedItem: '',
+        selectedItem: {},
         tasks: [],
-        selectedDay: null,
-        selectedTime: null,
+        selectedDay: {},
+        selectedTime: {},
         removeBtn: false,
+        serverTime: now(),
+        baseurl: null,
       };
     },
     computed: {
@@ -231,15 +233,14 @@
         const interval = 30;
 
         const times = [];
+        var i = 0;
         const time = new Date();
         time.setHours(0, 0, 0, 0);
 
         while (time < endTime) {
-          times.push(this.$formatTime(time));
-
+          times.push({ label: this.$formatTime(time), value: i++ });
           time.setMinutes(time.getMinutes() + interval);
         }
-
         return times;
       },
     },
@@ -292,11 +293,12 @@
       },
 
       cancelBtn() {
-        this.$router.push({ name: PageNames.ManageSyncSchedule });
+        this.$router.push({ name: PageNames.MANAGE_SYNC_SCHEDULE });
       },
       fetchDevice() {
         NetworkLocationResource.fetchModel({ id: this.$route.params.deviceId }).then(device => {
           this.device = device;
+          this.baseurl = device.base_url;
           TaskResource.list({ queue: 'facility_task' }).then(tasks => {
             this.tasks = tasks.filter(
               task =>

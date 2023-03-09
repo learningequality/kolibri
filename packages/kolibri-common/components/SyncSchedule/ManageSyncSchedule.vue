@@ -18,7 +18,8 @@
 
 
         <KGridItem :layout8="{ span: 4 }" :layout12="{ span: 6 }" class="separate">
-          <b>{{ facility.name }}</b>
+          <b v-if="facility">{{ facility.name }}</b>
+          <KCircularLoader v-else />
         </KGridItem>
         <KGridItem
           :layout="{ alignment: 'right' }"
@@ -135,7 +136,7 @@
             :layout8="{ span: 4 }"
             :layout12="{ span: 6 }"
           >
-            <div v-if="data.length > 0">
+            <div v-if="data && data.length > 0">
               <div v-for="btn in data" :key="btn.id">
                 <div>
                   <KRadioButton
