@@ -53,6 +53,9 @@ class MergeUserValidator(PeerImportSingleSyncJobValidator):
             "password": data["password"],
             "facility": facility,
         }
+        for f in ["gender", "birth_year", "id_number", "full_name"]:
+            if getattr(data["local_user_id"], f, None):
+                user_data[f] = getattr(data["local_user_id"], f, None)
         public_signup_url = reverse_remote(baseurl, "kolibri:core:publicsignup-list")
         response = requests.post(public_signup_url, data=user_data)
         if response.status_code != HTTP_201_CREATED:
@@ -111,7 +114,7 @@ def mergeuser(command, **kwargs):
     merge_users(local_user, remote_user)
 
     # Resync with the server to update the merged records
-    # kwargs["no_pull"] = True
+    kwargs["no_pull"] = True
     del kwargs["no_push"]
     call_command("sync", **kwargs)
     new_superuser_id = kwargs.get("new_superuser_id")
