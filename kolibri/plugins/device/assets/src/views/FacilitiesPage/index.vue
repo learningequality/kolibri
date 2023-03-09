@@ -194,6 +194,7 @@
   const Options = Object.freeze({
     REGISTER: 'REGISTER',
     REMOVE: 'REMOVE',
+    MANAGESYNC: 'MANAGE SYNC',
   });
 
   export default {
