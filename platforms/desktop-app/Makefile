@@ -32,6 +32,7 @@ install-whl:
 	pip3 install sqlalchemy==$$version --no-binary :all:
 	# Delete sqlalchemy from the dist folder
 	rm -rf kolibri/kolibri/dist/sqlalchemy
+	rm -rf kolibri/kolibri/dist/SQLAlchemy*
 	# This doesn't exist in 0.15, so don't error if it doesn't exist.
 	echo "3.3.1" > kolibri/kolibri/dist/importlib_resources/version.txt || true
 
