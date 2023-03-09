@@ -23,11 +23,17 @@ const translator = createTranslator('DownloadRequests', {
 });
 
 // The reactive is defined in the outer scope so it can be used as a shared store
-const downloadRequestMap = reactive({});
+const downloadRequestMap = reactive({
+  downloads: {},
+  totalPageNumber: 0,
+  totalDownloads: 0,
+});
 
 export default function useDownloadRequests(store) {
   store = store || getCurrentInstance().proxy.$store;
-  function fetchUserDownloadRequests() {
+  function fetchUserDownloadRequests(params) {
+    console.log('Executing fetchUserDownloadRequests', params);
+    const { page, pageSize } = params;
     const loading = ref(true);
     const dummyDownloadRequests = [
       {
@@ -44,11 +50,42 @@ export default function useDownloadRequests(store) {
         },
         node_id: '2ea9bda8703241be89b5b9fd87f88815',
       },
+      {
+        id: '2ea9bda8703241be89b5b9fd87f88111',
+        user_id: store.getters.currentUserId,
+        reason: 'USER_INITIATED',
+        facility_id: store.getters.currentFacilityId,
+        status: 'QUEUED',
+        date_added: new Date(),
+        resource_metadata: {
+          title: 'Intro to addition 2',
+          file_size: 1113580,
+          learning_activities: ['UD5UGM0z'],
+        },
+        node_id: '2ea9bda8703241be89b5b9fd87f88817',
+      },
     ];
-    for (const req of dummyDownloadRequests) {
-      set(downloadRequestMap, req.node_id, req);
-    }
-    setTimeout(() => set(loading, false), 5000);
+    setTimeout(() => {
+      set(downloadRequestMap, 'downloads', {});
+      for (let i = 0; i < pageSize; i++) {
+        const index = (page - 1) * pageSize + i;
+        if (index >= dummyDownloadRequests.length) {
+          break;
+        }
+        set(
+          downloadRequestMap.downloads,
+          dummyDownloadRequests[index].node_id,
+          dummyDownloadRequests[index]
+        );
+      }
+      set(
+        downloadRequestMap,
+        'totalPageNumber',
+        Math.ceil(dummyDownloadRequests.length / pageSize)
+      );
+      set(downloadRequestMap, 'totalDownloads', dummyDownloadRequests.length);
+      set(loading, false);
+    }, 500);
     return loading;
   }
 

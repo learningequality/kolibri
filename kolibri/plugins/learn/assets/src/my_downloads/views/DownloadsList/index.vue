@@ -6,7 +6,7 @@
       v-model="currentPage"
       :itemsPerPage="itemsPerPage"
       :totalPageNumber="totalPageNumber"
-      :numFilteredItems="numFilteredItems"
+      :numFilteredItems="totalDownloads"
     >
       <CoreTable>
         <template #headers>
@@ -15,8 +15,8 @@
               showLabel
               class="select-all"
               :label="$tr('name')"
-              :checked="allAreSelected"
-              :disabled="false && (!downloads || downloads.length === 0)"
+              :checked="areAllSelected"
+              :disabled="!downloads || Object.keys(downloads).length === 0"
               :style="{ color: $themeTokens.annotation }"
               @change="selectAll($event)"
             />
@@ -27,15 +27,15 @@
         <template #tbody>
           <tbody>
             <tr
-              v-for="download in downloads"
-              :key="download.id"
+              v-for="download in Object.values(downloads)"
+              :key="download.node_id"
             >
               <td>
                 <KCheckbox
-                  :checked="resourceIsSelected(download.id)"
+                  :checked="resourceIsSelected(download.node_id)"
                   class="download-checkbox"
                   data-test="downloadCheckbox"
-                  @change="handleCheckResource(download.id, $event)"
+                  @change="handleCheckResource(download.node_id, $event)"
                 >
                   <KLabeledIcon
                     :icon="getIcon(download)"
@@ -53,14 +53,14 @@
                 <KButton
                   :text="$tr('view')"
                   appearance="flat-button"
-                  @click="viewResource(download.id)"
+                  @click="viewResource(download.node_id)"
                 />
               </td>
               <td class="resource-action">
                 <KButton
                   :text="$tr('remove')"
                   appearance="flat-button"
-                  @click="removeResource(download.id)"
+                  @click="removeResource(download.node_id)"
                 />
               </td>
             </tr>
@@ -105,7 +105,15 @@
     },
     props: {
       downloads: {
-        type: Array,
+        type: Object,
+        required: true,
+      },
+      totalDownloads: {
+        type: Number,
+        required: true,
+      },
+      totalPageNumber: {
+        type: Number,
         required: true,
       },
     },
@@ -113,9 +121,6 @@
       return {
         now: now(),
         selectedDownloads: [],
-        allAreSelected: false,
-        totalPageNumber: 3,
-        numFilteredItems: 30,
         resourcesToDelete: [],
       };
     },
@@ -136,7 +141,7 @@
       },
       itemsPerPage: {
         get() {
-          return this.$route.query.page_size || 30;
+          return Number(this.$route.query.page_size || 30);
         },
         set(value) {
           this.$router.push({
@@ -149,14 +154,22 @@
           });
         },
       },
+      areAllSelected() {
+        return Object.keys(this.downloads).every(id => this.selectedDownloads.includes(id));
+      },
     },
     methods: {
       selectAll() {
-        this.allAreSelected = !this.allAreSelected;
-        if (this.allAreSelected) {
-          this.selectedDownloads = this.downloads;
+        if (this.areAllSelected) {
+          this.selectedDownloads = this.selectedDownloads.filter(
+            resourceId => !Object.keys(this.downloads).includes(resourceId)
+          );
         } else {
-          this.selectedDownloads = [];
+          Object.keys(this.downloads).forEach(id => {
+            if (!this.selectedDownloads.includes(id)) {
+              this.selectedDownloads.push(id);
+            }
+          });
         }
       },
       handleCheckResource(id, checked) {
