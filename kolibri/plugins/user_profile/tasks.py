@@ -111,7 +111,7 @@ def mergeuser(command, **kwargs):
     merge_users(local_user, remote_user)
 
     # Resync with the server to update the merged records
-    # kwargs["no_pull"] = True
+    kwargs["no_pull"] = True
     del kwargs["no_push"]
     call_command("sync", **kwargs)
     new_superuser_id = kwargs.get("new_superuser_id")
