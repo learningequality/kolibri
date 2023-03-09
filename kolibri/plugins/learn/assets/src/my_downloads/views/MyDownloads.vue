@@ -2,7 +2,7 @@
 
   <AppBarPage
     :title="coreString('myDownloadsLabel')"
-    :loading="loading"
+    :loading="loading.value"
   >
     <KPageContainer class="container">
       <h1> {{ coreString('myDownloadsLabel') }} </h1>
@@ -64,7 +64,11 @@
           />
         </KGridItem>
       </KGrid>
-      <DownloadsList :downloads="downloads || []" />
+      <DownloadsList
+        :downloads="downloads || {}"
+        :totalDownloads="totalDownloads"
+        :totalPageNumber="totalPageNumber"
+      />
     </KPageContainer>
   </AppBarPage>
 
@@ -73,11 +77,11 @@
 
 <script>
 
-  import { computed } from 'kolibri.lib.vueCompositionApi';
+  import { get, set } from '@vueuse/core';
   import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
+  import { computed, getCurrentInstance, watch, ref } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-
   import useDownloadRequests from '../../composables/useDownloadRequests';
   import DownloadsList from './DownloadsList';
 
@@ -90,9 +94,41 @@
     mixins: [commonCoreStrings, responsiveWindowMixin],
     setup() {
       const { downloadRequestMap, fetchUserDownloadRequests } = useDownloadRequests();
-      const loading = fetchUserDownloadRequests();
-      const downloads = computed(() => Object.values(downloadRequestMap));
-      return { loading, downloads };
+      const store = getCurrentInstance().proxy.$store;
+      const route = computed(() => store.state.route);
+      const query = computed(() => get(route).query);
+      const pageNumber = computed(() => Number(query.value.page || 1));
+      const pageSizeNumber = computed(() => Number(query.value.page_size || 30));
+      const loading = ref(true);
+      const downloads = ref({});
+      const totalDownloads = ref(0);
+      const totalPageNumber = ref(0);
+      const fetchDownloads = () => {
+        const loadingFetch = fetchUserDownloadRequests({
+          page: pageNumber.value,
+          pageSize: pageSizeNumber.value,
+          sort: 'desc',
+        });
+        set(loading, loadingFetch);
+        set(downloads, downloadRequestMap.downloads);
+        console.log('downloads', { ...downloads.value });
+      };
+      fetchDownloads();
+
+      watch(route, fetchDownloads);
+      watch(downloadRequestMap, () => {
+        set(downloads, downloadRequestMap.downloads);
+        set(totalDownloads, downloadRequestMap.totalDownloads);
+        set(totalPageNumber, downloadRequestMap.totalPageNumber);
+      });
+      console.log('totalDownloads', totalDownloads.value);
+      console.log('totalPageNumber', totalPageNumber.value);
+      return {
+        loading,
+        downloads,
+        totalDownloads,
+        totalPageNumber,
+      };
     },
     data() {
       return {
