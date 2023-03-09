@@ -369,12 +369,14 @@ class GenerateCSVLogRequest(models.Model):
         ("summary", "Summary"),
     ]
     permissions = RoleBasedPermissions(
-        target_field="collection",
-        can_be_created_by=(role_kinds.ADMIN),
-        can_be_read_by=(role_kinds.ADMIN),
-        can_be_updated_by=(role_kinds.ADMIN),
-        can_be_deleted_by=(role_kinds.ADMIN),
+        target_field="facility",
+        can_be_created_by=(role_kinds.ADMIN,),
+        can_be_read_by=(role_kinds.ADMIN,),
+        can_be_updated_by=(role_kinds.ADMIN,),
+        can_be_deleted_by=(role_kinds.ADMIN,),
+        is_syncable=False,
     )
+
     facility = models.ForeignKey(Facility, on_delete=models.CASCADE)
     selected_start_date = DateTimeTzField()
     selected_end_date = DateTimeTzField()
