@@ -200,7 +200,7 @@
       },
       mergeAccountUserInfo: {
         message:
-          "Enter the password of the account '{username}'' in '{target_facility}' learning facility that you want to merge your account with.",
+          "Enter the password of the account '{username}' in '{target_facility}' learning facility that you want to merge your account with.",
         context:
           'Line of text asking for the password of the user to be merged in the target facility.',
       },
