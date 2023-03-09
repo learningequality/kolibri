@@ -4,7 +4,12 @@
     class="card-main-wrapper"
     :style="cardStyle"
   >
-    <div class="" style="width:250px;height:100px;">
+    <KRouterLink
+      :text="allDevices.nickname.length ? allDevices.nickname : allDevices.device_name"
+      :to="{ name: 'LIBRARY', params: { deviceId: allDevices.id } }"
+      primary="raised-button"
+      style="text-decoration:none;"
+    >
       <h2 class="device-name">
         <span>
           <KIcon :icon="getDeviceIcon(allDevices)" />
@@ -19,7 +24,7 @@
       <p class="channels">
         {{ channels }} channel(s)
       </p>
-    </div>
+    </KRouterLink>
   </div>
 
 </template>
@@ -67,6 +72,7 @@
           color: this.$themeTokens.text,
           marginBottom: `${this.windowGutter}px`,
           minHeight: `${this.overallHeight}px`,
+          textAlign: 'center',
         };
       },
     },
