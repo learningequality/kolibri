@@ -113,10 +113,7 @@
         return this.$formatRelative(datetime, { now: this.now });
       },
       manageSync() {
-        this.$router.push({
-          name: SyncPageNames.MANAGE_SYNC_SCHEDULE,
-          params: { facility_id: this.facility.id },
-        });
+        this.$router.push({ name: PageNames.MANAGE_SYNC_SCHEDULE });
       },
     },
     $trs: {
