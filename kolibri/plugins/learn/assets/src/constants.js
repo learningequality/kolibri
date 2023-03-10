@@ -1,4 +1,5 @@
 import { LearningActivities } from 'kolibri.coreVue.vuex.constants';
+import coreStrings from 'kolibri.utils.coreStrings';
 
 // a name for every URL pattern
 export const PageNames = {
@@ -54,4 +55,14 @@ export const LearningActivityToIconMap = {
   [LearningActivities.READ]: 'readSolid',
   [LearningActivities.WATCH]: 'watchSolid',
   [LearningActivities.EXPLORE]: 'interactSolid',
+};
+
+export const LearningActivityToLabelMap = {
+  [LearningActivities.CREATE]: coreStrings.$tr('create'),
+  [LearningActivities.LISTEN]: coreStrings.$tr('listen'),
+  [LearningActivities.REFLECT]: coreStrings.$tr('reflect'),
+  [LearningActivities.PRACTICE]: coreStrings.$tr('practice'),
+  [LearningActivities.READ]: coreStrings.$tr('read'),
+  [LearningActivities.WATCH]: coreStrings.$tr('watch'),
+  [LearningActivities.EXPLORE]: coreStrings.$tr('explore'),
 };

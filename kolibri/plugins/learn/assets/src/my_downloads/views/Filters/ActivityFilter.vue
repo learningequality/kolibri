@@ -1,0 +1,104 @@
+<template>
+
+  <KSelect
+    class="selector"
+    :style="selectorStyle"
+    :inline="windowIsLarge"
+    label="Activity type"
+    :options="activityTypes"
+    :value="selected"
+    @change="handleActivityTypeChange($event.value)"
+  >
+    <template #display>
+      <KLabeledIcon
+        :label="selected.label"
+        :icon="selected.icon"
+      />
+    </template>
+    <template #option="{ option }">
+      <KLabeledIcon
+        :label="option.label"
+        :icon="option.icon"
+        :style="{ padding: '8px' }"
+      />
+    </template>
+  </KSelect>
+
+</template>
+
+
+<script>
+
+  import pickBy from 'lodash/pickBy';
+  import { LearningActivities } from 'kolibri.coreVue.vuex.constants';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import { LearningActivityToIconMap, LearningActivityToLabelMap } from '../../../constants';
+
+  export default {
+    name: 'ActivityFilter',
+    mixins: [responsiveWindowMixin],
+    data() {
+      return {
+        activityTypes: [
+          {
+            label: 'All',
+            value: 'all',
+            icon: 'allActivities',
+          },
+          ...[
+            LearningActivities.WATCH,
+            LearningActivities.READ,
+            LearningActivities.PRACTICE,
+            LearningActivities.REFLECT,
+            LearningActivities.LISTEN,
+            LearningActivities.CREATE,
+            LearningActivities.EXPLORE,
+          ].map(activity => ({
+            label: LearningActivityToLabelMap[activity],
+            value: activity,
+            icon: LearningActivityToIconMap[activity],
+          })),
+        ],
+      };
+    },
+    computed: {
+      selectorStyle() {
+        return {
+          color: this.$themeTokens.text,
+          backgroundColor: this.$themePalette.grey.v_200,
+          borderRadius: '2px',
+          marginTop: '16px',
+          marginBottom: 0,
+          width: this.windowIsLarge
+            ? 'calc(50% - 16px)' // 16px is the margin of the select
+            : '100%',
+        };
+      },
+      selected() {
+        return this.activityTypes.find(
+          activityType => activityType.value === this.activityTypeSelected
+        );
+      },
+      activityTypeSelected: {
+        get() {
+          return this.$route.query.activity || 'all';
+        },
+        set(value) {
+          this.$router.push({
+            ...this.$route,
+            query: pickBy({
+              ...this.$route.query,
+              activity: value,
+            }),
+          });
+        },
+      },
+    },
+    methods: {
+      handleActivityTypeChange(value) {
+        this.activityTypeSelected = value;
+      },
+    },
+  };
+
+</script>

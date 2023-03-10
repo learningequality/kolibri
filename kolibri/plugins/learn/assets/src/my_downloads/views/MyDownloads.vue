@@ -42,38 +42,8 @@
           :layout8="{ span: 4 }"
           :layout12="{ span: 6 }"
         >
-          <KSelect
-            class="selector"
-            :style="selectorStyle"
-            :inline="windowIsLarge"
-            label="Activity type"
-            :options="activityTypes"
-            :value="activityTypeSelected"
-            @change="handleActivityTypeChange($event.value)"
-          >
-            <template #display>
-              <KLabeledIcon
-                :label="activityTypeSelected.label"
-                :icon="activityTypeSelected.icon"
-              />
-            </template>
-            <template #option="{ option }">
-              <KLabeledIcon
-                :label="option.label"
-                :icon="option.icon"
-                :style="{ padding: '8px' }"
-              />
-            </template>
-          </KSelect>
-          <KSelect
-            class="selector"
-            :style="selectorStyle"
-            :inline="windowIsLarge"
-            label="Sort by"
-            :options="sortOptions"
-            :value="sortOptionSelected"
-            @change="handleSortChange($event.value)"
-          />
+          <ActivityFilter />
+          <SortFilter />
         </KGridItem>
       </KGrid>
       <DownloadsList
@@ -97,12 +67,16 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import useDownloadRequests from '../../composables/useDownloadRequests';
   import DownloadsList from './DownloadsList';
+  import ActivityFilter from './Filters/ActivityFilter.vue';
+  import SortFilter from './Filters/SortFilter.vue';
 
   export default {
     name: 'MyDownloads',
     components: {
       AppBarPage,
       DownloadsList,
+      ActivityFilter,
+      SortFilter,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
     setup() {
@@ -111,12 +85,15 @@
         fetchUserDownloadRequests,
         fetchDownloadsStorageInfo,
       } = useDownloadRequests();
+
       const store = getCurrentInstance().proxy.$store;
       const route = computed(() => store.state.route);
       const query = computed(() => get(route).query);
 
       const pageNumber = computed(() => Number(query.value.page || 1));
       const pageSizeNumber = computed(() => Number(query.value.page_size || 30));
+      const activityType = computed(() => query.value.activity || 'all');
+      const sort = computed(() => query.value.sort || 'newest');
 
       const downloadsLoading = ref(true);
       const downloads = ref({});
@@ -124,13 +101,13 @@
       const totalPageNumber = ref(0);
       const fetchDownloads = () => {
         const loadingFetch = fetchUserDownloadRequests({
+          sort: sort.value,
           page: pageNumber.value,
           pageSize: pageSizeNumber.value,
-          sort: 'desc',
+          activityType: activityType.value,
         });
         set(downloadsLoading, loadingFetch);
         set(downloads, downloadRequestMap.downloads);
-        console.log('downloads', { ...downloads.value });
       };
       fetchDownloads();
 
@@ -149,6 +126,7 @@
         set(totalDownloads, downloadRequestMap.totalDownloads);
         set(totalPageNumber, downloadRequestMap.totalPageNumber);
       });
+
       return {
         downloads,
         downloadsLoading,
@@ -158,103 +136,7 @@
         storageLoading,
       };
     },
-    data() {
-      return {
-        activityTypeSelected: {
-          label: 'All',
-          value: 'all',
-          icon: 'allActivities',
-        },
-        activityTypes: [
-          {
-            label: 'All',
-            value: 'all',
-            icon: 'allActivities',
-          },
-          {
-            label: 'Watch',
-            value: 'watch',
-            icon: 'watchSolid',
-          },
-          {
-            label: 'Read',
-            value: 'read',
-            icon: 'readSolid',
-          },
-          {
-            label: 'Practice',
-            value: 'practice',
-            icon: 'practiceSolid',
-          },
-          {
-            label: 'Reflect',
-            value: 'reflect',
-            icon: 'reflectSolid',
-          },
-          {
-            label: 'Listen',
-            value: 'listen',
-            icon: 'listenSolid',
-          },
-          {
-            label: 'create',
-            value: 'create',
-            icon: 'createSolid',
-          },
-          {
-            label: 'Explore',
-            value: 'explore',
-            icon: 'interactSolid',
-          },
-        ],
-        sortOptionSelected: {
-          label: 'Newest',
-          value: 'newest',
-        },
-        sortOptions: [
-          {
-            label: 'Newest',
-            value: 'newest',
-          },
-          {
-            label: 'Oldest',
-            value: 'oldest',
-          },
-          {
-            label: 'Largest file size',
-            value: 'largest',
-          },
-          {
-            label: 'Smallest file size',
-            value: 'smallest',
-          },
-        ],
-      };
-    },
-    computed: {
-      selectorStyle() {
-        // return styles for child component with class ".selector"
-        return {
-          color: this.$themeTokens.text,
-          backgroundColor: this.$themePalette.grey.v_200,
-          borderRadius: '2px',
-          marginTop: '16px',
-          marginBottom: 0,
-          width: this.windowIsLarge
-            ? 'calc(50% - 16px)' // 16px is the margin of the select
-            : '100%',
-        };
-      },
-    },
     methods: {
-      handleActivityTypeChange(value) {
-        this.activityTypeSelected = this.activityTypes.find(
-          activityType => activityType.value === value
-        );
-      },
-      handleSortChange(value) {
-        this.sortOptionSelected = this.sortOptions.find(sortOption => sortOption.value === value);
-      },
       formattedSize(size) {
         return bytesForHumans(size);
       },
