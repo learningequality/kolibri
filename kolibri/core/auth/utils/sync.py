@@ -97,6 +97,8 @@ def validate_and_create_sync_credentials(
         )
     except (CommandError, HTTPError) as e:
         if not username and not password:
-            raise PermissionDenied()
+            raise PermissionDenied(
+                "Username and password required to validate sync credentials, and were not supplied"
+            )
         else:
             raise AuthenticationFailed(e)
