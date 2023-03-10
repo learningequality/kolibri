@@ -95,6 +95,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Manage sync schedule',
     context: 'Action for managing sync schedule',
   },
+  whenAvailable: {
+    message: 'When available',
+    context: '',
+  },
   retryAction: {
     message: 'Retry',
     context:
@@ -1238,6 +1242,9 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Add to library',
     context: '',
   },
+  selectADevice: {
+    message: 'Select a device from your network',
+  },
   //
   sortBy: {
     message: 'Sort by',
@@ -1350,6 +1357,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       'Error message indicating a user has entered characters other than numbers as their PIN',
   },
+  wrongNumberOfDigits: {
+    message: 'Please enter a 4-digit number',
+    context: 'Error message indicating a user has entered the wrong number of digits as their PIN',
+  },
   noEmptyField: {
     message: 'The field cannot be empty',
     context: 'Error message indicating a user has not added their PIN to the form field',
@@ -1443,7 +1454,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context: '',
   },
   dontKnowUserName: {
-    message: 'Don’t know the username?',
+    message: "Don't know the username?",
     context: '',
   },
   editAccountDetails: {

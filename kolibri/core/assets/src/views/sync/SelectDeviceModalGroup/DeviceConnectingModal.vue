@@ -133,6 +133,19 @@
         context:
           "Error message when testing the connection to a network device fails because Kolibri isn't connected to the internet and the device address is on the internet",
       },
+      /* eslint-disable kolibri/vue-no-unused-translations */
+      devicesNotResponding: {
+        message: 'Some devices are not responding. Please check the connection and try again.',
+        context:
+          'Error message when testing the connection to a network device fails for this reason',
+      },
+      connectionFailureKolibriVersion: {
+        message:
+          "Unable to connect to '{name}'. Please update both devices to Kolibri version {version_number} or higher.",
+        context:
+          "Error message when testing the connection to the network device specified by 'name' fails for this reason",
+      },
+      /* eslint-enable kolibri/vue-no-unused-translations */
     },
   };
 

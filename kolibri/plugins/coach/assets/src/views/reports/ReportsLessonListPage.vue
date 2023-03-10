@@ -288,7 +288,7 @@
       },
     },
     $trs: {
-      visibleLessons: 'Visile lessons',
+      visibleLessons: 'Visible lessons',
       lessonsNotVisible: 'Lessons not visible',
       noVisibleLessons: 'No visible lessons',
       noLessonsNotVisble: 'No lessons not visible',

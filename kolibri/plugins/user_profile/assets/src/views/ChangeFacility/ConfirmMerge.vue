@@ -86,7 +86,7 @@
       },
       confirmMergeInfoLine: {
         message:
-          'You are about to merge all progress data from two different accounts. Progress data includes your interactions with resources, time spent, and points. This cannot be undone.',
+          'You are about to merge two accounts and their progress data. Progress data includes your interactions with resources, time spent, and points. This cannot be undone.',
         context: 'Text explaining the consequences merging will have.',
       },
       consequences: {

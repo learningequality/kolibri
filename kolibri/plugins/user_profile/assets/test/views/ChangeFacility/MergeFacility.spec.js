@@ -87,7 +87,7 @@ describe(`ChangeFacility/ConfirmMerge`, () => {
     expect(wrapper.vm.taskCompleted).toBe(true);
     await wrapper.vm.$nextTick();
     const messageDiv = wrapper.find('[data-test="completedMessage"]');
-    expect(messageDiv.text()).toEqual('Successfully joined ‘Test Facility’ learning facility.');
+    expect(messageDiv.text()).toEqual("Successfully joined 'Test Facility' learning facility.");
   });
 
   it(`clicking finish button sends the finish event to the state machine`, async () => {

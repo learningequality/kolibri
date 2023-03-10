@@ -134,7 +134,7 @@
       },
       confirmAccountUserInfo: {
         message:
-          'Your account will be merged into this account in ‘{target_facility}’. You will need to use the username and password for this account from now on.',
+          "Your account will be merged into this account in '{target_facility}'. You will need to use the username and password for this account from now on.",
         context:
           'Line of text asking for the password of the user to be merged in the target facility.',
       },

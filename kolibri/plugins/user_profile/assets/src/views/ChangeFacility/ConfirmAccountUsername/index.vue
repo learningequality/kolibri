@@ -97,13 +97,13 @@
         context: 'Button for the create new account in the new facility.',
       },
       confirmAccountLine1: {
-        message: 'You are about to join ‘{target_facility}’ learning facility as ‘{username}’.',
+        message: "You are about to join '{target_facility}' learning facility as '{username}'.",
         context:
           'First line of text confirming the username and facility where the user is changing.',
       },
       confirmAccountLine2: {
         message:
-          "You can continue using this username or create a new account for '{target_facility}'.",
+          "You can continue with this username or create a new account for '{target_facility}'.",
         context:
           'Second line of text confirming the username and facility where the user is changing',
       },

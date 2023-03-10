@@ -254,7 +254,7 @@
         context: 'Title of this step for the change facility page.',
       },
       doNotSeeYourFacility: {
-        message: 'Don’t see your learning facility?',
+        message: "Don't see your learning facility?",
         context:
           'This text appears next to the "Add new address" link. This option allows you to add a new network address from which to sync data.',
       },
@@ -270,7 +270,7 @@
       },
       /* eslint-disable kolibri/vue-no-unused-translations */
       noPermissionToJoinFacility: {
-        message: 'You don’t have permission to join this learning facility',
+        message: "You don't have permission to join this learning facility",
         context: '',
       },
       /* eslint-enable kolibri/vue-no-unused-translations */
