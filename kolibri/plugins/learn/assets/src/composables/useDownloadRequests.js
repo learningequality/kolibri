@@ -89,6 +89,22 @@ export default function useDownloadRequests(store) {
     return loading;
   }
 
+  function fetchDownloadsStorageInfo() {
+    console.log('Executing fetchDownloadsStorageInfo');
+    const loading = ref(true);
+    const storageInfo = ref(null);
+    const dummyStorageInfo = {
+      freeDiskSize: 13340000000,
+      myDownloadsSize: 23200000,
+      myLibrarySize: 4300000,
+    };
+    setTimeout(() => {
+      set(storageInfo, dummyStorageInfo);
+      set(loading, false);
+    }, 600);
+    return { loading, storageInfo };
+  }
+
   function navigateToDownloads() {}
 
   function addDownloadRequest(content) {
@@ -127,6 +143,7 @@ export default function useDownloadRequests(store) {
 
   return {
     fetchUserDownloadRequests,
+    fetchDownloadsStorageInfo,
     downloadRequestMap,
     addDownloadRequest,
     removeDownloadRequest,

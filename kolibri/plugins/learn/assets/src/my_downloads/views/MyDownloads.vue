@@ -2,7 +2,7 @@
 
   <AppBarPage
     :title="coreString('myDownloadsLabel')"
-    :loading="loading.value"
+    :loading="downloadsLoading.value || storageLoading.value"
   >
     <KPageContainer class="container">
       <h1> {{ coreString('myDownloadsLabel') }} </h1>
@@ -14,15 +14,27 @@
           <table>
             <tr>
               <th>Total size of my downloads</th>
-              <td>XX MB</td>
+              <td
+                v-if="!storageLoading.value"
+              >
+                {{ formattedSize(storage.value.myDownloadsSize) }}
+              </td>
             </tr>
             <tr>
               <th>Total size of my library</th>
-              <td>YY MB</td>
+              <td
+                v-if="!storageLoading.value"
+              >
+                {{ formattedSize(storage.value.myLibrarySize) }}
+              </td>
             </tr>
             <tr>
               <th>Free disk space</th>
-              <td>XXX MB</td>
+              <td
+                v-if="!storageLoading.value"
+              >
+                {{ formattedSize(storage.value.freeDiskSize) }}
+              </td>
             </tr>
           </table>
         </KGridItem>
@@ -78,6 +90,7 @@
 <script>
 
   import { get, set } from '@vueuse/core';
+  import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
   import { computed, getCurrentInstance, watch, ref } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -93,13 +106,19 @@
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
     setup() {
-      const { downloadRequestMap, fetchUserDownloadRequests } = useDownloadRequests();
+      const {
+        downloadRequestMap,
+        fetchUserDownloadRequests,
+        fetchDownloadsStorageInfo,
+      } = useDownloadRequests();
       const store = getCurrentInstance().proxy.$store;
       const route = computed(() => store.state.route);
       const query = computed(() => get(route).query);
+
       const pageNumber = computed(() => Number(query.value.page || 1));
       const pageSizeNumber = computed(() => Number(query.value.page_size || 30));
-      const loading = ref(true);
+
+      const downloadsLoading = ref(true);
       const downloads = ref({});
       const totalDownloads = ref(0);
       const totalPageNumber = ref(0);
@@ -109,11 +128,20 @@
           pageSize: pageSizeNumber.value,
           sort: 'desc',
         });
-        set(loading, loadingFetch);
+        set(downloadsLoading, loadingFetch);
         set(downloads, downloadRequestMap.downloads);
         console.log('downloads', { ...downloads.value });
       };
       fetchDownloads();
+
+      const storageLoading = ref(true);
+      const storage = ref({});
+      const fetchStorageInfo = () => {
+        const { loading: loadingFetch, storageInfo } = fetchDownloadsStorageInfo();
+        set(storageLoading, loadingFetch);
+        set(storage, storageInfo);
+      };
+      fetchStorageInfo();
 
       watch(route, fetchDownloads);
       watch(downloadRequestMap, () => {
@@ -121,13 +149,13 @@
         set(totalDownloads, downloadRequestMap.totalDownloads);
         set(totalPageNumber, downloadRequestMap.totalPageNumber);
       });
-      console.log('totalDownloads', totalDownloads.value);
-      console.log('totalPageNumber', totalPageNumber.value);
       return {
-        loading,
         downloads,
+        downloadsLoading,
         totalDownloads,
         totalPageNumber,
+        storage,
+        storageLoading,
       };
     },
     data() {
@@ -226,6 +254,9 @@
       },
       handleSortChange(value) {
         this.sortOptionSelected = this.sortOptions.find(sortOption => sortOption.value === value);
+      },
+      formattedSize(size) {
+        return bytesForHumans(size);
       },
     },
   };
