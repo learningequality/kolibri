@@ -7,7 +7,7 @@ import { NetworkLocationResource } from 'kolibri.resources';
 import { get, set } from '@vueuse/core';
 
 // The refs are defined in the outer scope so they can be used as a shared store
-const currentDevice = ref(12);
+const currentDevice = ref(null);
 
 function fetchDevices() {
   return NetworkLocationResource.list().then(devices => {
