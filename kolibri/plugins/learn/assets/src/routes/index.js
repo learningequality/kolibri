@@ -110,7 +110,7 @@ export default [
     component: LibraryPage,
     props: route => {
       return {
-        ...route.params,
+        deviceId: route.params.deviceId,
       };
     },
   },
