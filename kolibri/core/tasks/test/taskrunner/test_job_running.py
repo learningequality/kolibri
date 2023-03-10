@@ -1,10 +1,12 @@
 import time
 import uuid
 
+import mock
 import pytest
 
 from kolibri.core.tasks.compat import Event
 from kolibri.core.tasks.exceptions import JobNotFound
+from kolibri.core.tasks.constants import DEFAULT_QUEUE
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import State
 from kolibri.core.tasks.storage import Storage
@@ -34,6 +36,15 @@ def simplejob():
 def enqueued_job(storage_fixture, simplejob):
     job_id = storage_fixture.enqueue_job(simplejob)
     return storage_fixture.get_job(job_id)
+
+
+@pytest.fixture
+def job_storage():
+    with connection() as c:
+        s = Storage(connection=c)
+        s.clear()
+        yield s
+        s.clear()
 
 
 def cancelable_job():
@@ -302,3 +313,27 @@ class TestJobStorage(object):
             assert time_spent < 5
         # and hopefully it's canceled by this point
         assert job.state == State.CANCELED
+
+    @mock.patch("kolibri.core.tasks.main.initialize_workers")
+    @mock.patch("kolibri.core.discovery.utils.network.broadcast.KolibriBroadcast")
+    def test_count_all_jobs(
+        self,
+        mock_kolibri_broadcast,
+        initialize_workers,
+        job_storage,
+    ):
+        with mock.patch("kolibri.core.tasks.registry.job_storage", wraps=job_storage):
+            # Schedule three jobs
+            from kolibri.utils.time_utils import local_now
+            from datetime import timedelta
+
+            schedule_time = local_now() + timedelta(hours=1)
+            job_storage.schedule(schedule_time, Job(id))
+            job_storage.schedule(schedule_time, Job(id))
+
+            queue = "myqueue"
+            job_storage.schedule(schedule_time, Job(id), queue)
+
+            assert job_storage.count_all_jobs() == 3
+            assert job_storage.count_all_jobs(queue=DEFAULT_QUEUE) == 2
+            assert job_storage.count_all_jobs(queue=queue) == 1
