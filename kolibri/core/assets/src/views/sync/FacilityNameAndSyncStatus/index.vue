@@ -47,7 +47,7 @@
         <KButton
           :text="$tr('createSync')"
           appearance="basic-link"
-          @click="$emit('manageSync')"
+          @click="manageSync"
         />
       </span>
     </div>
@@ -60,6 +60,7 @@
 
   import { now } from 'kolibri.utils.serverClock';
   import taskStrings from 'kolibri.coreVue.mixins.commonTaskStrings';
+  import { PageNames } from '../../../../../../plugins/facility/assets/src/constants';
 
   export default {
     name: 'FacilityNameAndSyncStatus',
@@ -109,6 +110,9 @@
           return this.$tr('justNow');
         }
         return this.$formatRelative(datetime, { now: this.now });
+      },
+      manageSync() {
+        this.$router.push({ name: PageNames.MANAGE_SYNC_SCHEDULE });
       },
     },
     $trs: {

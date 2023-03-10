@@ -20,7 +20,7 @@
           <KGrid>
             <KGridItem>
               <KSelect
-                :value="selectedItem"
+                v-model="selectedItem"
                 class="selector"
                 :style="selectorStyle"
                 :options="selectArray"
@@ -36,7 +36,7 @@
           >
             <KGridItem>
               <KSelect
-                :value="selectedDay"
+                v-model="selectedDay"
                 class="selector"
                 :style="selectorStyle"
                 :options="getDays"
@@ -52,7 +52,7 @@
           >
             <KGridItem>
               <KSelect
-                :value="selectedTime"
+                v-model="selectedTime"
                 class="selector"
                 :style="selectorStyle"
                 :options="SyncTime"
@@ -66,7 +66,7 @@
 
           <p class="spacing">
             {{ $tr('serverTime') }}
-            {{ serverTime }}
+            {{ now }}
           </p>
 
           <p class="spacing">
@@ -178,7 +178,7 @@
         selectedDay: {},
         selectedTime: {},
         removeBtn: false,
-        serverTime: now(),
+        serverTime: null,
         baseurl: null,
       };
     },
@@ -248,12 +248,12 @@
       this.fetchDevice();
     },
     mounted() {
-      this.timer = setInterval(() => {
+      this.serverTime = setInterval(() => {
         this.now = now();
       }, 10000);
     },
     beforeDestroy() {
-      clearInterval(this.timer);
+      clearInterval(this.serverTime);
     },
     methods: {
       closeModal() {
