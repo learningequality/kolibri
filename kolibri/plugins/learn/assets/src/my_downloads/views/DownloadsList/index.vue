@@ -70,7 +70,7 @@
     </PaginatedListContainerWithBackend>
     <SelectionBottomBar
       :count="selectedDownloads.length"
-      :size="'1.2 GB'"
+      :size="formattedSelectedSize()"
       @click-remove="resourcesToDelete = selectedDownloads"
     />
     <ConfirmationDeleteModal
@@ -120,6 +120,7 @@
     data() {
       return {
         now: now(),
+        selectedDownloadsSize: 0,
         selectedDownloads: [],
         resourcesToDelete: [],
       };
@@ -158,6 +159,23 @@
         return Object.keys(this.downloads).every(id => this.selectedDownloads.includes(id));
       },
     },
+    watch: {
+      selectedDownloads(newVal, oldVal) {
+        console.log('newVal', newVal);
+        console.log('oldVal', oldVal);
+        const addedDownloads = newVal.filter(id => !oldVal.includes(id));
+        const removedDownloads = oldVal.filter(id => !newVal.includes(id));
+        const addedDownloadsSize = addedDownloads.reduce(
+          (acc, id) => acc + this.downloads[id].resource_metadata.file_size,
+          0
+        );
+        const removedDownloadsSize = removedDownloads.reduce(
+          (acc, id) => acc + this.downloads[id].resource_metadata.file_size,
+          0
+        );
+        this.selectedDownloadsSize += addedDownloadsSize - removedDownloadsSize;
+      },
+    },
     methods: {
       selectAll() {
         if (this.areAllSelected) {
@@ -165,16 +183,14 @@
             resourceId => !Object.keys(this.downloads).includes(resourceId)
           );
         } else {
-          Object.keys(this.downloads).forEach(id => {
-            if (!this.selectedDownloads.includes(id)) {
-              this.selectedDownloads.push(id);
-            }
-          });
+          this.selectedDownloads = this.selectedDownloads.concat(
+            Object.keys(this.downloads).filter(id => !this.selectedDownloads.includes(id))
+          );
         }
       },
       handleCheckResource(id, checked) {
         if (checked) {
-          this.selectedDownloads.push(id);
+          this.selectedDownloads = this.selectedDownloads.concat(id);
           return;
         }
         this.selectedDownloads = this.selectedDownloads.filter(resourceId => resourceId !== id);
@@ -201,6 +217,9 @@
       },
       formattedResourceSize(download) {
         return bytesForHumans(download.resource_metadata.file_size);
+      },
+      formattedSelectedSize() {
+        return bytesForHumans(this.selectedDownloadsSize);
       },
     },
     $trs: {
