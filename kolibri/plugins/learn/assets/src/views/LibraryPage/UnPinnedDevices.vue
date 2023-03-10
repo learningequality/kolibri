@@ -7,7 +7,6 @@
     <KRouterLink
       :text="allDevices.nickname.length ? allDevices.nickname : allDevices.device_name"
       :to="{ name: 'LIBRARY', params: { deviceId: allDevices.id } }"
-      primary="raised-button"
       style="text-decoration:none;"
     >
       <h2 class="device-name">
@@ -129,6 +128,7 @@
   }
 
   .channels {
+    width: auto;
     color: #616161;
     text-align: center;
   }
