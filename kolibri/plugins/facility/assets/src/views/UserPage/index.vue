@@ -103,7 +103,7 @@
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
   import UserTable from 'kolibri.coreVue.components.UserTable';
   import cloneDeep from 'lodash/cloneDeep';
-  import PaginatedListContainerWithBackend from '../PaginatedListContainerWithBackend';
+  import PaginatedListContainerWithBackend from 'kolibri-common/components/PaginatedListContainerWithBackend';
   import { Modals } from '../../constants';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import ResetUserPasswordModal from './ResetUserPasswordModal';
