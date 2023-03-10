@@ -47,7 +47,7 @@
         <KButton
           :text="$tr('createSync')"
           appearance="basic-link"
-          @click="$emit('manageSync')"
+          @click="manageSync"
         />
       </span>
     </div>
@@ -110,6 +110,9 @@
           return this.coreString('justNow');
         }
         return this.$formatRelative(datetime, { now: this.now });
+      },
+      manageSync() {
+        this.$router.push({ name: PageNames.MANAGE_SYNC_SCHEDULE });
       },
     },
     $trs: {
