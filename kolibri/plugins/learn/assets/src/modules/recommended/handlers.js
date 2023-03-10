@@ -105,7 +105,7 @@ export function showLibrary(store, query, deviceId = null) {
   } else {
     if (deviceId) {
       return setCurrentDevice(deviceId).then(device => {
-        const baseurl = deviceId === KolibriStudioId ? plugin_data.baseurl : device.base_url;
+        const baseurl = deviceId === KolibriStudioId ? plugin_data.studio_baseurl : device.base_url;
         return fetchChannels({ baseurl }).then(channels => {
           return _showLibrary(store, query, channels, baseurl);
         });

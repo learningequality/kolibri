@@ -88,7 +88,7 @@ class LearnAsset(webpack_hooks.WebpackBundleHook):
             "gradeLevels": label_metadata["grade_levels"],
             "accessibilityLabels": label_metadata["accessibility_labels"],
             "learnerNeeds": label_metadata["learner_needs"],
-            "baseurl": conf.OPTIONS["Urls"]["CENTRAL_CONTENT_BASE_URL"],
+            "studio_baseurl": conf.OPTIONS["Urls"]["CENTRAL_CONTENT_BASE_URL"],
         }
 
 
