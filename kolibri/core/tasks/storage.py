@@ -8,6 +8,7 @@ from sqlalchemy import DateTime
 from sqlalchemy import func
 from sqlalchemy import Index
 from sqlalchemy import Integer
+from sqlalchemy import lambda_stmt
 from sqlalchemy import or_
 from sqlalchemy import select
 from sqlalchemy import String
@@ -297,13 +298,11 @@ class Storage(object):
             q.first()
 
     def count_all_jobs(self, queue=None):
-        with self.session_scope() as s:
-            q = s.query(ORMJob)
-
+        with self.engine.connect() as conn:
+            stmt = lambda_stmt(lambda: select([func.count(ORMJob.id)]))
             if queue:
-                q = q.filter(ORMJob.queue == queue)
-
-            return q.count()
+                stmt += lambda s: s.where(ORMJob.queue == queue)
+            return conn.execute(stmt).scalar()
 
     def get_job(self, job_id):
         orm_job = self.get_orm_job(job_id)
@@ -331,8 +330,6 @@ class Storage(object):
         """
         orm_job = self.get_orm_job(job_id)
         job_to_restart = self._orm_to_job(orm_job)
-        queue = orm_job.queue
-        priority = orm_job.priority
 
         if job_to_restart.state in [State.CANCELED, State.FAILED]:
             self.clear(job_id=job_to_restart.job_id, force=False)
@@ -340,7 +337,7 @@ class Storage(object):
                 job_to_restart,
                 job_id=job_to_restart.job_id,
             )
-            return self.enqueue_job(job, queue=queue, priority=priority)
+            return self.enqueue_job(job, queue=orm_job.queue, priority=orm_job.priority)
         else:
             raise JobNotRestartable(
                 "Cannot restart job with state={}".format(job_to_restart.state)
