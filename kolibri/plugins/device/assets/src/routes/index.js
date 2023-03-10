@@ -76,6 +76,14 @@ const routes = [
     },
   },
   {
+    name: PageNames.MANAGE_SYNC_SCHEDULE,
+    component: withAuthMessage(FacilitiesTasksPage, 'superuser'),
+    path: '/facilities/managesync',
+    handler: ({ name }) => {
+      store.dispatch('preparePage', { name, isAsync: false });
+    },
+  },
+  {
     name: PageNames.USER_PERMISSIONS_PAGE,
     component: withAuthMessage(UserPermissionsPage, 'superuser'),
     path: '/permissions/:userId',
