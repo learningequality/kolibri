@@ -85,7 +85,7 @@ export function showLibrary(store, query, deviceId = null) {
    * Once studio is updated, this function will need to be refactored
    * to use the else block code only.
    *
-   * The if block is only meant for UI viualization purposes only
+   * The if block is meant for UI viualization purposes only
    * during development
    */
   if (deviceId === KolibriStudioId) {
