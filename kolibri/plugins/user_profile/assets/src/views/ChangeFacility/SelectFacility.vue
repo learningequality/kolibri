@@ -79,11 +79,7 @@
   import { NetworkLocationResource } from 'kolibri.resources';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import useMinimumKolibriVersion from 'kolibri.coreVue.composables.useMinimumKolibriVersion';
-  import {
-    AddDeviceForm,
-    useDevices,
-    useDeviceDeletion,
-  } from 'kolibri.coreVue.componentSets.sync';
+  import { AddDeviceForm, useDevices, useDeviceDeletion } from 'kolibri.coreVue.componentSets.sync';
 
   export default {
     name: 'SelectFacility',
