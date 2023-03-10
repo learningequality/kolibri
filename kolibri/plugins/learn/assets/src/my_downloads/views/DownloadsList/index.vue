@@ -90,10 +90,10 @@
   import { now } from 'kolibri.utils.serverClock';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import PaginatedListContainerWithBackend from 'kolibri-common/components/PaginatedListContainerWithBackend';
   import { LearningActivityToIconMap } from '../../../constants';
   import SelectionBottomBar from './SelectionBottomBar.vue';
   import ConfirmationDeleteModal from './ConfirmationDeleteModal.vue';
-  import PaginatedListContainerWithBackend from './PaginatedListContainerWithBackend.vue';
 
   export default {
     name: 'DownloadsList',
