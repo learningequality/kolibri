@@ -45,7 +45,7 @@ function hydrateHomePage() {
   });
 }
 
-const optionalDeviceIdPathSegment = '/:deviceId([a-f0-9]{32})?';
+const optionalDeviceIdPathSegment = '/:deviceId([a-f0-9]{32}|kolibri-studio)?';
 
 export default [
   {
@@ -108,7 +108,11 @@ export default [
       showLibrary(store, to.query, to.params.deviceId);
     },
     component: LibraryPage,
-    props: true,
+    props: route => {
+      return {
+        ...route.params,
+      };
+    },
   },
   {
     name: PageNames.CONTENT_UNAVAILABLE,

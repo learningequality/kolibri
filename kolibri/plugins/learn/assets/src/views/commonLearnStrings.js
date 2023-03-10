@@ -87,6 +87,14 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
     message: 'Suggested time',
     context: 'Time suggested by coach for how long an independent practice quiz should take',
   },
+  exploreLibraries: {
+    message: 'Explore libraries',
+    context: 'Title for Explore Libraries page',
+  },
+  kolibriLibrary: {
+    message: 'Kolibri Library',
+    context: 'Title for Kolibri Libraries',
+  },
 
   // Resource Metadata strings
   author: {
