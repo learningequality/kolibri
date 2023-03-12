@@ -292,13 +292,6 @@ class Storage(object):
             q = conn.execute(select(ORMJob))
             q.first()
 
-    def count_all_jobs(self, queue=None):
-        with self.engine.connect() as conn:
-            q = select(func.count(ORMJob.id))
-            if queue:
-                q = q.where(ORMJob.queue == queue)
-            return conn.execute(q).scalar()
-
     def get_job(self, job_id):
         orm_job = self.get_orm_job(job_id)
         job = self._orm_to_job(orm_job)
