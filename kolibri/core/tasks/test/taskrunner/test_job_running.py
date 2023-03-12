@@ -337,3 +337,111 @@ class TestJobStorage(object):
             assert job_storage.count_all_jobs() == 3
             assert job_storage.count_all_jobs(queue=DEFAULT_QUEUE) == 2
             assert job_storage.count_all_jobs(queue=queue) == 1
+
+    @mock.patch("kolibri.core.tasks.main.initialize_workers")
+    @mock.patch("kolibri.core.discovery.utils.network.broadcast.KolibriBroadcast")
+    def test_get_running_jobs(
+        self,
+        mock_kolibri_broadcast,
+        initialize_workers,
+        job_storage,
+    ):
+        with mock.patch("kolibri.core.tasks.registry.job_storage", wraps=job_storage):
+            # Schedule jobs
+            from kolibri.utils.time_utils import local_now
+            from datetime import timedelta
+
+            schedule_time = local_now() + timedelta(hours=1)
+            job1 = job_storage.schedule(schedule_time, Job(id))
+            job2 = job_storage.schedule(schedule_time, Job(id))
+
+            queue = "myqueue"
+            job3 = job_storage.schedule(schedule_time, Job(id), queue)
+
+            # mark jobs as running
+            job_storage.mark_job_as_running(job1)
+            job_storage.mark_job_as_running(job2)
+            job_storage.mark_job_as_running(job3)
+
+            # don't mark this as running to test the method only returns running jobs
+            job_storage.schedule(schedule_time, Job(id))
+
+            assert len(job_storage.get_running_jobs()) == 3
+            assert len(job_storage.get_running_jobs(queues=[DEFAULT_QUEUE])) == 2
+            assert len(job_storage.get_running_jobs(queues=[queue])) == 1
+            assert len(job_storage.get_running_jobs(queues=[DEFAULT_QUEUE, queue])) == 3
+
+    @mock.patch("kolibri.core.tasks.main.initialize_workers")
+    @mock.patch("kolibri.core.discovery.utils.network.broadcast.KolibriBroadcast")
+    def test_get_canceling_jobs(
+        self,
+        mock_kolibri_broadcast,
+        initialize_workers,
+        job_storage,
+    ):
+        with mock.patch("kolibri.core.tasks.registry.job_storage", wraps=job_storage):
+            # Schedule jobs
+            from kolibri.utils.time_utils import local_now
+            from datetime import timedelta
+
+            schedule_time = local_now() + timedelta(hours=1)
+            job1 = job_storage.schedule(schedule_time, Job(id))
+            job2 = job_storage.schedule(schedule_time, Job(id))
+
+            queue = "myqueue"
+            job3 = job_storage.schedule(schedule_time, Job(id), queue)
+
+            # mark jobs as canceling
+            job_storage.mark_job_as_canceling(job1)
+            job_storage.mark_job_as_canceling(job2)
+            job_storage.mark_job_as_canceling(job3)
+
+            # don't mark this as canceling to test the method only returns canceling jobs
+            job_storage.schedule(schedule_time, Job(id))
+
+            assert len(job_storage.get_canceling_jobs()) == 3
+            assert len(job_storage.get_canceling_jobs(queues=[DEFAULT_QUEUE])) == 2
+            assert len(job_storage.get_canceling_jobs(queues=[queue])) == 1
+            assert (
+                len(job_storage.get_canceling_jobs(queues=[DEFAULT_QUEUE, queue])) == 3
+            )
+
+    @mock.patch("kolibri.core.tasks.main.initialize_workers")
+    @mock.patch("kolibri.core.discovery.utils.network.broadcast.KolibriBroadcast")
+    def test_get_jobs_by_state(
+        self,
+        mock_kolibri_broadcast,
+        initialize_workers,
+        job_storage,
+    ):
+        with mock.patch("kolibri.core.tasks.registry.job_storage", wraps=job_storage):
+            # Schedule jobs
+            from kolibri.utils.time_utils import local_now
+            from datetime import timedelta
+
+            schedule_time = local_now() + timedelta(hours=1)
+            job_storage.schedule(schedule_time, Job(id))
+            job2 = job_storage.schedule(schedule_time, Job(id))
+
+            queue = "myqueue"
+            job3 = job_storage.schedule(schedule_time, Job(id), queue)
+
+            # mark jobs status
+            job_storage.mark_job_as_canceling(job2)
+            job_storage.mark_job_as_running(job3)
+
+            assert len(job_storage.get_jobs_by_state(state=State.QUEUED)) == 1
+            assert len(job_storage.get_jobs_by_state(state=State.RUNNING)) == 1
+            assert len(job_storage.get_jobs_by_state(state=State.CANCELING)) == 1
+            assert (
+                len(job_storage.get_jobs_by_state(state=State.RUNNING, queues=[queue]))
+                == 1
+            )
+            assert (
+                len(
+                    job_storage.get_jobs_by_state(
+                        state=State.RUNNING, queues=["random"]
+                    )
+                )
+                == 0
+            )
