@@ -8,7 +8,6 @@ from sqlalchemy import DateTime
 from sqlalchemy import func
 from sqlalchemy import Index
 from sqlalchemy import Integer
-from sqlalchemy import lambda_stmt
 from sqlalchemy import or_
 from sqlalchemy import select
 from sqlalchemy import String
@@ -252,40 +251,36 @@ class Storage(object):
             return job
 
     def get_canceling_jobs(self, queues=None):
-        with self.session_scope() as s:
-            q = s.query(ORMJob).filter(ORMJob.state == State.CANCELING)
-
-            if queues:
-                q = q.filter(ORMJob.queue.in_(queues))
-
-            jobs = q.order_by(ORMJob.time_created).all()
-
-            return [self._orm_to_job(job) for job in jobs]
+        return self.get_jobs_by_state(state=State.CANCELING, queues=queues)
 
     def get_running_jobs(self, queues=None):
-        with self.session_scope() as s:
-            q = s.query(ORMJob).filter(ORMJob.state == State.RUNNING)
+        return self.get_jobs_by_state(state=State.RUNNING, queues=queues)
+
+    def get_jobs_by_state(self, state, queues=None):
+        with self.engine.connect() as conn:
+            q = select(ORMJob).where(ORMJob.state == state)
 
             if queues:
-                q = q.filter(ORMJob.queue.in_(queues))
+                q = q.where(ORMJob.queue.in_(queues))
 
-            jobs = q.order_by(ORMJob.time_created).all()
+            q = q.order_by(ORMJob.time_created)
+            jobs = conn.execute(q)
 
             return [self._orm_to_job(job) for job in jobs]
 
     def get_all_jobs(self, queue=None, repeating=None):
-        with self.session_scope() as s:
-            q = s.query(ORMJob)
+        with self.engine.connect() as conn:
+            q = select(ORMJob)
 
             if queue:
-                q = q.filter(ORMJob.queue == queue)
+                q = q.where(ORMJob.queue == queue)
 
             if repeating is True:
-                q = q.filter(or_(ORMJob.repeat > 0, ORMJob.repeat == None))  # noqa E711
+                q = q.where(or_(ORMJob.repeat > 0, ORMJob.repeat == None))  # noqa E711
             elif repeating is False:
-                q = q.filter(ORMJob.repeat == 0)
+                q = q.where(ORMJob.repeat == 0)
 
-            orm_jobs = q.all()
+            orm_jobs = conn.execute(q)
 
             return [self._orm_to_job(o) for o in orm_jobs]
 
@@ -299,10 +294,10 @@ class Storage(object):
 
     def count_all_jobs(self, queue=None):
         with self.engine.connect() as conn:
-            stmt = lambda_stmt(lambda: select([func.count(ORMJob.id)]))
+            q = select(func.count(ORMJob.id))
             if queue:
-                stmt += lambda s: s.where(ORMJob.queue == queue)
-            return conn.execute(stmt).scalar()
+                q = q.where(ORMJob.queue == queue)
+            return conn.execute(q).scalar()
 
     def get_job(self, job_id):
         orm_job = self.get_orm_job(job_id)
