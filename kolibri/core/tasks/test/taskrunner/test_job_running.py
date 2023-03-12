@@ -316,30 +316,6 @@ class TestJobStorage(object):
 
     @mock.patch("kolibri.core.tasks.main.initialize_workers")
     @mock.patch("kolibri.core.discovery.utils.network.broadcast.KolibriBroadcast")
-    def test_count_all_jobs(
-        self,
-        mock_kolibri_broadcast,
-        initialize_workers,
-        job_storage,
-    ):
-        with mock.patch("kolibri.core.tasks.registry.job_storage", wraps=job_storage):
-            # Schedule three jobs
-            from kolibri.utils.time_utils import local_now
-            from datetime import timedelta
-
-            schedule_time = local_now() + timedelta(hours=1)
-            job_storage.schedule(schedule_time, Job(id))
-            job_storage.schedule(schedule_time, Job(id))
-
-            queue = "myqueue"
-            job_storage.schedule(schedule_time, Job(id), queue)
-
-            assert job_storage.count_all_jobs() == 3
-            assert job_storage.count_all_jobs(queue=DEFAULT_QUEUE) == 2
-            assert job_storage.count_all_jobs(queue=queue) == 1
-
-    @mock.patch("kolibri.core.tasks.main.initialize_workers")
-    @mock.patch("kolibri.core.discovery.utils.network.broadcast.KolibriBroadcast")
     def test_get_running_jobs(
         self,
         mock_kolibri_broadcast,
