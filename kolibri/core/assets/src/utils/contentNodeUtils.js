@@ -7,6 +7,9 @@
  * from `files` is returned.
  */
 export function getContentNodeThumbnail(contentnode) {
+  if (!contentnode.thumbnail) {
+    contentnode.thumbnail = contentnode.channel_thumbnail;
+  }
   if (contentnode.thumbnail) {
     return contentnode.thumbnail;
   }
