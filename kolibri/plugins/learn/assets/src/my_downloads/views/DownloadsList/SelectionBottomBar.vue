@@ -2,11 +2,11 @@
 
   <BottomAppBar>
     <span class="message">
-      {{ $tr('resourcesSelectedMessage', { count: count, size: size }) }}
+      {{ coreString('resourcesSelectedMessage', { count: count, size: size }) }}
     </span>
     <KButton
       :disabled="buttonsDisabled"
-      :text="$tr('remove')"
+      :text="coreString('removeSelectedMessage')"
       @click="$emit('click-remove')"
     />
   </BottomAppBar>
@@ -17,12 +17,14 @@
 <script>
 
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'SelectionBottomBar',
     components: {
       BottomAppBar,
     },
+    mixins: [commonCoreStrings],
     props: {
       count: {
         type: Number,
@@ -36,17 +38,6 @@
     computed: {
       buttonsDisabled() {
         return this.count === 0;
-      },
-    },
-    $trs: {
-      resourcesSelectedMessage: {
-        message:
-          'Selected: {count, number} {count, plural, one {resource} other {resources}} ({size})',
-        context: 'Indicates how many resources have been selected to be deleted.\n',
-      },
-      remove: {
-        message: 'Remove selected',
-        context: 'Action to remove selected resources',
       },
     },
   };

@@ -13,7 +13,7 @@
         >
           <table>
             <tr>
-              <th>Total size of my downloads</th>
+              <th> {{ coreString('totalSizeMyDownloads', { size: '' }) }} </th>
               <td
                 v-if="!storageLoading.value"
               >
@@ -29,7 +29,7 @@
               </td>
             </tr>
             <tr>
-              <th>Free disk space</th>
+              <th> {{ coreString('availableStorage') }}</th>
               <td
                 v-if="!storageLoading.value"
               >

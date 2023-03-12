@@ -1,14 +1,13 @@
 <template>
 
   <KModal
-    :title="$tr('removeFromLibrary')"
-    :submitText="$tr('remove')"
+    :title="coreString('removeFromLibrary')"
+    :submitText="coreString('removeAction')"
     :cancelText="coreString('cancelAction')"
     @submit="removeResources"
     @cancel="$emit('cancel')"
   >
-    You will no longer be able to use this resource, but you can download
-    it again later when it’s available around you.
+    {{ message }}
   </KModal>
 
 </template>
@@ -27,21 +26,18 @@
         required: true,
       },
     },
+    computed: {
+      message() {
+        if (this.resourcesToDelete.length === 1) {
+          return this.coreString('removeResourceText');
+        }
+        return this.coreString('removeResourcesText');
+      },
+    },
     methods: {
       removeResources() {
         console.log('Removing', this.resourcesToDelete);
         this.$emit('success');
-      },
-    },
-    $trs: {
-      removeFromLibrary: {
-        message: 'Remove from library',
-        context:
-          'Title of the modal that appears when the user tries to remove a resource from the library.',
-      },
-      remove: {
-        message: 'Remove',
-        context: 'An action that describes removing some resources.',
       },
     },
   };

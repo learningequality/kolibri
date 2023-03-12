@@ -14,15 +14,15 @@
             <KCheckbox
               showLabel
               class="select-all"
-              :label="$tr('name')"
+              :label="coreString('nameLabel')"
               :checked="areAllSelected"
               :disabled="!downloads || Object.keys(downloads).length === 0"
               :style="{ color: $themeTokens.annotation }"
               @change="selectAll($event)"
             />
           </th>
-          <th> File size </th>
-          <th> Date added </th>
+          <th> {{ coreString('fileSize') }} </th>
+          <th> {{ coreString('dateAdded') }} </th>
         </template>
         <template #tbody>
           <tbody>
@@ -34,7 +34,6 @@
                 <KCheckbox
                   :checked="resourceIsSelected(download.node_id)"
                   class="download-checkbox"
-                  data-test="downloadCheckbox"
                   @change="handleCheckResource(download.node_id, $event)"
                 >
                   <KLabeledIcon
@@ -51,14 +50,14 @@
               </td>
               <td class="resource-action">
                 <KButton
-                  :text="$tr('view')"
+                  :text="coreString('viewAction')"
                   appearance="flat-button"
                   @click="viewResource(download.node_id)"
                 />
               </td>
               <td class="resource-action">
                 <KButton
-                  :text="$tr('remove')"
+                  :text="coreString('removeAction')"
                   appearance="flat-button"
                   @click="removeResource(download.node_id)"
                 />
@@ -90,6 +89,7 @@
   import { now } from 'kolibri.utils.serverClock';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import PaginatedListContainerWithBackend from 'kolibri-common/components/PaginatedListContainerWithBackend';
   import { LearningActivityToIconMap } from '../../../constants';
   import SelectionBottomBar from './SelectionBottomBar.vue';
@@ -103,6 +103,7 @@
       ConfirmationDeleteModal,
       PaginatedListContainerWithBackend,
     },
+    mixins: [commonCoreStrings],
     props: {
       downloads: {
         type: Object,
@@ -161,8 +162,6 @@
     },
     watch: {
       selectedDownloads(newVal, oldVal) {
-        console.log('newVal', newVal);
-        console.log('oldVal', oldVal);
         const addedDownloads = newVal.filter(id => !oldVal.includes(id));
         const removedDownloads = oldVal.filter(id => !newVal.includes(id));
         const addedDownloadsSize = addedDownloads.reduce(
@@ -199,10 +198,10 @@
         return this.selectedDownloads.indexOf(id) !== -1;
       },
       viewResource(id) {
+        window.location.replace('/en/learn/#/topics/c/1c5a63eb626f4aa883eaef0cfe37634f');
         console.log('view resource', id);
       },
       removeResource(id) {
-        console.log('remove resource', id);
         this.resourcesToDelete = [id];
       },
       getIcon(download) {
@@ -223,18 +222,6 @@
       },
     },
     $trs: {
-      name: {
-        message: 'Name',
-        context: "Indicates the resource's name",
-      },
-      view: {
-        message: 'View',
-        context: 'Button to view the resource',
-      },
-      remove: {
-        message: 'Remove',
-        context: 'Button to remove the resource',
-      },
       justNow: {
         message: 'Just now',
         context: 'This is used to indicate that a download was added to the list very recently',

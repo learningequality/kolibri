@@ -432,7 +432,8 @@
         });
       },
       navigateBack() {
-        this.$router.push(this.back);
+        window.location.replace('/en/learn/my-downloads');
+        // this.$router.push(this.back);
       },
       openSidePanel() {
         this.sidePanelContent = this.content;
