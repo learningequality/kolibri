@@ -4,7 +4,7 @@
     class="selector"
     :style="selectorStyle"
     :inline="windowIsLarge"
-    label="Sort by"
+    :label="coreString('sortBy')"
     :options="sortOptions"
     :value="selected"
     @change="handleSortChange($event.value)"
@@ -16,28 +16,29 @@
 <script>
 
   import pickBy from 'lodash/pickBy';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
 
   export default {
     name: 'SortFilter',
-    mixins: [responsiveWindowMixin],
+    mixins: [commonCoreStrings, responsiveWindowMixin],
     data() {
       return {
         sortOptions: [
           {
-            label: 'Newest',
+            label: this.coreString('newestResource'),
             value: 'newest',
           },
           {
-            label: 'Oldest',
+            label: this.coreString('oldestResource'),
             value: 'oldest',
           },
           {
-            label: 'Largest file size',
+            label: this.coreString('largestFile'),
             value: 'largest',
           },
           {
-            label: 'Smallest file size',
+            label: this.coreString('smallestFile'),
             value: 'smallest',
           },
         ],

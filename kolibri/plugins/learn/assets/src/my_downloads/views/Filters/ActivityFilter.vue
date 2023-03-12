@@ -31,17 +31,18 @@
 
   import pickBy from 'lodash/pickBy';
   import { LearningActivities } from 'kolibri.coreVue.vuex.constants';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { LearningActivityToIconMap, LearningActivityToLabelMap } from '../../../constants';
 
   export default {
     name: 'ActivityFilter',
-    mixins: [responsiveWindowMixin],
+    mixins: [commonCoreStrings, responsiveWindowMixin],
     data() {
       return {
         activityTypes: [
           {
-            label: 'All',
+            label: this.coreString('all'),
             value: 'all',
             icon: 'allActivities',
           },
