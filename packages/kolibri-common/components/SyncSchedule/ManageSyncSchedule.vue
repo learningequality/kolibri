@@ -269,7 +269,7 @@
 
     $trs: {
       syncSchedules: {
-        message: 'Sync Schedules',
+        message: 'Sync schedules',
         context: "Heading or title for 'manage sync schedule' page.",
       },
       introduction: {

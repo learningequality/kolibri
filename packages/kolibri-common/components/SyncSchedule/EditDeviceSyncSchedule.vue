@@ -320,7 +320,7 @@
         context: 'Server time label',
       },
       checkboxlabel: {
-        message: 'If scheduled sync fails, retry until the next scheduled sync',
+        message: 'If scheduled sync fails, keep trying',
         context: 'Label for checkbox',
       },
       removeDevice: {
@@ -344,7 +344,7 @@
         context: 'Period for scheduling the sync between devices every day',
       },
       everyWeek: {
-        message: 'Every Week',
+        message: 'Every week',
         context: 'Period for scheduling the sync between devices every week',
       },
       everyMonth: {
@@ -352,7 +352,7 @@
         context: 'Period for scheduling the sync between devices every month',
       },
       everyTwoWeeks: {
-        message: 'Every Two Weeks',
+        message: 'Every two weeks',
         context: 'Period for scheduling the sync between devices every two weeks',
       },
       removeDeviceLabel: {

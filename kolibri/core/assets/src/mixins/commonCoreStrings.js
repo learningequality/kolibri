@@ -585,7 +585,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
   activityType: {
     message: 'Activity type',
-    context: 'Indicate the kind of type of learning activity',
+    context: 'Indicate the kind of learning activity, such as: reading, listening, watching, etc.',
   },
 
   // Library Categories
