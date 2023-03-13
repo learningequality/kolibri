@@ -2,7 +2,7 @@
 
   <div>
     <span class="headercontainer">
-      <h1>{{ $tr('documentTitle') }}</h1>
+      <h1>{{ getCommonSyncString('selectFacilityTitle') }}</h1>
 
       <transition name="spinner-fade">
 
@@ -88,7 +88,7 @@
     name: 'SelectFacility',
     metaInfo() {
       return {
-        title: this.$tr('documentTitle'),
+        title: this.profileString('documentTitle'),
       };
     },
     components: { AddDeviceForm, BottomAppBar },
@@ -248,10 +248,6 @@
       addDeviceSnackbarText: {
         message: 'Successfully added device',
         context: 'This message appears if a device has been added correctly.',
-      },
-      documentTitle: {
-        message: 'Select learning facility',
-        context: 'Title of this step for the change facility page.',
       },
       doNotSeeYourFacility: {
         message: 'Don’t see your learning facility?',

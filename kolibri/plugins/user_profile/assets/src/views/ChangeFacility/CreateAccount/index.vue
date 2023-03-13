@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <h1>{{ $tr('documentTitle') }}</h1>
+    <h1>{{ profileString('createAccount') }}</h1>
     <p>{{ description }}</p>
 
     <UsernameTextbox
@@ -60,12 +60,13 @@
   import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
   import PrivacyLinkAndModal from 'kolibri.coreVue.components.PrivacyLinkAndModal';
+  import commonProfileStrings from '../../commonProfileStrings';
 
   export default {
     name: 'CreateAccount',
     metaInfo() {
       return {
-        title: this.$tr('documentTitle'),
+        title: this.profileString('mergeAccounts'),
       };
     },
     components: {
@@ -74,7 +75,7 @@
       PasswordTextbox,
       PrivacyLinkAndModal,
     },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, commonProfileStrings],
     inject: ['changeFacilityService', 'state'],
     data() {
       return {
@@ -131,11 +132,6 @@
       },
     },
     $trs: {
-      documentTitle: {
-        message: 'Create new account',
-        context:
-          'Title of the step for creating a new account in a target facility when changing facility.',
-      },
       description: {
         message: 'New account for ‘{fullName}’ in ‘{targetFacility}’ learning facility',
         context:

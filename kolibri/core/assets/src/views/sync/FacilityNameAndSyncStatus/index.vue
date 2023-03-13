@@ -60,10 +60,11 @@
 
   import { now } from 'kolibri.utils.serverClock';
   import taskStrings from 'kolibri.coreVue.mixins.commonTaskStrings';
+  import commonCoreStrings from '../../../mixins/commonCoreStrings';
 
   export default {
     name: 'FacilityNameAndSyncStatus',
-    mixins: [taskStrings],
+    mixins: [taskStrings, commonCoreStrings],
     props: {
       facility: {
         type: Object,
@@ -106,7 +107,7 @@
     methods: {
       formattedTime(datetime) {
         if (this.now - new Date(datetime) < 10000) {
-          return this.$tr('justNow');
+          return this.coreString('justNow');
         }
         return this.$formatRelative(datetime, { now: this.now });
       },
@@ -126,11 +127,6 @@
         message: 'Last successful sync: {relativeTime}',
         context:
           'Used to indicate a time period when the last successful sync took place. For example, the value of last successful sync could be something like "2 months ago".\'\n',
-      },
-      justNow: {
-        message: 'Just now',
-        context:
-          'This is used to indicate when an event occurred. It\'s associated with the label "Last successful sync:"',
       },
       syncFailed: {
         message: 'Most recent sync failed',

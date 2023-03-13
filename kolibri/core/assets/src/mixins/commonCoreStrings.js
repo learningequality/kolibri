@@ -144,6 +144,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       "The 'Sync facility' feature is located in the Device > Facilities dashboard.\n\nBy pressing the 'SYNC' button, an admin can, for example, synchronize facility data (classes, groups, learner progress) with a device from which they previously imported it from.",
   },
+  justNow: {
+    message: 'Just now',
+    context: 'This is used to indicate when an event occurred.',
+  },
   updateAction: {
     message: 'Update',
     context:
@@ -578,6 +582,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   explore: {
     message: 'Explore',
     context: 'Resource and filter label for the type of learning activity. Translate as a VERB',
+  },
+  activityType: {
+    message: 'Activity type',
+    context: 'Indicate the kind of type of learning activity',
   },
 
   // Library Categories

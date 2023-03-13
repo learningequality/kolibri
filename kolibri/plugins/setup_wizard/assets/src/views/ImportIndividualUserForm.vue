@@ -62,7 +62,7 @@
 
       <KModal
         v-if="useAdmin"
-        :title="$tr('headerAdmin') "
+        :title="$tr('useAdmin') "
         :cancelText="coreString('cancelAction')"
         :submitText="coreString('continueAction')"
         @cancel="closeModal"
@@ -361,10 +361,6 @@
           "'{full_name} ({username})' is an admin on '{device}'. This device is limited to features for learners only. Features for coaches and admins will not be available.",
       },
       /* eslint-enable */
-      headerAdmin: {
-        message: 'Use an admin account',
-        context: 'Modal form to introduce admin account credentials.',
-      },
       doNotHaveUserCredentials: {
         message: "Don't have user's credentials?",
         context: "'Credentials' refers to learner's username and password.",

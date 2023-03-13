@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <h1>{{ $tr('documentTitle') }}</h1>
+    <h1>{{ coreString('changeLearningFacility') }}</h1>
     <p>{{ firstLine }}</p>
     <p>{{ secondLine }}</p>
     <p>{{ thirdLine }}</p>
@@ -10,7 +10,7 @@
         <KButtonGroup>
           <KButton
             :primary="false"
-            :text="$tr('mergeAccounts')"
+            :text="profileString('mergeAccounts')"
             appearance="flat-button"
             @click="to_merge"
           />
@@ -32,17 +32,18 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
+  import commonProfileStrings from '../commonProfileStrings';
 
   export default {
     name: 'ConfirmChangeFacility',
     metaInfo() {
       return {
-        title: this.$tr('documentTitle'),
+        title: this.profileString('mergeAccounts'),
       };
     },
     components: { BottomAppBar },
 
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, commonProfileStrings],
 
     inject: ['changeFacilityService', 'state'],
     computed: {
@@ -84,14 +85,6 @@
     },
 
     $trs: {
-      documentTitle: {
-        message: 'Change learning facility',
-        context: 'Title of this step for the change learning facility page.',
-      },
-      mergeAccounts: {
-        message: 'Merge Accounts',
-        context: 'Button for the merge accounts between facilities.',
-      },
       changeFacilityInfoLine1: {
         message:
           "You are about to move your account and progress data to '{target_facility}'' learning facility. Your current data will still be available to you and will also be accessible to any administrators of this learning facility.",

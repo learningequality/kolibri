@@ -60,7 +60,7 @@
               <p v-if="searching" style="padding-top:20px">
                 {{ $tr('searchingOtherLibrary') }}
                 <KButton appearance="basic-link">
-                  {{ $tr('refresh') }}
+                  {{ coreString('refresh') }}
                 </KButton>
                 <KIcon
                   icon="disconnected"
@@ -356,10 +356,6 @@
       showingAllLibraries: {
         message: 'Showing all available libraries around you.',
         context: 'Connection state when the device is connected and shows other libraries',
-      },
-      refresh: {
-        message: 'Refresh',
-        context: 'Link for refreshing library',
       },
       moreLibraries: {
         message: 'More',

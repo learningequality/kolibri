@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <h1>{{ $tr('documentTitle') }}</h1>
+    <h1>{{ profileString('mergeAccounts') }}</h1>
     <p class="fullname" data-test="fullName">
       {{ fullName }}
     </p>
@@ -77,17 +77,18 @@
   import { computed, inject, ref, watch } from 'kolibri.lib.vueCompositionApi';
   import get from 'lodash/get';
   import remoteFacilityUserData from '../../../composables/useRemoteFacility';
+  import commonProfileStrings from '../../commonProfileStrings';
 
   export default {
     name: 'MergeAccountDialog',
     metaInfo() {
       return {
-        title: this.$tr('documentTitle'),
+        title: this.profileString('mergeAccounts'),
       };
     },
     components: { BottomAppBar },
 
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, commonProfileStrings],
     setup() {
       const changeFacilityService = inject('changeFacilityService');
       const state = inject('state');
@@ -194,10 +195,6 @@
       };
     },
     $trs: {
-      documentTitle: {
-        message: 'Merge Accounts',
-        context: 'Title of this step for the change facility page.',
-      },
       mergeAccountUserInfo: {
         message:
           'Enter the password of the account ‘{username}’ in ‘{target_facility}’ learning facility that you want to merge your account with.',
