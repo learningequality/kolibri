@@ -39,6 +39,10 @@ const deviceStrings = createTranslator('CommonDeviceStrings', {
     message: 'Permissions',
     context: "Title of tab in 'Device' section.",
   },
+  primaryStorageLabel: {
+    message: 'Newly downloaded resources will be added to the primary storage location',
+    context: 'Label for primary storage location.',
+  },
 });
 
 /**

@@ -10,6 +10,10 @@ export const profileStrings = createTranslator('CommonProfileStrings', {
     message: 'Merge Accounts',
     context: 'Text is used on a button or label to merge accounts between facilities.',
   },
+  useAdminAccount: {
+    message: 'Use an admin account',
+    context: 'Link to use an admin account for the target facility to do the merge',
+  },
 });
 
 export function profileString(key, args) {

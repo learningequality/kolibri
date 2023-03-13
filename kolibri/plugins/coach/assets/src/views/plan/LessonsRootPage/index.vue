@@ -4,7 +4,7 @@
     <KPageContainer>
       <PlanHeader />
       <p v-if="lessons.length && lessons.length > 0">
-        {{ $tr('totalLessonsSize', { size: calcTotalSizeOfVisibleLessons }) }}
+        {{ coachString('totalLessonsSize', { size: calcTotalSizeOfVisibleLessons }) }}
       </p>
       <div class="filter-and-button">
         <KSelect
@@ -77,13 +77,13 @@
       </p>
       <KModal
         v-if="showLessonIsVisibleModal && !userHasDismissedModal"
-        :title="$tr('makeLessonVisibleTitle')"
+        :title="coachString('makeLessonVisibleTitle')"
         :submitText="coreString('continueAction')"
         :cancelText="coreString('cancelAction')"
         @submit="handleToggleVisibility(activeLesson)"
         @cancel="showLessonIsVisibleModal = false"
       >
-        <p>{{ $tr('makeLessonVisibleText') }}</p>
+        <p>{{ coachString('makeLessonVisibleText') }}</p>
         <p>{{ $tr('fileSizeToDownload', { size: lessonSize(activeLesson.id) }) }}</p>
         <KCheckbox
           :checked="dontShowAgainChecked"
@@ -94,13 +94,13 @@
 
       <KModal
         v-if="showLessonIsNotVisibleModal && !userHasDismissedModal"
-        :title="$tr('makeLessonNotVisibleTitle')"
+        :title="coachString('makeLessonNotVisibleTitle')"
         :submitText="coreString('continueAction')"
         :cancelText="coreString('cancelAction')"
         @submit="handleToggleVisibility(activeLesson)"
         @cancel="showLessonIsNotVisibleModal = false"
       >
-        <p>{{ $tr('makeLessonNotVisibleText') }}</p>
+        <p>{{ coachString('makeLessonNotVisibleText') }}</p>
         <p>{{ $tr('fileSizeToRemove', { size: lessonSize(activeLesson.id) }) }}</p>
         <KCheckbox
           :checked="dontShowAgainChecked"
@@ -317,35 +317,12 @@
         context:
           "'Size' is a column name in the 'Lessons' section. It refers to the number or learning resources there are in a specific lesson and the file size of these resources.",
       },
-      totalLessonsSize: {
-        message: 'Total size of lessons visible to learners: {size}',
-        context:
-          "Descriptive text at the top of the table that displays the calculated file size of all lessons' resources (i.e. 120 MB)",
-      },
       noLessons: {
         message: 'You do not have any lessons',
         context:
           "Text displayed in the 'Lessons' tab of the 'Plan' section if there are no lessons created",
       },
       noVisibleLessons: 'No visible lessons',
-      makeLessonVisibleTitle: {
-        message: 'Make lesson visible',
-        context: 'Informational prompt for coaches when updating lesson visibility to learners',
-      },
-      makeLessonVisibleText: {
-        message:
-          'Learners will be able to see this lesson and use its resources. Resource files in this lesson will be downloaded to learn-only devices that are set up to sync with this server.',
-        context: 'Informational prompt for coaches when updating lesson visibility to learners',
-      },
-      makeLessonNotVisibleTitle: {
-        message: 'Make lesson not visible',
-        context: 'Informational prompt for coaches when updating lesson visibility to learners',
-      },
-      makeLessonNotVisibleText: {
-        message:
-          'Learners will no longer be able to see this lesson. Resource files in this lesson will be removed from learn-only devices that are set up to sync with this server.',
-        context: 'Informational prompt for coaches when updating lesson visibility to learners',
-      },
       dontShowAgain: {
         message: "Don't show this message again",
         context: 'Option for a check box to not be prompted again with an informational modal',

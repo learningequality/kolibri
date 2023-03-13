@@ -13,7 +13,7 @@
             v-model="languageFilter"
             class="filter-lang"
             :options="languageFilterOptions"
-            :label="$tr('languageFilterLabel')"
+            :label="coreString('languageFilterLabel')"
             :inline="true"
           />
         </KGridItem>
@@ -63,13 +63,14 @@
   import uniqBy from 'lodash/uniqBy';
   import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'FilteredChannelListContainer',
     components: {
       FilterTextbox,
     },
-    mixins: [KResponsiveWindowMixin],
+    mixins: [KResponsiveWindowMixin, commonCoreStrings],
     props: {
       channels: {
         type: Array,
@@ -192,11 +193,6 @@
       },
     },
     $trs: {
-      languageFilterLabel: {
-        message: 'Language',
-        context:
-          'Refers to a filter option when exporting channels on a device. The user can either export channels in all languages or choose specific ones from a list.',
-      },
       titleFilterPlaceholder: {
         message: 'Search for a channel',
         context: 'Refers to text in the search field.',

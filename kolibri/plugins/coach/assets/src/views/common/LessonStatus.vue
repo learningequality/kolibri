@@ -71,13 +71,13 @@
     </KGrid>
     <KModal
       v-if="showLessonIsVisibleModal && !userHasDismissedModal"
-      :title="$tr('makeLessonVisibleTitle')"
+      :title="coachString('makeLessonVisibleTitle')"
       :submitText="coreString('continueAction')"
       :cancelText="coreString('cancelAction')"
       @submit="handleToggleVisibility(activeLesson)"
       @cancel="showLessonIsVisibleModal = false"
     >
-      <p>{{ $tr('makeLessonVisibleText') }}</p>
+      <p>{{ coachString('makeLessonVisibleText') }}</p>
       <p>{{ coachString('fileSizeToDownload', { size: lessonSize(activeLesson.id) }) }}</p>
       <KCheckbox
         :checked="dontShowAgainChecked"
@@ -88,13 +88,13 @@
 
     <KModal
       v-if="showLessonIsNotVisibleModal && !userHasDismissedModal"
-      :title="$tr('makeLessonNotVisibleTitle')"
+      :title="coachString('makeLessonNotVisibleTitle')"
       :submitText="coreString('continueAction')"
       :cancelText="coreString('cancelAction')"
       @submit="handleToggleVisibility(activeLesson)"
       @cancel="showLessonIsNotVisibleModal = false"
     >
-      <p>{{ $tr('makeLessonNotVisibleText') }}</p>
+      <p>{{ coachString('makeLessonNotVisibleText') }}</p>
       <p>{{ coachString('fileSizeToRemove', { size: lessonSize(activeLesson.id) }) }}</p>
       <KCheckbox
         :checked="dontShowAgainChecked"
@@ -225,26 +225,6 @@
           return size;
         }
         return '--';
-      },
-    },
-    $trs: {
-      makeLessonVisibleTitle: {
-        message: 'Make lesson visible',
-        context: 'Informational prompt for coaches when updating lesson visibility to learners',
-      },
-      makeLessonVisibleText: {
-        message:
-          'Learners will be able to see this lesson and use its resources. Resource files in this lesson will be downloaded to learn-only devices that are set up to sync with this server.',
-        context: 'Informational prompt for coaches when updating lesson visibility to learners',
-      },
-      makeLessonNotVisibleTitle: {
-        message: 'Make lesson not visible',
-        context: 'Informational prompt for coaches when updating lesson visibility to learners',
-      },
-      makeLessonNotVisibleText: {
-        message:
-          'Learners will no longer be able to see this lesson. Resource files in this lesson will be removed from learn-only devices that are set up to sync with this server.',
-        context: 'Informational prompt for coaches when updating lesson visibility to learners',
       },
     },
   };

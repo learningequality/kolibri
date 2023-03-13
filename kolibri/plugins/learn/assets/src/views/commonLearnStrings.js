@@ -36,10 +36,6 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
     message: 'Next steps',
     context: 'Label for links that go to post-requisites for content that has been completed.',
   },
-  multipleLearningActivitiesLabel: {
-    message: 'Multiple learning activities',
-    context: 'Label that indicates the user has selected learning activities of multiple types.',
-  },
   exploreResources: {
     message: 'Explore resources',
     context: "Heading in the 'Learn' section where users can view learning resources.\n",
@@ -90,14 +86,6 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
     context:
       'Indicates who holds the copyright of that specific learning resource. For example, "Copyright holder: Ubongo Media".',
   },
-  language: {
-    message: 'Language',
-    context: 'Users can filter learning resources by language (e.g. Spanish, German)',
-  },
-  level: {
-    message: 'Level',
-    context: 'Refers to the level of education to which the resource is directed at.',
-  },
   estimatedTime: {
     message: 'Estimated time',
     context: 'Refers to the expected time it will take the learner to complete a resource.',
@@ -118,10 +106,6 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
   viewResource: {
     message: 'View resource',
     context: 'Refers to a button where the user can view all the details for a resource.',
-  },
-  showMore: {
-    message: 'Show more',
-    context: '',
   },
   showLess: {
     message: 'Show less',

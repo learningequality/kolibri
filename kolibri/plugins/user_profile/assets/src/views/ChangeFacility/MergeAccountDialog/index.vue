@@ -40,7 +40,7 @@
       {{ $tr('doNotKnowPassword') }}
       <KButton
         data-test="useAdminAccount"
-        :text="$tr('useAdminAccount')"
+        :text="profileString('useAdminAccount')"
         appearance="basic-link"
         @click="useAdminAccount"
       />
@@ -211,10 +211,6 @@
         message: 'Don’t know the password?',
         context:
           'Giving an option if the user does not know the password for this user in the target facility',
-      },
-      useAdminAccount: {
-        message: 'Use an admin account',
-        context: 'Link to use an admin account for the target facility to do the merge',
       },
       incorrectPasswordError: {
         message: 'Incorrect password',

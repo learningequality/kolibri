@@ -120,7 +120,7 @@
     name: 'ContentPage',
     metaInfo() {
       return {
-        title: this.$tr('documentTitle', {
+        title: this.learnString('documentTitle', {
           contentTitle: this.content.title,
           channelTitle: this.content.ancestors[0].title,
         }),
@@ -330,12 +330,6 @@
         this.$nextTick(() => {
           this.$refs.completionModal.focusFirstEl();
         });
-      },
-    },
-    $trs: {
-      documentTitle: {
-        message: '{ contentTitle } - { channelTitle }',
-        context: 'DO NOT TRANSLATE\nCopy the source string.',
       },
     },
   };
