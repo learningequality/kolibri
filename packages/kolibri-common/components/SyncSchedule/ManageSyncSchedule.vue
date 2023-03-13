@@ -274,7 +274,7 @@
       },
       introduction: {
         message:
-          'Set a schedule for Kolibri to automatically try syncing with other Kolibri devices that share this facility. Devices must be connected to the same network at the scheduled sync time.',
+          'Set a schedule for Kolibri to automatically sync with other Kolibri devices sharing this facility. Devices with the same sync schedule will be synced one at a time.',
         context: 'Introduction on the manage sync schedule',
       },
       addDevice: {
