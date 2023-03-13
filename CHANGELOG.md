@@ -2,6 +2,16 @@
 
 List of the most important changes for each release.
 
+## 0.15.12
+
+### Added
+* Added localization support for Haitian Creole
+* Added annotation layer to PDF viewer
+
+### Changed
+* Updated PID file when the zipcontent server starts
+
+
 ## 0.15.11
 
 ### Fixed
