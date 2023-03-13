@@ -130,8 +130,8 @@
             ref="closeButton"
             class="close-button"
             icon="close"
-            :ariaLabel="coreString('close')"
-            :tooltip="coreString('close')"
+            :ariaLabel="coreString('closeAction')"
+            :tooltip="coreString('closeAction')"
             @click="$emit('close')"
           />
         </FocusTrap>

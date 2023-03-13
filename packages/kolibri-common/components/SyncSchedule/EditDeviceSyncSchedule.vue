@@ -71,7 +71,7 @@
 
           <p class="spacing">
             <KCheckbox>
-              {{ $tr('checkboxlabel') }}
+              {{ $tr('checkboxLabel') }}
             </KCheckbox>
           </p>
           <p>
@@ -319,7 +319,7 @@
         message: 'Server time:',
         context: 'Server time label',
       },
-      checkboxlabel: {
+      checkboxLabel: {
         message: 'If scheduled sync fails, keep trying',
         context: 'Label for checkbox',
       },

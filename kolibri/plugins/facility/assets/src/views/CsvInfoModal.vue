@@ -3,7 +3,7 @@
   <!-- eslint-disable max-len -->
   <KModal
     :title="$tr('csvDetails')"
-    :submitText="coreString('close')"
+    :submitText="coreString('closeAction')"
     size="large"
     @cancel="closeModal"
     @submit="closeModal"

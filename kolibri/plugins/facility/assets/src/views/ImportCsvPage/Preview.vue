@@ -147,7 +147,7 @@
       </UiAlert>
       <p>
         <KButton
-          :text="coreString('close')"
+          :text="coreString('closeAction')"
           appearance="raised-button"
           primary
           @click="$emit('done')"

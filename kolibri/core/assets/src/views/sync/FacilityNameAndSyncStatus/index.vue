@@ -60,7 +60,7 @@
 
   import { now } from 'kolibri.utils.serverClock';
   import taskStrings from 'kolibri.coreVue.mixins.commonTaskStrings';
-  import commonCoreStrings from '../../../mixins/commonCoreStrings';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'FacilityNameAndSyncStatus',
