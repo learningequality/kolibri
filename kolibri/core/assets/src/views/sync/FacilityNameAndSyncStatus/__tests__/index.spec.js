@@ -64,7 +64,7 @@ describe(`FacilityNameAndSyncStatus`, () => {
 
         it(`shows relative time of the last successful sync`, () => {
           expect(wrapper.html()).toContain(
-            `Last successful sync: ${wrapper.vm.$formatRelative('2022-04-21T16:00:00Z', {
+            `Last synced: ${wrapper.vm.$formatRelative('2022-04-21T16:00:00Z', {
               now: wrapper.vm.now,
             })}`
           );
@@ -91,7 +91,7 @@ describe(`FacilityNameAndSyncStatus`, () => {
 
         it(`shows relative time of the last successful sync`, () => {
           expect(wrapper.html()).toContain(
-            `Last successful sync: ${wrapper.vm.$formatRelative('2022-06-25T13:00:00Z', {
+            `Last synced: ${wrapper.vm.$formatRelative('2022-06-25T13:00:00Z', {
               now: wrapper.vm.now,
             })}`
           );
@@ -119,7 +119,7 @@ describe(`FacilityNameAndSyncStatus`, () => {
 
         it(`shows relative time of the last successful sync`, () => {
           expect(wrapper.html()).toContain(
-            `Last successful sync: ${wrapper.vm.$formatRelative('2022-06-25T13:00:00Z', {
+            `Last synced: ${wrapper.vm.$formatRelative('2022-06-25T13:00:00Z', {
               now: wrapper.vm.now,
             })}`
           );
