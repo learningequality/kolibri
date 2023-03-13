@@ -1,3 +1,5 @@
+import tempfile
+from collections import namedtuple
 from collections import OrderedDict
 
 from django.core.management import call_command
@@ -1134,3 +1136,130 @@ class FacilityTaskHelperTestCase(TestCase):
 
         with self.assertRaises(AuthenticationFailed):
             validate_and_create_sync_credentials(*validate_peer_sync_job(req))
+
+
+@patch("kolibri.core.tasks.api.queue")
+class ImportTaskAPITestCase(BaseAPITestCase):
+    def test_startremotecontentimport(self, queue):
+        user = self.superuser
+
+        channel_id = "c4ca4238a0b923820dcc509a6f75849b"
+        node_ids = [
+            "c81e728d9d4c2f636f067f89cc14862c",
+            "eccbc87e4b5ce2fe28308fd9f2a7baf3",
+        ]
+        exclude_node_ids = ["a87ff679a2f3e71d9181a67b7542122c"]
+        request_data = dict(
+            channel_id=channel_id,
+            node_ids=node_ids,
+            exclude_node_ids=exclude_node_ids,
+            fail_on_error=True,
+        )
+        extra_metadata = dict(
+            channel_name="",
+            baseurl="https://studio.learningequality.org",
+            peer_id=None,
+            started_by=user.pk,
+            started_by_username=user.username,
+            type="REMOTECONTENTIMPORT",
+        )
+        extra_metadata.update(request_data)
+        job_extra_metadata = dict(this_is_extra=True)
+        job_extra_metadata.update(extra_metadata)
+
+        queue.enqueue.return_value = 123
+        fake_job_data = dict(
+            job_id=123,
+            state="testing",
+            percentage_progress=42,
+            cancellable=False,
+            extra_metadata=job_extra_metadata,
+        )
+        queue.fetch_job.return_value = fake_job(**fake_job_data)
+
+        response = self.client.post(
+            reverse("kolibri:core:task-startremotecontentimport"),
+            request_data,
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+
+        queue.enqueue.assert_called_with(
+            call_command,
+            "importcontent",
+            "network",
+            channel_id,
+            node_ids=node_ids,
+            exclude_node_ids=exclude_node_ids,
+            fail_on_error=True,
+            baseurl="https://studio.learningequality.org",
+            peer_id=None,
+            extra_metadata=extra_metadata,
+            track_progress=True,
+            cancellable=True,
+        )
+
+    @patch("kolibri.core.tasks.api.get_mounted_drive_by_id")
+    def test_startdiskcontentimport(self, drive_mock, queue):
+        user = self.superuser
+
+        mock_drive_id = "123"
+        mock_home_dir = tempfile.mkdtemp()
+        DriveData = namedtuple("DriveData", ["id", "datafolder"])
+        drive_mock.return_value = DriveData(id=mock_drive_id, datafolder=mock_home_dir)
+
+        channel_id = "c4ca4238a0b923820dcc509a6f75849b"
+        node_ids = [
+            "c81e728d9d4c2f636f067f89cc14862c",
+            "eccbc87e4b5ce2fe28308fd9f2a7baf3",
+        ]
+        exclude_node_ids = ["a87ff679a2f3e71d9181a67b7542122c"]
+        request_data = dict(
+            channel_id=channel_id,
+            drive_id=mock_drive_id,
+            node_ids=node_ids,
+            exclude_node_ids=exclude_node_ids,
+            fail_on_error=True,
+        )
+        extra_metadata = dict(
+            channel_name="",
+            datafolder=mock_home_dir,
+            started_by=user.pk,
+            started_by_username=user.username,
+            type="DISKCONTENTIMPORT",
+        )
+        extra_metadata.update(request_data)
+        job_extra_metadata = dict(this_is_extra=True)
+        job_extra_metadata.update(extra_metadata)
+
+        queue.enqueue.return_value = 123
+        fake_job_data = dict(
+            job_id=123,
+            state="testing",
+            percentage_progress=42,
+            cancellable=False,
+            extra_metadata=job_extra_metadata,
+        )
+        queue.fetch_job.return_value = fake_job(**fake_job_data)
+
+        response = self.client.post(
+            reverse("kolibri:core:task-startdiskcontentimport"),
+            request_data,
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+
+        queue.enqueue.assert_called_with(
+            call_command,
+            "importcontent",
+            "disk",
+            channel_id,
+            mock_home_dir,
+            drive_id=mock_drive_id,
+            node_ids=node_ids,
+            exclude_node_ids=exclude_node_ids,
+            fail_on_error=True,
+            extra_metadata=extra_metadata,
+            track_progress=True,
+            cancellable=True,
+        )

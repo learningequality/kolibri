@@ -146,6 +146,13 @@ def validate_remote_import_task(request, task_description):
     return import_task
 
 
+def validate_remote_content_import_task(request, task_description):
+    import_task = validate_remote_import_task(request, task_description)
+    fail_on_error = task_description.get("fail_on_error", False)
+    import_task.update({"fail_on_error": fail_on_error})
+    return import_task
+
+
 def _add_drive_info(import_task, task_description):
     try:
         drive_id = task_description["drive_id"]
@@ -167,6 +174,13 @@ def _add_drive_info(import_task, task_description):
 def validate_local_import_task(request, task_description):
     task = validate_content_task(request, task_description)
     task = _add_drive_info(task, task_description)
+    return task
+
+
+def validate_local_content_import_task(request, task_description):
+    task = validate_local_import_task(request, task_description)
+    fail_on_error = task_description.get("fail_on_error", False)
+    task.update({"fail_on_error": fail_on_error})
     return task
 
 
@@ -505,7 +519,7 @@ class TasksViewSet(BaseViewSet):
     @decorators.action(methods=["post"], detail=False)
     def startremotecontentimport(self, request):
 
-        task = validate_remote_import_task(request, request.data)
+        task = validate_remote_content_import_task(request, request.data)
         task.update({"type": "REMOTECONTENTIMPORT"})
 
         job_id = queue.enqueue(
@@ -517,6 +531,7 @@ class TasksViewSet(BaseViewSet):
             peer_id=task["peer_id"],
             node_ids=task["node_ids"],
             exclude_node_ids=task["exclude_node_ids"],
+            fail_on_error=task["fail_on_error"],
             extra_metadata=task,
             track_progress=True,
             cancellable=True,
@@ -576,7 +591,7 @@ class TasksViewSet(BaseViewSet):
 
     @decorators.action(methods=["post"], detail=False)
     def startdiskcontentimport(self, request):
-        task = validate_local_import_task(request, request.data)
+        task = validate_local_content_import_task(request, request.data)
 
         task.update({"type": "DISKCONTENTIMPORT"})
 
@@ -589,6 +604,7 @@ class TasksViewSet(BaseViewSet):
             drive_id=task["drive_id"],
             node_ids=task["node_ids"],
             exclude_node_ids=task["exclude_node_ids"],
+            fail_on_error=task["fail_on_error"],
             extra_metadata=task,
             track_progress=True,
             cancellable=True,
