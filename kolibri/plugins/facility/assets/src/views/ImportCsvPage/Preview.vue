@@ -147,7 +147,7 @@
       </UiAlert>
       <p>
         <KButton
-          :text="$tr('close')"
+          :text="coreString('close')"
           appearance="raised-button"
           primary
           @click="$emit('done')"
@@ -182,6 +182,7 @@
 
   import { mapState, mapActions } from 'vuex';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { CSVImportStatuses } from '../../constants';
 
   export default {
@@ -189,6 +190,7 @@
     components: {
       UiAlert,
     },
+    mixins: [commonCoreStrings],
     computed: {
       isError() {
         return this.status === CSVImportStatuses.ERRORS;
@@ -293,10 +295,6 @@
       error: {
         message: 'Error',
         context: 'Title of error message in the CSV file.',
-      },
-      close: {
-        message: 'Close',
-        context: 'Generic button used to close an open window.',
       },
       back: {
         message: 'Back',

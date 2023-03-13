@@ -64,23 +64,9 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
     context:
       'Title of the modal window where a user will confirm or cancel marking a resource as complete manually.',
   },
-  resourceHidden: {
-    message: 'Resource hidden',
-    context:
-      'Notification message indicating the resource has been marked as hidden for future category searches.',
-  },
-  suggestedTimeToComplete: {
-    message: 'Suggested time to complete',
-    context: 'Tooltip label indicating the approximate time needed to complete the resource.',
-  },
   multipleLearningActivities: {
     message: 'Multiple learning activities',
     context: 'Label indicating the resource contains several different learning activities.',
-  },
-
-  suggestedTime: {
-    message: 'Suggested time',
-    context: 'Time suggested by coach for how long an independent practice quiz should take',
   },
 
   // Resource Metadata strings

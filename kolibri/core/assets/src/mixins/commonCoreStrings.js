@@ -1316,6 +1316,14 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Time spent',
     context: 'The time a learner has spent on a quiz.',
   },
+  suggestedTimeToComplete: {
+    message: 'Suggested time to complete',
+    context: 'Tooltip label indicating the approximate time needed to complete the resource.',
+  },
+  suggestedTime: {
+    message: 'Suggested time',
+    context: 'Time suggested by coach for how long an independent practice quiz should take',
+  },
   statusLabel: {
     message: 'Status',
     context:

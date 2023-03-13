@@ -2,7 +2,7 @@
 
   <div class="time-context">
     <div v-if="seconds > 0">
-      {{ $tr('suggestedTimeLabel') }}
+      {{ coreString('suggestedTimeToComplete') }}
       <TimeDuration :seconds="seconds" />
     </div>
     <div v-if="seconds > 0">
@@ -18,22 +18,17 @@
 <script>
 
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'SuggestedTime',
     components: { TimeDuration },
+    mixins: [commonCoreStrings],
     props: {
       /* Time in ms */
       seconds: {
         type: Number,
         default: 8100,
-      },
-    },
-    $trs: {
-      suggestedTimeLabel: {
-        message: 'Suggested time to complete',
-        context:
-          'A label preceding a number of minutes that the current resource is estimated to take to complete',
       },
     },
   };
