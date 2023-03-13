@@ -99,7 +99,7 @@
         </template>
         <KRouterLink
           v-else
-          :text="learnString('libraryLabel')"
+          :text="coreString('libraryLabel')"
           :to="{ name: 'LIBRARY' }"
           appearance="basic-link"
         />

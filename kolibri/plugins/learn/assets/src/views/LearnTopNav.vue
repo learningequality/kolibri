@@ -43,7 +43,7 @@
           },
           {
             isHidden: !this.canAccessUnassignedContent,
-            title: this.learnString('libraryLabel'),
+            title: this.coreString('libraryLabel'),
             link: this.$router.getRoute(PageNames.LIBRARY),
             icon: 'library',
             color: this.$themeTokens.textInverted,

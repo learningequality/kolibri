@@ -4,7 +4,7 @@
     <span ref="icon">
       <UiIcon
         v-if="isInProgress"
-        :ariaLabel="$tr('inProgress')"
+        :ariaLabel="coreString('inProgressLabel')"
       >
         <KIcon
           icon="schedule"
@@ -29,7 +29,7 @@
       reference="icon"
       :refs="$refs"
     >
-      {{ isInProgress ? $tr('inProgress') : coreString('completedLabel') }}
+      {{ isInProgress ? coreString('inProgressLabel') : coreString('completedLabel') }}
     </KTooltip>
   </span>
 
@@ -71,13 +71,6 @@
           backgroundColor: bgColor,
           color: this.$themeTokens.textInverted,
         };
-      },
-    },
-    $trs: {
-      inProgress: {
-        message: 'In progress',
-        context:
-          "When a learner starts an exercise, viewing a video, or reading a document, this will be marked with the 'In progress' icon.\n\nThe text 'In progress' appears if the user moves their mouse over the icon.",
       },
     },
   };

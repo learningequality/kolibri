@@ -7,11 +7,6 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
     context:
       "Each time a learner signs in to Kolibri, the first thing they see is the  'Learn' page with the list of all the classes they are enrolled to.",
   },
-  libraryLabel: {
-    message: 'Library',
-    context:
-      "The 'Library' section displays channels available on Kolibri server, and allows learners to browse, explore and filter topics and resources on their own.",
-  },
   resumeLabel: {
     message: 'Resume',
     context: 'Label for links that go to content that has been started and can be resumed',

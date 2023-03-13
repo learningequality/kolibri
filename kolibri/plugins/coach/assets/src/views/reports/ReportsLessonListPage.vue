@@ -156,7 +156,7 @@
           return this.$tr('noVisibleLessons');
         }
         if (this.filter.value === 'lessonsNotVisible') {
-          return this.$tr('noLessonsNotVisble');
+          return this.$tr('lessonsNotVisible');
         }
 
         return '';
@@ -291,7 +291,6 @@
       visibleLessons: 'Visile lessons',
       lessonsNotVisible: 'Lessons not visible',
       noVisibleLessons: 'No visible lessons',
-      noLessonsNotVisble: 'No lessons not visible',
       printLabel: {
         message: '{className} Lessons',
         context:

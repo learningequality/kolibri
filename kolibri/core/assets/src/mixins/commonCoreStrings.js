@@ -403,6 +403,16 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Question { questionNumber, number }',
     context: 'Indicates the question number in a quiz that a learner could be taking.',
   },
+  questionsCorrectLabel: {
+    message: 'Questions answered correctly',
+    context:
+      "In a report, learners can see how many questions they have got correct in a quiz.\n\nThe 'Questions answered correctly' label will indicate something like 4 out of 5, or 8 out of 10, for example.",
+  },
+  questionsCorrectValue: {
+    message: '{correct, number} out of {total, number}',
+    context:
+      "When a learner views their report they can see how many questions they answered correctly in a quiz.\n\nThe 'Questions correct' label will indicate something like 4 out of 5, or 8 out of 10, for example. That's to say, the number of correct answers as well as the total number of questions.",
+  },
   quizzesLabel: {
     message: 'Quizzes',
     context:
@@ -477,11 +487,6 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Users',
     context:
       'A user is any person who has access to a facility in Kolibri. There are  four main types of users in Kolibri: Learners, Coaches, Admins and Super admins.',
-  },
-  superUserLabel: {
-    message: 'Super admin',
-    context:
-      'An account type that can manage the device. Super admin accounts also have permission to do everything that admins, coaches, and learners can do.',
   },
   uncountedAdditionalResults: {
     message: 'More than { num, number } results',
@@ -960,11 +965,6 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Browse channel',
     context: 'Heading on page where a user can browse the content within a channel',
   },
-  topicLabel: {
-    message: 'Folder',
-    context:
-      'A collection of resources and other subfolders within a channel. Nested folders allow a channel to be organized as a tree or hierarchy.',
-  },
   readReference: {
     message: 'Reference',
     context:
@@ -1355,7 +1355,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context: 'Error message indicating a user has not added their PIN to the form field',
   },
 
-  // preferred learning language
+  // preferred learning language and UI language
   preferredLanguage: {
     message: 'Preferred language',
     context:
@@ -1370,6 +1370,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Channels in the preferred language will be displayed first',
     context:
       'Explanatory text for the setting where a user can select the language that they would like to learn in',
+  },
+  changeLanguageOption: {
+    message: 'Change language',
+    context: "Option to change the Kolibri interface language on the  'Change language' screen.",
   },
   // getting started, pre-and-post-setup-wizard misc.
 

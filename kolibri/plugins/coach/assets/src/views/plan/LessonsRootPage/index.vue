@@ -75,10 +75,6 @@
       <p v-else-if="!hasVisibleLessons">
         {{ $tr('noVisibleLessons') }}
       </p>
-      <p v-else-if="!hasLessonsNotVisible">
-        {{ $tr('noLessonsNotVisible') }}
-      </p>
-
       <KModal
         v-if="showLessonIsVisibleModal && !userHasDismissedModal"
         :title="$tr('makeLessonVisibleTitle')"
@@ -212,11 +208,6 @@
           !this.activeLessonCounts.true && this.filterSelection.value === 'filterLessonVisible'
         );
       },
-      hasLessonsNotVisible() {
-        return !(
-          !this.activeLessonCounts.false && this.filterSelection.value === 'filterLessonNotVisible'
-        );
-      },
       calcTotalSizeOfVisibleLessons() {
         if (this.lessons && this.lessonsSizes && this.lessonsSizes[0]) {
           let sum = 0;
@@ -337,7 +328,6 @@
           "Text displayed in the 'Lessons' tab of the 'Plan' section if there are no lessons created",
       },
       noVisibleLessons: 'No visible lessons',
-      noLessonsNotVisible: 'No lessons not visible',
       makeLessonVisibleTitle: {
         message: 'Make lesson visible',
         context: 'Informational prompt for coaches when updating lesson visibility to learners',
