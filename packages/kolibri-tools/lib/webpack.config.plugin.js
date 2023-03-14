@@ -100,7 +100,7 @@ module.exports = (
   } else {
     externals = { kolibri: kolibriName };
   }
-  console.log('data.static_dir, data.name', data.static_dir, data.name);
+
   let bundle = {
     externals,
     name: data.name,
