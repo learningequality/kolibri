@@ -151,6 +151,7 @@
   import urls from 'kolibri.urls';
   import AppError from 'kolibri-common/components/AppError';
   import GlobalSnackbar from 'kolibri-common/components/GlobalSnackbar';
+  import { PageNames } from '../constants';
   import SkipNavigationLink from '../../../../../../kolibri/core/assets/src/views/SkipNavigationLink';
   import useContentLink from '../composables/useContentLink';
   import useCoreLearn from '../composables/useCoreLearn';
@@ -204,7 +205,7 @@
         contentNodeProgressMap,
       } = useContentNodeProgress();
       const { fetchLesson } = useLearnerResources();
-      const { back } = useContentLink();
+      const { back, genExternalBackURL } = useContentLink();
       const { baseurl } = useDevices();
       return {
         baseurl,
@@ -214,6 +215,7 @@
         fetchContentNodeTreeProgress,
         fetchLesson,
         back,
+        genExternalBackURL,
       };
     },
     props: {
@@ -432,8 +434,11 @@
         });
       },
       navigateBack() {
-        window.location.replace('/en/learn/my-downloads');
-        // this.$router.push(this.back);
+        if (PageNames[this.back.name]) {
+          this.$router.push(this.back);
+        } else {
+          window.location.replace(this.genExternalBackURL());
+        }
       },
       openSidePanel() {
         this.sidePanelContent = this.content;

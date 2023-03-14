@@ -32,12 +32,11 @@ const downloadRequestMap = reactive({
 export default function useDownloadRequests(store) {
   store = store || getCurrentInstance().proxy.$store;
   function fetchUserDownloadRequests(params) {
-    console.log('Executing fetchUserDownloadRequests', params);
     const { page, pageSize } = params;
     const loading = ref(true);
     const dummyDownloadRequests = [
       {
-        id: '2ea9bda8703241be89b5b9fd87f88113',
+        id: '2ea9bda8703241be89b5b9fd87f88815',
         user_id: store.getters.currentUserId,
         reason: 'USER_INITIATED',
         facility_id: store.getters.currentFacilityId,
@@ -51,18 +50,18 @@ export default function useDownloadRequests(store) {
         node_id: '2ea9bda8703241be89b5b9fd87f88815',
       },
       {
-        id: '2ea9bda8703241be89b5b9fd87f88111',
+        id: '9e53d545aaf44c3787a29a34b189c56a',
         user_id: store.getters.currentUserId,
         reason: 'USER_INITIATED',
         facility_id: store.getters.currentFacilityId,
         status: 'QUEUED',
         date_added: new Date(),
         resource_metadata: {
-          title: 'Intro to addition 2',
-          file_size: 1113580,
-          learning_activities: ['UD5UGM0z'],
+          title: 'PDF 1 page',
+          file_size: 3113580,
+          learning_activities: ['wA01urpi'],
         },
-        node_id: '2ea9bda8703241be89b5b9fd87f88817',
+        node_id: '9e53d545aaf44c3787a29a34b189c56a',
       },
     ];
     setTimeout(() => {
@@ -90,7 +89,6 @@ export default function useDownloadRequests(store) {
   }
 
   function fetchDownloadsStorageInfo() {
-    console.log('Executing fetchDownloadsStorageInfo');
     const loading = ref(true);
     const storageInfo = ref(null);
     const dummyStorageInfo = {
@@ -137,7 +135,16 @@ export default function useDownloadRequests(store) {
 
   function removeDownloadRequest(content) {
     console.log(`requested removal of ${content.id}`);
-    Vue.delete(downloadRequestMap, content.id);
+    Vue.delete(downloadRequestMap.downloads, content.id);
+    return Promise.resolve();
+  }
+
+  function removeDownloadsRequest(contentList) {
+    console.log(`requested removal of ${contentList.length} items`);
+    contentList.forEach(content => {
+      Vue.delete(downloadRequestMap.downloads, content.id);
+    });
+    console.log('downloadRequestMap', downloadRequestMap);
     return Promise.resolve();
   }
 
@@ -147,5 +154,6 @@ export default function useDownloadRequests(store) {
     downloadRequestMap,
     addDownloadRequest,
     removeDownloadRequest,
+    removeDownloadsRequest,
   };
 }
